@@ -22,70 +22,58 @@ import io.datarouter.bytes.binarydto.codec.BinaryDtoCodec;
 import io.datarouter.bytes.binarydto.dto.BinaryDto;
 import io.datarouter.bytes.binarydto.dto.BinaryDtoField;
 
-public class BinaryDtoNullabilityTests{
+public class BinaryDtoEncodePrefixTests{
 
 	public static class TestDto extends BinaryDto<TestDto>{
+
 		public final int f1;
-		@BinaryDtoField(nullable = true)
-		public final int f2;
-		public final Integer f3;
+		@BinaryDtoField(nullable = false)
+		public final String f2;
+		@BinaryDtoField(nullable = false)//can be null in the prefix
+		public final String f3;
 		@BinaryDtoField(nullable = false)
 		public final Integer f4;
-		public final Integer[] f5;
-		@BinaryDtoField(nullable = false, nullableItems = false)
-		public final Integer[] f6;
 
-		public TestDto(int f1, int f2, Integer f3, Integer f4, Integer[] f5, Integer[] f6){
+		public TestDto(int f1, String f2, String f3, Integer f4){
 			this.f1 = f1;
 			this.f2 = f2;
 			this.f3 = f3;
 			this.f4 = f4;
-			this.f5 = f5;
-			this.f6 = f6;
 		}
+
+		public static TestDto prefix2(int s1, String s2){
+			return new TestDto(s1, s2, null, null);
+		}
+
 	}
 
 	@Test
-	public void testEncoding(){
+	public void testEncodeFull(){
 		var codec = BinaryDtoCodec.of(TestDto.class);
-		var dto = new TestDto(1, 2, 3, 4, new Integer[]{5, 6}, new Integer[]{7, 8});
+		var dto = new TestDto(1, "a", "b", 2);
 		byte[] expectedBytes = {
-				//f1
-				Byte.MIN_VALUE, 0, 0, 1,//value
-				//f2
-				Byte.MIN_VALUE, 0, 0, 2,//value
-				//f3
-				1,//present
-				Byte.MIN_VALUE, 0, 0, 3,//value
-				//f4
-				//no nullable byte
-				Byte.MIN_VALUE, 0, 0, 4,//value
-				//f5
-				1,//present
-				2,//length
-				1,//present
-				Byte.MIN_VALUE, 0, 0, 5,//item0
-				1,//present
-				Byte.MIN_VALUE, 0, 0, 6,//item1
-				//f6
-				//no nullable byte
-				2,//f6 length
-				//no nullable byte
-				Byte.MIN_VALUE, 0, 0, 7,//item0
-				//no nullable byte
-				Byte.MIN_VALUE, 0, 0, 8};//item1
+				Byte.MIN_VALUE, 0, 0, 1,
+				'a', 0,//present, value, terminator
+				'b', 0,//present, value, terminator
+				Byte.MIN_VALUE, 0, 0, 2};//present, value, terminator
 		byte[] actualBytes = codec.encode(dto);
 		Assert.assertEquals(actualBytes, expectedBytes);
-
-		TestDto actual = codec.decode(actualBytes);
-		Assert.assertEquals(actual, dto);
+		TestDto actualDto = codec.decode(actualBytes);
+		Assert.assertEquals(actualDto, dto);
 	}
 
-	@Test(expectedExceptions = { IllegalArgumentException.class })
-	public void testRejectNullAndExceptionType(){
+	@Test
+	public void testEncodePrefix(){
 		var codec = BinaryDtoCodec.of(TestDto.class);
-		var dto = new TestDto(1, 2, 3, null, null, null);
-		codec.encode(dto);
+		var dto = TestDto.prefix2(1, "a");
+		int numPrefixFields = 2;
+		byte[] expectedBytes = {
+				Byte.MIN_VALUE, 0, 0, 1,
+				'a', 0};//present, value, terminator
+		byte[] actualBytes = codec.encodePrefix(dto, numPrefixFields);
+		Assert.assertEquals(actualBytes, expectedBytes);
+		TestDto actualDto = codec.decodePrefix(actualBytes, numPrefixFields);
+		Assert.assertEquals(actualDto, dto);
 	}
 
 }

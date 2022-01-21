@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import io.datarouter.bytes.binarydto.dto.BaseBinaryDto;
+import io.datarouter.bytes.binarydto.dto.BinaryDto;
 import io.datarouter.bytes.binarydto.fieldcodec.BinaryDtoBaseFieldCodec;
 import io.datarouter.bytes.binarydto.fieldcodec.array.BooleanArrayBinaryDtoFieldCodec;
 import io.datarouter.bytes.binarydto.fieldcodec.array.ByteArrayBinaryDtoFieldCodec;
@@ -85,7 +85,7 @@ public class BinaryDtoFieldCodecs{
 	}
 
 	public static BinaryDtoBaseFieldCodec<?> getCodecForField(Field field){
-		BinaryDtoFieldMetadataParser fieldMetadataParser = new BinaryDtoFieldMetadataParser(field);
+		var fieldMetadataParser = new BinaryDtoFieldMetadataParser(field);
 		Optional<BinaryDtoBaseFieldCodec<?>> optCustomCodec = fieldMetadataParser.optCodec();
 		if(optCustomCodec.isPresent()){
 			if(fieldMetadataParser.isObjectArray()){
@@ -123,7 +123,7 @@ public class BinaryDtoFieldCodecs{
 	}
 
 	private static BinaryDtoBaseFieldCodec<?> getLeafCodec(Class<?> clazz){
-		return BaseBinaryDto.class.isAssignableFrom(clazz)
+		return BinaryDto.class.isAssignableFrom(clazz)
 				? new NestedBinaryDtoFieldCodec(clazz)
 				: LEAF_CODEC_BY_CLASS.get(clazz);
 	}

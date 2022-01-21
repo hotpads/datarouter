@@ -25,24 +25,24 @@ import java.util.RandomAccess;
 //Implement RandomAccess for proper treatment by some JDK utils
 public class LongArray implements List<Long>, RandomAccess{
 
-	public static final int DEFAULT_initialCapacity = 2;
-	public static final long NULL = Long.MIN_VALUE;// compares before all other longs
+	private static final int DEFAULT_INITIAL_CAPACITY = 2;
+	private static final long NULL = Long.MIN_VALUE;// compares before all other longs
 
 	private long[] array;
 	private int size;
 
 	public LongArray(){
-		this(DEFAULT_initialCapacity);
+		this(DEFAULT_INITIAL_CAPACITY);
 	}
 
 	public LongArray(int initialCapacity){
-		this.array = new long[initialCapacity];
-		this.size = 0;
+		array = new long[initialCapacity];
+		size = 0;
 	}
 
 	public LongArray(long[] toWrap){
 		this.array = toWrap;
-		this.size = array.length;
+		size = array.length;
 	}
 
 	public LongArray(Collection<Long> elements){
@@ -51,22 +51,22 @@ public class LongArray implements List<Long>, RandomAccess{
 	}
 
 	private void expandAndShiftIfNecessary(int insertIndex, int delta){
-		int neededSize = this.size + delta;
-		if(neededSize > this.array.length){
+		int neededSize = size + delta;
+		if(neededSize > array.length){
 			int newSize = Integer.highestOneBit(neededSize) << 1;
-			long[] newArray = new long[newSize];
-			System.arraycopy(this.array, 0, newArray, 0, this.size);
+			var newArray = new long[newSize];
+			System.arraycopy(array, 0, newArray, 0, size);
 			this.array = newArray;
 		}
-		System.arraycopy(this.array, insertIndex, this.array, insertIndex + delta, size - insertIndex);
+		System.arraycopy(array, insertIndex, array, insertIndex + delta, size - insertIndex);
 	}
 
 	protected void shrinkIfNecessary(){
 		// when shrinking, the size has already been adjusted
-		if(this.size < this.array.length / 4){
-			int newSize = Integer.highestOneBit(this.size) << 2;
-			long[] newArray = new long[newSize];
-			System.arraycopy(this.array, 0, newArray, 0, this.size);
+		if(size < array.length / 4){
+			int newSize = Integer.highestOneBit(size) << 2;
+			var newArray = new long[newSize];
+			System.arraycopy(array, 0, newArray, 0, size);
 			this.array = newArray;
 		}
 	}
@@ -74,24 +74,24 @@ public class LongArray implements List<Long>, RandomAccess{
 	@Override
 	public void add(int index, Long value){
 		expandAndShiftIfNecessary(index, 1);
-		this.array[index] = value == null ? NULL : value;
-		++this.size;
+		array[index] = value == null ? NULL : value;
+		++size;
 	}
 
 	public void add(int index, long value){
 		expandAndShiftIfNecessary(index, 1);
-		this.array[index] = value;
-		++this.size;
+		array[index] = value;
+		++size;
 	}
 
 	@Override
 	public boolean add(Long value){
-		this.add(this.size, value);
+		add(size, value);
 		return true;// collections return true if they were modified
 	}
 
 	public boolean add(long value){
-		this.add(this.size, value);
+		add(size, value);
 		return true;
 	}
 
@@ -109,17 +109,17 @@ public class LongArray implements List<Long>, RandomAccess{
 		expandAndShiftIfNecessary(firstIndex, delta);
 		int nextIndex = firstIndex;
 		for(Long value : values){
-			this.array[nextIndex] = value == null ? NULL : value;
+			array[nextIndex] = value == null ? NULL : value;
 			++nextIndex;
 		}
-		this.size += delta;
+		size += delta;
 		return true;
 	}
 
 	@Override
 	public void clear(){
-		this.array = new long[1];
-		this.size = 0;
+		array = new long[1];
+		size = 0;
 	}
 
 	@Override
@@ -133,8 +133,8 @@ public class LongArray implements List<Long>, RandomAccess{
 		}else{
 			value = (Long)obj;
 		}
-		for(int i = 0; i < this.size; ++i){
-			if(this.array[i] == value){
+		for(int i = 0; i < size; ++i){
+			if(array[i] == value){
 				return true;
 			}
 		}
@@ -162,14 +162,14 @@ public class LongArray implements List<Long>, RandomAccess{
 		if(index > size){
 			throw new ArrayIndexOutOfBoundsException(index);
 		}
-		return this.array[index] == NULL ? null : this.array[index];
+		return array[index] == NULL ? null : array[index];
 	}
 
 	public long getPrimitive(int index){
 		if(index > size){
 			throw new ArrayIndexOutOfBoundsException(index);
 		}
-		return this.array[index];
+		return array[index];
 	}
 
 	@Override
@@ -183,8 +183,8 @@ public class LongArray implements List<Long>, RandomAccess{
 		}else{
 			value = (Long)obj;
 		}
-		for(int i = 0; i < this.size; ++i){
-			if(this.array[i] == value){
+		for(int i = 0; i < size; ++i){
+			if(array[i] == value){
 				return i;
 			}
 		}
@@ -193,7 +193,7 @@ public class LongArray implements List<Long>, RandomAccess{
 
 	@Override
 	public boolean isEmpty(){
-		return this.size == 0;
+		return size == 0;
 	}
 
 	@Override
@@ -212,8 +212,8 @@ public class LongArray implements List<Long>, RandomAccess{
 		}else{
 			value = (Long)obj;
 		}
-		for(int i = this.size - 1; i >= 0; --i){
-			if(this.array[i] == value){
+		for(int i = size - 1; i >= 0; --i){
+			if(array[i] == value){
 				return i;
 			}
 		}
@@ -232,15 +232,15 @@ public class LongArray implements List<Long>, RandomAccess{
 
 	@Override
 	public Long remove(int index){
-		if(index >= this.size){
+		if(index >= size){
 			throw new IllegalArgumentException("out of range");
 		}
-		long value = this.array[index];
+		long value = array[index];
 		if(index < size - 1){
-			System.arraycopy(this.array, index + 1, this.array, index, this.size - index - 1);
+			System.arraycopy(array, index + 1, array, index, size - index - 1);
 		}// otherwise we can just decrement the size
-		--this.size;
-		this.shrinkIfNecessary();
+		--size;
+		shrinkIfNecessary();
 		return value;
 	}
 
@@ -255,9 +255,9 @@ public class LongArray implements List<Long>, RandomAccess{
 		}else{
 			value = (Long)obj;
 		}
-		for(int i = 0; i < this.size; ++i){
-			if(this.array[i] == value){
-				this.remove(i);
+		for(int i = 0; i < size; ++i){
+			if(array[i] == value){
+				remove(i);
 				return true;
 			}
 		}
@@ -269,7 +269,7 @@ public class LongArray implements List<Long>, RandomAccess{
 		// TODO could flag them all and copy/resize at once
 		boolean modified = false;
 		for(Object obj : objects){
-			if(this.remove(obj)){
+			if(remove(obj)){
 				modified = true;
 			}
 		}
@@ -279,9 +279,9 @@ public class LongArray implements List<Long>, RandomAccess{
 	@Override
 	public boolean retainAll(Collection<?> objects){
 		boolean modified = false;
-		for(int i = 0; i < this.size; ++i){
-			if(!objects.contains(this.array[i] == NULL ? null : this.array[i])){
-				this.remove(i);
+		for(int i = 0; i < size; ++i){
+			if(!objects.contains(array[i] == NULL ? null : array[i])){
+				remove(i);
 				--i;// need to check the same index again because we shifted left
 				modified = true;
 			}
@@ -292,9 +292,9 @@ public class LongArray implements List<Long>, RandomAccess{
 	@Override
 	public Long set(int index, Long value){
 		if(index < 0 || index >= size){
-			throw new IllegalArgumentException(index + " " + this.size);
+			throw new IllegalArgumentException(index + " " + size);
 		}
-		this.array[index] = value == null ? NULL : value;
+		array[index] = value == null ? NULL : value;
 		return value;
 	}
 
@@ -306,22 +306,22 @@ public class LongArray implements List<Long>, RandomAccess{
 	@Override
 	public List<Long> subList(int fromIndex, int toIndex){
 		int newSize = toIndex - fromIndex;
-		LongArray result = new LongArray(newSize);
-		System.arraycopy(this.array, fromIndex, result.array, 0, newSize);
+		var result = new LongArray(newSize);
+		System.arraycopy(array, fromIndex, result.array, 0, newSize);
 		return result;
 	}
 
 	@Override
 	public Object[] toArray(){
-		Long[] wrapperArray = new Long[this.size];
+		var wrapperArray = new Long[size];
 		return toArray(wrapperArray);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T> T[] toArray(T[] wrapperArray){
-		for(int i = 0; i < this.size; ++i){
-			wrapperArray[i] = (T)(this.array[i] == NULL ? null : this.array[i]);
+		for(int i = 0; i < size; ++i){
+			wrapperArray[i] = (T)(array[i] == NULL ? null : array[i]);
 		}
 		return wrapperArray;
 	}
@@ -335,10 +335,8 @@ public class LongArray implements List<Long>, RandomAccess{
 		if(size == array.length){
 			return array;
 		}
-
-		long[] copy = new long[size];
-		System.arraycopy(this.array, 0, copy, 0, this.size);
-
+		var copy = new long[size];
+		System.arraycopy(array, 0, copy, 0, size);
 		return copy;
 	}
 
@@ -361,7 +359,7 @@ public class LongArray implements List<Long>, RandomAccess{
 				++newSize;
 			}
 		}
-		long[] newArray = new long[newSize];
+		var newArray = new long[newSize];
 		newArray[0] = array[0];
 		int nextNewIndex = 1;
 		for(int i = 1; i < size; ++i){
@@ -380,59 +378,59 @@ public class LongArray implements List<Long>, RandomAccess{
 
 		public LongArrayIterator(LongArray wrapper){
 			this.wrapper = wrapper;
-			this.lastIndex = -1;
+			lastIndex = -1;
 		}
 
 		public LongArrayIterator(LongArray wrapper, int startIndex){
 			this(wrapper);
-			this.lastIndex = startIndex - 1;
+			lastIndex = startIndex - 1;
 		}
 
 		@Override
 		public boolean hasNext(){
-			return this.lastIndex + 1 < this.wrapper.size;
+			return lastIndex + 1 < wrapper.size;
 		}
 
 		@Override
 		public Long next(){
-			++this.lastIndex;
-			return this.wrapper.get(lastIndex);
+			++lastIndex;
+			return wrapper.get(lastIndex);
 		}
 
 		@Override
 		public void remove(){
-			this.wrapper.remove(this.lastIndex + 1);
+			wrapper.remove(lastIndex + 1);
 		}
 
 		@Override
 		public void add(Long value){
-			this.wrapper.set(this.lastIndex + 1, value);
+			wrapper.set(lastIndex + 1, value);
 		}
 
 		@Override
 		public boolean hasPrevious(){
-			return this.lastIndex > -1;
+			return lastIndex > -1;
 		}
 
 		@Override
 		public int nextIndex(){
-			return this.lastIndex + 1;
+			return lastIndex + 1;
 		}
 
 		@Override
 		public Long previous(){
-			--this.lastIndex;
-			return this.wrapper.get(this.lastIndex + 1);
+			--lastIndex;
+			return wrapper.get(lastIndex + 1);
 		}
 
 		@Override
 		public int previousIndex(){
-			return this.lastIndex;
+			return lastIndex;
 		}
 
 		@Override
 		public void set(Long value){
-			this.wrapper.set(this.lastIndex + 1, value);
+			wrapper.set(lastIndex + 1, value);
 		}
 
 	}

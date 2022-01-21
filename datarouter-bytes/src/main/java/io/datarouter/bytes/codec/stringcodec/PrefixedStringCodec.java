@@ -37,7 +37,7 @@ public class PrefixedStringCodec{
 	public byte[] encode(String value){
 		byte[] valueBytes = stringCodec.encode(value);
 		byte[] lengthBytes = VarIntTool.encode(valueBytes.length);
-		return ByteTool.concatenate2(lengthBytes, valueBytes);
+		return ByteTool.concat(lengthBytes, valueBytes);
 	}
 
 	public int encode(String value, byte[] bytes, int offset){

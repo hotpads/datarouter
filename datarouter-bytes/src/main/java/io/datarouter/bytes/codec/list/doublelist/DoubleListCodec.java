@@ -25,24 +25,25 @@ public class DoubleListCodec{
 	public static final DoubleListCodec INSTANCE = new DoubleListCodec();
 
 	private static final NullableRawDoubleCodec NULLABLE_RAW_DOUBLE_CODEC = NullableRawDoubleCodec.INSTANCE;
+	private static final int ITEM_LENGTH = NULLABLE_RAW_DOUBLE_CODEC.length();
 
 	public byte[] encode(List<Double> values){
-		byte[] out = new byte[8 * values.size()];
+		var out = new byte[ITEM_LENGTH * values.size()];
 		for(int i = 0; i < values.size(); ++i){
-			System.arraycopy(NULLABLE_RAW_DOUBLE_CODEC.encode(values.get(i)), 0, out, i * 8, 8);
+			System.arraycopy(NULLABLE_RAW_DOUBLE_CODEC.encode(values.get(i)), 0, out, i * ITEM_LENGTH, ITEM_LENGTH);
 		}
 		return out;
 	}
 
 	public List<Double> decode(byte[] bytes, int offset){
-		int numDoubles = (bytes.length - offset) / 8;
-		List<Double> doubles = new ArrayList<>();
-		byte[] arrayToCopy = new byte[8];
-		for(int i = 0; i < numDoubles; i++){
-			System.arraycopy(bytes, i * 8 + offset, arrayToCopy, 0, 8);
-			doubles.add(NULLABLE_RAW_DOUBLE_CODEC.decode(arrayToCopy, 0));
+		int numValues = (bytes.length - offset) / ITEM_LENGTH;
+		List<Double> values = new ArrayList<>(numValues);
+		var arrayToCopy = new byte[ITEM_LENGTH];//TODO avoid intermediate array
+		for(int i = 0; i < numValues; i++){
+			System.arraycopy(bytes, i * ITEM_LENGTH + offset, arrayToCopy, 0, ITEM_LENGTH);
+			values.add(NULLABLE_RAW_DOUBLE_CODEC.decode(arrayToCopy, 0));
 		}
-		return doubles;
+		return values;
 	}
 
 }

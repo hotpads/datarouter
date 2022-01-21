@@ -15,19 +15,15 @@
  */
 package io.datarouter.bytes.binarydto;
 
-import java.util.List;
-
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.bytes.ByteTool;
-import io.datarouter.bytes.Java9;
 import io.datarouter.bytes.binarydto.codec.BinaryDtoCodec;
-import io.datarouter.bytes.binarydto.dto.BaseBinaryDto;
+import io.datarouter.bytes.binarydto.dto.BinaryDto;
 
 public class BinaryDtoStringArrayTests{
 
-	public static class TestDto extends BaseBinaryDto{
+	public static class TestDto extends BinaryDto<TestDto>{
 		public final String[] f1;
 		public final String[] f2;
 		public final String[] f3;
@@ -42,35 +38,34 @@ public class BinaryDtoStringArrayTests{
 
 	@Test
 	public void testCreateCodec(){
-		new BinaryDtoCodec<>(TestDto.class);
+		BinaryDtoCodec.of(TestDto.class);
 	}
 
 	@Test
 	public void testEncoding(){
-		BinaryDtoCodec<TestDto> codec = new BinaryDtoCodec<>(TestDto.class);
-		TestDto dto = new TestDto(
+		var codec = BinaryDtoCodec.of(TestDto.class);
+		var dto = new TestDto(
 				new String[]{"a", null, "b"},
 				null,
 				new String[]{});
-		List<byte[]> expectedByteSegments = Java9.listOf(
+		byte[] expectedBytes = {
 				//f1
-				new byte[]{1},//present
-				new byte[]{3},//size
-				new byte[]{1},//item0 present
-				new byte[]{'a', 0},//item0
-				new byte[]{0},//item1 null
-				new byte[]{1},//item2 present
-				new byte[]{'b', 0},//item2
+				1,//present
+				3,//size
+				1,//item0 present
+				'a', 0,//item0
+				0,//item1 null
+				1,//item2 present
+				'b', 0,//item2
 				//f2
-				new byte[]{0},//null
+				0,//null
 				//f3
-				new byte[]{1},//present
-				new byte[]{0});//size 0
-		byte[] expectedFullBytes = ByteTool.concatenate(expectedByteSegments);
-		byte[] actualFullBytes = codec.encode(dto);
-		Assert.assertEquals(actualFullBytes, expectedFullBytes);
+				1,//present
+				0};//size 0
+		byte[] actualBytes = codec.encode(dto);
+		Assert.assertEquals(actualBytes, expectedBytes);
 
-		TestDto actual = codec.decode(actualFullBytes);
+		TestDto actual = codec.decode(actualBytes);
 		Assert.assertEquals(actual, dto);
 	}
 

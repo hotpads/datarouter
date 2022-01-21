@@ -33,7 +33,7 @@ public class ComparableInstantCodec{
 	}
 
 	public byte[] encode(Instant value){
-		byte[] bytes = new byte[LENGTH];
+		var bytes = new byte[LENGTH];
 		encode(value, bytes, 0);
 		return bytes;
 	}

@@ -15,6 +15,8 @@
  */
 package io.datarouter.bytes.binarydto.fieldcodec;
 
+import java.util.Arrays;
+
 import io.datarouter.bytes.LengthAndValue;
 
 public abstract class BinaryDtoBaseFieldCodec<T>{
@@ -34,5 +36,14 @@ public abstract class BinaryDtoBaseFieldCodec<T>{
 	}
 
 	public abstract LengthAndValue<T> decodeWithLength(byte[] bytes, int offset);
+
+	/**
+	 * Override this with optimized implementations that avoid encoding.
+	 */
+	public int compareAsIfEncoded(T left, T right){
+		byte[] leftBytes = encode(left);
+		byte[] rightBytes = encode(right);
+		return Arrays.compareUnsigned(leftBytes, rightBytes);
+	}
 
 }

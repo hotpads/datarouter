@@ -15,7 +15,7 @@
  */
 package io.datarouter.bytes.binarydto.internal;
 
-import io.datarouter.bytes.Java9;
+import java.util.Arrays;
 
 public class BinaryDtoNullFieldTool{
 
@@ -26,7 +26,7 @@ public class BinaryDtoNullFieldTool{
 	public static final byte NULL_INDICATOR_FALSE = 1;//rightmost one bit
 	public static final byte[] NULL_INDICATOR_FALSE_ARRAY = new byte[]{NULL_INDICATOR_FALSE};
 	static{
-		if(Java9.compareUnsigned(NULL_INDICATOR_TRUE_ARRAY, NULL_INDICATOR_FALSE_ARRAY) >= 0){
+		if(Arrays.compareUnsigned(NULL_INDICATOR_TRUE_ARRAY, NULL_INDICATOR_FALSE_ARRAY) >= 0){
 			throw new IllegalArgumentException("Nulls should sort before non-nulls.");
 		}
 	}

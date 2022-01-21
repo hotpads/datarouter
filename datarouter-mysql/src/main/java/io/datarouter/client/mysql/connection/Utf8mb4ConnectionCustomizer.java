@@ -23,8 +23,7 @@ public class Utf8mb4ConnectionCustomizer extends AbstractConnectionCustomizer{
 
 	@Override
 	public void onAcquire(Connection connection, String parentDataSourceIdentityToken) throws Exception{
-		connection.createStatement().executeQuery("set character_set_client="
-				+ MysqlConnectionPoolHolder.UTF8MB4_CHARSET);
+		connection.createStatement().execute("set character_set_client=" + MysqlConnectionPoolHolder.UTF8MB4_CHARSET);
 	}
 
 }

@@ -18,8 +18,8 @@ package io.datarouter.model.field;
 import java.util.List;
 
 import io.datarouter.bytes.ByteTool;
-import io.datarouter.bytes.StringByteTool;
 import io.datarouter.bytes.VarIntTool;
+import io.datarouter.bytes.codec.stringcodec.StringCodec;
 import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.util.string.StringTool;
 
@@ -48,7 +48,7 @@ public class FieldTool{
 					? field.getBytes()
 					: field.getBytesWithSeparator();
 		}
-		return ByteTool.concatenate2(tokens);
+		return ByteTool.concat(tokens);
 	}
 
 	public static byte[] getConcatenatedValueBytesUnterminated(List<Field<?>> fields){
@@ -64,7 +64,7 @@ public class FieldTool{
 					? field.getBytes()
 					: field.getBytesWithSeparator();
 		}
-		return ByteTool.concatenate2(tokens);
+		return ByteTool.concat(tokens);
 	}
 
 	public static byte[] getConcatenatedValueBytes(List<Field<?>> fields){
@@ -76,7 +76,7 @@ public class FieldTool{
 		for(int i = 0; i < numTokens; ++i){
 			tokens[i] = fields.get(i).getBytesWithSeparator();
 		}
-		return ByteTool.concatenate2(tokens);
+		return ByteTool.concat(tokens);
 	}
 
 	/**
@@ -95,7 +95,7 @@ public class FieldTool{
 				continue;
 			}
 			byte[] key = includePrefix
-					? StringByteTool.getUtf8Bytes(field.getPrefixedName())
+					? StringCodec.UTF_8.encode(field.getPrefixedName())
 					: field.getKey().getColumnNameBytes();
 
 			tokens[index++] = VarIntTool.encode(key.length);
@@ -103,7 +103,7 @@ public class FieldTool{
 			tokens[index++] = VarIntTool.encode(value.length);
 			tokens[index++] = value;
 		}
-		return ByteTool.concatenate2(tokens);
+		return ByteTool.concat(tokens);
 	}
 
 	//prepend a new prefix to an existing prefix

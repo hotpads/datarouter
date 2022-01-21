@@ -25,7 +25,7 @@ public class LongArrayTests{
 
 	@Test
 	public void testBasics(){
-		List<Long> list = new LongArray();
+		var list = new LongArray();
 		final int max = 150;
 
 		// expanding
@@ -65,14 +65,14 @@ public class LongArrayTests{
 		Assert.assertEquals(list.get(5).longValue(), 6L);
 
 		// retain objects
-		List<Long> toRetain = Java9.listOf(55L, 57L, 7L);
+		List<Long> toRetain = List.of(55L, 57L, 7L);
 		modified = list.retainAll(toRetain);
 		Assert.assertTrue(modified);
 		Assert.assertEquals(list.size(), 3);
 		Assert.assertEquals(list.get(0).longValue(), 7L);
 		Assert.assertEquals(list.get(1).longValue(), 55L);
 		Assert.assertEquals(list.get(2).longValue(), 57L);
-		modified = list.retainAll(Java9.listOf(55L, 57L, 7L));
+		modified = list.retainAll(List.of(55L, 57L, 7L));
 		Assert.assertFalse(modified);
 		Assert.assertEquals(list.size(), 3);
 		Assert.assertEquals(list.get(0).longValue(), 7L);
@@ -81,7 +81,7 @@ public class LongArrayTests{
 
 		// nulls
 		List<Long> nullableList = new LinkedList<>();
-		LongArray primitiveList = new LongArray();
+		var primitiveList = new LongArray();
 		nullableList.add(-7L);
 		primitiveList.add(-7L);
 		nullableList.add(null);
@@ -99,14 +99,14 @@ public class LongArrayTests{
 
 	@Test
 	public void testSort(){
-		LongArray list = new LongArray(new long[]{3, 1, 2, 4});
+		var list = new LongArray(new long[]{3, 1, 2, 4});
 		list.sortInPlace();
 		Assert.assertEquals(list, new LongArray(new long[]{1, 2, 3, 4}));
 	}
 
 	@Test
 	public void testDeduplicate(){
-		LongArray list = new LongArray(new long[]{3, 3, 1, 2, 1, 1});
+		var list = new LongArray(new long[]{3, 3, 1, 2, 1, 1});
 		LongArray deduped = list.copyDedupeConsecutive();
 		Assert.assertEquals(deduped, new LongArray(new long[]{3, 1, 2, 1}));
 		LongArray sortedDeduped = list.sortInPlace().copyDedupeConsecutive();
@@ -115,7 +115,7 @@ public class LongArrayTests{
 
 	@Test
 	public void testAddByIndex(){
-		LongArray list = new LongArray(new long[]{1, 2, 3, 4, 5, 6, 7});
+		var list = new LongArray(new long[]{1, 2, 3, 4, 5, 6, 7});
 		list.add(7, 700);
 		Assert.assertEquals(list.size(), 8);
 		list.add(2, 200);
@@ -130,7 +130,7 @@ public class LongArrayTests{
 
 	@Test
 	public void testAddAllByIndex(){
-		LongArray list = new LongArray(new long[]{1, 2, 3, 4, 5, 6, 7});
+		var list = new LongArray(new long[]{1, 2, 3, 4, 5, 6, 7});
 		list.addAll(7, new LongArray(new long[]{700}));
 		Assert.assertEquals(list.size(), 8);
 		list.addAll(2, new LongArray(new long[]{200, 201}));
@@ -145,7 +145,7 @@ public class LongArrayTests{
 
 	@Test
 	public void testSetByIndex(){
-		LongArray list = new LongArray(new long[]{1, 2, 3, 4, 5, 6, 7});
+		var list = new LongArray(new long[]{1, 2, 3, 4, 5, 6, 7});
 		list.set(6, 700L);
 		Assert.assertEquals(list.size(), 7);
 		list.set(2, 300L);
@@ -156,4 +156,5 @@ public class LongArrayTests{
 		Assert.assertEquals(list.get(2).longValue(), 300L);
 		Assert.assertEquals(list.get(6).longValue(), 700L);
 	}
+
 }

@@ -19,14 +19,14 @@ public class RawShortCodec{
 
 	public static final RawShortCodec INSTANCE = new RawShortCodec();
 
-	private static final int LENGTH = 2;
+	private static final int LENGTH = Short.BYTES;
 
-	public int length(short value){
+	public int length(){
 		return LENGTH;
 	}
 
 	public byte[] encode(short value){
-		byte[] bytes = new byte[LENGTH];
+		var bytes = new byte[LENGTH];
 		encode(value, bytes, 0);
 		return bytes;
 	}

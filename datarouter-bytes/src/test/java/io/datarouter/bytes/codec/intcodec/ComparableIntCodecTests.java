@@ -15,12 +15,11 @@
  */
 package io.datarouter.bytes.codec.intcodec;
 
+import java.util.Arrays;
 import java.util.Random;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
-
-import io.datarouter.bytes.Java9;
 
 public class ComparableIntCodecTests{
 
@@ -28,7 +27,7 @@ public class ComparableIntCodecTests{
 
 	@Test
 	public void testRoundTrip(){
-		int[] subjects = new int[]{
+		int[] subjects = {
 				Integer.MIN_VALUE, Integer.MIN_VALUE + 1,
 				0, 1, 127, 128,
 				Integer.MAX_VALUE - 1, Integer.MAX_VALUE};
@@ -41,7 +40,7 @@ public class ComparableIntCodecTests{
 
 	@Test
 	public void testRandomRoundTrips(){
-		Random random = new Random();
+		var random = new Random();
 		int intValue = Integer.MIN_VALUE;
 		byte[] lastBytes = CODEC.encode(intValue);
 		++intValue;
@@ -50,7 +49,7 @@ public class ComparableIntCodecTests{
 			byte[] bytes = CODEC.encode(intValue);
 			int roundTripped = CODEC.decode(bytes);
 			try{
-				Assert.assertTrue(Java9.compareUnsigned(lastBytes, bytes) < 0);
+				Assert.assertTrue(Arrays.compareUnsigned(lastBytes, bytes) < 0);
 				Assert.assertEquals(roundTripped, intValue);
 			}catch(AssertionError e){
 				throw e;
@@ -64,24 +63,24 @@ public class ComparableIntCodecTests{
 	@Test
 	public void testExplicitValues(){
 		int intA = Integer.MIN_VALUE;
-		byte[] ab = new byte[]{0, 0, 0, 0};
+		byte[] ab = {0, 0, 0, 0};
 		Assert.assertEquals(CODEC.encode(intA), ab);
 
 		int intB = Integer.MAX_VALUE;
-		byte[] bb = new byte[]{-1, -1, -1, -1};
+		byte[] bb = {-1, -1, -1, -1};
 		Assert.assertEquals(CODEC.encode(intB), bb);
 
 		int intC = Integer.MIN_VALUE + 1;
-		byte[] cb = new byte[]{0, 0, 0, 1};
+		byte[] cb = {0, 0, 0, 1};
 		byte[] cout = CODEC.encode(intC);
 		Assert.assertEquals(cout, cb);
 
 		int intD = Integer.MAX_VALUE - 3;
-		byte[] db = new byte[]{-1, -1, -1, -4};
+		byte[] db = {-1, -1, -1, -4};
 		Assert.assertEquals(CODEC.encode(intD), db);
 
 		int intE = 0;
-		byte[] eb = new byte[]{-128, 0, 0, 0};
+		byte[] eb = {-128, 0, 0, 0};
 		Assert.assertEquals(CODEC.encode(intE), eb);
 	}
 
@@ -90,8 +89,8 @@ public class ComparableIntCodecTests{
 		byte[] p5 = CODEC.encode(5);
 		byte[] n3 = CODEC.encode(-3);
 		byte[] n7 = CODEC.encode(-7);
-		Assert.assertTrue(Java9.compareUnsigned(p5, n3) > 0);
-		Assert.assertTrue(Java9.compareUnsigned(p5, n7) > 0);
+		Assert.assertTrue(Arrays.compareUnsigned(p5, n3) > 0);
+		Assert.assertTrue(Arrays.compareUnsigned(p5, n7) > 0);
 	}
 
 }

@@ -52,4 +52,9 @@ public class ByteBinaryDtoFieldCodec extends BinaryDtoBaseFieldCodec<Byte>{
 		return new LengthAndValue<>(length, value);
 	}
 
+	@Override
+	public int compareAsIfEncoded(Byte left, Byte right){
+		return Byte.compare(left, right);
+	}
+
 }

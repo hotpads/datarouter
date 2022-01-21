@@ -26,7 +26,6 @@ import io.datarouter.client.mysql.ddl.domain.SqlColumn;
 import io.datarouter.client.mysql.field.codec.base.BaseListMysqlFieldCodec;
 import io.datarouter.model.exception.DataAccessException;
 import io.datarouter.model.field.imp.array.UInt7ArrayField;
-import io.datarouter.storage.util.NullsTool;
 
 public class UInt7ArrayMysqlFieldCodec
 extends BaseListMysqlFieldCodec<Byte,List<Byte>,UInt7ArrayField>{
@@ -56,13 +55,16 @@ extends BaseListMysqlFieldCodec<Byte,List<Byte>,UInt7ArrayField>{
 
 	@Override
 	public List<Byte> fromMysqlResultSetButDoNotSet(ResultSet rs){
+		byte[] bytes;
 		try{
-			byte[] bytes = rs.getBytes(field.getKey().getColumnName());
-			NullsTool.logStackIfNull(bytes);
-			return ByteTool.getArrayListNullSafe(bytes);
+			bytes = rs.getBytes(field.getKey().getColumnName());
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}
+		if(bytes == null){
+			return null;
+		}
+		return ByteTool.getArrayList(bytes);
 	}
 
 	@Override

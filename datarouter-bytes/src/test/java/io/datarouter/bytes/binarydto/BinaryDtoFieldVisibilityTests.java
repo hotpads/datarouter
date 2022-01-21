@@ -20,13 +20,12 @@ import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.bytes.Java9;
 import io.datarouter.bytes.binarydto.codec.BinaryDtoCodec;
-import io.datarouter.bytes.binarydto.dto.BaseBinaryDto;
+import io.datarouter.bytes.binarydto.dto.BinaryDto;
 
 public class BinaryDtoFieldVisibilityTests{
 
-	public static class TestDto extends BaseBinaryDto{
+	public static class TestDto extends BinaryDto<TestDto>{
 		final Integer fPackage;
 		@SuppressWarnings("unused")
 		private final Integer fPrivate;
@@ -43,15 +42,15 @@ public class BinaryDtoFieldVisibilityTests{
 
 	@Test
 	public void testFieldsDetected(){
-		List<String> expected = Java9.listOf("fPackage", "fPrivate", "fProtected", "fPublic");
+		List<String> expected = List.of("fPackage", "fPrivate", "fProtected", "fPublic");
 		List<String> actual = new TestDto(1, 2, 3, 4).scanFieldNames().list();
 		Assert.assertEquals(actual, expected);
 	}
 
 	@Test
 	public void testFieldsSerialized(){
-		BinaryDtoCodec<TestDto> codec = new BinaryDtoCodec<>(TestDto.class);
-		TestDto dto = new TestDto(1, 2, 3, 4);
+		var codec = BinaryDtoCodec.of(TestDto.class);
+		var dto = new TestDto(1, 2, 3, 4);
 		byte[] bytes = codec.encode(dto);
 		TestDto actual = codec.decode(bytes);
 		Assert.assertEquals(actual, dto);

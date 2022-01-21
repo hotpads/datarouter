@@ -54,7 +54,7 @@ extends BinaryDtoBaseFieldCodec<List<T>>{
 				byteArrays.add(itemBytes);
 			}
 		}
-		return ByteTool.concatenate(byteArrays);
+		return ByteTool.concat(byteArrays);
 	}
 
 	@Override

@@ -21,12 +21,11 @@ import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.bytes.Java9;
-import io.datarouter.bytes.binarydto.dto.BaseBinaryDto;
+import io.datarouter.bytes.binarydto.dto.BinaryDto;
 
 public class BinaryDtoObjectTests{
 
-	public static class TestDto extends BaseBinaryDto{
+	public static class TestDto extends BinaryDto<TestDto>{
 		public final Integer crab;
 		public final String bear;
 		public final short[] duck;
@@ -40,14 +39,14 @@ public class BinaryDtoObjectTests{
 
 	@Test
 	public void testScanFieldNames(){
-		List<String> expected = Java9.listOf("bear", "crab", "duck");
+		List<String> expected = List.of("bear", "crab", "duck");
 		List<String> actual = new TestDto(null, null, null).scanFieldNames().list();
 		Assert.assertEquals(actual, expected);
 	}
 
 	@Test
 	public void testScanFieldValues(){
-		List<Object> expected = Java9.listOf("x", 5, new short[]{1, 2});
+		List<Object> expected = List.of("x", 5, new short[]{1, 2});
 		List<Object> actual = new TestDto(5, "x", new short[]{1, 2}).scanFieldValues().list();
 		Assert.assertEquals(actual.get(0), expected.get(0));
 		Assert.assertEquals(actual.get(1), expected.get(1));
@@ -56,11 +55,11 @@ public class BinaryDtoObjectTests{
 
 	@Test
 	public void testEquals(){
-		TestDto d1 = new TestDto(2, "asdf", new short[]{1, 2});
-		TestDto d2 = new TestDto(2, "asdf", new short[]{1, 2});
+		var d1 = new TestDto(2, "asdf", new short[]{1, 2});
+		var d2 = new TestDto(2, "asdf", new short[]{1, 2});
 		Assert.assertEquals(d1, d2);
 		Assert.assertNotSame(d1, d2);
-		TestDto d3 = new TestDto(3, "v", new short[]{3, 4});
+		var d3 = new TestDto(3, "v", new short[]{3, 4});
 		Assert.assertNotEquals(d1, d3);
 	}
 

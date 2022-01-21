@@ -27,7 +27,7 @@ import org.apache.hadoop.hbase.filter.PageFilter;
 
 import io.datarouter.bytes.ByteTool;
 import io.datarouter.bytes.Bytes;
-import io.datarouter.bytes.StringByteTool;
+import io.datarouter.bytes.codec.stringcodec.StringCodec;
 import io.datarouter.util.tuple.Range;
 
 public class HBaseScanBuilder{
@@ -59,7 +59,7 @@ public class HBaseScanBuilder{
 	}
 
 	public HBaseScanBuilder withColumnPrefix(String columnPrefix){
-		this.columnPrefixFilter = new ColumnPrefixFilter(StringByteTool.getUtf8Bytes(columnPrefix));
+		this.columnPrefixFilter = new ColumnPrefixFilter(StringCodec.UTF_8.encode(columnPrefix));
 		return this;
 	}
 
@@ -100,7 +100,7 @@ public class HBaseScanBuilder{
 	}
 
 	private Scan getScanForRange(){
-		byte[] startWithPrefix = ByteTool.concatenate2(prefix, getStart());
+		byte[] startWithPrefix = ByteTool.concat(prefix, getStart());
 		byte[] endExclusiveWithoutPrefix = getEndExclusive();
 		Scan scan;
 		if(prefix.length == 0){
@@ -122,7 +122,7 @@ public class HBaseScanBuilder{
 			}else{
 				scan = new Scan()
 						.withStartRow(startWithPrefix, range.getStartInclusive())
-						.withStopRow(ByteTool.concatenate2(prefix, endExclusiveWithoutPrefix), false);
+						.withStopRow(ByteTool.concat(prefix, endExclusiveWithoutPrefix), false);
 			}
 		}
 		return scan;

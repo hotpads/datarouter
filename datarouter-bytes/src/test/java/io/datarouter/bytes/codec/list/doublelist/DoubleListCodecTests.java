@@ -15,7 +15,7 @@
  */
 package io.datarouter.bytes.codec.list.doublelist;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.testng.Assert;
@@ -31,13 +31,7 @@ public class DoubleListCodecTests{
 		double two = -583.2039;
 		double three = 5;
 		double four = -.0000001;
-
-		List<Double> doubles = new ArrayList<>();
-		doubles.add(one);
-		doubles.add(two);
-		doubles.add(null);
-		doubles.add(three);
-		doubles.add(four);
+		List<Double> doubles = Arrays.asList(one, two, null, three, four);
 
 		byte[] doubleBytes = DOUBLE_LIST_CODEC.encode(doubles);
 		List<Double> result = DOUBLE_LIST_CODEC.decode(doubleBytes, 0);

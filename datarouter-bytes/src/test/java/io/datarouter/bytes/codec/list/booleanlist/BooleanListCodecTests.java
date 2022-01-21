@@ -15,7 +15,7 @@
  */
 package io.datarouter.bytes.codec.list.booleanlist;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.testng.Assert;
@@ -30,13 +30,7 @@ public class BooleanListCodecTests{
 		boolean one = true;
 		boolean two = false;
 		boolean three = false;
-
-		List<Boolean> booleans = new ArrayList<>();
-		booleans.add(one);
-		booleans.add(null);
-		booleans.add(null);
-		booleans.add(two);
-		booleans.add(three);
+		List<Boolean> booleans = Arrays.asList(one, null, null, two, three);
 
 		byte[] booleanBytes = BOOLEAN_LIST_CODEC.encode(booleans);
 		List<Boolean> result = BOOLEAN_LIST_CODEC.decode(booleanBytes, 0);

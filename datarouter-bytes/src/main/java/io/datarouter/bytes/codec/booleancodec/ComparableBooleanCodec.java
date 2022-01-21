@@ -30,7 +30,7 @@ public class ComparableBooleanCodec{
 	}
 
 	public byte[] encode(boolean value){
-		byte[] bytes = new byte[LENGTH];
+		var bytes = new byte[LENGTH];
 		encode(value, bytes, 0);
 		return bytes;
 	}

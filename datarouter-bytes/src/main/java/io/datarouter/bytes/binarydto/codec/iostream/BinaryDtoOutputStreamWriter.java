@@ -20,15 +20,15 @@ import java.io.OutputStream;
 import io.datarouter.bytes.OutputStreamTool;
 import io.datarouter.bytes.VarIntTool;
 import io.datarouter.bytes.binarydto.codec.BinaryDtoCodec;
-import io.datarouter.bytes.binarydto.dto.BaseBinaryDto;
+import io.datarouter.bytes.binarydto.dto.BinaryDto;
 
-public class BinaryDtoOutputStreamWriter<T extends BaseBinaryDto> implements AutoCloseable{
+public class BinaryDtoOutputStreamWriter<T extends BinaryDto> implements AutoCloseable{
 
 	private final BinaryDtoCodec<T> codec;
 	private final OutputStream outputStream;
 
 	public BinaryDtoOutputStreamWriter(Class<T> dtoClass, OutputStream outputStream){
-		this.codec = new BinaryDtoCodec<>(dtoClass);
+		this.codec = BinaryDtoCodec.of(dtoClass);
 		this.outputStream = outputStream;
 	}
 

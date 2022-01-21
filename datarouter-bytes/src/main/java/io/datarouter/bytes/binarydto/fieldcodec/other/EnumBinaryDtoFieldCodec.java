@@ -47,4 +47,9 @@ public class EnumBinaryDtoFieldCodec<E extends Enum<E>> extends BinaryDtoBaseFie
 		return new LengthAndValue<>(length, value);
 	}
 
+	@Override
+	public int compareAsIfEncoded(E left, E right){
+		return left.name().compareTo(right.name());
+	}
+
 }

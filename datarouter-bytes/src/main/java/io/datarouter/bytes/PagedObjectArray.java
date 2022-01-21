@@ -52,7 +52,7 @@ public class PagedObjectArray<E> implements List<E>{
 
 	private void expandPagesArray(){
 		int newPageArrayLength = pages.length == 0 ? 1 : pages.length * 2;
-		Object[][] newPages = new Object[newPageArrayLength][];
+		var newPages = new Object[newPageArrayLength][];
 		System.arraycopy(pages, 0, newPages, 0, pages.length);
 		pages = newPages;
 	}

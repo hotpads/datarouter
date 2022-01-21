@@ -15,7 +15,6 @@
  */
 package io.datarouter.bytes;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -27,6 +26,7 @@ import io.datarouter.bytes.codec.booleancodec.RawBooleanCodec;
 import io.datarouter.bytes.codec.intcodec.RawIntCodec;
 import io.datarouter.bytes.codec.longcodec.ComparableLongCodec;
 import io.datarouter.bytes.codec.longcodec.RawLongCodec;
+import io.datarouter.bytes.codec.stringcodec.StringCodec;
 import io.datarouter.scanner.Scanner;
 
 public class ByteWriter{
@@ -58,7 +58,7 @@ public class ByteWriter{
 		if(pages.isEmpty()){
 			return new byte[][]{};
 		}
-		byte[][] trimmedPages = new byte[pages.size()][];
+		var trimmedPages = new byte[pages.size()][];
 		int nextPageIndex = 0;
 		for(int i = 0; i < pages.size() - 1; ++i){//full pages
 			trimmedPages[nextPageIndex++] = pages.get(i);
@@ -66,7 +66,7 @@ public class ByteWriter{
 		if(lastPageSize == pageSize){
 			trimmedPages[nextPageIndex++] = lastPage();
 		}else{
-			byte[] trimmedLastPage = new byte[lastPageSize];
+			var trimmedLastPage = new byte[lastPageSize];
 			System.arraycopy(lastPage(), 0, trimmedLastPage, 0, lastPageSize);
 			trimmedPages[nextPageIndex++] = trimmedLastPage;
 		}
@@ -82,7 +82,7 @@ public class ByteWriter{
 		int byteIndex = from % pageSize;
 		int copied = 0;
 		int remaining = to - from;
-		byte[] output = new byte[remaining];
+		var output = new byte[remaining];
 		while(remaining > 0){
 			int remainingInPage = getPageSize(pageIndex) - byteIndex;
 			int copyLength = Math.min(remaining, remainingInPage);
@@ -173,11 +173,11 @@ public class ByteWriter{
 	}
 
 	public ByteWriter rawInt(int value){
-		if(lastPageFreeSpace() < 4){
+		if(lastPageFreeSpace() < Integer.BYTES){
 			bytes(RAW_INT_CODEC.encode(value));
 		}else{
 			RAW_INT_CODEC.encode(value, lastPage(), lastPageSize);
-			lastPageSize += 4;
+			lastPageSize += Integer.BYTES;
 		}
 		return this;
 	}
@@ -196,21 +196,21 @@ public class ByteWriter{
 	}
 
 	public ByteWriter comparableLong(long value){
-		if(lastPageFreeSpace() < 8){
+		if(lastPageFreeSpace() < Long.BYTES){
 			bytes(COMPARABLE_LONG_CODEC.encode(value));
 		}else{
 			COMPARABLE_LONG_CODEC.encode(value, lastPage(), lastPageSize);
-			lastPageSize += 8;
+			lastPageSize += Long.BYTES;
 		}
 		return this;
 	}
 
 	public ByteWriter rawLong(long value){
-		if(lastPageFreeSpace() < 8){
+		if(lastPageFreeSpace() < Long.BYTES){
 			bytes(RAW_LONG_CODEC.encode(value));
 		}else{
 			RAW_LONG_CODEC.encode(value, lastPage(), lastPageSize);
-			lastPageSize += 8;
+			lastPageSize += Long.BYTES;
 		}
 		return this;
 	}
@@ -228,13 +228,13 @@ public class ByteWriter{
 	}
 
 	public ByteWriter varUtf8(String value){
-		byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
+		byte[] bytes = StringCodec.UTF_8.encode(value);
 		varBytes(bytes);
 		return this;
 	}
 
 	public ByteWriter comparableUtf8(String value){
-		byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
+		byte[] bytes = StringCodec.UTF_8.encode(value);
 		bytes(bytes);
 		bytes(new byte[]{0});
 		return this;

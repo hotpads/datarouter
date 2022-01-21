@@ -26,12 +26,8 @@ public class ComparableIntCodec{
 		return LENGTH;
 	}
 
-	public int length(int value){
-		return LENGTH;
-	}
-
 	public byte[] encode(int value){
-		byte[] bytes = new byte[LENGTH];
+		var bytes = new byte[LENGTH];
 		encode(value, bytes, 0);
 		return bytes;
 	}

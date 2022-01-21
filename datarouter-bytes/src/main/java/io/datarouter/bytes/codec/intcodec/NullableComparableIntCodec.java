@@ -21,6 +21,11 @@ public class NullableComparableIntCodec{
 
 	private static final int NULL = Integer.MIN_VALUE;
 	private static final ComparableIntCodec COMPARABLE_INT_CODEC = ComparableIntCodec.INSTANCE;
+	private static final int LENGTH = COMPARABLE_INT_CODEC.length();
+
+	public int length(){
+		return LENGTH;
+	}
 
 	public byte[] encode(Integer value){
 		int nonNullValue = value == null ? NULL : value;

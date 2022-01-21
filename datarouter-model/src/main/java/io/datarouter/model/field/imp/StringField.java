@@ -18,7 +18,7 @@ package io.datarouter.model.field.imp;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
-import io.datarouter.bytes.StringByteTool;
+import io.datarouter.bytes.codec.stringcodec.StringCodec;
 import io.datarouter.model.field.BaseField;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.FieldKey;
@@ -66,7 +66,7 @@ public class StringField extends BaseField<String>{
 
 	@Override
 	public byte[] getBytes(){
-		return value == null ? null : StringByteTool.getUtf8Bytes(value);
+		return value == null ? null : StringCodec.UTF_8.encode(value);
 	}
 
 	@Override

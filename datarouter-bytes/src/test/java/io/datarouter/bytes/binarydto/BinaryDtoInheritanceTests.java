@@ -20,13 +20,12 @@ import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.bytes.Java9;
 import io.datarouter.bytes.binarydto.codec.BinaryDtoCodec;
-import io.datarouter.bytes.binarydto.dto.BaseBinaryDto;
+import io.datarouter.bytes.binarydto.dto.BinaryDto;
 
 public class BinaryDtoInheritanceTests{
 
-	public static class InnerTestDto extends BaseBinaryDto{
+	public static class InnerTestDto extends BinaryDto<InnerTestDto>{
 		public final String inner1;
 
 		public InnerTestDto(String inner1){
@@ -45,15 +44,15 @@ public class BinaryDtoInheritanceTests{
 
 	@Test
 	public void testFieldsDetected(){
-		List<String> expected = Java9.listOf("inner1", "outer1");
+		List<String> expected = List.of("inner1", "outer1");
 		List<String> actual = new OuterTestDto("in", "out").scanFieldNames().list();
 		Assert.assertEquals(actual, expected);
 	}
 
 	@Test
 	public void testFieldsSerialized(){
-		BinaryDtoCodec<OuterTestDto> codec = new BinaryDtoCodec<>(OuterTestDto.class);
-		OuterTestDto dto = new OuterTestDto("in", "out");
+		var codec = BinaryDtoCodec.of(OuterTestDto.class);
+		var dto = new OuterTestDto("in", "out");
 		byte[] bytes = codec.encode(dto);
 		OuterTestDto actual = codec.decode(bytes);
 		Assert.assertEquals(actual, dto);

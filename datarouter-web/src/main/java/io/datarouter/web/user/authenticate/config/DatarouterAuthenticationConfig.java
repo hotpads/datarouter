@@ -28,7 +28,7 @@ import io.datarouter.web.user.session.service.Session;
 
 public interface DatarouterAuthenticationConfig{
 
-	static final DatarouterWebPaths PATHS = new DatarouterWebPaths();
+	DatarouterWebPaths PATHS = new DatarouterWebPaths();
 
 	String getKeepAlivePath();
 	String getShutdownPath();
@@ -60,6 +60,10 @@ public interface DatarouterAuthenticationConfig{
 
 	Duration getUserTokenTimeoutDuration();
 	Duration getSessionTokenTimeoutDuration();
+
+	default boolean useSameSiteNone(){
+		return false;
+	}
 
 	default boolean isSessionExpired(Session session){
 		Require.noNulls(session, session.getUpdated());

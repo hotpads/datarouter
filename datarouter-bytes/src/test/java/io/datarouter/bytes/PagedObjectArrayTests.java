@@ -30,7 +30,7 @@ public class PagedObjectArrayTests{
 		int first = 10;
 		int value = first;
 
-		PagedObjectArray<Integer> array = new PagedObjectArray<>(2);
+		var array = new PagedObjectArray<Integer>(2);
 		array.add(value++);
 		array.add(value++);
 		Assert.assertEquals(array.toArray(), new Integer[]{10, 11});
@@ -63,7 +63,7 @@ public class PagedObjectArrayTests{
 
 	@Test
 	public void testToArray(){
-		PagedObjectArray<String> pagedArray = new PagedObjectArray<>(2);
+		var pagedArray = new PagedObjectArray<String>(2);
 		pagedArray.add("hello");
 		pagedArray.add("world");
 
@@ -103,8 +103,8 @@ public class PagedObjectArrayTests{
 				.list();
 		Assert.assertTrue(array.contains(3));
 		Assert.assertFalse(array.contains(300));
-		Assert.assertTrue(array.containsAll(Java9.listOf(3, 5)));
-		Assert.assertFalse(array.containsAll(Java9.listOf(3, 5, 300)));
+		Assert.assertTrue(array.containsAll(List.of(3, 5)));
+		Assert.assertFalse(array.containsAll(List.of(3, 5, 300)));
 	}
 
 }

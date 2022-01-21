@@ -15,10 +15,10 @@
  */
 package io.datarouter.bytes.codec.bytecodec;
 
+import java.util.Arrays;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
-
-import io.datarouter.bytes.Java9;
 
 public class ComparableByteCodecTests{
 
@@ -34,7 +34,7 @@ public class ComparableByteCodecTests{
 
 		byte[] minArray = COMPARABLE_BYTE_CODEC.encode(min);
 		byte[] maxArray = COMPARABLE_BYTE_CODEC.encode(max);
-		Assert.assertTrue(Java9.compareUnsigned(maxArray, minArray) > 0);
+		Assert.assertTrue(Arrays.compareUnsigned(maxArray, minArray) > 0);
 
 		byte negative = -3;
 		byte positive = 5;
@@ -42,7 +42,7 @@ public class ComparableByteCodecTests{
 
 		byte[] negativeArray = COMPARABLE_BYTE_CODEC.encode(negative);
 		byte[] positiveArray = COMPARABLE_BYTE_CODEC.encode(positive);
-		Assert.assertTrue(Java9.compareUnsigned(positiveArray, negativeArray) > 0);
+		Assert.assertTrue(Arrays.compareUnsigned(positiveArray, negativeArray) > 0);
 	}
 
 }

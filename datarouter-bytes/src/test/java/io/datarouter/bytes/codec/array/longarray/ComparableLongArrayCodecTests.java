@@ -38,7 +38,7 @@ public class ComparableLongArrayCodecTests{
 
 	@Test
 	public void testMultipleValues(){
-		long[] input = new long[]{-3, 0, 3};
+		long[] input = {-3, 0, 3};
 		byte[] encoded = CODEC.encode(input);
 		long[] decoded = CODEC.decode(encoded);
 		Assert.assertEquals(decoded, input);
@@ -46,10 +46,10 @@ public class ComparableLongArrayCodecTests{
 
 	@Test
 	public void testMultipleValuesWithOffsets(){
-		long[] input = new long[]{-3, 0, 3};
+		long[] input = {-3, 0, 3};
 		int offset = 5;
 		int length = input.length * 8;
-		byte[] encoded = new byte[100];
+		var encoded = new byte[100];
 		int encodedLength = CODEC.encode(input, encoded, offset);
 		Assert.assertEquals(encodedLength, length);
 		long[] decoded = CODEC.decode(encoded, offset, length);

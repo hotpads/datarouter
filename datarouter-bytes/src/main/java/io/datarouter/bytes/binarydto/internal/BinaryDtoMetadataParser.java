@@ -18,10 +18,10 @@ package io.datarouter.bytes.binarydto.internal;
 import java.lang.reflect.Field;
 import java.util.Comparator;
 
-import io.datarouter.bytes.binarydto.dto.BaseBinaryDto;
+import io.datarouter.bytes.binarydto.dto.BinaryDto;
 import io.datarouter.scanner.Scanner;
 
-public class BinaryDtoMetadataParser<T extends BaseBinaryDto>{
+public class BinaryDtoMetadataParser<T extends BinaryDto>{
 
 	private final T dto;
 

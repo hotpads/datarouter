@@ -139,7 +139,7 @@ implements PhysicalBlobStorageNode{
 	@Override
 	public void write(PathbeanKey key, Scanner<byte[]> chunks){
 		byte[] bytes = chunks
-				.listTo(ByteTool::concatenate);
+				.listTo(ByteTool::concat);
 		write(key, bytes);
 	}
 

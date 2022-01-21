@@ -42,7 +42,6 @@ public class Config implements Cloneable{
 	//put options
 	private PutMethod putMethod = PutMethod.DEFAULT_PUT_METHOD;
 	private Boolean ignoreNullFields;
-	private Integer commitBatchSize;
 	private Boolean persistentPut = true;
 
 	//table scans
@@ -105,7 +104,6 @@ public class Config implements Cloneable{
 
 			.setPutMethod(putMethod)
 			.setIgnoreNullFields(ignoreNullFields)
-			.setCommitBatchSize(commitBatchSize)
 			.setPersistentPut(persistentPut)
 
 			.setScannerCaching(scannerCaching)
@@ -180,17 +178,6 @@ public class Config implements Cloneable{
 	public Config setOutputBatchSize(Integer outputBatchSize){
 		Require.isTrue(outputBatchSize == null || outputBatchSize > 0);
 		this.outputBatchSize = outputBatchSize;
-		return this;
-	}
-
-	/*------------------------ commit batch size ----------------------------*/
-
-	public Integer getCommitBatchSize(){
-		return commitBatchSize;
-	}
-
-	public Config setCommitBatchSize(Integer commitBatchSize){
-		this.commitBatchSize = commitBatchSize;
 		return this;
 	}
 

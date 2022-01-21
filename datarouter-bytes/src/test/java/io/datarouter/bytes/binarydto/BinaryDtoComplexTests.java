@@ -22,14 +22,14 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import io.datarouter.bytes.binarydto.codec.BinaryDtoCodec;
-import io.datarouter.bytes.binarydto.dto.BaseBinaryDto;
+import io.datarouter.bytes.binarydto.dto.BinaryDto;
 
 /**
  * Try to break the codecs in every way.
  */
 public class BinaryDtoComplexTests{
 
-	public static class ByteDto extends BaseBinaryDto{
+	public static class ByteDto extends BinaryDto<ByteDto>{
 		public final byte f1;
 		public final Byte f2;
 		public final byte[] f3;
@@ -43,7 +43,7 @@ public class BinaryDtoComplexTests{
 		}
 	}
 
-	public static class BooleanDto extends BaseBinaryDto{
+	public static class BooleanDto extends BinaryDto<BooleanDto>{
 		public final boolean f1;
 		public final Boolean f2;
 		public final boolean[] f3;
@@ -57,7 +57,7 @@ public class BinaryDtoComplexTests{
 		}
 	}
 
-	public static class ShortDto extends BaseBinaryDto{
+	public static class ShortDto extends BinaryDto<ShortDto>{
 		public final short f1;
 		public final Short f2;
 		public final short[] f3;
@@ -71,7 +71,7 @@ public class BinaryDtoComplexTests{
 		}
 	}
 
-	public static class CharDto extends BaseBinaryDto{
+	public static class CharDto extends BinaryDto<CharDto>{
 		public final char f1;
 		public final Character f2;
 		public final char[] f3;
@@ -85,7 +85,7 @@ public class BinaryDtoComplexTests{
 		}
 	}
 
-	public static class IntDto extends BaseBinaryDto{
+	public static class IntDto extends BinaryDto<IntDto>{
 		public final int f1;
 		public final Integer f2;
 		public final int[] f3;
@@ -99,7 +99,7 @@ public class BinaryDtoComplexTests{
 		}
 	}
 
-	public static class FloatDto extends BaseBinaryDto{
+	public static class FloatDto extends BinaryDto<FloatDto>{
 		public final float f1;
 		public final Float f2;
 		public final float[] f3;
@@ -113,7 +113,7 @@ public class BinaryDtoComplexTests{
 		}
 	}
 
-	public static class LongDto extends BaseBinaryDto{
+	public static class LongDto extends BinaryDto<LongDto>{
 		public final long f1;
 		public final Long f2;
 		public final long[] f3;
@@ -127,7 +127,7 @@ public class BinaryDtoComplexTests{
 		}
 	}
 
-	public static class DoubleDto extends BaseBinaryDto{
+	public static class DoubleDto extends BinaryDto<DoubleDto>{
 		public final double f1;
 		public final Double f2;
 		public final double[] f3;
@@ -141,7 +141,7 @@ public class BinaryDtoComplexTests{
 		}
 	}
 
-	public static class StringDto extends BaseBinaryDto{
+	public static class StringDto extends BinaryDto<StringDto>{
 		public final String f1;
 		public final String f2;
 		public final String[] f3;
@@ -155,7 +155,7 @@ public class BinaryDtoComplexTests{
 		}
 	}
 
-	public static class RootDto extends BaseBinaryDto{
+	public static class RootDto extends BinaryDto<RootDto>{
 		public final ByteDto bytes;
 		public final BooleanDto booleans;
 		public final ShortDto shorts;
@@ -191,7 +191,7 @@ public class BinaryDtoComplexTests{
 
 	@Test
 	public void testCodec(){
-		RootDto dto = new RootDto(
+		var dto = new RootDto(
 				new ByteDto((byte)9, (byte)9, new byte[]{1, 3, 5}, Arrays.asList((byte)2, null, (byte)4)),
 				new BooleanDto(true, false, new boolean[]{false, true}, Arrays.asList(false, null, true)),
 				new ShortDto((short)7, (short)7, new short[]{6, 12, 3}, Arrays.asList(null, (short)-9, null)),
@@ -202,7 +202,7 @@ public class BinaryDtoComplexTests{
 				new DoubleDto(6d, 2d, new double[]{18, 5}, Arrays.asList(null, Double.MIN_NORMAL, -.01)),
 				new StringDto("asdf", null, new String[]{"a", "b", null}, Arrays.asList("c", null, "d")));
 
-		BinaryDtoCodec<RootDto> codec = new BinaryDtoCodec<>(RootDto.class);
+		var codec = BinaryDtoCodec.of(RootDto.class);
 		byte[] bytes = codec.encode(dto);
 		RootDto actual = codec.decode(bytes);
 		Assert.assertEquals(actual, dto);

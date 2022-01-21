@@ -34,7 +34,7 @@ public class ByteWriterTests{
 		String expected = Scanner.of(inputs)
 				.collect(Collectors.joining());
 
-		ByteWriter writer = new ByteWriter(4);
+		var writer = new ByteWriter(4);
 		Scanner.of(inputs)
 				.map(String::getBytes)
 				.forEach(writer::bytes);
@@ -61,7 +61,7 @@ public class ByteWriterTests{
 				.limit(9)
 				.collect(Collectors.joining());
 
-		ByteWriter writer = new ByteWriter(4);
+		var writer = new ByteWriter(4);
 		Scanner.of(inputs)
 				.map(String::getBytes)
 				.forEach(writer::bytes);

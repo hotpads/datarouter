@@ -16,7 +16,6 @@
 package io.datarouter.bytes.codec.intcodec;
 
 import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.util.Optional;
 import java.util.Random;
 
@@ -27,8 +26,8 @@ import io.datarouter.bytes.VarIntTool;
 
 public class VarIntToolTests{
 
-	private static final byte[] LONG_MAX_VALUE_BYTES = new byte[]{-1, -1, -1, -1, -1, -1, -1, -1, 127};
-	private static final byte[] INT_MAX_VALUE_BYTES = new byte[]{-1, -1, -1, -1, 7};
+	private static final byte[] LONG_MAX_VALUE_BYTES = {-1, -1, -1, -1, -1, -1, -1, -1, 127};
+	private static final byte[] INT_MAX_VALUE_BYTES = {-1, -1, -1, -1, 7};
 
 	@Test
 	public void testNumBytes(){
@@ -65,7 +64,7 @@ public class VarIntToolTests{
 
 	@Test
 	public void testRoundTrips(){
-		Random random = new Random();
+		var random = new Random();
 		for(int i = 0; i < 10000; ++i){
 			long value = Math.abs(random.nextLong());
 			byte[] bytes = VarIntTool.encode(value);
@@ -76,18 +75,20 @@ public class VarIntToolTests{
 
 	@Test
 	public void testInputStreams(){
-		ByteArrayInputStream is;
-		is = new ByteArrayInputStream(new byte[]{0});
-		long v0 = VarIntTool.fromInputStream(is).get();
+		var is0 = new ByteArrayInputStream(new byte[]{0});
+		long v0 = VarIntTool.fromInputStream(is0).get();
 		Assert.assertEquals(v0, 0);
-		is = new ByteArrayInputStream(new byte[]{5});
-		long v5 = VarIntTool.fromInputStream(is).get();
+
+		var is1 = new ByteArrayInputStream(new byte[]{5});
+		long v5 = VarIntTool.fromInputStream(is1).get();
 		Assert.assertEquals(v5, 5);
-		is = new ByteArrayInputStream(new byte[]{-128 + 27, 1});
-		long v155 = VarIntTool.fromInputStream(is).get();
+
+		var is2 = new ByteArrayInputStream(new byte[]{-128 + 27, 1});
+		long v155 = VarIntTool.fromInputStream(is2).get();
 		Assert.assertEquals(v155, 155);
-		is = new ByteArrayInputStream(new byte[]{-5, 24});
-		long v3195 = VarIntTool.fromInputStream(is).get();
+
+		var is3 = new ByteArrayInputStream(new byte[]{-5, 24});
+		long v3195 = VarIntTool.fromInputStream(is3).get();
 		Assert.assertEquals(v3195, 3195);
 	}
 
@@ -102,7 +103,7 @@ public class VarIntToolTests{
 	}
 
 	public void testEmptyInputStream(){
-		InputStream is = new ByteArrayInputStream(new byte[0]);
+		var is = new ByteArrayInputStream(new byte[0]);
 		Assert.assertEquals(VarIntTool.fromInputStream(is), Optional.empty());
 	}
 

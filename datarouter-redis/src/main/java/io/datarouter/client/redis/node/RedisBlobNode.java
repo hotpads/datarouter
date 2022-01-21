@@ -118,7 +118,7 @@ implements PhysicalBlobStorageNode{
 
 	@Override
 	public void write(PathbeanKey key, Scanner<byte[]> chunks){
-		byte[] bytes = chunks.listTo(ByteTool::concatenate);
+		byte[] bytes = chunks.listTo(ByteTool::concat);
 		ops.set(Twin.of(codec.encodeKey(key), bytes));
 	}
 

@@ -71,8 +71,8 @@ public class DatarouterSessionManager{
 	/*---------------------------- session token ----------------------------*/
 
 	public void addSessionTokenCookie(HttpServletResponse response, String sessionToken){
-		CookieTool.addCookie(response, config.getSessionTokenCookieName(), sessionToken, "/", config
-				.getSessionTokenTimeoutDuration().getSeconds());
+		CookieTool.addCookie(response, config.getSessionTokenCookieName(), sessionToken, "/",
+				config.getSessionTokenTimeoutDuration().getSeconds(), config.useSameSiteNone());
 	}
 
 	public String getSessionTokenFromCookie(HttpServletRequest request){
@@ -87,8 +87,8 @@ public class DatarouterSessionManager{
 	/*---------------------------- user token -------------------------------*/
 
 	public void addUserTokenCookie(HttpServletResponse response, String userToken){
-		CookieTool.addCookie(response, config.getUserTokenCookieName(), userToken, "/", config
-				.getUserTokenTimeoutDuration().getSeconds());
+		CookieTool.addCookie(response, config.getUserTokenCookieName(), userToken, "/",
+				config.getUserTokenTimeoutDuration().getSeconds(), config.useSameSiteNone());
 	}
 
 	public String getUserTokenFromCookie(HttpServletRequest request){

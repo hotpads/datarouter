@@ -96,7 +96,7 @@ public class TerminatedStringCodec{
 		}
 		int encodedLength = terminalIndex - offset;
 		int decodedLength = encodedLength - numEscaped;
-		byte[] decodedBytes = new byte[decodedLength];
+		var decodedBytes = new byte[decodedLength];
 		int encodedIndex = offset;
 		int decodedIndex = 0;
 		while(encodedIndex < terminalIndex){

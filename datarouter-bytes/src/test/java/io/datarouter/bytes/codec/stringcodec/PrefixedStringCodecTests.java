@@ -25,7 +25,7 @@ public class PrefixedStringCodecTests{
 	@Test
 	public void test(){
 		String string = "abc";
-		byte[] expectedBytes = new byte[]{3, 'a', 'b', 'c'};
+		byte[] expectedBytes = {3, 'a', 'b', 'c'};
 		byte[] actualBytes = CODEC.encode(string);
 		Assert.assertEquals(actualBytes, expectedBytes);
 		String actualString = CODEC.decode(actualBytes);

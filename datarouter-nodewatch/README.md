@@ -9,7 +9,7 @@ Datarouter-nodewatch is a tool to count tables in a configurable manner.
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-nodewatch</artifactId>
-	<version>0.0.99</version>
+	<version>0.0.100</version>
 </dependency>
 ```
 

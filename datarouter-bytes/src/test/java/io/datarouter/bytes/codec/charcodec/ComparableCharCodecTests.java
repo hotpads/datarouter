@@ -15,13 +15,11 @@
  */
 package io.datarouter.bytes.codec.charcodec;
 
-import java.util.Set;
+import java.util.Arrays;
 import java.util.TreeSet;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
-
-import io.datarouter.bytes.Java9;
 
 public class ComparableCharCodecTests{
 
@@ -45,7 +43,7 @@ public class ComparableCharCodecTests{
 
 	@Test
 	public void testCodec(){
-		Set<byte[]> seen = new TreeSet<>(Java9.UNSIGNED_BYTE_ARRAY_COMPARATOR);
+		var seen = new TreeSet<byte[]>(Arrays::compareUnsigned);
 		Character previousChar = null;
 		byte[] previousBytes = null;
 		for(char c = Character.MIN_VALUE; c <= Character.MAX_VALUE; ++c){
@@ -56,7 +54,7 @@ public class ComparableCharCodecTests{
 				Assert.assertTrue(Character.compare(previousChar, c) < 0);
 			}
 			if(previousBytes != null){
-				Assert.assertTrue(Java9.UNSIGNED_BYTE_ARRAY_COMPARATOR.compare(previousBytes, bytes) < 0);
+				Assert.assertTrue(Arrays.compareUnsigned(previousBytes, bytes) < 0);
 			}
 			char c2 = CODEC.decode(bytes);
 			Assert.assertEquals(c2, c);

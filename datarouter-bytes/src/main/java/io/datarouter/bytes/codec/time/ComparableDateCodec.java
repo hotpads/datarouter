@@ -31,7 +31,7 @@ public class ComparableDateCodec{
 	}
 
 	public byte[] encode(Date value){
-		byte[] bytes = new byte[LENGTH];
+		var bytes = new byte[LENGTH];
 		encode(value, bytes, 0);
 		return bytes;
 	}

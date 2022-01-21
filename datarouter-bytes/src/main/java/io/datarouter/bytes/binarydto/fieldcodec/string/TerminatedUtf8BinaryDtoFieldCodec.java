@@ -38,4 +38,9 @@ public class TerminatedUtf8BinaryDtoFieldCodec extends BinaryDtoBaseFieldCodec<S
 		return CODEC.decode(bytes, offset);
 	}
 
+	@Override
+	public int compareAsIfEncoded(String left, String right){
+		return left.compareTo(right);
+	}
+
 }

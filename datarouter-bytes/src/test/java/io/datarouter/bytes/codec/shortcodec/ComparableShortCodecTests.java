@@ -15,10 +15,10 @@
  */
 package io.datarouter.bytes.codec.shortcodec;
 
+import java.util.Arrays;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
-
-import io.datarouter.bytes.Java9;
 
 public class ComparableShortCodecTests{
 
@@ -27,37 +27,37 @@ public class ComparableShortCodecTests{
 	@Test
 	public void testGetOrderedBytes(){
 		short shortA = Short.MIN_VALUE;
-		byte[] ab = new byte[]{0, 0};
+		byte[] ab = {0, 0};
 		Assert.assertEquals(CODEC.encode(shortA), ab);
-		byte[] ac = new byte[]{5, 5};//5's are just filler
+		byte[] ac = {5, 5};//5's are just filler
 		CODEC.encode(shortA, ac, 0);
 		Assert.assertEquals(ac, ab);
 
 		short shortB = Short.MAX_VALUE;
-		byte[] bb = new byte[]{-1, -1};
+		byte[] bb = {-1, -1};
 		Assert.assertEquals(CODEC.encode(shortB), bb);
-		byte[] bc = new byte[]{5, 5};
+		byte[] bc = {5, 5};
 		CODEC.encode(shortB, bc, 0);
 		Assert.assertEquals(bc, bb);
 
 		short shortC = Short.MIN_VALUE + 1;
-		byte[] cb = new byte[]{0, 1};
+		byte[] cb = {0, 1};
 		Assert.assertEquals(CODEC.encode(shortC), cb);
-		byte[] cc = new byte[]{5, 5};
+		byte[] cc = {5, 5};
 		CODEC.encode(shortC, cc, 0);
 		Assert.assertEquals(cc, cb);
 
 		short shortD = Short.MAX_VALUE - 3;
-		byte[] db = new byte[]{-1, -4};
+		byte[] db = {-1, -4};
 		Assert.assertEquals(CODEC.encode(shortD), db);
-		byte[] dc = new byte[]{5, 5};
+		byte[] dc = {5, 5};
 		CODEC.encode(shortD, dc, 0);
 		Assert.assertEquals(dc, db);
 
 		short shortZ = 0;
-		byte[] zb = new byte[]{Byte.MIN_VALUE,0};
+		byte[] zb = {Byte.MIN_VALUE,0};
 		Assert.assertEquals(CODEC.encode(shortZ), zb);
-		byte[] zc = new byte[]{5, 5};
+		byte[] zc = {5, 5};
 		CODEC.encode(shortZ, zc, 0);
 		Assert.assertEquals(zc, zb);
 	}
@@ -67,13 +67,13 @@ public class ComparableShortCodecTests{
 		byte[] p5 = CODEC.encode((short)5);
 		byte[] n3 = CODEC.encode((short)-3);
 		byte[] n7 = CODEC.encode((short)-7);
-		Assert.assertTrue(Java9.compareUnsigned(p5, n3) > 0);
-		Assert.assertTrue(Java9.compareUnsigned(p5, n7) > 0);
+		Assert.assertTrue(Arrays.compareUnsigned(p5, n3) > 0);
+		Assert.assertTrue(Arrays.compareUnsigned(p5, n7) > 0);
 	}
 
 	@Test
 	public void testRoundTrip(){
-		short[] subjects = new short[]{
+		short[] subjects = {
 				Short.MIN_VALUE, Short.MIN_VALUE + 1,
 				0, 1, 127, 128,
 				Short.MAX_VALUE - 1, Short.MAX_VALUE};
@@ -94,7 +94,7 @@ public class ComparableShortCodecTests{
 			byte[] bytes = CODEC.encode(shortValue);
 			short roundTripped = CODEC.decode(bytes);
 			try{
-				Assert.assertTrue(Java9.compareUnsigned(lastBytes, bytes) < 0);
+				Assert.assertTrue(Arrays.compareUnsigned(lastBytes, bytes) < 0);
 				Assert.assertEquals(roundTripped, shortValue);
 			}catch(AssertionError e){
 				throw e;

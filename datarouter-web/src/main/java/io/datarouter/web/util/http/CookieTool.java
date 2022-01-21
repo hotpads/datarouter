@@ -44,7 +44,28 @@ public class CookieTool{
 
 	public static void addCookie(HttpServletResponse response, String cookieName, String value, String path,
 			long maxAgeSeconds){
-		addCookie(response, cookieName, value, path, NumberTool.limitLongToIntRange(maxAgeSeconds));
+		addCookie(response, cookieName, value, path, maxAgeSeconds, false);
+	}
+
+	public static void addCookie(HttpServletResponse response, String cookieName, String value, String path,
+			long maxAgeSeconds, boolean sameSiteNone){
+		if(sameSiteNone){
+			addCookieSameSiteNone(response, cookieName, value, path, maxAgeSeconds);
+		}else{
+			addCookie(response, cookieName, value, path, NumberTool.limitLongToIntRange(maxAgeSeconds));
+		}
+	}
+
+	public static void addCookieSameSiteNone(HttpServletResponse response, String cookieName, String value, String path,
+			long maxAgeSeconds){
+		String cookie = String.join("; ",
+				cookieName + '=' + value,
+				"Path=" + path,
+				"Max-Age=" + NumberTool.limitLongToIntRange(maxAgeSeconds),
+				"HttpOnly",
+				"SameSite=None",
+				"Secure");
+		response.addHeader("Set-Cookie", cookie.toString());
 	}
 
 	public static String getCookieValue(HttpServletRequest request, String cookieName){

@@ -15,14 +15,13 @@
  */
 package io.datarouter.bytes.codec.floatcodec;
 
+import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.bytes.Java9;
+import io.datarouter.scanner.Scanner;
 
 public class ComparableFloatCodecTests{
 
@@ -36,12 +35,12 @@ public class ComparableFloatCodecTests{
 
 	@Test
 	public void testCompare(){
-		Assert.assertTrue(Java9.compareUnsigned(CODEC.encode(-3F), CODEC.encode(3F)) < 0);
+		Assert.assertTrue(Arrays.compareUnsigned(CODEC.encode(-3F), CODEC.encode(3F)) < 0);
 	}
 
 	@Test
 	public void testSorting(){
-		List<Float> interestingFloats = Stream.of(
+		List<Float> interestingFloats = Scanner.of(
 				Float.NEGATIVE_INFINITY,
 				-Float.MAX_VALUE,
 				-Float.MIN_NORMAL,
@@ -53,13 +52,13 @@ public class ComparableFloatCodecTests{
 				Float.MAX_VALUE,
 				Float.POSITIVE_INFINITY,
 				Float.NaN)
-				.sorted()
-				.collect(Collectors.toList());
-		List<Float> roundTripped = interestingFloats.stream()
+				.sort()
+				.list();
+		List<Float> roundTripped = Scanner.of(interestingFloats)
 				.map(CODEC::encode)
-				.sorted(Java9::compareUnsigned)
+				.sort(Arrays::compareUnsigned)
 				.map(CODEC::decode)
-				.collect(Collectors.toList());
+				.list();
 		Assert.assertEquals(roundTripped, interestingFloats);
 	}
 

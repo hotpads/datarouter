@@ -20,18 +20,14 @@ public class ComparableShortCodec{
 	public static final ComparableShortCodec INSTANCE = new ComparableShortCodec();
 
 	private static final RawShortCodec RAW_CODEC = RawShortCodec.INSTANCE;
-	private static final int LENGTH = Short.BYTES;
+	private static final int LENGTH = RAW_CODEC.length();
 
 	public int length(){
 		return LENGTH;
 	}
 
-	public int length(short value){
-		return LENGTH;
-	}
-
 	public byte[] encode(short value){
-		byte[] bytes = new byte[LENGTH];
+		var bytes = new byte[LENGTH];
 		encode(value, bytes, 0);
 		return bytes;
 	}

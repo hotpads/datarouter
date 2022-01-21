@@ -30,12 +30,8 @@ public class UInt63Codec{
 		return LENGTH;
 	}
 
-	public int length(long value){
-		return LENGTH;
-	}
-
 	public byte[] encode(long value){
-		byte[] bytes = new byte[LENGTH];
+		var bytes = new byte[LENGTH];
 		encode(value, bytes, 0);
 		return bytes;
 	}

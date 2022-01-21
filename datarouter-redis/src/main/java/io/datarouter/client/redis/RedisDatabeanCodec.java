@@ -59,7 +59,7 @@ public class RedisDatabeanCodec<
 		byte[] codecVersion = RAW_INT_CODEC.encode(CODEC_VERSION);
 		byte[] key = FieldTool.getConcatenatedValueBytes(pk.getFields());
 		byte[] schemaVersion = RAW_INT_CODEC.encode(version);
-		return ByteTool.concatenate2(codecVersion, schemaVersion, key);
+		return ByteTool.concat(codecVersion, schemaVersion, key);
 	}
 
 	public List<byte[]> encodeKeys(Collection<PK> pks){

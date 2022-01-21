@@ -104,7 +104,7 @@ public class DatabeanFieldInfo<
 		this.entityNodePrefix = params.getEntityNodePrefix();
 		this.entityNodeColumnPrefixBytes = entityNodePrefix == null
 				? null
-				: ByteTool.concatenate2(
+				: ByteTool.concat(
 						StringCodec.UTF_8.encode(entityNodePrefix),
 						new byte[]{ENTITY_PREFIX_TERMINATOR});
 		EntityPrimaryKey<?,?> sampleEntityPrimaryKey = (EntityPrimaryKey<?,?>)samplePrimaryKey;

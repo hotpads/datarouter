@@ -19,18 +19,14 @@ public class RawLongCodec{
 
 	public static final RawLongCodec INSTANCE = new RawLongCodec();
 
-	private static final int LENGTH = 8;
+	private static final int LENGTH = Long.BYTES;
 
 	public int length(){
 		return LENGTH;
 	}
 
-	public int length(long value){
-		return LENGTH;
-	}
-
 	public byte[] encode(long value){
-		byte[] bytes = new byte[LENGTH];
+		var bytes = new byte[LENGTH];
 		encode(value, bytes, 0);
 		return bytes;
 	}

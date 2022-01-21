@@ -19,19 +19,15 @@ public class ComparableLongCodec{
 
 	public static final ComparableLongCodec INSTANCE = new ComparableLongCodec();
 
-	private static final int LENGTH = 8;
 	private static final RawLongCodec RAW_CODEC = RawLongCodec.INSTANCE;
+	private static final int LENGTH = RAW_CODEC.length();
 
 	public int length(){
 		return LENGTH;
 	}
 
-	public int length(long value){
-		return LENGTH;
-	}
-
 	public byte[] encode(long value){
-		byte[] bytes = new byte[LENGTH];
+		var bytes = new byte[LENGTH];
 		encode(value, bytes, 0);
 		return bytes;
 	}

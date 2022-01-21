@@ -50,4 +50,9 @@ public class IntBinaryDtoFieldCodec extends BinaryDtoBaseFieldCodec<Integer>{
 		return new LengthAndValue<>(length, value);
 	}
 
+	@Override
+	public int compareAsIfEncoded(Integer left, Integer right){
+		return Integer.compare(left, right);
+	}
+
 }

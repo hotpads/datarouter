@@ -15,10 +15,10 @@
  */
 package io.datarouter.bytes.codec.booleancodec;
 
+import java.util.Arrays;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
-
-import io.datarouter.bytes.Java9;
 
 public class ComparableBooleanCodecTests{
 
@@ -45,16 +45,16 @@ public class ComparableBooleanCodecTests{
 	@Test
 	public void testCompare(){
 		Assert.assertEquals(Boolean.compare(false, false), 0);
-		Assert.assertEquals(Java9.compareUnsigned(CODEC.encode(false), CODEC.encode(false)), 0);
+		Assert.assertEquals(Arrays.compareUnsigned(CODEC.encode(false), CODEC.encode(false)), 0);
 
 		Assert.assertEquals(Boolean.compare(true, true), 0);
-		Assert.assertEquals(Java9.compareUnsigned(CODEC.encode(true), CODEC.encode(true)), 0);
+		Assert.assertEquals(Arrays.compareUnsigned(CODEC.encode(true), CODEC.encode(true)), 0);
 
 		Assert.assertEquals(Boolean.compare(false, true), -1);
-		Assert.assertEquals(Java9.compareUnsigned(CODEC.encode(false), CODEC.encode(true)), -1);
+		Assert.assertEquals(Arrays.compareUnsigned(CODEC.encode(false), CODEC.encode(true)), -1);
 
 		Assert.assertEquals(Boolean.compare(true, false), 1);
-		Assert.assertEquals(Java9.compareUnsigned(CODEC.encode(true), CODEC.encode(false)), 1);
+		Assert.assertEquals(Arrays.compareUnsigned(CODEC.encode(true), CODEC.encode(false)), 1);
 	}
 
 }

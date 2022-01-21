@@ -51,13 +51,13 @@ public class UInt7ArrayField extends BaseListField<Byte,List<Byte>,UInt7ArrayFie
 	@Override
 	public List<Byte> fromBytesWithSeparatorButDoNotSet(byte[] bytes, int byteOffset){
 		int numBytes = numBytesWithSeparator(bytes, byteOffset) - 4;
-		return ByteTool.getArrayList2(ByteTool.fromUInt7ByteArray(bytes, byteOffset + 4, numBytes));
+		return ByteTool.getArrayList(ByteTool.fromUInt7ByteArray(bytes, byteOffset + 4, numBytes));
 	}
 
 	@Override
 	public List<Byte> fromBytesButDoNotSet(byte[] bytes, int byteOffset){
 		int numBytes = ArrayTool.length(bytes) - byteOffset;
-		return ByteTool.getArrayList2(ByteTool.fromUInt7ByteArray(bytes, byteOffset, numBytes));
+		return ByteTool.getArrayList(ByteTool.fromUInt7ByteArray(bytes, byteOffset, numBytes));
 	}
 
 	@Override

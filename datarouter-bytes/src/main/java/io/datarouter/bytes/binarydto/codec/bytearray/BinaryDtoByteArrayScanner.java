@@ -18,11 +18,11 @@ package io.datarouter.bytes.binarydto.codec.bytearray;
 import io.datarouter.bytes.LengthAndValue;
 import io.datarouter.bytes.VarIntTool;
 import io.datarouter.bytes.binarydto.codec.BinaryDtoCodec;
-import io.datarouter.bytes.binarydto.dto.BaseBinaryDto;
+import io.datarouter.bytes.binarydto.dto.BinaryDto;
 import io.datarouter.scanner.BaseScanner;
 import io.datarouter.scanner.Scanner;
 
-public class BinaryDtoByteArrayScanner<T extends BaseBinaryDto>
+public class BinaryDtoByteArrayScanner<T extends BinaryDto>
 extends BaseScanner<T>{
 
 	private final BinaryDtoCodec<T> codec;
@@ -30,12 +30,12 @@ extends BaseScanner<T>{
 	private int cursor;
 
 	public BinaryDtoByteArrayScanner(Class<T> dtoClass, byte[] bytes){
-		this.codec = new BinaryDtoCodec<>(dtoClass);
+		this.codec = BinaryDtoCodec.of(dtoClass);
 		this.bytes = bytes;
 		cursor = 0;
 	}
 
-	public static <T extends BaseBinaryDto> Scanner<T> of(Class<T> dtoClass, byte[] bytes){
+	public static <T extends BinaryDto> Scanner<T> of(Class<T> dtoClass, byte[] bytes){
 		return new BinaryDtoByteArrayScanner<>(dtoClass, bytes);
 	}
 

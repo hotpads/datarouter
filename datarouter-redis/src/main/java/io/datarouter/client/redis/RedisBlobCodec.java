@@ -36,7 +36,7 @@ public class RedisBlobCodec{
 		byte[] codecVersion = RAW_INT_CODEC.encode(CODEC_VERSION);
 		byte[] key = FieldTool.getConcatenatedValueBytes(pk.getFields());
 		byte[] version = RAW_INT_CODEC.encode(schemaVersion);
-		return ByteTool.concatenate2(codecVersion, version, key);
+		return ByteTool.concat(codecVersion, version, key);
 	}
 
 }

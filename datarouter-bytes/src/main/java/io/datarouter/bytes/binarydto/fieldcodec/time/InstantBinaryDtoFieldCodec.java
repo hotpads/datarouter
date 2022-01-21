@@ -53,4 +53,9 @@ public class InstantBinaryDtoFieldCodec extends BinaryDtoBaseFieldCodec<Instant>
 		return new LengthAndValue<>(length, value);
 	}
 
+	@Override
+	public int compareAsIfEncoded(Instant left, Instant right){
+		return left.compareTo(right);
+	}
+
 }

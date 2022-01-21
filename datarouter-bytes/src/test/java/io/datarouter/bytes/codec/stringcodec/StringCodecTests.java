@@ -28,7 +28,7 @@ public class StringCodecTests{
 	@Test
 	public void testAscii(){
 		String string = "abc";
-		byte[] expectedBytes = new byte[]{'a', 'b', 'c'};
+		byte[] expectedBytes = {'a', 'b', 'c'};
 		byte[] actualBytes = StringCodec.US_ASCII.encode(string);
 		Assert.assertEquals(actualBytes, expectedBytes);
 		String actualString = StringCodec.US_ASCII.decode(actualBytes);

@@ -25,6 +25,11 @@ public class NullableRawDoubleCodec{
 	private static final long NULL = NaN;
 	private static final RawDoubleCodec RAW_DOUBLE_CODEC = RawDoubleCodec.INSTANCE;
 	private static final RawLongCodec RAW_LONG_CODEC = RawLongCodec.INSTANCE;
+	private static final int LENGTH = RAW_DOUBLE_CODEC.length();
+
+	public int length(){
+		return LENGTH;
+	}
 
 	public byte[] encode(Double value){
 		double nonNullValue = value == null ? Double.longBitsToDouble(NULL) : value;

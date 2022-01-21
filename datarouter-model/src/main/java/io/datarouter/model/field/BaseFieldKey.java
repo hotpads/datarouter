@@ -23,7 +23,7 @@ import java.util.Optional;
 
 import com.google.gson.reflect.TypeToken;
 
-import io.datarouter.bytes.StringByteTool;
+import io.datarouter.bytes.codec.stringcodec.StringCodec;
 import io.datarouter.model.field.encoding.FieldGeneratorType;
 
 public abstract class BaseFieldKey<T,K extends BaseFieldKey<T,K>>
@@ -97,7 +97,7 @@ implements FieldKey<T>{
 	//don't cache this until we are using keys where it would be allocated on every equals/hashCode/compareTo
 	@Override
 	public byte[] getColumnNameBytes(){
-		return StringByteTool.getUtf8Bytes(columnName);
+		return StringCodec.UTF_8.encode(columnName);
 	}
 
 	@Override

@@ -97,7 +97,7 @@ public class WordTests{
 		List<SnapshotEntry> inputs = WordDataset.scanWords(getClass().getSimpleName() + "-testLeafBlockV1")
 				.map(word -> {
 					byte[] keyBytes = word.getBytes(StandardCharsets.UTF_8);
-					byte[] valueBytes = ByteTool.concatenate2(valuePrefix.getBytes(StandardCharsets.UTF_8), keyBytes);
+					byte[] valueBytes = ByteTool.concat(valuePrefix.getBytes(StandardCharsets.UTF_8), keyBytes);
 					return new SnapshotEntry(keyBytes, valueBytes, ByteTool.EMPTY_ARRAY_2);
 				})
 				.list();

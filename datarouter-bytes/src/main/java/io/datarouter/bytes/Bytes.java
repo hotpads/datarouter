@@ -42,7 +42,7 @@ public class Bytes implements Comparable<Bytes>{
 	}
 
 	public byte[] toArray(){
-		byte[] result = new byte[length];
+		var result = new byte[length];
 		System.arraycopy(bytes, offset, result, 0, length);
 		return result;
 	}

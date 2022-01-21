@@ -22,6 +22,11 @@ public class NullableBooleanCodec{
 	private static final int NULL = -2;
 
 	private static final RawBooleanCodec RAW_BOOLEAN_CODEC = RawBooleanCodec.INSTANCE;
+	private static final int LENGTH = RAW_BOOLEAN_CODEC.length();
+
+	public final int length(){
+		return LENGTH;
+	}
 
 	public byte[] encode(Boolean value){
 		if(value == null){

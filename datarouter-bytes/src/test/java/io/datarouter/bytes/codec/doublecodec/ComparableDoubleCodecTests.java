@@ -15,14 +15,13 @@
  */
 package io.datarouter.bytes.codec.doublecodec;
 
+import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.bytes.Java9;
+import io.datarouter.scanner.Scanner;
 
 public class ComparableDoubleCodecTests{
 
@@ -36,30 +35,30 @@ public class ComparableDoubleCodecTests{
 
 	@Test
 	public void testCompare(){
-		Assert.assertTrue(Java9.compareUnsigned(CODEC.encode(-3D), CODEC.encode(3D)) < 0);
+		Assert.assertTrue(Arrays.compareUnsigned(CODEC.encode(-3D), CODEC.encode(3D)) < 0);
 	}
 
 	@Test
 	public void testComparableBytes(){
-		List<Double> interestingDoubles = Stream.of(
-						Double.NEGATIVE_INFINITY,
-						-Double.MAX_VALUE,
-						-Double.MIN_NORMAL,
-						-Double.MIN_VALUE,
-						-0D,
-						+0D,
-						Double.MIN_VALUE,
-						Double.MIN_NORMAL,
-						Double.MAX_VALUE,
-						Double.POSITIVE_INFINITY,
-						Double.NaN)
-				.sorted()
-				.collect(Collectors.toList());
-		List<Double> roundTripped = interestingDoubles.stream()
+		List<Double> interestingDoubles = Scanner.of(
+				Double.NEGATIVE_INFINITY,
+				-Double.MAX_VALUE,
+				-Double.MIN_NORMAL,
+				-Double.MIN_VALUE,
+				-0D,
+				+0D,
+				Double.MIN_VALUE,
+				Double.MIN_NORMAL,
+				Double.MAX_VALUE,
+				Double.POSITIVE_INFINITY,
+				Double.NaN)
+				.sort()
+				.list();
+		List<Double> roundTripped = Scanner.of(interestingDoubles)
 				.map(CODEC::encode)
-				.sorted(Java9::compareUnsigned)
+				.sort(Arrays::compareUnsigned)
 				.map(CODEC::decode)
-				.collect(Collectors.toList());
+				.list();
 		Assert.assertEquals(roundTripped, interestingDoubles);
 	}
 

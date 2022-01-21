@@ -18,7 +18,6 @@ package io.datarouter.model.field.imp.array;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.datarouter.bytes.StringByteTool;
 import io.datarouter.bytes.codec.stringcodec.StringCodec;
 import io.datarouter.scanner.Scanner;
 
@@ -48,7 +47,7 @@ public class DelimitedStringArrayField extends KeyedListField<String,List<String
 		if(encodedString == null){
 			return null;
 		}
-		return StringByteTool.getUtf8Bytes(encodedString);
+		return StringCodec.UTF_8.encode(encodedString);
 	}
 
 	@Override

@@ -50,4 +50,9 @@ public class LongBinaryDtoFieldCodec extends BinaryDtoBaseFieldCodec<Long>{
 		return new LengthAndValue<>(length, value);
 	}
 
+	@Override
+	public int compareAsIfEncoded(Long left, Long right){
+		return Long.compare(left, right);
+	}
+
 }

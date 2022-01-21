@@ -62,7 +62,6 @@ public class CountBlobDto{
 		this.ulid = Require.notBlank(ulid);
 		this.serviceName = Require.notBlank(serviceName);
 		this.serverName = Require.notBlank(serverName);
-		Require.isFalse(counts.isEmpty());
 		this.counts = counts;
 		this.apiKey = Require.notBlank(apiKey);
 		this.signature = Require.notBlank(signature);
@@ -112,6 +111,7 @@ public class CountBlobDto{
 
 	private String serializeCounts(){
 		return Scanner.of(counts.keySet())
+				.exclude(period -> counts.get(period).isEmpty())
 				.map(period -> {
 					//turn each period map into a single line with <timestamp>\t<name>\t<sum>[\t<name>\t<sum>...]
 					return Scanner.of(counts.get(period).entrySet())
@@ -121,6 +121,9 @@ public class CountBlobDto{
 	}
 
 	private static Map<Long,Map<String,Long>> deserializeCounts(String lines){
+		if("".equals(lines)){
+			return Map.of();
+		}
 		return Scanner.of(lines.split("\n"))
 				.map(line -> {
 					String[] lineParts = line.split("\t", 2);

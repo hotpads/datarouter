@@ -19,32 +19,31 @@ import java.io.InputStream;
 import java.util.Optional;
 
 import io.datarouter.bytes.InputStreamTool;
-import io.datarouter.bytes.Java9;
 import io.datarouter.bytes.VarIntTool;
 import io.datarouter.bytes.binarydto.codec.BinaryDtoCodec;
-import io.datarouter.bytes.binarydto.dto.BaseBinaryDto;
+import io.datarouter.bytes.binarydto.dto.BinaryDto;
 import io.datarouter.scanner.BaseScanner;
 import io.datarouter.scanner.Scanner;
 
-public class BinaryDtoInputStreamScanner<T extends BaseBinaryDto>
+public class BinaryDtoInputStreamScanner<T extends BinaryDto>
 extends BaseScanner<T>{
 
 	private final BinaryDtoCodec<T> codec;
 	private final InputStream inputStream;
 
 	public BinaryDtoInputStreamScanner(Class<T> dtoClass, InputStream inputStream){
-		this.codec = new BinaryDtoCodec<>(dtoClass);
+		this.codec = BinaryDtoCodec.of(dtoClass);
 		this.inputStream = inputStream;
 	}
 
-	public static <T extends BaseBinaryDto> Scanner<T> of(Class<T> dtoClass, InputStream inputStream){
+	public static <T extends BinaryDto> Scanner<T> of(Class<T> dtoClass, InputStream inputStream){
 		return new BinaryDtoInputStreamScanner<>(dtoClass, inputStream);
 	}
 
 	@Override
 	public boolean advance(){
 		Optional<Long> size = VarIntTool.fromInputStream(inputStream);
-		if(Java9.isOptionalEmpty(size)){
+		if(size.isEmpty()){
 			return false;
 		}
 		byte[] dtoBytes = InputStreamTool.readNBytes(inputStream, size.get().intValue());

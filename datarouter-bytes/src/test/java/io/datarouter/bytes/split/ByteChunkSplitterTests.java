@@ -22,7 +22,6 @@ import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.bytes.Java9;
 import io.datarouter.bytes.split.ByteChunkSplitter.ByteChunkParsingScanner;
 import io.datarouter.scanner.Scanner;
 
@@ -53,22 +52,22 @@ public class ByteChunkSplitterTests{
 
 	@Test
 	public void testByteChunkParsingScannerSingleChunk(){
-		List<String> chunkStrings = Java9.listOf("a$bb$$ccc$");
-		List<String> expected = Java9.listOf("a$", "bb$", "$", "ccc$");
+		List<String> chunkStrings = List.of("a$bb$$ccc$");
+		List<String> expected = List.of("a$", "bb$", "$", "ccc$");
 		Assert.assertEquals(split(chunkStrings), expected);
 	}
 
 	@Test
 	public void testByteChunkParsingScannerMultiChunks(){
-		List<String> chunkStrings = Java9.listOf("a$", "b", "b$", "$", "cc", "c$");
-		List<String> expected = Java9.listOf("a$", "bb$", "$", "ccc$");
+		List<String> chunkStrings = List.of("a$", "b", "b$", "$", "cc", "c$");
+		List<String> expected = List.of("a$", "bb$", "$", "ccc$");
 		Assert.assertEquals(split(chunkStrings), expected);
 	}
 
 	@Test
 	public void testByteChunkParsingScannerMultiChunksWithTrailing(){
-		List<String> chunkStrings = Java9.listOf("a$", "b", "bb", "b$$cc", "c", "cc");
-		List<String> expected = Java9.listOf("a$", "bbbb$", "$", "ccccc");
+		List<String> chunkStrings = List.of("a$", "b", "bb", "b$$cc", "c", "cc");
+		List<String> expected = List.of("a$", "bbbb$", "$", "ccccc");
 		Assert.assertEquals(split(chunkStrings), expected);
 	}
 
@@ -84,14 +83,14 @@ public class ByteChunkSplitterTests{
 
 	@Test
 	public void testSkipFirst(){
-		List<String> chunkStrings = Java9.listOf("aaa$bbb$ccc$");
+		List<String> chunkStrings = List.of("aaa$bbb$ccc$");
 		List<String> actual = Scanner.of(chunkStrings)
 				.map(String::getBytes)
 				.map(chunk -> ByteChunkSplitter.split(chunk, DELIMITER, true, new Collector()))
 				.link(chunkTokensScanner -> new ByteChunkParsingScanner<>(chunkTokensScanner, new Collector()))
 				.concat(Scanner::of)
 				.list();
-		List<String> expected = Java9.listOf("bbb$", "ccc$");
+		List<String> expected = List.of("bbb$", "ccc$");
 		Assert.assertEquals(actual, expected);
 	}
 

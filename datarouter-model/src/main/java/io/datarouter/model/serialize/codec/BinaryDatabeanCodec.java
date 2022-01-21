@@ -38,7 +38,7 @@ public class BinaryDatabeanCodec{
 	public byte[] encode(PrimaryKey<?> pk){
 		byte[] key = FieldTool.getConcatenatedValueBytes(pk.getFields());
 		byte[] schemaVersion = RAW_INT_CODEC.encode(databeanSchemaVersion);
-		return ByteTool.concatenate2(schemaVersion, key);
+		return ByteTool.concat(schemaVersion, key);
 	}
 
 	public <D> D decode(Supplier<D> supplier, Map<String,Field<?>> fieldByPrefixedName, byte[] bytes){

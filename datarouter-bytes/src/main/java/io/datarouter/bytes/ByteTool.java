@@ -23,20 +23,12 @@ public class ByteTool{
 
 	public static final byte[][] EMPTY_ARRAY_2 = new byte[0][];
 
-	public static ArrayList<Byte> getArrayList2(byte[] ins){
+	public static ArrayList<Byte> getArrayList(byte[] ins){
 		ArrayList<Byte> outs = new ArrayList<>(ins.length);
 		for(int i = 0; i < ins.length; ++i){
 			outs.add(ins[i]);
 		}
 		return outs;
-	}
-
-	@Deprecated // use getArrayList2(byte[])
-	public static ArrayList<Byte> getArrayListNullSafe(byte[] ins){
-		if(ins == null){//TODO remove null handling
-			return new ArrayList<>();
-		}
-		return getArrayList2(ins);
 	}
 
 	public static byte getComparableByte(byte value){
@@ -52,7 +44,7 @@ public class ByteTool{
 
 	// basically a copyOfRange that also flips the bytes
 	public static byte[] flipToAndFromComparableByteArray(byte[] ins, int offset, int length){
-		byte[] outs = new byte[length];
+		var outs = new byte[length];
 		for(int i = 0; i < length; ++i){
 			outs[i] = getComparableByte(ins[offset + i]);
 		}
@@ -78,7 +70,7 @@ public class ByteTool{
 			}
 		}
 		// we maxed out the array
-		byte[] out = new byte[copy.length + 1];
+		var out = new byte[copy.length + 1];
 		out[0] = 1;
 		System.arraycopy(copy, 0, out, 1, copy.length);
 		return out;
@@ -108,17 +100,16 @@ public class ByteTool{
 		return total;
 	}
 
-	public static byte[] concatenate(List<byte[]> ins){
-		byte[][] arrays = new byte[ins.size()][];
+	public static byte[] concat(List<byte[]> ins){
+		var arrays = new byte[ins.size()][];
 		for(int i = 0; i < ins.size(); ++i){
 			arrays[i] = ins.get(i);
 		}
-		return concatenate2(arrays);
+		return concat(arrays);
 	}
 
-	// TODO rename to concatenate
-	public static byte[] concatenate2(byte[]... ins){
-		byte[] out = new byte[totalLength(ins)];
+	public static byte[] concat(byte[]... ins){
+		var out = new byte[totalLength(ins)];
 		int startIndex = 0;
 		for(int i = 0; i < ins.length; ++i){
 			byte[] in = ins[i];
@@ -130,16 +121,8 @@ public class ByteTool{
 		return out;
 	}
 
-	@Deprecated // use ByteTool.concatenate(byte[]...)
-	public static byte[] concatenateNullSafe(byte[]... ins){
-		if(ins == null){
-			return new byte[0];
-		}
-		return concatenate2(ins);
-	}
-
 	public static byte[] padPrefix(byte[] in, int finalWidth){
-		byte[] out = new byte[finalWidth];
+		var out = new byte[finalWidth];
 		int numPaddingBytes = finalWidth - in.length;
 		System.arraycopy(in, 0, out, numPaddingBytes, in.length);
 		return out;
@@ -151,7 +134,7 @@ public class ByteTool{
 		if(values.isEmpty()){
 			return new byte[0];
 		}
-		byte[] out = new byte[values.size()];
+		var out = new byte[values.size()];
 		int index = 0;
 		for(Byte value : values){
 			if(value < 0){

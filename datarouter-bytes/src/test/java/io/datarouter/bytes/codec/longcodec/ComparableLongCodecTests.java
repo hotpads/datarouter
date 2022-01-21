@@ -15,12 +15,11 @@
  */
 package io.datarouter.bytes.codec.longcodec;
 
+import java.util.Arrays;
 import java.util.Random;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
-
-import io.datarouter.bytes.Java9;
 
 public class ComparableLongCodecTests{
 
@@ -29,60 +28,60 @@ public class ComparableLongCodecTests{
 	@Test
 	public void testGetOrderedBytes(){
 		long longA = Long.MIN_VALUE;
-		byte[] ab = new byte[]{0, 0, 0, 0, 0, 0, 0, 0};
+		byte[] ab = {0, 0, 0, 0, 0, 0, 0, 0};
 		Assert.assertEquals(CODEC.encode(longA), ab);
 
 		long longB = Long.MAX_VALUE;
-		byte[] bb = new byte[]{-1, -1, -1, -1, -1, -1, -1, -1};
+		byte[] bb = {-1, -1, -1, -1, -1, -1, -1, -1};
 		Assert.assertEquals(CODEC.encode(longB), bb);
 
 		long longC = Long.MIN_VALUE + 1;
-		byte[] cb = new byte[]{0, 0, 0, 0, 0, 0, 0, 1};
+		byte[] cb = {0, 0, 0, 0, 0, 0, 0, 1};
 		Assert.assertEquals(CODEC.encode(longC), cb);
 
 		long longD = Long.MAX_VALUE - 3;
-		byte[] db = new byte[]{-1, -1, -1, -1, -1, -1, -1, -4};
+		byte[] db = {-1, -1, -1, -1, -1, -1, -1, -4};
 		Assert.assertEquals(CODEC.encode(longD), db);
 
 		long longE = 127;
-		byte[] eb = new byte[]{-128, 0, 0, 0, 0, 0, 0, 127};
+		byte[] eb = {-128, 0, 0, 0, 0, 0, 0, 127};
 		Assert.assertEquals(CODEC.encode(longE), eb);
 
 		long longF = 128;
-		byte[] fb = new byte[]{-128, 0, 0, 0, 0, 0, 0, -128};
+		byte[] fb = {-128, 0, 0, 0, 0, 0, 0, -128};
 		Assert.assertEquals(CODEC.encode(longF), fb);
 
 		long longG = -128;
-		byte[] gb = new byte[]{127, -1, -1, -1, -1, -1, -1, -128};
+		byte[] gb = {127, -1, -1, -1, -1, -1, -1, -128};
 		Assert.assertEquals(CODEC.encode(longG), gb);
 	}
 
 	@Test
 	public void testFromOrderedBytes(){
 		long longA = Long.MIN_VALUE;
-		byte[] ab = new byte[]{0, 0, 0, 0, 0, 0, 0, 0};
+		byte[] ab = {0, 0, 0, 0, 0, 0, 0, 0};
 		Assert.assertEquals(CODEC.decode(ab), longA);
 
 		long longB = Long.MAX_VALUE;
-		byte[] bb = new byte[]{-1, -1, -1, -1, -1, -1, -1, -1};
+		byte[] bb = {-1, -1, -1, -1, -1, -1, -1, -1};
 		Assert.assertEquals(CODEC.decode(bb), longB);
 
 		long longC = Long.MIN_VALUE + 1;
-		byte[] cb = new byte[]{0, 0, 0, 0, 0, 0, 0, 1};
+		byte[] cb = {0, 0, 0, 0, 0, 0, 0, 1};
 		Assert.assertEquals(CODEC.decode(cb), longC);
 
 		long longD = Long.MAX_VALUE - 3;
-		byte[] db = new byte[]{-1, -1, -1, -1, -1, -1, -1, -4};
+		byte[] db = {-1, -1, -1, -1, -1, -1, -1, -4};
 		Assert.assertEquals(CODEC.decode(db), longD);
 
 		long longE = 3;
-		byte[] eb = new byte[]{-128, 0, 0, 0, 0, 0, 0, 3};
+		byte[] eb = {-128, 0, 0, 0, 0, 0, 0, 3};
 		Assert.assertEquals(CODEC.decode(eb), longE);
 	}
 
 	@Test
 	public void testRoundTrip(){
-		long[] subjects = new long[]{
+		long[] subjects = {
 				Long.MIN_VALUE, Long.MIN_VALUE + 1,
 				0, 1, 127, 128,
 				Long.MAX_VALUE - 1, Long.MAX_VALUE,
@@ -96,7 +95,7 @@ public class ComparableLongCodecTests{
 
 	@Test
 	public void testRoundTrips(){
-		Random random = new Random();
+		var random = new Random();
 		long value = Long.MIN_VALUE;
 		byte[] lastBytes = CODEC.encode(value);
 		long lastValue = value;
@@ -112,7 +111,7 @@ public class ComparableLongCodecTests{
 			long roundTripped = CODEC.decode(bytes);
 			try{
 				Assert.assertTrue(value > lastValue);
-				Assert.assertTrue(Java9.compareUnsigned(lastBytes, bytes) < 0);
+				Assert.assertTrue(Arrays.compareUnsigned(lastBytes, bytes) < 0);
 				Assert.assertEquals(roundTripped, value);
 			}catch(AssertionError e){
 				throw e;

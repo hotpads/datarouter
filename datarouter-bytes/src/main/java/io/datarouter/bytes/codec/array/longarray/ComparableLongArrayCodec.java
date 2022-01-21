@@ -33,7 +33,7 @@ public class ComparableLongArrayCodec{
 		if(values.length == 0){
 			return EmptyArray.BYTE;
 		}
-		byte[] bytes = new byte[ITEM_LENGTH * values.length];
+		var bytes = new byte[ITEM_LENGTH * values.length];
 		encode(values, bytes, 0);
 		return bytes;
 	}
@@ -62,7 +62,7 @@ public class ComparableLongArrayCodec{
 			throw new IllegalArgumentException("bytesLength must be multiple of " + ITEM_LENGTH);
 		}
 		int resultLength = bytesLength / ITEM_LENGTH;
-		long[] result = new long[resultLength];
+		var result = new long[resultLength];
 		int cursor = offset;
 		for(int i = 0; i < resultLength; ++i){
 			result[i] = COMPARABLE_LONG_CODEC.decode(bytes, cursor);

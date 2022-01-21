@@ -15,10 +15,10 @@
  */
 package io.datarouter.bytes.codec.floatcodec;
 
+import java.util.Arrays;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
-
-import io.datarouter.bytes.Java9;
 
 public class RawFloatCodecTests{
 
@@ -36,7 +36,7 @@ public class RawFloatCodecTests{
 		float backB = CODEC.decode(bytesB, 0);
 		Assert.assertTrue(floatB == backB);
 
-		Assert.assertTrue(Java9.compareUnsigned(bytesA, bytesB) < 0); //positives and negatives are reversed
+		Assert.assertTrue(Arrays.compareUnsigned(bytesA, bytesB) < 0); //positives and negatives are reversed
 	}
 
 	@Test

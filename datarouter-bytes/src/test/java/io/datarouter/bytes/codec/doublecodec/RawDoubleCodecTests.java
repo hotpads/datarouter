@@ -15,10 +15,10 @@
  */
 package io.datarouter.bytes.codec.doublecodec;
 
+import java.util.Arrays;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
-
-import io.datarouter.bytes.Java9;
 
 public class RawDoubleCodecTests{
 
@@ -36,7 +36,7 @@ public class RawDoubleCodecTests{
 		double bback = CODEC.decode(bbytes, 0);
 		Assert.assertTrue(valueB == bback);
 
-		Assert.assertTrue(Java9.compareUnsigned(abytes, bbytes) < 0);//positives and negatives are reversed
+		Assert.assertTrue(Arrays.compareUnsigned(abytes, bbytes) < 0);//positives and negatives are reversed
 	}
 
 }

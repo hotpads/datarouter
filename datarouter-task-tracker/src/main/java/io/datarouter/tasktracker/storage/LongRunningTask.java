@@ -252,7 +252,9 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 		return new TaskTrackerDto(
 				getKey().toDto(),
 				type.getPersistentString(),
-				startTime.toInstant(),
+				Optional.ofNullable(startTime)
+						.map(Date::toInstant)
+						.orElse(null),
 				Optional.ofNullable(finishTime)
 						.map(Date::toInstant)
 						.orElse(null),

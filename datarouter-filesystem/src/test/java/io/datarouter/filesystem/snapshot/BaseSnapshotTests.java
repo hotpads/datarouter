@@ -367,7 +367,7 @@ public abstract class BaseSnapshotTests{
 					}
 
 					//fake first key (should act like exclusive)
-					byte[] nonExistentKey = ByteTool.concatenate2(searchKey, new byte[]{0, 0, 0, 0, 0, 0, 0, 0, 0});
+					byte[] nonExistentKey = ByteTool.concat(searchKey, new byte[]{0, 0, 0, 0, 0, 0, 0, 0, 0});
 					List<SnapshotLeafRecord> outputsNonExistentKey = reader.scanLeafRecords(nonExistentKey, true)
 							.limit(limit)
 							.list();
@@ -706,8 +706,8 @@ public abstract class BaseSnapshotTests{
 	}
 
 	protected static SnapshotEntry makeEntry(byte[] key){
-		byte[] value = ByteTool.concatenate2("v".getBytes(), key);
-		byte[] columnValue0 = ByteTool.concatenate2(key, key, key);
+		byte[] value = ByteTool.concat("v".getBytes(), key);
+		byte[] columnValue0 = ByteTool.concat(key, key, key);
 		byte[] columnValue1 = new byte[]{key[0], key[0]};
 		byte[][] columnValues = new byte[][]{columnValue0, columnValue1};
 		return new SnapshotEntry(key, value, columnValues);

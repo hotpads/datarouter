@@ -17,14 +17,17 @@ package io.datarouter.bytes.binarydto.dto;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import io.datarouter.bytes.binarydto.internal.BinaryDtoMetadataParser;
+import io.datarouter.bytes.binarydto.codec.BinaryDtoCodec;
+import io.datarouter.bytes.binarydto.internal.BinaryDtoFieldSchema;
 import io.datarouter.bytes.binarydto.internal.BinaryDtoReflectionTool;
 import io.datarouter.scanner.Scanner;
 
-public abstract class BaseBinaryDto{
+public abstract class BinaryDto<T extends BinaryDto<T>>
+implements Comparable<T>{
 
 	@Override
 	public final boolean equals(Object obj){
@@ -37,7 +40,7 @@ public abstract class BaseBinaryDto{
 		if(getClass() != obj.getClass()){
 			return false;
 		}
-		return scanFields()
+		return Scanner.of(getFieldsOrdered())
 				.allMatch(field -> Objects.deepEquals(
 						BinaryDtoReflectionTool.getUnchecked(field, this),
 						BinaryDtoReflectionTool.getUnchecked(field, obj)));
@@ -86,31 +89,55 @@ public abstract class BaseBinaryDto{
 				.collect(Collectors.joining(", ", getClass().getSimpleName() + " [", "]"));
 	}
 
-	@SuppressWarnings("unchecked")
-	public final Scanner<Field> scanFields(){
-		return new BinaryDtoMetadataParser(this).scanFieldsOrdered();
+	@Override
+	public int compareTo(T that){
+		Objects.requireNonNull(that);
+		if(!getClass().equals(that.getClass())){
+			String message = String.format("Cannot compare %s to %s",
+					getClass().getCanonicalName(),
+					that.getClass().getCanonicalName());
+			throw new IllegalArgumentException(message);
+		}
+		BinaryDtoCodec<T> codec = BinaryDtoCodec.of(getClass());
+		for(BinaryDtoFieldSchema<?> fieldSchema : codec.fieldSchemas){
+			int fieldDiff = fieldSchema.compareFieldValuesAsIfEncoded(this, that);
+			if(fieldDiff != 0){
+				return fieldDiff;
+			}
+		}
+		return 0;
+	}
+
+	public final List<Field> getFieldsOrdered(){
+		return BinaryDtoCodec.of(getClass()).getFieldsOrdered();
+	}
+
+	public final Object[] getFieldValuesArray(){
+		List<Field> fields = getFieldsOrdered();
+		int numFields = fields.size();
+		var values = new Object[numFields];
+		for(int i = 0; i < numFields; ++i){
+			Field field = fields.get(i);
+			values[i] = BinaryDtoReflectionTool.getUnchecked(field, this);
+		}
+		return values;
 	}
 
 	public final Scanner<String> scanFieldNames(){
-		return scanFields()
+		return Scanner.of(getFieldsOrdered())
 				.map(Field::getName);
 	}
 
 	public final Scanner<Object> scanFieldValues(){
-		return scanFields()
+		return Scanner.of(getFieldsOrdered())
 				.map(field -> BinaryDtoReflectionTool.getUnchecked(field, this));
 	}
 
 	public final Scanner<FieldNameAndValue> scanFieldNamesAndValues(){
-		return scanFields()
+		return Scanner.of(getFieldsOrdered())
 				.map(field -> new FieldNameAndValue(
 						field.getName(),
 						BinaryDtoReflectionTool.getUnchecked(field, this)));
-	}
-
-	public final Object[] getFieldValuesArray(){
-		return scanFieldValues()
-				.toArray();
 	}
 
 	private static class FieldNameAndValue{

@@ -32,7 +32,7 @@ public class ByteToolTests{
 
 		byte[] bytesB = U_INT_31_CODEC.encode(-1);
 		byte[] actuals = ByteTool.unsignedIncrement(bytesB);
-		byte[] expected = new byte[]{1, 0, 0, 0, 0};
+		byte[] expected = {1, 0, 0, 0, 0};
 		Assert.assertEquals(actuals, expected);
 
 		byte[] bytesC = U_INT_31_CODEC.encode(255);// should wrap to the next significant byte

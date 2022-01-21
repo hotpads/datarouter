@@ -17,15 +17,15 @@ package io.datarouter.bytes.binarydto.fieldcodec.other;
 
 import io.datarouter.bytes.LengthAndValue;
 import io.datarouter.bytes.binarydto.codec.BinaryDtoCodec;
-import io.datarouter.bytes.binarydto.dto.BaseBinaryDto;
+import io.datarouter.bytes.binarydto.dto.BinaryDto;
 import io.datarouter.bytes.binarydto.fieldcodec.BinaryDtoBaseFieldCodec;
 
-public class NestedBinaryDtoFieldCodec<T extends BaseBinaryDto> extends BinaryDtoBaseFieldCodec<T>{
+public class NestedBinaryDtoFieldCodec<T extends BinaryDto<T>> extends BinaryDtoBaseFieldCodec<T>{
 
 	private final BinaryDtoCodec<T> codec;
 
 	public NestedBinaryDtoFieldCodec(Class<T> dtoClass){
-		this.codec = new BinaryDtoCodec<>(dtoClass);
+		this.codec = BinaryDtoCodec.of(dtoClass);
 	}
 
 	@Override

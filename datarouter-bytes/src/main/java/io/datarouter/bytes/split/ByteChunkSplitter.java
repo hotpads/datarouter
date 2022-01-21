@@ -41,7 +41,7 @@ public class ByteChunkSplitter<T>{
 			int numThreads,
 			byte delimiter,
 			boolean skipFirst){
-		AtomicBoolean remainingSkipFirst = new AtomicBoolean(skipFirst);
+		var remainingSkipFirst = new AtomicBoolean(skipFirst);
 		return byteArrays
 				.parallel(new ParallelScannerContext(exec, numThreads, false))
 				.map(chunk -> split(chunk, delimiter, remainingSkipFirst.getAndSet(false), collectorSupplier.get()))
@@ -121,7 +121,7 @@ public class ByteChunkSplitter<T>{
 
 		@Override
 		public String toString(){
-			StringBuilder sb = new StringBuilder();
+			var sb = new StringBuilder();
 			if(first != null){
 				sb.append("f" + Arrays.toString(first));
 			}
@@ -152,14 +152,14 @@ public class ByteChunkSplitter<T>{
 			while(true){
 				if(carryover != null){
 					if(pending.hasFirst()){
-						carryover = ByteTool.concatenate2(carryover, pending.takeFirst());
+						carryover = ByteTool.concat(carryover, pending.takeFirst());
 						T mappedCarryover = collector.encode(carryover, 0, carryover.length);
 						current = Collections.singletonList(mappedCarryover);
 						carryover = null;
 						return true;
 					}
 					if(pending.hasLast()){
-						carryover = ByteTool.concatenate2(carryover, pending.takeLast());
+						carryover = ByteTool.concat(carryover, pending.takeLast());
 					}
 				}
 				if(pending.hasFirst()){

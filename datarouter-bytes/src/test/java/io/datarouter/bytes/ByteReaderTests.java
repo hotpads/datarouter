@@ -22,12 +22,12 @@ public class ByteReaderTests{
 
 	@Test
 	public void testComparableUtf8(){
-		ByteWriter writer = new ByteWriter(100);
+		var writer = new ByteWriter(100);
 		writer.rawInt(3);//filler
 		writer.comparableUtf8("hello world");
 		writer.comparableUtf8("hi");
 		writer.comparableLong(55);//filler
-		ByteReader reader = new ByteReader(writer.concat());
+		var reader = new ByteReader(writer.concat());
 		Assert.assertEquals(reader.rawInt(), 3);
 		Assert.assertEquals(reader.comparableUtf8(), "hello world");
 		Assert.assertEquals(reader.comparableUtf8(), "hi");

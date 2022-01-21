@@ -15,6 +15,8 @@
  */
 package io.datarouter.bytes.binarydto.fieldcodec.array;
 
+import java.util.Arrays;
+
 import io.datarouter.bytes.ByteTool;
 import io.datarouter.bytes.LengthAndValue;
 import io.datarouter.bytes.VarIntTool;
@@ -29,7 +31,7 @@ public class DoubleArrayBinaryDtoFieldCodec extends BinaryDtoBaseFieldCodec<doub
 	public byte[] encode(double[] value){
 		byte[] sizeBytes = VarIntTool.encode(value.length);
 		byte[] valueBytes = CODEC.encode(value);
-		return ByteTool.concatenate2(sizeBytes, valueBytes);
+		return ByteTool.concat(sizeBytes, valueBytes);
 	}
 
 	@Override
@@ -42,6 +44,15 @@ public class DoubleArrayBinaryDtoFieldCodec extends BinaryDtoBaseFieldCodec<doub
 		cursor += bytesLength;
 		int length = cursor - offset;
 		return new LengthAndValue<>(length, value);
+	}
+
+	@Override
+	public int compareAsIfEncoded(double[] left, double[] right){
+		int sizeDiff = Integer.compare(left.length, right.length);
+		if(sizeDiff != 0){
+			return sizeDiff;
+		}
+		return Arrays.compare(left, right);
 	}
 
 }

@@ -73,7 +73,8 @@ public class CountFlusher{
 
 	private void flush(){
 		try{
-			if(!settings.saveCounts.get() && !settings.saveCountBlobs.get()){
+			SaveConfig saveConfig = new SaveConfig();
+			if(!saveConfig.saveCounts && !saveConfig.saveBlobs){
 				flushQueue.clear();
 				return;
 			}
@@ -94,14 +95,14 @@ public class CountFlusher{
 				var json = gson.toJson(dto);
 				var message = new ConveyorMessage(UlidTool.nextUlid(), json);
 				logCountsSpec(counts, json);
-				if(settings.saveCounts.get()){
-					if(settings.saveCountBlobs.get() && settings.skipsSaveCountsWhenSaveCountBlobsIsTrue.get()){
-						logger.warn("skipping save. saving only to blobs instead");
-					}else{
-						publisherDao.put(message);
-					}
+
+				if(saveConfig.saveCounts){
+					publisherDao.put(message);
 				}
-				if(settings.saveCountBlobs.get()){
+				if(saveConfig.logOverrideCountsWithBlobs){
+					logger.info("skipping save. saving only to blobs instead");
+				}
+				if(saveConfig.saveBlobs){
 					flushCountBlobs(counts);
 				}
 				flushQueue.poll();
@@ -112,14 +113,7 @@ public class CountFlusher{
 	}
 
 	private void flushCountBlobs(Map<Long,Map<String,Long>> countBlobs){
-		if(settings.saveCountBlobs.get()){
-			//TODO try/catch is a temporary safeguard. shouldn't be necessary
-			try{
-				countBlobService.add(new CountBatchDto(null, serviceName, serverName, countBlobs));
-			}catch(RuntimeException e){
-				logger.error("ignoring count blob publishing failure", e);
-			}
-		}
+		countBlobService.add(new CountBatchDto(null, serviceName, serverName, countBlobs));
 	}
 
 	private static void logCountsSpec(Map<Long,Map<String,Long>> counts, String countsJson){
@@ -127,6 +121,23 @@ public class CountFlusher{
 				.map(Map::size)
 				.reduce(0, Integer::sum);
 		logger.info("counts buckets={}, names={}, jsonLength={}", counts.size(), names, countsJson.length());
+	}
+
+	private class SaveConfig{
+
+		public final boolean saveCounts;
+		public final boolean saveBlobs;
+		public final boolean logOverrideCountsWithBlobs;
+
+		public SaveConfig(){
+			boolean saveCountsSetting = settings.saveCounts.get();
+			boolean saveBlobsSetting = settings.saveCountBlobs.get();
+			boolean overrideCountsWithBlobs = settings.skipsSaveCountsWhenSaveCountBlobsIsTrue.get();
+			this.saveBlobs = saveBlobsSetting;
+			this.logOverrideCountsWithBlobs = saveCountsSetting && saveBlobsSetting && overrideCountsWithBlobs;
+			this.saveCounts = saveCountsSetting && !this.logOverrideCountsWithBlobs;
+		}
+
 	}
 
 	@Singleton

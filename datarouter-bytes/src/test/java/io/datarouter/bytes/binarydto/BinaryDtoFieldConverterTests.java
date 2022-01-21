@@ -22,14 +22,12 @@ import java.util.Map;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.bytes.ByteTool;
-import io.datarouter.bytes.Java9;
 import io.datarouter.bytes.binarydto.BinaryDtoFieldConverterTests.TestEnum.TestEnumBinaryDtoIntCodec;
 import io.datarouter.bytes.binarydto.BinaryDtoFieldConverterTests.TestEnum.TestEnumBinaryDtoPrefixedStringCodec;
 import io.datarouter.bytes.binarydto.BinaryDtoFieldConverterTests.TestEnum.TestEnumBinaryDtoStringCodec;
 import io.datarouter.bytes.binarydto.BinaryDtoFieldConverterTests.TestEnum.TestEnumBinaryDtoVarIntCodec;
 import io.datarouter.bytes.binarydto.codec.BinaryDtoCodec;
-import io.datarouter.bytes.binarydto.dto.BaseBinaryDto;
+import io.datarouter.bytes.binarydto.dto.BinaryDto;
 import io.datarouter.bytes.binarydto.dto.BinaryDtoField;
 import io.datarouter.bytes.binarydto.fieldcodec.BinaryDtoConvertingFieldCodec;
 import io.datarouter.bytes.binarydto.fieldcodec.primitive.IntBinaryDtoFieldCodec;
@@ -90,7 +88,7 @@ public class BinaryDtoFieldConverterTests{
 
 	}
 
-	public static class TestDto extends BaseBinaryDto{
+	public static class TestDto extends BinaryDto<TestDto>{
 
 		//convert to default (comparable 4 byte) int
 		@BinaryDtoField(codec = TestEnumBinaryDtoIntCodec.class)
@@ -139,8 +137,8 @@ public class BinaryDtoFieldConverterTests{
 
 	@Test
 	public void testEncoding(){
-		BinaryDtoCodec<TestDto> codec = new BinaryDtoCodec<>(TestDto.class);
-		TestDto dto = new TestDto(
+		var codec = BinaryDtoCodec.of(TestDto.class);
+		var dto = new TestDto(
 				TestEnum.AA,
 				TestEnum.BB,
 				TestEnum.CC,
@@ -148,42 +146,41 @@ public class BinaryDtoFieldConverterTests{
 				TestEnum.BB,
 				new TestEnum[]{TestEnum.BB, null, TestEnum.CC},
 				Arrays.asList(TestEnum.CC, null, TestEnum.BB));
-		List<byte[]> expectedByteSegments = Java9.listOf(
+		byte[] expectedBytes = {
 				//f1
-				new byte[]{1},//present
-				new byte[]{Byte.MIN_VALUE, 0, 0, 5},//int value
+				1,//present
+				Byte.MIN_VALUE, 0, 0, 5,//int value
 				//f2
-				new byte[]{1},//present
-				new byte[]{'P', 'B', 0},//encodedString with terminator
+				1,//present
+				'P', 'B', 0,//encodedString with terminator
 				//f3
-				new byte[]{1},//present
-				new byte[]{'C', 'C', 0},//enum.name() value with terminator
+				1,//present
+				'C', 'C', 0,//enum.name() value with terminator
 				//f4
-				new byte[]{0},//null
+				0,//null
 				//f5
-				new byte[]{1},//present
-				new byte[]{6},//encoded VarInt
+				1,//present
+				6,//encoded VarInt
 				//f6
-				new byte[]{1},//present
-				new byte[]{3},//size
-				new byte[]{1},//item0 present
-				new byte[]{6},//item0 varint value
-				new byte[]{0},//item1 null
-				new byte[]{1},//item2 present
-				new byte[]{7},//item2 varint value
+				1,//present
+				3,//size
+				1,//item0 present
+				6,//item0 varint value
+				0,//item1 null
+				1,//item2 present
+				7,//item2 varint value
 				//f7
-				new byte[]{1},//present
-				new byte[]{3},//size
-				new byte[]{1},//item0 present
-				new byte[]{2, 'P', 'C'},//item0 prefixed string value
-				new byte[]{0},//item1 null
-				new byte[]{1},//item2 present
-				new byte[]{2, 'P', 'B'});//item2 prefixed string value
-		byte[] expectedFullBytes = ByteTool.concatenate(expectedByteSegments);
-		byte[] actualFullBytes = codec.encode(dto);
-		Assert.assertEquals(actualFullBytes, expectedFullBytes);
+				1,//present
+				3,//size
+				1,//item0 present
+				2, 'P', 'C',//item0 prefixed string value
+				0,//item1 null
+				1,//item2 present
+				2, 'P', 'B'};//item2 prefixed string value
+		byte[] actualBytes = codec.encode(dto);
+		Assert.assertEquals(actualBytes, expectedBytes);
 
-		TestDto actual = codec.decode(actualFullBytes);
+		TestDto actual = codec.decode(actualBytes);
 		Assert.assertEquals(actual, dto);
 	}
 

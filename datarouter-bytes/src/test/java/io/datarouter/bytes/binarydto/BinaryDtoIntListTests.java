@@ -21,14 +21,12 @@ import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.bytes.ByteTool;
-import io.datarouter.bytes.Java9;
 import io.datarouter.bytes.binarydto.codec.BinaryDtoCodec;
-import io.datarouter.bytes.binarydto.dto.BaseBinaryDto;
+import io.datarouter.bytes.binarydto.dto.BinaryDto;
 
 public class BinaryDtoIntListTests{
 
-	public static class TestDto extends BaseBinaryDto{
+	public static class TestDto extends BinaryDto<TestDto>{
 		public final List<Integer> f1;
 		public final List<Integer> f2;
 		public final List<Integer> f3;
@@ -42,27 +40,26 @@ public class BinaryDtoIntListTests{
 
 	@Test
 	public void testEncoding(){
-		BinaryDtoCodec<TestDto> codec = new BinaryDtoCodec<>(TestDto.class);
-		TestDto dto = new TestDto(
+		var codec = BinaryDtoCodec.of(TestDto.class);
+		var dto = new TestDto(
 				Arrays.asList(1, null, 2),
 				null,
-				Java9.listOf());
-		List<byte[]> expectedByteSegments = Java9.listOf(
-				new byte[]{1},//f1 present
-				new byte[]{3},//f1 length 3
-				new byte[]{1},//f1 item0 present
-				new byte[]{Byte.MIN_VALUE, 0, 0, 1},//f1 item 0
-				new byte[]{0},//f1 item1 null
-				new byte[]{1},//f1 item2 present
-				new byte[]{Byte.MIN_VALUE, 0, 0, 2},//f1 item 2
-				new byte[]{0},//f2 null
-				new byte[]{1},//f3 present
-				new byte[]{0});//f3 length 0
-		byte[] expectedFullBytes = ByteTool.concatenate(expectedByteSegments);
-		byte[] actualFullBytes = codec.encode(dto);
-		Assert.assertEquals(actualFullBytes, expectedFullBytes);
+				List.of());
+		byte[] expectedBytes = {
+				1,//f1 present
+				3,//f1 length 3
+				1,//f1 item0 present
+				Byte.MIN_VALUE, 0, 0, 1,//f1 item 0
+				0,//f1 item1 null
+				1,//f1 item2 present
+				Byte.MIN_VALUE, 0, 0, 2,//f1 item 2
+				0,//f2 null
+				1,//f3 present
+				0};//f3 length 0
+		byte[] actualBytes = codec.encode(dto);
+		Assert.assertEquals(actualBytes, expectedBytes);
 
-		TestDto actual = codec.decode(actualFullBytes);
+		TestDto actual = codec.decode(actualBytes);
 		Assert.assertEquals(actual, dto);
 	}
 

@@ -50,4 +50,9 @@ public class ShortBinaryDtoFieldCodec extends BinaryDtoBaseFieldCodec<Short>{
 		return new LengthAndValue<>(length, value);
 	}
 
+	@Override
+	public int compareAsIfEncoded(Short left, Short right){
+		return Short.compare(left, right);
+	}
+
 }

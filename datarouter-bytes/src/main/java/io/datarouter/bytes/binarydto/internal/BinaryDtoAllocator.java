@@ -18,7 +18,7 @@ package io.datarouter.bytes.binarydto.internal;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
-import io.datarouter.bytes.binarydto.dto.BaseBinaryDto;
+import io.datarouter.bytes.binarydto.dto.BinaryDto;
 
 /**
  * Borrowed from Gson's UnsafeAllocator
@@ -30,7 +30,7 @@ public class BinaryDtoAllocator{
 
 	private static final UnsafeAllocator ALLOCATOR = new UnsafeAllocator();
 
-	public static <T extends BaseBinaryDto> T allocate(Class<T> cls){
+	public static <T extends BinaryDto> T allocate(Class<T> cls){
 		return ALLOCATOR.allocate(cls);
 	}
 

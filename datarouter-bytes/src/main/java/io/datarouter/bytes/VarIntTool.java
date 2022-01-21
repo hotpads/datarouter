@@ -45,7 +45,7 @@ public class VarIntTool{
 			throw new IllegalArgumentException("must be positive");
 		}
 		int numBytes = length(value);
-		byte[] bytes = new byte[numBytes];
+		var bytes = new byte[numBytes];
 		long remainder = value;
 		for(int i = 0; i < numBytes - 1; ++i){
 			bytes[i] = (byte)(remainder & LONG_7_RIGHT_BITS_SET | LONG_8TH_BIT_SET);// set the left bit
@@ -91,7 +91,7 @@ public class VarIntTool{
 	}
 
 	private static Optional<byte[]> nextBytes(InputStream is){
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		var baos = new ByteArrayOutputStream();
 		int byteVar;
 		do{
 			try{

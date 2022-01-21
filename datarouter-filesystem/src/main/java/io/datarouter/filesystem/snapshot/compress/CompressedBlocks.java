@@ -44,7 +44,7 @@ public class CompressedBlocks{
 		return Scanner.of(blocks)
 				.map(block -> block.chunks)
 				.concat(Scanner::of)
-				.listTo(ByteTool::concatenate);
+				.listTo(ByteTool::concat);
 	}
 
 }

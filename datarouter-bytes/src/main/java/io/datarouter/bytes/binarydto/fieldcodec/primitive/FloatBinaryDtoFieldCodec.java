@@ -50,4 +50,9 @@ public class FloatBinaryDtoFieldCodec extends BinaryDtoBaseFieldCodec<Float>{
 		return new LengthAndValue<>(length, value);
 	}
 
+	@Override
+	public int compareAsIfEncoded(Float left, Float right){
+		return Float.compare(left, right);
+	}
+
 }

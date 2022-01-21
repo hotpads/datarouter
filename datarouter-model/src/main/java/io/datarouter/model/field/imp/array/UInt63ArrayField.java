@@ -79,7 +79,7 @@ public class UInt63ArrayField extends BaseListField<Long,List<Long>,UInt63ArrayF
 				: new LongArray(value);
 		byte[] dataBytes = U_INT_63_ARRAY_CODEC.encode(longArray.getPrimitiveArray());
 		byte[] lengthBytes = U_INT_31_CODEC.encode(dataBytes.length);
-		return ByteTool.concatenate2(lengthBytes, dataBytes);
+		return ByteTool.concat(lengthBytes, dataBytes);
 	}
 
 	@Override

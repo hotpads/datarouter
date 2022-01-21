@@ -47,7 +47,7 @@ public class RedisTallyCodec{
 	public byte[] encodeKey(TallyKey pk){
 		byte[] key = FieldTool.getConcatenatedValueBytes(pk.getFields());
 		byte[] schemaVersion = RAW_INT_CODEC.encode(version);
-		return ByteTool.concatenate2(schemaVersion, key);
+		return ByteTool.concat(schemaVersion, key);
 	}
 
 	public byte[] encode(Tally databean){

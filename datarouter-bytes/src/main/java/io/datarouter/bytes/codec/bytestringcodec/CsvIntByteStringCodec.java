@@ -21,7 +21,7 @@ public class CsvIntByteStringCodec implements ByteStringCodec{
 
 	@Override
 	public String encode(byte[] bytes){
-		StringBuilder sb = new StringBuilder();
+		var sb = new StringBuilder();
 		for(int i = 0; i < bytes.length; ++i){
 			if(i > 0){
 				sb.append(",");

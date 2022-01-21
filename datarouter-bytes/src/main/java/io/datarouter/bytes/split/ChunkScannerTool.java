@@ -21,7 +21,7 @@ public class ChunkScannerTool{
 
 	public static Scanner<ChunkRange> scanChunks(long totalLength, int chunkSize){
 		int initialLength = (int)Math.min(chunkSize, totalLength);
-		ChunkRange intialRange = new ChunkRange(0L, initialLength);
+		var intialRange = new ChunkRange(0L, initialLength);
 		return Scanner.iterate(intialRange, previous -> {
 					long start = previous.start + previous.length;
 					long remainingBytes = totalLength - start;

@@ -105,15 +105,16 @@ public class BinaryDtoFieldMetadataParser<T>{
 		return Enum.class.isAssignableFrom(field.getType());
 	}
 
-	public Class getObjectArrayItemClass(){
+	public Class<?> getObjectArrayItemClass(){
 		return field.getType().getComponentType();
 	}
 
-	public <T> Class<T> getListItemClass(){
+	@SuppressWarnings("unchecked")
+	public <I> Class<I> getListItemClass(){
 		ParameterizedType parameterizedType = (ParameterizedType)field.getGenericType();
 		Type type = parameterizedType.getActualTypeArguments()[0];
 		try{
-			return (Class<T>)Class.forName(type.getTypeName());
+			return (Class<I>)Class.forName(type.getTypeName());
 		}catch(ClassNotFoundException e){
 			throw new RuntimeException(e);
 		}

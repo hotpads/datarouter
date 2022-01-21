@@ -43,7 +43,7 @@ public abstract class SpannerBaseWriteOp<T> extends SpannerBaseOp<Void>{
 			Collection<T> values){
 		super("SpannerWrite: " + tableName);
 		this.client = client;
-		this.batchSize = Optional.ofNullable(config.getCommitBatchSize());
+		this.batchSize = config.findInputBatchSize();
 		this.tableName = tableName;
 		this.values = values;
 	}

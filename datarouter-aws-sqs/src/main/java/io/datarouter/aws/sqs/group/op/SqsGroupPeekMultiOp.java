@@ -23,14 +23,13 @@ import com.amazonaws.services.sqs.model.Message;
 import io.datarouter.aws.sqs.BaseSqsNode;
 import io.datarouter.aws.sqs.SqsClientManager;
 import io.datarouter.aws.sqs.op.BaseSqsPeekMultiOp;
-import io.datarouter.bytes.StringByteTool;
+import io.datarouter.bytes.codec.stringcodec.StringCodec;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.queue.GroupQueueMessage;
-import io.datarouter.storage.util.NullsTool;
 
 public class SqsGroupPeekMultiOp<
 		PK extends PrimaryKey<PK>,
@@ -51,9 +50,7 @@ extends BaseSqsPeekMultiOp<PK,D,F,GroupQueueMessage<PK,D>>{
 		return messages.stream()
 				.map(message -> {
 					List<D> databeans = codec.fromStringMulti(message.getBody(), fielder, databeanSupplier);
-					String receiptHandleStr = message.getReceiptHandle();
-					NullsTool.logStackIfNull(receiptHandleStr);
-					byte[] receiptHandle = StringByteTool.getUtf8BytesNullSafe(receiptHandleStr);
+					byte[] receiptHandle = StringCodec.UTF_8.encode(message.getReceiptHandle());
 					return new GroupQueueMessage<>(receiptHandle, databeans);
 				})
 				.collect(Collectors.toList());

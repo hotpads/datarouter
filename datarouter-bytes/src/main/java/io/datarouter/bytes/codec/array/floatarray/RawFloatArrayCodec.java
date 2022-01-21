@@ -33,7 +33,7 @@ public class RawFloatArrayCodec{
 		if(values.length == 0){
 			return EmptyArray.BYTE;
 		}
-		byte[] bytes = new byte[ITEM_LENGTH * values.length];
+		var bytes = new byte[ITEM_LENGTH * values.length];
 		encode(values, bytes, 0);
 		return bytes;
 	}
@@ -59,7 +59,7 @@ public class RawFloatArrayCodec{
 			throw new IllegalArgumentException("bytesLength must be multiple of " + ITEM_LENGTH);
 		}
 		int resultLength = bytesLength / ITEM_LENGTH;
-		float[] result = new float[resultLength];
+		var result = new float[resultLength];
 		int cursor = offset;
 		for(int i = 0; i < resultLength; ++i){
 			result[i] = RAW_FLOAT_CODEC.decode(bytes, cursor);

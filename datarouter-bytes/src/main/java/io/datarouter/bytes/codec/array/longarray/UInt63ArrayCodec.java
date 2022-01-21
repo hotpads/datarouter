@@ -29,7 +29,7 @@ public class UInt63ArrayCodec{
 		if(values.length == 0){
 			return EmptyArray.BYTE;
 		}
-		byte[] bytes = new byte[LENGTH * values.length];
+		var bytes = new byte[LENGTH * values.length];
 		encode(values, bytes, 0);
 		return bytes;
 	}
@@ -58,7 +58,7 @@ public class UInt63ArrayCodec{
 			throw new IllegalArgumentException("bytesLength must be multiple of " + LENGTH);
 		}
 		int resultLength = bytesLength / LENGTH;
-		long[] result = new long[resultLength];
+		var result = new long[resultLength];
 		int cursor = offset;
 		for(int i = 0; i < resultLength; ++i){
 			result[i] = U_INT_63_CODEC.decode(bytes, cursor);

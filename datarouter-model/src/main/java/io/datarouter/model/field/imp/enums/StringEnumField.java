@@ -15,7 +15,7 @@
  */
 package io.datarouter.model.field.imp.enums;
 
-import io.datarouter.bytes.StringByteTool;
+import io.datarouter.bytes.codec.stringcodec.StringCodec;
 import io.datarouter.model.field.BaseField;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.encoding.FieldGeneratorType;
@@ -68,7 +68,7 @@ public class StringEnumField<E extends StringEnum<E>> extends BaseField<E>{
 
 	@Override
 	public byte[] getBytes(){
-		return value == null ? null : StringByteTool.getUtf8Bytes(value.getPersistentString());
+		return value == null ? null : StringCodec.UTF_8.encode(value.getPersistentString());
 	}
 
 	@Override

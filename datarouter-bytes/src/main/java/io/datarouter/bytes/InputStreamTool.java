@@ -29,7 +29,7 @@ public class InputStreamTool{
 	public static long count(InputStream inputStream, int bufferSize){
 		long count = 0;
 		try{
-			byte[] buffer = new byte[bufferSize];
+			var buffer = new byte[bufferSize];
 			while(true){
 				int numRead = inputStream.read(buffer);
 				if(numRead == -1){
@@ -46,7 +46,7 @@ public class InputStreamTool{
 	public static long countByte(InputStream inputStream, int bufferSize, byte matchByte){
 		long count = 0;
 		try{
-			byte[] buffer = new byte[bufferSize];
+			var buffer = new byte[bufferSize];
 			while(true){
 				int numRead = inputStream.read(buffer);
 				if(numRead == -1){
@@ -66,7 +66,7 @@ public class InputStreamTool{
 
 	public static byte[] readThroughByte(InputStream inputStream, byte throughByte){
 		int throughInt = Byte.toUnsignedInt(throughByte);
-		ByteArrayOutputStream result = new ByteArrayOutputStream();
+		var result = new ByteArrayOutputStream();
 		try{
 			while(true){
 				int in = inputStream.read();
@@ -82,10 +82,10 @@ public class InputStreamTool{
 	}
 
 	public static byte[] readNBytes(InputStream inputStream, int len){
-		byte[] bytes = new byte[len];
+		var bytes = new byte[len];
 		try{
 			//avoid InputStream.readNBytes(int) which builds an ArrayList of small chunks then concatenates
-			int numRead = Java9.readNBytes(inputStream, bytes, 0, len);
+			int numRead = inputStream.readNBytes(bytes, 0, len);
 			if(numRead == len){
 				return bytes;
 			}
@@ -97,7 +97,7 @@ public class InputStreamTool{
 
 	public static void transferTo(InputStream inputStream, OutputStream outputStream){
 		try{
-			Java9.transferTo(inputStream, outputStream);
+			inputStream.transferTo(outputStream);
 		}catch(IOException e){
 			throw new UncheckedIOException(e);
 		}

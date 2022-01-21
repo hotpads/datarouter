@@ -50,4 +50,9 @@ public class CharBinaryDtoFieldCodec extends BinaryDtoBaseFieldCodec<Character>{
 		return new LengthAndValue<>(length, value);
 	}
 
+	@Override
+	public int compareAsIfEncoded(Character left, Character right){
+		return Character.compare(left, right);
+	}
+
 }

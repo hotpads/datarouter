@@ -15,19 +15,15 @@
  */
 package io.datarouter.bytes.binarydto;
 
-import java.util.List;
-
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.bytes.ByteTool;
-import io.datarouter.bytes.Java9;
 import io.datarouter.bytes.binarydto.codec.BinaryDtoCodec;
-import io.datarouter.bytes.binarydto.dto.BaseBinaryDto;
+import io.datarouter.bytes.binarydto.dto.BinaryDto;
 
 public class BinaryDtoCharArrayTests{
 
-	public static class TestDto extends BaseBinaryDto{
+	public static class TestDto extends BinaryDto<TestDto>{
 		public final char[] f1;
 		public final char[] f2;
 		public final char[] f3;
@@ -41,26 +37,25 @@ public class BinaryDtoCharArrayTests{
 
 	@Test
 	public void testEncoding(){
-		BinaryDtoCodec<TestDto> codec = new BinaryDtoCodec<>(TestDto.class);
-		TestDto dto = new TestDto(
+		var codec = BinaryDtoCodec.of(TestDto.class);
+		var dto = new TestDto(
 				new char[]{'M', 'a', 't', 't'},
 				null,
 				new char[]{});
-		List<byte[]> expectedByteSegments = Java9.listOf(
-				new byte[]{1},//f1 present
-				new byte[]{4},//f1 length 4
-				new byte[]{0, 77},//M
-				new byte[]{0, 97, },//a
-				new byte[]{0, 116},//t
-				new byte[]{0, 116},//t
-				new byte[]{0},//f2 null
-				new byte[]{1},//f3 present
-				new byte[]{0});//f3 length 0
-		byte[] expectedFullBytes = ByteTool.concatenate(expectedByteSegments);
-		byte[] actualFullBytes = codec.encode(dto);
-		Assert.assertEquals(actualFullBytes, expectedFullBytes);
+		byte[] expectedBytes = {
+				1,//f1 present
+				4,//f1 length 4
+				0, 77,//M
+				0, 97,//a
+				0, 116,//t
+				0, 116,//t
+				0,//f2 null
+				1,//f3 present
+				0};//f3 length 0
+		byte[] actualBytes = codec.encode(dto);
+		Assert.assertEquals(actualBytes, expectedBytes);
 
-		TestDto actual = codec.decode(actualFullBytes);
+		TestDto actual = codec.decode(actualBytes);
 		Assert.assertEquals(actual, dto);
 	}
 

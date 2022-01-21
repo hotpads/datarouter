@@ -52,4 +52,9 @@ public class BooleanBinaryDtoFieldCodec extends BinaryDtoBaseFieldCodec<Boolean>
 		return new LengthAndValue<>(length, value);
 	}
 
+	@Override
+	public int compareAsIfEncoded(Boolean left, Boolean right){
+		return Boolean.compare(left, right);
+	}
+
 }

@@ -15,12 +15,11 @@
  */
 package io.datarouter.bytes;
 
-import java.nio.charset.StandardCharsets;
-
 import io.datarouter.bytes.codec.booleancodec.RawBooleanCodec;
 import io.datarouter.bytes.codec.intcodec.RawIntCodec;
 import io.datarouter.bytes.codec.longcodec.ComparableLongCodec;
 import io.datarouter.bytes.codec.longcodec.RawLongCodec;
+import io.datarouter.bytes.codec.stringcodec.StringCodec;
 
 public class ByteReader{
 
@@ -72,17 +71,17 @@ public class ByteReader{
 	/*-------------- int -----------------*/
 
 	public int skipInts(int num){
-		return skip(num * 4);
+		return skip(num * Integer.BYTES);
 	}
 
 	public int rawInt(){
 		int value = RAW_INT_CODEC.decode(bytes, position);
-		position += 4;
+		position += Integer.BYTES;
 		return value;
 	}
 
 	public int[] rawInts(int count){
-		int[] value = new int[count];
+		var value = new int[count];
 		for(int i = 0; i < count; ++i){
 			value[i] = rawInt();
 		}
@@ -96,7 +95,7 @@ public class ByteReader{
 	}
 
 	public int[] varInts(int count){
-		int[] value = new int[count];
+		var value = new int[count];
 		for(int i = 0; i < count; ++i){
 			value[i] = varInt();
 		}
@@ -106,23 +105,23 @@ public class ByteReader{
 	/*-------------- long -----------------*/
 
 	public int skipLongs(int num){
-		return skip(num * 8);
+		return skip(num * Long.BYTES);
 	}
 
 	public long comparableLong(){
 		long value = COMPARABLE_LONG_CODEC.decode(bytes, position);
-		position += 8;
+		position += Long.BYTES;
 		return value;
 	}
 
 	public long rawLong(){
 		long value = RAW_LONG_CODEC.decode(bytes, position);
-		position += 8;
+		position += Long.BYTES;
 		return value;
 	}
 
 	public long[] rawLongs(int count){
-		long[] value = new long[count];
+		var value = new long[count];
 		for(int i = 0; i < count; ++i){
 			value[i] = rawLong();
 		}
@@ -138,7 +137,7 @@ public class ByteReader{
 	/*-------------- bytes --------------*/
 
 	public byte[] bytes(int num){
-		byte[] value = ByteTool.copyOfRange(bytes, position, num);
+		var value = ByteTool.copyOfRange(bytes, position, num);
 		position += num;
 		return value;
 	}
@@ -156,14 +155,14 @@ public class ByteReader{
 			++terminatorPosition;
 		}
 		int length = terminatorPosition - position;
-		String value = new String(bytes, position, length, StandardCharsets.UTF_8);
+		String value = StringCodec.UTF_8.decode(bytes, position, length);
 		position = terminatorPosition + 1;
 		return value;
 	}
 
 	public String varUtf8(){
 		byte[] bytes = varBytes();
-		return new String(bytes, StandardCharsets.UTF_8);
+		return StringCodec.UTF_8.decode(bytes);
 	}
 
 }

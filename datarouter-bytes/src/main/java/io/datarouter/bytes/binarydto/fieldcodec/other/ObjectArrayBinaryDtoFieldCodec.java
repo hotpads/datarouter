@@ -62,7 +62,7 @@ extends BinaryDtoBaseFieldCodec<T[]>{
 				byteArrays.add(itemBytes);
 			}
 		}
-		return ByteTool.concatenate(byteArrays);
+		return ByteTool.concat(byteArrays);
 	}
 
 	@Override
@@ -75,6 +75,7 @@ extends BinaryDtoBaseFieldCodec<T[]>{
 		int cursor = offset;
 		int size = VarIntTool.decodeInt(bytes, cursor);
 		cursor += VarIntTool.length(size);
+		@SuppressWarnings("unchecked")
 		T[] value = (T[])Array.newInstance(itemClass, size);
 		for(int i = 0; i < size; ++i){
 			boolean isItemNull = false;

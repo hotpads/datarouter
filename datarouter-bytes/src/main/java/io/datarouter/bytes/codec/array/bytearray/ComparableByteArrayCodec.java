@@ -33,7 +33,7 @@ public class ComparableByteArrayCodec{
 		if(values.length == 0){
 			return EmptyArray.BYTE;
 		}
-		byte[] bytes = new byte[values.length];
+		var bytes = new byte[values.length];
 		encode(values, bytes, 0);
 		return bytes;
 	}
@@ -56,7 +56,7 @@ public class ComparableByteArrayCodec{
 			return EmptyArray.BYTE;
 		}
 		int resultLength = bytesLength;
-		byte[] result = new byte[resultLength];
+		var result = new byte[resultLength];
 		int cursor = offset;
 		for(int i = 0; i < resultLength; ++i){
 			result[i] = COMPARABLE_BYTE_CODEC.decode(bytes, cursor);

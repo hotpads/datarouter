@@ -25,7 +25,6 @@ import io.datarouter.model.key.entity.EntityKey;
 import io.datarouter.model.key.entity.EntityPartitioner;
 import io.datarouter.model.key.primary.EntityPrimaryKey;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.storage.util.NullsTool;
 import io.datarouter.util.tuple.Range;
 
 public class HBaseNonEntityQueryBuilder<
@@ -60,8 +59,7 @@ public class HBaseNonEntityQueryBuilder<
 
 	public byte[] getPkBytesWithPartition(PK pk){
 		byte[] prefix = partitioner.getPrefix(pk.getEntityKey());
-		NullsTool.logStackIfNull(prefix);
-		return ByteTool.concatenateNullSafe(prefix, getPkBytes(pk));
+		return ByteTool.concat(prefix, getPkBytes(pk));
 	}
 
 	public Bytes getEkByteRange(EK ek){

@@ -25,24 +25,25 @@ public class BooleanListCodec{
 	public static final BooleanListCodec INSTANCE = new BooleanListCodec();
 
 	private static final NullableBooleanCodec NULLABLE_BOOLEAN_CODEC = NullableBooleanCodec.INSTANCE;
+	private static final int ITEM_LENGTH = NULLABLE_BOOLEAN_CODEC.length();
 
 	public byte[] encode(List<Boolean> values){
-		byte[] out = new byte[values.size()];
+		var out = new byte[values.size()];
 		for(int i = 0; i < values.size(); i++){
-			System.arraycopy(NULLABLE_BOOLEAN_CODEC.encode(values.get(i)), 0, out, i, 1);
+			System.arraycopy(NULLABLE_BOOLEAN_CODEC.encode(values.get(i)), 0, out, i, ITEM_LENGTH);
 		}
 		return out;
 	}
 
 	public List<Boolean> decode(byte[] bytes, int offset){
-		int numBooleans = bytes.length - offset;
-		List<Boolean> bools = new ArrayList<>();
-		byte[] arrayToCopy = new byte[1];
-		for(int i = 0; i < numBooleans; i++){
-			System.arraycopy(bytes, i + offset, arrayToCopy, 0, 1);
-			bools.add(NULLABLE_BOOLEAN_CODEC.decode(arrayToCopy, 0));
+		int numValues = bytes.length - offset;
+		List<Boolean> values = new ArrayList<>(numValues);
+		var arrayToCopy = new byte[ITEM_LENGTH];//TODO avoid intermediate array
+		for(int i = 0; i < numValues; i++){
+			System.arraycopy(bytes, i + offset, arrayToCopy, 0, ITEM_LENGTH);
+			values.add(NULLABLE_BOOLEAN_CODEC.decode(arrayToCopy, 0));
 		}
-		return bools;
+		return values;
 	}
 
 }

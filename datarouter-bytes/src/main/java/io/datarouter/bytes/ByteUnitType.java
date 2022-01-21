@@ -108,7 +108,7 @@ public enum ByteUnitType{
 			return null;
 		}
 		double numBytes = getNumBytes(value, toByteUnit);
-		BigDecimal bigDecimal = new BigDecimal(numBytes).round(new MathContext(3));
+		var bigDecimal = new BigDecimal(numBytes).round(new MathContext(3));
 		return bigDecimal.toPlainString() + " " + toByteUnit.getByteUnitName().getShortName();
 	}
 

@@ -19,14 +19,14 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import io.datarouter.bytes.binarydto.codec.BinaryDtoCodec;
-import io.datarouter.bytes.binarydto.dto.BaseBinaryDto;
+import io.datarouter.bytes.binarydto.dto.BinaryDto;
 import io.datarouter.bytes.binarydto.dto.BinaryDtoField;
 import io.datarouter.bytes.binarydto.fieldcodec.string.PrefixedUtf8BinaryDtoFieldCodec;
 import io.datarouter.bytes.binarydto.fieldcodec.string.TerminatedUtf8BinaryDtoFieldCodec;
 
 public class BinaryDtoAnnotationTests{
 
-	public static class TestDto extends BaseBinaryDto{
+	public static class TestDto extends BinaryDto<TestDto>{
 
 		@BinaryDtoField(codec = TerminatedUtf8BinaryDtoFieldCodec.class)
 		public final String s1;
@@ -45,9 +45,9 @@ public class BinaryDtoAnnotationTests{
 
 	@Test
 	public void testCustomCodecs(){
-		BinaryDtoCodec<TestDto> codec = new BinaryDtoCodec<>(TestDto.class);
-		TestDto dto = new TestDto("Aa", "Bb", "Cc");
-		byte[] expectedBytes = new byte[]{
+		var codec = BinaryDtoCodec.of(TestDto.class);
+		var dto = new TestDto("Aa", "Bb", "Cc");
+		byte[] expectedBytes = {
 				1, 'A', 'a', 0,//present, value, terminator
 				1, 2, 'B', 'b',//present, length, value
 				1, 'C', 'c', 0};//present, value, terminator

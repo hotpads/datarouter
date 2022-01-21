@@ -98,7 +98,7 @@ public class TableSampleKey extends BaseRegularPrimaryKey<TableSampleKey>{
 
 	//DJB shifts left 5 bits after each byte, so should be plenty large
 	public long positiveLongHashCode(){
-		byte[] hashInput = ByteTool.concatenate2(
+		byte[] hashInput = ByteTool.concat(
 				StringCodec.UTF_8.encode(clientName),
 				StringCodec.UTF_8.encode(tableName),
 				StringCodec.UTF_8.encode(subEntityPrefix),

@@ -21,37 +21,42 @@ import io.datarouter.bytes.ByteTool;
 import io.datarouter.bytes.LengthAndValue;
 import io.datarouter.bytes.binarydto.fieldcodec.BinaryDtoBaseFieldCodec;
 
-public class BinaryDtoFieldSchema<F,V>{
+public class BinaryDtoFieldSchema<F>{
 
-	private final Field field;
+	public final Field field;
 	private final boolean isNullable;
 	private final BinaryDtoBaseFieldCodec<F> codec;
 
 	@SuppressWarnings("unchecked")
 	public BinaryDtoFieldSchema(Field field){
 		this.field = field;
-		BinaryDtoFieldMetadataParser<F> fieldMetadataParser = new BinaryDtoFieldMetadataParser<>(field);
+		var fieldMetadataParser = new BinaryDtoFieldMetadataParser<>(field);
 		isNullable = fieldMetadataParser.isNullable();
 		codec = (BinaryDtoBaseFieldCodec<F>)BinaryDtoFieldCodecs.getCodecForField(field);
 	}
 
 	public byte[] encodeField(Object dto){
 		F fieldValue = getFieldValue(dto);
+		if(!isNullable && fieldValue == null){
+			String message = String.format(
+					"field=%s of class=%s can't contain nulls",
+					field.getName(),
+					dto.getClass().getCanonicalName());
+			throw new IllegalArgumentException(message);
+		}
+		return encodeFieldValue(fieldValue);
+	}
+
+	private byte[] encodeFieldValue(F fieldValue){
 		if(isNullable){
 			if(fieldValue == null){
 				return BinaryDtoNullFieldTool.NULL_INDICATOR_TRUE_ARRAY;
 			}else{
-				return ByteTool.concatenate2(
+				return ByteTool.concat(
 						BinaryDtoNullFieldTool.NULL_INDICATOR_FALSE_ARRAY,
 						codec.encode(fieldValue));
 			}
 		}else{
-			if(fieldValue == null){
-				String message = String.format("field=%s of class=%s can't contain nulls",
-						field.getName(),
-						dto.getClass().getCanonicalName());
-				throw new IllegalArgumentException(message);
-			}
 			return codec.encode(fieldValue);
 		}
 	}
@@ -84,6 +89,20 @@ public class BinaryDtoFieldSchema<F,V>{
 		}
 		BinaryDtoReflectionTool.setUnchecked(field, object, fieldValue);
 		return cursor - offset;
+	}
+
+	public int compareFieldValuesAsIfEncoded(Object left, Object right){
+		F leftValue = getFieldValue(left);
+		F rightValue = getFieldValue(right);
+		if(leftValue == null && rightValue == null){
+			return 0;
+		}else if(leftValue == null){
+			return -1;
+		}else if(rightValue == null){
+			return 1;
+		}else{
+			return codec.compareAsIfEncoded(leftValue, rightValue);
+		}
 	}
 
 	@SuppressWarnings("unchecked")
