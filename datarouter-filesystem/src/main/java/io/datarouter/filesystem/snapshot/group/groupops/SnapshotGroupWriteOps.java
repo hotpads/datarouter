@@ -20,7 +20,9 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Supplier;
 
-import io.datarouter.filesystem.snapshot.block.root.RootBlock;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.datarouter.filesystem.snapshot.entry.SnapshotEntry;
 import io.datarouter.filesystem.snapshot.group.SnapshotGroup;
 import io.datarouter.filesystem.snapshot.group.dto.SnapshotWriteResult;
@@ -37,6 +39,7 @@ import io.datarouter.storage.file.PathbeanKey;
 import io.datarouter.util.UlidTool;
 
 public class SnapshotGroupWriteOps{
+	private static final Logger logger = LoggerFactory.getLogger(SnapshotGroupWriteOps.class);
 
 	private final SnapshotGroup group;
 	private final String groupId;
@@ -88,12 +91,20 @@ public class SnapshotGroupWriteOps{
 			if(shouldStop.get()){
 				return SnapshotWriteResult.failure(snapshotKey);
 			}
-			RootBlock rootBlock = writer.complete();
-			writeIdFile(snapshotKey.snapshotId);
-			decodingBlockLoaderBySnapshotKey.put(
-					snapshotKey,
-					decodingBlockLoaderFactory.create(rootBlock, group.makeStorageReader(snapshotKey.snapshotId)));
-			return SnapshotWriteResult.success(snapshotKey, rootBlock);
+			return writer.complete()
+					.map(rootBlock -> {
+						writeIdFile(snapshotKey.snapshotId);
+						decodingBlockLoaderBySnapshotKey.put(
+								snapshotKey,
+								decodingBlockLoaderFactory.create(
+										rootBlock,
+										group.makeStorageReader(snapshotKey.snapshotId)));
+						return SnapshotWriteResult.success(snapshotKey, rootBlock);
+					})
+					.orElseGet(() -> {
+						logger.warn("snapshot {} had no entries and was not written", snapshotKey);
+						return SnapshotWriteResult.empty(snapshotKey);
+					});
 		}
 	}
 

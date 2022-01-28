@@ -15,12 +15,13 @@
  */
 package io.datarouter.aws.elb.config;
 
-import io.datarouter.job.config.BaseJobPlugin;
+import io.datarouter.job.BaseTriggerGroup;
+import io.datarouter.web.config.BaseWebPlugin;
 
-public class DatarouterAwsElbPlugin extends BaseJobPlugin{
+public class DatarouterAwsElbPlugin extends BaseWebPlugin{
 
 	public DatarouterAwsElbPlugin(){
-		addTriggerGroup(DatarouterAwsElbTriggerGroup.class);
+		addPluginEntry(BaseTriggerGroup.KEY, DatarouterAwsElbTriggerGroup.class);
 		addSettingRoot(DatarouterAwsElbSettingRoot.class);
 		addDatarouterGithubDocLink("datarouter-aws-elb");
 	}

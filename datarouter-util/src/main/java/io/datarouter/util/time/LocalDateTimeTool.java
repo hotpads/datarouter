@@ -15,13 +15,23 @@
  */
 package io.datarouter.util.time;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 
 public class LocalDateTimeTool{
+
+	public static LocalDateTime nowMicros(){
+		return LocalDateTime.now().truncatedTo(ChronoUnit.MICROS);
+	}
+
+	public static LocalDateTime nowUtcMicros(){
+		return LocalDateTime.now(Clock.systemUTC()).truncatedTo(ChronoUnit.MICROS);
+	}
 
 	public static Date getDate(LocalDateTime localDateTime){
 		if(localDateTime == LocalDateTime.MIN){

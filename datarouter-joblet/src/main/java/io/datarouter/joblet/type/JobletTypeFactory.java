@@ -15,7 +15,6 @@
  */
 package io.datarouter.joblet.type;
 
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -23,6 +22,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.joblet.model.Joblet;
@@ -39,7 +39,10 @@ public class JobletTypeFactory{
 	private final Map<String,JobletType<?>> typeByShortQueueName;
 	private final Set<JobletType<?>> typesCausingScaling;
 
-	public JobletTypeFactory(Collection<JobletType<?>> types){
+	@Inject
+	public JobletTypeFactory(JobletTypeRegistry registry){
+		List<JobletType<?>> types = registry.get();
+
 		this.allTypes = types.stream()
 				.sorted(Comparator.comparing(JobletType::getPersistentString))
 				.collect(Collectors.toList());

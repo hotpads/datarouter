@@ -13,16 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.web.digest;
+package io.datarouter.websocket;
 
-import java.util.List;
+import io.datarouter.storage.exception.ExceptionCategory;
 
-public class DailyDigestRegistry{
+public enum WebsocketExceptionCategory implements ExceptionCategory{
 
-	public final List<Class<? extends DailyDigest>> registry;
-
-	public DailyDigestRegistry(List<Class<? extends DailyDigest>> registry){
-		this.registry = registry;
-	}
+	WEBSOCKET,
 
 }

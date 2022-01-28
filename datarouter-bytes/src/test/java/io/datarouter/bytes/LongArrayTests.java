@@ -15,6 +15,7 @@
  */
 package io.datarouter.bytes;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -155,6 +156,13 @@ public class LongArrayTests{
 		Assert.assertEquals(list.get(0).longValue(), -100L);
 		Assert.assertEquals(list.get(2).longValue(), 300L);
 		Assert.assertEquals(list.get(6).longValue(), 700L);
+	}
+
+	@Test
+	public void testCollectionsSort(){
+		var list = new LongArray(new long[]{5, 3, 4, 0, 2, 1});
+		Collections.sort(list);
+		Assert.assertEquals(list, new LongArray(new long[]{0, 1, 2, 3, 4, 5}));
 	}
 
 }

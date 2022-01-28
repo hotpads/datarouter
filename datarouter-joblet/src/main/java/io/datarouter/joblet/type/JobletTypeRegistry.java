@@ -13,20 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.autoconfig.service;
+package io.datarouter.joblet.type;
 
-import java.util.Set;
+import java.util.List;
+import java.util.function.Supplier;
 
-public class AutoConfigRegistry{
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
-	public final Set<Class<? extends AutoConfig>> autoConfigs;
-	public final Set<Class<? extends AutoConfigGroup>> autoConfigGroups;
+import io.datarouter.plugin.PluginInjector;
 
-	public AutoConfigRegistry(
-			Set<Class<? extends AutoConfig>> autoConfigs,
-			Set<Class<? extends AutoConfigGroup>> autoConfigGroups){
-		this.autoConfigs = autoConfigs;
-		this.autoConfigGroups = autoConfigGroups;
+@Singleton
+public class JobletTypeRegistry implements Supplier<List<JobletType<?>>>{
+
+	@Inject
+	private PluginInjector injector;
+
+	@Override
+	public List<JobletType<?>> get(){
+		return injector.getInstances(JobletType.KEY);
 	}
 
 }

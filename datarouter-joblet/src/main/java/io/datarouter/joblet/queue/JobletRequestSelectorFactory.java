@@ -18,7 +18,7 @@ package io.datarouter.joblet.queue;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.inject.DatarouterInjector;
+import io.datarouter.joblet.enums.JobletQueueMechanism;
 import io.datarouter.joblet.setting.DatarouterJobletSettingRoot;
 
 @Singleton
@@ -28,12 +28,11 @@ public class JobletRequestSelectorFactory{
 	private DatarouterJobletSettingRoot jobletSettings;
 	@Inject
 	private JobletSelectorRegistry jobletSelectorRegistry;
-	@Inject
-	private DatarouterInjector injector;
 
 	public JobletRequestSelector create(){
 		String name = jobletSettings.queueMechanism.get();
-		return injector.getInstance(jobletSelectorRegistry.getSelectorClass(name));
+		var key = JobletQueueMechanism.getKeyFromPersistentStringStatic(name);
+		return jobletSelectorRegistry.getSelector(key);
 	}
 
 }

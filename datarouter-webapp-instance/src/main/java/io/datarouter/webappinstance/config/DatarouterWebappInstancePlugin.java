@@ -19,10 +19,11 @@ import java.util.List;
 
 import io.datarouter.instrumentation.webappinstance.WebappInstancePublisher;
 import io.datarouter.instrumentation.webappinstance.WebappInstancePublisher.NoOpWebappInstancePublisher;
-import io.datarouter.job.config.BaseJobPlugin;
+import io.datarouter.job.BaseTriggerGroup;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.dao.DaosModuleBuilder;
+import io.datarouter.web.config.BaseWebPlugin;
 import io.datarouter.web.navigation.DatarouterNavBarCategory;
 import io.datarouter.webappinstance.WebappInstanceAppListener;
 import io.datarouter.webappinstance.service.StandardDeploymentCount;
@@ -39,7 +40,7 @@ import io.datarouter.webappinstance.storage.webappinstance.DatarouterWebappInsta
 import io.datarouter.webappinstance.storage.webappinstancelog.DatarouterWebappInstanceLogDao;
 import io.datarouter.webappinstance.storage.webappinstancelog.DatarouterWebappInstanceLogDao.DatarouterWebappInstanceLogDaoParams;
 
-public class DatarouterWebappInstancePlugin extends BaseJobPlugin{
+public class DatarouterWebappInstancePlugin extends BaseWebPlugin{
 
 	private final Class<? extends WebappInstancePublisher> webappInstancePublisher;
 	private final Class<? extends WebappInstanceBuildIdLink> buildIdLink;
@@ -60,7 +61,7 @@ public class DatarouterWebappInstancePlugin extends BaseJobPlugin{
 		addAppListener(WebappInstanceAppListener.class);
 		addRouteSet(DatarouterWebappInstanceRouteSet.class);
 		addSettingRoot(DatarouterWebappInstanceSettingRoot.class);
-		addTriggerGroup(DatarouterWebappInstanceTriggerGroup.class);
+		addPluginEntry(BaseTriggerGroup.KEY, DatarouterWebappInstanceTriggerGroup.class);
 		setDaosModule(daosModuleBuilder);
 		addDatarouterNavBarItem(
 				DatarouterNavBarCategory.MONITORING,

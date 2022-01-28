@@ -15,10 +15,40 @@
  */
 package io.datarouter.job.detached;
 
-import io.datarouter.job.scheduler.JobWrapper;
+import java.util.function.Supplier;
 
-public interface DetachedJobExecutor{
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+import io.datarouter.job.scheduler.JobWrapper;
+import io.datarouter.plugin.PluginConfigKey;
+import io.datarouter.plugin.PluginConfigType;
+import io.datarouter.plugin.PluginConfigValue;
+import io.datarouter.plugin.PluginInjector;
+
+public interface DetachedJobExecutor extends PluginConfigValue<DetachedJobExecutor>{
+
+	PluginConfigKey<DetachedJobExecutor> KEY = new PluginConfigKey<>(
+			"detachedJobExecutor",
+			PluginConfigType.CLASS_SINGLE);
 
 	void submit(JobWrapper jobWrapper);
 
+	@Override
+	default PluginConfigKey<DetachedJobExecutor> getKey(){
+		return KEY;
+	}
+
+	@Singleton
+	class DetachedJobExecutorSupplier implements Supplier<DetachedJobExecutor>{
+
+		@Inject
+		private PluginInjector injector;
+
+		@Override
+		public DetachedJobExecutor get(){
+			return injector.getInstance(KEY);
+		}
+
+	}
 }

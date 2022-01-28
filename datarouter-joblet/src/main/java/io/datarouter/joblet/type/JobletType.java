@@ -22,10 +22,17 @@ import java.util.function.Supplier;
 import io.datarouter.joblet.DatarouterJobletConstants;
 import io.datarouter.joblet.codec.JobletCodec;
 import io.datarouter.joblet.model.Joblet;
+import io.datarouter.plugin.PluginConfigKey;
+import io.datarouter.plugin.PluginConfigType;
+import io.datarouter.plugin.PluginConfigValue;
 import io.datarouter.util.ComparableTool;
 import io.datarouter.util.Require;
 
-public class JobletType<P> implements Comparable<JobletType<?>>{
+public class JobletType<P> implements Comparable<JobletType<?>>, PluginConfigValue<JobletType<?>>{
+
+	public static final PluginConfigKey<JobletType<?>> KEY = new PluginConfigKey<>(
+			"jobletType",
+			PluginConfigType.INSTANCE_LIST);
 
 	private final String persistentString;
 	private final String shortQueueName;//must be short for some queueing systems
@@ -150,6 +157,11 @@ public class JobletType<P> implements Comparable<JobletType<?>>{
 					isSystem);
 		}
 
+	}
+
+	@Override
+	public PluginConfigKey<JobletType<?>> getKey(){
+		return KEY;
 	}
 
 }

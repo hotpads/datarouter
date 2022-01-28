@@ -15,23 +15,23 @@
  */
 package io.datarouter.job;
 
-import java.util.List;
 import java.util.function.Supplier;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.plugin.PluginInjector;
+import io.datarouter.scanner.Scanner;
+
 @Singleton
-public class TriggerGroupClasses implements Supplier<List<Class<? extends BaseTriggerGroup>>>{
+public class TriggerGroupClasses implements Supplier<Scanner<BaseTriggerGroup>>{
 
-	private final List<Class<? extends BaseTriggerGroup>> classes;
-
-	public TriggerGroupClasses(List<Class<? extends BaseTriggerGroup>> classes){
-		this.classes = classes;
-	}
+	@Inject
+	private PluginInjector pluginInjector;
 
 	@Override
-	public List<Class<? extends BaseTriggerGroup>> get(){
-		return classes;
+	public Scanner<BaseTriggerGroup> get(){
+		return pluginInjector.scanInstances(BaseTriggerGroup.KEY);
 	}
 
 }

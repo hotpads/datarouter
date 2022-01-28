@@ -36,7 +36,7 @@ import io.datarouter.job.JobCounters;
 import io.datarouter.job.LocalJobProcessor;
 import io.datarouter.job.config.DatarouterJobExecutors.DatarouterJobScheduler;
 import io.datarouter.job.config.DatarouterJobSettingRoot;
-import io.datarouter.job.detached.DetachedJobExecutor;
+import io.datarouter.job.detached.DetachedJobExecutor.DetachedJobExecutorSupplier;
 import io.datarouter.job.lock.ClusterTriggerLockService;
 import io.datarouter.job.lock.LocalTriggerLockService;
 import io.datarouter.job.lock.TriggerLockConfig;
@@ -59,7 +59,7 @@ public class JobScheduler{
 
 	private final DatarouterInjector injector;
 	private final DatarouterJobScheduler triggerExecutor;
-	private final DetachedJobExecutor detachedJobExecutor;
+	private final DetachedJobExecutorSupplier detachedJobExecutor;
 	private final DatarouterJobSettingRoot jobSettings;
 	private final JobCategoryTracker jobCategoryTracker;
 	private final JobPackageTracker jobPackageTracker;
@@ -74,7 +74,7 @@ public class JobScheduler{
 	public JobScheduler(
 			DatarouterInjector injector,
 			DatarouterJobScheduler triggerExecutor,
-			DetachedJobExecutor detachedJobExecutor,
+			DetachedJobExecutorSupplier detachedJobExecutor,
 			DatarouterJobSettingRoot jobSettings,
 			JobCategoryTracker jobCategoryTracker,
 			JobPackageTracker jobPackageTracker,
@@ -274,7 +274,7 @@ public class JobScheduler{
 	private Outcome runDetached(JobWrapper jobWrapper){
 		Class<? extends BaseJob> jobClass = jobWrapper.job.getClass();
 		try{
-			detachedJobExecutor.submit(jobWrapper);
+			detachedJobExecutor.get().submit(jobWrapper);
 			return Outcome.success();
 		}catch(RejectedExecutionException e){
 			logger.warn("detached-job: {} was rejected by detached executor.", jobClass.getSimpleName(), e);

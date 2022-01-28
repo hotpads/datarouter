@@ -17,7 +17,6 @@ package io.datarouter.virtualnode.replication;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -37,8 +36,7 @@ import io.datarouter.storage.node.op.NodeOps;
 import io.datarouter.storage.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import io.datarouter.storage.node.op.raw.MapStorage.MapStorageNode;
-import io.datarouter.storage.node.tableconfig.NodewatchConfigurationBuilder;
-import io.datarouter.virtualnode.replication.ReplicationNodeFactory.ReplicationNodeOptions.ReplicationNodeOptionsBuilder;
+import io.datarouter.virtualnode.replication.ReplicationNodeOptions.ReplicationNodeOptionsBuilder;
 
 @Singleton
 public class ReplicationNodeFactory{
@@ -47,6 +45,8 @@ public class ReplicationNodeFactory{
 	private Datarouter datarouter;
 	@Inject
 	private NodeFactory nodeFactory;
+
+	/*-------------- build ---------------*/
 
 	public <PK extends RegularPrimaryKey<PK>,
 			D extends Databean<PK,D>,
@@ -87,9 +87,10 @@ public class ReplicationNodeFactory{
 		List<N> replicas = Scanner.of(replicaClientIds)
 				.map(buildReplicaFunction)
 				.list();
-		return make(primary, replicas);
+		return makeInternal(primary, replicas, options.everyNToPrimary.orElse(null));
 	}
 
+	// custom tableName
 	public <PK extends RegularPrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>,
@@ -106,21 +107,7 @@ public class ReplicationNodeFactory{
 		return build(primaryClientId, replicaClientIds, databeanSupplier, fielderSupplier, options);
 	}
 
-	public <PK extends RegularPrimaryKey<PK>,
-			D extends Databean<PK,D>,
-			F extends DatabeanFielder<PK,D>,
-			N extends NodeOps<PK,D>>
-	N build(
-			ClientId primaryClientId,
-			Collection<ClientId> replicaClientIds,
-			Supplier<D> databeanSupplier,
-			Supplier<F> fielderSupplier,
-			NodewatchConfigurationBuilder nodewatchConfigurationBuilder){
-		var options = new ReplicationNodeOptionsBuilder()
-				.withNodewatchConfigurationBuilder(nodewatchConfigurationBuilder)
-				.build();
-		return build(primaryClientId, replicaClientIds, databeanSupplier, fielderSupplier, options);
-	}
+	/*------------- build with EntityKey ------------*/
 
 	public <EK extends EntityKey<EK>,
 			PK extends EntityPrimaryKey<EK,PK>,
@@ -133,25 +120,7 @@ public class ReplicationNodeFactory{
 			Supplier<EK> entityKeySupplier,
 			Supplier<D> databeanSupplier,
 			Supplier<F> fielderSupplier){
-		ReplicationNodeOptions options = new ReplicationNodeOptionsBuilder()
-				.build();
-		return build(primaryClientId, replicaClientIds, entityKeySupplier, databeanSupplier, fielderSupplier, options);
-	}
-
-	public <EK extends EntityKey<EK>,
-			PK extends EntityPrimaryKey<EK,PK>,
-			D extends Databean<PK,D>,
-			F extends DatabeanFielder<PK,D>,
-			N extends NodeOps<PK,D>>
-	N build(
-			ClientId primaryClientId,
-			Collection<ClientId> replicaClientIds,
-			Supplier<EK> entityKeySupplier,
-			Supplier<D> databeanSupplier,
-			Supplier<F> fielderSupplier,
-			String tableName){
-		ReplicationNodeOptions options = new ReplicationNodeOptionsBuilder()
-				.withTableName(tableName)
+		var options = new ReplicationNodeOptionsBuilder()
 				.build();
 		return build(primaryClientId, replicaClientIds, entityKeySupplier, databeanSupplier, fielderSupplier, options);
 	}
@@ -185,9 +154,10 @@ public class ReplicationNodeFactory{
 		List<N> replicas = Scanner.of(replicaClientIds)
 				.map(buildReplicaFunction)
 				.list();
-		return make(primary, replicas);
+		return makeInternal(primary, replicas, options.everyNToPrimary.orElse(null));
 	}
 
+	// custom tableName
 	public <EK extends EntityKey<EK>,
 			PK extends EntityPrimaryKey<EK,PK>,
 			D extends Databean<PK,D>,
@@ -199,12 +169,14 @@ public class ReplicationNodeFactory{
 			Supplier<EK> entityKeySupplier,
 			Supplier<D> databeanSupplier,
 			Supplier<F> fielderSupplier,
-			NodewatchConfigurationBuilder nodewatchConfigurationBuilder){
-		ReplicationNodeOptions options = new ReplicationNodeOptionsBuilder()
-				.withNodewatchConfigurationBuilder(nodewatchConfigurationBuilder)
+			String tableName){
+		var options = new ReplicationNodeOptionsBuilder()
+				.withTableName(tableName)
 				.build();
 		return build(primaryClientId, replicaClientIds, entityKeySupplier, databeanSupplier, fielderSupplier, options);
 	}
+
+	/*------------ register --------------*/
 
 	public <PK extends RegularPrimaryKey<PK>,
 			D extends Databean<PK,D>,
@@ -232,88 +204,32 @@ public class ReplicationNodeFactory{
 				tableName));
 	}
 
+	/*-------------- private --------------*/
+
 	@SuppressWarnings("unchecked")
-	public static <
+	private static <
 			PK extends EntityPrimaryKey<?,PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>,
 			N extends NodeOps<PK,D>>
-	N make(N primary, List<N> replicas){
+	N makeInternal(N primary, List<N> replicas, Integer everyNToPrimary){
 		if(primary instanceof IndexedSortedMapStorageNode){
 			IndexedSortedMapStorageNode<PK,D,F> typedPrimary = (IndexedSortedMapStorageNode<PK,D,F>)primary;
 			List<IndexedSortedMapStorageNode<PK,D,F>> typedReplicas = (List<IndexedSortedMapStorageNode<PK,D,F>>)
 					replicas;
-			return (N)new ReplicationIndexedSortedMapStorageNode<>(typedPrimary, typedReplicas);
+			return (N)new ReplicationIndexedSortedMapStorageNode<>(typedPrimary, typedReplicas, everyNToPrimary);
 		}
 		if(primary instanceof SortedMapStorageNode){
 			SortedMapStorageNode<PK,D,F> typedPrimary = (SortedMapStorageNode<PK,D,F>)primary;
 			List<SortedMapStorageNode<PK,D,F>> typedReplicas = (List<SortedMapStorageNode<PK,D,F>>)replicas;
-			return (N)new ReplicationSortedMapStorageNode<>(typedPrimary, typedReplicas);
+			return (N)new ReplicationSortedMapStorageNode<>(typedPrimary, typedReplicas, everyNToPrimary);
 		}
 		if(primary instanceof MapStorageNode){
 			MapStorageNode<PK,D,F> typedPrimary = (MapStorageNode<PK,D,F>)primary;
 			List<MapStorageNode<PK,D,F>> typedReplicas = (List<MapStorageNode<PK,D,F>>)replicas;
-			return (N)new ReplicationMapStorageNode<>(typedPrimary, typedReplicas);
+			return (N)new ReplicationMapStorageNode<>(typedPrimary, typedReplicas, everyNToPrimary);
 		}
 		throw new UnsupportedOperationException("No ReplicationNode implementation found for " + primary.getClass());
-	}
-
-	public static class ReplicationNodeOptions{
-
-		public final Optional<String> tableName;
-		public final Optional<Boolean> disableForcePrimary;
-		public final Optional<Boolean> disableIntroducer;
-		public final Optional<NodewatchConfigurationBuilder> nodewatchConfigurationBuilder;
-
-		private ReplicationNodeOptions(
-				Optional<String> tableName,
-				Optional<Boolean> disableForcePrimary,
-				Optional<Boolean> disableIntroducer,
-				Optional<NodewatchConfigurationBuilder> nodewatchConfigurationBuilder){
-			this.tableName = tableName;
-			this.disableForcePrimary = disableForcePrimary;
-			this.disableIntroducer = disableIntroducer;
-			this.nodewatchConfigurationBuilder = nodewatchConfigurationBuilder;
-		}
-
-		public static class ReplicationNodeOptionsBuilder{
-
-			public Optional<String> tableName = Optional.empty();
-			public Optional<Boolean> disableForcePrimary = Optional.empty();
-			public Optional<Boolean> disableIntroducer = Optional.empty();
-			public Optional<NodewatchConfigurationBuilder> nodewatchConfigurationBuilder = Optional.empty();
-
-			public ReplicationNodeOptionsBuilder withTableName(String tableName){
-				this.tableName = Optional.of(tableName);
-				return this;
-			}
-
-			public ReplicationNodeOptionsBuilder withDisableForcePrimary(boolean disableForcePrimary){
-				this.disableForcePrimary = Optional.of(disableForcePrimary);
-				return this;
-			}
-
-			public ReplicationNodeOptionsBuilder withDisableIntroducer(boolean disableForcePrimary){
-				this.disableForcePrimary = Optional.of(disableForcePrimary);
-				return this;
-			}
-
-			public ReplicationNodeOptionsBuilder withNodewatchConfigurationBuilder(
-					NodewatchConfigurationBuilder nodewatchConfigurationBuilder){
-				this.nodewatchConfigurationBuilder = Optional.of(nodewatchConfigurationBuilder);
-				return this;
-			}
-
-			public ReplicationNodeOptions build(){
-				return new ReplicationNodeOptions(
-						tableName,
-						disableForcePrimary,
-						disableIntroducer,
-						nodewatchConfigurationBuilder);
-			}
-
-		}
-
 	}
 
 }

@@ -25,6 +25,7 @@ import io.datarouter.client.mysql.op.Isolation;
 import io.datarouter.client.mysql.sql.MysqlSqlFactory;
 import io.datarouter.joblet.DatarouterJobletCounters;
 import io.datarouter.joblet.JobletRequestSqlBuilder;
+import io.datarouter.joblet.enums.JobletQueueMechanism;
 import io.datarouter.joblet.enums.JobletStatus;
 import io.datarouter.joblet.queue.JobletRequestQueueManager;
 import io.datarouter.joblet.queue.JobletRequestSelector;
@@ -34,6 +35,7 @@ import io.datarouter.joblet.storage.jobletrequest.JobletRequest;
 import io.datarouter.joblet.storage.jobletrequestqueue.JobletRequestQueueKey;
 import io.datarouter.joblet.type.JobletType;
 import io.datarouter.jobletmysql.txn.ReserveJobletRequest;
+import io.datarouter.plugin.PluginConfigKey;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.util.timer.PhaseTimer;
 
@@ -88,6 +90,11 @@ public class MysqlUpdateAndScanJobletRequestSelector implements JobletRequestSel
 		}
 		jobletRequestQueueManager.onJobletRequestMissForAllPriorities(type);//for back-off
 		return Optional.empty();
+	}
+
+	@Override
+	public PluginConfigKey<JobletRequestSelector> getKey(){
+		return JobletQueueMechanism.JDBC_UPDATE_AND_SCAN.getKey();
 	}
 
 }

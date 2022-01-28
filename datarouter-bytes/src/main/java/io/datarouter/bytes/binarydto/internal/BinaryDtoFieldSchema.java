@@ -91,6 +91,20 @@ public class BinaryDtoFieldSchema<F>{
 		return cursor - offset;
 	}
 
+	public int decodeFieldLength(byte[] bytes, final int offset){
+		int cursor = offset;
+		if(isNullable){
+			boolean isNull = BinaryDtoNullFieldTool.decodeNullIndicator(bytes[cursor]);
+			cursor += BinaryDtoNullFieldTool.NULL_INDICATOR_LENGTH;
+			if(!isNull){
+				cursor += codec.decodeLength(bytes, cursor);
+			}
+		}else{
+			cursor += codec.decodeLength(bytes, cursor);
+		}
+		return cursor - offset;
+	}
+
 	public int compareFieldValuesAsIfEncoded(Object left, Object right){
 		F leftValue = getFieldValue(left);
 		F rightValue = getFieldValue(right);

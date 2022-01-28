@@ -16,13 +16,44 @@
 package io.datarouter.joblet.nav;
 
 import java.util.Optional;
+import java.util.function.Supplier;
 
-public interface JobletExternalLinkBuilder{
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+import io.datarouter.plugin.PluginConfigKey;
+import io.datarouter.plugin.PluginConfigType;
+import io.datarouter.plugin.PluginConfigValue;
+import io.datarouter.plugin.PluginInjector;
+
+public interface JobletExternalLinkBuilder extends PluginConfigValue<JobletExternalLinkBuilder>{
+
+	PluginConfigKey<JobletExternalLinkBuilder> KEY = new PluginConfigKey<>(
+			"jobletExternalLinkBuilder",
+			PluginConfigType.CLASS_SINGLE);
 
 	Optional<String> exception(String contextPath, String exceptionId);
 	Optional<String> counters(String counterNamePrefix);
 
-	public static class NoOpJobletExternalLinkBuilder implements JobletExternalLinkBuilder{
+	@Override
+	default PluginConfigKey<JobletExternalLinkBuilder> getKey(){
+		return KEY;
+	}
+
+	@Singleton
+	class JobletExternalLinkBuilderSupplier implements Supplier<JobletExternalLinkBuilder>{
+
+		@Inject
+		private PluginInjector injector;
+
+		@Override
+		public JobletExternalLinkBuilder get(){
+			return injector.getInstance(KEY);
+		}
+
+	}
+
+	class NoOpJobletExternalLinkBuilder implements JobletExternalLinkBuilder{
 
 		@Override
 		public Optional<String> exception(String contextPath, String exceptionId){

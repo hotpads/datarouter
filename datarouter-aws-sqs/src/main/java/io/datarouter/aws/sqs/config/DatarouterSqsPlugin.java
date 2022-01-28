@@ -20,14 +20,15 @@ import java.util.List;
 
 import io.datarouter.aws.sqs.service.SqsQueuesDailyDigest;
 import io.datarouter.instrumentation.test.TestableService;
-import io.datarouter.job.config.BaseJobPlugin;
+import io.datarouter.job.BaseTriggerGroup;
+import io.datarouter.web.config.BaseWebPlugin;
 
-public class DatarouterSqsPlugin extends BaseJobPlugin{
+public class DatarouterSqsPlugin extends BaseWebPlugin{
 
 	private DatarouterSqsPlugin(DatarouterSqsPluginBuilder builder){
 		addSettingRoot(DatarouterSqsSettingsRoot.class);
 		addRouteSet(DatarouterSqsRouteSet.class);
-		addTriggerGroup(DatarouterSqsTriggerGroup.class);
+		addPluginEntry(BaseTriggerGroup.KEY, DatarouterSqsTriggerGroup.class);
 		addDatarouterGithubDocLink("datarouter-aws-sqs");
 		addDailyDigest(SqsQueuesDailyDigest.class);
 

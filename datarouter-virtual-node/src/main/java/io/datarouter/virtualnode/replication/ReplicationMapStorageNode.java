@@ -31,8 +31,8 @@ public class ReplicationMapStorageNode<
 extends BaseReplicationNode<PK,D,F,N>
 implements ReplicationMapStorageMixin<PK,D,F,N>, MapStorageNode<PK,D,F>{
 
-	public ReplicationMapStorageNode(N primary, Collection<N> replicas){
-		super(primary, replicas);
+	public ReplicationMapStorageNode(N primary, Collection<N> replicas, Integer everyNToPrimary){
+		super(primary, replicas, everyNToPrimary);
 	}
 
 }

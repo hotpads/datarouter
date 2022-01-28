@@ -17,6 +17,7 @@ package io.datarouter.bytes.binarydto.internal;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.Objects;
 
 import io.datarouter.scanner.Scanner;
@@ -37,7 +38,8 @@ public class BinaryDtoReflectionTool{
 		return Scanner.iterate(type, cls -> cls.getSuperclass())
 				.advanceUntil(Objects::isNull)
 				.map(Class::getDeclaredFields)
-				.concat(Scanner::of);
+				.concat(Scanner::of)
+				.exclude(field -> Modifier.isStatic(field.getModifiers()));
 	}
 
 	public static Field getField(Class<?> cls, String fieldName){
@@ -47,14 +49,7 @@ public class BinaryDtoReflectionTool{
 				.orElse(null);
 	}
 
-	public static void ensureAccessible(Field field, @SuppressWarnings("unused") Object object){
-		if(!field.isAccessible()){
-			field.setAccessible(true);
-		}
-	}
-
 	public static Object getUnchecked(Field field, Object object){
-		ensureAccessible(field, object);
 		try{
 			return field.get(object);
 		}catch(IllegalArgumentException | IllegalAccessException e){
@@ -63,7 +58,6 @@ public class BinaryDtoReflectionTool{
 	}
 
 	public static void setUnchecked(Field field, Object object, Object value){
-		ensureAccessible(field, object);
 		try{
 			field.set(object, value);
 		}catch(IllegalArgumentException | IllegalAccessException e){

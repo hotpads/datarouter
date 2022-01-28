@@ -18,13 +18,15 @@ package io.datarouter.httpclient.response.exception;
 @SuppressWarnings("serial")
 public class DatarouterHttpConnectionAbortedException extends DatarouterHttpException{
 
+	public static String TARGET = "target";
+
 	public DatarouterHttpConnectionAbortedException(
 			Exception ex,
 			long requestStartTimeMs,
 			String traceparent,
 			String target){
 		super("HTTP connection aborted after " + (System.currentTimeMillis() - requestStartTimeMs) + "ms traceparent="
-				+ traceparent + " target=" + target, ex);
+				+ traceparent + " " + TARGET + "=" + target, ex);
 	}
 
 }

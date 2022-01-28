@@ -88,9 +88,9 @@ public class SnapshotBenchmark{
 						writerExec,
 						() -> false));
 		snapshotKey = result.key;
-		timer.add("wrote " + NumberFormatter.addCommas(result.root.numRecords()));
+		timer.add("wrote " + NumberFormatter.addCommas(result.optRoot.get().numRecords()));
 		logger.warn("{} @{}/s", timer, NumberFormatter.addCommas(timer.getItemsPerSecond(numEntries)));
-		return result.root;
+		return result.optRoot.get();
 	}
 
 	public void cleanup(){

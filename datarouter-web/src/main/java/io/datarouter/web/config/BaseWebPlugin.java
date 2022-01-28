@@ -16,12 +16,15 @@
 package io.datarouter.web.config;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import io.datarouter.instrumentation.test.TestableService;
 import io.datarouter.pathnode.PathNode;
+import io.datarouter.plugin.PluginConfigKey;
+import io.datarouter.plugin.PluginConfigValue;
 import io.datarouter.storage.config.BaseStoragePlugin;
 import io.datarouter.util.ordered.Ordered;
 import io.datarouter.util.tuple.Pair;
@@ -48,6 +51,65 @@ import io.datarouter.web.navigation.NavBarItem;
  * NavBars (both datarouter and app) are sorted alphabetically for all menu items and each of the sub menu items.
  */
 public abstract class BaseWebPlugin extends BaseStoragePlugin{
+
+	/*-------------------------- plugin configs v2 --------------------------*/
+
+	public final Map<PluginConfigKey<?>,Class<? extends PluginConfigValue<?>>> classSingle = new HashMap<>();
+	public final Map<PluginConfigKey<?>,List<Class<? extends PluginConfigValue<?>>>> classList = new HashMap<>();
+	public final Map<PluginConfigKey<?>,PluginConfigValue<?>> instanceSingle = new HashMap<>();
+	public final Map<PluginConfigKey<?>,List<PluginConfigValue<?>>> instanceList = new HashMap<>();
+
+	public void addPluginConfig(Map<PluginConfigKey<?>,List<Class<? extends PluginConfigValue<?>>>> map){
+		map.forEach(this::addPluginEntries);
+	}
+
+	protected void addPluginEntries(PluginConfigKey<?> key, Collection<Class<? extends PluginConfigValue<?>>> values){
+		values.forEach(value -> addPluginEntryInternal(key, value));
+	}
+
+	protected void addPluginEntries(Collection<PluginConfigValue<?>> values){
+		values.forEach(this::addPluginEntryInternal);
+	}
+
+	protected void addPluginEntry(PluginConfigKey<?> key, Class<? extends PluginConfigValue<?>> value){
+		addPluginEntryInternal(key, value);
+	}
+
+	protected void addPluginEntry(PluginConfigValue<?> value){
+		addPluginEntryInternal(value);
+	}
+
+	private void addPluginEntryInternal(PluginConfigKey<?> key, Class<? extends PluginConfigValue<?>> value){
+		switch(key.type){
+		case CLASS_LIST:
+			classList.computeIfAbsent(key, $ -> new ArrayList<>()).add(value);
+			break;
+		case CLASS_SINGLE:
+			if(classSingle.containsKey(key)){
+				throw new RuntimeException(key.persistentString + " has already been set");
+			}
+			classSingle.put(key, value);
+			break;
+		default:
+			break;
+		}
+	}
+
+	private void addPluginEntryInternal(PluginConfigValue<?> value){
+		switch(value.getKey().type){
+		case INSTANCE_LIST:
+			instanceList.computeIfAbsent(value.getKey(), $ -> new ArrayList<>()).add(value);
+			break;
+		case INSTANCE_SINGLE:
+			if(instanceSingle.containsKey(value.getKey())){
+				throw new RuntimeException(value.getKey().persistentString + " has already been set");
+			}
+			instanceSingle.put(value.getKey(), value);
+			break;
+		default:
+			break;
+		}
+	}
 
 	/*------------------------------ route sets -----------------------------*/
 
@@ -211,18 +273,6 @@ public abstract class BaseWebPlugin extends BaseStoragePlugin{
 		return fieldKeyOverrides;
 	}
 
-	/*------------------------------ testable -------------------------------*/
-
-	private final List<Class<? extends TestableService>> testableServiceClasses = new ArrayList<>();
-
-	public void addTestable(Class<? extends TestableService> testableService){
-		testableServiceClasses.add(testableService);
-	}
-
-	public List<Class<? extends TestableService>> getTestableServiceClasses(){
-		return testableServiceClasses;
-	}
-
 	/*--------------------- documentationNamesAndLinks ----------------------*/
 
 	private final Map<String,Pair<String,Boolean>> documentationNamesAndLinks = new HashMap<>();
@@ -248,28 +298,19 @@ public abstract class BaseWebPlugin extends BaseStoragePlugin{
 		return documentationNamesAndLinks;
 	}
 
-	/*---------------------------- daily digest -----------------------------*/
-
-	private final List<Class<? extends DailyDigest>> dailyDigestRegistry = new ArrayList<>();
+	/*---------------------------- configs v2 -----------------------------*/
+	// TODO move these out of datarouter-web
 
 	protected void addDailyDigest(Class<? extends DailyDigest> dailyDigest){
-		dailyDigestRegistry.add(dailyDigest);
+		addPluginEntry(DailyDigest.KEY, dailyDigest);
 	}
-
-	public List<Class<? extends DailyDigest>> getDailyDigestRegistry(){
-		return dailyDigestRegistry;
-	}
-
-	/*-------------------------- metric link pages --------------------------*/
-
-	private final List<Class<? extends MetricLinkPage>> metricLinkPages = new ArrayList<>();
 
 	protected void addMetricLinkPages(Class<? extends MetricLinkPage> metricLinkPage){
-		metricLinkPages.add(metricLinkPage);
+		addPluginEntry(MetricLinkPage.KEY, metricLinkPage);
 	}
 
-	public List<Class<? extends MetricLinkPage>> getMetricLinkPages(){
-		return metricLinkPages;
+	public void addTestable(Class<? extends TestableService> testableService){
+		addPluginEntry(TestableService.KEY, testableService);
 	}
 
 	/*--------------------------- add web plugins ---------------------------*/

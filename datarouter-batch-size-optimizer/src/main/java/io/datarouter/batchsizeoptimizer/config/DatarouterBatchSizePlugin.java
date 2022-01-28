@@ -22,18 +22,19 @@ import io.datarouter.batchsizeoptimizer.storage.optimizedbatch.DatarouterOpOptim
 import io.datarouter.batchsizeoptimizer.storage.optimizedbatch.DatarouterOpOptimizedBatchSizeDao.DatarouterOpOptimizedBatchSizeDaoParams;
 import io.datarouter.batchsizeoptimizer.storage.performancerecord.DatarouterOpPerformanceRecordDao;
 import io.datarouter.batchsizeoptimizer.storage.performancerecord.DatarouterOpPerformanceRecordDao.DatarouterOpPerformanceRecordDaoParams;
-import io.datarouter.job.config.BaseJobPlugin;
+import io.datarouter.job.BaseTriggerGroup;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.dao.DaosModuleBuilder;
+import io.datarouter.web.config.BaseWebPlugin;
 import io.datarouter.web.navigation.DatarouterNavBarCategory;
 
-public class DatarouterBatchSizePlugin extends BaseJobPlugin{
+public class DatarouterBatchSizePlugin extends BaseWebPlugin{
 
 	private DatarouterBatchSizePlugin(DatarouterBatchSizeOptimizerDaoModule daosModuleBuilder){
 		addRouteSet(DatarouterBatchSizeOptimizerRouteSet.class);
 		addSettingRoot(DatarouterBatchSizeOptimizerSettings.class);
-		addTriggerGroup(DatarouterBatchSizeOptimizerTriggerGroup.class);
+		addPluginEntry(BaseTriggerGroup.KEY, DatarouterBatchSizeOptimizerTriggerGroup.class);
 		setDaosModule(daosModuleBuilder);
 		addDatarouterNavBarItem(DatarouterNavBarCategory.TOOLS,
 				new DatarouterBatchSizeOptimizerPaths().datarouter.batchSizeOptimizer, "Batch Size Optimizer");

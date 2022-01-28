@@ -22,12 +22,16 @@ import io.datarouter.bytes.binarydto.codec.BinaryDtoCodec;
 import io.datarouter.bytes.binarydto.dto.BinaryDto;
 import io.datarouter.scanner.Scanner;
 
-public class MultiBinaryDtoEncoder<T extends BinaryDto>{
+public class MultiBinaryDtoEncoder<T extends BinaryDto<T>>{
 
 	private final BinaryDtoCodec<T> codec;
 
 	public MultiBinaryDtoEncoder(Class<T> dtoClass){
 		this.codec = BinaryDtoCodec.of(dtoClass);
+	}
+
+	public MultiBinaryDtoEncoder(BinaryDtoCodec<T> codec){
+		this.codec = codec;
 	}
 
 	public Scanner<byte[]> encode(List<T> dtos){

@@ -16,6 +16,7 @@
 package io.datarouter.filesystem.snapshot.web;
 
 import static j2html.TagCreator.a;
+import static j2html.TagCreator.div;
 import static j2html.TagCreator.td;
 
 import java.util.List;
@@ -37,7 +38,7 @@ import io.datarouter.web.handler.types.optional.OptionalLong;
 import io.datarouter.web.html.j2html.J2HtmlTable;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import io.datarouter.web.requirejs.DatarouterWebRequireJsV2;
-import j2html.tags.ContainerTag;
+import j2html.tags.DomContent;
 
 public class DatarouterSnapshotEntriesHandler extends BaseHandler{
 
@@ -62,16 +63,26 @@ public class DatarouterSnapshotEntriesHandler extends BaseHandler{
 			@Param(P_offset) OptionalLong optOffset,
 			@Param(P_limit) OptionalLong optLimit){
 		var snapshotKey = new SnapshotKey(groupId, snapshotId);
-		long offset = optOffset.orElse(0L);
-		long limit = optLimit.orElse(100L);
+		SnapshotGroup group = groups.getGroup(snapshotKey.groupId);
+		DomContent content;
+		if(group.getSnapshotEntryDecoderClass() == null){
+			String message = String.format("%s not defined for groupId=%s",
+					SnapshotRecordStringDecoder.class.getSimpleName(),
+					snapshotKey.groupId);
+			content = div(message);
+		}else{
+			long offset = optOffset.orElse(0L);
+			long limit = optLimit.orElse(100L);
+			content = buildTable(snapshotKey, offset, limit);
+		}
 		return pageFactory.startBuilder(request)
 				.withTitle("Datarouter Filesystem - Snapshot Entries")
 				.withRequires(DatarouterWebRequireJsV2.SORTTABLE)
-				.withContent(buildTable(snapshotKey, offset, limit))
+				.withContent(content)
 				.buildMav();
 	}
 
-	private ContainerTag<?> buildTable(
+	private DomContent buildTable(
 			SnapshotKey snapshotKey,
 			long offset,
 			long limit){

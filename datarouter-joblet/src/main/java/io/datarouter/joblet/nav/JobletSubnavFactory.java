@@ -21,6 +21,7 @@ import javax.inject.Singleton;
 import io.datarouter.joblet.DatarouterJobletCounters;
 import io.datarouter.joblet.config.DatarouterJobletPaths;
 import io.datarouter.joblet.enums.JobletStatus;
+import io.datarouter.joblet.nav.JobletExternalLinkBuilder.JobletExternalLinkBuilderSupplier;
 import io.datarouter.joblet.type.JobletTypeFactory;
 import io.datarouter.web.html.nav.Subnav;
 import io.datarouter.web.html.nav.Subnav.Dropdown;
@@ -36,7 +37,7 @@ public class JobletSubnavFactory{
 	@Inject
 	private JobletLocalLinkBuilder localLinkBuilder;
 	@Inject
-	private JobletExternalLinkBuilder externalLinkBuilder;
+	private JobletExternalLinkBuilderSupplier externalLinkBuilder;
 
 	public Subnav build(String contextPath){
 		return new Subnav("Joblets", contextPath + paths.datarouter.joblets.list.toSlashedString())
@@ -62,8 +63,9 @@ public class JobletSubnavFactory{
 	private Dropdown metrics(){
 		var dropdown = new Dropdown("Metrics");
 		DatarouterJobletCounters.UI_LINK_NAMES_AND_PREFIXES.stream()
-				.filter(twin -> externalLinkBuilder.counters(twin.getRight()).isPresent())
-				.map(twin -> new DropdownItem(twin.getLeft(), externalLinkBuilder.counters(twin.getRight()).get()))
+				.filter(twin -> externalLinkBuilder.get().counters(twin.getRight()).isPresent())
+				.map(twin -> new DropdownItem(twin.getLeft(), externalLinkBuilder.get().counters(
+						twin.getRight()).get()))
 				.forEach(dropdown::add);
 		return dropdown;
 	}

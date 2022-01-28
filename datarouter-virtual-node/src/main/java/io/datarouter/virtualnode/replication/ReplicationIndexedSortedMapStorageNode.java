@@ -36,8 +36,8 @@ implements ReplicationIndexedStorageMixin<PK,D,F,N>,
 		ReplicationSortedStorageMixin<PK,D,F,N>,
 		IndexedSortedMapStorageNode<PK,D,F>{
 
-	public ReplicationIndexedSortedMapStorageNode(N primary, Collection<N> replicas){
-		super(primary, replicas);
+	public ReplicationIndexedSortedMapStorageNode(N primary, Collection<N> replicas, Integer everyNToPrimary){
+		super(primary, replicas, everyNToPrimary);
 	}
 
 }

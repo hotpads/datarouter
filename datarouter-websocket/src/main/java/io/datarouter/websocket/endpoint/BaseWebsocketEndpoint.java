@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.web.exception.ExceptionRecorder;
 import io.datarouter.websocket.WebSocketCounters;
+import io.datarouter.websocket.WebsocketExceptionCategory;
 import io.datarouter.websocket.auth.WebSocketAuthenticationFilter;
 import io.datarouter.websocket.service.ServerAddressProvider;
 import io.datarouter.websocket.service.WebSocketConnectionStore;
@@ -85,7 +86,7 @@ public abstract class BaseWebsocketEndpoint extends Endpoint{
 		}
 		WebSocketCounters.inc("onError");
 		logger.error("Error on websocket session={}", webSocketSession, thr);
-		exceptionRecorder.tryRecordException(thr, getClass().getName());
+		exceptionRecorder.tryRecordException(thr, getClass().getName(), WebsocketExceptionCategory.WEBSOCKET);
 	}
 
 }

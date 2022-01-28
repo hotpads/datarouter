@@ -17,7 +17,7 @@ package io.datarouter.loggerconfig.config;
 
 import java.util.List;
 
-import io.datarouter.job.config.BaseJobPlugin;
+import io.datarouter.job.BaseTriggerGroup;
 import io.datarouter.loggerconfig.service.LoggerConfigDailyDigest;
 import io.datarouter.loggerconfig.storage.consoleappender.DatarouterConsoleAppenderDao;
 import io.datarouter.loggerconfig.storage.consoleappender.DatarouterConsoleAppenderDao.DatarouterConsoleAppenderDaoParams;
@@ -28,16 +28,17 @@ import io.datarouter.loggerconfig.storage.loggerconfig.DatarouterLoggerConfigDao
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.dao.DaosModuleBuilder;
+import io.datarouter.web.config.BaseWebPlugin;
 import io.datarouter.web.navigation.DatarouterNavBarCategory;
 
-public class DatarouterLoggerConfigPlugin extends BaseJobPlugin{
+public class DatarouterLoggerConfigPlugin extends BaseWebPlugin{
 
 	private DatarouterLoggerConfigPlugin(
 			DatarouterLoggerConfigDaoModule daosModuleBuilder){
 
 		addRouteSet(DatarouterLoggingConfigRouteSet.class);
 		addSettingRoot(DatarouterLoggerConfigSettingRoot.class);
-		addTriggerGroup(DatarouterLoggerConfigTriggerGroup.class);
+		addPluginEntry(BaseTriggerGroup.KEY, DatarouterLoggerConfigTriggerGroup.class);
 		setDaosModule(daosModuleBuilder);
 		addDatarouterNavBarItem(DatarouterNavBarCategory.SETTINGS,
 				new DatarouterLoggingConfigPaths().datarouter.logging, "Logger Config");

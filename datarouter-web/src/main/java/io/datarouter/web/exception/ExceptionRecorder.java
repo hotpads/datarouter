@@ -31,17 +31,17 @@ public interface ExceptionRecorder{
 			List<String> additionalEmailRecipients);
 
 	ExceptionRecordDto recordException(Throwable exception, ExceptionCategory category, String location,
-			String methodName, String type, Integer lineNumber, String callOrigin);
+			String methodName, String name, String type, Integer lineNumber, String callOrigin);
 
 	ExceptionRecordDto recordException(Throwable exception, ExceptionCategory category, String location,
-			String methodName, String type, Integer lineNumber, String callOrigin,
+			String methodName, String name, String type, Integer lineNumber, String callOrigin,
 			List<String> additionalEmailRecipients);
 
 	Optional<ExceptionRecordDto> tryRecordExceptionAndHttpRequest(Throwable exception, String callOrigin,
 			HttpServletRequest request);
 
 	ExceptionRecordDto recordExceptionAndHttpRequest(Throwable exception, String location, String methodName,
-			String type, Integer lineNumber, HttpServletRequest request, String callOrigin);
+			String name, String type, Integer lineNumber, HttpServletRequest request, String callOrigin);
 
 	void recordHttpRequest(HttpServletRequest request);
 
@@ -66,13 +66,13 @@ public interface ExceptionRecorder{
 
 		@Override
 		public ExceptionRecordDto recordException(Throwable exception, ExceptionCategory category, String location,
-				String methodName, String type, Integer lineNumber, String callOrigin){
+				String methodName, String name, String type, Integer lineNumber, String callOrigin){
 			return null;
 		}
 
 		@Override
 		public ExceptionRecordDto recordException(Throwable exception, ExceptionCategory category, String location,
-				String methodName, String type, Integer lineNumber, String callOrigin,
+				String methodName, String name, String type, Integer lineNumber, String callOrigin,
 				List<String> additionalEmailRecipients){
 			return null;
 		}
@@ -85,7 +85,7 @@ public interface ExceptionRecorder{
 
 		@Override
 		public ExceptionRecordDto recordExceptionAndHttpRequest(Throwable exception, String location, String methodName,
-				String type, Integer lineNumber, HttpServletRequest request, String callOrigin){
+				String name, String type, Integer lineNumber, HttpServletRequest request, String callOrigin){
 			return null;
 		}
 

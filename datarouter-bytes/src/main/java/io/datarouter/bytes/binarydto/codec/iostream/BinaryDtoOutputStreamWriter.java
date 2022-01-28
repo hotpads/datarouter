@@ -22,7 +22,8 @@ import io.datarouter.bytes.VarIntTool;
 import io.datarouter.bytes.binarydto.codec.BinaryDtoCodec;
 import io.datarouter.bytes.binarydto.dto.BinaryDto;
 
-public class BinaryDtoOutputStreamWriter<T extends BinaryDto> implements AutoCloseable{
+public class BinaryDtoOutputStreamWriter<T extends BinaryDto<T>>
+implements AutoCloseable{
 
 	private final BinaryDtoCodec<T> codec;
 	private final OutputStream outputStream;

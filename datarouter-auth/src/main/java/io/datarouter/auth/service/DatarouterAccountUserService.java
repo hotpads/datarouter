@@ -59,6 +59,12 @@ public class DatarouterAccountUserService{
 				.list();
 	}
 
+	public Scanner<String> scanAllAccountNames(){
+		return datarouterAccountDao.scan()
+				.map(DatarouterAccount::getKey)
+				.map(DatarouterAccountKey::getAccountName);
+	}
+
 	public boolean userCanAccessAccount(Session session, String accountName){
 		if(!userCanAccessAccount(session.getUserId(), accountName)){
 			return false;

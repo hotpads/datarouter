@@ -374,63 +374,63 @@ public class LongArray implements List<Long>, RandomAccess{
 	public static class LongArrayIterator implements ListIterator<Long>{
 
 		private LongArray wrapper;
-		private int lastIndex;
+		private int index;
 
 		public LongArrayIterator(LongArray wrapper){
 			this.wrapper = wrapper;
-			lastIndex = -1;
+			index = -1;
 		}
 
 		public LongArrayIterator(LongArray wrapper, int startIndex){
 			this(wrapper);
-			lastIndex = startIndex - 1;
+			index = startIndex - 1;
 		}
 
 		@Override
 		public boolean hasNext(){
-			return lastIndex + 1 < wrapper.size;
+			return index + 1 < wrapper.size;
 		}
 
 		@Override
 		public Long next(){
-			++lastIndex;
-			return wrapper.get(lastIndex);
+			++index;
+			return wrapper.get(index);
 		}
 
 		@Override
 		public void remove(){
-			wrapper.remove(lastIndex + 1);
+			wrapper.remove(index);
 		}
 
 		@Override
 		public void add(Long value){
-			wrapper.set(lastIndex + 1, value);
+			wrapper.add(index, value);
 		}
 
 		@Override
 		public boolean hasPrevious(){
-			return lastIndex > -1;
+			return index > 0;
 		}
 
 		@Override
 		public int nextIndex(){
-			return lastIndex + 1;
+			return index + 1;
 		}
 
 		@Override
 		public Long previous(){
-			--lastIndex;
-			return wrapper.get(lastIndex + 1);
+			--index;
+			return wrapper.get(index);
 		}
 
 		@Override
 		public int previousIndex(){
-			return lastIndex;
+			return index;
 		}
 
 		@Override
 		public void set(Long value){
-			wrapper.set(lastIndex + 1, value);
+			wrapper.set(index, value);
 		}
 
 	}

@@ -44,10 +44,11 @@ import io.datarouter.exception.storage.summary.DatarouterExceptionRecordSummaryD
 import io.datarouter.exception.storage.summary.DatarouterExceptionRecordSummaryDao.DatarouterExceptionRecordSummaryDaoParams;
 import io.datarouter.instrumentation.exception.ExceptionRecordPublisher;
 import io.datarouter.instrumentation.exception.ExceptionRecordPublisher.NoOpExceptionRecordPublisher;
-import io.datarouter.job.config.BaseJobPlugin;
+import io.datarouter.job.BaseTriggerGroup;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.dao.DaosModuleBuilder;
+import io.datarouter.web.config.BaseWebPlugin;
 import io.datarouter.web.config.DatarouterServletGuiceModule;
 import io.datarouter.web.config.DatarouterWebPlugin;
 import io.datarouter.web.dispatcher.FilterParamGrouping;
@@ -56,7 +57,7 @@ import io.datarouter.web.exception.ExceptionHandlingConfig;
 import io.datarouter.web.exception.ExceptionRecorder;
 import io.datarouter.web.navigation.DatarouterNavBarCategory;
 
-public class DatarouterExceptionPlugin extends BaseJobPlugin{
+public class DatarouterExceptionPlugin extends BaseWebPlugin{
 
 	private final Class<? extends ExceptionGraphLink> exceptionGraphLinkClass;
 	private final Class<? extends ExceptionRecorder> exceptionRecorderClass;
@@ -87,7 +88,7 @@ public class DatarouterExceptionPlugin extends BaseJobPlugin{
 				DatarouterWebPlugin.REQUEST_CACHING_FILTER_PARAMS);
 		addRouteSet(DatarouterExceptionRouteSet.class);
 		addSettingRoot(DatarouterExceptionSettingRoot.class);
-		addTriggerGroup(DatarouterExceptionTriggerGroup.class);
+		addPluginEntry(BaseTriggerGroup.KEY, DatarouterExceptionTriggerGroup.class);
 		setDaosModule(daosModuleBuilder);
 		addDatarouterNavBarItem(
 				DatarouterNavBarCategory.MONITORING,

@@ -330,6 +330,7 @@ public abstract class BaseHandler{
 										exception,
 										exception.getClass().getName(),
 										getClass().getName(),
+										null,
 										method.getName(),
 										null,
 										request,

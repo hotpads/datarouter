@@ -20,13 +20,11 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.metric.config.DatarouterMetricPaths;
-import io.datarouter.scanner.Scanner;
+import io.datarouter.plugin.PluginInjector;
 import io.datarouter.web.html.nav.Subnav;
 import io.datarouter.web.html.nav.Subnav.Dropdown;
 import io.datarouter.web.metriclinks.MetricLinkPage;
-import io.datarouter.web.metriclinks.MetricLinkPageRegistry;
 
 @Singleton
 public class MetricNamesSubnavFactory{
@@ -34,16 +32,13 @@ public class MetricNamesSubnavFactory{
 	public static final String ID = "metric-link-subnav";
 
 	@Inject
-	private MetricLinkPageRegistry registry;
-	@Inject
-	private DatarouterInjector injector;
+	private PluginInjector pluginInjector;
 	@Inject
 	private DatarouterMetricPaths paths;
 
 	public Subnav build(String contextPath){
 		Subnav subnav = new Subnav("Metric Links", "", ID);
-		Scanner.of(registry.getMetricLinkPages())
-				.map(injector::getInstance)
+		pluginInjector.scanInstances(MetricLinkPage.KEY)
 				.collect(Collectors.groupingBy(MetricLinkPage::getCategory))
 				.entrySet()
 				.forEach(entry -> {

@@ -29,10 +29,17 @@ import io.datarouter.job.detached.DetachedJobResource;
 import io.datarouter.job.lock.TriggerLockConfig;
 import io.datarouter.job.scheduler.JobPackage;
 import io.datarouter.job.util.CronExpressionTool;
+import io.datarouter.plugin.PluginConfigKey;
+import io.datarouter.plugin.PluginConfigType;
+import io.datarouter.plugin.PluginConfigValue;
 import io.datarouter.util.ComparableTool;
 import io.datarouter.util.string.StringTool;
 
-public abstract class BaseTriggerGroup{
+public abstract class BaseTriggerGroup implements PluginConfigValue<BaseTriggerGroup>{
+
+	public static final PluginConfigKey<BaseTriggerGroup> KEY = new PluginConfigKey<>(
+			"triggerGroup",
+			PluginConfigType.CLASS_LIST);
 
 	private final String categoryName;
 	private final List<BaseTriggerGroup> subGroups;
@@ -203,6 +210,11 @@ public abstract class BaseTriggerGroup{
 					TriggerLockConfig.MIN_PERIOD_BETWEEN_LOCKED_TRIGGERS.getSeconds());
 			throw new IllegalArgumentException(message);
 		}
+	}
+
+	@Override
+	public PluginConfigKey<BaseTriggerGroup> getKey(){
+		return KEY;
 	}
 
 }

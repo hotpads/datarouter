@@ -28,8 +28,7 @@ import java.util.Objects;
 
 import javax.inject.Inject;
 
-import io.datarouter.inject.DatarouterInjector;
-import io.datarouter.scanner.Scanner;
+import io.datarouter.plugin.PluginInjector;
 import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.digest.DailyDigest.DailyDigestType;
 import io.datarouter.web.handler.BaseHandler;
@@ -42,11 +41,9 @@ import j2html.tags.ContainerTag;
 public class DailyDigestHandler extends BaseHandler{
 
 	@Inject
-	private DailyDigestRegistry dailyDigestRegistry;
+	private PluginInjector pluginInjector;
 	@Inject
 	private Bootstrap4PageFactory pageFactory;
-	@Inject
-	private DatarouterInjector injector;
 	@Inject
 	private CurrentUserSessionInfoService currentSessionInfoService;
 
@@ -62,8 +59,7 @@ public class DailyDigestHandler extends BaseHandler{
 
 	private Mav view(DailyDigestType type){
 		ZoneId zoneId = currentSessionInfoService.getZoneId(request);
-		var digestsWithContent = Scanner.of(dailyDigestRegistry.registry)
-				.map(injector::getInstance)
+		var digestsWithContent = pluginInjector.scanInstances(DailyDigest.KEY)
 				.include(digest -> digest.getType() == type)
 				.map(dailyDigest -> new Pair<>(dailyDigest, dailyDigest.getPageContent(zoneId).orElse(null)))
 				.include(digestWithContent -> Objects.nonNull(digestWithContent.getRight()))

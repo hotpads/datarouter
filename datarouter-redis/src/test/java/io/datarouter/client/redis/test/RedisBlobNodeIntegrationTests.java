@@ -30,10 +30,12 @@ import io.datarouter.storage.Datarouter;
 @Test(singleThreaded = true)
 public class RedisBlobNodeIntegrationTests{
 
-	private static final String CONTENT = "testRedisBlob";
-	private static final String TEST_LOCATION1 = "testLocation1";
-	private static final String TEST_LOCATION2 = "testLocation2";
-	private static final String TEST_LOCATION3 = "testLocation3";
+	private static final String
+			CONTENT = "testRedisBlob",
+			READ_WRITE_KEY = "testReadWrite",
+			WRITE_SCANNER_OF_BYTES_KEY = "testWriteScannerOfBytes",
+			LENGTH_KEY = "testLength",
+			DELETE_KEY = "testDelete";
 
 	@Inject
 	private Datarouter datarouter;
@@ -42,37 +44,35 @@ public class RedisBlobNodeIntegrationTests{
 
 	@AfterClass
 	public void afterClass(){
+		Scanner.of(READ_WRITE_KEY, WRITE_SCANNER_OF_BYTES_KEY, LENGTH_KEY, DELETE_KEY)
+				.forEach(redisDao::delete);
 		datarouter.shutdown();
 	}
 
 	@Test
-	public void testWrite(){
-		redisDao.write(TEST_LOCATION1, CONTENT);
-		Assert.assertEquals(CONTENT, redisDao.read(TEST_LOCATION1));
+	public void testReadWrite(){
+		redisDao.write(READ_WRITE_KEY, CONTENT);
+		Assert.assertEquals(CONTENT, redisDao.read(READ_WRITE_KEY));
 	}
 
 	@Test
 	public void testWriteScannerOfBytes(){
-		redisDao.writeScannerOfBytes(TEST_LOCATION3, Scanner.of("hello", "datarouter",
-				"byebye").map(String::getBytes));
-		Assert.assertEquals("hellodatarouterbyebye", redisDao.read(TEST_LOCATION3));
-	}
-
-	@Test
-	public void testRead(){
-		Assert.assertEquals(CONTENT, redisDao.read(TEST_LOCATION1));
+		redisDao.writeScannerOfBytes(WRITE_SCANNER_OF_BYTES_KEY, Scanner.of("hello", "datarouter", "byebye")
+				.map(String::getBytes));
+		Assert.assertEquals("hellodatarouterbyebye", redisDao.read(WRITE_SCANNER_OF_BYTES_KEY));
 	}
 
 	@Test
 	public void testLength(){
-		Assert.assertEquals(Long.valueOf(CONTENT.length()), redisDao.length(TEST_LOCATION1));
+		redisDao.write(LENGTH_KEY, CONTENT);
+		Assert.assertEquals(Long.valueOf(CONTENT.length()), redisDao.length(LENGTH_KEY));
 	}
 
 	@Test
 	public void testDelete(){
-		redisDao.write(TEST_LOCATION2, CONTENT);
-		redisDao.delete(TEST_LOCATION2);
-		Assert.assertEquals(false, redisDao.exists(TEST_LOCATION2));
+		redisDao.write(DELETE_KEY, CONTENT);
+		redisDao.delete(DELETE_KEY);
+		Assert.assertEquals(false, redisDao.exists(DELETE_KEY));
 	}
 
 }

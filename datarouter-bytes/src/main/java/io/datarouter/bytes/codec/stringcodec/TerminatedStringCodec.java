@@ -38,36 +38,8 @@ public class TerminatedStringCodec{
 	}
 
 	public byte[] encode(String value){
-		byte[] utf8Bytes = stringCodec.encode(value);
-		int numToEscape = 0;
-		for(int i = 0; i < utf8Bytes.length; ++i){
-			byte byteI = utf8Bytes[i];
-			if(byteI == TERMINAL_BYTE || byteI == ESCAPE_BYTE){
-				++numToEscape;
-			}
-		}
-		int escapedLength = utf8Bytes.length + numToEscape;
-		byte[] encodedBytes = new byte[escapedLength + 1];//+1 for terminal byte
-		if(numToEscape == 0){
-			System.arraycopy(utf8Bytes, 0, encodedBytes, 0, utf8Bytes.length);
-		}else{
-			int utf8Index = 0;
-			int escapedIndex = 0;
-			while(escapedIndex < escapedLength){
-				byte byteI = utf8Bytes[utf8Index];
-				if(byteI == TERMINAL_BYTE || byteI == ESCAPE_BYTE){
-					encodedBytes[escapedIndex] = ESCAPE_BYTE;
-					++escapedIndex;
-					encodedBytes[escapedIndex] = (byte)(byteI + ESCAPE_SHIFT);
-				}else{
-					encodedBytes[escapedIndex] = utf8Bytes[utf8Index];
-				}
-				++utf8Index;
-				++escapedIndex;
-			}
-		}
-		encodedBytes[encodedBytes.length - 1] = TERMINAL_BYTE;
-		return encodedBytes;
+		byte[] encodedBytes = stringCodec.encode(value);
+		return escapeAndTerminate(encodedBytes);
 	}
 
 	public LengthAndValue<String> decode(byte[] bytes){
@@ -75,43 +47,111 @@ public class TerminatedStringCodec{
 	}
 
 	public LengthAndValue<String> decode(byte[] bytes, int offset){
-		int terminalIndex = offset;
-		while(true){
-			if(bytes[terminalIndex] == TERMINAL_BYTE){
-				break;
-			}
-			++terminalIndex;
-		}
-		int numEscaped = 0;
-		for(int i = offset; i < terminalIndex - 1; ++i){
-			if(bytes[i] == ESCAPE_BYTE){
-				++numEscaped;
-			}
-		}
-		if(numEscaped == 0){
+		NumEscapedAndTerminalIndex escapedCountAndTerminalIndex = findEscapedCountAndTerminalIndex(bytes, offset);
+		int numEscaped = escapedCountAndTerminalIndex.numEscaped;
+		int terminalIndex = escapedCountAndTerminalIndex.terminalIndex;
+		int consumedLength = terminalIndex - offset + 1;
+		if(numEscaped == 0){// Common case: value does not contain a zero byte
 			int escapedLength = terminalIndex - offset;
-			int consumedLength = escapedLength + 1;
 			String value = stringCodec.decode(bytes, offset, escapedLength);
 			return new LengthAndValue<>(consumedLength, value);
 		}
-		int encodedLength = terminalIndex - offset;
-		int decodedLength = encodedLength - numEscaped;
-		var decodedBytes = new byte[decodedLength];
-		int encodedIndex = offset;
-		int decodedIndex = 0;
-		while(encodedIndex < terminalIndex){
-			if(bytes[encodedIndex] == ESCAPE_BYTE){
-				++encodedIndex;
-				decodedBytes[decodedIndex] = (byte)(bytes[encodedIndex] - ESCAPE_SHIFT);
+		byte[] unescapedAndUnterminatedBytes = unescapeAndUnterminate(bytes, offset, numEscaped, terminalIndex);
+		String value = stringCodec.decode(unescapedAndUnterminatedBytes);
+		return new LengthAndValue<>(consumedLength, value);
+	}
+
+	/*------------- private -----------------*/
+
+	private static boolean needsEscaping(byte bite){
+		return bite == TERMINAL_BYTE || bite == ESCAPE_BYTE;
+	}
+
+	private static int numToEscape(byte[] encodedBytes){
+		int numToEscape = 0;
+		for(int i = 0; i < encodedBytes.length; ++i){
+			if(needsEscaping(encodedBytes[i])){
+				++numToEscape;
+			}
+		}
+		return numToEscape;
+	}
+
+	private static byte[] escapeAndTerminate(byte[] encodedBytes){
+		int numToEscape = numToEscape(encodedBytes);
+		if(numToEscape == 0){// Common case: use System.arraycopy instead of checking each byte
+			return terminate(encodedBytes);
+		}
+		int escapedLength = encodedBytes.length + numToEscape;
+		int terminatedLength = escapedLength + 1;
+		byte[] result = new byte[terminatedLength];
+		int encodedIndex = 0;
+		int escapedIndex = 0;
+		while(escapedIndex < escapedLength){
+			byte byteI = encodedBytes[encodedIndex];
+			if(needsEscaping(encodedBytes[encodedIndex])){
+				result[escapedIndex] = ESCAPE_BYTE;
+				++escapedIndex;
+				result[escapedIndex] = (byte)(byteI + ESCAPE_SHIFT);
 			}else{
-				decodedBytes[decodedIndex] = bytes[encodedIndex];
+				result[escapedIndex] = encodedBytes[encodedIndex];
 			}
 			++encodedIndex;
-			++decodedIndex;
+			++escapedIndex;
 		}
-		int consumedLength = terminalIndex - offset + 1;
-		String value = stringCodec.decode(decodedBytes, 0, decodedLength);
-		return new LengthAndValue<>(consumedLength, value);
+		result[result.length - 1] = TERMINAL_BYTE;
+		return result;
+	}
+
+	private static byte[] terminate(byte[] encodedBytes){
+		int terminatedLength = encodedBytes.length + 1;
+		byte[] result = new byte[terminatedLength];
+		System.arraycopy(encodedBytes, 0, result, 0, encodedBytes.length);
+		result[result.length - 1] = TERMINAL_BYTE;
+		return result;
+	}
+
+	private static NumEscapedAndTerminalIndex findEscapedCountAndTerminalIndex(byte[] bytes, int offset){
+		int numEscaped = 0;
+		int index = offset;
+		while(true){
+			if(bytes[index] == ESCAPE_BYTE){
+				++numEscaped;
+			}else if(bytes[index] == TERMINAL_BYTE){
+				break;
+			}
+			++index;
+		}
+		return new NumEscapedAndTerminalIndex(numEscaped, index);
+	}
+
+	private static byte[] unescapeAndUnterminate(byte[] escapedBytes, int offset, int numEscaped, int terminalIndex){
+		int escapedLength = terminalIndex - offset;
+		int unescapedLength = escapedLength - numEscaped;
+		var unescapedBytes = new byte[unescapedLength];
+		int escapedIndex = offset;
+		int unescapedIndex = 0;
+		while(escapedIndex < terminalIndex){
+			if(escapedBytes[escapedIndex] == ESCAPE_BYTE){
+				++escapedIndex;
+				unescapedBytes[unescapedIndex] = (byte)(escapedBytes[escapedIndex] - ESCAPE_SHIFT);
+			}else{
+				unescapedBytes[unescapedIndex] = escapedBytes[escapedIndex];
+			}
+			++escapedIndex;
+			++unescapedIndex;
+		}
+		return unescapedBytes;
+	}
+
+	private static class NumEscapedAndTerminalIndex{
+		final int numEscaped;
+		final int terminalIndex;
+
+		public NumEscapedAndTerminalIndex(int numEscaped, int terminalIndex){
+			this.numEscaped = numEscaped;
+			this.terminalIndex = terminalIndex;
+		}
 	}
 
 }

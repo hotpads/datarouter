@@ -26,7 +26,6 @@ import io.datarouter.job.BaseJob;
 import io.datarouter.job.BaseTriggerGroup;
 import io.datarouter.job.TriggerGroupClasses;
 import io.datarouter.job.scheduler.JobSchedulerTestService;
-import io.datarouter.scanner.Scanner;
 import io.datarouter.util.clazz.AnnotationTool;
 import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.config.SingletonTestService;
@@ -61,8 +60,7 @@ public class DatarouterJobBootstrapIntegrationService implements TestableService
 	}
 
 	private void testSingletons(){
-		Scanner.of(triggerGroupClasses.get())
-				.map(injector::getInstance)
+		triggerGroupClasses.get()
 				.concatIter(BaseTriggerGroup::getJobPackages)
 				.map(jobPackage -> jobPackage.jobClass)
 				.forEach(clazz -> AnnotationTool.checkSingletonForClass(clazz, false));

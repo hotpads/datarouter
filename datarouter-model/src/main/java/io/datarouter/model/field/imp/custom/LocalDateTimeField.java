@@ -21,6 +21,7 @@ import java.time.format.DateTimeFormatter;
 import io.datarouter.bytes.codec.intcodec.ComparableIntCodec;
 import io.datarouter.bytes.codec.shortcodec.ComparableShortCodec;
 import io.datarouter.model.field.BasePrimitiveField;
+import io.datarouter.model.util.FractionalSecondTool;
 import io.datarouter.util.string.StringTool;
 
 /**
@@ -28,8 +29,7 @@ import io.datarouter.util.string.StringTool;
  * However, the MySQL DATETIME column type cannot handle this level of granularity
  * (it can handle at most 6 digits of fractional seconds).
  *
- * LocalDateTimeField defaults to a truncation of the LocalDateTime nanosecond value of up to 3 fractional seconds
- * as this corresponds to the fractional seconds granularity of System.currentTimeMillis() and LocalDateTime.now().
+ * LocalDateTimeField defaults to a truncation of the LocalDateTime nanosecond value of up to 6 fractional seconds.
  * This is the recommended use, but can be overridden to store the full value.
  *
  * A LocalDateTime object created using LocalDateTime::of might not be equivalent to a LocalDateTime retrieved from
@@ -42,7 +42,6 @@ public class LocalDateTimeField extends BasePrimitiveField<LocalDateTime,LocalDa
 	private static final ComparableIntCodec COMPARABLE_INT_CODEC = ComparableIntCodec.INSTANCE;
 	private static final ComparableShortCodec COMPARABLE_SHORT_CODEC = ComparableShortCodec.INSTANCE;
 	private static final int NUM_BYTES = 15;
-	private static final int TOTAL_NUM_FRACTIONAL_SECONDS = 9;
 	public static final String pattern = "yyyy-MM-dd HH:mm:ss.SSSSSS";
 	public static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
 
@@ -51,24 +50,7 @@ public class LocalDateTimeField extends BasePrimitiveField<LocalDateTime,LocalDa
 	}
 
 	public LocalDateTimeField(String prefix, LocalDateTimeFieldKey key, LocalDateTime value){
-		super(prefix, key, value);
-		this.setValue(getTruncatedLocalDateTime(value));
-	}
-
-	public LocalDateTime getTruncatedLocalDateTime(LocalDateTime value){
-		if(value == null){
-			return null;
-		}
-		int divideBy = (int) Math.pow(10, TOTAL_NUM_FRACTIONAL_SECONDS - getNumFractionalSeconds());
-		if(divideBy < 1){
-			throw new RuntimeException("numFractionalSeconds is greater or equal to 9");
-		}
-		int numNanoSeconds = value.getNano() / divideBy * divideBy;
-		return value.withNano(numNanoSeconds);
-	}
-
-	public int getNumFractionalSeconds(){
-		return ((LocalDateTimeFieldKey) getKey()).getNumFractionalSeconds();
+		super(prefix, key, FractionalSecondTool.truncate(value, key.getNumFractionalSeconds()));
 	}
 
 	@Override

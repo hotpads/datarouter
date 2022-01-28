@@ -15,11 +15,9 @@
  */
 package io.datarouter.job.config;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import io.datarouter.job.BaseTriggerGroup;
-import io.datarouter.job.TriggerGroupClasses;
 import io.datarouter.job.detached.DefaultDetachedJobExecutor;
 import io.datarouter.job.detached.DetachedJobExecutor;
 import io.datarouter.job.metriclink.AppJobsMetricLinkPage;
@@ -34,31 +32,20 @@ import io.datarouter.job.storage.stopjobrequest.StopJobRequestDao.StopJobRequest
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.dao.DaosModuleBuilder;
+import io.datarouter.web.config.BaseWebPlugin;
 import io.datarouter.web.dispatcher.DatarouterWebRouteSet;
 import io.datarouter.web.navigation.DatarouterNavBarCategory;
 
-public class DatarouterJobPlugin extends BaseJobPlugin{
-
-	private final List<Class<? extends BaseTriggerGroup>> triggerGroupClasses;
-	private final Class<? extends DetachedJobExecutor> detachedJobExecutorClass;
+public class DatarouterJobPlugin extends BaseWebPlugin{
 
 	private DatarouterJobPlugin(
 			DatarouterJobDaoModule daosModuleBuilder,
-			Class<? extends DetachedJobExecutor> detachedJobExecutorClass){
-		this(null, daosModuleBuilder, detachedJobExecutorClass);
-	}
-
-	private DatarouterJobPlugin(
-			List<Class<? extends BaseTriggerGroup>> triggerGroupClasses,
-			DatarouterJobDaoModule daosModuleBuilder,
-			Class<? extends DetachedJobExecutor> detachedJobExecutorClass){
-		this.triggerGroupClasses = triggerGroupClasses;
-		this.detachedJobExecutorClass = detachedJobExecutorClass;
+			Class<? extends DetachedJobExecutor> detachedJobExecutor){
 
 		addAppListener(JobSchedulerAppListener.class);
 		addRouteSetOrdered(DatarouterJobRouteSet.class, DatarouterWebRouteSet.class);
 		addSettingRoot(DatarouterJobSettingRoot.class);
-		addTriggerGroup(DatarouterJobTriggerGroup.class);
+		addPluginEntry(BaseTriggerGroup.KEY, DatarouterJobTriggerGroup.class);
 		setDaosModule(daosModuleBuilder);
 		addDatarouterNavBarItem(DatarouterNavBarCategory.JOBS, new DatarouterJobPaths().datarouter.triggers.list,
 				"Triggers");
@@ -66,12 +53,7 @@ public class DatarouterJobPlugin extends BaseJobPlugin{
 		addDatarouterGithubDocLink("datarouter-job");
 		addMetricLinkPages(AppJobsMetricLinkPage.class);
 		addMetricLinkPages(DatarouterJobsMetricLinkPage.class);
-	}
-
-	@Override
-	public void configure(){
-		bind(TriggerGroupClasses.class).toInstance(new TriggerGroupClasses(triggerGroupClasses));
-		bind(DetachedJobExecutor.class).to(this.detachedJobExecutorClass);
+		addPluginEntry(DetachedJobExecutor.KEY, detachedJobExecutor);
 	}
 
 	public static class DatarouterJobDaoModule extends DaosModuleBuilder{
@@ -113,18 +95,10 @@ public class DatarouterJobPlugin extends BaseJobPlugin{
 
 		private final List<ClientId> defaultClientIds;
 
-		private List<Class<? extends BaseTriggerGroup>> triggerGroupClasses = new ArrayList<>();
-
 		private Class<? extends DetachedJobExecutor> detachedJobExecutorClass = DefaultDetachedJobExecutor.class;
 
 		public DatarouterJobPluginBuilder(List<ClientId> defaultClientIds){
 			this.defaultClientIds = defaultClientIds;
-		}
-
-		public DatarouterJobPluginBuilder setTriggerGroupClasses(
-				List<Class<? extends BaseTriggerGroup>> triggerGroupClasses){
-			this.triggerGroupClasses.addAll(triggerGroupClasses);
-			return this;
 		}
 
 		public DatarouterJobPluginBuilder withDetachedJobExecutorClass(
@@ -141,7 +115,6 @@ public class DatarouterJobPlugin extends BaseJobPlugin{
 
 		public DatarouterJobPlugin build(){
 			return new DatarouterJobPlugin(
-					triggerGroupClasses,
 					new DatarouterJobDaoModule(defaultClientIds, defaultClientIds, defaultClientIds),
 					detachedJobExecutorClass);
 		}

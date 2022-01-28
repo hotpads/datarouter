@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import io.datarouter.email.type.SimpleEmailType;
-import j2html.tags.ContainerTag;
+import j2html.tags.DomContent;
 
 public class J2HtmlDatarouterEmailBuilder{
 
@@ -33,7 +33,7 @@ public class J2HtmlDatarouterEmailBuilder{
 	private String logoHref;
 	private String title;
 	private String titleHref;
-	private ContainerTag<?> content;
+	private DomContent content;
 
 	private String fromEmail = null;
 	private boolean fromAdmin = false;
@@ -86,7 +86,7 @@ public class J2HtmlDatarouterEmailBuilder{
 		return this;
 	}
 
-	public J2HtmlDatarouterEmailBuilder withContent(ContainerTag<?> content){
+	public J2HtmlDatarouterEmailBuilder withContent(DomContent content){
 		this.content = content;
 		return this;
 	}

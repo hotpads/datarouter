@@ -21,7 +21,7 @@ import java.util.Comparator;
 import io.datarouter.bytes.binarydto.dto.BinaryDto;
 import io.datarouter.scanner.Scanner;
 
-public class BinaryDtoMetadataParser<T extends BinaryDto>{
+public class BinaryDtoMetadataParser<T extends BinaryDto<T>>{
 
 	private final T dto;
 

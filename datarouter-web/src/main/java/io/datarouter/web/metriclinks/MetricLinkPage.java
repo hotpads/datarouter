@@ -17,7 +17,13 @@ package io.datarouter.web.metriclinks;
 
 import java.util.List;
 
-public interface MetricLinkPage{
+import io.datarouter.plugin.PluginConfigKey;
+import io.datarouter.plugin.PluginConfigType;
+import io.datarouter.plugin.PluginConfigValue;
+
+public interface MetricLinkPage extends PluginConfigValue<MetricLinkPage>{
+
+	PluginConfigKey<MetricLinkPage> KEY = new PluginConfigKey<>("metricLinkPage", PluginConfigType.CLASS_LIST);
 
 	MetricLinkCategory getCategory();
 	String getName();
@@ -29,6 +35,11 @@ public interface MetricLinkPage{
 
 	default String getHtmlId(){
 		return getCategory().getName() + "_" + getName();
+	}
+
+	@Override
+	default PluginConfigKey<MetricLinkPage> getKey(){
+		return KEY;
 	}
 
 }

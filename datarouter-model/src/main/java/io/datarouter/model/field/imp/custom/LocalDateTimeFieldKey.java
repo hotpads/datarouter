@@ -28,7 +28,7 @@ public class LocalDateTimeFieldKey extends PrimitiveFieldKey<LocalDateTime,Local
 	private final int numFractionalSeconds;
 
 	/**
-	 * Defines a LocalDateFieldKey with millis precision
+	 * Defines a LocalDateFieldKey with micro precision
 	 */
 	public LocalDateTimeFieldKey(String name){
 		super(name, LocalDateTime.class);

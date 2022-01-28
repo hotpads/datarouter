@@ -20,7 +20,7 @@ import java.util.List;
 
 import io.datarouter.instrumentation.tablecount.TableCountPublisher;
 import io.datarouter.instrumentation.tablecount.TableCountPublisher.NoOpTableCountPublisher;
-import io.datarouter.joblet.setting.BaseJobletPlugin;
+import io.datarouter.job.BaseTriggerGroup;
 import io.datarouter.nodewatch.joblet.TableSpanSamplerJoblet;
 import io.datarouter.nodewatch.metriclink.AppNodewatchMetricLinkPage;
 import io.datarouter.nodewatch.metriclink.DatarouterNodewatchMetricLinkPage;
@@ -39,9 +39,10 @@ import io.datarouter.nodewatch.storage.tablesample.DatarouterTableSampleDao.Data
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.dao.DaosModuleBuilder;
+import io.datarouter.web.config.BaseWebPlugin;
 import io.datarouter.web.navigation.DatarouterNavBarCategory;
 
-public class DatarouterNodewatchPlugin extends BaseJobletPlugin{
+public class DatarouterNodewatchPlugin extends BaseWebPlugin{
 
 	private static final DatarouterNodewatchPaths PATHS = new DatarouterNodewatchPaths();
 	public static final String NODE_WIDGET_TABLE_COUNT_PATH = PATHS.datarouter.nodewatch.tableCount.toSlashedString()
@@ -64,15 +65,15 @@ public class DatarouterNodewatchPlugin extends BaseJobletPlugin{
 				"Latest Table Counts");
 		addDatarouterNavBarItem(DatarouterNavBarCategory.TOOLS, PATHS.datarouter.nodewatch.migrateTableCountMetadata,
 				"Migrate Table Counts");
-		addJobletType(TableSpanSamplerJoblet.JOBLET_TYPE);
+		addPluginEntry(TableSpanSamplerJoblet.JOBLET_TYPE);
 		addRouteSet(DatarouterNodewatchRouteSet.class);
 		addSettingRoot(DatarouterNodewatchSettingRoot.class);
-		addTriggerGroup(DatarouterNodewatchTriggerGroup.class);
+		addPluginEntry(BaseTriggerGroup.KEY, DatarouterNodewatchTriggerGroup.class);
 		setDaosModule(daosModuleBuilder);
 		addDatarouterGithubDocLink("datarouter-nodewatch");
 		if(enablePublishing){
 			addSettingRoot(DatarouterTableCountPublisherSettingRoot.class);
-			addTriggerGroup(DatarouterTableCountPublisherTriggerGroup.class);
+			addPluginEntry(BaseTriggerGroup.KEY, DatarouterTableCountPublisherTriggerGroup.class);
 		}
 		addDailyDigest(StaleTablesDailyDigest.class);
 		addDailyDigest(NodewatchAboveThresholdsDailyDigest.class);

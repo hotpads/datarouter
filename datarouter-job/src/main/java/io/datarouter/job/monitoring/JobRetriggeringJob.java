@@ -27,7 +27,6 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
 import io.datarouter.job.BaseTriggerGroup;
@@ -45,8 +44,6 @@ public class JobRetriggeringJob extends BaseJob{
 
 	private static final Duration THRESHOLD = Duration.ofMinutes(30);
 
-	@Inject
-	private DatarouterInjector injector;
 	@Inject
 	private TriggerGroupClasses triggerGroupClasses;
 	@Inject
@@ -69,7 +66,7 @@ public class JobRetriggeringJob extends BaseJob{
 
 	@Override
 	public void run(TaskTracker tracker){
-		injector.getInstances(triggerGroupClasses.get()).stream()
+		triggerGroupClasses.get().stream()
 				.map(BaseTriggerGroup::getJobPackages)
 				.flatMap(Collection::stream)
 				.peek(total::increment)

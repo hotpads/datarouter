@@ -38,6 +38,15 @@ public abstract class BinaryDtoBaseFieldCodec<T>{
 	public abstract LengthAndValue<T> decodeWithLength(byte[] bytes, int offset);
 
 	/**
+	 * Override this with optimized implementations that avoid value decoding.
+	 */
+	public int decodeLength(byte[] bytes, int offset){
+		return isFixedLength()
+				? fixedLength()
+				: decodeWithLength(bytes, offset).length;
+	}
+
+	/**
 	 * Override this with optimized implementations that avoid encoding.
 	 */
 	public int compareAsIfEncoded(T left, T right){

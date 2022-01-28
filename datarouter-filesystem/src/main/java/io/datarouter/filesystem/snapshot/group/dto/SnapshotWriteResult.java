@@ -15,6 +15,8 @@
  */
 package io.datarouter.filesystem.snapshot.group.dto;
 
+import java.util.Optional;
+
 import io.datarouter.filesystem.snapshot.block.root.RootBlock;
 import io.datarouter.filesystem.snapshot.key.SnapshotKey;
 import io.datarouter.util.Require;
@@ -23,16 +25,20 @@ public class SnapshotWriteResult{
 
 	public final SnapshotKey key;
 	public final boolean success;
-	public final RootBlock root;
+	public final Optional<RootBlock> optRoot;
 
 	private SnapshotWriteResult(SnapshotKey key, boolean success, RootBlock root){
 		this.key = key;
 		this.success = success;
-		this.root = root;
+		this.optRoot = Optional.ofNullable(root);
 	}
 
 	public static SnapshotWriteResult success(SnapshotKey key, RootBlock root){
 		return new SnapshotWriteResult(key, true, root);
+	}
+
+	public static SnapshotWriteResult empty(SnapshotKey key){
+		return new SnapshotWriteResult(key, false, null);
 	}
 
 	public static SnapshotWriteResult failure(SnapshotKey key){

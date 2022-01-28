@@ -21,11 +21,17 @@ import java.util.concurrent.Callable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public interface AutoConfigGroup extends Callable<String>{
-	static final Logger logger = LoggerFactory.getLogger(AutoConfigGroup.class);
+import io.datarouter.plugin.PluginConfigKey;
+import io.datarouter.plugin.PluginConfigType;
+import io.datarouter.plugin.PluginConfigValue;
 
-	static final String NEW_LINE = AutoConfig.NEW_LINE;
-	static final String MARKER = AutoConfig.MARKER;
+public interface AutoConfigGroup extends Callable<String>, PluginConfigValue<AutoConfigGroup>{
+	Logger logger = LoggerFactory.getLogger(AutoConfigGroup.class);
+
+	PluginConfigKey<AutoConfigGroup> KEY = new PluginConfigKey<>("autoConfigGroup", PluginConfigType.CLASS_LIST);
+
+	String NEW_LINE = AutoConfig.NEW_LINE;
+	String MARKER = AutoConfig.MARKER;
 
 	String getName();
 	List<String> configure();
@@ -44,6 +50,11 @@ public interface AutoConfigGroup extends Callable<String>{
 		sb.append(NEW_LINE);
 		logger.warn(sb.toString());
 		return sb.toString();
+	}
+
+	@Override
+	default PluginConfigKey<AutoConfigGroup> getKey(){
+		return KEY;
 	}
 
 }

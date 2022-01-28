@@ -576,7 +576,7 @@ public abstract class BaseSnapshotTests{
 				.map(input -> makeEntry(input.entry.key()))
 				.batch(1000)
 				.apply(entries -> getGroup().writeOps().write(makeSnapshotWriterConfig(), entries, exec, () -> false));
-		timer.add("wrote " + result.root.numRecords());
+		timer.add("wrote " + result.optRoot.get().numRecords());
 		logger.warn("{}", timer);
 		return result.key;
 	}

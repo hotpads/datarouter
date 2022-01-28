@@ -22,7 +22,7 @@ import io.datarouter.bytes.binarydto.dto.BinaryDto;
 import io.datarouter.scanner.BaseScanner;
 import io.datarouter.scanner.Scanner;
 
-public class BinaryDtoByteArrayScanner<T extends BinaryDto>
+public class BinaryDtoByteArrayScanner<T extends BinaryDto<T>>
 extends BaseScanner<T>{
 
 	private final BinaryDtoCodec<T> codec;
@@ -35,7 +35,7 @@ extends BaseScanner<T>{
 		cursor = 0;
 	}
 
-	public static <T extends BinaryDto> Scanner<T> of(Class<T> dtoClass, byte[] bytes){
+	public static <T extends BinaryDto<T>> Scanner<T> of(Class<T> dtoClass, byte[] bytes){
 		return new BinaryDtoByteArrayScanner<>(dtoClass, bytes);
 	}
 

@@ -26,6 +26,8 @@ import static j2html.TagCreator.tr;
 import java.util.List;
 
 import j2html.tags.ContainerTag;
+import j2html.tags.DomContent;
+import j2html.tags.specialized.BodyTag;
 
 public class J2HtmlDatarouterEmail{
 
@@ -34,7 +36,7 @@ public class J2HtmlDatarouterEmail{
 	private final String logoHref;
 	private final String title;
 	private final String titleHref;
-	private final ContainerTag<?> content;
+	private final DomContent content;
 
 	public final String fromEmail;
 	public final boolean fromAdmin;
@@ -49,7 +51,7 @@ public class J2HtmlDatarouterEmail{
 			String logoHref,
 			String title,
 			String titleHref,
-			ContainerTag<?> content,
+			DomContent content,
 
 			String fromEmail,
 			boolean fromAdmin,
@@ -72,12 +74,12 @@ public class J2HtmlDatarouterEmail{
 		this.toSubscribers = toSubscribers;
 	}
 
-	public ContainerTag<?> build(){
+	public BodyTag build(){
 		return body(makeHeader(), content, makeFooter())
 				.withStyle(String.join("", makeBodyStyles()));
 	}
 
-	private ContainerTag<?> makeHeader(){
+	private DomContent makeHeader(){
 		var titleLink = a(title)
 				.withHref(titleHref)
 				.withStyle(String.join("", makeTitleStyles()));

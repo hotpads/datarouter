@@ -15,19 +15,39 @@
  */
 package io.datarouter.joblet.enums;
 
+import io.datarouter.joblet.queue.JobletRequestSelector;
+import io.datarouter.plugin.PluginConfigKey;
+import io.datarouter.plugin.PluginConfigType;
+import io.datarouter.scanner.Scanner;
+
 public enum JobletQueueMechanism{
 	JDBC_LOCK_FOR_UPDATE("jdbcLockForUpdate"),
 	JDBC_UPDATE_AND_SCAN("jdbcUpdateAndScan"),
-	QUEUE("queue");
+	QUEUE("queue")
+	;
 
 	private final String persistentString;
+	private final PluginConfigKey<JobletRequestSelector> key;
 
-	private JobletQueueMechanism(String persistentString){
+	JobletQueueMechanism(String persistentString){
 		this.persistentString = persistentString;
+		this.key = new PluginConfigKey<>(persistentString, PluginConfigType.CLASS_SINGLE);
 	}
 
 	public String getPersistentString(){
 		return persistentString;
+	}
+
+	public PluginConfigKey<JobletRequestSelector> getKey(){
+		return key;
+	}
+
+	public static PluginConfigKey<JobletRequestSelector> getKeyFromPersistentStringStatic(String string){
+		return Scanner.of(values())
+				.include(type -> type.getPersistentString().equals(string))
+				.findFirst()
+				.map(JobletQueueMechanism::getKey)
+				.orElseThrow();
 	}
 
 }

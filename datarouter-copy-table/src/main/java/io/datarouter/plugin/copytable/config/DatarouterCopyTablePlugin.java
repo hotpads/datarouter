@@ -15,15 +15,15 @@
  */
 package io.datarouter.plugin.copytable.config;
 
-import io.datarouter.joblet.setting.BaseJobletPlugin;
 import io.datarouter.plugin.copytable.CopyTableJoblet;
 import io.datarouter.plugin.copytable.tableprocessor.TableProcessorJoblet;
 import io.datarouter.plugin.copytable.tableprocessor.TableProcessorRegistry;
 import io.datarouter.plugin.copytable.tableprocessor.TableProcessorRegistry.NoOpTableProcessorRegistry;
 import io.datarouter.plugin.copytable.tableprocessor.TableProcessorTestableService;
+import io.datarouter.web.config.BaseWebPlugin;
 import io.datarouter.web.navigation.DatarouterNavBarCategory;
 
-public class DatarouterCopyTablePlugin extends BaseJobletPlugin{
+public class DatarouterCopyTablePlugin extends BaseWebPlugin{
 
 	private static final DatarouterCopyTablePaths PATHS = new DatarouterCopyTablePaths();
 
@@ -34,8 +34,8 @@ public class DatarouterCopyTablePlugin extends BaseJobletPlugin{
 		this.tableProcessorRegistry = tableProcessorRegistry;
 
 		addRouteSet(DatarouterCopyTableRouteSet.class);
-		addJobletType(CopyTableJoblet.JOBLET_TYPE);
-		addJobletType(TableProcessorJoblet.JOBLET_TYPE);
+		addPluginEntry(CopyTableJoblet.JOBLET_TYPE);
+		addPluginEntry(TableProcessorJoblet.JOBLET_TYPE);
 		addTestable(TableProcessorTestableService.class);
 
 		addDatarouterNavBarItem(

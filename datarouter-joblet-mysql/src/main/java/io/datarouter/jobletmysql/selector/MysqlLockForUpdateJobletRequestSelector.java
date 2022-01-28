@@ -25,6 +25,7 @@ import io.datarouter.client.mysql.field.codec.factory.MysqlFieldCodecFactory;
 import io.datarouter.client.mysql.sql.MysqlSqlFactory;
 import io.datarouter.joblet.DatarouterJobletCounters;
 import io.datarouter.joblet.JobletRequestSqlBuilder;
+import io.datarouter.joblet.enums.JobletQueueMechanism;
 import io.datarouter.joblet.queue.JobletRequestQueueManager;
 import io.datarouter.joblet.queue.JobletRequestSelector;
 import io.datarouter.joblet.service.JobletService;
@@ -33,6 +34,7 @@ import io.datarouter.joblet.storage.jobletrequest.JobletRequest;
 import io.datarouter.joblet.storage.jobletrequestqueue.JobletRequestQueueKey;
 import io.datarouter.joblet.type.JobletType;
 import io.datarouter.jobletmysql.txn.GetJobletRequest;
+import io.datarouter.plugin.PluginConfigKey;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.util.timer.PhaseTimer;
 
@@ -79,6 +81,11 @@ public class MysqlLockForUpdateJobletRequestSelector implements JobletRequestSel
 			datarouterJobletCounters.incQueueHit(queueKey.getQueueName());
 			return Optional.of(jobletRequest);
 		}
+	}
+
+	@Override
+	public PluginConfigKey<JobletRequestSelector> getKey(){
+		return JobletQueueMechanism.JDBC_LOCK_FOR_UPDATE.getKey();
 	}
 
 }

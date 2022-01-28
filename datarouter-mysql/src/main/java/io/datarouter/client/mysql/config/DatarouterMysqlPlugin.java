@@ -24,10 +24,11 @@ import io.datarouter.client.mysql.field.MysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.factory.MysqlFieldCodecFactory;
 import io.datarouter.client.mysql.field.codec.factory.StandardMysqlFieldCodecFactory;
 import io.datarouter.client.mysql.web.MysqlAppListener;
-import io.datarouter.job.config.BaseJobPlugin;
+import io.datarouter.job.BaseTriggerGroup;
 import io.datarouter.model.field.Field;
+import io.datarouter.web.config.BaseWebPlugin;
 
-public class DatarouterMysqlPlugin extends BaseJobPlugin{
+public class DatarouterMysqlPlugin extends BaseWebPlugin{
 
 	private final Map<
 			Class<? extends Field<?>>,
@@ -42,7 +43,7 @@ public class DatarouterMysqlPlugin extends BaseJobPlugin{
 		this.isPrimarySchema = isPrimarySchema;
 		addAppListener(MysqlAppListener.class);
 		addSettingRoot(DatarouterMysqlSettingRoot.class);
-		addTriggerGroup(DatarouterMysqlTriggerGroup.class);
+		addPluginEntry(BaseTriggerGroup.KEY, DatarouterMysqlTriggerGroup.class);
 		addDatarouterGithubDocLink("datarouter-mysql");
 	}
 

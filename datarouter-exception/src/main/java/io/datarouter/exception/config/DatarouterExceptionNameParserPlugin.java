@@ -13,16 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.instrumentation.test;
+package io.datarouter.exception.config;
 
-/**
- * Marker interface to find service classes with testable methods
- */
-public interface TestableService{
+import io.datarouter.exception.utils.nameparser.ExceptionNameParserRegistry;
+import io.datarouter.web.config.BaseWebPlugin;
 
-	void testAll();
+public class DatarouterExceptionNameParserPlugin extends BaseWebPlugin{
 
-	default void afterClass(){
+	private final Class<? extends ExceptionNameParserRegistry> nameParserRegistryClass;
+
+	public DatarouterExceptionNameParserPlugin(Class<? extends ExceptionNameParserRegistry> nameParserRegistryClass){
+		this.nameParserRegistryClass = nameParserRegistryClass;
+	}
+
+	@Override
+	public void configure(){
+		bind(ExceptionNameParserRegistry.class).to(nameParserRegistryClass);
 	}
 
 }

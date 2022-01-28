@@ -24,14 +24,15 @@ import io.datarouter.clustersetting.storage.clustersetting.DatarouterClusterSett
 import io.datarouter.clustersetting.storage.clustersetting.DatarouterClusterSettingDao.DatarouterClusterSettingDaoParams;
 import io.datarouter.clustersetting.storage.clustersettinglog.DatarouterClusterSettingLogDao;
 import io.datarouter.clustersetting.storage.clustersettinglog.DatarouterClusterSettingLogDao.DatarouterClusterSettingLogDaoParams;
-import io.datarouter.job.config.BaseJobPlugin;
+import io.datarouter.job.BaseTriggerGroup;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.dao.DaosModuleBuilder;
 import io.datarouter.storage.setting.SettingFinder;
+import io.datarouter.web.config.BaseWebPlugin;
 import io.datarouter.web.navigation.DatarouterNavBarCategory;
 
-public class DatarouterClusterSettingPlugin extends BaseJobPlugin{
+public class DatarouterClusterSettingPlugin extends BaseWebPlugin{
 
 	private static final DatarouterClusterSettingPaths PATHS = new DatarouterClusterSettingPaths();
 
@@ -39,7 +40,7 @@ public class DatarouterClusterSettingPlugin extends BaseJobPlugin{
 		addSettingRoot(DatarouterClusterSettingRoot.class);
 		addRouteSet(DatarouterClusterSettingRouteSet.class);
 		addAppListener(SettingNodeValidationAppListener.class);
-		addTriggerGroup(DatarouterClusterSettingTriggerGroup.class);
+		addPluginEntry(BaseTriggerGroup.KEY, DatarouterClusterSettingTriggerGroup.class);
 		String browseSettings = PATHS.datarouter.settings.toSlashedString() + "?submitAction=browseSettings";
 		String settingLogs = PATHS.datarouter.settings.toSlashedString() + "?submitAction=logsForAll";
 		addDatarouterNavBarItem(DatarouterNavBarCategory.SETTINGS, browseSettings, "Browse Settings");

@@ -64,8 +64,8 @@ public class LocalDateFieldTester{
 		LocalDateTimeField field2 = new LocalDateTimeField(new LocalDateTimeFieldKey("test"), localDateTime2);
 		LocalDateTime localDateTimeFromBytes1 = field1.fromBytesButDoNotSet(field1.getBytes(), 0);
 		LocalDateTime localDateTimeFromBytes2 = field2.fromBytesButDoNotSet(field2.getBytes(), 0);
-		Assert.assertEquals(field1.getTruncatedLocalDateTime(localDateTime1), localDateTimeFromBytes1);
-		Assert.assertEquals(field2.getTruncatedLocalDateTime(localDateTime2), localDateTimeFromBytes2);
+		Assert.assertEquals(field1.getValue(), localDateTimeFromBytes1);
+		Assert.assertEquals(field2.getValue(), localDateTimeFromBytes2);
 	}
 
 	@Test
@@ -82,9 +82,9 @@ public class LocalDateFieldTester{
 				.overrideNumFractionalSeconds(0), localDateTime);
 		LocalDateTimeField field4 = new LocalDateTimeField(new LocalDateTimeFieldKey("test")
 				.overrideNumFractionalSeconds(9), localDateTime);
-		Assert.assertEquals(field1.getTruncatedLocalDateTime(localDateTime), localDateTimeTest.withNano(210000000));
-		Assert.assertEquals(field2.getTruncatedLocalDateTime(localDateTime), localDateTimeTest.withNano(210998500));
-		Assert.assertEquals(field3.getTruncatedLocalDateTime(localDateTime), localDateTimeTest.withNano(0));
-		Assert.assertEquals(field4.getTruncatedLocalDateTime(localDateTime), localDateTimeTest.withNano(210998531));
+		Assert.assertEquals(field1.getValue(), localDateTimeTest.withNano(210000000));
+		Assert.assertEquals(field2.getValue(), localDateTimeTest.withNano(210998500));
+		Assert.assertEquals(field3.getValue(), localDateTimeTest.withNano(0));
+		Assert.assertEquals(field4.getValue(), localDateTimeTest.withNano(210998531));
 	}
 }

@@ -148,9 +148,9 @@ public class FilesystemSnapshotSortingTests{
 				.batch(1000)
 				.apply(entries -> inputGroup.writeOps().write(config, entries, exec, () -> false));
 		inputSnapshotKey = result.key;
-		timer.add("wrote " + NumberFormatter.addCommas(result.root.numRecords()));
+		timer.add("wrote " + NumberFormatter.addCommas(result.optRoot.get().numRecords()));
 		logger.warn("{}", timer);
-		return result.root;
+		return result.optRoot.get();
 	}
 
 	private SnapshotKey writeChunkSnapshot(int chunkId, List<SnapshotRecord> records){
@@ -160,7 +160,7 @@ public class FilesystemSnapshotSortingTests{
 				.map(SnapshotRecord::entry)
 				.batch(1000)
 				.apply(entries -> chunkGroup.writeOps().write(config, entries, exec, () -> false));
-		timer.add("wrote " + NumberFormatter.addCommas(result.root.numRecords()));
+		timer.add("wrote " + NumberFormatter.addCommas(result.optRoot.get().numRecords()));
 		logger.warn("{}", timer);
 		return result.key;
 	}
@@ -173,9 +173,9 @@ public class FilesystemSnapshotSortingTests{
 				.batch(1000)
 				.apply(entries -> outputGroup.writeOps().write(config, entries, exec, () -> false));
 		outputSnapshotKey = result.key;
-		timer.add("wrote " + NumberFormatter.addCommas(result.root.numRecords()));
+		timer.add("wrote " + NumberFormatter.addCommas(result.optRoot.get().numRecords()));
 		logger.warn("{}", timer);
-		return result.root;
+		return result.optRoot.get();
 	}
 
 	private SnapshotWriterConfig makeSnapshotWriterConfig(boolean sorted){

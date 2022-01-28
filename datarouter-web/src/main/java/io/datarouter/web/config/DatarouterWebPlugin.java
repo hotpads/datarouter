@@ -26,9 +26,11 @@ import java.util.Map;
 import java.util.Set;
 
 import io.datarouter.httpclient.proxy.RequestProxySetter;
-import io.datarouter.instrumentation.test.TestableService;
 import io.datarouter.pathnode.FilesRoot;
 import io.datarouter.pathnode.FilesRoot.NoOpFilesRoot;
+import io.datarouter.plugin.PluginConfigKey;
+import io.datarouter.plugin.PluginConfigValue;
+import io.datarouter.plugin.PluginConfiguration;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.DatarouterSubscribersSupplier;
 import io.datarouter.storage.config.DatarouterSubscribersSupplier.DatarouterSubscribers;
@@ -45,9 +47,7 @@ import io.datarouter.web.config.service.ContextName;
 import io.datarouter.web.config.service.PrivateDomain;
 import io.datarouter.web.config.service.PublicDomain;
 import io.datarouter.web.config.service.ServiceName;
-import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestEmailZoneId;
-import io.datarouter.web.digest.DailyDigestRegistry;
 import io.datarouter.web.dispatcher.DatarouterWebDocsRouteSet;
 import io.datarouter.web.dispatcher.DatarouterWebRouteSet;
 import io.datarouter.web.dispatcher.FilterParamGrouping;
@@ -80,9 +80,6 @@ import io.datarouter.web.listener.WebAppListenersClasses;
 import io.datarouter.web.listener.WebAppListenersClasses.DatarouterWebAppListenersClasses;
 import io.datarouter.web.metriclinks.AppHandlerMetricLinkPage;
 import io.datarouter.web.metriclinks.DatarouterHandlerMetricLinkPage;
-import io.datarouter.web.metriclinks.MetricLinkPage;
-import io.datarouter.web.metriclinks.MetricLinkPageRegistry;
-import io.datarouter.web.metriclinks.MetricLinkPageRegistry.DefaultMetricLinkPageRegistry;
 import io.datarouter.web.navigation.AppNavBarPluginCreator;
 import io.datarouter.web.navigation.AppNavBarRegistrySupplier;
 import io.datarouter.web.navigation.AppPluginNavBarSupplier;
@@ -98,10 +95,6 @@ import io.datarouter.web.plugin.PluginRegistrySupplier;
 import io.datarouter.web.plugin.PluginRegistrySupplier.PluginRegistry;
 import io.datarouter.web.service.DocumentationNamesAndLinksSupplier;
 import io.datarouter.web.service.DocumentationNamesAndLinksSupplier.DefaultDocumentationNamesAndLinks;
-import io.datarouter.web.service.ServiceDescriptionSupplier;
-import io.datarouter.web.service.ServiceDescriptionSupplier.DatarouterServiceDescription;
-import io.datarouter.web.test.TestableServiceClassRegistry;
-import io.datarouter.web.test.TestableServiceClassRegistry.DefaultTestableServiceClassRegistry;
 import io.datarouter.web.user.DatarouterSessionDao;
 import io.datarouter.web.user.DatarouterSessionDao.DatarouterSessionDaoParams;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
@@ -141,6 +134,11 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 	private final List<Class<? extends DatarouterAppListener>> appListenerClasses;
 	private final List<Class<? extends DatarouterWebAppListener>> webAppListenerClasses;
 
+	private final Map<PluginConfigKey<?>,Class<? extends PluginConfigValue<?>>> classSingle;
+	private final Map<PluginConfigKey<?>,List<Class<? extends PluginConfigValue<?>>>> classList;
+	private final Map<PluginConfigKey<?>,PluginConfigValue<?>> instanceSingle;
+	private final Map<PluginConfigKey<?>,List<PluginConfigValue<?>>> instanceList;
+
 	private final Class<? extends RoleManager> roleManagerClass;
 	private final Class<? extends UserSessionService> userSessionServiceClass;
 	private final List<NavBarItem> datarouterNavBarPluginItems;
@@ -152,13 +150,9 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 	private final List<String> registeredPlugins;
 	private final String nodeWidgetDatabeanExporterLink;
 	private final String nodeWidgetTableCountLink;
-	private final String serviceDescription;
 	private final Map<String,Pair<String,Boolean>> documentationNamesAndLinks;
-	private final List<Class<? extends TestableService>> testableServiceClasses;
 	private final List<Class<? extends DynamicNavBarItem>> dynamicNavBarItems;
-	private final List<Class<? extends DailyDigest>> dailyDigest;
 	private final Class<? extends RequestProxySetter> requestProxy;
-	private final List<Class<? extends MetricLinkPage>> metricLinkPages;
 	private final ZoneId defaultEmailDistributionListZoneId;
 	private final ZoneId dailyDigestEmailZoneId;
 
@@ -168,8 +162,8 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			Class<? extends HomepageRouteSet> homepageRouteSet,
 			String customStaticFileFilterRegex){
 		this(null, null, null, null, null, null, null, null, null, null, null, null, null, null, daosModuleBuilder,
-				null, null, null, null, homepageRouteSet, null, customStaticFileFilterRegex, null, null, null, null,
-				null, null, null, null, null, null, null, null);
+				null, null, null, null, homepageRouteSet, null, customStaticFileFilterRegex, null, null, null,
+				null, null, null, null, null, null, null, null, null);
 	}
 
 	private DatarouterWebPlugin(
@@ -198,15 +192,16 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			List<String> registeredPlugins,
 			String nodeWidgetDatabeanExporterLink,
 			String nodeWidgetTableCountLink,
-			String serviceDescription,
 			Map<String,Pair<String,Boolean>> documentationNamesAndLinks,
-			List<Class<? extends TestableService>> testableServiceClasses,
 			List<Class<? extends DynamicNavBarItem>> dynamicNavBarItems,
-			List<Class<? extends DailyDigest>> dailyDigest,
 			Class<? extends RequestProxySetter> requestProxy,
-			List<Class<? extends MetricLinkPage>> metricLinkPages,
 			ZoneId defaultEmailDistributionListZoneId,
-			ZoneId dailyDigestEmailZoneId){
+			ZoneId dailyDigestEmailZoneId,
+
+			Map<PluginConfigKey<?>,Class<? extends PluginConfigValue<?>>> classSingle,
+			Map<PluginConfigKey<?>,List<Class<? extends PluginConfigValue<?>>>> classList,
+			Map<PluginConfigKey<?>,PluginConfigValue<?>> instanceSingle,
+			Map<PluginConfigKey<?>,List<PluginConfigValue<?>>> instanceList){
 		addRouteSetOrdered(DatarouterWebRouteSet.class, null);
 		addRouteSet(homepageRouteSet);
 		addRouteSet(DatarouterWebDocsRouteSet.class);
@@ -300,15 +295,16 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		this.registeredPlugins = registeredPlugins;
 		this.nodeWidgetDatabeanExporterLink = nodeWidgetDatabeanExporterLink;
 		this.nodeWidgetTableCountLink = nodeWidgetTableCountLink;
-		this.serviceDescription = serviceDescription;
 		this.documentationNamesAndLinks = documentationNamesAndLinks;
-		this.testableServiceClasses = testableServiceClasses;
 		this.dynamicNavBarItems = dynamicNavBarItems;
-		this.dailyDigest = dailyDigest;
 		this.requestProxy = requestProxy;
-		this.metricLinkPages = metricLinkPages;
 		this.defaultEmailDistributionListZoneId = defaultEmailDistributionListZoneId;
 		this.dailyDigestEmailZoneId = dailyDigestEmailZoneId;
+
+		this.classSingle = classSingle;
+		this.classList = classList;
+		this.instanceSingle = instanceSingle;
+		this.instanceList = instanceList;
 	}
 
 	@Override
@@ -337,16 +333,9 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 				new NodeWidgetDatabeanExporterLink(nodeWidgetDatabeanExporterLink));
 		bindActualInstance(NodeWidgetTableCountLinkSupplier.class, new NodeWidgetTableCountLink(
 				nodeWidgetTableCountLink));
-		if(serviceDescription != null){
-			bindActualInstance(ServiceDescriptionSupplier.class, new DatarouterServiceDescription(serviceDescription));
-		}
 		bindActualInstance(DocumentationNamesAndLinksSupplier.class,
 				new DefaultDocumentationNamesAndLinks(documentationNamesAndLinks));
-		bindActualInstance(TestableServiceClassRegistry.class,
-				new DefaultTestableServiceClassRegistry(testableServiceClasses));
-		bindActualInstance(DailyDigestRegistry.class, new DailyDigestRegistry(dailyDigest));
 		bind(RequestProxySetter.class).to(requestProxy);
-		bindActualInstance(MetricLinkPageRegistry.class, new DefaultMetricLinkPageRegistry(metricLinkPages));
 		bindActualInstance(DefaultEmailDistributionListZoneId.class,
 				new DefaultEmailDistributionListZoneId(defaultEmailDistributionListZoneId));
 		bindActualInstance(DailyDigestEmailZoneId.class, new DailyDigestEmailZoneId(dailyDigestEmailZoneId));
@@ -355,6 +344,12 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		bindActualInstance(PublicDomain.class, new PublicDomain(publicDomain));
 		bindActualInstance(PrivateDomain.class, new PrivateDomain(privateDomain));
 		bindActualInstance(ContextName.class, new ContextName(contextName));
+
+		bindActualInstance(PluginConfiguration.class, new PluginConfiguration(
+				classSingle,
+				classList,
+				instanceSingle,
+				instanceList));
 	}
 
 	public List<Class<? extends DatarouterAppListener>> getFinalAppListeners(){
@@ -406,6 +401,11 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		private final String contextName;
 		private final List<ClientId> defaultClientIds;
 
+		private Map<PluginConfigKey<?>,Class<? extends PluginConfigValue<?>>> classSingle = new HashMap<>();
+		private Map<PluginConfigKey<?>,List<Class<? extends PluginConfigValue<?>>>> classList = new HashMap<>();
+		private Map<PluginConfigKey<?>,PluginConfigValue<?>> instanceSingle = new HashMap<>();
+		private Map<PluginConfigKey<?>,List<PluginConfigValue<?>>> instanceList = new HashMap<>();
+
 		private Class<? extends FilesRoot> filesClass = NoOpFilesRoot.class;
 		private Class<? extends DatarouterAuthenticationConfig> authenticationConfig;
 		private Class<? extends CurrentSessionInfo> currentSessionInfo = NoOpCurrentSessionInfo.class;
@@ -426,13 +426,9 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		private List<String> registeredPlugins = Collections.emptyList();
 		private String nodeWidgetDatabeanExporterLink;
 		private String nodeWidgetTableCountLink;
-		private String serviceDescription;
 		private Map<String,Pair<String,Boolean>> documentationNamesAndLinks = new HashMap<>();
-		private List<Class<? extends TestableService>> testableServiceClasses = new ArrayList<>();
 		private final List<Class<? extends DynamicNavBarItem>> dynamicNavBarItems = new ArrayList<>();
-		private final List<Class<? extends DailyDigest>> dailyDigest = new ArrayList<>();
 		private Class<? extends RequestProxySetter> requestProxy = NoOpRequestProxySetter.class;
-		private final List<Class<? extends MetricLinkPage>> metricLinkPages = new ArrayList<>();
 		private ZoneId defaultEmailDistributionListZoneId;
 		private ZoneId dailyDigestEmailZoneId = ZoneId.systemDefault();
 
@@ -456,6 +452,30 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 				String contextName,
 				ClientId defaultClientId){
 			this(serviceName, publicDomain, privateDomain, contextName, List.of(defaultClientId));
+		}
+
+		public DatarouterWebPluginBuilder setPluginConfigsClassList(
+				Map<PluginConfigKey<?>,List<Class<? extends PluginConfigValue<?>>>> configs){
+			this.classList = configs;
+			return this;
+		}
+
+		public DatarouterWebPluginBuilder setPluginConfigsClassSingle(
+				Map<PluginConfigKey<?>,Class<? extends PluginConfigValue<?>>> configs){
+			this.classSingle = configs;
+			return this;
+		}
+
+		public DatarouterWebPluginBuilder setPluginConfigsInstanceList(
+				Map<PluginConfigKey<?>,List<PluginConfigValue<?>>> configs){
+			this.instanceList = configs;
+			return this;
+		}
+
+		public DatarouterWebPluginBuilder setPluginConfigsInstanceSingle(
+				Map<PluginConfigKey<?>,PluginConfigValue<?>> configs){
+			this.instanceSingle = configs;
+			return this;
 		}
 
 		public DatarouterWebPluginBuilder setFilesClass(Class<? extends FilesRoot> filesClass){
@@ -579,20 +599,9 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			return this;
 		}
 
-		public DatarouterWebPluginBuilder setServiceDescription(String serviceDescription){
-			this.serviceDescription = serviceDescription;
-			return this;
-		}
-
 		public DatarouterWebPluginBuilder setDocumentationNamesAndLinks(
 				Map<String,Pair<String,Boolean>> documentationNamesAndLinks){
 			this.documentationNamesAndLinks = documentationNamesAndLinks;
-			return this;
-		}
-
-		public DatarouterWebPluginBuilder setTestableServiceClasses(
-				List<Class<? extends TestableService>> testableServiceClasses){
-			this.testableServiceClasses = testableServiceClasses;
 			return this;
 		}
 
@@ -602,19 +611,8 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			return this;
 		}
 
-		public DatarouterWebPluginBuilder setDailyDigest(
-				List<Class<? extends DailyDigest>> dailyDigest){
-			this.dailyDigest.addAll(dailyDigest);
-			return this;
-		}
-
 		public DatarouterWebPluginBuilder setRequestProxy(Class<? extends RequestProxySetter> requestProxy){
 			this.requestProxy = requestProxy;
-			return this;
-		}
-
-		public DatarouterWebPluginBuilder setMetricLinkPages(List<Class<? extends MetricLinkPage>> metricLinkPages){
-			this.metricLinkPages.addAll(metricLinkPages);
 			return this;
 		}
 
@@ -663,15 +661,15 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 					registeredPlugins,
 					nodeWidgetDatabeanExporterLink,
 					nodeWidgetTableCountLink,
-					serviceDescription,
 					documentationNamesAndLinks,
-					testableServiceClasses,
 					dynamicNavBarItems,
-					dailyDigest,
 					requestProxy,
-					metricLinkPages,
 					defaultEmailDistributionListZoneId,
-					dailyDigestEmailZoneId);
+					dailyDigestEmailZoneId,
+					classSingle,
+					classList,
+					instanceSingle,
+					instanceList);
 		}
 
 	}

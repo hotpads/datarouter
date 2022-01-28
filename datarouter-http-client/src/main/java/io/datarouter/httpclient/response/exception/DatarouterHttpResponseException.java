@@ -27,6 +27,8 @@ import io.datarouter.httpclient.response.DatarouterHttpResponse;
 @SuppressWarnings("serial")
 public class DatarouterHttpResponseException extends DatarouterHttpException{
 
+	public static String BAD_RESPONSE_STATUSCODE = "bad response statusCode";
+
 	private final DatarouterHttpResponse response;
 
 	public DatarouterHttpResponseException(
@@ -43,14 +45,14 @@ public class DatarouterHttpResponseException extends DatarouterHttpException{
 			Duration duration,
 			String traceparent,
 			String target){
-		String message = "bad response statusCode=" + response.getStatusCode();
+		String message = BAD_RESPONSE_STATUSCODE + "=" + response.getStatusCode();
 		Header header = response.getFirstHeader(HttpHeaders.X_EXCEPTION_ID);
 		if(header != null){
 			message += " exceptionId=" + header.getValue();
 		}
 		message += " durationMs=" + duration.toMillis();
 		message += " traceparent=" + traceparent;
-		message += " target=" + target;
+		message += " " + DatarouterHttpConnectionAbortedException.TARGET + "=" + target;
 		String entity = response.getEntity();
 		if(entity != null && !entity.isEmpty() && entity.charAt(entity.length() - 1) == '\n'){
 			entity = entity.substring(0, entity.length() - 1) + '⏎';

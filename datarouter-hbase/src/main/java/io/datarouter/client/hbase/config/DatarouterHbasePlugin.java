@@ -19,9 +19,10 @@ import io.datarouter.client.hbase.balancer.DefaultHBaseBalancerFactory;
 import io.datarouter.client.hbase.balancer.HBaseBalancerFactory;
 import io.datarouter.client.hbase.compaction.DefaultHBaseCompactionInfo;
 import io.datarouter.client.hbase.compaction.HBaseCompactionInfo;
-import io.datarouter.job.config.BaseJobPlugin;
+import io.datarouter.job.BaseTriggerGroup;
+import io.datarouter.web.config.BaseWebPlugin;
 
-public class DatarouterHbasePlugin extends BaseJobPlugin{
+public class DatarouterHbasePlugin extends BaseWebPlugin{
 
 	private final Class<? extends HBaseCompactionInfo> hbaseCompactionInfoClass;
 	private final Class<? extends HBaseBalancerFactory> hbaseBalancerFactoryClass;
@@ -33,7 +34,7 @@ public class DatarouterHbasePlugin extends BaseJobPlugin{
 		this.hbaseBalancerFactoryClass = hbaseBalancerFactoryClass;
 		addRouteSet(DatarouterHBaseRouteSet.class);
 		addSettingRoot(DatarouterHBaseSettingRoot.class);
-		addTriggerGroup(DatarouterHBaseTriggerGroup.class);
+		addPluginEntry(BaseTriggerGroup.KEY, DatarouterHBaseTriggerGroup.class);
 		addDatarouterGithubDocLink("datarouter-hbase");
 	}
 

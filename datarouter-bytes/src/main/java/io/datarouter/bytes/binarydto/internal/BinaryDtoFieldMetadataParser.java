@@ -58,7 +58,10 @@ public class BinaryDtoFieldMetadataParser<T>{
 	}
 
 	public int getRequiredIndex(){
-		return optIndex().get();
+		return optIndex().orElseThrow(() -> {
+			String message = String.format("Field %s is missing index annotation", field.getName());
+			throw new IllegalArgumentException(message);
+		});
 	}
 
 	public boolean isNullable(){

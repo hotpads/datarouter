@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -212,7 +213,10 @@ public class SpannerSingleTableSchemaUpdateService{
 		if(statements.getPrintStatements().isEmpty()){
 			return Optional.empty();
 		}
-		String printStatement = String.join("\n", statements.getPrintStatements());
+		String printStatement = statements.getPrintStatements().stream()
+				.map(statement -> statement + ";")
+				.collect(Collectors.joining("\n"));
+
 		logger.info(SchemaUpdateTool.generateFullWidthMessage("Please Execute Spanner SchemaUpdate"));
 		logger.info(printStatement);
 		logger.info(SchemaUpdateTool.generateFullWidthMessage("Thank You"));

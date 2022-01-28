@@ -15,25 +15,20 @@
  */
 package io.datarouter.joblet.queue;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.util.Require;
+import io.datarouter.plugin.PluginConfigKey;
+import io.datarouter.plugin.PluginInjector;
 
 @Singleton
 public class JobletSelectorRegistry{
 
-	private final Map<String,Class<? extends JobletRequestSelector>> selectorClassByName = new HashMap<>();
+	@Inject
+	private PluginInjector injector;
 
-	public void register(String name, Class<? extends JobletRequestSelector> selectorClass){
-		Require.notContains(selectorClassByName.keySet(), name, name + " was already registered");
-		selectorClassByName.put(name, selectorClass);
-	}
-
-	public Class<? extends JobletRequestSelector> getSelectorClass(String name){
-		return selectorClassByName.get(name);
+	public JobletRequestSelector getSelector(PluginConfigKey<JobletRequestSelector> key){
+		return injector.getInstance(key);
 	}
 
 }

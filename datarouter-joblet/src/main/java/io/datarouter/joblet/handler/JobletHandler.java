@@ -31,7 +31,7 @@ import io.datarouter.joblet.DatarouterJobletCounters;
 import io.datarouter.joblet.JobletPageFactory;
 import io.datarouter.joblet.dto.JobletSummary;
 import io.datarouter.joblet.enums.JobletStatus;
-import io.datarouter.joblet.nav.JobletExternalLinkBuilder;
+import io.datarouter.joblet.nav.JobletExternalLinkBuilder.JobletExternalLinkBuilderSupplier;
 import io.datarouter.joblet.nav.JobletLocalLinkBuilder;
 import io.datarouter.joblet.storage.jobletrequest.DatarouterJobletRequestDao;
 import io.datarouter.joblet.storage.jobletrequest.JobletRequest;
@@ -59,7 +59,7 @@ public class JobletHandler extends BaseHandler{
 	@Inject
 	private JobletLocalLinkBuilder localLinkBuilder;
 	@Inject
-	private JobletExternalLinkBuilder externalLinkBuilder;
+	private JobletExternalLinkBuilderSupplier externalLinkBuilder;
 	@Inject
 	private MetricLinkBuilder metricLinkBuilder;
 
@@ -99,7 +99,7 @@ public class JobletHandler extends BaseHandler{
 					String metricNamePrefix = DatarouterJobletCounters.makeQueueLengthJobletsCreatedPrefix(row
 							.getType());
 					String text = row.getType();
-					return externalLinkBuilder.counters(metricNamePrefix)
+					return externalLinkBuilder.get().counters(metricNamePrefix)
 							.map(href -> td(a(text).withHref(href)))
 							.orElse(td(text));
 				})

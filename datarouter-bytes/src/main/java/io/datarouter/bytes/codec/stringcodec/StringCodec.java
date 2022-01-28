@@ -20,7 +20,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 /**
- * Encodes a String as UTF-8 bytes without any length information or terminal bytes.
+ * Encodes a String without any length information or terminal bytes.
  */
 public class StringCodec{
 

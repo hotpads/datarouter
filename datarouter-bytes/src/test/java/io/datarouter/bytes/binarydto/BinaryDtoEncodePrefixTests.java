@@ -72,7 +72,7 @@ public class BinaryDtoEncodePrefixTests{
 				'a', 0};//present, value, terminator
 		byte[] actualBytes = codec.encodePrefix(dto, numPrefixFields);
 		Assert.assertEquals(actualBytes, expectedBytes);
-		TestDto actualDto = codec.decodePrefix(actualBytes, numPrefixFields);
+		TestDto actualDto = codec.decodePrefix(actualBytes, 0, numPrefixFields);
 		Assert.assertEquals(actualDto, dto);
 	}
 

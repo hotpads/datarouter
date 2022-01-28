@@ -29,9 +29,9 @@ import io.datarouter.bytes.binarydto.internal.BinaryDtoFieldSchema;
 import io.datarouter.bytes.binarydto.internal.BinaryDtoMetadataParser;
 import io.datarouter.scanner.Scanner;
 
-public class BinaryDtoCodec<T extends BinaryDto>{
+public class BinaryDtoCodec<T extends BinaryDto<T>>{
 
-	private static final Map<Class<? extends BinaryDto>,BinaryDtoCodec<?>> CACHE = new ConcurrentHashMap<>();
+	private static final Map<Class<? extends BinaryDto<?>>,BinaryDtoCodec<?>> CACHE = new ConcurrentHashMap<>();
 
 	public final Class<T> dtoClass;
 	public final List<Field> fields;
@@ -49,13 +49,13 @@ public class BinaryDtoCodec<T extends BinaryDto>{
 				.list();
 	}
 
-	@SuppressWarnings("unchecked")
-	public static <T extends BinaryDto> BinaryDtoCodec<T> of(Class<? extends T> dtoClass){
+	@SuppressWarnings({"unchecked", "rawtypes"})
+	public static <T extends BinaryDto<T>> BinaryDtoCodec<T> of(Class<? extends T> dtoClass){
 		//Can't use computeIfAbsent here because it prohibits recursive calls to this method.  We may therefore
 		// generate a few extra codecs.
 		BinaryDtoCodec<?> codec = CACHE.get(dtoClass);
 		if(codec == null){
-			codec = new BinaryDtoCodec<>(dtoClass);
+			codec = new BinaryDtoCodec(dtoClass);
 			CACHE.put(dtoClass, codec);
 		}
 		return (BinaryDtoCodec<T>) codec;
@@ -72,6 +72,8 @@ public class BinaryDtoCodec<T extends BinaryDto>{
 				.map(field -> field.encodeField(dto))
 				.listTo(ByteTool::concat);
 	}
+
+	/*---------- encode prefix ------------*/
 
 	public byte[] encodePrefix(T dto, int numFields){
 		return Scanner.of(fieldSchemas)
@@ -104,9 +106,24 @@ public class BinaryDtoCodec<T extends BinaryDto>{
 		return new LengthAndValue<>(length, dto);
 	}
 
-	public T decodePrefix(byte[] bytes, int numFields){
+	/*---------- decode prefix ------------*/
+
+	public int decodePrefixLength(byte[] bytes, int offset, int numFields){
+		int cursor = offset;
+		int numFieldsDecoded = 0;
+		for(BinaryDtoFieldSchema<?> field : fieldSchemas){
+			cursor += field.decodeFieldLength(bytes, cursor);
+			++numFieldsDecoded;
+			if(numFieldsDecoded == numFields){
+				break;
+			}
+		}
+		return cursor - offset;
+	}
+
+	public T decodePrefix(byte[] bytes, int offset, int numFields){
 		T dto = BinaryDtoAllocator.allocate(dtoClass);
-		int cursor = 0;
+		int cursor = offset;
 		int numFieldsDecoded = 0;
 		for(BinaryDtoFieldSchema<?> field : fieldSchemas){
 			cursor += field.decodeField(dto, bytes, cursor);

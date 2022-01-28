@@ -25,7 +25,7 @@ import io.datarouter.bytes.binarydto.dto.BinaryDto;
 import io.datarouter.scanner.BaseScanner;
 import io.datarouter.scanner.Scanner;
 
-public class BinaryDtoInputStreamScanner<T extends BinaryDto>
+public class BinaryDtoInputStreamScanner<T extends BinaryDto<T>>
 extends BaseScanner<T>{
 
 	private final BinaryDtoCodec<T> codec;
@@ -36,7 +36,7 @@ extends BaseScanner<T>{
 		this.inputStream = inputStream;
 	}
 
-	public static <T extends BinaryDto> Scanner<T> of(Class<T> dtoClass, InputStream inputStream){
+	public static <T extends BinaryDto<T>> Scanner<T> of(Class<T> dtoClass, InputStream inputStream){
 		return new BinaryDtoInputStreamScanner<>(dtoClass, inputStream);
 	}
 

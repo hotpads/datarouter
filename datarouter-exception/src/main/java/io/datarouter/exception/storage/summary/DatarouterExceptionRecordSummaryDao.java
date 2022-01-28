@@ -22,6 +22,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.exception.storage.summary.ExceptionRecordSummary.ExceptionRecordSummaryFielder;
+import io.datarouter.exception.storage.summary.ExceptionRecordSummaryV2.ExceptionRecordSummaryV2Fielder;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
@@ -42,8 +43,11 @@ public class DatarouterExceptionRecordSummaryDao extends BaseDao{
 		}
 	}
 
+	@Deprecated
 	private final SortedMapStorageNode<ExceptionRecordSummaryKey,ExceptionRecordSummary,
 			ExceptionRecordSummaryFielder> node;
+	private final SortedMapStorageNode<ExceptionRecordSummaryKeyV2,ExceptionRecordSummaryV2,
+			ExceptionRecordSummaryV2Fielder> nodeV2;
 
 	@Inject
 	public DatarouterExceptionRecordSummaryDao(
@@ -62,7 +66,20 @@ public class DatarouterExceptionRecordSummaryDao extends BaseDao{
 					return node;
 				})
 				.listTo(RedundantSortedMapStorageNode::new);
+
+		nodeV2 = Scanner.of(params.clientIds)
+				.map(clientId -> {
+					SortedMapStorageNode<ExceptionRecordSummaryKeyV2,ExceptionRecordSummaryV2,
+							ExceptionRecordSummaryV2Fielder> node =
+							nodeFactory.create(clientId, ExceptionRecordSummaryV2::new,
+									ExceptionRecordSummaryV2Fielder::new)
+							.withIsSystemTable(true)
+							.build();
+					return node;
+				}).listTo(RedundantSortedMapStorageNode::new);
+
 		datarouter.register(node);
+		datarouter.register(nodeV2);
 	}
 
 	public Scanner<ExceptionRecordSummary> scan(){

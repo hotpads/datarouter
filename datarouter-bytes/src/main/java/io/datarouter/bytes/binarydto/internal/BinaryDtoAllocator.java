@@ -30,7 +30,7 @@ public class BinaryDtoAllocator{
 
 	private static final UnsafeAllocator ALLOCATOR = new UnsafeAllocator();
 
-	public static <T extends BinaryDto> T allocate(Class<T> cls){
+	public static <T extends BinaryDto<T>> T allocate(Class<T> cls){
 		return ALLOCATOR.allocate(cls);
 	}
 

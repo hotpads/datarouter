@@ -39,6 +39,7 @@ import org.slf4j.LoggerFactory;
 import io.datarouter.exception.storage.exceptionrecord.ExceptionRecordKey;
 import io.datarouter.exception.utils.ExceptionDetailsDetector;
 import io.datarouter.exception.utils.ExceptionDetailsDetector.ExceptionRecorderDetails;
+import io.datarouter.exception.utils.nameparser.ExceptionNameParserRegistry;
 import io.datarouter.httpclient.HttpHeaders;
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.instrumentation.count.Counters;
@@ -67,6 +68,7 @@ public abstract class ExceptionHandlingFilter implements Filter, InjectorRetriev
 	private DatarouterInjector injector;
 	private WebappName webappName;
 	private ExceptionRecorder exceptionRecorder;
+	private ExceptionNameParserRegistry exceptionNameParserRegistry;
 	private DatarouterWebSettingRoot webSettings;
 
 	@Override
@@ -74,6 +76,7 @@ public abstract class ExceptionHandlingFilter implements Filter, InjectorRetriev
 		injector = getInjector(filterConfig.getServletContext());
 		webappName = injector.getInstance(WebappName.class);
 		exceptionRecorder = injector.getInstance(ExceptionRecorder.class);
+		exceptionNameParserRegistry = injector.getInstance(ExceptionNameParserRegistry.class);
 		webSettings = injector.getInstance(DatarouterWebSettingRoot.class);
 	}
 
@@ -118,21 +121,6 @@ public abstract class ExceptionHandlingFilter implements Filter, InjectorRetriev
 			HttpServletRequest request,
 			Throwable exception){
 		try{
-			String location;
-			String methodName = null;
-			String type = null;
-			Integer lineNumber;
-			Pair<String,Integer> pair = searchJspName(exception);
-			location = pair.getLeft();
-			lineNumber = pair.getRight();
-			if(location == null){
-				ExceptionRecorderDetails details = ExceptionDetailsDetector.detect(exception,
-						webSettings.stackTraceHighlights.get());
-				location = details.className;
-				methodName = details.methodName;
-				type = details.type;
-				lineNumber = details.lineNumber;
-			}
 			String callOrigin;
 			Optional<Class<? extends BaseHandler>> handlerClass = RequestAttributeTool.get(request,
 					BaseHandler.HANDLER_CLASS);
@@ -143,8 +131,23 @@ public abstract class ExceptionHandlingFilter implements Filter, InjectorRetriev
 				callOrigin = null;
 			}
 
+			String methodName = null;
+			String name = null;
+			String type = null;
+			Pair<String,Integer> pair = searchJspName(exception);
+			String location = pair.getLeft();
+			Integer lineNumber = pair.getRight();
+			if(location == null){
+				ExceptionRecorderDetails details = ExceptionDetailsDetector.detect(exceptionNameParserRegistry,
+						exception, callOrigin, webSettings.stackTraceHighlights.get());
+				location = details.className;
+				methodName = details.methodName;
+				name = details.parsedName;
+				type = details.type;
+				lineNumber = details.lineNumber;
+			}
 			ExceptionRecordDto exceptionRecord = exceptionRecorder.recordExceptionAndHttpRequest(exception, location,
-					methodName, type, lineNumber, request, callOrigin);
+					methodName, name, type, lineNumber, request, callOrigin);
 
 			return Optional.of(new ExceptionRecordKey(exceptionRecord.id));
 		}catch(Exception e){

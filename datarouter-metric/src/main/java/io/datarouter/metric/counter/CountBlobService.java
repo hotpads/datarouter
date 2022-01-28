@@ -46,7 +46,7 @@ public class CountBlobService implements CountPublisher{
 	@Override
 	public PublishingResponseDto add(CountBatchDto dto){
 		var countBlobDto = toBlob(dto);
-		logger.warn("writing key={}", countBlobDto.ulid);//TODO info
+		logger.info("writing key={}", countBlobDto.ulid);
 		countBlobDao.write(countBlobDto);
 		return PublishingResponseDto.SUCCESS;
 	}

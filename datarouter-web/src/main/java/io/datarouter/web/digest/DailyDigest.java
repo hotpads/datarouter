@@ -19,9 +19,14 @@ import java.time.ZoneId;
 import java.util.Comparator;
 import java.util.Optional;
 
+import io.datarouter.plugin.PluginConfigKey;
+import io.datarouter.plugin.PluginConfigType;
+import io.datarouter.plugin.PluginConfigValue;
 import j2html.tags.ContainerTag;
 
-public interface DailyDigest{
+public interface DailyDigest extends PluginConfigValue<DailyDigest>{
+
+	PluginConfigKey<DailyDigest> KEY = new PluginConfigKey<>("dailyDigest", PluginConfigType.CLASS_LIST);
 
 	Comparator<DailyDigest> COMPARATOR = Comparator
 			.comparing(DailyDigest::getGrouping)
@@ -49,6 +54,11 @@ public interface DailyDigest{
 			this.display = display;
 		}
 
+	}
+
+	@Override
+	default PluginConfigKey<DailyDigest> getKey(){
+		return KEY;
 	}
 
 }

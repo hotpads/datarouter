@@ -18,6 +18,7 @@ package io.datarouter.filesystem.snapshot.writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -225,7 +226,7 @@ public class SnapshotWriter implements AutoCloseable{
 		}
 	}
 
-	public RootBlock complete(){
+	public Optional<RootBlock> complete(){
 		LinkedBlockingDequeTool.put(messages, Message.last());
 		CountDownLatchTool.await(writerThreadCompletionLatch);
 
@@ -262,6 +263,9 @@ public class SnapshotWriter implements AutoCloseable{
 		blockWriter.complete();
 
 		//write root block
+		if(numKeys == 0){
+			return Optional.empty();
+		}
 		//TODO write to cache if config.updateCache
 		RootBlock root = blockWriter.flushRootBlock(
 				startTimeMs,
@@ -277,7 +281,7 @@ public class SnapshotWriter implements AutoCloseable{
 				.map(kv -> kv.getKey() + "=" + kv.getValue())
 				.collect(Collectors.joining(", "));
 		logger.warn("Completed group={}, id={}, {}", snapshotKey.groupId, snapshotKey.snapshotId, logTokens);
-		return root;
+		return Optional.of(root);
 	}
 
 	private void logStatusOccasional(){

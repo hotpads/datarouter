@@ -46,7 +46,7 @@ public class DatarouterCountSettingRoot extends SettingRoot{
 				.withTag(DatarouterSettingTagType.COUNTPIPELINE, () -> true));
 
 		saveCountBlobs = registerBoolean("saveCountBlobs", false);
-		skipsSaveCountsWhenSaveCountBlobsIsTrue = registerBoolean("skipsSaveCountsWhenSaveCountBlobsIsTrue", false);
+		skipsSaveCountsWhenSaveCountBlobsIsTrue = registerBoolean("skipsSaveCountsWhenSaveCountBlobsIsTrue", true);
 
 		runCountsToQueue = registerBooleans("runCountsToQueue", defaultTo(false)
 				.withTag(DatarouterSettingTagType.COUNTPIPELINE, () -> true));

@@ -18,24 +18,21 @@ package io.datarouter.web.test;
 import java.util.List;
 import java.util.function.Supplier;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import io.datarouter.instrumentation.test.TestableService;
+import io.datarouter.plugin.PluginInjector;
 
-public interface TestableServiceClassRegistry extends Supplier<List<Class<? extends TestableService>>>{
+@Singleton
+public class TestableServiceClassRegistry implements Supplier<List<TestableService>>{
 
+	@Inject
+	private PluginInjector injector;
 
-	class DefaultTestableServiceClassRegistry implements TestableServiceClassRegistry{
-
-		private final List<Class<? extends TestableService>> testableServiceClasses;
-
-		public DefaultTestableServiceClassRegistry(List<Class<? extends TestableService>> testableServiceClasses){
-			this.testableServiceClasses = testableServiceClasses;
-		}
-
-		@Override
-		public List<Class<? extends TestableService>> get(){
-			return testableServiceClasses;
-		}
-
+	@Override
+	public List<TestableService> get(){
+		return injector.getInstances(TestableService.KEY);
 	}
 
 }

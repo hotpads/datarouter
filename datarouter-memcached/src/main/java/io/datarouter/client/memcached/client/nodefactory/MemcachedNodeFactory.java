@@ -30,6 +30,7 @@ import io.datarouter.storage.file.Pathbean;
 import io.datarouter.storage.file.Pathbean.PathbeanFielder;
 import io.datarouter.storage.file.PathbeanKey;
 import io.datarouter.storage.node.NodeParams;
+import io.datarouter.web.config.service.ServiceName;
 
 @Singleton
 public class MemcachedNodeFactory{
@@ -38,6 +39,8 @@ public class MemcachedNodeFactory{
 	private MemcachedClientType clientType;
 	@Inject
 	private MemcachedClientManager clientManager;
+	@Inject
+	private ServiceName serviceName;
 
 	public MemcachedBlobNode createBlobNode(NodeParams<PathbeanKey,Pathbean,PathbeanFielder> params){
 		return new MemcachedBlobNode(params, clientType, clientManager);
@@ -57,7 +60,7 @@ public class MemcachedNodeFactory{
 	MemcachedMapStorageNode<PK,D,F> createMemcachedMapStorageNode(NodeParams<PK,D,F> params){
 		return new MemcachedMapStorageNode<>(params, clientType,
 				new MemcachedBlobNode((NodeParams<PathbeanKey,Pathbean,PathbeanFielder>)params, clientType,
-						clientManager));
+						clientManager), serviceName);
 	}
 
 }

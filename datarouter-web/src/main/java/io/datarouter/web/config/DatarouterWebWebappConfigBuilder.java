@@ -37,6 +37,9 @@ import io.datarouter.instrumentation.test.TestableService;
 import io.datarouter.pathnode.FilesRoot;
 import io.datarouter.pathnode.FilesRoot.NoOpFilesRoot;
 import io.datarouter.pathnode.PathNode;
+import io.datarouter.plugin.PluginConfigKey;
+import io.datarouter.plugin.PluginConfigValue;
+import io.datarouter.plugin.StringPluginConfigValue;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientOptionsFactory;
@@ -71,11 +74,11 @@ import io.datarouter.web.homepage.SimpleHomepageHandler;
 import io.datarouter.web.listener.DatarouterAppListener;
 import io.datarouter.web.listener.DatarouterGuiceAppListenerServletContextListener;
 import io.datarouter.web.listener.DatarouterWebAppListener;
-import io.datarouter.web.metriclinks.MetricLinkPage;
 import io.datarouter.web.navigation.AppNavBarRegistrySupplier;
 import io.datarouter.web.navigation.DynamicNavBarItem;
 import io.datarouter.web.navigation.NavBarCategory;
 import io.datarouter.web.navigation.NavBarItem;
+import io.datarouter.web.service.ServiceDescriptionSupplier;
 import io.datarouter.web.user.authenticate.DatarouterAuthenticationFilter;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
 import io.datarouter.web.user.detail.DatarouterUserExternalDetailService;
@@ -108,6 +111,12 @@ implements WebappBuilder{
 	private Class<? extends SchemaUpdateOptionsFactory> schemaUpdateOptionsFactory;
 	private Class<? extends DatarouterSettingOverrides> settingOverrides;
 
+	// datarouter-web configs v2
+	private final Map<PluginConfigKey<?>,Class<? extends PluginConfigValue<?>>> classSingle;
+	private final Map<PluginConfigKey<?>,List<Class<? extends PluginConfigValue<?>>>> classList;
+	private final Map<PluginConfigKey<?>,PluginConfigValue<?>> instanceSingle;
+	private final Map<PluginConfigKey<?>,List<PluginConfigValue<?>>> instanceList;
+
 	// datarouter-web
 	private final List<Ordered<Class<? extends DatarouterAppListener>>> appListenersOrdered;
 	private final List<Class<? extends DatarouterAppListener>> appListenersUnordered;
@@ -116,10 +125,7 @@ implements WebappBuilder{
 	private final List<Class<? extends DatarouterWebAppListener>> webAppListenersUnordered;
 	private final List<Ordered<Class<? extends BaseRouteSet>>> routeSetOrdered;
 	private final List<Class<? extends BaseRouteSet>> routeSetsUnordered;
-	private final List<Class<? extends TestableService>> testableServiceClasses;
 	private final Map<String,Pair<String,Boolean>> documentationNamesAndLinks;
-	private final List<Class<? extends DailyDigest>> dailyDigest;
-	private final List<Class<? extends MetricLinkPage>> metricLinkPages;
 
 	private Class<? extends RoleManager> roleManager;
 	private Class<? extends CurrentSessionInfo> currentSessionInfo;
@@ -131,7 +137,6 @@ implements WebappBuilder{
 	private String customStaticFileFilterRegex;
 	private String nodeWidgetDatabeanExporterLink;
 	private String nodeWidgetTableCountLink;
-	private String serviceDescription;
 	protected boolean useDatarouterAuth;
 	private Class<? extends RequestProxySetter> requestProxy;
 	private ZoneId defaultEmailDistributionListZoneId;
@@ -208,6 +213,12 @@ implements WebappBuilder{
 		this.fieldKeyOverriders = new ArrayList<>();
 		this.testModules = new ArrayList<>();
 
+		// datarouter-web configs v2
+		classSingle = new HashMap<>();
+		classList = new HashMap<>();
+		instanceSingle = new HashMap<>();
+		instanceList = new HashMap<>();
+
 		// datarouter-web
 		this.roleManager = DatarouterRoleManager.class;
 		this.userSessionService = NoOpUserSessionService.class;
@@ -224,12 +235,9 @@ implements WebappBuilder{
 		this.homepageRouteSet = DefaultHomepageRouteSet.class;
 		this.homepageHandler = SimpleHomepageHandler.class;
 		this.documentationNamesAndLinks = new HashMap<>();
-		this.dailyDigest = new ArrayList<>();
-		this.metricLinkPages = new ArrayList<>();
 		this.useDatarouterAuth = true;
 		this.defaultEmailDistributionListZoneId = ZoneId.systemDefault();
 		this.dailyDigestEmailZoneId = ZoneId.systemDefault();
-		this.testableServiceClasses = new ArrayList<>();
 
 		// datarouter-web servlet
 		this.filterParamsOrdered = new ArrayList<>();
@@ -300,15 +308,16 @@ implements WebappBuilder{
 				.withRegisteredPlugins(registeredPlugins)
 				.withNodeWidgetDatabeanExporterLink(nodeWidgetDatabeanExporterLink)
 				.withNodeWidgetTableCountLink(nodeWidgetTableCountLink)
-				.setServiceDescription(serviceDescription)
 				.setDocumentationNamesAndLinks(documentationNamesAndLinks)
-				.setTestableServiceClasses(testableServiceClasses)
 				.setDynamicNavBarItems(dynamicNavBarItems)
-				.setDailyDigest(dailyDigest)
 				.setRequestProxy(requestProxy)
-				.setMetricLinkPages(metricLinkPages)
 				.setDefaultEmailDistributionListZoneId(defaultEmailDistributionListZoneId)
 				.setDailyDigestEmailZoneId(dailyDigestEmailZoneId)
+				// This will need to move up later
+				.setPluginConfigsClassList(classList)
+				.setPluginConfigsClassSingle(classSingle)
+				.setPluginConfigsInstanceList(instanceList)
+				.setPluginConfigsInstanceSingle(instanceSingle)
 				.build();
 		webPlugin.getStoragePlugins().forEach(this::addStoragePluginWithoutInstalling);
 		webPlugin.getWebPlugins().forEach(this::addWebPluginWithoutInstalling);
@@ -424,6 +433,13 @@ implements WebappBuilder{
 	protected T addWebPluginWithoutInstalling(BaseWebPlugin plugin){
 		addStoragePluginWithoutInstalling(plugin);
 
+		// TODO do we need to check for overwriting?
+		plugin.classSingle.forEach((key, value) -> classSingle.put(key, value));
+		plugin.classList.forEach((key, value) -> classList.computeIfAbsent(key, $ -> new ArrayList<>()).addAll(value));
+		plugin.instanceSingle.forEach((key, value) -> instanceSingle.put(key, value));
+		plugin.instanceList
+				.forEach((key, value) -> instanceList.computeIfAbsent(key, $ -> new ArrayList<>()).addAll(value));
+
 		filterParamsOrdered.addAll(plugin.getFilterParamsOrdered());
 		filterParamsUnordered.addAll(plugin.getFilterParamsUnordered());
 
@@ -443,13 +459,7 @@ implements WebappBuilder{
 
 		fieldKeyOverriders.addAll(plugin.getFieldKeyOverrides());
 
-		testableServiceClasses.addAll(plugin.getTestableServiceClasses());
-
 		documentationNamesAndLinks.putAll(plugin.getDocumentationNamesAndLinks());
-
-		dailyDigest.addAll(plugin.getDailyDigestRegistry());
-
-		metricLinkPages.addAll(plugin.getMetricLinkPages());
 
 		return getSelf();
 	}
@@ -471,7 +481,7 @@ implements WebappBuilder{
 	}
 
 	public T addTestableService(Class<? extends TestableService> testableService){
-		testableServiceClasses.add(testableService);
+		addPluginEntry(TestableService.KEY, testableService);
 		return getSelf();
 	}
 
@@ -662,7 +672,8 @@ implements WebappBuilder{
 	}
 
 	public T setServiceDescription(String serviceDescription){
-		this.serviceDescription = serviceDescription;
+		var value = new StringPluginConfigValue(ServiceDescriptionSupplier.KEY, serviceDescription);
+		this.instanceSingle.put(ServiceDescriptionSupplier.KEY, value);
 		return getSelf();
 	}
 
@@ -696,7 +707,7 @@ implements WebappBuilder{
 	}
 
 	public T addDailyDigest(Class<? extends DailyDigest> dailyDigest){
-		this.dailyDigest.add(dailyDigest);
+		addPluginEntry(DailyDigest.KEY, dailyDigest);
 		return getSelf();
 	}
 
@@ -717,6 +728,51 @@ implements WebappBuilder{
 
 	public T addTestModule(Module testModule){
 		this.testModules.add(testModule);
+		return getSelf();
+	}
+
+	public T addPluginEntries(PluginConfigKey<?> key, List<Class<? extends PluginConfigValue<?>>> values){
+		values.forEach(value -> addPluginEntry(key, value));
+		return getSelf();
+	}
+
+	public T addPluginEntries(List<PluginConfigValue<?>> values){
+		values.forEach(value -> addPluginEntry(value));
+		return getSelf();
+	}
+
+
+	public T addPluginEntry(PluginConfigKey<?> key, Class<? extends PluginConfigValue<?>> value){
+		switch(key.type){
+		case CLASS_LIST:
+			classList.computeIfAbsent(key, $ -> new ArrayList<>()).add(value);
+			break;
+		case CLASS_SINGLE:
+			if(classSingle.containsKey(key)){
+				throw new RuntimeException(key.persistentString + " has already been set");
+			}
+			classSingle.put(key, value);
+			break;
+		default:
+			break;
+		}
+		return getSelf();
+	}
+
+	public T addPluginEntry(PluginConfigValue<?> value){
+		switch(value.getKey().type){
+		case INSTANCE_LIST:
+			instanceList.computeIfAbsent(value.getKey(), $ -> new ArrayList<>()).add(value);
+			break;
+		case INSTANCE_SINGLE:
+			if(instanceSingle.containsKey(value.getKey())){
+				throw new RuntimeException(value.getKey().persistentString + " has already been set");
+			}
+			instanceSingle.put(value.getKey(), value);
+			break;
+		default:
+			break;
+		}
 		return getSelf();
 	}
 

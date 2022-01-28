@@ -13,27 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.web.metriclinks;
+package io.datarouter.instrumentation.test;
 
-import java.util.List;
+import io.datarouter.plugin.PluginConfigKey;
+import io.datarouter.plugin.PluginConfigType;
+import io.datarouter.plugin.PluginConfigValue;
 
-public interface MetricLinkPageRegistry{
+/**
+ * Marker interface to find service classes with testable methods
+ */
+public interface TestableService extends PluginConfigValue<TestableService>{
 
-	List<Class<? extends MetricLinkPage>> getMetricLinkPages();
+	PluginConfigKey<TestableService> KEY = new PluginConfigKey<>("testableService", PluginConfigType.CLASS_LIST);
 
-	class DefaultMetricLinkPageRegistry implements MetricLinkPageRegistry{
+	void testAll();
 
-		public final List<Class<? extends MetricLinkPage>> metricLinkPages;
+	default void afterClass(){
+	}
 
-		public DefaultMetricLinkPageRegistry(List<Class<? extends MetricLinkPage>> metricLinkPages){
-			this.metricLinkPages = metricLinkPages;
-		}
-
-		@Override
-		public List<Class<? extends MetricLinkPage>> getMetricLinkPages(){
-			return metricLinkPages;
-		}
-
+	@Override
+	default PluginConfigKey<TestableService> getKey(){
+		return KEY;
 	}
 
 }

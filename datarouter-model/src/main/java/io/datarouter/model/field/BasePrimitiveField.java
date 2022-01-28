@@ -32,7 +32,7 @@ extends BaseField<T>{
 	}
 
 	@Override
-	public FieldKey<T> getKey(){
+	public K getKey(){
 		return key;
 	}
 

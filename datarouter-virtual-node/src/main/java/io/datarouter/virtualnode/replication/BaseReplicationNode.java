@@ -32,6 +32,7 @@ import io.datarouter.storage.node.BaseNode;
 import io.datarouter.storage.node.Node;
 import io.datarouter.storage.node.NodeParams.NodeParamsBuilder;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
+import io.datarouter.util.Require;
 
 public abstract class BaseReplicationNode<
 		PK extends PrimaryKey<PK>,
@@ -44,15 +45,22 @@ implements ReplicationNode<PK,D,F,N>{
 	protected final N primary;
 	protected final List<N> replicas;
 	protected final List<N> primaryAndReplicas;
+	protected final Integer everyNToPrimary;
+	protected final AtomicInteger requestCounter;
 	protected final AtomicInteger replicaRequestCounter;
 
-	public BaseReplicationNode(N primary, Collection<N> replicas){
+	public BaseReplicationNode(N primary, Collection<N> replicas, Integer everyNToPrimary){
 		super(new NodeParamsBuilder<>(
 				primary.getFieldInfo().getDatabeanSupplier(),
 				primary.getFieldInfo().getFielderSupplier())
 				.build());
 		this.replicas = new ArrayList<>();
 		this.primaryAndReplicas = new ArrayList<>();
+		this.everyNToPrimary = everyNToPrimary;
+		if(everyNToPrimary != null){
+			Require.greaterThan(everyNToPrimary, 0);
+		}
+		this.requestCounter = new AtomicInteger(0);
 		this.replicaRequestCounter = new AtomicInteger(0);
 		this.primary = primary;
 		this.primaryAndReplicas.add(primary);
@@ -126,7 +134,14 @@ implements ReplicationNode<PK,D,F,N>{
 		if(replicas.isEmpty()){
 			return primary;
 		}
-		int replicaIndex = replicaRequestCounter.incrementAndGet() % replicas.size();
+		int requestNum = requestCounter.incrementAndGet();
+		if(everyNToPrimary != null){
+			if(requestNum % everyNToPrimary == 0){
+				return primary;
+			}
+		}
+		int replicaRequestNum = replicaRequestCounter.incrementAndGet();
+		int replicaIndex = replicaRequestNum % replicas.size();
 		return replicas.get(replicaIndex);
 	}
 

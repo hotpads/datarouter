@@ -18,10 +18,11 @@ package io.datarouter.websocket.config;
 import java.util.List;
 import java.util.Optional;
 
-import io.datarouter.joblet.setting.BaseJobletPlugin;
+import io.datarouter.job.BaseTriggerGroup;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.dao.DaosModuleBuilder;
+import io.datarouter.web.config.BaseWebPlugin;
 import io.datarouter.web.dispatcher.FilterParamGrouping;
 import io.datarouter.web.dispatcher.FilterParams;
 import io.datarouter.web.inject.guice.BaseGuiceServletModule;
@@ -39,7 +40,7 @@ import io.datarouter.websocket.storage.session.DatarouterWebSocketSessionDao.Dat
 import io.datarouter.websocket.storage.subscription.DatarouterWebSocketSubscriptionDao;
 import io.datarouter.websocket.storage.subscription.DatarouterWebSocketSubscriptionDao.DatarouterWebSocketSubscriptionDaoParams;
 
-public class DatarouterWebSocketPlugin extends BaseJobletPlugin{
+public class DatarouterWebSocketPlugin extends BaseWebPlugin{
 
 	private static final DatarouterWebSocketPaths PATHS = new DatarouterWebSocketPaths();
 
@@ -65,7 +66,7 @@ public class DatarouterWebSocketPlugin extends BaseJobletPlugin{
 
 		addSettingRoot(DatarouterWebSocketSettingRoot.class);
 		addDatarouterNavBarItem(DatarouterNavBarCategory.TOOLS, PATHS.datarouter.websocketTool.list, "WebSocket");
-		addTriggerGroup(DatarouterWebSocketTriggerGroup.class);
+		addPluginEntry(BaseTriggerGroup.KEY, DatarouterWebSocketTriggerGroup.class);
 		addFilterParams(new FilterParams(
 				false,
 				BaseGuiceServletModule.ROOT_PATH,
@@ -74,7 +75,7 @@ public class DatarouterWebSocketPlugin extends BaseJobletPlugin{
 		addRouteSet(DatarouterWebSocketApiRouteSet.class);
 		setDaosModule(daosModule);
 		addDatarouterGithubDocLink("datarouter-websocket");
-		addJobletType(WebSocketSessionVacuumJoblet.JOBLET_TYPE);
+		addPluginEntry(WebSocketSessionVacuumJoblet.JOBLET_TYPE);
 	}
 
 	@Override

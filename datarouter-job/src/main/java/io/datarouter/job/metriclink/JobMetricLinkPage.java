@@ -22,19 +22,15 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
-import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.job.BaseTriggerGroup;
 import io.datarouter.job.TriggerGroupClasses;
 import io.datarouter.job.scheduler.JobPackage;
-import io.datarouter.scanner.Scanner;
 import io.datarouter.web.metriclinks.MetricLinkDto;
 import io.datarouter.web.metriclinks.MetricLinkDto.LinkDto;
 import io.datarouter.web.metriclinks.MetricLinkPage;
 
 public abstract class JobMetricLinkPage implements MetricLinkPage{
 
-	@Inject
-	private DatarouterInjector injector;
 	@Inject
 	private TriggerGroupClasses triggerGroupClasses;
 
@@ -44,7 +40,7 @@ public abstract class JobMetricLinkPage implements MetricLinkPage{
 	}
 
 	protected List<MetricLinkDto> buildMetricLinks(boolean isSystem){
-		return injector.getInstances(triggerGroupClasses.get()).stream()
+		return triggerGroupClasses.get().stream()
 				.filter(triggerGroup -> {
 					if(isSystem){
 						return triggerGroup.isSystemTriggerGroup;
@@ -68,7 +64,7 @@ public abstract class JobMetricLinkPage implements MetricLinkPage{
 	 */
 	@SuppressWarnings("unused")
 	private List<MetricLinkDto> buildMetricLinksScanner(boolean isSystem){
-		return Scanner.of(injector.getInstances(triggerGroupClasses.get()))
+		return triggerGroupClasses.get()
 				.include(triggerGroup -> {
 					if(isSystem){
 						return triggerGroup.isSystemTriggerGroup;

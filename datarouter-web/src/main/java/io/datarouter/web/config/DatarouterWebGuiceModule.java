@@ -56,10 +56,6 @@ import io.datarouter.web.port.CompoundPortIdentifier;
 import io.datarouter.web.port.PortIdentifier;
 import io.datarouter.web.service.DocumentationNamesAndLinksSupplier;
 import io.datarouter.web.service.DocumentationNamesAndLinksSupplier.NoOpDocumentationNamesAndLinks;
-import io.datarouter.web.service.ServiceDescriptionSupplier;
-import io.datarouter.web.service.ServiceDescriptionSupplier.NoOpServiceDescription;
-import io.datarouter.web.test.TestableServiceClassRegistry;
-import io.datarouter.web.test.TestableServiceClassRegistry.DefaultTestableServiceClassRegistry;
 import io.datarouter.web.user.BaseDatarouterSessionDao;
 import io.datarouter.web.user.BaseDatarouterSessionDao.NoOpDatarouterSessionDao;
 import io.datarouter.web.user.authenticate.config.BaseDatarouterAuthenticationConfig;
@@ -114,11 +110,9 @@ public class DatarouterWebGuiceModule extends BaseGuiceServletModule{
 		bindDefaultInstance(AppPluginNavBarSupplier.class, new AppNavBarPluginCreator(Collections.emptyList()));
 		bindDefault(AppNavBarRegistrySupplier.class, NoOpAppNavBarRegistry.class);
 		bindDefaultInstance(DynamicNavBarItemRegistry.class, new DynamicNavBarItemRegistry(List.of()));
-		bindDefault(ServiceDescriptionSupplier.class, NoOpServiceDescription.class);
 		bindDefault(DocumentationNamesAndLinksSupplier.class, NoOpDocumentationNamesAndLinks.class);
 
 		bindDefault(ChangelogRecorder.class, NoOpChangelogRecorder.class);
-		bindDefaultInstance(TestableServiceClassRegistry.class, new DefaultTestableServiceClassRegistry(List.of()));
 
 		// define as singleton for everybody
 		bind(Gson.class).toInstance(GsonTool.GSON);

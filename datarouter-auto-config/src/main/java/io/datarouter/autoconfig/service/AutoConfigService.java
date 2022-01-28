@@ -22,8 +22,7 @@ import java.util.concurrent.Callable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.inject.DatarouterInjector;
-import io.datarouter.scanner.Scanner;
+import io.datarouter.plugin.PluginInjector;
 
 @Singleton
 public class AutoConfigService{
@@ -31,15 +30,12 @@ public class AutoConfigService{
 	private final Map<String,Callable<String>> autoConfigByName;
 
 	@Inject
-	public AutoConfigService(AutoConfigRegistry autoConfigRegistry, DatarouterInjector injector){
+	public AutoConfigService(PluginInjector pluginInjector){
 		autoConfigByName = new HashMap<>();
-
-		Scanner.of(autoConfigRegistry.autoConfigs)
-				.map(injector::getInstance)
-				.forEach(config -> this.autoConfigByName.put(config.getName(), config));
-		Scanner.of(autoConfigRegistry.autoConfigGroups)
-				.map(injector::getInstance)
-				.forEach(config -> this.autoConfigByName.put(config.getName(), config));
+		pluginInjector.getInstances(AutoConfig.KEY)
+				.forEach(autoConfig -> autoConfigByName.put(autoConfig.getName(), autoConfig));
+		pluginInjector.getInstances(AutoConfigGroup.KEY)
+				.forEach(autoConfigGroup -> autoConfigByName.put(autoConfigGroup.getName(), autoConfigGroup));
 	}
 
 	public Map<String,Callable<String>> getAutoConfigByName(){

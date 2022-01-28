@@ -15,7 +15,6 @@
  */
 package io.datarouter.httpclient.response;
 
-import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -52,6 +51,13 @@ public class Conditional<T>{
 			return Conditional.success(mapper.apply(response));
 		}
 		return Conditional.failure(exception);
+	}
+
+	public Conditional<T> peek(Consumer<? super T> consumer){
+		if(success){
+			consumer.accept(response);
+		}
+		return this;
 	}
 
 	public T orElseThrow(){
@@ -131,16 +137,6 @@ public class Conditional<T>{
 			}
 		}
 
-	}
-
-	public Conditional<T> validate(Function<T,Optional<String>> validator){
-		if(success){
-			Optional<String> invalidReason = validator.apply(response);
-			if(invalidReason.isPresent()){
-				return Conditional.failure(new Exception(invalidReason.get()));
-			}
-		}
-		return this;
 	}
 
 	@Override

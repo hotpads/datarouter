@@ -29,6 +29,7 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
+import io.datarouter.model.util.FractionalSecondTool;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.node.factory.NodeFactory;
@@ -221,11 +222,12 @@ public abstract class BaseManyFieldIntegrationTests{
 		// LocalDateTime.now() uses the system clock as default so it will always get fractional seconds up to 3 digits
 		// (i.e. milliseconds) and no more.
 		LocalDateTime val = LocalDateTime.now();
+		LocalDateTime truncatedVal = FractionalSecondTool.truncate(val, ManyFieldBean.FieldKeys.localDateTimeField
+				.getNumFractionalSeconds());
 		bean.setDateTimeField(val);
 		dao.put(bean);
 		ManyFieldBean roundTripped = dao.get(bean.getKey());
-		Assert.assertEquals(roundTripped.getDateTimeField(), bean.getDateTimeField());
-		Assert.assertEquals(roundTripped.getDateTimeField(), val);
+		Assert.assertEquals(roundTripped.getDateTimeField(), truncatedVal);
 
 		// LocalDateTime.of can set the value of nanoseconds in a range from 0 to 999,999,999
 		// MySql.DateTime cannot handle this level of granularity and will truncate the fractional second value
@@ -252,13 +254,14 @@ public abstract class BaseManyFieldIntegrationTests{
 	@Test
 	public void testInstant(){
 		Instant instant = Instant.now();
+		Instant truncatedInstant = FractionalSecondTool.truncate(instant, ManyFieldBean.FieldKeys.instantField
+				.getNumFractionalSeconds());
 		var bean = new ManyFieldBean();
 		bean.setInstantField(instant);
 		dao.put(bean);
 
 		ManyFieldBean roundTripped = dao.get(bean.getKey());
-		Assert.assertEquals(roundTripped.getInstantField(), bean.getInstantField());
-		Assert.assertEquals(roundTripped.getInstantField(), instant);
+		Assert.assertEquals(roundTripped.getInstantField(), truncatedInstant);
 	}
 
 	@Test

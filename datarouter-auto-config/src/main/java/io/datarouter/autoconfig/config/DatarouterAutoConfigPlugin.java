@@ -15,12 +15,15 @@
  */
 package io.datarouter.autoconfig.config;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import io.datarouter.autoconfig.service.AutoConfig;
 import io.datarouter.autoconfig.service.AutoConfigGroup;
-import io.datarouter.autoconfig.service.AutoConfigRegistry;
+import io.datarouter.plugin.PluginConfigKey;
+import io.datarouter.plugin.PluginConfigValue;
 import io.datarouter.web.config.BaseWebPlugin;
 import io.datarouter.web.navigation.DatarouterNavBarCategory;
 
@@ -28,43 +31,32 @@ public class DatarouterAutoConfigPlugin extends BaseWebPlugin{
 
 	private static final DatarouterAutoConfigPaths PATHS = new DatarouterAutoConfigPaths();
 
-	private final Set<Class<? extends AutoConfig>> autoConfigs;
-	private final Set<Class<? extends AutoConfigGroup>> autoConfigGroups;
-
-	private DatarouterAutoConfigPlugin(
-			Set<Class<? extends AutoConfig>> autoConfigs,
-			Set<Class<? extends AutoConfigGroup>> autoConfigGroups){
-		this.autoConfigs = autoConfigs;
-		this.autoConfigGroups = autoConfigGroups;
+	private DatarouterAutoConfigPlugin(Map<PluginConfigKey<?>,List<Class<? extends PluginConfigValue<?>>>> configs){
 
 		addRouteSet(DatarouterAutoConfigRouteSet.class);
 		addDatarouterNavBarItem(DatarouterNavBarCategory.INFO, PATHS.datarouter.autoConfigs.viewAutoConfigs,
 				"AutoConfigs");
 		addDatarouterGithubDocLink("datarouter-auto-config");
-	}
-
-	@Override
-	public void configure(){
-		bind(AutoConfigRegistry.class).toInstance(new AutoConfigRegistry(autoConfigs, autoConfigGroups));
+		addPluginConfig(configs);
 	}
 
 	public static class DatarouterAutoConfigPluginBuilder{
 
-		private Set<Class<? extends AutoConfig>> autoConfigs = new HashSet<>();
-		private Set<Class<? extends AutoConfigGroup>> autoConfigGroups = new HashSet<>();
+		private Map<PluginConfigKey<?>,List<Class<? extends PluginConfigValue<?>>>> configs = new HashMap<>();
 
-		public DatarouterAutoConfigPluginBuilder addAutoConfig(Class<? extends AutoConfig> autoConfig){
-			autoConfigs.add(autoConfig);
+		// TODO Create a wrapper object of key and values - PluginConfigEntry?
+		public DatarouterAutoConfigPluginBuilder addAutoConfig(Class<? extends PluginConfigValue<?>> config){
+			configs.computeIfAbsent(AutoConfig.KEY, $ -> new ArrayList<>()).add(config);
 			return this;
 		}
 
-		public DatarouterAutoConfigPluginBuilder addAutoConfigGroup(Class<? extends AutoConfigGroup> autoConfigGroup){
-			autoConfigGroups.add(autoConfigGroup);
+		public DatarouterAutoConfigPluginBuilder addAutoConfigGroup(Class<? extends PluginConfigValue<?>> config){
+			configs.computeIfAbsent(AutoConfigGroup.KEY, $ -> new ArrayList<>()).add(config);
 			return this;
 		}
 
 		public DatarouterAutoConfigPlugin build(){
-			return new DatarouterAutoConfigPlugin(autoConfigs, autoConfigGroups);
+			return new DatarouterAutoConfigPlugin(configs);
 		}
 
 	}

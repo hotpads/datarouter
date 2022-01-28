@@ -19,9 +19,10 @@ import java.util.Optional;
 
 import io.datarouter.joblet.storage.jobletrequest.JobletRequest;
 import io.datarouter.joblet.type.JobletType;
+import io.datarouter.plugin.PluginConfigValue;
 import io.datarouter.util.timer.PhaseTimer;
 
-public interface JobletRequestSelector{
+public interface JobletRequestSelector extends PluginConfigValue<JobletRequestSelector>{
 
 	Optional<JobletRequest> getJobletRequestForProcessing(PhaseTimer timer, JobletType<?> type, String reservedBy);
 

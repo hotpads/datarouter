@@ -26,6 +26,10 @@ import io.datarouter.bytes.binarydto.dto.BinaryDto;
 public class BinaryDtoFieldVisibilityTests{
 
 	public static class TestDto extends BinaryDto<TestDto>{
+
+		//Ensure the static field is ignored
+		public static final int STATIC_FIELD = 0;
+
 		final Integer fPackage;
 		@SuppressWarnings("unused")
 		private final Integer fPrivate;
@@ -42,7 +46,7 @@ public class BinaryDtoFieldVisibilityTests{
 
 	@Test
 	public void testFieldsDetected(){
-		List<String> expected = List.of("fPackage", "fPrivate", "fProtected", "fPublic");
+		List<String> expected = List.of("fPackage", "fPrivate", "fProtected", "fPublic");// excludes STATIC_FIELD
 		List<String> actual = new TestDto(1, 2, 3, 4).scanFieldNames().list();
 		Assert.assertEquals(actual, expected);
 	}

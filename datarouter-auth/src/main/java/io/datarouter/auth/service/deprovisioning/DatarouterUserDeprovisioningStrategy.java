@@ -16,6 +16,7 @@
 package io.datarouter.auth.service.deprovisioning;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -120,7 +121,8 @@ public class DatarouterUserDeprovisioningStrategy implements UserDeprovisioningS
 				.include(datarouterUserByUsername::containsKey)
 				.map(username -> {
 					var datarouterUser = datarouterUserByUsername.get(username);
-					var rolesToRestore = roleManager.getRolesForDefaultGroup();
+					// make sure the set is mutable
+					var rolesToRestore = new HashSet<>(roleManager.getRolesForDefaultGroup());
 					rolesToRestore.addAll(datarouterUser.getRoles());
 					datarouterUser.setRoles(rolesToRestore);
 					datarouterUser.setEnabled(true);

@@ -108,6 +108,7 @@ implements Comparable<T>{
 		return 0;
 	}
 
+	@SuppressWarnings("unchecked")
 	public final List<Field> getFieldsOrdered(){
 		return BinaryDtoCodec.of(getClass()).getFieldsOrdered();
 	}

@@ -26,7 +26,7 @@ import javax.inject.Inject;
 
 import io.datarouter.joblet.JobletPageFactory;
 import io.datarouter.joblet.enums.JobletStatus;
-import io.datarouter.joblet.nav.JobletExternalLinkBuilder;
+import io.datarouter.joblet.nav.JobletExternalLinkBuilder.JobletExternalLinkBuilderSupplier;
 import io.datarouter.joblet.storage.jobletrequest.DatarouterJobletRequestDao;
 import io.datarouter.joblet.storage.jobletrequest.JobletRequest;
 import io.datarouter.joblet.type.JobletTypeFactory;
@@ -50,7 +50,7 @@ public class JobletExceptionHandler extends BaseHandler{
 	@Inject
 	private JobletPageFactory pageFactory;
 	@Inject
-	private JobletExternalLinkBuilder externalLinkBuilder;
+	private JobletExternalLinkBuilderSupplier externalLinkBuilder;
 
 	@Handler
 	private Mav exceptions(@Param(P_typeString) OptionalString typeString){
@@ -74,19 +74,19 @@ public class JobletExceptionHandler extends BaseHandler{
 				.withClasses("sortable table table-sm table-striped border")
 				.withHtmlColumn("Exception ID", row -> {
 					String id = row.getExceptionRecordId();
-					return externalLinkBuilder.exception(request.getContextPath(), id)
+					return externalLinkBuilder.get().exception(request.getContextPath(), id)
 							.map(href -> td(a(id).withHref(href)))
 							.orElse(td(id));
 				})
 				.withColumn("Type", row -> row.getKey().getType())
 				.withColumn("Execution order", row -> row.getKey().getExecutionOrder())
 				.withColumn("Batch sequence", row -> row.getKey().getBatchSequence())
-				.withColumn("Data ID", row -> row.getJobletDataId())
-				.withColumn("Reserved by", row -> row.getReservedBy())
-				.withColumn("Created ago", row -> row.getCreatedAgo())
-				.withColumn("Restartable", row -> row.getRestartable())
-				.withColumn("Num items", row -> row.getNumItems())
-				.withColumn("Queue ID", row -> row.getQueueId())
+				.withColumn("Data ID", JobletRequest::getJobletDataId)
+				.withColumn("Reserved by", JobletRequest::getReservedBy)
+				.withColumn("Created ago", JobletRequest::getCreatedAgo)
+				.withColumn("Restartable", JobletRequest::getRestartable)
+				.withColumn("Num items", JobletRequest::getNumItems)
+				.withColumn("Queue ID", JobletRequest::getQueueId)
 				.build(rows);
 		return div(title, table)
 				.withClass("container-fluid");

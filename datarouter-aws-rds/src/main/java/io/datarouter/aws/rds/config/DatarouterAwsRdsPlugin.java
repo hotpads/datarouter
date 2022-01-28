@@ -26,12 +26,13 @@ import io.datarouter.aws.rds.service.AwsTags;
 import io.datarouter.aws.rds.service.AwsTags.NoOpAwsTags;
 import io.datarouter.aws.rds.service.DatabaseAdministrationConfiguration;
 import io.datarouter.aws.rds.service.DatabaseAdministrationConfiguration.NoOpDatabaseAdministrationConfiguration;
-import io.datarouter.job.config.BaseJobPlugin;
+import io.datarouter.job.BaseTriggerGroup;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.setting.DatarouterSettingOverrides;
+import io.datarouter.web.config.BaseWebPlugin;
 import io.datarouter.web.navigation.DatarouterNavBarCategory;
 
-public class DatarouterAwsRdsPlugin extends BaseJobPlugin{
+public class DatarouterAwsRdsPlugin extends BaseWebPlugin{
 
 	private final Class<? extends DatabaseAdministrationConfiguration> databaseAdministrationConfiguration;
 	private final Class<? extends AwsTags> awsTags;
@@ -51,7 +52,7 @@ public class DatarouterAwsRdsPlugin extends BaseJobPlugin{
 		this.availabilityZone = availabilityZone;
 		this.settingOverridesClass = settingOverridesClass;
 		addRouteSet(DatarouterAwsRdsRouteSet.class);
-		addTriggerGroup(DatarouterAwsRdsTriggerGroup.class);
+		addPluginEntry(BaseTriggerGroup.KEY, DatarouterAwsRdsTriggerGroup.class);
 		addSettingRoot(DatarouterAwsRdsSettingRoot.class);
 		addDatarouterNavBarItem(DatarouterNavBarCategory.MONITORING,
 				new DatarouterAwsPaths().datarouter.auroraInstances, "Aurora Clients");

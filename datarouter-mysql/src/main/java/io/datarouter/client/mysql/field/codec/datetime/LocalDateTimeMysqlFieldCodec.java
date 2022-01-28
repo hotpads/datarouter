@@ -39,7 +39,7 @@ public class LocalDateTimeMysqlFieldCodec extends BaseMysqlFieldCodec<LocalDateT
 		return new SqlColumn(
 				field.getKey().getColumnName(),
 				getMysqlColumnType(),
-				field.getNumFractionalSeconds(),
+				field.getKey().getNumFractionalSeconds(),
 				allowNullable && field.getKey().isNullable(),
 				false);
 	}

@@ -32,6 +32,7 @@ import io.datarouter.exception.storage.httprecord.DatarouterHttpRequestRecordPub
 import io.datarouter.exception.storage.httprecord.HttpRequestRecord;
 import io.datarouter.exception.utils.ExceptionDetailsDetector;
 import io.datarouter.exception.utils.ExceptionDetailsDetector.ExceptionRecorderDetails;
+import io.datarouter.exception.utils.nameparser.ExceptionNameParserRegistry;
 import io.datarouter.instrumentation.exception.ExceptionRecordDto;
 import io.datarouter.instrumentation.exception.HttpRequestRecordDto;
 import io.datarouter.storage.config.properties.ServerName;
@@ -61,6 +62,8 @@ public class DefaultExceptionRecorder implements ExceptionRecorder{
 	private GitProperties gitProperties;
 	@Inject
 	private ExceptionRecordService exceptionRecordService;
+	@Inject
+	private ExceptionNameParserRegistry exceptionNameParserRegistry;
 	@Inject
 	private DatarouterExceptionRecordPublisherDao exceptionRecordPublisherDao;
 	@Inject
@@ -100,13 +103,14 @@ public class DefaultExceptionRecorder implements ExceptionRecorder{
 			ExceptionCategory category,
 			List<String> additionalEmailRecipients){
 		try{
-			ExceptionRecorderDetails exceptionDetails = ExceptionDetailsDetector.detect(exception,
-					datarouterWebSettingRoot.stackTraceHighlights.get());
+			ExceptionRecorderDetails exceptionDetails = ExceptionDetailsDetector.detect(exceptionNameParserRegistry,
+					exception, callOrigin, datarouterWebSettingRoot.stackTraceHighlights.get());
 			return Optional.of(recordException(
 					exception,
 					category,
 					exceptionDetails.className, // location
 					exceptionDetails.methodName,
+					exceptionDetails.parsedName,
 					exceptionDetails.type,
 					exceptionDetails.lineNumber,
 					callOrigin,
@@ -123,10 +127,12 @@ public class DefaultExceptionRecorder implements ExceptionRecorder{
 			ExceptionCategory category,
 			String location,
 			String methodName,
+			String name,
 			String type,
 			Integer lineNumber,
 			String callOrigin){
-		return recordException(exception, category, location, methodName, type, lineNumber, callOrigin, List.of());
+		return recordException(exception, category, location, methodName, name, type, lineNumber, callOrigin, List
+				.of());
 	}
 
 	@Override
@@ -135,6 +141,7 @@ public class DefaultExceptionRecorder implements ExceptionRecorder{
 			ExceptionCategory category,
 			String location,
 			String methodName,
+			String name,
 			String type,
 			Integer lineNumber,
 			String callOrigin,
@@ -151,9 +158,9 @@ public class DefaultExceptionRecorder implements ExceptionRecorder{
 				serviceName.get(),
 				serverName.get(),
 				category.name(),
-				null, // TODO a helper tool is needed to define the exception name
+				Optional.ofNullable(name).orElse(ExceptionRecorderDetails.getDefaultName(type, name, callOrigin)),
 				ExceptionTool.getStackTraceAsString(exception),
-				type, // type
+				type,
 				gitProperties.getIdAbbrev().orElse(GitProperties.UNKNOWN_STRING),
 				location,
 				methodName,
@@ -178,12 +185,13 @@ public class DefaultExceptionRecorder implements ExceptionRecorder{
 			String callOrigin,
 			HttpServletRequest request){
 		try{
-			ExceptionRecorderDetails exceptionDetails = ExceptionDetailsDetector.detect(exception,
-					datarouterWebSettingRoot.stackTraceHighlights.get());
+			ExceptionRecorderDetails exceptionDetails = ExceptionDetailsDetector.detect(exceptionNameParserRegistry,
+					exception, callOrigin, datarouterWebSettingRoot.stackTraceHighlights.get());
 			return Optional.of(recordExceptionAndHttpRequest(
 					exception,
 					exceptionDetails.className,
 					exceptionDetails.methodName,
+					exceptionDetails.parsedName,
 					exceptionDetails.type,
 					exceptionDetails.lineNumber,
 					request,
@@ -199,6 +207,7 @@ public class DefaultExceptionRecorder implements ExceptionRecorder{
 			Throwable exception,
 			String location,
 			String methodName,
+			String name,
 			String type,
 			Integer lineNumber,
 			HttpServletRequest request,
@@ -208,6 +217,7 @@ public class DefaultExceptionRecorder implements ExceptionRecorder{
 				WebExceptionCategory.HTTP_REQUEST,
 				location,
 				methodName,
+				name,
 				type,
 				lineNumber,
 				callOrigin);

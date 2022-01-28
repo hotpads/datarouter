@@ -19,12 +19,14 @@ import java.time.Duration;
 import java.util.Optional;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.joblet.DatarouterJobletCounters;
 import io.datarouter.joblet.enums.JobletPriority;
+import io.datarouter.joblet.enums.JobletQueueMechanism;
 import io.datarouter.joblet.enums.JobletStatus;
 import io.datarouter.joblet.setting.DatarouterJobletSettingRoot;
 import io.datarouter.joblet.storage.jobletrequest.DatarouterJobletRequestDao;
@@ -33,10 +35,12 @@ import io.datarouter.joblet.storage.jobletrequest.JobletRequestKey;
 import io.datarouter.joblet.storage.jobletrequestqueue.DatarouterJobletQueueDao;
 import io.datarouter.joblet.storage.jobletrequestqueue.JobletRequestQueueKey;
 import io.datarouter.joblet.type.JobletType;
+import io.datarouter.plugin.PluginConfigKey;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.queue.QueueMessage;
 import io.datarouter.util.timer.PhaseTimer;
 
+@Singleton
 public class QueueJobletRequestSelector implements JobletRequestSelector{
 	private static final Logger logger = LoggerFactory.getLogger(QueueJobletRequestSelector.class);
 
@@ -96,6 +100,11 @@ public class QueueJobletRequestSelector implements JobletRequestSelector{
 			return Optional.of(jobletRequest);
 		}
 		return Optional.empty();
+	}
+
+	@Override
+	public PluginConfigKey<JobletRequestSelector> getKey(){
+		return JobletQueueMechanism.QUEUE.getKey();
 	}
 
 }

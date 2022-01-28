@@ -20,13 +20,14 @@ import java.time.Instant;
 import io.datarouter.bytes.LongArray;
 import io.datarouter.bytes.codec.array.longarray.UInt63ArrayCodec;
 import io.datarouter.model.field.BasePrimitiveField;
+import io.datarouter.model.util.FractionalSecondTool;
 
 public class InstantField extends BasePrimitiveField<Instant,InstantFieldKey>{
 
 	private static final UInt63ArrayCodec U_INT_63_ARRAY_CODEC = UInt63ArrayCodec.INSTANCE;
 
 	public InstantField(InstantFieldKey key, Instant value){
-		super(key, value);
+		super(key, FractionalSecondTool.truncate(value, key.getNumFractionalSeconds()));
 	}
 
 	@Override
@@ -62,10 +63,6 @@ public class InstantField extends BasePrimitiveField<Instant,InstantFieldKey>{
 	@Override
 	public int numBytesWithSeparator(byte[] bytes, int byteOffset){
 		return 16;
-	}
-
-	public int getNumFractionalSeconds(){
-		return ((InstantFieldKey)getKey()).getNumFractionalSeconds();
 	}
 
 }

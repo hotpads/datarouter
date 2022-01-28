@@ -59,7 +59,7 @@ public class BinaryDtoSortingTests{
 		Assert.assertEquals(actualBinarySorted, expected);
 	}
 
-	public static class TestIntArrayDto extends BinaryDto<TestIntDto>{
+	public static class TestIntArrayDto extends BinaryDto<TestIntArrayDto>{
 		public final int[] f1;
 
 		public TestIntArrayDto(int[] f1){

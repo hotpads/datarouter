@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import io.datarouter.joblet.type.JobletType.JobletTypeBuilder;
+import io.datarouter.plugin.PluginConfigValue;
 
 public class JobletTypeGroup{
 
@@ -35,7 +36,11 @@ public class JobletTypeGroup{
 		return type;
 	}
 
-	public List<JobletType<?>> getAll(){
+	public List<JobletType<?>> getAllJobletTypes(){
+		return new ArrayList<>(types.values());
+	}
+
+	public List<PluginConfigValue<?>> getAllPluginConfigs(){
 		return new ArrayList<>(types.values());
 	}
 

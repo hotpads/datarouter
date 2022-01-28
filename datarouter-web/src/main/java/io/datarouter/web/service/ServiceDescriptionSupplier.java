@@ -15,32 +15,32 @@
  */
 package io.datarouter.web.service;
 
+import java.util.Optional;
 import java.util.function.Supplier;
 
-public interface ServiceDescriptionSupplier extends Supplier<String>{
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
-	class NoOpServiceDescription implements ServiceDescriptionSupplier{
+import io.datarouter.plugin.PluginConfigKey;
+import io.datarouter.plugin.PluginConfigType;
+import io.datarouter.plugin.PluginInjector;
+import io.datarouter.plugin.StringPluginConfigValue;
 
-		@Override
-		public String get(){
-			return "";
-		}
+@Singleton
+public class ServiceDescriptionSupplier implements Supplier<String>{
 
-	}
+	public static final PluginConfigKey<StringPluginConfigValue> KEY = new PluginConfigKey<>(
+			"serviceDescription",
+			PluginConfigType.INSTANCE_SINGLE);
 
-	class DatarouterServiceDescription implements ServiceDescriptionSupplier{
+	@Inject
+	private PluginInjector injector;
 
-		private final String description;
-
-		public DatarouterServiceDescription(String description){
-			this.description = description;
-		}
-
-		@Override
-		public String get(){
-			return description;
-		}
-
+	@Override
+	public String get(){
+		return Optional.ofNullable(injector.getInstance(KEY))
+				.map(StringPluginConfigValue::getValue)
+				.orElse(null);
 	}
 
 }

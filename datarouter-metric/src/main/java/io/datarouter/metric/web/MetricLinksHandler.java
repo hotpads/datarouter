@@ -30,25 +30,24 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
-import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.instrumentation.metric.MetricLinkBuilder;
+import io.datarouter.plugin.PluginInjector;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.html.j2html.J2HtmlTable;
 import io.datarouter.web.metriclinks.MetricLinkDto;
 import io.datarouter.web.metriclinks.MetricLinkPage;
-import io.datarouter.web.metriclinks.MetricLinkPageRegistry;
 import io.datarouter.web.requirejs.DatarouterWebRequireJsV2;
+import j2html.TagCreator;
 import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
+import j2html.tags.specialized.DivTag;
 
 public class MetricLinksHandler extends BaseHandler{
 
 	@Inject
-	private DatarouterInjector injector;
-	@Inject
-	private MetricLinkPageRegistry registry;
+	private PluginInjector pluginInjector;
 	@Inject
 	private MetricLinkPageFactory pageFactory;
 	@Inject
@@ -56,13 +55,12 @@ public class MetricLinksHandler extends BaseHandler{
 
 	@Handler
 	public Mav view(){
-		List<ContainerTag<?>> tags = registry.getMetricLinkPages().stream()
-				.map(injector::getInstance)
-				.sorted(Comparator.comparing(MetricLinkPage::getHtmlName))
-				.filter(page -> !page.getMetricLinks().isEmpty())
+		List<ContainerTag<DivTag>> tags = pluginInjector.scanInstances(MetricLinkPage.KEY)
+				.sort(Comparator.comparing(MetricLinkPage::getHtmlName))
+				.exclude(page -> page.getMetricLinks().isEmpty())
 				.map(this::makeContent)
 				.collect(Collectors.toList());
-		var content = div(each(tags, tag -> div(tag)));
+		DivTag content = div(each(tags, item -> TagCreator.div(item)));
 		return pageFactory.startBuilder(request)
 				.withTitle("Metric Links")
 				.withContent(content)
@@ -70,7 +68,7 @@ public class MetricLinksHandler extends BaseHandler{
 				.buildMav();
 	}
 
-	private ContainerTag<?> makeContent(MetricLinkPage page){
+	private DivTag makeContent(MetricLinkPage page){
 		var h2 = h2(join(page.getHtmlName(), a(i().withClass("fas fa-home"))
 				.withHref("#" + MetricNamesSubnavFactory.ID)))
 				.withId(page.getHtmlId());

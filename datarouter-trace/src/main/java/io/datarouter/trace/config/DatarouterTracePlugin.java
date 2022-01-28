@@ -20,7 +20,7 @@ import java.util.List;
 
 import io.datarouter.instrumentation.trace.TracePublisher;
 import io.datarouter.instrumentation.trace.TracePublisher.NoOpTracePublisher;
-import io.datarouter.job.config.BaseJobPlugin;
+import io.datarouter.job.BaseTriggerGroup;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.dao.DaosModuleBuilder;
@@ -42,12 +42,13 @@ import io.datarouter.trace.settings.DatarouterTraceLocalSettingRoot;
 import io.datarouter.trace.settings.DatarouterTracePublisherSettingRoot;
 import io.datarouter.trace.storage.Trace2ForLocalDao;
 import io.datarouter.trace.storage.Trace2ForLocalDao.Trace2ForLocalDaoParams;
+import io.datarouter.web.config.BaseWebPlugin;
 import io.datarouter.web.config.DatarouterServletGuiceModule;
 import io.datarouter.web.dispatcher.FilterParamGrouping;
 import io.datarouter.web.dispatcher.FilterParams;
 import io.datarouter.web.navigation.DatarouterNavBarCategory;
 
-public class DatarouterTracePlugin extends BaseJobPlugin{
+public class DatarouterTracePlugin extends BaseWebPlugin{
 
 	private final Class<? extends TracePublisher> tracePublisher;
 	private final Class<? extends TraceUrlBuilder> traceUrlBuilder;
@@ -75,7 +76,7 @@ public class DatarouterTracePlugin extends BaseJobPlugin{
 					"Traces");
 			addSettingRoot(DatarouterTraceLocalSettingRoot.class);
 			if(addLocalVacuumJobs){
-				addTriggerGroup(DatarouterLocalTraceTriggerGroup.class);
+				addPluginEntry(BaseTriggerGroup.KEY, DatarouterLocalTraceTriggerGroup.class);
 			}
 		}
 		if(enablePublisherTraces){

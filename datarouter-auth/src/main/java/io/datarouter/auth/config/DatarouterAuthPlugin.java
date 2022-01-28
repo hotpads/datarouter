@@ -56,11 +56,12 @@ import io.datarouter.auth.storage.useraccountmap.DatarouterUserAccountMapDao.Dat
 import io.datarouter.auth.storage.userhistory.DatarouterUserHistoryDao;
 import io.datarouter.auth.storage.userhistory.DatarouterUserHistoryDao.DatarouterUserHistoryDaoParams;
 import io.datarouter.auth.web.DatarouterDocumentationRouteSet;
-import io.datarouter.job.config.BaseJobPlugin;
+import io.datarouter.job.BaseTriggerGroup;
 import io.datarouter.job.config.DatarouterJobRouteSet;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.dao.DaosModuleBuilder;
+import io.datarouter.web.config.BaseWebPlugin;
 import io.datarouter.web.navigation.AppNavBarCategory;
 import io.datarouter.web.navigation.DatarouterNavBarCategory;
 import io.datarouter.web.user.BaseDatarouterSessionDao;
@@ -69,7 +70,7 @@ import io.datarouter.web.user.authenticate.saml.BaseDatarouterSamlDao;
 import io.datarouter.web.user.authenticate.saml.DatarouterSamlDao;
 import io.datarouter.web.user.authenticate.saml.DatarouterSamlDao.DatarouterSamlDaoParams;
 
-public class DatarouterAuthPlugin extends BaseJobPlugin{
+public class DatarouterAuthPlugin extends BaseWebPlugin{
 
 	private static final DatarouterAuthPaths PATHS = new DatarouterAuthPaths();
 
@@ -120,7 +121,7 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 		addRouteSet(DatarouterDocumentationRouteSet.class);
 		addRouteSet(UserDeprovisioningRouteSet.class);
 		addSettingRoot(DatarouterAuthSettingRoot.class);
-		addTriggerGroup(DatarouterAuthTriggerGroup.class);
+		addPluginEntry(BaseTriggerGroup.KEY, DatarouterAuthTriggerGroup.class);
 		setDaosModule(daosModuleBuilder);
 		addDatarouterGithubDocLink("datarouter-auth");
 		addDailyDigest(PermissionRequestDailyDigest.class);
