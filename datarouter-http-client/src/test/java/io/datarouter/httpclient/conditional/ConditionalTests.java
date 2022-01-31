@@ -34,11 +34,6 @@ public class ConditionalTests{
 		Assert.assertTrue(failureConditional.isFailure());
 		Assert.assertFalse(failureConditional.isSuccess());
 
-		String peekString = successConditional
-				.peek(string -> string.concat(" plus more"))
-				.orElse(null);
-		Assert.assertEquals(peekString, testString);
-
 		String mapString = successConditional
 				.map(string -> string.concat(" plus more"))
 				.orElse(null);

@@ -17,23 +17,15 @@ package io.datarouter.web.config;
 
 import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import io.datarouter.httpclient.proxy.RequestProxySetter;
 import io.datarouter.pathnode.FilesRoot;
 import io.datarouter.pathnode.FilesRoot.NoOpFilesRoot;
-import io.datarouter.plugin.PluginConfigKey;
-import io.datarouter.plugin.PluginConfigValue;
-import io.datarouter.plugin.PluginConfiguration;
 import io.datarouter.storage.client.ClientId;
-import io.datarouter.storage.config.DatarouterSubscribersSupplier;
-import io.datarouter.storage.config.DatarouterSubscribersSupplier.DatarouterSubscribers;
 import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.dao.DaosModuleBuilder;
 import io.datarouter.storage.setting.SettingBootstrapIntegrationService;
@@ -130,14 +122,8 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 	private final Class<? extends CurrentSessionInfo> currentSessionInfoClass;
 	private final Class<? extends ExceptionHandlingConfig> exceptionHandlingConfigClass;
 	private final Class<? extends ExceptionRecorder> exceptionRecorderClass;
-	private final Set<String> subscribers;
 	private final List<Class<? extends DatarouterAppListener>> appListenerClasses;
 	private final List<Class<? extends DatarouterWebAppListener>> webAppListenerClasses;
-
-	private final Map<PluginConfigKey<?>,Class<? extends PluginConfigValue<?>>> classSingle;
-	private final Map<PluginConfigKey<?>,List<Class<? extends PluginConfigValue<?>>>> classList;
-	private final Map<PluginConfigKey<?>,PluginConfigValue<?>> instanceSingle;
-	private final Map<PluginConfigKey<?>,List<PluginConfigValue<?>>> instanceList;
 
 	private final Class<? extends RoleManager> roleManagerClass;
 	private final Class<? extends UserSessionService> userSessionServiceClass;
@@ -161,9 +147,9 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			DatarouterWebDaoModule daosModuleBuilder,
 			Class<? extends HomepageRouteSet> homepageRouteSet,
 			String customStaticFileFilterRegex){
-		this(null, null, null, null, null, null, null, null, null, null, null, null, null, null, daosModuleBuilder,
+		this(null, null, null, null, null, null, null, null, null, null, null, null, null, daosModuleBuilder,
 				null, null, null, null, homepageRouteSet, null, customStaticFileFilterRegex, null, null, null,
-				null, null, null, null, null, null, null, null, null);
+				null, null, null, null, null);
 	}
 
 	private DatarouterWebPlugin(
@@ -176,7 +162,6 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			Class<? extends CurrentSessionInfo> currentSessionInfoClass,
 			Class<? extends ExceptionHandlingConfig> exceptionHandlingConfigClass,
 			Class<? extends ExceptionRecorder> exceptionRecorderClass,
-			Set<String> subscribers,
 			List<Class<? extends DatarouterAppListener>> appListenerClasses,
 			List<Class<? extends DatarouterWebAppListener>> webAppListenerClasses,
 			Class<? extends RoleManager> roleManagerClass,
@@ -196,12 +181,8 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			List<Class<? extends DynamicNavBarItem>> dynamicNavBarItems,
 			Class<? extends RequestProxySetter> requestProxy,
 			ZoneId defaultEmailDistributionListZoneId,
-			ZoneId dailyDigestEmailZoneId,
+			ZoneId dailyDigestEmailZoneId){
 
-			Map<PluginConfigKey<?>,Class<? extends PluginConfigValue<?>>> classSingle,
-			Map<PluginConfigKey<?>,List<Class<? extends PluginConfigValue<?>>>> classList,
-			Map<PluginConfigKey<?>,PluginConfigValue<?>> instanceSingle,
-			Map<PluginConfigKey<?>,List<PluginConfigValue<?>>> instanceList){
 		addRouteSetOrdered(DatarouterWebRouteSet.class, null);
 		addRouteSet(homepageRouteSet);
 		addRouteSet(DatarouterWebDocsRouteSet.class);
@@ -281,7 +262,6 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		this.currentSessionInfoClass = currentSessionInfoClass;
 		this.exceptionHandlingConfigClass = exceptionHandlingConfigClass;
 		this.exceptionRecorderClass = exceptionRecorderClass;
-		this.subscribers = subscribers;
 		this.appListenerClasses = appListenerClasses;
 		this.webAppListenerClasses = webAppListenerClasses;
 		this.roleManagerClass = roleManagerClass;
@@ -300,11 +280,6 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		this.requestProxy = requestProxy;
 		this.defaultEmailDistributionListZoneId = defaultEmailDistributionListZoneId;
 		this.dailyDigestEmailZoneId = dailyDigestEmailZoneId;
-
-		this.classSingle = classSingle;
-		this.classList = classList;
-		this.instanceSingle = instanceSingle;
-		this.instanceList = instanceList;
 	}
 
 	@Override
@@ -315,7 +290,6 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		bindActualNullSafe(DatarouterAuthenticationConfig.class, authenticationConfigClass);
 		bindActualNullSafe(CurrentSessionInfo.class, currentSessionInfoClass);
 		bindDefault(ExceptionHandlingConfig.class, exceptionHandlingConfigClass);
-		bindActualInstanceNullSafe(DatarouterSubscribersSupplier.class, new DatarouterSubscribers(subscribers));
 		bindActualInstance(AppListenersClasses.class, new DatarouterAppListenersClasses(appListenerClasses));
 		bindActualInstance(WebAppListenersClasses.class, new DatarouterWebAppListenersClasses(webAppListenerClasses));
 		bindActualNullSafe(RoleManager.class, roleManagerClass);
@@ -344,12 +318,6 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		bindActualInstance(PublicDomain.class, new PublicDomain(publicDomain));
 		bindActualInstance(PrivateDomain.class, new PrivateDomain(privateDomain));
 		bindActualInstance(ContextName.class, new ContextName(contextName));
-
-		bindActualInstance(PluginConfiguration.class, new PluginConfiguration(
-				classSingle,
-				classList,
-				instanceSingle,
-				instanceList));
 	}
 
 	public List<Class<? extends DatarouterAppListener>> getFinalAppListeners(){
@@ -401,17 +369,11 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		private final String contextName;
 		private final List<ClientId> defaultClientIds;
 
-		private Map<PluginConfigKey<?>,Class<? extends PluginConfigValue<?>>> classSingle = new HashMap<>();
-		private Map<PluginConfigKey<?>,List<Class<? extends PluginConfigValue<?>>>> classList = new HashMap<>();
-		private Map<PluginConfigKey<?>,PluginConfigValue<?>> instanceSingle = new HashMap<>();
-		private Map<PluginConfigKey<?>,List<PluginConfigValue<?>>> instanceList = new HashMap<>();
-
 		private Class<? extends FilesRoot> filesClass = NoOpFilesRoot.class;
 		private Class<? extends DatarouterAuthenticationConfig> authenticationConfig;
 		private Class<? extends CurrentSessionInfo> currentSessionInfo = NoOpCurrentSessionInfo.class;
 		private Class<? extends ExceptionHandlingConfig> exceptionHandlingConfig = NoOpExceptionHandlingConfig.class;
 		private Class<? extends ExceptionRecorder> exceptionRecorder;
-		private Set<String> subscribers = new HashSet<>();
 		private List<Class<? extends DatarouterAppListener>> appListenerClasses;
 		private List<Class<? extends DatarouterWebAppListener>> webAppListenerClasses;
 		private Class<? extends RoleManager> roleManagerClass;
@@ -454,30 +416,6 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			this(serviceName, publicDomain, privateDomain, contextName, List.of(defaultClientId));
 		}
 
-		public DatarouterWebPluginBuilder setPluginConfigsClassList(
-				Map<PluginConfigKey<?>,List<Class<? extends PluginConfigValue<?>>>> configs){
-			this.classList = configs;
-			return this;
-		}
-
-		public DatarouterWebPluginBuilder setPluginConfigsClassSingle(
-				Map<PluginConfigKey<?>,Class<? extends PluginConfigValue<?>>> configs){
-			this.classSingle = configs;
-			return this;
-		}
-
-		public DatarouterWebPluginBuilder setPluginConfigsInstanceList(
-				Map<PluginConfigKey<?>,List<PluginConfigValue<?>>> configs){
-			this.instanceList = configs;
-			return this;
-		}
-
-		public DatarouterWebPluginBuilder setPluginConfigsInstanceSingle(
-				Map<PluginConfigKey<?>,PluginConfigValue<?>> configs){
-			this.instanceSingle = configs;
-			return this;
-		}
-
 		public DatarouterWebPluginBuilder setFilesClass(Class<? extends FilesRoot> filesClass){
 			this.filesClass = filesClass;
 			return this;
@@ -504,22 +442,6 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		public DatarouterWebPluginBuilder setExceptionRecorderClass(
 				Class<? extends ExceptionRecorder> exceptionRecorderClass){
 			this.exceptionRecorder = exceptionRecorderClass;
-			return this;
-		}
-
-		@Deprecated
-		public DatarouterWebPluginBuilder setAdditionalAdministrators(Set<String> additionalAdministrators){
-			this.subscribers = additionalAdministrators;
-			return this;
-		}
-
-		public DatarouterWebPluginBuilder addSubscriber(String subscriber){
-			this.subscribers.add(subscriber);
-			return this;
-		}
-
-		public DatarouterWebPluginBuilder addSubscribers(Collection<String> subscribers){
-			this.subscribers.addAll(subscribers);
 			return this;
 		}
 
@@ -645,7 +567,6 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 					currentSessionInfo,
 					exceptionHandlingConfig,
 					exceptionRecorder,
-					subscribers,
 					appListenerClasses,
 					webAppListenerClasses,
 					roleManagerClass,
@@ -665,11 +586,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 					dynamicNavBarItems,
 					requestProxy,
 					defaultEmailDistributionListZoneId,
-					dailyDigestEmailZoneId,
-					classSingle,
-					classList,
-					instanceSingle,
-					instanceList);
+					dailyDigestEmailZoneId);
 		}
 
 	}

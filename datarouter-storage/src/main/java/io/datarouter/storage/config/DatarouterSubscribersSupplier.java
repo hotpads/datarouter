@@ -15,43 +15,44 @@
  */
 package io.datarouter.storage.config;
 
-import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.plugin.PluginConfigKey;
+import io.datarouter.plugin.PluginConfigType;
+import io.datarouter.plugin.PluginInjector;
+import io.datarouter.plugin.StringPluginConfigValue;
+import io.datarouter.scanner.Scanner;
+
 // Set of email aliases to receive all datarouter emails
-public interface DatarouterSubscribersSupplier extends Supplier<Set<String>>{
+@Singleton
+public class DatarouterSubscribersSupplier implements Supplier<Set<String>>{
 
-	default String getAsCsv(){
+	public static final PluginConfigKey<StringPluginConfigValue> KEY = new PluginConfigKey<>(
+			"datarouterSubscribers",
+			PluginConfigType.INSTANCE_LIST);
+
+	@Inject
+	private PluginInjector injector;
+
+	@Override
+	public Set<String> get(){
+		List<StringPluginConfigValue> list = injector.getInstances(KEY);
+		if(list == null){
+			return Set.of();
+		}
+		return Scanner.of(list)
+				.map(StringPluginConfigValue::getValue)
+				.collect(HashSet::new);
+	}
+
+	public String getAsCsv(){
 		return String.join(",", get());
-	}
-
-	@Singleton
-	class NoOpDatarouterSubscribers implements DatarouterSubscribersSupplier{
-
-		@Override
-		public Set<String> get(){
-			return Collections.emptySet();
-		}
-
-	}
-
-	@Singleton
-	class DatarouterSubscribers implements DatarouterSubscribersSupplier{
-
-		private final Set<String> subscribers;
-
-		public DatarouterSubscribers(Set<String> subscribers){
-			this.subscribers = subscribers;
-		}
-
-		@Override
-		public Set<String> get(){
-			return subscribers;
-		}
-
 	}
 
 }

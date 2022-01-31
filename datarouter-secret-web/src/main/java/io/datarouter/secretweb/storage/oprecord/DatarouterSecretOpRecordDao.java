@@ -69,7 +69,7 @@ public class DatarouterSecretOpRecordDao extends BaseDao implements SecretOpReco
 							.build();
 					return node;
 				})
-				.listTo(RedundantSortedMapStorageNode::new);
+				.listTo(RedundantSortedMapStorageNode::makeIfMulti);
 		datarouter.register(node);
 	}
 

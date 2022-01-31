@@ -65,7 +65,7 @@ public class DatarouterExceptionRecordSummaryDao extends BaseDao{
 							.build();
 					return node;
 				})
-				.listTo(RedundantSortedMapStorageNode::new);
+				.listTo(RedundantSortedMapStorageNode::makeIfMulti);
 
 		nodeV2 = Scanner.of(params.clientIds)
 				.map(clientId -> {
@@ -76,7 +76,7 @@ public class DatarouterExceptionRecordSummaryDao extends BaseDao{
 							.withIsSystemTable(true)
 							.build();
 					return node;
-				}).listTo(RedundantSortedMapStorageNode::new);
+				}).listTo(RedundantSortedMapStorageNode::makeIfMulti);
 
 		datarouter.register(node);
 		datarouter.register(nodeV2);

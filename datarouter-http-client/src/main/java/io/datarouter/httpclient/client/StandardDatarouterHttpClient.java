@@ -84,6 +84,7 @@ public class StandardDatarouterHttpClient implements DatarouterHttpClient{
 	private final Supplier<URI> urlPrefix;
 	private final Supplier<Boolean> traceInQueryString;
 	private final Supplier<Boolean> debugLog;
+	private final String apiKeyFieldName;
 
 	StandardDatarouterHttpClient(
 			CloseableHttpClient httpClient,
@@ -100,7 +101,8 @@ public class StandardDatarouterHttpClient implements DatarouterHttpClient{
 			Supplier<Boolean> enableBreakers,
 			Supplier<URI> urlPrefix,
 			Supplier<Boolean> traceInQueryString,
-			Supplier<Boolean> debugLog){
+			Supplier<Boolean> debugLog,
+			String apiKeyFieldName){
 		this.httpClient = httpClient;
 		this.jsonSerializer = jsonSerializer;
 		this.signatureGenerator = signatureGenerator;
@@ -116,6 +118,7 @@ public class StandardDatarouterHttpClient implements DatarouterHttpClient{
 		this.urlPrefix = urlPrefix;
 		this.traceInQueryString = traceInQueryString;
 		this.debugLog = debugLog;
+		this.apiKeyFieldName = apiKeyFieldName;
 	}
 
 	@Override
@@ -266,7 +269,7 @@ public class StandardDatarouterHttpClient implements DatarouterHttpClient{
 		}
 
 		if(apiKeySupplier != null){
-			params.put(SecurityParameters.API_KEY, apiKeySupplier.get());
+			params.put(apiKeyFieldName, apiKeySupplier.get());
 		}
 		if(request.canHaveEntity() && request.getEntity() == null){
 			params = request.addPostParams(params).getFirstPostParams();

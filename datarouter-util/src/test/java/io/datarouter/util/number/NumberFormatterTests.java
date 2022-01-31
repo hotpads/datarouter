@@ -25,6 +25,11 @@ public class NumberFormatterTests{
 		double input = 1234567890.1234567890;
 		Assert.assertEquals(NumberFormatter.format(input, "$", "", 2), "$1,234,567,890.12");
 		Assert.assertEquals(NumberFormatter.format(input, "", "", 0), "1,234,567,890");
+
+		input = 1234.199;
+		Assert.assertEquals(NumberFormatter.format(input, "", "", 0, 4, true), "1,234.199");
+		Assert.assertEquals(NumberFormatter.format(input, "", "", 0, 2, true), "1,234.2");
+		Assert.assertEquals(NumberFormatter.format(input, "", "", 0, 0, true), "1,234");
 	}
 
 	@Test

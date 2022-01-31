@@ -45,6 +45,7 @@ import io.datarouter.httpclient.json.HttpClientGsonTool;
 import io.datarouter.httpclient.json.JsonSerializer;
 import io.datarouter.httpclient.security.CsrfGenerator;
 import io.datarouter.httpclient.security.CsrfGenerator.RefreshableCsrfGenerator;
+import io.datarouter.httpclient.security.SecurityParameters;
 import io.datarouter.httpclient.security.SignatureGenerator;
 import io.datarouter.httpclient.security.SignatureGenerator.RefreshableSignatureGenerator;
 import io.datarouter.instrumentation.refreshable.RefreshableSupplier;
@@ -78,6 +79,7 @@ public class DatarouterHttpClientBuilder{
 	private Supplier<URI> urlPrefix;
 	private Supplier<Boolean> traceInQueryString;
 	private Supplier<Boolean> debugLog;
+	private String apiKeyFieldName;
 
 	public DatarouterHttpClientBuilder(){
 		this.timeoutMs = (int)DEFAULT_TIMEOUT.toMillis();
@@ -92,6 +94,7 @@ public class DatarouterHttpClientBuilder{
 		this.name = className.substring(className.lastIndexOf(".") + 1, className.length());
 		this.traceInQueryString = () -> false;
 		this.debugLog = () -> false;
+		this.apiKeyFieldName = SecurityParameters.API_KEY;
 	}
 
 	public DatarouterHttpClient build(){
@@ -165,7 +168,8 @@ public class DatarouterHttpClientBuilder{
 				enableBreakers,
 				urlPrefix,
 				traceInQueryString,
-				debugLog);
+				debugLog,
+				apiKeyFieldName);
 	}
 
 	public DatarouterHttpClientBuilder setRetryCount(Supplier<Integer> retryCount){
@@ -286,6 +290,11 @@ public class DatarouterHttpClientBuilder{
 
 	public DatarouterHttpClientBuilder setDebugLog(Supplier<Boolean> debugLog){
 		this.debugLog = debugLog;
+		return this;
+	}
+
+	public DatarouterHttpClientBuilder setApiKeyFieldName(String apiKeyFieldName){
+		this.apiKeyFieldName = apiKeyFieldName;
 		return this;
 	}
 

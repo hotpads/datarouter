@@ -38,13 +38,19 @@ implements SortedMapStorageNode<PK,D,F>,
 	/**
 	 * @param nodes reads go to first node while writes go to all nodes
 	 */
-	@SafeVarargs
-	public RedundantSortedMapStorageNode(N... nodes){
-		super(List.of(nodes), nodes[0]);
+	private RedundantSortedMapStorageNode(List<N> nodes){
+		super(nodes, nodes.get(0));
 	}
 
-	public RedundantSortedMapStorageNode(List<N> nodes){
-		super(nodes, nodes.get(0));
+	public static <PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>,
+			N extends SortedMapStorageNode<PK,D,F>>
+			SortedMapStorageNode<PK,D,F> makeIfMulti(List<N> nodes){
+		if(nodes.size() == 1){
+			return nodes.get(0);
+		}
+		return new RedundantSortedMapStorageNode<>(nodes);
 	}
 
 }

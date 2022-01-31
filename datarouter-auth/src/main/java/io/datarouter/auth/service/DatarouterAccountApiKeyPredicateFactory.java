@@ -26,8 +26,8 @@ public class DatarouterAccountApiKeyPredicateFactory{
 	@Inject
 	private DatarouterAccountCounters datarouterAccountCounters;
 
-	public DatarouterAccountApiKeyPredicate create(String headerName){
-		return new DatarouterAccountApiKeyPredicate(headerName, datarouterAccountCredentialService,
+	public DatarouterAccountApiKeyPredicate create(String apiKeyFieldName){
+		return new DatarouterAccountApiKeyPredicate(apiKeyFieldName, datarouterAccountCredentialService,
 				datarouterAccountCounters);
 	}
 

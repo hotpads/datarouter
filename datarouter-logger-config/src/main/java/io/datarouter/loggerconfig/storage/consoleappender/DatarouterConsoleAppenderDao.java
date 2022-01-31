@@ -45,17 +45,20 @@ public class DatarouterConsoleAppenderDao extends BaseDao{
 
 	private final SortedMapStorageNode<ConsoleAppenderKey,ConsoleAppender,ConsoleAppenderFielder> node;
 
-	@SuppressWarnings({"rawtypes", "unchecked"})
 	@Inject
 	public DatarouterConsoleAppenderDao(
 			Datarouter datarouter,
 			NodeFactory nodeFactory,
 			DatarouterConsoleAppenderDaoParams params){
 		super(datarouter);
-		node = new RedundantSortedMapStorageNode(Scanner.of(params.clientIds)
-				.map(clientId -> nodeFactory.create(clientId, ConsoleAppender::new, ConsoleAppenderFielder::new)
-						.withIsSystemTable(true)
-						.build())
+		node = RedundantSortedMapStorageNode.makeIfMulti(Scanner.of(params.clientIds)
+				.map(clientId -> {
+					SortedMapStorageNode<ConsoleAppenderKey,ConsoleAppender,ConsoleAppenderFielder> node =
+							nodeFactory.create(clientId, ConsoleAppender::new, ConsoleAppenderFielder::new)
+							.withIsSystemTable(true)
+							.build();
+							return node;
+				})
 				.list());
 		datarouter.register(node);
 	}

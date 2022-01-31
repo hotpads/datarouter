@@ -15,7 +15,6 @@
  */
 package io.datarouter.httpclient.response;
 
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -51,13 +50,6 @@ public class Conditional<T>{
 			return Conditional.success(mapper.apply(response));
 		}
 		return Conditional.failure(exception);
-	}
-
-	public Conditional<T> peek(Consumer<? super T> consumer){
-		if(success){
-			consumer.accept(response);
-		}
-		return this;
 	}
 
 	public T orElseThrow(){
@@ -115,28 +107,6 @@ public class Conditional<T>{
 
 	public Exception getException(){
 		return exception;
-	}
-
-	public <U> JoinedConditional<T,U> join(Conditional<U> other){
-		return new JoinedConditional<>(this, other);
-	}
-
-	public static class JoinedConditional<U,V>{
-
-		private final Conditional<U> first;
-		private final Conditional<V> second;
-
-		private JoinedConditional(Conditional<U> first, Conditional<V> second){
-			this.first = first;
-			this.second = second;
-		}
-
-		public void ifSuccess(BiConsumer<U,V> consumer){
-			if(first.success && second.success){
-				consumer.accept(first.response, second.response);
-			}
-		}
-
 	}
 
 	@Override

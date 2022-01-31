@@ -20,7 +20,7 @@ import java.util.function.Supplier;
 
 public interface AppNavBarRegistrySupplier extends Supplier<List<NavBarItem>>{
 
-	static class NoOpAppNavBarRegistry implements AppNavBarRegistrySupplier{
+	class NoOpAppNavBarRegistry implements AppNavBarRegistrySupplier{
 
 		@Override
 		public List<NavBarItem> get(){

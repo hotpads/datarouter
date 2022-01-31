@@ -17,21 +17,20 @@ package io.datarouter.web.dispatcher;
 
 import javax.servlet.http.HttpServletRequest;
 
-import io.datarouter.httpclient.security.SecurityParameters;
 import io.datarouter.util.tuple.Pair;
 
 public abstract class ApiKeyPredicate{
 
-	private final String headerName;
+	private final String apiKeyFieldName;
 
-	public ApiKeyPredicate(String headerName){
-		this.headerName = headerName;
+	public ApiKeyPredicate(String apiKeyFieldName){
+		this.apiKeyFieldName = apiKeyFieldName;
 	}
 
 	// the string on the right is the account name or the error message
 	public Pair<Boolean,String> check(DispatchRule rule, HttpServletRequest request){
-		String value = request.getParameter(SecurityParameters.API_KEY);
-		String apiKey = value != null ? value : request.getHeader(headerName);
+		String parameterValue = request.getParameter(apiKeyFieldName);
+		String apiKey = parameterValue != null ? parameterValue : request.getHeader(apiKeyFieldName);
 		if(apiKey == null){
 			return new Pair<>(false, "key not found");
 		}

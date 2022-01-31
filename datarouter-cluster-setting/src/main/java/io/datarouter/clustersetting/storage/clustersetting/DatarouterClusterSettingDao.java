@@ -67,7 +67,7 @@ public class DatarouterClusterSettingDao extends BaseDao{
 							.build();
 					return node;
 				})
-				.listTo(RedundantSortedMapStorageNode::new);
+				.listTo(RedundantSortedMapStorageNode::makeIfMulti);
 		datarouter.register(node);
 		cacheRefSupplier = SingletonSupplier.of(() -> new AtomicReference<>(loadCache()));
 	}

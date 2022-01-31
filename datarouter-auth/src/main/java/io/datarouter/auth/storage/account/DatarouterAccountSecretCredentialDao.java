@@ -73,7 +73,7 @@ public class DatarouterAccountSecretCredentialDao extends BaseDao implements Bas
 							DatarouterAccountSecretCredentialFielder> node = builder.build();
 					return node;
 				})
-				.listTo(RedundantSortedMapStorageNode::new);
+				.listTo(RedundantSortedMapStorageNode::makeIfMulti);
 		datarouter.register(node);
 	}
 

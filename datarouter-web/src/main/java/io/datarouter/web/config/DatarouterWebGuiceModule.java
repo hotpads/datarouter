@@ -27,8 +27,6 @@ import io.datarouter.httpclient.json.JsonSerializer;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder.NoOpChangelogRecorder;
 import io.datarouter.secret.config.DatarouterSecretPlugin.DatarouterSecretPluginBuilder.DatarouterSecretPluginBuilderImpl;
-import io.datarouter.storage.config.DatarouterSubscribersSupplier;
-import io.datarouter.storage.config.DatarouterSubscribersSupplier.DatarouterSubscribers;
 import io.datarouter.storage.config.guice.DatarouterStorageGuiceModule;
 import io.datarouter.storage.setting.MemorySettingFinder;
 import io.datarouter.storage.setting.SettingFinder;
@@ -104,7 +102,6 @@ public class DatarouterWebGuiceModule extends BaseGuiceServletModule{
 		bindDefault(UserSessionService.class, NoOpUserSessionService.class);
 		bindDefault(CurrentSessionInfo.class, NoOpCurrentSessionInfo.class);
 
-		bindDefaultInstance(DatarouterSubscribersSupplier.class, new DatarouterSubscribers(Collections.emptySet()));
 		bindDefault(LatencyMonitoringGraphLink.class, NoOpLatencyMonitoringGraphLink.class);
 		bindDefaultInstance(DatarouterNavBarSupplier.class, new DatarouterNavBarCreator(Collections.emptyList()));
 		bindDefaultInstance(AppPluginNavBarSupplier.class, new AppNavBarPluginCreator(Collections.emptyList()));

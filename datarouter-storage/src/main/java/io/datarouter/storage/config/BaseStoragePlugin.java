@@ -16,12 +16,17 @@
 package io.datarouter.storage.config;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.google.inject.Module;
 
 import io.datarouter.inject.InjectionTool;
 import io.datarouter.inject.guice.BasePlugin;
+import io.datarouter.plugin.PluginConfigKey;
+import io.datarouter.plugin.PluginConfigValue;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.BaseRedundantDaoParams;
@@ -113,6 +118,65 @@ public abstract class BaseStoragePlugin extends BasePlugin{
 
 	public List<Module> getTestModules(){
 		return testModules;
+	}
+
+	/*-------------------------- plugin configs v2 --------------------------*/
+
+	public final Map<PluginConfigKey<?>,Class<? extends PluginConfigValue<?>>> classSingle = new HashMap<>();
+	public final Map<PluginConfigKey<?>,List<Class<? extends PluginConfigValue<?>>>> classList = new HashMap<>();
+	public final Map<PluginConfigKey<?>,PluginConfigValue<?>> instanceSingle = new HashMap<>();
+	public final Map<PluginConfigKey<?>,List<PluginConfigValue<?>>> instanceList = new HashMap<>();
+
+	public void addPluginConfig(Map<PluginConfigKey<?>,List<Class<? extends PluginConfigValue<?>>>> map){
+		map.forEach(this::addPluginEntries);
+	}
+
+	protected void addPluginEntries(PluginConfigKey<?> key, Collection<Class<? extends PluginConfigValue<?>>> values){
+		values.forEach(value -> addPluginEntryInternal(key, value));
+	}
+
+	protected void addPluginEntries(Collection<PluginConfigValue<?>> values){
+		values.forEach(this::addPluginEntryInternal);
+	}
+
+	protected void addPluginEntry(PluginConfigKey<?> key, Class<? extends PluginConfigValue<?>> value){
+		addPluginEntryInternal(key, value);
+	}
+
+	protected void addPluginEntry(PluginConfigValue<?> value){
+		addPluginEntryInternal(value);
+	}
+
+	private void addPluginEntryInternal(PluginConfigKey<?> key, Class<? extends PluginConfigValue<?>> value){
+		switch(key.type){
+		case CLASS_LIST:
+			classList.computeIfAbsent(key, $ -> new ArrayList<>()).add(value);
+			break;
+		case CLASS_SINGLE:
+			if(classSingle.containsKey(key)){
+				throw new RuntimeException(key.persistentString + " has already been set");
+			}
+			classSingle.put(key, value);
+			break;
+		default:
+			break;
+		}
+	}
+
+	private void addPluginEntryInternal(PluginConfigValue<?> value){
+		switch(value.getKey().type){
+		case INSTANCE_LIST:
+			instanceList.computeIfAbsent(value.getKey(), $ -> new ArrayList<>()).add(value);
+			break;
+		case INSTANCE_SINGLE:
+			if(instanceSingle.containsKey(value.getKey())){
+				throw new RuntimeException(value.getKey().persistentString + " has already been set");
+			}
+			instanceSingle.put(value.getKey(), value);
+			break;
+		default:
+			break;
+		}
 	}
 
 }

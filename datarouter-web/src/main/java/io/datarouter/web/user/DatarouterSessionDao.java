@@ -57,7 +57,7 @@ public class DatarouterSessionDao extends BaseDao implements BaseDatarouterSessi
 							.build();
 					return node;
 				})
-				.listTo(RedundantSortedMapStorageNode::new);
+				.listTo(RedundantSortedMapStorageNode::makeIfMulti);
 		datarouter.register(node);
 	}
 

@@ -72,7 +72,7 @@ public class DatarouterAccountDao extends BaseDao implements BaseDatarouterAccou
 							.build();
 					return node;
 				})
-				.listTo(RedundantSortedMapStorageNode::new);
+				.listTo(RedundantSortedMapStorageNode::makeIfMulti);
 		datarouter.register(node);
 	}
 

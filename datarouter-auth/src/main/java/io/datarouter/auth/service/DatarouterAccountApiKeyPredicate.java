@@ -40,10 +40,10 @@ public class DatarouterAccountApiKeyPredicate extends ApiKeyPredicate{
 		this(SecurityParameters.API_KEY, datarouterAccountApiKeyService, datarouterAccountCounters);
 	}
 
-	public DatarouterAccountApiKeyPredicate(String headerName,
+	public DatarouterAccountApiKeyPredicate(String apiKeyFieldName,
 			DatarouterAccountCredentialService datarouterAccountCredentialService,
 			DatarouterAccountCounters datarouterAccountCounters){
-		super(headerName);
+		super(apiKeyFieldName);
 		this.datarouterAccountCredentialService = datarouterAccountCredentialService;
 		this.datarouterAccountCounters = datarouterAccountCounters;
 	}

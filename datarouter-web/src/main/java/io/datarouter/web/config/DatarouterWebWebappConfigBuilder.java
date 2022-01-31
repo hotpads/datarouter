@@ -19,11 +19,9 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 import javax.servlet.Filter;
 import javax.servlet.ServletContextListener;
@@ -45,6 +43,7 @@ import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientOptionsFactory;
 import io.datarouter.storage.config.BaseStoragePlugin;
 import io.datarouter.storage.config.DatarouterStoragePlugin.DatarouterStoragePluginBuilder;
+import io.datarouter.storage.config.DatarouterSubscribersSupplier;
 import io.datarouter.storage.config.schema.SchemaUpdateOptionsFactory;
 import io.datarouter.storage.config.setting.DatarouterSettingOverrides;
 import io.datarouter.storage.config.setting.DatarouterSettingOverrides.NoOpDatarouterSettingOverrides;
@@ -98,7 +97,6 @@ implements WebappBuilder{
 	private final String privateDomain;
 	private final String contextName;
 	private final ServerTypes serverTypes;
-	private final Set<String> subscribers;
 	private final List<Class<? extends SettingRoot>> settingRoots;
 	private final List<Class<? extends Dao>> daoClasses;
 	protected final List<ClientId> defaultClientIds;
@@ -230,7 +228,6 @@ implements WebappBuilder{
 		this.webAppListenersOrdered = new ArrayList<>();
 		this.webAppListenersUnordered = new ArrayList<>();
 		this.authenticationConfig = null;
-		this.subscribers = new HashSet<>();
 		this.customStaticFileFilterRegex = null;
 		this.homepageRouteSet = DefaultHomepageRouteSet.class;
 		this.homepageHandler = SimpleHomepageHandler.class;
@@ -294,7 +291,6 @@ implements WebappBuilder{
 				.setFilesClass(filesRoot)
 				.setDatarouterAuthConfig(authenticationConfig)
 				.setCurrentSessionInfoClass(currentSessionInfo)
-				.addSubscribers(subscribers)
 				.setRoleManagerClass(roleManager)
 				.setUserSesssionServiceClass(userSessionService)
 				.setAppListenerClasses(OrderedTool.combine(appListenersOrdered, appListenersUnordered))
@@ -313,11 +309,6 @@ implements WebappBuilder{
 				.setRequestProxy(requestProxy)
 				.setDefaultEmailDistributionListZoneId(defaultEmailDistributionListZoneId)
 				.setDailyDigestEmailZoneId(dailyDigestEmailZoneId)
-				// This will need to move up later
-				.setPluginConfigsClassList(classList)
-				.setPluginConfigsClassSingle(classSingle)
-				.setPluginConfigsInstanceList(instanceList)
-				.setPluginConfigsInstanceSingle(instanceSingle)
 				.build();
 		webPlugin.getStoragePlugins().forEach(this::addStoragePluginWithoutInstalling);
 		webPlugin.getWebPlugins().forEach(this::addWebPluginWithoutInstalling);
@@ -336,7 +327,11 @@ implements WebappBuilder{
 				.setSettingOverridesClass(settingOverrides)
 				.setSettingRootsClass(new SettingRootsSupplier(settingRoots))
 				.setClientOptionsFactoryClass(clientOptionsFactory)
-				.setSchemaUpdateOptionsFactoryClass(schemaUpdateOptionsFactory);
+				.setSchemaUpdateOptionsFactoryClass(schemaUpdateOptionsFactory)
+				.setPluginConfigsClassList(classList)
+				.setPluginConfigsClassSingle(classSingle)
+				.setPluginConfigsInstanceList(instanceList)
+				.setPluginConfigsInstanceSingle(instanceSingle);
 		daoClasses.addAll(storagePluginBuilder.getSimplePluginData().getDatarouterStorageDaoClasses());
 		storagePluginBuilder.addDaosClasses(daoClasses);
 		if(serverTypeDetector != null){
@@ -433,13 +428,6 @@ implements WebappBuilder{
 	protected T addWebPluginWithoutInstalling(BaseWebPlugin plugin){
 		addStoragePluginWithoutInstalling(plugin);
 
-		// TODO do we need to check for overwriting?
-		plugin.classSingle.forEach((key, value) -> classSingle.put(key, value));
-		plugin.classList.forEach((key, value) -> classList.computeIfAbsent(key, $ -> new ArrayList<>()).addAll(value));
-		plugin.instanceSingle.forEach((key, value) -> instanceSingle.put(key, value));
-		plugin.instanceList
-				.forEach((key, value) -> instanceList.computeIfAbsent(key, $ -> new ArrayList<>()).addAll(value));
-
 		filterParamsOrdered.addAll(plugin.getFilterParamsOrdered());
 		filterParamsUnordered.addAll(plugin.getFilterParamsUnordered());
 
@@ -470,6 +458,13 @@ implements WebappBuilder{
 		modules.add(daosModule);
 		settingRoots.addAll(plugin.getSettingRoots());
 		testModules.addAll(plugin.getTestModules());
+
+		// TODO do we need to check for overwriting?
+		plugin.classSingle.forEach((key, value) -> classSingle.put(key, value));
+		plugin.classList.forEach((key, value) -> classList.computeIfAbsent(key, $ -> new ArrayList<>()).addAll(value));
+		plugin.instanceSingle.forEach((key, value) -> instanceSingle.put(key, value));
+		plugin.instanceList
+				.forEach((key, value) -> instanceList.computeIfAbsent(key, $ -> new ArrayList<>()).addAll(value));
 		return getSelf();
 	}
 
@@ -477,11 +472,6 @@ implements WebappBuilder{
 
 	public T addFieldKeyOverrider(FieldKeyOverrider fieldKeyOverrider){
 		fieldKeyOverriders.add(fieldKeyOverrider);
-		return getSelf();
-	}
-
-	public T addTestableService(Class<? extends TestableService> testableService){
-		addPluginEntry(TestableService.KEY, testableService);
 		return getSelf();
 	}
 
@@ -562,14 +552,9 @@ implements WebappBuilder{
 		return getSelf();
 	}
 
-	@Deprecated
-	public T addAdministratorEmail(String subscriber){
-		addSubscriber(subscriber);
-		return getSelf();
-	}
-
 	public T addSubscriber(String subscriber){
-		subscribers.add(subscriber);
+		var value = new StringPluginConfigValue(DatarouterSubscribersSupplier.KEY, subscriber);
+		addPluginEntry(value);
 		return getSelf();
 	}
 
@@ -671,12 +656,6 @@ implements WebappBuilder{
 		return getSelf();
 	}
 
-	public T setServiceDescription(String serviceDescription){
-		var value = new StringPluginConfigValue(ServiceDescriptionSupplier.KEY, serviceDescription);
-		this.instanceSingle.put(ServiceDescriptionSupplier.KEY, value);
-		return getSelf();
-	}
-
 	public T addReadme(String name, String link){
 		this.documentationNamesAndLinks.put(name, new Pair<>(link, false));
 		return getSelf();
@@ -706,11 +685,6 @@ implements WebappBuilder{
 		return getSelf();
 	}
 
-	public T addDailyDigest(Class<? extends DailyDigest> dailyDigest){
-		addPluginEntry(DailyDigest.KEY, dailyDigest);
-		return getSelf();
-	}
-
 	public T setRequestProxy(Class<? extends RequestProxySetter> requestProxy){
 		this.requestProxy = requestProxy;
 		return getSelf();
@@ -726,8 +700,19 @@ implements WebappBuilder{
 		return getSelf();
 	}
 
-	public T addTestModule(Module testModule){
-		this.testModules.add(testModule);
+	public T setServiceDescription(String serviceDescription){
+		var value = new StringPluginConfigValue(ServiceDescriptionSupplier.KEY, serviceDescription);
+		addPluginEntry(value);
+		return getSelf();
+	}
+
+	public T addTestableService(Class<? extends TestableService> testableService){
+		addPluginEntry(TestableService.KEY, testableService);
+		return getSelf();
+	}
+
+	public T addDailyDigest(Class<? extends DailyDigest> dailyDigest){
+		addPluginEntry(DailyDigest.KEY, dailyDigest);
 		return getSelf();
 	}
 
@@ -740,7 +725,6 @@ implements WebappBuilder{
 		values.forEach(value -> addPluginEntry(value));
 		return getSelf();
 	}
-
 
 	public T addPluginEntry(PluginConfigKey<?> key, Class<? extends PluginConfigValue<?>> value){
 		switch(key.type){

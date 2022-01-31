@@ -16,10 +16,12 @@
 package io.datarouter.storage.config.guice;
 
 import java.util.Collections;
+import java.util.Map;
 
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.inject.guice.BaseGuiceModule;
 import io.datarouter.inject.guice.GuiceInjector;
+import io.datarouter.plugin.PluginConfiguration;
 import io.datarouter.storage.client.ClientInitializationTracker;
 import io.datarouter.storage.client.ClientOptions;
 import io.datarouter.storage.client.ClientOptionsFactory;
@@ -58,6 +60,7 @@ public class DatarouterStorageGuiceModule extends BaseGuiceModule{
 		bindDefaultInstance(DatarouterTestPropertiesFile.class, new DatarouterTestPropertiesFile(""));
 
 		bindDefault(ServerTypeDetector.class, NoOpServerTypeDetector.class);
+		bindDefaultInstance(PluginConfiguration.class, new PluginConfiguration(Map.of(), Map.of(), Map.of(), Map.of()));
 	}
 
 }

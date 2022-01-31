@@ -64,7 +64,7 @@ public class DatarouterPermissionRequestDao extends BaseDao{
 						.build();
 					return node;
 				})
-				.listTo(RedundantSortedMapStorageNode::new);
+				.listTo(RedundantSortedMapStorageNode::makeIfMulti);
 		datarouter.register(node);
 	}
 

@@ -68,7 +68,7 @@ public class DatarouterSamlDao extends BaseDao implements BaseDatarouterSamlDao{
 						.build();
 					return node;
 				})
-				.listTo(RedundantSortedMapStorageNode::new);
+				.listTo(RedundantSortedMapStorageNode::makeIfMulti);
 		datarouter.register(node);
 	}
 
