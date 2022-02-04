@@ -27,6 +27,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
@@ -34,16 +35,12 @@ import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.internal.UnsafeAllocator;
-
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.Java9;
 import io.datarouter.util.string.StringTool;
 
 public class ReflectionTool{
 	private static final Logger logger = LoggerFactory.getLogger(ReflectionTool.class);
-
-	private static final UnsafeAllocator UNSAFE_ALLOCATOR = UnsafeAllocator.create();
 
 	public static <T> Supplier<T> supplier(Class<T> type){
 		return () -> ReflectionTool.create(type);
@@ -179,11 +176,7 @@ public class ReflectionTool{
 
 		@Override
 		public int hashCode(){
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + (cls == null ? 0 : cls.hashCode());
-			result = prime * result + (fieldName == null ? 0 : fieldName.hashCode());
-			return result;
+			return Objects.hash(cls, fieldName);
 		}
 
 		@Override
@@ -414,9 +407,43 @@ public class ReflectionTool{
 		return object;
 	}
 
+	/**
+	 * Borrowed from Gson's UnsafeAllocator
+	 *
+	 * Allows instantiation of BinaryDtos without a no-arg constructor. A no-arg constructor complicates the encouraged
+	 * use of final fields.
+	 */
+	private static final UnsafeAllocator ALLOCATOR = new UnsafeAllocator();
+
+	private static class UnsafeAllocator{
+		private final Object unsafe;
+		private final Method allocateInstance;
+
+		public UnsafeAllocator(){
+			try{
+				Class<?> unsafeClass = Class.forName("sun.misc.Unsafe");
+				Field theUnsafeField = unsafeClass.getDeclaredField("theUnsafe");
+				theUnsafeField.setAccessible(true);
+				unsafe = theUnsafeField.get(null);
+				allocateInstance = unsafeClass.getMethod("allocateInstance", Class.class);
+			}catch(Exception e){
+				throw new RuntimeException(e);
+			}
+		}
+
+		@SuppressWarnings("unchecked")
+		public <T> T allocate(Class<T> cls){
+			try{
+				return (T)allocateInstance.invoke(unsafe, cls);
+			}catch(Exception e){
+				throw new RuntimeException(e);
+			}
+		}
+	}
+
 	public static <T> T createNullArgsWithUnsafeAllocator(Class<T> clazz){
 		try{
-			return UNSAFE_ALLOCATOR.newInstance(clazz);
+			return ALLOCATOR.allocate(clazz);
 		}catch(Exception e){
 			throw new RuntimeException("cannot call newInstance " + clazz, e);
 		}

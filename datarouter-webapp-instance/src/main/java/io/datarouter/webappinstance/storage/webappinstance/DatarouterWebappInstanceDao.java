@@ -32,6 +32,7 @@ import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import io.datarouter.storage.servertype.ServerType;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.storage.util.DatabeanVacuum;
 import io.datarouter.storage.util.DatabeanVacuum.DatabeanVacuumBuilder;
 import io.datarouter.virtualnode.redundant.RedundantSortedMapStorageNode;
@@ -58,7 +59,7 @@ public class DatarouterWebappInstanceDao extends BaseDao{
 				.map(clientId -> {
 					SortedMapStorageNode<WebappInstanceKey,WebappInstance,WebappInstanceFielder> node =
 							nodeFactory.create(clientId, WebappInstance::new, WebappInstanceFielder::new)
-							.withIsSystemTable(true)
+							.withTag(Tag.DATAROUTER)
 							.build();
 					return node;
 				})

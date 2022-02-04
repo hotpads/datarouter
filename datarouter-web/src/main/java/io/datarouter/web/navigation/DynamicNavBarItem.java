@@ -15,20 +15,26 @@
  */
 package io.datarouter.web.navigation;
 
-public interface DynamicNavBarItem{
+import io.datarouter.plugin.PluginConfigKey;
+import io.datarouter.plugin.PluginConfigType;
+import io.datarouter.plugin.PluginConfigValue;
+import io.datarouter.web.navigation.NavBarCategory.NavBarItemType;
+
+public interface DynamicNavBarItem extends PluginConfigValue<DynamicNavBarItem>{
+
+	PluginConfigKey<DynamicNavBarItem> KEY = new PluginConfigKey<>("dynamicNavBarItems", PluginConfigType.CLASS_LIST);
 
 	NavBarItem getNavBarItem();
 	Boolean shouldDisplay();
-	DynamicNavBarItemType getType();
+	NavBarItemType getType();
+
+	@Override
+	default PluginConfigKey<DynamicNavBarItem> getKey(){
+		return KEY;
+	}
 
 	default boolean changesFrequently(){
 		return false;
-	}
-
-	enum DynamicNavBarItemType{
-		APP,
-		DATAROUTER,
-		;
 	}
 
 }

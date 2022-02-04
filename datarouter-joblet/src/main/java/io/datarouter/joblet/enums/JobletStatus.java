@@ -15,9 +15,9 @@
  */
 package io.datarouter.joblet.enums;
 
+import io.datarouter.enums.DatarouterEnumTool;
+import io.datarouter.enums.StringEnum;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.util.enums.DatarouterEnumTool;
-import io.datarouter.util.enums.StringEnum;
 
 public enum JobletStatus implements StringEnum<JobletStatus>{
 

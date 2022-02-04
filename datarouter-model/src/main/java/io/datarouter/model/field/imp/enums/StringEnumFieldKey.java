@@ -17,12 +17,12 @@ package io.datarouter.model.field.imp.enums;
 
 import java.util.Map;
 
+import io.datarouter.enums.StringEnum;
 import io.datarouter.model.field.BaseFieldKey;
 import io.datarouter.model.field.FieldKeyAttribute;
 import io.datarouter.model.field.FieldKeyAttributeKey;
 import io.datarouter.model.field.encoding.FieldGeneratorType;
 import io.datarouter.model.util.CommonFieldSizes;
-import io.datarouter.util.enums.StringEnum;
 import io.datarouter.util.lang.ReflectionTool;
 
 public class StringEnumFieldKey<E extends StringEnum<E>> extends BaseFieldKey<E,StringEnumFieldKey<E>>{

@@ -32,6 +32,7 @@ import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.QueueNodeFactory;
 import io.datarouter.storage.node.op.raw.GroupQueueStorage.GroupQueueStorageNode;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.virtualnode.redundant.RedundantGroupQueueStorageNode;
 
 @Singleton
@@ -57,11 +58,11 @@ public class DatarouterGaugePublisherDao extends BaseDao{
 							queueNodeFactory.createGroupQueue(
 									clientId, ConveyorMessage::new, ConveyorMessageFielder::new)
 							.withQueueName("PublisherGauge")
-							.withIsSystemTable(true)
+							.withTag(Tag.DATAROUTER)
 							.build();
 					return node;
 				})
-				.listTo(RedundantGroupQueueStorageNode::new);
+				.listTo(RedundantGroupQueueStorageNode::makeIfMulti);
 		datarouter.register(queueNode);
 	}
 

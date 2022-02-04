@@ -27,8 +27,8 @@ import com.amazonaws.services.elasticloadbalancingv2.model.LoadBalancerSchemeEnu
 
 import io.datarouter.aws.elb.service.ElbService;
 import io.datarouter.storage.config.properties.DatarouterServerTypeSupplier;
-import io.datarouter.util.aws.Ec2InstanceDetailsDto;
-import io.datarouter.util.aws.Ec2InstanceTool;
+import io.datarouter.storage.util.Ec2InstanceDetailsDto;
+import io.datarouter.storage.util.Ec2InstanceTool;
 import io.datarouter.web.autoconfig.ConfigScanDto;
 import io.datarouter.web.autoconfig.ConfigScanResponseTool;
 import io.datarouter.web.config.service.PrivateDomain;

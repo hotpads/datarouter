@@ -18,6 +18,7 @@ package io.datarouter.web.navigation;
 import javax.inject.Inject;
 
 import io.datarouter.web.config.DatarouterWebPaths;
+import io.datarouter.web.navigation.NavBarCategory.NavBarItemType;
 import io.datarouter.web.service.DocumentationNamesAndLinksSupplier;
 
 public class SystemDocsNavBarItem implements DynamicNavBarItem{
@@ -34,12 +35,12 @@ public class SystemDocsNavBarItem implements DynamicNavBarItem{
 
 	@Override
 	public Boolean shouldDisplay(){
-		return docNameAndLinksSupplier.getSystemDocs().entrySet().size() != 0;
+		return docNameAndLinksSupplier.getSystemDocs().size() != 0;
 	}
 
 	@Override
-	public DynamicNavBarItemType getType(){
-		return DynamicNavBarItemType.APP;
+	public NavBarItemType getType(){
+		return NavBarItemType.APP;
 	}
 
 }

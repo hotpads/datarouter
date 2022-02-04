@@ -27,20 +27,20 @@ import io.datarouter.web.config.ServletContextSupplier;
 @Singleton
 public class ApplicationPaths{
 
-	private final Supplier<String> path;
+	private final Supplier<String> rootPath;
 	private final Supplier<String> resourcesPath;
 	private final Supplier<String> webInfPath;
 
 	@Inject
 	public ApplicationPaths(ServletContextSupplier servletContextSupplier){
 		ServletContext servletContext = servletContextSupplier.get();
-		this.path = SingletonSupplier.of(() -> WebappTool.getApplicationRootPath(servletContext));
+		this.rootPath = SingletonSupplier.of(() -> WebappTool.getApplicationRootPath(servletContext));
 		this.resourcesPath = SingletonSupplier.of(() -> WebappTool.getResourcesPath(servletContext));
 		this.webInfPath = SingletonSupplier.of(() -> WebappTool.getWebInfPath(servletContext));
 	}
 
 	public String getRootPath(){
-		return path.get();
+		return rootPath.get();
 	}
 
 	public String getResourcesPath(){

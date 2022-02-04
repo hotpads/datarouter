@@ -20,8 +20,10 @@ import java.util.Optional;
 
 import javax.inject.Inject;
 
+import io.datarouter.joblet.type.JobletType;
 import io.datarouter.joblet.type.JobletTypeFactory;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.metriclinks.MetricLinkDto;
 import io.datarouter.web.metriclinks.MetricLinkDto.LinkDto;
 import io.datarouter.web.metriclinks.MetricLinkPage;
@@ -36,15 +38,10 @@ public abstract class JobletMetricLinkPage implements MetricLinkPage{
 		return "Joblets";
 	}
 
-	protected List<MetricLinkDto> buildMetricLinks(boolean isSystem){
+	protected List<MetricLinkDto> buildMetricLinks(Tag tag){
 		return Scanner.of(jobletTypeFactory.getAllTypes())
-				.include(type -> {
-					if(isSystem){
-						return type.isSystem;
-					}
-					return !type.isSystem;
-				})
-				.map(type -> type.getPersistentString())
+				.include(type -> type.tag == tag)
+				.map(JobletType::getPersistentString)
 				.map(type -> {
 					var link = LinkDto.of("Joblet .* " + type + "$");
 					return new MetricLinkDto(type, Optional.empty(), Optional.of(link));

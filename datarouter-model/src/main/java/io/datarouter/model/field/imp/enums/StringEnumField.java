@@ -16,13 +16,13 @@
 package io.datarouter.model.field.imp.enums;
 
 import io.datarouter.bytes.codec.stringcodec.StringCodec;
+import io.datarouter.enums.DatarouterEnumTool;
+import io.datarouter.enums.StringEnum;
 import io.datarouter.model.field.BaseField;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.encoding.FieldGeneratorType;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
-import io.datarouter.util.enums.DatarouterEnumTool;
-import io.datarouter.util.enums.StringEnum;
 
 public class StringEnumField<E extends StringEnum<E>> extends BaseField<E>{
 

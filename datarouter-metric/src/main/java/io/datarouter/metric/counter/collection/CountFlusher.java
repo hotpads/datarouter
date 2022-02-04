@@ -74,7 +74,7 @@ public class CountFlusher{
 	private void flush(){
 		try{
 			SaveConfig saveConfig = new SaveConfig();
-			if(!saveConfig.saveCounts && !saveConfig.saveBlobs){
+			if(!saveConfig.saveCounts && !saveConfig.saveBlobs && !saveConfig.saveBlobsToQueue){
 				flushQueue.clear();
 				return;
 			}
@@ -95,7 +95,7 @@ public class CountFlusher{
 				var json = gson.toJson(dto);
 				var message = new ConveyorMessage(UlidTool.nextUlid(), json);
 				logCountsSpec(counts, json);
-
+				var dtoForBlobs = new CountBatchDto(null, serviceName, serverName, counts);
 				if(saveConfig.saveCounts){
 					publisherDao.put(message);
 				}
@@ -103,17 +103,16 @@ public class CountFlusher{
 					logger.info("skipping save. saving only to blobs instead");
 				}
 				if(saveConfig.saveBlobs){
-					flushCountBlobs(counts);
+					countBlobService.add(dtoForBlobs);
+				}
+				if(saveConfig.saveBlobsToQueue){
+					countBlobService.addToQueue(dtoForBlobs);
 				}
 				flushQueue.poll();
 			}
 		}catch(Throwable e){
 			logger.warn("", e);
 		}
-	}
-
-	private void flushCountBlobs(Map<Long,Map<String,Long>> countBlobs){
-		countBlobService.add(new CountBatchDto(null, serviceName, serverName, countBlobs));
 	}
 
 	private static void logCountsSpec(Map<Long,Map<String,Long>> counts, String countsJson){
@@ -127,13 +126,16 @@ public class CountFlusher{
 
 		public final boolean saveCounts;
 		public final boolean saveBlobs;
+		public final boolean saveBlobsToQueue;
 		public final boolean logOverrideCountsWithBlobs;
 
 		public SaveConfig(){
 			boolean saveCountsSetting = settings.saveCounts.get();
 			boolean saveBlobsSetting = settings.saveCountBlobs.get();
-			boolean overrideCountsWithBlobs = settings.skipsSaveCountsWhenSaveCountBlobsIsTrue.get();
-			this.saveBlobs = saveBlobsSetting;
+			boolean blobToQueueSetting = settings.saveCountBlobsToQueueInsteadOfCloud.get();
+			boolean overrideCountsWithBlobs = settings.skipSaveCountsWhenSaveCountBlobsIsTrue.get();
+			this.saveBlobs = saveBlobsSetting && !blobToQueueSetting;
+			this.saveBlobsToQueue = saveBlobsSetting && blobToQueueSetting;
 			this.logOverrideCountsWithBlobs = saveCountsSetting && saveBlobsSetting && overrideCountsWithBlobs;
 			this.saveCounts = saveCountsSetting && !this.logOverrideCountsWithBlobs;
 		}

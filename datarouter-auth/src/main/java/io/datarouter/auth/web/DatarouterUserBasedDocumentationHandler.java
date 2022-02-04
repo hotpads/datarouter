@@ -67,9 +67,10 @@ public abstract class DatarouterUserBasedDocumentationHandler extends BaseHandle
 
 	@Handler
 	public Map<String,String> getCsrfIv(){
+		String apiKeyFieldName = request.getHeader("X-apiKeyFieldName");
 		Map<String,String> result = RequestTool.getParamMap(request);
 		Optional<String> secret = datarouterAccountCredentialService.findSecretKeyForApiKeyAuth(result.get(
-				SecurityParameters.API_KEY));
+				apiKeyFieldName));
 		if(secret.isEmpty()){
 			return result;
 		}
@@ -83,10 +84,11 @@ public abstract class DatarouterUserBasedDocumentationHandler extends BaseHandle
 
 	@Handler
 	public Map<String,String> getSignature(){
+		String apiKeyFieldName = request.getHeader("X-apiKeyFieldName");
 		Map<String,String> params = RequestTool.getParamMap(request);
 		String body = RequestTool.getBodyAsString(request);
 		Optional<String> secret = datarouterAccountCredentialService.findSecretKeyForApiKeyAuth(params.get(
-				SecurityParameters.API_KEY));
+				apiKeyFieldName));
 		if(secret.isEmpty()){
 			return params;
 		}

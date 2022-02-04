@@ -30,6 +30,7 @@ import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.virtualnode.redundant.RedundantIndexedSortedMapStorageNode;
 import io.datarouter.web.user.databean.DatarouterUser;
 import io.datarouter.web.user.databean.DatarouterUser.DatarouterUserByUserTokenLookup;
@@ -57,11 +58,11 @@ public class DatarouterUserDao extends BaseDao{
 				.map(clientId -> {
 					IndexedSortedMapStorageNode<DatarouterUserKey,DatarouterUser,DatarouterUserFielder> node =
 							nodeFactory.create(clientId, DatarouterUser::new, DatarouterUserFielder::new)
-							.withIsSystemTable(true)
+							.withTag(Tag.DATAROUTER)
 							.build();
 					return node;
 				})
-				.listTo(RedundantIndexedSortedMapStorageNode::new);
+				.listTo(RedundantIndexedSortedMapStorageNode::makeIfMulti);
 		datarouter.register(node);
 	}
 

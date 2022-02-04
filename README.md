@@ -209,6 +209,22 @@ There are two ways:
    - Downsides 
      - The index must also exist, consuming disk and memory
      - It must also be maintained causing updates to be slower
+     
+### Choosing a Node type
+When creating a node, you generally want to specify the smallest interface with the operations you need.
+
+- Start with MapStorage if you know the full keys of the data you want to retrieve.  In the phone book example, if you
+always know the lastName and firstName, you have the full keys and can retrieve data with get(..) or getMulti(..).
+- Expand the interface to SortedStorage if you don't know the full keys.  For example, if you have a lastName but don't
+know the firstName, you can scan(..) through all people with that lastName.
+- Expand the interface to IndexedStorage if you need to retrieve data without knowing the leftmost key fields.  For
+example if you want to find a person with phoneNumber=1234567, you can create an IndexedNode with an index called 
+byPhoneNumber, and use the index to locate the primary databean.
+
+Choosing the smallest interface makes the access patterns of the table easier to understand when reading the code later.
+The smaller interfaces are compatible with more database implementations.  For example, if you declare a MySQL node
+as MapStorage then you can easily infer that a Memcached layer can be added in front of the MySQL node.  Adding 
+Memcached in front of a SortedStorage node is possible but slightly more complicated.
 
 ### Joins
 Traditional SQL databases encourage you to create foreign keys between tables, letting you write queries that can fetch 

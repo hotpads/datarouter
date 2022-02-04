@@ -15,7 +15,7 @@
  */
 package io.datarouter.web.monitoring.memory;
 
-import io.datarouter.util.enums.DisplayablePersistentString;
+import io.datarouter.enums.DisplayablePersistentString;
 
 public class VmNativeMemoryStatsDto{
 

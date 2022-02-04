@@ -46,4 +46,9 @@ public enum AppNavBarCategory implements NavBarCategory{
 		return allowSingleItemMenu;
 	}
 
+	@Override
+	public NavBarItemType getType(){
+		return NavBarItemType.APP;
+	}
+
 }

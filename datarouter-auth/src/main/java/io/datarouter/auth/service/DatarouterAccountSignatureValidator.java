@@ -36,18 +36,41 @@ import io.datarouter.web.util.http.RequestTool;
 public class DatarouterAccountSignatureValidator implements SignatureValidator{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterAccountSignatureValidator.class);
 
+	private final String apiKeyFieldName;
+	private final DatarouterAccountCredentialService datarouterAccountCredentialService;
+
+	@Singleton
+	public static class DatarouterAccountSignatureValidatorFactory{
+
+		@Inject
+		private DatarouterAccountCredentialService datarouterAccountCredentialService;
+
+		public DatarouterAccountSignatureValidator create(String apiKeyFieldName){
+			return new DatarouterAccountSignatureValidator(apiKeyFieldName, datarouterAccountCredentialService);
+		}
+
+	}
+
 	@Inject
-	private DatarouterAccountCredentialService datarouterAccountCredentialService;
+	public DatarouterAccountSignatureValidator(DatarouterAccountCredentialService datarouterAccountCredentialService){
+		this(SecurityParameters.API_KEY, datarouterAccountCredentialService);
+	}
+
+	private DatarouterAccountSignatureValidator(String apiKeyFieldName,
+			DatarouterAccountCredentialService datarouterAccountCredentialService){
+		this.apiKeyFieldName = apiKeyFieldName;
+		this.datarouterAccountCredentialService = datarouterAccountCredentialService;
+	}
 
 	@Override
 	public SecurityValidationResult validate(HttpServletRequest request){
-		String apiKey = RequestTool.getParameterOrHeader(request, SecurityParameters.API_KEY);
+		String apiKey = RequestTool.getParameterOrHeader(request, apiKeyFieldName);
 		Optional<String> optionalSecretKey = datarouterAccountCredentialService.findSecretKeyForApiKeyAuth(apiKey);
 		if(optionalSecretKey.isEmpty()){
 			logger.warn("Missing account for apiKey={}", apiKey);
 		}
 		return optionalSecretKey
-				.map(secretKey -> (Supplier<String>)(() -> secretKey))
+				.map(secretKey -> (Supplier<String>)() -> secretKey)
 				.map(DefaultSignatureGenerator::new)
 				.map(DefaultSignatureValidator::new)
 				.map(signatureValidator -> signatureValidator.validate(request))

@@ -19,6 +19,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.job.BaseTriggerGroup;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.util.time.ZoneIds;
 import io.datarouter.webappinstance.job.DeadClusterJobLockVacuumJob;
 import io.datarouter.webappinstance.job.OneTimeLoginTokenVacuumJob;
@@ -31,7 +32,7 @@ public class DatarouterWebappInstanceTriggerGroup extends BaseTriggerGroup{
 
 	@Inject
 	public DatarouterWebappInstanceTriggerGroup(DatarouterWebappInstanceSettingRoot settings){
-		super("DatarouterWebappInstance", true, ZoneIds.AMERICA_NEW_YORK);
+		super("DatarouterWebappInstance", Tag.DATAROUTER, ZoneIds.AMERICA_NEW_YORK);
 		registerParallel(
 				"0/" + WebappInstanceUpdateJob.WEBAPP_INSTANCE_UPDATE_SECONDS_DELAY + " * * * * ?",
 				() -> true,

@@ -17,8 +17,8 @@ package io.datarouter.storage.servertype;
 
 import java.util.List;
 
+import io.datarouter.enums.web.HtmlSelectOptionBean;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.util.web.HtmlSelectOptionBean;
 
 public interface ServerTypes{
 

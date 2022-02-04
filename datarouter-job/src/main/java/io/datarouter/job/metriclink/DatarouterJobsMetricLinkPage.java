@@ -19,6 +19,7 @@ import java.util.List;
 
 import javax.inject.Singleton;
 
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.metriclinks.DefaultMetricLinkCategory;
 import io.datarouter.web.metriclinks.MetricLinkCategory;
 import io.datarouter.web.metriclinks.MetricLinkDto;
@@ -33,7 +34,7 @@ public class DatarouterJobsMetricLinkPage extends JobMetricLinkPage{
 
 	@Override
 	public List<MetricLinkDto> getMetricLinks(){
-		return buildMetricLinks(true);
+		return buildMetricLinks(Tag.DATAROUTER);
 	}
 
 }

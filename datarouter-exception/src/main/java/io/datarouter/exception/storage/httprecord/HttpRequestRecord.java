@@ -22,10 +22,10 @@ import java.util.function.Supplier;
 import javax.servlet.http.HttpServletRequest;
 
 import io.datarouter.exception.storage.exceptionrecord.ExceptionRecordKey;
+import io.datarouter.gson.serialization.GsonTool;
 import io.datarouter.instrumentation.exception.HttpRequestRecordDto;
 import io.datarouter.instrumentation.trace.W3TraceContext;
 import io.datarouter.util.UuidTool;
-import io.datarouter.util.serialization.GsonTool;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.monitoring.exception.ExceptionDto;

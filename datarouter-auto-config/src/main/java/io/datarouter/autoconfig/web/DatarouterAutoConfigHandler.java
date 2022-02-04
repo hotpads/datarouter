@@ -15,17 +15,9 @@
  */
 package io.datarouter.autoconfig.web;
 
-import java.util.Map.Entry;
-import java.util.concurrent.Callable;
-import java.util.stream.Collectors;
-
 import javax.inject.Inject;
 
-import io.datarouter.autoconfig.config.DatarouterAutoConfigExecutors.AutoConfigExecutor;
 import io.datarouter.autoconfig.service.AutoConfigService;
-import io.datarouter.scanner.ParallelScannerContext;
-import io.datarouter.scanner.Scanner;
-import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.encoder.RawStringEncoder;
 import io.datarouter.web.handler.types.Param;
@@ -36,33 +28,15 @@ public class DatarouterAutoConfigHandler extends BaseHandler{
 
 	@Inject
 	private AutoConfigService autoConfigService;
-	@Inject
-	private ServerTypeDetector serverTypeDetector;
-	@Inject
-	private AutoConfigExecutor executor;
 
 	@Handler(defaultHandler = true, encoder = RawStringEncoder.class)
 	private String home(){
-		serverTypeDetector.assertNotProductionServer();
-		return Scanner.of(autoConfigService.getAutoConfigByName().entrySet())
-				.map(Entry::getValue)
-				.parallel(new ParallelScannerContext(executor, 8, true))
-				.map(callable -> {
-					try{
-						return callable.call();
-					}catch(Exception e){
-						// not possible
-						return null;
-					}
-				})
-				.collect(Collectors.joining("\n"));
+		return autoConfigService.runAutoConfigAll();
 	}
 
 	@Handler(encoder = RawStringEncoder.class)
 	public String runForName(@Param(P_name) String name) throws Exception{
-		serverTypeDetector.assertNotProductionServer();
-		Callable<String> callable = autoConfigService.getAutoConfigByName().get(name);
-		return callable.call();
+		return autoConfigService.runAutoConfigForName(name);
 	}
 
 }

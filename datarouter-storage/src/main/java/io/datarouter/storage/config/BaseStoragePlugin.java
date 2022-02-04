@@ -46,11 +46,10 @@ import io.datarouter.util.tuple.Pair;
  */
 public abstract class BaseStoragePlugin extends BasePlugin{
 
-	private final List<Class<? extends SettingRoot>> settingRoots = new ArrayList<>();
 	private DaosModuleBuilder daosModule = new EmptyDaosModuleBuilder();
 
 	protected void addSettingRoot(Class<? extends SettingRoot> settingRoot){
-		settingRoots.add(settingRoot);
+		addPluginEntry(SettingRoot.KEY, settingRoot);
 	}
 
 	protected void setDaosModule(DaosModuleBuilder daosModule){
@@ -62,7 +61,9 @@ public abstract class BaseStoragePlugin extends BasePlugin{
 
 			@Override
 			public List<Class<? extends Dao>> getDaoClasses(){
-				return Scanner.of(daosAndClients).<Class<? extends Dao>>map(Pair::getLeft).list();
+				return Scanner.of(daosAndClients)
+						.<Class<? extends Dao>>map(Pair::getLeft)
+						.list();
 			}
 
 			@Override
@@ -75,7 +76,7 @@ public abstract class BaseStoragePlugin extends BasePlugin{
 			private <T> void buildAndBindDaoParam(Pair<Class<? extends Dao>,List<ClientId>> pair){
 				@SuppressWarnings("unchecked")
 				Class<T> daoParamsClass = (Class<T>)InjectionTool.findInjectableClasses(pair.getLeft())
-						.include(clazz -> BaseRedundantDaoParams.class.isAssignableFrom(clazz))
+						.include(BaseRedundantDaoParams.class::isAssignableFrom)
 						.findFirst()
 						.orElseThrow(() ->
 								new RuntimeException("no injected BaseDaoParams found for " + pair.getLeft()));
@@ -90,10 +91,6 @@ public abstract class BaseStoragePlugin extends BasePlugin{
 
 	public DaosModuleBuilder getDaosModuleBuilder(){
 		return daosModule;
-	}
-
-	public List<Class<? extends SettingRoot>> getSettingRoots(){
-		return settingRoots;
 	}
 
 	/*------------------------- add Storage plugins -------------------------*/

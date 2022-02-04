@@ -24,10 +24,9 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.web.config.DatarouterWebFiles;
-import io.datarouter.web.navigation.DynamicNavBarItem.DynamicNavBarItemType;
+import io.datarouter.web.navigation.NavBarCategory.NavBarItemType;
 import io.datarouter.web.navigation.NavBarCategory.SimpleNavBarCategory;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
 
@@ -35,13 +34,14 @@ import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig
 public class DatarouterNavBar extends NavBar{
 
 	@Inject
-	public DatarouterNavBar(DatarouterWebFiles webFiles, Optional<DatarouterAuthenticationConfig> config,
-			DatarouterNavBarSupplier navBarSupplier, DynamicNavBarItemRegistry dynamicNavBarItemRegistry,
-			DatarouterInjector injector){
+	public DatarouterNavBar(
+			DatarouterWebFiles webFiles,
+			Optional<DatarouterAuthenticationConfig> config,
+			DatarouterNavBarSupplier navBarSupplier,
+			DynamicNavBarItemRegistry dynamicNavBarItemRegistry){
 		super(webFiles.jeeAssets.datarouterLogoPng.toSlashedString(), "Datarouter logo", config);
-		List<NavBarItem> dynamicNavBarItems = Scanner.of(dynamicNavBarItemRegistry.items)
-				.map(injector::getInstance)
-				.include(item -> item.getType() == DynamicNavBarItemType.DATAROUTER)
+		List<NavBarItem> dynamicNavBarItems = Scanner.of(dynamicNavBarItemRegistry.get())
+				.include(item -> item.getType() == NavBarItemType.DATAROUTER)
 				.include(DynamicNavBarItem::shouldDisplay)
 				.map(DynamicNavBarItem::getNavBarItem)
 				.list();

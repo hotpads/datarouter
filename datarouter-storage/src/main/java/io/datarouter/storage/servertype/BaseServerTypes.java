@@ -19,8 +19,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import io.datarouter.enums.web.HtmlSelectOptionBean;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.util.web.HtmlSelectOptionBean;
 
 public class BaseServerTypes implements ServerTypes{
 

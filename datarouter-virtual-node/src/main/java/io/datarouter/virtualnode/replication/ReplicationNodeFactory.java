@@ -90,23 +90,6 @@ public class ReplicationNodeFactory{
 		return makeInternal(primary, replicas, options.everyNToPrimary.orElse(null));
 	}
 
-	// custom tableName
-	public <PK extends RegularPrimaryKey<PK>,
-			D extends Databean<PK,D>,
-			F extends DatabeanFielder<PK,D>,
-			N extends NodeOps<PK,D>>
-	N build(
-			ClientId primaryClientId,
-			Collection<ClientId> replicaClientIds,
-			Supplier<D> databeanSupplier,
-			Supplier<F> fielderSupplier,
-			String tableName){
-		var options = new ReplicationNodeOptionsBuilder()
-				.withTableName(tableName)
-				.build();
-		return build(primaryClientId, replicaClientIds, databeanSupplier, fielderSupplier, options);
-	}
-
 	/*------------- build with EntityKey ------------*/
 
 	public <EK extends EntityKey<EK>,
@@ -157,25 +140,6 @@ public class ReplicationNodeFactory{
 		return makeInternal(primary, replicas, options.everyNToPrimary.orElse(null));
 	}
 
-	// custom tableName
-	public <EK extends EntityKey<EK>,
-			PK extends EntityPrimaryKey<EK,PK>,
-			D extends Databean<PK,D>,
-			F extends DatabeanFielder<PK,D>,
-			N extends NodeOps<PK,D>>
-	N build(
-			ClientId primaryClientId,
-			Collection<ClientId> replicaClientIds,
-			Supplier<EK> entityKeySupplier,
-			Supplier<D> databeanSupplier,
-			Supplier<F> fielderSupplier,
-			String tableName){
-		var options = new ReplicationNodeOptionsBuilder()
-				.withTableName(tableName)
-				.build();
-		return build(primaryClientId, replicaClientIds, entityKeySupplier, databeanSupplier, fielderSupplier, options);
-	}
-
 	/*------------ register --------------*/
 
 	public <PK extends RegularPrimaryKey<PK>,
@@ -190,6 +154,10 @@ public class ReplicationNodeFactory{
 		return datarouter.register(build(primaryClientId, replicaClientIds, databeanSupplier, fielderSupplier));
 	}
 
+	/**
+	 * @deprecated Use ReplicationNodeOptions
+	 */
+	@Deprecated
 	public <PK extends RegularPrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>,
@@ -200,8 +168,33 @@ public class ReplicationNodeFactory{
 			Supplier<D> databeanSupplier,
 			Supplier<F> fielderSupplier,
 			String tableName){
-		return datarouter.register(build(primaryClientId, replicaClientIds, databeanSupplier, fielderSupplier,
-				tableName));
+		var options = new ReplicationNodeOptionsBuilder()
+				.withTableName(tableName)
+				.build();
+		return datarouter.register(build(
+				primaryClientId,
+				replicaClientIds,
+				databeanSupplier,
+				fielderSupplier,
+				options));
+	}
+
+	public <PK extends RegularPrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>,
+			N extends NodeOps<PK,D>>
+	N register(
+			ClientId primaryClientId,
+			Collection<ClientId> replicaClientIds,
+			Supplier<D> databeanSupplier,
+			Supplier<F> fielderSupplier,
+			ReplicationNodeOptions options){
+		return datarouter.register(build(
+				primaryClientId,
+				replicaClientIds,
+				databeanSupplier,
+				fielderSupplier,
+				options));
 	}
 
 	/*-------------- private --------------*/

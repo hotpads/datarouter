@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import io.datarouter.auth.storage.permissionrequest.DatarouterPermissionRequest;
+import io.datarouter.enums.DatarouterEnumTool;
+import io.datarouter.enums.StringEnum;
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.imp.StringField;
@@ -30,8 +32,6 @@ import io.datarouter.model.field.imp.enums.StringEnumField;
 import io.datarouter.model.field.imp.enums.StringEnumFieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 import io.datarouter.model.util.CommonFieldSizes;
-import io.datarouter.util.enums.DatarouterEnumTool;
-import io.datarouter.util.enums.StringEnum;
 
 public class DatarouterUserHistory extends BaseDatabean<DatarouterUserHistoryKey,DatarouterUserHistory>{
 

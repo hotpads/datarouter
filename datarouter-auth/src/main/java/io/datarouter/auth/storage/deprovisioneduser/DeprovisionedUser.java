@@ -24,6 +24,8 @@ import java.util.stream.Collectors;
 
 import io.datarouter.auth.web.deprovisioning.DeprovisionedUserDto;
 import io.datarouter.auth.web.deprovisioning.UserDeprovisioningStatusDto;
+import io.datarouter.enums.DatarouterEnumTool;
+import io.datarouter.enums.StringEnum;
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.imp.array.DelimitedStringArrayField;
@@ -33,8 +35,6 @@ import io.datarouter.model.field.imp.comparable.InstantFieldKey;
 import io.datarouter.model.field.imp.enums.StringEnumField;
 import io.datarouter.model.field.imp.enums.StringEnumFieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
-import io.datarouter.util.enums.DatarouterEnumTool;
-import io.datarouter.util.enums.StringEnum;
 import io.datarouter.web.user.session.service.Role;
 
 public class DeprovisionedUser extends BaseDatabean<DeprovisionedUserKey,DeprovisionedUser>{

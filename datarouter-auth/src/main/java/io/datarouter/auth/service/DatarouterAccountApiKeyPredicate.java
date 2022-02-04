@@ -33,6 +33,21 @@ public class DatarouterAccountApiKeyPredicate extends ApiKeyPredicate{
 	private final DatarouterAccountCredentialService datarouterAccountCredentialService;
 	private final DatarouterAccountCounters datarouterAccountCounters;
 
+	@Singleton
+	public static class DatarouterAccountApiKeyPredicateFactory{
+
+		@Inject
+		private DatarouterAccountCredentialService datarouterAccountCredentialService;
+		@Inject
+		private DatarouterAccountCounters datarouterAccountCounters;
+
+		public DatarouterAccountApiKeyPredicate create(String apiKeyFieldName){
+			return new DatarouterAccountApiKeyPredicate(apiKeyFieldName, datarouterAccountCredentialService,
+					datarouterAccountCounters);
+		}
+
+	}
+
 	@Inject
 	public DatarouterAccountApiKeyPredicate(
 			DatarouterAccountCredentialService datarouterAccountApiKeyService,
@@ -40,7 +55,7 @@ public class DatarouterAccountApiKeyPredicate extends ApiKeyPredicate{
 		this(SecurityParameters.API_KEY, datarouterAccountApiKeyService, datarouterAccountCounters);
 	}
 
-	public DatarouterAccountApiKeyPredicate(String apiKeyFieldName,
+	private DatarouterAccountApiKeyPredicate(String apiKeyFieldName,
 			DatarouterAccountCredentialService datarouterAccountCredentialService,
 			DatarouterAccountCounters datarouterAccountCounters){
 		super(apiKeyFieldName);

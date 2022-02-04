@@ -19,6 +19,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.job.BaseTriggerGroup;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.trace.job.TraceSpanVacuumJob;
 import io.datarouter.trace.job.TraceThreadVacuumJob;
 import io.datarouter.trace.job.TraceVacuumJob;
@@ -30,7 +31,7 @@ public class DatarouterLocalTraceTriggerGroup extends BaseTriggerGroup{
 
 	@Inject
 	public DatarouterLocalTraceTriggerGroup(DatarouterTraceLocalSettingRoot settings){
-		super("DatarouterTrace", true, ZoneIds.AMERICA_NEW_YORK);
+		super("DatarouterTrace", Tag.DATAROUTER, ZoneIds.AMERICA_NEW_YORK);
 		registerLocked(
 				"3 15 0/2 ? * *",
 				settings.runVacuumJob,

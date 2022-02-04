@@ -30,6 +30,7 @@ import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.virtualnode.redundant.RedundantSortedMapStorageNode;
 
 @Singleton
@@ -56,7 +57,7 @@ public class DatarouterJobletDataDao extends BaseDao{
 							nodeFactory.create(clientId, JobletData::new, JobletDataFielder::new)
 						.disableNodewatchPercentageAlert()
 						.disableNodewatchThresholdAlert()
-						.withIsSystemTable(true)
+						.withTag(Tag.DATAROUTER)
 						.build();
 					return node;
 				})

@@ -32,6 +32,7 @@ import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.storage.util.DatabeanVacuum;
 import io.datarouter.storage.util.DatabeanVacuum.DatabeanVacuumBuilder;
 import io.datarouter.virtualnode.redundant.RedundantSortedMapStorageNode;
@@ -63,9 +64,9 @@ public class DatarouterSamlDao extends BaseDao implements BaseDatarouterSamlDao{
 					SamlAuthnRequestRedirectUrlFielder> node =
 							nodeFactory.create(clientId, SamlAuthnRequestRedirectUrl::new,
 									SamlAuthnRequestRedirectUrlFielder::new)
-						.withIsSystemTable(true)
-						.disableNodewatchPercentageAlert()
-						.build();
+							.withTag(Tag.DATAROUTER)
+							.disableNodewatchPercentageAlert()
+							.build();
 					return node;
 				})
 				.listTo(RedundantSortedMapStorageNode::makeIfMulti);

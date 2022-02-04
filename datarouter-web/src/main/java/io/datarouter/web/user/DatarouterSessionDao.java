@@ -28,6 +28,7 @@ import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.virtualnode.redundant.RedundantSortedMapStorageNode;
 import io.datarouter.web.user.session.DatarouterSession;
 import io.datarouter.web.user.session.DatarouterSession.DatarouterSessionFielder;
@@ -53,7 +54,7 @@ public class DatarouterSessionDao extends BaseDao implements BaseDatarouterSessi
 				.map(clientId -> {
 					SortedMapStorageNode<DatarouterSessionKey,DatarouterSession,DatarouterSessionFielder> node =
 							nodeFactory.create(clientId, DatarouterSession::new, DatarouterSessionFielder::new)
-							.withIsSystemTable(true)
+							.withTag(Tag.DATAROUTER)
 							.build();
 					return node;
 				})

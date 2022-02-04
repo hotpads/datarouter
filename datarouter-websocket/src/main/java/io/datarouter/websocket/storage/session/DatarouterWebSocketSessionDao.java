@@ -29,6 +29,7 @@ import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.util.tuple.Range;
 import io.datarouter.virtualnode.redundant.RedundantSortedMapStorageNode;
 import io.datarouter.websocket.storage.session.WebSocketSession.WebSocketSessionFielder;
@@ -54,7 +55,7 @@ public class DatarouterWebSocketSessionDao extends BaseDao{
 				.map(clientId -> {
 					SortedMapStorageNode<WebSocketSessionKey,WebSocketSession,WebSocketSessionFielder> node =
 							nodeFactory.create(clientId, WebSocketSession::new, WebSocketSessionFielder::new)
-							.withIsSystemTable(true)
+							.withTag(Tag.DATAROUTER)
 							.disableNodewatchPercentageAlert()
 							.build();
 					return node;

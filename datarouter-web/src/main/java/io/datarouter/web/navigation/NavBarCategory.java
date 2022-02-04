@@ -17,7 +17,7 @@ package io.datarouter.web.navigation;
 
 import java.util.Objects;
 
-import io.datarouter.util.enums.Displayable;
+import io.datarouter.enums.Displayable;
 
 public interface NavBarCategory extends Displayable{
 
@@ -31,6 +31,16 @@ public interface NavBarCategory extends Displayable{
 
 	default SimpleNavBarCategory toDto(){
 		return new SimpleNavBarCategory(getDisplay(), getGrouping(), allowSingleItemMenu());
+	}
+
+	default NavBarItemType getType(){
+		return NavBarItemType.APP;
+	}
+
+	enum NavBarItemType{
+		APP,
+		DATAROUTER,
+		;
 	}
 
 	class SimpleNavBarCategory implements NavBarCategory{
@@ -58,6 +68,11 @@ public interface NavBarCategory extends Displayable{
 		@Override
 		public boolean allowSingleItemMenu(){
 			return allowSingleItemMenu;
+		}
+
+		@Override
+		public NavBarItemType getType(){
+			return NavBarItemType.APP;
 		}
 
 		@Override

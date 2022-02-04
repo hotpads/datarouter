@@ -16,10 +16,10 @@
 package io.datarouter.model.field.imp.enums;
 
 import io.datarouter.bytes.codec.intcodec.ComparableIntCodec;
+import io.datarouter.enums.DatarouterEnumTool;
+import io.datarouter.enums.IntegerEnum;
 import io.datarouter.model.field.BaseField;
 import io.datarouter.model.field.Field;
-import io.datarouter.util.enums.DatarouterEnumTool;
-import io.datarouter.util.enums.IntegerEnum;
 
 public class IntegerEnumField<E extends IntegerEnum<E>> extends BaseField<E>{
 

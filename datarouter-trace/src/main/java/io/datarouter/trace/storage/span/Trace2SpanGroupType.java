@@ -15,9 +15,9 @@
  */
 package io.datarouter.trace.storage.span;
 
+import io.datarouter.enums.DatarouterEnumTool;
+import io.datarouter.enums.StringEnum;
 import io.datarouter.instrumentation.trace.TraceSpanGroupType;
-import io.datarouter.util.enums.DatarouterEnumTool;
-import io.datarouter.util.enums.StringEnum;
 
 public enum Trace2SpanGroupType implements StringEnum<Trace2SpanGroupType>{
 	DATABASE(TraceSpanGroupType.DATABASE, "database"),

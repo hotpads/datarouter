@@ -15,6 +15,7 @@
  */
 package io.datarouter.storage.node.builder;
 
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import io.datarouter.model.databean.Databean;
@@ -33,6 +34,7 @@ import io.datarouter.storage.node.op.NodeOps;
 import io.datarouter.storage.node.tableconfig.ClientTableEntityPrefixNameWrapper;
 import io.datarouter.storage.node.tableconfig.NodewatchConfiguration;
 import io.datarouter.storage.node.tableconfig.NodewatchConfigurationBuilder;
+import io.datarouter.storage.tag.Tag;
 
 public class NodeBuilder<
 		EK extends EntityKey<EK>,
@@ -51,7 +53,7 @@ public class NodeBuilder<
 	private Integer schemaVersion;
 	private NodewatchConfigurationBuilder nodewatchConfigurationBuilder;
 	private boolean disableForcePrimary;
-	private boolean isSystemTable;
+	private Tag tag;
 	private boolean disableIntroducer = false;
 
 	public NodeBuilder(
@@ -75,6 +77,11 @@ public class NodeBuilder<
 		return this;
 	}
 
+	public NodeBuilder<EK,PK,D,F> withTableName(Optional<String> tableNameOptional){
+		tableNameOptional.ifPresent(this::withTableName);
+		return this;
+	}
+
 	public NodeBuilder<EK,PK,D,F> withTableName(String tableName){
 		this.tableName = tableName;
 		return this;
@@ -90,8 +97,8 @@ public class NodeBuilder<
 		return this;
 	}
 
-	public NodeBuilder<EK,PK,D,F> withIsSystemTable(boolean isSystemTable){
-		this.isSystemTable = isSystemTable;
+	public NodeBuilder<EK,PK,D,F> withTag(Tag tag){
+		this.tag = tag;
 		return this;
 	}
 
@@ -177,7 +184,7 @@ public class NodeBuilder<
 				.withSchemaVersion(schemaVersion)
 				.withTableConfiguration(tableConfig)
 				.withDisableForcePrimary(disableForcePrimary)
-				.withIsSystemTable(isSystemTable)
+				.withTag(tag)
 				.withDisableIntroducer(disableIntroducer)
 				.build();
 		EntityNodeParams<EK,DefaultEntity<EK>> entityNodeParams = new EntityNodeParams<>(

@@ -24,6 +24,7 @@ import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.node.factory.QueueNodeFactory;
 import io.datarouter.storage.node.op.NodeOps;
+import io.datarouter.storage.tag.Tag;
 
 public abstract class QueueNodeBuilder<
 		PK extends PrimaryKey<PK>,
@@ -39,7 +40,7 @@ public abstract class QueueNodeBuilder<
 	protected String queueName;
 	protected String namespace;
 	protected String queueUrl;
-	protected boolean isSystemTable;
+	protected Tag tag;
 
 	public QueueNodeBuilder(
 			Datarouter datarouter,
@@ -69,8 +70,8 @@ public abstract class QueueNodeBuilder<
 		return this;
 	}
 
-	public QueueNodeBuilder<PK,D,F> withIsSystemTable(boolean isSystemTable){
-		this.isSystemTable = isSystemTable;
+	public QueueNodeBuilder<PK,D,F> withTag(Tag tag){
+		this.tag = tag;
 		return this;
 	}
 

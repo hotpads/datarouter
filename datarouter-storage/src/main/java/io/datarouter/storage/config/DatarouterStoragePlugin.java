@@ -36,14 +36,12 @@ import io.datarouter.storage.dao.DaosModuleBuilder;
 import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.storage.servertype.ServerTypeDetector.NoOpServerTypeDetector;
 import io.datarouter.storage.servertype.ServerTypes;
-import io.datarouter.storage.setting.SettingRootsSupplier;
 
 public class DatarouterStoragePlugin extends BaseStoragePlugin{
 
 	private final ServerTypes serverTypes;
 	private final Class<? extends ServerTypeDetector> serverTypeDetectorClass;
 	private final Class<? extends DatarouterSettingOverrides> settingOverridesClass;
-	private final SettingRootsSupplier settingRoots;
 	private final Class<? extends ClientOptionsFactory> clientOptionsFactoryClass;
 	private final Class<? extends SchemaUpdateOptionsFactory> schemaUpdateOptionsFactoryClass;
 	private final List<Class<? extends Dao>> daoClasses;
@@ -56,14 +54,13 @@ public class DatarouterStoragePlugin extends BaseStoragePlugin{
 
 	// only used to get simple data from plugin
 	private DatarouterStoragePlugin(DatarouterStorageDaosModule daosModule){
-		this(null, null, null, null, null, null, null, daosModule, null, null, null, null);
+		this(null, null, null, null, null, null, daosModule, null, null, null, null);
 	}
 
 	private DatarouterStoragePlugin(
 			ServerTypes serverTypes,
 			Class<? extends ServerTypeDetector> serverTypeDetectorClass,
 			Class<? extends DatarouterSettingOverrides> settingOverridesClass,
-			SettingRootsSupplier settingRoots,
 			Class<? extends ClientOptionsFactory> clientOptionsFactoryClass,
 			Class<? extends SchemaUpdateOptionsFactory> schemaUpdateOptionsFactoryClass,
 			List<Class<? extends Dao>> daoClasses,
@@ -77,7 +74,6 @@ public class DatarouterStoragePlugin extends BaseStoragePlugin{
 		this.serverTypes = serverTypes;
 		this.serverTypeDetectorClass = serverTypeDetectorClass;
 		this.settingOverridesClass = settingOverridesClass;
-		this.settingRoots = settingRoots;
 		this.clientOptionsFactoryClass = clientOptionsFactoryClass;
 		this.schemaUpdateOptionsFactoryClass = schemaUpdateOptionsFactoryClass;
 		this.daoClasses = daoClasses;
@@ -102,9 +98,6 @@ public class DatarouterStoragePlugin extends BaseStoragePlugin{
 		if(settingOverridesClass != null){
 			bind(settingOverridesClass).asEagerSingleton(); // allow overriders in tests;
 		}
-		if(settingRoots != null){
-			bindActualInstance(SettingRootsSupplier.class, settingRoots);
-		}
 		if(clientOptionsFactoryClass != null){
 			bindActual(ClientOptionsFactory.class, clientOptionsFactoryClass);
 		}
@@ -127,7 +120,6 @@ public class DatarouterStoragePlugin extends BaseStoragePlugin{
 
 		private Class<? extends ServerTypeDetector> serverTypeDetectorClass = NoOpServerTypeDetector.class;
 		private Class<? extends DatarouterSettingOverrides> settingOverridesClass;
-		private SettingRootsSupplier settingRoots;
 		private Class<? extends ClientOptionsFactory> clientOptionsFactoryClass;
 		private Class<? extends SchemaUpdateOptionsFactory> schemaUpdateOptionsFactoryClass;
 		private List<Class<? extends Dao>> daoClasses = new ArrayList<>();
@@ -154,11 +146,6 @@ public class DatarouterStoragePlugin extends BaseStoragePlugin{
 		public DatarouterStoragePluginBuilder setSettingOverridesClass(
 				Class<? extends DatarouterSettingOverrides> settingOverridesClass){
 			this.settingOverridesClass = settingOverridesClass;
-			return this;
-		}
-
-		public DatarouterStoragePluginBuilder setSettingRootsClass(SettingRootsSupplier settingRoots){
-			this.settingRoots = settingRoots;
 			return this;
 		}
 
@@ -217,7 +204,6 @@ public class DatarouterStoragePlugin extends BaseStoragePlugin{
 					serverTypes,
 					serverTypeDetectorClass,
 					settingOverridesClass,
-					settingRoots,
 					clientOptionsFactoryClass,
 					schemaUpdateOptionsFactoryClass,
 					daoClasses,

@@ -30,6 +30,7 @@ import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.virtualnode.redundant.RedundantSortedMapStorageNode;
 
 @Singleton
@@ -55,7 +56,7 @@ public class DatarouterOpOptimizedBatchSizeDao extends BaseDao{
 				.map(clientId -> {
 					SortedMapStorageNode<OpOptimizedBatchSizeKey,OpOptimizedBatchSize,OpOptimizedBatchSizeFielder> node
 							= nodeFactory.create(clientId, OpOptimizedBatchSize::new, OpOptimizedBatchSizeFielder::new)
-							.withIsSystemTable(true)
+							.withTag(Tag.DATAROUTER)
 							.build();
 					return node;
 				})

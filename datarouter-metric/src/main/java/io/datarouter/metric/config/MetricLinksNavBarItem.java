@@ -17,11 +17,10 @@ package io.datarouter.metric.config;
 
 import javax.inject.Inject;
 
-import io.datarouter.web.config.service.ContextName;
-import io.datarouter.web.config.service.DomainFinder;
 import io.datarouter.web.dispatcher.DispatchRule;
 import io.datarouter.web.navigation.DatarouterNavBarCategory;
 import io.datarouter.web.navigation.DynamicNavBarItem;
+import io.datarouter.web.navigation.NavBarCategory.NavBarItemType;
 import io.datarouter.web.navigation.NavBarItem;
 import io.datarouter.web.navigation.NavBarItem.NavBarItemBuilder;
 import io.datarouter.web.user.role.DatarouterUserRole;
@@ -30,16 +29,13 @@ public class MetricLinksNavBarItem implements DynamicNavBarItem{
 
 	@Inject
 	private DatarouterMetricPaths paths;
-	@Inject
-	private DomainFinder domainFinder;
-	@Inject
-	private ContextName contextName;
 
 	@Override
 	public NavBarItem getNavBarItem(){
-		String href = "https://" + domainFinder.getDomainPreferPublic() + contextName.getContextPath()
-				+ paths.datarouter.metric.metricLinks.view.toSlashedString();
-		return new NavBarItemBuilder(DatarouterNavBarCategory.EXTERNAL, href, "Metric Links")
+		return new NavBarItemBuilder(
+				DatarouterNavBarCategory.EXTERNAL,
+				paths.datarouter.metric.metricLinks.view.toSlashedString(),
+				"Metric Links")
 				.setDispatchRule(new DispatchRule()
 						.allowRoles(DatarouterUserRole.DATAROUTER_ADMIN, DatarouterUserRole.USER))
 				.build();
@@ -51,8 +47,8 @@ public class MetricLinksNavBarItem implements DynamicNavBarItem{
 	}
 
 	@Override
-	public DynamicNavBarItemType getType(){
-		return DynamicNavBarItemType.DATAROUTER;
+	public NavBarItemType getType(){
+		return NavBarItemType.DATAROUTER;
 	}
 
 }

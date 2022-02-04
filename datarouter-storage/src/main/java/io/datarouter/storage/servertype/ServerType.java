@@ -15,7 +15,7 @@
  */
 package io.datarouter.storage.servertype;
 
-import io.datarouter.util.enums.DisplayablePersistentString;
+import io.datarouter.enums.DisplayablePersistentString;
 
 public interface ServerType extends DisplayablePersistentString, Comparable<ServerType>{
 

@@ -34,6 +34,7 @@ import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.QueueNodeFactory;
 import io.datarouter.storage.node.op.raw.QueueStorage;
+import io.datarouter.storage.tag.Tag;
 
 @Singleton
 public class DatarouterJobletQueueDao extends BaseDao{
@@ -64,7 +65,7 @@ public class DatarouterJobletQueueDao extends BaseDao{
 									JobletRequest::new,
 									JobletRequestFielder::new)
 									.withQueueName(nodeName)
-									.withIsSystemTable(true)
+									.withTag(Tag.DATAROUTER)
 									.buildAndRegister();
 						});
 	}

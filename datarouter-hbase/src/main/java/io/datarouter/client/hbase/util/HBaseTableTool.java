@@ -26,10 +26,10 @@ import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.util.Bytes;
 
+import io.datarouter.gson.serialization.GsonTool;
 import io.datarouter.instrumentation.trace.TraceSpanGroupType;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.model.exception.DataAccessException;
-import io.datarouter.util.serialization.GsonTool;
 
 public class HBaseTableTool{
 

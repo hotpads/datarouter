@@ -29,6 +29,7 @@ import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.util.tuple.Range;
 import io.datarouter.virtualnode.redundant.RedundantSortedMapStorageNode;
 
@@ -52,7 +53,7 @@ public class ChangelogDao extends BaseDao{
 				.map(clientId -> {
 					SortedMapStorageNode<ChangelogKey,Changelog,ChangelogFielder> node =
 							nodeFactory.create(clientId, Changelog::new, ChangelogFielder::new)
-						.withIsSystemTable(true)
+						.withTag(Tag.DATAROUTER)
 						.build();
 					return node;
 				})

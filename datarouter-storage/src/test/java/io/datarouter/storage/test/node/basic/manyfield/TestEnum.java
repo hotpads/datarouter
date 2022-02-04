@@ -15,9 +15,9 @@
  */
 package io.datarouter.storage.test.node.basic.manyfield;
 
-import io.datarouter.util.enums.DatarouterEnumTool;
-import io.datarouter.util.enums.IntegerEnum;
-import io.datarouter.util.enums.StringEnum;
+import io.datarouter.enums.DatarouterEnumTool;
+import io.datarouter.enums.IntegerEnum;
+import io.datarouter.enums.StringEnum;
 
 public enum TestEnum implements IntegerEnum<TestEnum>, StringEnum<TestEnum>{
 

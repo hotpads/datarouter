@@ -19,6 +19,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.job.BaseTriggerGroup;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.util.time.ZoneIds;
 import io.datarouter.websocket.job.WebSocketSessionDatabaseMonitoringJob;
 import io.datarouter.websocket.job.WebSocketSessionMemoryMonitoringJob;
@@ -29,7 +30,7 @@ public class DatarouterWebSocketTriggerGroup extends BaseTriggerGroup{
 
 	@Inject
 	public DatarouterWebSocketTriggerGroup(DatarouterWebSocketSettingRoot settings){
-		super("DatarouterWebSocket", true, ZoneIds.AMERICA_NEW_YORK);
+		super("DatarouterWebSocket", Tag.DATAROUTER, ZoneIds.AMERICA_NEW_YORK);
 		registerLocked(
 				// High frequency to keep the table as consistent as possible after some sessions failed to delete
 				"1 * * * * ?",

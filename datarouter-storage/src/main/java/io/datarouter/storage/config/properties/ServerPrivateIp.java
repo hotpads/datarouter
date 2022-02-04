@@ -23,8 +23,8 @@ import javax.inject.Singleton;
 
 import io.datarouter.storage.config.ComputedPropertiesFinder;
 import io.datarouter.storage.config.ComputedPropertiesFinder.FallbackPropertyValueSupplierDto;
+import io.datarouter.storage.util.Ec2InstanceTool;
 import io.datarouter.util.SystemTool;
-import io.datarouter.util.aws.Ec2InstanceTool;
 
 @Singleton
 public class ServerPrivateIp implements Supplier<String>{

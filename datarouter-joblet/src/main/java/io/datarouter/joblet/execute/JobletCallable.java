@@ -24,6 +24,7 @@ import java.util.concurrent.Callable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.gson.serialization.GsonTool;
 import io.datarouter.joblet.DatarouterJobletCounters;
 import io.datarouter.joblet.dto.RunningJoblet;
 import io.datarouter.joblet.model.Joblet;
@@ -37,7 +38,6 @@ import io.datarouter.util.DateTool;
 import io.datarouter.util.concurrent.UncheckedInterruptedException;
 import io.datarouter.util.mutable.MutableBoolean;
 import io.datarouter.util.number.NumberFormatter;
-import io.datarouter.util.serialization.GsonTool;
 import io.datarouter.util.timer.PhaseTimer;
 import io.datarouter.web.util.ExceptionTool;
 

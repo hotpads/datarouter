@@ -28,9 +28,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 
+import io.datarouter.gson.serialization.GsonTool;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.number.NumberFormatter;
-import io.datarouter.util.serialization.GsonTool;
 import j2html.TagCreator;
 import j2html.attributes.Attr;
 import j2html.tags.DomContent;

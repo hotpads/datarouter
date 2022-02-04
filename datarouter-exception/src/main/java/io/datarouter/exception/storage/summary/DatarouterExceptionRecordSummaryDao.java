@@ -31,6 +31,7 @@ import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.virtualnode.redundant.RedundantSortedMapStorageNode;
 
 @Singleton
@@ -57,11 +58,14 @@ public class DatarouterExceptionRecordSummaryDao extends BaseDao{
 		super(datarouter);
 		node = Scanner.of(params.clientIds)
 				.map(clientId -> {
-					SortedMapStorageNode<ExceptionRecordSummaryKey,ExceptionRecordSummary,
-							ExceptionRecordSummaryFielder> node =
-							nodeFactory.create(clientId, ExceptionRecordSummary::new,
+					SortedMapStorageNode<
+							ExceptionRecordSummaryKey,
+							ExceptionRecordSummary,
+							ExceptionRecordSummaryFielder> node = nodeFactory.create(
+									clientId,
+									ExceptionRecordSummary::new,
 									ExceptionRecordSummaryFielder::new)
-							.withIsSystemTable(true)
+							.withTag(Tag.DATAROUTER)
 							.build();
 					return node;
 				})
@@ -69,11 +73,14 @@ public class DatarouterExceptionRecordSummaryDao extends BaseDao{
 
 		nodeV2 = Scanner.of(params.clientIds)
 				.map(clientId -> {
-					SortedMapStorageNode<ExceptionRecordSummaryKeyV2,ExceptionRecordSummaryV2,
-							ExceptionRecordSummaryV2Fielder> node =
-							nodeFactory.create(clientId, ExceptionRecordSummaryV2::new,
+					SortedMapStorageNode<
+							ExceptionRecordSummaryKeyV2,
+							ExceptionRecordSummaryV2,
+							ExceptionRecordSummaryV2Fielder> node = nodeFactory.create(
+									clientId,
+									ExceptionRecordSummaryV2::new,
 									ExceptionRecordSummaryV2Fielder::new)
-							.withIsSystemTable(true)
+							.withTag(Tag.DATAROUTER)
 							.build();
 					return node;
 				}).listTo(RedundantSortedMapStorageNode::makeIfMulti);

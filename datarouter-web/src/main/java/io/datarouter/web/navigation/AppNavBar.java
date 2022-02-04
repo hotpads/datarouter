@@ -21,9 +21,8 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.web.navigation.DynamicNavBarItem.DynamicNavBarItemType;
+import io.datarouter.web.navigation.NavBarCategory.NavBarItemType;
 import io.datarouter.web.navigation.NavBarCategory.SimpleNavBarCategory;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
 
@@ -37,12 +36,10 @@ public class AppNavBar extends NavBar{
 			Optional<DatarouterAuthenticationConfig> config,
 			AppPluginNavBarSupplier pluginSupplier,
 			AppNavBarRegistrySupplier registrySupplier,
-			DynamicNavBarItemRegistry dynamicNavBarItemRegistry,
-			DatarouterInjector injector){
+			DynamicNavBarItemRegistry dynamicNavBarItemRegistry){
 		super("", "", config);
-		List<NavBarItem> dynamicNavBarItems = Scanner.of(dynamicNavBarItemRegistry.items)
-				.map(injector::getInstance)
-				.include(item -> item.getType() == DynamicNavBarItemType.APP)
+		List<NavBarItem> dynamicNavBarItems = Scanner.of(dynamicNavBarItemRegistry.get())
+				.include(item -> item.getType() == NavBarItemType.APP)
 				.include(DynamicNavBarItem::shouldDisplay)
 				.map(DynamicNavBarItem::getNavBarItem)
 				.list();

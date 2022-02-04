@@ -20,13 +20,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 
+import io.datarouter.bytes.split.ChunkScannerTool;
 import io.datarouter.scanner.ParallelScannerContext;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.file.Pathbean;
 import io.datarouter.storage.file.PathbeanKey;
 import io.datarouter.storage.node.op.NodeOps;
 import io.datarouter.storage.util.Subpath;
-import io.datarouter.bytes.split.ChunkScannerTool;
 
 /**
  * Methods for reading from an blob store such as the filesystem or S3.

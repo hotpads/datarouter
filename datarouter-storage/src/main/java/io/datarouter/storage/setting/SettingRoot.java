@@ -28,11 +28,18 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.plugin.PluginConfigKey;
+import io.datarouter.plugin.PluginConfigType;
+import io.datarouter.plugin.PluginConfigValue;
 import io.datarouter.storage.setting.SettingCategory.SimpleSettingCategory;
 import io.datarouter.storage.setting.cached.CachedSetting;
 import io.datarouter.util.string.StringTool;
 
-public class SettingRoot extends SettingNode{
+public class SettingRoot extends SettingNode implements PluginConfigValue<SettingRoot>{
+
+	public static final PluginConfigKey<SettingRoot> KEY = new PluginConfigKey<>(
+			"settingRoots",
+			PluginConfigType.CLASS_LIST);
 
 	private final Set<SettingRoot> rootNodes = Collections.synchronizedSet(new LinkedHashSet<>());
 	private final Map<SimpleSettingCategory,Set<SettingRoot>> map = Collections.synchronizedMap(new LinkedHashMap<>());
@@ -44,10 +51,10 @@ public class SettingRoot extends SettingNode{
 		this.category = category.toSimpleSettingCategory();
 	}
 
-	private SettingRoot(SettingFinder finder, AllSettingRootsFinder additionalSettingRootsFinder,
+	private SettingRoot(SettingFinder finder, SettingRootsSupplier supplier,
 			SettingCategory category, String name){
 		super(finder, name);
-		additionalSettingRootsFinder.getSettingRoots().forEach(this::dependsOn);
+		supplier.get().forEach(this::dependsOn);
 		this.category = category.toSimpleSettingCategory();
 	}
 
@@ -119,12 +126,17 @@ public class SettingRoot extends SettingNode{
 		return map;
 	}
 
+	@Override
+	public PluginConfigKey<SettingRoot> getKey(){
+		return KEY;
+	}
+
 	@Singleton
 	public static class SettingRootFinder extends SettingRoot{
 
 		@Inject
-		private SettingRootFinder(SettingFinder finder, AllSettingRootsFinder allSettingRootsFinder){
-			super(finder, allSettingRootsFinder, DatarouterSettingCategory.DATAROUTER, "datarouter.");
+		private SettingRootFinder(SettingFinder finder, SettingRootsSupplier settingRootsSupplier){
+			super(finder, settingRootsSupplier, DatarouterSettingCategory.DATAROUTER, "datarouter.");
 		}
 
 	}

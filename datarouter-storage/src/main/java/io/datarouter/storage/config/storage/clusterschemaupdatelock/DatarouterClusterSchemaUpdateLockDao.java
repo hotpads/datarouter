@@ -31,6 +31,7 @@ import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.BaseDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage;
+import io.datarouter.storage.tag.Tag;
 
 @Singleton
 public class DatarouterClusterSchemaUpdateLockDao extends BaseDao{
@@ -55,14 +56,18 @@ public class DatarouterClusterSchemaUpdateLockDao extends BaseDao{
 			NodeFactory nodeFactory,
 			DatarouterClusterSchemaUpdateLockDaoParams params){
 		super(datarouter);
-		mainNode = nodeFactory.create(params.clientId, ClusterSchemaUpdateLock::new,
+		mainNode = nodeFactory.create(params.clientId,
+				ClusterSchemaUpdateLock::new,
 				ClusterSchemaUpdateLockFielder::new)
-				.withIsSystemTable(true)
+				.withTag(Tag.DATAROUTER)
 				.buildAndRegister();
 
-		optRedundantNode = params.optRedundantClientId.map(clientId -> nodeFactory.create(clientId,
-				ClusterSchemaUpdateLock::new, ClusterSchemaUpdateLockFielder::new)
-				.withIsSystemTable(true)
+		optRedundantNode = params.optRedundantClientId
+				.map(clientId -> nodeFactory.create(
+						clientId,
+						ClusterSchemaUpdateLock::new,
+						ClusterSchemaUpdateLockFielder::new)
+				.withTag(Tag.DATAROUTER)
 				.buildAndRegister());
 	}
 

@@ -22,10 +22,10 @@ import javax.inject.Singleton;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import io.datarouter.gson.serialization.CompatibleDateTypeAdapter;
+import io.datarouter.gson.serialization.OptionalContainerClassTypeAdapterFactory;
+import io.datarouter.gson.serialization.OptionalTypeAdapterFactory;
 import io.datarouter.httpclient.json.GsonJsonSerializer;
-import io.datarouter.util.serialization.CompatibleDateTypeAdapter;
-import io.datarouter.util.serialization.OptionalContainerClassTypeAdapterFactory;
-import io.datarouter.util.serialization.OptionalTypeAdapterFactory;
 
 @Singleton
 public class OptionalContainerSerializer extends GsonJsonSerializer{

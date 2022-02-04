@@ -20,6 +20,7 @@ import javax.inject.Inject;
 import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.web.navigation.AppNavBarCategory;
 import io.datarouter.web.navigation.DynamicNavBarItem;
+import io.datarouter.web.navigation.NavBarCategory.NavBarItemType;
 import io.datarouter.web.navigation.NavBarItem;
 
 public class CreateUserNavBarItem implements DynamicNavBarItem{
@@ -40,8 +41,8 @@ public class CreateUserNavBarItem implements DynamicNavBarItem{
 	}
 
 	@Override
-	public DynamicNavBarItemType getType(){
-		return DynamicNavBarItemType.APP;
+	public NavBarItemType getType(){
+		return NavBarItemType.APP;
 	}
 
 }

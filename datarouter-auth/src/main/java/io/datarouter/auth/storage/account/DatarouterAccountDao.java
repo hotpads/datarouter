@@ -30,6 +30,7 @@ import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.util.Require;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.virtualnode.redundant.RedundantSortedMapStorageNode;
@@ -65,7 +66,7 @@ public class DatarouterAccountDao extends BaseDao implements BaseDatarouterAccou
 		node = Scanner.of(params.clientIds)
 				.map(clientId -> {
 					var builder = nodeFactory.create(clientId, DatarouterAccount::new, DatarouterAccountFielder::new)
-							.withIsSystemTable(true);
+							.withTag(Tag.DATAROUTER);
 					params.tableName.ifPresent(builder::withTableName);
 
 					SortedMapStorageNode<DatarouterAccountKey,DatarouterAccount,DatarouterAccountFielder> node = builder

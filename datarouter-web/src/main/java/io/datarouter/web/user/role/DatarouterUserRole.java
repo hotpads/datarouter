@@ -15,7 +15,7 @@
  */
 package io.datarouter.web.user.role;
 
-import io.datarouter.util.enums.DatarouterEnumTool;
+import io.datarouter.enums.DatarouterEnumTool;
 import io.datarouter.web.user.session.service.Role;
 import io.datarouter.web.user.session.service.RoleEnum;
 

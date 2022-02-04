@@ -27,7 +27,7 @@ public class LineOfCode implements Comparable<LineOfCode>{
 	private Integer lineNumber;
 
 	public LineOfCode(){
-		this(1);// add one for the chained constructor
+		this(OFFSET_FROM_TOP_OF_STACK);
 	}
 
 	public LineOfCode(int additionalOffsetFromTop){

@@ -37,16 +37,19 @@ implements IndexedSortedMapStorageNode<PK,D,F>,
 		RedundantSortedStorageMixin<PK,D,F,N>,
 		RedundantIndexedStorageMixin<PK,D,F,N>{
 
-	/**
-	 * @param nodes reads go to first node while writes go to all nodes
-	 */
-	@SafeVarargs
-	public RedundantIndexedSortedMapStorageNode(N... nodes){
-		super(List.of(nodes), nodes[0]);
+	private RedundantIndexedSortedMapStorageNode(List<N> nodes){
+		super(nodes, nodes.get(0));
 	}
 
-	public RedundantIndexedSortedMapStorageNode(List<N> nodes){
-		super(nodes, nodes.get(0));
+	public static <PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>,
+			N extends IndexedSortedMapStorageNode<PK,D,F>>
+			IndexedSortedMapStorageNode<PK,D,F> makeIfMulti(List<N> nodes){
+		if(nodes.size() == 1){
+			return nodes.get(0);
+		}
+		return new RedundantIndexedSortedMapStorageNode<>(nodes);
 	}
 
 }

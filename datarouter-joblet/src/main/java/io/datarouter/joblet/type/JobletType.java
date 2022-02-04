@@ -25,6 +25,7 @@ import io.datarouter.joblet.model.Joblet;
 import io.datarouter.plugin.PluginConfigKey;
 import io.datarouter.plugin.PluginConfigType;
 import io.datarouter.plugin.PluginConfigValue;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.util.ComparableTool;
 import io.datarouter.util.Require;
 
@@ -40,7 +41,7 @@ public class JobletType<P> implements Comparable<JobletType<?>>, PluginConfigVal
 	private final Class<? extends Joblet<P>> clazz;
 	private final boolean causesScaling;
 	public final Duration pollingPeriod;
-	public final boolean isSystem;
+	public final Tag tag;
 
 	private JobletType(
 			String persistentString,
@@ -49,7 +50,7 @@ public class JobletType<P> implements Comparable<JobletType<?>>, PluginConfigVal
 			Class<? extends Joblet<P>> clazz,
 			boolean causesScaling,
 			Duration pollingPeriod,
-			boolean isSystem){
+			Tag tag){
 		this.persistentString = persistentString;
 		Require.isTrue(shortQueueName.length() <= DatarouterJobletConstants.MAX_LENGTH_SHORT_QUEUE_NAME,
 				"shortQueueName length must be <= " + DatarouterJobletConstants.MAX_LENGTH_SHORT_QUEUE_NAME
@@ -59,7 +60,7 @@ public class JobletType<P> implements Comparable<JobletType<?>>, PluginConfigVal
 		this.clazz = clazz;
 		this.causesScaling = causesScaling;
 		this.pollingPeriod = pollingPeriod;
-		this.isSystem = isSystem;
+		this.tag = tag;
 	}
 
 	public String getDisplay(){
@@ -112,7 +113,7 @@ public class JobletType<P> implements Comparable<JobletType<?>>, PluginConfigVal
 		private Class<? extends Joblet<P>> clazz;
 		private boolean causesScaling = true;
 		private Duration pollingPeriod = Duration.ofSeconds(5);
-		private boolean isSystem = false;
+		private Tag tag = Tag.APP;
 
 		public JobletTypeBuilder(
 				String persistentString,
@@ -141,8 +142,13 @@ public class JobletType<P> implements Comparable<JobletType<?>>, PluginConfigVal
 			return this;
 		}
 
+		@Deprecated
 		public JobletTypeBuilder<P> isSystem(){
-			this.isSystem = true;
+			return withTag(Tag.DATAROUTER);
+		}
+
+		public JobletTypeBuilder<P> withTag(Tag tag){
+			this.tag = tag;
 			return this;
 		}
 
@@ -154,7 +160,7 @@ public class JobletType<P> implements Comparable<JobletType<?>>, PluginConfigVal
 					clazz,
 					causesScaling,
 					pollingPeriod,
-					isSystem);
+					tag);
 		}
 
 	}

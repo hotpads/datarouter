@@ -21,7 +21,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.storage.config.ComputedPropertiesFinder;
-import io.datarouter.util.aws.Ec2InstanceTool;
+import io.datarouter.storage.util.Ec2InstanceTool;
 
 @Singleton
 public class ServerPublicIp implements Supplier<String>{

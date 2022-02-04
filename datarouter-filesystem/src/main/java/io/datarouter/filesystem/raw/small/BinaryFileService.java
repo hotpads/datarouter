@@ -30,10 +30,10 @@ import java.util.concurrent.ExecutorService;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.bytes.split.ChunkScannerTool;
 import io.datarouter.scanner.ObjectScanner;
 import io.datarouter.scanner.ParallelScannerContext;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.bytes.split.ChunkScannerTool;
 
 @Singleton
 public class BinaryFileService{

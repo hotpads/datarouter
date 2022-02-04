@@ -37,8 +37,10 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.gson.serialization.GsonTool;
 import io.datarouter.httpclient.circuitbreaker.DatarouterHttpClientIoExceptionCircuitBreaker;
 import io.datarouter.inject.DatarouterInjector;
+import io.datarouter.instrumentation.count.Counters;
 import io.datarouter.instrumentation.exception.HttpRequestRecordDto;
 import io.datarouter.instrumentation.trace.Trace2BundleAndHttpRequestRecordDto;
 import io.datarouter.instrumentation.trace.Trace2BundleDto;
@@ -58,7 +60,6 @@ import io.datarouter.trace.settings.DatarouterTraceFilterSettingRoot;
 import io.datarouter.util.MxBeans;
 import io.datarouter.util.UuidTool;
 import io.datarouter.util.array.ArrayTool;
-import io.datarouter.util.serialization.GsonTool;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.util.tracer.DatarouterTracer;
 import io.datarouter.web.config.service.ServiceName;
@@ -179,11 +180,23 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 				Long cpuTime = saveCpuTime ? TimeUnit.NANOSECONDS.toMillis(cpuTimeEnded - cpuTimeBegin) : null;
 				Long threadAllocatedKB = saveAllocatedBytes ? (threadAllocatedBytesEnded - threadAllocatedBytesBegin)
 						/ 1024 : null;
-				if(traceSettings.saveTraces.get()
-						&& (traceDurationMs > traceSettings.saveTracesOverMs.get()
-						|| RequestTool.getBoolean(request, "trace", false)
-						|| tracer.shouldSample()
-						|| errored)){
+				String saveReason = null;
+				if(traceSettings.saveTraces.get()){
+					if(traceDurationMs > traceSettings.saveTracesOverMs.get()){
+						saveReason = "duration";
+					}
+					if(RequestTool.getBoolean(request, "trace", false)){
+						saveReason = "queryParam";
+					}
+					if(tracer.shouldSample()){
+						saveReason = "traceContext";
+					}
+					if(errored){
+						saveReason = "error";
+					}
+				}
+				if(saveReason != null){
+					Counters.inc("traeSaved " + saveReason);
 					List<Trace2ThreadDto> threads = new ArrayList<>(tracer.getThreadQueue());
 					List<Trace2SpanDto> spans = new ArrayList<>(tracer.getSpanQueue());
 					if(rootThread != null){

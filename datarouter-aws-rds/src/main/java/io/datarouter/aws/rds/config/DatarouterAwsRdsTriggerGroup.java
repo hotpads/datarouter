@@ -20,6 +20,7 @@ import javax.inject.Singleton;
 
 import io.datarouter.aws.rds.job.AuroraDnsMonitoringJob;
 import io.datarouter.job.BaseTriggerGroup;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.util.time.ZoneIds;
 
 @Singleton
@@ -27,7 +28,7 @@ public class DatarouterAwsRdsTriggerGroup extends BaseTriggerGroup{
 
 	@Inject
 	public DatarouterAwsRdsTriggerGroup(DatarouterAwsRdsSettingRoot settings){
-		super("DatarouterAwsRds", true, ZoneIds.AMERICA_NEW_YORK);
+		super("DatarouterAwsRds", Tag.DATAROUTER, ZoneIds.AMERICA_NEW_YORK);
 		registerLocked(
 				"0 0 0/2 * * ?",
 				settings.auroraDnsMonitoringJob,

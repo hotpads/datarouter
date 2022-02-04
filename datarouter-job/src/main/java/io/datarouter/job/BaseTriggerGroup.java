@@ -32,6 +32,7 @@ import io.datarouter.job.util.CronExpressionTool;
 import io.datarouter.plugin.PluginConfigKey;
 import io.datarouter.plugin.PluginConfigType;
 import io.datarouter.plugin.PluginConfigValue;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.util.ComparableTool;
 import io.datarouter.util.string.StringTool;
 
@@ -46,19 +47,19 @@ public abstract class BaseTriggerGroup implements PluginConfigValue<BaseTriggerG
 	private final List<JobPackage> jobPackages;
 	private final Map<String,Class<? extends BaseJob>> requestTriggeredJobs;
 	private final ZoneId zoneId;
-	public final boolean isSystemTriggerGroup;
+	public final Tag tag;
 
 	public BaseTriggerGroup(String categoryName, ZoneId zoneId){
-		this(categoryName, false, zoneId);
+		this(categoryName, Tag.APP, zoneId);
 	}
 
-	public BaseTriggerGroup(String categoryName, boolean isSystemTriggerGroup, ZoneId zoneId){
+	public BaseTriggerGroup(String categoryName, Tag tag, ZoneId zoneId){
 		this.categoryName = categoryName;
 		this.zoneId = zoneId;
 		this.subGroups = new ArrayList<>();
 		this.jobPackages = new ArrayList<>();
 		this.requestTriggeredJobs = new HashMap<>();
-		this.isSystemTriggerGroup = isSystemTriggerGroup;
+		this.tag = tag;
 	}
 
 	protected void include(BaseTriggerGroup triggerGroup){

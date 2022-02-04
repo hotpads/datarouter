@@ -20,7 +20,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import io.datarouter.util.serialization.GsonTool;
+import io.datarouter.gson.serialization.GsonTool;
 
 public class SqlColumn{
 

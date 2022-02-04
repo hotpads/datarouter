@@ -16,12 +16,11 @@
 package io.datarouter.web.config;
 
 import java.time.ZoneId;
-import java.util.Collections;
-import java.util.List;
 
 import com.google.gson.Gson;
 import com.google.inject.name.Names;
 
+import io.datarouter.gson.serialization.GsonTool;
 import io.datarouter.httpclient.json.GsonJsonSerializer;
 import io.datarouter.httpclient.json.JsonSerializer;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
@@ -30,7 +29,6 @@ import io.datarouter.secret.config.DatarouterSecretPlugin.DatarouterSecretPlugin
 import io.datarouter.storage.config.guice.DatarouterStorageGuiceModule;
 import io.datarouter.storage.setting.MemorySettingFinder;
 import io.datarouter.storage.setting.SettingFinder;
-import io.datarouter.util.serialization.GsonTool;
 import io.datarouter.web.config.properties.DefaultEmailDistributionListZoneId;
 import io.datarouter.web.config.service.ContextName;
 import io.datarouter.web.config.service.PrivateDomain;
@@ -43,17 +41,10 @@ import io.datarouter.web.inject.guice.BaseGuiceServletModule;
 import io.datarouter.web.monitoring.latency.LatencyMonitoringGraphLink;
 import io.datarouter.web.monitoring.latency.LatencyMonitoringGraphLink.NoOpLatencyMonitoringGraphLink;
 import io.datarouter.web.navigation.AppNavBar;
-import io.datarouter.web.navigation.AppNavBarPluginCreator;
 import io.datarouter.web.navigation.AppNavBarRegistrySupplier;
 import io.datarouter.web.navigation.AppNavBarRegistrySupplier.NoOpAppNavBarRegistry;
-import io.datarouter.web.navigation.AppPluginNavBarSupplier;
-import io.datarouter.web.navigation.DatarouterNavBarCreator;
-import io.datarouter.web.navigation.DatarouterNavBarSupplier;
-import io.datarouter.web.navigation.DynamicNavBarItemRegistry;
 import io.datarouter.web.port.CompoundPortIdentifier;
 import io.datarouter.web.port.PortIdentifier;
-import io.datarouter.web.service.DocumentationNamesAndLinksSupplier;
-import io.datarouter.web.service.DocumentationNamesAndLinksSupplier.NoOpDocumentationNamesAndLinks;
 import io.datarouter.web.user.BaseDatarouterSessionDao;
 import io.datarouter.web.user.BaseDatarouterSessionDao.NoOpDatarouterSessionDao;
 import io.datarouter.web.user.authenticate.config.BaseDatarouterAuthenticationConfig;
@@ -103,11 +94,7 @@ public class DatarouterWebGuiceModule extends BaseGuiceServletModule{
 		bindDefault(CurrentSessionInfo.class, NoOpCurrentSessionInfo.class);
 
 		bindDefault(LatencyMonitoringGraphLink.class, NoOpLatencyMonitoringGraphLink.class);
-		bindDefaultInstance(DatarouterNavBarSupplier.class, new DatarouterNavBarCreator(Collections.emptyList()));
-		bindDefaultInstance(AppPluginNavBarSupplier.class, new AppNavBarPluginCreator(Collections.emptyList()));
 		bindDefault(AppNavBarRegistrySupplier.class, NoOpAppNavBarRegistry.class);
-		bindDefaultInstance(DynamicNavBarItemRegistry.class, new DynamicNavBarItemRegistry(List.of()));
-		bindDefault(DocumentationNamesAndLinksSupplier.class, NoOpDocumentationNamesAndLinks.class);
 
 		bindDefault(ChangelogRecorder.class, NoOpChangelogRecorder.class);
 

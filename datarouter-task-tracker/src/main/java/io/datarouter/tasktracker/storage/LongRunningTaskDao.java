@@ -29,6 +29,7 @@ import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.tasktracker.storage.LongRunningTask.LongRunningTaskFielder;
 import io.datarouter.util.tuple.Range;
 import io.datarouter.virtualnode.redundant.RedundantSortedMapStorageNode;
@@ -53,7 +54,7 @@ public class LongRunningTaskDao extends BaseDao{
 				.map(clientId -> {
 					SortedMapStorageNode<LongRunningTaskKey,LongRunningTask,LongRunningTaskFielder> node =
 							nodeFactory.create(clientId, LongRunningTask::new, LongRunningTaskFielder::new)
-							.withIsSystemTable(true)
+							.withTag(Tag.DATAROUTER)
 							.disableNodewatchPercentageAlert()
 							.build();
 					return node;

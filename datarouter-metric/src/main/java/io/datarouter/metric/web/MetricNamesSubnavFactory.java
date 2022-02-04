@@ -15,6 +15,9 @@
  */
 package io.datarouter.metric.web;
 
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -24,6 +27,7 @@ import io.datarouter.metric.config.DatarouterMetricPaths;
 import io.datarouter.plugin.PluginInjector;
 import io.datarouter.web.html.nav.Subnav;
 import io.datarouter.web.html.nav.Subnav.Dropdown;
+import io.datarouter.web.metriclinks.MetricLinkCategory;
 import io.datarouter.web.metriclinks.MetricLinkPage;
 
 @Singleton
@@ -39,8 +43,11 @@ public class MetricNamesSubnavFactory{
 	public Subnav build(String contextPath){
 		Subnav subnav = new Subnav("Metric Links", "", ID);
 		pluginInjector.scanInstances(MetricLinkPage.KEY)
+				.sort(Comparator.comparing(dto -> dto.getCategory().getName()))
 				.collect(Collectors.groupingBy(MetricLinkPage::getCategory))
-				.entrySet()
+				.entrySet().stream()
+				.sorted(Comparator.comparing((Entry<MetricLinkCategory,List<MetricLinkPage>> entry) -> entry.getKey()
+						.getName()))
 				.forEach(entry -> {
 					Dropdown dropdown = new Dropdown(entry.getKey().getName());
 					entry.getValue().forEach(page -> dropdown.addItem(page.getName(),

@@ -18,6 +18,7 @@ package io.datarouter.web.dispatcher;
 import javax.servlet.http.HttpServletRequest;
 
 import io.datarouter.util.tuple.Pair;
+import io.datarouter.web.util.http.RequestTool;
 
 public abstract class ApiKeyPredicate{
 
@@ -29,8 +30,7 @@ public abstract class ApiKeyPredicate{
 
 	// the string on the right is the account name or the error message
 	public Pair<Boolean,String> check(DispatchRule rule, HttpServletRequest request){
-		String parameterValue = request.getParameter(apiKeyFieldName);
-		String apiKey = parameterValue != null ? parameterValue : request.getHeader(apiKeyFieldName);
+		String apiKey = RequestTool.getParameterOrHeader(request, apiKeyFieldName);
 		if(apiKey == null){
 			return new Pair<>(false, "key not found");
 		}
@@ -38,6 +38,10 @@ public abstract class ApiKeyPredicate{
 	}
 
 	protected abstract Pair<Boolean,String> innerCheck(DispatchRule rule, HttpServletRequest request, String apiKey);
+
+	public String getApiKeyFieldName(){
+		return apiKeyFieldName;
+	}
 
 	public static String obfuscate(String apiKeyCandidate){
 		int start = Math.min((apiKeyCandidate.length() - 1) / 2, 2);

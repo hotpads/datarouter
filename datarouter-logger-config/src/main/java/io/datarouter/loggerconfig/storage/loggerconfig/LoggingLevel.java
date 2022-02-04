@@ -17,8 +17,8 @@ package io.datarouter.loggerconfig.storage.loggerconfig;
 
 import org.apache.logging.log4j.Level;
 
-import io.datarouter.util.enums.DatarouterEnumTool;
-import io.datarouter.util.enums.StringEnum;
+import io.datarouter.enums.DatarouterEnumTool;
+import io.datarouter.enums.StringEnum;
 
 public enum LoggingLevel implements StringEnum<LoggingLevel>{
 	ALL(Level.ALL),

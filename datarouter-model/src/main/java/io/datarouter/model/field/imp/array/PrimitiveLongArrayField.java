@@ -19,9 +19,9 @@ import java.util.Arrays;
 import java.util.Optional;
 
 import io.datarouter.bytes.codec.array.longarray.ComparableLongArrayCodec;
+import io.datarouter.gson.serialization.GsonTool;
 import io.datarouter.model.field.BaseField;
 import io.datarouter.model.field.Field;
-import io.datarouter.util.serialization.GsonTool;
 
 @Deprecated
 public class PrimitiveLongArrayField extends BaseField<long[]>{

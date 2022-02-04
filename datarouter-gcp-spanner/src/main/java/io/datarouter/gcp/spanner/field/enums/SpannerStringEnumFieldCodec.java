@@ -19,10 +19,10 @@ import com.google.cloud.spanner.Key.Builder;
 import com.google.cloud.spanner.ResultSet;
 import com.google.cloud.spanner.Value;
 
+import io.datarouter.enums.StringEnum;
 import io.datarouter.gcp.spanner.ddl.SpannerColumnType;
 import io.datarouter.gcp.spanner.field.SpannerBaseFieldCodec;
 import io.datarouter.model.field.imp.enums.StringEnumField;
-import io.datarouter.util.enums.StringEnum;
 
 public class SpannerStringEnumFieldCodec<E extends StringEnum<E>> extends SpannerBaseFieldCodec<E,StringEnumField<E>>{
 

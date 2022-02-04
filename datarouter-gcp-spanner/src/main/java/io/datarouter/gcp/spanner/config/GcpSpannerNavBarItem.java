@@ -20,6 +20,7 @@ import javax.inject.Inject;
 import io.datarouter.web.dispatcher.DispatchRule;
 import io.datarouter.web.navigation.DatarouterNavBarCategory;
 import io.datarouter.web.navigation.DynamicNavBarItem;
+import io.datarouter.web.navigation.NavBarCategory.NavBarItemType;
 import io.datarouter.web.navigation.NavBarItem;
 import io.datarouter.web.navigation.NavBarItem.NavBarItemBuilder;
 import io.datarouter.web.user.role.DatarouterUserRole;
@@ -49,8 +50,8 @@ public class GcpSpannerNavBarItem implements DynamicNavBarItem{
 	}
 
 	@Override
-	public DynamicNavBarItemType getType(){
-		return DynamicNavBarItemType.DATAROUTER;
+	public NavBarItemType getType(){
+		return NavBarItemType.DATAROUTER;
 	}
 
 }

@@ -19,7 +19,7 @@ import java.lang.reflect.Type;
 
 import com.google.gson.reflect.TypeToken;
 
-import io.datarouter.util.serialization.GsonTool;
+import io.datarouter.gson.serialization.GsonTool;
 
 public abstract class BaseGsonJobletCodec<P> implements JobletCodec<P>{
 

@@ -15,10 +15,10 @@
  */
 package io.datarouter.client.mysql.ddl.domain;
 
+import io.datarouter.enums.DatarouterEnumTool;
+import io.datarouter.enums.StringEnum;
 import io.datarouter.model.serialize.fielder.FielderConfigKey;
 import io.datarouter.model.serialize.fielder.FielderConfigValue;
-import io.datarouter.util.enums.DatarouterEnumTool;
-import io.datarouter.util.enums.StringEnum;
 
 public enum MysqlRowFormat implements StringEnum<MysqlRowFormat>, FielderConfigValue<MysqlRowFormat>{
 	COMPACT("Compact"),

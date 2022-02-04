@@ -19,11 +19,11 @@ import java.util.List;
 
 import io.datarouter.bytes.ByteTool;
 import io.datarouter.bytes.codec.intcodec.UInt31Codec;
+import io.datarouter.gson.serialization.GsonTool;
 import io.datarouter.model.field.BaseListField;
 import io.datarouter.model.field.Field;
 import io.datarouter.util.array.ArrayTool;
 import io.datarouter.util.collection.ListTool;
-import io.datarouter.util.serialization.GsonTool;
 
 public class UInt7ArrayField extends BaseListField<Byte,List<Byte>,UInt7ArrayFieldKey>{
 

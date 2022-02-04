@@ -23,7 +23,7 @@ import java.util.Date;
 import io.datarouter.clustersetting.ClusterSettingLogAction;
 import io.datarouter.clustersetting.ClusterSettingScope;
 import io.datarouter.clustersetting.storage.clustersettinglog.ClusterSettingLog;
-import io.datarouter.util.enums.StringEnum;
+import io.datarouter.enums.StringEnum;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.util.time.ZonedDateFormatterTool;
 

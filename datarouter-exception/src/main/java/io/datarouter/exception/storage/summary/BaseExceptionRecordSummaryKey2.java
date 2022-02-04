@@ -16,6 +16,7 @@
 package io.datarouter.exception.storage.summary;
 
 import java.util.List;
+import java.util.Objects;
 
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.imp.StringField;
@@ -24,7 +25,6 @@ import io.datarouter.model.field.imp.comparable.LongField;
 import io.datarouter.model.field.imp.comparable.LongFieldKey;
 import io.datarouter.model.key.primary.RegularPrimaryKey;
 import io.datarouter.model.key.primary.base.BaseRegularPrimaryKey;
-import io.datarouter.util.HashMethods;
 
 public abstract class BaseExceptionRecordSummaryKey2<PK extends RegularPrimaryKey<PK>>extends BaseRegularPrimaryKey<PK>{
 
@@ -41,7 +41,7 @@ public abstract class BaseExceptionRecordSummaryKey2<PK extends RegularPrimaryKe
 
 	public BaseExceptionRecordSummaryKey2(Long periodStart, String name){
 		this.reversePeriodStart = periodStart != null ? Long.MAX_VALUE - periodStart : null;
-		this.nameHash = HashMethods.md5Hash(name);
+		this.nameHash = makeHashcodeString(name);
 	}
 
 	@Override
@@ -49,6 +49,10 @@ public abstract class BaseExceptionRecordSummaryKey2<PK extends RegularPrimaryKe
 		return List.of(
 				new LongField(FieldKeys.reversePeriodStart, reversePeriodStart),
 				new StringField(FieldKeys.nameHash, nameHash));
+	}
+
+	public String makeHashcodeString(String name){
+		return String.valueOf(Objects.hash(name));
 	}
 
 	public long getPeriodStart(){

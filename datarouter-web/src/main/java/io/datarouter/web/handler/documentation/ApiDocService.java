@@ -50,6 +50,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import io.datarouter.gson.serialization.CompatibleDateTypeAdapter;
 import io.datarouter.httpclient.DocumentedGenericHolder;
 import io.datarouter.httpclient.endpoint.BaseEndpoint;
 import io.datarouter.httpclient.endpoint.EndpointParam;
@@ -60,14 +61,13 @@ import io.datarouter.httpclient.security.SecurityParameters;
 import io.datarouter.scanner.OptionalScanner;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.lang.ReflectionTool;
-import io.datarouter.util.serialization.CompatibleDateTypeAdapter;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.BaseHandler.Handler;
 import io.datarouter.web.handler.documentation.DocumentedExampleDto.DocumentedExampleEnumDto;
-import io.datarouter.web.handler.types.ParamDefaultEnum;
 import io.datarouter.web.handler.types.Param;
+import io.datarouter.web.handler.types.ParamDefaultEnum;
 import io.datarouter.web.handler.types.RequestBody;
 import io.datarouter.web.handler.types.optional.OptionalParameter;
 
@@ -117,7 +117,8 @@ public class ApiDocService{
 				String implementation = handler.getSimpleName();
 				List<DocumentedParameterJspDto> parameters = new ArrayList<>();
 				String description = handlerAnnotation.description();
-				parameters.addAll(createApplicableSecurityParameters(rule));
+				DocumentedSecurityDetails securityDetails = createApplicableSecurityParameters(rule);
+				parameters.addAll(securityDetails.parameters);
 				parameters.addAll(createMethodParameters(method));
 
 				Type responseType = method.getGenericReturnType();
@@ -150,6 +151,7 @@ public class ApiDocService{
 						url,
 						implementation,
 						parameters,
+						securityDetails.apiKeyFieldName,
 						description,
 						response,
 						isDeprecated,
@@ -227,22 +229,25 @@ public class ApiDocService{
 				exampleEnumDtos);
 	}
 
-	private List<DocumentedParameterJspDto> createApplicableSecurityParameters(DispatchRule rule){
+	private DocumentedSecurityDetails createApplicableSecurityParameters(DispatchRule rule){
 		List<String> applicableSecurityParameterNames = new ArrayList<>();
 		if(rule.hasSignature()){
 			applicableSecurityParameterNames.add(SecurityParameters.SIGNATURE);
 		}
+		String apiKeyFieldName = null;
 		if(rule.hasApiKey()){
-			applicableSecurityParameterNames.add(SecurityParameters.API_KEY);
+			apiKeyFieldName = rule.getApiKeyPredicate().getApiKeyFieldName();
+			applicableSecurityParameterNames.add(apiKeyFieldName);
 		}
 		if(rule.hasCsrfToken()){
 			applicableSecurityParameterNames.add(SecurityParameters.CSRF_TOKEN);
 			applicableSecurityParameterNames.add(SecurityParameters.CSRF_IV);
 		}
-		return Scanner.of(applicableSecurityParameterNames)
+		List<DocumentedParameterJspDto> parameters = Scanner.of(applicableSecurityParameterNames)
 				.map(parameterName -> createDocumentedParameter(parameterName, String.class, false, null,
 						new HashSet<>()))
 				.list();
+		return new DocumentedSecurityDetails(parameters, apiKeyFieldName);
 	}
 
 	private DocumentedParameterJspDto createDocumentedParameter(String parameterName, Type parameterType,

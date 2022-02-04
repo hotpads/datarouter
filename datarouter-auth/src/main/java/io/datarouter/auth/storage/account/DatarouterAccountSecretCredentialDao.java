@@ -32,6 +32,7 @@ import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.util.Require;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.virtualnode.redundant.RedundantSortedMapStorageNode;
@@ -56,7 +57,9 @@ public class DatarouterAccountSecretCredentialDao extends BaseDao implements Bas
 
 	}
 
-	private final SortedMapStorageNode<DatarouterAccountSecretCredentialKey,DatarouterAccountSecretCredential,
+	private final SortedMapStorageNode<
+			DatarouterAccountSecretCredentialKey,
+			DatarouterAccountSecretCredential,
 			DatarouterAccountSecretCredentialFielder> node;
 
 	@Inject
@@ -66,9 +69,9 @@ public class DatarouterAccountSecretCredentialDao extends BaseDao implements Bas
 		node = Scanner.of(params.clientIds)
 				.map(clientId -> {
 					var builder = nodeFactory.create(clientId, DatarouterAccountSecretCredential::new,
-							DatarouterAccountSecretCredentialFielder::new).withIsSystemTable(true);
-					params.tableName.ifPresent(builder::withTableName);
-
+							DatarouterAccountSecretCredentialFielder::new)
+							.withTag(Tag.DATAROUTER)
+							.withTableName(params.tableName);
 					SortedMapStorageNode<DatarouterAccountSecretCredentialKey,DatarouterAccountSecretCredential,
 							DatarouterAccountSecretCredentialFielder> node = builder.build();
 					return node;

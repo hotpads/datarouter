@@ -28,6 +28,7 @@ import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import io.datarouter.storage.node.op.raw.MapStorage.MapStorageNode;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.virtualnode.redundant.RedundantSortedMapStorageNode;
 import io.datarouter.webappinstance.storage.onetimelogintoken.OneTimeLoginToken.OneTimeLoginTokenFielder;
 
@@ -53,7 +54,7 @@ public class DatarouterOneTimeLoginTokenDao extends BaseDao{
 				.map(clientId -> {
 					SortedMapStorageNode<OneTimeLoginTokenKey,OneTimeLoginToken,OneTimeLoginTokenFielder> node =
 							nodeFactory.create(clientId, OneTimeLoginToken::new, OneTimeLoginTokenFielder::new)
-							.withIsSystemTable(true)
+							.withTag(Tag.DATAROUTER)
 							.build();
 					return node;
 				})

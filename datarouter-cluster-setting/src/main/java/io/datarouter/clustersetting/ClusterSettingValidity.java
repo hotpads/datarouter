@@ -18,7 +18,7 @@ package io.datarouter.clustersetting;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
-import io.datarouter.util.enums.PersistentString;
+import io.datarouter.enums.PersistentString;
 
 public enum ClusterSettingValidity implements PersistentString{
 	VALID("valid", "table-default", "Valid override"),

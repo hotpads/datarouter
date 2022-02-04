@@ -30,7 +30,8 @@ public class DatarouterCountSettingRoot extends SettingRoot{
 	public final CachedSetting<Boolean> saveCounts;
 
 	public final CachedSetting<Boolean> saveCountBlobs;
-	public final CachedSetting<Boolean> skipsSaveCountsWhenSaveCountBlobsIsTrue;
+	public final CachedSetting<Boolean> skipSaveCountsWhenSaveCountBlobsIsTrue;
+	public final CachedSetting<Boolean> saveCountBlobsToQueueInsteadOfCloud;
 
 	public final CachedSetting<Boolean> runCountsToQueue;
 	public final CachedSetting<Boolean> runCountsFromQueueToPublisher;
@@ -46,7 +47,8 @@ public class DatarouterCountSettingRoot extends SettingRoot{
 				.withTag(DatarouterSettingTagType.COUNTPIPELINE, () -> true));
 
 		saveCountBlobs = registerBoolean("saveCountBlobs", false);
-		skipsSaveCountsWhenSaveCountBlobsIsTrue = registerBoolean("skipsSaveCountsWhenSaveCountBlobsIsTrue", true);
+		skipSaveCountsWhenSaveCountBlobsIsTrue = registerBoolean("skipSaveCountsWhenSaveCountBlobsIsTrue", true);
+		saveCountBlobsToQueueInsteadOfCloud = registerBoolean("saveCountBlobsToQueueInsteadOfCloud", false);
 
 		runCountsToQueue = registerBooleans("runCountsToQueue", defaultTo(false)
 				.withTag(DatarouterSettingTagType.COUNTPIPELINE, () -> true));

@@ -24,6 +24,7 @@ import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.node.factory.TallyNodeFactory;
 import io.datarouter.storage.node.op.NodeOps;
+import io.datarouter.storage.tag.Tag;
 
 public class TallyNodeBuilder<
 		PK extends PrimaryKey<PK>,
@@ -38,7 +39,7 @@ public class TallyNodeBuilder<
 
 	private int version;
 	private String tableName;
-	private boolean isSystemTable;
+	private Tag tag;
 
 	public TallyNodeBuilder(
 			Datarouter datarouter,
@@ -63,14 +64,13 @@ public class TallyNodeBuilder<
 		return this;
 	}
 
-	public TallyNodeBuilder<PK,D,F> withIsSystemTable(boolean isSystemTable){
-		this.isSystemTable = isSystemTable;
+	public TallyNodeBuilder<PK,D,F> withTag(Tag tag){
+		this.tag = tag;
 		return this;
 	}
 
 	public <N extends NodeOps<PK,D>> N build(){
-		return nodeFactory.createTallyNode(clientId, databeanSupplier, fielderSupplier, version, tableName,
-				isSystemTable);
+		return nodeFactory.createTallyNode(clientId, databeanSupplier, fielderSupplier, version, tableName, tag);
 	}
 
 	public <N extends NodeOps<PK,D>> N buildAndRegister(){

@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -187,20 +186,15 @@ public class DatarouterUserHistoryService{
 
 	private void recordProvisioningChangelogs(List<DatarouterUser> users, Optional<DatarouterUser> editor,
 			DatarouterUserChangeType action){
-		if(users.isEmpty()){
-			return;
-		}
-		String comment = "usernames: " + Scanner.of(users)
+		Scanner.of(users)
 				.map(DatarouterUser::getUsername)
-				.collect(Collectors.joining(", ", "usernames: ", ""));
-		var dto = new DatarouterChangelogDtoBuilder(
-				CHANGELOG_TYPE,
-				"user count: " + users.size() + " (see comment for usernames)",
-				action.getPersistentString(),
-				editor.map(DatarouterUser::getUsername).orElse(adminEmail.get()))
-				.withComment(comment)
-				.build();
-		changelogRecorder.record(dto);
+				.map(username -> new DatarouterChangelogDtoBuilder(
+						CHANGELOG_TYPE,
+						username,
+						action.getPersistentString(),
+						editor.map(DatarouterUser::getUsername).orElse(adminEmail.get())))
+				.map(DatarouterChangelogDtoBuilder::build)
+				.forEach(changelogRecorder::record);
 	}
 
 	private void doPutAndRecordEdit(DatarouterUser user, DatarouterUserHistory history){

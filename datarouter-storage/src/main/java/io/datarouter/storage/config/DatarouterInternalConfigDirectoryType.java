@@ -15,7 +15,7 @@
  */
 package io.datarouter.storage.config;
 
-import io.datarouter.util.enums.Displayable;
+import io.datarouter.enums.Displayable;
 
 public interface DatarouterInternalConfigDirectoryType extends Displayable{
 }

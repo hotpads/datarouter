@@ -68,7 +68,11 @@ public class CountBlobDto{
 	}
 
 	//make one metadata line and 1+ count lines
-	public byte[] serialize(){
+	public byte[] serializeToBytes(){
+		return serializeToString().getBytes(StandardCharsets.UTF_8);
+	}
+
+	public String serializeToString(){
 		String metadataLine = String.join("\t", List.of(version,
 				ulid,
 				serviceName,
@@ -76,13 +80,15 @@ public class CountBlobDto{
 				apiKey,
 				signature));
 		String countLines = serializeCounts();
-		return (metadataLine + "\n" + countLines)
-				.getBytes(StandardCharsets.UTF_8);
+		return metadataLine + "\n" + countLines;
 	}
 
-	public static CountBlobDto deserialize(byte[] bytes){
+	public static CountBlobDto deserializeFromBytes(byte[] bytes){
+		return deserializeFromString(new String(bytes, StandardCharsets.UTF_8));
+	}
 
-		String[] lines = new String(bytes, StandardCharsets.UTF_8).split("\n", 2);
+	public static CountBlobDto deserializeFromString(String string){
+		String[] lines = string.split("\n", 2);
 		String[] parts = lines[0].split("\t");//metadata line parts
 		Require.equals(parts.length, 6);
 		Require.equals(parts[0], V1);

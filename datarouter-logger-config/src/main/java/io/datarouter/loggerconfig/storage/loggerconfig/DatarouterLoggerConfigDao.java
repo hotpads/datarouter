@@ -38,6 +38,7 @@ import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.virtualnode.redundant.RedundantSortedMapStorageNode;
 
 @Singleton
@@ -62,8 +63,8 @@ public class DatarouterLoggerConfigDao extends BaseDao{
 				.map(clientId -> {
 					SortedMapStorageNode<LoggerConfigKey,LoggerConfig,LoggerConfigFielder> node =
 							nodeFactory.create(clientId, LoggerConfig::new, LoggerConfigFielder::new)
-						.withIsSystemTable(true)
-						.build();
+							.withTag(Tag.DATAROUTER)
+							.build();
 					return node;
 				})
 				.listTo(RedundantSortedMapStorageNode::makeIfMulti);

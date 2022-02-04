@@ -30,6 +30,7 @@ import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.virtualnode.redundant.RedundantSortedMapStorageNode;
 
 @Singleton
@@ -52,8 +53,8 @@ public class DeprovisionedUserDao extends BaseDao{
 				.map(clientId -> {
 					SortedMapStorageNode<DeprovisionedUserKey,DeprovisionedUser,DeprovisionedUserFielder> node =
 							nodeFactory.create(clientId, DeprovisionedUser::new, DeprovisionedUserFielder::new)
-						.withIsSystemTable(true)
-						.build();
+							.withTag(Tag.DATAROUTER)
+							.build();
 					return node;
 				})
 				.listTo(RedundantSortedMapStorageNode::makeIfMulti);

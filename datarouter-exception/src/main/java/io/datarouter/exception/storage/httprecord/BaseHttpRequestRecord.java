@@ -24,6 +24,7 @@ import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.gson.serialization.GsonTool;
 import io.datarouter.httpclient.HttpHeaders;
 import io.datarouter.instrumentation.exception.HttpRequestRecordDto;
 import io.datarouter.instrumentation.trace.Traceparent;
@@ -45,7 +46,6 @@ import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 import io.datarouter.model.serialize.fielder.Fielder;
 import io.datarouter.model.util.CommonFieldSizes;
 import io.datarouter.util.array.ArrayTool;
-import io.datarouter.util.serialization.GsonTool;
 import io.datarouter.web.monitoring.exception.ExceptionDto;
 import io.datarouter.web.util.http.RecordedHttpHeaders;
 

@@ -15,7 +15,6 @@
  */
 package io.datarouter.storage.config.guice;
 
-import java.util.Collections;
 import java.util.Map;
 
 import io.datarouter.inject.DatarouterInjector;
@@ -36,7 +35,6 @@ import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.storage.servertype.ServerTypeDetector.NoOpServerTypeDetector;
 import io.datarouter.storage.setting.MemorySettingFinder;
 import io.datarouter.storage.setting.SettingFinder;
-import io.datarouter.storage.setting.SettingRootsSupplier;
 
 public class DatarouterStorageGuiceModule extends BaseGuiceModule{
 
@@ -46,7 +44,6 @@ public class DatarouterStorageGuiceModule extends BaseGuiceModule{
 
 		bindDefault(SettingFinder.class, MemorySettingFinder.class);
 		bindDefault(Gauges.class, NoOpGauges.class);
-		bindDefaultInstance(SettingRootsSupplier.class, new SettingRootsSupplier(Collections.emptyList()));
 
 		bindDefault(ClientOptionsFactory.class, NoOpClientOptionsFactory.class);
 		bindDefault(SchemaUpdateOptionsFactory.class, NoOpSchemaUpdateOptionsFactory.class);

@@ -30,6 +30,7 @@ import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.virtualnode.redundant.RedundantSortedMapStorageNode;
 
 @Singleton
@@ -55,9 +56,9 @@ public class DatarouterConsoleAppenderDao extends BaseDao{
 				.map(clientId -> {
 					SortedMapStorageNode<ConsoleAppenderKey,ConsoleAppender,ConsoleAppenderFielder> node =
 							nodeFactory.create(clientId, ConsoleAppender::new, ConsoleAppenderFielder::new)
-							.withIsSystemTable(true)
+							.withTag(Tag.DATAROUTER)
 							.build();
-							return node;
+					return node;
 				})
 				.list());
 		datarouter.register(node);

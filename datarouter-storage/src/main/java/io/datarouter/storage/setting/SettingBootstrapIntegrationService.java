@@ -30,7 +30,7 @@ public class SettingBootstrapIntegrationService implements TestableService{
 	@Inject
 	private DatarouterInjector datarouterInjector;
 	@Inject
-	private AllSettingRootsFinder allSettingRootsFinder;
+	private SettingRootsSupplier settingRootsSupplier;
 	@Inject
 	private SettingRootFinder settingRootFinder;
 
@@ -40,7 +40,7 @@ public class SettingBootstrapIntegrationService implements TestableService{
 				.map(Entry::getValue)
 				// special case
 				.filter(node -> node != settingRootFinder)
-				.filter(node -> !isInTree(node, allSettingRootsFinder.getSettingRoots()))
+				.filter(node -> !isInTree(node, settingRootsSupplier.get()))
 				.map(SettingNode::getClass)
 				.map(Class::getName)
 				.collect(Collectors.joining(", "));

@@ -33,12 +33,19 @@ extends BaseRedundantNode<PK,D,F,N>
 implements MapStorageNode<PK,D,F>,
 		RedundantMapStorageMixin<PK,D,F,N>{
 
-	/**
-	 * @param nodes reads go to first node while writes go to all nodes
-	 */
-	@SafeVarargs
-	public RedundantMapStorageNode(N... nodes){
-		super(List.of(nodes), nodes[0]);
+	private RedundantMapStorageNode(List<N> nodes){
+		super(nodes, nodes.get(0));
+	}
+
+	public static <PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>,
+			N extends MapStorageNode<PK,D,F>>
+			MapStorageNode<PK,D,F> makeIfMulti(List<N> nodes){
+		if(nodes.size() == 1){
+			return nodes.get(0);
+		}
+		return new RedundantMapStorageNode<>(nodes);
 	}
 
 }

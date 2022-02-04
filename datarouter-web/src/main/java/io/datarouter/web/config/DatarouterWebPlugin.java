@@ -16,11 +16,8 @@
 package io.datarouter.web.config;
 
 import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import io.datarouter.httpclient.proxy.RequestProxySetter;
 import io.datarouter.pathnode.FilesRoot;
@@ -29,7 +26,6 @@ import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.dao.DaosModuleBuilder;
 import io.datarouter.storage.setting.SettingBootstrapIntegrationService;
-import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.browse.widget.NodeWidgetDatabeanExporterLinkSupplier;
 import io.datarouter.web.browse.widget.NodeWidgetDatabeanExporterLinkSupplier.NodeWidgetDatabeanExporterLink;
 import io.datarouter.web.browse.widget.NodeWidgetTableCountLinkSupplier;
@@ -72,21 +68,12 @@ import io.datarouter.web.listener.WebAppListenersClasses;
 import io.datarouter.web.listener.WebAppListenersClasses.DatarouterWebAppListenersClasses;
 import io.datarouter.web.metriclinks.AppHandlerMetricLinkPage;
 import io.datarouter.web.metriclinks.DatarouterHandlerMetricLinkPage;
-import io.datarouter.web.navigation.AppNavBarPluginCreator;
 import io.datarouter.web.navigation.AppNavBarRegistrySupplier;
-import io.datarouter.web.navigation.AppPluginNavBarSupplier;
 import io.datarouter.web.navigation.DatarouterNavBarCategory;
-import io.datarouter.web.navigation.DatarouterNavBarCreator;
-import io.datarouter.web.navigation.DatarouterNavBarSupplier;
-import io.datarouter.web.navigation.DynamicNavBarItem;
-import io.datarouter.web.navigation.DynamicNavBarItemRegistry;
-import io.datarouter.web.navigation.NavBarItem;
 import io.datarouter.web.navigation.ReadmeDocsNavBarItem;
 import io.datarouter.web.navigation.SystemDocsNavBarItem;
 import io.datarouter.web.plugin.PluginRegistrySupplier;
 import io.datarouter.web.plugin.PluginRegistrySupplier.PluginRegistry;
-import io.datarouter.web.service.DocumentationNamesAndLinksSupplier;
-import io.datarouter.web.service.DocumentationNamesAndLinksSupplier.DefaultDocumentationNamesAndLinks;
 import io.datarouter.web.user.DatarouterSessionDao;
 import io.datarouter.web.user.DatarouterSessionDao.DatarouterSessionDaoParams;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
@@ -127,8 +114,6 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 
 	private final Class<? extends RoleManager> roleManagerClass;
 	private final Class<? extends UserSessionService> userSessionServiceClass;
-	private final List<NavBarItem> datarouterNavBarPluginItems;
-	private final List<NavBarItem> appNavBarPluginItems;
 	private final Class<? extends DatarouterUserExternalDetailService> datarouterUserExternalDetailClass;
 	private final Class<? extends AppNavBarRegistrySupplier> appNavBarRegistrySupplier;
 	private final Class<? extends HomepageRouteSet> homepageRouteSet;
@@ -136,8 +121,6 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 	private final List<String> registeredPlugins;
 	private final String nodeWidgetDatabeanExporterLink;
 	private final String nodeWidgetTableCountLink;
-	private final Map<String,Pair<String,Boolean>> documentationNamesAndLinks;
-	private final List<Class<? extends DynamicNavBarItem>> dynamicNavBarItems;
 	private final Class<? extends RequestProxySetter> requestProxy;
 	private final ZoneId defaultEmailDistributionListZoneId;
 	private final ZoneId dailyDigestEmailZoneId;
@@ -147,12 +130,38 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			DatarouterWebDaoModule daosModuleBuilder,
 			Class<? extends HomepageRouteSet> homepageRouteSet,
 			String customStaticFileFilterRegex){
-		this(null, null, null, null, null, null, null, null, null, null, null, null, null, daosModuleBuilder,
-				null, null, null, null, homepageRouteSet, null, customStaticFileFilterRegex, null, null, null,
-				null, null, null, null, null);
+		this(daosModuleBuilder,
+				homepageRouteSet,
+				customStaticFileFilterRegex,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null);
 	}
 
 	private DatarouterWebPlugin(
+			DatarouterWebDaoModule daosModuleBuilder,
+			Class<? extends HomepageRouteSet> homepageRouteSet,
+			String customStaticFileFilterRegex,
+
 			String serviceName,
 			String publicDomain,
 			String privateDomain,
@@ -166,19 +175,12 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			List<Class<? extends DatarouterWebAppListener>> webAppListenerClasses,
 			Class<? extends RoleManager> roleManagerClass,
 			Class<? extends UserSessionService> userSessionServiceClass,
-			DatarouterWebDaoModule daosModuleBuilder,
-			List<NavBarItem> datarouterNavBarPluginItems,
-			List<NavBarItem> appNavBarPluginItems,
 			Class<? extends DatarouterUserExternalDetailService> datarouterUserExternalDetailClass,
 			Class<? extends AppNavBarRegistrySupplier> appNavBarRegistrySupplier,
-			Class<? extends HomepageRouteSet> homepageRouteSet,
 			Class<? extends HomepageHandler> homepageHandler,
-			String customStaticFileFilterRegex,
 			List<String> registeredPlugins,
 			String nodeWidgetDatabeanExporterLink,
 			String nodeWidgetTableCountLink,
-			Map<String,Pair<String,Boolean>> documentationNamesAndLinks,
-			List<Class<? extends DynamicNavBarItem>> dynamicNavBarItems,
 			Class<? extends RequestProxySetter> requestProxy,
 			ZoneId defaultEmailDistributionListZoneId,
 			ZoneId dailyDigestEmailZoneId){
@@ -266,8 +268,6 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		this.webAppListenerClasses = webAppListenerClasses;
 		this.roleManagerClass = roleManagerClass;
 		this.userSessionServiceClass = userSessionServiceClass;
-		this.datarouterNavBarPluginItems = datarouterNavBarPluginItems;
-		this.appNavBarPluginItems = appNavBarPluginItems;
 		this.datarouterUserExternalDetailClass = datarouterUserExternalDetailClass;
 		this.appNavBarRegistrySupplier = appNavBarRegistrySupplier;
 		this.homepageHandler = homepageHandler;
@@ -275,8 +275,6 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		this.registeredPlugins = registeredPlugins;
 		this.nodeWidgetDatabeanExporterLink = nodeWidgetDatabeanExporterLink;
 		this.nodeWidgetTableCountLink = nodeWidgetTableCountLink;
-		this.documentationNamesAndLinks = documentationNamesAndLinks;
-		this.dynamicNavBarItems = dynamicNavBarItems;
 		this.requestProxy = requestProxy;
 		this.defaultEmailDistributionListZoneId = defaultEmailDistributionListZoneId;
 		this.dailyDigestEmailZoneId = dailyDigestEmailZoneId;
@@ -294,10 +292,6 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		bindActualInstance(WebAppListenersClasses.class, new DatarouterWebAppListenersClasses(webAppListenerClasses));
 		bindActualNullSafe(RoleManager.class, roleManagerClass);
 		bindActualNullSafe(UserSessionService.class, userSessionServiceClass);
-		bindActualInstanceNullSafe(DatarouterNavBarSupplier.class,
-				new DatarouterNavBarCreator(datarouterNavBarPluginItems));
-		bindActualInstanceNullSafe(AppPluginNavBarSupplier.class, new AppNavBarPluginCreator(appNavBarPluginItems));
-		bindActualInstanceNullSafe(DynamicNavBarItemRegistry.class, new DynamicNavBarItemRegistry(dynamicNavBarItems));
 		bindActualNullSafe(DatarouterUserExternalDetailService.class, datarouterUserExternalDetailClass);
 		bindActualNullSafe(AppNavBarRegistrySupplier.class, appNavBarRegistrySupplier);
 		bind(HomepageHandler.class).to(homepageHandler);
@@ -307,8 +301,6 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 				new NodeWidgetDatabeanExporterLink(nodeWidgetDatabeanExporterLink));
 		bindActualInstance(NodeWidgetTableCountLinkSupplier.class, new NodeWidgetTableCountLink(
 				nodeWidgetTableCountLink));
-		bindActualInstance(DocumentationNamesAndLinksSupplier.class,
-				new DefaultDocumentationNamesAndLinks(documentationNamesAndLinks));
 		bind(RequestProxySetter.class).to(requestProxy);
 		bindActualInstance(DefaultEmailDistributionListZoneId.class,
 				new DefaultEmailDistributionListZoneId(defaultEmailDistributionListZoneId));
@@ -331,12 +323,6 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 	private <T> void bindActualNullSafe(Class<T> type, Class<? extends T> actualClass){
 		if(actualClass != null){
 			bindActual(type, actualClass);
-		}
-	}
-
-	private <T> void bindActualInstanceNullSafe(Class<T> type, T actualInstance){
-		if(actualInstance != null){
-			bindActualInstance(type, actualInstance);
 		}
 	}
 
@@ -378,8 +364,6 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		private List<Class<? extends DatarouterWebAppListener>> webAppListenerClasses;
 		private Class<? extends RoleManager> roleManagerClass;
 		private Class<? extends UserSessionService> userSessionServiceClass = NoOpUserSessionService.class;
-		private List<NavBarItem> datarouterNavBarPluginItems;
-		private List<NavBarItem> appNavBarPluginItems;
 		private Class<? extends DatarouterUserExternalDetailService> datarouterUserExternalDetail;
 		private Class<? extends AppNavBarRegistrySupplier> appNavBarRegistrySupplier;
 		private Class<? extends HomepageRouteSet> homepageRouteSet = DefaultHomepageRouteSet.class;
@@ -388,8 +372,6 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		private List<String> registeredPlugins = Collections.emptyList();
 		private String nodeWidgetDatabeanExporterLink;
 		private String nodeWidgetTableCountLink;
-		private Map<String,Pair<String,Boolean>> documentationNamesAndLinks = new HashMap<>();
-		private final List<Class<? extends DynamicNavBarItem>> dynamicNavBarItems = new ArrayList<>();
 		private Class<? extends RequestProxySetter> requestProxy = NoOpRequestProxySetter.class;
 		private ZoneId defaultEmailDistributionListZoneId;
 		private ZoneId dailyDigestEmailZoneId = ZoneId.systemDefault();
@@ -468,17 +450,6 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			return this;
 		}
 
-		public DatarouterWebPluginBuilder setDatarouterNavBarMenuItems(
-				List<NavBarItem> datarouterNavBarPluginItems){
-			this.datarouterNavBarPluginItems = datarouterNavBarPluginItems;
-			return this;
-		}
-
-		public DatarouterWebPluginBuilder setAppNavBarMenuItems(List<NavBarItem> appNavBarPluginItems){
-			this.appNavBarPluginItems = appNavBarPluginItems;
-			return this;
-		}
-
 		public DatarouterWebPluginBuilder setAppNavBarRegistrySupplier(
 				Class<? extends AppNavBarRegistrySupplier> appNavBarRegistrySupplier){
 			this.appNavBarRegistrySupplier = appNavBarRegistrySupplier;
@@ -521,18 +492,6 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			return this;
 		}
 
-		public DatarouterWebPluginBuilder setDocumentationNamesAndLinks(
-				Map<String,Pair<String,Boolean>> documentationNamesAndLinks){
-			this.documentationNamesAndLinks = documentationNamesAndLinks;
-			return this;
-		}
-
-		public DatarouterWebPluginBuilder setDynamicNavBarItems(
-				List<Class<? extends DynamicNavBarItem>> dynamicNavBarItems){
-			this.dynamicNavBarItems.addAll(dynamicNavBarItems);
-			return this;
-		}
-
 		public DatarouterWebPluginBuilder setRequestProxy(Class<? extends RequestProxySetter> requestProxy){
 			this.requestProxy = requestProxy;
 			return this;
@@ -558,6 +517,10 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		public DatarouterWebPlugin build(){
 
 			return new DatarouterWebPlugin(
+					new DatarouterWebDaoModule(defaultClientIds),
+					homepageRouteSet,
+					customStaticFileFilterRegex,
+
 					serviceName,
 					publicDomain,
 					privateDomain,
@@ -571,19 +534,12 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 					webAppListenerClasses,
 					roleManagerClass,
 					userSessionServiceClass,
-					new DatarouterWebDaoModule(defaultClientIds),
-					datarouterNavBarPluginItems,
-					appNavBarPluginItems,
 					datarouterUserExternalDetail,
 					appNavBarRegistrySupplier,
-					homepageRouteSet,
 					homepageHandler,
-					customStaticFileFilterRegex,
 					registeredPlugins,
 					nodeWidgetDatabeanExporterLink,
 					nodeWidgetTableCountLink,
-					documentationNamesAndLinks,
-					dynamicNavBarItems,
 					requestProxy,
 					defaultEmailDistributionListZoneId,
 					dailyDigestEmailZoneId);

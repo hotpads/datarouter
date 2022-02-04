@@ -23,8 +23,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import io.datarouter.gson.serialization.GsonTool;
 import io.datarouter.pathnode.PathNode;
-import io.datarouter.util.serialization.GsonTool;
 import j2html.TagCreator;
 import j2html.tags.ContainerTag;
 

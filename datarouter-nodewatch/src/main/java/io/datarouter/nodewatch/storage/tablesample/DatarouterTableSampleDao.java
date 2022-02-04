@@ -30,6 +30,7 @@ import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import io.datarouter.storage.node.tableconfig.ClientTableEntityPrefixNameWrapper;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.util.tuple.Range;
 import io.datarouter.virtualnode.redundant.RedundantSortedMapStorageNode;
 
@@ -54,7 +55,7 @@ public class DatarouterTableSampleDao extends BaseDao{
 				.map(clientId -> {
 					SortedMapStorageNode<TableSampleKey,TableSample,TableSampleFielder> node =
 							nodeFactory.create(clientId, TableSample::new, TableSampleFielder::new)
-							.withIsSystemTable(true)
+							.withTag(Tag.DATAROUTER)
 							.disableNodewatch()
 							.withTableName("TableRowSample") // Some datastores list 'TableSample' as a reserved word
 							.build();

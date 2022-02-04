@@ -23,9 +23,9 @@ import java.sql.Types;
 import io.datarouter.client.mysql.ddl.domain.MysqlColumnType;
 import io.datarouter.client.mysql.ddl.domain.SqlColumn;
 import io.datarouter.client.mysql.field.codec.base.BaseMysqlFieldCodec;
+import io.datarouter.enums.IntegerEnum;
 import io.datarouter.model.exception.DataAccessException;
 import io.datarouter.model.field.imp.enums.IntegerEnumField;
-import io.datarouter.util.enums.IntegerEnum;
 
 public class IntegerEnumMysqlFieldCodec<E extends IntegerEnum<E>> extends BaseMysqlFieldCodec<E,IntegerEnumField<E>>{
 

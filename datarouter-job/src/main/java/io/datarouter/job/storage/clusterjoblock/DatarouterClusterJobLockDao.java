@@ -31,6 +31,7 @@ import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.storage.util.DatabeanVacuum;
 import io.datarouter.storage.util.DatabeanVacuum.DatabeanVacuumBuilder;
 import io.datarouter.util.DateTool;
@@ -59,7 +60,7 @@ public class DatarouterClusterJobLockDao extends BaseDao{
 				.map(clientId -> {
 					SortedMapStorageNode<ClusterJobLockKey,ClusterJobLock,ClusterJobLockFielder> node =
 							nodeFactory.create(clientId, ClusterJobLock::new, ClusterJobLockFielder::new)
-							.withIsSystemTable(true)
+							.withTag(Tag.DATAROUTER)
 							.build();
 					return node;
 				})

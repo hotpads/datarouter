@@ -36,6 +36,7 @@ import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.virtualnode.redundant.RedundantSortedMapStorageNode;
 
@@ -59,13 +60,14 @@ public class DatarouterSecretOpRecordDao extends BaseDao implements SecretOpReco
 		super(datarouter);
 		node = Scanner.of(params.clientIds)
 				.map(clientId -> {
-					SortedMapStorageNode<DatarouterSecretOpRecordKey,DatarouterSecretOpRecord,
-					DatarouterSecretOpRecordFielder> node =
-							nodeFactory.create(
+					SortedMapStorageNode<
+							DatarouterSecretOpRecordKey,
+							DatarouterSecretOpRecord,
+							DatarouterSecretOpRecordFielder> node = nodeFactory.create(
 									clientId,
 									DatarouterSecretOpRecord::new,
 									DatarouterSecretOpRecordFielder::new)
-							.withIsSystemTable(true)
+							.withTag(Tag.DATAROUTER)
 							.build();
 					return node;
 				})

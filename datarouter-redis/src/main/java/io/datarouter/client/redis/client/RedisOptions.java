@@ -24,9 +24,9 @@ import java.util.stream.IntStream;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.enums.DatarouterEnumTool;
+import io.datarouter.enums.PersistentString;
 import io.datarouter.storage.client.ClientOptions;
-import io.datarouter.util.enums.DatarouterEnumTool;
-import io.datarouter.util.enums.PersistentString;
 
 @Singleton
 public class RedisOptions{

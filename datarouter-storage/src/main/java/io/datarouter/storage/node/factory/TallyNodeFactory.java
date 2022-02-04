@@ -34,6 +34,7 @@ import io.datarouter.storage.node.Node;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.NodeParams.NodeParamsBuilder;
 import io.datarouter.storage.node.builder.TallyNodeBuilder;
+import io.datarouter.storage.tag.Tag;
 
 @Singleton
 public class TallyNodeFactory{
@@ -65,12 +66,12 @@ public class TallyNodeFactory{
 			Supplier<F> fielderSupplier,
 			int version,
 			String tableName,
-			boolean isSystemTable){
+			Tag tag){
 		NodeParams<PK,D,F> params = new NodeParamsBuilder<>(databeanSupplier, fielderSupplier)
 				.withClientId(clientId)
 				.withSchemaVersion(version)
 				.withTableName(tableName)
-				.withIsSystemTable(isSystemTable)
+				.withTag(tag)
 				.build();
 		ClientType<?,?> clientType = getClientTypeInstance(clientId);
 		TallyClientNodeFactory clientFactories = (TallyClientNodeFactory) getClientFactories(clientType);

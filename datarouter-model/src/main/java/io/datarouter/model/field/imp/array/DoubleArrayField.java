@@ -18,8 +18,8 @@ package io.datarouter.model.field.imp.array;
 import java.util.List;
 
 import io.datarouter.bytes.codec.list.doublelist.DoubleListCodec;
+import io.datarouter.gson.serialization.GsonTool;
 import io.datarouter.model.field.BaseListField;
-import io.datarouter.util.serialization.GsonTool;
 
 public class DoubleArrayField extends BaseListField<Double,List<Double>,DoubleArrayFieldKey>{
 

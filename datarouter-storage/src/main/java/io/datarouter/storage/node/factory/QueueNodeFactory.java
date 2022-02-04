@@ -35,6 +35,7 @@ import io.datarouter.storage.node.NodeParams.NodeParamsBuilder;
 import io.datarouter.storage.node.builder.GroupQueueNodeBuilder;
 import io.datarouter.storage.node.builder.QueueNodeBuilder;
 import io.datarouter.storage.node.builder.SingleQueueNodeBuilder;
+import io.datarouter.storage.tag.Tag;
 
 @Singleton
 public class QueueNodeFactory{
@@ -77,13 +78,13 @@ public class QueueNodeFactory{
 			Supplier<F> fielderSupplier,
 			String namespace,
 			String queueUrl,
-			boolean isSystemTable){
+			Tag tag){
 		NodeParams<PK,D,F> params = new NodeParamsBuilder<>(databeanSupplier, fielderSupplier)
 				.withClientId(clientId)
 				.withTableName(queueName)
 				.withNamespace(namespace)
 				.withQueueUrl(queueUrl)
-				.withIsSystemTable(isSystemTable)
+				.withTag(tag)
 				.build();
 		ClientType<?,?> clientType = clients.getClientTypeInstance(clientId);
 		QueueClientNodeFactory clientFactories = getClientFactories(clientType);
@@ -101,13 +102,13 @@ public class QueueNodeFactory{
 			Supplier<F> fielderSupplier,
 			String namespace,
 			String queueUrl,
-			boolean isSystemTable){
+			Tag tag){
 		NodeParams<PK,D,F> params = new NodeParamsBuilder<>(databeanSupplier, fielderSupplier)
 				.withClientId(clientId)
 				.withTableName(queueName)
 				.withNamespace(namespace)
 				.withQueueUrl(queueUrl)
-				.withIsSystemTable(isSystemTable)
+				.withTag(tag)
 				.build();
 		ClientType<?,?> clientType = clients.getClientTypeInstance(clientId);
 		QueueClientNodeFactory clientFactories = getClientFactories(clientType);

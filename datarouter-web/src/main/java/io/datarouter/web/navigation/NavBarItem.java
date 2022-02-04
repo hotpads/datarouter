@@ -21,10 +21,17 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import io.datarouter.pathnode.PathNode;
+import io.datarouter.plugin.PluginConfigKey;
+import io.datarouter.plugin.PluginConfigType;
+import io.datarouter.plugin.PluginConfigValue;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.web.dispatcher.DispatchRule;
 
-public class NavBarItem{
+public class NavBarItem implements PluginConfigValue<NavBarItem>{
+
+	public static final PluginConfigKey<NavBarItem> KEY = new PluginConfigKey<>(
+			"navBarItems",
+			PluginConfigType.INSTANCE_LIST);
 
 	public final NavBarCategory category;
 	public final String path;
@@ -47,6 +54,11 @@ public class NavBarItem{
 		this.name = name;
 		this.openInNewTab = openInNewTab;
 		this.dispatchRule = Optional.ofNullable(dispatchRule);
+	}
+
+	@Override
+	public PluginConfigKey<NavBarItem> getKey(){
+		return KEY;
 	}
 
 	public static class NavBarItemBuilder{

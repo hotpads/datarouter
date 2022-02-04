@@ -18,8 +18,8 @@ package io.datarouter.model.field;
 import java.util.List;
 import java.util.Optional;
 
+import io.datarouter.gson.serialization.GsonTool;
 import io.datarouter.model.field.imp.array.KeyedListField;
-import io.datarouter.util.serialization.GsonTool;
 
 public abstract class BaseListField<
 		V extends Comparable<V>,

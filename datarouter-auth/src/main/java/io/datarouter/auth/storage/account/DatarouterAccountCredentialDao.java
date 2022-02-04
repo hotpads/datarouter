@@ -35,6 +35,7 @@ import io.datarouter.storage.node.factory.IndexingNodeFactory;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
 import io.datarouter.storage.node.op.index.UniqueIndexReader;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.util.Require;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.virtualnode.redundant.RedundantIndexedSortedMapStorageNode;
@@ -76,16 +77,18 @@ public class DatarouterAccountCredentialDao extends BaseDao implements BaseDatar
 
 		node = Scanner.of(params.clientIds)
 				.map(clientId -> {
-					var builder = nodeFactory.create(clientId, DatarouterAccountCredential
-							::new, DatarouterAccountCredentialFielder::new)
-							.withIsSystemTable(true);
+					var builder = nodeFactory.create(
+							clientId,
+							DatarouterAccountCredential::new,
+							DatarouterAccountCredentialFielder::new)
+							.withTag(Tag.DATAROUTER);
 					params.tableName.ifPresent(builder::withTableName);
 
 					IndexedSortedMapStorageNode<DatarouterAccountCredentialKey,DatarouterAccountCredential,
 							DatarouterAccountCredentialFielder> node = builder.build();
 					return node;
 				})
-				.listTo(RedundantIndexedSortedMapStorageNode::new);
+				.listTo(RedundantIndexedSortedMapStorageNode::makeIfMulti);
 		byAccountName = indexingNodeFactory.createKeyOnlyManagedIndex(DatarouterAccountCredentialByAccountNameKey::new,
 				node).build();
 		datarouter.register(node);

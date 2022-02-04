@@ -22,8 +22,8 @@ import io.datarouter.client.mysql.ddl.domain.MysqlColumnType;
 import io.datarouter.client.mysql.ddl.domain.SqlColumn;
 import io.datarouter.client.mysql.field.StringMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.base.BaseMysqlFieldCodec;
+import io.datarouter.enums.StringEnum;
 import io.datarouter.model.field.imp.enums.StringEnumField;
-import io.datarouter.util.enums.StringEnum;
 
 public class StringEnumMysqlFieldCodec<E extends StringEnum<E>>
 extends BaseMysqlFieldCodec<E,StringEnumField<E>>{

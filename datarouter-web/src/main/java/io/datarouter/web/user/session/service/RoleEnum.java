@@ -15,7 +15,7 @@
  */
 package io.datarouter.web.user.session.service;
 
-import io.datarouter.util.enums.StringEnum;
+import io.datarouter.enums.StringEnum;
 
 public interface RoleEnum<T> extends StringEnum<T>{
 

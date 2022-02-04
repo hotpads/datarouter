@@ -29,6 +29,7 @@ import org.apache.http.entity.ContentType;
 
 import com.google.gson.reflect.TypeToken;
 
+import io.datarouter.gson.serialization.GsonTool;
 import io.datarouter.httpclient.client.BaseDatarouterHttpClientWrapper;
 import io.datarouter.httpclient.client.DatarouterHttpClientBuilder;
 import io.datarouter.httpclient.proxy.RequestProxySetter;
@@ -39,7 +40,6 @@ import io.datarouter.httpclient.response.DatarouterHttpResponse;
 import io.datarouter.httpclient.response.exception.DatarouterHttpResponseException;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.properties.ServerName;
-import io.datarouter.util.serialization.GsonTool;
 import io.datarouter.web.config.DatarouterWebFiles;
 import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.handler.BaseHandler;

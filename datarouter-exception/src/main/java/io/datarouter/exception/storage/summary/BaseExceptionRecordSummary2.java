@@ -72,6 +72,10 @@ extends BaseDatabean<PK,D>{
 		return name;
 	}
 
+	public void incrementNumExceptions(){
+		this.numExceptions += 1;
+	}
+
 	public Long getNumExceptions(){
 		return numExceptions;
 	}

@@ -32,6 +32,7 @@ import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.virtualnode.redundant.RedundantSortedMapStorageNode;
 
 @Singleton
@@ -56,12 +57,15 @@ public class DatarouterPermissionRequestDao extends BaseDao{
 		super(datarouter);
 		node = Scanner.of(params.clientIds)
 				.map(clientId -> {
-					SortedMapStorageNode<DatarouterPermissionRequestKey,DatarouterPermissionRequest,
-					DatarouterPermissionRequestFielder> node =
-							nodeFactory.create(clientId, DatarouterPermissionRequest::new,
+					SortedMapStorageNode<
+							DatarouterPermissionRequestKey,
+							DatarouterPermissionRequest,
+							DatarouterPermissionRequestFielder> node = nodeFactory.create(
+									clientId,
+									DatarouterPermissionRequest::new,
 									DatarouterPermissionRequestFielder::new)
-						.withIsSystemTable(true)
-						.build();
+							.withTag(Tag.DATAROUTER)
+							.build();
 					return node;
 				})
 				.listTo(RedundantSortedMapStorageNode::makeIfMulti);

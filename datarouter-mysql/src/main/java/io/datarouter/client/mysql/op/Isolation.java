@@ -17,11 +17,11 @@ package io.datarouter.client.mysql.op;
 
 import java.sql.Connection;
 
+import io.datarouter.enums.DatarouterEnumTool;
+import io.datarouter.enums.IntegerEnum;
+import io.datarouter.enums.StringEnum;
 import io.datarouter.storage.config.ConfigKey;
 import io.datarouter.storage.config.ConfigValue;
-import io.datarouter.util.enums.DatarouterEnumTool;
-import io.datarouter.util.enums.IntegerEnum;
-import io.datarouter.util.enums.StringEnum;
 
 public enum Isolation implements IntegerEnum<Isolation>, StringEnum<Isolation>, ConfigValue<Isolation>{
 

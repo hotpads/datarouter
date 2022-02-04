@@ -18,6 +18,7 @@ package io.datarouter.storage.test.node.basic.sorted;
 import java.util.List;
 import java.util.function.Supplier;
 
+import io.datarouter.gson.serialization.GsonTool;
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.imp.StringField;
@@ -27,7 +28,6 @@ import io.datarouter.model.field.imp.comparable.DoubleFieldKey;
 import io.datarouter.model.field.imp.comparable.LongField;
 import io.datarouter.model.field.imp.comparable.LongFieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
-import io.datarouter.util.serialization.GsonTool;
 
 public class SortedBean extends BaseDatabean<SortedBeanKey,SortedBean>{
 

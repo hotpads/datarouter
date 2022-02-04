@@ -30,6 +30,7 @@ import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.storage.util.DatabeanVacuum;
 import io.datarouter.storage.util.DatabeanVacuum.DatabeanVacuumBuilder;
 import io.datarouter.util.tuple.Range;
@@ -58,7 +59,7 @@ public class DatarouterExceptionRecordDao extends BaseDao{
 				.map(clientId -> {
 					SortedMapStorageNode<ExceptionRecordKey,ExceptionRecord,ExceptionRecordFielder> node =
 							nodeFactory.create(clientId, ExceptionRecord::new, ExceptionRecordFielder::new)
-							.withIsSystemTable(true)
+							.withTag(Tag.DATAROUTER)
 							.build();
 					return node;
 				})

@@ -33,6 +33,7 @@ import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.storage.util.PrimaryKeyVacuum;
 import io.datarouter.storage.util.PrimaryKeyVacuum.PrimaryKeyVacuumBuilder;
 import io.datarouter.virtualnode.redundant.RedundantSortedMapStorageNode;
@@ -60,7 +61,7 @@ public class DatarouterClusterTriggerLockDao extends BaseDao{
 				.map(clientId -> {
 					SortedMapStorageNode<ClusterTriggerLockKey,ClusterTriggerLock,ClusterTriggerLockFielder> node =
 							nodeFactory.create(clientId, ClusterTriggerLock::new, ClusterTriggerLockFielder::new)
-							.withIsSystemTable(true)
+							.withTag(Tag.DATAROUTER)
 							.build();
 					return node;
 				})

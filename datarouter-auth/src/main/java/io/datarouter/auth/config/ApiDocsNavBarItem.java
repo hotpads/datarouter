@@ -22,6 +22,7 @@ import io.datarouter.web.config.RouteSetRegistry;
 import io.datarouter.web.handler.documentation.DocumentationRouteSet;
 import io.datarouter.web.navigation.AppNavBarCategory;
 import io.datarouter.web.navigation.DynamicNavBarItem;
+import io.datarouter.web.navigation.NavBarCategory.NavBarItemType;
 import io.datarouter.web.navigation.NavBarItem;
 
 public class ApiDocsNavBarItem implements DynamicNavBarItem{
@@ -43,8 +44,8 @@ public class ApiDocsNavBarItem implements DynamicNavBarItem{
 	}
 
 	@Override
-	public DynamicNavBarItemType getType(){
-		return DynamicNavBarItemType.APP;
+	public NavBarItemType getType(){
+		return NavBarItemType.APP;
 	}
 
 }

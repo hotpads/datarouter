@@ -34,6 +34,7 @@ import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.SettinglessNodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.util.singletonsupplier.SingletonSupplier;
 import io.datarouter.util.tuple.Range;
 import io.datarouter.virtualnode.redundant.RedundantSortedMapStorageNode;
@@ -62,7 +63,8 @@ public class DatarouterClusterSettingDao extends BaseDao{
 				.map(clientId -> {
 					SortedMapStorageNode<ClusterSettingKey,ClusterSetting,ClusterSettingFielder> node =
 							settinglessNodeFactory.create(clientId, ClusterSetting::new, ClusterSettingFielder::new)
-							.withIsSystemTable(true)
+							.withTag(Tag.DATAROUTER)
+							// TODO remove?
 							.withDisableForcePrimary(true)
 							.build();
 					return node;

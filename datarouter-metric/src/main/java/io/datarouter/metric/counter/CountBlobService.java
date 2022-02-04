@@ -21,6 +21,7 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.conveyor.message.ConveyorMessage;
 import io.datarouter.httpclient.security.DefaultSignatureGenerator;
 import io.datarouter.instrumentation.count.CountBatchDto;
 import io.datarouter.instrumentation.count.CountPublisher;
@@ -33,12 +34,15 @@ public class CountBlobService implements CountPublisher{
 	private static final Logger logger = LoggerFactory.getLogger(CountBlobService.class);
 
 	private final CountBlobDao countBlobDao;
+	private final DatarouterCountBlobQueueDao countBlobQueueDao;
 	private final CountBlobPublishingSettings countBlobPublishingSettings;
 	private final DefaultSignatureGenerator publisherSignatureGenerator;
 
 	@Inject
-	public CountBlobService(CountBlobDao countBlobDao, CountBlobPublishingSettings countBlobPublishingSettings){
+	public CountBlobService(CountBlobDao countBlobDao, DatarouterCountBlobQueueDao countBlobQueueDao,
+			CountBlobPublishingSettings countBlobPublishingSettings){
 		this.countBlobDao = countBlobDao;
+		this.countBlobQueueDao = countBlobQueueDao;
 		this.countBlobPublishingSettings = countBlobPublishingSettings;
 		this.publisherSignatureGenerator = new DefaultSignatureGenerator(countBlobPublishingSettings::getPrivateKey);
 	}
@@ -46,8 +50,15 @@ public class CountBlobService implements CountPublisher{
 	@Override
 	public PublishingResponseDto add(CountBatchDto dto){
 		var countBlobDto = toBlob(dto);
-		logger.info("writing key={}", countBlobDto.ulid);
+		logger.warn("writing key={}", countBlobDto.ulid);//TODO switch to info later
 		countBlobDao.write(countBlobDto);
+		return PublishingResponseDto.SUCCESS;
+	}
+
+	public PublishingResponseDto addToQueue(CountBatchDto dto){
+		var countBlobDto = toBlob(dto);
+		logger.warn("writing queue key={}", countBlobDto.ulid);//TODO switch to info later
+		countBlobQueueDao.put(new ConveyorMessage(countBlobDto.ulid, countBlobDto.serializeToString()));
 		return PublishingResponseDto.SUCCESS;
 	}
 

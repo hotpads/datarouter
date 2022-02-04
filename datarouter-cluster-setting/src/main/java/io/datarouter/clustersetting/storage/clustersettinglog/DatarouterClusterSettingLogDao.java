@@ -35,6 +35,7 @@ import io.datarouter.storage.node.factory.IndexingNodeFactory;
 import io.datarouter.storage.node.factory.SettinglessNodeFactory;
 import io.datarouter.storage.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
 import io.datarouter.storage.node.op.index.IndexReader;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.util.DateTool;
 import io.datarouter.util.tuple.Range;
 import io.datarouter.virtualnode.redundant.RedundantIndexedSortedMapStorageNode;
@@ -69,13 +70,15 @@ public class DatarouterClusterSettingLogDao extends BaseDao{
 		node = Scanner.of(params.clientIds)
 				.map(clientId -> {
 					IndexedSortedMapStorageNode<ClusterSettingLogKey,ClusterSettingLog,ClusterSettingLogFielder> node =
-							settinglessNodeFactory.create(clientId, ClusterSettingLog::new,
+							settinglessNodeFactory.create(
+									clientId,
+									ClusterSettingLog::new,
 									ClusterSettingLogFielder::new)
-							.withIsSystemTable(true)
+							.withTag(Tag.DATAROUTER)
 							.build();
 					return node;
 					})
-				.listTo(RedundantIndexedSortedMapStorageNode::new);
+				.listTo(RedundantIndexedSortedMapStorageNode::makeIfMulti);
 		byReversedCreatedMs = indexingNodeFactory.createKeyOnlyManagedIndex(
 				ClusterSettingLogByReversedCreatedMsKey::new, node)
 				.build();

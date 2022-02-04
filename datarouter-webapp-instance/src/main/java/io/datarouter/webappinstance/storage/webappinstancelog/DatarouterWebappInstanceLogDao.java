@@ -30,6 +30,7 @@ import io.datarouter.storage.node.factory.IndexingNodeFactory;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
 import io.datarouter.storage.node.op.index.IndexReader;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.util.tuple.Range;
 import io.datarouter.virtualnode.redundant.RedundantIndexedSortedMapStorageNode;
 import io.datarouter.webappinstance.storage.webappinstancelog.WebappInstanceLog.WebappInstanceLogFielder;
@@ -61,11 +62,11 @@ public class DatarouterWebappInstanceLogDao extends BaseDao{
 				.map(clientId -> {
 					IndexedSortedMapStorageNode<WebappInstanceLogKey,WebappInstanceLog,WebappInstanceLogFielder> node =
 							nodeFactory.create(clientId, WebappInstanceLog::new, WebappInstanceLogFielder::new)
-							.withIsSystemTable(true)
+							.withTag(Tag.DATAROUTER)
 							.build();
 					return node;
 					})
-				.listTo(RedundantIndexedSortedMapStorageNode::new);
+				.listTo(RedundantIndexedSortedMapStorageNode::makeIfMulti);
 		byBuildInstant = indexingNodeFactory.createKeyOnlyManagedIndex(WebappInstanceLogByBuildInstantKey::new, node)
 				.build();
 		datarouter.register(node);

@@ -27,8 +27,8 @@ import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
+import io.datarouter.gson.serialization.GsonTool;
 import io.datarouter.httpclient.HttpHeaders;
-import io.datarouter.util.serialization.GsonTool;
 
 public class RecordedHttpHeaders{
 

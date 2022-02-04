@@ -21,14 +21,21 @@
 			return docs.replace(/\/$/, '') + '/' + path.replace(/^\//, '')
 		}
 
-		function fetchCsrf(obj) {
-			const url = addPath("getCsrfIv") + '?' + $.param(obj)
-			return fetch(url, {method: 'GET'})
+		function fetchCsrf(obj, apiKeyFieldName) {
+			const url = addPath("getCsrfIv") + '?' + $.param(obj);
+			const options = {method: 'GET'};
+			options.headers = new Headers({
+				'X-apiKeyFieldName': apiKeyFieldName
+			});
+			return fetch(url, options)
 		}
 
-		function fetchSignature(theParams, requestBody){
+		function fetchSignature(theParams, requestBody, apiKeyFieldName){
 			const url = addPath("getSignature") + '?' + $.param(theParams);
 			const options = !!requestBody ? {method: 'POST', body: requestBody} : {method: 'GET'}
+			options.headers = new Headers({
+				'X-apiKeyFieldName': apiKeyFieldName
+			});
 			return fetch(url, options);
 		}
 
@@ -36,7 +43,7 @@
 			return response.json();
 		}
 
-		function getParameters(paramRowClass, hideAuth) {
+		function getParameters(paramRowClass, hideAuth, url) {
 			var paramMap = {};
 			var requestBody;
 			var needsCsrf = false;
@@ -57,9 +64,10 @@
 			});
 			var result = {};
 			if(needsCsrf && needsSignature){
-				result = fetchCsrf(paramMap)
+				const apiKeyFieldName = document.getElementById(url).dataset.apikeyfieldname;
+				result = fetchCsrf(paramMap, apiKeyFieldName)
 					.then(getJson)
-					.then(params => fetchSignature(params, requestBody))
+					.then(params => fetchSignature(params, requestBody, apiKeyFieldName))
 					.then(getJson);
 			}else if(needsCsrf){
 				result = fetchCsrf(paramMap).then(getJson);
@@ -87,50 +95,50 @@
 
 	require(['jquery', 'bootstrap'], function() {
 		callApi = function(paramRowClass, loopIndex, url, hideAuth){
-			let promise = getParameters(paramRowClass, hideAuth);
+			let promise = getParameters(paramRowClass, hideAuth, url);
 			promise.then(function(params){
-			var responseDivId = 'responseDiv' + loopIndex;
-			$("#" + responseDivId).hide();
-			var requestBody = getBody(paramRowClass);
-			console.log("request body", requestBody);
-			var requestUrlId = 'requestUrl' + loopIndex;
-			var requestBodyId = 'requestBody' + loopIndex;
-			var jsonResponseId = 'jsonResponse' + loopIndex;
-			var responseCodeId = 'responseCode' + loopIndex;
-			var responseHeaderId = 'responseHeader' + loopIndex;
-			document.getElementById(jsonResponseId).innerHTML = '';
-			document.getElementById(requestUrlId).innerHTML = '';
-			document.getElementById(requestBodyId).innerHTML = '';
-			document.getElementById(responseCodeId).innerHTML = '';
-			document.getElementById(responseHeaderId).innerHTML = '';
-
-			var options;
-			if(requestBody != null){
-				options = {
-					type: 'POST',
-					data: requestBody,
-					contentType: 'application/json'
-				};
-			}
-
-			var requestUrl = '${contextPath}' + url + "?" + $.param(params);
-			console.log("url  =", requestUrl);
-			$.ajax(requestUrl, options)
-				.complete(function(request){
-					$("#" + responseDivId).show();
-					if(request.getResponseHeader("content-type") == 'application/json'){
-						var json = formatJson(request.responseText);
-						document.getElementById(jsonResponseId).innerHTML = syntaxHighlight(json);
-					}else{
-						document.getElementById(jsonResponseId).innerHTML = request.responseText;
-					}
-					document.getElementById(requestUrlId).innerHTML = getFullRequestUrl(requestUrl);
-					document.getElementById(responseCodeId).innerHTML = request.status;
-					document.getElementById(responseHeaderId).innerHTML = request.getAllResponseHeaders();
-					if(requestBody !== undefined){
-						document.getElementById(requestBodyId).innerHTML = requestBody;
-					}
-				});
+				var responseDivId = 'responseDiv' + loopIndex;
+				$("#" + responseDivId).hide();
+				var requestBody = getBody(paramRowClass);
+				console.log("request body", requestBody);
+				var requestUrlId = 'requestUrl' + loopIndex;
+				var requestBodyId = 'requestBody' + loopIndex;
+				var jsonResponseId = 'jsonResponse' + loopIndex;
+				var responseCodeId = 'responseCode' + loopIndex;
+				var responseHeaderId = 'responseHeader' + loopIndex;
+				document.getElementById(jsonResponseId).innerHTML = '';
+				document.getElementById(requestUrlId).innerHTML = '';
+				document.getElementById(requestBodyId).innerHTML = '';
+				document.getElementById(responseCodeId).innerHTML = '';
+				document.getElementById(responseHeaderId).innerHTML = '';
+	
+				var options;
+				if(requestBody != null){
+					options = {
+						type: 'POST',
+						data: requestBody,
+						contentType: 'application/json'
+					};
+				}
+	
+				var requestUrl = '${contextPath}' + url + "?" + $.param(params);
+				console.log("url  =", requestUrl);
+				$.ajax(requestUrl, options)
+					.complete(function(request){
+						$("#" + responseDivId).show();
+						if(request.getResponseHeader("content-type") == 'application/json'){
+							var json = formatJson(request.responseText);
+							document.getElementById(jsonResponseId).innerHTML = syntaxHighlight(json);
+						}else{
+							document.getElementById(jsonResponseId).innerHTML = request.responseText;
+						}
+						document.getElementById(requestUrlId).innerHTML = getFullRequestUrl(requestUrl);
+						document.getElementById(responseCodeId).innerHTML = request.status;
+						document.getElementById(responseHeaderId).innerHTML = request.getAllResponseHeaders();
+						if(requestBody !== undefined){
+							document.getElementById(requestBodyId).innerHTML = requestBody;
+						}
+					});
 			});
 		}
 
@@ -251,7 +259,7 @@
 				<c:set var="responseCodeId" value="responseCode${loop.index}"></c:set>
 				<c:set var="responseHeaderId" value="responseHeader${loop.index}"></c:set>
 				<c:set var="rowClass" value="rowClass${loop.index}"></c:set>
-				<div class="card" id="${endpoint.url}">
+				<div class="card" id="${endpoint.url}" data-apiKeyFieldName="${endpoint.apiKeyFieldName}">
 					<div class="card-header">
 						<a tabindex="0" data-toggle="collapse" data-target="#${collapseId}" data-url="${endpoint.url}">
 						<c:choose>

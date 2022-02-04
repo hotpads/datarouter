@@ -89,13 +89,14 @@ public class SqsUpdateQueueHandler extends BaseHandler{
 				.map(GetQueueUrlResult::getQueueUrl)
 				.forEach(sqs::deleteQueue);
 		String message = "Deleted all unreferenced SQS queues";
-		var dto = new DatarouterChangelogDtoBuilder(
-				"Sqs",
-				"",
-				"deleteAllUnreferencedQueues",
-				getSessionInfo().getRequiredSession().getUsername())
-				.build();
-		changelogRecorder.record(dto);
+		Scanner.of(unreferencedQueueNames)
+				.map(queueName -> new DatarouterChangelogDtoBuilder(
+						"Sqs",
+						queueName,
+						"delete unreferenced queue",
+						getSessionInfo().getRequiredSession().getUsername()))
+				.map(DatarouterChangelogDtoBuilder::build)
+				.forEach(changelogRecorder::record);
 		return buildPage(referer, message);
 	}
 

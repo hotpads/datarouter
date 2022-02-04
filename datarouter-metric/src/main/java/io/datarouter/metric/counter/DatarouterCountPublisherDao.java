@@ -31,6 +31,7 @@ import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.QueueNodeFactory;
 import io.datarouter.storage.node.op.raw.QueueStorage.QueueStorageNode;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.virtualnode.redundant.RedundantQueueStorageNode;
 
 @Singleton
@@ -55,7 +56,7 @@ public class DatarouterCountPublisherDao extends BaseDao{
 					QueueStorageNode<ConveyorMessageKey,ConveyorMessage,ConveyorMessageFielder> node = queueNodeFactory
 							.createSingleQueue(clientId, ConveyorMessage::new, ConveyorMessageFielder::new)
 							.withQueueName("CountPublisher")
-							.withIsSystemTable(true)
+							.withTag(Tag.DATAROUTER)
 							.build();
 					return node;
 				})

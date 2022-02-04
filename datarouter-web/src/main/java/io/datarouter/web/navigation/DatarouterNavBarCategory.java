@@ -37,4 +37,9 @@ public enum DatarouterNavBarCategory implements NavBarCategory{
 		return display;
 	}
 
+	@Override
+	public NavBarItemType getType(){
+		return NavBarItemType.DATAROUTER;
+	}
+
 }

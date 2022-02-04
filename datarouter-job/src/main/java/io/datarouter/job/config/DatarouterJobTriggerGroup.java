@@ -28,6 +28,7 @@ import io.datarouter.job.vacuum.LongRunningTaskVacuumJob;
 import io.datarouter.job.vacuum.StopJobRequestVacuumJob;
 import io.datarouter.job.vacuum.TaskTrackerPublishJob;
 import io.datarouter.job.vacuum.TriggerLockVacuumUnlockJob;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.util.time.ZoneIds;
 
 @Singleton
@@ -35,7 +36,7 @@ public class DatarouterJobTriggerGroup extends BaseTriggerGroup{
 
 	@Inject
 	public DatarouterJobTriggerGroup(DatarouterJobSettingRoot settings){
-		super("DatarouterJob", true, ZoneIds.AMERICA_NEW_YORK);
+		super("DatarouterJob", Tag.DATAROUTER, ZoneIds.AMERICA_NEW_YORK);
 		registerLocked(
 				"53 0/2 * * * ?",
 				settings.runLongRunningTaskVacuum,

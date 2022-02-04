@@ -17,7 +17,7 @@ package io.datarouter.storage.setting;
 
 import java.util.Objects;
 
-import io.datarouter.util.enums.Displayable;
+import io.datarouter.enums.Displayable;
 
 public interface SettingCategory extends Displayable{
 

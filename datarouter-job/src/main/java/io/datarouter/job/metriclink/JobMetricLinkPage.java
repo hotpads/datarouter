@@ -25,6 +25,7 @@ import javax.inject.Inject;
 import io.datarouter.job.BaseTriggerGroup;
 import io.datarouter.job.TriggerGroupClasses;
 import io.datarouter.job.scheduler.JobPackage;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.metriclinks.MetricLinkDto;
 import io.datarouter.web.metriclinks.MetricLinkDto.LinkDto;
 import io.datarouter.web.metriclinks.MetricLinkPage;
@@ -39,14 +40,9 @@ public abstract class JobMetricLinkPage implements MetricLinkPage{
 		return "Jobs";
 	}
 
-	protected List<MetricLinkDto> buildMetricLinks(boolean isSystem){
+	protected List<MetricLinkDto> buildMetricLinks(Tag tag){
 		return triggerGroupClasses.get().stream()
-				.filter(triggerGroup -> {
-					if(isSystem){
-						return triggerGroup.isSystemTriggerGroup;
-					}
-					return !triggerGroup.isSystemTriggerGroup;
-				})
+				.filter(triggerGroup -> triggerGroup.tag == tag)
 				.map(BaseTriggerGroup::getJobPackages)
 				.flatMap(Collection::stream)
 				.map(JobPackage::toString)
@@ -63,14 +59,9 @@ public abstract class JobMetricLinkPage implements MetricLinkPage{
 	 * the eclipse compiler doesn't show any errors or warnings
 	 */
 	@SuppressWarnings("unused")
-	private List<MetricLinkDto> buildMetricLinksScanner(boolean isSystem){
+	private List<MetricLinkDto> buildMetricLinksScanner(Tag tag){
 		return triggerGroupClasses.get()
-				.include(triggerGroup -> {
-					if(isSystem){
-						return triggerGroup.isSystemTriggerGroup;
-					}
-					return !triggerGroup.isSystemTriggerGroup;
-				})
+				.include(triggerGroup -> triggerGroup.tag == tag)
 				.concatIter(BaseTriggerGroup::getJobPackages)
 				.map(JobPackage::toString)
 				.map(jobName -> {

@@ -24,6 +24,7 @@ import io.datarouter.nodewatch.job.TableCountJob;
 import io.datarouter.nodewatch.job.TableSamplerJob;
 import io.datarouter.nodewatch.job.TableSamplerJobletVacuumJob;
 import io.datarouter.nodewatch.job.TableSizeMonitoringJob;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.util.time.ZoneIds;
 
 @Singleton
@@ -31,7 +32,7 @@ public class DatarouterNodewatchTriggerGroup extends BaseTriggerGroup{
 
 	@Inject
 	public DatarouterNodewatchTriggerGroup(DatarouterNodewatchSettingRoot settings){
-		super("DatarouterNodewatch", true, ZoneIds.AMERICA_NEW_YORK);
+		super("DatarouterNodewatch", Tag.DATAROUTER, ZoneIds.AMERICA_NEW_YORK);
 		registerLocked(
 				"43 0/" + TableSamplerJob.SCHEDULING_INTERVAL.toMinutes() + " * * * ?",
 				settings.tableSamplerJob,

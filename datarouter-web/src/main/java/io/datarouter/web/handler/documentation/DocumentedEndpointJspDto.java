@@ -22,6 +22,7 @@ public class DocumentedEndpointJspDto{
 	private final String url;
 	private final String implementation;
 	private final List<DocumentedParameterJspDto> parameters;
+	private final String apiKeyFieldName;
 	private final String description;
 	private final DocumentedResponseJspDto response;
 	private final boolean isDeprecated;
@@ -29,11 +30,12 @@ public class DocumentedEndpointJspDto{
 	private final String paramsEnumValuesDisplay;
 
 	public DocumentedEndpointJspDto(String url, String implementation, List<DocumentedParameterJspDto> parameters,
-			String description, DocumentedResponseJspDto response, boolean isDeprecated,
+			String apiKeyFieldName, String description, DocumentedResponseJspDto response, boolean isDeprecated,
 			List<DocumentedErrorJspDto> errors, String paramsEnumValuesDisplay){
 		this.url = url;
 		this.implementation = implementation;
 		this.parameters = parameters;
+		this.apiKeyFieldName = apiKeyFieldName;
 		this.description = description;
 		this.response = response;
 		this.isDeprecated = isDeprecated;
@@ -51,6 +53,10 @@ public class DocumentedEndpointJspDto{
 
 	public List<DocumentedParameterJspDto> getParameters(){
 		return parameters;
+	}
+
+	public String getApiKeyFieldName(){
+		return apiKeyFieldName;
 	}
 
 	public String getDescription(){

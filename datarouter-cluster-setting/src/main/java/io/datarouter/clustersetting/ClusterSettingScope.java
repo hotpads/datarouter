@@ -15,9 +15,9 @@
  */
 package io.datarouter.clustersetting;
 
+import io.datarouter.enums.DatarouterEnumTool;
+import io.datarouter.enums.StringEnum;
 import io.datarouter.storage.servertype.ServerType;
-import io.datarouter.util.enums.DatarouterEnumTool;
-import io.datarouter.util.enums.StringEnum;
 import io.datarouter.util.lang.ObjectTool;
 import io.datarouter.util.string.StringTool;
 

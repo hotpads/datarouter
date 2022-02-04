@@ -15,52 +15,71 @@
  */
 package io.datarouter.web.service;
 
-import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.function.Supplier;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.plugin.PluginConfigKey;
+import io.datarouter.plugin.PluginConfigType;
+import io.datarouter.plugin.PluginConfigValue;
+import io.datarouter.plugin.PluginInjector;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.util.tuple.Pair;
+import io.datarouter.web.service.DocumentationNamesAndLinksSupplier.DocDto;
 
-public interface DocumentationNamesAndLinksSupplier extends Supplier<Map<String,Pair<String,Boolean>>>{
+@Singleton
+public class DocumentationNamesAndLinksSupplier implements Supplier<List<DocDto>>{
 
-	default Map<String,String> getSystemDocs(){
-		return Scanner.of(get().entrySet())
-				.include(entry -> entry.getValue().getRight())
-				.toMap(Entry::getKey, entry -> entry.getValue().getLeft());
+	@Inject
+	private PluginInjector pluginInjector;
+
+	@Override
+	public List<DocDto> get(){
+		return pluginInjector.getInstances(DocDto.KEY);
 	}
 
-	default Map<String,String> getReadmeDocs(){
-		return Scanner.of(get().entrySet())
-				.exclude(entry -> entry.getValue().getRight())
-				.toMap(Entry::getKey, entry -> entry.getValue().getLeft());
+	public Map<String,String> getSystemDocs(){
+		return Scanner.of(get())
+				.include(dto -> dto.type == DocType.SYSTEM_DOCS)
+				.sort(Comparator.comparing(dto -> dto.name))
+				.toMap(dto -> dto.name, dto -> dto.link);
 	}
 
-	@Singleton
-	class NoOpDocumentationNamesAndLinks implements DocumentationNamesAndLinksSupplier{
+	public Map<String,String> getReadmeDocs(){
+		return Scanner.of(get())
+				.include(dto -> dto.type == DocType.README)
+				.sort(Comparator.comparing(dto -> dto.name))
+				.toMap(dto -> dto.name, dto -> dto.link);
+	}
 
-		@Override
-		public Map<String,Pair<String,Boolean>> get(){
-			return Collections.emptyMap();
+	public static enum DocType{
+		README,
+		SYSTEM_DOCS,
+		;
+	}
+
+	public static class DocDto implements PluginConfigValue<DocDto>{
+
+		public static final PluginConfigKey<DocDto> KEY = new PluginConfigKey<>(
+				"docDtos",
+				PluginConfigType.INSTANCE_LIST);
+
+		public final String name;
+		public final String link;
+		public final DocType type;
+
+		public DocDto(String name, String link, DocType type){
+			this.name = name;
+			this.link = link;
+			this.type = type;
 		}
 
-	}
-
-	@Singleton
-	class DefaultDocumentationNamesAndLinks implements DocumentationNamesAndLinksSupplier{
-
-		private final Map<String,Pair<String,Boolean>> documentationNamesAndLinks;
-
-		public DefaultDocumentationNamesAndLinks(Map<String,Pair<String,Boolean>> documentationNamesAndLinks){
-			this.documentationNamesAndLinks = documentationNamesAndLinks;
-		}
-
 		@Override
-		public Map<String,Pair<String,Boolean>> get(){
-			return documentationNamesAndLinks;
+		public PluginConfigKey<DocDto> getKey(){
+			return KEY;
 		}
 
 	}

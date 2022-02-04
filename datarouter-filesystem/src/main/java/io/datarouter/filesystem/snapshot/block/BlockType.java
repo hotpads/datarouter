@@ -15,8 +15,8 @@
  */
 package io.datarouter.filesystem.snapshot.block;
 
-import io.datarouter.util.enums.DatarouterEnumTool;
-import io.datarouter.util.enums.StringEnum;
+import io.datarouter.enums.DatarouterEnumTool;
+import io.datarouter.enums.StringEnum;
 
 public enum BlockType implements StringEnum<BlockType>{
 	ROOT("root"),

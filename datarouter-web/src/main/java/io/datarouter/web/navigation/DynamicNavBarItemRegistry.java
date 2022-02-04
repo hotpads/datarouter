@@ -16,13 +16,22 @@
 package io.datarouter.web.navigation;
 
 import java.util.List;
+import java.util.function.Supplier;
 
-public class DynamicNavBarItemRegistry{
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
-	public final List<Class<? extends DynamicNavBarItem>> items;
+import io.datarouter.plugin.PluginInjector;
 
-	public DynamicNavBarItemRegistry(List<Class<? extends DynamicNavBarItem>> items){
-		this.items = items;
+@Singleton
+public class DynamicNavBarItemRegistry implements Supplier<List<DynamicNavBarItem>>{
+
+	@Inject
+	private PluginInjector pluginInjector;
+
+	@Override
+	public List<DynamicNavBarItem> get(){
+		return pluginInjector.getInstances(DynamicNavBarItem.KEY);
 	}
 
 }

@@ -31,6 +31,7 @@ import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.util.Require;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.virtualnode.redundant.RedundantIndexedSortedMapStorageNode;
@@ -55,7 +56,9 @@ public class DatarouterAccountPermissionDao extends BaseDao implements BaseDatar
 
 	}
 
-	private final SortedMapStorageNode<DatarouterAccountPermissionKey,DatarouterAccountPermission,
+	private final SortedMapStorageNode<
+			DatarouterAccountPermissionKey,
+			DatarouterAccountPermission,
 			DatarouterAccountPermissionFielder> node;
 
 	@Inject
@@ -66,16 +69,20 @@ public class DatarouterAccountPermissionDao extends BaseDao implements BaseDatar
 		super(datarouter);
 		node = Scanner.of(params.clientIds)
 				.map(clientId -> {
-					var builder = nodeFactory.create(clientId, DatarouterAccountPermission::new,
+					var builder = nodeFactory.create(
+							clientId,
+							DatarouterAccountPermission::new,
 							DatarouterAccountPermissionFielder::new)
-							.withIsSystemTable(true);
-					params.tableName.ifPresent(builder::withTableName);
+							.withTag(Tag.DATAROUTER)
+							.withTableName(params.tableName);
 
-					IndexedSortedMapStorageNode<DatarouterAccountPermissionKey,DatarouterAccountPermission,
-						DatarouterAccountPermissionFielder> node = builder.build();
+					IndexedSortedMapStorageNode<
+							DatarouterAccountPermissionKey,
+							DatarouterAccountPermission,
+							DatarouterAccountPermissionFielder> node = builder.build();
 					return node;
 				})
-				.listTo(RedundantIndexedSortedMapStorageNode::new);
+				.listTo(RedundantIndexedSortedMapStorageNode::makeIfMulti);
 		datarouter.register(node);
 	}
 

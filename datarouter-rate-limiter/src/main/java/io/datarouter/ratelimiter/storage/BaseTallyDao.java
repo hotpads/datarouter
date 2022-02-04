@@ -25,6 +25,7 @@ import io.datarouter.storage.config.Config;
 import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.node.factory.TallyNodeFactory;
 import io.datarouter.storage.node.op.raw.TallyStorage;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.storage.tally.Tally;
 import io.datarouter.storage.tally.Tally.TallyFielder;
 import io.datarouter.storage.tally.TallyKey;
@@ -38,7 +39,7 @@ public abstract class BaseTallyDao extends BaseDao{
 		node = nodeFactory.createTally(clientId, Tally::new, TallyFielder::new)
 				.withSchemaVersion(version)
 				.withTableName("Tally")
-				.withIsSystemTable(true)
+				.withTag(Tag.DATAROUTER)
 				.buildAndRegister();
 	}
 

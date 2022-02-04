@@ -29,6 +29,7 @@ import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.virtualnode.redundant.RedundantSortedMapStorageNode;
 
 @Singleton
@@ -42,7 +43,9 @@ public class DatarouterUserHistoryDao extends BaseDao{
 
 	}
 
-	private final SortedMapStorageNode<DatarouterUserHistoryKey,DatarouterUserHistory,
+	private final SortedMapStorageNode<
+			DatarouterUserHistoryKey,
+			DatarouterUserHistory,
 			DatarouterUserHistoryFielder> node;
 
 	@Inject
@@ -53,11 +56,15 @@ public class DatarouterUserHistoryDao extends BaseDao{
 		super(datarouter);
 		node = Scanner.of(params.clientIds)
 				.map(clientId -> {
-					SortedMapStorageNode<DatarouterUserHistoryKey,DatarouterUserHistory,
-					DatarouterUserHistoryFielder> node =
-							nodeFactory.create(clientId, DatarouterUserHistory::new, DatarouterUserHistoryFielder::new)
-						.withIsSystemTable(true)
-						.build();
+					SortedMapStorageNode<
+							DatarouterUserHistoryKey,
+							DatarouterUserHistory,
+							DatarouterUserHistoryFielder> node = nodeFactory.create(
+									clientId,
+									DatarouterUserHistory::new,
+									DatarouterUserHistoryFielder::new)
+							.withTag(Tag.DATAROUTER)
+							.build();
 					return node;
 				})
 				.listTo(RedundantSortedMapStorageNode::makeIfMulti);

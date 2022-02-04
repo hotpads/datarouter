@@ -20,9 +20,9 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import io.datarouter.enums.DatarouterEnumTool;
+import io.datarouter.enums.StringEnum;
 import io.datarouter.instrumentation.task.TaskStatus;
-import io.datarouter.util.enums.DatarouterEnumTool;
-import io.datarouter.util.enums.StringEnum;
 
 public enum LongRunningTaskStatus implements StringEnum<LongRunningTaskStatus>{
 	RUNNING(TaskStatus.RUNNING, "running", true, false),

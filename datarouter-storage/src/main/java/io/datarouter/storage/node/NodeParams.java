@@ -23,6 +23,7 @@ import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.node.tableconfig.NodewatchConfiguration;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.storage.util.Subpath;
 
 public class NodeParams<
@@ -65,8 +66,8 @@ public class NodeParams<
 
 	private final boolean disableForcePrimary;
 
-	// indicate if is a system table (to filter when exploring)
-	private final boolean isSystemTable;
+	// indicate if is a table category
+	private final Tag tag;
 
 	// for mysql utf8 to utf8mb4 migrations
 	private final boolean disableIntroducer;
@@ -88,7 +89,7 @@ public class NodeParams<
 			String queueUrl,
 			NodewatchConfiguration nodewatchConfiguration,
 			boolean disableForcePrimary,
-			boolean isSystemTable,
+			Tag tag,
 			boolean disableIntroducer){
 		this.clientId = clientId;
 		this.parentName = parentName;
@@ -107,7 +108,7 @@ public class NodeParams<
 		this.queueUrl = queueUrl;
 		this.nodewatchConfiguration = nodewatchConfiguration;
 		this.disableForcePrimary = disableForcePrimary;
-		this.isSystemTable = isSystemTable;
+		this.tag = tag;
 		this.disableIntroducer = disableIntroducer;
 	}
 
@@ -134,7 +135,7 @@ public class NodeParams<
 		private String queueUrl;
 		private NodewatchConfiguration nodewatchConfiguration;
 		private boolean disableForcePrimary;
-		private boolean isSystemTable;
+		private Tag tag;
 		private boolean disableIntroducer;
 
 		/*--------------------------- construct -----------------------------*/
@@ -212,8 +213,8 @@ public class NodeParams<
 			return this;
 		}
 
-		public NodeParamsBuilder<PK,D,F> withIsSystemTable(boolean isSystemTable){
-			this.isSystemTable = isSystemTable;
+		public NodeParamsBuilder<PK,D,F> withTag(Tag tag){
+			this.tag = tag;
 			return this;
 		}
 
@@ -242,7 +243,7 @@ public class NodeParams<
 					queueUrl,
 					nodewatchConfiguration,
 					disableForcePrimary,
-					isSystemTable,
+					tag,
 					disableIntroducer);
 		}
 
@@ -325,8 +326,13 @@ public class NodeParams<
 		return disableForcePrimary;
 	}
 
+	@Deprecated
 	public boolean getIsSystemTable(){
-		return isSystemTable;
+		return tag == Tag.DATAROUTER;
+	}
+
+	public Tag getTag(){
+		return tag;
 	}
 
 	public boolean getDisableIntroducer(){

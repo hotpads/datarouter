@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Optional;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientId;
@@ -30,7 +29,6 @@ import io.datarouter.web.metriclinks.MetricLinkDto;
 import io.datarouter.web.metriclinks.MetricLinkDto.LinkDto;
 import io.datarouter.web.metriclinks.MetricLinkPage;
 
-@Singleton
 public abstract class NodewatchMetricLinkPage implements MetricLinkPage{
 
 	@Inject
@@ -45,10 +43,8 @@ public abstract class NodewatchMetricLinkPage implements MetricLinkPage{
 
 	protected List<MetricLinkDto> buildMetricLinks(boolean isSystem){
 		return Scanner.of(clients.getClientIds())
-				.include(ClientId::getWritable)
 				.map(ClientId::getName)
-				.map(datarouterNodes::getPhysicalNodesForClient)
-				.concat(Scanner::of)
+				.concatIter(datarouterNodes::getPhysicalNodesForClient)
 				.map(PhysicalNode::getFieldInfo)
 				.include(fieldInfo -> {
 					if(isSystem){

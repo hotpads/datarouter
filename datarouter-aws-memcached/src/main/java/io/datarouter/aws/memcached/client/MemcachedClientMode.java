@@ -17,8 +17,8 @@ package io.datarouter.aws.memcached.client;
 
 import java.util.Optional;
 
-import io.datarouter.util.enums.DatarouterEnumTool;
-import io.datarouter.util.enums.StringEnum;
+import io.datarouter.enums.DatarouterEnumTool;
+import io.datarouter.enums.StringEnum;
 import net.spy.memcached.ClientMode;
 
 /**

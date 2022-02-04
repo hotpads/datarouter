@@ -33,6 +33,7 @@ import io.datarouter.storage.node.factory.IndexingNodeFactory;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
 import io.datarouter.storage.node.op.index.IndexReader;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.storage.util.DatabeanVacuum;
 import io.datarouter.storage.util.DatabeanVacuum.DatabeanVacuumBuilder;
 import io.datarouter.virtualnode.redundant.RedundantIndexedSortedMapStorageNode;
@@ -64,11 +65,11 @@ public class DatarouterHttpRequestRecordDao extends BaseDao{
 				.map(clientId -> {
 					IndexedSortedMapStorageNode<HttpRequestRecordKey,HttpRequestRecord,HttpRequestRecordFielder> node =
 							nodeFactory.create(clientId, HttpRequestRecord::new, HttpRequestRecordFielder::new)
-							.withIsSystemTable(true)
+							.withTag(Tag.DATAROUTER)
 							.build();
 					return node;
 				})
-				.listTo(RedundantIndexedSortedMapStorageNode::new);
+				.listTo(RedundantIndexedSortedMapStorageNode::makeIfMulti);
 		byExceptionRecordId = indexingNodeFactory.createKeyOnlyManagedIndex(
 				HttpRequestRecordByExceptionRecordIdKey::new, node)
 				.build();

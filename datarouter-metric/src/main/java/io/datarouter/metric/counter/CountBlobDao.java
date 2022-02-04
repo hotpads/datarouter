@@ -29,12 +29,12 @@ public class CountBlobDao{
 	private CountBlobDirectorySupplier directory;
 
 	public CountBlobDto read(String filename){
-		return CountBlobDto.deserialize(directory.getCountBlobDirectory().read(PathbeanKey.of(filename)));
+		return CountBlobDto.deserializeFromBytes(directory.getCountBlobDirectory().read(PathbeanKey.of(filename)));
 	}
 
 	public void write(CountBlobDto countBlobDto){
 		PathbeanKey key = PathbeanKey.of(countBlobDto.ulid);
-		directory.getCountBlobDirectory().write(key, countBlobDto.serialize());
+		directory.getCountBlobDirectory().write(key, countBlobDto.serializeToBytes());
 	}
 
 	public Scanner<String> scanKeys(){

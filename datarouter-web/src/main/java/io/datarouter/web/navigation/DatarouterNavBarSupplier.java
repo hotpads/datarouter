@@ -18,5 +18,23 @@ package io.datarouter.web.navigation;
 import java.util.List;
 import java.util.function.Supplier;
 
-public interface DatarouterNavBarSupplier extends Supplier<List<NavBarItem>>{
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+import io.datarouter.plugin.PluginInjector;
+import io.datarouter.web.navigation.NavBarCategory.NavBarItemType;
+
+@Singleton
+public class DatarouterNavBarSupplier implements Supplier<List<NavBarItem>>{
+
+	@Inject
+	private PluginInjector pluginInjector;
+
+	@Override
+	public List<NavBarItem> get(){
+		return pluginInjector.scanInstances(NavBarItem.KEY)
+				.include(item -> item.category.getType() == NavBarItemType.DATAROUTER)
+				.list();
+	}
+
 }

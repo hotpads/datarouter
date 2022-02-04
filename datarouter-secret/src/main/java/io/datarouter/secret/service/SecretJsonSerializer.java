@@ -19,7 +19,7 @@ import java.lang.reflect.Type;
 
 import javax.inject.Singleton;
 
-import io.datarouter.util.serialization.GsonTool;
+import io.datarouter.gson.serialization.GsonTool;
 
 public interface SecretJsonSerializer{
 

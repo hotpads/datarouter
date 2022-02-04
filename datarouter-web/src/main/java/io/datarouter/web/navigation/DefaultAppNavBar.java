@@ -20,7 +20,6 @@ import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
 
 @Singleton
@@ -31,9 +30,8 @@ public class DefaultAppNavBar extends AppNavBar{
 			Optional<DatarouterAuthenticationConfig> config,
 			AppPluginNavBarSupplier appNavBarPluginSupplier,
 			AppNavBarRegistrySupplier registrySupplier,
-			DynamicNavBarItemRegistry dynamicNavBarItemRegistry,
-			DatarouterInjector injector){
-		super(config, appNavBarPluginSupplier, registrySupplier, dynamicNavBarItemRegistry, injector);
+			DynamicNavBarItemRegistry dynamicNavBarItemRegistry){
+		super(config, appNavBarPluginSupplier, registrySupplier, dynamicNavBarItemRegistry);
 	}
 
 }

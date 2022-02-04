@@ -17,8 +17,8 @@ package io.datarouter.web.handler.documentation;
 
 import java.util.Optional;
 
-import io.datarouter.httpclient.response.exception.ServerErrorDoc;
 import io.datarouter.httpclient.response.exception.DocumentedServerError;
+import io.datarouter.httpclient.response.exception.ServerErrorDoc;
 import io.datarouter.util.lang.ReflectionTool;
 
 public class HttpDocumentedExceptionTool{
@@ -29,8 +29,7 @@ public class HttpDocumentedExceptionTool{
 			return Optional.of(ReflectionTool.createNullArgsWithUnsafeAllocator(annotation.value()));
 		}
 		if(DocumentedServerError.class.isAssignableFrom(clazz)){
-			return Optional.of((DocumentedServerError)ReflectionTool.createNullArgsWithUnsafeAllocator(
-					clazz));
+			return Optional.of((DocumentedServerError)ReflectionTool.createNullArgsWithUnsafeAllocator(clazz));
 		}
 		return Optional.empty();
 	}

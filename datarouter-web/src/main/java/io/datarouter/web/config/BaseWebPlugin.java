@@ -16,15 +16,12 @@
 package io.datarouter.web.config;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import io.datarouter.instrumentation.test.TestableService;
 import io.datarouter.pathnode.PathNode;
 import io.datarouter.storage.config.BaseStoragePlugin;
 import io.datarouter.util.ordered.Ordered;
-import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.FilterParams;
@@ -34,6 +31,8 @@ import io.datarouter.web.metriclinks.MetricLinkPage;
 import io.datarouter.web.navigation.DynamicNavBarItem;
 import io.datarouter.web.navigation.NavBarCategory;
 import io.datarouter.web.navigation.NavBarItem;
+import io.datarouter.web.service.DocumentationNamesAndLinksSupplier.DocDto;
+import io.datarouter.web.service.DocumentationNamesAndLinksSupplier.DocType;
 
 /**
  * BaseWebPlugin is an extension of BasePlugin. It allows all the features from datarouter-storage and the additional
@@ -153,52 +152,6 @@ public abstract class BaseWebPlugin extends BaseStoragePlugin{
 		return filterParamsUnordered;
 	}
 
-	/*------------------------------- nav bar--------------------------------*/
-
-	private final List<NavBarItem> datarouterNavBarItems = new ArrayList<>();
-	private final List<NavBarItem> appNavBarItems = new ArrayList<>();
-	private final List<Class<? extends DynamicNavBarItem>> dynamicNavBarItems = new ArrayList<>();
-
-	protected void addDatarouterNavBarItem(NavBarCategory category, PathNode pathNode, String name){
-		datarouterNavBarItems.add(new NavBarItem(category, pathNode, name));
-	}
-
-	protected void addDatarouterNavBarItem(NavBarCategory category, String path, String name){
-		datarouterNavBarItems.add(new NavBarItem(category, path, name));
-	}
-
-	protected void addDatarouterNavBarItem(NavBarItem item){
-		datarouterNavBarItems.add(item);
-	}
-
-	protected void addAppNavBarItem(NavBarCategory category, PathNode pathNode, String name){
-		appNavBarItems.add(new NavBarItem(category, pathNode, name));
-	}
-
-	protected void addAppNavBarItem(NavBarCategory category, String path, String name){
-		appNavBarItems.add(new NavBarItem(category, path, name));
-	}
-
-	protected void addAppNavBarItem(NavBarItem item){
-		appNavBarItems.add(item);
-	}
-
-	protected void addDynamicNavBarItem(Class<? extends DynamicNavBarItem> dynamicNavBarItem){
-		this.dynamicNavBarItems.add(dynamicNavBarItem);
-	}
-
-	public List<NavBarItem> getDatarouterNavBarItems(){
-		return datarouterNavBarItems;
-	}
-
-	public List<NavBarItem> getAppNavBarItems(){
-		return appNavBarItems;
-	}
-
-	public List<Class<? extends DynamicNavBarItem>> getDynamicNavBarItems(){
-		return dynamicNavBarItems;
-	}
-
 	/*-------------------------- field attributes ---------------------------*/
 
 	private final List<FieldKeyOverrider> fieldKeyOverrides = new ArrayList<>();
@@ -211,32 +164,24 @@ public abstract class BaseWebPlugin extends BaseStoragePlugin{
 		return fieldKeyOverrides;
 	}
 
-	/*--------------------- documentationNamesAndLinks ----------------------*/
-
-	private final Map<String,Pair<String,Boolean>> documentationNamesAndLinks = new HashMap<>();
-
-	public void addDocumentation(String name, String link, boolean isSystem){
-		documentationNamesAndLinks.put(name, new Pair<>(link, isSystem));
-	}
+	/*---------------------------- configs v2 -----------------------------*/
 
 	public void addReadme(String name, String link){
-		documentationNamesAndLinks.put(name, new Pair<>(link, false));
+		var dto = new DocDto(name, link, DocType.README);
+		addPluginEntry(dto);
 	}
 
 	public void addSystemDoc(String name, String link){
-		documentationNamesAndLinks.put(name, new Pair<>(link, true));
+		var dto = new DocDto(name, link, DocType.SYSTEM_DOCS);
+		addPluginEntry(dto);
 	}
 
 	public void addDatarouterGithubDocLink(String name){
 		String linkPrefix = "https://github.com/hotpads/datarouter/tree/master/";
-		documentationNamesAndLinks.put(name, new Pair<>(linkPrefix + name, true));
+		var dto = new DocDto(name, linkPrefix + name, DocType.SYSTEM_DOCS);
+		addPluginEntry(dto);
 	}
 
-	public Map<String,Pair<String,Boolean>> getDocumentationNamesAndLinks(){
-		return documentationNamesAndLinks;
-	}
-
-	/*---------------------------- configs v2 -----------------------------*/
 	// TODO move these out of datarouter-web
 
 	protected void addDailyDigest(Class<? extends DailyDigest> dailyDigest){
@@ -249,6 +194,40 @@ public abstract class BaseWebPlugin extends BaseStoragePlugin{
 
 	public void addTestable(Class<? extends TestableService> testableService){
 		addPluginEntry(TestableService.KEY, testableService);
+	}
+
+	/*------------------------------- nav bar--------------------------------*/
+
+	protected void addDatarouterNavBarItem(NavBarCategory category, PathNode pathNode, String name){
+		var value = new NavBarItem(category, pathNode, name);
+		addPluginEntry(value);
+	}
+
+	protected void addDatarouterNavBarItem(NavBarCategory category, String path, String name){
+		var value = new NavBarItem(category, path, name);
+		addPluginEntry(value);
+	}
+
+	protected void addDatarouterNavBarItem(NavBarItem item){
+		addPluginEntry(item);
+	}
+
+	protected void addAppNavBarItem(NavBarCategory category, PathNode pathNode, String name){
+		var value = new NavBarItem(category, pathNode, name);
+		addPluginEntry(value);
+	}
+
+	protected void addAppNavBarItem(NavBarCategory category, String path, String name){
+		var value = new NavBarItem(category, path, name);
+		addPluginEntry(value);
+	}
+
+	protected void addAppNavBarItem(NavBarItem item){
+		addPluginEntry(item);
+	}
+
+	protected void addDynamicNavBarItem(Class<? extends DynamicNavBarItem> item){
+		addPluginEntry(DynamicNavBarItem.KEY, item);
 	}
 
 	/*--------------------------- add web plugins ---------------------------*/

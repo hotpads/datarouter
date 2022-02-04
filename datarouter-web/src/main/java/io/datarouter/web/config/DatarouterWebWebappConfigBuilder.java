@@ -54,11 +54,9 @@ import io.datarouter.storage.dao.DaosModuleBuilder;
 import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.storage.servertype.ServerTypes;
 import io.datarouter.storage.setting.SettingRoot;
-import io.datarouter.storage.setting.SettingRootsSupplier;
 import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.util.ordered.Ordered;
 import io.datarouter.util.ordered.OrderedTool;
-import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.config.DatarouterWebPlugin.DatarouterWebPluginBuilder;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.dispatcher.BaseRouteSet;
@@ -77,6 +75,8 @@ import io.datarouter.web.navigation.AppNavBarRegistrySupplier;
 import io.datarouter.web.navigation.DynamicNavBarItem;
 import io.datarouter.web.navigation.NavBarCategory;
 import io.datarouter.web.navigation.NavBarItem;
+import io.datarouter.web.service.DocumentationNamesAndLinksSupplier.DocDto;
+import io.datarouter.web.service.DocumentationNamesAndLinksSupplier.DocType;
 import io.datarouter.web.service.ServiceDescriptionSupplier;
 import io.datarouter.web.user.authenticate.DatarouterAuthenticationFilter;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
@@ -97,7 +97,6 @@ implements WebappBuilder{
 	private final String privateDomain;
 	private final String contextName;
 	private final ServerTypes serverTypes;
-	private final List<Class<? extends SettingRoot>> settingRoots;
 	private final List<Class<? extends Dao>> daoClasses;
 	protected final List<ClientId> defaultClientIds;
 	private final List<FieldKeyOverrider> fieldKeyOverriders;
@@ -123,7 +122,6 @@ implements WebappBuilder{
 	private final List<Class<? extends DatarouterWebAppListener>> webAppListenersUnordered;
 	private final List<Ordered<Class<? extends BaseRouteSet>>> routeSetOrdered;
 	private final List<Class<? extends BaseRouteSet>> routeSetsUnordered;
-	private final Map<String,Pair<String,Boolean>> documentationNamesAndLinks;
 
 	private Class<? extends RoleManager> roleManager;
 	private Class<? extends CurrentSessionInfo> currentSessionInfo;
@@ -143,9 +141,6 @@ implements WebappBuilder{
 	// datarouter-web servlet
 	private final List<Ordered<FilterParams>> filterParamsOrdered;
 	private final List<FilterParams> filterParamsUnordered;
-	private final List<NavBarItem> datarouterNavBarPluginItems;
-	private final List<NavBarItem> appNavBarPluginItems;
-	private final List<Class<? extends DynamicNavBarItem>> dynamicNavBarItems;
 	private final List<ServletParams> servletParams;
 
 	private boolean renderJspsUsingServletContainer;
@@ -205,7 +200,6 @@ implements WebappBuilder{
 		this.log4jServletContextListener = log4jServletContextListener;
 
 		// datarouter-storage
-		this.settingRoots = new ArrayList<>();
 		this.settingOverrides = NoOpDatarouterSettingOverrides.class;
 		this.daoClasses = new ArrayList<>();
 		this.fieldKeyOverriders = new ArrayList<>();
@@ -231,7 +225,6 @@ implements WebappBuilder{
 		this.customStaticFileFilterRegex = null;
 		this.homepageRouteSet = DefaultHomepageRouteSet.class;
 		this.homepageHandler = SimpleHomepageHandler.class;
-		this.documentationNamesAndLinks = new HashMap<>();
 		this.useDatarouterAuth = true;
 		this.defaultEmailDistributionListZoneId = ZoneId.systemDefault();
 		this.dailyDigestEmailZoneId = ZoneId.systemDefault();
@@ -244,9 +237,6 @@ implements WebappBuilder{
 		this.routeSetOrdered = new ArrayList<>();
 		this.routeSetsUnordered = new ArrayList<>();
 		this.servletParams = new ArrayList<>();
-		this.datarouterNavBarPluginItems = new ArrayList<>();
-		this.appNavBarPluginItems = new ArrayList<>();
-		this.dynamicNavBarItems = new ArrayList<>();
 		this.requestProxy = NoOpRequestProxySetter.class;
 
 		// additional
@@ -295,8 +285,6 @@ implements WebappBuilder{
 				.setUserSesssionServiceClass(userSessionService)
 				.setAppListenerClasses(OrderedTool.combine(appListenersOrdered, appListenersUnordered))
 				.setWebAppListenerClasses(OrderedTool.combine(webAppListenersOrdered, webAppListenersUnordered))
-				.setDatarouterNavBarMenuItems(datarouterNavBarPluginItems)
-				.setAppNavBarMenuItems(appNavBarPluginItems)
 				.setDatarouterUserExternalDetails(datarouterUserExternalDetail)
 				.setAppNavBarRegistrySupplier(appNavBarRegistrySupplier)
 				.setHomepageHandler(homepageHandler)
@@ -304,8 +292,6 @@ implements WebappBuilder{
 				.withRegisteredPlugins(registeredPlugins)
 				.withNodeWidgetDatabeanExporterLink(nodeWidgetDatabeanExporterLink)
 				.withNodeWidgetTableCountLink(nodeWidgetTableCountLink)
-				.setDocumentationNamesAndLinks(documentationNamesAndLinks)
-				.setDynamicNavBarItems(dynamicNavBarItems)
 				.setRequestProxy(requestProxy)
 				.setDefaultEmailDistributionListZoneId(defaultEmailDistributionListZoneId)
 				.setDailyDigestEmailZoneId(dailyDigestEmailZoneId)
@@ -325,7 +311,6 @@ implements WebappBuilder{
 				serverTypes,
 				defaultClientIds)
 				.setSettingOverridesClass(settingOverrides)
-				.setSettingRootsClass(new SettingRootsSupplier(settingRoots))
 				.setClientOptionsFactoryClass(clientOptionsFactory)
 				.setSchemaUpdateOptionsFactoryClass(schemaUpdateOptionsFactory)
 				.setPluginConfigsClassList(classList)
@@ -339,7 +324,6 @@ implements WebappBuilder{
 		}
 		addStoragePluginWithoutInstalling(storagePluginBuilder.getSimplePluginData());
 		// duplicates the one above at line 267? TODO remove?
-		storagePluginBuilder.setSettingRootsClass(new SettingRootsSupplier(settingRoots));
 
 		modules.add(webPlugin);
 		modules.add(storagePluginBuilder.build());
@@ -441,13 +425,7 @@ implements WebappBuilder{
 		webAppListenersOrdered.addAll(plugin.getWebAppListenersOrdered());
 		webAppListenersUnordered.addAll(plugin.getWebAppListenersUnordered());
 
-		datarouterNavBarPluginItems.addAll(plugin.getDatarouterNavBarItems());
-		appNavBarPluginItems.addAll(plugin.getAppNavBarItems());
-		dynamicNavBarItems.addAll(plugin.getDynamicNavBarItems());
-
 		fieldKeyOverriders.addAll(plugin.getFieldKeyOverrides());
-
-		documentationNamesAndLinks.putAll(plugin.getDocumentationNamesAndLinks());
 
 		return getSelf();
 	}
@@ -456,7 +434,6 @@ implements WebappBuilder{
 		DaosModuleBuilder daosModule = plugin.getDaosModuleBuilder();
 		daoClasses.addAll(daosModule.getDaoClasses());
 		modules.add(daosModule);
-		settingRoots.addAll(plugin.getSettingRoots());
 		testModules.addAll(plugin.getTestModules());
 
 		// TODO do we need to check for overwriting?
@@ -487,11 +464,6 @@ implements WebappBuilder{
 
 	public T addModule(Module module){
 		modules.add(module);
-		return getSelf();
-	}
-
-	public T addSettingRoot(Class<? extends SettingRoot> settingRoot){
-		this.settingRoots.add(settingRoot);
 		return getSelf();
 	}
 
@@ -656,35 +628,6 @@ implements WebappBuilder{
 		return getSelf();
 	}
 
-	public T addReadme(String name, String link){
-		this.documentationNamesAndLinks.put(name, new Pair<>(link, false));
-		return getSelf();
-	}
-
-	public T addSystemDocumentation(String name, String link){
-		this.documentationNamesAndLinks.put(name, new Pair<>(link, true));
-		return getSelf();
-	}
-
-	public T addAppNavBarItem(NavBarCategory category, PathNode path, String name){
-		return addAppNavBarItem(category, path.toSlashedString(), name);
-	}
-
-	public T addAppNavBarItem(NavBarCategory category, String path, String name){
-		this.appNavBarPluginItems.add(new NavBarItem(category, path, name));
-		return getSelf();
-	}
-
-	public T addDatarouterNavBarItem(NavBarCategory category, String path, String name){
-		this.datarouterNavBarPluginItems.add(new NavBarItem(category, path, name));
-		return getSelf();
-	}
-
-	public T addDynamicNavBarItem(Class<? extends DynamicNavBarItem> dynamicNavBarItem){
-		this.dynamicNavBarItems.add(dynamicNavBarItem);
-		return getSelf();
-	}
-
 	public T setRequestProxy(Class<? extends RequestProxySetter> requestProxy){
 		this.requestProxy = requestProxy;
 		return getSelf();
@@ -697,6 +640,46 @@ implements WebappBuilder{
 
 	public T setDailyDigestEmailZoneId(ZoneId zoneId){
 		this.dailyDigestEmailZoneId = zoneId;
+		return getSelf();
+	}
+
+	/*------- plugin configs v2 ---------*/
+
+	public T addAppNavBarItem(NavBarCategory category, PathNode path, String name){
+		return addAppNavBarItem(category, path.toSlashedString(), name);
+	}
+
+	public T addAppNavBarItem(NavBarCategory category, String path, String name){
+		var value = new NavBarItem(category, path, name);
+		addPluginEntry(value);
+		return getSelf();
+	}
+
+	public T addDatarouterNavBarItem(NavBarCategory category, String path, String name){
+		var value = new NavBarItem(category, path, name);
+		addPluginEntry(value);
+		return getSelf();
+	}
+
+	public T addDynamicNavBarItem(Class<? extends DynamicNavBarItem> dynamicNavBarItem){
+		addPluginEntry(DynamicNavBarItem.KEY, dynamicNavBarItem);
+		return getSelf();
+	}
+
+	public T addReadme(String name, String link){
+		var dto = new DocDto(name, link, DocType.README);
+		addPluginEntry(dto);
+		return getSelf();
+	}
+
+	public T addSystemDocumentation(String name, String link){
+		var dto = new DocDto(name, link, DocType.SYSTEM_DOCS);
+		addPluginEntry(dto);
+		return getSelf();
+	}
+
+	public T addSettingRoot(Class<? extends SettingRoot> settingRoot){
+		addPluginEntry(SettingRoot.KEY, settingRoot);
 		return getSelf();
 	}
 

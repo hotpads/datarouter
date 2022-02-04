@@ -30,6 +30,7 @@ import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.virtualnode.redundant.RedundantSortedMapStorageNode;
 
 @Singleton
@@ -43,19 +44,27 @@ public class DatarouterTableSizeAlertThresholdDao extends BaseDao{
 
 	}
 
-	private final SortedMapStorageNode<TableSizeAlertThresholdKey,TableSizeAlertThreshold,
-		TableSizeAlertThresholdFielder> node;
+	private final SortedMapStorageNode<
+			TableSizeAlertThresholdKey,
+			TableSizeAlertThreshold,
+			TableSizeAlertThresholdFielder> node;
 
 	@Inject
-	public DatarouterTableSizeAlertThresholdDao(Datarouter datarouter, NodeFactory nodeFactory,
+	public DatarouterTableSizeAlertThresholdDao(
+			Datarouter datarouter,
+			NodeFactory nodeFactory,
 			DatarouterTableSizeAlertThresholdDaoParams params){
 		super(datarouter);
 		node = Scanner.of(params.clientIds)
 				.map(clientId -> {
-					SortedMapStorageNode<TableSizeAlertThresholdKey,TableSizeAlertThreshold,
-					TableSizeAlertThresholdFielder> node = nodeFactory.create(clientId, TableSizeAlertThreshold::new,
-							TableSizeAlertThresholdFielder::new)
-							.withIsSystemTable(true)
+					SortedMapStorageNode<
+							TableSizeAlertThresholdKey,
+							TableSizeAlertThreshold,
+							TableSizeAlertThresholdFielder> node = nodeFactory.create(
+									clientId,
+									TableSizeAlertThreshold::new,
+									TableSizeAlertThresholdFielder::new)
+							.withTag(Tag.DATAROUTER)
 							.build();
 					return node;
 				})
