@@ -15,33 +15,53 @@
  */
 package io.datarouter.exception.utils;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import io.datarouter.exception.utils.nameparser.ExceptionNameParser;
 import io.datarouter.exception.utils.nameparser.ExceptionNameParserRegistry;
 import io.datarouter.exception.utils.nameparser.ExceptionSnapshot;
 import io.datarouter.exception.utils.nameparser.ExceptionSnapshot.ExceptionCauseSnapshot;
 import io.datarouter.exception.utils.nameparser.ExceptionSnapshot.StackTraceElementSnapshot;
+import io.datarouter.inject.DatarouterInjector;
+import io.datarouter.scanner.OptionalScanner;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.tuple.Pair;
 
+@Singleton
 public class ExceptionDetailsDetector{
 
-	public static ExceptionRecorderDetails detect(ExceptionNameParserRegistry registry, Throwable wholeException,
-			String callOrigin, Set<String> highlights){
-		ExceptionSnapshot snapshot = new ExceptionSnapshot(wholeException);
+	@Inject
+	private ExceptionNameParserRegistry registry;
+	@Inject
+	private DatarouterInjector injector;
+
+	public ExceptionRecorderDetails detect(Throwable wholeException, String callOrigin, Set<String> highlights){
+		return detect(new ExceptionSnapshot(wholeException), callOrigin, highlights);
+	}
+
+	public ExceptionRecorderDetails detect(ExceptionSnapshot snapshot, String callOrigin, Set<String> highlights){
 		Optional<ExceptionCauseSnapshot> rootCause = snapshot.getRootCause();
 		Optional<String> parsedName = Optional.empty();
-		Optional<Pair<ExceptionNameParser,ExceptionCauseSnapshot>> parserAndCause = registry.getNameParserAndCause(
-				snapshot);
+		Optional<Pair<ExceptionNameParser,ExceptionCauseSnapshot>> parserAndCause = Scanner.of(registry
+				.getNameParserClasses())
+				.map(injector::getInstance)
+				.map(ExceptionNameParser.class::cast)
+				.map(parser -> parser.getCauseFromType(snapshot)
+						.map(cause -> new Pair<>(parser, cause)))
+				.concat(OptionalScanner::of)
+				.findFirst();
 		if(parserAndCause.isPresent()){
 			rootCause = Optional.of(parserAndCause.get().getRight());
 			ExceptionNameParser exceptionWithParser = parserAndCause.get().getLeft();
 			parsedName = exceptionWithParser.parseExceptionName(rootCause);
 		}
 		ExceptionCauseSnapshot exception = rootCause
-				.orElse(new ExceptionCauseSnapshot(wholeException));
+				.orElse(new ExceptionCauseSnapshot(null, null, null, List.of()));
 		Optional<StackTraceElementSnapshot> stackTraceElement = searchClassName(exception, highlights);
 		if(stackTraceElement.isEmpty()){
 			stackTraceElement = exception.stackTraces.stream()

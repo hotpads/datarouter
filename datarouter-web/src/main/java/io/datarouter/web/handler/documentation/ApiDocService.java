@@ -192,8 +192,8 @@ public class ApiDocService{
 		boolean isEndpointObject = EndpointTool.paramIsEndpointObject(method);
 		if(isEndpointObject){
 			@SuppressWarnings("unchecked")
-			BaseEndpoint<?> baseEndpoint = ReflectionTool.createWithoutNoArgs(
-					(Class<? extends BaseEndpoint<?>>)method.getParameters()[0].getType());
+			BaseEndpoint<?,?> baseEndpoint = ReflectionTool.createWithoutNoArgs(
+					(Class<? extends BaseEndpoint<?,?>>)method.getParameters()[0].getType());
 			return Scanner.of(baseEndpoint.getClass().getFields())
 					.exclude(field -> field.isAnnotationPresent(IgnoredField.class))
 					.map(this::createDocumentedParameterFromField)

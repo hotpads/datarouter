@@ -21,6 +21,7 @@ import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.tableconfig.NodewatchConfiguration;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.util.string.StringTool;
 
 public class PhysicalDatabeanFieldInfo<
@@ -34,7 +35,7 @@ extends DatabeanFieldInfo<PK,D,F>{
 	private final String nodeName;
 	private final NodewatchConfiguration nodewatchConfiguration;
 	private final boolean disableForcePrimary;
-	private final boolean isSystemTable;
+	private final Tag tag;
 	private final boolean disableIntroducer;
 
 	public PhysicalDatabeanFieldInfo(NodeParams<PK,D,F> params){
@@ -60,7 +61,7 @@ extends DatabeanFieldInfo<PK,D,F>{
 		this.nodeName = nodeName;
 		this.nodewatchConfiguration = params.getTableConfiguration();
 		this.disableForcePrimary = params.getDisableForcePrimary();
-		this.isSystemTable = params.getIsSystemTable();
+		this.tag = params.getTag();
 		this.disableIntroducer = params.getDisableIntroducer();
 	}
 
@@ -84,8 +85,8 @@ extends DatabeanFieldInfo<PK,D,F>{
 		return disableForcePrimary;
 	}
 
-	public boolean getIsSystemTable(){
-		return isSystemTable;
+	public Tag getTag(){
+		return tag;
 	}
 
 	public boolean getDisableIntroducer(){

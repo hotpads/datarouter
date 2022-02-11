@@ -22,11 +22,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.conveyor.message.ConveyorMessage;
-import io.datarouter.httpclient.security.DefaultSignatureGenerator;
 import io.datarouter.instrumentation.count.CountBatchDto;
 import io.datarouter.instrumentation.count.CountPublisher;
 import io.datarouter.instrumentation.response.PublishingResponseDto;
-import io.datarouter.util.Require;
 import io.datarouter.util.UlidTool;
 
 @Singleton
@@ -36,7 +34,6 @@ public class CountBlobService implements CountPublisher{
 	private final CountBlobDao countBlobDao;
 	private final DatarouterCountBlobQueueDao countBlobQueueDao;
 	private final CountBlobPublishingSettings countBlobPublishingSettings;
-	private final DefaultSignatureGenerator publisherSignatureGenerator;
 
 	@Inject
 	public CountBlobService(CountBlobDao countBlobDao, DatarouterCountBlobQueueDao countBlobQueueDao,
@@ -44,20 +41,19 @@ public class CountBlobService implements CountPublisher{
 		this.countBlobDao = countBlobDao;
 		this.countBlobQueueDao = countBlobQueueDao;
 		this.countBlobPublishingSettings = countBlobPublishingSettings;
-		this.publisherSignatureGenerator = new DefaultSignatureGenerator(countBlobPublishingSettings::getPrivateKey);
 	}
 
 	@Override
 	public PublishingResponseDto add(CountBatchDto dto){
 		var countBlobDto = toBlob(dto);
-		logger.warn("writing key={}", countBlobDto.ulid);//TODO switch to info later
+		logger.info("writing key={}", countBlobDto.ulid);
 		countBlobDao.write(countBlobDto);
 		return PublishingResponseDto.SUCCESS;
 	}
 
 	public PublishingResponseDto addToQueue(CountBatchDto dto){
 		var countBlobDto = toBlob(dto);
-		logger.warn("writing queue key={}", countBlobDto.ulid);//TODO switch to info later
+		logger.info("writing queue key={}", countBlobDto.ulid);
 		countBlobQueueDao.put(new ConveyorMessage(countBlobDto.ulid, countBlobDto.serializeToString()));
 		return PublishingResponseDto.SUCCESS;
 	}
@@ -68,12 +64,10 @@ public class CountBlobService implements CountPublisher{
 				dto.serviceName,
 				dto.serverName,
 				dto.counts,
-				countBlobPublishingSettings.getApiKey(),
-				publisherSignatureGenerator);
+				countBlobPublishingSettings.getApiKey());
 	}
 
-	public CountBatchDto fromBlob(CountBlobDto dto, DefaultSignatureGenerator signatureGenerator){
-		Require.equals(dto.signature, signatureGenerator.getHexSignature(dto.getSignatureMap()).signature);
+	public CountBatchDto fromBlob(CountBlobDto dto){
 		return new CountBatchDto(
 				UlidTool.getTimestamp(dto.ulid),
 				dto.serviceName,

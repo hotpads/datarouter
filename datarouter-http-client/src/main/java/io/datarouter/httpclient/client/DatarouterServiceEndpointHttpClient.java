@@ -24,6 +24,7 @@ import io.datarouter.httpclient.dto.DatarouterAccountCredentialStatusDto;
 import io.datarouter.httpclient.endpoint.BaseEndpoint;
 import io.datarouter.httpclient.endpoint.DatarouterServiceCheckCredentialEndpoint;
 import io.datarouter.httpclient.endpoint.DatarouterServiceHealthcheckEndpoint;
+import io.datarouter.httpclient.endpoint.EndpointType;
 import io.datarouter.httpclient.response.Conditional;
 
 //currently works as a mixin for existing BaseDatarouterEndpointHttpClientWrappers
@@ -31,15 +32,16 @@ import io.datarouter.httpclient.response.Conditional;
 /**
  * for use specifically with servers that are built on datarouter-web
  */
-public interface DatarouterServiceHttpClient extends DatarouterHttpClient{
-	final Logger logger = LoggerFactory.getLogger(DatarouterServiceHttpClient.class);
+public interface DatarouterServiceEndpointHttpClient<R extends EndpointType>
+extends DatarouterEndpointHttpClient<R>{
+	Logger logger = LoggerFactory.getLogger(DatarouterServiceEndpointHttpClient.class);
 
 	default Conditional<Object> checkHealth(){
-		return call(DatarouterServiceHealthcheckEndpoint.getEndpoint());
+		return callUnchecked(DatarouterServiceHealthcheckEndpoint.getEndpoint());
 	}
 
 	default <E> Conditional<E> callWithHealthcheckV2(
-			BaseEndpoint<E> endpoint,
+			BaseEndpoint<E,R> endpoint,
 			Supplier<Boolean> shouldCheckHealth,
 			E healthCheckFailureResponse){
 		if(shouldCheckHealth.get()){
@@ -53,13 +55,13 @@ public interface DatarouterServiceHttpClient extends DatarouterHttpClient{
 	}
 
 	default <E> Conditional<E> callWithHealthcheckV2(
-			BaseEndpoint<E> endpoint,
+			BaseEndpoint<E,R> endpoint,
 			Supplier<Boolean> shouldCheckHealth){
 		return callWithHealthcheckV2(endpoint, shouldCheckHealth, null);
 	}
 
 	default Conditional<DatarouterAccountCredentialStatusDto> checkCredential(){
-		return call(DatarouterServiceCheckCredentialEndpoint.getEndpoint());
+		return callUnchecked(DatarouterServiceCheckCredentialEndpoint.getEndpoint());
 	}
 
 }

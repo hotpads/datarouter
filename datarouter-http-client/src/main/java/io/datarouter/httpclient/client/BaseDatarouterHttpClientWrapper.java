@@ -22,7 +22,6 @@ import org.apache.http.HttpEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.pool.PoolStats;
 
-import io.datarouter.httpclient.endpoint.BaseEndpoint;
 import io.datarouter.httpclient.json.JsonSerializer;
 import io.datarouter.httpclient.request.DatarouterHttpRequest;
 import io.datarouter.httpclient.response.Conditional;
@@ -86,11 +85,6 @@ public abstract class BaseDatarouterHttpClientWrapper implements DatarouterHttpC
 	}
 
 	@Override
-	public <E> Conditional<E> call(BaseEndpoint<E> baseEndpoint){
-		return datarouterHttpClient.call(baseEndpoint);
-	}
-
-	@Override
 	public void shutdown(){
 		datarouterHttpClient.shutdown();
 	}
@@ -118,11 +112,6 @@ public abstract class BaseDatarouterHttpClientWrapper implements DatarouterHttpC
 	@Override
 	public JsonSerializer getJsonSerializer(){
 		return datarouterHttpClient.getJsonSerializer();
-	}
-
-	@Override
-	public void initUrlPrefix(BaseEndpoint<?> endpoint){
-		datarouterHttpClient.initUrlPrefix(endpoint);
 	}
 
 }

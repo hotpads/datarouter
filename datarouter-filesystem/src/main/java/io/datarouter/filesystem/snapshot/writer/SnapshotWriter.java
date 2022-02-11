@@ -28,6 +28,7 @@ import java.util.stream.IntStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.bytes.EmptyArray;
 import io.datarouter.bytes.codec.bytestringcodec.CsvIntByteStringCodec;
 import io.datarouter.filesystem.snapshot.block.root.RootBlock;
 import io.datarouter.filesystem.snapshot.encode.BranchBlockEncoder;
@@ -43,8 +44,6 @@ import io.datarouter.util.concurrent.LinkedBlockingDequeTool;
 
 public class SnapshotWriter implements AutoCloseable{
 	private static final Logger logger = LoggerFactory.getLogger(SnapshotWriter.class);
-
-	private static final int[] EMPTY_INT_ARRAY = new int[0];
 
 	private final SnapshotKey snapshotKey;
 	private final SnapshotWriterTracker tracker;
@@ -175,8 +174,8 @@ public class SnapshotWriter implements AutoCloseable{
 		int[] valueBlockIds;
 		int[] valueIndexes;
 		if(numColumns == 0){
-			valueBlockIds = EMPTY_INT_ARRAY;
-			valueIndexes = EMPTY_INT_ARRAY;
+			valueBlockIds = EmptyArray.INT;
+			valueIndexes = EmptyArray.INT;
 		}else{
 			valueBlockIds = new int[numColumns];
 			valueIndexes = new int[numColumns];

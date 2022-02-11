@@ -132,7 +132,7 @@ public class ByteTool{
 
 	public static byte[] getUInt7Bytes(List<Byte> values){
 		if(values.isEmpty()){
-			return new byte[0];
+			return EmptyArray.BYTE;
 		}
 		var out = new byte[values.size()];
 		int index = 0;

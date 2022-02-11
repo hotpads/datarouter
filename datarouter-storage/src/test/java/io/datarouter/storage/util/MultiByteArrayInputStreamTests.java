@@ -22,17 +22,19 @@ import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import io.datarouter.bytes.EmptyArray;
+
 public class MultiByteArrayInputStreamTests{
 
 	@Test
 	public void testEmpty(){
-		MultiByteArrayInputStream is = new MultiByteArrayInputStream(List.of(new byte[0]));
-		Assert.assertEquals(is.readAllBytes(), new byte[0]);
+		MultiByteArrayInputStream is = new MultiByteArrayInputStream(List.of(EmptyArray.BYTE));
+		Assert.assertEquals(is.readAllBytes(), EmptyArray.BYTE);
 	}
 
 	@Test
 	public void testOther() throws IOException{
-		List<byte[]> inputs = List.of(new byte[]{}, new byte[]{0}, new byte[]{1, 2}, new byte[]{});
+		List<byte[]> inputs = List.of(EmptyArray.BYTE, new byte[]{0}, new byte[]{1, 2}, EmptyArray.BYTE);
 
 		try(MultiByteArrayInputStream is1 = new MultiByteArrayInputStream(inputs)){
 			Assert.assertEquals(0, is1.read());
@@ -56,7 +58,7 @@ public class MultiByteArrayInputStreamTests{
 		try(MultiByteArrayInputStream is4 = new MultiByteArrayInputStream(inputs)){
 			Assert.assertEquals(is4.readNBytes(1), new byte[]{0});
 			Assert.assertEquals(is4.readNBytes(2), new byte[]{1, 2});
-			Assert.assertEquals(is4.readNBytes(2), new byte[]{});
+			Assert.assertEquals(is4.readNBytes(2), EmptyArray.BYTE);
 		}
 
 		try(MultiByteArrayInputStream is5 = new MultiByteArrayInputStream(inputs)){

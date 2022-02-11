@@ -32,7 +32,6 @@ import io.datarouter.exception.storage.httprecord.DatarouterHttpRequestRecordPub
 import io.datarouter.exception.storage.httprecord.HttpRequestRecord;
 import io.datarouter.exception.utils.ExceptionDetailsDetector;
 import io.datarouter.exception.utils.ExceptionDetailsDetector.ExceptionRecorderDetails;
-import io.datarouter.exception.utils.nameparser.ExceptionNameParserRegistry;
 import io.datarouter.instrumentation.exception.ExceptionRecordDto;
 import io.datarouter.instrumentation.exception.HttpRequestRecordDto;
 import io.datarouter.storage.config.properties.ServerName;
@@ -63,7 +62,7 @@ public class DefaultExceptionRecorder implements ExceptionRecorder{
 	@Inject
 	private ExceptionRecordService exceptionRecordService;
 	@Inject
-	private ExceptionNameParserRegistry exceptionNameParserRegistry;
+	private ExceptionDetailsDetector exceptionDetailsDetector;
 	@Inject
 	private DatarouterExceptionRecordPublisherDao exceptionRecordPublisherDao;
 	@Inject
@@ -103,8 +102,8 @@ public class DefaultExceptionRecorder implements ExceptionRecorder{
 			ExceptionCategory category,
 			List<String> additionalEmailRecipients){
 		try{
-			ExceptionRecorderDetails exceptionDetails = ExceptionDetailsDetector.detect(exceptionNameParserRegistry,
-					exception, callOrigin, datarouterWebSettingRoot.stackTraceHighlights.get());
+			ExceptionRecorderDetails exceptionDetails = exceptionDetailsDetector.detect(exception, callOrigin,
+					datarouterWebSettingRoot.stackTraceHighlights.get());
 			return Optional.of(recordException(
 					exception,
 					category,
@@ -186,8 +185,8 @@ public class DefaultExceptionRecorder implements ExceptionRecorder{
 			String callOrigin,
 			HttpServletRequest request){
 		try{
-			ExceptionRecorderDetails exceptionDetails = ExceptionDetailsDetector.detect(exceptionNameParserRegistry,
-					exception, callOrigin, datarouterWebSettingRoot.stackTraceHighlights.get());
+			ExceptionRecorderDetails exceptionDetails = exceptionDetailsDetector.detect(exception, callOrigin,
+					datarouterWebSettingRoot.stackTraceHighlights.get());
 			return Optional.of(recordExceptionAndHttpRequest(
 					exception,
 					exceptionDetails.className,

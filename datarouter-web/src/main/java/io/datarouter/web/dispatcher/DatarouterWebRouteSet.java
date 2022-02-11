@@ -28,7 +28,6 @@ import io.datarouter.web.browse.ViewTableConfigurationHandler;
 import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.digest.DailyDigestHandler;
 import io.datarouter.web.email.EmailTestHandler;
-import io.datarouter.web.endpoint.EndpointInspectorHandler;
 import io.datarouter.web.handler.IpDetectionHandler;
 import io.datarouter.web.handler.TestApiHandler;
 import io.datarouter.web.http.HttpTestHandler;
@@ -92,7 +91,6 @@ public class DatarouterWebRouteSet extends BaseRouteSet{
 		handle(paths.datarouter.deployment).withHandler(DeploymentReportingHandler.class).allowAnonymous();
 		handle(paths.datarouter.shutdown).withHandler(ShutdownHandler.class).allowAnonymous();
 
-		handle(paths.datarouter.info.endpoints).withHandler(EndpointInspectorHandler.class);
 		handle(paths.datarouter.info.filterParams).withHandler(DatarouterServletFilterParamsViewHandler.class);
 		handle(paths.datarouter.info.listeners).withHandler(DatarouterListenersViewHandler.class);
 		handle(paths.datarouter.info.routeSets).withHandler(DatarouterRouteSetViewHandler.class);

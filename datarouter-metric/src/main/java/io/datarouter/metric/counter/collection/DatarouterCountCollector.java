@@ -98,6 +98,12 @@ public class DatarouterCountCollector implements CountCollector{
 		if(delta == 0){
 			return 0;
 		}
+		if(key.contains("\n") || key.contains("\t")){
+			Exception stackTrace = new IllegalArgumentException();
+			logger.warn("discarding bad count key={}", key, stackTrace);
+			return 0;
+		}
+
 		long periodStartMs = DateTool.getPeriodStart(PERIOD_GRANULARITY_MS);
 		long total = valueByNameByPeriodStartMs
 				.computeIfAbsent(periodStartMs, $ -> new ConcurrentHashMap<>(METRICS_INITIAL_CAPACITY))

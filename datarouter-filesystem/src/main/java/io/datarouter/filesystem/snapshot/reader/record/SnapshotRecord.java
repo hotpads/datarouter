@@ -46,4 +46,8 @@ public class SnapshotRecord{
 		return new SnapshotEntry(key, value, columnValues);
 	}
 
+	public SnapshotLeafRecord leafRecord(){
+		return new SnapshotLeafRecord(id, key, value);
+	}
+
 }

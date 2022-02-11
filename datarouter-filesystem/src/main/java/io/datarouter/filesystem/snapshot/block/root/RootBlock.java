@@ -23,6 +23,7 @@ import io.datarouter.bytes.ByteReader;
 import io.datarouter.filesystem.snapshot.block.Block;
 import io.datarouter.filesystem.snapshot.block.BlockKey;
 import io.datarouter.filesystem.snapshot.key.SnapshotKey;
+import io.datarouter.util.duration.DatarouterDuration;
 import io.datarouter.util.number.NumberFormatter;
 
 public interface RootBlock extends Block{
@@ -168,7 +169,7 @@ public interface RootBlock extends Block{
 		kvs.put("numValueBytesCompressed", NumberFormatter.addCommas(numValueBytesCompressed()));
 
 		kvs.put("writeStartTime", Instant.ofEpochMilli(writeStartTimeMs()).toString());
-		kvs.put("writeDuration", writeDuration().toString());
+		kvs.put("writeDuration", new DatarouterDuration(writeDuration()).toString());
 		kvs.put("writeItemsPerSecond", perSecond(numRecords(), writeDuration()));
 		kvs.put("writeEncodedBytesPerSecond", perSecond(totalBytesEncoded(), writeDuration()));
 		kvs.put("writeCompressedBytesPerSecond", perSecond(totalBytesCompressed(), writeDuration()));

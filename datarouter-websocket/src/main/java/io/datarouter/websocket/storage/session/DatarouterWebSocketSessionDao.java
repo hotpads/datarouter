@@ -52,14 +52,11 @@ public class DatarouterWebSocketSessionDao extends BaseDao{
 			DatarouterWebSocketDaoParams params){
 		super(datarouter);
 		node = Scanner.of(params.clientIds)
-				.map(clientId -> {
-					SortedMapStorageNode<WebSocketSessionKey,WebSocketSession,WebSocketSessionFielder> node =
-							nodeFactory.create(clientId, WebSocketSession::new, WebSocketSessionFielder::new)
-							.withTag(Tag.DATAROUTER)
-							.disableNodewatchPercentageAlert()
-							.build();
-					return node;
-				})
+				.<SortedMapStorageNode<WebSocketSessionKey,WebSocketSession,WebSocketSessionFielder>>map(clientId ->
+					nodeFactory.create(clientId, WebSocketSession::new, WebSocketSessionFielder::new)
+						.withTag(Tag.DATAROUTER)
+						.disableNodewatchPercentageAlert()
+						.build())
 				.listTo(RedundantSortedMapStorageNode::makeIfMulti);
 		datarouter.register(node);
 	}

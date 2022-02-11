@@ -15,10 +15,9 @@
  */
 package io.datarouter.httpclient.endpoint;
 
-import java.util.List;
+public interface EndpointType{
 
-public interface Endpoints{
-
-	List<Class<? extends BaseEndpoint<?>>> getEndpoints();
+	class NoOpEndpointType implements EndpointType{
+	}
 
 }

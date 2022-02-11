@@ -142,11 +142,6 @@ public class JobletType<P> implements Comparable<JobletType<?>>, PluginConfigVal
 			return this;
 		}
 
-		@Deprecated
-		public JobletTypeBuilder<P> isSystem(){
-			return withTag(Tag.DATAROUTER);
-		}
-
 		public JobletTypeBuilder<P> withTag(Tag tag){
 			this.tag = tag;
 			return this;

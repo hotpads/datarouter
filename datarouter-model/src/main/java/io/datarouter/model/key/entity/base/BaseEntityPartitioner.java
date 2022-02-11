@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.datarouter.bytes.ByteTool;
+import io.datarouter.bytes.EmptyArray;
 import io.datarouter.bytes.codec.intcodec.RawIntCodec;
 import io.datarouter.model.key.entity.EntityKey;
 import io.datarouter.model.key.entity.EntityPartitioner;
@@ -48,7 +49,7 @@ implements EntityPartitioner<EK>{
 
 		this.allPrefixes = new ArrayList<>();
 		if(numPartitions == 1){
-			allPrefixes.add(new byte[0]);
+			allPrefixes.add(EmptyArray.BYTE);
 		}else{
 			for(int i = 0; i < numPartitions; ++i){
 				allPrefixes.add(getPrefix(i));

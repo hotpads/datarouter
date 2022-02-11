@@ -87,7 +87,6 @@ public class DatarouterWebPaths extends PathNode implements PathsRoot{
 
 
 	public static class InfoPaths extends PathNode{
-		public final PathNode endpoints = leaf("endpoints");
 		public final PathNode listeners = leaf("listeners");
 		public final PathNode routeSets = leaf("routeSets");
 		public final PathNode filterParams = leaf("filterParams");

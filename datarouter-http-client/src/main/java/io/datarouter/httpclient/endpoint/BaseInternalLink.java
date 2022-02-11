@@ -16,6 +16,7 @@
 package io.datarouter.httpclient.endpoint;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -30,18 +31,21 @@ public class BaseInternalLink{
 	private static final Logger logger = LoggerFactory.getLogger(BaseInternalLink.class);
 
 	@IgnoredField
-	public final String path;
-	@IgnoredField
 	public final PathNode pathNode;
+	@IgnoredField
+	public final UrlLinkRoot urlLinkRoot;
 
 	public BaseInternalLink(UrlLinkRoot urlLinkRoot, PathNode pathNode){
-		this.path = urlLinkRoot.getUrlRoot() + pathNode.toSlashedString();
+		this.urlLinkRoot = urlLinkRoot;
 		this.pathNode = pathNode;
 	}
 
-	public String toUrl(){
+	public String getParamsAsString(){
 		List<String> params = new LinkedList<>();
 		for(Field field : getClass().getFields()){
+			if(Modifier.isStatic(field.getModifiers())){
+				continue;
+			}
 			IgnoredField ignoredField = field.getAnnotation(IgnoredField.class);
 			if(ignoredField != null){
 				continue;
@@ -67,7 +71,7 @@ public class BaseInternalLink{
 				continue;
 			}
 		}
-		return path + params.stream().collect(Collectors.joining("&", "?", ""));
+		return params.stream().collect(Collectors.joining("&", "?", ""));
 	}
 
 	private static Optional<String> getValue(Field field, Object value){

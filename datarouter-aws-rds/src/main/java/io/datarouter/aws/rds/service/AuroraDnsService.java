@@ -134,8 +134,11 @@ public class AuroraDnsService{
 	public Pair<Collection<DnsHostEntryDto>,List<DnsHostEntryDto>> checkReaderEndpoint(){
 		Map<String,DnsHostEntryDto> dnsEntryByHostname = getDnsEntryForClients();
 		logger.debug("dnsEntryByHostname={}", gson.toJson(dnsEntryByHostname));
-		List<DnsHostEntryDto> mismatchedReaderEntries = new ArrayList<>();
+		List<DnsHostEntryDto> mismatchedEntries = new ArrayList<>();
 		for(DnsHostEntryDto dnsEntry : dnsEntryByHostname.values()){
+			if(dnsEntry.ip == null){
+				mismatchedEntries.add(dnsEntry);
+			}
 			if(dnsEntry.reader){
 				DnsHostEntryDto readerEntry = dnsEntry;
 				String writerClientName = readerEntry.hostname.replace("reader", "");
@@ -143,11 +146,11 @@ public class AuroraDnsService{
 				logger.debug("reader={} writer={}", gson.toJson(readerEntry), gson.toJson(writerEntry));
 				if(readerEntry.ip != null && readerEntry.ip.equals(writerEntry.ip)){
 					readerEntry.readerPointedToWriter = true;
-					mismatchedReaderEntries.add(readerEntry);
+					mismatchedEntries.add(readerEntry);
 				}
 			}
 		}
-		return new Pair<>(dnsEntryByHostname.values(), mismatchedReaderEntries);
+		return new Pair<>(dnsEntryByHostname.values(), mismatchedEntries);
 	}
 
 	public static class DnsHostEntryDto{

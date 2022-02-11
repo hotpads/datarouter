@@ -26,8 +26,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.storage.config.properties.InternalConfigDirectory;
-import io.datarouter.util.BooleanTool;
 import io.datarouter.util.properties.PropertiesTool;
+import io.datarouter.util.properties.TypedProperties;
 import io.datarouter.util.string.StringTool;
 
 @Singleton
@@ -38,10 +38,10 @@ public class SchemaUpdateOptions{
 
 	private static final String SCHEMA_UPDATE = "schemaUpdate";
 
-	protected static final String SCHEMA_UPDATE_ENABLE = SCHEMA_UPDATE + ".enable";
+	public static final String SCHEMA_UPDATE_ENABLE = SCHEMA_UPDATE + ".enable";
 
-	protected static final String PRINT_PREFIX = SCHEMA_UPDATE + ".print";
-	protected static final String EXECUTE_PREFIX = SCHEMA_UPDATE + ".execute";
+	public static final String PRINT_PREFIX = SCHEMA_UPDATE + ".print";
+	public static final String EXECUTE_PREFIX = SCHEMA_UPDATE + ".execute";
 
 	protected static final String SUFFIX_createDatabases = ".createDatabases";
 	protected static final String SUFFIX_createTables = ".createTables";
@@ -55,7 +55,7 @@ public class SchemaUpdateOptions{
 	protected static final String SUFFIX_modifyCharacterSetOrCollation = ".modifyCharacterSetOrCollation";
 	protected static final String SUFFIX_modifyTtl = ".modifyTtl";
 	protected static final String SUFFIX_modifyMaxVersions = ".modifyMaxVersions";
-	protected static final List<String> ALL_SCHEMA_UPDATE_OPTIONS = List.of(
+	public static final List<String> ALL_SCHEMA_UPDATE_OPTIONS = List.of(
 			SUFFIX_createDatabases,
 			SUFFIX_createTables,
 			SUFFIX_addColumns,
@@ -75,31 +75,31 @@ public class SchemaUpdateOptions{
 	private final List<String> ignoreClients;
 	private final List<String> ignoreTables;
 
-	private Properties properties;
+	private TypedProperties properties;
 
 	@Inject
 	public SchemaUpdateOptions(
 			SchemaUpdateOptionsFactory schemaUpdateOptionsFactory,
 			InternalConfigDirectory internalConfigDirectory){
-		properties = schemaUpdateOptionsFactory.getInternalConfigDirectoryTypeSchemaUpdateOptions(
+		Properties propertiesFromClass = schemaUpdateOptionsFactory.getInternalConfigDirectoryTypeSchemaUpdateOptions(
 				internalConfigDirectory.get());
-		if(!properties.isEmpty()){
+		properties = new TypedProperties(List.of(propertiesFromClass));
+		if(!properties.getUnmodifiablePropertiesList().isEmpty()){
 			logger.warn("Got schema update properties from class {}", schemaUpdateOptionsFactory.getClass()
 					.getCanonicalName());
 		}else{
 			String configFileLocation = internalConfigDirectory.findConfigFile(SCHEMA_UPDATE_FILENAME);
 			try{
-				properties = PropertiesTool.parse(configFileLocation);
+				properties.addProperties(PropertiesTool.parse(configFileLocation));
 				logger.warn("Got schema update properties from file {}", configFileLocation);
 			}catch(Exception e){
 				logger.warn("Error parsing file {}, using default schema-update options", configFileLocation, e);
-				properties = new Properties();
 			}
 		}
 
-		String clientsToIgnore = properties.getProperty(SCHEMA_UPDATE + SUFFIX_ignoreClients);
+		String clientsToIgnore = properties.getString(SCHEMA_UPDATE + SUFFIX_ignoreClients);
 		ignoreClients = StringTool.splitOnCharNoRegex(clientsToIgnore, ',');
-		String tablesToIgnore = properties.getProperty(SCHEMA_UPDATE + SUFFIX_ignoreTables);
+		String tablesToIgnore = properties.getString(SCHEMA_UPDATE + SUFFIX_ignoreTables);
 		ignoreTables = StringTool.splitOnCharNoRegex(tablesToIgnore, ',');
 	}
 
@@ -172,8 +172,7 @@ public class SchemaUpdateOptions{
 	}
 
 	private Optional<Boolean> isPropertyTrue(String property){
-		return Optional.ofNullable(properties.getProperty(property))
-				.map(BooleanTool::isTrue);
+		return Optional.ofNullable(properties.getBoolean(property));
 	}
 
 	private static String choosePrefix(boolean printVsExecute){

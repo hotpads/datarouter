@@ -23,6 +23,7 @@ import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.bytes.EmptyArray;
 import io.datarouter.filesystem.snapshot.entry.SnapshotEntry;
 import io.datarouter.filesystem.snapshot.group.SnapshotGroup;
 import io.datarouter.filesystem.snapshot.group.dto.SnapshotWriteResult;
@@ -109,7 +110,7 @@ public class SnapshotGroupWriteOps{
 	}
 
 	private void writeIdFile(String snapshotId){
-		idDirectory.write(PathbeanKey.of(snapshotId), new byte[0]);
+		idDirectory.write(PathbeanKey.of(snapshotId), EmptyArray.BYTE);
 	}
 
 }

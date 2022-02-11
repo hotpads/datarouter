@@ -40,6 +40,7 @@ import io.datarouter.storage.node.op.raw.read.SortedStorageReader.PhysicalSorted
 import io.datarouter.storage.node.op.raw.read.SortedStorageReader.SortedStorageReaderNode;
 import io.datarouter.storage.node.tableconfig.ClientTableEntityPrefixNameWrapper;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.util.ComparableTool;
 import io.datarouter.util.lang.ObjectTool;
 
@@ -53,7 +54,7 @@ public class TableSpanSamplerJoblet extends BaseJoblet<TableSpanSamplerJobletPar
 			.withShortQueueName("TableSampler") //unnecessary shortQueueName
 			.disableScaling()
 			.withPollingPeriod(Duration.ofSeconds(30))
-			.isSystem()
+			.withTag(Tag.DATAROUTER)
 			.build();
 
 	private static final Duration MAX_RUNNING_TIME = Duration.ofMinutes(10);

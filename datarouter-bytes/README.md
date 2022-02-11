@@ -8,7 +8,7 @@ datarouter-bytes is a set of utility classes.
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-bytes</artifactId>
-	<version>0.0.103</version>
+	<version>0.0.104</version>
 </dependency>
 ```
 

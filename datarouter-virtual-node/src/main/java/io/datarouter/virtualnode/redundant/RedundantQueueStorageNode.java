@@ -32,16 +32,20 @@ public class RedundantQueueStorageNode<
 extends BaseRedundantQueueNode<PK,D,F,N>
 implements QueueStorageNode<PK,D,F>, RedundantQueueStorageMixin<PK,D,F,N>{
 
-	/**
-	 * @param nodes reads from all nodes while writing only to the first
-	 */
-	@SafeVarargs
-	public RedundantQueueStorageNode(N... nodes){
-		super(nodes[0], List.of(nodes));
+	private RedundantQueueStorageNode(List<N> nodes){
+		super(nodes.get(0), nodes);
 	}
 
-	public RedundantQueueStorageNode(List<N> nodes){
-		super(nodes.get(0), nodes);
+	public static <PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>,
+			N extends QueueStorageNode<PK,D,F>>
+			QueueStorageNode<PK,D,F> makeIfMulti(
+					List<N> nodes){
+		if(nodes.size() == 1){
+			return nodes.get(0);
+		}
+		return new RedundantQueueStorageNode<>(nodes);
 	}
 
 }

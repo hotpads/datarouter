@@ -65,8 +65,8 @@ public class EndpointDecoder implements HandlerDecoder{
 
 		// populate the fields with baseEndpoint with dummy values and then repopulate in getArgsFromEndpointObject
 		@SuppressWarnings("unchecked")
-		BaseEndpoint<?> baseEndpoint = ReflectionTool.createWithoutNoArgs(
-				(Class<? extends BaseEndpoint<?>>)endpointType);
+		BaseEndpoint<?,?> baseEndpoint = ReflectionTool.createWithoutNoArgs(
+				(Class<? extends BaseEndpoint<?,?>>)endpointType);
 		String body = null;
 		if(EndpointTool.findRequestBody(baseEndpoint.getClass().getFields()).isPresent()){
 			body = RequestTool.getBodyAsString(request);
@@ -83,7 +83,7 @@ public class EndpointDecoder implements HandlerDecoder{
 		return args;
 	}
 
-	private Object[] getArgsFromEndpointObject(Map<String,String[]> queryParams, BaseEndpoint<?> baseEndpoint,
+	private Object[] getArgsFromEndpointObject(Map<String,String[]> queryParams, BaseEndpoint<?,?> baseEndpoint,
 			String body)
 	throws IllegalArgumentException, IllegalAccessException{
 		Field[] fields = baseEndpoint.getClass().getFields();

@@ -25,6 +25,7 @@ import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.DatarouterClients;
 import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.metriclinks.MetricLinkDto;
 import io.datarouter.web.metriclinks.MetricLinkDto.LinkDto;
 import io.datarouter.web.metriclinks.MetricLinkPage;
@@ -41,17 +42,12 @@ public abstract class NodewatchMetricLinkPage implements MetricLinkPage{
 		return "Tables";
 	}
 
-	protected List<MetricLinkDto> buildMetricLinks(boolean isSystem){
+	protected List<MetricLinkDto> buildMetricLinks(Tag tag){
 		return Scanner.of(clients.getClientIds())
 				.map(ClientId::getName)
 				.concatIter(datarouterNodes::getPhysicalNodesForClient)
 				.map(PhysicalNode::getFieldInfo)
-				.include(fieldInfo -> {
-					if(isSystem){
-						return fieldInfo.getIsSystemTable();
-					}
-					return !fieldInfo.getIsSystemTable();
-				})
+				.include(fieldInfo -> fieldInfo.getTag() == tag)
 				.map(fieldInfo -> {
 					String prefix = "Datarouter node "
 							+ clients.getClientTypeInstance(fieldInfo.getClientId()).getName()

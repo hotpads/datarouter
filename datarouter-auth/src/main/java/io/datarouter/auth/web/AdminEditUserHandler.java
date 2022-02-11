@@ -52,6 +52,7 @@ import io.datarouter.auth.storage.user.DatarouterUserDao;
 import io.datarouter.auth.web.DatarouterPermissionRequestHandler.PermissionRequestDto;
 import io.datarouter.auth.web.deprovisioning.DeprovisionedUserDto;
 import io.datarouter.auth.web.deprovisioning.UserDeprovisioningStatusDto;
+import io.datarouter.bytes.EmptyArray;
 import io.datarouter.pathnode.PathNode;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.servertype.ServerTypeDetector;
@@ -163,7 +164,7 @@ public class AdminEditUserHandler extends BaseHandler{
 		}
 		String username = params.required(authenticationConfig.getUsernameParam());
 		String password = params.required(authenticationConfig.getPasswordParam());
-		String[] roleStrings = params.optionalArray(authenticationConfig.getUserRolesParam()).orElse(new String[0]);
+		String[] roleStrings = params.optionalArray(authenticationConfig.getUserRolesParam()).orElse(EmptyArray.STRING);
 		Set<Role> requestedRoles = Arrays.stream(roleStrings)
 				.map(roleManager::getRoleFromPersistentString)
 				.collect(Collectors.toSet());

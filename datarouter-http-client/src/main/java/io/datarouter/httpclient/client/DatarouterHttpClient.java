@@ -22,7 +22,6 @@ import org.apache.http.HttpEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.pool.PoolStats;
 
-import io.datarouter.httpclient.endpoint.BaseEndpoint;
 import io.datarouter.httpclient.json.JsonSerializer;
 import io.datarouter.httpclient.request.DatarouterHttpRequest;
 import io.datarouter.httpclient.response.Conditional;
@@ -46,8 +45,6 @@ public interface DatarouterHttpClient{
 			DatarouterHttpRequest request,
 			Consumer<HttpEntity> httpEntityConsumer);
 
-	<E> Conditional<E> call(BaseEndpoint<E> endpoint);
-
 	void shutdown();
 
 	DatarouterHttpClient addDtoToPayload(DatarouterHttpRequest request, Object dto, String dtoType);
@@ -56,6 +53,5 @@ public interface DatarouterHttpClient{
 	PoolStats getPoolStats();
 	CloseableHttpClient getApacheHttpClient();
 	JsonSerializer getJsonSerializer();
-	void initUrlPrefix(BaseEndpoint<?> endpoint);
 
 }

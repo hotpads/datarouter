@@ -154,31 +154,6 @@ public class ReplicationNodeFactory{
 		return datarouter.register(build(primaryClientId, replicaClientIds, databeanSupplier, fielderSupplier));
 	}
 
-	/**
-	 * @deprecated Use ReplicationNodeOptions
-	 */
-	@Deprecated
-	public <PK extends RegularPrimaryKey<PK>,
-			D extends Databean<PK,D>,
-			F extends DatabeanFielder<PK,D>,
-			N extends NodeOps<PK,D>>
-	N register(
-			ClientId primaryClientId,
-			Collection<ClientId> replicaClientIds,
-			Supplier<D> databeanSupplier,
-			Supplier<F> fielderSupplier,
-			String tableName){
-		var options = new ReplicationNodeOptionsBuilder()
-				.withTableName(tableName)
-				.build();
-		return datarouter.register(build(
-				primaryClientId,
-				replicaClientIds,
-				databeanSupplier,
-				fielderSupplier,
-				options));
-	}
-
 	public <PK extends RegularPrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>,

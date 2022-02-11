@@ -27,6 +27,7 @@ public class TableDto{
 	public final List<FieldDto> fields;
 	public final List<List<String>> sampleData;
 	public final Instant created;
+	@Deprecated
 	public final Boolean isSystemTable;
 
 	public TableDto(

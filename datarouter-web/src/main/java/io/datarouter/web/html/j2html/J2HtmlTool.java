@@ -16,8 +16,11 @@
 package io.datarouter.web.html.j2html;
 
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
 
 public class J2HtmlTool{
@@ -26,6 +29,13 @@ public class J2HtmlTool{
 		return Arrays.stream(items)
 				.map(DomContent::render)
 				.collect(Collectors.joining("\n", "", "\n"));
+	}
+
+	// wrapper around TagCreator.each to help compiler with unknown arguments
+	public static DomContent each(
+			Collection<ContainerTag<?>> collection,
+			Function<? super ContainerTag<?>, DomContent> mapper){
+		return each(collection, mapper);
 	}
 
 }

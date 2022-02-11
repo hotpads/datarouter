@@ -15,23 +15,36 @@
  */
 package io.datarouter.storage.client;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 import javax.inject.Singleton;
 
 import io.datarouter.scanner.Scanner;
+import io.datarouter.util.Require;
 
 public interface ClientOptionsFactory{
 
+	boolean REJECT_DUPLICATES = true;
+
 	Properties getInternalConfigDirectoryTypeOptions(String internalConfigDirectoryTypeName);
 
+	default List<ClientId> getRequiredClientIds(){
+		return List.of();
+	}
+
 	default Properties mergeOptions(Properties... options){
-		return Arrays.stream(options)
-				.collect(Properties::new, Map::putAll, Map::putAll);
+		var merged = new Properties();
+		Scanner.of(options)
+				.each(props -> {
+					if(REJECT_DUPLICATES){
+						props.keySet()
+								.forEach(key -> Require.isFalse(merged.containsKey(key), "duplicate key " + key));
+					}
+				})
+				.forEach(merged::putAll);
+		return merged;
 	}
 
 	default Properties mergeBuilders(Collection<ClientOptionsBuilder> builders){

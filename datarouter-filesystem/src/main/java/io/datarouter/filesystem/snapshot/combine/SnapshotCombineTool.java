@@ -13,13 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.httpclient.endpoint;
+package io.datarouter.filesystem.snapshot.combine;
 
 import java.util.List;
-import java.util.function.Supplier;
 
-public interface EndpointRegistry{
+import io.datarouter.filesystem.snapshot.group.dto.SnapshotKeyAndNumRecords;
+import io.datarouter.scanner.Scanner;
 
-	List<Supplier<Endpoints>> getEndpoints();
+public class SnapshotCombineTool{
+
+	public static Scanner<List<SnapshotKeyAndNumRecords>> scanSmallestGroups(
+			List<SnapshotKeyAndNumRecords> inputs,
+			int targetNumSnapshots,
+			int maxToMergeAtOnce){
+		//TODO make this smarter
+		return Scanner.of(inputs)
+				.sort(SnapshotKeyAndNumRecords.BY_NUM_RECORDS)
+				.limit(inputs.size() - targetNumSnapshots + 1)
+				.batch(maxToMergeAtOnce)
+				.advanceWhile(batch -> batch.size() > 1);
+	}
 
 }

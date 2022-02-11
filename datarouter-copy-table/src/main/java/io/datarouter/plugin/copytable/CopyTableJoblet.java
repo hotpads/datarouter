@@ -25,6 +25,7 @@ import io.datarouter.joblet.type.JobletType;
 import io.datarouter.joblet.type.JobletType.JobletTypeBuilder;
 import io.datarouter.plugin.copytable.CopyTableJoblet.CopyTableJobletParams;
 import io.datarouter.plugin.copytable.CopyTableService.CopyTableSpanResult;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.util.number.NumberTool;
 
 public class CopyTableJoblet extends BaseJoblet<CopyTableJobletParams>{
@@ -35,7 +36,7 @@ public class CopyTableJoblet extends BaseJoblet<CopyTableJobletParams>{
 			CopyTableJoblet.class)
 			.withShortQueueName("CopyTable") //unnecessary shortQueueName
 			.withPollingPeriod(Duration.ofMinutes(1))
-			.isSystem()
+			.withTag(Tag.DATAROUTER)
 			.build();
 
 	@Inject

@@ -61,7 +61,7 @@ public class DatarouterCountBlobQueueDao extends BaseDao{
 							.build();
 					return node;
 				})
-				.listTo(RedundantQueueStorageNode::new);
+				.listTo(RedundantQueueStorageNode::makeIfMulti);
 		datarouter.register(queueNode);
 	}
 

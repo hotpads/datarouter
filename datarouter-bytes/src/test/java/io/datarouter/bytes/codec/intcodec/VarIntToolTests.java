@@ -22,6 +22,7 @@ import java.util.Random;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import io.datarouter.bytes.EmptyArray;
 import io.datarouter.bytes.VarIntTool;
 
 public class VarIntToolTests{
@@ -103,7 +104,7 @@ public class VarIntToolTests{
 	}
 
 	public void testEmptyInputStream(){
-		var is = new ByteArrayInputStream(new byte[0]);
+		var is = new ByteArrayInputStream(EmptyArray.BYTE);
 		Assert.assertEquals(VarIntTool.fromInputStream(is), Optional.empty());
 	}
 

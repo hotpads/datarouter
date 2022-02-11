@@ -196,7 +196,7 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 					}
 				}
 				if(saveReason != null){
-					Counters.inc("traeSaved " + saveReason);
+					Counters.inc("traceSaved " + saveReason);
 					List<Trace2ThreadDto> threads = new ArrayList<>(tracer.getThreadQueue());
 					List<Trace2SpanDto> spans = new ArrayList<>(tracer.getSpanQueue());
 					if(rootThread != null){

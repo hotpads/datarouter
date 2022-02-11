@@ -18,6 +18,8 @@ package io.datarouter.model.field.imp;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import io.datarouter.bytes.EmptyArray;
+
 public class StringFieldTests{
 
 	private static final StringFieldKey FIELD_KEY = new StringFieldKey("myName");
@@ -25,14 +27,14 @@ public class StringFieldTests{
 
 	@Test
 	public void testEmptyString(){
-		byte[] bytes = new byte[0];
+		byte[] bytes = EmptyArray.BYTE;
 		String value = FIELD.fromBytesWithSeparatorButDoNotSet(bytes, 0);
 		Assert.assertEquals(value, "");
 	}
 
 	@Test
 	public void testEmptyTrailingString(){
-		byte[] bytes = new byte[]{0, 0};
+		byte[] bytes = {0, 0};
 		String value = FIELD.fromBytesWithSeparatorButDoNotSet(bytes, bytes.length);
 		Assert.assertEquals(value, "");
 	}
@@ -40,7 +42,7 @@ public class StringFieldTests{
 	@Test
 	public void testNonEmptyTrailingString(){
 		int offset = 2;
-		byte[] bytes = new byte[]{0, 0, 'o', 'k'};
+		byte[] bytes = {0, 0, 'o', 'k'};
 		String value = FIELD.fromBytesWithSeparatorButDoNotSet(bytes, offset);
 		Assert.assertEquals(value, "ok");
 	}

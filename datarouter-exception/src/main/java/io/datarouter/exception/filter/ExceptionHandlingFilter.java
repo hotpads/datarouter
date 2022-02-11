@@ -39,7 +39,6 @@ import org.slf4j.LoggerFactory;
 import io.datarouter.exception.storage.exceptionrecord.ExceptionRecordKey;
 import io.datarouter.exception.utils.ExceptionDetailsDetector;
 import io.datarouter.exception.utils.ExceptionDetailsDetector.ExceptionRecorderDetails;
-import io.datarouter.exception.utils.nameparser.ExceptionNameParserRegistry;
 import io.datarouter.httpclient.HttpHeaders;
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.instrumentation.count.Counters;
@@ -68,7 +67,7 @@ public abstract class ExceptionHandlingFilter implements Filter, InjectorRetriev
 	private DatarouterInjector injector;
 	private WebappName webappName;
 	private ExceptionRecorder exceptionRecorder;
-	private ExceptionNameParserRegistry exceptionNameParserRegistry;
+	private ExceptionDetailsDetector exceptionDetailsDetector;
 	private DatarouterWebSettingRoot webSettings;
 
 	@Override
@@ -76,7 +75,7 @@ public abstract class ExceptionHandlingFilter implements Filter, InjectorRetriev
 		injector = getInjector(filterConfig.getServletContext());
 		webappName = injector.getInstance(WebappName.class);
 		exceptionRecorder = injector.getInstance(ExceptionRecorder.class);
-		exceptionNameParserRegistry = injector.getInstance(ExceptionNameParserRegistry.class);
+		exceptionDetailsDetector = injector.getInstance(ExceptionDetailsDetector.class);
 		webSettings = injector.getInstance(DatarouterWebSettingRoot.class);
 	}
 
@@ -138,8 +137,8 @@ public abstract class ExceptionHandlingFilter implements Filter, InjectorRetriev
 			String location = pair.getLeft();
 			Integer lineNumber = pair.getRight();
 			if(location == null){
-				ExceptionRecorderDetails details = ExceptionDetailsDetector.detect(exceptionNameParserRegistry,
-						exception, callOrigin, webSettings.stackTraceHighlights.get());
+				ExceptionRecorderDetails details = exceptionDetailsDetector.detect(exception, callOrigin,
+						webSettings.stackTraceHighlights.get());
 				location = details.className;
 				methodName = details.methodName;
 				name = details.parsedName;

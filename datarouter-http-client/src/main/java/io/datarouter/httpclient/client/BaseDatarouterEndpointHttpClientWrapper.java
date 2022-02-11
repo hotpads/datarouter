@@ -15,19 +15,56 @@
  */
 package io.datarouter.httpclient.client;
 
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.pool.PoolStats;
+
 import io.datarouter.httpclient.endpoint.BaseEndpoint;
-import io.datarouter.httpclient.endpoint.EndpointRegistry;
+import io.datarouter.httpclient.endpoint.EndpointType;
+import io.datarouter.httpclient.json.JsonSerializer;
+import io.datarouter.httpclient.response.Conditional;
 
-public abstract class BaseDatarouterEndpointHttpClientWrapper<
-		T extends BaseEndpoint<?>,
-		R extends EndpointRegistry>
-extends BaseDatarouterHttpClientWrapper implements DatarouterServiceHttpClient{
+public abstract class BaseDatarouterEndpointHttpClientWrapper<R extends EndpointType>
+implements DatarouterEndpointHttpClient<R>, DatarouterServiceEndpointHttpClient<R>{
 
-	public final R endpoints;
+	private final DatarouterEndpointHttpClient<R> client;
 
-	public BaseDatarouterEndpointHttpClientWrapper(DatarouterHttpClient datarouterHttpClient, R endpoints){
-		super(datarouterHttpClient);
-		this.endpoints = endpoints;
+	public BaseDatarouterEndpointHttpClientWrapper(DatarouterEndpointHttpClient<R> client){
+		this.client = client;
+	}
+
+	@Override
+	public <E> Conditional<E> call(BaseEndpoint<E,R> baseEndpoint){
+		return client.call(baseEndpoint);
+	}
+
+	@Override
+	public <E> Conditional<E> callUnchecked(BaseEndpoint<E,?> baseEndpoint){
+		return client.callUnchecked(baseEndpoint);
+	}
+
+	@Override
+	public void shutdown(){
+		client.shutdown();
+	}
+
+	@Override
+	public PoolStats getPoolStats(){
+		return client.getPoolStats();
+	}
+
+	@Override
+	public CloseableHttpClient getApacheHttpClient(){
+		return client.getApacheHttpClient();
+	}
+
+	@Override
+	public JsonSerializer getJsonSerializer(){
+		return client.getJsonSerializer();
+	}
+
+	@Override
+	public void initUrlPrefix(BaseEndpoint<?,R> endpoint){
+		client.initUrlPrefix(endpoint);
 	}
 
 }

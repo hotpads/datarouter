@@ -24,6 +24,7 @@ import io.datarouter.joblet.codec.BaseGsonJobletCodec;
 import io.datarouter.joblet.model.BaseJoblet;
 import io.datarouter.joblet.type.JobletType;
 import io.datarouter.joblet.type.JobletType.JobletTypeBuilder;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.tasktracker.scheduler.LongRunningTaskType;
 import io.datarouter.tasktracker.service.LongRunningTaskTrackerFactory;
 
@@ -33,7 +34,7 @@ public class WebSocketSessionVacuumJoblet extends BaseJoblet<Instant>{
 			"WebSocketSessionVacuum",
 			WebSocketSessionVacuumJobletCodec::new,
 			WebSocketSessionVacuumJoblet.class)
-			.isSystem()
+			.withTag(Tag.DATAROUTER)
 			.build();
 
 	@Inject

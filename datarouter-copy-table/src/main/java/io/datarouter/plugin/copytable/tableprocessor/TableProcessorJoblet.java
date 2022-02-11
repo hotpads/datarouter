@@ -26,6 +26,7 @@ import io.datarouter.joblet.type.JobletType;
 import io.datarouter.joblet.type.JobletType.JobletTypeBuilder;
 import io.datarouter.plugin.copytable.tableprocessor.TableProcessorJoblet.TableProcessorJobletParams;
 import io.datarouter.plugin.copytable.tableprocessor.TableProcessorService.TableProcessorSpanResult;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.util.number.NumberTool;
 
 public class TableProcessorJoblet extends BaseJoblet<TableProcessorJobletParams>{
@@ -35,7 +36,7 @@ public class TableProcessorJoblet extends BaseJoblet<TableProcessorJobletParams>
 			TableProcessorJobletCodec::new,
 			TableProcessorJoblet.class)
 			.withPollingPeriod(Duration.ofMinutes(1))
-			.isSystem()
+			.withTag(Tag.DATAROUTER)
 			.build();
 
 	@Inject

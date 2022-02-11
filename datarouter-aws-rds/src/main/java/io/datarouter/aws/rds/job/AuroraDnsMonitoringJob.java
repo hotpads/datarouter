@@ -63,14 +63,14 @@ public class AuroraDnsMonitoringJob extends BaseJob{
 
 	@Override
 	public void run(TaskTracker tracker){
-		List<DnsHostEntryDto> mismatchedReaderEntries = dnsService.checkReaderEndpoint().getRight();
-		if(mismatchedReaderEntries.isEmpty()){
+		List<DnsHostEntryDto> mismatchedEntries = dnsService.checkReaderEndpoint().getRight();
+		if(mismatchedEntries.isEmpty()){
 			return;
 		}
-		Scanner.of(mismatchedReaderEntries)
+		Scanner.of(mismatchedEntries)
 				.map(config::fixDatabaseDns)
-				.flush(fixes -> sendEmail(mismatchedReaderEntries, fixes));
-		mismatchedReaderEntries.forEach(entry -> recordChangelog(entry.getInstanceHostname()));
+				.flush(fixes -> sendEmail(mismatchedEntries, fixes));
+		mismatchedEntries.forEach(entry -> recordChangelog(entry.getInstanceHostname()));
 	}
 
 	private void sendEmail(List<DnsHostEntryDto> mismatchedReaderEntries, List<String> fixes){
@@ -90,11 +90,12 @@ public class AuroraDnsMonitoringJob extends BaseJob{
 
 	private ContainerTag<?> makeEmailContent(List<DnsHostEntryDto> mismatchedReaderEntries, List<String> fixes){
 		var header = standardDatarouterEmailHeaderService.makeStandardHeader();
-		var message = h3("Some of the reader DB instances are pointed to the writer instance.");
+		var message = h3("Some of the reader DB instances are pointed to the writer instance or missing entries");
 		var table = new J2HtmlEmailTable<DnsHostEntryDto>()
 				.withColumn("client name", DnsHostEntryDto::getClientName)
 				.withColumn("hostname", DnsHostEntryDto::getHostname)
 				.withColumn("instance hostname", DnsHostEntryDto::getInstanceHostname)
+				.withColumn("ip", DnsHostEntryDto::getIp)
 				.build(mismatchedReaderEntries);
 		var fixHeader = h3("Executing suggested fixes to reset DNS:");
 		var fixList = pre();

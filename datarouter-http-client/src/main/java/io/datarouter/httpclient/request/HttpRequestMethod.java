@@ -15,6 +15,7 @@
  */
 package io.datarouter.httpclient.request;
 
+import java.util.Arrays;
 import java.util.function.Function;
 
 import org.apache.http.client.methods.HttpGet;
@@ -26,40 +27,67 @@ import org.apache.http.client.methods.HttpRequestBase;
 
 public enum HttpRequestMethod{
 	DELETE(
+			"DELETE",
 			false,
 			true,
 			DatarouterHttpDeleteRequestWithEntity::new),
 	GET(
+			"GET",
 			true,
 			false,
 			HttpGet::new),
 	HEAD(
+			"HEAD",
 			false,
 			false,
 			HttpHead::new),
 	PATCH(
+			"PATCH",
 			false,
 			true,
 			HttpPatch::new),
 	POST(
+			"POST",
 			false,
 			true,
 			HttpPost::new),
 	PUT(
+			"PUT",
 			false,
 			true,
 			HttpPut::new),
 	;
 
+	public final String persistentString;
 	public final boolean defaultRetrySafe;
 	public final boolean allowEntity;
 	public final Function<String,HttpRequestBase> httpRequestBase;
 
-	HttpRequestMethod(boolean defaultRetrySafe, boolean allowEntity,
+
+	HttpRequestMethod(
+			String persistentString,
+			boolean defaultRetrySafe,
+			boolean allowEntity,
 			Function<String,HttpRequestBase> httpRequestBase){
+		this.persistentString = persistentString;
 		this.defaultRetrySafe = defaultRetrySafe;
 		this.allowEntity = allowEntity;
 		this.httpRequestBase = httpRequestBase;
+	}
+
+	public boolean matches(String method){
+		return fromPersistentStringStatic(method) == this;
+	}
+
+	public static HttpRequestMethod fromPersistentStringStatic(String method){
+		if(method == null || method.isEmpty()){
+			return null;
+		}
+		String methodUpperCase = method.toUpperCase();
+		return Arrays.stream(values())
+				.filter(requestMethod -> requestMethod.persistentString.equals(methodUpperCase.toUpperCase()))
+				.findFirst()
+				.orElse(null);
 	}
 
 }

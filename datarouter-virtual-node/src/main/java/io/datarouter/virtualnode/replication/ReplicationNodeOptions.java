@@ -63,8 +63,8 @@ public class ReplicationNodeOptions{
 			return this;
 		}
 
-		public ReplicationNodeOptionsBuilder withDisableIntroducer(boolean disableForcePrimary){
-			this.disableForcePrimary = Optional.of(disableForcePrimary);
+		public ReplicationNodeOptionsBuilder withDisableIntroducer(boolean disableIntroducer){
+			this.disableIntroducer = Optional.of(disableIntroducer);
 			return this;
 		}
 

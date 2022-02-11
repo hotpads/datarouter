@@ -53,7 +53,7 @@ public class NodeBuilder<
 	private Integer schemaVersion;
 	private NodewatchConfigurationBuilder nodewatchConfigurationBuilder;
 	private boolean disableForcePrimary;
-	private Tag tag;
+	private Tag tag = Tag.APP;
 	private boolean disableIntroducer = false;
 
 	public NodeBuilder(

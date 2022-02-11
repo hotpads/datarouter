@@ -52,9 +52,9 @@ public class DatarouterTracePublisherSettingRoot extends SettingRoot{
 				.withTag(DatarouterSettingTagType.TRACE2PIPELINE, () -> true));
 		compactExceptionLoggingForConveyors = registerBoolean("compactExceptionLoggingForConveyors", true);
 		runMemoryToSqsForTrace2ThreadCount = registerInteger("runMemoryToSqsForTrace2ThreadCount", 1);
-		drainSqsToPublisherForTrace2ThreadCount = registerInteger("drainSqsToPublisherForTrace2ThreadCount", 1);
+		drainSqsToPublisherForTrace2ThreadCount = registerInteger("drainSqsToPublisherForTrace2ThreadCount", 2);
 		drainSqsToPublisherForTrace2HttpRequestRecordThreadCount = registerInteger(
-				"drainSqsToPublisherForTrace2HttpRequestRecordThreadCount", 1);
+				"drainSqsToPublisherForTrace2HttpRequestRecordThreadCount", 2);
 	}
 
 }

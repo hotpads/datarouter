@@ -45,6 +45,10 @@ public class ClientOptions{
 				key), defaultValue), PARAM_initMode, clientId.getName(), def);
 	}
 
+	public boolean isClientTypePresent(ClientId clientId){
+		return optString(clientId.getName(), PARAM_type).isPresent();
+	}
+
 	public String getClientType(ClientId clientId){
 		return getRequiredString(clientId.getName(), PARAM_type);
 	}

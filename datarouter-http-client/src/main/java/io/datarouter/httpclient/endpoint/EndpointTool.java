@@ -31,7 +31,7 @@ import io.datarouter.httpclient.request.DatarouterHttpRequest;
 public class EndpointTool{
 	private static final Logger logger = LoggerFactory.getLogger(EndpointTool.class);
 
-	public static DatarouterHttpRequest toDatarouterHttpRequest(BaseEndpoint<?> endpoint){
+	public static DatarouterHttpRequest toDatarouterHttpRequest(BaseEndpoint<?,?> endpoint){
 		Objects.requireNonNull(endpoint.urlPrefix);
 		String finalUrl = URI.create(endpoint.urlPrefix + endpoint.pathNode.toSlashedString()).normalize().toString();
 		DatarouterHttpRequest request = new DatarouterHttpRequest(endpoint.method, finalUrl, endpoint
@@ -66,7 +66,7 @@ public class EndpointTool{
 		return request;
 	}
 
-	public static Optional<Class<?>> hasEntity(BaseEndpoint<?> endpoint){
+	public static Optional<Class<?>> hasEntity(BaseEndpoint<?,?> endpoint){
 		for(Field field : endpoint.getClass().getFields()){
 			if(field.isAnnotationPresent(EndpointRequestBody.class)){
 				return Optional.of(field.getType());
@@ -75,7 +75,7 @@ public class EndpointTool{
 		return Optional.empty();
 	}
 
-	public static Optional<Object> findEntity(BaseEndpoint<?> endpoint){
+	public static Optional<Object> findEntity(BaseEndpoint<?,?> endpoint){
 		for(Field field : endpoint.getClass().getFields()){
 			if(field.isAnnotationPresent(EndpointRequestBody.class)){
 				try{

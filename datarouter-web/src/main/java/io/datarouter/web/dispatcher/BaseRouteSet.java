@@ -57,9 +57,9 @@ public abstract class BaseRouteSet{
 		return applyDefaultAndAdd(rule);
 	}
 
-	protected DispatchRule handle(Class<? extends BaseEndpoint<?>> baseEndpointClass,
+	protected DispatchRule handle(Class<? extends BaseEndpoint<?,?>> baseEndpointClass,
 			Class<? extends BaseHandler> handler){
-		BaseEndpoint<?> baseEndpoint = ReflectionTool.createWithoutNoArgs(baseEndpointClass);
+		BaseEndpoint<?,?> baseEndpoint = ReflectionTool.createWithoutNoArgs(baseEndpointClass);
 		return handle(baseEndpoint.pathNode)
 				.withDefaultHandlerDecoder(EndpointDecoder.class)
 				.withHandler(handler);
@@ -80,10 +80,32 @@ public abstract class BaseRouteSet{
 		return rule;
 	}
 
+	/**
+	 * @deprecated use handle(PathNode) and explicitly define each path
+	 *
+	 *             Example:
+	 *
+	 *             <pre>
+	 *             handleDir(api.v1.test).withHandler(TestHandler.class);
+	 *             </pre>
+	 *
+	 *             changes to
+	 *             <pre>
+	 *             handle(api.v1.test.example1).withHandler(TestHandler.class);
+	 *             handle(api.v1.test.example2).withHandler(TestHandler.class);
+	 *             handle(api.v1.test.example3).withHandler(TestHandler.class);
+	 *             </pre>
+	 *
+	 */
+	@Deprecated
 	protected DispatchRule handleDir(PathNode pathNode){
 		return handleDir(pathNode.toSlashedString());
 	}
 
+	/**
+	 * @deprecated use handle(String) and explicitly define each path
+	 */
+	@Deprecated
 	protected DispatchRule handleDir(String regex){
 		return handle(regex + REGEX_ONE_DIRECTORY);
 	}

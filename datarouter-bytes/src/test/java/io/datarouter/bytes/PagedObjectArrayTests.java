@@ -80,9 +80,9 @@ public class PagedObjectArrayTests{
 		Assert.assertTrue(errored);
 
 		//convert to String[]
-		String[] strings = pagedArray.toArray(new String[0]);
+		String[] strings = pagedArray.toArray(EmptyArray.STRING);
 		Assert.assertEquals(strings.getClass().getComponentType(), String.class);
-		String[] castedGood = pagedArray.toArray(new String[0]);
+		String[] castedGood = pagedArray.toArray(EmptyArray.STRING);
 		Assert.assertEquals(castedGood.length, 2);
 	}
 

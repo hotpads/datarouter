@@ -40,6 +40,7 @@ import org.apache.http.impl.client.LaxRedirectStrategy;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.ssl.SSLContextBuilder;
 
+import io.datarouter.httpclient.endpoint.EndpointType;
 import io.datarouter.httpclient.json.GsonJsonSerializer;
 import io.datarouter.httpclient.json.HttpClientGsonTool;
 import io.datarouter.httpclient.json.JsonSerializer;
@@ -97,7 +98,7 @@ public class DatarouterHttpClientBuilder{
 		this.apiKeyFieldName = SecurityParameters.API_KEY;
 	}
 
-	public DatarouterHttpClient build(){
+	private StandardDatarouterHttpClient buildStandardDatarouterHttpClient(){
 		httpClientBuilder.setRetryHandler(new DatarouterHttpRetryHandler(retryCount));
 		httpClientBuilder.setServiceUnavailableRetryStrategy(new DatarouterServiceUnavailableRetryStrategy(retryCount));
 		RequestConfig defaultRequestConfig = RequestConfig.custom()
@@ -170,6 +171,15 @@ public class DatarouterHttpClientBuilder{
 				traceInQueryString,
 				debugLog,
 				apiKeyFieldName);
+	}
+
+	public DatarouterHttpClient build(){
+		return buildStandardDatarouterHttpClient();
+	}
+
+	public <R extends EndpointType> DatarouterEndpointHttpClient<R> buildEndpointClient(){
+		StandardDatarouterHttpClient client = buildStandardDatarouterHttpClient();
+		return new StandardDatarouterEndpointHttpClient<>(client);
 	}
 
 	public DatarouterHttpClientBuilder setRetryCount(Supplier<Integer> retryCount){

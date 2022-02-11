@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import io.datarouter.httpclient.security.SignatureGenerator;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.Require;
 import io.datarouter.util.tuple.Pair;
@@ -44,7 +43,7 @@ public class CountBlobDto{
 	public final String signature;
 
 	public CountBlobDto(String ulid, String serviceName, String serverName, Map<Long,Map<String,Long>> counts,
-			String apiKey, SignatureGenerator signatureGenerator){
+			String apiKey){
 		this.version = V1;
 		this.ulid = Require.notBlank(ulid);
 		this.serviceName = Require.notBlank(serviceName);
@@ -53,7 +52,7 @@ public class CountBlobDto{
 		this.counts = counts;
 		this.apiKey = Require.notBlank(apiKey);
 		//this depends on some other fields, so keep it at the end
-		this.signature = signatureGenerator.getHexSignature(getSignatureMap()).signature;
+		this.signature = "unused";//TODO make v2 with no signature
 	}
 
 	private CountBlobDto(String version, String ulid, String serviceName, String serverName, String apiKey,

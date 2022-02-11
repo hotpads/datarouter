@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 
 import io.datarouter.gson.serialization.GsonTool;
@@ -75,7 +76,9 @@ public class J2HtmlEmailTable<T>{
 		public static <T> J2HtmlEmailTableColumn<T> ofText(String name, Function<T,Object> valueFunction){
 			return new J2HtmlEmailTableColumn<>(name, row -> {
 				try{
-					return TagCreator.text(valueFunction.apply(row).toString());
+					Object value = valueFunction.apply(row);
+					String text = Optional.ofNullable(value).map(Object::toString).orElse("");
+					return TagCreator.text(text);
 				}catch(Exception e){
 					throw new RuntimeException("error column=" + name + " row=" + GsonTool.GSON.toJson(row), e);
 				}

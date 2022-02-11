@@ -55,13 +55,10 @@ public class DatarouterUserDao extends BaseDao{
 	public DatarouterUserDao(Datarouter datarouter, NodeFactory nodeFactory, DatarouterUserDaoParams params){
 		super(datarouter);
 		node = Scanner.of(params.clientIds)
-				.map(clientId -> {
-					IndexedSortedMapStorageNode<DatarouterUserKey,DatarouterUser,DatarouterUserFielder> node =
-							nodeFactory.create(clientId, DatarouterUser::new, DatarouterUserFielder::new)
-							.withTag(Tag.DATAROUTER)
-							.build();
-					return node;
-				})
+				.<IndexedSortedMapStorageNode<DatarouterUserKey,DatarouterUser,DatarouterUserFielder>>map(clientId ->
+						nodeFactory.create(clientId, DatarouterUser::new, DatarouterUserFielder::new)
+						.withTag(Tag.DATAROUTER)
+						.build())
 				.listTo(RedundantIndexedSortedMapStorageNode::makeIfMulti);
 		datarouter.register(node);
 	}

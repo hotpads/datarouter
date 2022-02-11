@@ -23,7 +23,7 @@ import java.util.Optional;
 import io.datarouter.httpclient.request.HttpRequestMethod;
 import io.datarouter.pathnode.PathNode;
 
-public abstract class BaseEndpoint<T>{
+public abstract class BaseEndpoint<T,R extends EndpointType>{
 
 	@IgnoredField
 	public final HttpRequestMethod method;
@@ -60,7 +60,7 @@ public abstract class BaseEndpoint<T>{
 		this.timeout = Optional.empty();
 	}
 
-	public BaseEndpoint<T> setUrlPrefix(URI urlPrefix){
+	public BaseEndpoint<T,R> setUrlPrefix(URI urlPrefix){
 		this.urlPrefix = urlPrefix.normalize().toString();
 		return this;
 	}

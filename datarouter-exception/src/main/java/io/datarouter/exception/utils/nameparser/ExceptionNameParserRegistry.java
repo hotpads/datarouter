@@ -16,17 +16,15 @@
 package io.datarouter.exception.utils.nameparser;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
-import io.datarouter.exception.utils.nameparser.ExceptionSnapshot.ExceptionCauseSnapshot;
-import io.datarouter.scanner.OptionalScanner;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.util.tuple.Pair;
+import io.datarouter.util.lang.ReflectionTool;
 
 public abstract class ExceptionNameParserRegistry{
 
-	private final Map<String, ExceptionNameParser> parserByTypeName = new HashMap<>();
+	private final Map<String,Class<? extends ExceptionNameParser>> parserClassByTypeName = new HashMap<>();
 
 	protected abstract void registerNameParsers();
 
@@ -34,21 +32,17 @@ public abstract class ExceptionNameParserRegistry{
 		registerNameParsers();
 	}
 
-	protected void register(ExceptionNameParser parser){
-		String exceptionTypeName = parser.getTypeClassName();
-		if(parserByTypeName.containsKey(exceptionTypeName)){
-			throw new RuntimeException("type: " + exceptionTypeName + " was already registered");
+	protected void register(Class<? extends ExceptionNameParser> parserClass){
+		String parserTypeClassName = ReflectionTool.create(parserClass).getTypeClassName();
+		if(parserClassByTypeName.containsKey(parserTypeClassName)){
+			throw new RuntimeException("type: " + parserTypeClassName + " was already registered");
 		}
-		parserByTypeName.put(exceptionTypeName, parser);
+		parserClassByTypeName.put(parserTypeClassName, parserClass);
 	}
 
-	public Optional<Pair<ExceptionNameParser,ExceptionCauseSnapshot>> getNameParserAndCause(
-			ExceptionSnapshot exception){
-		return Scanner.of(parserByTypeName.values())
-				.map(parser -> parser.getCauseFromType(exception))
-				.concat(OptionalScanner::of)
-				.findFirst()
-				.map(cause -> new Pair<>(parserByTypeName.get(cause.typeName), cause));
+	public List<Class<? extends ExceptionNameParser>> getNameParserClasses(){
+		return Scanner.of(parserClassByTypeName.values())
+				.list();
 	}
 
 	public static class NoOpExceptionNameParserRegistry extends ExceptionNameParserRegistry{

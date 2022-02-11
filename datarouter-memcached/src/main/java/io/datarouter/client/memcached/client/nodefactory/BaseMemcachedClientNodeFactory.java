@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.function.UnaryOperator;
 
 import io.datarouter.client.memcached.client.MemcachedClientManager;
+import io.datarouter.client.memcached.node.MemcachedBlobNode;
+import io.datarouter.client.memcached.node.MemcachedMapStorageNode;
 import io.datarouter.client.memcached.node.MemcachedNode;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.entity.Entity;
@@ -30,6 +32,9 @@ import io.datarouter.storage.client.imp.BaseClientNodeFactory;
 import io.datarouter.storage.client.imp.BlobClientNodeFactory;
 import io.datarouter.storage.client.imp.TallyClientNodeFactory;
 import io.datarouter.storage.client.imp.WrappedNodeFactory;
+import io.datarouter.storage.file.Pathbean;
+import io.datarouter.storage.file.Pathbean.PathbeanFielder;
+import io.datarouter.storage.file.PathbeanKey;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.adapter.availability.PhysicalMapStorageAvailabilityAdapterFactory;
 import io.datarouter.storage.node.adapter.callsite.physical.PhysicalMapStorageCallsiteAdapter;
@@ -37,6 +42,7 @@ import io.datarouter.storage.node.adapter.counter.physical.PhysicalMapStorageCou
 import io.datarouter.storage.node.adapter.trace.physical.PhysicalMapStorageTraceAdapter;
 import io.datarouter.storage.node.entity.EntityNodeParams;
 import io.datarouter.storage.node.op.raw.MapStorage.PhysicalMapStorageNode;
+import io.datarouter.web.config.service.ServiceName;
 
 public abstract class BaseMemcachedClientNodeFactory
 extends BaseClientNodeFactory
@@ -45,14 +51,17 @@ implements BlobClientNodeFactory, TallyClientNodeFactory{
 	private final PhysicalMapStorageAvailabilityAdapterFactory physicalMapStorageAvailabilityAdapterFactory;
 	private final ClientType<?,?> clientType;
 	private final MemcachedClientManager memcachedClientManager;
+	private final ServiceName serviceName;
 
 	public BaseMemcachedClientNodeFactory(
 			PhysicalMapStorageAvailabilityAdapterFactory physicalMapStorageAvailabilityAdapterFactory,
 			ClientType<?,?> clientType,
-			MemcachedClientManager memcachedClientManager){
+			MemcachedClientManager memcachedClientManager,
+			ServiceName serviceName){
 		this.physicalMapStorageAvailabilityAdapterFactory = physicalMapStorageAvailabilityAdapterFactory;
 		this.clientType = clientType;
 		this.memcachedClientManager = memcachedClientManager;
+		this.serviceName = serviceName;
 	}
 
 	public class MemcachedWrappedNodeFactory<
@@ -67,6 +76,11 @@ implements BlobClientNodeFactory, TallyClientNodeFactory{
 		public PhysicalMapStorageNode<PK,D,F> createNode(
 				EntityNodeParams<EK,E> entityNodeParams,
 				NodeParams<PK,D,F> nodeParams){
+			if(clientType.getName().equals("testMemcached")){
+				return new MemcachedMapStorageNode<>(nodeParams, clientType,
+						new MemcachedBlobNode((NodeParams<PathbeanKey,Pathbean,PathbeanFielder>)nodeParams, clientType,
+								memcachedClientManager), serviceName);
+			}
 			return new MemcachedNode<>(nodeParams, clientType, memcachedClientManager);
 		}
 

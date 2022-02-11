@@ -101,6 +101,14 @@ public class DatarouterClients{
 			logger.warn("Got client properties from file {}", propertiesAndLocation.getRight());
 			clientOptions.addProperties(propertiesAndLocation.getLeft());
 		}
+		Scanner.of(clientOptionsFactory.getRequiredClientIds())
+				.exclude(clientOptions::isClientTypePresent)
+				.flush(missingClientIds -> {
+					if(!missingClientIds.isEmpty()){
+						String message = String.format("No clientType found for clientIds=%s", missingClientIds);
+						throw new RuntimeException(message);
+					}
+				});
 	}
 
 	public List<ClientId> registerClientIds(Collection<ClientId> clientIdsToAdd){

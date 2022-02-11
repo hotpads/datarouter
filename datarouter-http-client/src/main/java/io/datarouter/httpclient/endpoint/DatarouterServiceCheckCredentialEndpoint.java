@@ -17,9 +17,11 @@ package io.datarouter.httpclient.endpoint;
 
 import io.datarouter.httpclient.DatarouterServicePaths;
 import io.datarouter.httpclient.dto.DatarouterAccountCredentialStatusDto;
+import io.datarouter.httpclient.endpoint.EndpointType.NoOpEndpointType;
 import io.datarouter.httpclient.request.HttpRequestMethod;
 
-public class DatarouterServiceCheckCredentialEndpoint extends BaseEndpoint<DatarouterAccountCredentialStatusDto>{
+public class DatarouterServiceCheckCredentialEndpoint
+extends BaseEndpoint<DatarouterAccountCredentialStatusDto,NoOpEndpointType>{
 
 	private DatarouterServiceCheckCredentialEndpoint(){
 		super(HttpRequestMethod.GET, new DatarouterServicePaths().datarouter.api.accounts.checkCredential,

@@ -45,8 +45,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.httpclient.circuitbreaker.DatarouterHttpClientIoExceptionCircuitBreaker;
-import io.datarouter.httpclient.endpoint.BaseEndpoint;
-import io.datarouter.httpclient.endpoint.EndpointTool;
 import io.datarouter.httpclient.json.JsonSerializer;
 import io.datarouter.httpclient.request.DatarouterHttpRequest;
 import io.datarouter.httpclient.request.HttpRequestMethod;
@@ -69,22 +67,23 @@ import io.datarouter.instrumentation.trace.TracerTool;
 public class StandardDatarouterHttpClient implements DatarouterHttpClient{
 	private static final Logger logger = LoggerFactory.getLogger(StandardDatarouterHttpClient.class);
 
-	private final CloseableHttpClient httpClient;
+	// keep protected for now
+	protected final CloseableHttpClient httpClient;
 	private final JsonSerializer jsonSerializer;
-	private final SignatureGenerator signatureGenerator;
-	private final CsrfGenerator csrfGenerator;
-	private final Supplier<String> apiKeySupplier;
-	private final RefreshableSignatureGenerator refreshableSignatureGenerator;
-	private final RefreshableCsrfGenerator refreshableCsrfGenerator;
-	private final RefreshableSupplier<String> refreshableApiKeySupplier;
-	private final DatarouterHttpClientConfig config;
-	private final PoolingHttpClientConnectionManager connectionManager;
-	private final DatarouterHttpClientIoExceptionCircuitBreaker circuitWrappedHttpClient;
-	private final Supplier<Boolean> enableBreakers;
-	private final Supplier<URI> urlPrefix;
-	private final Supplier<Boolean> traceInQueryString;
-	private final Supplier<Boolean> debugLog;
-	private final String apiKeyFieldName;
+	protected final SignatureGenerator signatureGenerator;
+	protected final CsrfGenerator csrfGenerator;
+	protected final Supplier<String> apiKeySupplier;
+	protected final RefreshableSignatureGenerator refreshableSignatureGenerator;
+	protected final RefreshableCsrfGenerator refreshableCsrfGenerator;
+	protected final RefreshableSupplier<String> refreshableApiKeySupplier;
+	protected final DatarouterHttpClientConfig config;
+	protected final PoolingHttpClientConnectionManager connectionManager;
+	protected final DatarouterHttpClientIoExceptionCircuitBreaker circuitWrappedHttpClient;
+	protected final Supplier<Boolean> enableBreakers;
+	protected final Supplier<URI> urlPrefix;
+	protected final Supplier<Boolean> traceInQueryString;
+	protected final Supplier<Boolean> debugLog;
+	protected final String apiKeyFieldName;
 
 	StandardDatarouterHttpClient(
 			CloseableHttpClient httpClient,
@@ -241,14 +240,6 @@ public class StandardDatarouterHttpClient implements DatarouterHttpClient{
 		return Conditional.success(response);
 	}
 
-	@Override
-	public <E> Conditional<E> call(BaseEndpoint<E> endpoint){
-		initUrlPrefix(endpoint);
-		DatarouterHttpRequest datarouterHttpRequest = EndpointTool.toDatarouterHttpRequest(endpoint);
-		EndpointTool.findEntity(endpoint).ifPresent(entity -> setEntityDto(datarouterHttpRequest, entity));
-		return tryExecute(datarouterHttpRequest, endpoint.responseType);
-	}
-
 	private void setSecurityProperties(DatarouterHttpRequest request){
 		if(request.getShouldSkipSecurity()){
 			//the only case from below that is relevant without security is populating the entity
@@ -377,11 +368,6 @@ public class StandardDatarouterHttpClient implements DatarouterHttpClient{
 	@Override
 	public JsonSerializer getJsonSerializer(){
 		return jsonSerializer;
-	}
-
-	@Override
-	public void initUrlPrefix(BaseEndpoint<?> endpoint){
-		endpoint.setUrlPrefix(urlPrefix.get());
 	}
 
 }
