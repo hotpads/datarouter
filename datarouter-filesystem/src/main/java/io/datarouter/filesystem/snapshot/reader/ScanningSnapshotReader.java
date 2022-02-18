@@ -42,9 +42,6 @@ import io.datarouter.scanner.Scanner;
  */
 public class ScanningSnapshotReader{
 
-	//TODO make this configurable per scan
-	private static final int NUM_BLOCKS = 100;
-
 	private final SnapshotKey snapshotKey;
 	private final BlockLoader blockLoader;
 	private final RootBlock rootBlock;
@@ -54,11 +51,12 @@ public class ScanningSnapshotReader{
 			SnapshotKey snapshotKey,
 			ExecutorService exec,
 			int numThreads,
-			BlockLoader blockLoader){
+			BlockLoader blockLoader,
+			int numBlocks){
 		this.snapshotKey = snapshotKey;
 		this.blockLoader = blockLoader;
 		this.rootBlock = blockLoader.root(BlockKey.root(snapshotKey));
-		scanningBlockReader = new ScanningBlockReader(snapshotKey, exec, numThreads, NUM_BLOCKS, blockLoader);
+		scanningBlockReader = new ScanningBlockReader(snapshotKey, exec, numThreads, numBlocks, blockLoader);
 	}
 
 	public Scanner<SnapshotLeafRecord> scanLeafRecords(long fromRecordIdInclusive){

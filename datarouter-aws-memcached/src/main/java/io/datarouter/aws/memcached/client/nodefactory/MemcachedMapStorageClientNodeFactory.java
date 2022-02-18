@@ -18,10 +18,9 @@ package io.datarouter.aws.memcached.client.nodefactory;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.aws.memcached.TestMemcachedClientType;
+import io.datarouter.aws.memcached.MemcachedMapStorageClientType;
 import io.datarouter.aws.memcached.client.AwsMemcachedClientManager;
-import io.datarouter.client.memcached.node.MemcachedBlobNode;
-import io.datarouter.client.memcached.node.MemcachedMapStorageNode;
+import io.datarouter.client.memcached.client.nodefactory.BaseMapStorageMemcachedClientNodeFactory;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
@@ -29,30 +28,38 @@ import io.datarouter.storage.file.Pathbean;
 import io.datarouter.storage.file.Pathbean.PathbeanFielder;
 import io.datarouter.storage.file.PathbeanKey;
 import io.datarouter.storage.node.NodeParams;
+import io.datarouter.storage.node.adapter.availability.PhysicalMapStorageAvailabilityAdapterFactory;
+import io.datarouter.storage.node.op.raw.BlobStorage.PhysicalBlobStorageNode;
+import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.web.config.service.ServiceName;
 
 @Singleton
-public class TestMemcachedNodeFactory{
+public class MemcachedMapStorageClientNodeFactory extends BaseMapStorageMemcachedClientNodeFactory{
+
+	private final MemcachedMapStorageNodeFactory memcachedNodeFactory;
 
 	@Inject
-	private TestMemcachedClientType clientType;
-	@Inject
-	private AwsMemcachedClientManager clientManager;
-	@Inject
-	private ServiceName serviceName;
-
-	public MemcachedBlobNode createBlobNode(NodeParams<PathbeanKey,Pathbean,PathbeanFielder> params){
-		return new MemcachedBlobNode(params, clientType, clientManager);
+	public MemcachedMapStorageClientNodeFactory(
+			PhysicalMapStorageAvailabilityAdapterFactory factory,
+			MemcachedMapStorageClientType clientType,
+			AwsMemcachedClientManager clientManager,
+			MemcachedMapStorageNodeFactory memcachedNodeFactory,
+			ServiceName serviceName){
+		super(factory, clientType, clientManager, serviceName);
+		this.memcachedNodeFactory = memcachedNodeFactory;
 	}
 
-	@SuppressWarnings("unchecked")
+	@Override
+	public PhysicalBlobStorageNode createBlobNode(NodeParams<PathbeanKey,Pathbean,PathbeanFielder> nodeParams){
+		return memcachedNodeFactory.createBlobNode(nodeParams);
+	}
+
+	@Override
 	public <PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
-	MemcachedMapStorageNode<PK,D,F> createNode(NodeParams<PK,D,F> params){
-		return new MemcachedMapStorageNode<>(params, clientType,
-				new MemcachedBlobNode((NodeParams<PathbeanKey,Pathbean,PathbeanFielder>)params, clientType,
-						clientManager), serviceName);
+	PhysicalNode<PK,D,F> createTallyNode(NodeParams<PK,D,F> nodeParams){
+		return memcachedNodeFactory.createNode(nodeParams);
 	}
 
 }

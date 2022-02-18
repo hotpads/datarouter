@@ -78,8 +78,8 @@ public class DatarouterHttpClientIoExceptionCircuitBreaker extends ExceptionCirc
 		}
 
 		DatarouterHttpException ex;
+		TracerTool.startSpan("http call " + request.getPath(), TraceSpanGroupType.HTTP);
 		Tracer tracer = TracerThreadLocal.get();
-		TracerTool.startSpan(tracer, "http call " + request.getPath(), TraceSpanGroupType.HTTP);
 		W3TraceContext traceContext;
 		if(tracer != null && tracer.getTraceContext().isPresent()){
 			traceContext = tracer.getTraceContext().get().copy();

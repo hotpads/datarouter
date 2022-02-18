@@ -26,8 +26,6 @@ import io.datarouter.util.Require;
 
 public interface ClientOptionsFactory{
 
-	boolean REJECT_DUPLICATES = true;
-
 	Properties getInternalConfigDirectoryTypeOptions(String internalConfigDirectoryTypeName);
 
 	default List<ClientId> getRequiredClientIds(){
@@ -37,12 +35,8 @@ public interface ClientOptionsFactory{
 	default Properties mergeOptions(Properties... options){
 		var merged = new Properties();
 		Scanner.of(options)
-				.each(props -> {
-					if(REJECT_DUPLICATES){
-						props.keySet()
-								.forEach(key -> Require.isFalse(merged.containsKey(key), "duplicate key " + key));
-					}
-				})
+				.each(props -> props.keySet()
+						.forEach(key -> Require.isFalse(merged.containsKey(key), "duplicate key " + key)))
 				.forEach(merged::putAll);
 		return merged;
 	}

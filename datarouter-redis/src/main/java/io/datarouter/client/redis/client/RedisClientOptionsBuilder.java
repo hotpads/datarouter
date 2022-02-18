@@ -22,11 +22,18 @@ import io.datarouter.client.redis.client.RedisOptions.RedisClientMode;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientOptions;
 import io.datarouter.storage.client.ClientOptionsBuilder;
+import io.datarouter.storage.config.client.RedisGenericClientOptions;
 
 public class RedisClientOptionsBuilder implements ClientOptionsBuilder{
 
 	private final String clientIdName;
 	private final Properties properties;
+
+	public RedisClientOptionsBuilder(RedisGenericClientOptions genericOptions){
+		this(genericOptions.clientId);
+		withClientMode(RedisClientMode.fromGenericClientMode(genericOptions.clientMode));
+		withEndpoint(genericOptions.endpoint);
+	}
 
 	public RedisClientOptionsBuilder(ClientId clientId){
 		clientIdName = clientId.getName();
@@ -50,7 +57,8 @@ public class RedisClientOptionsBuilder implements ClientOptionsBuilder{
 		return this;
 	}
 
-	public RedisClientOptionsBuilder withNodeIndexAndHostAndPort(int nodeIndex,
+	public RedisClientOptionsBuilder withNodeIndexAndHostAndPort(
+			int nodeIndex,
 			String inetSocketAddress){
 		String optionKeySuffix = RedisOptions.makeRedisKey(RedisOptions.PROP_node + "." + nodeIndex);
 		String optionKey = makeKey(optionKeySuffix);

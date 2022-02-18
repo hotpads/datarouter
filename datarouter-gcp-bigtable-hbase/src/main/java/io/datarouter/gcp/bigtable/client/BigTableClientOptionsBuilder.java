@@ -15,16 +15,28 @@
  */
 package io.datarouter.gcp.bigtable.client;
 
+import java.util.Optional;
 import java.util.Properties;
 
 import io.datarouter.client.hbase.client.HBaseClientOptionsBuilder;
 import io.datarouter.gcp.bigtable.BigTableClientType;
 import io.datarouter.storage.client.ClientId;
+import io.datarouter.storage.config.client.BigtableGenericClientOptions;
 
 public class BigTableClientOptionsBuilder extends HBaseClientOptionsBuilder{
 
 	public BigTableClientOptionsBuilder(ClientId clientId){
 		super(clientId, BigTableClientType.NAME);
+	}
+
+	public BigTableClientOptionsBuilder(BigtableGenericClientOptions genericOptions){
+		this(genericOptions.clientId);
+		withProjectId(genericOptions.projectId);
+		withInstanceId(genericOptions.instanceId);
+		Optional.ofNullable(genericOptions.credentialsFileLocation)
+				.ifPresent(this::withCredentialsFileLocation);
+		Optional.ofNullable(genericOptions.credentialsSecretLocation)
+				.ifPresent(this::withCredentialsSecretLocation);
 	}
 
 	public BigTableClientOptionsBuilder withProjectId(String projectId){

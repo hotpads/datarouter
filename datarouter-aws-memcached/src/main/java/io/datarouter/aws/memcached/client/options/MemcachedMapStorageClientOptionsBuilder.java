@@ -15,27 +15,38 @@
  */
 package io.datarouter.aws.memcached.client.options;
 
+import java.util.Optional;
 import java.util.Properties;
 
-import io.datarouter.aws.memcached.TestMemcachedClientType;
+import io.datarouter.aws.memcached.MemcachedMapStorageClientType;
 import io.datarouter.aws.memcached.client.MemcachedClientMode;
 import io.datarouter.client.memcached.client.options.MemcachedClientOptionsBuilder;
 import io.datarouter.storage.client.ClientId;
+import io.datarouter.storage.config.client.MemcachedGenericClientOptions;
 
-public class TestMemcachedClientOptionsBuilder extends MemcachedClientOptionsBuilder{
+public class MemcachedMapStorageClientOptionsBuilder extends MemcachedClientOptionsBuilder{
 
-	public TestMemcachedClientOptionsBuilder(ClientId clientId){
-		super(clientId, TestMemcachedClientType.NAME);
+	public MemcachedMapStorageClientOptionsBuilder(ClientId clientId){
+		super(clientId, MemcachedMapStorageClientType.NAME);
 	}
 
-	public TestMemcachedClientOptionsBuilder withClientMode(MemcachedClientMode clientMode){
+	public MemcachedMapStorageClientOptionsBuilder(MemcachedGenericClientOptions genericOptions){
+		this(genericOptions.clientId);
+		withClientMode(MemcachedClientMode.fromGenericClientMode(genericOptions.clientMode));
+		Optional.ofNullable(genericOptions.servers)
+				.ifPresent(this::withServers);
+		Optional.ofNullable(genericOptions.clusterEndpoint)
+				.ifPresent(this::withClusterEndpoint);
+	}
+
+	public MemcachedMapStorageClientOptionsBuilder withClientMode(MemcachedClientMode clientMode){
 		String optionKeySuffix = AwsMemcachedOptions.makeAwsMemcachedKey(AwsMemcachedOptions.PROP_clientMode);
 		String optionKey = makeKey(optionKeySuffix);
 		properties.setProperty(optionKey, clientMode.getPersistentString());
 		return this;
 	}
 
-	public TestMemcachedClientOptionsBuilder withClusterEndpoint(String clusterEndpoint){
+	public MemcachedMapStorageClientOptionsBuilder withClusterEndpoint(String clusterEndpoint){
 		String optionKeySuffix = AwsMemcachedOptions.makeAwsMemcachedKey(AwsMemcachedOptions.PROP_clusterEndpoint);
 		String optionKey = makeKey(optionKeySuffix);
 		properties.setProperty(optionKey, clusterEndpoint);

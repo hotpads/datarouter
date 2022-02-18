@@ -21,6 +21,7 @@ import io.datarouter.client.hbase.HBaseClientType;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientOptions;
 import io.datarouter.storage.client.ClientOptionsBuilder;
+import io.datarouter.storage.config.client.HBaseGenericClientOptions;
 
 public class HBaseClientOptionsBuilder implements ClientOptionsBuilder{
 
@@ -29,6 +30,12 @@ public class HBaseClientOptionsBuilder implements ClientOptionsBuilder{
 
 	public HBaseClientOptionsBuilder(ClientId clientId){
 		this(clientId, HBaseClientType.NAME);
+	}
+
+	public HBaseClientOptionsBuilder(HBaseGenericClientOptions genericOptions){
+		this(genericOptions.clientId);
+		withZookeeperQuorum(genericOptions.zookeeperQuorum);
+		withMinPoolSize(genericOptions.minPoolSize);
 	}
 
 	protected HBaseClientOptionsBuilder(ClientId clientId, String clientTypeName){

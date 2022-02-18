@@ -19,6 +19,10 @@ public class SchemaUpdateTool{
 
 	private static final int CONSOLE_WIDTH = 80;
 
+	public static final String
+			PLEASE_EXECUTE_SCHEMA_UPDATE_MESSAGE = generateFullWidthMessage("Please Execute SchemaUpdate"),
+			THANK_YOU_MESSAGE = generateFullWidthMessage("Thank You");
+
 	public static String generateFullWidthMessage(String message){
 		StringBuilder fullWidthMessage = new StringBuilder();
 		int numCharsOnSide = (CONSOLE_WIDTH - message.length()) / 2 - 1;

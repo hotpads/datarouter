@@ -116,6 +116,7 @@ public abstract class BaseSnapshotTests{
 			TestId.SORTED_SINGLE_GET_KEY);
 
 	private static final int NUM_COLUMNS = 2;
+	private static final int SCAN_NUM_BLOCKS = 100;
 
 	private static class Input{
 
@@ -202,7 +203,7 @@ public abstract class BaseSnapshotTests{
 			return;
 		}
 		BlockLoader blockLoader = makeBlockLoader(useMemoryCache(), shareMemoryCache());
-		var reader = new ScanningSnapshotReader(snapshotKey, exec, getNumThreads(), blockLoader);
+		var reader = new ScanningSnapshotReader(snapshotKey, exec, getNumThreads(), blockLoader, SCAN_NUM_BLOCKS);
 		List<SnapshotLeafRecord> actuals = reader.scanLeafRecords(0).list();
 		Assert.assertEquals(actuals.size(), sortedInputs.size());
 		for(int i = 0; i < sortedInputs.size(); ++i){
@@ -218,7 +219,7 @@ public abstract class BaseSnapshotTests{
 			return;
 		}
 		BlockLoader blockLoader = makeBlockLoader(useMemoryCache(), shareMemoryCache());
-		var reader = new ScanningSnapshotReader(snapshotKey, exec, getNumThreads(), blockLoader);
+		var reader = new ScanningSnapshotReader(snapshotKey, exec, getNumThreads(), blockLoader, SCAN_NUM_BLOCKS);
 		List<byte[]> actuals = reader.scanKeys().list();
 		Assert.assertEquals(actuals.size(), sortedInputs.size());
 		for(int i = 0; i < sortedInputs.size(); ++i){
@@ -233,7 +234,7 @@ public abstract class BaseSnapshotTests{
 			return;
 		}
 		BlockLoader blockLoader = makeBlockLoader(useMemoryCache(), shareMemoryCache());
-		var reader = new ScanningSnapshotReader(snapshotKey, exec, getNumThreads(), blockLoader);
+		var reader = new ScanningSnapshotReader(snapshotKey, exec, getNumThreads(), blockLoader, SCAN_NUM_BLOCKS);
 		List<byte[]> actuals = reader.scanValues().list();
 		Assert.assertEquals(actuals.size(), sortedInputs.size());
 		for(int i = 0; i < sortedInputs.size(); ++i){
@@ -248,7 +249,7 @@ public abstract class BaseSnapshotTests{
 			return;
 		}
 		BlockLoader blockLoader = makeBlockLoader(useMemoryCache(), shareMemoryCache());
-		var reader = new ScanningSnapshotReader(snapshotKey, exec, getNumThreads(), blockLoader);
+		var reader = new ScanningSnapshotReader(snapshotKey, exec, getNumThreads(), blockLoader, SCAN_NUM_BLOCKS);
 		IntStream.range(0, NUM_COLUMNS).forEach(column -> {
 			List<byte[]> actuals = reader.scanColumnValues(column).list();
 			Assert.assertEquals(actuals.size(), sortedInputs.size());
@@ -271,7 +272,7 @@ public abstract class BaseSnapshotTests{
 			return;
 		}
 		BlockLoader blockLoader = makeBlockLoader(useMemoryCache(), shareMemoryCache());
-		var reader = new ScanningSnapshotReader(snapshotKey, exec, getNumThreads(), blockLoader);
+		var reader = new ScanningSnapshotReader(snapshotKey, exec, getNumThreads(), blockLoader, SCAN_NUM_BLOCKS);
 		List<SnapshotRecord> outputs = reader.scan(0).list();
 		Assert.assertEquals(outputs.size(), sortedInputs.size());
 		for(int i = 0; i < sortedInputs.size(); ++i){
@@ -296,7 +297,7 @@ public abstract class BaseSnapshotTests{
 			return;
 		}
 		BlockLoader blockLoader = makeBlockLoader(useMemoryCache(), shareMemoryCache());
-		var reader = new ScanningSnapshotReader(snapshotKey, exec, getNumThreads(), blockLoader);
+		var reader = new ScanningSnapshotReader(snapshotKey, exec, getNumThreads(), blockLoader, SCAN_NUM_BLOCKS);
 		int step = 1000;
 		int limit = 1000;
 		Scanner.iterate(0, fromId -> fromId += step)
@@ -334,7 +335,7 @@ public abstract class BaseSnapshotTests{
 			return;
 		}
 		BlockLoader blockLoader = makeBlockLoader(useMemoryCache(), shareMemoryCache());
-		var reader = new ScanningSnapshotReader(snapshotKey, exec, getNumThreads(), blockLoader);
+		var reader = new ScanningSnapshotReader(snapshotKey, exec, getNumThreads(), blockLoader, SCAN_NUM_BLOCKS);
 		int step = 1000;
 		int limit = 1000;
 		Scanner.iterate(0, fromId -> fromId += step)

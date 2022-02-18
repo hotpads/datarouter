@@ -25,7 +25,7 @@ public class DatarouterServiceHealthcheckEndpoint extends BaseEndpoint<Object,No
 	private static final PathNode PATH = new DatarouterServicePaths().datarouter.healthcheck;
 
 	private DatarouterServiceHealthcheckEndpoint(){
-		super(HttpRequestMethod.GET, PATH, Object.class, false, true, true);
+		super(HttpRequestMethod.GET, PATH, false, true, true);
 	}
 
 	public static DatarouterServiceHealthcheckEndpoint getEndpoint(){

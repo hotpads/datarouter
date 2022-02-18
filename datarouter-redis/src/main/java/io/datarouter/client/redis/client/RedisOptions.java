@@ -27,6 +27,7 @@ import javax.inject.Singleton;
 import io.datarouter.enums.DatarouterEnumTool;
 import io.datarouter.enums.PersistentString;
 import io.datarouter.storage.client.ClientOptions;
+import io.datarouter.storage.config.client.RedisGenericClientOptions.RedisGenericClientMode;
 
 @Singleton
 public class RedisOptions{
@@ -86,6 +87,14 @@ public class RedisOptions{
 		RedisClientMode(String persistentString, boolean isClustered){
 			this.persistentString = persistentString;
 			this.isClustered = isClustered;
+		}
+
+		public static RedisClientMode fromGenericClientMode(RedisGenericClientMode genericMode){
+			return switch(genericMode){
+				case AUTO_DISCOVERY -> AUTO_DISCOVERY;
+				case MULTI_NODE -> MULTI_NODE;
+				case STANDARD -> STANDARD;
+			};
 		}
 
 		@Override

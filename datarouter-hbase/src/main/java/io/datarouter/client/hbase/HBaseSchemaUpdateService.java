@@ -148,6 +148,8 @@ public class HBaseSchemaUpdateService extends EmailingSchemaUpdateService{
 		}
 
 		Admin admin = hBaseConnectionHolder.getConnection(clientId).getAdmin();
+		admin.getAlterStatus(tableName);
+
 		HTableDescriptor desc = admin.getTableDescriptor(tableName);
 
 		int requestedTtlSeconds = fieldInfo.getSampleFielder().getOption(TtlFielderConfig.KEY)
@@ -166,8 +168,9 @@ public class HBaseSchemaUpdateService extends EmailingSchemaUpdateService{
 					column.setTimeToLive(requestedTtlSeconds);
 					admin.modifyColumn(tableName, column);
 				}else if(schemaUpdateOptions.getModifyTtl(true)){
-					logger.warn(SchemaUpdateTool.generateFullWidthMessage("Please Execute SchemaUpdate"));
+					logger.warn(SchemaUpdateTool.PLEASE_EXECUTE_SCHEMA_UPDATE_MESSAGE);
 					logger.warn(ddl);
+					logger.warn(SchemaUpdateTool.THANK_YOU_MESSAGE);
 					ddls.add(ddl);
 				}
 			}
@@ -180,8 +183,9 @@ public class HBaseSchemaUpdateService extends EmailingSchemaUpdateService{
 					column.setMaxVersions(MAX_VERSIONS);
 					admin.modifyColumn(tableName, column);
 				}else if(schemaUpdateOptions.getModifyMaxVersions(true)){
-					logger.warn(SchemaUpdateTool.generateFullWidthMessage("Please Execute SchemaUpdate"));
+					logger.warn(SchemaUpdateTool.PLEASE_EXECUTE_SCHEMA_UPDATE_MESSAGE);
 					logger.warn(ddl);
+					logger.warn(SchemaUpdateTool.THANK_YOU_MESSAGE);
 					ddls.add(ddl);
 				}
 			}

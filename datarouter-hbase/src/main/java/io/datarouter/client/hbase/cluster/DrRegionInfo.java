@@ -179,7 +179,7 @@ public class DrRegionInfo<PK extends PrimaryKey<PK>> implements Comparable<DrReg
 	public Object getStartKeyString(){
 		return getStartKeyTyped()
 				.<Object>map(opt -> opt.orElse(null))
-				.peekFailure(e -> logger.warn("", e))
+				.ifFailure(e -> logger.warn("", e))
 				.orElseGet(e -> e);
 	}
 
@@ -197,7 +197,7 @@ public class DrRegionInfo<PK extends PrimaryKey<PK>> implements Comparable<DrReg
 	public Object getEndKeyString(){
 		return getEndKeyTyped()
 				.<Object>map(opt -> opt.orElse(null))
-				.peekFailure(e -> logger.warn("", e))
+				.ifFailure(e -> logger.warn("", e))
 				.orElseGet(e -> e);
 	}
 

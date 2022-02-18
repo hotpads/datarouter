@@ -28,6 +28,10 @@ public class SystemTool{
 		return System.getProperty("user.home");
 	}
 
+	public static String getUserName(){
+		return System.getProperty("user.name");
+	}
+
 	public static String getJavaVersion(){
 		return System.getProperty("java.version");
 	}

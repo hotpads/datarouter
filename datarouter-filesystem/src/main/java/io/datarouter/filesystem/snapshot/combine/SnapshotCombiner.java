@@ -39,6 +39,7 @@ public class SnapshotCombiner{
 	private final ExecutorService readExec;
 	private final ExecutorService writeExec;
 	private final SnapshotWriterConfig writerConfig;
+	private final int scanNumBlocks;
 	private final int targetNumSnapshots;
 	private final int maxNewSnapshotsPerIteration;
 
@@ -48,6 +49,7 @@ public class SnapshotCombiner{
 			ExecutorService readExec,
 			ExecutorService writeExec,
 			SnapshotWriterConfig writerConfig,
+			int scanNumBlocks,
 			int targetNumSnapshots,
 			int maxNewSnapshotsPerIteration){
 		this.shouldStop = shouldStop;
@@ -55,6 +57,7 @@ public class SnapshotCombiner{
 		this.readExec = readExec;
 		this.writeExec = writeExec;
 		this.writerConfig = writerConfig;
+		this.scanNumBlocks = scanNumBlocks;
 		this.targetNumSnapshots = targetNumSnapshots;
 		this.maxNewSnapshotsPerIteration = maxNewSnapshotsPerIteration;
 	}
@@ -83,7 +86,7 @@ public class SnapshotCombiner{
 
 	private void combineSnapshots(List<SnapshotKey> keys){
 		Scanner.of(keys)
-				.map(key -> new ScanningSnapshotReader(key, readExec, 10, group))
+				.map(key -> new ScanningSnapshotReader(key, readExec, 10, group, scanNumBlocks))
 				.collate(reader -> reader.scanLeafRecords(0), SnapshotLeafRecord.KEY_COMPARATOR)
 				.map(SnapshotLeafRecord::entry)
 				.batch(10_000)

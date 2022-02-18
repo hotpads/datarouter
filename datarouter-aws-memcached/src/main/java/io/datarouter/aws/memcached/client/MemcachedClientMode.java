@@ -19,6 +19,7 @@ import java.util.Optional;
 
 import io.datarouter.enums.DatarouterEnumTool;
 import io.datarouter.enums.StringEnum;
+import io.datarouter.storage.config.client.MemcachedGenericClientOptions.MemcachedGenericClientMode;
 import net.spy.memcached.ClientMode;
 
 /**
@@ -35,6 +36,13 @@ public enum MemcachedClientMode implements StringEnum<MemcachedClientMode>{
 	MemcachedClientMode(ClientMode clientMode, String persistentString){
 		this.clientMode = clientMode;
 		this.persistentString = persistentString;
+	}
+
+	public static MemcachedClientMode fromGenericClientMode(MemcachedGenericClientMode genericMode){
+		return switch(genericMode){
+			case STATIC -> STATIC;
+			case DYNAMIC -> DYNAMIC;
+		};
 	}
 
 	public ClientMode getClientMode(){

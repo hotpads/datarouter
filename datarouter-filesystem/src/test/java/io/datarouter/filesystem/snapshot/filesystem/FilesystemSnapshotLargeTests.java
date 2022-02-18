@@ -50,6 +50,7 @@ public class FilesystemSnapshotLargeTests{
 	private static final int NUM_WRITER_THREADS = Runtime.getRuntime().availableProcessors();
 	private static final int WRITE_BATCH_SIZE = 10_000;
 	private static final boolean SCAN_WITH_CACHE = false;
+	private static final int SCAN_NUM_BLOCKS = 200;
 	private static final boolean PERSIST = true;
 	private static final boolean CLEANUP = true;
 
@@ -100,7 +101,7 @@ public class FilesystemSnapshotLargeTests{
 		BlockLoader blockLoader = SCAN_WITH_CACHE ? cache : group;
 		int numThreads = Runtime.getRuntime().availableProcessors();
 		var exec = Executors.newFixedThreadPool(numThreads);
-		var reader = new ScanningSnapshotReader(benchmark.snapshotKey, exec, numThreads, blockLoader);
+		var reader = new ScanningSnapshotReader(benchmark.snapshotKey, exec, numThreads, blockLoader, SCAN_NUM_BLOCKS);
 		var count = new AtomicLong();
 		reader.scan(0)
 				.forEach(record -> {

@@ -31,7 +31,8 @@ public class RawStringEncoder implements HandlerEncoder{
 
 	@Override
 	public void finishRequest(Object result, ServletContext servletContext, HttpServletResponse response,
-			HttpServletRequest request) throws IOException{
+			HttpServletRequest request)
+	throws IOException{
 		try(PrintWriter writer = response.getWriter()){
 			writer.print(result);
 		}

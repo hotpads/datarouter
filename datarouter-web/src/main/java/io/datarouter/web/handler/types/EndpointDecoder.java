@@ -131,6 +131,7 @@ public class EndpointDecoder implements HandlerDecoder{
 			}
 
 			if(isOptional && !queryParams.containsKey(parameterName)){
+				field.set(baseEndpoint, Optional.empty());
 				continue;
 			}
 
@@ -139,7 +140,6 @@ public class EndpointDecoder implements HandlerDecoder{
 				if(parameterValue == null){
 					field.set(baseEndpoint, Optional.empty());
 				}else{
-					// maybe hacky
 					Class<?> clazz = (Class<?>)((ParameterizedType)field.getGenericType()).getActualTypeArguments()[0];
 					var optionalValue = decodeType(parameterValue, clazz);
 					field.set(baseEndpoint, Optional.of(optionalValue));

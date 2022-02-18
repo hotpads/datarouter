@@ -31,7 +31,6 @@ import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.adapter.availability.PhysicalMapStorageAvailabilityAdapterFactory;
 import io.datarouter.storage.node.op.raw.BlobStorage.PhysicalBlobStorageNode;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
-import io.datarouter.web.config.service.ServiceName;
 
 @Singleton
 public class AwsMemcachedClientNodeFactory extends BaseMemcachedClientNodeFactory{
@@ -43,9 +42,8 @@ public class AwsMemcachedClientNodeFactory extends BaseMemcachedClientNodeFactor
 			PhysicalMapStorageAvailabilityAdapterFactory factory,
 			AwsMemcachedClientType clientType,
 			AwsMemcachedClientManager clientManager,
-			AwsMemcachedNodeFactory memcachedNodeFactory,
-			ServiceName serviceName){
-		super(factory, clientType, clientManager, serviceName);
+			AwsMemcachedNodeFactory memcachedNodeFactory){
+		super(factory, clientType, clientManager);
 		this.memcachedNodeFactory = memcachedNodeFactory;
 	}
 

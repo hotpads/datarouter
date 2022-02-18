@@ -33,7 +33,6 @@ import io.datarouter.storage.node.adapter.sanitization.physical.PhysicalTallySto
 import io.datarouter.storage.node.adapter.trace.physical.PhysicalTallyStorageTraceAdapter;
 import io.datarouter.storage.node.op.raw.BlobStorage.PhysicalBlobStorageNode;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
-import io.datarouter.web.config.service.ServiceName;
 
 @Singleton
 public class MemcachedClientNodeFactory extends BaseMemcachedClientNodeFactory{
@@ -45,9 +44,8 @@ public class MemcachedClientNodeFactory extends BaseMemcachedClientNodeFactory{
 			PhysicalMapStorageAvailabilityAdapterFactory physicalMapStorageAvailabilityAdapterFactory,
 			MemcachedClientType memcachedClientType,
 			MemcachedClientManager memcachedClientManager,
-			MemcachedNodeFactory memcachedNodeFactory,
-			ServiceName serviceName){
-		super(physicalMapStorageAvailabilityAdapterFactory, memcachedClientType, memcachedClientManager, serviceName);
+			MemcachedNodeFactory memcachedNodeFactory){
+		super(physicalMapStorageAvailabilityAdapterFactory, memcachedClientType, memcachedClientManager);
 		this.memcachedNodeFactory = memcachedNodeFactory;
 	}
 

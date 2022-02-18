@@ -88,17 +88,14 @@ public class Conditional<T>{
 		return success;
 	}
 
-	public void assertSuccess(){
-		orElseThrow();
-	}
-
-	public void ifSuccess(Consumer<? super T> consumer){
+	public Conditional<T> ifSuccess(Consumer<? super T> consumer){
 		if(success){
 			consumer.accept(response);
 		}
+		return this;
 	}
 
-	public Conditional<T> peekFailure(Consumer<Exception> consumer){
+	public Conditional<T> ifFailure(Consumer<Exception> consumer){
 		if(!success){
 			consumer.accept(exception);
 		}

@@ -12,7 +12,7 @@ making it easier to create all the nodes and then control which physical node se
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-virtual-node</artifactId>
-	<version>0.0.104</version>
+	<version>0.0.105</version>
 </dependency>
 ```
 

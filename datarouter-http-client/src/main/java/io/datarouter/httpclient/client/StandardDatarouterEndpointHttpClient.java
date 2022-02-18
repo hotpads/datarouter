@@ -216,7 +216,8 @@ implements DatarouterEndpointHttpClient<R>{
 		initUrlPrefix(endpoint);
 		DatarouterHttpRequest datarouterHttpRequest = EndpointTool.toDatarouterHttpRequest(endpoint);
 		EndpointTool.findEntity(endpoint).ifPresent(entity -> setEntityDto(datarouterHttpRequest, entity));
-		return tryExecute(datarouterHttpRequest, endpoint.responseType);
+		Type responseType = EndpointTool.getResponseType(endpoint);
+		return tryExecute(datarouterHttpRequest, responseType);
 	}
 
 	@Override
@@ -224,7 +225,8 @@ implements DatarouterEndpointHttpClient<R>{
 		endpoint.setUrlPrefix(urlPrefix.get());
 		DatarouterHttpRequest datarouterHttpRequest = EndpointTool.toDatarouterHttpRequest(endpoint);
 		EndpointTool.findEntity(endpoint).ifPresent(entity -> setEntityDto(datarouterHttpRequest, entity));
-		return tryExecute(datarouterHttpRequest, endpoint.responseType);
+		Type responseType = EndpointTool.getResponseType(endpoint);
+		return tryExecute(datarouterHttpRequest, responseType);
 	}
 
 	private void setSecurityProperties(DatarouterHttpRequest request){

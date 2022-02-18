@@ -52,6 +52,7 @@ public abstract class BaseSchemaUpdateService{
 	private static final Logger logger = LoggerFactory.getLogger(BaseSchemaUpdateService.class);
 
 	private static final long THROTTLING_DELAY_SECONDS = 10;
+	private static final String BUILD_NUMBER_ENV_VAR = "BUILD_NUMBER";
 
 	private final ServerName serverName;
 	private final EnvironmentName environmentName;
@@ -176,6 +177,7 @@ public abstract class BaseSchemaUpdateService{
 		Instant now = Instant.now();
 		Integer build = Optional.ofNullable(buildId)
 				.filter(buildId -> !"${env.BUILD_NUMBER}".equals(buildId))
+				.or(() -> Optional.ofNullable(System.getenv(BUILD_NUMBER_ENV_VAR)))
 				.map(Integer::valueOf)
 				.orElseGet(() -> (int)now.getEpochSecond());
 		ClusterSchemaUpdateLock lock = new ClusterSchemaUpdateLock(

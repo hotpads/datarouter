@@ -98,18 +98,26 @@ public class ExceptionDetailsDetector{
 		}
 
 		public static String getDefaultName(String type, String className, String callOrigin){
+			callOrigin = Optional.ofNullable(callOrigin).orElse(className);
 			return String.format("%s at %s in %s", getSimpleClassName(type), getSimpleClassName(className),
 					getSimpleClassName(callOrigin));
 		}
 
 		private static String getSimpleClassName(String fullClassName){
 			return Optional.ofNullable(fullClassName)
-					.map(name -> Scanner.of(fullClassName
-							.split("\\."))
-							.findLast()
-							.orElse(fullClassName))
+					.map(ExceptionRecorderDetails::parseName)
 					.orElse("");
+		}
 
+		private static String parseName(String fullClassName){
+			String[] tokens = fullClassName.split("\\.");
+			if(tokens.length < 2){
+				return "";
+			}else if(Character.isUpperCase(tokens[tokens.length - 1].charAt(0))){
+				return tokens[tokens.length - 1];
+			}else{
+				return tokens[tokens.length - 2] + "." + tokens[tokens.length - 1];
+			}
 		}
 	}
 }

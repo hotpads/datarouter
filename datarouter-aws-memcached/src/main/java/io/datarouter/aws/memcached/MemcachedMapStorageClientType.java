@@ -19,18 +19,19 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.aws.memcached.client.AwsMemcachedClientManager;
-import io.datarouter.aws.memcached.client.nodefactory.TestMemcachedClientNodeFactory;
+import io.datarouter.aws.memcached.client.nodefactory.MemcachedMapStorageClientNodeFactory;
 import io.datarouter.aws.memcached.web.AwsMemcachedWebInspector;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.web.browse.DatarouterClientWebInspectorRegistry;
 
 @Singleton
-public class TestMemcachedClientType implements ClientType<TestMemcachedClientNodeFactory,AwsMemcachedClientManager>{
+public class MemcachedMapStorageClientType
+implements ClientType<MemcachedMapStorageClientNodeFactory,AwsMemcachedClientManager>{
 
-	public static final String NAME = "testMemcached";
+	public static final String NAME = "mapStorageMemcached";
 
 	@Inject
-	public TestMemcachedClientType(DatarouterClientWebInspectorRegistry datarouterClientWebInspectorRegistry){
+	public MemcachedMapStorageClientType(DatarouterClientWebInspectorRegistry datarouterClientWebInspectorRegistry){
 		datarouterClientWebInspectorRegistry.register(NAME, AwsMemcachedWebInspector.class);
 	}
 
@@ -40,8 +41,8 @@ public class TestMemcachedClientType implements ClientType<TestMemcachedClientNo
 	}
 
 	@Override
-	public Class<TestMemcachedClientNodeFactory> getClientNodeFactoryClass(){
-		return TestMemcachedClientNodeFactory.class;
+	public Class<MemcachedMapStorageClientNodeFactory> getClientNodeFactoryClass(){
+		return MemcachedMapStorageClientNodeFactory.class;
 	}
 
 	@Override

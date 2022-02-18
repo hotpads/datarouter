@@ -87,7 +87,7 @@ public class DatarouterSnapshotEntriesHandler extends BaseHandler{
 			long offset,
 			long limit){
 		SnapshotGroup group = groups.getGroup(snapshotKey.groupId);
-		var reader = new ScanningSnapshotReader(snapshotKey, exec, 2, groups);
+		var reader = new ScanningSnapshotReader(snapshotKey, exec, 2, groups, 1);
 		SnapshotRecordStringDecoder decoder = ReflectionTool.create(group.getSnapshotEntryDecoderClass());
 		List<SnapshotRecordStrings> rows = reader.scan(0)
 				// TODO go directly to the first row

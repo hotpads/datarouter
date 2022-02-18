@@ -23,6 +23,19 @@ import java.util.stream.Collectors;
 
 import io.datarouter.util.number.NumberFormatter;
 
+/**
+ * General guide for counter names: Counter names aren't usually sentences of phrases. They are words in a tree like
+ * structure, with the first word being the broadest and the last being the most specific. It helps developers who don't
+ * know the exact counter name to navigate through the external metric UIs, and allows developers to use a regex for
+ * counter names when searching on such external metric UIs.
+ *
+ * Counter names are typically in lower case, and when needed to be, in camelCase. Often times, words like "in", "on",
+ * "the", are omitted
+ *
+ * ie:) Count("earth animal primate ape");
+ * ie:) Count("earth animal primate ape male");
+ * ie:) Count("earth animal primate ape female");
+ */
 public class Count{
 
 	private final String name;
@@ -39,7 +52,7 @@ public class Count{
 
 	/*---------------- increment --------------*/
 
-	//enable calling by method reference in streams
+	// enable calling by method reference in streams
 	public void increment(@SuppressWarnings("unused") Object ignored){
 		value.incrementAndGet();
 	}
@@ -98,9 +111,7 @@ public class Count{
 	}
 
 	public static String toString(Collection<Count> counts){
-		return counts.stream()
-				.map(Object::toString)
-				.collect(Collectors.joining(", "));
+		return counts.stream().map(Object::toString).collect(Collectors.joining(", "));
 	}
 
 	public static class Counts{

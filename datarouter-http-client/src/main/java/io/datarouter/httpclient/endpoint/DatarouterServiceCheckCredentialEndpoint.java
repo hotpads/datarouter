@@ -25,7 +25,7 @@ extends BaseEndpoint<DatarouterAccountCredentialStatusDto,NoOpEndpointType>{
 
 	private DatarouterServiceCheckCredentialEndpoint(){
 		super(HttpRequestMethod.GET, new DatarouterServicePaths().datarouter.api.accounts.checkCredential,
-				DatarouterAccountCredentialStatusDto.class, true, false, true);
+				true, false, true);
 	}
 
 	public static DatarouterServiceCheckCredentialEndpoint getEndpoint(){

@@ -94,6 +94,11 @@ public interface RootBlock extends Block{
 	/*------------ timings ------------*/
 
 	long writeStartTimeMs();
+
+	default Duration writeStartAgo(){
+		return Duration.ofMillis(System.currentTimeMillis() - writeStartTimeMs());
+	}
+
 	long writeDurationMs();
 
 	default Duration writeDuration(){
@@ -169,6 +174,7 @@ public interface RootBlock extends Block{
 		kvs.put("numValueBytesCompressed", NumberFormatter.addCommas(numValueBytesCompressed()));
 
 		kvs.put("writeStartTime", Instant.ofEpochMilli(writeStartTimeMs()).toString());
+		kvs.put("writeStartAgo", new DatarouterDuration(writeStartAgo()).toString());
 		kvs.put("writeDuration", new DatarouterDuration(writeDuration()).toString());
 		kvs.put("writeItemsPerSecond", perSecond(numRecords(), writeDuration()));
 		kvs.put("writeEncodedBytesPerSecond", perSecond(totalBytesEncoded(), writeDuration()));

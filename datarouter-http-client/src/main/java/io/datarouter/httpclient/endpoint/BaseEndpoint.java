@@ -28,8 +28,6 @@ public abstract class BaseEndpoint<T,R extends EndpointType>{
 	@IgnoredField
 	public final HttpRequestMethod method;
 	@IgnoredField
-	public final Type responseType;
-	@IgnoredField
 	public final PathNode pathNode;
 	@IgnoredField
 	public final boolean retrySafe;
@@ -43,15 +41,19 @@ public abstract class BaseEndpoint<T,R extends EndpointType>{
 	@IgnoredField
 	public Optional<Duration> timeout;
 
+	@Deprecated
 	public BaseEndpoint(HttpRequestMethod method, PathNode pathNode, Type responseType, boolean retrySafe){
-		this(method, pathNode, responseType, retrySafe, false, false);
+		this(method, pathNode, retrySafe, false, false);
 	}
 
-	public BaseEndpoint(HttpRequestMethod method, PathNode pathNode, Type responseType, boolean retrySafe,
-			boolean shouldSkipSecurity, boolean shouldSkipLogs){
+	public BaseEndpoint(HttpRequestMethod method, PathNode pathNode, boolean retrySafe){
+		this(method, pathNode, retrySafe, false, false);
+	}
+
+	public BaseEndpoint(HttpRequestMethod method, PathNode pathNode, boolean retrySafe, boolean shouldSkipSecurity,
+			boolean shouldSkipLogs){
 		this.method = method;
 		this.pathNode = pathNode;
-		this.responseType = responseType;
 		this.retrySafe = retrySafe;
 		this.shouldSkipSecurity = shouldSkipSecurity;
 		this.shouldSkipLogs = shouldSkipLogs;

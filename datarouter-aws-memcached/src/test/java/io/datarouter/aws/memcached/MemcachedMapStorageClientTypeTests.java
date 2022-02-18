@@ -25,7 +25,7 @@ import io.datarouter.aws.memcached.test.DatarouterAwsMemcachedModuleFactory;
 import io.datarouter.storage.client.ClientTypeRegistry;
 
 @Guice(moduleFactory = DatarouterAwsMemcachedModuleFactory.class)
-public class TestMemcachedClientTypeTests{
+public class MemcachedMapStorageClientTypeTests{
 
 	@Inject
 	private ClientTypeRegistry clientTypeRegistry;
@@ -33,8 +33,8 @@ public class TestMemcachedClientTypeTests{
 	@Test
 	public void testClassLocation(){
 		Assert.assertEquals(
-				clientTypeRegistry.get(TestMemcachedClientType.NAME).getClass(),
-				TestMemcachedClientType.class);
+				clientTypeRegistry.get(MemcachedMapStorageClientType.NAME).getClass(),
+				MemcachedMapStorageClientType.class);
 	}
 
 }

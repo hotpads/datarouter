@@ -132,8 +132,9 @@ public class MysqlSingleTableSchemaUpdateService{
 				}
 				return Optional.empty();
 			}
-			logger.info(SchemaUpdateTool.generateFullWidthMessage("Please Execute SchemaUpdate"));
+			logger.info(SchemaUpdateTool.PLEASE_EXECUTE_SCHEMA_UPDATE_MESSAGE);
 			logger.info(createDdl);
+			logger.info(SchemaUpdateTool.THANK_YOU_MESSAGE);
 			return Optional.of(new SchemaUpdateResult(createDdl, tableName + " creation is required", clientId));
 		}
 		SqlTable executeCurrent = ConnectionSqlTableGenerator.generate(connectionPool, tableName, schemaName);
@@ -155,9 +156,9 @@ public class MysqlSingleTableSchemaUpdateService{
 		if(ddl.printStatement.isEmpty()){
 			return Optional.empty();
 		}
-		logger.info(SchemaUpdateTool.generateFullWidthMessage("Please Execute SchemaUpdate"));
+		logger.info(SchemaUpdateTool.PLEASE_EXECUTE_SCHEMA_UPDATE_MESSAGE);
 		logger.info(ddl.printStatement.get());
-		logger.info(SchemaUpdateTool.generateFullWidthMessage("Thank You"));
+		logger.info(SchemaUpdateTool.THANK_YOU_MESSAGE);
 
 		String errorMessage = null;
 		if(ddl.preventStartUp){

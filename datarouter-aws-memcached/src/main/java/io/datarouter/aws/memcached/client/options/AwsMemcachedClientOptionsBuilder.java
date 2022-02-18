@@ -15,17 +15,28 @@
  */
 package io.datarouter.aws.memcached.client.options;
 
+import java.util.Optional;
 import java.util.Properties;
 
 import io.datarouter.aws.memcached.AwsMemcachedClientType;
 import io.datarouter.aws.memcached.client.MemcachedClientMode;
 import io.datarouter.client.memcached.client.options.MemcachedClientOptionsBuilder;
 import io.datarouter.storage.client.ClientId;
+import io.datarouter.storage.config.client.MemcachedGenericClientOptions;
 
 public class AwsMemcachedClientOptionsBuilder extends MemcachedClientOptionsBuilder{
 
 	public AwsMemcachedClientOptionsBuilder(ClientId clientId){
 		super(clientId, AwsMemcachedClientType.NAME);
+	}
+
+	public AwsMemcachedClientOptionsBuilder(MemcachedGenericClientOptions genericOptions){
+		this(genericOptions.clientId);
+		withClientMode(MemcachedClientMode.fromGenericClientMode(genericOptions.clientMode));
+		Optional.ofNullable(genericOptions.servers)
+				.ifPresent(this::withServers);
+		Optional.ofNullable(genericOptions.clusterEndpoint)
+				.ifPresent(this::withClusterEndpoint);
 	}
 
 	public AwsMemcachedClientOptionsBuilder withClientMode(MemcachedClientMode clientMode){

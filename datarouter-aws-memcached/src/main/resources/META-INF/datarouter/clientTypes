@@ -1,2 +1,2 @@
 io.datarouter.aws.memcached.AwsMemcachedClientType
-io.datarouter.aws.memcached.TestMemcachedClientType
+io.datarouter.aws.memcached.MemcachedMapStorageClientType

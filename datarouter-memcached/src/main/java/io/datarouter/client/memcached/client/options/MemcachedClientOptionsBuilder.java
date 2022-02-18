@@ -15,6 +15,7 @@
  */
 package io.datarouter.client.memcached.client.options;
 
+import java.util.List;
 import java.util.Properties;
 
 import io.datarouter.client.memcached.MemcachedClientType;
@@ -37,17 +38,20 @@ public class MemcachedClientOptionsBuilder implements ClientOptionsBuilder{
 		properties.setProperty(ClientOptions.makeClientTypeKey(clientIdName), clientTypeName);
 	}
 
-	public MemcachedClientOptionsBuilder withNumServers(int numberOfServers){
-		String optionKeySuffix = MemcachedOptions.makeMemcachedKey(MemcachedOptions.PROP_numServers);
-		String optionKey = makeKey(optionKeySuffix);
-		properties.setProperty(optionKey, String.valueOf(numberOfServers));
-		return this;
+	public MemcachedClientOptionsBuilder withServers(String... inetSocketAddresses){
+		return withServers(List.of(inetSocketAddresses));
 	}
 
-	public MemcachedClientOptionsBuilder withServerIndexAndInetSocketAddress(int serverIndex, String inetSocketAddress){
-		String optionKeySuffix = MemcachedOptions.makeMemcachedKey(MemcachedOptions.PROP_server + "." + serverIndex);
-		String optionKey = makeKey(optionKeySuffix);
-		properties.setProperty(optionKey, inetSocketAddress);
+	public MemcachedClientOptionsBuilder withServers(List<String> inetSocketAddresses){
+		String numServersKeySuffix = MemcachedOptions.makeMemcachedKey(MemcachedOptions.PROP_numServers);
+		String numServersKey = makeKey(numServersKeySuffix);
+		properties.setProperty(numServersKey, String.valueOf(inetSocketAddresses.size()));
+
+		for(int i = 0; i < inetSocketAddresses.size(); ++i){
+			String serverKeySuffix = MemcachedOptions.makeMemcachedKey(MemcachedOptions.PROP_server + "." + i);
+			String serverKey = makeKey(serverKeySuffix);
+			properties.setProperty(serverKey, inetSocketAddresses.get(i));
+		}
 		return this;
 	}
 

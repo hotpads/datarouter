@@ -15,17 +15,30 @@
  */
 package io.datarouter.gcp.spanner.client;
 
+import java.util.Optional;
 import java.util.Properties;
 
 import io.datarouter.gcp.spanner.SpannerClientType;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientOptions;
 import io.datarouter.storage.client.ClientOptionsBuilder;
+import io.datarouter.storage.config.client.SpannerGenericClientOptions;
 
 public class SpannerClientOptionsBuilder implements ClientOptionsBuilder{
 
 	private final String clientIdName;
 	private final Properties properties;
+
+	public SpannerClientOptionsBuilder(SpannerGenericClientOptions config){
+		this(config.clientId);
+		withProjectId(config.projectId);
+		withInstanceId(config.instanceId);
+		withDatabaseName(config.databaseName);
+		Optional.ofNullable(config.credentialsFileLocation)
+				.ifPresent(this::withCredentialsFileLocation);
+		Optional.ofNullable(config.credentialsSecretLocation)
+				.ifPresent(this::withCredentialsSecretLocation);
+	}
 
 	public SpannerClientOptionsBuilder(ClientId clientId){
 		clientIdName = clientId.getName();

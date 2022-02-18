@@ -58,6 +58,7 @@ public class FilesystemSnapshotSortingTests{
 
 	private static final int NUM_ENTRIES = 10_000_000;
 	private static final int CHUNK_SIZE = 100_000;
+	private static final int SCAN_NUM_BLOCKS = 200;
 	private static final boolean CLEANUP = true;
 	private static final RawIntCodec RAW_INT_CODEC = RawIntCodec.INSTANCE;
 
@@ -108,7 +109,7 @@ public class FilesystemSnapshotSortingTests{
 		timer.add("writeInputSnapshot");
 
 		//write sorted chunks
-		var inputReader = new ScanningSnapshotReader(inputSnapshotKey, exec, numThreads, inputGroup);
+		var inputReader = new ScanningSnapshotReader(inputSnapshotKey, exec, numThreads, inputGroup, SCAN_NUM_BLOCKS);
 		var chunkId = new AtomicInteger();
 		chunkSnapshotKeys = inputReader.scan(0)
 				.batch(CHUNK_SIZE)
@@ -121,13 +122,18 @@ public class FilesystemSnapshotSortingTests{
 		timer.add("writeSortedChunks");
 
 		RootBlock outputRootBlock = Scanner.of(chunkSnapshotKeys)
-				.map(chunkKey -> new ScanningSnapshotReader(chunkKey, exec, numThreads, chunkGroup))
+				.map(chunkKey -> new ScanningSnapshotReader(chunkKey, exec, numThreads, chunkGroup, SCAN_NUM_BLOCKS))
 				.collate(reader -> reader.scan(0), SnapshotRecord.KEY_COMPARATOR)
 				.apply(this::writeOutputSnapshot);
 		Assert.assertEquals(outputRootBlock.numRecords(), NUM_ENTRIES);
 		timer.add("writeOutputSnapshot");
 
-		var outputReader = new ScanningSnapshotReader(outputSnapshotKey, exec, numThreads, outputGroup);
+		var outputReader = new ScanningSnapshotReader(
+				outputSnapshotKey,
+				exec,
+				numThreads,
+				outputGroup,
+				SCAN_NUM_BLOCKS);
 		var outputCount = new Count("output");
 		outputReader.scanKeys()
 				.map(FilesystemSnapshotSortingTests::parseKey)
