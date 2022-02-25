@@ -22,6 +22,7 @@ import io.datarouter.auth.web.AdminEditUserHandler;
 import io.datarouter.auth.web.DatarouterPermissionRequestHandler;
 import io.datarouter.auth.web.DatarouterSigninHandler;
 import io.datarouter.auth.web.DatarouterSignoutHandler;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
 import io.datarouter.web.user.role.DatarouterUserRole;
@@ -54,8 +55,9 @@ public class DatarouterAuthRouteSet extends BaseRouteSet{
 
 	@Override
 	protected DispatchRule applyDefault(DispatchRule rule){
-		return rule.allowRoles(DatarouterUserRole.ADMIN, DatarouterUserRole.DATAROUTER_ADMIN)
-				.withIsSystemDispatchRule(true);
+		return rule
+				.allowRoles(DatarouterUserRole.ADMIN, DatarouterUserRole.DATAROUTER_ADMIN)
+				.withTag(Tag.DATAROUTER);
 	}
 
 }

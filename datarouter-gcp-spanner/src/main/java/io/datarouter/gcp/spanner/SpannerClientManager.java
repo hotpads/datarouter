@@ -29,6 +29,7 @@ import com.google.auth.Credentials;
 import com.google.cloud.spanner.DatabaseAdminClient;
 import com.google.cloud.spanner.DatabaseClient;
 import com.google.cloud.spanner.DatabaseId;
+import com.google.cloud.spanner.SessionPoolOptions;
 import com.google.cloud.spanner.Spanner;
 import com.google.cloud.spanner.SpannerOptions;
 
@@ -76,8 +77,13 @@ public class SpannerClientManager extends BaseClientManager{
 		PhaseTimer timer = new PhaseTimer(clientId.getName());
 		Credentials credentials = spannerClientOptions.credentials(clientId.getName());
 		timer.add("read credentials");
-		SpannerOptions options = SpannerOptions.newBuilder().setCredentials(credentials).build();
-		Spanner spanner = options.getService();
+		SessionPoolOptions sessionPoolOptions = SessionPoolOptions.newBuilder()
+				.setFailIfPoolExhausted()
+				.build();
+		SpannerOptions spannerOptions = SpannerOptions.newBuilder()
+				.setSessionPoolOption(sessionPoolOptions)
+				.setCredentials(credentials).build();
+		Spanner spanner = spannerOptions.getService();
 		timer.add("build spanner service");
 		DatabaseId databaseId = DatabaseId.of(
 				spannerClientOptions.projectId(clientId.getName()),

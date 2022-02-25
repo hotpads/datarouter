@@ -21,6 +21,7 @@ import javax.inject.Singleton;
 import io.datarouter.loadtest.web.LoadTestGetHandler;
 import io.datarouter.loadtest.web.LoadTestInsertHandler;
 import io.datarouter.loadtest.web.LoadTestScanHandler;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
 import io.datarouter.web.user.role.DatarouterUserRole;
@@ -40,7 +41,7 @@ public class DatarouterLoadTestRouteSet extends BaseRouteSet{
 	protected DispatchRule applyDefault(DispatchRule rule){
 		return rule
 				.allowRoles(DatarouterUserRole.DATAROUTER_ADMIN, DatarouterUserRole.DATAROUTER_TOOLS)
-				.withIsSystemDispatchRule(true);
+				.withTag(Tag.DATAROUTER);
 	}
 
 }

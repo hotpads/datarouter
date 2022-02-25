@@ -62,6 +62,7 @@ public class DatarouterClients{
 	private final ClientOptions clientOptions;
 	private final ClientInitializationTracker clientInitializationTracker;
 	private final ClientOptionsFactory clientOptionsFactory;
+	private final RequiredClientIds requiredClientIds;
 
 	private final Set<String> configFilePaths;
 	private final Map<String,ClientId> clientIdByClientName;
@@ -77,6 +78,7 @@ public class DatarouterClients{
 			ClientOptions clientOptions,
 			ClientInitializationTracker clientInitializationTracker,
 			ClientOptionsFactory clientOptionsFactory,
+			RequiredClientIds requiredClientIds,
 			InternalConfigDirectory internalConfigDirectory){
 		this.clientTypeRegistry = clientTypeRegistry;
 		this.executorService = executorService;
@@ -84,6 +86,7 @@ public class DatarouterClients{
 		this.clientOptions = clientOptions;
 		this.clientInitializationTracker = clientInitializationTracker;
 		this.clientOptionsFactory = clientOptionsFactory;
+		this.requiredClientIds = requiredClientIds;
 		this.configFilePaths = new TreeSet<>();
 		this.clientIdByClientName = new TreeMap<>();
 		loadClientOptions(testPropertiesFile.getFileLocation(), internalConfigDirectory.get());
@@ -101,6 +104,7 @@ public class DatarouterClients{
 			logger.warn("Got client properties from file {}", propertiesAndLocation.getRight());
 			clientOptions.addProperties(propertiesAndLocation.getLeft());
 		}
+		//TODO switch to requiredClientIds.getRequiredClientIds()
 		Scanner.of(clientOptionsFactory.getRequiredClientIds())
 				.exclude(clientOptions::isClientTypePresent)
 				.flush(missingClientIds -> {

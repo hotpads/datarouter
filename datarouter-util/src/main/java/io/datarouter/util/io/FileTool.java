@@ -24,9 +24,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import io.datarouter.scanner.Scanner;
 import io.datarouter.util.Java11;
 import io.datarouter.util.string.StringTool;
 
@@ -75,6 +77,21 @@ public final class FileTool{
 		}
 		File file = new File(path);
 		file.delete();
+	}
+
+	public static void deleteDirectoryContent(File directory){
+		if(!directory.isDirectory()){
+			throw new IllegalArgumentException(directory + " is not a directory");
+		}
+		Optional.ofNullable(directory.listFiles())
+				.map(Scanner::of)
+				.orElseGet(Scanner::empty)
+				.forEach(file -> {
+					if(file.isDirectory()){
+						deleteDirectoryContent(file);
+					}
+					file.delete();
+				});
 	}
 
 	public static boolean hasAStaticFileExtension(String path){

@@ -32,8 +32,8 @@ public class GcpSpannerNavBarItem implements DynamicNavBarItem{
 
 	@Override
 	public NavBarItem getNavBarItem(){
-		String projectId = projectIdAndInstanceIdSupplier.getSpannerProjectId();
-		String instanceId = projectIdAndInstanceIdSupplier.getSpannerInstanceId();
+		String projectId = projectIdAndInstanceIdSupplier.getSpannerProjectIdAndInstanceId().projectId;
+		String instanceId = projectIdAndInstanceIdSupplier.getSpannerProjectIdAndInstanceId().instanceId;
 		String link = "https://console.cloud.google.com/spanner/instances/" + instanceId + "/details/databases?project="
 				+ projectId;
 		return new NavBarItemBuilder(DatarouterNavBarCategory.EXTERNAL, link, "GCP Spanner")
@@ -44,8 +44,8 @@ public class GcpSpannerNavBarItem implements DynamicNavBarItem{
 
 	@Override
 	public Boolean shouldDisplay(){
-		String projectId = projectIdAndInstanceIdSupplier.getSpannerProjectId();
-		String instanceId = projectIdAndInstanceIdSupplier.getSpannerInstanceId();
+		String projectId = projectIdAndInstanceIdSupplier.getSpannerProjectIdAndInstanceId().projectId;
+		String instanceId = projectIdAndInstanceIdSupplier.getSpannerProjectIdAndInstanceId().instanceId;
 		return !projectId.isEmpty() && !instanceId.isEmpty();
 	}
 

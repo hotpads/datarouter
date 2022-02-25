@@ -20,6 +20,7 @@ import javax.inject.Singleton;
 
 import io.datarouter.autoconfig.web.DatarouterAutoConfigHandler;
 import io.datarouter.autoconfig.web.ViewAutoConfigsHandler;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
 import io.datarouter.web.user.role.DatarouterUserRole;
@@ -43,7 +44,7 @@ public class DatarouterAutoConfigRouteSet extends BaseRouteSet{
 
 	@Override
 	protected DispatchRule applyDefault(DispatchRule rule){
-		return rule.withIsSystemDispatchRule(true);
+		return rule.withTag(Tag.DATAROUTER);
 	}
 
 }

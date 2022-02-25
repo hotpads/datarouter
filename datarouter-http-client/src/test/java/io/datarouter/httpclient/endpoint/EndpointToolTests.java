@@ -17,7 +17,10 @@ package io.datarouter.httpclient.endpoint;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Map;
+import java.util.Optional;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -25,6 +28,8 @@ import org.testng.annotations.Test;
 import com.google.gson.reflect.TypeToken;
 
 import io.datarouter.httpclient.endpoint.EndpointType.NoOpEndpointType;
+import io.datarouter.httpclient.request.HttpRequestMethod;
+import io.datarouter.pathnode.PathNode;
 
 public class EndpointToolTests{
 
@@ -70,6 +75,98 @@ public class EndpointToolTests{
 		Type actual4 = EndpointTool.getResponseType(new Example4());
 		Type expected4 = ExampleEndpoint1.class;
 		Assert.assertEquals(actual4.getTypeName(), expected4.getTypeName());
+	}
+
+	public static class Example5 extends BaseEndpoint<Void,NoOpEndpointType>{
+
+		public Optional<String> str = Optional.empty();
+
+		public Example5(){
+			super(HttpRequestMethod.GET, new PathNode().leaf(""), false);
+		}
+	}
+
+	public static class Example6 extends BaseEndpoint<Void,NoOpEndpointType>{
+
+		public Optional<String> str;
+
+		public Example6(){
+			super(HttpRequestMethod.GET, new PathNode().leaf(""), false);
+			this.str = Optional.empty();
+		}
+	}
+
+	public static class Example7 extends BaseEndpoint<Void,NoOpEndpointType>{
+
+		public Optional<String> optionalString;
+
+		public Example7(){
+			super(HttpRequestMethod.GET, new PathNode().leaf(""), false);
+		}
+	}
+
+	@Test
+	public void testToDatarouterHttpRequest() throws URISyntaxException{
+		Example5 endpoint5 = new Example5();
+		endpoint5.setUrlPrefix(new URI(""));
+		EndpointTool.toDatarouterHttpRequest(endpoint5);
+
+		Example6 endpoint6 = new Example6();
+		endpoint6.setUrlPrefix(new URI(""));
+		EndpointTool.toDatarouterHttpRequest(endpoint6);
+	}
+
+	/**
+	 * Official Behavior of Endpoints
+	 *
+	 * Endpoints cannot have null values for optional fields. The optional fields must be initialized
+	 */
+	@Test(expectedExceptions = RuntimeException.class)
+	public void testToDatarouterHttpRequestThrows() throws URISyntaxException{
+		Example7 endpoint = new Example7();
+		endpoint.setUrlPrefix(new URI(""));
+		EndpointTool.toDatarouterHttpRequest(endpoint);
+	}
+
+	public static class Example8 extends BaseEndpoint<Void,NoOpEndpointType>{
+
+		public final String str;
+
+		public Example8(String str){
+			super(HttpRequestMethod.GET, new PathNode().leaf(""), false);
+			this.str = str;
+		}
+	}
+
+	/**
+	 * Official Behavior of Endpoints
+	 *
+	 * Endpoints cannot have null values for final fields. Null final fields are rejected by the client, and will throw
+	 * an exception
+	 */
+	@Test(expectedExceptions = RuntimeException.class)
+	public void testEndpointNullParams() throws URISyntaxException{
+		Example8 endpoint = new Example8(null);
+		endpoint.setUrlPrefix(new URI(""));
+		EndpointTool.toDatarouterHttpRequest(endpoint);
+	}
+
+	@Test
+	public void testEndpointEmptyStringParams() throws URISyntaxException{
+		Example8 endpoint = new Example8("");
+		endpoint.setUrlPrefix(new URI(""));
+		EndpointTool.toDatarouterHttpRequest(endpoint);
+	}
+
+
+	public static class Example9 extends BaseEndpoint<Void,NoOpEndpointType>{
+
+		public final String str;
+
+		public Example9(String str){
+			super(HttpRequestMethod.POST, new PathNode().leaf(""), false);
+			this.str = str;
+		}
 	}
 
 }

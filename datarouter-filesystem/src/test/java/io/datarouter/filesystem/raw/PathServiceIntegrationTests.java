@@ -59,7 +59,6 @@ public class PathServiceIntegrationTests{
 			String message = String.format("%s arrived after %s", retained.current(), retained.previous());
 			throw new RuntimeException(message);
 		}
-
 	}
 
 	public static String pathsToString(List<Path> paths){
@@ -72,7 +71,8 @@ public class PathServiceIntegrationTests{
 
 	@Test
 	public void testScanforNonDirectoryPath(){
-		Assert.assertEquals(pathService.listChildren(Path.of("", ""), null, 0, false), List.of());
+		List<Path> children = pathService.listChildren(Path.of("", ""), null, 0, false);
+		Assert.assertEquals(children, List.of());
 	}
 
 	@Test

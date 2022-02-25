@@ -65,10 +65,10 @@ import io.datarouter.instrumentation.trace.TraceSpanFinisher;
 import io.datarouter.instrumentation.trace.TraceSpanGroupType;
 import io.datarouter.instrumentation.trace.TracerTool;
 
-//TODO reduce duplicate code between here and StandardDatarouterHttpClient
 @Singleton
-public class StandardDatarouterEndpointHttpClient<R extends EndpointType>
-implements DatarouterEndpointHttpClient<R>{
+public class StandardDatarouterEndpointHttpClient<
+		ET extends EndpointType>
+implements DatarouterEndpointHttpClient<ET>{
 	private static final Logger logger = LoggerFactory.getLogger(StandardDatarouterEndpointHttpClient.class);
 
 	private final CloseableHttpClient httpClient;
@@ -144,7 +144,7 @@ implements DatarouterEndpointHttpClient<R>{
 				client.apiKeyFieldName);
 	}
 
-	private <E> E executeChecked(DatarouterHttpRequest request, Type deserializeToType) throws DatarouterHttpException{
+	private <R> R executeChecked(DatarouterHttpRequest request, Type deserializeToType) throws DatarouterHttpException{
 		String entity = executeChecked(request).getEntity();
 		try(TraceSpanFinisher $ = TracerTool.startSpan("JsonSerializer deserialize", TraceSpanGroupType.SERIALIZATION)){
 			TracerTool.appendToSpanInfo("characters", entity.length());
@@ -198,8 +198,8 @@ implements DatarouterEndpointHttpClient<R>{
 				traceInQueryString, debugLog);
 	}
 
-	private <E> Conditional<E> tryExecute(DatarouterHttpRequest request, Type deserializeToType){
-		E response;
+	private <R> Conditional<R> tryExecute(DatarouterHttpRequest request, Type deserializeToType){
+		R response;
 		try{
 			response = executeChecked(request, deserializeToType);
 		}catch(DatarouterHttpException e){
@@ -212,7 +212,7 @@ implements DatarouterEndpointHttpClient<R>{
 	}
 
 	@Override
-	public <E> Conditional<E> call(BaseEndpoint<E,R> endpoint){
+	public <R> Conditional<R> call(BaseEndpoint<R,ET> endpoint){
 		initUrlPrefix(endpoint);
 		DatarouterHttpRequest datarouterHttpRequest = EndpointTool.toDatarouterHttpRequest(endpoint);
 		EndpointTool.findEntity(endpoint).ifPresent(entity -> setEntityDto(datarouterHttpRequest, entity));
@@ -317,7 +317,7 @@ implements DatarouterEndpointHttpClient<R>{
 		}
 	}
 
-	private StandardDatarouterEndpointHttpClient<R> setEntityDto(DatarouterHttpRequest request, Object dto){
+	private StandardDatarouterEndpointHttpClient<ET> setEntityDto(DatarouterHttpRequest request, Object dto){
 		String serializedDto = jsonSerializer.serialize(dto);
 		request.setEntity(serializedDto, ContentType.APPLICATION_JSON);
 		return this;
@@ -339,7 +339,7 @@ implements DatarouterEndpointHttpClient<R>{
 	}
 
 	@Override
-	public void initUrlPrefix(BaseEndpoint<?,R> endpoint){
+	public void initUrlPrefix(BaseEndpoint<?,ET> endpoint){
 		endpoint.setUrlPrefix(urlPrefix.get());
 	}
 

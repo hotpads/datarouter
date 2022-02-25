@@ -66,7 +66,7 @@ public class DispatchRule{
 	private Class<? extends HandlerDecoder> defaultHandlerDecoder = DefaultDecoder.class;
 	private String persistentString;
 	private boolean transmitsPii;
-	private Tag tag;
+	private Tag tag = Tag.APP;
 
 	public DispatchRule(){
 		this(null, "");
@@ -148,14 +148,6 @@ public class DispatchRule{
 		return this;
 	}
 
-	@Deprecated
-	public DispatchRule withIsSystemDispatchRule(boolean isSystem){
-		if(isSystem){
-			return withTag(Tag.DATAROUTER);
-		}
-		return withTag(Tag.APP);
-	}
-
 	public DispatchRule withTag(Tag tag){
 		this.tag = tag;
 		return this;
@@ -221,11 +213,6 @@ public class DispatchRule{
 
 	public boolean doesTransmitPii(){
 		return transmitsPii;
-	}
-
-	@Deprecated
-	public boolean isSystemDispatchRule(){
-		return getTag() == Tag.DATAROUTER;
 	}
 
 	public Tag getTag(){

@@ -25,6 +25,8 @@ import io.datarouter.storage.client.ClientInitializationTracker;
 import io.datarouter.storage.client.ClientOptions;
 import io.datarouter.storage.client.ClientOptionsFactory;
 import io.datarouter.storage.client.ClientOptionsFactory.NoOpClientOptionsFactory;
+import io.datarouter.storage.client.RequiredClientIds;
+import io.datarouter.storage.client.RequiredClientIds.NoOpRequiredClientIds;
 import io.datarouter.storage.config.properties.DatarouterTestPropertiesFile;
 import io.datarouter.storage.config.schema.SchemaUpdateOptionsFactory;
 import io.datarouter.storage.config.schema.SchemaUpdateOptionsFactory.NoOpSchemaUpdateOptionsFactory;
@@ -45,6 +47,7 @@ public class DatarouterStorageGuiceModule extends BaseGuiceModule{
 		bindDefault(SettingFinder.class, MemorySettingFinder.class);
 		bindDefault(Gauges.class, NoOpGauges.class);
 
+		bindDefault(RequiredClientIds.class, NoOpRequiredClientIds.class);
 		bindDefault(ClientOptionsFactory.class, NoOpClientOptionsFactory.class);
 		bindDefault(SchemaUpdateOptionsFactory.class, NoOpSchemaUpdateOptionsFactory.class);
 

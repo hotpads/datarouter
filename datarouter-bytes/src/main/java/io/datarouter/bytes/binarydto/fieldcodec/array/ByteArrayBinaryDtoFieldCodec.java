@@ -21,17 +21,20 @@ import io.datarouter.bytes.ByteTool;
 import io.datarouter.bytes.LengthAndValue;
 import io.datarouter.bytes.VarIntTool;
 import io.datarouter.bytes.binarydto.fieldcodec.BinaryDtoBaseFieldCodec;
-import io.datarouter.bytes.codec.array.bytearray.ComparableByteArrayCodec;
 
+/**
+ * Bytes are stored without transformation.
+ *
+ * When comparing:
+ *  - shortest arrays are first due to the length prefix
+ *  - positive values are before negative values due to unsigned comparison
+ */
 public class ByteArrayBinaryDtoFieldCodec extends BinaryDtoBaseFieldCodec<byte[]>{
-
-	private static final ComparableByteArrayCodec CODEC = ComparableByteArrayCodec.INSTANCE;
 
 	@Override
 	public byte[] encode(byte[] value){
 		byte[] sizeBytes = VarIntTool.encode(value.length);
-		byte[] valueBytes = CODEC.encode(value);
-		return ByteTool.concat(sizeBytes, valueBytes);
+		return ByteTool.concat(sizeBytes, value);
 	}
 
 	@Override
@@ -39,9 +42,9 @@ public class ByteArrayBinaryDtoFieldCodec extends BinaryDtoBaseFieldCodec<byte[]
 		int cursor = offset;
 		int size = VarIntTool.decodeInt(bytes, cursor);
 		cursor += VarIntTool.length(size);
-		int bytesLength = size * CODEC.itemLength();
-		byte[] value = CODEC.decode(bytes, cursor, bytesLength);
-		cursor += bytesLength;
+		var value = new byte[size];
+		System.arraycopy(bytes, cursor, value, 0, size);
+		cursor += size;
 		int length = cursor - offset;
 		return new LengthAndValue<>(length, value);
 	}
@@ -52,7 +55,7 @@ public class ByteArrayBinaryDtoFieldCodec extends BinaryDtoBaseFieldCodec<byte[]
 		if(sizeDiff != 0){
 			return sizeDiff;
 		}
-		return Arrays.compare(left, right);
+		return Arrays.compareUnsigned(left, right);
 	}
 
 }

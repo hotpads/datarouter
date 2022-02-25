@@ -19,6 +19,8 @@ import java.util.List;
 
 import javax.inject.Singleton;
 
+import io.datarouter.storage.tag.Tag;
+
 @Singleton
 public class DatarouterHandlerMetricLinkPage extends HandlerMetricLinkPage{
 
@@ -29,7 +31,7 @@ public class DatarouterHandlerMetricLinkPage extends HandlerMetricLinkPage{
 
 	@Override
 	public List<MetricLinkDto> getMetricLinks(){
-		return buildMetricLinks(true);
+		return buildMetricLinks(Tag.DATAROUTER);
 	}
 
 }

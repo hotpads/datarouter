@@ -32,18 +32,19 @@ import io.datarouter.httpclient.response.Conditional;
 /**
  * for use specifically with servers that are built on datarouter-web
  */
-public interface DatarouterServiceEndpointHttpClient<R extends EndpointType>
-extends DatarouterEndpointHttpClient<R>{
+public interface DatarouterServiceEndpointHttpClient<
+		ET extends EndpointType>
+extends DatarouterEndpointHttpClient<ET>{
 	Logger logger = LoggerFactory.getLogger(DatarouterServiceEndpointHttpClient.class);
 
 	default Conditional<Object> checkHealth(){
 		return callUnchecked(DatarouterServiceHealthcheckEndpoint.getEndpoint());
 	}
 
-	default <E> Conditional<E> callWithHealthcheckV2(
-			BaseEndpoint<E,R> endpoint,
+	default <R> Conditional<R> callWithHealthcheckV2(
+			BaseEndpoint<R,ET> endpoint,
 			Supplier<Boolean> shouldCheckHealth,
-			E healthCheckFailureResponse){
+			R healthCheckFailureResponse){
 		if(shouldCheckHealth.get()){
 			Conditional<Object> healthcheckResponse = checkHealth();
 			if(healthcheckResponse.isFailure()){
@@ -54,8 +55,8 @@ extends DatarouterEndpointHttpClient<R>{
 		return call(endpoint);
 	}
 
-	default <E> Conditional<E> callWithHealthcheckV2(
-			BaseEndpoint<E,R> endpoint,
+	default <R> Conditional<R> callWithHealthcheckV2(
+			BaseEndpoint<R,ET> endpoint,
 			Supplier<Boolean> shouldCheckHealth){
 		return callWithHealthcheckV2(endpoint, shouldCheckHealth, null);
 	}

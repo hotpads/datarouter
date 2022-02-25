@@ -42,6 +42,7 @@ import io.datarouter.storage.node.adapter.availability.PhysicalMapStorageAvailab
 import io.datarouter.storage.node.adapter.callsite.physical.PhysicalMapStorageCallsiteAdapter;
 import io.datarouter.storage.node.adapter.counter.physical.PhysicalMapStorageCounterAdapter;
 import io.datarouter.storage.node.adapter.counter.physical.PhysicalTallyStorageCounterAdapter;
+import io.datarouter.storage.node.adapter.sanitization.physical.PhysicalMapStorageSanitizationAdapter;
 import io.datarouter.storage.node.adapter.sanitization.physical.PhysicalTallyStorageSanitizationAdapter;
 import io.datarouter.storage.node.adapter.trace.physical.PhysicalMapStorageTraceAdapter;
 import io.datarouter.storage.node.adapter.trace.physical.PhysicalTallyStorageTraceAdapter;
@@ -83,6 +84,7 @@ implements BlobClientNodeFactory,TallyClientNodeFactory{
 		@Override
 		public List<UnaryOperator<PhysicalMapStorageNode<PK,D,F>>> getAdapters(){
 			return List.of(
+					PhysicalMapStorageSanitizationAdapter::new,
 					PhysicalMapStorageCounterAdapter::new,
 					PhysicalMapStorageTraceAdapter::new,
 					physicalMapStorageAvailabilityAdapterFactory::create,

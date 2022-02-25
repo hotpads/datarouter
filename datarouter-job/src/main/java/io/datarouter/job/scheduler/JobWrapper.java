@@ -149,7 +149,12 @@ public class JobWrapper implements Callable<Void>{
 				scheduledTime,
 				reschedule,
 				triggeredBy,
-				initTracker(jobPackage, job.getClass(), triggerTime, scheduledTime, longRunningTaskTrackerFactory,
+				initTracker(
+						jobPackage,
+						job.getPersistentName(),
+						triggerTime,
+						scheduledTime,
+						longRunningTaskTrackerFactory,
 						triggeredBy));
 	}
 
@@ -169,7 +174,12 @@ public class JobWrapper implements Callable<Void>{
 				scheduledTime,
 				reschedule,
 				triggeredBy,
-				initTracker(null, job.getClass(), triggerTime, scheduledTime, longRunningTaskTrackerFactory,
+				initTracker(
+						null,
+						job.getPersistentName(),
+						triggerTime,
+						scheduledTime,
+						longRunningTaskTrackerFactory,
 						triggeredBy));
 	}
 
@@ -226,7 +236,7 @@ public class JobWrapper implements Callable<Void>{
 
 	private static LongRunningTaskTracker initTracker(
 			JobPackage jobPackage,
-			Class<? extends BaseJob> jobClass,
+			String trackerName,
 			Instant triggerTime,
 			Instant scheduledTime,
 			LongRunningTaskTrackerFactory longRunningTaskTrackerFactory,
@@ -238,7 +248,7 @@ public class JobWrapper implements Callable<Void>{
 				.flatMap(JobPackage::getWarnOnReachingDuration)
 				.orElse(false);
 		return longRunningTaskTrackerFactory.create(
-				jobClass,
+				trackerName,
 				LongRunningTaskType.JOB,
 				deadline,
 				warnOnReachingDeadline,

@@ -21,8 +21,10 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
+import java.util.function.BiPredicate;
 import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -348,15 +350,22 @@ public interface Scanner<T> extends Closeable{
 	 * memory.
 	 */
 	default Scanner<T> deduplicateConsecutive(){
-		return new DeduplicatingConsecutiveScanner<>(this, Function.identity());
+		return new DeduplicatingConsecutiveScanner<>(this, Function.identity(), Objects::equals);
 	}
 
 	/**
-	 * Skips items where the mapper outputs the same value as the previous item. Lighter weight than distinctBy()
-	 * because all elements need not be collected into memory.
+	 * Skips items where the mapper outputs the same value as the previous item when compared with the supplied
+	 * equalsPredicate.
+	 */
+	default <R> Scanner<T> deduplicateConsecutiveBy(Function<T,R> mapper, BiPredicate<R,R> equalsPredicate){
+		return new DeduplicatingConsecutiveScanner<>(this, mapper, equalsPredicate);
+	}
+
+	/**
+	 * Skips items where the mapper outputs the same value as the previous item as compared with Objects::equals.
 	 */
 	default Scanner<T> deduplicateConsecutiveBy(Function<T,?> mapper){
-		return new DeduplicatingConsecutiveScanner<>(this, mapper);
+		return new DeduplicatingConsecutiveScanner<>(this, mapper, Objects::equals);
 	}
 
 	/**

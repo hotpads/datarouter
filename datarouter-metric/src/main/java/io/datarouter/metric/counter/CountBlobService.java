@@ -25,6 +25,7 @@ import io.datarouter.conveyor.message.ConveyorMessage;
 import io.datarouter.instrumentation.count.CountBatchDto;
 import io.datarouter.instrumentation.count.CountPublisher;
 import io.datarouter.instrumentation.response.PublishingResponseDto;
+import io.datarouter.metric.config.DatarouterCountSettingRoot;
 import io.datarouter.util.UlidTool;
 
 @Singleton
@@ -33,28 +34,28 @@ public class CountBlobService implements CountPublisher{
 
 	private final CountBlobDao countBlobDao;
 	private final DatarouterCountBlobQueueDao countBlobQueueDao;
+	private final DatarouterCountSettingRoot countSettings;
 	private final CountBlobPublishingSettings countBlobPublishingSettings;
 
 	@Inject
 	public CountBlobService(CountBlobDao countBlobDao, DatarouterCountBlobQueueDao countBlobQueueDao,
-			CountBlobPublishingSettings countBlobPublishingSettings){
+			DatarouterCountSettingRoot countSettings, CountBlobPublishingSettings countBlobPublishingSettings){
 		this.countBlobDao = countBlobDao;
 		this.countBlobQueueDao = countBlobQueueDao;
+		this.countSettings = countSettings;
 		this.countBlobPublishingSettings = countBlobPublishingSettings;
 	}
 
 	@Override
 	public PublishingResponseDto add(CountBatchDto dto){
 		var countBlobDto = toBlob(dto);
-		logger.info("writing key={}", countBlobDto.ulid);
-		countBlobDao.write(countBlobDto);
-		return PublishingResponseDto.SUCCESS;
-	}
-
-	public PublishingResponseDto addToQueue(CountBatchDto dto){
-		var countBlobDto = toBlob(dto);
-		logger.info("writing queue key={}", countBlobDto.ulid);
-		countBlobQueueDao.put(new ConveyorMessage(countBlobDto.ulid, countBlobDto.serializeToString()));
+		if(countSettings.saveCountBlobsToQueueInsteadOfCloud.get()){
+			logger.info("writing queue key={}", countBlobDto.ulid);
+			countBlobQueueDao.put(new ConveyorMessage(countBlobDto.ulid, countBlobDto.serializeToString()));
+		}else{
+			logger.info("writing key={}", countBlobDto.ulid);
+			countBlobDao.write(countBlobDto);
+		}
 		return PublishingResponseDto.SUCCESS;
 	}
 

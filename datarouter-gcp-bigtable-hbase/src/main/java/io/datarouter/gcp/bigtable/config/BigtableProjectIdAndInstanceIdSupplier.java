@@ -17,19 +17,25 @@ package io.datarouter.gcp.bigtable.config;
 
 public interface BigtableProjectIdAndInstanceIdSupplier{
 
-	String getBigtableProjectId();
-	String getBigtableInstanceId();
+	public static class BigtableProjectIdAndInstanceId{
+
+		public final String projectId;
+		public final String instanceId;
+
+		public BigtableProjectIdAndInstanceId(String projectId, String instanceId){
+			this.projectId = projectId;
+			this.instanceId = instanceId;
+		}
+
+	}
+
+	BigtableProjectIdAndInstanceId getBigtableProjectIdAndInstanceId();
 
 	class NoOpBigtableProjectIdAndInstanceIdSupplier implements BigtableProjectIdAndInstanceIdSupplier{
 
 		@Override
-		public String getBigtableProjectId(){
-			return "";
-		}
-
-		@Override
-		public String getBigtableInstanceId(){
-			return "";
+		public BigtableProjectIdAndInstanceId getBigtableProjectIdAndInstanceId(){
+			return new BigtableProjectIdAndInstanceId("", "");
 		}
 
 	}

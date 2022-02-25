@@ -17,6 +17,8 @@ package io.datarouter.util.lang;
 
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -258,6 +260,42 @@ public class ReflectionToolTests{
 
 		Assert.assertNull(dto.string);
 		Assert.assertNull(dto.object);
+	}
+
+	public static class TypesExampleDto2{
+
+		public final String str;
+		public Optional<String> optionalString = Optional.empty();
+		public Optional<String> optionalString2;
+
+		public TypesExampleDto2(String str){
+			this.str = str;
+			this.optionalString2 = Optional.empty();
+		}
+
+	}
+
+	@Test
+	public void testCreateWithoutNoArgsWithOptionals(){
+		TypesExampleDto2 dto = ReflectionTool.createWithoutNoArgs(TypesExampleDto2.class);
+		Assert.assertNotNull(dto.optionalString);
+		Assert.assertNotNull(dto.optionalString2);
+	}
+
+	public static class TypesExampleDto3{
+
+		public final String str;
+
+		public TypesExampleDto3(String str){
+			Objects.requireNonNull(str);
+			this.str = str;
+		}
+
+	}
+
+	@Test
+	public void testCreateWithoutNoArgsWithConstructorChecks(){
+		TypesExampleDto3 dto = ReflectionTool.createNullArgsWithUnsafeAllocator(TypesExampleDto3.class);
 	}
 
 }

@@ -23,6 +23,7 @@ import io.datarouter.changelog.web.ManualChangelogHandler;
 import io.datarouter.changelog.web.ViewChangelogForDateRangeHandler;
 import io.datarouter.changelog.web.ViewChangelogHandler;
 import io.datarouter.changelog.web.ViewExactChangelogHandler;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
 import io.datarouter.web.user.role.DatarouterUserRole;
@@ -44,7 +45,7 @@ public class DatarouterChangelogRouteSet extends BaseRouteSet{
 	protected DispatchRule applyDefault(DispatchRule rule){
 		return rule
 				.allowRoles(DatarouterUserRole.DATAROUTER_ADMIN, DatarouterUserRole.DATAROUTER_MONITORING)
-				.withIsSystemDispatchRule(true);
+				.withTag(Tag.DATAROUTER);
 	}
 
 }

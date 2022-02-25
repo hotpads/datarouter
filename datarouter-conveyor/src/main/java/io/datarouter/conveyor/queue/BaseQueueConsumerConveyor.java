@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.conveyor.BaseConveyor;
 import io.datarouter.conveyor.ConveyorCounters;
+import io.datarouter.gson.serialization.GsonTool;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.storage.queue.QueueMessage;
@@ -64,7 +65,7 @@ extends BaseConveyor{
 				return new ProcessBatchResult(true);
 			}
 		}catch(Exception e){
-			throw new RuntimeException("databean=" + databean, e);
+			throw new RuntimeException("databean=" + GsonTool.GSON.toJson(databean), e);
 		}
 		long durationMs = System.currentTimeMillis() - start;
 		if(durationMs > visibilityTimeout.toMillis()){

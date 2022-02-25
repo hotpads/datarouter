@@ -21,9 +21,13 @@ public abstract class BaseJob{
 
 	public abstract void run(TaskTracker tracker) throws Exception;
 
+	public String getPersistentName(){
+		return getClass().getSimpleName();
+	}
+
 	@Override
 	public String toString(){
-		return getClass().getSimpleName();
+		return getPersistentName();
 	}
 
 	public static Class<? extends BaseJob> parseClass(String className){

@@ -27,7 +27,6 @@ import io.datarouter.joblet.type.JobletType;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.comparable.BooleanField;
 import io.datarouter.model.field.imp.enums.StringEnumField;
-import io.datarouter.storage.node.NodeTool;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.storage.sql.Sql;
 
@@ -46,11 +45,12 @@ public class JobletRequestSqlBuilder{
 	private final String tableName;
 
 	@Inject
-	public JobletRequestSqlBuilder(DatarouterJobletSettingRoot datarouterJobletSettingRoot,
+	public JobletRequestSqlBuilder(
+			DatarouterJobletSettingRoot datarouterJobletSettingRoot,
 			DatarouterJobletRequestDao jobletRequestDao){
 		this.datarouterJobletSettingRoot = datarouterJobletSettingRoot;
 		this.jobletRequestDao = jobletRequestDao;
-		PhysicalNode<?,?,?> physicalNode = NodeTool.extractSinglePhysicalNode(jobletRequestDao.getNode());
+		PhysicalNode<?,?,?> physicalNode = jobletRequestDao.getPhysicalNode();
 		this.tableName = physicalNode.getFieldInfo().getTableName();
 	}
 
@@ -63,7 +63,7 @@ public class JobletRequestSqlBuilder{
 	}
 
 	public Sql<?,?,?> makeGetJobletRequest(Sql<?,?,?> sql, JobletType<?> jobletType){
-		sql.addSelectFromClause(tableName, jobletRequestDao.getNode().getFieldInfo().getFields());
+		sql.addSelectFromClause(tableName, jobletRequestDao.getPhysicalNode().getFieldInfo().getFields());
 		appendWhereClause(sql, jobletType);
 		sql.append(" for update");//lock the row
 		return sql;

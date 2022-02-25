@@ -25,7 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xbill.DNS.Message;
 import org.xbill.DNS.Name;
-import org.xbill.DNS.Resolver;
 import org.xbill.DNS.SimpleResolver;
 import org.xbill.DNS.TSIG;
 import org.xbill.DNS.TextParseException;
@@ -36,17 +35,11 @@ import org.xbill.DNS.Update;
 public class DnsUpdater{
 	private static final Logger logger = LoggerFactory.getLogger(DnsUpdater.class);
 
-	private final Resolver resolver;
-	private final Name zone;
-
 	@Inject
-	public DnsUpdater() throws TextParseException, UnknownHostException{
-		this.resolver = new SimpleResolver("TODO pass the bind ip");
-		this.resolver.setTSIGKey(new TSIG(TSIG.HMAC_MD5, "TODO pass key name", "TODO pass the secret"));
-		this.zone = new Name("TODO pass the zone with trailing dot");
-	}
+	private DnsUpdateSettings settings;
 
-	public void addCname(String subdomain, String target){
+	public String addCname(String subdomain, String target) throws TextParseException{
+		Name zone = new Name(settings.zone.get());
 		if(!target.endsWith(".")){
 			target = target + ".";
 		}
@@ -54,23 +47,28 @@ public class DnsUpdater{
 		Message response;
 		try{
 			update.add(new Name(subdomain, zone), Type.CNAME, 300, target);
+			SimpleResolver resolver = makeResolver();
 			response = resolver.send(update);
 		}catch(IOException e){
 			throw new RuntimeException(e);
 		}
 		checkSuccess(response);
+		return response.toString();
 	}
 
-	public void delete(String subdomain){
+	public String deleteCname(String subdomain) throws TextParseException{
+		Name zone = new Name(settings.zone.get());
 		var update = new Update(zone);
 		Message response;
 		try{
 			update.delete(new Name(subdomain, zone), Type.CNAME);
+			SimpleResolver resolver = makeResolver();
 			response = resolver.send(update);
 		}catch(IOException e){
 			throw new RuntimeException(e);
 		}
 		checkSuccess(response);
+		return response.toString();
 	}
 
 	private void checkSuccess(Message response){
@@ -80,6 +78,12 @@ public class DnsUpdater{
 		}
 		logger.warn("errorCode={} response={}", responseCode, response);
 		throw new RuntimeException("dns update failed errorCode=" + responseCode);
+	}
+
+	private SimpleResolver makeResolver() throws UnknownHostException{
+		SimpleResolver resolver = new SimpleResolver(settings.bindAddress.get());
+		resolver.setTSIGKey(new TSIG(TSIG.HMAC_MD5, settings.tsigKey.get(), settings.tsigSecret.get()));
+		return resolver;
 	}
 
 }

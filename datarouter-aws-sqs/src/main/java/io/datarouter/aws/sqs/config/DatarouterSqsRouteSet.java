@@ -19,6 +19,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.aws.sqs.web.handler.SqsUpdateQueueHandler;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
 import io.datarouter.web.user.role.DatarouterUserRole;
@@ -38,7 +39,7 @@ public class DatarouterSqsRouteSet extends BaseRouteSet{
 	protected DispatchRule applyDefault(DispatchRule rule){
 		return rule
 				.allowRoles(DatarouterUserRole.DATAROUTER_ADMIN)
-				.withIsSystemDispatchRule(true);
+				.withTag(Tag.DATAROUTER);
 	}
 
 }

@@ -49,4 +49,8 @@ public class SnapshotWriteResult{
 		Require.isTrue(success);
 	}
 
+	public SnapshotKeyAndRoot toSnapshotKeyAndRoot(){
+		return new SnapshotKeyAndRoot(key, optRoot.orElseThrow());
+	}
+
 }

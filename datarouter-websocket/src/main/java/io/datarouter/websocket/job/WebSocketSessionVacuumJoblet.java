@@ -45,7 +45,7 @@ public class WebSocketSessionVacuumJoblet extends BaseJoblet<Instant>{
 	@Override
 	public void process(){
 		TaskTracker tracker = longRunningTaskTrackerFactory.create(
-				WebSocketSessionVacuumJoblet.class,
+				WebSocketSessionVacuumJoblet.class.getSimpleName(),
 				LongRunningTaskType.JOBLET,
 				Instant.MAX,
 				true,

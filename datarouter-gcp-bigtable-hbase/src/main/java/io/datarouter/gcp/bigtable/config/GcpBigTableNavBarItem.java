@@ -32,8 +32,8 @@ public class GcpBigTableNavBarItem implements DynamicNavBarItem{
 
 	@Override
 	public NavBarItem getNavBarItem(){
-		String projectId = supplier.getBigtableProjectId();
-		String instanceId = supplier.getBigtableInstanceId();
+		String projectId = supplier.getBigtableProjectIdAndInstanceId().projectId;
+		String instanceId = supplier.getBigtableProjectIdAndInstanceId().instanceId;
 		String link = "https://console.cloud.google.com/bigtable/instances/" + instanceId + "/overview?project="
 				+ projectId;
 		return new NavBarItemBuilder(DatarouterNavBarCategory.EXTERNAL, link, "GCP Bigtable")
@@ -44,8 +44,8 @@ public class GcpBigTableNavBarItem implements DynamicNavBarItem{
 
 	@Override
 	public Boolean shouldDisplay(){
-		String projectId = supplier.getBigtableProjectId();
-		String instanceId = supplier.getBigtableInstanceId();
+		String projectId = supplier.getBigtableProjectIdAndInstanceId().projectId;
+		String instanceId = supplier.getBigtableProjectIdAndInstanceId().instanceId;
 		return !projectId.isEmpty() && !instanceId.isEmpty();
 	}
 

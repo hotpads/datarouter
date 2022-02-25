@@ -19,6 +19,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.secretweb.web.SecretHandler;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
 import io.datarouter.web.user.role.DatarouterUserRole;
@@ -36,7 +37,9 @@ public class DatarouterSecretRouteSet extends BaseRouteSet{
 
 	@Override
 	protected DispatchRule applyDefault(DispatchRule rule){
-		return rule.allowRoles(DatarouterUserRole.USER).withIsSystemDispatchRule(true);
+		return rule
+				.allowRoles(DatarouterUserRole.USER)
+				.withTag(Tag.DATAROUTER);
 	}
 
 }

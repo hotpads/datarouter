@@ -23,10 +23,10 @@ import io.datarouter.httpclient.endpoint.EndpointType;
 import io.datarouter.httpclient.json.JsonSerializer;
 import io.datarouter.httpclient.response.Conditional;
 
-public interface DatarouterEndpointHttpClient<R extends EndpointType>{
+public interface DatarouterEndpointHttpClient<ET extends EndpointType>{
 
-	<E> Conditional<E> call(BaseEndpoint<E,R> endpoint);
-	<E> Conditional<E> callUnchecked(BaseEndpoint<E,?> endpoint);
+	<R> Conditional<R> call(BaseEndpoint<R,ET> endpoint);
+	<R> Conditional<R> callUnchecked(BaseEndpoint<R,?> endpoint);
 
 	void shutdown();
 
@@ -34,6 +34,6 @@ public interface DatarouterEndpointHttpClient<R extends EndpointType>{
 	CloseableHttpClient getApacheHttpClient();
 	JsonSerializer getJsonSerializer();
 
-	void initUrlPrefix(BaseEndpoint<?,R> endpoint);
+	void initUrlPrefix(BaseEndpoint<?,ET> endpoint);
 
 }

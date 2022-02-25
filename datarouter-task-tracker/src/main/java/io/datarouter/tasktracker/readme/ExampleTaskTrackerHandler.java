@@ -47,7 +47,7 @@ public class ExampleTaskTrackerHandler extends BaseHandler{
 		//create a TaskTracker
 		TaskTracker tracker = trackerFactory.create(
 				//determines the tracker name
-				ExampleTaskTrackerHandler.class,
+				ExampleTaskTrackerHandler.class.getSimpleName(),
 				//triggered by web request
 				LongRunningTaskType.REQUEST,
 				//deadline

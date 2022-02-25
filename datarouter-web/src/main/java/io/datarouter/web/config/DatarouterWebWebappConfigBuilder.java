@@ -99,6 +99,7 @@ implements WebappBuilder{
 	private final ServerTypes serverTypes;
 	private final List<Class<? extends Dao>> daoClasses;
 	protected final List<ClientId> defaultClientIds;
+	protected final List<ClientId> requiredClientIds;
 	private final List<FieldKeyOverrider> fieldKeyOverriders;
 	private final List<Module> testModules;
 
@@ -165,6 +166,7 @@ implements WebappBuilder{
 				String contextName,
 				ServerTypes serverTypes,
 				List<ClientId> defaultClientIds,
+				List<ClientId> requiredClientIds,
 				ServletContextListener log4jServletContextListener){
 			super(
 					serviceName,
@@ -173,6 +175,7 @@ implements WebappBuilder{
 					contextName,
 					serverTypes,
 					defaultClientIds,
+					requiredClientIds,
 					log4jServletContextListener);
 		}
 
@@ -190,6 +193,7 @@ implements WebappBuilder{
 			String contextName,
 			ServerTypes serverTypes,
 			List<ClientId> defaultClientIds,
+			List<ClientId> requiredClientIds,
 			ServletContextListener log4jServletContextListener){
 		this.serviceName = serviceName;
 		this.publicDomain = publicDomain;
@@ -197,6 +201,7 @@ implements WebappBuilder{
 		this.contextName = contextName;
 		this.serverTypes = serverTypes;
 		this.defaultClientIds = defaultClientIds;
+		this.requiredClientIds = requiredClientIds;
 		this.log4jServletContextListener = log4jServletContextListener;
 
 		// datarouter-storage
@@ -309,7 +314,8 @@ implements WebappBuilder{
 
 		DatarouterStoragePluginBuilder storagePluginBuilder = new DatarouterStoragePluginBuilder(
 				serverTypes,
-				defaultClientIds)
+				defaultClientIds,
+				requiredClientIds)
 				.setSettingOverridesClass(settingOverrides)
 				.setClientOptionsFactoryClass(clientOptionsFactory)
 				.setSchemaUpdateOptionsFactoryClass(schemaUpdateOptionsFactory)

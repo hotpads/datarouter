@@ -18,6 +18,7 @@ package io.datarouter.web.dispatcher;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.browse.ViewReadmesHandler;
 import io.datarouter.web.browse.ViewSystemDocsHandler;
 import io.datarouter.web.config.DatarouterWebPaths;
@@ -40,7 +41,7 @@ public class DatarouterWebDocsRouteSet extends BaseRouteSet{
 						DatarouterUserRole.USER,
 						DatarouterUserRole.DOC_USER,
 						DatarouterUserRole.DATAROUTER_ADMIN)
-				.withIsSystemDispatchRule(true);
+				.withTag(Tag.DATAROUTER);
 	}
 
 }

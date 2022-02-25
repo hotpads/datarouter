@@ -15,6 +15,7 @@
  */
 package io.datarouter.filesystem.snapshot.combine;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Supplier;
@@ -88,6 +89,7 @@ public class SnapshotCombiner{
 		Scanner.of(keys)
 				.map(key -> new ScanningSnapshotReader(key, readExec, 10, group, scanNumBlocks))
 				.collate(reader -> reader.scanLeafRecords(0), SnapshotLeafRecord.KEY_COMPARATOR)
+				.deduplicateConsecutiveBy(leafRecord -> leafRecord.key, Arrays::equals)
 				.map(SnapshotLeafRecord::entry)
 				.batch(10_000)
 				.then(this::writeSnapshot);

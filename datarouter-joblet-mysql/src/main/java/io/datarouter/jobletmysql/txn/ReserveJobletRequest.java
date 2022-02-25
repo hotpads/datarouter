@@ -25,7 +25,6 @@ import io.datarouter.joblet.storage.jobletrequest.DatarouterJobletRequestDao;
 import io.datarouter.joblet.type.JobletType;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
-import io.datarouter.storage.node.NodeTool;
 
 public class ReserveJobletRequest extends BaseMysqlOp<Boolean>{
 
@@ -45,13 +44,12 @@ public class ReserveJobletRequest extends BaseMysqlOp<Boolean>{
 			MysqlSqlFactory mysqlSqlFactory,
 			JobletRequestSqlBuilder jobletRequestSqlBuilder){
 		super(datarouter,
-				NodeTool.extractSinglePhysicalNode(jobletRequestDao.getNode()).getClientId(),
+				jobletRequestDao.getPhysicalNode().getClientId(),
 				Isolation.repeatableRead,
 				false);
-		this.clientId = NodeTool.extractSinglePhysicalNode(jobletRequestDao.getNode()).getClientId();
-		this.tableName = NodeTool.extractSinglePhysicalNode(jobletRequestDao.getNode()).getFieldInfo().getTableName();
-		this.disableIntroducer = NodeTool.extractSinglePhysicalNode(jobletRequestDao.getNode()).getFieldInfo()
-				.getDisableIntroducer();
+		this.clientId = jobletRequestDao.getPhysicalNode().getClientId();
+		this.tableName = jobletRequestDao.getPhysicalNode().getFieldInfo().getTableName();
+		this.disableIntroducer = jobletRequestDao.getPhysicalNode().getFieldInfo().getDisableIntroducer();
 		this.reservedBy = reservedBy;
 		this.jobletType = jobletType;
 		this.mysqlSqlFactory = mysqlSqlFactory;

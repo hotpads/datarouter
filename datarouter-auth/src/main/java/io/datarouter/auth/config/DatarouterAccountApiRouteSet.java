@@ -22,6 +22,7 @@ import io.datarouter.auth.service.DatarouterAccountApiKeyPredicate;
 import io.datarouter.auth.service.DatarouterAccountSignatureValidator;
 import io.datarouter.auth.web.DatarouterAccountApiHandler;
 import io.datarouter.httpclient.DatarouterServicePaths;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
 import io.datarouter.web.security.SignatureValidator;
@@ -43,11 +44,12 @@ public class DatarouterAccountApiRouteSet extends BaseRouteSet{
 
 	@Override
 	protected DispatchRule applyDefault(DispatchRule rule){
-		return rule.allowAnonymous()
+		return rule
+				.allowAnonymous()
 				.withApiKey(apiKeyPredicate)
 				//TODO consider removing this and using apiKey only for fewer 403s/more control in handler
 				.withSignature(signatureValidator)
-				.withIsSystemDispatchRule(true);
+				.withTag(Tag.DATAROUTER);
 	}
 
 }

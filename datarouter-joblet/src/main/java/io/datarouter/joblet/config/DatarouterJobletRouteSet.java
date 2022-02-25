@@ -25,6 +25,7 @@ import io.datarouter.joblet.handler.JobletThreadCountHandler;
 import io.datarouter.joblet.handler.JobletUpdateHandler;
 import io.datarouter.joblet.handler.RunningJobletsHandler;
 import io.datarouter.joblet.handler.SleepingJobletHandler;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
 import io.datarouter.web.user.role.DatarouterUserRole;
@@ -52,7 +53,7 @@ public class DatarouterJobletRouteSet extends BaseRouteSet{
 	protected DispatchRule applyDefault(DispatchRule rule){
 		return rule
 				.allowRoles(DatarouterUserRole.DATAROUTER_ADMIN, DatarouterUserRole.DATAROUTER_JOB)
-				.withIsSystemDispatchRule(true);
+				.withTag(Tag.DATAROUTER);
 	}
 
 }

@@ -15,6 +15,8 @@
  */
 package io.datarouter.metric.counter;
 
+import java.nio.charset.StandardCharsets;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -28,8 +30,8 @@ public class CountBlobDao{
 	@Inject
 	private CountBlobDirectorySupplier directory;
 
-	public CountBlobDto read(String filename){
-		return CountBlobDto.deserializeFromBytes(directory.getCountBlobDirectory().read(PathbeanKey.of(filename)));
+	public String read(String filename){
+		return new String(directory.getCountBlobDirectory().read(PathbeanKey.of(filename)), StandardCharsets.UTF_8);
 	}
 
 	public void write(CountBlobDto countBlobDto){

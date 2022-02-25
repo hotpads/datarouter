@@ -19,6 +19,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.loggerconfig.web.LoggingSettingsHandler;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
 import io.datarouter.web.user.role.DatarouterUserRole;
@@ -47,7 +48,7 @@ public class DatarouterLoggingConfigRouteSet extends BaseRouteSet{
 						DatarouterUserRole.DATAROUTER_ADMIN,
 						DatarouterUserRole.DATAROUTER_SETTINGS,
 						DatarouterUserRole.DATAROUTER_MONITORING)
-				.withIsSystemDispatchRule(true);
+				.withTag(Tag.DATAROUTER);
 	}
 
 }

@@ -42,7 +42,11 @@ public class PathService{
 				: path.toString();
 	}
 
-	public List<Path> listChildren(Path fullPath, Set<String> excludingFilenames, int limit, boolean sorted){
+	public List<Path> listChildren(
+			Path fullPath,
+			Set<String> excludingFilenames,
+			int limit,
+			boolean sorted){
 		try{
 			return checkedPathService.listChildren(fullPath, excludingFilenames, limit, sorted);
 		}catch(NoSuchFileException e){
@@ -66,19 +70,29 @@ public class PathService{
 	 * 		The number of Lists tries to approximate the number of filesystem operations, but it's probably
 	 * 		over-counting by returning each directory as a singleton list.
 	 */
-	public Scanner<List<Path>> scanDescendantsPaged(Path fullPath, boolean includeDirectories, boolean sorted){
+	public Scanner<List<Path>> scanDescendantsPaged(
+			Path fullPath,
+			boolean includeDirectories,
+			boolean sorted){
 		return Scanner.of(listChildren(fullPath, Set.of(), Integer.MAX_VALUE, sorted))
 				.splitBy(Files::isDirectory)
 				.map(Scanner::list)
 				.concat(directoriesOrFiles -> {
-					if(!Files.isDirectory(directoriesOrFiles.get(0))){// it's a list of leaf files
-						return ObjectScanner.of(directoriesOrFiles);
+					boolean isDirectories = Files.isDirectory(directoriesOrFiles.get(0));
+					if(isDirectories){
+						List<Path> directories = directoriesOrFiles;
+						if(includeDirectories){
+							return Scanner.of(directories)
+									.concat(directory -> ObjectScanner.of(List.of(directory))
+											.append(scanDescendantsPaged(directory, includeDirectories, sorted)));
+						}else{
+							return Scanner.of(directories)
+									.concat(directory -> scanDescendantsPaged(directory, includeDirectories, sorted));
+						}
+					}else{
+						List<Path> files = directoriesOrFiles;
+						return ObjectScanner.of(files);
 					}
-					return Scanner.of(directoriesOrFiles)
-							.concat(directory -> includeDirectories
-									? ObjectScanner.of(List.of(directory))
-											.append(scanDescendantsPaged(directory, includeDirectories, sorted))
-									: scanDescendantsPaged(directory, includeDirectories, sorted));
 				});
 	}
 
@@ -107,9 +121,12 @@ public class PathService{
 				Path fullPath,
 				Set<String> excludingFilenames,
 				int limit,
-				boolean sorted) throws IOException{
+				boolean sorted)
+		throws IOException{
 			try(DirectoryStream<Path> iterable = Files.newDirectoryStream(fullPath)){
 				Scanner<Path> childPaths = Scanner.of(iterable)
+						.include(Files::isReadable)
+						.exclude(Files::isSymbolicLink)
 						.exclude(path -> excludingFilenames.contains(path.getFileName().toString()));
 				if(sorted){
 					childPaths = childPaths.sort(PATH_COMPARATOR);

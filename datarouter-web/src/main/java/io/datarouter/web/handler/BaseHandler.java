@@ -163,6 +163,10 @@ public abstract class BaseHandler{
 		String description() default "";
 		Class<? extends HandlerEncoder> encoder() default NullHandlerEncoder.class;
 		Class<? extends HandlerDecoder> decoder() default NullHandlerDecoder.class;
+		/**
+		 * @deprecated  Specify the path directly. The method name should match the PathNode
+		 */
+		@Deprecated
 		boolean defaultHandler() default false;
 	}
 

@@ -18,6 +18,7 @@ package io.datarouter.tasktracker.config;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.tasktracker.web.JobsHealthHandler;
 import io.datarouter.tasktracker.web.LongRunningTasksHandler;
 import io.datarouter.web.dispatcher.BaseRouteSet;
@@ -42,7 +43,7 @@ public class DatarouterTaskTrackerRouteSet extends BaseRouteSet{
 	protected DispatchRule applyDefault(DispatchRule rule){
 		return rule
 				.allowRoles(DatarouterUserRole.DATAROUTER_ADMIN)
-				.withIsSystemDispatchRule(true);
+				.withTag(Tag.DATAROUTER);
 	}
 
 }

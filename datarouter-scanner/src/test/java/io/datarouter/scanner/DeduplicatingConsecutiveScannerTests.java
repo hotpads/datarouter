@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.TreeSet;
+import java.util.function.Function;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -80,6 +81,39 @@ public class DeduplicatingConsecutiveScannerTests{
 				.deduplicateConsecutiveBy(person -> person == null ? null : person.getFirstName())
 				.list();
 		Assert.assertEquals(actual, expected);
+	}
+
+	@Test
+	public void testDeduplicateConsecutiveArray(){
+		List<byte[]> arrays = Arrays.asList(
+				new byte[]{0},
+				new byte[]{0},
+				new byte[]{1});
+
+		List<byte[]> expectedWithoutEqualsFunction = Arrays.asList(
+				new byte[]{0},
+				new byte[]{0},
+				new byte[]{1});
+		int expectedSizeWithoutEqualsFunction = 3;
+		List<byte[]> actualWithoutEqualsFunction = Scanner.of(arrays)
+				.deduplicateConsecutive()
+				.list();
+		Assert.assertEquals(actualWithoutEqualsFunction.size(), expectedSizeWithoutEqualsFunction);
+		for(int i = 0; i < expectedSizeWithoutEqualsFunction; ++i){
+			Assert.assertEquals(expectedWithoutEqualsFunction.get(i), actualWithoutEqualsFunction.get(i));
+		}
+
+		List<byte[]> expectedWithEqualsFunction = Arrays.asList(
+				new byte[]{0},
+				new byte[]{1});
+		int expectedSizeWithEqualsFunction = 2;
+		List<byte[]> actualWithEqualsFunction = Scanner.of(arrays)
+				.deduplicateConsecutiveBy(Function.identity(), Arrays::equals)
+				.list();
+		Assert.assertEquals(actualWithEqualsFunction.size(), expectedSizeWithEqualsFunction);
+		for(int i = 0; i < expectedSizeWithEqualsFunction; ++i){
+			Assert.assertEquals(expectedWithEqualsFunction.get(i), actualWithEqualsFunction.get(i));
+		}
 	}
 
 	private static class Person{

@@ -18,6 +18,7 @@ package io.datarouter.aws.rds.config;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.aws.rds.job.DnsUpdateSettings;
 import io.datarouter.storage.setting.DatarouterSettingCategory;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.SettingRoot;
@@ -29,10 +30,13 @@ public class DatarouterAwsRdsSettingRoot extends SettingRoot{
 	public final CachedSetting<Boolean> auroraDnsMonitoringJob;
 
 	@Inject
-	public DatarouterAwsRdsSettingRoot(SettingFinder finder, DatarouterAwsRdsConfigSettings rdsSettings){
+	public DatarouterAwsRdsSettingRoot(SettingFinder finder,
+			DatarouterAwsRdsConfigSettings rdsSettings,
+			DnsUpdateSettings dnsUpdateSettings){
 		super(finder, DatarouterSettingCategory.DATAROUTER, "datarouterAwsRds.");
 
 		registerChild(rdsSettings);
+		registerChild(dnsUpdateSettings);
 		auroraDnsMonitoringJob = registerBoolean("auroraDnsMonitoringJob", false);
 	}
 

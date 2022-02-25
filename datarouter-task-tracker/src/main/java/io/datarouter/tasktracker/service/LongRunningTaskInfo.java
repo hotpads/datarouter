@@ -37,8 +37,8 @@ public class LongRunningTaskInfo{
 	public Date heartbeatTime;
 	public String exceptionRecordId;
 
-	public LongRunningTaskInfo(Class<?> trackedClass, String serverName, LongRunningTaskType type, String triggeredBy){
-		this.name = trackedClass.getSimpleName();
+	public LongRunningTaskInfo(String name, String serverName, LongRunningTaskType type, String triggeredBy){
+		this.name = name;
 		this.serverName = serverName;
 		this.type = type;
 		this.triggeredBy = triggeredBy;

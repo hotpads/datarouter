@@ -17,6 +17,7 @@ package io.datarouter.web.homepage;
 
 import javax.inject.Singleton;
 
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.DispatchRule;
 import io.datarouter.web.user.role.DatarouterUserRole;
 
@@ -33,7 +34,7 @@ public class DefaultHomepageRouteSet extends HomepageRouteSet{
 	protected DispatchRule applyDefault(DispatchRule rule){
 		return rule
 				.allowRoles(DatarouterUserRole.USER)
-				.withIsSystemDispatchRule(true);
+				.withTag(Tag.DATAROUTER);
 	}
 
 }

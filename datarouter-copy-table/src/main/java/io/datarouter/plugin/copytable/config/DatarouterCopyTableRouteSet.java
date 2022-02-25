@@ -22,6 +22,7 @@ import io.datarouter.plugin.copytable.web.JobletCopyTableHandler;
 import io.datarouter.plugin.copytable.web.JobletTableProcessorHandler;
 import io.datarouter.plugin.copytable.web.SingleThreadCopyTableHandler;
 import io.datarouter.plugin.copytable.web.SingleThreadTableProcessorHandler;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
 import io.datarouter.web.user.role.DatarouterUserRole;
@@ -42,7 +43,7 @@ public class DatarouterCopyTableRouteSet extends BaseRouteSet{
 	protected DispatchRule applyDefault(DispatchRule rule){
 		return rule
 				.allowRoles(DatarouterUserRole.DATAROUTER_ADMIN)
-				.withIsSystemDispatchRule(true);
+				.withTag(Tag.DATAROUTER);
 	}
 
 }

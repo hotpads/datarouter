@@ -17,19 +17,25 @@ package io.datarouter.gcp.spanner.config;
 
 public interface SpannerProjectIdAndInstanceIdSupplier{
 
-	String getSpannerProjectId();
-	String getSpannerInstanceId();
+	public static class SpannerProjectIdAndInstanceId{
+
+		public final String projectId;
+		public final String instanceId;
+
+		public SpannerProjectIdAndInstanceId(String projectId, String instanceId){
+			this.projectId = projectId;
+			this.instanceId = instanceId;
+		}
+
+	}
+
+	SpannerProjectIdAndInstanceId getSpannerProjectIdAndInstanceId();
 
 	class NoOpSpannerProjectIdAndInstanceIdSupplier implements SpannerProjectIdAndInstanceIdSupplier{
 
 		@Override
-		public String getSpannerProjectId(){
-			return "";
-		}
-
-		@Override
-		public String getSpannerInstanceId(){
-			return "";
+		public SpannerProjectIdAndInstanceId getSpannerProjectIdAndInstanceId(){
+			return new SpannerProjectIdAndInstanceId("", "");
 		}
 
 	}

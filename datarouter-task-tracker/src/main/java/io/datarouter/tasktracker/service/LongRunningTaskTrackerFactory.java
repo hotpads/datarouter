@@ -62,13 +62,13 @@ public class LongRunningTaskTrackerFactory{
 	private ServiceName serviceName;
 
 	public LongRunningTaskTracker create(
-			Class<?> trackedClass,
+			String name,
 			LongRunningTaskType type,
 			Instant deadline,
 			boolean warnOnReachingDeadline,
 			String triggeredBy){
 		LongRunningTaskInfo task = new LongRunningTaskInfo(
-				trackedClass,
+				name,
 				serverName.get(),
 				type,
 				triggeredBy);

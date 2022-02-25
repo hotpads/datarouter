@@ -21,6 +21,7 @@ import java.util.Optional;
 import javax.inject.Inject;
 
 import io.datarouter.scanner.Scanner;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.config.RouteSetRegistry;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
@@ -36,16 +37,11 @@ public abstract class HandlerMetricLinkPage implements MetricLinkPage{
 		return "Handlers";
 	}
 
-	protected List<MetricLinkDto> buildMetricLinks(boolean isSystem){
+	protected List<MetricLinkDto> buildMetricLinks(Tag tag){
 		return Scanner.of(routeSetRegistry.get())
 				.map(BaseRouteSet::getDispatchRules)
 				.concat(Scanner::of)
-				.include(rule -> {
-					if(isSystem){
-						return rule.isSystemDispatchRule();
-					}
-					return !rule.isSystemDispatchRule();
-				})
+				.include(rule -> rule.getTag() == tag)
 				.map(DispatchRule::getHandlerClass)
 				.map(Class::getSimpleName)
 				.distinct()

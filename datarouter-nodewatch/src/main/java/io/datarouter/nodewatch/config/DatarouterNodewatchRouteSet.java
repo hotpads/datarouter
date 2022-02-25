@@ -21,6 +21,7 @@ import javax.inject.Singleton;
 import io.datarouter.nodewatch.web.MigrateTableCountMetadataHandler;
 import io.datarouter.nodewatch.web.TableCountHandler;
 import io.datarouter.nodewatch.web.TableSizeAlertThresholdHandler;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
 import io.datarouter.web.user.role.DatarouterUserRole;
@@ -53,7 +54,7 @@ public class DatarouterNodewatchRouteSet extends BaseRouteSet{
 	protected DispatchRule applyDefault(DispatchRule rule){
 		return rule
 				.allowRoles(DatarouterUserRole.DATAROUTER_ADMIN)
-				.withIsSystemDispatchRule(true);
+				.withTag(Tag.DATAROUTER);
 	}
 
 }

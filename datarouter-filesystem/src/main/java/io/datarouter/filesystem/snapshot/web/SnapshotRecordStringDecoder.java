@@ -21,9 +21,17 @@ import io.datarouter.filesystem.snapshot.reader.record.SnapshotRecord;
 
 public interface SnapshotRecordStringDecoder{
 
-	String keyName();
-	String valueName();
-	List<String> columnValueNames();
+	default String keyName(){
+		return "key";
+	}
+
+	default String valueName(){
+		return "value";
+	}
+
+	default List<String> columnValueNames(){
+		return List.of();
+	}
 
 	default String columnValueName(int column){
 		return columnValueNames().get(column);

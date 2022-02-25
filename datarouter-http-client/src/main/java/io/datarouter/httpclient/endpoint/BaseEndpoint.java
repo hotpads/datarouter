@@ -15,7 +15,6 @@
  */
 package io.datarouter.httpclient.endpoint;
 
-import java.lang.reflect.Type;
 import java.net.URI;
 import java.time.Duration;
 import java.util.Optional;
@@ -23,7 +22,11 @@ import java.util.Optional;
 import io.datarouter.httpclient.request.HttpRequestMethod;
 import io.datarouter.pathnode.PathNode;
 
-public abstract class BaseEndpoint<T,R extends EndpointType>{
+/**
+ * @param <R> response type
+ * @param <ET> EndpointType
+ */
+public abstract class BaseEndpoint<R,ET extends EndpointType>{
 
 	@IgnoredField
 	public final HttpRequestMethod method;
@@ -41,11 +44,6 @@ public abstract class BaseEndpoint<T,R extends EndpointType>{
 	@IgnoredField
 	public Optional<Duration> timeout;
 
-	@Deprecated
-	public BaseEndpoint(HttpRequestMethod method, PathNode pathNode, Type responseType, boolean retrySafe){
-		this(method, pathNode, retrySafe, false, false);
-	}
-
 	public BaseEndpoint(HttpRequestMethod method, PathNode pathNode, boolean retrySafe){
 		this(method, pathNode, retrySafe, false, false);
 	}
@@ -62,12 +60,12 @@ public abstract class BaseEndpoint<T,R extends EndpointType>{
 		this.timeout = Optional.empty();
 	}
 
-	public BaseEndpoint<T,R> setUrlPrefix(URI urlPrefix){
+	public BaseEndpoint<R,ET> setUrlPrefix(URI urlPrefix){
 		this.urlPrefix = urlPrefix.normalize().toString();
 		return this;
 	}
 
-	protected void setTimeout(Duration timeout){
+	public void setTimeout(Duration timeout){
 		this.timeout = Optional.of(timeout);
 	}
 

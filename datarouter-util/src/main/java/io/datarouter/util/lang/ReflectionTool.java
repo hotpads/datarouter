@@ -384,8 +384,8 @@ public class ReflectionTool{
 		return null;
 	}
 
-	private static Object[] getDefaultValues(Class<?> clazz){
-		return Scanner.of(clazz.getDeclaredConstructors()[0].getParameters())
+	private static Object[] getDefaultValues(Constructor<?> constructor){
+		return Scanner.of(constructor.getParameters())
 				.map(ReflectionTool::getDefaultValue)
 				.list()
 				.toArray();
@@ -393,10 +393,12 @@ public class ReflectionTool{
 
 	@SuppressWarnings("unchecked")
 	public static <T> T createWithoutNoArgs(Class<T> clazz){
-		Object[] dummyParams = ReflectionTool.getDefaultValues(clazz);
+		Constructor<?> constructor = clazz.getDeclaredConstructors()[0];
+		constructor.setAccessible(true);
+		Object[] dummyParams = ReflectionTool.getDefaultValues(constructor);
 		T object = null;
 		try{
-			object = (T)clazz.getDeclaredConstructors()[0].newInstance(dummyParams);
+			object = (T)constructor.newInstance(dummyParams);
 		}catch(InstantiationException
 				| IllegalAccessException
 				| IllegalArgumentException

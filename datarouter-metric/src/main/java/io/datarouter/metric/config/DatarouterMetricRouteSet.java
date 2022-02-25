@@ -22,6 +22,7 @@ import io.datarouter.metric.web.AdditionalMetricLinksHandlers.MetricDashboardHan
 import io.datarouter.metric.web.AdditionalMetricLinksHandlers.MiscMetricLinksHandler;
 import io.datarouter.metric.web.AdditionalMetricLinksHandlers.RegisteredMetricNames;
 import io.datarouter.metric.web.MetricLinksHandler;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
 import io.datarouter.web.user.role.DatarouterUserRole;
@@ -43,7 +44,7 @@ public class DatarouterMetricRouteSet extends BaseRouteSet{
 	protected DispatchRule applyDefault(DispatchRule rule){
 		return rule
 				.allowRoles(DatarouterUserRole.DATAROUTER_ADMIN, DatarouterUserRole.USER)
-				.withIsSystemDispatchRule(true);
+				.withTag(Tag.DATAROUTER);
 	}
 
 }

@@ -82,10 +82,6 @@ public class CountBlobDto{
 		return metadataLine + "\n" + countLines;
 	}
 
-	public static CountBlobDto deserializeFromBytes(byte[] bytes){
-		return deserializeFromString(new String(bytes, StandardCharsets.UTF_8));
-	}
-
 	public static CountBlobDto deserializeFromString(String string){
 		String[] lines = string.split("\n", 2);
 		String[] parts = lines[0].split("\t");//metadata line parts

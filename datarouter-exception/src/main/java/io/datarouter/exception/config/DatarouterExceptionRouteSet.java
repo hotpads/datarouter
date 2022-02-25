@@ -20,6 +20,7 @@ import javax.inject.Singleton;
 
 import io.datarouter.exception.web.ExceptionAnalysisHandler;
 import io.datarouter.exception.web.ExceptionGeneratorHandler;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
 import io.datarouter.web.user.role.DatarouterUserRole;
@@ -56,7 +57,7 @@ public class DatarouterExceptionRouteSet extends BaseRouteSet{
 	protected DispatchRule applyDefault(DispatchRule rule){
 		return rule
 				.allowRoles(DatarouterUserRole.DATAROUTER_ADMIN)
-				.withIsSystemDispatchRule(true);
+				.withTag(Tag.DATAROUTER);
 	}
 
 }

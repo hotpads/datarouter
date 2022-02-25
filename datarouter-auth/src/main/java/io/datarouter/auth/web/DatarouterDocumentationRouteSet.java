@@ -19,6 +19,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.auth.config.DatarouterAuthPaths;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
 import io.datarouter.web.user.role.DatarouterUserRole;
@@ -34,12 +35,13 @@ public class DatarouterDocumentationRouteSet extends BaseRouteSet{
 
 	@Override
 	protected DispatchRule applyDefault(DispatchRule rule){
-		return rule.allowRoles(
-				DatarouterUserRole.ADMIN,
-				DatarouterUserRole.DATAROUTER_ADMIN,
-				DatarouterUserRole.DOC_USER,
-				DatarouterUserRole.USER)
-				.withIsSystemDispatchRule(true);
+		return rule
+				.allowRoles(
+						DatarouterUserRole.ADMIN,
+						DatarouterUserRole.DATAROUTER_ADMIN,
+						DatarouterUserRole.DOC_USER,
+						DatarouterUserRole.USER)
+				.withTag(Tag.DATAROUTER);
 	}
 
 }

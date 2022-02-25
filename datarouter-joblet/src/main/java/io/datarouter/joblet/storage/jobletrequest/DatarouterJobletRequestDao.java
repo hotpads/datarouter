@@ -37,11 +37,12 @@ import io.datarouter.storage.config.Configs;
 import io.datarouter.storage.config.PutMethod;
 import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.BaseRedundantDaoParams;
+import io.datarouter.storage.node.NodeTool;
 import io.datarouter.storage.node.factory.IndexingNodeFactory;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
-import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import io.datarouter.storage.node.type.index.UniqueIndexNode;
+import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.util.tuple.Range;
 import io.datarouter.virtualnode.redundant.RedundantIndexedSortedMapStorageNode;
@@ -57,6 +58,8 @@ public class DatarouterJobletRequestDao extends BaseDao{
 
 	}
 
+	private final List<IndexedSortedMapStorageNode<JobletRequestKey,JobletRequest,JobletRequestFielder>> allNodes;
+	private final PhysicalNode<JobletRequestKey,JobletRequest,JobletRequestFielder> physicalNode;
 	private final IndexedSortedMapStorageNode<JobletRequestKey,JobletRequest,JobletRequestFielder> node;
 	private final UniqueIndexNode<
 			JobletRequestKey,
@@ -74,7 +77,7 @@ public class DatarouterJobletRequestDao extends BaseDao{
 			DatarouterJobletRequestDaoParams params,
 			IndexingNodeFactory indexingNodeFactory){
 		super(datarouter);
-		node = Scanner.of(params.clientIds)
+		allNodes = Scanner.of(params.clientIds)
 				.map(clientId -> {
 					IndexedSortedMapStorageNode<JobletRequestKey,JobletRequest,JobletRequestFielder> node =
 							nodeFactory.create(clientId, JobletRequest::new, JobletRequestFielder::new)
@@ -84,13 +87,23 @@ public class DatarouterJobletRequestDao extends BaseDao{
 						.build();
 					return node;
 				})
-				.listTo(RedundantIndexedSortedMapStorageNode::makeIfMulti);
+				.list();
+		physicalNode = NodeTool.extractSinglePhysicalNode(allNodes.get(0));
+		node = RedundantIndexedSortedMapStorageNode.makeIfMulti(allNodes);
 		byTypeAndDataSignature = indexingNodeFactory.createKeyOnlyManagedIndex(
 				JobletRequestByTypeAndDataSignatureKey::new,
 				node)
 				.build();
 		datarouter.register(node);
 	}
+
+	/*------------ node ---------------*/
+
+	public PhysicalNode<JobletRequestKey,JobletRequest,JobletRequestFielder> getPhysicalNode(){
+		return physicalNode;
+	}
+
+	/*------------ scan ----------------*/
 
 	public Scanner<JobletRequest> scan(){
 		return node.scan();
@@ -112,55 +125,8 @@ public class DatarouterJobletRequestDao extends BaseDao{
 		return node.scanKeysWithPrefix(prefix);
 	}
 
-	public String getName(){
-		return node.getName();
-	}
-
 	public Scanner<JobletRequest> scanWithPrefix(JobletRequestKey prefix){
 		return node.scanWithPrefix(prefix);
-	}
-
-	public void deleteMulti(Collection<JobletRequestKey> keys){
-		node.deleteMulti(keys);
-	}
-
-	public void putMulti(Collection<JobletRequest> databeans){
-		node.putMulti(databeans);
-	}
-
-	public void put(JobletRequest databean){
-		node.put(databean);
-	}
-
-	public SortedMapStorageNode<JobletRequestKey,JobletRequest,JobletRequestFielder> getNode(){
-		return node;
-	}
-
-	public boolean exists(JobletRequestKey key){
-		return node.exists(key);
-	}
-
-	public void delete(JobletRequestKey key){
-		node.delete(key);
-	}
-
-	public void updateOrBust(JobletRequest databean){
-		node.put(databean, new Config().setPutMethod(PutMethod.UPDATE_OR_BUST));
-	}
-
-	public void putMultiOrBust(Collection<JobletRequest> databeans){
-		node.putMulti(databeans, Configs.insertOrBust());
-	}
-
-	public JobletRequest getReservedRequest(JobletType<?> jobletType, String reservedBy, ConfigValue<?> option){
-		var prefix = JobletRequestKey.create(jobletType, null, null, null);
-		var config = new Config()
-				.setOutputBatchSize(20)//keep it small since there should not be thousands of reserved joblets
-				.addOption(option);
-		return node.scanWithPrefix(prefix, config)
-				.include(request -> Objects.equals(request.getReservedBy(), reservedBy))
-				.findFirst()
-				.orElse(null);
 	}
 
 	public Scanner<JobletRequest> scanType(JobletType<?> type, boolean anyDelay){
@@ -237,6 +203,17 @@ public class DatarouterJobletRequestDao extends BaseDao{
 				.include(JobletRequest::hasReachedMaxFailures);
 	}
 
+	public JobletRequest getReservedRequest(JobletType<?> jobletType, String reservedBy, ConfigValue<?> option){
+		var prefix = JobletRequestKey.create(jobletType, null, null, null);
+		var config = new Config()
+				.setOutputBatchSize(20)//keep it small since there should not be thousands of reserved joblets
+				.addOption(option);
+		return node.scanWithPrefix(prefix, config)
+				.include(request -> Objects.equals(request.getReservedBy(), reservedBy))
+				.findFirst()
+				.orElse(null);
+	}
+
 	public boolean isDataAlreadyInQueue(JobletRequest jobletRequest){
 		return byTypeAndDataSignature.scanKeysWithPrefix(
 				new JobletRequestByTypeAndDataSignatureKey(
@@ -267,7 +244,43 @@ public class DatarouterJobletRequestDao extends BaseDao{
 				.list();
 	}
 
-	private String assertSameType(List<JobletRequest> jobletRequests){
+	/*-------------- get --------------*/
+
+	public boolean exists(JobletRequestKey key){
+		return node.exists(key);
+	}
+
+	/*-------------- put --------------*/
+
+	public void put(JobletRequest databean){
+		node.put(databean);
+	}
+
+	public void putMulti(Collection<JobletRequest> databeans){
+		node.putMulti(databeans);
+	}
+
+	public void putMultiOrBust(Collection<JobletRequest> databeans){
+		node.putMulti(databeans, Configs.insertOrBust());
+	}
+
+	public void updateOrBust(JobletRequest databean){
+		node.put(databean, new Config().setPutMethod(PutMethod.UPDATE_OR_BUST));
+	}
+
+	/*-------------- delete --------------*/
+
+	public void deleteMulti(Collection<JobletRequestKey> keys){
+		node.deleteMulti(keys);
+	}
+
+	public void delete(JobletRequestKey key){
+		node.delete(key);
+	}
+
+	/*-------------- private --------------*/
+
+	private static String assertSameType(List<JobletRequest> jobletRequests){
 		String firstType = jobletRequests.get(0).getKey().getType();
 		for(JobletRequest jobletRequest : jobletRequests){
 			String type = jobletRequest.getKey().getType();

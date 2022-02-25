@@ -33,8 +33,11 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import org.xbill.DNS.TextParseException;
+
 import io.datarouter.aws.rds.config.DatarouterAwsPaths;
 import io.datarouter.aws.rds.config.DatarouterAwsRdsConfigSettings;
+import io.datarouter.aws.rds.job.DnsUpdater;
 import io.datarouter.aws.rds.service.AuroraDnsService;
 import io.datarouter.aws.rds.service.AuroraDnsService.DnsHostEntryDto;
 import io.datarouter.aws.rds.service.DatabaseAdministrationConfiguration;
@@ -65,6 +68,8 @@ public class AuroraInstancesHandler extends BaseHandler{
 	private Bootstrap4PageFactory pageFactory;
 	@Inject
 	private DatabaseAdministrationConfiguration config;
+	@Inject
+	private DnsUpdater dnsUpdater;
 
 	@Handler(defaultHandler = true)
 	public Mav inspectClientUrl(){
@@ -95,6 +100,16 @@ public class AuroraInstancesHandler extends BaseHandler{
 	}
 
 	@Handler
+	public String addCname(String subdomain, String target) throws TextParseException{
+		return dnsUpdater.addCname(subdomain, target);
+	}
+
+	@Handler
+	public String deleteCname(String subdomain) throws TextParseException{
+		return dnsUpdater.deleteCname(subdomain);
+	}
+
+	@Handler
 	public Mav createOtherInstance(@Param(P_clientName) String clientName){
 		String clusterName = rdsSettings.dbPrefix.get() + clientName;
 		rdsService.createOtherInstance(clusterName);
@@ -112,11 +127,11 @@ public class AuroraInstancesHandler extends BaseHandler{
 					}
 					return td(row.getClientName());
 				})
-				.withColumn("Hostname", row -> row.getHostname())
-				.withColumn("Cluster hostname", row -> row.getClusterHostname())
-				.withColumn("Replcation role", row -> row.getReplicationRole())
-				.withColumn("Instance hostname", row -> row.getInstanceHostname())
-				.withColumn("IP", row -> row.getIp())
+				.withColumn("Hostname", DnsHostEntryDto::getHostname)
+				.withColumn("Cluster hostname", DnsHostEntryDto::getClusterHostname)
+				.withColumn("Replcation role", DnsHostEntryDto::getReplicationRole)
+				.withColumn("Instance hostname", DnsHostEntryDto::getInstanceHostname)
+				.withColumn("IP", DnsHostEntryDto::getIp)
 				.withCaption("Total " + rows.size())
 				.build(rows);
 		return div(h2, table)

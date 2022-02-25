@@ -17,6 +17,7 @@ package io.datarouter.httpclient.endpoint;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -36,13 +37,19 @@ public class EndpointTool{
 	public static DatarouterHttpRequest toDatarouterHttpRequest(BaseEndpoint<?,?> endpoint){
 		Objects.requireNonNull(endpoint.urlPrefix);
 		String finalUrl = URI.create(endpoint.urlPrefix + endpoint.pathNode.toSlashedString()).normalize().toString();
-		DatarouterHttpRequest request = new DatarouterHttpRequest(endpoint.method, finalUrl, endpoint
-				.shouldSkipSecurity, endpoint.shouldSkipLogs);
+		DatarouterHttpRequest request = new DatarouterHttpRequest(
+				endpoint.method,
+				finalUrl,
+				endpoint.shouldSkipSecurity,
+				endpoint.shouldSkipLogs);
 		request.setRetrySafe(endpoint.retrySafe);
 		endpoint.timeout.ifPresent(request::setTimeout);
 		for(Field field : endpoint.getClass().getFields()){
 			IgnoredField ignoredField = field.getAnnotation(IgnoredField.class);
 			if(ignoredField != null){
+				continue;
+			}
+			if(Modifier.isStatic(field.getModifiers())){
 				continue;
 			}
 			String key = getFieldName(field);
@@ -51,6 +58,15 @@ public class EndpointTool{
 				value = field.get(endpoint);
 			}catch(IllegalArgumentException | IllegalAccessException ex){
 				logger.error("", ex);
+			}
+			boolean isOptional = field.getType().isAssignableFrom(Optional.class);
+			if(isOptional && value == null){
+				throw new RuntimeException(String.format(
+						"Optional fields cannot be null. '%s' needs to be initialized to Optional.empty().", key));
+			}
+			if(value == null){
+				throw new RuntimeException(String.format(
+						"Fields cannot be null. '%s' needs to be initialized or changed to an Optional field.", key));
 			}
 			EndpointParam param = field.getAnnotation(EndpointParam.class);
 			Optional<String> parsedValue = getValue(field, value);
@@ -68,15 +84,6 @@ public class EndpointTool{
 		return request;
 	}
 
-	public static Optional<Class<?>> hasEntity(BaseEndpoint<?,?> endpoint){
-		for(Field field : endpoint.getClass().getFields()){
-			if(field.isAnnotationPresent(EndpointRequestBody.class)){
-				return Optional.of(field.getType());
-			}
-		}
-		return Optional.empty();
-	}
-
 	public static Optional<Object> findEntity(BaseEndpoint<?,?> endpoint){
 		for(Field field : endpoint.getClass().getFields()){
 			if(field.isAnnotationPresent(EndpointRequestBody.class)){
@@ -90,7 +97,7 @@ public class EndpointTool{
 		return Optional.empty();
 	}
 
-	private static Optional<String> getValue(Field field, Object value){
+	public static Optional<String> getValue(Field field, Object value){
 		if(!field.getType().isAssignableFrom(Optional.class)){
 			return Optional.of(value.toString());
 		}

@@ -23,22 +23,23 @@ import io.datarouter.httpclient.endpoint.EndpointType;
 import io.datarouter.httpclient.json.JsonSerializer;
 import io.datarouter.httpclient.response.Conditional;
 
-public abstract class BaseDatarouterEndpointHttpClientWrapper<R extends EndpointType>
-implements DatarouterEndpointHttpClient<R>, DatarouterServiceEndpointHttpClient<R>{
+public abstract class BaseDatarouterEndpointHttpClientWrapper<
+		ET extends EndpointType>
+implements DatarouterEndpointHttpClient<ET>, DatarouterServiceEndpointHttpClient<ET>{
 
-	private final DatarouterEndpointHttpClient<R> client;
+	private final DatarouterEndpointHttpClient<ET> client;
 
-	public BaseDatarouterEndpointHttpClientWrapper(DatarouterEndpointHttpClient<R> client){
+	public BaseDatarouterEndpointHttpClientWrapper(DatarouterEndpointHttpClient<ET> client){
 		this.client = client;
 	}
 
 	@Override
-	public <E> Conditional<E> call(BaseEndpoint<E,R> baseEndpoint){
+	public <R> Conditional<R> call(BaseEndpoint<R,ET> baseEndpoint){
 		return client.call(baseEndpoint);
 	}
 
 	@Override
-	public <E> Conditional<E> callUnchecked(BaseEndpoint<E,?> baseEndpoint){
+	public <R> Conditional<R> callUnchecked(BaseEndpoint<R,?> baseEndpoint){
 		return client.callUnchecked(baseEndpoint);
 	}
 
@@ -63,7 +64,7 @@ implements DatarouterEndpointHttpClient<R>, DatarouterServiceEndpointHttpClient<
 	}
 
 	@Override
-	public void initUrlPrefix(BaseEndpoint<?,R> endpoint){
+	public void initUrlPrefix(BaseEndpoint<?,ET> endpoint){
 		client.initUrlPrefix(endpoint);
 	}
 

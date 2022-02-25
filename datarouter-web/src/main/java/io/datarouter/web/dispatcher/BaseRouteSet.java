@@ -57,7 +57,8 @@ public abstract class BaseRouteSet{
 		return applyDefaultAndAdd(rule);
 	}
 
-	protected DispatchRule handle(Class<? extends BaseEndpoint<?,?>> baseEndpointClass,
+	protected DispatchRule handle(
+			Class<? extends BaseEndpoint<?,?>> baseEndpointClass,
 			Class<? extends BaseHandler> handler){
 		BaseEndpoint<?,?> baseEndpoint = ReflectionTool.createWithoutNoArgs(baseEndpointClass);
 		return handle(baseEndpoint.pathNode)

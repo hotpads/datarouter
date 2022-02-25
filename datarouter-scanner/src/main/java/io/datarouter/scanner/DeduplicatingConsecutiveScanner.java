@@ -15,23 +15,28 @@
  */
 package io.datarouter.scanner;
 
-import java.util.Objects;
+import java.util.function.BiPredicate;
 import java.util.function.Function;
 
 public class DeduplicatingConsecutiveScanner<T,R> extends BaseLinkedScanner<T,T>{
 
 	private final Function<T,R> mapper;
+	private final BiPredicate<R,R> equalsPredicate;
 	private boolean hasSetCurrent = false;
 
-	public DeduplicatingConsecutiveScanner(Scanner<T> input, Function<T,R> mapper){
+	public DeduplicatingConsecutiveScanner(
+			Scanner<T> input,
+			Function<T,R> mapper,
+			BiPredicate<R,R> equalsPredicate){
 		super(input);
 		this.mapper = mapper;
+		this.equalsPredicate = equalsPredicate;
 	}
 
 	@Override
 	public boolean advanceInternal(){
 		while(input.advance()){
-			if(!hasSetCurrent || !Objects.equals(mapper.apply(current), mapper.apply(input.current()))){
+			if(!hasSetCurrent || !equalsPredicate.test(mapper.apply(current), mapper.apply(input.current()))){
 				current = input.current();
 				hasSetCurrent = true;
 				return true;
