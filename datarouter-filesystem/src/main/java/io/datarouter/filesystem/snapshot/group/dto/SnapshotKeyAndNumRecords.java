@@ -34,7 +34,7 @@ public class SnapshotKeyAndNumRecords{
 	}
 
 	public SnapshotKeyAndNumRecords(SnapshotKeyAndRoot from){
-		this(from.key, from.root.numRecords());
+		this(from.key, from.root.numItems());
 	}
 
 	public static final long totalRecords(List<SnapshotKeyAndNumRecords> inputs){

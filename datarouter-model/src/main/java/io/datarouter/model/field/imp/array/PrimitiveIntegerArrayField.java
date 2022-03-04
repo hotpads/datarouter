@@ -23,6 +23,7 @@ import io.datarouter.gson.serialization.GsonTool;
 import io.datarouter.model.field.BaseField;
 import io.datarouter.model.field.Field;
 
+@Deprecated//Use ByteArrayField
 public class PrimitiveIntegerArrayField extends BaseField<int[]>{
 
 	private static final ComparableIntArrayCodec COMPARABLE_INT_ARRAY_CODEC = ComparableIntArrayCodec.INSTANCE;

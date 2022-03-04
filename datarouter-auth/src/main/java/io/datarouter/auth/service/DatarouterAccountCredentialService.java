@@ -285,7 +285,7 @@ public class DatarouterAccountCredentialService{
 	}
 
 	public Map<String,List<AccountCredentialDto>> getCredentialsByAccountName(Set<String> accountNames, ZoneId zoneId){
-		return datarouterAccountCredentialDao.scanByAccountName(accountNames)
+		return datarouterAccountCredentialDao.scanByAccountNames(accountNames)
 				.map(credential -> new AccountCredentialDto(credential, zoneId))
 				.groupBy(credential -> credential.accountName);
 	}

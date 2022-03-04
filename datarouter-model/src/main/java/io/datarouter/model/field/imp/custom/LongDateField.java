@@ -17,13 +17,13 @@ package io.datarouter.model.field.imp.custom;
 
 import java.util.Date;
 
-import io.datarouter.bytes.codec.longcodec.UInt63Codec;
+import io.datarouter.bytes.codec.longcodec.RawLongCodec;
 import io.datarouter.model.field.BasePrimitiveField;
 import io.datarouter.util.string.StringTool;
 
 public class LongDateField extends BasePrimitiveField<Date,LongDateFieldKey>{
 
-	private static final UInt63Codec U_INT_63_CODEC = UInt63Codec.INSTANCE;
+	private static final RawLongCodec RAW_LONG_CODEC = RawLongCodec.INSTANCE;
 
 	public LongDateField(LongDateFieldKey key, Date value){
 		super(key, value);
@@ -50,17 +50,30 @@ public class LongDateField extends BasePrimitiveField<Date,LongDateFieldKey>{
 
 	@Override
 	public byte[] getBytes(){
-		return value == null ? null : U_INT_63_CODEC.encode(value.getTime());
+		if(value == null){
+			return null;
+		}
+		return encodeToBytes(value);
 	}
 
 	@Override
 	public int numBytesWithSeparator(byte[] bytes, int offset){
-		return 8;
+		return RAW_LONG_CODEC.length();
 	}
 
 	@Override
 	public Date fromBytesButDoNotSet(byte[] bytes, int offset){
-		return new Date(U_INT_63_CODEC.decode(bytes, offset));
+		return decodeFromBytes(bytes, offset);
+	}
+
+	public static byte[] encodeToBytes(Date value){
+		long time = value.getTime();
+		return RAW_LONG_CODEC.encode(time);
+	}
+
+	public static Date decodeFromBytes(byte[] bytes, int offset){
+		long time = RAW_LONG_CODEC.decode(bytes, offset);
+		return new Date(time);
 	}
 
 }

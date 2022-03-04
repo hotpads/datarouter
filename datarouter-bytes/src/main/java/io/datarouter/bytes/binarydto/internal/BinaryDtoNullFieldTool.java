@@ -22,9 +22,9 @@ public class BinaryDtoNullFieldTool{
 	// Define null behavior.  Nulls will sort before non-nulls for unsigned byte comparisons.
 	public static final int NULL_INDICATOR_LENGTH = 1;
 	public static final byte NULL_INDICATOR_TRUE = 0;//all zero bits
-	public static final byte[] NULL_INDICATOR_TRUE_ARRAY = new byte[]{NULL_INDICATOR_TRUE};
+	public static final byte[] NULL_INDICATOR_TRUE_ARRAY = {NULL_INDICATOR_TRUE};
 	public static final byte NULL_INDICATOR_FALSE = 1;//rightmost one bit
-	public static final byte[] NULL_INDICATOR_FALSE_ARRAY = new byte[]{NULL_INDICATOR_FALSE};
+	public static final byte[] NULL_INDICATOR_FALSE_ARRAY = {NULL_INDICATOR_FALSE};
 	static{
 		if(Arrays.compareUnsigned(NULL_INDICATOR_TRUE_ARRAY, NULL_INDICATOR_FALSE_ARRAY) >= 0){
 			throw new IllegalArgumentException("Nulls should sort before non-nulls.");

@@ -27,6 +27,7 @@ import io.datarouter.gcp.spanner.ddl.SpannerColumnType;
 import io.datarouter.gcp.spanner.field.SpannerBaseFieldCodec;
 import io.datarouter.model.field.imp.array.UInt7ArrayField;
 
+@Deprecated//use ByteArrayField
 public class SpannerUInt7ArrayFieldCodec extends SpannerBaseFieldCodec<List<Byte>,UInt7ArrayField>{
 
 	public SpannerUInt7ArrayFieldCodec(UInt7ArrayField field){
@@ -40,7 +41,7 @@ public class SpannerUInt7ArrayFieldCodec extends SpannerBaseFieldCodec<List<Byte
 
 	@Override
 	public Value getSpannerValue(){
-		return Value.bytes(ByteArray.copyFrom(ByteTool.getUInt7Bytes(field.getValue())));
+		return Value.bytes(ByteArray.copyFrom(ByteTool.fromBoxedBytesNoNegatives(field.getValue())));
 	}
 
 	@Override
@@ -51,7 +52,7 @@ public class SpannerUInt7ArrayFieldCodec extends SpannerBaseFieldCodec<List<Byte
 	@Override
 	public List<Byte> getValueFromResultSet(ResultSet rs){
 		byte[] bytes = rs.getBytes(field.getKey().getColumnName()).toByteArray();
-		return ByteTool.getArrayList(bytes);
+		return ByteTool.toBoxedBytes(bytes);
 	}
 
 }

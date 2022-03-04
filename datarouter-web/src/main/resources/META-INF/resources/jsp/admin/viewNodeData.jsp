@@ -50,8 +50,8 @@
 						<input id="limit" name="limit" value="${limit}" type="number" step="1" class="form-control">
 					</div>
 					<div class="form-group col-auto">
-						<label for="outputBatchSize" class="font-weight-bold m-0">outputBatchSize</label>
-						<input id="outputBatchSize" name="outputBatchSize" value="${outputBatchSize}" type="number" step="1" class="form-control">
+						<label for="responseBatchSize" class="font-weight-bold m-0">responseBatchSize</label>
+						<input id="responseBatchSize" name="responseBatchSize" value="${responseBatchSize}" type="number" step="1" class="form-control">
 					</div>
 				</div>
 				<div>

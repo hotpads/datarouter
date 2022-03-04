@@ -135,15 +135,27 @@ public class DatarouterAccountCredentialDao extends BaseDao implements BaseDatar
 	}
 
 	@Override
-	public Scanner<DatarouterAccountCredential> scanByAccountName(Collection<String> accountNames){
+	public Scanner<DatarouterAccountCredential> scanByAccountNames(Collection<String> accountNames){
 		return Scanner.of(accountNames)
 				.map(accountName -> new DatarouterAccountCredentialByAccountNameKey(accountName, null))
 				.listTo(byAccountName::scanDatabeansWithPrefixes);
 	}
 
+	public Scanner<DatarouterAccountCredential> scanByAccountName(String accountName){
+		var prefix = new DatarouterAccountCredentialByAccountNameKey(accountName, null);
+		return byAccountName.scanDatabeansWithPrefix(prefix);
+	}
+
 	@Override
 	public boolean exists(DatarouterAccountCredentialKey key){
 		return node.exists(key);
+	}
+
+	@Override
+	public boolean exists(String accountName){
+		return byAccountName.scanKeysWithPrefix(new DatarouterAccountCredentialByAccountNameKey(accountName, null))
+				.findFirst()
+				.isPresent();
 	}
 
 	@Override

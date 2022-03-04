@@ -55,18 +55,16 @@ public class DatarouterUserAccountMapDao extends BaseDao implements BaseDatarout
 			DatarouterUserAccountMapDaoParams params){
 		super(datarouter);
 		node = Scanner.of(params.clientIds)
-				.map(clientId -> {
-					SortedMapStorageNode<
-							DatarouterUserAccountMapKey,
-							DatarouterUserAccountMap,
-							DatarouterUserAccountMapFielder> node = nodeFactory.create(
-									clientId,
-									DatarouterUserAccountMap::new,
-									DatarouterUserAccountMapFielder::new)
-							.withTag(Tag.DATAROUTER)
-							.build();
-					return node;
-				})
+				.<SortedMapStorageNode<
+						DatarouterUserAccountMapKey,
+						DatarouterUserAccountMap,
+						DatarouterUserAccountMapFielder>>
+				map(clientId -> nodeFactory.create(
+						clientId,
+						DatarouterUserAccountMap::new,
+						DatarouterUserAccountMapFielder::new)
+						.withTag(Tag.DATAROUTER)
+						.build())
 				.listTo(RedundantSortedMapStorageNode::makeIfMulti);
 		datarouter.register(node);
 	}

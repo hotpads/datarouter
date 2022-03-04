@@ -196,7 +196,7 @@ implements Callable<List<TableSample>>{
 		}else{ //TODO remove after validating offsetting
 			Config scanConfig = new Config()
 					.setScannerCaching(false)
-					.setOutputBatchSize(batchSize)
+					.setResponseBatchSize(batchSize)
 					.anyDelay();
 			Iterator<PK> iterator = node.scanKeys(posiblyOpenEndedPkRange, scanConfig).iterator();
 			while(iterator.hasNext()){

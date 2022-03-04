@@ -15,13 +15,26 @@
  */
 package io.datarouter.storage.config.schema;
 
+import org.slf4j.Logger;
+
+import io.datarouter.gson.serialization.GsonTool;
+
 public class SchemaUpdateTool{
 
 	private static final int CONSOLE_WIDTH = 80;
 
-	public static final String
+	public static final String SINGLE_LINE_SCHEMA_UPDATE_PREFIX = "SchemaUpdate: ";
+
+	private static final String
 			PLEASE_EXECUTE_SCHEMA_UPDATE_MESSAGE = generateFullWidthMessage("Please Execute SchemaUpdate"),
 			THANK_YOU_MESSAGE = generateFullWidthMessage("Thank You");
+
+	public static void printSchemaUpdate(Logger logger, String schemaUpdate){
+		logger.warn(SINGLE_LINE_SCHEMA_UPDATE_PREFIX + GsonTool.GSON.toJson(schemaUpdate));
+		logger.warn(PLEASE_EXECUTE_SCHEMA_UPDATE_MESSAGE);
+		logger.warn(schemaUpdate);
+		logger.warn(THANK_YOU_MESSAGE);
+	}
 
 	public static String generateFullWidthMessage(String message){
 		StringBuilder fullWidthMessage = new StringBuilder();

@@ -17,6 +17,7 @@ package io.datarouter.filesystem.node.queue;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 
 import io.datarouter.filesystem.raw.queue.DirectoryQueue;
@@ -56,7 +57,7 @@ implements PhysicalQueueStorageNode<PK,D,F>{
 					StringDatabeanCodec codec = fielder.getStringDatabeanCodec();
 					D databean = codec.fromString(directoryQueueMessage.content, fielder, databeanSupplier);
 					byte[] receiptHandle = directoryQueueMessage.getBytesId();
-					return new QueueMessage<>(receiptHandle, databean);
+					return new QueueMessage<>(receiptHandle, databean, Map.of());
 				})
 				.orElse(null);
 

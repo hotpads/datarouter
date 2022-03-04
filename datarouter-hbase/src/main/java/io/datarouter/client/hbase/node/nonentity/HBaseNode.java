@@ -108,7 +108,7 @@ implements PhysicalSortedMapStorageNode<PK,D,F>, HBaseIncrement<PK>{
 		}
 		Durability durability = HBaseConfigTool.getDurability(config);
 		boolean ignoreNulls = config.findIgnoreNullFields().orElse(false);
-		int batchSize = config.findInputBatchSize().orElse(100);
+		int batchSize = config.findRequestBatchSize().orElse(100);
 		Scanner.of(databeans)
 				.include(Objects::nonNull)
 				.map(databean -> makePutAndDelete(databean, ignoreNulls, durability))
@@ -227,7 +227,7 @@ implements PhysicalSortedMapStorageNode<PK,D,F>, HBaseIncrement<PK>{
 				.map(Result::getRow)
 				.map(Delete::new)
 				.map(delete -> delete.setDurability(durability))
-				.batch(config.findInputBatchSize().orElse(100))
+				.batch(config.findRequestBatchSize().orElse(100))
 				.forEach(actions -> execute(actions, deleteMultiCallback));
 	}
 
@@ -243,7 +243,7 @@ implements PhysicalSortedMapStorageNode<PK,D,F>, HBaseIncrement<PK>{
 				.map(queryBuilder::getPkBytesWithPartition)
 				.map(Delete::new)
 				.map(delete -> delete.setDurability(durability))
-				.batch(config.findInputBatchSize().orElse(100))
+				.batch(config.findRequestBatchSize().orElse(100))
 				.forEach(deletes -> {
 					TracerTool.appendToSpanInfo("databeans", deletes.size());
 					execute(deletes, deleteMultiCallback);
@@ -261,7 +261,7 @@ implements PhysicalSortedMapStorageNode<PK,D,F>, HBaseIncrement<PK>{
 		List<Row> actions = new ArrayList<>();
 		int cellCount = 0;
 		int databeanCount = 0;
-		for(Entry<PK,Map<String,Long>> row : countByColumnByKey.entrySet()){//TODO respect inputBatchSize
+		for(Entry<PK,Map<String,Long>> row : countByColumnByKey.entrySet()){//TODO respect requestBatchSize
 			byte[] keyBytesWithPrefix = queryBuilder.getPkBytesWithPartition(row.getKey());
 			Increment increment = new Increment(keyBytesWithPrefix);
 			for(Entry<String,Long> columnCount : row.getValue().entrySet()){

@@ -51,7 +51,7 @@ extends BaseScanner<D>{
 			Config config){
 		this.mainNode = mainNode;
 		this.config = config;
-		int batchSize = config.findInputBatchSize().orElse(DEFAULT_BATCH_SIZE);
+		int batchSize = config.findRequestBatchSize().orElse(DEFAULT_BATCH_SIZE);
 		this.indexEntryBatchIterator = indexScanner.batch(batchSize).iterator();
 	}
 

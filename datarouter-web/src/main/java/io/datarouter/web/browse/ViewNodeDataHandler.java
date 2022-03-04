@@ -60,7 +60,7 @@ import io.datarouter.web.util.http.RequestTool;
 public class ViewNodeDataHandler extends InspectNodeDataHandler{
 	private static final Logger logger = LoggerFactory.getLogger(ViewNodeDataHandler.class);
 
-	private static final String PARAM_outputBatchSize = "outputBatchSize";
+	private static final String PARAM_responseBatchSize = "responseBatchSize";
 
 	@Inject
 	private DatarouterHtmlEmailService htmlEmailService;
@@ -100,7 +100,9 @@ public class ViewNodeDataHandler extends InspectNodeDataHandler{
 		mav.put("browseSortedData", true);
 
 		limit = mav.put(PARAM_limit, params.optionalInteger(PARAM_limit).orElse(100));
-		int outputBatchSize = mav.put(PARAM_outputBatchSize, params.optionalInteger(PARAM_outputBatchSize).orElse(10));
+		int responseBatchSize = mav.put(
+				PARAM_responseBatchSize,
+				params.optionalInteger(PARAM_responseBatchSize).orElse(10));
 
 		SortedStorageReader<PK,D> sortedNode = (SortedStorageReader<PK,D>)node;
 		String startKeyString = RequestTool.get(request, PARAM_startKey, null);
@@ -117,7 +119,7 @@ public class ViewNodeDataHandler extends InspectNodeDataHandler{
 		}
 
 		boolean startInclusive = true;
-		Config config = new Config().setOutputBatchSize(outputBatchSize).setLimit(limit);
+		Config config = new Config().setResponseBatchSize(responseBatchSize).setLimit(limit);
 		Range<PK> range = new Range<>(startKey, startInclusive, null, true);
 		sortedNode.scan(range, config)
 				.flush(databeans -> addDatabeansToMav(mav, databeans));
@@ -154,7 +156,7 @@ public class ViewNodeDataHandler extends InspectNodeDataHandler{
 					.orElse(0L);
 		}else{
 			Config config = new Config()
-					.setOutputBatchSize(batchSize.orElse(1000))
+					.setResponseBatchSize(batchSize.orElse(1000))
 					.setScannerCaching(false) //disabled due to BigTable bug?
 					.setTimeout(Duration.ofMinutes(1))
 					.anyDelay()

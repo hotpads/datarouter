@@ -15,20 +15,28 @@
  */
 package io.datarouter.storage.queue;
 
+import java.util.Map;
+
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 
 public class QueueMessage<PK extends PrimaryKey<PK>,D extends Databean<PK,D>> extends BaseQueueMessage{
 
 	private D databean;
+	private Map<String,String> messageAttributes;
 
-	public QueueMessage(byte[] handle, D databean){
+	public QueueMessage(byte[] handle, D databean, Map<String,String> messageAttributes){
 		super(handle);
 		this.databean = databean;
+		this.messageAttributes = messageAttributes;
 	}
 
 	public D getDatabean(){
 		return databean;
+	}
+
+	public Map<String,String> getMessageAttributes(){
+		return messageAttributes;
 	}
 
 }

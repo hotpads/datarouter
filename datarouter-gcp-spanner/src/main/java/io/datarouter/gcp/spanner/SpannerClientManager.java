@@ -81,8 +81,10 @@ public class SpannerClientManager extends BaseClientManager{
 				.setFailIfPoolExhausted()
 				.build();
 		SpannerOptions spannerOptions = SpannerOptions.newBuilder()
+				.setCredentials(credentials)
+				.setNumChannels(8)
 				.setSessionPoolOption(sessionPoolOptions)
-				.setCredentials(credentials).build();
+				.build();
 		Spanner spanner = spannerOptions.getService();
 		timer.add("build spanner service");
 		DatabaseId databaseId = DatabaseId.of(

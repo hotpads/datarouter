@@ -26,8 +26,8 @@ import io.datarouter.util.lang.LineOfCode;
 
 public class Config implements Cloneable{
 
-	public static final int DEFAULT_INPUT_BATCH_SIZE = 100;
-	public static final int DEFAULT_OUTPUT_BATCH_SIZE = 100;
+	public static final int DEFAULT_REQUEST_BATCH_SIZE = 100;
+	public static final int DEFAULT_RESPONSE_BATCH_SIZE = 100;
 	public static final Boolean DEFAULT_CACHE_OK = true;
 
 	/*-------------------------------- fields -------------------------------*/
@@ -47,8 +47,8 @@ public class Config implements Cloneable{
 	//table scans
 	private Boolean scannerPrefetching;
 	private Boolean scannerCaching;
-	private Integer inputBatchSize;
-	private Integer outputBatchSize;
+	private Integer requestBatchSize;
+	private Integer responseBatchSize;
 
 	//error handling
 	private Boolean ignoreException;
@@ -107,8 +107,8 @@ public class Config implements Cloneable{
 			.setPersistentPut(persistentPut)
 
 			.setScannerCaching(scannerCaching)
-			.setInputBatchSize(inputBatchSize)
-			.setOutputBatchSize(outputBatchSize)
+			.setRequestBatchSize(requestBatchSize)
+			.setResponseBatchSize(responseBatchSize)
 
 			.setIgnoreException(ignoreException)
 
@@ -161,23 +161,23 @@ public class Config implements Cloneable{
 
 	/*---------------------------- batch size -------------------------------*/
 
-	public Optional<Integer> findInputBatchSize(){
-		return Optional.ofNullable(inputBatchSize);
+	public Optional<Integer> findRequestBatchSize(){
+		return Optional.ofNullable(requestBatchSize);
 	}
 
-	public Config setInputBatchSize(Integer inputBatchSize){
-		Require.isTrue(inputBatchSize == null || inputBatchSize > 0);
-		this.inputBatchSize = inputBatchSize;
+	public Config setRequestBatchSize(Integer requestBatchSize){
+		Require.isTrue(requestBatchSize == null || requestBatchSize > 0);
+		this.requestBatchSize = requestBatchSize;
 		return this;
 	}
 
-	public Optional<Integer> findOutputBatchSize(){
-		return Optional.ofNullable(outputBatchSize);
+	public Optional<Integer> findResponseBatchSize(){
+		return Optional.ofNullable(responseBatchSize);
 	}
 
-	public Config setOutputBatchSize(Integer outputBatchSize){
-		Require.isTrue(outputBatchSize == null || outputBatchSize > 0);
-		this.outputBatchSize = outputBatchSize;
+	public Config setResponseBatchSize(Integer responseBatchSize){
+		Require.isTrue(responseBatchSize == null || responseBatchSize > 0);
+		this.responseBatchSize = responseBatchSize;
 		return this;
 	}
 

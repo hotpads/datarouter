@@ -53,7 +53,7 @@ extends StorageWriter<PK,D>{
 
 	default void deleteBatched(Scanner<PK> keys, Config config){
 		keys
-				.batch(config.findInputBatchSize().orElse(Config.DEFAULT_INPUT_BATCH_SIZE))
+				.batch(config.findRequestBatchSize().orElse(Config.DEFAULT_REQUEST_BATCH_SIZE))
 				.forEach(batch -> deleteMulti(batch, config));
 	}
 

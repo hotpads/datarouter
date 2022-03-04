@@ -15,49 +15,65 @@
  */
 package io.datarouter.bytes;
 
+import java.util.Arrays;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.bytes.codec.intcodec.UInt31Codec;
+import io.datarouter.bytes.codec.intcodec.RawIntCodec;
 
 public class ByteToolTests{
 
-	private static final UInt31Codec U_INT_31_CODEC = UInt31Codec.INSTANCE;
+	private static final RawIntCodec RAW_INT_CODEC = RawIntCodec.INSTANCE;
 
 	@Test
 	public void testUnsignedIncrement(){
-		byte[] bytesA = U_INT_31_CODEC.encode(0);
-		int a2 = U_INT_31_CODEC.decode(ByteTool.unsignedIncrement(bytesA), 0);
+		byte[] bytesA = RAW_INT_CODEC.encode(0);
+		int a2 = RAW_INT_CODEC.decode(ByteTool.unsignedIncrement(bytesA), 0);
 		Assert.assertTrue(a2 == 1);
 
-		byte[] bytesB = U_INT_31_CODEC.encode(-1);
+		byte[] bytesB = RAW_INT_CODEC.encode(-1);
 		byte[] actuals = ByteTool.unsignedIncrement(bytesB);
 		byte[] expected = {1, 0, 0, 0, 0};
 		Assert.assertEquals(actuals, expected);
 
-		byte[] bytesC = U_INT_31_CODEC.encode(255);// should wrap to the next significant byte
-		int c2 = U_INT_31_CODEC.decode(ByteTool.unsignedIncrement(bytesC), 0);
+		byte[] bytesC = RAW_INT_CODEC.encode(255);// should wrap to the next significant byte
+		int c2 = RAW_INT_CODEC.decode(ByteTool.unsignedIncrement(bytesC), 0);
 		Assert.assertTrue(c2 == 256);
 	}
 
 	@Test
 	public void testUnsignedIncrementOverflowToNull(){
-		byte[] bytesA = U_INT_31_CODEC.encode(0);
-		int a2 = U_INT_31_CODEC.decode(ByteTool.unsignedIncrementOverflowToNull(bytesA), 0);
+		byte[] bytesA = RAW_INT_CODEC.encode(0);
+		int a2 = RAW_INT_CODEC.decode(ByteTool.unsignedIncrementOverflowToNull(bytesA), 0);
 		Assert.assertTrue(a2 == 1);
 
-		byte[] bytesB = U_INT_31_CODEC.encode(-1);
+		byte[] bytesB = RAW_INT_CODEC.encode(-1);
 		byte[] b2 = ByteTool.unsignedIncrementOverflowToNull(bytesB);
 		Assert.assertTrue(b2 == null);
 
-		byte[] bytesC = U_INT_31_CODEC.encode(255);// should wrap to the next significant byte
-		int c2 = U_INT_31_CODEC.decode(ByteTool.unsignedIncrementOverflowToNull(bytesC), 0);
+		byte[] bytesC = RAW_INT_CODEC.encode(255);// should wrap to the next significant byte
+		int c2 = RAW_INT_CODEC.decode(ByteTool.unsignedIncrementOverflowToNull(bytesC), 0);
 		Assert.assertTrue(c2 == 256);
 	}
 
 	@Test
 	public void testPadPrefix(){
 		Assert.assertEquals(ByteTool.padPrefix(new byte[]{55, -21}, 7), new byte[]{0, 0, 0, 0, 0, 55, -21});
+	}
+
+	@Test
+	public void testTotalLength(){
+		byte[][] arrays = {"a".getBytes(), "bb".getBytes()};
+		Assert.assertEquals(ByteTool.totalLength(arrays), 3);
+		Assert.assertEquals(ByteTool.totalLength(Arrays.asList(arrays)), 3);
+	}
+
+	@Test
+	public void testConcat(){
+		byte[][] arrays = {"a".getBytes(), "bb".getBytes()};
+		Assert.assertEquals(new String(ByteTool.concat(arrays)), "abb");
+		Assert.assertEquals(new String(ByteTool.concat(Arrays.asList(arrays))), "abb");
 	}
 
 }

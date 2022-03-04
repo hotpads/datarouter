@@ -58,6 +58,15 @@ public class DatarouterAccount extends BaseDatabean<DatarouterAccountKey,Datarou
 		this.enableUserMappings = false;
 	}
 
+	// used for migrating account names
+	public DatarouterAccount(
+			String accountName,
+			DatarouterAccount account){
+		this(accountName, account.getCreated(), account.getCreator());
+		this.enableUserMappings = account.getEnableUserMappings();
+		this.lastUsed = account.getLastUsed();
+	}
+
 	public static class DatarouterAccountFielder extends BaseDatabeanFielder<DatarouterAccountKey,DatarouterAccount>{
 
 		public DatarouterAccountFielder(){
@@ -103,6 +112,10 @@ public class DatarouterAccount extends BaseDatabean<DatarouterAccountKey,Datarou
 		return ZonedDateFormatterTool.formatDateWithZone(lastUsed, zoneId);
 	}
 
+	public Date getLastUsed(){
+		return lastUsed;
+	}
+
 	public void toggleUserMappings(){
 		if(enableUserMappings == null){
 			enableUserMappings = true;
@@ -120,6 +133,10 @@ public class DatarouterAccount extends BaseDatabean<DatarouterAccountKey,Datarou
 
 	public void setEnableUserMappings(boolean enableUserMappings){
 		this.enableUserMappings = enableUserMappings;
+	}
+
+	public Date getCreated(){
+		return created;
 	}
 
 }

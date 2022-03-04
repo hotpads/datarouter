@@ -15,6 +15,7 @@
  */
 package io.datarouter.metric.counter;
 
+import java.util.Collection;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -35,7 +36,7 @@ import io.datarouter.storage.tag.Tag;
 import io.datarouter.virtualnode.redundant.RedundantQueueStorageNode;
 
 @Singleton
-public class DatarouterCountBlobQueueDao extends BaseDao{
+public class CountBlobQueueDao extends BaseDao{
 
 	public static class DatarouterCountBlobQueueDaoParams extends BaseRedundantDaoParams{
 
@@ -48,7 +49,7 @@ public class DatarouterCountBlobQueueDao extends BaseDao{
 	private final QueueStorageNode<ConveyorMessageKey,ConveyorMessage,ConveyorMessageFielder> queueNode;
 
 	@Inject
-	public DatarouterCountBlobQueueDao(Datarouter datarouter, DatarouterCountBlobQueueDaoParams params,
+	public CountBlobQueueDao(Datarouter datarouter, DatarouterCountBlobQueueDaoParams params,
 			QueueNodeFactory queueNodeFactory){
 		super(datarouter);
 		queueNode = Scanner.of(params.clientIds)
@@ -67,6 +68,10 @@ public class DatarouterCountBlobQueueDao extends BaseDao{
 
 	public void put(ConveyorMessage databean){
 		queueNode.put(databean);
+	}
+
+	public void putMulti(Collection<ConveyorMessage> databeans){
+		queueNode.putMulti(databeans);
 	}
 
 	public QueueConsumer<ConveyorMessageKey,ConveyorMessage> getQueueConsumer(){

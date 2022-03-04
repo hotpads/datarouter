@@ -24,15 +24,21 @@ public interface BaseDatarouterAccountCredentialDao{
 
 	void put(DatarouterAccountCredential databean);
 	void insertOrBust(DatarouterAccountCredential databean);
+
 	void updateIgnore(DatarouterAccountCredential databean);
 	void updateMultiIgnore(Collection<DatarouterAccountCredential> databeans);
+
 	DatarouterAccountCredential get(DatarouterAccountCredentialKey key);
 	Optional<DatarouterAccountCredential> find(DatarouterAccountCredentialKey key);
+
 	Scanner<DatarouterAccountCredential> scan();
 	Scanner<DatarouterAccountCredential> scanMulti(Collection<DatarouterAccountCredentialKey> keys);
 	Scanner<DatarouterAccountCredentialKey> scanKeys();
-	Scanner<DatarouterAccountCredential> scanByAccountName(Collection<String> accountNames);
+	Scanner<DatarouterAccountCredential> scanByAccountNames(Collection<String> accountNames);
+
 	boolean exists(DatarouterAccountCredentialKey key);
+	boolean exists(String accountName);
+
 	void delete(DatarouterAccountCredentialKey key);
 	void deleteByAccountName(String accountName);
 

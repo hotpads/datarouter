@@ -44,6 +44,9 @@ public class EndpointTool{
 				endpoint.shouldSkipLogs);
 		request.setRetrySafe(endpoint.retrySafe);
 		endpoint.timeout.ifPresent(request::setTimeout);
+		endpoint.headers.forEach((key,values) -> {
+			values.forEach(value -> request.addHeader(key, value));
+		});
 		for(Field field : endpoint.getClass().getFields()){
 			IgnoredField ignoredField = field.getAnnotation(IgnoredField.class);
 			if(ignoredField != null){
@@ -62,11 +65,13 @@ public class EndpointTool{
 			boolean isOptional = field.getType().isAssignableFrom(Optional.class);
 			if(isOptional && value == null){
 				throw new RuntimeException(String.format(
-						"Optional fields cannot be null. '%s' needs to be initialized to Optional.empty().", key));
+						"%s: Optional fields cannot be null. '%s' needs to be initialized to Optional.empty().",
+						endpoint.getClass().getSimpleName(), key));
 			}
 			if(value == null){
 				throw new RuntimeException(String.format(
-						"Fields cannot be null. '%s' needs to be initialized or changed to an Optional field.", key));
+						"%s: Fields cannot be null. '%s' needs to be initialized or changed to an Optional field.",
+						endpoint.getClass().getSimpleName(), key));
 			}
 			EndpointParam param = field.getAnnotation(EndpointParam.class);
 			Optional<String> parsedValue = getValue(field, value);
@@ -133,6 +138,10 @@ public class EndpointTool{
 
 	public static Type getResponseType(BaseEndpoint<?,?> endpoint){
 		return ((ParameterizedType)endpoint.getClass().getGenericSuperclass()).getActualTypeArguments()[0];
+	}
+
+	public static Type extractParameterizedType(Field field){
+		return ((ParameterizedType)field.getGenericType()).getActualTypeArguments()[0];
 	}
 
 }

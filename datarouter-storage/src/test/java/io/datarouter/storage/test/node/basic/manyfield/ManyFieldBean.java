@@ -30,8 +30,6 @@ import io.datarouter.model.field.imp.LocalDateField;
 import io.datarouter.model.field.imp.LocalDateFieldKey;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
-import io.datarouter.model.field.imp.array.BooleanArrayField;
-import io.datarouter.model.field.imp.array.BooleanArrayFieldKey;
 import io.datarouter.model.field.imp.array.ByteArrayField;
 import io.datarouter.model.field.imp.array.ByteArrayFieldKey;
 import io.datarouter.model.field.imp.array.DelimitedStringArrayField;
@@ -96,7 +94,6 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 	private byte[] data;
 
 	private List<Long> longArrayField;
-	private List<Boolean> booleanArrayField;
 	private List<Integer> integerArrayField;
 	private List<Double> doubleArrayField;
 	private List<String> delimitedStringArrayField;
@@ -126,7 +123,6 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 		public static final ByteArrayFieldKey data = new ByteArrayFieldKey("data")
 				.withSize(CommonFieldSizes.MAX_LENGTH_LONGBLOB);
 		public static final UInt63ArrayFieldKey longArrayField = new UInt63ArrayFieldKey("longArrayField");
-		public static final BooleanArrayFieldKey booleanArrayField = new BooleanArrayFieldKey("booleanArrayField");
 		public static final IntegerArrayFieldKey integerArrayField = new IntegerArrayFieldKey("integerArrayField");
 		public static final ByteArrayFieldKey byteArrayField = new ByteArrayFieldKey("byteArrayField");
 		public static final DoubleArrayFieldKey doubleArrayField = new DoubleArrayFieldKey("doubleArrayField");
@@ -191,9 +187,6 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 		if(ObjectTool.notEquals(longArrayField, that.longArrayField)){
 			return false;
 		}
-		if(ObjectTool.notEquals(booleanArrayField, that.booleanArrayField)){
-			return false;
-		}
 		if(ObjectTool.notEquals(integerArrayField, that.integerArrayField)){
 			return false;
 		}
@@ -238,7 +231,6 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 					new ByteArrayField(FieldKeys.stringByteField, databean.stringByteField),
 					new ByteArrayField(FieldKeys.data, databean.data),
 					new UInt63ArrayField(FieldKeys.longArrayField, databean.longArrayField),
-					new BooleanArrayField(FieldKeys.booleanArrayField, databean.booleanArrayField),
 					new IntegerArrayField(FieldKeys.integerArrayField, databean.integerArrayField),
 					new ByteArrayField(FieldKeys.byteArrayField, databean.byteArrayField),
 					new DoubleArrayField(FieldKeys.doubleArrayField, databean.doubleArrayField),
@@ -268,14 +260,6 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 		}
 		longArrayField.add(val);
 		return longArrayField;
-	}
-
-	public List<Boolean> appendToBooleanArrayField(Boolean val){
-		if(booleanArrayField == null){
-			booleanArrayField = new ArrayList<>();
-		}
-		booleanArrayField.add(val);
-		return booleanArrayField;
 	}
 
 	public List<Double> appendToDoubleArrayField(Double val){
@@ -380,14 +364,6 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 
 	public void setLongArrayField(List<Long> longArrayField){
 		this.longArrayField = longArrayField;
-	}
-
-	public List<Boolean> getBooleanArrayField(){
-		return booleanArrayField;
-	}
-
-	public void setBooleanArrayField(List<Boolean> booleanArrayField){
-		this.booleanArrayField = booleanArrayField;
 	}
 
 	public List<Double> getDoubleArrayField(){

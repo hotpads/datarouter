@@ -22,7 +22,7 @@ public class ByteArrayFieldTests{
 
 	@Test
 	public void stringEncodedValue(){
-		byte[] value = new byte[]{
+		byte[] value = {
 				0x1,
 				0x5,
 				-0x8,

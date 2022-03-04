@@ -13,25 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.filesystem.snapshot.combine;
+package io.datarouter.storage.exception;
 
+import java.util.Collection;
 import java.util.List;
 
-import io.datarouter.filesystem.snapshot.group.dto.SnapshotKeyAndNumRecords;
-import io.datarouter.scanner.Scanner;
+import io.datarouter.model.exception.DataAccessException;
 
-public class SnapshotCombineTool{
+@SuppressWarnings("serial")
+public class DataTooLargeException extends DataAccessException{
 
-	public static Scanner<List<SnapshotKeyAndNumRecords>> scanSmallestGroups(
-			List<SnapshotKeyAndNumRecords> inputs,
-			int targetNumSnapshots,
-			int maxToMergeAtOnce){
-		//TODO make this smarter
-		return Scanner.of(inputs)
-				.sort(SnapshotKeyAndNumRecords.BY_NUM_RECORDS)
-				.limit(inputs.size() - targetNumSnapshots + 1)
-				.batch(maxToMergeAtOnce)
-				.advanceWhile(batch -> batch.size() > 1);
+	private final Collection<String> rejectedDatabeans;
+
+	public DataTooLargeException(String name, List<String> rejectedDatabeans){
+		super("Some databeans were too large for " + name + ": " + rejectedDatabeans);
+		this.rejectedDatabeans = rejectedDatabeans;
+	}
+
+	public Collection<String> getRejectedDatabeans(){
+		return rejectedDatabeans;
 	}
 
 }

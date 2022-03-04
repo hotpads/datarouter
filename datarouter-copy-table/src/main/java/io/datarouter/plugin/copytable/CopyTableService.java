@@ -42,7 +42,7 @@ import io.datarouter.util.tuple.Range;
 public class CopyTableService{
 	private static final Logger logger = LoggerFactory.getLogger(CopyTableService.class);
 
-	private static final Config SCAN_CONFIG = new Config().setOutputBatchSize(1_000);
+	private static final Config SCAN_CONFIG = new Config().setResponseBatchSize(1_000);
 
 	@Inject
 	private DatarouterNodes nodes;

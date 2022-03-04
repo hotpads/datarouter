@@ -284,10 +284,9 @@ public class ApiDocService{
 		String example = null;
 		Set<DocumentedExampleEnumDto> exampleEnumDtos = new HashSet<>();
 		if(isOptional){
-			Class<?> parameterizedType = (Class<?>)((ParameterizedType)field.getGenericType())
-					.getActualTypeArguments()[0];
-			type = parameterizedType.getSimpleName();
-			if(includeType(Optional.of(parameterizedType))){
+			Type parameterizedType = EndpointTool.extractParameterizedType(field);
+			type = parameterizedType.getTypeName();
+			if(includeType(Optional.of(parameterizedType.getClass()))){
 				try{
 					DocumentedExampleDto exampleDto = createBestExample(parameterizedType, new HashSet<>());
 					exampleEnumDtos = exampleDto.exampleEnumDtos;

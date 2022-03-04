@@ -113,8 +113,8 @@ public class DatarouterJobletRequestDao extends BaseDao{
 		return node.scan(range);
 	}
 
-	public Scanner<JobletRequest> scan(Range<JobletRequestKey> range, int outputBatchSize){
-		return node.scan(range, new Config().setOutputBatchSize(outputBatchSize));
+	public Scanner<JobletRequest> scan(Range<JobletRequestKey> range, int responseBatchSize){
+		return node.scan(range, new Config().setResponseBatchSize(responseBatchSize));
 	}
 
 	public Scanner<JobletRequest> scanAnyDelay(){
@@ -206,7 +206,7 @@ public class DatarouterJobletRequestDao extends BaseDao{
 	public JobletRequest getReservedRequest(JobletType<?> jobletType, String reservedBy, ConfigValue<?> option){
 		var prefix = JobletRequestKey.create(jobletType, null, null, null);
 		var config = new Config()
-				.setOutputBatchSize(20)//keep it small since there should not be thousands of reserved joblets
+				.setResponseBatchSize(20)//keep it small since there should not be thousands of reserved joblets
 				.addOption(option);
 		return node.scanWithPrefix(prefix, config)
 				.include(request -> Objects.equals(request.getReservedBy(), reservedBy))

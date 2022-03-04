@@ -99,7 +99,7 @@ public class DatarouterAccountUserService{
 		if(accountsForUser.isEmpty()){
 			return Optional.empty();
 		}
-		return datarouterAccountCredentialDao.scanByAccountName(accountsForUser)
+		return datarouterAccountCredentialDao.scanByAccountNames(accountsForUser)
 				.findFirst();
 	}
 

@@ -28,10 +28,6 @@ public interface ClientOptionsFactory{
 
 	Properties getInternalConfigDirectoryTypeOptions(String internalConfigDirectoryTypeName);
 
-	default List<ClientId> getRequiredClientIds(){
-		return List.of();
-	}
-
 	default Properties mergeOptions(Properties... options){
 		var merged = new Properties();
 		Scanner.of(options)

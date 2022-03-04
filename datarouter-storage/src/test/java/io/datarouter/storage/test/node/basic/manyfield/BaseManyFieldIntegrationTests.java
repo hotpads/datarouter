@@ -283,7 +283,7 @@ public abstract class BaseManyFieldIntegrationTests{
 	@Test
 	public void testByteArray(){
 		var bean = new ManyFieldBean();
-		byte[] value = new byte[]{1, 5, -128, 127, 25, 66, -80, -12};
+		byte[] value = {1, 5, -128, 127, 25, 66, -80, -12};
 
 		bean.setByteArrayField(value);
 		dao.put(bean);
@@ -338,20 +338,6 @@ public abstract class BaseManyFieldIntegrationTests{
 		Assert.assertEquals(roundTripped.getLongArrayField(), bean.getLongArrayField());
 
 		roundTripped.appendToLongArrayField(3);//assert mutability of returned list
-	}
-
-	@Test
-	public void testBooleanArray(){
-		var bean = new ManyFieldBean();
-		bean.appendToBooleanArrayField(true);
-		bean.appendToBooleanArrayField(null);
-		bean.appendToBooleanArrayField(false);
-		dao.put(bean);
-
-		ManyFieldBean roundTripped = dao.get(bean.getKey());
-		Assert.assertEquals(roundTripped.getBooleanArrayField(), bean.getBooleanArrayField());
-
-		roundTripped.appendToBooleanArrayField(true);//assert mutability of returned list
 	}
 
 	@Test

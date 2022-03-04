@@ -54,7 +54,7 @@ public class HBaseClientManager extends BaseClientManager{
 	private static final Logger logger = LoggerFactory.getLogger(HBaseClientManager.class);
 
 	// these are used for databeans with no values outside the PK. we fake a value as we need at least 1 cell in a row
-	public static final byte[] DEFAULT_FAMILY_QUALIFIER = new byte[]{(byte)'a'};
+	public static final byte[] DEFAULT_FAMILY_QUALIFIER = {(byte)'a'};
 	public static final String DUMMY_COL_NAME = new String(new byte[]{0});
 
 	@Inject

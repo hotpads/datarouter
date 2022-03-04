@@ -13,29 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.model.field.imp.array;
+package io.datarouter.model.field.imp.comparable;
 
-import java.util.List;
+import java.time.Instant;
 
-import com.google.gson.reflect.TypeToken;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
-import io.datarouter.model.field.ListFieldKey;
+public class InstantFieldTests{
 
-@Deprecated//Use ByteArrayFieldKey
-public class UInt63ArrayFieldKey extends ListFieldKey<Long,List<Long>,UInt63ArrayFieldKey>{
-
-	public UInt63ArrayFieldKey(String name){
-		super(name, new TypeToken<List<Long>>(){});
-	}
-
-	@Override
-	public UInt63ArrayField createValueField(List<Long> value){
-		return new UInt63ArrayField(this, value);
-	}
-
-	@Override
-	public boolean isFixedLength(){
-		return false;
+	@Test
+	public void testEncodeAndDecodeBytes(){
+		Instant input = Instant.ofEpochSecond(3, 5);
+		byte[] expectedBytes = {0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 5};
+		byte[] actualBytes = InstantField.encodeToBytes(input);
+		Assert.assertEquals(actualBytes, expectedBytes);
+		Instant output = InstantField.decodeFromBytes(actualBytes, 0);
+		Assert.assertEquals(output, input);
 	}
 
 }

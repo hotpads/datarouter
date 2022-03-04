@@ -57,5 +57,4 @@ public class BinaryDtoLongArrayTests{
 		Assert.assertEquals(actual, dto);
 	}
 
-
 }

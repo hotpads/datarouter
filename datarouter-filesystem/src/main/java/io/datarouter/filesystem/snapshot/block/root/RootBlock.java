@@ -52,7 +52,7 @@ public interface RootBlock extends Block{
 	int leafBlocksPerFile();
 	int valueBlocksPerFile();
 
-	long numRecords();
+	long numItems();
 	int numBranchBlocks();
 	int numBranchBlocks(int level);
 	int numLeafBlocks();
@@ -158,7 +158,7 @@ public interface RootBlock extends Block{
 		kvs.put("leafBlocksPerFile", NumberFormatter.addCommas(leafBlocksPerFile()));
 		kvs.put("valueBlocksPerFile", NumberFormatter.addCommas(valueBlocksPerFile()));
 
-		kvs.put("numEntries", NumberFormatter.addCommas(numRecords()));
+		kvs.put("numItems", NumberFormatter.addCommas(numItems()));
 		kvs.put("numBranchLevels", NumberFormatter.addCommas(numBranchLevels()));
 
 		kvs.put("numBranchBlocks", NumberFormatter.addCommas(numBranchBlocks()));
@@ -176,7 +176,7 @@ public interface RootBlock extends Block{
 		kvs.put("writeStartTime", Instant.ofEpochMilli(writeStartTimeMs()).toString());
 		kvs.put("writeStartAgo", new DatarouterDuration(writeStartAgo()).toString());
 		kvs.put("writeDuration", new DatarouterDuration(writeDuration()).toString());
-		kvs.put("writeItemsPerSecond", perSecond(numRecords(), writeDuration()));
+		kvs.put("writeItemsPerSecond", perSecond(numItems(), writeDuration()));
 		kvs.put("writeEncodedBytesPerSecond", perSecond(totalBytesEncoded(), writeDuration()));
 		kvs.put("writeCompressedBytesPerSecond", perSecond(totalBytesCompressed(), writeDuration()));
 

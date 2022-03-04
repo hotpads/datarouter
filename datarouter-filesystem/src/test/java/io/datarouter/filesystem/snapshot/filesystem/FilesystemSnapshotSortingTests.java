@@ -105,7 +105,7 @@ public class FilesystemSnapshotSortingTests{
 		//write unsorted snapshot
 		writeInputSnapshot();
 		RootBlock inputRootBlock = inputGroup.root(BlockKey.root(inputSnapshotKey));
-		Assert.assertEquals(inputRootBlock.numRecords(), NUM_ENTRIES);
+		Assert.assertEquals(inputRootBlock.numItems(), NUM_ENTRIES);
 		timer.add("writeInputSnapshot");
 
 		//write sorted chunks
@@ -125,7 +125,7 @@ public class FilesystemSnapshotSortingTests{
 				.map(chunkKey -> new ScanningSnapshotReader(chunkKey, exec, numThreads, chunkGroup, SCAN_NUM_BLOCKS))
 				.collate(reader -> reader.scan(0), SnapshotRecord.KEY_COMPARATOR)
 				.apply(this::writeOutputSnapshot);
-		Assert.assertEquals(outputRootBlock.numRecords(), NUM_ENTRIES);
+		Assert.assertEquals(outputRootBlock.numItems(), NUM_ENTRIES);
 		timer.add("writeOutputSnapshot");
 
 		var outputReader = new ScanningSnapshotReader(
@@ -154,7 +154,7 @@ public class FilesystemSnapshotSortingTests{
 				.batch(1000)
 				.apply(entries -> inputGroup.writeOps().write(config, entries, exec, () -> false));
 		inputSnapshotKey = result.key;
-		timer.add("wrote " + NumberFormatter.addCommas(result.optRoot.get().numRecords()));
+		timer.add("wrote " + NumberFormatter.addCommas(result.optRoot.get().numItems()));
 		logger.warn("{}", timer);
 		return result.optRoot.get();
 	}
@@ -166,7 +166,7 @@ public class FilesystemSnapshotSortingTests{
 				.map(SnapshotRecord::entry)
 				.batch(1000)
 				.apply(entries -> chunkGroup.writeOps().write(config, entries, exec, () -> false));
-		timer.add("wrote " + NumberFormatter.addCommas(result.optRoot.get().numRecords()));
+		timer.add("wrote " + NumberFormatter.addCommas(result.optRoot.get().numItems()));
 		logger.warn("{}", timer);
 		return result.key;
 	}
@@ -179,7 +179,7 @@ public class FilesystemSnapshotSortingTests{
 				.batch(1000)
 				.apply(entries -> outputGroup.writeOps().write(config, entries, exec, () -> false));
 		outputSnapshotKey = result.key;
-		timer.add("wrote " + NumberFormatter.addCommas(result.optRoot.get().numRecords()));
+		timer.add("wrote " + NumberFormatter.addCommas(result.optRoot.get().numItems()));
 		logger.warn("{}", timer);
 		return result.optRoot.get();
 	}

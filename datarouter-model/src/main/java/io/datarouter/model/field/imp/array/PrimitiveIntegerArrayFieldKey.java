@@ -17,6 +17,7 @@ package io.datarouter.model.field.imp.array;
 
 import io.datarouter.model.field.BaseFieldKey;
 
+@Deprecated//Use ByteArrayFieldKey
 public class PrimitiveIntegerArrayFieldKey extends BaseFieldKey<int[],PrimitiveIntegerArrayFieldKey>{
 
 	public PrimitiveIntegerArrayFieldKey(String name){

@@ -577,7 +577,7 @@ public abstract class BaseSnapshotTests{
 				.map(input -> makeEntry(input.entry.key()))
 				.batch(1000)
 				.apply(entries -> getGroup().writeOps().write(makeSnapshotWriterConfig(), entries, exec, () -> false));
-		timer.add("wrote " + result.optRoot.get().numRecords());
+		timer.add("wrote " + result.optRoot.get().numItems());
 		logger.warn("{}", timer);
 		return result.key;
 	}
@@ -709,8 +709,8 @@ public abstract class BaseSnapshotTests{
 	protected static SnapshotEntry makeEntry(byte[] key){
 		byte[] value = ByteTool.concat("v".getBytes(), key);
 		byte[] columnValue0 = ByteTool.concat(key, key, key);
-		byte[] columnValue1 = new byte[]{key[0], key[0]};
-		byte[][] columnValues = new byte[][]{columnValue0, columnValue1};
+		byte[] columnValue1 = {key[0], key[0]};
+		byte[][] columnValues = {columnValue0, columnValue1};
 		return new SnapshotEntry(key, value, columnValues);
 	}
 

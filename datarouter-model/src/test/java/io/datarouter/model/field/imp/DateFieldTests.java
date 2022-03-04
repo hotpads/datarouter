@@ -98,4 +98,14 @@ public class DateFieldTests{
 		Assert.assertEquals(serialized, noMsString);
 	}
 
+	@Test
+	public void testEncodeAndDecodeBytes(){
+		Date input = new Date(8);
+		byte[] expectedBytes = {0, 0, 0, 0, 0, 0, 0, 8};
+		byte[] actualBytes = DateField.encodeToBytes(input);
+		Assert.assertEquals(actualBytes, expectedBytes);
+		Date output = DateField.decodeFromBytes(actualBytes, 0);
+		Assert.assertEquals(output, input);
+	}
+
 }

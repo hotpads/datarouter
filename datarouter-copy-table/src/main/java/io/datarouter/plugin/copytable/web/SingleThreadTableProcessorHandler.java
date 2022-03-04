@@ -35,6 +35,7 @@ import io.datarouter.plugin.copytable.tableprocessor.TableProcessorRegistry;
 import io.datarouter.plugin.copytable.tableprocessor.TableProcessorService;
 import io.datarouter.plugin.copytable.tableprocessor.TableProcessorService.TableProcessorSpanResult;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.storage.config.Config;
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
@@ -53,14 +54,12 @@ public class SingleThreadTableProcessorHandler extends BaseHandler{
 	private static final String
 			P_sourceNodeName = "sourceNodeName",
 			P_lastKeyString = "lastKeyString",
+			P_scanBatchSize = "scanBatchSize",
 			P_processorName = "processorName",
-			P_numThreads = "numThreads",
-			P_putBatchSize = "putBatchSize",
 			P_toEmail = "toEmail",
 			P_submitAction = "submitAction";
 
-	private static final int DEFAULT_NUM_THREADS = 4;
-	private static final int DEFAULT_BATCH_SIZE = 1_000;
+	private static final int DEFAULT_SCAN_BATCH_SIZE = Config.DEFAULT_RESPONSE_BATCH_SIZE;
 
 	@Inject
 	private TableProcessorService service;
@@ -86,32 +85,21 @@ public class SingleThreadTableProcessorHandler extends BaseHandler{
 			D extends Databean<PK,D>>
 	Mav defaultHandler(
 			@Param(P_sourceNodeName) OptionalString sourceName,
-			@Param(P_processorName) OptionalString processorName,
 			@Param(P_lastKeyString) OptionalString lastKeyString,
+			@Param(P_scanBatchSize) OptionalString scanBatchSize,
+			@Param(P_processorName) OptionalString processorName,
 			@Param(P_toEmail) OptionalString toEmail,
-			@Param(P_numThreads) OptionalString numThreads,
-			@Param(P_putBatchSize) OptionalString putBatchSize,
 			@Param(P_submitAction) OptionalString submitAction){
-		String errorNumThreads = null;
-		String errorPutBatchSize = null;
-
+		String errorScanBatchSize = null;
 		if(submitAction.isPresent()){
 			try{
-				if(numThreads.map(StringTool::nullIfEmpty).isPresent()){
-					Integer.valueOf(numThreads.get());
+				if(scanBatchSize.map(StringTool::nullIfEmpty).isPresent()){
+					Integer.valueOf(scanBatchSize.get());
 				}
 			}catch(Exception e){
-				errorNumThreads = "Please specify an integer";
-			}
-			try{
-				if(putBatchSize.map(StringTool::nullIfEmpty).isPresent()){
-					Integer.valueOf(putBatchSize.get());
-				}
-			}catch(Exception e){
-				errorPutBatchSize = "Please specify an integer";
+				errorScanBatchSize = "Please specify an integer";
 			}
 		}
-
 		List<String> possibleNodes = tableSamplerService.scanAllSortedMapStorageNodes()
 				.map(node -> node.getClientId().getName() + "." + node.getFieldInfo().getTableName())
 				.append("")
@@ -127,27 +115,21 @@ public class SingleThreadTableProcessorHandler extends BaseHandler{
 				.withDisplay("Node Name")
 				.withName(P_sourceNodeName)
 				.withValues(possibleNodes);
-		form.addSelectField()
-				.withDisplay("Processor Name")
-				.withName(P_processorName)
-				.withValues(possibleProcessors);
 		form.addTextField()
-				.withDisplay("Last Key String")
+				.withDisplay("From Key String")
 				//add validation
 				.withName(P_lastKeyString)
 				.withValue(lastKeyString.orElse(null));
 		form.addTextField()
-				.withDisplay("Num Threads")
-				.withError(errorNumThreads)
-				.withName(P_numThreads)
-				.withPlaceholder(DEFAULT_NUM_THREADS + "")
-				.withValue(numThreads.orElse(null));
-		form.addTextField()
-				.withDisplay("Batch Size")
-				.withError(errorPutBatchSize)
-				.withName(P_putBatchSize)
-				.withPlaceholder(DEFAULT_BATCH_SIZE + "")
-				.withValue(putBatchSize.orElse(null));
+				.withDisplay("Scan Batch Size")
+				.withError(errorScanBatchSize)
+				.withName(P_scanBatchSize)
+				.withPlaceholder(DEFAULT_SCAN_BATCH_SIZE + "")
+				.withValue(scanBatchSize.orElse(null));
+		form.addSelectField()
+				.withDisplay("Processor Name")
+				.withName(P_processorName)
+				.withValues(possibleProcessors);
 		form.addTextField()
 				.withDisplay("Email on Completion")
 				//add validation
@@ -165,23 +147,18 @@ public class SingleThreadTableProcessorHandler extends BaseHandler{
 					.buildMav();
 		}
 
-		int actualNumThreads = numThreads
+		int actualScanBatchSize = scanBatchSize
 				.map(StringTool::nullIfEmpty)
 				.map(Integer::valueOf)
-				.orElse(DEFAULT_NUM_THREADS);
-		int actualPutBatchSize = putBatchSize
-				.map(StringTool::nullIfEmpty)
-				.map(Integer::valueOf)
-				.orElse(DEFAULT_BATCH_SIZE);
+				.orElse(DEFAULT_SCAN_BATCH_SIZE);
 		TableProcessor<?,?> processor = injector.getInstance(processorRegistry.find(processorName.get())
 				.get());
 		TableProcessorSpanResult result = service.runTableProcessor(
 				sourceName.get(),
 				lastKeyString.map(StringTool::nullIfEmpty).orElse(null),
 				null,
+				actualScanBatchSize,
 				processor,
-				actualNumThreads,
-				actualPutBatchSize,
 				1,
 				1);
 		if(!result.success){
@@ -193,7 +170,7 @@ public class SingleThreadTableProcessorHandler extends BaseHandler{
 		}
 		var header = standardDatarouterEmailHeaderService.makeStandardHeader();
 		String message = String.format("Successfully processed %s records for %s - %s",
-				NumberFormatter.addCommas(result.numCopied),
+				NumberFormatter.addCommas(result.numScanned),
 				sourceName.get(),
 				processorName.get());
 		var body = body(header, p(message));

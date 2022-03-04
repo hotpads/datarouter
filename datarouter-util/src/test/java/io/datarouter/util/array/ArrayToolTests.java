@@ -31,7 +31,7 @@ public class ArrayToolTests{
 
 	@Test
 	public void testTrimToSize(){
-		byte[] array = new byte[]{0, 1, 2, 3, 4};
+		byte[] array = {0, 1, 2, 3, 4};
 		Assert.assertEquals(ArrayTool.trimToSize(new byte[]{}, 2), new byte[2]);
 		Assert.assertEquals(ArrayTool.trimToSize(array, 2), new byte[]{0, 1});
 		Assert.assertEquals(ArrayTool.trimToSize(array, 5), new byte[]{0, 1, 2, 3, 4});

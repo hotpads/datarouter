@@ -17,6 +17,10 @@ package io.datarouter.httpclient.endpoint;
 
 import java.net.URI;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import io.datarouter.httpclient.request.HttpRequestMethod;
@@ -29,6 +33,11 @@ import io.datarouter.pathnode.PathNode;
 public abstract class BaseEndpoint<R,ET extends EndpointType>{
 
 	@IgnoredField
+	protected static final HttpRequestMethod GET = HttpRequestMethod.GET;
+	@IgnoredField
+	protected static final HttpRequestMethod POST = HttpRequestMethod.POST;
+
+	@IgnoredField
 	public final HttpRequestMethod method;
 	@IgnoredField
 	public final PathNode pathNode;
@@ -38,6 +47,8 @@ public abstract class BaseEndpoint<R,ET extends EndpointType>{
 	public final boolean shouldSkipSecurity;
 	@IgnoredField
 	public final boolean shouldSkipLogs;
+	@IgnoredField
+	public final Map<String,List<String>> headers;
 
 	@IgnoredField
 	public String urlPrefix;
@@ -55,6 +66,7 @@ public abstract class BaseEndpoint<R,ET extends EndpointType>{
 		this.retrySafe = retrySafe;
 		this.shouldSkipSecurity = shouldSkipSecurity;
 		this.shouldSkipLogs = shouldSkipLogs;
+		this.headers = new HashMap<>();
 
 		this.urlPrefix = null;
 		this.timeout = Optional.empty();
@@ -65,8 +77,14 @@ public abstract class BaseEndpoint<R,ET extends EndpointType>{
 		return this;
 	}
 
-	public void setTimeout(Duration timeout){
+	public BaseEndpoint<R,ET> setTimeout(Duration timeout){
 		this.timeout = Optional.of(timeout);
+		return this;
+	}
+
+	public BaseEndpoint<R,ET> addHeader(String name, String value){
+		headers.computeIfAbsent(name, $ -> new ArrayList<>()).add(value);
+		return this;
 	}
 
 }

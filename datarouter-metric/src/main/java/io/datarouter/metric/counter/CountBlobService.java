@@ -32,15 +32,17 @@ import io.datarouter.util.UlidTool;
 public class CountBlobService implements CountPublisher{
 	private static final Logger logger = LoggerFactory.getLogger(CountBlobService.class);
 
-	private final CountBlobDao countBlobDao;
-	private final DatarouterCountBlobQueueDao countBlobQueueDao;
+	private static final int MAX_SERIALIZED_BLOB_SIZE = 256 * 1024 - 30;//based on AWS SQS message length limit
+
+	private final CountBlobDirectoryDao countBlobDirectoryDao;
+	private final CountBlobQueueDao countBlobQueueDao;
 	private final DatarouterCountSettingRoot countSettings;
 	private final CountBlobPublishingSettings countBlobPublishingSettings;
 
 	@Inject
-	public CountBlobService(CountBlobDao countBlobDao, DatarouterCountBlobQueueDao countBlobQueueDao,
+	public CountBlobService(CountBlobDirectoryDao countBlobDao, CountBlobQueueDao countBlobQueueDao,
 			DatarouterCountSettingRoot countSettings, CountBlobPublishingSettings countBlobPublishingSettings){
-		this.countBlobDao = countBlobDao;
+		this.countBlobDirectoryDao = countBlobDao;
 		this.countBlobQueueDao = countBlobQueueDao;
 		this.countSettings = countSettings;
 		this.countBlobPublishingSettings = countBlobPublishingSettings;
@@ -49,12 +51,16 @@ public class CountBlobService implements CountPublisher{
 	@Override
 	public PublishingResponseDto add(CountBatchDto dto){
 		var countBlobDto = toBlob(dto);
-		if(countSettings.saveCountBlobsToQueueInsteadOfCloud.get()){
-			logger.info("writing queue key={}", countBlobDto.ulid);
-			countBlobQueueDao.put(new ConveyorMessage(countBlobDto.ulid, countBlobDto.serializeToString()));
+		if(countSettings.saveCountBlobsToQueueDaoInsteadOfDirectoryDao.get()){
+			countBlobDto.serializeToStrings(MAX_SERIALIZED_BLOB_SIZE)
+					.map(blob -> new ConveyorMessage(countBlobDto.ulid, blob))
+					.flush(blobs -> {
+						logger.info("writing size={} blobs with key={}", blobs.size(), countBlobDto.ulid);
+						countBlobQueueDao.putMulti(blobs);
+					});
 		}else{
 			logger.info("writing key={}", countBlobDto.ulid);
-			countBlobDao.write(countBlobDto);
+			countBlobDirectoryDao.write(countBlobDto);
 		}
 		return PublishingResponseDto.SUCCESS;
 	}

@@ -114,7 +114,7 @@ extends BaseScanner<InternalStrideSample<PK>>{
 			SortedStorageReader<PK,?> node,
 			Range<PK> range,
 			int batchSize){
-		var scanKeysConfig = new Config().setOutputBatchSize(batchSize);
+		var scanKeysConfig = new Config().setResponseBatchSize(batchSize);
 		var state = new ScanKeysState<PK>();
 		node.scanKeys(range, scanKeysConfig)
 				.forEach(pk -> {

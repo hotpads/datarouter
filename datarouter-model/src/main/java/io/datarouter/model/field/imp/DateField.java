@@ -19,7 +19,7 @@ import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
-import io.datarouter.bytes.codec.longcodec.UInt63Codec;
+import io.datarouter.bytes.codec.longcodec.RawLongCodec;
 import io.datarouter.model.field.BasePrimitiveField;
 import io.datarouter.util.DateTool;
 import io.datarouter.util.string.StringTool;
@@ -30,7 +30,7 @@ import io.datarouter.util.string.StringTool;
 @Deprecated
 public class DateField extends BasePrimitiveField<Date,DateFieldKey>{
 
-	private static final UInt63Codec U_INT_63_CODEC = UInt63Codec.INSTANCE;
+	private static final RawLongCodec RAW_LONG_CODEC = RawLongCodec.INSTANCE;
 
 	/**
 	 * New usages should try to use Instants, LocalDate, LocalDateTime, or Longs. Daylight savings and database timezone
@@ -59,7 +59,7 @@ public class DateField extends BasePrimitiveField<Date,DateFieldKey>{
 	}
 
 	public int getNumDecimalSeconds(){
-		return ((DateFieldKey)getKey()).getNumDecimalSeconds();
+		return getKey().getNumDecimalSeconds();
 	}
 
 	@Override
@@ -84,17 +84,30 @@ public class DateField extends BasePrimitiveField<Date,DateFieldKey>{
 
 	@Override
 	public byte[] getBytes(){
-		return value == null ? null : U_INT_63_CODEC.encode(value.getTime());
+		if(value == null){
+			return null;
+		}
+		return encodeToBytes(value);
 	}
 
 	@Override
 	public int numBytesWithSeparator(byte[] bytes, int offset){
-		return 8;
+		return RAW_LONG_CODEC.length();
 	}
 
 	@Override
 	public Date fromBytesButDoNotSet(byte[] bytes, int offset){
-		return new Date(U_INT_63_CODEC.decode(bytes, offset));
+		return decodeFromBytes(bytes, offset);
+	}
+
+	public static byte[] encodeToBytes(Date value){
+		long time = value.getTime();
+		return RAW_LONG_CODEC.encode(time);
+	}
+
+	public static Date decodeFromBytes(byte[] bytes, int offset){
+		long time = RAW_LONG_CODEC.decode(bytes, offset);
+		return new Date(time);
 	}
 
 }

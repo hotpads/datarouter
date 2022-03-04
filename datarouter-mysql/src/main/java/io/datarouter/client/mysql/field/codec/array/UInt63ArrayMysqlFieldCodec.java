@@ -28,6 +28,7 @@ import io.datarouter.client.mysql.field.codec.base.BaseListMysqlFieldCodec;
 import io.datarouter.model.exception.DataAccessException;
 import io.datarouter.model.field.imp.array.UInt63ArrayField;
 
+@Deprecated//use ByteArrayField
 public class UInt63ArrayMysqlFieldCodec
 extends BaseListMysqlFieldCodec<Long,List<Long>,UInt63ArrayField>{
 

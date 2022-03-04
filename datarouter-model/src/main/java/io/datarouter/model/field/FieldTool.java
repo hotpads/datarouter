@@ -18,14 +18,13 @@ package io.datarouter.model.field;
 import java.util.List;
 
 import io.datarouter.bytes.ByteTool;
+import io.datarouter.bytes.EmptyArray;
 import io.datarouter.bytes.VarIntTool;
 import io.datarouter.bytes.codec.stringcodec.StringCodec;
 import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.util.string.StringTool;
 
 public class FieldTool{
-
-	private static final byte[] EMPTY_BYTES = new byte[]{};
 
 	public static int countNonNullLeadingFields(List<Field<?>> fields){
 		int num = 0;
@@ -54,7 +53,7 @@ public class FieldTool{
 	public static byte[] getConcatenatedValueBytesUnterminated(List<Field<?>> fields){
 		int numTokens = FieldTool.countNonNullLeadingFields(fields);
 		if(numTokens == 0){
-			return EMPTY_BYTES;
+			return EmptyArray.BYTE;
 		}
 		byte[][] tokens = new byte[numTokens][];
 		for(int i = 0; i < numTokens; ++i){
@@ -70,7 +69,7 @@ public class FieldTool{
 	public static byte[] getConcatenatedValueBytes(List<Field<?>> fields){
 		int numTokens = FieldTool.countNonNullLeadingFields(fields);
 		if(numTokens == 0){
-			return EMPTY_BYTES;
+			return EmptyArray.BYTE;
 		}
 		byte[][] tokens = new byte[numTokens][];
 		for(int i = 0; i < numTokens; ++i){

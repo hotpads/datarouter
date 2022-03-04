@@ -54,7 +54,7 @@ public class RootBlockV1 implements RootBlock{
 	private final int leafBlocksPerFile;
 	private final int valueBlocksPerFile;
 
-	private final long numEntries;
+	private final long numItems;
 	private final int numBranchLevels;
 	private final int[] numBranchBlocksByLevel;
 	private final int numBranchBlocks;
@@ -109,7 +109,7 @@ public class RootBlockV1 implements RootBlock{
 		valueBlocksPerFile = reader.varInt();
 
 		// counts
-		numEntries = reader.varLong();
+		numItems = reader.varLong();
 		numBranchLevels = reader.varInt();
 		numBranchBlocksByLevel = reader.varInts(numBranchLevels);
 		numBranchBlocks = Arrays.stream(numBranchBlocksByLevel).sum();
@@ -239,8 +239,8 @@ public class RootBlockV1 implements RootBlock{
 	/*------------- counts ----------------*/
 
 	@Override
-	public long numRecords(){
-		return numEntries;
+	public long numItems(){
+		return numItems;
 	}
 
 	@Override

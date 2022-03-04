@@ -281,7 +281,7 @@ public abstract class BaseSortedNodeIntegrationTests extends BaseSortedBeanInteg
 
 	@Test //small batch sizes to make sure we're resuming each batch from the correct spot
 	public void testIncrementalScan(){
-		var smallIterateBatchSize = new Config().setOutputBatchSize(3);
+		var smallIterateBatchSize = new Config().setResponseBatchSize(3);
 		int expectedSize1 = SortedBeans.RANGE_LENGTH_alp_emu_inc * SortedBeans.NUM_ELEMENTS * SortedBeans.NUM_ELEMENTS
 				* SortedBeans.NUM_ELEMENTS;
 		var alp1 = new SortedBeanKey(SortedBeans.RANGE_alp, null, null, null);
@@ -293,7 +293,7 @@ public abstract class BaseSortedNodeIntegrationTests extends BaseSortedBeanInteg
 
 	@Test
 	public void testIncrementalScan2(){
-		var smallIterateBatchSize = new Config().setOutputBatchSize(3);
+		var smallIterateBatchSize = new Config().setResponseBatchSize(3);
 		var alp1 = new SortedBeanKey(SortedBeans.RANGE_alp, null, null, null);
 		var emu1 = new SortedBeanKey(SortedBeans.RANGE_emu, null, null, null);
 		int expectedSize1b = (SortedBeans.RANGE_LENGTH_alp_emu_inc - 1) * SortedBeans.NUM_ELEMENTS
@@ -305,7 +305,7 @@ public abstract class BaseSortedNodeIntegrationTests extends BaseSortedBeanInteg
 
 	@Test
 	public void testIncrementalScan3(){
-		var smallIterateBatchSize = new Config().setOutputBatchSize(3);
+		var smallIterateBatchSize = new Config().setResponseBatchSize(3);
 		int expectedSize2 = SortedBeans.RANGE_LENGTH_alp_emu_inc * SortedBeans.NUM_ELEMENTS * SortedBeans.NUM_ELEMENTS;
 		var alp2 = new SortedBeanKey(SortedBeans.STRINGS.first(), SortedBeans.RANGE_alp, null, null);
 		var emu2 = new SortedBeanKey(SortedBeans.STRINGS.first(), SortedBeans.RANGE_emu, null, null);
@@ -352,12 +352,12 @@ public abstract class BaseSortedNodeIntegrationTests extends BaseSortedBeanInteg
 	protected void testLimitedScanKeys(){
 		long count = SortedBeans.TOTAL_RECORDS;
 		Assert.assertNotEquals(0, count);
-		Assert.assertEquals(scanKeysAndCountWithConfig(new Config().setOutputBatchSize(555)), count);
+		Assert.assertEquals(scanKeysAndCountWithConfig(new Config().setResponseBatchSize(555)), count);
 		Assert.assertEquals(scanKeysAndCountWithConfig(new Config().setLimit((int)count)), count);
 		Assert.assertEquals(scanKeysAndCountWithConfig(new Config().setLimit(10)), 10);
 		Assert.assertEquals(scanKeysAndCountWithConfig(new Config().setLimit((int)(2 * count))), count);
-		Assert.assertEquals(scanKeysAndCountWithConfig(new Config().setOutputBatchSize(25).setLimit(100)), 100);
-		Assert.assertEquals(scanKeysAndCountWithConfig(new Config().setOutputBatchSize(15).setLimit(23)), 23);
+		Assert.assertEquals(scanKeysAndCountWithConfig(new Config().setResponseBatchSize(25).setLimit(100)), 100);
+		Assert.assertEquals(scanKeysAndCountWithConfig(new Config().setResponseBatchSize(15).setLimit(23)), 23);
 	}
 
 	private long scanKeysAndCountWithConfig(Config config){
@@ -369,7 +369,7 @@ public abstract class BaseSortedNodeIntegrationTests extends BaseSortedBeanInteg
 		long count = SortedBeans.TOTAL_RECORDS;
 		Assert.assertNotEquals(0, count);
 		var timer = new PhaseTimer("testLimitedScan");
-		Assert.assertEquals(scanAndCountWithConfig(new Config().setOutputBatchSize(555)), count);
+		Assert.assertEquals(scanAndCountWithConfig(new Config().setResponseBatchSize(555)), count);
 		timer.add("1");
 		Assert.assertEquals(scanAndCountWithConfig(new Config().setLimit((int)count)), count);
 		timer.add("2");
@@ -377,9 +377,9 @@ public abstract class BaseSortedNodeIntegrationTests extends BaseSortedBeanInteg
 		timer.add("3");
 		Assert.assertEquals(scanAndCountWithConfig(new Config().setLimit((int)(2 * count))), count);
 		timer.add("4");
-		Assert.assertEquals(scanAndCountWithConfig(new Config().setOutputBatchSize(25).setLimit(100)), 100);
+		Assert.assertEquals(scanAndCountWithConfig(new Config().setResponseBatchSize(25).setLimit(100)), 100);
 		timer.add("5");
-		Assert.assertEquals(scanAndCountWithConfig(new Config().setOutputBatchSize(15).setLimit(23)), 23);
+		Assert.assertEquals(scanAndCountWithConfig(new Config().setResponseBatchSize(15).setLimit(23)), 23);
 		timer.add("6");
 		logger.warn(timer.toString());
 		//[total:633ms]<testLimitedScan>[1:112ms][2:107ms][3:90ms][4:143ms][5:74ms][6:107ms]
@@ -433,7 +433,7 @@ public abstract class BaseSortedNodeIntegrationTests extends BaseSortedBeanInteg
 		var startKey = new SortedBeanKey(SortedBeans.S_alpaca, SortedBeans.S_ostrich, 7, SortedBeans.S_emu);
 		var endKey = new SortedBeanKey(SortedBeans.S_alpaca, SortedBeans.S_ostrich, 7, SortedBeans.S_pelican);
 		var rangeWithFourRows = new Range<>(startKey, true, endKey, true);
-		long count = dao.scanKeys(rangeWithFourRows, new Config().setOutputBatchSize(2)).count();
+		long count = dao.scanKeys(rangeWithFourRows, new Config().setResponseBatchSize(2)).count();
 		Assert.assertEquals(count, 4);
 	}
 
@@ -478,7 +478,7 @@ public abstract class BaseSortedNodeIntegrationTests extends BaseSortedBeanInteg
 		var startKey2 = new SortedBeanKey(SortedBeans.S_albatross, SortedBeans.S_ostrich, 3, SortedBeans.S_aardvark);
 		var endKey2 = new SortedBeanKey(SortedBeans.S_albatross, SortedBeans.S_ostrich, 3, SortedBeans.S_emu);
 		var range2 = new Range<>(startKey2, endKey2);
-		Set<SortedBean> beans = dao.scanRanges(Arrays.asList(range1, range2), new Config().setOutputBatchSize(4))
+		Set<SortedBean> beans = dao.scanRanges(Arrays.asList(range1, range2), new Config().setResponseBatchSize(4))
 				.collect(HashSet::new);
 		Set<SortedBean> expected = Scanner.of(range1, range2)
 				.concat(dao::scan)

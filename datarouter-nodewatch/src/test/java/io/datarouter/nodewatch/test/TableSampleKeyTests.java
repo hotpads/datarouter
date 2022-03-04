@@ -28,7 +28,7 @@ public class TableSampleKeyTests{
 	private final String clientName = "myClient";
 	private final String nodeName = "myNode";
 	private final String subEntityPrefix = "mySubEntityPrefix";
-	private final byte[] rowKeyBytes1 = new byte[]{1, 2, 3, 4};
+	private final byte[] rowKeyBytes1 = {1, 2, 3, 4};
 	private TableSampleKey pk1 = new TableSampleKey(clientName, nodeName, subEntityPrefix, rowKeyBytes1);
 	//use a separate array even though the value is the same in order to get a different identityHashCode
 	private final byte[] rowKeyBytes2 = Arrays.copyOf(rowKeyBytes1, rowKeyBytes1.length);

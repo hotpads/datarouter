@@ -20,7 +20,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.Optional;
@@ -51,9 +50,13 @@ import io.datarouter.web.util.http.RequestTool;
 public class EndpointDecoder implements HandlerDecoder{
 	private static final Logger logger = LoggerFactory.getLogger(EndpointDecoder.class);
 
+	//TODO Rename JsonSerializer or add Serializer, we just want a (de)serializer here
+	private final JsonSerializer deserializer;
+
 	@Inject
-	@Named(HandlerEncoder.DEFAULT_HANDLER_SERIALIZER)
-	private JsonSerializer deserializer;
+	public EndpointDecoder(@Named(HandlerEncoder.DEFAULT_HANDLER_SERIALIZER) JsonSerializer deserializer){
+		this.deserializer = deserializer;
+	}
 
 	@Override
 	public Object[] decode(HttpServletRequest request, Method method){
@@ -144,8 +147,8 @@ public class EndpointDecoder implements HandlerDecoder{
 				if(parameterValue == null){
 					field.set(baseEndpoint, Optional.empty());
 				}else{
-					Class<?> clazz = (Class<?>)((ParameterizedType)field.getGenericType()).getActualTypeArguments()[0];
-					var optionalValue = decodeType(parameterValue, clazz);
+					Type type = EndpointTool.extractParameterizedType(field);
+					var optionalValue = decodeType(parameterValue, type);
 					field.set(baseEndpoint, Optional.of(optionalValue));
 				}
 			}else{

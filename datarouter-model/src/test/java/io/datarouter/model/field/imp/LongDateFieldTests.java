@@ -13,28 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.model.field.imp.array;
+package io.datarouter.model.field.imp;
 
-import java.util.List;
+import java.util.Date;
 
-import com.google.gson.reflect.TypeToken;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
-import io.datarouter.model.field.ListFieldKey;
+import io.datarouter.model.field.imp.custom.LongDateField;
 
-public class BooleanArrayFieldKey extends ListFieldKey<Boolean,List<Boolean>,BooleanArrayFieldKey>{
+public class LongDateFieldTests{
 
-	public BooleanArrayFieldKey(String name){
-		super(name, new TypeToken<List<Boolean>>(){});
-	}
-
-	@Override
-	public boolean isFixedLength(){
-		return false;
-	}
-
-	@Override
-	public BooleanArrayField createValueField(List<Boolean> value){
-		return new BooleanArrayField(this, value);
+	@Test
+	public void testEncodeAndDecodeBytes(){
+		Date input = new Date(4);
+		byte[] expectedBytes = {0, 0, 0, 0, 0, 0, 0, 4};
+		byte[] actualBytes = LongDateField.encodeToBytes(input);
+		Assert.assertEquals(actualBytes, expectedBytes);
+		Date output = LongDateField.decodeFromBytes(actualBytes, 0);
+		Assert.assertEquals(output, input);
 	}
 
 }

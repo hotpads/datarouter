@@ -21,6 +21,7 @@ import java.util.List;
 import io.datarouter.httpclient.endpoint.BaseEndpoint;
 import io.datarouter.httpclient.endpoint.BaseInternalLink;
 import io.datarouter.pathnode.PathNode;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.types.EndpointDecoder;
@@ -64,6 +65,24 @@ public abstract class BaseRouteSet{
 		return handle(baseEndpoint.pathNode)
 				.withDefaultHandlerDecoder(EndpointDecoder.class)
 				.withHandler(handler);
+	}
+
+	protected DispatchRule handle(
+			Class<? extends BaseEndpoint<?,?>> baseEndpointClass,
+			Class<? extends BaseHandler> handler,
+			Class<? extends EndpointDecoder> endpointDecoder){
+		BaseEndpoint<?,?> baseEndpoint = ReflectionTool.createWithoutNoArgs(baseEndpointClass);
+		return handle(baseEndpoint.pathNode)
+				.withDefaultHandlerDecoder(endpointDecoder)
+				.withHandler(handler);
+	}
+
+	protected Scanner<DispatchRule> handleEndpoints(
+			Class<? extends BaseHandler> handler,
+			List<Class<? extends BaseEndpoint<?,?>>> baseEndpointClasses){
+		return Scanner.of(baseEndpointClasses)
+				.map(endpointClass -> handle(endpointClass, handler))
+				.listTo(Scanner::of);//Caller not forced to terminate the scanner
 	}
 
 	protected DispatchRule handleInternalLink(

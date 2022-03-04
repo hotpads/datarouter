@@ -22,18 +22,59 @@ import io.datarouter.storage.client.ClientId;
 public interface AuroraClientIdProvider{
 
 	List<ClientId> getAuroraClientIds();
+	List<AuroraClientDto> getAuroraClientDtos();
 
 	class GenericAuroraClientIdProvider implements AuroraClientIdProvider{
 
 		private final List<ClientId> auroraClientIds;
+		private final List<AuroraClientDto> auroraClientDtos;
 
-		public GenericAuroraClientIdProvider(List<ClientId> auroraClientIds){
+		public GenericAuroraClientIdProvider(List<ClientId> auroraClientIds, List<AuroraClientDto> auroraClientDtos){
 			this.auroraClientIds = auroraClientIds;
+			this.auroraClientDtos = auroraClientDtos;
 		}
 
 		@Override
 		public List<ClientId> getAuroraClientIds(){
 			return auroraClientIds;
+		}
+
+		@Override
+		public List<AuroraClientDto> getAuroraClientDtos(){
+			return auroraClientDtos;
+		}
+
+	}
+
+	public static class AuroraClientDto{
+
+		private final ClientId writerClientId;
+		private final List<ClientId> readerClientIds;
+		private final String writerDns;
+		private final List<String> readerDnss;
+
+		public AuroraClientDto(ClientId writerClientId, List<ClientId> readerClientIds, String writerDns,
+				List<String> readerDnss){
+			this.writerClientId = writerClientId;
+			this.readerClientIds = readerClientIds;
+			this.writerDns = writerDns;
+			this.readerDnss = readerDnss;
+		}
+
+		public ClientId getWriterClientId(){
+			return writerClientId;
+		}
+
+		public List<ClientId> getReaderClientIds(){
+			return readerClientIds;
+		}
+
+		public String getWriterDns(){
+			return writerDns;
+		}
+
+		public List<String> getReaderDnss(){
+			return readerDnss;
 		}
 
 	}

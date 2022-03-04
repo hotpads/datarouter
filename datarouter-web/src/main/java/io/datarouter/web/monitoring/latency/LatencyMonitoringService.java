@@ -63,7 +63,7 @@ public class LatencyMonitoringService{
 	private static final Logger logger = LoggerFactory.getLogger(LatencyMonitoringService.class);
 
 	private static final int MIN_LAST_CHECKS_TO_RETAIN = 15;
-	private static final Config ONLY_FIRST = new Config().setLimit(1).setOutputBatchSize(1);
+	private static final Config ONLY_FIRST = new Config().setLimit(1).setResponseBatchSize(1);
 	private static final String GAUGE_PREFIX = "Latency ";
 	private static final String DR_CLIENT_PREFIX = "Client ";
 	private static final String SS_CHECK_SUFIX = " findFirst";

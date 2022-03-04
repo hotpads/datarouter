@@ -15,6 +15,7 @@
  */
 package io.datarouter.bytes.codec.intcodec;
 
+@Deprecated//use ComparableIntCodec or RawIntCodec
 public class UInt31Codec{
 
 	public static final UInt31Codec INSTANCE = new UInt31Codec();

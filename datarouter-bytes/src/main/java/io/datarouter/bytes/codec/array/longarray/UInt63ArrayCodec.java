@@ -18,6 +18,7 @@ package io.datarouter.bytes.codec.array.longarray;
 import io.datarouter.bytes.EmptyArray;
 import io.datarouter.bytes.codec.longcodec.UInt63Codec;
 
+@Deprecated//use ComparableLongArrayCodec or custom codec
 public class UInt63ArrayCodec{
 
 	public static final UInt63ArrayCodec INSTANCE = new UInt63ArrayCodec();

@@ -25,7 +25,7 @@ public class SnapshotPathsV1 implements SnapshotPaths{
 
 	private static final boolean DIRECTORY_100 = true;// otherwise 10 files per directory. 100 seems to be faster
 	// for 100 files per directory
-	private static final int[] DIGIT_POSITIONS = new int[]{13, 12, 10, 9, 7, 6, 4, 3, 1, 0};
+	private static final int[] DIGIT_POSITIONS = {13, 12, 10, 9, 7, 6, 4, 3, 1, 0};
 
 	@Override
 	public String format(){
@@ -74,7 +74,7 @@ public class SnapshotPathsV1 implements SnapshotPaths{
 
 	private static String makeFilename(int index){
 		if(DIRECTORY_100){
-			byte[] name = new byte[]{'0', '0', '/', '0', '0', '/', '0', '0', '/', '0', '0', '/', '0', '0'};
+			byte[] name = {'0', '0', '/', '0', '0', '/', '0', '0', '/', '0', '0', '/', '0', '0'};
 			int remaining = index;
 			for(int i = 0; remaining > 0 && i < DIGIT_POSITIONS.length; ++i){
 				int ascii = '0' + remaining % 10;

@@ -24,7 +24,6 @@ import java.util.function.Function;
 
 import io.datarouter.client.mysql.field.MysqlFieldCodec;
 import io.datarouter.client.mysql.field.StringMysqlFieldCodec;
-import io.datarouter.client.mysql.field.codec.array.BooleanArrayMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.array.ByteArrayMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.array.DelimitedStringArrayMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.array.DoubleArrayMysqlFieldCodec;
@@ -51,7 +50,6 @@ import io.datarouter.model.field.Field;
 import io.datarouter.model.field.imp.DateField;
 import io.datarouter.model.field.imp.LocalDateField;
 import io.datarouter.model.field.imp.StringField;
-import io.datarouter.model.field.imp.array.BooleanArrayField;
 import io.datarouter.model.field.imp.array.ByteArrayField;
 import io.datarouter.model.field.imp.array.DelimitedStringArrayField;
 import io.datarouter.model.field.imp.array.DoubleArrayField;
@@ -106,7 +104,6 @@ public class StandardMysqlFieldCodecFactory implements MysqlFieldCodecFactory{
 		addCodec(StringEnumField.class, StringEnumMysqlFieldCodec::new);
 
 		//BaseListMysqlFieldCodec
-		addCodec(BooleanArrayField.class, BooleanArrayMysqlFieldCodec::new);
 		addCodec(DelimitedStringArrayField.class, DelimitedStringArrayMysqlFieldCodec::new);
 		addCodec(DoubleArrayField.class, DoubleArrayMysqlFieldCodec::new);
 		addCodec(IntegerArrayField.class, IntegerArrayMysqlFieldCodec::new);

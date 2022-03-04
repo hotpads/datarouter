@@ -160,7 +160,7 @@ public class PutOpIntegrationTests{
 		int testBatchSize = 10;
 		int totalCount = (int) (testBatchSize * 2.5);
 		var config = new Config()
-				.setInputBatchSize(testBatchSize)
+				.setRequestBatchSize(testBatchSize)
 				.setPutMethod(PutMethod.INSERT_ON_DUPLICATE_UPDATE);
 		List<PutOpTestBean> databeans = new ArrayList<>();
 		for(int count = 0; count < totalCount; count++){

@@ -78,7 +78,7 @@ public class DatarouterLoadTestDao extends BaseDao implements LoadTestGetDao, Lo
 	public Scanner<RandomValue> scan(int batchSize, int limit){
 		var scannerNode = (SortedMapStorageNode<RandomValueKey,RandomValue,RandomValueFielder>) node;
 		var config = new Config()
-				.setOutputBatchSize(batchSize)
+				.setResponseBatchSize(batchSize)
 				.setNoTimeout();
 		return scannerNode.scan(config)
 				.limit(limit);

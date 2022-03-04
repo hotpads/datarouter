@@ -21,6 +21,7 @@ import com.google.gson.reflect.TypeToken;
 
 import io.datarouter.model.field.ListFieldKey;
 
+@Deprecated//Use ByteArrayFieldKey
 public class UInt7ArrayFieldKey extends ListFieldKey<Byte,List<Byte>,UInt7ArrayFieldKey>{
 
 	public UInt7ArrayFieldKey(String name){

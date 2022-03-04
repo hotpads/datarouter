@@ -17,14 +17,13 @@ package io.datarouter.model.field.imp.comparable;
 
 import java.time.Instant;
 
-import io.datarouter.bytes.LongArray;
-import io.datarouter.bytes.codec.array.longarray.UInt63ArrayCodec;
+import io.datarouter.bytes.codec.longcodec.RawLongCodec;
 import io.datarouter.model.field.BasePrimitiveField;
 import io.datarouter.model.util.FractionalSecondTool;
 
 public class InstantField extends BasePrimitiveField<Instant,InstantFieldKey>{
 
-	private static final UInt63ArrayCodec U_INT_63_ARRAY_CODEC = UInt63ArrayCodec.INSTANCE;
+	private static final RawLongCodec RAW_LONG_CODEC = RawLongCodec.INSTANCE;
 
 	public InstantField(InstantFieldKey key, Instant value){
 		super(key, FractionalSecondTool.truncate(value, key.getNumFractionalSeconds()));
@@ -48,21 +47,31 @@ public class InstantField extends BasePrimitiveField<Instant,InstantFieldKey>{
 		if(value == null){
 			return null;
 		}
-		LongArray longArray = new LongArray(2);
-		longArray.add(value.getEpochSecond());
-		longArray.add(value.getNano());
-		return U_INT_63_ARRAY_CODEC.encode(longArray.getPrimitiveArray());
+		return encodeToBytes(value);
 	}
 
 	@Override
-	public Instant fromBytesButDoNotSet(byte[] bytes, int byteOffset){
-		long[] secondsAndNanos = U_INT_63_ARRAY_CODEC.decode(bytes, byteOffset, 16);
-		return Instant.ofEpochSecond(secondsAndNanos[0], secondsAndNanos[1]);
+	public Instant fromBytesButDoNotSet(byte[] bytes, int offset){
+		return decodeFromBytes(bytes, offset);
 	}
 
 	@Override
-	public int numBytesWithSeparator(byte[] bytes, int byteOffset){
+	public int numBytesWithSeparator(byte[] bytes, int offset){
 		return 16;
+	}
+
+	public static byte[] encodeToBytes(Instant value){
+		byte[] bytes = new byte[16];
+		RAW_LONG_CODEC.encode(value.getEpochSecond(), bytes, 0);
+		//nanos could fit in 4 bytes, but changing it would break persisted data
+		RAW_LONG_CODEC.encode(value.getNano(), bytes, 8);
+		return bytes;
+	}
+
+	public static Instant decodeFromBytes(byte[] bytes, int offset){
+		long seconds = RAW_LONG_CODEC.decode(bytes, offset);
+		long nanos = RAW_LONG_CODEC.decode(bytes, offset + 8);
+		return Instant.ofEpochSecond(seconds, nanos);
 	}
 
 }

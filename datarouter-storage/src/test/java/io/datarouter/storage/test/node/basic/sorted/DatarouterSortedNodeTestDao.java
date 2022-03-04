@@ -78,7 +78,7 @@ public class DatarouterSortedNodeTestDao extends BaseDao implements TestDao{
 	}
 
 	public List<SortedBean> getMulti(Collection<SortedBeanKey> keys, int batchSize){
-		return node.getMulti(keys, new Config().setInputBatchSize(batchSize));
+		return node.getMulti(keys, new Config().setRequestBatchSize(batchSize));
 	}
 
 	public List<SortedBeanKey> getKeys(Collection<SortedBeanKey> keys){
@@ -116,7 +116,7 @@ public class DatarouterSortedNodeTestDao extends BaseDao implements TestDao{
 	}
 
 	public Scanner<SortedBean> scan(int batchSize){
-		var config = new Config().setOutputBatchSize(batchSize);
+		var config = new Config().setResponseBatchSize(batchSize);
 		return node.scan(config);
 	}
 
@@ -161,7 +161,7 @@ public class DatarouterSortedNodeTestDao extends BaseDao implements TestDao{
 	}
 
 	public Scanner<SortedBean> scanWithPrefix(SortedBeanKey prefix, int batchSize){
-		Config config = new Config().setOutputBatchSize(batchSize);
+		Config config = new Config().setResponseBatchSize(batchSize);
 		return node.scanWithPrefix(prefix, config);
 	}
 

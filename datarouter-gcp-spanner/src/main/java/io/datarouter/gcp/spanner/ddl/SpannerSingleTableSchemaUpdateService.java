@@ -217,9 +217,7 @@ public class SpannerSingleTableSchemaUpdateService{
 				.map(statement -> statement + ";")
 				.collect(Collectors.joining("\n"));
 
-		logger.info(SchemaUpdateTool.PLEASE_EXECUTE_SCHEMA_UPDATE_MESSAGE);
-		logger.info(printStatement);
-		logger.info(SchemaUpdateTool.THANK_YOU_MESSAGE);
+		SchemaUpdateTool.printSchemaUpdate(logger, printStatement);
 		return Optional.of(new SchemaUpdateResult(printStatement, errorMessage, clientId));
 	}
 

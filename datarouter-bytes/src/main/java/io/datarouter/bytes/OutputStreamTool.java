@@ -29,6 +29,14 @@ public class OutputStreamTool{
 		}
 	}
 
+	public static void write(OutputStream outputStream, byte[] bytes, int offset, int length){
+		try{
+			outputStream.write(bytes, offset, length);
+		}catch(IOException e){
+			throw new UncheckedIOException(e);
+		}
+	}
+
 	public static void close(OutputStream outputStream){
 		try{
 			outputStream.close();

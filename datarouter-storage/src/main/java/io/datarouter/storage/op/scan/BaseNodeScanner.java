@@ -39,7 +39,7 @@ extends BaseScanner<List<T>>{
 	private static final Logger logger = LoggerFactory.getLogger(BaseNodeScanner.class);
 
 	private static final int DEFAULT_RANGE_BATCH_SIZE = 10;
-	private static final int DEFAULT_OUTPUT_BATCH_SIZE = 100;
+	private static final int DEFAULT_RESPONSE_BATCH_SIZE = 100;
 
 	private final NavigableSet<Range<PK>> ranges;
 	private final Config config;
@@ -53,7 +53,7 @@ extends BaseScanner<List<T>>{
 	public BaseNodeScanner(Collection<Range<PK>> ranges, Config config, boolean caseInsensitive){
 		warnIfCaseInsensitive(ranges, caseInsensitive);
 		this.config = config;
-		this.rangeBatchSize = this.config.findInputBatchSize().orElse(DEFAULT_RANGE_BATCH_SIZE);
+		this.rangeBatchSize = this.config.findRequestBatchSize().orElse(DEFAULT_RANGE_BATCH_SIZE);
 		this.ranges = ranges.stream()
 				.filter(Range::notEmpty)
 				.collect(Collectors.toCollection(TreeSet::new));
@@ -143,7 +143,7 @@ extends BaseScanner<List<T>>{
 	}
 
 	private void updateBatchConfigLimit(){
-		int batchConfigLimit = config.findOutputBatchSize().orElse(DEFAULT_OUTPUT_BATCH_SIZE);
+		int batchConfigLimit = config.findResponseBatchSize().orElse(DEFAULT_RESPONSE_BATCH_SIZE);
 		if(config.getLimit() != null && config.getLimit() - resultCount < batchConfigLimit){
 			batchConfigLimit = (int) (config.getLimit() - resultCount);
 		}

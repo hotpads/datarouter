@@ -78,7 +78,7 @@ extends BaseMysqlOp<Long>{
 		String nodeName = databeanFieldInfo.getNodeName() + "." + indexName;
 		boolean disableIntroducer = databeanFieldInfo.getDisableIntroducer();
 		long totalModified = 0;
-		for(List<? extends IK> batch : Scanner.of(keys).batch(Config.DEFAULT_INPUT_BATCH_SIZE).iterable()){
+		for(List<? extends IK> batch : Scanner.of(keys).batch(Config.DEFAULT_REQUEST_BATCH_SIZE).iterable()){
 			PreparedStatement statement = mysqlSqlFactory
 					.createSql(getClientId(), tableName, disableIntroducer)
 					.deleteMulti(tableName, config, batch)

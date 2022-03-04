@@ -104,8 +104,7 @@ public class DatarouterClients{
 			logger.warn("Got client properties from file {}", propertiesAndLocation.getRight());
 			clientOptions.addProperties(propertiesAndLocation.getLeft());
 		}
-		//TODO switch to requiredClientIds.getRequiredClientIds()
-		Scanner.of(clientOptionsFactory.getRequiredClientIds())
+		Scanner.of(requiredClientIds.getRequiredClientIds())
 				.exclude(clientOptions::isClientTypePresent)
 				.flush(missingClientIds -> {
 					if(!missingClientIds.isEmpty()){

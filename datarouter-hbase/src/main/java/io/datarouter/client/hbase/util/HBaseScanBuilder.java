@@ -27,12 +27,13 @@ import org.apache.hadoop.hbase.filter.PageFilter;
 
 import io.datarouter.bytes.ByteTool;
 import io.datarouter.bytes.Bytes;
+import io.datarouter.bytes.EmptyArray;
 import io.datarouter.bytes.codec.stringcodec.StringCodec;
 import io.datarouter.util.tuple.Range;
 
 public class HBaseScanBuilder{
 
-	private static final byte[] EMPTY_PREFIX = new byte[]{};
+	private static final byte[] EMPTY_PREFIX = EmptyArray.BYTE;
 	private static final KeyOnlyFilter KEY_ONLY_FILTER = new KeyOnlyFilter();
 	private static final FirstKeyOnlyFilter FIRST_KEY_ONLY_FILTER = new FirstKeyOnlyFilter();
 

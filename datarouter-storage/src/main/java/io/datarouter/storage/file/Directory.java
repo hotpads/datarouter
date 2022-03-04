@@ -19,6 +19,7 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 import io.datarouter.instrumentation.count.Counters;
@@ -36,7 +37,7 @@ implements BlobStorage{
 
 	private final BlobStorage parent;
 	private final Subpath subpathInParent;
-	private final String counterName;
+	private final Optional<String> optCounterName;
 
 	/*---------- construct ------------*/
 
@@ -48,20 +49,22 @@ implements BlobStorage{
 		this(parent, subpathInParent, null);
 	}
 
-	public Directory(BlobStorage parent, Subpath subpathInParent, String counterName){
-		this.parent = parent;
-		this.subpathInParent = subpathInParent;
-		this.counterName = counterName;
+	// private, called by builder
+	private Directory(BlobStorage parent, Subpath subpathInParent, String counterName){
+		this.parent = Objects.requireNonNull(parent);
+		this.subpathInParent = Objects.requireNonNull(subpathInParent);
+		this.optCounterName = Optional.ofNullable(counterName);
 	}
 
 	/*---------- subdirectory ------------*/
 
 	public Directory subdirectory(Subpath subpathInParent){
-		return new Directory(this, subpathInParent);
+		return subdirectoryBuilder(subpathInParent)
+				.build();
 	}
 
-	public Directory subdirectory(Subpath subpathInParent, String counterName){
-		return new Directory(this, subpathInParent, counterName);
+	public SubdirectoryBuilder subdirectoryBuilder(Subpath subpathInParent){
+		return new SubdirectoryBuilder(this, subpathInParent);
 	}
 
 	/*---------- write ------------*/
@@ -76,7 +79,7 @@ implements BlobStorage{
 	@Override
 	public void write(PathbeanKey key, Scanner<byte[]> chunks){
 		Scanner<byte[]> chunksWithCounts = chunks;
-		if(counterName != null){ //slightly optimized for small chunks with fast disks
+		if(optCounterName.isPresent()){
 			chunksWithCounts = chunks.each(chunk -> {
 				count("writeChunks chunks", 1);
 				count("writeChunks bytes", chunk.length);
@@ -203,10 +206,10 @@ implements BlobStorage{
 	}
 
 	private void count(String suffix, long by){
-		if(counterName != null){
+		optCounterName.ifPresent(counterName -> {
 			String name = String.format("Directory %s %s", counterName, suffix);
 			Counters.inc(name, by);
-		}
+		});
 	}
 
 	/*------------------ Object ---------------------*/
@@ -214,6 +217,55 @@ implements BlobStorage{
 	@Override
 	public String toString(){
 		return getRootPath().toString();
+	}
+
+	/*-------------- builder ------------------*/
+
+	public static class DirectoryBuilder{
+
+		private final BlobStorage parent;
+		private Subpath subpathInParent;
+		private String counterName;
+
+		public DirectoryBuilder(BlobStorage parent){
+			this.parent = Objects.requireNonNull(parent);
+			this.subpathInParent = Subpath.empty();
+		}
+
+		public DirectoryBuilder withSubpathInParent(Subpath subpathInParent){
+			this.subpathInParent = Objects.requireNonNull(subpathInParent);
+			return this;
+		}
+
+		public DirectoryBuilder withCounterName(String counterName){
+			this.counterName = Objects.requireNonNull(counterName);
+			return this;
+		}
+
+		public Directory build(){
+			return new Directory(parent, subpathInParent, counterName);
+		}
+
+	}
+
+	public static class SubdirectoryBuilder{
+
+		private final DirectoryBuilder directoryBuilder;
+
+		public SubdirectoryBuilder(BlobStorage parent, Subpath subpathInParent){
+			this.directoryBuilder = new DirectoryBuilder(parent)
+					.withSubpathInParent(subpathInParent);
+		}
+
+		public SubdirectoryBuilder withCounterName(String counterName){
+			directoryBuilder.withCounterName(counterName);
+			return this;
+		}
+
+		public Directory build(){
+			return directoryBuilder.build();
+		}
+
 	}
 
 }

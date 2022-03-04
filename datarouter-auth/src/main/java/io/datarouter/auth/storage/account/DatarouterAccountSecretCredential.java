@@ -104,6 +104,10 @@ extends BaseDatabean<DatarouterAccountSecretCredentialKey,DatarouterAccountSecre
 		return accountName;
 	}
 
+	public void setAccountName(String accountName){
+		this.accountName = accountName;
+	}
+
 	public String getSecretNamespace(){
 		return secretNamespace;
 	}

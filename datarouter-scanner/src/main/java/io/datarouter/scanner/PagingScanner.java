@@ -17,6 +17,7 @@ package io.datarouter.scanner;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Base class for things that page through results by passing the last item as an exclusive start key for the next page
@@ -32,9 +33,9 @@ public abstract class PagingScanner<K,T> extends BaseScanner<List<T>>{
 	/**
 	 * Subclass should transform the last seen item into a key for the next request
 	 */
-	protected abstract K nextParam(T lastSeenItem);
+	protected abstract Optional<K> nextParam(T lastSeenItem);
 
-	protected abstract List<T> nextPage(K resumeFrom);
+	protected abstract List<T> nextPage(Optional<K> resumeFrom);
 
 	@Override
 	public boolean advance(){
@@ -42,7 +43,7 @@ public abstract class PagingScanner<K,T> extends BaseScanner<List<T>>{
 			return false;
 		}
 		T lastSeenItem = getLast(current);
-		K resumeFrom = nextParam(lastSeenItem);
+		Optional<K> resumeFrom = nextParam(lastSeenItem);
 		current = nextPage(resumeFrom);
 		return notEmpty(current);
 	}

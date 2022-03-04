@@ -90,7 +90,7 @@ public class FilesystemSnapshotLargeTests{
 
 	@Test
 	public void testRoot(){
-		Assert.assertEquals(rootBlock.numRecords(), benchmark.numEntries);
+		Assert.assertEquals(rootBlock.numItems(), benchmark.numEntries);
 	}
 
 	@Test

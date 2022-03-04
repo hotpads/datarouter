@@ -20,16 +20,17 @@ import java.util.List;
 import io.datarouter.bytes.ByteTool;
 import io.datarouter.bytes.LongArray;
 import io.datarouter.bytes.codec.array.longarray.UInt63ArrayCodec;
-import io.datarouter.bytes.codec.intcodec.UInt31Codec;
+import io.datarouter.bytes.codec.intcodec.RawIntCodec;
 import io.datarouter.gson.serialization.GsonTool;
 import io.datarouter.model.field.BaseListField;
 import io.datarouter.model.field.Field;
 import io.datarouter.util.array.ArrayTool;
 import io.datarouter.util.collection.ListTool;
 
+@Deprecated//Use ByteArrayField
 public class UInt63ArrayField extends BaseListField<Long,List<Long>,UInt63ArrayFieldKey>{
 
-	private static final UInt31Codec U_INT_31_CODEC = UInt31Codec.INSTANCE;
+	private static final RawIntCodec RAW_INT_CODEC = RawIntCodec.INSTANCE;
 	private static final UInt63ArrayCodec U_INT_63_ARRAY_CODEC = UInt63ArrayCodec.INSTANCE;
 
 	public UInt63ArrayField(UInt63ArrayFieldKey key, List<Long> value){
@@ -66,19 +67,19 @@ public class UInt63ArrayField extends BaseListField<Long,List<Long>,UInt63ArrayF
 
 	@Override
 	public int numBytesWithSeparator(byte[] bytes, int byteOffset){
-		return bytes == null ? 0 : U_INT_31_CODEC.decode(bytes, byteOffset) + 4;
+		return bytes == null ? 0 : RAW_INT_CODEC.decode(bytes, byteOffset) + 4;
 	}
 
 	@Override
 	public byte[] getBytesWithSeparator(){
 		if(value == null){
-			return U_INT_31_CODEC.encode(0);
+			return RAW_INT_CODEC.encode(0);
 		}
 		LongArray longArray = value instanceof LongArray
 				? (LongArray)value
 				: new LongArray(value);
 		byte[] dataBytes = U_INT_63_ARRAY_CODEC.encode(longArray.getPrimitiveArray());
-		byte[] lengthBytes = U_INT_31_CODEC.encode(dataBytes.length);
+		byte[] lengthBytes = RAW_INT_CODEC.encode(dataBytes.length);
 		return ByteTool.concat(lengthBytes, dataBytes);
 	}
 

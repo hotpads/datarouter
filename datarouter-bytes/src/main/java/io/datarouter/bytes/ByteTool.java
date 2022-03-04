@@ -23,14 +23,6 @@ public class ByteTool{
 
 	public static final byte[][] EMPTY_ARRAY_2 = new byte[0][];
 
-	public static ArrayList<Byte> getArrayList(byte[] ins){
-		ArrayList<Byte> outs = new ArrayList<>(ins.length);
-		for(int i = 0; i < ins.length; ++i){
-			outs.add(ins[i]);
-		}
-		return outs;
-	}
-
 	public static byte getComparableByte(byte value){
 		if(value >= 0){
 			return (byte)(value + Byte.MIN_VALUE);
@@ -95,30 +87,46 @@ public class ByteTool{
 		int total = 0;
 		for(int i = 0; i < arrays.length; ++i){
 			byte[] array = arrays[i];
-			total += array == null ? 0 : array.length;
+			total += array == null ? 0 : array.length;//TODO remove null check
 		}
 		return total;
 	}
 
-	public static byte[] concat(List<byte[]> ins){
-		var arrays = new byte[ins.size()][];
-		for(int i = 0; i < ins.size(); ++i){
-			arrays[i] = ins.get(i);
+	public static int totalLength(List<byte[]> arrays){
+		int total = 0;
+		for(int i = 0; i < arrays.size(); ++i){
+			byte[] array = arrays.get(i);
+			total += array == null ? 0 : array.length;//TODO remove null check
 		}
-		return concat(arrays);
+		return total;
 	}
 
-	public static byte[] concat(byte[]... ins){
-		var out = new byte[totalLength(ins)];
-		int startIndex = 0;
-		for(int i = 0; i < ins.length; ++i){
-			byte[] in = ins[i];
-			if(in != null){
-				System.arraycopy(in, 0, out, startIndex, in.length);
-				startIndex += in.length;
+	public static byte[] concat(byte[]... arrays){
+		var result = new byte[totalLength(arrays)];
+		int cursor = 0;
+		for(int i = 0; i < arrays.length; ++i){
+			byte[] array = arrays[i];
+			if(array != null){//TODO remove null check
+				int length = array.length;
+				System.arraycopy(array, 0, result, cursor, length);
+				cursor += length;
 			}
 		}
-		return out;
+		return result;
+	}
+
+	public static byte[] concat(List<byte[]> arrays){
+		var result = new byte[totalLength(arrays)];
+		int cursor = 0;
+		for(int i = 0; i < arrays.size(); ++i){
+			byte[] array = arrays.get(i);
+			if(array != null){//TODO remove null check
+				int length = array.length;
+				System.arraycopy(array, 0, result, cursor, length);
+				cursor += length;
+			}
+		}
+		return result;
 	}
 
 	public static byte[] padPrefix(byte[] in, int finalWidth){
@@ -128,9 +136,19 @@ public class ByteTool{
 		return out;
 	}
 
-	/*------------------------- serialize -----------------------------------*/
+	/*------------------------- boxed bytes -----------------------------------*/
 
-	public static byte[] getUInt7Bytes(List<Byte> values){
+	@Deprecated//don't box bytes
+	public static ArrayList<Byte> toBoxedBytes(byte[] ins){
+		ArrayList<Byte> outs = new ArrayList<>(ins.length);
+		for(int i = 0; i < ins.length; ++i){
+			outs.add(ins[i]);
+		}
+		return outs;
+	}
+
+	@Deprecated//don't box bytes
+	public static byte[] fromBoxedBytesNoNegatives(List<Byte> values){
 		if(values.isEmpty()){
 			return EmptyArray.BYTE;
 		}
@@ -144,11 +162,6 @@ public class ByteTool{
 			++index;
 		}
 		return out;
-	}
-
-	public static byte[] fromUInt7ByteArray(byte[] bytes, int offset, int length){
-		// validate?
-		return copyOfRange(bytes, offset, length);
 	}
 
 }

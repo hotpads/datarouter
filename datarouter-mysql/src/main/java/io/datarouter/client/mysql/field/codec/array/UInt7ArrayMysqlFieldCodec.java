@@ -27,6 +27,7 @@ import io.datarouter.client.mysql.field.codec.base.BaseListMysqlFieldCodec;
 import io.datarouter.model.exception.DataAccessException;
 import io.datarouter.model.field.imp.array.UInt7ArrayField;
 
+@Deprecated//use ByteArrayField
 public class UInt7ArrayMysqlFieldCodec
 extends BaseListMysqlFieldCodec<Byte,List<Byte>,UInt7ArrayField>{
 
@@ -47,7 +48,8 @@ extends BaseListMysqlFieldCodec<Byte,List<Byte>,UInt7ArrayField>{
 	@Override
 	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
 		try{
-			ps.setBytes(parameterIndex, field.getValue() == null ? null : ByteTool.getUInt7Bytes(field.getValue()));
+			ps.setBytes(parameterIndex, field.getValue() == null ? null : ByteTool.fromBoxedBytesNoNegatives(
+					field.getValue()));
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}
@@ -64,7 +66,7 @@ extends BaseListMysqlFieldCodec<Byte,List<Byte>,UInt7ArrayField>{
 		if(bytes == null){
 			return null;
 		}
-		return ByteTool.getArrayList(bytes);
+		return ByteTool.toBoxedBytes(bytes);
 	}
 
 	@Override

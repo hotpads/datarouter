@@ -16,9 +16,13 @@
 package io.datarouter.metric.counter;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.Require;
@@ -68,18 +72,20 @@ public class CountBlobDto{
 
 	//make one metadata line and 1+ count lines
 	public byte[] serializeToBytes(){
-		return serializeToString().getBytes(StandardCharsets.UTF_8);
+		List<String> strings = serializeToStrings(Integer.MAX_VALUE).list();
+		Require.equals(1, strings.size());
+		return strings.get(0).getBytes(StandardCharsets.UTF_8);
 	}
 
-	public String serializeToString(){
+	public Scanner<String> serializeToStrings(int sizeLimit){
 		String metadataLine = String.join("\t", List.of(version,
 				ulid,
 				serviceName,
 				serverName,
 				apiKey,
-				signature));
-		String countLines = serializeCounts();
-		return metadataLine + "\n" + countLines;
+				signature)) + "\n";
+		return serializeCounts(sizeLimit - metadataLine.length())
+				.map(metadataLine::concat);
 	}
 
 	public static CountBlobDto deserializeFromString(String string){
@@ -110,15 +116,18 @@ public class CountBlobDto{
 				API_KEY, apiKey);
 	}
 
-	private String serializeCounts(){
-		return Scanner.of(counts.keySet())
+	private Scanner<String> serializeCounts(int sizeLimit){
+		CountsSplittingStringBuilders builder = new CountsSplittingStringBuilders(sizeLimit);
+		Scanner.of(counts.keySet())
 				.exclude(period -> counts.get(period).isEmpty())
-				.map(period -> {
-					//turn each period map into a single line with <timestamp>\t<name>\t<sum>[\t<name>\t<sum>...]
-					return Scanner.of(counts.get(period).entrySet())
-							.concatIter(countEntry -> List.of(countEntry.getKey(), countEntry.getValue().toString()))
-							.collect(Collectors.joining("\t", period + "\t", ""));
-				}).collect(Collectors.joining("\n"));//join each line with \n
+				.forEach(period -> {
+					Scanner.of(counts.get(period).entrySet())
+							.forEach(countEntry -> builder.append(
+									String.valueOf(period),
+									countEntry.getKey(),
+									String.valueOf(countEntry.getValue())));
+				});
+		return builder.scanSplitCounts();
 	}
 
 	private static Map<Long,Map<String,Long>> deserializeCounts(String lines){
@@ -135,6 +144,95 @@ public class CountBlobDto{
 					return new Pair<>(timestamp, counts);
 				})
 				.collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
+	}
+
+	public static class CountsSplittingStringBuilders{
+		private static final Logger logger = LoggerFactory.getLogger(CountBlobDto.CountsSplittingStringBuilders.class);
+
+		private static final int NEWLINE_LENGTH = "\n".length();
+		private static final int TWO_TABS_LENGTH = "\t".length() * 2;
+
+		private final int maxLength;
+		private final List<StringBuilder> splitCounts;
+
+		private StringBuilder currentStringBuilder;
+		private String currentTimestamp = null;
+
+		public CountsSplittingStringBuilders(int maxLength){
+			this.maxLength = maxLength;
+			currentStringBuilder = new StringBuilder();
+			splitCounts = new ArrayList<>(List.of(currentStringBuilder));
+		}
+
+		//final format for each period: <timestamp>\t<name>\t<sum>[\t<name>\t<sum>...]
+		//but this format can be split across multiple builders if necessary. each builder will go into a separate blob.
+		public void append(String timestamp, String name, String sum){
+			int countLength = getCountLength(name, sum);
+			//first count to be appended after initialization
+			if(currentTimestamp == null){
+				if(shouldDiscard(timestamp, name, sum)){
+					return;
+				}
+				appendCountAndTimestamp(timestamp, name, sum, false);
+				return;
+			}
+			//new count for the same period (line) fits in the current builder
+			if(timestamp.equals(currentTimestamp) && currentStringBuilder.length() + countLength <= maxLength){
+				appendCount(name, sum);
+				return;
+			}
+			//new count for a new period (line) fits in the current builder
+			if(!timestamp.equals(currentTimestamp)
+					&& currentStringBuilder.length() + NEWLINE_LENGTH + timestamp.length() + countLength <= maxLength){
+				appendCountAndTimestamp(timestamp, name, sum, true);
+				return;
+			}
+			//new count does not fit in the current builder. the new builder needs timestamp but no newline.
+			if(shouldDiscard(timestamp, name, sum)){
+				return;
+			}
+			currentStringBuilder = new StringBuilder();
+			splitCounts.add(currentStringBuilder);
+			appendCountAndTimestamp(timestamp, name, sum, false);
+		}
+
+		public Scanner<String> scanSplitCounts(){
+			return Scanner.of(splitCounts)
+					.map(StringBuilder::toString);
+		}
+
+		private void appendCountAndTimestamp(String timestamp, String name, String sum, boolean includeNewline){
+			currentTimestamp = timestamp;
+			if(includeNewline){
+				currentStringBuilder.append("\n");
+			}
+			currentStringBuilder
+					.append(timestamp);
+			appendCount(name, sum);
+		}
+
+		private void appendCount(String name, String sum){
+			currentStringBuilder
+					.append("\t")
+					.append(name)
+					.append("\t")
+					.append(sum);
+		}
+
+		private int getCountLength(String name, String sum){
+			return name.length() + sum.length() + TWO_TABS_LENGTH;
+		}
+
+		//size limit only needs to be checked when at the beginning of a new builder, since things that don't
+		//fit will always end up there
+		private boolean shouldDiscard(String timestamp, String name, String sum){
+			if(timestamp.length() + getCountLength(name, sum) > maxLength){
+				logger.warn("discarding count timestamp={} name={} sum={}", timestamp, name, sum);
+				return true;
+			}
+			return false;
+		}
+
 	}
 
 }

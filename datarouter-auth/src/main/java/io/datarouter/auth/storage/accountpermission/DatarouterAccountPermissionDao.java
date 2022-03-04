@@ -91,6 +91,10 @@ public class DatarouterAccountPermissionDao extends BaseDao implements BaseDatar
 		node.put(databean);
 	}
 
+	public void putMulti(List<DatarouterAccountPermission> databeans){
+		node.putMulti(databeans);
+	}
+
 	@Override
 	public void deleteWithPrefix(DatarouterAccountPermissionKey prefix){
 		node.deleteWithPrefix(prefix);
@@ -99,6 +103,10 @@ public class DatarouterAccountPermissionDao extends BaseDao implements BaseDatar
 	@Override
 	public void delete(DatarouterAccountPermissionKey key){
 		node.delete(key);
+	}
+
+	public void deleteMulti(List<DatarouterAccountPermissionKey> keys){
+		node.deleteMulti(keys);
 	}
 
 	@Override

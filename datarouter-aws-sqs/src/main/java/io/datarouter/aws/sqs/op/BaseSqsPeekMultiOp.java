@@ -81,7 +81,7 @@ extends SqsOp<PK,D,F,List<T>>{
 
 		//max messages
 		request.setMaxNumberOfMessages(config.findLimit().orElse(BaseSqsNode.MAX_MESSAGES_PER_BATCH));
-
+		request.withMessageAttributeNames("ALL");
 		return request;
 	}
 

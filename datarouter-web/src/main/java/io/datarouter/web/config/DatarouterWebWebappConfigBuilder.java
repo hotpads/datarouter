@@ -41,6 +41,7 @@ import io.datarouter.plugin.StringPluginConfigValue;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientOptionsFactory;
+import io.datarouter.storage.client.RequiredClientIds;
 import io.datarouter.storage.config.BaseStoragePlugin;
 import io.datarouter.storage.config.DatarouterStoragePlugin.DatarouterStoragePluginBuilder;
 import io.datarouter.storage.config.DatarouterSubscribersSupplier;
@@ -99,7 +100,7 @@ implements WebappBuilder{
 	private final ServerTypes serverTypes;
 	private final List<Class<? extends Dao>> daoClasses;
 	protected final List<ClientId> defaultClientIds;
-	protected final List<ClientId> requiredClientIds;
+	protected final RequiredClientIds requiredClientIds;
 	private final List<FieldKeyOverrider> fieldKeyOverriders;
 	private final List<Module> testModules;
 
@@ -166,7 +167,7 @@ implements WebappBuilder{
 				String contextName,
 				ServerTypes serverTypes,
 				List<ClientId> defaultClientIds,
-				List<ClientId> requiredClientIds,
+				RequiredClientIds requiredClientIds,
 				ServletContextListener log4jServletContextListener){
 			super(
 					serviceName,
@@ -193,7 +194,7 @@ implements WebappBuilder{
 			String contextName,
 			ServerTypes serverTypes,
 			List<ClientId> defaultClientIds,
-			List<ClientId> requiredClientIds,
+			RequiredClientIds requiredClientIds,
 			ServletContextListener log4jServletContextListener){
 		this.serviceName = serviceName;
 		this.publicDomain = publicDomain;

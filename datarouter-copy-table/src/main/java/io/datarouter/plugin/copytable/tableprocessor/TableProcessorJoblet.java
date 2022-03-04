@@ -54,9 +54,8 @@ public class TableProcessorJoblet extends BaseJoblet<TableProcessorJobletParams>
 				params.nodeName,
 				params.fromKeyExclusive,
 				params.toKeyInclusive,
+				params.scanBatchSize,
 				processor,
-				1,//single thread, rely on joblet system for parallelism
-				params.batchSize,
 				NumberTool.nullSafeLong(params.jobletId, 0L),//can remove null check after migration period
 				NumberTool.nullSafeLong(params.numJoblets, 0L));
 		if(!result.success){
@@ -69,8 +68,8 @@ public class TableProcessorJoblet extends BaseJoblet<TableProcessorJobletParams>
 		public final String nodeName;
 		public final String fromKeyExclusive;
 		public final String toKeyInclusive;
+		public final int scanBatchSize;
 		public final String processorName;
-		public final Integer batchSize;
 		public final Long estNumDatabeans;
 		public final Long jobletId;
 		public final Long numJoblets;
@@ -79,16 +78,16 @@ public class TableProcessorJoblet extends BaseJoblet<TableProcessorJobletParams>
 				String nodeName,
 				String fromKeyExclusive,
 				String toKeyInclusive,
+				int scanBatchSize,
 				String processorName,
-				Integer batchSize,
 				Long estNumDatabeans,
 				Long jobletId,
 				Long numJoblets){
 			this.nodeName = nodeName;
 			this.fromKeyExclusive = fromKeyExclusive;
 			this.toKeyInclusive = toKeyInclusive;
+			this.scanBatchSize = scanBatchSize;
 			this.processorName = processorName;
-			this.batchSize = batchSize;
 			this.estNumDatabeans = estNumDatabeans;
 			this.jobletId = jobletId;
 			this.numJoblets = numJoblets;

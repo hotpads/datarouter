@@ -111,7 +111,7 @@ public class RootBlockV1Tests{
 		Assert.assertEquals(block.valueBlocksPerFile(), 2);
 
 		//counts
-		Assert.assertEquals(block.numRecords(), 2);
+		Assert.assertEquals(block.numItems(), 2);
 
 		Assert.assertEquals(block.numBranchLevels(), 2);
 		Assert.assertEquals(block.maxBranchLevel(), 1);

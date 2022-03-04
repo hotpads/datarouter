@@ -19,6 +19,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -167,6 +168,28 @@ public class EndpointToolTests{
 			super(HttpRequestMethod.POST, new PathNode().leaf(""), false);
 			this.str = str;
 		}
+	}
+
+
+	public static class Dto{
+		public Optional<String> optional1;
+		public Optional<Boolean> optional2;
+		public Optional<List<String>> optional3;
+	}
+
+	@Test
+	public void testParameterizedTypeExtraction() throws NoSuchFieldException, SecurityException{
+		Field field1 = Dto.class.getDeclaredField("optional1");
+		Type type1 = EndpointTool.extractParameterizedType(field1);
+		Assert.assertEquals(type1.getTypeName(), String.class.getTypeName());
+
+		Field field2 = Dto.class.getDeclaredField("optional2");
+		Type type2 = EndpointTool.extractParameterizedType(field2);
+		Assert.assertEquals(type2.getTypeName(), Boolean.class.getTypeName());
+
+		Field field3 = Dto.class.getDeclaredField("optional3");
+		Type type3 = EndpointTool.extractParameterizedType(field3);
+		Assert.assertEquals(type3.getTypeName(), new TypeToken<List<String>>(){}.getType().getTypeName());
 	}
 
 }

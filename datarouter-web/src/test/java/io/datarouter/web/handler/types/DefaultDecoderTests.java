@@ -47,9 +47,9 @@ public class DefaultDecoderTests{
 	private static final Date created = new Date();
 	private static final String createdString = DateTimeFormatter.ISO_INSTANT.format(created.toInstant());
 	private static final String kenavo = "kenavo";
-	private static final int[] intArray = new int[]{1, 2, 3, 125};
+	private static final int[] intArray = {1, 2, 3, 125};
 	private static final int base = 2;
-	private static final String[] stringArray = new String[]{"degemer", "mat", "ar", "gouel"};
+	private static final String[] stringArray = {"degemer", "mat", "ar", "gouel"};
 
 	// Used via reflection in testMethodParameterNameInclusionAtRuntime
 	@SuppressWarnings("unused")

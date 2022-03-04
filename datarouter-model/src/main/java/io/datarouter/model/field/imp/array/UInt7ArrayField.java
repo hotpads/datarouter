@@ -15,19 +15,21 @@
  */
 package io.datarouter.model.field.imp.array;
 
+import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.bytes.ByteTool;
-import io.datarouter.bytes.codec.intcodec.UInt31Codec;
+import io.datarouter.bytes.codec.intcodec.RawIntCodec;
 import io.datarouter.gson.serialization.GsonTool;
 import io.datarouter.model.field.BaseListField;
 import io.datarouter.model.field.Field;
 import io.datarouter.util.array.ArrayTool;
 import io.datarouter.util.collection.ListTool;
 
+@Deprecated//Use ByteArrayField
 public class UInt7ArrayField extends BaseListField<Byte,List<Byte>,UInt7ArrayFieldKey>{
 
-	private static final UInt31Codec U_INT_31_CODEC = UInt31Codec.INSTANCE;
+	private static final RawIntCodec RAW_INT_CODEC = RawIntCodec.INSTANCE;
 
 	public UInt7ArrayField(UInt7ArrayFieldKey key, List<Byte> value){
 		super(key, value);
@@ -40,29 +42,36 @@ public class UInt7ArrayField extends BaseListField<Byte,List<Byte>,UInt7ArrayFie
 
 	@Override
 	public byte[] getBytes(){
-		return this.value == null ? null : ByteTool.getUInt7Bytes(this.value);
+		return value == null ? null : ByteTool.fromBoxedBytesNoNegatives(value);
 	}
 
 	@Override
 	public int numBytesWithSeparator(byte[] bytes, int byteOffset){
-		return U_INT_31_CODEC.decode(bytes, byteOffset);
+		return RAW_INT_CODEC.decode(bytes, byteOffset);
 	}
 
 	@Override
 	public List<Byte> fromBytesWithSeparatorButDoNotSet(byte[] bytes, int byteOffset){
 		int numBytes = numBytesWithSeparator(bytes, byteOffset) - 4;
-		return ByteTool.getArrayList(ByteTool.fromUInt7ByteArray(bytes, byteOffset + 4, numBytes));
+		byte[] primitiveBytes = fromUInt7ByteArray(bytes, byteOffset + 4, numBytes);
+		return ByteTool.toBoxedBytes(primitiveBytes);
 	}
 
 	@Override
 	public List<Byte> fromBytesButDoNotSet(byte[] bytes, int byteOffset){
 		int numBytes = ArrayTool.length(bytes) - byteOffset;
-		return ByteTool.getArrayList(ByteTool.fromUInt7ByteArray(bytes, byteOffset, numBytes));
+		byte[] primitiveBytes = fromUInt7ByteArray(bytes, byteOffset, numBytes);
+		return ByteTool.toBoxedBytes(primitiveBytes);
 	}
 
 	@Override
 	public int compareTo(Field<List<Byte>> other){
-		return ListTool.compare(this.value, other.getValue());
+		return ListTool.compare(value, other.getValue());
+	}
+
+	private static byte[] fromUInt7ByteArray(byte[] bytes, int from, int length){
+		int to = from + length;
+		return Arrays.copyOfRange(bytes, from, to);
 	}
 
 }

@@ -28,12 +28,9 @@ import io.datarouter.metric.counter.CountBlobDirectorySupplier;
 import io.datarouter.metric.counter.CountBlobDirectorySupplier.NoOpCountBlobDirectorySupplier;
 import io.datarouter.metric.counter.CountBlobPublishingSettings;
 import io.datarouter.metric.counter.CountBlobPublishingSettings.NoOpCountBlobPublishingSettings;
+import io.datarouter.metric.counter.CountBlobQueueDao;
+import io.datarouter.metric.counter.CountBlobQueueDao.DatarouterCountBlobQueueDaoParams;
 import io.datarouter.metric.counter.CountersAppListener;
-import io.datarouter.metric.counter.DatarouterCountBlobQueueDao;
-import io.datarouter.metric.counter.DatarouterCountBlobQueueDao.DatarouterCountBlobQueueDaoParams;
-import io.datarouter.metric.counter.DatarouterCountPublisherDao;
-import io.datarouter.metric.counter.DatarouterCountPublisherDao.DatarouterCountPublisherDaoParams;
-import io.datarouter.metric.counter.conveyor.CountConveyors;
 import io.datarouter.metric.dto.MetricDashboardDto;
 import io.datarouter.metric.dto.MetricName;
 import io.datarouter.metric.dto.MiscMetricLinksDto;
@@ -84,7 +81,6 @@ public class DatarouterMetricsPlugin extends BaseWebPlugin{
 		this.miscMetricLinks = miscMetricLinks;
 
 		if(enableCountPublishing){
-			addAppListener(CountConveyors.class);
 			addAppListenerOrdered(CountersAppListener.class, ComputedPropertiesAppListener.class);
 			addSettingRoot(DatarouterCountSettingRoot.class);
 		}
@@ -222,7 +218,6 @@ public class DatarouterMetricsPlugin extends BaseWebPlugin{
 					daosModule == null
 							? new DatarouterMetricsDaosModule(
 									defaultQueueClientId,
-									defaultQueueClientId,
 									countBlobQueueClientId,
 									enableCountPublishing,
 									enableGaugePublishing)
@@ -243,7 +238,6 @@ public class DatarouterMetricsPlugin extends BaseWebPlugin{
 
 	public static class DatarouterMetricsDaosModule extends DaosModuleBuilder{
 
-		private final List<ClientId> datarouterCountPublisherClientId;
 		private final List<ClientId> datarouterGaugePublisherClientId;
 		private final List<ClientId> datarouterCountBlobClientId;
 
@@ -251,12 +245,10 @@ public class DatarouterMetricsPlugin extends BaseWebPlugin{
 		private final boolean enableGaugePublishing;
 
 		public DatarouterMetricsDaosModule(
-				List<ClientId> datarouterCountPublisherClientId,
 				List<ClientId> datarouterGaugePublisherClientId,
 				List<ClientId> datarouterCountBlobClientId,
 				boolean enableCountPublishing,
 				boolean enableGaugePublishing){
-			this.datarouterCountPublisherClientId = datarouterCountPublisherClientId;
 			this.datarouterGaugePublisherClientId = datarouterGaugePublisherClientId;
 			this.datarouterCountBlobClientId = datarouterCountBlobClientId;
 			this.enableCountPublishing = enableCountPublishing;
@@ -267,9 +259,8 @@ public class DatarouterMetricsPlugin extends BaseWebPlugin{
 		public List<Class<? extends Dao>> getDaoClasses(){
 			List<Class<? extends Dao>> daos = new ArrayList<>();
 			if(enableCountPublishing){
-				daos.add(DatarouterCountPublisherDao.class);
+				daos.add(CountBlobQueueDao.class);
 			}
-			daos.add(DatarouterCountBlobQueueDao.class);
 			if(enableGaugePublishing){
 				daos.add(DatarouterGaugePublisherDao.class);
 			}
@@ -279,11 +270,10 @@ public class DatarouterMetricsPlugin extends BaseWebPlugin{
 		@Override
 		public void configure(){
 			if(enableCountPublishing){
-				bind(DatarouterCountPublisherDaoParams.class).toInstance(new DatarouterCountPublisherDaoParams(
-						datarouterCountPublisherClientId));
+				bind(DatarouterCountBlobQueueDaoParams.class).toInstance(new DatarouterCountBlobQueueDaoParams(
+						datarouterCountBlobClientId));
 			}
-			bind(DatarouterCountBlobQueueDaoParams.class).toInstance(new DatarouterCountBlobQueueDaoParams(
-					datarouterCountBlobClientId));
+
 			if(enableGaugePublishing){
 				bind(DatarouterGaugePublisherDaoParams.class).toInstance(new DatarouterGaugePublisherDaoParams(
 						datarouterGaugePublisherClientId));

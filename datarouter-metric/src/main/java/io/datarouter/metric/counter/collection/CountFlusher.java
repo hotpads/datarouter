@@ -26,38 +26,27 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.Gson;
-
-import io.datarouter.conveyor.message.ConveyorMessage;
 import io.datarouter.instrumentation.count.CountBatchDto;
+import io.datarouter.instrumentation.count.CountPublisher;
 import io.datarouter.metric.DatarouterMetricExecutors.DatarouterCountFlushSchedulerExecutor;
 import io.datarouter.metric.config.DatarouterCountSettingRoot;
-import io.datarouter.metric.counter.CountBlobService;
-import io.datarouter.metric.counter.DatarouterCountPublisherDao;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.util.UlidTool;
-import io.datarouter.util.number.RandomTool;
 
 public class CountFlusher{
 	private static final Logger logger = LoggerFactory.getLogger(CountFlusher.class);
 
 	private final String serviceName;
 	private final String serverName;
-	private final Gson gson;
-	private final DatarouterCountPublisherDao publisherDao;
-	private final CountBlobService countBlobService;
+	private final CountPublisher countPublisher;
 	private final Queue<Map<Long,Map<String,Long>>> flushQueue;
 	private final DatarouterCountFlushSchedulerExecutor flushScheduler;
 	private final DatarouterCountSettingRoot settings;
 
-	private CountFlusher(String serviceName, String serverName, Gson gson, DatarouterCountPublisherDao publisherDao,
-			CountBlobService countBlobService, DatarouterCountFlushSchedulerExecutor flushScheduler,
-			DatarouterCountSettingRoot settings){
+	private CountFlusher(String serviceName, String serverName, CountPublisher countPublisher,
+			DatarouterCountFlushSchedulerExecutor flushScheduler, DatarouterCountSettingRoot settings){
 		this.serviceName = serviceName;
 		this.serverName = serverName;
-		this.gson = gson;
-		this.publisherDao = publisherDao;
-		this.countBlobService = countBlobService;
+		this.countPublisher = countPublisher;
 		this.flushQueue = new ArrayBlockingQueue<>(60);//careful, size() must iterate every element
 		this.flushScheduler = flushScheduler;
 		this.settings = settings;
@@ -73,8 +62,7 @@ public class CountFlusher{
 
 	private void flush(){
 		try{
-			SaveConfig saveConfig = new SaveConfig();
-			if(!saveConfig.saveCounts && !saveConfig.saveBlobs){
+			if(!settings.saveCountBlobs.get()){
 				flushQueue.clear();
 				return;
 			}
@@ -91,20 +79,8 @@ public class CountFlusher{
 								logger.warn("found empty maps for timestamps={}", String.join(",", emptyTimestamps));
 							}
 						});
-				var dto = new CountBatchDto(RandomTool.nextPositiveLong(), serviceName, serverName, counts);
-				var json = gson.toJson(dto);
-				var message = new ConveyorMessage(UlidTool.nextUlid(), json);
-				logCountsSpec(counts, json);
-				var dtoForBlobs = new CountBatchDto(null, serviceName, serverName, counts);
-				if(saveConfig.saveCounts){
-					publisherDao.put(message);
-				}
-				if(saveConfig.saveBlobs){
-					if(saveConfig.logOverrideCountsWithBlobs){
-						logger.info("skipping save. saving only to blobs instead");
-					}
-					countBlobService.add(dtoForBlobs);
-				}
+				logCountsSpec(counts);
+				countPublisher.add(new CountBatchDto(null, serviceName, serverName, counts));
 				flushQueue.poll();
 			}
 		}catch(Throwable e){
@@ -112,39 +88,18 @@ public class CountFlusher{
 		}
 	}
 
-	private static void logCountsSpec(Map<Long,Map<String,Long>> counts, String countsJson){
+	private static void logCountsSpec(Map<Long,Map<String,Long>> counts){
 		int names = Scanner.of(counts.values())
 				.map(Map::size)
 				.reduce(0, Integer::sum);
-		logger.info("counts buckets={}, names={}, jsonLength={}", counts.size(), names, countsJson.length());
-	}
-
-	private class SaveConfig{
-
-		public final boolean saveCounts;
-		public final boolean saveBlobs;
-		public final boolean logOverrideCountsWithBlobs;
-
-		public SaveConfig(){
-			boolean saveCountsSetting = settings.saveCounts.get();
-			this.saveBlobs = settings.saveCountBlobs.get();
-			this.logOverrideCountsWithBlobs = saveCountsSetting
-					&& saveBlobs
-					&& settings.skipSaveCountsWhenSaveCountBlobsIsTrue.get();
-			this.saveCounts = saveCountsSetting && !logOverrideCountsWithBlobs;
-		}
-
+		logger.info("counts buckets={}, names={}", counts.size(), names);
 	}
 
 	@Singleton
 	public static class CountFlusherFactory{
 
 		@Inject
-		private Gson gson;
-		@Inject
-		private CountBlobService countBlobService;
-		@Inject
-		private DatarouterCountPublisherDao publisherDao;
+		private CountPublisher countPublisher;
 		@Inject
 		private DatarouterCountFlushSchedulerExecutor flushScheduler;
 		@Inject
@@ -154,9 +109,7 @@ public class CountFlusher{
 			return new CountFlusher(
 					serviceName,
 					serverName,
-					gson,
-					publisherDao,
-					countBlobService,
+					countPublisher,
 					flushScheduler,
 					settings);
 		}

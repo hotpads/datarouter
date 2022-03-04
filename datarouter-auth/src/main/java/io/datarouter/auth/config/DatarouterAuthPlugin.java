@@ -114,6 +114,8 @@ public class DatarouterAuthPlugin extends BaseWebPlugin{
 
 		addAppListener(DatarouterAccountConfigAppListener.class);
 		addDatarouterNavBarItem(DatarouterNavBarCategory.KEYS, PATHS.admin.accounts, "Account Manager");
+		addDatarouterNavBarItem(DatarouterNavBarCategory.KEYS, PATHS.admin.renameAccounts, "Account Renamer");
+
 		addAppNavBarItem(AppNavBarCategory.ADMIN, PATHS.userDeprovisioning, "User Deprovisioning");
 		addDynamicNavBarItem(ApiDocsNavBarItem.class);
 		addRouteSet(DatarouterAccountApiRouteSet.class);

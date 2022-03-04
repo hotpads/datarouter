@@ -15,23 +15,15 @@
  */
 package io.datarouter.aws.sqs;
 
-import java.util.Collection;
 import java.util.List;
 
-import io.datarouter.model.exception.DataAccessException;
+import io.datarouter.storage.exception.DataTooLargeException;
 
 @SuppressWarnings("serial")
-public class SqsDataTooLargeException extends DataAccessException{
-
-	private Collection<String> rejectedDatabeans;
+public class SqsDataTooLargeException extends DataTooLargeException{
 
 	public SqsDataTooLargeException(List<String> rejectedDatabeans){
-		super("Some databeans were too large for SQS: " + rejectedDatabeans);
-		this.rejectedDatabeans = rejectedDatabeans;
-	}
-
-	public Collection<String> getRejectedDatabeans(){
-		return rejectedDatabeans;
+		super("SQS", rejectedDatabeans);
 	}
 
 }

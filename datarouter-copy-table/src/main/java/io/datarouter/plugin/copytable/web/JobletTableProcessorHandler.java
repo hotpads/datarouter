@@ -37,6 +37,7 @@ import io.datarouter.plugin.copytable.tableprocessor.TableProcessorJoblet;
 import io.datarouter.plugin.copytable.tableprocessor.TableProcessorJoblet.TableProcessorJobletParams;
 import io.datarouter.plugin.copytable.tableprocessor.TableProcessorRegistry;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.node.op.raw.SortedStorage.PhysicalSortedStorageNode;
 import io.datarouter.storage.util.PrimaryKeyPercentCodecTool;
@@ -54,11 +55,11 @@ public class JobletTableProcessorHandler extends BaseHandler{
 
 	private static final String
 			P_nodeName = "nodeName",
+			P_scanBatchSize = "scanBatchSize",
 			P_processorName = "processorName",
-			P_putBatchSize = "putBatchSize",
 			P_submitAction = "submitAction";
 
-	private static final int DEFAULT_BATCH_SIZE = 1_000;
+	private static final int DEFAULT_SCAN_BATCH_SIZE = Config.DEFAULT_RESPONSE_BATCH_SIZE;
 
 	@Inject
 	private DatarouterNodes nodes;
@@ -78,18 +79,17 @@ public class JobletTableProcessorHandler extends BaseHandler{
 			D extends Databean<PK,D>>
 	Mav defaultHandler(
 			@Param(P_nodeName) OptionalString nodeName,
+			@Param(P_scanBatchSize) OptionalString scanBatchSize,
 			@Param(P_processorName) OptionalString processorName,
-			@Param(P_putBatchSize) OptionalString putBatchSize,
 			@Param(P_submitAction) OptionalString submitAction){
-		String errorPutBatchSize = null;
-
+		String errorScanBatchSize = null;
 		if(submitAction.isPresent()){
 			try{
-				if(putBatchSize.map(StringTool::nullIfEmpty).isPresent()){
-					Integer.valueOf(putBatchSize.get());
+				if(scanBatchSize.map(StringTool::nullIfEmpty).isPresent()){
+					Integer.valueOf(scanBatchSize.get());
 				}
 			}catch(Exception e){
-				errorPutBatchSize = "Please specify an integer";
+				errorScanBatchSize = "Please specify an integer";
 			}
 		}
 
@@ -110,16 +110,16 @@ public class JobletTableProcessorHandler extends BaseHandler{
 				.withDisplay("Node Name")
 				.withName(P_nodeName)
 				.withValues(possibleNodes);
+		form.addTextField()
+				.withDisplay("Scan Batch Size")
+				.withError(errorScanBatchSize)
+				.withName(P_scanBatchSize)
+				.withPlaceholder(DEFAULT_SCAN_BATCH_SIZE + "")
+				.withValue(scanBatchSize.orElse(null));
 		form.addSelectField()
 				.withDisplay("Processor Name")
 				.withName(P_processorName)
 				.withValues(possibleProcessors);
-		form.addTextField()
-				.withDisplay("Batch Size")
-				.withError(errorPutBatchSize)
-				.withName(P_putBatchSize)
-				.withPlaceholder(DEFAULT_BATCH_SIZE + "")
-				.withValue(putBatchSize.orElse(null));
 		form.addButton()
 				.withDisplay("Create Joblets")
 				.withValue("anything");
@@ -140,11 +140,11 @@ public class JobletTableProcessorHandler extends BaseHandler{
 		List<JobletPackage> jobletPackages = new ArrayList<>();
 		long totalItemsProcessed = 1;
 		long counter = 1;
-		int batchSize = putBatchSize
+		int actualScanBatchSize = scanBatchSize
 				.map(StringTool::nullIfEmpty)
 				.map(Integer::valueOf)
-				.orElse(DEFAULT_BATCH_SIZE);
-		long numJoblets = samples.size();
+				.orElse(DEFAULT_SCAN_BATCH_SIZE);
+		long numJoblets = 0;
 		for(TableSample sample : samples){
 			PK fromKeyExclusive = TableSamplerTool.extractPrimaryKeyFromSampleKey(sourceNode, previousSampleKey);
 			PK toKeyInclusive = TableSamplerTool.extractPrimaryKeyFromSampleKey(sourceNode, sample.getKey());
@@ -153,12 +153,13 @@ public class JobletTableProcessorHandler extends BaseHandler{
 					nodeName.get(),
 					fromKeyExclusive,
 					toKeyInclusive,
+					actualScanBatchSize,
 					processorName.get(),
-					batchSize,
 					sample.getNumRows(),
 					counter,
 					numJoblets);
-				jobletPackages.add(jobletPackage);
+			jobletPackages.add(jobletPackage);
+			++numJoblets;
 			counter++;
 			totalItemsProcessed++;
 			previousSampleKey = sample.getKey();
@@ -171,11 +172,12 @@ public class JobletTableProcessorHandler extends BaseHandler{
 				nodeName.get(),
 				fromKeyExclusive,
 				null, //open-ended
+				actualScanBatchSize,
 				processorName.get(),
-				batchSize,
 				1, //we have no idea about the true estNumDatabeans
 				counter,
 				numJoblets);
+		++numJoblets;
 		jobletPackages.add(jobletPackage);
 		totalItemsProcessed++;
 		counter++; //  jobletPackage.size() == counter == numJoblets
@@ -197,8 +199,8 @@ public class JobletTableProcessorHandler extends BaseHandler{
 			String sourceNodeName,
 			PK fromKeyExclusive,
 			PK toKeyInclusive,
+			int scanBatchSize,
 			String processorName,
-			int putBatchSize,
 			long estNumDatabeans,
 			long jobletId,
 			long numJoblets){
@@ -206,8 +208,8 @@ public class JobletTableProcessorHandler extends BaseHandler{
 				sourceNodeName,
 				fromKeyExclusive == null ? null : PrimaryKeyPercentCodecTool.encode(fromKeyExclusive),
 				toKeyInclusive == null ? null : PrimaryKeyPercentCodecTool.encode(toKeyInclusive),
+				scanBatchSize,
 				processorName,
-				putBatchSize,
 				estNumDatabeans,
 				jobletId,
 				numJoblets);

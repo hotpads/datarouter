@@ -70,7 +70,7 @@ public class MysqlGetOpExecutor{
 		boolean disableIntroducer = databeanFieldInfo.getDisableIntroducer();
 		List<T> result = new ArrayList<>(keys.size());
 		for(List<? extends FieldSet<?>> keyBatch : Scanner.of(dedupedSortedKeys)
-				.batch(config.findInputBatchSize().orElse(BATCH_SIZE))
+				.batch(config.findRequestBatchSize().orElse(BATCH_SIZE))
 				.iterable()){
 			PreparedStatement ps = mysqlSqlFactory
 					.createSql(databeanFieldInfo.getClientId(), tableName, disableIntroducer)

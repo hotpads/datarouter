@@ -57,6 +57,10 @@ public class DatarouterUserAccountMapKey extends BaseRegularPrimaryKey<Dataroute
 		return new DatarouterAccountKey(accountName);
 	}
 
+	public Long getUserId(){
+		return userId;
+	}
+
 	public String getAccountName(){
 		return accountName;
 	}

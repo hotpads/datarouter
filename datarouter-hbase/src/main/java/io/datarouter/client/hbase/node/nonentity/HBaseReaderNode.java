@@ -144,7 +144,7 @@ implements MapStorageReader<PK,D>, SortedStorageReader<PK,D>{
 				.map(queryBuilder::getPkBytesWithPartition)
 				.map(Get::new)
 				.each(get -> configureKeyOnlyFilter(get, keysOnly))
-				.batch(config.findInputBatchSize().orElse(100))
+				.batch(config.findRequestBatchSize().orElse(100))
 				.map(gets -> {
 					try(Table table = getTable()){
 						return HBaseTableTool.getUnchecked(table, gets);
@@ -204,7 +204,7 @@ implements MapStorageReader<PK,D>, SortedStorageReader<PK,D>{
 		Range<Bytes> byteRange = range.map(queryBuilder::getPkByteRange);
 		int offset = config.findOffset().orElse(0);
 		Integer subscanLimit = config.findLimit().map(limit -> offset + limit).orElse(null);
-		int pageSize = config.findOutputBatchSize().orElse(DEFAULT_SCAN_BATCH_SIZE);
+		int pageSize = config.findResponseBatchSize().orElse(DEFAULT_SCAN_BATCH_SIZE);
 		boolean prefetch = config.findScannerPrefetching().orElse(true);
 		boolean cacheBlocks = config.findScannerCaching().orElse(true);
 		Scanner<Result> collatedPartitions = partitioner.scanPrefixes(range)
@@ -261,22 +261,23 @@ implements MapStorageReader<PK,D>, SortedStorageReader<PK,D>{
 		}
 
 		@Override
-		protected Bytes nextParam(Result lastSeenItem){
+		protected Optional<Bytes> nextParam(Result lastSeenItem){
 			if(lastSeenItem == null){
-				return null;
+				return Optional.empty();
 			}
 			byte[] rowWithoutPrefix = resultParser.rowWithoutPrefix(lastSeenItem.getRow());
-			return new Bytes(rowWithoutPrefix);
+			Bytes bytes = new Bytes(rowWithoutPrefix);
+			return Optional.of(bytes);
 		}
 
 		@Override
-		protected List<Result> nextPage(Bytes resumeFrom){
+		protected List<Result> nextPage(Optional<Bytes> resumeFrom){
 			Require.isFalse(closed, "don't call me, i'm closed");
 			if(limit.isPresent() && numFetched >= limit.get()){
 				return List.of();
 			}
-			if(resumeFrom != null){
-				mutableRange.setStart(resumeFrom);
+			if(resumeFrom.isPresent()){
+				mutableRange.setStart(resumeFrom.get());
 				mutableRange.setStartInclusive(false);
 			}
 			int pageLimit = pageSize;

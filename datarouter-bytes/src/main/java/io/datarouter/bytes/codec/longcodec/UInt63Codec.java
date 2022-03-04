@@ -18,6 +18,7 @@ package io.datarouter.bytes.codec.longcodec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Deprecated//use ComparableLongCodec or RawLongCodec
 public class UInt63Codec{
 	private static final Logger logger = LoggerFactory.getLogger(UInt63Codec.class);
 

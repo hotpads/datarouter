@@ -25,7 +25,7 @@ import io.datarouter.storage.file.PathbeanKey;
 import io.datarouter.storage.util.Subpath;
 
 @Singleton
-public class CountBlobDao{
+public class CountBlobDirectoryDao{
 
 	@Inject
 	private CountBlobDirectorySupplier directory;
