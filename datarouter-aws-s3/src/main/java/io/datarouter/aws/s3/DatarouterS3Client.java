@@ -72,6 +72,9 @@ public interface DatarouterS3Client{
 	void putObjectAsBytes(String bucket, String key, ContentType contentType, String cacheControl, ObjectCannedACL acl,
 			byte[] bytes);
 
+	void putObjectAsBytesWithExpirationTime(String bucket, String key, ContentType contentType, String cacheControl,
+			ObjectCannedACL acl, byte[] bytes, Instant expirationTime);
+
 	void putPublicObject(String bucket, String key, ContentType contentType, Path path);
 
 	void putObject(String bucket, String key, ContentType contentType, Path path);

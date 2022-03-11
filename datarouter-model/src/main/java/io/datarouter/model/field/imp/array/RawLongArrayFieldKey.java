@@ -13,22 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.instrumentation.count;
+package io.datarouter.model.field.imp.array;
 
-import java.util.Map;
+import java.util.List;
 
-public class CountBatchDto{
+import com.google.gson.reflect.TypeToken;
 
-	public final Long id;
-	public final String serviceName;
-	public final String serverName;
-	public final Map<Long,Map<String,Long>> counts;
+import io.datarouter.model.field.ListFieldKey;
 
-	public CountBatchDto(Long id, String serviceName, String serverName, Map<Long,Map<String,Long>> counts){
-		this.id = id;
-		this.serviceName = serviceName;
-		this.serverName = serverName;
-		this.counts = counts;
+@Deprecated//Use ByteArrayFieldKey
+public class RawLongArrayFieldKey extends ListFieldKey<Long,List<Long>,RawLongArrayFieldKey>{
+
+	public RawLongArrayFieldKey(String name){
+		super(name, new TypeToken<List<Long>>(){});
+	}
+
+	@Override
+	public RawLongArrayField createValueField(List<Long> value){
+		return new RawLongArrayField(this, value);
+	}
+
+	@Override
+	public boolean isFixedLength(){
+		return false;
 	}
 
 }

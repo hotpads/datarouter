@@ -15,7 +15,8 @@
  */
 package io.datarouter.model.field;
 
-import io.datarouter.model.field.encoding.ByteEncodedField;
+import io.datarouter.model.field.encoding.BinaryKeyField;
+import io.datarouter.model.field.encoding.BinaryValueField;
 import io.datarouter.model.field.encoding.StringEncodedField;
 
 /**
@@ -29,7 +30,8 @@ import io.datarouter.model.field.encoding.StringEncodedField;
 public interface Field<T>
 extends Comparable<Field<T>>,
 		StringEncodedField<T>,
-		ByteEncodedField<T>{
+		BinaryKeyField<T>,
+		BinaryValueField<T>{
 
 	FieldKey<T> getKey();
 

@@ -56,8 +56,12 @@ public class Trace2ForLocalSqsDrainConveyor extends BaseTrace2SqsDrainConveyor{
 			if(dto.traceDto != null){
 				traces.add(new Trace2(Trace2.DEFAULT_ACCOUNT_NAME, dto.traceDto));
 			}
-			List<Trace2Thread> threads = Scanner.of(dto.traceThreadDtos).map(Trace2Thread::new).list();
-			List<Trace2Span> spans = Scanner.of(dto.traceSpanDtos).map(Trace2Span::new).list();
+			List<Trace2Thread> threads = Scanner.of(dto.traceThreadDtos)
+					.map(Trace2Thread::new)
+					.list();
+			List<Trace2Span> spans = Scanner.of(dto.traceSpanDtos)
+					.map(Trace2Span::new)
+					.list();
 			traceDao.putMultiTraceBundles(threads, spans, traces);
 		}
 	}

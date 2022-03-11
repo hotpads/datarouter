@@ -13,29 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.model.field.imp.array;
+package io.datarouter.metric.counter.collection;
 
-import java.util.List;
+import java.util.Map;
 
-import com.google.gson.reflect.TypeToken;
+import io.datarouter.instrumentation.response.PublishingResponseDto;
 
-import io.datarouter.model.field.ListFieldKey;
+public interface CountPublisher{
 
-@Deprecated//Use ByteArrayFieldKey
-public class UInt63ArrayFieldKey extends ListFieldKey<Long,List<Long>,UInt63ArrayFieldKey>{
+	PublishingResponseDto add(Map<Long,Map<String,Long>> counts);
 
-	public UInt63ArrayFieldKey(String name){
-		super(name, new TypeToken<List<Long>>(){});
-	}
+	public static class NoOpCountPublisher implements CountPublisher{
 
-	@Override
-	public UInt63ArrayField createValueField(List<Long> value){
-		return new UInt63ArrayField(this, value);
-	}
+		@Override
+		public PublishingResponseDto add(Map<Long,Map<String,Long>> counts){
+			return PublishingResponseDto.NO_OP;
+		}
 
-	@Override
-	public boolean isFixedLength(){
-		return false;
 	}
 
 }

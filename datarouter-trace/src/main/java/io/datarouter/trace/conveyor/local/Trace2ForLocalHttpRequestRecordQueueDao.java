@@ -37,8 +37,10 @@ public class Trace2ForLocalHttpRequestRecordQueueDao extends BaseTrace2HttpReque
 	}
 
 	@Inject
-	public Trace2ForLocalHttpRequestRecordQueueDao(Datarouter datarouter,
-			Trace2ForLocalHttpRequestRecordQueueDaoParams params, QueueNodeFactory queueNodeFactory){
+	public Trace2ForLocalHttpRequestRecordQueueDao(
+			Datarouter datarouter,
+			Trace2ForLocalHttpRequestRecordQueueDaoParams params,
+			QueueNodeFactory queueNodeFactory){
 		super("TraceLocalHttpRequestRecord", datarouter, params, queueNodeFactory);
 	}
 

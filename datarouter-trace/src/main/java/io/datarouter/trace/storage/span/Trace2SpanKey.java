@@ -42,7 +42,6 @@ extends BaseEntityPrimaryKey<Trace2EntityKey,Trace2SpanKey>{
 		public static final IntegerFieldKey sequence = new IntegerFieldKey("sequence");
 	}
 
-
 	public Trace2SpanKey(){
 		this.entityKey = new Trace2EntityKey();
 	}

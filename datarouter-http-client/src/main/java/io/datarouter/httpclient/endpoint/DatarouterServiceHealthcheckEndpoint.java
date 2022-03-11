@@ -17,7 +17,6 @@ package io.datarouter.httpclient.endpoint;
 
 import io.datarouter.httpclient.DatarouterServicePaths;
 import io.datarouter.httpclient.endpoint.EndpointType.NoOpEndpointType;
-import io.datarouter.httpclient.request.HttpRequestMethod;
 import io.datarouter.pathnode.PathNode;
 
 public class DatarouterServiceHealthcheckEndpoint extends BaseEndpoint<Object,NoOpEndpointType>{
@@ -25,7 +24,7 @@ public class DatarouterServiceHealthcheckEndpoint extends BaseEndpoint<Object,No
 	private static final PathNode PATH = new DatarouterServicePaths().datarouter.healthcheck;
 
 	private DatarouterServiceHealthcheckEndpoint(){
-		super(HttpRequestMethod.GET, PATH, false, true, true);
+		super(GET, PATH, false, true, true);
 	}
 
 	public static DatarouterServiceHealthcheckEndpoint getEndpoint(){

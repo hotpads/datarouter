@@ -38,8 +38,12 @@ public interface TraceUrlBuilder{
 
 		@Override
 		public String buildTraceForCurrentServer(String traceId, String parentId){
-			return "https://" + settings.traceDomain.get() + servletContext.get().getContextPath()
-					+ paths.datarouter.traces.toSlashedString() + "?traceId=" + traceId + "&parentId=" + parentId;
+			return "https://"
+					+ settings.traceDomain.get()
+					+ servletContext.get().getContextPath()
+					+ paths.datarouter.traces.toSlashedString()
+					+ "?traceId=" + traceId
+					+ "&parentId=" + parentId;
 		}
 
 	}

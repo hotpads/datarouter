@@ -16,13 +16,18 @@
 package io.datarouter.bytes;
 
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 public class LongArrayTests{
+
+	@Test
+	public void testNulls(){
+		var list = new LongArray();
+		Assert.assertThrows(NullPointerException.class, () -> list.add(null));
+	}
 
 	@Test
 	public void testBasics(){
@@ -79,23 +84,6 @@ public class LongArrayTests{
 		Assert.assertEquals(list.get(0).longValue(), 7L);
 		Assert.assertEquals(list.get(1).longValue(), 55L);
 		Assert.assertEquals(list.get(2).longValue(), 57L);
-
-		// nulls
-		List<Long> nullableList = new LinkedList<>();
-		var primitiveList = new LongArray();
-		nullableList.add(-7L);
-		primitiveList.add(-7L);
-		nullableList.add(null);
-		primitiveList.add(null);
-		nullableList.add(-8L);
-		primitiveList.add(-8L);
-		nullableList.add(null);
-		primitiveList.add(null);
-		nullableList.add(Long.MAX_VALUE);
-		primitiveList.add(Long.MAX_VALUE);
-		Assert.assertEquals(nullableList.size(), 5);
-		Assert.assertEquals(primitiveList.size(), 5);
-		Assert.assertNull(primitiveList.get(1));
 	}
 
 	@Test

@@ -32,7 +32,8 @@ public class Trace2ForPublisherHttpRequestRecordSqsDrainConveyor extends BaseTra
 
 	private final ExceptionRecordPublisher publisher;
 
-	public Trace2ForPublisherHttpRequestRecordSqsDrainConveyor(String name,
+	public Trace2ForPublisherHttpRequestRecordSqsDrainConveyor(
+			String name,
 			Supplier<Boolean> shouldRun,
 			GroupQueueConsumer<ConveyorMessageKey,ConveyorMessage> groupQueueConsumer,
 			Gson gson,

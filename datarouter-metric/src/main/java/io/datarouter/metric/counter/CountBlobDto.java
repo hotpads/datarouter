@@ -31,11 +31,6 @@ import io.datarouter.util.tuple.Pair;
 public class CountBlobDto{
 
 	private static final String
-			VERSION = "version",
-			ULID = "ulid",
-			SERVICE_NAME = "serviceName",
-			SERVER_NAME = "serverName",
-			API_KEY = "apiKey",
 			V1 = "v1";
 
 	public final String version;
@@ -107,21 +102,13 @@ public class CountBlobDto{
 				counts);
 	}
 
-	public Map<String,String> getSignatureMap(){
-		return Map.of(
-				VERSION, version,
-				ULID, ulid,
-				SERVICE_NAME, serviceName,
-				SERVER_NAME, serverName,
-				API_KEY, apiKey);
-	}
-
 	private Scanner<String> serializeCounts(int sizeLimit){
 		CountsSplittingStringBuilders builder = new CountsSplittingStringBuilders(sizeLimit);
 		Scanner.of(counts.keySet())
 				.exclude(period -> counts.get(period).isEmpty())
 				.forEach(period -> {
 					Scanner.of(counts.get(period).entrySet())
+							.exclude(entry -> entry.getValue() == null)
 							.forEach(countEntry -> builder.append(
 									String.valueOf(period),
 									countEntry.getKey(),
@@ -167,6 +154,9 @@ public class CountBlobDto{
 		//final format for each period: <timestamp>\t<name>\t<sum>[\t<name>\t<sum>...]
 		//but this format can be split across multiple builders if necessary. each builder will go into a separate blob.
 		public void append(String timestamp, String name, String sum){
+			Require.notBlank(timestamp);
+			Require.notBlank(name);
+			Require.notBlank(sum);
 			int countLength = getCountLength(name, sum);
 			//first count to be appended after initialization
 			if(currentTimestamp == null){

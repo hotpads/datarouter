@@ -16,21 +16,20 @@
 package io.datarouter.bytes.codec.array.longarray;
 
 import io.datarouter.bytes.EmptyArray;
-import io.datarouter.bytes.codec.longcodec.UInt63Codec;
+import io.datarouter.bytes.codec.longcodec.RawLongCodec;
 
-@Deprecated//use ComparableLongArrayCodec or custom codec
-public class UInt63ArrayCodec{
+public class RawLongArrayCodec{
 
-	public static final UInt63ArrayCodec INSTANCE = new UInt63ArrayCodec();
+	public static final RawLongArrayCodec INSTANCE = new RawLongArrayCodec();
 
-	private static final UInt63Codec U_INT_63_CODEC = UInt63Codec.INSTANCE;
-	private static final int LENGTH = U_INT_63_CODEC.length();
+	private static final RawLongCodec RAW_LONG_CODEC = RawLongCodec.INSTANCE;
+	private static final int ITEM_LENGTH = RAW_LONG_CODEC.length();
 
 	public byte[] encode(long[] values){
 		if(values.length == 0){
 			return EmptyArray.BYTE;
 		}
-		var bytes = new byte[LENGTH * values.length];
+		var bytes = new byte[ITEM_LENGTH * values.length];
 		encode(values, bytes, 0);
 		return bytes;
 	}
@@ -38,10 +37,10 @@ public class UInt63ArrayCodec{
 	public int encode(long[] values, byte[] bytes, int offset){
 		int cursor = offset;
 		for(int i = 0; i < values.length; ++i){
-			U_INT_63_CODEC.encode(values[i], bytes, cursor);
-			cursor += LENGTH;
+			RAW_LONG_CODEC.encode(values[i], bytes, cursor);
+			cursor += ITEM_LENGTH;
 		}
-		return values.length * LENGTH;
+		return values.length * ITEM_LENGTH;
 	}
 
 	public long[] decode(byte[] bytes){
@@ -55,15 +54,15 @@ public class UInt63ArrayCodec{
 		if(bytesLength == 0){
 			return EmptyArray.LONG;
 		}
-		if(bytesLength % LENGTH != 0){
-			throw new IllegalArgumentException("bytesLength must be multiple of " + LENGTH);
+		if(bytesLength % ITEM_LENGTH != 0){
+			throw new IllegalArgumentException("bytesLength must be multiple of " + ITEM_LENGTH);
 		}
-		int resultLength = bytesLength / LENGTH;
+		int resultLength = bytesLength / ITEM_LENGTH;
 		var result = new long[resultLength];
 		int cursor = offset;
 		for(int i = 0; i < resultLength; ++i){
-			result[i] = U_INT_63_CODEC.decode(bytes, cursor);
-			cursor += LENGTH;
+			result[i] = RAW_LONG_CODEC.decode(bytes, cursor);
+			cursor += ITEM_LENGTH;
 		}
 		return result;
 	}

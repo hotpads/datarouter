@@ -33,7 +33,6 @@ import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.config.ConfigValue;
-import io.datarouter.storage.config.Configs;
 import io.datarouter.storage.config.PutMethod;
 import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.BaseRedundantDaoParams;
@@ -118,7 +117,7 @@ public class DatarouterJobletRequestDao extends BaseDao{
 	}
 
 	public Scanner<JobletRequest> scanAnyDelay(){
-		return node.scan(Configs.anyDelay());
+		return node.scan(new Config().anyDelay());
 	}
 
 	public Scanner<JobletRequestKey> scanKeysWithPrefix(JobletRequestKey prefix){
@@ -261,7 +260,7 @@ public class DatarouterJobletRequestDao extends BaseDao{
 	}
 
 	public void putMultiOrBust(Collection<JobletRequest> databeans){
-		node.putMulti(databeans, Configs.insertOrBust());
+		node.putMulti(databeans, new Config().setPutMethod(PutMethod.INSERT_OR_BUST));
 	}
 
 	public void updateOrBust(JobletRequest databean){

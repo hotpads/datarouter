@@ -324,6 +324,22 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 	}
 
 	@Override
+	public void putObjectAsBytesWithExpirationTime(String bucket, String key, ContentType contentType,
+			String cacheControl, ObjectCannedACL acl, byte[] bytes, Instant expirationTime){
+		S3Client s3Client = getS3ClientForBucket(bucket);
+		PutObjectRequest request = makePutObjectRequestBuilder(bucket, key, contentType)
+				.cacheControl(cacheControl)
+				.acl(acl)
+				.expires(expirationTime)
+				.build();
+		RequestBody requestBody = RequestBody.fromBytes(bytes);
+		try(var $ = TracerTool.startSpan("S3 putObject", TraceSpanGroupType.CLOUD_STORAGE)){
+			s3Client.putObject(request, requestBody);
+			TracerTool.appendToSpanInfo("Content-Length", request.contentLength());
+		}
+	}
+
+	@Override
 	public void putPublicObject(String bucket, String key, ContentType contentType, Path path){
 		putObjectWithAcl(bucket, key, contentType, path, ObjectCannedACL.PUBLIC_READ);
 	}

@@ -32,7 +32,8 @@ public class Trace2ForPublisherSqsDrainConveyor extends BaseTrace2SqsDrainConvey
 
 	private final TracePublisher tracePublisher;
 
-	public Trace2ForPublisherSqsDrainConveyor(String name,
+	public Trace2ForPublisherSqsDrainConveyor(
+			String name,
 			Supplier<Boolean> shouldRun,
 			GroupQueueConsumer<ConveyorMessageKey,ConveyorMessage> groupQueueConsumer,
 			Gson gson,

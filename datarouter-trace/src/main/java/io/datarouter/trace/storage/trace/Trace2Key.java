@@ -34,7 +34,6 @@ extends BaseEntityPrimaryKey<Trace2EntityKey,Trace2Key>{
 		public static final StringFieldKey parentId = new StringFieldKey("parentId");
 	}
 
-
 	public Trace2Key(){
 		this.entityKey = new Trace2EntityKey();
 	}
@@ -64,7 +63,8 @@ extends BaseEntityPrimaryKey<Trace2EntityKey,Trace2Key>{
 
 	@Override
 	public List<Field<?>> getPostEntityKeyFields(){
-		return List.of(new StringField(FieldKeys.parentId, parentId));
+		return List.of(
+				new StringField(FieldKeys.parentId, parentId));
 	}
 
 	public String getParentId(){

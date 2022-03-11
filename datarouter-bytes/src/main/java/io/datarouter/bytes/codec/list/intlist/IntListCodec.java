@@ -16,42 +16,56 @@
 package io.datarouter.bytes.codec.list.intlist;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import io.datarouter.bytes.codec.intcodec.NullableComparableIntCodec;
+import io.datarouter.bytes.EmptyArray;
+import io.datarouter.bytes.codec.intcodec.ComparableIntCodec;
 
 public class IntListCodec{
-	private static final Logger logger = LoggerFactory.getLogger(IntListCodec.class);
 
 	public static final IntListCodec INSTANCE = new IntListCodec();
 
-	private static final NullableComparableIntCodec NULLABLE_COMPARABLE_INT_CODEC = NullableComparableIntCodec.INSTANCE;
-	private static final int ITEM_LENGTH = NULLABLE_COMPARABLE_INT_CODEC.length();
+	private static final ComparableIntCodec COMPARABLE_INT_CODEC = ComparableIntCodec.INSTANCE;
+	private static final int ITEM_LENGTH = COMPARABLE_INT_CODEC.length();
 
 	public byte[] encode(List<Integer> values){
-		var out = new byte[ITEM_LENGTH * values.size()];
-		for(int i = 0; i < values.size(); ++i){
-			byte[] bytesNullable = NULLABLE_COMPARABLE_INT_CODEC.encode(values.get(i));
-			logger.debug(Arrays.toString(bytesNullable)); // fix java 9 jit
-			System.arraycopy(bytesNullable, 0, out, i * ITEM_LENGTH, ITEM_LENGTH);
+		if(values.size() == 0){
+			return EmptyArray.BYTE;
 		}
-		logger.info(Arrays.toString(out));
-		return out;
+		var bytes = new byte[ITEM_LENGTH * values.size()];
+		encode(values, bytes, 0);
+		return bytes;
 	}
 
-	public List<Integer> decode(byte[] bytes, int offset){
-		int numValues = (bytes.length - offset) / ITEM_LENGTH;
-		List<Integer> values = new ArrayList<>(numValues);
-		var arrayToCopy = new byte[ITEM_LENGTH];//TODO avoid intermediate array
-		for(int i = 0; i < numValues; i++){
-			System.arraycopy(bytes, i * ITEM_LENGTH + offset, arrayToCopy, 0, ITEM_LENGTH);
-			values.add(NULLABLE_COMPARABLE_INT_CODEC.decode(arrayToCopy, 0));
+	public int encode(List<Integer> values, byte[] bytes, int offset){
+		int cursor = offset;
+		for(int i = 0; i < values.size(); ++i){
+			COMPARABLE_INT_CODEC.encode(values.get(i), bytes, cursor);
+			cursor += ITEM_LENGTH;
 		}
-		return values;
+		return values.size() * ITEM_LENGTH;
+	}
+
+	public List<Integer> decode(byte[] bytes){
+		return decode(bytes, 0, bytes.length);
+	}
+
+	public List<Integer> decode(byte[] bytes, int offset, int bytesLength){
+		if(bytesLength == 0){
+			return new ArrayList<>(0);
+		}
+		if(bytesLength % ITEM_LENGTH != 0){
+			throw new IllegalArgumentException("bytesLength must be multiple of " + ITEM_LENGTH);
+		}
+		int resultLength = bytesLength / ITEM_LENGTH;
+		List<Integer> result = new ArrayList<>(resultLength);
+		int cursor = offset;
+		for(int i = 0; i < resultLength; ++i){
+			int value = COMPARABLE_INT_CODEC.decode(bytes, cursor);
+			cursor += ITEM_LENGTH;
+			result.add(value);
+		}
+		return result;
 	}
 
 }

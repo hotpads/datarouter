@@ -26,6 +26,7 @@ import javax.inject.Inject;
 import io.datarouter.aws.memcached.client.MemcachedClientMode;
 import io.datarouter.aws.memcached.client.options.AwsMemcachedOptions;
 import io.datarouter.client.memcached.web.MemcachedWebInspector;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.html.j2html.J2HtmlTable;
@@ -42,12 +43,12 @@ public class AwsMemcachedWebInspector extends MemcachedWebInspector{
 		MemcachedClientMode mode = options.getClientMode(clientId.getName());
 		Pair<Integer,ContainerTag<?>> nodeCountByNodeTag = new Pair<>();
 		if(mode == MemcachedClientMode.DYNAMIC){
-			List<AwsMemcachedNodeEndpointDto> nodeEndpointDtos = getClient(clientId).getAllNodeEndPoints().stream()
+			List<AwsMemcachedNodeEndpointDto> nodeEndpointDtos = Scanner.of(getClient(clientId).getAllNodeEndPoints())
 					.map(nodeEndPoint -> new AwsMemcachedNodeEndpointDto(
 							nodeEndPoint.getHostName(),
 							nodeEndPoint.getIpAddress(),
 							nodeEndPoint.getPort()))
-					.collect(Collectors.toList());
+					.list();
 			var table = new J2HtmlTable<AwsMemcachedNodeEndpointDto>()
 					.withClasses("sortable table table-sm table-striped my-4 border")
 					.withColumn("HostName", dto -> dto.hostName)

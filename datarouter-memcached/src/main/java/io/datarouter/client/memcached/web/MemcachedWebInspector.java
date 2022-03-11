@@ -41,6 +41,7 @@ import io.datarouter.client.memcached.client.spy.SpyMemcachedClient;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientOptions;
 import io.datarouter.storage.client.ClientType;
+import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.browse.DatarouterClientWebInspector;
 import io.datarouter.web.browse.dto.DatarouterWebRequestParamsFactory;
@@ -125,10 +126,18 @@ public class MemcachedWebInspector implements DatarouterClientWebInspector{
 		var tbody = TagCreator.tbody();
 		stats.entrySet().stream()
 				.sorted(Entry.comparingByKey())
-				.map(entry -> tr(th(entry.getKey()), td(entry.getValue())))
+				.map(entry -> tr(th(entry.getKey()), td(formatIfNumber(entry.getValue()))))
 				.forEach(tbody::with);
 		var table = table(tbody).withClass("table table-striped table-hover table-sm");
 		return div(h4(socketAddress + " Node Details"), table);
+	}
+
+	private static String formatIfNumber(String value){
+		try{
+			return NumberFormatter.addCommas(Double.valueOf(value));
+		}catch(Exception e){
+			return value;
+		}
 	}
 
 }

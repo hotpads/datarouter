@@ -15,6 +15,8 @@
  */
 package io.datarouter.metric.counter;
 
+import java.util.Map;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -22,11 +24,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.conveyor.message.ConveyorMessage;
-import io.datarouter.instrumentation.count.CountBatchDto;
-import io.datarouter.instrumentation.count.CountPublisher;
 import io.datarouter.instrumentation.response.PublishingResponseDto;
 import io.datarouter.metric.config.DatarouterCountSettingRoot;
+import io.datarouter.metric.counter.collection.CountPublisher;
+import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.util.UlidTool;
+import io.datarouter.web.config.service.ServiceName;
 
 @Singleton
 public class CountBlobService implements CountPublisher{
@@ -38,48 +41,41 @@ public class CountBlobService implements CountPublisher{
 	private final CountBlobQueueDao countBlobQueueDao;
 	private final DatarouterCountSettingRoot countSettings;
 	private final CountBlobPublishingSettings countBlobPublishingSettings;
+	private final ServiceName serviceName;
+	private final ServerName serverName;
 
 	@Inject
 	public CountBlobService(CountBlobDirectoryDao countBlobDao, CountBlobQueueDao countBlobQueueDao,
-			DatarouterCountSettingRoot countSettings, CountBlobPublishingSettings countBlobPublishingSettings){
+			DatarouterCountSettingRoot countSettings, CountBlobPublishingSettings countBlobPublishingSettings,
+			ServiceName serviceName, ServerName serverName){
 		this.countBlobDirectoryDao = countBlobDao;
 		this.countBlobQueueDao = countBlobQueueDao;
 		this.countSettings = countSettings;
 		this.countBlobPublishingSettings = countBlobPublishingSettings;
+		this.serviceName = serviceName;
+		this.serverName = serverName;
 	}
 
 	@Override
-	public PublishingResponseDto add(CountBatchDto dto){
-		var countBlobDto = toBlob(dto);
+	public PublishingResponseDto add(Map<Long,Map<String,Long>> counts){
+		CountBlobDto dto = new CountBlobDto(
+				UlidTool.nextUlid(),
+				serviceName.get(),
+				serverName.get(),
+				counts,
+				countBlobPublishingSettings.getApiKey());
 		if(countSettings.saveCountBlobsToQueueDaoInsteadOfDirectoryDao.get()){
-			countBlobDto.serializeToStrings(MAX_SERIALIZED_BLOB_SIZE)
-					.map(blob -> new ConveyorMessage(countBlobDto.ulid, blob))
+			dto.serializeToStrings(MAX_SERIALIZED_BLOB_SIZE)
+					.map(blob -> new ConveyorMessage(dto.ulid, blob))
 					.flush(blobs -> {
-						logger.info("writing size={} blobs with key={}", blobs.size(), countBlobDto.ulid);
+						logger.info("writing size={} blobs with key={}", blobs.size(), dto.ulid);
 						countBlobQueueDao.putMulti(blobs);
 					});
 		}else{
-			logger.info("writing key={}", countBlobDto.ulid);
-			countBlobDirectoryDao.write(countBlobDto);
+			logger.info("writing key={}", dto.ulid);
+			countBlobDirectoryDao.write(dto);
 		}
 		return PublishingResponseDto.SUCCESS;
-	}
-
-	private CountBlobDto toBlob(CountBatchDto dto){
-		return new CountBlobDto(
-				UlidTool.nextUlid(),
-				dto.serviceName,
-				dto.serverName,
-				dto.counts,
-				countBlobPublishingSettings.getApiKey());
-	}
-
-	public CountBatchDto fromBlob(CountBlobDto dto){
-		return new CountBatchDto(
-				UlidTool.getTimestamp(dto.ulid),
-				dto.serviceName,
-				dto.serverName,
-				dto.counts);
 	}
 
 }

@@ -15,7 +15,6 @@
  */
 package io.datarouter.bytes.codec.list.intlist;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.testng.Assert;
@@ -29,10 +28,10 @@ public class IntListCodecTests{
 	public void testToFromByteArray(){
 		int one = -239483;
 		int two = 583;
-		List<Integer> integers = Arrays.asList(one, null, two);
+		List<Integer> integers = List.of(one, two);
 
 		byte[] integerBytes = INT_LIST_CODEC.encode(integers);
-		List<Integer> result = INT_LIST_CODEC.decode(integerBytes, 0);
+		List<Integer> result = INT_LIST_CODEC.decode(integerBytes);
 		Assert.assertEquals(result, integers);
 	}
 

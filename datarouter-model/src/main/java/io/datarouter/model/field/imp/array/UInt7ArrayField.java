@@ -17,6 +17,10 @@ package io.datarouter.model.field.imp.array;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.datarouter.bytes.ByteTool;
 import io.datarouter.bytes.codec.intcodec.RawIntCodec;
@@ -28,8 +32,10 @@ import io.datarouter.util.collection.ListTool;
 
 @Deprecated//Use ByteArrayField
 public class UInt7ArrayField extends BaseListField<Byte,List<Byte>,UInt7ArrayFieldKey>{
+	private static final Logger logger = LoggerFactory.getLogger(UInt7ArrayField.class);
 
 	private static final RawIntCodec RAW_INT_CODEC = RawIntCodec.INSTANCE;
+	private static final AtomicBoolean UNCALLED_SEPARATOR_METHODS = new AtomicBoolean(true);
 
 	public UInt7ArrayField(UInt7ArrayFieldKey key, List<Byte> value){
 		super(key, value);
@@ -47,11 +53,17 @@ public class UInt7ArrayField extends BaseListField<Byte,List<Byte>,UInt7ArrayFie
 
 	@Override
 	public int numBytesWithSeparator(byte[] bytes, int byteOffset){
+		if(UNCALLED_SEPARATOR_METHODS.getAndSet(false)){
+			logger.warn("", new Exception());
+		}
 		return RAW_INT_CODEC.decode(bytes, byteOffset);
 	}
 
 	@Override
 	public List<Byte> fromBytesWithSeparatorButDoNotSet(byte[] bytes, int byteOffset){
+		if(UNCALLED_SEPARATOR_METHODS.getAndSet(false)){
+			logger.warn("", new Exception());
+		}
 		int numBytes = numBytesWithSeparator(bytes, byteOffset) - 4;
 		byte[] primitiveBytes = fromUInt7ByteArray(bytes, byteOffset + 4, numBytes);
 		return ByteTool.toBoxedBytes(primitiveBytes);
@@ -59,6 +71,9 @@ public class UInt7ArrayField extends BaseListField<Byte,List<Byte>,UInt7ArrayFie
 
 	@Override
 	public List<Byte> fromBytesButDoNotSet(byte[] bytes, int byteOffset){
+		if(UNCALLED_SEPARATOR_METHODS.getAndSet(false)){
+			logger.warn("", new Exception());
+		}
 		int numBytes = ArrayTool.length(bytes) - byteOffset;
 		byte[] primitiveBytes = fromUInt7ByteArray(bytes, byteOffset, numBytes);
 		return ByteTool.toBoxedBytes(primitiveBytes);

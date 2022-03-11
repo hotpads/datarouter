@@ -111,14 +111,17 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 			W3TraceContext traceContext = new W3TraceContext(traceparentStr, tracestateStr, traceCreated);
 			String initialParentId = traceContext.getTraceparent().parentId;
 			traceContext.updateParentIdAndAddTracestateMember();
-			RequestAttributeTool.set(request, BaseHandler.TRACE_URL_REQUEST_ATTRIBUTE, urlBuilder
-					.buildTraceForCurrentServer(traceContext.getTraceId(), traceContext.getParentId()));
+			RequestAttributeTool.set(
+					request,
+					BaseHandler.TRACE_URL_REQUEST_ATTRIBUTE,
+					urlBuilder.buildTraceForCurrentServer(traceContext.getTraceId(), traceContext.getParentId()));
 			RequestAttributeTool.set(request, BaseHandler.TRACE_CONTEXT, traceContext.copy());
 
 			// need to set the header before doFilter
 			// traceflag might be incorrect because it might have been modified during request processing
 			if(traceSettings.addTraceparentHeader.get()){
-				response.setHeader(DatarouterHttpClientIoExceptionCircuitBreaker.TRACEPARENT,
+				response.setHeader(
+						DatarouterHttpClientIoExceptionCircuitBreaker.TRACEPARENT,
 						traceContext.getTraceparent().toString());
 			}
 
@@ -149,7 +152,8 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 			}finally{
 				long ended = Trace2Dto.getCurrentTimeInNs();
 				Long cpuTimeEnded = saveCpuTime ? MxBeans.THREAD.getCurrentThreadCpuTime() : null;
-				Long threadAllocatedBytesEnded = saveAllocatedBytes ? MxBeans.THREAD.getThreadAllocatedBytes(threadId)
+				Long threadAllocatedBytesEnded = saveAllocatedBytes
+						? MxBeans.THREAD.getThreadAllocatedBytes(threadId)
 						: null;
 				Traceparent traceparent = tracer.getTraceContext().get().getTraceparent();
 				Trace2ThreadDto rootThread = null;
@@ -209,7 +213,8 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 							.orElse("unknown");
 					HttpRequestRecordDto httpRequestRecord = buildHttpRequestRecord(errored, request, traceCreated,
 							userToken, traceparent);
-					String destination = offerTrace2(new Trace2BundleDto(trace2, threads, spans),
+					String destination = offerTrace2(
+							new Trace2BundleDto(trace2, threads, spans),
 							httpRequestRecord);
 					logger.warn("Trace saved to={} traceparent={} initialParentId={} durationMs={}"
 							+ " cpuTimeMs={} threadAllocatedKB={} path={} query={} userAgent=\"{}\" userToken={}",
@@ -227,11 +232,17 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 						|| TracerTool.shouldLog()){
 					// only log once
 					logger.warn("Trace logged durationMs={} cpuTimeMs={} threadAllocatedKB={} path={}"
-							+ " query={}, traceparent={}", traceDurationMs, cpuTime, threadAllocatedKB, trace2.type,
-							trace2.params, traceparent);
+							+ " query={}, traceparent={}",
+							traceDurationMs,
+							cpuTime,
+							threadAllocatedKB,
+							trace2.type,
+							trace2.params,
+							traceparent);
 				}
-				Optional<Class<? extends BaseHandler>> handlerClassOpt = RequestAttributeTool
-						.get(request, BaseHandler.HANDLER_CLASS);
+				Optional<Class<? extends BaseHandler>> handlerClassOpt = RequestAttributeTool.get(
+						request,
+						BaseHandler.HANDLER_CLASS);
 				Optional<Method> handlerMethodOpt = RequestAttributeTool.get(request, BaseHandler.HANDLER_METHOD);
 				if(handlerClassOpt.isPresent() && handlerMethodOpt.isPresent()){
 					Class<? extends BaseHandler> handlerClass = handlerClassOpt.get();
@@ -245,8 +256,12 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 		}
 	}
 
-	private HttpRequestRecordDto buildHttpRequestRecord(boolean errored, HttpServletRequest request, Long receivedAt,
-			String userToken, Traceparent traceparent){
+	private HttpRequestRecordDto buildHttpRequestRecord(
+			boolean errored,
+			HttpServletRequest request,
+			Long receivedAt,
+			String userToken,
+			Traceparent traceparent){
 		if(errored){
 			// an exception in a request is recorded in the ExceptionRecorder already.
 			return null;
@@ -254,7 +269,8 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 		receivedAt = TimeUnit.NANOSECONDS.toMillis(receivedAt);
 		long created = TimeUnit.NANOSECONDS.toMillis(Trace2Dto.getCurrentTimeInNs());
 		RecordedHttpHeaders headersWrapper = new RecordedHttpHeaders(request);
-		return new HttpRequestRecordDto(UuidTool.generateV1Uuid(),
+		return new HttpRequestRecordDto(
+				UuidTool.generateV1Uuid(),
 				new Date(created),
 				new Date(receivedAt),
 				created - receivedAt,

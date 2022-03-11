@@ -17,10 +17,8 @@ package io.datarouter.model.field.imp.array;
 
 import java.util.List;
 
-import io.datarouter.bytes.ByteTool;
 import io.datarouter.bytes.LongArray;
-import io.datarouter.bytes.codec.array.longarray.UInt63ArrayCodec;
-import io.datarouter.bytes.codec.intcodec.RawIntCodec;
+import io.datarouter.bytes.codec.array.longarray.RawLongArrayCodec;
 import io.datarouter.gson.serialization.GsonTool;
 import io.datarouter.model.field.BaseListField;
 import io.datarouter.model.field.Field;
@@ -28,12 +26,11 @@ import io.datarouter.util.array.ArrayTool;
 import io.datarouter.util.collection.ListTool;
 
 @Deprecated//Use ByteArrayField
-public class UInt63ArrayField extends BaseListField<Long,List<Long>,UInt63ArrayFieldKey>{
+public class RawLongArrayField extends BaseListField<Long,List<Long>,RawLongArrayFieldKey>{
 
-	private static final RawIntCodec RAW_INT_CODEC = RawIntCodec.INSTANCE;
-	private static final UInt63ArrayCodec U_INT_63_ARRAY_CODEC = UInt63ArrayCodec.INSTANCE;
+	private static final RawLongArrayCodec RAW_LONG_ARRAY_CODEC = RawLongArrayCodec.INSTANCE;
 
-	public UInt63ArrayField(UInt63ArrayFieldKey key, List<Long> value){
+	public RawLongArrayField(RawLongArrayFieldKey key, List<Long> value){
 		super(key, value);
 	}
 
@@ -56,37 +53,28 @@ public class UInt63ArrayField extends BaseListField<Long,List<Long>,UInt63ArrayF
 		LongArray longArray = value instanceof LongArray
 				? (LongArray)value
 				: new LongArray(value);
-		return U_INT_63_ARRAY_CODEC.encode(longArray.getPrimitiveArray());
+		return RAW_LONG_ARRAY_CODEC.encode(longArray.getPrimitiveArray());
 	}
 
 	@Override
 	public List<Long> fromBytesButDoNotSet(byte[] bytes, int byteOffset){
 		int numBytes = ArrayTool.length(bytes) - byteOffset;
-		return new LongArray(U_INT_63_ARRAY_CODEC.decode(bytes, byteOffset, numBytes));
+		return new LongArray(RAW_LONG_ARRAY_CODEC.decode(bytes, byteOffset, numBytes));
 	}
 
 	@Override
 	public int numBytesWithSeparator(byte[] bytes, int byteOffset){
-		return bytes == null ? 0 : RAW_INT_CODEC.decode(bytes, byteOffset) + 4;
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public byte[] getBytesWithSeparator(){
-		if(value == null){
-			return RAW_INT_CODEC.encode(0);
-		}
-		LongArray longArray = value instanceof LongArray
-				? (LongArray)value
-				: new LongArray(value);
-		byte[] dataBytes = U_INT_63_ARRAY_CODEC.encode(longArray.getPrimitiveArray());
-		byte[] lengthBytes = RAW_INT_CODEC.encode(dataBytes.length);
-		return ByteTool.concat(lengthBytes, dataBytes);
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public List<Long> fromBytesWithSeparatorButDoNotSet(byte[] bytes, int byteOffset){
-		int numBytes = numBytesWithSeparator(bytes, byteOffset) - 4;
-		return new LongArray(U_INT_63_ARRAY_CODEC.decode(bytes, byteOffset + 4, numBytes));
+		throw new UnsupportedOperationException();
 	}
 
 }

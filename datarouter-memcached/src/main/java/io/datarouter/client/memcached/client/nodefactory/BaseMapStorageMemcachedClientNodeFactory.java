@@ -75,9 +75,11 @@ implements BlobClientNodeFactory, TallyClientNodeFactory{
 		public PhysicalMapStorageNode<PK,D,F> createNode(
 				EntityNodeParams<EK,E> entityNodeParams,
 				NodeParams<PK,D,F> nodeParams){
-			return new MemcachedMapStorageNode<>(nodeParams, clientType,
-					new MemcachedBlobNode((NodeParams<PathbeanKey,Pathbean,PathbeanFielder>)nodeParams, clientType,
-							memcachedClientManager), serviceName);
+			var blobNode = new MemcachedBlobNode(
+					(NodeParams<PathbeanKey,Pathbean,PathbeanFielder>)nodeParams,
+					clientType,
+					memcachedClientManager);
+			return new MemcachedMapStorageNode<>(nodeParams, clientType, blobNode, serviceName, memcachedClientManager);
 		}
 
 		@Override

@@ -34,7 +34,8 @@ public class DatarouterMemcachedTestNgModuleFactory extends TestNgModuleFactory{
 
 		@Override
 		protected void configure(){
-			bindActualInstance(DatarouterTestPropertiesFile.class,
+			bindActualInstance(
+					DatarouterTestPropertiesFile.class,
 					new DatarouterTestPropertiesFile("memcached.properties"));
 		}
 

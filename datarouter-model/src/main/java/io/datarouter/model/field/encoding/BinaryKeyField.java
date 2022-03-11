@@ -13,21 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.instrumentation.count;
+package io.datarouter.model.field.encoding;
 
-import io.datarouter.instrumentation.response.PublishingResponseDto;
+/**
+ * Encodes fields as bytes for storage in the PK of a dataebean.
+ * - Bytes must compare equivalently to the java fields when using Arrays::compareUnsigned.
+ * - Bytes must be embeddable in a multi-field PK, either with a fixed length or a terminating byte (usually 0).
+ */
+public interface BinaryKeyField<T>{
 
-public interface CountPublisher{
-
-	PublishingResponseDto add(CountBatchDto countBatchDto);
-
-	public static class NoOpCountPublisher implements CountPublisher{
-
-		@Override
-		public PublishingResponseDto add(CountBatchDto countBatchDto){
-			return PublishingResponseDto.NO_OP;
-		}
-
-	}
+	int numBytesWithSeparator(byte[] bytes, int byteOffset);
+	byte[] getBytesWithSeparator();
+	T fromBytesWithSeparatorButDoNotSet(byte[] bytes, int byteOffset);
 
 }

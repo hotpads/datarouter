@@ -37,8 +37,10 @@ public class Trace2ForPublisherQueueDao extends BaseTraceQueueDao{
 	}
 
 	@Inject
-	public Trace2ForPublisherQueueDao(Datarouter datarouter,
-			Trace2ForPublisherQueueDaoParams params, QueueNodeFactory queueNodeFactory){
+	public Trace2ForPublisherQueueDao(
+			Datarouter datarouter,
+			Trace2ForPublisherQueueDaoParams params,
+			QueueNodeFactory queueNodeFactory){
 		super("TracePublisher", datarouter, params, queueNodeFactory);
 	}
 

@@ -13,10 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.gcp.spanner.field.array;
-
-import java.util.ArrayList;
-import java.util.List;
+package io.datarouter.gcp.spanner.field.primitive;
 
 import com.google.cloud.spanner.Key.Builder;
 import com.google.cloud.spanner.ResultSet;
@@ -24,33 +21,36 @@ import com.google.cloud.spanner.Value;
 
 import io.datarouter.gcp.spanner.ddl.SpannerColumnType;
 import io.datarouter.gcp.spanner.field.SpannerBaseFieldCodec;
-import io.datarouter.model.field.imp.array.UInt63ArrayField;
+import io.datarouter.model.field.imp.comparable.LongEncodedField;
 
-public class SpannerUInt63ArrayFieldCodec extends SpannerBaseFieldCodec<List<Long>,UInt63ArrayField>{
+public class SpannerLongEncodedFieldCodec<T> extends SpannerBaseFieldCodec<T,LongEncodedField<T>>{
 
-	public SpannerUInt63ArrayFieldCodec(UInt63ArrayField field){
+	public SpannerLongEncodedFieldCodec(LongEncodedField<T> field){
 		super(field);
 	}
 
 	@Override
 	public SpannerColumnType getSpannerColumnType(){
-		return SpannerColumnType.INT64_ARRAY;
+		return SpannerColumnType.INT64;
 	}
 
 	@Override
 	public Value getSpannerValue(){
-		return Value.int64Array(field.getValue());
+		Long longValue = field.getCodec().encode(field.getValue());
+		return Value.int64(longValue);
 	}
 
 	@Override
 	public Builder setKey(Builder key){
-		throw new RuntimeException("Invalid Key type: " + field.getKey().getName());
+		Long longValue = field.getCodec().encode(field.getValue());
+		return key.append(longValue);
 	}
 
 	@Override
-	public List<Long> getValueFromResultSet(ResultSet rs){
-		// copy to mutable list
-		return new ArrayList<>(rs.getLongList(field.getKey().getColumnName()));
+	public T getValueFromResultSet(ResultSet rs){
+		String columnName = field.getKey().getColumnName();
+		Long longValue = rs.getLong(columnName);
+		return field.getCodec().decode(longValue);
 	}
 
 }

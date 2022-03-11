@@ -34,6 +34,15 @@ import io.datarouter.pathnode.PathNode;
 
 public class EndpointToolTests{
 
+	public abstract static class EndpointToolTestEndpoint<R>
+	extends BaseEndpoint<R,NoOpEndpointType>{
+
+		public EndpointToolTestEndpoint(HttpRequestMethod method, PathNode pathNode, boolean retrySafe){
+			super(method, pathNode, retrySafe);
+		}
+
+	}
+
 	public static class ExampleEndpoint1{
 		@EndpointParam(serializedName = "name")
 		public String firstName;
@@ -45,19 +54,19 @@ public class EndpointToolTests{
 		Assert.assertEquals(EndpointTool.getFieldName(field), "name");
 	}
 
-	public static class Example2 extends BaseEndpoint<Map<String,float[]>,NoOpEndpointType>{
+	public static class Example2 extends EndpointToolTestEndpoint<Map<String,float[]>>{
 		public Example2(){
 			super(null, null, false);
 		}
 	}
 
-	public static class Example3 extends BaseEndpoint<String,NoOpEndpointType>{
+	public static class Example3 extends EndpointToolTestEndpoint<String>{
 		public Example3(){
 			super(null, null, false);
 		}
 	}
 
-	public static class Example4 extends BaseEndpoint<ExampleEndpoint1,NoOpEndpointType>{
+	public static class Example4 extends EndpointToolTestEndpoint<ExampleEndpoint1>{
 		public Example4(){
 			super(null, null, false);
 		}
@@ -78,7 +87,7 @@ public class EndpointToolTests{
 		Assert.assertEquals(actual4.getTypeName(), expected4.getTypeName());
 	}
 
-	public static class Example5 extends BaseEndpoint<Void,NoOpEndpointType>{
+	public static class Example5 extends EndpointToolTestEndpoint<Void>{
 
 		public Optional<String> str = Optional.empty();
 
@@ -87,7 +96,7 @@ public class EndpointToolTests{
 		}
 	}
 
-	public static class Example6 extends BaseEndpoint<Void,NoOpEndpointType>{
+	public static class Example6 extends EndpointToolTestEndpoint<Void>{
 
 		public Optional<String> str;
 
@@ -97,7 +106,7 @@ public class EndpointToolTests{
 		}
 	}
 
-	public static class Example7 extends BaseEndpoint<Void,NoOpEndpointType>{
+	public static class Example7 extends EndpointToolTestEndpoint<Void>{
 
 		public Optional<String> optionalString;
 
@@ -129,7 +138,7 @@ public class EndpointToolTests{
 		EndpointTool.toDatarouterHttpRequest(endpoint);
 	}
 
-	public static class Example8 extends BaseEndpoint<Void,NoOpEndpointType>{
+	public static class Example8 extends EndpointToolTestEndpoint<Void>{
 
 		public final String str;
 
@@ -160,7 +169,7 @@ public class EndpointToolTests{
 	}
 
 
-	public static class Example9 extends BaseEndpoint<Void,NoOpEndpointType>{
+	public static class Example9 extends EndpointToolTestEndpoint<Void>{
 
 		public final String str;
 

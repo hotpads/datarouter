@@ -66,11 +66,13 @@ public class Trace2MemoryBufferToSqsConveyor extends BaseConveyor{
 
 	public void processTraceEntityDtos(List<Trace2BundleAndHttpRequestRecordDto> dtos){
 		if(shouldBufferInSqs.get()){
-			Scanner.of(dtos).map(this::toTrace2Message).flush(traceQueueDao::putMulti);
 			Scanner.of(dtos)
-				.map(this::toHttpReqRecordMessage)
-				.concat(OptionalScanner::of)
-				.flush(traceHttpRequestRecordQueueDao::putMulti);
+					.map(this::toTrace2Message)
+					.flush(traceQueueDao::putMulti);
+			Scanner.of(dtos)
+					.map(this::toHttpReqRecordMessage)
+					.concat(OptionalScanner::of)
+					.flush(traceHttpRequestRecordQueueDao::putMulti);
 		}
 	}
 

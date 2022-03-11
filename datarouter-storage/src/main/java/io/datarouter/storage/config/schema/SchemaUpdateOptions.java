@@ -43,18 +43,18 @@ public class SchemaUpdateOptions{
 	public static final String PRINT_PREFIX = SCHEMA_UPDATE + ".print";
 	public static final String EXECUTE_PREFIX = SCHEMA_UPDATE + ".execute";
 
-	protected static final String SUFFIX_createDatabases = ".createDatabases";
-	protected static final String SUFFIX_createTables = ".createTables";
-	protected static final String SUFFIX_addColumns = ".addColumns";
-	protected static final String SUFFIX_deleteColumns = ".deleteColumns";
-	protected static final String SUFFIX_modifyColumns = ".modifyColumns";
-	protected static final String SUFFIX_addIndexes = ".addIndexes";
-	protected static final String SUFFIX_dropIndexes = ".dropIndexes";
-	protected static final String SUFFIX_modifyEngine = ".modifyEngine";
-	protected static final String SUFFIX_modifyRowFormat = ".modifyRowFormat";
-	protected static final String SUFFIX_modifyCharacterSetOrCollation = ".modifyCharacterSetOrCollation";
-	protected static final String SUFFIX_modifyTtl = ".modifyTtl";
-	protected static final String SUFFIX_modifyMaxVersions = ".modifyMaxVersions";
+	public static final String SUFFIX_createDatabases = ".createDatabases";
+	public static final String SUFFIX_createTables = ".createTables";
+	public static final String SUFFIX_addColumns = ".addColumns";
+	public static final String SUFFIX_deleteColumns = ".deleteColumns";
+	public static final String SUFFIX_modifyColumns = ".modifyColumns";
+	public static final String SUFFIX_addIndexes = ".addIndexes";
+	public static final String SUFFIX_dropIndexes = ".dropIndexes";
+	public static final String SUFFIX_modifyEngine = ".modifyEngine";
+	public static final String SUFFIX_modifyRowFormat = ".modifyRowFormat";
+	public static final String SUFFIX_modifyCharacterSetOrCollation = ".modifyCharacterSetOrCollation";
+	public static final String SUFFIX_modifyTtl = ".modifyTtl";
+	public static final String SUFFIX_modifyMaxVersions = ".modifyMaxVersions";
 	public static final List<String> ALL_SCHEMA_UPDATE_OPTIONS = List.of(
 			SUFFIX_createDatabases,
 			SUFFIX_createTables,

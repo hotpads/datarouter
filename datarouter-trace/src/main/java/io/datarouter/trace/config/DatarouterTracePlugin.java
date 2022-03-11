@@ -72,7 +72,9 @@ public class DatarouterTracePlugin extends BaseWebPlugin{
 		addSettingRoot(DatarouterTraceFilterSettingRoot.class);
 		if(enableLocalTraces){
 			addAppListener(LocalTraceConveyors.class);
-			addDatarouterNavBarItem(DatarouterNavBarCategory.MONITORING, new DatarouterTracePaths().datarouter.traces,
+			addDatarouterNavBarItem(
+					DatarouterNavBarCategory.MONITORING,
+					new DatarouterTracePaths().datarouter.traces,
 					"Traces");
 			addSettingRoot(DatarouterTraceLocalSettingRoot.class);
 			if(addLocalVacuumJobs){

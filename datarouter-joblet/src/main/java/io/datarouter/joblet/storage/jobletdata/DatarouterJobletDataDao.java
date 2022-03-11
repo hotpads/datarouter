@@ -25,7 +25,8 @@ import io.datarouter.joblet.storage.jobletdata.JobletData.JobletDataFielder;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
-import io.datarouter.storage.config.Configs;
+import io.datarouter.storage.config.Config;
+import io.datarouter.storage.config.PutMethod;
 import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
@@ -82,7 +83,7 @@ public class DatarouterJobletDataDao extends BaseDao{
 	}
 
 	public void putMultiOrBust(Collection<JobletData> databeans){
-		node.putMulti(databeans, Configs.insertOrBust());
+		node.putMulti(databeans, new Config().setPutMethod(PutMethod.INSERT_OR_BUST));
 	}
 
 	public Scanner<JobletData> scan(){

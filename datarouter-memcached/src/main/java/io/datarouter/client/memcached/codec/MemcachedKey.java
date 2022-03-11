@@ -18,7 +18,6 @@ package io.datarouter.client.memcached.codec;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.storage.file.PathbeanKey;
 import io.datarouter.storage.util.PrimaryKeyPercentCodecTool;
-import io.datarouter.util.HashMethods;
 import io.datarouter.util.lang.ReflectionTool;
 
 public class MemcachedKey<PK extends PrimaryKey<PK>>{
@@ -47,14 +46,13 @@ public class MemcachedKey<PK extends PrimaryKey<PK>>{
 		return CODEC_VERSION + ":" + nodeName + ":" + schemaVersion + ":" + encodedPk;
 	}
 
-	public static PathbeanKey encodeKeyToPathbeanKey(String serviceName, String clientName,
-			String tableName, int schemaVersion, Long autoSchemaVersion, PrimaryKey<?> pk){
+	public static PathbeanKey encodeKeyToPathbeanKey(
+			String nodePathPrefix,
+			PrimaryKey<?> pk){
 		String encodedPk = PrimaryKeyPercentCodecTool.encode(pk);
-		String keyMetadata = CODEC_VERSION + "/" + serviceName + "/" + clientName + "/" + tableName + "/"
-				+ schemaVersion + "/" + autoSchemaVersion + "/";
-		Long keyMetadataHashed = HashMethods.longDjbHash(keyMetadata);
-		return PathbeanKey.of(String.valueOf(keyMetadataHashed) + "/" + encodedPk);
+		return PathbeanKey.of(nodePathPrefix + encodedPk);
 	}
+
 
 	public static <PK extends PrimaryKey<PK>> MemcachedKey<PK> decode(String stringKey, Class<PK> pkClass){
 		String[] tokens = stringKey.split(":");

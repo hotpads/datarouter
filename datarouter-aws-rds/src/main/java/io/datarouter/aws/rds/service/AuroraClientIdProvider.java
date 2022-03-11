@@ -21,22 +21,14 @@ import io.datarouter.storage.client.ClientId;
 
 public interface AuroraClientIdProvider{
 
-	List<ClientId> getAuroraClientIds();
 	List<AuroraClientDto> getAuroraClientDtos();
 
 	class GenericAuroraClientIdProvider implements AuroraClientIdProvider{
 
-		private final List<ClientId> auroraClientIds;
 		private final List<AuroraClientDto> auroraClientDtos;
 
-		public GenericAuroraClientIdProvider(List<ClientId> auroraClientIds, List<AuroraClientDto> auroraClientDtos){
-			this.auroraClientIds = auroraClientIds;
+		public GenericAuroraClientIdProvider(List<AuroraClientDto> auroraClientDtos){
 			this.auroraClientDtos = auroraClientDtos;
-		}
-
-		@Override
-		public List<ClientId> getAuroraClientIds(){
-			return auroraClientIds;
 		}
 
 		@Override

@@ -26,7 +26,6 @@ import java.util.RandomAccess;
 public class LongArray implements List<Long>, RandomAccess{
 
 	private static final int DEFAULT_INITIAL_CAPACITY = 2;
-	private static final long NULL = Long.MIN_VALUE;// compares before all other longs
 
 	private long[] array;
 	private int size;
@@ -74,7 +73,7 @@ public class LongArray implements List<Long>, RandomAccess{
 	@Override
 	public void add(int index, Long value){
 		expandAndShiftIfNecessary(index, 1);
-		array[index] = value == null ? NULL : value;
+		array[index] = value;
 		++size;
 	}
 
@@ -109,7 +108,7 @@ public class LongArray implements List<Long>, RandomAccess{
 		expandAndShiftIfNecessary(firstIndex, delta);
 		int nextIndex = firstIndex;
 		for(Long value : values){
-			array[nextIndex] = value == null ? NULL : value;
+			array[nextIndex] = value;
 			++nextIndex;
 		}
 		size += delta;
@@ -127,12 +126,7 @@ public class LongArray implements List<Long>, RandomAccess{
 		if(!(obj == null || obj instanceof Long)){
 			return false;
 		}
-		long value;
-		if(obj == null){
-			value = NULL;
-		}else{
-			value = (Long)obj;
-		}
+		long value = (Long)obj;
 		for(int i = 0; i < size; ++i){
 			if(array[i] == value){
 				return true;
@@ -159,14 +153,14 @@ public class LongArray implements List<Long>, RandomAccess{
 
 	@Override
 	public Long get(int index){
-		if(index > size){
+		if(index >= size){
 			throw new ArrayIndexOutOfBoundsException(index);
 		}
-		return array[index] == NULL ? null : array[index];
+		return array[index];
 	}
 
 	public long getPrimitive(int index){
-		if(index > size){
+		if(index >= size){
 			throw new ArrayIndexOutOfBoundsException(index);
 		}
 		return array[index];
@@ -177,12 +171,7 @@ public class LongArray implements List<Long>, RandomAccess{
 		if(!(obj == null || obj instanceof Long)){
 			return -1;
 		}
-		long value;
-		if(obj == null){
-			value = NULL;
-		}else{
-			value = (Long)obj;
-		}
+		long value = (Long)obj;
 		for(int i = 0; i < size; ++i){
 			if(array[i] == value){
 				return i;
@@ -206,12 +195,7 @@ public class LongArray implements List<Long>, RandomAccess{
 		if(!(obj == null || obj instanceof Long)){
 			return -1;
 		}
-		long value;
-		if(obj == null){
-			value = NULL;
-		}else{
-			value = (Long)obj;
-		}
+		long value = (Long)obj;
 		for(int i = size - 1; i >= 0; --i){
 			if(array[i] == value){
 				return i;
@@ -249,12 +233,7 @@ public class LongArray implements List<Long>, RandomAccess{
 		if(!(obj == null || obj instanceof Long)){
 			return false;
 		}
-		long value;
-		if(obj == null){
-			value = NULL;
-		}else{
-			value = (Long)obj;
-		}
+		long value = (Long)obj;
 		for(int i = 0; i < size; ++i){
 			if(array[i] == value){
 				remove(i);
@@ -280,7 +259,7 @@ public class LongArray implements List<Long>, RandomAccess{
 	public boolean retainAll(Collection<?> objects){
 		boolean modified = false;
 		for(int i = 0; i < size; ++i){
-			if(!objects.contains(array[i] == NULL ? null : array[i])){
+			if(!objects.contains(array[i])){
 				remove(i);
 				--i;// need to check the same index again because we shifted left
 				modified = true;
@@ -294,7 +273,7 @@ public class LongArray implements List<Long>, RandomAccess{
 		if(index < 0 || index >= size){
 			throw new IllegalArgumentException(index + " " + size);
 		}
-		array[index] = value == null ? NULL : value;
+		array[index] = value;
 		return value;
 	}
 
@@ -321,7 +300,8 @@ public class LongArray implements List<Long>, RandomAccess{
 	@Override
 	public <T> T[] toArray(T[] wrapperArray){
 		for(int i = 0; i < size; ++i){
-			wrapperArray[i] = (T)(array[i] == NULL ? null : array[i]);
+			Long longValue = array[i];
+			wrapperArray[i] = (T)longValue;
 		}
 		return wrapperArray;
 	}

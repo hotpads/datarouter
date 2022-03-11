@@ -40,13 +40,14 @@ public class IntegerArrayField extends BaseListField<Integer,List<Integer>,Integ
 	}
 
 	@Override
-	public List<Integer> fromBytesButDoNotSet(byte[] bytes, int byteOffset){
-		return INT_LIST_CODEC.decode(bytes, byteOffset);
+	public List<Integer> fromBytesButDoNotSet(byte[] bytes, int offset){
+		int length = bytes.length - offset;
+		return INT_LIST_CODEC.decode(bytes, offset, length);
 	}
 
 	@Override
 	public int numBytesWithSeparator(byte[] bytes, int byteOffset){
-		throw new UnsupportedOperationException();//why isn't this implemented?
+		throw new UnsupportedOperationException();
 	}
 
 }

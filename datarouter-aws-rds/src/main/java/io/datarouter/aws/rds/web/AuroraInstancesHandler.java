@@ -76,7 +76,7 @@ public class AuroraInstancesHandler extends BaseHandler{
 		List<DnsHostEntryDto> otherReaderInstances = new ArrayList<>();
 		List<ClientId> clientsMissingOtherInstances = new ArrayList<>();
 		for(ClientId primaryClientId : dnsService.getPrimaryClientIds()){
-			DnsHostEntryDto otherEntry = dnsService.getOtherReader(primaryClientId);
+			DnsHostEntryDto otherEntry = dnsService.getOtherReader(primaryClientId.getName());
 			if(otherEntry == null){
 				clientsMissingOtherInstances.add(primaryClientId);
 			}else{
@@ -84,7 +84,7 @@ public class AuroraInstancesHandler extends BaseHandler{
 			}
 		}
 		List<DomContent> fragments = new ArrayList<>();
-		fragments.add(makeAuroraClientsTable("Aurora Clients", dnsService.checkReaderEndpoint().getLeft()));
+		fragments.add(makeAuroraClientsTable("Aurora Clients", dnsService.checkClientEndpoint().getLeft()));
 		if(otherReaderInstances.size() != 0){
 			fragments.add(makeAuroraClientsTable("Aurora Other Instances", otherReaderInstances));
 		}
@@ -122,7 +122,7 @@ public class AuroraInstancesHandler extends BaseHandler{
 		var table = new J2HtmlTable<DnsHostEntryDto>()
 				.withClasses("sortable table table-sm table-striped my-4 border")
 				.withHtmlColumn("Client name", row -> {
-					if(row.isReaderPointedToWriter()){
+					if(row.isReaderPointedToWriter() || row.isReaderPointedToOther()){
 						return td(row.getClientName()).withClass("table-danger");
 					}
 					return td(row.getClientName());

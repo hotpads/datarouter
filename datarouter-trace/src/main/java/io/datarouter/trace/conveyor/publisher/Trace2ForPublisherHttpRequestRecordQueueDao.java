@@ -37,8 +37,10 @@ public class Trace2ForPublisherHttpRequestRecordQueueDao extends BaseTrace2HttpR
 	}
 
 	@Inject
-	public Trace2ForPublisherHttpRequestRecordQueueDao(Datarouter datarouter,
-			Trace2ForPublisherHttpRequestRecordQueueDaoParams params, QueueNodeFactory queueNodeFactory){
+	public Trace2ForPublisherHttpRequestRecordQueueDao(
+			Datarouter datarouter,
+			Trace2ForPublisherHttpRequestRecordQueueDaoParams params,
+			QueueNodeFactory queueNodeFactory){
 		super("TracePublisherHttpRequestRecord", datarouter, params, queueNodeFactory);
 	}
 

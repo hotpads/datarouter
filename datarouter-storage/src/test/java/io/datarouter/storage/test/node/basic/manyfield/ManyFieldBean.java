@@ -26,6 +26,7 @@ import java.util.function.Supplier;
 import io.datarouter.bytes.LongArray;
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
+import io.datarouter.model.field.codec.LongFieldCodec;
 import io.datarouter.model.field.imp.LocalDateField;
 import io.datarouter.model.field.imp.LocalDateFieldKey;
 import io.datarouter.model.field.imp.StringField;
@@ -38,8 +39,8 @@ import io.datarouter.model.field.imp.array.DoubleArrayField;
 import io.datarouter.model.field.imp.array.DoubleArrayFieldKey;
 import io.datarouter.model.field.imp.array.IntegerArrayField;
 import io.datarouter.model.field.imp.array.IntegerArrayFieldKey;
-import io.datarouter.model.field.imp.array.UInt63ArrayField;
-import io.datarouter.model.field.imp.array.UInt63ArrayFieldKey;
+import io.datarouter.model.field.imp.array.RawLongArrayField;
+import io.datarouter.model.field.imp.array.RawLongArrayFieldKey;
 import io.datarouter.model.field.imp.comparable.BooleanField;
 import io.datarouter.model.field.imp.comparable.BooleanFieldKey;
 import io.datarouter.model.field.imp.comparable.DoubleField;
@@ -50,6 +51,8 @@ import io.datarouter.model.field.imp.comparable.InstantField;
 import io.datarouter.model.field.imp.comparable.InstantFieldKey;
 import io.datarouter.model.field.imp.comparable.IntegerField;
 import io.datarouter.model.field.imp.comparable.IntegerFieldKey;
+import io.datarouter.model.field.imp.comparable.LongEncodedField;
+import io.datarouter.model.field.imp.comparable.LongEncodedFieldKey;
 import io.datarouter.model.field.imp.comparable.LongField;
 import io.datarouter.model.field.imp.comparable.LongFieldKey;
 import io.datarouter.model.field.imp.comparable.ShortField;
@@ -82,6 +85,7 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 	private Float floatField;
 	private Double doubleField;
 	private Date longDateField;
+	private Date dateToLongField;//for testing LongEncodedField
 	private LocalDate localDateField;
 	private LocalDateTime localDateTimeField;
 	private Instant instantField;
@@ -109,6 +113,9 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 		public static final FloatFieldKey floatField = new FloatFieldKey("floatField");
 		public static final DoubleFieldKey doubleField = new DoubleFieldKey("doubleField");
 		public static final LongDateFieldKey longDateField = new LongDateFieldKey("longDateField");
+		public static final LongEncodedFieldKey<Date> dateToLongField = new LongEncodedFieldKey<>(
+				"dateToLongField",
+				new LongFieldCodec<>(Date.class, Date::getTime, Date::new, Date::compareTo));
 		public static final LocalDateFieldKey localDateField = new LocalDateFieldKey("localDateField");
 		public static final LocalDateTimeFieldKey localDateTimeField = new LocalDateTimeFieldKey("localDateTimeField");
 		public static final InstantFieldKey instantField = new InstantFieldKey("instantField");
@@ -122,7 +129,7 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 				.withSize(CommonFieldSizes.MAX_LENGTH_LONGBLOB);
 		public static final ByteArrayFieldKey data = new ByteArrayFieldKey("data")
 				.withSize(CommonFieldSizes.MAX_LENGTH_LONGBLOB);
-		public static final UInt63ArrayFieldKey longArrayField = new UInt63ArrayFieldKey("longArrayField");
+		public static final RawLongArrayFieldKey longArrayField = new RawLongArrayFieldKey("longArrayField");
 		public static final IntegerArrayFieldKey integerArrayField = new IntegerArrayFieldKey("integerArrayField");
 		public static final ByteArrayFieldKey byteArrayField = new ByteArrayFieldKey("byteArrayField");
 		public static final DoubleArrayFieldKey doubleArrayField = new DoubleArrayFieldKey("doubleArrayField");
@@ -158,6 +165,9 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 			return false;
 		}
 		if(ObjectTool.notEquals(longDateField, that.longDateField)){
+			return false;
+		}
+		if(ObjectTool.notEquals(dateToLongField, that.dateToLongField)){
 			return false;
 		}
 		if(ObjectTool.notEquals(localDateField, that.localDateField)){
@@ -222,6 +232,7 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 					new FloatField(FieldKeys.floatField, databean.floatField),
 					new DoubleField(FieldKeys.doubleField, databean.doubleField),
 					new LongDateField(FieldKeys.longDateField, databean.longDateField),
+					new LongEncodedField<>(FieldKeys.dateToLongField, databean.dateToLongField),
 					new LocalDateField(FieldKeys.localDateField, databean.localDateField),
 					new LocalDateTimeField(FieldKeys.localDateTimeField, databean.localDateTimeField),
 					new InstantField(FieldKeys.instantField, databean.instantField),
@@ -230,7 +241,7 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 					new StringEnumField<>(FieldKeys.stringEnumField, databean.stringEnumField),
 					new ByteArrayField(FieldKeys.stringByteField, databean.stringByteField),
 					new ByteArrayField(FieldKeys.data, databean.data),
-					new UInt63ArrayField(FieldKeys.longArrayField, databean.longArrayField),
+					new RawLongArrayField(FieldKeys.longArrayField, databean.longArrayField),
 					new IntegerArrayField(FieldKeys.integerArrayField, databean.integerArrayField),
 					new ByteArrayField(FieldKeys.byteArrayField, databean.byteArrayField),
 					new DoubleArrayField(FieldKeys.doubleArrayField, databean.doubleArrayField),
@@ -396,6 +407,14 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 
 	public void setLongDateField(Date longDateField){
 		this.longDateField = longDateField;
+	}
+
+	public Date getDateToLongField(){
+		return dateToLongField;
+	}
+
+	public void setDateToLongField(Date dateToLongField){
+		this.dateToLongField = dateToLongField;
 	}
 
 	public LocalDate getLocalDateField(){

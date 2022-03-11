@@ -30,7 +30,7 @@ import io.datarouter.client.mysql.field.codec.array.DoubleArrayMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.array.IntegerArrayMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.array.PrimitiveIntegerArrayMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.array.PrimitiveLongArrayMysqlFieldCodec;
-import io.datarouter.client.mysql.field.codec.array.UInt63ArrayMysqlFieldCodec;
+import io.datarouter.client.mysql.field.codec.array.RawLongArrayMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.array.UInt7ArrayMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.custom.LongDateMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.datetime.DateMysqlFieldCodec;
@@ -43,6 +43,7 @@ import io.datarouter.client.mysql.field.codec.primitive.BooleanMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.primitive.DoubleMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.primitive.FloatMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.primitive.IntegerMysqlFieldCodec;
+import io.datarouter.client.mysql.field.codec.primitive.LongEncodedMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.primitive.LongMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.primitive.ShortMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.primitive.SignedByteMysqlFieldCodec;
@@ -56,13 +57,14 @@ import io.datarouter.model.field.imp.array.DoubleArrayField;
 import io.datarouter.model.field.imp.array.IntegerArrayField;
 import io.datarouter.model.field.imp.array.PrimitiveIntegerArrayField;
 import io.datarouter.model.field.imp.array.PrimitiveLongArrayField;
-import io.datarouter.model.field.imp.array.UInt63ArrayField;
+import io.datarouter.model.field.imp.array.RawLongArrayField;
 import io.datarouter.model.field.imp.array.UInt7ArrayField;
 import io.datarouter.model.field.imp.comparable.BooleanField;
 import io.datarouter.model.field.imp.comparable.DoubleField;
 import io.datarouter.model.field.imp.comparable.FloatField;
 import io.datarouter.model.field.imp.comparable.InstantField;
 import io.datarouter.model.field.imp.comparable.IntegerField;
+import io.datarouter.model.field.imp.comparable.LongEncodedField;
 import io.datarouter.model.field.imp.comparable.LongField;
 import io.datarouter.model.field.imp.comparable.ShortField;
 import io.datarouter.model.field.imp.comparable.SignedByteField;
@@ -89,6 +91,7 @@ public class StandardMysqlFieldCodecFactory implements MysqlFieldCodecFactory{
 		addCodec(ShortField.class, ShortMysqlFieldCodec::new);
 		addCodec(IntegerField.class, IntegerMysqlFieldCodec::new);
 		addCodec(LongField.class, LongMysqlFieldCodec::new);
+		addCodec(LongEncodedField.class, LongEncodedMysqlFieldCodec::new);
 		addCodec(FloatField.class, FloatMysqlFieldCodec::new);
 		addCodec(DoubleField.class, DoubleMysqlFieldCodec::new);
 
@@ -107,7 +110,7 @@ public class StandardMysqlFieldCodecFactory implements MysqlFieldCodecFactory{
 		addCodec(DelimitedStringArrayField.class, DelimitedStringArrayMysqlFieldCodec::new);
 		addCodec(DoubleArrayField.class, DoubleArrayMysqlFieldCodec::new);
 		addCodec(IntegerArrayField.class, IntegerArrayMysqlFieldCodec::new);
-		addCodec(UInt63ArrayField.class, UInt63ArrayMysqlFieldCodec::new);
+		addCodec(RawLongArrayField.class, RawLongArrayMysqlFieldCodec::new);
 		addCodec(UInt7ArrayField.class, UInt7ArrayMysqlFieldCodec::new);
 
 		//primitive arrays

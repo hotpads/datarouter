@@ -38,7 +38,6 @@ extends BaseEntityPrimaryKey<Trace2EntityKey,Trace2ThreadKey>{
 		public static final LongFieldKey threadId = new LongFieldKey("threadId");
 	}
 
-
 	public Trace2ThreadKey(){
 		this.entityKey = new Trace2EntityKey();
 	}

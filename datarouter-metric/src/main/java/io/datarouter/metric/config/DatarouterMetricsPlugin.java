@@ -18,8 +18,6 @@ package io.datarouter.metric.config;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.datarouter.instrumentation.count.CountPublisher;
-import io.datarouter.instrumentation.count.CountPublisher.NoOpCountPublisher;
 import io.datarouter.instrumentation.gauge.GaugePublisher;
 import io.datarouter.instrumentation.gauge.GaugePublisher.NoOpGaugePublisher;
 import io.datarouter.instrumentation.metric.MetricLinkBuilder;
@@ -30,6 +28,8 @@ import io.datarouter.metric.counter.CountBlobPublishingSettings;
 import io.datarouter.metric.counter.CountBlobPublishingSettings.NoOpCountBlobPublishingSettings;
 import io.datarouter.metric.counter.CountBlobQueueDao;
 import io.datarouter.metric.counter.CountBlobQueueDao.DatarouterCountBlobQueueDaoParams;
+import io.datarouter.metric.counter.collection.CountPublisher;
+import io.datarouter.metric.counter.collection.CountPublisher.NoOpCountPublisher;
 import io.datarouter.metric.counter.CountersAppListener;
 import io.datarouter.metric.dto.MetricDashboardDto;
 import io.datarouter.metric.dto.MetricName;

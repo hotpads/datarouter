@@ -23,6 +23,9 @@ import io.datarouter.util.string.StringTool;
 public class ConfigDirectoryConstants{
 	private static final Logger logger = LoggerFactory.getLogger(ConfigDirectoryConstants.class);
 
+	public static final String CONFIG_DIRECTORY_NAME = "config";
+	public static final String TEST_CONFIG_DIRECTORY_NAME = "test";
+
 	private static final String BASE_CONFIG_DIRECTORY_ENV_VARIABLE = "BASE_CONFIG_DIRECTORY";
 	private static final String DEFAULT_BASE_CONFIG_DIRECTORY = "/etc/datarouter";
 	private static final String CONFIG_DIRECTORY;
@@ -37,8 +40,8 @@ public class ConfigDirectoryConstants{
 		}else{
 			SOURCE = "environment variable";
 		}
-		CONFIG_DIRECTORY = baseConfigDirectory + "/config";
-		TEST_CONFIG_DIRECTORY = baseConfigDirectory + "/test";
+		CONFIG_DIRECTORY = baseConfigDirectory + "/" + CONFIG_DIRECTORY_NAME;
+		TEST_CONFIG_DIRECTORY = baseConfigDirectory + "/" + TEST_CONFIG_DIRECTORY_NAME;
 	}
 
 	public static String getSource(){

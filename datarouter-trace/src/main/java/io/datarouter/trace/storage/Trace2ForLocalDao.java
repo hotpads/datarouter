@@ -36,7 +36,9 @@ public class Trace2ForLocalDao extends BaseTrace2Dao{
 	}
 
 	@Inject
-	public Trace2ForLocalDao(Datarouter datarouter, Trace2ForLocalDaoParams params,
+	public Trace2ForLocalDao(
+			Datarouter datarouter,
+			Trace2ForLocalDaoParams params,
 			NodeFactory nodeFactory){
 		super(Optional.empty(), datarouter, params, nodeFactory);
 	}

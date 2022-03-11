@@ -38,7 +38,7 @@ import io.datarouter.util.properties.PropertiesTool;
 public class CachedClusterSettingTags extends Cached<List<DatarouterSettingTag>>{
 	private static final Logger logger = LoggerFactory.getLogger(CachedClusterSettingTags.class);
 
-	private static final String DEFAULT_CONFIG_FILENAME = "clusterSetting.properties";
+	public static final String CONFIG_FILENAME = "clusterSetting.properties";
 	private static final String PROPERTY_TAGS_NAME = "tags";
 	private final DatarouterServerTypeDetector datarouterServerTypeDetector;
 
@@ -83,7 +83,7 @@ public class CachedClusterSettingTags extends Cached<List<DatarouterSettingTag>>
 	}
 
 	public static String getConfigFilePath(){
-		return ConfigDirectoryConstants.getConfigDirectory() + '/' + DEFAULT_CONFIG_FILENAME;
+		return ConfigDirectoryConstants.getConfigDirectory() + '/' + CONFIG_FILENAME;
 	}
 
 }

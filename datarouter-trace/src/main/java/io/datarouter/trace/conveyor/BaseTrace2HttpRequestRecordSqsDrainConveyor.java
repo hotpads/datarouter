@@ -35,7 +35,8 @@ extends BaseGroupQueueConsumerConveyor<ConveyorMessageKey,ConveyorMessage>{
 
 	private final Gson gson;
 
-	public BaseTrace2HttpRequestRecordSqsDrainConveyor(String name,
+	public BaseTrace2HttpRequestRecordSqsDrainConveyor(
+			String name,
 			Supplier<Boolean> shouldRun,
 			GroupQueueConsumer<ConveyorMessageKey,ConveyorMessage> consumer,
 			Supplier<Boolean> compactExceptionLogging,

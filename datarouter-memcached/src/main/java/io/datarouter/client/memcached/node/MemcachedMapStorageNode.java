@@ -18,22 +18,34 @@ package io.datarouter.client.memcached.node;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.datarouter.client.memcached.client.MemcachedClientManager;
+import io.datarouter.client.memcached.client.MemcachedOps;
 import io.datarouter.client.memcached.codec.MemcachedDatabeanCodec;
 import io.datarouter.client.memcached.codec.MemcachedKey;
+import io.datarouter.client.memcached.codec.MemcachedTallyCodec;
+import io.datarouter.client.memcached.util.MemcachedExpirationTool;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.scanner.OptionalScanner;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.op.raw.MapStorage.PhysicalMapStorageNode;
+import io.datarouter.storage.node.op.raw.TallyStorage.PhysicalTallyStorageNode;
 import io.datarouter.storage.node.type.physical.base.BasePhysicalNode;
+import io.datarouter.storage.tally.TallyKey;
 import io.datarouter.util.HashMethods;
+import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.config.service.ServiceName;
 
 public class MemcachedMapStorageNode<
@@ -41,39 +53,77 @@ public class MemcachedMapStorageNode<
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>>
 extends BasePhysicalNode<PK,D,F>
-implements PhysicalMapStorageNode<PK,D,F>{
+implements PhysicalMapStorageNode<PK,D,F>, PhysicalTallyStorageNode<PK,D,F>{
+	private static final Logger logger = LoggerFactory.getLogger(MemcachedMapStorageNode.class);
+
+	private static final Boolean DEFAULT_IGNORE_EXCEPTION = true;
 
 	private final MemcachedDatabeanCodec<PK,D,F> codec;
 	private final MemcachedBlobNode blobNode;
-	private final ServiceName serviceName;
+	private final MemcachedOps ops;
 	private final String clientName;
 	private final String tableName;
-	private final Integer schemaVersion;
-	private final Long autoSchemaVersion;
+	private final int schemaVersion;
+	private final long autoSchemaVersion;
+	private final ClientId clientId;
+	private final MemcachedTallyCodec tallyCodec;
+	private final String nodePathPrefix;
 
-	public MemcachedMapStorageNode(NodeParams<PK,D,F> params, ClientType<?,?> clientType,
-			MemcachedBlobNode blobNode, ServiceName serviceName){
+	public MemcachedMapStorageNode(
+			NodeParams<PK,D,F> params,
+			ClientType<?,?> clientType,
+			MemcachedBlobNode blobNode,
+			ServiceName serviceName,
+			MemcachedClientManager memcachedClientManager){
 		super(params, clientType);
-		this.schemaVersion = Optional.ofNullable(params.getSchemaVersion()).orElse(1);
-		this.codec = new MemcachedDatabeanCodec<>(
+		schemaVersion = Optional.ofNullable(params.getSchemaVersion()).orElse(1);
+		codec = new MemcachedDatabeanCodec<>(
 				getName(),
 				schemaVersion,
 				getFieldInfo().getSampleFielder(),
 				getFieldInfo().getDatabeanSupplier(),
 				getFieldInfo().getFieldByPrefixedName());
 		this.blobNode = blobNode;
-		this.serviceName = serviceName;
-		this.clientName = getFieldInfo().getClientId().getName();
-		this.tableName = getFieldInfo().getTableName();
-		this.autoSchemaVersion = createAutoSchemaVersion();
+		clientName = getFieldInfo().getClientId().getName();
+		tableName = getFieldInfo().getTableName();
+		autoSchemaVersion = createAutoSchemaVersion();
+		ops = new MemcachedOps(memcachedClientManager);
+		clientId = params.getClientId();
+		tallyCodec = new MemcachedTallyCodec(
+				getName(),
+				schemaVersion);
+		nodePathPrefix = makeNodePathPrefix(
+				serviceName.get(),
+				clientName,
+				tableName,
+				schemaVersion,
+				autoSchemaVersion);
 	}
 
-	public Long createAutoSchemaVersion(){
+	private Long createAutoSchemaVersion(){
 		List<String> fieldNames = new ArrayList<>();
 		fieldNames.addAll(getFieldInfo().getNonKeyFieldColumnNames());
 		fieldNames.addAll(getFieldInfo().getPrimaryKeyFieldColumnNames());
 		String allFieldNamesConcatenated = fieldNames.stream().collect(Collectors.joining("+"));
 		return HashMethods.longDjbHash(allFieldNamesConcatenated);
+	}
+
+	private static String makeNodePathPrefix(
+			String serviceName,
+			String clientName,
+			String tableName,
+			int schemaVersion,
+			long autoSchemaVersion){
+		String stringPath = String.format(
+				"%s/%s/%s/%s/%s/%s/",
+				MemcachedKey.CODEC_VERSION,
+				serviceName,
+				clientName,
+				tableName,
+				schemaVersion,
+				autoSchemaVersion);
+		long hashedPath = HashMethods.longDjbHash(stringPath);
+		return Long.toString(hashedPath) + "/";
 	}
 
 	@Override
@@ -110,8 +160,7 @@ implements PhysicalMapStorageNode<PK,D,F>{
 	@Override
 	public void deleteMulti(Collection<PK> keys, Config config){
 		Scanner.of(keys)
-				.map(key -> MemcachedKey.encodeKeyToPathbeanKey(serviceName.get(), clientName, tableName,
-						schemaVersion, autoSchemaVersion, key))
+				.map(key -> MemcachedKey.encodeKeyToPathbeanKey(nodePathPrefix, key))
 				.forEach(blobNode::delete);
 	}
 
@@ -128,20 +177,74 @@ implements PhysicalMapStorageNode<PK,D,F>{
 	@Override
 	public void putMulti(Collection<D> databeans, Config config){
 		Scanner.of(databeans)
-				.map(databean -> codec.encodeDatabeanToPathbeanKeyValueIfValid(databean, serviceName.get(), clientName,
-						tableName, autoSchemaVersion))
+				.map(databean -> codec.encodeDatabeanToPathbeanKeyValueIfValid(nodePathPrefix, databean))
 				.concat(OptionalScanner::of)
 				.forEach(keyAndValue -> blobNode.write(keyAndValue.getLeft(), keyAndValue.getRight()));
 	}
 
 	private Scanner<D> scanMultiInternal(Collection<PK> keys){
 		return Scanner.of(Scanner.of(keys)
-				.map(key -> MemcachedKey.encodeKeyToPathbeanKey(serviceName.get(), clientName,
-						tableName, schemaVersion, autoSchemaVersion, key))
+				.map(key -> MemcachedKey.encodeKeyToPathbeanKey(nodePathPrefix, key))
 				.listTo(blobNode::read)
 				.values()
 				.stream()
 				.map(codec::decodeBytes));
+	}
+
+	@Override
+	public Long incrementAndGetCount(String tallyStringKey, int delta, Config config){
+		String memcachedStringKey = tallyCodec.encodeKey(new TallyKey(tallyStringKey));
+		int expirationSeconds = MemcachedExpirationTool.getExpirationSeconds(config);
+		try{
+			return ops.increment(clientId, memcachedStringKey, delta, expirationSeconds);
+		}catch(RuntimeException exception){
+			if(config.ignoreExceptionOrUse(DEFAULT_IGNORE_EXCEPTION)){
+				logger.error("memcached error on " + memcachedStringKey, exception);
+				return null;
+			}
+			throw exception;
+		}
+	}
+
+	@Override
+	public Optional<Long> findTallyCount(String key, Config config){
+		return Optional.ofNullable(getMultiTallyCount(List.of(key), config).get(key));
+	}
+
+	@Override
+	public Map<String,Long> getMultiTallyCount(Collection<String> tallyStringKeys, Config config){
+		if(tallyStringKeys.isEmpty()){
+			return Map.of();
+		}
+		return Scanner.of(tallyStringKeys)
+				.map(TallyKey::new)
+				.map(tallyCodec::encodeKey)
+				.listTo(memcachedStringKeys -> ops.fetch(
+						clientId,
+						getName(),
+						memcachedStringKeys,
+						config.getTimeout().toMillis(),
+						config.ignoreExceptionOrUse(DEFAULT_IGNORE_EXCEPTION)))
+				.map(tallyCodec::decodeResult)
+				.toMap(Pair::getLeft, Pair::getRight);
+	}
+
+	@Override
+	public void deleteTally(String tallyStringKey, Config config){
+		String memcachedStringKey = tallyCodec.encodeKey(new TallyKey(tallyStringKey));
+		deleteInternal(memcachedStringKey, config);
+	}
+
+	private void deleteInternal(String memcachedStringKey, Config config){
+		try{
+			ops.delete(clientId, getName(), memcachedStringKey, config.getTimeout());
+		}catch(Exception exception){
+			if(config.ignoreExceptionOrUse(DEFAULT_IGNORE_EXCEPTION)){
+				logger.error("memcached error on " + memcachedStringKey, exception);
+			}else{
+				throw exception;
+			}
+		}
 	}
 
 }

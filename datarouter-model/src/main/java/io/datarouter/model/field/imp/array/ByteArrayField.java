@@ -18,9 +18,7 @@ package io.datarouter.model.field.imp.array;
 import java.util.Arrays;
 import java.util.Base64;
 
-import org.apache.commons.codec.binary.Hex;
-
-import io.datarouter.bytes.ByteTool;
+import io.datarouter.bytes.codec.bytestringcodec.HexByteStringCodec;
 import io.datarouter.model.field.BaseField;
 import io.datarouter.model.field.Field;
 
@@ -53,10 +51,7 @@ public class ByteArrayField extends BaseField<byte[]>{
 
 	@Override
 	public byte[] getBytes(){
-		if(value == null){
-			return null;
-		}
-		return ByteTool.flipToAndFromComparableByteArray(value);
+		return value;
 	}
 
 	@Override
@@ -78,14 +73,16 @@ public class ByteArrayField extends BaseField<byte[]>{
 	}
 
 	@Override
-	public byte[] fromBytesButDoNotSet(byte[] bytes, int byteOffset){
-		int length = bytes.length - byteOffset;
-		return ByteTool.flipToAndFromComparableByteArray(bytes, byteOffset, length);
+	public byte[] fromBytesButDoNotSet(byte[] bytes, int offset){
+		if(offset == 0){
+			return bytes;
+		}
+		return Arrays.copyOfRange(bytes, offset, bytes.length);
 	}
 
 	@Override
 	public String getValueString(){
-		return value == null ? "null" : Hex.encodeHexString(value);
+		return value == null ? "null" : HexByteStringCodec.INSTANCE.encode(value);
 	}
 
 	@Override

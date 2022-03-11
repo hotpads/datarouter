@@ -21,11 +21,10 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import io.datarouter.bytes.LongArray;
-import io.datarouter.util.array.ArrayTool;
 
-public class UInt63ArrayFieldTests{
+public class LongArrayFieldTests{
 
-	private static final UInt63ArrayFieldKey FIELD_KEY = new UInt63ArrayFieldKey("");
+	private static final RawLongArrayFieldKey FIELD_KEY = new RawLongArrayFieldKey("");
 
 	@Test
 	public void testByteAware(){
@@ -36,18 +35,11 @@ public class UInt63ArrayFieldTests{
 		a1.add(Byte.MAX_VALUE);
 		a1.add(5);
 		a1.add(0);
-		UInt63ArrayField field = new UInt63ArrayField(FIELD_KEY, a1);
+		RawLongArrayField field = new RawLongArrayField(FIELD_KEY, a1);
 		byte[] bytesNoPrefix = field.getBytes();
-		Assert.assertEquals(ArrayTool.length(bytesNoPrefix), a1.size() * 8);
-		List<Long> a2 = new UInt63ArrayField(FIELD_KEY, null).fromBytesButDoNotSet(bytesNoPrefix, 0);
+		Assert.assertEquals(bytesNoPrefix.length, a1.size() * 8);
+		List<Long> a2 = new RawLongArrayField(FIELD_KEY, null).fromBytesButDoNotSet(bytesNoPrefix, 0);
 		Assert.assertEquals(a1, a2);
-
-		byte[] bytesWithPrefix = field.getBytesWithSeparator();
-		Assert.assertEquals(bytesWithPrefix[3], a1.size() * 8);
-		Assert.assertEquals(field.numBytesWithSeparator(bytesWithPrefix, 0), a1.size() * 8 + 4);
-
-		List<Long> a3 = new UInt63ArrayField(FIELD_KEY, null).fromBytesWithSeparatorButDoNotSet(bytesWithPrefix, 0);
-		Assert.assertEquals(a1, a3);
 	}
 
 }

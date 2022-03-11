@@ -205,6 +205,18 @@ public abstract class BaseManyFieldIntegrationTests{
 	}
 
 	@Test
+	public void testDateToLong(){
+		var bean = new ManyFieldBean();
+		Date val = new Date();
+		bean.setDateToLongField(val);
+		dao.put(bean);
+
+		ManyFieldBean roundTripped = dao.get(bean.getKey());
+		Assert.assertEquals(roundTripped.getDateToLongField(), bean.getDateToLongField());
+		Assert.assertEquals(val, roundTripped.getDateToLongField());
+	}
+
+	@Test
 	public void testLocalDate(){
 		var bean = new ManyFieldBean();
 		LocalDate val = LocalDate.now();
@@ -344,7 +356,6 @@ public abstract class BaseManyFieldIntegrationTests{
 	public void testIntegerArray(){
 		var bean = new ManyFieldBean();
 		bean.appendToIntegerArrayField(Integer.MAX_VALUE);
-		bean.appendToIntegerArrayField(null);
 		bean.appendToIntegerArrayField(-5029);
 		dao.put(bean);
 

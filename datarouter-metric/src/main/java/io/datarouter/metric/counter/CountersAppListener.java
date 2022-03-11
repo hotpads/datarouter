@@ -21,11 +21,8 @@ import javax.inject.Singleton;
 import io.datarouter.instrumentation.count.Counters;
 import io.datarouter.metric.config.DatarouterCountSettingRoot;
 import io.datarouter.metric.counter.collection.CountFlusher;
-import io.datarouter.metric.counter.collection.CountFlusher.CountFlusherFactory;
 import io.datarouter.metric.counter.collection.CountPartitions;
 import io.datarouter.metric.counter.collection.DatarouterCountCollector;
-import io.datarouter.storage.config.properties.ServerName;
-import io.datarouter.web.config.service.ServiceName;
 import io.datarouter.web.listener.DatarouterAppListener;
 
 @Singleton
@@ -36,17 +33,12 @@ public class CountersAppListener implements DatarouterAppListener{
 	@Inject
 	private DatarouterCountSettingRoot settings;
 	@Inject
-	private CountFlusherFactory flusherFactory;
-	@Inject
-	private ServerName serverName;
-	@Inject
-	private ServiceName serviceName;
+	private CountFlusher countFlusher;
 
 	// add flushers to a collector and register it with the global Counters class
 	@Override
 	public void onStartUp(){
-		CountFlusher flusher = flusherFactory.create(serviceName.get(), serverName.get());
-		var collector = new DatarouterCountCollector(ROLL_PERIOD_MS, flusher, settings.runCountsToQueue);
+		var collector = new DatarouterCountCollector(ROLL_PERIOD_MS, countFlusher, settings.runCountsToQueue);
 		Counters.addCollector(collector);
 	}
 

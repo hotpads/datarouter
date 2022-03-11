@@ -21,20 +21,19 @@ import java.sql.SQLException;
 import java.util.List;
 
 import io.datarouter.bytes.LongArray;
-import io.datarouter.bytes.codec.array.longarray.UInt63ArrayCodec;
+import io.datarouter.bytes.codec.array.longarray.RawLongArrayCodec;
 import io.datarouter.client.mysql.ddl.domain.MysqlColumnType;
 import io.datarouter.client.mysql.ddl.domain.SqlColumn;
 import io.datarouter.client.mysql.field.codec.base.BaseListMysqlFieldCodec;
 import io.datarouter.model.exception.DataAccessException;
-import io.datarouter.model.field.imp.array.UInt63ArrayField;
+import io.datarouter.model.field.imp.array.RawLongArrayField;
 
-@Deprecated//use ByteArrayField
-public class UInt63ArrayMysqlFieldCodec
-extends BaseListMysqlFieldCodec<Long,List<Long>,UInt63ArrayField>{
+public class RawLongArrayMysqlFieldCodec
+extends BaseListMysqlFieldCodec<Long,List<Long>,RawLongArrayField>{
 
-	private static final UInt63ArrayCodec U_INT_63_ARRAY_CODEC = UInt63ArrayCodec.INSTANCE;
+	private static final RawLongArrayCodec RAW_LONG_ARRAY_CODEC = RawLongArrayCodec.INSTANCE;
 
-	public UInt63ArrayMysqlFieldCodec(UInt63ArrayField field){
+	public RawLongArrayMysqlFieldCodec(RawLongArrayField field){
 		super(field);
 	}
 
@@ -55,7 +54,7 @@ extends BaseListMysqlFieldCodec<Long,List<Long>,UInt63ArrayField>{
 			LongArray longArray = field.getValue() instanceof LongArray
 					? (LongArray)field.getValue()
 					: new LongArray(field.getValue());
-			bytes = U_INT_63_ARRAY_CODEC.encode(longArray.getPrimitiveArray());
+			bytes = RAW_LONG_ARRAY_CODEC.encode(longArray.getPrimitiveArray());
 		}
 		try{
 			ps.setBytes(parameterIndex, bytes);
@@ -68,7 +67,7 @@ extends BaseListMysqlFieldCodec<Long,List<Long>,UInt63ArrayField>{
 	public List<Long> fromMysqlResultSetButDoNotSet(ResultSet rs){
 		try{
 			byte[] bytes = rs.getBytes(field.getKey().getColumnName());
-			return new LongArray(U_INT_63_ARRAY_CODEC.decode(bytes));
+			return new LongArray(RAW_LONG_ARRAY_CODEC.decode(bytes));
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}

@@ -110,6 +110,12 @@ public class TestDatarouterS3Client implements DatarouterS3Client{
 	}
 
 	@Override
+	public void putObjectAsBytesWithExpirationTime(String bucket, String key, ContentType contentType,
+			String cacheControl, ObjectCannedACL acl, byte[] bytes, Instant instant){
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
 	public void putPublicObject(String bucket, String key, ContentType contentType, Path path){
 		throw new UnsupportedOperationException();
 	}

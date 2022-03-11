@@ -63,7 +63,7 @@ public class AuroraDnsMonitoringJob extends BaseJob{
 
 	@Override
 	public void run(TaskTracker tracker){
-		List<DnsHostEntryDto> mismatchedEntries = dnsService.checkReaderEndpoint().getRight();
+		List<DnsHostEntryDto> mismatchedEntries = dnsService.checkClientEndpoint().getRight();
 		if(mismatchedEntries.isEmpty()){
 			return;
 		}

@@ -46,7 +46,7 @@ public class DoubleArrayField extends BaseListField<Double,List<Double>,DoubleAr
 
 	@Override
 	public int numBytesWithSeparator(byte[] bytes, int byteOffset){
-		return 0;
+		throw new UnsupportedOperationException();
 	}
 
 }

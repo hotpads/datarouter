@@ -26,26 +26,22 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.instrumentation.count.CountBatchDto;
-import io.datarouter.instrumentation.count.CountPublisher;
 import io.datarouter.metric.DatarouterMetricExecutors.DatarouterCountFlushSchedulerExecutor;
 import io.datarouter.metric.config.DatarouterCountSettingRoot;
 import io.datarouter.scanner.Scanner;
 
+@Singleton
 public class CountFlusher{
 	private static final Logger logger = LoggerFactory.getLogger(CountFlusher.class);
 
-	private final String serviceName;
-	private final String serverName;
 	private final CountPublisher countPublisher;
 	private final Queue<Map<Long,Map<String,Long>>> flushQueue;
 	private final DatarouterCountFlushSchedulerExecutor flushScheduler;
 	private final DatarouterCountSettingRoot settings;
 
-	private CountFlusher(String serviceName, String serverName, CountPublisher countPublisher,
-			DatarouterCountFlushSchedulerExecutor flushScheduler, DatarouterCountSettingRoot settings){
-		this.serviceName = serviceName;
-		this.serverName = serverName;
+	@Inject
+	public CountFlusher(CountPublisher countPublisher, DatarouterCountFlushSchedulerExecutor flushScheduler,
+			DatarouterCountSettingRoot settings){
 		this.countPublisher = countPublisher;
 		this.flushQueue = new ArrayBlockingQueue<>(60);//careful, size() must iterate every element
 		this.flushScheduler = flushScheduler;
@@ -80,7 +76,7 @@ public class CountFlusher{
 							}
 						});
 				logCountsSpec(counts);
-				countPublisher.add(new CountBatchDto(null, serviceName, serverName, counts));
+				countPublisher.add(counts);
 				flushQueue.poll();
 			}
 		}catch(Throwable e){
@@ -93,27 +89,6 @@ public class CountFlusher{
 				.map(Map::size)
 				.reduce(0, Integer::sum);
 		logger.info("counts buckets={}, names={}", counts.size(), names);
-	}
-
-	@Singleton
-	public static class CountFlusherFactory{
-
-		@Inject
-		private CountPublisher countPublisher;
-		@Inject
-		private DatarouterCountFlushSchedulerExecutor flushScheduler;
-		@Inject
-		private DatarouterCountSettingRoot settings;
-
-		public CountFlusher create(String serviceName, String serverName){
-			return new CountFlusher(
-					serviceName,
-					serverName,
-					countPublisher,
-					flushScheduler,
-					settings);
-		}
-
 	}
 
 }

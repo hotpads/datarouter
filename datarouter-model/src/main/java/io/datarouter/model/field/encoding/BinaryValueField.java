@@ -15,13 +15,12 @@
  */
 package io.datarouter.model.field.encoding;
 
-public interface ByteEncodedField<T>{
+/**
+ * Encodes fields as bytes for storage outside the PK of a databean.
+ */
+public interface BinaryValueField<T>{
 
 	byte[] getBytes();
 	T fromBytesButDoNotSet(byte[] bytes, int byteOffset);
-
-	int numBytesWithSeparator(byte[] bytes, int byteOffset);
-	byte[] getBytesWithSeparator();
-	T fromBytesWithSeparatorButDoNotSet(byte[] bytes, int byteOffset);
 
 }

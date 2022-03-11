@@ -27,7 +27,6 @@ import io.datarouter.client.mysql.ddl.domain.SqlColumn;
 import io.datarouter.client.mysql.field.codec.base.BaseListMysqlFieldCodec;
 import io.datarouter.model.exception.DataAccessException;
 import io.datarouter.model.field.imp.array.IntegerArrayField;
-import io.datarouter.util.array.ArrayTool;
 
 public class IntegerArrayMysqlFieldCodec
 extends BaseListMysqlFieldCodec<Integer,List<Integer>,IntegerArrayField>{
@@ -52,10 +51,10 @@ extends BaseListMysqlFieldCodec<Integer,List<Integer>,IntegerArrayField>{
 	public List<Integer> fromMysqlResultSetButDoNotSet(ResultSet rs){
 		try{
 			byte[] bytes = rs.getBytes(field.getKey().getColumnName());
-			if(ArrayTool.isEmpty(bytes)){
+			if(bytes == null){
 				return new ArrayList<>();
 			}
-			return INT_LIST_CODEC.decode(bytes, 0);
+			return INT_LIST_CODEC.decode(bytes, 0, bytes.length);
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}

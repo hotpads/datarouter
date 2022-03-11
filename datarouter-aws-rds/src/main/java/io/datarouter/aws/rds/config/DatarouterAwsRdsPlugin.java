@@ -28,7 +28,6 @@ import io.datarouter.aws.rds.service.AwsTags.NoOpAwsTags;
 import io.datarouter.aws.rds.service.DatabaseAdministrationConfiguration;
 import io.datarouter.aws.rds.service.DatabaseAdministrationConfiguration.NoOpDatabaseAdministrationConfiguration;
 import io.datarouter.job.BaseTriggerGroup;
-import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.setting.DatarouterSettingOverrides;
 import io.datarouter.web.config.BaseWebPlugin;
 import io.datarouter.web.navigation.DatarouterNavBarCategory;
@@ -37,7 +36,6 @@ public class DatarouterAwsRdsPlugin extends BaseWebPlugin{
 
 	private final Class<? extends DatabaseAdministrationConfiguration> databaseAdministrationConfiguration;
 	private final Class<? extends AwsTags> awsTags;
-	private final List<ClientId> auroraClientIds;
 	private final List<AuroraClientDto> auroraClientDtos;
 	private final String availabilityZone;
 	private final Class<? extends DatarouterSettingOverrides> settingOverridesClass;
@@ -45,13 +43,11 @@ public class DatarouterAwsRdsPlugin extends BaseWebPlugin{
 	private DatarouterAwsRdsPlugin(
 			Class<? extends DatabaseAdministrationConfiguration> databaseAdministrationConfiguration,
 			Class<? extends AwsTags> awsTags,
-			List<ClientId> auroraClientIds,
 			List<AuroraClientDto> auroraClientDtos,
 			String availabilityZone,
 			Class<? extends DatarouterSettingOverrides> settingOverridesClass){
 		this.databaseAdministrationConfiguration = databaseAdministrationConfiguration;
 		this.awsTags = awsTags;
-		this.auroraClientIds = auroraClientIds;
 		this.auroraClientDtos = auroraClientDtos;
 		this.availabilityZone = availabilityZone;
 		this.settingOverridesClass = settingOverridesClass;
@@ -67,8 +63,7 @@ public class DatarouterAwsRdsPlugin extends BaseWebPlugin{
 	public void configure(){
 		bind(DatabaseAdministrationConfiguration.class).to(databaseAdministrationConfiguration);
 		bind(AwsTags.class).to(awsTags);
-		bind(AuroraClientIdProvider.class).toInstance(new GenericAuroraClientIdProvider(auroraClientIds,
-				auroraClientDtos));
+		bind(AuroraClientIdProvider.class).toInstance(new GenericAuroraClientIdProvider(auroraClientDtos));
 		bind(AuroraAvailabilityZoneProvider.class).toInstance(new GenericAvailabilityZoneProvider(availabilityZone));
 		bind(settingOverridesClass).asEagerSingleton(); // allow overriders in tests;
 	}
@@ -80,7 +75,6 @@ public class DatarouterAwsRdsPlugin extends BaseWebPlugin{
 		private Class<? extends DatabaseAdministrationConfiguration> databaseAdministrationConfiguration
 				= NoOpDatabaseAdministrationConfiguration.class;
 		private Class<? extends AwsTags> awsTags = NoOpAwsTags.class;
-		private List<ClientId> auroraClientIds = new ArrayList<>();
 		private List<AuroraClientDto> auroraClientDtos = new ArrayList<>();
 		private String availabilityZone = "";
 
@@ -99,11 +93,6 @@ public class DatarouterAwsRdsPlugin extends BaseWebPlugin{
 			return this;
 		}
 
-		public DatarouterAwsRdsPluginBuilder addAuroraClientId(ClientId clientId){
-			this.auroraClientIds.add(clientId);
-			return this;
-		}
-
 		public DatarouterAwsRdsPluginBuilder addAuroraClientDto(AuroraClientDto auroraClientDto){
 			this.auroraClientDtos.add(auroraClientDto);
 			return this;
@@ -118,7 +107,6 @@ public class DatarouterAwsRdsPlugin extends BaseWebPlugin{
 			return new DatarouterAwsRdsPlugin(
 					databaseAdministrationConfiguration,
 					awsTags,
-					auroraClientIds,
 					auroraClientDtos,
 					availabilityZone,
 					settingOverridesClass);

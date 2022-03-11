@@ -50,9 +50,11 @@ public class MemcachedMapStorageNodeFactory{
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
 	MemcachedMapStorageNode<PK,D,F> createNode(NodeParams<PK,D,F> params){
-		return new MemcachedMapStorageNode<>(params, clientType,
-				new MemcachedBlobNode((NodeParams<PathbeanKey,Pathbean,PathbeanFielder>)params, clientType,
-						clientManager), serviceName);
+		var blobNode = new MemcachedBlobNode(
+				(NodeParams<PathbeanKey,Pathbean,PathbeanFielder>)params,
+				clientType,
+				clientManager);
+		return new MemcachedMapStorageNode<>(params, clientType, blobNode, serviceName, clientManager);
 	}
 
 }

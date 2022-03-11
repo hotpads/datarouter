@@ -37,8 +37,10 @@ public class Trace2ForLocalQueueDao extends BaseTraceQueueDao{
 	}
 
 	@Inject
-	public Trace2ForLocalQueueDao(Datarouter datarouter,
-			Trace2ForLocalQueueDaoParams params, QueueNodeFactory queueNodeFactory){
+	public Trace2ForLocalQueueDao(
+			Datarouter datarouter,
+			Trace2ForLocalQueueDaoParams params,
+			QueueNodeFactory queueNodeFactory){
 		super("TraceLocal", datarouter, params, queueNodeFactory);
 	}
 
