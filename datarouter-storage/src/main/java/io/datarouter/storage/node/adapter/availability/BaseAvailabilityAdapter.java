@@ -34,7 +34,8 @@ extends BaseAdapter<PK,D,F,N>{
 	private final DatarouterClientAvailabilitySettingsProvider datarouterClientAvailabilitySettingsProvider;
 
 	public BaseAvailabilityAdapter(
-			DatarouterClientAvailabilitySettingsProvider datarouterClientAvailabilitySettingsProvider, N backingNode){
+			DatarouterClientAvailabilitySettingsProvider datarouterClientAvailabilitySettingsProvider,
+			N backingNode){
 		super(backingNode);
 		this.datarouterClientAvailabilitySettingsProvider = datarouterClientAvailabilitySettingsProvider;
 	}

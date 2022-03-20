@@ -28,7 +28,9 @@ public class CommaSeparatedStringCachedSetting extends CachedSetting<Set<String>
 
 	private static final String SEPARATOR = ",";
 
-	public CommaSeparatedStringCachedSetting(SettingFinder finder, String name,
+	public CommaSeparatedStringCachedSetting(
+			SettingFinder finder,
+			String name,
 			DefaultSettingValue<Set<String>> defaultValue){
 		super(finder, name, defaultValue);
 	}

@@ -31,10 +31,8 @@ public class ClusterSchemaUpdateLockKey extends BaseRegularPrimaryKey<ClusterSch
 	private String statementHash;
 
 	public static class FieldKeys{
-
 		public static final IntegerFieldKey buildId = new IntegerFieldKey("buildId");
 		public static final StringFieldKey statementHash = new StringFieldKey("statementHash");
-
 	}
 
 	public ClusterSchemaUpdateLockKey(){

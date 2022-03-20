@@ -86,7 +86,9 @@ extends IndexedStorage<PK,D>{
 	default <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK, IE, PK, D>,
 			IF extends DatabeanFielder<IK, IE>>
-	Scanner<IE> scanRangesIndex(IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
+	Scanner<IE> scanRangesIndex(
+			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo,
+			Collection<Range<IK>> ranges,
 			Config config){
 		if(getAvailability().read.get()){
 			return getBackingNode().scanRangesIndex(indexEntryFieldInfo, ranges, config);
@@ -98,7 +100,9 @@ extends IndexedStorage<PK,D>{
 	default <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK, IE, PK, D>,
 			IF extends DatabeanFielder<IK, IE>>
-	Scanner<D> scanRangesByIndex(IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
+	Scanner<D> scanRangesByIndex(
+			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo,
+			Collection<Range<IK>> ranges,
 			Config config){
 		if(getAvailability().read.get()){
 			return getBackingNode().scanRangesByIndex(indexEntryFieldInfo, ranges, config);
@@ -110,7 +114,9 @@ extends IndexedStorage<PK,D>{
 	default <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK, IE, PK, D>,
 			IF extends DatabeanFielder<IK, IE>>
-	Scanner<IK> scanRangesIndexKeys(IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
+	Scanner<IK> scanRangesIndexKeys(
+			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo,
+			Collection<Range<IK>> ranges,
 			Config config){
 		if(getAvailability().read.get()){
 			return getBackingNode().scanRangesIndexKeys(indexEntryFieldInfo, ranges, config);
@@ -141,7 +147,10 @@ extends IndexedStorage<PK,D>{
 	@Override
 	default <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK, IE, PK, D>,
-			IF extends DatabeanFielder<IK, IE>> void deleteByIndex(Collection<IK> keys, Config config,
+			IF extends DatabeanFielder<IK, IE>>
+	void deleteByIndex(
+			Collection<IK> keys,
+			Config config,
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
 		if(getAvailability().write.get()){
 			getBackingNode().deleteByIndex(keys, config, indexEntryFieldInfo);

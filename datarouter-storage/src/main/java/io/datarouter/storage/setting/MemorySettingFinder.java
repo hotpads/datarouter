@@ -38,7 +38,11 @@ public class MemorySettingFinder implements SettingFinder{
 		this(null, null, null, null, List.of());
 	}
 
-	public MemorySettingFinder(String environmentType, String environment, ServerType serverType, String serverName,
+	public MemorySettingFinder(
+			String environmentType,
+			String environment,
+			ServerType serverType,
+			String serverName,
 			List<DatarouterSettingTag> settingTags){
 		this.environmentType = environmentType;
 		this.environment = environment;

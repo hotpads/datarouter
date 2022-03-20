@@ -145,6 +145,27 @@ public class NodeParams<
 			this.fielderSupplier = fielderSupplier;
 		}
 
+		public NodeParamsBuilder(NodeParams<PK,D,F> params){
+			databeanSupplier = params.databeanSupplier;
+			fielderSupplier = params.fielderSupplier;
+			parentName = params.parentName;
+			clientId = params.clientId;
+			schemaVersion = params.schemaVersion;
+			physicalName = params.physicalName;
+			namespace = params.namespace.orElse(null);
+			path = params.path;
+			entityNodePrefix = params.entityNodePrefix;
+			remoteRouterName = params.remoteRouterName;
+			remoteNodeName = params.remoteNodeName;
+			recordCallsites = params.recordCallsites;
+			streamName = params.streamName;
+			queueUrl = params.queueUrl;
+			nodewatchConfiguration = params.nodewatchConfiguration;
+			disableForcePrimary = params.disableForcePrimary;
+			tag = params.tag;
+			disableIntroducer = params.disableIntroducer;
+		}
+
 		/*---------------------------- with ---------------------------------*/
 
 		public NodeParamsBuilder<PK,D,F> withClientId(ClientId clientId){

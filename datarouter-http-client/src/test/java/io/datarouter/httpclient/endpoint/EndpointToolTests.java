@@ -201,4 +201,80 @@ public class EndpointToolTests{
 		Assert.assertEquals(type3.getTypeName(), new TypeToken<List<String>>(){}.getType().getTypeName());
 	}
 
+
+	public static class ValidateEndpoint1 extends EndpointToolTestEndpoint<Void>{
+
+		public final String str;
+
+		public ValidateEndpoint1(String str){
+			super(HttpRequestMethod.GET, new PathNode().leaf(""), false);
+			this.str = str;
+		}
+
+	}
+
+	public static class ValidateEndpoint2 extends EndpointToolTestEndpoint<Void>{
+
+		@EndpointRequestBody
+		public final String str;
+
+		public ValidateEndpoint2(String str){
+			super(HttpRequestMethod.GET, new PathNode().leaf(""), false);
+			this.str = str;
+		}
+
+	}
+
+	public static class ValidateEndpoint3 extends EndpointToolTestEndpoint<Void>{
+
+		@EndpointRequestBody
+		public final String str;
+
+		// by default this is a post param
+		public final String str2;
+
+		public ValidateEndpoint3(String str, String str2){
+			super(HttpRequestMethod.POST, new PathNode().leaf(""), false);
+			this.str = str;
+			this.str2 = str2;
+		}
+
+	}
+
+	public static class ValidateEndpoint4 extends EndpointToolTestEndpoint<Void>{
+
+		@EndpointRequestBody
+		public final String str;
+
+		@EndpointParam(paramType = ParamType.GET)
+		public final String str2;
+
+		public ValidateEndpoint4(String str, String str2){
+			super(HttpRequestMethod.POST, new PathNode().leaf(""), false);
+			this.str = str;
+			this.str2 = str2;
+		}
+
+	}
+
+	@Test
+	public void validateEndpoint1(){
+		EndpointTool.validateEndpoint(new ValidateEndpoint1(""));
+	}
+
+	@Test(expectedExceptions = IllegalArgumentException.class)
+	public void validateEndpoint2(){
+		EndpointTool.validateEndpoint(new ValidateEndpoint2(""));
+	}
+
+	@Test(expectedExceptions = IllegalArgumentException.class)
+	public void validateEndpoint3(){
+		EndpointTool.validateEndpoint(new ValidateEndpoint3("", ""));
+	}
+
+	@Test
+	public void validateEndpoint4(){
+		EndpointTool.validateEndpoint(new ValidateEndpoint4("", ""));
+	}
+
 }

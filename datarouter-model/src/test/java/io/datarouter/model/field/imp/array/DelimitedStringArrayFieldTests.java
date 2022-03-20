@@ -21,32 +21,34 @@ import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import io.datarouter.model.field.imp.list.DelimitedStringListField;
+
 public class DelimitedStringArrayFieldTests{
 
 	@Test
 	public void testRoundTrip(){
 		List<String> inputs = List.of("abc", "xyz", "def");
-		String encoded = DelimitedStringArrayField.encode(inputs, ",");
+		String encoded = DelimitedStringListField.encode(inputs, ",");
 		Assert.assertEquals(encoded, "abc,xyz,def");
-		List<String> decoded = DelimitedStringArrayField.decode(encoded, ",");
+		List<String> decoded = DelimitedStringListField.decode(encoded, ",");
 		Assert.assertEquals(decoded, inputs);
 	}
 
 	@Test
 	public void testRoundTripNull(){
 		List<String> input = null;
-		String encoded = DelimitedStringArrayField.encode(input, ",");
+		String encoded = DelimitedStringListField.encode(input, ",");
 		Assert.assertEquals(encoded, null);
-		List<String> decoded = DelimitedStringArrayField.decode(encoded, ",");
+		List<String> decoded = DelimitedStringListField.decode(encoded, ",");
 		Assert.assertEquals(decoded, input);
 	}
 
 	@Test
 	public void testRoundTripEmpty(){
 		List<String> inputs = new ArrayList<>();
-		String encoded = DelimitedStringArrayField.encode(inputs, ",");
+		String encoded = DelimitedStringListField.encode(inputs, ",");
 		Assert.assertEquals(encoded, "");
-		List<String> decoded = DelimitedStringArrayField.decode(encoded, ",");
+		List<String> decoded = DelimitedStringListField.decode(encoded, ",");
 		Assert.assertEquals(decoded, inputs);
 	}
 

@@ -28,12 +28,12 @@ import io.datarouter.enums.DatarouterEnumTool;
 import io.datarouter.enums.StringEnum;
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
-import io.datarouter.model.field.imp.array.DelimitedStringArrayField;
-import io.datarouter.model.field.imp.array.DelimitedStringArrayFieldKey;
 import io.datarouter.model.field.imp.comparable.InstantField;
 import io.datarouter.model.field.imp.comparable.InstantFieldKey;
 import io.datarouter.model.field.imp.enums.StringEnumField;
 import io.datarouter.model.field.imp.enums.StringEnumFieldKey;
+import io.datarouter.model.field.imp.list.DelimitedStringListField;
+import io.datarouter.model.field.imp.list.DelimitedStringListFieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 import io.datarouter.web.user.session.service.Role;
 
@@ -44,7 +44,7 @@ public class DeprovisionedUser extends BaseDatabean<DeprovisionedUserKey,Deprovi
 	private Instant updated;
 
 	public static class FieldKeys{
-		public static final DelimitedStringArrayFieldKey roles = new DelimitedStringArrayFieldKey("roles");
+		public static final DelimitedStringListFieldKey roles = new DelimitedStringListFieldKey("roles");
 		public static final StringEnumFieldKey<UserDeprovisioningStatus> status = new StringEnumFieldKey<>("status",
 				UserDeprovisioningStatus.class);
 		public static final InstantFieldKey updated = new InstantFieldKey("updated");
@@ -59,7 +59,7 @@ public class DeprovisionedUser extends BaseDatabean<DeprovisionedUserKey,Deprovi
 		@Override
 		public List<Field<?>> getNonKeyFields(DeprovisionedUser user){
 			return List.of(
-					new DelimitedStringArrayField(FieldKeys.roles, user.roles),
+					new DelimitedStringListField(FieldKeys.roles, user.roles),
 					new StringEnumField<>(FieldKeys.status, user.status),
 					new InstantField(FieldKeys.updated, user.updated));
 		}

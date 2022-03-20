@@ -32,10 +32,10 @@ import io.datarouter.model.field.imp.DateField;
 import io.datarouter.model.field.imp.DateFieldKey;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
-import io.datarouter.model.field.imp.array.DelimitedStringArrayField;
-import io.datarouter.model.field.imp.array.DelimitedStringArrayFieldKey;
 import io.datarouter.model.field.imp.comparable.LongField;
 import io.datarouter.model.field.imp.comparable.LongFieldKey;
+import io.datarouter.model.field.imp.list.DelimitedStringListField;
+import io.datarouter.model.field.imp.list.DelimitedStringListFieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 import io.datarouter.scanner.IterableScanner;
 import io.datarouter.web.user.authenticate.DatarouterTokenGenerator;
@@ -68,7 +68,7 @@ implements Session{
 		public static final LongFieldKey userId = new LongFieldKey("userId");
 		public static final StringFieldKey userToken = new StringFieldKey("userToken");
 		public static final StringFieldKey username = new StringFieldKey("username");
-		public static final DelimitedStringArrayFieldKey roles = new DelimitedStringArrayFieldKey("roles");
+		public static final DelimitedStringListFieldKey roles = new DelimitedStringListFieldKey("roles");
 		@SuppressWarnings("deprecation")
 		public static final DateFieldKey userCreated = new DateFieldKey("userCreated");
 	}
@@ -86,7 +86,7 @@ implements Session{
 			nonKeyFields.add(new LongField(FieldKeys.userId, databean.userId));
 			nonKeyFields.add(new StringField(FieldKeys.userToken, databean.userToken));
 			nonKeyFields.add(new StringField(FieldKeys.username, databean.username));
-			nonKeyFields.add(new DelimitedStringArrayField(FieldKeys.roles, databean.roles));
+			nonKeyFields.add(new DelimitedStringListField(FieldKeys.roles, databean.roles));
 			nonKeyFields.add(new DateField(FieldKeys.userCreated, databean.userCreated));
 			return nonKeyFields;
 		}

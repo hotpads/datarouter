@@ -38,7 +38,9 @@ public class TxnManagedUniqueIndexNode<
 extends BaseManagedIndexNode<PK,D,IK,IE,IF>
 implements ManagedUniqueIndexNode<PK,D,IK,IE,IF>{
 
-	public TxnManagedUniqueIndexNode(IndexedMapStorage<PK,D> node, IndexEntryFieldInfo<IK,IE,IF> fieldInfo,
+	public TxnManagedUniqueIndexNode(
+			IndexedMapStorage<PK,D> node,
+			IndexEntryFieldInfo<IK,IE,IF> fieldInfo,
 			String name){
 		super(node, fieldInfo, name);
 	}

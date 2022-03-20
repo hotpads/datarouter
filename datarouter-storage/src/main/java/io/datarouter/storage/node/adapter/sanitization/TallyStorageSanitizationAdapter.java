@@ -15,31 +15,48 @@
  */
 package io.datarouter.storage.node.adapter.sanitization;
 
+import java.util.Collection;
+import java.util.Map;
+import java.util.Optional;
+
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.config.Config;
-import io.datarouter.storage.node.adapter.sanitization.mixin.MapStorageSanitizationAdapterMixin;
-import io.datarouter.storage.node.op.raw.write.TallyStorageWriter;
-import io.datarouter.storage.node.op.raw.write.TallyStorageWriter.PhysicalTallyStorageWriterNode;
+import io.datarouter.storage.node.op.raw.TallyStorage;
+import io.datarouter.storage.node.op.raw.TallyStorage.PhysicalTallyStorageNode;
 
 public class TallyStorageSanitizationAdapter<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>,
-		N extends PhysicalTallyStorageWriterNode<PK,D,F>>
+		N extends PhysicalTallyStorageNode<PK,D,F>>
 extends BaseSanitizationAdapter<PK,D,F,N>
-implements TallyStorageWriter<PK,D>,
-		MapStorageSanitizationAdapterMixin<PK,D,F,N>{
+implements TallyStorage<PK,D>{
 
 	public TallyStorageSanitizationAdapter(N backingNode){
 		super(backingNode);
 	}
 
 	@Override
+	public Long incrementAndGetCount(String key, int delta, Config config){
+		return backingNode.incrementAndGetCount(key, delta, config);
+	}
+
+	@Override
+	public Optional<Long> findTallyCount(String key, Config config){
+		return backingNode.findTallyCount(key, config);
+	}
+
+	@Override
+	public Map<String,Long> getMultiTallyCount(Collection<String> keys, Config config){
+		return backingNode.getMultiTallyCount(keys, config);
+	}
+
+	@Override
 	public void deleteTally(String key, Config config){
 		if(key == null){
-			throw new RuntimeException("null key for " + OP_deleteTally + " operation");
+			throw new RuntimeException("null key for " + TallyStorage.OP_deleteTally + " operation");
 		}
 		backingNode.deleteTally(key, config);
 	}

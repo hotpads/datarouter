@@ -21,6 +21,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 
@@ -39,6 +40,7 @@ import io.datarouter.httpclient.endpoint.EndpointRequestBody;
 import io.datarouter.httpclient.endpoint.EndpointTool;
 import io.datarouter.httpclient.endpoint.IgnoredField;
 import io.datarouter.httpclient.json.JsonSerializer;
+import io.datarouter.instrumentation.count.Counters;
 import io.datarouter.instrumentation.trace.TraceSpanGroupType;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.util.lang.ReflectionTool;
@@ -50,7 +52,6 @@ import io.datarouter.web.util.http.RequestTool;
 public class EndpointDecoder implements HandlerDecoder{
 	private static final Logger logger = LoggerFactory.getLogger(EndpointDecoder.class);
 
-	//TODO Rename JsonSerializer or add Serializer, we just want a (de)serializer here
 	private final JsonSerializer deserializer;
 
 	@Inject
@@ -80,33 +81,45 @@ public class EndpointDecoder implements HandlerDecoder{
 		}
 		Object[] args = null;
 		try{
-			args = getArgsFromEndpointObject(queryParams, baseEndpoint, body);
+			args = getArgsFromEndpointObject(queryParams, baseEndpoint, body, method);
 		}catch(IllegalArgumentException | IllegalAccessException ex){
 			logger.warn("", ex);
 		}
 		return args;
 	}
 
-	private Object[] getArgsFromEndpointObject(Map<String,String[]> queryParams, BaseEndpoint<?,?> baseEndpoint,
-			String body)
+	private Object[] getArgsFromEndpointObject(
+			Map<String,String[]> queryParams,
+			BaseEndpoint<?,?> baseEndpoint,
+			String body,
+			Method method)
 	throws IllegalArgumentException, IllegalAccessException{
 		Field[] fields = baseEndpoint.getClass().getFields();
 		for(Field field : fields){
+			if(Modifier.isStatic(field.getModifiers())){
+				continue;
+			}
 			IgnoredField ignoredField = field.getAnnotation(IgnoredField.class);
 			if(ignoredField != null){
 				continue;
 			}
-			if(Modifier.isStatic(field.getModifiers())){
-				continue;
-			}
 			field.setAccessible(true);
+
 			String parameterName = EndpointTool.getFieldName(field);
 			Type parameterType = field.getType();
 			String[] queryParam = queryParams.get(parameterName);
 
 			if(field.isAnnotationPresent(EndpointRequestBody.class)){
-				var requestBody = decodeType(body, field.getGenericType());
+				Object requestBody = decodeType(body, field.getGenericType());
 				field.set(baseEndpoint, requestBody);
+				if(requestBody instanceof Collection<?>){
+					Collection<?> requestBodyCollection = (Collection<?>)requestBody;
+					// Datarouter handler method batch <Handler.class.simpleName> <methodName>
+					String counter = String.format("Datarouter handler method batch %s %s",
+							method.getDeclaringClass().getSimpleName(),
+							method.getName());
+					Counters.inc(counter, requestBodyCollection.size());
+				}
 				continue;
 			}
 

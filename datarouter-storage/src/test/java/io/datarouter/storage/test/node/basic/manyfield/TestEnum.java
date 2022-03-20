@@ -15,8 +15,8 @@
  */
 package io.datarouter.storage.test.node.basic.manyfield;
 
-import io.datarouter.enums.DatarouterEnumTool;
 import io.datarouter.enums.IntegerEnum;
+import io.datarouter.enums.MappedEnum;
 import io.datarouter.enums.StringEnum;
 
 public enum TestEnum implements IntegerEnum<TestEnum>, StringEnum<TestEnum>{
@@ -25,6 +25,13 @@ public enum TestEnum implements IntegerEnum<TestEnum>, StringEnum<TestEnum>{
 	cat(20, "cat"),
 	beast(21, "beast"),
 	fish(22, "fish");
+
+	public static final MappedEnum<Integer,TestEnum> BY_PERSISTENT_INTEGER = new MappedEnum<>(
+			values(),
+			value -> value.persistentInteger);
+	public static final MappedEnum<String,TestEnum> BY_PERSISTENT_STRING = new MappedEnum<>(
+			values(),
+			value -> value.persistentString);
 
 	private final int persistentInteger;
 	private final String persistentString;
@@ -40,8 +47,8 @@ public enum TestEnum implements IntegerEnum<TestEnum>, StringEnum<TestEnum>{
 	}
 
 	@Override
-	public TestEnum fromPersistentInteger(Integer input){
-		return DatarouterEnumTool.getEnumFromInteger(values(), input, null);
+	public TestEnum fromPersistentInteger(Integer value){
+		return BY_PERSISTENT_INTEGER.fromOrNull(value);
 	}
 
 	@Override
@@ -50,8 +57,8 @@ public enum TestEnum implements IntegerEnum<TestEnum>, StringEnum<TestEnum>{
 	}
 
 	@Override
-	public TestEnum fromPersistentString(String input){
-		return DatarouterEnumTool.getEnumFromString(values(), input, null);
+	public TestEnum fromPersistentString(String value){
+		return BY_PERSISTENT_STRING.fromOrNull(value);
 	}
 
 }

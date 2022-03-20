@@ -39,8 +39,13 @@ public class CallsiteRecord{
 	private long numItems;
 	private long durationNs;
 
-	public CallsiteRecord(Instant timestamp, String nodeName, String datarouterMethodName, String callsite,
-			long numItems, long durationNs){
+	public CallsiteRecord(
+			Instant timestamp,
+			String nodeName,
+			String datarouterMethodName,
+			String callsite,
+			long numItems,
+			long durationNs){
 		this.timestamp = timestamp;
 		this.nodeName = nodeName;
 		this.datarouterMethodName = datarouterMethodName;
@@ -51,12 +56,11 @@ public class CallsiteRecord{
 
 	public String getLogMessage(){
 		long durationUs = durationNs / 1000;
-		String message = nodeName
+		return nodeName
 				+ " " + datarouterMethodName
 				+ " " + callsite
 				+ " " + numItems
 				+ " " + durationUs;
-		return message;
 	}
 
 	public static CallsiteRecord fromLogLine(String line){

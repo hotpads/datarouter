@@ -66,10 +66,6 @@ public class CountBlobQueueDao extends BaseDao{
 		datarouter.register(queueNode);
 	}
 
-	public void put(ConveyorMessage databean){
-		queueNode.put(databean);
-	}
-
 	public void putMulti(Collection<ConveyorMessage> databeans){
 		queueNode.putMulti(databeans);
 	}

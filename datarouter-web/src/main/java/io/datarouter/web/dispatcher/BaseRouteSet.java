@@ -18,16 +18,20 @@ package io.datarouter.web.dispatcher;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.datarouter.httpclient.endpoint.BaseEndpoint;
 import io.datarouter.httpclient.endpoint.BaseInternalLink;
+import io.datarouter.httpclient.endpoint.EndpointTool;
 import io.datarouter.pathnode.PathNode;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.web.handler.BaseHandler;
-import io.datarouter.web.handler.types.EndpointDecoder;
 import io.datarouter.web.handler.types.InternalLinkDecoder;
 
 public abstract class BaseRouteSet{
+	private static final Logger logger = LoggerFactory.getLogger(BaseRouteSet.class);
 
 	public static final String REGEX_ONE_DIRECTORY = "[/]?[^/]*";
 	public static final String REGEX_TWO_DIRECTORY_PLUS = "/\\w+/\\w+[/]?.*";
@@ -58,30 +62,23 @@ public abstract class BaseRouteSet{
 		return applyDefaultAndAdd(rule);
 	}
 
-	protected DispatchRule handle(
-			Class<? extends BaseEndpoint<?,?>> baseEndpointClass,
-			Class<? extends BaseHandler> handler){
+	protected DispatchRule handle(Class<? extends BaseEndpoint<?,?>> baseEndpointClass){
 		BaseEndpoint<?,?> baseEndpoint = ReflectionTool.createWithoutNoArgs(baseEndpointClass);
+		try{
+			EndpointTool.validateEndpoint(baseEndpoint);
+		}catch(IllegalArgumentException ex){
+			logger.error("", ex); // puts the validation stack trace at the top
+			throw ex;
+		}
 		return handle(baseEndpoint.pathNode)
-				.withDefaultHandlerDecoder(EndpointDecoder.class)
-				.withHandler(handler);
-	}
-
-	protected DispatchRule handle(
-			Class<? extends BaseEndpoint<?,?>> baseEndpointClass,
-			Class<? extends BaseHandler> handler,
-			Class<? extends EndpointDecoder> endpointDecoder){
-		BaseEndpoint<?,?> baseEndpoint = ReflectionTool.createWithoutNoArgs(baseEndpointClass);
-		return handle(baseEndpoint.pathNode)
-				.withDefaultHandlerDecoder(endpointDecoder)
-				.withHandler(handler);
+				.withDispatchType(DispatchType.API_ENDPOINT);
 	}
 
 	protected Scanner<DispatchRule> handleEndpoints(
 			Class<? extends BaseHandler> handler,
 			List<Class<? extends BaseEndpoint<?,?>>> baseEndpointClasses){
 		return Scanner.of(baseEndpointClasses)
-				.map(endpointClass -> handle(endpointClass, handler))
+				.map(endpointClass -> handle(endpointClass).withHandler(handler))
 				.listTo(Scanner::of);//Caller not forced to terminate the scanner
 	}
 

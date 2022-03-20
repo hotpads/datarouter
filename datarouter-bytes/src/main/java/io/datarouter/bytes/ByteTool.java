@@ -148,16 +148,13 @@ public class ByteTool{
 	}
 
 	@Deprecated//don't box bytes
-	public static byte[] fromBoxedBytesNoNegatives(List<Byte> values){
+	public static byte[] fromBoxedBytes(List<Byte> values){
 		if(values.isEmpty()){
 			return EmptyArray.BYTE;
 		}
 		var out = new byte[values.size()];
 		int index = 0;
 		for(Byte value : values){
-			if(value < 0){
-				throw new IllegalArgumentException("no negatives");
-			}
 			out[index] = value;
 			++index;
 		}

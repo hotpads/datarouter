@@ -41,8 +41,11 @@ public class ClientOptions{
 	}
 
 	public ClientInitMode getInitMode(ClientId clientId, ClientInitMode def){
-		return getClientPropertyOrDefault((key, defaultValue) -> ClientInitMode.fromString(typedProperties.getString(
-				key), defaultValue), PARAM_initMode, clientId.getName(), def);
+		return getClientPropertyOrDefault(
+				(key, defaultValue) -> ClientInitMode.fromString(typedProperties.getString(key), defaultValue),
+				PARAM_initMode,
+				clientId.getName(),
+				def);
 	}
 
 	public boolean isClientTypePresent(ClientId clientId){
@@ -89,8 +92,11 @@ public class ClientOptions{
 				.collect(Collectors.toMap(
 						entry -> entry.getKey().toString().replace(clientPrefixedName, ""),
 						entry -> entry.getValue().toString()));
-		ClientInitMode initMode = getClientPropertyOrDefault((key, defaultValue) -> ClientInitMode.fromString(
-				typedProperties.getString(key), defaultValue), PARAM_initMode, clientName, ClientInitMode.lazy);
+		ClientInitMode initMode = getClientPropertyOrDefault(
+				(key, defaultValue) -> ClientInitMode.fromString(typedProperties.getString(key), defaultValue),
+				PARAM_initMode,
+				clientName,
+				ClientInitMode.lazy);
 		allClientOptions.put(PARAM_initMode, initMode.name());
 		return allClientOptions;
 	}
@@ -107,8 +113,11 @@ public class ClientOptions{
 		return PREFIX_client + clientName + "." + propertyKey;
 	}
 
-	private static <T> T getClientPropertyOrDefault(BiFunction<String,T,T> propertyGetter, String propertyKey,
-			String clientName, T defaultValue){
+	private static <T> T getClientPropertyOrDefault(
+			BiFunction<String,T,T> propertyGetter,
+			String propertyKey,
+			String clientName,
+			T defaultValue){
 		T defaultAltValue = propertyGetter.apply(makeClientPrefixedKey(CLIENT_default, propertyKey), defaultValue);
 		return propertyGetter.apply(makeClientPrefixedKey(clientName, propertyKey), defaultAltValue);
 	}

@@ -30,8 +30,7 @@ import io.datarouter.util.tuple.Pair;
 
 public class CountBlobDto{
 
-	private static final String
-			V1 = "v1";
+	private static final String V1 = "v1";
 
 	public final String version;
 	public final String ulid;
@@ -50,7 +49,6 @@ public class CountBlobDto{
 		Require.isFalse(counts.isEmpty());
 		this.counts = counts;
 		this.apiKey = Require.notBlank(apiKey);
-		//this depends on some other fields, so keep it at the end
 		this.signature = "unused";//TODO make v2 with no signature
 	}
 

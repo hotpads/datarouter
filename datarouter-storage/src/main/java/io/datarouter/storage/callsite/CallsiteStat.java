@@ -26,18 +26,24 @@ import io.datarouter.util.string.StringTool;
 public class CallsiteStat{
 
 	private static final String DAO_CALLSITE_INDICATOR = "dao";
-	private static final int DAO_CALLSITE_INDICATOR_LENGTH = Math.max(CallsiteReportHeader.type.length(),
+	private static final int DAO_CALLSITE_INDICATOR_LENGTH = Math.max(
+			CallsiteReportHeader.type.length(),
 			DAO_CALLSITE_INDICATOR.length());
 	private static final Set<String> HIDE_TIME_METHODS = Set.of("scanKeys", "scan");
 
-	private CallsiteStatKey key;
-	private String datarouterMethodName;
+	private final CallsiteStatKey key;
+	private final String datarouterMethodName;
 	private Long count;
 	private Long durationNs;
 	private Long numItems;
 
 
-	public CallsiteStat(String callsite, String nodeName, String datarouterMethodName, Long count, Long durationNs,
+	public CallsiteStat(
+			String callsite,
+			String nodeName,
+			String datarouterMethodName,
+			Long count,
+			Long durationNs,
 			Long numItems){
 		this.key = new CallsiteStatKey(callsite, nodeName);
 		this.datarouterMethodName = datarouterMethodName;
@@ -47,7 +53,8 @@ public class CallsiteStat{
 	}
 
 	public static String getReportHeader(CallsiteStatReportMetadata metadata){
-		return buildReportLine(metadata,
+		return buildReportLine(
+				metadata,
 				CallsiteReportHeader.count.toString(),
 				CallsiteReportHeader.microSec.toString(),
 				CallsiteReportHeader.avgMicroSec.toString(),
@@ -66,16 +73,34 @@ public class CallsiteStat{
 		String avgCallUsString = hideDuration ? "" : NumberFormatter.addCommas(getDurationUs() / count);
 		String numItemsString = NumberFormatter.addCommas(numItems);
 		String avgItemsString = NumberFormatter.addCommas(numItems / count);
-		String type = isDaoCallsite() ? DAO_CALLSITE_INDICATOR
+		String type = isDaoCallsite()
+				? DAO_CALLSITE_INDICATOR
 				: StringTool.repeat(' ', DAO_CALLSITE_INDICATOR_LENGTH);
-		return buildReportLine(metadata, countString, durationString, avgCallUsString, numItemsString, avgItemsString,
-				type, key.getNodeName(), datarouterMethodName, key.getCallsite());
+		return buildReportLine(
+				metadata,
+				countString,
+				durationString,
+				avgCallUsString,
+				numItemsString,
+				avgItemsString,
+				type,
+				key.getNodeName(),
+				datarouterMethodName,
+				key.getCallsite());
 	}
 
-	private static String buildReportLine(CallsiteStatReportMetadata reportMetadata, String count, String durationUs,
-			String avgCallUs, String numItems, String avgItems, String type, String nodeName, String drMethod,
+	private static String buildReportLine(
+			CallsiteStatReportMetadata reportMetadata,
+			String count,
+			String durationUs,
+			String avgCallUs,
+			String numItems,
+			String avgItems,
+			String type,
+			String nodeName,
+			String drMethod,
 			String callsite){
-		StringBuilder sb = new StringBuilder();
+		var sb = new StringBuilder();
 		sb.append(StringTool.pad(count, ' ', 2 + reportMetadata.getCountLength()));
 		sb.append(StringTool.pad(durationUs, ' ', 2 + reportMetadata.getDurationUsLength()));
 		sb.append(StringTool.pad(avgCallUs, ' ', 2 + reportMetadata.getAvgDurationUsLength()));

@@ -23,21 +23,21 @@ public class PrimitiveLongArrayFieldTests{
 
 	@Test
 	public void testStringEncodedValue(){
-		PrimitiveLongArrayField field;
+		LongArrayField field;
 
 		long[] array = {1, -12, 15};
 		String stringValue = "[1,-12,15]";
-		field = new PrimitiveLongArrayField(new PrimitiveLongArrayFieldKey("test"), array);
+		field = new LongArrayField(new LongArrayFieldKey("test"), array);
 		Assert.assertEquals(field.getStringEncodedValue(), stringValue);
 		Assert.assertEquals(field.parseStringEncodedValueButDoNotSet(stringValue), array);
 
 		long[] emptyArray = {};
 		String emptyArrayStringValue = "[]";
-		field = new PrimitiveLongArrayField(new PrimitiveLongArrayFieldKey("test"), emptyArray);
+		field = new LongArrayField(new LongArrayFieldKey("test"), emptyArray);
 		Assert.assertEquals(field.getStringEncodedValue(), emptyArrayStringValue);
 		Assert.assertEquals(field.parseStringEncodedValueButDoNotSet(emptyArrayStringValue), emptyArray);
 
-		field = new PrimitiveLongArrayField(new PrimitiveLongArrayFieldKey("test"), null);
+		field = new LongArrayField(new LongArrayFieldKey("test"), null);
 		Assert.assertNull(field.getStringEncodedValue());
 		Assert.assertNull(field.parseStringEncodedValueButDoNotSet(null));
 	}

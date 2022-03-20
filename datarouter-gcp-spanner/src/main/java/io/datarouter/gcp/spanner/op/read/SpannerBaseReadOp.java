@@ -27,6 +27,8 @@ import com.google.cloud.spanner.KeyRange;
 import com.google.cloud.spanner.KeyRange.Endpoint;
 import com.google.cloud.spanner.KeySet;
 import com.google.cloud.spanner.Options;
+import com.google.cloud.spanner.Options.ReadOption;
+import com.google.cloud.spanner.ReadContext;
 import com.google.cloud.spanner.ResultSet;
 
 import io.datarouter.gcp.spanner.field.SpannerBaseFieldCodec;
@@ -37,6 +39,7 @@ import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.opencensus.adapter.DatarouterOpencensusTool;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.Config;
 import io.datarouter.util.tuple.Range;
 import io.opencensus.common.Scope;
@@ -90,27 +93,36 @@ public abstract class SpannerBaseReadOp<T> extends SpannerBaseOp<List<T>>{
 		}
 	}
 
+	/*
+	 * Note about ReadContext.read(..)
+	 *  "any SpannerException is deferred to the first or subsequent ResultSet#next() call"
+	 * So it would happen inside createFromResultSet(..)
+	 */
 	private <F> List<F> callClientInternal(List<String> columnNames, List<Field<?>> fields, Supplier<F> object){
-		Integer offset = config.findOffset().orElse(0);
-		ResultSet rs;
-		if(config.getLimit() != null){
-			int limit = offset + config.getLimit();
-			rs = client.singleUseReadOnlyTransaction().read(
-					tableName,
-					buildKeySet(),
-					columnNames,
-					Options.limit(limit));
-		}else{
-			rs = client.singleUseReadOnlyTransaction().read(tableName, buildKeySet(), columnNames);
+		KeySet keySet = buildKeySet();
+		int offset = config.findOffset().orElse(0);
+		ReadOption[] readOptions = makeReadOptions(offset, config);
+		try(ReadContext txn = client.singleUseReadOnlyTransaction()){
+			try(ResultSet rs = txn.read(tableName, keySet, columnNames, readOptions)){
+				List<F> results = createFromResultSet(rs, object, fields);
+				if(offset >= results.size()){
+					return List.of();
+				}
+				if(offset > 0){
+					int size = results.size() - offset;
+					return Scanner.of(results)
+							.skip(offset)
+							.collect(() -> new ArrayList<>(size));
+				}
+				return results;
+			}
 		}
-		List<F> result = createFromResultSet(rs, object, fields);
-		if(offset >= result.size()){
-			return List.of();
-		}
-		if(offset > 0){
-			return result.subList(offset, result.size());
-		}
-		return result;
+	}
+
+	private static ReadOption[] makeReadOptions(int offset, Config config){
+		return config.getLimit() == null
+				? new ReadOption[]{}
+				: new ReadOption[]{Options.limit(offset + config.getLimit())};
 	}
 
 	protected <K extends PrimaryKey<K>> KeyRange convertRange(Range<K> range){

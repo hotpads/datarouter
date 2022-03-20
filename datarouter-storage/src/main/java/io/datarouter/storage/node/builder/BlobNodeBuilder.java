@@ -56,10 +56,7 @@ public class BlobNodeBuilder<
 	}
 
 	public <N extends NodeOps<PathbeanKey,Pathbean>> N build(){
-		return blobNodeFactory.create(
-				clientId,
-				bucket,
-				path);
+		return blobNodeFactory.create(clientId, bucket, path);
 	}
 
 }

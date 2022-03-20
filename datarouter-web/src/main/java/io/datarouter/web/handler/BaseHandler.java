@@ -198,7 +198,8 @@ public abstract class BaseHandler{
 		return Optional.empty();
 	}
 
-	private Optional<RequestParamValidatorErrorResponseDto> validateRequestParamValidatorsFromEndpoint(Method method,
+	private Optional<RequestParamValidatorErrorResponseDto> validateRequestParamValidatorsFromEndpoint(
+			Method method,
 			Object[] args){
 		return Optional.ofNullable(method.getParameters()[0].getAnnotation(EndpointValidator.class))
 				.map(EndpointValidator::validator)

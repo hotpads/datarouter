@@ -96,6 +96,7 @@ public abstract class ExceptionHandlingFilter implements Filter, InjectorRetriev
 			writeExceptionToResponseWriter(response, e, request, exceptionId);
 		}
 		Counters.inc(webappName + " response " + response.getStatus());
+		Counters.inc("response " + response.getStatus());
 		if(statusToLog.contains(response.getStatus())){
 			logger.warn("{} on {} ip={} userAgent={}", response.getStatus(), RequestTool.getRequestUriWithQueryString(
 					request), RequestTool.getIpAddress(request), RequestTool.getUserAgent(request));

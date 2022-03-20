@@ -40,7 +40,8 @@ extends BaseNode<PK,D,F>{
 	protected final List<IndexListener<PK,D>> indexListeners;
 
 	public BaseIndexingNode(N mainNode){
-		super(new NodeParamsBuilder<>(mainNode.getFieldInfo().getDatabeanSupplier(),
+		super(new NodeParamsBuilder<>(
+				mainNode.getFieldInfo().getDatabeanSupplier(),
 				mainNode.getFieldInfo().getFielderSupplier()).build());
 		this.mainNode = mainNode;
 		this.indexListeners = new ArrayList<>();

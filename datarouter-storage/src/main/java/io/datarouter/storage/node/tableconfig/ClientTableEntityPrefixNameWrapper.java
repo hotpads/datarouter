@@ -26,8 +26,9 @@ public class ClientTableEntityPrefixNameWrapper implements Comparable<ClientTabl
 	private final String subEntityPrefix;
 
 	public ClientTableEntityPrefixNameWrapper(PhysicalNode<?,?,?> node){
-		this(node.getFieldInfo().getClientId().getName(), node.getFieldInfo().getTableName(), node.getFieldInfo()
-				.getEntityNodePrefix());
+		this(node.getFieldInfo().getClientId().getName(),
+				node.getFieldInfo().getTableName(),
+				node.getFieldInfo().getEntityNodePrefix());
 	}
 
 	public ClientTableEntityPrefixNameWrapper(String clientName, String tableName, String subEntityPrefix){

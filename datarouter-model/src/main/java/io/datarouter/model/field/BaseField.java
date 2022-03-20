@@ -15,7 +15,6 @@
  */
 package io.datarouter.model.field;
 
-import java.util.Comparator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -128,15 +127,6 @@ public abstract class BaseField<T> implements Field<T>{
 	@Override
 	public String getPreparedStatementValue(){
 		return "?";
-	}
-
-	public static class FieldColumnNameComparator implements Comparator<Field<?>>{
-
-		@Override
-		public int compare(Field<?> o1, Field<?> o2){
-			return o1.getKey().getColumnName().hashCode() - o2.getKey().getColumnName().hashCode();
-		}
-
 	}
 
 }

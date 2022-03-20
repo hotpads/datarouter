@@ -21,10 +21,12 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import io.datarouter.bytes.LongArray;
+import io.datarouter.model.field.imp.list.RawLongListField;
+import io.datarouter.model.field.imp.list.RawLongListFieldKey;
 
 public class LongArrayFieldTests{
 
-	private static final RawLongArrayFieldKey FIELD_KEY = new RawLongArrayFieldKey("");
+	private static final RawLongListFieldKey FIELD_KEY = new RawLongListFieldKey("");
 
 	@Test
 	public void testByteAware(){
@@ -35,10 +37,10 @@ public class LongArrayFieldTests{
 		a1.add(Byte.MAX_VALUE);
 		a1.add(5);
 		a1.add(0);
-		RawLongArrayField field = new RawLongArrayField(FIELD_KEY, a1);
+		RawLongListField field = new RawLongListField(FIELD_KEY, a1);
 		byte[] bytesNoPrefix = field.getBytes();
 		Assert.assertEquals(bytesNoPrefix.length, a1.size() * 8);
-		List<Long> a2 = new RawLongArrayField(FIELD_KEY, null).fromBytesButDoNotSet(bytesNoPrefix, 0);
+		List<Long> a2 = new RawLongListField(FIELD_KEY, null).fromBytesButDoNotSet(bytesNoPrefix, 0);
 		Assert.assertEquals(a1, a2);
 	}
 

@@ -21,7 +21,7 @@ import javax.inject.Singleton;
 import io.datarouter.aws.memcached.AwsMemcachedClientType;
 import io.datarouter.aws.memcached.client.AwsMemcachedClientManager;
 import io.datarouter.client.memcached.node.MemcachedBlobNode;
-import io.datarouter.client.memcached.node.MemcachedNode;
+import io.datarouter.client.memcached.node.MemcachedMapStorageNode;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
@@ -29,6 +29,7 @@ import io.datarouter.storage.file.Pathbean;
 import io.datarouter.storage.file.Pathbean.PathbeanFielder;
 import io.datarouter.storage.file.PathbeanKey;
 import io.datarouter.storage.node.NodeParams;
+import io.datarouter.web.config.service.ServiceName;
 
 @Singleton
 public class AwsMemcachedNodeFactory{
@@ -37,6 +38,8 @@ public class AwsMemcachedNodeFactory{
 	private AwsMemcachedClientType clientType;
 	@Inject
 	private AwsMemcachedClientManager clientManager;
+	@Inject
+	private ServiceName serviceName;
 
 	public MemcachedBlobNode createBlobNode(NodeParams<PathbeanKey,Pathbean,PathbeanFielder> params){
 		return new MemcachedBlobNode(params, clientType, clientManager);
@@ -45,8 +48,8 @@ public class AwsMemcachedNodeFactory{
 	public <PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
-	MemcachedNode<PK,D,F> createTallyNode(NodeParams<PK,D,F> params){
-		return new MemcachedNode<>(params, clientType, clientManager);
+	MemcachedMapStorageNode<PK,D,F> createTallyNode(NodeParams<PK,D,F> params){
+		return new MemcachedMapStorageNode<>(params, clientType, serviceName, clientManager);
 	}
 
 }

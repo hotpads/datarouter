@@ -31,10 +31,10 @@ public class DoubleListCodecTests{
 		double two = -583.2039;
 		double three = 5;
 		double four = -.0000001;
-		List<Double> doubles = Arrays.asList(one, two, null, three, four);
+		List<Double> doubles = Arrays.asList(one, two, three, four);
 
 		byte[] doubleBytes = DOUBLE_LIST_CODEC.encode(doubles);
-		List<Double> result = DOUBLE_LIST_CODEC.decode(doubleBytes, 0);
+		List<Double> result = DOUBLE_LIST_CODEC.decode(doubleBytes);
 		Assert.assertEquals(result, doubles);
 	}
 

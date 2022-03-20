@@ -16,6 +16,7 @@
 package io.datarouter.web.config;
 
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -34,6 +35,7 @@ import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.DaosTestService;
 import io.datarouter.storage.setting.SettingNode;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.util.Require;
 import io.datarouter.util.clazz.AnnotationTool;
 import io.datarouter.web.dispatcher.BaseRouteSet;
@@ -42,6 +44,7 @@ import io.datarouter.web.dispatcher.DispatcherServletTestService;
 import io.datarouter.web.file.AppFilesTestService;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.BaseHandler.Handler;
+import io.datarouter.web.handler.HandlerTool;
 import io.datarouter.web.listener.AppListenersClasses;
 import io.datarouter.web.user.role.DatarouterUserRole;
 import io.datarouter.web.user.session.service.Role;
@@ -89,7 +92,8 @@ public class DatarouterWebBoostrapIntegrationService implements TestableService{
 		testSingletonsForAppListeners();
 		testSingletonsForSeralizers();
 		testAllRoles();
-		// testHandlerPublicMethods();
+		testHandlerMethodNameAndPathMatching();
+//		testHandlerMatching();
 	}
 
 	@Override
@@ -139,18 +143,40 @@ public class DatarouterWebBoostrapIntegrationService implements TestableService{
 		List<String> handlersWithPrivateMethods = Scanner.of(routeSetRegistry.get())
 				.concatIter(BaseRouteSet::getDispatchRules)
 				.map(DispatchRule::getHandlerClass)
-				.concatIter(clazz -> {
-					return Scanner.of(clazz.getDeclaredMethods())
-							.exclude(method -> method.getAnnotation(Handler.class) == null)
-							.include(method -> Modifier.isPrivate(method.getModifiers()))
-							.map(method -> clazz.getSimpleName() + "." + method.getName())
-							.list();
-				})
+				.concatIter(clazz -> Scanner.of(clazz.getDeclaredMethods())
+						.exclude(method -> method.getAnnotation(Handler.class) == null)
+						.include(method -> Modifier.isPrivate(method.getModifiers()))
+						.map(method -> clazz.getSimpleName() + "." + method.getName())
+						.list())
 				.distinct()
 				.sort()
 				.list();
 		Require.isTrue(handlersWithPrivateMethods.size() == 0, "The following methods need to be public: \n"
 				+ handlersWithPrivateMethods.stream().collect(Collectors.joining("\n")));
+	}
+
+	private void testHandlerMethodNameAndPathMatching(){
+		List<String> exceptions = new ArrayList<>();
+		Scanner.of(routeSetRegistry.get())
+				.concatIter(BaseRouteSet::getDispatchRules)
+				.exclude(dispatchRule -> dispatchRule.getTag() == Tag.DATAROUTER)
+				.exclude(dispatchRule -> dispatchRule.getPattern().toString().endsWith("[/]?[^/]*"))
+				.exclude(dispatchRule -> dispatchRule.getPattern().toString().endsWith("*"))
+				.exclude(dispatchRule -> dispatchRule.getPattern().toString().endsWith("|/"))
+				.exclude(dispatchRule -> dispatchRule.getPattern().toString().endsWith("?"))
+				.forEach(dispatchRule -> {
+					String path = Scanner.of(dispatchRule.getPattern().toString().split("/"))
+							.findLast()
+							.get();
+					try{
+						HandlerTool.assertHandlerHasMethod(dispatchRule.getHandlerClass(), path);
+					}catch(IllegalArgumentException ex){
+						exceptions.add(ex.getMessage());
+					}
+				});
+		if(exceptions.size() != 0){
+			throw new IllegalArgumentException(String.join("\n", exceptions));
+		}
 	}
 
 }

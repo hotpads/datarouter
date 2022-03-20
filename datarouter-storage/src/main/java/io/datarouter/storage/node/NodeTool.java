@@ -27,7 +27,10 @@ import io.datarouter.storage.node.type.physical.PhysicalNode;
 
 public class NodeTool{
 
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
+	public static <
+			PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>>
 	PhysicalNode<PK,D,F> extractSinglePhysicalNode(Node<PK,D,F> node){
 		Iterator<? extends PhysicalNode<PK,D,F>> physicalNodes = node.getPhysicalNodes().iterator();
 		PhysicalNode<PK,D,F> physicalNode = physicalNodes.next();

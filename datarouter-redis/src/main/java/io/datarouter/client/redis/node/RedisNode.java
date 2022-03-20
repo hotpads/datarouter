@@ -33,6 +33,7 @@ import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.NodeParams;
+import io.datarouter.storage.node.op.raw.MapStorage.PhysicalMapStorageNode;
 import io.datarouter.storage.node.op.raw.TallyStorage.PhysicalTallyStorageNode;
 import io.datarouter.storage.node.type.physical.base.BasePhysicalNode;
 import io.lettuce.core.cluster.api.async.RedisClusterAsyncCommands;
@@ -42,7 +43,7 @@ public class RedisNode<
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>>
 extends BasePhysicalNode<PK,D,F>
-implements PhysicalTallyStorageNode<PK,D,F>{
+implements PhysicalMapStorageNode<PK,D,F>, PhysicalTallyStorageNode<PK,D,F>{
 
 	private final ExecutorService executor;
 	private final RedisDatabeanCodec<PK,D,F> codec;

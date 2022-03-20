@@ -15,11 +15,10 @@
  */
 package io.datarouter.metric.counter;
 
-import java.nio.charset.StandardCharsets;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.bytes.codec.stringcodec.StringCodec;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.file.PathbeanKey;
 import io.datarouter.storage.util.Subpath;
@@ -31,7 +30,7 @@ public class CountBlobDirectoryDao{
 	private CountBlobDirectorySupplier directory;
 
 	public String read(String filename){
-		return new String(directory.getCountBlobDirectory().read(PathbeanKey.of(filename)), StandardCharsets.UTF_8);
+		return StringCodec.UTF_8.decode(directory.getCountBlobDirectory().read(PathbeanKey.of(filename)));
 	}
 
 	public void write(CountBlobDto countBlobDto){

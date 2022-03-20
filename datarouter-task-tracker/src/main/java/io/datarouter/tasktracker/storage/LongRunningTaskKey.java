@@ -20,10 +20,11 @@ import java.util.List;
 
 import io.datarouter.instrumentation.task.TaskTrackerKeyDto;
 import io.datarouter.model.field.Field;
+import io.datarouter.model.field.codec.DateToLongFieldCodec;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
-import io.datarouter.model.field.imp.custom.LongDateField;
-import io.datarouter.model.field.imp.custom.LongDateFieldKey;
+import io.datarouter.model.field.imp.comparable.LongEncodedField;
+import io.datarouter.model.field.imp.comparable.LongEncodedFieldKey;
 import io.datarouter.model.key.primary.base.BaseRegularPrimaryKey;
 
 public class LongRunningTaskKey extends BaseRegularPrimaryKey<LongRunningTaskKey>{
@@ -34,7 +35,9 @@ public class LongRunningTaskKey extends BaseRegularPrimaryKey<LongRunningTaskKey
 
 	public static class FieldKeys{
 		public static final StringFieldKey name = new StringFieldKey("name").withColumnName("jobClass");
-		public static final LongDateFieldKey triggerTime = new LongDateFieldKey("triggerTime");
+		public static final LongEncodedFieldKey<Date> triggerTime = new LongEncodedFieldKey<>(
+				"triggerTime",
+				new DateToLongFieldCodec());
 		public static final StringFieldKey serverName = new StringFieldKey("serverName");
 	}
 
@@ -51,7 +54,7 @@ public class LongRunningTaskKey extends BaseRegularPrimaryKey<LongRunningTaskKey
 	public List<Field<?>> getFields(){
 		return List.of(
 				new StringField(FieldKeys.name, name),
-				new LongDateField(FieldKeys.triggerTime, triggerTime),
+				new LongEncodedField<>(FieldKeys.triggerTime, triggerTime),
 				new StringField(FieldKeys.serverName, serverName));
 	}
 

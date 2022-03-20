@@ -15,21 +15,18 @@
  */
 package io.datarouter.client.memcached.node;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.client.memcached.client.MemcachedClientManager;
 import io.datarouter.client.memcached.client.MemcachedOps;
-import io.datarouter.client.memcached.codec.MemcachedDatabeanCodec;
-import io.datarouter.client.memcached.codec.MemcachedKey;
-import io.datarouter.client.memcached.codec.MemcachedTallyCodec;
+import io.datarouter.client.memcached.codec.MemcachedDatabeanCodecV2;
+import io.datarouter.client.memcached.codec.MemcachedTallyCodecV2;
 import io.datarouter.client.memcached.util.MemcachedExpirationTool;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
@@ -39,12 +36,15 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.config.Config;
+import io.datarouter.storage.file.Pathbean;
+import io.datarouter.storage.file.Pathbean.PathbeanFielder;
+import io.datarouter.storage.file.PathbeanKey;
 import io.datarouter.storage.node.NodeParams;
+import io.datarouter.storage.node.NodeParams.NodeParamsBuilder;
 import io.datarouter.storage.node.op.raw.MapStorage.PhysicalMapStorageNode;
 import io.datarouter.storage.node.op.raw.TallyStorage.PhysicalTallyStorageNode;
 import io.datarouter.storage.node.type.physical.base.BasePhysicalNode;
-import io.datarouter.storage.tally.TallyKey;
-import io.datarouter.util.HashMethods;
+import io.datarouter.storage.util.Subpath;
 import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.config.service.ServiceName;
 
@@ -56,80 +56,65 @@ extends BasePhysicalNode<PK,D,F>
 implements PhysicalMapStorageNode<PK,D,F>, PhysicalTallyStorageNode<PK,D,F>{
 	private static final Logger logger = LoggerFactory.getLogger(MemcachedMapStorageNode.class);
 
+	public static final int CODEC_VERSION = 1;
 	private static final Boolean DEFAULT_IGNORE_EXCEPTION = true;
 
-	private final MemcachedDatabeanCodec<PK,D,F> codec;
-	private final MemcachedBlobNode blobNode;
 	private final MemcachedOps ops;
-	private final String clientName;
-	private final String tableName;
-	private final int schemaVersion;
-	private final long autoSchemaVersion;
 	private final ClientId clientId;
-	private final MemcachedTallyCodec tallyCodec;
-	private final String nodePathPrefix;
+	private final String tableName;
+	private final Subpath nodeSubpath;
+	private final MemcachedBlobNode blobNode;
+	private final MemcachedDatabeanCodecV2<PK,D,F> databeanCodec;
+	private final MemcachedTallyCodecV2 tallyCodec;
 
 	public MemcachedMapStorageNode(
 			NodeParams<PK,D,F> params,
 			ClientType<?,?> clientType,
-			MemcachedBlobNode blobNode,
 			ServiceName serviceName,
 			MemcachedClientManager memcachedClientManager){
 		super(params, clientType);
-		schemaVersion = Optional.ofNullable(params.getSchemaVersion()).orElse(1);
-		codec = new MemcachedDatabeanCodec<>(
-				getName(),
-				schemaVersion,
-				getFieldInfo().getSampleFielder(),
-				getFieldInfo().getDatabeanSupplier(),
-				getFieldInfo().getFieldByPrefixedName());
-		this.blobNode = blobNode;
-		clientName = getFieldInfo().getClientId().getName();
-		tableName = getFieldInfo().getTableName();
-		autoSchemaVersion = createAutoSchemaVersion();
 		ops = new MemcachedOps(memcachedClientManager);
 		clientId = params.getClientId();
-		tallyCodec = new MemcachedTallyCodec(
-				getName(),
-				schemaVersion);
-		nodePathPrefix = makeNodePathPrefix(
+		tableName = getFieldInfo().getTableName();
+		String nodeVersion = Optional.ofNullable(params.getSchemaVersion())
+				.map(Object::toString)
+				.orElse("");
+		String databeanVersion = MemcachedDatabeanNodeTool.makeDatabeanVersion(
+				getFieldInfo().getFieldColumnNames());
+		nodeSubpath = MemcachedDatabeanNodeTool.makeSubpath(
+				Integer.toString(CODEC_VERSION),
 				serviceName.get(),
-				clientName,
+				clientId.getName(),
+				Integer.toString(1),//placeholder
 				tableName,
-				schemaVersion,
-				autoSchemaVersion);
+				nodeVersion,
+				databeanVersion);
+		NodeParamsBuilder<PK,D,F> blobParamsBuilder = new NodeParamsBuilder<>(params)
+				.withPath(nodeSubpath);
+		blobNode = new MemcachedBlobNode(
+				toPathbeanParams(blobParamsBuilder.build()),
+				clientType,
+				memcachedClientManager);
+		databeanCodec = new MemcachedDatabeanCodecV2<>(
+				getFieldInfo().getSampleFielder(),
+				getFieldInfo().getDatabeanSupplier(),
+				getFieldInfo().getFieldByPrefixedName(),
+				nodeSubpath.toString().length());
+		tallyCodec = new MemcachedTallyCodecV2(nodeSubpath);
 	}
 
-	private Long createAutoSchemaVersion(){
-		List<String> fieldNames = new ArrayList<>();
-		fieldNames.addAll(getFieldInfo().getNonKeyFieldColumnNames());
-		fieldNames.addAll(getFieldInfo().getPrimaryKeyFieldColumnNames());
-		String allFieldNamesConcatenated = fieldNames.stream().collect(Collectors.joining("+"));
-		return HashMethods.longDjbHash(allFieldNamesConcatenated);
+	@SuppressWarnings("unchecked")
+	private NodeParams<PathbeanKey,Pathbean,PathbeanFielder> toPathbeanParams(NodeParams<PK,D,F> params){
+		return (NodeParams<PathbeanKey,Pathbean,PathbeanFielder>)params;
 	}
 
-	private static String makeNodePathPrefix(
-			String serviceName,
-			String clientName,
-			String tableName,
-			int schemaVersion,
-			long autoSchemaVersion){
-		String stringPath = String.format(
-				"%s/%s/%s/%s/%s/%s/",
-				MemcachedKey.CODEC_VERSION,
-				serviceName,
-				clientName,
-				tableName,
-				schemaVersion,
-				autoSchemaVersion);
-		long hashedPath = HashMethods.longDjbHash(stringPath);
-		return Long.toString(hashedPath) + "/";
-	}
+	/*------------- MapStorage -------------*/
 
 	@Override
 	public boolean exists(PK key, Config config){
-		return scanMultiInternal(List.of(key))
-				.hasAny();
+		return databeanCodec.encodeKey(key)
+				.map(blobNode::exists)
+				.orElse(false);
 	}
 
 	@Override
@@ -160,7 +145,8 @@ implements PhysicalMapStorageNode<PK,D,F>, PhysicalTallyStorageNode<PK,D,F>{
 	@Override
 	public void deleteMulti(Collection<PK> keys, Config config){
 		Scanner.of(keys)
-				.map(key -> MemcachedKey.encodeKeyToPathbeanKey(nodePathPrefix, key))
+				.map(databeanCodec::encodeKey)
+				.concat(OptionalScanner::of)
 				.forEach(blobNode::delete);
 	}
 
@@ -177,26 +163,31 @@ implements PhysicalMapStorageNode<PK,D,F>, PhysicalTallyStorageNode<PK,D,F>{
 	@Override
 	public void putMulti(Collection<D> databeans, Config config){
 		Scanner.of(databeans)
-				.map(databean -> codec.encodeDatabeanToPathbeanKeyValueIfValid(nodePathPrefix, databean))
+				.map(databeanCodec::encodeDatabeanIfValid)
 				.concat(OptionalScanner::of)
 				.forEach(keyAndValue -> blobNode.write(keyAndValue.getLeft(), keyAndValue.getRight()));
 	}
 
 	private Scanner<D> scanMultiInternal(Collection<PK> keys){
-		return Scanner.of(Scanner.of(keys)
-				.map(key -> MemcachedKey.encodeKeyToPathbeanKey(nodePathPrefix, key))
-				.listTo(blobNode::read)
-				.values()
-				.stream()
-				.map(codec::decodeBytes));
+		Map<PathbeanKey,byte[]> bytesByKey = Scanner.of(keys)
+				.map(databeanCodec::encodeKey)
+				.concat(OptionalScanner::of)
+				.listTo(blobNode::read);
+		return Scanner.of(bytesByKey.values())
+				.map(databeanCodec::decodeDatabean);
 	}
+
+	/*------------- TallyStorage -------------*/
 
 	@Override
 	public Long incrementAndGetCount(String tallyStringKey, int delta, Config config){
-		String memcachedStringKey = tallyCodec.encodeKey(new TallyKey(tallyStringKey));
+		Optional<String> memcachedStringKey = tallyCodec.encodeKey(tallyStringKey);
+		if(memcachedStringKey.isEmpty()){
+			return 0L;
+		}
 		int expirationSeconds = MemcachedExpirationTool.getExpirationSeconds(config);
 		try{
-			return ops.increment(clientId, memcachedStringKey, delta, expirationSeconds);
+			return ops.increment(clientId, memcachedStringKey.get(), delta, expirationSeconds);
 		}catch(RuntimeException exception){
 			if(config.ignoreExceptionOrUse(DEFAULT_IGNORE_EXCEPTION)){
 				logger.error("memcached error on " + memcachedStringKey, exception);
@@ -213,12 +204,9 @@ implements PhysicalMapStorageNode<PK,D,F>, PhysicalTallyStorageNode<PK,D,F>{
 
 	@Override
 	public Map<String,Long> getMultiTallyCount(Collection<String> tallyStringKeys, Config config){
-		if(tallyStringKeys.isEmpty()){
-			return Map.of();
-		}
 		return Scanner.of(tallyStringKeys)
-				.map(TallyKey::new)
 				.map(tallyCodec::encodeKey)
+				.concat(OptionalScanner::of)
 				.listTo(memcachedStringKeys -> ops.fetch(
 						clientId,
 						getName(),
@@ -231,8 +219,8 @@ implements PhysicalMapStorageNode<PK,D,F>, PhysicalTallyStorageNode<PK,D,F>{
 
 	@Override
 	public void deleteTally(String tallyStringKey, Config config){
-		String memcachedStringKey = tallyCodec.encodeKey(new TallyKey(tallyStringKey));
-		deleteInternal(memcachedStringKey, config);
+		tallyCodec.encodeKey(tallyStringKey)
+				.ifPresent(memcachedStringKey -> deleteInternal(memcachedStringKey, config));
 	}
 
 	private void deleteInternal(String memcachedStringKey, Config config){

@@ -49,10 +49,8 @@ implements PhysicalBlobStorageNode{
 	private static final Boolean DEFAULT_IGNORE_EXCEPTION = true;
 
 	private final ClientId clientId;
-	private final String bucket;
 	private final Subpath rootPath;
-	private final Integer schemaVersion;
-	private final MemcachedBlobCodec codec;
+	private final MemcachedBlobCodec blobCodec;
 	private final MemcachedOps ops;
 
 	public MemcachedBlobNode(
@@ -61,10 +59,8 @@ implements PhysicalBlobStorageNode{
 			MemcachedClientManager memcachedClientManager){
 		super(params, clientType);
 		clientId = params.getClientId();
-		bucket = params.getPhysicalName();
 		rootPath = params.getPath();
-		schemaVersion = Optional.ofNullable(params.getSchemaVersion()).orElse(1);
-		codec = new MemcachedBlobCodec(getName(), schemaVersion);
+		blobCodec = new MemcachedBlobCodec(rootPath);
 		ops = new MemcachedOps(memcachedClientManager);
 	}
 
@@ -72,7 +68,7 @@ implements PhysicalBlobStorageNode{
 
 	@Override
 	public String getBucket(){
-		return bucket;
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
@@ -82,7 +78,7 @@ implements PhysicalBlobStorageNode{
 
 	@Override
 	public boolean exists(PathbeanKey key){
-		return scanMultiInternal(List.of(key))
+		return scanMultiKeysInternal(List.of(key))
 				.hasAny();
 	}
 
@@ -133,7 +129,7 @@ implements PhysicalBlobStorageNode{
 
 	@Override
 	public void write(PathbeanKey key, byte[] value){
-		ops.set(clientId, getName(), codec.encodeKey(key), MemcachedExpirationTool.MAX, value);
+		ops.set(clientId, getName(), blobCodec.encodeKey(key), MemcachedExpirationTool.MAX, value);
 	}
 
 	@Override
@@ -152,7 +148,7 @@ implements PhysicalBlobStorageNode{
 
 	@Override
 	public void delete(PathbeanKey key){
-		ops.delete(clientId, getName(), codec.encodeKey(key), Duration.ofSeconds(3));
+		ops.delete(clientId, getName(), blobCodec.encodeKey(key), Duration.ofSeconds(3));
 	}
 
 	@Override
@@ -162,16 +158,34 @@ implements PhysicalBlobStorageNode{
 
 	/*------------- private --------------*/
 
-	private Scanner<Pair<PathbeanKey,byte[]>> scanMultiInternal(Collection<PathbeanKey> keys){
+	/*
+	 * Here we are fetching the keys+values but only parsing the keys because we don't know if the value
+	 *   is a String or byte[].
+	 * TODO: check if there's a way to fetch only the keys from memcached.
+	 */
+	private Scanner<PathbeanKey> scanMultiKeysInternal(Collection<PathbeanKey> keys){
 		return Scanner.of(keys)
-				.map(codec::encodeKey)
+				.map(blobCodec::encodeKey)
 				.listTo(memcachedStringKeys -> ops.fetch(
 						clientId,
 						getName(),
 						memcachedStringKeys,
 						DEFAULT_TIMEOUT.toMillis(),
 						DEFAULT_IGNORE_EXCEPTION))
-				.map(codec::decodeResult);
+				.map(Pair::getLeft)
+				.map(blobCodec::decodeKey);
+	}
+
+	private Scanner<Pair<PathbeanKey,byte[]>> scanMultiInternal(Collection<PathbeanKey> keys){
+		return Scanner.of(keys)
+				.map(blobCodec::encodeKey)
+				.listTo(memcachedStringKeys -> ops.fetch(
+						clientId,
+						getName(),
+						memcachedStringKeys,
+						DEFAULT_TIMEOUT.toMillis(),
+						DEFAULT_IGNORE_EXCEPTION))
+				.map(blobCodec::decodeResult);
 	}
 
 }

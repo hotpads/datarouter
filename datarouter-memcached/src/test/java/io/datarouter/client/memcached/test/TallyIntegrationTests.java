@@ -41,68 +41,53 @@ public class TallyIntegrationTests{
 		datarouter.shutdown();
 	}
 
-	// Runs on local, but throws error on buildserver
-	@Test(enabled = false)
+	@Test
 	public void testIncrement(){
-		String key = "testKey1";
-		Tally bean = new Tally(key, null);
-		dao.put(bean);
-
-		int count = 5;
-		dao.incrementAndGetCount(bean.getKey().getId(), count);
-		Assert.assertFalse(dao.exists(key));
-
-		count += 100;
-		dao.incrementAndGetCount(bean.getKey().getId(), count);
-		Assert.assertFalse(dao.exists(key));
-
-		dao.delete(key);
+		String key = "testIncrement";
+		var bean = new Tally(key, null);
+		dao.deleteTally(key);
+		Assert.assertFalse(dao.findTallyCount(key).isPresent());
+		dao.incrementAndGetCount(key, 5);
+		Assert.assertTrue(dao.findTallyCount(key).isPresent());
+		Assert.assertEquals(dao.getTallyCount(key).longValue(), 5);
+		dao.incrementAndGetCount(bean.getKey().getId(), 100);
+		Assert.assertEquals(dao.getTallyCount(key).longValue(), 105);
+		dao.deleteTally(key);
 	}
 
-	@Test(expectedExceptions = NullPointerException.class)
+	@Test
 	public void testDelete(){
-		String key = "testKey2";
-		Tally bean = new Tally(key, null);
-		dao.put(bean);
-
-		dao.delete(key);
-		Tally roundTripped = dao.get(bean.getKey());
-		Assert.assertNull(roundTripped);
-
-		// Throws NullPointerException since databean has been deleted from Memcached
-		dao.incrementAndGetCount(roundTripped.getKey().getId(), 10);
-
-		dao.delete(key);
+		String key = "testDelete";
+		dao.incrementAndGetCount(key, 2);
+		Assert.assertTrue(dao.findTallyCount(key).isPresent());
+		dao.deleteTally(key);
+		Assert.assertFalse(dao.findTallyCount(key).isPresent());
 	}
 
 	@Test
 	public void testIncrementWihoutPut(){
-		String key = "testKey3";
-		dao.delete(key);
-
+		String key = "testIncrementWihoutPut";
+		dao.deleteTally(key);
 		dao.incrementAndGetCount(key, 5);
-
-		// if assert error occurs, delete key then rerun test
 		Assert.assertEquals(dao.getTallyCount(key), Long.valueOf(5));
 		Assert.assertEquals(dao.getTallyCount(key), Long.valueOf(5));
 		dao.incrementAndGetCount(key, 5);
 		Assert.assertEquals(dao.getTallyCount(key), Long.valueOf(10));
-
-		dao.delete(key);
+		dao.deleteTally(key);
 	}
 
-	@Test(expectedExceptions = RuntimeException.class)
-	public void testGetTallyCountOnNull(){
+	@Test
+	public void testNullKeys(){
 		String key = null;
 		// throws RuntimeException
-		Assert.assertTrue(dao.findTallyCount(key).isEmpty());
-		dao.delete(key);
+		Assert.assertThrows(RuntimeException.class, () -> dao.findTallyCount(key).isEmpty());
+		Assert.assertThrows(RuntimeException.class, () -> dao.deleteTally(key));
 	}
 
 	@Test
 	public void testTtl(){
-		String key = "testKey4";
-		dao.delete(key);
+		String key = "testTtl";
+		dao.deleteTally(key);
 
 		dao.incrementAndGetCount(key, 1, Duration.ofSeconds(2));
 
@@ -112,13 +97,13 @@ public class TallyIntegrationTests{
 		}catch(InterruptedException e){
 			Thread.currentThread().interrupt();
 		}
-		Assert.assertFalse(dao.exists(key));
+		Assert.assertFalse(dao.findTallyCount(key).isPresent());
 	}
 
 	@Test
 	public void testTtlUpdate(){
-		String key = "testKey5";
-		dao.delete(key);
+		String key = "testTtlUpdate";
+		dao.deleteTally(key);
 
 		// Multiple increments does not modify the original TTL
 		// This bean's TTL stays at 2 seconds
@@ -134,13 +119,13 @@ public class TallyIntegrationTests{
 		}catch(InterruptedException e){
 			Thread.currentThread().interrupt();
 		}
-		Assert.assertFalse(dao.exists(key));
+		Assert.assertFalse(dao.findTallyCount(key).isPresent());
 	}
 
 	@Test
 	public void testTtlAdvance(){
-		String key = "testKey6";
-		dao.delete(key);
+		String key = "testTtlAdvance";
+		dao.deleteTally(key);
 
 		dao.incrementAndGetCount(key, 1, Duration.ofSeconds(2));
 		dao.incrementAndGetCount(key, 1, Duration.ofSeconds(2));
@@ -154,7 +139,15 @@ public class TallyIntegrationTests{
 		}catch(InterruptedException e){
 			Thread.currentThread().interrupt();
 		}
-		Assert.assertFalse(dao.exists(key));
+		Assert.assertFalse(dao.findTallyCount(key).isPresent());
+	}
+
+	@Test
+	public void testLongKey(){
+		String key = "a".repeat(200);
+		long newCount = dao.incrementAndGetCount(key, 3);
+		//should see a logger.warn
+		Assert.assertEquals(newCount, 0);//zero because we couldn't increment it
 	}
 
 }

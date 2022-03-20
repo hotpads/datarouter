@@ -16,6 +16,7 @@
 package io.datarouter.util.time;
 
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.List;
 
 import io.datarouter.util.Java9;
@@ -45,5 +46,7 @@ public class ZoneIds{
 			EUROPE_PARIS,
 			PACIFIC_HONOLULU,
 			UTC);
+
+	public static final ZoneOffset EDT = ZoneOffset.ofHours(-4);
 
 }

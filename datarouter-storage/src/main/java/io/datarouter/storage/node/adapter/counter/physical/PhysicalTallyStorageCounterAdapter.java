@@ -16,7 +16,6 @@
 package io.datarouter.storage.node.adapter.counter.physical;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -25,7 +24,8 @@ import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.adapter.PhysicalAdapterMixin;
-import io.datarouter.storage.node.adapter.counter.TallyStorageWriterCounterAdapter;
+import io.datarouter.storage.node.adapter.counter.BaseCounterAdapter;
+import io.datarouter.storage.node.op.raw.TallyStorage;
 import io.datarouter.storage.node.op.raw.TallyStorage.PhysicalTallyStorageNode;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
 
@@ -34,7 +34,7 @@ public class PhysicalTallyStorageCounterAdapter<
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>,
 		N extends PhysicalTallyStorageNode<PK,D,F>>
-extends TallyStorageWriterCounterAdapter<PK,D,F,N>
+extends BaseCounterAdapter<PK,D,F,N>
 implements PhysicalTallyStorageNode<PK,D,F>,
 		PhysicalAdapterMixin<PK,D,F,N>{
 
@@ -66,27 +66,9 @@ implements PhysicalTallyStorageNode<PK,D,F>,
 	}
 
 	@Override
-	public boolean exists(PK key, Config config){
-		getCounter().count(OP_exists);
-		return getBackingNode().exists(key, config);
-	}
-
-	@Override
-	public List<PK> getKeys(Collection<PK> keys, Config config){
-		getCounter().count(OP_getKeys, keys.size());
-		return getBackingNode().getKeys(keys, config);
-	}
-
-	@Override
-	public D get(PK key, Config config){
-		getCounter().count(OP_get);
-		return getBackingNode().get(key, config);
-	}
-
-	@Override
-	public List<D> getMulti(Collection<PK> keys, Config config){
-		getCounter().count(OP_getMulti, keys.size());
-		return getBackingNode().getMulti(keys, config);
+	public void deleteTally(String key, Config config){
+		getCounter().count(TallyStorage.OP_deleteTally);
+		getBackingNode().deleteTally(key, config);
 	}
 
 }

@@ -89,7 +89,9 @@ extends IndexedStorage<PK,D>, TraceAdapter<PK,D,F,N>{
 	default <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK, IE, PK, D>,
 			IF extends DatabeanFielder<IK, IE>>
-	Scanner<IE> scanRangesIndex(IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
+	Scanner<IE> scanRangesIndex(
+			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo,
+			Collection<Range<IK>> ranges,
 			Config config){
 		try(var $ = startSpanForOp(OP_scanIndex)){
 			TracerTool.appendToSpanInfo(new TraceSpanInfoBuilder().ranges(ranges.size()));
@@ -101,7 +103,9 @@ extends IndexedStorage<PK,D>, TraceAdapter<PK,D,F,N>{
 	default <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK, IE, PK, D>,
 			IF extends DatabeanFielder<IK, IE>>
-	Scanner<D> scanRangesByIndex(IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
+	Scanner<D> scanRangesByIndex(
+			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo,
+			Collection<Range<IK>> ranges,
 			Config config){
 		try(var $ = startSpanForOp(OP_scanByIndex)){
 			TracerTool.appendToSpanInfo(new TraceSpanInfoBuilder().ranges(ranges.size()));
@@ -113,7 +117,9 @@ extends IndexedStorage<PK,D>, TraceAdapter<PK,D,F,N>{
 	default <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK, IE, PK, D>,
 			IF extends DatabeanFielder<IK, IE>>
-	Scanner<IK> scanRangesIndexKeys(IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
+	Scanner<IK> scanRangesIndexKeys(
+			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo,
+			Collection<Range<IK>> ranges,
 			Config config){
 		try(var $ = startSpanForOp(OP_scanIndexKeys)){
 			TracerTool.appendToSpanInfo(new TraceSpanInfoBuilder().ranges(ranges.size()));
@@ -141,7 +147,10 @@ extends IndexedStorage<PK,D>, TraceAdapter<PK,D,F,N>{
 	@Override
 	default <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK, IE, PK, D>,
-			IF extends DatabeanFielder<IK, IE>> void deleteByIndex(Collection<IK> keys, Config config,
+			IF extends DatabeanFielder<IK, IE>>
+	void deleteByIndex(
+			Collection<IK> keys,
+			Config config,
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
 		try(var $ = startSpanForOp(OP_deleteByIndex)){
 			TracerTool.appendToSpanInfo(new TraceSpanInfoBuilder().keys(keys.size()));

@@ -23,6 +23,7 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.bytes.ByteUnitType;
 import io.datarouter.conveyor.message.ConveyorMessage;
 import io.datarouter.instrumentation.response.PublishingResponseDto;
 import io.datarouter.metric.config.DatarouterCountSettingRoot;
@@ -35,23 +36,24 @@ import io.datarouter.web.config.service.ServiceName;
 public class CountBlobService implements CountPublisher{
 	private static final Logger logger = LoggerFactory.getLogger(CountBlobService.class);
 
-	private static final int MAX_SERIALIZED_BLOB_SIZE = 256 * 1024 - 30;//based on AWS SQS message length limit
+	//based on AWS SQS message length limit
+	private static final int MAX_SERIALIZED_BLOB_SIZE = ByteUnitType.KiB.toBytesInt(256) - 30;
 
 	private final CountBlobDirectoryDao countBlobDirectoryDao;
 	private final CountBlobQueueDao countBlobQueueDao;
 	private final DatarouterCountSettingRoot countSettings;
-	private final CountBlobPublishingSettings countBlobPublishingSettings;
+	private final MetricBlobPublishingSettings metricBlobPublishingSettings;
 	private final ServiceName serviceName;
 	private final ServerName serverName;
 
 	@Inject
 	public CountBlobService(CountBlobDirectoryDao countBlobDao, CountBlobQueueDao countBlobQueueDao,
-			DatarouterCountSettingRoot countSettings, CountBlobPublishingSettings countBlobPublishingSettings,
+			DatarouterCountSettingRoot countSettings, MetricBlobPublishingSettings metricBlobPublishingSettings,
 			ServiceName serviceName, ServerName serverName){
 		this.countBlobDirectoryDao = countBlobDao;
 		this.countBlobQueueDao = countBlobQueueDao;
 		this.countSettings = countSettings;
-		this.countBlobPublishingSettings = countBlobPublishingSettings;
+		this.metricBlobPublishingSettings = metricBlobPublishingSettings;
 		this.serviceName = serviceName;
 		this.serverName = serverName;
 	}
@@ -63,7 +65,7 @@ public class CountBlobService implements CountPublisher{
 				serviceName.get(),
 				serverName.get(),
 				counts,
-				countBlobPublishingSettings.getApiKey());
+				metricBlobPublishingSettings.getApiKey());
 		if(countSettings.saveCountBlobsToQueueDaoInsteadOfDirectoryDao.get()){
 			dto.serializeToStrings(MAX_SERIALIZED_BLOB_SIZE)
 					.map(blob -> new ConveyorMessage(dto.ulid, blob))

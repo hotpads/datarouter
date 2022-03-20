@@ -26,8 +26,14 @@ public class DefaultSettingValueWinner{
 	public final String settingTag;
 	public final String value;
 
-	private DefaultSettingValueWinner(DefaultSettingValueWinnerType type, boolean isGlobalDefault,
-			String environmentType, String environmentName, String serverType, String serverName, String settingTag,
+	private DefaultSettingValueWinner(
+			DefaultSettingValueWinnerType type,
+			boolean isGlobalDefault,
+			String environmentType,
+			String environmentName,
+			String serverType,
+			String serverName,
+			String settingTag,
 			String value){
 		this.type = type;
 		this.isGlobalDefault = isGlobalDefault;
@@ -39,8 +45,13 @@ public class DefaultSettingValueWinner{
 		this.value = value;
 	}
 
-	public DefaultSettingValueWinner(DefaultSettingValueWinnerType type, String environmentType, String environmentName,
-			String serverType, String serverName, String value){
+	public DefaultSettingValueWinner(
+			DefaultSettingValueWinnerType type,
+			String environmentType,
+			String environmentName,
+			String serverType,
+			String serverName,
+			String value){
 		this(type, false, environmentType, environmentName, serverType, serverName, null, value);
 	}
 

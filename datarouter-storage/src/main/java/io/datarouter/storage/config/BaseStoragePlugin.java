@@ -68,9 +68,7 @@ public abstract class BaseStoragePlugin extends BasePlugin{
 
 			@Override
 			protected void configure(){
-				for(Pair<Class<? extends Dao>,List<ClientId>> pair : daosAndClients){
-					buildAndBindDaoParam(pair);
-				}
+				daosAndClients.forEach(this::buildAndBindDaoParam);
 			}
 
 			private <T> void buildAndBindDaoParam(Pair<Class<? extends Dao>,List<ClientId>> pair){

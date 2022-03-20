@@ -75,7 +75,9 @@ extends IndexedStorage<PK,D>, CounterAdapter<PK,D,F,N>{
 	default <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK, IE, PK, D>,
 			IF extends DatabeanFielder<IK, IE>>
-	List<IE> getMultiFromIndex(Collection<IK> indexKeys, Config config,
+	List<IE> getMultiFromIndex(
+			Collection<IK> indexKeys,
+			Config config,
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
 		String opName = IndexedStorageReader.OP_getFromIndex;
 		getCounter().count(opName);
@@ -112,7 +114,9 @@ extends IndexedStorage<PK,D>, CounterAdapter<PK,D,F,N>{
 	default <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK, IE, PK, D>,
 			IF extends DatabeanFielder<IK, IE>>
-	Scanner<IE> scanRangesIndex(IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
+	Scanner<IE> scanRangesIndex(
+			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo,
+			Collection<Range<IK>> ranges,
 			Config config){
 		String opName = IndexedStorageReader.OP_scanIndex;
 		getCounter().count(opName);
@@ -124,7 +128,9 @@ extends IndexedStorage<PK,D>, CounterAdapter<PK,D,F,N>{
 	default <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK, IE, PK, D>,
 			IF extends DatabeanFielder<IK, IE>>
-	Scanner<D> scanRangesByIndex(IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
+	Scanner<D> scanRangesByIndex(
+			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo,
+			Collection<Range<IK>> ranges,
 			Config config){
 		String opName = IndexedStorageReader.OP_scanByIndex;
 		getCounter().count(opName);
@@ -136,7 +142,9 @@ extends IndexedStorage<PK,D>, CounterAdapter<PK,D,F,N>{
 	default <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK, IE, PK, D>,
 			IF extends DatabeanFielder<IK, IE>>
-	Scanner<IK> scanRangesIndexKeys(IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
+	Scanner<IK> scanRangesIndexKeys(
+			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo,
+			Collection<Range<IK>> ranges,
 			Config config){
 		String opName = IndexedStorageReader.OP_scanIndexKeys;
 		getCounter().count(opName);
@@ -164,7 +172,10 @@ extends IndexedStorage<PK,D>, CounterAdapter<PK,D,F,N>{
 	@Override
 	default <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK, IE, PK, D>,
-			IF extends DatabeanFielder<IK, IE>> void deleteByIndex(Collection<IK> indexKeys, Config config,
+			IF extends DatabeanFielder<IK, IE>>
+	void deleteByIndex(
+			Collection<IK> indexKeys,
+			Config config,
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
 		String opName = OP_deleteByIndex;
 		getCounter().count(opName);

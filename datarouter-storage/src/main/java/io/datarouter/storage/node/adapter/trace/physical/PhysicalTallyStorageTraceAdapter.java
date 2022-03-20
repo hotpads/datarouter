@@ -19,12 +19,14 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 
+import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.adapter.PhysicalAdapterMixin;
-import io.datarouter.storage.node.adapter.trace.TallyStorageWriterTraceAdapter;
+import io.datarouter.storage.node.adapter.trace.BaseTraceAdapter;
+import io.datarouter.storage.node.op.raw.TallyStorage;
 import io.datarouter.storage.node.op.raw.TallyStorage.PhysicalTallyStorageNode;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
 
@@ -33,7 +35,7 @@ public class PhysicalTallyStorageTraceAdapter<
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>,
 		N extends PhysicalTallyStorageNode<PK,D,F>>
-extends TallyStorageWriterTraceAdapter<PK,D,F,N>
+extends BaseTraceAdapter<PK,D,F,N>
 implements PhysicalTallyStorageNode<PK,D,F>,
 		PhysicalAdapterMixin<PK,D,F,N>{
 
@@ -56,14 +58,25 @@ implements PhysicalTallyStorageNode<PK,D,F>,
 	@Override
 	public Optional<Long> findTallyCount(String key, Config config){
 		try(var $ = startSpanForOp(OP_findTallyCount)){
-			return getBackingNode().findTallyCount(key, config);
+			Optional<Long> tallyCount = getBackingNode().findTallyCount(key, config);
+			TracerTool.appendToSpanInfo(tallyCount.isPresent() ? "hit" : "miss");
+			return tallyCount;
 		}
 	}
 
 	@Override
 	public Map<String,Long> getMultiTallyCount(Collection<String> keys, Config config){
 		try(var $ = startSpanForOp(OP_getMultiTallyCount)){
-			return getBackingNode().getMultiTallyCount(keys, config);
+			Map<String,Long> tallyCounts = getBackingNode().getMultiTallyCount(keys, config);
+			TracerTool.appendToSpanInfo(String.format("got %d/%d", tallyCounts.size(), keys.size()));
+			return tallyCounts;
+		}
+	}
+
+	@Override
+	public void deleteTally(String key, Config config){
+		try(var $ = startSpanForOp(TallyStorage.OP_deleteTally)){
+			getBackingNode().deleteTally(key, config);
 		}
 	}
 

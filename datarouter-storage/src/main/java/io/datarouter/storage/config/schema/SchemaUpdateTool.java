@@ -37,7 +37,7 @@ public class SchemaUpdateTool{
 	}
 
 	public static String generateFullWidthMessage(String message){
-		StringBuilder fullWidthMessage = new StringBuilder();
+		var fullWidthMessage = new StringBuilder();
 		int numCharsOnSide = (CONSOLE_WIDTH - message.length()) / 2 - 1;
 		if(numCharsOnSide <= 0){
 			return message;

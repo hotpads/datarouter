@@ -35,7 +35,9 @@ implements ManagedNode<PK,D,IK,IE,IF>{
 	protected final IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo;
 	protected final IndexedMapStorage<PK,D> node;
 
-	public BaseManagedNode(IndexedMapStorage<PK,D> node, IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo,
+	public BaseManagedNode(
+			IndexedMapStorage<PK,D> node,
+			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo,
 			String name){
 		this.node = node;
 		this.name = name;

@@ -34,6 +34,8 @@ public class DatarouterGaugeSettingRoot extends SettingRoot{
 	 * buffer and not send messages to queues.
 	 */
 	public final CachedSetting<Boolean> sendGaugesFromMemoryToQueue;
+	public final CachedSetting<Boolean> saveGaugeBlobsAndOverrideDtos;
+	public final CachedSetting<Boolean> saveGaugeBlobsToQueueDaoInsteadOfDirectoryDao;
 
 	/**
 	 * Used to run gauges from memory to queues
@@ -57,6 +59,12 @@ public class DatarouterGaugeSettingRoot extends SettingRoot{
 				.withTag(DatarouterSettingTagType.GAUGEPIPELINE, () -> true));
 		sendGaugesFromMemoryToQueue = registerBooleans("sendGaugesFromMemoryToQueue", defaultTo(false)
 				.withTag(DatarouterSettingTagType.GAUGEPIPELINE, () -> true));
+		saveGaugeBlobsAndOverrideDtos = registerBooleans("saveGaugeBlobsAndOverrideDtos", defaultTo(false)
+				.withTag(DatarouterSettingTagType.GAUGEPIPELINE, () -> true));
+		saveGaugeBlobsToQueueDaoInsteadOfDirectoryDao = registerBooleans(
+				"saveGaugeBlobsToQueueDaoInsteadOfDirectoryDao",
+				defaultTo(false)
+						.withTag(DatarouterSettingTagType.GAUGEPIPELINE, () -> true));
 
 		runGaugeMemoryToQueue = registerBooleans("runGaugeMemoryToQueue", defaultTo(false)
 				.withTag(DatarouterSettingTagType.GAUGEPIPELINE, () -> true));

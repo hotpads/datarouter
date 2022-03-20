@@ -45,7 +45,9 @@ implements PhysicalQueueStorageNode<PK,D,F>, PhysicalAdapterMixin<PK,D,F,N>{
 	@Override
 	public QueueMessage<PK,D> peek(Config config){
 		try(var $ = startSpanForOp(OP_peek)){
-			return backingNode.peek(config);
+			QueueMessage<PK,D> databean = backingNode.peek(config);
+			TracerTool.appendToSpanInfo(databean != null ? "hit" : "miss");
+			return databean;
 		}
 	}
 

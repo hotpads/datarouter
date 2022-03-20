@@ -39,20 +39,32 @@ public class MappedEnumTests{
 	}
 
 	@Test
-	public void testGetOrDefault(){
-		Assert.assertSame(Fruit.BY_PERSISTENT_STRING.getOrDefault("x", Fruit.BANANA), Fruit.BANANA);
+	public void testToKey(){
+		Assert.assertSame(Fruit.BY_PERSISTENT_STRING.toKey(Fruit.BANANA), "banana");
 	}
 
 	@Test
-	public void testGetOrThrow(){
-		Assert.assertSame(Fruit.BY_PERSISTENT_STRING.getOrThrow("banana"), Fruit.BANANA);
-		Assert.assertThrows(IllegalArgumentException.class, () -> Fruit.BY_PERSISTENT_STRING.getOrThrow("x"));
+	public void testFromOrNull(){
+		Assert.assertSame(Fruit.BY_PERSISTENT_STRING.fromOrNull("banana"), Fruit.BANANA);
+		Assert.assertNull(Fruit.BY_PERSISTENT_STRING.fromOrNull("x"));
 	}
 
 	@Test
-	public void testFind(){
-		Assert.assertSame(Fruit.BY_PERSISTENT_STRING.find("banana").get(), Fruit.BANANA);
-		Assert.assertSame(Fruit.BY_PERSISTENT_STRING.find("x"), Optional.empty());
+	public void testFromOrDefault(){
+		Assert.assertSame(Fruit.BY_PERSISTENT_STRING.fromOrElse("x", Fruit.BANANA), Fruit.BANANA);
+		Assert.assertThrows(NullPointerException.class, () -> Fruit.BY_PERSISTENT_STRING.fromOrElse("x", null));
+	}
+
+	@Test
+	public void testFromOrThrow(){
+		Assert.assertSame(Fruit.BY_PERSISTENT_STRING.fromOrThrow("banana"), Fruit.BANANA);
+		Assert.assertThrows(IllegalArgumentException.class, () -> Fruit.BY_PERSISTENT_STRING.fromOrThrow("x"));
+	}
+
+	@Test
+	public void testFrom(){
+		Assert.assertSame(Fruit.BY_PERSISTENT_STRING.from("banana").get(), Fruit.BANANA);
+		Assert.assertSame(Fruit.BY_PERSISTENT_STRING.from("x"), Optional.empty());
 	}
 
 }

@@ -15,28 +15,32 @@
  */
 package io.datarouter.aws.rds.job;
 
+import java.util.function.Supplier;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.storage.setting.Setting;
+import io.datarouter.secret.service.CachedSecretFactory;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.SettingNode;
+import io.datarouter.storage.setting.cached.CachedSetting;
 
 @Singleton
 public class DnsUpdateSettings extends SettingNode{
 
-	public final Setting<String> bindAddress;
-	public final Setting<String> tsigKey;
-	public final Setting<String> tsigSecret;
-	public final Setting<String> zone;
+	public final CachedSetting<String> bindAddress;
+	public final CachedSetting<String> tsigKey;
+	public final Supplier<String> tsigSecret;
+	public final CachedSetting<String> zone;
 
 	@Inject
-	public DnsUpdateSettings(SettingFinder finder){
+	public DnsUpdateSettings(SettingFinder finder, CachedSecretFactory cachedSecretFactory){
 		super(finder, "datarouterAwsRds.dnsUpdate.");
 
 		this.bindAddress = registerString("bindAddress", "");
 		this.tsigKey = registerString("tsigKey", "");
-		this.tsigSecret = registerString("tsigSecret", "");
+		Supplier<String> tsigSecretLocation = registerString("tsigSecretLocation", "dnsTsigSecret");
+		this.tsigSecret = cachedSecretFactory.cacheSharedSecretString(tsigSecretLocation);
 		this.zone = registerString("zone", "");
 	}
 

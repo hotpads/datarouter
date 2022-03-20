@@ -26,7 +26,6 @@ public interface BlobStorage extends BlobStorageWriter{
 	/*---------------------------- sub-interfaces ---------------------------*/
 
 	public interface BlobStorageNode extends BlobStorage{
-
 	}
 
 	public interface PhysicalBlobStorageNode

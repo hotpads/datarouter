@@ -45,7 +45,9 @@ public class ManagedNodesHolder{
 	@SuppressWarnings("unchecked")
 	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 	List<ManagedNode<PK,D,?,?,?>> getManagedNodes(PhysicalDatabeanFieldInfo<PK,D,?> fieldInfo){
-		return managedNodes.computeIfAbsent(fieldInfo, $ -> new ArrayList<>()).stream()
+		return managedNodes.computeIfAbsent(
+						fieldInfo,
+						$ -> new ArrayList<>()).stream()
 				.map(node -> (ManagedNode<PK,D,?,?,?>)node)
 				.collect(Collectors.toList());
 	}

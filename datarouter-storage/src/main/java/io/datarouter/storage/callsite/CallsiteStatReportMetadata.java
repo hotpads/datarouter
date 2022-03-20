@@ -39,38 +39,51 @@ public class CallsiteStatReportMetadata{
 	}
 
 	public static CallsiteStatReportMetadata inspect(Iterable<CallsiteStat> stats){
-		CallsiteStatReportMetadata reportMetadata = new CallsiteStatReportMetadata();
+		var reportMetadata = new CallsiteStatReportMetadata();
 		stats.forEach(reportMetadata::inspect);
 		return reportMetadata;
 	}
 
 	public int getCountLength(){
-		return Math.max(CallsiteReportHeader.count.length(), NumberFormatter.addCommas(maxCount).length());
+		return Math.max(
+				CallsiteReportHeader.count.length(),
+				NumberFormatter.addCommas(maxCount).length());
 	}
 
 	public int getDurationUsLength(){
-		return Math.max(CallsiteReportHeader.microSec.length(), NumberFormatter.addCommas(maxDurationUs).length());
+		return Math.max(
+				CallsiteReportHeader.microSec.length(),
+				NumberFormatter.addCommas(maxDurationUs).length());
 	}
 
 	public int getAvgDurationUsLength(){
-		return Math.max(CallsiteReportHeader.avgMicroSec.length(), NumberFormatter.addCommas(maxAvgDurationUs)
-				.length());
+		return Math.max(
+				CallsiteReportHeader.avgMicroSec.length(),
+				NumberFormatter.addCommas(maxAvgDurationUs).length());
 	}
 
 	public int getItemsLength(){
-		return Math.max(CallsiteReportHeader.numItems.length(), NumberFormatter.addCommas(maxItems).length());
+		return Math.max(
+				CallsiteReportHeader.numItems.length(),
+				NumberFormatter.addCommas(maxItems).length());
 	}
 
 	public int getAvgItemsLength(){
-		return Math.max(CallsiteReportHeader.avgItems.length(), NumberFormatter.addCommas(maxAvgItems).length());
+		return Math.max(
+				CallsiteReportHeader.avgItems.length(),
+				NumberFormatter.addCommas(maxAvgItems).length());
 	}
 
 	public int getWidthNodeName(){
-		return Math.max(CallsiteReportHeader.node.length(), widthNodeName);
+		return Math.max(
+				CallsiteReportHeader.node.length(),
+				widthNodeName);
 	}
 
 	public int getWidthDatarouterMethod(){
-		return Math.max(CallsiteReportHeader.method.length(), widthDatarouterMethod);
+		return Math.max(
+				CallsiteReportHeader.method.length(),
+				widthDatarouterMethod);
 	}
 
 }

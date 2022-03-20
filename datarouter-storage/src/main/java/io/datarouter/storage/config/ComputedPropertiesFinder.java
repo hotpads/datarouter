@@ -73,7 +73,9 @@ public class ComputedPropertiesFinder{
 
 	/*--------------- methods to find config values -----------------*/
 
-	public String validateConfigDirectory(String configDirectory, boolean directoryRequired,
+	public String validateConfigDirectory(
+			String configDirectory,
+			boolean directoryRequired,
 			boolean directoryFromJvmArg){
 		if(configDirectory != null){
 			FileTool.createFileParents(configDirectory + "/anything");
@@ -185,7 +187,8 @@ public class ComputedPropertiesFinder{
 		return Optional.of(new Pair<>(jvmArgValue, jvmArgName));
 	}
 
-	private Optional<Pair<String,String>> getPropFromDefaults(String propertyName,
+	private Optional<Pair<String,String>> getPropFromDefaults(
+			String propertyName,
 			List<FallbackPropertyValueSupplierDto> defaultValueSupplierDtos){
 		var optionalValueAndSource = defaultValueSupplierDtos.stream()
 				.map(dto -> new Pair<>(dto.fallbackSupplier.get(), dto.propertySource))

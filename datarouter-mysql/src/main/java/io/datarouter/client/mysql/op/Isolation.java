@@ -17,8 +17,8 @@ package io.datarouter.client.mysql.op;
 
 import java.sql.Connection;
 
-import io.datarouter.enums.DatarouterEnumTool;
 import io.datarouter.enums.IntegerEnum;
+import io.datarouter.enums.MappedEnum;
 import io.datarouter.enums.StringEnum;
 import io.datarouter.storage.config.ConfigKey;
 import io.datarouter.storage.config.ConfigValue;
@@ -32,6 +32,12 @@ public enum Isolation implements IntegerEnum<Isolation>, StringEnum<Isolation>, 
 
 	public static final ConfigKey<Isolation> KEY = new ConfigKey<>("isolation");
 	public static final Isolation DEFAULT = readCommitted;
+	public static final MappedEnum<Integer,Isolation> BY_PERSISTENT_INTEGER = new MappedEnum<>(
+			values(),
+			value -> value.persistentInteger);
+	public static final MappedEnum<String,Isolation> BY_PERSISTENT_STRING = new MappedEnum<>(
+			values(),
+			value -> value.persistentString);
 
 	private final Integer jdbcVal;
 	private final int persistentInteger;
@@ -53,8 +59,8 @@ public enum Isolation implements IntegerEnum<Isolation>, StringEnum<Isolation>, 
 	}
 
 	@Override
-	public Isolation fromPersistentInteger(Integer persistentInteger){
-		return DatarouterEnumTool.getEnumFromInteger(values(), persistentInteger, null);
+	public Isolation fromPersistentInteger(Integer value){
+		return BY_PERSISTENT_INTEGER.fromOrNull(value);
 	}
 
 	@Override
@@ -63,8 +69,8 @@ public enum Isolation implements IntegerEnum<Isolation>, StringEnum<Isolation>, 
 	}
 
 	@Override
-	public Isolation fromPersistentString(String persistentString){
-		return DatarouterEnumTool.getEnumFromString(values(), persistentString, null);
+	public Isolation fromPersistentString(String value){
+		return BY_PERSISTENT_STRING.fromOrNull(value);
 	}
 
 	@Override

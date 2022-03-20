@@ -15,6 +15,8 @@
  */
 package io.datarouter.enums;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,6 +32,8 @@ import java.util.function.Function;
 public class MappedEnum<K,E>{
 
 	private final E sampleValue;
+	private final Class<E> enumClass;
+	private final Function<E,K> keyExtractor;
 	private final Map<K,E> valueByKey;
 
 	public MappedEnum(E[] values, Function<E,K> keyExtractor){
@@ -38,16 +42,44 @@ public class MappedEnum<K,E>{
 			throw new IllegalArgumentException("Must have 1 or more values");
 		}
 		sampleValue = values[0];
+		enumClass = extractEnumClass(sampleValue);
+		this.keyExtractor = keyExtractor;
 
 		Objects.requireNonNull(keyExtractor);
 		valueByKey = byUniqueKey(values, keyExtractor);
 	}
 
-	public E getOrDefault(K key, E defaultValue){
+	public MappedEnum<K,E> requireAllExist(K... keys){
+		return requireAllExist(Arrays.asList(keys));
+	}
+
+	public MappedEnum<K,E> requireAllExist(Collection<K> keys){
+		keys.forEach(this::fromOrThrow);
+		return this;
+	}
+
+	public E getSampleValue(){
+		return this.sampleValue;
+	}
+
+	public Class<E> getEnumClass(){
+		return enumClass;
+	}
+
+	public K toKey(E enumValue){
+		return keyExtractor.apply(enumValue);
+	}
+
+	public E fromOrNull(K key){
+		return valueByKey.get(key);
+	}
+
+	public E fromOrElse(K key, E defaultValue){
+		Objects.requireNonNull(defaultValue, "Use getOrNull for null default value");
 		return valueByKey.getOrDefault(key, defaultValue);
 	}
 
-	public E getOrThrow(K key){
+	public E fromOrThrow(K key){
 		E value = valueByKey.get(key);
 		if(value == null){
 			String message = String.format(
@@ -59,8 +91,13 @@ public class MappedEnum<K,E>{
 		return value;
 	}
 
-	public Optional<E> find(K key){
+	public Optional<E> from(K key){
 		return Optional.ofNullable(valueByKey.get(key));
+	}
+
+	@SuppressWarnings("unchecked")
+	private static <E> Class<E> extractEnumClass(E sampleValue){
+		return (Class<E>)sampleValue.getClass();
 	}
 
 	private static <E,K> Map<K,E> byUniqueKey(E[] values, Function<E,K> keyExtractor){

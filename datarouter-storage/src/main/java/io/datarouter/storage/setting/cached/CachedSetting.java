@@ -80,8 +80,12 @@ implements Setting<T>{
 
 	@Override
 	public T getDefaultValue(){
-		return defaultSettingValue.getValue(finder.getEnvironmentType(), finder.getEnvironmentName(),
-				finder.getServerType(), finder.getServerName(), finder.getSettingTags());
+		return defaultSettingValue.getValue(
+				finder.getEnvironmentType(),
+				finder.getEnvironmentName(),
+				finder.getServerType(),
+				finder.getServerName(),
+				finder.getSettingTags());
 	}
 
 	public String toStringValue(T value){
@@ -118,25 +122,32 @@ implements Setting<T>{
 		return this;
 	}
 
-	public CachedSetting<T> setEnvironmentTypesDefault(Collection<Supplier<DatarouterEnvironmentType>> environmentTypes,
+	public CachedSetting<T> setEnvironmentTypesDefault(
+			Collection<Supplier<DatarouterEnvironmentType>> environmentTypes,
 			T value){
 		environmentTypes.forEach(environmentType -> setEnvironmentTypeDefault(environmentType, value));
 		return this;
 	}
 
-	public CachedSetting<T> setEnvironmentNameDefault(Supplier<DatarouterEnvironmentType> environmentType,
-			String environmentName, T value){
+	public CachedSetting<T> setEnvironmentNameDefault(
+			Supplier<DatarouterEnvironmentType> environmentType,
+			String environmentName,
+			T value){
 		defaultSettingValue.withEnvironmentName(environmentType, environmentName, value);
 		return this;
 	}
 
-	public CachedSetting<T> setServerTypeDefault(Supplier<DatarouterEnvironmentType> environmentType,
-			ServerType serverType, T value){
+	public CachedSetting<T> setServerTypeDefault(
+			Supplier<DatarouterEnvironmentType> environmentType,
+			ServerType serverType,
+			T value){
 		defaultSettingValue.withServerType(environmentType, serverType, value);
 		return this;
 	}
 
-	public CachedSetting<T> setServerNameDefault(Supplier<DatarouterEnvironmentType> environmentType, String serverName,
+	public CachedSetting<T> setServerNameDefault(
+			Supplier<DatarouterEnvironmentType> environmentType,
+			String serverName,
 			T value){
 		defaultSettingValue.withServerName(environmentType, serverName, value);
 		return this;
@@ -147,8 +158,12 @@ implements Setting<T>{
 	}
 
 	public DefaultSettingValueWinner getDefaultSettingValueWinner(){
-		defaultSettingValue.getValue(finder.getEnvironmentType(), finder.getEnvironmentName(),
-				finder.getServerType(), finder.getServerName(), finder.getSettingTags());
+		defaultSettingValue.getValue(
+				finder.getEnvironmentType(),
+				finder.getEnvironmentName(),
+				finder.getServerType(),
+				finder.getServerName(),
+				finder.getSettingTags());
 		return defaultSettingValue.getDefaultSettingValueWinner();
 	}
 

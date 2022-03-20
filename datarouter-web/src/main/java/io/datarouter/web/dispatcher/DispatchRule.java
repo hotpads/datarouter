@@ -36,6 +36,7 @@ import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.encoder.DefaultEncoder;
 import io.datarouter.web.handler.encoder.HandlerEncoder;
 import io.datarouter.web.handler.types.DefaultDecoder;
+import io.datarouter.web.handler.types.EndpointDecoder;
 import io.datarouter.web.handler.types.HandlerDecoder;
 import io.datarouter.web.security.CsrfValidator;
 import io.datarouter.web.security.SecurityValidationResult;
@@ -63,10 +64,11 @@ public class DispatchRule{
 	private Set<Role> allowedRoles;
 	private boolean allowAnonymous;
 	private Class<? extends HandlerEncoder> defaultHandlerEncoder = DefaultEncoder.class;
-	private Class<? extends HandlerDecoder> defaultHandlerDecoder = DefaultDecoder.class;
+	private Class<? extends HandlerDecoder> defaultHandlerDecoder;
 	private String persistentString;
 	private boolean transmitsPii;
 	private Tag tag = Tag.APP;
+	private DispatchType dispatchType = DispatchType.DEFAULT;
 
 	public DispatchRule(){
 		this(null, "");
@@ -153,6 +155,11 @@ public class DispatchRule{
 		return this;
 	}
 
+	public DispatchRule withDispatchType(DispatchType dispatchType){
+		this.dispatchType = dispatchType;
+		return this;
+	}
+
 	/*------------------------------ getters --------------------------------*/
 
 	public BaseRouteSet getRouteSet(){
@@ -204,7 +211,13 @@ public class DispatchRule{
 	}
 
 	public Class<? extends HandlerDecoder> getDefaultHandlerDecoder(){
-		return defaultHandlerDecoder;
+		if(defaultHandlerDecoder != null){
+			return defaultHandlerDecoder;
+		}
+		return switch(dispatchType){
+			case DEFAULT -> DefaultDecoder.class;
+			case API_ENDPOINT -> EndpointDecoder.class;
+		};
 	}
 
 	public Optional<String> getPersistentString(){

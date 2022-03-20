@@ -50,7 +50,11 @@ public class DatarouterCounters{
 	}
 
 	// allow node implementations to add whatever counts they want, prefixing them with "custom"
-	public static void incClientNodeCustom(ClientType<?,?> type, String key, String clientName, String nodeName,
+	public static void incClientNodeCustom(
+			ClientType<?,?> type,
+			String key,
+			String clientName,
+			String nodeName,
 			long delta){
 		incClient(type, key, clientName, delta);
 		String compoundKey = clientName + " " + nodeName + " custom " + key;
@@ -75,7 +79,11 @@ public class DatarouterCounters{
 	}
 	/*------------ table -------------------*/
 
-	public static void incClientTable(ClientType<?,?> type, String key, String clientName, String tableName,
+	public static void incClientTable(
+			ClientType<?,?> type,
+			String key,
+			String clientName,
+			String tableName,
 			long delta){
 		incClient(type, key, clientName, delta);
 		String compoundKey = clientName + " " + tableName + " " + key;
@@ -84,8 +92,13 @@ public class DatarouterCounters{
 
 	/*------------ region -------------------*/
 
-	public static void incClientTableOpRegion(String clientTypeString, String clientName, String tableName,
-			String opName, String regionName, long delta){
+	public static void incClientTableOpRegion(
+			String clientTypeString,
+			String clientName,
+			String tableName,
+			String opName,
+			String regionName,
+			long delta){
 		String compoundKey = clientName + " " + tableName + " " + opName + " " + regionName;
 		incInternalStringWithClientType(AGGREGATION_region, clientTypeString, compoundKey, delta);
 	}
@@ -97,7 +110,10 @@ public class DatarouterCounters{
 		incInternalStringWithClientType(aggregationLevel, clientTypeString, key, delta);
 	}
 
-	private static void incInternalStringWithClientType(String aggregationLevel, String clientTypeString, String key,
+	private static void incInternalStringWithClientType(
+			String aggregationLevel,
+			String clientTypeString,
+			String key,
 			long delta){
 		Counters.inc(PREFIX + " " + aggregationLevel + " " + clientTypeString + " " + key, delta);
 	}

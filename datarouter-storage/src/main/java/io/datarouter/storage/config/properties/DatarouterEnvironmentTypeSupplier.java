@@ -33,7 +33,8 @@ public class DatarouterEnvironmentTypeSupplier implements Supplier<String>{
 
 	@Inject
 	private DatarouterEnvironmentTypeSupplier(ComputedPropertiesFinder finder){
-		this.environmentType = finder.findProperty(ENVIRONMENT_TYPE,
+		this.environmentType = finder.findProperty(
+				ENVIRONMENT_TYPE,
 				() -> EnvironmentType.DEVELOPMENT.get().getPersistentString());
 	}
 

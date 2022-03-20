@@ -18,30 +18,47 @@ package io.datarouter.bytes.codec.list.doublelist;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.datarouter.bytes.codec.doublecodec.NullableRawDoubleCodec;
+import io.datarouter.bytes.EmptyArray;
+import io.datarouter.bytes.codec.doublecodec.RawDoubleCodec;
 
 public class DoubleListCodec{
 
 	public static final DoubleListCodec INSTANCE = new DoubleListCodec();
 
-	private static final NullableRawDoubleCodec NULLABLE_RAW_DOUBLE_CODEC = NullableRawDoubleCodec.INSTANCE;
-	private static final int ITEM_LENGTH = NULLABLE_RAW_DOUBLE_CODEC.length();
+	private static final RawDoubleCodec RAW_DOUBLE_CODEC = RawDoubleCodec.INSTANCE;
+	private static final int ITEM_LENGTH = RAW_DOUBLE_CODEC.length();
 
 	public byte[] encode(List<Double> values){
-		var out = new byte[ITEM_LENGTH * values.size()];
-		for(int i = 0; i < values.size(); ++i){
-			System.arraycopy(NULLABLE_RAW_DOUBLE_CODEC.encode(values.get(i)), 0, out, i * ITEM_LENGTH, ITEM_LENGTH);
+		if(values.isEmpty()){
+			return EmptyArray.BYTE;
 		}
-		return out;
+		var bytes = new byte[ITEM_LENGTH * values.size()];
+		int cursor = 0;
+		for(int i = 0; i < values.size(); ++i){
+			RAW_DOUBLE_CODEC.encode(values.get(i), bytes, cursor);
+			cursor += ITEM_LENGTH;
+		}
+		return bytes;
 	}
 
-	public List<Double> decode(byte[] bytes, int offset){
+	public List<Double> decode(byte[] bytes){
+		return decode(bytes, 0, bytes.length);
+	}
+
+	public List<Double> decode(byte[] bytes, int offset, int bytesLength){
+		if(bytesLength == 0){
+			return new ArrayList<>(0);
+		}
+		if(bytesLength % ITEM_LENGTH != 0){
+			throw new IllegalArgumentException("bytesLength must be multiple of " + ITEM_LENGTH);
+		}
 		int numValues = (bytes.length - offset) / ITEM_LENGTH;
 		List<Double> values = new ArrayList<>(numValues);
-		var arrayToCopy = new byte[ITEM_LENGTH];//TODO avoid intermediate array
+		int cursor = offset;
 		for(int i = 0; i < numValues; i++){
-			System.arraycopy(bytes, i * ITEM_LENGTH + offset, arrayToCopy, 0, ITEM_LENGTH);
-			values.add(NULLABLE_RAW_DOUBLE_CODEC.decode(arrayToCopy, 0));
+			double value = RAW_DOUBLE_CODEC.decode(bytes, cursor);
+			cursor += ITEM_LENGTH;
+			values.add(value);
 		}
 		return values;
 	}

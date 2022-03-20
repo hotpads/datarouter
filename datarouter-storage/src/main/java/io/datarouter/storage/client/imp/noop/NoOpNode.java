@@ -31,7 +31,10 @@ import io.datarouter.storage.node.type.index.ManagedNode;
 import io.datarouter.storage.serialize.fieldcache.IndexEntryFieldInfo;
 import io.datarouter.util.tuple.Range;
 
-public class NoOpNode<PK extends PrimaryKey<PK>, D extends Databean<PK,D>> implements IndexedSortedMapStorage<PK,D>{
+public class NoOpNode<
+		PK extends PrimaryKey<PK>,
+		D extends Databean<PK,D>>
+implements IndexedSortedMapStorage<PK,D>{
 
 	@Override
 	public boolean exists(PK key, Config config){

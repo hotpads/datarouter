@@ -43,7 +43,10 @@ public abstract class BaseNodeFactory{
 	private final DatarouterInjector injector;
 	private final Supplier<Boolean> enableDiagnosticsSupplier;
 
-	public BaseNodeFactory(Datarouter datarouter, DatarouterClients clients, DatarouterInjector injector,
+	public BaseNodeFactory(
+			Datarouter datarouter,
+			DatarouterClients clients,
+			DatarouterInjector injector,
 			Supplier<Boolean> enableDiagnosticsSupplier){
 		this.datarouter = datarouter;
 		this.clients = clients;

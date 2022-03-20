@@ -32,7 +32,9 @@ public class ServerName implements Supplier<String>{
 
 	@Inject
 	public ServerName(ComputedPropertiesFinder finder){
-		this.serverName = finder.findProperty(SERVER_NAME, SystemTool::getHostname,
+		this.serverName = finder.findProperty(
+				SERVER_NAME,
+				SystemTool::getHostname,
 				"InetAddress.getLocalHost().getHostName()");
 	}
 

@@ -31,7 +31,7 @@ import io.datarouter.email.type.DatarouterEmailTypes.WebappInstanceAlertEmailTyp
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
 import io.datarouter.storage.servertype.ServerTypeDetector;
-import io.datarouter.util.time.DurationTool;
+import io.datarouter.util.duration.DatarouterDuration;
 import io.datarouter.util.time.ZonedDateFormatterTool;
 import io.datarouter.util.tuple.Twin;
 import io.datarouter.web.config.properties.DefaultEmailDistributionListZoneId;
@@ -67,14 +67,13 @@ public class WebappInstanceAlertJob extends BaseJob{
 	public void run(TaskTracker tracker){
 		WebappInstance webappInstance = webappInstanceService.buildCurrentWebappInstance();
 		Instant build = webappInstance.getBuildInstant();
-		long staleRunningTimeMs = DurationTool.sinceInstant(build).toMillis()
-				- settings.staleWebappInstanceThreshold.get().toJavaDuration().toMillis();
-		if(staleRunningTimeMs > 0){
-			sendEmail(webappInstance);
+		DatarouterDuration buildAge = DatarouterDuration.age(build);
+		if(buildAge.isLongerThan(settings.staleWebappInstanceThreshold.get())){
+			sendEmail(webappInstance, buildAge);
 		}
 	}
 
-	private void sendEmail(WebappInstance webappInstance){
+	private void sendEmail(WebappInstance webappInstance, DatarouterDuration buildAge){
 		String primaryHref = htmlEmailService.startLinkBuilder()
 				.withLocalPath(paths.datarouter.webappInstances)
 				.build();
@@ -83,7 +82,7 @@ public class WebappInstanceAlertJob extends BaseJob{
 				.withSubject("Datarouter - Stale Webapp - " + webappInstance.getKey().getServerName())
 				.withTitle("Stale Webapp")
 				.withTitleHref(primaryHref)
-				.withContent(body(header, makeContent(webappInstance)))
+				.withContent(body(header, makeContent(webappInstance, buildAge)))
 				.fromAdmin()
 				.to(webappInstanceAlertEmailType.tos, serverTypeDetector.mightBeProduction())
 				.toAdmin()
@@ -91,13 +90,14 @@ public class WebappInstanceAlertJob extends BaseJob{
 		htmlEmailService.trySendJ2Html(emailBuilder);
 	}
 
-	private ContainerTag<?> makeContent(WebappInstance webappInstance){
+	private ContainerTag<?> makeContent(WebappInstance webappInstance, DatarouterDuration buildAge){
 		ZoneId zoneId = defaultDistributionListZoneId.get();
 		var rows = List.of(
 				new Twin<>("webapp", webappInstance.getKey().getWebappName()),
 				new Twin<>("build date", ZonedDateFormatterTool.formatInstantWithZone(
 						webappInstance.getBuildInstant(),
 						zoneId)),
+				new Twin<>("build age", buildAge.toString()),
 				new Twin<>("startup date", ZonedDateFormatterTool.formatInstantWithZone(
 						webappInstance.getStartupInstant(),
 						zoneId)),

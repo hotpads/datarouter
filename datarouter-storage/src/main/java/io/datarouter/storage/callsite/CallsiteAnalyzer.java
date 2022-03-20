@@ -62,8 +62,13 @@ public class CallsiteAnalyzer implements Callable<String>{
 			if(record.getTimestamp().isAfter(lastDate)){
 				lastDate = record.getTimestamp();
 			}
-			CallsiteStat stat = new CallsiteStat(record.getCallsite(), record.getNodeName(),
-					record.getDatarouterMethodName(), 1L, record.getDurationNs(), record.getNumItems());
+			var stat = new CallsiteStat(
+					record.getCallsite(),
+					record.getNodeName(),
+					record.getDatarouterMethodName(),
+					1L,
+					record.getDurationNs(),
+					record.getNumItems());
 			if(!aggregateStatByKey.containsKey(stat.getKey())){
 				aggregateStatByKey.put(stat.getKey(), stat);
 			}
@@ -79,7 +84,7 @@ public class CallsiteAnalyzer implements Callable<String>{
 
 		//build report
 		CallsiteStatReportMetadata reportMetadata = CallsiteStatReportMetadata.inspect(stats);
-		StringBuilder sb = new StringBuilder();
+		var sb = new StringBuilder();
 		int numDaoCallsites = CallsiteStat.countDaoCallsites(stats);
 		long numSeconds = firstDate.until(lastDate, ChronoUnit.SECONDS);
 		double callsPerSec = (double)numLines / numSeconds;

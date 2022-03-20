@@ -135,27 +135,47 @@ public class DefaultSettingValue<T>{
 		return globalDefault;
 	}
 
-	public T getValue(String environmentTypeString, String environmentName, ServerType serverType, String serverName,
+	public T getValue(
+			String environmentTypeString,
+			String environmentName,
+			ServerType serverType,
+			String serverName,
 			List<DatarouterSettingTag> settingTags){
-		return getValue(new DatarouterEnvironmentType(environmentTypeString), environmentName, serverType, serverName,
+		return getValue(
+				new DatarouterEnvironmentType(environmentTypeString),
+				environmentName,
+				serverType,
+				serverName,
 				settingTags);
 	}
 
-	public T getValue(DatarouterEnvironmentType environmentType, String environmentName, ServerType serverType,
-			String serverName, List<DatarouterSettingTag> settingTags){
+	public T getValue(
+			DatarouterEnvironmentType environmentType,
+			String environmentName,
+			ServerType serverType,
+			String serverName,
+			List<DatarouterSettingTag> settingTags){
 		String serverTypeString = serverType == null ? null : serverType.getPersistentString();
 		return getValue(environmentType, environmentName, serverTypeString, serverName, settingTags);
 	}
 
-	public T getValue(DatarouterEnvironmentType environmentType, String environmentName, String serverTypeString,
-			String serverName, List<DatarouterSettingTag> settingTags){
+	public T getValue(
+			DatarouterEnvironmentType environmentType,
+			String environmentName,
+			String serverTypeString,
+			String serverName,
+			List<DatarouterSettingTag> settingTags){
 		Map<String,T> valueByServerName = getValueByServerName(environmentType);
 		if(!valueByServerName.isEmpty()){
 			T value = valueByServerName.get(serverName);
 			if(value != null){
-				defaultSettingValueWinner = new DefaultSettingValueWinner(DefaultSettingValueWinnerType.SERVER_NAME,
-						environmentType.getPersistentString(), environmentName, serverTypeString, serverName, String
-								.valueOf(value));
+				defaultSettingValueWinner = new DefaultSettingValueWinner(
+						DefaultSettingValueWinnerType.SERVER_NAME,
+						environmentType.getPersistentString(),
+						environmentName,
+						serverTypeString,
+						serverName,
+						String.valueOf(value));
 				return value;
 			}
 		}
@@ -163,9 +183,13 @@ public class DefaultSettingValue<T>{
 		if(!valueByServerType.isEmpty()){
 			T value = valueByServerType.get(serverTypeString);
 			if(value != null){
-				defaultSettingValueWinner = new DefaultSettingValueWinner(DefaultSettingValueWinnerType.SERVER_TYPE,
-						environmentType.getPersistentString(), environmentName, serverTypeString, serverName, String
-								.valueOf(value));
+				defaultSettingValueWinner = new DefaultSettingValueWinner(
+						DefaultSettingValueWinnerType.SERVER_TYPE,
+						environmentType.getPersistentString(),
+						environmentName,
+						serverTypeString,
+						serverName,
+						String.valueOf(value));
 				return value;
 			}
 		}
@@ -174,16 +198,24 @@ public class DefaultSettingValue<T>{
 			T value = valueByEnvironmentName.get(environmentName);
 			if(value != null){
 				defaultSettingValueWinner = new DefaultSettingValueWinner(
-						DefaultSettingValueWinnerType.ENVIRONMENT_NAME, environmentType.getPersistentString(),
-						environmentName, serverTypeString, serverName, String.valueOf(value));
+						DefaultSettingValueWinnerType.ENVIRONMENT_NAME,
+						environmentType.getPersistentString(),
+						environmentName,
+						serverTypeString,
+						serverName,
+						String.valueOf(value));
 				return value;
 			}
 		}
 		T valueForEnvironmentType = valueByEnvironmentType.get(environmentType);
 		if(valueForEnvironmentType != null){
-			defaultSettingValueWinner = new DefaultSettingValueWinner(DefaultSettingValueWinnerType.ENVIRONMENT_TYPE,
-					environmentType.getPersistentString(), environmentName, serverTypeString, serverName, String
-							.valueOf(valueForEnvironmentType));
+			defaultSettingValueWinner = new DefaultSettingValueWinner(
+					DefaultSettingValueWinnerType.ENVIRONMENT_TYPE,
+					environmentType.getPersistentString(),
+					environmentName,
+					serverTypeString,
+					serverName,
+					String.valueOf(valueForEnvironmentType));
 			return valueForEnvironmentType;
 		}
 		Optional<DatarouterSettingTag> matchedTag = settingTags.stream()
@@ -191,7 +223,8 @@ public class DefaultSettingValue<T>{
 			.findFirst();
 		if(matchedTag.isPresent()){
 			T value = valueBySettingTag.get(matchedTag.get()).get();
-			defaultSettingValueWinner = DefaultSettingValueWinner.settingTag(matchedTag.get().getPersistentString(),
+			defaultSettingValueWinner = DefaultSettingValueWinner.settingTag(
+					matchedTag.get().getPersistentString(),
 					String.valueOf(value));
 			return value;
 		}

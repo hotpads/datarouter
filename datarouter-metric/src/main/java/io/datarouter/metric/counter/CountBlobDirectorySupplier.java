@@ -15,12 +15,15 @@
  */
 package io.datarouter.metric.counter;
 
+import javax.inject.Singleton;
+
 import io.datarouter.storage.file.Directory;
 
 public interface CountBlobDirectorySupplier{
 
 	Directory getCountBlobDirectory();
 
+	@Singleton
 	public class NoOpCountBlobDirectorySupplier implements CountBlobDirectorySupplier{
 
 		@Override

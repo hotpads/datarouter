@@ -16,6 +16,7 @@
 package io.datarouter.client.redis.test;
 
 import java.time.Duration;
+import java.util.Optional;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -45,20 +46,20 @@ public class RedisTestDao extends BaseDao implements TestDao{
 				.buildAndRegister();
 	}
 
-	public void delete(TallyKey key){
-		node.delete(key);
+	public void deleteTally(String id){
+		node.deleteTally(id);
 	}
 
-	public boolean exists(TallyKey key){
-		return node.exists(key);
+	public Optional<Long> findTallyCount(String id){
+		return node.findTallyCount(id);
 	}
 
-	public void increment(TallyKey key, int delta, Duration ttl){
-		node.incrementAndGetCount(key.getId(), delta, new Config().setTtl(ttl));
+	public void increment(String id, int delta, Duration ttl){
+		node.incrementAndGetCount(id, delta, new Config().setTtl(ttl));
 	}
 
-	public void increment(TallyKey key, int delta){
-		node.incrementAndGetCount(key.getId(), delta);
+	public void increment(String id, int delta){
+		node.incrementAndGetCount(id, delta);
 	}
 
 }

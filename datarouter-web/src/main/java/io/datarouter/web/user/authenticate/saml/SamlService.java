@@ -214,8 +214,13 @@ public class SamlService{
 	private Set<Role> determineRoles(Assertion assertion, String username,
 			Map<String,String> attributeToRoleGroupIdMap){
 		Set<Role> rolesForDefaultGroup = roleManager.getRolesForDefaultGroup();
-		List<Role> rolesForGroupAttributes = SamlTool.streamAttributeValuesByName(SamlTool.ROLE_GROUP_ATTRIBUTE_NAME,
-				assertion)
+		var roleGroupAttributes = SamlTool.streamAttributeValuesByName(SamlTool.ROLE_GROUP_ATTRIBUTE_NAME, assertion)
+				.collect(Collectors.toList());
+		List<Role> rolesForConfigurableRoleGroups = roleGroupAttributes.stream()
+				.map(roleManager::getRolesForGroup)
+				.flatMap(Set::stream)
+				.collect(Collectors.toList());
+		List<Role> rolesForSettingRoleGroups = roleGroupAttributes.stream()
 				.map(attributeToRoleGroupIdMap::get)
 				.filter(Objects::nonNull)
 				.map(roleManager::getRolesForGroup)
@@ -229,8 +234,9 @@ public class SamlService{
 		Set<Role> superRolesForAdminUsers = username.equals(adminEmail.get())
 				? roleManager.getRolesForSuperGroup()
 				: Collections.emptySet();
-		return Scanner.concat(rolesForDefaultGroup, rolesForGroupAttributes, rolesForRoleAttributes,
-				superRolesForAdminUsers).collect(HashSet::new);
+		return Scanner.concat(rolesForDefaultGroup, rolesForConfigurableRoleGroups, rolesForSettingRoleGroups,
+				rolesForRoleAttributes, superRolesForAdminUsers)
+				.collect(HashSet::new);
 	}
 
 	private void redirectAfterAuthentication(HttpServletRequest request, HttpServletResponse response,

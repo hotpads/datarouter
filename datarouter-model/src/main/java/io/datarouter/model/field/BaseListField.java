@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Optional;
 
 import io.datarouter.gson.serialization.GsonTool;
-import io.datarouter.model.field.imp.array.KeyedListField;
+import io.datarouter.model.field.imp.list.KeyedListField;
 
 public abstract class BaseListField<
 		V extends Comparable<V>,

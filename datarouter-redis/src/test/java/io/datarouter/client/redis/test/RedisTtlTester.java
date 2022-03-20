@@ -26,7 +26,6 @@ import org.testng.annotations.Test;
 
 import io.datarouter.client.redis.DatarouterRedisTestNgModuleFactory;
 import io.datarouter.storage.Datarouter;
-import io.datarouter.storage.tally.Tally;
 
 // Difficult to test TTLs in maven
 @Guice(moduleFactory = DatarouterRedisTestNgModuleFactory.class)
@@ -44,30 +43,30 @@ public class RedisTtlTester{
 
 	@Test
 	public void testTtl(){
-		Tally bean = new Tally("testKey2", 0L);
-		dao.increment(bean.getKey(), 1, Duration.ofSeconds(2));
+		String id = "testTtl";
+		dao.increment(id, 1, Duration.ofSeconds(2));
 
 		try{
 			Thread.sleep(4 * 1000);
 		}catch(InterruptedException e){
 			Thread.currentThread().interrupt();
 		}
-		Assert.assertFalse(dao.exists(bean.getKey()));
-		deleteRecord(bean);
+		Assert.assertFalse(dao.findTallyCount(id).isPresent());
+		dao.deleteTally(id);
 	}
 
 	@Test
 	public void testTtlUpdate(){
-		Tally bean = new Tally("testKey3", 0L);
-		deleteRecord(bean);
+		String id = "testTtlUpdate";
+		dao.deleteTally(id);
 
 		// Multiple increments does not modify the original TTL
 		// This bean's TTL stays at 2 seconds
-		dao.increment(bean.getKey(), 1, Duration.ofSeconds(2));
-		dao.increment(bean.getKey(), 1, Duration.ofSeconds(2));
-		dao.increment(bean.getKey(), 1, Duration.ofSeconds(2));
-		dao.increment(bean.getKey(), 1, Duration.ofSeconds(2));
-		dao.increment(bean.getKey(), 1, Duration.ofSeconds(2));
+		dao.increment(id, 1, Duration.ofSeconds(2));
+		dao.increment(id, 1, Duration.ofSeconds(2));
+		dao.increment(id, 1, Duration.ofSeconds(2));
+		dao.increment(id, 1, Duration.ofSeconds(2));
+		dao.increment(id, 1, Duration.ofSeconds(2));
 
 		// Wait for 4 seconds
 		try{
@@ -75,34 +74,26 @@ public class RedisTtlTester{
 		}catch(InterruptedException e){
 			Thread.currentThread().interrupt();
 		}
-		Assert.assertFalse(dao.exists(bean.getKey()));
-		deleteRecord(bean);
+		Assert.assertFalse(dao.findTallyCount(id).isPresent());
+		dao.deleteTally(id);
 	}
 
 	@Test
 	public void testTtlAdvance(){
-		Tally bean = new Tally("testKey4", 0L);
-
-		dao.increment(bean.getKey(), 1, Duration.ofSeconds(2));
-		dao.increment(bean.getKey(), 1, Duration.ofSeconds(2));
-		dao.increment(bean.getKey(), 1, Duration.ofSeconds(2));
-		dao.increment(bean.getKey(), 1, Duration.ofSeconds(2));
-		dao.increment(bean.getKey(), 1);
-
+		String id = "testTtlAdvance";
+		dao.increment(id, 1, Duration.ofSeconds(2));
+		dao.increment(id, 1, Duration.ofSeconds(2));
+		dao.increment(id, 1, Duration.ofSeconds(2));
+		dao.increment(id, 1, Duration.ofSeconds(2));
+		dao.increment(id, 1);
 		// Wait for 4 seconds
 		try{
 			Thread.sleep(4 * 1000);
 		}catch(InterruptedException e){
 			Thread.currentThread().interrupt();
 		}
-		Assert.assertFalse(dao.exists(bean.getKey()));
-
-		deleteRecord(bean);
-	}
-
-
-	private void deleteRecord(Tally bean){
-		dao.delete(bean.getKey());
+		Assert.assertFalse(dao.findTallyCount(id).isPresent());
+		dao.deleteTally(id);
 	}
 
 }

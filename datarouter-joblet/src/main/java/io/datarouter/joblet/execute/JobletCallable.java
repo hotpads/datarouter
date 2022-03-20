@@ -20,6 +20,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +37,7 @@ import io.datarouter.joblet.type.JobletType;
 import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.util.DateTool;
 import io.datarouter.util.concurrent.UncheckedInterruptedException;
+import io.datarouter.util.duration.DatarouterDuration;
 import io.datarouter.util.mutable.MutableBoolean;
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.timer.PhaseTimer;
@@ -175,7 +177,8 @@ public class JobletCallable implements Callable<Void>{
 				+ " type=" + jobletType.getPersistentString()
 				+ " queue=" + jobletRequest.getQueueId()
 				+ " itemCount=" + jobletRequest.getNumItems()
-				+ " durationMs=" + NumberFormatter.addCommas(durationMs)
+				+ " durationMs=" + durationMs
+				+ " duration=" + new DatarouterDuration(durationMs, TimeUnit.MILLISECONDS)
 				+ " itemsPerSecond=" + itemsPerSecond;
 		if(durationMs > JobletProcessor.RUNNING_JOBLET_TIMEOUT_MS){
 			logger.warn("finally " + message);

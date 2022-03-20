@@ -31,7 +31,9 @@ public class Daos implements Supplier<List<? extends Dao>>{
 
 	@Inject
 	public Daos(DatarouterInjector injector, DaoClasses daoClasses){
-		this.daos = Scanner.of(daoClasses.get()).map(injector::getInstance).list();
+		this.daos = Scanner.of(daoClasses.get())
+				.map(injector::getInstance)
+				.list();
 	}
 
 	@Override

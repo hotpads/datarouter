@@ -85,8 +85,9 @@ public class SchemaUpdateOptions{
 				internalConfigDirectory.get());
 		properties = new TypedProperties(List.of(propertiesFromClass));
 		if(!properties.getUnmodifiablePropertiesList().isEmpty()){
-			logger.warn("Got schema update properties from class {}", schemaUpdateOptionsFactory.getClass()
-					.getCanonicalName());
+			logger.warn(
+					"Got schema update properties from class {}",
+					schemaUpdateOptionsFactory.getClass().getCanonicalName());
 		}else{
 			String configFileLocation = internalConfigDirectory.findConfigFile(SCHEMA_UPDATE_FILENAME);
 			try{

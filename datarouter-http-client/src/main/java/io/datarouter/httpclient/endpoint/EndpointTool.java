@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.httpclient.request.DatarouterHttpRequest;
+import io.datarouter.httpclient.request.HttpRequestMethod;
 
 public class EndpointTool{
 	private static final Logger logger = LoggerFactory.getLogger(EndpointTool.class);
@@ -102,6 +103,15 @@ public class EndpointTool{
 		return Optional.empty();
 	}
 
+	private static boolean hasEntity(BaseEndpoint<?,?> endpoint){
+		for(Field field : endpoint.getClass().getFields()){
+			if(field.isAnnotationPresent(EndpointRequestBody.class)){
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public static Optional<String> getValue(Field field, Object value){
 		if(!field.getType().isAssignableFrom(Optional.class)){
 			return Optional.of(value.toString());
@@ -142,6 +152,52 @@ public class EndpointTool{
 
 	public static Type extractParameterizedType(Field field){
 		return ((ParameterizedType)field.getGenericType()).getActualTypeArguments()[0];
+	}
+
+	public static void validateEndpoint(BaseEndpoint<?,?> endpoint){
+		HttpRequestMethod requestType = endpoint.method;
+		if(requestType == HttpRequestMethod.GET){
+			if(findEntity(endpoint).isPresent()){
+				throw new IllegalArgumentException(endpoint.getClass().getSimpleName()
+						+ " - GET request cannot have a POST-body");
+			}
+		}
+		// This is not a hard protocol restriction.
+		// Datarouter has trouble decoding if there is a body and post param for a POST request.
+		if(requestType == HttpRequestMethod.POST){
+			if(hasEntity(endpoint) && containsParamofType(endpoint, ParamType.POST)){
+				throw new IllegalArgumentException(endpoint.getClass().getSimpleName()
+						+ " - Request cannot have a POST-body and POST params");
+			}
+		}
+	}
+
+	private static boolean containsParamofType(BaseEndpoint<?,?> endpoint, ParamType type){
+		for(Field field : endpoint.getClass().getFields()){
+			if(field.getAnnotation(IgnoredField.class) != null){
+				continue;
+			}
+			if(field.getAnnotation(EndpointRequestBody.class) != null){
+				continue;
+			}
+			if(Modifier.isStatic(field.getModifiers())){
+				continue;
+			}
+			EndpointParam param = field.getAnnotation(EndpointParam.class);
+			ParamType paramType;
+			if(param == null || param.paramType() == null || param.paramType() == ParamType.DEFAULT){
+				paramType = type;
+			}else{
+				paramType = param.paramType();
+			}
+			if(paramType == ParamType.GET && type == ParamType.GET){
+				return true;
+			}
+			if(paramType == ParamType.POST && type == ParamType.POST){
+				return true;
+			}
+		}
+		return false;
 	}
 
 }

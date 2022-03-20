@@ -32,6 +32,8 @@ import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.html.j2html.J2HtmlTable;
 import j2html.TagCreator;
 import j2html.tags.ContainerTag;
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.LiTag;
 
 public class AwsMemcachedWebInspector extends MemcachedWebInspector{
 
@@ -39,9 +41,9 @@ public class AwsMemcachedWebInspector extends MemcachedWebInspector{
 	private AwsMemcachedOptions options;
 
 	@Override
-	protected Pair<Integer,ContainerTag<?>> getDetails(ClientId clientId){
+	protected Pair<Integer,DivTag> getDetails(ClientId clientId){
 		MemcachedClientMode mode = options.getClientMode(clientId.getName());
-		Pair<Integer,ContainerTag<?>> nodeCountByNodeTag = new Pair<>();
+		Pair<Integer,DivTag> nodeCountByNodeTag = new Pair<>();
 		if(mode == MemcachedClientMode.DYNAMIC){
 			List<AwsMemcachedNodeEndpointDto> nodeEndpointDtos = Scanner.of(getClient(clientId).getAllNodeEndPoints())
 					.map(nodeEndPoint -> new AwsMemcachedNodeEndpointDto(
@@ -55,18 +57,18 @@ public class AwsMemcachedWebInspector extends MemcachedWebInspector{
 					.withColumn("IpAddress", dto -> dto.ipAddress)
 					.withColumn("Port", dto -> dto.port)
 					.build(nodeEndpointDtos);
-			ContainerTag<?> divTable = div(table)
+			DivTag divTable = div(table)
 					.withClass("container-fluid my-4")
 					.withStyle("padding-left: 0px");
 			nodeCountByNodeTag.setLeft(nodeEndpointDtos.size());
 			nodeCountByNodeTag.setRight(divTable);
 
 		}else{
-			List<ContainerTag<?>> socketAddresses = getClient(clientId).getAvailableServers().stream()
+			List<LiTag> socketAddresses = getClient(clientId).getAvailableServers().stream()
 					.map(Object::toString)
 					.map(TagCreator::li)
 					.collect(Collectors.toList());
-			ContainerTag<?> div = div(ul(socketAddresses.toArray(new ContainerTag[0])));
+			DivTag div = div(ul(socketAddresses.toArray(new ContainerTag[0])));
 			nodeCountByNodeTag.setLeft(socketAddresses.size());
 			nodeCountByNodeTag.setRight(div);
 		}

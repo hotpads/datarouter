@@ -52,7 +52,7 @@ public abstract class BaseSchemaUpdateService{
 	private static final Logger logger = LoggerFactory.getLogger(BaseSchemaUpdateService.class);
 
 	private static final long THROTTLING_DELAY_SECONDS = 10;
-	private static final String BUILD_NUMBER_ENV_VAR = "BUILD_NUMBER";
+	private static final String BUILD_NUMBER = System.getenv("BUILD_NUMBER");
 
 	private final ServerName serverName;
 	private final EnvironmentName environmentName;
@@ -86,11 +86,16 @@ public abstract class BaseSchemaUpdateService{
 		executor.scheduleWithFixedDelay(this::gatherSchemaUpdates, 0, THROTTLING_DELAY_SECONDS, TimeUnit.SECONDS);
 	}
 
-	public Future<Optional<SchemaUpdateResult>> queueNodeForSchemaUpdate(ClientId clientId, PhysicalNode<?,?,?> node){
-		Supplier<List<String>> existingTableNames = existingTableNamesByClient.computeIfAbsent(clientId,
+	public Future<Optional<SchemaUpdateResult>> queueNodeForSchemaUpdate(
+			ClientId clientId,
+			PhysicalNode<?,?,?> node){
+		Supplier<List<String>> existingTableNames = existingTableNamesByClient.computeIfAbsent(
+				clientId,
 				this::lazyFetchExistingTables);
-		Future<Optional<SchemaUpdateResult>> future = executor.submit(makeSchemaUpdateCallable(clientId,
-				existingTableNames, node));
+		Future<Optional<SchemaUpdateResult>> future = executor.submit(makeSchemaUpdateCallable(
+				clientId,
+				existingTableNames,
+				node));
 		futures.add(future);
 		return future;
 	}
@@ -152,9 +157,7 @@ public abstract class BaseSchemaUpdateService{
 			StringBuilder allStatements = new StringBuilder();
 			ddlList.forEach(ddl -> allStatements.append(ddl).append("\n\n"));
 			logger.warn("Sending schema update email for client={}", clientId.getName());
-			sendEmail(
-					subject,
-					allStatements.toString());
+			sendEmail(subject, allStatements.toString());
 		});
 	}
 
@@ -177,7 +180,7 @@ public abstract class BaseSchemaUpdateService{
 		Instant now = Instant.now();
 		Integer build = Optional.ofNullable(buildId)
 				.filter(buildId -> !"${env.BUILD_NUMBER}".equals(buildId))
-				.or(() -> Optional.ofNullable(System.getenv(BUILD_NUMBER_ENV_VAR)))
+				.or(() -> Optional.ofNullable(BUILD_NUMBER))
 				.map(Integer::valueOf)
 				.orElseGet(() -> (int)now.getEpochSecond());
 		ClusterSchemaUpdateLock lock = new ClusterSchemaUpdateLock(

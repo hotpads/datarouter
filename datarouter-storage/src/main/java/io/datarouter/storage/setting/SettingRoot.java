@@ -51,8 +51,11 @@ public class SettingRoot extends SettingNode implements PluginConfigValue<Settin
 		this.category = category.toSimpleSettingCategory();
 	}
 
-	private SettingRoot(SettingFinder finder, SettingRootsSupplier supplier,
-			SettingCategory category, String name){
+	private SettingRoot(
+			SettingFinder finder,
+			SettingRootsSupplier supplier,
+			SettingCategory category,
+			String name){
 		super(finder, name);
 		supplier.get().forEach(this::dependsOn);
 		this.category = category.toSimpleSettingCategory();

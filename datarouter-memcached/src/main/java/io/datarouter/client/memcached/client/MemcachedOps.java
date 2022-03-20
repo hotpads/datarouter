@@ -18,7 +18,6 @@ package io.datarouter.client.memcached.client;
 import java.time.Duration;
 import java.util.Collection;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -57,9 +56,10 @@ public class MemcachedOps{
 				long elapsedMs = System.currentTimeMillis() - start;
 				String details = "timeout after " + elapsedMs + "ms";
 				throw new RuntimeException(details, e);
-			}catch(ExecutionException | InterruptedException e){
+			}catch(Exception e){
 				TracerTool.appendToSpanInfo("memcached exception");
-				throw new RuntimeException(e);
+				String message = String.format("error deleting key=%s", memcachedStringKey);
+				throw new RuntimeException(message, e);
 			}
 		}
 	}
@@ -87,27 +87,35 @@ public class MemcachedOps{
 				TracerTool.appendToSpanInfo("memcached timeout");
 				long elapsedMs = System.currentTimeMillis() - start;
 				String details = "timeout after " + elapsedMs + "ms";
+				var enhancedException = new RuntimeException(details, e);
 				if(ignoreExceptions){
-					logger.error(details, e);
+					logger.error("", enhancedException);
 					return Scanner.empty();
 				}
-				throw new RuntimeException(details, e);
-			}catch(ExecutionException | InterruptedException e){
+				throw enhancedException;
+			}catch(Exception e){
 				TracerTool.appendToSpanInfo("memcached exception");
+				String message = String.format("error fetching keys=%s", memcachedStringKeys);
+				var enhancedException = new RuntimeException(message, e);
 				if(ignoreExceptions){
-					logger.error("", e);
+					logger.error("", enhancedException);
 					return Scanner.empty();
 				}
-				throw new RuntimeException(e);
+				throw enhancedException;
 			}
 		}
 	}
 
 	public long increment(ClientId clientId, String memcachedStringKey, int delta, int expiration){
 		// this cannot be async and use the client wide operationTimeout, with default of 2.5s
-		return memcachedClientManager
-				.getSpyMemcachedClient(clientId)
-				.incr(memcachedStringKey, delta, delta, expiration);
+		try{
+			return memcachedClientManager
+					.getSpyMemcachedClient(clientId)
+					.incr(memcachedStringKey, delta, delta, expiration);
+		}catch(Exception e){
+			String message = String.format("error incrementing key=%s", memcachedStringKey);
+			throw new RuntimeException(message, e);
+		}
 	}
 
 	public void set(
@@ -118,9 +126,14 @@ public class MemcachedOps{
 			byte[] bytes){
 		try(var $ = TracerTool.startSpan(nodeName + " " + "set", TraceSpanGroupType.DATABASE)){
 			TracerTool.appendToSpanInfo("bytes", bytes.length);
-			memcachedClientManager
-					.getSpyMemcachedClient(clientId)
-					.set(memcachedStringKey, expiration, bytes);
+			try{
+				memcachedClientManager
+						.getSpyMemcachedClient(clientId)
+						.set(memcachedStringKey, expiration, bytes);
+			}catch(Exception e){
+				String message = String.format("error incrementing key=%s", memcachedStringKey);
+				throw new RuntimeException(message, e);
+			}
 		}
 	}
 

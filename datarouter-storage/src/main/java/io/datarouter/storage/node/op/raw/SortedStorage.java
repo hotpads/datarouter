@@ -29,7 +29,8 @@ extends SortedStorageReader<PK,D>, SortedStorageWriter<PK,D>{
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
 	extends SortedStorage<PK,D>,
-			SortedStorageReaderNode<PK,D,F>, SortedStorageWriterNode<PK,D,F>{
+			SortedStorageReaderNode<PK,D,F>,
+			SortedStorageWriterNode<PK,D,F>{
 	}
 
 	public interface PhysicalSortedStorageNode<
@@ -37,7 +38,8 @@ extends SortedStorageReader<PK,D>, SortedStorageWriter<PK,D>{
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
 	extends SortedStorageNode<PK,D,F>,
-			PhysicalSortedStorageReaderNode<PK,D,F>, PhysicalSortedStorageWriterNode<PK,D,F>{
+			PhysicalSortedStorageReaderNode<PK,D,F>,
+			PhysicalSortedStorageWriterNode<PK,D,F>{
 	}
 
 }

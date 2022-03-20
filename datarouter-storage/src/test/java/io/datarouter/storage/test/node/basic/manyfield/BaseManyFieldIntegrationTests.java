@@ -144,6 +144,16 @@ public abstract class BaseManyFieldIntegrationTests{
 	}
 
 	@Test
+	public void testEnumToInteger(){
+		var bean = new ManyFieldBean();
+		bean.setEnumToIntegerField(TestEnum.beast);
+		dao.put(bean);
+
+		ManyFieldBean roundTripped = dao.get(bean.getKey());
+		Assert.assertSame(roundTripped.getEnumToIntegerField(), TestEnum.beast);
+	}
+
+	@Test
 	public void testLong(){
 		var bean = new ManyFieldBean();
 		long negative6Billion = 3 * (long)Integer.MIN_VALUE;
@@ -369,8 +379,6 @@ public abstract class BaseManyFieldIntegrationTests{
 	public void testDoubleArray(){
 		var bean = new ManyFieldBean();
 		bean.appendToDoubleArrayField(Double.MAX_VALUE);
-		bean.appendToDoubleArrayField(null);
-		bean.appendToDoubleArrayField(null);
 		bean.appendToDoubleArrayField(Double.MIN_VALUE);
 		bean.appendToDoubleArrayField(-5029.02939);
 		dao.put(bean);

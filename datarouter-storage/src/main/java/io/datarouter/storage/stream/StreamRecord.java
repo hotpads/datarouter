@@ -20,7 +20,10 @@ import java.time.Instant;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 
-public class StreamRecord<PK extends PrimaryKey<PK>,D extends Databean<PK,D>> extends BaseStreamRecord<PK,D>{
+public class StreamRecord<
+		PK extends PrimaryKey<PK>,
+		D extends Databean<PK,D>>
+extends BaseStreamRecord<PK,D>{
 
 	private final D databean;
 

@@ -26,5 +26,4 @@ public interface MultiIndexNode<
 		IK extends PrimaryKey<IK>,
 		IE extends MultiIndexEntry<IK,IE,PK,D>>
 extends MultiIndexReader<PK,D,IK,IE>{
-
 }

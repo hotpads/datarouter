@@ -22,17 +22,16 @@ import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.node.Node;
 import io.datarouter.storage.node.op.index.MultiIndexReader;
 import io.datarouter.storage.node.op.raw.QueueStorage;
+import io.datarouter.storage.node.op.raw.TallyStorage;
 import io.datarouter.storage.node.op.raw.read.IndexedStorageReader;
 import io.datarouter.storage.node.op.raw.read.MapStorageReader;
 import io.datarouter.storage.node.op.raw.read.QueueStorageReader;
 import io.datarouter.storage.node.op.raw.read.SortedStorageReader;
-import io.datarouter.storage.node.op.raw.read.TallyStorageReader;
 import io.datarouter.storage.node.op.raw.write.IndexedStorageWriter;
 import io.datarouter.storage.node.op.raw.write.MapStorageWriter;
 import io.datarouter.storage.node.op.raw.write.QueueStorageWriter;
 import io.datarouter.storage.node.op.raw.write.SortedStorageWriter;
 import io.datarouter.storage.node.op.raw.write.StorageWriter;
-import io.datarouter.storage.node.op.raw.write.TallyStorageWriter;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 
 /**
@@ -70,7 +69,6 @@ public class DatarouterStorageDocs{
 	IndexedStorageReader indexedStorageReader;
 	IndexedStorageWriter indexedStorageWriter;
 
-	TallyStorageReader tallyStorageReader;
-	TallyStorageWriter tallyStorageWriter;
+	TallyStorage tallyStorage;
 
 }

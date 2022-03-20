@@ -19,7 +19,11 @@ import io.datarouter.scanner.Scanner;
 
 public interface DirectoryScanner{
 
-	Scanner<DirectoryDto> scanSubdirectories(String bucket, String prefix, String startAfter, String delimiter,
-			int pageSize, boolean currentDirectory);
+	Scanner<DirectoryDto> scanSubdirectories(
+			String bucket,
+			String prefix,
+			String startAfter, String delimiter,
+			int pageSize,
+			boolean currentDirectory);
 
 }

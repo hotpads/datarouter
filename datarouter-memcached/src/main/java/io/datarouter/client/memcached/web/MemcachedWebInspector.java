@@ -20,6 +20,7 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.h4;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.table;
+import static j2html.TagCreator.tbody;
 import static j2html.TagCreator.td;
 import static j2html.TagCreator.th;
 import static j2html.TagCreator.tr;
@@ -30,7 +31,6 @@ import java.net.SocketAddress;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -38,6 +38,7 @@ import javax.servlet.http.HttpServletRequest;
 import io.datarouter.client.memcached.client.MemcachedClientManager;
 import io.datarouter.client.memcached.client.options.MemcachedOptions;
 import io.datarouter.client.memcached.client.spy.SpyMemcachedClient;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientOptions;
 import io.datarouter.storage.client.ClientType;
@@ -52,6 +53,8 @@ import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import io.datarouter.web.requirejs.DatarouterWebRequireJsV2;
 import j2html.TagCreator;
 import j2html.tags.ContainerTag;
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.LiTag;
 
 public class MemcachedWebInspector implements DatarouterClientWebInspector{
 
@@ -73,7 +76,6 @@ public class MemcachedWebInspector implements DatarouterClientWebInspector{
 		if(clientId == null){
 			return new MessageMav("Client not found");
 		}
-
 		var clientName = clientId.getName();
 		Map<String,String> allClientOptions = clientOptions.getAllClientOptions(clientName);
 		var content = div(
@@ -82,7 +84,6 @@ public class MemcachedWebInspector implements DatarouterClientWebInspector{
 				buildClientOptionsTable(allClientOptions),
 				buildStats(getClient(clientId).getStats()))
 				.withClass("container my-3");
-
 		return pageFactory.startBuilder(request)
 				.withTitle("Datarouter Client - " + clientOptions.getClientType(clientId))
 				.withRequires(DatarouterWebRequireJsV2.SORTTABLE)
@@ -94,38 +95,38 @@ public class MemcachedWebInspector implements DatarouterClientWebInspector{
 		return memcachedClientManager.getSpyMemcachedClient(clientId);
 	}
 
-	protected Pair<Integer,ContainerTag<?>> getDetails(ClientId clientId){
-		Pair<Integer,ContainerTag<?>> nodeCountByNodeTag = new Pair<>();
-		List<ContainerTag<?>> socketAddresses = memcachedOptions.getServers(clientId.getName()).stream()
+	protected Pair<Integer,DivTag> getDetails(ClientId clientId){
+		Pair<Integer,DivTag> nodeCountByNodeTag = new Pair<>();
+		List<LiTag> socketAddresses = Scanner.of(memcachedOptions.getServers(clientId.getName()))
 				.map(InetSocketAddress::toString)
 				.map(TagCreator::li)
-				.collect(Collectors.toList());
-		ContainerTag<?> div = div(ul(socketAddresses.toArray(new ContainerTag[0])));
+				.list();
+		DivTag div = div(ul(socketAddresses.toArray(new ContainerTag[0])));
 		nodeCountByNodeTag.setLeft(socketAddresses.size());
 		nodeCountByNodeTag.setRight(div);
 		return nodeCountByNodeTag;
 	}
 
-	private ContainerTag<?> buildOverview(ClientId clientId){
-		Pair<Integer,ContainerTag<?>> listElements = getDetails(clientId);
+	private DivTag buildOverview(ClientId clientId){
+		Pair<Integer,DivTag> listElements = getDetails(clientId);
 		return div(
 				p(b("Number of nodes: " + listElements.getLeft())),
 				h4("Nodes"),
 				listElements.getRight());
 	}
 
-	private ContainerTag<?> buildStats(Map<SocketAddress,Map<String,String>> statsPerSocketAddress){
+	private DivTag buildStats(Map<SocketAddress,Map<String,String>> statsPerSocketAddress){
 		var allStats = div();
-		statsPerSocketAddress.entrySet().stream()
+		Scanner.of(statsPerSocketAddress.entrySet())
 				.map(entry -> buildSingleNodeStats(entry.getKey().toString(), entry.getValue()))
 				.forEach(allStats::with);
 		return allStats;
 	}
 
-	private ContainerTag<?> buildSingleNodeStats(String socketAddress, Map<String,String> stats){
-		var tbody = TagCreator.tbody();
-		stats.entrySet().stream()
-				.sorted(Entry.comparingByKey())
+	private DivTag buildSingleNodeStats(String socketAddress, Map<String,String> stats){
+		var tbody = tbody();
+		Scanner.of(stats.entrySet())
+				.sort(Entry.comparingByKey())
 				.map(entry -> tr(th(entry.getKey()), td(formatIfNumber(entry.getValue()))))
 				.forEach(tbody::with);
 		var table = table(tbody).withClass("table table-striped table-hover table-sm");

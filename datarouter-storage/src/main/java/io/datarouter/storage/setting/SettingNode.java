@@ -105,7 +105,8 @@ public abstract class SettingNode{
 		String nextChildPath = getName() + nextChildShortName.substring(0, index + 1);
 		if(getChildren().containsKey(nextChildPath)){
 			SettingNode ancestor = getChildren().get(nextChildPath);
-			Optional<SettingNode> moreRecentAncestor = ancestor.getNodeByNameRecursively(nameParam,
+			Optional<SettingNode> moreRecentAncestor = ancestor.getNodeByNameRecursively(
+					nameParam,
 					stopAtMostRecentNonNullAncestor);
 			if(stopAtMostRecentNonNullAncestor && moreRecentAncestor.isEmpty()){
 				return Optional.of(ancestor);
@@ -204,7 +205,8 @@ public abstract class SettingNode{
 		return register(new StringCachedSetting(finder, getName() + name, defaultValue));
 	}
 
-	public CommaSeparatedStringCachedSetting registerCommaSeparatedStrings(String name,
+	public CommaSeparatedStringCachedSetting registerCommaSeparatedStrings(
+			String name,
 			DefaultSettingValue<Set<String>> defaultValue){
 		return register(new CommaSeparatedStringCachedSetting(finder, getName() + name, defaultValue));
 	}

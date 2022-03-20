@@ -25,7 +25,8 @@ public class KeyRangeTool{
 		return new Range<>(prefix, true, prefix, true);
 	}
 
-	public static <PK extends PrimaryKey<PK>> Range<PK> forPrefixWithWildcard(String prefixString,
+	public static <PK extends PrimaryKey<PK>> Range<PK> forPrefixWithWildcard(
+			String prefixString,
 			KeyWithStringFieldSuffixProvider<PK> keyWithStringFieldSuffixProvider){
 		if(prefixString == null){
 			return forPrefix(keyWithStringFieldSuffixProvider.createWithSuffixStringField(null));
@@ -67,8 +68,10 @@ public class KeyRangeTool{
 		if(range == null || !range.hasEnd()){
 			return false;
 		}
-		return !FieldSetRangeFilter.isCandidateBeforeEndOfRange(pk.getFields(), range.getEnd().getFields(), range
-				.getEndInclusive());
+		return !FieldSetRangeFilter.isCandidateBeforeEndOfRange(
+				pk.getFields(),
+				range.getEnd().getFields(),
+				range.getEndInclusive());
 	}
 
 }

@@ -68,7 +68,9 @@ extends IndexedStorage<PK,D>, CallsiteAdapter{
 	default <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK,IE,PK,D>,
 			IF extends DatabeanFielder<IK,IE>>
-	void deleteByIndex(Collection<IK> keys, Config config,
+	void deleteByIndex(
+			Collection<IK> keys,
+			Config config,
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
 		LineOfCode lineOfCode = getCallsite();
 		long startNs = System.nanoTime();
@@ -138,7 +140,9 @@ extends IndexedStorage<PK,D>, CallsiteAdapter{
 	default <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK,IE,PK,D>,
 			IF extends DatabeanFielder<IK,IE>>
-	Scanner<IE> scanRangesIndex(IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
+	Scanner<IE> scanRangesIndex(
+			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo,
+			Collection<Range<IK>> ranges,
 			Config config){
 		LineOfCode lineOfCode = getCallsite();
 		long startNs = System.nanoTime();
@@ -153,7 +157,9 @@ extends IndexedStorage<PK,D>, CallsiteAdapter{
 	default <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK,IE,PK,D>,
 			IF extends DatabeanFielder<IK,IE>>
-	Scanner<D> scanRangesByIndex(IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
+	Scanner<D> scanRangesByIndex(
+			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo,
+			Collection<Range<IK>> ranges,
 			Config config){
 		LineOfCode lineOfCode = getCallsite();
 		long startNs = System.nanoTime();
@@ -168,7 +174,9 @@ extends IndexedStorage<PK,D>, CallsiteAdapter{
 	default <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK,IE,PK,D>,
 			IF extends DatabeanFielder<IK,IE>>
-	Scanner<IK> scanRangesIndexKeys(IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
+	Scanner<IK> scanRangesIndexKeys(
+			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo,
+			Collection<Range<IK>> ranges,
 			Config config){
 		LineOfCode lineOfCode = getCallsite();
 		long startNs = System.nanoTime();

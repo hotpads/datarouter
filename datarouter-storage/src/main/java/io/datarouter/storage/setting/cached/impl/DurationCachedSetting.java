@@ -23,7 +23,9 @@ import io.datarouter.util.duration.DatarouterDuration;
 
 public class DurationCachedSetting extends CachedSetting<DatarouterDuration> implements DurationSetting{
 
-	public DurationCachedSetting(SettingFinder finder, String name,
+	public DurationCachedSetting(
+			SettingFinder finder,
+			String name,
 			DefaultSettingValue<DatarouterDuration> defaultValue){
 		super(finder, name, defaultValue);
 	}

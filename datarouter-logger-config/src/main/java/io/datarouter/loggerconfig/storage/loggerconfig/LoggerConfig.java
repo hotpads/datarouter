@@ -29,14 +29,14 @@ import io.datarouter.model.field.imp.DateField;
 import io.datarouter.model.field.imp.DateFieldKey;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
-import io.datarouter.model.field.imp.array.DelimitedStringArrayField;
-import io.datarouter.model.field.imp.array.DelimitedStringArrayFieldKey;
 import io.datarouter.model.field.imp.comparable.BooleanField;
 import io.datarouter.model.field.imp.comparable.BooleanFieldKey;
 import io.datarouter.model.field.imp.comparable.LongField;
 import io.datarouter.model.field.imp.comparable.LongFieldKey;
 import io.datarouter.model.field.imp.enums.StringEnumField;
 import io.datarouter.model.field.imp.enums.StringEnumFieldKey;
+import io.datarouter.model.field.imp.list.DelimitedStringListField;
+import io.datarouter.model.field.imp.list.DelimitedStringListFieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 
 public class LoggerConfig extends BaseDatabean<LoggerConfigKey,LoggerConfig>{
@@ -53,7 +53,7 @@ public class LoggerConfig extends BaseDatabean<LoggerConfigKey,LoggerConfig>{
 				LoggingLevel.class)
 				.withSize(LoggingLevel.getSqlSize());
 		private static final BooleanFieldKey additive = new BooleanFieldKey("additive");
-		private static final DelimitedStringArrayFieldKey appendersRef = new DelimitedStringArrayFieldKey(
+		private static final DelimitedStringListFieldKey appendersRef = new DelimitedStringListFieldKey(
 				"appendersRef", ",");
 		private static final StringFieldKey email = new StringFieldKey("email");
 		@SuppressWarnings("deprecation")
@@ -73,7 +73,7 @@ public class LoggerConfig extends BaseDatabean<LoggerConfigKey,LoggerConfig>{
 			return List.of(
 					new StringEnumField<>(FieldKeys.level, loggerConfig.level),
 					new BooleanField(FieldKeys.additive, loggerConfig.additive),
-					new DelimitedStringArrayField(FieldKeys.appendersRef, loggerConfig.appendersRef),
+					new DelimitedStringListField(FieldKeys.appendersRef, loggerConfig.appendersRef),
 					new StringField(FieldKeys.email, loggerConfig.email),
 					new DateField(FieldKeys.lastUpdated, loggerConfig.lastUpdated),
 					new LongField(FieldKeys.ttlMillis, loggerConfig.ttlMillis));

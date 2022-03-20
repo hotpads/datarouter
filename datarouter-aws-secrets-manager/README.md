@@ -12,7 +12,7 @@ This is a small module that provides the AWS Secrets Manager client implementati
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-aws-secrets-manager</artifactId>
-	<version>0.0.108</version>
+	<version>0.0.109</version>
 </dependency>
 ```
 

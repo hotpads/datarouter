@@ -69,8 +69,12 @@ implements CallsiteAdapter{
 		}
 		LineOfCode datarouterMethod = new LineOfCode(2);
 		long durationNs = System.nanoTime() - startNs;
-		CallsiteRecorder.record(backingNode.getName(), datarouterMethod.getMethodName(), lineOfCode,
-				numItems, durationNs);
+		CallsiteRecorder.record(
+				backingNode.getName(),
+				datarouterMethod.getMethodName(),
+				lineOfCode,
+				numItems,
+				durationNs);
 	}
 
 }

@@ -102,35 +102,51 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D,F>,
 	}
 
 	@Override
-	public <IK extends PrimaryKey<IK>,IE extends IndexEntry<IK,IE,PK,D>,IF extends DatabeanFielder<IK,IE>> List<IE>
-			getMultiFromIndex(Collection<IK> keys, Config config, IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
+	public <IK extends PrimaryKey<IK>,
+			IE extends IndexEntry<IK,IE,PK,D>,
+			IF extends DatabeanFielder<IK,IE>>
+	List<IE> getMultiFromIndex(Collection<IK> keys, Config config, IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
 		return getBackingNode().getMultiFromIndex(keys, config, indexEntryFieldInfo);
 	}
 
 	@Override
-	public <IK extends PrimaryKey<IK>,IE extends IndexEntry<IK,IE,PK,D>,IF extends DatabeanFielder<IK,IE>> List<D>
-			getMultiByIndex(Collection<IK> keys, Config config, IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
+	public <IK extends PrimaryKey<IK>,
+			IE extends IndexEntry<IK,IE,PK,D>,
+			IF extends DatabeanFielder<IK,IE>>
+	List<D> getMultiByIndex(Collection<IK> keys, Config config, IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
 		return getBackingNode().getMultiByIndex(keys, config, indexEntryFieldInfo);
 	}
 
 	@Override
-	public <IK extends PrimaryKey<IK>,IE extends IndexEntry<IK,IE,PK,D>,IF extends DatabeanFielder<IK,IE>>
-	Scanner<IE> scanRangesIndex(IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
-					Config config){
+	public <IK extends PrimaryKey<IK>,
+			IE extends IndexEntry<IK,IE,PK,D>,
+			IF extends DatabeanFielder<IK,IE>>
+	Scanner<IE> scanRangesIndex(
+			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo,
+			Collection<Range<IK>> ranges,
+			Config config){
 		return getBackingNode().scanRangesIndex(indexEntryFieldInfo, ranges, config);
 	}
 
 	@Override
-	public <IK extends PrimaryKey<IK>,IE extends IndexEntry<IK,IE,PK,D>,IF extends DatabeanFielder<IK,IE>>
-	Scanner<D> scanRangesByIndex(IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
-					Config config){
+	public <IK extends PrimaryKey<IK>,
+			IE extends IndexEntry<IK,IE,PK,D>,
+			IF extends DatabeanFielder<IK,IE>>
+	Scanner<D> scanRangesByIndex(
+			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo,
+			Collection<Range<IK>> ranges,
+			Config config){
 		return getBackingNode().scanRangesByIndex(indexEntryFieldInfo, ranges, config);
 	}
 
 	@Override
-	public <IK extends PrimaryKey<IK>,IE extends IndexEntry<IK,IE,PK,D>,IF extends DatabeanFielder<IK,IE>>
-	Scanner<IK> scanRangesIndexKeys(IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
-					Config config){
+	public <IK extends PrimaryKey<IK>,
+			IE extends IndexEntry<IK,IE,PK,D>,
+			IF extends DatabeanFielder<IK,IE>>
+	Scanner<IK> scanRangesIndexKeys(
+			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo,
+			Collection<Range<IK>> ranges,
+			Config config){
 		return getBackingNode().scanRangesIndexKeys(indexEntryFieldInfo, ranges, config);
 	}
 
@@ -161,7 +177,10 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D,F>,
 	@Override
 	public <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK, IE, PK, D>,
-			IF extends DatabeanFielder<IK, IE>> void deleteByIndex(Collection<IK> keys, Config config,
+			IF extends DatabeanFielder<IK, IE>>
+	void deleteByIndex(
+			Collection<IK> keys,
+			Config config,
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
 		getBackingNode().deleteByIndex(keys, config, indexEntryFieldInfo);
 	}

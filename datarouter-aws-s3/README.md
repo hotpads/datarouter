@@ -11,7 +11,7 @@ It supports uploading using an `OutputStream` or `BufferedWriter` of unpredictab
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-aws-s3</artifactId>
-	<version>0.0.108</version>
+	<version>0.0.109</version>
 </dependency>
 ```
 ## Usage

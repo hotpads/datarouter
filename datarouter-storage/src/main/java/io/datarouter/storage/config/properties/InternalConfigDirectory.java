@@ -51,8 +51,9 @@ public class InternalConfigDirectory implements Supplier<String>{
 		if(Files.exists(Paths.get(externalLocation))){
 			return externalLocation;
 		}
-		Objects.requireNonNull(internalConfigDirectory, externalLocation + " doesn't exist and "
-				+ INTERNAL_CONFIG_DIRECTORY + " property is not set");
+		Objects.requireNonNull(
+				internalConfigDirectory,
+				externalLocation + " doesn't exist and " + INTERNAL_CONFIG_DIRECTORY + " property is not set");
 		externalLocation = configDirectory + "/" + internalConfigDirectory + "/" + filename;
 		if(Files.exists(Paths.get(externalLocation))){
 			return externalLocation;

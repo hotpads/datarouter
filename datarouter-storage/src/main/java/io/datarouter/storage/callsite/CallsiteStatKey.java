@@ -17,8 +17,8 @@ package io.datarouter.storage.callsite;
 
 public class CallsiteStatKey{
 
-	private String callsite;
-	private String nodeName;
+	private final String callsite;
+	private final String nodeName;
 
 	public CallsiteStatKey(String callsite, String nodeName){
 		this.callsite = callsite;

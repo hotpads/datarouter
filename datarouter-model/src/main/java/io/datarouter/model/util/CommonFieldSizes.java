@@ -17,6 +17,12 @@ package io.datarouter.model.util;
 
 public class CommonFieldSizes{
 
+	/*----------- memcached -----------*/
+
+	public static final int MEMCACHED_MAX_KEY_LENGTH = 250;
+
+	/*----------- mysql -----------*/
+
 	// ERROR 1071 (42000): Specified key was too long; max key length is 767 bytes
 	public static final int MAX_KEY_LENGTH = 767;
 	// 767 / 4
@@ -30,6 +36,9 @@ public class CommonFieldSizes{
 	// use this to get schema-update to create a LONGTEXT field
 	public static final int INT_LENGTH_LONGTEXT = Integer.MAX_VALUE;
 	public static final long MAX_LENGTH_LONGTEXT = (1L << 32) - 1;
+
+	/*----------- spanner -----------*/
+
 	public static final int MAX_CHARACTERS_SPANNER = 2_621_440;
 
 }

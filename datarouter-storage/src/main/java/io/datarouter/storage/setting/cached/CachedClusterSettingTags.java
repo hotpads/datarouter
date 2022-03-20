@@ -15,8 +15,6 @@
  */
 package io.datarouter.storage.setting.cached;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
@@ -64,14 +62,7 @@ public class CachedClusterSettingTags extends Cached<List<DatarouterSettingTag>>
 						.list();
 			}
 		}catch(RuntimeException e1){
-			logger.info("", e1);
-			File file = new File(configFileLocation);
-			try{
-				file.createNewFile();
-				logger.warn("Created clusterSetting properties file {}", configFileLocation);
-			}catch(IOException e2){
-				throw new RuntimeException("failed to create properties file " + configFileLocation);
-			}
+			logger.info("{} doesn't exist.", getConfigFilePath(), e1);
 		}
 		return List.of();
 	}

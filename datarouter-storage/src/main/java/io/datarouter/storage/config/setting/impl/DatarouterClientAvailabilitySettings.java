@@ -40,7 +40,8 @@ public class DatarouterClientAvailabilitySettings extends SettingNode{
 	private final Map<ClientId,AvailabilitySettingNode> availabilityByClientName;
 
 	@Inject
-	public DatarouterClientAvailabilitySettings(SettingFinder finder,
+	public DatarouterClientAvailabilitySettings(
+			SettingFinder finder,
 			DatarouterClientAvailabilitySwitchThresholdSettingsProvider
 			clientAvailabilitySwitchThresholdSettingsProvider){
 		super(finder, SETTING_PREFIX);
@@ -53,8 +54,9 @@ public class DatarouterClientAvailabilitySettings extends SettingNode{
 		if(clientId == null){
 			return new AvailabilitySettingNode(this, clientId, false);
 		}
-		return availabilityByClientName.computeIfAbsent(clientId, name -> new AvailabilitySettingNode(this, name,
-				clientId.getDisableable()));
+		return availabilityByClientName.computeIfAbsent(
+				clientId,
+				name -> new AvailabilitySettingNode(this, name, clientId.getDisableable()));
 	}
 
 	public static class AvailabilitySettingNode extends SettingNode{
@@ -62,7 +64,9 @@ public class DatarouterClientAvailabilitySettings extends SettingNode{
 		public final Setting<Boolean> read;
 		public final Setting<Boolean> write;
 
-		public AvailabilitySettingNode(DatarouterClientAvailabilitySettings availabilitySettings, ClientId clientId,
+		public AvailabilitySettingNode(
+				DatarouterClientAvailabilitySettings availabilitySettings,
+				ClientId clientId,
 				boolean disableable){
 			super(availabilitySettings.finder, availabilitySettings.getName() + clientId.getName() + ".");
 

@@ -24,8 +24,9 @@ public class LongFieldCodec<T> extends FieldCodec<T,Long>{
 			Class<T> valueClass,
 			Function<T,Long> encoder,
 			Function<Long,T> decoder,
-			Comparator<T> comparator){
-		super(valueClass, encoder, decoder, comparator);
+			Comparator<T> comparator,
+			T sampleValue){
+		super(valueClass, encoder, decoder, comparator, sampleValue);
 	}
 
 }

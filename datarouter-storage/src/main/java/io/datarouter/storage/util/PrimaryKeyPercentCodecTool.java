@@ -58,7 +58,9 @@ public class PrimaryKeyPercentCodecTool{
 		return pk;
 	}
 
-	public static <PK extends PrimaryKey<PK>> List<PK> decodeMulti(Supplier<PK> pkSupplier, char delimiter,
+	public static <PK extends PrimaryKey<PK>> List<PK> decodeMulti(
+			Supplier<PK> pkSupplier,
+			char delimiter,
 			String encodedPks){
 		List<String> eachEncodedPk = StringTool.splitOnCharNoRegex(encodedPks, delimiter, false);
 		return eachEncodedPk.stream()

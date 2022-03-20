@@ -28,16 +28,19 @@ public class FieldCodec<A,B>{
 	 * Should compare values equivalently to the underlying storage implementation.
 	 */
 	private final Comparator<A> comparator;
+	private final A sampleValue;
 
 	public FieldCodec(
 			Class<A> valueClass,
 			Function<A,B> encoder,
 			Function<B,A> decoder,
-			Comparator<A> comparator){
+			Comparator<A> comparator,
+			A sampleValue){
 		this.valueClass = valueClass;
 		this.encoder = encoder;
 		this.decoder = decoder;
 		this.comparator = Comparator.nullsFirst(comparator);
+		this.sampleValue = sampleValue;
 	}
 
 	public Class<A> getValueClass(){
@@ -54,6 +57,10 @@ public class FieldCodec<A,B>{
 
 	public Comparator<A> getComparator(){
 		return comparator;
+	}
+
+	public A getSampleValue(){
+		return this.sampleValue;
 	}
 
 }

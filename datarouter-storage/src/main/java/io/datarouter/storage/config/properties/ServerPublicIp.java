@@ -32,7 +32,9 @@ public class ServerPublicIp implements Supplier<String>{
 
 	@Inject
 	private ServerPublicIp(ComputedPropertiesFinder finder){
-		this.serverPublicIp = finder.findProperty(SERVER_PUBLIC_IP, Ec2InstanceTool::getEc2InstancePublicIp,
+		this.serverPublicIp = finder.findProperty(
+				SERVER_PUBLIC_IP,
+				Ec2InstanceTool::getEc2InstancePublicIp,
 				Ec2InstanceTool.EC2_PUBLIC_IP_URL);
 	}
 

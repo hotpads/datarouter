@@ -16,7 +16,6 @@
 package io.datarouter.storage.client;
 
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -25,8 +24,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.concurrent.Future;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -35,11 +32,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.inject.DatarouterInjector;
+import io.datarouter.scanner.ParallelScannerContext;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.executor.DatarouterStorageExecutors.DatarouterClientFactoryExecutor;
 import io.datarouter.storage.config.properties.DatarouterTestPropertiesFile;
 import io.datarouter.storage.config.properties.InternalConfigDirectory;
-import io.datarouter.util.concurrent.FutureTool;
 import io.datarouter.util.duration.DatarouterDuration;
 import io.datarouter.util.properties.PropertiesTool;
 import io.datarouter.util.string.StringTool;
@@ -116,9 +113,9 @@ public class DatarouterClients{
 
 	public List<ClientId> registerClientIds(Collection<ClientId> clientIdsToAdd){
 		clientIdsToAdd.forEach(clientId -> clientIdByClientName.put(clientId.getName(), clientId));
-		return clientIdsToAdd.stream()
-				.filter(clientInitializationTracker::isInitialized)
-				.collect(Collectors.toList());
+		return Scanner.of(clientIdsToAdd)
+				.include(clientInitializationTracker::isInitialized)
+				.list();
 	}
 
 	/*----------------------------- initialize ----------------------------- */
@@ -186,11 +183,9 @@ public class DatarouterClients{
 	}
 
 	private void initClientsInParallel(Collection<ClientId> clientIds){
-		List<Future<?>> futures = new ArrayList<>();
-		for(ClientId clientId : clientIds){
-			futures.add(executorService.submit(() -> getClientManager(clientId).initClient(clientId)));
-		}
-		futures.forEach(FutureTool::get);
+		Scanner.of(clientIds)
+				.parallel(new ParallelScannerContext(executorService, executorService.getMaximumPoolSize(), true))
+				.forEach(clientId -> getClientManager(clientId).initClient(clientId));
 	}
 
 }

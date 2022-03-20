@@ -45,20 +45,12 @@ public class DatarouterTallyTestDao extends BaseDao implements TestDao{
 				.buildAndRegister();
 	}
 
-	public void put(Tally databean){
-		node.put(databean);
-	}
-
-	public void delete(String key){
+	public void deleteTally(String key){
 		node.deleteTally(key);
 	}
 
-	public Tally get(TallyKey key){
-		return node.get(key);
-	}
-
 	public Long getTallyCount(String key){
-		return node.findTallyCount(key).get();
+		return node.findTallyCount(key).orElseThrow();
 	}
 
 	public Optional<Long> findTallyCount(String key){
@@ -72,10 +64,6 @@ public class DatarouterTallyTestDao extends BaseDao implements TestDao{
 	public Long incrementAndGetCount(String key, int delta, Duration ttl){
 		var config = new Config().setTtl(ttl);
 		return node.incrementAndGetCount(key, delta, config);
-	}
-
-	public boolean exists(String key){
-		return node.exists(new TallyKey(key));
 	}
 
 }

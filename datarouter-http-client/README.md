@@ -8,7 +8,7 @@ datarouter-http-client wraps Apache HTTP Client and adds a JSON serialization la
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-http-client</artifactId>
-	<version>0.0.108</version>
+	<version>0.0.109</version>
 </dependency>
 ```
 

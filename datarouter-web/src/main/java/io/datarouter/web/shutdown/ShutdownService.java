@@ -59,8 +59,8 @@ public class ShutdownService{
 
 	private enum ShutdownState{
 		OFF(null, SHUTDOWN_STATUS_CODE),
-		SHUTTING_DOWN(OFF, 404),
-		RUNNING(SHUTTING_DOWN, 200);
+		RUNNING(OFF, 200),
+		;
 
 		private final ShutdownState nextState;
 		private final int keepAliveErrorCode;

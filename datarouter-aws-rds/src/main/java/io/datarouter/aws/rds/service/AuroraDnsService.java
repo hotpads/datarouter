@@ -62,31 +62,33 @@ public class AuroraDnsService{
 	public Map<String,DnsHostEntryDto> getDnsEntryForClients(){
 		List<AuroraClientDto> auroraclientDtos = clientIdProvider.getAuroraClientDtos();
 		for(AuroraClientDto dto : auroraclientDtos){
-			addDnsEntry(dto.getWriterClientId().getName(), dto.getWriterDns());
+			addDnsEntry(dto.getWriterClientId().getName(), dto.getWriterDns(), true);
 			for(int i = 0; i < dto.getReaderClientIds().size(); i++){
-				addDnsEntry(dto.getReaderClientIds().get(i).getName(), dto.getReaderDnss().get(i));
+				addDnsEntry(dto.getReaderClientIds().get(i).getName(), dto.getReaderDnss().get(i), false);
 			}
 		}
 		return dnsEntryByHostname;
 	}
 
-	private void addDnsEntry(String clientName, String clientUrl){
-		DnsHostEntryDto dnsEntry = dnsLookUp(clientName, clientUrl);
+	private void addDnsEntry(String clientName, String clientUrl, boolean isWriter){
+		DnsHostEntryDto dnsEntry = dnsLookUp(clientName, clientUrl, isWriter);
 		if(dnsEntry.isAuroraInstance){
 			dnsEntryByHostname.put(clientName, dnsEntry);
 		}
 	}
 
-	public DnsHostEntryDto dnsLookUp(String clientName, String clientUrl){
-		return RetryableTool.tryNTimesWithBackoffUnchecked(() -> tryDnsLookUp(clientName, clientUrl), 3, 3, true);
+	public DnsHostEntryDto dnsLookUp(String clientName, String clientUrl, boolean isWriter){
+		return RetryableTool.tryNTimesWithBackoffUnchecked(() -> tryDnsLookUp(clientName, clientUrl, isWriter), 3,
+				3, true);
 	}
 
-	private DnsHostEntryDto tryDnsLookUp(String clientName, String hostname) throws IOException, InterruptedException{
+	private DnsHostEntryDto tryDnsLookUp(String clientName, String hostname, boolean isWriter) throws IOException,
+	InterruptedException{
 		String ip = null;
 		String instanceHostname = null;
 		String clusterHostname = null;
 		String clusterName = null;
-		boolean writer = false;
+		boolean writer = isWriter;
 		boolean isAuroraInstance = false;
 		String cmd = "dig +short " + hostname;
 		Process process = Runtime.getRuntime().exec(cmd);
@@ -99,7 +101,6 @@ public class AuroraDnsService{
 					ip = line;
 				}else if(line.contains(rdsSettings.rdsClusterEndpoint.get())){
 					clusterHostname = line;
-					writer = true;
 				}else if(line.contains(rdsSettings.rdsInstanceEndpoint.get())){
 					instanceHostname = line;
 					isAuroraInstance = true;
@@ -127,7 +128,7 @@ public class AuroraDnsService{
 
 	public DnsHostEntryDto getOtherReader(String clientName){
 		String otherHostname = buildOtherClientUrl(rdsSettings.dbPrefix.get() + clientName);
-		DnsHostEntryDto dnsEntry = dnsLookUp(clientName, otherHostname);
+		DnsHostEntryDto dnsEntry = dnsLookUp(clientName, otherHostname, false);
 		if(dnsEntry.isAuroraInstance && dnsEntry.ip != null){
 			return dnsEntry;
 		}
@@ -160,16 +161,20 @@ public class AuroraDnsService{
 				DnsHostEntryDto otherEntry = getOtherReader(writerClientName);
 				logger.debug("reader={} writer={}", gson.toJson(readerEntry), gson.toJson(writerEntry));
 				if(readerEntry.ip != null && readerEntry.ip.equals(writerEntry.ip)){
-					readerEntry.readerPointedToWriter = true;
+					readerEntry.setReaderPointedToWriterFlag();
 					mismatchedEntries.add(readerEntry);
 				}
 				//check if reader entry is pointed to an other instance
 				if(otherEntry != null){
 					if(otherEntry.ip != null && readerEntry.ip.equals(otherEntry.ip)){
-						readerEntry.readerPointedToOther = true;
+						readerEntry.setReaderPointedToOtherFlag();
 						mismatchedEntries.add(readerEntry);
 					}
 				}
+			}else if(!dnsEntry.reader && dnsEntry.clusterHostname == null){
+				//if a writer is not pointed to a cluster endpoint
+				dnsEntry.setWriterPointedToInstanceFlag();
+				mismatchedEntries.add(dnsEntry);
 			}
 		}
 		return new Pair<>(dnsEntryByHostname.values(), mismatchedEntries);
@@ -187,6 +192,7 @@ public class AuroraDnsService{
 		private boolean isAuroraInstance = false;
 		private boolean readerPointedToWriter = false;
 		private boolean readerPointedToOther = false;
+		private boolean writerNotPointedToClusterEndpoint = false;
 
 		public final boolean reader;
 
@@ -241,6 +247,22 @@ public class AuroraDnsService{
 
 		public boolean isAuroraInstance(){
 			return isAuroraInstance;
+		}
+
+		public boolean isWriterNotPointedToClusterEndpoint(){
+			return writerNotPointedToClusterEndpoint;
+		}
+
+		public void setReaderPointedToWriterFlag(){
+			this.readerPointedToWriter = true;
+		}
+
+		public void setReaderPointedToOtherFlag(){
+			this.readerPointedToOther = true;
+		}
+
+		public void setWriterPointedToInstanceFlag(){
+			this.writerNotPointedToClusterEndpoint = true;
 		}
 
 	}

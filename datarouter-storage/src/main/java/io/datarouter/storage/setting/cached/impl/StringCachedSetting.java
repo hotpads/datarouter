@@ -46,7 +46,9 @@ public class StringCachedSetting extends CachedSetting<String> implements String
 			this(setting, minimumTtl, minimumTtl);
 		}
 
-		public RefreshableStringCachedSetting(CachedSetting<String> setting, Duration minimumTtl,
+		public RefreshableStringCachedSetting(
+				CachedSetting<String> setting,
+				Duration minimumTtl,
 				Duration attemptInterval){
 			super(minimumTtl, attemptInterval);
 			this.setting = setting;
