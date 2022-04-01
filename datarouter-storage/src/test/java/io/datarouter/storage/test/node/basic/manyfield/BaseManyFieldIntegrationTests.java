@@ -19,6 +19,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.function.Supplier;
@@ -57,6 +58,11 @@ public abstract class BaseManyFieldIntegrationTests{
 		}
 	}
 
+	private ManyFieldBean putAndGet(ManyFieldBean bean){
+		dao.put(bean);
+		return dao.get(bean.getKey());
+	}
+
 	@AfterClass
 	public void afterClass(){
 		datarouter.shutdown();
@@ -66,9 +72,8 @@ public abstract class BaseManyFieldIntegrationTests{
 	public void testDelete(){
 		var bean = new ManyFieldBean();
 		bean.setShortField((short)12);
-		dao.put(bean);
 
-		ManyFieldBean roundTripped = dao.get(bean.getKey());
+		ManyFieldBean roundTripped = putAndGet(bean);
 		Assert.assertEquals(roundTripped, bean);
 
 		dao.delete(bean.getKey());
@@ -81,22 +86,19 @@ public abstract class BaseManyFieldIntegrationTests{
 
 		//test true value
 		bean.setBooleanField(true);
-		dao.put(bean);
-		ManyFieldBean roundTripped = dao.get(bean.getKey());
+		ManyFieldBean roundTripped = putAndGet(bean);
 		Assert.assertNotSame(roundTripped, bean);
 		Assert.assertEquals(roundTripped.getBooleanField(), bean.getBooleanField());
 
 		//test false value
 		bean.setBooleanField(false);
-		dao.put(bean);
-		ManyFieldBean roundTrippedFalse = dao.get(bean.getKey());
+		ManyFieldBean roundTrippedFalse = putAndGet(bean);
 		Assert.assertNotSame(roundTrippedFalse, bean);
 		Assert.assertEquals(roundTrippedFalse.getBooleanField(), bean.getBooleanField());
 
 		//test null value
 		bean.setBooleanField(null);
-		dao.put(bean);
-		ManyFieldBean roundTrippedNull = dao.get(bean.getKey());
+		ManyFieldBean roundTrippedNull = putAndGet(bean);
 		Assert.assertNull(roundTrippedNull.getBooleanField());
 	}
 
@@ -104,9 +106,8 @@ public abstract class BaseManyFieldIntegrationTests{
 	public void testByte(){
 		var bean = new ManyFieldBean();
 		bean.setByteField((byte)-57);
-		dao.put(bean);
 
-		ManyFieldBean roundTripped = dao.get(bean.getKey());
+		ManyFieldBean roundTripped = putAndGet(bean);
 		Assert.assertNotSame(roundTripped, bean);
 		Assert.assertEquals(roundTripped.getByteField(), bean.getByteField());
 	}
@@ -115,9 +116,8 @@ public abstract class BaseManyFieldIntegrationTests{
 	public void testShort(){
 		var bean = new ManyFieldBean();
 		bean.setShortField((short)-57);
-		dao.put(bean);
 
-		ManyFieldBean roundTripped = dao.get(bean.getKey());
+		ManyFieldBean roundTripped = putAndGet(bean);
 		Assert.assertNotSame(roundTripped, bean);
 		Assert.assertEquals(roundTripped.getShortField(), bean.getShortField());
 	}
@@ -126,19 +126,16 @@ public abstract class BaseManyFieldIntegrationTests{
 	public void testInteger(){
 		var bean = new ManyFieldBean();
 		bean.setIntegerField(-100057);
-		dao.put(bean);
 
-		ManyFieldBean roundTripped = dao.get(bean.getKey());
+		ManyFieldBean roundTripped = putAndGet(bean);
 		Assert.assertEquals(roundTripped.getIntegerField(), bean.getIntegerField());
 
 		bean.setIntegerField(12345);
-		dao.put(bean);
-		roundTripped = dao.get(bean.getKey());
+		roundTripped = putAndGet(bean);
 		Assert.assertEquals(roundTripped.getIntegerField(), bean.getIntegerField());
 
 		bean.setIntegerField(-77);
-		dao.put(bean);
-		roundTripped = dao.get(bean.getKey());
+		roundTripped = putAndGet(bean);
 		Assert.assertEquals(roundTripped.getIntegerField(), bean.getIntegerField());
 		Assert.assertEquals(roundTripped.getIntegerField().intValue(), -77);
 	}
@@ -147,9 +144,8 @@ public abstract class BaseManyFieldIntegrationTests{
 	public void testEnumToInteger(){
 		var bean = new ManyFieldBean();
 		bean.setEnumToIntegerField(TestEnum.beast);
-		dao.put(bean);
 
-		ManyFieldBean roundTripped = dao.get(bean.getKey());
+		ManyFieldBean roundTripped = putAndGet(bean);
 		Assert.assertSame(roundTripped.getEnumToIntegerField(), TestEnum.beast);
 	}
 
@@ -158,9 +154,8 @@ public abstract class BaseManyFieldIntegrationTests{
 		var bean = new ManyFieldBean();
 		long negative6Billion = 3 * (long)Integer.MIN_VALUE;
 		bean.setLongField(negative6Billion);
-		dao.put(bean);
 
-		ManyFieldBean roundTripped = dao.get(bean.getKey());
+		ManyFieldBean roundTripped = putAndGet(bean);
 		Assert.assertEquals(roundTripped.getLongField(), bean.getLongField());
 		Assert.assertTrue(negative6Billion == roundTripped.getLongField());
 	}
@@ -170,9 +165,8 @@ public abstract class BaseManyFieldIntegrationTests{
 		var bean = new ManyFieldBean();
 		float val = -157.34f;
 		bean.setFloatField(val);
-		dao.put(bean);
 
-		ManyFieldBean roundTripped = dao.get(bean.getKey());
+		ManyFieldBean roundTripped = putAndGet(bean);
 		Assert.assertNotNull(roundTripped);
 		Assert.assertEquals(roundTripped.getFloatField(), bean.getFloatField());
 		Assert.assertTrue(val == roundTripped.getFloatField());
@@ -183,9 +177,8 @@ public abstract class BaseManyFieldIntegrationTests{
 		var bean = new ManyFieldBean();
 		Float val = null;
 		bean.setFloatField(val);
-		dao.put(bean);
 
-		ManyFieldBean roundTripped = dao.get(bean.getKey());
+		ManyFieldBean roundTripped = putAndGet(bean);
 		Assert.assertEquals(roundTripped.getFloatField(), bean.getFloatField());
 		Assert.assertEquals(roundTripped.getFloatField(), val);
 	}
@@ -195,9 +188,8 @@ public abstract class BaseManyFieldIntegrationTests{
 		var bean = new ManyFieldBean();
 		double val = -100057.3456f;
 		bean.setDoubleField(val);
-		dao.put(bean);
 
-		ManyFieldBean roundTripped = dao.get(bean.getKey());
+		ManyFieldBean roundTripped = putAndGet(bean);
 		Assert.assertEquals(roundTripped.getDoubleField(), bean.getDoubleField());
 		Assert.assertTrue(val == roundTripped.getDoubleField());
 	}
@@ -207,9 +199,8 @@ public abstract class BaseManyFieldIntegrationTests{
 		var bean = new ManyFieldBean();
 		Date val = new Date();
 		bean.setLongDateField(val);
-		dao.put(bean);
 
-		ManyFieldBean roundTripped = dao.get(bean.getKey());
+		ManyFieldBean roundTripped = putAndGet(bean);
 		Assert.assertEquals(roundTripped.getLongDateField(), bean.getLongDateField());
 		Assert.assertTrue(val.equals(roundTripped.getLongDateField()));
 	}
@@ -219,9 +210,8 @@ public abstract class BaseManyFieldIntegrationTests{
 		var bean = new ManyFieldBean();
 		Date val = new Date();
 		bean.setDateToLongField(val);
-		dao.put(bean);
 
-		ManyFieldBean roundTripped = dao.get(bean.getKey());
+		ManyFieldBean roundTripped = putAndGet(bean);
 		Assert.assertEquals(roundTripped.getDateToLongField(), bean.getDateToLongField());
 		Assert.assertEquals(val, roundTripped.getDateToLongField());
 	}
@@ -231,9 +221,8 @@ public abstract class BaseManyFieldIntegrationTests{
 		var bean = new ManyFieldBean();
 		LocalDate val = LocalDate.now();
 		bean.setLocalDateField(val);
-		dao.put(bean);
 
-		ManyFieldBean roundTripped = dao.get(bean.getKey());
+		ManyFieldBean roundTripped = putAndGet(bean);
 		Assert.assertEquals(roundTripped.getLocalDateField(), bean.getLocalDateField());
 		Assert.assertTrue(val.equals(roundTripped.getLocalDateField()));
 	}
@@ -247,8 +236,7 @@ public abstract class BaseManyFieldIntegrationTests{
 		LocalDateTime truncatedVal = FractionalSecondTool.truncate(val, ManyFieldBean.FieldKeys.localDateTimeField
 				.getNumFractionalSeconds());
 		bean.setDateTimeField(val);
-		dao.put(bean);
-		ManyFieldBean roundTripped = dao.get(bean.getKey());
+		ManyFieldBean roundTripped = putAndGet(bean);
 		Assert.assertEquals(roundTripped.getDateTimeField(), truncatedVal);
 
 		// LocalDateTime.of can set the value of nanoseconds in a range from 0 to 999,999,999
@@ -256,8 +244,7 @@ public abstract class BaseManyFieldIntegrationTests{
 		// so the value of the LocalDateTime retrieved from the database will not be equal to the LocalDateTime saved
 		LocalDateTime valOutOfBounds = LocalDateTime.of(2015, 12, 24, 2, 3, 4, 50);
 		bean.setDateTimeField(valOutOfBounds);
-		dao.put(bean);
-		ManyFieldBean roundTripped2 = dao.get(bean.getKey());
+		ManyFieldBean roundTripped2 = putAndGet(bean);
 		Assert.assertNotEquals(roundTripped2.getDateTimeField(), bean.getDateTimeField());
 		Assert.assertNotEquals(roundTripped2.getDateTimeField(), valOutOfBounds);
 		/* LocalDateTime.of can set the value of nanoseconds in a range from 0 to 999,999,999
@@ -267,8 +254,7 @@ public abstract class BaseManyFieldIntegrationTests{
 		LocalDateTime localDateTimeWithNano = LocalDateTime.of(2015, 12, 24, 2, 3, 4, 423060750);
 		LocalDateTime localDateTimeTruncated = LocalDateTime.of(2015, 12, 24, 2, 3, 4, 423060000);
 		bean.setDateTimeField(localDateTimeWithNano);
-		dao.put(bean);
-		ManyFieldBean roundTripped3 = dao.get(bean.getKey());
+		ManyFieldBean roundTripped3 = putAndGet(bean);
 		Assert.assertNotEquals(localDateTimeWithNano, localDateTimeTruncated);
 		Assert.assertEquals(roundTripped3.getDateTimeField(), localDateTimeTruncated);
 	}
@@ -280,9 +266,8 @@ public abstract class BaseManyFieldIntegrationTests{
 				.getNumFractionalSeconds());
 		var bean = new ManyFieldBean();
 		bean.setInstantField(instant);
-		dao.put(bean);
 
-		ManyFieldBean roundTripped = dao.get(bean.getKey());
+		ManyFieldBean roundTripped = putAndGet(bean);
 		Assert.assertEquals(roundTripped.getInstantField(), truncatedInstant);
 	}
 
@@ -293,9 +278,8 @@ public abstract class BaseManyFieldIntegrationTests{
 		String val = "abcdef" + multiByteUtf8Char;
 		bean.setStringField(val);
 		bean.setStringByteField(val.getBytes(StandardCharsets.UTF_8));
-		dao.put(bean);
 
-		ManyFieldBean roundTripped = dao.get(bean.getKey());
+		ManyFieldBean roundTripped = putAndGet(bean);
 		Assert.assertEquals(roundTripped.getStringField(), bean.getStringField());
 		String roundTrippedByteString = new String(roundTripped.getStringByteField(), StandardCharsets.UTF_8);
 		Assert.assertEquals(val, roundTrippedByteString);
@@ -308,18 +292,42 @@ public abstract class BaseManyFieldIntegrationTests{
 		byte[] value = {1, 5, -128, 127, 25, 66, -80, -12};
 
 		bean.setByteArrayField(value);
-		dao.put(bean);
-		ManyFieldBean roundTripped = dao.get(bean.getKey());
+		ManyFieldBean roundTripped = putAndGet(bean);
 		Assert.assertEquals(roundTripped.getByteArrayField(), value);
+	}
+
+	@Test
+	public void testIntListToByteArray(){
+		var bean = new ManyFieldBean();
+
+		//check null
+		bean.setIntListToByteArrayField(null);
+		ManyFieldBean rt1 = putAndGet(bean);
+		Assert.assertNull(rt1.getIntListToByteArrayField());
+
+		//check empty list differs from null
+		bean.setIntListToByteArrayField(List.of());
+		ManyFieldBean rt2 = putAndGet(bean);
+		Assert.assertEquals(rt2.getIntListToByteArrayField(), new ArrayList<>());
+
+		//check normal values
+		List<Integer> values = List.of(-1, 0, 5);
+		bean.setIntListToByteArrayField(values);
+		ManyFieldBean rt3 = putAndGet(bean);
+		Assert.assertEquals(rt3.getIntListToByteArrayField(), values);
+
+		//check return to null
+		bean.setIntListToByteArrayField(null);
+		ManyFieldBean rt4 = putAndGet(bean);
+		Assert.assertNull(rt4.getIntListToByteArrayField());
 	}
 
 	@Test
 	public void testIntegerEnum(){
 		var bean = new ManyFieldBean();
 		bean.setIntEnumField(TestEnum.beast);
-		dao.put(bean);
 
-		ManyFieldBean roundTripped = dao.get(bean.getKey());
+		ManyFieldBean roundTripped = putAndGet(bean);
 		Assert.assertEquals(roundTripped.getIntEnumField(), bean.getIntEnumField());
 		Assert.assertEquals(roundTripped.getIntEnumField(), TestEnum.beast);
 	}
@@ -328,9 +336,8 @@ public abstract class BaseManyFieldIntegrationTests{
 	public void testStringEnum(){
 		var bean = new ManyFieldBean();
 		bean.setStringEnumField(TestEnum.cat);
-		dao.put(bean);
 
-		ManyFieldBean roundTripped = dao.get(bean.getKey());
+		ManyFieldBean roundTripped = putAndGet(bean);
 		Assert.assertEquals(roundTripped.getStringEnumField(), bean.getStringEnumField());
 		Assert.assertEquals(roundTripped.getStringEnumField(), TestEnum.cat);
 	}
@@ -340,8 +347,7 @@ public abstract class BaseManyFieldIntegrationTests{
 		byte[] bytes = "This string is encoded as bytes.".getBytes();
 		var bean = new ManyFieldBean();
 		bean.setData(bytes);
-		dao.put(bean);
-		ManyFieldBean roundTripped = dao.get(bean.getKey());
+		ManyFieldBean roundTripped = putAndGet(bean);
 		Assert.assertEquals(roundTripped.getData(), bytes);
 	}
 
@@ -354,9 +360,8 @@ public abstract class BaseManyFieldIntegrationTests{
 		bean.appendToLongArrayField(Byte.MAX_VALUE);
 		bean.appendToLongArrayField(5);
 		bean.appendToLongArrayField(0);
-		dao.put(bean);
 
-		ManyFieldBean roundTripped = dao.get(bean.getKey());
+		ManyFieldBean roundTripped = putAndGet(bean);
 		Assert.assertEquals(roundTripped.getLongArrayField(), bean.getLongArrayField());
 
 		roundTripped.appendToLongArrayField(3);//assert mutability of returned list
@@ -367,9 +372,8 @@ public abstract class BaseManyFieldIntegrationTests{
 		var bean = new ManyFieldBean();
 		bean.appendToIntegerArrayField(Integer.MAX_VALUE);
 		bean.appendToIntegerArrayField(-5029);
-		dao.put(bean);
 
-		ManyFieldBean roundTripped = dao.get(bean.getKey());
+		ManyFieldBean roundTripped = putAndGet(bean);
 		Assert.assertEquals(roundTripped.getIntegerArrayField(), bean.getIntegerArrayField());
 
 		roundTripped.appendToIntegerArrayField(3);//assert mutability of returned list
@@ -381,9 +385,8 @@ public abstract class BaseManyFieldIntegrationTests{
 		bean.appendToDoubleArrayField(Double.MAX_VALUE);
 		bean.appendToDoubleArrayField(Double.MIN_VALUE);
 		bean.appendToDoubleArrayField(-5029.02939);
-		dao.put(bean);
 
-		ManyFieldBean roundTripped = dao.get(bean.getKey());
+		ManyFieldBean roundTripped = putAndGet(bean);
 		Assert.assertEquals(roundTripped.getDoubleArrayField(), bean.getDoubleArrayField());
 
 		roundTripped.appendToDoubleArrayField(3.0);//assert mutability of returned list
@@ -394,9 +397,8 @@ public abstract class BaseManyFieldIntegrationTests{
 		var bean = new ManyFieldBean();
 		List<String> strings = List.of("abc hi!", "xxx's", "bb_3");
 		bean.setDelimitedStringArrayField(strings);
-		dao.put(bean);
 
-		ManyFieldBean roundTripped = dao.get(bean.getKey());
+		ManyFieldBean roundTripped = putAndGet(bean);
 		Assert.assertEquals(roundTripped.getDelimitedStringArrayField().toArray(), strings.toArray());
 
 		roundTripped.appendToDelimitedStringArrayField("later");//assert mutability of returned list

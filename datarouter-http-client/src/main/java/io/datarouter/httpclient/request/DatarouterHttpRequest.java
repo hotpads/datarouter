@@ -57,6 +57,8 @@ public class DatarouterHttpRequest{
 	private final HttpRequestMethod method;
 	private final String path;
 	private final List<BasicClientCookie> cookies;
+	@Deprecated
+	private final String initalUrl;
 
 	private Boolean retrySafe;
 	private Duration timeout;
@@ -78,7 +80,10 @@ public class DatarouterHttpRequest{
 		this(method, url, false, false);
 	}
 
-	public DatarouterHttpRequest(HttpRequestMethod method, String url, boolean shouldSkipSecurity,
+	public DatarouterHttpRequest(
+			HttpRequestMethod method,
+			String url,
+			boolean shouldSkipSecurity,
 			boolean shouldSkipLogs){
 		Args.notBlank(url, "request url");
 		Args.notNull(method, "http method");
@@ -103,6 +108,7 @@ public class DatarouterHttpRequest{
 		}
 		this.method = method;
 		this.path = path;
+		this.initalUrl = url;
 		this.fragment = fragment;
 		this.headers = new HashMap<>();
 		this.queryParams = queryParams;
@@ -470,6 +476,10 @@ public class DatarouterHttpRequest{
 
 	public String getPath(){
 		return path;
+	}
+
+	public String getInitialUrl(){
+		return initalUrl;
 	}
 
 	public boolean getShouldSkipSecurity(){

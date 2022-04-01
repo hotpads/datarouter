@@ -22,7 +22,7 @@
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-parent</artifactId>
-		<version>0.0.109</version>
+		<version>0.0.110</version>
 		<relativePath>../datarouter-parent</relativePath>
 	</parent>
 
@@ -56,12 +56,10 @@
 		<dependency>
 			<groupId>software.amazon.awssdk</groupId>
 			<artifactId>s3</artifactId>
-			<version>${aws-sdk-software-v2-version}</version>
 		</dependency>
 		<dependency>
 			<groupId>software.amazon.awssdk</groupId>
 			<artifactId>apache-client</artifactId>
-			<version>${aws-sdk-software-v2-version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.testng</groupId>

@@ -16,6 +16,8 @@
 package io.datarouter.storage.client;
 
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -95,7 +97,8 @@ public class DatarouterClients{
 		if(useClientOptionsFactory){
 			logger.warn("Got client properties from class {}", clientOptionsFactory.getClass().getCanonicalName());
 			clientOptions.addProperties(properties);
-		}else if(StringTool.notEmpty(configFilePath) && !configFilePaths.contains(configFilePath)){
+		}else if(StringTool.notEmpty(configFilePath) && !configFilePaths.contains(configFilePath)
+				&& Files.isReadable(Path.of(configFilePath))){
 			configFilePaths.add(configFilePath);
 			Pair<Properties,URL> propertiesAndLocation = PropertiesTool.parseAndGetLocation(configFilePath);
 			logger.warn("Got client properties from file {}", propertiesAndLocation.getRight());

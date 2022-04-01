@@ -53,6 +53,7 @@ import com.google.gson.JsonObject;
 import io.datarouter.gson.serialization.CompatibleDateTypeAdapter;
 import io.datarouter.httpclient.DocumentedGenericHolder;
 import io.datarouter.httpclient.endpoint.BaseEndpoint;
+import io.datarouter.httpclient.endpoint.Endpoint;
 import io.datarouter.httpclient.endpoint.EndpointParam;
 import io.datarouter.httpclient.endpoint.EndpointRequestBody;
 import io.datarouter.httpclient.endpoint.EndpointTool;
@@ -117,6 +118,17 @@ public class ApiDocService{
 				String implementation = handler.getSimpleName();
 				List<DocumentedParameterJspDto> parameters = new ArrayList<>();
 				String description = handlerAnnotation.description();
+				if(description.isEmpty()){
+					if(EndpointTool.paramIsEndpointObject(method)){
+						@SuppressWarnings("unchecked")
+						Class<BaseEndpoint<?,?>> baseEndpoint = (Class<BaseEndpoint<?,?>>)method.getParameters()[0]
+								.getType();
+						Endpoint annotation = baseEndpoint.getAnnotation(Endpoint.class);
+						if(annotation != null){
+							description = annotation.description();
+						}
+					}
+				}
 				DocumentedSecurityDetails securityDetails = createApplicableSecurityParameters(rule);
 				parameters.addAll(securityDetails.parameters);
 				parameters.addAll(createMethodParameters(method));

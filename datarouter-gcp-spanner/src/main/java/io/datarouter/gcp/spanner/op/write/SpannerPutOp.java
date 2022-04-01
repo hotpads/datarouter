@@ -27,7 +27,6 @@ import com.google.cloud.spanner.Mutation.WriteBuilder;
 
 import io.datarouter.gcp.spanner.field.SpannerBaseFieldCodec;
 import io.datarouter.gcp.spanner.field.SpannerFieldCodecRegistry;
-import io.datarouter.gcp.spanner.util.SpannerEntityKeyTool;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.exception.DataAccessException;
 import io.datarouter.model.field.Field;
@@ -111,10 +110,10 @@ extends SpannerBaseWriteOp<D>{
 			mutation = Mutation.newInsertOrUpdateBuilder(tableName);
 		}
 		mutation = getMutationPartition(databean, mutation);
-		List<? extends SpannerBaseFieldCodec<?,?>> primaryKeyCodecs = codecRegistry.createCodecs(SpannerEntityKeyTool
-				.getPrimaryKeyFields(databean.getKey(), fieldInfo.isSubEntity()));
-		List<? extends SpannerBaseFieldCodec<?,?>> nonKeyCodecs = codecRegistry.createCodecs(fieldInfo
-				.getNonKeyFieldsWithValues(databean));
+		List<? extends SpannerBaseFieldCodec<?,?>> primaryKeyCodecs = codecRegistry.createCodecs(
+				databean.getKey().getFields());
+		List<? extends SpannerBaseFieldCodec<?,?>> nonKeyCodecs = codecRegistry.createCodecs(
+				fieldInfo.getNonKeyFieldsWithValues(databean));
 		for(SpannerBaseFieldCodec<?,?> codec : primaryKeyCodecs){
 			if(codec.getField().getValue() != null){
 				mutation = codec.setMutation(mutation);

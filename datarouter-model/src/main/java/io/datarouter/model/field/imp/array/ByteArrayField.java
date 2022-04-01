@@ -24,7 +24,7 @@ import io.datarouter.model.field.Field;
 
 public class ByteArrayField extends BaseField<byte[]>{
 
-	private ByteArrayFieldKey key;
+	private final ByteArrayFieldKey key;
 
 	public ByteArrayField(ByteArrayFieldKey key, byte[] value){
 		super(null, value);

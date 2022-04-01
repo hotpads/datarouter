@@ -40,8 +40,6 @@ import com.google.spanner.admin.database.v1.UpdateDatabaseDdlMetadata;
 import io.datarouter.gcp.spanner.connection.SpannerDatabaseClientsHolder;
 import io.datarouter.gcp.spanner.field.SpannerBaseFieldCodec;
 import io.datarouter.gcp.spanner.field.SpannerFieldCodecRegistry;
-import io.datarouter.gcp.spanner.node.entity.SpannerSubEntityNode;
-import io.datarouter.gcp.spanner.util.SpannerEntityKeyTool;
 import io.datarouter.model.field.Field;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientId;
@@ -56,11 +54,6 @@ import io.datarouter.util.string.StringTool;
 @Singleton
 public class SpannerSingleTableSchemaUpdateService{
 	private static final Logger logger = LoggerFactory.getLogger(SpannerSingleTableSchemaUpdateService.class);
-
-	private static final SpannerColumn PARTITION_COLUMN = new SpannerColumn(
-			SpannerSubEntityNode.PARTITION_COLUMN_NAME,
-			SpannerColumnType.INT64,
-			false);
 
 	@Inject
 	private SpannerDatabaseClientsHolder clientsHolder;
@@ -77,15 +70,8 @@ public class SpannerSingleTableSchemaUpdateService{
 			ClientId clientId,
 			Supplier<List<String>> existingTableNames,
 			PhysicalNode<?,?,?> physicalNode){
-		String tableName;
-		List<Field<?>> primaryKeyFields = SpannerEntityKeyTool.getPrimaryKeyFields(
-				physicalNode.getFieldInfo().getSamplePrimaryKey(),
-				physicalNode.getFieldInfo().isSubEntity());
-		if(physicalNode.getFieldInfo().isSubEntity()){
-			tableName = SpannerEntityKeyTool.getEntityTableName(physicalNode.getFieldInfo());
-		}else{
-			tableName = physicalNode.getFieldInfo().getTableName();
-		}
+		String tableName = physicalNode.getFieldInfo().getTableName();
+		List<Field<?>> primaryKeyFields = physicalNode.getFieldInfo().getSamplePrimaryKey().getFields();
 		List<? extends SpannerBaseFieldCodec<?,?>> primaryKeyCodecs = fieldCodecRegistry.createCodecs(primaryKeyFields);
 		for(SpannerBaseFieldCodec<?,?> codec : primaryKeyCodecs){
 			if(codec.getSpannerColumnType().isArray()){
@@ -122,22 +108,6 @@ public class SpannerSingleTableSchemaUpdateService{
 				physicalNode.getFieldInfo().getNonKeyFields()))
 				.map(codec -> codec.getSpannerColumn(true))
 				.list();
-		if(physicalNode.getFieldInfo().isSubEntity()){
-			primaryKeyColumns.add(0, PARTITION_COLUMN);
-			entityTableName = physicalNode.getFieldInfo().getTableName();
-			if(!existingTableNames.get().contains(entityTableName)){
-				List<? extends SpannerBaseFieldCodec<?,?>> entityKeyCodecs = fieldCodecRegistry.createCodecs(
-						physicalNode.getFieldInfo().getEkPkFields());
-				List<SpannerColumn> entityColumns = Scanner.of(entityKeyCodecs)
-						.map(codec -> codec.getSpannerColumn(false))
-						.list();
-				entityColumns.add(0, PARTITION_COLUMN);
-				statements.updateFunction(
-						tableOperationsGenerator.createTable(entityTableName, entityColumns, null, null),
-						updateOptions::getCreateTables,
-						true);
-			}
-		}
 		if(!existingTableNames.get().contains(tableName)){
 			statements.updateFunction(
 					tableOperationsGenerator.createTable(tableName, primaryKeyColumns, nonKeyColumns, entityTableName),
@@ -155,9 +125,6 @@ public class SpannerSingleTableSchemaUpdateService{
 			List<SpannerColumn> allColumns = Scanner.of(primaryKeyColumns, nonKeyColumns)
 					.concat(Scanner::of)
 					.list();
-			if(physicalNode.getFieldInfo().isSubEntity()){
-				allColumns.add(0, PARTITION_COLUMN);
-			}
 			ResultSet columnRs = databaseClient.singleUse().executeQuery(Statement.of(tableOperationsGenerator
 					.getTableSchema(tableName)));
 			ResultSet primaryKeyRs = databaseClient.singleUse().executeQuery(Statement.of(tableOperationsGenerator

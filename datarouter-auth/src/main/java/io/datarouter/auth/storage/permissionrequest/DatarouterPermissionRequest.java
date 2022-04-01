@@ -24,7 +24,6 @@ import java.util.function.Supplier;
 
 import io.datarouter.auth.storage.userhistory.DatarouterUserHistory;
 import io.datarouter.auth.storage.userhistory.DatarouterUserHistoryKey;
-import io.datarouter.enums.DatarouterEnumTool;
 import io.datarouter.enums.StringEnum;
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
@@ -167,7 +166,7 @@ extends BaseDatabean<DatarouterPermissionRequestKey,DatarouterPermissionRequest>
 
 		@Override
 		public DatarouterPermissionRequestResolution fromPersistentString(String str){
-			return DatarouterEnumTool.getEnumFromString(values(), str, null);
+			return StringEnum.getEnumFromString(values(), str, null);
 		}
 	}
 }

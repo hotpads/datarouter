@@ -57,4 +57,20 @@ public class ClassToolTests{
 		Assert.assertFalse(result.isPresent());
 	}
 
+	@Test
+	public void testGetBoxedFromPrimitive(){
+		Assert.assertEquals(ClassTool.getBoxedFromPrimitive(boolean.class), Boolean.class);
+		Assert.assertEquals(ClassTool.getBoxedFromPrimitive(byte.class), Byte.class);
+		Assert.assertEquals(ClassTool.getBoxedFromPrimitive(char.class), Character.class);
+		Assert.assertEquals(ClassTool.getBoxedFromPrimitive(double.class), Double.class);
+		Assert.assertEquals(ClassTool.getBoxedFromPrimitive(float.class), Float.class);
+		Assert.assertEquals(ClassTool.getBoxedFromPrimitive(int.class), Integer.class);
+		Assert.assertEquals(ClassTool.getBoxedFromPrimitive(long.class), Long.class);
+		Assert.assertEquals(ClassTool.getBoxedFromPrimitive(short.class), Short.class);
+		Assert.assertEquals(ClassTool.getBoxedFromPrimitive(void.class), Void.class);
+
+		Assert.assertNull(ClassTool.getBoxedFromPrimitive(Long.class));
+		Assert.assertNull(ClassTool.getBoxedFromPrimitive(Optional.class));
+	}
+
 }

@@ -24,6 +24,7 @@ import java.util.function.Function;
 import io.datarouter.aws.s3.DatarouterS3Client;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientType;
+import io.datarouter.storage.config.Config;
 import io.datarouter.storage.file.Pathbean;
 import io.datarouter.storage.file.Pathbean.PathbeanFielder;
 import io.datarouter.storage.file.PathbeanKey;
@@ -85,7 +86,7 @@ implements PhysicalBlobStorageNode{
 	}
 
 	@Override
-	public void write(PathbeanKey key, byte[] content){
+	public void write(PathbeanKey key, byte[] content, Config config){
 		s3DirectoryManager.write(key.getPathAndFile(), content);
 	}
 

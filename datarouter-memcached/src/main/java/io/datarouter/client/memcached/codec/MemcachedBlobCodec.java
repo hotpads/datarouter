@@ -38,11 +38,8 @@ public class MemcachedBlobCodec{
 		return PathbeanKey.of(stringPk);
 	}
 
-	public Pair<PathbeanKey,byte[]> decodeResult(Pair<String,Object> result){
-		PathbeanKey key = PathbeanKey.of(result.getLeft());
-		//TODO push the casting up to MemcachedOps
-		byte[] valueBytes = (byte[])result.getRight();
-		return new Pair<>(key, valueBytes);
+	public Pair<PathbeanKey,byte[]> decodeResult(Pair<String,byte[]> result){
+		return new Pair<>(PathbeanKey.of(result.getLeft()), result.getRight());
 	}
 
 }

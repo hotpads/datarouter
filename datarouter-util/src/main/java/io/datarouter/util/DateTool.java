@@ -199,12 +199,6 @@ public class DateTool{
 		return getDaysAgo(daysAgo, new Date());
 	}
 
-	public static int getDatesBetween(Date oldDate, Date newDate){
-		//round everything > .95 up to handle partial days due to DST and leap seconds
-		double daysBetween = getDaysBetween(oldDate, newDate);
-		return (int)Math.ceil(daysBetween - .95d);
-	}
-
 	public static double getDaysBetween(Date d1, Date d2){
 		return getPeriodsBetween(d1, d2, MILLISECONDS_IN_DAY);
 	}

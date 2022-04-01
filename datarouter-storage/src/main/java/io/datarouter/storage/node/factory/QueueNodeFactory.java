@@ -20,13 +20,11 @@ import java.util.function.Supplier;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
-import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.client.DatarouterClients;
 import io.datarouter.storage.client.imp.QueueClientNodeFactory;
 import io.datarouter.storage.node.Node;
@@ -38,10 +36,8 @@ import io.datarouter.storage.node.builder.SingleQueueNodeBuilder;
 import io.datarouter.storage.tag.Tag;
 
 @Singleton
-public class QueueNodeFactory{
+public class QueueNodeFactory extends BaseNodeFactory{
 
-	@Inject
-	private DatarouterInjector injector;
 	@Inject
 	private Datarouter datarouter;
 	@Inject
@@ -86,9 +82,8 @@ public class QueueNodeFactory{
 				.withQueueUrl(queueUrl)
 				.withTag(tag)
 				.build();
-		ClientType<?,?> clientType = clients.getClientTypeInstance(clientId);
-		QueueClientNodeFactory clientFactories = getClientFactories(clientType);
-		return BaseNodeFactory.cast(clientFactories.createSingleQueueNode(params));
+		QueueClientNodeFactory clientFactories = getClientNodeFactory(clientId, QueueClientNodeFactory.class);
+		return cast(clientFactories.createSingleQueueNode(params));
 	}
 
 	public <PK extends PrimaryKey<PK>,
@@ -110,13 +105,8 @@ public class QueueNodeFactory{
 				.withQueueUrl(queueUrl)
 				.withTag(tag)
 				.build();
-		ClientType<?,?> clientType = clients.getClientTypeInstance(clientId);
-		QueueClientNodeFactory clientFactories = getClientFactories(clientType);
-		return BaseNodeFactory.cast(clientFactories.createGroupQueueNode(params));
-	}
-
-	private QueueClientNodeFactory getClientFactories(ClientType<?,?> clientType){
-		return (QueueClientNodeFactory) injector.getInstance(clientType.getClientNodeFactoryClass());
+		QueueClientNodeFactory clientFactories = getClientNodeFactory(clientId, QueueClientNodeFactory.class);
+		return cast(clientFactories.createGroupQueueNode(params));
 	}
 
 }

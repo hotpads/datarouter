@@ -316,7 +316,7 @@ public class LongRunningTaskTracker implements TaskTracker{
 				.toSubscribers(serverTypeDetector.mightBeProduction())
 				.to(longRunningTaskTrackerEmailType.tos, serverTypeDetector.mightBeProduction());
 		alertReportService.reportTaskTimeoutAlert(serviceName.get(), serverName.get(), task.name,
-				emailBuilder.getSubject(), emailBuilder);
+				emailBuilder.getSubject(), emailBuilder, task.name);
 	}
 
 	private ContainerTag<?> makeEmailBody(String name, String serverName, String detailsHref){

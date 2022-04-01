@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import io.datarouter.bytes.ToStringTool;
 import io.datarouter.bytes.binarydto.codec.BinaryDtoCodec;
 import io.datarouter.bytes.binarydto.internal.BinaryDtoFieldSchema;
 import io.datarouter.bytes.binarydto.internal.BinaryDtoReflectionTool;
@@ -57,33 +58,7 @@ implements Comparable<T>{
 		return scanFieldNamesAndValues()
 				.map(nameAndValue -> {
 					Object value = nameAndValue.value;
-					String valueString;
-					if(value == null){
-						valueString = null;
-					}else if(value.getClass().isArray()){
-						Class<?> clazz = value.getClass();
-						if(clazz == byte[].class){
-							valueString = Arrays.toString((byte[])value);
-						}else if(clazz == boolean[].class){
-							valueString = Arrays.toString((boolean[])value);
-						}else if(clazz == short[].class){
-							valueString = Arrays.toString((short[])value);
-						}else if(clazz == char[].class){
-							valueString = Arrays.toString((char[])value);
-						}else if(clazz == int[].class){
-							valueString = Arrays.toString((int[])value);
-						}else if(clazz == float[].class){
-							valueString = Arrays.toString((float[])value);
-						}else if(clazz == long[].class){
-							valueString = Arrays.toString((long[])value);
-						}else if(clazz == double[].class){
-							valueString = Arrays.toString((double[])value);
-						}else{
-							valueString = Arrays.deepToString((Object[])value);
-						}
-					}else{
-						valueString = value.toString();
-					}
+					String valueString = ToStringTool.toString(value);
 					return String.format("%s=%s", nameAndValue.name, valueString);
 				})
 				.collect(Collectors.joining(", ", getClass().getSimpleName() + " [", "]"));

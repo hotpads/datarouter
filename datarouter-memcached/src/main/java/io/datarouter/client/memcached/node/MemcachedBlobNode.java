@@ -22,16 +22,16 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import io.datarouter.bytes.ByteTool;
 import io.datarouter.bytes.InputStreamTool;
-import io.datarouter.client.memcached.client.MemcachedClientManager;
-import io.datarouter.client.memcached.client.MemcachedOps;
+import io.datarouter.client.memcached.client.DatarouterMemcachedClient;
 import io.datarouter.client.memcached.codec.MemcachedBlobCodec;
 import io.datarouter.client.memcached.util.MemcachedExpirationTool;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientType;
+import io.datarouter.storage.config.Config;
 import io.datarouter.storage.file.Pathbean;
 import io.datarouter.storage.file.Pathbean.PathbeanFielder;
 import io.datarouter.storage.file.PathbeanKey;
@@ -48,20 +48,18 @@ implements PhysicalBlobStorageNode{
 	private static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(3);
 	private static final Boolean DEFAULT_IGNORE_EXCEPTION = true;
 
-	private final ClientId clientId;
 	private final Subpath rootPath;
 	private final MemcachedBlobCodec blobCodec;
-	private final MemcachedOps ops;
+	private final Supplier<DatarouterMemcachedClient> lazyClient;
 
 	public MemcachedBlobNode(
 			NodeParams<PathbeanKey,Pathbean,PathbeanFielder> params,
 			ClientType<?,?> clientType,
-			MemcachedClientManager memcachedClientManager){
+			Supplier<DatarouterMemcachedClient> lazyClient){
 		super(params, clientType);
-		clientId = params.getClientId();
+		this.lazyClient = lazyClient;
 		rootPath = params.getPath();
 		blobCodec = new MemcachedBlobCodec(rootPath);
-		ops = new MemcachedOps(memcachedClientManager);
 	}
 
 	/*------------- BlobStorageReader --------------*/
@@ -128,8 +126,12 @@ implements PhysicalBlobStorageNode{
 	/*------------- BlobStorageWriter --------------*/
 
 	@Override
-	public void write(PathbeanKey key, byte[] value){
-		ops.set(clientId, getName(), blobCodec.encodeKey(key), MemcachedExpirationTool.MAX, value);
+	public void write(PathbeanKey key, byte[] value, Config config){
+		lazyClient.get().set(
+				getName(),
+				blobCodec.encodeKey(key),
+				MemcachedExpirationTool.getExpirationSeconds(config),
+				value);
 	}
 
 	@Override
@@ -148,7 +150,7 @@ implements PhysicalBlobStorageNode{
 
 	@Override
 	public void delete(PathbeanKey key){
-		ops.delete(clientId, getName(), blobCodec.encodeKey(key), Duration.ofSeconds(3));
+		lazyClient.get().delete(getName(), blobCodec.encodeKey(key), Duration.ofSeconds(3));
 	}
 
 	@Override
@@ -158,16 +160,12 @@ implements PhysicalBlobStorageNode{
 
 	/*------------- private --------------*/
 
-	/*
-	 * Here we are fetching the keys+values but only parsing the keys because we don't know if the value
-	 *   is a String or byte[].
-	 * TODO: check if there's a way to fetch only the keys from memcached.
-	 */
+	// We're fetching the keys+values but only parsing the keys
+	// TODO check if there's a way to fetch only the keys from memcached
 	private Scanner<PathbeanKey> scanMultiKeysInternal(Collection<PathbeanKey> keys){
 		return Scanner.of(keys)
 				.map(blobCodec::encodeKey)
-				.listTo(memcachedStringKeys -> ops.fetch(
-						clientId,
+				.listTo(memcachedStringKeys -> lazyClient.get().scanMultiBytes(
 						getName(),
 						memcachedStringKeys,
 						DEFAULT_TIMEOUT.toMillis(),
@@ -179,8 +177,7 @@ implements PhysicalBlobStorageNode{
 	private Scanner<Pair<PathbeanKey,byte[]>> scanMultiInternal(Collection<PathbeanKey> keys){
 		return Scanner.of(keys)
 				.map(blobCodec::encodeKey)
-				.listTo(memcachedStringKeys -> ops.fetch(
-						clientId,
+				.listTo(memcachedStringKeys -> lazyClient.get().scanMultiBytes(
 						getName(),
 						memcachedStringKeys,
 						DEFAULT_TIMEOUT.toMillis(),

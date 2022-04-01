@@ -20,6 +20,6 @@ import io.datarouter.email.html.J2HtmlDatarouterEmailBuilder;
 public interface TaskTrackerAlertReportService{
 
 	public void reportTaskTimeoutAlert(String serviceName, String host, String taskName, String subject,
-			J2HtmlDatarouterEmailBuilder emailBuilder);
+			J2HtmlDatarouterEmailBuilder emailBuilder, String eventName);
 
 }

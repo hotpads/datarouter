@@ -29,11 +29,6 @@ public class RawLongListFieldKey extends ListFieldKey<Long,List<Long>,RawLongLis
 	}
 
 	@Override
-	public RawLongListField createValueField(List<Long> value){
-		return new RawLongListField(this, value);
-	}
-
-	@Override
 	public boolean isFixedLength(){
 		return false;
 	}

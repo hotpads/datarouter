@@ -24,6 +24,7 @@ import java.util.Optional;
 
 import io.datarouter.instrumentation.count.Counters;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.op.raw.BlobStorage;
 import io.datarouter.storage.util.Subpath;
 import io.datarouter.util.Require;
@@ -70,7 +71,7 @@ implements BlobStorage{
 	/*---------- write ------------*/
 
 	@Override
-	public void write(PathbeanKey key, byte[] value){
+	public void write(PathbeanKey key, byte[] value, Config config){
 		parent.write(prependStoragePath(key), value);
 		count("write ops", 1);
 		count("write bytes", value.length);

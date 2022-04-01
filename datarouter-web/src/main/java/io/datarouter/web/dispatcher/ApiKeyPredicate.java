@@ -15,12 +15,18 @@
  */
 package io.datarouter.web.dispatcher;
 
+import java.util.Optional;
+
 import javax.servlet.http.HttpServletRequest;
+
+import org.apache.http.HttpHeaders;
 
 import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.util.http.RequestTool;
 
 public abstract class ApiKeyPredicate{
+
+	public static final String AUTHORIZATION_BEARER_PREFIX = "Bearer ";
 
 	private final String apiKeyFieldName;
 
@@ -31,6 +37,7 @@ public abstract class ApiKeyPredicate{
 	// the string on the right is the account name or the error message
 	public Pair<Boolean,String> check(DispatchRule rule, HttpServletRequest request){
 		String apiKey = RequestTool.getParameterOrHeader(request, apiKeyFieldName);
+		apiKey = (apiKey == null) ? getApiKeyFromBearerToken(request) : apiKey;
 		if(apiKey == null){
 			return new Pair<>(false, "key not found");
 		}
@@ -63,6 +70,13 @@ public abstract class ApiKeyPredicate{
 			sb.append(apiKeyCandidate.charAt(index));
 		}
 		return sb.toString();
+	}
+
+	private static String getApiKeyFromBearerToken(HttpServletRequest request){
+		return Optional.ofNullable(RequestTool.getParameterOrHeader(request, HttpHeaders.AUTHORIZATION))
+				.filter(authHeader -> authHeader.startsWith(AUTHORIZATION_BEARER_PREFIX))
+				.map(authHeader -> authHeader.substring(AUTHORIZATION_BEARER_PREFIX.length()))
+				.orElse(null);
 	}
 
 }

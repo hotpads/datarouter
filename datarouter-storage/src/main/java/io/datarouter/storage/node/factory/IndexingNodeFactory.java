@@ -42,7 +42,7 @@ import io.datarouter.storage.node.type.indexing.IndexingMapStorageNode;
 import io.datarouter.storage.node.type.indexing.IndexingSortedMapStorageNode;
 import io.datarouter.storage.serialize.fieldcache.IndexEntryFieldInfo;
 
-public class IndexingNodeFactory{
+public class IndexingNodeFactory extends BaseNodeFactory{
 
 	public static <PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,

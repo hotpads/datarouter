@@ -15,7 +15,6 @@
  */
 package io.datarouter.secret.op;
 
-import io.datarouter.enums.DatarouterEnumTool;
 import io.datarouter.enums.StringEnum;
 import io.datarouter.util.Require;
 import io.datarouter.util.string.StringTool;
@@ -75,7 +74,7 @@ public class SecretOpReason{
 
 		@Override
 		public SecretOpReasonType fromPersistentString(String string){
-			return DatarouterEnumTool.getEnumFromString(values(), string, null);
+			return StringEnum.getEnumFromString(values(), string, null);
 		}
 
 	}

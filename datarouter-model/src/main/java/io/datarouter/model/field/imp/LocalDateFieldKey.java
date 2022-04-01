@@ -43,9 +43,4 @@ public class LocalDateFieldKey extends PrimitiveFieldKey<LocalDate,LocalDateFiel
 		return new LocalDateFieldKey(name, columnNameOverride, nullable, fieldGeneratorType, defaultValue, attributes);
 	}
 
-	@Override
-	public LocalDateField createValueField(LocalDate value){
-		return new LocalDateField(this, value);
-	}
-
 }

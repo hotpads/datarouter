@@ -17,18 +17,12 @@ package io.datarouter.storage.node.factory;
 
 import java.util.function.Supplier;
 
-import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
-import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
-import io.datarouter.storage.client.ClientNodeFactory;
-import io.datarouter.storage.client.ClientType;
-import io.datarouter.storage.client.DatarouterClients;
 import io.datarouter.storage.client.imp.TallyClientNodeFactory;
 import io.datarouter.storage.node.Node;
 import io.datarouter.storage.node.NodeParams;
@@ -37,14 +31,7 @@ import io.datarouter.storage.node.builder.TallyNodeBuilder;
 import io.datarouter.storage.tag.Tag;
 
 @Singleton
-public class TallyNodeFactory{
-
-	@Inject
-	private DatarouterInjector injector;
-	@Inject
-	private DatarouterClients clients;
-	@Inject
-	private Datarouter datarouter;
+public class TallyNodeFactory extends BaseNodeFactory{
 
 	public <PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
@@ -73,9 +60,8 @@ public class TallyNodeFactory{
 				.withTableName(tableName)
 				.withTag(tag)
 				.build();
-		ClientType<?,?> clientType = getClientTypeInstance(clientId);
-		TallyClientNodeFactory clientFactories = (TallyClientNodeFactory) getClientFactories(clientType);
-		return BaseNodeFactory.cast(clientFactories.createTallyNode(params));
+		TallyClientNodeFactory clientFactories = getClientNodeFactory(clientId, TallyClientNodeFactory.class);
+		return cast(clientFactories.createTallyNode(params));
 	}
 
 	public <PK extends PrimaryKey<PK>,
@@ -83,17 +69,10 @@ public class TallyNodeFactory{
 			F extends DatabeanFielder<PK,D>,
 			N extends Node<PK,D,F>>
 	N createTallyNode(NodeParams<PK,D,F> params){
-		ClientType<?,?> clientType = getClientTypeInstance(params.getClientId());
-		TallyClientNodeFactory clientFactories = (TallyClientNodeFactory)getClientFactories(clientType);
-		return BaseNodeFactory.cast(clientFactories.createTallyNode(params));
-	}
-
-	private ClientType<?,?> getClientTypeInstance(ClientId clientId){
-		return clients.getClientTypeInstance(clientId);
-	}
-
-	private ClientNodeFactory getClientFactories(ClientType<?,?> clientType){
-		return injector.getInstance(clientType.getClientNodeFactoryClass());
+		TallyClientNodeFactory clientFactories = getClientNodeFactory(
+				params.getClientId(),
+				TallyClientNodeFactory.class);
+		return cast(clientFactories.createTallyNode(params));
 	}
 
 }

@@ -17,16 +17,21 @@ package io.datarouter.model.field.codec;
 
 import java.util.Comparator;
 import java.util.function.Function;
+import java.util.function.Supplier;
+
+import com.google.gson.reflect.TypeToken;
 
 public class IntegerFieldCodec<T> extends FieldCodec<T,Integer>{
 
 	public IntegerFieldCodec(
-			Class<T> valueClass,
+			TypeToken<T> typeToken,
+			Supplier<Integer> encodeNullTo,
 			Function<T,Integer> encoder,
+			Supplier<T> decodeNullTo,
 			Function<Integer,T> decoder,
 			Comparator<T> comparator,
 			T sampleValue){
-		super(valueClass, encoder, decoder, comparator, sampleValue);
+		super(typeToken, encodeNullTo, encoder, decodeNullTo, decoder, comparator, sampleValue);
 	}
 
 }

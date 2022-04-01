@@ -15,9 +15,10 @@
  */
 package io.datarouter.nodewatch.service;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -41,7 +42,6 @@ import io.datarouter.storage.node.tableconfig.ClientTableEntityPrefixNameWrapper
 import io.datarouter.storage.node.tableconfig.NodewatchConfiguration;
 import io.datarouter.storage.node.tableconfig.TableConfigurationService;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
-import io.datarouter.util.DateTool;
 import io.datarouter.util.tuple.Twin;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
 import j2html.tags.ContainerTag;
@@ -51,7 +51,7 @@ public class TableSizeMonitoringService{
 
 	private static final int IGNORE_THRESHOLD = 100;
 	public static final float PERCENTAGE_THRESHOLD = 50;
-	private static final int REPORT_DAYS_AFTER = 1;
+	private static final Duration REPORT_AFTER = Duration.ofDays(1);
 
 	@Inject
 	private DatarouterNodes datarouterNodes;
@@ -153,8 +153,8 @@ public class TableSizeMonitoringService{
 	}
 
 	private boolean checkStaleEntries(LatestTableCount latestSample){
-		int ago = DateTool.getDatesBetween(latestSample.getDateUpdated(), new Date());
-		return ago > REPORT_DAYS_AFTER;
+		Duration age = Duration.between(latestSample.getDateUpdated().toInstant(), Instant.now());
+		return age.compareTo(REPORT_AFTER) > 0;
 	}
 
 	private boolean smallEnoughToIgnore(Long numberOfRows){

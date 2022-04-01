@@ -15,7 +15,6 @@
  */
 package io.datarouter.loggerconfig;
 
-import io.datarouter.enums.DatarouterEnumTool;
 import io.datarouter.enums.StringEnum;
 
 public enum LoggingSettingAction implements StringEnum<LoggingSettingAction>{
@@ -41,7 +40,7 @@ public enum LoggingSettingAction implements StringEnum<LoggingSettingAction>{
 	}
 
 	public static LoggingSettingAction fromPersistentStringStatic(String string){
-		return DatarouterEnumTool.getEnumFromString(values(), string, null);
+		return StringEnum.getEnumFromString(values(), string, null);
 	}
 
 }

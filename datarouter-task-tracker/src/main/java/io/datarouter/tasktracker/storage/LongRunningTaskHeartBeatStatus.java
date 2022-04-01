@@ -15,7 +15,6 @@
  */
 package io.datarouter.tasktracker.storage;
 
-import io.datarouter.enums.DatarouterEnumTool;
 import io.datarouter.enums.StringEnum;
 
 public enum LongRunningTaskHeartBeatStatus implements StringEnum<LongRunningTaskHeartBeatStatus>{
@@ -40,7 +39,7 @@ public enum LongRunningTaskHeartBeatStatus implements StringEnum<LongRunningTask
 	}
 
 	public static LongRunningTaskHeartBeatStatus fromPersistentStringStatic(String str){
-		return DatarouterEnumTool.getEnumFromString(values(), str, null);
+		return StringEnum.getEnumFromString(values(), str, null);
 	}
 
 }

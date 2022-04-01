@@ -15,10 +15,10 @@
  */
 package io.datarouter.ratelimiter;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoField;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
@@ -29,6 +29,7 @@ import org.testng.annotations.Test;
 
 import io.datarouter.ratelimiter.CacheRateLimiterConfig.CacheRateLimiterConfigBuilder;
 import io.datarouter.ratelimiter.storage.BaseTallyDao;
+import io.datarouter.util.time.ZoneIds;
 
 @Guice(moduleFactory = RateLimiterTestNgModuleFactory.class)
 public class BaseMapRateLimiterIntegrationTests{
@@ -36,22 +37,21 @@ public class BaseMapRateLimiterIntegrationTests{
 	@Inject
 	private BaseTallyDao tallyDao;
 
-	private Calendar getCal() throws ParseException{
-		Calendar calendar = Calendar.getInstance();
-		Date date = new SimpleDateFormat("MMM dd HH:mm yyyy").parse("march 4 16:30 2010");
-		calendar.setTime(date);
-		calendar.set(Calendar.SECOND, 49);
-		calendar.set(Calendar.MILLISECOND, 32);
-		return calendar;
+	private Instant getCal(){
+		return DateTimeFormatter.ISO_LOCAL_DATE_TIME.parse("2010-03-04T16:30:49", LocalDateTime::from)
+				.with(ChronoField.MILLI_OF_SECOND, 32)
+				.atZone(ZoneIds.UTC)
+				.toInstant();
 	}
 
 	@Test
-	public void testGetTimeStr() throws ParseException{
-		Assert.assertEquals(makeTestRateLimiter(TimeUnit.DAYS).getTimeStr(getCal()), "20100228");
-		Assert.assertEquals(makeTestRateLimiter(TimeUnit.HOURS).getTimeStr(getCal()), "2010030412");
-		Assert.assertEquals(makeTestRateLimiter(TimeUnit.MINUTES).getTimeStr(getCal()), "201003041630");
-		Assert.assertEquals(makeTestRateLimiter(TimeUnit.SECONDS).getTimeStr(getCal()), "20100304163045");
-		Assert.assertEquals(makeTestRateLimiter(TimeUnit.MILLISECONDS).getTimeStr(getCal()), "20100304163049030");
+	public void testGetTimeStr(){
+		Assert.assertEquals(makeTestRateLimiter(TimeUnit.DAYS).getTimeStr(getCal()), "2010-02-28T00:00:00Z");
+		Assert.assertEquals(makeTestRateLimiter(TimeUnit.HOURS).getTimeStr(getCal()), "2010-03-04T15:00:00Z");
+		Assert.assertEquals(makeTestRateLimiter(TimeUnit.MINUTES).getTimeStr(getCal()), "2010-03-04T16:30:00Z");
+		Assert.assertEquals(makeTestRateLimiter(TimeUnit.SECONDS).getTimeStr(getCal()), "2010-03-04T16:30:45Z");
+		Assert.assertEquals(makeTestRateLimiter(TimeUnit.MILLISECONDS).getTimeStr(getCal()),
+				"2010-03-04T16:30:49.030Z");
 	}
 
 	private BaseCacheRateLimiter makeTestRateLimiter(TimeUnit unit){

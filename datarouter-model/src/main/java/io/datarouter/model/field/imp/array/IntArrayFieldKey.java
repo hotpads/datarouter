@@ -15,13 +15,15 @@
  */
 package io.datarouter.model.field.imp.array;
 
+import com.google.gson.reflect.TypeToken;
+
 import io.datarouter.model.field.BaseFieldKey;
 
 @Deprecated//Use ByteArrayFieldKey
 public class IntArrayFieldKey extends BaseFieldKey<int[],IntArrayFieldKey>{
 
 	public IntArrayFieldKey(String name){
-		super(name, int[].class);
+		super(name, TypeToken.get(int[].class));
 	}
 
 	@Override
@@ -32,11 +34,6 @@ public class IntArrayFieldKey extends BaseFieldKey<int[],IntArrayFieldKey>{
 	@Override
 	public boolean isCollection(){
 		return true;
-	}
-
-	@Override
-	public IntArrayField createValueField(int[] value){
-		return new IntArrayField(this, value);
 	}
 
 }

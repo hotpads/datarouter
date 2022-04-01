@@ -15,7 +15,6 @@
  */
 package io.datarouter.filesystem.snapshot.block;
 
-import io.datarouter.enums.DatarouterEnumTool;
 import io.datarouter.enums.StringEnum;
 
 public enum BlockType implements StringEnum<BlockType>{
@@ -41,7 +40,7 @@ public enum BlockType implements StringEnum<BlockType>{
 	}
 
 	public static BlockType fromPersistentStringStatic(String string){
-		return DatarouterEnumTool.getEnumFromString(values(), string, null);
+		return StringEnum.getEnumFromString(values(), string, null);
 	}
 
 }

@@ -17,7 +17,6 @@ package io.datarouter.aws.memcached.client;
 
 import java.util.Optional;
 
-import io.datarouter.enums.DatarouterEnumTool;
 import io.datarouter.enums.StringEnum;
 import io.datarouter.storage.config.client.MemcachedGenericClientOptions.MemcachedGenericClientMode;
 import net.spy.memcached.ClientMode;
@@ -61,7 +60,7 @@ public enum MemcachedClientMode implements StringEnum<MemcachedClientMode>{
 	}
 
 	public static Optional<MemcachedClientMode> fromPersistentStringStatic(String string){
-		return DatarouterEnumTool.findEnumFromString(values(), string);
+		return StringEnum.findEnumFromString(values(), string);
 	}
 
 }

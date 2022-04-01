@@ -29,11 +29,6 @@ public class ByteListFieldKey extends ListFieldKey<Byte,List<Byte>,ByteListField
 	}
 
 	@Override
-	public ByteListField createValueField(List<Byte> value){
-		return new ByteListField(this, value);
-	}
-
-	@Override
 	public boolean isFixedLength(){
 		return false;
 	}

@@ -15,7 +15,6 @@
  */
 package io.datarouter.virtualnode.replication;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -53,12 +52,11 @@ public class ReplicationNodeFactory{
 			F extends DatabeanFielder<PK,D>,
 			N extends NodeOps<PK,D>>
 	N build(
-			ClientId primaryClientId,
-			Collection<ClientId> replicaClientIds,
+			ReplicationClientIds replicationClientIds,
 			Supplier<D> databeanSupplier,
 			Supplier<F> fielderSupplier){
 		var options = new ReplicationNodeOptionsBuilder().build();
-		return build(primaryClientId, replicaClientIds, databeanSupplier, fielderSupplier, options);
+		return build(replicationClientIds, databeanSupplier, fielderSupplier, options);
 	}
 
 	public <PK extends RegularPrimaryKey<PK>,
@@ -66,12 +64,11 @@ public class ReplicationNodeFactory{
 			F extends DatabeanFielder<PK,D>,
 			N extends NodeOps<PK,D>>
 	N build(
-			ClientId primaryClientId,
-			Collection<ClientId> replicaClientIds,
+			ReplicationClientIds replicationClientIds,
 			Supplier<D> databeanSupplier,
 			Supplier<F> fielderSupplier,
 			ReplicationNodeOptions options){
-		var primaryBuilder = nodeFactory.create(primaryClientId, databeanSupplier, fielderSupplier);
+		var primaryBuilder = nodeFactory.create(replicationClientIds.primary, databeanSupplier, fielderSupplier);
 		options.tableName.ifPresent(primaryBuilder::withTableName);
 		options.disableForcePrimary.ifPresent(primaryBuilder::withDisableForcePrimary);
 		options.disableIntroducer.ifPresent($ -> primaryBuilder.disableIntroducer());
@@ -84,7 +81,7 @@ public class ReplicationNodeFactory{
 			options.disableIntroducer.ifPresent($ -> replicaBuilder.disableIntroducer());
 			return replicaBuilder.build();
 		};
-		List<N> replicas = Scanner.of(replicaClientIds)
+		List<N> replicas = Scanner.of(replicationClientIds.replicas)
 				.map(buildReplicaFunction)
 				.list();
 		return makeInternal(primary, replicas, options.everyNToPrimary.orElse(null));
@@ -97,30 +94,29 @@ public class ReplicationNodeFactory{
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>,
 			N extends NodeOps<PK,D>>
-	N build(
-			ClientId primaryClientId,
-			Collection<ClientId> replicaClientIds,
+		N build(
+			ReplicationClientIds replicationClientIds,
 			Supplier<EK> entityKeySupplier,
 			Supplier<D> databeanSupplier,
 			Supplier<F> fielderSupplier){
 		var options = new ReplicationNodeOptionsBuilder()
 				.build();
-		return build(primaryClientId, replicaClientIds, entityKeySupplier, databeanSupplier, fielderSupplier, options);
-	}
+		return build(replicationClientIds, entityKeySupplier, databeanSupplier, fielderSupplier, options);
+		}
 
 	public <EK extends EntityKey<EK>,
 			PK extends EntityPrimaryKey<EK,PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>,
 			N extends NodeOps<PK,D>>
-	N build(
-			ClientId primaryClientId,
-			Collection<ClientId> replicaClientIds,
+		N build(
+			ReplicationClientIds replicationClientIds,
 			Supplier<EK> entityKeySupplier,
 			Supplier<D> databeanSupplier,
 			Supplier<F> fielderSupplier,
 			ReplicationNodeOptions options){
-		var primaryBuilder = nodeFactory.create(primaryClientId, entityKeySupplier, databeanSupplier, fielderSupplier);
+		var primaryBuilder = nodeFactory.create(replicationClientIds.primary, entityKeySupplier, databeanSupplier,
+				fielderSupplier);
 		options.tableName.ifPresent(primaryBuilder::withTableName);
 		options.disableForcePrimary.ifPresent(primaryBuilder::withDisableForcePrimary);
 		options.disableIntroducer.ifPresent($ -> primaryBuilder.disableIntroducer());
@@ -134,7 +130,7 @@ public class ReplicationNodeFactory{
 			options.disableIntroducer.ifPresent($ -> replicaBuilder.disableIntroducer());
 			return replicaBuilder.build();
 		};
-		List<N> replicas = Scanner.of(replicaClientIds)
+		List<N> replicas = Scanner.of(replicationClientIds.replicas)
 				.map(buildReplicaFunction)
 				.list();
 		return makeInternal(primary, replicas, options.everyNToPrimary.orElse(null));
@@ -147,11 +143,10 @@ public class ReplicationNodeFactory{
 			F extends DatabeanFielder<PK,D>,
 			N extends NodeOps<PK,D>>
 	N register(
-			ClientId primaryClientId,
-			Collection<ClientId> replicaClientIds,
+			ReplicationClientIds replicationClientIds,
 			Supplier<D> databeanSupplier,
 			Supplier<F> fielderSupplier){
-		return datarouter.register(build(primaryClientId, replicaClientIds, databeanSupplier, fielderSupplier));
+		return datarouter.register(build(replicationClientIds, databeanSupplier, fielderSupplier));
 	}
 
 	public <PK extends RegularPrimaryKey<PK>,
@@ -159,14 +154,12 @@ public class ReplicationNodeFactory{
 			F extends DatabeanFielder<PK,D>,
 			N extends NodeOps<PK,D>>
 	N register(
-			ClientId primaryClientId,
-			Collection<ClientId> replicaClientIds,
+			ReplicationClientIds replicationClientIds,
 			Supplier<D> databeanSupplier,
 			Supplier<F> fielderSupplier,
 			ReplicationNodeOptions options){
 		return datarouter.register(build(
-				primaryClientId,
-				replicaClientIds,
+				replicationClientIds,
 				databeanSupplier,
 				fielderSupplier,
 				options));

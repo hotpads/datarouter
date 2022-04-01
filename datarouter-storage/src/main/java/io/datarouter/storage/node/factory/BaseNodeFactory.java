@@ -15,15 +15,11 @@
  */
 package io.datarouter.storage.node.factory;
 
-import java.util.function.Supplier;
+import javax.inject.Inject;
 
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.model.databean.Databean;
-import io.datarouter.model.entity.Entity;
-import io.datarouter.model.key.entity.EntityKey;
-import io.datarouter.model.key.primary.EntityPrimaryKey;
 import io.datarouter.model.key.primary.PrimaryKey;
-import io.datarouter.model.key.primary.RegularPrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
@@ -31,84 +27,20 @@ import io.datarouter.storage.client.ClientNodeFactory;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.client.DatarouterClients;
 import io.datarouter.storage.node.Node;
-import io.datarouter.storage.node.NodeParams;
-import io.datarouter.storage.node.builder.NodeBuilder;
-import io.datarouter.storage.node.entity.EntityNodeParams;
-import io.datarouter.storage.node.type.physical.PhysicalNode;
 
 public abstract class BaseNodeFactory{
 
-	private final Datarouter datarouter;
-	private final DatarouterClients clients;
-	private final DatarouterInjector injector;
-	private final Supplier<Boolean> enableDiagnosticsSupplier;
+	@Inject
+	protected DatarouterInjector injector;
+	@Inject
+	protected Datarouter datarouter;
+	@Inject
+	protected DatarouterClients clients;
 
-	public BaseNodeFactory(
-			Datarouter datarouter,
-			DatarouterClients clients,
-			DatarouterInjector injector,
-			Supplier<Boolean> enableDiagnosticsSupplier){
-		this.datarouter = datarouter;
-		this.clients = clients;
-		this.injector = injector;
-		this.enableDiagnosticsSupplier = enableDiagnosticsSupplier;
-	}
-
-	public <EK extends EntityKey<EK>,
-			E extends Entity<EK>,
-			PK extends EntityPrimaryKey<EK,PK>,
-			D extends Databean<PK,D>,
-			F extends DatabeanFielder<PK,D>,
-			N extends PhysicalNode<PK,D,F>>
-	N create(
-			EntityNodeParams<EK,E> entityNodeParams,
-			NodeParams<PK,D,F> params){
-		ClientType<?,?> clientType = getClientTypeInstance(params.getClientId());
-		ClientNodeFactory clientNodeFactory = getClientFactories(clientType);
-		return cast(clientNodeFactory.createWrappedNode(entityNodeParams, params));
-	}
-
-	public <EK extends EntityKey<EK>,
-			PK extends EntityPrimaryKey<EK,PK>,
-			D extends Databean<PK,D>,
-			F extends DatabeanFielder<PK,D>>
-	NodeBuilder<EK,PK,D,F> create(
-			ClientId clientId,
-			Supplier<EK> entityKeySupplier,
-			Supplier<D> databeanSupplier,
-			Supplier<F> fielderSupplier){
-		return new NodeBuilder<>(this, enableDiagnosticsSupplier, clientId, entityKeySupplier,
-				databeanSupplier, fielderSupplier);
-	}
-
-	public <PK extends RegularPrimaryKey<PK>,
-			D extends Databean<PK,D>,
-			F extends DatabeanFielder<PK,D>>
-	NodeBuilder<PK,PK,D,F> create(
-			ClientId clientId,
-			Supplier<D> databeanSupplier,
-			Supplier<F> fielderSupplier){
-		Supplier<PK> entityKeySupplier = databeanSupplier.get().getKeySupplier();
-		return create(clientId, entityKeySupplier, databeanSupplier, fielderSupplier);
-	}
-
-	public <EK extends EntityKey<EK>,
-			PK extends EntityPrimaryKey<EK,PK>,
-			D extends Databean<PK,D>,
-			F extends DatabeanFielder<PK,D>,
-			N extends PhysicalNode<PK,D,F>>
-	N register(N node){
-		return datarouter.register(node);
-	}
-
-	/*-------------- private -----------------*/
-
-	private ClientType<?,?> getClientTypeInstance(ClientId clientId){
-		return clients.getClientTypeInstance(clientId);
-	}
-
-	private ClientNodeFactory getClientFactories(ClientType<?,?> clientType){
-		return injector.getInstance(clientType.getClientNodeFactoryClass());
+	protected <T extends ClientNodeFactory> T getClientNodeFactory(ClientId clientId, Class<T> factoryType){
+		ClientType<?,?> clientType = clients.getClientTypeInstance(clientId);
+		ClientNodeFactory clientNodeFactory = injector.getInstance(clientType.getClientNodeFactoryClass());
+		return factoryType.cast(clientNodeFactory);
 	}
 
 	/**

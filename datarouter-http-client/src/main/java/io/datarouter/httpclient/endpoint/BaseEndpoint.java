@@ -44,46 +44,51 @@ public abstract class BaseEndpoint<R,ET extends EndpointType>{
 	@IgnoredField
 	public final boolean retrySafe;
 	@IgnoredField
-	public final boolean shouldSkipSecurity;
-	@IgnoredField
-	public final boolean shouldSkipLogs;
-	@IgnoredField
 	public final Map<String,List<String>> headers;
 
 	@IgnoredField
 	public String urlPrefix;
 	@IgnoredField
 	public Optional<Duration> timeout;
+	@IgnoredField
+	public boolean shouldSkipSecurity;
+	@IgnoredField
+	public boolean shouldSkipLogs;
 
 	public BaseEndpoint(HttpRequestMethod method, PathNode pathNode, boolean retrySafe){
-		this(method, pathNode, retrySafe, false, false);
-	}
-
-	public BaseEndpoint(HttpRequestMethod method, PathNode pathNode, boolean retrySafe, boolean shouldSkipSecurity,
-			boolean shouldSkipLogs){
 		this.method = method;
 		this.pathNode = pathNode;
 		this.retrySafe = retrySafe;
-		this.shouldSkipSecurity = shouldSkipSecurity;
-		this.shouldSkipLogs = shouldSkipLogs;
 		this.headers = new HashMap<>();
 
 		this.urlPrefix = null;
 		this.timeout = Optional.empty();
+		this.shouldSkipSecurity = false;
+		this.shouldSkipLogs = false;
 	}
 
-	public BaseEndpoint<R,ET> setUrlPrefix(URI urlPrefix){
+	public final BaseEndpoint<R,ET> setUrlPrefix(URI urlPrefix){
 		this.urlPrefix = urlPrefix.normalize().toString();
 		return this;
 	}
 
-	public BaseEndpoint<R,ET> setTimeout(Duration timeout){
+	public final BaseEndpoint<R,ET> setTimeout(Duration timeout){
 		this.timeout = Optional.of(timeout);
 		return this;
 	}
 
-	public BaseEndpoint<R,ET> addHeader(String name, String value){
+	public final BaseEndpoint<R,ET> addHeader(String name, String value){
 		headers.computeIfAbsent(name, $ -> new ArrayList<>()).add(value);
+		return this;
+	}
+
+	public final BaseEndpoint<R,ET> setShouldSkipSecuiry(boolean shouldSkipSecurity){
+		this.shouldSkipSecurity = shouldSkipSecurity;
+		return this;
+	}
+
+	public final BaseEndpoint<R,ET> setShouldSkipLogs(boolean shouldSkipLogs){
+		this.shouldSkipLogs = shouldSkipLogs;
 		return this;
 	}
 

@@ -15,19 +15,22 @@
  */
 package io.datarouter.ratelimiter;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.Duration;
+import java.time.Instant;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoField;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 import io.datarouter.instrumentation.count.Counters;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.util.time.ZoneIds;
 import io.datarouter.util.tuple.Pair;
 
 //TODO rolling increases/decreases in limit,
@@ -47,11 +50,11 @@ public abstract class BaseCacheRateLimiter extends BaseRateLimiter{
 	protected abstract Map<String,Long> readCounts(List<String> keys);
 
 	@Override
-	protected Pair<Boolean,Calendar> internalAllow(String key, boolean increment){
-		Calendar cal = Calendar.getInstance();
-		Map<String,Long> results = readCounts(buildKeysToRead(key, cal));
+	protected Pair<Boolean,Instant> internalAllow(String key, boolean increment){
+		Instant now = Instant.now();
+		Map<String,Long> results = readCounts(buildKeysToRead(key, now));
 
-		String currentMapKey = makeMapKey(key, getTimeStr((Calendar)cal.clone()));
+		String currentMapKey = makeMapKey(key, getTimeStr(now));
 		int total = 0;
 
 		for(Entry<String,Long> entry : results.entrySet()){
@@ -62,10 +65,10 @@ public abstract class BaseCacheRateLimiter extends BaseRateLimiter{
 
 			// exceeded maxSpikeRequests
 			if(numRequests > config.maxSpikeRequests){
-				Calendar exceededCal = getDateFromKey(entry.getKey());
-				exceededCal.add(Calendar.MILLISECOND, config.bucketIntervalMs * (config.numIntervals - 1));
+				Instant exceededInstant = getDateFromKey(entry.getKey());
 				Counters.inc(HIT_COUNTER_NAME);
-				return new Pair<>(false, exceededCal);
+				return new Pair<>(false, exceededInstant
+						.plusMillis(config.bucketIntervalMs * (config.numIntervals - 1)));
 			}
 			total += numRequests;
 		}
@@ -74,19 +77,18 @@ public abstract class BaseCacheRateLimiter extends BaseRateLimiter{
 
 		// exceeded maxAvgRequests
 		if(avgRequests > config.maxAverageRequests){
-			List<Calendar> cals = Scanner.of(results.keySet()).map(this::getDateFromKey).list();
-			Calendar lastTime = null;
-			for(Calendar calendar : cals){
-				if(lastTime == null || calendar.after(lastTime)){
-					lastTime = calendar;
+			List<Instant> instants = Scanner.of(results.keySet()).map(this::getDateFromKey).list();
+			Instant lastTime = Instant.MIN;
+			for(Instant instant : instants){
+				if(instant.isAfter(lastTime)){
+					lastTime = instant;
 				}
 			}
 			Objects.requireNonNull(lastTime);
 
 			// add to get next available time
-			lastTime.add(Calendar.MILLISECOND, config.bucketIntervalMs);
 			Counters.inc(HIT_COUNTER_NAME);
-			return new Pair<>(false, lastTime);
+			return new Pair<>(false, lastTime.plusMillis(config.bucketIntervalMs));
 		}
 		if(increment){
 			increment(currentMapKey);
@@ -94,15 +96,11 @@ public abstract class BaseCacheRateLimiter extends BaseRateLimiter{
 		return new Pair<>(true, null);
 	}
 
-	private List<String> buildKeysToRead(String key, Calendar calendar){
+	private List<String> buildKeysToRead(String key, Instant instant){
 		List<String> keys = new ArrayList<>();
 		for(int i = 0; i < config.numIntervals; i++){
-			Calendar cal = (Calendar)calendar.clone();
-
 			int amount = i * config.bucketIntervalMs;
-			cal.add(Calendar.MILLISECOND, -amount);
-
-			String mapKey = makeMapKey(key, getTimeStr(cal));
+			String mapKey = makeMapKey(key, getTimeStr(instant.minusMillis(amount)));
 			keys.add(mapKey.toString());
 		}
 		return keys;
@@ -122,64 +120,61 @@ public abstract class BaseCacheRateLimiter extends BaseRateLimiter{
 	/*
 	 * returns a string of the time bucket closest to (and below) the given calendar
 	 * ie:
-	 *   2009-06-06 11:11:11.123 => 20090606111110 when timeUnit = seconds and bucketInterval = 10s
-	 *   						 => 2009060606     when timeUnit = hours   and bucketInterval = 6 hours
-	 *   						 => 200906061108   when timeUnit = minutes and bucketInterval = 4 minutes
+	 *   2009-06-06 11:11:11.123 => 2009-06-06T11:11:10Z when timeUnit = seconds and bucketInterval = 10s
+	 *   						 => 2009-06-06T06:00:00Z when timeUnit = hours   and bucketInterval = 6 hours
+	 *   						 => 2009-06-06T11:08:00Z when timeUnit = minutes and bucketInterval = 4 minutes
 	 */
-	protected String getTimeStr(Calendar cal){
-		int calendarField;
+	protected String getTimeStr(Instant instant){
+		ChronoField chornoField;
 		switch(config.unit){
 		case DAYS:
-			calendarField = Calendar.DATE;
+			chornoField = ChronoField.DAY_OF_MONTH;
 			break;
 		case HOURS:
-			calendarField = Calendar.HOUR;
+			chornoField = ChronoField.HOUR_OF_DAY;
 			break;
 		case MINUTES:
-			calendarField = Calendar.MINUTE;
+			chornoField = ChronoField.MINUTE_OF_HOUR;
 			break;
 		case SECONDS:
-			calendarField = Calendar.SECOND;
+			chornoField = ChronoField.SECOND_OF_MINUTE;
 			break;
 		default:
-			calendarField = Calendar.MILLISECOND;
+			chornoField = ChronoField.MILLI_OF_SECOND;
 			break;
 		}
-		setCalendarFieldForBucket(cal, calendarField, config.bucketTimeInterval);
-		return getDateFormatForTimeUnit().format(cal.getTime());
+		Instant truncatedInstant = setCalendarFieldForBucket(instant,config.unit, chornoField,
+				config.bucketTimeInterval);
+		return DateTimeFormatter.ISO_INSTANT.format(truncatedInstant);
 	}
 
-	// gets a minimum date format for the current timeUnit
-	private DateFormat getDateFormatForTimeUnit(){
-		switch(config.unit){
-		case DAYS:
-			return new SimpleDateFormat("yyyyMMdd");
-		case HOURS:
-			return new SimpleDateFormat("yyyyMMddHH");
-		case MINUTES:
-			return new SimpleDateFormat("yyyyMMddHHmm");
-		case SECONDS:
-			return new SimpleDateFormat("yyyyMMddHHmmss");
-		default:
-			return new SimpleDateFormat("yyyyMMddHHmmssSSS"); // MILLISECONDS
-		}
-	}
-
-	private Calendar getDateFromKey(String key){
+	private Instant getDateFromKey(String key){
 		String dateString = unmakeMapKey(key).getRight();
 		try{
-			DateFormat dateFormat = getDateFormatForTimeUnit();
-			Calendar cal = Calendar.getInstance();
-			cal.setTime(dateFormat.parse(dateString));
-			return cal;
-		}catch(ParseException e){
+			return Instant.parse(dateString);
+		}catch(DateTimeParseException e){
 			throw new IllegalStateException("unparseable key " + key, e);
 		}
 	}
 
-	// rely on int rounding to truncate. 10*(x/10) gives closet multiple of 10 below x
-	private static void setCalendarFieldForBucket(Calendar calendar, int calendarField, int fieldInterval){
-		calendar.set(calendarField, fieldInterval * (calendar.get(calendarField) / fieldInterval));
+	private static Instant setCalendarFieldForBucket(Instant instant, TimeUnit timeUnit, ChronoField chronoField,
+			int fieldInterval){
+		//Turn into a ZoneDateTime to have full ChronoUnitField support
+		ZonedDateTime zonedDateTime = instant.atZone(ZoneIds.UTC);
+
+		// rely on int rounding to truncate. 10*(x/10) gives closet multiple of 10 below x
+		long newTemporalvalue = fieldInterval * (zonedDateTime.getLong(chronoField) / fieldInterval);
+
+		// Day = 0 does not exist. It represents the previous month.
+		if(timeUnit == TimeUnit.DAYS && newTemporalvalue == 0){
+			return zonedDateTime.truncatedTo(timeUnit.toChronoUnit())
+					.with(chronoField, 1)
+					.minusDays(1)
+					.toInstant();
+		}
+		return zonedDateTime.truncatedTo(timeUnit.toChronoUnit())
+				.with(chronoField, newTemporalvalue)
+				.toInstant();
 	}
 
 	public Duration getBucketTimeInterval(){

@@ -22,6 +22,7 @@ import java.util.Map;
 
 import javax.inject.Singleton;
 
+import io.datarouter.gcp.spanner.field.array.SpannerByteArrayEncodedFieldCodec;
 import io.datarouter.gcp.spanner.field.array.SpannerByteArrayFieldCodec;
 import io.datarouter.gcp.spanner.field.date.SpannerDateFieldCodec;
 import io.datarouter.gcp.spanner.field.date.SpannerInstantFieldCodec;
@@ -48,6 +49,7 @@ import io.datarouter.model.field.Field;
 import io.datarouter.model.field.imp.DateField;
 import io.datarouter.model.field.imp.LocalDateField;
 import io.datarouter.model.field.imp.StringField;
+import io.datarouter.model.field.imp.array.ByteArrayEncodedField;
 import io.datarouter.model.field.imp.array.ByteArrayField;
 import io.datarouter.model.field.imp.comparable.BooleanField;
 import io.datarouter.model.field.imp.comparable.DoubleField;
@@ -94,6 +96,7 @@ public class SpannerFieldCodecRegistry{
 		//encoded
 		addCodec(IntegerEncodedField.class, SpannerIntegerEncodedFieldCodec.class);
 		addCodec(LongEncodedField.class, SpannerLongEncodedFieldCodec.class);
+		addCodec(ByteArrayEncodedField.class, SpannerByteArrayEncodedFieldCodec.class);
 
 		//enum
 		addCodec(IntegerEnumField.class, SpannerIntegerEnumFieldCodec.class);

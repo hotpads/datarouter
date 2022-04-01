@@ -18,7 +18,6 @@ package io.datarouter.model.field.imp.list;
 import java.util.List;
 
 import io.datarouter.bytes.codec.list.intlist.IntListCodec;
-import io.datarouter.gson.serialization.GsonTool;
 import io.datarouter.model.field.BaseListField;
 
 public class IntListField extends BaseListField<Integer,List<Integer>,IntListFieldKey>{
@@ -31,7 +30,7 @@ public class IntListField extends BaseListField<Integer,List<Integer>,IntListFie
 
 	@Override
 	public List<Integer> parseStringEncodedValueButDoNotSet(String value){
-		return GsonTool.GSON.fromJson(value, getKey().getValueType());
+		throw new UnsupportedOperationException();
 	}
 
 	@Override

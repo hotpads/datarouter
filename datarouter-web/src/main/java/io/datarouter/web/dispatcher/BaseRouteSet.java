@@ -25,9 +25,9 @@ import io.datarouter.httpclient.endpoint.BaseEndpoint;
 import io.datarouter.httpclient.endpoint.BaseInternalLink;
 import io.datarouter.httpclient.endpoint.EndpointTool;
 import io.datarouter.pathnode.PathNode;
-import io.datarouter.scanner.Scanner;
 import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.web.handler.BaseHandler;
+import io.datarouter.web.handler.HandlerTool;
 import io.datarouter.web.handler.types.InternalLinkDecoder;
 
 public abstract class BaseRouteSet{
@@ -74,12 +74,16 @@ public abstract class BaseRouteSet{
 				.withDispatchType(DispatchType.API_ENDPOINT);
 	}
 
-	protected Scanner<DispatchRule> handleEndpoints(
-			Class<? extends BaseHandler> handler,
-			List<Class<? extends BaseEndpoint<?,?>>> baseEndpointClasses){
-		return Scanner.of(baseEndpointClasses)
-				.map(endpointClass -> handle(endpointClass).withHandler(handler))
-				.listTo(Scanner::of);//Caller not forced to terminate the scanner
+	/**
+	 * A convenience method to automatically register all Endpoints that are used in a Handler class. This only works if
+	 * all the handler methods inside the Handler class are using endpoints.
+	 *
+	 * This method works for registration without any custom dispatch rules. The applyDefault is the only dispatch rule
+	 * used.
+	 */
+	protected void registerHandler(Class<? extends BaseHandler> handler){
+		List<Class<? extends BaseEndpoint<?,?>>> endpoints = HandlerTool.getEndpointsFromHandler(handler);
+		endpoints.forEach(endpoint -> handle(endpoint).withHandler(handler));
 	}
 
 	protected DispatchRule handleInternalLink(

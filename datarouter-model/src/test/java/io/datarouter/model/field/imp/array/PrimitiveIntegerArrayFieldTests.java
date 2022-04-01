@@ -23,30 +23,8 @@ public class PrimitiveIntegerArrayFieldTests{
 	@Test
 	public void testByteSerialization(){
 		int[] array = {1, 2, 100};
-		IntArrayField field = new IntArrayField(new IntArrayFieldKey("test"),
-				array);
+		IntArrayField field = new IntArrayField(new IntArrayFieldKey("test"), array);
 		Assert.assertEquals(field.fromBytesButDoNotSet(field.getBytes(), 0), array);
-	}
-
-	@Test
-	public void testStringEncodedValue(){
-		IntArrayField field;
-
-		int[] array = {1, -12, 15};
-		String stringValue = "[1,-12,15]";
-		field = new IntArrayField(new IntArrayFieldKey("test"), array);
-		Assert.assertEquals(field.getStringEncodedValue(), stringValue);
-		Assert.assertEquals(field.parseStringEncodedValueButDoNotSet(stringValue), array);
-
-		int[] emptyArray = {};
-		String emptyArrayStringValue = "[]";
-		field = new IntArrayField(new IntArrayFieldKey("test"), emptyArray);
-		Assert.assertEquals(field.getStringEncodedValue(), emptyArrayStringValue);
-		Assert.assertEquals(field.parseStringEncodedValueButDoNotSet(emptyArrayStringValue), emptyArray);
-
-		field = new IntArrayField(new IntArrayFieldKey("test"), null);
-		Assert.assertNull(field.getStringEncodedValue());
-		Assert.assertNull(field.parseStringEncodedValueButDoNotSet(null));
 	}
 
 }

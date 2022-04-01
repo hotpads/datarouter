@@ -29,7 +29,7 @@ import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.NodeParams.NodeParamsBuilder;
 import io.datarouter.storage.node.entity.DefaultEntity;
 import io.datarouter.storage.node.entity.EntityNodeParams;
-import io.datarouter.storage.node.factory.BaseNodeFactory;
+import io.datarouter.storage.node.factory.BaseDatabeanNodeFactory;
 import io.datarouter.storage.node.op.NodeOps;
 import io.datarouter.storage.node.tableconfig.ClientTableEntityPrefixNameWrapper;
 import io.datarouter.storage.node.tableconfig.NodewatchConfiguration;
@@ -42,7 +42,7 @@ public class NodeBuilder<
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>>{
 
-	private final BaseNodeFactory nodeFactory;
+	private final BaseDatabeanNodeFactory nodeFactory;
 	private final Supplier<Boolean> enableDiagnosticsSupplier;
 	private final ClientId clientId;
 	private final Supplier<EK> entityKeySupplier;
@@ -57,7 +57,7 @@ public class NodeBuilder<
 	private boolean disableIntroducer = false;
 
 	public NodeBuilder(
-			BaseNodeFactory nodeFactory,
+			BaseDatabeanNodeFactory nodeFactory,
 			Supplier<Boolean> enableDiagnosticsSupplier,
 			ClientId clientId,
 			Supplier<EK> entityKeySupplier,

@@ -22,7 +22,7 @@
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-metadata-parent</artifactId>
-		<version>0.0.109</version>
+		<version>0.0.110</version>
 		<relativePath>../datarouter-metadata-parent</relativePath>
 	</parent>
 
@@ -35,11 +35,10 @@
 	<properties>
 		<!-- libraries -->
 		<aws-sdk-version>1.12.136</aws-sdk-version>
-		<aws-sdk-software-v2-version>2.17.108</aws-sdk-software-v2-version>
 		<codehaus-plexus-version>2.9.0</codehaus-plexus-version>
 		<commons-codec-version>1.15</commons-codec-version>
 		<commons-io-version>2.11.0</commons-io-version>
-		<datarouter-version>0.0.109</datarouter-version>
+		<datarouter-version>0.0.110</datarouter-version>
 		<gson-version>2.8.9</gson-version>
 		<guice-version>5.0.1</guice-version>
 		<guava-version>31.0.1-jre</guava-version>
@@ -71,6 +70,13 @@
 				<groupId>com.google.cloud</groupId>
 				<artifactId>libraries-bom</artifactId>
 				<version>21.0.0</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>software.amazon.awssdk</groupId>
+				<artifactId>bom</artifactId>
+				<version>2.17.159</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -195,8 +201,8 @@
 					<version>${maven-compiler-plugin-version}</version>
 					<configuration>
 						<compilerId>eclipse</compilerId>
-						<source>14</source>
-						<target>14</target>
+						<source>15</source>
+						<target>15</target>
 						<optimize>true</optimize>
 						<fork>true</fork>
 						<parameters>true</parameters>

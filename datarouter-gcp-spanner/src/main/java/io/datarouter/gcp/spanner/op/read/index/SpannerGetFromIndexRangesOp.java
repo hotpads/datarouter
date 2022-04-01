@@ -21,6 +21,8 @@ import java.util.List;
 import com.google.cloud.spanner.DatabaseClient;
 import com.google.cloud.spanner.KeySet;
 import com.google.cloud.spanner.Options;
+import com.google.cloud.spanner.Options.ReadOption;
+import com.google.cloud.spanner.ReadOnlyTransaction;
 import com.google.cloud.spanner.ResultSet;
 
 import io.datarouter.gcp.spanner.field.SpannerFieldCodecRegistry;
@@ -63,31 +65,28 @@ extends SpannerBaseReadIndexOp<PK,IE>{
 	@Override
 	public List<IE> wrappedCall(){
 		String indexName = indexEntryFieldInfo.getIndexName();
-		ResultSet rs;
-		Integer offset = config.findOffset().orElse(0);
-		if(config.getLimit() != null){
-			Integer limit = offset + config.getLimit();
-			rs = client.singleUseReadOnlyTransaction().readUsingIndex(
+		int offset = config.findOffset().orElse(0);
+		ReadOption[] readOptions = config.findLimit()
+				.map(limit -> new ReadOption[]{Options.limit(offset + limit)})
+				.orElseGet(() -> new ReadOption[]{});
+		try(ReadOnlyTransaction txn = client.readOnlyTransaction()){
+			try(ResultSet rs = txn.readUsingIndex(
 					tableName,
 					indexName,
 					buildKeySet(),
 					indexEntryFieldInfo.getFieldColumnNames(),
-					Options.limit(limit));
-		}else{
-			rs = client.singleUseReadOnlyTransaction().readUsingIndex(
-					tableName,
-					indexName,
-					buildKeySet(),
-					indexEntryFieldInfo.getFieldColumnNames());
+					readOptions)){
+				List<IE> keys = createFromResultSet(
+						rs,
+						indexEntryFieldInfo.getDatabeanSupplier(),
+						indexEntryFieldInfo.getFields());
+				if(offset > 0){
+					//TODO avoid returning subList
+					return keys.subList(offset, keys.size());
+				}
+				return keys;
+			}
 		}
-		List<IE> keys = createFromResultSet(
-				rs,
-				indexEntryFieldInfo.getDatabeanSupplier(),
-				indexEntryFieldInfo.getFields());
-		if(offset > 0){
-			return keys.subList(offset, keys.size());
-		}
-		return keys;
 	}
 
 	@Override

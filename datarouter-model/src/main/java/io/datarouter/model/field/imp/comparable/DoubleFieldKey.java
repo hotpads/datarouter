@@ -42,9 +42,4 @@ public class DoubleFieldKey extends PrimitiveFieldKey<Double,DoubleFieldKey>{
 		return new DoubleFieldKey(name, columnNameOverride, nullable, fieldGeneratorType, defaultValue, attributes);
 	}
 
-	@Override
-	public DoubleField createValueField(Double value){
-		return new DoubleField(this, value);
-	}
-
 }

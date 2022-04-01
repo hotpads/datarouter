@@ -15,65 +15,58 @@
  */
 package io.datarouter.aws.memcached.client.nodefactory;
 
-import java.util.List;
-import java.util.function.UnaryOperator;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.aws.memcached.AwsMemcachedClientType;
 import io.datarouter.aws.memcached.client.AwsMemcachedClientManager;
-import io.datarouter.client.memcached.node.MemcachedMapStorageNode;
+import io.datarouter.client.memcached.node.MemcachedBlobNode;
+import io.datarouter.client.memcached.node.MemcachedDatabeanNode;
+import io.datarouter.client.memcached.node.MemcachedTallyNode;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.entity.Entity;
 import io.datarouter.model.key.entity.EntityKey;
 import io.datarouter.model.key.primary.EntityPrimaryKey;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
-import io.datarouter.storage.client.imp.BaseClientNodeFactory;
 import io.datarouter.storage.client.imp.BlobClientNodeFactory;
+import io.datarouter.storage.client.imp.DatabeanClientNodeFactory;
 import io.datarouter.storage.client.imp.TallyClientNodeFactory;
-import io.datarouter.storage.client.imp.WrappedNodeFactory;
 import io.datarouter.storage.file.Pathbean;
 import io.datarouter.storage.file.Pathbean.PathbeanFielder;
 import io.datarouter.storage.file.PathbeanKey;
 import io.datarouter.storage.node.NodeParams;
-import io.datarouter.storage.node.adapter.availability.PhysicalMapStorageAvailabilityAdapterFactory;
-import io.datarouter.storage.node.adapter.callsite.physical.PhysicalMapStorageCallsiteAdapter;
-import io.datarouter.storage.node.adapter.counter.physical.PhysicalMapStorageCounterAdapter;
-import io.datarouter.storage.node.adapter.trace.physical.PhysicalMapStorageTraceAdapter;
+import io.datarouter.storage.node.adapter.NodeAdapters;
 import io.datarouter.storage.node.entity.EntityNodeParams;
 import io.datarouter.storage.node.op.raw.BlobStorage.PhysicalBlobStorageNode;
-import io.datarouter.storage.node.op.raw.MapStorage.PhysicalMapStorageNode;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.web.config.service.ServiceName;
 
 @Singleton
 public class AwsMemcachedClientNodeFactory
-extends BaseClientNodeFactory
-implements BlobClientNodeFactory, TallyClientNodeFactory{
-
-	private final PhysicalMapStorageAvailabilityAdapterFactory physicalMapStorageAvailabilityAdapterFactory;
-	private final AwsMemcachedClientType awsMemcachedClientType;
-	private final ServiceName serviceName;
-	private final AwsMemcachedClientManager awsMemcachedClientManager;
-	private final AwsMemcachedNodeFactory awsMemcachedNodeFactory;
+implements BlobClientNodeFactory, DatabeanClientNodeFactory, TallyClientNodeFactory{
 
 	@Inject
-	public AwsMemcachedClientNodeFactory(
-			PhysicalMapStorageAvailabilityAdapterFactory physicalMapStorageAvailabilityAdapterFactory,
-			AwsMemcachedClientType awsMemcachedClientType,
-			AwsMemcachedClientManager awsMemcachedClientManager,
-			ServiceName serviceName,
-			AwsMemcachedNodeFactory awsMemcachedNodeFactory){
-		this.physicalMapStorageAvailabilityAdapterFactory = physicalMapStorageAvailabilityAdapterFactory;
-		this.awsMemcachedClientType = awsMemcachedClientType;
-		this.serviceName = serviceName;
-		this.awsMemcachedClientManager = awsMemcachedClientManager;
-		this.awsMemcachedNodeFactory = awsMemcachedNodeFactory;
+	private AwsMemcachedClientType awsMemcachedClientType;
+	@Inject
+	private ServiceName serviceName;
+	@Inject
+	private AwsMemcachedClientManager awsMemcachedClientManager;
+	@Inject
+	private NodeAdapters nodeAdapters;
+
+	/*---------------- BlobClientNodeFactory ------------------*/
+
+	@Override
+	public PhysicalBlobStorageNode createBlobNode(NodeParams<PathbeanKey,Pathbean,PathbeanFielder> nodeParams){
+		var physicalBlobNode = new MemcachedBlobNode(
+				nodeParams,
+				awsMemcachedClientType,
+				awsMemcachedClientManager.getLazyClient(nodeParams.getClientId()));
+		return nodeAdapters.wrapBlobNode(physicalBlobNode);
 	}
 
-	/*------------- WrappedNodeFactory ------------*/
+	/*---------------- DatabeanClientNodeFactory ------------------*/
 
 	@Override
 	public <EK extends EntityKey<EK>,
@@ -81,45 +74,15 @@ implements BlobClientNodeFactory, TallyClientNodeFactory{
 			PK extends EntityPrimaryKey<EK,PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
-	WrappedNodeFactory<EK,E,PK,D,F,PhysicalMapStorageNode<PK,D,F>> makeWrappedNodeFactory(){
-		return new MemcachedWrappedNodeFactory<>();
-	}
-
-	public class MemcachedWrappedNodeFactory<
-			EK extends EntityKey<EK>,
-			E extends Entity<EK>,
-			PK extends EntityPrimaryKey<EK,PK>,
-			D extends Databean<PK,D>,
-			F extends DatabeanFielder<PK,D>>
-	extends WrappedNodeFactory<EK,E,PK,D,F,PhysicalMapStorageNode<PK,D,F>>{
-
-		@Override
-		public PhysicalMapStorageNode<PK,D,F> createNode(
-				EntityNodeParams<EK,E> entityNodeParams,
-				NodeParams<PK,D,F> nodeParams){
-			return new MemcachedMapStorageNode<>(
-					nodeParams,
-					awsMemcachedClientType,
-					serviceName,
-					awsMemcachedClientManager);
-		}
-
-		@Override
-		public List<UnaryOperator<PhysicalMapStorageNode<PK,D,F>>> getAdapters(){
-			return List.of(
-					PhysicalMapStorageCounterAdapter::new,
-					PhysicalMapStorageTraceAdapter::new,
-					physicalMapStorageAvailabilityAdapterFactory::create,
-					PhysicalMapStorageCallsiteAdapter::new);
-		}
-
-	}
-
-	/*---------------- BlobClientNodeFactory ------------------*/
-
-	@Override
-	public PhysicalBlobStorageNode createBlobNode(NodeParams<PathbeanKey,Pathbean,PathbeanFielder> nodeParams){
-		return awsMemcachedNodeFactory.createBlobNode(nodeParams);
+	PhysicalNode<PK,D,F> createDatabeanNode(
+			EntityNodeParams<EK,E> entityNodeParams,
+			NodeParams<PK,D,F> nodeParams){
+		var node = new MemcachedDatabeanNode<>(
+				nodeParams,
+				awsMemcachedClientType,
+				serviceName,
+				awsMemcachedClientManager.getLazyClient(nodeParams.getClientId()));
+		return nodeAdapters.wrapDatabeanMapNode(node);
 	}
 
 	/*---------------- TallyClientNodeFactory ------------------*/
@@ -129,7 +92,12 @@ implements BlobClientNodeFactory, TallyClientNodeFactory{
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
 	PhysicalNode<PK,D,F> createTallyNode(NodeParams<PK,D,F> nodeParams){
-		return awsMemcachedNodeFactory.createTallyNode(nodeParams);
+		var physicalTallyNode = new MemcachedTallyNode<>(
+				nodeParams,
+				awsMemcachedClientType,
+				serviceName,
+				awsMemcachedClientManager.getLazyClient(nodeParams.getClientId()));
+		return nodeAdapters.wrapTallyNode(physicalTallyNode);
 	}
 
 }

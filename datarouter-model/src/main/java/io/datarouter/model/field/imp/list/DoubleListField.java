@@ -18,7 +18,6 @@ package io.datarouter.model.field.imp.list;
 import java.util.List;
 
 import io.datarouter.bytes.codec.list.doublelist.DoubleListCodec;
-import io.datarouter.gson.serialization.GsonTool;
 import io.datarouter.model.field.BaseListField;
 
 public class DoubleListField extends BaseListField<Double,List<Double>,DoubleListFieldKey>{
@@ -31,7 +30,7 @@ public class DoubleListField extends BaseListField<Double,List<Double>,DoubleLis
 
 	@Override
 	public List<Double> parseStringEncodedValueButDoNotSet(String value){
-		return GsonTool.GSON.fromJson(value, getKey().getValueType());
+		throw new UnsupportedOperationException();
 	}
 
 	@Override

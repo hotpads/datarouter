@@ -17,7 +17,6 @@ package io.datarouter.aws.s3;
 
 import java.time.Duration;
 
-import io.datarouter.enums.DatarouterEnumTool;
 import io.datarouter.enums.StringEnum;
 
 public class S3Headers{
@@ -114,7 +113,7 @@ public class S3Headers{
 		}
 
 		public static ContentType fromMimeType(String mimeType){
-			return DatarouterEnumTool.getEnumFromString(values(), mimeType, null);
+			return StringEnum.getEnumFromString(values(), mimeType, null);
 		}
 
 	}

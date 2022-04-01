@@ -15,7 +15,6 @@
  */
 package io.datarouter.client.mysql.ddl.domain;
 
-import io.datarouter.enums.DatarouterEnumTool;
 import io.datarouter.enums.StringEnum;
 import io.datarouter.model.serialize.fielder.FielderConfigKey;
 import io.datarouter.model.serialize.fielder.FielderConfigValue;
@@ -46,7 +45,7 @@ public enum MysqlRowFormat implements StringEnum<MysqlRowFormat>, FielderConfigV
 	}
 
 	public static MysqlRowFormat fromPersistentStringStatic(String str){
-		return DatarouterEnumTool.getEnumFromString(values(), str, null);
+		return StringEnum.getEnumFromString(values(), str, null);
 	}
 
 	@Override

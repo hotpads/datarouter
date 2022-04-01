@@ -17,6 +17,8 @@ package io.datarouter.model.field.imp.array;
 
 import java.util.Map;
 
+import com.google.gson.reflect.TypeToken;
+
 import io.datarouter.model.field.BaseFieldKey;
 import io.datarouter.model.field.FieldKeyAttribute;
 import io.datarouter.model.field.FieldKeyAttributeKey;
@@ -28,7 +30,7 @@ public class ByteArrayFieldKey extends BaseFieldKey<byte[],ByteArrayFieldKey>{
 	private final int size;
 
 	public ByteArrayFieldKey(String name){
-		super(name, byte[].class);
+		super(name, TypeToken.get(byte[].class));
 		this.size = CommonFieldSizes.MAX_KEY_LENGTH;
 	}
 
@@ -40,7 +42,7 @@ public class ByteArrayFieldKey extends BaseFieldKey<byte[],ByteArrayFieldKey>{
 			byte[] defaultValue,
 			int size,
 			Map<FieldKeyAttributeKey<?>,FieldKeyAttribute<?>> attributes){
-		super(name, columnName, nullable, byte[].class, fieldGeneratorType, defaultValue, attributes);
+		super(name, columnName, nullable, TypeToken.get(byte[].class), fieldGeneratorType, defaultValue, attributes);
 		this.size = size;
 	}
 
@@ -55,11 +57,6 @@ public class ByteArrayFieldKey extends BaseFieldKey<byte[],ByteArrayFieldKey>{
 
 	public int getSize(){
 		return size;
-	}
-
-	@Override
-	public ByteArrayField createValueField(byte[] value){
-		return new ByteArrayField(this, value);
 	}
 
 }

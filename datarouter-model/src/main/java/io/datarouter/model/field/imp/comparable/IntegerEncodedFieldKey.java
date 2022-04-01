@@ -30,7 +30,7 @@ public class IntegerEncodedFieldKey<T> extends BaseFieldKey<T,IntegerEncodedFiel
 	public IntegerEncodedFieldKey(
 			String name,
 			IntegerFieldCodec<T> codec){
-		super(name, codec.getValueClass());
+		super(name, codec.getTypeToken());
 		this.codec = codec;
 	}
 
@@ -42,7 +42,7 @@ public class IntegerEncodedFieldKey<T> extends BaseFieldKey<T,IntegerEncodedFiel
 			FieldGeneratorType fieldGeneratorType,
 			T defaultValue,
 			Map<FieldKeyAttributeKey<?>,FieldKeyAttribute<?>> attributes){
-		super(name, columnName, nullable, codec.getValueClass(), fieldGeneratorType, defaultValue, attributes);
+		super(name, columnName, nullable, codec.getTypeToken(), fieldGeneratorType, defaultValue, attributes);
 		this.codec = codec;
 	}
 
@@ -77,11 +77,6 @@ public class IntegerEncodedFieldKey<T> extends BaseFieldKey<T,IntegerEncodedFiel
 				fieldGeneratorTypeOverride,
 				defaultValue,
 				attributes);
-	}
-
-	@Override
-	public IntegerEncodedField<T> createValueField(T value){
-		return new IntegerEncodedField<>(this, value);
 	}
 
 	public IntegerFieldCodec<T> getCodec(){

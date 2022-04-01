@@ -22,6 +22,7 @@ import io.datarouter.httpclient.endpoint.BaseEndpoint;
 import io.datarouter.httpclient.endpoint.EndpointType;
 import io.datarouter.httpclient.json.JsonSerializer;
 import io.datarouter.httpclient.response.Conditional;
+import io.datarouter.httpclient.response.exception.DatarouterHttpException;
 
 public abstract class BaseDatarouterEndpointHttpClientWrapper<
 		ET extends EndpointType>
@@ -41,6 +42,11 @@ implements DatarouterEndpointHttpClient<ET>, DatarouterServiceEndpointHttpClient
 	@Override
 	public <R> Conditional<R> callUnchecked(BaseEndpoint<R,?> baseEndpoint){
 		return client.callUnchecked(baseEndpoint);
+	}
+
+	@Override
+	public <R> R callRaw(BaseEndpoint<R,ET> endpoint) throws DatarouterHttpException{
+		return client.callRaw(endpoint);
 	}
 
 	@Override

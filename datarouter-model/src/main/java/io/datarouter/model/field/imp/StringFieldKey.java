@@ -17,6 +17,8 @@ package io.datarouter.model.field.imp;
 
 import java.util.Map;
 
+import com.google.gson.reflect.TypeToken;
+
 import io.datarouter.model.field.BaseFieldKey;
 import io.datarouter.model.field.FieldKeyAttribute;
 import io.datarouter.model.field.FieldKeyAttributeKey;
@@ -30,7 +32,7 @@ public class StringFieldKey extends BaseFieldKey<String,StringFieldKey>{
 	private final int size;
 
 	public StringFieldKey(String name){
-		super(name, String.class);
+		super(name, TypeToken.get(String.class));
 		this.size = DEFAULT_MAX_SIZE;
 	}
 
@@ -42,7 +44,7 @@ public class StringFieldKey extends BaseFieldKey<String,StringFieldKey>{
 			String defaultValue,
 			int size,
 			Map<FieldKeyAttributeKey<?>,FieldKeyAttribute<?>> attributes){
-		super(name, columnName, nullable, String.class, fieldGeneratorType, defaultValue, attributes);
+		super(name, columnName, nullable, TypeToken.get(String.class), fieldGeneratorType, defaultValue, attributes);
 		this.size = size;
 	}
 
@@ -67,11 +69,6 @@ public class StringFieldKey extends BaseFieldKey<String,StringFieldKey>{
 
 	public int getSize(){
 		return size;
-	}
-
-	@Override
-	public StringField createValueField(String value){
-		return new StringField(this, value);
 	}
 
 }

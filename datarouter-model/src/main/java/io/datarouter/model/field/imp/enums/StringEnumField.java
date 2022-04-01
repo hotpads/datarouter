@@ -15,8 +15,9 @@
  */
 package io.datarouter.model.field.imp.enums;
 
+import java.util.Comparator;
+
 import io.datarouter.bytes.codec.stringcodec.StringCodec;
-import io.datarouter.enums.DatarouterEnumTool;
 import io.datarouter.enums.StringEnum;
 import io.datarouter.model.field.BaseField;
 import io.datarouter.model.field.Field;
@@ -25,6 +26,9 @@ import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
 
 public class StringEnumField<E extends StringEnum<E>> extends BaseField<E>{
+
+	private static final Comparator<StringEnum<?>> VALUE_COMPARATOR = Comparator.nullsFirst(
+			Comparator.comparing(StringEnum::getPersistentString));
 
 	private final StringEnumFieldKey<E> key;
 	private final StringField stringField;
@@ -46,11 +50,7 @@ public class StringEnumField<E extends StringEnum<E>> extends BaseField<E>{
 
 	@Override
 	public int compareTo(Field<E> other){
-		/* If we store the string in the database and are using Collating iterators and such, then we pretty much have
-		 * to sort by the persistentString value of the enum even though the persistentInt or Ordinal value of the enum
-		 * may sort differently. Perhaps an argument that PrimaryKeys should not be allowed to have alternate Fielders,
-		 * else the java would sort differently depending on which Fielder was being used. */
-		return DatarouterEnumTool.compareStringEnums(value, other.getValue());
+		return VALUE_COMPARATOR.compare(value, other.getValue());
 	}
 
 	@Override

@@ -17,6 +17,8 @@ package io.datarouter.model.field.imp.enums;
 
 import java.util.Map;
 
+import com.google.gson.reflect.TypeToken;
+
 import io.datarouter.enums.StringEnum;
 import io.datarouter.model.field.BaseFieldKey;
 import io.datarouter.model.field.FieldKeyAttribute;
@@ -25,16 +27,19 @@ import io.datarouter.model.field.encoding.FieldGeneratorType;
 import io.datarouter.model.util.CommonFieldSizes;
 import io.datarouter.util.lang.ReflectionTool;
 
-public class StringEnumFieldKey<E extends StringEnum<E>> extends BaseFieldKey<E,StringEnumFieldKey<E>>{
+public class StringEnumFieldKey<E extends StringEnum<E>>
+extends BaseFieldKey<E,StringEnumFieldKey<E>>{
 
 	private static final int DEFAULT_MAX_SIZE = CommonFieldSizes.DEFAULT_LENGTH_VARCHAR;
 
 	private final int size;
+	private final Class<E> enumClass;
 	private final E sampleValue;
 
 	public StringEnumFieldKey(String name, Class<E> enumClass){
-		super(name, enumClass);
+		super(name, TypeToken.get(enumClass));
 		this.size = DEFAULT_MAX_SIZE;
+		this.enumClass = enumClass;
 		this.sampleValue = ReflectionTool.create(enumClass);
 	}
 
@@ -48,56 +53,49 @@ public class StringEnumFieldKey<E extends StringEnum<E>> extends BaseFieldKey<E,
 			E defaultValue,
 			int size,
 			Map<FieldKeyAttributeKey<?>,FieldKeyAttribute<?>> attributes){
-		super(name, columnName, nullable, enumClass, fieldGeneratorType, defaultValue, attributes);
+		super(name, columnName, nullable, TypeToken.get(enumClass), fieldGeneratorType, defaultValue, attributes);
 		this.size = size;
+		this.enumClass = enumClass;
 		this.sampleValue = sampleValue;
 	}
 
-	@SuppressWarnings("unchecked")
 	public StringEnumFieldKey<E> withSize(int sizeOverride){
 		return new StringEnumFieldKey<>(
 				name,
 				sampleValue,
 				columnName,
 				nullable,
-				(Class<E>)valueType,
+				enumClass,
 				fieldGeneratorType,
 				defaultValue,
 				sizeOverride,
 				attributes);
 	}
 
-	@SuppressWarnings("unchecked")
 	public StringEnumFieldKey<E> withColumnName(String columnNameOverride){
 		return new StringEnumFieldKey<>(
 				name,
 				sampleValue,
 				columnNameOverride,
 				nullable,
-				(Class<E>)valueType,
+				enumClass,
 				fieldGeneratorType,
 				defaultValue,
 				size,
 				attributes);
 	}
 
-	@SuppressWarnings("unchecked")
 	public StringEnumFieldKey<E> withDefaultValue(E defaultValueOverride){
 		return new StringEnumFieldKey<>(
 				name,
 				sampleValue,
 				columnName,
 				nullable,
-				(Class<E>)valueType,
+				enumClass,
 				fieldGeneratorType,
 				defaultValueOverride,
 				size,
 				attributes);
-	}
-
-	@Override
-	public StringEnumField<E> createValueField(E value){
-		return new StringEnumField<>(this, value);
 	}
 
 	@Override

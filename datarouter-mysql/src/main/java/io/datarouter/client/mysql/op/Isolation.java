@@ -32,10 +32,10 @@ public enum Isolation implements IntegerEnum<Isolation>, StringEnum<Isolation>, 
 
 	public static final ConfigKey<Isolation> KEY = new ConfigKey<>("isolation");
 	public static final Isolation DEFAULT = readCommitted;
-	public static final MappedEnum<Integer,Isolation> BY_PERSISTENT_INTEGER = new MappedEnum<>(
+	public static final MappedEnum<Isolation,Integer> BY_PERSISTENT_INTEGER = new MappedEnum<>(
 			values(),
 			value -> value.persistentInteger);
-	public static final MappedEnum<String,Isolation> BY_PERSISTENT_STRING = new MappedEnum<>(
+	public static final MappedEnum<Isolation,String> BY_PERSISTENT_STRING = new MappedEnum<>(
 			values(),
 			value -> value.persistentString);
 

@@ -17,11 +17,12 @@ package io.datarouter.gcp.spanner.op.read.index;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import com.google.cloud.spanner.DatabaseClient;
 import com.google.cloud.spanner.KeySet;
 import com.google.cloud.spanner.Options;
+import com.google.cloud.spanner.Options.ReadOption;
+import com.google.cloud.spanner.ReadOnlyTransaction;
 import com.google.cloud.spanner.ResultSet;
 
 import io.datarouter.gcp.spanner.field.SpannerFieldCodecRegistry;
@@ -31,6 +32,7 @@ import io.datarouter.model.field.FieldKey;
 import io.datarouter.model.index.IndexEntry;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.serialize.fieldcache.IndexEntryFieldInfo;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
@@ -66,23 +68,27 @@ extends SpannerBaseReadIndexOp<PK,IE>{
 
 	@Override
 	public List<IE> wrappedCall(){
-		List<String> columns = indexEntryFieldInfo.getFields().stream()
+		List<String> columns = Scanner.of(indexEntryFieldInfo.getFields())
 				.map(Field::getKey)
 				.map(FieldKey::getColumnName)
-				.collect(Collectors.toList());
+				.list();
 		String indexName = indexEntryFieldInfo.getIndexName();
-		ResultSet rs;
-		if(config.getLimit() != null){
-			rs = client.singleUseReadOnlyTransaction().readUsingIndex(
-					tableName,
-					indexName,
-					buildKeySet(),
-					columns,
-					Options.limit(config.getLimit()));
-		}else{
-			rs = client.singleUseReadOnlyTransaction().readUsingIndex(tableName, indexName, buildKeySet(), columns);
+		ReadOption[] readOptions = config.findLimit()
+				.map(limit -> new ReadOption[]{Options.limit(limit)})
+				.orElseGet(() -> new ReadOption[]{});
+		try(ReadOnlyTransaction txn = client.readOnlyTransaction()){
+			try(ResultSet rs = txn.readUsingIndex(
+						tableName,
+						indexName,
+						buildKeySet(),
+						columns,
+						readOptions)){
+				return createFromResultSet(
+						rs,
+						indexEntryFieldInfo.getDatabeanSupplier(),
+						indexEntryFieldInfo.getFields());
+			}
 		}
-		return createFromResultSet(rs, indexEntryFieldInfo.getDatabeanSupplier(), indexEntryFieldInfo.getFields());
 	}
 
 }

@@ -52,11 +52,6 @@ public class LongFieldKey extends PrimitiveFieldKey<Long,LongFieldKey>{
 	}
 
 	@Override
-	public LongField createValueField(Long value){
-		return new LongField(this, value);
-	}
-
-	@Override
 	public Long generateRandomValue(){
 		return RandomTool.nextPositiveLong();
 	}

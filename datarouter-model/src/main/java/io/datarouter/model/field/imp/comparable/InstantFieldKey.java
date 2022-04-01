@@ -25,11 +25,6 @@ public class InstantFieldKey extends PrimitiveFieldKey<Instant,InstantFieldKey>{
 		super(name, Instant.class);
 	}
 
-	@Override
-	public InstantField createValueField(Instant value){
-		return new InstantField(this, value);
-	}
-
 	public int getNumFractionalSeconds(){
 		return 6;
 	}

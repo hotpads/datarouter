@@ -19,7 +19,6 @@ import java.util.List;
 
 import io.datarouter.bytes.LongArray;
 import io.datarouter.bytes.codec.array.longarray.RawLongArrayCodec;
-import io.datarouter.gson.serialization.GsonTool;
 import io.datarouter.model.field.BaseListField;
 import io.datarouter.model.field.Field;
 import io.datarouter.util.array.ArrayTool;
@@ -42,7 +41,7 @@ public class RawLongListField extends BaseListField<Long,List<Long>,RawLongListF
 
 	@Override
 	public List<Long> parseStringEncodedValueButDoNotSet(String value){
-		return GsonTool.GSON.fromJson(value, getKey().getValueType());
+		throw new UnsupportedOperationException();
 	}
 
 	@Override

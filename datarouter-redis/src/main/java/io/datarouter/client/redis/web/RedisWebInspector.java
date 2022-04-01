@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.client.redis.RedisClientType;
 import io.datarouter.client.redis.client.RedisClientManager;
+import io.datarouter.client.redis.client.RedisOptions;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientOptions;
@@ -50,6 +51,8 @@ import j2html.tags.ContainerTag;
 public class RedisWebInspector implements DatarouterClientWebInspector{
 	private static final Logger logger = LoggerFactory.getLogger(RedisWebInspector.class);
 
+	@Inject
+	private RedisOptions redisOptions;
 	@Inject
 	private RedisClientManager clientManager;
 	@Inject
@@ -66,7 +69,7 @@ public class RedisWebInspector implements DatarouterClientWebInspector{
 		if(clientId == null){
 			return new MessageMav("Client not found");
 		}
-		if(clientManager.getMode(clientId).isStandard()){
+		if(redisOptions.getClientMode(clientId.getName()).isStandard()){
 			return inspectRegularRedis(clientId, request);
 		}
 		return inspectClusterClient(clientId, request);
@@ -89,7 +92,7 @@ public class RedisWebInspector implements DatarouterClientWebInspector{
 	private ContainerTag<?> buildRegularOverview(ClientId clientId){
 		ContainerTag<?> infoDiv = null;
 		try{
-			infoDiv = pre(clientManager.getClient(clientId).info().get());
+			infoDiv = pre(clientManager.getClient(clientId).getLettuceClient().info().get());
 		}catch(InterruptedException | ExecutionException e){
 			logger.error("", e);
 		}
@@ -117,11 +120,11 @@ public class RedisWebInspector implements DatarouterClientWebInspector{
 	}
 
 	private ContainerTag<?> buildClusterOverview(ClientId clientId) throws InterruptedException, ExecutionException{
-		var client = clientManager.getClient(clientId);
-		List<String> clusterNodes = Scanner.of(client.clusterNodes().get().split("\n"))
+		var lettuceClient = clientManager.getClient(clientId).getLettuceClient();
+		List<String> clusterNodes = Scanner.of(lettuceClient.clusterNodes().get().split("\n"))
 				.list();
-		String clusterInfo = client.clusterInfo().get();
-		String info = client.info().get();
+		String clusterInfo = lettuceClient.clusterInfo().get();
+		String info = lettuceClient.info().get();
 		return dl(
 				dt("Nodes: " + clusterNodes.size()), dd(ul(each(clusterNodes, tag -> li(tag)))),
 				dt("Cluster Info:"), dd(pre(clusterInfo)),

@@ -54,6 +54,7 @@ import io.datarouter.instrumentation.refreshable.RefreshableSupplier;
 public class DatarouterHttpClientBuilder{
 
 	public static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(3);
+	public static final int DEFAULT_MAX_TOTAL_CONNECTIONS = 200;
 
 	private static final JsonSerializer DEFAULT_SERIALIZER = new GsonJsonSerializer(HttpClientGsonTool.GSON);
 
@@ -85,7 +86,7 @@ public class DatarouterHttpClientBuilder{
 	public DatarouterHttpClientBuilder(){
 		this.timeoutMs = (int)DEFAULT_TIMEOUT.toMillis();
 		this.connectTimeoutMs = (int)DEFAULT_TIMEOUT.toMillis();
-		this.maxTotalConnections = 200;
+		this.maxTotalConnections = DEFAULT_MAX_TOTAL_CONNECTIONS;
 		this.maxConnectionsPerRoute = 200;
 		this.validateAfterInactivityMs = Optional.empty();
 		this.httpClientBuilder = HttpClientBuilder.create()

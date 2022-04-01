@@ -17,11 +17,15 @@ package io.datarouter.web.handler;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import io.datarouter.httpclient.endpoint.BaseEndpoint;
 import io.datarouter.httpclient.endpoint.EndpointTool;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.util.lang.ClassTool;
 import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.web.handler.BaseHandler.Handler;
 import io.datarouter.web.handler.mav.Mav;
@@ -36,6 +40,7 @@ public class HandlerTool{
 		return Optional.ofNullable(parameterValue);
 	}
 
+	@SuppressWarnings("deprecation")
 	public static void assertHandlerHasMethod(Class<? extends BaseHandler> handlerClass, String path){
 		for(Method method : handlerClass.getDeclaredMethods()){
 			if(Modifier.isStatic(method.getModifiers())){
@@ -74,11 +79,54 @@ public class HandlerTool{
 							methodName,
 							path));
 				}
+				Type methodReturnType = method.getGenericReturnType();
+				boolean isPrimitive = method.getReturnType().isPrimitive();
+				if(isPrimitive){
+					methodReturnType = ClassTool.getBoxedFromPrimitive(methodReturnType);
+				}
+				Type endpointResponseType = EndpointTool.getResponseType(endpoint);
+				if(!methodReturnType.equals(endpointResponseType)){
+					throw new IllegalArgumentException(String.format(
+							"Handler-Endpoint Response Type Mismatch. handler=%s endpoint=%s handlerReturnType=%s "
+									+ "endpointResponseType=%s",
+							handlerClass.getSimpleName(),
+							endpoint.getClass().getSimpleName(),
+							methodReturnType.getTypeName(),
+							endpointResponseType.getTypeName()));
+				}
 				return;
 			}
 		}
 		throw new IllegalArgumentException(handlerClass.getSimpleName() + " does not have a method that matches "
 				+ path);
+	}
+
+	@SuppressWarnings({"unchecked", "deprecation"})
+	public static List<Class<? extends BaseEndpoint<?,?>>> getEndpointsFromHandler(
+			Class<? extends BaseHandler> handler){
+		List<Class<? extends BaseEndpoint<?,?>>> endpoints = new ArrayList<>();
+		for(Method method : handler.getDeclaredMethods()){
+			if(Modifier.isStatic(method.getModifiers())){
+				continue;
+			}
+			if(method.getAnnotation(Handler.class) == null){
+				continue;
+			}
+			if(method.getAnnotation(Handler.class).defaultHandler()){
+				// doesn't work when defaultHandler = true
+				continue;
+			}
+			if(method.getReturnType().isAssignableFrom(Mav.class)){
+				// doesn't work for internal pages
+				continue;
+			}
+			if(!EndpointTool.paramIsEndpointObject(method)){
+				continue;
+			}
+			Class<?> endpointType = method.getParameters()[0].getType();
+			endpoints.add((Class<? extends BaseEndpoint<?,?>>)endpointType);
+		}
+		return endpoints;
 	}
 
 }

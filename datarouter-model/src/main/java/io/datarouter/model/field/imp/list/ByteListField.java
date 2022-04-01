@@ -19,7 +19,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.bytes.ByteTool;
-import io.datarouter.gson.serialization.GsonTool;
 import io.datarouter.model.field.BaseListField;
 import io.datarouter.model.field.Field;
 
@@ -32,7 +31,7 @@ public class ByteListField extends BaseListField<Byte,List<Byte>,ByteListFieldKe
 
 	@Override
 	public List<Byte> parseStringEncodedValueButDoNotSet(String value){
-		return GsonTool.GSON.fromJson(value, getKey().getValueType());
+		throw new UnsupportedOperationException();
 	}
 
 	@Override

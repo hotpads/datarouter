@@ -24,7 +24,6 @@ import java.util.stream.Collectors;
 
 import io.datarouter.auth.web.deprovisioning.DeprovisionedUserDto;
 import io.datarouter.auth.web.deprovisioning.UserDeprovisioningStatusDto;
-import io.datarouter.enums.DatarouterEnumTool;
 import io.datarouter.enums.StringEnum;
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
@@ -142,7 +141,7 @@ public class DeprovisionedUser extends BaseDatabean<DeprovisionedUserKey,Deprovi
 		}
 
 		public static UserDeprovisioningStatus fromPersistentStringStatic(String string){
-			return DatarouterEnumTool.getEnumFromString(values(), string, null);
+			return StringEnum.getEnumFromString(values(), string, null);
 		}
 
 	}

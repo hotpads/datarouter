@@ -21,6 +21,7 @@ import java.util.List;
 import com.google.cloud.spanner.DatabaseClient;
 import com.google.cloud.spanner.KeySet;
 import com.google.cloud.spanner.Options;
+import com.google.cloud.spanner.Options.ReadOption;
 import com.google.cloud.spanner.ReadOnlyTransaction;
 import com.google.cloud.spanner.ResultSet;
 
@@ -63,36 +64,30 @@ extends SpannerBaseReadIndexOp<PK,D>{
 	@Override
 	public List<D> wrappedCall(){
 		try(ReadOnlyTransaction txn = client.readOnlyTransaction()){
-			ResultSet rs;
-			if(config.getLimit() != null){
-				rs = txn.readUsingIndex(
+			ReadOption[] readOptions = config.findLimit()
+					.map(limit -> new ReadOption[]{Options.limit(limit)})
+					.orElseGet(() -> new ReadOption[]{});
+			try(ResultSet rs = txn.readUsingIndex(
 						tableName,
 						indexName,
 						buildKeySet(),
 						fieldInfo.getPrimaryKeyFieldColumnNames(),
-						Options.limit(config.getLimit()));
-			}else{
-				rs = txn.readUsingIndex(
-						tableName,
-						indexName,
-						buildKeySet(),
-						fieldInfo.getPrimaryKeyFieldColumnNames());
+						readOptions)){
+				List<PK> keyList = createFromResultSet(
+						rs,
+						fieldInfo.getPrimaryKeySupplier(),
+						fieldInfo.getPrimaryKeyFields());
+				try(ResultSet databeanRs = txn.read(
+							tableName,
+							buildKeySet(keyList),
+							fieldInfo.getFieldColumnNames(),
+							readOptions)){
+					return createFromResultSet(
+							databeanRs,
+							fieldInfo.getDatabeanSupplier(),
+							fieldInfo.getFields());
+				}
 			}
-			List<PK> keyList = createFromResultSet(
-					rs,
-					fieldInfo.getPrimaryKeySupplier(),
-					fieldInfo.getPrimaryKeyFields());
-			ResultSet databeanRs;
-			if(config.getLimit() != null){
-				databeanRs = txn.read(
-						tableName,
-						buildKeySet(keyList),
-						fieldInfo.getFieldColumnNames(),
-						Options.limit(config.getLimit()));
-			}else{
-				databeanRs = txn.read(tableName, buildKeySet(keyList), fieldInfo.getFieldColumnNames());
-			}
-			return createFromResultSet(databeanRs, fieldInfo.getDatabeanSupplier(), fieldInfo.getFields());
 		}
 	}
 

@@ -67,7 +67,7 @@ public class IntArrayField extends BaseField<int[]>{
 
 	@Override
 	public int[] parseStringEncodedValueButDoNotSet(String value){
-		return GsonTool.GSON.fromJson(value, getKey().getValueType());
+		throw new UnsupportedOperationException();
 	}
 
 	@Override

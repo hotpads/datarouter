@@ -91,7 +91,8 @@ public abstract class InspectNodeDataHandler extends BaseHandler{
 		return mav;
 	}
 
-	protected <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> void addDatabeansToMav(Mav mav, List<D> databeans){
+	protected <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
+	void addDatabeansToMav(Mav mav, List<D> databeans){
 		mav.put("databeans", databeans);
 		List<List<Field<?>>> rowsOfFields = new ArrayList<>();
 		List<String> fieldKeysAndValues = new ArrayList<>();
@@ -117,8 +118,10 @@ public abstract class InspectNodeDataHandler extends BaseHandler{
 		}
 	}
 
-	private <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> Map<String,String> getFieldAbbreviationByFieldName(
-			DatabeanFielder<PK,D> fielder, Collection<? extends D> databeans){
+	private <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
+	Map<String,String> getFieldAbbreviationByFieldName(
+			DatabeanFielder<PK,D> fielder,
+			Collection<? extends D> databeans){
 		if(databeans == null || databeans.isEmpty()){
 			return new HashMap<>();
 		}

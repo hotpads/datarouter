@@ -24,7 +24,6 @@ import io.datarouter.client.mysql.ddl.domain.SqlColumn;
 import io.datarouter.client.mysql.field.codec.base.BaseMysqlFieldCodec;
 import io.datarouter.model.exception.DataAccessException;
 import io.datarouter.model.field.imp.array.ByteArrayField;
-import io.datarouter.model.util.CommonFieldSizes;
 
 public class ByteArrayMysqlFieldCodec
 extends BaseMysqlFieldCodec<byte[],ByteArrayField>{
@@ -62,14 +61,7 @@ extends BaseMysqlFieldCodec<byte[],ByteArrayField>{
 	@Override
 	public MysqlColumnType getMysqlColumnType(){
 		int size = field.getKey().getSize();
-		if(size <= CommonFieldSizes.MAX_LENGTH_VARBINARY){
-			return MysqlColumnType.VARBINARY;
-		}
-		if(size <= CommonFieldSizes.MAX_LENGTH_LONGBLOB){
-			return MysqlColumnType.LONGBLOB;
-		}
-		throw new IllegalArgumentException("Size:" + size + " is larger than max supported size: "
-				+ CommonFieldSizes.MAX_LENGTH_LONGBLOB + " (CommonFieldSizes.MAX_LENGTH_LONGBLOB)");
+		return ByteArrayEncodedMysqlFieldCodec.getMysqlColumnType(size);
 	}
 
 }

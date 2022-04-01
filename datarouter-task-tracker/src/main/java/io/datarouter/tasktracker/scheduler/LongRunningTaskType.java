@@ -15,7 +15,6 @@
  */
 package io.datarouter.tasktracker.scheduler;
 
-import io.datarouter.enums.DatarouterEnumTool;
 import io.datarouter.enums.StringEnum;
 
 public enum LongRunningTaskType implements StringEnum<LongRunningTaskType>{
@@ -39,7 +38,7 @@ public enum LongRunningTaskType implements StringEnum<LongRunningTaskType>{
 	}
 
 	public static LongRunningTaskType fromPersistentStringStatic(String str){
-		return DatarouterEnumTool.getEnumFromString(values(), str, null);
+		return StringEnum.getEnumFromString(values(), str, null);
 	}
 
 	@Override

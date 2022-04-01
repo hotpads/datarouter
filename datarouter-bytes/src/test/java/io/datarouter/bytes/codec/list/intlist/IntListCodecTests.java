@@ -22,7 +22,7 @@ import org.testng.annotations.Test;
 
 public class IntListCodecTests{
 
-	private static final IntListCodec INT_LIST_CODEC = IntListCodec.INSTANCE;
+	private static final IntListCodec CODEC = IntListCodec.INSTANCE;
 
 	@Test
 	public void testToFromByteArray(){
@@ -30,8 +30,8 @@ public class IntListCodecTests{
 		int two = 583;
 		List<Integer> integers = List.of(one, two);
 
-		byte[] integerBytes = INT_LIST_CODEC.encode(integers);
-		List<Integer> result = INT_LIST_CODEC.decode(integerBytes);
+		byte[] integerBytes = CODEC.encode(integers);
+		List<Integer> result = CODEC.decode(integerBytes);
 		Assert.assertEquals(result, integers);
 	}
 

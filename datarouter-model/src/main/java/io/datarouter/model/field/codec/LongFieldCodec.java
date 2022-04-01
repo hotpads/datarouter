@@ -17,16 +17,21 @@ package io.datarouter.model.field.codec;
 
 import java.util.Comparator;
 import java.util.function.Function;
+import java.util.function.Supplier;
+
+import com.google.gson.reflect.TypeToken;
 
 public class LongFieldCodec<T> extends FieldCodec<T,Long>{
 
 	public LongFieldCodec(
-			Class<T> valueClass,
+			TypeToken<T> typeToken,
+			Supplier<Long> encodeNullTo,
 			Function<T,Long> encoder,
+			Supplier<T> decodeNullTo,
 			Function<Long,T> decoder,
 			Comparator<T> comparator,
 			T sampleValue){
-		super(valueClass, encoder, decoder, comparator, sampleValue);
+		super(typeToken, encodeNullTo, encoder, decodeNullTo, decoder, comparator, sampleValue);
 	}
 
 }

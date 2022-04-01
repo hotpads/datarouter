@@ -35,9 +35,9 @@ import java.util.Map.Entry;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
-import io.datarouter.client.memcached.client.MemcachedClientManager;
+import io.datarouter.client.memcached.client.MemcachedClientHolder;
+import io.datarouter.client.memcached.client.SpyMemcachedClient;
 import io.datarouter.client.memcached.client.options.MemcachedOptions;
-import io.datarouter.client.memcached.client.spy.SpyMemcachedClient;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientOptions;
@@ -65,7 +65,7 @@ public class MemcachedWebInspector implements DatarouterClientWebInspector{
 	@Inject
 	private DatarouterWebRequestParamsFactory paramsFactory;
 	@Inject
-	private MemcachedClientManager memcachedClientManager;
+	private MemcachedClientHolder clientHolder;
 	@Inject
 	private MemcachedOptions memcachedOptions;
 
@@ -82,7 +82,7 @@ public class MemcachedWebInspector implements DatarouterClientWebInspector{
 				buildClientPageHeader(clientName),
 				buildOverview(clientId),
 				buildClientOptionsTable(allClientOptions),
-				buildStats(getClient(clientId).getStats()))
+				buildStats(getSpyClient(clientId).getStats()))
 				.withClass("container my-3");
 		return pageFactory.startBuilder(request)
 				.withTitle("Datarouter Client - " + clientOptions.getClientType(clientId))
@@ -91,8 +91,8 @@ public class MemcachedWebInspector implements DatarouterClientWebInspector{
 				.buildMav();
 	}
 
-	protected SpyMemcachedClient getClient(ClientId clientId){
-		return memcachedClientManager.getSpyMemcachedClient(clientId);
+	protected SpyMemcachedClient getSpyClient(ClientId clientId){
+		return clientHolder.get(clientId).getSpyClient();
 	}
 
 	protected Pair<Integer,DivTag> getDetails(ClientId clientId){

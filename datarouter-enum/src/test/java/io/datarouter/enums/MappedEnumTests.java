@@ -26,7 +26,7 @@ public class MappedEnumTests{
 		APPLE("apple"),
 		BANANA("banana");
 
-		private static final MappedEnum<String,Fruit> BY_PERSISTENT_STRING = new MappedEnum<>(
+		private static final MappedEnum<Fruit,String> BY_PERSISTENT_STRING = new MappedEnum<>(
 				values(),
 				value -> value.persistentString);
 

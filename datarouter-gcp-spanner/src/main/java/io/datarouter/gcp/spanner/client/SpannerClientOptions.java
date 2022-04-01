@@ -50,6 +50,11 @@ public class SpannerClientOptions{
 	protected static final String PROP_databaseName = "databaseName";
 	protected static final String PROP_credentialsFileLocation = "credentialsFileLocation";
 	protected static final String PROP_credentialsSecretLocation = "credentialsSecretLocation";
+	protected static final String PROP_maxSessions = "maxSessions";
+	protected static final String PROP_numChannels = "numChannels";
+
+	private static final int DEFAULT_MAX_SESSIONS = 400;
+	private static final int DEFAULT_NUM_CHANNELS = 4;
 
 	@Inject
 	private ClientOptions clientOptions;
@@ -74,6 +79,18 @@ public class SpannerClientOptions{
 
 	public String databaseName(String clientName){
 		return clientOptions.getRequiredString(clientName, makeSpannerKey(PROP_databaseName));
+	}
+
+	public int maxSessions(String clientName){
+		return clientOptions.optString(clientName, makeSpannerKey(PROP_maxSessions))
+				.map(Integer::valueOf)
+				.orElse(DEFAULT_MAX_SESSIONS);
+	}
+
+	public int numChannels(String clientName){
+		return clientOptions.optString(clientName, makeSpannerKey(PROP_numChannels))
+				.map(Integer::valueOf)
+				.orElse(DEFAULT_NUM_CHANNELS);
 	}
 
 	public Credentials credentials(String clientName){

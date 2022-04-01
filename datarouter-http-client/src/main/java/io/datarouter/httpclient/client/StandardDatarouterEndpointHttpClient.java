@@ -220,13 +220,21 @@ implements DatarouterEndpointHttpClient<ET>{
 		return tryExecute(datarouterHttpRequest, responseType);
 	}
 
-	@Override
+	@Override // TODO rename
 	public <E> Conditional<E> callUnchecked(BaseEndpoint<E,?> endpoint){
 		endpoint.setUrlPrefix(urlPrefix.get());
 		DatarouterHttpRequest datarouterHttpRequest = EndpointTool.toDatarouterHttpRequest(endpoint);
 		EndpointTool.findEntity(endpoint).ifPresent(entity -> setEntityDto(datarouterHttpRequest, entity));
 		Type responseType = EndpointTool.getResponseType(endpoint);
 		return tryExecute(datarouterHttpRequest, responseType);
+	}
+
+	@Override
+	public <R> R callRaw(BaseEndpoint<R,ET> endpoint) throws DatarouterHttpException{
+		DatarouterHttpRequest request = EndpointTool.toDatarouterHttpRequest(endpoint);
+		EndpointTool.findEntity(endpoint).ifPresent(entity -> setEntityDto(request, entity));
+		Type responseType = EndpointTool.getResponseType(endpoint);
+		return executeChecked(request, responseType);
 	}
 
 	private void setSecurityProperties(DatarouterHttpRequest request){

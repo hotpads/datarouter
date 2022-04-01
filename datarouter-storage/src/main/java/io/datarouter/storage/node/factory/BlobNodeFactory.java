@@ -17,17 +17,12 @@ package io.datarouter.storage.node.factory;
 
 import java.util.function.Supplier;
 
-import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
-import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
-import io.datarouter.storage.client.ClientType;
-import io.datarouter.storage.client.DatarouterClients;
 import io.datarouter.storage.client.imp.BlobClientNodeFactory;
 import io.datarouter.storage.file.Pathbean;
 import io.datarouter.storage.file.Pathbean.PathbeanFielder;
@@ -39,14 +34,7 @@ import io.datarouter.storage.node.op.raw.BlobStorage.PhysicalBlobStorageNode;
 import io.datarouter.storage.util.Subpath;
 
 @Singleton
-public class BlobNodeFactory{
-
-	@Inject
-	private DatarouterInjector injector;
-	@Inject
-	private Datarouter datarouter;
-	@Inject
-	private DatarouterClients clients;
+public class BlobNodeFactory extends BaseNodeFactory{
 
 	public <PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
@@ -71,9 +59,8 @@ public class BlobNodeFactory{
 				.withBucketName(bucketName)
 				.withPath(path)
 				.build();
-		ClientType<?,?> clientType = clients.getClientTypeInstance(clientId);
-		BlobClientNodeFactory clientFactories = getClientFactories(clientType);
-		return BaseNodeFactory.cast(clientFactories.createBlobNode(params));
+		BlobClientNodeFactory clientFactories = getClientNodeFactory(clientId, BlobClientNodeFactory.class);
+		return cast(clientFactories.createBlobNode(params));
 	}
 
 	public PhysicalBlobStorageNode
@@ -86,10 +73,6 @@ public class BlobNodeFactory{
 				node.getBucket(),
 				fullPath);
 
-	}
-
-	private BlobClientNodeFactory getClientFactories(ClientType<?,?> clientType){
-		return (BlobClientNodeFactory) injector.getInstance(clientType.getClientNodeFactoryClass());
 	}
 
 }

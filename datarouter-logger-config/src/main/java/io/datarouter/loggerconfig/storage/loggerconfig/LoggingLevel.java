@@ -17,7 +17,6 @@ package io.datarouter.loggerconfig.storage.loggerconfig;
 
 import org.apache.logging.log4j.Level;
 
-import io.datarouter.enums.DatarouterEnumTool;
 import io.datarouter.enums.StringEnum;
 
 public enum LoggingLevel implements StringEnum<LoggingLevel>{
@@ -51,7 +50,7 @@ public enum LoggingLevel implements StringEnum<LoggingLevel>{
 	}
 
 	public static LoggingLevel fromString(String string){
-		return DatarouterEnumTool.getEnumFromString(values(), string, null);
+		return StringEnum.getEnumFromString(values(), string, null);
 	}
 
 	public static int getSqlSize(){

@@ -18,6 +18,7 @@ package io.datarouter.storage.node.op.raw.write;
 import java.io.InputStream;
 
 import io.datarouter.scanner.Scanner;
+import io.datarouter.storage.config.Config;
 import io.datarouter.storage.file.PathbeanKey;
 import io.datarouter.storage.node.op.raw.read.BlobStorageReader;
 import io.datarouter.storage.util.Subpath;
@@ -27,7 +28,11 @@ import io.datarouter.storage.util.Subpath;
  */
 public interface BlobStorageWriter extends BlobStorageReader{
 
-	void write(PathbeanKey key, byte[] value);
+	default void write(PathbeanKey key, byte[] value){
+		write(key, value, new Config());
+	}
+
+	void write(PathbeanKey key, byte[] value, Config config);
 
 	void write(PathbeanKey key, Scanner<byte[]> chunks);
 

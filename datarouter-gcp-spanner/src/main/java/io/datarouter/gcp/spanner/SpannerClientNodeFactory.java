@@ -15,43 +15,31 @@
  */
 package io.datarouter.gcp.spanner;
 
-import java.util.List;
-import java.util.function.UnaryOperator;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.gcp.spanner.field.SpannerFieldCodecRegistry;
 import io.datarouter.gcp.spanner.node.SpannerNode;
-import io.datarouter.gcp.spanner.node.entity.SpannerSubEntityNode;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.entity.Entity;
 import io.datarouter.model.key.entity.EntityKey;
 import io.datarouter.model.key.primary.EntityPrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.opencensus.adapter.physical.PhysicalIndexedSortedMapStorageOpencensusAdapter;
-import io.datarouter.opencensus.adapter.physical.PhysicalSubEntitySortedMapStorageOpencensusAdapter;
-import io.datarouter.storage.client.imp.BaseClientNodeFactory;
-import io.datarouter.storage.client.imp.WrappedNodeFactory;
-import io.datarouter.storage.client.imp.WrappedSubEntityNodeFactory;
+import io.datarouter.storage.client.imp.DatabeanClientNodeFactory;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.adapter.availability.PhysicalIndexedSortedMapStorageAvailabilityAdapterFactory;
-import io.datarouter.storage.node.adapter.availability.PhysicalSubEntitySortedMapStorageAvailabilityAdapterFactory;
 import io.datarouter.storage.node.adapter.callsite.physical.PhysicalIndexedSortedMapStorageCallsiteAdapter;
-import io.datarouter.storage.node.adapter.callsite.physical.PhysicalSubEntitySortedMapStorageCallsiteAdapter;
 import io.datarouter.storage.node.adapter.counter.physical.PhysicalIndexedSortedMapStorageCounterAdapter;
-import io.datarouter.storage.node.adapter.counter.physical.PhysicalSubEntitySortedMapStorageCounterAdapter;
 import io.datarouter.storage.node.adapter.sanitization.physical.PhysicalIndexedSortedMapStorageSanitizationAdapter;
-import io.datarouter.storage.node.adapter.sanitization.physical.PhysicalSubEntitySortedMapStorageSanitizationAdapter;
 import io.datarouter.storage.node.adapter.trace.physical.PhysicalIndexedSortedMapStorageTraceAdapter;
-import io.datarouter.storage.node.adapter.trace.physical.PhysicalSubEntitySortedMapStorageTraceAdapter;
 import io.datarouter.storage.node.entity.EntityNodeParams;
-import io.datarouter.storage.node.entity.PhysicalSubEntitySortedMapStorageNode;
-import io.datarouter.storage.node.op.combo.IndexedSortedMapStorage.PhysicalIndexedSortedMapStorageNode;
 import io.datarouter.storage.node.type.index.ManagedNodesHolder;
+import io.datarouter.storage.node.type.physical.PhysicalNode;
 
 @Singleton
-public class SpannerClientNodeFactory extends BaseClientNodeFactory{
+public class SpannerClientNodeFactory
+implements DatabeanClientNodeFactory{
 
 	@Inject
 	private SpannerClientType spannerClientType;
@@ -64,84 +52,31 @@ public class SpannerClientNodeFactory extends BaseClientNodeFactory{
 	@Inject
 	private PhysicalIndexedSortedMapStorageAvailabilityAdapterFactory
 			physicalIndexedSortedMapStorageAvailabilityAdapterFactory;
-	@Inject
-	private PhysicalSubEntitySortedMapStorageAvailabilityAdapterFactory
-			physicalSubEntitySortedMapStorageAvailabilityAdapterFactory;
 
-	public class SpannerWrappedNodeFactory<
-			EK extends EntityKey<EK>,
-			E extends Entity<EK>,
-			PK extends EntityPrimaryKey<EK,PK>,
-			D extends Databean<PK,D>,
-			F extends DatabeanFielder<PK,D>>
-			extends WrappedNodeFactory<EK,E,PK,D,F,PhysicalIndexedSortedMapStorageNode<PK,D,F>>{
-
-		@Override
-		protected PhysicalIndexedSortedMapStorageNode<PK,D,F> createNode(
-				EntityNodeParams<EK,E> entityNodeParams,
-				NodeParams<PK,D,F> nodeParams){
-			return new SpannerNode<>(
-					nodeParams,
-					spannerClientType,
-					managedNodesHolder,
-					spannerClientManager,
-					spannerFieldCodecRegistry);
-		}
-
-		@Override
-		protected List<UnaryOperator<PhysicalIndexedSortedMapStorageNode<PK,D,F>>> getAdapters(){
-			return List.of(
-					PhysicalIndexedSortedMapStorageSanitizationAdapter::new,
-					PhysicalIndexedSortedMapStorageCounterAdapter::new,
-					PhysicalIndexedSortedMapStorageOpencensusAdapter::new,
-					PhysicalIndexedSortedMapStorageTraceAdapter::new,
-					physicalIndexedSortedMapStorageAvailabilityAdapterFactory::create,
-					PhysicalIndexedSortedMapStorageCallsiteAdapter::new);
-		}
-	}
-
-	public class SpannerWrappedSubEntityNodeFactory<
-			EK extends EntityKey<EK>,
-			E extends Entity<EK>,
-			PK extends EntityPrimaryKey<EK,PK>,
-			D extends Databean<PK,D>,
-			F extends DatabeanFielder<PK,D>>
-	extends WrappedSubEntityNodeFactory<EK,E,PK,D,F,PhysicalSubEntitySortedMapStorageNode<EK,PK,D,F>>{
-
-		@Override
-		protected PhysicalSubEntitySortedMapStorageNode<EK,PK,D,F> createSubEntityNode(
-				EntityNodeParams<EK,E> entityNodeParams,
-				NodeParams<PK,D,F> nodeParams){
-			return new SpannerSubEntityNode<>(nodeParams,
-					spannerClientType,
-					entityNodeParams,
-					managedNodesHolder,
-					spannerClientManager,
-					spannerFieldCodecRegistry);
-		}
-
-		@Override
-		protected List<UnaryOperator<PhysicalSubEntitySortedMapStorageNode<EK,PK,D,F>>> getAdapters(){
-			return List.of(
-					PhysicalSubEntitySortedMapStorageSanitizationAdapter::new,
-					PhysicalSubEntitySortedMapStorageCounterAdapter::new,
-					PhysicalSubEntitySortedMapStorageOpencensusAdapter::new,
-					PhysicalSubEntitySortedMapStorageTraceAdapter::new,
-					physicalSubEntitySortedMapStorageAvailabilityAdapterFactory::create,
-					PhysicalSubEntitySortedMapStorageCallsiteAdapter::new);
-		}
-
-	}
+	/*---------------- DatabeanClientNodeFactory ------------------*/
 
 	@Override
-	protected <
-			EK extends EntityKey<EK>,
+	public <EK extends EntityKey<EK>,
 			E extends Entity<EK>,
 			PK extends EntityPrimaryKey<EK,PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
-	WrappedNodeFactory<EK,E,PK,D,F,?> makeWrappedNodeFactory(){
-		return new SpannerWrappedNodeFactory<>();
+	PhysicalNode<PK,D,F> createDatabeanNode(
+			EntityNodeParams<EK,E> entityNodeParams,
+			NodeParams<PK,D,F> nodeParams){
+		var node = new SpannerNode<>(
+				nodeParams,
+				spannerClientType,
+				managedNodesHolder,
+				spannerClientManager,
+				spannerFieldCodecRegistry);
+		return new PhysicalIndexedSortedMapStorageCallsiteAdapter<>(
+				new PhysicalIndexedSortedMapStorageSanitizationAdapter<>(
+				physicalIndexedSortedMapStorageAvailabilityAdapterFactory.create(
+				new PhysicalIndexedSortedMapStorageCounterAdapter<>(
+				new PhysicalIndexedSortedMapStorageTraceAdapter<>(
+				//custom OpencensusAdapter goes inside TraceAdapter
+				new PhysicalIndexedSortedMapStorageOpencensusAdapter<>(node))))));
 	}
 
 }

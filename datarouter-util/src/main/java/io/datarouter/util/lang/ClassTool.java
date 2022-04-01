@@ -15,6 +15,7 @@
  */
 package io.datarouter.util.lang;
 
+import java.lang.reflect.Type;
 import java.util.Optional;
 
 import io.datarouter.util.string.StringTool;
@@ -106,6 +107,37 @@ public class ClassTool{
 			return Optional.of(result);
 		}
 		return Optional.empty();
+	}
+
+	public static Type getBoxedFromPrimitive(Type type){
+		if(type.equals(boolean.class)){
+			return Boolean.class;
+		}
+		if(type.equals(byte.class)){
+			return Byte.class;
+		}
+		if(type.equals(char.class)){
+			return Character.class;
+		}
+		if(type.equals(double.class)){
+			return Double.class;
+		}
+		if(type.equals(float.class)){
+			return Float.class;
+		}
+		if(type.equals(int.class)){
+			return Integer.class;
+		}
+		if(type.equals(long.class)){
+			return Long.class;
+		}
+		if(type.equals(short.class)){
+			return Short.class;
+		}
+		if(type.equals(void.class)){
+			return Void.class;
+		}
+		return null;
 	}
 
 }

@@ -5,15 +5,15 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import io.datarouter.bytes.ByteTool;
 import io.datarouter.bytes.InputStreamTool;
-import io.datarouter.client.redis.RedisBlobCodec;
-import io.datarouter.client.redis.client.RedisClientManager;
-import io.datarouter.client.redis.client.RedisOps;
+import io.datarouter.client.redis.client.DatarouterRedisClient;
+import io.datarouter.client.redis.codec.RedisBlobCodec;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientType;
+import io.datarouter.storage.config.Config;
 import io.datarouter.storage.file.Pathbean;
 import io.datarouter.storage.file.Pathbean.PathbeanFielder;
 import io.datarouter.storage.file.PathbeanKey;
@@ -23,36 +23,27 @@ import io.datarouter.storage.node.type.physical.base.BasePhysicalNode;
 import io.datarouter.storage.util.Subpath;
 import io.datarouter.util.tuple.Twin;
 import io.lettuce.core.KeyValue;
-import io.lettuce.core.cluster.api.async.RedisClusterAsyncCommands;
 
 public class RedisBlobNode
 extends BasePhysicalNode<PathbeanKey,Pathbean,PathbeanFielder>
 implements PhysicalBlobStorageNode{
 
-	private final ClientId clientId;
+	private final Supplier<DatarouterRedisClient> lazyClient;
 	private final String bucket;
 	private final Subpath rootPath;
 	private final Integer schemaVersion;
 	private final RedisBlobCodec codec;
-	private final RedisClientManager redisClientManager;
-	private final RedisOps ops;
 
 	public RedisBlobNode(
 			NodeParams<PathbeanKey,Pathbean,PathbeanFielder> params,
 			ClientType<?,?> clientType,
-			RedisClientManager redisClientManager){
+			Supplier<DatarouterRedisClient> lazyClient){
 		super(params, clientType);
-		this.clientId = params.getClientId();
+		this.lazyClient = lazyClient;
 		this.bucket = params.getPhysicalName();
 		this.rootPath = params.getPath();
 		this.schemaVersion = Optional.ofNullable(params.getSchemaVersion()).orElse(1);
 		this.codec = new RedisBlobCodec(schemaVersion);
-		this.redisClientManager = redisClientManager;
-		this.ops = new RedisOps(client());
-	}
-
-	private RedisClusterAsyncCommands<byte[],byte[]> client(){
-		return redisClientManager.getClient(clientId);
 	}
 
 	/*------------- BlobStorageReader --------------*/
@@ -69,13 +60,13 @@ implements PhysicalBlobStorageNode{
 
 	@Override
 	public boolean exists(PathbeanKey key){
-		return ops.exists(codec.encodeKey(key));
+		return lazyClient.get().exists(codec.encodeKey(key));
 	}
 
 	@Override
 	public Optional<Long> length(PathbeanKey key){
 		byte[] byteKey = codec.encodeKey(key);
-		return ops.find(byteKey)
+		return lazyClient.get().find(byteKey)
 				.map(value -> value.length)
 				.map(Integer::longValue);
 	}
@@ -83,13 +74,13 @@ implements PhysicalBlobStorageNode{
 	@Override
 	public byte[] read(PathbeanKey key){
 		byte[] byteKey = codec.encodeKey(key);
-		return ops.find(byteKey).orElse(null);
+		return lazyClient.get().find(byteKey).orElse(null);
 	}
 
 	@Override
 	public byte[] read(PathbeanKey key, long offset, int length){
 		byte[] byteKey = codec.encodeKey(key);
-		return ops.mget(List.of(byteKey))
+		return lazyClient.get().mget(List.of(byteKey))
 				.findFirst()
 				.map(KeyValue::getValue)
 				.map(bytes -> ByteTool.copyOfRange(bytes, (int)offset, length))
@@ -112,14 +103,14 @@ implements PhysicalBlobStorageNode{
 	}
 
 	@Override
-	public void write(PathbeanKey key, byte[] value){
-		ops.set(Twin.of(codec.encodeKey(key), value));
+	public void write(PathbeanKey key, byte[] value, Config config){
+		lazyClient.get().set(Twin.of(codec.encodeKey(key), value));
 	}
 
 	@Override
 	public void write(PathbeanKey key, Scanner<byte[]> chunks){
 		byte[] bytes = chunks.listTo(ByteTool::concat);
-		ops.set(Twin.of(codec.encodeKey(key), bytes));
+		lazyClient.get().set(Twin.of(codec.encodeKey(key), bytes));
 	}
 
 	@Override
@@ -131,7 +122,7 @@ implements PhysicalBlobStorageNode{
 
 	@Override
 	public void delete(PathbeanKey key){
-		ops.del(codec.encodeKey(key));
+		lazyClient.get().del(codec.encodeKey(key));
 	}
 
 	@Override

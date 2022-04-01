@@ -15,9 +15,9 @@
  */
 package io.datarouter.web.handler;
 
+import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -97,7 +97,7 @@ public class TestApiHandler extends BaseHandler{
 	 */
 	@Handler
 	public Date now(){
-		return Calendar.getInstance().getTime();
+		return Date.from(Instant.now());
 	}
 
 	public static class FooBar{
@@ -118,14 +118,14 @@ public class TestApiHandler extends BaseHandler{
 
 	@Handler
 	public FooBar banana(){
-		FooBar dto = new FooBar("hello", 42, Calendar.getInstance().getTime());
+		FooBar dto = new FooBar("hello", 42, Date.from(Instant.now()));
 		return dto;
 	}
 
 	@Handler
 	public Collection<FooBar> bananas(){
-		FooBar dto = new FooBar("hello", 42, Calendar.getInstance().getTime());
-		FooBar otd = new FooBar("world", 24, Calendar.getInstance().getTime());
+		FooBar dto = new FooBar("hello", 42, Date.from(Instant.now()));
+		FooBar otd = new FooBar("world", 24, Date.from(Instant.now()));
 		return List.of(dto, otd);
 	}
 

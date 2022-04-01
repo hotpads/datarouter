@@ -17,11 +17,22 @@ package io.datarouter.model.field.codec;
 
 import java.util.Comparator;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
+import com.google.gson.reflect.TypeToken;
+
+/**
+ * Allows a databean field to be different than the database's type.
+ *
+ * To allow nulls in the database combined with codecs that reject nulls, there are separate fields to specify
+ * what to do with nulls.
+ */
 public class FieldCodec<A,B>{
 
-	private final Class<A> valueClass;
+	private final TypeToken<A> typeToken;
+	private final Supplier<B> encodeNullTo;
 	private final Function<A,B> encoder;
+	private final Supplier<A> decodeNullTo;
 	private final Function<B,A> decoder;
 
 	/**
@@ -31,28 +42,32 @@ public class FieldCodec<A,B>{
 	private final A sampleValue;
 
 	public FieldCodec(
-			Class<A> valueClass,
+			TypeToken<A> typeToken,
+			Supplier<B> encodeNullTo,
 			Function<A,B> encoder,
+			Supplier<A> decodeNullTo,
 			Function<B,A> decoder,
 			Comparator<A> comparator,
 			A sampleValue){
-		this.valueClass = valueClass;
+		this.typeToken = typeToken;
+		this.encodeNullTo = encodeNullTo;
 		this.encoder = encoder;
+		this.decodeNullTo = decodeNullTo;
 		this.decoder = decoder;
 		this.comparator = Comparator.nullsFirst(comparator);
 		this.sampleValue = sampleValue;
 	}
 
-	public Class<A> getValueClass(){
-		return valueClass;
+	public TypeToken<A> getTypeToken(){
+		return typeToken;
 	}
 
 	public B encode(A value){
-		return value == null ? null : encoder.apply(value);
+		return value == null ? encodeNullTo.get() : encoder.apply(value);
 	}
 
 	public A decode(B encodedValue){
-		return encodedValue == null ? null : decoder.apply(encodedValue);
+		return encodedValue == null ? decodeNullTo.get() : decoder.apply(encodedValue);
 	}
 
 	public Comparator<A> getComparator(){

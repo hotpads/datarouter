@@ -32,10 +32,9 @@ public class ByteArrayFieldTests{
 				-0x80,
 				-0x12
 		};
-		ByteArrayField byteArrayField = new ByteArrayField(new ByteArrayFieldKey("testField"),
-				value);
-		byte[] encodedDecodedValue = byteArrayField.parseStringEncodedValueButDoNotSet(byteArrayField
-				.getStringEncodedValue());
+		ByteArrayField byteArrayField = new ByteArrayField(new ByteArrayFieldKey("testField"), value);
+		byte[] encodedDecodedValue = byteArrayField.parseStringEncodedValueButDoNotSet(
+				byteArrayField.getStringEncodedValue());
 		Assert.assertEquals(encodedDecodedValue, value);
 	}
 

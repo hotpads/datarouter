@@ -15,7 +15,7 @@
  */
 package io.datarouter.ratelimiter;
 
-import java.util.Calendar;
+import java.time.Instant;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -47,7 +47,7 @@ public abstract class BaseRateLimiter{
 	}
 
 	public final boolean allowed(String dynamicKey){
-		Pair<Boolean,Calendar> allowed = internalAllow(makeKey(dynamicKey), true);
+		Pair<Boolean,Instant> allowed = internalAllow(makeKey(dynamicKey), true);
 		if(allowed.getLeft()){
 			Counters.inc(COUNTER_PREFIX + name + " allowed");
 		}else{
@@ -62,14 +62,14 @@ public abstract class BaseRateLimiter{
 
 	public final boolean allowedForIp(String dynamicKey, HttpServletRequest request){
 		String ip = RequestTool.getIpAddress(request);
-		Pair<Boolean,Calendar> allowed = internalAllow(makeKey(dynamicKey,ip), true);
+		Pair<Boolean,Instant> allowed = internalAllow(makeKey(dynamicKey,ip), true);
 		if(allowed.getLeft()){
 			Counters.inc(COUNTER_PREFIX + "ip " + name + " allowed");
 		}else{
 			logger.info("RateLimiter={} limit reached for ip={}, next allowed {}",
 					name,
 					RequestTool.getIpAddress(request),
-					DateTool.getYyyyMmDdHhMmSsMmmWithPunctuationNoSpaces(allowed.getRight().getTimeInMillis()));
+					DateTool.getYyyyMmDdHhMmSsMmmWithPunctuationNoSpaces(allowed.getRight().toEpochMilli()));
 			Counters.inc(COUNTER_PREFIX + "ip " + name + " limit reached");
 		}
 		return allowed.getLeft();
@@ -83,6 +83,6 @@ public abstract class BaseRateLimiter{
 		return name;
 	}
 
-	protected abstract Pair<Boolean,Calendar> internalAllow(String key, boolean increment);
+	protected abstract Pair<Boolean,Instant> internalAllow(String key, boolean increment);
 
 }

@@ -30,6 +30,7 @@ import io.datarouter.instrumentation.exception.HttpRequestRecordDto;
 import io.datarouter.instrumentation.trace.Traceparent;
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
+import io.datarouter.model.field.codec.DateToLongFieldCodec;
 import io.datarouter.model.field.imp.DateField;
 import io.datarouter.model.field.imp.DateFieldKey;
 import io.datarouter.model.field.imp.StringField;
@@ -38,10 +39,10 @@ import io.datarouter.model.field.imp.array.ByteArrayField;
 import io.datarouter.model.field.imp.array.ByteArrayFieldKey;
 import io.datarouter.model.field.imp.comparable.IntegerField;
 import io.datarouter.model.field.imp.comparable.IntegerFieldKey;
+import io.datarouter.model.field.imp.comparable.LongEncodedField;
+import io.datarouter.model.field.imp.comparable.LongEncodedFieldKey;
 import io.datarouter.model.field.imp.comparable.LongField;
 import io.datarouter.model.field.imp.comparable.LongFieldKey;
-import io.datarouter.model.field.imp.custom.LongDateField;
-import io.datarouter.model.field.imp.custom.LongDateFieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 import io.datarouter.model.serialize.fielder.Fielder;
 import io.datarouter.model.util.CommonFieldSizes;
@@ -103,7 +104,9 @@ extends BaseDatabean<PK,D>{
 	public static class FieldKeys{
 		@SuppressWarnings("deprecation")
 		public static final DateFieldKey created = new DateFieldKey("created");
-		public static final LongDateFieldKey receivedAt = new LongDateFieldKey("receivedAt");
+		public static final LongEncodedFieldKey<Date> receivedAt = new LongEncodedFieldKey<>(
+				"receivedAt",
+				new DateToLongFieldCodec());
 		public static final LongFieldKey duration = new LongFieldKey("duration");
 		public static final StringFieldKey exceptionRecordId = new StringFieldKey("exceptionRecordId");
 		public static final StringFieldKey traceId = new StringFieldKey("traceId")
@@ -167,7 +170,7 @@ extends BaseDatabean<PK,D>{
 		public List<Field<?>> getNonKeyFields(D record){
 			return List.of(
 					new DateField(FieldKeys.created, record.getCreated()),
-					new LongDateField(FieldKeys.receivedAt, record.getReceivedAt()),
+					new LongEncodedField<>(FieldKeys.receivedAt, record.getReceivedAt()),
 					new LongField(FieldKeys.duration, record.getDuration()),
 
 					new StringField(FieldKeys.exceptionRecordId, record.getExceptionRecordId()),

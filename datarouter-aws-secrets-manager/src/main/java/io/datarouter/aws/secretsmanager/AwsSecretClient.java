@@ -33,6 +33,8 @@ import com.amazonaws.services.secretsmanager.model.ResourceNotFoundException;
 import com.amazonaws.services.secretsmanager.model.SecretListEntry;
 import com.amazonaws.services.secretsmanager.model.UpdateSecretRequest;
 
+import io.datarouter.instrumentation.trace.TraceSpanGroupType;
+import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.secret.client.Secret;
 import io.datarouter.secret.client.SecretClient;
 import io.datarouter.secret.exception.SecretExistsException;
@@ -63,7 +65,10 @@ public class AwsSecretClient implements SecretClient{
 				.withName(secret.getName())
 				.withSecretString(secret.getValue());
 		try{
-			client.createSecret(request);
+			try(var $ = TracerTool.startSpan("AWSSecretsManager createSecret", TraceSpanGroupType.CLOUD_STORAGE)){
+				TracerTool.appendToSpanInfo(secret.getName());
+				client.createSecret(request);
+			}
 		}catch(ResourceExistsException e){
 			throw new SecretExistsException(secret.getName(), e);
 		}
@@ -78,7 +83,11 @@ public class AwsSecretClient implements SecretClient{
 				// .withVersionId("")// manual version
 				// .withVersionStage("")// related to AWS rotation
 		try{
-			GetSecretValueResult result = client.getSecretValue(request);
+			GetSecretValueResult result;
+			try(var $ = TracerTool.startSpan("AWSSecretsManager getSecretValue", TraceSpanGroupType.CLOUD_STORAGE)){
+				TracerTool.appendToSpanInfo(name);
+				result = client.getSecretValue(request);
+			}
 			return new Secret(name, result.getSecretString());
 		}catch(ResourceNotFoundException e){
 			throw new SecretNotFoundException(name, e);
@@ -91,7 +100,12 @@ public class AwsSecretClient implements SecretClient{
 		String nextToken = null;
 		do{
 			var request = new ListSecretsRequest().withNextToken(nextToken);
-			ListSecretsResult result = client.listSecrets(request);
+			ListSecretsResult result;
+			try(var $ = TracerTool.startSpan("AWSSecretsManager listSecrets", TraceSpanGroupType.CLOUD_STORAGE)){
+				TracerTool.appendToSpanInfo(prefix.orElse(""));
+				result = client.listSecrets(request);
+				TracerTool.appendToSpanInfo("count", result.getSecretList().size());
+			}
 			nextToken = result.getNextToken();
 			result.getSecretList().stream()
 					.map(SecretListEntry::getName)
@@ -111,7 +125,10 @@ public class AwsSecretClient implements SecretClient{
 				.withSecretId(secret.getName())
 				.withSecretString(secret.getValue());
 		try{
-			client.updateSecret(request);
+			try(var $ = TracerTool.startSpan("AWSSecretsManager updateSecret", TraceSpanGroupType.CLOUD_STORAGE)){
+				TracerTool.appendToSpanInfo(secret.getName());
+				client.updateSecret(request);
+			}
 		}catch(ResourceExistsException e){
 			throw new SecretExistsException("Requested update already exists.", secret.getName(), e);
 		}catch(ResourceNotFoundException e){
@@ -127,7 +144,10 @@ public class AwsSecretClient implements SecretClient{
 				// .withForceDeleteWithoutRecovery(true)//might be useful at some point?
 				// .withRecoveryWindowInDays(0L);//7-30 days to undelete. default 30
 		try{
-			client.deleteSecret(request);
+			try(var $ = TracerTool.startSpan("AWSSecretsManager deleteSecret", TraceSpanGroupType.CLOUD_STORAGE)){
+				TracerTool.appendToSpanInfo(name);
+				client.deleteSecret(request);
+			}
 		}catch(ResourceNotFoundException e){
 			throw new SecretNotFoundException(name, e);
 		}

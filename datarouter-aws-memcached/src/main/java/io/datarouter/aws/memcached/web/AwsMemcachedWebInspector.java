@@ -19,7 +19,6 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.ul;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
@@ -45,7 +44,8 @@ public class AwsMemcachedWebInspector extends MemcachedWebInspector{
 		MemcachedClientMode mode = options.getClientMode(clientId.getName());
 		Pair<Integer,DivTag> nodeCountByNodeTag = new Pair<>();
 		if(mode == MemcachedClientMode.DYNAMIC){
-			List<AwsMemcachedNodeEndpointDto> nodeEndpointDtos = Scanner.of(getClient(clientId).getAllNodeEndPoints())
+			List<AwsMemcachedNodeEndpointDto> nodeEndpointDtos = Scanner.of(getSpyClient(clientId)
+							.getAllNodeEndPoints())
 					.map(nodeEndPoint -> new AwsMemcachedNodeEndpointDto(
 							nodeEndPoint.getHostName(),
 							nodeEndPoint.getIpAddress(),
@@ -64,10 +64,10 @@ public class AwsMemcachedWebInspector extends MemcachedWebInspector{
 			nodeCountByNodeTag.setRight(divTable);
 
 		}else{
-			List<LiTag> socketAddresses = getClient(clientId).getAvailableServers().stream()
+			List<LiTag> socketAddresses = Scanner.of(getSpyClient(clientId).getAvailableServers())
 					.map(Object::toString)
 					.map(TagCreator::li)
-					.collect(Collectors.toList());
+					.list();
 			DivTag div = div(ul(socketAddresses.toArray(new ContainerTag[0])));
 			nodeCountByNodeTag.setLeft(socketAddresses.size());
 			nodeCountByNodeTag.setRight(div);

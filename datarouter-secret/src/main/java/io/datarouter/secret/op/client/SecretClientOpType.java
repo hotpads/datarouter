@@ -15,7 +15,6 @@
  */
 package io.datarouter.secret.op.client;
 
-import io.datarouter.enums.DatarouterEnumTool;
 import io.datarouter.enums.StringEnum;
 
 public enum SecretClientOpType implements StringEnum<SecretClientOpType>{
@@ -42,7 +41,7 @@ public enum SecretClientOpType implements StringEnum<SecretClientOpType>{
 
 	@Override
 	public SecretClientOpType fromPersistentString(String string){
-		return DatarouterEnumTool.getEnumFromString(values(), string, null);
+		return StringEnum.getEnumFromString(values(), string, null);
 	}
 
 }

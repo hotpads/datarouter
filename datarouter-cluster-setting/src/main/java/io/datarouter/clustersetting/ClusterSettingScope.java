@@ -15,7 +15,6 @@
  */
 package io.datarouter.clustersetting;
 
-import io.datarouter.enums.DatarouterEnumTool;
 import io.datarouter.enums.StringEnum;
 import io.datarouter.storage.servertype.ServerType;
 import io.datarouter.util.lang.ObjectTool;
@@ -40,7 +39,7 @@ public enum ClusterSettingScope implements StringEnum<ClusterSettingScope>{
 	}
 
 	public static ClusterSettingScope fromPersistentStringStatic(String str){
-		return DatarouterEnumTool.getEnumFromString(values(), str, null);
+		return StringEnum.getEnumFromString(values(), str, null);
 	}
 
 	@Override

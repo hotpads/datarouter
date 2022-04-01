@@ -32,7 +32,7 @@ import io.datarouter.storage.config.Config;
 import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.IndexingNodeFactory;
-import io.datarouter.storage.node.factory.SettinglessNodeFactory;
+import io.datarouter.storage.node.factory.SettinglessDatabeanNodeFactory;
 import io.datarouter.storage.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
 import io.datarouter.storage.node.op.index.IndexReader;
 import io.datarouter.storage.tag.Tag;
@@ -63,7 +63,7 @@ public class DatarouterClusterSettingLogDao extends BaseDao{
 	@Inject
 	public DatarouterClusterSettingLogDao(
 			Datarouter datarouter,
-			SettinglessNodeFactory settinglessNodeFactory,
+			SettinglessDatabeanNodeFactory settinglessNodeFactory,
 			DatarouterClusterSettingLogDaoParams params,
 			IndexingNodeFactory indexingNodeFactory){
 		super(datarouter);

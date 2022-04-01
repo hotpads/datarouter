@@ -67,7 +67,7 @@ public class LongArrayField extends BaseField<long[]>{
 
 	@Override
 	public long[] parseStringEncodedValueButDoNotSet(String value){
-		return GsonTool.GSON.fromJson(value, getKey().getValueType());
+		throw new UnsupportedOperationException();
 	}
 
 	@Override

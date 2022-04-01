@@ -23,9 +23,4 @@ public class ShortFieldKey extends PrimitiveFieldKey<Short,ShortFieldKey>{
 		super(name, Short.class);
 	}
 
-	@Override
-	public ShortField createValueField(Short value){
-		return new ShortField(this, value);
-	}
-
 }

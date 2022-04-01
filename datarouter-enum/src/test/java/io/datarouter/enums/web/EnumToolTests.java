@@ -18,7 +18,6 @@ package io.datarouter.enums.web;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.enums.DatarouterEnumTool;
 import io.datarouter.enums.DisplayablePersistentString;
 import io.datarouter.enums.StringEnum;
 
@@ -54,40 +53,25 @@ public class EnumToolTests{
 
 		@Override
 		public Fruit fromPersistentString(String text){
-			return DatarouterEnumTool.getEnumFromString(values(), text, null, false);
+			return StringEnum.getEnumFromStringCaseInsensitive(values(), text, null);
 		}
 	}
 
 	@Test
-	public void testGetHtmlSelectOptions(){
-		Assert.assertEquals(EnumTool.getHtmlSelectOptions(Fruit.values(), Fruit.UNKNOWN.persistentString).size(), Fruit
-				.values().length - 1);
-		Assert.assertEquals(EnumTool.getHtmlSelectOptions(Fruit.values(), Fruit.UNKNOWN.persistentString,
-				Fruit.EFRUIT.persistentString).size(), Fruit.values().length - 2);
-		Assert.assertEquals(EnumTool.getHtmlSelectOptions(Fruit.values()).size(), Fruit.values().length);
-		Assert.assertEquals(EnumTool.getHtmlSelectOptions(Fruit.values(), (String)null).size(), Fruit.values().length);
-	}
-
-	@Test
 	public void testFromPersistentString(){
-		Assert.assertEquals(DatarouterEnumTool.getEnumFromString(Fruit.values(), "fig", null), Fruit.FIG);
-		Assert.assertNull(DatarouterEnumTool.getEnumFromString(Fruit.values(), "FIG", null));
-		Assert.assertNull(DatarouterEnumTool.getEnumFromString(Fruit.values(), "fiG", null, true));
-		Assert.assertEquals(DatarouterEnumTool.getEnumFromString(Fruit.values(), "fiG", null, false), Fruit.FIG);
+		Assert.assertEquals(StringEnum.getEnumFromString(Fruit.values(), "fig", null), Fruit.FIG);
+		Assert.assertNull(StringEnum.getEnumFromString(Fruit.values(), "FIG", null));
+		Assert.assertNull(StringEnum.getEnumFromString(Fruit.values(), "fiG", null));
+		Assert.assertEquals(StringEnum.getEnumFromStringCaseInsensitive(Fruit.values(), "fiG", null), Fruit.FIG);
 	}
 
 	@Test
 	public void testGetEnumFromName(){
-		Assert.assertEquals(EnumTool.getEnumFromName(Fruit.values(), "fig", Fruit.UNKNOWN), Fruit.FIG);
-		Assert.assertEquals(EnumTool.getEnumFromName(Fruit.values(), "pineapple", Fruit.UNKNOWN), Fruit.UNKNOWN);
-		Assert.assertEquals(EnumTool.getEnumFromName(Fruit.values(), "fiG", Fruit.UNKNOWN), Fruit.FIG);
-	}
-
-	@Test
-	public void testGetEnumFromDisplay(){
-		Assert.assertEquals(EnumTool.getEnumFromDisplay(Fruit.values(), "fig", Fruit.UNKNOWN), Fruit.FIG);
-		Assert.assertEquals(EnumTool.getEnumFromDisplay(Fruit.values(), "pineapple", Fruit.UNKNOWN), Fruit.UNKNOWN);
-		Assert.assertEquals(EnumTool.getEnumFromDisplay(Fruit.values(), "fiG", Fruit.UNKNOWN), Fruit.FIG);
+		Assert.assertEquals(EnumTool.getEnumFromNameCaseInsensitive(Fruit.values(), "fig", Fruit.UNKNOWN), Fruit.FIG);
+		Assert.assertEquals(
+				EnumTool.getEnumFromNameCaseInsensitive(Fruit.values(), "pineapple", Fruit.UNKNOWN),
+				Fruit.UNKNOWN);
+		Assert.assertEquals(EnumTool.getEnumFromNameCaseInsensitive(Fruit.values(), "fiG", Fruit.UNKNOWN), Fruit.FIG);
 	}
 
 }

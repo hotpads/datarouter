@@ -15,7 +15,6 @@
  */
 package io.datarouter.trace.storage.span;
 
-import io.datarouter.enums.DatarouterEnumTool;
 import io.datarouter.enums.StringEnum;
 import io.datarouter.instrumentation.trace.TraceSpanGroupType;
 
@@ -51,7 +50,7 @@ public enum Trace2SpanGroupType implements StringEnum<Trace2SpanGroupType>{
 	}
 
 	public static Trace2SpanGroupType fromPersistentStringStatic(String str){
-		return DatarouterEnumTool.getEnumFromString(values(), str, null);
+		return StringEnum.getEnumFromString(values(), str, null);
 	}
 
 }

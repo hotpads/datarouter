@@ -17,10 +17,18 @@ package io.datarouter.model.field.codec;
 
 import java.util.Date;
 
+import com.google.gson.reflect.TypeToken;
+
 public class DateToLongFieldCodec extends LongFieldCodec<Date>{
 
 	public DateToLongFieldCodec(){
-		super(Date.class, Date::getTime, Date::new, Date::compareTo, new Date(3));
+		super(TypeToken.get(Date.class),
+				() -> null,
+				Date::getTime,
+				() -> null,
+				Date::new,
+				Date::compareTo,
+				new Date(0));
 	}
 
 }

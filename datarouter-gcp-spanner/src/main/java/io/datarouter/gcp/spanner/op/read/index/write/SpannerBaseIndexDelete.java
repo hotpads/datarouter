@@ -27,9 +27,9 @@ import com.google.cloud.spanner.Key.Builder;
 import com.google.cloud.spanner.KeySet;
 import com.google.cloud.spanner.Mutation;
 import com.google.cloud.spanner.Options;
+import com.google.cloud.spanner.Options.ReadOption;
 import com.google.cloud.spanner.ResultSet;
 import com.google.cloud.spanner.TransactionContext;
-import com.google.cloud.spanner.TransactionRunner;
 import com.google.cloud.spanner.TransactionRunner.TransactionCallable;
 
 import io.datarouter.gcp.spanner.field.SpannerBaseFieldCodec;
@@ -79,38 +79,34 @@ extends SpannerBaseOp<Void>{
 			return null;
 		}
 		String indexName = getIndexName(keys.iterator().next());
-		TransactionRunner runner = client.readWriteTransaction();
-		TransactionCallable<Void> txn = new TransactionCallable<>(){
 
+		TransactionCallable<Void> txn = new TransactionCallable<>(){
 			@Nullable
 			@Override
 			public Void run(TransactionContext transactionContext){
-				ResultSet rs;
-				if(config.getLimit() != null){
-					rs = transactionContext.readUsingIndex(
-							tableName,
-							indexName,
-							buildKeySet(),
-							fieldInfo.getPrimaryKeyFieldColumnNames(),
-							Options.limit(config.getLimit()));
-				}else{
-					rs = transactionContext.readUsingIndex(
-							tableName,
-							indexName,
-							buildKeySet(),
-							fieldInfo.getPrimaryKeyFieldColumnNames());
+				ReadOption[] readOptions = config.findLimit()
+						.map(limit -> new ReadOption[]{Options.limit(limit)})
+						.orElseGet(() -> new ReadOption[]{});
+				try(ResultSet rs = transactionContext.readUsingIndex(
+						tableName,
+						indexName,
+						buildKeySet(),
+						fieldInfo.getPrimaryKeyFieldColumnNames(),
+						readOptions)){
+					List<PK> keyList = createFromResultSet(
+							rs,
+							fieldInfo.getPrimaryKeySupplier(),
+							fieldInfo.getPrimaryKeyFields());
+					Scanner.of(keyList)
+							.map(key -> keyToDeleteMutation(key))
+							.flush(transactionContext::buffer);
 				}
-				List<PK> keyList = createFromResultSet(
-						rs,
-						fieldInfo.getPrimaryKeySupplier(),
-						fieldInfo.getPrimaryKeyFields());
-				Scanner.of(keyList)
-						.map(key -> keyToDeleteMutation(key))
-						.flush(transactionContext::buffer);
 				return null;
 			}
 		};
-		runner.run(txn);
+
+		client.readWriteTransaction().run(txn);
+
 		return null;
 	}
 

@@ -15,7 +15,6 @@
  */
 package io.datarouter.clustersetting;
 
-import io.datarouter.enums.DatarouterEnumTool;
 import io.datarouter.enums.StringEnum;
 
 public enum ClusterSettingLogAction implements StringEnum<ClusterSettingLogAction>{
@@ -40,7 +39,7 @@ public enum ClusterSettingLogAction implements StringEnum<ClusterSettingLogActio
 	}
 
 	public static ClusterSettingLogAction fromPersistentStringStatic(String str){
-		return DatarouterEnumTool.getEnumFromString(values(), str, null);
+		return StringEnum.getEnumFromString(values(), str, null);
 	}
 
 }

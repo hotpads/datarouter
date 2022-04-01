@@ -228,11 +228,12 @@ public class MysqlClientManager extends BaseClientManager implements MysqlConnec
 			// jdbc standard says that autoCommit=true by default on each new connection
 			if(!autoCommit){
 				connection.setAutoCommit(false);
-				logger.debug("setAutoCommit=" + false + " on " + getExistingHandle(clientId));
+				logger.debug("setAutoCommit={} on {}", false, getExistingHandle(clientId));
 				if(connection.getTransactionIsolation() != isolation.getJdbcVal().intValue()){
 					connection.setTransactionIsolation(isolation.getJdbcVal());
-					logger.debug("setTransactionIsolation=" + isolation.toString() + " on " + getExistingHandle(
-							clientId));
+					logger.debug("setTransactionIsolation={} on {}",
+							isolation.toString(),
+							getExistingHandle(clientId));
 				}
 			}
 			DatarouterCounters.incClient(clientType, "beginTxn", clientId.getName(), 1L);
@@ -265,7 +266,9 @@ public class MysqlClientManager extends BaseClientManager implements MysqlConnec
 			Connection connection = getExistingConnection(clientId);
 			if(connection == null){
 				logger.warn("couldn't rollback txn because connection was null clientName={} handle={}",
-						clientId.getName(), getExistingHandle(clientId), new Exception());
+						clientId.getName(),
+						getExistingHandle(clientId),
+						new Exception());
 			}else if(!connection.getAutoCommit()){
 				logger.warn("ROLLING BACK TXN " + getExistingHandle(clientId));
 				connection.rollback();
@@ -283,8 +286,11 @@ public class MysqlClientManager extends BaseClientManager implements MysqlConnec
 	}
 
 	public String getStats(ClientId clientId){
-		return "client:" + clientId.getName() + " has " + handleByThread(clientId).size() + " threadHandles"
-				+ "," + connectionByHandle(clientId).size() + " connectionHandles";
+		return String.format(
+				"client=%s threadHandles=%s connectionHandles=%s",
+				clientId.getName(),
+				handleByThread(clientId).size(),
+				connectionByHandle(clientId).size());
 	}
 
 }

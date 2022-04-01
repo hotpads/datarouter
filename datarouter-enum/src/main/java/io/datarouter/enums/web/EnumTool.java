@@ -15,51 +15,11 @@
  */
 package io.datarouter.enums.web;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 import java.util.stream.Stream;
-
-import io.datarouter.enums.Displayable;
-import io.datarouter.enums.DisplayablePersistentString;
 
 public class EnumTool{
 
-	public static List<HtmlSelectOptionBean> getHtmlSelectOptions(
-			Iterable<? extends DisplayablePersistentString> values){
-		return getHtmlSelectOptions(values, Collections.emptyList());
-	}
-
-	public static List<HtmlSelectOptionBean> getHtmlSelectOptions(DisplayablePersistentString[] values,
-			String... ignoredValues){
-		return getHtmlSelectOptions(Arrays.asList(values), Arrays.asList(ignoredValues));
-	}
-
-	private static List<HtmlSelectOptionBean> getHtmlSelectOptions(
-			Iterable<? extends DisplayablePersistentString> values, Collection<String> ignoredValues){
-		List<HtmlSelectOptionBean> options = new ArrayList<>();
-		for(DisplayablePersistentString type : values){
-			if(ignoredValues.contains(type.getPersistentString())){
-				continue;
-			}
-			options.add(new HtmlSelectOptionBean(type.getDisplay(), type.getPersistentString()));
-		}
-		return options;
-	}
-
-	public static <T extends Displayable> T getEnumFromDisplay(T[] values, String display, T defaultEnum){
-		if(display == null){
-			return defaultEnum;
-		}
-		return Stream.of(values)
-				.filter(type -> type.getDisplay().equalsIgnoreCase(display))
-				.findFirst()
-				.orElse(defaultEnum);
-	}
-
-	public static <T extends Enum<?>> T getEnumFromName(T[] values, String name, T defaultEnum){
+	public static <T extends Enum<?>> T getEnumFromNameCaseInsensitive(T[] values, String name, T defaultEnum){
 		if(name == null){
 			return defaultEnum;
 		}

@@ -18,10 +18,11 @@ package io.datarouter.storage.client.imp;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.storage.client.ClientNodeFactory;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 
-public interface StreamClientNodeFactory{
+public interface StreamClientNodeFactory extends ClientNodeFactory{
 
 	<PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,

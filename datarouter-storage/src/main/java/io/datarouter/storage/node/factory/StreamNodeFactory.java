@@ -17,32 +17,24 @@ package io.datarouter.storage.node.factory;
 
 import java.util.function.Supplier;
 
-import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.client.ClientId;
-import io.datarouter.storage.client.ClientType;
-import io.datarouter.storage.client.DatarouterClients;
 import io.datarouter.storage.client.imp.StreamClientNodeFactory;
 import io.datarouter.storage.node.Node;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.NodeParams.NodeParamsBuilder;
 
 @Singleton
-public class StreamNodeFactory{
+public class StreamNodeFactory extends BaseNodeFactory{
 
-	private final DatarouterClients clients;
-
-	@Inject
-	public StreamNodeFactory(DatarouterClients clients){
-		this.clients = clients;
-	}
-
-	@SuppressWarnings("unchecked")
-	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>,N extends Node<PK,D,F>>
+	public <PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>,
+			N extends Node<PK,D,F>>
 	N createSingleStreamNode(
 			ClientId clientId,
 			Supplier<D> databeanSupplier,
@@ -53,16 +45,8 @@ public class StreamNodeFactory{
 				.withStreamName(streamName)
 				.withTableName(streamName)
 				.build();
-		StreamClientNodeFactory clientType = getClientType(params);
-		return (N)clientType.createSingleStreamNode(params);
-	}
-
-	private StreamClientNodeFactory getClientType(NodeParams<?,?,?> params){
-		ClientType<?,?> clientType = clients.getClientTypeInstance(params.getClientId());
-		if(clientType == null){
-			throw new NullPointerException("clientType not found for clientName:" + params.getClientId().getName());
-		}
-		return (StreamClientNodeFactory)clientType;
+		StreamClientNodeFactory clientFactories = getClientNodeFactory(clientId, StreamClientNodeFactory.class);
+		return cast(clientFactories.createSingleStreamNode(params));
 	}
 
 }

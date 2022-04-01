@@ -15,7 +15,6 @@
  */
 package io.datarouter.aws.sqs.enums;
 
-import io.datarouter.enums.DatarouterEnumTool;
 import io.datarouter.enums.StringEnum;
 
 public enum SqsKeyType implements StringEnum<SqsKeyType>{
@@ -38,7 +37,7 @@ public enum SqsKeyType implements StringEnum<SqsKeyType>{
 	}
 
 	public static SqsKeyType fromPersistentStringStatic(String string){
-		return DatarouterEnumTool.getEnumFromString(values(), string, null);
+		return StringEnum.getEnumFromString(values(), string, null);
 	}
 
 }

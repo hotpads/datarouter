@@ -17,13 +17,17 @@ package io.datarouter.model.field.codec;
 
 import java.util.Comparator;
 
+import com.google.gson.reflect.TypeToken;
+
 import io.datarouter.enums.MappedEnum;
 
 public class EnumToIntegerFieldCodec<E> extends IntegerFieldCodec<E>{
 
-	public EnumToIntegerFieldCodec(MappedEnum<Integer,E> mappedEnum){
-		super(mappedEnum.getEnumClass(),
+	public EnumToIntegerFieldCodec(MappedEnum<E,Integer> mappedEnum){
+		super(TypeToken.get(mappedEnum.getEnumClass()),
+				() -> null,
 				mappedEnum::toKey,
+				() -> null,
 				mappedEnum::fromOrThrow,
 				Comparator.comparing(mappedEnum::toKey),
 				mappedEnum.getSampleValue());

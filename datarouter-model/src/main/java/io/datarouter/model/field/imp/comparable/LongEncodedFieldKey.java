@@ -30,7 +30,7 @@ public class LongEncodedFieldKey<T> extends BaseFieldKey<T,LongEncodedFieldKey<T
 	public LongEncodedFieldKey(
 			String name,
 			LongFieldCodec<T> codec){
-		super(name, codec.getValueClass());
+		super(name, codec.getTypeToken());
 		this.codec = codec;
 	}
 
@@ -42,7 +42,7 @@ public class LongEncodedFieldKey<T> extends BaseFieldKey<T,LongEncodedFieldKey<T
 			FieldGeneratorType fieldGeneratorType,
 			T defaultValue,
 			Map<FieldKeyAttributeKey<?>,FieldKeyAttribute<?>> attributes){
-		super(name, columnName, nullable, codec.getValueClass(), fieldGeneratorType, defaultValue, attributes);
+		super(name, columnName, nullable, codec.getTypeToken(), fieldGeneratorType, defaultValue, attributes);
 		this.codec = codec;
 	}
 
@@ -77,11 +77,6 @@ public class LongEncodedFieldKey<T> extends BaseFieldKey<T,LongEncodedFieldKey<T
 				fieldGeneratorTypeOverride,
 				defaultValue,
 				attributes);
-	}
-
-	@Override
-	public LongEncodedField<T> createValueField(T value){
-		return new LongEncodedField<>(this, value);
 	}
 
 	public LongFieldCodec<T> getCodec(){

@@ -28,11 +28,6 @@ public class DoubleListFieldKey extends ListFieldKey<Double,List<Double>,DoubleL
 	}
 
 	@Override
-	public DoubleListField createValueField(List<Double> value){
-		return new DoubleListField(this, value);
-	}
-
-	@Override
 	public boolean isFixedLength(){
 		return false;
 	}

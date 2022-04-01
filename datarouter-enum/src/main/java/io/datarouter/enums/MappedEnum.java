@@ -25,38 +25,84 @@ import java.util.Optional;
 import java.util.function.Function;
 
 /**
- * Store enum values by an extracted key.
- * Ensure the extracted keys are unique between values.
+ * Store enum values by an extracted and optionally transformed key.
+ * Ensure the transformed keys are unique between values.
  * Prevent reads from accidentally returning null values.
  */
-public class MappedEnum<K,E>{
+public class MappedEnum<E,K>{
 
 	private final E sampleValue;
 	private final Class<E> enumClass;
 	private final Function<E,K> keyExtractor;
+	private final Function<K,K> keyTransformer;
 	private final Map<K,E> valueByKey;
 
 	public MappedEnum(E[] values, Function<E,K> keyExtractor){
+		this(values, keyExtractor, Function.identity());
+	}
+
+	public MappedEnum(E[] values, Function<E,K> keyExtractor, Function<K,K> keyTransformer){
 		Objects.requireNonNull(values);
 		if(values.length == 0){
 			throw new IllegalArgumentException("Must have 1 or more values");
 		}
 		sampleValue = values[0];
 		enumClass = extractEnumClass(sampleValue);
-		this.keyExtractor = keyExtractor;
-
-		Objects.requireNonNull(keyExtractor);
-		valueByKey = byUniqueKey(values, keyExtractor);
+		this.keyExtractor = Objects.requireNonNull(keyExtractor);
+		this.keyTransformer = Objects.requireNonNull(keyTransformer);
+		valueByKey = byUniqueTransformedKey(values, keyExtractor, keyTransformer);
 	}
 
-	public MappedEnum<K,E> requireAllExist(K... keys){
+	/*------------- validate -------------*/
+
+	public MappedEnum<E,K> requireAllExist(@SuppressWarnings("unchecked") K... keys){
 		return requireAllExist(Arrays.asList(keys));
 	}
 
-	public MappedEnum<K,E> requireAllExist(Collection<K> keys){
+	public MappedEnum<E,K> requireAllExist(Collection<K> keys){
 		keys.forEach(this::fromOrThrow);
 		return this;
 	}
+
+	/*------------- encode -------------*/
+
+	public K toKey(E enumValue){
+		return keyExtractor.apply(enumValue);
+	}
+
+	/*------------- decode -------------*/
+
+	public E fromOrNull(K key){
+		K transformedKey = keyTransformer.apply(key);
+		return valueByKey.get(transformedKey);
+	}
+
+	public E fromOrElse(K key, E defaultValue){
+		Objects.requireNonNull(defaultValue, "Use getOrNull for null default value");
+		K transformedKey = keyTransformer.apply(key);
+		return valueByKey.getOrDefault(transformedKey, defaultValue);
+	}
+
+	public E fromOrThrow(K key){
+		K transformedKey = keyTransformer.apply(key);
+		E value = valueByKey.get(transformedKey);
+		if(value == null){
+			String message = String.format(
+					"key=%s, transformedKey=%s does not exist for enum=%s",
+					key,
+					transformedKey,
+					sampleValue.getClass().getCanonicalName());
+			throw new IllegalArgumentException(message);
+		}
+		return value;
+	}
+
+	public Optional<E> from(K key){
+		K transformedKey = keyTransformer.apply(key);
+		return Optional.ofNullable(valueByKey.get(transformedKey));
+	}
+
+	/*----------- get -------------*/
 
 	public E getSampleValue(){
 		return this.sampleValue;
@@ -66,49 +112,26 @@ public class MappedEnum<K,E>{
 		return enumClass;
 	}
 
-	public K toKey(E enumValue){
-		return keyExtractor.apply(enumValue);
-	}
-
-	public E fromOrNull(K key){
-		return valueByKey.get(key);
-	}
-
-	public E fromOrElse(K key, E defaultValue){
-		Objects.requireNonNull(defaultValue, "Use getOrNull for null default value");
-		return valueByKey.getOrDefault(key, defaultValue);
-	}
-
-	public E fromOrThrow(K key){
-		E value = valueByKey.get(key);
-		if(value == null){
-			String message = String.format(
-					"key=%s does not exist for enum=%s",
-					key,
-					sampleValue.getClass().getCanonicalName());
-			throw new IllegalArgumentException(message);
-		}
-		return value;
-	}
-
-	public Optional<E> from(K key){
-		return Optional.ofNullable(valueByKey.get(key));
-	}
+	/*------------- private -------------*/
 
 	@SuppressWarnings("unchecked")
 	private static <E> Class<E> extractEnumClass(E sampleValue){
 		return (Class<E>)sampleValue.getClass();
 	}
 
-	private static <E,K> Map<K,E> byUniqueKey(E[] values, Function<E,K> keyExtractor){
+	private static <E,K> Map<K,E> byUniqueTransformedKey(
+			E[] values,
+			Function<E,K> keyExtractor,
+			Function<K,K> keyTransformer){
 		Map<K,E> map = new HashMap<>();
 		for(E value : values){
 			K key = keyExtractor.apply(value);
+			K transformedKey = keyTransformer.apply(key);
 			if(map.containsKey(key)){
-				String message = String.format("key=%s already exists with value=%s", key, value);
+				String message = String.format("transformedKey=%s already exists with value=%s", transformedKey, value);
 				throw new IllegalArgumentException(message);
 			}
-			map.put(key, value);
+			map.put(transformedKey, value);
 		}
 		return Collections.unmodifiableMap(map);
 	}

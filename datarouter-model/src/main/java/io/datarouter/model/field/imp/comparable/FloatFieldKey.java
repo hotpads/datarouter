@@ -23,9 +23,4 @@ public class FloatFieldKey extends PrimitiveFieldKey<Float,FloatFieldKey>{
 		super(name, Float.class);
 	}
 
-	@Override
-	public FloatField createValueField(Float value){
-		return new FloatField(this, value);
-	}
-
 }

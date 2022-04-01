@@ -15,6 +15,10 @@
  */
 package io.datarouter.gson.serialization;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Date;
 
 import com.google.gson.Gson;
@@ -25,6 +29,11 @@ public class GsonTool{
 
 	public static final Gson GSON = new GsonBuilder()
 			.registerTypeAdapter(Date.class, new CompatibleDateTypeAdapter())
+			.registerTypeAdapter(Instant.class, new InstantLegacyTypeAdapter())
+			.registerTypeAdapter(LocalDate.class, new LocalDateLegacyTypeAdapter())
+			.registerTypeAdapter(LocalTime.class, new LocalTimeLegacyTypeAdapter())
+			.registerTypeAdapter(LocalDateTime.class, new LocalDateTimeLegacyTypeAdapter())
+			.registerTypeAdapterFactory(new OptionalLegacyTypeAdapterFactory())
 			.create();
 
 	public static final Gson GSON_PRETTY_PRINT = new GsonBuilder()

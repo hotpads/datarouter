@@ -26,10 +26,10 @@ public enum TestEnum implements IntegerEnum<TestEnum>, StringEnum<TestEnum>{
 	beast(21, "beast"),
 	fish(22, "fish");
 
-	public static final MappedEnum<Integer,TestEnum> BY_PERSISTENT_INTEGER = new MappedEnum<>(
+	public static final MappedEnum<TestEnum,Integer> BY_PERSISTENT_INTEGER = new MappedEnum<>(
 			values(),
 			value -> value.persistentInteger);
-	public static final MappedEnum<String,TestEnum> BY_PERSISTENT_STRING = new MappedEnum<>(
+	public static final MappedEnum<TestEnum,String> BY_PERSISTENT_STRING = new MappedEnum<>(
 			values(),
 			value -> value.persistentString);
 

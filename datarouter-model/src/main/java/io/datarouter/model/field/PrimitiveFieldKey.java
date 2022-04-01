@@ -17,13 +17,15 @@ package io.datarouter.model.field;
 
 import java.util.Map;
 
+import com.google.gson.reflect.TypeToken;
+
 import io.datarouter.model.field.encoding.FieldGeneratorType;
 
 public abstract class PrimitiveFieldKey<T extends Comparable<? super T>,K extends PrimitiveFieldKey<T,K>>
 extends BaseFieldKey<T,K>{
 
 	public PrimitiveFieldKey(String name, Class<T> valueType){
-		super(name, valueType);
+		super(name, TypeToken.get(valueType));
 	}
 
 	protected PrimitiveFieldKey(
@@ -34,7 +36,7 @@ extends BaseFieldKey<T,K>{
 			FieldGeneratorType fieldGeneratorType,
 			T defaultValue,
 			Map<FieldKeyAttributeKey<?>,FieldKeyAttribute<?>> attributes){
-		super(name, columnName, nullable, valueType, fieldGeneratorType, defaultValue, attributes);
+		super(name, columnName, nullable, TypeToken.get(valueType), fieldGeneratorType, defaultValue, attributes);
 	}
 
 }

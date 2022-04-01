@@ -34,10 +34,5 @@ public class DelimitedStringListFieldKey extends ListFieldKey<String,List<String
 		this.separator = separator;
 	}
 
-	@Override
-	public DelimitedStringListField createValueField(List<String> value){
-		return new DelimitedStringListField(this, value);
-	}
-
 	//hmm, why doesn't this override isFixedLength => false
 }

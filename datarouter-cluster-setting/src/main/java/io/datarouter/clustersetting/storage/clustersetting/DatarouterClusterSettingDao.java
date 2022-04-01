@@ -32,7 +32,7 @@ import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.BaseRedundantDaoParams;
-import io.datarouter.storage.node.factory.SettinglessNodeFactory;
+import io.datarouter.storage.node.factory.SettinglessDatabeanNodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.util.singletonsupplier.SingletonSupplier;
@@ -56,7 +56,7 @@ public class DatarouterClusterSettingDao extends BaseDao{
 	@Inject
 	public DatarouterClusterSettingDao(
 			Datarouter datarouter,
-			SettinglessNodeFactory settinglessNodeFactory,
+			SettinglessDatabeanNodeFactory settinglessNodeFactory,
 			DatarouterClusterSettingDaoParams params){
 		super(datarouter);
 		node = Scanner.of(params.clientIds)

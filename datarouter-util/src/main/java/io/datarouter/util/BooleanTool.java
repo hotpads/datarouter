@@ -64,6 +64,13 @@ public class BooleanTool{
 		return !value;
 	}
 
+	public static boolean isFalseOrNull(String input){
+		if(input == null){
+			return true;
+		}
+		return FALSE_VALUES.contains(input.toLowerCase());
+	}
+
 	public static boolean isBoolean(String input){
 		return isTrue(input) || isFalse(input);
 	}

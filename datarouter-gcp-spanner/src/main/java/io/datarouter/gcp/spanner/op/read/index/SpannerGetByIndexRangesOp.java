@@ -18,12 +18,11 @@ package io.datarouter.gcp.spanner.op.read.index;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import com.google.cloud.spanner.DatabaseClient;
 import com.google.cloud.spanner.KeySet;
 import com.google.cloud.spanner.Options;
+import com.google.cloud.spanner.Options.ReadOption;
 import com.google.cloud.spanner.ReadOnlyTransaction;
 import com.google.cloud.spanner.ResultSet;
 
@@ -31,6 +30,7 @@ import io.datarouter.gcp.spanner.field.SpannerFieldCodecRegistry;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
 import io.datarouter.util.tuple.Range;
@@ -65,44 +65,41 @@ extends SpannerBaseReadIndexOp<PK,D>{
 		List<PK> keyList;
 		List<D> databeans;
 		try(ReadOnlyTransaction txn = client.readOnlyTransaction()){
-			ResultSet rs;
-			if(config.getLimit() != null){
-				Integer limit = offset + config.getLimit();
-				rs = txn.readUsingIndex(
-						tableName,
-						indexName,
-						buildKeySet(),
-						fieldInfo.getPrimaryKeyFieldColumnNames(),
-						Options.limit(limit));
-			}else{
-				rs = txn.readUsingIndex(
-						tableName,
-						indexName,
-						buildKeySet(),
-						fieldInfo.getPrimaryKeyFieldColumnNames());
+			ReadOption[] indexReadOptions = config.findLimit()
+					.map(limit -> new ReadOption[]{Options.limit(offset + limit)})
+					.orElseGet(() -> new ReadOption[]{});
+			try(ResultSet rs = txn.readUsingIndex(
+					tableName,
+					indexName,
+					buildKeySet(),
+					fieldInfo.getPrimaryKeyFieldColumnNames(),
+					indexReadOptions)){
+				keyList = createFromResultSet(
+						rs,
+						fieldInfo.getPrimaryKeySupplier(),
+						fieldInfo.getPrimaryKeyFields());
 			}
-			keyList = createFromResultSet(
-					rs,
-					fieldInfo.getPrimaryKeySupplier(),
-					fieldInfo.getPrimaryKeyFields());
-			ResultSet databeanRs;
-			if(config.getLimit() != null){
-				databeanRs = txn.read(
+			ReadOption[] databeanReadOptions = config.findLimit()
+					.map(limit -> new ReadOption[]{Options.limit(limit)})
+					.orElseGet(() -> new ReadOption[]{});
+			try(ResultSet databeanRs = txn.read(
 						tableName,
 						buildKeySet(keyList),
 						fieldInfo.getFieldColumnNames(),
-						Options.limit(config.getLimit()));
-			}else{
-				databeanRs = txn.read(tableName, buildKeySet(keyList), fieldInfo.getFieldColumnNames());
+						databeanReadOptions)){
+				databeans = createFromResultSet(
+						databeanRs,
+						fieldInfo.getDatabeanSupplier(),
+						fieldInfo.getFields());
 			}
-			databeans = createFromResultSet(databeanRs, fieldInfo.getDatabeanSupplier(), fieldInfo.getFields());
 		}
-		Map<PK,D> databeanByKey = databeans.stream()
-				.collect(Collectors.toMap(Databean::getKey, Function.identity()));
-		List<D> sortedDatabeans = keyList.stream()
+		Map<PK,D> databeanByKey = Scanner.of(databeans)
+				.toMap(Databean::getKey);
+		List<D> sortedDatabeans = Scanner.of(keyList)
 				.map(databeanByKey::get)
-				.collect(Collectors.toList());
+				.list();
 		if(offset > 0){
+			//TODO avoid returning subList
 			return sortedDatabeans.subList(offset, sortedDatabeans.size());
 		}
 		return sortedDatabeans;

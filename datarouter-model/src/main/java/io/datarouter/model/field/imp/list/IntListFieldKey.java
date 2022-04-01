@@ -28,11 +28,6 @@ public class IntListFieldKey extends ListFieldKey<Integer,List<Integer>,IntListF
 	}
 
 	@Override
-	public IntListField createValueField(List<Integer> value){
-		return new IntListField(this, value);
-	}
-
-	@Override
 	public boolean isFixedLength(){
 		return false;
 	}

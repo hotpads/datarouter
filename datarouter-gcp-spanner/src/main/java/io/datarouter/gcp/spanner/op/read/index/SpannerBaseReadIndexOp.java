@@ -26,7 +26,8 @@ import io.datarouter.gcp.spanner.op.read.SpannerBaseReadOp;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.storage.config.Config;
 
-public abstract class SpannerBaseReadIndexOp<PK extends PrimaryKey<PK>,T> extends SpannerBaseReadOp<T>{
+public abstract class SpannerBaseReadIndexOp<PK extends PrimaryKey<PK>,T>
+extends SpannerBaseReadOp<T>{
 
 	public SpannerBaseReadIndexOp(
 			DatabaseClient client,

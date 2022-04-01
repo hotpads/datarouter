@@ -15,83 +15,57 @@
  */
 package io.datarouter.client.redis;
 
-import java.util.List;
-import java.util.function.UnaryOperator;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.client.redis.RedisExecutors.RedisBatchOpExecutor;
 import io.datarouter.client.redis.client.RedisClientManager;
-import io.datarouter.client.redis.config.RedisExecutors.RedisBatchOpExecutor;
-import io.datarouter.client.redis.node.RedisNode;
+import io.datarouter.client.redis.node.RedisBlobNode;
+import io.datarouter.client.redis.node.RedisDatabeanNode;
+import io.datarouter.client.redis.node.RedisTallyNode;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.entity.Entity;
 import io.datarouter.model.key.entity.EntityKey;
 import io.datarouter.model.key.primary.EntityPrimaryKey;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
-import io.datarouter.storage.client.imp.BaseClientNodeFactory;
 import io.datarouter.storage.client.imp.BlobClientNodeFactory;
+import io.datarouter.storage.client.imp.DatabeanClientNodeFactory;
 import io.datarouter.storage.client.imp.TallyClientNodeFactory;
-import io.datarouter.storage.client.imp.WrappedNodeFactory;
 import io.datarouter.storage.file.Pathbean;
 import io.datarouter.storage.file.Pathbean.PathbeanFielder;
 import io.datarouter.storage.file.PathbeanKey;
 import io.datarouter.storage.node.NodeParams;
-import io.datarouter.storage.node.adapter.availability.PhysicalMapStorageAvailabilityAdapterFactory;
-import io.datarouter.storage.node.adapter.callsite.physical.PhysicalMapStorageCallsiteAdapter;
-import io.datarouter.storage.node.adapter.counter.physical.PhysicalMapStorageCounterAdapter;
-import io.datarouter.storage.node.adapter.counter.physical.PhysicalTallyStorageCounterAdapter;
-import io.datarouter.storage.node.adapter.sanitization.physical.PhysicalMapStorageSanitizationAdapter;
-import io.datarouter.storage.node.adapter.sanitization.physical.PhysicalTallyStorageSanitizationAdapter;
-import io.datarouter.storage.node.adapter.trace.physical.PhysicalMapStorageTraceAdapter;
-import io.datarouter.storage.node.adapter.trace.physical.PhysicalTallyStorageTraceAdapter;
+import io.datarouter.storage.node.adapter.NodeAdapters;
 import io.datarouter.storage.node.entity.EntityNodeParams;
 import io.datarouter.storage.node.op.raw.BlobStorage.PhysicalBlobStorageNode;
-import io.datarouter.storage.node.op.raw.MapStorage.PhysicalMapStorageNode;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 
 @Singleton
-public class RedisClientNodeFactory extends BaseClientNodeFactory
-implements BlobClientNodeFactory,TallyClientNodeFactory{
+public class RedisClientNodeFactory
+implements BlobClientNodeFactory, DatabeanClientNodeFactory, TallyClientNodeFactory{
 
-	@Inject
-	private PhysicalMapStorageAvailabilityAdapterFactory physicalMapStorageAvailabilityAdapterFactory;
 	@Inject
 	private RedisClientType redisClientType;
 	@Inject
 	private RedisClientManager redisClientManager;
 	@Inject
-	private RedisNodeFactory redisNodeFactory;
-	@Inject
 	private RedisBatchOpExecutor executor;
+	@Inject
+	private NodeAdapters nodeAdapters;
 
-	public class RedisWrappedNodeFactory<
-			EK extends EntityKey<EK>,
-			E extends Entity<EK>,
-			PK extends EntityPrimaryKey<EK,PK>,
-			D extends Databean<PK,D>,
-			F extends DatabeanFielder<PK,D>>
-	extends WrappedNodeFactory<EK,E,PK,D,F,PhysicalMapStorageNode<PK,D,F>>{
+	/*---------------- BlobClientNodeFactory ------------------*/
 
-		@Override
-		public PhysicalMapStorageNode<PK,D,F> createNode(
-				EntityNodeParams<EK,E> entityNodeParams,
-				NodeParams<PK,D,F> nodeParams){
-			return new RedisNode<>(nodeParams, redisClientType, redisClientManager, executor);
-		}
-
-		@Override
-		public List<UnaryOperator<PhysicalMapStorageNode<PK,D,F>>> getAdapters(){
-			return List.of(
-					PhysicalMapStorageSanitizationAdapter::new,
-					PhysicalMapStorageCounterAdapter::new,
-					PhysicalMapStorageTraceAdapter::new,
-					physicalMapStorageAvailabilityAdapterFactory::create,
-					PhysicalMapStorageCallsiteAdapter::new);
-		}
-
+	@Override
+	public PhysicalBlobStorageNode createBlobNode(NodeParams<PathbeanKey,Pathbean,PathbeanFielder> nodeParams){
+		var node = new RedisBlobNode(
+				nodeParams,
+				redisClientType,
+				redisClientManager.getLazyClient(nodeParams.getClientId()));
+		return nodeAdapters.wrapBlobNode(node);
 	}
+
+	/*---------------- DatabeanClientNodeFactory ------------------*/
 
 	@Override
 	public <EK extends EntityKey<EK>,
@@ -99,24 +73,29 @@ implements BlobClientNodeFactory,TallyClientNodeFactory{
 			PK extends EntityPrimaryKey<EK,PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
-	WrappedNodeFactory<EK,E,PK,D,F,PhysicalMapStorageNode<PK,D,F>> makeWrappedNodeFactory(){
-		return new RedisWrappedNodeFactory<>();
+	PhysicalNode<PK,D,F> createDatabeanNode(
+			EntityNodeParams<EK,E> entityNodeParams,
+			NodeParams<PK,D,F> nodeParams){
+		var node = new RedisDatabeanNode<>(
+				nodeParams,
+				redisClientType,
+				redisClientManager.getLazyClient(nodeParams.getClientId()),
+				executor);
+		return nodeAdapters.wrapDatabeanMapNode(node);
 	}
 
-	@Override
-	public PhysicalBlobStorageNode createBlobNode(NodeParams<PathbeanKey,Pathbean,PathbeanFielder> nodeParams){
-		return redisNodeFactory.createBlobNode(nodeParams);
-	}
+	/*---------------- TallyClientNodeFactory ------------------*/
 
 	@Override
 	public <PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
 	PhysicalNode<PK,D,F> createTallyNode(NodeParams<PK,D,F> nodeParams){
-		var node = redisNodeFactory.createTallyNode(nodeParams);
-		return new PhysicalTallyStorageTraceAdapter<>(
-				new PhysicalTallyStorageCounterAdapter<>(
-				new PhysicalTallyStorageSanitizationAdapter<>(node)));
+		var node = new RedisTallyNode<>(
+				nodeParams,
+				redisClientType,
+				redisClientManager.getLazyClient(nodeParams.getClientId()));
+		return nodeAdapters.wrapTallyNode(node);
 	}
 
 }

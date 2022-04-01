@@ -81,9 +81,9 @@ public class WebSocketServicesMessageHandler implements ClosableMessageHandler, 
 			return;
 		}
 		openedServices.put(serviceString, service);
-		String paypload = message.substring(prefixEndIndex + 1);
+		String payload = message.substring(prefixEndIndex + 1);
 		try{
-			service.onMessage(webSocketSession, paypload);
+			service.onMessage(webSocketSession, payload);
 		}catch(Exception exception){
 			logger.warn("Exception in websocket service handling message", exception);
 			exceptionRecorder.tryRecordException(exception, service.getClass().getName());

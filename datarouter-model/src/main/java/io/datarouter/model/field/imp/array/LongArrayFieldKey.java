@@ -15,13 +15,15 @@
  */
 package io.datarouter.model.field.imp.array;
 
+import com.google.gson.reflect.TypeToken;
+
 import io.datarouter.model.field.BaseFieldKey;
 
 @Deprecated
 public class LongArrayFieldKey extends BaseFieldKey<long[],LongArrayFieldKey>{
 
 	public LongArrayFieldKey(String name){
-		super(name, long[].class);
+		super(name, TypeToken.get(long[].class));
 	}
 
 	@Override
@@ -32,11 +34,6 @@ public class LongArrayFieldKey extends BaseFieldKey<long[],LongArrayFieldKey>{
 	@Override
 	public boolean isCollection(){
 		return true;
-	}
-
-	@Override
-	public LongArrayField createValueField(long[] value){
-		return new LongArrayField(this, value);
 	}
 
 }

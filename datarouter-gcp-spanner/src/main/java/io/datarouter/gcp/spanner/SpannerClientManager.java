@@ -74,25 +74,32 @@ public class SpannerClientManager extends BaseClientManager{
 
 	@Override
 	protected void safeInitClient(ClientId clientId){
-		PhaseTimer timer = new PhaseTimer(clientId.getName());
+		var timer = new PhaseTimer(clientId.getName());
+
 		Credentials credentials = spannerClientOptions.credentials(clientId.getName());
-		timer.add("read credentials");
+		timer.add("readCredentials");
+
+		int maxSessions = spannerClientOptions.maxSessions(clientId.getName());
+		int numChannels = spannerClientOptions.numChannels(clientId.getName());
 		SessionPoolOptions sessionPoolOptions = SessionPoolOptions.newBuilder()
+				.setMaxSessions(maxSessions)
 				.setFailIfPoolExhausted()
 				.build();
 		SpannerOptions spannerOptions = SpannerOptions.newBuilder()
 				.setCredentials(credentials)
-				.setNumChannels(8)
+				.setNumChannels(numChannels)
 				.setSessionPoolOption(sessionPoolOptions)
 				.build();
 		Spanner spanner = spannerOptions.getService();
-		timer.add("build spanner service");
+		timer.add(String.format("buildSpannerService maxSessions=%s numChannels=%s", maxSessions, numChannels));
+
 		DatabaseId databaseId = DatabaseId.of(
 				spannerClientOptions.projectId(clientId.getName()),
 				spannerClientOptions.instanceId(clientId.getName()),
 				spannerClientOptions.databaseName(clientId.getName()));
 		databaseCreator.createIfMissing(spanner, databaseId);
-		timer.add("create database");
+		timer.add("createDatabase");
+
 		//create the clients after the database exists or else they won't see the new database
 		DatabaseAdminClient databaseAdminClient = spanner.getDatabaseAdminClient();
 		DatabaseClient databaseClient = spanner.getDatabaseClient(databaseId);

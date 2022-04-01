@@ -20,7 +20,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.cloud.spanner.DatabaseClient;
+import com.google.cloud.spanner.ErrorCode;
 import com.google.cloud.spanner.Key;
 import com.google.cloud.spanner.Key.Builder;
 import com.google.cloud.spanner.KeyRange;
@@ -30,6 +34,7 @@ import com.google.cloud.spanner.Options;
 import com.google.cloud.spanner.Options.ReadOption;
 import com.google.cloud.spanner.ReadContext;
 import com.google.cloud.spanner.ResultSet;
+import com.google.cloud.spanner.SpannerException;
 
 import io.datarouter.gcp.spanner.field.SpannerBaseFieldCodec;
 import io.datarouter.gcp.spanner.field.SpannerFieldCodecRegistry;
@@ -45,6 +50,7 @@ import io.datarouter.util.tuple.Range;
 import io.opencensus.common.Scope;
 
 public abstract class SpannerBaseReadOp<T> extends SpannerBaseOp<List<T>>{
+	private static final Logger logger = LoggerFactory.getLogger(SpannerBaseReadOp.class);
 
 	protected final DatabaseClient client;
 	protected final Config config;
@@ -101,7 +107,9 @@ public abstract class SpannerBaseReadOp<T> extends SpannerBaseOp<List<T>>{
 	private <F> List<F> callClientInternal(List<String> columnNames, List<Field<?>> fields, Supplier<F> object){
 		KeySet keySet = buildKeySet();
 		int offset = config.findOffset().orElse(0);
-		ReadOption[] readOptions = makeReadOptions(offset, config);
+		ReadOption[] readOptions = config.findLimit()
+				.map(limit -> new ReadOption[]{Options.limit(offset + limit)})
+				.orElseGet(() -> new ReadOption[]{});
 		try(ReadContext txn = client.singleUseReadOnlyTransaction()){
 			try(ResultSet rs = txn.read(tableName, keySet, columnNames, readOptions)){
 				List<F> results = createFromResultSet(rs, object, fields);
@@ -117,12 +125,6 @@ public abstract class SpannerBaseReadOp<T> extends SpannerBaseOp<List<T>>{
 				return results;
 			}
 		}
-	}
-
-	private static ReadOption[] makeReadOptions(int offset, Config config){
-		return config.getLimit() == null
-				? new ReadOption[]{}
-				: new ReadOption[]{Options.limit(offset + config.getLimit())};
 	}
 
 	protected <K extends PrimaryKey<K>> KeyRange convertRange(Range<K> range){
@@ -142,15 +144,35 @@ public abstract class SpannerBaseReadOp<T> extends SpannerBaseOp<List<T>>{
 		return builder.build();
 	}
 
-	protected <F> List<F> createFromResultSet(ResultSet set, Supplier<F> objectSupplier, List<Field<?>> fields){
+	protected <F> List<F> createFromResultSet(ResultSet rs, Supplier<F> objectSupplier, List<Field<?>> fields){
 		List<? extends SpannerBaseFieldCodec<?,?>> codecs = codecRegistry.createCodecs(fields);
 		List<F> objects = new ArrayList<>();
-		while(set.next()){
-			F object = objectSupplier.get();
-			codecs.forEach(codec -> codec.setField(object, set));
-			objects.add(object);
+		int resultCounter = 0;//for debugging session leak; see if we're before the first result
+		try{
+			while(rs.next()){
+				++resultCounter;
+				F object = objectSupplier.get();
+				codecs.forEach(codec -> codec.setField(object, rs));
+				objects.add(object);
+			}
+			return objects;
+		}catch(SpannerException e){
+			logger.warn("resultCounter={}", resultCounter);
+			/*
+			 * This happens when calling spanner in a thread whose Future times out.
+			 *
+			 * Clear the interrupted flag, undoing the work of SpannerExceptionFactory.propagateInterrupt
+			 *
+			 * Potential spanner java client bug?  Or hack to fix unidentified datarouter bug?
+			 *
+			 * It appears that with or without this the PooledSessionFuture errors during its close() method, but by
+			 * clearing the interrupted flag the session isn't leaked.
+			 */
+			if(e.getErrorCode().equals(ErrorCode.CANCELLED)){
+				Thread.interrupted();
+			}
+			throw e;
 		}
-		return objects;
 	}
 
 }

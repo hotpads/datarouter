@@ -34,32 +34,13 @@ implements FieldKey<T>{
 	protected final boolean nullable;
 	protected final FieldGeneratorType fieldGeneratorType;
 	protected final T defaultValue;
-	protected final Type valueType;
+	protected final TypeToken<T> valueTypeToken;
 	protected final Map<FieldKeyAttributeKey<?>,FieldKeyAttribute<?>> attributes;
 
-	//base constructor with class
-	protected BaseFieldKey(String name, Class<T> valueType){
-		this(name, TypeToken.get(valueType));
-	}
-
-	//base constructor with type token
 	protected BaseFieldKey(String name, TypeToken<T> valueType){
 		this(name, name, true, valueType, FieldGeneratorType.NONE, null, new HashMap<>());
 	}
 
-	//full constructor with class
-	protected BaseFieldKey(
-			String name,
-			String columnName,
-			boolean nullable,
-			Class<T> valueType,
-			FieldGeneratorType fieldGeneratorType,
-			T defaultValue,
-			Map<FieldKeyAttributeKey<?>,FieldKeyAttribute<?>> attributes){
-		this(name, columnName, nullable, TypeToken.get(valueType), fieldGeneratorType, defaultValue, attributes);
-	}
-
-	//full constructor with type token
 	protected BaseFieldKey(
 			String name,
 			String columnName,
@@ -72,7 +53,7 @@ implements FieldKey<T>{
 		this.columnName = columnName;
 		this.nullable = nullable;
 		this.attributes = attributes;
-		this.valueType = valueType.getType();
+		this.valueTypeToken = valueType;
 		this.fieldGeneratorType = fieldGeneratorType;
 		this.defaultValue = defaultValue;
 	}
@@ -107,7 +88,7 @@ implements FieldKey<T>{
 
 	@Override
 	public Type getValueType(){
-		return valueType;
+		return valueTypeToken.getType();
 	}
 
 	/*---------------------------- get/set ----------------------------------*/

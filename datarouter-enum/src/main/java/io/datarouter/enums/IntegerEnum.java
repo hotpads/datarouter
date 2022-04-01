@@ -15,6 +15,7 @@
  */
 package io.datarouter.enums;
 
+import java.util.Arrays;
 import java.util.Optional;
 
 public interface IntegerEnum<E> extends Comparable<E>{
@@ -40,6 +41,19 @@ public interface IntegerEnum<E> extends Comparable<E>{
 			throw new RuntimeException(message);
 		}
 		return enumValue;
+	}
+
+	static <T extends IntegerEnum<T>> T getEnumFromInteger(T[] values, Integer value, T defaultEnum){
+		return findEnumFromInteger(values, value).orElse(defaultEnum);
+	}
+
+	static <T extends IntegerEnum<T>> Optional<T> findEnumFromInteger(T[] values, Integer value){
+		if(value == null){
+			return Optional.empty();
+		}
+		return Arrays.stream(values)
+				.filter(type -> type.getPersistentInteger().equals(value))
+				.findFirst();
 	}
 
 }

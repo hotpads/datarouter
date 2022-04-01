@@ -17,6 +17,8 @@ package io.datarouter.model.field.imp.enums;
 
 import java.util.Map;
 
+import com.google.gson.reflect.TypeToken;
+
 import io.datarouter.enums.IntegerEnum;
 import io.datarouter.model.field.BaseFieldKey;
 import io.datarouter.model.field.FieldKeyAttribute;
@@ -24,12 +26,15 @@ import io.datarouter.model.field.FieldKeyAttributeKey;
 import io.datarouter.model.field.encoding.FieldGeneratorType;
 import io.datarouter.util.lang.ReflectionTool;
 
-public class IntegerEnumFieldKey<E extends IntegerEnum<E>> extends BaseFieldKey<E,IntegerEnumFieldKey<E>>{
+public class IntegerEnumFieldKey<E extends IntegerEnum<E>>
+extends BaseFieldKey<E,IntegerEnumFieldKey<E>>{
 
+	private final Class<E> enumClass;
 	private final E sampleValue;
 
 	public IntegerEnumFieldKey(String name, Class<E> enumClass){
-		super(name, enumClass);
+		super(name, TypeToken.get(enumClass));
+		this.enumClass = enumClass;
 		this.sampleValue = ReflectionTool.create(enumClass);
 	}
 
@@ -42,17 +47,17 @@ public class IntegerEnumFieldKey<E extends IntegerEnum<E>> extends BaseFieldKey<
 			E defaultValue,
 			E sampleValue,
 			Map<FieldKeyAttributeKey<?>,FieldKeyAttribute<?>> attributes){
-		super(name, columnName, nullable, enumClass, fieldGeneratorType, defaultValue, attributes);
+		super(name, columnName, nullable, TypeToken.get(enumClass), fieldGeneratorType, defaultValue, attributes);
+		this.enumClass = enumClass;
 		this.sampleValue = sampleValue;
 	}
 
-	@SuppressWarnings("unchecked")
 	public IntegerEnumFieldKey<E> withColumnName(String columnNameOverride){
 		return new IntegerEnumFieldKey<>(
 				name,
 				columnNameOverride,
 				nullable,
-				(Class<E>)getValueType(),
+				enumClass,
 				fieldGeneratorType,
 				defaultValue,
 				sampleValue,
@@ -61,11 +66,6 @@ public class IntegerEnumFieldKey<E extends IntegerEnum<E>> extends BaseFieldKey<
 
 	public E getSampleValue(){
 		return sampleValue;
-	}
-
-	@Override
-	public IntegerEnumField<E> createValueField(E value){
-		return new IntegerEnumField<>(this, value);
 	}
 
 }

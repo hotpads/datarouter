@@ -31,9 +31,10 @@ public class InstantLegacyTypeAdapter implements JsonSerializer<Instant>, JsonDe
 	@Override
 	public Instant deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
 	throws JsonParseException{
+		JsonObject jsonObject = json.getAsJsonObject();
 		return Instant.ofEpochSecond(
-				json.getAsJsonObject().get("seconds").getAsLong(),
-				json.getAsJsonObject().get("nanos").getAsLong());
+				jsonObject.get("seconds").getAsLong(),
+				jsonObject.get("nanos").getAsLong());
 	}
 
 	@Override

@@ -24,8 +24,8 @@ import java.util.stream.IntStream;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.enums.DatarouterEnumTool;
 import io.datarouter.enums.PersistentString;
+import io.datarouter.enums.StringEnum;
 import io.datarouter.storage.client.ClientOptions;
 import io.datarouter.storage.config.client.RedisGenericClientOptions.RedisGenericClientMode;
 
@@ -68,7 +68,7 @@ public class RedisOptions{
 
 	/*-------------------------------- helper -------------------------------*/
 
-	protected static String makeRedisKey(String propertyKey){
+	public static String makeRedisKey(String propertyKey){
 		return PREFIX_REDIS + propertyKey;
 	}
 
@@ -111,7 +111,7 @@ public class RedisOptions{
 		}
 
 		public static RedisClientMode fromPersistentStringStatic(String string){
-			return DatarouterEnumTool.findEnumFromString(values(), string)
+			return StringEnum.findEnumFromString(values(), string)
 					.orElseThrow();
 		}
 

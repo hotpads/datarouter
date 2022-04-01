@@ -15,6 +15,7 @@
  */
 package io.datarouter.enums;
 
+import java.util.Arrays;
 import java.util.Optional;
 
 public interface StringEnum<E> extends Comparable<E>, PersistentString{
@@ -39,6 +40,53 @@ public interface StringEnum<E> extends Comparable<E>, PersistentString{
 			throw new RuntimeException(message);
 		}
 		return enumValue;
+	}
+
+	static <T extends PersistentString> T getEnumFromString(
+			T[] values,
+			String value,
+			T defaultEnum){
+		return internalFindEnumFromString(values, value, true).orElse(defaultEnum);
+	}
+
+	static <T extends PersistentString> T getEnumFromStringCaseInsensitive(
+			T[] values,
+			String value,
+			T defaultEnum){
+		return internalFindEnumFromString(values, value, false).orElse(defaultEnum);
+	}
+
+	static <T extends PersistentString> Optional<T> findEnumFromString(
+			T[] values,
+			String value){
+		return internalFindEnumFromString(values, value, true);
+	}
+
+	static <T extends PersistentString> Optional<T> findEnumFromStringCaseInsensitive(
+			T[] values,
+			String value){
+		return internalFindEnumFromString(values, value, false);
+	}
+
+	/*-------------- internal ------------*/
+
+	static <T extends PersistentString> Optional<T> internalFindEnumFromString(
+			T[] values,
+			String value,
+			boolean caseSensitive){
+		if(value == null){
+			return Optional.empty();
+		}
+		return Arrays.stream(values)
+				.filter(enumEntry -> enumEntry.getPersistentString() != null)
+				.filter(enumEntry -> {
+					String persistentString = enumEntry.getPersistentString();
+					if(caseSensitive){
+						return persistentString.equals(value);
+					}
+					return persistentString.equalsIgnoreCase(value);
+				})
+				.findFirst();
 	}
 
 }

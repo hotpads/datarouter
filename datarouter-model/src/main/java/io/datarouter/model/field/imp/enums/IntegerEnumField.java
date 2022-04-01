@@ -15,8 +15,9 @@
  */
 package io.datarouter.model.field.imp.enums;
 
+import java.util.Comparator;
+
 import io.datarouter.bytes.codec.intcodec.ComparableIntCodec;
-import io.datarouter.enums.DatarouterEnumTool;
 import io.datarouter.enums.IntegerEnum;
 import io.datarouter.model.field.BaseField;
 import io.datarouter.model.field.Field;
@@ -24,6 +25,8 @@ import io.datarouter.model.field.Field;
 public class IntegerEnumField<E extends IntegerEnum<E>> extends BaseField<E>{
 
 	private static final ComparableIntCodec COMPARABLE_INT_CODEC = ComparableIntCodec.INSTANCE;
+	private static final Comparator<IntegerEnum<?>> VALUE_COMPARATOR = Comparator.nullsFirst(
+			Comparator.comparing(IntegerEnum::getPersistentInteger));
 
 	private final IntegerEnumFieldKey<E> key;
 
@@ -43,7 +46,7 @@ public class IntegerEnumField<E extends IntegerEnum<E>> extends BaseField<E>{
 
 	@Override
 	public int compareTo(Field<E> other){
-		return DatarouterEnumTool.compareIntegerEnums(value, other.getValue());
+		return VALUE_COMPARATOR.compare(value, other.getValue());
 	}
 
 	@Override

@@ -20,7 +20,6 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import io.datarouter.enums.DatarouterEnumTool;
 import io.datarouter.enums.StringEnum;
 import io.datarouter.instrumentation.task.TaskStatus;
 
@@ -54,7 +53,7 @@ public enum LongRunningTaskStatus implements StringEnum<LongRunningTaskStatus>{
 	}
 
 	public static LongRunningTaskStatus fromPersistentStringStatic(String str){
-		return DatarouterEnumTool.getEnumFromString(values(), str, null);
+		return StringEnum.getEnumFromString(values(), str, null);
 	}
 
 	@Override
