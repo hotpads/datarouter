@@ -18,6 +18,7 @@ package io.datarouter.client.memcached.node;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -55,11 +56,12 @@ implements PhysicalBlobStorageNode{
 	public MemcachedBlobNode(
 			NodeParams<PathbeanKey,Pathbean,PathbeanFielder> params,
 			ClientType<?,?> clientType,
+			MemcachedBlobCodec blobCodec,
 			Supplier<DatarouterMemcachedClient> lazyClient){
 		super(params, clientType);
+		this.blobCodec = blobCodec;
 		this.lazyClient = lazyClient;
 		rootPath = params.getPath();
-		blobCodec = new MemcachedBlobCodec(rootPath);
 	}
 
 	/*------------- BlobStorageReader --------------*/
@@ -106,10 +108,11 @@ implements PhysicalBlobStorageNode{
 
 	@Override
 	public byte[] read(PathbeanKey key, long offset, int length){
+		int intOffset = (int)offset;
 		return scanMultiInternal(List.of(key))
 				.findFirst()
 				.map(Pair::getRight)
-				.map(bytes -> ByteTool.copyOfRange(bytes, (int)offset, length))
+				.map(bytes -> Arrays.copyOfRange(bytes, intOffset, intOffset + length))
 				.orElse(null);
 	}
 

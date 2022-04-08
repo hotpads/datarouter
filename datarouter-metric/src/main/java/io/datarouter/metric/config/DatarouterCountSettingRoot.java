@@ -27,27 +27,30 @@ import io.datarouter.storage.setting.cached.CachedSetting;
 @Singleton
 public class DatarouterCountSettingRoot extends SettingRoot{
 
-	public final CachedSetting<Boolean> saveCountBlobs;
+	//save counts in buffer
+	public final CachedSetting<Boolean> saveCountsToMemory;
+	//publish counts from buffer
+	public final CachedSetting<Boolean> runCountMemoryToPublisherConveyor;
+
+	//controls gauge publishing destination
 	public final CachedSetting<Boolean> saveCountBlobsToQueueDaoInsteadOfDirectoryDao;
 
-	public final CachedSetting<Boolean> runCountsToQueue;
-
-	public final CachedSetting<Boolean> compactExceptionLoggingForConveyors;
-	public final CachedSetting<Integer> drainConveyorThreadCount;
+	public final CachedSetting<Integer> conveyorThreadCount;
 
 	@Inject
 	public DatarouterCountSettingRoot(SettingFinder finder){
 		super(finder, DatarouterSettingCategory.DATAROUTER, "datarouterCount.");
 
-		saveCountBlobs = registerBoolean("saveCountBlobs", false);
+
+		saveCountsToMemory = registerBooleans("saveCountsToMemory", defaultTo(false)
+				.withTag(DatarouterSettingTagType.COUNTPIPELINE, () -> true));
+		runCountMemoryToPublisherConveyor = registerBooleans("runCountMemoryToPublisherConveyor", defaultTo(false)
+				.withTag(DatarouterSettingTagType.COUNTPIPELINE, () -> true));
+
 		saveCountBlobsToQueueDaoInsteadOfDirectoryDao = registerBoolean("saveCountBlobsToQueueDaoInsteadOfDirectoryDao",
 				false);
 
-		runCountsToQueue = registerBooleans("runCountsToQueue", defaultTo(false)
-				.withTag(DatarouterSettingTagType.COUNTPIPELINE, () -> true));
-
-		compactExceptionLoggingForConveyors = registerBoolean("compactExceptionLoggingForConveyors", true);
-		drainConveyorThreadCount = registerInteger("drainConveyorThreadCount", 4);
+		conveyorThreadCount = registerInteger("conveyorThreadCount", 1);
 	}
 
 }

@@ -23,11 +23,11 @@ import io.datarouter.util.tuple.Range;
 
 public class ScanSanitizer{
 
-	public static <PK extends PrimaryKey<PK>> void rejectUnexceptedFullScan(Collection<Range<PK>> ranges){
-		ranges.forEach(ScanSanitizer::rejectUnexceptedFullScan);
+	public static <PK extends PrimaryKey<PK>> void rejectUnexpectedFullScan(Collection<Range<PK>> ranges){
+		ranges.forEach(ScanSanitizer::rejectUnexpectedFullScan);
 	}
 
-	public static <PK extends PrimaryKey<PK>> void rejectUnexceptedFullScan(Range<PK> range){
+	public static <PK extends PrimaryKey<PK>> void rejectUnexpectedFullScan(Range<PK> range){
 		if(range == null || range.getStart() == null && range.getEnd() == null){
 			return; // expected full scan
 		}

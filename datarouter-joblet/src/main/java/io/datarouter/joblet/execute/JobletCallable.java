@@ -143,7 +143,6 @@ public class JobletCallable implements Callable<Void>{
 			return Optional.empty();
 		}
 		timer.add("getJobletData");
-		jobletRequest.setShutdownRequested(shutdownRequested);
 		return Optional.of(jobletPackage);
 	}
 
@@ -155,7 +154,7 @@ public class JobletCallable implements Callable<Void>{
 	}
 
 	private void processJobletWithStats(PhaseTimer timer, JobletPackage jobletPackage) throws Throwable{
-		Joblet<?> joblet = jobletFactory.createForPackage(jobletPackage);
+		Joblet<?> joblet = jobletFactory.createForPackage(jobletPackage, shutdownRequested);
 		JobletRequest jobletRequest = jobletPackage.getJobletRequest();
 		long startTimeMs = System.currentTimeMillis();
 		joblet.process();

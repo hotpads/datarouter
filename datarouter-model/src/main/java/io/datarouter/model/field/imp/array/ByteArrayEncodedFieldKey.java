@@ -76,4 +76,9 @@ public class ByteArrayEncodedFieldKey<T> extends BaseFieldKey<T,ByteArrayEncoded
 		return codec;
 	}
 
+	@Override
+	public T getSampleValue(){
+		return codec.getSampleValue();
+	}
+
 }

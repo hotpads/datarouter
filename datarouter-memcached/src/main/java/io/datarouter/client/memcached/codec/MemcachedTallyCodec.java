@@ -22,36 +22,43 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.bytes.codec.stringcodec.TerminatedStringCodec;
-import io.datarouter.model.util.CommonFieldSizes;
 import io.datarouter.storage.util.Subpath;
 import io.datarouter.util.tuple.Pair;
 
 public class MemcachedTallyCodec{
 	private static final Logger logger = LoggerFactory.getLogger(MemcachedTallyCodec.class);
 
+	private final String clientTypeName;
 	private final Subpath nodeSubpath;
+	private final int clientMaxKeyLength;
 	private final int nodeSubpathLength;
 
-	public MemcachedTallyCodec(Subpath nodeSubpath){
-		this.nodeSubpath = nodeSubpath;
-		nodeSubpathLength = nodeSubpath.toString().length();
+	public MemcachedTallyCodec(
+			String clientTypeName,
+			Subpath nodePath,
+			int clientMaxKeyLength){
+		this.clientTypeName = clientTypeName;
+		this.nodeSubpath = nodePath;
+		this.clientMaxKeyLength = clientMaxKeyLength;
+		nodeSubpathLength = nodePath.toString().length();
 	}
 
 	public Optional<String> encodeKeyIfValid(String id){
 		String encodedKey = encodeTallyId(nodeSubpath, id);
-		if(encodedKey.length() > CommonFieldSizes.MEMCACHED_MAX_KEY_LENGTH){
-			logger.warn("tally key too long for memcached"
-					+ " tallyKey={} tallyKeyLength={}"
-					+ " nodeSubpath={} nodeSubpathLength={}"
+		if(encodedKey.length() > clientMaxKeyLength){
+			logger.warn("tally id too long for {}"
+					+ " tallyId={} tallyIdLength={}"
+					+ " nodePath={} nodePathLength={}"
 					+ " encodedKey={} encodedKeyLength={}"
 					+ " maxEncodedKeyLength={}",
+					clientTypeName,
 					id,
 					id.length(),
 					nodeSubpath,
 					nodeSubpathLength,
 					encodedKey,
 					encodedKey.length(),
-					CommonFieldSizes.MEMCACHED_MAX_KEY_LENGTH);
+					clientMaxKeyLength);
 			return Optional.empty();
 		}
 		return Optional.of(encodedKey);

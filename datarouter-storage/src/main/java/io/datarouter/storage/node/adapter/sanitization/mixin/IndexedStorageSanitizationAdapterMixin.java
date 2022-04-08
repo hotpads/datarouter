@@ -76,7 +76,7 @@ extends IndexedStorage<PK,D>, SanitizationAdapter<PK,D,F,N>{
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo,
 			Collection<Range<IK>> ranges,
 			Config config){
-		ScanSanitizer.rejectUnexceptedFullScan(ranges);
+		ScanSanitizer.rejectUnexpectedFullScan(ranges);
 		return getBackingNode().scanRangesIndex(indexEntryFieldInfo, ranges, config);
 	}
 
@@ -88,7 +88,7 @@ extends IndexedStorage<PK,D>, SanitizationAdapter<PK,D,F,N>{
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo,
 			Collection<Range<IK>> ranges,
 			Config config){
-		ScanSanitizer.rejectUnexceptedFullScan(ranges);
+		ScanSanitizer.rejectUnexpectedFullScan(ranges);
 		return getBackingNode().scanRangesByIndex(indexEntryFieldInfo, ranges, config);
 	}
 
@@ -100,7 +100,7 @@ extends IndexedStorage<PK,D>, SanitizationAdapter<PK,D,F,N>{
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo,
 			Collection<Range<IK>> ranges,
 			Config config){
-		ScanSanitizer.rejectUnexceptedFullScan(ranges);
+		ScanSanitizer.rejectUnexpectedFullScan(ranges);
 		return getBackingNode().scanRangesIndexKeys(indexEntryFieldInfo, ranges, config);
 	}
 

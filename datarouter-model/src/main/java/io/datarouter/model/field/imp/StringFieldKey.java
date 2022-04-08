@@ -71,4 +71,9 @@ public class StringFieldKey extends BaseFieldKey<String,StringFieldKey>{
 		return size;
 	}
 
+	@Override
+	public String getSampleValue(){
+		return "";
+	}
+
 }

@@ -20,7 +20,7 @@ import java.util.List;
 public abstract class FilesRoot extends PathNode{
 
 	public List<String> filesToOmit(){
-		return Java9.listOf();
+		return List.of();
 	}
 
 	public static class NoOpFilesRoot extends FilesRoot{

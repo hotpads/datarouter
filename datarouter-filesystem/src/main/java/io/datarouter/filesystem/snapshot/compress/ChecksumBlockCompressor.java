@@ -15,9 +15,9 @@
  */
 package io.datarouter.filesystem.snapshot.compress;
 
+import java.util.Arrays;
 import java.util.zip.CRC32;
 
-import io.datarouter.bytes.ByteTool;
 import io.datarouter.bytes.codec.longcodec.RawLongCodec;
 import io.datarouter.filesystem.snapshot.encode.EncodedBlock;
 
@@ -47,7 +47,7 @@ public class ChecksumBlockCompressor implements BlockCompressor{
 
 	@Override
 	public byte[] decompress(byte[] withChecksum, boolean validateChecksum){
-		byte[] withoutChecksum = ByteTool.copyOfRange(withChecksum, 0, withChecksum.length - 8);
+		byte[] withoutChecksum = Arrays.copyOfRange(withChecksum, 0, withChecksum.length - 8);
 		if(validateChecksum){
 			var crc = new CRC32();
 			crc.update(withoutChecksum);

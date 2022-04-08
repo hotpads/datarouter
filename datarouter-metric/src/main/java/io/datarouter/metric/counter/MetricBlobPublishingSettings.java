@@ -18,17 +18,11 @@ package io.datarouter.metric.counter;
 public interface MetricBlobPublishingSettings{
 
 	String getApiKey();
-	String getPrivateKey();
 
 	public static class NoOpCountBlobPublishingSettings implements MetricBlobPublishingSettings{
 
 		@Override
 		public String getApiKey(){
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public String getPrivateKey(){
 			throw new UnsupportedOperationException();
 		}
 

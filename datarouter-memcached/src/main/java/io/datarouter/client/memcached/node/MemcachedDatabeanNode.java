@@ -18,29 +18,19 @@ package io.datarouter.client.memcached.node;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.function.Supplier;
 
-import io.datarouter.client.memcached.client.DatarouterMemcachedClient;
 import io.datarouter.client.memcached.codec.MemcachedDatabeanCodec;
-import io.datarouter.client.memcached.util.MemcachedDatabeanNodeTool;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.scanner.OptionalScanner;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.config.Config;
-import io.datarouter.storage.file.Pathbean;
-import io.datarouter.storage.file.Pathbean.PathbeanFielder;
 import io.datarouter.storage.file.PathbeanKey;
 import io.datarouter.storage.node.NodeParams;
-import io.datarouter.storage.node.NodeParams.NodeParamsBuilder;
 import io.datarouter.storage.node.op.raw.MapStorage.PhysicalMapStorageNode;
 import io.datarouter.storage.node.type.physical.base.BasePhysicalNode;
-import io.datarouter.storage.util.Subpath;
-import io.datarouter.web.config.service.ServiceName;
 
 public class MemcachedDatabeanNode<
 		PK extends PrimaryKey<PK>,
@@ -49,48 +39,19 @@ public class MemcachedDatabeanNode<
 extends BasePhysicalNode<PK,D,F>
 implements PhysicalMapStorageNode<PK,D,F>{
 
-	public static final int CODEC_VERSION = 1;
+	public static final String CODEC_VERSION = "1";
 
-	private final ClientId clientId;
 	private final MemcachedBlobNode blobNode;
 	private final MemcachedDatabeanCodec<PK,D,F> databeanCodec;
 
 	public MemcachedDatabeanNode(
 			NodeParams<PK,D,F> params,
 			ClientType<?,?> clientType,
-			ServiceName serviceName,
-			Supplier<DatarouterMemcachedClient> lazyClient){
+			MemcachedBlobNode blobNode,
+			MemcachedDatabeanCodec<PK,D,F> databeanCodec){
 		super(params, clientType);
-		clientId = params.getClientId();
-		String nodeVersion = Optional.ofNullable(params.getSchemaVersion())
-				.map(Object::toString)
-				.orElse("");
-		String databeanVersion = MemcachedDatabeanNodeTool.makeDatabeanVersion(
-				getFieldInfo().getFieldColumnNames());
-		Subpath nodeSubpath = MemcachedDatabeanNodeTool.makeSubpath(
-				Integer.toString(CODEC_VERSION),
-				serviceName.get(),
-				clientId.getName(),
-				Integer.toString(1),//placeholder
-				getFieldInfo().getTableName(),
-				nodeVersion,
-				databeanVersion);
-		NodeParamsBuilder<PK,D,F> blobParamsBuilder = new NodeParamsBuilder<>(params)
-				.withPath(nodeSubpath);
-		blobNode = new MemcachedBlobNode(
-				toPathbeanParams(blobParamsBuilder.build()),
-				clientType,
-				lazyClient);
-		databeanCodec = new MemcachedDatabeanCodec<>(
-				getFieldInfo().getSampleFielder(),
-				getFieldInfo().getDatabeanSupplier(),
-				getFieldInfo().getFieldByPrefixedName(),
-				nodeSubpath.toString().length());
-	}
-
-	@SuppressWarnings("unchecked")
-	private NodeParams<PathbeanKey,Pathbean,PathbeanFielder> toPathbeanParams(NodeParams<PK,D,F> params){
-		return (NodeParams<PathbeanKey,Pathbean,PathbeanFielder>)params;
+		this.blobNode = blobNode;
+		this.databeanCodec = databeanCodec;
 	}
 
 	/*------------- MapStorage -------------*/
@@ -150,7 +111,7 @@ implements PhysicalMapStorageNode<PK,D,F>{
 		Scanner.of(databeans)
 				.map(databeanCodec::encodeDatabeanIfValid)
 				.concat(OptionalScanner::of)
-				.forEach(keyAndValue -> blobNode.write(keyAndValue.getLeft(), keyAndValue.getRight()));
+				.forEach(keyAndValue -> blobNode.write(keyAndValue.getLeft(), keyAndValue.getRight(), config));
 	}
 
 	private Scanner<D> scanMultiInternal(Collection<PK> keys){

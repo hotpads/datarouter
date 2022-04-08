@@ -277,4 +277,11 @@ public class EndpointToolTests{
 		EndpointTool.validateEndpoint(new ValidateEndpoint4("", ""));
 	}
 
+	@Test
+	public void testGetParamFields(){
+		Map<String,String> actual = EndpointTool.getParamFields(new ValidateEndpoint4("123", "abc"));
+		Map<String,String> expected = Map.of("str2", "abc");
+		Assert.assertEquals(actual, expected);
+	}
+
 }

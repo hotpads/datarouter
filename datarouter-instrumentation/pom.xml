@@ -21,9 +21,9 @@
 
 	<parent>
 		<groupId>io.datarouter</groupId>
-		<artifactId>datarouter-java8-parent</artifactId>
-		<version>0.0.110</version>
-		<relativePath>../datarouter-java8-parent</relativePath>
+		<artifactId>datarouter-java11-parent</artifactId>
+		<version>0.0.111</version>
+		<relativePath>../datarouter-java11-parent</relativePath>
 	</parent>
 
 	<artifactId>datarouter-instrumentation</artifactId>
@@ -44,5 +44,4 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
-
 </project>

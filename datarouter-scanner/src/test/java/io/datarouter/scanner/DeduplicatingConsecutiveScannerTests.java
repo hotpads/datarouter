@@ -29,7 +29,7 @@ public class DeduplicatingConsecutiveScannerTests{
 
 	@Test
 	public void simpleTest(){
-		List<Integer> duplicates = Java9.listOf(0, 0, 1, 2, 3, 3, 4, 5, 9, 20, 20);
+		List<Integer> duplicates = List.of(0, 0, 1, 2, 3, 3, 4, 5, 9, 20, 20);
 		List<Integer> expected = new ArrayList<>(new TreeSet<>(duplicates));
 		List<Integer> actual = Scanner.of(duplicates)
 				.deduplicateConsecutive()
@@ -49,13 +49,13 @@ public class DeduplicatingConsecutiveScannerTests{
 
 	@Test
 	public void testDeduplicateConsecutiveBy(){
-		List<Person> people = Java9.listOf(
+		List<Person> people = List.of(
 				new Person("Bob", 1),
 				new Person("Jane", 2),
 				new Person("Jane", 3),
 				new Person("Sam", 4),
 				new Person("Sam", 5));
-		List<Person> expected = Java9.listOf(
+		List<Person> expected = List.of(
 				new Person("Bob", 1),
 				new Person("Jane", 2),
 				new Person("Sam", 4));

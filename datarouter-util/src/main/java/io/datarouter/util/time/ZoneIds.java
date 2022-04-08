@@ -19,7 +19,6 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.List;
 
-import io.datarouter.util.Java9;
 
 public class ZoneIds{
 
@@ -36,7 +35,7 @@ public class ZoneIds{
 
 	public static final ZoneId UTC = ZoneId.of("UTC");
 
-	public static final List<ZoneId> ZONE_IDS = Java9.listOf(
+	public static final List<ZoneId> ZONE_IDS = List.of(
 			AMERICA_ANCHORAGE,
 			AMERICA_CHICAGO,
 			AMERICA_DENVER,

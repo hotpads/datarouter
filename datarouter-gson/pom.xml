@@ -21,9 +21,9 @@
 
 	<parent>
 		<groupId>io.datarouter</groupId>
-		<artifactId>datarouter-java8-parent</artifactId>
-		<version>0.0.110</version>
-		<relativePath>../datarouter-java8-parent</relativePath>
+		<artifactId>datarouter-java11-parent</artifactId>
+		<version>0.0.111</version>
+		<relativePath>../datarouter-java11-parent</relativePath>
 	</parent>
 
 	<artifactId>datarouter-gson</artifactId>
@@ -33,14 +33,14 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-			<version>${slf4j-version}</version>
-		</dependency>
-		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
 			<version>${gson-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.datarouter</groupId>
+			<artifactId>datarouter-instrumentation</artifactId>
+			<version>${datarouter-version}</version>
 		</dependency>
 		<dependency>
 			<groupId>io.datarouter</groupId>

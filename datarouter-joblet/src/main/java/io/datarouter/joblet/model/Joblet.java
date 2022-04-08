@@ -16,8 +16,11 @@
 package io.datarouter.joblet.model;
 
 import io.datarouter.joblet.storage.jobletrequest.JobletRequest;
+import io.datarouter.util.mutable.MutableBoolean;
 
 public interface Joblet<P>{
+
+	void setShutdownRequested(MutableBoolean shutdownRequested);
 
 	JobletRequest getJobletRequest();
 	void setJobletRequest(JobletRequest jobletRequest);

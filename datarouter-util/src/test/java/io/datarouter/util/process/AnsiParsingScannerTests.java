@@ -23,7 +23,6 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import io.datarouter.scanner.Scanner;
-import io.datarouter.util.Java9;
 import io.datarouter.util.process.AnsiParsingScanner.AnsiParsedLine;
 import io.datarouter.util.tuple.Pair;
 
@@ -40,8 +39,8 @@ public class AnsiParsingScannerTests{
 				.link(scanner -> new AnsiParsingScanner(scanner, "sgr-", logConsumer))
 				.list();
 
-		Assert.assertEquals(output, Java9.listOf("no html", "normal text"));
-		Assert.assertEquals(consumedLogs, Java9.listOf(
+		Assert.assertEquals(output, List.of("no html", "normal text"));
+		Assert.assertEquals(consumedLogs, List.of(
 				new Pair<>("no html", false),
 				new Pair<>("normal text", false)));
 	}
@@ -55,8 +54,8 @@ public class AnsiParsingScannerTests{
 				.link(scanner -> new AnsiParsingScanner(scanner, "sgr-", logConsumer))
 				.list();
 
-		Assert.assertEquals(output, Java9.listOf("Hello World!"));
-		Assert.assertEquals(consumedLogs, Java9.listOf(
+		Assert.assertEquals(output, List.of("Hello World!"));
+		Assert.assertEquals(consumedLogs, List.of(
 				new Pair<>("<span class=\"sgr-92\">Hello World!</span>", true)));
 	}
 
@@ -72,8 +71,8 @@ public class AnsiParsingScannerTests{
 				.link(scanner -> new AnsiParsingScanner(scanner, "sgr-", logConsumer))
 				.list();
 
-		Assert.assertEquals(output, Java9.listOf("Needs html", "No html", "Back to html"));
-		Assert.assertEquals(consumedLogs, Java9.listOf(
+		Assert.assertEquals(output, List.of("Needs html", "No html", "Back to html"));
+		Assert.assertEquals(consumedLogs, List.of(
 				new Pair<>("<span class=\"sgr-01\">Needs html</span>", true),
 				new Pair<>("No html", false),
 				new Pair<>("<span class=\"sgr-92\">Back to html</span>", true)));
@@ -88,8 +87,8 @@ public class AnsiParsingScannerTests{
 				.link(scanner -> new AnsiParsingScanner(scanner, "sgr-", logConsumer))
 				.list();
 
-		Assert.assertEquals(output, Java9.listOf("Many classes"));
-		Assert.assertEquals(consumedLogs, Java9.listOf(
+		Assert.assertEquals(output, List.of("Many classes"));
+		Assert.assertEquals(consumedLogs, List.of(
 				new Pair<>("<span class=\"sgr-33 sgr-01 sgr-47\">Many classes</span>", true)));
 	}
 
@@ -102,8 +101,8 @@ public class AnsiParsingScannerTests{
 				.link(scanner -> new AnsiParsingScanner(scanner, "sgr-", logConsumer))
 				.list();
 
-		Assert.assertEquals(output, Java9.listOf("Stacked classes"));
-		Assert.assertEquals(consumedLogs, Java9.listOf(
+		Assert.assertEquals(output, List.of("Stacked classes"));
+		Assert.assertEquals(consumedLogs, List.of(
 				new Pair<>("<span class=\"sgr-33 sgr-44\">Stacked classes</span>", true)));
 	}
 
@@ -116,8 +115,8 @@ public class AnsiParsingScannerTests{
 				.link(scanner -> new AnsiParsingScanner(scanner, "sgr-", logConsumer))
 				.list();
 
-		Assert.assertEquals(output, Java9.listOf("Hello World!"));
-		Assert.assertEquals(consumedLogs, Java9.listOf(
+		Assert.assertEquals(output, List.of("Hello World!"));
+		Assert.assertEquals(consumedLogs, List.of(
 				new Pair<>("<span class=\"sgr-33\">Hello </span><span class=\"sgr-33 sgr-44\">World</span>!", true)));
 	}
 
@@ -130,8 +129,8 @@ public class AnsiParsingScannerTests{
 				.link(scanner -> new AnsiParsingScanner(scanner, "sgr-", logConsumer))
 				.list();
 
-		Assert.assertEquals(output, Java9.listOf("Hello World!"));
-		Assert.assertEquals(consumedLogs, Java9.listOf(
+		Assert.assertEquals(output, List.of("Hello World!"));
+		Assert.assertEquals(consumedLogs, List.of(
 				new Pair<>("Hello <span class=\"sgr-44\">World!</span>", true)));
 	}
 
@@ -144,8 +143,8 @@ public class AnsiParsingScannerTests{
 				.link(scanner -> new AnsiParsingScanner(scanner, "different-prefix_", logConsumer))
 				.list();
 
-		Assert.assertEquals(output, Java9.listOf("Hello World!"));
-		Assert.assertEquals(consumedLogs, Java9.listOf(
+		Assert.assertEquals(output, List.of("Hello World!"));
+		Assert.assertEquals(consumedLogs, List.of(
 				new Pair<>("<span class=\"different-prefix_92\">Hello World!</span>", true)));
 	}
 

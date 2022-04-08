@@ -15,6 +15,8 @@
  */
 package io.datarouter.scanner;
 
+import java.util.List;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -22,8 +24,8 @@ public class ObjectScannerTests{
 
 	@Test
 	public void test(){
-		Assert.assertEquals(Scanner.of().list(), Java9.listOf());
-		Assert.assertEquals(Scanner.of(1).list(), Java9.listOf(1));
+		Assert.assertEquals(Scanner.of().list(), List.of());
+		Assert.assertEquals(Scanner.of(1).list(), List.of(1));
 	}
 
 	@Test
@@ -38,7 +40,7 @@ public class ObjectScannerTests{
 	public void testOfNullable(){
 		Integer nonNullInteger = 1;
 		Integer nullInteger = null;
-		Assert.assertEquals(Scanner.ofNullable(nonNullInteger).list(), Java9.listOf(1));
+		Assert.assertEquals(Scanner.ofNullable(nonNullInteger).list(), List.of(1));
 		Assert.assertTrue(Scanner.ofNullable(nullInteger).isEmpty());
 		Assert.assertSame(Scanner.ofNullable(nullInteger), Scanner.empty());
 		Assert.assertSame(Scanner.ofNullable(nullInteger), EmptyScanner.singleton());

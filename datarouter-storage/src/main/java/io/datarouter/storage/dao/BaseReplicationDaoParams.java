@@ -15,18 +15,14 @@
  */
 package io.datarouter.storage.dao;
 
-import java.util.List;
-
-import io.datarouter.storage.client.ClientId;
+import io.datarouter.storage.client.ReplicationClientIds;
 
 public abstract class BaseReplicationDaoParams{
 
-	public final ClientId writer;
-	public final List<ClientId> readers;
+	public final ReplicationClientIds clientIds;
 
-	protected BaseReplicationDaoParams(ClientId writer, List<ClientId> readers){
-		this.writer = writer;
-		this.readers = readers;
+	protected BaseReplicationDaoParams(ReplicationClientIds clientIds){
+		this.clientIds = clientIds;
 	}
 
 }

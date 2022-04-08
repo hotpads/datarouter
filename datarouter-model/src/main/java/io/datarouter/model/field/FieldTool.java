@@ -15,6 +15,7 @@
  */
 package io.datarouter.model.field;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import io.datarouter.bytes.ByteTool;
@@ -86,8 +87,7 @@ public class FieldTool{
 			List<Field<?>> fields,
 			boolean includePrefix,
 			boolean skipNullValues){
-		byte[][] tokens = new byte[4 * fields.size()][];
-		int index = 0;
+		List<byte[]> tokens = new ArrayList<>(4 * fields.size());
 		for(Field<?> field : fields){
 			byte[] value = field.getBytes();
 			if(value == null && skipNullValues){
@@ -96,11 +96,10 @@ public class FieldTool{
 			byte[] key = includePrefix
 					? StringCodec.UTF_8.encode(field.getPrefixedName())
 					: field.getKey().getColumnNameBytes();
-
-			tokens[index++] = VarIntTool.encode(key.length);
-			tokens[index++] = key;
-			tokens[index++] = VarIntTool.encode(value.length);
-			tokens[index++] = value;
+			tokens.add(VarIntTool.encode(key.length));
+			tokens.add(key);
+			tokens.add(VarIntTool.encode(value.length));
+			tokens.add(value);
 		}
 		return ByteTool.concat(tokens);
 	}

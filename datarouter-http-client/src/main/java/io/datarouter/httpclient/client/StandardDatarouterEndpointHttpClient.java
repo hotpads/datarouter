@@ -60,10 +60,12 @@ import io.datarouter.httpclient.security.CsrfGenerator.RefreshableCsrfGenerator;
 import io.datarouter.httpclient.security.SecurityParameters;
 import io.datarouter.httpclient.security.SignatureGenerator;
 import io.datarouter.httpclient.security.SignatureGenerator.RefreshableSignatureGenerator;
+import io.datarouter.instrumentation.count.Counters;
 import io.datarouter.instrumentation.refreshable.RefreshableSupplier;
 import io.datarouter.instrumentation.trace.TraceSpanFinisher;
 import io.datarouter.instrumentation.trace.TraceSpanGroupType;
 import io.datarouter.instrumentation.trace.TracerTool;
+import io.datarouter.pathnode.PathNode;
 
 @Singleton
 public class StandardDatarouterEndpointHttpClient<
@@ -88,6 +90,7 @@ implements DatarouterEndpointHttpClient<ET>{
 	private final Supplier<Boolean> traceInQueryString;
 	private final Supplier<Boolean> debugLog;
 	private final String apiKeyFieldName;
+	private final String name;
 
 	StandardDatarouterEndpointHttpClient(
 			CloseableHttpClient httpClient,
@@ -117,6 +120,7 @@ implements DatarouterEndpointHttpClient<ET>{
 		this.config = config;
 		this.connectionManager = connectionManager;
 		this.circuitWrappedHttpClient = new DatarouterHttpClientIoExceptionCircuitBreaker(name);
+		this.name = name;
 		this.enableBreakers = enableBreakers;
 		this.urlPrefix = urlPrefix;
 		this.traceInQueryString = traceInQueryString;
@@ -136,7 +140,7 @@ implements DatarouterEndpointHttpClient<ET>{
 				client.refreshableApiKeySupplier,
 				client.config,
 				client.connectionManager,
-				client.apiKeyFieldName,
+				client.name,
 				client.enableBreakers,
 				client.urlPrefix,
 				client.traceInQueryString,
@@ -144,20 +148,23 @@ implements DatarouterEndpointHttpClient<ET>{
 				client.apiKeyFieldName);
 	}
 
-	private <R> R executeChecked(DatarouterHttpRequest request, Type deserializeToType) throws DatarouterHttpException{
-		String entity = executeChecked(request).getEntity();
+	private <R> R executeChecked(DatarouterHttpRequest request, PathNode pathNode, Type deserializeToType)
+	throws DatarouterHttpException{
+		String entity = executeChecked(request, pathNode).getEntity();
 		try(TraceSpanFinisher $ = TracerTool.startSpan("JsonSerializer deserialize", TraceSpanGroupType.SERIALIZATION)){
 			TracerTool.appendToSpanInfo("characters", entity.length());
 			return jsonSerializer.deserialize(entity, deserializeToType);
 		}
 	}
 
-	private DatarouterHttpResponse executeChecked(DatarouterHttpRequest request) throws DatarouterHttpException{
-		return executeChecked(request, (Consumer<HttpEntity>)null);
+	private DatarouterHttpResponse executeChecked(DatarouterHttpRequest request, PathNode pathNode)
+	throws DatarouterHttpException{
+		return executeChecked(request, pathNode, (Consumer<HttpEntity>)null);
 	}
 
 	private DatarouterHttpResponse executeChecked(
 			DatarouterHttpRequest request,
+			PathNode pathNode,
 			Consumer<HttpEntity> httpEntityConsumer)
 	throws DatarouterHttpException{
 		//store info needed to retry
@@ -168,9 +175,13 @@ implements DatarouterEndpointHttpClient<ET>{
 				.collect(Collectors.toMap(Entry::getKey, entry -> new ArrayList<>(entry.getValue())));
 		Map<String,List<String>> originalHeaders = request.getHeaders().entrySet().stream()
 				.collect(Collectors.toMap(Entry::getKey, entry -> new ArrayList<>(entry.getValue())));
+
+		DatarouterHttpResponse response = null;
 		try{
-			return executeCheckedInternal(request, httpEntityConsumer);
+			response = executeCheckedInternal(request, httpEntityConsumer);
+			return response;
 		}catch(DatarouterHttpResponseException e){
+			response = e.getResponse();
 			if(shouldRerun40x(firstAttemptInstant, e.getResponse().getStatusCode(), request.getShouldSkipSecurity())){
 				//reset any changes to request made during the first attempt
 				request.setGetParams(originalGetParams);
@@ -180,6 +191,10 @@ implements DatarouterEndpointHttpClient<ET>{
 				return executeCheckedInternal(request, httpEntityConsumer);
 			}
 			throw e;
+		}finally{
+			int statusCode = response == null ? 0 : response.getStatusCode();
+			String counter = String.format("endpointHttpClient %s %s %d", name, pathNode.toSlashedString(), statusCode);
+			Counters.inc(counter);
 		}
 	}
 
@@ -194,14 +209,20 @@ implements DatarouterEndpointHttpClient<ET>{
 			cookieStore.addCookie(cookie);
 		}
 		context.setCookieStore(cookieStore);
-		return circuitWrappedHttpClient.call(httpClient, request, httpEntityConsumer, context, enableBreakers,
-				traceInQueryString, debugLog);
+		return circuitWrappedHttpClient.call(
+				httpClient,
+				request,
+				httpEntityConsumer,
+				context,
+				enableBreakers,
+				traceInQueryString,
+				debugLog);
 	}
 
-	private <R> Conditional<R> tryExecute(DatarouterHttpRequest request, Type deserializeToType){
+	private <R> Conditional<R> tryExecute(DatarouterHttpRequest request, PathNode pathNode, Type deserializeToType){
 		R response;
 		try{
-			response = executeChecked(request, deserializeToType);
+			response = executeChecked(request, pathNode, deserializeToType);
 		}catch(DatarouterHttpException e){
 			if(!request.getShouldSkipLogs()){
 				logger.warn("", e);
@@ -217,7 +238,7 @@ implements DatarouterEndpointHttpClient<ET>{
 		DatarouterHttpRequest datarouterHttpRequest = EndpointTool.toDatarouterHttpRequest(endpoint);
 		EndpointTool.findEntity(endpoint).ifPresent(entity -> setEntityDto(datarouterHttpRequest, entity));
 		Type responseType = EndpointTool.getResponseType(endpoint);
-		return tryExecute(datarouterHttpRequest, responseType);
+		return tryExecute(datarouterHttpRequest, endpoint.pathNode, responseType);
 	}
 
 	@Override // TODO rename
@@ -226,15 +247,16 @@ implements DatarouterEndpointHttpClient<ET>{
 		DatarouterHttpRequest datarouterHttpRequest = EndpointTool.toDatarouterHttpRequest(endpoint);
 		EndpointTool.findEntity(endpoint).ifPresent(entity -> setEntityDto(datarouterHttpRequest, entity));
 		Type responseType = EndpointTool.getResponseType(endpoint);
-		return tryExecute(datarouterHttpRequest, responseType);
+		return tryExecute(datarouterHttpRequest, endpoint.pathNode, responseType);
 	}
 
 	@Override
 	public <R> R callRaw(BaseEndpoint<R,ET> endpoint) throws DatarouterHttpException{
-		DatarouterHttpRequest request = EndpointTool.toDatarouterHttpRequest(endpoint);
-		EndpointTool.findEntity(endpoint).ifPresent(entity -> setEntityDto(request, entity));
+		initUrlPrefix(endpoint);
+		DatarouterHttpRequest datarouterHttpRequest = EndpointTool.toDatarouterHttpRequest(endpoint);
+		EndpointTool.findEntity(endpoint).ifPresent(entity -> setEntityDto(datarouterHttpRequest, entity));
 		Type responseType = EndpointTool.getResponseType(endpoint);
-		return executeChecked(request, responseType);
+		return executeChecked(datarouterHttpRequest, endpoint.pathNode, responseType);
 	}
 
 	private void setSecurityProperties(DatarouterHttpRequest request){

@@ -18,7 +18,6 @@ package io.datarouter.bytes.binarydto.fieldcodec;
 import java.util.function.Function;
 
 import io.datarouter.bytes.Codec;
-import io.datarouter.bytes.FunctionalCodec;
 import io.datarouter.bytes.LengthAndValue;
 
 public class BinaryDtoConvertingFieldCodec<R,T> extends BinaryDtoBaseFieldCodec<R>{
@@ -30,7 +29,7 @@ public class BinaryDtoConvertingFieldCodec<R,T> extends BinaryDtoBaseFieldCodec<
 			Function<R,T> convertTo,
 			Function<T,R> convertFrom,
 			BinaryDtoBaseFieldCodec<T> codec){
-		this.converter = new FunctionalCodec<>(convertTo, convertFrom);
+		this.converter = Codec.of(convertTo, convertFrom);
 		this.codec = codec;
 	}
 

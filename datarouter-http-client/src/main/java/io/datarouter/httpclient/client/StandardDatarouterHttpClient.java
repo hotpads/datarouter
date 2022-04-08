@@ -84,6 +84,7 @@ public class StandardDatarouterHttpClient implements DatarouterHttpClient{
 	protected final Supplier<Boolean> traceInQueryString;
 	protected final Supplier<Boolean> debugLog;
 	protected final String apiKeyFieldName;
+	protected final String name;
 
 	StandardDatarouterHttpClient(
 			CloseableHttpClient httpClient,
@@ -112,6 +113,7 @@ public class StandardDatarouterHttpClient implements DatarouterHttpClient{
 		this.refreshableApiKeySupplier = refreshableApiKeySupplier;
 		this.config = config;
 		this.connectionManager = connectionManager;
+		this.name = name;
 		this.circuitWrappedHttpClient = new DatarouterHttpClientIoExceptionCircuitBreaker(name);
 		this.enableBreakers = enableBreakers;
 		this.urlPrefix = urlPrefix;

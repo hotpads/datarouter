@@ -43,12 +43,12 @@ public class SplittingScannerTests{
 				.map(Scanner::list)
 				.list();
 		Iterator<List<String>> iter = result.iterator();
-		Assert.assertEquals(iter.next(), Java9.listOf("a1", "a2"));
-		Assert.assertEquals(iter.next(), Java9.listOf("b1"));
+		Assert.assertEquals(iter.next(), List.of("a1", "a2"));
+		Assert.assertEquals(iter.next(), List.of("b1"));
 		Assert.assertEquals(iter.next(), Arrays.asList((String)null));
-		Assert.assertEquals(iter.next(), Java9.listOf("b2"));
-		Assert.assertEquals(iter.next(), Java9.listOf("c1"));
-		Assert.assertEquals(iter.next(), Java9.listOf("a3", "a4"));
+		Assert.assertEquals(iter.next(), List.of("b2"));
+		Assert.assertEquals(iter.next(), List.of("c1"));
+		Assert.assertEquals(iter.next(), List.of("a3", "a4"));
 		Assert.assertFalse(iter.hasNext());
 	}
 
@@ -59,11 +59,11 @@ public class SplittingScannerTests{
 				.concat(tokens -> tokens.batch(2))
 				.list();
 		Iterator<List<String>> iter = result.iterator();
-		Assert.assertEquals(iter.next(), Java9.listOf("a1"));
-		Assert.assertEquals(iter.next(), Java9.listOf("b1"));
-		Assert.assertEquals(iter.next(), Java9.listOf("c1"));
-		Assert.assertEquals(iter.next(), Java9.listOf("d1"));
-		Assert.assertEquals(iter.next(), Java9.listOf("e1"));
+		Assert.assertEquals(iter.next(), List.of("a1"));
+		Assert.assertEquals(iter.next(), List.of("b1"));
+		Assert.assertEquals(iter.next(), List.of("c1"));
+		Assert.assertEquals(iter.next(), List.of("d1"));
+		Assert.assertEquals(iter.next(), List.of("e1"));
 		Assert.assertFalse(iter.hasNext());
 	}
 

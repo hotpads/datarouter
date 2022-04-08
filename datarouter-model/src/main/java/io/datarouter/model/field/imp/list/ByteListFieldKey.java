@@ -33,4 +33,9 @@ public class ByteListFieldKey extends ListFieldKey<Byte,List<Byte>,ByteListField
 		return false;
 	}
 
+	@Override
+	public List<Byte> getSampleValue(){
+		return List.of();
+	}
+
 }

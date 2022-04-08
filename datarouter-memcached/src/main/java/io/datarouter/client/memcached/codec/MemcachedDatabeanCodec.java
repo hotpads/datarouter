@@ -23,7 +23,6 @@ import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.bytes.ByteUnitType;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.databean.DatabeanTool;
 import io.datarouter.model.field.Field;
@@ -31,7 +30,6 @@ import io.datarouter.model.field.FieldSetTool;
 import io.datarouter.model.field.FieldTool;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
-import io.datarouter.model.util.CommonFieldSizes;
 import io.datarouter.storage.file.PathbeanKey;
 import io.datarouter.util.tuple.Pair;
 
@@ -41,24 +39,29 @@ public class MemcachedDatabeanCodec<
 		F extends DatabeanFielder<PK,D>>{
 	private static final Logger logger = LoggerFactory.getLogger(MemcachedDatabeanCodec.class);
 
-	private static final int SKIP_IF_LARGER_THAN = ByteUnitType.MiB.toBytesInt(2);
-
+	private final String clientTypeName;
 	private final DatabeanFielder<PK,D> fielder;
 	private final Supplier<D> databeanSupplier;
 	private final Map<String,Field<?>> fieldByPrefixedName;
+	private final int clientMaxValueLength;
 	private final int nodeSubpathLength;
 	private final int maxKeyLength;
 
 	public MemcachedDatabeanCodec(
+			String clientTypeName,
 			DatabeanFielder<PK,D> fielder,
 			Supplier<D> databeanSupplier,
 			Map<String,Field<?>> fieldByPrefixedName,
+			int clientMaxKeyLength,
+			int clientMaxValueLength,
 			int nodeSubpathLength){
+		this.clientTypeName = clientTypeName;
 		this.fielder = fielder;
 		this.databeanSupplier = databeanSupplier;
 		this.fieldByPrefixedName = fieldByPrefixedName;
+		this.clientMaxValueLength = clientMaxValueLength;
 		this.nodeSubpathLength = nodeSubpathLength;
-		this.maxKeyLength = CommonFieldSizes.MEMCACHED_MAX_KEY_LENGTH - nodeSubpathLength;
+		this.maxKeyLength = clientMaxKeyLength - nodeSubpathLength;
 	}
 
 	public Optional<Pair<PathbeanKey,byte[]>> encodeDatabeanIfValid(D databean){
@@ -69,9 +72,9 @@ public class MemcachedDatabeanCodec<
 		//TODO put only the nonKeyFields in the byte[] and figure out the keyFields from the key string
 		//  could be big savings for small or key-only databeans
 		byte[] value = encodeDatabean(databean);
-		if(value.length > SKIP_IF_LARGER_THAN){
+		if(value.length > clientMaxValueLength){
 			//memcached max size is 1mb for a compressed object, so don't put things that won't compress well
-			logger.warn("object too big for memcached length={} key={}", value.length, databean.getKey());
+			logger.warn("object too big for {} length={} key={}", clientTypeName, value.length, databean.getKey());
 			return Optional.empty();
 		}
 		return Optional.of(new Pair<>(pathbeanKey.orElseThrow(), value));
@@ -81,8 +84,9 @@ public class MemcachedDatabeanCodec<
 		PathbeanKey pathbeanKey = encodeDatabeanKey(pk);
 		String encodedKey = pathbeanKey.getPathAndFile();
 		if(pathbeanKey.getPathAndFile().length() > maxKeyLength){
-			logger.warn("key too long for memcached length={} nodeSubpathLength={} maxKeyLength={} key={}"
+			logger.warn("key too long for {} length={} nodeSubpathLength={} maxKeyLength={} key={}"
 					+ " encodedKey={}",
+					clientTypeName,
 					encodedKey.length(),
 					nodeSubpathLength,
 					maxKeyLength,
@@ -112,7 +116,7 @@ public class MemcachedDatabeanCodec<
 	 * Unfortunately, it doesn't sort identically to the bytes, but that isn't a concern for MapStorage.
 	 *
 	 * A Base16 (hex) format could be used if sorting becomes necessary, but would use more key space which is
-	 * limited with memcached.
+	 * limited with clients like Memcached.
 	 */
 	private static PathbeanKey encodeDatabeanKey(PrimaryKey<?> pk){
 		byte[] bytes = FieldTool.getConcatenatedValueBytes(pk.getFields());

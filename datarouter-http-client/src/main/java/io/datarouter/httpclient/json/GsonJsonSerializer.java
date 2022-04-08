@@ -28,6 +28,10 @@ import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSyntaxException;
 
+/**
+ * use {@link Java9GsonJsonSerializer}
+ */
+@Deprecated
 @Singleton
 public class GsonJsonSerializer implements JsonSerializer{
 

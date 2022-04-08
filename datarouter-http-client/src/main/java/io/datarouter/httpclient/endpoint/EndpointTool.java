@@ -22,6 +22,8 @@ import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.net.URI;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -88,6 +90,49 @@ public class EndpointTool{
 			}
 		}
 		return request;
+	}
+
+	/**
+	 * Convert all field names and values to a map.
+	 *
+	 * EndpointRequestBodies are ignored.
+	 * Both GET and POST params will be added to the map
+	 * If optional fields are not present, they will not be added to the map
+	 */
+	public static Map<String,String> getParamFields(BaseEndpoint<?,?> endpoint){
+		Map<String,String> params = new LinkedHashMap<>();
+		for(Field field : endpoint.getClass().getFields()){
+			IgnoredField ignoredField = field.getAnnotation(IgnoredField.class);
+			if(ignoredField != null){
+				continue;
+			}
+			if(Modifier.isStatic(field.getModifiers())){
+				continue;
+			}
+			if(field.getAnnotation(EndpointRequestBody.class) != null){
+				continue;
+			}
+			String key = getFieldName(field);
+			Object value = null;
+			try{
+				value = field.get(endpoint);
+			}catch(IllegalArgumentException | IllegalAccessException ex){
+				logger.error("", ex);
+			}
+			boolean isOptional = field.getType().isAssignableFrom(Optional.class);
+			if(isOptional && value == null){
+				throw new RuntimeException(String.format(
+						"%s: Optional fields cannot be null. '%s' needs to be initialized to Optional.empty().",
+						endpoint.getClass().getSimpleName(), key));
+			}
+			if(value == null){
+				throw new RuntimeException(String.format(
+						"%s: Fields cannot be null. '%s' needs to be initialized or changed to an Optional field.",
+						endpoint.getClass().getSimpleName(), key));
+			}
+			getValue(field, value).ifPresent(paramValue -> params.put(key, paramValue));
+		}
+		return params;
 	}
 
 	public static Optional<Object> findEntity(BaseEndpoint<?,?> endpoint){

@@ -13,29 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.bytes;
+package io.datarouter.web.util;
 
-import java.util.function.Function;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
-public class FunctionalCodec<A,B>
-implements Codec<A,B>{
+import com.google.inject.BindingAnnotation;
 
-	private final Function<A,B> encodeFunction;
-	private final Function<B,A> decodeFunction;
-
-	public FunctionalCodec(Function<A,B> encodeFunction, Function<B,A> decodeFunction){
-		this.encodeFunction = encodeFunction;
-		this.decodeFunction = decodeFunction;
-	}
-
-	@Override
-	public B encode(A value){
-		return encodeFunction.apply(value);
-	}
-
-	@Override
-	public A decode(B encodedValue){
-		return decodeFunction.apply(encodedValue);
-	}
+/**
+ * Temporary annotation to inject the better Java 9 Gson
+ */
+@Retention(RetentionPolicy.RUNTIME)
+@BindingAnnotation
+public @interface Java9Gson{
 
 }

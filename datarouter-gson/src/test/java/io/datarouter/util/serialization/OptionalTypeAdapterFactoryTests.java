@@ -25,7 +25,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.SerializedName;
 
-import io.datarouter.gson.Java9;
 import io.datarouter.gson.serialization.OptionalTypeAdapterFactory;
 
 public class OptionalTypeAdapterFactoryTests{
@@ -137,7 +136,7 @@ public class OptionalTypeAdapterFactoryTests{
 		public ComplexOptionalDto(boolean initialize){
 			if(initialize){
 				theTitle = Optional.ofNullable("Complex Object");
-				stringArray = Optional.ofNullable(Java9.listOf(
+				stringArray = Optional.ofNullable(List.of(
 						Optional.ofNullable("Hello"),
 						Optional.ofNullable("World")));
 				theObject = Optional.ofNullable(new BasicOptionalDto(true));

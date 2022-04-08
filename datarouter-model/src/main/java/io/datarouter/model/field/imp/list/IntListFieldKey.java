@@ -32,4 +32,9 @@ public class IntListFieldKey extends ListFieldKey<Integer,List<Integer>,IntListF
 		return false;
 	}
 
+	@Override
+	public List<Integer> getSampleValue(){
+		return List.of();
+	}
+
 }

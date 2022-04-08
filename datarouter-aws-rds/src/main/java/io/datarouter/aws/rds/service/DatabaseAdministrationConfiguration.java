@@ -15,22 +15,25 @@
  */
 package io.datarouter.aws.rds.service;
 
+import static j2html.TagCreator.pre;
+
 import io.datarouter.aws.rds.service.AuroraDnsService.DnsHostEntryDto;
+import j2html.tags.specialized.PreTag;
 
 public interface DatabaseAdministrationConfiguration{
 
-	String fixDatabaseDns(DnsHostEntryDto dnsHostEntryDto);
-	void addOtherDatabaseDns(String clientName);
+	PreTag fixDatabaseDns(DnsHostEntryDto dnsHostEntryDto);
+	void addOtherDatabaseDns(String clusterName);
 
 	class NoOpDatabaseAdministrationConfiguration implements DatabaseAdministrationConfiguration{
 
 		@Override
-		public String fixDatabaseDns(DnsHostEntryDto dnsHostEntryDto){
-			return "";
+		public PreTag fixDatabaseDns(DnsHostEntryDto dnsHostEntryDto){
+			return pre("");
 		}
 
 		@Override
-		public void addOtherDatabaseDns(String clientName){
+		public void addOtherDatabaseDns(String clusterName){
 		}
 
 	}

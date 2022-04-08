@@ -21,8 +21,10 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -82,8 +84,9 @@ public class AuroraDnsService{
 				3, true);
 	}
 
-	private DnsHostEntryDto tryDnsLookUp(String clientName, String hostname, boolean isWriter) throws IOException,
-	InterruptedException{
+	private DnsHostEntryDto tryDnsLookUp(String clientName, String hostname, boolean isWriter)
+	throws IOException, InterruptedException{
+		// TODO use DigRunner
 		String ip = null;
 		String instanceHostname = null;
 		String clusterHostname = null;
@@ -137,7 +140,7 @@ public class AuroraDnsService{
 
 	public List<ClientId> getPrimaryClientIds(){
 		return clientIdProvider.getAuroraClientDtos().stream()
-				.map(dto -> dto.getWriterClientId())
+				.map(AuroraClientDto::getWriterClientId)
 				.collect(Collectors.toList());
 	}
 
@@ -147,6 +150,7 @@ public class AuroraDnsService{
 
 	public Pair<Collection<DnsHostEntryDto>,List<DnsHostEntryDto>> checkClientEndpoint(){
 		Map<String,DnsHostEntryDto> dnsEntryByHostname = getDnsEntryForClients();
+		Set<String> ipSet = new HashSet<>();
 		logger.debug("dnsEntryByHostname={}", gson.toJson(dnsEntryByHostname));
 		List<DnsHostEntryDto> mismatchedEntries = new ArrayList<>();
 		for(DnsHostEntryDto dnsEntry : dnsEntryByHostname.values()){
@@ -164,6 +168,11 @@ public class AuroraDnsService{
 					readerEntry.setReaderPointedToWriterFlag();
 					mismatchedEntries.add(readerEntry);
 				}
+				//check if a reader is already pointing to same instance
+				if(ipSet.contains(readerEntry.ip)){
+					readerEntry.setReaderPointedToReaderFlag();
+					mismatchedEntries.add(readerEntry);
+				}
 				//check if reader entry is pointed to an other instance
 				if(otherEntry != null){
 					if(otherEntry.ip != null && readerEntry.ip.equals(otherEntry.ip)){
@@ -176,6 +185,7 @@ public class AuroraDnsService{
 				dnsEntry.setWriterPointedToInstanceFlag();
 				mismatchedEntries.add(dnsEntry);
 			}
+			ipSet.add(dnsEntry.ip);
 		}
 		return new Pair<>(dnsEntryByHostname.values(), mismatchedEntries);
 	}
@@ -192,6 +202,7 @@ public class AuroraDnsService{
 		private boolean isAuroraInstance = false;
 		private boolean readerPointedToWriter = false;
 		private boolean readerPointedToOther = false;
+		private boolean readerPointerdToReader = false;
 		private boolean writerNotPointedToClusterEndpoint = false;
 
 		public final boolean reader;
@@ -264,6 +275,11 @@ public class AuroraDnsService{
 		public void setWriterPointedToInstanceFlag(){
 			this.writerNotPointedToClusterEndpoint = true;
 		}
+
+		public void setReaderPointedToReaderFlag(){
+			this.readerPointerdToReader = true;
+		}
+
 
 	}
 

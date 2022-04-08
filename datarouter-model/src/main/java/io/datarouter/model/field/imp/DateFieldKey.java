@@ -79,4 +79,9 @@ public class DateFieldKey extends PrimitiveFieldKey<Date,DateFieldKey>{
 		return new DateFieldKey(name, columnName, nullable, fieldGeneratorType, defaultValue, precision, attributes);
 	}
 
+	@Override
+	public Date getSampleValue(){
+		return new Date();
+	}
+
 }

@@ -42,7 +42,6 @@ import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 import io.datarouter.storage.queue.QueueMessageKey;
 import io.datarouter.util.DateTool;
 import io.datarouter.util.lang.ObjectTool;
-import io.datarouter.util.mutable.MutableBoolean;
 import io.datarouter.util.number.NumberTool;
 import io.datarouter.util.string.StringTool;
 
@@ -70,7 +69,6 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 
 	//TODO remove from the databean
 	private QueueMessageKey queueMessageKey;//transient
-	private MutableBoolean shutdownRequested;//a shared flag passed in from the executor
 
 	public static final String KEY_NAME = "key";
 
@@ -269,14 +267,6 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 
 	public void setQueueId(String queueId){
 		this.queueId = queueId;
-	}
-
-	public void setShutdownRequested(MutableBoolean shutdownRequested){
-		this.shutdownRequested = shutdownRequested;
-	}
-
-	public MutableBoolean getShutdownRequested(){
-		return shutdownRequested;
 	}
 
 	public QueueMessageKey getQueueMessageKey(){

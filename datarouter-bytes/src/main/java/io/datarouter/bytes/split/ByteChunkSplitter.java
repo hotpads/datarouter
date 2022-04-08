@@ -67,7 +67,7 @@ public class ByteChunkSplitter<T>{
 				}else{
 					int len = i - start + 1;
 					if(count == 0){
-						first = ByteTool.copyOfRange(chunk, start, len);
+						first = Arrays.copyOfRange(chunk, start, start + len);
 					}else{
 						collector.collect(chunk, start, len);
 					}
@@ -79,7 +79,7 @@ public class ByteChunkSplitter<T>{
 		int lastTokenLength = chunk.length - start;
 		byte[] last = null;
 		if(lastTokenLength > 0){
-			byte[] lastToken = ByteTool.copyOfRange(chunk, start, lastTokenLength);
+			byte[] lastToken = Arrays.copyOfRange(chunk, start, start + lastTokenLength);
 			if(lastToken[lastToken.length - 1] == delimiter){
 				collector.collect(lastToken, start, lastTokenLength);
 			}else{

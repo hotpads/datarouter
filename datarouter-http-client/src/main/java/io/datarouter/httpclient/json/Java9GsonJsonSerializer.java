@@ -13,15 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.client.memcached;
+package io.datarouter.httpclient.json;
 
-import io.datarouter.storage.util.Subpath;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
-public class MemcachedReservedBlobPaths{
+import io.datarouter.gson.serialization.GsonTool;
 
-	public static final Subpath DATABEAN = new Subpath("databean");
+@Singleton
+public class Java9GsonJsonSerializer extends GsonJsonSerializer{
 
-	//Currently unused, but reserved for splitting tally/databean storage
-	public static final Subpath TALLY = new Subpath("tally");
+	@Inject
+	public Java9GsonJsonSerializer(){
+		super(GsonTool.JAVA9_GSON);
+	}
 
 }

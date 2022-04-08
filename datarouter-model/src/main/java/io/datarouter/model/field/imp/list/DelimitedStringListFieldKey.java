@@ -34,5 +34,10 @@ public class DelimitedStringListFieldKey extends ListFieldKey<String,List<String
 		this.separator = separator;
 	}
 
+	@Override
+	public List<String> getSampleValue(){
+		return List.of();
+	}
+
 	//hmm, why doesn't this override isFixedLength => false
 }

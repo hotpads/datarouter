@@ -42,7 +42,7 @@ public class RunNativeInputStreamReader{
 	}
 
 	public Scanner<TerminalLine> lines(){
-		Iterator<TerminalLine> iterator = new Iterator<TerminalLine>(){
+		Iterator<TerminalLine> iterator = new Iterator<>(){
 
 			StringBuilder sb = new StringBuilder();
 			StringBuilder next = new StringBuilder();

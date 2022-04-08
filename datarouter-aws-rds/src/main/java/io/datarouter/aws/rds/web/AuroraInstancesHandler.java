@@ -33,8 +33,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import org.xbill.DNS.TextParseException;
-
 import io.datarouter.aws.rds.config.DatarouterAwsPaths;
 import io.datarouter.aws.rds.config.DatarouterAwsRdsConfigSettings;
 import io.datarouter.aws.rds.job.DnsUpdater;
@@ -100,12 +98,12 @@ public class AuroraInstancesHandler extends BaseHandler{
 	}
 
 	@Handler
-	public String addCname(String subdomain, String target) throws TextParseException{
+	public String addCname(String subdomain, String target){
 		return dnsUpdater.addCname(subdomain, target);
 	}
 
 	@Handler
-	public String deleteCname(String subdomain) throws TextParseException{
+	public String deleteCname(String subdomain){
 		return dnsUpdater.deleteCname(subdomain);
 	}
 
@@ -113,7 +111,7 @@ public class AuroraInstancesHandler extends BaseHandler{
 	public Mav createOtherInstance(@Param(P_clientName) String clientName){
 		String clusterName = rdsSettings.dbPrefix.get() + clientName;
 		rdsService.createOtherInstance(clusterName);
-		config.addOtherDatabaseDns(clientName);
+		config.addOtherDatabaseDns(clusterName);
 		return new InContextRedirectMav(request, paths.datarouter.auroraInstances.toSlashedString());
 	}
 

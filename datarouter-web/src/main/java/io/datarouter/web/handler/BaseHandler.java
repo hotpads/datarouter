@@ -471,7 +471,7 @@ public abstract class BaseHandler{
 		this.accountName = accountName;
 	}
 
-	private static class NullHandlerEncoder implements HandlerEncoder{
+	public static class NullHandlerEncoder implements HandlerEncoder{
 
 		@Override
 		public void finishRequest(Object result, ServletContext servletContext, HttpServletResponse response,

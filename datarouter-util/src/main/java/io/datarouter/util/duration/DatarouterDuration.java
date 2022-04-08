@@ -109,6 +109,11 @@ public class DatarouterDuration{
 		return new DatarouterDuration(ageMs, TimeUnit.MILLISECONDS);
 	}
 
+	public static DatarouterDuration ageNs(long dateNs){
+		long ageNs = System.nanoTime() - dateNs;
+		return new DatarouterDuration(ageNs, TimeUnit.NANOSECONDS);
+	}
+
 	public static DatarouterDuration age(Date date){
 		return ageMs(date.getTime());
 	}

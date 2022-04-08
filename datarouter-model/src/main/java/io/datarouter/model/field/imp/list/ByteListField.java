@@ -36,7 +36,7 @@ public class ByteListField extends BaseListField<Byte,List<Byte>,ByteListFieldKe
 
 	@Override
 	public byte[] getBytes(){
-		throw new UnsupportedOperationException();
+		return ByteTool.fromBoxedBytes(value);
 	}
 
 	@Override
@@ -51,7 +51,7 @@ public class ByteListField extends BaseListField<Byte,List<Byte>,ByteListFieldKe
 
 	@Override
 	public List<Byte> fromBytesButDoNotSet(byte[] bytes, int byteOffset){
-		throw new UnsupportedOperationException();
+		return ByteTool.toBoxedBytes(Arrays.copyOfRange(bytes, byteOffset, bytes.length));
 	}
 
 	@Override

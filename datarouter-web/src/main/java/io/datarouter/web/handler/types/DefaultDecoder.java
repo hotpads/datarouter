@@ -34,18 +34,23 @@ import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.handler.encoder.HandlerEncoder;
+import io.datarouter.web.handler.encoder.JsonAwareHandlerCodec;
 import io.datarouter.web.handler.types.optional.OptionalParameter;
 import io.datarouter.web.util.http.RequestTool;
 
 @Singleton
-public class DefaultDecoder implements HandlerDecoder{
+public class DefaultDecoder implements HandlerDecoder, JsonAwareHandlerCodec{
 
-	//TODO Rename JsonSerializer or add Serializer, we just want a (de)serializer here
 	private final JsonSerializer deserializer;
 
 	@Inject
 	public DefaultDecoder(@Named(HandlerEncoder.DEFAULT_HANDLER_SERIALIZER) JsonSerializer deserializer){
 		this.deserializer = deserializer;
+	}
+
+	@Override
+	public JsonSerializer getJsonSerializer(){
+		return deserializer;
 	}
 
 	@Override

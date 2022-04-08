@@ -15,6 +15,8 @@
  */
 package io.datarouter.bytes;
 
+import java.util.Arrays;
+
 import io.datarouter.bytes.codec.booleancodec.RawBooleanCodec;
 import io.datarouter.bytes.codec.intcodec.RawIntCodec;
 import io.datarouter.bytes.codec.longcodec.ComparableLongCodec;
@@ -137,7 +139,7 @@ public class ByteReader{
 	/*-------------- bytes --------------*/
 
 	public byte[] bytes(int num){
-		var value = ByteTool.copyOfRange(bytes, position, num);
+		var value = Arrays.copyOfRange(bytes, position, position + num);
 		position += num;
 		return value;
 	}

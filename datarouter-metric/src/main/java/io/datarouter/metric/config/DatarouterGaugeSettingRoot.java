@@ -27,53 +27,31 @@ import io.datarouter.storage.setting.cached.CachedSetting;
 @Singleton
 public class DatarouterGaugeSettingRoot extends SettingRoot{
 
-	public final CachedSetting<Boolean> saveGauges;
+	//save gauges in buffer
+	public final CachedSetting<Boolean> saveGaugesToMemory;
+	//publish gauges from buffer
+	public final CachedSetting<Boolean> runGaugeMemoryToPublisherConveyor;
 
-	/**
-	 * Additional setting to control running gauges from memory to queue. Could be useful if you want to drain the
-	 * buffer and not send messages to queues.
-	 */
-	public final CachedSetting<Boolean> sendGaugesFromMemoryToQueue;
-	public final CachedSetting<Boolean> saveGaugeBlobsAndOverrideDtos;
+	//controls gauge publishing destination
 	public final CachedSetting<Boolean> saveGaugeBlobsToQueueDaoInsteadOfDirectoryDao;
 
-	/**
-	 * Used to run gauges from memory to queues
-	 */
-	public final CachedSetting<Boolean> runGaugeMemoryToQueue;
-
-	/**
-	 * Used to run gauges from queues to publisher
-	 */
-	public final CachedSetting<Boolean> runGaugeQueueToPublisher;
-
-	public final CachedSetting<Boolean> compactExceptionLoggingForConveyors;
-	public final CachedSetting<Integer> memoryConveyorThreadCount;
-	public final CachedSetting<Integer> drainConveyorThreadCount;
+	public final CachedSetting<Integer> conveyorThreadCount;
 
 	@Inject
 	public DatarouterGaugeSettingRoot(SettingFinder finder){
 		super(finder, DatarouterSettingCategory.DATAROUTER, "datarouterGauge.");
 
-		saveGauges = registerBooleans("saveGauges", defaultTo(false)
+		saveGaugesToMemory = registerBooleans("saveGaugesToMemory", defaultTo(false)
 				.withTag(DatarouterSettingTagType.GAUGEPIPELINE, () -> true));
-		sendGaugesFromMemoryToQueue = registerBooleans("sendGaugesFromMemoryToQueue", defaultTo(false)
+		runGaugeMemoryToPublisherConveyor = registerBooleans("runGaugeMemoryToPublisherConveyor", defaultTo(false)
 				.withTag(DatarouterSettingTagType.GAUGEPIPELINE, () -> true));
-		saveGaugeBlobsAndOverrideDtos = registerBooleans("saveGaugeBlobsAndOverrideDtos", defaultTo(false)
-				.withTag(DatarouterSettingTagType.GAUGEPIPELINE, () -> true));
+
 		saveGaugeBlobsToQueueDaoInsteadOfDirectoryDao = registerBooleans(
 				"saveGaugeBlobsToQueueDaoInsteadOfDirectoryDao",
 				defaultTo(false)
 						.withTag(DatarouterSettingTagType.GAUGEPIPELINE, () -> true));
 
-		runGaugeMemoryToQueue = registerBooleans("runGaugeMemoryToQueue", defaultTo(false)
-				.withTag(DatarouterSettingTagType.GAUGEPIPELINE, () -> true));
-		runGaugeQueueToPublisher = registerBooleans("runGaugeQueueToPublisher", defaultTo(false)
-				.withTag(DatarouterSettingTagType.GAUGEPIPELINE, () -> true));
-
-		compactExceptionLoggingForConveyors = registerBoolean("compactExceptionLoggingForConveyors", true);
-		memoryConveyorThreadCount = registerInteger("memoryConveyorThreadCount", 2);
-		drainConveyorThreadCount = registerInteger("drainConveyorThreadCount", 2);
+		conveyorThreadCount = registerInteger("conveyorThreadCount", 1);
 	}
 
 }

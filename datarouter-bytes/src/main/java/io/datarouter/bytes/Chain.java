@@ -13,28 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.httpclient;
+package io.datarouter.bytes;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.function.Function;
+public class Chain{
 
-public class Java9{
-
-	/**
-	 * When switching to Java 9, switch this constant to true and inline it.
-	 */
-	public static final boolean IS_JAVA_9 = false;
-
-	@SafeVarargs
-	public static <T> List<T> listOf(T... items){
-		// return List.of(items);
-
-		for(int i = 0; i < items.length; ++i){
-			Objects.requireNonNull(items[i]);
-		}
-		return Collections.unmodifiableList(Arrays.asList(items));
+	public static <A,B,C> Function<A,C> of(Function<A,B> ab, Function<B,C> bc){
+		return ab.andThen(bc);
 	}
 
 }

@@ -22,7 +22,7 @@
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-parent</artifactId>
-		<version>0.0.110</version>
+		<version>0.0.111</version>
 		<relativePath>../datarouter-parent</relativePath>
 	</parent>
 
@@ -120,6 +120,23 @@
 			<artifactId>log4j-core</artifactId>
 			<version>${log4j-version}</version>
 		</dependency>
+		<dependency>
+			<groupId>io.opencensus</groupId>
+			<artifactId>opencensus-exporter-metrics-util</artifactId>
+			<version>0.31.0</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.google.guava</groupId>
+					<artifactId>guava</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+
 		<dependency>
 			<groupId>io.datarouter</groupId>
 			<artifactId>datarouter-testng</artifactId>

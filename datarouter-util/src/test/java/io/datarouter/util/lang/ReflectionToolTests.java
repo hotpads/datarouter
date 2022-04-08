@@ -23,7 +23,6 @@ import java.util.Optional;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.util.Java9;
 import io.datarouter.util.Require;
 
 public class ReflectionToolTests{
@@ -59,24 +58,24 @@ public class ReflectionToolTests{
 
 	@Test
 	public void testCanParamsCallParamTypes(){
-		Assert.assertTrue(ReflectionTool.canParamsCallParamTypes(Java9.listOf(4), Java9.listOf(int.class)));
-		Assert.assertTrue(ReflectionTool.canParamsCallParamTypes(Java9.listOf(4), Java9.listOf(Integer.class)));
-		Assert.assertFalse(ReflectionTool.canParamsCallParamTypes(Java9.listOf("a"), Java9.listOf(int.class)));
+		Assert.assertTrue(ReflectionTool.canParamsCallParamTypes(List.of(4), List.of(int.class)));
+		Assert.assertTrue(ReflectionTool.canParamsCallParamTypes(List.of(4), List.of(Integer.class)));
+		Assert.assertFalse(ReflectionTool.canParamsCallParamTypes(List.of("a"), List.of(int.class)));
 	}
 
 	@Test
 	public void testCreateWithParameters(){
 		Object[] params0 = new Object[]{new Object(), 3, 5.5d};
-		Assert.assertNotNull(ReflectionTool.createWithParameters(DummyDto.class, Java9.listOf(params0)));
+		Assert.assertNotNull(ReflectionTool.createWithParameters(DummyDto.class, List.of(params0)));
 
 		Object[] params1 = new Object[]{"stringy", 3, 5.5d};
-		Assert.assertNotNull(ReflectionTool.createWithParameters(DummyDto.class, Java9.listOf(params1)));
+		Assert.assertNotNull(ReflectionTool.createWithParameters(DummyDto.class, List.of(params1)));
 	}
 
 	@Test(expectedExceptions = Exception.class)
 	public void testCreateWithParametersInvalid(){
 		Object[] params0 = new Object[]{new Object(), "square peg", 5.5d};
-		DummyDto dummyDto = ReflectionTool.createWithParameters(DummyDto.class, Java9.listOf(params0));
+		DummyDto dummyDto = ReflectionTool.createWithParameters(DummyDto.class, List.of(params0));
 		Assert.assertNotNull(dummyDto);
 	}
 

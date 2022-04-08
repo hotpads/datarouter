@@ -18,54 +18,32 @@ package io.datarouter.metric.gauge.conveyor;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import com.google.gson.Gson;
-
 import io.datarouter.conveyor.BaseConveyors;
 import io.datarouter.instrumentation.gauge.GaugePublisher;
 import io.datarouter.metric.config.DatarouterGaugeSettingRoot;
-import io.datarouter.metric.gauge.DatarouterGaugePublisherDao;
-import io.datarouter.metric.gauge.GaugeBlobService;
 import io.datarouter.web.exception.ExceptionRecorder;
 
 @Singleton
 public class GaugeConveyors extends BaseConveyors{
 
 	@Inject
-	private DatarouterGaugePublisherDao dao;
-	@Inject
 	private DatarouterGaugeSettingRoot settings;
-	@Inject
-	private Gson gson;
-	@Inject
-	private GaugePublisher publisher;
 	@Inject
 	private GaugeBuffers buffers;
 	@Inject
 	private ExceptionRecorder exceptionRecorder;
 	@Inject
-	private GaugeBlobService gaugeBlobService;
+	private GaugePublisher gaugePublisher;
 
 	@Override
 	public void onStartUp(){
-		start(new GaugeMemoryToQueueConveyor(
-				"gaugeMemoryToQueue",
-				settings.runGaugeMemoryToQueue,
-				settings,
-				dao::putMulti,
+		start(new GaugeMemoryToPublisherConveyor(
+				"gaugeMemoryToPublisher",
+				settings.runGaugeMemoryToPublisherConveyor,
 				buffers.gaugeBuffer,
-				gson,
 				exceptionRecorder,
-				gaugeBlobService),
-				settings.memoryConveyorThreadCount.get());
-		start(new GaugeQueueDrainConveyor(
-				"gaugeQueueToPublisher",
-				settings.runGaugeQueueToPublisher,
-				dao.getGroupQueueConsumer(),
-				gson,
-				publisher,
-				settings.compactExceptionLoggingForConveyors,
-				exceptionRecorder),
-				settings.drainConveyorThreadCount.get());
+				gaugePublisher),
+				settings.conveyorThreadCount.get());
 	}
 
 }

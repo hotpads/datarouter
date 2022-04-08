@@ -65,7 +65,7 @@ extends BaseConveyor{
 				return new ProcessBatchResult(true);
 			}
 		}catch(Exception e){
-			throw new RuntimeException("databean=" + GsonTool.GSON.toJson(databean), e);
+			throw new RuntimeException("databean=" + GsonTool.JAVA9_GSON.toJson(databean), e);
 		}
 		long durationMs = System.currentTimeMillis() - start;
 		if(durationMs > visibilityTimeout.toMillis()){

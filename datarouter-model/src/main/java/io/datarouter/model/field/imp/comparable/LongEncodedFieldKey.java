@@ -83,4 +83,9 @@ public class LongEncodedFieldKey<T> extends BaseFieldKey<T,LongEncodedFieldKey<T
 		return codec;
 	}
 
+	@Override
+	public T getSampleValue(){
+		return codec.getSampleValue();
+	}
+
 }

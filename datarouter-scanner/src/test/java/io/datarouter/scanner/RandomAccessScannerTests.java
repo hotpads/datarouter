@@ -16,6 +16,7 @@
 package io.datarouter.scanner;
 
 import java.util.Arrays;
+import java.util.List;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -24,9 +25,9 @@ public class RandomAccessScannerTests{
 
 	@Test
 	public void test(){
-		Assert.assertEquals(RandomAccessScanner.of(Java9.listOf()).list(), Java9.listOf());
-		Assert.assertEquals(RandomAccessScanner.of(Java9.listOf(1)).list(), Java9.listOf(1));
-		Assert.assertEquals(RandomAccessScanner.of(Java9.listOf(1, 2)).list(), Java9.listOf(1, 2));
+		Assert.assertEquals(RandomAccessScanner.of(List.of()).list(), List.of());
+		Assert.assertEquals(RandomAccessScanner.of(List.of(1)).list(), List.of(1));
+		Assert.assertEquals(RandomAccessScanner.of(List.of(1, 2)).list(), List.of(1, 2));
 	}
 
 	@Test

@@ -15,53 +15,38 @@
  */
 package io.datarouter.metric.gauge.conveyor;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.Gson;
-
 import io.datarouter.conveyor.BaseConveyor;
 import io.datarouter.conveyor.ConveyorCounters;
 import io.datarouter.conveyor.MemoryBuffer;
-import io.datarouter.conveyor.message.ConveyorMessage;
 import io.datarouter.instrumentation.gauge.GaugeBatchDto;
 import io.datarouter.instrumentation.gauge.GaugeDto;
-import io.datarouter.metric.config.DatarouterGaugeSettingRoot;
-import io.datarouter.metric.gauge.GaugeBlobService;
-import io.datarouter.scanner.Scanner;
+import io.datarouter.instrumentation.gauge.GaugePublisher;
 import io.datarouter.web.exception.ExceptionRecorder;
 
-public class GaugeMemoryToQueueConveyor extends BaseConveyor{
-	private static final Logger logger = LoggerFactory.getLogger(GaugeMemoryToQueueConveyor.class);
+public class GaugeMemoryToPublisherConveyor extends BaseConveyor{
+	private static final Logger logger = LoggerFactory.getLogger(GaugeMemoryToPublisherConveyor.class);
 
-	private static final int BATCH_SIZE = 100;
+	//this only controls max buffer poll size. gaugeBlobService will split into as many messages as necessary
+	private static final int BATCH_SIZE = 5_000;
 
-	private final DatarouterGaugeSettingRoot settings;
-	private final Consumer<Collection<ConveyorMessage>> putMultiConsumer;
 	private final MemoryBuffer<GaugeDto> buffer;
-	private final Gson gson;
-	private final GaugeBlobService gaugeBlobService;
+	private final GaugePublisher gaugePublisher;
 
-	public GaugeMemoryToQueueConveyor(
+	public GaugeMemoryToPublisherConveyor(
 			String name,
 			Supplier<Boolean> shouldRun,
-			DatarouterGaugeSettingRoot settings,
-			Consumer<Collection<ConveyorMessage>> putMultiConsumer,
 			MemoryBuffer<GaugeDto> buffer,
-			Gson gson,
 			ExceptionRecorder exceptionRecorder,
-			GaugeBlobService gaugeBlobService){
+			GaugePublisher gaugePublisher){
 		super(name, shouldRun, () -> false, exceptionRecorder);
-		this.settings = settings;
-		this.putMultiConsumer = putMultiConsumer;
 		this.buffer = buffer;
-		this.gson = gson;
-		this.gaugeBlobService = gaugeBlobService;
+		this.gaugePublisher = gaugePublisher;
 	}
 
 	@Override
@@ -71,31 +56,13 @@ public class GaugeMemoryToQueueConveyor extends BaseConveyor{
 			return new ProcessBatchResult(false);
 		}
 		try{
-			boolean shouldBufferInQueue = settings.sendGaugesFromMemoryToQueue.get();
-			if(settings.saveGaugeBlobsAndOverrideDtos.get()){
-				try{
-					gaugeBlobService.add(new GaugeBatchDto(dtos));
-					shouldBufferInQueue = false;//avoid writing to both blob and DTO queue
-				}catch(RuntimeException e){
-					logger.warn("", e);
-				}
-			}
-			if(shouldBufferInQueue){
-				Scanner.of(dtos)
-						.map(this::toConveyorMessage)
-						.flush(putMultiConsumer::accept);
-			}
+			gaugePublisher.add(new GaugeBatchDto(dtos));
 			ConveyorCounters.incPutMultiOpAndDatabeans(this, dtos.size());
-			return new ProcessBatchResult(true);
 		}catch(Exception putMultiException){
 			logger.warn("", putMultiException);
 			ConveyorCounters.inc(this, "putMulti exception", 1);
-			return new ProcessBatchResult(false);// backoff for a bit
 		}
-	}
-
-	private ConveyorMessage toConveyorMessage(GaugeDto dto){
-		return new ConveyorMessage(dto.name, gson.toJson(dto));
+		return new ProcessBatchResult(false);
 	}
 
 }

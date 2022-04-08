@@ -21,8 +21,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import io.datarouter.gson.Java9;
-
 public class GsonReflectionTool{
 
 	private static Set<Class<?>> getAllSuperClassesAndInterfaces(Class<?> cls){
@@ -73,7 +71,7 @@ public class GsonReflectionTool{
 	 * @return a list of the declared Fields not including any inherited field.
 	 */
 	private static List<Field> getDeclaredFields(Class<?> cls){
-		return Java9.listOf(cls.getDeclaredFields());
+		return List.of(cls.getDeclaredFields());
 	}
 
 }

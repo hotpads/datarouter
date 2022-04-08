@@ -29,13 +29,14 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.http.entity.ContentType;
 
 import io.datarouter.httpclient.HttpHeaders;
+import io.datarouter.httpclient.json.JsonSerializer;
 import io.datarouter.web.exception.HandledException;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.validator.RequestParamValidator.RequestParamValidatorErrorResponseDto;
 import io.datarouter.web.security.SecurityValidationResult;
 
 @Singleton
-public class DefaultEncoder implements HandlerEncoder{
+public class DefaultEncoder implements HandlerEncoder, JsonAwareHandlerCodec{
 
 	private final MavEncoder mavEncoder;
 	private final InputStreamHandlerEncoder inputStreamHandlerEncoder;
@@ -97,6 +98,11 @@ public class DefaultEncoder implements HandlerEncoder{
 	public void sendForbiddenResponse(HttpServletRequest request, HttpServletResponse response,
 			SecurityValidationResult securityValidationResult)
 	throws IOException{
+	}
+
+	@Override
+	public JsonSerializer getJsonSerializer(){
+		return jsonEncoder.getJsonSerializer();
 	}
 
 	protected boolean shouldSendHtml(HttpServletRequest request){

@@ -13,27 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.util;
+package io.datarouter.web.handler.encoder;
 
-import java.nio.file.FileSystems;
-import java.nio.file.Path;
-import java.util.Optional;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
-public class Java11{
+import io.datarouter.httpclient.json.Java9GsonJsonSerializer;
+import io.datarouter.web.exception.ExceptionHandlingConfig;
 
-	public static boolean isBlank(String string){
-		// return string.isBlank();
-		return string.trim().isEmpty();
-	}
+@Singleton
+public class Java9JsonEncoder extends JsonEncoder{
 
-	public static <T> boolean isEmpty(Optional<T> optional){
-		// return optional.isEmpty();
-		return !optional.isPresent();
-	}
-
-	public static Path pathOf(String localPath){
-		// return Path.of(localPath);
-		return FileSystems.getDefault().getPath(localPath);
+	@Inject
+	public Java9JsonEncoder(Java9GsonJsonSerializer jsonSerializer, ExceptionHandlingConfig exceptionHandlingConfig){
+		super(jsonSerializer, exceptionHandlingConfig);
 	}
 
 }

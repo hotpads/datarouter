@@ -6,7 +6,7 @@
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-hbase</artifactId>
-	<version>0.0.110</version>
+	<version>0.0.111</version>
 </dependency>
 ```
 

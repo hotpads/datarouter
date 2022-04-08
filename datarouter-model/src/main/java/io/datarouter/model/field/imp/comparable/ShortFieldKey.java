@@ -23,4 +23,9 @@ public class ShortFieldKey extends PrimitiveFieldKey<Short,ShortFieldKey>{
 		super(name, Short.class);
 	}
 
+	@Override
+	public Short getSampleValue(){
+		return 0;
+	}
+
 }

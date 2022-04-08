@@ -45,9 +45,9 @@ public class ComparableToolTests{
 	public void testIsSorted(){
 		Assert.assertTrue(ComparableTool.isSorted(null));
 		Assert.assertTrue(ComparableTool.isSorted(new ArrayList<Integer>()));
-		List<Integer> listA = Java9.listOf(1,2,3,4);
+		List<Integer> listA = List.of(1,2,3,4);
 		Assert.assertTrue(ComparableTool.isSorted(listA));
-		List<Integer> listB = Java9.listOf(1,2,55,4);
+		List<Integer> listB = List.of(1,2,55,4);
 		Assert.assertFalse(ComparableTool.isSorted(listB));
 	}
 

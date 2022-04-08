@@ -43,11 +43,11 @@ public class ScannerToolTests{
 
 	@Test
 	public void testCollection(){
-		List<Integer> inputs = Java9.listOf(2, 1, 3, 1);
-		Assert.assertEquals(Scanner.of(inputs).collect(ArrayList::new), Java9.listOf(2, 1, 3, 1));
-		Assert.assertEquals(Scanner.of(inputs).collect(LinkedList::new), Java9.listOf(2, 1, 3, 1));
-		Assert.assertEquals(Scanner.of(inputs).collect(TreeSet::new), Java9.listOf(1, 2, 3));
-		Assert.assertEquals(Scanner.of(inputs).collect(LinkedHashSet::new), Java9.listOf(2, 1, 3));
+		List<Integer> inputs = List.of(2, 1, 3, 1);
+		Assert.assertEquals(Scanner.of(inputs).collect(ArrayList::new), List.of(2, 1, 3, 1));
+		Assert.assertEquals(Scanner.of(inputs).collect(LinkedList::new), List.of(2, 1, 3, 1));
+		Assert.assertEquals(Scanner.of(inputs).collect(TreeSet::new), List.of(1, 2, 3));
+		Assert.assertEquals(Scanner.of(inputs).collect(LinkedHashSet::new), List.of(2, 1, 3));
 	}
 
 	@Test
@@ -108,28 +108,28 @@ public class ScannerToolTests{
 
 	@Test
 	public void testMaxN(){
-		List<Integer> inputs = Java9.listOf(4, 0, 1, 0, 3, 3, 3, 2);
+		List<Integer> inputs = List.of(4, 0, 1, 0, 3, 3, 3, 2);
 		Comparator<Integer> comparator = Comparator.naturalOrder();
 		List<Integer> max0 = ScannerTool.maxNDesc(Scanner.of(inputs), comparator, 0).list();
-		Assert.assertEquals(max0, Java9.listOf());
+		Assert.assertEquals(max0, List.of());
 		List<Integer> max1 = ScannerTool.maxNDesc(Scanner.of(inputs), comparator, 1).list();
-		Assert.assertEquals(max1, Java9.listOf(4));
+		Assert.assertEquals(max1, List.of(4));
 		List<Integer> max2 = ScannerTool.maxNDesc(Scanner.of(inputs), comparator, 2).list();
-		Assert.assertEquals(max2, Java9.listOf(4, 3));
+		Assert.assertEquals(max2, List.of(4, 3));
 		List<Integer> maxAll = ScannerTool.maxNDesc(Scanner.of(inputs), comparator, inputs.size() * 2).list();
 		Assert.assertEquals(maxAll, Scanner.of(inputs).sort(comparator.reversed()).list());
 	}
 
 	@Test
 	public void testMinN(){
-		List<Integer> inputs = Java9.listOf(4, 0, 1, 0, 3, 3, 3, 2);
+		List<Integer> inputs = List.of(4, 0, 1, 0, 3, 3, 3, 2);
 		Comparator<Integer> comparator = Comparator.naturalOrder();
 		List<Integer> min0 = ScannerTool.minNAsc(Scanner.of(inputs), comparator, 0).list();
-		Assert.assertEquals(min0, Java9.listOf());
+		Assert.assertEquals(min0, List.of());
 		List<Integer> min1 = ScannerTool.minNAsc(Scanner.of(inputs), comparator, 1).list();
-		Assert.assertEquals(min1, Java9.listOf(0));
+		Assert.assertEquals(min1, List.of(0));
 		List<Integer> min2 = ScannerTool.minNAsc(Scanner.of(inputs), comparator, 2).list();
-		Assert.assertEquals(min2, Java9.listOf(0, 0));
+		Assert.assertEquals(min2, List.of(0, 0));
 		List<Integer> minAll = ScannerTool.minNAsc(Scanner.of(inputs), comparator, inputs.size() * 2).list();
 		Assert.assertEquals(minAll, Scanner.of(inputs).sort(comparator).list());
 	}
@@ -151,7 +151,7 @@ public class ScannerToolTests{
 
 	@Test
 	public void testReduceEmpty(){
-		List<Integer> input = Java9.listOf();
+		List<Integer> input = List.of();
 		BinaryOperator<Integer> reducer = (a, b) -> Math.max(a, b);
 		Optional<Integer> actual = Scanner.of(input).reduce(reducer);
 		Assert.assertFalse(actual.isPresent());
@@ -175,7 +175,7 @@ public class ScannerToolTests{
 
 	@Test
 	public void testReduceWithSeedEmpty(){
-		List<Integer> input = Java9.listOf();
+		List<Integer> input = List.of();
 		BinaryOperator<Integer> reducer = (a, b) -> Math.max(a, b);
 		int actual = Scanner.of(input).reduce(6, reducer);
 		Assert.assertEquals(actual, 6);
@@ -185,15 +185,15 @@ public class ScannerToolTests{
 	public void testSkip(){
 		Scanner<Integer> input = Scanner.of(1, 2, 3, 4);
 		List<Integer> actual = input.skip(2).list();
-		List<Integer> expected = Java9.listOf(3, 4);
+		List<Integer> expected = List.of(3, 4);
 		Assert.assertEquals(actual, expected);
 	}
 
 	@Test
 	public void testTake(){
 		Scanner<Integer> input = Scanner.of(1, 2, 3, 4);
-		Assert.assertEquals(input.take(3), Java9.listOf(1, 2, 3));
-		Assert.assertEquals(input.take(3), Java9.listOf(4));
+		Assert.assertEquals(input.take(3), List.of(1, 2, 3));
+		Assert.assertEquals(input.take(3), List.of(4));
 	}
 
 	@Test

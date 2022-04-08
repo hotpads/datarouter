@@ -13,16 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.pathnode;
+package io.datarouter.client.memcached;
 
-import java.nio.file.FileSystems;
-import java.nio.file.Path;
+import io.datarouter.storage.util.Subpath;
 
-public class Java11{
+public class ReservedBlobPaths{
 
-	public static Path pathOf(String localPath){
-		// return Path.of(localPath);
-		return FileSystems.getDefault().getPath(localPath);
-	}
+	public static final Subpath DATABEAN = new Subpath("databean");
+	public static final Subpath TALLY = new Subpath("tally");
 
 }

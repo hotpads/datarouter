@@ -67,4 +67,9 @@ public class LocalDateTimeFieldKey extends PrimitiveFieldKey<LocalDateTime,Local
 				numFractionalSeconds, attributes);
 	}
 
+	@Override
+	public LocalDateTime getSampleValue(){
+		return LocalDateTime.now();
+	}
+
 }

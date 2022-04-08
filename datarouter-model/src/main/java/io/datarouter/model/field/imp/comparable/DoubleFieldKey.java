@@ -42,4 +42,9 @@ public class DoubleFieldKey extends PrimitiveFieldKey<Double,DoubleFieldKey>{
 		return new DoubleFieldKey(name, columnNameOverride, nullable, fieldGeneratorType, defaultValue, attributes);
 	}
 
+	@Override
+	public Double getSampleValue(){
+		return 0d;
+	}
+
 }

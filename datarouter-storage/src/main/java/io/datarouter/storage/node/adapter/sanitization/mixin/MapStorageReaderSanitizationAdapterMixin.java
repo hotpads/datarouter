@@ -15,8 +15,10 @@
  */
 package io.datarouter.storage.node.adapter.sanitization.mixin;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
@@ -35,21 +37,35 @@ extends MapStorageReader<PK,D>, SanitizationAdapter<PK,D,F,N>{
 
 	@Override
 	default boolean exists(PK key, Config config){
+		Objects.requireNonNull(key);
+		Objects.requireNonNull(config);
 		return getBackingNode().exists(key, config);
 	}
 
 	@Override
 	default D get(PK key, Config config){
+		Objects.requireNonNull(key);
+		Objects.requireNonNull(config);
 		return getBackingNode().get(key, config);
 	}
 
 	@Override
 	default List<D> getMulti(Collection<PK> keys, Config config){
+		Objects.requireNonNull(keys);
+		Objects.requireNonNull(config);
+		if(keys.isEmpty()){
+			return new ArrayList<>(0);
+		}
 		return getBackingNode().getMulti(keys, config);
 	}
 
 	@Override
 	default List<PK> getKeys(Collection<PK> keys, Config config){
+		Objects.requireNonNull(keys);
+		Objects.requireNonNull(config);
+		if(keys.isEmpty()){
+			return new ArrayList<>(0);
+		}
 		return getBackingNode().getKeys(keys, config);
 	}
 

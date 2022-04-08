@@ -20,46 +20,44 @@ import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.util.Java9;
-
 public class OrderedToolTests{
 
 	@Test
 	public void testSorted1(){
-		List<Ordered<String>> list = Java9.listOf(
+		List<Ordered<String>> list = List.of(
 				new Ordered<>("O", "D"),
 				new Ordered<>("D", null),
 				new Ordered<>("G", "O"));
 		List<String> actual = OrderedTool.sortOrdered(list);
-		List<String> expected = Java9.listOf("D", "O", "G");
+		List<String> expected = List.of("D", "O", "G");
 		Assert.assertEquals(actual, expected);
 	}
 
 	@Test
 	public void testSorted2(){
-		List<Ordered<String>> list = Java9.listOf(
+		List<Ordered<String>> list = List.of(
 				new Ordered<>("A", null),
 				new Ordered<>("B", "A"),
 				new Ordered<>("C", "B"));
 		List<String> actual = OrderedTool.sortOrdered(list);
-		List<String> expected = Java9.listOf("A", "B", "C");
+		List<String> expected = List.of("A", "B", "C");
 		Assert.assertEquals(actual, expected);
 	}
 
 	@Test
 	public void testSorted3(){
-		List<Ordered<String>> list = Java9.listOf(
+		List<Ordered<String>> list = List.of(
 				new Ordered<>("C", "B"),
 				new Ordered<>("B", "A"),
 				new Ordered<>("A", null));
 		List<String> actual = OrderedTool.sortOrdered(list);
-		List<String> expected = Java9.listOf("A", "B", "C");
+		List<String> expected = List.of("A", "B", "C");
 		Assert.assertEquals(actual, expected);
 	}
 
 	@Test(expectedExceptions = IllegalStateException.class)
 	public void testMultipleNulls(){
-		List<Ordered<String>> list = Java9.listOf(
+		List<Ordered<String>> list = List.of(
 				new Ordered<>("O", null),
 				new Ordered<>("D", null),
 				new Ordered<>("G", "O"));
@@ -68,7 +66,7 @@ public class OrderedToolTests{
 
 	@Test(expectedExceptions = IllegalStateException.class)
 	public void testImpossibleOrder(){
-		List<Ordered<String>> list = Java9.listOf(
+		List<Ordered<String>> list = List.of(
 				new Ordered<>("O", "D"),
 				new Ordered<>("D", null),
 				new Ordered<>("G", "D"));

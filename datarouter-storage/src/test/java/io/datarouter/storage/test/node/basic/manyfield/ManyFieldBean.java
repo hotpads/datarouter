@@ -144,7 +144,7 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 		public static final IntListFieldKey integerArrayField = new IntListFieldKey("integerArrayField");
 		public static final ByteArrayFieldKey byteArrayField = new ByteArrayFieldKey("byteArrayField");
 		public static final ByteArrayEncodedFieldKey<List<Integer>> intListToByteArrayField
-				= new ByteArrayEncodedFieldKey<>("intListToByteArrayField", new IntListFieldCodec());
+				= new ByteArrayEncodedFieldKey<>("intListToByteArrayField", IntListFieldCodec.INSTANCE);
 		public static final DoubleListFieldKey doubleArrayField = new DoubleListFieldKey("doubleArrayField");
 		public static final DelimitedStringListFieldKey delimitedStringArrayField = new DelimitedStringListFieldKey(
 				"delimitedStringArrayField");

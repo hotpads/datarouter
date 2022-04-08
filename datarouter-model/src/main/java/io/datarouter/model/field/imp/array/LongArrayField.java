@@ -16,10 +16,8 @@
 package io.datarouter.model.field.imp.array;
 
 import java.util.Arrays;
-import java.util.Optional;
 
 import io.datarouter.bytes.codec.array.longarray.ComparableLongArrayCodec;
-import io.datarouter.gson.serialization.GsonTool;
 import io.datarouter.model.field.BaseField;
 import io.datarouter.model.field.Field;
 
@@ -52,17 +50,12 @@ public class LongArrayField extends BaseField<long[]>{
 
 	@Override
 	public int compareTo(Field<long[]> field){
-		if(field == null){
-			return 1;
-		}
-		return toString().compareTo(field.toString());
+		return Arrays.compare(value, field.getValue());
 	}
 
 	@Override
 	public String getStringEncodedValue(){
-		return Optional.ofNullable(value)
-				.map(GsonTool.GSON::toJson)
-				.orElse(null);
+		return Arrays.toString(value);
 	}
 
 	@Override

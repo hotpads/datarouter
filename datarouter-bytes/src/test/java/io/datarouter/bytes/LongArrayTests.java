@@ -87,6 +87,24 @@ public class LongArrayTests{
 	}
 
 	@Test
+	public void testEmptyEquals(){
+		List<Long> first = List.of();
+		var second = new LongArray();
+		Assert.assertEquals(first, second);
+		Assert.assertEquals(second, first);
+		Assert.assertTrue(first.equals(second));
+		Assert.assertTrue(second.equals(first));
+	}
+
+	@Test
+	public void testEquals(){
+		List<Long> first = List.of(1L, 2L);
+		var second = new LongArray(List.of(1L, 2L));
+		Assert.assertEquals(first, second);
+		Assert.assertEquals(second, first);
+	}
+
+	@Test
 	public void testSort(){
 		var list = new LongArray(new long[]{3, 1, 2, 4});
 		list.sortInPlace();

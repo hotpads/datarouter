@@ -20,9 +20,9 @@ import javax.inject.Singleton;
 
 import io.datarouter.instrumentation.count.Counters;
 import io.datarouter.metric.config.DatarouterCountSettingRoot;
-import io.datarouter.metric.counter.collection.CountFlusher;
 import io.datarouter.metric.counter.collection.CountPartitions;
 import io.datarouter.metric.counter.collection.DatarouterCountCollector;
+import io.datarouter.metric.counter.conveyor.CountBuffers;
 import io.datarouter.web.listener.DatarouterAppListener;
 
 @Singleton
@@ -33,12 +33,12 @@ public class CountersAppListener implements DatarouterAppListener{
 	@Inject
 	private DatarouterCountSettingRoot settings;
 	@Inject
-	private CountFlusher countFlusher;
+	private CountBuffers countBuffers;
 
-	// add flushers to a collector and register it with the global Counters class
+	// add buffers to a collector and register it with the global Counters class
 	@Override
 	public void onStartUp(){
-		var collector = new DatarouterCountCollector(ROLL_PERIOD_MS, countFlusher, settings.runCountsToQueue);
+		var collector = new DatarouterCountCollector(ROLL_PERIOD_MS, countBuffers, settings.saveCountsToMemory);
 		Counters.addCollector(collector);
 	}
 

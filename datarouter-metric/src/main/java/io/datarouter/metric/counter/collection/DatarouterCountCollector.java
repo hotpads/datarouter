@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.instrumentation.count.CountCollector;
+import io.datarouter.metric.counter.conveyor.CountBuffers;
 import io.datarouter.model.util.CommonFieldSizes;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.setting.Setting;
@@ -37,17 +38,18 @@ public class DatarouterCountCollector implements CountCollector{
 	public static final int METRICS_INITIAL_CAPACITY = 512;//try to set higher than est num counters
 
 	private final long flushIntervalMs;
-	private final CountFlusher flusher;
+	private final CountBuffers countBuffers;
 	private final Setting<Boolean> saveCounts;
 
 	private ConcurrentHashMap<Long,ConcurrentHashMap<String,AtomicLong>> valueByNameByPeriodStartMs;
 	private long nextFlushMs;
 
-	public DatarouterCountCollector(long flushIntervalMs, CountFlusher flusher, Setting<Boolean> saveCounts){
+	public DatarouterCountCollector(long flushIntervalMs, CountBuffers countBuffers,
+			Setting<Boolean> saveCounts){
 		this.flushIntervalMs = flushIntervalMs;
 		this.nextFlushMs = DateTool.getPeriodStart(flushIntervalMs) + flushIntervalMs;
 		this.valueByNameByPeriodStartMs = new ConcurrentHashMap<>();
-		this.flusher = flusher;
+		this.countBuffers = countBuffers;
 		this.saveCounts = saveCounts;
 	}
 
@@ -80,7 +82,7 @@ public class DatarouterCountCollector implements CountCollector{
 				});
 
 		if(saveCounts.get() && !valueByPeriodStartByName.isEmpty()){
-			flusher.saveCounts(valueByPeriodStartByName);
+			countBuffers.offer(valueByPeriodStartByName);
 		}
 	}
 

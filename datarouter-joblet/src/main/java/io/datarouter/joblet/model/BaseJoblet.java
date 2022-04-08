@@ -20,12 +20,14 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.joblet.storage.jobletrequest.JobletRequest;
 import io.datarouter.util.concurrent.UncheckedInterruptedException;
+import io.datarouter.util.mutable.MutableBoolean;
 
 public abstract class BaseJoblet<T> implements Joblet<T>{
 	private static final Logger logger = LoggerFactory.getLogger(BaseJoblet.class);
 
 	protected T params;
 	protected JobletRequest jobletRequest;
+	protected MutableBoolean shutdownRequested;
 
 	@Override
 	public JobletRequest getJobletRequest(){
@@ -42,8 +44,13 @@ public abstract class BaseJoblet<T> implements Joblet<T>{
 		this.params = params;
 	}
 
+	@Override
+	public void setShutdownRequested(MutableBoolean shutdownRequested){
+		this.shutdownRequested = shutdownRequested;
+	}
+
 	protected void assertShutdownNotRequested(){
-		if(jobletRequest.getShutdownRequested().isTrue()){
+		if(shutdownRequested.isTrue()){
 			throw new UncheckedInterruptedException();
 		}
 	}
@@ -51,10 +58,10 @@ public abstract class BaseJoblet<T> implements Joblet<T>{
 	protected void checkInterrupt(){
 		if(Thread.interrupted()){
 			logger.warn("setting shutdownRequested=true because of Thread.interrupted()");
-			jobletRequest.getShutdownRequested().set(true);
+			shutdownRequested.set(true);
 			throw new UncheckedInterruptedException("interrupted");
 		}
-		if(jobletRequest.getShutdownRequested().isTrue()){
+		if(shutdownRequested.isTrue()){
 			logger.warn("throwing UIE because shutdownRequested");
 			throw new UncheckedInterruptedException("shutdownRequested");
 		}

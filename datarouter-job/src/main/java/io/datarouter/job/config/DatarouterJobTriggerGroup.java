@@ -62,7 +62,7 @@ public class DatarouterJobTriggerGroup extends BaseTriggerGroup{
 				ClusterTriggerLockVacuumJob.class,
 				true);
 		registerLocked(
-				"0 0/15 * * * ?",
+				"44 1/15 * * * ?",
 				settings.runStopJobRequestVacuumJob,
 				StopJobRequestVacuumJob.class,
 				true);
@@ -72,7 +72,7 @@ public class DatarouterJobTriggerGroup extends BaseTriggerGroup{
 				LongRunningTaskFailureAlertJob.class,
 				true);
 		registerParallel(
-				"0 0/20 * * * ?",
+				"22 3/20 * * * ?",
 				settings.runJobRetriggeringJob,
 				JobRetriggeringJob.class);
 		registerParallel(

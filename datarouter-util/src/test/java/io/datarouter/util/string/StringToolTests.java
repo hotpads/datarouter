@@ -21,8 +21,6 @@ import java.util.Objects;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.util.Java9;
-
 public class StringToolTests{
 
 	@Test
@@ -53,19 +51,19 @@ public class StringToolTests{
 	@Test
 	public void testSplitOnCharNoRegexWithEmptyStrings(){
 		String input = "//";
-		List<String> expected = Java9.listOf("", "", "");
+		List<String> expected = List.of("", "", "");
 		List<String> decoded = StringTool.splitOnCharNoRegex(input, '/');
 		Assert.assertEquals(decoded, expected);
 	}
 
 	@Test
 	public void testSplitOnCharNoRegex(){
-		Assert.assertEquals(StringTool.splitOnCharNoRegex("", '/'), Java9.listOf(""));
-		Assert.assertEquals(StringTool.splitOnCharNoRegex(null, '/'), Java9.listOf());
-		Assert.assertEquals(StringTool.splitOnCharNoRegex("/", '/'), Java9.listOf("", ""));
-		Assert.assertEquals(StringTool.splitOnCharNoRegex("  /", '/'), Java9.listOf("  ", ""));
-		Assert.assertEquals(StringTool.splitOnCharNoRegex("abc.def.g", '.'), Java9.listOf("abc", "def", "g"));
-		Assert.assertEquals(StringTool.splitOnCharNoRegex("..def.g.", '.'), Java9.listOf("", "", "def", "g", ""));
+		Assert.assertEquals(StringTool.splitOnCharNoRegex("", '/'), List.of(""));
+		Assert.assertEquals(StringTool.splitOnCharNoRegex(null, '/'), List.of());
+		Assert.assertEquals(StringTool.splitOnCharNoRegex("/", '/'), List.of("", ""));
+		Assert.assertEquals(StringTool.splitOnCharNoRegex("  /", '/'), List.of("  ", ""));
+		Assert.assertEquals(StringTool.splitOnCharNoRegex("abc.def.g", '.'), List.of("abc", "def", "g"));
+		Assert.assertEquals(StringTool.splitOnCharNoRegex("..def.g.", '.'), List.of("", "", "def", "g", ""));
 	}
 
 	@Test
@@ -187,6 +185,12 @@ public class StringToolTests{
 	public void testTrimToSizeFromEnd(){
 		Assert.assertEquals(StringTool.trimToSizeFromEnd("abcd", 2), "cd");
 		Assert.assertEquals(StringTool.trimToSizeFromEnd("abcd", 10), "abcd");
+	}
+
+	@Test
+	public void testSnakeCaseToCamelCase(){
+		Assert.assertEquals(StringTool.snakeCaseToCamelCase("num_sessions_in_pool"), "numSessionsInPool");
+		Assert.assertEquals(StringTool.snakeCaseToCamelCase("num__sessions_in_pool"), "numSessionsInPool");
 	}
 
 }

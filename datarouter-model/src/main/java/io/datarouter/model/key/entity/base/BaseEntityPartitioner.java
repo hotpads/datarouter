@@ -16,6 +16,7 @@
 package io.datarouter.model.key.entity.base;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.bytes.ByteTool;
@@ -122,7 +123,7 @@ implements EntityPartitioner<EK>{
 
 	@Override
 	public int parsePartitionFromBytes(byte[] bytes){
-		byte[] prefixBytes = ByteTool.copyOfRange(bytes, 0, getNumPrefixBytes());
+		byte[] prefixBytes = Arrays.copyOfRange(bytes, 0, getNumPrefixBytes());
 		return getPartition(prefixBytes);
 
 	}

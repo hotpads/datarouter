@@ -25,12 +25,12 @@ import org.slf4j.LoggerFactory;
 import io.datarouter.instrumentation.task.TaskStatus;
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.util.concurrent.UncheckedInterruptedException;
+import io.datarouter.util.mutable.MutableBoolean;
 
 public class JobletTaskTracker implements TaskTracker{
 	private static final Logger logger = LoggerFactory.getLogger(JobletTaskTracker.class);
 
 	private final String name;
-	private final JobletRequest jobletRequest;
 	private final String serverName;
 	private final AtomicLong scheduledTimeMs;
 	private final AtomicLong startTimeMs;
@@ -39,10 +39,11 @@ public class JobletTaskTracker implements TaskTracker{
 	private final AtomicLong count;
 	private final AtomicReference<String> lastItem;
 	private final AtomicReference<TaskStatus> status;
+	private final MutableBoolean shutdownRequested;
 
-	public JobletTaskTracker(String name, JobletRequest jobletRequest){
+	public JobletTaskTracker(String name, JobletRequest jobletRequest, MutableBoolean shutdownRequested){
 		this.name = name;
-		this.jobletRequest = jobletRequest;
+		this.shutdownRequested = shutdownRequested;
 		this.serverName = jobletRequest.getReservedBy();
 		this.scheduledTimeMs = new AtomicLong(jobletRequest.getReservedAt());
 		this.startTimeMs = new AtomicLong(jobletRequest.getReservedAt());
@@ -53,8 +54,8 @@ public class JobletTaskTracker implements TaskTracker{
 		this.status = new AtomicReference<>();
 	}
 
-	public JobletTaskTracker(Class<?> cls, JobletRequest jobletRequest){
-		this(cls.getSimpleName(), jobletRequest);
+	public JobletTaskTracker(Class<?> cls, JobletRequest jobletRequest, MutableBoolean shutdownRequested){
+		this(cls.getSimpleName(), jobletRequest, shutdownRequested);
 	}
 
 	@Override
@@ -164,11 +165,11 @@ public class JobletTaskTracker implements TaskTracker{
 		if(Thread.interrupted()){
 			logger.warn("setting shutdownRequested=true for {} because of Thread.interrupted() on {}", name,
 					serverName);
-			jobletRequest.getShutdownRequested().set(true);
+			shutdownRequested.set(true);
 			logger.warn("{} interrupted on {}", name, serverName);
 			return true;
 		}
-		if(jobletRequest.getShutdownRequested().isTrue()){
+		if(shutdownRequested.isTrue()){
 			logger.warn("shutdownRequested for the {} on {}", name, serverName);
 			return true;
 		}

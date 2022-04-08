@@ -13,13 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.instrumentation;
+package io.datarouter.storage.client;
 
-public class Java11{
+import java.util.List;
 
-	public static boolean isBlank(String string){
-		// return string.isBlank();
-		return string.trim().isEmpty();
+public class ReplicationClientIds{
+
+	public final ClientId primary;
+	public final List<ClientId> replicas;
+
+	public ReplicationClientIds(ClientId primary, ClientId... replicas){
+		this(primary, List.of(replicas));
+	}
+
+	public ReplicationClientIds(ClientId primary, List<ClientId> replicas){
+		this.primary = primary;
+		this.replicas = replicas;
 	}
 
 }

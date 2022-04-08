@@ -13,23 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.enums;
+package io.datarouter.web.plugins.opencencus.metrics;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import io.datarouter.web.config.BaseWebPlugin;
 
-public class Java9{
+public class OpenCencusMetricsPlugin extends BaseWebPlugin{
 
-	@SafeVarargs
-	public static <T> List<T> listOf(T... items){
-		// return List.of(items);
-
-		for(int i = 0; i < items.length; ++i){
-			Objects.requireNonNull(items[i]);
-		}
-		return Collections.unmodifiableList(Arrays.asList(items));
+	public OpenCencusMetricsPlugin(){
+		addAppListener(OpencencusMetricsAppListener.class);
 	}
 
 }

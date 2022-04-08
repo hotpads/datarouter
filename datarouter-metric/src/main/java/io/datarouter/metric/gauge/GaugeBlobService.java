@@ -60,7 +60,11 @@ public class GaugeBlobService implements GaugePublisher{
 			dto.serializeToStrings(MAX_SERIALIZED_BLOB_SIZE)
 					.map(blob -> new ConveyorMessage(ulid, blob))
 					.flush(blobs -> {
-						logger.info("writing size={} blobs with key={}", blobs.size(), ulid);
+						if(blobs.size() > 1){
+							logger.warn("writing size={} blobs with key={}", blobs.size(), ulid);
+						}else{
+							logger.info("writing size={} blobs with key={}", blobs.size(), ulid);
+						}
 						gaugeBlobQueueDao.putMulti(blobs);
 					});
 		}else{

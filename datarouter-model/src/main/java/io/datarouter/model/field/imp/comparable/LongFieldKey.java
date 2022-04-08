@@ -56,4 +56,9 @@ public class LongFieldKey extends PrimitiveFieldKey<Long,LongFieldKey>{
 		return RandomTool.nextPositiveLong();
 	}
 
+	@Override
+	public Long getSampleValue(){
+		return 0L;
+	}
+
 }

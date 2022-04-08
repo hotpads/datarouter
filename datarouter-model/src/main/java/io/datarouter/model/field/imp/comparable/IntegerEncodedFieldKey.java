@@ -83,4 +83,9 @@ public class IntegerEncodedFieldKey<T> extends BaseFieldKey<T,IntegerEncodedFiel
 		return codec;
 	}
 
+	@Override
+	public T getSampleValue(){
+		return codec.getSampleValue();
+	}
+
 }

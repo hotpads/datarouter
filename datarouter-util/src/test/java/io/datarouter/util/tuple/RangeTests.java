@@ -50,7 +50,7 @@ public class RangeTests{
 	@Test
 	public void testCompareStarts(){
 		Range<Integer> rangeA = new Range<>(null, true, null, true);
-		Assert.assertEquals(Range.compareStarts(rangeA, rangeA), 0);
+		Assert.assertEquals(rangeA.compareTo(rangeA), 0);
 
 		Range<Integer> rangeB = new Range<>(null, false, null, true);
 		Assert.assertEquals(compareAndAssertReflexive(rangeA, rangeB), -1);

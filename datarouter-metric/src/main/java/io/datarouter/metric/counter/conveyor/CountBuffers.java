@@ -13,15 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.gson;
+package io.datarouter.metric.counter.conveyor;
 
-import java.util.Optional;
+import java.util.Map;
 
-public class Java11{
+import javax.inject.Singleton;
 
-	public static <T> boolean isEmpty(Optional<T> optional){
-		// return optional.isEmpty();
-		return !optional.isPresent();
+import io.datarouter.conveyor.MemoryBuffer;
+
+@Singleton
+public class CountBuffers{
+
+	public final MemoryBuffer<Map<Long,Map<String,Long>>> countBuffer;
+
+	public CountBuffers(){
+		this.countBuffer = new MemoryBuffer<>("countBuffer", 100);
+	}
+
+	public void offer(Map<Long,Map<String,Long>> metricDto){
+		countBuffer.offer(metricDto);
 	}
 
 }

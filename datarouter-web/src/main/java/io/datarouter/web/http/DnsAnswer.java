@@ -13,24 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.virtualnode.replication;
+package io.datarouter.web.http;
 
-import java.util.List;
+public class DnsAnswer{
 
-import io.datarouter.storage.client.ClientId;
+	public final String name;
+	public final String ttl;
+	public final String clazz;
+	public final String type;
+	public final String value;
 
-public class ReplicationClientIds{
-
-	public final ClientId primary;
-	public final List<ClientId> replicas;
-
-	public ReplicationClientIds(ClientId primary, ClientId... replicas){
-		this(primary, List.of(replicas));
+	public DnsAnswer(String name, String ttl, String clazz, String type, String value){
+		this.name = name;
+		this.ttl = ttl;
+		this.clazz = clazz;
+		this.type = type;
+		this.value = value;
 	}
 
-	public ReplicationClientIds(ClientId primary, List<ClientId> replicas){
-		this.primary = primary;
-		this.replicas = replicas;
+	@Override
+	public String toString(){
+		return "DnsAnswer [name=" + name + ", ttl=" + ttl + ", clazz=" + clazz + ", type=" + type + ", value=" + value
+				+ "]";
 	}
 
 }

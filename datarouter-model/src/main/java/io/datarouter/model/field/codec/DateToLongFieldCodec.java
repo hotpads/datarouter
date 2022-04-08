@@ -19,14 +19,13 @@ import java.util.Date;
 
 import com.google.gson.reflect.TypeToken;
 
+import io.datarouter.bytes.Codec.NullPassthroughCodec;
+
 public class DateToLongFieldCodec extends LongFieldCodec<Date>{
 
 	public DateToLongFieldCodec(){
 		super(TypeToken.get(Date.class),
-				() -> null,
-				Date::getTime,
-				() -> null,
-				Date::new,
+				NullPassthroughCodec.of(Date::getTime, Date::new),
 				Date::compareTo,
 				new Date(0));
 	}

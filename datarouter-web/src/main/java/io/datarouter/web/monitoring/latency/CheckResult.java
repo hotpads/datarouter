@@ -62,7 +62,7 @@ public class CheckResult{
 
 	public String getLatencyString(){
 		return latency
-				.map(duration -> duration.toString(TimeUnit.MILLISECONDS))
+				.map(duration -> duration.toString(TimeUnit.MICROSECONDS))
 				.orElse("");
 	}
 

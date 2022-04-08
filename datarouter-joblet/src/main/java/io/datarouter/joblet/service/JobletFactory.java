@@ -24,6 +24,7 @@ import io.datarouter.joblet.model.JobletPackage;
 import io.datarouter.joblet.storage.jobletrequest.JobletRequest;
 import io.datarouter.joblet.type.JobletType;
 import io.datarouter.joblet.type.JobletTypeFactory;
+import io.datarouter.util.mutable.MutableBoolean;
 
 @Singleton
 public class JobletFactory{
@@ -33,17 +34,19 @@ public class JobletFactory{
 	@Inject
 	private JobletTypeFactory jobletTypeFactory;
 
-	public <P> Joblet<?> createForPackage(JobletPackage jobletPackage){
+	public <P> Joblet<?> createForPackage(JobletPackage jobletPackage, MutableBoolean shutdownRequested){
 		@SuppressWarnings("unchecked")
 		JobletType<P> jobletType = (JobletType<P>)jobletTypeFactory.fromJobletRequest(
 				jobletPackage.getJobletRequest());
 		P jobletParams = JobletPackage.unmarshallJobletData(jobletType, jobletPackage);
-		return create(jobletType, jobletPackage.getJobletRequest(), jobletParams);
+		return create(jobletType, jobletPackage.getJobletRequest(), jobletParams, shutdownRequested);
 	}
 
-	private <P> Joblet<P> create(JobletType<P> jobletType, JobletRequest jobletRequest, P jobletParams){
+	private <P> Joblet<P> create(JobletType<P> jobletType, JobletRequest jobletRequest, P jobletParams,
+			MutableBoolean shutdownRequested){
 		Joblet<P> joblet = injector.getInstance(jobletType.getAssociatedClass());
 		joblet.setJobletRequest(jobletRequest);
+		joblet.setShutdownRequested(shutdownRequested);
 		joblet.setJobletParams(jobletParams);
 		return joblet;
 	}

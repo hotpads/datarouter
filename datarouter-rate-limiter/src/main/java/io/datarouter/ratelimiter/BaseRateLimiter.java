@@ -42,7 +42,7 @@ public abstract class BaseRateLimiter{
 		return internalAllow(makeKey(key), false).getLeft();
 	}
 
-	public final boolean allowed(){
+	public boolean allowed(){
 		return allowed("");
 	}
 

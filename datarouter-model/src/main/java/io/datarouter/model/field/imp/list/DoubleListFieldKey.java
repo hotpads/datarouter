@@ -32,4 +32,9 @@ public class DoubleListFieldKey extends ListFieldKey<Double,List<Double>,DoubleL
 		return false;
 	}
 
+	@Override
+	public List<Double> getSampleValue(){
+		return List.of();
+	}
+
 }

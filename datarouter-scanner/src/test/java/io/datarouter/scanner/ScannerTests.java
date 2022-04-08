@@ -32,24 +32,24 @@ public class ScannerTests{
 	@Test
 	public void testScannerOf(){
 		Assert.assertSame(Scanner.of().getClass(), EmptyScanner.class);
-		Assert.assertSame(Scanner.of(Java9.listOf()).getClass(), EmptyScanner.class); // via RandomAccessScanner
+		Assert.assertSame(Scanner.of(List.of()).getClass(), EmptyScanner.class); // via RandomAccessScanner
 
 		Assert.assertSame(Scanner.of(1).getClass(), ObjectScanner.class);
 
 		Assert.assertSame(Scanner.of(1, 2).getClass(), ArrayScanner.class);
 
-		Assert.assertSame(Scanner.of(Java9.listOf(1)).getClass(), RandomAccessScanner.class);
+		Assert.assertSame(Scanner.of(List.of(1)).getClass(), RandomAccessScanner.class);
 		// Collections.unmodifiableList returns UnmodifiableRandomAccessList if the input is RandomAccess
-		Assert.assertSame(Scanner.of(Collections.unmodifiableList(Java9.listOf(1))).getClass(),
+		Assert.assertSame(Scanner.of(Collections.unmodifiableList(List.of(1))).getClass(),
 				RandomAccessScanner.class);
-		Assert.assertSame(Scanner.of(Java9.listOf(1)).getClass(), RandomAccessScanner.class);
-		Assert.assertSame(Scanner.of(new ArrayList<>(Java9.listOf(1))).getClass(), RandomAccessScanner.class);
-		Assert.assertSame(Scanner.of(new Vector<>(Java9.listOf(1))).getClass(), RandomAccessScanner.class);
+		Assert.assertSame(Scanner.of(List.of(1)).getClass(), RandomAccessScanner.class);
+		Assert.assertSame(Scanner.of(new ArrayList<>(List.of(1))).getClass(), RandomAccessScanner.class);
+		Assert.assertSame(Scanner.of(new Vector<>(List.of(1))).getClass(), RandomAccessScanner.class);
 
-		Assert.assertSame(Scanner.of(new LinkedList<>(Java9.listOf(1))).getClass(), IteratorScanner.class);
-		Assert.assertSame(Scanner.of(new HashSet<>(Java9.listOf(1))).getClass(), IteratorScanner.class);
-		Assert.assertSame(Scanner.of(new TreeSet<>(Java9.listOf(1))).getClass(), IteratorScanner.class);
-		Assert.assertSame(Scanner.of(Java9.listOf(1).iterator()).getClass(), IteratorScanner.class);
+		Assert.assertSame(Scanner.of(new LinkedList<>(List.of(1))).getClass(), IteratorScanner.class);
+		Assert.assertSame(Scanner.of(new HashSet<>(List.of(1))).getClass(), IteratorScanner.class);
+		Assert.assertSame(Scanner.of(new TreeSet<>(List.of(1))).getClass(), IteratorScanner.class);
+		Assert.assertSame(Scanner.of(List.of(1).iterator()).getClass(), IteratorScanner.class);
 		Assert.assertSame(Scanner.of(Stream.of(1).iterator()).getClass(), IteratorScanner.class);
 
 		Assert.assertSame(Scanner.of(Stream.of(1)).getClass(), StreamScanner.class);
@@ -57,29 +57,29 @@ public class ScannerTests{
 
 	@Test
 	public void testConcatIterables(){
-		List<Integer> iter1 = Java9.listOf(1);
-		List<Integer> iter2 = Java9.listOf();
-		List<Integer> iter3 = Java9.listOf(1, 2);
+		List<Integer> iter1 = List.of(1);
+		List<Integer> iter2 = List.of();
+		List<Integer> iter3 = List.of(1, 2);
 		List<Integer> actual = Scanner.concat(iter1, iter2, iter3).list();
-		Assert.assertEquals(actual, Java9.listOf(1, 1, 2));
+		Assert.assertEquals(actual, List.of(1, 1, 2));
 	}
 
 	@Test
 	public void testAppendScanner(){
-		List<Integer> actual = Scanner.of(1).append(Scanner.of(Java9.listOf(1, 2))).list();
-		Assert.assertEquals(actual, Java9.listOf(1, 1, 2));
+		List<Integer> actual = Scanner.of(1).append(Scanner.of(List.of(1, 2))).list();
+		Assert.assertEquals(actual, List.of(1, 1, 2));
 	}
 
 	@Test
 	public void testAppendVarargs(){
 		List<Integer> actual = Scanner.of(1).append(1, 2).list();
-		Assert.assertEquals(actual, Java9.listOf(1, 1, 2));
+		Assert.assertEquals(actual, List.of(1, 1, 2));
 	}
 
 	@Test
 	public void testAppendIterable(){
-		List<Integer> actual = Scanner.of(1).append(Java9.listOf(1, 2)).list();
-		Assert.assertEquals(actual, Java9.listOf(1, 1, 2));
+		List<Integer> actual = Scanner.of(1).append(List.of(1, 2)).list();
+		Assert.assertEquals(actual, List.of(1, 1, 2));
 	}
 
 }

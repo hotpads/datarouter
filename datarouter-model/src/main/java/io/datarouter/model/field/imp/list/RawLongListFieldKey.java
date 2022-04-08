@@ -19,6 +19,7 @@ import java.util.List;
 
 import com.google.gson.reflect.TypeToken;
 
+import io.datarouter.bytes.LongArray;
 import io.datarouter.model.field.ListFieldKey;
 
 @Deprecated//Use ByteArrayFieldKey
@@ -31,6 +32,11 @@ public class RawLongListFieldKey extends ListFieldKey<Long,List<Long>,RawLongLis
 	@Override
 	public boolean isFixedLength(){
 		return false;
+	}
+
+	@Override
+	public List<Long> getSampleValue(){
+		return new LongArray();
 	}
 
 }

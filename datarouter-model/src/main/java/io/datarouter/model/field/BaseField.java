@@ -77,7 +77,10 @@ public abstract class BaseField<T> implements Field<T>{
 			if(javaField == null){
 				javaField = ReflectionTool.getDeclaredFieldFromAncestors(nestedFieldSet.getClass(), getKey().getName());
 				if(javaField == null){
-					throw new RuntimeException(getKey().getName() + " doesn't exist in " + nestedFieldSet.getClass());
+					String message = String.format("field=%s doesn't exist in %s",
+							getKey().getName(),
+							nestedFieldSet.getClass());
+					throw new RuntimeException(message);
 				}
 				CACHED_FIELDS.get(nestedFieldSet.getClass()).put(getKey().getName(), javaField);
 			}

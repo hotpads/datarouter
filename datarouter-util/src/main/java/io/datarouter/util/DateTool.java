@@ -40,13 +40,13 @@ public class DateTool{
 	public static final long MILLISECONDS_IN_MINUTE = Duration.ofMinutes(1).toMillis();
 	public static final long MILLISECONDS_IN_SECOND = Duration.ofSeconds(1).toMillis();
 
-	public static final Set<DayOfWeek> WEEK_DAYS = Java9.setOf(
+	public static final Set<DayOfWeek> WEEK_DAYS = Set.of(
 			DayOfWeek.MONDAY,
 			DayOfWeek.TUESDAY,
 			DayOfWeek.WEDNESDAY,
 			DayOfWeek.THURSDAY,
 			DayOfWeek.FRIDAY);
-	public static final Set<DayOfWeek> WEEKEND_DAYS = Java9.setOf(
+	public static final Set<DayOfWeek> WEEKEND_DAYS = Set.of(
 			DayOfWeek.SATURDAY,
 			DayOfWeek.SUNDAY);
 

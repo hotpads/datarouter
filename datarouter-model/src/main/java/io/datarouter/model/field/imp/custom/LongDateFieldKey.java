@@ -43,4 +43,9 @@ public class LongDateFieldKey extends PrimitiveFieldKey<Date,LongDateFieldKey>{
 		return new LongDateFieldKey(name, columnName, nullable, fieldGeneratorType, defaultValue, attributes);
 	}
 
+	@Override
+	public Date getSampleValue(){
+		return new Date();
+	}
+
 }

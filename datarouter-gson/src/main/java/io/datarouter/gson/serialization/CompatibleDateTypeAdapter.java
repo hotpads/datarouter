@@ -20,9 +20,10 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
@@ -31,20 +32,20 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 
+import io.datarouter.instrumentation.count.Counters;
+import io.datarouter.instrumentation.trace.TracerTool;
+
 // only here for java 9 migration
 // from com.google.gson.internal.bind.DateTypeAdapter
 public class CompatibleDateTypeAdapter extends TypeAdapter<Date>{
+	private static final Logger logger = LoggerFactory.getLogger(CompatibleDateTypeAdapter.class);
 
-	/**
-	 * List of 1 or more different date formats used for de-serialization attempts. The first of them (default US
-	 * format) is used for serialization as well.
-	 */
-	private final List<DateFormat> dateFormats = new ArrayList<>();
+	private static final ThreadLocal<DateFormat> JAVA8_DATE_FORMAT = ThreadLocal.withInitial(
+			() -> new SimpleDateFormat("MMM d, yyyy h:mm:ss a"));
+	private static final ThreadLocal<DateFormat> JAVA9_DATE_FORMAT = ThreadLocal.withInitial(
+			() -> new SimpleDateFormat("MMM d, yyyy, h:mm:ss a"));
 
-	public CompatibleDateTypeAdapter(){
-		dateFormats.add(new SimpleDateFormat("MMM d, yyyy h:mm:ss a")); // java 8
-		dateFormats.add(new SimpleDateFormat("MMM d, yyyy, h:mm:ss a")); // java 9
-	}
+	private boolean shouldLog = true;
 
 	@Override
 	public Date read(JsonReader in) throws IOException{
@@ -55,29 +56,52 @@ public class CompatibleDateTypeAdapter extends TypeAdapter<Date>{
 		return deserializeToDate(in.nextString());
 	}
 
-	private synchronized Date deserializeToDate(String json){
-		for(DateFormat dateFormat : dateFormats){
-			try{
-				return dateFormat.parse(json);
-			}catch(ParseException ignored){
-				// ignore
-			}
+	private Date deserializeToDate(String json){
+		try{
+			Date date = JAVA8_DATE_FORMAT.get().parse(json);
+			inc("deserialize java8");
+			return date;
+		}catch(ParseException ignored){
+			// ignore
 		}
 		try{
-			return ISO8601Utils.parse(json, new ParsePosition(0));
+			Date date = JAVA9_DATE_FORMAT.get().parse(json);
+			inc("deserialize java9");
+			return date;
+		}catch(ParseException ignored){
+			// ignore
+		}
+		try{
+			Date date = ISO8601Utils.parse(json, new ParsePosition(0));
+			inc("deserialize ISO8601Utils");
+			return date;
 		}catch(ParseException e){
 			throw new JsonSyntaxException(json, e);
 		}
+
 	}
 
 	@Override
-	public synchronized void write(JsonWriter out, Date value) throws IOException{
+	public void write(JsonWriter out, Date value) throws IOException{
 		if(value == null){
 			out.nullValue();
 			return;
 		}
-		String dateFormatAsString = dateFormats.get(0).format(value);
+		String dateFormatAsString = JAVA8_DATE_FORMAT.get().format(value);
+		inc("serialize java8");
+		if(shouldLog){
+			shouldLog = false;
+			TracerTool.setForceSample();
+			String traceId = TracerTool.getCurrentTraceparent()
+					.map(traceparent -> traceparent.traceId)
+					.orElse("");
+			logger.warn(traceId, new Exception());
+		}
 		out.value(dateFormatAsString);
+	}
+
+	private static void inc(String key){
+		Counters.inc("CompatibleDateTypeAdapter " + key);
 	}
 
 }

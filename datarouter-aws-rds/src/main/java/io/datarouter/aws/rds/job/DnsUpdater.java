@@ -38,15 +38,37 @@ public class DnsUpdater{
 	@Inject
 	private DnsUpdateSettings settings;
 
-	public String addCname(String subdomain, String target) throws TextParseException{
-		Name zone = new Name(settings.zone.get());
+	public String addCname(String subdomain, String target){
 		if(!target.endsWith(".")){
 			target = target + ".";
+		}
+		return addRecord(Type.CNAME, subdomain, target);
+	}
+
+	public String deleteCname(String subdomain){
+		return deleteRecord(Type.CNAME, subdomain);
+	}
+
+	public String addA(String domain, String ip){
+		return addRecord(Type.A, domain, ip);
+	}
+
+	public String deleteA(String domain){
+		return deleteRecord(Type.A, domain);
+	}
+
+	private String addRecord(int type, String subdomain, String target){
+		logger.warn("creating record type={} subdomain={} target={}", type, subdomain, target);
+		Name zone;
+		try{
+			zone = new Name(settings.zone.get());
+		}catch(TextParseException e){
+			throw new RuntimeException(e);
 		}
 		var update = new Update(zone);
 		Message response;
 		try{
-			update.add(new Name(subdomain, zone), Type.CNAME, 300, target);
+			update.add(new Name(subdomain, zone), type, 0, target);
 			SimpleResolver resolver = makeResolver();
 			response = resolver.send(update);
 		}catch(IOException e){
@@ -56,12 +78,18 @@ public class DnsUpdater{
 		return response.toString();
 	}
 
-	public String deleteCname(String subdomain) throws TextParseException{
-		Name zone = new Name(settings.zone.get());
+	private String deleteRecord(int type, String subdomain){
+		logger.warn("deleting record type={} subdomain={}", type, subdomain);
+		Name zone;
+		try{
+			zone = new Name(settings.zone.get());
+		}catch(TextParseException e){
+			throw new RuntimeException(e);
+		}
 		var update = new Update(zone);
 		Message response;
 		try{
-			update.delete(new Name(subdomain, zone), Type.CNAME);
+			update.delete(new Name(subdomain, zone), type);
 			SimpleResolver resolver = makeResolver();
 			response = resolver.send(update);
 		}catch(IOException e){

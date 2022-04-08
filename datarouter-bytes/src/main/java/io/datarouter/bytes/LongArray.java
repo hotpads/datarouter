@@ -306,6 +306,37 @@ public class LongArray implements List<Long>, RandomAccess{
 		return wrapperArray;
 	}
 
+	// copied from AbstractList
+	@Override
+	public boolean equals(Object obj){
+		if(obj == this){
+			return true;
+		}
+		if(!(obj instanceof List)){
+			return false;
+		}
+
+		ListIterator<Long> e1 = listIterator();
+		ListIterator<?> e2 = ((List<?>)obj).listIterator();
+		while(e1.hasNext() && e2.hasNext()){
+			Long o1 = e1.next();
+			Object o2 = e2.next();
+			if(!(o1 == null ? o2 == null : o1.equals(o2))){
+				return false;
+			}
+		}
+		return !(e1.hasNext() || e2.hasNext());
+	}
+
+	@Override
+	public int hashCode(){
+		int hashCode = 1;
+		for(Long element : this){
+			hashCode = 31 * hashCode + (element == null ? 0 : element.hashCode());
+		}
+		return hashCode;
+	}
+
 	@Override
 	public String toString(){
 		return String.format("LongArray [array=%s, size=%d]", Arrays.toString(array), size);

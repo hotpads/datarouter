@@ -26,6 +26,7 @@ import io.datarouter.instrumentation.trace.TracePublisher;
 import io.datarouter.trace.conveyor.Trace2MemoryBufferToSqsConveyor;
 import io.datarouter.trace.settings.DatarouterTracePublisherSettingRoot;
 import io.datarouter.web.exception.ExceptionRecorder;
+import io.datarouter.web.util.Java9Gson;
 
 @Singleton
 public class TracePublisherConveyors extends BaseConveyors{
@@ -34,6 +35,9 @@ public class TracePublisherConveyors extends BaseConveyors{
 	private DatarouterTracePublisherSettingRoot settings;
 	@Inject
 	private Gson gson;
+	@Inject
+	@Java9Gson
+	private Gson java9Gson;
 	@Inject
 	private TracePublisher tracePublisher;
 	@Inject
@@ -57,7 +61,7 @@ public class TracePublisherConveyors extends BaseConveyors{
 				trace2MemoryBuffer.buffer,
 				trace2QueueDao,
 				trace2HttpRequestRecordQueueDao,
-				gson,
+				java9Gson,
 				exceptionRecorder),
 				settings.runMemoryToSqsForTrace2ThreadCount.get());
 

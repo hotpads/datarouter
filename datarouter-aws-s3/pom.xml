@@ -21,9 +21,9 @@
 
 	<parent>
 		<groupId>io.datarouter</groupId>
-		<artifactId>datarouter-parent</artifactId>
-		<version>0.0.110</version>
-		<relativePath>../datarouter-parent</relativePath>
+		<artifactId>datarouter-java11-parent</artifactId>
+		<version>0.0.111</version>
+		<relativePath>../datarouter-java11-parent</relativePath>
 	</parent>
 
 	<artifactId>datarouter-aws-s3</artifactId>
@@ -74,35 +74,4 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
-
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>com.mycila</groupId>
-				<artifactId>license-maven-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-source-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-			</plugin>
-		</plugins>
-		<pluginManagement>
-			<plugins>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-compiler-plugin</artifactId>
-					<version>${maven-compiler-plugin-version}</version>
-					<configuration>
-						<compilerId>eclipse</compilerId>
-						<source>11</source>
-						<target>11</target>
-					</configuration>
-				</plugin>
-			</plugins>
-		</pluginManagement>
-	</build>
 </project>

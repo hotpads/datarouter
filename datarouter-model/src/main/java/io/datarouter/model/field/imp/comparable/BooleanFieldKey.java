@@ -46,4 +46,9 @@ public class BooleanFieldKey extends PrimitiveFieldKey<Boolean,BooleanFieldKey>{
 		return new BooleanFieldKey(name, columnNameOverride, nullable, fieldGeneratorType, defaultValue, attributes);
 	}
 
+	@Override
+	public Boolean getSampleValue(){
+		return true;
+	}
+
 }

@@ -17,8 +17,11 @@ package io.datarouter.web.http;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.security.Security;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -40,6 +43,8 @@ import io.datarouter.httpclient.response.DatarouterHttpResponse;
 import io.datarouter.httpclient.response.exception.DatarouterHttpResponseException;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.properties.ServerName;
+import io.datarouter.util.RunNativeDto;
+import io.datarouter.util.duration.DatarouterDuration;
 import io.datarouter.web.config.DatarouterWebFiles;
 import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.handler.BaseHandler;
@@ -116,22 +121,37 @@ public class HttpTestHandler extends BaseHandler{
 	public Mav dnsLookup(OptionalString hostname){
 		Mav mav = new Mav(files.jsp.http.dnsLookupJsp);
 		mav.put("path", paths.datarouter.http.dnsLookup.toSlashedString());
+		mav.put("caching", Security.getProperty("networkaddress.cache.ttl"));
 		if(hostname.isEmpty()){
 			return mav;
 		}
+		mav.put("hostname", hostname.get());
+		DatarouterDuration elapsed;
+		String javaResult;
+		Long startNs = System.nanoTime();
 		try{
-			mav.put("hostname", hostname.get());
-			Long start = System.currentTimeMillis();
 			InetAddress[] ipAddresses = InetAddress.getAllByName(hostname.get());
-			Long elapsedMs = System.currentTimeMillis() - start;
+			elapsed = DatarouterDuration.ageNs(startNs);
 			String ipAddressesFormatted = Scanner.of(ipAddresses)
 					.map(InetAddress::getHostAddress)
 					.collect(Collectors.joining("\n"));
-			String formattedResponse = "duration: " + elapsedMs + " ms" + "\n\n" + "ips: " + ipAddressesFormatted;
-			mav.put("ipAddresses", formattedResponse);
+			javaResult = "ips:\n" + ipAddressesFormatted;
 		}catch(UnknownHostException e){
-			mav.put("error", ExceptionTool.getStackTraceAsString(e));
+			elapsed = DatarouterDuration.ageNs(startNs);
+			javaResult = "error:\n" + ExceptionTool.getStackTraceAsString(e);
 		}
+		mav.put("javaDuration", elapsed.toString(TimeUnit.MICROSECONDS));
+		mav.put("javaResult", javaResult);
+
+		startNs = System.nanoTime();
+		RunNativeDto digResult = DigRunner.lookup(hostname.get());
+		mav.put("digDuration", DatarouterDuration.ageNs(startNs).toString(TimeUnit.MICROSECONDS));
+		mav.put("digExitVal", digResult.exitVal);
+		mav.put("digResultStdout", digResult.stdout);
+		mav.put("digResultStderr", digResult.stderr);
+		List<DnsAnswer> parsedAnswers = DigRunner.parse(digResult.stdout);
+		mav.put("parsedDig", parsedAnswers.stream().map(DnsAnswer::toString).collect(Collectors.joining("\n")));
+
 		return mav;
 	}
 

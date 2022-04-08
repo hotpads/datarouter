@@ -39,7 +39,7 @@ import io.datarouter.web.util.http.ResponseTool;
 import io.datarouter.web.util.http.exception.HttpExceptionTool;
 
 @Singleton
-public class JsonEncoder implements HandlerEncoder{
+public class JsonEncoder implements HandlerEncoder, JsonAwareHandlerCodec{
 
 	private final JsonSerializer jsonSerializer;
 	private final ExceptionHandlingConfig exceptionHandlingConfig;
@@ -55,6 +55,11 @@ public class JsonEncoder implements HandlerEncoder{
 	public void finishRequest(Object result, ServletContext servletContext, HttpServletResponse response,
 			HttpServletRequest request) throws IOException{
 		sendRequestJson(response, request, serialize(result));
+	}
+
+	@Override
+	public JsonSerializer getJsonSerializer(){
+		return jsonSerializer;
 	}
 
 	protected String serialize(Object result){

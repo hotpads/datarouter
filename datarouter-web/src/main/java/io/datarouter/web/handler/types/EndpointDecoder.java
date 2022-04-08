@@ -46,10 +46,11 @@ import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.handler.encoder.HandlerEncoder;
+import io.datarouter.web.handler.encoder.JsonAwareHandlerCodec;
 import io.datarouter.web.util.http.RequestTool;
 
 @Singleton
-public class EndpointDecoder implements HandlerDecoder{
+public class EndpointDecoder implements HandlerDecoder, JsonAwareHandlerCodec{
 	private static final Logger logger = LoggerFactory.getLogger(EndpointDecoder.class);
 
 	private final JsonSerializer deserializer;
@@ -198,6 +199,11 @@ public class EndpointDecoder implements HandlerDecoder{
 			}
 			return obj;
 		}
+	}
+
+	@Override
+	public JsonSerializer getJsonSerializer(){
+		return deserializer;
 	}
 
 }

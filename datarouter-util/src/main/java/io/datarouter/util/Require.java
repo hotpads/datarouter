@@ -144,7 +144,7 @@ public class Require{
 	}
 
 	public static String notBlank(String string, String message){
-		if(string == null || Java11.isBlank(string)){
+		if(string == null || string.isBlank()){
 			throw new IllegalArgumentException(message);
 		}
 		return string;
@@ -166,7 +166,7 @@ public class Require{
 	}
 
 	public static <T> Optional<T> isPresent(Optional<T> optional, String message){
-		if(optional == null || Java11.isEmpty(optional)){
+		if(optional == null || optional.isEmpty()){
 			throw new IllegalArgumentException(message);
 		}
 		return optional;

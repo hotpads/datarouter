@@ -70,7 +70,11 @@ public class CountBlobService implements CountPublisher{
 			dto.serializeToStrings(MAX_SERIALIZED_BLOB_SIZE)
 					.map(blob -> new ConveyorMessage(dto.ulid, blob))
 					.flush(blobs -> {
-						logger.info("writing size={} blobs with key={}", blobs.size(), dto.ulid);
+						if(blobs.size() > 1){
+							logger.warn("writing size={} blobs with key={}", blobs.size(), dto.ulid);
+						}else{
+							logger.info("writing size={} blobs with key={}", blobs.size(), dto.ulid);
+						}
 						countBlobQueueDao.putMulti(blobs);
 					});
 		}else{

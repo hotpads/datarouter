@@ -23,4 +23,9 @@ public class FloatFieldKey extends PrimitiveFieldKey<Float,FloatFieldKey>{
 		super(name, Float.class);
 	}
 
+	@Override
+	public Float getSampleValue(){
+		return 0f;
+	}
+
 }

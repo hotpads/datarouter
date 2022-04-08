@@ -17,6 +17,7 @@ package io.datarouter.model.field.imp.array;
 
 import com.google.gson.reflect.TypeToken;
 
+import io.datarouter.bytes.EmptyArray;
 import io.datarouter.model.field.BaseFieldKey;
 
 @Deprecated
@@ -34,6 +35,11 @@ public class LongArrayFieldKey extends BaseFieldKey<long[],LongArrayFieldKey>{
 	@Override
 	public boolean isCollection(){
 		return true;
+	}
+
+	@Override
+	public long[] getSampleValue(){
+		return EmptyArray.LONG;
 	}
 
 }

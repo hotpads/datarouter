@@ -22,15 +22,15 @@ import org.testng.annotations.Test;
 
 public class SamplingScannerTests{
 
-	private static final List<Integer> EVEN_INPUTS = Java9.listOf(0, 1, 2, 3);
-	private static final List<Integer> ODD_INPUTS = Java9.listOf(0, 1, 2, 3, 4);
+	private static final List<Integer> EVEN_INPUTS = List.of(0, 1, 2, 3);
+	private static final List<Integer> ODD_INPUTS = List.of(0, 1, 2, 3, 4);
 
 	@Test
 	public void testEvenExcludeLast(){
 		List<Integer> actual = Scanner.of(EVEN_INPUTS)
 				.sample(2, false)
 				.list();
-		List<Integer> expected = Java9.listOf(1, 3);
+		List<Integer> expected = List.of(1, 3);
 		Assert.assertEquals(actual, expected);
 	}
 
@@ -39,7 +39,7 @@ public class SamplingScannerTests{
 		List<Integer> actual = Scanner.of(EVEN_INPUTS)
 				.sample(2, true)
 				.list();
-		List<Integer> expected = Java9.listOf(1, 3);
+		List<Integer> expected = List.of(1, 3);
 		Assert.assertEquals(actual, expected);
 	}
 
@@ -48,7 +48,7 @@ public class SamplingScannerTests{
 		List<Integer> actual = Scanner.of(ODD_INPUTS)
 				.sample(2, false)
 				.list();
-		List<Integer> expected = Java9.listOf(1, 3);
+		List<Integer> expected = List.of(1, 3);
 		Assert.assertEquals(actual, expected);
 	}
 
@@ -57,7 +57,7 @@ public class SamplingScannerTests{
 		List<Integer> actual = Scanner.of(ODD_INPUTS)
 				.sample(2, true)
 				.list();
-		List<Integer> expected = Java9.listOf(1, 3, 4);
+		List<Integer> expected = List.of(1, 3, 4);
 		Assert.assertEquals(actual, expected);
 	}
 
@@ -66,7 +66,7 @@ public class SamplingScannerTests{
 		List<Integer> actual = Scanner.<Integer>empty()
 				.sample(2, true)
 				.list();
-		List<Integer> expected = Java9.listOf();
+		List<Integer> expected = List.of();
 		Assert.assertEquals(actual, expected);
 	}
 
@@ -75,7 +75,7 @@ public class SamplingScannerTests{
 		List<Integer> actual = Scanner.<Integer>empty()
 				.sample(2, false)
 				.list();
-		List<Integer> expected = Java9.listOf();
+		List<Integer> expected = List.of();
 		Assert.assertEquals(actual, expected);
 	}
 

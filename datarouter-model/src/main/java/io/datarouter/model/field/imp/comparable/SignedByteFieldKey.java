@@ -23,4 +23,9 @@ public class SignedByteFieldKey extends PrimitiveFieldKey<Byte,SignedByteFieldKe
 		super(name, Byte.class);
 	}
 
+	@Override
+	public Byte getSampleValue(){
+		return 0;
+	}
+
 }

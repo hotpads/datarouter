@@ -42,4 +42,9 @@ public class PluginConfigKey<T extends PluginConfigValue<T>>{
 				&& Objects.equals(type, other.type);
 	}
 
+	@Override
+	public String toString(){
+		return persistentString;
+	}
+
 }

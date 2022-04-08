@@ -27,6 +27,10 @@ public class HttpRequestMethodTests{
 		Assert.assertEquals(HttpRequestMethod.fromPersistentStringStatic("get"), HttpRequestMethod.GET);
 
 		Assert.assertTrue(HttpRequestMethod.GET.matches("GET"));
+		Assert.assertTrue(HttpRequestMethod.GET.matches("get"));
+		Assert.assertTrue(HttpRequestMethod.GET.matches("Get"));
+		Assert.assertTrue(HttpRequestMethod.GET.matches("geT"));
+
 		Assert.assertFalse(HttpRequestMethod.POST.matches("GET"));
 
 		Assert.assertNull(HttpRequestMethod.fromPersistentStringStatic(null));

@@ -52,4 +52,9 @@ public class IntegerFieldKey extends PrimitiveFieldKey<Integer,IntegerFieldKey>{
 		return new IntegerFieldKey(name, columnNameOverride, nullable, fieldGeneratorType, defaultValue, attributes);
 	}
 
+	@Override
+	public Integer getSampleValue(){
+		return 0;
+	}
+
 }

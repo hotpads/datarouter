@@ -21,11 +21,16 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.datarouter.httpclient.response.HttpStatusCode;
+import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.pathnode.PathNode;
 import io.datarouter.util.string.StringTool;
 
 public class Mav{
+	private static final Logger logger = LoggerFactory.getLogger(Mav.class);
 
 	public static final String REDIRECT = "redirect:";
 	private static final String UTF8 = "UTF-8";
@@ -73,17 +78,20 @@ public class Mav{
 	/*---------------------------------- methods ----------------------------*/
 
 	/**
-	 * This method returns the value you give it to enable things like fetching an object from the database and getting
-	 * a reference to it in one line.
+	 * This method returns the value you give it to enable things like fetching an object and getting a reference to it
+	 * in one line.
 	 */
 	public <T> T put(String key, T value){
+		if(value instanceof BaseDatabean){
+			logger.warn("Not a good practice to put databeans inside Mav objects. Databean={}", value.getClass()
+					.getSimpleName(), new Throwable());
+		}
 		model.put(key, value);
 		return value;
 	}
 
-	public Map<? extends String,?> putAll(Map<? extends String,?> map){
-		model.putAll(map);
-		return map;
+	public void putAll(Map<? extends String,?> map){
+		map.forEach(this::put);
 	}
 
 	public boolean isRedirect(){

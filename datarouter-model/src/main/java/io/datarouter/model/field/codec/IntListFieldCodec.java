@@ -19,19 +19,18 @@ import java.util.List;
 
 import com.google.gson.reflect.TypeToken;
 
+import io.datarouter.bytes.Codec.NullPassthroughCodec;
 import io.datarouter.bytes.codec.list.intlist.IntListCodec;
+import io.datarouter.model.field.codec.ByteArrayFieldCodec.ByteArrayFieldCodecBuilder;
 import io.datarouter.util.collection.ListTool;
 
-public class IntListFieldCodec extends ByteArrayFieldCodec<List<Integer>>{
+public class IntListFieldCodec{
 
-	public IntListFieldCodec(){
-		super(new TypeToken<List<Integer>>(){},
-				() -> null,
-				IntListCodec.INSTANCE::encode,
-				() -> null,
-				IntListCodec.INSTANCE::decode,
-				ListTool::compare,
-				List.of());
-	}
+	public static final ByteArrayFieldCodec<List<Integer>> INSTANCE = new ByteArrayFieldCodecBuilder<>(
+			new TypeToken<List<Integer>>(){},
+			NullPassthroughCodec.of(IntListCodec.INSTANCE::encode, IntListCodec.INSTANCE::decode),
+			List.of())
+			.setComparator(ListTool::compare)
+			.build();
 
 }

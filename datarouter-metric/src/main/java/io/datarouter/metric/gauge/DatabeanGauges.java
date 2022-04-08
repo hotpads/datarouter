@@ -44,7 +44,7 @@ public class DatabeanGauges implements Gauges{
 
 	@Override
 	public void save(String key, long value){
-		if(!settings.saveGauges.get()){
+		if(!settings.saveGaugesToMemory.get()){
 			return;
 		}
 		if(key == null || key.isBlank()){

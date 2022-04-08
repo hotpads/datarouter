@@ -40,17 +40,16 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
-import io.datarouter.gson.serialization.CompatibleDateTypeAdapter;
+import io.datarouter.gson.serialization.GsonTool;
 import io.datarouter.httpclient.DocumentedGenericHolder;
 import io.datarouter.httpclient.endpoint.BaseEndpoint;
 import io.datarouter.httpclient.endpoint.Endpoint;
@@ -59,6 +58,7 @@ import io.datarouter.httpclient.endpoint.EndpointRequestBody;
 import io.datarouter.httpclient.endpoint.EndpointTool;
 import io.datarouter.httpclient.endpoint.IgnoredField;
 import io.datarouter.httpclient.security.SecurityParameters;
+import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.scanner.OptionalScanner;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.lang.ReflectionTool;
@@ -66,7 +66,12 @@ import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.BaseHandler.Handler;
+import io.datarouter.web.handler.BaseHandler.NullHandlerDecoder;
+import io.datarouter.web.handler.BaseHandler.NullHandlerEncoder;
 import io.datarouter.web.handler.documentation.DocumentedExampleDto.DocumentedExampleEnumDto;
+import io.datarouter.web.handler.encoder.HandlerEncoder;
+import io.datarouter.web.handler.encoder.JsonAwareHandlerCodec;
+import io.datarouter.web.handler.types.HandlerDecoder;
 import io.datarouter.web.handler.types.Param;
 import io.datarouter.web.handler.types.ParamDefaultEnum;
 import io.datarouter.web.handler.types.RequestBody;
@@ -81,11 +86,8 @@ public class ApiDocService{
 			SecurityParameters.CSRF_TOKEN,
 			SecurityParameters.SIGNATURE);
 
-	private static final Gson GSON = new GsonBuilder()
-			.registerTypeAdapter(Date.class, new CompatibleDateTypeAdapter())
-			.serializeNulls()
-			.setPrettyPrinting()
-			.create();
+	@Inject
+	private DatarouterInjector injector;
 
 	public List<DocumentedEndpointJspDto> buildDocumentation(String apiUrlContext, List<BaseRouteSet> routeSets){
 		return Scanner.of(routeSets)
@@ -129,9 +131,17 @@ public class ApiDocService{
 						}
 					}
 				}
-				DocumentedSecurityDetails securityDetails = createApplicableSecurityParameters(rule);
+				Class<? extends HandlerDecoder> decoderClass = handlerAnnotation.decoder();
+				if(decoderClass.equals(NullHandlerDecoder.class)){
+					decoderClass = rule.getDefaultHandlerDecoder();
+				}
+				JsonAwareHandlerCodec jsonDecoder = null;
+				if(JsonAwareHandlerCodec.class.isAssignableFrom(decoderClass)){
+					jsonDecoder = (JsonAwareHandlerCodec)injector.getInstance(decoderClass);
+				}
+				DocumentedSecurityDetails securityDetails = createApplicableSecurityParameters(rule, jsonDecoder);
 				parameters.addAll(securityDetails.parameters);
-				parameters.addAll(createMethodParameters(method));
+				parameters.addAll(createMethodParameters(method, jsonDecoder));
 
 				Type responseType = method.getGenericReturnType();
 				String responseExample;
@@ -142,7 +152,18 @@ public class ApiDocService{
 					try{
 						DocumentedExampleDto responseObject = createBestExample(responseType, new HashSet<>());
 						responseExampleEnumDtos = responseObject.exampleEnumDtos;
-						responseExample = GSON.toJson(responseObject.exampleObject);
+
+						Class<? extends HandlerEncoder> encoderClass = handlerAnnotation.encoder();
+						if(encoderClass.equals(NullHandlerEncoder.class)){
+							encoderClass = rule.getDefaultHandlerEncoder();
+						}
+						if(JsonAwareHandlerCodec.class.isAssignableFrom(encoderClass)){
+							JsonAwareHandlerCodec encoder = (JsonAwareHandlerCodec)injector.getInstance(encoderClass);
+							responseExample = GsonTool.prettyPrint(encoder.getJsonSerializer().serialize(
+									responseObject.exampleObject));
+						}else{
+							responseExample = "Not a JSON endpoint";
+						}
 					}catch(Exception e){
 						responseExample = "Impossible to render";
 						logger.warn("Could not create response example for {}", responseType, e);
@@ -199,7 +220,7 @@ public class ApiDocService{
 		}
 	}
 
-	private List<DocumentedParameterJspDto> createMethodParameters(Method method){
+	private List<DocumentedParameterJspDto> createMethodParameters(Method method, JsonAwareHandlerCodec jsonDecoder){
 		Parameter[] parameters = method.getParameters();
 		boolean isEndpointObject = EndpointTool.paramIsEndpointObject(method);
 		if(isEndpointObject){
@@ -208,15 +229,16 @@ public class ApiDocService{
 					(Class<? extends BaseEndpoint<?,?>>)method.getParameters()[0].getType());
 			return Scanner.of(baseEndpoint.getClass().getFields())
 					.exclude(field -> field.isAnnotationPresent(IgnoredField.class))
-					.map(this::createDocumentedParameterFromField)
+					.map(parameter -> createDocumentedParameterFromField(parameter, jsonDecoder))
 					.list();
 		}
 		return Scanner.of(parameters)
-				.map(this::createDocumentedParameterJspDto)
+				.map(parameter -> createDocumentedParameterJspDto(parameter, jsonDecoder))
 				.list();
 	}
 
-	private DocumentedParameterJspDto createDocumentedParameterJspDto(Parameter parameter){
+	private DocumentedParameterJspDto createDocumentedParameterJspDto(Parameter parameter,
+			JsonAwareHandlerCodec jsonDecoder){
 		String description = null;
 		String name = parameter.getName();
 		Param param = parameter.getAnnotation(Param.class);
@@ -238,10 +260,12 @@ public class ApiDocService{
 				parameter.getParameterizedType(),
 				parameter.isAnnotationPresent(RequestBody.class),
 				description,
-				exampleEnumDtos);
+				exampleEnumDtos,
+				jsonDecoder);
 	}
 
-	private DocumentedSecurityDetails createApplicableSecurityParameters(DispatchRule rule){
+	private DocumentedSecurityDetails createApplicableSecurityParameters(DispatchRule rule,
+			JsonAwareHandlerCodec jsonDecoder){
 		List<String> applicableSecurityParameterNames = new ArrayList<>();
 		if(rule.hasSignature()){
 			applicableSecurityParameterNames.add(SecurityParameters.SIGNATURE);
@@ -257,13 +281,14 @@ public class ApiDocService{
 		}
 		List<DocumentedParameterJspDto> parameters = Scanner.of(applicableSecurityParameterNames)
 				.map(parameterName -> createDocumentedParameter(parameterName, String.class, false, null,
-						new HashSet<>()))
+						new HashSet<>(), jsonDecoder))
 				.list();
 		return new DocumentedSecurityDetails(parameters, apiKeyFieldName);
 	}
 
 	private DocumentedParameterJspDto createDocumentedParameter(String parameterName, Type parameterType,
-			boolean requestBody, String description, Set<DocumentedExampleEnumDto> exampleEnumDtos){
+			boolean requestBody, String description, Set<DocumentedExampleEnumDto> exampleEnumDtos,
+			JsonAwareHandlerCodec jsonDecoder){
 		Type type = OptionalParameter.getOptionalInternalType(parameterType);
 		Optional<Class<?>> clazz = type instanceof Class ? Optional.of((Class<?>)type) : Optional.empty();
 		String example = null;
@@ -271,7 +296,7 @@ public class ApiDocService{
 			try{
 				DocumentedExampleDto exampleDto = createBestExample(type, new HashSet<>());
 				exampleEnumDtos.addAll(exampleDto.exampleEnumDtos);
-				example = GSON.toJson(exampleDto.exampleObject);
+				example = GsonTool.prettyPrint(jsonDecoder.getJsonSerializer().serialize(exampleDto.exampleObject));
 			}catch(Exception e){
 				logger.warn("Could not create parameter example {} for {}", type, parameterName, e);
 			}
@@ -290,7 +315,8 @@ public class ApiDocService{
 				exampleEnumDtos);
 	}
 
-	private DocumentedParameterJspDto createDocumentedParameterFromField(Field field){
+	private DocumentedParameterJspDto createDocumentedParameterFromField(Field field,
+			JsonAwareHandlerCodec jsonDecoder){
 		boolean isOptional = field.getType().isAssignableFrom(Optional.class);
 		String type;
 		String example = null;
@@ -302,7 +328,7 @@ public class ApiDocService{
 				try{
 					DocumentedExampleDto exampleDto = createBestExample(parameterizedType, new HashSet<>());
 					exampleEnumDtos = exampleDto.exampleEnumDtos;
-					example = GSON.toJson(exampleDto.exampleObject);
+					example = GsonTool.prettyPrint(jsonDecoder.getJsonSerializer().serialize(exampleDto.exampleObject));
 				}catch(Exception e){
 					logger.warn("Could not create parameter example {} for {}", field.getType(), field.getName(), e);
 				}
@@ -313,7 +339,7 @@ public class ApiDocService{
 				try{
 					DocumentedExampleDto exampleDto = createBestExample(field.getType(), new HashSet<>());
 					exampleEnumDtos = exampleDto.exampleEnumDtos;
-					example = GSON.toJson(exampleDto.exampleObject);
+					example = GsonTool.prettyPrint(jsonDecoder.getJsonSerializer().serialize(exampleDto.exampleObject));
 				}catch(Exception e){
 					logger.warn("Could not create parameter example {} for {}", field.getType(), field.getName(), e);
 				}

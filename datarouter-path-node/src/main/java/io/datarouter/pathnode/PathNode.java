@@ -144,7 +144,7 @@ public class PathNode{
 	}
 
 	public static PathNode parse(String stringPath){
-		Path path = Java11.pathOf(stringPath);
+		Path path = Path.of(stringPath);
 		Iterator<Path> pathParts = path.iterator();
 		PathNode pathNode = new PathNode();
 		while(pathParts.hasNext()){

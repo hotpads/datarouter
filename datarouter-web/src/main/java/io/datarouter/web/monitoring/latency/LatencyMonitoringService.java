@@ -15,8 +15,6 @@
  */
 package io.datarouter.web.monitoring.latency;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
@@ -28,9 +26,7 @@ import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -40,21 +36,19 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.instrumentation.count.Counters;
 import io.datarouter.model.key.primary.PrimaryKey;
+import io.datarouter.scanner.OptionalScanner;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientInitializationTracker;
-import io.datarouter.storage.client.DatarouterClients;
-import io.datarouter.storage.config.Config;
 import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.storage.config.setting.impl.DatarouterClientAvailabilitySwitchThresholdSettingsProvider;
 import io.datarouter.storage.metric.Gauges;
 import io.datarouter.storage.node.DatarouterNodes;
+import io.datarouter.storage.node.op.raw.MapStorage;
+import io.datarouter.storage.node.op.raw.MapStorage.MapStorageNode;
 import io.datarouter.storage.node.op.raw.MapStorage.PhysicalMapStorageNode;
-import io.datarouter.storage.node.op.raw.SortedStorage;
-import io.datarouter.storage.node.type.physical.PhysicalNode;
-import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
 import io.datarouter.util.StreamTool;
 import io.datarouter.util.duration.DatarouterDuration;
-import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.config.DatarouterWebSettingRoot;
 import io.datarouter.web.config.service.ServiceName;
 
@@ -63,15 +57,11 @@ public class LatencyMonitoringService{
 	private static final Logger logger = LoggerFactory.getLogger(LatencyMonitoringService.class);
 
 	private static final int MIN_LAST_CHECKS_TO_RETAIN = 15;
-	private static final Config ONLY_FIRST = new Config().setLimit(1).setResponseBatchSize(1);
 	private static final String GAUGE_PREFIX = "Latency ";
-	private static final String DR_CLIENT_PREFIX = "Client ";
-	private static final String SS_CHECK_SUFIX = " findFirst";
-	private static final String MS_CHECK_SUFIX = " getRandom";
-	private static final boolean MAKE_GET_CHECK = false;
+	private static final String DATAROUTER_CLIENT_PREFIX = "Client ";
+	private static final String SORTED_STORAGE_CHECK_SUFFIX = " findFirst";
+	private static final String MAP_STORAGE_CHECK_SUFFIX = " getRandom";
 
-	@Inject
-	private DatarouterClients clients;
 	@Inject
 	private DatarouterNodes nodes;
 	@Inject
@@ -147,23 +137,24 @@ public class LatencyMonitoringService{
 		return avg(15);
 	}
 
-	private Map<String,String> avg(int nb){
+	private Map<String,String> avg(int limit){
 		return lastResultsByName.entrySet().stream().collect(Collectors.toMap(Entry::getKey, entry -> {
 			OptionalDouble average = entry.getValue().stream()
 					.map(CheckResult::getLatency)
 					.flatMap(Optional::stream)
-					.limit(nb)
+					.limit(limit)
 					.mapToLong(duration -> duration.to(TimeUnit.NANOSECONDS))
 					.average();
 			if(average.isPresent()){
-				return new DatarouterDuration((long)average.getAsDouble(), TimeUnit.NANOSECONDS).toString();
+				return new DatarouterDuration((long)average.getAsDouble(), TimeUnit.NANOSECONDS)
+						.toString(TimeUnit.MICROSECONDS);
 			}
 			return "";
 		}));
 	}
 
 	public String getCheckNameForDatarouterClient(ClientId clientId){
-		return DR_CLIENT_PREFIX + clientId.getName() + SS_CHECK_SUFIX;
+		return DATAROUTER_CLIENT_PREFIX + clientId.getName() + SORTED_STORAGE_CHECK_SUFFIX;
 	}
 
 	public Deque<CheckResult> getLastResultsForDatarouterClient(ClientId clientId){
@@ -190,8 +181,8 @@ public class LatencyMonitoringService{
 	}
 
 	public void cancelRunningChecks(){
-		runningChecks.stream()
-				.filter(check -> !check.future.isDone())
+		Scanner.of(runningChecks)
+				.exclude(check -> check.future.isDone())
 				.forEach(check -> {
 					logger.warn("canceling {}", check.check.name);
 					recordFailure(check.check, DatarouterDuration.ZERO, new Exception("timeout"));
@@ -200,48 +191,37 @@ public class LatencyMonitoringService{
 	}
 
 	public List<LatencyCheck> getClientChecks(){
-		List<LatencyCheck> checks = new ArrayList<>();
-		if(MAKE_GET_CHECK){
-			for(ClientId clientId : clientInitializationTracker.getInitializedClients()){
-				Collection<PhysicalNode<?,?,?>> nodesForClient = nodes.getPhysicalNodesForClient(clientId.getName());
-				Optional<PhysicalNode<?,?,?>> findFirst = nodesForClient.stream().findFirst();
-				if(findFirst.isPresent()){
-					PhysicalNode<?,?,?> node = findFirst.get();
-					if(node instanceof PhysicalMapStorageNode){
-						PhysicalMapStorageNode<?,?,?> ms = (PhysicalMapStorageNode<?,?,?>)node;
-						checks.add(new DatarouterClientLatencyCheck(
-								LatencyMonitoringService.DR_CLIENT_PREFIX + clientId + LatencyMonitoringService
-									.MS_CHECK_SUFIX,
-								makeGet(ms),
-								clientId));
-					}
-				}
-			}
-		}
-		Function<ClientId,Stream<Pair<ClientId,SortedStorage<?,?>>>> mapClientIdToFirstSortedStorageNode = clientId ->
-				nodes.getPhysicalNodesForClient(clientId.getName()).stream()
-				.filter(node -> node instanceof SortedStorage)
-				.limit(1)
-				.map(SortedStorage.class::cast)
-				.peek(sortedStorage -> logger.info("selected SortedStorage {}", sortedStorage))
-				.map(sortedStorage -> new Pair<>(clientId, sortedStorage));
-
-		checks.addAll(clientInitializationTracker.getInitializedClients().stream()
-				.filter(clientId -> clients.getClientManager(clientId).monitorLatency())
-				.flatMap(mapClientIdToFirstSortedStorageNode)
-				.map(pair -> new DatarouterClientLatencyCheck(
-						getCheckNameForDatarouterClient(pair.getLeft()),
-						() -> pair.getRight().scanKeys(ONLY_FIRST).findFirst(),
-						pair.getLeft()))
-				.collect(Collectors.toList()));
-		return checks;
+		return Scanner.of(clientInitializationTracker.getInitializedClients())
+				.map(this::makeGetCheckForClient)
+				.concat(OptionalScanner::of)
+				.list();
 	}
 
-	private <PK extends PrimaryKey<PK>> Runnable makeGet(PhysicalMapStorageNode<PK,?,?> node){
-		PhysicalDatabeanFieldInfo<PK,?,?> fieldInfo = node.getFieldInfo();
-		PK pk = fieldInfo.getPrimaryKeySupplier().get();
-		// assumes the node will complete a valid RPC for a PK with null fields
-		return () -> node.exists(pk);
+	private Optional<LatencyCheck> makeGetCheckForClient(ClientId clientId){
+		return Scanner.of(nodes.getPhysicalNodesForClient(clientId.getName()))
+				.include(node -> node instanceof PhysicalMapStorageNode<?,?,?>)
+				.findFirst()
+				.map(MapStorageNode.class::cast)
+				.map(node -> new DatarouterClientLatencyCheck(
+						LatencyMonitoringService.DATAROUTER_CLIENT_PREFIX
+								+ clientId.getName()
+								+ LatencyMonitoringService.MAP_STORAGE_CHECK_SUFFIX,
+								makeGetCheck(node),
+						clientId));
+	}
+
+	private Runnable makeGetCheck(MapStorageNode<?,?,?> node){
+		PrimaryKey<?> pk = node.getFieldInfo().getPrimaryKeySupplier().get();
+		pk.getFields()
+				.forEach(field -> field.setUsingReflection(pk, field.getKey().getSampleValue()));
+		return () -> castAndCheckExists(node, pk);
+	}
+
+	@SuppressWarnings("unchecked")
+	private <PK extends PrimaryKey<PK>> boolean castAndCheckExists(MapStorage<?,?> node, PrimaryKey<?> pk){
+		MapStorage<PK,?> castedNode = (MapStorage<PK,?>)node;
+		PK castedPk = (PK)pk;
+		return castedNode.exists(castedPk);
 	}
 
 }

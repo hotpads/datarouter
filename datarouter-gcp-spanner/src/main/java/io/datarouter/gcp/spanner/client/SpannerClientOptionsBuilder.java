@@ -75,10 +75,24 @@ public class SpannerClientOptionsBuilder implements ClientOptionsBuilder{
 	}
 
 	public SpannerClientOptionsBuilder withCredentialsSecretLocation(String credentialsSecretLocation){
-		String optionKeySuffix = SpannerClientOptions.makeSpannerKey(SpannerClientOptions
-				.PROP_credentialsSecretLocation);
+		String optionKeySuffix = SpannerClientOptions.makeSpannerKey(
+				SpannerClientOptions.PROP_credentialsSecretLocation);
 		String optionKey = makeKey(optionKeySuffix);
 		properties.setProperty(optionKey, credentialsSecretLocation);
+		return this;
+	}
+
+	public SpannerClientOptionsBuilder withNumChannels(int numChannels){
+		String optionKeySuffix = SpannerClientOptions.makeSpannerKey(SpannerClientOptions.PROP_numChannels);
+		String optionKey = makeKey(optionKeySuffix);
+		properties.setProperty(optionKey, Integer.toString(numChannels));
+		return this;
+	}
+
+	public SpannerClientOptionsBuilder withMaxSessions(int maxSessions){
+		String optionKeySuffix = SpannerClientOptions.makeSpannerKey(SpannerClientOptions.PROP_maxSessions);
+		String optionKey = makeKey(optionKeySuffix);
+		properties.setProperty(optionKey, Integer.toString(maxSessions));
 		return this;
 	}
 

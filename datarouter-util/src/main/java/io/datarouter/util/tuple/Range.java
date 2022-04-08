@@ -15,20 +15,24 @@
  */
 package io.datarouter.util.tuple;
 
+import java.util.Comparator;
 import java.util.Objects;
 import java.util.function.Function;
 
-import io.datarouter.util.ComparableTool;
 import io.datarouter.util.lang.ObjectTool;
 
 /* * null compares first
  * * startInclusive defaults to true
  * * endExclusive defaults to false
  */
-public class Range<T extends Comparable<? super T>> implements Comparable<Range<T>>{
+public class Range<T>
+implements Comparable<Range<T>>{
+
+	private static final Comparator<?> DEFAULT_COMPARATOR = Comparator.nullsFirst(Comparator.naturalOrder());
 
 	/*------------------------- fields --------------------------------------*/
 
+	private final Comparator<T> comparator;
 	private T start;
 	private boolean startInclusive;
 	private T end;
@@ -49,6 +53,11 @@ public class Range<T extends Comparable<? super T>> implements Comparable<Range<
 	}
 
 	public Range(T start, boolean startInclusive, T end, boolean endInclusive){
+		this(defaultComparator(), start, startInclusive, end, endInclusive);
+	}
+
+	public Range(Comparator<T> comparator, T start, boolean startInclusive, T end, boolean endInclusive){
+		this.comparator = comparator;
 		this.start = start;
 		this.startInclusive = startInclusive;
 		this.end = end;
@@ -58,14 +67,19 @@ public class Range<T extends Comparable<? super T>> implements Comparable<Range<
 
 	/*------------------------- static constructors -------------------------*/
 
-	public static <T extends Comparable<? super T>> Range<T> nullSafe(Range<T> in){
+	@SuppressWarnings("unchecked")
+	public static <T> Comparator<T> defaultComparator(){
+		return (Comparator<T>)DEFAULT_COMPARATOR;
+	}
+
+	public static <T> Range<T> nullSafe(Range<T> in){
 		if(in != null){
 			return in;
 		}
 		return everything();
 	}
 
-	public static <T extends Comparable<? super T>> Range<T> everything(){
+	public static <T> Range<T> everything(){
 		return new Range<>(null, true);
 	}
 
@@ -75,7 +89,7 @@ public class Range<T extends Comparable<? super T>> implements Comparable<Range<
 		if(ObjectTool.anyNull(start, end)){
 			return true;
 		}
-		return start.compareTo(end) <= 0;
+		return comparator.compare(start, end) <= 0;
 	}
 
 	public Range<T> assertValid(){
@@ -109,7 +123,7 @@ public class Range<T extends Comparable<? super T>> implements Comparable<Range<
 		if(!hasStart()){
 			return true;
 		}
-		int diff = item.compareTo(start);
+		int diff = comparator.compare(item, start);
 		return startInclusive ? diff >= 0 : diff > 0;
 	}
 
@@ -117,7 +131,7 @@ public class Range<T extends Comparable<? super T>> implements Comparable<Range<
 		if(!hasEnd()){
 			return true;
 		}
-		int diff = item.compareTo(end);
+		int diff = comparator.compare(item, end);
 		return endInclusive ? diff <= 0 : diff < 0;
 	}
 
@@ -201,26 +215,22 @@ public class Range<T extends Comparable<? super T>> implements Comparable<Range<
 	 */
 	@Override
 	public int compareTo(Range<T> that){
-		return compareStarts(this, that);
-	}
-
-	public static <T extends Comparable<? super T>> int compareStarts(Range<T> itemA, Range<T> itemB){
-		if(itemA == itemB){
+		if(this == that){
 			return 0;
 		}
-		int diff = ComparableTool.nullFirstCompareTo(itemA.start, itemB.start);
+		int diff = comparator.compare(start, that.start);
 		if(diff != 0){
 			return diff;
 		}
-		if(itemA.startInclusive){
-			return itemB.startInclusive ? 0 : -1;
+		if(startInclusive){
+			return that.startInclusive ? 0 : -1;
 		}
-		return itemB.startInclusive ? 1 : 0;
+		return that.startInclusive ? 1 : 0;
 	}
 
 	@Override
 	public String toString(){
-		StringBuilder sb = new StringBuilder();
+		var sb = new StringBuilder();
 		sb.append(getClass().getSimpleName() + ":");
 		sb.append(startInclusive ? "[" : "(");
 		sb.append(start + "," + end);

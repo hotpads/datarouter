@@ -193,6 +193,12 @@
 			<property name="format" value="import java.util.Calendar.*"/>
 			<property name="illegalPattern" value="true"/>
 			<property name="message" value="Prefer classes in java.time"/>
+			<property name="severity" value="error"/>
+		</module>
+		<module name="Regexp">
+			<property name="format" value="import java.util.TimeZone.*"/>
+			<property name="illegalPattern" value="true"/>
+			<property name="message" value="Prefer java.time.ZoneId"/>
 			<property name="severity" value="info"/>
 		</module>
 		<module name="Regexp">

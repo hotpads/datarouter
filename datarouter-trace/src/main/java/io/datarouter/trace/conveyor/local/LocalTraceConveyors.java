@@ -25,6 +25,7 @@ import io.datarouter.trace.conveyor.Trace2MemoryBufferToSqsConveyor;
 import io.datarouter.trace.settings.DatarouterTraceLocalSettingRoot;
 import io.datarouter.trace.storage.Trace2ForLocalDao;
 import io.datarouter.web.exception.ExceptionRecorder;
+import io.datarouter.web.util.Java9Gson;
 
 @Singleton
 public class LocalTraceConveyors extends BaseConveyors{
@@ -33,6 +34,9 @@ public class LocalTraceConveyors extends BaseConveyors{
 	private DatarouterTraceLocalSettingRoot settings;
 	@Inject
 	private Gson gson;
+	@Inject
+	@Java9Gson
+	private Gson java9Gson;
 	@Inject
 	private Trace2ForLocalFilterToMemoryBuffer trace2MemoryBuffer;
 	@Inject
@@ -53,7 +57,7 @@ public class LocalTraceConveyors extends BaseConveyors{
 				trace2MemoryBuffer.buffer,
 				trace2QueueDao,
 				trace2HttpRequestRecordQueueDao,
-				gson,
+				java9Gson,
 				exceptionRecorder),
 				1);
 

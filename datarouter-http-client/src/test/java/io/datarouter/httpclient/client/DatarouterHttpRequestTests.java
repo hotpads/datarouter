@@ -24,7 +24,6 @@ import org.apache.http.entity.ContentType;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.httpclient.Java9;
 import io.datarouter.httpclient.request.DatarouterHttpRequest;
 import io.datarouter.httpclient.request.HttpRequestMethod;
 
@@ -148,7 +147,7 @@ public class DatarouterHttpRequestTests{
 		DatarouterHttpRequest request = new DatarouterHttpRequest(HttpRequestMethod.POST, URL).setRetrySafe(true);
 
 		Map<String,List<String>> expectedParams = new LinkedHashMap<>();
-		expectedParams.put("totally", Java9.listOf("valid"));
+		expectedParams.put("totally", List.of("valid"));
 		Map<String,String> params = new LinkedHashMap<>();
 		params.put("totally", "valid");
 		request.addPostParams(params);
@@ -184,7 +183,7 @@ public class DatarouterHttpRequestTests{
 		DatarouterHttpRequest request = new DatarouterHttpRequest(HttpRequestMethod.POST, URL).setRetrySafe(true);
 
 		Map<String,List<String>> expectedHeaders = new LinkedHashMap<>();
-		expectedHeaders.put("valid", Java9.listOf("header"));
+		expectedHeaders.put("valid", List.of("header"));
 		Map<String,String> headers = new LinkedHashMap<>();
 		headers.put("valid", "header");
 		request.addHeaders(headers);

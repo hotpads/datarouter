@@ -36,7 +36,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.scanner.Scanner;
-import io.datarouter.util.Java9;
 import io.datarouter.util.string.StringTool;
 
 public class ReflectionTool{
@@ -113,7 +112,7 @@ public class ReflectionTool{
 
 	public static Object get(Field field, Object object){
 		if(field != null && object != null){
-			if(!Java9.canAccess(field, object)){
+			if(!field.canAccess(object)){
 				field.setAccessible(true);
 			}
 			try{
@@ -255,7 +254,7 @@ public class ReflectionTool{
 	 * @return a list of the declared Fields not including any inherited field.
 	 */
 	public static List<Field> getDeclaredFields(Class<?> cls){
-		return Java9.listOf(cls.getDeclaredFields());
+		return List.of(cls.getDeclaredFields());
 	}
 
 	/*------------------------- get Method ----------------------------------*/

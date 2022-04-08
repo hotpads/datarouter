@@ -20,8 +20,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import io.datarouter.instrumentation.Java11;
-
 public class TracerTool{
 
 	public static Optional<Traceparent> getTraceparent(Tracer tracer){
@@ -94,7 +92,7 @@ public class TracerTool{
 
 	public static void appendToSpanInfo(TraceSpanInfoBuilder spanInfoBuilder){
 		String text = spanInfoBuilder.joinEntries();
-		if(Java11.isBlank(text)){
+		if(text.isBlank()){
 			return;
 		}
 		appendToSpanInfo(text);

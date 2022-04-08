@@ -29,4 +29,9 @@ public class InstantFieldKey extends PrimitiveFieldKey<Instant,InstantFieldKey>{
 		return 6;
 	}
 
+	@Override
+	public Instant getSampleValue(){
+		return Instant.now();
+	}
+
 }

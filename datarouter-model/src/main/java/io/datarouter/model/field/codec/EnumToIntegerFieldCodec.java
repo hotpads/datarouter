@@ -19,16 +19,14 @@ import java.util.Comparator;
 
 import com.google.gson.reflect.TypeToken;
 
+import io.datarouter.bytes.Codec.NullPassthroughCodec;
 import io.datarouter.enums.MappedEnum;
 
 public class EnumToIntegerFieldCodec<E> extends IntegerFieldCodec<E>{
 
 	public EnumToIntegerFieldCodec(MappedEnum<E,Integer> mappedEnum){
 		super(TypeToken.get(mappedEnum.getEnumClass()),
-				() -> null,
-				mappedEnum::toKey,
-				() -> null,
-				mappedEnum::fromOrThrow,
+				NullPassthroughCodec.of(mappedEnum::toKey, mappedEnum::fromOrThrow),
 				Comparator.comparing(mappedEnum::toKey),
 				mappedEnum.getSampleValue());
 	}

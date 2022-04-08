@@ -48,6 +48,7 @@ public interface FieldKey<T>{
 
 	boolean isCollection();//this is used by viewNodeData.jsp to add line breaks to the table
 	T getDefaultValue();
+	T getSampleValue();
 
 	<U extends FieldKeyAttribute<U>> Optional<U> findAttribute(FieldKeyAttributeKey<U> key);
 	Map<FieldKeyAttributeKey<?>,FieldKeyAttribute<?>> getAttributes();

@@ -25,7 +25,7 @@ public class LimitingScannerTests{
 	@Test
 	public void simpleTest(){
 		Scanner<Integer> input = Scanner.of(0, 1, 2, 3, 4);
-		List<Integer> expected = Java9.listOf(2, 3);
+		List<Integer> expected = List.of(2, 3);
 		List<Integer> actual = input.skip(2).limit(2).list();
 		Assert.assertEquals(actual, expected);
 	}
@@ -33,7 +33,7 @@ public class LimitingScannerTests{
 	@Test
 	public void testExcessLimit(){
 		Scanner<Integer> input = Scanner.of(0, 1);
-		List<Integer> expected = Java9.listOf(0, 1);
+		List<Integer> expected = List.of(0, 1);
 		List<Integer> actual = input.limit(9).list();
 		Assert.assertEquals(actual, expected);
 	}

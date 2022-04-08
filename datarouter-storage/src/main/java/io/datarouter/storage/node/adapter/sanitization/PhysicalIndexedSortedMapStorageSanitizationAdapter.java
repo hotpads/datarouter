@@ -187,13 +187,13 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D,F>,
 
 	@Override
 	public Scanner<D> scanRanges(Collection<Range<PK>> ranges, Config config){
-		ScanSanitizer.rejectUnexceptedFullScan(ranges);
+		ScanSanitizer.rejectUnexpectedFullScan(ranges);
 		return getBackingNode().scanRanges(ranges, config);
 	}
 
 	@Override
 	public Scanner<PK> scanRangesKeys(Collection<Range<PK>> ranges, Config config){
-		ScanSanitizer.rejectUnexceptedFullScan(ranges);
+		ScanSanitizer.rejectUnexpectedFullScan(ranges);
 		return getBackingNode().scanRangesKeys(ranges, config);
 	}
 

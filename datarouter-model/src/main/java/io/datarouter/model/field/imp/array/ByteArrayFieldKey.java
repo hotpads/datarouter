@@ -19,6 +19,7 @@ import java.util.Map;
 
 import com.google.gson.reflect.TypeToken;
 
+import io.datarouter.bytes.EmptyArray;
 import io.datarouter.model.field.BaseFieldKey;
 import io.datarouter.model.field.FieldKeyAttribute;
 import io.datarouter.model.field.FieldKeyAttributeKey;
@@ -57,6 +58,11 @@ public class ByteArrayFieldKey extends BaseFieldKey<byte[],ByteArrayFieldKey>{
 
 	public int getSize(){
 		return size;
+	}
+
+	@Override
+	public byte[] getSampleValue(){
+		return EmptyArray.BYTE;
 	}
 
 }

@@ -2,6 +2,7 @@ package io.datarouter.client.redis.node;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -79,11 +80,12 @@ implements PhysicalBlobStorageNode{
 
 	@Override
 	public byte[] read(PathbeanKey key, long offset, int length){
+		int intOffset = (int)offset;
 		byte[] byteKey = codec.encodeKey(key);
 		return lazyClient.get().mget(List.of(byteKey))
 				.findFirst()
 				.map(KeyValue::getValue)
-				.map(bytes -> ByteTool.copyOfRange(bytes, (int)offset, length))
+				.map(bytes -> Arrays.copyOfRange(bytes, intOffset, intOffset + length))
 				.orElse(null);
 	}
 

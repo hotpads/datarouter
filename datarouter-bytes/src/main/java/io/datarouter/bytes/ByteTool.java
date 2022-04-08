@@ -106,11 +106,9 @@ public class ByteTool{
 		int cursor = 0;
 		for(int i = 0; i < arrays.length; ++i){
 			byte[] array = arrays[i];
-			if(array != null){//TODO remove null check
-				int length = array.length;
-				System.arraycopy(array, 0, result, cursor, length);
-				cursor += length;
-			}
+			int length = array.length;
+			System.arraycopy(array, 0, result, cursor, length);
+			cursor += length;
 		}
 		return result;
 	}
@@ -120,11 +118,9 @@ public class ByteTool{
 		int cursor = 0;
 		for(int i = 0; i < arrays.size(); ++i){
 			byte[] array = arrays.get(i);
-			if(array != null){//TODO remove null check
-				int length = array.length;
-				System.arraycopy(array, 0, result, cursor, length);
-				cursor += length;
-			}
+			int length = array.length;
+			System.arraycopy(array, 0, result, cursor, length);
+			cursor += length;
 		}
 		return result;
 	}

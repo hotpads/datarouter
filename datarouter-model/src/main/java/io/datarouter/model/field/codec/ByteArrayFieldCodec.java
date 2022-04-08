@@ -17,48 +17,66 @@ package io.datarouter.model.field.codec;
 
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.function.Function;
-import java.util.function.Supplier;
+import java.util.Objects;
 
 import com.google.gson.reflect.TypeToken;
 
+import io.datarouter.bytes.Codec;
+
 public class ByteArrayFieldCodec<T> extends FieldCodec<T,byte[]>{
 
-	public ByteArrayFieldCodec(
+	private ByteArrayFieldCodec(
 			TypeToken<T> typeToken,
-			Supplier<byte[]> encodeNullTo,
-			Function<T,byte[]> encoder,
-			Supplier<T> decodeNullTo,
-			Function<byte[],T> decoder,
+			Codec<T,byte[]> codec,
 			Comparator<T> comparator,
 			T sampleValue){
-		super(typeToken, encodeNullTo, encoder, decodeNullTo, decoder, comparator, sampleValue);
+		super(typeToken, codec, comparator, sampleValue);
+	}
+
+	public static class ByteArrayFieldCodecBuilder<T>{
+
+		private TypeToken<T> typeToken;
+		private Codec<T,byte[]> codec;
+		private Comparator<T> comparator;
+		private T sampleValue;
+
+		public ByteArrayFieldCodecBuilder(
+				TypeToken<T> typeToken,
+				Codec<T,byte[]> codec,
+				T sampleValue){
+			this.typeToken = typeToken;
+			this.codec = codec;
+			this.comparator = (left, right) -> compareEncoded(codec, left, right);
+			this.sampleValue = sampleValue;
+		}
+
+		public ByteArrayFieldCodec<T> build(){
+			return new ByteArrayFieldCodec<>(
+					typeToken,
+					codec,
+					comparator,
+					sampleValue);
+
+		}
+
+		/**
+		 * Use if you have a comparator that matches the encoded bytes comparison but is more efficient than encoding
+		 * to bytes with associated allocations for each comparison.
+		 */
+		public ByteArrayFieldCodecBuilder<T> setComparator(Comparator<T> comparator){
+			Objects.requireNonNull(comparator, "Please provide a Comparator");
+			this.comparator = comparator;
+			return this;
+		}
+
 	}
 
 	/**
-	 * Use if missing a comparator that matches the encoded bytes comparison. The cost is encoding to bytes with the
-	 * associated array allocation before each comparison which can happen often if, for example, navigating a large
-	 * TreeMap.
+	 * Default comparator encodes both values to bytes and compares unsigned
 	 */
-	public ByteArrayFieldCodec(
-			TypeToken<T> typeToken,
-			Supplier<byte[]> encodeNullTo,
-			Function<T,byte[]> encoder,
-			Supplier<T> decodeNullTo,
-			Function<byte[],T> decoder,
-			T sampleValue){
-		super(typeToken,
-				encodeNullTo,
-				encoder,
-				decodeNullTo,
-				decoder,
-				(left, right) -> compareEncoded(encoder, left, right),
-				sampleValue);
-	}
-
-	private static <T> int compareEncoded(Function<T,byte[]> encoder, T left, T right){
-		byte[] leftBytes = encoder.apply(left);
-		byte[] rightBytes = encoder.apply(right);
+	private static <T> int compareEncoded(Codec<T,byte[]> codec, T left, T right){
+		byte[] leftBytes = codec.encode(left);
+		byte[] rightBytes = codec.encode(right);
 		return Arrays.compareUnsigned(leftBytes, rightBytes);
 	}
 

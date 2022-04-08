@@ -23,7 +23,6 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import io.datarouter.instrumentation.Java11;
 import io.datarouter.util.lang.ObjectTool;
 
 public class StringTool{
@@ -67,7 +66,7 @@ public class StringTool{
 	}
 
 	public static boolean isEmptyOrWhitespace(String input){
-		return isEmpty(input) || Java11.isBlank(input);
+		return isEmpty(input) || input.isBlank();
 	}
 
 	public static boolean isNullOrEmptyOrWhitespace(String input){
@@ -485,6 +484,24 @@ public class StringTool{
 		stringValue = RegexTool.APOSTROPHE_PATTERN.matcher(stringValue)
 				.replaceAll(Matcher.quoteReplacement("\\'"));
 		return "'" + stringValue + "'";
+	}
+
+	public static String snakeCaseToCamelCase(String snakeCase){
+		StringBuilder builder = new StringBuilder();
+		boolean upCase = false;
+		for(int i = 0; i < snakeCase.length(); i++){
+			char character = snakeCase.charAt(i);
+			if(character == '_'){
+				upCase = true;
+				continue;
+			}
+			if(upCase){
+				character = Character.toUpperCase(character);
+				upCase = false;
+			}
+			builder.append(character);
+		}
+		return builder.toString();
 	}
 
 }

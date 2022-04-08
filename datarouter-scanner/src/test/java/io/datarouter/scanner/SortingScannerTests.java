@@ -27,7 +27,7 @@ public class SortingScannerTests{
 	public void test(){
 		Scanner<Integer> input = Scanner.of(4, 1, 2, 4, 2, 3);
 		Comparator<Integer> comparator = Comparator.reverseOrder();
-		List<Integer> expected = Java9.listOf(4, 4, 3, 2, 2, 1);
+		List<Integer> expected = List.of(4, 4, 3, 2, 2, 1);
 		List<Integer> actual = input.sort(comparator).list();
 		Assert.assertEquals(actual, expected);
 	}

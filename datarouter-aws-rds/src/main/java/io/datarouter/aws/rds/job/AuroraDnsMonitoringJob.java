@@ -20,7 +20,6 @@ import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.h3;
 import static j2html.TagCreator.pre;
-import static j2html.TagCreator.rawHtml;
 
 import java.util.List;
 
@@ -41,6 +40,7 @@ import io.datarouter.storage.config.properties.AdminEmail;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
 import io.datarouter.web.email.StandardDatarouterEmailHeaderService;
 import j2html.tags.ContainerTag;
+import j2html.tags.specialized.PreTag;
 
 public class AuroraDnsMonitoringJob extends BaseJob{
 
@@ -73,7 +73,7 @@ public class AuroraDnsMonitoringJob extends BaseJob{
 		mismatchedEntries.forEach(entry -> recordChangelog(entry.getInstanceHostname()));
 	}
 
-	private void sendEmail(List<DnsHostEntryDto> mismatchedReaderEntries, List<String> fixes){
+	private void sendEmail(List<DnsHostEntryDto> mismatchedReaderEntries, List<PreTag> fixes){
 		String primaryHref = htmlEmailService.startLinkBuilder()
 				.withLocalPath(paths.datarouter.auroraInstances)
 				.build();
@@ -88,7 +88,7 @@ public class AuroraDnsMonitoringJob extends BaseJob{
 		htmlEmailService.trySendJ2Html(emailBuilder);
 	}
 
-	private ContainerTag<?> makeEmailContent(List<DnsHostEntryDto> mismatchedReaderEntries, List<String> fixes){
+	private ContainerTag<?> makeEmailContent(List<DnsHostEntryDto> mismatchedReaderEntries, List<PreTag> fixes){
 		var header = standardDatarouterEmailHeaderService.makeStandardHeader();
 		var message = h3("Some of the reader DB instances are pointed to the writer instance or missing entries");
 		var table = new J2HtmlEmailTable<DnsHostEntryDto>()
@@ -100,7 +100,7 @@ public class AuroraDnsMonitoringJob extends BaseJob{
 		var fixHeader = h3("Executing suggested fixes to reset DNS:");
 		var fixList = pre();
 		fixes.forEach(fix -> fixList
-				.with(rawHtml(fix))
+				.with(fix)
 				.with(br()));
 		return body(header, message, table, div(fixHeader, fixList));
 	}
