@@ -352,47 +352,6 @@ public abstract class BaseManyFieldIntegrationTests{
 	}
 
 	@Test
-	public void testLongArray(){
-		var bean = new ManyFieldBean();
-		bean.appendToLongArrayField(Long.MAX_VALUE);
-		bean.appendToLongArrayField(Integer.MAX_VALUE);
-		bean.appendToLongArrayField(Short.MAX_VALUE);
-		bean.appendToLongArrayField(Byte.MAX_VALUE);
-		bean.appendToLongArrayField(5);
-		bean.appendToLongArrayField(0);
-
-		ManyFieldBean roundTripped = putAndGet(bean);
-		Assert.assertEquals(roundTripped.getLongArrayField(), bean.getLongArrayField());
-
-		roundTripped.appendToLongArrayField(3);//assert mutability of returned list
-	}
-
-	@Test
-	public void testIntegerArray(){
-		var bean = new ManyFieldBean();
-		bean.appendToIntegerArrayField(Integer.MAX_VALUE);
-		bean.appendToIntegerArrayField(-5029);
-
-		ManyFieldBean roundTripped = putAndGet(bean);
-		Assert.assertEquals(roundTripped.getIntegerArrayField(), bean.getIntegerArrayField());
-
-		roundTripped.appendToIntegerArrayField(3);//assert mutability of returned list
-	}
-
-	@Test
-	public void testDoubleArray(){
-		var bean = new ManyFieldBean();
-		bean.appendToDoubleArrayField(Double.MAX_VALUE);
-		bean.appendToDoubleArrayField(Double.MIN_VALUE);
-		bean.appendToDoubleArrayField(-5029.02939);
-
-		ManyFieldBean roundTripped = putAndGet(bean);
-		Assert.assertEquals(roundTripped.getDoubleArrayField(), bean.getDoubleArrayField());
-
-		roundTripped.appendToDoubleArrayField(3.0);//assert mutability of returned list
-	}
-
-	@Test
 	public void testDelimitedStringArray(){
 		var bean = new ManyFieldBean();
 		List<String> strings = List.of("abc hi!", "xxx's", "bb_3");

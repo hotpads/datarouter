@@ -18,11 +18,22 @@ package io.datarouter.util;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.time.Duration;
 import java.util.Arrays;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 public class DatarouterRuntimeTool{
 
 	public static RunNativeDto runNative(String... command){
+		return runNative(Optional.empty(), command);
+	}
+
+	public static RunNativeDto runNative(Duration wait, String... command){
+		return runNative(Optional.of(wait), command);
+	}
+
+	private static RunNativeDto runNative(Optional<Duration> wait, String[] command){
 		Runtime runtime = Runtime.getRuntime();
 		Process process;
 		if(command.length == 1){
@@ -66,7 +77,11 @@ public class DatarouterRuntimeTool{
 					command));
 		}
 		try{
-			process.waitFor();
+			if(wait.isPresent()){
+				process.waitFor(wait.get().toMillis(), TimeUnit.MILLISECONDS);
+			}else{
+				process.waitFor();
+			}
 		}catch(InterruptedException e){
 			throw new RuntimeException("stderr=" + stderr + " stdout=" + stdout + " command=" + Arrays.toString(
 					command));

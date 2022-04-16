@@ -15,10 +15,9 @@
  */
 package io.datarouter.metric.counter.collection;
 
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +25,6 @@ import org.slf4j.LoggerFactory;
 import io.datarouter.instrumentation.count.CountCollector;
 import io.datarouter.metric.counter.conveyor.CountBuffers;
 import io.datarouter.model.util.CommonFieldSizes;
-import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.setting.Setting;
 import io.datarouter.util.DateTool;
 import io.datarouter.util.string.StringTool;
@@ -41,48 +39,43 @@ public class DatarouterCountCollector implements CountCollector{
 	private final CountBuffers countBuffers;
 	private final Setting<Boolean> saveCounts;
 
-	private ConcurrentHashMap<Long,ConcurrentHashMap<String,AtomicLong>> valueByNameByPeriodStartMs;
+	private HashMap<Long,Map<String,Long>> valueByNameByPeriodStartMs;
+	private long minTimeMs;
 	private long nextFlushMs;
 
 	public DatarouterCountCollector(long flushIntervalMs, CountBuffers countBuffers,
 			Setting<Boolean> saveCounts){
+		this.minTimeMs = DateTool.getPeriodStart(flushIntervalMs);
 		this.flushIntervalMs = flushIntervalMs;
-		this.nextFlushMs = DateTool.getPeriodStart(flushIntervalMs) + flushIntervalMs;
-		this.valueByNameByPeriodStartMs = new ConcurrentHashMap<>();
+		this.nextFlushMs = minTimeMs + flushIntervalMs;
+		this.valueByNameByPeriodStartMs = new HashMap<>();
 		this.countBuffers = countBuffers;
 		this.saveCounts = saveCounts;
 	}
 
-	private synchronized void flush(long flushingMs){
-		if(nextFlushMs != flushingMs){
-			return; //another thread flushed
+	private void flush(long flushingMs){
+		Map<Long,Map<String,Long>> snapshot;
+		//time to flush, a few threads may wait here
+		synchronized(this){
+			if(nextFlushMs != flushingMs){
+				return; //another thread flushed
+			}
+			//other threads waiting will return in the block above
+			minTimeMs = flushingMs;
+			nextFlushMs = flushingMs + flushIntervalMs;
+			snapshot = valueByNameByPeriodStartMs;
+			if(logger.isInfoEnabled()){
+				logger.info(
+						"flushing periods=[{}], currentFlush={}",
+						snapshot.keySet().stream()
+								.map(String::valueOf)
+								.collect(Collectors.joining(",")),
+						flushingMs);
+			}
+			valueByNameByPeriodStartMs = new HashMap<>();
 		}
-		nextFlushMs += flushIntervalMs;//not other threads waiting will return in the block above
-		Map<Long,ConcurrentHashMap<String,AtomicLong>> snapshot = valueByNameByPeriodStartMs;
-		valueByNameByPeriodStartMs = new ConcurrentHashMap<>();
-		Scanner.of(snapshot.keySet())
-				.include(period -> snapshot.get(period).isEmpty())
-				.map(timestamp -> timestamp.toString())
-				.flush(timestamps -> {
-					if(timestamps.size() > 0){
-						logger.info("found empty maps in snap for timestamps={}", String.join(",", timestamps));
-					}
-				});
-
-		Map<Long,Map<String,Long>> valueByPeriodStartByName = Scanner.of(snapshot.entrySet())
-				.toMap(Entry::getKey, entry -> Scanner.of(entry.getValue().entrySet())
-						.toMap(Entry::getKey, nameValEntry -> nameValEntry.getValue().get()));
-		Scanner.of(valueByPeriodStartByName.keySet())
-				.include(period -> valueByPeriodStartByName.get(period).isEmpty())
-				.map(timestamp -> timestamp.toString())
-				.flush(timestamps -> {
-					if(timestamps.size() > 0){
-						logger.info("found empty maps in final for timestamps={}", String.join(",", timestamps));
-					}
-				});
-
-		if(saveCounts.get() && !valueByPeriodStartByName.isEmpty()){
-			countBuffers.offer(valueByPeriodStartByName);
+		if(saveCounts.get() && !snapshot.isEmpty()){
+			countBuffers.offer(snapshot);
 		}
 	}
 
@@ -93,8 +86,8 @@ public class DatarouterCountCollector implements CountCollector{
 
 	@Override
 	public long increment(String key, long delta){
-		if(System.currentTimeMillis() >= nextFlushMs){
-			//time to flush, a few threads may wait here
+		long timeMs = System.currentTimeMillis();
+		if(timeMs >= nextFlushMs){
 			flush(nextFlushMs);
 		}
 		if(delta == 0){
@@ -105,14 +98,19 @@ public class DatarouterCountCollector implements CountCollector{
 			logger.warn("discarding bad count key={}", key, stackTrace);
 			return 0;
 		}
+		key = sanitizeName(key);
 
-		long periodStartMs = DateTool.getPeriodStart(PERIOD_GRANULARITY_MS);
-		long total = valueByNameByPeriodStartMs
-				.computeIfAbsent(periodStartMs, $ -> new ConcurrentHashMap<>(METRICS_INITIAL_CAPACITY))
-				.computeIfAbsent(sanitizeName(key), $ -> new AtomicLong(0))
-				.addAndGet(delta);
-		if(total == 0){
-			logger.info("empty counter sum for key={} and timestamp={}", key, periodStartMs);
+		long total;
+		synchronized(this){
+			//fix timeMs if it should have been in last flush but wasn't
+			timeMs = Long.max(System.currentTimeMillis(), minTimeMs);
+			//fix timeMs if it should have triggered a flush but didn't
+			timeMs = Long.min(timeMs, nextFlushMs - 1);
+			//if flushIntervalMs and PERIOD_GRANULARITY_MS do not line up, periodStartMs may be < minTimeMs (this is ok)
+			long periodStartMs = DateTool.getPeriodStart(timeMs, PERIOD_GRANULARITY_MS);
+			total = valueByNameByPeriodStartMs
+					.computeIfAbsent(periodStartMs, $ -> new HashMap<>(METRICS_INITIAL_CAPACITY))
+					.merge(key, delta, Long::sum);
 		}
 		return total;
 	}

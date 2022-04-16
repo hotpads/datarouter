@@ -15,7 +15,6 @@
  */
 package io.datarouter.bytes;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -129,31 +128,6 @@ public class ByteTool{
 		var out = new byte[finalWidth];
 		int numPaddingBytes = finalWidth - in.length;
 		System.arraycopy(in, 0, out, numPaddingBytes, in.length);
-		return out;
-	}
-
-	/*------------------------- boxed bytes -----------------------------------*/
-
-	@Deprecated//don't box bytes
-	public static ArrayList<Byte> toBoxedBytes(byte[] ins){
-		ArrayList<Byte> outs = new ArrayList<>(ins.length);
-		for(int i = 0; i < ins.length; ++i){
-			outs.add(ins[i]);
-		}
-		return outs;
-	}
-
-	@Deprecated//don't box bytes
-	public static byte[] fromBoxedBytes(List<Byte> values){
-		if(values.isEmpty()){
-			return EmptyArray.BYTE;
-		}
-		var out = new byte[values.size()];
-		int index = 0;
-		for(Byte value : values){
-			out[index] = value;
-			++index;
-		}
 		return out;
 	}
 

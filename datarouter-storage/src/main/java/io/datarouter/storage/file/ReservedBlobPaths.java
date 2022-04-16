@@ -13,29 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.model.field.imp.list;
+package io.datarouter.storage.file;
 
-import java.util.List;
+import io.datarouter.storage.util.Subpath;
 
-import com.google.gson.reflect.TypeToken;
+public class ReservedBlobPaths{
 
-import io.datarouter.model.field.ListFieldKey;
-
-@Deprecated//Use ByteArrayFieldKey
-public class ByteListFieldKey extends ListFieldKey<Byte,List<Byte>,ByteListFieldKey>{
-
-	public ByteListFieldKey(String name){
-		super(name, new TypeToken<List<Byte>>(){});
-	}
-
-	@Override
-	public boolean isFixedLength(){
-		return false;
-	}
-
-	@Override
-	public List<Byte> getSampleValue(){
-		return List.of();
-	}
+	public static final Subpath DATABEAN = new Subpath("databean");
+	public static final Subpath TALLY = new Subpath("tally");
 
 }

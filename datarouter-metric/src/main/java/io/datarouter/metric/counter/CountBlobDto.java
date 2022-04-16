@@ -103,10 +103,8 @@ public class CountBlobDto{
 	private Scanner<String> serializeCounts(int sizeLimit){
 		CountsSplittingStringBuilders builder = new CountsSplittingStringBuilders(sizeLimit);
 		Scanner.of(counts.keySet())
-				.exclude(period -> counts.get(period).isEmpty())
 				.forEach(period -> {
 					Scanner.of(counts.get(period).entrySet())
-							.exclude(entry -> entry.getValue() == null)
 							.forEach(countEntry -> builder.append(
 									String.valueOf(period),
 									countEntry.getKey(),

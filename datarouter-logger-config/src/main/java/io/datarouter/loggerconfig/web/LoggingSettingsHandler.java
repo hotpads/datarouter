@@ -47,6 +47,7 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDtoBuilder;
+import io.datarouter.loggerconfig.LoggerLinkBuilder;
 import io.datarouter.loggerconfig.LoggingConfigService;
 import io.datarouter.loggerconfig.LoggingSettingAction;
 import io.datarouter.loggerconfig.config.DatarouterLoggerConfigFiles;
@@ -104,6 +105,8 @@ public class LoggingSettingsHandler extends BaseHandler{
 	private ChangelogRecorder changelogRecorder;
 	@Inject
 	private StandardDatarouterEmailHeaderService standardDatarouterEmailHeaderService;
+	@Inject
+	private LoggerLinkBuilder linkBuilder;
 
 	@Handler(defaultHandler = true)
 	protected Mav showForm(){
@@ -141,6 +144,7 @@ public class LoggingSettingsHandler extends BaseHandler{
 			}
 			var mergedLoggerConfig = new LoggerConfigMetadata(
 					config,
+					linkBuilder.getLink(config).orElse(null),
 					email,
 					lastUpdated,
 					canDelete,
@@ -351,6 +355,7 @@ public class LoggingSettingsHandler extends BaseHandler{
 		private final String name;
 		private final Level level;
 		private final Boolean additive;
+		private final String link;
 		private final List<String> appenderRefs;
 		private final String email;
 		private String lastUpdated;
@@ -359,6 +364,7 @@ public class LoggingSettingsHandler extends BaseHandler{
 
 		LoggerConfigMetadata(
 				LoggerConfig config,
+				String link,
 				String email,
 				Instant lastUpdated,
 				boolean canDelete,
@@ -367,6 +373,7 @@ public class LoggingSettingsHandler extends BaseHandler{
 			this.name = config.getName();
 			this.level = config.getLevel();
 			this.additive = config.isAdditive();
+			this.link = link;
 			this.appenderRefs = new ArrayList<>(config.getAppenders().keySet());
 			this.email = email;
 			if(lastUpdated != null){
@@ -386,6 +393,10 @@ public class LoggingSettingsHandler extends BaseHandler{
 
 		public Boolean getAdditive(){
 			return additive;
+		}
+
+		public String getLink(){
+			return link;
 		}
 
 		public List<String> getAppenderRefs(){

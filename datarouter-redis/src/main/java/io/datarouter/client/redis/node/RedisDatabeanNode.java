@@ -53,35 +53,39 @@ implements PhysicalMapStorageNode<PK,D,F>{
 	public RedisDatabeanNode(
 			NodeParams<PK,D,F> params,
 			ClientType<?,?> clientType,
+			RedisDatabeanCodec<PK,D,F> codec,
 			Supplier<DatarouterRedisClient> lazyClient,
 			ExecutorService executor){
 		super(params, clientType);
+		this.codec = codec;
 		this.lazyClient = lazyClient;
 		this.executor = executor;
-		int version = Optional.ofNullable(params.getSchemaVersion()).orElse(1);
-		this.codec = new RedisDatabeanCodec<>(version, getFieldInfo());
 	}
 
 	/*------------------------------- reader --------------------------------*/
 
 	@Override
 	public boolean exists(PK key, Config config){
-		return lazyClient.get().exists(codec.encodeKey(key));
+		return Optional.of(key)
+				.map(codec::encodeKey)
+				.map(lazyClient.get()::exists)
+				.orElseThrow();
 	}
 
 	@Override
 	public D get(PK key, Config config){
-		return lazyClient.get().find(codec.encodeKey(key))
+		return Optional.of(key)
+				.map(codec::encodeKey)
+				.flatMap(lazyClient.get()::find)
 				.map(codec::decode)
 				.orElse(null);
 	}
 
 	@Override
 	public List<D> getMulti(Collection<PK> keys, Config config){
-		if(keys.isEmpty()){
-			return List.of();
-		}
-		return lazyClient.get().mget(codec.encodeKeys(keys))
+		return Scanner.of(keys)
+				.map(codec::encodeKey)
+				.listTo(lazyClient.get()::mget)
 				.include(KeyValue::hasValue)
 				.map(KeyValue::getValue)
 				.map(codec::decode)
@@ -90,11 +94,8 @@ implements PhysicalMapStorageNode<PK,D,F>{
 
 	@Override
 	public List<PK> getKeys(Collection<PK> keys, Config config){
-		if(keys.isEmpty()){
-			return List.of();
-		}
 		return scanMulti(keys, config)
-				.map(Databean::getKey)
+				.map(Databean::getKey)//Could we avoid fetching the whole databean?
 				.list();
 	}
 
@@ -113,17 +114,15 @@ implements PhysicalMapStorageNode<PK,D,F>{
 
 	@Override
 	public void putMulti(Collection<D> databeans, Config config){
-		if(databeans.isEmpty()){
-			return;
-		}
 		List<Twin<byte[]>> kvs = Scanner.of(databeans)
 				.map(codec::encodeIfValid)
 				.concat(OptionalScanner::of)
 				.list();
 		if(config.findTtl().isPresent()){
+			long ttlMs = RedisConfigTool.getTtlMs(config);
 			Scanner.of(kvs)
 					.parallel(new ParallelScannerContext(executor, 16, true))
-					.forEach(kv -> lazyClient.get().psetex(kv, RedisConfigTool.getTtlMs(config)));
+					.forEach(kv -> lazyClient.get().psetex(kv, ttlMs));
 		}else{
 			lazyClient.get().mset(kvs);
 		}
@@ -136,15 +135,16 @@ implements PhysicalMapStorageNode<PK,D,F>{
 
 	@Override
 	public void delete(PK key, Config config){
-		lazyClient.get().del(codec.encodeKey(key));
+		Optional.of(key)
+				.map(codec::encodeKey)
+				.ifPresent(lazyClient.get()::del);
 	}
 
 	@Override
 	public void deleteMulti(Collection<PK> keys, Config config){
-		if(keys.isEmpty()){
-			return;
-		}
-		lazyClient.get().del(codec.encodeKeys(keys));
+		Scanner.of(keys)
+				.map(codec::encodeKey)
+				.flush(lazyClient.get()::del);
 	}
 
 }

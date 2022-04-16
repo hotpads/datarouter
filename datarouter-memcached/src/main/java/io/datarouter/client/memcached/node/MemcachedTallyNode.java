@@ -43,7 +43,6 @@ public class MemcachedTallyNode<
 extends BasePhysicalNode<PK,D,F>
 implements PhysicalTallyStorageNode<PK,D,F>{
 
-	public static final String CODEC_VERSION = "1";
 	private static final Boolean DEFAULT_IGNORE_EXCEPTION = true;
 
 	private final Supplier<DatarouterMemcachedClient> lazyClient;

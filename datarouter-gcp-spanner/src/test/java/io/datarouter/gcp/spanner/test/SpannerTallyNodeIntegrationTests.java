@@ -13,30 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.model.field.imp.list;
+package io.datarouter.gcp.spanner.test;
 
-import java.util.List;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Guice;
 
-import com.google.gson.reflect.TypeToken;
+import io.datarouter.gcp.spanner.SpannerTestNgModuleFactory;
+import io.datarouter.storage.test.tally.BaseTallyIntegrationTests;
 
-import io.datarouter.bytes.LongArray;
-import io.datarouter.model.field.ListFieldKey;
+@Guice(moduleFactory = SpannerTestNgModuleFactory.class)
+public class SpannerTallyNodeIntegrationTests extends BaseTallyIntegrationTests{
 
-@Deprecated//Use ByteArrayFieldKey
-public class RawLongListFieldKey extends ListFieldKey<Long,List<Long>,RawLongListFieldKey>{
-
-	public RawLongListFieldKey(String name){
-		super(name, new TypeToken<List<Long>>(){});
+	@BeforeClass
+	public void beforeClass(){
+		setup(SpannerTestCliendIds.SPANNER);
 	}
-
-	@Override
-	public boolean isFixedLength(){
-		return false;
-	}
-
-	@Override
-	public List<Long> getSampleValue(){
-		return new LongArray();
-	}
-
 }

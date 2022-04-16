@@ -97,11 +97,11 @@ public class WebappInstanceHandler extends BaseHandler{
 		var buildIdStats = new UsageStatsJspDto(
 				webappInstances,
 				WebappInstance::getBuildId,
-				Optional.of(buildIdLink.getLinkPrefix()));
+				buildIdLink::getLink);
 		var commitIdStats = new UsageStatsJspDto(
 				webappInstances,
 				WebappInstance::getCommitId,
-				Optional.of(commitIdLink.getLinkPrefix()));
+				commitIdLink.getLinkPrefix()::concat);
 		var publicIpStats = new UsageStatsJspDto(
 				webappInstances,
 				WebappInstance::getServerPublicIp);
@@ -127,7 +127,7 @@ public class WebappInstanceHandler extends BaseHandler{
 								.getCommitId()),
 						!javaVersionStats.getMostCommon().equals(instance.getJavaVersion()),
 						!servletVersionStats.getMostCommon().equals(instance.getServletContainerVersion()),
-						buildIdLink.getLinkPrefix(),
+						buildIdLink.getLink(instance.getBuildId()),
 						commitIdLink.getLinkPrefix(),
 						zoneId))
 				.list();
@@ -187,7 +187,7 @@ public class WebappInstanceHandler extends BaseHandler{
 		private final String servletContainerVersion;
 		private final boolean highlightServletContainerVersion;
 
-		private final String buildIdLinkPrefix;
+		private final String buildIdLink;
 		private final String commitIdLinkPrefix;
 		private final ZoneId zoneId;
 
@@ -197,7 +197,7 @@ public class WebappInstanceHandler extends BaseHandler{
 				boolean highlightCommitId,
 				boolean highlightJavaVersion,
 				boolean highlightServletContainerVersion,
-				String buildIdLinkPrefix,
+				String buildIdLink,
 				String commitIdLinkPrefix,
 				ZoneId zoneId){
 			this(
@@ -219,7 +219,7 @@ public class WebappInstanceHandler extends BaseHandler{
 					highlightJavaVersion,
 					databean.getServletContainerVersion(),
 					highlightServletContainerVersion,
-					buildIdLinkPrefix,
+					buildIdLink,
 					commitIdLinkPrefix,
 					zoneId);
 		}
@@ -243,7 +243,7 @@ public class WebappInstanceHandler extends BaseHandler{
 				boolean highlightJavaVersion,
 				String servletContainerVersion,
 				boolean highlightServletContainerVersion,
-				String buildIdLinkPrefix,
+				String buildIdLink,
 				String commitIdLinkPrefix,
 				ZoneId zoneId){
 			this.webappName = webappName;
@@ -265,7 +265,7 @@ public class WebappInstanceHandler extends BaseHandler{
 			this.servletContainerVersion = servletContainerVersion;
 			this.highlightServletContainerVersion = highlightServletContainerVersion;
 
-			this.buildIdLinkPrefix = buildIdLinkPrefix;
+			this.buildIdLink = buildIdLink;
 			this.commitIdLinkPrefix = commitIdLinkPrefix;
 			this.zoneId = zoneId;
 		}
@@ -370,13 +370,11 @@ public class WebappInstanceHandler extends BaseHandler{
 		}
 
 		public String getBuildIdRendered(){
-			ContainerTag<?> tag = span(buildId);
-			if(highlightBuildId){
-				tag.withClass("badge badge-warning");
-			}
-			if(!buildIdLinkPrefix.isEmpty()){
+			ContainerTag<?> tag = span(buildId)
+					.withCondClass(highlightBuildId, "badge badge-warning");
+			if(!buildIdLink.isEmpty()){
 				tag = a(tag)
-						.withHref(buildIdLinkPrefix + buildId)
+						.withHref(buildIdLink)
 						.withTarget("_blank");
 			}
 			return tag.renderFormatted();
@@ -455,13 +453,19 @@ public class WebappInstanceHandler extends BaseHandler{
 		private final int uniqueCount;
 		private final boolean allCommon;
 		private final Object mostCommon;
-		private final Optional<String> externalLink;
+		private final Optional<Function<String,String>> externalLinkBuilder;
 
 		public <T> UsageStatsJspDto(List<T> instances, Function<T,?> mapper){
 			this(instances, mapper, Optional.empty());
 		}
 
-		public <T> UsageStatsJspDto(List<T> instances, Function<T,?> mapper, Optional<String> externalLink){
+		public <T> UsageStatsJspDto(List<T> instances, Function<T,?> mapper,
+				Function<String,String> externalLinkBuilder){
+			this(instances, mapper, Optional.of(externalLinkBuilder));
+		}
+
+		public <T> UsageStatsJspDto(List<T> instances, Function<T,?> mapper,
+				Optional<Function<String,String>> externalLinkBuilder){
 			Map<?,Long> frequency = instances.stream()
 					.map(mapper)
 					.filter(Objects::nonNull)
@@ -476,7 +480,7 @@ public class WebappInstanceHandler extends BaseHandler{
 					.sorted(Entry.comparingByValue(Comparator.reverseOrder()))
 					.map(entry -> new UsageEntry(entry.getKey(), entry.getValue() / (float)instances.size() * 100))
 					.collect(Collectors.toList());
-			this.externalLink = externalLink;
+			this.externalLinkBuilder = externalLinkBuilder;
 		}
 
 		public int getUniqueCount(){
@@ -495,12 +499,12 @@ public class WebappInstanceHandler extends BaseHandler{
 			if(mostCommon == null){
 				return null;
 			}
-			if(externalLink.isEmpty()){
+			if(externalLinkBuilder.isEmpty()){
 				return text(mostCommon.toString())
 						.render();
 			}
 			return a(mostCommon.toString())
-					.withHref(externalLink.get() + mostCommon.toString())
+					.withHref(externalLinkBuilder.get().apply(mostCommon.toString()))
 					.withTarget("_blank")
 					.renderFormatted();
 		}
@@ -514,11 +518,11 @@ public class WebappInstanceHandler extends BaseHandler{
 				var listElement = li(
 						strong(entry.getUsagePercentagePrintable() + '%'),
 						text(entryValue));
-				if(externalLink.isPresent()){
+				if(externalLinkBuilder.isPresent()){
 					var aTag = a(
 							strong(entry.getUsagePercentagePrintable() + '%'),
 							text(entryValue))
-							.withHref(externalLink.get() + entryValue)
+							.withHref(externalLinkBuilder.get().apply(entryValue))
 							.withTarget("_blank");
 					listElement = li(aTag);
 				}else{

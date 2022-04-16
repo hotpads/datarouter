@@ -25,7 +25,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -37,7 +36,6 @@ import com.google.gson.Gson;
 
 import io.datarouter.aws.rds.config.DatarouterAwsRdsConfigSettings;
 import io.datarouter.aws.rds.service.AuroraClientIdProvider.AuroraClientDto;
-import io.datarouter.storage.client.ClientId;
 import io.datarouter.util.io.ReaderTool;
 import io.datarouter.util.retry.RetryableTool;
 import io.datarouter.util.tuple.Pair;
@@ -64,33 +62,33 @@ public class AuroraDnsService{
 	public Map<String,DnsHostEntryDto> getDnsEntryForClients(){
 		List<AuroraClientDto> auroraclientDtos = clientIdProvider.getAuroraClientDtos();
 		for(AuroraClientDto dto : auroraclientDtos){
-			addDnsEntry(dto.getWriterClientId().getName(), dto.getWriterDns(), true);
+			addDnsEntry(dto.getWriterClientId().getName(), dto.getWriterDns(), dto.getClusterName(), true);
 			for(int i = 0; i < dto.getReaderClientIds().size(); i++){
-				addDnsEntry(dto.getReaderClientIds().get(i).getName(), dto.getReaderDnss().get(i), false);
+				addDnsEntry(dto.getReaderClientIds().get(i).getName(), dto.getReaderDnss().get(i),
+						dto.getClusterName(), false);
 			}
 		}
 		return dnsEntryByHostname;
 	}
 
-	private void addDnsEntry(String clientName, String clientUrl, boolean isWriter){
-		DnsHostEntryDto dnsEntry = dnsLookUp(clientName, clientUrl, isWriter);
+	private void addDnsEntry(String clientName, String clientUrl, String clusterName, boolean isWriter){
+		DnsHostEntryDto dnsEntry = dnsLookUp(clientName, clientUrl, clusterName, isWriter);
 		if(dnsEntry.isAuroraInstance){
 			dnsEntryByHostname.put(clientName, dnsEntry);
 		}
 	}
 
-	public DnsHostEntryDto dnsLookUp(String clientName, String clientUrl, boolean isWriter){
-		return RetryableTool.tryNTimesWithBackoffUnchecked(() -> tryDnsLookUp(clientName, clientUrl, isWriter), 3,
-				3, true);
+	public DnsHostEntryDto dnsLookUp(String clientName, String clientUrl, String clusterName, boolean isWriter){
+		return RetryableTool.tryNTimesWithBackoffUnchecked(() -> tryDnsLookUp(clientName, clientUrl, clusterName,
+				isWriter), 3, 3, true);
 	}
 
-	private DnsHostEntryDto tryDnsLookUp(String clientName, String hostname, boolean isWriter)
+	private DnsHostEntryDto tryDnsLookUp(String clientName, String hostname, String clusterName, boolean isWriter)
 	throws IOException, InterruptedException{
 		// TODO use DigRunner
 		String ip = null;
 		String instanceHostname = null;
 		String clusterHostname = null;
-		String clusterName = null;
 		boolean writer = isWriter;
 		boolean isAuroraInstance = false;
 		String cmd = "dig +short " + hostname;
@@ -111,12 +109,6 @@ public class AuroraDnsService{
 			}
 		}
 
-		String instanceSuffix = rdsSettings.rdsInstanceHostnameSuffix.get();
-		if(instanceHostname != null && instanceHostname.contains(instanceSuffix)){
-			clusterName = instanceHostname.substring(0, instanceHostname.indexOf(instanceSuffix));
-			clusterName = clusterName.replaceAll("[-?0-9$]+", "");
-		}
-
 		String errorOutput = ReaderTool.accumulateStringAndClose(process.getErrorStream());
 		process.waitFor();
 		int exitValue = process.exitValue();
@@ -129,23 +121,14 @@ public class AuroraDnsService{
 				clusterName, isAuroraInstance);
 	}
 
-	public DnsHostEntryDto getOtherReader(String clientName){
-		String otherHostname = buildOtherClientUrl(rdsSettings.dbPrefix.get() + clientName);
-		DnsHostEntryDto dnsEntry = dnsLookUp(clientName, otherHostname, false);
+	public DnsHostEntryDto getOtherReader(String clientName, String clusterName){
+		String otherClientName = rdsSettings.dbPrefix.get() + clientName + rdsSettings.dbOtherInstanceSuffix.get();
+		String otherHostname = otherClientName + rdsSettings.dnsSuffix.get();
+		DnsHostEntryDto dnsEntry = dnsLookUp(otherClientName, otherHostname, clusterName, false);
 		if(dnsEntry.isAuroraInstance && dnsEntry.ip != null){
 			return dnsEntry;
 		}
 		return null;
-	}
-
-	public List<ClientId> getPrimaryClientIds(){
-		return clientIdProvider.getAuroraClientDtos().stream()
-				.map(AuroraClientDto::getWriterClientId)
-				.collect(Collectors.toList());
-	}
-
-	public String buildOtherClientUrl(String clusterName){
-		return clusterName + rdsSettings.dbOtherInstanceSuffix.get() + rdsSettings.dnsSuffix.get();
 	}
 
 	public Pair<Collection<DnsHostEntryDto>,List<DnsHostEntryDto>> checkClientEndpoint(){
@@ -162,7 +145,7 @@ public class AuroraDnsService{
 				int readerIndex = readerEntry.clientName.indexOf(READER);
 				String writerClientName = readerEntry.clientName.substring(0, readerIndex);
 				DnsHostEntryDto writerEntry = dnsEntryByHostname.get(writerClientName);
-				DnsHostEntryDto otherEntry = getOtherReader(writerClientName);
+				DnsHostEntryDto otherEntry = getOtherReader(writerClientName, writerEntry.clusterName);
 				logger.debug("reader={} writer={}", gson.toJson(readerEntry), gson.toJson(writerEntry));
 				if(readerEntry.ip != null && readerEntry.ip.equals(writerEntry.ip)){
 					readerEntry.setReaderPointedToWriterFlag();

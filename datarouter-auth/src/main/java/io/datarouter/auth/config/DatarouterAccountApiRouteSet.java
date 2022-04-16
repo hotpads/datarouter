@@ -39,7 +39,7 @@ public class DatarouterAccountApiRouteSet extends BaseRouteSet{
 		super("");
 		this.apiKeyPredicate = apiKeyPredicate;
 		this.signatureValidator = signatureValidator;
-		handleAnyPrefix(paths.datarouter.api.accounts).withHandler(DatarouterAccountApiHandler.class);
+		handleAnyStringAfterPath(paths.datarouter.api.accounts).withHandler(DatarouterAccountApiHandler.class);
 	}
 
 	@Override

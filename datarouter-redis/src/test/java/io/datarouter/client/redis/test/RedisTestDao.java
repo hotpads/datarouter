@@ -40,7 +40,7 @@ public class RedisTestDao extends BaseDao implements TestDao{
 	@Inject
 	public RedisTestDao(Datarouter datarouter, TallyNodeFactory nodeFactory){
 		super(datarouter);
-		node = nodeFactory.createTally(RedisTestClientIds.REDIS,Tally::new, TallyFielder::new)
+		node = nodeFactory.createTally(RedisTestClientIds.REDIS, Tally::new, TallyFielder::new)
 				.withSchemaVersion(1)
 				.withTableName("TallyTtlTest")
 				.buildAndRegister();

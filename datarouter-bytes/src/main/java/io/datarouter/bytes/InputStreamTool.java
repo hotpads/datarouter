@@ -26,6 +26,14 @@ import io.datarouter.scanner.Scanner;
 
 public class InputStreamTool{
 
+	public static void close(InputStream inputStream){
+		try{
+			inputStream.close();
+		}catch(IOException e){
+			throw new RuntimeException(e);
+		}
+	}
+
 	public static long count(InputStream inputStream, int bufferSize){
 		long count = 0;
 		try{
@@ -64,23 +72,6 @@ public class InputStreamTool{
 		return count;
 	}
 
-	public static byte[] readThroughByte(InputStream inputStream, byte throughByte){
-		int throughInt = Byte.toUnsignedInt(throughByte);
-		var result = new ByteArrayOutputStream();
-		try{
-			while(true){
-				int in = inputStream.read();
-				result.write(in);
-				if(in == throughInt){
-					break;
-				}
-			}
-		}catch(IOException e){
-			throw new UncheckedIOException(e);
-		}
-		return result.toByteArray();
-	}
-
 	public static byte[] readNBytes(InputStream inputStream, int len){
 		var bytes = new byte[len];
 		try{
@@ -95,24 +86,22 @@ public class InputStreamTool{
 		}
 	}
 
-	public static void transferTo(InputStream inputStream, OutputStream outputStream){
-		try{
-			inputStream.transferTo(outputStream);
-		}catch(IOException e){
-			throw new UncheckedIOException(e);
-		}
-	}
-
 	public static Scanner<byte[]> scanChunks(InputStream inputStream, int chunkSize){
 		return Scanner.generate(() -> InputStreamTool.readNBytes(inputStream, chunkSize))
 				.advanceWhile(chunk -> chunk.length > 0);
 	}
 
-	public static void close(InputStream inputStream){
+	public static byte[] toArray(InputStream inputStream){
+		var baos = new ByteArrayOutputStream();
+		transferTo(inputStream, baos);
+		return baos.toByteArray();
+	}
+
+	public static long transferTo(InputStream inputStream, OutputStream outputStream){
 		try{
-			inputStream.close();
+			return inputStream.transferTo(outputStream);
 		}catch(IOException e){
-			throw new RuntimeException(e);
+			throw new UncheckedIOException(e);
 		}
 	}
 

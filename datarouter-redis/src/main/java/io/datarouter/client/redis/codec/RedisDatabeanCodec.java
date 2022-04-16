@@ -15,24 +15,22 @@
  */
 package io.datarouter.client.redis.codec;
 
-import java.util.Collection;
-import java.util.List;
+import java.util.Base64;
 import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.bytes.ByteTool;
-import io.datarouter.bytes.ByteUnitType;
-import io.datarouter.bytes.codec.intcodec.RawIntCodec;
+import io.datarouter.bytes.codec.stringcodec.StringCodec;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.databean.DatabeanTool;
 import io.datarouter.model.field.FieldSetTool;
 import io.datarouter.model.field.FieldTool;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
-import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
+import io.datarouter.storage.util.Subpath;
 import io.datarouter.util.tuple.Twin;
 
 public class RedisDatabeanCodec<
@@ -41,32 +39,31 @@ public class RedisDatabeanCodec<
 		F extends DatabeanFielder<PK,D>>{
 	private static final Logger logger = LoggerFactory.getLogger(RedisDatabeanCodec.class);
 
-	private static final int CODEC_VERSION = 1;
-
-	//Redis max key length is 512 MB but we'll start out shorter
-	private static final int MAX_REDIS_KEY_SIZE = ByteUnitType.KiB.toBytesInt(64);
-
-	private static final RawIntCodec RAW_INT_CODEC = RawIntCodec.INSTANCE;
-
-	private final int version;
 	private final PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo;
+	private final int clientMaxKeyLength;
+	private final int clientMaxValueLength;
+	private final int nodeSubpathLength;
+	private final int maxKeyLength;
+	private final byte[] pathBytes;
 
-	public RedisDatabeanCodec(int version, PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo){
-		this.version = version;
+	public RedisDatabeanCodec(
+			PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
+			int clientMaxKeyLength,
+			int clientMaxValueLength,
+			int nodeSubpathLength,
+			Subpath path){//TODO remove when blob node prepends the path
 		this.fieldInfo = fieldInfo;
+		this.clientMaxKeyLength = clientMaxKeyLength;
+		this.clientMaxValueLength = clientMaxValueLength;
+		this.nodeSubpathLength = nodeSubpathLength;
+		maxKeyLength = clientMaxKeyLength;//TOOD subtract nodeSubPathLength when blob node prepends the path
+		pathBytes = StringCodec.UTF_8.encode(path.toString());
 	}
 
 	public byte[] encodeKey(PK pk){
-		byte[] codecVersion = RAW_INT_CODEC.encode(CODEC_VERSION);
-		byte[] key = FieldTool.getConcatenatedValueBytes(pk.getFields());
-		byte[] schemaVersion = RAW_INT_CODEC.encode(version);
-		return ByteTool.concat(codecVersion, schemaVersion, key);
-	}
-
-	public List<byte[]> encodeKeys(Collection<PK> pks){
-		return Scanner.of(pks)
-				.map(this::encodeKey)
-				.list();
+		byte[] rawPkBytes = FieldTool.getConcatenatedValueBytes(pk.getFields());
+		byte[] base64PkBytes = Base64.getUrlEncoder().encode(rawPkBytes);
+		return ByteTool.concat(pathBytes, base64PkBytes);
 	}
 
 	public byte[] encode(D databean){
@@ -87,7 +84,7 @@ public class RedisDatabeanCodec<
 		}catch(Exception e){
 			throw new RuntimeException(e);
 		}
-		if(keyBytes.length > MAX_REDIS_KEY_SIZE){
+		if(keyBytes.length > maxKeyLength){
 			logBigKey(keyBytes.length, databean.getKey());
 			return Optional.empty();
 		}

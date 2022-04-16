@@ -38,7 +38,7 @@ extends DatarouterEndpointHttpClient<ET>{
 	Logger logger = LoggerFactory.getLogger(DatarouterServiceEndpointHttpClient.class);
 
 	default Conditional<Object> checkHealth(){
-		return callUnchecked(DatarouterServiceHealthcheckEndpoint.getEndpoint());
+		return callAnyType(DatarouterServiceHealthcheckEndpoint.getEndpoint());
 	}
 
 	default <R> Conditional<R> callWithHealthcheckV2(
@@ -62,7 +62,7 @@ extends DatarouterEndpointHttpClient<ET>{
 	}
 
 	default Conditional<DatarouterAccountCredentialStatusDto> checkCredential(){
-		return callUnchecked(DatarouterServiceCheckCredentialEndpoint.getEndpoint());
+		return callAnyType(DatarouterServiceCheckCredentialEndpoint.getEndpoint());
 	}
 
 }

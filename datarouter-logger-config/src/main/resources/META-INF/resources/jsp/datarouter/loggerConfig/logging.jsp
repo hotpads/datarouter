@@ -113,7 +113,12 @@
 								<input type="hidden" name="name" value="${config.value.name}">
 								<td class="align-middle">
 									<c:if test="${!config.value.name.equals(rootLogger.name)}">
-										${config.value.name}
+										<c:if test="${empty config.value.link}">
+											${config.value.name}
+										</c:if>
+										<c:if test="${not empty config.value.link}">
+											<a href="${config.value.link}" target="_blank">${config.value.name}</a>
+										</c:if>
 									</c:if>
 									<c:if test="${config.value.name.equals(rootLogger.name)}">
 										<h4 class="text-center">Root Logger</h4>

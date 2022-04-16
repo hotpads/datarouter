@@ -191,10 +191,13 @@ public class DatarouterJobletRequestDao extends BaseDao{
 				.count();
 	}
 
-	public long countGroup(JobletType<?> type, JobletPriority priority, String groupId, boolean anyDelay){
+	public Scanner<JobletRequest> scanGroup(
+			JobletType<?> type,
+			JobletPriority priority,
+			String groupId,
+			boolean anyDelay){
 		return scanTypePriority(type, priority, anyDelay)
-				.include(jobletRequest -> Objects.equals(jobletRequest.getGroupId(), groupId))
-				.count();
+				.include(jobletRequest -> Objects.equals(jobletRequest.getGroupId(), groupId));
 	}
 
 	public Scanner<JobletRequest> scanFailedJoblets(){

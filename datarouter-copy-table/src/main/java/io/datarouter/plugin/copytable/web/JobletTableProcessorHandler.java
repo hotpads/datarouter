@@ -57,6 +57,7 @@ public class JobletTableProcessorHandler extends BaseHandler{
 			P_nodeName = "nodeName",
 			P_scanBatchSize = "scanBatchSize",
 			P_processorName = "processorName",
+			P_executionOrder = "executionOrder",
 			P_submitAction = "submitAction";
 
 	private static final int DEFAULT_SCAN_BATCH_SIZE = Config.DEFAULT_RESPONSE_BATCH_SIZE;
@@ -81,6 +82,7 @@ public class JobletTableProcessorHandler extends BaseHandler{
 			@Param(P_nodeName) OptionalString nodeName,
 			@Param(P_scanBatchSize) OptionalString scanBatchSize,
 			@Param(P_processorName) OptionalString processorName,
+			@Param(P_executionOrder)OptionalString executionOrder,
 			@Param(P_submitAction) OptionalString submitAction){
 		String errorScanBatchSize = null;
 		if(submitAction.isPresent()){
@@ -103,6 +105,11 @@ public class JobletTableProcessorHandler extends BaseHandler{
 				.append("")
 				.sort()
 				.list();
+		List<String> possibleJobletPriorities = Scanner.of(JobletPriority.values())
+				.map(JobletPriority::getComparableName)
+				.append("")
+				.sort()
+				.list();
 
 		var form = new HtmlForm()
 				.withMethod("post");
@@ -120,6 +127,10 @@ public class JobletTableProcessorHandler extends BaseHandler{
 				.withDisplay("Processor Name")
 				.withName(P_processorName)
 				.withValues(possibleProcessors);
+		form.addSelectField()
+				.withDisplay("Joblet Priority")
+				.withName(P_executionOrder)
+				.withValues(possibleJobletPriorities);
 		form.addButton()
 				.withDisplay("Create Joblets")
 				.withValue("anything");
@@ -157,7 +168,8 @@ public class JobletTableProcessorHandler extends BaseHandler{
 					processorName.get(),
 					sample.getNumRows(),
 					counter,
-					numJoblets);
+					numJoblets,
+					Integer.valueOf(executionOrder.get()));
 			jobletPackages.add(jobletPackage);
 			++numJoblets;
 			counter++;
@@ -176,7 +188,8 @@ public class JobletTableProcessorHandler extends BaseHandler{
 				processorName.get(),
 				1, //we have no idea about the true estNumDatabeans
 				counter,
-				numJoblets);
+				numJoblets,
+				Integer.valueOf(executionOrder.get()));
 		++numJoblets;
 		jobletPackages.add(jobletPackage);
 		totalItemsProcessed++;
@@ -203,7 +216,8 @@ public class JobletTableProcessorHandler extends BaseHandler{
 			String processorName,
 			long estNumDatabeans,
 			long jobletId,
-			long numJoblets){
+			long numJoblets,
+			int executionOrder){
 		TableProcessorJobletParams jobletParams = new TableProcessorJobletParams(
 				sourceNodeName,
 				fromKeyExclusive == null ? null : PrimaryKeyPercentCodecTool.encode(fromKeyExclusive),
@@ -212,10 +226,11 @@ public class JobletTableProcessorHandler extends BaseHandler{
 				processorName,
 				estNumDatabeans,
 				jobletId,
-				numJoblets);
+				numJoblets,
+				executionOrder);
 		return JobletPackage.create(
 				TableProcessorJoblet.JOBLET_TYPE,
-				JobletPriority.DEFAULT,
+				JobletPriority.fromExecutionOrder(executionOrder),
 				false,
 				tableName,
 				sourceNodeName,

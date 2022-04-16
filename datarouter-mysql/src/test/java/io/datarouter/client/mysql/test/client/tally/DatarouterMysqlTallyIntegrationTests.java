@@ -13,28 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.model.field.imp.list;
+package io.datarouter.client.mysql.test.client.tally;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Guice;
 
-import java.util.List;
+import io.datarouter.client.mysql.DatarouterMysqlTestNgModuleFactory;
+import io.datarouter.client.mysql.test.DatarouterMysqlTestClientids;
+import io.datarouter.storage.test.tally.BaseTallyIntegrationTests;
 
-import com.google.gson.reflect.TypeToken;
+@Guice(moduleFactory = DatarouterMysqlTestNgModuleFactory.class)
+public class DatarouterMysqlTallyIntegrationTests extends BaseTallyIntegrationTests{
 
-import io.datarouter.model.field.ListFieldKey;
-
-public class IntListFieldKey extends ListFieldKey<Integer,List<Integer>,IntListFieldKey>{
-
-	public IntListFieldKey(String name){
-		super(name, new TypeToken<List<Integer>>(){});
+	@BeforeClass
+	public void beforeClass(){
+		setup(DatarouterMysqlTestClientids.MYSQL);
 	}
-
-	@Override
-	public boolean isFixedLength(){
-		return false;
-	}
-
-	@Override
-	public List<Integer> getSampleValue(){
-		return List.of();
-	}
-
 }

@@ -27,6 +27,9 @@ import io.datarouter.model.field.Field;
 import io.datarouter.model.field.FieldSet;
 import io.datarouter.model.field.FieldTool;
 import io.datarouter.storage.config.Config;
+import io.datarouter.storage.tally.Tally;
+import io.datarouter.storage.tally.TallyKey;
+import io.datarouter.util.string.StringTool;
 import io.datarouter.util.tuple.Range;
 
 public abstract class Sql<C,P,Q extends Sql<C,P,Q>>{
@@ -62,6 +65,28 @@ public abstract class Sql<C,P,Q extends Sql<C,P,Q>>{
 	public Q appendParameter(String value, BiConsumer<P,Integer> parameterSetter){
 		sqlBuilder.append(value);
 		parameterSetters.add(parameterSetter);
+		return implementation;
+	}
+
+	public Q incrementTally(String tableName, String id, Long delta){
+		append("insert");
+		append(" into ");
+		append(tableName);
+		append("(");
+		append(TallyKey.FieldKeys.id.getColumnName());
+		append(",");
+		append(Tally.FieldKeys.tally.getColumnName());
+		append(") values (");
+		append(StringTool.escapeString(id));
+		append(",");
+		append("" + delta);
+		append(")");
+		append(" on duplicate key update ");
+		append(Tally.FieldKeys.tally.getColumnName());
+		append(" = ");
+		append(Tally.FieldKeys.tally.getColumnName());
+		append(" + ");
+		append("" + delta);
 		return implementation;
 	}
 

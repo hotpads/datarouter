@@ -40,13 +40,13 @@ implements DatarouterEndpointHttpClient<ET>, DatarouterServiceEndpointHttpClient
 	}
 
 	@Override
-	public <R> Conditional<R> callUnchecked(BaseEndpoint<R,?> baseEndpoint){
-		return client.callUnchecked(baseEndpoint);
+	public <R> Conditional<R> callAnyType(BaseEndpoint<R,?> baseEndpoint){
+		return client.callAnyType(baseEndpoint);
 	}
 
 	@Override
-	public <R> R callRaw(BaseEndpoint<R,ET> endpoint) throws DatarouterHttpException{
-		return client.callRaw(endpoint);
+	public <R> R callChecked(BaseEndpoint<R,ET> endpoint) throws DatarouterHttpException{
+		return client.callChecked(endpoint);
 	}
 
 	@Override

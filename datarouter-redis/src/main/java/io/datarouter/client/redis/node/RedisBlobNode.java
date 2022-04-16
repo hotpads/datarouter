@@ -1,7 +1,7 @@
 package io.datarouter.client.redis.node;
 
-import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -32,19 +32,18 @@ implements PhysicalBlobStorageNode{
 	private final Supplier<DatarouterRedisClient> lazyClient;
 	private final String bucket;
 	private final Subpath rootPath;
-	private final Integer schemaVersion;
 	private final RedisBlobCodec codec;
 
 	public RedisBlobNode(
 			NodeParams<PathbeanKey,Pathbean,PathbeanFielder> params,
 			ClientType<?,?> clientType,
+			RedisBlobCodec codec,
 			Supplier<DatarouterRedisClient> lazyClient){
 		super(params, clientType);
+		this.codec = codec;
 		this.lazyClient = lazyClient;
 		this.bucket = params.getPhysicalName();
 		this.rootPath = params.getPath();
-		this.schemaVersion = Optional.ofNullable(params.getSchemaVersion()).orElse(1);
-		this.codec = new RedisBlobCodec(schemaVersion);
 	}
 
 	/*------------- BlobStorageReader --------------*/
@@ -61,37 +60,47 @@ implements PhysicalBlobStorageNode{
 
 	@Override
 	public boolean exists(PathbeanKey key){
-		return lazyClient.get().exists(codec.encodeKey(key));
+		return Optional.of(key)
+				.map(codec::encodeKey)
+				.map(lazyClient.get()::exists)
+				.orElseThrow();
 	}
 
 	@Override
 	public Optional<Long> length(PathbeanKey key){
-		byte[] byteKey = codec.encodeKey(key);
-		return lazyClient.get().find(byteKey)
+		return Optional.of(key)
+				.map(codec::encodeKey)
+				.flatMap(lazyClient.get()::find)
 				.map(value -> value.length)
 				.map(Integer::longValue);
 	}
 
 	@Override
 	public byte[] read(PathbeanKey key){
-		byte[] byteKey = codec.encodeKey(key);
-		return lazyClient.get().find(byteKey).orElse(null);
+		return Optional.of(key)
+				.map(codec::encodeKey)
+				.flatMap(lazyClient.get()::find)
+				.orElse(null);
 	}
 
 	@Override
 	public byte[] read(PathbeanKey key, long offset, int length){
-		int intOffset = (int)offset;
-		byte[] byteKey = codec.encodeKey(key);
-		return lazyClient.get().mget(List.of(byteKey))
-				.findFirst()
-				.map(KeyValue::getValue)
-				.map(bytes -> Arrays.copyOfRange(bytes, intOffset, intOffset + length))
+		int from = (int)offset;
+		int to = from + length;
+		return Optional.of(key)
+				.map(codec::encodeKey)
+				.flatMap(lazyClient.get()::find)
+				.map(bytes -> Arrays.copyOfRange(bytes, from, to))
 				.orElse(null);
 	}
 
 	@Override
 	public Map<PathbeanKey,byte[]> read(List<PathbeanKey> keys){
-		return Map.of();
+		return Scanner.of(keys)
+				.map(codec::encodeKey)
+				.listTo(lazyClient.get()::mget)
+				.include(KeyValue::hasValue)
+				.toMap(codec::decodeKey, KeyValue::getValue);
 	}
 
 	@Override
@@ -104,27 +113,35 @@ implements PhysicalBlobStorageNode{
 		throw new UnsupportedOperationException();
 	}
 
+	/*------------- BlobStorageWriter --------------*/
+
 	@Override
 	public void write(PathbeanKey key, byte[] value, Config config){
-		lazyClient.get().set(Twin.of(codec.encodeKey(key), value));
+		Twin<byte[]> kv = new Twin<>(codec.encodeKey(key), value);
+		config.findTtl()
+				.map(Duration::toMillis)
+				.ifPresentOrElse(
+						ttlMs -> lazyClient.get().psetex(kv, ttlMs),
+						() -> lazyClient.get().set(kv));
 	}
 
 	@Override
 	public void write(PathbeanKey key, Scanner<byte[]> chunks){
-		byte[] bytes = chunks.listTo(ByteTool::concat);
-		lazyClient.get().set(Twin.of(codec.encodeKey(key), bytes));
+		byte[] value = chunks.listTo(ByteTool::concat);
+		write(key, value);
 	}
 
 	@Override
 	public void write(PathbeanKey key, InputStream inputStream){
-		var baos = new ByteArrayOutputStream();
-		InputStreamTool.transferTo(inputStream, baos);
-		write(key, baos.toByteArray());
+		byte[] value = InputStreamTool.toArray(inputStream);
+		write(key, value);
 	}
 
 	@Override
 	public void delete(PathbeanKey key){
-		lazyClient.get().del(codec.encodeKey(key));
+		Optional.of(key)
+				.map(codec::encodeKey)
+				.ifPresent(lazyClient.get()::del);
 	}
 
 	@Override

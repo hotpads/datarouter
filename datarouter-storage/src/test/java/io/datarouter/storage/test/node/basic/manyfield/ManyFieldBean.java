@@ -23,7 +23,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.function.Supplier;
 
-import io.datarouter.bytes.LongArray;
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.codec.DateToLongFieldCodec;
@@ -67,12 +66,6 @@ import io.datarouter.model.field.imp.enums.StringEnumField;
 import io.datarouter.model.field.imp.enums.StringEnumFieldKey;
 import io.datarouter.model.field.imp.list.DelimitedStringListField;
 import io.datarouter.model.field.imp.list.DelimitedStringListFieldKey;
-import io.datarouter.model.field.imp.list.DoubleListField;
-import io.datarouter.model.field.imp.list.DoubleListFieldKey;
-import io.datarouter.model.field.imp.list.IntListField;
-import io.datarouter.model.field.imp.list.IntListFieldKey;
-import io.datarouter.model.field.imp.list.RawLongListField;
-import io.datarouter.model.field.imp.list.RawLongListFieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 import io.datarouter.model.util.CommonFieldSizes;
 import io.datarouter.util.lang.ObjectTool;
@@ -104,9 +97,6 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 
 	private byte[] data;
 
-	private List<Long> longArrayField;
-	private List<Integer> integerArrayField;
-	private List<Double> doubleArrayField;
 	private List<String> delimitedStringArrayField;
 	private byte[] byteArrayField;
 	private List<Integer> intListToByteArrayField;
@@ -140,12 +130,9 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 				.withSize(CommonFieldSizes.MAX_LENGTH_LONGBLOB);
 		public static final ByteArrayFieldKey data = new ByteArrayFieldKey("data")
 				.withSize(CommonFieldSizes.MAX_LENGTH_LONGBLOB);
-		public static final RawLongListFieldKey longArrayField = new RawLongListFieldKey("longArrayField");
-		public static final IntListFieldKey integerArrayField = new IntListFieldKey("integerArrayField");
 		public static final ByteArrayFieldKey byteArrayField = new ByteArrayFieldKey("byteArrayField");
 		public static final ByteArrayEncodedFieldKey<List<Integer>> intListToByteArrayField
 				= new ByteArrayEncodedFieldKey<>("intListToByteArrayField", IntListFieldCodec.INSTANCE);
-		public static final DoubleListFieldKey doubleArrayField = new DoubleListFieldKey("doubleArrayField");
 		public static final DelimitedStringListFieldKey delimitedStringArrayField = new DelimitedStringListFieldKey(
 				"delimitedStringArrayField");
 		public static final StringFieldKey testSchemaUpdateField = new StringFieldKey("testSchemaUpdateField")
@@ -210,19 +197,10 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 		if(ObjectTool.notEquals(data, that.data)){
 			return false;
 		}
-		if(ObjectTool.notEquals(longArrayField, that.longArrayField)){
-			return false;
-		}
-		if(ObjectTool.notEquals(integerArrayField, that.integerArrayField)){
-			return false;
-		}
 		if(ObjectTool.notEquals(byteArrayField, that.byteArrayField)){
 			return false;
 		}
 		if(ObjectTool.notEquals(intListToByteArrayField, that.intListToByteArrayField)){
-			return false;
-		}
-		if(ObjectTool.notEquals(doubleArrayField, that.doubleArrayField)){
 			return false;
 		}
 		if(ObjectTool.notEquals(delimitedStringArrayField, that.delimitedStringArrayField)){
@@ -262,10 +240,7 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 					new ByteArrayField(FieldKeys.stringByteField, databean.stringByteField),
 					new ByteArrayField(FieldKeys.data, databean.data),
 					new ByteArrayEncodedField<>(FieldKeys.intListToByteArrayField, databean.intListToByteArrayField),
-					new RawLongListField(FieldKeys.longArrayField, databean.longArrayField),
-					new IntListField(FieldKeys.integerArrayField, databean.integerArrayField),
 					new ByteArrayField(FieldKeys.byteArrayField, databean.byteArrayField),
-					new DoubleListField(FieldKeys.doubleArrayField, databean.doubleArrayField),
 					new DelimitedStringListField(FieldKeys.delimitedStringArrayField,
 							databean.delimitedStringArrayField),
 					new StringField(FieldKeys.testSchemaUpdateField, databean.testSchemaUpdateField));
@@ -284,30 +259,6 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 	@Override
 	public Supplier<ManyFieldBeanKey> getKeySupplier(){
 		return ManyFieldBeanKey::new;
-	}
-
-	public List<Long> appendToLongArrayField(long val){
-		if(longArrayField == null){
-			longArrayField = new LongArray();
-		}
-		longArrayField.add(val);
-		return longArrayField;
-	}
-
-	public List<Double> appendToDoubleArrayField(Double val){
-		if(doubleArrayField == null){
-			doubleArrayField = new ArrayList<>();
-		}
-		doubleArrayField.add(val);
-		return doubleArrayField;
-	}
-
-	public List<Integer> appendToIntegerArrayField(Integer val){
-		if(integerArrayField == null){
-			integerArrayField = new ArrayList<>();
-		}
-		integerArrayField.add(val);
-		return integerArrayField;
 	}
 
 	public List<String> appendToDelimitedStringArrayField(String val){
@@ -396,30 +347,6 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 
 	public void setStringByteField(byte[] stringByteField){
 		this.stringByteField = stringByteField;
-	}
-
-	public List<Long> getLongArrayField(){
-		return longArrayField;
-	}
-
-	public void setLongArrayField(List<Long> longArrayField){
-		this.longArrayField = longArrayField;
-	}
-
-	public List<Double> getDoubleArrayField(){
-		return doubleArrayField;
-	}
-
-	public void setDoubleArrayField(List<Double> doubleArrayField){
-		this.doubleArrayField = doubleArrayField;
-	}
-
-	public List<Integer> getIntegerArrayField(){
-		return integerArrayField;
-	}
-
-	public void setIntegerArrayField(List<Integer> integerArrayField){
-		this.integerArrayField = integerArrayField;
 	}
 
 	public byte[] getByteArrayField(){

@@ -28,6 +28,8 @@ import io.datarouter.util.tuple.Pair;
 public class MemcachedTallyCodec{
 	private static final Logger logger = LoggerFactory.getLogger(MemcachedTallyCodec.class);
 
+	public static final String CODEC_VERSION = "1";
+
 	private final String clientTypeName;
 	private final Subpath nodeSubpath;
 	private final int clientMaxKeyLength;

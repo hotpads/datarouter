@@ -15,6 +15,7 @@
  */
 package io.datarouter.client.redis.node;
 
+import java.time.Duration;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
@@ -22,7 +23,6 @@ import java.util.function.Supplier;
 
 import io.datarouter.client.redis.client.DatarouterRedisClient;
 import io.datarouter.client.redis.codec.RedisTallyCodec;
-import io.datarouter.client.redis.util.RedisConfigTool;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
@@ -32,7 +32,7 @@ import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.op.raw.TallyStorage.PhysicalTallyStorageNode;
 import io.datarouter.storage.node.type.physical.base.BasePhysicalNode;
-import io.datarouter.storage.tally.TallyKey;
+import io.lettuce.core.KeyValue;
 
 public class RedisTallyNode<
 		PK extends PrimaryKey<PK>,
@@ -41,46 +41,51 @@ public class RedisTallyNode<
 extends BasePhysicalNode<PK,D,F>
 implements PhysicalTallyStorageNode<PK,D,F>{
 
-	private final Supplier<DatarouterRedisClient> lazyClient;
 	private final RedisTallyCodec codec;
+	private final Supplier<DatarouterRedisClient> lazyClient;
 
 	public RedisTallyNode(
 			NodeParams<PK,D,F> params,
 			ClientType<?,?> clientType,
+			RedisTallyCodec codec,
 			Supplier<DatarouterRedisClient> lazyClient){
 		super(params, clientType);
+		this.codec = codec;
 		this.lazyClient = lazyClient;
-		int version = Optional.ofNullable(params.getSchemaVersion()).orElse(1);
-		this.codec = new RedisTallyCodec(version, getFieldInfo());
 	}
 
 	@Override
-	public Optional<Long> findTallyCount(String stringKey, Config config){
-		byte[] tallyKeyBytes = codec.encodeKey(new TallyKey(stringKey));
-		Optional<byte[]> byteTally = lazyClient.get().find(tallyKeyBytes);
-		return codec.decodeTallyValue(byteTally);
+	public Long incrementAndGetCount(String id, int delta, Config config){
+		byte[] idBytes = codec.encodeId(id);
+		long count = lazyClient.get().incrby(idBytes, delta);
+		config.findTtl()
+				.map(Duration::toMillis)
+				.ifPresent(ttlMs -> lazyClient.get().pexpire(idBytes, ttlMs));
+		return count;
 	}
 
 	@Override
-	public Map<String,Long> getMultiTallyCount(Collection<String> stringKeys, Config config){
-		return Scanner.of(stringKeys)
-				.map(TallyKey::new)
-				.map(codec::encodeKey)
+	public Optional<Long> findTallyCount(String id, Config config){
+		return Optional.of(id)
+				.map(codec::encodeId)
+				.flatMap(lazyClient.get()::find)
+				.map(codec::decodeValue);
+	}
+
+	@Override
+	public Map<String,Long> getMultiTallyCount(Collection<String> ids, Config config){
+		return Scanner.of(ids)
+				.map(codec::encodeId)
 				.listTo(lazyClient.get()::mget)
-				.toMap(entry -> codec.decodeKey(entry.getKey()).getId(),
-						entry -> codec.decodeTallyValue(entry).orElse(0L));
+				.include(KeyValue::hasValue)
+				.toMap(codec::decodeId, codec::decodeValue);
 	}
 
 	@Override
-	public Long incrementAndGetCount(String stringKey, int delta, Config config){
-		byte[] keyBytes = codec.encodeKey(new TallyKey(stringKey));
-		long ttlMs = RedisConfigTool.getTtlMs(config);
-		return lazyClient.get().incrbyAndPexpire(keyBytes, delta, ttlMs);
-	}
-
-	@Override
-	public void deleteTally(String stringKey, Config config){
-		lazyClient.get().del(codec.encodeKey(new TallyKey(stringKey)));
+	public void deleteTally(String id, Config config){
+		Optional.of(id)
+				.map(codec::encodeId)
+				.ifPresent(lazyClient.get()::del);
 	}
 
 }

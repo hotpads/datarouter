@@ -27,8 +27,8 @@ import io.datarouter.httpclient.response.exception.DatarouterHttpException;
 public interface DatarouterEndpointHttpClient<ET extends EndpointType>{
 
 	<R> Conditional<R> call(BaseEndpoint<R,ET> endpoint);
-	<R> Conditional<R> callUnchecked(BaseEndpoint<R,?> endpoint);
-	<R> R callRaw(BaseEndpoint<R,ET> endpoint) throws DatarouterHttpException;
+	<R> Conditional<R> callAnyType(BaseEndpoint<R,?> endpoint);
+	<R> R callChecked(BaseEndpoint<R,ET> endpoint) throws DatarouterHttpException;
 
 	void shutdown();
 

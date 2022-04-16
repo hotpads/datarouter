@@ -18,14 +18,12 @@ package io.datarouter.client.memcached.client;
 import javax.inject.Singleton;
 
 import io.datarouter.bytes.ByteUnitType;
-import io.datarouter.client.memcached.ReservedBlobPaths;
 import io.datarouter.client.memcached.codec.MemcachedBlobCodec;
 import io.datarouter.client.memcached.codec.MemcachedDatabeanCodec;
 import io.datarouter.client.memcached.codec.MemcachedTallyCodec;
 import io.datarouter.client.memcached.node.MemcachedBlobNode;
 import io.datarouter.client.memcached.node.MemcachedDatabeanNode;
 import io.datarouter.client.memcached.node.MemcachedTallyNode;
-import io.datarouter.client.memcached.util.DatabeanNodePrefix;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.entity.Entity;
 import io.datarouter.model.key.entity.EntityKey;
@@ -40,6 +38,8 @@ import io.datarouter.storage.client.imp.TallyClientNodeFactory;
 import io.datarouter.storage.file.Pathbean;
 import io.datarouter.storage.file.Pathbean.PathbeanFielder;
 import io.datarouter.storage.file.PathbeanKey;
+import io.datarouter.storage.file.ReservedBlobPaths;
+import io.datarouter.storage.node.DatabeanNodePrefix;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.NodeParams.NodeParamsBuilder;
 import io.datarouter.storage.node.adapter.NodeAdapters;
@@ -74,10 +74,11 @@ implements BlobClientNodeFactory, DatabeanClientNodeFactory, TallyClientNodeFact
 
 	@Override
 	public PhysicalBlobStorageNode createBlobNode(NodeParams<PathbeanKey,Pathbean,PathbeanFielder> nodeParams){
+		var codec = new MemcachedBlobCodec(nodeParams.getPath());
 		var node = new MemcachedBlobNode(
 				nodeParams,
 				memcachedClientType,
-				new MemcachedBlobCodec(nodeParams.getPath()),
+				codec,
 				memcachedClientManager.getLazyClient(nodeParams.getClientId()));
 		return nodeAdapters.wrapBlobNode(node);
 	}
@@ -96,12 +97,12 @@ implements BlobClientNodeFactory, DatabeanClientNodeFactory, TallyClientNodeFact
 		var fieldInfo = new PhysicalDatabeanFieldInfo<>(nodeParams);
 		Subpath path = new DatabeanNodePrefix(
 				ReservedBlobPaths.DATABEAN,
-				MemcachedDatabeanNode.CODEC_VERSION,
+				MemcachedDatabeanCodec.CODEC_VERSION,
 				serviceName.get(),
 				"1",//placeholder for client-scoped version
 				nodeParams,
 				fieldInfo)
-				.makeShortenedSubpath();
+				.makeShortenedSubpath();//Store shortened path because of memcached's limited key length.
 		var blobParams = new NodeParamsBuilder<>(nodeParams)
 				.withPath(path)
 				.build();
@@ -141,7 +142,7 @@ implements BlobClientNodeFactory, DatabeanClientNodeFactory, TallyClientNodeFact
 		var fieldInfo = new PhysicalDatabeanFieldInfo<>(nodeParams);
 		Subpath path = new DatabeanNodePrefix(
 				ReservedBlobPaths.TALLY,
-				MemcachedTallyNode.CODEC_VERSION,
+				MemcachedTallyCodec.CODEC_VERSION,
 				serviceName.get(),
 				"1",//placeholder for client-scoped version
 				nodeParams,

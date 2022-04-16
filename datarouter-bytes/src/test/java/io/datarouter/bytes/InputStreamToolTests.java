@@ -24,15 +24,6 @@ import org.testng.annotations.Test;
 public class InputStreamToolTests{
 
 	@Test
-	public void testReadThroughByte(){
-		byte throughByte = -100;
-		byte[] input = {0, 1, 2, throughByte, 3, 4};
-		var inputStream = new ByteArrayInputStream(input);
-		byte[] output = InputStreamTool.readThroughByte(inputStream, throughByte);
-		Assert.assertEquals(output, new byte[]{0, 1, 2, throughByte});
-	}
-
-	@Test
 	public void testReadNBytes(){
 		byte[] input = {0, 1, 2, 3, 4, 5};
 		var inputStream = new ByteArrayInputStream(input);

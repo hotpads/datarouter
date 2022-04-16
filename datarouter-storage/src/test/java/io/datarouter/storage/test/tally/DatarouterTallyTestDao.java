@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.client.memcached.test;
+package io.datarouter.storage.test.tally;
 
 import java.time.Duration;
 import java.util.Optional;
 
-import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.storage.Datarouter;
+import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.TestDao;
@@ -36,10 +36,9 @@ public class DatarouterTallyTestDao extends BaseDao implements TestDao{
 
 	private final TallyStorage<TallyKey,Tally> node;
 
-	@Inject
-	public DatarouterTallyTestDao(Datarouter datarouter, TallyNodeFactory nodeFactory){
+	public DatarouterTallyTestDao(Datarouter datarouter, TallyNodeFactory nodeFactory, ClientId clientId){
 		super(datarouter);
-		node = nodeFactory.createTally(DatarouterMemcachedTestClientIds.MEMCACHED, Tally::new, TallyFielder::new)
+		node = nodeFactory.createTally(clientId, Tally::new, TallyFielder::new)
 				.withSchemaVersion(1)
 				.withTableName("Tally")
 				.buildAndRegister();

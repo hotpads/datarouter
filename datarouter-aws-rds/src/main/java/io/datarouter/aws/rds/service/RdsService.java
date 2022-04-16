@@ -31,6 +31,7 @@ import com.amazonaws.services.rds.model.CreateDBInstanceRequest;
 import com.amazonaws.services.rds.model.DBCluster;
 import com.amazonaws.services.rds.model.DBClusterMember;
 import com.amazonaws.services.rds.model.DBInstance;
+import com.amazonaws.services.rds.model.DeleteDBInstanceRequest;
 import com.amazonaws.services.rds.model.DescribeDBClustersRequest;
 import com.amazonaws.services.rds.model.DescribeDBInstancesRequest;
 import com.amazonaws.services.rds.model.ListTagsForResourceRequest;
@@ -47,6 +48,7 @@ import io.datarouter.util.retry.RetryableTool;
 public class RdsService{
 
 	private static final int NUM_ATTEMPTS = 5;
+	private static final String AVAILABLE_STATUS = "available";
 
 	@Inject
 	private DatarouterAwsRdsConfigSettings rdsSettings;
@@ -79,6 +81,20 @@ public class RdsService{
 		String otherInstanceName = clusterName + rdsSettings.dbOtherInstanceSuffix.get();
 		if(!getReaderInstanceIds(clusterName).contains(otherInstanceName)){
 			createDbInstance(otherInstanceName, clusterName);
+		}
+	}
+
+
+	public void deleteOtherInstance(String instanceName){
+		var describeRequest = new DescribeDBInstancesRequest().withDBInstanceIdentifier(instanceName);
+		String instanceStatus = getAmazonRdsCreateOtherClient().describeDBInstances(describeRequest)
+				.getDBInstances().get(0)
+				.getDBInstanceStatus();
+		if(instanceStatus.equals(AVAILABLE_STATUS) && instanceName.endsWith(
+				rdsSettings.dbOtherInstanceSuffix.get())){
+			var request = new DeleteDBInstanceRequest()
+					.withDBInstanceIdentifier(instanceName);
+			getAmazonRdsCreateOtherClient().deleteDBInstance(request);
 		}
 	}
 

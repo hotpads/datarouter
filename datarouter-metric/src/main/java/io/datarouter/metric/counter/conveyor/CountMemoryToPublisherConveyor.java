@@ -32,6 +32,8 @@ import io.datarouter.web.exception.ExceptionRecorder;
 public class CountMemoryToPublisherConveyor extends BaseConveyor{
 	private static final Logger logger = LoggerFactory.getLogger(CountMemoryToPublisherConveyor.class);
 
+	private static final int POLL_LIMIT = 5;
+
 	private final MemoryBuffer<Map<Long,Map<String,Long>>> buffer;
 	private final CountPublisher countPublisher;
 
@@ -48,41 +50,28 @@ public class CountMemoryToPublisherConveyor extends BaseConveyor{
 
 	@Override
 	public ProcessBatchResult processBatch(){
-		List<Map<Long,Map<String,Long>>> dtos = buffer.pollMultiWithLimit(1);//TODO probably 1
+		//this normally runs more frequently than the publisher, but polling > 1 allows catching up just in case
+		List<Map<Long,Map<String,Long>>> dtos = buffer.pollMultiWithLimit(POLL_LIMIT);
 		if(dtos.isEmpty()){
 			return new ProcessBatchResult(false);
 		}
-		try{
-			Map<Long,Map<String,Long>> counts = dtos.get(0);///TODO assuming size 1
-			//TODO old checking logic. remove after fixing concurrency issues.
-			Scanner.of(counts.keySet())//TODO
-					.include(timestamp -> counts.get(timestamp).isEmpty())//TODO
-					.map(timestamp -> timestamp.toString())
-					.flush(emptyTimestamps -> {
-						if(emptyTimestamps.size() > 0){
-							logger.warn("found empty maps for timestamps={}", String.join(",", emptyTimestamps));
-						}
-					});
+		dtos.forEach(this::publishCounts);
+		//continue processing immediately if this batch was full
+		return new ProcessBatchResult(dtos.size() == POLL_LIMIT);
+	}
 
-			logCountsSpec(counts);
+	private void publishCounts(Map<Long,Map<String,Long>> counts){
+		try{
+			int numCounts = Scanner.of(counts.values())
+					.map(Map::size)
+					.reduce(0, Integer::sum);
+			logger.info("counts numPeriods={}, numNames={}", counts.size(), numCounts);
 			countPublisher.add(counts);
-			//TODO get actual size somehow?
-			//--from Map/DTO?
-			//--from publisher response?
-			ConveyorCounters.incPutMultiOpAndDatabeans(this, dtos.size());
+			ConveyorCounters.incPutMultiOpAndDatabeans(this, numCounts);
 		}catch(Exception putMultiException){
 			logger.warn("", putMultiException);
 			ConveyorCounters.inc(this, "putMulti exception", 1);
 		}
-		return new ProcessBatchResult(false);
-	}
-
-	//TODO old logic. remove after fixing concurrency issues.
-	private static void logCountsSpec(Map<Long,Map<String,Long>> counts){
-		int names = Scanner.of(counts.values())
-				.map(Map::size)
-				.reduce(0, Integer::sum);
-		logger.info("counts buckets={}, names={}", counts.size(), names);
 	}
 
 }

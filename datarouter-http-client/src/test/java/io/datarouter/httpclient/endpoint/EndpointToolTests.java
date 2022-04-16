@@ -37,8 +37,8 @@ public class EndpointToolTests{
 	public abstract static class EndpointToolTestEndpoint<R>
 	extends BaseEndpoint<R,NoOpEndpointType>{
 
-		public EndpointToolTestEndpoint(HttpRequestMethod method, PathNode pathNode, boolean retrySafe){
-			super(method, pathNode, retrySafe);
+		public EndpointToolTestEndpoint(HttpRequestMethod method, PathNode pathNode){
+			super(method, pathNode);
 		}
 
 	}
@@ -56,19 +56,19 @@ public class EndpointToolTests{
 
 	public static class Example2 extends EndpointToolTestEndpoint<Map<String,float[]>>{
 		public Example2(){
-			super(null, null, false);
+			super(null, null);
 		}
 	}
 
 	public static class Example3 extends EndpointToolTestEndpoint<String>{
 		public Example3(){
-			super(null, null, false);
+			super(null, null);
 		}
 	}
 
 	public static class Example4 extends EndpointToolTestEndpoint<ExampleEndpoint1>{
 		public Example4(){
-			super(null, null, false);
+			super(null, null);
 		}
 	}
 
@@ -92,7 +92,7 @@ public class EndpointToolTests{
 		public Optional<String> str = Optional.empty();
 
 		public Example5(){
-			super(HttpRequestMethod.GET, new PathNode().leaf(""), false);
+			super(GET, new PathNode().leaf(""));
 		}
 	}
 
@@ -101,7 +101,7 @@ public class EndpointToolTests{
 		public Optional<String> str;
 
 		public Example6(){
-			super(HttpRequestMethod.GET, new PathNode().leaf(""), false);
+			super(GET, new PathNode().leaf(""));
 			this.str = Optional.empty();
 		}
 	}
@@ -111,7 +111,7 @@ public class EndpointToolTests{
 		public Optional<String> optionalString;
 
 		public Example7(){
-			super(HttpRequestMethod.GET, new PathNode().leaf(""), false);
+			super(GET, new PathNode().leaf(""));
 		}
 	}
 
@@ -143,7 +143,7 @@ public class EndpointToolTests{
 		public final String str;
 
 		public Example8(String str){
-			super(HttpRequestMethod.GET, new PathNode().leaf(""), false);
+			super(GET, new PathNode().leaf(""));
 			this.str = str;
 		}
 	}
@@ -174,7 +174,7 @@ public class EndpointToolTests{
 		public final String str;
 
 		public Example9(String str){
-			super(HttpRequestMethod.POST, new PathNode().leaf(""), false);
+			super(POST, new PathNode().leaf(""));
 			this.str = str;
 		}
 	}
@@ -207,7 +207,7 @@ public class EndpointToolTests{
 		public final String str;
 
 		public ValidateEndpoint1(String str){
-			super(HttpRequestMethod.GET, new PathNode().leaf(""), false);
+			super(GET, new PathNode().leaf(""));
 			this.str = str;
 		}
 
@@ -219,7 +219,7 @@ public class EndpointToolTests{
 		public final String str;
 
 		public ValidateEndpoint2(String str){
-			super(HttpRequestMethod.GET, new PathNode().leaf(""), false);
+			super(GET, new PathNode().leaf(""));
 			this.str = str;
 		}
 
@@ -234,7 +234,7 @@ public class EndpointToolTests{
 		public final String str2;
 
 		public ValidateEndpoint3(String str, String str2){
-			super(HttpRequestMethod.POST, new PathNode().leaf(""), false);
+			super(POST, new PathNode().leaf(""));
 			this.str = str;
 			this.str2 = str2;
 		}
@@ -250,7 +250,7 @@ public class EndpointToolTests{
 		public final String str2;
 
 		public ValidateEndpoint4(String str, String str2){
-			super(HttpRequestMethod.POST, new PathNode().leaf(""), false);
+			super(POST, new PathNode().leaf(""));
 			this.str = str;
 			this.str2 = str2;
 		}

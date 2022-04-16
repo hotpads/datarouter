@@ -16,6 +16,10 @@
 package io.datarouter.storage.node.adapter.sanitization.mixin;
 
 import java.util.Collection;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
@@ -31,9 +35,30 @@ public interface MapStorageSanitizationAdapterMixin<
 		F extends DatabeanFielder<PK,D>,
 		N extends MapStorageNode<PK,D,F>>
 extends MapStorage<PK,D>, MapStorageReaderSanitizationAdapterMixin<PK,D,F,N>{
+	static final Logger logger = LoggerFactory.getLogger(MapStorageSanitizationAdapterMixin.class);
+
+	static final AtomicBoolean NULL_PUT_DATABEAN = new AtomicBoolean(false);
+	static final AtomicBoolean NULL_PUT_CONFIG = new AtomicBoolean(false);
+
+	static final AtomicBoolean NULL_PUT_MULTI_DATABEANS = new AtomicBoolean(false);
+	static final AtomicBoolean NULL_PUT_MULTI_CONFIG = new AtomicBoolean(false);
+
+	static final AtomicBoolean NULL_DELETE_PK = new AtomicBoolean(false);
+	static final AtomicBoolean NULL_DELETE_CONFIG = new AtomicBoolean(false);
+
+	static final AtomicBoolean NULL_DELETE_MULTI_PKS = new AtomicBoolean(false);
+	static final AtomicBoolean NULL_DELETE_MULTI_CONFIG = new AtomicBoolean(false);
+
+	static final AtomicBoolean NULL_DELETE_ALL_CONFIG = new AtomicBoolean(false);
 
 	@Override
 	default void put(D databean, Config config){
+		if(databean == null && !NULL_PUT_DATABEAN.getAndSet(true)){
+			logger.warn("NULL_PUT_DATABEAN", new Exception());
+		}
+		if(config == null && !NULL_PUT_CONFIG.getAndSet(true)){
+			logger.warn("NULL_PUT_CONFIG", new Exception());
+		}
 		if(databean != null){
 			PrimaryKeySanitizer.checkForNullPrimaryKeyValues(databean.getKey());
 		}
@@ -42,6 +67,12 @@ extends MapStorage<PK,D>, MapStorageReaderSanitizationAdapterMixin<PK,D,F,N>{
 
 	@Override
 	default void putMulti(Collection<D> databeans, Config config){
+		if(databeans == null && !NULL_PUT_MULTI_DATABEANS.getAndSet(true)){
+			logger.warn("NULL_PUT_MULTI_DATABEANS", new Exception());
+		}
+		if(config == null && !NULL_PUT_MULTI_CONFIG.getAndSet(true)){
+			logger.warn("NULL_PUT_MULTI_CONFIG", new Exception());
+		}
 		databeans.stream()
 				.map(D::getKey)
 				.forEach(PrimaryKeySanitizer::checkForNullPrimaryKeyValues);
@@ -50,16 +81,31 @@ extends MapStorage<PK,D>, MapStorageReaderSanitizationAdapterMixin<PK,D,F,N>{
 
 	@Override
 	default void delete(PK key, Config config){
+		if(key == null && !NULL_DELETE_PK.getAndSet(true)){
+			logger.warn("NULL_DELETE_PK", new Exception());
+		}
+		if(config == null && !NULL_DELETE_CONFIG.getAndSet(true)){
+			logger.warn("NULL_DELETE_CONFIG", new Exception());
+		}
 		getBackingNode().delete(key, config);
 	}
 
 	@Override
 	default void deleteMulti(Collection<PK> keys, Config config){
+		if(keys == null && !NULL_DELETE_MULTI_PKS.getAndSet(true)){
+			logger.warn("NULL_DELETE_MULTI_PKS", new Exception());
+		}
+		if(config == null && !NULL_DELETE_MULTI_CONFIG.getAndSet(true)){
+			logger.warn("NULL_DELETE_MULTI_CONFIG", new Exception());
+		}
 		getBackingNode().deleteMulti(keys, config);
 	}
 
 	@Override
 	default void deleteAll(Config config){
+		if(config == null && !NULL_DELETE_ALL_CONFIG.getAndSet(true)){
+			logger.warn("NULL_DELETE_ALL_CONFIG", new Exception());
+		}
 		getBackingNode().deleteAll(config);
 	}
 

@@ -45,7 +45,7 @@ public class EndpointTool{
 				finalUrl,
 				endpoint.shouldSkipSecurity,
 				endpoint.shouldSkipLogs);
-		request.setRetrySafe(endpoint.retrySafe);
+		request.setRetrySafe(endpoint.getRetrySafe());
 		endpoint.timeout.ifPresent(request::setTimeout);
 		endpoint.headers.forEach((key,values) -> {
 			values.forEach(value -> request.addHeader(key, value));

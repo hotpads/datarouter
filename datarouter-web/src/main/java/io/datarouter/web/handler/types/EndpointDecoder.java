@@ -73,6 +73,12 @@ public class EndpointDecoder implements HandlerDecoder, JsonAwareHandlerCodec{
 		@SuppressWarnings("unchecked")
 		BaseEndpoint<?,?> baseEndpoint = ReflectionTool.createWithoutNoArgs(
 				(Class<? extends BaseEndpoint<?,?>>)endpointType);
+
+		if(!baseEndpoint.method.matches(request.getMethod())){
+			throw new RuntimeException(String.format("Request type mismatch. Handler=%s Endpoint=%s",
+					baseEndpoint.method.persistentString, request.getMethod()));
+		}
+
 		String body = null;
 		if(EndpointTool.findRequestBody(baseEndpoint.getClass().getFields()).isPresent()){
 			body = RequestTool.getBodyAsString(request);

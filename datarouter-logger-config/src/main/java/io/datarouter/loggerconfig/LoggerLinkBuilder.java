@@ -13,13 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.client.memcached;
+package io.datarouter.loggerconfig;
 
-import io.datarouter.storage.util.Subpath;
+import java.util.Optional;
 
-public class ReservedBlobPaths{
+import org.apache.logging.log4j.core.config.LoggerConfig;
 
-	public static final Subpath DATABEAN = new Subpath("databean");
-	public static final Subpath TALLY = new Subpath("tally");
+public interface LoggerLinkBuilder{
+
+	Optional<String> getLink(LoggerConfig config);
+
+	public static class NoOpLoggerLinkBuilder implements LoggerLinkBuilder{
+
+		@Override
+		public Optional<String> getLink(LoggerConfig config){
+			return Optional.empty();
+		}
+
+	}
 
 }

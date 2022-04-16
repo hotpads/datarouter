@@ -35,11 +35,7 @@ import io.datarouter.client.mysql.field.codec.datetime.LocalDateMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.datetime.LocalDateTimeMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.enums.IntegerEnumMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.enums.StringEnumMysqlFieldCodec;
-import io.datarouter.client.mysql.field.codec.list.ByteListMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.list.DelimitedStringListMysqlFieldCodec;
-import io.datarouter.client.mysql.field.codec.list.DoubleListMysqlFieldCodec;
-import io.datarouter.client.mysql.field.codec.list.IntListMysqlFieldCodec;
-import io.datarouter.client.mysql.field.codec.list.RawLongListMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.primitive.BooleanMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.primitive.DoubleMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.primitive.FloatMysqlFieldCodec;
@@ -71,11 +67,7 @@ import io.datarouter.model.field.imp.custom.LocalDateTimeField;
 import io.datarouter.model.field.imp.custom.LongDateField;
 import io.datarouter.model.field.imp.enums.IntegerEnumField;
 import io.datarouter.model.field.imp.enums.StringEnumField;
-import io.datarouter.model.field.imp.list.ByteListField;
 import io.datarouter.model.field.imp.list.DelimitedStringListField;
-import io.datarouter.model.field.imp.list.DoubleListField;
-import io.datarouter.model.field.imp.list.IntListField;
-import io.datarouter.model.field.imp.list.RawLongListField;
 
 @SuppressWarnings("deprecation")
 public class StandardMysqlFieldCodecFactory implements MysqlFieldCodecFactory{
@@ -123,10 +115,6 @@ public class StandardMysqlFieldCodecFactory implements MysqlFieldCodecFactory{
 
 		//list
 		addCodec(DelimitedStringListField.class, DelimitedStringListMysqlFieldCodec::new);
-		addCodec(DoubleListField.class, DoubleListMysqlFieldCodec::new);
-		addCodec(IntListField.class, IntListMysqlFieldCodec::new);
-		addCodec(RawLongListField.class, RawLongListMysqlFieldCodec::new);
-		addCodec(ByteListField.class, ByteListMysqlFieldCodec::new);
 
 		additional.forEach(codecClassByFieldClass::put);
 	}

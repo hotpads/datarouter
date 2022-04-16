@@ -15,7 +15,6 @@
  */
 package io.datarouter.client.memcached.node;
 
-import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.time.Duration;
 import java.util.Arrays;
@@ -139,16 +138,14 @@ implements PhysicalBlobStorageNode{
 
 	@Override
 	public void write(PathbeanKey key, Scanner<byte[]> chunks){
-		byte[] bytes = chunks
-				.listTo(ByteTool::concat);
-		write(key, bytes);
+		byte[] value = chunks.listTo(ByteTool::concat);
+		write(key, value);
 	}
 
 	@Override
 	public void write(PathbeanKey key, InputStream inputStream){
-		var baos = new ByteArrayOutputStream();
-		InputStreamTool.transferTo(inputStream, baos);
-		write(key, baos.toByteArray());
+		byte[] value = InputStreamTool.toArray(inputStream);
+		write(key, value);
 	}
 
 	@Override

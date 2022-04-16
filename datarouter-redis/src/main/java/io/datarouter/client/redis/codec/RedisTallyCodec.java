@@ -15,78 +15,56 @@
  */
 package io.datarouter.client.redis.codec;
 
-import java.util.Arrays;
 import java.util.Optional;
 
 import io.datarouter.bytes.ByteTool;
-import io.datarouter.bytes.codec.intcodec.RawIntCodec;
-import io.datarouter.model.databean.DatabeanTool;
-import io.datarouter.model.field.Field;
-import io.datarouter.model.field.FieldTool;
-import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
-import io.datarouter.storage.tally.Tally;
-import io.datarouter.storage.tally.Tally.TallyFielder;
-import io.datarouter.storage.tally.TallyKey;
-import io.datarouter.util.array.ArrayTool;
+import io.datarouter.bytes.codec.stringcodec.StringCodec;
+import io.datarouter.storage.util.Subpath;
 import io.lettuce.core.KeyValue;
 
 public class RedisTallyCodec{
 
-	private static final RawIntCodec RAW_INT_CODEC = RawIntCodec.INSTANCE;
-	private static final TallyFielder SAMPLE_FIELDER = new TallyFielder();
+	private final byte[] pathBytes;
 
-	private final int version;
-	private final PhysicalDatabeanFieldInfo<TallyKey,Tally,TallyFielder> fieldInfo;
-
-	@SuppressWarnings("unchecked")
-	public RedisTallyCodec(int version, PhysicalDatabeanFieldInfo<?,?,?> fieldInfo){
-		this.version = version;
-		this.fieldInfo = (PhysicalDatabeanFieldInfo<TallyKey,Tally,TallyFielder>)fieldInfo;
+	public RedisTallyCodec(Subpath path){
+		pathBytes = StringCodec.UTF_8.encode(path.toString());
 	}
 
-	public byte[] encodeKey(TallyKey pk){
-		byte[] key = FieldTool.getConcatenatedValueBytes(pk.getFields());
-		byte[] schemaVersion = RAW_INT_CODEC.encode(version);
-		return ByteTool.concat(schemaVersion, key);
+	public byte[] encodeId(String id){
+		byte[] idBytes = StringCodec.UTF_8.encode(id);
+		return ByteTool.concat(pathBytes, idBytes);
 	}
 
-	public byte[] encode(Tally databean){
-		return DatabeanTool.getBytes(databean, SAMPLE_FIELDER);
+	public String decodeId(byte[] bytes){
+		int offset = pathBytes.length;
+		int length = bytes.length - offset;
+		return StringCodec.UTF_8.decode(bytes, offset, length);
 	}
 
-	public TallyKey decodeKey(byte[] row){
-		// first 4 bytes are schema version
-		byte[] bytes = Arrays.copyOfRange(row, 4, row.length);
-		TallyKey primaryKey = fieldInfo.getPrimaryKeySupplier().get();
-		if(ArrayTool.isEmpty(row)){
-			return primaryKey;
-		}
-		int byteOffset = 0;
-		for(Field<?> field : fieldInfo.getPrimaryKeyFields()){
-			int numBytesWithSeparator = field.numBytesWithSeparator(bytes, byteOffset);
-			Object value = field.fromBytesWithSeparatorButDoNotSet(bytes, byteOffset);
-			field.setUsingReflection(primaryKey, value);
-			byteOffset += numBytesWithSeparator;
-		}
-		return primaryKey;
+	public String decodeId(KeyValue<byte[],byte[]> kv){
+		return Optional.of(kv)
+				.map(KeyValue::getKey)
+				.map(this::decodeId)
+				.orElseThrow();
 	}
 
-	public Optional<Long> decodeTallyValue(Optional<byte[]> byteTally){
-		if(byteTally.isEmpty() || byteTally.get().length == 0){
-			return Optional.empty();
-		}
-		// returned byte is ascii value of the long
-		return byteTally
-				.map(String::new)
+	public long decodeValue(KeyValue<byte[],byte[]> kv){
+		return Optional.of(kv)
+				.filter(KeyValue::hasValue)
+				.map(KeyValue::getValue)
+				.map(this::decodeValue)
+				.orElseThrow();
+	}
+
+	/**
+	 * @param bytes String value of a long returned by Lettuce
+	 */
+	public long decodeValue(byte[] bytes){
+		return Optional.of(bytes)
+				.map(StringCodec.US_ASCII::decode)
 				.map(String::trim)
-				.map(Long::valueOf);
-	}
-
-	public Optional<Long> decodeTallyValue(KeyValue<byte[],byte[]> entry){
-		if(!entry.hasValue()){
-			return Optional.empty();
-		}
-		return decodeTallyValue(Optional.of(entry.getValue()));
+				.map(Long::valueOf)
+				.orElseThrow();
 	}
 
 }

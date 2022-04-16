@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.RandomAccess;
 import java.util.Spliterator;
 
+import io.datarouter.bytes.EmptyArray;
+
 /**
  * Provides a view over a subset of a primitive long array with List&#60;Long&#62; semantics.
  * List elements can be modified, but the list can't change size.
@@ -28,6 +30,8 @@ import java.util.Spliterator;
  */
 public class PrimitiveLongList extends BasePrimitiveList<Long>
 implements RandomAccess{
+
+	private static final PrimitiveLongList EMPTY = new PrimitiveLongList(EmptyArray.LONG);
 
 	private final long[] array;
 
@@ -44,6 +48,10 @@ implements RandomAccess{
 		super(0, values.size());
 		array = new long[values.size()];
 		initFromCollection(values);
+	}
+
+	public static PrimitiveLongList empty(){
+		return EMPTY;
 	}
 
 	@Override

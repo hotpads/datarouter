@@ -47,19 +47,19 @@ public class MysqlOptions{
 
 	private final ConcurrentHashMap<String,String> clientPasswords = new ConcurrentHashMap<>();
 
-	protected static final String PROP_url = "url";
-	protected static final String PROP_urlParam = "urlParam";
-	protected static final String PROP_user = "user";
-	protected static final String PROP_passwordLocation = "password.location";
-	protected static final String PROP_password = "password";
-	protected static final String PROP_minPoolSize = "minPoolSize";
-	protected static final String PROP_maxPoolSize = "maxPoolSize";
-	protected static final String PROP_acquireIncrement = "acquireIncrement";
-	protected static final String PROP_numHelperThreads = "numHelperThreads";
-	protected static final String PROP_maxIdleTime = "maxIdleTime";
-	protected static final String PROP_idleConnectionTestPeriod = "idleConnectionTestPeriod";
-	protected static final String PROP_logging = "logging";
-	protected static final String PROP_readOnly = "readOnly";
+	public static final String PROP_url = "url";
+	public static final String PROP_urlParam = "urlParam";
+	public static final String PROP_user = "user";
+	public static final String PROP_passwordLocation = "password.location";
+	public static final String PROP_password = "password";
+	public static final String PROP_minPoolSize = "minPoolSize";
+	public static final String PROP_maxPoolSize = "maxPoolSize";
+	public static final String PROP_acquireIncrement = "acquireIncrement";
+	public static final String PROP_numHelperThreads = "numHelperThreads";
+	public static final String PROP_maxIdleTime = "maxIdleTime";
+	public static final String PROP_idleConnectionTestPeriod = "idleConnectionTestPeriod";
+	public static final String PROP_logging = "logging";
+	public static final String PROP_readOnly = "readOnly";
 
 	public String url(ClientId clientId){
 		return clientOptions.getRequiredString(clientId.getName(), PROP_url);

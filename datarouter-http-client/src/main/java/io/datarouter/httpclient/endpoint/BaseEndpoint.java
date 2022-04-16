@@ -42,12 +42,12 @@ public abstract class BaseEndpoint<R,ET extends EndpointType>{
 	@IgnoredField
 	public final PathNode pathNode;
 	@IgnoredField
-	public final boolean retrySafe;
-	@IgnoredField
 	public final Map<String,List<String>> headers;
 
 	@IgnoredField
 	public String urlPrefix;
+	@IgnoredField
+	private Optional<Boolean> retrySafe;
 	@IgnoredField
 	public Optional<Duration> timeout;
 	@IgnoredField
@@ -55,13 +55,13 @@ public abstract class BaseEndpoint<R,ET extends EndpointType>{
 	@IgnoredField
 	public boolean shouldSkipLogs;
 
-	public BaseEndpoint(HttpRequestMethod method, PathNode pathNode, boolean retrySafe){
+	public BaseEndpoint(HttpRequestMethod method, PathNode pathNode){
 		this.method = method;
 		this.pathNode = pathNode;
-		this.retrySafe = retrySafe;
 		this.headers = new HashMap<>();
 
 		this.urlPrefix = null;
+		this.retrySafe = Optional.empty();
 		this.timeout = Optional.empty();
 		this.shouldSkipSecurity = false;
 		this.shouldSkipLogs = false;
@@ -90,6 +90,25 @@ public abstract class BaseEndpoint<R,ET extends EndpointType>{
 	public final BaseEndpoint<R,ET> setShouldSkipLogs(boolean shouldSkipLogs){
 		this.shouldSkipLogs = shouldSkipLogs;
 		return this;
+	}
+
+	public final BaseEndpoint<R,ET> setRetrySafe(boolean retrySafe){
+		this.retrySafe = Optional.of(retrySafe);
+		return this;
+	}
+
+	public final boolean getRetrySafe(){
+		if(retrySafe.isPresent()){
+			return retrySafe.get();
+		}
+		switch(method){
+		case GET:
+			return true;
+		case POST:
+			return false;
+		default:
+			return false;
+		}
 	}
 
 }

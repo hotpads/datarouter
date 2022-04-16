@@ -22,7 +22,7 @@
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-metadata-parent</artifactId>
-		<version>0.0.111</version>
+		<version>0.0.112</version>
 		<relativePath>../datarouter-metadata-parent</relativePath>
 	</parent>
 
@@ -35,16 +35,17 @@
 	<properties>
 		<!-- libraries -->
 		<aws-sdk-version>1.12.136</aws-sdk-version>
-		<codehaus-plexus-version>2.9.0</codehaus-plexus-version>
+		<ben-manes-caffeine-version>3.0.6</ben-manes-caffeine-version>
+		<codehaus-plexus-version>2.11.1</codehaus-plexus-version>
 		<commons-codec-version>1.15</commons-codec-version>
 		<commons-io-version>2.11.0</commons-io-version>
-		<datarouter-version>0.0.111</datarouter-version>
+		<datarouter-version>0.0.112</datarouter-version>
 		<gson-version>2.8.9</gson-version>
 		<guice-version>5.0.1</guice-version>
 		<guava-version>31.0.1-jre</guava-version>
 		<httpclient-version>4.5.13</httpclient-version>
 		<log4j-version>2.17.1</log4j-version>
-		<mockito-core-version>4.2.0</mockito-core-version>
+		<mockito-core-version>4.4.0</mockito-core-version>
 		<slf4j-version>1.7.33</slf4j-version>
 		<testng-version>7.3.0</testng-version>
 
@@ -56,7 +57,7 @@
 
 		<!-- other -->
 		<!-- upgrade scripts when bumping this version -->
-		<eclipse-compiler-version>3.28.0</eclipse-compiler-version>
+		<eclipse-compiler-version>3.29.0</eclipse-compiler-version>
 	</properties>
 
 	<dependencyManagement>

@@ -15,13 +15,11 @@
  */
 package io.datarouter.aws.rds.web;
 
-import static j2html.TagCreator.button;
+import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
-import static j2html.TagCreator.form;
 import static j2html.TagCreator.h2;
-import static j2html.TagCreator.input;
-import static j2html.TagCreator.join;
+import static j2html.TagCreator.i;
 import static j2html.TagCreator.table;
 import static j2html.TagCreator.tbody;
 import static j2html.TagCreator.td;
@@ -33,22 +31,28 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import org.apache.http.client.utils.URIBuilder;
+
 import io.datarouter.aws.rds.config.DatarouterAwsPaths;
 import io.datarouter.aws.rds.config.DatarouterAwsRdsConfigSettings;
-import io.datarouter.aws.rds.job.DnsUpdater;
+import io.datarouter.aws.rds.service.AuroraClientIdProvider;
+import io.datarouter.aws.rds.service.AuroraClientIdProvider.AuroraClientDto;
 import io.datarouter.aws.rds.service.AuroraDnsService;
 import io.datarouter.aws.rds.service.AuroraDnsService.DnsHostEntryDto;
 import io.datarouter.aws.rds.service.DatabaseAdministrationConfiguration;
 import io.datarouter.aws.rds.service.RdsService;
-import io.datarouter.storage.client.ClientId;
+import io.datarouter.instrumentation.changelog.ChangelogRecorder;
+import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDtoBuilder;
+import io.datarouter.util.Require;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.InContextRedirectMav;
 import io.datarouter.web.handler.types.Param;
 import io.datarouter.web.html.j2html.J2HtmlTable;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
-import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.TrTag;
 
 public class AuroraInstancesHandler extends BaseHandler{
 
@@ -61,35 +65,40 @@ public class AuroraInstancesHandler extends BaseHandler{
 	@Inject
 	private RdsService rdsService;
 	@Inject
+	private AuroraClientIdProvider auroraClientIdProvider;
+	@Inject
 	private DatarouterAwsRdsConfigSettings rdsSettings;
 	@Inject
 	private Bootstrap4PageFactory pageFactory;
 	@Inject
 	private DatabaseAdministrationConfiguration config;
 	@Inject
-	private DnsUpdater dnsUpdater;
+	private ChangelogRecorder changelogRecorder;
 
-	@Handler(defaultHandler = true)
+	@Handler
 	public Mav inspectClientUrl(){
 		List<DnsHostEntryDto> otherReaderInstances = new ArrayList<>();
-		List<ClientId> clientsMissingOtherInstances = new ArrayList<>();
-		for(ClientId primaryClientId : dnsService.getPrimaryClientIds()){
-			DnsHostEntryDto otherEntry = dnsService.getOtherReader(primaryClientId.getName());
+		List<AuroraClientDto> clientsMissingOtherInstances = new ArrayList<>();
+		for(AuroraClientDto clientDto : auroraClientIdProvider.getAuroraClientDtos()){
+			DnsHostEntryDto otherEntry = dnsService.getOtherReader(clientDto.getWriterClientId().getName(),
+					clientDto.getClusterName());
 			if(otherEntry == null){
-				clientsMissingOtherInstances.add(primaryClientId);
+				clientsMissingOtherInstances.add(clientDto);
 			}else{
 				otherReaderInstances.add(otherEntry);
 			}
 		}
+
 		List<DomContent> fragments = new ArrayList<>();
-		fragments.add(makeAuroraClientsTable("Aurora Clients", dnsService.checkClientEndpoint().getLeft()));
+		fragments.add(makeAuroraClientsTable("Aurora Clients", dnsService.getDnsEntryForClients().values(), false));
 		if(otherReaderInstances.size() != 0){
-			fragments.add(makeAuroraClientsTable("Aurora Other Instances", otherReaderInstances));
+			//temporarily disabling the trash icon
+			fragments.add(makeAuroraClientsTable("Aurora Other Instances", otherReaderInstances, true));
 		}
 		if(clientsMissingOtherInstances.size() != 0){
-			fragments.add(makeForm(clientsMissingOtherInstances));
+			fragments.add(makeCreateOtherSection(clientsMissingOtherInstances));
 		}
-		ContainerTag<?> content = div(each(fragments.stream()))
+		DivTag content = div(each(fragments.stream()))
 				.withClass("container my-4");
 		return pageFactory.startBuilder(request)
 				.withTitle("Aurora Clients")
@@ -98,24 +107,23 @@ public class AuroraInstancesHandler extends BaseHandler{
 	}
 
 	@Handler
-	public String addCname(String subdomain, String target){
-		return dnsUpdater.addCname(subdomain, target);
-	}
-
-	@Handler
-	public String deleteCname(String subdomain){
-		return dnsUpdater.deleteCname(subdomain);
-	}
-
-	@Handler
 	public Mav createOtherInstance(@Param(P_clientName) String clientName){
 		String clusterName = rdsSettings.dbPrefix.get() + clientName;
 		rdsService.createOtherInstance(clusterName);
 		config.addOtherDatabaseDns(clusterName);
-		return new InContextRedirectMav(request, paths.datarouter.auroraInstances.toSlashedString());
+		var dto = new DatarouterChangelogDtoBuilder(
+				"AuroraClients",
+				clientName,
+				"created other instance for " + clusterName,
+				getSessionInfo().getNonEmptyUsernameOrElse(""))
+				.build();
+		changelogRecorder.record(dto);
+		return new InContextRedirectMav(request, paths.datarouter.auroraInstances.inspectClientUrl.toSlashedString());
 	}
 
-	private static ContainerTag<?> makeAuroraClientsTable(String header, Collection<DnsHostEntryDto> rows){
+	private DivTag makeAuroraClientsTable(String header, Collection<DnsHostEntryDto> rows,
+			boolean showDeleteOption){
+		String contextPath = request.getContextPath();
 		var h2 = h2(header);
 		var table = new J2HtmlTable<DnsHostEntryDto>()
 				.withClasses("sortable table table-sm table-striped my-4 border")
@@ -127,39 +135,61 @@ public class AuroraInstancesHandler extends BaseHandler{
 				})
 				.withColumn("Hostname", DnsHostEntryDto::getHostname)
 				.withColumn("Cluster hostname", DnsHostEntryDto::getClusterHostname)
+				.withColumn("Cluster name", DnsHostEntryDto::getClusterName)
 				.withColumn("Replcation role", DnsHostEntryDto::getReplicationRole)
 				.withColumn("Instance hostname", DnsHostEntryDto::getInstanceHostname)
 				.withColumn("IP", DnsHostEntryDto::getIp)
+				.withHtmlColumn("X", row -> {
+					if(showDeleteOption){
+						var trashIcon = i().withClass("fas fa-trash");
+						return td(a(trashIcon).withHref(getDeleteOtherClientUri(contextPath, row.getClientName())));
+					}
+					return td("");
+
+				})
 				.withCaption("Total " + rows.size())
 				.build(rows);
 		return div(h2, table)
 				.withClass("container my-4");
 	}
 
-	private ContainerTag<?> makeForm(Collection<ClientId> rows){
-		var h2 = h2("Create a read only other Instance");
-		var innerFormTable = table(tbody(each(rows, AuroraInstancesHandler::makeRow)));
-		return form(join(h2, innerFormTable))
-				.withMethod("get")
-				.withAction(servletContext.getContextPath() + paths.datarouter.auroraInstances.toSlashedString());
+	private DivTag makeCreateOtherSection(Collection<AuroraClientDto> rows){
+		var h2 = h2("Create a read-only Other Instance");
+		var table = table(tbody(each(rows, this::makeCreateOtherRow)));
+		return div(h2, table);
 	}
 
-	private static ContainerTag<?> makeRow(ClientId row){
+	private TrTag makeCreateOtherRow(AuroraClientDto row){
+		String href = new URIBuilder().setPath(servletContext.getContextPath()
+				+ paths.datarouter.auroraInstances.createOtherInstance.toSlashedString())
+				.addParameter(P_clientName, row.getWriterClientId().getName())
+				.toString();
 		return tr(
-				td(input()
-						.withType("text")
-						.withName(P_clientName)
-						.withClass("form-control-plaintext")
-						.withValue(row.getName())),
-				td(join(
-					input()
-						.withType("hidden")
-						.withName("submitAction")
-						.withClass("form-control-plaintext")
-						.withValue("createOtherInstance")),
-					button("Create")
-						.withClass("btn btn-warning"))
+				td(row.getWriterClientId().getName()),
+				td(a("Create Other Instance").withHref(href))
 				.withClass("text-center"));
+	}
+
+	@Handler
+	public Mav deleteOtherInstance(@Param(P_clientName) String clientName){
+		Require.isTrue(clientName.endsWith(rdsSettings.dbOtherInstanceSuffix.get()));
+		rdsService.deleteOtherInstance(clientName);
+		var dto = new DatarouterChangelogDtoBuilder(
+				"AuroraClients",
+				clientName,
+				"deleted " + clientName + " instance",
+				getSessionInfo().getNonEmptyUsernameOrElse(""))
+				.build();
+		changelogRecorder.record(dto);
+		return new InContextRedirectMav(request, paths.datarouter.auroraInstances.inspectClientUrl.toSlashedString());
+	}
+
+	public String getDeleteOtherClientUri(String contextPath, String clientName){
+		String href = new URIBuilder().setPath(contextPath
+				+ paths.datarouter.auroraInstances.deleteOtherInstance.toSlashedString())
+				.addParameter(P_clientName, clientName)
+				.toString();
+		return href;
 	}
 
 }

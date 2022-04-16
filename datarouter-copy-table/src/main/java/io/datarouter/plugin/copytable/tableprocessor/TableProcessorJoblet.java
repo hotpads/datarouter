@@ -73,6 +73,7 @@ public class TableProcessorJoblet extends BaseJoblet<TableProcessorJobletParams>
 		public final Long estNumDatabeans;
 		public final Long jobletId;
 		public final Long numJoblets;
+		public final int executionOrder;
 
 		public TableProcessorJobletParams(
 				String nodeName,
@@ -82,7 +83,8 @@ public class TableProcessorJoblet extends BaseJoblet<TableProcessorJobletParams>
 				String processorName,
 				Long estNumDatabeans,
 				Long jobletId,
-				Long numJoblets){
+				Long numJoblets,
+				int executionOrder){
 			this.nodeName = nodeName;
 			this.fromKeyExclusive = fromKeyExclusive;
 			this.toKeyInclusive = toKeyInclusive;
@@ -91,6 +93,7 @@ public class TableProcessorJoblet extends BaseJoblet<TableProcessorJobletParams>
 			this.estNumDatabeans = estNumDatabeans;
 			this.jobletId = jobletId;
 			this.numJoblets = numJoblets;
+			this.executionOrder = executionOrder;
 		}
 
 	}

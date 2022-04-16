@@ -26,7 +26,15 @@ public class DatarouterAwsPaths extends PathNode implements PathsRoot{
 	public final DatarouterPaths datarouter = branch(DatarouterPaths::new, "datarouter");
 
 	public static class DatarouterPaths extends PathNode{
-		public final PathNode auroraInstances = leaf("auroraInstances");
+		public final AuroraInstancesPaths auroraInstances = branch(AuroraInstancesPaths::new, "auroraInstances");
+	}
+
+	public static class AuroraInstancesPaths extends PathNode{
+		public final PathNode inspectClientUrl = leaf("inspectClientUrl");
+		public final PathNode addCname = leaf("addCname");
+		public final PathNode deleteCname = leaf("deleteCname");
+		public final PathNode createOtherInstance = leaf("createOtherInstance");
+		public final PathNode deleteOtherInstance = leaf("deleteOtherInstance");
 	}
 
 }

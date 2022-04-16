@@ -15,28 +15,39 @@
  */
 package io.datarouter.client.redis.codec;
 
+import java.util.Optional;
+
 import io.datarouter.bytes.ByteTool;
-import io.datarouter.bytes.codec.intcodec.RawIntCodec;
-import io.datarouter.model.field.FieldTool;
+import io.datarouter.bytes.codec.stringcodec.StringCodec;
 import io.datarouter.storage.file.PathbeanKey;
+import io.datarouter.storage.util.Subpath;
+import io.lettuce.core.KeyValue;
 
 public class RedisBlobCodec{
 
-	private static final int CODEC_VERSION = 1;
+	private final byte[] pathBytes;
 
-	private static final RawIntCodec RAW_INT_CODEC = RawIntCodec.INSTANCE;
-
-	private final int schemaVersion;
-
-	public RedisBlobCodec(int nodeVersion){
-		this.schemaVersion = nodeVersion;
+	public RedisBlobCodec(Subpath path){
+		pathBytes = StringCodec.UTF_8.encode(path.toString());
 	}
 
 	public byte[] encodeKey(PathbeanKey pk){
-		byte[] codecVersion = RAW_INT_CODEC.encode(CODEC_VERSION);
-		byte[] key = FieldTool.getConcatenatedValueBytes(pk.getFields());
-		byte[] version = RAW_INT_CODEC.encode(schemaVersion);
-		return ByteTool.concat(codecVersion, version, key);
+		byte[] pkBytes = StringCodec.UTF_8.encode(pk.getPathAndFile());
+		return ByteTool.concat(pathBytes, pkBytes);
+	}
+
+	public PathbeanKey decodeKey(byte[] fullBytesKey){
+		int offset = pathBytes.length;
+		int length = fullBytesKey.length - offset;
+		String pkString = StringCodec.UTF_8.decode(fullBytesKey, offset, length);
+		return PathbeanKey.of(pkString);
+	}
+
+	public PathbeanKey decodeKey(KeyValue<byte[],byte[]> kv){
+		return Optional.of(kv)
+				.map(KeyValue::getKey)
+				.map(this::decodeKey)
+				.orElseThrow();
 	}
 
 }

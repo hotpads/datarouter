@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.tuple.Twin;
 import io.lettuce.core.KeyValue;
-import io.lettuce.core.RedisFuture;
 import io.lettuce.core.cluster.api.async.RedisClusterAsyncCommands;
 
 public class DatarouterRedisClient{
@@ -77,13 +76,18 @@ public class DatarouterRedisClient{
 		}
 	}
 
-	public Long incrbyAndPexpire(byte[] key, int by, long ttlMs){
-		RedisFuture<Long> incrbyFuture = lettuceClient.incrby(key, by);
-		RedisFuture<Boolean> pexpireFuture = lettuceClient.pexpire(key, ttlMs);
+	public Long incrby(byte[] key, int by){
 		try{
-			long count = incrbyFuture.get();
-			pexpireFuture.get();
-			return count;
+			return lettuceClient.incrby(key, by).get();
+		}catch(InterruptedException | ExecutionException e){
+			logger.error("", e);
+		}
+		return null;
+	}
+
+	public Long pexpire(byte[] key, long ttlMs){
+		try{
+			lettuceClient.pexpire(key, ttlMs).get();
 		}catch(InterruptedException | ExecutionException e){
 			logger.error("", e);
 		}
@@ -100,7 +104,8 @@ public class DatarouterRedisClient{
 
 	public void mset(List<Twin<byte[]>> kvs){
 		try{
-			lettuceClient.mset(Scanner.of(kvs).toMap(Twin::getLeft, Twin::getRight)).get();
+			lettuceClient.mset(Scanner.of(kvs)
+					.toMap(Twin::getLeft, Twin::getRight)).get();
 		}catch(InterruptedException | ExecutionException e){
 			logger.error("", e);
 		}

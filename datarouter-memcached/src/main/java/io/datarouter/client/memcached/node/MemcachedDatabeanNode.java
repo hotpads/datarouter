@@ -39,8 +39,6 @@ public class MemcachedDatabeanNode<
 extends BasePhysicalNode<PK,D,F>
 implements PhysicalMapStorageNode<PK,D,F>{
 
-	public static final String CODEC_VERSION = "1";
-
 	private final MemcachedBlobNode blobNode;
 	private final MemcachedDatabeanCodec<PK,D,F> databeanCodec;
 

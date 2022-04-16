@@ -44,13 +44,15 @@ public interface AuroraClientIdProvider{
 		private final List<ClientId> readerClientIds;
 		private final String writerDns;
 		private final List<String> readerDnss;
+		private final String clusterName;
 
 		public AuroraClientDto(ClientId writerClientId, List<ClientId> readerClientIds, String writerDns,
-				List<String> readerDnss){
+				List<String> readerDnss, String clusterName){
 			this.writerClientId = writerClientId;
 			this.readerClientIds = readerClientIds;
 			this.writerDns = writerDns;
 			this.readerDnss = readerDnss;
+			this.clusterName = clusterName;
 		}
 
 		public ClientId getWriterClientId(){
@@ -67,6 +69,10 @@ public interface AuroraClientIdProvider{
 
 		public List<String> getReaderDnss(){
 			return readerDnss;
+		}
+
+		public String getClusterName(){
+			return clusterName;
 		}
 
 	}

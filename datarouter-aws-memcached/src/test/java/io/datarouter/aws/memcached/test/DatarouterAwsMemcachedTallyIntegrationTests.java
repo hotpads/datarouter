@@ -13,28 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.model.field.imp.list;
+package io.datarouter.aws.memcached.test;
 
-import java.util.List;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Guice;
 
-import com.google.gson.reflect.TypeToken;
+import io.datarouter.storage.test.tally.BaseCacheTallyIntegrationTests;
 
-import io.datarouter.model.field.ListFieldKey;
+@Guice(moduleFactory = DatarouterAwsMemcachedModuleFactory.class)
+public class DatarouterAwsMemcachedTallyIntegrationTests extends BaseCacheTallyIntegrationTests{
 
-public class DoubleListFieldKey extends ListFieldKey<Double,List<Double>,DoubleListFieldKey>{
-
-	public DoubleListFieldKey(String name){
-		super(name, new TypeToken<List<Double>>(){});
+	@BeforeClass
+	public void beforeClass(){
+		setup(DatarouterAwsMemcachedTestClientIds.AWS_MEMCACHED);
 	}
 
-	@Override
-	public boolean isFixedLength(){
-		return false;
-	}
-
-	@Override
-	public List<Double> getSampleValue(){
-		return List.of();
-	}
 
 }

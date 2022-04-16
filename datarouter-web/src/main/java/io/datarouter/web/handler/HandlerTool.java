@@ -28,7 +28,6 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.util.lang.ClassTool;
 import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.web.handler.BaseHandler.Handler;
-import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.types.optional.OptionalParameter;
 
 public class HandlerTool{
@@ -53,10 +52,11 @@ public class HandlerTool{
 				// validation doesn't work when defaultHandler = true
 				return;
 			}
-			if(method.getReturnType().isAssignableFrom(Mav.class)){
-				// validation doesn't work for internal pages
-				return;
-			}
+			// disabling this check for now
+//			if(method.getReturnType().isAssignableFrom(Mav.class)){
+//				// validation doesn't work for internal pages
+//				return;
+//			}
 			String methodName = method.getName();
 			if(path.equals(methodName)){
 				if(!EndpointTool.paramIsEndpointObject(method)){
@@ -114,10 +114,6 @@ public class HandlerTool{
 			}
 			if(method.getAnnotation(Handler.class).defaultHandler()){
 				// doesn't work when defaultHandler = true
-				continue;
-			}
-			if(method.getReturnType().isAssignableFrom(Mav.class)){
-				// doesn't work for internal pages
 				continue;
 			}
 			if(!EndpointTool.paramIsEndpointObject(method)){

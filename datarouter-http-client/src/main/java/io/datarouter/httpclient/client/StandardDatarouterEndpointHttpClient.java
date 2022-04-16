@@ -241,8 +241,8 @@ implements DatarouterEndpointHttpClient<ET>{
 		return tryExecute(datarouterHttpRequest, endpoint.pathNode, responseType);
 	}
 
-	@Override // TODO rename
-	public <E> Conditional<E> callUnchecked(BaseEndpoint<E,?> endpoint){
+	@Override
+	public <E> Conditional<E> callAnyType(BaseEndpoint<E,?> endpoint){
 		endpoint.setUrlPrefix(urlPrefix.get());
 		DatarouterHttpRequest datarouterHttpRequest = EndpointTool.toDatarouterHttpRequest(endpoint);
 		EndpointTool.findEntity(endpoint).ifPresent(entity -> setEntityDto(datarouterHttpRequest, entity));
@@ -251,7 +251,7 @@ implements DatarouterEndpointHttpClient<ET>{
 	}
 
 	@Override
-	public <R> R callRaw(BaseEndpoint<R,ET> endpoint) throws DatarouterHttpException{
+	public <R> R callChecked(BaseEndpoint<R,ET> endpoint) throws DatarouterHttpException{
 		initUrlPrefix(endpoint);
 		DatarouterHttpRequest datarouterHttpRequest = EndpointTool.toDatarouterHttpRequest(endpoint);
 		EndpointTool.findEntity(endpoint).ifPresent(entity -> setEntityDto(datarouterHttpRequest, entity));

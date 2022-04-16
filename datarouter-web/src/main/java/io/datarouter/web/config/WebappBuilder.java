@@ -16,7 +16,7 @@
 package io.datarouter.web.config;
 
 /**
- * Implementations of WebappBuilder can be used to easily bootstrap your application and install other plugins.
+ * Implementations of WebappBuilder can be used to bootstrap your application and install other plugins.
  *
  * This is also a marker to find all types of WebappBuilders
  */

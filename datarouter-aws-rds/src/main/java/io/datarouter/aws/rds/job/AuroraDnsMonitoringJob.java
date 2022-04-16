@@ -75,7 +75,7 @@ public class AuroraDnsMonitoringJob extends BaseJob{
 
 	private void sendEmail(List<DnsHostEntryDto> mismatchedReaderEntries, List<PreTag> fixes){
 		String primaryHref = htmlEmailService.startLinkBuilder()
-				.withLocalPath(paths.datarouter.auroraInstances)
+				.withLocalPath(paths.datarouter.auroraInstances.inspectClientUrl)
 				.build();
 		var emailBuilder = htmlEmailService.startEmailBuilder()
 				.withTitle("Aurora DNS")

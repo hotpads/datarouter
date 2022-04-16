@@ -131,16 +131,13 @@ public abstract class BaseRouteSet{
 		return handle(regex + REGEX_ONE_DIRECTORY);
 	}
 
-	protected DispatchRule handleAnySuffix(String suffix){
-		return handle(MATCHING_ANY + suffix);
+	@Deprecated // use handleAnyStringAfterPath
+	protected DispatchRule handleAnyPrefix(PathNode pathNode){
+		return handleAnyStringAfterPath(pathNode);
 	}
 
-	protected DispatchRule handleAnyPrefix(PathNode prefix){
-		return handleAnyPrefix(prefix.toSlashedString());
-	}
-
-	protected DispatchRule handleAnyPrefix(String prefix){
-		return handle(prefix + MATCHING_ANY);
+	protected DispatchRule handleAnyStringAfterPath(PathNode pathNode){
+		return handle(pathNode.toSlashedString() + MATCHING_ANY);
 	}
 
 	protected DispatchRule applyDefault(DispatchRule rule){

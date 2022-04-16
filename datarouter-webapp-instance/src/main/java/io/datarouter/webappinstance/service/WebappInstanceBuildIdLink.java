@@ -17,16 +17,12 @@ package io.datarouter.webappinstance.service;
 
 public interface WebappInstanceBuildIdLink{
 
-	String getLinkPrefix();
-
-	default String getLink(String buildId){
-		return getLinkPrefix() + buildId;
-	}
+	String getLink(String buildId);
 
 	class NoOpWebappInstanceBuilIdLink implements WebappInstanceBuildIdLink{
 
 		@Override
-		public String getLinkPrefix(){
+		public String getLink(String buildId){
 			return "";
 		}
 

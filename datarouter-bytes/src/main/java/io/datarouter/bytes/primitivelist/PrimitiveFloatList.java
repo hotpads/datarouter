@@ -20,6 +20,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.RandomAccess;
 
+import io.datarouter.bytes.EmptyArray;
+
 /**
  * Provides a view over a subset of a primitive float array with List&#60;Float&#62; semantics.
  * List elements can be modified, but the list can't change size.
@@ -27,6 +29,8 @@ import java.util.RandomAccess;
  */
 public class PrimitiveFloatList extends BasePrimitiveList<Float>
 implements RandomAccess{
+
+	private static final PrimitiveFloatList EMPTY = new PrimitiveFloatList(EmptyArray.FLOAT);
 
 	private final float[] array;
 
@@ -43,6 +47,10 @@ implements RandomAccess{
 		super(0, values.size());
 		array = new float[values.size()];
 		initFromCollection(values);
+	}
+
+	public static PrimitiveFloatList empty(){
+		return EMPTY;
 	}
 
 	/*------------ internal --------------*/

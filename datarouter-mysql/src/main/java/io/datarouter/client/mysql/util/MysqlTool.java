@@ -124,8 +124,7 @@ public class MysqlTool{
 		}
 	}
 
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
-	List<D> selectDatabeans(
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> List<D> selectDatabeans(
 			MysqlFieldCodecFactory fieldCodecFactory,
 			Supplier<D> databeanSupplier,
 			List<Field<?>> fields,
@@ -135,6 +134,19 @@ public class MysqlTool{
 			try(var $ = TracerTool.startSpan(spanName, TraceSpanGroupType.DATABASE)){
 				ps.execute();
 			}
+			return getDatabeansFromSelectResult(fieldCodecFactory, databeanSupplier, fields, ps);
+		}catch(Exception e){
+			String message = "error executing sql:" + ps;
+			throw new DataAccessException(message, e);
+		}
+	}
+
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> List<D> getDatabeansFromSelectResult(
+			MysqlFieldCodecFactory fieldCodecFactory,
+			Supplier<D> databeanSupplier,
+			List<Field<?>> fields,
+			PreparedStatement ps){
+		try{
 			ResultSet rs = ps.getResultSet();
 			List<D> databeans = new ArrayList<>();
 			List<MysqlFieldCodec<?>> codecs = fieldCodecFactory.createCodecs(fields);
@@ -144,8 +156,7 @@ public class MysqlTool{
 			}
 			return databeans;
 		}catch(Exception e){
-			String message = "error executing sql:" + ps;
-			throw new DataAccessException(message, e);
+			throw new RuntimeException(e);
 		}
 	}
 

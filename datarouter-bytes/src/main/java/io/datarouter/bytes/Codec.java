@@ -27,6 +27,13 @@ public interface Codec<A,B>{
 	B encode(A value);
 	A decode(B encodedValue);
 
+	/**
+	 * Useful for testing
+	 */
+	default A encodeAndDecode(A value){
+		return decode(encode(value));
+	}
+
 	public static <A,B> Codec<A,B> of(
 			Function<A,B> encodeFunction,
 			Function<B,A> decodeFunction){

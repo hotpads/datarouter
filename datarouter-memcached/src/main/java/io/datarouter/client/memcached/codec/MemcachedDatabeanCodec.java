@@ -39,6 +39,8 @@ public class MemcachedDatabeanCodec<
 		F extends DatabeanFielder<PK,D>>{
 	private static final Logger logger = LoggerFactory.getLogger(MemcachedDatabeanCodec.class);
 
+	public static final String CODEC_VERSION = "1";
+
 	private final String clientTypeName;
 	private final DatabeanFielder<PK,D> fielder;
 	private final Supplier<D> databeanSupplier;
@@ -80,7 +82,7 @@ public class MemcachedDatabeanCodec<
 		return Optional.of(new Pair<>(pathbeanKey.orElseThrow(), value));
 	}
 
-	public Optional<PathbeanKey> encodeKeyIfValid(PrimaryKey<?> pk){
+	public Optional<PathbeanKey> encodeKeyIfValid(PK pk){
 		PathbeanKey pathbeanKey = encodeDatabeanKey(pk);
 		String encodedKey = pathbeanKey.getPathAndFile();
 		if(pathbeanKey.getPathAndFile().length() > maxKeyLength){
@@ -118,7 +120,7 @@ public class MemcachedDatabeanCodec<
 	 * A Base16 (hex) format could be used if sorting becomes necessary, but would use more key space which is
 	 * limited with clients like Memcached.
 	 */
-	private static PathbeanKey encodeDatabeanKey(PrimaryKey<?> pk){
+	private PathbeanKey encodeDatabeanKey(PK pk){
 		byte[] bytes = FieldTool.getConcatenatedValueBytes(pk.getFields());
 		String string = Base64.getUrlEncoder().encodeToString(bytes);
 		return PathbeanKey.of(string);

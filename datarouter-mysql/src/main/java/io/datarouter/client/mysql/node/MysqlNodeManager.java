@@ -42,6 +42,7 @@ import io.datarouter.client.mysql.op.read.index.MysqlManagedIndexGetRangesOp;
 import io.datarouter.client.mysql.op.write.MysqlDeleteAllOp;
 import io.datarouter.client.mysql.op.write.MysqlDeleteByIndexOp;
 import io.datarouter.client.mysql.op.write.MysqlDeleteOp;
+import io.datarouter.client.mysql.op.write.MysqlIncrementOp;
 import io.datarouter.client.mysql.op.write.MysqlPutOp;
 import io.datarouter.client.mysql.op.write.MysqlUniqueIndexDeleteOp;
 import io.datarouter.client.mysql.scan.MysqlDatabeanScanner;
@@ -68,6 +69,9 @@ import io.datarouter.storage.node.type.index.ManagedNode;
 import io.datarouter.storage.node.type.index.ManagedNodesHolder;
 import io.datarouter.storage.serialize.fieldcache.IndexEntryFieldInfo;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
+import io.datarouter.storage.tally.Tally;
+import io.datarouter.storage.tally.Tally.TallyFielder;
+import io.datarouter.storage.tally.TallyKey;
 import io.datarouter.util.tuple.Range;
 
 @Singleton
@@ -523,6 +527,17 @@ public class MysqlNodeManager{
 			F extends DatabeanFielder<PK,D>>
 	List<ManagedNode<PK,D,?,?,?>> getManagedNodes(PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo){
 		return managedNodesHolder.getManagedNodes(fieldInfo);
+	}
+
+	public Long increment(PhysicalDatabeanFieldInfo<TallyKey,Tally,TallyFielder> fieldInfo, String key, Long amount){
+		var op = new MysqlIncrementOp<>(
+				datarouter,
+				fieldInfo,
+				fieldCodecFactory,
+				mysqlSqlFactory,
+				key,
+				amount);
+		return sessionExecutor.runWithoutRetries(op);
 	}
 
 	private static String getTraceName(String nodeName, String opName){

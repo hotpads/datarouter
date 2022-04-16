@@ -55,7 +55,7 @@ public class DatarouterAwsRdsPlugin extends BaseWebPlugin{
 		addPluginEntry(BaseTriggerGroup.KEY, DatarouterAwsRdsTriggerGroup.class);
 		addSettingRoot(DatarouterAwsRdsSettingRoot.class);
 		addDatarouterNavBarItem(DatarouterNavBarCategory.MONITORING,
-				new DatarouterAwsPaths().datarouter.auroraInstances, "Aurora Clients");
+				new DatarouterAwsPaths().datarouter.auroraInstances.inspectClientUrl, "Aurora Clients");
 		addDatarouterGithubDocLink("datarouter-aws-rds");
 	}
 

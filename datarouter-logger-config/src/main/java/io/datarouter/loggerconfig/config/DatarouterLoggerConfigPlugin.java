@@ -18,6 +18,8 @@ package io.datarouter.loggerconfig.config;
 import java.util.List;
 
 import io.datarouter.job.BaseTriggerGroup;
+import io.datarouter.loggerconfig.LoggerLinkBuilder;
+import io.datarouter.loggerconfig.LoggerLinkBuilder.NoOpLoggerLinkBuilder;
 import io.datarouter.loggerconfig.service.LoggerConfigDailyDigest;
 import io.datarouter.loggerconfig.storage.consoleappender.DatarouterConsoleAppenderDao;
 import io.datarouter.loggerconfig.storage.consoleappender.DatarouterConsoleAppenderDao.DatarouterConsoleAppenderDaoParams;
@@ -33,8 +35,12 @@ import io.datarouter.web.navigation.DatarouterNavBarCategory;
 
 public class DatarouterLoggerConfigPlugin extends BaseWebPlugin{
 
+	private final Class<? extends LoggerLinkBuilder> linkBuilder;
+
 	private DatarouterLoggerConfigPlugin(
+			Class<? extends LoggerLinkBuilder> linkBuilder,
 			DatarouterLoggerConfigDaoModule daosModuleBuilder){
+		this.linkBuilder = linkBuilder;
 
 		addRouteSet(DatarouterLoggingConfigRouteSet.class);
 		addSettingRoot(DatarouterLoggerConfigSettingRoot.class);
@@ -46,16 +52,28 @@ public class DatarouterLoggerConfigPlugin extends BaseWebPlugin{
 		addDailyDigest(LoggerConfigDailyDigest.class);
 	}
 
+	@Override
+	protected void configure(){
+		bind(LoggerLinkBuilder.class).to(linkBuilder);
+	}
+
 	public static class DatarouterLoggerConfigPluginBuilder{
 
 		private final List<ClientId> defaultClientId;
+		private Class<? extends LoggerLinkBuilder> linkBuilder = NoOpLoggerLinkBuilder.class;
 
 		public DatarouterLoggerConfigPluginBuilder(List<ClientId> defaultClientId){
 			this.defaultClientId = defaultClientId;
 		}
 
+		public DatarouterLoggerConfigPluginBuilder withLinkBuilder(Class<? extends LoggerLinkBuilder> linkBuilder){
+			this.linkBuilder = linkBuilder;
+			return this;
+		}
+
 		public DatarouterLoggerConfigPlugin build(){
 			return new DatarouterLoggerConfigPlugin(
+					linkBuilder,
 					new DatarouterLoggerConfigDaoModule(defaultClientId, defaultClientId, defaultClientId));
 		}
 

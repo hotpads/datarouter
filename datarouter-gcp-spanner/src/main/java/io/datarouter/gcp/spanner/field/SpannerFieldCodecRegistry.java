@@ -31,11 +31,7 @@ import io.datarouter.gcp.spanner.field.date.SpannerLocalDateTimeFieldCodec;
 import io.datarouter.gcp.spanner.field.date.SpannerLongDateFieldCodec;
 import io.datarouter.gcp.spanner.field.enums.SpannerIntegerEnumFieldCodec;
 import io.datarouter.gcp.spanner.field.enums.SpannerStringEnumFieldCodec;
-import io.datarouter.gcp.spanner.field.list.SpannerByteListFieldCodec;
 import io.datarouter.gcp.spanner.field.list.SpannerDelimitedStringListFieldCodec;
-import io.datarouter.gcp.spanner.field.list.SpannerDoubleListFieldCodec;
-import io.datarouter.gcp.spanner.field.list.SpannerIntListFieldCodec;
-import io.datarouter.gcp.spanner.field.list.SpannerRawLongListFieldCodec;
 import io.datarouter.gcp.spanner.field.primitive.SpannerBooleanFieldCodec;
 import io.datarouter.gcp.spanner.field.primitive.SpannerDoubleFieldCodec;
 import io.datarouter.gcp.spanner.field.primitive.SpannerFloatFieldCodec;
@@ -65,11 +61,7 @@ import io.datarouter.model.field.imp.custom.LocalDateTimeField;
 import io.datarouter.model.field.imp.custom.LongDateField;
 import io.datarouter.model.field.imp.enums.IntegerEnumField;
 import io.datarouter.model.field.imp.enums.StringEnumField;
-import io.datarouter.model.field.imp.list.ByteListField;
 import io.datarouter.model.field.imp.list.DelimitedStringListField;
-import io.datarouter.model.field.imp.list.DoubleListField;
-import io.datarouter.model.field.imp.list.IntListField;
-import io.datarouter.model.field.imp.list.RawLongListField;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.lang.ReflectionTool;
 
@@ -114,10 +106,6 @@ public class SpannerFieldCodecRegistry{
 
 		//list
 		addCodec(DelimitedStringListField.class, SpannerDelimitedStringListFieldCodec.class);
-		addCodec(IntListField.class, SpannerIntListFieldCodec.class);
-		addCodec(DoubleListField.class, SpannerDoubleListFieldCodec.class);
-		addCodec(RawLongListField.class, SpannerRawLongListFieldCodec.class);
-		addCodec(ByteListField.class, SpannerByteListFieldCodec.class);
 	}
 
 	private <F extends Field<?>,C extends SpannerBaseFieldCodec<?,F>> void addCodec(
