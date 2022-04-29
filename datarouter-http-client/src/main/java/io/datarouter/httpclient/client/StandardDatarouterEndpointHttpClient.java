@@ -259,6 +259,17 @@ implements DatarouterEndpointHttpClient<ET>{
 		return executeChecked(datarouterHttpRequest, endpoint.pathNode, responseType);
 	}
 
+	@Override
+	public String toUrl(BaseEndpoint<?,ET> endpoint){
+		endpoint.setUrlPrefix(urlPrefix.get());
+		String finalUrl = URI.create(endpoint.urlPrefix + endpoint.pathNode.toSlashedString()).normalize().toString();
+		Map<String,String> paramMap = EndpointTool.getParamFields(endpoint).getParams;
+		String params = paramMap.entrySet().stream()
+				.map(entry -> entry.getKey() + "=" + entry.getValue())
+				.collect(Collectors.joining("&"));
+		return finalUrl + "?" + params;
+	}
+
 	private void setSecurityProperties(DatarouterHttpRequest request){
 		if(request.getShouldSkipSecurity()){
 			//the only case from below that is relevant without security is populating the entity

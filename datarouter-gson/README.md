@@ -8,7 +8,7 @@ datarouter-gson includes Gson plus some additional functionality used elsewhere 
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-gson</artifactId>
-	<version>0.0.112</version>
+	<version>0.0.113</version>
 </dependency>
 ```
 

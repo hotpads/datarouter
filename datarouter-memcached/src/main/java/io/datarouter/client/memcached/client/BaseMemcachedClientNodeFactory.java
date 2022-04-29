@@ -19,10 +19,8 @@ import javax.inject.Singleton;
 
 import io.datarouter.bytes.ByteUnitType;
 import io.datarouter.client.memcached.codec.MemcachedBlobCodec;
-import io.datarouter.client.memcached.codec.MemcachedDatabeanCodec;
 import io.datarouter.client.memcached.codec.MemcachedTallyCodec;
 import io.datarouter.client.memcached.node.MemcachedBlobNode;
-import io.datarouter.client.memcached.node.MemcachedDatabeanNode;
 import io.datarouter.client.memcached.node.MemcachedTallyNode;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.entity.Entity;
@@ -40,6 +38,8 @@ import io.datarouter.storage.file.Pathbean.PathbeanFielder;
 import io.datarouter.storage.file.PathbeanKey;
 import io.datarouter.storage.file.ReservedBlobPaths;
 import io.datarouter.storage.node.DatabeanNodePrefix;
+import io.datarouter.storage.node.DatabeanToBlobCodec;
+import io.datarouter.storage.node.DatabeanToBlobNode;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.NodeParams.NodeParamsBuilder;
 import io.datarouter.storage.node.adapter.NodeAdapters;
@@ -53,6 +53,10 @@ import io.datarouter.web.config.service.ServiceName;
 @Singleton
 public class BaseMemcachedClientNodeFactory
 implements BlobClientNodeFactory, DatabeanClientNodeFactory, TallyClientNodeFactory{
+
+	private static final int MAX_MEMCACHED_KEY_SIZE = CommonFieldSizes.MEMCACHED_MAX_KEY_LENGTH;
+	//this is a bit fuzzy due to compression
+	private static final int MAX_MEMCACHED_VALUE_SIZE = ByteUnitType.MiB.toBytesInt(2);
 
 	private final ClientType<?,?> memcachedClientType;
 	private final ServiceName serviceName;
@@ -97,7 +101,7 @@ implements BlobClientNodeFactory, DatabeanClientNodeFactory, TallyClientNodeFact
 		var fieldInfo = new PhysicalDatabeanFieldInfo<>(nodeParams);
 		Subpath path = new DatabeanNodePrefix(
 				ReservedBlobPaths.DATABEAN,
-				MemcachedDatabeanCodec.CODEC_VERSION,
+				DatabeanToBlobCodec.CODEC_VERSION,
 				serviceName.get(),
 				"1",//placeholder for client-scoped version
 				nodeParams,
@@ -111,15 +115,15 @@ implements BlobClientNodeFactory, DatabeanClientNodeFactory, TallyClientNodeFact
 				memcachedClientType,
 				new MemcachedBlobCodec(path),
 				memcachedClientManager.getLazyClient(nodeParams.getClientId()));
-		var databeanCodec = new MemcachedDatabeanCodec<PK,D,F>(
+		var databeanCodec = new DatabeanToBlobCodec<PK,D,F>(
 				memcachedClientType.getName(),
 				fieldInfo.getSampleFielder(),
 				fieldInfo.getDatabeanSupplier(),
 				fieldInfo.getFieldByPrefixedName(),
-				CommonFieldSizes.MEMCACHED_MAX_KEY_LENGTH,
-				ByteUnitType.MiB.toBytesInt(2),//this is a bit fuzzy due to compression
-				path.toString().length());
-		var node = new MemcachedDatabeanNode<>(
+				path,
+				MAX_MEMCACHED_KEY_SIZE,
+				MAX_MEMCACHED_VALUE_SIZE);
+		var node = new DatabeanToBlobNode<>(
 				nodeParams,
 				memcachedClientType,
 				blobNode,
@@ -151,7 +155,7 @@ implements BlobClientNodeFactory, DatabeanClientNodeFactory, TallyClientNodeFact
 		var tallyCodec = new MemcachedTallyCodec(
 				memcachedClientType.getName(),
 				path,
-				CommonFieldSizes.MEMCACHED_MAX_KEY_LENGTH);
+				MAX_MEMCACHED_KEY_SIZE);
 		var node = new MemcachedTallyNode<>(
 				nodeParams,
 				memcachedClientType,

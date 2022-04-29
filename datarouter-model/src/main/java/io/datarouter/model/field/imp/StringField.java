@@ -17,6 +17,10 @@ package io.datarouter.model.field.imp;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.datarouter.bytes.codec.stringcodec.StringCodec;
 import io.datarouter.model.field.BaseField;
@@ -26,6 +30,9 @@ import io.datarouter.util.ComparableTool;
 import io.datarouter.util.array.ArrayTool;
 
 public class StringField extends BaseField<String>{
+	private static final Logger logger = LoggerFactory.getLogger(StringField.class);
+
+	private static final AtomicBoolean SIZE_EXCEEDED = new AtomicBoolean(false);
 
 	public static final byte SEPARATOR = 0;
 
@@ -34,11 +41,13 @@ public class StringField extends BaseField<String>{
 	public StringField(StringFieldKey key, String value){
 		super(null, value);
 		this.key = key;
+		validateSize(value);
 	}
 
 	public StringField(String prefix, StringFieldKey key, String value){
 		super(prefix, value);
 		this.key = key;
+		validateSize(value);
 	}
 
 	@Override
@@ -119,6 +128,17 @@ public class StringField extends BaseField<String>{
 
 	public int getSize(){
 		return key.getSize();
+	}
+
+	private String validateSize(String value){
+		if(value != null && value.length() > key.getSize() && !SIZE_EXCEEDED.getAndSet(true)){
+			logger.warn("value length={} exceeds field size={} for column={}",
+					value.length(),
+					key.getSize(),
+					key.getColumnName(),
+					new Exception());
+		}
+		return value;
 	}
 
 }

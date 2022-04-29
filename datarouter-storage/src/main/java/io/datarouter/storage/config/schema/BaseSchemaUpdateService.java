@@ -142,7 +142,7 @@ public abstract class BaseSchemaUpdateService{
 		}
 		if(!oneStartupBlockReason.getString().isEmpty()){
 			logger.error(oneStartupBlockReason.getString());
-			throw new RuntimeException(oneStartupBlockReason.getString());
+			throw new SchemaUpdateBlockException(oneStartupBlockReason.getString());
 		}
 	}
 

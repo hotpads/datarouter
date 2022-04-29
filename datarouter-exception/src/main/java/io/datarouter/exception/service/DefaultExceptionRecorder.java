@@ -26,9 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.exception.config.DatarouterExceptionSettingRoot;
 import io.datarouter.exception.conveyors.DatarouterExceptionBuffers;
-import io.datarouter.exception.storage.exceptionrecord.DatarouterExceptionRecordPublisherDao;
 import io.datarouter.exception.storage.exceptionrecord.ExceptionRecord;
-import io.datarouter.exception.storage.httprecord.DatarouterHttpRequestRecordPublisherDao;
 import io.datarouter.exception.storage.httprecord.HttpRequestRecord;
 import io.datarouter.exception.utils.ExceptionDetailsDetector;
 import io.datarouter.exception.utils.ExceptionDetailsDetector.ExceptionRecorderDetails;
@@ -63,10 +61,6 @@ public class DefaultExceptionRecorder implements ExceptionRecorder{
 	private ExceptionRecordService exceptionRecordService;
 	@Inject
 	private ExceptionDetailsDetector exceptionDetailsDetector;
-	@Inject
-	private DatarouterExceptionRecordPublisherDao exceptionRecordPublisherDao;
-	@Inject
-	private DatarouterHttpRequestRecordPublisherDao httpRequestRecordPublisherDao;
 	@Inject
 	private DatarouterWebSettingRoot datarouterWebSettingRoot;
 	@Inject
@@ -171,7 +165,7 @@ public class DefaultExceptionRecorder implements ExceptionRecorder{
 		logger.warn("Exception recorded ({})", exceptionRecordService.buildExceptionLinkForCurrentServer(
 				exceptionRecord));
 		if(settings.publishRecords.get()){
-			exceptionRecordPublisherDao.put(exceptionRecord);
+			exceptionBuffers.exceptionRecordPublishingBuffer.offer(exceptionRecord);
 		}
 		if(exceptionHandlingConfig.shouldReportError(exceptionRecord.toDto())){
 			report(exceptionRecord, category, additionalEmailRecipients);
@@ -254,7 +248,7 @@ public class DefaultExceptionRecorder implements ExceptionRecorder{
 		exceptionBuffers.httpRequestRecordBuffer.offer(httpRequestRecord);
 		httpRequestRecord.trimBinaryBody(HttpRequestRecordDto.BINARY_BODY_MAX_SIZE);
 		if(publish && settings.publishRecords.get()){
-			httpRequestRecordPublisherDao.put(httpRequestRecord);
+			exceptionBuffers.httpRequestRecordPublishingBuffer.offer(httpRequestRecord);
 		}
 	}
 

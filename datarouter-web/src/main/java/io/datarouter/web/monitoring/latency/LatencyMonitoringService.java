@@ -44,8 +44,6 @@ import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.storage.config.setting.impl.DatarouterClientAvailabilitySwitchThresholdSettingsProvider;
 import io.datarouter.storage.metric.Gauges;
 import io.datarouter.storage.node.DatarouterNodes;
-import io.datarouter.storage.node.op.raw.MapStorage;
-import io.datarouter.storage.node.op.raw.MapStorage.MapStorageNode;
 import io.datarouter.storage.node.op.raw.MapStorage.PhysicalMapStorageNode;
 import io.datarouter.util.StreamTool;
 import io.datarouter.util.duration.DatarouterDuration;
@@ -201,27 +199,19 @@ public class LatencyMonitoringService{
 		return Scanner.of(nodes.getPhysicalNodesForClient(clientId.getName()))
 				.include(node -> node instanceof PhysicalMapStorageNode<?,?,?>)
 				.findFirst()
-				.map(MapStorageNode.class::cast)
 				.map(node -> new DatarouterClientLatencyCheck(
 						LatencyMonitoringService.DATAROUTER_CLIENT_PREFIX
 								+ clientId.getName()
 								+ LatencyMonitoringService.MAP_STORAGE_CHECK_SUFFIX,
-								makeGetCheck(node),
+								makeGetCheck((PhysicalMapStorageNode<?,?,?>)node),
 						clientId));
 	}
 
-	private Runnable makeGetCheck(MapStorageNode<?,?,?> node){
-		PrimaryKey<?> pk = node.getFieldInfo().getPrimaryKeySupplier().get();
+	private <PK extends PrimaryKey<PK>> Runnable makeGetCheck(PhysicalMapStorageNode<PK,?,?> node){
+		PK pk = node.getFieldInfo().getPrimaryKeySupplier().get();
 		pk.getFields()
 				.forEach(field -> field.setUsingReflection(pk, field.getKey().getSampleValue()));
-		return () -> castAndCheckExists(node, pk);
-	}
-
-	@SuppressWarnings("unchecked")
-	private <PK extends PrimaryKey<PK>> boolean castAndCheckExists(MapStorage<?,?> node, PrimaryKey<?> pk){
-		MapStorage<PK,?> castedNode = (MapStorage<PK,?>)node;
-		PK castedPk = (PK)pk;
-		return castedNode.exists(castedPk);
+		return () -> node.exists(pk);
 	}
 
 }

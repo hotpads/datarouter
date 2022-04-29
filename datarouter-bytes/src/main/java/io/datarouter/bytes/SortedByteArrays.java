@@ -97,16 +97,6 @@ public class SortedByteArrays extends ByteArrays{
 		return -(start + 1); // -(1 + val) == insertion point
 	}
 
-	private int compareItem(int index, byte[] target){
-		return Arrays.compareUnsigned(backingArray, getFrom(index), getTo(index), target, 0, target.length);
-	}
-
-	private static int compareItem(ByteArrays arrays1, int index1, ByteArrays arrays2, int index2){
-		return Arrays.compareUnsigned(
-				arrays1.backingArray, arrays1.getFrom(index1), arrays1.getTo(index1),
-				arrays2.backingArray, arrays2.getFrom(index2), arrays2.getTo(index2));
-	}
-
 	/*------------- validate individual arrays ----------------*/
 
 	private static List<byte[]> requireOrderedList(List<byte[]> arrays){

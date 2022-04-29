@@ -36,7 +36,7 @@ import io.datarouter.web.handler.types.Param;
 import io.datarouter.web.handler.types.optional.OptionalString;
 import io.datarouter.web.html.j2html.J2HtmlTable;
 import io.datarouter.web.requirejs.DatarouterWebRequireJsV2;
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.DivTag;
 
 public class JobletExceptionHandler extends BaseHandler{
 
@@ -67,7 +67,7 @@ public class JobletExceptionHandler extends BaseHandler{
 				.buildMav();
 	}
 
-	private ContainerTag<?> makeContent(List<JobletRequest> rows){
+	private DivTag makeContent(List<JobletRequest> rows){
 		var title = h4(TITLE)
 				.withClass("mt-2");
 		var table = new J2HtmlTable<JobletRequest>()

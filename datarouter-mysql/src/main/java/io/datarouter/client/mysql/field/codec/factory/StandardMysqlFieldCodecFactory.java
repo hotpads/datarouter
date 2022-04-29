@@ -24,6 +24,7 @@ import java.util.function.Function;
 
 import io.datarouter.client.mysql.field.MysqlFieldCodec;
 import io.datarouter.client.mysql.field.StringMysqlFieldCodec;
+import io.datarouter.client.mysql.field.codec.StringEncodedMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.array.ByteArrayEncodedMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.array.ByteArrayMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.array.IntArrayMysqlFieldCodec;
@@ -48,6 +49,7 @@ import io.datarouter.client.mysql.field.codec.primitive.SignedByteMysqlFieldCode
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.imp.DateField;
 import io.datarouter.model.field.imp.LocalDateField;
+import io.datarouter.model.field.imp.StringEncodedField;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.array.ByteArrayEncodedField;
 import io.datarouter.model.field.imp.array.ByteArrayField;
@@ -96,6 +98,7 @@ public class StandardMysqlFieldCodecFactory implements MysqlFieldCodecFactory{
 		addCodec(IntegerEncodedField.class, IntegerEncodedMysqlFieldCodec::new);
 		addCodec(LongEncodedField.class, LongEncodedMysqlFieldCodec::new);
 		addCodec(ByteArrayEncodedField.class, ByteArrayEncodedMysqlFieldCodec::new);
+		addCodec(StringEncodedField.class, StringEncodedMysqlFieldCodec::new);
 
 		//time
 		addCodec(DateField.class, DateMysqlFieldCodec::new);

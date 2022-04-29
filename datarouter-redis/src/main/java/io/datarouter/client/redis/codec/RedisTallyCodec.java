@@ -24,6 +24,8 @@ import io.lettuce.core.KeyValue;
 
 public class RedisTallyCodec{
 
+	public static final String TALLY_CODEC_VERSION = "1";
+
 	private final byte[] pathBytes;
 
 	public RedisTallyCodec(Subpath path){

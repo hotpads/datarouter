@@ -30,6 +30,8 @@ public interface DatarouterEndpointHttpClient<ET extends EndpointType>{
 	<R> Conditional<R> callAnyType(BaseEndpoint<R,?> endpoint);
 	<R> R callChecked(BaseEndpoint<R,ET> endpoint) throws DatarouterHttpException;
 
+	String toUrl(BaseEndpoint<?,ET> endpoint);
+
 	void shutdown();
 
 	PoolStats getPoolStats();

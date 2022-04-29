@@ -27,7 +27,7 @@ import org.testng.Assert;
 import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
-import io.datarouter.ratelimiter.CacheRateLimiterConfig.CacheRateLimiterConfigBuilder;
+import io.datarouter.ratelimiter.DatarouterRateLimiterConfig.DatarouterRateLimiterConfigBuilder;
 import io.datarouter.ratelimiter.storage.BaseTallyDao;
 import io.datarouter.util.time.ZoneIds;
 
@@ -54,14 +54,14 @@ public class BaseMapRateLimiterIntegrationTests{
 				"2010-03-04T16:30:49.030Z");
 	}
 
-	private BaseCacheRateLimiter makeTestRateLimiter(TimeUnit unit){
-		var config = new CacheRateLimiterConfigBuilder("MapRateLimiterIntegrationTests")
+	private DatarouterRateLimiter makeTestRateLimiter(TimeUnit unit){
+		var config = new DatarouterRateLimiterConfigBuilder("MapRateLimiterIntegrationTests")
 				.setMaxAverageRequests(0L)
 				.setMaxSpikeRequests(0L)
 				.setNumIntervals(0)
 				.setBucketTimeInterval(5, unit)
 				.build();
-		return new BaseTallyCacheRateLimiter(tallyDao, config);
+		return new DatarouterRateLimiter(tallyDao, config);
 	}
 
 }

@@ -37,6 +37,10 @@ public class GsonTool{
 			.registerTypeAdapterFactory(new OptionalLegacyTypeAdapterFactory())
 			.create();
 
+	public static final Gson JAVA9_GSON_PRETTY_PRINT = JAVA9_GSON.newBuilder()
+			.setPrettyPrinting()
+			.create();
+
 	/**
 	 * @deprecated use {@link #JAVA9_GSON}
 	 */
@@ -45,6 +49,10 @@ public class GsonTool{
 			.registerTypeAdapter(Date.class, new CompatibleDateTypeAdapter())
 			.create();
 
+	/**
+	 * @deprecated use {@link #JAVA9_GSON_PRETTY_PRINT}
+	 */
+	@Deprecated
 	public static final Gson GSON_PRETTY_PRINT = GSON.newBuilder()
 			.setPrettyPrinting()
 			.create();

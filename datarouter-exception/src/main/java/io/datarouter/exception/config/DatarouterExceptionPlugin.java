@@ -18,10 +18,13 @@ package io.datarouter.exception.config;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.datarouter.exception.conveyors.ExceptionQueueConveyors;
+import io.datarouter.exception.conveyors.ExceptionConveyors;
 import io.datarouter.exception.filter.GuiceExceptionHandlingFilter;
+import io.datarouter.exception.service.DatarouterExceptionBlobService;
 import io.datarouter.exception.service.DefaultExceptionHandlingConfig;
 import io.datarouter.exception.service.DefaultExceptionRecorder;
+import io.datarouter.exception.service.ExceptionBlobPublishingSettings;
+import io.datarouter.exception.service.ExceptionBlobPublishingSettings.NoOpExceptionBlobPublishingSettings;
 import io.datarouter.exception.service.ExceptionGraphLink;
 import io.datarouter.exception.service.ExceptionGraphLink.NoOpExceptionGraphLink;
 import io.datarouter.exception.service.ExceptionIssueLinkPrefixSupplier;
@@ -32,18 +35,22 @@ import io.datarouter.exception.service.ExemptDailyDigestExceptions;
 import io.datarouter.exception.service.ExemptDailyDigestExceptions.NoOpExemptDailyDigestExceptions;
 import io.datarouter.exception.storage.exceptionrecord.DatarouterExceptionRecordDao;
 import io.datarouter.exception.storage.exceptionrecord.DatarouterExceptionRecordDao.DatarouterExceptionRecordDaoParams;
-import io.datarouter.exception.storage.exceptionrecord.DatarouterExceptionRecordPublisherDao;
-import io.datarouter.exception.storage.exceptionrecord.DatarouterExceptionRecordPublisherDao.DatarouterExceptionPublisherRouterParams;
+import io.datarouter.exception.storage.exceptionrecord.ExceptionRecordBlobDirectorySupplier;
+import io.datarouter.exception.storage.exceptionrecord.ExceptionRecordBlobDirectorySupplier.NoOpExceptionRecordBlobDirectorySupplier;
+import io.datarouter.exception.storage.exceptionrecord.ExceptionRecordBlobQueueDao;
+import io.datarouter.exception.storage.exceptionrecord.ExceptionRecordBlobQueueDao.ExceptionRecordBlobQueueDaoParams;
+import io.datarouter.exception.storage.exceptionrecord.HttpRequestRecordBlobDirectorySupplier;
+import io.datarouter.exception.storage.exceptionrecord.HttpRequestRecordBlobDirectorySupplier.NoOpHttpRequestRecordBlobDirectorySupplier;
 import io.datarouter.exception.storage.httprecord.DatarouterHttpRequestRecordDao;
 import io.datarouter.exception.storage.httprecord.DatarouterHttpRequestRecordDao.DatarouterHttpRequestRecordDaoParams;
-import io.datarouter.exception.storage.httprecord.DatarouterHttpRequestRecordPublisherDao;
-import io.datarouter.exception.storage.httprecord.DatarouterHttpRequestRecordPublisherDao.DatarouterHttpRequestRecordPublisherDaoParams;
+import io.datarouter.exception.storage.httprecord.HttpRequestRecordBlobQueueDao;
+import io.datarouter.exception.storage.httprecord.HttpRequestRecordBlobQueueDao.HttpRequestRecordBlobQueueDaoParams;
 import io.datarouter.exception.storage.metadata.DatarouterExceptionRecordSummaryMetadataDao;
 import io.datarouter.exception.storage.metadata.DatarouterExceptionRecordSummaryMetadataDao.DatarouterExceptionRecordSummaryMetadataDaoParams;
 import io.datarouter.exception.storage.summary.DatarouterExceptionRecordSummaryDao;
 import io.datarouter.exception.storage.summary.DatarouterExceptionRecordSummaryDao.DatarouterExceptionRecordSummaryDaoParams;
-import io.datarouter.instrumentation.exception.ExceptionRecordPublisher;
-import io.datarouter.instrumentation.exception.ExceptionRecordPublisher.NoOpExceptionRecordPublisher;
+import io.datarouter.instrumentation.exception.DatarouterExceptionPublisher;
+import io.datarouter.instrumentation.exception.DatarouterExceptionPublisher.NoOpDatarouterExceptionPublisher;
 import io.datarouter.job.BaseTriggerGroup;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.Dao;
@@ -62,7 +69,10 @@ public class DatarouterExceptionPlugin extends BaseWebPlugin{
 	private final Class<? extends ExceptionGraphLink> exceptionGraphLinkClass;
 	private final Class<? extends ExceptionRecorder> exceptionRecorderClass;
 	private final Class<? extends ExceptionHandlingConfig> exceptionHandlingConfigClass;
-	private final Class<? extends ExceptionRecordPublisher> exceptionRecordPublisher;
+	private final Class<? extends DatarouterExceptionPublisher> exceptionRecordPublisher;
+	private final Class<? extends ExceptionRecordBlobDirectorySupplier> exceptionRecordBlobDirectorySupplier;
+	private final Class<? extends HttpRequestRecordBlobDirectorySupplier> httpRequestRecordBlobDirectorySupplier;
+	private final Class<? extends ExceptionBlobPublishingSettings> exceptionBlobPublishingSettings;
 	private final Class<? extends ExemptDailyDigestExceptions> exemptDailyDigestExceptions;
 	private final String issueLinkPrefix;
 
@@ -70,13 +80,19 @@ public class DatarouterExceptionPlugin extends BaseWebPlugin{
 			Class<? extends ExceptionGraphLink> exceptionGraphLinkClass,
 			Class<? extends ExceptionRecorder> exceptionRecorderClass,
 			Class<? extends ExceptionHandlingConfig> exceptionHandlingConfigClass,
-			Class<? extends ExceptionRecordPublisher> exceptionRecordPublisher,
+			Class<? extends DatarouterExceptionPublisher> exceptionRecordPublisher,
+			Class<? extends ExceptionRecordBlobDirectorySupplier> exceptionRecordBlobDirectorySupplier,
+			Class<? extends HttpRequestRecordBlobDirectorySupplier> httpRequestRecordBlobDirectorySupplier,
+			Class<? extends ExceptionBlobPublishingSettings> exceptionBlobPublishingSettings,
 			Class<? extends ExemptDailyDigestExceptions> exemptDailyDigestExceptions,
 			String issueLinkPrefix){
 		this.exceptionGraphLinkClass = exceptionGraphLinkClass;
 		this.exceptionRecorderClass = exceptionRecorderClass;
 		this.exceptionHandlingConfigClass = exceptionHandlingConfigClass;
 		this.exceptionRecordPublisher = exceptionRecordPublisher;
+		this.exceptionRecordBlobDirectorySupplier = exceptionRecordBlobDirectorySupplier;
+		this.httpRequestRecordBlobDirectorySupplier = httpRequestRecordBlobDirectorySupplier;
+		this.exceptionBlobPublishingSettings = exceptionBlobPublishingSettings;
 		this.exemptDailyDigestExceptions = exemptDailyDigestExceptions;
 		this.issueLinkPrefix = issueLinkPrefix;
 		addFilterParamsOrdered(
@@ -95,8 +111,8 @@ public class DatarouterExceptionPlugin extends BaseWebPlugin{
 				new DatarouterExceptionPaths().datarouter.exception.browse,
 				"Exceptions");
 		addDatarouterGithubDocLink("datarouter-exception");
-		if(!exceptionRecordPublisher.isInstance(NoOpExceptionRecordPublisher.class)){
-			addAppListener(ExceptionQueueConveyors.class);
+		if(!exceptionRecordPublisher.isInstance(NoOpDatarouterExceptionPublisher.class)){
+			addAppListener(ExceptionConveyors.class);
 		}
 		addDailyDigest(ExceptionRecordAggregationDailyDigest.class);
 	}
@@ -106,7 +122,10 @@ public class DatarouterExceptionPlugin extends BaseWebPlugin{
 		bindDefault(ExceptionGraphLink.class, exceptionGraphLinkClass);
 		bindActual(ExceptionRecorder.class, exceptionRecorderClass);
 		bindActual(ExceptionHandlingConfig.class, exceptionHandlingConfigClass);
-		bind(ExceptionRecordPublisher.class).to(exceptionRecordPublisher);
+		bind(DatarouterExceptionPublisher.class).to(exceptionRecordPublisher);
+		bind(ExceptionRecordBlobDirectorySupplier.class).to(exceptionRecordBlobDirectorySupplier);
+		bind(HttpRequestRecordBlobDirectorySupplier.class).to(httpRequestRecordBlobDirectorySupplier);
+		bind(ExceptionBlobPublishingSettings.class).to(exceptionBlobPublishingSettings);
 		bind(ExemptDailyDigestExceptions.class).to(exemptDailyDigestExceptions);
 		if(issueLinkPrefix == null){
 			bind(ExceptionIssueLinkPrefixSupplier.class).to(NoOpExceptionIssueLinkPrefixSupplier.class);
@@ -118,13 +137,20 @@ public class DatarouterExceptionPlugin extends BaseWebPlugin{
 	public static class DatarouterExceptionPluginBuilder{
 
 		private final List<ClientId> defaultClientIds;
+		private List<ClientId> blobQueueClientIds;
 
-		private List<ClientId> defaultQueueClientId;
 		private Class<? extends ExceptionGraphLink> exceptionGraphLinkClass = NoOpExceptionGraphLink.class;
 		private Class<? extends ExceptionRecorder> exceptionRecorderClass = DefaultExceptionRecorder.class;
 		private Class<? extends ExceptionHandlingConfig> exceptionHandlingConfigClass
 				= DefaultExceptionHandlingConfig.class;
-		private Class<? extends ExceptionRecordPublisher> exceptionRecordPublisher = NoOpExceptionRecordPublisher.class;
+		private Class<? extends DatarouterExceptionPublisher> exceptionRecordPublisher
+				= NoOpDatarouterExceptionPublisher.class;
+		private Class<? extends ExceptionRecordBlobDirectorySupplier> exceptionRecordBlobDirectorySupplier
+				= NoOpExceptionRecordBlobDirectorySupplier.class;
+		private Class<? extends HttpRequestRecordBlobDirectorySupplier> httpRequestRecordBlobDirectorySupplier
+				= NoOpHttpRequestRecordBlobDirectorySupplier.class;
+		private Class<? extends ExceptionBlobPublishingSettings> exceptionBlobPublishingSettings
+				= NoOpExceptionBlobPublishingSettings.class;
 		private Class<? extends ExemptDailyDigestExceptions> exemptDailyDigestExceptions
 				= NoOpExemptDailyDigestExceptions.class;
 		private String issueLinkPrefix;
@@ -158,10 +184,15 @@ public class DatarouterExceptionPlugin extends BaseWebPlugin{
 		}
 
 		public DatarouterExceptionPluginBuilder enablePublishing(
-				Class<? extends ExceptionRecordPublisher> exceptionRecordPublisher,
-				List<ClientId> defaultQueueClientId){
-			this.exceptionRecordPublisher = exceptionRecordPublisher;
-			this.defaultQueueClientId = defaultQueueClientId;
+				List<ClientId> blobQueueClientIds,
+				Class<? extends ExceptionRecordBlobDirectorySupplier> exceptionRecordBlobDirectorySupplier,
+				Class<? extends HttpRequestRecordBlobDirectorySupplier> httpRequestRecordBlobDirectorySupplier,
+				Class<? extends ExceptionBlobPublishingSettings> exceptionBlobPublishingSettings){
+			this.exceptionRecordPublisher = DatarouterExceptionBlobService.class;
+			this.blobQueueClientIds = blobQueueClientIds;
+			this.exceptionRecordBlobDirectorySupplier = exceptionRecordBlobDirectorySupplier;
+			this.httpRequestRecordBlobDirectorySupplier = httpRequestRecordBlobDirectorySupplier;
+			this.exceptionBlobPublishingSettings = exceptionBlobPublishingSettings;
 			return this;
 		}
 
@@ -172,11 +203,14 @@ public class DatarouterExceptionPlugin extends BaseWebPlugin{
 
 		public DatarouterExceptionPlugin build(){
 			return new DatarouterExceptionPlugin(
-					new DatarouterExceptionDaoModule(defaultClientIds, defaultQueueClientId),
+					new DatarouterExceptionDaoModule(defaultClientIds, blobQueueClientIds),
 					exceptionGraphLinkClass,
 					exceptionRecorderClass,
 					exceptionHandlingConfigClass,
 					exceptionRecordPublisher,
+					exceptionRecordBlobDirectorySupplier,
+					httpRequestRecordBlobDirectorySupplier,
+					exceptionBlobPublishingSettings,
 					exemptDailyDigestExceptions,
 					issueLinkPrefix);
 		}
@@ -190,12 +224,10 @@ public class DatarouterExceptionPlugin extends BaseWebPlugin{
 		private final List<ClientId> datarouterExceptionRecordSummaryMetadataClientId;
 		private final List<ClientId> datarouterHttpRequestRecordClientId;
 
-		private final List<ClientId> datarouterExceptionRecordPublisherClientId;
-		private final List<ClientId> datarouterHttpRequestRecordPublisherClientId;
+		private final List<ClientId> blobQueueClientIds;
 
-		public DatarouterExceptionDaoModule(List<ClientId> defaultClientIds, List<ClientId> queueClientId){
-			this(defaultClientIds, defaultClientIds, defaultClientIds, defaultClientIds,
-					queueClientId, queueClientId);
+		public DatarouterExceptionDaoModule(List<ClientId> defaultClientIds, List<ClientId> blobQueueClientIds){
+			this(defaultClientIds, defaultClientIds, defaultClientIds, defaultClientIds, blobQueueClientIds);
 		}
 
 		public DatarouterExceptionDaoModule(
@@ -203,15 +235,13 @@ public class DatarouterExceptionPlugin extends BaseWebPlugin{
 				List<ClientId> datarouterExceptionRecordSummaryClientId,
 				List<ClientId> datarouterExceptionRecordSummaryMetadataClientId,
 				List<ClientId> datarouterHttpRequestRecordClientId,
-				List<ClientId> datarouterExceptionRecordPublisherClientId,
-				List<ClientId> datarouterHttpRequestRecordPublisherClientId){
+				List<ClientId> blobQueueClientIds){
 			this.datarouterExceptionRecordClientId = datarouterExceptionRecordClientId;
 			this.datarouterExceptionRecordSummaryClientId = datarouterExceptionRecordSummaryClientId;
 			this.datarouterExceptionRecordSummaryMetadataClientId = datarouterExceptionRecordSummaryMetadataClientId;
 			this.datarouterHttpRequestRecordClientId = datarouterHttpRequestRecordClientId;
 
-			this.datarouterExceptionRecordPublisherClientId = datarouterExceptionRecordPublisherClientId;
-			this.datarouterHttpRequestRecordPublisherClientId = datarouterHttpRequestRecordPublisherClientId;
+			this.blobQueueClientIds = blobQueueClientIds;
 		}
 
 		@Override
@@ -221,11 +251,9 @@ public class DatarouterExceptionPlugin extends BaseWebPlugin{
 			daos.add(DatarouterExceptionRecordSummaryDao.class);
 			daos.add(DatarouterExceptionRecordSummaryMetadataDao.class);
 			daos.add(DatarouterHttpRequestRecordDao.class);
-			if(datarouterExceptionRecordPublisherClientId != null){
-				daos.add(DatarouterExceptionRecordPublisherDao.class);
-			}
-			if(datarouterHttpRequestRecordPublisherClientId != null){
-				daos.add(DatarouterHttpRequestRecordPublisherDao.class);
+			if(blobQueueClientIds != null){
+				daos.add(ExceptionRecordBlobQueueDao.class);
+				daos.add(HttpRequestRecordBlobQueueDao.class);
 			}
 			return daos;
 		}
@@ -243,15 +271,11 @@ public class DatarouterExceptionPlugin extends BaseWebPlugin{
 					.toInstance(new DatarouterExceptionRecordSummaryMetadataDaoParams(
 							datarouterExceptionRecordSummaryMetadataClientId));
 
-			if(datarouterExceptionRecordPublisherClientId != null){
-				bind(DatarouterExceptionPublisherRouterParams.class)
-						.toInstance(new DatarouterExceptionPublisherRouterParams(
-								datarouterExceptionRecordPublisherClientId));
-			}
-			if(datarouterHttpRequestRecordPublisherClientId != null){
-				bind(DatarouterHttpRequestRecordPublisherDaoParams.class)
-						.toInstance(new DatarouterHttpRequestRecordPublisherDaoParams(
-								datarouterHttpRequestRecordPublisherClientId));
+			if(blobQueueClientIds != null){
+				bind(ExceptionRecordBlobQueueDaoParams.class)
+						.toInstance(new ExceptionRecordBlobQueueDaoParams(blobQueueClientIds));
+				bind(HttpRequestRecordBlobQueueDaoParams.class)
+						.toInstance(new HttpRequestRecordBlobQueueDaoParams(blobQueueClientIds));
 			}
 		}
 

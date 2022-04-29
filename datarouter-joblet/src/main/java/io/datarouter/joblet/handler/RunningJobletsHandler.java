@@ -37,7 +37,7 @@ import io.datarouter.web.handler.mav.imp.InContextRedirectMav;
 import io.datarouter.web.handler.types.Param;
 import io.datarouter.web.html.j2html.J2HtmlTable;
 import io.datarouter.web.requirejs.DatarouterWebRequireJsV2;
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.DivTag;
 
 public class RunningJobletsHandler extends BaseHandler{
 
@@ -71,7 +71,7 @@ public class RunningJobletsHandler extends BaseHandler{
 		return new InContextRedirectMav(request, paths.datarouter.joblets.running);
 	}
 
-	private ContainerTag<?> makeContent(List<RunningJoblet> rows){
+	private DivTag makeContent(List<RunningJoblet> rows){
 		var title = h4(TITLE)
 				.withClass("mt-2");
 		var table = new J2HtmlTable<RunningJoblet>()

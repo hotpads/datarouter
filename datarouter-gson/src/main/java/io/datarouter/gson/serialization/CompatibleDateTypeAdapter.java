@@ -33,6 +33,7 @@ import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 
 import io.datarouter.instrumentation.count.Counters;
+import io.datarouter.instrumentation.trace.Traceparent;
 import io.datarouter.instrumentation.trace.TracerTool;
 
 // only here for java 9 migration
@@ -93,7 +94,7 @@ public class CompatibleDateTypeAdapter extends TypeAdapter<Date>{
 			shouldLog = false;
 			TracerTool.setForceSample();
 			String traceId = TracerTool.getCurrentTraceparent()
-					.map(traceparent -> traceparent.traceId)
+					.map(Traceparent::toString)
 					.orElse("");
 			logger.warn(traceId, new Exception());
 		}

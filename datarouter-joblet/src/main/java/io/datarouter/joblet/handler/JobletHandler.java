@@ -43,8 +43,9 @@ import io.datarouter.web.handler.types.Param;
 import io.datarouter.web.handler.types.optional.OptionalString;
 import io.datarouter.web.html.j2html.J2HtmlTable;
 import io.datarouter.web.requirejs.DatarouterWebRequireJsV2;
-import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.TdTag;
 
 public class JobletHandler extends BaseHandler{
 
@@ -89,7 +90,7 @@ public class JobletHandler extends BaseHandler{
 				.buildMav();
 	}
 
-	private ContainerTag<?> makeContent(Collection<JobletSummary> rows){
+	private DivTag makeContent(Collection<JobletSummary> rows){
 		String contextPath = request.getContextPath();
 		var title = h4(TITLE)
 				.withClass("mt-2");
@@ -143,11 +144,11 @@ public class JobletHandler extends BaseHandler{
 				.withClass("container-fluid");
 	}
 
-	private ContainerTag<?> tdAlignRight(String text){
+	private TdTag tdAlignRight(String text){
 		return tdAlignRight(text(text));
 	}
 
-	private ContainerTag<?> tdAlignRight(DomContent content){
+	private TdTag tdAlignRight(DomContent content){
 		return td(content)
 				.withStyle("text-align:right");
 	}

@@ -153,13 +153,13 @@ public class AuroraDnsService{
 				}
 				//check if a reader is already pointing to same instance
 				if(ipSet.contains(readerEntry.ip)){
-					readerEntry.setReaderPointedToReaderFlag();
+					readerEntry.setReaderPointedToWrongReaderFlag();
 					mismatchedEntries.add(readerEntry);
 				}
 				//check if reader entry is pointed to an other instance
 				if(otherEntry != null){
 					if(otherEntry.ip != null && readerEntry.ip.equals(otherEntry.ip)){
-						readerEntry.setReaderPointedToOtherFlag();
+						readerEntry.setReaderPointedToWrongReaderFlag();
 						mismatchedEntries.add(readerEntry);
 					}
 				}
@@ -184,8 +184,7 @@ public class AuroraDnsService{
 		private final String clusterName;
 		private boolean isAuroraInstance = false;
 		private boolean readerPointedToWriter = false;
-		private boolean readerPointedToOther = false;
-		private boolean readerPointerdToReader = false;
+		private boolean readerPointerdToWrongReader = false;
 		private boolean writerNotPointedToClusterEndpoint = false;
 
 		public final boolean reader;
@@ -235,8 +234,8 @@ public class AuroraDnsService{
 			return readerPointedToWriter;
 		}
 
-		public boolean isReaderPointedToOther(){
-			return readerPointedToOther;
+		public boolean isReaderPointedToWrongReader(){
+			return readerPointerdToWrongReader;
 		}
 
 		public boolean isAuroraInstance(){
@@ -251,16 +250,12 @@ public class AuroraDnsService{
 			this.readerPointedToWriter = true;
 		}
 
-		public void setReaderPointedToOtherFlag(){
-			this.readerPointedToOther = true;
-		}
-
 		public void setWriterPointedToInstanceFlag(){
 			this.writerNotPointedToClusterEndpoint = true;
 		}
 
-		public void setReaderPointedToReaderFlag(){
-			this.readerPointerdToReader = true;
+		public void setReaderPointedToWrongReaderFlag(){
+			this.readerPointerdToWrongReader = true;
 		}
 
 

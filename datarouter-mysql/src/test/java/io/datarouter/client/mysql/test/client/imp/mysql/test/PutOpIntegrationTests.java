@@ -32,6 +32,7 @@ import io.datarouter.client.mysql.test.client.insert.DatarouterPutOpTestDao;
 import io.datarouter.client.mysql.test.client.insert.PutOpTestBean;
 import io.datarouter.client.mysql.test.client.insert.PutOpTestBeanKey;
 import io.datarouter.model.databean.Databean;
+import io.datarouter.model.exception.DataAccessException;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.config.Config;
@@ -168,6 +169,22 @@ public class PutOpIntegrationTests{
 		}
 		dao.putMulti(databeans, config);
 		Assert.assertEquals(Scanner.of(databeans).map(Databean::getKey).listTo(dao::getMulti).size(), totalCount);
+	}
+
+
+	//Assert mysql is rejecting fields longer than the field size
+	@Test
+	public void testFieldSize(){
+		int maxSize = PutOpTestBeanKey.FieldKeys.first.getSize();
+		var sb = new StringBuilder();
+		for(int i = 0; i < maxSize; ++i){
+			sb.append("0");
+		}
+		sb.append("excess");//extra chars
+		String first = sb.toString();
+		Assert.assertTrue(first.length() > maxSize);
+		var bean = new PutOpTestBean(first, "bar", "baz");
+		Assert.assertThrows(DataAccessException.class, () -> dao.put(bean, new Config()));
 	}
 
 	private static final String randomString(){

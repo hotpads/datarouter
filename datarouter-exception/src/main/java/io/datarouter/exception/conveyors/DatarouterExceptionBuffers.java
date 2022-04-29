@@ -26,12 +26,18 @@ public class DatarouterExceptionBuffers{
 
 	private static final int MAX_SIZE = 10_000;
 
+	//for persisting locally
 	public final MemoryBuffer<ExceptionRecord> exceptionRecordBuffer;
 	public final MemoryBuffer<HttpRequestRecord> httpRequestRecordBuffer;
+	//for publishing
+	public final MemoryBuffer<ExceptionRecord> exceptionRecordPublishingBuffer;
+	public final MemoryBuffer<HttpRequestRecord> httpRequestRecordPublishingBuffer;
 
 	public DatarouterExceptionBuffers(){
 		this.exceptionRecordBuffer = new MemoryBuffer<>("exceptionRecord", MAX_SIZE);
 		this.httpRequestRecordBuffer = new MemoryBuffer<>("httpRequestRecord", MAX_SIZE);
+		this.exceptionRecordPublishingBuffer = new MemoryBuffer<>("exceptionRecordPublishing", MAX_SIZE);
+		this.httpRequestRecordPublishingBuffer = new MemoryBuffer<>("httpRequestRecordPublishing", MAX_SIZE);
 	}
 
 }

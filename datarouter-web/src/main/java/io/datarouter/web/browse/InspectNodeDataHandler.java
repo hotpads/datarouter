@@ -128,7 +128,7 @@ public abstract class InspectNodeDataHandler extends BaseHandler{
 		D first = databeans.stream().findFirst().orElse(null);
 		List<String> fieldNames = Scanner.of(fielder.getFields(first))
 				.map(Field::getKey)
-				.map(FieldKey::getName)
+				.map(FieldKey::getColumnName)
 				.list();
 		List<Integer> maxLengths = new ArrayList<>();
 		IntStream.range(0, fieldNames.size()).forEach($ -> maxLengths.add(0));

@@ -15,6 +15,8 @@
  */
 package io.datarouter.model.util;
 
+import io.datarouter.bytes.ByteUnitType;
+
 public class CommonFieldSizes{
 
 	/*----------- memcached -----------*/
@@ -40,5 +42,14 @@ public class CommonFieldSizes{
 	/*----------- spanner -----------*/
 
 	public static final int MAX_CHARACTERS_SPANNER = 2_621_440;
+
+	/*----------- sqs -----------*/
+
+	public static final int MAX_SQS_SIZE = ByteUnitType.KiB.toBytesInt(256);
+
+	/*------------ misc -----------*/
+
+	// rounded up from Kubernetes normal pod limit of 63
+	public static final int MAX_SERVER_NAME_LENGTH = 64;
 
 }

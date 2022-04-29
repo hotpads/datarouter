@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright © 2009 HotPads (admin@hotpads.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,7 @@
 package io.datarouter.storage.node.adapter.sanitization.mixin;
 
 import java.util.Collection;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.adapter.sanitization.sanitizer.PrimaryKeySanitizer;
 import io.datarouter.storage.node.op.raw.MapStorage;
@@ -37,43 +38,22 @@ public interface MapStorageSanitizationAdapterMixin<
 extends MapStorage<PK,D>, MapStorageReaderSanitizationAdapterMixin<PK,D,F,N>{
 	static final Logger logger = LoggerFactory.getLogger(MapStorageSanitizationAdapterMixin.class);
 
-	static final AtomicBoolean NULL_PUT_DATABEAN = new AtomicBoolean(false);
-	static final AtomicBoolean NULL_PUT_CONFIG = new AtomicBoolean(false);
-
-	static final AtomicBoolean NULL_PUT_MULTI_DATABEANS = new AtomicBoolean(false);
-	static final AtomicBoolean NULL_PUT_MULTI_CONFIG = new AtomicBoolean(false);
-
-	static final AtomicBoolean NULL_DELETE_PK = new AtomicBoolean(false);
-	static final AtomicBoolean NULL_DELETE_CONFIG = new AtomicBoolean(false);
-
-	static final AtomicBoolean NULL_DELETE_MULTI_PKS = new AtomicBoolean(false);
-	static final AtomicBoolean NULL_DELETE_MULTI_CONFIG = new AtomicBoolean(false);
-
-	static final AtomicBoolean NULL_DELETE_ALL_CONFIG = new AtomicBoolean(false);
-
 	@Override
 	default void put(D databean, Config config){
-		if(databean == null && !NULL_PUT_DATABEAN.getAndSet(true)){
-			logger.warn("NULL_PUT_DATABEAN", new Exception());
-		}
-		if(config == null && !NULL_PUT_CONFIG.getAndSet(true)){
-			logger.warn("NULL_PUT_CONFIG", new Exception());
-		}
-		if(databean != null){
-			PrimaryKeySanitizer.checkForNullPrimaryKeyValues(databean.getKey());
-		}
+		Objects.requireNonNull(databean);
+		Objects.requireNonNull(config);
+		PrimaryKeySanitizer.checkForNullPrimaryKeyValues(databean.getKey());
 		getBackingNode().put(databean, config);
 	}
 
 	@Override
 	default void putMulti(Collection<D> databeans, Config config){
-		if(databeans == null && !NULL_PUT_MULTI_DATABEANS.getAndSet(true)){
-			logger.warn("NULL_PUT_MULTI_DATABEANS", new Exception());
+		Objects.requireNonNull(databeans);
+		Objects.requireNonNull(config);
+		if(databeans.isEmpty()){
+			return;
 		}
-		if(config == null && !NULL_PUT_MULTI_CONFIG.getAndSet(true)){
-			logger.warn("NULL_PUT_MULTI_CONFIG", new Exception());
-		}
-		databeans.stream()
+		Scanner.of(databeans)
 				.map(D::getKey)
 				.forEach(PrimaryKeySanitizer::checkForNullPrimaryKeyValues);
 		getBackingNode().putMulti(databeans, config);
@@ -81,31 +61,24 @@ extends MapStorage<PK,D>, MapStorageReaderSanitizationAdapterMixin<PK,D,F,N>{
 
 	@Override
 	default void delete(PK key, Config config){
-		if(key == null && !NULL_DELETE_PK.getAndSet(true)){
-			logger.warn("NULL_DELETE_PK", new Exception());
-		}
-		if(config == null && !NULL_DELETE_CONFIG.getAndSet(true)){
-			logger.warn("NULL_DELETE_CONFIG", new Exception());
-		}
+		Objects.requireNonNull(key);
+		Objects.requireNonNull(config);
 		getBackingNode().delete(key, config);
 	}
 
 	@Override
 	default void deleteMulti(Collection<PK> keys, Config config){
-		if(keys == null && !NULL_DELETE_MULTI_PKS.getAndSet(true)){
-			logger.warn("NULL_DELETE_MULTI_PKS", new Exception());
-		}
-		if(config == null && !NULL_DELETE_MULTI_CONFIG.getAndSet(true)){
-			logger.warn("NULL_DELETE_MULTI_CONFIG", new Exception());
+		Objects.requireNonNull(keys);
+		Objects.requireNonNull(config);
+		if(keys.isEmpty()){
+			return;
 		}
 		getBackingNode().deleteMulti(keys, config);
 	}
 
 	@Override
 	default void deleteAll(Config config){
-		if(config == null && !NULL_DELETE_ALL_CONFIG.getAndSet(true)){
-			logger.warn("NULL_DELETE_ALL_CONFIG", new Exception());
-		}
+		Objects.requireNonNull(config);
 		getBackingNode().deleteAll(config);
 	}
 

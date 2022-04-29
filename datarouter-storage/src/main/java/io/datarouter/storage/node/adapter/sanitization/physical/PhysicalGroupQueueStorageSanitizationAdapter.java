@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright © 2009 HotPads (admin@hotpads.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,6 +16,7 @@
 package io.datarouter.storage.node.adapter.sanitization.physical;
 
 import java.util.List;
+import java.util.Objects;
 
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
@@ -42,21 +43,25 @@ implements PhysicalGroupQueueStorageNode<PK,D,F>, PhysicalAdapterMixin<PK,D,F,N>
 
 	@Override
 	public GroupQueueMessage<PK, D> peek(Config config){
+		Objects.requireNonNull(config);
 		return backingNode.peek(config);
 	}
 
 	@Override
 	public List<GroupQueueMessage<PK, D>> peekMulti(Config config){
+		Objects.requireNonNull(config);
 		return backingNode.peekMulti(config);
 	}
 
 	@Override
 	public Scanner<GroupQueueMessage<PK, D>> peekUntilEmpty(Config config){
+		Objects.requireNonNull(config);
 		return backingNode.peekUntilEmpty(config);
 	}
 
 	@Override
 	public List<D> pollMulti(Config config){
+		Objects.requireNonNull(config);
 		return backingNode.pollMulti(config);
 	}
 

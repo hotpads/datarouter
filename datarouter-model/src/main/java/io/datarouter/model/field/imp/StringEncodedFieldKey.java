@@ -103,4 +103,8 @@ public class StringEncodedFieldKey<T> extends BaseFieldKey<T,StringEncodedFieldK
 		return codec.getSampleValue();
 	}
 
+	public StringFieldCodec<T> getCodec(){
+		return this.codec;
+	}
+
 }

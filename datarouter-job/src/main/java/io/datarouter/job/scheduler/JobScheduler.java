@@ -19,7 +19,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
 import java.util.Optional;
-import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -255,30 +254,18 @@ public class JobScheduler{
 			return localLockAcquired;
 		}
 		try{
-			if(jobWrapper.jobPackage.shouldRunDetached){
-				try{
-					// Try running the job detached, but fallback to local execution if not possible.
-					// Maybe this should be an option when registering the job.
-					return runDetached(jobWrapper);
-				}catch(RuntimeException e){
-					logger.warn("Unable to run detached-job: {}. Falling back to local execution",
-							jobWrapper.jobClass.getSimpleName(), e);
-				}
-			}
-			return runLocal(jobWrapper);
+			return jobWrapper.jobPackage.shouldRunDetached ? runDetached(jobWrapper) : runLocal(jobWrapper);
 		}finally{
 			localTriggerLockService.release(jobWrapper.jobClass);
 		}
 	}
 
 	private Outcome runDetached(JobWrapper jobWrapper){
-		Class<? extends BaseJob> jobClass = jobWrapper.job.getClass();
 		try{
 			detachedJobExecutor.get().submit(jobWrapper);
 			return Outcome.success();
-		}catch(RejectedExecutionException e){
-			logger.warn("detached-job: {} was rejected by detached executor.", jobClass.getSimpleName(), e);
-			throw e;
+		}catch(RuntimeException e){
+			return Outcome.failure(e.getMessage());
 		}
 	}
 

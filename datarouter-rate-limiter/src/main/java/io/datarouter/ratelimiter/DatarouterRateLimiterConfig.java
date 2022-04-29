@@ -18,7 +18,7 @@ package io.datarouter.ratelimiter;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
-public class CacheRateLimiterConfig{
+public class DatarouterRateLimiterConfig{
 
 	public final String name;
 	public final Long maxAverageRequests;
@@ -30,15 +30,15 @@ public class CacheRateLimiterConfig{
 	public final Duration expiration;
 
 	/**
-	 * @param name                  name of the ratelimiter
-	 * @param maxAverageRequests    threshold average number of requests
-	 * @param maxSpikeRequests      threshold max number of requests
-	 * @param numIntervals          number of buckets
-	 * @param bucketTimeInterval    length of each bucket
-	 * @param unit                  time unit of bucketTimeInterval
+	 * @param name name of the ratelimiter
+	 * @param maxAverageRequests threshold average number of requests
+	 * @param maxSpikeRequests threshold max number of requests
+	 * @param numIntervals number of buckets
+	 * @param bucketTimeInterval length of each bucket
+	 * @param unit time unit of bucketTimeInterval
 	 */
-	public CacheRateLimiterConfig(String name, Long maxAverageRequests, Long maxSpikeRequests, Integer numIntervals,
-			Integer bucketTimeInterval, TimeUnit unit){
+	public DatarouterRateLimiterConfig(String name, Long maxAverageRequests, Long maxSpikeRequests,
+			Integer numIntervals, Integer bucketTimeInterval, TimeUnit unit){
 		this.name = name;
 		this.maxAverageRequests = maxAverageRequests;
 		this.maxSpikeRequests = maxSpikeRequests;
@@ -49,7 +49,7 @@ public class CacheRateLimiterConfig{
 		this.expiration = Duration.ofMillis(bucketIntervalMs * (numIntervals + 1));
 	}
 
-	public static class CacheRateLimiterConfigBuilder{
+	public static class DatarouterRateLimiterConfigBuilder{
 
 		public final String name;
 
@@ -59,33 +59,33 @@ public class CacheRateLimiterConfig{
 		public Integer bucketTimeInterval;
 		public TimeUnit unit;
 
-		public CacheRateLimiterConfigBuilder(String name){
+		public DatarouterRateLimiterConfigBuilder(String name){
 			this.name = name;
 		}
 
-		public CacheRateLimiterConfigBuilder setMaxAverageRequests(long maxAverageRequests){
+		public DatarouterRateLimiterConfigBuilder setMaxAverageRequests(long maxAverageRequests){
 			this.maxAverageRequests = maxAverageRequests;
 			return this;
 		}
 
-		public CacheRateLimiterConfigBuilder setMaxSpikeRequests(long maxSpikeRequests){
+		public DatarouterRateLimiterConfigBuilder setMaxSpikeRequests(long maxSpikeRequests){
 			this.maxSpikeRequests = maxSpikeRequests;
 			return this;
 		}
 
-		public CacheRateLimiterConfigBuilder setNumIntervals(int numIntervals){
+		public DatarouterRateLimiterConfigBuilder setNumIntervals(int numIntervals){
 			this.numIntervals = numIntervals;
 			return this;
 		}
 
-		public CacheRateLimiterConfigBuilder setBucketTimeInterval(int bucketTimeInterval, TimeUnit unit){
+		public DatarouterRateLimiterConfigBuilder setBucketTimeInterval(int bucketTimeInterval, TimeUnit unit){
 			this.bucketTimeInterval = bucketTimeInterval;
 			this.unit = unit;
 			return this;
 		}
 
-		public CacheRateLimiterConfig build(){
-			return new CacheRateLimiterConfig(name, maxAverageRequests, maxSpikeRequests, numIntervals,
+		public DatarouterRateLimiterConfig build(){
+			return new DatarouterRateLimiterConfig(name, maxAverageRequests, maxSpikeRequests, numIntervals,
 					bucketTimeInterval, unit);
 		}
 

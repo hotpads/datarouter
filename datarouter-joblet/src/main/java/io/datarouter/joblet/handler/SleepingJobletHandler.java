@@ -40,7 +40,7 @@ import io.datarouter.web.handler.types.optional.OptionalString;
 import io.datarouter.web.html.form.HtmlForm;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import j2html.TagCreator;
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.DivTag;
 
 /**
  * SleepingJoblets are for testing
@@ -130,7 +130,7 @@ public class SleepingJobletHandler extends BaseHandler{
 		return pageFactory.message(request, String.format("created %s @%s ms each", numJoblets.get(), sleepMs.get()));
 	}
 
-	public ContainerTag<?> makeContent(HtmlForm htmlForm){
+	public DivTag makeContent(HtmlForm htmlForm){
 		var form = Bootstrap4FormHtml.render(htmlForm)
 				.withClass("card card-body bg-light");
 		return div(TagCreator.h4(TITLE), form)

@@ -27,9 +27,11 @@ import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 public class Tally extends BaseDatabean<TallyKey,Tally>{
 
 	private Long tally;
+	private Long expirationMs;
 
 	public static class FieldKeys{
 		public static final LongFieldKey tally = new LongFieldKey("tally");
+		public static final LongFieldKey expirationMs = new LongFieldKey("expirationMs");
 	}
 
 	public static class TallyFielder extends BaseDatabeanFielder<TallyKey,Tally>{
@@ -40,7 +42,9 @@ public class Tally extends BaseDatabean<TallyKey,Tally>{
 
 		@Override
 		public List<Field<?>> getNonKeyFields(Tally databean){
-			return List.of(new LongField(FieldKeys.tally, databean.tally));
+			return List.of(
+					new LongField(FieldKeys.tally, databean.tally),
+					new LongField(FieldKeys.expirationMs, databean.expirationMs));
 		}
 
 	}
@@ -50,12 +54,17 @@ public class Tally extends BaseDatabean<TallyKey,Tally>{
 	}
 
 	public Tally(String id, Long tally){
-		this(new TallyKey(id), tally);
+		this(new TallyKey(id), tally, null);
 	}
 
-	public Tally(TallyKey key, Long tally){
+	public Tally(String id, Long tally, Long expirationMs){
+		this(new TallyKey(id), tally, expirationMs);
+	}
+
+	public Tally(TallyKey key, Long tally, Long expirationMs){
 		super(key);
 		this.tally = tally;
+		this.expirationMs = expirationMs;
 	}
 
 	@Override
@@ -65,6 +74,10 @@ public class Tally extends BaseDatabean<TallyKey,Tally>{
 
 	public Long getTally(){
 		return tally;
+	}
+
+	public Long getExpirationMs(){
+		return expirationMs;
 	}
 
 }

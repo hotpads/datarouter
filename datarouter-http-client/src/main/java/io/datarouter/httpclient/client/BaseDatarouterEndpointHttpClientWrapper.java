@@ -50,6 +50,11 @@ implements DatarouterEndpointHttpClient<ET>, DatarouterServiceEndpointHttpClient
 	}
 
 	@Override
+	public String toUrl(BaseEndpoint<?,ET> endpoint){
+		return client.toUrl(endpoint);
+	}
+
+	@Override
 	public void shutdown(){
 		client.shutdown();
 	}

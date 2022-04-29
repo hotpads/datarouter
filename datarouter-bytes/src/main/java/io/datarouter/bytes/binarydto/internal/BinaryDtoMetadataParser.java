@@ -16,7 +16,9 @@
 package io.datarouter.bytes.binarydto.internal;
 
 import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
 
 import io.datarouter.bytes.binarydto.dto.BinaryDto;
 import io.datarouter.scanner.Scanner;
@@ -29,22 +31,15 @@ public class BinaryDtoMetadataParser<T extends BinaryDto<T>>{
 		this.dto = dto;
 	}
 
-	public int numFields(){
-		return (int)BinaryDtoReflectionTool.scanFieldsIncludingSuperclasses(dto.getClass())
-				.count();
-	}
-
-	public Scanner<Field> scanFieldsOrdered(){
+	public List<Field> listFields(){
 		return anyIndexSpecified()
-				? scanFieldsInAnnotationOrder()
-				: scanFieldsInAlphabeticalOrder();
+				? listFieldsByIndex()
+				: listFieldsAlphabetically();
 	}
 
-	private Scanner<Field> scanFieldsInAnnotationOrder(){
-		int numFields = numFields();
-		int maxIndex = numFields - 1;
-		Field[] orderedFields = new Field[numFields];
-		BinaryDtoReflectionTool.scanFieldsIncludingSuperclasses(dto.getClass())
+	private List<Field> listFieldsByIndex(){
+		Field[] fields = new Field[maxFieldIndex() + 1];
+		scanFields()
 				.map(BinaryDtoFieldMetadataParser::new)
 				.forEach(metadata -> {
 					int index = metadata.getRequiredIndex();
@@ -52,21 +47,17 @@ public class BinaryDtoMetadataParser<T extends BinaryDto<T>>{
 						String message = String.format("index=%s cannot be negative", index);
 						throw new IllegalArgumentException(message);
 					}
-					if(index > maxIndex){
-						String message = String.format("index=%s is greater than maxIndex=%s", index, maxIndex);
-						throw new IllegalArgumentException(message);
-					}
-					if(orderedFields[index] != null){
+					if(fields[index] != null){
 						String message = String.format("index=%s already specified", index);
 						throw new IllegalArgumentException(message);
 					}
-					orderedFields[index] = metadata.getField();
+					fields[index] = metadata.getField();
 				});
-		return Scanner.of(orderedFields);
+		return Arrays.asList(fields);
 	}
 
-	private Scanner<Field> scanFieldsInAlphabeticalOrder(){
-		return BinaryDtoReflectionTool.scanFieldsIncludingSuperclasses(dto.getClass())
+	private List<Field> listFieldsAlphabetically(){
+		return scanFields()
 				.each(field -> {
 					if(new BinaryDtoFieldMetadataParser<>(field).hasIndex()){
 						String message = String.format(
@@ -76,13 +67,26 @@ public class BinaryDtoMetadataParser<T extends BinaryDto<T>>{
 						throw new IllegalArgumentException(message);
 					}
 				})
-				.sort(Comparator.comparing(Field::getName));
+				.sort(Comparator.comparing(Field::getName))
+				.list();
+	}
+
+	private Scanner<Field> scanFields(){
+		return BinaryDtoReflectionTool.scanFieldsIncludingSuperclasses(dto.getClass());
 	}
 
 	private boolean anyIndexSpecified(){
-		return BinaryDtoReflectionTool.scanFieldsIncludingSuperclasses(dto.getClass())
+		return scanFields()
 				.map(BinaryDtoFieldMetadataParser::new)
 				.anyMatch(BinaryDtoFieldMetadataParser::hasIndex);
+	}
+
+	private int maxFieldIndex(){
+		return scanFields()
+				.map(BinaryDtoFieldMetadataParser::new)
+				.map(BinaryDtoFieldMetadataParser::getRequiredIndex)
+				.findMax(Comparator.naturalOrder())
+				.orElseThrow();
 	}
 
 }

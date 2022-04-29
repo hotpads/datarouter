@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright © 2009 HotPads (admin@hotpads.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,14 +15,9 @@
  */
 package io.datarouter.storage.node.adapter.sanitization.physical;
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.Optional;
-
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
-import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.adapter.PhysicalAdapterMixin;
 import io.datarouter.storage.node.adapter.sanitization.TallyStorageSanitizationAdapter;
 import io.datarouter.storage.node.op.raw.TallyStorage.PhysicalTallyStorageNode;
@@ -39,21 +34,6 @@ implements PhysicalTallyStorageNode<PK,D,F>,
 
 	public PhysicalTallyStorageSanitizationAdapter(N backingNode){
 		super(backingNode);
-	}
-
-	@Override
-	public Long incrementAndGetCount(String key, int delta, Config config){
-		return getBackingNode().incrementAndGetCount(key, delta, config);
-	}
-
-	@Override
-	public Optional<Long> findTallyCount(String key, Config config){
-		return getBackingNode().findTallyCount(key, config);
-	}
-
-	@Override
-	public Map<String,Long> getMultiTallyCount(Collection<String> keys, Config config){
-		return getBackingNode().getMultiTallyCount(keys, config);
 	}
 
 	@Override

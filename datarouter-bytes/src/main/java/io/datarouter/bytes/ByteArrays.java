@@ -28,18 +28,22 @@ import java.util.RandomAccess;
 public class ByteArrays extends AbstractList<byte[]>
 implements RandomAccess{
 
+	private static final ByteArrays EMPTY = ByteArrays.of(List.of());
+
 	protected final byte[] backingArray;
 	protected final int offset;// absolute offset of metadata in the backingArray
 	protected final int valuesOffset;// absolute offset of values in the backingArray
 	protected final int[] endings;// cache of the absolute offset of each value ending in the backingArray
 
-	/*------------ static construct from individual arrays ------------*/
+	/*------------ static construct ------------*/
+
+	public static ByteArrays empty(){
+		return EMPTY;
+	}
 
 	public static ByteArrays of(List<byte[]> inputArrays){
 		return new ByteArrays(inputArrays);
 	}
-
-	/*------------ static construct from backing byte[] ------------*/
 
 	public static ByteArrays of(byte[] backingArray, int offset){
 		return new ByteArrays(backingArray, offset);
@@ -159,6 +163,16 @@ implements RandomAccess{
 
 	protected int getTo(int index){
 		return endings[index];
+	}
+
+	public int compareItem(int index, byte[] target){
+		return Arrays.compareUnsigned(backingArray, getFrom(index), getTo(index), target, 0, target.length);
+	}
+
+	public static int compareItem(ByteArrays arrays1, int index1, ByteArrays arrays2, int index2){
+		return Arrays.compareUnsigned(
+				arrays1.backingArray, arrays1.getFrom(index1), arrays1.getTo(index1),
+				arrays2.backingArray, arrays2.getFrom(index2), arrays2.getTo(index2));
 	}
 
 	protected boolean equalsItem(int index, byte[] target){

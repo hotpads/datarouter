@@ -37,7 +37,7 @@ import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.types.Param;
 import io.datarouter.web.html.j2html.J2HtmlTable;
 import io.datarouter.web.requirejs.DatarouterWebRequireJsV2;
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.DivTag;
 
 public class JobletQueuesHandler extends BaseHandler{
 
@@ -67,7 +67,7 @@ public class JobletQueuesHandler extends BaseHandler{
 				.buildMav();
 	}
 
-	private ContainerTag<?> makeContent(JobletType<?> type, Integer executionOrder, Collection<JobletSummary> rows){
+	private DivTag makeContent(JobletType<?> type, Integer executionOrder, Collection<JobletSummary> rows){
 		var title = h4(TITLE)
 				.withClass("mt-2");
 		var subtitle = p(String.format("type: %s, executionOrder: %s", type.getPersistentString(), executionOrder));

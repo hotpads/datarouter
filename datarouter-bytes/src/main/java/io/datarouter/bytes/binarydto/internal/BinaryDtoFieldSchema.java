@@ -17,7 +17,6 @@ package io.datarouter.bytes.binarydto.internal;
 
 import java.lang.reflect.Field;
 
-import io.datarouter.bytes.ByteTool;
 import io.datarouter.bytes.LengthAndValue;
 import io.datarouter.bytes.binarydto.fieldcodec.BinaryDtoBaseFieldCodec;
 
@@ -35,30 +34,25 @@ public class BinaryDtoFieldSchema<F>{
 		codec = (BinaryDtoBaseFieldCodec<F>)BinaryDtoFieldCodecs.getCodecForField(field);
 	}
 
-	public byte[] encodeField(Object dto){
-		F fieldValue = getFieldValue(dto);
-		if(!isNullable && fieldValue == null){
-			String message = String.format(
-					"field=%s of class=%s can't contain nulls",
-					field.getName(),
-					dto.getClass().getCanonicalName());
-			throw new IllegalArgumentException(message);
-		}
-		return encodeFieldValue(fieldValue);
+	public String getName(){
+		return field.getName();
 	}
 
-	private byte[] encodeFieldValue(F fieldValue){
-		if(isNullable){
-			if(fieldValue == null){
-				return BinaryDtoNullFieldTool.NULL_INDICATOR_TRUE_ARRAY;
-			}else{
-				return ByteTool.concat(
-						BinaryDtoNullFieldTool.NULL_INDICATOR_FALSE_ARRAY,
-						codec.encode(fieldValue));
-			}
-		}else{
-			return codec.encode(fieldValue);
-		}
+	public boolean isNullable(){
+		return isNullable;
+	}
+
+	public boolean isNull(Object dto){
+		return getFieldValue(dto) == null;
+	}
+
+	public boolean isFixedLength(){
+		return codec.isFixedLength();
+	}
+
+	public byte[] encodeValue(Object dto){
+		F fieldValue = getFieldValue(dto);
+		return codec.encode(fieldValue);
 	}
 
 	public int decodeField(Object object, byte[] bytes, final int offset){
@@ -87,7 +81,7 @@ public class BinaryDtoFieldSchema<F>{
 				fieldValue = lengthAndValue.value;
 			}
 		}
-		BinaryDtoReflectionTool.setUnchecked(field, object, fieldValue);
+		setFieldValue(object, fieldValue);
 		return cursor - offset;
 	}
 
@@ -122,6 +116,10 @@ public class BinaryDtoFieldSchema<F>{
 	@SuppressWarnings("unchecked")
 	private F getFieldValue(Object dto){
 		return (F)BinaryDtoReflectionTool.getUnchecked(field, dto);
+	}
+
+	public void setFieldValue(Object dto, F fieldValue){
+		BinaryDtoReflectionTool.setUnchecked(field, dto, fieldValue);
 	}
 
 }

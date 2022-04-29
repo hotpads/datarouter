@@ -24,6 +24,7 @@ import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
 import io.datarouter.model.serialize.StringDatabeanCodec;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
+import io.datarouter.model.util.CommonFieldSizes;
 import io.datarouter.storage.serialize.codec.FlatKeyJsonDatabeanCodec;
 
 /*
@@ -34,7 +35,9 @@ public class ConveyorMessage extends BaseDatabean<ConveyorMessageKey,ConveyorMes
 	private String message;
 
 	private static class FieldKeys{
-		private static final StringFieldKey message = new StringFieldKey("message").withColumnName("Message");
+		private static final StringFieldKey message = new StringFieldKey("message")
+				.withColumnName("Message")
+				.withSize(CommonFieldSizes.MAX_SQS_SIZE);
 	}
 
 	public static class ConveyorMessageFielder extends BaseDatabeanFielder<ConveyorMessageKey,ConveyorMessage>{

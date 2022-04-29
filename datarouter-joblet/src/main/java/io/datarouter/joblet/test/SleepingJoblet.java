@@ -21,6 +21,7 @@ import io.datarouter.joblet.storage.jobletrequest.JobletRequest;
 import io.datarouter.joblet.test.SleepingJoblet.SleepingJobletParams;
 import io.datarouter.joblet.type.JobletType;
 import io.datarouter.joblet.type.JobletType.JobletTypeBuilder;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.util.concurrent.ThreadTool;
 
 public class SleepingJoblet extends BaseJoblet<SleepingJobletParams>{
@@ -30,6 +31,7 @@ public class SleepingJoblet extends BaseJoblet<SleepingJobletParams>{
 			SleepingJobletCodec::new,
 			SleepingJoblet.class)
 			.withShortQueueName("Sleeping") //unnecessary shortQueueName
+			.withTag(Tag.DATAROUTER)
 			.build();
 
 	private static final long MAX_SEGMENT_MS = 1000;

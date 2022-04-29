@@ -22,7 +22,6 @@ import com.google.cloud.spanner.Value;
 import io.datarouter.gcp.spanner.ddl.SpannerColumnType;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.util.CommonFieldSizes;
-import io.datarouter.util.string.StringTool;
 
 public class SpannerStringFieldCodec extends SpannerBaseFieldCodec<String,StringField>{
 
@@ -37,7 +36,18 @@ public class SpannerStringFieldCodec extends SpannerBaseFieldCodec<String,String
 
 	@Override
 	public Value getSpannerValue(){
-		return Value.string(StringTool.trimToSize(field.getValue(), CommonFieldSizes.MAX_CHARACTERS_SPANNER));
+		String value = field.getValue();
+		if(value == null){
+			return Value.string(null);
+		}
+		if(value.length() > CommonFieldSizes.MAX_CHARACTERS_SPANNER){
+			String message = String.format("column=%s with length=%s exceeds Spanner's max length=%s",
+					field.getKey().getColumnName(),
+					value.length(),
+					CommonFieldSizes.MAX_CHARACTERS_SPANNER);
+			throw new IllegalArgumentException(message);
+		}
+		return Value.string(value);
 	}
 
 	@Override

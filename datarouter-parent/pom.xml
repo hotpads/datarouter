@@ -22,7 +22,7 @@
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-metadata-parent</artifactId>
-		<version>0.0.112</version>
+		<version>0.0.113</version>
 		<relativePath>../datarouter-metadata-parent</relativePath>
 	</parent>
 
@@ -39,7 +39,7 @@
 		<codehaus-plexus-version>2.11.1</codehaus-plexus-version>
 		<commons-codec-version>1.15</commons-codec-version>
 		<commons-io-version>2.11.0</commons-io-version>
-		<datarouter-version>0.0.112</datarouter-version>
+		<datarouter-version>0.0.113</datarouter-version>
 		<gson-version>2.8.9</gson-version>
 		<guice-version>5.0.1</guice-version>
 		<guava-version>31.0.1-jre</guava-version>
@@ -241,7 +241,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-surefire-plugin</artifactId>
-					<version>3.0.0-M6</version>
+					<version>3.0.0-M5</version>
 					<executions>
 						<execution>
 							<id>default-test</id>
@@ -285,7 +285,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-failsafe-plugin</artifactId>
-					<version>3.0.0-M6</version>
+					<version>3.0.0-M5</version>
 					<executions>
 						<execution>
 							<goals>

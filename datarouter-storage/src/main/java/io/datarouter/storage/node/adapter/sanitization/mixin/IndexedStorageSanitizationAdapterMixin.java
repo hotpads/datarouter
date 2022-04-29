@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright © 2009 HotPads (admin@hotpads.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,6 +17,7 @@ package io.datarouter.storage.node.adapter.sanitization.mixin;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.index.IndexEntry;
@@ -40,15 +41,19 @@ public interface IndexedStorageSanitizationAdapterMixin<
 		N extends IndexedStorageNode<PK,D,F>>
 extends IndexedStorage<PK,D>, SanitizationAdapter<PK,D,F,N>{
 
-	//Reader
+	/*------------- read -------------*/
 
 	@Override
 	default D lookupUnique(UniqueKey<PK> uniqueKey, Config config){
+		Objects.requireNonNull(uniqueKey);
+		Objects.requireNonNull(config);
 		return getBackingNode().lookupUnique(uniqueKey, config);
 	}
 
 	@Override
 	default List<D> lookupMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config config){
+		Objects.requireNonNull(uniqueKeys);
+		Objects.requireNonNull(config);
 		return getBackingNode().lookupMultiUnique(uniqueKeys, config);
 	}
 
@@ -57,6 +62,9 @@ extends IndexedStorage<PK,D>, SanitizationAdapter<PK,D,F,N>{
 			IE extends IndexEntry<IK,IE,PK,D>,
 			IF extends DatabeanFielder<IK,IE>>
 	List<IE> getMultiFromIndex(Collection<IK> keys, Config config, IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
+		Objects.requireNonNull(keys);
+		Objects.requireNonNull(config);
+		Objects.requireNonNull(indexEntryFieldInfo);
 		return getBackingNode().getMultiFromIndex(keys, config, indexEntryFieldInfo);
 	}
 
@@ -65,6 +73,9 @@ extends IndexedStorage<PK,D>, SanitizationAdapter<PK,D,F,N>{
 			IE extends IndexEntry<IK,IE,PK,D>,
 			IF extends DatabeanFielder<IK,IE>>
 	List<D> getMultiByIndex(Collection<IK> keys, Config config, IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
+		Objects.requireNonNull(keys);
+		Objects.requireNonNull(config);
+		Objects.requireNonNull(indexEntryFieldInfo);
 		return getBackingNode().getMultiByIndex(keys, config, indexEntryFieldInfo);
 	}
 
@@ -76,6 +87,9 @@ extends IndexedStorage<PK,D>, SanitizationAdapter<PK,D,F,N>{
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo,
 			Collection<Range<IK>> ranges,
 			Config config){
+		Objects.requireNonNull(indexEntryFieldInfo);
+		Objects.requireNonNull(ranges);
+		Objects.requireNonNull(config);
 		ScanSanitizer.rejectUnexpectedFullScan(ranges);
 		return getBackingNode().scanRangesIndex(indexEntryFieldInfo, ranges, config);
 	}
@@ -88,6 +102,9 @@ extends IndexedStorage<PK,D>, SanitizationAdapter<PK,D,F,N>{
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo,
 			Collection<Range<IK>> ranges,
 			Config config){
+		Objects.requireNonNull(indexEntryFieldInfo);
+		Objects.requireNonNull(ranges);
+		Objects.requireNonNull(config);
 		ScanSanitizer.rejectUnexpectedFullScan(ranges);
 		return getBackingNode().scanRangesByIndex(indexEntryFieldInfo, ranges, config);
 	}
@@ -100,19 +117,26 @@ extends IndexedStorage<PK,D>, SanitizationAdapter<PK,D,F,N>{
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo,
 			Collection<Range<IK>> ranges,
 			Config config){
+		Objects.requireNonNull(indexEntryFieldInfo);
+		Objects.requireNonNull(ranges);
+		Objects.requireNonNull(config);
 		ScanSanitizer.rejectUnexpectedFullScan(ranges);
 		return getBackingNode().scanRangesIndexKeys(indexEntryFieldInfo, ranges, config);
 	}
 
-	// Writer
+	/*------------- write -------------*/
 
 	@Override
 	default void deleteUnique(UniqueKey<PK> uniqueKey, Config config){
+		Objects.requireNonNull(uniqueKey);
+		Objects.requireNonNull(config);
 		getBackingNode().deleteUnique(uniqueKey, config);
 	}
 
 	@Override
 	default void deleteMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config config){
+		Objects.requireNonNull(uniqueKeys);
+		Objects.requireNonNull(config);
 		getBackingNode().deleteMultiUnique(uniqueKeys, config);
 	}
 
@@ -124,6 +148,9 @@ extends IndexedStorage<PK,D>, SanitizationAdapter<PK,D,F,N>{
 			Collection<IK> keys,
 			Config config,
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
+		Objects.requireNonNull(keys);
+		Objects.requireNonNull(config);
+		Objects.requireNonNull(indexEntryFieldInfo);
 		getBackingNode().deleteByIndex(keys, config, indexEntryFieldInfo);
 	}
 

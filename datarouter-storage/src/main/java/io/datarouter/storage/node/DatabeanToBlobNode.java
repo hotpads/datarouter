@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright © 2009 HotPads (admin@hotpads.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,13 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.client.memcached.node;
+package io.datarouter.storage.node;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import io.datarouter.client.memcached.codec.MemcachedDatabeanCodec;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
@@ -28,35 +27,35 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.file.PathbeanKey;
-import io.datarouter.storage.node.NodeParams;
+import io.datarouter.storage.node.op.raw.BlobStorage.PhysicalBlobStorageNode;
 import io.datarouter.storage.node.op.raw.MapStorage.PhysicalMapStorageNode;
 import io.datarouter.storage.node.type.physical.base.BasePhysicalNode;
 
-public class MemcachedDatabeanNode<
+public class DatabeanToBlobNode<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>>
 extends BasePhysicalNode<PK,D,F>
 implements PhysicalMapStorageNode<PK,D,F>{
 
-	private final MemcachedBlobNode blobNode;
-	private final MemcachedDatabeanCodec<PK,D,F> databeanCodec;
+	private final PhysicalBlobStorageNode blobNode;
+	private final DatabeanToBlobCodec<PK,D,F> codec;
 
-	public MemcachedDatabeanNode(
+	public DatabeanToBlobNode(
 			NodeParams<PK,D,F> params,
 			ClientType<?,?> clientType,
-			MemcachedBlobNode blobNode,
-			MemcachedDatabeanCodec<PK,D,F> databeanCodec){
+			PhysicalBlobStorageNode blobNode,
+			DatabeanToBlobCodec<PK,D,F> codec){
 		super(params, clientType);
 		this.blobNode = blobNode;
-		this.databeanCodec = databeanCodec;
+		this.codec = codec;
 	}
 
-	/*------------- MapStorage -------------*/
+	/*------------- MapStorageReader -------------*/
 
 	@Override
 	public boolean exists(PK key, Config config){
-		return databeanCodec.encodeKeyIfValid(key)
+		return codec.encodeKeyIfValid(key)
 				.map(blobNode::exists)
 				.orElse(false);
 	}
@@ -81,6 +80,8 @@ implements PhysicalMapStorageNode<PK,D,F>{
 				.list();
 	}
 
+	/*------------- MapStorageWriter -------------*/
+
 	@Override
 	public void delete(PK key, Config config){
 		deleteMulti(List.of(key), config);
@@ -89,7 +90,7 @@ implements PhysicalMapStorageNode<PK,D,F>{
 	@Override
 	public void deleteMulti(Collection<PK> keys, Config config){
 		Scanner.of(keys)
-				.map(databeanCodec::encodeKeyIfValid)
+				.map(codec::encodeKeyIfValid)
 				.concat(OptionalScanner::of)
 				.forEach(blobNode::delete);
 	}
@@ -107,18 +108,18 @@ implements PhysicalMapStorageNode<PK,D,F>{
 	@Override
 	public void putMulti(Collection<D> databeans, Config config){
 		Scanner.of(databeans)
-				.map(databeanCodec::encodeDatabeanIfValid)
+				.map(codec::encodeDatabeanIfValid)
 				.concat(OptionalScanner::of)
 				.forEach(keyAndValue -> blobNode.write(keyAndValue.getLeft(), keyAndValue.getRight(), config));
 	}
 
 	private Scanner<D> scanMultiInternal(Collection<PK> keys){
 		Map<PathbeanKey,byte[]> bytesByKey = Scanner.of(keys)
-				.map(databeanCodec::encodeKeyIfValid)
+				.map(codec::encodeKeyIfValid)
 				.concat(OptionalScanner::of)
 				.listTo(blobNode::read);
 		return Scanner.of(bytesByKey.values())
-				.map(databeanCodec::decodeDatabean);
+				.map(codec::decodeDatabean);
 	}
 
 }

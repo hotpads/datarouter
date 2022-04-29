@@ -36,7 +36,8 @@ public class PutOpTestBeanKey extends BaseRegularPrimaryKey<PutOpTestBeanKey>{
 	}
 
 	public static class FieldKeys{
-		public static final StringFieldKey first = new StringFieldKey("first");
+		public static final StringFieldKey first = new StringFieldKey("first")
+				.withSize(50);
 		public static final StringFieldKey second = new StringFieldKey("second");
 	}
 

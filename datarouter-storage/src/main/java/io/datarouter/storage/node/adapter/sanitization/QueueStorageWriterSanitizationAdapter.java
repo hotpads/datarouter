@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright © 2009 HotPads (admin@hotpads.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,10 +16,12 @@
 package io.datarouter.storage.node.adapter.sanitization;
 
 import java.util.Collection;
+import java.util.Objects;
 
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.adapter.sanitization.sanitizer.PrimaryKeySanitizer;
 import io.datarouter.storage.node.op.raw.write.QueueStorageWriter;
@@ -40,26 +42,37 @@ implements QueueStorageWriter<PK,D>{
 
 	@Override
 	public void ack(QueueMessageKey key, Config config){
+		Objects.requireNonNull(key);
+		Objects.requireNonNull(config);
 		backingNode.ack(key, config);
 	}
 
 	@Override
 	public void ackMulti(Collection<QueueMessageKey> keys, Config config){
+		Objects.requireNonNull(keys);
+		Objects.requireNonNull(config);
+		if(keys.isEmpty()){
+			return;
+		}
 		backingNode.ackMulti(keys, config);
 	}
 
 	@Override
 	public void put(D databean, Config config){
-		if(databean == null){
-			throw new RuntimeException("null databean for " + OP_put + " operation");
-		}
+		Objects.requireNonNull(databean);
+		Objects.requireNonNull(config);
 		PrimaryKeySanitizer.checkForNullPrimaryKeyValues(databean.getKey());
 		backingNode.put(databean, config);
 	}
 
 	@Override
 	public void putMulti(Collection<D> databeans, Config config){
-		databeans.stream()
+		Objects.requireNonNull(databeans);
+		Objects.requireNonNull(config);
+		if(databeans.isEmpty()){
+			return;
+		}
+		Scanner.of(databeans)
 				.map(D::getKey)
 				.forEach(PrimaryKeySanitizer::checkForNullPrimaryKeyValues);
 		backingNode.putMulti(databeans, config);

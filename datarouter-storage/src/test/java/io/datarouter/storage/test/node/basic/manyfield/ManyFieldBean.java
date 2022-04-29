@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright © 2009 HotPads (admin@hotpads.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,9 +27,12 @@ import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.codec.DateToLongFieldCodec;
 import io.datarouter.model.field.codec.EnumToIntegerFieldCodec;
+import io.datarouter.model.field.codec.EnumToStringFieldCodec;
 import io.datarouter.model.field.codec.IntListFieldCodec;
 import io.datarouter.model.field.imp.LocalDateField;
 import io.datarouter.model.field.imp.LocalDateFieldKey;
+import io.datarouter.model.field.imp.StringEncodedField;
+import io.datarouter.model.field.imp.StringEncodedFieldKey;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
 import io.datarouter.model.field.imp.array.ByteArrayEncodedField;
@@ -90,6 +93,7 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 	private LocalDateTime localDateTimeField;
 	private Instant instantField;
 	private String stringField;
+	private TestEnum enumToStringField;//for testing StringEncodedField
 	private TestEnum intEnumField;
 	private TestEnum stringEnumField;
 
@@ -122,6 +126,9 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 		public static final InstantFieldKey instantField = new InstantFieldKey("instantField");
 		public static final StringFieldKey stringField = new StringFieldKey("stringField")
 				.withSize(CommonFieldSizes.MAX_KEY_LENGTH_UTF8MB4);
+		public static final StringEncodedFieldKey<TestEnum> enumToStringField = new StringEncodedFieldKey<>(
+				"enumToStringField",
+				new EnumToStringFieldCodec<>(TestEnum.BY_PERSISTENT_STRING));
 		public static final IntegerEnumFieldKey<TestEnum> intEnumField = new IntegerEnumFieldKey<>("intEnumField",
 				TestEnum.class);
 		public static final StringEnumFieldKey<TestEnum> stringEnumField = new StringEnumFieldKey<>("stringEnumField",
@@ -194,6 +201,9 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 		if(ObjectTool.notEquals(stringByteField, that.stringByteField)){
 			return false;
 		}
+		if(ObjectTool.notEquals(enumToStringField, that.enumToStringField)){
+			return false;
+		}
 		if(ObjectTool.notEquals(data, that.data)){
 			return false;
 		}
@@ -235,6 +245,7 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 					new LocalDateTimeField(FieldKeys.localDateTimeField, databean.localDateTimeField),
 					new InstantField(FieldKeys.instantField, databean.instantField),
 					new StringField(FieldKeys.stringField, databean.stringField),
+					new StringEncodedField<>(FieldKeys.enumToStringField, databean.enumToStringField),
 					new IntegerEnumField<>(FieldKeys.intEnumField, databean.intEnumField),
 					new StringEnumField<>(FieldKeys.stringEnumField, databean.stringEnumField),
 					new ByteArrayField(FieldKeys.stringByteField, databean.stringByteField),
@@ -339,6 +350,14 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 
 	public void setStringField(String stringField){
 		this.stringField = stringField;
+	}
+
+	public TestEnum getEnumToStringField(){
+		return enumToStringField;
+	}
+
+	public void setEnumToStringField(TestEnum enumToStringField){
+		this.enumToStringField = enumToStringField;
 	}
 
 	public byte[] getStringByteField(){

@@ -18,6 +18,8 @@ package io.datarouter.aws.sqs.config;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.storage.config.environment.EnvironmentType;
+import io.datarouter.storage.servertype.ServerTypes;
 import io.datarouter.storage.setting.DatarouterSettingCategory;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.SettingRoot;
@@ -29,9 +31,10 @@ public class DatarouterSqsSettingsRoot extends SettingRoot{
 	public final CachedSetting<Boolean> runSqsQueueLengthMonitoringJob;
 
 	@Inject
-	public DatarouterSqsSettingsRoot(SettingFinder finder){
+	public DatarouterSqsSettingsRoot(SettingFinder finder, ServerTypes serverTypes){
 		super(finder, DatarouterSettingCategory.DATAROUTER, "datarouterSqs.");
-		runSqsQueueLengthMonitoringJob = registerBooleans("runSqsQueueLengthMonitoringJob", defaultTo(false));
+		runSqsQueueLengthMonitoringJob = registerBooleans("runSqsQueueLengthMonitoringJob", defaultTo(false)
+				.withServerType(EnvironmentType.PRODUCTION, serverTypes.getJobServerType(), true));
 	}
 
 }

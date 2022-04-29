@@ -47,7 +47,7 @@ import io.datarouter.web.inject.InjectorRetriever;
 public abstract class BaseDatarouterServletContextListener implements ServletContextListener, InjectorRetriever{
 	private static final Logger logger = LoggerFactory.getLogger(BaseDatarouterServletContextListener.class);
 
-	private static final boolean STARTUP_ALL_LISTENERS_SYNCHRONOUSLY = false;
+	private static final boolean STARTUP_ALL_LISTENERS_SYNCHRONOUSLY = true;
 	private static final boolean SHUTDOWN_ALL_LISTENERS_SYNCHRONOUSLY = false;
 
 	private final List<Class<? extends DatarouterAppListener>> listenerClasses;

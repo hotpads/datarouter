@@ -21,7 +21,7 @@ import javax.inject.Singleton;
 import com.google.gson.Gson;
 
 import io.datarouter.conveyor.BaseConveyors;
-import io.datarouter.instrumentation.exception.ExceptionRecordPublisher;
+import io.datarouter.instrumentation.exception.DatarouterExceptionPublisher;
 import io.datarouter.instrumentation.trace.TracePublisher;
 import io.datarouter.trace.conveyor.Trace2MemoryBufferToSqsConveyor;
 import io.datarouter.trace.settings.DatarouterTracePublisherSettingRoot;
@@ -41,7 +41,7 @@ public class TracePublisherConveyors extends BaseConveyors{
 	@Inject
 	private TracePublisher tracePublisher;
 	@Inject
-	private ExceptionRecordPublisher httpRequstRecordPublisher;
+	private DatarouterExceptionPublisher httpRequstRecordPublisher;
 	@Inject
 	private Trace2ForPublisherFilterToMemoryBuffer trace2MemoryBuffer;
 	@Inject

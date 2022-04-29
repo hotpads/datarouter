@@ -24,20 +24,20 @@ import org.testng.Assert;
 import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
-import io.datarouter.ratelimiter.CacheRateLimiterConfig.CacheRateLimiterConfigBuilder;
+import io.datarouter.ratelimiter.DatarouterRateLimiterConfig.DatarouterRateLimiterConfigBuilder;
 import io.datarouter.ratelimiter.storage.BaseTallyDao;
 
 @Guice(moduleFactory = RateLimiterTestNgModuleFactory.class)
-public class TallyCacheRateLimiterIntegrationTests{
+public class DatarouterRateLimiterIntegrationTests{
 
 	private static final long MAX_SPIKE_REQUESTS = 30;
 
 	@Singleton
-	public static class ExampleRateLimiter extends BaseTallyCacheRateLimiter{
+	public static class ExampleRateLimiter extends DatarouterRateLimiter{
 
 		@Inject
 		public ExampleRateLimiter(BaseTallyDao tallyDao){
-			super(tallyDao, new CacheRateLimiterConfigBuilder("Example")
+			super(tallyDao, new DatarouterRateLimiterConfigBuilder("Example")
 					.setMaxAverageRequests(10)
 					.setMaxSpikeRequests(MAX_SPIKE_REQUESTS)
 					.setNumIntervals(7)

@@ -43,7 +43,7 @@ public class ClusterSettingKey extends BaseRegularPrimaryKey<ClusterSettingKey>{
 		public static final StringFieldKey serverType = new StringFieldKey("serverType")
 				.withSize(CommonFieldSizes.LENGTH_50);
 		public static final StringFieldKey serverName = new StringFieldKey("serverName")
-				.withSize(CommonFieldSizes.LENGTH_50);
+				.withSize(CommonFieldSizes.MAX_SERVER_NAME_LENGTH);
 	}
 
 

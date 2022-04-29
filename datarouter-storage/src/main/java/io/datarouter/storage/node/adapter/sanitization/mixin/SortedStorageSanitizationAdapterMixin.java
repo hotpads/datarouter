@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright © 2009 HotPads (admin@hotpads.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,6 +16,7 @@
 package io.datarouter.storage.node.adapter.sanitization.mixin;
 
 import java.util.Collection;
+import java.util.Objects;
 
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
@@ -37,24 +38,44 @@ extends SortedStorage<PK,D>, SanitizationAdapter<PK,D,F,N>{
 
 	@Override
 	default Scanner<PK> scanKeys(Range<PK> range, Config config){
+		Objects.requireNonNull(range);
+		Objects.requireNonNull(config);
+		if(range.isEmpty()){
+			return Scanner.empty();
+		}
 		ScanSanitizer.rejectUnexpectedFullScan(range);
 		return getBackingNode().scanKeys(range, config);
 	}
 
 	@Override
 	default Scanner<PK> scanRangesKeys(Collection<Range<PK>> ranges, Config config){
+		Objects.requireNonNull(ranges);
+		Objects.requireNonNull(config);
+		if(Scanner.of(ranges).allMatch(Range::isEmpty)){
+			return Scanner.empty();
+		}
 		ScanSanitizer.rejectUnexpectedFullScan(ranges);
 		return getBackingNode().scanRangesKeys(ranges, config);
 	}
 
 	@Override
 	default Scanner<D> scan(Range<PK> range, Config config){
+		Objects.requireNonNull(range);
+		Objects.requireNonNull(config);
+		if(range.isEmpty()){
+			return Scanner.empty();
+		}
 		ScanSanitizer.rejectUnexpectedFullScan(range);
 		return getBackingNode().scan(range, config);
 	}
 
 	@Override
 	default Scanner<D> scanRanges(Collection<Range<PK>> ranges, Config config){
+		Objects.requireNonNull(ranges);
+		Objects.requireNonNull(config);
+		if(Scanner.of(ranges).allMatch(Range::isEmpty)){
+			return Scanner.empty();
+		}
 		ScanSanitizer.rejectUnexpectedFullScan(ranges);
 		return getBackingNode().scanRanges(ranges, config);
 	}

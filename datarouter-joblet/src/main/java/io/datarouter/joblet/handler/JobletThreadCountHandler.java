@@ -33,7 +33,7 @@ import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.html.j2html.J2HtmlTable;
 import io.datarouter.web.requirejs.DatarouterWebRequireJsV2;
 import io.datarouter.webappinstance.service.CachedWebappInstancesOfThisServerType;
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.DivTag;
 
 public class JobletThreadCountHandler extends BaseHandler{
 
@@ -64,7 +64,7 @@ public class JobletThreadCountHandler extends BaseHandler{
 				.buildMav();
 	}
 
-	private ContainerTag<?> makeContent(
+	private DivTag makeContent(
 			List<String> serverNames,
 			List<JobletServiceThreadCountResponse> rows){
 		var title = h4(TITLE)

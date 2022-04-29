@@ -31,12 +31,12 @@ public class DatarouterAutoConfigHandler extends BaseHandler{
 
 	@Handler(defaultHandler = true, encoder = RawStringEncoder.class)
 	private String home(){
-		return autoConfigService.runAutoConfigAll();
+		return autoConfigService.runAutoConfigAll(getSessionInfo().getNonEmptyUsernameOrElse("Anonymous"));
 	}
 
 	@Handler(encoder = RawStringEncoder.class)
 	public String runForName(@Param(P_name) String name) throws Exception{
-		return autoConfigService.runAutoConfigForName(name);
+		return autoConfigService.runAutoConfigForName(name, getSessionInfo().getNonEmptyUsernameOrElse("Anonymous"));
 	}
 
 }

@@ -50,46 +50,22 @@ public class EndpointTool{
 		endpoint.headers.forEach((key,values) -> {
 			values.forEach(value -> request.addHeader(key, value));
 		});
-		for(Field field : endpoint.getClass().getFields()){
-			IgnoredField ignoredField = field.getAnnotation(IgnoredField.class);
-			if(ignoredField != null){
-				continue;
-			}
-			if(Modifier.isStatic(field.getModifiers())){
-				continue;
-			}
-			String key = getFieldName(field);
-			Object value = null;
-			try{
-				value = field.get(endpoint);
-			}catch(IllegalArgumentException | IllegalAccessException ex){
-				logger.error("", ex);
-			}
-			boolean isOptional = field.getType().isAssignableFrom(Optional.class);
-			if(isOptional && value == null){
-				throw new RuntimeException(String.format(
-						"%s: Optional fields cannot be null. '%s' needs to be initialized to Optional.empty().",
-						endpoint.getClass().getSimpleName(), key));
-			}
-			if(value == null){
-				throw new RuntimeException(String.format(
-						"%s: Fields cannot be null. '%s' needs to be initialized or changed to an Optional field.",
-						endpoint.getClass().getSimpleName(), key));
-			}
-			EndpointParam param = field.getAnnotation(EndpointParam.class);
-			Optional<String> parsedValue = getValue(field, value);
-			if(param == null || param.paramType() == null || param.paramType() == ParamType.DEFAULT){
-				parsedValue.ifPresent(paramValue -> request.addParam(key, paramValue));
-				continue;
-			}
-			ParamType paramType = param.paramType();
-			if(paramType == ParamType.GET){
-				parsedValue.ifPresent(paramValue -> request.addGetParam(key, paramValue));
-			}else if(paramType == ParamType.POST){
-				parsedValue.ifPresent(paramValue -> request.addPostParam(key, paramValue));
-			}
-		}
+		ParamsMap paramsMap = EndpointTool.getParamFields(endpoint);
+		request.addGetParams(paramsMap.getParams);
+		request.addPostParams(paramsMap.postParams);
 		return request;
+	}
+
+	public static class ParamsMap{
+
+		public final Map<String,String> getParams;
+		public final Map<String,String> postParams;
+
+		public ParamsMap(Map<String,String> getParams, Map<String,String> postParams){
+			this.getParams = getParams;
+			this.postParams = postParams;
+		}
+
 	}
 
 	/**
@@ -97,10 +73,12 @@ public class EndpointTool{
 	 *
 	 * EndpointRequestBodies are ignored.
 	 * Both GET and POST params will be added to the map
+	 *
 	 * If optional fields are not present, they will not be added to the map
 	 */
-	public static Map<String,String> getParamFields(BaseEndpoint<?,?> endpoint){
-		Map<String,String> params = new LinkedHashMap<>();
+	public static ParamsMap getParamFields(BaseEndpoint<?,?> endpoint){
+		Map<String,String> getParams = new LinkedHashMap<>();
+		Map<String,String> postParams = new LinkedHashMap<>();
 		for(Field field : endpoint.getClass().getFields()){
 			IgnoredField ignoredField = field.getAnnotation(IgnoredField.class);
 			if(ignoredField != null){
@@ -130,9 +108,24 @@ public class EndpointTool{
 						"%s: Fields cannot be null. '%s' needs to be initialized or changed to an Optional field.",
 						endpoint.getClass().getSimpleName(), key));
 			}
-			getValue(field, value).ifPresent(paramValue -> params.put(key, paramValue));
+			EndpointParam param = field.getAnnotation(EndpointParam.class);
+			Optional<String> parsedValue = getValue(field, value);
+			if(param == null || param.paramType() == null || param.paramType() == ParamType.DEFAULT){
+				if(endpoint.method == HttpRequestMethod.GET){
+					parsedValue.ifPresent(paramValue -> getParams.put(key, paramValue));
+				}else if(endpoint.method == HttpRequestMethod.POST){
+					parsedValue.ifPresent(paramValue -> postParams.put(key, paramValue));
+				}
+				continue;
+			}
+			ParamType paramType = param.paramType();
+			if(paramType == ParamType.GET){
+				parsedValue.ifPresent(paramValue -> getParams.put(key, paramValue));
+			}else if(paramType == ParamType.POST){
+				parsedValue.ifPresent(paramValue -> postParams.put(key, paramValue));
+			}
 		}
-		return params;
+		return new ParamsMap(getParams, postParams);
 	}
 
 	public static Optional<Object> findEntity(BaseEndpoint<?,?> endpoint){

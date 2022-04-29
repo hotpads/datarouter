@@ -112,7 +112,7 @@ public class ExceptionDetailsDetector{
 		private static String parseName(String fullClassName){
 			String[] tokens = fullClassName.split("\\.");
 			if(tokens.length < 2){
-				return "";
+				return fullClassName;
 			}else if(Character.isUpperCase(tokens[tokens.length - 1].charAt(0))){
 				return tokens[tokens.length - 1];
 			}else{

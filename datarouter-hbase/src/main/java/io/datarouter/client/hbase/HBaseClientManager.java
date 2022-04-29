@@ -55,7 +55,10 @@ public class HBaseClientManager extends BaseClientManager{
 
 	// these are used for databeans with no values outside the PK. we fake a value as we need at least 1 cell in a row
 	public static final byte[] DEFAULT_FAMILY_QUALIFIER = {(byte)'a'};
-	public static final String DUMMY_COL_NAME = new String(new byte[]{0});
+	public static final byte[] DUMMY_COL_NAME_BYTES = new byte[]{0};
+	public static final String DUMMY_COL_NAME = new String(DUMMY_COL_NAME_BYTES);
+	// Byte.MIN_VALUE for legacy reasons, but could probably be changed
+	public static final byte[] DUMMY_FIELD_VALUE = new byte[]{Byte.MIN_VALUE};
 
 	@Inject
 	private HBaseTablePoolHolder hBaseTablePoolHolder;

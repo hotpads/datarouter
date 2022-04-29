@@ -27,11 +27,14 @@ import io.datarouter.bytes.binarydto.dto.BinaryDto;
 import io.datarouter.bytes.binarydto.internal.BinaryDtoAllocator;
 import io.datarouter.bytes.binarydto.internal.BinaryDtoFieldSchema;
 import io.datarouter.bytes.binarydto.internal.BinaryDtoMetadataParser;
+import io.datarouter.bytes.binarydto.internal.BinaryDtoNullFieldTool;
 import io.datarouter.scanner.Scanner;
 
 public class BinaryDtoCodec<T extends BinaryDto<T>>{
 
 	private static final Map<Class<? extends BinaryDto<?>>,BinaryDtoCodec<?>> CACHE = new ConcurrentHashMap<>();
+
+	private static final int MAX_TOKENS_PER_FIELD = 2;// nullable, possible value
 
 	public final Class<T> dtoClass;
 	public final List<Field> fields;
@@ -39,13 +42,18 @@ public class BinaryDtoCodec<T extends BinaryDto<T>>{
 
 	private BinaryDtoCodec(Class<T> dtoClass){
 		this.dtoClass = dtoClass;
-		fields = new ArrayList<>();
 		T dto = BinaryDtoAllocator.allocate(dtoClass);
 		var metadataParser = new BinaryDtoMetadataParser<>(dto);
-		fieldSchemas = metadataParser.scanFieldsOrdered()
-				.each(field -> field.setAccessible(true))
-				.each(fields::add)
-				.map(BinaryDtoFieldSchema::new)
+		fields = metadataParser.listFields();
+		fieldSchemas = Scanner.of(fields)
+				.map(field -> {
+					if(field == null){
+						return null;
+					}
+					field.setAccessible(true);
+					BinaryDtoFieldSchema<?> fieldSchema = new BinaryDtoFieldSchema<>(field);
+					return fieldSchema;
+				})
 				.list();
 	}
 
@@ -68,18 +76,37 @@ public class BinaryDtoCodec<T extends BinaryDto<T>>{
 	/*---------- encode ------------*/
 
 	public byte[] encode(T dto){
-		return Scanner.of(fieldSchemas)
-				.map(field -> field.encodeField(dto))
-				.listTo(ByteTool::concat);
+		return encodePrefix(dto, fieldSchemas.size());
 	}
 
 	/*---------- encode prefix ------------*/
 
 	public byte[] encodePrefix(T dto, int numFields){
-		return Scanner.of(fieldSchemas)
-				.limit(numFields)
-				.map(field -> field.encodeField(dto))
-				.listTo(ByteTool::concat);
+		List<byte[]> tokens = new ArrayList<>(MAX_TOKENS_PER_FIELD * fieldSchemas.size());
+		for(int i = 0; i < numFields; ++i){
+			BinaryDtoFieldSchema<?> fieldSchema = fieldSchemas.get(i);
+			if(fieldSchema != null){
+				if(fieldSchema.isNullable()){
+					if(fieldSchema.isNull(dto)){
+						tokens.add(BinaryDtoNullFieldTool.NULL_INDICATOR_TRUE_ARRAY);
+					}else{
+						tokens.add(BinaryDtoNullFieldTool.NULL_INDICATOR_FALSE_ARRAY);
+						tokens.add(fieldSchema.encodeValue(dto));
+					}
+				}else{
+					if(fieldSchema.isNull(dto)){
+						String message = String.format(
+								"field=%s of class=%s can't contain nulls",
+								fieldSchema.getName(),
+								dto.getClass().getCanonicalName());
+						throw new IllegalArgumentException(message);
+					}else{
+						tokens.add(fieldSchema.encodeValue(dto));
+					}
+				}
+			}
+		}
+		return ByteTool.concat(tokens);
 	}
 
 	/*---------- decode ------------*/
@@ -88,19 +115,11 @@ public class BinaryDtoCodec<T extends BinaryDto<T>>{
 		return decodeWithLength(bytes, 0).value;
 	}
 
-	public T decode(byte[] bytes, int offset){
-		return decodeWithLength(bytes, offset).value;
-	}
-
-	public LengthAndValue<T> decodeWithLength(byte[] bytes){
-		return decodeWithLength(bytes, 0);
-	}
-
 	public LengthAndValue<T> decodeWithLength(byte[] bytes, int offset){
 		T dto = BinaryDtoAllocator.allocate(dtoClass);
 		int cursor = offset;
-		for(BinaryDtoFieldSchema<?> field : fieldSchemas){
-			cursor += field.decodeField(dto, bytes, cursor);
+		for(BinaryDtoFieldSchema<?> fieldSchema : fieldSchemas){
+			cursor += fieldSchema.decodeField(dto, bytes, cursor);
 		}
 		int length = cursor - offset;
 		return new LengthAndValue<>(length, dto);
@@ -133,13 +152,6 @@ public class BinaryDtoCodec<T extends BinaryDto<T>>{
 			}
 		}
 		return dto;
-	}
-
-	/*---------- copy ------------*/
-
-	public T deepCopy(T dto){
-		byte[] bytes = encode(dto);
-		return decode(bytes);
 	}
 
 }

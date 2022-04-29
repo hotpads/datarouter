@@ -34,6 +34,8 @@ import io.datarouter.pathnode.PathNode;
 
 public class EndpointToolTests{
 
+	private static final PathNode PATH = new PathNode().leaf("");
+
 	public abstract static class EndpointToolTestEndpoint<R>
 	extends BaseEndpoint<R,NoOpEndpointType>{
 
@@ -92,7 +94,7 @@ public class EndpointToolTests{
 		public Optional<String> str = Optional.empty();
 
 		public Example5(){
-			super(GET, new PathNode().leaf(""));
+			super(GET, PATH);
 		}
 	}
 
@@ -101,7 +103,7 @@ public class EndpointToolTests{
 		public Optional<String> str;
 
 		public Example6(){
-			super(GET, new PathNode().leaf(""));
+			super(GET, PATH);
 			this.str = Optional.empty();
 		}
 	}
@@ -111,7 +113,7 @@ public class EndpointToolTests{
 		public Optional<String> optionalString;
 
 		public Example7(){
-			super(GET, new PathNode().leaf(""));
+			super(GET, PATH);
 		}
 	}
 
@@ -143,7 +145,7 @@ public class EndpointToolTests{
 		public final String str;
 
 		public Example8(String str){
-			super(GET, new PathNode().leaf(""));
+			super(GET, PATH);
 			this.str = str;
 		}
 	}
@@ -174,7 +176,7 @@ public class EndpointToolTests{
 		public final String str;
 
 		public Example9(String str){
-			super(POST, new PathNode().leaf(""));
+			super(POST, PATH);
 			this.str = str;
 		}
 	}
@@ -207,7 +209,7 @@ public class EndpointToolTests{
 		public final String str;
 
 		public ValidateEndpoint1(String str){
-			super(GET, new PathNode().leaf(""));
+			super(GET, PATH);
 			this.str = str;
 		}
 
@@ -219,7 +221,7 @@ public class EndpointToolTests{
 		public final String str;
 
 		public ValidateEndpoint2(String str){
-			super(GET, new PathNode().leaf(""));
+			super(GET, PATH);
 			this.str = str;
 		}
 
@@ -234,7 +236,7 @@ public class EndpointToolTests{
 		public final String str2;
 
 		public ValidateEndpoint3(String str, String str2){
-			super(POST, new PathNode().leaf(""));
+			super(POST, PATH);
 			this.str = str;
 			this.str2 = str2;
 		}
@@ -250,7 +252,7 @@ public class EndpointToolTests{
 		public final String str2;
 
 		public ValidateEndpoint4(String str, String str2){
-			super(POST, new PathNode().leaf(""));
+			super(POST, PATH);
 			this.str = str;
 			this.str2 = str2;
 		}
@@ -279,7 +281,7 @@ public class EndpointToolTests{
 
 	@Test
 	public void testGetParamFields(){
-		Map<String,String> actual = EndpointTool.getParamFields(new ValidateEndpoint4("123", "abc"));
+		Map<String,String> actual = EndpointTool.getParamFields(new ValidateEndpoint4("123", "abc")).getParams;
 		Map<String,String> expected = Map.of("str2", "abc");
 		Assert.assertEquals(actual, expected);
 	}

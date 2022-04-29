@@ -84,17 +84,17 @@
 			</nav>
 			<b>Key Fields:</b>
 			<c:forEach items="${keyFields}" var="field" varStatus="loop">
-				${field.key.name}<c:if test="${!loop.last}">,</c:if>
+				${field.key.columnName}<c:if test="${!loop.last}">,</c:if>
 			</c:forEach>
 			<b>Non-Key Fields:</b>
 			<c:forEach items="${nonKeyFields}" var="field" varStatus="loop">
-				${field.key.name}<c:if test="${!loop.last}">,</c:if>
+				${field.key.columnName}<c:if test="${!loop.last}">,</c:if>
 			</c:forEach>
 			<table class="table table-sm table-bordered table-hover">
 				<thead>
 					<tr>
 						<c:forEach items="${fields}" var="field">
-							<th id="fieldAbbreviation.${field.key.name}" title="${field.key.name}">${abbreviatedFieldNameByFieldName[field.key.name]}</th>
+							<th id="fieldAbbreviation.${field.key.columnName}" title="${field.key.columnName}">${abbreviatedFieldNameByFieldName[field.key.columnName]}</th>
 						</c:forEach>
 						<th class="fa-fw"></th>
 					</tr>

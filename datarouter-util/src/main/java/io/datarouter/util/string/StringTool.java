@@ -160,7 +160,7 @@ public class StringTool{
 	}
 
 	public static String repeat(char chr, int number){
-		StringBuilder sb = new StringBuilder();
+		var sb = new StringBuilder();
 		for(int i = 0; i < number; ++i){
 			sb.append(chr);
 		}
@@ -168,7 +168,7 @@ public class StringTool{
 	}
 
 	public static String repeat(String input, int numTimes){
-		StringBuilder sb = new StringBuilder();
+		var sb = new StringBuilder();
 		for(int i = 0; i < numTimes; ++i){
 			sb.append(input);
 		}
@@ -200,7 +200,7 @@ public class StringTool{
 		if(objects.size() == 1){
 			return objects.iterator().next().toString();
 		}
-		StringBuilder sb = new StringBuilder();
+		var sb = new StringBuilder();
 		boolean didFirst = false;
 		for(Object o : objects){
 			if(didFirst){
@@ -244,7 +244,7 @@ public class StringTool{
 		if(input == null){
 			return null;
 		}
-		StringBuilder sb = new StringBuilder();
+		var sb = new StringBuilder();
 		for(int i = 0; i < input.length(); ++i){
 			if(Character.isDigit(input.charAt(i))){
 				sb.append(input.charAt(i));
@@ -270,15 +270,12 @@ public class StringTool{
 		if(input == null){
 			return null;
 		}
-
 		String result = input;
-
 		for(int i = 0; i < result.length(); ++i){ // careful about strings being immutable
 			if(result.charAt(i) > 126){
 				result = result.replace(result.charAt(i), replacement);
 			}
 		}
-
 		return result;
 	}
 
@@ -291,7 +288,6 @@ public class StringTool{
 		if(!original.startsWith(startsWith)){
 			return original;
 		}
-
 		original = original.substring(startsWith.length());
 		return replacement + original;
 	}
@@ -487,7 +483,7 @@ public class StringTool{
 	}
 
 	public static String snakeCaseToCamelCase(String snakeCase){
-		StringBuilder builder = new StringBuilder();
+		var builder = new StringBuilder();
 		boolean upCase = false;
 		for(int i = 0; i < snakeCase.length(); i++){
 			char character = snakeCase.charAt(i);

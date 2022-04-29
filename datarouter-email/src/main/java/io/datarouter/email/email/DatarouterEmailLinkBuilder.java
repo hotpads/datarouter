@@ -17,6 +17,7 @@ package io.datarouter.email.email;
 
 import java.net.URISyntaxException;
 import java.util.LinkedHashMap;
+import java.util.Optional;
 
 import org.apache.http.client.utils.URIBuilder;
 
@@ -70,7 +71,7 @@ public class DatarouterEmailLinkBuilder{
 		URIBuilder builder = new URIBuilder();
 		builder.setScheme(protocol);
 		builder.setHost(hostPort);
-		builder.setPath(contextPath + localPath);
+		builder.setPath(contextPath + Optional.ofNullable(localPath).orElse(""));
 		params.forEach(builder::addParameter);
 		builder.setFragment(fragment);
 		try{

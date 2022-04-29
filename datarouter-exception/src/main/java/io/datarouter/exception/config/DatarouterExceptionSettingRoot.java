@@ -28,6 +28,18 @@ import io.datarouter.storage.setting.cached.CachedSetting;
 @Singleton
 public class DatarouterExceptionSettingRoot extends SettingRoot{
 
+	//publish ExceptionRecords from buffer
+	public final CachedSetting<Boolean> runExceptionRecordMemoryToPublisherConveyor;
+	//controls ExceptionRecords publishing destination
+	public final CachedSetting<Boolean> saveExceptionRecordBlobsToQueueDaoInsteadOfDirectoryDao;
+	public final CachedSetting<Integer> exceptionRecordConveyorThreadCount;
+
+	//publish ExceptionRecords from buffer
+	public final CachedSetting<Boolean> runHttpRequestRecordMemoryToPublisherConveyor;
+	//controls ExceptionRecords publishing destination
+	public final CachedSetting<Boolean> saveHttpRequestRecordBlobsToQueueDaoInsteadOfDirectoryDao;
+	public final CachedSetting<Integer> httpRequestRecordConveyorThreadCount;
+
 	public final CachedSetting<Boolean> forceHideStackTrace;
 	public final CachedSetting<String> exceptionRecorderDomainName;
 	public final CachedSetting<Boolean> shouldReport;
@@ -51,6 +63,26 @@ public class DatarouterExceptionSettingRoot extends SettingRoot{
 	@Inject
 	public DatarouterExceptionSettingRoot(SettingFinder finder){
 		super(finder, DatarouterSettingCategory.DATAROUTER, "datarouterException.");
+
+		runExceptionRecordMemoryToPublisherConveyor = registerBooleans(
+				"runExceptionRecordMemoryToPublisherConveyor",
+				defaultTo(false)
+						.withTag(DatarouterSettingTagType.TRACE2PIPELINE, () -> true));
+		saveExceptionRecordBlobsToQueueDaoInsteadOfDirectoryDao = registerBooleans(
+				"saveExceptionRecordBlobsToQueueDaoInsteadOfDirectoryDao",
+				defaultTo(false)
+						.withTag(DatarouterSettingTagType.TRACE2PIPELINE, () -> true));
+		exceptionRecordConveyorThreadCount = registerInteger("exceptionRecordConveyorThreadCount", 1);
+
+		runHttpRequestRecordMemoryToPublisherConveyor = registerBooleans(
+				"runHttpRequestRecordMemoryToPublisherConveyor",
+				defaultTo(false)
+						.withTag(DatarouterSettingTagType.TRACE2PIPELINE, () -> true));
+		saveHttpRequestRecordBlobsToQueueDaoInsteadOfDirectoryDao = registerBooleans(
+				"saveHttpRequestRecordBlobsToQueueDaoInsteadOfDirectoryDao",
+				defaultTo(false)
+						.withTag(DatarouterSettingTagType.TRACE2PIPELINE, () -> true));
+		httpRequestRecordConveyorThreadCount = registerInteger("httpRequestRecordConveyorThreadCount", 1);
 
 		forceHideStackTrace = registerBoolean("forceHideStackTrace", false);
 		exceptionRecorderDomainName = registerString("exceptionRecorderDomainName", "localhost:8443");

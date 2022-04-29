@@ -28,32 +28,74 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
+import javax.servlet.http.HttpServletRequest;
+
 import io.datarouter.instrumentation.count.Counters;
+import io.datarouter.ratelimiter.storage.BaseTallyDao;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.time.ZoneIds;
 import io.datarouter.util.tuple.Pair;
+import io.datarouter.web.util.http.RequestTool;
 
-//TODO rolling increases/decreases in limit,
-//for spammers who hit the rate limit alot (decrease) and for people/things that are verified as not spam (increase)
-public abstract class BaseCacheRateLimiter extends BaseRateLimiter{
+public class DatarouterRateLimiter{
 
 	private static final String HIT_COUNTER_NAME = "rate limit hit";
+	private static final String EXCEEDED_AVG = "rate limit exceeded avg";
+	private static final String COUNTER_PREFIX = "RateLimiter ";
 
-	private final CacheRateLimiterConfig config;
+	private final BaseTallyDao tallyDao;
+	private final DatarouterRateLimiterConfig config;
 
-	public BaseCacheRateLimiter(CacheRateLimiterConfig config){
-		super(config.name);
+	public DatarouterRateLimiter(BaseTallyDao tallyDao, DatarouterRateLimiterConfig config){
+		this.tallyDao = tallyDao;
 		this.config = config;
 	}
 
-	protected abstract Long increment(String key);
-	protected abstract Map<String,Long> readCounts(List<String> keys);
+	public boolean peek(String key){
+		return internalAllow(makeKey(key), false);
+	}
 
-	@Override
-	protected Pair<Boolean,Instant> internalAllow(String key, boolean increment){
+	public boolean allowed(){
+		return allowed("");
+	}
+
+	public boolean allowed(String dynamicKey){
+		boolean allowed = internalAllow(makeKey(dynamicKey), true);
+		if(allowed){
+			Counters.inc(COUNTER_PREFIX + config.name + " allowed");
+		}else{
+			Counters.inc(COUNTER_PREFIX + config.name + " limit reached");
+		}
+		return allowed;
+	}
+
+	public boolean allowedForIp(HttpServletRequest request){
+		return allowedForIp("", request);
+	}
+
+	public boolean allowedForIp(String dynamicKey, HttpServletRequest request){
+		String ip = RequestTool.getIpAddress(request);
+		boolean allowed = internalAllow(makeKey(dynamicKey,ip), true);
+		if(allowed){
+			Counters.inc(COUNTER_PREFIX + "ip " + config.name + " allowed");
+		}else{
+			Counters.inc(COUNTER_PREFIX + "ip " + config.name + " limit reached");
+		}
+		return allowed;
+	}
+
+	public String getName(){
+		return config.name;
+	}
+
+	// null returned indicated that the cache datastore failed the operation
+	protected Long increment(String key){
+		return tallyDao.incrementAndGetCount(key, 1, config.expiration, Duration.ofMillis(200));
+	}
+
+	protected boolean internalAllow(String key, boolean increment){
 		Instant now = Instant.now();
 		Map<String,Long> results = readCounts(buildKeysToRead(key, now));
-
 		String currentMapKey = makeMapKey(key, getTimeStr(now));
 		int total = 0;
 
@@ -65,10 +107,8 @@ public abstract class BaseCacheRateLimiter extends BaseRateLimiter{
 
 			// exceeded maxSpikeRequests
 			if(numRequests > config.maxSpikeRequests){
-				Instant exceededInstant = getDateFromKey(entry.getKey());
 				Counters.inc(HIT_COUNTER_NAME);
-				return new Pair<>(false, exceededInstant
-						.plusMillis(config.bucketIntervalMs * (config.numIntervals - 1)));
+				return false;
 			}
 			total += numRequests;
 		}
@@ -77,7 +117,9 @@ public abstract class BaseCacheRateLimiter extends BaseRateLimiter{
 
 		// exceeded maxAvgRequests
 		if(avgRequests > config.maxAverageRequests){
-			List<Instant> instants = Scanner.of(results.keySet()).map(this::getDateFromKey).list();
+			List<Instant> instants = Scanner.of(results.keySet())
+					.map(DatarouterRateLimiter::getDateFromKey)
+					.list();
 			Instant lastTime = Instant.MIN;
 			for(Instant instant : instants){
 				if(instant.isAfter(lastTime)){
@@ -88,33 +130,13 @@ public abstract class BaseCacheRateLimiter extends BaseRateLimiter{
 
 			// add to get next available time
 			Counters.inc(HIT_COUNTER_NAME);
-			return new Pair<>(false, lastTime.plusMillis(config.bucketIntervalMs));
+			Counters.inc(EXCEEDED_AVG);
+			return false;
 		}
 		if(increment){
 			increment(currentMapKey);
 		}
-		return new Pair<>(true, null);
-	}
-
-	private List<String> buildKeysToRead(String key, Instant instant){
-		List<String> keys = new ArrayList<>();
-		for(int i = 0; i < config.numIntervals; i++){
-			int amount = i * config.bucketIntervalMs;
-			String mapKey = makeMapKey(key, getTimeStr(instant.minusMillis(amount)));
-			keys.add(mapKey.toString());
-		}
-		return keys;
-	}
-
-	// makes the key to put in the map from the key given and current time bucket
-	private String makeMapKey(String key, String time){
-		return key.replaceAll("!", "%21") + "!" + time;
-	}
-
-	// inverse of makeMapKey
-	private Pair<String,String> unmakeMapKey(String mapKey){
-		String[] splits = mapKey.split("!");
-		return new Pair<>(splits[0].replaceAll("%21", "!"), splits[1]);
+		return true;
 	}
 
 	/*
@@ -148,7 +170,32 @@ public abstract class BaseCacheRateLimiter extends BaseRateLimiter{
 		return DateTimeFormatter.ISO_INSTANT.format(truncatedInstant);
 	}
 
-	private Instant getDateFromKey(String key){
+	private Map<String,Long> readCounts(List<String> keys){
+		return tallyDao.getMultiTallyCount(keys, config.expiration, Duration.ofMillis(200));
+	}
+
+	private List<String> buildKeysToRead(String key, Instant instant){
+		List<String> keys = new ArrayList<>();
+		for(int i = 0; i < config.numIntervals; i++){
+			int amount = i * config.bucketIntervalMs;
+			String mapKey = makeMapKey(key, getTimeStr(instant.minusMillis(amount)));
+			keys.add(mapKey.toString());
+		}
+		return keys;
+	}
+
+	// makes the key to put in the map from the key given and current time bucket
+	private static String makeMapKey(String key, String time){
+		return key.replaceAll("!", "%21") + "!" + time;
+	}
+
+	// inverse of makeMapKey
+	private static Pair<String,String> unmakeMapKey(String mapKey){
+		String[] splits = mapKey.split("!");
+		return new Pair<>(splits[0].replaceAll("%21", "!"), splits[1]);
+	}
+
+	private static Instant getDateFromKey(String key){
 		String dateString = unmakeMapKey(key).getRight();
 		try{
 			return Instant.parse(dateString);
@@ -177,12 +224,8 @@ public abstract class BaseCacheRateLimiter extends BaseRateLimiter{
 				.toInstant();
 	}
 
-	public Duration getBucketTimeInterval(){
-		return Duration.ofMillis(config.bucketIntervalMs);
-	}
-
-	public CacheRateLimiterConfig getConfig(){
-		return config;
+	private static String makeKey(String... keyFields){
+		return String.join("_", keyFields);
 	}
 
 }

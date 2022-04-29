@@ -61,6 +61,11 @@ public class StringCodec{
 		return decode(bytes, 0, bytes.length);
 	}
 
+	public String decode(byte[] bytes, int offset){
+		int length = bytes.length - offset;
+		return decode(bytes, offset, length);
+	}
+
 	public String decode(byte[] bytes, int offset, int length){
 		try{
 			return new String(bytes, offset, length, charsetName);

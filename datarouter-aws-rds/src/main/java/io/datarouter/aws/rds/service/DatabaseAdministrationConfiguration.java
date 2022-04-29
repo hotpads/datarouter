@@ -24,6 +24,7 @@ public interface DatabaseAdministrationConfiguration{
 
 	PreTag fixDatabaseDns(DnsHostEntryDto dnsHostEntryDto);
 	void addOtherDatabaseDns(String clusterName);
+	void removeOtherDatabaseDns(String instanceName);
 
 	class NoOpDatabaseAdministrationConfiguration implements DatabaseAdministrationConfiguration{
 
@@ -34,6 +35,10 @@ public interface DatabaseAdministrationConfiguration{
 
 		@Override
 		public void addOtherDatabaseDns(String clusterName){
+		}
+
+		@Override
+		public void removeOtherDatabaseDns(String instanceName){
 		}
 
 	}

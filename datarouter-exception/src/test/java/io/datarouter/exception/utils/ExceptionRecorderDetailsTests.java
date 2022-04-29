@@ -41,6 +41,11 @@ public class ExceptionRecorderDetailsTests{
 				.getName(), ExceptionDetailsDetector.class.getName(), ExceptionHandlingFilter.class.getName());
 		Assert.assertEquals(defualtNameWithCallOrigin,
 				"NullPointerException at ExceptionDetailsDetector in ExceptionHandlingFilter");
+
+		String defualtNameWithSimpleNameCallOrigin = ExceptionRecorderDetails.getDefaultName(NullPointerException.class
+				.getName(), ExceptionDetailsDetector.class.getName(), ExceptionHandlingFilter.class.getSimpleName());
+		Assert.assertEquals(defualtNameWithSimpleNameCallOrigin,
+				"NullPointerException at ExceptionDetailsDetector in ExceptionHandlingFilter");
 	}
 
 }

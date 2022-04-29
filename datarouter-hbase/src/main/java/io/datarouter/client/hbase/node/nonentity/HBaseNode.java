@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright © 2009 HotPads (admin@hotpads.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -46,8 +46,6 @@ import io.datarouter.model.databean.Databean;
 import io.datarouter.model.entity.Entity;
 import io.datarouter.model.exception.DataAccessException;
 import io.datarouter.model.field.Field;
-import io.datarouter.model.field.imp.comparable.SignedByteField;
-import io.datarouter.model.field.imp.comparable.SignedByteFieldKey;
 import io.datarouter.model.key.entity.EntityKey;
 import io.datarouter.model.key.primary.EntityPrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
@@ -70,10 +68,6 @@ public class HBaseNode<
 		F extends DatabeanFielder<PK,D>>
 extends HBaseReaderNode<EK,E,PK,D,F>
 implements PhysicalSortedMapStorageNode<PK,D,F>, HBaseIncrement<PK>{
-
-	public static final byte[] FAM = HBaseClientManager.DEFAULT_FAMILY_QUALIFIER;
-	public static final SignedByteFieldKey DUMMY_FIELD_KEY = new SignedByteFieldKey(HBaseClientManager.DUMMY_COL_NAME);
-	private static final SignedByteField DUMMY_FIELD = new SignedByteField(DUMMY_FIELD_KEY, (byte)0);
 
 	private final CountingBatchCallback<?> putMultiCallback;
 	private final CountingBatchCallback<?> deleteMultiCallback;
@@ -138,21 +132,21 @@ implements PhysicalSortedMapStorageNode<PK,D,F>, HBaseIncrement<PK>{
 			byte[] valueBytes = field.getBytes();
 			if(valueBytes == null){
 				if(!ignoreNulls){
-					delete.addColumns(FAM, columnNameBytes);
+					delete.addColumns(HBaseClientManager.DEFAULT_FAMILY_QUALIFIER, columnNameBytes);
 					deleteBytes += columnNameBytes.length;
 					++numCellsDeleted;
 				}
 			}else{
-				put.addColumn(FAM, columnNameBytes, valueBytes);
+				put.addColumn(HBaseClientManager.DEFAULT_FAMILY_QUALIFIER, columnNameBytes, valueBytes);
 				putBytes += columnNameBytes.length;
 				putValueBytes += valueBytes.length;
 				++numCellsPut;
 			}
 		}
 		if(put.isEmpty()){
-			byte[] columnNameBytes = DUMMY_FIELD_KEY.getColumnNameBytes();
-			byte[] valueBytes = DUMMY_FIELD.getBytes();
-			put.addColumn(FAM, columnNameBytes, valueBytes);
+			byte[] columnNameBytes = HBaseClientManager.DUMMY_COL_NAME_BYTES;
+			byte[] valueBytes = HBaseClientManager.DUMMY_FIELD_VALUE;
+			put.addColumn(HBaseClientManager.DEFAULT_FAMILY_QUALIFIER, columnNameBytes, valueBytes);
 			putBytes += columnNameBytes.length;
 			putValueBytes += valueBytes.length;
 			++numCellsPut;
@@ -267,7 +261,10 @@ implements PhysicalSortedMapStorageNode<PK,D,F>, HBaseIncrement<PK>{
 			for(Entry<String,Long> columnCount : row.getValue().entrySet()){
 				String columnName = columnCount.getKey();
 				byte[] columnNameBytes = StringCodec.UTF_8.encode(columnName);
-				increment.addColumn(HBaseNode.FAM, columnNameBytes, columnCount.getValue());
+				increment.addColumn(
+						HBaseClientManager.DEFAULT_FAMILY_QUALIFIER,
+						columnNameBytes,
+						columnCount.getValue());
 				++cellCount;
 			}
 			increment.setDurability(durability);

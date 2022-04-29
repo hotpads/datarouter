@@ -44,6 +44,7 @@ import io.datarouter.gcp.spanner.field.primitive.SpannerSignedByteFieldCodec;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.imp.DateField;
 import io.datarouter.model.field.imp.LocalDateField;
+import io.datarouter.model.field.imp.StringEncodedField;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.array.ByteArrayEncodedField;
 import io.datarouter.model.field.imp.array.ByteArrayField;
@@ -89,6 +90,7 @@ public class SpannerFieldCodecRegistry{
 		addCodec(IntegerEncodedField.class, SpannerIntegerEncodedFieldCodec.class);
 		addCodec(LongEncodedField.class, SpannerLongEncodedFieldCodec.class);
 		addCodec(ByteArrayEncodedField.class, SpannerByteArrayEncodedFieldCodec.class);
+		addCodec(StringEncodedField.class, SpannerStringEncodedFieldCodec.class);
 
 		//enum
 		addCodec(IntegerEnumField.class, SpannerIntegerEnumFieldCodec.class);
@@ -121,7 +123,9 @@ public class SpannerFieldCodecRegistry{
 	}
 
 	public List<? extends SpannerBaseFieldCodec<?,?>> createCodecs(List<Field<?>> fields){
-		return Scanner.of(fields).map(this::createCodec).list();
+		return Scanner.of(fields)
+				.map(this::createCodec)
+				.list();
 	}
 
 }

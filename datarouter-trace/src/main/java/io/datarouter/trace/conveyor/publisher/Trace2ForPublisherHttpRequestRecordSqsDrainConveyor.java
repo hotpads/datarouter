@@ -22,7 +22,7 @@ import com.google.gson.Gson;
 import io.datarouter.conveyor.message.ConveyorMessage;
 import io.datarouter.conveyor.message.ConveyorMessageKey;
 import io.datarouter.conveyor.queue.GroupQueueConsumer;
-import io.datarouter.instrumentation.exception.ExceptionRecordPublisher;
+import io.datarouter.instrumentation.exception.DatarouterExceptionPublisher;
 import io.datarouter.instrumentation.exception.HttpRequestRecordBatchDto;
 import io.datarouter.instrumentation.response.PublishingResponseDto;
 import io.datarouter.trace.conveyor.BaseTrace2HttpRequestRecordSqsDrainConveyor;
@@ -30,14 +30,14 @@ import io.datarouter.web.exception.ExceptionRecorder;
 
 public class Trace2ForPublisherHttpRequestRecordSqsDrainConveyor extends BaseTrace2HttpRequestRecordSqsDrainConveyor{
 
-	private final ExceptionRecordPublisher publisher;
+	private final DatarouterExceptionPublisher publisher;
 
 	public Trace2ForPublisherHttpRequestRecordSqsDrainConveyor(
 			String name,
 			Supplier<Boolean> shouldRun,
 			GroupQueueConsumer<ConveyorMessageKey,ConveyorMessage> groupQueueConsumer,
 			Gson gson,
-			ExceptionRecordPublisher publisher,
+			DatarouterExceptionPublisher publisher,
 			Supplier<Boolean> compactExceptionLogging,
 			ExceptionRecorder exceptionRecorder){
 		super(name, shouldRun, groupQueueConsumer, compactExceptionLogging, gson, exceptionRecorder);
@@ -46,7 +46,7 @@ public class Trace2ForPublisherHttpRequestRecordSqsDrainConveyor extends BaseTra
 
 	@Override
 	public void persistData(HttpRequestRecordBatchDto batchDto){
-		PublishingResponseDto response = publisher.addHttpRequest(batchDto);
+		PublishingResponseDto response = publisher.addHttpRequestRecord(batchDto);
 		if(response.success == null || !response.success){
 			throw new RuntimeException("failed to publish response=" + response.message);
 		}

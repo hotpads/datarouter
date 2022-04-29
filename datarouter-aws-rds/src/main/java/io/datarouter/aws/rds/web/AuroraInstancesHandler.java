@@ -128,7 +128,7 @@ public class AuroraInstancesHandler extends BaseHandler{
 		var table = new J2HtmlTable<DnsHostEntryDto>()
 				.withClasses("sortable table table-sm table-striped my-4 border")
 				.withHtmlColumn("Client name", row -> {
-					if(row.isReaderPointedToWriter() || row.isReaderPointedToOther()){
+					if(row.isReaderPointedToWriter() || row.isReaderPointedToWrongReader()){
 						return td(row.getClientName()).withClass("table-danger");
 					}
 					return td(row.getClientName());
@@ -174,6 +174,7 @@ public class AuroraInstancesHandler extends BaseHandler{
 	public Mav deleteOtherInstance(@Param(P_clientName) String clientName){
 		Require.isTrue(clientName.endsWith(rdsSettings.dbOtherInstanceSuffix.get()));
 		rdsService.deleteOtherInstance(clientName);
+		config.removeOtherDatabaseDns(clientName);
 		var dto = new DatarouterChangelogDtoBuilder(
 				"AuroraClients",
 				clientName,

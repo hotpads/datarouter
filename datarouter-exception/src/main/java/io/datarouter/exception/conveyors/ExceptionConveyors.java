@@ -22,27 +22,21 @@ import io.datarouter.conveyor.BaseConveyors;
 import io.datarouter.conveyor.queue.DatabeanBufferConveyor;
 import io.datarouter.exception.config.DatarouterExceptionSettingRoot;
 import io.datarouter.exception.storage.exceptionrecord.DatarouterExceptionRecordDao;
-import io.datarouter.exception.storage.exceptionrecord.DatarouterExceptionRecordPublisherDao;
 import io.datarouter.exception.storage.httprecord.DatarouterHttpRequestRecordDao;
-import io.datarouter.exception.storage.httprecord.DatarouterHttpRequestRecordPublisherDao;
-import io.datarouter.instrumentation.exception.ExceptionRecordPublisher;
+import io.datarouter.instrumentation.exception.DatarouterExceptionPublisher;
 import io.datarouter.web.exception.ExceptionRecorder;
 
 @Singleton
-public class ExceptionQueueConveyors extends BaseConveyors{
+public class ExceptionConveyors extends BaseConveyors{
 
 	@Inject
 	private DatarouterExceptionSettingRoot exceptionsSettings;
-	@Inject
-	private DatarouterExceptionRecordPublisherDao exceptionRecordPublisherDao;
-	@Inject
-	private DatarouterHttpRequestRecordPublisherDao httpRequestRecordPublisherDao;
 	@Inject
 	private DatarouterExceptionRecordDao exceptionRecordDao;
 	@Inject
 	private DatarouterHttpRequestRecordDao httpRequestRecordDao;
 	@Inject
-	private ExceptionRecordPublisher exceptionRecordPublisher;
+	private DatarouterExceptionPublisher exceptionRecordPublisher;
 	@Inject
 	private ExceptionRecorder exceptionRecorder;
 	@Inject
@@ -50,22 +44,20 @@ public class ExceptionQueueConveyors extends BaseConveyors{
 
 	@Override
 	public void onStartUp(){
-		start(new ExceptionRecordQueueConveyor(
-				"exceptionRecordQueuePublisher",
-				exceptionsSettings.publishRecords,
-				exceptionRecordPublisherDao.getGroupQueueConsumer(),
-				exceptionRecordPublisher,
-				exceptionsSettings.compactExceptionLoggingForConveyors,
-				exceptionRecorder),
-				exceptionsSettings.exceptionRecordPublishThreadCount.get());
-		start(new HttpRequestRecordQueueConveyor(
-				"httpRequestRecordQueuePublisher",
-				exceptionsSettings.publishRecords,
-				httpRequestRecordPublisherDao.getGroupQueueConsumer(),
-				exceptionRecordPublisher,
-				exceptionsSettings.compactExceptionLoggingForConveyors,
-				exceptionRecorder),
-				exceptionsSettings.httpRequestRecordPublishThreadCount.get());
+		start(new ExceptionRecordMemoryToPublisherConveyor(
+				"exceptionRecordMemoryToPublisher",
+				exceptionsSettings.runExceptionRecordMemoryToPublisherConveyor,
+				exceptionBuffers.exceptionRecordPublishingBuffer,
+				exceptionRecorder,
+				exceptionRecordPublisher),
+				exceptionsSettings.exceptionRecordConveyorThreadCount.get());
+		start(new HttpRequestRecordMemoryToPublisherConveyor(
+				"httpRequestRecordMemoryToPublisher",
+				exceptionsSettings.runHttpRequestRecordMemoryToPublisherConveyor,
+				exceptionBuffers.httpRequestRecordPublishingBuffer,
+				exceptionRecorder,
+				exceptionRecordPublisher),
+				exceptionsSettings.exceptionRecordConveyorThreadCount.get());
 		start(new DatabeanBufferConveyor<>(
 				"exceptionRecordMemoryToDatabase",
 				exceptionsSettings.runExceptionRecordMemoryToDatabaseConveyor,

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright © 2009 HotPads (admin@hotpads.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -283,6 +283,15 @@ public abstract class BaseManyFieldIntegrationTests{
 		Assert.assertEquals(roundTripped.getStringField(), bean.getStringField());
 		String roundTrippedByteString = new String(roundTripped.getStringByteField(), StandardCharsets.UTF_8);
 		Assert.assertEquals(val, roundTrippedByteString);
+	}
+
+	@Test
+	public void testEnumToString(){
+		var bean = new ManyFieldBean();
+		bean.setEnumToStringField(TestEnum.beast);
+		Assert.assertSame(putAndGet(bean).getEnumToStringField(), TestEnum.beast);
+		bean.setEnumToStringField(null);
+		Assert.assertSame(putAndGet(bean).getEnumToStringField(), null);
 	}
 
 

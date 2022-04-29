@@ -98,10 +98,10 @@ public class MysqlTool{
 			PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
-			List<PK> selectPrimaryKeys(
-					MysqlFieldCodecFactory fieldCodecFactory,
-					DatabeanFieldInfo<PK,D,F> fieldInfo,
-					PreparedStatement ps){
+	List<PK> selectPrimaryKeys(
+			MysqlFieldCodecFactory fieldCodecFactory,
+			DatabeanFieldInfo<PK,D,F> fieldInfo,
+			PreparedStatement ps){
 		try{
 			String spanName = fieldInfo.getPrimaryKeySupplier().get().getClass().getSimpleName()
 					+ " selectPrimaryKeys PreparedStatement.execute";
@@ -124,7 +124,8 @@ public class MysqlTool{
 		}
 	}
 
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> List<D> selectDatabeans(
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
+	List<D> selectDatabeans(
 			MysqlFieldCodecFactory fieldCodecFactory,
 			Supplier<D> databeanSupplier,
 			List<Field<?>> fields,
@@ -141,7 +142,8 @@ public class MysqlTool{
 		}
 	}
 
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> List<D> getDatabeansFromSelectResult(
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
+	List<D> getDatabeansFromSelectResult(
 			MysqlFieldCodecFactory fieldCodecFactory,
 			Supplier<D> databeanSupplier,
 			List<Field<?>> fields,
