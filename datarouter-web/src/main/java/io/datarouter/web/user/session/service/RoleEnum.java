@@ -15,10 +15,12 @@
  */
 package io.datarouter.web.user.session.service;
 
-import io.datarouter.enums.StringEnum;
-
-public interface RoleEnum<T> extends StringEnum<T>{
+public interface RoleEnum<T>{
 
 	Role getRole();
+
+	String getPersistentString();
+
+	T fromPersistentString(String string);
 
 }

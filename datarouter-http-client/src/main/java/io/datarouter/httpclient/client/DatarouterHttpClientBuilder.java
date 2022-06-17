@@ -40,10 +40,11 @@ import org.apache.http.impl.client.LaxRedirectStrategy;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.ssl.SSLContextBuilder;
 
+import io.datarouter.gson.serialization.GsonTool;
 import io.datarouter.httpclient.endpoint.EndpointType;
 import io.datarouter.httpclient.json.GsonJsonSerializer;
-import io.datarouter.httpclient.json.HttpClientGsonTool;
 import io.datarouter.httpclient.json.JsonSerializer;
+import io.datarouter.httpclient.link.DatarouterLinkSettings;
 import io.datarouter.httpclient.security.CsrfGenerator;
 import io.datarouter.httpclient.security.CsrfGenerator.RefreshableCsrfGenerator;
 import io.datarouter.httpclient.security.SecurityParameters;
@@ -56,7 +57,7 @@ public class DatarouterHttpClientBuilder{
 	public static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(3);
 	public static final int DEFAULT_MAX_TOTAL_CONNECTIONS = 200;
 
-	private static final JsonSerializer DEFAULT_SERIALIZER = new GsonJsonSerializer(HttpClientGsonTool.GSON);
+	private static final JsonSerializer DEFAULT_SERIALIZER = new GsonJsonSerializer(GsonTool.GSON);
 
 	private int timeoutMs; // must be int due to RequestConfig.set*Timeout() methods
 	private int connectTimeoutMs;
@@ -321,6 +322,11 @@ public class DatarouterHttpClientBuilder{
 	public DatarouterHttpClientBuilder forDatarouterHttpClientSettings(DatarouterHttpClientSettings settings){
 		return forDatarouterHttpClientSettings((SimpleDatarouterHttpClientSettings)settings)
 				.setUrlPrefix(settings::getEndpointUrl);
+	}
+
+	public DatarouterHttpClientBuilder forLinkSettings(
+			DatarouterLinkSettings settings, String serviceName){
+		return this.setUrlPrefix(settings.getLinkUrl(serviceName));
 	}
 
 }

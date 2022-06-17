@@ -17,6 +17,7 @@ package io.datarouter.aws.memcached.test;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Guice;
+import org.testng.annotations.Test;
 
 import io.datarouter.storage.test.tally.BaseCacheTallyIntegrationTests;
 
@@ -28,5 +29,15 @@ public class DatarouterAwsMemcachedTallyIntegrationTests extends BaseCacheTallyI
 		setup(DatarouterAwsMemcachedTestClientIds.AWS_MEMCACHED);
 	}
 
+	@Override
+	@Test
+	public void testVacuum(){
+		//memcached does not support vacuum operation
+	}
+
+	@Override
+	@Test
+	public void testGetMultiWithTtl(){
+	}
 
 }

@@ -34,7 +34,7 @@ import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.html.j2html.J2HtmlTable;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import io.datarouter.web.requirejs.DatarouterWebRequireJsV2;
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.DivTag;
 
 public class ViewTableConfigurationHandler extends BaseHandler{
 
@@ -53,7 +53,7 @@ public class ViewTableConfigurationHandler extends BaseHandler{
 				.buildMav();
 	}
 
-	private static ContainerTag<?> makeContent(List<NodewatchConfiguration> rows){
+	private static DivTag makeContent(List<NodewatchConfiguration> rows){
 		var header = h2("Custom Table Configurations");
 		var overview = dl(
 				dt("Default Sample Interval"),

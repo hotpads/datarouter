@@ -21,6 +21,7 @@ import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
+import org.apache.http.StatusLine;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.cookie.Cookie;
 import org.slf4j.Logger;
@@ -72,6 +73,10 @@ public class DatarouterHttpResponse{
 
 	public HttpRequest getRequest(){
 		return request;
+	}
+
+	public StatusLine getStatusLine(){
+		return response.getStatusLine();
 	}
 
 	public void tryClose(){

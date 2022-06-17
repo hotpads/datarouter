@@ -45,8 +45,8 @@ public class MemcachedBlobNode
 extends BasePhysicalNode<PathbeanKey,Pathbean,PathbeanFielder>
 implements PhysicalBlobStorageNode{
 
+	private static final boolean DEFAULT_IGNORE_EXCEPTION = true;
 	private static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(3);
-	private static final Boolean DEFAULT_IGNORE_EXCEPTION = true;
 
 	private final Subpath rootPath;
 	private final MemcachedBlobCodec blobCodec;
@@ -76,13 +76,13 @@ implements PhysicalBlobStorageNode{
 	}
 
 	@Override
-	public boolean exists(PathbeanKey key){
+	public boolean exists(PathbeanKey key, Config config){
 		return scanMultiKeysInternal(List.of(key))
 				.hasAny();
 	}
 
 	@Override
-	public Optional<Long> length(PathbeanKey key){
+	public Optional<Long> length(PathbeanKey key, Config config){
 		//TODO avoid fetching the bytes?
 		return scanMultiInternal(List.of(key))
 				.map(Pair::getRight)
@@ -92,7 +92,7 @@ implements PhysicalBlobStorageNode{
 	}
 
 	@Override
-	public byte[] read(PathbeanKey key){
+	public byte[] read(PathbeanKey key, Config config){
 		return scanMultiInternal(List.of(key))
 				.findFirst()
 				.map(Pair::getRight)
@@ -100,13 +100,13 @@ implements PhysicalBlobStorageNode{
 	}
 
 	@Override
-	public Map<PathbeanKey,byte[]> read(List<PathbeanKey> keys){
+	public Map<PathbeanKey,byte[]> read(List<PathbeanKey> keys, Config config){
 		return scanMultiInternal(keys)
 				.toMap(Pair::getLeft, Pair::getRight);
 	}
 
 	@Override
-	public byte[] read(PathbeanKey key, long offset, int length){
+	public byte[] read(PathbeanKey key, long offset, int length, Config config){
 		int intOffset = (int)offset;
 		return scanMultiInternal(List.of(key))
 				.findFirst()
@@ -116,12 +116,12 @@ implements PhysicalBlobStorageNode{
 	}
 
 	@Override
-	public Scanner<List<PathbeanKey>> scanKeysPaged(Subpath subpath){
+	public Scanner<List<PathbeanKey>> scanKeysPaged(Subpath subpath, Config config){
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public Scanner<List<Pathbean>> scanPaged(Subpath subpath){
+	public Scanner<List<Pathbean>> scanPaged(Subpath subpath, Config config){
 		throw new UnsupportedOperationException();
 	}
 
@@ -137,24 +137,24 @@ implements PhysicalBlobStorageNode{
 	}
 
 	@Override
-	public void write(PathbeanKey key, Scanner<byte[]> chunks){
+	public void write(PathbeanKey key, Scanner<byte[]> chunks, Config config){
 		byte[] value = chunks.listTo(ByteTool::concat);
-		write(key, value);
+		write(key, value, config);
 	}
 
 	@Override
-	public void write(PathbeanKey key, InputStream inputStream){
+	public void write(PathbeanKey key, InputStream inputStream, Config config){
 		byte[] value = InputStreamTool.toArray(inputStream);
-		write(key, value);
+		write(key, value, config);
 	}
 
 	@Override
-	public void delete(PathbeanKey key){
+	public void delete(PathbeanKey key, Config config){
 		lazyClient.get().delete(getName(), blobCodec.encodeKey(key), Duration.ofSeconds(3));
 	}
 
 	@Override
-	public void deleteAll(Subpath subpath){
+	public void deleteAll(Subpath subpath, Config config){
 		throw new UnsupportedOperationException();
 	}
 

@@ -29,6 +29,8 @@ import javax.inject.Singleton;
 
 import org.apache.http.Header;
 import org.apache.http.entity.ContentType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gson.reflect.TypeToken;
 
@@ -53,6 +55,7 @@ import io.datarouter.web.handler.types.optional.OptionalString;
 import io.datarouter.web.util.ExceptionTool;
 
 public class HttpTestHandler extends BaseHandler{
+	private static final Logger logger = LoggerFactory.getLogger(HttpTestHandler.class);
 
 	@Inject
 	private DatarouterWebFiles files;
@@ -106,6 +109,7 @@ public class HttpTestHandler extends BaseHandler{
 		}
 		Long elapsedMs = System.currentTimeMillis() - start;
 		if(response.isFailure() && response.getException() instanceof DatarouterHttpResponseException){
+			logger.warn("", response.getException());
 			DatarouterHttpResponseException responseException = (DatarouterHttpResponseException)response
 					.getException();
 			addResponseToMavModel(mav, url.get(), elapsedMs, Optional.of(responseException.getResponse()));

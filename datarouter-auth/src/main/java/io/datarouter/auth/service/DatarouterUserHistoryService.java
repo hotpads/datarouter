@@ -46,7 +46,7 @@ import io.datarouter.storage.config.properties.AdminEmail;
 import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
 import io.datarouter.web.user.databean.DatarouterUser;
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.PTag;
 
 @Singleton
 public class DatarouterUserHistoryService{
@@ -87,24 +87,31 @@ public class DatarouterUserHistoryService{
 
 		return Scanner.of(requests)
 				.deduplicateConsecutive()
-				.toMap(Function.identity(), request -> request.toUserHistoryKey().map(historyKey -> historyMap
-						.getOrDefault(historyKey, request.getResolution().getPersistentString())));
+				.toMap(Function.identity(), request -> request.toUserHistoryKey()
+						.map(historyKey -> historyMap.getOrDefault(
+								historyKey,
+								request.getResolution().persistentString)));
 	}
 
-	public Optional<String> getResolutionDescription(DatarouterPermissionRequest request,
+	public Optional<String> getResolutionDescription(
+			DatarouterPermissionRequest request,
 			Map<DatarouterUserHistoryKey,String> historyMap){
 		return request.toUserHistoryKey()
-				.map(historyKey -> historyMap.getOrDefault(historyKey, request.getResolution().getPersistentString()));
+				.map(historyKey -> historyMap.getOrDefault(historyKey, request.getResolution().persistentString));
 	}
 
 	public void putAndRecordCreate(DatarouterUser user, Long editorId, String editorUsername, String description){
 		baseDatarouterUserDao.put(user);
-		baseDatarouterUserHistoryDao.put(new DatarouterUserHistory(user.getId(), user.getCreatedInstant(), editorId,
-				DatarouterUserChangeType.CREATE, description));
+		baseDatarouterUserHistoryDao.put(new DatarouterUserHistory(
+				user.getId(),
+				user.getCreatedInstant(),
+				editorId,
+				DatarouterUserChangeType.CREATE,
+				description));
 		var dto = new DatarouterChangelogDtoBuilder(
 				CHANGELOG_TYPE,
 				user.getUsername(),
-				DatarouterUserChangeType.CREATE.getPersistentString(),
+				DatarouterUserChangeType.CREATE.persistentString,
 				editorUsername)
 				.withComment(description)
 				.build();
@@ -123,7 +130,7 @@ public class DatarouterUserHistoryService{
 		DatarouterChangelogDto dto = new DatarouterChangelogDtoBuilder(
 				CHANGELOG_TYPE,
 				user.getUsername(),
-				DatarouterUserChangeType.RESET.getPersistentString(),
+				DatarouterUserChangeType.RESET.persistentString,
 				editor.getUsername())
 				.build();
 		changelogRecorder.record(dto);
@@ -141,7 +148,7 @@ public class DatarouterUserHistoryService{
 		DatarouterChangelogDto dto = new DatarouterChangelogDtoBuilder(
 				CHANGELOG_TYPE,
 				user.getUsername(),
-				DatarouterUserChangeType.EDIT.getPersistentString(),
+				DatarouterUserChangeType.EDIT.persistentString,
 				editor.getUsername())
 				.withComment(changes)
 				.build();
@@ -149,8 +156,12 @@ public class DatarouterUserHistoryService{
 	}
 
 	public void recordMessage(DatarouterUser user, DatarouterUser editor, String message){
-		baseDatarouterUserHistoryDao.put(new DatarouterUserHistory(user.getId(), Instant.now(), editor.getId(),
-				DatarouterUserChangeType.INFO, message));
+		baseDatarouterUserHistoryDao.put(new DatarouterUserHistory(
+				user.getId(),
+				Instant.now(),
+				editor.getId(),
+				DatarouterUserChangeType.INFO,
+				message));
 	}
 
 	public void recordDeprovisions(List<DatarouterUser> users, Optional<DatarouterUser> editor){
@@ -158,8 +169,12 @@ public class DatarouterUserHistoryService{
 		Long editorId = editor.map(DatarouterUser::getId)
 				.orElse(DatarouterUserCreationService.ADMIN_ID);
 		Map<Long, DatarouterUserHistory> histories = Scanner.of(users)
-				.map(user -> new DatarouterUserHistory(user.getId(), time, editorId, DatarouterUserChangeType
-						.DEPROVISION, "deprovisioned"))
+				.map(user -> new DatarouterUserHistory(
+						user.getId(),
+						time,
+						editorId,
+						DatarouterUserChangeType.DEPROVISION,
+						"deprovisioned"))
 				.flush(baseDatarouterUserHistoryDao::putMulti)
 				.toMap(history -> history.getKey().getUserId());
 		Scanner.of(users)
@@ -178,20 +193,26 @@ public class DatarouterUserHistoryService{
 		Long editorId = editor.map(DatarouterUser::getId)
 				.orElse(null);
 		Scanner.of(users)
-				.map(user -> new DatarouterUserHistory(user.getId(), time, editorId, DatarouterUserChangeType.RESTORE,
+				.map(user -> new DatarouterUserHistory(
+						user.getId(),
+						time,
+						editorId,
+						DatarouterUserChangeType.RESTORE,
 						"restored"))
 				.flush(baseDatarouterUserHistoryDao::putMulti);
 		recordProvisioningChangelogs(users, editor, DatarouterUserChangeType.RESTORE);
 	}
 
-	private void recordProvisioningChangelogs(List<DatarouterUser> users, Optional<DatarouterUser> editor,
+	private void recordProvisioningChangelogs(
+			List<DatarouterUser> users,
+			Optional<DatarouterUser> editor,
 			DatarouterUserChangeType action){
 		Scanner.of(users)
 				.map(DatarouterUser::getUsername)
 				.map(username -> new DatarouterChangelogDtoBuilder(
 						CHANGELOG_TYPE,
 						username,
-						action.getPersistentString(),
+						action.persistentString,
 						editor.map(DatarouterUser::getUsername).orElse(adminEmail.get())))
 				.map(DatarouterChangelogDtoBuilder::build)
 				.forEach(changelogRecorder::record);
@@ -257,7 +278,7 @@ public class DatarouterUserHistoryService{
 		htmlEmailService.trySendJ2Html(emailBuilder);
 	}
 
-	private static ContainerTag<?> makeSignInParagraph(String signInUrl){
+	private static PTag makeSignInParagraph(String signInUrl){
 		return p(text("Please sign in again to refresh your session: "), a("sign in").withHref(signInUrl));
 	}
 

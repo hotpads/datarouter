@@ -52,4 +52,12 @@ public class TerminatedByteArrayCodecTests{
 		Assert.assertEquals(decoded, input);
 	}
 
+	@Test
+	public void testLength(){
+		var input1 = new byte[]{0};
+		Assert.assertEquals(CODEC.lengthWithTerminalIndex(input1, 0), 1);
+		var input2 = new byte[]{5, 0, 5, 5, 0, 5, 0};
+		Assert.assertEquals(CODEC.lengthWithTerminalIndex(input2, 2), 3);
+		Assert.assertEquals(CODEC.lengthWithTerminalIndex(input2, 5), 2);
+	}
 }

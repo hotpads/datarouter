@@ -39,7 +39,7 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.properties.AdminEmail;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
 import io.datarouter.web.email.StandardDatarouterEmailHeaderService;
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.BodyTag;
 import j2html.tags.specialized.PreTag;
 
 public class AuroraDnsMonitoringJob extends BaseJob{
@@ -88,9 +88,9 @@ public class AuroraDnsMonitoringJob extends BaseJob{
 		htmlEmailService.trySendJ2Html(emailBuilder);
 	}
 
-	private ContainerTag<?> makeEmailContent(List<DnsHostEntryDto> mismatchedReaderEntries, List<PreTag> fixes){
+	private BodyTag makeEmailContent(List<DnsHostEntryDto> mismatchedReaderEntries, List<PreTag> fixes){
 		var header = standardDatarouterEmailHeaderService.makeStandardHeader();
-		var message = h3("Some of the reader DB instances are pointed to the writer instance or missing entries");
+		var message = h3("Some of the reader DB instances are pointed to the wrong instance or missing entries");
 		var table = new J2HtmlEmailTable<DnsHostEntryDto>()
 				.withColumn("client name", DnsHostEntryDto::getClientName)
 				.withColumn("hostname", DnsHostEntryDto::getHostname)

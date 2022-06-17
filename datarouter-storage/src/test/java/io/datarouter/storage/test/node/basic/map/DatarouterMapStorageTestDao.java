@@ -41,7 +41,7 @@ public class DatarouterMapStorageTestDao extends BaseDao implements TestDao{
 		super(datarouter);
 		node = nodeFactory.create(clientId, MapStorageBeanEntityKey::new, MapStorageBean::new,
 				MapStorageBeanFielder::new)
-				.withSchemaVersion(1)
+				.withSchemaVersion("1")
 				.buildAndRegister();
 	}
 

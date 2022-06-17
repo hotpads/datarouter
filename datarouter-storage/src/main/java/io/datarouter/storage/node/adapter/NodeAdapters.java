@@ -132,13 +132,10 @@ public class NodeAdapters{
 
 	/*-------------- tally ----------------*/
 
-	public <PK extends PrimaryKey<PK>,
-			D extends Databean<PK,D>,
-			F extends DatabeanFielder<PK,D>>
-	PhysicalNode<PK,D,F> wrapTallyNode(PhysicalTallyStorageNode<PK,D,F> physicalTallyNode){
-		return new PhysicalTallyStorageSanitizationAdapter<>(
-				new PhysicalTallyStorageCounterAdapter<>(
-				new PhysicalTallyStorageTraceAdapter<>(physicalTallyNode)));
+	public PhysicalTallyStorageNode wrapTallyNode(PhysicalTallyStorageNode physicalTallyNode){
+		return new PhysicalTallyStorageSanitizationAdapter(
+				new PhysicalTallyStorageCounterAdapter(
+				new PhysicalTallyStorageTraceAdapter(physicalTallyNode)));
 	}
 
 }

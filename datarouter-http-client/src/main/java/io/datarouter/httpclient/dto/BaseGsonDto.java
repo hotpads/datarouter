@@ -15,17 +15,13 @@
  */
 package io.datarouter.httpclient.dto;
 
-import com.google.gson.Gson;
-
-import io.datarouter.httpclient.json.HttpClientGsonTool;
+import io.datarouter.gson.serialization.GsonTool;
 
 /**
  * Convenience class with low performance hashCode/equals and a toString method that uses default Gson options which
  * may differ from those in your application.
  */
 public abstract class BaseGsonDto{
-
-	private static final Gson GSON = HttpClientGsonTool.GSON;
 
 	@Override
 	public int hashCode(){
@@ -53,7 +49,7 @@ public abstract class BaseGsonDto{
 	}
 
 	private String toJson(){
-		return GSON.toJson(this);
+		return GsonTool.GSON.toJson(this);
 	}
 
 }

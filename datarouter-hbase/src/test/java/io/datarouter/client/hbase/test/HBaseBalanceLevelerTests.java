@@ -23,7 +23,6 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import io.datarouter.client.hbase.balancer.HBaseBalanceLeveler.TablePseudoRandomHostAndPortComparator;
-import io.datarouter.client.hbase.util.ServerNameTool;
 
 public class HBaseBalanceLevelerTests{
 
@@ -32,7 +31,7 @@ public class HBaseBalanceLevelerTests{
 		final int uniqueServers = 7;
 		Set<ServerName> serverNames = new TreeSet<>(new TablePseudoRandomHostAndPortComparator("MyTableName"));
 		for(int i = 0; i < 100; ++i){
-			serverNames.add(ServerNameTool.create("SomeServer" + i % uniqueServers, 123, i));
+			serverNames.add(ServerName.valueOf("SomeServer" + i % uniqueServers, 123, i));
 		}
 		Assert.assertEquals(serverNames.size(), uniqueServers);
 	}

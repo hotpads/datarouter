@@ -21,13 +21,14 @@ import com.google.gson.reflect.TypeToken;
 
 import io.datarouter.bytes.Codec.NullPassthroughCodec;
 
-public class DateToLongFieldCodec extends LongFieldCodec<Date>{
+public class DateToLongFieldCodec extends FieldCodec<Date,Long>{
 
 	public DateToLongFieldCodec(){
 		super(TypeToken.get(Date.class),
 				NullPassthroughCodec.of(Date::getTime, Date::new),
 				Date::compareTo,
-				new Date(0));
+				new Date(0),
+				null);
 	}
 
 }

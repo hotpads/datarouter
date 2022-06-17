@@ -16,9 +16,11 @@
 package io.datarouter.bytes.binarydto.internal;
 
 import java.lang.reflect.Field;
+import java.util.Objects;
 
 import io.datarouter.bytes.LengthAndValue;
 import io.datarouter.bytes.binarydto.fieldcodec.BinaryDtoBaseFieldCodec;
+import io.datarouter.bytes.codec.array.bytearray.TerminatedByteArrayCodec;
 
 public class BinaryDtoFieldSchema<F>{
 
@@ -32,10 +34,15 @@ public class BinaryDtoFieldSchema<F>{
 		var fieldMetadataParser = new BinaryDtoFieldMetadataParser<>(field);
 		isNullable = fieldMetadataParser.isNullable();
 		codec = (BinaryDtoBaseFieldCodec<F>)BinaryDtoFieldCodecs.getCodecForField(field);
+		Objects.requireNonNull(codec);
 	}
 
 	public String getName(){
 		return field.getName();
+	}
+
+	public String getCodecName(){
+		return codec.getClass().getSimpleName();
 	}
 
 	public boolean isNullable(){
@@ -46,58 +53,63 @@ public class BinaryDtoFieldSchema<F>{
 		return getFieldValue(dto) == null;
 	}
 
-	public boolean isFixedLength(){
-		return codec.isFixedLength();
+	public boolean isKeyCompatible(){
+		return codec.supportsComparableCodec();
 	}
 
-	public byte[] encodeValue(Object dto){
+	/*----------- key format ---------------*/
+
+	public byte[] encodeComparable(Object dto){
 		F fieldValue = getFieldValue(dto);
-		return codec.encode(fieldValue);
+		byte[] value = codec.encode(fieldValue);
+		return codec.isFixedLength()
+				? value
+				: TerminatedByteArrayCodec.INSTANCE.encode(value);
 	}
 
-	public int decodeField(Object object, byte[] bytes, final int offset){
+	public int decodeComparableLength(byte[] bytes, final int offset){
+		return codec.isFixedLength()
+				? codec.fixedLength()
+				: TerminatedByteArrayCodec.INSTANCE.lengthWithTerminalIndex(bytes, offset);
+	}
+
+	public int decodeComparable(Object object, byte[] bytes, final int offset){
 		int cursor = offset;
 		F fieldValue = null;
-		if(isNullable){
-			boolean isNull = BinaryDtoNullFieldTool.decodeNullIndicator(bytes[cursor]);
-			cursor += BinaryDtoNullFieldTool.NULL_INDICATOR_LENGTH;
-			if(!isNull){
-				if(codec.isFixedLength()){
-					fieldValue = codec.decode(bytes, cursor);
-					cursor += codec.fixedLength();
-				}else{
-					LengthAndValue<F> lengthAndValue = codec.decodeWithLength(bytes, cursor);
-					cursor += lengthAndValue.length;
-					fieldValue = lengthAndValue.value;
-				}
-			}
+		if(codec.isFixedLength()){
+			fieldValue = codec.decode(bytes, cursor, codec.fixedLength());
+			cursor += codec.fixedLength();
 		}else{
-			if(codec.isFixedLength()){
-				fieldValue = codec.decode(bytes, cursor);
-				cursor += codec.fixedLength();
-			}else{
-				LengthAndValue<F> lengthAndValue = codec.decodeWithLength(bytes, cursor);
-				cursor += lengthAndValue.length;
-				fieldValue = lengthAndValue.value;
-			}
+			LengthAndValue<byte[]> lengthAndEncodedValue = TerminatedByteArrayCodec.INSTANCE.decode(bytes, cursor);
+			cursor += lengthAndEncodedValue.length;
+			fieldValue = codec.decode(lengthAndEncodedValue.value);
 		}
 		setFieldValue(object, fieldValue);
 		return cursor - offset;
 	}
 
-	public int decodeFieldLength(byte[] bytes, final int offset){
-		int cursor = offset;
-		if(isNullable){
-			boolean isNull = BinaryDtoNullFieldTool.decodeNullIndicator(bytes[cursor]);
-			cursor += BinaryDtoNullFieldTool.NULL_INDICATOR_LENGTH;
-			if(!isNull){
-				cursor += codec.decodeLength(bytes, cursor);
-			}
-		}else{
-			cursor += codec.decodeLength(bytes, cursor);
-		}
-		return cursor - offset;
+	/*----------- value format ---------------*/
+
+	public byte[] encodeIndexed(Object dto){
+		F fieldValue = getFieldValue(dto);
+		return codec.encode(fieldValue);
 	}
+
+	public void decodeIndexed(Object object, byte[] bytes){
+		F fieldValue = null;
+		if(codec.isFixedLength()){
+			if(bytes.length != codec.fixedLength()){
+				String message = String.format("bytes.length=%s != codec.fixedLength=%s",
+						bytes.length,
+						codec.fixedLength());
+				throw new RuntimeException(message);
+			}
+		}
+		fieldValue = codec.decode(bytes);
+		setFieldValue(object, fieldValue);
+	}
+
+	/*----------- compare ---------------*/
 
 	public int compareFieldValuesAsIfEncoded(Object left, Object right){
 		F leftValue = getFieldValue(left);
@@ -113,12 +125,14 @@ public class BinaryDtoFieldSchema<F>{
 		}
 	}
 
+	/*----------- reflection ---------------*/
+
 	@SuppressWarnings("unchecked")
 	private F getFieldValue(Object dto){
 		return (F)BinaryDtoReflectionTool.getUnchecked(field, dto);
 	}
 
-	public void setFieldValue(Object dto, F fieldValue){
+	private void setFieldValue(Object dto, F fieldValue){
 		BinaryDtoReflectionTool.setUnchecked(field, dto, fieldValue);
 	}
 

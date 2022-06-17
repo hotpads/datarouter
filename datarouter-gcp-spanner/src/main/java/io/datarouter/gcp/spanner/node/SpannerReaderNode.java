@@ -19,13 +19,17 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.datarouter.gcp.spanner.SpannerClientManager;
-import io.datarouter.gcp.spanner.field.SpannerFieldCodecRegistry;
+import io.datarouter.gcp.spanner.field.SpannerFieldCodecs;
 import io.datarouter.gcp.spanner.op.read.SpannerGetKeyOp;
 import io.datarouter.gcp.spanner.op.read.SpannerGetOp;
 import io.datarouter.gcp.spanner.scan.SpannerDatabeanScanner;
 import io.datarouter.gcp.spanner.scan.SpannerKeyScanner;
 import io.datarouter.model.databean.Databean;
+import io.datarouter.model.field.Field;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.scanner.Scanner;
@@ -44,21 +48,38 @@ public class SpannerReaderNode<
 		F extends DatabeanFielder<PK,D>>
 extends BasePhysicalNode<PK,D,F>
 implements MapStorageReader<PK,D>, SortedStorageReader<PK,D>{
+	private static final Logger logger = LoggerFactory.getLogger(SpannerReaderNode.class);
+
+	//TEMP for tracking down uses
+	@Deprecated
+	public static final String INTEGER_ENUM_FIELD_KEY_NAME = "IntegerEnumFieldKey";
+	@Deprecated
+	public static final String STRING_ENUM_FIELD_KEY_NAME = "StringEnumFieldKey";
 
 	protected final ManagedNodesHolder managedNodesHolder;
 	protected final SpannerClientManager clientManager;
-	protected final SpannerFieldCodecRegistry spannerFieldCodecRegistry;
+	protected final SpannerFieldCodecs fieldCodecs;
 
 	public SpannerReaderNode(
 			NodeParams<PK,D,F> params,
 			ClientType<?,?> clientType,
 			ManagedNodesHolder managedNodesHolder,
 			SpannerClientManager clientManager,
-			SpannerFieldCodecRegistry spannerFieldCodecRegistry){
+			SpannerFieldCodecs spannerFieldCodecRegistry){
 		super(params, clientType);
 		this.managedNodesHolder = managedNodesHolder;
 		this.clientManager = clientManager;
-		this.spannerFieldCodecRegistry = spannerFieldCodecRegistry;
+		this.fieldCodecs = spannerFieldCodecRegistry;
+		D sampleDatabean = params.getDatabeanSupplier().get();
+		List<Field<?>> fields = params.getFielderSupplier().get().getFields(sampleDatabean);
+		Scanner.of(fields)
+				.map(Field::getKey)
+				.include(fieldKey -> fieldKey.getClass().getSimpleName().equals(INTEGER_ENUM_FIELD_KEY_NAME)
+						|| fieldKey.getClass().getSimpleName().equals(STRING_ENUM_FIELD_KEY_NAME))
+				.forEach(fieldKey -> logger.warn("SpannerEnumField type={} databean={} field={}",
+						fieldKey.getClass().getSimpleName(),
+						sampleDatabean.getClass().getCanonicalName(),
+						fieldKey.getName()));
 	}
 
 	@Override
@@ -68,7 +89,7 @@ implements MapStorageReader<PK,D>, SortedStorageReader<PK,D>{
 				getFieldInfo(),
 				Collections.singletonList(key),
 				config,
-				spannerFieldCodecRegistry);
+				fieldCodecs);
 		return !getKeyOp.wrappedCall().isEmpty();
 	}
 
@@ -79,7 +100,7 @@ implements MapStorageReader<PK,D>, SortedStorageReader<PK,D>{
 				getFieldInfo(),
 				keys,
 				config,
-				spannerFieldCodecRegistry);
+				fieldCodecs);
 		return getKeyOp.wrappedCall();
 	}
 
@@ -97,7 +118,7 @@ implements MapStorageReader<PK,D>, SortedStorageReader<PK,D>{
 				getFieldInfo(),
 				keys,
 				config,
-				spannerFieldCodecRegistry);
+				fieldCodecs);
 		return getOp.wrappedCall();
 	}
 
@@ -109,7 +130,7 @@ implements MapStorageReader<PK,D>, SortedStorageReader<PK,D>{
 				getFieldInfo(),
 				ranges,
 				config,
-				spannerFieldCodecRegistry,
+				fieldCodecs,
 				false)
 				.concat(Scanner::of);
 	}
@@ -127,7 +148,7 @@ implements MapStorageReader<PK,D>, SortedStorageReader<PK,D>{
 				getFieldInfo(),
 				ranges,
 				config,
-				spannerFieldCodecRegistry,
+				fieldCodecs,
 				false)
 				.concat(Scanner::of);
 	}

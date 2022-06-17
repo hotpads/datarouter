@@ -21,7 +21,7 @@ import java.util.Map.Entry;
 
 import com.google.cloud.spanner.DatabaseClient;
 
-import io.datarouter.gcp.spanner.field.SpannerFieldCodecRegistry;
+import io.datarouter.gcp.spanner.field.SpannerFieldCodecs;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.key.primary.PrimaryKey;
@@ -44,8 +44,8 @@ extends SpannerBaseIndexDelete<PK,D,F,K>{
 			PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
 			Collection<K> keys,
 			Config config,
-			SpannerFieldCodecRegistry codecRegistry){
-		super(client, fieldInfo, keys, config, codecRegistry);
+			SpannerFieldCodecs fieldCodecs){
+		super(client, fieldInfo, keys, config, fieldCodecs);
 	}
 
 	@Override

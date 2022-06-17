@@ -27,7 +27,7 @@ import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.html.j2html.J2HtmlTable;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.DivTag;
 
 public class ViewPluginsHandler extends BaseHandler{
 
@@ -48,7 +48,7 @@ public class ViewPluginsHandler extends BaseHandler{
 				.buildMav();
 	}
 
-	private static ContainerTag<?> makeContent(List<String> rows){
+	private static DivTag makeContent(List<String> rows){
 		var h2 = h2("Registered Plugins");
 		var table = new J2HtmlTable<String>()
 				.withClasses("table table-sm table-striped my-4 border")

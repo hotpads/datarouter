@@ -21,7 +21,6 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.text;
 
 import java.io.Serializable;
-import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -32,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
@@ -59,12 +59,14 @@ import io.datarouter.loggerconfig.storage.loggerconfig.DatarouterLoggerConfigDao
 import io.datarouter.logging.BaseLog4j2Configuration;
 import io.datarouter.logging.Log4j2Configurator;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.util.Require;
+import io.datarouter.util.duration.DatarouterDuration;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
 import io.datarouter.web.email.StandardDatarouterEmailHeaderService;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.BodyTag;
 
 public class LoggingSettingsHandler extends BaseHandler{
 
@@ -114,6 +116,7 @@ public class LoggingSettingsHandler extends BaseHandler{
 		mav.put("rootLogger", log4j2Configurator.getRootLoggerConfig());
 		mav.put("levels", LEVELS);
 		mav.put("currentUserEmail", getCurrentUsername());
+		mav.put("durationRegex", DatarouterDuration.REGEX);
 
 		Map<String,LoggerConfig> configs = log4j2Configurator.getConfigs();
 		List<String> names = Scanner.of(configs.values()).map(LoggerConfig::getName).list();
@@ -128,15 +131,13 @@ public class LoggingSettingsHandler extends BaseHandler{
 					= configsWithMetadata.get(name);
 			String email;
 			Instant lastUpdated = null;
-			Integer ttlMinutes = null;
+			DatarouterDuration ttl = null;
 			boolean canDelete = true;
 			if(configWithMetadata != null){
 				email = configWithMetadata.getEmail();
 				lastUpdated = configWithMetadata.getLastUpdated();
-				ttlMinutes = Optional.ofNullable(configWithMetadata.getTtlMillis())
-						.map(Duration::ofMillis)
-						.map(Duration::toMinutes)
-						.map(Long::intValue)
+				ttl = Optional.ofNullable(configWithMetadata.getTtlMillis())
+						.map(millis -> new DatarouterDuration(millis, TimeUnit.MILLISECONDS))
 						.orElse(null);
 			}else{
 				email = DEFAULT_EMAIL;
@@ -148,7 +149,7 @@ public class LoggingSettingsHandler extends BaseHandler{
 					email,
 					lastUpdated,
 					canDelete,
-					ttlMinutes,
+					ttl,
 					getUserZoneId());
 			mergedConfigs.put(name, mergedLoggerConfig);
 			appenderMap.put(mergedLoggerConfig, config.getAppenders().keySet());
@@ -195,7 +196,9 @@ public class LoggingSettingsHandler extends BaseHandler{
 		String name = params.required("name");
 		String oldLevel = loggerConfigDao.getLoggingLevelFromConfigName(name);
 		Level level = Level.getLevel(params.required("level"));
-		Integer ttlMinutes = params.optionalInteger("ttlMinutes", 0);
+		var ttl = new DatarouterDuration(params.required("ttl"));
+		Require.isTrue(ttl.isLongerThan(new DatarouterDuration(999, TimeUnit.MICROSECONDS)),
+				"TTL must be at least 1ms");
 		log4j2Configurator.updateOrCreateLoggerConfig(name, level, ADDITIVE, appenders);
 		loggerConfigDao.saveLoggerConfig(
 				name,
@@ -203,12 +206,12 @@ public class LoggingSettingsHandler extends BaseHandler{
 				ADDITIVE,
 				List.of(appenders),
 				getCurrentUsername(),
-				Duration.ofMinutes(ttlMinutes).toMillis());
+				ttl.toMillis());
 		preventSecondApply();
 		if(datarouterLoggerConfigSettings.sendLoggerConfigUpdateAlerts.get()){
 			sendEmail(makeEmailContent(name, oldLevel, action));
 		}
-		recordChangelog("LoggerConfig", name, action.getPersistentString());
+		recordChangelog("LoggerConfig", name, action.persistentString);
 	}
 
 	@Handler
@@ -226,7 +229,7 @@ public class LoggingSettingsHandler extends BaseHandler{
 		if(datarouterLoggerConfigSettings.sendLoggerConfigUpdateAlerts.get()){
 			sendEmail(makeEmailContent(name, oldLevel, LoggingSettingAction.DELETED));
 		}
-		recordChangelog("LoggerConfig", name, LoggingSettingAction.DELETED.getPersistentString());
+		recordChangelog("LoggerConfig", name, LoggingSettingAction.DELETED.persistentString);
 	}
 
 	@Handler
@@ -240,7 +243,7 @@ public class LoggingSettingsHandler extends BaseHandler{
 			fileAppenderDao.deleteFileAppender(name);
 		}
 		preventSecondApply();
-		recordChangelog("Appender", name, LoggingSettingAction.DELETED.getPersistentString());
+		recordChangelog("Appender", name, LoggingSettingAction.DELETED.persistentString);
 		return getRedirectMav();
 	}
 
@@ -304,7 +307,7 @@ public class LoggingSettingsHandler extends BaseHandler{
 		loggingConfigService.setPreviousLoggingConfigSignatureForUpdaterJob(signature);
 	}
 
-	private void sendEmail(ContainerTag<?> content){
+	private void sendEmail(BodyTag content){
 		String primaryHref = htmlEmailService.startLinkBuilder()
 				.withLocalPath(paths.datarouter.logging)
 				.build();
@@ -318,7 +321,7 @@ public class LoggingSettingsHandler extends BaseHandler{
 		htmlEmailService.trySendJ2Html(emailBuilder);
 	}
 
-	private ContainerTag<?> makeEmailContent(
+	private BodyTag makeEmailContent(
 			String loggerConfigName,
 			String oldLevel,
 			LoggingSettingAction action){
@@ -326,7 +329,7 @@ public class LoggingSettingsHandler extends BaseHandler{
 		List<String> lines = new ArrayList<>();
 		lines.add("Change details:");
 		lines.add("- user: " + getCurrentUsername());
-		lines.add("- action: " + action.getPersistentString());
+		lines.add("- action: " + action.persistentString);
 		lines.add("- logger config: " + loggerConfigName);
 		lines.add("- old level: " + oldLevel);
 		if(LoggingSettingAction.DELETED != action){
@@ -360,7 +363,7 @@ public class LoggingSettingsHandler extends BaseHandler{
 		private final String email;
 		private String lastUpdated;
 		private boolean canDelete;
-		private final Integer ttlMinutes;
+		private final String ttl;
 
 		LoggerConfigMetadata(
 				LoggerConfig config,
@@ -368,7 +371,7 @@ public class LoggingSettingsHandler extends BaseHandler{
 				String email,
 				Instant lastUpdated,
 				boolean canDelete,
-				Integer ttlMinutes,
+				DatarouterDuration ttl,
 				ZoneId zoneId){
 			this.name = config.getName();
 			this.level = config.getLevel();
@@ -380,7 +383,7 @@ public class LoggingSettingsHandler extends BaseHandler{
 				this.lastUpdated = DATE_FORMAT.withZone(zoneId).format(lastUpdated);
 			}
 			this.canDelete = canDelete;
-			this.ttlMinutes = ttlMinutes;
+			this.ttl = ttl == null ? null : ttl.toString();
 		}
 
 		public String getName(){
@@ -415,8 +418,8 @@ public class LoggingSettingsHandler extends BaseHandler{
 			return canDelete;
 		}
 
-		public Integer getTtlMinutes(){
-			return ttlMinutes;
+		public String getTtl(){
+			return ttl;
 		}
 
 	}

@@ -17,23 +17,27 @@ package io.datarouter.auth.storage.deprovisioneduser;
 
 import java.time.Instant;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import io.datarouter.auth.web.deprovisioning.DeprovisionedUserDto;
 import io.datarouter.auth.web.deprovisioning.UserDeprovisioningStatusDto;
-import io.datarouter.enums.StringEnum;
+import io.datarouter.enums.MappedEnum;
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
+import io.datarouter.model.field.codec.StringListToBinaryCsvFieldCodec;
+import io.datarouter.model.field.codec.StringMappedEnumFieldCodec;
+import io.datarouter.model.field.imp.StringEncodedField;
+import io.datarouter.model.field.imp.StringEncodedFieldKey;
+import io.datarouter.model.field.imp.array.ByteArrayEncodedField;
+import io.datarouter.model.field.imp.array.ByteArrayEncodedFieldKey;
 import io.datarouter.model.field.imp.comparable.InstantField;
 import io.datarouter.model.field.imp.comparable.InstantFieldKey;
-import io.datarouter.model.field.imp.enums.StringEnumField;
-import io.datarouter.model.field.imp.enums.StringEnumFieldKey;
-import io.datarouter.model.field.imp.list.DelimitedStringListField;
-import io.datarouter.model.field.imp.list.DelimitedStringListFieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
+import io.datarouter.model.util.CommonFieldSizes;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.web.user.session.service.Role;
 
 public class DeprovisionedUser extends BaseDatabean<DeprovisionedUserKey,DeprovisionedUser>{
@@ -43,9 +47,12 @@ public class DeprovisionedUser extends BaseDatabean<DeprovisionedUserKey,Deprovi
 	private Instant updated;
 
 	public static class FieldKeys{
-		public static final DelimitedStringListFieldKey roles = new DelimitedStringListFieldKey("roles");
-		public static final StringEnumFieldKey<UserDeprovisioningStatus> status = new StringEnumFieldKey<>("status",
-				UserDeprovisioningStatus.class);
+		public static final ByteArrayEncodedFieldKey<List<String>> roles
+				= new ByteArrayEncodedFieldKey<>("roles", StringListToBinaryCsvFieldCodec.INSTANCE)
+				.withSize(CommonFieldSizes.MAX_LENGTH_LONGBLOB);
+		public static final StringEncodedFieldKey<UserDeprovisioningStatus> status = new StringEncodedFieldKey<>(
+				"status",
+				new StringMappedEnumFieldCodec<>(UserDeprovisioningStatus.BY_PERSISTENT_STRING));
 		public static final InstantFieldKey updated = new InstantFieldKey("updated");
 	}
 
@@ -58,8 +65,8 @@ public class DeprovisionedUser extends BaseDatabean<DeprovisionedUserKey,Deprovi
 		@Override
 		public List<Field<?>> getNonKeyFields(DeprovisionedUser user){
 			return List.of(
-					new DelimitedStringListField(FieldKeys.roles, user.roles),
-					new StringEnumField<>(FieldKeys.status, user.status),
+					new ByteArrayEncodedField<>(FieldKeys.roles, user.roles),
+					new StringEncodedField<>(FieldKeys.status, user.status),
 					new InstantField(FieldKeys.updated, user.updated));
 		}
 
@@ -90,17 +97,17 @@ public class DeprovisionedUser extends BaseDatabean<DeprovisionedUserKey,Deprovi
 	}
 
 	public Set<Role> getRoles(){
-		return roles.stream()
+		return Scanner.of(roles)
 				.map(Role::new)
-				.collect(Collectors.toSet());
+				.collect(HashSet::new);
 	}
 
 	public void setRoles(Collection<Role> roles){
-		this.roles = roles.stream()
+		this.roles = Scanner.of(roles)
 				.map(Role::getPersistentString)
-				.sorted()
+				.sort()
 				.distinct()
-				.collect(Collectors.toList());
+				.list();
 	}
 
 	public UserDeprovisioningStatus getStatus(){
@@ -111,37 +118,20 @@ public class DeprovisionedUser extends BaseDatabean<DeprovisionedUserKey,Deprovi
 		return updated;
 	}
 
-	//TODO delete after migration
-	public void setUpdated(Instant updated){
-		this.updated = updated;
-	}
-
-	public static enum UserDeprovisioningStatus implements StringEnum<UserDeprovisioningStatus>{
+	public static enum UserDeprovisioningStatus{
 
 		DEPROVISIONED("deprovisioned", UserDeprovisioningStatusDto.DEPROVISIONED),
-		FLAGGED("flagged", UserDeprovisioningStatusDto.FLAGGED),
-		;
+		FLAGGED("flagged", UserDeprovisioningStatusDto.FLAGGED);
+
+		public static final MappedEnum<UserDeprovisioningStatus,String> BY_PERSISTENT_STRING
+				= new MappedEnum<>(values(), value -> value.persistentString);
 
 		private final String persistentString;
-		public final UserDeprovisioningStatusDto dto;
+		private final UserDeprovisioningStatusDto dto;
 
 		UserDeprovisioningStatus(String persistentString, UserDeprovisioningStatusDto dto){
 			this.persistentString = persistentString;
 			this.dto = dto;
-		}
-
-		@Override
-		public String getPersistentString(){
-			return persistentString;
-		}
-
-		@Override
-		public UserDeprovisioningStatus fromPersistentString(String string){
-			return fromPersistentStringStatic(string);
-		}
-
-		public static UserDeprovisioningStatus fromPersistentStringStatic(String string){
-			return StringEnum.getEnumFromString(values(), string, null);
 		}
 
 	}

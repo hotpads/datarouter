@@ -37,7 +37,7 @@ import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.types.Param;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import io.datarouter.web.requirejs.DatarouterWebRequireJsV2;
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.DivTag;
 
 public class DatarouterSnapshotGroupHandler extends BaseHandler{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterSnapshotGroupHandler.class);
@@ -60,7 +60,7 @@ public class DatarouterSnapshotGroupHandler extends BaseHandler{
 				.buildMav();
 	}
 
-	private ContainerTag<?> buildSnapshotList(String groupId){
+	private DivTag buildSnapshotList(String groupId){
 		logger.warn("hello");
 		SnapshotGroup group = groups.getGroup(groupId);
 		var thead = thead(tr(th("id"), th("summary"), td("entries")));

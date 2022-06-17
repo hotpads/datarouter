@@ -29,7 +29,7 @@ public class SpannerTableOperationsGenerator{
 	}
 
 	public String getTableSchema(String tableName){
-		StringBuilder ddl = new StringBuilder();
+		var ddl = new StringBuilder();
 		ddl.append("SELECT COLUMN_NAME, ORDINAL_POSITION, IS_NULLABLE, SPANNER_TYPE FROM information_schema.columns "
 				+ "WHERE table_name = '");
 		ddl.append(tableName);
@@ -38,7 +38,7 @@ public class SpannerTableOperationsGenerator{
 	}
 
 	public String getTableIndexSchema(String tableName){
-		StringBuilder ddl = new StringBuilder();
+		var ddl = new StringBuilder();
 		ddl.append("SELECT INDEX_NAME, INDEX_TYPE FROM information_schema.indexes WHERE table_name = '");
 		ddl.append(tableName);
 		ddl.append("'");
@@ -46,7 +46,7 @@ public class SpannerTableOperationsGenerator{
 	}
 
 	public String getTableIndexColumnsSchema(String tableName, String indexName){
-		StringBuilder ddl = new StringBuilder();
+		var ddl = new StringBuilder();
 		ddl.append("SELECT INDEX_NAME, COLUMN_NAME, ORDINAL_POSITION, IS_NULLABLE, SPANNER_TYPE FROM information_schema"
 				+ ".index_columns WHERE table_name = '");
 		ddl.append(tableName);
@@ -61,12 +61,14 @@ public class SpannerTableOperationsGenerator{
 			List<SpannerColumn> primaryKeyColumns,
 			List<SpannerColumn> nonKeyColumns,
 			String parentTableName){
-		StringBuilder ddl = new StringBuilder();
+		var ddl = new StringBuilder();
 		ddl.append("CREATE TABLE ");
 		ddl.append(name);
 		ddl.append("(");
-		List<SpannerColumn> columns = Scanner.of(primaryKeyColumns, nonKeyColumns).concat(Scanner::of).list();
-		ddl.append(String.join(", ", Scanner.of(columns).map(SpannerColumn::generateColumnDef).list()));
+		List<SpannerColumn> columns = Scanner.concat(primaryKeyColumns, nonKeyColumns).list();
+		ddl.append(String.join(", ", Scanner.of(columns)
+				.map(column -> column.generateColumnDef(false))
+				.list()));
 		ddl.append(") PRIMARY KEY (");
 		primaryKeyColumns.forEach(col -> {
 			ddl.append(col.getName());
@@ -88,7 +90,7 @@ public class SpannerTableOperationsGenerator{
 			List<SpannerColumn> keyColumns,
 			List<SpannerColumn> nonKeyColumns,
 			Boolean unique){
-		StringBuilder ddl = new StringBuilder();
+		var ddl = new StringBuilder();
 		ddl.append("CREATE ");
 		if(unique){
 			ddl.append("UNIQUE ");
@@ -109,16 +111,16 @@ public class SpannerTableOperationsGenerator{
 	}
 
 	public String addColumns(String tableName, SpannerColumn colToAdd){
-		StringBuilder ddl = new StringBuilder();
+		var ddl = new StringBuilder();
 		ddl.append("ALTER TABLE ");
 		ddl.append(tableName);
 		ddl.append(" ADD COLUMN ");
-		ddl.append(colToAdd.generateColumnDef());
+		ddl.append(colToAdd.generateColumnDef(false));
 		return ddl.toString();
 	}
 
 	public String dropColumns(String tableName, SpannerColumn colToRemove){
-		StringBuilder ddl = new StringBuilder();
+		var ddl = new StringBuilder();
 		ddl.append("ALTER TABLE ");
 		ddl.append(tableName);
 		ddl.append(" DROP COLUMN ");
@@ -127,7 +129,7 @@ public class SpannerTableOperationsGenerator{
 	}
 
 	public String alterColumns(String tableName, SpannerColumn colToAlter){
-		StringBuilder ddl = new StringBuilder();
+		var ddl = new StringBuilder();
 		ddl.append("ALTER TABLE ");
 		ddl.append(tableName);
 		ddl.append(" ALTER COLUMN ");
@@ -136,7 +138,7 @@ public class SpannerTableOperationsGenerator{
 	}
 
 	public String dropIndex(String indexName){
-		StringBuilder ddl = new StringBuilder();
+		var ddl = new StringBuilder();
 		ddl.append("DROP INDEX ");
 		ddl.append(indexName);
 		return ddl.toString();

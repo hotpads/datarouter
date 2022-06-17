@@ -30,15 +30,19 @@ import java.util.Map;
 import j2html.TagCreator;
 import j2html.tags.ContainerTag;
 import j2html.tags.EmptyTag;
+import j2html.tags.specialized.BodyTag;
+import j2html.tags.specialized.HeadTag;
+import j2html.tags.specialized.HtmlTag;
+import j2html.tags.specialized.ScriptTag;
 
 public class ReactHtml{
 
 	//head
 	private final List<String> externalReactScripts;
 	private final EmptyTag<?>[] datarouterWebCssImports;
-	private final ContainerTag<?> datarouterWebRequireJsImport;
-	private final ContainerTag<?> datarouterWebRequireJsConfig;
-	private final ContainerTag<?> requireScript;
+	private final ScriptTag datarouterWebRequireJsImport;
+	private final ScriptTag datarouterWebRequireJsConfig;
+	private final ScriptTag requireScript;
 	private final EmptyTag<?>[] datarouterNavbarCssImports;
 	private final ContainerTag<?> datarouterNavbarRequestTimingJsImport;
 	private final ContainerTag<?> datarouterNavbarRequestTimingScript;
@@ -54,9 +58,9 @@ public class ReactHtml{
 	public ReactHtml(
 			List<String> externalReactScripts,
 			EmptyTag<?>[] datarouterWebCssImports,
-			ContainerTag<?> datarouterWebRequireJsImport,
-			ContainerTag<?> datarouterWebRequireJsConfig,
-			ContainerTag<?> requireScript,
+			ScriptTag datarouterWebRequireJsImport,
+			ScriptTag datarouterWebRequireJsConfig,
+			ScriptTag requireScript,
 			EmptyTag<?>[] datarouterNavbarCssImports,
 			ContainerTag<?> datarouterNavbarRequestTimingJsImport,
 			ContainerTag<?> datarouterNavbarRequestTimingScript,
@@ -82,11 +86,11 @@ public class ReactHtml{
 		this.webappNavbar = webappNavbar;
 	}
 
-	public ContainerTag<?> build(){
+	public HtmlTag build(){
 		return html(makeHead(), makeBody());
 	}
 
-	private ContainerTag<?> makeHead(){
+	private HeadTag makeHead(){
 		var meta = meta()
 				.withName("viewport")
 				.withContent("width=device-width, initial-scale=1");
@@ -114,21 +118,21 @@ public class ReactHtml{
 				.toArray(ContainerTag[]::new);
 	}
 
-	private ContainerTag<?> makeJsConstantScript(){
+	private ScriptTag makeJsConstantScript(){
 		var script = script();
 		addJsConstantsToScript(jsStringConstants, "const %S = \"%s\";", script);
 		addJsConstantsToScript(jsRawConstants, "const %S = %s;", script);
 		return script;
 	}
 
-	private static void addJsConstantsToScript(Map<String,String> constants, String format, ContainerTag<?> script){
+	private static void addJsConstantsToScript(Map<String,String> constants, String format, ScriptTag script){
 		constants.entrySet().stream()
 				.map(entry -> String.format(format, entry.getKey(), entry.getValue()))
 				.map(TagCreator::rawHtml)
 				.forEach(script::with);
 	}
 
-	private ContainerTag<?> makeBody(){
+	private BodyTag makeBody(){
 		var app = div()
 				.withId("app");
 		return body(header(datarouterNavbar, webappNavbar), app);

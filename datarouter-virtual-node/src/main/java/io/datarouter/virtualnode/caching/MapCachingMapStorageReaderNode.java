@@ -39,7 +39,8 @@ public class MapCachingMapStorageReaderNode<
 extends BaseMapCachingNode<PK,D,F,N>
 implements MapStorageReaderNode<PK,D,F>{
 
-	private static final Config DEFAULT_CACHING_NODE_CONFIG = new Config().setTimeout(Duration.ofMillis(100));
+	private static final Config DEFAULT_CACHING_NODE_CONFIG = new Config()
+			.setTimeout(Duration.ofSeconds(1));
 
 	protected final boolean cacheReads;
 
@@ -72,16 +73,11 @@ implements MapStorageReaderNode<PK,D,F>{
 
 	@Override
 	public boolean exists(PK key, Config config){
-		if(!useCache(config)){
-			return backingNode.exists(key, config);
-		}
 		try{
-			updateLastAttemptedContact();
 			if(cachingNode.exists(key, getEffectiveCachingNodeConfig(config))){
 				countHits();
 				return true;
 			}
-			updateLastContact();
 		}catch(Exception e){
 			countExceptions();
 			return backingNode.exists(key, config);
@@ -92,15 +88,10 @@ implements MapStorageReaderNode<PK,D,F>{
 
 	@Override
 	public D get(PK key, Config config){
-		if(!useCache(config)){
-			return backingNode.get(key, config);
-		}
 		Config effectiveCachingNodeConfig = getEffectiveCachingNodeConfig(config);
 		D cachedObject;
 		try{
-			updateLastAttemptedContact();
 			cachedObject = cachingNode.get(key, effectiveCachingNodeConfig);
-			updateLastContact();
 		}catch(Exception e){
 			countExceptions();
 			return backingNode.get(key, config);
@@ -114,9 +105,7 @@ implements MapStorageReaderNode<PK,D,F>{
 			countMisses();
 			if(cacheReads){
 				try{
-					updateLastAttemptedContact();
 					cachingNode.put(realObject, effectiveCachingNodeConfig);
-					updateLastContact();
 				}catch(Exception e){
 					countExceptions();
 				}
@@ -130,14 +119,9 @@ implements MapStorageReaderNode<PK,D,F>{
 		if(keys == null || keys.isEmpty()){
 			return List.of();
 		}
-		if(!useCache(config)){
-			return backingNode.getMulti(keys, config);
-		}
 		List<D> resultBuilder = new ArrayList<>();
 		try{
-			updateLastAttemptedContact();
 			resultBuilder.addAll(cachingNode.getMulti(keys, getEffectiveCachingNodeConfig(config)));
-			updateLastContact();
 		}catch(Exception e){
 			countExceptions();
 			return backingNode.getMulti(keys, config);
@@ -162,14 +146,9 @@ implements MapStorageReaderNode<PK,D,F>{
 		if(keys == null || keys.isEmpty()){
 			return List.of();
 		}
-		if(!useCache(config)){
-			return backingNode.getKeys(keys, config);
-		}
 		List<PK> resultBuilder = new ArrayList<>();
 		try{
-			updateLastAttemptedContact();
 			resultBuilder.addAll(cachingNode.getKeys(keys, getEffectiveCachingNodeConfig(config)));
-			updateLastContact();
 		}catch(Exception e){
 			countExceptions();
 			return backingNode.getKeys(keys, config);
@@ -183,18 +162,20 @@ implements MapStorageReaderNode<PK,D,F>{
 			return resultBuilder;
 		}
 		List<D> fromBackingNode = getAndCacheDatabeans(uncachedKeys, config);
-		Scanner.of(fromBackingNode).map(Databean::getKey).forEach(resultBuilder::add);
+		Scanner.of(fromBackingNode)
+				.map(Databean::getKey)
+				.forEach(resultBuilder::add);
 		return resultBuilder;
 	}
+
+	/*---------------- private ---------------*/
 
 	private List<D> getAndCacheDatabeans(Collection<PK> uncachedKeys, Config config){
 		List<D> fromBackingNode = backingNode.getMulti(uncachedKeys, config);
 		countMisses();
 		if(cacheReads){
 			try{
-				updateLastAttemptedContact();
 				cachingNode.putMulti(fromBackingNode, getEffectiveCachingNodeConfig(config));
-				updateLastContact();
 			}catch(Exception e){
 				countExceptions();
 			}

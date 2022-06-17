@@ -219,7 +219,7 @@ public class JobWrapper implements Callable<Void>{
 	}
 
 	public void finishWithStatus(LongRunningTaskStatus status){
-		tracker.onFinish(status.getStatus());
+		tracker.onFinish(status.status);
 	}
 
 	public void setExceptionRecordId(String exceptionRecordId){

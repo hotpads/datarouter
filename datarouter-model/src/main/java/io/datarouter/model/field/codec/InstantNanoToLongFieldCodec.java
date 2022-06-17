@@ -22,14 +22,16 @@ import com.google.gson.reflect.TypeToken;
 
 import io.datarouter.bytes.Codec.NullPassthroughCodec;
 
-public class InstantNanoToLongFieldCodec extends LongFieldCodec<Instant>{
+public class InstantNanoToLongFieldCodec extends FieldCodec<Instant,Long>{
 
 	public InstantNanoToLongFieldCodec(){
 		super(TypeToken.get(Instant.class),
-				NullPassthroughCodec.of(InstantNanoToLongFieldCodec::toEpochNano,
+				NullPassthroughCodec.of(
+						InstantNanoToLongFieldCodec::toEpochNano,
 						InstantNanoToLongFieldCodec::fromEpochNano),
 				Instant::compareTo,
-				Instant.EPOCH);
+				Instant.EPOCH,
+				null);
 	}
 
 	private static long toEpochNano(Instant instant){

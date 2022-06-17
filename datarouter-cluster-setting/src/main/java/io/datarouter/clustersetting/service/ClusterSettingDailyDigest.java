@@ -18,6 +18,7 @@ package io.datarouter.clustersetting.service;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.h4;
+import static j2html.TagCreator.small;
 import static j2html.TagCreator.td;
 import static j2html.TagCreator.th;
 
@@ -42,7 +43,8 @@ import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
 import io.datarouter.web.digest.DailyDigestService;
 import io.datarouter.web.html.j2html.J2HtmlTable;
-import j2html.tags.ContainerTag;
+import j2html.TagCreator;
+import j2html.tags.specialized.DivTag;
 
 @Singleton
 public class ClusterSettingDailyDigest implements DailyDigest{
@@ -67,12 +69,12 @@ public class ClusterSettingDailyDigest implements DailyDigest{
 	}
 
 	@Override
-	public Optional<ContainerTag<?>> getPageContent(ZoneId zoneId){
+	public Optional<DivTag> getPageContent(ZoneId zoneId){
 		return makeContent(new ClusterSettingDailyDigestPageTableFormatter());
 	}
 
 	@Override
-	public Optional<ContainerTag<?>> getEmailContent(ZoneId zoneId){
+	public Optional<DivTag> getEmailContent(ZoneId zoneId){
 		return makeContent(new ClusterSettingDailyDigestEmailTableFormatter());
 	}
 
@@ -81,22 +83,33 @@ public class ClusterSettingDailyDigest implements DailyDigest{
 		return DailyDigestType.ACTIONABLE;
 	}
 
-	private Optional<ContainerTag<?>> makeContent(ClusterSettingDailyDigestTableFormatter tableFormatter){
-		Optional<Pair<String,ContainerTag<?>>> redundantTable = settingService
+	private Optional<DivTag> makeContent(ClusterSettingDailyDigestTableFormatter tableFormatter){
+		Optional<Pair<String,DivTag>> redundantTable = settingService
 				.scanWithValidity(ClusterSettingValidity.REDUNDANT)
-				.listTo(settings -> tableFormatter.makeTable(settings, "Redundant"));
-		Optional<Pair<String,ContainerTag<?>>> unreferencedTable = settingService
+				.listTo(settings -> tableFormatter.makeTable(
+						settings,
+						"Redundant",
+						Optional.of("Setting's value in database is the same as the code. Generally safe to delete "
+								+ "through the Cluster Setting UI")));
+		Optional<Pair<String,DivTag>> unreferencedTable = settingService
 				.scanWithValidity(ClusterSettingValidity.UNREFERENCED)
-				.listTo(settings -> tableFormatter.makeTable(settings, "Unreferenced"));
-		Optional<Pair<String,ContainerTag<?>>> oldTable = settingService
+				.listTo(settings -> tableFormatter.makeTable(
+						settings,
+						"Unreferenced",
+						Optional.of("Settings exist in the database but not in the code.")));
+		Optional<Pair<String,DivTag>> oldTable = settingService
 				.scanWithValidity(ClusterSettingValidity.OLD)
-				.listTo(settings -> tableFormatter.makeTable(settings, "Old"));
-		Optional<Pair<String,ContainerTag<?>>> unknownTable = settingService
+				.listTo(settings -> tableFormatter.makeTable(
+						settings,
+						"Old",
+						Optional.of("Setting has lived in the database for over the threshold. Could update the "
+								+ "defaults in the code.")));
+		Optional<Pair<String,DivTag>> unknownTable = settingService
 				.scanWithValidity(ClusterSettingValidity.UNKNOWN)
-				.listTo(settings -> tableFormatter.makeTable(settings, "Unknown"));
+				.listTo(settings -> tableFormatter.makeTable(settings, "Unknown", Optional.empty()));
 
 		// Scanners can't figure out types
-		List<ContainerTag<?>> tables = Stream.of(redundantTable, unreferencedTable, oldTable, unknownTable)
+		List<DivTag> tables = Stream.of(redundantTable, unreferencedTable, oldTable, unknownTable)
 				.filter(Optional::isPresent)
 				.map(Optional::get)
 				.sorted(Comparator.comparing(Pair::getLeft))
@@ -105,17 +118,23 @@ public class ClusterSettingDailyDigest implements DailyDigest{
 		if(tables.size() == 0){
 			return Optional.empty();
 		}
-		var header = digestService.makeHeader("Settings", paths.datarouter.settings, "?submitAction=browseSettings");
-		return Optional.of(div(header, each(tables, tag -> div(tag))));
+		var header = digestService.makeHeader("Settings", paths.datarouter.settings.customSettings);
+		return Optional.of(div(header, each(tables, tag -> TagCreator.div(tag))));
 	}
 
 	private abstract static class ClusterSettingDailyDigestTableFormatter{
-		public abstract Optional<Pair<String,ContainerTag<?>>> makeTable(List<ClusterSetting> settings, String header);
+		public abstract Optional<Pair<String,DivTag>> makeTable(
+				List<ClusterSetting> settings,
+				String header,
+				Optional<String> caption);
 	}
 
 	private class ClusterSettingDailyDigestEmailTableFormatter extends ClusterSettingDailyDigestTableFormatter{
 		@Override
-		public Optional<Pair<String,ContainerTag<?>>> makeTable(List<ClusterSetting> settings, String header){
+		public Optional<Pair<String,DivTag>> makeTable(
+				List<ClusterSetting> settings,
+				String header,
+				Optional<String> caption){
 			if(settings.isEmpty()){
 				return Optional.empty();
 			}
@@ -124,13 +143,16 @@ public class ClusterSettingDailyDigest implements DailyDigest{
 							row -> configScanner.makeSettingLink(row.getName())))
 					// don't send values in an email
 					.build(settings);
-			return Optional.of(new Pair<>(header, div(h4(header), table)));
+			return Optional.of(new Pair<>(header, div(h4(header), small(caption.orElse("")), table)));
 		}
 	}
 
 	private class ClusterSettingDailyDigestPageTableFormatter extends ClusterSettingDailyDigestTableFormatter{
 		@Override
-		public Optional<Pair<String,ContainerTag<?>>> makeTable(List<ClusterSetting> settings, String header){
+		public Optional<Pair<String,DivTag>> makeTable(
+				List<ClusterSetting> settings,
+				String header,
+				Optional<String> caption){
 			if(settings.isEmpty()){
 				return Optional.empty();
 			}
@@ -140,7 +162,7 @@ public class ClusterSettingDailyDigest implements DailyDigest{
 							row -> td(configScanner.makeSettingLink(row.getName())))
 					.withHtmlColumn(th("Value").withClass("w-50"), row -> td(row.getValue()))
 					.build(settings);
-			return Optional.of(new Pair<>(header, div(h4(header), table)));
+			return Optional.of(new Pair<>(header, div(h4(header), small(caption.orElse("")), table)));
 		}
 	}
 

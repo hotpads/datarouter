@@ -20,19 +20,20 @@ import java.util.Optional;
 
 import io.datarouter.bytes.InputStreamTool;
 import io.datarouter.bytes.VarIntTool;
-import io.datarouter.bytes.binarydto.codec.BinaryDtoCodec;
+import io.datarouter.bytes.binarydto.codec.BinaryDtoIndexedCodec;
+import io.datarouter.bytes.binarydto.dto.BaseBinaryDto;
 import io.datarouter.bytes.binarydto.dto.BinaryDto;
 import io.datarouter.scanner.BaseScanner;
 import io.datarouter.scanner.Scanner;
 
-public class BinaryDtoInputStreamScanner<T extends BinaryDto<T>>
+public class BinaryDtoInputStreamScanner<T extends BaseBinaryDto<T>>
 extends BaseScanner<T>{
 
-	private final BinaryDtoCodec<T> codec;
+	private final BinaryDtoIndexedCodec<T> codec;
 	private final InputStream inputStream;
 
 	public BinaryDtoInputStreamScanner(Class<T> dtoClass, InputStream inputStream){
-		this.codec = BinaryDtoCodec.of(dtoClass);
+		this.codec = BinaryDtoIndexedCodec.of(dtoClass);
 		this.inputStream = inputStream;
 	}
 

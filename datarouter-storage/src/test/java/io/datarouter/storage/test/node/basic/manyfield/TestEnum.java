@@ -15,50 +15,26 @@
  */
 package io.datarouter.storage.test.node.basic.manyfield;
 
-import io.datarouter.enums.IntegerEnum;
 import io.datarouter.enums.MappedEnum;
-import io.datarouter.enums.StringEnum;
 
-public enum TestEnum implements IntegerEnum<TestEnum>, StringEnum<TestEnum>{
+public enum TestEnum{
 
 	dog(19, "dog"),
 	cat(20, "cat"),
 	beast(21, "beast"),
 	fish(22, "fish");
 
-	public static final MappedEnum<TestEnum,Integer> BY_PERSISTENT_INTEGER = new MappedEnum<>(
-			values(),
-			value -> value.persistentInteger);
-	public static final MappedEnum<TestEnum,String> BY_PERSISTENT_STRING = new MappedEnum<>(
-			values(),
-			value -> value.persistentString);
+	public static final MappedEnum<TestEnum,Integer> BY_PERSISTENT_INTEGER
+			= new MappedEnum<>(values(), value -> value.persistentInteger);
+	public static final MappedEnum<TestEnum,String> BY_PERSISTENT_STRING
+			= new MappedEnum<>(values(), value -> value.persistentString);
 
-	private final int persistentInteger;
-	private final String persistentString;
+	public final int persistentInteger;
+	public final String persistentString;
 
 	TestEnum(int persistentInteger, String persistentString){
 		this.persistentInteger = persistentInteger;
 		this.persistentString = persistentString;
-	}
-
-	@Override
-	public Integer getPersistentInteger(){
-		return persistentInteger;
-	}
-
-	@Override
-	public TestEnum fromPersistentInteger(Integer value){
-		return BY_PERSISTENT_INTEGER.fromOrNull(value);
-	}
-
-	@Override
-	public String getPersistentString(){
-		return persistentString;
-	}
-
-	@Override
-	public TestEnum fromPersistentString(String value){
-		return BY_PERSISTENT_STRING.fromOrNull(value);
 	}
 
 }

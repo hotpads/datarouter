@@ -23,6 +23,7 @@ import java.util.concurrent.ExecutorService;
 import io.datarouter.bytes.split.ChunkScannerTool;
 import io.datarouter.scanner.ParallelScannerContext;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.storage.config.Config;
 import io.datarouter.storage.file.Pathbean;
 import io.datarouter.storage.file.PathbeanKey;
 import io.datarouter.storage.node.op.NodeOps;
@@ -37,16 +38,47 @@ extends NodeOps<PathbeanKey,Pathbean>{
 	String getBucket();
 	Subpath getRootPath();
 
-	boolean exists(PathbeanKey key);
-	Optional<Long> length(PathbeanKey key);
+	boolean exists(PathbeanKey key, Config config);
 
-	byte[] read(PathbeanKey key);
-	byte[] read(PathbeanKey key, long offset, int length);
-	Map<PathbeanKey,byte[]> read(List<PathbeanKey> keys);
+	default boolean exists(PathbeanKey key){
+		return exists(key, new Config());
+	}
 
-	Scanner<List<PathbeanKey>> scanKeysPaged(Subpath subpath);
-	Scanner<List<Pathbean>> scanPaged(Subpath subpath);
+	Optional<Long> length(PathbeanKey key, Config config);
 
+	default Optional<Long> length(PathbeanKey key){
+		return length(key, new Config());
+	}
+
+	byte[] read(PathbeanKey key, Config config);
+
+	default byte[] read(PathbeanKey key){
+		return read(key, new Config());
+	}
+
+	byte[] read(PathbeanKey key, long offset, int length, Config config);
+
+	default byte[] read(PathbeanKey key, long offset, int length){
+		return read(key, offset, length, new Config());
+	}
+
+	Map<PathbeanKey,byte[]> read(List<PathbeanKey> keys, Config config);
+
+	default Map<PathbeanKey,byte[]> read(List<PathbeanKey> keys){
+		return read(keys, new Config());
+	}
+
+	Scanner<List<PathbeanKey>> scanKeysPaged(Subpath subpath, Config config);
+
+	default Scanner<List<PathbeanKey>> scanKeysPaged(Subpath subpath){
+		return scanKeysPaged(subpath, new Config());
+	}
+
+	Scanner<List<Pathbean>> scanPaged(Subpath subpath, Config config);
+
+	default Scanner<List<Pathbean>> scanPaged(Subpath subpath){
+		return scanPaged(subpath, new Config());
+	}
 
 	default Scanner<PathbeanKey> scanKeys(Subpath subpath){
 		return scanKeysPaged(subpath)

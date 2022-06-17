@@ -65,27 +65,27 @@ implements PhysicalBlobStorageNode{
 	}
 
 	@Override
-	public boolean exists(PathbeanKey key){
+	public boolean exists(PathbeanKey key, Config config){
 		return directoryBlobStorage.exists(key);
 	}
 
 	@Override
-	public Optional<Long> length(PathbeanKey key){
+	public Optional<Long> length(PathbeanKey key, Config config){
 		return directoryBlobStorage.length(key);
 	}
 
 	@Override
-	public byte[] read(PathbeanKey key){
+	public byte[] read(PathbeanKey key, Config config){
 		return directoryBlobStorage.read(key);
 	}
 
 	@Override
-	public byte[] read(PathbeanKey key, long offset, int length){
+	public byte[] read(PathbeanKey key, long offset, int length, Config config){
 		return directoryBlobStorage.read(key, offset, length);
 	}
 
 	@Override
-	public Map<PathbeanKey,byte[]> read(List<PathbeanKey> keys){
+	public Map<PathbeanKey,byte[]> read(List<PathbeanKey> keys, Config config){
 		return Scanner.of(keys)
 				.toMap(Function.identity(), directoryBlobStorage::read);
 	}
@@ -96,32 +96,32 @@ implements PhysicalBlobStorageNode{
 	}
 
 	@Override
-	public void write(PathbeanKey key, Scanner<byte[]> chunks){
+	public void write(PathbeanKey key, Scanner<byte[]> chunks, Config config){
 		directoryBlobStorage.write(key, chunks);
 	}
 
 	@Override
-	public void write(PathbeanKey key, InputStream inputStream){
+	public void write(PathbeanKey key, InputStream inputStream, Config config){
 		directoryBlobStorage.write(key, inputStream);
 	}
 
 	@Override
-	public Scanner<List<Pathbean>> scanPaged(Subpath subpath){
+	public Scanner<List<Pathbean>> scanPaged(Subpath subpath, Config config){
 		return directoryBlobStorage.scanPaged(subpath);
 	}
 
 	@Override
-	public Scanner<List<PathbeanKey>> scanKeysPaged(Subpath subpath){
+	public Scanner<List<PathbeanKey>> scanKeysPaged(Subpath subpath, Config config){
 		return directoryBlobStorage.scanKeysPaged(subpath);
 	}
 
 	@Override
-	public void delete(PathbeanKey key){
+	public void delete(PathbeanKey key, Config config){
 		directoryBlobStorage.delete(key);
 	}
 
 	@Override
-	public void deleteAll(Subpath subpath){
+	public void deleteAll(Subpath subpath, Config config){
 		directoryBlobStorage.deleteAll(subpath);
 	}
 

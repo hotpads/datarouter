@@ -24,7 +24,6 @@ import io.datarouter.pathnode.PathNode;
 public class DatarouterAuthFiles extends FilesRoot{
 
 	public final JsFiles js = branch(JsFiles::new, "js");
-	public final JspFiles jsp = branch(JspFiles::new, "jsp");
 
 	public static class JsFiles extends PathNode{
 		public final PathNode accountManagerJsx = leaf("accountManager.jsx");
@@ -32,12 +31,5 @@ public class DatarouterAuthFiles extends FilesRoot{
 		public final PathNode viewUsersJsx = leaf("viewUsers.jsx");
 	}
 
-	public static class JspFiles extends PathNode{
-		public final JspAuthenticationFiles authentication = branch(JspAuthenticationFiles::new, "authentication");
-	}
-
-	public static class JspAuthenticationFiles extends PathNode{
-		public final PathNode permissionRequestJsp = leaf("permissionRequest.jsp");
-	}
 
 }

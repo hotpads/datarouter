@@ -31,6 +31,8 @@ import io.datarouter.web.handler.mav.MavProperties;
 import io.datarouter.web.util.RequestAttributeTool;
 import io.datarouter.web.util.RequestDurationTool;
 import j2html.tags.ContainerTag;
+import j2html.tags.specialized.LiTag;
+import j2html.tags.specialized.NavTag;
 
 //for bootstrap 4
 public class DatarouterNavbarV2Html{
@@ -41,7 +43,7 @@ public class DatarouterNavbarV2Html{
 		this.props = Objects.requireNonNull(props);
 	}
 
-	public ContainerTag<?> build(){
+	public NavTag build(){
 		boolean collapsible = props.getTomcatWebApps().size() > 1;
 		String collapsibleStyle = collapsible ? "navbar-expand-md py-md-0" : "navbar-expand py-0";
 		String productionStyle = props.getIsProduction() ? "productionEnv" : "";
@@ -70,7 +72,7 @@ public class DatarouterNavbarV2Html{
 				.toArray(ContainerTag[]::new);
 	}
 
-	private ContainerTag<?> makeWebappListItem(String name, String href){
+	private LiTag makeWebappListItem(String name, String href){
 		var link = a(name)
 				.withClass("nav-link")
 				.attr("data-target", name)
@@ -91,7 +93,7 @@ public class DatarouterNavbarV2Html{
 		return new ContainerTag[]{divider, li, divider, makeTraceSection()};
 	}
 
-	private ContainerTag<?> makeTraceSection(){
+	private LiTag makeTraceSection(){
 		String traceHref = RequestAttributeTool.get(props.getRequest(), BaseHandler.TRACE_URL_REQUEST_ATTRIBUTE).orElse(
 				"");
 		String javaTime = RequestDurationTool.getRequestElapsedDurationString(props.getRequest()).orElse("?");

@@ -24,11 +24,11 @@ import com.google.inject.Provides;
 
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DefaultDispatcherServlet;
 import io.datarouter.web.dispatcher.DispatcherServletClasses;
 import io.datarouter.web.dispatcher.FilterParams;
 import io.datarouter.web.dispatcher.FilterParamsSupplier;
+import io.datarouter.web.dispatcher.RouteSet;
 import io.datarouter.web.dispatcher.ServletParams;
 import io.datarouter.web.inject.guice.BaseGuiceServletModule;
 import io.datarouter.web.navigation.AppNavBar;
@@ -43,7 +43,7 @@ public class DatarouterServletGuiceModule extends BaseGuiceServletModule{
 	private final List<FilterParams> additionalFilterParams;
 	private final Class<? extends HttpsConfiguration> httpsConfiguration;
 	private final Class<? extends Filter> authenticationFilter;
-	private final List<Class<? extends BaseRouteSet>> routeSets;
+	private final List<Class<? extends RouteSet>> routeSets;
 	private final List<ServletParams> additionalServletParams;
 	private final String guicePathsRegex;
 
@@ -51,7 +51,7 @@ public class DatarouterServletGuiceModule extends BaseGuiceServletModule{
 			List<FilterParams> additionalFilterParams,
 			Class<? extends HttpsConfiguration> httpsConfiguration,
 			Class<? extends Filter> authenticationFilter,
-			List<Class<? extends BaseRouteSet>> routeSets,
+			List<Class<? extends RouteSet>> routeSets,
 			List<ServletParams> additionalServletParams,
 			boolean renderJspsUsingServletContainer){
 		this.additionalFilterParams = additionalFilterParams;
@@ -103,7 +103,7 @@ public class DatarouterServletGuiceModule extends BaseGuiceServletModule{
 
 	@Provides
 	public RouteSetRegistry getRouteSetRegistry(DatarouterInjector injector){
-		List<BaseRouteSet> routes = new ArrayList<>();
+		List<RouteSet> routes = new ArrayList<>();
 		Scanner.of(routeSets).map(injector::getInstance).flush(routes::addAll);
 		return new DefaultRouteSetRegistry(routes);
 	}

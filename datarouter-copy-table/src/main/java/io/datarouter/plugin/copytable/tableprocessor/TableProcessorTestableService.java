@@ -29,7 +29,8 @@ public class TableProcessorTestableService implements TestableService{
 
 	@Override
 	public void testAll(){
-		registry.getAll().forEach(clazz -> AnnotationTool.checkSingletonForClass(clazz, true));
+		registry.scan()
+				.forEach(processor -> AnnotationTool.checkSingletonForClass(processor.getClass(), true));
 	}
 
 }

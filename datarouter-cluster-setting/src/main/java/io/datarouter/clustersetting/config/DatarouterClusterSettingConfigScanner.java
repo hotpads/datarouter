@@ -36,7 +36,8 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.web.autoconfig.ConfigScanDto;
 import io.datarouter.web.autoconfig.ConfigScanResponseTool;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.ATag;
+import j2html.tags.specialized.DivTag;
 
 @Singleton
 public class DatarouterClusterSettingConfigScanner{
@@ -90,14 +91,14 @@ public class DatarouterClusterSettingConfigScanner{
 		int size = clusterSettings.size();
 		String header = "Found " + size + " " + validity.persistentString + " cluster setting" + (size > 1 ? "s" : "")
 				+ (additionalMessage.isEmpty() ? "" : additionalMessage);
-		ContainerTag<?> settingsTable = makeBrowserSettingTable(clusterSettings, header);
+		DivTag settingsTable = makeBrowserSettingTable(clusterSettings, header);
 		return ConfigScanResponseTool.buildResponse(settingsTable);
 	}
 
-	private ContainerTag<?> makeBrowserSettingTable(List<ClusterSetting> settings, String header){
+	private DivTag makeBrowserSettingTable(List<ClusterSetting> settings, String header){
 		var table = new J2HtmlEmailTable<ClusterSetting>()
 				.withColumn(new J2HtmlEmailTableColumn<>("Name", row -> makeSettingLink(row.getName())))
-				.withColumn("Scope", row -> row.getScope().getPersistentString())
+				.withColumn("Scope", row -> row.getScope().persistentString)
 				.withColumn("Server Type", ClusterSetting::getServerType)
 				.withColumn("Server Name", ClusterSetting::getServerName)
 				.withColumn("Value", row -> {
@@ -110,7 +111,7 @@ public class DatarouterClusterSettingConfigScanner{
 		return div(h4(header), table);
 	}
 
-	public ContainerTag<?> makeSettingLink(String settingName){
+	public ATag makeSettingLink(String settingName){
 		String href = emailService.startLinkBuilder()
 				.withLocalPath(paths.datarouter.settings)
 				.withParam("submitAction", "browseSettings")

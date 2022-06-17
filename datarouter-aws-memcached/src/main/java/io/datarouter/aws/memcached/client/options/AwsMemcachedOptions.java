@@ -36,7 +36,7 @@ public class AwsMemcachedOptions extends MemcachedOptions{
 
 	public MemcachedClientMode getClientMode(String clientName){
 		return clientOptions.optString(clientName, makeAwsMemcachedKey(PROP_clientMode))
-				.map(MemcachedClientMode::fromPersistentStringStatic)
+				.map(MemcachedClientMode.BY_PERSISTENT_STRING::from)
 				.filter(Optional::isPresent)
 				.map(Optional::get)
 				.orElse(MemcachedClientMode.STATIC);

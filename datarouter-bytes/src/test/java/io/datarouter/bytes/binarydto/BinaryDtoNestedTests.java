@@ -25,14 +25,14 @@ import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.bytes.ByteTool;
-import io.datarouter.bytes.binarydto.codec.BinaryDtoCodec;
+import io.datarouter.bytes.binarydto.codec.BinaryDtoIndexedCodec;
+import io.datarouter.bytes.binarydto.dto.BaseBinaryDto;
 import io.datarouter.bytes.binarydto.dto.BinaryDto;
-import io.datarouter.scanner.Scanner;
+import io.datarouter.bytes.binarydto.dto.ComparableBinaryDto;
 
 public class BinaryDtoNestedTests{
 
-	public static class InnerTestDto extends BinaryDto<InnerTestDto>{
+	public static class InnerTestDto extends ComparableBinaryDto<InnerTestDto>{
 		public final int f1;
 		public final Float f2;
 
@@ -42,6 +42,7 @@ public class BinaryDtoNestedTests{
 		}
 	}
 
+	//this doesn't really make sense as a key, but let's see what happens
 	public static class OuterTestDto extends BinaryDto<OuterTestDto>{
 		public final InnerTestDto inner;
 		public final InnerTestDto inner2;
@@ -69,7 +70,8 @@ public class BinaryDtoNestedTests{
 
 	@Test
 	public void testAssignability(){
-		Assert.assertTrue(BinaryDto.class.isAssignableFrom(InnerTestDto.class));
+		Assert.assertTrue(BaseBinaryDto.class.isAssignableFrom(InnerTestDto.class));
+		Assert.assertTrue(ComparableBinaryDto.class.isAssignableFrom(InnerTestDto.class));
 	}
 
 	@Test
@@ -103,21 +105,15 @@ public class BinaryDtoNestedTests{
 
 	@Test
 	public void testCreateCodec(){
-		BinaryDtoCodec.of(OuterTestDto.class);
+		BinaryDtoIndexedCodec.of(OuterTestDto.class);
 	}
 
 	@Test
-	public void testCodec(){
+	public void testEncode(){
 		var inner0 = new InnerTestDto(0, 0f);
 		var inner1 = new InnerTestDto(1, 1f);
 		var inner2 = new InnerTestDto(2, null);
 		var inner3 = new InnerTestDto(3, 3f);
-		var innerDtos = new InnerTestDto[]{inner0, inner1, inner2, inner3};
-
-		var innerCodec = BinaryDtoCodec.of(InnerTestDto.class);
-		List<byte[]> innersBytes = Scanner.of(innerDtos)
-				.map(innerCodec::encode)
-				.list();
 
 		var outerDto = new OuterTestDto(
 				inner0,
@@ -127,41 +123,7 @@ public class BinaryDtoNestedTests{
 				Collections.emptyList(),
 				null);
 
-		List<byte[]> expectedByteSegments = List.of(
-				//inner
-				new byte[]{1},//item present
-				innersBytes.get(0),//item0
-				//inner1
-				new byte[]{0},//null item
-				//innerArray
-				new byte[]{1},//array present
-				new byte[]{3},//array length 3
-				new byte[]{1},//item present
-				innersBytes.get(0),//item0
-				new byte[]{1},//item present
-				innersBytes.get(1),//item1
-				new byte[]{0},//item null
-				//innerList
-				new byte[]{1},//list present
-				new byte[]{3},//list length 3
-				new byte[]{1},//item present
-				innersBytes.get(2),//item2
-				new byte[]{0},//null item
-				new byte[]{1},//item present
-				innersBytes.get(3),//item3
-				//innerList2
-				new byte[]{1},//list present
-				new byte[]{0},//list length 3
-				//innerList3
-				new byte[]{0});//list null
-		byte[] expectedFullBytes = ByteTool.concat(expectedByteSegments);
-
-		var outerCodec = BinaryDtoCodec.of(OuterTestDto.class);
-		byte[] actualFullBytes = outerCodec.encode(outerDto);
-		Assert.assertEquals(actualFullBytes, expectedFullBytes);
-
-		OuterTestDto actualOuterDto = outerCodec.decode(actualFullBytes);
-		Assert.assertEquals(actualOuterDto, outerDto);
+		Assert.assertEquals(outerDto.cloneIndexed(), outerDto);
 	}
 
 }

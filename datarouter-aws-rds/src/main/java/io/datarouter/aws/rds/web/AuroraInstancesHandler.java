@@ -35,8 +35,6 @@ import org.apache.http.client.utils.URIBuilder;
 
 import io.datarouter.aws.rds.config.DatarouterAwsPaths;
 import io.datarouter.aws.rds.config.DatarouterAwsRdsConfigSettings;
-import io.datarouter.aws.rds.service.AuroraClientIdProvider;
-import io.datarouter.aws.rds.service.AuroraClientIdProvider.AuroraClientDto;
 import io.datarouter.aws.rds.service.AuroraDnsService;
 import io.datarouter.aws.rds.service.AuroraDnsService.DnsHostEntryDto;
 import io.datarouter.aws.rds.service.DatabaseAdministrationConfiguration;
@@ -57,6 +55,9 @@ import j2html.tags.specialized.TrTag;
 public class AuroraInstancesHandler extends BaseHandler{
 
 	private static final String P_clientName = "clientName";
+	private static final String P_clusterName = "clusterName";
+	private static final String P_region = "region";
+
 
 	@Inject
 	private AuroraDnsService dnsService;
@@ -64,8 +65,6 @@ public class AuroraInstancesHandler extends BaseHandler{
 	private DatarouterAwsPaths paths;
 	@Inject
 	private RdsService rdsService;
-	@Inject
-	private AuroraClientIdProvider auroraClientIdProvider;
 	@Inject
 	private DatarouterAwsRdsConfigSettings rdsSettings;
 	@Inject
@@ -78,21 +77,27 @@ public class AuroraInstancesHandler extends BaseHandler{
 	@Handler
 	public Mav inspectClientUrl(){
 		List<DnsHostEntryDto> otherReaderInstances = new ArrayList<>();
-		List<AuroraClientDto> clientsMissingOtherInstances = new ArrayList<>();
-		for(AuroraClientDto clientDto : auroraClientIdProvider.getAuroraClientDtos()){
-			DnsHostEntryDto otherEntry = dnsService.getOtherReader(clientDto.getWriterClientId().getName(),
-					clientDto.getClusterName());
-			if(otherEntry == null){
-				clientsMissingOtherInstances.add(clientDto);
-			}else{
-				otherReaderInstances.add(otherEntry);
+		List<OtherClientDto> clientsMissingOtherInstances = new ArrayList<>();
+
+		Collection<DnsHostEntryDto> dnsEntriesForClients = dnsService.getDnsEntryForClients(false).values();
+		for(DnsHostEntryDto dnsEntry : dnsEntriesForClients){
+			if(!dnsEntry.reader){
+				String region = dnsEntry.getRegion();
+				DnsHostEntryDto otherEntry = dnsService.getOtherReader(dnsEntry.getClientName(),
+						dnsEntry.getClusterName());
+				if(otherEntry == null){
+					clientsMissingOtherInstances.add(new OtherClientDto(dnsEntry.getClientName(),
+							dnsEntry.getClusterName(), region));
+				}else{
+					otherReaderInstances.add(otherEntry);
+				}
+
 			}
 		}
 
 		List<DomContent> fragments = new ArrayList<>();
-		fragments.add(makeAuroraClientsTable("Aurora Clients", dnsService.getDnsEntryForClients().values(), false));
+		fragments.add(makeAuroraClientsTable("Aurora Clients", dnsEntriesForClients, false));
 		if(otherReaderInstances.size() != 0){
-			//temporarily disabling the trash icon
 			fragments.add(makeAuroraClientsTable("Aurora Other Instances", otherReaderInstances, true));
 		}
 		if(clientsMissingOtherInstances.size() != 0){
@@ -107,10 +112,10 @@ public class AuroraInstancesHandler extends BaseHandler{
 	}
 
 	@Handler
-	public Mav createOtherInstance(@Param(P_clientName) String clientName){
-		String clusterName = rdsSettings.dbPrefix.get() + clientName;
-		rdsService.createOtherInstance(clusterName);
-		config.addOtherDatabaseDns(clusterName);
+	public Mav createOtherInstance(@Param(P_clientName) String clientName, @Param(P_clusterName) String clusterName,
+			@Param(P_region) String region){
+		rdsService.createOtherInstance(rdsSettings.dbPrefix.get() + clusterName, region);
+		config.addOtherDatabaseDns(rdsSettings.dbPrefix.get() + clientName, region);
 		var dto = new DatarouterChangelogDtoBuilder(
 				"AuroraClients",
 				clientName,
@@ -142,7 +147,7 @@ public class AuroraInstancesHandler extends BaseHandler{
 				.withHtmlColumn("X", row -> {
 					if(showDeleteOption){
 						var trashIcon = i().withClass("fas fa-trash");
-						return td(a(trashIcon).withHref(getDeleteOtherClientUri(contextPath, row.getClientName())));
+						return td(a(trashIcon).withHref(getDeleteOtherClientUri(contextPath, row)));
 					}
 					return td("");
 
@@ -153,27 +158,29 @@ public class AuroraInstancesHandler extends BaseHandler{
 				.withClass("container my-4");
 	}
 
-	private DivTag makeCreateOtherSection(Collection<AuroraClientDto> rows){
+	private DivTag makeCreateOtherSection(Collection<OtherClientDto> rows){
 		var h2 = h2("Create a read-only Other Instance");
 		var table = table(tbody(each(rows, this::makeCreateOtherRow)));
 		return div(h2, table);
 	}
 
-	private TrTag makeCreateOtherRow(AuroraClientDto row){
+	private TrTag makeCreateOtherRow(OtherClientDto row){
 		String href = new URIBuilder().setPath(servletContext.getContextPath()
 				+ paths.datarouter.auroraInstances.createOtherInstance.toSlashedString())
-				.addParameter(P_clientName, row.getWriterClientId().getName())
+				.addParameter(P_clientName, row.clientName)
+				.addParameter(P_clusterName, row.clusterName)
+				.addParameter(P_region, row.region)
 				.toString();
 		return tr(
-				td(row.getWriterClientId().getName()),
+				td(row.clientName),
 				td(a("Create Other Instance").withHref(href))
 				.withClass("text-center"));
 	}
 
 	@Handler
-	public Mav deleteOtherInstance(@Param(P_clientName) String clientName){
+	public Mav deleteOtherInstance(@Param(P_clientName) String clientName, @Param(P_region) String region){
 		Require.isTrue(clientName.endsWith(rdsSettings.dbOtherInstanceSuffix.get()));
-		rdsService.deleteOtherInstance(clientName);
+		rdsService.deleteOtherInstance(clientName, region);
 		config.removeOtherDatabaseDns(clientName);
 		var dto = new DatarouterChangelogDtoBuilder(
 				"AuroraClients",
@@ -185,12 +192,28 @@ public class AuroraInstancesHandler extends BaseHandler{
 		return new InContextRedirectMav(request, paths.datarouter.auroraInstances.inspectClientUrl.toSlashedString());
 	}
 
-	public String getDeleteOtherClientUri(String contextPath, String clientName){
+	public String getDeleteOtherClientUri(String contextPath, DnsHostEntryDto row){
 		String href = new URIBuilder().setPath(contextPath
 				+ paths.datarouter.auroraInstances.deleteOtherInstance.toSlashedString())
-				.addParameter(P_clientName, clientName)
+				.addParameter(P_clientName, row.getClientName())
+				.addParameter(P_region, row.getRegion())
 				.toString();
 		return href;
+	}
+
+	//add region to this dto
+	private static class OtherClientDto{
+		private final String clientName;
+		private final String clusterName;
+		private final String region;
+
+		public OtherClientDto(String clientName, String clusterName, String region){
+			this.clientName = clientName;
+			this.clusterName = clusterName;
+			this.region = region;
+		}
+
+
 	}
 
 }

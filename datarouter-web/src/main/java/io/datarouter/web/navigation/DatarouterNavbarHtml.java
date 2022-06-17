@@ -31,6 +31,8 @@ import io.datarouter.web.handler.mav.MavProperties;
 import io.datarouter.web.util.RequestAttributeTool;
 import io.datarouter.web.util.RequestDurationTool;
 import j2html.tags.ContainerTag;
+import j2html.tags.specialized.LiTag;
+import j2html.tags.specialized.NavTag;
 
 //for bootstrap 3
 public class DatarouterNavbarHtml{
@@ -41,7 +43,7 @@ public class DatarouterNavbarHtml{
 		this.props = Objects.requireNonNull(props);
 	}
 
-	public ContainerTag<?> build(){
+	public NavTag build(){
 		String productionStyle = props.getIsProduction() ? "productionEnv" : "";
 		var span = span()
 				.withClass("icon-bar");
@@ -69,7 +71,7 @@ public class DatarouterNavbarHtml{
 				.toArray(ContainerTag[]::new);
 	}
 
-	private ContainerTag<?> makeWebappListItem(String name, String href){
+	private LiTag makeWebappListItem(String name, String href){
 		var link = a(name)
 				.withHref(href);
 		return li(link)
@@ -86,7 +88,7 @@ public class DatarouterNavbarHtml{
 		return new ContainerTag[]{divider, li, divider, makeTraceSection()};
 	}
 
-	private ContainerTag<?> makeTraceSection(){
+	private LiTag makeTraceSection(){
 		String traceHref = RequestAttributeTool.get(props.getRequest(), BaseHandler.TRACE_URL_REQUEST_ATTRIBUTE).orElse(
 				"");
 		String javaTime = RequestDurationTool.getRequestElapsedDurationString(props.getRequest()).orElse("?");

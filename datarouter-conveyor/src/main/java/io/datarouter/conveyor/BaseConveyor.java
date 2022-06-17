@@ -16,6 +16,7 @@
 package io.datarouter.conveyor;
 
 import java.io.InterruptedIOException;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
 import org.slf4j.Logger;
@@ -34,6 +35,7 @@ public abstract class BaseConveyor implements Conveyor{
 	protected final ExceptionRecorder exceptionRecorder;
 	private final Supplier<Boolean> shouldRunSetting;
 	private final Supplier<Boolean> compactExceptionLogging;
+	private final AtomicBoolean isShuttingDown;
 
 	public BaseConveyor(
 			String name,
@@ -44,6 +46,7 @@ public abstract class BaseConveyor implements Conveyor{
 		this.shouldRunSetting = shouldRun;
 		this.compactExceptionLogging = compactExceptionLogging;
 		this.exceptionRecorder = exceptionRecorder;
+		this.isShuttingDown = new AtomicBoolean();
 	}
 
 	public abstract ProcessBatchResult processBatch();
@@ -115,6 +118,16 @@ public abstract class BaseConveyor implements Conveyor{
 	@Override
 	public boolean shouldRun(){
 		return !Thread.currentThread().isInterrupted() && shouldRunSetting.get();
+	}
+
+	@Override
+	public void setIsShuttingDown(){
+		isShuttingDown.set(true);
+	}
+
+	@Override
+	public boolean isShuttingDown(){
+		return isShuttingDown.get();
 	}
 
 	private boolean getCompactExceptionLogging(){

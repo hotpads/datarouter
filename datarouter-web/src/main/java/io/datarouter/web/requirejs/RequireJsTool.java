@@ -26,16 +26,16 @@ import java.util.stream.Collectors;
 import io.datarouter.gson.serialization.GsonTool;
 import io.datarouter.pathnode.PathNode;
 import j2html.TagCreator;
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.ScriptTag;
 
 public class RequireJsTool{
 
-	public static ContainerTag<?> makeRequireJsImportTag(String contextPath, PathNode path){
+	public static ScriptTag makeRequireJsImportTag(String contextPath, PathNode path){
 		return script()
 				.withSrc(contextPath + path.toSlashedString());
 	}
 
-	public static ContainerTag<?> makeConfigScriptTag(String config){
+	public static ScriptTag makeConfigScriptTag(String config){
 		String rawHtml = String.format("require.config(%s)", config);
 		return script(TagCreator.rawHtml(rawHtml));
 	}
@@ -52,7 +52,7 @@ public class RequireJsTool{
 		return GsonTool.GSON_PRETTY_PRINT.toJson(requireJsConfigParam);
 	}
 
-	public static ContainerTag<?> makeRequireScriptTag(String... names){
+	public static ScriptTag makeRequireScriptTag(String... names){
 		String rawHtml = String.format("require(%s)", makeRequireParams(names));
 		return script(TagCreator.rawHtml(rawHtml));
 	}

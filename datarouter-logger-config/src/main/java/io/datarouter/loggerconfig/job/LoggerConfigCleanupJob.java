@@ -53,7 +53,8 @@ import io.datarouter.util.time.ZonedDateFormatterTool;
 import io.datarouter.web.config.properties.DefaultEmailDistributionListZoneId;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
 import io.datarouter.web.email.StandardDatarouterEmailHeaderService;
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.PTag;
 
 public class LoggerConfigCleanupJob extends BaseJob{
 
@@ -117,7 +118,7 @@ public class LoggerConfigCleanupJob extends BaseJob{
 			return;
 		}
 
-		Level databaseLoggerLevel = log.getLevel().getLevel();
+		Level databaseLoggerLevel = log.getLevel().level;
 		Level rootLoggerLevel = log4j2Configurator.getRootLoggerLevel();
 		if(databaseLoggerLevel.isMoreSpecificThan(rootLoggerLevel) && settings.sendLoggerConfigCleanupJobEmails.get()){
 			sendAlertEmail(List.of(), log, makeLoggerLevelAlertDetails(log, rootLoggerLevel));
@@ -127,7 +128,11 @@ public class LoggerConfigCleanupJob extends BaseJob{
 				- daysSinceLastUpdatedThreshold;
 		if(daysLeftBeforeDeletingLogger <= 0){
 			loggerConfigDao.delete(log.getKey());
-			var dto = new DatarouterChangelogDtoBuilder("LoggerConfig", log.getKey().getName(), "delete", "cleanup job")
+			var dto = new DatarouterChangelogDtoBuilder(
+					"LoggerConfig",
+					log.getKey().getName(),
+					"delete",
+					log.getEmail())
 					.sendEmail()
 					.excludeMainDatarouterAdmin()
 					.excludeSubscribers()
@@ -143,7 +148,7 @@ public class LoggerConfigCleanupJob extends BaseJob{
 		}
 	}
 
-	private ContainerTag<?> makeDefaultOldLoggerConfigDetails(LoggerConfig log){
+	private PTag makeDefaultOldLoggerConfigDetails(LoggerConfig log){
 		return p(
 				text("The LoggerConfig named "),
 				b(log.getName()),
@@ -156,7 +161,7 @@ public class LoggerConfigCleanupJob extends BaseJob{
 				text("Either the LoggerConfig should be deleted or the code updated."));
 	}
 
-	private ContainerTag<?> makeLoggerLevelAlertDetails(LoggerConfig log, Level rootLoggerLevel){
+	private PTag makeLoggerLevelAlertDetails(LoggerConfig log, Level rootLoggerLevel){
 		return p(
 				text("The LoggerConfig "),
 				b(log.getName()),
@@ -168,7 +173,7 @@ public class LoggerConfigCleanupJob extends BaseJob{
 				text(" or is redundant if the two levels are equal."));
 	}
 
-	private ContainerTag<?> makeOldLoggerConfigAlertDetails(LoggerConfig log, int daysLeft){
+	private PTag makeOldLoggerConfigAlertDetails(LoggerConfig log, int daysLeft){
 		return p(
 				text("The LoggerConfig "),
 				b(log.getName()),
@@ -183,7 +188,7 @@ public class LoggerConfigCleanupJob extends BaseJob{
 				text(" days if not updated."));
 	}
 
-	private ContainerTag<?> makeDeleteLoggerConfigAlertDetails(LoggerConfig log){
+	private PTag makeDeleteLoggerConfigAlertDetails(LoggerConfig log){
 		ZoneId zoneId = defaultEmailDistributionListZoneId.get();
 		return p(
 				text("The LoggerConfig "),
@@ -199,7 +204,7 @@ public class LoggerConfigCleanupJob extends BaseJob{
 				text(" days of alerts."));
 	}
 
-	private void sendAlertEmail(Collection<String> toEmails, LoggerConfig log, ContainerTag<?> details){
+	private void sendAlertEmail(Collection<String> toEmails, LoggerConfig log, PTag details){
 		String primaryHref = htmlEmailService.startLinkBuilder()
 				.withLocalPath(paths.datarouter.logging)
 				.build();
@@ -214,7 +219,7 @@ public class LoggerConfigCleanupJob extends BaseJob{
 		htmlEmailService.trySendJ2Html(emailBuilder);
 	}
 
-	private ContainerTag<?> makeEmailContent(ContainerTag<?> details){
+	private DivTag makeEmailContent(PTag details){
 		var header = standardDatarouterEmailHeaderService.makeStandardHeader();
 		var description = h3("Old LoggerConfig alert from:");
 		var detailsHeader = h4("Details:");

@@ -29,7 +29,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.HTableDescriptor;
-import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.util.Bytes;
 
 import io.datarouter.client.hbase.HBaseClientManager;
@@ -119,7 +118,7 @@ public class HBaseWebInspector implements DatarouterClientWebInspector{
 		for(HColumnDescriptor family : families){
 			Map<String,String> familyAttributeByName = new TreeMap<>();
 			familyAttributeByNameByFamilyName.put(family.getNameAsString(), familyAttributeByName);
-			for(Entry<ImmutableBytesWritable,ImmutableBytesWritable> e : family.getValues().entrySet()){
+			for(Entry<Bytes,Bytes> e : family.getValues().entrySet()){
 				String key = Bytes.toString(e.getKey().get());
 				String value = Bytes.toString(e.getValue().get());
 				familyAttributeByName.put(key, value);

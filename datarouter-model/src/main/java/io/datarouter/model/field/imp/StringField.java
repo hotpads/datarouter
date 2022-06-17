@@ -17,7 +17,6 @@ package io.datarouter.model.field.imp;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,11 +27,10 @@ import io.datarouter.model.field.Field;
 import io.datarouter.model.field.FieldKey;
 import io.datarouter.util.ComparableTool;
 import io.datarouter.util.array.ArrayTool;
+import io.datarouter.util.string.StringTool;
 
 public class StringField extends BaseField<String>{
 	private static final Logger logger = LoggerFactory.getLogger(StringField.class);
-
-	private static final AtomicBoolean SIZE_EXCEEDED = new AtomicBoolean(false);
 
 	public static final byte SEPARATOR = 0;
 
@@ -95,6 +93,7 @@ public class StringField extends BaseField<String>{
 		return allBytes;
 	}
 
+	//warning: this tolerates a missing separator, returning the length without it
 	@Override
 	public int numBytesWithSeparator(byte[] bytes, int offset){
 		for(int i = offset; i < bytes.length; ++i){
@@ -131,11 +130,21 @@ public class StringField extends BaseField<String>{
 	}
 
 	private String validateSize(String value){
-		if(value != null && value.length() > key.getSize() && !SIZE_EXCEEDED.getAndSet(true)){
-			logger.warn("value length={} exceeds field size={} for column={}",
+		if(value == null){
+			return value;
+		}
+		if(value.length() <= key.getSize()){
+			return value;
+		}
+		if(key.shouldValidateSize()){
+			String trimmedValue = value.substring(0, Math.min(value.length(), 1_000));
+			String loggableValue = StringTool.removeNonStandardCharacters(trimmedValue);
+			//TODO throw exception, otherwise log
+			logger.warn("value length={} exceeds field size={} for column={} loggableValue={}",
 					value.length(),
 					key.getSize(),
 					key.getColumnName(),
+					loggableValue,
 					new Exception());
 		}
 		return value;

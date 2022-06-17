@@ -45,7 +45,7 @@ public class DispatcherServletTestService{
 			throw new RuntimeException(e);
 		}
 		servlet.getRouteSets().stream()
-				.map(BaseRouteSet::getDispatchRules)
+				.map(RouteSet::getDispatchRules)
 				.flatMap(List::stream)
 				.map(DispatchRule::getHandlerClass)
 				.distinct()

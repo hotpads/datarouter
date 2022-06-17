@@ -15,6 +15,7 @@
  */
 package io.datarouter.nodewatch.storage.tablecount;
 
+import java.time.Instant;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -74,8 +75,14 @@ public class TableCount extends BaseDatabean<TableCountKey,TableCount>{
 		super(new TableCountKey(null, null, null));
 	}
 
-	public TableCount(String clientName, String tableName, Long createdMs, Long numRows, Long countTimeMs,
-			Long numSpans, Long numSlowSpans){
+	public TableCount(
+			String clientName,
+			String tableName,
+			Long createdMs,
+			Long numRows,
+			Long countTimeMs,
+			Long numSpans,
+			Long numSlowSpans){
 		super(new TableCountKey(clientName, tableName, createdMs));
 		this.numRows = numRows;
 		this.dateUpdated = new Date(createdMs);
@@ -122,8 +129,8 @@ public class TableCount extends BaseDatabean<TableCountKey,TableCount>{
 		return numRows;
 	}
 
-	public Date getDateUpdated(){
-		return dateUpdated;
+	public Instant getDateUpdated(){
+		return dateUpdated.toInstant();
 	}
 
 	public Long getNumSpans(){

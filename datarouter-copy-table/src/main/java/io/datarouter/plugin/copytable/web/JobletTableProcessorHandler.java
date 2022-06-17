@@ -24,6 +24,9 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.datarouter.joblet.enums.JobletPriority;
 import io.datarouter.joblet.model.JobletPackage;
 import io.datarouter.joblet.service.JobletService;
@@ -33,6 +36,7 @@ import io.datarouter.nodewatch.service.TableSamplerService;
 import io.datarouter.nodewatch.storage.tablesample.TableSample;
 import io.datarouter.nodewatch.storage.tablesample.TableSampleKey;
 import io.datarouter.nodewatch.util.TableSamplerTool;
+import io.datarouter.plugin.copytable.tableprocessor.TableProcessor;
 import io.datarouter.plugin.copytable.tableprocessor.TableProcessorJoblet;
 import io.datarouter.plugin.copytable.tableprocessor.TableProcessorJoblet.TableProcessorJobletParams;
 import io.datarouter.plugin.copytable.tableprocessor.TableProcessorRegistry;
@@ -49,9 +53,10 @@ import io.datarouter.web.handler.types.optional.OptionalString;
 import io.datarouter.web.html.form.HtmlForm;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.DivTag;
 
 public class JobletTableProcessorHandler extends BaseHandler{
+	private static final Logger logger = LoggerFactory.getLogger(JobletTableProcessorHandler.class);
 
 	private static final String
 			P_nodeName = "nodeName",
@@ -100,7 +105,8 @@ public class JobletTableProcessorHandler extends BaseHandler{
 				.append("")
 				.sort()
 				.list();
-		List<String> possibleProcessors = Scanner.of(processorRegistry.getAll())
+		List<String> possibleProcessors = processorRegistry.scan()
+				.map(TableProcessor::getClass)
 				.map(Class::getSimpleName)
 				.append("")
 				.sort()
@@ -239,7 +245,7 @@ public class JobletTableProcessorHandler extends BaseHandler{
 
 	private static class Html{
 
-		public static ContainerTag<?> makeContent(HtmlForm htmlForm){
+		public static DivTag makeContent(HtmlForm htmlForm){
 			var form = Bootstrap4FormHtml.render(htmlForm)
 					.withClass("card card-body bg-light");
 			return div(

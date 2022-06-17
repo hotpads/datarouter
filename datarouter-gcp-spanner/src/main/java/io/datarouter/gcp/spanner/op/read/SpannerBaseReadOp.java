@@ -37,7 +37,7 @@ import com.google.cloud.spanner.ResultSet;
 import com.google.cloud.spanner.SpannerException;
 
 import io.datarouter.gcp.spanner.field.SpannerBaseFieldCodec;
-import io.datarouter.gcp.spanner.field.SpannerFieldCodecRegistry;
+import io.datarouter.gcp.spanner.field.SpannerFieldCodecs;
 import io.datarouter.gcp.spanner.op.SpannerBaseOp;
 import io.datarouter.instrumentation.trace.TraceSpanGroupType;
 import io.datarouter.instrumentation.trace.TracerTool;
@@ -54,19 +54,19 @@ public abstract class SpannerBaseReadOp<T> extends SpannerBaseOp<List<T>>{
 
 	protected final DatabaseClient client;
 	protected final Config config;
-	protected final SpannerFieldCodecRegistry codecRegistry;
+	protected final SpannerFieldCodecs fieldCodecs;
 	protected final String tableName;
 
 	public SpannerBaseReadOp(
 			DatabaseClient client,
 			Config config,
-			SpannerFieldCodecRegistry codecRegistry,
+			SpannerFieldCodecs fieldCodecs,
 			String tableName){
 		//TODO implement traces
 		super("Spanner read");
 		this.client = client;
 		this.config = config;
-		this.codecRegistry = codecRegistry;
+		this.fieldCodecs = fieldCodecs;
 		this.tableName = tableName;
 	}
 
@@ -77,7 +77,7 @@ public abstract class SpannerBaseReadOp<T> extends SpannerBaseOp<List<T>>{
 			return Key.of();
 		}
 		Builder mutationKey = Key.newBuilder();
-		for(SpannerBaseFieldCodec<?,?> codec : codecRegistry.createCodecs(key.getFields())){
+		for(SpannerBaseFieldCodec<?,?> codec : fieldCodecs.createCodecs(key.getFields())){
 			if(codec.getField().getValue() == null){
 				break;
 			}
@@ -145,7 +145,7 @@ public abstract class SpannerBaseReadOp<T> extends SpannerBaseOp<List<T>>{
 	}
 
 	protected <F> List<F> createFromResultSet(ResultSet rs, Supplier<F> objectSupplier, List<Field<?>> fields){
-		List<? extends SpannerBaseFieldCodec<?,?>> codecs = codecRegistry.createCodecs(fields);
+		List<? extends SpannerBaseFieldCodec<?,?>> codecs = fieldCodecs.createCodecs(fields);
 		List<F> objects = new ArrayList<>();
 		int resultCounter = 0;//for debugging session leak; see if we're before the first result
 		try{

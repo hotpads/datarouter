@@ -19,7 +19,6 @@ import java.time.Duration;
 
 import javax.inject.Inject;
 
-import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.joblet.codec.BaseGsonJobletCodec;
 import io.datarouter.joblet.model.BaseJoblet;
 import io.datarouter.joblet.type.JobletType;
@@ -43,13 +42,10 @@ public class TableProcessorJoblet extends BaseJoblet<TableProcessorJobletParams>
 	private TableProcessorService service;
 	@Inject
 	private TableProcessorRegistry processorRegistry;
-	@Inject
-	private DatarouterInjector injector;
 
 	@Override
 	public void process() throws Throwable{
-		TableProcessor<?,?> processor = injector.getInstance(processorRegistry.find(params.processorName)
-				.get());
+		TableProcessor<?,?> processor = processorRegistry.find(params.processorName).get();
 		TableProcessorSpanResult result = service.runTableProcessor(
 				params.nodeName,
 				params.fromKeyExclusive,

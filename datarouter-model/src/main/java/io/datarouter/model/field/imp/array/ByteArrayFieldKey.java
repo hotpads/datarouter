@@ -16,6 +16,7 @@
 package io.datarouter.model.field.imp.array;
 
 import java.util.Map;
+import java.util.Optional;
 
 import com.google.gson.reflect.TypeToken;
 
@@ -54,6 +55,11 @@ public class ByteArrayFieldKey extends BaseFieldKey<byte[],ByteArrayFieldKey>{
 	@Override
 	public boolean isFixedLength(){
 		return false;
+	}
+
+	@Override
+	public Optional<Integer> findSize(){
+		return Optional.of(size);
 	}
 
 	public int getSize(){

@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import io.datarouter.bytes.binarydto.dto.BinaryDto;
+import io.datarouter.bytes.binarydto.dto.BaseBinaryDto;
 import io.datarouter.bytes.binarydto.fieldcodec.BinaryDtoBaseFieldCodec;
 import io.datarouter.bytes.binarydto.fieldcodec.array.BooleanArrayBinaryDtoFieldCodec;
 import io.datarouter.bytes.binarydto.fieldcodec.array.ByteArrayBinaryDtoFieldCodec;
@@ -43,7 +43,7 @@ import io.datarouter.bytes.binarydto.fieldcodec.primitive.FloatBinaryDtoFieldCod
 import io.datarouter.bytes.binarydto.fieldcodec.primitive.IntBinaryDtoFieldCodec;
 import io.datarouter.bytes.binarydto.fieldcodec.primitive.LongBinaryDtoFieldCodec;
 import io.datarouter.bytes.binarydto.fieldcodec.primitive.ShortBinaryDtoFieldCodec;
-import io.datarouter.bytes.binarydto.fieldcodec.string.TerminatedUtf8BinaryDtoFieldCodec;
+import io.datarouter.bytes.binarydto.fieldcodec.string.Utf8BinaryDtoFieldCodec;
 import io.datarouter.bytes.binarydto.fieldcodec.time.InstantBinaryDtoFieldCodec;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
@@ -79,7 +79,7 @@ public class BinaryDtoFieldCodecs{
 		LEAF_CODEC_BY_CLASS.put(long[].class, new LongArrayBinaryDtoFieldCodec());
 		LEAF_CODEC_BY_CLASS.put(double[].class, new DoubleArrayBinaryDtoFieldCodec());
 		//string
-		LEAF_CODEC_BY_CLASS.put(String.class, new TerminatedUtf8BinaryDtoFieldCodec());
+		LEAF_CODEC_BY_CLASS.put(String.class, new Utf8BinaryDtoFieldCodec());
 		//time
 		LEAF_CODEC_BY_CLASS.put(Instant.class, new InstantBinaryDtoFieldCodec());
 	}
@@ -123,7 +123,7 @@ public class BinaryDtoFieldCodecs{
 	}
 
 	private static BinaryDtoBaseFieldCodec<?> getLeafCodec(Class<?> clazz){
-		return BinaryDto.class.isAssignableFrom(clazz)
+		return BaseBinaryDto.class.isAssignableFrom(clazz)
 				? new NestedBinaryDtoFieldCodec(clazz)
 				: LEAF_CODEC_BY_CLASS.get(clazz);
 	}

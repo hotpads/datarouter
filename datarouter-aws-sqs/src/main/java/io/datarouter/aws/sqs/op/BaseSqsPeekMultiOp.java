@@ -71,7 +71,7 @@ extends SqsOp<PK,D,F,List<T>>{
 		var request = new ReceiveMessageRequest(queueUrl);
 
 		//waitTime
-		Duration configTimeout = config.getTimeoutOrUse(Duration.ofMillis(Long.MAX_VALUE));
+		Duration configTimeout = config.findTimeout().orElse(Duration.ofMillis(Long.MAX_VALUE));
 		long waitTimeMs = Math.min(configTimeout.toMillis(), BaseSqsNode.MAX_TIMEOUT_SECONDS * 1000);
 		request.setWaitTimeSeconds((int)Duration.ofMillis(waitTimeMs).getSeconds());//must fit in an int
 

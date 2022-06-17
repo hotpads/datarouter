@@ -24,18 +24,18 @@ import io.datarouter.joblet.storage.jobletrequest.DatarouterJobletRequestDao;
 import io.datarouter.joblet.storage.jobletrequest.JobletRequest;
 import io.datarouter.joblet.storage.jobletrequest.JobletRequestKey;
 import io.datarouter.joblet.type.JobletType;
+import io.datarouter.model.field.imp.StringEncodedField;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.comparable.BooleanField;
-import io.datarouter.model.field.imp.enums.StringEnumField;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.storage.sql.Sql;
 
 @Singleton
 public class JobletRequestSqlBuilder{
 
-	private static final StringEnumField<JobletStatus> STATUS_CREATED_FIELD = new StringEnumField<>(
+	private static final StringEncodedField<JobletStatus> STATUS_CREATED_FIELD = new StringEncodedField<>(
 			JobletRequest.FieldKeys.status, JobletStatus.CREATED);
-	private static final StringEnumField<JobletStatus> STATUS_RUNNING_FIELD = new StringEnumField<>(
+	private static final StringEncodedField<JobletStatus> STATUS_RUNNING_FIELD = new StringEncodedField<>(
 			JobletRequest.FieldKeys.status, JobletStatus.RUNNING);
 	private static final BooleanField RESTARTABLE_FIELD = new BooleanField(JobletRequest.FieldKeys.restartable, true);
 

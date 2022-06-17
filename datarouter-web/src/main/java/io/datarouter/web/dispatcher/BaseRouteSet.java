@@ -22,15 +22,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.httpclient.endpoint.BaseEndpoint;
-import io.datarouter.httpclient.endpoint.BaseInternalLink;
 import io.datarouter.httpclient.endpoint.EndpointTool;
 import io.datarouter.pathnode.PathNode;
 import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.HandlerTool;
-import io.datarouter.web.handler.types.InternalLinkDecoder;
 
-public abstract class BaseRouteSet{
+public abstract class BaseRouteSet implements RouteSet{
 	private static final Logger logger = LoggerFactory.getLogger(BaseRouteSet.class);
 
 	public static final String REGEX_ONE_DIRECTORY = "[/]?[^/]*";
@@ -86,15 +84,6 @@ public abstract class BaseRouteSet{
 		endpoints.forEach(endpoint -> handle(endpoint).withHandler(handler));
 	}
 
-	protected DispatchRule handleInternalLink(
-			Class<? extends BaseInternalLink> baseInternalLink,
-			Class<? extends BaseHandler> handler){
-		BaseInternalLink link = ReflectionTool.createWithoutNoArgs(baseInternalLink);
-		return handle(link.pathNode)
-				.withDefaultHandlerDecoder(InternalLinkDecoder.class)
-				.withHandler(handler);
-	}
-
 	protected DispatchRule applyDefaultAndAdd(DispatchRule rule){
 		applyDefault(rule);
 		this.dispatchRules.add(rule);
@@ -146,14 +135,17 @@ public abstract class BaseRouteSet{
 
 	/*------------------ getters -------------------*/
 
+	@Override
 	public List<DispatchRule> getDispatchRules(){
 		return this.dispatchRules;
 	}
 
+	@Override
 	public String getUrlPrefix(){
 		return urlPrefix;
 	}
 
+	@Override
 	public Class<? extends BaseHandler> getDefaultHandlerClass(){
 		return defaultHandlerClass;
 	}

@@ -28,7 +28,10 @@
 		}
 	</style>
 	<script>
-		require(['multiple-select', 'sorttable'], function(){
+		require(['multiple-select', 'sorttable','jquery.validate'], function(){
+			$.validator.addMethod('ttl', function(value){
+				return parseInt(value) !== 0 && /${durationRegex}/.test(value)
+			}, 'Invalid TTL')
 			$(document).ready(function(){
 				$('select[multiple]').multipleSelect();
 				$('.table-delete-config').click(function() {
@@ -36,6 +39,10 @@
 					if (confirm('Delete logger config for "' + configname + '"?')) {
 						window.location.href = contextpath + "/datarouter/logging/deleteLoggerConfig?name=" + configkey;
 					}
+				});
+				//note: this does not work for the update form, because it uses illegal html (form/table issues)
+				$('.config-form').each(function(){
+					$(this).validate({rules: {ttl: 'ttl'}});
 				});
 			});
 		});
@@ -70,11 +77,11 @@
 			</div>
 			<div class="mb-4">
 				<h4>Add Config</h4>
-				<form class="form-inline" method="post" action="${contextPath}/datarouter/logging/createLoggerConfig">
+				<form class="form-inline config-form" method="post" action="${contextPath}/datarouter/logging/createLoggerConfig">
 					<div class="input-group w-100">
 						<input class="logger-name form-control" id="createLoggerName" type="text" name="name" placeholder="Name" required>
 						<div class="input-group-append">
-							<input class="logger-ttl-minutes form-control input-group-append" id="createLoggerTtlMinutes" type="number" name="ttlMinutes" placeholder="TTL (MINUTES)">
+							<input class="logger-ttl form-control input-group-append" id="ttl" name="ttl" placeholder="TTL (1d1h1m1s1ms)">
 							<select name="level" class="form-control input-group-append rounded-0" required>
 								<option disabled selected>Level</option>
 								<c:forEach items="${levels}" var="level">
@@ -86,7 +93,7 @@
 									<option>${appender.value.name}</option>
 								</c:forEach>
 							</select>
-							<input type="text" readonly class="form-control input-group-append rounded-0 font-weight-bold" value="${currentUserEmail}">
+							<input type="text" readonly class="form-control input-group-append rounded-0 font-weight-bold" name="email" value="${currentUserEmail}">
 							<input class="logger-add-config btn btn-primary form-control" type="submit" value="Add">
 						</div>
 					</div>
@@ -98,7 +105,7 @@
 					<thead class="thead-dark text-center">
 						<tr>
 							<th>Name</th>
-							<th>TTL (Minutes)</th>
+							<th>TTL</th>
 							<th>Level</th>
 							<th>Appenders</th>
 							<th>User</th>
@@ -109,7 +116,7 @@
 					<tbody>
 					<c:forEach items="${configs}" var="config">
 						<tr>
-							<form method="post" action="${contextPath}/datarouter/logging/updateLoggerConfig">
+							<form class="config-form" method="post" action="${contextPath}/datarouter/logging/updateLoggerConfig">
 								<input type="hidden" name="name" value="${config.value.name}">
 								<td class="align-middle">
 									<c:if test="${!config.value.name.equals(rootLogger.name)}">
@@ -124,9 +131,9 @@
 										<h4 class="text-center">Root Logger</h4>
 									</c:if>
 								</td>
-								<td class="align-middle" sorttable_customkey="${config.value.ttlMinutes}">
+								<td class="align-middle" sorttable_customkey="${config.value.ttl}">
 									<c:set var="readonlyTtl" value="${!config.value.canDelete || config.value.name.equals(rootLogger.name)}"/>
-									<input ${readonlyTtl ? 'disabled class="form-control-plaintext"' : 'class="form-control"'} type="number" name="ttlMinutes" value="${config.value.ttlMinutes}">
+									<input ${readonlyTtl ? 'disabled class="form-control-plaintext"' : 'class="form-control"'} name="ttl" value="${config.value.ttl}">
 								</td>
 								<td class="align-middle" sorttable_customkey="${config.value.level.toString()}">
 									<select name="level" class="form-control">

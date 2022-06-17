@@ -50,7 +50,7 @@ public class NodeBuilder<
 	private final Supplier<F> fielderSupplier;
 	private Supplier<EntityPartitioner<EK>> partitionerSupplier;
 	private String tableName;
-	private Integer schemaVersion;
+	private String schemaVersion;
 	private NodewatchConfigurationBuilder nodewatchConfigurationBuilder;
 	private boolean disableForcePrimary;
 	private Tag tag = Tag.APP;
@@ -87,7 +87,7 @@ public class NodeBuilder<
 		return this;
 	}
 
-	public NodeBuilder<EK,PK,D,F> withSchemaVersion(Integer schemaVersion){
+	public NodeBuilder<EK,PK,D,F> withSchemaVersion(String schemaVersion){
 		this.schemaVersion = schemaVersion;
 		return this;
 	}

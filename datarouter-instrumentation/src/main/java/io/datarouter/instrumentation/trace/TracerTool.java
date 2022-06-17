@@ -36,32 +36,11 @@ public class TracerTool{
 
 	/*---------------------------- TraceThread ------------------------------*/
 
-	public static void createAndStartThread(Tracer tracer, String name, long queueTimeNs){
-		if(tracer == null){
-			return;
-		}
-		tracer.createAndStartThread(name, queueTimeNs);
-	}
-
-	public static void createThread(Tracer tracer, String name, long queueTimeNs){
-		if(tracer == null){
-			return;
-		}
-		tracer.createThread(name, queueTimeNs);
-	}
-
 	public static void appendToThreadInfo(Tracer tracer, String text){
 		if(tracer == null){
 			return;
 		}
 		tracer.appendToThreadInfo(text);
-	}
-
-	public static void finishThread(Tracer tracer){
-		if(tracer == null){
-			return;
-		}
-		tracer.finishThread();
 	}
 
 	/*---------------------------- TraceSpan --------------------------------*/
@@ -148,7 +127,7 @@ public class TracerTool{
 
 	public static class TraceSpanInfoBuilder{
 
-		private List<String> spanEntries = new ArrayList<>();
+		private final List<String> spanEntries = new ArrayList<>();
 
 		public TraceSpanInfoBuilder add(String key, Object value){
 			spanEntries.add(key + '=' + Objects.toString(value));

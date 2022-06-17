@@ -75,7 +75,7 @@ public class JobletUpdateHandler extends BaseHandler{
 			@Param(PARAM_status) String status){
 		JobletType<?> jobletType = jobletTypeFactory.fromPersistentString(typeString);
 		Objects.requireNonNull(jobletType, "No joblet type found with name=" + typeString);
-		JobletStatus statusString = JobletStatus.fromPersistentStringStatic(status);
+		JobletStatus statusString = JobletStatus.BY_PERSISTENT_STRING.fromOrNull(status);
 		JobletRequestKey prefix = JobletRequestKey.create(jobletType, executionOrder, null, null);
 		jobletRequestDao.scanWithPrefix(prefix)
 				.include(jobletRequest -> statusString == jobletRequest.getStatus())
@@ -128,7 +128,7 @@ public class JobletUpdateHandler extends BaseHandler{
 	private Mav restart(
 			@Param(PARAM_jobletType) OptionalString type,
 			@Param(PARAM_status) String status){
-		JobletStatus jobletStatus = JobletStatus.fromPersistentStringStatic(status);
+		JobletStatus jobletStatus = JobletStatus.BY_PERSISTENT_STRING.fromOrNull(status);
 		long numRestarted = 0;
 		if(type.isPresent()){
 			JobletType<?> jobletType = jobletTypeFactory.fromPersistentString(type.get());

@@ -19,11 +19,11 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.Optional;
 
 import io.datarouter.clustersetting.ClusterSettingLogAction;
 import io.datarouter.clustersetting.ClusterSettingScope;
 import io.datarouter.clustersetting.storage.clustersettinglog.ClusterSettingLog;
-import io.datarouter.enums.StringEnum;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.util.time.ZonedDateFormatterTool;
 
@@ -103,7 +103,10 @@ public class ClusterSettingLogJspDto{
 	}
 
 	public String getHtmlSafeScope(){
-		return htmlSafe(scope);
+		String str = Optional.ofNullable(scope)
+				.map(scope -> scope.persistentString)
+				.orElse(null);
+		return htmlSafe(str);
 	}
 
 	public String getHtmlSafeServerType(){
@@ -119,7 +122,10 @@ public class ClusterSettingLogJspDto{
 	}
 
 	public String getHtmlSafeAction(){
-		return htmlSafe(action);
+		String str = Optional.ofNullable(action)
+				.map(action -> action.persistentString)
+				.orElse(null);
+		return htmlSafe(str);
 	}
 
 	public String getHtmlSafeChangedBy(){
@@ -132,10 +138,6 @@ public class ClusterSettingLogJspDto{
 
 	private String htmlSafe(String str){
 		return StringTool.isNullOrEmpty(str) ? TABLE_CELL_DEFAULT : str;
-	}
-
-	private <T extends StringEnum<T>> String htmlSafe(T stringEnum){
-		return stringEnum.getPersistentString() == null ? TABLE_CELL_DEFAULT : stringEnum.toString();
 	}
 
 }

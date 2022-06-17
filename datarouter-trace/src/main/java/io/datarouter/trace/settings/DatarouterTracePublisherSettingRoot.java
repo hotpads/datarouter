@@ -20,7 +20,6 @@ import javax.inject.Singleton;
 
 import io.datarouter.storage.setting.DatarouterSettingCategory;
 import io.datarouter.storage.setting.DatarouterSettingTagType;
-import io.datarouter.storage.setting.Setting;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.SettingRoot;
 import io.datarouter.storage.setting.cached.CachedSetting;
@@ -28,33 +27,31 @@ import io.datarouter.storage.setting.cached.CachedSetting;
 @Singleton
 public class DatarouterTracePublisherSettingRoot extends SettingRoot{
 
-	public final CachedSetting<Boolean> bufferInSqsForTrace2;
-	public final CachedSetting<Boolean> runMemoryToSqsForTrace2;
-	public final CachedSetting<Boolean> drainSqsToPublisherForTrace2;
-	public final CachedSetting<Boolean> drainSqsToPublisherForTrace2HttpRequestRecord;
-	public final CachedSetting<Boolean> compactExceptionLoggingForConveyors;
-	public final Setting<Integer> runMemoryToSqsForTrace2ThreadCount;
-	public final Setting<Integer> drainSqsToPublisherForTrace2ThreadCount;
-	public final Setting<Integer> drainSqsToPublisherForTrace2HttpRequestRecordThreadCount;
+	//save Traces in buffer
+	public final CachedSetting<Boolean> saveTracesToMemory;
+	//publish Traces from buffer
+	public final CachedSetting<Boolean> runTraceMemoryToPublisherConveyor;
+
+	//controls Trace publishing destination
+	public final CachedSetting<Boolean> saveTraceBlobsToQueueDaoInsteadOfDirectoryDao;
+
+	public final CachedSetting<Integer> conveyorThreadCount;
 
 	@Inject
 	public DatarouterTracePublisherSettingRoot(SettingFinder finder){
 		super(finder, DatarouterSettingCategory.DATAROUTER, "datarouterTracePublisher.");
 
-		bufferInSqsForTrace2 = registerBooleans("bufferInSqsForTrace2", defaultTo(false)
+		saveTracesToMemory = registerBooleans("saveTracesToMemory", defaultTo(false)
 				.withTag(DatarouterSettingTagType.TRACE2PIPELINE, () -> true));
-		runMemoryToSqsForTrace2 = registerBooleans("runMemoryToSqsForTrace2", defaultTo(false)
-				.withTag(DatarouterSettingTagType.TRACE2PIPELINE, () -> true));
-		drainSqsToPublisherForTrace2 = registerBooleans("drainSqsToPublisherForTrace2", defaultTo(false)
-				.withTag(DatarouterSettingTagType.TRACE2PIPELINE, () -> true));
-		drainSqsToPublisherForTrace2HttpRequestRecord = registerBooleans(
-				"drainSqsToPublisherForTrace2HttpRequestRecord", defaultTo(false)
-				.withTag(DatarouterSettingTagType.TRACE2PIPELINE, () -> true));
-		compactExceptionLoggingForConveyors = registerBoolean("compactExceptionLoggingForConveyors", true);
-		runMemoryToSqsForTrace2ThreadCount = registerInteger("runMemoryToSqsForTrace2ThreadCount", 1);
-		drainSqsToPublisherForTrace2ThreadCount = registerInteger("drainSqsToPublisherForTrace2ThreadCount", 2);
-		drainSqsToPublisherForTrace2HttpRequestRecordThreadCount = registerInteger(
-				"drainSqsToPublisherForTrace2HttpRequestRecordThreadCount", 2);
+		runTraceMemoryToPublisherConveyor = registerBooleans(
+				"runTraceMemoryToPublisherConveyor",
+				defaultTo(false)
+						.withTag(DatarouterSettingTagType.TRACE2PIPELINE, () -> true));
+		saveTraceBlobsToQueueDaoInsteadOfDirectoryDao = registerBooleans(
+				"saveTraceBlobsToQueueDaoInsteadOfDirectoryDao",
+				defaultTo(false)
+						.withTag(DatarouterSettingTagType.TRACE2PIPELINE, () -> true));
+		conveyorThreadCount = registerInteger("conveyorThreadCount", 1);
 	}
 
 }

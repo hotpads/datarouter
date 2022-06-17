@@ -35,7 +35,7 @@ import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
 import io.datarouter.web.digest.DailyDigestService;
 import io.datarouter.web.html.j2html.J2HtmlTable;
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.DivTag;
 
 @Singleton
 public class LoggerConfigDailyDigest implements DailyDigest{
@@ -48,7 +48,7 @@ public class LoggerConfigDailyDigest implements DailyDigest{
 	private DatarouterLoggingConfigPaths paths;
 
 	@Override
-	public Optional<ContainerTag<?>> getPageContent(ZoneId zoneId){
+	public Optional<DivTag> getPageContent(ZoneId zoneId){
 		List<LoggerConfig> loggers = getTodaysLoggers(zoneId);
 		if(loggers.size() == 0){
 			return Optional.empty();
@@ -67,7 +67,7 @@ public class LoggerConfigDailyDigest implements DailyDigest{
 	}
 
 	@Override
-	public Optional<ContainerTag<?>> getEmailContent(ZoneId zoneId){
+	public Optional<DivTag> getEmailContent(ZoneId zoneId){
 		List<LoggerConfig> loggers = getTodaysLoggers(zoneId);
 		if(loggers.size() == 0){
 			return Optional.empty();

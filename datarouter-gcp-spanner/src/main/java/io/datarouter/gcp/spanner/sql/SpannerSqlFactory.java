@@ -18,16 +18,16 @@ package io.datarouter.gcp.spanner.sql;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.gcp.spanner.field.SpannerFieldCodecRegistry;
+import io.datarouter.gcp.spanner.field.SpannerFieldCodecs;
 
 @Singleton
 public class SpannerSqlFactory{
 
 	@Inject
-	private SpannerFieldCodecRegistry codecRegistry;
+	private SpannerFieldCodecs fieldCodecs;
 
 	public SpannerSql createSql(){
-		return new SpannerSql(codecRegistry);
+		return new SpannerSql(fieldCodecs);
 	}
 
 }

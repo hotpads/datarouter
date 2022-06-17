@@ -48,7 +48,7 @@ public abstract class DispatcherServlet extends HttpServlet{
 	@Inject
 	private DatarouterWebSettingRoot datarouterWebSettingRoot;
 
-	private List<BaseRouteSet> routeSets = new ArrayList<>();
+	private List<RouteSet> routeSets = new ArrayList<>();
 
 	@Override
 	public void init(){
@@ -71,7 +71,7 @@ public abstract class DispatcherServlet extends HttpServlet{
 		return initListerners;
 	}
 
-	protected final void register(BaseRouteSet newRouteSet){
+	protected final void register(RouteSet newRouteSet){
 		routeSets.add(newRouteSet);
 	}
 
@@ -96,7 +96,7 @@ public abstract class DispatcherServlet extends HttpServlet{
 		}
 
 		RoutingResult routingResult = RoutingResult.NOT_FOUND;
-		for(BaseRouteSet dispatcherRoutes : routeSets){
+		for(RouteSet dispatcherRoutes : routeSets){
 			routingResult = dispatcher.handleRequestIfUrlMatch(request, response, dispatcherRoutes);
 			if(routingResult != RoutingResult.NOT_FOUND){
 				break;
@@ -121,19 +121,19 @@ public abstract class DispatcherServlet extends HttpServlet{
 
 	public Optional<DispatchRule> findRuleInContext(String path){
 		return routeSets.stream()
-				.map(BaseRouteSet::getDispatchRules)
+				.map(RouteSet::getDispatchRules)
 				.flatMap(List::stream)
 				.filter(rule -> rule.getPattern().matcher(path).matches())
 				.findFirst();
 	}
 
-	public List<BaseRouteSet> getRouteSets(){
+	public List<RouteSet> getRouteSets(){
 		return routeSets;
 	}
 
 	private void ensureUniqueDispatchRules(){
 		routeSets.stream()
-				.map(BaseRouteSet::getDispatchRules)
+				.map(RouteSet::getDispatchRules)
 				.flatMap(List::stream)
 				.map(rule -> new Pair<>(rule.getRegex(), rule.getHandlerClass()))
 				.reduce(new HashSet<>(), (rules, rule) -> {

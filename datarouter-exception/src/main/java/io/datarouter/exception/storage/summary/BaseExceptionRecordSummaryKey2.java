@@ -39,9 +39,9 @@ public abstract class BaseExceptionRecordSummaryKey2<PK extends RegularPrimaryKe
 	public BaseExceptionRecordSummaryKey2(){
 	}
 
-	public BaseExceptionRecordSummaryKey2(Long periodStart, String name){
+	public BaseExceptionRecordSummaryKey2(Long periodStart, String name, String category){
 		this.reversePeriodStart = periodStart != null ? Long.MAX_VALUE - periodStart : null;
-		this.nameHash = makeHashcodeString(name);
+		this.nameHash = makeHashcodeString(name, category);
 	}
 
 	@Override
@@ -51,8 +51,8 @@ public abstract class BaseExceptionRecordSummaryKey2<PK extends RegularPrimaryKe
 				new StringField(FieldKeys.nameHash, nameHash));
 	}
 
-	public String makeHashcodeString(String name){
-		return String.valueOf(Objects.hash(name));
+	public String makeHashcodeString(String name, String category){
+		return String.valueOf(Objects.hash(name, category));
 	}
 
 	public long getPeriodStart(){

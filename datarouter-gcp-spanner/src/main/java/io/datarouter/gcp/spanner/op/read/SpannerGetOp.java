@@ -21,7 +21,7 @@ import java.util.List;
 import com.google.cloud.spanner.DatabaseClient;
 import com.google.cloud.spanner.KeySet;
 
-import io.datarouter.gcp.spanner.field.SpannerFieldCodecRegistry;
+import io.datarouter.gcp.spanner.field.SpannerFieldCodecs;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
@@ -42,8 +42,8 @@ extends SpannerBaseReadOp<D>{
 			PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
 			Collection<PK> keys,
 			Config config,
-			SpannerFieldCodecRegistry codecRegistry){
-		this(client, fieldInfo, keys, config, codecRegistry, fieldInfo.getTableName());
+			SpannerFieldCodecs fieldCodecs){
+		this(client, fieldInfo, keys, config, fieldCodecs, fieldInfo.getTableName());
 	}
 
 	protected SpannerGetOp(
@@ -51,9 +51,9 @@ extends SpannerBaseReadOp<D>{
 			PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
 			Collection<PK> keys,
 			Config config,
-			SpannerFieldCodecRegistry codecRegistry,
+			SpannerFieldCodecs fieldCodecs,
 			String tableName){
-		super(client, config, codecRegistry, tableName);
+		super(client, config, fieldCodecs, tableName);
 		this.fieldInfo = fieldInfo;
 		this.keys = keys;
 	}

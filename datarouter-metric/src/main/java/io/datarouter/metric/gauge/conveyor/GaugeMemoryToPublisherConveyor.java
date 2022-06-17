@@ -62,7 +62,13 @@ public class GaugeMemoryToPublisherConveyor extends BaseConveyor{
 			logger.warn("", putMultiException);
 			ConveyorCounters.inc(this, "putMulti exception", 1);
 		}
-		return new ProcessBatchResult(false);
+		//process as many as possible if shutting down
+		return new ProcessBatchResult(isShuttingDown() || dtos.size() == BATCH_SIZE);
+	}
+
+	@Override
+	public boolean shouldRunOnShutdown(){
+		return true;
 	}
 
 }

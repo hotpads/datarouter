@@ -17,44 +17,28 @@ package io.datarouter.loggerconfig.storage.loggerconfig;
 
 import org.apache.logging.log4j.Level;
 
-import io.datarouter.enums.StringEnum;
+import io.datarouter.enums.StringMappedEnum;
 
-public enum LoggingLevel implements StringEnum<LoggingLevel>{
+public enum LoggingLevel{
 	ALL(Level.ALL),
 	TRACE(Level.TRACE),
 	DEBUG(Level.DEBUG),
 	INFO(Level.INFO),
 	WARN(Level.WARN),
 	ERROR(Level.ERROR),
-	OFF(Level.OFF),
-	;
+	OFF(Level.OFF);
 
-	private final Level level;
+	public static final StringMappedEnum<LoggingLevel> BY_PERSISTENT_STRING
+			= new StringMappedEnum<>(values(), value -> value.name(), 5);
+
+	public final Level level;
 
 	LoggingLevel(Level level){
 		this.level = level;
 	}
 
-	public Level getLevel(){
-		return level;
-	}
-
-	@Override
 	public String getPersistentString(){
 		return level.name();
-	}
-
-	@Override
-	public LoggingLevel fromPersistentString(String string){
-		return fromString(string);
-	}
-
-	public static LoggingLevel fromString(String string){
-		return StringEnum.getEnumFromString(values(), string, null);
-	}
-
-	public static int getSqlSize(){
-		return 5;
 	}
 
 }

@@ -15,21 +15,23 @@
  */
 package io.datarouter.joblet.enums;
 
-import io.datarouter.enums.StringEnum;
+import io.datarouter.enums.MappedEnum;
 import io.datarouter.scanner.Scanner;
 
-public enum JobletStatus implements StringEnum<JobletStatus>{
+public enum JobletStatus{
 
 	CREATED("created", false),
 	RUNNING("running", true),
 	COMPLETE("complete", false),
 	INTERRUPTED("interrupted", false),
 	FAILED("failed", false),
-	TIMED_OUT("timedOut", false),
-	;
+	TIMED_OUT("timedOut", false);
 
-	private final String persistentString;
-	private final boolean isRunning;
+	public static final MappedEnum<JobletStatus,String> BY_PERSISTENT_STRING
+			= new MappedEnum<>(values(), value -> value.persistentString);
+
+	public final String persistentString;
+	public final boolean isRunning;
 
 	JobletStatus(String persistentString, boolean isRunning){
 		this.persistentString = persistentString;
@@ -38,24 +40,6 @@ public enum JobletStatus implements StringEnum<JobletStatus>{
 
 	public static Scanner<JobletStatus> scan(){
 		return Scanner.of(values());
-	}
-
-	@Override
-	public String getPersistentString(){
-		return persistentString;
-	}
-
-	public static JobletStatus fromPersistentStringStatic(String string){
-		return StringEnum.getEnumFromString(values(), string, null);
-	}
-
-	@Override
-	public JobletStatus fromPersistentString(String string){
-		return fromPersistentStringStatic(string);
-	}
-
-	public boolean isRunning(){
-		return isRunning;
 	}
 
 }

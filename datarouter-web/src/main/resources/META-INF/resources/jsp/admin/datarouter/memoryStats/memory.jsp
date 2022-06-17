@@ -103,6 +103,7 @@
 				<tr class="sub"><td>Build time</td><td>${buildTime}</td></tr>
 				<tr class="sub"><td>Build id</td><td>${buildId}</td></tr>
 				<tr class="sub"><td>${buildJdk.left}</td><td>${buildJdk.right}</td></tr>
+				<tr><td>Ec2</td><td>${ec2InstanceId}</td></tr>
 			</tbody>
 			</table>
 		</div>

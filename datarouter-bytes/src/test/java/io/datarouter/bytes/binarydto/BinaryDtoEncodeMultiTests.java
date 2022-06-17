@@ -23,17 +23,16 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import io.datarouter.bytes.ByteTool;
-import io.datarouter.bytes.binarydto.codec.BinaryDtoCodec;
 import io.datarouter.bytes.binarydto.codec.bytearray.BinaryDtoByteArrayScanner;
 import io.datarouter.bytes.binarydto.codec.bytearray.MultiBinaryDtoEncoder;
 import io.datarouter.bytes.binarydto.codec.iostream.BinaryDtoInputStreamScanner;
 import io.datarouter.bytes.binarydto.codec.iostream.BinaryDtoOutputStreamWriter;
-import io.datarouter.bytes.binarydto.dto.BinaryDto;
 import io.datarouter.bytes.binarydto.dto.BinaryDtoField;
+import io.datarouter.bytes.binarydto.dto.ComparableBinaryDto;
 
 public class BinaryDtoEncodeMultiTests{
 
-	public static class TestDto extends BinaryDto<TestDto>{
+	public static class TestDto extends ComparableBinaryDto<TestDto>{
 		@BinaryDtoField(index = 2)
 		public final float cherry;
 		@BinaryDtoField(index = 0)
@@ -50,16 +49,9 @@ public class BinaryDtoEncodeMultiTests{
 
 	@Test
 	public void testSingle(){
-		var codec = BinaryDtoCodec.of(TestDto.class);
-		var expected = new TestDto(1.1f, 3, "AAA");
-		int expectedLengthBanana = 1 + 4;//nullable int
-		int expectedLengthApple = 1 + 3 + 1;//nullable string, 3 chars without escaping, terminal byte
-		int expectedLengthCherry = 4;//primitive float
-		int expectedLength = expectedLengthBanana + expectedLengthApple + expectedLengthCherry;
-		byte[] bytes = codec.encode(expected);
-		Assert.assertEquals(bytes.length, expectedLength);
-		TestDto actual = codec.decode(bytes);
-		Assert.assertEquals(actual, expected);
+		var dto = new TestDto(1.1f, 3, "AAA");
+		Assert.assertEquals(dto.cloneIndexed(), dto);
+		Assert.assertEquals(dto.cloneComparable(), dto);
 	}
 
 	@Test

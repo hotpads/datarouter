@@ -17,27 +17,23 @@ package io.datarouter.storage.node.builder;
 
 import java.util.function.Supplier;
 
-import io.datarouter.model.databean.Databean;
-import io.datarouter.model.key.primary.PrimaryKey;
-import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.node.factory.TallyNodeFactory;
-import io.datarouter.storage.node.op.NodeOps;
+import io.datarouter.storage.node.op.raw.TallyStorage.PhysicalTallyStorageNode;
 import io.datarouter.storage.tag.Tag;
+import io.datarouter.storage.tally.Tally;
+import io.datarouter.storage.tally.Tally.TallyFielder;
 
-public class TallyNodeBuilder<
-		PK extends PrimaryKey<PK>,
-		D extends Databean<PK,D>,
-		F extends DatabeanFielder<PK,D>>{
+public class TallyNodeBuilder{
 
 	private final Datarouter datarouter;
 	private final TallyNodeFactory nodeFactory;
 	private final ClientId clientId;
-	private final Supplier<D> databeanSupplier;
-	private final Supplier<F> fielderSupplier;
+	private final Supplier<Tally> databeanSupplier;
+	private final Supplier<TallyFielder> fielderSupplier;
 
-	private int version;
+	private String version;
 	private String tableName;
 	private Tag tag;
 
@@ -45,8 +41,8 @@ public class TallyNodeBuilder<
 			Datarouter datarouter,
 			TallyNodeFactory nodeFactory,
 			ClientId clientId,
-			Supplier<D> databeanSupplier,
-			Supplier<F> fielderSupplier){
+			Supplier<Tally> databeanSupplier,
+			Supplier<TallyFielder> fielderSupplier){
 		this.datarouter = datarouter;
 		this.nodeFactory = nodeFactory;
 		this.clientId = clientId;
@@ -54,26 +50,26 @@ public class TallyNodeBuilder<
 		this.fielderSupplier = fielderSupplier;
 	}
 
-	public TallyNodeBuilder<PK,D,F> withSchemaVersion(int version){
+	public TallyNodeBuilder withSchemaVersion(String version){
 		this.version = version;
 		return this;
 	}
 
-	public TallyNodeBuilder<PK,D,F> withTableName(String tableName){
+	public TallyNodeBuilder withTableName(String tableName){
 		this.tableName = tableName;
 		return this;
 	}
 
-	public TallyNodeBuilder<PK,D,F> withTag(Tag tag){
+	public TallyNodeBuilder withTag(Tag tag){
 		this.tag = tag;
 		return this;
 	}
 
-	public <N extends NodeOps<PK,D>> N build(){
+	public PhysicalTallyStorageNode build(){
 		return nodeFactory.createTallyNode(clientId, databeanSupplier, fielderSupplier, version, tableName, tag);
 	}
 
-	public <N extends NodeOps<PK,D>> N buildAndRegister(){
+	public PhysicalTallyStorageNode buildAndRegister(){
 		return datarouter.register(build());
 	}
 

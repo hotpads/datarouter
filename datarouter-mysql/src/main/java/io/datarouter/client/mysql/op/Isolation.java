@@ -17,13 +17,11 @@ package io.datarouter.client.mysql.op;
 
 import java.sql.Connection;
 
-import io.datarouter.enums.IntegerEnum;
 import io.datarouter.enums.MappedEnum;
-import io.datarouter.enums.StringEnum;
 import io.datarouter.storage.config.ConfigKey;
 import io.datarouter.storage.config.ConfigValue;
 
-public enum Isolation implements IntegerEnum<Isolation>, StringEnum<Isolation>, ConfigValue<Isolation>{
+public enum Isolation implements ConfigValue<Isolation>{
 
 	serializable(Connection.TRANSACTION_SERIALIZABLE, 20, "serializable"),
 	repeatableRead(Connection.TRANSACTION_REPEATABLE_READ, 21, "repeatableRead"),
@@ -32,16 +30,14 @@ public enum Isolation implements IntegerEnum<Isolation>, StringEnum<Isolation>, 
 
 	public static final ConfigKey<Isolation> KEY = new ConfigKey<>("isolation");
 	public static final Isolation DEFAULT = readCommitted;
-	public static final MappedEnum<Isolation,Integer> BY_PERSISTENT_INTEGER = new MappedEnum<>(
-			values(),
-			value -> value.persistentInteger);
-	public static final MappedEnum<Isolation,String> BY_PERSISTENT_STRING = new MappedEnum<>(
-			values(),
-			value -> value.persistentString);
+	public static final MappedEnum<Isolation,Integer> BY_PERSISTENT_INTEGER
+			= new MappedEnum<>(values(), value -> value.persistentInteger);
+	public static final MappedEnum<Isolation,String> BY_PERSISTENT_STRING
+			= new MappedEnum<>(values(), value -> value.persistentString);
 
-	private final Integer jdbcVal;
-	private final int persistentInteger;
-	private final String persistentString;
+	public final Integer jdbcVal;
+	public final int persistentInteger;
+	public final String persistentString;
 
 	Isolation(int jdbcVal, int persistentInteger, String persistentString){
 		this.jdbcVal = jdbcVal;
@@ -51,26 +47,6 @@ public enum Isolation implements IntegerEnum<Isolation>, StringEnum<Isolation>, 
 
 	public Integer getJdbcVal(){
 		return jdbcVal;
-	}
-
-	@Override
-	public Integer getPersistentInteger(){
-		return persistentInteger;
-	}
-
-	@Override
-	public Isolation fromPersistentInteger(Integer value){
-		return BY_PERSISTENT_INTEGER.fromOrNull(value);
-	}
-
-	@Override
-	public String getPersistentString(){
-		return persistentString;
-	}
-
-	@Override
-	public Isolation fromPersistentString(String value){
-		return BY_PERSISTENT_STRING.fromOrNull(value);
 	}
 
 	@Override

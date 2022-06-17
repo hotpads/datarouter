@@ -17,7 +17,6 @@ package io.datarouter.bytes.binarydto.fieldcodec.time;
 
 import java.time.Instant;
 
-import io.datarouter.bytes.LengthAndValue;
 import io.datarouter.bytes.binarydto.fieldcodec.BinaryDtoBaseFieldCodec;
 import io.datarouter.bytes.codec.time.ComparableInstantCodec;
 
@@ -37,20 +36,18 @@ public class InstantBinaryDtoFieldCodec extends BinaryDtoBaseFieldCodec<Instant>
 	}
 
 	@Override
+	public boolean supportsComparableCodec(){
+		return true;
+	}
+
+	@Override
 	public byte[] encode(Instant value){
 		return CODEC.encode(value);
 	}
 
 	@Override
-	public Instant decode(byte[] bytes, int offset){
+	public Instant decode(byte[] bytes, int offset, int length){
 		return CODEC.decode(bytes, offset);
-	}
-
-	@Override
-	public LengthAndValue<Instant> decodeWithLength(byte[] bytes, int offset){
-		int length = fixedLength();
-		Instant value = decode(bytes, offset);
-		return new LengthAndValue<>(length, value);
 	}
 
 	@Override

@@ -15,37 +15,26 @@
  */
 package io.datarouter.client.mysql.ddl.domain;
 
-import io.datarouter.enums.StringEnum;
+import io.datarouter.enums.MappedEnum;
 import io.datarouter.model.serialize.fielder.FielderConfigKey;
 import io.datarouter.model.serialize.fielder.FielderConfigValue;
 
-public enum MysqlRowFormat implements StringEnum<MysqlRowFormat>, FielderConfigValue<MysqlRowFormat>{
+public enum MysqlRowFormat implements FielderConfigValue<MysqlRowFormat>{
 	COMPACT("Compact"),
 	DYNAMIC("Dynamic"),
 	FIXED("Fixed"),
 	COMPRESSED("Compressed"),
 	REDUNDANT("Redundant");
 
+	public static final MappedEnum<MysqlRowFormat,String> BY_VALUE
+			= new MappedEnum<>(values(), value -> value.value);
+
 	public static final FielderConfigKey<MysqlRowFormat> KEY = new FielderConfigKey<>("mySqlRowFormat");
 
-	private final String value;
+	public final String value;
 
 	MysqlRowFormat(String value){
 		this.value = value;
-	}
-
-	@Override
-	public String getPersistentString(){
-		return value;
-	}
-
-	@Override
-	public MysqlRowFormat fromPersistentString(String string){
-		return fromPersistentStringStatic(string);
-	}
-
-	public static MysqlRowFormat fromPersistentStringStatic(String str){
-		return StringEnum.getEnumFromString(values(), str, null);
 	}
 
 	@Override

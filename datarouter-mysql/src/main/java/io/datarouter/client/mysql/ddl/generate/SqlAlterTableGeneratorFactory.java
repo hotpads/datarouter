@@ -246,7 +246,7 @@ public class SqlAlterTableGeneratorFactory{
 			if(printOrExecute(schemaUpdateOptions::getModifyRowFormat) && diff.isRowFormatModified()){
 				ddlBuilder.add(
 						schemaUpdateOptions.getModifyRowFormat(false),
-						"row_format=" + requested.getRowFormat().getPersistentString(),
+						"row_format=" + requested.getRowFormat().value,
 						false);
 			}
 			return ddlBuilder;

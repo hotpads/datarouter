@@ -17,6 +17,7 @@ package io.datarouter.ratelimiter.config;
 
 import java.util.List;
 
+import io.datarouter.job.BaseTriggerGroup;
 import io.datarouter.ratelimiter.storage.BaseTallyDao;
 import io.datarouter.ratelimiter.storage.DatarouterRateLimiterDao;
 import io.datarouter.ratelimiter.storage.DatarouterRateLimiterDao.DatarouterRateLimiterDaoParams;
@@ -30,12 +31,14 @@ public class DatarouterRateLimiterPlugin extends BaseWebPlugin{
 	private DatarouterRateLimiterPlugin(DatarouterRateLimiterDaoModule daosModule){
 		setDaosModule(daosModule);
 		addDatarouterGithubDocLink("datarouter-rate-limiter");
+		addSettingRoot(DatarouterRateLimiterSettings.class);
+		addPluginEntry(BaseTriggerGroup.KEY, DatarouterRateLimiterTriggerGroup.class);
 	}
 
 	public static class DatarouterRateLimiterPluginBuilder{
 
 		private final ClientId clientId;
-		private int version = 1;
+		private String version = "1";
 
 		public DatarouterRateLimiterPluginBuilder(ClientId clientId){
 			this.clientId = clientId;
@@ -44,7 +47,7 @@ public class DatarouterRateLimiterPlugin extends BaseWebPlugin{
 		/*
 		 * default version is 1
 		 */
-		public DatarouterRateLimiterPluginBuilder withVersion(int version){
+		public DatarouterRateLimiterPluginBuilder withVersion(String version){
 			this.version = version;
 			return this;
 		}
@@ -57,9 +60,9 @@ public class DatarouterRateLimiterPlugin extends BaseWebPlugin{
 	public static class DatarouterRateLimiterDaoModule extends DaosModuleBuilder{
 
 		private final ClientId clientId;
-		private final int version;
+		private final String version;
 
-		public DatarouterRateLimiterDaoModule(ClientId clientId, int version){
+		public DatarouterRateLimiterDaoModule(ClientId clientId, String version){
 			this.clientId = clientId;
 			this.version = version;
 		}

@@ -20,22 +20,18 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-import io.datarouter.model.databean.Databean;
-import io.datarouter.model.key.primary.PrimaryKey;
-import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.op.raw.TallyStorage;
 import io.datarouter.storage.node.op.raw.TallyStorage.PhysicalTallyStorageNode;
+import io.datarouter.storage.tally.Tally;
+import io.datarouter.storage.tally.Tally.TallyFielder;
+import io.datarouter.storage.tally.TallyKey;
 
-public class TallyStorageSanitizationAdapter<
-		PK extends PrimaryKey<PK>,
-		D extends Databean<PK,D>,
-		F extends DatabeanFielder<PK,D>,
-		N extends PhysicalTallyStorageNode<PK,D,F>>
-extends BaseSanitizationAdapter<PK,D,F,N>
-implements TallyStorage<PK,D>{
+public class TallyStorageSanitizationAdapter
+extends BaseSanitizationAdapter<TallyKey,Tally,TallyFielder,PhysicalTallyStorageNode>
+implements TallyStorage{
 
-	public TallyStorageSanitizationAdapter(N backingNode){
+	public TallyStorageSanitizationAdapter(PhysicalTallyStorageNode backingNode){
 		super(backingNode);
 	}
 
@@ -57,6 +53,7 @@ implements TallyStorage<PK,D>{
 	public Map<String,Long> getMultiTallyCount(Collection<String> keys, Config config){
 		Objects.requireNonNull(keys);
 		Objects.requireNonNull(config);
+		keys.forEach(Objects::requireNonNull);
 		if(keys.isEmpty()){
 			return Map.of();
 		}
@@ -68,6 +65,12 @@ implements TallyStorage<PK,D>{
 		Objects.requireNonNull(key);
 		Objects.requireNonNull(config);
 		backingNode.deleteTally(key, config);
+	}
+
+	@Override
+	public void vacuum(Config config){
+		Objects.requireNonNull(config);
+		backingNode.vacuum(config);
 	}
 
 }

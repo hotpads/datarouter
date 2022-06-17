@@ -50,6 +50,7 @@ extends MapStorage<PK,D>, MapStorageReaderSanitizationAdapterMixin<PK,D,F,N>{
 	default void putMulti(Collection<D> databeans, Config config){
 		Objects.requireNonNull(databeans);
 		Objects.requireNonNull(config);
+		databeans.forEach(Objects::requireNonNull);
 		if(databeans.isEmpty()){
 			return;
 		}
@@ -70,6 +71,7 @@ extends MapStorage<PK,D>, MapStorageReaderSanitizationAdapterMixin<PK,D,F,N>{
 	default void deleteMulti(Collection<PK> keys, Config config){
 		Objects.requireNonNull(keys);
 		Objects.requireNonNull(config);
+		keys.forEach(Objects::requireNonNull);
 		if(keys.isEmpty()){
 			return;
 		}

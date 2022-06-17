@@ -11,6 +11,7 @@ import java.util.function.Supplier;
 import io.datarouter.bytes.ByteTool;
 import io.datarouter.bytes.InputStreamTool;
 import io.datarouter.client.redis.client.DatarouterRedisClient;
+import io.datarouter.client.redis.client.RedisRequestConfig;
 import io.datarouter.client.redis.codec.RedisBlobCodec;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientType;
@@ -59,57 +60,67 @@ implements PhysicalBlobStorageNode{
 	}
 
 	@Override
-	public boolean exists(PathbeanKey key){
+	public boolean exists(PathbeanKey key, Config config){
 		return Optional.of(key)
 				.map(codec::encodeKey)
-				.map(lazyClient.get()::exists)
+				.map(encodedKey -> lazyClient.get().exists(
+						encodedKey,
+						RedisRequestConfig.forRead(getName(), config)))
 				.orElseThrow();
 	}
 
 	@Override
-	public Optional<Long> length(PathbeanKey key){
+	public Optional<Long> length(PathbeanKey key, Config config){
 		return Optional.of(key)
 				.map(codec::encodeKey)
-				.flatMap(lazyClient.get()::find)
+				.flatMap(encodedKey -> lazyClient.get().find(
+						encodedKey,
+						RedisRequestConfig.forRead(getName(), config)))
 				.map(value -> value.length)
 				.map(Integer::longValue);
 	}
 
 	@Override
-	public byte[] read(PathbeanKey key){
+	public byte[] read(PathbeanKey key, Config config){
 		return Optional.of(key)
 				.map(codec::encodeKey)
-				.flatMap(lazyClient.get()::find)
+				.flatMap(encodedKey -> lazyClient.get().find(
+						encodedKey,
+						RedisRequestConfig.forRead(getName(), config)))
 				.orElse(null);
 	}
 
 	@Override
-	public byte[] read(PathbeanKey key, long offset, int length){
+	public byte[] read(PathbeanKey key, long offset, int length, Config config){
 		int from = (int)offset;
 		int to = from + length;
 		return Optional.of(key)
 				.map(codec::encodeKey)
-				.flatMap(lazyClient.get()::find)
+				.flatMap(encodedKey -> lazyClient.get().find(
+						encodedKey,
+						RedisRequestConfig.forRead(getName(), config)))
 				.map(bytes -> Arrays.copyOfRange(bytes, from, to))
 				.orElse(null);
 	}
 
 	@Override
-	public Map<PathbeanKey,byte[]> read(List<PathbeanKey> keys){
+	public Map<PathbeanKey,byte[]> read(List<PathbeanKey> keys, Config config){
 		return Scanner.of(keys)
 				.map(codec::encodeKey)
-				.listTo(lazyClient.get()::mget)
+				.listTo(encodedKeys -> lazyClient.get().mget(
+						encodedKeys,
+						RedisRequestConfig.forRead(getName(), config)))
 				.include(KeyValue::hasValue)
 				.toMap(codec::decodeKey, KeyValue::getValue);
 	}
 
 	@Override
-	public Scanner<List<PathbeanKey>> scanKeysPaged(Subpath subpath){
+	public Scanner<List<PathbeanKey>> scanKeysPaged(Subpath subpath, Config config){
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public Scanner<List<Pathbean>> scanPaged(Subpath subpath){
+	public Scanner<List<Pathbean>> scanPaged(Subpath subpath, Config config){
 		throw new UnsupportedOperationException();
 	}
 
@@ -121,31 +132,38 @@ implements PhysicalBlobStorageNode{
 		config.findTtl()
 				.map(Duration::toMillis)
 				.ifPresentOrElse(
-						ttlMs -> lazyClient.get().psetex(kv, ttlMs),
-						() -> lazyClient.get().set(kv));
+						ttlMs -> lazyClient.get().psetex(
+								kv,
+								ttlMs,
+								RedisRequestConfig.forWrite(getName(), config)),
+						() -> lazyClient.get().set(
+								kv,
+								RedisRequestConfig.forWrite(getName(), config)));
 	}
 
 	@Override
-	public void write(PathbeanKey key, Scanner<byte[]> chunks){
+	public void write(PathbeanKey key, Scanner<byte[]> chunks, Config config){
 		byte[] value = chunks.listTo(ByteTool::concat);
-		write(key, value);
+		write(key, value, config);
 	}
 
 	@Override
-	public void write(PathbeanKey key, InputStream inputStream){
+	public void write(PathbeanKey key, InputStream inputStream, Config config){
 		byte[] value = InputStreamTool.toArray(inputStream);
-		write(key, value);
+		write(key, value, config);
 	}
 
 	@Override
-	public void delete(PathbeanKey key){
+	public void delete(PathbeanKey key, Config config){
 		Optional.of(key)
 				.map(codec::encodeKey)
-				.ifPresent(lazyClient.get()::del);
+				.ifPresent(encodedKey -> lazyClient.get().del(
+						encodedKey,
+						RedisRequestConfig.forWrite(getName(), config)));
 	}
 
 	@Override
-	public void deleteAll(Subpath subpath){
+	public void deleteAll(Subpath subpath, Config config){
 		throw new UnsupportedOperationException();
 	}
 

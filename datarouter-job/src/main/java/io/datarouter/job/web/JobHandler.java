@@ -44,7 +44,6 @@ import io.datarouter.tasktracker.service.LongRunningTaskService;
 import io.datarouter.tasktracker.service.LongRunningTaskService.LongRunningTaskSummaryDto;
 import io.datarouter.tasktracker.service.LongRunningTaskTrackerFactory;
 import io.datarouter.tasktracker.storage.LongRunningTask;
-import io.datarouter.tasktracker.storage.LongRunningTaskHeartBeatStatus;
 import io.datarouter.tasktracker.web.LongRunningTasksHandler;
 import io.datarouter.util.Require;
 import io.datarouter.util.string.StringTool;
@@ -99,8 +98,11 @@ public class JobHandler extends BaseHandler{
 
 		LongRunningTaskSummaryDto longRunningTaskSummary = longRunningTaskService.getSummary();
 		AtomicInteger rowId = new AtomicInteger();
-		List<TriggerJspDto> triggerRows = jobPackageFilter.streamMatches(jobCategoryName.orElse(""),
-				keyword.orElse(""), hideEnabled, hideDisabled)
+		List<TriggerJspDto> triggerRows = jobPackageFilter.streamMatches(
+				jobCategoryName.orElse(""),
+				keyword.orElse(""),
+				hideEnabled,
+				hideDisabled)
 				.map(jobClass -> jobToTriggerJspDto(rowId.incrementAndGet(), jobClass, longRunningTaskSummary))
 				.collect(Collectors.toList());
 		mav.put("triggerRows", triggerRows);
@@ -162,7 +164,7 @@ public class JobHandler extends BaseHandler{
 		LongRunningTask currentlyRunningTask = longRunningTaskSummary.currentlyRunningTasks.get(taskName);
 		String heartbeatStatus = Optional.ofNullable(currentlyRunningTask)
 				.map(LongRunningTask::getHeartbeatStatus)
-				.map(LongRunningTaskHeartBeatStatus::getPersistentString)
+				.map(heartBeatStatus -> heartBeatStatus.status)
 				.orElse(null);
 		LongRunningTask lastFinishedTask = longRunningTaskSummary.lastCompletions.get(taskName);
 		Set<String> servers = longRunningTaskSummary.runningOnServers.getOrDefault(taskName, new TreeSet<>());

@@ -39,7 +39,7 @@ import com.google.spanner.admin.database.v1.UpdateDatabaseDdlMetadata;
 
 import io.datarouter.gcp.spanner.connection.SpannerDatabaseClientsHolder;
 import io.datarouter.gcp.spanner.field.SpannerBaseFieldCodec;
-import io.datarouter.gcp.spanner.field.SpannerFieldCodecRegistry;
+import io.datarouter.gcp.spanner.field.SpannerFieldCodecs;
 import io.datarouter.model.field.Field;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientId;
@@ -60,7 +60,7 @@ public class SpannerSingleTableSchemaUpdateService{
 	@Inject
 	private SpannerTableOperationsGenerator tableOperationsGenerator;
 	@Inject
-	private SpannerFieldCodecRegistry fieldCodecRegistry;
+	private SpannerFieldCodecs fieldCodecs;
 	@Inject
 	private SpannerTableAlterSchemaService tableAlterSchemaService;
 	@Inject
@@ -72,13 +72,16 @@ public class SpannerSingleTableSchemaUpdateService{
 			PhysicalNode<?,?,?> physicalNode){
 		String tableName = physicalNode.getFieldInfo().getTableName();
 		List<Field<?>> primaryKeyFields = physicalNode.getFieldInfo().getSamplePrimaryKey().getFields();
-		List<? extends SpannerBaseFieldCodec<?,?>> primaryKeyCodecs = fieldCodecRegistry.createCodecs(primaryKeyFields);
-		for(SpannerBaseFieldCodec<?,?> codec : primaryKeyCodecs){
-			if(codec.getSpannerColumnType().isArray()){
-				throw new RuntimeException("Invalid field type used for primary key: " + codec.getField().getKey()
-						.getName());
-			}
-		}
+		List<? extends SpannerBaseFieldCodec<?,?>> primaryKeyCodecs = fieldCodecs.createCodecs(primaryKeyFields);
+		Scanner.of(primaryKeyCodecs)
+				.include(codec -> codec.getSpannerColumnType().isArray())
+				.findFirst()
+				.ifPresent(codec -> {
+					String message = String.format(
+							"Invalid field type used for primary key: %s",
+							codec.getField().getKey().getName());
+					throw new RuntimeException(message);
+				});
 		List<SpannerIndex> indexes = new ArrayList<>();
 		List<SpannerIndex> uniqueIndexes = Scanner.of(physicalNode.getFieldInfo().getUniqueIndexes().entrySet())
 				.map(entry -> new SpannerIndex(
@@ -104,8 +107,9 @@ public class SpannerSingleTableSchemaUpdateService{
 		List<SpannerColumn> primaryKeyColumns = Scanner.of(primaryKeyCodecs)
 				.map(codec -> codec.getSpannerColumn(false))
 				.list();
-		List<SpannerColumn> nonKeyColumns = Scanner.of(fieldCodecRegistry.createCodecs(
-				physicalNode.getFieldInfo().getNonKeyFields()))
+		List<Field<?>> nonKeyFields = physicalNode.getFieldInfo().getNonKeyFields();
+		List<? extends SpannerBaseFieldCodec<?,?>> nonKeyCodecs = fieldCodecs.createCodecs(nonKeyFields);
+		List<SpannerColumn> nonKeyColumns = Scanner.of(nonKeyCodecs)
 				.map(codec -> codec.getSpannerColumn(true))
 				.list();
 		if(!existingTableNames.get().contains(tableName)){
@@ -122,21 +126,20 @@ public class SpannerSingleTableSchemaUpdateService{
 							true));
 		}else{
 			DatabaseClient databaseClient = clientsHolder.getDatabaseClient(clientId);
-			List<SpannerColumn> allColumns = Scanner.of(primaryKeyColumns, nonKeyColumns)
-					.concat(Scanner::of)
+			List<SpannerColumn> allColumns = Scanner.concat(primaryKeyColumns, nonKeyColumns)
 					.list();
-			ResultSet columnRs = databaseClient.singleUse().executeQuery(Statement.of(tableOperationsGenerator
-					.getTableSchema(tableName)));
-			ResultSet primaryKeyRs = databaseClient.singleUse().executeQuery(Statement.of(tableOperationsGenerator
-					.getTableIndexColumnsSchema(tableName, "PRIMARY_KEY")));
+			var columnStatement = Statement.of(tableOperationsGenerator.getTableSchema(tableName));
+			ResultSet columnRs = databaseClient.singleUse().executeQuery(columnStatement);
+			var primaryKeyStatement = Statement.of(tableOperationsGenerator.getTableIndexColumnsSchema(tableName,
+					"PRIMARY_KEY"));
+			ResultSet primaryKeyRs = databaseClient.singleUse().executeQuery(primaryKeyStatement);
 			tableAlterSchemaService.generateUpdateStatementColumns(tableName, allColumns, primaryKeyColumns,
 					columnRs, primaryKeyRs, statements);
-			ResultSet indexesRs = databaseClient.singleUse().executeQuery(Statement.of(tableOperationsGenerator
-					.getTableIndexSchema(tableName)));
+			var indexesStatement = Statement.of(tableOperationsGenerator.getTableIndexSchema(tableName));
+			ResultSet indexesRs = databaseClient.singleUse().executeQuery(indexesStatement);
 			Set<String> currentIndexes = tableAlterSchemaService.getIndexes(indexesRs);
 
-			Scanner.of(indexes, uniqueIndexes)
-					.concat(Scanner::of)
+			Scanner.concat(indexes, uniqueIndexes)
 					.forEach(index -> {
 						Statement tableIndexColumnsSchema = Statement.of(tableOperationsGenerator
 								.getTableIndexColumnsSchema(tableName, index.getIndexName()));
@@ -168,7 +171,8 @@ public class SpannerSingleTableSchemaUpdateService{
 			logger.info(String.join("\n\n", statements.getExecuteStatements()));
 			Database database = clientsHolder.getDatabase(clientId);
 			OperationFuture<Void,UpdateDatabaseDdlMetadata> future = database.updateDdl(
-					statements.getExecuteStatements(), null);
+					statements.getExecuteStatements(),
+					null);
 			errorMessage = FutureTool.get(future.getPollingFuture().getAttemptResult()).getErrorMessage();
 			if(StringTool.notNullNorEmptyNorWhitespace(errorMessage)){
 				logger.error(errorMessage);
@@ -189,19 +193,23 @@ public class SpannerSingleTableSchemaUpdateService{
 	}
 
 	private String createIndex(SpannerIndex index, List<SpannerColumn> primaryKeyColumns){
-		List<SpannerColumn> keyColumns = Scanner.of(fieldCodecRegistry.createCodecs(index.getKeyFields()))
+		List<SpannerColumn> keyColumns = Scanner.of(fieldCodecs.createCodecs(index.getKeyFields()))
 				.map(codec -> codec.getSpannerColumn(false))
 				.list();
 		if(index.getNonKeyFields().isEmpty()){
-			return tableOperationsGenerator.createIndex(index.getTableName(), index.getIndexName(), keyColumns,
-					Collections.emptyList(), index.isUnique());
+			return tableOperationsGenerator.createIndex(
+					index.getTableName(),
+					index.getIndexName(),
+					keyColumns,
+					Collections.emptyList(),
+					index.isUnique());
 		}
 		// Spanner stores the primary key columns in the index automatically and will not create the index if
 		// told to explicitly store a primary key column
 		Set<String> primaryKeySet = Scanner.of(primaryKeyColumns)
 				.map(SpannerColumn::getName)
 				.collect(HashSet::new);
-		List<SpannerColumn> nonKeyColumns = Scanner.of(fieldCodecRegistry.createCodecs(index.getNonKeyFields()))
+		List<SpannerColumn> nonKeyColumns = Scanner.of(fieldCodecs.createCodecs(index.getNonKeyFields()))
 				.map(codec -> codec.getSpannerColumn(false))
 				.exclude(col -> primaryKeySet.contains(col.getName()))
 				.list();

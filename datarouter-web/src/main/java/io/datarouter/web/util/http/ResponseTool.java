@@ -95,6 +95,14 @@ public class ResponseTool{
 		response.addHeader("Location", fullyQualifiedUrl);
 	}
 
+	public static void writeToOutputStream(HttpServletResponse response, byte[] bytes){
+		try{
+			response.getOutputStream().write(bytes);
+		}catch(IOException e){
+			throw new RuntimeException(e);
+		}
+	}
+
 	public static PrintWriter getWriter(HttpServletResponse response){
 		try{
 			return response.getWriter();

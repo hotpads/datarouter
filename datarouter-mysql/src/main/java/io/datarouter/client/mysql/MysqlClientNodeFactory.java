@@ -25,14 +25,17 @@ import io.datarouter.model.databean.Databean;
 import io.datarouter.model.entity.Entity;
 import io.datarouter.model.key.entity.EntityKey;
 import io.datarouter.model.key.primary.EntityPrimaryKey;
-import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.client.imp.DatabeanClientNodeFactory;
 import io.datarouter.storage.client.imp.TallyClientNodeFactory;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.adapter.NodeAdapters;
 import io.datarouter.storage.node.entity.EntityNodeParams;
+import io.datarouter.storage.node.op.raw.TallyStorage.PhysicalTallyStorageNode;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
+import io.datarouter.storage.tally.Tally;
+import io.datarouter.storage.tally.Tally.TallyFielder;
+import io.datarouter.storage.tally.TallyKey;
 
 @Singleton
 public class MysqlClientNodeFactory
@@ -61,11 +64,8 @@ implements DatabeanClientNodeFactory, TallyClientNodeFactory{
 	}
 
 	@Override
-	public <PK extends PrimaryKey<PK>,
-			D extends Databean<PK,D>,
-			F extends DatabeanFielder<PK,D>>
-	PhysicalNode<PK,D,F> createTallyNode(NodeParams<PK,D,F> nodeParams){
-		var node = new MysqlTallyNode<>(
+	public PhysicalTallyStorageNode createTallyNode(NodeParams<TallyKey,Tally,TallyFielder> nodeParams){
+		var node = new MysqlTallyNode(
 				nodeParams,
 				mysqlClientType,
 				mysqlNodeManager);

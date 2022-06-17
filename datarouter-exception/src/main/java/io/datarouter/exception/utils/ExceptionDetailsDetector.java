@@ -47,18 +47,19 @@ public class ExceptionDetailsDetector{
 	public ExceptionRecorderDetails detect(ExceptionSnapshot snapshot, String callOrigin, Set<String> highlights){
 		Optional<ExceptionCauseSnapshot> rootCause = snapshot.getRootCause();
 		Optional<String> parsedName = Optional.empty();
-		Optional<Pair<ExceptionNameParser,ExceptionCauseSnapshot>> parserAndCause = Scanner.of(registry
+		Optional<Pair<ExceptionNameParser,List<ExceptionCauseSnapshot>>> parserAndCauseOpt = Scanner.of(registry
 				.getNameParserClasses())
 				.map(injector::getInstance)
 				.map(ExceptionNameParser.class::cast)
-				.map(parser -> parser.getCauseFromType(snapshot)
+				.map(parser -> parser.getCausesFromType(snapshot)
 						.map(cause -> new Pair<>(parser, cause)))
 				.concat(OptionalScanner::of)
 				.findFirst();
-		if(parserAndCause.isPresent()){
-			rootCause = Optional.of(parserAndCause.get().getRight());
-			ExceptionNameParser exceptionWithParser = parserAndCause.get().getLeft();
-			parsedName = exceptionWithParser.parseExceptionName(rootCause);
+		if(parserAndCauseOpt.isPresent()){
+			var parserAndCause = parserAndCauseOpt.get();
+			rootCause = Optional.of(parserAndCause.getRight().get(0));
+			ExceptionNameParser exceptionWithParser = parserAndCause.getLeft();
+			parsedName = exceptionWithParser.parseExceptionName(parserAndCause.getRight());
 		}
 		ExceptionCauseSnapshot exception = rootCause
 				.orElse(new ExceptionCauseSnapshot(null, null, null, List.of()));

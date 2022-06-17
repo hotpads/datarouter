@@ -88,7 +88,7 @@ public class CountBlobDtoIntegrationTests{
 
 	@Test
 	public void testRoundTripSplitString(){
-		long timestamp = UlidTool.getTimestamp(ulid);
+		long timestamp = UlidTool.getTimestampMs(ulid);
 		int timestampLength = String.valueOf(timestamp).length();
 		String counterName = "first really long counter name";
 		String counterName2 = "second really long counter name";

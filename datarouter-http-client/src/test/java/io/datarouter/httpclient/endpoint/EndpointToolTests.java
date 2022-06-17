@@ -74,6 +74,12 @@ public class EndpointToolTests{
 		}
 	}
 
+	public static class Example4b extends EndpointToolTestEndpoint<NoOpResponseType>{
+		public Example4b(){
+			super(null, null);
+		}
+	}
+
 	@Test
 	public void testGetParameterizedTypes(){
 		Type actual2 = EndpointTool.getResponseType(new Example2());
@@ -87,6 +93,10 @@ public class EndpointToolTests{
 		Type actual4 = EndpointTool.getResponseType(new Example4());
 		Type expected4 = ExampleEndpoint1.class;
 		Assert.assertEquals(actual4.getTypeName(), expected4.getTypeName());
+
+		Type actual4b = EndpointTool.getResponseType(new Example4b());
+		Type expected4b = NoOpResponseType.class;
+		Assert.assertEquals(actual4b.getTypeName(), expected4b.getTypeName());
 	}
 
 	public static class Example5 extends EndpointToolTestEndpoint<Void>{

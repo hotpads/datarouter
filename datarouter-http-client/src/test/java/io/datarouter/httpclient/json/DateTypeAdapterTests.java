@@ -24,6 +24,8 @@ import org.testng.annotations.Test;
 
 import com.google.gson.internal.PreJava9DateFormatProvider;
 
+import io.datarouter.gson.serialization.GsonTool;
+
 public class DateTypeAdapterTests{
 
 	@Test
@@ -31,10 +33,10 @@ public class DateTypeAdapterTests{
 		String java8Date = "Feb 13, 2019 10:40:25 PM";
 		DateFormat java8Format = PreJava9DateFormatProvider.getUSDateTimeFormat(DateFormat.DEFAULT, DateFormat.DEFAULT);
 		Date date = java8Format.parse(java8Date);
-		Assert.assertEquals(HttpClientGsonTool.GSON.fromJson('"' + java8Date + '"', Date.class), date);
+		Assert.assertEquals(GsonTool.GSON.fromJson('"' + java8Date + '"', Date.class), date);
 
 		String java9Date = "Feb 13, 2019, 10:40:25 PM";
-		Assert.assertEquals(HttpClientGsonTool.GSON.fromJson('"' + java9Date + '"', Date.class), date);
+		Assert.assertEquals(GsonTool.GSON.fromJson('"' + java9Date + '"', Date.class), date);
 	}
 
 }

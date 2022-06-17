@@ -65,10 +65,20 @@ public abstract class BaseManagedIndexIntegrationTests{
 
 	@BeforeClass
 	public void setUp(){
-		dao = new DatarouterTestDatabeanWithIndexDao(datarouter, nodeFactory, clientId,
-				"TestDatabeanWithManagedIndex", false, TestDatabeanWithManagedIndexByBar.class.getSimpleName());
-		daoTxn = new DatarouterTestDatabeanWithIndexDao(datarouter, nodeFactory, clientId,
-				"TestDatabeanWithTxnManagedIndex", true, "TestDatabeanWithTxnManagedIndexByBar");
+		dao = new DatarouterTestDatabeanWithIndexDao(
+				datarouter,
+				nodeFactory,
+				clientId,
+				"TestDatabeanWithManagedIndex",
+				false,
+				TestDatabeanWithManagedIndexByBar.class.getSimpleName());
+		daoTxn = new DatarouterTestDatabeanWithIndexDao(
+				datarouter,
+				nodeFactory,
+				clientId,
+				"TestDatabeanWithTxnManagedIndex",
+				true,
+				"TestDatabeanWithTxnManagedIndexByBar");
 		dao.putMulti(TEST_DATABEANS);
 		daoTxn.putMulti(TEST_DATABEANS);
 	}

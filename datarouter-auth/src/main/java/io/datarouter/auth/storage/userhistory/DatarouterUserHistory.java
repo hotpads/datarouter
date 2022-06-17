@@ -20,15 +20,16 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import io.datarouter.auth.storage.permissionrequest.DatarouterPermissionRequest;
-import io.datarouter.enums.StringEnum;
+import io.datarouter.enums.MappedEnum;
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
+import io.datarouter.model.field.codec.StringMappedEnumFieldCodec;
+import io.datarouter.model.field.imp.StringEncodedField;
+import io.datarouter.model.field.imp.StringEncodedFieldKey;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
 import io.datarouter.model.field.imp.comparable.LongField;
 import io.datarouter.model.field.imp.comparable.LongFieldKey;
-import io.datarouter.model.field.imp.enums.StringEnumField;
-import io.datarouter.model.field.imp.enums.StringEnumFieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 import io.datarouter.model.util.CommonFieldSizes;
 
@@ -57,8 +58,9 @@ public class DatarouterUserHistory extends BaseDatabean<DatarouterUserHistoryKey
 
 	public static class FieldKeys{
 		public static final LongFieldKey editor = new LongFieldKey("editor");
-		public static final StringEnumFieldKey<DatarouterUserChangeType> changeType =
-				new StringEnumFieldKey<>("changeType", DatarouterUserChangeType.class);
+		public static final StringEncodedFieldKey<DatarouterUserChangeType> changeType = new StringEncodedFieldKey<>(
+				"changeType",
+				new StringMappedEnumFieldCodec<>(DatarouterUserChangeType.BY_PERSISTENT_STRING));
 		public static final StringFieldKey changes = new StringFieldKey("changes")
 				.withSize(CommonFieldSizes.MAX_LENGTH_TEXT);
 	}
@@ -74,7 +76,7 @@ public class DatarouterUserHistory extends BaseDatabean<DatarouterUserHistoryKey
 		public List<Field<?>> getNonKeyFields(DatarouterUserHistory databean){
 			return List.of(
 					new LongField(FieldKeys.editor, databean.editor),
-					new StringEnumField<>(FieldKeys.changeType, databean.changeType),
+					new StringEncodedField<>(FieldKeys.changeType, databean.changeType),
 					new StringField(FieldKeys.changes, databean.changes));
 		}
 	}
@@ -105,29 +107,21 @@ public class DatarouterUserHistory extends BaseDatabean<DatarouterUserHistoryKey
 		return permissionRequest;
 	}
 
-	public enum DatarouterUserChangeType implements StringEnum<DatarouterUserChangeType>{
+	public enum DatarouterUserChangeType{
 		CREATE("create"),//user created
 		EDIT("edit"),//changes to roles or flags
 		RESET("reset"),//any kind of password/key reset
 		DEPROVISION("deprovision"),//user deprovisioned
 		RESTORE("restore"),//user restored after being deprovisioned
-		INFO("info"),//no change to this user
-		;
+		INFO("info");//no change to this user
 
-		private final String persistentString;
+		public static final MappedEnum<DatarouterUserChangeType,String> BY_PERSISTENT_STRING
+				= new MappedEnum<>(values(), value -> value.persistentString);
+
+		public final String persistentString;
 
 		DatarouterUserChangeType(String persistentString){
 			this.persistentString = persistentString;
-		}
-
-		@Override
-		public String getPersistentString(){
-			return persistentString;
-		}
-
-		@Override
-		public DatarouterUserChangeType fromPersistentString(String str){
-			return StringEnum.getEnumFromString(values(), str, null);
 		}
 	}
 }

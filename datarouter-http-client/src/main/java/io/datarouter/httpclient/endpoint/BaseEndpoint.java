@@ -44,8 +44,10 @@ public abstract class BaseEndpoint<R,ET extends EndpointType>{
 	@IgnoredField
 	public final Map<String,List<String>> headers;
 
+	// initialized by the client
 	@IgnoredField
 	public String urlPrefix;
+
 	@IgnoredField
 	private Optional<Boolean> retrySafe;
 	@IgnoredField

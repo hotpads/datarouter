@@ -46,7 +46,8 @@ import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.MessageMav;
 import io.datarouter.web.handler.params.Params;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.DlTag;
+import j2html.tags.specialized.PreTag;
 
 public class RedisWebInspector implements DatarouterClientWebInspector{
 	private static final Logger logger = LoggerFactory.getLogger(RedisWebInspector.class);
@@ -69,7 +70,7 @@ public class RedisWebInspector implements DatarouterClientWebInspector{
 		if(clientId == null){
 			return new MessageMav("Client not found");
 		}
-		if(redisOptions.getClientMode(clientId.getName()).isStandard()){
+		if(redisOptions.getClientMode(clientId.getName()).isStandard){
 			return inspectRegularRedis(clientId, request);
 		}
 		return inspectClusterClient(clientId, request);
@@ -89,20 +90,20 @@ public class RedisWebInspector implements DatarouterClientWebInspector{
 				.buildMav();
 	}
 
-	private ContainerTag<?> buildRegularOverview(ClientId clientId){
-		ContainerTag<?> infoDiv = null;
+	private DlTag buildRegularOverview(ClientId clientId){
+		PreTag info = null;
 		try{
-			infoDiv = pre(clientManager.getClient(clientId).getLettuceClient().info().get());
+			info = pre(clientManager.getClient(clientId).getLettuceClient().info().get());
 		}catch(InterruptedException | ExecutionException e){
 			logger.error("", e);
 		}
-		return dl(dt("Info:"), dd(infoDiv));
+		return dl(dt("Info:"), dd(info));
 	}
 
 	private Mav inspectClusterClient(ClientId clientId, HttpServletRequest request){
 		var clientName = clientId.getName();
 		Map<String,String> allClientOptions = clientOptions.getAllClientOptions(clientName);
-		ContainerTag<?> overview = null;
+		DlTag overview = null;
 		try{
 			overview = buildClusterOverview(clientId);
 		}catch(InterruptedException | ExecutionException e){
@@ -119,7 +120,7 @@ public class RedisWebInspector implements DatarouterClientWebInspector{
 				.buildMav();
 	}
 
-	private ContainerTag<?> buildClusterOverview(ClientId clientId) throws InterruptedException, ExecutionException{
+	private DlTag buildClusterOverview(ClientId clientId) throws InterruptedException, ExecutionException{
 		var lettuceClient = clientManager.getClient(clientId).getLettuceClient();
 		List<String> clusterNodes = Scanner.of(lettuceClient.clusterNodes().get().split("\n"))
 				.list();

@@ -82,8 +82,17 @@ public class EmailService{
 
 	public void send(String fromEmail, Collection<String> toEmails, String subject, String body, boolean html)
 	throws MessagingException{
-		sendAndGetMessageId(fromEmail, toEmails, toEmails, subject, body, html, Collections.emptyMap(),
-				List.of());
+		String emailId = sendAndGetMessageId(
+				fromEmail,
+				toEmails,
+				toEmails,
+				subject,
+				body,
+				html,
+				Collections.emptyMap(),
+				List.of())
+				.orElse("null");
+		logger.warn("emailId={}, subject={}", emailId, subject);
 	}
 
 	public Optional<String> sendAndGetMessageId(
@@ -130,11 +139,21 @@ public class EmailService{
 			message.setSubject(subject);
 			headers.entrySet().forEach(entry -> MimeMessageTool.setHeader(message, entry.getKey(), entry.getValue()));
 
-			Multipart multipart = new MimeMultipart();
-			MimeBodyPart textBodyPart = new MimeBodyPart();
 			String subType = html ? "html" : "plain";
-			textBodyPart.setText(body, "UTF-8", subType);
-			multipart.addBodyPart(textBodyPart);
+			var textHtml = new MimeBodyPart();
+			textHtml.setText(body, "UTF-8", subType);
+
+			Multipart multipart;
+			if(Scanner.of(fileAttachmentDtos).anyMatch(attachment -> attachment.isInlineContent)){
+				multipart = new MimeMultipart("related");
+				var bodyPart = new MimeBodyPart();
+				var alternative = new MimeMultipart("alternative");
+				alternative.addBodyPart(textHtml);
+				bodyPart.setContent(alternative);
+				multipart.addBodyPart(bodyPart);
+			}else{
+				multipart = new MimeMultipart(textHtml);
+			}
 
 			Scanner.of(fileAttachmentDtos)
 					.map(MimeMessageTool::buildMimeBodyPartForAttachment)

@@ -183,6 +183,8 @@ public class JobletCallable implements Callable<Void>{
 			logger.warn("finally " + message);
 		}else if(durationMs > LOG_JOBLETS_SLOWER_THAN.toMillis()){
 			logger.warn(message);
+		}else{
+			logger.info(message);
 		}
 	}
 

@@ -41,4 +41,10 @@ public class DatarouterRedisTallyIntegrationTests extends BaseCacheTallyIntegrat
 	public void testNullKeys(){
 	}
 
+	@Override
+	@Test
+	public void testVacuum(){
+		//redis does not support vacuum operation
+	}
+
 }

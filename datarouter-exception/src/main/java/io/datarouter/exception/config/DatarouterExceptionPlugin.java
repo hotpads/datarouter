@@ -75,6 +75,7 @@ public class DatarouterExceptionPlugin extends BaseWebPlugin{
 	private final Class<? extends ExceptionBlobPublishingSettings> exceptionBlobPublishingSettings;
 	private final Class<? extends ExemptDailyDigestExceptions> exemptDailyDigestExceptions;
 	private final String issueLinkPrefix;
+	private final int maxExceptionBlobSize;
 
 	private DatarouterExceptionPlugin(DatarouterExceptionDaoModule daosModuleBuilder,
 			Class<? extends ExceptionGraphLink> exceptionGraphLinkClass,
@@ -85,7 +86,8 @@ public class DatarouterExceptionPlugin extends BaseWebPlugin{
 			Class<? extends HttpRequestRecordBlobDirectorySupplier> httpRequestRecordBlobDirectorySupplier,
 			Class<? extends ExceptionBlobPublishingSettings> exceptionBlobPublishingSettings,
 			Class<? extends ExemptDailyDigestExceptions> exemptDailyDigestExceptions,
-			String issueLinkPrefix){
+			String issueLinkPrefix,
+			int maxExceptionBlobSize){
 		this.exceptionGraphLinkClass = exceptionGraphLinkClass;
 		this.exceptionRecorderClass = exceptionRecorderClass;
 		this.exceptionHandlingConfigClass = exceptionHandlingConfigClass;
@@ -95,6 +97,7 @@ public class DatarouterExceptionPlugin extends BaseWebPlugin{
 		this.exceptionBlobPublishingSettings = exceptionBlobPublishingSettings;
 		this.exemptDailyDigestExceptions = exemptDailyDigestExceptions;
 		this.issueLinkPrefix = issueLinkPrefix;
+		this.maxExceptionBlobSize = maxExceptionBlobSize;
 		addFilterParamsOrdered(
 				new FilterParams(
 						false,
@@ -132,11 +135,14 @@ public class DatarouterExceptionPlugin extends BaseWebPlugin{
 		}else{
 			bindDefaultInstance(ExceptionIssueLinkPrefixSupplier.class, new ExceptionIssueLinkPrefix(issueLinkPrefix));
 		}
+		bind(MaxExceptionBlobSize.class).toInstance(() -> maxExceptionBlobSize);
 	}
 
 	public static class DatarouterExceptionPluginBuilder{
 
 		private final List<ClientId> defaultClientIds;
+		private final int maxExceptionBlobSize;
+
 		private List<ClientId> blobQueueClientIds;
 
 		private Class<? extends ExceptionGraphLink> exceptionGraphLinkClass = NoOpExceptionGraphLink.class;
@@ -155,8 +161,9 @@ public class DatarouterExceptionPlugin extends BaseWebPlugin{
 				= NoOpExemptDailyDigestExceptions.class;
 		private String issueLinkPrefix;
 
-		public DatarouterExceptionPluginBuilder(List<ClientId> defaultClientIds){
+		public DatarouterExceptionPluginBuilder(List<ClientId> defaultClientIds, int maxExceptionBlobSize){
 			this.defaultClientIds = defaultClientIds;
+			this.maxExceptionBlobSize = maxExceptionBlobSize;
 		}
 
 		public DatarouterExceptionPluginBuilder setExceptionGraphLinkClass(
@@ -212,7 +219,8 @@ public class DatarouterExceptionPlugin extends BaseWebPlugin{
 					httpRequestRecordBlobDirectorySupplier,
 					exceptionBlobPublishingSettings,
 					exemptDailyDigestExceptions,
-					issueLinkPrefix);
+					issueLinkPrefix,
+					maxExceptionBlobSize);
 		}
 
 	}

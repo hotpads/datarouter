@@ -17,8 +17,6 @@ package io.datarouter.plugin.copytable.config;
 
 import io.datarouter.plugin.copytable.CopyTableJoblet;
 import io.datarouter.plugin.copytable.tableprocessor.TableProcessorJoblet;
-import io.datarouter.plugin.copytable.tableprocessor.TableProcessorRegistry;
-import io.datarouter.plugin.copytable.tableprocessor.TableProcessorRegistry.NoOpTableProcessorRegistry;
 import io.datarouter.plugin.copytable.tableprocessor.TableProcessorTestableService;
 import io.datarouter.web.config.BaseWebPlugin;
 import io.datarouter.web.navigation.DatarouterNavBarCategory;
@@ -27,11 +25,7 @@ public class DatarouterCopyTablePlugin extends BaseWebPlugin{
 
 	private static final DatarouterCopyTablePaths PATHS = new DatarouterCopyTablePaths();
 
-	private final Class<? extends TableProcessorRegistry> tableProcessorRegistry;
-
-	private DatarouterCopyTablePlugin(
-			Class<? extends TableProcessorRegistry> tableProcessorRegistry){
-		this.tableProcessorRegistry = tableProcessorRegistry;
+	public DatarouterCopyTablePlugin(){
 
 		addRouteSet(DatarouterCopyTableRouteSet.class);
 		addPluginEntry(CopyTableJoblet.JOBLET_TYPE);
@@ -56,28 +50,6 @@ public class DatarouterCopyTablePlugin extends BaseWebPlugin{
 				"Table Processor - Single Thread");
 
 		addDatarouterGithubDocLink("datarouter-copy-table");
-	}
-
-	@Override
-	public void configure(){
-		bind(TableProcessorRegistry.class).to(tableProcessorRegistry);
-	}
-
-	public static class DatarouterCopyTablePluginBuilder{
-
-		private Class<? extends TableProcessorRegistry> tableProcessorRegistry = NoOpTableProcessorRegistry.class;
-
-		public DatarouterCopyTablePluginBuilder withTableProcessorRegistry(
-				Class<? extends TableProcessorRegistry> tableProcessorRegistry){
-			this.tableProcessorRegistry = tableProcessorRegistry;
-			return this;
-		}
-
-		public DatarouterCopyTablePlugin build(){
-			return new DatarouterCopyTablePlugin(
-					tableProcessorRegistry);
-		}
-
 	}
 
 }

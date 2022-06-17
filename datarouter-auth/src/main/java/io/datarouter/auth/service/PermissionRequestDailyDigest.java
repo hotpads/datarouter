@@ -43,7 +43,8 @@ import io.datarouter.web.digest.DailyDigestService;
 import io.datarouter.web.html.j2html.J2HtmlTable;
 import io.datarouter.web.user.detail.DatarouterUserExternalDetailService;
 import io.datarouter.web.user.session.service.SessionBasedUser;
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.TableTag;
 
 @Singleton
 public class PermissionRequestDailyDigest implements DailyDigest{
@@ -62,7 +63,7 @@ public class PermissionRequestDailyDigest implements DailyDigest{
 	private DailyDigestService digestService;
 
 	@Override
-	public Optional<ContainerTag<?>> getPageContent(ZoneId zoneId){
+	public Optional<DivTag> getPageContent(ZoneId zoneId){
 		List<PermissionRequestDto> openRequests = getOpenRequests();
 		if(openRequests.size() == 0){
 			return Optional.empty();
@@ -73,7 +74,7 @@ public class PermissionRequestDailyDigest implements DailyDigest{
 	}
 
 	@Override
-	public Optional<ContainerTag<?>> getEmailContent(ZoneId zoneId){
+	public Optional<DivTag> getEmailContent(ZoneId zoneId){
 		List<PermissionRequestDto> openRequests = getOpenRequests();
 		if(openRequests.size() == 0){
 			return Optional.empty();
@@ -111,7 +112,7 @@ public class PermissionRequestDailyDigest implements DailyDigest{
 				.list();
 	}
 
-	private ContainerTag<?> buildPageTable(List<PermissionRequestDto> rows, ZoneId zoneId){
+	private TableTag buildPageTable(List<PermissionRequestDto> rows, ZoneId zoneId){
 		return new J2HtmlTable<PermissionRequestDto>()
 				.withClasses("table table-sm table-striped my-4 border")
 				.withColumn("Username", row -> row.user.getUsername())
@@ -131,7 +132,7 @@ public class PermissionRequestDailyDigest implements DailyDigest{
 				.build(rows);
 	}
 
-	private ContainerTag<?> buildEmailTable(List<PermissionRequestDto> rows, ZoneId zoneId){
+	private TableTag buildEmailTable(List<PermissionRequestDto> rows, ZoneId zoneId){
 		return new J2HtmlEmailTable<PermissionRequestDto>()
 				.withColumn("Username", row -> row.user.getUsername())
 				.withColumn(new J2HtmlEmailTableColumn<>(

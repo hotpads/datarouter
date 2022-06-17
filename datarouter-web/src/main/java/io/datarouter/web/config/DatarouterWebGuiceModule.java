@@ -58,7 +58,6 @@ import io.datarouter.web.user.session.service.DatarouterRoleManager;
 import io.datarouter.web.user.session.service.RoleManager;
 import io.datarouter.web.user.session.service.UserSessionService;
 import io.datarouter.web.user.session.service.UserSessionService.NoOpUserSessionService;
-import io.datarouter.web.util.Java9Gson;
 
 public class DatarouterWebGuiceModule extends BaseGuiceServletModule{
 
@@ -101,7 +100,6 @@ public class DatarouterWebGuiceModule extends BaseGuiceServletModule{
 
 		// define as singleton for everybody
 		bind(Gson.class).toInstance(GsonTool.GSON);
-		bind(Gson.class).annotatedWith(Java9Gson.class).toInstance(GsonTool.JAVA9_GSON);
 
 		bindDefaultInstance(DefaultEmailDistributionListZoneId.class,
 				new DefaultEmailDistributionListZoneId(ZoneId.systemDefault()));

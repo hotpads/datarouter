@@ -19,7 +19,6 @@ import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 
 import java.time.ZoneId;
-import java.util.Date;
 import java.util.Optional;
 
 import javax.inject.Inject;
@@ -36,7 +35,7 @@ import io.datarouter.web.handler.types.Param;
 import io.datarouter.web.html.j2html.J2HtmlLegendTable;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import io.datarouter.web.user.session.CurrentUserSessionInfoService;
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.DivTag;
 
 public class ViewExactChangelogHandler extends BaseHandler{
 
@@ -69,12 +68,12 @@ public class ViewExactChangelogHandler extends BaseHandler{
 				.buildMav();
 	}
 
-	private ContainerTag<?> makeContent(Changelog changelog){
+	private DivTag makeContent(Changelog changelog){
 		var table = new J2HtmlLegendTable()
 				.withClass("table table-sm border table-striped")
 				.withSingleRow(false)
 
-				.withEntry("Date", getDate(changelog))
+				.withEntry("Date", printDate(changelog))
 				.withEntry("Changelog Type", changelog.getKey().getChangelogType())
 				.withEntry("Name", changelog.getKey().getName())
 				.withEntry("Action", changelog.getAction())
@@ -89,11 +88,10 @@ public class ViewExactChangelogHandler extends BaseHandler{
 				.withClass("container my-4");
 	}
 
-	private String getDate(Changelog row){
+	private String printDate(Changelog row){
 		ZoneId zoneId = sessionInfoService.getZoneId(request);
-		Long reversedDateMs = row.getKey().getReversedDateMs();
-		Date date = new Date(Long.MAX_VALUE - reversedDateMs);
-		return ZonedDateFormatterTool.formatDateWithZone(date, zoneId);
+		long reversedDateMs = row.getKey().getReversedDateMs();
+		return ZonedDateFormatterTool.formatReversedLongMsWithZone(reversedDateMs, zoneId);
 	}
 
 }

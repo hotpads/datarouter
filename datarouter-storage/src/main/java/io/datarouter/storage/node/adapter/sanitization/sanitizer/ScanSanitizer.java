@@ -15,31 +15,30 @@
  */
 package io.datarouter.storage.node.adapter.sanitization.sanitizer;
 
-import java.util.Collection;
-
 import io.datarouter.model.field.FieldSet;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.util.tuple.Range;
 
 public class ScanSanitizer{
 
-	public static <PK extends PrimaryKey<PK>> void rejectUnexpectedFullScan(Collection<Range<PK>> ranges){
-		ranges.forEach(ScanSanitizer::rejectUnexpectedFullScan);
-	}
-
 	public static <PK extends PrimaryKey<PK>> void rejectUnexpectedFullScan(Range<PK> range){
-		if(range == null || range.getStart() == null && range.getEnd() == null){
-			return; // expected full scan
+		if(range.hasStart() && isMissingFirstField(range.getStart())){
+			String message = String.format(
+					"Unexpected full scan error: startKey exists but with null first field.  range=%s",
+					range);
+			throw new RuntimeException(message);
 		}
-		if(range.getStart() == null && isValueOfFirstFieldNull(range.getEnd())
-				|| range.getEnd() == null && isValueOfFirstFieldNull(range.getStart())
-				|| isValueOfFirstFieldNull(range.getStart()) && isValueOfFirstFieldNull(range.getEnd())){
-			throw new RuntimeException("unexpected full scan detected for range=" + range);
+		if(range.hasEnd() && isMissingFirstField(range.getEnd())){
+			String message = String.format(
+					"Unexpected full scan error: endKey exists but with null first field.  range=%s",
+					range);
+			throw new RuntimeException(message);
 		}
 	}
 
-	private static boolean isValueOfFirstFieldNull(FieldSet<?> key){
-		return key != null && key.getFields().iterator().next().getValue() == null;
+	// TODO: what if there are gaps after the first field?
+	private static boolean isMissingFirstField(FieldSet<?> key){
+		return key.getFields().iterator().next().getValue() == null;
 	}
 
 }

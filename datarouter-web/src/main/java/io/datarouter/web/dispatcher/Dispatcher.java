@@ -70,7 +70,7 @@ public class Dispatcher{
 	private DatarouterSamlSettings samlSettings;
 
 	public RoutingResult handleRequestIfUrlMatch(HttpServletRequest request, HttpServletResponse response,
-			BaseRouteSet routeSet) throws ServletException, IOException{
+			RouteSet routeSet) throws ServletException, IOException{
 		String uri = request.getRequestURI();
 		if(!uri.startsWith(servletContext.get().getContextPath() + routeSet.getUrlPrefix())){
 			return RoutingResult.NOT_FOUND;

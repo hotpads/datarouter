@@ -36,8 +36,8 @@ import io.datarouter.metric.links.MetricDashboardRegistry;
 import io.datarouter.metric.links.MiscMetricsLinksRegistry;
 import io.datarouter.metric.types.MetricNameType;
 import io.datarouter.web.html.j2html.J2HtmlTable;
-import j2html.tags.ContainerTag;
-import j2html.tags.DomContent;
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.TdTag;
 
 @Singleton
 public class ViewMetricNameService{
@@ -49,7 +49,7 @@ public class ViewMetricNameService{
 	@Inject
 	private MiscMetricsLinksRegistry miscMetricLinksRegistry;
 
-	public ContainerTag<?> makeMetricNameTable(String header, List<MetricName> rows){
+	public DivTag makeMetricNameTable(String header, List<MetricName> rows){
 		if(rows.size() == 0){
 			return div();
 		}
@@ -66,7 +66,7 @@ public class ViewMetricNameService{
 				.withClass("container my-4");
 	}
 
-	private DomContent getMetricNameLink(MetricName metricName){
+	private TdTag getMetricNameLink(MetricName metricName){
 		String link = metricName.nameType == MetricNameType.AVAILABLE
 				? linkBuilder.availableMetricsLink(metricName.getNameOrPrefix())
 				: linkBuilder.exactMetricLink(metricName.getNameOrPrefix());
@@ -77,7 +77,7 @@ public class ViewMetricNameService{
 	}
 
 
-	public ContainerTag<?> getDashboardsTable(){
+	public DivTag getDashboardsTable(){
 		var dasboards = dashboardRegistry.dashboards;
 		if(dasboards.size() == 0){
 			return div();
@@ -93,7 +93,7 @@ public class ViewMetricNameService{
 				.withClass("container my-4");
 	}
 
-	private DomContent getDashboardLink(MetricDashboardDto dashboard){
+	private TdTag getDashboardLink(MetricDashboardDto dashboard){
 		String link = linkBuilder.dashboardLink(dashboard.id);
 		return td(a(i().withClass("fa fa-link"))
 				.withClass("btn btn-link w-100 py-0")
@@ -101,7 +101,7 @@ public class ViewMetricNameService{
 				.withTarget("_blank"));
 	}
 
-	public ContainerTag<?> miscMetricLinksTable(){
+	public DivTag miscMetricLinksTable(){
 		var links = miscMetricLinksRegistry.miscMetricLinks;
 		if(links.size() == 0){
 			return div();

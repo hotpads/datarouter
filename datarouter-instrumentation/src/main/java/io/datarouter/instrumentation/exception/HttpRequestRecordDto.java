@@ -21,6 +21,7 @@ public class HttpRequestRecordDto{
 
 	public static final byte[] CONFIDENTIALITY_MSG_BYTES = "body omitted for confidentiality".getBytes();
 	public static final int BINARY_BODY_MAX_SIZE = 10_000;
+	public static final int MAX_LENGTH_HTTP_PARAMS = 5_000;
 
 	public final String id;
 	public final Date created;

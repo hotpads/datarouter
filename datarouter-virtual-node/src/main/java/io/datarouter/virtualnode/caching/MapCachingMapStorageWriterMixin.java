@@ -42,32 +42,19 @@ implements MapStorageWriter<PK,D>{
 
 	@Override
 	public void delete(PK key, Config config){
-		if(BaseMapCachingNode.useCache(config)){
-			target.updateLastAttemptedContact();
-			target.getCachingNode().delete(key, MapCachingMapStorageReaderNode.getEffectiveCachingNodeConfig(config));
-			target.updateLastContact();
-		}
+		target.getCachingNode().delete(key, MapCachingMapStorageReaderNode.getEffectiveCachingNodeConfig(config));
 		target.getBackingNode().delete(key, config);
 	}
 
 	@Override
 	public void deleteAll(Config config){
-		if(BaseMapCachingNode.useCache(config)){
-			target.updateLastAttemptedContact();
-			target.getCachingNode().deleteAll(MapCachingMapStorageReaderNode.getEffectiveCachingNodeConfig(config));
-			target.updateLastContact();
-		}
+		target.getCachingNode().deleteAll(MapCachingMapStorageReaderNode.getEffectiveCachingNodeConfig(config));
 		target.getBackingNode().deleteAll(config);
 	}
 
 	@Override
 	public void deleteMulti(Collection<PK> keys, Config config){
-		if(BaseMapCachingNode.useCache(config)){
-			target.updateLastAttemptedContact();
-			target.getCachingNode().deleteMulti(keys, MapCachingMapStorageReaderNode.getEffectiveCachingNodeConfig(
-					config));
-			target.updateLastContact();
-		}
+		target.getCachingNode().deleteMulti(keys, MapCachingMapStorageReaderNode.getEffectiveCachingNodeConfig(config));
 		target.getBackingNode().deleteMulti(keys, config);
 	}
 
@@ -76,26 +63,16 @@ implements MapStorageWriter<PK,D>{
 		if(databean == null || databean.getKey() == null){
 			return;
 		}
-		if(BaseMapCachingNode.useCache(config)){
-			target.updateLastAttemptedContact();
-			Config effectiveCachingNodeConfig = MapCachingMapStorageReaderNode.getEffectiveCachingNodeConfig(config);
-			if(cacheWrites){
-				target.getCachingNode().put(databean, effectiveCachingNodeConfig);
-			}else{//TODO check config for ignoring caching
-				target.getCachingNode().delete(databean.getKey(), effectiveCachingNodeConfig);
-			}
-			target.updateLastContact();
+		Config effectiveCachingNodeConfig = MapCachingMapStorageReaderNode.getEffectiveCachingNodeConfig(config);
+		if(cacheWrites){
+			target.getCachingNode().put(databean, effectiveCachingNodeConfig);
+		}else{
+			target.getCachingNode().delete(databean.getKey(), effectiveCachingNodeConfig);
 		}
 		try{
 			target.getBackingNode().put(databean, config);
 		}catch(Exception ex){
-			if(BaseMapCachingNode.useCache(config)){
-				target.updateLastAttemptedContact();
-				Config effectiveCachingNodeConfig = MapCachingMapStorageReaderNode.getEffectiveCachingNodeConfig(
-						config);
-				target.getCachingNode().delete(databean.getKey(), effectiveCachingNodeConfig);
-				target.updateLastContact();
-			}
+			target.getCachingNode().delete(databean.getKey(), effectiveCachingNodeConfig);
 			throw ex;
 		}
 	}
@@ -105,30 +82,20 @@ implements MapStorageWriter<PK,D>{
 		if(databeans == null || databeans.isEmpty()){
 			return;
 		}
-		if(BaseMapCachingNode.useCache(config)){
-			target.updateLastAttemptedContact();
-			Config effectiveCachingNodeConfig = MapCachingMapStorageReaderNode.getEffectiveCachingNodeConfig(config);
-			if(cacheWrites){
-				target.getCachingNode().putMulti(databeans, effectiveCachingNodeConfig);
-			}else{//TODO check config for ignoring caching
-				Scanner.of(databeans)
-						.map(Databean::getKey)
-						.flush(keys -> target.getCachingNode().deleteMulti(keys, effectiveCachingNodeConfig));
-			}
-			target.updateLastContact();
+		Config effectiveCachingNodeConfig = MapCachingMapStorageReaderNode.getEffectiveCachingNodeConfig(config);
+		if(cacheWrites){
+			target.getCachingNode().putMulti(databeans, effectiveCachingNodeConfig);
+		}else{
+			Scanner.of(databeans)
+					.map(Databean::getKey)
+					.flush(keys -> target.getCachingNode().deleteMulti(keys, effectiveCachingNodeConfig));
 		}
 		try{
 			target.getBackingNode().putMulti(databeans, config);
 		}catch(Exception ex){
-			if(BaseMapCachingNode.useCache(config)){
-				target.updateLastAttemptedContact();
-				Config effectiveCachingNodeConfig = MapCachingMapStorageReaderNode.getEffectiveCachingNodeConfig(
-						config);
-				Scanner.of(databeans)
-						.map(Databean::getKey)
-						.flush(keys -> target.getCachingNode().deleteMulti(keys, effectiveCachingNodeConfig));
-				target.updateLastContact();
-			}
+			Scanner.of(databeans)
+					.map(Databean::getKey)
+					.flush(keys -> target.getCachingNode().deleteMulti(keys, effectiveCachingNodeConfig));
 			throw ex;
 		}
 	}

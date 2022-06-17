@@ -32,9 +32,7 @@ import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.html.j2html.J2HtmlTable;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import j2html.TagCreator;
-import j2html.tags.ContainerTag;
-
-public class ViewAutoConfigsHandler extends BaseHandler{
+import j2html.tags.specialized.DivTag;public class ViewAutoConfigsHandler extends BaseHandler{
 
 	private final Bootstrap4PageFactory pageFactory;
 	private final ServerTypeDetector serverTypeDetector;
@@ -71,7 +69,7 @@ public class ViewAutoConfigsHandler extends BaseHandler{
 				.buildMav();
 	}
 
-	private ContainerTag<?> makeContent(){
+	private DivTag makeContent(){
 		var table = new J2HtmlTable<Entry<String,Callable<String>>>()
 				.withClasses("table table-sm table-striped my-4 border")
 				.withColumn("AutoConfig", Entry::getKey)

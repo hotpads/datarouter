@@ -16,28 +16,30 @@
 package io.datarouter.web.user.session;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
 import io.datarouter.model.field.Field;
+import io.datarouter.model.field.codec.StringListToBinaryCsvFieldCodec;
 import io.datarouter.model.field.imp.DateField;
 import io.datarouter.model.field.imp.DateFieldKey;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
+import io.datarouter.model.field.imp.array.ByteArrayEncodedField;
+import io.datarouter.model.field.imp.array.ByteArrayEncodedFieldKey;
 import io.datarouter.model.field.imp.comparable.LongField;
 import io.datarouter.model.field.imp.comparable.LongFieldKey;
-import io.datarouter.model.field.imp.list.DelimitedStringListField;
-import io.datarouter.model.field.imp.list.DelimitedStringListFieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
+import io.datarouter.model.util.CommonFieldSizes;
 import io.datarouter.scanner.IterableScanner;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.web.user.authenticate.DatarouterTokenGenerator;
 import io.datarouter.web.user.databean.DatarouterUser;
 import io.datarouter.web.user.databean.DatarouterUserKey;
@@ -68,7 +70,9 @@ implements Session{
 		public static final LongFieldKey userId = new LongFieldKey("userId");
 		public static final StringFieldKey userToken = new StringFieldKey("userToken");
 		public static final StringFieldKey username = new StringFieldKey("username");
-		public static final DelimitedStringListFieldKey roles = new DelimitedStringListFieldKey("roles");
+		public static final ByteArrayEncodedFieldKey<List<String>> roles
+				= new ByteArrayEncodedFieldKey<>("roles", StringListToBinaryCsvFieldCodec.INSTANCE)
+				.withSize(CommonFieldSizes.MAX_LENGTH_LONGBLOB);
 		@SuppressWarnings("deprecation")
 		public static final DateFieldKey userCreated = new DateFieldKey("userCreated");
 	}
@@ -86,7 +90,7 @@ implements Session{
 			nonKeyFields.add(new LongField(FieldKeys.userId, databean.userId));
 			nonKeyFields.add(new StringField(FieldKeys.userToken, databean.userToken));
 			nonKeyFields.add(new StringField(FieldKeys.username, databean.username));
-			nonKeyFields.add(new DelimitedStringListField(FieldKeys.roles, databean.roles));
+			nonKeyFields.add(new ByteArrayEncodedField<>(FieldKeys.roles, databean.roles));
 			nonKeyFields.add(new DateField(FieldKeys.userCreated, databean.userCreated));
 			return nonKeyFields;
 		}
@@ -103,7 +107,7 @@ implements Session{
 	}
 
 	public static DatarouterSession createAnonymousSession(String userToken){
-		DatarouterSession session = new DatarouterSession();
+		var session = new DatarouterSession();
 		session.setUserToken(userToken);
 		session.getKey().setSessionToken(DatarouterTokenGenerator.generateRandomToken());
 		Date now = new Date();
@@ -153,11 +157,11 @@ implements Session{
 	}
 
 	public void setRoles(Collection<Role> roles){
-		this.roles = roles.stream()
+		this.roles = Scanner.of(roles)
 				.map(Role::getPersistentString)
-				.sorted()
+				.sort()
 				.distinct()
-				.collect(Collectors.toList());
+				.list();
 	}
 
 	public boolean isAnonymous(){
@@ -232,15 +236,17 @@ implements Session{
 
 		public static HttpServletRequest getAnonymousHttpServletRequest(){
 			return new MockHttpServletRequestBuilder()
-					.withAttribute(DatarouterSessionManager.DATAROUTER_SESSION_ATTRIBUTE, buildSessionWithRoles(
-							(DatarouterUserRole[])null))
+					.withAttribute(
+							DatarouterSessionManager.DATAROUTER_SESSION_ATTRIBUTE,
+							buildSessionWithRoles((DatarouterUserRole[])null))
 					.build();
 		}
 
 		public static HttpServletRequest getAllDatarouterUserRolesHttpServletRequest(){
 			return new MockHttpServletRequestBuilder()
-					.withAttribute(DatarouterSessionManager.DATAROUTER_SESSION_ATTRIBUTE, buildSessionWithRoles(
-							DatarouterUserRole.values()))
+					.withAttribute(
+							DatarouterSessionManager.DATAROUTER_SESSION_ATTRIBUTE,
+							buildSessionWithRoles(DatarouterUserRole.values()))
 					.build();
 		}
 
@@ -253,9 +259,9 @@ implements Session{
 		public static DatarouterSession buildSessionWithRoles(RoleEnum<?>... roles){
 			DatarouterSession session = new DatarouterSession();
 			if(roles != null && roles.length > 0){
-				session.setRoles(Arrays.stream(roles)
+				session.setRoles(Scanner.of(roles)
 						.map(RoleEnum::getRole)
-						.collect(Collectors.toSet()));
+						.collect(HashSet::new));
 			}
 			return session;
 		}

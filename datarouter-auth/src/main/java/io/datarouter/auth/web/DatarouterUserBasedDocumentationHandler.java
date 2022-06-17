@@ -31,7 +31,7 @@ import io.datarouter.httpclient.security.DefaultSignatureGenerator;
 import io.datarouter.httpclient.security.SecurityParameters;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.config.DatarouterWebFiles;
-import io.datarouter.web.dispatcher.BaseRouteSet;
+import io.datarouter.web.dispatcher.RouteSet;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.documentation.ApiDocService;
 import io.datarouter.web.handler.documentation.DocumentedEndpointJspDto;
@@ -49,7 +49,7 @@ public abstract class DatarouterUserBasedDocumentationHandler extends BaseHandle
 	@Inject
 	private DatarouterWebFiles files;
 
-	protected Mav createDocumentationMav(String apiName, String apiUrlContext, List<BaseRouteSet> routeSets){
+	protected Mav createDocumentationMav(String apiName, String apiUrlContext, List<RouteSet> routeSets){
 		List<DocumentedEndpointJspDto> endpoints = apiDocService.buildDocumentation(apiUrlContext, routeSets);
 		Mav model = new Mav(files.jsp.docs.dispatcherDocsJsp);
 		model.put("endpoints", endpoints);

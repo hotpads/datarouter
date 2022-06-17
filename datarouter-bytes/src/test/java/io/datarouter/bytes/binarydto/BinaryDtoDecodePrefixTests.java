@@ -19,12 +19,20 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import io.datarouter.bytes.ByteTool;
-import io.datarouter.bytes.binarydto.codec.BinaryDtoCodec;
-import io.datarouter.bytes.binarydto.dto.BinaryDto;
+import io.datarouter.bytes.binarydto.codec.BinaryDtoComparableCodec;
+import io.datarouter.bytes.binarydto.dto.ComparableBinaryDto;
+import io.datarouter.bytes.binarydto.fieldcodec.array.ShortArrayBinaryDtoFieldCodec;
+import io.datarouter.bytes.binarydto.fieldcodec.primitive.IntBinaryDtoFieldCodec;
+import io.datarouter.bytes.binarydto.fieldcodec.primitive.ShortBinaryDtoFieldCodec;
+import io.datarouter.bytes.binarydto.fieldcodec.string.Utf8BinaryDtoFieldCodec;
+import io.datarouter.bytes.codec.bytestringcodec.CsvIntByteStringCodec;
 
 public class BinaryDtoDecodePrefixTests{
 
-	public static class TestDto extends BinaryDto<TestDto>{
+	private static final byte[] ZERO = new byte[]{0};
+	private static final byte[] ONE = new byte[]{1};
+
+	public static class TestDto extends ComparableBinaryDto<TestDto>{
 		public final int f1;
 		public final short[] f2;
 		public final String f3;
@@ -40,31 +48,30 @@ public class BinaryDtoDecodePrefixTests{
 
 	private static final TestDto DTO = new TestDto(
 			9,
-			new short[]{1, 2},
+			new short[]{5, 6},
 			"hello",
 			(short)7);
 
-	private static final byte[] BYTES_F1 = {
-			Byte.MIN_VALUE, 0, 0, 9};//f1 value
-	private static final byte[] BYTES_F2 = {
-			1,//f2 present
-			2,//f2 size,
-			Byte.MIN_VALUE, 1,//f2 value 0
-			Byte.MIN_VALUE, 2};//f2 value 1
-	private static final byte[] BYTES_F3 = {
-			1,//f3 present
-			'h', 'e', 'l', 'l', 'o',//f3 value
-			0};//f3 terminator
-	private static final byte[] BYTES_F4 = {
-			1,//f4 present
-			Byte.MIN_VALUE, 7};
+	private static final byte[] BYTES_F1 = ByteTool.concat(new IntBinaryDtoFieldCodec().encode(9));
+	private static final byte[] BYTES_F2 = ByteTool.concat(
+			ONE,
+			new ShortArrayBinaryDtoFieldCodec().encode(new short[]{5, 6}), ZERO);
+	private static final byte[] BYTES_F3 = ByteTool.concat(ONE, new Utf8BinaryDtoFieldCodec().encode("hello"), ZERO);
+	private static final byte[] BYTES_F4 = ByteTool.concat(ONE, new ShortBinaryDtoFieldCodec().encode((short)7));
+	static{
+		Console.println(CsvIntByteStringCodec.INSTANCE.encode(BYTES_F1));
+		Console.println(CsvIntByteStringCodec.INSTANCE.encode(BYTES_F2));
+		Console.println(CsvIntByteStringCodec.INSTANCE.encode(BYTES_F3));
+		Console.println(CsvIntByteStringCodec.INSTANCE.encode(BYTES_F4));
+	}
 
-	private static final BinaryDtoCodec<TestDto> CODEC = BinaryDtoCodec.of(TestDto.class);
+	private static final BinaryDtoComparableCodec<TestDto> CODEC = BinaryDtoComparableCodec.of(TestDto.class);
 
 	@Test
 	public void testEncoding(){
 		byte[] expectedBytes = ByteTool.concat(BYTES_F1, BYTES_F2, BYTES_F3, BYTES_F4);
 		byte[] actualBytes = CODEC.encode(DTO);
+		Console.println(CsvIntByteStringCodec.INSTANCE.encode(actualBytes));
 		Assert.assertEquals(actualBytes, expectedBytes);
 
 		TestDto actual = CODEC.decode(actualBytes);
@@ -91,9 +98,9 @@ public class BinaryDtoDecodePrefixTests{
 		byte[] actualBytes = CODEC.encodePrefix(DTO, 2);
 		Assert.assertEquals(actualBytes, expectedBytes);
 
-		TestDto actual = CODEC.decodePrefix(actualBytes, 0, 2);
+		TestDto actual = CODEC.decodePrefix(actualBytes, 2);
 		Assert.assertEquals(actual.f1, 9);
-		Assert.assertEquals(actual.f2, new short[]{1, 2});
+		Assert.assertEquals(actual.f2, new short[]{5, 6});
 		Assert.assertNull(actual.f3);
 		Assert.assertNull(actual.f4);
 	}

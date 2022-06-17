@@ -16,6 +16,7 @@
 package io.datarouter.model.field.imp;
 
 import java.util.Map;
+import java.util.Optional;
 
 import com.google.gson.reflect.TypeToken;
 
@@ -30,10 +31,12 @@ public class StringFieldKey extends BaseFieldKey<String,StringFieldKey>{
 	private static final int DEFAULT_MAX_SIZE = CommonFieldSizes.DEFAULT_LENGTH_VARCHAR;
 
 	private final int size;
+	private final boolean validateSize;
 
 	public StringFieldKey(String name){
 		super(name, TypeToken.get(String.class));
 		this.size = DEFAULT_MAX_SIZE;
+		this.validateSize = true;
 	}
 
 	public StringFieldKey(
@@ -43,23 +46,35 @@ public class StringFieldKey extends BaseFieldKey<String,StringFieldKey>{
 			FieldGeneratorType fieldGeneratorType,
 			String defaultValue,
 			int size,
+			boolean validateSize,
 			Map<FieldKeyAttributeKey<?>,FieldKeyAttribute<?>> attributes){
 		super(name, columnName, nullable, TypeToken.get(String.class), fieldGeneratorType, defaultValue, attributes);
 		this.size = size;
+		this.validateSize = validateSize;
 	}
 
 	public StringFieldKey withSize(int sizeOverride){
 		return new StringFieldKey(name, columnName, nullable, fieldGeneratorType, defaultValue, sizeOverride,
-				attributes);
+				validateSize, attributes);
 	}
 
 	public StringFieldKey withColumnName(String columnNameOverride){
 		return new StringFieldKey(name, columnNameOverride, nullable, fieldGeneratorType, defaultValue, size,
-				attributes);
+				validateSize, attributes);
 	}
 
 	public StringFieldKey notNullable(){
-		return new StringFieldKey(name, columnName, false, fieldGeneratorType, defaultValue, size, attributes);
+		return new StringFieldKey(name, columnName, false, fieldGeneratorType, defaultValue, size, validateSize,
+				attributes);
+	}
+
+	/**
+	 * @deprecated Increase the size using .withSize(..) or restrict values to the current size.
+	 */
+	@Deprecated
+	public StringFieldKey disableSizeValidation(){
+		return new StringFieldKey(name, columnName, nullable, fieldGeneratorType, defaultValue, size, false,
+				attributes);
 	}
 
 	@Override
@@ -67,8 +82,22 @@ public class StringFieldKey extends BaseFieldKey<String,StringFieldKey>{
 		return false;
 	}
 
+	@Override
+	public boolean isPossiblyCaseInsensitive(){
+		return true;
+	}
+
+	@Override
+	public Optional<Integer> findSize(){
+		return Optional.of(size);
+	}
+
 	public int getSize(){
 		return size;
+	}
+
+	public boolean shouldValidateSize(){
+		return validateSize;
 	}
 
 	@Override

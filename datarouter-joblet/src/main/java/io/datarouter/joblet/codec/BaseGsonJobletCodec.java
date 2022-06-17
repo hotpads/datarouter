@@ -35,7 +35,7 @@ public abstract class BaseGsonJobletCodec<P> implements JobletCodec<P>{
 
 	@Override
 	public String marshallData(P params){
-		return GsonTool.JAVA9_GSON.toJson(params);
+		return GsonTool.GSON.toJson(params);
 	}
 
 	@Override

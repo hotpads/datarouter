@@ -39,6 +39,7 @@ import io.datarouter.client.hbase.util.HBaseScanBuilder;
 import io.datarouter.client.hbase.util.HBaseTableTool;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.entity.Entity;
+import io.datarouter.model.field.FieldTool;
 import io.datarouter.model.key.entity.EntityKey;
 import io.datarouter.model.key.entity.EntityPartitioner;
 import io.datarouter.model.key.primary.EntityPrimaryKey;
@@ -202,6 +203,9 @@ implements MapStorageReader<PK,D>, SortedStorageReader<PK,D>{
 			return getResults(Collections.singleton(range.getStart()), config, keysOnly);
 		}
 		Range<Bytes> byteRange = range.map(queryBuilder::getPkByteRange);
+		PK rangeStart = range.getStart();
+		boolean startIsFullKey = range.hasStart()
+				&& FieldTool.countNonNullLeadingFields(rangeStart.getFields()) == rangeStart.getFields().size();
 		int offset = config.findOffset().orElse(0);
 		Integer subscanLimit = config.findLimit().map(limit -> offset + limit).orElse(null);
 		int pageSize = config.findResponseBatchSize().orElse(DEFAULT_SCAN_BATCH_SIZE);
@@ -209,7 +213,7 @@ implements MapStorageReader<PK,D>, SortedStorageReader<PK,D>{
 		boolean cacheBlocks = config.findScannerCaching().orElse(true);
 		Scanner<Result> collatedPartitions = partitioner.scanPrefixes(range)
 				.collate(prefix -> scanResultsInByteRange(prefix, byteRange, pageSize, subscanLimit, prefetch,
-						cacheBlocks, keysOnly), resultComparator);
+						cacheBlocks, keysOnly, startIsFullKey), resultComparator);
 		return ScannerConfigTool.applyOffsetAndLimit(collatedPartitions, config);
 	}
 
@@ -220,12 +224,14 @@ implements MapStorageReader<PK,D>, SortedStorageReader<PK,D>{
 			Integer limit,
 			boolean prefetch,
 			boolean cacheBlocks,
-			boolean keysOnly){
+			boolean keysOnly,
+			boolean startIsFullKey){
 		if(range.isEmpty()){
 			return Scanner.empty();
 		}
 		@SuppressWarnings("resource")
-		var pagingScanner = new ResultPagingScanner(pageSize, prefix, range, limit, cacheBlocks, keysOnly);
+		var pagingScanner = new ResultPagingScanner(pageSize, prefix, range, limit, cacheBlocks, keysOnly,
+				startIsFullKey);
 		Scanner<Result> results = pagingScanner
 				.concat(Scanner::of);
 		if(prefetch){
@@ -241,6 +247,7 @@ implements MapStorageReader<PK,D>, SortedStorageReader<PK,D>{
 		private final Optional<Integer> limit;
 		private final boolean cacheBlocks;
 		private long numFetched;
+		private boolean startIsFullKey;
 		private volatile boolean closed;//volatile for prefetcher
 
 		public ResultPagingScanner(
@@ -249,9 +256,11 @@ implements MapStorageReader<PK,D>, SortedStorageReader<PK,D>{
 				Range<Bytes> range,
 				Integer limit,
 				boolean cacheBlocks,
-				boolean keysOnly){
+				boolean keysOnly,
+				boolean startIsFullKey){
 			super(pageSize);
 			this.prefix = prefix;
+			this.startIsFullKey = startIsFullKey;
 			this.mutableRange = range.clone();
 			this.keysOnly = keysOnly;
 			this.limit = Optional.ofNullable(limit);
@@ -279,6 +288,7 @@ implements MapStorageReader<PK,D>, SortedStorageReader<PK,D>{
 			if(resumeFrom.isPresent()){
 				mutableRange.setStart(resumeFrom.get());
 				mutableRange.setStartInclusive(false);
+				startIsFullKey = true;
 			}
 			int pageLimit = pageSize;
 			if(limit.isPresent()){
@@ -287,7 +297,7 @@ implements MapStorageReader<PK,D>, SortedStorageReader<PK,D>{
 			}
 			List<Result> page;
 			try{
-				page = getPageOfResults(prefix, mutableRange, keysOnly, pageLimit, cacheBlocks);
+				page = getPageOfResults(prefix, mutableRange, keysOnly, pageLimit, cacheBlocks, startIsFullKey);
 				numFetched += page.size();
 				return page;
 			}catch(IOException e){
@@ -309,7 +319,8 @@ implements MapStorageReader<PK,D>, SortedStorageReader<PK,D>{
 			Range<Bytes> rowRange,
 			boolean keysOnly,
 			int limit,
-			boolean cacheBlocks)
+			boolean cacheBlocks,
+			boolean startIsFullKey)
 	throws IOException{
 		Scan scan = new HBaseScanBuilder()
 				.withPrefix(prefix)
@@ -317,6 +328,7 @@ implements MapStorageReader<PK,D>, SortedStorageReader<PK,D>{
 				.withFirstKeyOnly(keysOnly)
 				.withLimit(limit)
 				.withCacheBlocks(cacheBlocks)
+				.withStartIsFullKey(startIsFullKey)
 				.build();
 		try(Table table = getTable();
 			ResultScanner resultScanner = HBaseTableTool.getResultScanner(table, scan)){

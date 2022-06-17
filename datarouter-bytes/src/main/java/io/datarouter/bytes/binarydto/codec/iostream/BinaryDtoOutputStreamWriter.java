@@ -19,17 +19,17 @@ import java.io.OutputStream;
 
 import io.datarouter.bytes.OutputStreamTool;
 import io.datarouter.bytes.VarIntTool;
-import io.datarouter.bytes.binarydto.codec.BinaryDtoCodec;
-import io.datarouter.bytes.binarydto.dto.BinaryDto;
+import io.datarouter.bytes.binarydto.codec.BinaryDtoIndexedCodec;
+import io.datarouter.bytes.binarydto.dto.BaseBinaryDto;
 
-public class BinaryDtoOutputStreamWriter<T extends BinaryDto<T>>
+public class BinaryDtoOutputStreamWriter<T extends BaseBinaryDto<T>>
 implements AutoCloseable{
 
-	private final BinaryDtoCodec<T> codec;
+	private final BinaryDtoIndexedCodec<T> codec;
 	private final OutputStream outputStream;
 
 	public BinaryDtoOutputStreamWriter(Class<T> dtoClass, OutputStream outputStream){
-		this.codec = BinaryDtoCodec.of(dtoClass);
+		this.codec = BinaryDtoIndexedCodec.of(dtoClass);
 		this.outputStream = outputStream;
 	}
 

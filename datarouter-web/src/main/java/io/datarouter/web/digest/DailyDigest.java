@@ -22,7 +22,7 @@ import java.util.Optional;
 import io.datarouter.plugin.PluginConfigKey;
 import io.datarouter.plugin.PluginConfigType;
 import io.datarouter.plugin.PluginConfigValue;
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.DivTag;
 
 public interface DailyDigest extends PluginConfigValue<DailyDigest>{
 
@@ -32,8 +32,8 @@ public interface DailyDigest extends PluginConfigValue<DailyDigest>{
 			.comparing(DailyDigest::getGrouping)
 			.thenComparing(DailyDigest::getTitle);
 
-	Optional<ContainerTag<?>> getPageContent(ZoneId zoneId);
-	Optional<ContainerTag<?>> getEmailContent(ZoneId zoneId);
+	Optional<DivTag> getPageContent(ZoneId zoneId);
+	Optional<DivTag> getEmailContent(ZoneId zoneId);
 
 	DailyDigestGrouping getGrouping();
 	String getTitle();

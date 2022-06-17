@@ -15,6 +15,8 @@
  */
 package io.datarouter.web.js;
 
+import static j2html.TagCreator.script;
+
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
@@ -23,13 +25,12 @@ import java.util.stream.Collectors;
 import io.datarouter.pathnode.PathNode;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.tuple.Twin;
-import j2html.TagCreator;
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.ScriptTag;
 
 public class DatarouterWebJsTool{
 
-	public static ContainerTag<?> makeJsImport(String contextPath, PathNode path){
-		return TagCreator.script()
+	public static ScriptTag makeJsImport(String contextPath, PathNode path){
+		return script()
 				.withSrc(contextPath + path.toSlashedString());
 	}
 

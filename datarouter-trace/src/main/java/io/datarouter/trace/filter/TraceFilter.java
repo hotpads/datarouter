@@ -20,10 +20,9 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -52,9 +51,9 @@ import io.datarouter.instrumentation.trace.Tracer;
 import io.datarouter.instrumentation.trace.TracerThreadLocal;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.instrumentation.trace.W3TraceContext;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.properties.ServerName;
-import io.datarouter.trace.conveyor.local.Trace2ForLocalFilterToMemoryBuffer;
-import io.datarouter.trace.conveyor.publisher.Trace2ForPublisherFilterToMemoryBuffer;
+import io.datarouter.trace.conveyor.TraceBuffers;
 import io.datarouter.trace.service.TraceUrlBuilder;
 import io.datarouter.trace.settings.DatarouterTraceFilterSettingRoot;
 import io.datarouter.util.MxBeans;
@@ -78,8 +77,7 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 
 	private ServerName serverName;
 	private DatarouterTraceFilterSettingRoot traceSettings;
-	private Trace2ForLocalFilterToMemoryBuffer trace2BufferForLocal;
-	private Trace2ForPublisherFilterToMemoryBuffer trace2BufferForPublisher;
+	private TraceBuffers traceBuffers;
 	private TraceUrlBuilder urlBuilder;
 	private CurrentSessionInfo currentSessionInfo;
 	private HandlerMetrics handlerMetrics;
@@ -89,8 +87,7 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 	public void init(FilterConfig filterConfig){
 		DatarouterInjector injector = getInjector(filterConfig.getServletContext());
 		serverName = injector.getInstance(ServerName.class);
-		trace2BufferForLocal = injector.getInstance(Trace2ForLocalFilterToMemoryBuffer.class);
-		trace2BufferForPublisher = injector.getInstance(Trace2ForPublisherFilterToMemoryBuffer.class);
+		traceBuffers = injector.getInstance(TraceBuffers.class);
 		traceSettings = injector.getInstance(DatarouterTraceFilterSettingRoot.class);
 		urlBuilder = injector.getInstance(TraceUrlBuilder.class);
 		currentSessionInfo = injector.getInstance(CurrentSessionInfo.class);
@@ -181,7 +178,16 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 						threadAllocatedBytesEnded);
 
 				Long traceDurationMs = trace2.getDurationInMs();
-				Long cpuTime = saveCpuTime ? TimeUnit.NANOSECONDS.toMillis(cpuTimeEnded - cpuTimeBegin) : null;
+				long mainThreadCpuTimeNs = saveCpuTime ? cpuTimeEnded - cpuTimeBegin : -1;
+				long totalCpuTimeNs = -1;
+				if(saveCpuTime && traceSettings.saveThreadCpuTime.get()){
+					totalCpuTimeNs = mainThreadCpuTimeNs;
+					for(Trace2ThreadDto thread : tracer.getThreadQueue()){
+						totalCpuTimeNs += thread.getCpuTimeEndedNs() - thread.getCpuTimeCreatedNs();
+					}
+				}
+				int childThreadCount = tracer.getThreadQueue().size() + tracer.getDiscardedThreadCount();
+				long totalCpuTimeMs = TimeUnit.NANOSECONDS.toMillis(totalCpuTimeNs);
 				Long threadAllocatedKB = saveAllocatedBytes ? (threadAllocatedBytesEnded - threadAllocatedBytesBegin)
 						/ 1024 : null;
 				String saveReason = null;
@@ -197,6 +203,9 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 					}
 					if(errored){
 						saveReason = "error";
+					}
+					if(totalCpuTimeMs > traceSettings.saveTracesCpuOverMs.get()){
+						saveReason = "cpu";
 					}
 				}
 				if(saveReason != null){
@@ -216,13 +225,26 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 					String destination = offerTrace2(
 							new Trace2BundleDto(trace2, threads, spans),
 							httpRequestRecord);
-					logger.warn("Trace saved to={} traceparent={} initialParentId={} durationMs={}"
-							+ " cpuTimeMs={} threadAllocatedKB={} path={} query={} userAgent=\"{}\" userToken={}",
+					logger.warn("Trace saved"
+							+ " to={}"
+							+ " traceparent={}"
+							+ " initialParentId={}"
+							+ " durationMs={}"
+							+ " mainThreadCpuTimeMs={}"
+							+ " totalCpuTimeMs={}"
+							+ " childThreadCount={}"
+							+ " threadAllocatedKB={}"
+							+ " path={}"
+							+ " query={}"
+							+ " userAgent=\"{}\""
+							+ " userToken={}",
 							destination,
 							traceparent,
 							initialParentId,
 							traceDurationMs,
-							cpuTime,
+							TimeUnit.NANOSECONDS.toMillis(mainThreadCpuTimeNs),
+							totalCpuTimeMs,
+							childThreadCount,
 							threadAllocatedKB,
 							trace2.type,
 							trace2.params,
@@ -231,10 +253,20 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 				}else if(traceDurationMs > traceSettings.logTracesOverMs.get()
 						|| TracerTool.shouldLog()){
 					// only log once
-					logger.warn("Trace logged durationMs={} cpuTimeMs={} threadAllocatedKB={} path={}"
-							+ " query={}, traceparent={}",
+					logger.warn("Trace logged"
+							+ " traceparent={}"
+							+ " durationMs={}"
+							+ " mainThreadCpuTimeMs={}"
+							+ " totalCpuTimeMs={}"
+							+ " childThreadCount={}"
+							+ " threadAllocatedKB={}"
+							+ " path={}"
+							+ " query={}",
+							traceparent,
 							traceDurationMs,
-							cpuTime,
+							TimeUnit.NANOSECONDS.toMillis(mainThreadCpuTimeNs),
+							totalCpuTimeMs,
+							childThreadCount,
 							threadAllocatedKB,
 							trace2.type,
 							trace2.params,
@@ -248,6 +280,10 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 					Class<? extends BaseHandler> handlerClass = handlerClassOpt.get();
 					if(traceSettings.latencyRecordedHandlers.get().contains(handlerClass.getName())){
 						handlerMetrics.saveMethodLatency(handlerClass, handlerMethodOpt.get(), traceDurationMs);
+					}
+					handlerMetrics.incDuration(handlerClass, handlerMethodOpt.get(), traceDurationMs);
+					if(totalCpuTimeNs != -1){
+						handlerMetrics.incTotalCpuTime(handlerClass, handlerMethodOpt.get(), totalCpuTimeMs);
 					}
 				}
 			}
@@ -278,7 +314,9 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 				traceparent.traceId,
 				traceparent.parentId,
 				request.getMethod(),
-				GsonTool.GSON.toJson(request.getParameterMap()),
+				Optional.ofNullable(request.getParameterMap())//TODO is it nullable?
+						.map(TraceFilter::formatParamMap)
+						.orElse(null),
 				request.getScheme(),
 				request.getServerName(),
 				request.getServerPort(),
@@ -320,21 +358,28 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 	private static byte[] getBinaryBody(HttpServletRequest request){
 		if(RequestAttributeTool.get(request, Dispatcher.TRANSMITS_PII).orElse(false)){
 			return HttpRequestRecordDto.CONFIDENTIALITY_MSG_BYTES;
-		}else{
-			byte[] binaryBody = RequestTool.tryGetBodyAsByteArray(request);
-			int originalLength = binaryBody.length;
-			return originalLength > HttpRequestRecordDto.BINARY_BODY_MAX_SIZE ? ArrayTool.trimToSize(binaryBody,
-					HttpRequestRecordDto.BINARY_BODY_MAX_SIZE) : binaryBody;
 		}
+		byte[] binaryBody = RequestTool.tryGetBodyAsByteArray(request);
+		int originalLength = binaryBody.length;
+		return originalLength > HttpRequestRecordDto.BINARY_BODY_MAX_SIZE
+				? ArrayTool.trimToSize(binaryBody, HttpRequestRecordDto.BINARY_BODY_MAX_SIZE)
+				: binaryBody;
+	}
+
+	private static String formatParamMap(Map<String,String[]> paramMap){
+		Map<String,List<String>> trimmed = Scanner.of(paramMap.entrySet())
+				.toMap(entry -> entry.getKey(),
+						entry -> Scanner.of(entry.getValue())
+								.limit(10)
+								.map(str -> StringTool.trimToSize(str, 100))
+								.list());
+		return GsonTool.GSON.toJson(trimmed);
 	}
 
 	private String offerTrace2(Trace2BundleDto traceBundle, HttpRequestRecordDto httpRequestRecord){
 		Trace2BundleAndHttpRequestRecordDto traceAndHttpRequest = new Trace2BundleAndHttpRequestRecordDto(traceBundle,
 				httpRequestRecord);
-		return Stream.of(trace2BufferForLocal.offer(traceAndHttpRequest), trace2BufferForPublisher.offer(
-				traceAndHttpRequest))
-				.flatMap(Optional::stream)
-				.collect(Collectors.joining(", "));
+		return traceBuffers.offer(traceAndHttpRequest).orElse("");
 	}
 
 }

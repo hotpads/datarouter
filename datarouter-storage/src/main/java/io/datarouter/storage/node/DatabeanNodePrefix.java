@@ -92,7 +92,6 @@ public class DatabeanNodePrefix{
 
 	private String makeNodeVersion(){
 		return Optional.ofNullable(params.getSchemaVersion())
-				.map(Object::toString)
 				.orElse("");
 	}
 

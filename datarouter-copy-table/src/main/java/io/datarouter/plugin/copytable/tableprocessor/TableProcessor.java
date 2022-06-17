@@ -19,8 +19,24 @@ import java.util.function.Consumer;
 
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
+import io.datarouter.plugin.PluginConfigKey;
+import io.datarouter.plugin.PluginConfigType;
+import io.datarouter.plugin.PluginConfigValue;
 import io.datarouter.scanner.Scanner;
 
-public interface TableProcessor<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
-extends Consumer<Scanner<D>>{
+public interface TableProcessor<
+		PK extends PrimaryKey<PK>,
+		D extends Databean<PK,D>>
+extends Consumer<Scanner<D>>,
+		PluginConfigValue<TableProcessor<?,?>>{
+
+	public static final PluginConfigKey<TableProcessor<?,?>> KEY = new PluginConfigKey<>(
+			"tableProcessor",
+			PluginConfigType.CLASS_LIST);
+
+	@Override
+	default PluginConfigKey<TableProcessor<?,?>> getKey(){
+		return KEY;
+	}
+
 }

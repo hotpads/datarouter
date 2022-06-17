@@ -58,6 +58,26 @@ public class ConveyorMessage extends BaseDatabean<ConveyorMessageKey,ConveyorMes
 
 	}
 
+	//be careful with message size when using this fielder (if too big, exceptions will be thrown)
+	public static class UnlimitedSizeConveyorMessageFielder
+	extends BaseDatabeanFielder<ConveyorMessageKey,ConveyorMessage>{
+
+		public UnlimitedSizeConveyorMessageFielder(){
+			super(ConveyorMessageKey::new);
+		}
+
+		@Override
+		public List<Field<?>> getNonKeyFields(ConveyorMessage databean){
+			return List.of(new StringField(FieldKeys.message.withSize(Integer.MAX_VALUE), databean.message));
+		}
+
+		@Override
+		public Class<? extends StringDatabeanCodec> getStringDatabeanCodecClass(){
+			return FlatKeyJsonDatabeanCodec.class;
+		}
+
+	}
+
 	public ConveyorMessage(){
 		super(new ConveyorMessageKey());
 	}

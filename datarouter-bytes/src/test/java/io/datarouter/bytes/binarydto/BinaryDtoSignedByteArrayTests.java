@@ -20,16 +20,14 @@ import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.bytes.ByteTool;
-import io.datarouter.bytes.binarydto.codec.BinaryDtoCodec;
-import io.datarouter.bytes.binarydto.dto.BinaryDto;
 import io.datarouter.bytes.binarydto.dto.BinaryDtoField;
+import io.datarouter.bytes.binarydto.dto.ComparableBinaryDto;
 import io.datarouter.bytes.binarydto.fieldcodec.array.SignedByteArrayBinaryDtoFieldCodec;
 import io.datarouter.scanner.Scanner;
 
 public class BinaryDtoSignedByteArrayTests{
 
-	public static class EncodeTestDto extends BinaryDto<EncodeTestDto>{
+	public static class EncodeTestDto extends ComparableBinaryDto<EncodeTestDto>{
 		@BinaryDtoField(codec = SignedByteArrayBinaryDtoFieldCodec.class)
 		public final byte[] f1;
 		@BinaryDtoField(codec = SignedByteArrayBinaryDtoFieldCodec.class)
@@ -46,30 +44,16 @@ public class BinaryDtoSignedByteArrayTests{
 
 	@Test
 	public void testEncoding(){
-		var codec = BinaryDtoCodec.of(EncodeTestDto.class);
 		var dto = new EncodeTestDto(
 				new byte[]{'M', 'a', 't', 't'},
 				null,
 				new byte[]{});
-		byte[] expectedBytes = {
-				1,//f1 present
-				4,//f1 length 4
-				ByteTool.getComparableByte((byte)77),//M
-				ByteTool.getComparableByte((byte)97),//a
-				ByteTool.getComparableByte((byte)116),//t
-				ByteTool.getComparableByte((byte)116),//t
-				0,//f2 null
-				1,//f3 present
-				0};//f3 length 0
-		byte[] actualBytes = codec.encode(dto);
-		Assert.assertEquals(actualBytes, expectedBytes);
-
-		EncodeTestDto actual = codec.decode(actualBytes);
-		Assert.assertEquals(actual, dto);
+		Assert.assertEquals(dto.cloneIndexed(), dto);
+		Assert.assertEquals(dto.cloneComparable(), dto);
 	}
 
 
-	public static class CompareTestDto extends BinaryDto<EncodeTestDto>{
+	public static class CompareTestDto extends ComparableBinaryDto<EncodeTestDto>{
 		@BinaryDtoField(codec = SignedByteArrayBinaryDtoFieldCodec.class)
 		public final byte[] f1;
 
@@ -85,7 +69,7 @@ public class BinaryDtoSignedByteArrayTests{
 		var dto3 = new CompareTestDto(new byte[]{1});
 		var dto4 = new CompareTestDto(new byte[]{1, 0});
 		List<CompareTestDto> unsorted = List.of(dto1, dto2, dto3, dto4);
-		List<CompareTestDto> expected = List.of(dto2, dto3, dto1, dto4);
+		List<CompareTestDto> expected = List.of(dto2, dto1, dto3, dto4);
 		List<CompareTestDto> actual = Scanner.of(unsorted).sort().list();
 		Assert.assertEquals(actual, expected);
 	}

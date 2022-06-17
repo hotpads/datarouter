@@ -20,7 +20,6 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.h2;
 
 import java.time.ZoneId;
-import java.util.Date;
 import java.util.Optional;
 
 import javax.inject.Inject;
@@ -41,7 +40,7 @@ import io.datarouter.web.html.j2html.J2HtmlLegendTable;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import io.datarouter.web.user.session.CurrentUserSessionInfoService;
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.DivTag;
 
 public class EditChangelogHandler extends BaseHandler{
 
@@ -72,10 +71,10 @@ public class EditChangelogHandler extends BaseHandler{
 		ChangelogKey key = new ChangelogKey(reversedDateMs, changelogType, name);
 		Changelog changelog = dao.get(key);
 
-		var table = new J2HtmlLegendTable()
+		DivTag table = new J2HtmlLegendTable()
 				.withClass("table table-sm border table-striped")
 				.withSingleRow(false)
-				.withEntry("Date", getDate(changelog))
+				.withEntry("Date", printDate(changelog))
 				.withEntry("Changelog Type", changelog.getKey().getChangelogType())
 				.withEntry("Name", changelog.getKey().getName())
 				.withEntry("Action", changelog.getAction())
@@ -110,7 +109,7 @@ public class EditChangelogHandler extends BaseHandler{
 
 	private static class Html{
 
-		public static ContainerTag<?> makeContent(ContainerTag<?> table, HtmlForm htmlForm){
+		public static DivTag makeContent(DivTag table, HtmlForm htmlForm){
 			var form = Bootstrap4FormHtml.render(htmlForm)
 					.withClass("card card-body bg-light");
 			return div(
@@ -123,11 +122,10 @@ public class EditChangelogHandler extends BaseHandler{
 
 	}
 
-	private String getDate(Changelog row){
+	private String printDate(Changelog row){
 		ZoneId zoneId = sessionInfoService.getZoneId(request);
-		Long reversedDateMs = row.getKey().getReversedDateMs();
-		Date date = new Date(Long.MAX_VALUE - reversedDateMs);
-		return ZonedDateFormatterTool.formatDateWithZone(date, zoneId);
+		long reversedDateMs = row.getKey().getReversedDateMs();
+		return ZonedDateFormatterTool.formatReversedLongMsWithZone(reversedDateMs, zoneId);
 	}
 
 }

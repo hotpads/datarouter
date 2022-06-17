@@ -23,7 +23,7 @@ import j2html.tags.specialized.PreTag;
 public interface DatabaseAdministrationConfiguration{
 
 	PreTag fixDatabaseDns(DnsHostEntryDto dnsHostEntryDto);
-	void addOtherDatabaseDns(String clusterName);
+	void addOtherDatabaseDns(String clusterName, String region);
 	void removeOtherDatabaseDns(String instanceName);
 
 	class NoOpDatabaseAdministrationConfiguration implements DatabaseAdministrationConfiguration{
@@ -34,7 +34,7 @@ public interface DatabaseAdministrationConfiguration{
 		}
 
 		@Override
-		public void addOtherDatabaseDns(String clusterName){
+		public void addOtherDatabaseDns(String clusterName, String region){
 		}
 
 		@Override

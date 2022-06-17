@@ -40,6 +40,7 @@ public class MimeMessageTool{
 			InputStreamDataSource dataSource = new InputStreamDataSource(emailFileAttachmentDto);
 			attachmentBodyPart.setDataHandler(new DataHandler(dataSource));
 			attachmentBodyPart.setFileName(emailFileAttachmentDto.fileName);
+			emailFileAttachmentDto.modifier.modify(attachmentBodyPart);
 			return attachmentBodyPart;
 		}catch(MessagingException e){
 			throw new RuntimeException(e);

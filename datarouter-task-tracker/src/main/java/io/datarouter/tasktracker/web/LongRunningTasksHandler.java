@@ -42,7 +42,7 @@ import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.types.optional.OptionalString;
 import io.datarouter.web.html.j2html.J2HtmlLegendTable;
 import io.datarouter.web.user.session.CurrentUserSessionInfoService;
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.DivTag;
 
 public class LongRunningTasksHandler extends BaseHandler{
 
@@ -72,7 +72,7 @@ public class LongRunningTasksHandler extends BaseHandler{
 			filteredStatus = null;
 		}else{
 			filteredStatus = status
-					.map(LongRunningTaskStatus::fromPersistentStringStatic)
+					.map(LongRunningTaskStatus.BY_PERSISTENT_STRING::fromOrNull)
 					.orElse(LongRunningTaskStatus.RUNNING);
 		}
 		ZoneId zoneId = currentUserSessionInfoService.getZoneId(request);
@@ -82,13 +82,12 @@ public class LongRunningTasksHandler extends BaseHandler{
 				.map(task -> new LongRunningTaskJspDto(task, zoneId))
 				.list();
 		Set<Pair<String,String>> statuses = Arrays.stream(LongRunningTaskStatus.values())
-				.map(jobExecutionStatus -> new Pair<>(jobExecutionStatus.name(), jobExecutionStatus
-						.getPersistentString()))
+				.map(jobExecutionStatus -> new Pair<>(jobExecutionStatus.name(), jobExecutionStatus.persistentString))
 				.collect(Collectors.toSet());
 		mav.put("longRunningTasks", longRunningTasks);
 		mav.put("statuses", statuses);
 		mav.put("allStatusesValue", ALL_STATUSES_VALUE);
-		mav.put("displayedStatus", showAllStatuses ? ALL_STATUSES_VALUE : filteredStatus.getPersistentString());
+		mav.put("displayedStatus", showAllStatuses ? ALL_STATUSES_VALUE : filteredStatus.persistentString);
 		if(!showAllStatuses){
 			mav.put("filteringStatusName", filteredStatus.name());
 		}
@@ -97,7 +96,7 @@ public class LongRunningTasksHandler extends BaseHandler{
 		return mav;
 	}
 
-	public static ContainerTag<?> legend(){
+	public static DivTag legend(){
 		var table = new J2HtmlLegendTable()
 				.withHeader("Legend")
 				.withClass("table table-sm my-4 border")
@@ -130,9 +129,9 @@ public class LongRunningTasksHandler extends BaseHandler{
 		private final ZoneId zoneId;
 
 		public LongRunningTaskJspDto(LongRunningTask task, ZoneId zoneId){
-			this.status = task.getJobExecutionStatus().getPersistentString();
+			this.status = task.getJobExecutionStatus().persistentString;
 			this.heartbeatStatus = task.getHeartbeatStatus() == null ? null
-					: task.getHeartbeatStatus().getPersistentString();
+					: task.getHeartbeatStatus().status;
 			this.name = task.getKey().getName();
 			this.serverName = task.getKey().getServerName();
 			this.triggerTime = task.getKey().getTriggerTime();

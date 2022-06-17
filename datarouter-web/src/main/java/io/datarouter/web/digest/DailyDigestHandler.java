@@ -36,7 +36,9 @@ import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import io.datarouter.web.requirejs.DatarouterWebRequireJsV2;
 import io.datarouter.web.user.session.CurrentUserSessionInfoService;
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.H2Tag;
+import j2html.tags.specialized.UlTag;
 
 public class DailyDigestHandler extends BaseHandler{
 
@@ -66,13 +68,13 @@ public class DailyDigestHandler extends BaseHandler{
 				.sort(Comparator.comparing(Pair::getLeft, DailyDigest.COMPARATOR))
 				.list();
 
-		ContainerTag<?> content;
+		DivTag content;
 		if(digestsWithContent.isEmpty()){
 			content = div("No content for the daily digest.")
 					.withClass("container-fluid");
 		}else{
-			ContainerTag<?> header = h2("Daily Digest - " + type.display);
-			ContainerTag<?> toc = ul(each(digestsWithContent, digestWithContent -> {
+			H2Tag header = h2("Daily Digest - " + type.display);
+			UlTag toc = ul(each(digestsWithContent, digestWithContent -> {
 				DailyDigest digest = digestWithContent.getLeft();
 				return li(a(digest.getTitle()).withHref("#" + digest.getId()));
 			}));

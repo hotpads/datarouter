@@ -22,14 +22,15 @@ import io.datarouter.instrumentation.trace.Trace2SpanDto;
 import io.datarouter.instrumentation.trace.Traceparent;
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
+import io.datarouter.model.field.codec.StringMappedEnumFieldCodec;
+import io.datarouter.model.field.imp.StringEncodedField;
+import io.datarouter.model.field.imp.StringEncodedFieldKey;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
 import io.datarouter.model.field.imp.comparable.IntegerField;
 import io.datarouter.model.field.imp.comparable.IntegerFieldKey;
 import io.datarouter.model.field.imp.comparable.LongField;
 import io.datarouter.model.field.imp.comparable.LongFieldKey;
-import io.datarouter.model.field.imp.enums.StringEnumField;
-import io.datarouter.model.field.imp.enums.StringEnumFieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 import io.datarouter.model.util.CommonFieldSizes;
 import io.datarouter.trace.storage.trace.Trace2;
@@ -53,9 +54,11 @@ extends BaseDatabean<Trace2SpanKey,Trace2Span>{
 				.withColumnName("parentSequence2");
 		public static final StringFieldKey name = new StringFieldKey("name")
 				.withSize(CommonFieldSizes.MAX_LENGTH_TEXT);
-		public static final StringEnumFieldKey<Trace2SpanGroupType> groupType = new StringEnumFieldKey<>("groupType",
-				Trace2SpanGroupType.class);
-		public static final StringFieldKey info = new StringFieldKey("info");
+		public static final StringEncodedFieldKey<Trace2SpanGroupType> groupType = new StringEncodedFieldKey<>(
+				"groupType",
+				new StringMappedEnumFieldCodec<>(Trace2SpanGroupType.BY_PERSISTENT_STRING));
+		public static final StringFieldKey info = new StringFieldKey("info")
+				.withSize(CommonFieldSizes.MAX_CHARACTERS_SPANNER);
 		public static final LongFieldKey created = new LongFieldKey("created")
 				.withColumnName("created2");
 		public static final LongFieldKey ended = new LongFieldKey("ended")
@@ -82,7 +85,7 @@ extends BaseDatabean<Trace2SpanKey,Trace2Span>{
 			return List.of(
 					new IntegerField(FieldKeys.parentSequence, databean.parentSequence),
 					new StringField(FieldKeys.name, databean.name),
-					new StringEnumField<>(FieldKeys.groupType, databean.groupType),
+					new StringEncodedField<>(FieldKeys.groupType, databean.groupType),
 					new StringField(FieldKeys.info, databean.info),
 					new LongField(FieldKeys.created, databean.created),
 					new LongField(FieldKeys.ended, databean.ended),
@@ -106,7 +109,7 @@ extends BaseDatabean<Trace2SpanKey,Trace2Span>{
 		this.parentSequence = dto.parentSequence;
 		this.name = dto.name;
 		this.groupType = dto.groupType != null
-				? Trace2SpanGroupType.fromPersistentStringStatic(dto.groupType.type)
+				? Trace2SpanGroupType.BY_PERSISTENT_STRING.fromOrNull(dto.groupType.type)
 				: null;
 		this.created = dto.created;
 		this.ended = dto.getEnded();

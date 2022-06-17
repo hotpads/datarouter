@@ -70,12 +70,12 @@ public class JobletHandler extends BaseHandler{
 			@Param(PARAM_type) OptionalString pType){
 		Scanner<JobletRequest> requests = jobletRequestDao.scan();
 		if(pStatus.isPresent() && pType.isPresent()){
-			JobletStatus status = JobletStatus.fromPersistentStringStatic(pStatus.get());
+			JobletStatus status = JobletStatus.BY_PERSISTENT_STRING.fromOrNull(pStatus.get());
 			requests = requests
 					.include(request -> status == request.getStatus())
 					.include(request -> request.getKey().getType().equals(pType.get()));
 		}else if(pStatus.isPresent() && pType.isEmpty()){
-			JobletStatus status = JobletStatus.fromPersistentStringStatic(pStatus.get());
+			JobletStatus status = JobletStatus.BY_PERSISTENT_STRING.fromOrNull(pStatus.get());
 			requests = requests
 					.include(request -> status == request.getStatus());
 		}else if(pStatus.isEmpty() && pType.isPresent()){
@@ -105,7 +105,7 @@ public class JobletHandler extends BaseHandler{
 							.orElse(td(text));
 				})
 				.withColumn("Execution order", JobletSummary::getExecutionOrder)
-				.withColumn("Status", row -> row.getStatus().getPersistentString())
+				.withColumn("Status", row -> row.getStatus().persistentString)
 				.withHtmlColumn("Num Joblets", row -> tdAlignRight(NumberFormatter.addCommas(row.getNumType())))
 				.withHtmlColumn("Sum items", row -> tdAlignRight(NumberFormatter.addCommas(row.getSumItems())))
 				.withHtmlColumn("Avg items", row -> tdAlignRight(NumberFormatter.format(row.getAvgItems(), 1)))

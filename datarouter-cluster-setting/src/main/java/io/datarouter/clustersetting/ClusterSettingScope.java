@@ -15,36 +15,31 @@
  */
 package io.datarouter.clustersetting;
 
-import io.datarouter.enums.StringEnum;
+import io.datarouter.enums.StringMappedEnum;
 import io.datarouter.storage.servertype.ServerType;
 import io.datarouter.util.lang.ObjectTool;
 import io.datarouter.util.string.StringTool;
 
-public enum ClusterSettingScope implements StringEnum<ClusterSettingScope>{
+public enum ClusterSettingScope{
 	DEFAULT_SCOPE("defaultScope", 1000),
 	SERVER_TYPE("serverType", 100),
 	SERVER_NAME("serverName", 10);
 
-	private final String persistentString;
-	private final int specificity;
+	public static final StringMappedEnum<ClusterSettingScope> BY_PERSISTENT_STRING
+			= new StringMappedEnum<>(values(), value -> value.persistentString, 20);
+
+	public final String persistentString;
+	public final int specificity;
 
 	ClusterSettingScope(String persistentString, int specificity){
 		this.persistentString = persistentString;
 		this.specificity = specificity;
 	}
 
-	@Override
+
+	//used directly in a JSP
 	public String getPersistentString(){
 		return persistentString;
-	}
-
-	public static ClusterSettingScope fromPersistentStringStatic(String str){
-		return StringEnum.getEnumFromString(values(), str, null);
-	}
-
-	@Override
-	public ClusterSettingScope fromPersistentString(String str){
-		return fromPersistentStringStatic(str);
 	}
 
 	public static ClusterSettingScope fromParams(ServerType serverType, String serverName){
@@ -59,10 +54,6 @@ public enum ClusterSettingScope implements StringEnum<ClusterSettingScope>{
 			return ClusterSettingScope.SERVER_TYPE;
 		}
 		return ClusterSettingScope.DEFAULT_SCOPE;
-	}
-
-	public int getSpecificity(){
-		return specificity;
 	}
 
 }

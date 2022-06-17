@@ -24,9 +24,6 @@ import java.util.function.Supplier;
 import io.datarouter.client.memcached.client.DatarouterMemcachedClient;
 import io.datarouter.client.memcached.codec.MemcachedTallyCodec;
 import io.datarouter.client.memcached.util.MemcachedExpirationTool;
-import io.datarouter.model.databean.Databean;
-import io.datarouter.model.key.primary.PrimaryKey;
-import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.scanner.OptionalScanner;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientType;
@@ -34,14 +31,14 @@ import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.op.raw.TallyStorage.PhysicalTallyStorageNode;
 import io.datarouter.storage.node.type.physical.base.BasePhysicalNode;
+import io.datarouter.storage.tally.Tally;
+import io.datarouter.storage.tally.Tally.TallyFielder;
+import io.datarouter.storage.tally.TallyKey;
 import io.datarouter.util.tuple.Pair;
 
-public class MemcachedTallyNode<
-		PK extends PrimaryKey<PK>,
-		D extends Databean<PK,D>,
-		F extends DatabeanFielder<PK,D>>
-extends BasePhysicalNode<PK,D,F>
-implements PhysicalTallyStorageNode<PK,D,F>{
+public class MemcachedTallyNode
+extends BasePhysicalNode<TallyKey,Tally,TallyFielder>
+implements PhysicalTallyStorageNode{
 
 	private static final Boolean DEFAULT_IGNORE_EXCEPTION = true;
 
@@ -49,7 +46,7 @@ implements PhysicalTallyStorageNode<PK,D,F>{
 	private final MemcachedTallyCodec tallyCodec;
 
 	public MemcachedTallyNode(
-			NodeParams<PK,D,F> params,
+			NodeParams<TallyKey,Tally,TallyFielder> params,
 			ClientType<?,?> clientType,
 			MemcachedTallyCodec tallyCodec,
 			Supplier<DatarouterMemcachedClient> lazyClient){
@@ -67,7 +64,7 @@ implements PhysicalTallyStorageNode<PK,D,F>{
 						encodedKey,
 						delta,
 						MemcachedExpirationTool.getExpirationSeconds(config),
-						config.ignoreExceptionOrUse(DEFAULT_IGNORE_EXCEPTION)))
+						config.findIgnoreException().orElse(DEFAULT_IGNORE_EXCEPTION)))
 				.orElse(0L);
 	}
 
@@ -85,7 +82,7 @@ implements PhysicalTallyStorageNode<PK,D,F>{
 						getName(),
 						memcachedStringKeys,
 						config.getTimeout().toMillis(),
-						config.ignoreExceptionOrUse(DEFAULT_IGNORE_EXCEPTION)))
+						config.findIgnoreException().orElse(DEFAULT_IGNORE_EXCEPTION)))
 				.map(tallyCodec::decodeResult)
 				.toMap(Pair::getLeft, Pair::getRight);
 	}
@@ -97,7 +94,12 @@ implements PhysicalTallyStorageNode<PK,D,F>{
 						getName(),
 						memcachedStringKey,
 						config.getTimeout(),
-						config.ignoreExceptionOrUse(DEFAULT_IGNORE_EXCEPTION)));
+						config.findIgnoreException().orElse(DEFAULT_IGNORE_EXCEPTION)));
+	}
+
+	@Override
+	public void vacuum(Config config){
+		throw new UnsupportedOperationException();
 	}
 
 }

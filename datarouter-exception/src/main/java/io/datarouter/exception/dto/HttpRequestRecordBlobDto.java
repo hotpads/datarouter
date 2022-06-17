@@ -78,7 +78,7 @@ public class HttpRequestRecordBlobDto{
 
 	private static List<HttpRequestRecordDto> deserializeHttpRequestRecordItems(String lines){
 		return Scanner.of(lines.split("\n"))
-				.map(line -> GsonTool.JAVA9_GSON.fromJson(line, HttpRequestRecordDto.class))
+				.map(line -> GsonTool.GSON.fromJson(line, HttpRequestRecordDto.class))
 				.list();
 	}
 
@@ -100,7 +100,7 @@ public class HttpRequestRecordBlobDto{
 
 		//format for each item: <name>\t<ulid>\t<value>, with newlines in between
 		public void append(HttpRequestRecordDto item){
-			String json = GsonTool.JAVA9_GSON.toJson(item);
+			String json = GsonTool.GSON.toJson(item);
 			int length = json.length();
 			//discard items that will never fit
 			if(length > maxLength){

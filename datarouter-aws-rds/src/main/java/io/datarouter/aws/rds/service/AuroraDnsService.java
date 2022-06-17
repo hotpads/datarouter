@@ -59,13 +59,16 @@ public class AuroraDnsService{
 
 	Map<String,DnsHostEntryDto> dnsEntryByHostname = new HashMap<>();
 
-	public Map<String,DnsHostEntryDto> getDnsEntryForClients(){
+	public Map<String,DnsHostEntryDto> getDnsEntryForClients(boolean checkOther){
 		List<AuroraClientDto> auroraclientDtos = clientIdProvider.getAuroraClientDtos();
 		for(AuroraClientDto dto : auroraclientDtos){
 			addDnsEntry(dto.getWriterClientId().getName(), dto.getWriterDns(), dto.getClusterName(), true);
 			for(int i = 0; i < dto.getReaderClientIds().size(); i++){
 				addDnsEntry(dto.getReaderClientIds().get(i).getName(), dto.getReaderDnss().get(i),
 						dto.getClusterName(), false);
+			}
+			if(checkOther){
+				addDnsEntry(dto.getOtherName(), dto.getOtherDns(), dto.getClusterName(), false);
 			}
 		}
 		return dnsEntryByHostname;
@@ -85,10 +88,13 @@ public class AuroraDnsService{
 
 	private DnsHostEntryDto tryDnsLookUp(String clientName, String hostname, String clusterName, boolean isWriter)
 	throws IOException, InterruptedException{
+		logger.warn("dnslookup for clientName={}, hostname={}, clusterName={}", clientName, hostname, clusterName);
 		// TODO use DigRunner
 		String ip = null;
 		String instanceHostname = null;
 		String clusterHostname = null;
+		String instanceEndPointSuffix = rdsSettings.rdsInstanceHostnameSuffixEast.get();
+		String region = rdsSettings.eastRegion.get();
 		boolean writer = isWriter;
 		boolean isAuroraInstance = false;
 		String cmd = "dig +short " + hostname;
@@ -100,10 +106,15 @@ public class AuroraDnsService{
 				standardOutput.append(line).append("\n");
 				if(line.matches(IPADDRESS_PATTERN)){
 					ip = line;
-				}else if(line.contains(rdsSettings.rdsClusterEndpoint.get())){
+				}else if(line.contains(rdsSettings.rdsClusterEndpointEast.get())
+						|| line.contains(rdsSettings.rdsClusterEndpointWest.get())){
 					clusterHostname = line;
 				}else if(line.contains(rdsSettings.rdsInstanceEndpoint.get())){
 					instanceHostname = line;
+					if(instanceHostname.contains(rdsSettings.rdsInstanceHostnameSuffixWest.get())){
+						region = rdsSettings.westRegion.get();
+						instanceEndPointSuffix = rdsSettings.rdsInstanceHostnameSuffixWest.get();
+					}
 					isAuroraInstance = true;
 				}
 			}
@@ -118,7 +129,7 @@ public class AuroraDnsService{
 					errorOutput, exitValue);
 		}
 		return new DnsHostEntryDto(clientName, hostname, clusterHostname, writer, instanceHostname, ip,
-				clusterName, isAuroraInstance);
+				clusterName, instanceEndPointSuffix, region, isAuroraInstance);
 	}
 
 	public DnsHostEntryDto getOtherReader(String clientName, String clusterName){
@@ -132,7 +143,7 @@ public class AuroraDnsService{
 	}
 
 	public Pair<Collection<DnsHostEntryDto>,List<DnsHostEntryDto>> checkClientEndpoint(){
-		Map<String,DnsHostEntryDto> dnsEntryByHostname = getDnsEntryForClients();
+		Map<String,DnsHostEntryDto> dnsEntryByHostname = getDnsEntryForClients(false);
 		Set<String> ipSet = new HashSet<>();
 		logger.debug("dnsEntryByHostname={}", gson.toJson(dnsEntryByHostname));
 		List<DnsHostEntryDto> mismatchedEntries = new ArrayList<>();
@@ -182,15 +193,20 @@ public class AuroraDnsService{
 		private final String instanceHostname;
 		private final String ip;
 		private final String clusterName;
+		private final String instanceHostNameSuffix;
+		private final String region;
+
 		private boolean isAuroraInstance = false;
 		private boolean readerPointedToWriter = false;
 		private boolean readerPointerdToWrongReader = false;
 		private boolean writerNotPointedToClusterEndpoint = false;
 
 		public final boolean reader;
+		public String clusterEndPoint;
 
 		public DnsHostEntryDto(String clientName, String hostname, String clusterHostname, boolean writer,
-				String instanceHostname, String ip, String clusterName, boolean isAuroraInstance){
+				String instanceHostname, String ip, String clusterName, String instanceHostNameSuffix,
+				String region, boolean isAuroraInstance){
 			this.clientName = clientName;
 			this.reader = clientName.contains(READER);
 			this.hostname = hostname;
@@ -199,6 +215,8 @@ public class AuroraDnsService{
 			this.instanceHostname = instanceHostname;
 			this.ip = ip;
 			this.clusterName = clusterName;
+			this.instanceHostNameSuffix = instanceHostNameSuffix;
+			this.region = region;
 			this.isAuroraInstance = isAuroraInstance;
 		}
 
@@ -230,6 +248,14 @@ public class AuroraDnsService{
 			return clusterName;
 		}
 
+		public String getRegion(){
+			return region;
+		}
+
+		public String getInstanceHostNameSuffix(){
+			return instanceHostNameSuffix;
+		}
+
 		public boolean isReaderPointedToWriter(){
 			return readerPointedToWriter;
 		}
@@ -257,7 +283,6 @@ public class AuroraDnsService{
 		public void setReaderPointedToWrongReaderFlag(){
 			this.readerPointerdToWrongReader = true;
 		}
-
 
 	}
 

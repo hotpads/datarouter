@@ -33,8 +33,8 @@ import io.datarouter.web.handler.mav.MavProperties;
 import io.datarouter.web.handler.mav.MavPropertiesFactory;
 import io.datarouter.web.html.j2html.J2HtmlTool;
 import io.datarouter.web.js.DatarouterWebJsTool;
-import j2html.tags.ContainerTag;
 import j2html.tags.EmptyTag;
+import j2html.tags.specialized.ScriptTag;
 
 @Singleton
 public class DatarouterNavbarFactory{
@@ -80,7 +80,7 @@ public class DatarouterNavbarFactory{
 				makeNavbarRequestTimingScript(contextPath));
 	}
 
-	public static ContainerTag<?> makeNavbarRequestTimingScript(String contextPath){
+	public static ScriptTag makeNavbarRequestTimingScript(String contextPath){
 		String rawHtml = String.format("addNavbarRequestTiming('%s')", contextPath);
 		return script(rawHtml(rawHtml));
 	}
@@ -124,7 +124,7 @@ public class DatarouterNavbarFactory{
 				makeNavbarRequestTimingScriptV2(contextPath));
 	}
 
-	public static ContainerTag<?> makeNavbarRequestTimingScriptV2(String contextPath){
+	public static ScriptTag makeNavbarRequestTimingScriptV2(String contextPath){
 		String rawHtml = String.format("addNavbarRequestTiming('%s')", contextPath);
 		return script(rawHtml(rawHtml));
 	}

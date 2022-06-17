@@ -29,11 +29,18 @@ import com.amazonaws.services.sqs.AmazonSQSClient;
 
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.web.config.AwsSupport;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.AwsCredentials;
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.cloudwatch.CloudWatchClient;
 
 @Singleton
 public class AmazonSqsHolder{
 
 	private final Map<ClientId,AmazonSQS> amazonSqsByClient = new ConcurrentHashMap<>();
+	private final Map<ClientId,CloudWatchClient> amazonCloudWatchByClient = new ConcurrentHashMap<>();
 
 	@Inject
 	private SqsOptions sqsOptions;
@@ -56,10 +63,25 @@ public class AmazonSqsHolder{
 				.build();
 		awsSupport.registerConnectionManager("sqs " + clientId.getName(), amazonSqs);
 		amazonSqsByClient.put(clientId, amazonSqs);
+		Region region = Region.of(sqsOptions.getRegion(clientId.getName()));
+		AwsCredentials awsCredentials = AwsBasicCredentials.create(
+				sqsOptions.getAccessKey(clientId.getName()),
+				sqsOptions.getSecretKey(clientId.getName()));
+		AwsCredentialsProvider awsCredentialsProvider = StaticCredentialsProvider.create(awsCredentials);
+		CloudWatchClient cloudWatchClient = CloudWatchClient
+				.builder()
+				.region(region)
+				.credentialsProvider(awsCredentialsProvider)
+				.build();
+		amazonCloudWatchByClient.put(clientId, cloudWatchClient);
 	}
 
 	public AmazonSQS get(ClientId clientId){
 		return amazonSqsByClient.get(clientId);
+	}
+
+	public CloudWatchClient getCloudWatch(ClientId clientId){
+		return amazonCloudWatchByClient.get(clientId);
 	}
 
 }

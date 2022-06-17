@@ -75,6 +75,11 @@ implements FieldKey<T>{
 		return false;
 	}
 
+	@Override
+	public boolean isPossiblyCaseInsensitive(){
+		return false;
+	}
+
 	//don't cache this until we are using keys where it would be allocated on every equals/hashCode/compareTo
 	@Override
 	public byte[] getColumnNameBytes(){
@@ -89,6 +94,11 @@ implements FieldKey<T>{
 	@Override
 	public Type getValueType(){
 		return valueTypeToken.getType();
+	}
+
+	@Override
+	public Optional<String> findDocString(){
+		return Optional.empty();
 	}
 
 	/*---------------------------- get/set ----------------------------------*/
@@ -106,6 +116,11 @@ implements FieldKey<T>{
 	@Override
 	public boolean isNullable(){
 		return nullable;
+	}
+
+	@Override
+	public Optional<Integer> findSize(){
+		return Optional.empty();
 	}
 
 	@Override

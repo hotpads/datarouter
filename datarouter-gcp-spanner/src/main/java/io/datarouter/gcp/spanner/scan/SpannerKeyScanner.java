@@ -20,7 +20,7 @@ import java.util.List;
 
 import com.google.cloud.spanner.DatabaseClient;
 
-import io.datarouter.gcp.spanner.field.SpannerFieldCodecRegistry;
+import io.datarouter.gcp.spanner.field.SpannerFieldCodecs;
 import io.datarouter.gcp.spanner.op.read.SpannerGetKeyRangesOp;
 import io.datarouter.gcp.spanner.op.read.SpannerGetKeyRangesSqlOp;
 import io.datarouter.model.databean.Databean;
@@ -39,19 +39,19 @@ extends BaseNodeScanner<PK,PK>{
 
 	private final DatabaseClient client;
 	private final PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo;
-	private final SpannerFieldCodecRegistry codecRegistry;
+	private final SpannerFieldCodecs fieldCodecs;
 
 	public SpannerKeyScanner(
 			DatabaseClient client,
 			PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
 			Collection<Range<PK>> ranges,
 			Config config,
-			SpannerFieldCodecRegistry codecRegistry,
+			SpannerFieldCodecs fieldCodecs,
 			boolean caseInsensitive){
 		super(ranges, config, caseInsensitive);
 		this.client = client;
 		this.fieldInfo = fieldInfo;
-		this.codecRegistry = codecRegistry;
+		this.fieldCodecs = fieldCodecs;
 	}
 
 	@Override
@@ -62,8 +62,8 @@ extends BaseNodeScanner<PK,PK>{
 	@Override
 	protected List<PK> loadRanges(Collection<Range<PK>> ranges, Config config){
 		return config.findOffset().orElse(0) > 0
-				? new SpannerGetKeyRangesSqlOp<>(client, fieldInfo, ranges, config, codecRegistry).wrappedCall()
-				: new SpannerGetKeyRangesOp<>(client, fieldInfo, ranges, config, codecRegistry).wrappedCall();
+				? new SpannerGetKeyRangesSqlOp<>(client, fieldInfo, ranges, config, fieldCodecs).wrappedCall()
+				: new SpannerGetKeyRangesOp<>(client, fieldInfo, ranges, config, fieldCodecs).wrappedCall();
 	}
 
 }

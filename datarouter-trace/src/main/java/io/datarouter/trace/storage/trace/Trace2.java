@@ -32,6 +32,7 @@ import io.datarouter.model.field.imp.comparable.LongField;
 import io.datarouter.model.field.imp.comparable.LongFieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 import io.datarouter.model.serialize.fielder.TtlFielderConfig;
+import io.datarouter.model.util.CommonFieldSizes;
 
 public class Trace2 extends BaseDatabean<Trace2Key,Trace2>{
 
@@ -58,7 +59,8 @@ public class Trace2 extends BaseDatabean<Trace2Key,Trace2>{
 		public static final StringFieldKey initialParentId = new StringFieldKey("initialParentId");
 		public static final StringFieldKey context = new StringFieldKey("context");
 		public static final StringFieldKey type = new StringFieldKey("type");
-		public static final StringFieldKey params = new StringFieldKey("params");
+		public static final StringFieldKey params = new StringFieldKey("params")
+				.withSize(CommonFieldSizes.MAX_CHARACTERS_SPANNER);
 		public static final LongFieldKey created = new LongFieldKey("created")
 				.withColumnName("created2");
 		public static final LongFieldKey ended = new LongFieldKey("ended")

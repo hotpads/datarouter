@@ -28,7 +28,7 @@ public class TallyCacheRateLimiterTestDao extends BaseTallyDao implements TestDa
 
 	@Inject
 	public TallyCacheRateLimiterTestDao(Datarouter datarouter, TallyNodeFactory nodeFactory){
-		super(datarouter, nodeFactory, RateLimiterTestNgModuleFactory.RATE_LIMITER, 1);
+		super(datarouter, nodeFactory, RateLimiterTestNgModuleFactory.RATE_LIMITER, "1");
 	}
 
 }

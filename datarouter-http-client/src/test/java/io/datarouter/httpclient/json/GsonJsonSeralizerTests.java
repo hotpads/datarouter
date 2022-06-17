@@ -21,9 +21,11 @@ import org.testng.annotations.Test;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSyntaxException;
 
+import io.datarouter.gson.serialization.GsonTool;
+
 public class GsonJsonSeralizerTests{
 
-	private static final GsonJsonSerializer GSON_JSON_SERIALIZER = new GsonJsonSerializer(HttpClientGsonTool.GSON);
+	private static final GsonJsonSerializer GSON_JSON_SERIALIZER = new GsonJsonSerializer(GsonTool.GSON);
 
 	@Test(expectedExceptions = JsonSyntaxException.class)
 	public void deserializeExpectJsonSyntaxExceptionTest(){

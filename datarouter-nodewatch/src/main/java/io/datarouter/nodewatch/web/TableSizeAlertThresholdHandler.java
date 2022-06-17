@@ -71,7 +71,7 @@ public class TableSizeAlertThresholdHandler extends BaseHandler{
 
 	@Handler
 	public Mav updateThreshold(String tableName, String clientName, Long threshold){
-		TableSizeAlertThreshold tableSizeAlertThreshold = new TableSizeAlertThreshold(clientName, tableName, threshold);
+		var tableSizeAlertThreshold = new TableSizeAlertThreshold(clientName, tableName, threshold);
 		tableSizeAlertThresholdDao.put(tableSizeAlertThreshold);
 		var dto = new DatarouterChangelogDtoBuilder(
 				"Nodewatch",

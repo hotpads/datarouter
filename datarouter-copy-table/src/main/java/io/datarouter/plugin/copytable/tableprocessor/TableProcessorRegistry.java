@@ -15,27 +15,28 @@
  */
 package io.datarouter.plugin.copytable.tableprocessor;
 
-import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 
-public interface TableProcessorRegistry{
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
-	Optional<Class<? extends TableProcessor<?,?>>> find(String processorName);
-	Collection<Class<? extends TableProcessor<?,?>>> getAll();
+import io.datarouter.plugin.PluginInjector;
+import io.datarouter.scanner.Scanner;
 
-	class NoOpTableProcessorRegistry implements TableProcessorRegistry{
+@Singleton
+public class TableProcessorRegistry{
 
-		@Override
-		public Optional<Class<? extends TableProcessor<?,?>>> find(String processorName){
-			return Optional.empty();
-		}
+	@Inject
+	private PluginInjector pluginInjector;
 
-		@Override
-		public Collection<Class<? extends TableProcessor<?,?>>> getAll(){
-			return List.of();
-		}
+	public Scanner<TableProcessor<?,?>> scan(){
+		return pluginInjector.scanInstances(TableProcessor.KEY);
+	}
 
+	public Optional<TableProcessor<?,?>> find(String processorName){
+		return scan()
+				.include(processor -> processor.getClass().getSimpleName().equals(processorName))
+				.findFirst();
 	}
 
 }

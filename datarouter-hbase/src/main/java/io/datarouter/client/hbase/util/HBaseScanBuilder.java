@@ -29,6 +29,7 @@ import io.datarouter.bytes.ByteTool;
 import io.datarouter.bytes.Bytes;
 import io.datarouter.bytes.EmptyArray;
 import io.datarouter.bytes.codec.stringcodec.StringCodec;
+import io.datarouter.util.Require;
 import io.datarouter.util.tuple.Range;
 
 public class HBaseScanBuilder{
@@ -46,6 +47,7 @@ public class HBaseScanBuilder{
 	private FirstKeyOnlyFilter firstKeyFilter;
 	private KeyOnlyFilter keyFilter;
 	private boolean cacheBlocks = true;
+	private boolean startIsFullKey;
 
 	public HBaseScanBuilder withPrefix(byte[] prefix){
 		this.prefix = prefix;
@@ -89,6 +91,11 @@ public class HBaseScanBuilder{
 		return this;
 	}
 
+	public HBaseScanBuilder withStartIsFullKey(boolean startIsFullKey){
+		this.startIsFullKey = startIsFullKey;
+		return this;
+	}
+
 	public Scan build(){
 		Scan scan = getScanForRange();
 		//note that bigtable ignores setMaxResultsPerColumnFamily, setBatch, and setCaching
@@ -103,28 +110,19 @@ public class HBaseScanBuilder{
 	private Scan getScanForRange(){
 		byte[] startWithPrefix = ByteTool.concat(prefix, getStart());
 		byte[] endExclusiveWithoutPrefix = getEndExclusive();
-		Scan scan;
-		if(prefix.length == 0){
-			if(endExclusiveWithoutPrefix.length == 0){
-				scan = new Scan()
-						.withStartRow(startWithPrefix, range.getStartInclusive());
-			}else{
-				scan = new Scan()
-						.withStartRow(startWithPrefix, range.getStartInclusive())
-						.withStopRow(endExclusiveWithoutPrefix, false);
+		Require.isFalse(prefix.length == 0);
+		Scan scan = new Scan();
+		if(startIsFullKey || range.getStart() == null || range.getStartInclusive()){
+			scan.withStartRow(startWithPrefix, range.getStartInclusive());
+		}else{
+			scan.withStartRow(ByteTool.unsignedIncrement(startWithPrefix), true);
+		}
+		if(endExclusiveWithoutPrefix.length == 0){
+			if(hasNextPrefix){
+				scan.withStopRow(nextPrefix, false);
 			}
 		}else{
-			if(endExclusiveWithoutPrefix.length == 0){
-				scan = new Scan()
-						.withStartRow(startWithPrefix, range.getStartInclusive());
-				if(hasNextPrefix){
-					scan.withStopRow(nextPrefix, false);
-				}
-			}else{
-				scan = new Scan()
-						.withStartRow(startWithPrefix, range.getStartInclusive())
-						.withStopRow(ByteTool.concat(prefix, endExclusiveWithoutPrefix), false);
-			}
+			scan.withStopRow(ByteTool.concat(prefix, endExclusiveWithoutPrefix), false);
 		}
 		return scan;
 	}

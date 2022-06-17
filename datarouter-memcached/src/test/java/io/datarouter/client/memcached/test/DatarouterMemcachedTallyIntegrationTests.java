@@ -17,6 +17,7 @@ package io.datarouter.client.memcached.test;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Guice;
+import org.testng.annotations.Test;
 
 import io.datarouter.client.memcached.DatarouterMemcachedTestNgModuleFactory;
 import io.datarouter.storage.test.tally.BaseCacheTallyIntegrationTests;
@@ -27,5 +28,16 @@ public class DatarouterMemcachedTallyIntegrationTests extends BaseCacheTallyInte
 	@BeforeClass
 	public void beforeClass(){
 		setup(DatarouterMemcachedTestClientIds.MEMCACHED);
+	}
+
+	@Override
+	@Test
+	public void testVacuum(){
+		//memcached does not support vacuum operation
+	}
+
+	@Override
+	@Test
+	public void testGetMultiWithTtl(){
 	}
 }

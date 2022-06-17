@@ -15,35 +15,15 @@
  */
 package io.datarouter.trace.service;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
-import io.datarouter.trace.config.DatarouterTracePaths;
-import io.datarouter.trace.settings.DatarouterTraceFilterSettingRoot;
-import io.datarouter.web.config.ServletContextSupplier;
-
 public interface TraceUrlBuilder{
 
 	String buildTraceForCurrentServer(String traceId, String parentId);
 
-	@Singleton
-	class LocalTraceUrlBulder implements TraceUrlBuilder{
-
-		@Inject
-		private DatarouterTracePaths paths;
-		@Inject
-		private DatarouterTraceFilterSettingRoot settings;
-		@Inject
-		private ServletContextSupplier servletContext;
+	public static class NoOpTraceUrlBuilder implements TraceUrlBuilder{
 
 		@Override
 		public String buildTraceForCurrentServer(String traceId, String parentId){
-			return "https://"
-					+ settings.traceDomain.get()
-					+ servletContext.get().getContextPath()
-					+ paths.datarouter.traces.toSlashedString()
-					+ "?traceId=" + traceId
-					+ "&parentId=" + parentId;
+			return "";
 		}
 
 	}

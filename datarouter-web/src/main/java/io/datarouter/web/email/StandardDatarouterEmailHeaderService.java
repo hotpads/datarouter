@@ -32,8 +32,9 @@ import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.util.tuple.Pair;
 import io.datarouter.util.tuple.Twin;
 import io.datarouter.web.config.service.ServiceName;
-import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
+import j2html.tags.Text;
+import j2html.tags.specialized.DivTag;
 
 @Singleton
 public class StandardDatarouterEmailHeaderService{
@@ -45,11 +46,11 @@ public class StandardDatarouterEmailHeaderService{
 	@Inject
 	private EnvironmentName environmentName;
 
-	public ContainerTag<?> makeStandardHeader(){
+	public DivTag makeStandardHeader(){
 		return makeStandardHeaderWithSupplements(List.of());
 	}
 
-	public ContainerTag<?> makeStandardHeaderWithSupplements(List<Pair<String,DomContent>> supplements){
+	public DivTag makeStandardHeaderWithSupplements(List<Pair<String,DomContent>> supplements){
 		List<Pair<String,DomContent>> rows = new ArrayList<>();
 		rows.add(new Pair<>("environment", makeText(environmentName.get())));
 		rows.add(new Pair<>("service", makeText(serviceName.get())));
@@ -62,7 +63,7 @@ public class StandardDatarouterEmailHeaderService{
 		return div(table, br());
 	}
 
-	public ContainerTag<?> makeStandardHeaderWithSupplementsText(List<Twin<String>> supplements){
+	public DivTag makeStandardHeaderWithSupplementsText(List<Twin<String>> supplements){
 		List<Pair<String,DomContent>> rows = new ArrayList<>();
 		rows.add(new Pair<>("environment", makeText(environmentName.get())));
 		rows.add(new Pair<>("service", makeText(serviceName.get())));
@@ -75,12 +76,12 @@ public class StandardDatarouterEmailHeaderService{
 		return div(table, br());
 	}
 
-	private DomContent makeDivBoldRight(String text){
+	private DivTag makeDivBoldRight(String text){
 		return div(text)
 				.withStyle("font-weight:bold;text-align:right;");
 	}
 
-	private DomContent makeText(String text){
+	private Text makeText(String text){
 		return text(text);
 	}
 

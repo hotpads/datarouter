@@ -16,16 +16,19 @@
 package io.datarouter.exception.dto;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.List;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import io.datarouter.conveyor.message.ConveyorMessage;
 import io.datarouter.exception.dto.ExceptionRecordBlobDto.ExceptionRecordBlobItemDto;
 import io.datarouter.gson.serialization.GsonTool;
 import io.datarouter.instrumentation.exception.ExceptionRecordBatchDto;
 import io.datarouter.instrumentation.exception.ExceptionRecordDto;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.util.UlidTool;
 
 public class ExceptionRecordBlobDtoIntegrationTests{
 
@@ -50,6 +53,8 @@ public class ExceptionRecordBlobDtoIntegrationTests{
 			null,
 			null,
 			null);
+
+	private static final int EXTRA_JSON_LENGTH = "{\"MessageId\":\"\",\"Message\":\"\"}".length();
 
 	@Test
 	public void testConstructorValidation(){
@@ -97,7 +102,7 @@ public class ExceptionRecordBlobDtoIntegrationTests{
 	}
 
 	@Test
-	public void testRoundTripSplitString(){
+	public void testRoundTripSplitStringWithV1Serialization(){
 		var validDto2 = new ExceptionRecordDto(
 				id + "2",
 				null,
@@ -115,12 +120,76 @@ public class ExceptionRecordBlobDtoIntegrationTests{
 		var items = List.of(VALID_DTO, validDto2);
 		var okDto = makeBlob(items, apiKey);
 
-		int metadataLineLength = (String.join("\t", List.of(okDto.version,
+		int metadataLineLength = (String.join("\t", List.of(
+				"v1",
 				okDto.serviceName,
 				okDto.serverName,
 				okDto.appVersion,
 				okDto.apiKey)) + "\n").length();
-		int sizeToCauseSplit = metadataLineLength + 1 + GsonTool.JAVA9_GSON.toJson(okDto.items.get(0)).length();
+		int sizeToCauseSplit = metadataLineLength + 1 + GsonTool.GSON.toJson(okDto.items.get(0)).length();
+
+		List<String> strings = okDto.serializeToStringsOld(sizeToCauseSplit).list();
+		Assert.assertEquals(strings.size(), 2);
+		verifyOkDto(
+				Scanner.of(strings)
+						.map(ExceptionRecordBlobDto::deserializeFromString)
+						.list(),
+				items);
+	}
+
+	@Test
+	public void testTotalDatabeanSizePrediction(){
+		var fielder = new ConveyorMessage.UnlimitedSizeConveyorMessageFielder();
+		String ulid = UlidTool.nextUlid();
+		Assert.assertEquals(
+				fielder.getStringDatabeanCodec().toString(new ConveyorMessage(ulid, ""), fielder).length(),
+				ulid.length() + EXTRA_JSON_LENGTH);
+
+		//build 2 encoded items
+		var builder = new ExceptionRecordBlobDto.ExceptionRecordsSplittingStringBuildersV2(
+				ExceptionRecordsSplittingStringBuildersV2IntegrationTests.EMPTY_LENGTH * 2 + 1);
+		builder.append(ExceptionRecordsSplittingStringBuildersV2IntegrationTests.EMPTY);
+		builder.append(ExceptionRecordsSplittingStringBuildersV2IntegrationTests.EMPTY);
+		var list = builder.scanSplitItems().list();
+		Assert.assertEquals(list.size(), 1);
+
+		int expectedLength =
+				ulid.length()
+				+ EXTRA_JSON_LENGTH
+				+ ExceptionRecordsSplittingStringBuildersV2IntegrationTests.EMPTY_LENGTH * 2//2 encoded items
+				+ 1;//1 comma to separate 2 items
+		Assert.assertEquals(
+				fielder.getStringDatabeanCodec().toString(new ConveyorMessage(ulid, list.get(0)), fielder).length(),
+				expectedLength);
+	}
+
+	@Test
+	public void testRoundTripSplitStringWithV2Serialization(){
+		var validDto2 = new ExceptionRecordDto(
+				id + "2",
+				null,
+				service,
+				server,
+				null,
+				null,
+				null,
+				null,
+				appVersion,
+				null,
+				null,
+				null,
+				null);
+		var items = List.of(VALID_DTO, validDto2);
+		var okDto = makeBlob(items, apiKey);
+
+		int metadataLineLength = (toBase64ByteString(String.join("\t", List.of(
+				"v2",
+				okDto.serviceName,
+				okDto.serverName,
+				okDto.appVersion,
+				okDto.apiKey))) + ",").length();
+		int sizeToCauseSplit = metadataLineLength
+				+ toBase64ByteString(GsonTool.GSON.toJson(okDto.items.get(0))).length();
 
 		List<String> strings = okDto.serializeToStrings(sizeToCauseSplit).list();
 		Assert.assertEquals(strings.size(), 2);
@@ -129,6 +198,10 @@ public class ExceptionRecordBlobDtoIntegrationTests{
 						.map(ExceptionRecordBlobDto::deserializeFromString)
 						.list(),
 				items);
+	}
+
+	private static String toBase64ByteString(String string){
+		return Base64.getEncoder().encodeToString(string.getBytes(StandardCharsets.UTF_8));
 	}
 
 	private void verifyOkDto(ExceptionRecordBlobDto okDto){
@@ -164,7 +237,7 @@ public class ExceptionRecordBlobDtoIntegrationTests{
 	}
 
 	private void verifyOkDtoNonItemFields(ExceptionRecordBlobDto okDto){
-		Assert.assertEquals(okDto.version, "v1");
+		Assert.assertEquals(okDto.version, "v2");
 		Assert.assertEquals(okDto.serviceName, service);
 		Assert.assertEquals(okDto.serverName, server);
 		Assert.assertEquals(okDto.appVersion, appVersion);

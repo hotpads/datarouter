@@ -37,7 +37,8 @@ public class Changelog extends BaseDatabean<ChangelogKey,Changelog>{
 		public static final StringFieldKey action = new StringFieldKey("action");
 		public static final StringFieldKey username = new StringFieldKey("username");
 		public static final StringFieldKey comment = new StringFieldKey("comment")
-				.withSize(CommonFieldSizes.MAX_LENGTH_TEXT);
+				.withSize(CommonFieldSizes.MAX_LENGTH_TEXT)
+				.disableSizeValidation();
 		public static final StringFieldKey note = new StringFieldKey("note")
 				.withSize(CommonFieldSizes.MAX_LENGTH_TEXT);
 	}

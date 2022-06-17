@@ -69,7 +69,9 @@ public class OpencencusMetricsAppListener implements DatarouterAppListener{
 
 	@Override
 	public void onShutDown(){
-		metricReader.stop();
+		if(metricReader != null){
+			metricReader.stop();
+		}
 	}
 
 	private class DatarouterMetricExporter extends MetricExporter{

@@ -30,7 +30,7 @@ import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
 import io.datarouter.web.email.StandardDatarouterEmailHeaderService;
 import j2html.TagCreator;
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.DivTag;
 
 @Singleton
 public class ConfigurationScanReportService{
@@ -58,7 +58,7 @@ public class ConfigurationScanReportService{
 		sendEmail(content, description);
 	}
 
-	private void sendEmail(ContainerTag<?> content, String subject){
+	private void sendEmail(DivTag content, String subject){
 		String primaryHref = htmlEmailService.startLinkBuilder()
 				.withLocalPath(paths.datarouter)//TODO link to a new page that mirrors the email?
 				.build();

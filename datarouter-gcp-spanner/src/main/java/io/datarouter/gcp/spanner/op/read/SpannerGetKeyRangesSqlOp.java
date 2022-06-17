@@ -24,7 +24,7 @@ import com.google.cloud.spanner.ResultSet;
 import com.google.cloud.spanner.Statement;
 
 import io.datarouter.gcp.spanner.field.SpannerBaseFieldCodec;
-import io.datarouter.gcp.spanner.field.SpannerFieldCodecRegistry;
+import io.datarouter.gcp.spanner.field.SpannerFieldCodecs;
 import io.datarouter.gcp.spanner.op.SpannerBaseOp;
 import io.datarouter.gcp.spanner.sql.SpannerSql;
 import io.datarouter.instrumentation.trace.TraceSpanGroupType;
@@ -46,20 +46,20 @@ extends SpannerBaseOp<List<PK>>{
 	private final PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo;
 	private final Collection<Range<PK>> ranges;
 	private final Config config;
-	private final SpannerFieldCodecRegistry codecRegistry;
+	private final SpannerFieldCodecs fieldCodecs;
 
 	public SpannerGetKeyRangesSqlOp(
 			DatabaseClient client,
 			PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
 			Collection<Range<PK>> ranges,
 			Config config,
-			SpannerFieldCodecRegistry codecRegistry){
+			SpannerFieldCodecs fieldCodecs){
 		super(SpannerGetKeyRangesSqlOp.class.getSimpleName());
 		this.client = client;
 		this.fieldInfo = fieldInfo;
 		this.ranges = ranges;
 		this.config = config;
-		this.codecRegistry = codecRegistry;
+		this.fieldCodecs = fieldCodecs;
 	}
 
 	@Override
@@ -74,7 +74,7 @@ extends SpannerBaseOp<List<PK>>{
 	}
 
 	private List<PK> wrappedCallInternal(){
-		Statement statement = new SpannerSql(codecRegistry)
+		Statement statement = new SpannerSql(fieldCodecs)
 				.getInRanges(
 						fieldInfo.getTableName(),
 						config,
@@ -89,7 +89,7 @@ extends SpannerBaseOp<List<PK>>{
 	}
 
 	private List<PK> parseResultSet(ResultSet resultSet){
-		List<? extends SpannerBaseFieldCodec<?,?>> codecs = codecRegistry.createCodecs(fieldInfo.getPrimaryKeyFields());
+		List<? extends SpannerBaseFieldCodec<?,?>> codecs = fieldCodecs.createCodecs(fieldInfo.getPrimaryKeyFields());
 		List<PK> objects = new ArrayList<>();
 		while(resultSet.next()){
 			PK object = fieldInfo.getPrimaryKeySupplier().get();

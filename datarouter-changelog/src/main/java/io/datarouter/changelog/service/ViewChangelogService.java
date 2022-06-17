@@ -21,7 +21,6 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.td;
 
 import java.time.ZoneId;
-import java.util.Date;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -38,8 +37,8 @@ import io.datarouter.util.time.ZonedDateFormatterTool;
 import io.datarouter.web.config.ServletContextSupplier;
 import io.datarouter.web.html.j2html.J2HtmlTable;
 import j2html.attributes.Attr;
-import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
+import j2html.tags.specialized.TableTag;
 
 @Singleton
 public class ViewChangelogService{
@@ -49,19 +48,18 @@ public class ViewChangelogService{
 	@Inject
 	private DatarouterChangelogPaths paths;
 
-	public ContainerTag<?> buildTable(List<Changelog> rows, ZoneId zoneId){
+	public TableTag buildTable(List<Changelog> rows, ZoneId zoneId){
 		return new J2HtmlTable<Changelog>()
 				.withClasses("table table-sm table-striped my-4 border")
 				.withHtmlColumn("", row -> td(a().withClass("fa fa-link").withHref(buildViewExactHref(row))))
 				.withColumn("Date", row -> {
-					Long reversedDateMs = row.getKey().getReversedDateMs();
-					Date date = new Date(Long.MAX_VALUE - reversedDateMs);
-					return ZonedDateFormatterTool.formatDateWithZone(date, zoneId);
+					long reversedDateMs = row.getKey().getReversedDateMs();
+					return ZonedDateFormatterTool.formatReversedLongMsWithZone(reversedDateMs, zoneId);
 				})
 				.withColumn("Type", row -> row.getKey().getChangelogType())
 				.withColumn("Name", row -> row.getKey().getName())
-				.withColumn("Action", row -> row.getAction())
-				.withColumn("User", row -> row.getUsername())
+				.withColumn("Action", Changelog::getAction)
+				.withColumn("User", Changelog::getUsername)
 				.withHtmlColumn("Comment", row -> {
 					String id = row.getKey().getReversedDateMs() + "" + RandomTool.nextPositiveInt();
 					return makeModal(id, row.getComment(), "comment");

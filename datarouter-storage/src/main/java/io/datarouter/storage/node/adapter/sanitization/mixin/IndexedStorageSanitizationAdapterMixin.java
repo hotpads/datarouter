@@ -65,6 +65,7 @@ extends IndexedStorage<PK,D>, SanitizationAdapter<PK,D,F,N>{
 		Objects.requireNonNull(keys);
 		Objects.requireNonNull(config);
 		Objects.requireNonNull(indexEntryFieldInfo);
+		keys.forEach(Objects::requireNonNull);
 		return getBackingNode().getMultiFromIndex(keys, config, indexEntryFieldInfo);
 	}
 
@@ -76,6 +77,7 @@ extends IndexedStorage<PK,D>, SanitizationAdapter<PK,D,F,N>{
 		Objects.requireNonNull(keys);
 		Objects.requireNonNull(config);
 		Objects.requireNonNull(indexEntryFieldInfo);
+		keys.forEach(Objects::requireNonNull);
 		return getBackingNode().getMultiByIndex(keys, config, indexEntryFieldInfo);
 	}
 
@@ -90,7 +92,8 @@ extends IndexedStorage<PK,D>, SanitizationAdapter<PK,D,F,N>{
 		Objects.requireNonNull(indexEntryFieldInfo);
 		Objects.requireNonNull(ranges);
 		Objects.requireNonNull(config);
-		ScanSanitizer.rejectUnexpectedFullScan(ranges);
+		ranges.forEach(Objects::requireNonNull);
+		ranges.forEach(ScanSanitizer::rejectUnexpectedFullScan);
 		return getBackingNode().scanRangesIndex(indexEntryFieldInfo, ranges, config);
 	}
 
@@ -105,7 +108,8 @@ extends IndexedStorage<PK,D>, SanitizationAdapter<PK,D,F,N>{
 		Objects.requireNonNull(indexEntryFieldInfo);
 		Objects.requireNonNull(ranges);
 		Objects.requireNonNull(config);
-		ScanSanitizer.rejectUnexpectedFullScan(ranges);
+		ranges.forEach(Objects::requireNonNull);
+		ranges.forEach(ScanSanitizer::rejectUnexpectedFullScan);
 		return getBackingNode().scanRangesByIndex(indexEntryFieldInfo, ranges, config);
 	}
 
@@ -120,7 +124,8 @@ extends IndexedStorage<PK,D>, SanitizationAdapter<PK,D,F,N>{
 		Objects.requireNonNull(indexEntryFieldInfo);
 		Objects.requireNonNull(ranges);
 		Objects.requireNonNull(config);
-		ScanSanitizer.rejectUnexpectedFullScan(ranges);
+		ranges.forEach(Objects::requireNonNull);
+		ranges.forEach(ScanSanitizer::rejectUnexpectedFullScan);
 		return getBackingNode().scanRangesIndexKeys(indexEntryFieldInfo, ranges, config);
 	}
 
@@ -137,6 +142,7 @@ extends IndexedStorage<PK,D>, SanitizationAdapter<PK,D,F,N>{
 	default void deleteMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config config){
 		Objects.requireNonNull(uniqueKeys);
 		Objects.requireNonNull(config);
+		uniqueKeys.forEach(Objects::requireNonNull);
 		getBackingNode().deleteMultiUnique(uniqueKeys, config);
 	}
 
@@ -151,6 +157,7 @@ extends IndexedStorage<PK,D>, SanitizationAdapter<PK,D,F,N>{
 		Objects.requireNonNull(keys);
 		Objects.requireNonNull(config);
 		Objects.requireNonNull(indexEntryFieldInfo);
+		keys.forEach(Objects::requireNonNull);
 		getBackingNode().deleteByIndex(keys, config, indexEntryFieldInfo);
 	}
 

@@ -35,6 +35,12 @@ public class ExceptionRecord extends BaseExceptionRecord<ExceptionRecordKey,Exce
 		super(new ExceptionRecordKey());
 	}
 
+	public ExceptionRecord(ExceptionRecordDto dto){
+		super(new ExceptionRecordKey(dto.id), dto.created.getTime(), dto.serviceName, dto.serverName, dto.category,
+				dto.name, dto.stackTrace, dto.type, dto.appVersion, dto.exceptionLocation, dto.methodName,
+				dto.lineNumber, dto.callOrigin);
+	}
+
 	public ExceptionRecord(
 			String serviceName,
 			String serverName,

@@ -39,7 +39,7 @@ public class NodeParams<
 	private final Supplier<F> fielderSupplier;
 
 	//for schema evolution
-	private final Integer schemaVersion;
+	private final String schemaVersion;
 
 	//name the table different than the databean class
 	private final String physicalName;
@@ -77,7 +77,7 @@ public class NodeParams<
 			String parentName,
 			Supplier<D> databeanSupplier,
 			Supplier<F> fielderSupplier,
-			Integer schemaVersion,
+			String schemaVersion,
 			String physicalName,
 			String namespace,
 			Subpath path,
@@ -123,7 +123,7 @@ public class NodeParams<
 
 		private String parentName;
 		private ClientId clientId;
-		private Integer schemaVersion;
+		private String schemaVersion;
 		private String physicalName;
 		private String namespace;
 		private Subpath path;
@@ -178,7 +178,7 @@ public class NodeParams<
 			return this;
 		}
 
-		public NodeParamsBuilder<PK,D,F> withSchemaVersion(Integer schemaVersion){
+		public NodeParamsBuilder<PK,D,F> withSchemaVersion(String schemaVersion){
 			this.schemaVersion = schemaVersion;
 			return this;
 		}
@@ -299,7 +299,7 @@ public class NodeParams<
 		return fielderSupplier;
 	}
 
-	public Integer getSchemaVersion(){
+	public String getSchemaVersion(){
 		return schemaVersion;
 	}
 

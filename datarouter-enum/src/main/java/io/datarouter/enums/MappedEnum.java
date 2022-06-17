@@ -112,6 +112,10 @@ public class MappedEnum<E,K>{
 		return enumClass;
 	}
 
+	public Map<K,E> getValueByKey(){
+		return valueByKey;
+	}
+
 	/*------------- private -------------*/
 
 	@SuppressWarnings("unchecked")

@@ -18,13 +18,14 @@ package io.datarouter.exception.utils.nameparser;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.lang.ReflectionTool;
 
 public abstract class ExceptionNameParserRegistry{
 
-	private final Map<String,Class<? extends ExceptionNameParser>> parserClassByTypeName = new HashMap<>();
+	private final Map<Set<String>,Class<? extends ExceptionNameParser>> parserClassByTypeName = new HashMap<>();
 
 	protected abstract void registerNameParsers();
 
@@ -33,7 +34,7 @@ public abstract class ExceptionNameParserRegistry{
 	}
 
 	protected void register(Class<? extends ExceptionNameParser> parserClass){
-		String parserTypeClassName = ReflectionTool.create(parserClass).getTypeClassName();
+		Set<String> parserTypeClassName = ReflectionTool.create(parserClass).getMatchingTypeClassNames();
 		if(parserClassByTypeName.containsKey(parserTypeClassName)){
 			throw new RuntimeException("type: " + parserTypeClassName + " was already registered");
 		}

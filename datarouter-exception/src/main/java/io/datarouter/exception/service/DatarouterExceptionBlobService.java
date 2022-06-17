@@ -24,24 +24,27 @@ import org.slf4j.LoggerFactory;
 import io.datarouter.bytes.ByteUnitType;
 import io.datarouter.conveyor.message.ConveyorMessage;
 import io.datarouter.exception.config.DatarouterExceptionSettingRoot;
+import io.datarouter.exception.config.MaxExceptionBlobSize;
 import io.datarouter.exception.dto.ExceptionRecordBlobDto;
 import io.datarouter.exception.dto.HttpRequestRecordBlobDto;
 import io.datarouter.exception.storage.exceptionrecord.ExceptionRecordBlobDirectoryDao;
 import io.datarouter.exception.storage.exceptionrecord.ExceptionRecordBlobQueueDao;
 import io.datarouter.exception.storage.httprecord.HttpRequestRecordBlobDirectoryDao;
 import io.datarouter.exception.storage.httprecord.HttpRequestRecordBlobQueueDao;
-import io.datarouter.instrumentation.exception.ExceptionRecordBatchDto;
 import io.datarouter.instrumentation.exception.DatarouterExceptionPublisher;
+import io.datarouter.instrumentation.exception.ExceptionRecordBatchDto;
 import io.datarouter.instrumentation.exception.HttpRequestRecordBatchDto;
 import io.datarouter.instrumentation.response.PublishingResponseDto;
+import io.datarouter.model.util.CommonFieldSizes;
 import io.datarouter.util.UlidTool;
 
 @Singleton
 public class DatarouterExceptionBlobService implements DatarouterExceptionPublisher{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterExceptionBlobService.class);
 
-	//based on AWS SQS message length limit
-	private static final int MAX_SERIALIZED_BLOB_SIZE = ByteUnitType.KiB.toBytesInt(256) - 30;
+	//TODO support MaxExceptionBlobSize for HttpRequestRecordBlob, too (need UnlimitedSizeConveyorMessageFielder)
+	public static final int MAX_SERIALIZED_BLOB_SIZE_SQS = CommonFieldSizes.MAX_SQS_SIZE
+			- ByteUnitType.KiB.toBytesInt(1);
 
 	private final DatarouterExceptionSettingRoot exceptionSettings;
 	private final ExceptionBlobPublishingSettings exceptionBlobPublishingSettings;
@@ -52,29 +55,39 @@ public class DatarouterExceptionBlobService implements DatarouterExceptionPublis
 	private final HttpRequestRecordBlobDirectoryDao httpRequestRecordBlobDirectoryDao;
 	private final HttpRequestRecordBlobQueueDao httpRequestRecordBlobQueueDao;
 
+	private final MaxExceptionBlobSize maxExceptionBlobSize;
+
 	@Inject
 	public DatarouterExceptionBlobService(DatarouterExceptionSettingRoot exceptionSettings,
 			ExceptionBlobPublishingSettings exceptionBlobPublishingSettings,
 			ExceptionRecordBlobDirectoryDao exceptionRecordBlobDirectoryDao,
 			ExceptionRecordBlobQueueDao exceptionRecordBlobQueueDao,
 			HttpRequestRecordBlobDirectoryDao httpRequestRecordBlobDirectoryDao,
-			HttpRequestRecordBlobQueueDao httpRequestRecordBlobQueueDao){
+			HttpRequestRecordBlobQueueDao httpRequestRecordBlobQueueDao,
+			MaxExceptionBlobSize maxExceptionBlobSize){
 		this.exceptionSettings = exceptionSettings;
 		this.exceptionBlobPublishingSettings = exceptionBlobPublishingSettings;
 		this.exceptionRecordBlobDirectoryDao = exceptionRecordBlobDirectoryDao;
 		this.exceptionRecordBlobQueueDao = exceptionRecordBlobQueueDao;
 		this.httpRequestRecordBlobDirectoryDao = httpRequestRecordBlobDirectoryDao;
 		this.httpRequestRecordBlobQueueDao = httpRequestRecordBlobQueueDao;
+		this.maxExceptionBlobSize = maxExceptionBlobSize;
 	}
 
 	@Override
 	public PublishingResponseDto addExceptionRecord(ExceptionRecordBatchDto exceptionRecordBatchDto){
+		if(exceptionRecordBatchDto.records.isEmpty()){
+			return PublishingResponseDto.SUCCESS;
+		}
 		ExceptionRecordBlobDto dto = new ExceptionRecordBlobDto(
 				exceptionRecordBatchDto,
 				exceptionBlobPublishingSettings.getApiKey());
 		String ulid = UlidTool.nextUlid();
 		if(exceptionSettings.saveExceptionRecordBlobsToQueueDaoInsteadOfDirectoryDao.get()){
-			dto.serializeToStrings(MAX_SERIALIZED_BLOB_SIZE)
+			var fielder = new ConveyorMessage.UnlimitedSizeConveyorMessageFielder();
+			int nonMessageLength = fielder.getStringDatabeanCodec().toString(new ConveyorMessage(ulid, ""), fielder)
+					.length();
+			dto.serializeToStrings(maxExceptionBlobSize.get() - nonMessageLength)
 					.map(blob -> new ConveyorMessage(ulid, blob))
 					.flush(blobs -> {
 						if(blobs.size() > 1){
@@ -93,12 +106,15 @@ public class DatarouterExceptionBlobService implements DatarouterExceptionPublis
 
 	@Override
 	public PublishingResponseDto addHttpRequestRecord(HttpRequestRecordBatchDto httpRequestRecordBatchDto){
+		if(httpRequestRecordBatchDto.records.isEmpty()){
+			return PublishingResponseDto.SUCCESS;
+		}
 		HttpRequestRecordBlobDto dto = new HttpRequestRecordBlobDto(
 				httpRequestRecordBatchDto,
 				exceptionBlobPublishingSettings.getApiKey());
 		String ulid = UlidTool.nextUlid();
 		if(exceptionSettings.saveHttpRequestRecordBlobsToQueueDaoInsteadOfDirectoryDao.get()){
-			dto.serializeToStrings(MAX_SERIALIZED_BLOB_SIZE)
+			dto.serializeToStrings(MAX_SERIALIZED_BLOB_SIZE_SQS)
 					.map(blob -> new ConveyorMessage(ulid, blob))
 					.flush(blobs -> {
 						if(blobs.size() > 1){

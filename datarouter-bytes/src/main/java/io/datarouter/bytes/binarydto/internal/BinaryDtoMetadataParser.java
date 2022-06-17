@@ -20,10 +20,10 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
-import io.datarouter.bytes.binarydto.dto.BinaryDto;
+import io.datarouter.bytes.binarydto.dto.BaseBinaryDto;
 import io.datarouter.scanner.Scanner;
 
-public class BinaryDtoMetadataParser<T extends BinaryDto<T>>{
+public class BinaryDtoMetadataParser<T extends BaseBinaryDto<T>>{
 
 	private final T dto;
 

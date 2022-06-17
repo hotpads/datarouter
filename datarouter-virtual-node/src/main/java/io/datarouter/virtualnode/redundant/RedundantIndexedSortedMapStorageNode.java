@@ -41,15 +41,26 @@ implements IndexedSortedMapStorageNode<PK,D,F>,
 		super(nodes, nodes.get(0));
 	}
 
-	public static <PK extends PrimaryKey<PK>,
+	public static <
+			PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>,
 			N extends IndexedSortedMapStorageNode<PK,D,F>>
-			IndexedSortedMapStorageNode<PK,D,F> makeIfMulti(List<N> nodes){
+	IndexedSortedMapStorageNode<PK,D,F> makeIfMulti(List<N> nodes){
 		if(nodes.size() == 1){
 			return nodes.get(0);
 		}
 		return new RedundantIndexedSortedMapStorageNode<>(nodes);
+	}
+
+	@SafeVarargs
+	public static <
+			PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>,
+			N extends IndexedSortedMapStorageNode<PK,D,F>>
+	IndexedSortedMapStorageNode<PK,D,F> makeIfMulti(N... nodes){
+		return makeIfMulti(List.of(nodes));
 	}
 
 }

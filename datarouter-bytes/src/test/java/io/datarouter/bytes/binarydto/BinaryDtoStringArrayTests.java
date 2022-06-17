@@ -18,7 +18,7 @@ package io.datarouter.bytes.binarydto;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.bytes.binarydto.codec.BinaryDtoCodec;
+import io.datarouter.bytes.binarydto.codec.BinaryDtoIndexedCodec;
 import io.datarouter.bytes.binarydto.dto.BinaryDto;
 
 public class BinaryDtoStringArrayTests{
@@ -35,39 +35,32 @@ public class BinaryDtoStringArrayTests{
 		}
 	}
 
-
 	@Test
 	public void testCreateCodec(){
-		BinaryDtoCodec.of(TestDto.class);
+		BinaryDtoIndexedCodec.of(TestDto.class);
 	}
 
 	@Test
 	public void testEncoding(){
-		var codec = BinaryDtoCodec.of(TestDto.class);
 		var dto = new TestDto(
 				new String[]{"a", null, "b"},
 				null,
 				new String[]{});
-		byte[] expectedBytes = {
-				//f1
-				1,//present
-				3,//size
-				1,//item0 present
-				'a', 0,//item0
-				0,//item1 null
-				1,//item2 present
-				'b', 0,//item2
-				//f2
-				0,//null
-				//f3
-				1,//present
-				0};//size 0
-		byte[] actualBytes = codec.encode(dto);
-		Assert.assertEquals(actualBytes, expectedBytes);
-
-		TestDto actual = codec.decode(actualBytes);
-		Assert.assertEquals(actual, dto);
+		Assert.assertEquals(dto.cloneIndexed(), dto);
 	}
 
+	public static class Test2Dto extends BinaryDto<Test2Dto>{
+		public final String[] f1;
+
+		public Test2Dto(String[] f1){
+			this.f1 = f1;
+		}
+	}
+
+	@Test
+	public void testEncoding2(){
+		var dto = new Test2Dto(new String[]{"a", "bc"});
+		Assert.assertEquals(dto.cloneIndexed(), dto);
+	}
 
 }

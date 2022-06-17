@@ -28,13 +28,12 @@ import io.datarouter.storage.node.op.raw.TallyStorage;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.storage.tally.Tally;
 import io.datarouter.storage.tally.Tally.TallyFielder;
-import io.datarouter.storage.tally.TallyKey;
 
 public abstract class BaseTallyDao extends BaseDao{
 
-	private final TallyStorage<TallyKey,Tally> node;
+	private final TallyStorage node;
 
-	public BaseTallyDao(Datarouter datarouter, TallyNodeFactory nodeFactory, ClientId clientId, int version){
+	public BaseTallyDao(Datarouter datarouter, TallyNodeFactory nodeFactory, ClientId clientId, String version){
 		super(datarouter);
 		node = nodeFactory.createTally(clientId, Tally::new, TallyFielder::new)
 				.withSchemaVersion(version)
@@ -55,6 +54,10 @@ public abstract class BaseTallyDao extends BaseDao{
 				.setTtl(ttl)
 				.setTimeout(timeout);
 		return node.getMultiTallyCount(keys, config);
+	}
+
+	public void vacuum(Config config){
+		node.vacuum(config);
 	}
 
 }

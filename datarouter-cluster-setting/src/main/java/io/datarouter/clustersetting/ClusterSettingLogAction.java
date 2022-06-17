@@ -15,31 +15,20 @@
  */
 package io.datarouter.clustersetting;
 
-import io.datarouter.enums.StringEnum;
+import io.datarouter.enums.StringMappedEnum;
 
-public enum ClusterSettingLogAction implements StringEnum<ClusterSettingLogAction>{
+public enum ClusterSettingLogAction{
 	INSERTED("inserted"),
 	UPDATED("updated"),
 	DELETED("deleted");
 
-	private final String persistentString;
+	public static final StringMappedEnum<ClusterSettingLogAction> BY_PERSISTENT_STRING
+			= new StringMappedEnum<>(values(), value -> value.persistentString, 20);
+
+	public final String persistentString;
 
 	ClusterSettingLogAction(String value){
 		this.persistentString = value;
-	}
-
-	@Override
-	public String getPersistentString(){
-		return persistentString;
-	}
-
-	@Override
-	public ClusterSettingLogAction fromPersistentString(String string){
-		return fromPersistentStringStatic(string);
-	}
-
-	public static ClusterSettingLogAction fromPersistentStringStatic(String str){
-		return StringEnum.getEnumFromString(values(), str, null);
 	}
 
 }

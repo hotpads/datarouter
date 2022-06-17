@@ -22,7 +22,7 @@
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-parent</artifactId>
-		<version>0.0.113</version>
+		<version>0.0.114</version>
 		<relativePath>../datarouter-parent</relativePath>
 	</parent>
 
@@ -40,7 +40,7 @@
 		</dependency>
 		<dependency>
 			<groupId>io.datarouter</groupId>
-			<artifactId>datarouter-web</artifactId>
+			<artifactId>datarouter-job</artifactId>
 			<version>${datarouter-version}</version>
 		</dependency>
 		<dependency>

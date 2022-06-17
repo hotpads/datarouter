@@ -23,12 +23,12 @@ import java.util.List;
 import javax.inject.Inject;
 
 import io.datarouter.web.config.RouteSetRegistry;
-import io.datarouter.web.dispatcher.BaseRouteSet;
+import io.datarouter.web.dispatcher.RouteSet;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.html.j2html.J2HtmlTable;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.DivTag;
 
 public class DatarouterRouteSetViewHandler extends BaseHandler{
 
@@ -46,9 +46,9 @@ public class DatarouterRouteSetViewHandler extends BaseHandler{
 				.buildMav();
 	}
 
-	private static ContainerTag<?> makeContent(List<BaseRouteSet> rows){
+	private static DivTag makeContent(List<RouteSet> rows){
 		var h2 = h2("Registered RouteSets");
-		var table = new J2HtmlTable<BaseRouteSet>()
+		var table = new J2HtmlTable<RouteSet>()
 				.withClasses("table table-sm table-striped my-4 border")
 				.withColumn("Route Set Class", row -> row.getClass().getSimpleName())
 				.withColumn("Url Prefix", row -> row.getUrlPrefix())

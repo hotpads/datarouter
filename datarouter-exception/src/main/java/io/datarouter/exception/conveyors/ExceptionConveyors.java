@@ -50,14 +50,15 @@ public class ExceptionConveyors extends BaseConveyors{
 				exceptionBuffers.exceptionRecordPublishingBuffer,
 				exceptionRecorder,
 				exceptionRecordPublisher),
-				exceptionsSettings.exceptionRecordConveyorThreadCount.get());
+				exceptionsSettings.exceptionRecordConveyorThreadCount.get(),
+				10);
 		start(new HttpRequestRecordMemoryToPublisherConveyor(
 				"httpRequestRecordMemoryToPublisher",
 				exceptionsSettings.runHttpRequestRecordMemoryToPublisherConveyor,
 				exceptionBuffers.httpRequestRecordPublishingBuffer,
 				exceptionRecorder,
 				exceptionRecordPublisher),
-				exceptionsSettings.exceptionRecordConveyorThreadCount.get());
+				exceptionsSettings.httpRequestRecordConveyorThreadCount.get());
 		start(new DatabeanBufferConveyor<>(
 				"exceptionRecordMemoryToDatabase",
 				exceptionsSettings.runExceptionRecordMemoryToDatabaseConveyor,

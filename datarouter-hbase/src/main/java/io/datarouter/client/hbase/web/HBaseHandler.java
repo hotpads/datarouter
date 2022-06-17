@@ -37,7 +37,6 @@ import org.apache.hadoop.hbase.ServerName;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.TableNotFoundException;
 import org.apache.hadoop.hbase.client.Admin;
-import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +53,6 @@ import io.datarouter.client.hbase.cluster.DrServerList;
 import io.datarouter.client.hbase.cluster.DrTableSettings;
 import io.datarouter.client.hbase.config.DatarouterHBaseFiles;
 import io.datarouter.client.hbase.util.HBaseClientTool;
-import io.datarouter.client.hbase.util.ServerNameTool;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.node.NodeTool;
@@ -266,7 +264,7 @@ public class HBaseHandler extends BaseHandler{
 	@Handler
 	public Mav moveHBaseTableRegions(String tableName, String destinationServerName) throws IOException{
 		initialize();
-		ServerName serverName = ServerNameTool.create(destinationServerName);
+		ServerName serverName = ServerName.valueOf(destinationServerName);
 		if(!drServerList.get().getServerNames().contains(serverName)){
 			throw new IllegalArgumentException(serverName + " not found");
 		}
@@ -389,9 +387,9 @@ public class HBaseHandler extends BaseHandler{
 
 	/*---------------------------- merge handlers ---------------------------*/
 
-	private static Map<String,String> parseFamilyAttributeMap(Map<ImmutableBytesWritable,ImmutableBytesWritable> ins){
+	private static Map<String,String> parseFamilyAttributeMap(Map<Bytes,Bytes> ins){
 		Map<String,String> outs = new TreeMap<>();
-		for(Entry<ImmutableBytesWritable,ImmutableBytesWritable> entry : ins.entrySet()){
+		for(Entry<Bytes,Bytes> entry : ins.entrySet()){
 			outs.put(
 					StringCodec.UTF_8.decode(entry.getKey().get()),
 					StringCodec.UTF_8.decode(entry.getValue().get()));

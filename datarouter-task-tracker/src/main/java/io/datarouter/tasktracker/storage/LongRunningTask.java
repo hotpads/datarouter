@@ -25,15 +25,16 @@ import java.util.function.Supplier;
 import io.datarouter.instrumentation.task.TaskTrackerDto;
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
+import io.datarouter.model.field.codec.StringMappedEnumFieldCodec;
 import io.datarouter.model.field.imp.DateField;
 import io.datarouter.model.field.imp.DateFieldKey;
+import io.datarouter.model.field.imp.StringEncodedField;
+import io.datarouter.model.field.imp.StringEncodedFieldKey;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
 import io.datarouter.model.field.imp.comparable.BooleanFieldKey;
 import io.datarouter.model.field.imp.comparable.LongField;
 import io.datarouter.model.field.imp.comparable.LongFieldKey;
-import io.datarouter.model.field.imp.enums.StringEnumField;
-import io.datarouter.model.field.imp.enums.StringEnumFieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 import io.datarouter.model.util.CommonFieldSizes;
 import io.datarouter.tasktracker.scheduler.LongRunningTaskStatus;
@@ -59,8 +60,9 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 	private String exceptionRecordId;
 
 	public static class FieldKeys{
-		public static final StringEnumFieldKey<LongRunningTaskType> type = new StringEnumFieldKey<>("type",
-				LongRunningTaskType.class);
+		public static final StringEncodedFieldKey<LongRunningTaskType> type = new StringEncodedFieldKey<>(
+				"type",
+				new StringMappedEnumFieldCodec<>(LongRunningTaskType.BY_PERSISTENT_STRING));
 		@SuppressWarnings("deprecation")
 		public static final DateFieldKey startTime = new DateFieldKey("startTime");
 		public static final BooleanFieldKey interrupt = new BooleanFieldKey("interrupt");
@@ -68,8 +70,10 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 		public static final DateFieldKey finishTime = new DateFieldKey("finishTime");
 		@SuppressWarnings("deprecation")
 		public static final DateFieldKey heartbeatTime = new DateFieldKey("heartbeatTime");
-		public static final StringEnumFieldKey<LongRunningTaskStatus> longRunningTaskStatus = new StringEnumFieldKey<>(
-				"jobExecutionStatus", LongRunningTaskStatus.class);
+		public static final StringEncodedFieldKey<LongRunningTaskStatus> longRunningTaskStatus
+				= new StringEncodedFieldKey<>(
+				"jobExecutionStatus",
+				new StringMappedEnumFieldCodec<>(LongRunningTaskStatus.BY_PERSISTENT_STRING));
 		public static final StringFieldKey triggeredBy = new StringFieldKey("triggeredBy");
 		public static final LongFieldKey numItemsProcessed = new LongFieldKey("numItemsProcessed");
 		public static final StringFieldKey lastItemProcessed = new StringFieldKey("lastItemProcessed")
@@ -87,11 +91,11 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 		@Override
 		public List<Field<?>> getNonKeyFields(LongRunningTask databean){
 			return List.of(
-					new StringEnumField<>(FieldKeys.type, databean.type),
+					new StringEncodedField<>(FieldKeys.type, databean.type),
 					new DateField(FieldKeys.startTime, databean.startTime),
 					new DateField(FieldKeys.finishTime, databean.finishTime),
 					new DateField(FieldKeys.heartbeatTime, databean.heartbeatTime),
-					new StringEnumField<>(FieldKeys.longRunningTaskStatus, databean.jobExecutionStatus),
+					new StringEncodedField<>(FieldKeys.longRunningTaskStatus, databean.jobExecutionStatus),
 					new StringField(FieldKeys.triggeredBy, databean.triggeredBy),
 					new LongField(FieldKeys.numItemsProcessed, databean.numItemsProcessed),
 					new StringField(FieldKeys.lastItemProcessed, databean.lastItemProcessed),
@@ -251,7 +255,7 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 	public TaskTrackerDto toDto(){
 		return new TaskTrackerDto(
 				getKey().toDto(),
-				type.getPersistentString(),
+				type.persistentString,
 				Optional.ofNullable(startTime)
 						.map(Date::toInstant)
 						.orElse(null),
@@ -261,7 +265,7 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 				Optional.ofNullable(heartbeatTime)
 						.map(Date::toInstant)
 						.orElse(null),
-				jobExecutionStatus.getPersistentString(),
+				jobExecutionStatus.persistentString,
 				triggeredBy,
 				numItemsProcessed,
 				lastItemProcessed,

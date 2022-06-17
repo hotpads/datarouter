@@ -35,7 +35,8 @@ import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
 import io.datarouter.web.digest.DailyDigestService;
 import io.datarouter.web.html.j2html.J2HtmlTable;
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.TableTag;
 
 @Singleton
 public class StaleTablesDailyDigest implements DailyDigest{
@@ -50,7 +51,7 @@ public class StaleTablesDailyDigest implements DailyDigest{
 	private DailyDigestService digestService;
 
 	@Override
-	public Optional<ContainerTag<?>> getPageContent(ZoneId zoneId){
+	public Optional<DivTag> getPageContent(ZoneId zoneId){
 		List<LatestTableCount> staleTables = monitoringService.getStaleTableEntries();
 		if(staleTables.isEmpty()){
 			return Optional.empty();
@@ -61,7 +62,7 @@ public class StaleTablesDailyDigest implements DailyDigest{
 	}
 
 	@Override
-	public Optional<ContainerTag<?>> getEmailContent(ZoneId zoneId){
+	public Optional<DivTag> getEmailContent(ZoneId zoneId){
 		List<LatestTableCount> staleTables = monitoringService.getStaleTableEntries();
 		if(staleTables.isEmpty()){
 			return Optional.empty();
@@ -86,7 +87,7 @@ public class StaleTablesDailyDigest implements DailyDigest{
 		return DailyDigestType.ACTIONABLE;
 	}
 
-	private ContainerTag<?> makePageTable(List<LatestTableCount> staleRows, ZoneId zoneId){
+	private TableTag makePageTable(List<LatestTableCount> staleRows, ZoneId zoneId){
 		return new J2HtmlTable<LatestTableCount>()
 				.withClasses("sortable table table-sm table-striped my-4 border")
 				.withColumn("Client", row -> row.getKey().getClientName())
@@ -94,9 +95,8 @@ public class StaleTablesDailyDigest implements DailyDigest{
 						row.getKey().getTableName(),
 						row.getKey().getClientName())))
 				.withColumn("Latest Count", row -> NumberFormatter.addCommas(row.getNumRows()))
-				.withColumn("Date Updated (" + zoneId + ")",
-						row -> LocalDate.ofInstant(row.getDateUpdated().toInstant(), zoneId))
-				.withColumn("Updated Ago", row -> DateTool.getAgoString(row.getDateUpdated().toInstant()))
+				.withColumn("Date Updated (" + zoneId + ")", row -> LocalDate.ofInstant(row.getDateUpdated(), zoneId))
+				.withColumn("Updated Ago", row -> DateTool.getAgoString(row.getDateUpdated()))
 				.build(staleRows);
 	}
 

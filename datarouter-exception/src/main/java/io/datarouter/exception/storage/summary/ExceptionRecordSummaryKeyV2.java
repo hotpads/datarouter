@@ -21,8 +21,8 @@ extends BaseExceptionRecordSummaryKey2<ExceptionRecordSummaryKeyV2>{
 	public ExceptionRecordSummaryKeyV2(){
 	}
 
-	public ExceptionRecordSummaryKeyV2(long periodStart, String name){
-		super(periodStart, name);
+	public ExceptionRecordSummaryKeyV2(long periodStart, String name, String category){
+		super(periodStart, name, category);
 	}
 
 }

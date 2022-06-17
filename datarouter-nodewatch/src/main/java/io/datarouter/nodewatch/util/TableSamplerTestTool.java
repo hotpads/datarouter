@@ -38,8 +38,8 @@ public class TableSamplerTestTool{
 			JobletRequest jobletRequest = new JobletRequest();
 			jobletRequest.getKey().setCreated(System.currentTimeMillis());// this field referenced by the joblet
 			joblet.setJobletRequest(jobletRequest);
-			TableSpanSamplerJobletParams params = new TableSpanSamplerJobletCodec().unmarshallData(jobletData
-					.getData());
+			TableSpanSamplerJobletParams params = new TableSpanSamplerJobletCodec().unmarshallData(
+					jobletData.getData());
 			joblet.setJobletParams(params);
 			joblet.process();
 			results.addAll(joblet.getSamples());

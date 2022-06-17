@@ -15,35 +15,23 @@
  */
 package io.datarouter.tasktracker.scheduler;
 
-import io.datarouter.enums.StringEnum;
+import io.datarouter.enums.MappedEnum;
 
-public enum LongRunningTaskType implements StringEnum<LongRunningTaskType>{
+public enum LongRunningTaskType{
 	JOB("job"),
 	JOBLET("joblet"),
 	REQUEST("request"),
 	MIGRATION("migration"),
 	TEST("test"),
-	NOOP("noop"),
-	;
+	NOOP("noop");
 
-	private final String persistentString;
+	public static final MappedEnum<LongRunningTaskType,String> BY_PERSISTENT_STRING
+			= new MappedEnum<>(values(), value -> value.persistentString);
+
+	public final String persistentString;
 
 	LongRunningTaskType(String persistentString){
 		this.persistentString = persistentString;
-	}
-
-	@Override
-	public String getPersistentString(){
-		return persistentString;
-	}
-
-	public static LongRunningTaskType fromPersistentStringStatic(String str){
-		return StringEnum.getEnumFromString(values(), str, null);
-	}
-
-	@Override
-	public LongRunningTaskType fromPersistentString(String str){
-		return fromPersistentStringStatic(str);
 	}
 
 }

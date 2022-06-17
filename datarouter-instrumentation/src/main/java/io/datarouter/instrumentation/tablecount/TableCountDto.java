@@ -15,6 +15,7 @@
  */
 package io.datarouter.instrumentation.tablecount;
 
+import java.time.Instant;
 import java.util.Date;
 
 public class TableCountDto{
@@ -33,7 +34,7 @@ public class TableCountDto{
 			String clientName,
 			String tableName,
 			Long numRows,
-			Date dateUpdated,
+			Instant dateUpdated,
 			Long countTimeMs,
 			Long numSpans,
 			Long numSlowSpans){
@@ -41,7 +42,7 @@ public class TableCountDto{
 		this.clientName = clientName;
 		this.tableName = tableName;
 		this.numRows = numRows;
-		this.dateUpdated = dateUpdated;
+		this.dateUpdated = Date.from(dateUpdated);
 		this.countTimeMs = countTimeMs;
 		this.numSpans = numSpans;
 		this.numSlowSpans = numSlowSpans;

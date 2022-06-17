@@ -41,7 +41,9 @@ import io.datarouter.web.config.properties.DefaultEmailDistributionListZoneId;
 import io.datarouter.web.digest.DailyDigestEmailZoneId;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
 import io.datarouter.web.email.StandardDatarouterEmailHeaderService;
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.ATag;
+import j2html.tags.specialized.BodyTag;
+import j2html.tags.specialized.TableTag;
 
 @Singleton
 public class TableSizeMonitoringEmailBuilder{
@@ -57,7 +59,7 @@ public class TableSizeMonitoringEmailBuilder{
 	@Inject
 	private DefaultEmailDistributionListZoneId defaultDistributionListZoneId;
 
-	public ContainerTag<?> build(
+	public BodyTag build(
 			List<CountStat> thresholdRows,
 			float percentageThreshold,
 			List<CountStat> percentageRows,
@@ -84,7 +86,7 @@ public class TableSizeMonitoringEmailBuilder{
 		return body;
 	}
 
-	public ContainerTag<?> makeEmailStaleTable(List<LatestTableCount> staleRows, ZoneId zoneId){
+	public TableTag makeEmailStaleTable(List<LatestTableCount> staleRows, ZoneId zoneId){
 		return new J2HtmlEmailTable<LatestTableCount>()
 				.withColumn("Client", row -> row.getKey().getClientName())
 				.withColumn(new J2HtmlEmailTableColumn<>("TABLE", row -> makeTableLink(
@@ -92,12 +94,13 @@ public class TableSizeMonitoringEmailBuilder{
 						row.getKey().getClientName())))
 				.withColumn(alignRight("Latest Count", row -> NumberFormatter.addCommas(row.getNumRows())))
 				.withColumn(alignRight("Date Updated",
-						row -> ZonedDateFormatterTool.formatDateWithZone(row.getDateUpdated(), zoneId)))
-				.withColumn(alignRight("Updated Ago", row -> DateTool.getAgoString(row.getDateUpdated().getTime())))
+						row -> ZonedDateFormatterTool.formatInstantWithZone(row.getDateUpdated(), zoneId)))
+				.withColumn(alignRight("Updated Ago",
+						row -> DateTool.getAgoString(row.getDateUpdated().toEpochMilli())))
 				.build(staleRows);
 	}
 
-	public ContainerTag<?> makeCountStatTable(String comparableCount, List<CountStat> stats){
+	public TableTag makeCountStatTable(String comparableCount, List<CountStat> stats){
 		ZoneId zoneId = defaultDistributionListZoneId.get();
 		return new J2HtmlEmailTable<CountStat>()
 				.withColumn("Client", row -> row.latestSample.getKey().getClientName())
@@ -105,7 +108,7 @@ public class TableSizeMonitoringEmailBuilder{
 						row.latestSample.getKey().getTableName(),
 						row.latestSample.getKey().getClientName())))
 				.withColumn("Date Updated",
-						row -> ZonedDateFormatterTool.formatDateWithZone(row.latestSample.getDateUpdated(), zoneId))
+						row -> ZonedDateFormatterTool.formatInstantWithZone(row.latestSample.getDateUpdated(), zoneId))
 				.withColumn(alignRight(comparableCount, row -> NumberFormatter.addCommas(row.previousCount)))
 				.withColumn(alignRight("Latest Count", row -> NumberFormatter.addCommas(row.latestSample.getNumRows())))
 				.withColumn(alignRight("% Increase", row -> new DecimalFormat("#,###.##").format(row.percentageIncrease)
@@ -119,7 +122,7 @@ public class TableSizeMonitoringEmailBuilder{
 				.withStyle("text-align:right");
 	}
 
-	public ContainerTag<?> makeTableLink(String tableName, String clientName){
+	public ATag makeTableLink(String tableName, String clientName){
 		String href = emailService.startLinkBuilder()
 				.withLocalPath(paths.datarouter.nodewatch.tableCount)
 				.withParam("submitAction", "singleTable")

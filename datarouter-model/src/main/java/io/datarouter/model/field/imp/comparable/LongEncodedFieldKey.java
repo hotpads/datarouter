@@ -20,23 +20,23 @@ import java.util.Map;
 import io.datarouter.model.field.BaseFieldKey;
 import io.datarouter.model.field.FieldKeyAttribute;
 import io.datarouter.model.field.FieldKeyAttributeKey;
-import io.datarouter.model.field.codec.LongFieldCodec;
+import io.datarouter.model.field.codec.FieldCodec;
 import io.datarouter.model.field.encoding.FieldGeneratorType;
 
 public class LongEncodedFieldKey<T> extends BaseFieldKey<T,LongEncodedFieldKey<T>>{
 
-	private final LongFieldCodec<T> codec;
+	private final FieldCodec<T,Long> codec;
 
 	public LongEncodedFieldKey(
 			String name,
-			LongFieldCodec<T> codec){
+			FieldCodec<T,Long> codec){
 		super(name, codec.getTypeToken());
 		this.codec = codec;
 	}
 
 	private LongEncodedFieldKey(
 			String name,
-			LongFieldCodec<T> codec,
+			FieldCodec<T,Long> codec,
 			String columnName,
 			boolean nullable,
 			FieldGeneratorType fieldGeneratorType,
@@ -79,7 +79,7 @@ public class LongEncodedFieldKey<T> extends BaseFieldKey<T,LongEncodedFieldKey<T
 				attributes);
 	}
 
-	public LongFieldCodec<T> getCodec(){
+	public FieldCodec<T,Long> getCodec(){
 		return codec;
 	}
 

@@ -37,4 +37,8 @@ public class TerminatedByteArrayCodec{
 		return new LengthAndValue<>(consumedLength, value);
 	}
 
+	public int lengthWithTerminalIndex(byte[] bytes, int offset){
+		return TerminatedByteArrayTool.lengthWithTerminator(bytes, offset);
+	}
+
 }

@@ -27,6 +27,10 @@ public class ZonedDateFormatterTool{
 	// 'Tue, 3 Jun 2008 11:05:30 GMT'.
 	public static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss zzz yyyy");
 
+	/**
+	 * @deprecated don't use Date
+	 */
+	@Deprecated
 	public static String formatDateWithZone(Date date, ZoneId zoneId){
 		ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(date.toInstant(), zoneId);
 		return FORMATTER.format(zonedDateTime);

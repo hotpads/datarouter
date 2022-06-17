@@ -21,7 +21,7 @@
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-parent</artifactId>
-		<version>0.0.113</version>
+		<version>0.0.114</version>
 		<relativePath>../datarouter-parent</relativePath>
 	</parent>
 
@@ -44,20 +44,17 @@
 		</dependency>
 		<dependency>
 			<groupId>org.apache.hbase</groupId>
-			<artifactId>hbase-shaded-client</artifactId>
-			<version>1.4.12</version>
+			<artifactId>hbase-client</artifactId>
+			<version>2.4.12</version>
 			<exclusions>
-				<exclusion>
-					<groupId>org.slf4j</groupId>
-					<artifactId>slf4j-api</artifactId>
-				</exclusion>
 				<exclusion>
 					<groupId>org.slf4j</groupId>
 					<artifactId>slf4j-log4j12</artifactId>
 				</exclusion>
+				<!-- transitively through hadoop-common -->
 				<exclusion>
-					<groupId>junit</groupId>
-					<artifactId>junit</artifactId>
+					<groupId>com.google.code.gson</groupId>
+					<artifactId>gson</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>

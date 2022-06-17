@@ -41,7 +41,8 @@ public class J2HtmlTable<T>{
 
 	private final List<String> classes = new ArrayList<>();
 	private final List<J2HtmlTableColumn<T>> columns = new ArrayList<>();
-	private String caption;
+	private Optional<String> caption = Optional.empty();
+	private Optional<String> id = Optional.empty();
 
 	public J2HtmlTable<T> withClasses(String... classes){
 		this.classes.addAll(Arrays.asList(classes));
@@ -68,7 +69,12 @@ public class J2HtmlTable<T>{
 	}
 
 	public J2HtmlTable<T> withCaption(String caption){
-		this.caption = caption;
+		this.caption = Optional.of(caption);
+		return this;
+	}
+
+	public J2HtmlTable<T> withId(String id){
+		this.id = Optional.of(id);
 		return this;
 	}
 
@@ -92,16 +98,24 @@ public class J2HtmlTable<T>{
 
 		private final T value;
 		private final List<String> styles;
+		private final List<String> classes;
 
 		public J2HtmlTableRow(T value){
 			this.value = value;
 			this.styles = new ArrayList<>();
+			this.classes = new ArrayList<>();
 		}
 
 		public J2HtmlTableRow<T> withStyle(String style){
 			styles.add(style);
 			return this;
 		}
+
+		public J2HtmlTableRow<T> withClasses(String... classes){
+			this.classes.addAll(Arrays.asList(classes));
+			return this;
+		}
+
 	}
 
 	public TableTag build(Collection<T> rows){
@@ -119,14 +133,17 @@ public class J2HtmlTable<T>{
 		var tbody = tbody(each(rows, this::makeTr));
 		return table()
 				.withClasses(classes.toArray(String[]::new))
-				.condWith(caption != null, caption(caption))
+				//The conditional still calls the value whether or not its present.
+				.condWith(caption.isPresent(), caption(caption.orElse("")))
+				.withCondId(id.isPresent(), id.orElse(""))
 				.condWith(includeHeader, thead)
 				.with(tbody);
 	}
 
 	private TrTag makeTr(J2HtmlTableRow<T> row){
-		return TagCreator.tr(makeTds(row.value))
-				.withCondStyle(!row.styles.isEmpty(), String.join(";", row.styles));
+		return tr(makeTds(row.value))
+				.withCondStyle(!row.styles.isEmpty(), String.join(";", row.styles))
+				.withCondClass(!row.classes.isEmpty(), String.join(" ", row.classes));
 	}
 
 	private DomContent makeTds(T value){

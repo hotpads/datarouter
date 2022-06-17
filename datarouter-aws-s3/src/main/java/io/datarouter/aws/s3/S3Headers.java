@@ -17,7 +17,7 @@ package io.datarouter.aws.s3;
 
 import java.time.Duration;
 
-import io.datarouter.enums.StringEnum;
+import io.datarouter.enums.MappedEnum;
 
 public class S3Headers{
 
@@ -41,11 +41,11 @@ public class S3Headers{
 	}
 
 	public static final String getExtensionForContentType(String contentType){
-		ContentType type = ContentType.fromMimeType(contentType);
+		ContentType type = ContentType.BY_MIME_TYPE.fromOrNull(contentType);
 		if(type == null){
 			return null;
 		}
-		return type.getExtension();
+		return type.extension;
 	}
 
 	public interface S3ContentType{
@@ -54,7 +54,7 @@ public class S3Headers{
 
 	}
 
-	public enum ContentType implements StringEnum<ContentType>, S3ContentType{
+	public enum ContentType implements S3ContentType{
 		PNG("image/png","png"),
 		JPEG("image/jpeg","jpg"),
 		SWF("application/x-shockwave-flash","swf"),
@@ -72,11 +72,13 @@ public class S3Headers{
 		BINARY("binary/octet-stream", null),
 		APPLICATION_OCTET_STREAM("application/octet-stream", null),
 		PDF("application/pdf", "pdf"),
-		MP3("audio/mpeg", "mp3"),
-		;
+		MP3("audio/mpeg", "mp3");
 
-		private final String mimeType;
-		private final String extension;
+		public static final MappedEnum<ContentType,String> BY_MIME_TYPE
+				= new MappedEnum<>(values(), value -> value.mimeType);
+
+		public final String mimeType;
+		public final String extension;
 
 		ContentType(String mimeType, String extension){
 			this.mimeType = mimeType;
@@ -88,32 +90,14 @@ public class S3Headers{
 			return mimeType;
 		}
 
-		public String getExtension(){
-			return extension;
-		}
-
 		public static ContentType fromExtension(String ext){
 			ext = ext.toLowerCase();
 			for(ContentType type : values()){
-				if(ext.equals(type.getExtension())){
+				if(ext.equals(type.extension)){
 					return type;
 				}
 			}
 			return APPLICATION_XML;
-		}
-
-		@Override
-		public String getPersistentString(){
-			return mimeType;
-		}
-
-		@Override
-		public ContentType fromPersistentString(String mimeType){
-			return fromMimeType(mimeType);
-		}
-
-		public static ContentType fromMimeType(String mimeType){
-			return StringEnum.getEnumFromString(values(), mimeType, null);
 		}
 
 	}

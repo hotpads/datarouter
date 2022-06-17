@@ -21,7 +21,7 @@ import java.util.Optional;
 
 import io.datarouter.model.field.BaseField;
 import io.datarouter.model.field.Field;
-import io.datarouter.model.field.codec.ByteArrayFieldCodec;
+import io.datarouter.model.field.codec.FieldCodec;
 
 public class ByteArrayEncodedField<T> extends BaseField<T>{
 
@@ -87,7 +87,7 @@ public class ByteArrayEncodedField<T> extends BaseField<T>{
 		return key.getCodec().getComparator().compare(value, other.getValue());
 	}
 
-	public ByteArrayFieldCodec<T> getCodec(){
+	public FieldCodec<T,byte[]> getCodec(){
 		return key.getCodec();
 	}
 

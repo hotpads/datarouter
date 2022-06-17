@@ -18,6 +18,7 @@ package io.datarouter.exception.config;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.exception.storage.exceptionrecord.BaseExceptionRecord;
 import io.datarouter.storage.setting.DatarouterSettingCategory;
 import io.datarouter.storage.setting.DatarouterSettingTagType;
 import io.datarouter.storage.setting.Setting;
@@ -34,7 +35,7 @@ public class DatarouterExceptionSettingRoot extends SettingRoot{
 	public final CachedSetting<Boolean> saveExceptionRecordBlobsToQueueDaoInsteadOfDirectoryDao;
 	public final CachedSetting<Integer> exceptionRecordConveyorThreadCount;
 
-	//publish ExceptionRecords from buffer
+	//publish HttpRequestRecords from buffer
 	public final CachedSetting<Boolean> runHttpRequestRecordMemoryToPublisherConveyor;
 	//controls ExceptionRecords publishing destination
 	public final CachedSetting<Boolean> saveHttpRequestRecordBlobsToQueueDaoInsteadOfDirectoryDao;
@@ -52,6 +53,7 @@ public class DatarouterExceptionSettingRoot extends SettingRoot{
 	public final CachedSetting<Boolean> runHttpRequestRecordMemoryToDatabaseConveyor;
 
 	public final CachedSetting<Boolean> publishRecords;
+	public final CachedSetting<Integer> maxPublisherStackTraceLength;
 
 	public final CachedSetting<Boolean> compactExceptionLoggingForConveyors;
 
@@ -96,6 +98,9 @@ public class DatarouterExceptionSettingRoot extends SettingRoot{
 				true);
 		runHttpRequestRecordMemoryToDatabaseConveyor = registerBoolean("runHttpRequestRecordMemoryToDatabaseConveyor",
 				true);
+
+		maxPublisherStackTraceLength = registerInteger("maxPublisherStackTraceLength",
+				BaseExceptionRecord.FieldKeys.stackTrace.getSize());
 
 		publishRecords = registerBooleans("publishRecords", defaultTo(false)
 				.withTag(DatarouterSettingTagType.TRACE2PIPELINE, () -> true));

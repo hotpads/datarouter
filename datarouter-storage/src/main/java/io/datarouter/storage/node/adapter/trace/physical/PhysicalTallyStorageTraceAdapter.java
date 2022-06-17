@@ -20,31 +20,26 @@ import java.util.Map;
 import java.util.Optional;
 
 import io.datarouter.instrumentation.trace.TracerTool;
-import io.datarouter.model.databean.Databean;
-import io.datarouter.model.key.primary.PrimaryKey;
-import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.adapter.PhysicalAdapterMixin;
 import io.datarouter.storage.node.adapter.trace.BaseTraceAdapter;
-import io.datarouter.storage.node.op.raw.TallyStorage;
 import io.datarouter.storage.node.op.raw.TallyStorage.PhysicalTallyStorageNode;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
+import io.datarouter.storage.tally.Tally;
+import io.datarouter.storage.tally.Tally.TallyFielder;
+import io.datarouter.storage.tally.TallyKey;
 
-public class PhysicalTallyStorageTraceAdapter<
-		PK extends PrimaryKey<PK>,
-		D extends Databean<PK,D>,
-		F extends DatabeanFielder<PK,D>,
-		N extends PhysicalTallyStorageNode<PK,D,F>>
-extends BaseTraceAdapter<PK,D,F,N>
-implements PhysicalTallyStorageNode<PK,D,F>,
-		PhysicalAdapterMixin<PK,D,F,N>{
+public class PhysicalTallyStorageTraceAdapter
+extends BaseTraceAdapter<TallyKey,Tally,TallyFielder,PhysicalTallyStorageNode>
+implements PhysicalTallyStorageNode,
+		PhysicalAdapterMixin<TallyKey,Tally,TallyFielder,PhysicalTallyStorageNode>{
 
-	public PhysicalTallyStorageTraceAdapter(N backingNode){
+	public PhysicalTallyStorageTraceAdapter(PhysicalTallyStorageNode backingNode){
 		super(backingNode);
 	}
 
 	@Override
-	public PhysicalDatabeanFieldInfo<PK,D,F> getFieldInfo(){
+	public PhysicalDatabeanFieldInfo<TallyKey,Tally,TallyFielder> getFieldInfo(){
 		return PhysicalAdapterMixin.super.getFieldInfo();
 	}
 
@@ -75,9 +70,17 @@ implements PhysicalTallyStorageNode<PK,D,F>,
 
 	@Override
 	public void deleteTally(String key, Config config){
-		try(var $ = startSpanForOp(TallyStorage.OP_deleteTally)){
+		try(var $ = startSpanForOp(OP_deleteTally)){
 			getBackingNode().deleteTally(key, config);
 		}
+	}
+
+	@Override
+	public void vacuum(Config config){
+		try(var $ = startSpanForOp(OP_vacuum)){
+			getBackingNode().vacuum(config);
+		}
+
 	}
 
 }

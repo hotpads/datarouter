@@ -17,6 +17,7 @@ package io.datarouter.httpclient.endpoint;
 
 import java.util.Optional;
 
+@Deprecated
 public interface UrlLinkRoot{
 
 	default String getScheme(){

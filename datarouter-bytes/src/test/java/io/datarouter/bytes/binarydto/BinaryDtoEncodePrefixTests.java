@@ -18,13 +18,13 @@ package io.datarouter.bytes.binarydto;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.bytes.binarydto.codec.BinaryDtoCodec;
-import io.datarouter.bytes.binarydto.dto.BinaryDto;
+import io.datarouter.bytes.binarydto.codec.BinaryDtoComparableCodec;
 import io.datarouter.bytes.binarydto.dto.BinaryDtoField;
+import io.datarouter.bytes.binarydto.dto.ComparableBinaryDto;
 
 public class BinaryDtoEncodePrefixTests{
 
-	public static class TestDto extends BinaryDto<TestDto>{
+	public static class TestDto extends ComparableBinaryDto<TestDto>{
 
 		public final int f1;
 		@BinaryDtoField(nullable = false)
@@ -49,30 +49,18 @@ public class BinaryDtoEncodePrefixTests{
 
 	@Test
 	public void testEncodeFull(){
-		var codec = BinaryDtoCodec.of(TestDto.class);
 		var dto = new TestDto(1, "a", "b", 2);
-		byte[] expectedBytes = {
-				Byte.MIN_VALUE, 0, 0, 1,
-				'a', 0,//present, value, terminator
-				'b', 0,//present, value, terminator
-				Byte.MIN_VALUE, 0, 0, 2};//present, value, terminator
-		byte[] actualBytes = codec.encode(dto);
-		Assert.assertEquals(actualBytes, expectedBytes);
-		TestDto actualDto = codec.decode(actualBytes);
-		Assert.assertEquals(actualDto, dto);
+		Assert.assertEquals(dto.cloneIndexed(), dto);
+		Assert.assertEquals(dto.cloneComparable(), dto);
 	}
 
 	@Test
 	public void testEncodePrefix(){
-		var codec = BinaryDtoCodec.of(TestDto.class);
+		var codec = BinaryDtoComparableCodec.of(TestDto.class);
 		var dto = TestDto.prefix2(1, "a");
 		int numPrefixFields = 2;
-		byte[] expectedBytes = {
-				Byte.MIN_VALUE, 0, 0, 1,
-				'a', 0};//present, value, terminator
 		byte[] actualBytes = codec.encodePrefix(dto, numPrefixFields);
-		Assert.assertEquals(actualBytes, expectedBytes);
-		TestDto actualDto = codec.decodePrefix(actualBytes, 0, numPrefixFields);
+		TestDto actualDto = codec.decodePrefix(actualBytes, numPrefixFields);
 		Assert.assertEquals(actualDto, dto);
 	}
 

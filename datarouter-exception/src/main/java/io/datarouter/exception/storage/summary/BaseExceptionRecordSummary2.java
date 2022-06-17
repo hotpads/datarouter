@@ -34,6 +34,7 @@ public abstract class BaseExceptionRecordSummary2<
 extends BaseDatabean<PK,D>{
 
 	private String name;
+	private String category;
 	private Long numExceptions;
 	private String sampleExceptionRecordId;
 
@@ -55,21 +56,28 @@ extends BaseDatabean<PK,D>{
 		public List<Field<?>> getNonKeyFields(D databean){
 			return List.of(
 					new StringField(ExceptionRecord.FieldKeys.name, databean.getName()),
+					new StringField(ExceptionRecord.FieldKeys.category, databean.getCategory()),
 					new LongField(FieldKeys.numExceptions, databean.getNumExceptions()),
 					new StringField(FieldKeys.sampleExceptionRecordId, databean.getSampleExceptionRecordId()));
 		}
 
 	}
 
-	public BaseExceptionRecordSummary2(PK key, String name, Long numExceptions, String sampleExceptionRecordId){
+	public BaseExceptionRecordSummary2(PK key, String name, String category, Long numExceptions,
+			String sampleExceptionRecordId){
 		super(key);
 		this.name = name;
+		this.category = category;
 		this.numExceptions = numExceptions;
 		this.sampleExceptionRecordId = sampleExceptionRecordId;
 	}
 
 	public String getName(){
 		return name;
+	}
+
+	public String getCategory(){
+		return category;
 	}
 
 	public void incrementNumExceptions(){

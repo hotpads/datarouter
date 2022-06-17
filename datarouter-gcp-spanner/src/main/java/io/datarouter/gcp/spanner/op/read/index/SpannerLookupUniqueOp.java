@@ -28,7 +28,7 @@ import com.google.cloud.spanner.ReadOnlyTransaction;
 import com.google.cloud.spanner.ResultSet;
 
 import io.datarouter.gcp.spanner.field.SpannerBaseFieldCodec;
-import io.datarouter.gcp.spanner.field.SpannerFieldCodecRegistry;
+import io.datarouter.gcp.spanner.field.SpannerFieldCodecs;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.key.primary.PrimaryKey;
@@ -53,8 +53,8 @@ extends SpannerBaseReadIndexOp<PK,D>{
 			PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
 			Collection<? extends UniqueKey<PK>> keys,
 			Config config,
-			SpannerFieldCodecRegistry codecRegistry){
-		super(client, config, codecRegistry, fieldInfo.getTableName());
+			SpannerFieldCodecs fieldCodecs){
+		super(client, config, fieldCodecs, fieldInfo.getTableName());
 		this.keys = keys;
 		this.fieldInfo = fieldInfo;
 	}
@@ -117,7 +117,7 @@ extends SpannerBaseReadIndexOp<PK,D>{
 
 	private Key primaryKeyConversion(UniqueKey<PK> key){
 		Key.Builder mutationKey = Key.newBuilder();
-		for(SpannerBaseFieldCodec<?,?> codec : codecRegistry.createCodecs(key.getFields())){
+		for(SpannerBaseFieldCodec<?,?> codec : fieldCodecs.createCodecs(key.getFields())){
 			mutationKey = codec.setKey(mutationKey);
 		}
 		return mutationKey.build();

@@ -15,13 +15,12 @@
  */
 package io.datarouter.bytes.binarydto.fieldcodec.other;
 
-import io.datarouter.bytes.LengthAndValue;
 import io.datarouter.bytes.binarydto.fieldcodec.BinaryDtoBaseFieldCodec;
-import io.datarouter.bytes.codec.stringcodec.TerminatedStringCodec;
+import io.datarouter.bytes.codec.stringcodec.StringCodec;
 
 public class EnumBinaryDtoFieldCodec<E extends Enum<E>> extends BinaryDtoBaseFieldCodec<E>{
 
-	private static final TerminatedStringCodec CODEC = TerminatedStringCodec.US_ASCII;
+	private static final StringCodec CODEC = StringCodec.US_ASCII;
 
 	private final Class<E> type;
 
@@ -30,21 +29,19 @@ public class EnumBinaryDtoFieldCodec<E extends Enum<E>> extends BinaryDtoBaseFie
 	}
 
 	@Override
+	public boolean supportsComparableCodec(){
+		return true;
+	}
+
+	@Override
 	public byte[] encode(E value){
 		return CODEC.encode(value.name());
 	}
 
 	@Override
-	public E decode(byte[] bytes, int offset){
-		return decodeWithLength(bytes, offset).value;
-	}
-
-	@Override
-	public LengthAndValue<E> decodeWithLength(byte[] bytes, int offset){
-		LengthAndValue<String> stringLengthAndValue = CODEC.decode(bytes, offset);
-		int length = stringLengthAndValue.length;
-		E value = Enum.valueOf(type, stringLengthAndValue.value);
-		return new LengthAndValue<>(length, value);
+	public E decode(byte[] bytes, int offset, int length){
+		String stringValue = CODEC.decode(bytes, offset, length);
+		return Enum.valueOf(type, stringValue);
 	}
 
 	@Override

@@ -63,6 +63,7 @@ import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.FilterParamGrouping;
 import io.datarouter.web.dispatcher.FilterParams;
+import io.datarouter.web.dispatcher.RouteSet;
 import io.datarouter.web.dispatcher.ServletParams;
 import io.datarouter.web.filter.https.HttpsOnlyHttpsConfiguration;
 import io.datarouter.web.homepage.DefaultHomepageRouteSet;
@@ -122,8 +123,8 @@ implements WebappBuilder{
 	private final List<Class<? extends DatarouterAppListener>> appListenersUnorderedToExecuteLast;
 	private final List<Ordered<Class<? extends DatarouterWebAppListener>>> webAppListenersOrdered;
 	private final List<Class<? extends DatarouterWebAppListener>> webAppListenersUnordered;
-	private final List<Ordered<Class<? extends BaseRouteSet>>> routeSetOrdered;
-	private final List<Class<? extends BaseRouteSet>> routeSetsUnordered;
+	private final List<Ordered<Class<? extends RouteSet>>> routeSetOrdered;
+	private final List<Class<? extends RouteSet>> routeSetsUnordered;
 
 	private Class<? extends RoleManager> roleManager;
 	private Class<? extends CurrentSessionInfo> currentSessionInfo;
@@ -335,7 +336,7 @@ implements WebappBuilder{
 		modules.add(webPlugin);
 		modules.add(storagePluginBuilder.build());
 
-		List<Class<? extends BaseRouteSet>> finalRouteSetClasses = OrderedTool.combine(routeSetOrdered,
+		List<Class<? extends RouteSet>> finalRouteSetClasses = OrderedTool.combine(routeSetOrdered,
 				routeSetsUnordered);
 
 		Map<FilterParamGrouping,List<Ordered<FilterParams>>> orderedFilterParams = Scanner.of(filterParamsOrdered)

@@ -18,19 +18,30 @@ package io.datarouter.model.field.codec;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Objects;
+import java.util.function.Function;
 
 import com.google.gson.reflect.TypeToken;
 
 import io.datarouter.bytes.Codec;
+import io.datarouter.bytes.Codec.NullPassthroughCodec;
+import io.datarouter.bytes.EmptyArray;
 
 public class ByteArrayFieldCodec<T> extends FieldCodec<T,byte[]>{
+
+	public static final ByteArrayFieldCodec<byte[]> IDENTITY = new ByteArrayFieldCodec<>(
+			new TypeToken<byte[]>(){},
+			NullPassthroughCodec.of(Function.identity(), Function.identity()),
+			Arrays::compareUnsigned,
+			EmptyArray.BYTE,
+			null);
 
 	private ByteArrayFieldCodec(
 			TypeToken<T> typeToken,
 			Codec<T,byte[]> codec,
 			Comparator<T> comparator,
-			T sampleValue){
-		super(typeToken, codec, comparator, sampleValue);
+			T sampleValue,
+			String docString){
+		super(typeToken, codec, comparator, sampleValue, docString);
 	}
 
 	public static class ByteArrayFieldCodecBuilder<T>{
@@ -39,6 +50,7 @@ public class ByteArrayFieldCodec<T> extends FieldCodec<T,byte[]>{
 		private Codec<T,byte[]> codec;
 		private Comparator<T> comparator;
 		private T sampleValue;
+		private String docString;
 
 		public ByteArrayFieldCodecBuilder(
 				TypeToken<T> typeToken,
@@ -55,7 +67,8 @@ public class ByteArrayFieldCodec<T> extends FieldCodec<T,byte[]>{
 					typeToken,
 					codec,
 					comparator,
-					sampleValue);
+					sampleValue,
+					docString);
 
 		}
 
@@ -66,6 +79,11 @@ public class ByteArrayFieldCodec<T> extends FieldCodec<T,byte[]>{
 		public ByteArrayFieldCodecBuilder<T> setComparator(Comparator<T> comparator){
 			Objects.requireNonNull(comparator, "Please provide a Comparator");
 			this.comparator = comparator;
+			return this;
+		}
+
+		public ByteArrayFieldCodecBuilder<T> setDocString(String docString){
+			this.docString = docString;
 			return this;
 		}
 

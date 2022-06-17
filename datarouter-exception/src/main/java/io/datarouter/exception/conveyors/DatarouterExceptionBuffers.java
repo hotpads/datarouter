@@ -24,7 +24,7 @@ import io.datarouter.exception.storage.httprecord.HttpRequestRecord;
 @Singleton
 public class DatarouterExceptionBuffers{
 
-	private static final int MAX_SIZE = 10_000;
+	private static final int MAX_SIZE = 20_000;
 
 	//for persisting locally
 	public final MemoryBuffer<ExceptionRecord> exceptionRecordBuffer;

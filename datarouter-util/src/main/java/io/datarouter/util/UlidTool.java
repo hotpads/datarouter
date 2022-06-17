@@ -18,7 +18,6 @@ package io.datarouter.util;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.Date;
 import java.util.Random;
 
 import de.huxhorn.sulky.ulid.ULID;
@@ -79,16 +78,12 @@ public class UlidTool{
 		}
 	}
 
-	public static long getTimestamp(String ulid){
+	public static long getTimestampMs(String ulid){
 		return ULID.parseULID(ulid).timestamp();
 	}
 
 	public static Instant getInstant(String ulid){
-		return Instant.ofEpochMilli(getTimestamp(ulid));
-	}
-
-	public static Date getDateFromUlid(String ulid){
-		return Date.from(getInstant(ulid));
+		return Instant.ofEpochMilli(getTimestampMs(ulid));
 	}
 
 }

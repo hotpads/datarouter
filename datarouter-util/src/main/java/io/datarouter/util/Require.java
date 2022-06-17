@@ -150,6 +150,14 @@ public class Require{
 		return string;
 	}
 
+	public static String maxLength(String string, int length){
+		if(string.length() > length){
+			String message = String.format("%s is longer than %s", string, length);
+			throw new IllegalArgumentException(message);
+		}
+		return string;
+	}
+
 	public static <T,C extends Collection<T>> C notEmpty(C items){
 		return notEmpty(items, null);
 	}

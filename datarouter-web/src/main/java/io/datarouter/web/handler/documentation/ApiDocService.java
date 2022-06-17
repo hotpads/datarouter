@@ -24,6 +24,10 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
+import java.net.URI;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -64,6 +68,7 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
+import io.datarouter.web.dispatcher.RouteSet;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.BaseHandler.Handler;
 import io.datarouter.web.handler.BaseHandler.NullHandlerDecoder;
@@ -89,9 +94,9 @@ public class ApiDocService{
 	@Inject
 	private DatarouterInjector injector;
 
-	public List<DocumentedEndpointJspDto> buildDocumentation(String apiUrlContext, List<BaseRouteSet> routeSets){
+	public List<DocumentedEndpointJspDto> buildDocumentation(String apiUrlContext, List<RouteSet> routeSets){
 		return Scanner.of(routeSets)
-				.concatIter(BaseRouteSet::getDispatchRules)
+				.concatIter(RouteSet::getDispatchRules)
 				.include(rule -> rule.getPattern().pattern().startsWith(apiUrlContext))
 				.concatIter(this::buildEndpointDocumentation)
 				.sort(Comparator.comparing(DocumentedEndpointJspDto::getUrl))
@@ -440,7 +445,7 @@ public class ApiDocService{
 		// undocumented generic (T or E or PK)
 		if(type instanceof TypeVariable){
 			if(callWithoutWarning < 1){
-				logger.warn("undocumneted generic, please use AutoBuildable type={} parents={}", type, parents);
+				logger.warn("undocumented generic, please use AutoBuildable type={} parents={}", type, parents);
 			}
 			return new DocumentedExampleDto(null, new HashSet<>());
 		}
@@ -493,11 +498,23 @@ public class ApiDocService{
 		if(clazz == LocalTime.class){
 			return new DocumentedExampleDto(LocalTime.now(), new HashSet<>());
 		}
+		if(clazz == LocalDate.class){
+			return new DocumentedExampleDto(LocalDate.now(), new HashSet<>());
+		}
+		if(clazz == Instant.class){
+			return new DocumentedExampleDto(Instant.now(), new HashSet<>());
+		}
 		if(clazz == JsonArray.class){
 			return new DocumentedExampleDto(new JsonArray(), new HashSet<>());
 		}
 		if(clazz == JsonObject.class){
 			return new DocumentedExampleDto(new JsonObject(), new HashSet<>());
+		}
+		if(clazz == URI.class){
+			return new DocumentedExampleDto(URI.create("https://github.com/hotpads/datarouter"), new HashSet<>());
+		}
+		if(clazz == Duration.class){
+			return new DocumentedExampleDto(Duration.ofNanos(59784294311L), new HashSet<>());
 		}
 		if(clazz.isEnum()){
 			@SuppressWarnings({"unchecked", "rawtypes"})

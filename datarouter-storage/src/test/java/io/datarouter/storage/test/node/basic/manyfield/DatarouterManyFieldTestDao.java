@@ -42,7 +42,7 @@ public class DatarouterManyFieldTestDao extends BaseDao implements TestDao{
 		super(datarouter);
 
 		node = nodeFactory.create(clientId, ManyFieldBean::new, fielderSupplier)
-				.withSchemaVersion(new Random().nextInt())
+				.withSchemaVersion(Integer.toString(new Random().nextInt()))
 				.buildAndRegister();
 	}
 

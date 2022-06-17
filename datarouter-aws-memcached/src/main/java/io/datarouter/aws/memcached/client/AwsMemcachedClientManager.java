@@ -50,7 +50,7 @@ public class AwsMemcachedClientManager extends BaseMemcachedClientManager{
 		MemcachedClientMode clientMode = options.getClientMode(clientId.getName());
 		// use KetamaConnectionFactory for consistent hashing between memcached nodes
 		var ketamaConnectionFactory = new KetamaConnectionFactory(
-				clientMode.getClientMode(),
+				clientMode.clientMode,
 				DefaultConnectionFactory.DEFAULT_OP_QUEUE_LEN,
 				DefaultConnectionFactory.DEFAULT_READ_BUFFER_SIZE,
 				DefaultConnectionFactory.DEFAULT_OP_QUEUE_MAX_BLOCK_TIME){

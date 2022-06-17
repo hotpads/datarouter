@@ -19,18 +19,16 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 
-import io.datarouter.model.databean.Databean;
-import io.datarouter.model.key.primary.PrimaryKey;
-import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.Node;
 import io.datarouter.storage.node.op.NodeOps;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
+import io.datarouter.storage.tally.Tally;
+import io.datarouter.storage.tally.Tally.TallyFielder;
+import io.datarouter.storage.tally.TallyKey;
 
-public interface TallyStorage<
-		PK extends PrimaryKey<PK>,
-		D extends Databean<PK,D>>
-extends NodeOps<PK,D>{
+public interface TallyStorage
+extends NodeOps<TallyKey,Tally>{
 
 	/*----------- op names --------------*/
 
@@ -38,6 +36,7 @@ extends NodeOps<PK,D>{
 	public static final String OP_findTallyCount = "findTallyCount";
 	public static final String OP_getMultiTallyCount = "getMultiTallyCount";
 	public static final String OP_deleteTally = "deleteTally";
+	public static final String OP_vacuum = "vacuum";
 
 	/*----------- increment --------------*/
 
@@ -46,7 +45,6 @@ extends NodeOps<PK,D>{
 	default Long incrementAndGetCount(String key, int delta){
 		return incrementAndGetCount(key, delta, new Config());
 	}
-
 	/*----------- find --------------*/
 
 	Optional<Long> findTallyCount(String key, Config config);
@@ -71,20 +69,16 @@ extends NodeOps<PK,D>{
 		deleteTally(key, new Config());
 	}
 
+	void vacuum(Config config);
+
 	/*------------- nodes -------------*/
 
-	public interface TallyStorageNode<
-			PK extends PrimaryKey<PK>,
-			D extends Databean<PK,D>,
-			F extends DatabeanFielder<PK,D>>
-	extends TallyStorage<PK,D>, Node<PK,D,F>{
+	public interface TallyStorageNode
+	extends TallyStorage, Node<TallyKey,Tally,TallyFielder>{
 	}
 
-	public interface PhysicalTallyStorageNode<
-			PK extends PrimaryKey<PK>,
-			D extends Databean<PK,D>,
-			F extends DatabeanFielder<PK,D>>
-	extends TallyStorageNode<PK,D,F>, PhysicalNode<PK,D,F>{
+	public interface PhysicalTallyStorageNode
+	extends TallyStorageNode, PhysicalNode<TallyKey,Tally,TallyFielder>{
 	}
 
 }

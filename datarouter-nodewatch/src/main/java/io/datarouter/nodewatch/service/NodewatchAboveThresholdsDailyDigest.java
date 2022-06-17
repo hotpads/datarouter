@@ -40,7 +40,8 @@ import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
 import io.datarouter.web.digest.DailyDigestService;
 import io.datarouter.web.html.j2html.J2HtmlTable;
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.TableTag;
 
 @Singleton
 public class NodewatchAboveThresholdsDailyDigest implements DailyDigest{
@@ -55,15 +56,15 @@ public class NodewatchAboveThresholdsDailyDigest implements DailyDigest{
 	private DatarouterNodewatchPaths paths;
 
 	@Override
-	public Optional<ContainerTag<?>> getPageContent(ZoneId zoneId){
-		Optional<Pair<String,ContainerTag<?>>> aboveThresholdList = Scanner
+	public Optional<DivTag> getPageContent(ZoneId zoneId){
+		Optional<Pair<String,DivTag>> aboveThresholdList = Scanner
 				.of(monitoringService.getAboveThresholdLists().getLeft())
 				.listTo(rows -> makePageTable(rows, "Tables exceeding threshold", zoneId));
-		Optional<Pair<String,ContainerTag<?>>> abovePercentageList = Scanner
+		Optional<Pair<String,DivTag>> abovePercentageList = Scanner
 				.of(monitoringService.getAboveThresholdLists().getRight())
 				.listTo(rows -> makePageTable(rows, "Tables that grew or shrank by more than "
 						+ TableSizeMonitoringService.PERCENTAGE_THRESHOLD + "%", zoneId));
-		List<ContainerTag<?>> tables = Stream.of(aboveThresholdList, abovePercentageList)
+		List<DivTag> tables = Stream.of(aboveThresholdList, abovePercentageList)
 				.filter(Optional::isPresent)
 				.map(Optional::get)
 				.sorted(Comparator.comparing(Pair::getLeft))
@@ -77,15 +78,15 @@ public class NodewatchAboveThresholdsDailyDigest implements DailyDigest{
 	}
 
 	@Override
-	public Optional<ContainerTag<?>> getEmailContent(ZoneId zoneId){
-		Optional<Pair<String,ContainerTag<?>>> aboveThresholdList = Scanner
+	public Optional<DivTag> getEmailContent(ZoneId zoneId){
+		Optional<Pair<String,DivTag>> aboveThresholdList = Scanner
 				.of(monitoringService.getAboveThresholdLists().getLeft())
 				.listTo(rows -> makeEmailTable(rows, "Tables exceeding threshold"));
-		Optional<Pair<String,ContainerTag<?>>> abovePercentageList = Scanner
+		Optional<Pair<String,DivTag>> abovePercentageList = Scanner
 				.of(monitoringService.getAboveThresholdLists().getRight())
 				.listTo(rows -> makeEmailTable(rows, "Tables that grew or shrank by more than "
 						+ TableSizeMonitoringService.PERCENTAGE_THRESHOLD + "%"));
-		List<ContainerTag<?>> tables = Stream.of(aboveThresholdList, abovePercentageList)
+		List<DivTag> tables = Stream.of(aboveThresholdList, abovePercentageList)
 				.filter(Optional::isPresent)
 				.map(Optional::get)
 				.sorted(Comparator.comparing(Pair::getLeft))
@@ -103,18 +104,18 @@ public class NodewatchAboveThresholdsDailyDigest implements DailyDigest{
 		return DailyDigestType.SUMMARY;
 	}
 
-	private Optional<Pair<String,ContainerTag<?>>> makePageTable(List<CountStat> rows, String header, ZoneId zoneId){
+	private Optional<Pair<String,DivTag>> makePageTable(List<CountStat> rows, String header, ZoneId zoneId){
 		if(rows.isEmpty()){
 			return Optional.empty();
 		}
-		var table = new J2HtmlTable<CountStat>()
+		TableTag table = new J2HtmlTable<CountStat>()
 				.withClasses("sortable table table-sm table-striped my-4 border")
 				.withColumn("Client", row -> row.latestSample.getKey().getClientName())
 				.withHtmlColumn("Table", row -> td(emailBuilder.makeTableLink(
 						row.latestSample.getKey().getTableName(),
 						row.latestSample.getKey().getClientName())))
 				.withColumn("Date Updated",
-						row -> ZonedDateFormatterTool.formatDateWithZone(row.latestSample.getDateUpdated(), zoneId))
+						row -> ZonedDateFormatterTool.formatInstantWithZone(row.latestSample.getDateUpdated(), zoneId))
 				.withColumn("Previous Count ", row -> row.latestSample.getDateUpdated())
 				.withColumn("Latest Count", row -> row.latestSample.getDateUpdated())
 				.withColumn("% Increase", row -> row.latestSample.getDateUpdated())
@@ -123,7 +124,7 @@ public class NodewatchAboveThresholdsDailyDigest implements DailyDigest{
 		return Optional.of(new Pair<>(header, div(h4(header), table)));
 	}
 
-	private Optional<Pair<String,ContainerTag<?>>> makeEmailTable(List<CountStat> rows, String header){
+	private Optional<Pair<String,DivTag>> makeEmailTable(List<CountStat> rows, String header){
 		if(rows.isEmpty()){
 			return Optional.empty();
 		}

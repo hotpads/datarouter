@@ -15,7 +15,10 @@
  */
 package io.datarouter.model.field.imp.enums;
 
+import java.util.Arrays;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import com.google.gson.reflect.TypeToken;
 
@@ -64,8 +67,19 @@ extends BaseFieldKey<E,IntegerEnumFieldKey<E>>{
 				attributes);
 	}
 
+	@Override
 	public E getSampleValue(){
 		return sampleValue;
+	}
+
+	@Override
+	public Optional<String> findDocString(){
+		@SuppressWarnings("unchecked")
+		Enum<?>[] enums = ((Class<Enum<?>>)enumClass).getEnumConstants();
+		String doc = Arrays.stream(enums)
+				.map(symbol -> ((IntegerEnum<?>)symbol).getPersistentInteger() + ": " + symbol.name())
+				.collect(Collectors.joining(", ", "[ ", " ]"));
+		return Optional.of(doc);
 	}
 
 }

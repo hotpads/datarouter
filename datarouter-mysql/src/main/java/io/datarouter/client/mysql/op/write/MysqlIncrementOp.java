@@ -18,6 +18,7 @@ package io.datarouter.client.mysql.op.write;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.time.Duration;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -33,6 +34,7 @@ import io.datarouter.model.field.Field;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.Datarouter;
+import io.datarouter.storage.config.Config;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
 import io.datarouter.storage.tally.Tally;
 import io.datarouter.storage.tally.Tally.TallyFielder;
@@ -51,6 +53,7 @@ extends BaseMysqlOp<Long>{
 	private final MysqlSqlFactory mysqlSqlFactory;
 	private final String key;
 	private final Long incrementAmount;
+	private final Config config;
 
 	public MysqlIncrementOp(
 			Datarouter datarouter,
@@ -58,40 +61,47 @@ extends BaseMysqlOp<Long>{
 			MysqlFieldCodecFactory fieldCodecFactory,
 			MysqlSqlFactory mysqlSqlFactory,
 			String key,
-			Long incrementAmount){
+			Long incrementAmount,
+			Config config){
 		super(datarouter, fieldInfo.getClientId(), Isolation.readCommitted, false);
 		this.fieldInfo = fieldInfo;
 		this.fieldCodecFactory = fieldCodecFactory;
 		this.mysqlSqlFactory = mysqlSqlFactory;
 		this.key = key;
 		this.incrementAmount = incrementAmount;
+		this.config = config;
 	}
 
 	@Override
 	public Long runOnce(){
+		Long currentMillis = System.currentTimeMillis();
+		Long expiresAt = config.findTtl()
+				.map(Duration::toMillis)
+				.map(ttlMs -> currentMillis + ttlMs)
+				.orElse(null);
 		Connection connection = getConnection();
-		Tally databean = new Tally(key, incrementAmount);
+		Tally databean = new Tally(key, incrementAmount, expiresAt);
 		List<Field<?>> fields = fieldInfo.getFieldsWithValues(
 				databean);
 		var incrementSql = mysqlSqlFactory
 				.createSql(getClientId(), fieldInfo.getTableName(), fieldInfo.getDisableIntroducer())
-				.incrementTally(fieldInfo.getTableName(), key, incrementAmount);
+				.incrementTally(fieldInfo.getTableName(), key, incrementAmount, expiresAt);
 		var selectSql = mysqlSqlFactory
 				.createSql(getClientId(), fieldInfo.getTableName(), fieldInfo.getDisableIntroducer())
-				.addSelectFromClause(fieldInfo.getTableName(), fields);
+				.addSelectFromClause(fieldInfo.getTableName(), fields)
+				.appendWhereClauseDisjunction(List.of(databean.getKey()));
 		PreparedStatement incrementStatement = incrementSql.prepare(connection);
 		PreparedStatement selectStatement = selectSql.prepare(connection);
 		try{
 			incrementStatement.execute();
 			selectStatement.execute();
 			connection.commit();
-			Tally selectBean = MysqlTool.getDatabeansFromSelectResult(
+			List<Tally> tallies = MysqlTool.getDatabeansFromSelectResult(
 					fieldCodecFactory,
 					fieldInfo.getDatabeanSupplier(),
 					fieldInfo.getFields(),
-					selectStatement)
-				.get(0);
-			return selectBean.getTally();
+					selectStatement);
+			return tallies.isEmpty() ? null : tallies.get(0).getTally();
 		}catch(SQLException e){
 			try{
 				connection.rollback();

@@ -21,10 +21,11 @@ import java.util.function.Supplier;
 
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
+import io.datarouter.model.field.codec.DateToLongFieldCodec;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
-import io.datarouter.model.field.imp.custom.LongDateField;
-import io.datarouter.model.field.imp.custom.LongDateFieldKey;
+import io.datarouter.model.field.imp.comparable.LongEncodedField;
+import io.datarouter.model.field.imp.comparable.LongEncodedFieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 
 public class WebSocketSession extends BaseDatabean<WebSocketSessionKey,WebSocketSession>{
@@ -33,7 +34,8 @@ public class WebSocketSession extends BaseDatabean<WebSocketSessionKey,WebSocket
 	private String serverName;
 
 	public static class FieldKeys{
-		public static final LongDateFieldKey openingDate = new LongDateFieldKey("openingDate");
+		public static final LongEncodedFieldKey<Date> openingDate = new LongEncodedFieldKey<>(
+				"openingDate", new DateToLongFieldCodec());
 		public static final StringFieldKey serverName = new StringFieldKey("serverName");
 	}
 
@@ -47,7 +49,7 @@ public class WebSocketSession extends BaseDatabean<WebSocketSessionKey,WebSocket
 		@Override
 		public List<Field<?>> getNonKeyFields(WebSocketSession webSocketSession){
 			return List.of(
-				new LongDateField(FieldKeys.openingDate, webSocketSession.openingDate),
+				new LongEncodedField<>(FieldKeys.openingDate, webSocketSession.openingDate),
 				new StringField(FieldKeys.serverName, webSocketSession.serverName));
 		}
 

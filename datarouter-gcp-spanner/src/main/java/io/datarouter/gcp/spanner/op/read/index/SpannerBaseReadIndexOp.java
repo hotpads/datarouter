@@ -21,7 +21,7 @@ import com.google.cloud.spanner.DatabaseClient;
 import com.google.cloud.spanner.Key;
 import com.google.cloud.spanner.KeySet;
 
-import io.datarouter.gcp.spanner.field.SpannerFieldCodecRegistry;
+import io.datarouter.gcp.spanner.field.SpannerFieldCodecs;
 import io.datarouter.gcp.spanner.op.read.SpannerBaseReadOp;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.storage.config.Config;
@@ -32,9 +32,9 @@ extends SpannerBaseReadOp<T>{
 	public SpannerBaseReadIndexOp(
 			DatabaseClient client,
 			Config config,
-			SpannerFieldCodecRegistry codecRegistry,
+			SpannerFieldCodecs fieldCodecs,
 			String tableName){
-		super(client, config, codecRegistry, tableName);
+		super(client, config, fieldCodecs, tableName);
 	}
 
 	@SuppressWarnings("unchecked")

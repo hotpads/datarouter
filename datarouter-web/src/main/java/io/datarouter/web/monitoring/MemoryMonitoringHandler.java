@@ -44,6 +44,7 @@ import javax.inject.Inject;
 import io.datarouter.bytes.ByteUnitTool;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.properties.ServerName;
+import io.datarouter.storage.util.Ec2InstanceTool;
 import io.datarouter.util.MxBeans;
 import io.datarouter.util.SystemTool;
 import io.datarouter.util.duration.DatarouterDuration;
@@ -118,6 +119,7 @@ public class MemoryMonitoringHandler extends BaseHandler implements NonEagerInit
 		mav.put("manifests", loadedLibraries.manifests);
 		mav.put("otherLibraries", loadedLibraries.otherLibraries);
 		mav.put("tomcatThreadMetrics", tomcatThreadMetrics.getTomcatPoolMetrics());
+		mav.put("ec2InstanceId", Ec2InstanceTool.getEc2InstanceDetails(true).map(ec2 -> ec2.instanceId).orElse("no"));
 
 		MemoryUsage heap = MxBeans.MEMORY.getHeapMemoryUsage();
 		mav.put("heap", new MemoryUsageForDisplay(heap));

@@ -24,6 +24,7 @@ public class HtmlFormTextArea extends BaseHtmlFormField{
 	private String placeholder;
 	private String value;
 	private boolean required = false;
+	private boolean readOnly = false;
 
 	public HtmlFormTextArea withName(String name){
 		this.name = name;
@@ -42,6 +43,11 @@ public class HtmlFormTextArea extends BaseHtmlFormField{
 
 	public HtmlFormTextArea withValue(String value){
 		this.value = value;
+		return this;
+	}
+
+	public HtmlFormTextArea withReadOnly(boolean readOnly){
+		this.readOnly = readOnly;
 		return this;
 	}
 
@@ -73,6 +79,10 @@ public class HtmlFormTextArea extends BaseHtmlFormField{
 
 	public boolean isRequired(){
 		return required;
+	}
+
+	public boolean isReadOnly(){
+		return readOnly;
 	}
 
 }

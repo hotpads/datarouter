@@ -22,7 +22,7 @@ import io.datarouter.util.UlidTool;
 
 public class CountsSplittingStringBuildersIntegrationTests{
 
-	private static final long timestampLong = UlidTool.getTimestamp(UlidTool.nextUlid());
+	private static final long timestampLong = UlidTool.getTimestampMs(UlidTool.nextUlid());
 	private static final String timestamp = String.valueOf(timestampLong);
 	private static final String timestamp2 = String.valueOf(timestampLong + 1);
 

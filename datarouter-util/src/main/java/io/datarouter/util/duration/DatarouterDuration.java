@@ -46,14 +46,13 @@ public class DatarouterDuration{
 		TimeUnit.MICROSECONDS,
 	};
 
-	private static final String[] STRINGS = new String[]{
+	private static final List<String> UNIT_STRINGS = List.of(
 		"d",
 		"h",
 		"m",
 		"s",
 		"ms",
-		"us",
-	};
+		"us");
 
 	private long nano;
 
@@ -67,11 +66,15 @@ public class DatarouterDuration{
 			nano = Long.MAX_VALUE;
 			return;
 		}
-		String[] values = string.split("[a-z]+");
-		String[] unites = string.split("\\d+");
-		List<String> asList = Arrays.asList(STRINGS);
-		for(int i = 0; i < values.length; i++){
-			nano += TIME_UNITS[asList.indexOf(unites[i + 1])].toNanos(Long.parseLong(values[i]));
+		String[] inputValues = string.split("[a-z]+");
+		String[] inputUnits = string.split("\\d+");
+		for(int i = 0; i < inputValues.length; i++){
+			String inputUnit = inputUnits[i + 1];
+			int inputUnitIndex = UNIT_STRINGS.indexOf(inputUnit);
+			if(inputUnitIndex == -1){
+				throw new RuntimeException("unknown unit=" + inputUnit);
+			}
+			nano += TIME_UNITS[inputUnitIndex].toNanos(Long.parseLong(inputValues[i]));
 		}
 	}
 
@@ -143,7 +146,7 @@ public class DatarouterDuration{
 			long val = rest / unit;
 			rest = rest % unit;
 			if(val != 0 || i == maxIndex && builder.length() == 0){
-				builder.append(val + STRINGS[i]);
+				builder.append(val + UNIT_STRINGS.get(i));
 			}
 		}
 		return builder.toString();

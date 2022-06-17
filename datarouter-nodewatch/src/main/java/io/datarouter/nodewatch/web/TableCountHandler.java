@@ -15,10 +15,10 @@
  */
 package io.datarouter.nodewatch.web;
 
+import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -203,7 +203,7 @@ public class TableCountHandler extends BaseHandler{
 		var jsonArray = new JsonArray();
 		for(TableCount record : records){
 			JsonObject json = new JsonObject();
-			Long date = record.getDateUpdated().getTime();
+			Long date = record.getDateUpdated().toEpochMilli();
 			Long rows = record.getNumRows();
 			json.addProperty("date", date);
 			json.addProperty("rows", rows);
@@ -219,45 +219,62 @@ public class TableCountHandler extends BaseHandler{
 		private final Long numRows;
 		private final String countTime;
 		private final Long countTimeMs;
-		private final Date dateUpdated;
-		private Date dateCreated;
-		private Long dateCreatedTime;
+		private final String dateUpdated;
+		private final String dateCreated;
+		private final Long dateCreatedTime;
 		private final Long numSpans;
 		private final Long numSlowSpans;
 
-		private final ZoneId zoneId;
-
 		public TableCountJspDto(LatestTableCount latestTableCount, ZoneId zoneId){
-			this.clientName = latestTableCount.getKey().getClientName();
-			this.tableName = latestTableCount.getKey().getTableName();
-			this.numRows = latestTableCount.getNumRows();
-			this.countTime = new DatarouterDuration(latestTableCount.getCountTimeMs(), TimeUnit.MILLISECONDS)
-					.toString();
-			this.countTimeMs = latestTableCount.getCountTimeMs();
-			this.dateUpdated = latestTableCount.getDateUpdated();
-			this.numSpans = latestTableCount.getNumSpans();
-			this.numSlowSpans = latestTableCount.getNumSlowSpans();
-
-			this.zoneId = zoneId;
+			this(latestTableCount.getKey().getClientName(),
+					latestTableCount.getKey().getTableName(),
+					latestTableCount.getNumRows(),
+					latestTableCount.getCountTimeMs(),
+					latestTableCount.getDateUpdated(),
+					null,
+					latestTableCount.getNumSpans(),
+					latestTableCount.getNumSlowSpans(),
+					zoneId);
 		}
 
 		public TableCountJspDto(TableCount tableCount, ZoneId zoneId){
-			this.clientName = tableCount.getKey().getClientName();
-			this.tableName = tableCount.getKey().getTableName();
-			this.numRows = tableCount.getNumRows();
-			this.countTime = new DatarouterDuration(tableCount.getCountTimeMs(), TimeUnit.MILLISECONDS).toString();
-			this.countTimeMs = tableCount.getCountTimeMs();
-			this.dateUpdated = tableCount.getDateUpdated();
-			this.dateCreated = new Date(tableCount.getKey().getCreatedMs());
-			this.dateCreatedTime = tableCount.getKey().getCreatedMs();
-			this.numSpans = tableCount.getNumSpans();
-			this.numSlowSpans = tableCount.getNumSlowSpans();
+			this(tableCount.getKey().getClientName(),
+					tableCount.getKey().getTableName(),
+					tableCount.getNumRows(),
+					tableCount.getCountTimeMs(),
+					tableCount.getDateUpdated(),
+					tableCount.getKey().getCreatedMs(),
+					tableCount.getNumSpans(),
+					tableCount.getNumSlowSpans(),
+					zoneId);
+		}
 
-			this.zoneId = zoneId;
+		public TableCountJspDto(
+				String clientName,
+				String tableName,
+				Long numRows,
+				Long countTimeMs,
+				Instant dateUpdated,
+				Long dateCreatedTime,
+				Long numSpans,
+				Long numSlowSpans,
+				ZoneId zoneId){
+			this.clientName = clientName;
+			this.tableName = tableName;
+			this.numRows = numRows;
+			this.countTime = new DatarouterDuration(countTimeMs, TimeUnit.MILLISECONDS).toString();
+			this.countTimeMs = countTimeMs;
+			this.dateUpdated = ZonedDateFormatterTool.formatInstantWithZone(dateUpdated, zoneId);
+			this.dateCreated = dateCreatedTime == null
+					? null
+					: ZonedDateFormatterTool.formatLongMsWithZone(dateCreatedTime, zoneId);
+			this.dateCreatedTime = dateCreatedTime;
+			this.numSpans = numSpans;
+			this.numSlowSpans = numSlowSpans;
 		}
 
 		public String getDateCreated(){
-			return ZonedDateFormatterTool.formatDateWithZone(dateCreated, zoneId);
+			return dateCreated;
 		}
 
 		public Long getDateCreatedTime(){
@@ -285,7 +302,7 @@ public class TableCountHandler extends BaseHandler{
 		}
 
 		public String getDateUpdated(){
-			return ZonedDateFormatterTool.formatDateWithZone(dateUpdated, zoneId);
+			return dateUpdated;
 		}
 
 		public Long getnumSpans(){

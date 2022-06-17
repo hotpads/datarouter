@@ -34,7 +34,7 @@ import io.datarouter.web.html.pager.MemoryPager;
 import io.datarouter.web.html.pager.MemoryPager.Page;
 import io.datarouter.web.html.pager.MemorySorter;
 import io.datarouter.web.user.session.CurrentUserSessionInfoService;
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.DivTag;
 
 public class ViewChangelogHandler extends BaseHandler{
 
@@ -65,7 +65,7 @@ public class ViewChangelogHandler extends BaseHandler{
 				.buildMav();
 	}
 
-	private ContainerTag<?> makeContent(Page<Changelog> page){
+	private DivTag makeContent(Page<Changelog> page){
 		var form = Bootstrap4PagerHtml.renderForm(page)
 				.withClass("mt-4");
 		var linkBar = Bootstrap4PagerHtml.renderLinkBar(page)

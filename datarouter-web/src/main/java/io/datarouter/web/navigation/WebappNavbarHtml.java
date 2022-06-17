@@ -29,6 +29,10 @@ import java.util.Objects;
 
 import io.datarouter.web.handler.mav.MavProperties;
 import j2html.tags.ContainerTag;
+import j2html.tags.specialized.ATag;
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.LiTag;
+import j2html.tags.specialized.UlTag;
 
 //for bootstrap 3
 public class WebappNavbarHtml{
@@ -43,14 +47,14 @@ public class WebappNavbarHtml{
 		this.navbarTargetId = props.getIsDatarouterPage() ? "dr-navbar" : "mav-navbar";
 	}
 
-	public ContainerTag<?> build(){
+	public DivTag build(){
 		var container = div(makeHeader(), makeContent())
 				.withClass("container-fluid");
 		return div(container)
 				.withClass("navbar navbar-inverse navbar-static-top");
 	}
 
-	private ContainerTag<?> makeHeader(){
+	private DivTag makeHeader(){
 		var iconBar = span()
 				.withClass("icon-bar");
 		var button = button(iconBar, iconBar, iconBar)
@@ -63,7 +67,7 @@ public class WebappNavbarHtml{
 				.condWith(props.getIsDatarouterPage(), makeDatarouterLogo());
 	}
 
-	private ContainerTag<?> makeDatarouterLogo(){
+	private ATag makeDatarouterLogo(){
 		var img = img()
 				.withClass("logo-brand")
 				.withSrc(props.getContextPath() + navbar.getLogoSrc())
@@ -74,13 +78,13 @@ public class WebappNavbarHtml{
 				.withHref("#");
 	}
 
-	private ContainerTag<?> makeContent(){
+	private DivTag makeContent(){
 		return div(makeMenu(), makeSignOut())
 				.withId(navbarTargetId)
 				.withClass("navbar-collapse collapse");
 	}
 
-	private ContainerTag<?> makeMenu(){
+	private UlTag makeMenu(){
 		var menus = navbar.getMenuItems(props.getRequest()).stream()
 				.map(menuItem -> menuItem.isDropdown() ? makeDropdownMenuItem(menuItem)
 						: makeNonDropdownMenuItem(menuItem))
@@ -89,7 +93,7 @@ public class WebappNavbarHtml{
 				.withClass("nav navbar-nav");
 	}
 
-	private ContainerTag<?> makeDropdownMenuItem(NavBarMenuItem menuItem){
+	private LiTag makeDropdownMenuItem(NavBarMenuItem menuItem){
 		var caret = span()
 				.withClass("caret");
 		var link = a(caret, text(menuItem.getText()))
@@ -100,24 +104,24 @@ public class WebappNavbarHtml{
 				.withClass("dropdown");
 	}
 
-	private ContainerTag<?> makeDropdown(NavBarMenuItem menuItem){
+	private UlTag makeDropdown(NavBarMenuItem menuItem){
 		return ul(each(menuItem.getSubItems(props.getRequest()), this::makeDropdownListItem))
 				.withClass("dropdown-menu");
 	}
 
-	private ContainerTag<?> makeDropdownListItem(NavBarMenuItem menuItem){
+	private LiTag makeDropdownListItem(NavBarMenuItem menuItem){
 		var link = a(menuItem.getText())
 				.withHref(menuItem.getAbsoluteHref(props.getRequest()).toString());
 		return li(link);
 	}
 
-	private ContainerTag<?> makeNonDropdownMenuItem(NavBarMenuItem menuItem){
+	private LiTag makeNonDropdownMenuItem(NavBarMenuItem menuItem){
 		var link = a(menuItem.getText())
 				.withHref(menuItem.getAbsoluteHref(props.getRequest()).toString());
 		return li(link);
 	}
 
-	private ContainerTag<?> makeSignOut(){
+	private UlTag makeSignOut(){
 		var link = a("Sign out")
 				.withHref(props.getContextPath() + "/signout");
 		return ul(li(link))

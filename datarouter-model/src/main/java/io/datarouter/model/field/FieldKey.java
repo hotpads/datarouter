@@ -38,6 +38,7 @@ public interface FieldKey<T>{
 	byte[] getColumnNameBytes();
 
 	boolean isNullable();
+	Optional<Integer> findSize();
 
 	Type getValueType();
 
@@ -45,10 +46,12 @@ public interface FieldKey<T>{
 	T generateRandomValue();
 
 	boolean isFixedLength();
-
 	boolean isCollection();//this is used by viewNodeData.jsp to add line breaks to the table
+	boolean isPossiblyCaseInsensitive();//For DB strings.  If true it can cause scanner looping.
+
 	T getDefaultValue();
 	T getSampleValue();
+	Optional<String> findDocString();
 
 	<U extends FieldKeyAttribute<U>> Optional<U> findAttribute(FieldKeyAttributeKey<U> key);
 	Map<FieldKeyAttributeKey<?>,FieldKeyAttribute<?>> getAttributes();

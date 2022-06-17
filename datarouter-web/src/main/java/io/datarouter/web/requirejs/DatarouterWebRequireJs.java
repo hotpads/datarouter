@@ -21,7 +21,7 @@ import java.util.Map;
 
 import io.datarouter.pathnode.PathNode;
 import io.datarouter.web.config.DatarouterWebFiles;
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.ScriptTag;
 
 public class DatarouterWebRequireJs{
 
@@ -69,11 +69,11 @@ public class DatarouterWebRequireJs{
 		SHIMS.put(DYGRAPH_EXTRA, List.of(DYGRAPH));
 	}
 
-	public static ContainerTag<?> makeImportTag(String contextPath){
+	public static ScriptTag makeImportTag(String contextPath){
 		return RequireJsTool.makeRequireJsImportTag(contextPath, FILES.requirejs.requireJs);
 	}
 
-	public static ContainerTag<?> makeConfigScriptTag(String contextPath){
+	public static ScriptTag makeConfigScriptTag(String contextPath){
 		return RequireJsTool.makeConfigScriptTag(makeConfigJsonString(contextPath));
 	}
 

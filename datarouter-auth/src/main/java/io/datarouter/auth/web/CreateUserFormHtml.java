@@ -23,7 +23,7 @@ import java.util.List;
 import io.datarouter.web.html.form.HtmlForm;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.DivTag;
 
 public class CreateUserFormHtml{
 
@@ -40,7 +40,7 @@ public class CreateUserFormHtml{
 		this.submitAction = submitAction;
 	}
 
-	public ContainerTag<?> build(){
+	public DivTag build(){
 		return div(
 				h2("Create User"),
 				Bootstrap4FormHtml.render(makeForm()))

@@ -25,6 +25,7 @@ import io.datarouter.util.ordered.Ordered;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.FilterParams;
+import io.datarouter.web.dispatcher.RouteSet;
 import io.datarouter.web.listener.DatarouterAppListener;
 import io.datarouter.web.listener.DatarouterWebAppListener;
 import io.datarouter.web.metriclinks.MetricLinkPage;
@@ -50,22 +51,22 @@ public abstract class BaseWebPlugin extends BaseStoragePlugin{
 
 	/*------------------------------ route sets -----------------------------*/
 
-	private final List<Ordered<Class<? extends BaseRouteSet>>> routeSetsOrdered = new ArrayList<>();
-	private final List<Class<? extends BaseRouteSet>> routeSetsUnordered = new ArrayList<>();
+	private final List<Ordered<Class<? extends RouteSet>>> routeSetsOrdered = new ArrayList<>();
+	private final List<Class<? extends RouteSet>> routeSetsUnordered = new ArrayList<>();
 
 	protected void addRouteSetOrdered(Class<? extends BaseRouteSet> routeSet, Class<? extends BaseRouteSet> after){
 		routeSetsOrdered.add(new Ordered<>(routeSet, after));
 	}
 
-	protected void addRouteSet(Class<? extends BaseRouteSet> routeSet){
+	protected void addRouteSet(Class<? extends RouteSet> routeSet){
 		routeSetsUnordered.add(routeSet);
 	}
 
-	public List<Ordered<Class<? extends BaseRouteSet>>> getRouteSetsOrdered(){
+	public List<Ordered<Class<? extends RouteSet>>> getRouteSetsOrdered(){
 		return routeSetsOrdered;
 	}
 
-	public List<Class<? extends BaseRouteSet>> getRouteSetsUnordered(){
+	public List<Class<? extends RouteSet>> getRouteSetsUnordered(){
 		return routeSetsUnordered;
 	}
 

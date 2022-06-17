@@ -21,8 +21,8 @@ import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.bytes.binarydto.codec.BinaryDtoCodec;
-import io.datarouter.bytes.binarydto.dto.BinaryDto;
+import io.datarouter.bytes.binarydto.codec.BinaryDtoComparableCodec;
+import io.datarouter.bytes.binarydto.dto.ComparableBinaryDto;
 import io.datarouter.scanner.Scanner;
 
 public class BinaryDtoEnumTests{
@@ -31,7 +31,7 @@ public class BinaryDtoEnumTests{
 		AA, BB, CC
 	}
 
-	public static class TestDto extends BinaryDto<TestDto>{
+	public static class TestDto extends ComparableBinaryDto<TestDto>{
 		public final TestEnum f1;
 		public final TestEnum f2;
 		public final TestEnum f3;
@@ -45,19 +45,9 @@ public class BinaryDtoEnumTests{
 
 	@Test
 	public void testEncoding(){
-		var codec = BinaryDtoCodec.of(TestDto.class);
 		var dto = new TestDto(TestEnum.AA, null, TestEnum.CC);
-		byte[] expectedBytes = {
-				1,//f1 present
-				'A', 'A', 0,//f1 value with terminator
-				0,//f2 null
-				1,//f3 present
-				'C', 'C', 0};//f3 value with terminator
-		byte[] actualBytes = codec.encode(dto);
-		Assert.assertEquals(actualBytes, expectedBytes);
-
-		TestDto actual = codec.decode(actualBytes);
-		Assert.assertEquals(actual, dto);
+		Assert.assertEquals(dto.cloneIndexed(), dto);
+		Assert.assertEquals(dto.cloneComparable(), dto);
 	}
 
 	@Test
@@ -76,11 +66,11 @@ public class BinaryDtoEnumTests{
 		Assert.assertEquals(actual, expected);
 
 		//test binary sorting matches dto sorting
-		BinaryDtoCodec<TestDto> codec = BinaryDtoCodec.of(TestDto.class);
+		BinaryDtoComparableCodec<TestDto> comparableCodec = BinaryDtoComparableCodec.of(TestDto.class);
 		List<TestDto> actualBinarySorted = Scanner.of(input)
-				.map(codec::encode)
+				.map(comparableCodec::encode)
 				.sort(Arrays::compareUnsigned)
-				.map(codec::decode)
+				.map(comparableCodec::decode)
 				.list();
 		Assert.assertEquals(actualBinarySorted, expected);
 

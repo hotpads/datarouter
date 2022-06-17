@@ -24,8 +24,7 @@ import java.util.stream.IntStream;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.enums.PersistentString;
-import io.datarouter.enums.StringEnum;
+import io.datarouter.enums.MappedEnum;
 import io.datarouter.storage.client.ClientOptions;
 import io.datarouter.storage.config.client.RedisGenericClientOptions.RedisGenericClientMode;
 
@@ -49,7 +48,7 @@ public class RedisOptions{
 
 	public RedisClientMode getClientMode(String clientName){
 		return clientOptions.optString(clientName, makeRedisKey(PROP_clientMode))
-				.map(RedisClientMode::fromPersistentStringStatic)
+				.map(RedisClientMode.BY_PERSISTENT_STRING::fromOrThrow)
 				.orElseThrow(() -> new IllegalArgumentException("clientMode needs to be specified"));
 	}
 
@@ -75,18 +74,22 @@ public class RedisOptions{
 	/*--------------------------------- mode --------------------------------*/
 
 
-	public enum RedisClientMode implements PersistentString{
+	public enum RedisClientMode{
 		AUTO_DISCOVERY("autoDiscovery", true),
 		MULTI_NODE("multiNode", true),
-		STANDARD("standard", false)
-		;
+		STANDARD("standard", false);
 
-		private final String persistentString;
-		private final boolean isClustered;
+		public static final MappedEnum<RedisClientMode,String> BY_PERSISTENT_STRING
+				= new MappedEnum<>(values(), value -> value.persistentString);
+
+		public final String persistentString;
+		public final boolean isClustered;
+		public final boolean isStandard;
 
 		RedisClientMode(String persistentString, boolean isClustered){
 			this.persistentString = persistentString;
 			this.isClustered = isClustered;
+			this.isStandard = !isClustered;
 		}
 
 		public static RedisClientMode fromGenericClientMode(RedisGenericClientMode genericMode){
@@ -95,24 +98,6 @@ public class RedisOptions{
 				case MULTI_NODE -> MULTI_NODE;
 				case STANDARD -> STANDARD;
 			};
-		}
-
-		@Override
-		public String getPersistentString(){
-			return persistentString;
-		}
-
-		public boolean isStandard(){
-			return !isClustered;
-		}
-
-		public boolean isClustered(){
-			return isClustered;
-		}
-
-		public static RedisClientMode fromPersistentStringStatic(String string){
-			return StringEnum.findEnumFromString(values(), string)
-					.orElseThrow();
 		}
 
 	}

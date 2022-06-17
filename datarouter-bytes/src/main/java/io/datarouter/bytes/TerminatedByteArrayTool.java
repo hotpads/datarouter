@@ -96,6 +96,18 @@ public class TerminatedByteArrayTool{
 		}
 	}
 
+	public static int lengthWithTerminator(byte[] bytes, int offset){
+		return findTerminalIndex(bytes, offset) - offset + 1;
+	}
+
+	public static int findTerminalIndex(byte[] bytes, int offset){
+		int index = offset;
+		while(bytes[index] != TERMINAL_BYTE){
+			++index;
+		}
+		return index;
+	}
+
 	public static NumEscapedAndTerminalIndex findEscapedCountAndTerminalIndex(byte[] bytes, int offset){
 		int numEscaped = 0;
 		int index = offset;

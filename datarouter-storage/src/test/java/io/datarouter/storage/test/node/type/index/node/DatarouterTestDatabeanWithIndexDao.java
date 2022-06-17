@@ -47,14 +47,22 @@ public class DatarouterTestDatabeanWithIndexDao extends BaseDao implements TestD
 			TestDatabeanWithManagedIndexByBarKey,
 			TestDatabeanWithManagedIndexByBar> byB;
 
-	public DatarouterTestDatabeanWithIndexDao(Datarouter datarouter, NodeFactory nodeFactory, ClientId clientId,
-			String tableName, boolean manageTxn, String indexName){
+	public DatarouterTestDatabeanWithIndexDao(
+			Datarouter datarouter,
+			NodeFactory nodeFactory,
+			ClientId clientId,
+			String tableName,
+			boolean manageTxn,
+			String indexName){
 		super(datarouter);
 		mainNode = backingMapNode = nodeFactory.create(clientId, TestDatabean::new, TestDatabeanFielder::new)
 				.withTableName(tableName)
 				.buildAndRegister();
-		byB = backingMapNode.registerManaged(IndexingNodeFactory.newManagedUnique(backingMapNode,
-				TestDatabeanWithManagedIndexByBFielder::new, TestDatabeanWithManagedIndexByBar::new, manageTxn,
+		byB = backingMapNode.registerManaged(IndexingNodeFactory.newManagedUnique(
+				backingMapNode,
+				TestDatabeanWithManagedIndexByBFielder::new,
+				TestDatabeanWithManagedIndexByBar::new,
+				manageTxn,
 				indexName));
 	}
 

@@ -26,7 +26,7 @@ public class HttpRequestRecordsSplittingStringBuildersIntegrationTests{
 	private static final HttpRequestRecordDto EMPTY = new HttpRequestRecordDto(null, null, null, null, null, null, null,
 			null, null, null, null, 0, null, null, null, null, null, null, null, null, null, null, null, null, null,
 			null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
-	private static final String EMPTY_JSON = GsonTool.JAVA9_GSON.toJson(EMPTY);
+	private static final String EMPTY_JSON = GsonTool.GSON.toJson(EMPTY);
 	private static final int EMPTY_LENGTH = EMPTY_JSON.length();
 
 	@Test

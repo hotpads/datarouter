@@ -19,19 +19,19 @@ import java.util.List;
 
 import javax.inject.Singleton;
 
-import io.datarouter.web.dispatcher.BaseRouteSet;
+import io.datarouter.web.dispatcher.RouteSet;
 
 @Singleton
 public class DefaultRouteSetRegistry implements RouteSetRegistry{
 
-	private final List<BaseRouteSet> routeSets;
+	private final List<RouteSet> routeSets;
 
-	public DefaultRouteSetRegistry(List<BaseRouteSet> routeSets){
+	public DefaultRouteSetRegistry(List<RouteSet> routeSets){
 		this.routeSets = routeSets;
 	}
 
 	@Override
-	public List<BaseRouteSet> get(){
+	public List<RouteSet> get(){
 		return routeSets;
 	}
 

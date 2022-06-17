@@ -24,7 +24,7 @@ import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.html.j2html.J2HtmlLegendTable;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.DivTag;
 
 public class DatarouterPropertiesViewHandler extends BaseHandler{
 
@@ -42,7 +42,7 @@ public class DatarouterPropertiesViewHandler extends BaseHandler{
 				.buildMav();
 	}
 
-	private ContainerTag<?> makeTable(){
+	private DivTag makeTable(){
 		var table = new J2HtmlLegendTable()
 				.withClass("sortable table table-sm border table-striped")
 				.withSingleRow(false);

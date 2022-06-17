@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.Properties;
 
 import io.datarouter.email.type.DatarouterEmailTypes.SchemaUpdatesEmailType;
+import io.datarouter.gcp.spanner.field.SpannerFieldCodecRegistry;
+import io.datarouter.gcp.spanner.field.SpannerFieldCodecs;
 import io.datarouter.gcp.spanner.test.SpannerTestCliendIds;
 import io.datarouter.inject.guice.BaseGuiceModule;
 import io.datarouter.storage.config.properties.DatarouterTestPropertiesFile;
@@ -47,6 +49,7 @@ public class SpannerTestNgModuleFactory extends TestNgModuleFactory{
 					.toInstance(new DatarouterClusterSchemaUpdateLockDaoParams(
 							List.of(SpannerTestCliendIds.SPANNER)));
 			bind(SchemaUpdatesEmailType.class).toInstance(new SchemaUpdatesEmailType(List.of()));
+			bind(SpannerFieldCodecs.class).toInstance(new SpannerFieldCodecRegistry());
 		}
 
 	}

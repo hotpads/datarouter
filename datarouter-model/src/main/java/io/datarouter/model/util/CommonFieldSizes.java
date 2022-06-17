@@ -19,9 +19,14 @@ import io.datarouter.bytes.ByteUnitType;
 
 public class CommonFieldSizes{
 
+	/*----------- GCP pubsub -----------*/
+
+	public static final int MAX_PUBSUB_SIZE = ByteUnitType.MB.toBytesInt(10);//MB is correct
+
 	/*----------- memcached -----------*/
 
 	public static final int MEMCACHED_MAX_KEY_LENGTH = 250;
+	public static final int MEMCACHED_MAX_VALUE_LENGTH = ByteUnitType.MiB.toBytesInt(1);
 
 	/*----------- mysql -----------*/
 

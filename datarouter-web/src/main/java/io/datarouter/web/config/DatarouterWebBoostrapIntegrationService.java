@@ -41,6 +41,7 @@ import io.datarouter.util.clazz.AnnotationTool;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
 import io.datarouter.web.dispatcher.DispatcherServletTestService;
+import io.datarouter.web.dispatcher.RouteSet;
 import io.datarouter.web.file.AppFilesTestService;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.BaseHandler.Handler;
@@ -141,7 +142,7 @@ public class DatarouterWebBoostrapIntegrationService implements TestableService{
 	@SuppressWarnings("unused")
 	private void testHandlerPublicMethods(){
 		List<String> handlersWithPrivateMethods = Scanner.of(routeSetRegistry.get())
-				.concatIter(BaseRouteSet::getDispatchRules)
+				.concatIter(RouteSet::getDispatchRules)
 				.map(DispatchRule::getHandlerClass)
 				.concatIter(clazz -> Scanner.of(clazz.getDeclaredMethods())
 						.exclude(method -> method.getAnnotation(Handler.class) == null)
@@ -158,7 +159,7 @@ public class DatarouterWebBoostrapIntegrationService implements TestableService{
 	private void testHandlerMethodNameAndPathMatching(){
 		List<String> exceptions = new ArrayList<>();
 		Scanner.of(routeSetRegistry.get())
-				.concatIter(BaseRouteSet::getDispatchRules)
+				.concatIter(RouteSet::getDispatchRules)
 				.exclude(dispatchRule -> dispatchRule.getTag() == Tag.DATAROUTER)
 				.exclude(dispatchRule -> dispatchRule.getPattern().toString().endsWith("[/]?[^/]*"))
 				.exclude(dispatchRule -> dispatchRule.getPattern().toString().endsWith("*"))

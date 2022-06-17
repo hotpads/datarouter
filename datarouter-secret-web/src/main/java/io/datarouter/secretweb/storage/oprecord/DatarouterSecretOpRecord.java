@@ -20,10 +20,11 @@ import java.util.function.Supplier;
 
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
+import io.datarouter.model.field.codec.StringMappedEnumFieldCodec;
+import io.datarouter.model.field.imp.StringEncodedField;
+import io.datarouter.model.field.imp.StringEncodedFieldKey;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
-import io.datarouter.model.field.imp.enums.StringEnumField;
-import io.datarouter.model.field.imp.enums.StringEnumFieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 import io.datarouter.secret.op.SecretOpReason.SecretOpReasonType;
 import io.datarouter.secret.op.client.SecretClientOpType;
@@ -36,12 +37,12 @@ extends BaseDatabean<DatarouterSecretOpRecordKey,DatarouterSecretOpRecord>{
 	private String reason;
 
 	public static class FieldKeys{
-		public static final StringEnumFieldKey<SecretClientOpType> secretOp = new StringEnumFieldKey<>(
+		public static final StringEncodedFieldKey<SecretClientOpType> secretOp = new StringEncodedFieldKey<>(
 				"secretOp",
-				SecretClientOpType.class);
-		public static final StringEnumFieldKey<SecretOpReasonType> secretOpReasonType = new StringEnumFieldKey<>(
+				new StringMappedEnumFieldCodec<>(SecretClientOpType.BY_PERSISTENT_STRING));
+		public static final StringEncodedFieldKey<SecretOpReasonType> secretOpReasonType = new StringEncodedFieldKey<>(
 				"secretOpReasonType",
-				SecretOpReasonType.class);
+				new StringMappedEnumFieldCodec<>(SecretOpReasonType.BY_PERSISTENT_STRING));
 		public static final StringFieldKey opType = new StringFieldKey("opType");
 		public static final StringFieldKey opReasonType = new StringFieldKey("opReasonType");
 		public static final StringFieldKey reason = new StringFieldKey("reason");
@@ -51,8 +52,12 @@ extends BaseDatabean<DatarouterSecretOpRecordKey,DatarouterSecretOpRecord>{
 		super(new DatarouterSecretOpRecordKey());
 	}
 
-	public DatarouterSecretOpRecord(String namespace, String name, SecretClientOpType secretOp,
-			SecretOpReasonType secretOpReasonType, String reason){
+	public DatarouterSecretOpRecord(
+			String namespace,
+			String name,
+			SecretClientOpType secretOp,
+			SecretOpReasonType secretOpReasonType,
+			String reason){
 		super(new DatarouterSecretOpRecordKey(namespace, name));
 		this.secretOp = secretOp;
 		this.secretOpReasonType = secretOpReasonType;
@@ -69,8 +74,8 @@ extends BaseDatabean<DatarouterSecretOpRecordKey,DatarouterSecretOpRecord>{
 		@Override
 		public List<Field<?>> getNonKeyFields(DatarouterSecretOpRecord databean){
 			return List.of(
-					new StringEnumField<>(FieldKeys.secretOp, databean.secretOp),
-					new StringEnumField<>(FieldKeys.secretOpReasonType, databean.secretOpReasonType),
+					new StringEncodedField<>(FieldKeys.secretOp, databean.secretOp),
+					new StringEncodedField<>(FieldKeys.secretOpReasonType, databean.secretOpReasonType),
 					new StringField(FieldKeys.reason, databean.reason));
 		}
 

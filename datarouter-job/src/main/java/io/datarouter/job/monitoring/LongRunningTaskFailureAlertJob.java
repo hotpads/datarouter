@@ -44,7 +44,9 @@ import io.datarouter.util.time.ZonedDateFormatterTool;
 import io.datarouter.web.config.properties.DefaultEmailDistributionListZoneId;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
 import io.datarouter.web.email.StandardDatarouterEmailHeaderService;
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.ATag;
+import j2html.tags.specialized.BodyTag;
+import j2html.tags.specialized.TableTag;
 
 public class LongRunningTaskFailureAlertJob extends BaseJob{
 
@@ -83,7 +85,7 @@ public class LongRunningTaskFailureAlertJob extends BaseJob{
 			String primaryHref = emailService.startLinkBuilder()
 					.withLocalPath(paths.datarouter.triggers)
 					.build();
-			ContainerTag<?> content = buildEmail(serverName.get(), longRunningTaskList);
+			BodyTag content = buildEmail(serverName.get(), longRunningTaskList);
 			J2HtmlDatarouterEmailBuilder emailBuilder = emailService.startEmailBuilder()
 					.withTitle("LongRunningTaskFailure")
 					.withTitleHref(primaryHref)
@@ -96,21 +98,22 @@ public class LongRunningTaskFailureAlertJob extends BaseJob{
 		}
 	}
 
-	private ContainerTag<?> buildEmail(String serverNameString,
+	private BodyTag buildEmail(
+			String serverNameString,
 			List<LongRunningTask> longRunningTaskList){
 		var body = body();
 		String headerVerb = longRunningTaskList.size() == 1 ? " is " : " are ";
 		var header = standardDatarouterEmailHeaderService.makeStandardHeader();
 		var description = h4("There" + headerVerb + longRunningTaskList.size()
 				+ " non-successful long running tasks in the last 24 hours.");
-		ContainerTag<?> taskTable = new J2HtmlEmailTable<LongRunningTask>()
+		TableTag taskTable = new J2HtmlEmailTable<LongRunningTask>()
 				.withColumn(new J2HtmlEmailTableColumn<>("Name",
 						row -> makeTaskLink(row.getKey().getName())))
 				.withColumn("Trigger Time", row -> ZonedDateFormatterTool.formatDateWithZone(row.getKey()
 						.getTriggerTime(), defaultDistributionListZoneId.get()))
 				.withColumn("Duration", row -> row.getDurationString())
 				.withColumn("Triggered By", row -> row.getTriggeredBy())
-				.withColumn("Status", row -> row.getJobExecutionStatus().getPersistentString())
+				.withColumn("Status", row -> row.getJobExecutionStatus().persistentString)
 				.withColumn(new J2HtmlEmailTableColumn<>("Exception Record Id",
 						row -> makeExceptionLink(row.getExceptionRecordId())))
 				.build(longRunningTaskList);
@@ -121,7 +124,7 @@ public class LongRunningTaskFailureAlertJob extends BaseJob{
 				span("Sent from: " + serverNameString));
 	}
 
-	private ContainerTag<?> makeTaskLink(String longRunningTaskName){
+	private ATag makeTaskLink(String longRunningTaskName){
 		String href = emailService.startLinkBuilder()
 				.withLocalPath(taskPaths.datarouter.longRunningTasks)
 				.withParam("name", longRunningTaskName)
@@ -131,7 +134,7 @@ public class LongRunningTaskFailureAlertJob extends BaseJob{
 				.withHref(href);
 	}
 
-	private ContainerTag<?> makeExceptionLink(String exceptionRecordId){
+	private ATag makeExceptionLink(String exceptionRecordId){
 		String href = emailService.startLinkBuilder()
 				.withLocalPath(exceptionLink.getPath())
 				.withParam(exceptionLink.getParamName(), exceptionRecordId)

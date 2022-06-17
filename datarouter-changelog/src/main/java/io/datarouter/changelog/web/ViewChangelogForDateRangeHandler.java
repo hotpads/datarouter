@@ -41,7 +41,8 @@ import io.datarouter.web.html.form.HtmlForm;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import io.datarouter.web.user.session.CurrentUserSessionInfoService;
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.FormTag;
 
 public class ViewChangelogForDateRangeHandler extends BaseHandler{
 
@@ -93,8 +94,8 @@ public class ViewChangelogForDateRangeHandler extends BaseHandler{
 				.withValue("anything");
 		formRange.withAction(servletContext.getContextPath() + paths.datarouter.changelog.viewForDateRange
 				.toSlashedString());
-		ContainerTag<?> formExactTag = Bootstrap4FormHtml.render(formExact, true);
-		ContainerTag<?> formRangeTag = Bootstrap4FormHtml.render(formRange, true);
+		FormTag formExactTag = Bootstrap4FormHtml.render(formExact, true);
+		FormTag formRangeTag = Bootstrap4FormHtml.render(formRange, true);
 		Scanner<Changelog> scanner = Scanner.empty();
 
 		if(dateExact.isPresent() && dateStart.isEmpty() && dateEnd.isEmpty()){
@@ -116,7 +117,7 @@ public class ViewChangelogForDateRangeHandler extends BaseHandler{
 				.buildMav();
 	}
 
-	private ContainerTag<?> makeContent(ContainerTag<?> formExact, ContainerTag<?> formRange, List<Changelog> rows){
+	private DivTag makeContent(FormTag formExact, FormTag formRange, List<Changelog> rows){
 		var table = service.buildTable(rows, currentSessionInfoService.getZoneId(request));
 		return div(br(), formExact, h5("or"), formRange, table)
 				.withClass("container-fluid");

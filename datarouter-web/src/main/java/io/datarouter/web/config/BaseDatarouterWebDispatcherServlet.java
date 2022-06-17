@@ -23,8 +23,8 @@ import javax.inject.Singleton;
 
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatcherServlet;
+import io.datarouter.web.dispatcher.RouteSet;
 
 @SuppressWarnings("serial")
 @Singleton
@@ -32,8 +32,8 @@ public class BaseDatarouterWebDispatcherServlet extends DispatcherServlet{
 
 	private final DatarouterInjector injector;
 
-	private final List<Class<BaseRouteSet>> routeSetClasses;
-	private final List<BaseRouteSet> routeSets;
+	private final List<Class<RouteSet>> routeSetClasses;
+	private final List<RouteSet> routeSets;
 
 	@Inject
 	protected BaseDatarouterWebDispatcherServlet(DatarouterInjector injector){
@@ -42,7 +42,7 @@ public class BaseDatarouterWebDispatcherServlet extends DispatcherServlet{
 		this.routeSets = new ArrayList<>();
 	}
 
-	protected void addRouteSet(BaseRouteSet routeSet){
+	protected void addRouteSet(RouteSet routeSet){
 		routeSets.add(routeSet);
 	}
 

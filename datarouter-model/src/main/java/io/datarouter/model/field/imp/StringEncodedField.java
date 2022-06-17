@@ -22,7 +22,7 @@ import io.datarouter.bytes.codec.stringcodec.TerminatedStringCodec;
 import io.datarouter.model.field.BaseField;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.FieldKey;
-import io.datarouter.model.field.codec.StringFieldCodec;
+import io.datarouter.model.field.codec.FieldCodec;
 
 public class StringEncodedField<T> extends BaseField<T>{
 
@@ -99,7 +99,7 @@ public class StringEncodedField<T> extends BaseField<T>{
 		return key.getCodec().decode(string);
 	}
 
-	public StringFieldCodec<T> getCodec(){
+	public FieldCodec<T,String> getCodec(){
 		return key.getCodec();
 	}
 

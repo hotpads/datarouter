@@ -18,12 +18,11 @@ package io.datarouter.bytes.binarydto;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.bytes.binarydto.codec.BinaryDtoCodec;
-import io.datarouter.bytes.binarydto.dto.BinaryDto;
+import io.datarouter.bytes.binarydto.dto.ComparableBinaryDto;
 
 public class BinaryDtoLongArrayTests{
 
-	public static class TestDto extends BinaryDto<TestDto>{
+	public static class TestDto extends ComparableBinaryDto<TestDto>{
 		public final long[] f1;
 		public final long[] f2;
 		public final long[] f3;
@@ -37,24 +36,12 @@ public class BinaryDtoLongArrayTests{
 
 	@Test
 	public void testEncoding(){
-		var codec = BinaryDtoCodec.of(TestDto.class);
 		var dto = new TestDto(
 				new long[]{1, 2},
 				null,
 				new long[]{});
-		byte[] expectedBytes = {
-				1,//f1 present
-				2,//f1 length 2
-				Byte.MIN_VALUE, 0, 0, 0, 0, 0, 0, 1,//f1 value 0
-				Byte.MIN_VALUE, 0, 0, 0, 0, 0, 0, 2,//f1 value 1
-				0,//f2 null
-				1,//f3 present
-				0};//f3 length 0
-		byte[] actualBytes = codec.encode(dto);
-		Assert.assertEquals(actualBytes, expectedBytes);
-
-		TestDto actual = codec.decode(actualBytes);
-		Assert.assertEquals(actual, dto);
+		Assert.assertEquals(dto.cloneIndexed(), dto);
+		Assert.assertEquals(dto.cloneComparable(), dto);
 	}
 
 }

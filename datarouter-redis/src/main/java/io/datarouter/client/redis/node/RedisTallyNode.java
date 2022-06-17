@@ -15,37 +15,34 @@
  */
 package io.datarouter.client.redis.node;
 
-import java.time.Duration;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
 
 import io.datarouter.client.redis.client.DatarouterRedisClient;
+import io.datarouter.client.redis.client.RedisRequestConfig;
 import io.datarouter.client.redis.codec.RedisTallyCodec;
-import io.datarouter.model.databean.Databean;
-import io.datarouter.model.key.primary.PrimaryKey;
-import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.op.raw.TallyStorage.PhysicalTallyStorageNode;
 import io.datarouter.storage.node.type.physical.base.BasePhysicalNode;
+import io.datarouter.storage.tally.Tally;
+import io.datarouter.storage.tally.Tally.TallyFielder;
+import io.datarouter.storage.tally.TallyKey;
 import io.lettuce.core.KeyValue;
 
-public class RedisTallyNode<
-		PK extends PrimaryKey<PK>,
-		D extends Databean<PK,D>,
-		F extends DatabeanFielder<PK,D>>
-extends BasePhysicalNode<PK,D,F>
-implements PhysicalTallyStorageNode<PK,D,F>{
+public class RedisTallyNode
+extends BasePhysicalNode<TallyKey,Tally,TallyFielder>
+implements PhysicalTallyStorageNode{
 
 	private final RedisTallyCodec codec;
 	private final Supplier<DatarouterRedisClient> lazyClient;
 
 	public RedisTallyNode(
-			NodeParams<PK,D,F> params,
+			NodeParams<TallyKey,Tally,TallyFielder> params,
 			ClientType<?,?> clientType,
 			RedisTallyCodec codec,
 			Supplier<DatarouterRedisClient> lazyClient){
@@ -56,11 +53,16 @@ implements PhysicalTallyStorageNode<PK,D,F>{
 
 	@Override
 	public Long incrementAndGetCount(String id, int delta, Config config){
-		byte[] idBytes = codec.encodeId(id);
-		long count = lazyClient.get().incrby(idBytes, delta);
+		byte[] encodedId = codec.encodeId(id);
+		long count = lazyClient.get().incrby(
+				encodedId,
+				delta,
+				RedisRequestConfig.forWrite(getName(), config));
 		config.findTtl()
-				.map(Duration::toMillis)
-				.ifPresent(ttlMs -> lazyClient.get().pexpire(idBytes, ttlMs));
+				.ifPresent(ttl -> lazyClient.get().pexpire(
+						encodedId,
+						ttl,
+						RedisRequestConfig.forWrite(getName(), config)));
 		return count;
 	}
 
@@ -68,7 +70,9 @@ implements PhysicalTallyStorageNode<PK,D,F>{
 	public Optional<Long> findTallyCount(String id, Config config){
 		return Optional.of(id)
 				.map(codec::encodeId)
-				.flatMap(lazyClient.get()::find)
+				.flatMap(encodedId -> lazyClient.get().find(
+						encodedId,
+						RedisRequestConfig.forRead(getName(), config)))
 				.map(codec::decodeValue);
 	}
 
@@ -76,7 +80,9 @@ implements PhysicalTallyStorageNode<PK,D,F>{
 	public Map<String,Long> getMultiTallyCount(Collection<String> ids, Config config){
 		return Scanner.of(ids)
 				.map(codec::encodeId)
-				.listTo(lazyClient.get()::mget)
+				.listTo(encodedIds -> lazyClient.get().mget(
+						encodedIds,
+						RedisRequestConfig.forRead(getName(), config)))
 				.include(KeyValue::hasValue)
 				.toMap(codec::decodeId, codec::decodeValue);
 	}
@@ -85,7 +91,14 @@ implements PhysicalTallyStorageNode<PK,D,F>{
 	public void deleteTally(String id, Config config){
 		Optional.of(id)
 				.map(codec::encodeId)
-				.ifPresent(lazyClient.get()::del);
+				.ifPresent(encodedKey -> lazyClient.get().del(
+						encodedKey,
+						RedisRequestConfig.forWrite(getName(), config)));
+	}
+
+	@Override
+	public void vacuum(Config config){
+		throw new UnsupportedOperationException();
 	}
 
 }

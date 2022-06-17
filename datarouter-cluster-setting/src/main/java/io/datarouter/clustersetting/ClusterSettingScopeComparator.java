@@ -40,7 +40,7 @@ public class ClusterSettingScopeComparator implements Comparator<ClusterSetting>
 			return firstScope == null ? -1 : 1;
 		}
 
-		int difference = firstScope.getSpecificity() - secondScope.getSpecificity();
+		int difference = firstScope.specificity - secondScope.specificity;
 		if(difference == 0){
 			return 0;
 		}

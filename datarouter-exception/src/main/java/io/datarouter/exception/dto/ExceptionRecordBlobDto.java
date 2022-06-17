@@ -17,6 +17,7 @@ package io.datarouter.exception.dto;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 
@@ -29,9 +30,12 @@ import io.datarouter.instrumentation.exception.ExceptionRecordDto;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.Require;
 
+//TODO remove V1 later
 public class ExceptionRecordBlobDto{
 
-	private static final String V1 = "v1";
+	private static final String
+			V1 = "v1",
+			V2 = "v2";
 
 	public final String version;
 	public final String serviceName;
@@ -41,7 +45,7 @@ public class ExceptionRecordBlobDto{
 	public final String apiKey;
 
 	public ExceptionRecordBlobDto(ExceptionRecordBatchDto exceptionRecordBatchDto, String apiKey){
-		this.version = V1;
+		this.version = V2;
 		Require.notEmpty(exceptionRecordBatchDto.records);
 		this.serviceName = Require.notBlank(exceptionRecordBatchDto.records.get(0).serviceName);
 		this.serverName = Require.notBlank(exceptionRecordBatchDto.records.get(0).serverName);
@@ -96,27 +100,52 @@ public class ExceptionRecordBlobDto{
 		return strings.get(0).getBytes(StandardCharsets.UTF_8);
 	}
 
-	public Scanner<String> serializeToStrings(int sizeLimit){
-		String metadataLine = String.join("\t", List.of(version,
+	public Scanner<String> serializeToStringsOld(int sizeLimit){
+		String metadataLine = String.join("\t", List.of(
+				V1,
 				serviceName,
 				serverName,
 				appVersion,
 				apiKey)) + "\n";
-		return serializeExceptionRecordItems(sizeLimit - metadataLine.length())
+		return serializeExceptionRecordItemsOld(sizeLimit - metadataLine.length())
 				.map(metadataLine::concat);
 	}
 
+	public Scanner<String> serializeToStrings(int sizeLimit){
+		String metadata = toBase64ByteString(String.join("\t", List.of(
+				V2,//always serialize as V2
+				serviceName,
+				serverName,
+				appVersion,
+				apiKey))) + ",";
+		return serializeExceptionRecordItems(sizeLimit - metadata.length())
+				.map(metadata::concat);
+	}
+
 	public static ExceptionRecordBlobDto deserializeFromString(String string){
-		String[] lines = string.split("\n", 2);
-		String[] parts = lines[0].split("\t");//metadata line parts
-		Require.equals(parts.length, 5);
-		Require.equals(parts[0], V1);
+		boolean isV1 = string.startsWith(V1 + "\t");
+		String[] lines = string.split(isV1 ? "\n" : ",", 2);
+		String itemsString;
+		//ternary operator does not work, because it evaluates code that can throw an exception
+		if(isV1){
+			itemsString = lines[0];
+		}else{
+			itemsString = fromBase64ByteString(lines[0]);
+		}
+		String[] parts = itemsString.split("\t");//metadata line parts
+		Require.equals(parts[0], isV1 ? V1 : V2);
 		for(int i = 1; i < parts.length; i++){
 			Require.notBlank(parts[i]);
 		}
-		List<ExceptionRecordBlobItemDto> items = deserializeExceptionRecordItems(lines[1]);
+		List<ExceptionRecordBlobItemDto> items;
+		//ternary operator does not work, because it evaluates code that can throw an exception
+		if(isV1){
+			items = deserializeExceptionRecordItemsV1(lines[1]);
+		}else{
+			items = deserializeExceptionRecordItemsV2(lines[1]);
+		}
 		return new ExceptionRecordBlobDto(
-				parts[0],
+				V2,//convert to V2 when deserializing any version
 				parts[1],
 				parts[2],
 				parts[3],
@@ -124,15 +153,28 @@ public class ExceptionRecordBlobDto{
 				items);
 	}
 
-	private Scanner<String> serializeExceptionRecordItems(int sizeLimit){
+	private Scanner<String> serializeExceptionRecordItemsOld(int sizeLimit){
 		var builder = new ExceptionRecordsSplittingStringBuilders(sizeLimit);
 		items.forEach(builder::append);
 		return builder.scanSplitItems();
 	}
 
-	private static List<ExceptionRecordBlobItemDto> deserializeExceptionRecordItems(String lines){
+	private Scanner<String> serializeExceptionRecordItems(int sizeLimit){
+		var builder = new ExceptionRecordsSplittingStringBuildersV2(sizeLimit);
+		items.forEach(builder::append);
+		return builder.scanSplitItems();
+	}
+
+	private static List<ExceptionRecordBlobItemDto> deserializeExceptionRecordItemsV1(String lines){
 		return Scanner.of(lines.split("\n"))
-				.map(line -> GsonTool.JAVA9_GSON.fromJson(line, ExceptionRecordBlobItemDto.class))
+				.map(line -> GsonTool.GSON.fromJson(line, ExceptionRecordBlobItemDto.class))
+				.list();
+	}
+
+	private static List<ExceptionRecordBlobItemDto> deserializeExceptionRecordItemsV2(String lines){
+		return Scanner.of(lines.split(","))
+				.map(ExceptionRecordBlobDto::fromBase64ByteString)
+				.map(line -> GsonTool.GSON.fromJson(line, ExceptionRecordBlobItemDto.class))
 				.list();
 	}
 
@@ -155,6 +197,14 @@ public class ExceptionRecordBlobDto{
 				.listTo(ExceptionRecordBatchDto::new);
 	}
 
+	private static String toBase64ByteString(String string){
+		return Base64.getEncoder().encodeToString(string.getBytes(StandardCharsets.UTF_8));
+	}
+
+	private static String fromBase64ByteString(String base64Bytes){
+		return new String(Base64.getDecoder().decode(base64Bytes), StandardCharsets.UTF_8);
+	}
+
 	public static class ExceptionRecordsSplittingStringBuilders{
 		private static final Logger logger = LoggerFactory.getLogger(
 				ExceptionRecordBlobDto.ExceptionRecordsSplittingStringBuilders.class);
@@ -171,9 +221,8 @@ public class ExceptionRecordBlobDto{
 			splitItems = new ArrayList<>();
 		}
 
-		//format for each item: <name>\t<ulid>\t<value>, with newlines in between
 		public void append(ExceptionRecordBlobItemDto item){
-			String json = GsonTool.JAVA9_GSON.toJson(item);
+			String json = GsonTool.GSON.toJson(item);
 			int length = json.length();
 			//discard items that will never fit
 			if(length > maxLength){
@@ -200,6 +249,55 @@ public class ExceptionRecordBlobDto{
 				currentStringBuilder.append("\n");
 			}
 			currentStringBuilder.append(json);
+		}
+
+	}
+
+	public static class ExceptionRecordsSplittingStringBuildersV2{
+		private static final Logger logger = LoggerFactory.getLogger(
+				ExceptionRecordBlobDto.ExceptionRecordsSplittingStringBuilders.class);
+
+		private static final int COMMA_LENGTH = 1;
+
+		private final int maxLength;
+		private final List<StringBuilder> splitItems;
+
+		private StringBuilder currentStringBuilder;
+
+		public ExceptionRecordsSplittingStringBuildersV2(int maxLength){
+			this.maxLength = maxLength;
+			splitItems = new ArrayList<>();
+		}
+
+		public void append(ExceptionRecordBlobItemDto item){
+			String json = GsonTool.GSON.toJson(item);
+			String serialized = toBase64ByteString(json);
+			int length = serialized.length();
+			//discard items that will never fit
+			if(length > maxLength){
+				logger.warn("discarding ExceptionRecordBlobItemDto json={}", json);
+				return;
+			}
+			//either this is the first item, or it won't fit in the current builder, so add a new builder
+			if(currentStringBuilder == null || currentStringBuilder.length() + length + COMMA_LENGTH > maxLength){
+				currentStringBuilder = new StringBuilder();
+				splitItems.add(currentStringBuilder);
+				appendInternal(serialized, false);
+				return;
+			}
+			appendInternal(serialized, true);
+		}
+
+		public Scanner<String> scanSplitItems(){
+			return Scanner.of(splitItems)
+					.map(StringBuilder::toString);
+		}
+
+		private void appendInternal(String serialized, boolean includeComma){
+			if(includeComma){
+				currentStringBuilder.append(",");
+			}
+			currentStringBuilder.append(serialized);
 		}
 
 	}

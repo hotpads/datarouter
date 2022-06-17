@@ -23,8 +23,8 @@ import javax.inject.Inject;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.config.RouteSetRegistry;
-import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
+import io.datarouter.web.dispatcher.RouteSet;
 import io.datarouter.web.metriclinks.MetricLinkDto.LinkDto;
 
 public abstract class HandlerMetricLinkPage implements MetricLinkPage{
@@ -39,7 +39,7 @@ public abstract class HandlerMetricLinkPage implements MetricLinkPage{
 
 	protected List<MetricLinkDto> buildMetricLinks(Tag tag){
 		return Scanner.of(routeSetRegistry.get())
-				.map(BaseRouteSet::getDispatchRules)
+				.map(RouteSet::getDispatchRules)
 				.concat(Scanner::of)
 				.include(rule -> rule.getTag() == tag)
 				.map(DispatchRule::getHandlerClass)

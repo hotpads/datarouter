@@ -15,31 +15,20 @@
  */
 package io.datarouter.tasktracker.storage;
 
-import io.datarouter.enums.StringEnum;
+import io.datarouter.enums.MappedEnum;
 
-public enum LongRunningTaskHeartBeatStatus implements StringEnum<LongRunningTaskHeartBeatStatus>{
+public enum LongRunningTaskHeartBeatStatus{
 	STALLED("stalled"),
 	WARNING("warning"),
 	OK("ok");
 
-	private final String status;
+	public static final MappedEnum<LongRunningTaskHeartBeatStatus,String> BY_STATUS
+			= new MappedEnum<>(values(), value -> value.status);
+
+	public final String status;
 
 	LongRunningTaskHeartBeatStatus(String status){
 		this.status = status;
-	}
-
-	@Override
-	public String getPersistentString(){
-		return status;
-	}
-
-	@Override
-	public LongRunningTaskHeartBeatStatus fromPersistentString(String str){
-		return fromPersistentStringStatic(str);
-	}
-
-	public static LongRunningTaskHeartBeatStatus fromPersistentStringStatic(String str){
-		return StringEnum.getEnumFromString(values(), str, null);
 	}
 
 }

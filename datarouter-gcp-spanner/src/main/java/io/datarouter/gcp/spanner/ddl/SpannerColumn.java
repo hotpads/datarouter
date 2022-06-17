@@ -29,14 +29,19 @@ public class SpannerColumn{
 		this.nullable = nullable;
 	}
 
-	public String generateColumnDef(){
-		StringBuilder sb = new StringBuilder();
+	public String generateColumnDef(boolean specifyLength){
+		var sb = new StringBuilder();
 		sb.append(" ");
 		sb.append(name);
 		sb.append(" ");
 		String columnDef = type.getSpannerType().getCode().name();
 		if(type.requiresLength()){
-			columnDef += "(MAX)";
+			if(specifyLength){
+				//TODO specify length
+				columnDef += "(MAX)";
+			}else{
+				columnDef += "(MAX)";
+			}
 		}
 		if(type.isArray()){
 			sb.append("ARRAY<");

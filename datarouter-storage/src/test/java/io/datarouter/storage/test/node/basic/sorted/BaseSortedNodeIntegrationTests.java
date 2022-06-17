@@ -227,6 +227,16 @@ public abstract class BaseSortedNodeIntegrationTests extends BaseSortedBeanInteg
 	}
 
 	@Test
+	public void testPrefixStartExclusive(){
+		SortedBeanKey startPrefix = new SortedBeanKey(SortedBeans.S_aardvark, null, null, null);
+		Range<SortedBeanKey> range = new Range<>(startPrefix, false);
+		List<SortedBean> result = dao.scan(range).list();
+		int expectedSizeTotal = (SortedBeans.NUM_ELEMENTS - 1) * SortedBeans.NUM_ELEMENTS * SortedBeans.NUM_ELEMENTS
+				* SortedBeans.NUM_ELEMENTS;
+		Assert.assertEquals(result.size(), expectedSizeTotal);
+	}
+
+	@Test
 	public void testSingleDatabeanPrefixes(){
 		int numToTest = 10;
 		long count = Scanner.of(allBeans)

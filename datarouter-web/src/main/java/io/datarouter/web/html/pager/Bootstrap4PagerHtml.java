@@ -25,15 +25,15 @@ import java.util.stream.Collectors;
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import io.datarouter.web.html.pager.MemoryPager.Page;
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.DivTag;
 
 public class Bootstrap4PagerHtml{
 
-	public static ContainerTag<?> renderForm(Page<?> page){
+	public static DivTag renderForm(Page<?> page){
 		return div(Bootstrap4FormHtml.render(page.makeHtmlForm(), true));
 	}
 
-	public static ContainerTag<?> renderLinkBar(Page<?> page){
+	public static DivTag renderLinkBar(Page<?> page){
 		String message = String.format("Showing %s to %s of %s",
 				NumberFormatter.addCommas(page.from),
 				NumberFormatter.addCommas(page.to),

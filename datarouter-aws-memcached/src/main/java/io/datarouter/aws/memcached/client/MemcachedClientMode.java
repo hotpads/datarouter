@@ -15,22 +15,22 @@
  */
 package io.datarouter.aws.memcached.client;
 
-import java.util.Optional;
-
-import io.datarouter.enums.StringEnum;
+import io.datarouter.enums.MappedEnum;
 import io.datarouter.storage.config.client.MemcachedGenericClientOptions.MemcachedGenericClientMode;
 import net.spy.memcached.ClientMode;
 
 /**
  * Wrapper to not expose memcached client libraries to application code
  */
-public enum MemcachedClientMode implements StringEnum<MemcachedClientMode>{
+public enum MemcachedClientMode{
 	STATIC(ClientMode.Static, "static"),
-	DYNAMIC(ClientMode.Dynamic, "dynamic"),
-	;
+	DYNAMIC(ClientMode.Dynamic, "dynamic");
 
-	private final ClientMode clientMode;
-	private final String persistentString;
+	public static final MappedEnum<MemcachedClientMode,String> BY_PERSISTENT_STRING
+			= new MappedEnum<>(values(), value -> value.persistentString);
+
+	public final ClientMode clientMode;
+	public final String persistentString;
 
 	MemcachedClientMode(ClientMode clientMode, String persistentString){
 		this.clientMode = clientMode;
@@ -42,25 +42,6 @@ public enum MemcachedClientMode implements StringEnum<MemcachedClientMode>{
 			case STATIC -> STATIC;
 			case DYNAMIC -> DYNAMIC;
 		};
-	}
-
-	public ClientMode getClientMode(){
-		return clientMode;
-	}
-
-	@Override
-	public String getPersistentString(){
-		return persistentString;
-	}
-
-	@Override
-	public MemcachedClientMode fromPersistentString(String string){
-		return fromPersistentStringStatic(string)
-				.orElseThrow();
-	}
-
-	public static Optional<MemcachedClientMode> fromPersistentStringStatic(String string){
-		return StringEnum.findEnumFromString(values(), string);
 	}
 
 }

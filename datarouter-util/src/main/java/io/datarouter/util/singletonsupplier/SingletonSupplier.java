@@ -15,6 +15,7 @@
  */
 package io.datarouter.util.singletonsupplier;
 
+import java.util.Objects;
 import java.util.function.Supplier;
 
 public abstract class SingletonSupplier<R>
@@ -23,6 +24,27 @@ implements Supplier<R>{
 
 	public static <R> SingletonSupplier<R> of(Supplier<? extends R> supplier){
 		return new FunctionalSingletonSupplier<>(supplier);
+	}
+
+	@Override
+	public int hashCode(){
+		return Objects.hash(get());
+	}
+
+	@Override
+	public boolean equals(Object obj){
+		if(this == obj){
+			return true;
+		}
+		if(obj == null){
+			return false;
+		}
+		if(getClass() != obj.getClass()){
+			return false;
+		}
+		@SuppressWarnings("unchecked")
+		SingletonSupplier<R> other = (SingletonSupplier<R>)obj;
+		return Objects.equals(this.get(), other.get());
 	}
 
 	private static class FunctionalSingletonSupplier<R> extends SingletonSupplier<R>{

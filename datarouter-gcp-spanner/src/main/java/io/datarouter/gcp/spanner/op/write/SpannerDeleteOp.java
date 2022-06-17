@@ -23,7 +23,7 @@ import com.google.cloud.spanner.Key.Builder;
 import com.google.cloud.spanner.Mutation;
 
 import io.datarouter.gcp.spanner.field.SpannerBaseFieldCodec;
-import io.datarouter.gcp.spanner.field.SpannerFieldCodecRegistry;
+import io.datarouter.gcp.spanner.field.SpannerFieldCodecs;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
@@ -38,15 +38,15 @@ public class SpannerDeleteOp<
 extends SpannerBaseWriteOp<PK>{
 
 	protected final PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo;
-	protected final SpannerFieldCodecRegistry codecRegistry;
+	protected final SpannerFieldCodecs fieldCodecs;
 
 	public SpannerDeleteOp(
 			DatabaseClient client,
 			PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
 			Collection<PK> keys,
 			Config config,
-			SpannerFieldCodecRegistry codecRegistry){
-		this(client, fieldInfo, keys, config, codecRegistry, fieldInfo.getTableName());
+			SpannerFieldCodecs fieldCodecs){
+		this(client, fieldInfo, keys, config, fieldCodecs, fieldInfo.getTableName());
 	}
 
 	protected SpannerDeleteOp(
@@ -54,11 +54,11 @@ extends SpannerBaseWriteOp<PK>{
 			PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
 			Collection<PK> keys,
 			Config config,
-			SpannerFieldCodecRegistry codecRegistry,
+			SpannerFieldCodecs fieldCodecs,
 			String tableName){
 		super(client, tableName, config, keys);
 		this.fieldInfo = fieldInfo;
-		this.codecRegistry = codecRegistry;
+		this.fieldCodecs = fieldCodecs;
 	}
 
 	@Override
@@ -68,7 +68,7 @@ extends SpannerBaseWriteOp<PK>{
 
 	protected Mutation keyToDeleteMutation(PK key){
 		Builder mutationKey = Key.newBuilder();
-		for(SpannerBaseFieldCodec<?,?> codec : codecRegistry.createCodecs(key.getFields())){
+		for(SpannerBaseFieldCodec<?,?> codec : fieldCodecs.createCodecs(key.getFields())){
 			mutationKey = codec.setKey(mutationKey);
 		}
 		return Mutation.delete(tableName, mutationKey.build());

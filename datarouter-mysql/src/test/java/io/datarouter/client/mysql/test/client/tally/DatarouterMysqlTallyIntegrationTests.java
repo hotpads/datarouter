@@ -16,16 +16,23 @@
 package io.datarouter.client.mysql.test.client.tally;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Guice;
+import org.testng.annotations.Test;
 
 import io.datarouter.client.mysql.DatarouterMysqlTestNgModuleFactory;
 import io.datarouter.client.mysql.test.DatarouterMysqlTestClientids;
-import io.datarouter.storage.test.tally.BaseTallyIntegrationTests;
+import io.datarouter.storage.test.tally.BaseCacheTallyIntegrationTests;
 
 @Guice(moduleFactory = DatarouterMysqlTestNgModuleFactory.class)
-public class DatarouterMysqlTallyIntegrationTests extends BaseTallyIntegrationTests{
+public class DatarouterMysqlTallyIntegrationTests extends BaseCacheTallyIntegrationTests{
 
 	@BeforeClass
 	public void beforeClass(){
 		setup(DatarouterMysqlTestClientids.MYSQL);
 	}
+
+	@Override
+	@Test
+	public void testLongKey(){
+	}
+
 }

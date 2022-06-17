@@ -16,6 +16,8 @@
 package io.datarouter.storage.test.tally;
 
 import java.time.Duration;
+import java.util.Collection;
+import java.util.Map;
 import java.util.Optional;
 
 import javax.inject.Singleton;
@@ -29,17 +31,16 @@ import io.datarouter.storage.node.factory.TallyNodeFactory;
 import io.datarouter.storage.node.op.raw.TallyStorage;
 import io.datarouter.storage.tally.Tally;
 import io.datarouter.storage.tally.Tally.TallyFielder;
-import io.datarouter.storage.tally.TallyKey;
 
 @Singleton
 public class DatarouterTallyTestDao extends BaseDao implements TestDao{
 
-	private final TallyStorage<TallyKey,Tally> node;
+	private final TallyStorage node;
 
 	public DatarouterTallyTestDao(Datarouter datarouter, TallyNodeFactory nodeFactory, ClientId clientId){
 		super(datarouter);
 		node = nodeFactory.createTally(clientId, Tally::new, TallyFielder::new)
-				.withSchemaVersion(1)
+				.withSchemaVersion("1")
 				.withTableName("Tally")
 				.buildAndRegister();
 	}
@@ -63,6 +64,14 @@ public class DatarouterTallyTestDao extends BaseDao implements TestDao{
 	public Long incrementAndGetCount(String key, int delta, Duration ttl){
 		var config = new Config().setTtl(ttl);
 		return node.incrementAndGetCount(key, delta, config);
+	}
+
+	public void vacuum(Config config){
+		node.vacuum(config);
+	}
+
+	public Map<String,Long> getMulti(Collection<String> keys){
+		return node.getMultiTallyCount(keys);
 	}
 
 }

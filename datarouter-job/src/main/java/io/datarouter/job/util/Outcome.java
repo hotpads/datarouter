@@ -52,4 +52,18 @@ public class Outcome{
 		return success;
 	}
 
+	public Outcome onFailure(Runnable runnable){
+		if(!success){
+			runnable.run();
+		}
+		return this;
+	}
+
+	public Outcome onSuccess(Runnable runnable){
+		if(success){
+			runnable.run();
+		}
+		return this;
+	}
+
 }

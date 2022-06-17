@@ -18,7 +18,6 @@ package io.datarouter.bytes.binarydto;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.bytes.binarydto.codec.BinaryDtoCodec;
 import io.datarouter.bytes.binarydto.dto.BinaryDto;
 
 public class BinaryDtoCharArrayTests{
@@ -37,27 +36,11 @@ public class BinaryDtoCharArrayTests{
 
 	@Test
 	public void testEncoding(){
-		var codec = BinaryDtoCodec.of(TestDto.class);
 		var dto = new TestDto(
 				new char[]{'M', 'a', 't', 't'},
 				null,
 				new char[]{});
-		byte[] expectedBytes = {
-				1,//f1 present
-				4,//f1 length 4
-				0, 77,//M
-				0, 97,//a
-				0, 116,//t
-				0, 116,//t
-				0,//f2 null
-				1,//f3 present
-				0};//f3 length 0
-		byte[] actualBytes = codec.encode(dto);
-		Assert.assertEquals(actualBytes, expectedBytes);
-
-		TestDto actual = codec.decode(actualBytes);
-		Assert.assertEquals(actual, dto);
+		Assert.assertEquals(dto.cloneIndexed(), dto);
 	}
-
 
 }

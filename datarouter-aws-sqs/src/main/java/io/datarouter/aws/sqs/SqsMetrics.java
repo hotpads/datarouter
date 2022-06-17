@@ -19,6 +19,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.storage.metric.Gauges;
+import io.datarouter.storage.util.DatarouterCounters;
 
 @Singleton
 public class SqsMetrics{
@@ -27,7 +28,12 @@ public class SqsMetrics{
 	private Gauges gauges;
 
 	public void saveSqsQueueLength(String key, long queueLength){
-		gauges.save("Datarouter sqs queue length " + key, queueLength);
+		gauges.save(DatarouterCounters.PREFIX + " sqs queue length " + key, queueLength);
+	}
+
+	public void saveUnackedMessageAge(String key, long oldestUnackedMessageAgeS){
+		gauges.save(DatarouterCounters.PREFIX + " sqs oldestMessageAgeS " + key, oldestUnackedMessageAgeS);
+		gauges.save(DatarouterCounters.PREFIX + " sqs oldestMessageAgeM " + key, oldestUnackedMessageAgeS / 60);
 	}
 
 }

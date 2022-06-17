@@ -15,27 +15,26 @@
  */
 package io.datarouter.bytes.binarydto.codec.bytearray;
 
-import io.datarouter.bytes.LengthAndValue;
 import io.datarouter.bytes.VarIntTool;
-import io.datarouter.bytes.binarydto.codec.BinaryDtoCodec;
-import io.datarouter.bytes.binarydto.dto.BinaryDto;
+import io.datarouter.bytes.binarydto.codec.BinaryDtoIndexedCodec;
+import io.datarouter.bytes.binarydto.dto.BaseBinaryDto;
 import io.datarouter.scanner.BaseScanner;
 import io.datarouter.scanner.Scanner;
 
-public class BinaryDtoByteArrayScanner<T extends BinaryDto<T>>
+public class BinaryDtoByteArrayScanner<T extends BaseBinaryDto<T>>
 extends BaseScanner<T>{
 
-	private final BinaryDtoCodec<T> codec;
+	private final BinaryDtoIndexedCodec<T> codec;
 	private final byte[] bytes;
 	private int cursor;
 
 	public BinaryDtoByteArrayScanner(Class<T> dtoClass, byte[] bytes){
-		this.codec = BinaryDtoCodec.of(dtoClass);
+		this.codec = BinaryDtoIndexedCodec.of(dtoClass);
 		this.bytes = bytes;
 		cursor = 0;
 	}
 
-	public static <T extends BinaryDto<T>> Scanner<T> of(Class<T> dtoClass, byte[] bytes){
+	public static <T extends BaseBinaryDto<T>> Scanner<T> of(Class<T> dtoClass, byte[] bytes){
 		return new BinaryDtoByteArrayScanner<>(dtoClass, bytes);
 	}
 
@@ -46,12 +45,8 @@ extends BaseScanner<T>{
 		}
 		int length = VarIntTool.decodeInt(bytes, cursor);
 		cursor += VarIntTool.length(length);
-		LengthAndValue<T> lengthAndValue = codec.decodeWithLength(bytes, cursor);
-		current = lengthAndValue.value;
-		if(length != lengthAndValue.length){
-			String message = String.format("Disagreeing lengths: expected=%s, found=%s", length, lengthAndValue.length);
-			throw new IllegalStateException(message);
-		}
+		T value = codec.decode(bytes, cursor, length);
+		current = value;
 		cursor += length;
 		return true;
 	}

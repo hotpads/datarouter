@@ -21,13 +21,13 @@ import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.bytes.binarydto.codec.BinaryDtoCodec;
-import io.datarouter.bytes.binarydto.dto.BinaryDto;
+import io.datarouter.bytes.binarydto.codec.BinaryDtoComparableCodec;
+import io.datarouter.bytes.binarydto.dto.ComparableBinaryDto;
 import io.datarouter.scanner.Scanner;
 
 public class BinaryDtoSortingTests{
 
-	public static class TestIntDto extends BinaryDto<TestIntDto>{
+	public static class TestIntDto extends ComparableBinaryDto<TestIntDto>{
 		public final int f1;
 
 		public TestIntDto(int f1){
@@ -50,7 +50,7 @@ public class BinaryDtoSortingTests{
 		Assert.assertEquals(actual, expected);
 
 		//test binary sorting matches dto sorting
-		BinaryDtoCodec<TestIntDto> codec = BinaryDtoCodec.of(TestIntDto.class);
+		BinaryDtoComparableCodec<TestIntDto> codec = BinaryDtoComparableCodec.of(TestIntDto.class);
 		List<TestIntDto> actualBinarySorted = Scanner.of(input)
 				.map(codec::encode)
 				.sort(Arrays::compareUnsigned)
@@ -59,7 +59,7 @@ public class BinaryDtoSortingTests{
 		Assert.assertEquals(actualBinarySorted, expected);
 	}
 
-	public static class TestIntArrayDto extends BinaryDto<TestIntArrayDto>{
+	public static class TestIntArrayDto extends ComparableBinaryDto<TestIntArrayDto>{
 		public final int[] f1;
 
 		public TestIntArrayDto(int[] f1){
@@ -75,8 +75,7 @@ public class BinaryDtoSortingTests{
 		var a4 = new TestIntArrayDto(new int[]{-2});
 		var a5 = new TestIntArrayDto(new int[]{-2, 3});
 		List<TestIntArrayDto> input = List.of(a1, a2, a3, a4, a5);
-		//sort array length before array values
-		List<TestIntArrayDto> expected = List.of(a4, a2, a5, a3, a1);
+		List<TestIntArrayDto> expected = List.of(a4, a5, a3, a1, a2);
 
 		//test dto sorting
 		List<TestIntArrayDto> actual = Scanner.of(input)
@@ -85,7 +84,7 @@ public class BinaryDtoSortingTests{
 		Assert.assertEquals(actual, expected);
 
 		//test binary sorting matches dto sorting
-		BinaryDtoCodec<TestIntArrayDto> codec = BinaryDtoCodec.of(TestIntArrayDto.class);
+		BinaryDtoComparableCodec<TestIntArrayDto> codec = BinaryDtoComparableCodec.of(TestIntArrayDto.class);
 		List<TestIntArrayDto> actualBinarySorted = Scanner.of(input)
 				.map(codec::encode)
 				.sort(Arrays::compareUnsigned)

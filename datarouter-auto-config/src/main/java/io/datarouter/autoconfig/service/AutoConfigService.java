@@ -94,8 +94,6 @@ public class AutoConfigService{
 				name,
 				"triggered",
 				triggerer)
-				// .excludeMainDatarouterAdmin()
-				// .sendEmail()
 				.build();
 		changelogRecorder.record(changelogDto);
 		return autoConfig;

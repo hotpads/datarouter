@@ -30,18 +30,17 @@ import io.datarouter.storage.node.factory.TallyNodeFactory;
 import io.datarouter.storage.node.op.raw.TallyStorage;
 import io.datarouter.storage.tally.Tally;
 import io.datarouter.storage.tally.Tally.TallyFielder;
-import io.datarouter.storage.tally.TallyKey;
 
 @Singleton
 public class RedisTestDao extends BaseDao implements TestDao{
 
-	private final TallyStorage<TallyKey,Tally> node;
+	private final TallyStorage node;
 
 	@Inject
 	public RedisTestDao(Datarouter datarouter, TallyNodeFactory nodeFactory){
 		super(datarouter);
 		node = nodeFactory.createTally(RedisTestClientIds.REDIS, Tally::new, TallyFielder::new)
-				.withSchemaVersion(1)
+				.withSchemaVersion("1")
 				.withTableName("TallyTtlTest")
 				.buildAndRegister();
 	}

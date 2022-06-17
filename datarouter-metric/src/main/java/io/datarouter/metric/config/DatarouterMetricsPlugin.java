@@ -53,6 +53,7 @@ import io.datarouter.web.listener.ComputedPropertiesAppListener;
 
 public class DatarouterMetricsPlugin extends BaseWebPlugin{
 
+	private final int maxMetricBlobSize;
 	private final Class<? extends CountPublisher> countPublisher;
 	private final Class<? extends CountBlobDirectorySupplier> countBlobDirectorySupplier;
 	private final Class<? extends MetricBlobPublishingSettings> metricBlobPublishingSettings;
@@ -65,6 +66,7 @@ public class DatarouterMetricsPlugin extends BaseWebPlugin{
 
 	private DatarouterMetricsPlugin(
 			DatarouterMetricsDaosModule daosModuleBuilder,
+			int maxMetricBlobSize,
 			Class<? extends CountPublisher> countPublisher,
 			Class<? extends CountBlobDirectorySupplier> countBlobDirectorySupplier,
 			Class<? extends MetricBlobPublishingSettings> metricBlobPublishingSettings,
@@ -76,6 +78,7 @@ public class DatarouterMetricsPlugin extends BaseWebPlugin{
 			List<MetricName> metricNames,
 			List<MetricDashboardDto> dashboards,
 			List<MiscMetricLinksDto> miscMetricLinks){
+		this.maxMetricBlobSize = maxMetricBlobSize;
 		this.countPublisher = countPublisher;
 		this.countBlobDirectorySupplier = countBlobDirectorySupplier;
 		this.metricBlobPublishingSettings = metricBlobPublishingSettings;
@@ -107,6 +110,7 @@ public class DatarouterMetricsPlugin extends BaseWebPlugin{
 
 	@Override
 	public void configure(){
+		bind(MaxMetricBlobSize.class).toInstance(() -> maxMetricBlobSize);
 		bind(CountPublisher.class).to(countPublisher);
 		bind(CountBlobDirectorySupplier.class).to(countBlobDirectorySupplier);
 		bind(MetricBlobPublishingSettings.class).to(metricBlobPublishingSettings);
@@ -122,6 +126,7 @@ public class DatarouterMetricsPlugin extends BaseWebPlugin{
 	public static class DatarouterMetricsPluginBuilder{
 
 		private final List<ClientId> metricBlobQueueClientId;
+		private final int maxMetricBlobSize;
 		private final List<MetricName> metricNames;
 		private final List<MetricDashboardDto> dashboards;
 		private final List<MiscMetricLinksDto> miscMetricLinks;
@@ -140,12 +145,14 @@ public class DatarouterMetricsPlugin extends BaseWebPlugin{
 
 		public DatarouterMetricsPluginBuilder(
 				List<ClientId> metricBlobQueueClientId,
+				int maxMetricBlobSize,
 				Class<? extends CountPublisher> countPublisher,
 				Class<? extends CountBlobDirectorySupplier> countBlobDirectorySupplier,
 				Class<? extends MetricBlobPublishingSettings> metricBlobPublishingSettings,
 				Class<? extends GaugePublisher> gaugePublisher,
 				Class<? extends GaugeBlobDirectorySupplier> gaugeBlobDirectorySupplier){
 			this.metricBlobQueueClientId = metricBlobQueueClientId;
+			this.maxMetricBlobSize = maxMetricBlobSize;
 			this.countPublisher = countPublisher;
 			this.countBlobDirectorySupplier = countBlobDirectorySupplier;
 			this.metricBlobPublishingSettings = metricBlobPublishingSettings;
@@ -236,6 +243,7 @@ public class DatarouterMetricsPlugin extends BaseWebPlugin{
 									enableCountPublishing,
 									enableGaugePublishing)
 							: daosModule,
+					maxMetricBlobSize,
 					countPublisher,
 					countBlobDirectorySupplier,
 					metricBlobPublishingSettings,

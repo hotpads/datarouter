@@ -42,7 +42,7 @@ import io.datarouter.web.handler.mav.imp.MessageMav;
 import io.datarouter.web.handler.params.Params;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import io.datarouter.web.requirejs.DatarouterWebRequireJsV2;
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.DlTag;
 
 public class MysqlWebInspector implements DatarouterClientWebInspector{
 
@@ -82,7 +82,7 @@ public class MysqlWebInspector implements DatarouterClientWebInspector{
 				.buildMav();
 	}
 
-	private ContainerTag<?> getC3P0Stats(ClientId clientId, DatarouterWebRequestParams<MysqlClientType> clientParams){
+	private DlTag getC3P0Stats(ClientId clientId, DatarouterWebRequestParams<MysqlClientType> clientParams){
 		MysqlClientManager clientManager = injector.getInstance(clientParams.getClientType().getClientManagerClass());
 		Optional<C3p0StatsDto> c3p0Stats = c3p0StatsService.getC3p0Stats().stream()
 				.filter(stats -> stats.clientName.equals(clientId.getName()))

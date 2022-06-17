@@ -16,6 +16,11 @@
 package io.datarouter.aws.sqs.job;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
@@ -46,9 +51,23 @@ public class SqsQueuesLengthMonitoringJob extends BaseJob{
 	private ClientInitializationTracker clientInitializationTracker;
 	@Inject
 	private SqsMetrics metrics;
+	@Inject
+	private SqsClientType sqsClientType;
 
 	@Override
 	public void run(TaskTracker tracker){
+		List<String> queueNames = clientInitializationTracker.getInitializedClients().stream()
+				.filter(clientId -> datarouterClients.getClientTypeInstance(clientId) instanceof SqsClientType)
+				.map(ClientId::getName)
+				.map(datarouterNodes::getPhysicalNodesForClient)
+				.flatMap(Collection::stream)
+				.map(NodeTool::extractSinglePhysicalNode)
+				.map(physicalNode -> (BaseSqsNode<?,?,?>)physicalNode)
+				.map(BaseSqsNode::getQueueUrlAndName)
+				.map(Supplier::get)
+				.map(Twin::getRight)
+				.collect(Collectors.toList());
+		saveUnackedMessageAgeMetricForQueues(queueNames);
 		clientInitializationTracker.getInitializedClients().stream()
 				.filter(clientId -> datarouterClients.getClientTypeInstance(clientId) instanceof SqsClientType)
 				.map(ClientId::getName)
@@ -58,6 +77,19 @@ public class SqsQueuesLengthMonitoringJob extends BaseJob{
 				.map(physicalNode -> (BaseSqsNode<?,?,?>)physicalNode)
 				.peek($ -> tracker.increment())
 				.forEach(this::getQueueLengthAndSaveAsMetric);
+	}
+
+	private void saveUnackedMessageAgeMetricForQueues(List<String> queueNames){
+		ClientId clientId = ClientId.writer(sqsClientType.getName(), true);
+		Map<String, Optional<Double>> mapOfQueueAndMetric = sqsClientManager
+				.getApproximateAgeOfOldestUnackedMessageSecondsGroup(clientId, queueNames);
+		mapOfQueueAndMetric
+				.entrySet()
+				.forEach(entry -> {
+					if(entry.getValue().isPresent()){
+						metrics.saveUnackedMessageAge(entry.getKey(), entry.getValue().get().longValue());
+					}
+				});
 	}
 
 	private void getQueueLengthAndSaveAsMetric(BaseSqsNode<?,?,?> baseSqsNode){

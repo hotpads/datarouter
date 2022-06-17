@@ -21,7 +21,6 @@ import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.bytes.binarydto.codec.BinaryDtoCodec;
 import io.datarouter.bytes.binarydto.dto.BinaryDto;
 
 /**
@@ -201,11 +200,7 @@ public class BinaryDtoComplexTests{
 				new LongDto(3L, 1L, new long[]{9, 6}, Arrays.asList(-1L, null, null, Long.MIN_VALUE)),
 				new DoubleDto(6d, 2d, new double[]{18, 5}, Arrays.asList(null, Double.MIN_NORMAL, -.01)),
 				new StringDto("asdf", null, new String[]{"a", "b", null}, Arrays.asList("c", null, "d")));
-
-		var codec = BinaryDtoCodec.of(RootDto.class);
-		byte[] bytes = codec.encode(dto);
-		RootDto actual = codec.decode(bytes);
-		Assert.assertEquals(actual, dto);
+		Assert.assertEquals(dto.cloneIndexed(), dto);
 	}
 
 }

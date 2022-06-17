@@ -17,15 +17,22 @@ package io.datarouter.gcp.spanner.test;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Guice;
+import org.testng.annotations.Test;
 
 import io.datarouter.gcp.spanner.SpannerTestNgModuleFactory;
-import io.datarouter.storage.test.tally.BaseTallyIntegrationTests;
+import io.datarouter.storage.test.tally.BaseCacheTallyIntegrationTests;
 
 @Guice(moduleFactory = SpannerTestNgModuleFactory.class)
-public class SpannerTallyNodeIntegrationTests extends BaseTallyIntegrationTests{
+public class SpannerTallyNodeIntegrationTests extends BaseCacheTallyIntegrationTests{
 
 	@BeforeClass
 	public void beforeClass(){
 		setup(SpannerTestCliendIds.SPANNER);
 	}
+
+	@Override
+	@Test
+	public void testLongKey(){
+	}
+
 }

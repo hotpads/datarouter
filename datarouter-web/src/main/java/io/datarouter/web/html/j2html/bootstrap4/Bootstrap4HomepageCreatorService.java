@@ -42,6 +42,9 @@ import io.datarouter.web.service.DocumentationNamesAndLinksSupplier;
 import io.datarouter.web.service.ServiceDescriptionSupplier;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
+import j2html.tags.specialized.ATag;
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.UlTag;
 
 @Singleton
 public class Bootstrap4HomepageCreatorService{
@@ -79,7 +82,7 @@ public class Bootstrap4HomepageCreatorService{
 				.buildMav();
 	}
 
-	public ContainerTag<?> header(){
+	public DivTag header(){
 		return div(h2(serviceName.get()).withClass("text-capitalize"))
 				.withClass("pb-2 mt-4 mb-2 border-bottom");
 	}
@@ -95,25 +98,25 @@ public class Bootstrap4HomepageCreatorService{
 				.withClass("pb-2 mt-4 mb-2 border-bottom");
 	}
 
-	public ContainerTag<?> docLinks(){
+	public UlTag docLinks(){
 		return ul(each(documentationNamesAndLinksSupplier.getReadmeDocs().entrySet(), entry -> {
 			return li(a(entry.getKey()).withHref(entry.getValue()));
 		}));
 	}
 
-	public ContainerTag<?> appNavbarCards(){
+	public DivTag appNavbarCards(){
 		List<NavBarItem> navBarItems = appNavBarSupplier.get();
 		return div(each(NavBarItemGroup.fromNavBarItems(navBarItems), this::makeLinkBox))
 				.withClass("container-fluid row");
 	}
 
-	public ContainerTag<?> pluginNavbarCards(){
+	public DivTag pluginNavbarCards(){
 		List<NavBarItem> navBarItems = appPluginNavBarSupplier.get();
 		return div(each(NavBarItemGroup.fromNavBarItems(navBarItems), this::makeLinkBox))
 				.withClass("container-fluid row");
 	}
 
-	private ContainerTag<?> makeLinkBox(NavBarItemGroup group){
+	private DivTag makeLinkBox(NavBarItemGroup group){
 		var title = div(group.category.getDisplay())
 				.withClass("card-header");
 		var body = div(each(group.items, this::makeLink))
@@ -124,7 +127,7 @@ public class Bootstrap4HomepageCreatorService{
 				.withClass("col-md-4 col-sm-12");
 	}
 
-	private ContainerTag<?> makeLink(NavBarItem item){
+	private ATag makeLink(NavBarItem item){
 		String href = URI.create(item.path).isAbsolute() ? item.path : servletContext.getContextPath() + item.path;
 		return a(item.name)
 				.withClass("list-group-item list-group-item-action")

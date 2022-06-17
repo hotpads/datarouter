@@ -24,7 +24,8 @@ import javax.inject.Singleton;
 import io.datarouter.pathnode.PathNode;
 import io.datarouter.web.config.ServletContextSupplier;
 import io.datarouter.web.config.service.DomainFinder;
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.ATag;
+import j2html.tags.specialized.H3Tag;
 
 // helper class for making html fragments
 @Singleton
@@ -35,30 +36,30 @@ public class DailyDigestService{
 	@Inject
 	private ServletContextSupplier servletContext;
 
-	public ContainerTag<?> makeHeader(String title, PathNode path, String pathSupplement){
+	public H3Tag makeHeader(String title, PathNode path, String pathSupplement){
 		String link = "https://" + domainFinder.getDomainPreferPublic() + servletContext.get().getContextPath()
 				+ path.join("/", "/", "") + pathSupplement;
 		return makeHeader(title, link);
 	}
 
-	public ContainerTag<?> makeHeader(String title, PathNode path){
+	public H3Tag makeHeader(String title, PathNode path){
 		String link = "https://" + domainFinder.getDomainPreferPublic() + servletContext.get().getContextPath()
 				+ path.join("/", "/", "");
 		return makeHeader(title, link);
 	}
 
-	public ContainerTag<?> makeHeader(String title, String url){
+	public H3Tag makeHeader(String title, String url){
 		return h3(a(title)
 				.withHref(url));
 	}
 
-	public ContainerTag<?> makeATagLink(String title, PathNode path){
+	public ATag makeATagLink(String title, PathNode path){
 		String link = "https://" + domainFinder.getDomainPreferPublic() + servletContext.get().getContextPath()
 				+ path.join("/", "/", "");
 		return a(title).withHref(link);
 	}
 
-	public ContainerTag<?> makeATagLink(String title, String path){
+	public ATag makeATagLink(String title, String path){
 		String link = "https://" + domainFinder.getDomainPreferPublic() + servletContext.get().getContextPath() + path;
 		return a(title).withHref(link);
 	}

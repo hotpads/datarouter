@@ -38,7 +38,8 @@ import io.datarouter.util.time.ZonedDateFormatterTool;
 import io.datarouter.web.config.ServletContextSupplier;
 import io.datarouter.web.config.service.DomainFinder;
 import io.datarouter.web.html.j2html.J2HtmlTable;
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.ATag;
+import j2html.tags.specialized.TableTag;
 
 @Singleton
 public class JobletDailyDigestService{
@@ -65,31 +66,31 @@ public class JobletDailyDigestService{
 				.list();
 	}
 
-	public ContainerTag<?> makePageTableForOldJoblets(List<JobletRequest> joblets, ZoneId zoneId){
+	public TableTag makePageTableForOldJoblets(List<JobletRequest> joblets, ZoneId zoneId){
 		return new J2HtmlTable<JobletRequest>()
 				.withClasses("sortable table table-sm table-striped my-4 border")
 				.withColumn("Type", row -> row.getKey().getType())
 				.withColumn("Created", row -> ZonedDateFormatterTool.formatLongMsWithZone(row.getKey().getCreated(),
 						zoneId))
 				.withColumn("Execution Order", row -> row.getKey().getExecutionOrder())
-				.withColumn("Status", row -> row.getStatus().getPersistentString())
+				.withColumn("Status", row -> row.getStatus().persistentString)
 				.withColumn("Num Timeouts", row -> row.getNumTimeouts())
 				.withColumn("Num Failures", row -> row.getNumFailures())
 				.build(joblets);
 	}
 
-	public ContainerTag<?> makeEmailTableForOldJoblets(Map<OldJobletDto,List<OldJobletDto>> joblets){
+	public TableTag makeEmailTableForOldJoblets(Map<OldJobletDto,List<OldJobletDto>> joblets){
 		return new J2HtmlEmailTable<Entry<OldJobletDto,List<OldJobletDto>>>()
 				.withColumn("Type", row -> row.getKey().type)
 				.withColumn("Execution Order", row -> row.getKey().executionOrder)
-				.withColumn("Status", row -> row.getKey().status.getPersistentString())
+				.withColumn("Status", row -> row.getKey().status.persistentString)
 				.withColumn("Num Timeouts", row -> row.getKey().numTimeouts)
 				.withColumn("Num Failures", row -> row.getKey().numFailures)
 				.withColumn("Count", row -> row.getValue().size())
 				.build(joblets.entrySet());
 	}
 
-	public ContainerTag<?> makePageTableForFailedJoblets(Map<FailedJobletDto,List<JobletRequest>> map){
+	public TableTag makePageTableForFailedJoblets(Map<FailedJobletDto,List<JobletRequest>> map){
 		return new J2HtmlTable<Entry<FailedJobletDto,List<JobletRequest>>>()
 				.withClasses("sortable table table-sm table-striped my-4 border")
 				.withColumn("Type", row -> row.getKey().type)
@@ -107,7 +108,7 @@ public class JobletDailyDigestService{
 				.build(map.entrySet());
 	}
 
-	public ContainerTag<?> makeEmailTableForFailedJoblets(Map<FailedJobletDto,List<JobletRequest>> map){
+	public TableTag makeEmailTableForFailedJoblets(Map<FailedJobletDto,List<JobletRequest>> map){
 		return new J2HtmlEmailTable<Entry<FailedJobletDto,List<JobletRequest>>>()
 				.withColumn("Type", row -> row.getKey().type)
 				.withColumn("Execution Order", row -> row.getKey().executionOrder)
@@ -126,7 +127,7 @@ public class JobletDailyDigestService{
 				.build(map.entrySet());
 	}
 
-	private ContainerTag<?> makeExceptionLink(String exceptionRecordId){
+	private ATag makeExceptionLink(String exceptionRecordId){
 		String href = "https://" + domainFinder.getDomainPreferPublic() + contextSupplier.get().getContextPath()
 				+ exceptionLink.buildExceptionDetailLink(exceptionRecordId);
 		return a(exceptionRecordId)

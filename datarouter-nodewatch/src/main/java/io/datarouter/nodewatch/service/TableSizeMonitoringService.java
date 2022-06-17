@@ -44,7 +44,7 @@ import io.datarouter.storage.node.tableconfig.TableConfigurationService;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.util.tuple.Twin;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.BodyTag;
 
 @Singleton
 public class TableSizeMonitoringService{
@@ -153,7 +153,7 @@ public class TableSizeMonitoringService{
 	}
 
 	private boolean checkStaleEntries(LatestTableCount latestSample){
-		Duration age = Duration.between(latestSample.getDateUpdated().toInstant(), Instant.now());
+		Duration age = Duration.between(latestSample.getDateUpdated(), Instant.now());
 		return age.compareTo(REPORT_AFTER) > 0;
 	}
 
@@ -188,7 +188,7 @@ public class TableSizeMonitoringService{
 		String primaryHref = emailService.startLinkBuilder()
 				.withLocalPath(paths.datarouter.nodewatch.tableCount)
 				.build();
-		ContainerTag<?> content = emailBuilder.build(
+		BodyTag content = emailBuilder.build(
 				aboveThresholdList,
 				PERCENTAGE_THRESHOLD,
 				abovePercentageList,

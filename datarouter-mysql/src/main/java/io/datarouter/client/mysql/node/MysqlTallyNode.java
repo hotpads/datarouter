@@ -20,9 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import io.datarouter.model.databean.Databean;
-import io.datarouter.model.key.primary.PrimaryKey;
-import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.config.Config;
@@ -34,17 +31,14 @@ import io.datarouter.storage.tally.Tally;
 import io.datarouter.storage.tally.Tally.TallyFielder;
 import io.datarouter.storage.tally.TallyKey;
 
-public class MysqlTallyNode<
-		PK extends PrimaryKey<PK>,
-		D extends Databean<PK,D>,
-		F extends DatabeanFielder<PK,D>>
-extends BasePhysicalNode<PK,D,F>
-implements PhysicalTallyStorageNode<PK,D,F>{
+public class MysqlTallyNode
+extends BasePhysicalNode<TallyKey,Tally,TallyFielder>
+implements PhysicalTallyStorageNode{
 
 	private final MysqlNodeManager mysqlNodeManager;
 
 	public MysqlTallyNode(
-			NodeParams<PK,D,F> params,
+			NodeParams<TallyKey,Tally,TallyFielder> params,
 			ClientType<?,?> clientType,
 			MysqlNodeManager mysqlNodeManager){
 		super(params, clientType);
@@ -56,21 +50,19 @@ implements PhysicalTallyStorageNode<PK,D,F>{
 		return mysqlNodeManager.increment(
 				getTallyFieldInfo(),
 				key,
-				(long)delta);
+				(long)delta,
+				config);
 	}
 
 	@Override
 	public Optional<Long> findTallyCount(String key, Config config){
-		Tally bean = mysqlNodeManager.get(getTallyFieldInfo(), new TallyKey(key), config);
-		return Optional.ofNullable(bean).map(Tally::getTally);
+		return mysqlNodeManager.findTally(getTallyFieldInfo(), key, config);
 	}
 
 	@Override
 	public Map<String,Long> getMultiTallyCount(Collection<String> keys, Config config){
-		List<Tally> beans = Scanner.of(keys)
-				.map(TallyKey::new)
-				.listTo(items -> mysqlNodeManager.getMulti(getTallyFieldInfo(), items, config));
-		return Scanner.of(beans)
+		List<Tally> result = mysqlNodeManager.findTallyMulti(getTallyFieldInfo(), keys, config);
+		return Scanner.of(result)
 				.toMap(tally -> tally.getKey().getId(), Tally::getTally);
 	}
 
@@ -79,8 +71,12 @@ implements PhysicalTallyStorageNode<PK,D,F>{
 		mysqlNodeManager.delete(getTallyFieldInfo(), new TallyKey(key), config);
 	}
 
-	@SuppressWarnings("unchecked")
 	private PhysicalDatabeanFieldInfo<TallyKey,Tally,TallyFielder> getTallyFieldInfo(){
-		return (PhysicalDatabeanFieldInfo<TallyKey,Tally,TallyFielder>)this.getFieldInfo();
+		return this.getFieldInfo();
+	}
+
+	@Override
+	public void vacuum(Config config){
+		mysqlNodeManager.vacuum(getTallyFieldInfo(), config);
 	}
 }

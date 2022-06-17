@@ -16,22 +16,23 @@
 package io.datarouter.model.field.imp.array;
 
 import java.util.Map;
+import java.util.Optional;
 
 import io.datarouter.model.field.BaseFieldKey;
 import io.datarouter.model.field.FieldKeyAttribute;
 import io.datarouter.model.field.FieldKeyAttributeKey;
-import io.datarouter.model.field.codec.ByteArrayFieldCodec;
+import io.datarouter.model.field.codec.FieldCodec;
 import io.datarouter.model.field.encoding.FieldGeneratorType;
 import io.datarouter.model.util.CommonFieldSizes;
 
 public class ByteArrayEncodedFieldKey<T> extends BaseFieldKey<T,ByteArrayEncodedFieldKey<T>>{
 
-	private final ByteArrayFieldCodec<T> codec;
+	private final FieldCodec<T,byte[]> codec;
 	private final int size;
 
 	public ByteArrayEncodedFieldKey(
 			String name,
-			ByteArrayFieldCodec<T> codec){
+			FieldCodec<T,byte[]> codec){
 		super(name, codec.getTypeToken());
 		this.codec = codec;
 		this.size = CommonFieldSizes.MAX_KEY_LENGTH;
@@ -39,7 +40,7 @@ public class ByteArrayEncodedFieldKey<T> extends BaseFieldKey<T,ByteArrayEncoded
 
 	private ByteArrayEncodedFieldKey(
 			String name,
-			ByteArrayFieldCodec<T> codec,
+			FieldCodec<T,byte[]> codec,
 			String columnName,
 			boolean nullable,
 			FieldGeneratorType fieldGeneratorType,
@@ -51,11 +52,23 @@ public class ByteArrayEncodedFieldKey<T> extends BaseFieldKey<T,ByteArrayEncoded
 		this.size = size;
 	}
 
-	public ByteArrayEncodedFieldKey<T> withSize(int size){
+	public ByteArrayEncodedFieldKey<T> withSize(int sizeOverride){
 		return new ByteArrayEncodedFieldKey<>(
 				name,
 				codec,
 				columnName,
+				nullable,
+				fieldGeneratorType,
+				defaultValue,
+				sizeOverride,
+				attributes);
+	}
+
+	public ByteArrayEncodedFieldKey<T> withColumnName(String columnNameOverride){
+		return new ByteArrayEncodedFieldKey<>(
+				name,
+				codec,
+				columnNameOverride,
 				nullable,
 				fieldGeneratorType,
 				defaultValue,
@@ -68,11 +81,16 @@ public class ByteArrayEncodedFieldKey<T> extends BaseFieldKey<T,ByteArrayEncoded
 		return false;
 	}
 
+	@Override
+	public Optional<Integer> findSize(){
+		return Optional.of(size);
+	}
+
 	public int getSize(){
 		return size;
 	}
 
-	public ByteArrayFieldCodec<T> getCodec(){
+	public FieldCodec<T,byte[]> getCodec(){
 		return codec;
 	}
 

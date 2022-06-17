@@ -56,8 +56,9 @@ public class CountMemoryToPublisherConveyor extends BaseConveyor{
 			return new ProcessBatchResult(false);
 		}
 		dtos.forEach(this::publishCounts);
-		//continue processing immediately if this batch was full
-		return new ProcessBatchResult(dtos.size() == POLL_LIMIT);
+		//process as many as possible if shutting down
+		//or continue processing immediately if this batch was full
+		return new ProcessBatchResult(isShuttingDown() || dtos.size() == POLL_LIMIT);
 	}
 
 	private void publishCounts(Map<Long,Map<String,Long>> counts){
@@ -72,6 +73,11 @@ public class CountMemoryToPublisherConveyor extends BaseConveyor{
 			logger.warn("", putMultiException);
 			ConveyorCounters.inc(this, "putMulti exception", 1);
 		}
+	}
+
+	@Override
+	public boolean shouldRunOnShutdown(){
+		return true;
 	}
 
 }

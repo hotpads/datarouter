@@ -25,11 +25,13 @@ import static j2html.TagCreator.ul;
 import io.datarouter.web.html.nav.Subnav;
 import io.datarouter.web.html.nav.Subnav.Dropdown;
 import io.datarouter.web.html.nav.Subnav.DropdownItem;
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.ATag;
+import j2html.tags.specialized.LiTag;
+import j2html.tags.specialized.NavTag;
 
 public class Bootstrap4SubnavHtml{
 
-	public static ContainerTag<?> render(Subnav subnav){
+	public static NavTag render(Subnav subnav){
 		var title = a(subnav.name)
 				.withClass("navbar-brand mb-0 h1")
 				.withHref(subnav.href);
@@ -43,7 +45,7 @@ public class Bootstrap4SubnavHtml{
 				.withClass("navbar navbar-light bg-light navbar-expand-md border-bottom");
 	}
 
-	private static ContainerTag<?> makeDropdown(Dropdown dropdown){
+	private static LiTag makeDropdown(Dropdown dropdown){
 		if(dropdown.items.isEmpty()){
 			return null;
 		}
@@ -57,7 +59,7 @@ public class Bootstrap4SubnavHtml{
 				.withClass("nav-item dropdown");
 	}
 
-	private static ContainerTag<?> makeItem(DropdownItem item){
+	private static ATag makeItem(DropdownItem item){
 		return a(item.name)
 				.condAttr(item.confirm, "onclick", "return confirm('Are you sure?');")
 				.withClass("dropdown-item")

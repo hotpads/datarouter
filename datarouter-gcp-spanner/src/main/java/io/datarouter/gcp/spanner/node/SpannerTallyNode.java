@@ -21,13 +21,11 @@ import java.util.Map;
 import java.util.Optional;
 
 import io.datarouter.gcp.spanner.SpannerClientManager;
-import io.datarouter.gcp.spanner.field.SpannerFieldCodecRegistry;
-import io.datarouter.gcp.spanner.op.read.SpannerGetOp;
+import io.datarouter.gcp.spanner.field.SpannerFieldCodecs;
+import io.datarouter.gcp.spanner.op.SpannerVacuum;
+import io.datarouter.gcp.spanner.op.read.SpannerFindTallyOp;
 import io.datarouter.gcp.spanner.op.write.SpannerDeleteOp;
 import io.datarouter.gcp.spanner.op.write.SpannerIncrementOp;
-import io.datarouter.model.databean.Databean;
-import io.datarouter.model.key.primary.PrimaryKey;
-import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.config.Config;
@@ -39,24 +37,21 @@ import io.datarouter.storage.tally.Tally;
 import io.datarouter.storage.tally.Tally.TallyFielder;
 import io.datarouter.storage.tally.TallyKey;
 
-public class SpannerTallyNode<
-		PK extends PrimaryKey<PK>,
-		D extends Databean<PK,D>,
-		F extends DatabeanFielder<PK,D>>
-extends BasePhysicalNode<PK,D,F>
-implements PhysicalTallyStorageNode<PK,D,F>{
+public class SpannerTallyNode
+extends BasePhysicalNode<TallyKey,Tally,TallyFielder>
+implements PhysicalTallyStorageNode{
 
 	private final SpannerClientManager clientManager;
-	private final SpannerFieldCodecRegistry spannerFieldCodecRegistry;
+	private final SpannerFieldCodecs fieldCodecs;
 
 	public SpannerTallyNode(
-			NodeParams<PK,D,F> params,
+			NodeParams<TallyKey,Tally,TallyFielder> params,
 			ClientType<?,?> clientType,
 			SpannerClientManager clientManager,
-			SpannerFieldCodecRegistry spannerFieldCodecRegistry){
+			SpannerFieldCodecs fieldCodecs){
 		super(params, clientType);
 		this.clientManager = clientManager;
-		this.spannerFieldCodecRegistry = spannerFieldCodecRegistry;
+		this.fieldCodecs = fieldCodecs;
 	}
 
 	@Override
@@ -65,37 +60,31 @@ implements PhysicalTallyStorageNode<PK,D,F>{
 				clientManager.getDatabaseClient(getClientId()),
 				getFieldInfo(),
 				key,
-				Long.valueOf(delta));
+				Long.valueOf(delta),
+				config);
 		return incrementOp.wrappedCall();
 	}
 
 	@Override
 	public Optional<Long> findTallyCount(String key, Config config){
-		var getOp = new SpannerGetOp<>(
+		var findOp = new SpannerFindTallyOp<>(
 				clientManager.getDatabaseClient(getClientId()),
 				getTallyFieldInfo(),
-				List.of(new TallyKey(key)),
-				config,
-				spannerFieldCodecRegistry);
-		return getOp.wrappedCall()
-				.stream()
-				.findFirst()
-				.map(Tally::getTally);
+				List.of(key),
+				config);
+		List<Tally> result = findOp.wrappedCall();
+		return result.isEmpty() ? Optional.empty() : Optional.ofNullable(result.get(0).getTally());
 	}
 
 	@Override
 	public Map<String,Long> getMultiTallyCount(Collection<String> keys, Config config){
-		List<TallyKey> tallyKeys = Scanner.of(keys)
-				.map(TallyKey::new)
-				.list();
-		var getOp = new SpannerGetOp<>(
+		var findOp = new SpannerFindTallyOp<>(
 				clientManager.getDatabaseClient(getClientId()),
 				getTallyFieldInfo(),
-				tallyKeys,
-				config,
-				spannerFieldCodecRegistry);
-		List<Tally> tallies = getOp.wrappedCall();
-		return Scanner.of(tallies)
+				keys,
+				config);
+		List<Tally> result = findOp.wrappedCall();
+		return Scanner.of(result)
 				.toMap(tally -> tally.getKey().getId(), Tally::getTally);
 	}
 
@@ -106,13 +95,18 @@ implements PhysicalTallyStorageNode<PK,D,F>{
 				getTallyFieldInfo(),
 				List.of(new TallyKey(key)),
 				config,
-				spannerFieldCodecRegistry);
+				fieldCodecs);
 		op.wrappedCall();
 	}
 
-	@SuppressWarnings("unchecked")
 	private PhysicalDatabeanFieldInfo<TallyKey,Tally,TallyFielder> getTallyFieldInfo(){
-		return (PhysicalDatabeanFieldInfo<TallyKey,Tally,TallyFielder>)this.getFieldInfo();
+		return this.getFieldInfo();
+	}
+
+	@Override
+	public void vacuum(Config config){
+		var vacuum = new SpannerVacuum<>(clientManager.getDatabaseClient(getClientId()), getTallyFieldInfo(), config);
+		vacuum.vacuum();
 	}
 
 }

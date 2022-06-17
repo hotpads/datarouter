@@ -56,7 +56,7 @@ public class JobletLocalLinkBuilder{
 	public String listWithStatus(String contextPath, JobletStatus status){
 		return new URIBuilder()
 				.setPath(contextPath + paths.datarouter.joblets.list.toSlashedString())
-				.addParameter(JobletHandler.PARAM_whereStatus, status.getPersistentString())
+				.addParameter(JobletHandler.PARAM_whereStatus, status.persistentString)
 				.toString();
 	}
 
@@ -75,7 +75,7 @@ public class JobletLocalLinkBuilder{
 		if(type != null){
 			uriBuilder.addParameter(JobletUpdateHandler.PARAM_jobletType, type.getPersistentString());
 		}
-		return uriBuilder.addParameter(JobletUpdateHandler.PARAM_status, status.getPersistentString())
+		return uriBuilder.addParameter(JobletUpdateHandler.PARAM_status, status.persistentString)
 				.toString();
 	}
 
@@ -84,7 +84,7 @@ public class JobletLocalLinkBuilder{
 				.setPath(contextPath + paths.datarouter.joblets.deleteGroup.toSlashedString())
 				.addParameter(JobletUpdateHandler.PARAM_jobletType, jobletType)
 				.addParameter(JobletUpdateHandler.PARAM_executionOrder, executionOrder + "")
-				.addParameter(JobletUpdateHandler.PARAM_status, status.getPersistentString())
+				.addParameter(JobletUpdateHandler.PARAM_status, status.persistentString)
 				.toString();
 	}
 

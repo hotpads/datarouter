@@ -18,6 +18,7 @@ package io.datarouter.auth.web;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.b;
 import static j2html.TagCreator.div;
+import static j2html.TagCreator.join;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.table;
 import static j2html.TagCreator.tbody;
@@ -39,7 +40,6 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.auth.config.DatarouterAuthFiles;
 import io.datarouter.auth.config.DatarouterAuthPaths;
 import io.datarouter.auth.service.DatarouterUserEditService;
 import io.datarouter.auth.service.DatarouterUserInfo;
@@ -62,12 +62,16 @@ import io.datarouter.web.handler.mav.imp.InContextRedirectMav;
 import io.datarouter.web.handler.mav.imp.MessageMav;
 import io.datarouter.web.handler.types.optional.OptionalLong;
 import io.datarouter.web.handler.types.optional.OptionalString;
+import io.datarouter.web.html.form.HtmlForm;
+import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
+import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
 import io.datarouter.web.user.databean.DatarouterUser;
 import io.datarouter.web.user.detail.DatarouterUserExternalDetailService;
 import io.datarouter.web.user.role.DatarouterUserRole;
-import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.TrTag;
 
 public class DatarouterPermissionRequestHandler extends BaseHandler{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterPermissionRequestHandler.class);
@@ -76,6 +80,8 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 	private static final String EMAIL_TITLE = "Permission Request";
 
 	@Inject
+	private Bootstrap4PageFactory bootstrap4PageFactory;
+	@Inject
 	private DatarouterAuthenticationConfig authenticationConfig;
 	@Inject
 	private DatarouterPermissionRequestDao datarouterPermissionRequestDao;
@@ -83,8 +89,6 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 	private DatarouterUserService datarouterUserService;
 	@Inject
 	private DatarouterHtmlEmailService htmlEmailService;
-	@Inject
-	private DatarouterAuthFiles files;
 	@Inject
 	private DatarouterAuthPaths paths;
 	@Inject
@@ -106,24 +110,25 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 	@Inject
 	private DatarouterEmailSubscriberSettings subscribersSettings;
 
+
 	@Handler(defaultHandler = true)
-	private Mav showForm(OptionalString deniedUrl, OptionalString allowedRoles){
+	public Mav showForm(OptionalString deniedUrl, OptionalString allowedRoles){
 		if(!authenticationConfig.useDatarouterAuthentication()){
 			return new MessageMav(noDatarouterAuthentication());
 		}
-		Mav mav = new Mav(files.jsp.authentication.permissionRequestJsp);
-		mav.put("serviceName", serviceName.get());
-		mav.put("permissionRequestPath", paths.permissionRequest.toSlashedString());
+
+		DatarouterUser user = getCurrentUser();
+		DatarouterPermissionRequest currentRequest = datarouterPermissionRequestDao
+				.scanOpenPermissionRequestsForUser(user.getId())
+				.findMax(Comparator.comparing(request -> request.getKey().getRequestTime()))
+				.orElse(null);
+
 		Optional<String> defaultSpecifics = deniedUrl.map(url -> {
 			return "I tried to go to this URL: " + url + "." + allowedRoles
 					.map(" These are its allowed roles at the time of this request: "::concat)
 					.orElse("");
 		});
-		mav.put("defaultSpecifics", defaultSpecifics);
-		DatarouterUser user = getCurrentUser();
-		mav.put("currentRequest", datarouterPermissionRequestDao.scanOpenPermissionRequestsForUser(user.getId())
-				.findMax(Comparator.comparing(request -> request.getKey().getRequestTime()))
-				.orElse(null));
+
 		Set<String> emails = new HashSet<>();
 		if(serverTypeDetector.mightBeProduction()){
 			emails.addAll(permissionRequestEmailType.tos);
@@ -132,10 +137,57 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 		if(subscribersSettings.includeSubscribers.get()){
 			emails.addAll(subscibersEmail.get());
 		}
-		mav.put("email", emails);
-		mav.put("submitPath", paths.permissionRequest.submit.join("/"));
-		mav.put("declinePath", paths.permissionRequest.declineAll.join("/"));
-		return mav;
+
+		String declinePath = paths.permissionRequest.declineAll.join("/");
+
+		DivTag existingRequest = new DivTag();
+		if(currentRequest != null){
+			existingRequest = div(
+					p("You already have an open permission request for " + serviceName.get()
+						+ ". You may submit another request to replace it."),
+					p("Time Requested: " + currentRequest.getKey().getRequestTime()),
+					p("Request Text: " + currentRequest.getRequestText()),
+					p(join("Click ", a("here").withHref(declinePath), " to decline it.")));
+		}
+
+		DivTag introContent = div()
+				.with(p(join("Welcome to ", serviceName.get(), ". ",
+						a("Sign out.").withHref(request.getContextPath() + "/" + paths.signout.getValue()))))
+				.with(existingRequest)
+				.condWith(currentRequest == null, p(join("If you need (additional) permissions to use ",
+						serviceName.get(), ", submit the form below, and the administrator will follow up.")))
+				.with(p(join("You will need to ", a("Sign out")
+						.withHref(request.getContextPath() + "/" + paths.signout.getValue()),
+						" and sign back in to refresh your permissions")))
+				.with(p(join("If you have any questions, you may email the administrator(s) at ",
+						a(String.join(",", emails)).withHref("mailto: " + String.join(",", emails)))));
+
+		var form = new HtmlForm()
+				.withAction("?" + BaseHandler.SUBMIT_ACTION + "=submit")
+				.withMethod("post");
+		form.addTextAreaField()
+				.withDisplay(String.format("Why you want to access %s:", this.serviceName.get()))
+				.withName("reason")
+				.isRequired();
+		form.addTextAreaField()
+				.withDisplay("Additional information we have detected: ")
+				.withName("specifics")
+				.withValue(defaultSpecifics.orElse(null))
+				.withReadOnly(true);
+		form.addButton()
+				.withDisplay("Submit");
+
+		DivTag formContent = div()
+				.with(div(Bootstrap4FormHtml.render(form)))
+				.withClasses("card card-body bg-light control-group");
+		DivTag pageContent = div()
+				.with(introContent)
+				.with(formContent)
+				.withClass("container-fluid");
+		return bootstrap4PageFactory.startBuilder(request)
+					.withTitle("Datarouter - Permission Request")
+					.withContent(pageContent)
+					.buildMav();
 	}
 
 	@Handler
@@ -153,7 +205,6 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 		datarouterPermissionRequestDao.createPermissionRequest(new DatarouterPermissionRequest(user.getId(), new Date(),
 				"reason: " + reason + ", specifics: " + specificString, null, null));
 		sendRequestEmail(user, reason, specificString);
-
 		//not just requestor, so send them to the home page after they make their request
 		if(user.getRoles().size() > 1){
 			return new InContextRedirectMav(request, paths.home);
@@ -269,7 +320,7 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 		htmlEmailService.trySendJ2Html(emailBuilder);
 	}
 
-	private static ContainerTag<?> createLabelValueTr(String label, DomContent...values){
+	private static TrTag createLabelValueTr(String label, DomContent...values){
 		return tr(td(b(label + ' ')).withStyle("text-align: right"), td().with(values).withStyle("padding-left: 8px"))
 				.withStyle("vertical-align: top");
 	}

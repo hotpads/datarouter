@@ -53,6 +53,7 @@ extends MapStorageReader<PK,D>, SanitizationAdapter<PK,D,F,N>{
 	default List<D> getMulti(Collection<PK> keys, Config config){
 		Objects.requireNonNull(keys);
 		Objects.requireNonNull(config);
+		keys.forEach(Objects::requireNonNull);
 		if(keys.isEmpty()){
 			return new ArrayList<>(0);
 		}
@@ -63,6 +64,7 @@ extends MapStorageReader<PK,D>, SanitizationAdapter<PK,D,F,N>{
 	default List<PK> getKeys(Collection<PK> keys, Config config){
 		Objects.requireNonNull(keys);
 		Objects.requireNonNull(config);
+		keys.forEach(Objects::requireNonNull);
 		if(keys.isEmpty()){
 			return new ArrayList<>(0);
 		}

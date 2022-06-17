@@ -18,19 +18,19 @@ package io.datarouter.bytes.binarydto.codec.bytearray;
 import java.util.List;
 
 import io.datarouter.bytes.VarIntTool;
-import io.datarouter.bytes.binarydto.codec.BinaryDtoCodec;
-import io.datarouter.bytes.binarydto.dto.BinaryDto;
+import io.datarouter.bytes.binarydto.codec.BinaryDtoIndexedCodec;
+import io.datarouter.bytes.binarydto.dto.BaseBinaryDto;
 import io.datarouter.scanner.Scanner;
 
-public class MultiBinaryDtoEncoder<T extends BinaryDto<T>>{
+public class MultiBinaryDtoEncoder<T extends BaseBinaryDto<T>>{
 
-	private final BinaryDtoCodec<T> codec;
+	private final BinaryDtoIndexedCodec<T> codec;
 
 	public MultiBinaryDtoEncoder(Class<T> dtoClass){
-		this.codec = BinaryDtoCodec.of(dtoClass);
+		this.codec = BinaryDtoIndexedCodec.of(dtoClass);
 	}
 
-	public MultiBinaryDtoEncoder(BinaryDtoCodec<T> codec){
+	public MultiBinaryDtoEncoder(BinaryDtoIndexedCodec<T> codec){
 		this.codec = codec;
 	}
 

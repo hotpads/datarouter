@@ -47,7 +47,8 @@ import io.datarouter.webappinstance.storage.webappinstancelog.DatarouterWebappIn
 import io.datarouter.webappinstance.storage.webappinstancelog.WebappInstanceLog;
 import io.datarouter.webappinstance.storage.webappinstancelog.WebappInstanceLogByBuildInstantKey;
 import io.datarouter.webappinstance.storage.webappinstancelog.WebappInstanceLogKey;
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.TableTag;
 
 @Singleton
 public class WebappInstanceDailyDigest implements DailyDigest{
@@ -66,7 +67,7 @@ public class WebappInstanceDailyDigest implements DailyDigest{
 	private StandardDeploymentCount standardDeploymentCount;
 
 	@Override
-	public Optional<ContainerTag<?>> getPageContent(ZoneId zoneId){
+	public Optional<DivTag> getPageContent(ZoneId zoneId){
 		var logs = getLogs();
 		if(logs.isEmpty()){
 			return Optional.empty();
@@ -77,7 +78,7 @@ public class WebappInstanceDailyDigest implements DailyDigest{
 	}
 
 	@Override
-	public Optional<ContainerTag<?>> getEmailContent(ZoneId zoneId){
+	public Optional<DivTag> getEmailContent(ZoneId zoneId){
 		var logs = getLogs();
 		if(logs.isEmpty() || logs.size() <= standardDeploymentCount.getNumberOfStandardDeployments()){
 			return Optional.empty();
@@ -114,7 +115,7 @@ public class WebappInstanceDailyDigest implements DailyDigest{
 				.list();
 	}
 
-	private ContainerTag<?> buildPageTable(List<WebappInstanceLogDto> rows, ZoneId zoneId){
+	private TableTag buildPageTable(List<WebappInstanceLogDto> rows, ZoneId zoneId){
 		return new J2HtmlTable<WebappInstanceLogDto>()
 				.withClasses("sortable table table-sm table-striped my-4 border")
 				.withColumn("Build Date", row -> ZonedDateFormatterTool.formatInstantWithZone(row.key.build, zoneId))
@@ -130,7 +131,7 @@ public class WebappInstanceDailyDigest implements DailyDigest{
 				.build(rows);
 	}
 
-	private ContainerTag<?> buildEmailTable(List<WebappInstanceLogDto> rows, ZoneId zoneId){
+	private TableTag buildEmailTable(List<WebappInstanceLogDto> rows, ZoneId zoneId){
 		return new J2HtmlEmailTable<WebappInstanceLogDto>()
 				.withColumn("Build Date", row -> ZonedDateFormatterTool.formatInstantWithZone(row.key.build, zoneId))
 				.withColumn("Startup Range", row ->

@@ -49,7 +49,7 @@ import io.datarouter.webappinstance.storage.webappinstance.WebappInstanceKey;
 import io.datarouter.webappinstance.storage.webappinstancelog.DatarouterWebappInstanceLogDao;
 import io.datarouter.webappinstance.storage.webappinstancelog.WebappInstanceLog;
 import io.datarouter.webappinstance.storage.webappinstancelog.WebappInstanceLogKey;
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.DivTag;
 
 public class WebappInstanceServersHandler extends BaseHandler{
 
@@ -86,7 +86,7 @@ public class WebappInstanceServersHandler extends BaseHandler{
 				.buildMav();
 	}
 
-	private ContainerTag<?> makeContent(Page<WebappInstanceLogDto> page, List<String> activeServerNames){
+	private DivTag makeContent(Page<WebappInstanceLogDto> page, List<String> activeServerNames){
 		var form = Bootstrap4PagerHtml.renderForm(page)
 				.withClass("mt-4");
 		var linkBar = Bootstrap4PagerHtml.renderLinkBar(page)

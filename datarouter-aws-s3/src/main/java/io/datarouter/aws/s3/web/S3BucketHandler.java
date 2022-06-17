@@ -52,7 +52,8 @@ import io.datarouter.web.html.j2html.J2HtmlTable;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import io.datarouter.web.requirejs.DatarouterWebRequireJsV2;
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.ATag;
+import j2html.tags.specialized.TableTag;
 
 public class S3BucketHandler extends BaseHandler{
 	private static final Logger logger = LoggerFactory.getLogger(S3BucketHandler.class);
@@ -139,7 +140,7 @@ public class S3BucketHandler extends BaseHandler{
 				currentDirectory.orElse(false))
 				.list();
 		int sizePadding = sizePadding(objects);
-		ContainerTag<?> table = new J2HtmlTable<DirectoryDto>()
+		TableTag table = new J2HtmlTable<DirectoryDto>()
 				.withClasses("sortable table table-sm table-striped my-4 border")
 				.withHtmlColumn("Key", object -> {
 					String name = object.name;
@@ -171,7 +172,7 @@ public class S3BucketHandler extends BaseHandler{
 				.withColumn("Last Modified", object -> object.lastModified)
 				.withColumn("Storage Class", object -> object.storageClass)
 				.build(objects);
-		ContainerTag<?> tableWrapper = table.withStyle("font-family:monospace; font-size:.9em;");
+		TableTag tableWrapper = table.withStyle("font-family:monospace; font-size:.9em;");
 		var content = div(
 				htmlForm,
 				h4(bucket),
@@ -212,7 +213,7 @@ public class S3BucketHandler extends BaseHandler{
 		return pageFactory.message(request, message.get());
 	}
 
-	private ContainerTag<?> makePrefixLink(String client, String bucket, String prefix, String delimiter){
+	private ATag makePrefixLink(String client, String bucket, String prefix, String delimiter){
 		String href = new URIBuilder()
 				.setPath(request.getContextPath() + paths.datarouter.clients.awsS3.listObjects
 						.toSlashedString())

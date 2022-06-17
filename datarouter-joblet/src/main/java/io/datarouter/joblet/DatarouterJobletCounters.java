@@ -54,45 +54,45 @@ public class DatarouterJobletCounters{
 	}
 
 	public void saveQueueLengthJoblets(JobletStatus jobletStatus, String jobletType, long queueLength){
-		gauges.save(PREFIX + QUEUE_LENGTH_JOBLETS + jobletStatus.getPersistentString() + " " + jobletType,
+		gauges.save(PREFIX + QUEUE_LENGTH_JOBLETS + jobletStatus.persistentString + " " + jobletType,
 				queueLength);
 	}
 
 	public void saveQueueLengthJobletsForQueueId(JobletStatus jobletStatus, String jobletType, String queueId,
 			long queueLength){
-		gauges.save(PREFIX + QUEUE_LENGTH_JOBLETS + jobletStatus.getPersistentString() + " " + jobletType + " "
+		gauges.save(PREFIX + QUEUE_LENGTH_JOBLETS + jobletStatus.persistentString + " " + jobletType + " "
 				+ queueId, queueLength);
 	}
 
 	public void saveGlobalQueueLengthJoblets(JobletStatus jobletStatus, long queueLength){
-		gauges.save(PREFIX + QUEUE_LENGTH_JOBLETS + jobletStatus.getPersistentString(), queueLength);
+		gauges.save(PREFIX + QUEUE_LENGTH_JOBLETS + jobletStatus.persistentString, queueLength);
 	}
 
 	public void saveQueueLengthItems(JobletStatus jobletStatus, String jobletType, long queueLength){
-		gauges.save(PREFIX + QUEUE_LENGTH_ITEMS + jobletStatus.getPersistentString() + " " + jobletType, queueLength);
+		gauges.save(PREFIX + QUEUE_LENGTH_ITEMS + jobletStatus.persistentString + " " + jobletType, queueLength);
 	}
 
 	public void saveQueueLengthItemsForQueueId(JobletStatus jobletStatus, String jobletType, String queueId,
 			long queueLength){
-		gauges.save(PREFIX + QUEUE_LENGTH_ITEMS + jobletStatus.getPersistentString() + " " + jobletType + " "
+		gauges.save(PREFIX + QUEUE_LENGTH_ITEMS + jobletStatus.persistentString + " " + jobletType + " "
 				+ queueId, queueLength);
 	}
 
 	public void saveGlobalQueueLengthItems(JobletStatus jobletStatus, long queueLength){
-		gauges.save(PREFIX + QUEUE_LENGTH_ITEMS + jobletStatus.getPersistentString(), queueLength);
+		gauges.save(PREFIX + QUEUE_LENGTH_ITEMS + jobletStatus.persistentString, queueLength);
 	}
 
 	public void saveFirst(JobletStatus jobletStatus, String jobletType, long firstCreated){
-		gauges.save(PREFIX + FIRST + jobletStatus.getPersistentString() + " " + jobletType, firstCreated);
+		gauges.save(PREFIX + FIRST + jobletStatus.persistentString + " " + jobletType, firstCreated);
 	}
 
 	public void saveFirstForQueueId(JobletStatus jobletStatus, String jobletType, String queueId, long firstCreated){
-		gauges.save(PREFIX + FIRST + jobletStatus.getPersistentString() + " " + jobletType + " " + queueId,
+		gauges.save(PREFIX + FIRST + jobletStatus.persistentString + " " + jobletType + " " + queueId,
 				firstCreated);
 	}
 
 	public void saveGlobalFirst(JobletStatus jobletStatus, long firstCreated){
-		gauges.save(PREFIX + FIRST + jobletStatus.getPersistentString(), firstCreated);
+		gauges.save(PREFIX + FIRST + jobletStatus.persistentString, firstCreated);
 	}
 
 	public void saveNumServers(long numServers){

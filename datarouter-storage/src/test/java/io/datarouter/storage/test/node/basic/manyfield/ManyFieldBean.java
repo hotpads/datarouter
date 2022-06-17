@@ -26,9 +26,11 @@ import java.util.function.Supplier;
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.codec.DateToLongFieldCodec;
-import io.datarouter.model.field.codec.EnumToIntegerFieldCodec;
-import io.datarouter.model.field.codec.EnumToStringFieldCodec;
 import io.datarouter.model.field.codec.IntListFieldCodec;
+import io.datarouter.model.field.codec.IntMappedEnumFieldCodec;
+import io.datarouter.model.field.codec.StringListToBinaryCsvFieldCodec;
+import io.datarouter.model.field.codec.StringListToCsvFieldCodec;
+import io.datarouter.model.field.codec.StringMappedEnumFieldCodec;
 import io.datarouter.model.field.imp.LocalDateField;
 import io.datarouter.model.field.imp.LocalDateFieldKey;
 import io.datarouter.model.field.imp.StringEncodedField;
@@ -57,18 +59,8 @@ import io.datarouter.model.field.imp.comparable.LongField;
 import io.datarouter.model.field.imp.comparable.LongFieldKey;
 import io.datarouter.model.field.imp.comparable.ShortField;
 import io.datarouter.model.field.imp.comparable.ShortFieldKey;
-import io.datarouter.model.field.imp.comparable.SignedByteField;
-import io.datarouter.model.field.imp.comparable.SignedByteFieldKey;
 import io.datarouter.model.field.imp.custom.LocalDateTimeField;
 import io.datarouter.model.field.imp.custom.LocalDateTimeFieldKey;
-import io.datarouter.model.field.imp.custom.LongDateField;
-import io.datarouter.model.field.imp.custom.LongDateFieldKey;
-import io.datarouter.model.field.imp.enums.IntegerEnumField;
-import io.datarouter.model.field.imp.enums.IntegerEnumFieldKey;
-import io.datarouter.model.field.imp.enums.StringEnumField;
-import io.datarouter.model.field.imp.enums.StringEnumFieldKey;
-import io.datarouter.model.field.imp.list.DelimitedStringListField;
-import io.datarouter.model.field.imp.list.DelimitedStringListFieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 import io.datarouter.model.util.CommonFieldSizes;
 import io.datarouter.util.lang.ObjectTool;
@@ -80,44 +72,39 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 	private static final int LEN_STRING_ENUM_FIELD = 20;
 
 	private Boolean booleanField;
-	private Byte byteField;
 	private Short shortField;
 	private Integer integerField;
 	private TestEnum enumToIntegerField;//for testing IntegerEncodedField
 	private Long longField;
 	private Float floatField;
 	private Double doubleField;
-	private Date longDateField;
 	private Date dateToLongField;//for testing LongEncodedField
 	private LocalDate localDateField;
 	private LocalDateTime localDateTimeField;
 	private Instant instantField;
 	private String stringField;
 	private TestEnum enumToStringField;//for testing StringEncodedField
-	private TestEnum intEnumField;
-	private TestEnum stringEnumField;
 
 	private byte[] stringByteField;
 
 	private byte[] data;
 
-	private List<String> delimitedStringArrayField;
+	private List<String> csvField;
+	private List<String> csvBytesField;
 	private byte[] byteArrayField;
 	private List<Integer> intListToByteArrayField;
 	private String testSchemaUpdateField;
 
 	public static class FieldKeys{
 		public static final BooleanFieldKey booleanField = new BooleanFieldKey("booleanField");
-		public static final SignedByteFieldKey byteField = new SignedByteFieldKey("byteField");
 		public static final ShortFieldKey shortField = new ShortFieldKey("shortField");
 		public static final IntegerFieldKey integerField = new IntegerFieldKey("integerField");
 		public static final IntegerEncodedFieldKey<TestEnum> enumToIntegerField = new IntegerEncodedFieldKey<>(
 				"enumToIntegerField",
-				new EnumToIntegerFieldCodec<>(TestEnum.BY_PERSISTENT_INTEGER));
+				new IntMappedEnumFieldCodec<>(TestEnum.BY_PERSISTENT_INTEGER));
 		public static final LongFieldKey longField = new LongFieldKey("longField");
 		public static final FloatFieldKey floatField = new FloatFieldKey("floatField");
 		public static final DoubleFieldKey doubleField = new DoubleFieldKey("doubleField");
-		public static final LongDateFieldKey longDateField = new LongDateFieldKey("longDateField");
 		public static final LongEncodedFieldKey<Date> dateToLongField = new LongEncodedFieldKey<>(
 				"dateToLongField",
 				new DateToLongFieldCodec());
@@ -128,11 +115,7 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 				.withSize(CommonFieldSizes.MAX_KEY_LENGTH_UTF8MB4);
 		public static final StringEncodedFieldKey<TestEnum> enumToStringField = new StringEncodedFieldKey<>(
 				"enumToStringField",
-				new EnumToStringFieldCodec<>(TestEnum.BY_PERSISTENT_STRING));
-		public static final IntegerEnumFieldKey<TestEnum> intEnumField = new IntegerEnumFieldKey<>("intEnumField",
-				TestEnum.class);
-		public static final StringEnumFieldKey<TestEnum> stringEnumField = new StringEnumFieldKey<>("stringEnumField",
-				TestEnum.class).withSize(LEN_STRING_ENUM_FIELD);
+				new StringMappedEnumFieldCodec<>(TestEnum.BY_PERSISTENT_STRING));
 		public static final ByteArrayFieldKey stringByteField = new ByteArrayFieldKey("stringByteField")
 				.withSize(CommonFieldSizes.MAX_LENGTH_LONGBLOB);
 		public static final ByteArrayFieldKey data = new ByteArrayFieldKey("data")
@@ -140,8 +123,12 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 		public static final ByteArrayFieldKey byteArrayField = new ByteArrayFieldKey("byteArrayField");
 		public static final ByteArrayEncodedFieldKey<List<Integer>> intListToByteArrayField
 				= new ByteArrayEncodedFieldKey<>("intListToByteArrayField", IntListFieldCodec.INSTANCE);
-		public static final DelimitedStringListFieldKey delimitedStringArrayField = new DelimitedStringListFieldKey(
-				"delimitedStringArrayField");
+		public static final StringEncodedFieldKey<List<String>> csvField = new StringEncodedFieldKey<>(
+				"csvField",
+				StringListToCsvFieldCodec.INSTANCE);
+		public static final ByteArrayEncodedFieldKey<List<String>> csvBytesField = new ByteArrayEncodedFieldKey<>(
+				"csvBytesField",
+				StringListToBinaryCsvFieldCodec.INSTANCE);
 		public static final StringFieldKey testSchemaUpdateField = new StringFieldKey("testSchemaUpdateField")
 				.withSize(CommonFieldSizes.MAX_KEY_LENGTH_UTF8MB4);
 	}
@@ -151,9 +138,6 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 			return false;
 		}
 		if(ObjectTool.notEquals(booleanField, that.booleanField)){
-			return false;
-		}
-		if(ObjectTool.notEquals(byteField, that.byteField)){
 			return false;
 		}
 		if(ObjectTool.notEquals(shortField, that.shortField)){
@@ -174,9 +158,6 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 		if(ObjectTool.notEquals(doubleField, that.doubleField)){
 			return false;
 		}
-		if(ObjectTool.notEquals(longDateField, that.longDateField)){
-			return false;
-		}
 		if(ObjectTool.notEquals(dateToLongField, that.dateToLongField)){
 			return false;
 		}
@@ -190,12 +171,6 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 			return false;
 		}
 		if(ObjectTool.notEquals(stringField, that.stringField)){
-			return false;
-		}
-		if(ObjectTool.notEquals(intEnumField, that.intEnumField)){
-			return false;
-		}
-		if(ObjectTool.notEquals(stringEnumField, that.stringEnumField)){
 			return false;
 		}
 		if(ObjectTool.notEquals(stringByteField, that.stringByteField)){
@@ -213,7 +188,10 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 		if(ObjectTool.notEquals(intListToByteArrayField, that.intListToByteArrayField)){
 			return false;
 		}
-		if(ObjectTool.notEquals(delimitedStringArrayField, that.delimitedStringArrayField)){
+		if(ObjectTool.notEquals(csvField, that.csvField)){
+			return false;
+		}
+		if(ObjectTool.notEquals(csvBytesField, that.csvBytesField)){
 			return false;
 		}
 		if(ObjectTool.notEquals(testSchemaUpdateField, that.testSchemaUpdateField)){
@@ -232,28 +210,24 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 		public List<Field<?>> getNonKeyFields(ManyFieldBean databean){
 			return List.of(
 					new BooleanField(FieldKeys.booleanField, databean.booleanField),
-					new SignedByteField(FieldKeys.byteField, databean.byteField),
 					new ShortField(FieldKeys.shortField, databean.shortField),
 					new IntegerField(FieldKeys.integerField, databean.integerField),
 					new IntegerEncodedField<>(FieldKeys.enumToIntegerField, databean.enumToIntegerField),
 					new LongField(FieldKeys.longField, databean.longField),
 					new FloatField(FieldKeys.floatField, databean.floatField),
 					new DoubleField(FieldKeys.doubleField, databean.doubleField),
-					new LongDateField(FieldKeys.longDateField, databean.longDateField),
 					new LongEncodedField<>(FieldKeys.dateToLongField, databean.dateToLongField),
 					new LocalDateField(FieldKeys.localDateField, databean.localDateField),
 					new LocalDateTimeField(FieldKeys.localDateTimeField, databean.localDateTimeField),
 					new InstantField(FieldKeys.instantField, databean.instantField),
 					new StringField(FieldKeys.stringField, databean.stringField),
 					new StringEncodedField<>(FieldKeys.enumToStringField, databean.enumToStringField),
-					new IntegerEnumField<>(FieldKeys.intEnumField, databean.intEnumField),
-					new StringEnumField<>(FieldKeys.stringEnumField, databean.stringEnumField),
 					new ByteArrayField(FieldKeys.stringByteField, databean.stringByteField),
 					new ByteArrayField(FieldKeys.data, databean.data),
 					new ByteArrayEncodedField<>(FieldKeys.intListToByteArrayField, databean.intListToByteArrayField),
 					new ByteArrayField(FieldKeys.byteArrayField, databean.byteArrayField),
-					new DelimitedStringListField(FieldKeys.delimitedStringArrayField,
-							databean.delimitedStringArrayField),
+					new StringEncodedField<>(FieldKeys.csvField, databean.csvField),
+					new ByteArrayEncodedField<>(FieldKeys.csvBytesField, databean.csvBytesField),
 					new StringField(FieldKeys.testSchemaUpdateField, databean.testSchemaUpdateField));
 		}
 
@@ -272,12 +246,20 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 		return ManyFieldBeanKey::new;
 	}
 
-	public List<String> appendToDelimitedStringArrayField(String val){
-		if(delimitedStringArrayField == null){
-			delimitedStringArrayField = new ArrayList<>();
+	public List<String> appendToCsvField(String val){
+		if(csvField == null){
+			csvField = new ArrayList<>();
 		}
-		delimitedStringArrayField.add(val);
-		return delimitedStringArrayField;
+		csvField.add(val);
+		return csvField;
+	}
+
+	public List<String> appendToCsvBytesField(String val){
+		if(csvBytesField == null){
+			csvBytesField = new ArrayList<>();
+		}
+		csvBytesField.add(val);
+		return csvBytesField;
 	}
 
 	public byte[] getData(){
@@ -310,14 +292,6 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 
 	public void setShortField(Short shortField){
 		this.shortField = shortField;
-	}
-
-	public Byte getByteField(){
-		return byteField;
-	}
-
-	public void setByteField(Byte byteField){
-		this.byteField = byteField;
 	}
 
 	public Long getLongField(){
@@ -384,14 +358,6 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 		this.intListToByteArrayField = intListToByteArrayField;
 	}
 
-	public Date getLongDateField(){
-		return longDateField;
-	}
-
-	public void setLongDateField(Date longDateField){
-		this.longDateField = longDateField;
-	}
-
 	public Date getDateToLongField(){
 		return dateToLongField;
 	}
@@ -424,22 +390,6 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 		this.instantField = instantField;
 	}
 
-	public TestEnum getIntEnumField(){
-		return intEnumField;
-	}
-
-	public void setIntEnumField(TestEnum intEnumField){
-		this.intEnumField = intEnumField;
-	}
-
-	public TestEnum getStringEnumField(){
-		return stringEnumField;
-	}
-
-	public void setStringEnumField(TestEnum stringEnumField){
-		this.stringEnumField = stringEnumField;
-	}
-
 	public Boolean getBooleanField(){
 		return booleanField;
 	}
@@ -448,12 +398,20 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 		this.booleanField = booleanField;
 	}
 
-	public List<String> getDelimitedStringArrayField(){
-		return delimitedStringArrayField;
+	public List<String> getCsvField(){
+		return csvField;
 	}
 
-	public void setDelimitedStringArrayField(List<String> delimitedStringArrayField){
-		this.delimitedStringArrayField = delimitedStringArrayField;
+	public void setCsvField(List<String> csvField){
+		this.csvField = csvField;
+	}
+
+	public List<String> getCsvBytesField(){
+		return csvBytesField;
+	}
+
+	public void setCsvBytesField(List<String> csvBytesField){
+		this.csvBytesField = csvBytesField;
 	}
 
 	public String getTestSchemaUpdateField(){

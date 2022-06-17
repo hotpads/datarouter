@@ -35,6 +35,7 @@ import io.datarouter.instrumentation.exception.HttpRequestRecordDto;
 import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.storage.exception.ExceptionCategory;
 import io.datarouter.storage.exception.UnknownExceptionCategory;
+import io.datarouter.util.string.StringTool;
 import io.datarouter.web.app.WebappName;
 import io.datarouter.web.config.DatarouterWebSettingRoot;
 import io.datarouter.web.config.service.ServiceName;
@@ -148,12 +149,13 @@ public class DefaultExceptionRecorder implements ExceptionRecorder{
 		ExceptionCounters.inc(type);
 		ExceptionCounters.inc(callOrigin);
 		ExceptionCounters.inc(type + " " + callOrigin);
+		String stackTrace = ExceptionTool.getStackTraceAsString(exception);
 		ExceptionRecord exceptionRecord = new ExceptionRecord(
 				serviceName.get(),
 				serverName.get(),
 				category.name(),
 				Optional.ofNullable(name).orElse(ExceptionRecorderDetails.getDefaultName(type, name, callOrigin)),
-				ExceptionTool.getStackTraceAsString(exception),
+				stackTrace,
 				type,
 				gitProperties.getIdAbbrev().orElse(GitProperties.UNKNOWN_STRING),
 				location,
@@ -165,7 +167,10 @@ public class DefaultExceptionRecorder implements ExceptionRecorder{
 		logger.warn("Exception recorded ({})", exceptionRecordService.buildExceptionLinkForCurrentServer(
 				exceptionRecord));
 		if(settings.publishRecords.get()){
-			exceptionBuffers.exceptionRecordPublishingBuffer.offer(exceptionRecord);
+			//copy to avoid mutating the other buffered ExceptionRecord
+			ExceptionRecord publishRecord = new ExceptionRecord(exceptionRecord.toDto());
+			publishRecord.setStackTrace(StringTool.trimToSize(stackTrace, settings.maxPublisherStackTraceLength.get()));
+			exceptionBuffers.exceptionRecordPublishingBuffer.offer(publishRecord);
 		}
 		if(exceptionHandlingConfig.shouldReportError(exceptionRecord.toDto())){
 			report(exceptionRecord, category, additionalEmailRecipients);

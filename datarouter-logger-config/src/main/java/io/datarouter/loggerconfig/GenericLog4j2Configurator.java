@@ -40,7 +40,7 @@ public class GenericLog4j2Configurator extends Log4j2Configurator{
 		removeAllConfigLogger();
 		config.getLoggerConfigs().forEach(loggerConfig -> updateOrCreateLoggerConfig(
 				loggerConfig.getName(),
-				loggerConfig.getLevel().getLevel(),
+				loggerConfig.getLevel().level,
 				loggerConfig.getAdditive(),
 				loggerConfig.getAppendersRef()));
 	}

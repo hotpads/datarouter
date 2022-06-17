@@ -27,18 +27,18 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
+import io.datarouter.model.field.codec.StringListToBinaryCsvFieldCodec;
 import io.datarouter.model.field.imp.DateField;
 import io.datarouter.model.field.imp.DateFieldKey;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
+import io.datarouter.model.field.imp.array.ByteArrayEncodedField;
+import io.datarouter.model.field.imp.array.ByteArrayEncodedFieldKey;
 import io.datarouter.model.field.imp.comparable.BooleanField;
 import io.datarouter.model.field.imp.comparable.BooleanFieldKey;
-import io.datarouter.model.field.imp.list.DelimitedStringListField;
-import io.datarouter.model.field.imp.list.DelimitedStringListFieldKey;
 import io.datarouter.model.key.unique.base.BaseStringUniqueKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 import io.datarouter.model.util.CommonFieldSizes;
@@ -66,7 +66,9 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey,DatarouterUse
 		public static final StringFieldKey passwordDigest = new StringFieldKey("passwordDigest")
 				.withSize(CommonFieldSizes.MAX_LENGTH_TEXT);
 		public static final BooleanFieldKey enabled = new BooleanFieldKey("enabled");
-		public static final DelimitedStringListFieldKey roles = new DelimitedStringListFieldKey("roles");
+		public static final ByteArrayEncodedFieldKey<List<String>> roles
+				= new ByteArrayEncodedFieldKey<>("roles", StringListToBinaryCsvFieldCodec.INSTANCE)
+				.withSize(CommonFieldSizes.MAX_LENGTH_LONGBLOB);
 		@SuppressWarnings("deprecation")
 		public static final DateFieldKey created = new DateFieldKey("created");
 		@SuppressWarnings("deprecation")
@@ -89,7 +91,7 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey,DatarouterUse
 					new StringField(FieldKeys.passwordSalt, user.passwordSalt),
 					new StringField(FieldKeys.passwordDigest, user.passwordDigest),
 					new BooleanField(FieldKeys.enabled, user.enabled),
-					new DelimitedStringListField(FieldKeys.roles, user.roles),
+					new ByteArrayEncodedField<>(FieldKeys.roles, user.roles),
 					new DateField(FieldKeys.created, user.created),
 					new DateField(FieldKeys.lastLoggedIn, user.lastLoggedIn),
 					new StringField(FieldKeys.zoneId, user.zoneId));
@@ -155,11 +157,11 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey,DatarouterUse
 	}
 
 	public void setRoles(Collection<Role> roles){
-		this.roles = roles.stream()
+		this.roles = Scanner.of(roles)
 				.map(Role::getPersistentString)
-				.sorted()
+				.sort()
 				.distinct()
-				.collect(Collectors.toList());
+				.list();
 	}
 
 	public DatarouterUser addRoles(Collection<Role> roles){

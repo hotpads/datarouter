@@ -15,35 +15,49 @@
  */
 package io.datarouter.storage.util;
 
+import java.time.Duration;
 import java.util.Optional;
 
 import io.datarouter.gson.serialization.GsonTool;
 import io.datarouter.util.net.NetTool;
+import io.datarouter.util.tuple.Pair;
 
 public class Ec2InstanceTool{
 
-	public static final String EC2_INSTANCE_IDENTITY_DOCUMENT_URL =
-			"http://169.254.169.254/latest/dynamic/instance-identity/document";
-	public static final String EC2_PRIVATE_IP_URL = "http://169.254.169.254/latest/meta-data/local-ipv4";
-	public static final String EC2_PUBLIC_IP_URL = "http://169.254.169.254/latest/meta-data/public-ipv4";
+	public static final String
+			EC2_TOKEN_URL = "http://169.254.169.254/latest/api/token",
+			EC2_INSTANCE_IDENTITY_DOCUMENT_URL = "http://169.254.169.254/latest/dynamic/instance-identity/document",
+			EC2_PRIVATE_IP_URL = "http://169.254.169.254/latest/meta-data/local-ipv4",
+			EC2_PUBLIC_IP_URL = "http://169.254.169.254/latest/meta-data/public-ipv4",
+			TTL_HEADER = "X-aws-ec2-metadata-token-ttl-seconds",
+			TOKEN_HEADER = "X-aws-ec2-metadata-token";
+	private static final String TTL_S = Long.toString(Duration.ofSeconds(10).toSeconds());
 
-	public static Optional<Ec2InstanceDetailsDto> getEc2InstanceDetails(){
-		return NetTool.curl(EC2_INSTANCE_IDENTITY_DOCUMENT_URL, false)
+	private static Optional<String> makeEc2Call(String ec2Url, boolean logError){
+		// IMDSv2
+		return NetTool.curl("PUT", EC2_TOKEN_URL, logError, new Pair<>(TTL_HEADER, TTL_S))
+				.flatMap(token -> NetTool.curl("GET", ec2Url, logError, new Pair<>(TOKEN_HEADER, token)))
+				// IMDSv1
+				.or(() -> NetTool.curl("GET", ec2Url, logError, null));
+	}
+
+	public static Optional<Ec2InstanceDetailsDto> getEc2InstanceDetails(boolean logError){
+		return makeEc2Call(EC2_INSTANCE_IDENTITY_DOCUMENT_URL, logError)
 				.map(json -> GsonTool.GSON.fromJson(json, Ec2InstanceDetailsDto.class));
 	}
 
 	public static String getEc2InstancePublicIp(){
-		return NetTool.curl(EC2_PUBLIC_IP_URL, false)
+		return makeEc2Call(EC2_PUBLIC_IP_URL, false)
 				.orElse(null);
 	}
 
 	public static String getEc2InstancePrivateIp(){
-		return NetTool.curl(EC2_PRIVATE_IP_URL, false)
+		return makeEc2Call(EC2_PUBLIC_IP_URL, false)
 				.orElse(null);
 	}
 
 	public static boolean isEc2(){
-		return getEc2InstanceDetails().isPresent();
+		return getEc2InstanceDetails(false).isPresent();
 	}
 
 }

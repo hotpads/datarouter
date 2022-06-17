@@ -31,8 +31,8 @@ import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.util.tuple.Twin;
 import io.datarouter.web.config.service.ServiceName;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
-import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
+import j2html.tags.specialized.TableTag;
 
 @Singleton
 public class ChangelogEmailService{
@@ -67,8 +67,13 @@ public class ChangelogEmailService{
 		htmlEmailService.trySendJ2Html(emailBuilder);
 	}
 
-	private ContainerTag<?> makeEmailContent(String changelogType, String name, String action, String username,
-			String comment, String note){
+	private TableTag makeEmailContent(
+			String changelogType,
+			String name,
+			String action,
+			String username,
+			String comment,
+			String note){
 		var rows = List.of(
 				new Twin<>("Service", serviceName.get()),
 				new Twin<>("ServerName", serverName.get()),

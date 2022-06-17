@@ -48,7 +48,9 @@ import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
 import io.datarouter.web.digest.DailyDigestService;
 import io.datarouter.web.html.j2html.J2HtmlTable;
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.TableTag;
+import j2html.tags.specialized.TdTag;
 
 @Singleton
 public class ExceptionRecordAggregationDailyDigest implements DailyDigest{
@@ -71,7 +73,7 @@ public class ExceptionRecordAggregationDailyDigest implements DailyDigest{
 	private ExemptDailyDigestExceptions exemptDailyDigestExceptions;
 
 	@Override
-	public Optional<ContainerTag<?>> getPageContent(ZoneId zoneId){
+	public Optional<DivTag> getPageContent(ZoneId zoneId){
 		List<AggregatedExceptionDto> aggregated = getExceptions(zoneId);
 		if(aggregated.size() == 0){
 			return Optional.empty();
@@ -82,7 +84,7 @@ public class ExceptionRecordAggregationDailyDigest implements DailyDigest{
 	}
 
 	@Override
-	public Optional<ContainerTag<?>> getEmailContent(ZoneId zoneId){
+	public Optional<DivTag> getEmailContent(ZoneId zoneId){
 		List<AggregatedExceptionDto> aggregated = getExceptions(zoneId);
 		if(aggregated.size() == 0){
 			return Optional.empty();
@@ -131,7 +133,7 @@ public class ExceptionRecordAggregationDailyDigest implements DailyDigest{
 				.list();
 	}
 
-	private ContainerTag<?> makePageTable(List<AggregatedExceptionDto> rows){
+	private TableTag makePageTable(List<AggregatedExceptionDto> rows){
 		return new J2HtmlTable<AggregatedExceptionDto>()
 				.withClasses("sortable table table-sm table-striped my-4 border")
 				.withColumn("Type", row -> row.key.type)
@@ -145,7 +147,7 @@ public class ExceptionRecordAggregationDailyDigest implements DailyDigest{
 				.build(rows);
 	}
 
-	private ContainerTag<?> makeEmailTable(List<AggregatedExceptionDto> rows){
+	private TableTag makeEmailTable(List<AggregatedExceptionDto> rows){
 		return new J2HtmlEmailTable<AggregatedExceptionDto>()
 				.withColumn(new J2HtmlEmailTableColumn<>("Type", row -> digestService.makeATagLink(row.key.type,
 						makeExceptionRecordPath(row))))
@@ -154,7 +156,7 @@ public class ExceptionRecordAggregationDailyDigest implements DailyDigest{
 				.build(rows);
 	}
 
-	private ContainerTag<?> makeNumericPageTableCell(long value){
+	private TdTag makeNumericPageTableCell(long value){
 		return td(NumberFormatter.addCommas(value))
 				.attr("sorttable_customkey", value)
 				.withStyle("text-align:right");

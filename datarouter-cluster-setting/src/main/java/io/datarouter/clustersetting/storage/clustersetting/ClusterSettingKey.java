@@ -20,10 +20,11 @@ import java.util.Objects;
 
 import io.datarouter.clustersetting.ClusterSettingScope;
 import io.datarouter.model.field.Field;
+import io.datarouter.model.field.codec.StringMappedEnumFieldCodec;
+import io.datarouter.model.field.imp.StringEncodedField;
+import io.datarouter.model.field.imp.StringEncodedFieldKey;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
-import io.datarouter.model.field.imp.enums.StringEnumField;
-import io.datarouter.model.field.imp.enums.StringEnumFieldKey;
 import io.datarouter.model.key.primary.base.BaseRegularPrimaryKey;
 import io.datarouter.model.util.CommonFieldSizes;
 import io.datarouter.webappinstance.storage.webappinstance.WebappInstance;
@@ -37,9 +38,10 @@ public class ClusterSettingKey extends BaseRegularPrimaryKey<ClusterSettingKey>{
 
 	public static class FieldKeys{
 		public static final StringFieldKey name = new StringFieldKey("name");
-		public static final StringEnumFieldKey<ClusterSettingScope> scope = new StringEnumFieldKey<>("scope",
-				ClusterSettingScope.class)
-				.withSize(20);
+		public static final StringEncodedFieldKey<ClusterSettingScope> scope = new StringEncodedFieldKey<>(
+				"scope",
+				new StringMappedEnumFieldCodec<>(ClusterSettingScope.BY_PERSISTENT_STRING))
+				.withSize(ClusterSettingScope.BY_PERSISTENT_STRING.maxLength());
 		public static final StringFieldKey serverType = new StringFieldKey("serverType")
 				.withSize(CommonFieldSizes.LENGTH_50);
 		public static final StringFieldKey serverName = new StringFieldKey("serverName")
@@ -61,7 +63,7 @@ public class ClusterSettingKey extends BaseRegularPrimaryKey<ClusterSettingKey>{
 	public List<Field<?>> getFields(){
 		return List.of(
 				new StringField(FieldKeys.name, name),
-				new StringEnumField<>(FieldKeys.scope, scope),
+				new StringEncodedField<>(FieldKeys.scope, scope),
 				new StringField(FieldKeys.serverType, serverType),
 				new StringField(FieldKeys.serverName, serverName));
 	}

@@ -24,15 +24,16 @@ import java.util.function.Supplier;
 
 import io.datarouter.auth.storage.userhistory.DatarouterUserHistory;
 import io.datarouter.auth.storage.userhistory.DatarouterUserHistoryKey;
-import io.datarouter.enums.StringEnum;
+import io.datarouter.enums.MappedEnum;
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
+import io.datarouter.model.field.codec.StringMappedEnumFieldCodec;
 import io.datarouter.model.field.imp.DateField;
 import io.datarouter.model.field.imp.DateFieldKey;
+import io.datarouter.model.field.imp.StringEncodedField;
+import io.datarouter.model.field.imp.StringEncodedFieldKey;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
-import io.datarouter.model.field.imp.enums.StringEnumField;
-import io.datarouter.model.field.imp.enums.StringEnumFieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 import io.datarouter.model.util.CommonFieldSizes;
 
@@ -65,8 +66,10 @@ extends BaseDatabean<DatarouterPermissionRequestKey,DatarouterPermissionRequest>
 	public static class FieldKeys{
 		public static final StringFieldKey requestText = new StringFieldKey("requestText")
 				.withSize(CommonFieldSizes.MAX_LENGTH_TEXT);
-		public static final StringEnumFieldKey<DatarouterPermissionRequestResolution> resolution =
-				new StringEnumFieldKey<>("resolution", DatarouterPermissionRequestResolution.class);
+		public static final StringEncodedFieldKey<DatarouterPermissionRequestResolution> resolution =
+				new StringEncodedFieldKey<>(
+				"resolution",
+				new StringMappedEnumFieldCodec<>(DatarouterPermissionRequestResolution.BY_PERSISTENT_STRING));
 		@SuppressWarnings("deprecation")
 		public static final DateFieldKey resolutionTime = new DateFieldKey("resolutionTime");
 	}
@@ -83,7 +86,7 @@ extends BaseDatabean<DatarouterPermissionRequestKey,DatarouterPermissionRequest>
 		public List<Field<?>> getNonKeyFields(DatarouterPermissionRequest databean){
 			return List.of(
 					new StringField(FieldKeys.requestText, databean.requestText),
-					new StringEnumField<>(FieldKeys.resolution, databean.resolution),
+					new StringEncodedField<>(FieldKeys.resolution, databean.resolution),
 					new DateField(FieldKeys.resolutionTime, databean.resolutionTime));
 		}
 
@@ -95,7 +98,8 @@ extends BaseDatabean<DatarouterPermissionRequestKey,DatarouterPermissionRequest>
 				.map(time -> new DatarouterUserHistoryKey(getKey().getUserId(), time));
 	}
 
-	private DatarouterPermissionRequest resolve(DatarouterPermissionRequestResolution resolution,
+	private DatarouterPermissionRequest resolve(
+			DatarouterPermissionRequestResolution resolution,
 			Optional<Instant> resolutionTime){
 		setResolution(resolution);
 		setResolutionTime(resolutionTime.orElse(null));
@@ -148,25 +152,19 @@ extends BaseDatabean<DatarouterPermissionRequestKey,DatarouterPermissionRequest>
 		this.resolutionTime = Date.from(resolutionTime);
 	}
 
-	public enum DatarouterPermissionRequestResolution implements StringEnum<DatarouterPermissionRequestResolution>{
+	public enum DatarouterPermissionRequestResolution{
 		SUPERCEDED("superceded"),//another request was made, so this one is no longer relevant
 		USER_CHANGED("changed"),//user was changed since request
 		DECLINED("declined");//request was manually declined
 
-		private final String persistentString;
+		public static final MappedEnum<DatarouterPermissionRequestResolution,String> BY_PERSISTENT_STRING
+				= new MappedEnum<>(values(), value -> value.persistentString);
+
+		public final String persistentString;
 
 		DatarouterPermissionRequestResolution(String persistentString){
 			this.persistentString = persistentString;
 		}
 
-		@Override
-		public String getPersistentString(){
-			return persistentString;
-		}
-
-		@Override
-		public DatarouterPermissionRequestResolution fromPersistentString(String str){
-			return StringEnum.getEnumFromString(values(), str, null);
-		}
 	}
 }

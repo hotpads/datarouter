@@ -15,18 +15,15 @@
  */
 package io.datarouter.storage.client.imp;
 
-import io.datarouter.model.databean.Databean;
-import io.datarouter.model.key.primary.PrimaryKey;
-import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.client.ClientNodeFactory;
 import io.datarouter.storage.node.NodeParams;
-import io.datarouter.storage.node.type.physical.PhysicalNode;
+import io.datarouter.storage.node.op.raw.TallyStorage.PhysicalTallyStorageNode;
+import io.datarouter.storage.tally.Tally;
+import io.datarouter.storage.tally.Tally.TallyFielder;
+import io.datarouter.storage.tally.TallyKey;
 
 public interface TallyClientNodeFactory extends ClientNodeFactory{
 
-	<PK extends PrimaryKey<PK>,
-			D extends Databean<PK,D>,
-			F extends DatabeanFielder<PK,D>>
-	PhysicalNode<PK,D,F> createTallyNode(NodeParams<PK,D,F> nodeParams);
+	PhysicalTallyStorageNode createTallyNode(NodeParams<TallyKey,Tally,TallyFielder> nodeParams);
 
 }

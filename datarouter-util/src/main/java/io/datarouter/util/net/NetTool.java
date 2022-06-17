@@ -17,8 +17,8 @@ package io.datarouter.util.net;
 
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
@@ -26,13 +26,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.util.io.ReaderTool;
+import io.datarouter.util.tuple.Pair;
 
 public class NetTool{
 	private static final Logger logger = LoggerFactory.getLogger(NetTool.class);
 
-	public static Optional<String> curl(String location, boolean logError){
+	public static Optional<String> curl(String method, String location, boolean logError, Pair<String,String> header){
 		try{
-			URLConnection connection = new URL(location).openConnection();
+			HttpURLConnection connection = (HttpURLConnection)new URL(location).openConnection();
+			connection.setRequestMethod(method);
+			if(header != null){
+				connection.setRequestProperty(header.getLeft(), header.getRight());
+			}
 			connection.setConnectTimeout(3_000);
 			connection.setReadTimeout(3_000);
 			Reader reader = new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8);

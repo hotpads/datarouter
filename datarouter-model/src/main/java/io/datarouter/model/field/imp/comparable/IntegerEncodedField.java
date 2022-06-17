@@ -19,7 +19,7 @@ import io.datarouter.bytes.codec.intcodec.ComparableIntCodec;
 import io.datarouter.model.field.BaseField;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.FieldKey;
-import io.datarouter.model.field.codec.IntegerFieldCodec;
+import io.datarouter.model.field.codec.FieldCodec;
 
 public class IntegerEncodedField<T> extends BaseField<T>{
 
@@ -74,7 +74,7 @@ public class IntegerEncodedField<T> extends BaseField<T>{
 		return key.getCodec().getComparator().compare(value, other.getValue());
 	}
 
-	public IntegerFieldCodec<T> getCodec(){
+	public FieldCodec<T,Integer> getCodec(){
 		return key.getCodec();
 	}
 

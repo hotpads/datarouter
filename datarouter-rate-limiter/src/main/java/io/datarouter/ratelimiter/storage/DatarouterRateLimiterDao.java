@@ -28,9 +28,9 @@ public class DatarouterRateLimiterDao extends BaseTallyDao{
 
 	public static class DatarouterRateLimiterDaoParams extends BaseDaoParams{
 
-		public final int version;
+		public final String version;
 
-		public DatarouterRateLimiterDaoParams(ClientId clientId, int version){
+		public DatarouterRateLimiterDaoParams(ClientId clientId, String version){
 			super(clientId);
 			this.version = version;
 		}

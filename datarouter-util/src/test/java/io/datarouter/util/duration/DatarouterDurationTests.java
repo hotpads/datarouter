@@ -64,6 +64,11 @@ public class DatarouterDurationTests{
 		Assert.assertEquals(duration.toString(TimeUnit.NANOSECONDS), "1us");
 	}
 
+	@Test(expectedExceptions = RuntimeException.class, expectedExceptionsMessageRegExp = "unknown unit=min")
+	public void testParsingErrorMsg(){
+		new DatarouterDuration("3min");
+	}
+
 	@Test
 	public void testIsDuration(){
 		Assert.assertTrue(DatarouterDuration.isDuration("3d"));

@@ -21,7 +21,7 @@ import java.util.List;
 
 import io.datarouter.gcp.spanner.SpannerClientManager;
 import io.datarouter.gcp.spanner.SpannerClientType;
-import io.datarouter.gcp.spanner.field.SpannerFieldCodecRegistry;
+import io.datarouter.gcp.spanner.field.SpannerFieldCodecs;
 import io.datarouter.gcp.spanner.op.read.index.SpannerGetByIndexOp;
 import io.datarouter.gcp.spanner.op.read.index.SpannerGetFromIndexOp;
 import io.datarouter.gcp.spanner.op.read.index.SpannerLookupUniqueOp;
@@ -59,8 +59,8 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D,F>{
 			SpannerClientType clientType,
 			ManagedNodesHolder managedNodesHolder,
 			SpannerClientManager clientManager,
-			SpannerFieldCodecRegistry spannerFieldCodecRegistry){
-		super(params, clientType, managedNodesHolder, clientManager, spannerFieldCodecRegistry);
+			SpannerFieldCodecs fieldCodecs){
+		super(params, clientType, managedNodesHolder, clientManager, fieldCodecs);
 	}
 
 	@Override
@@ -69,13 +69,15 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D,F>{
 	}
 
 	@Override
-	public List<D> lookupMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config config){
+	public List<D> lookupMultiUnique(
+			Collection<? extends UniqueKey<PK>> uniqueKeys,
+			Config config){
 		var spannerLookupUniqueOp = new SpannerLookupUniqueOp<>(
 				clientManager.getDatabaseClient(getClientId()),
 				getFieldInfo(),
 				uniqueKeys,
 				config,
-				spannerFieldCodecRegistry);
+				fieldCodecs);
 		return spannerLookupUniqueOp.wrappedCall();
 	}
 
@@ -83,14 +85,16 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D,F>{
 	public <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK,IE,PK,D>,
 			IF extends DatabeanFielder<IK,IE>>
-	List<IE> getMultiFromIndex(Collection<IK> keys, Config config,
+	List<IE> getMultiFromIndex(
+			Collection<IK> keys,
+			Config config,
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
 		var getFromIndexOp = new SpannerGetFromIndexOp<>(
 				clientManager.getDatabaseClient(getClientId()),
 				getFieldInfo(),
 				keys,
 				config,
-				spannerFieldCodecRegistry,
+				fieldCodecs,
 				indexEntryFieldInfo);
 		return getFromIndexOp.wrappedCall();
 	}
@@ -99,13 +103,16 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D,F>{
 	public <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK,IE,PK,D>,
 			IF extends DatabeanFielder<IK,IE>>
-	List<D> getMultiByIndex(Collection<IK> keys, Config config, IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
+	List<D> getMultiByIndex(
+			Collection<IK> keys,
+			Config config,
+			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
 		var spannerGetByIndexOp = new SpannerGetByIndexOp<>(
 				clientManager.getDatabaseClient(getClientId()),
 				getFieldInfo(),
 				keys,
 				config,
-				spannerFieldCodecRegistry,
+				fieldCodecs,
 				indexEntryFieldInfo.getIndexName());
 		return spannerGetByIndexOp.wrappedCall();
 	}
@@ -124,7 +131,7 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D,F>{
 				getFieldInfo(),
 				ranges,
 				config,
-				spannerFieldCodecRegistry,
+				fieldCodecs,
 				indexEntryFieldInfo,
 				false)
 				.concat(Scanner::of);
@@ -144,7 +151,7 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D,F>{
 				getFieldInfo(),
 				ranges,
 				config,
-				spannerFieldCodecRegistry,
+				fieldCodecs,
 				indexEntryFieldInfo,
 				false)
 				.concat(Scanner::of);
@@ -164,7 +171,7 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D,F>{
 				getFieldInfo(),
 				ranges,
 				config,
-				spannerFieldCodecRegistry,
+				fieldCodecs,
 				indexEntryFieldInfo,
 				false)
 				.concat(Scanner::of);
@@ -196,7 +203,7 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D,F>{
 				getFieldInfo(),
 				uniqueKeys,
 				config,
-				spannerFieldCodecRegistry);
+				fieldCodecs);
 		op.wrappedCall();
 	}
 
@@ -213,7 +220,7 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D,F>{
 				getFieldInfo(),
 				keys,
 				config,
-				spannerFieldCodecRegistry,
+				fieldCodecs,
 				indexEntryFieldInfo.getIndexName());
 		op.wrappedCall();
 	}
@@ -230,7 +237,7 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D,F>{
 				getFieldInfo(),
 				keys,
 				config,
-				spannerFieldCodecRegistry);
+				fieldCodecs);
 		op.wrappedCall();
 	}
 
@@ -255,7 +262,7 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D,F>{
 				getFieldInfo(),
 				databeans,
 				config,
-				spannerFieldCodecRegistry);
+				fieldCodecs);
 		putOp.wrappedCall();
 	}
 

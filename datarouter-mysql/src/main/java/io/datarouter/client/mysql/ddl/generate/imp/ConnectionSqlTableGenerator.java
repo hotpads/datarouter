@@ -145,7 +145,7 @@ public class ConnectionSqlTableGenerator{
 		ResultSet resultSet = statement.executeQuery();
 		resultSet.next();
 		MysqlTableEngine engine = MysqlTableEngine.parse(resultSet.getString(ENGINE));
-		MysqlRowFormat rowFormat = MysqlRowFormat.fromPersistentStringStatic(resultSet.getString(ROW_FORMAT));
+		MysqlRowFormat rowFormat = MysqlRowFormat.BY_VALUE.fromOrNull(resultSet.getString(ROW_FORMAT));
 		MysqlCollation collation = MysqlCollation.parse(resultSet.getString(TABLE_COLLATION));
 		MysqlCharacterSet characterSet = MysqlCharacterSet.parse(collation.name().split("_")[0]);
 		return new SqlTableMetadata(engine, rowFormat, collation, characterSet);

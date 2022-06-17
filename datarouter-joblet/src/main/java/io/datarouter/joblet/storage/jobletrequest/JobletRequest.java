@@ -28,6 +28,9 @@ import io.datarouter.joblet.storage.jobletdata.JobletDataKey;
 import io.datarouter.joblet.type.JobletType;
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
+import io.datarouter.model.field.codec.StringMappedEnumFieldCodec;
+import io.datarouter.model.field.imp.StringEncodedField;
+import io.datarouter.model.field.imp.StringEncodedFieldKey;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
 import io.datarouter.model.field.imp.comparable.BooleanField;
@@ -36,8 +39,6 @@ import io.datarouter.model.field.imp.comparable.IntegerField;
 import io.datarouter.model.field.imp.comparable.IntegerFieldKey;
 import io.datarouter.model.field.imp.comparable.LongField;
 import io.datarouter.model.field.imp.comparable.LongFieldKey;
-import io.datarouter.model.field.imp.enums.StringEnumField;
-import io.datarouter.model.field.imp.enums.StringEnumFieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 import io.datarouter.storage.queue.QueueMessageKey;
 import io.datarouter.util.DateTool;
@@ -75,8 +76,9 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 	public static class FieldKeys{
 		public static final StringFieldKey queueId = new StringFieldKey("queueId");
 		public static final StringFieldKey groupId = new StringFieldKey("groupId");
-		public static final StringEnumFieldKey<JobletStatus> status = new StringEnumFieldKey<>("status",
-				JobletStatus.class);
+		public static final StringEncodedFieldKey<JobletStatus> status = new StringEncodedFieldKey<>(
+				"status",
+				new StringMappedEnumFieldCodec<>(JobletStatus.BY_PERSISTENT_STRING));
 		public static final IntegerFieldKey numFailures = new IntegerFieldKey("numFailures");
 		public static final IntegerFieldKey numTimeouts = new IntegerFieldKey("numTimeouts");
 		public static final StringFieldKey reservedBy = new StringFieldKey("reservedBy");
@@ -100,7 +102,7 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 			return List.of(
 					new StringField(FieldKeys.queueId, databean.queueId),
 					new StringField(FieldKeys.groupId, databean.groupId),
-					new StringEnumField<>(FieldKeys.status, databean.status),
+					new StringEncodedField<>(FieldKeys.status, databean.status),
 					new IntegerField(FieldKeys.numFailures, databean.numFailures),
 					new IntegerField(FieldKeys.numTimeouts, databean.numTimeouts),
 					new StringField(FieldKeys.reservedBy, databean.reservedBy),

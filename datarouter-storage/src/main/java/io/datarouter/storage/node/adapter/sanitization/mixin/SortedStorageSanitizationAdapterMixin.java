@@ -51,10 +51,11 @@ extends SortedStorage<PK,D>, SanitizationAdapter<PK,D,F,N>{
 	default Scanner<PK> scanRangesKeys(Collection<Range<PK>> ranges, Config config){
 		Objects.requireNonNull(ranges);
 		Objects.requireNonNull(config);
+		ranges.forEach(Objects::requireNonNull);
 		if(Scanner.of(ranges).allMatch(Range::isEmpty)){
 			return Scanner.empty();
 		}
-		ScanSanitizer.rejectUnexpectedFullScan(ranges);
+		ranges.forEach(ScanSanitizer::rejectUnexpectedFullScan);
 		return getBackingNode().scanRangesKeys(ranges, config);
 	}
 
@@ -73,10 +74,11 @@ extends SortedStorage<PK,D>, SanitizationAdapter<PK,D,F,N>{
 	default Scanner<D> scanRanges(Collection<Range<PK>> ranges, Config config){
 		Objects.requireNonNull(ranges);
 		Objects.requireNonNull(config);
+		ranges.forEach(Objects::requireNonNull);
 		if(Scanner.of(ranges).allMatch(Range::isEmpty)){
 			return Scanner.empty();
 		}
-		ScanSanitizer.rejectUnexpectedFullScan(ranges);
+		ranges.forEach(ScanSanitizer::rejectUnexpectedFullScan);
 		return getBackingNode().scanRanges(ranges, config);
 	}
 

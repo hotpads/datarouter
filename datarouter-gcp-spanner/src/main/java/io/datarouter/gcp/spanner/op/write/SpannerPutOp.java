@@ -26,7 +26,7 @@ import com.google.cloud.spanner.Mutation;
 import com.google.cloud.spanner.Mutation.WriteBuilder;
 
 import io.datarouter.gcp.spanner.field.SpannerBaseFieldCodec;
-import io.datarouter.gcp.spanner.field.SpannerFieldCodecRegistry;
+import io.datarouter.gcp.spanner.field.SpannerFieldCodecs;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.exception.DataAccessException;
 import io.datarouter.model.field.Field;
@@ -47,15 +47,15 @@ extends SpannerBaseWriteOp<D>{
 
 	protected final Config config;
 	protected final PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo;
-	protected final SpannerFieldCodecRegistry codecRegistry;
+	protected final SpannerFieldCodecs fieldCodecs;
 
 	public SpannerPutOp(
 			DatabaseClient client,
 			PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
 			Collection<D> databeans,
 			Config config,
-			SpannerFieldCodecRegistry codecRegistry){
-		this(client, fieldInfo, databeans, config, codecRegistry, fieldInfo.getTableName());
+			SpannerFieldCodecs fieldCodecs){
+		this(client, fieldInfo, databeans, config, fieldCodecs, fieldInfo.getTableName());
 	}
 
 	protected SpannerPutOp(
@@ -63,12 +63,12 @@ extends SpannerBaseWriteOp<D>{
 			PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
 			Collection<D> databeans,
 			Config config,
-			SpannerFieldCodecRegistry codecRegistry,
+			SpannerFieldCodecs fieldCodecs,
 			String tableName){
 		super(client, tableName, config, databeans);
 		this.config = config;
 		this.fieldInfo = fieldInfo;
-		this.codecRegistry = codecRegistry;
+		this.fieldCodecs = fieldCodecs;
 	}
 
 	@Override
@@ -110,9 +110,9 @@ extends SpannerBaseWriteOp<D>{
 			mutation = Mutation.newInsertOrUpdateBuilder(tableName);
 		}
 		mutation = getMutationPartition(databean, mutation);
-		List<? extends SpannerBaseFieldCodec<?,?>> primaryKeyCodecs = codecRegistry.createCodecs(
+		List<? extends SpannerBaseFieldCodec<?,?>> primaryKeyCodecs = fieldCodecs.createCodecs(
 				databean.getKey().getFields());
-		List<? extends SpannerBaseFieldCodec<?,?>> nonKeyCodecs = codecRegistry.createCodecs(
+		List<? extends SpannerBaseFieldCodec<?,?>> nonKeyCodecs = fieldCodecs.createCodecs(
 				fieldInfo.getNonKeyFieldsWithValues(databean));
 		for(SpannerBaseFieldCodec<?,?> codec : primaryKeyCodecs){
 			if(codec.getField().getValue() != null){
@@ -134,7 +134,7 @@ extends SpannerBaseWriteOp<D>{
 					this.fieldInfo,
 					Collections.singletonList(databean),
 					bustConfig,
-					this.codecRegistry,
+					this.fieldCodecs,
 					this.tableName);
 			putOp.wrappedCall();
 			return true;

@@ -15,30 +15,26 @@
  */
 package io.datarouter.tasktracker.scheduler;
 
-import java.util.Arrays;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import io.datarouter.enums.StringEnum;
+import io.datarouter.enums.MappedEnum;
 import io.datarouter.instrumentation.task.TaskStatus;
 
-public enum LongRunningTaskStatus implements StringEnum<LongRunningTaskStatus>{
+public enum LongRunningTaskStatus{
 	RUNNING(TaskStatus.RUNNING, "running", true, false),
 	SUCCESS(TaskStatus.SUCCESS, "success", false, false),
 	ERRORED(TaskStatus.ERRORED, "errored", false, true),
 	STOP_REQUESTED(TaskStatus.STOP_REQUESTED, "stopRequested", false, false),
 	MAX_DURATION_REACHED(TaskStatus.MAX_DURATION_REACHED, "maxDurationReached", false, false),
 	TIMED_OUT(TaskStatus.TIMED_OUT, "timedOut", false, true),
-	INTERRUPTED(TaskStatus.INTERRUPTED, "interrupted", false, true),
-	;
+	INTERRUPTED(TaskStatus.INTERRUPTED, "interrupted", false, true);
 
-	private static final Map<TaskStatus,LongRunningTaskStatus> BY_TASK_STATUS = Arrays.stream(values())
-			.collect(Collectors.toMap(LongRunningTaskStatus::getStatus, Function.identity()));
+	public static final MappedEnum<LongRunningTaskStatus,String> BY_PERSISTENT_STRING
+			= new MappedEnum<>(values(), value -> value.persistentString);
+	public static final MappedEnum<LongRunningTaskStatus,TaskStatus> BY_TASK_STATUS
+			= new MappedEnum<>(values(), value -> value.status);
 
-	private final TaskStatus status;
-	private final String persistentString;
-	private final boolean isRunning;
+	public final TaskStatus status;
+	public final String persistentString;
+	public final boolean isRunning;
 	public final boolean isBadState;
 
 	LongRunningTaskStatus(TaskStatus status, String persistentString, boolean isRunning, boolean isBadState){
@@ -46,32 +42,6 @@ public enum LongRunningTaskStatus implements StringEnum<LongRunningTaskStatus>{
 		this.persistentString = persistentString;
 		this.isRunning = isRunning;
 		this.isBadState = isBadState;
-	}
-
-	public static LongRunningTaskStatus fromTaskStatus(TaskStatus status){
-		return BY_TASK_STATUS.get(status);
-	}
-
-	public static LongRunningTaskStatus fromPersistentStringStatic(String str){
-		return StringEnum.getEnumFromString(values(), str, null);
-	}
-
-	@Override
-	public LongRunningTaskStatus fromPersistentString(String str){
-		return fromPersistentStringStatic(str);
-	}
-
-	public TaskStatus getStatus(){
-		return status;
-	}
-
-	@Override
-	public String getPersistentString(){
-		return persistentString;
-	}
-
-	public boolean isRunning(){
-		return isRunning;
 	}
 
 }

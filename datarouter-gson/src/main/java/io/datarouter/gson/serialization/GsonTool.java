@@ -20,7 +20,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Date;
+import java.time.ZoneId;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -28,31 +28,16 @@ import com.google.gson.JsonElement;
 
 public class GsonTool{
 
-	public static final Gson JAVA9_GSON = new GsonBuilder()
+	public static final Gson GSON = new GsonBuilder()
 			.registerTypeAdapter(Instant.class, new InstantLegacyTypeAdapter())
 			.registerTypeAdapter(Duration.class, new DurationLegacyTypeAdapter())
 			.registerTypeAdapter(LocalDate.class, new LocalDateLegacyTypeAdapter())
 			.registerTypeAdapter(LocalTime.class, new LocalTimeLegacyTypeAdapter())
 			.registerTypeAdapter(LocalDateTime.class, new LocalDateTimeLegacyTypeAdapter())
 			.registerTypeAdapterFactory(new OptionalLegacyTypeAdapterFactory())
+			.registerTypeHierarchyAdapter(ZoneId.class, new ZoneIdLegacyTypeAdapter())
 			.create();
 
-	public static final Gson JAVA9_GSON_PRETTY_PRINT = JAVA9_GSON.newBuilder()
-			.setPrettyPrinting()
-			.create();
-
-	/**
-	 * @deprecated use {@link #JAVA9_GSON}
-	 */
-	@Deprecated
-	public static final Gson GSON = JAVA9_GSON.newBuilder()
-			.registerTypeAdapter(Date.class, new CompatibleDateTypeAdapter())
-			.create();
-
-	/**
-	 * @deprecated use {@link #JAVA9_GSON_PRETTY_PRINT}
-	 */
-	@Deprecated
 	public static final Gson GSON_PRETTY_PRINT = GSON.newBuilder()
 			.setPrettyPrinting()
 			.create();

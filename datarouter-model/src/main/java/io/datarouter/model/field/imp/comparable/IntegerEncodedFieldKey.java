@@ -16,27 +16,28 @@
 package io.datarouter.model.field.imp.comparable;
 
 import java.util.Map;
+import java.util.Optional;
 
 import io.datarouter.model.field.BaseFieldKey;
 import io.datarouter.model.field.FieldKeyAttribute;
 import io.datarouter.model.field.FieldKeyAttributeKey;
-import io.datarouter.model.field.codec.IntegerFieldCodec;
+import io.datarouter.model.field.codec.FieldCodec;
 import io.datarouter.model.field.encoding.FieldGeneratorType;
 
 public class IntegerEncodedFieldKey<T> extends BaseFieldKey<T,IntegerEncodedFieldKey<T>>{
 
-	private final IntegerFieldCodec<T> codec;
+	private final FieldCodec<T,Integer> codec;
 
 	public IntegerEncodedFieldKey(
 			String name,
-			IntegerFieldCodec<T> codec){
+			FieldCodec<T,Integer> codec){
 		super(name, codec.getTypeToken());
 		this.codec = codec;
 	}
 
 	private IntegerEncodedFieldKey(
 			String name,
-			IntegerFieldCodec<T> codec,
+			FieldCodec<T,Integer> codec,
 			String columnName,
 			boolean nullable,
 			FieldGeneratorType fieldGeneratorType,
@@ -79,13 +80,18 @@ public class IntegerEncodedFieldKey<T> extends BaseFieldKey<T,IntegerEncodedFiel
 				attributes);
 	}
 
-	public IntegerFieldCodec<T> getCodec(){
+	public FieldCodec<T,Integer> getCodec(){
 		return codec;
 	}
 
 	@Override
 	public T getSampleValue(){
 		return codec.getSampleValue();
+	}
+
+	@Override
+	public Optional<String> findDocString(){
+		return codec.findDocString();
 	}
 
 }

@@ -27,16 +27,10 @@ import io.datarouter.client.mysql.field.StringMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.StringEncodedMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.array.ByteArrayEncodedMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.array.ByteArrayMysqlFieldCodec;
-import io.datarouter.client.mysql.field.codec.array.IntArrayMysqlFieldCodec;
-import io.datarouter.client.mysql.field.codec.array.LongArrayMysqlFieldCodec;
-import io.datarouter.client.mysql.field.codec.custom.LongDateMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.datetime.DateMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.datetime.InstantMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.datetime.LocalDateMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.datetime.LocalDateTimeMysqlFieldCodec;
-import io.datarouter.client.mysql.field.codec.enums.IntegerEnumMysqlFieldCodec;
-import io.datarouter.client.mysql.field.codec.enums.StringEnumMysqlFieldCodec;
-import io.datarouter.client.mysql.field.codec.list.DelimitedStringListMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.primitive.BooleanMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.primitive.DoubleMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.primitive.FloatMysqlFieldCodec;
@@ -45,7 +39,6 @@ import io.datarouter.client.mysql.field.codec.primitive.IntegerMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.primitive.LongEncodedMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.primitive.LongMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.primitive.ShortMysqlFieldCodec;
-import io.datarouter.client.mysql.field.codec.primitive.SignedByteMysqlFieldCodec;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.imp.DateField;
 import io.datarouter.model.field.imp.LocalDateField;
@@ -53,8 +46,6 @@ import io.datarouter.model.field.imp.StringEncodedField;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.array.ByteArrayEncodedField;
 import io.datarouter.model.field.imp.array.ByteArrayField;
-import io.datarouter.model.field.imp.array.IntArrayField;
-import io.datarouter.model.field.imp.array.LongArrayField;
 import io.datarouter.model.field.imp.comparable.BooleanField;
 import io.datarouter.model.field.imp.comparable.DoubleField;
 import io.datarouter.model.field.imp.comparable.FloatField;
@@ -64,12 +55,7 @@ import io.datarouter.model.field.imp.comparable.IntegerField;
 import io.datarouter.model.field.imp.comparable.LongEncodedField;
 import io.datarouter.model.field.imp.comparable.LongField;
 import io.datarouter.model.field.imp.comparable.ShortField;
-import io.datarouter.model.field.imp.comparable.SignedByteField;
 import io.datarouter.model.field.imp.custom.LocalDateTimeField;
-import io.datarouter.model.field.imp.custom.LongDateField;
-import io.datarouter.model.field.imp.enums.IntegerEnumField;
-import io.datarouter.model.field.imp.enums.StringEnumField;
-import io.datarouter.model.field.imp.list.DelimitedStringListField;
 
 @SuppressWarnings("deprecation")
 public class StandardMysqlFieldCodecFactory implements MysqlFieldCodecFactory{
@@ -86,7 +72,6 @@ public class StandardMysqlFieldCodecFactory implements MysqlFieldCodecFactory{
 
 		//simple
 		addCodec(BooleanField.class, BooleanMysqlFieldCodec::new);
-		addCodec(SignedByteField.class, SignedByteMysqlFieldCodec::new);
 		addCodec(ShortField.class, ShortMysqlFieldCodec::new);
 		addCodec(IntegerField.class, IntegerMysqlFieldCodec::new);
 		addCodec(LongField.class, LongMysqlFieldCodec::new);
@@ -102,22 +87,12 @@ public class StandardMysqlFieldCodecFactory implements MysqlFieldCodecFactory{
 
 		//time
 		addCodec(DateField.class, DateMysqlFieldCodec::new);
-		addCodec(LongDateField.class, LongDateMysqlFieldCodec::new);
 		addCodec(LocalDateField.class, LocalDateMysqlFieldCodec::new);
 		addCodec(LocalDateTimeField.class, LocalDateTimeMysqlFieldCodec::new);
 		addCodec(InstantField.class, InstantMysqlFieldCodec::new);
 
-		//enum
-		addCodec(IntegerEnumField.class, IntegerEnumMysqlFieldCodec::new);
-		addCodec(StringEnumField.class, StringEnumMysqlFieldCodec::new);
-
 		//array
 		addCodec(ByteArrayField.class, ByteArrayMysqlFieldCodec::new);
-		addCodec(IntArrayField.class, IntArrayMysqlFieldCodec::new);
-		addCodec(LongArrayField.class, LongArrayMysqlFieldCodec::new);
-
-		//list
-		addCodec(DelimitedStringListField.class, DelimitedStringListMysqlFieldCodec::new);
 
 		additional.forEach(codecClassByFieldClass::put);
 	}

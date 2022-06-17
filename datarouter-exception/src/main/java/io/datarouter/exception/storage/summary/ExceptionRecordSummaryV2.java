@@ -30,12 +30,12 @@ extends BaseExceptionRecordSummary2<ExceptionRecordSummaryKeyV2,ExceptionRecordS
 	}
 
 	public ExceptionRecordSummaryV2(){
-		this(new ExceptionRecordSummaryKeyV2(), "", 0L, "");
+		this(new ExceptionRecordSummaryKeyV2(), "", "", 0L, "");
 	}
 
-	public ExceptionRecordSummaryV2(ExceptionRecordSummaryKeyV2 key, String name, Long numExceptions,
+	public ExceptionRecordSummaryV2(ExceptionRecordSummaryKeyV2 key, String name, String category, Long numExceptions,
 			String sampleExceptionRecordId){
-		super(key, name, numExceptions, sampleExceptionRecordId);
+		super(key, name, category, numExceptions, sampleExceptionRecordId);
 	}
 
 	@Override

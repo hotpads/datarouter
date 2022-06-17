@@ -15,36 +15,77 @@
  */
 package io.datarouter.exception.utils.nameparser;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import io.datarouter.exception.utils.nameparser.ExceptionSnapshot.ExceptionCauseSnapshot;
+import io.datarouter.scanner.Scanner;
 
-public interface ExceptionNameParser{
+public abstract class ExceptionNameParser{
 
-	Optional<String> parse(ExceptionCauseSnapshot exception);
+	protected abstract Optional<String> parse(ExceptionCauseSnapshot exception);
 
-	Class<? extends Throwable> typeClass();
+	/**
+	 * @return a list of throwables that should exist in the nested exceptions in order to perform name parsing
+	 */
+	protected abstract List<Class<? extends Throwable>> matchingTypes();
 
-	default String getTypeClassName(){
-		return typeClass().getName();
+	/**
+	 *
+	 * @return an optional map that has key as the throwable existed in the nested exceptions and value representing one
+	 *         of the stacktrace's declaringClasss and method names
+	 */
+	protected abstract Optional<Map<Class<? extends Throwable>, String>> stackTraceByType();
+
+	public Set<String> getMatchingTypeClassNames(){
+		return Scanner.of(matchingTypes())
+				.map(Class::getName)
+				.collect(Collectors.toSet());
 	}
 
-	default Optional<String> parseExceptionName(Optional<ExceptionCauseSnapshot> cause){
-		return cause
-				.filter(this::isCauseFromType)
+	public Optional<String> parseExceptionName(List<ExceptionCauseSnapshot> causes){
+		return Scanner.of(causes)
 				.map(this::parse)
-				.orElse(Optional.empty());
+				.include(Optional::isPresent)
+				.map(Optional::get)
+				.findFirst();
 	}
 
-	default Optional<ExceptionCauseSnapshot> getCauseFromType(ExceptionSnapshot exception){
-		return exception == null ? Optional.empty()
-				: exception.causes.stream()
-						.filter(this::isCauseFromType)
-						.findFirst();
+	public Optional<List<ExceptionCauseSnapshot>> getCausesFromType(ExceptionSnapshot exception){
+		if(exception == null || !isCauseFromTypes(exception)){
+			return Optional.empty();
+		}
+		Set<String> mathcingClasses = getMatchingTypeClassNames();
+		return Optional.of(Scanner.of(exception.causes)
+				.include(cause -> mathcingClasses.contains(cause.typeName))
+				.list());
 	}
 
-	default boolean isCauseFromType(ExceptionCauseSnapshot cause){
-		return getTypeClassName().equals(cause.typeName);
+	private boolean isCauseFromTypes(ExceptionSnapshot exception){
+		List<String> allTypeNames = Scanner.of(exception.causes)
+				.map(cause -> cause.typeName)
+				.list();
+		boolean hasAllMatchingTypes = allTypeNames.containsAll(getMatchingTypeClassNames());
+		if(stackTraceByType().isEmpty() || !hasAllMatchingTypes){
+			return hasAllMatchingTypes;
+		}
+		Map<String,String> stackTraceByTypeName = Scanner.of(stackTraceByType().get().entrySet())
+				.toMap(entry -> entry.getKey().getName(), Entry::getValue);
+		Optional<ExceptionCauseSnapshot> matchedCause = Scanner.of(exception.causes)
+				.include(cause -> stackTraceByTypeName.containsKey(cause.typeName))
+				.findFirst();
+		if(matchedCause.isEmpty()){
+			return false;
+		}
+		String matchedClassAndMethodInStackTrace = stackTraceByTypeName.get(matchedCause.get().typeName);
+		return Scanner.of(matchedCause.get().stackTraces)
+				.map(stackTrace -> stackTrace.declaringClass + "." + stackTrace.methodName)
+				.include(classAndMethod -> matchedClassAndMethodInStackTrace.equals(classAndMethod))
+				.hasAny();
 	}
 
 }

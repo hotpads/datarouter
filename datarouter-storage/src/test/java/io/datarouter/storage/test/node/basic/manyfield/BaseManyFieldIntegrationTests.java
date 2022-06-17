@@ -103,16 +103,6 @@ public abstract class BaseManyFieldIntegrationTests{
 	}
 
 	@Test
-	public void testByte(){
-		var bean = new ManyFieldBean();
-		bean.setByteField((byte)-57);
-
-		ManyFieldBean roundTripped = putAndGet(bean);
-		Assert.assertNotSame(roundTripped, bean);
-		Assert.assertEquals(roundTripped.getByteField(), bean.getByteField());
-	}
-
-	@Test
 	public void testShort(){
 		var bean = new ManyFieldBean();
 		bean.setShortField((short)-57);
@@ -192,17 +182,6 @@ public abstract class BaseManyFieldIntegrationTests{
 		ManyFieldBean roundTripped = putAndGet(bean);
 		Assert.assertEquals(roundTripped.getDoubleField(), bean.getDoubleField());
 		Assert.assertTrue(val == roundTripped.getDoubleField());
-	}
-
-	@Test
-	public void testLongDate(){
-		var bean = new ManyFieldBean();
-		Date val = new Date();
-		bean.setLongDateField(val);
-
-		ManyFieldBean roundTripped = putAndGet(bean);
-		Assert.assertEquals(roundTripped.getLongDateField(), bean.getLongDateField());
-		Assert.assertTrue(val.equals(roundTripped.getLongDateField()));
 	}
 
 	@Test
@@ -332,26 +311,6 @@ public abstract class BaseManyFieldIntegrationTests{
 	}
 
 	@Test
-	public void testIntegerEnum(){
-		var bean = new ManyFieldBean();
-		bean.setIntEnumField(TestEnum.beast);
-
-		ManyFieldBean roundTripped = putAndGet(bean);
-		Assert.assertEquals(roundTripped.getIntEnumField(), bean.getIntEnumField());
-		Assert.assertEquals(roundTripped.getIntEnumField(), TestEnum.beast);
-	}
-
-	@Test
-	public void testStringEnum(){
-		var bean = new ManyFieldBean();
-		bean.setStringEnumField(TestEnum.cat);
-
-		ManyFieldBean roundTripped = putAndGet(bean);
-		Assert.assertEquals(roundTripped.getStringEnumField(), bean.getStringEnumField());
-		Assert.assertEquals(roundTripped.getStringEnumField(), TestEnum.cat);
-	}
-
-	@Test
 	public void testBlob(){
 		byte[] bytes = "This string is encoded as bytes.".getBytes();
 		var bean = new ManyFieldBean();
@@ -361,15 +320,37 @@ public abstract class BaseManyFieldIntegrationTests{
 	}
 
 	@Test
-	public void testDelimitedStringArray(){
+	public void testCsv(){
 		var bean = new ManyFieldBean();
-		List<String> strings = List.of("abc hi!", "xxx's", "bb_3");
-		bean.setDelimitedStringArrayField(strings);
+		List<String> strings = List.of("2abc hi!", "x2xx's", "bb2_3");
+		bean.setCsvField(strings);
 
 		ManyFieldBean roundTripped = putAndGet(bean);
-		Assert.assertEquals(roundTripped.getDelimitedStringArrayField().toArray(), strings.toArray());
+		Assert.assertEquals(roundTripped.getCsvField().toArray(), strings.toArray());
 
-		roundTripped.appendToDelimitedStringArrayField("later");//assert mutability of returned list
+		//assert mutability of returned list
+		roundTripped.appendToCsvField("later");
+
+		//check for illegal strings
+		bean.setCsvBytesField(List.of("good", "b,ad"));
+		Assert.assertThrows(IllegalArgumentException.class, () -> putAndGet(bean));
+	}
+
+	@Test
+	public void testCsvBytes(){
+		var bean = new ManyFieldBean();
+		List<String> strings = List.of("abc hi!", "xxx's", "bb_3");
+		bean.setCsvBytesField(strings);
+
+		ManyFieldBean roundTripped = putAndGet(bean);
+		Assert.assertEquals(roundTripped.getCsvBytesField().toArray(), strings.toArray());
+
+		//assert mutability of returned list
+		roundTripped.appendToCsvBytesField("later");
+
+		//check for illegal strings
+		bean.setCsvBytesField(List.of("good", "b,ad"));
+		Assert.assertThrows(IllegalArgumentException.class, () -> putAndGet(bean));
 	}
 
 }

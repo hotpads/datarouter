@@ -22,10 +22,7 @@
 			</div>
 			<div class="form-group">
 				<label>FileName</label>
-				<select name="fileName" ${disabledProp} class="form-control">
-					<option ${target == 'SYSTEM_OUT' ? 'selected' : ''}>SYSTEM_OUT</option>
-					<option ${target == 'SYSTEM_ERR' ? 'selected' : ''}>SYSTEM_ERR</option>
-				</select>
+				<input type="text" name="fileName" value="${fileName}" class="form-control text-monospace" ${disabledProp}>
 			</div>
 			<c:if test="${empty name}">
 				<div class="form-group">

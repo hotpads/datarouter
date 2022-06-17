@@ -59,11 +59,17 @@ public class DatarouterNodewatchPlugin extends BaseWebPlugin{
 		this.nodewatchClientIds = nodewatchClientIds;
 		this.tableCountPublisher = tableCountPublisher;
 
-		addDatarouterNavBarItem(DatarouterNavBarCategory.SETTINGS, PATHS.datarouter.nodewatch.threshold,
+		addDatarouterNavBarItem(
+				DatarouterNavBarCategory.SETTINGS,
+				PATHS.datarouter.nodewatch.threshold,
 				"Table Count Thresholds");
-		addDatarouterNavBarItem(DatarouterNavBarCategory.MONITORING, PATHS.datarouter.nodewatch.tableCount,
+		addDatarouterNavBarItem(
+				DatarouterNavBarCategory.MONITORING,
+				PATHS.datarouter.nodewatch.tableCount,
 				"Latest Table Counts");
-		addDatarouterNavBarItem(DatarouterNavBarCategory.TOOLS, PATHS.datarouter.nodewatch.migrateTableCountMetadata,
+		addDatarouterNavBarItem(
+				DatarouterNavBarCategory.TOOLS,
+				PATHS.datarouter.nodewatch.migrateTableCountMetadata,
 				"Migrate Table Counts");
 		addPluginEntry(TableSpanSamplerJoblet.JOBLET_TYPE);
 		addRouteSet(DatarouterNodewatchRouteSet.class);
@@ -84,8 +90,9 @@ public class DatarouterNodewatchPlugin extends BaseWebPlugin{
 
 	@Override
 	public void configure(){
-		bindActualInstance(NodewatchClientConfiguration.class, new GenericNodewatchClientConfiguration(
-				nodewatchClientIds));
+		bindActualInstance(
+				NodewatchClientConfiguration.class,
+				new GenericNodewatchClientConfiguration(nodewatchClientIds));
 		bind(TableCountPublisher.class).to(tableCountPublisher);
 	}
 

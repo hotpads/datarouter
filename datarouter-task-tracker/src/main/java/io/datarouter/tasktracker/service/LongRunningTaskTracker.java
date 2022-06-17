@@ -50,7 +50,7 @@ import io.datarouter.util.mutable.MutableBoolean;
 import io.datarouter.web.config.service.ServiceName;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
 import io.datarouter.web.email.StandardDatarouterEmailHeaderService;
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.BodyTag;
 
 public class LongRunningTaskTracker implements TaskTracker{
 	private static final Logger logger = LoggerFactory.getLogger(LongRunningTaskTracker.class);
@@ -72,6 +72,7 @@ public class LongRunningTaskTracker implements TaskTracker{
 	private final List<Consumer<LongRunningTaskTracker>> callbacks;
 	private final TaskTrackerAlertReportService alertReportService;
 	private final ServiceName serviceName;
+	private final String environmentName;
 
 	private final LongRunningTaskInfo task;
 	private final Instant deadline;
@@ -99,7 +100,8 @@ public class LongRunningTaskTracker implements TaskTracker{
 			Instant deadline,
 			boolean warnOnReachingInterrupt,
 			TaskTrackerAlertReportService alertReportService,
-			ServiceName serviceName){
+			ServiceName serviceName,
+			String environmentName){
 		this.datarouterTaskTrackerPaths = datarouterTaskTrackerPaths;
 		this.datarouterHtmlEmailService = datarouterHtmlEmailService;
 		this.serverName = serverName;
@@ -113,6 +115,7 @@ public class LongRunningTaskTracker implements TaskTracker{
 		this.standardDatarouterEmailHeaderService = standardDatarouterEmailHeaderService;
 		this.alertReportService = alertReportService;
 		this.serviceName = serviceName;
+		this.environmentName = environmentName;
 
 		this.task = task;
 		this.deadline = deadline;
@@ -242,13 +245,13 @@ public class LongRunningTaskTracker implements TaskTracker{
 
 	@Override
 	public LongRunningTaskTracker setStatus(TaskStatus status){
-		task.longRunningTaskStatus = LongRunningTaskStatus.fromTaskStatus(status);
+		task.longRunningTaskStatus = LongRunningTaskStatus.BY_TASK_STATUS.fromOrNull(status);
 		return this;
 	}
 
 	@Override
 	public TaskStatus getStatus(){
-		return task.longRunningTaskStatus.getStatus();
+		return task.longRunningTaskStatus.status;
 	}
 
 	/*------------ interrupt -----------------*/
@@ -307,25 +310,26 @@ public class LongRunningTaskTracker implements TaskTracker{
 				.withParam(LongRunningTasksHandler.P_name, task.name)
 				.withParam(LongRunningTasksHandler.P_status, LongRunningTasksHandler.ALL_STATUSES_VALUE)
 				.build();
+		String counterHref = longRunningTaskGraphLink.getLink(task.name);
 		var emailBuilder = datarouterHtmlEmailService.startEmailBuilder()
 				.withTitle("Task Timeout")
 				.withTitleHref(primaryHref)
-				.withContent(makeEmailBody(task.name, serverName.get(), primaryHref))
+				.withContent(makeEmailBody(task.name, serverName.get(), primaryHref, counterHref))
 				.fromAdmin()
 				.toAdmin(serverTypeDetector.mightBeDevelopment())
 				.toSubscribers(serverTypeDetector.mightBeProduction())
 				.to(longRunningTaskTrackerEmailType.tos, serverTypeDetector.mightBeProduction());
 		alertReportService.reportTaskTimeoutAlert(serviceName.get(), serverName.get(), task.name,
-				emailBuilder.getSubject(), emailBuilder, task.name);
+				emailBuilder.getSubject(), emailBuilder, environmentName, counterHref, primaryHref);
 	}
 
-	private ContainerTag<?> makeEmailBody(String name, String serverName, String detailsHref){
+	private BodyTag makeEmailBody(String name, String serverName, String detailsHref, String counterHref){
 		var header = standardDatarouterEmailHeaderService.makeStandardHeader();
 		var message = p(
 				a("Deadline reached for " + name).withHref(detailsHref),
 				text(String.format(" on %s. Consider extending the trigger period.", serverName)));
 		var tasksLink = a("Tasks").withHref(detailsHref);
-		var counterLink = a("Counters").withHref(longRunningTaskGraphLink.getLink(name));
+		var counterLink = a("Counters").withHref(counterHref);
 		return body(header, message, br(), tasksLink, br(), counterLink);
 	}
 

@@ -22,7 +22,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.conveyor.message.ConveyorMessage;
-import io.datarouter.conveyor.message.ConveyorMessage.ConveyorMessageFielder;
+import io.datarouter.conveyor.message.ConveyorMessage.UnlimitedSizeConveyorMessageFielder;
 import io.datarouter.conveyor.message.ConveyorMessageKey;
 import io.datarouter.conveyor.queue.QueueConsumer;
 import io.datarouter.scanner.Scanner;
@@ -46,7 +46,7 @@ public class ExceptionRecordBlobQueueDao extends BaseDao{
 
 	}
 
-	private final QueueStorageNode<ConveyorMessageKey,ConveyorMessage,ConveyorMessageFielder> queueNode;
+	private final QueueStorageNode<ConveyorMessageKey,ConveyorMessage,UnlimitedSizeConveyorMessageFielder> queueNode;
 
 	@Inject
 	public ExceptionRecordBlobQueueDao(Datarouter datarouter, ExceptionRecordBlobQueueDaoParams params,
@@ -54,8 +54,10 @@ public class ExceptionRecordBlobQueueDao extends BaseDao{
 		super(datarouter);
 		queueNode = Scanner.of(params.clientIds)
 				.map(clientId -> {
-					QueueStorageNode<ConveyorMessageKey,ConveyorMessage,ConveyorMessageFielder> node = queueNodeFactory
-							.createSingleQueue(clientId, ConveyorMessage::new, ConveyorMessageFielder::new)
+					QueueStorageNode<ConveyorMessageKey,ConveyorMessage,UnlimitedSizeConveyorMessageFielder> node =
+							queueNodeFactory
+							.createSingleQueue(clientId, ConveyorMessage::new,
+									UnlimitedSizeConveyorMessageFielder::new)
 							.withNamespace("shared")
 							.withQueueName("ExceptionRecordBlob")
 							.withTag(Tag.DATAROUTER)

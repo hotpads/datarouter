@@ -70,7 +70,7 @@ public class HttpRequestRecordBlobDtoIntegrationTests{
 		var okDto = makeBlob(items, apiKey);
 
 		int metadataLineLength = (String.join("\t", List.of(okDto.version, okDto.apiKey)) + "\n").length();
-		int sizeToCauseSplit = metadataLineLength + 1 + GsonTool.JAVA9_GSON.toJson(okDto.items.get(0)).length();
+		int sizeToCauseSplit = metadataLineLength + 1 + GsonTool.GSON.toJson(okDto.items.get(0)).length();
 
 		List<String> strings = okDto.serializeToStrings(sizeToCauseSplit).list();
 		Assert.assertEquals(strings.size(), 2);

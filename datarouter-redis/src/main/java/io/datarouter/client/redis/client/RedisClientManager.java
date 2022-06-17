@@ -26,6 +26,7 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.client.redis.RedisClientType;
 import io.datarouter.client.redis.client.RedisOptions.RedisClientMode;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.BaseClientManager;
@@ -46,7 +47,9 @@ public class RedisClientManager extends BaseClientManager{
 	private static final Logger logger = LoggerFactory.getLogger(RedisClientManager.class);
 
 	@Inject
-	private RedisOptions redisOptions;
+	private RedisClientType clientType;
+	@Inject
+	private RedisOptions options;
 	@Inject
 	private RedisClientHolder holder;
 
@@ -66,7 +69,7 @@ public class RedisClientManager extends BaseClientManager{
 	}
 
 	private DatarouterRedisClient buildClient(ClientId clientId){
-		if(redisOptions.getClientMode(clientId.getName()).isStandard()){
+		if(options.getClientMode(clientId.getName()).isStandard){
 			return buildRegularClient(clientId);
 		}
 		// RedisClientType.CLUSTER
@@ -75,28 +78,28 @@ public class RedisClientManager extends BaseClientManager{
 
 	private DatarouterRedisClient buildRegularClient(ClientId clientId){
 		var timer = new PhaseTimer(clientId.getName());
-		InetSocketAddress address = redisOptions.getEndpoint(clientId.getName()).get();
+		InetSocketAddress address = options.getEndpoint(clientId.getName()).get();
 		RedisClient client = RedisClient.create(RedisURI.create(address.getHostName(), address.getPort()));
 		RedisAsyncCommands<byte[],byte[]> lettuceClient = client
 				.connect(ByteArrayCodec.INSTANCE)
 				.async();
 		logger.warn(timer.add("buildRegularClient").toString());
-		return new DatarouterRedisClient(lettuceClient);
+		return new DatarouterRedisClient(clientType, clientId, lettuceClient);
 	}
 
 	private DatarouterRedisClient buildClusterClient(ClientId clientId){
 		var timer = new PhaseTimer(clientId.getName());
-		RedisClientMode mode = redisOptions.getClientMode(clientId.getName());
+		RedisClientMode mode = options.getClientMode(clientId.getName());
 		RedisClusterClient redisClusterClient;
 		List<RedisURI> redisUris = new ArrayList<>();
 		if(mode == RedisClientMode.AUTO_DISCOVERY){
-			InetSocketAddress address = redisOptions.getEndpoint(clientId.getName()).get();
+			InetSocketAddress address = options.getEndpoint(clientId.getName()).get();
 			String host = address.getHostName();
 			int port = address.getPort();
 			redisUris.add(RedisURI.create(host, port));
 		}else{
 			// mode == RedisClientModeType.MULTI_NODE
-			Scanner.of(redisOptions.getNodes(clientId.getName()))
+			Scanner.of(options.getNodes(clientId.getName()))
 					.map(address -> RedisURI.create(address.getHostName(), address.getPort()))
 					.distinct()
 					.forEach(redisUris::add);
@@ -114,7 +117,7 @@ public class RedisClientManager extends BaseClientManager{
 				.connect(ByteArrayCodec.INSTANCE)
 				.async();
 		logger.warn(timer.add("buildClusterClient").toString());
-		return new DatarouterRedisClient(lettuceClient);
+		return new DatarouterRedisClient(clientType, clientId, lettuceClient);
 	}
 
 	public Supplier<DatarouterRedisClient> getLazyClient(ClientId clientId){

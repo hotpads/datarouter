@@ -46,6 +46,7 @@ import io.datarouter.web.monitoring.latency.LatencyMonitoringService;
 import io.datarouter.web.user.role.DatarouterUserRole;
 import j2html.TagCreator;
 import j2html.tags.ContainerTag;
+import j2html.tags.specialized.TdTag;
 
 public class DatarouterHomepageHandler extends BaseHandler{
 
@@ -129,8 +130,8 @@ public class DatarouterHomepageHandler extends BaseHandler{
 
 		clients.forEach(clientsJspDto -> {
 			String clientName = clientsJspDto.clientName;
-			ContainerTag<?> leftTd;
-			ContainerTag<?> rightTd;
+			TdTag leftTd;
+			TdTag rightTd;
 			if(clientsJspDto.initialized){
 				ContainerTag<?> latencyGraphTag;
 				CheckResultJspDto checkResultJspDto = clientsJspDto.checkResult;

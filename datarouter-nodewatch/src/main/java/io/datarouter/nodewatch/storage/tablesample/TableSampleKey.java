@@ -71,7 +71,7 @@ public class TableSampleKey extends BaseRegularPrimaryKey<TableSampleKey>{
 			this.subEntityPrefix = Optional.ofNullable(nodeNames.getSubEntityPrefix()).orElse("");
 		}
 		if(rowKeyFields != null){
-			this.rowKeyBytes = FieldTool.getConcatenatedValueBytesUnterminated(rowKeyFields);
+			this.rowKeyBytes = FieldTool.getConcatenatedValueBytes(rowKeyFields);
 		}
 	}
 
@@ -107,6 +107,10 @@ public class TableSampleKey extends BaseRegularPrimaryKey<TableSampleKey>{
 	}
 
 	/*--------------- get/set ---------------*/
+
+	public ClientTableEntityPrefixNameWrapper getNodeNames(){
+		return new ClientTableEntityPrefixNameWrapper(clientName, tableName, subEntityPrefix);
+	}
 
 	public String getClientName(){
 		return clientName;

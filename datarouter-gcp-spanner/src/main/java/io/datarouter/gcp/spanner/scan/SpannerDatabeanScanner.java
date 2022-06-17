@@ -20,7 +20,7 @@ import java.util.List;
 
 import com.google.cloud.spanner.DatabaseClient;
 
-import io.datarouter.gcp.spanner.field.SpannerFieldCodecRegistry;
+import io.datarouter.gcp.spanner.field.SpannerFieldCodecs;
 import io.datarouter.gcp.spanner.op.read.SpannerGetRangesOp;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
@@ -38,19 +38,19 @@ extends BaseNodeScanner<PK,D>{
 
 	private final DatabaseClient client;
 	private final PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo;
-	private final SpannerFieldCodecRegistry codecRegistry;
+	private final SpannerFieldCodecs fieldCodecs;
 
 	public SpannerDatabeanScanner(
 			DatabaseClient client,
 			PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
 			Collection<Range<PK>> ranges,
 			Config config,
-			SpannerFieldCodecRegistry codecRegistry,
+			SpannerFieldCodecs fieldCodecs,
 			boolean caseInsensitive){
 		super(ranges, config, caseInsensitive);
 		this.client = client;
 		this.fieldInfo = fieldInfo;
-		this.codecRegistry = codecRegistry;
+		this.fieldCodecs = fieldCodecs;
 	}
 
 	@Override
@@ -60,7 +60,7 @@ extends BaseNodeScanner<PK,D>{
 
 	@Override
 	protected List<D> loadRanges(Collection<Range<PK>> ranges, Config config){
-		var rangesOp = new SpannerGetRangesOp<>(client, fieldInfo, ranges, config, codecRegistry);
+		var rangesOp = new SpannerGetRangesOp<>(client, fieldInfo, ranges, config, fieldCodecs);
 		return rangesOp.wrappedCall();
 	}
 

@@ -25,6 +25,8 @@ import static j2html.TagCreator.th;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -42,6 +44,7 @@ import io.datarouter.pathnode.PathNode;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientOptions;
+import io.datarouter.util.duration.DatarouterDuration;
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.number.NumberTool;
 import io.datarouter.util.tuple.Pair;
@@ -56,8 +59,8 @@ import io.datarouter.web.html.j2html.J2HtmlTable;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import io.datarouter.web.requirejs.DatarouterWebRequireJsV2;
 import j2html.TagCreator;
-import j2html.tags.ContainerTag;
 import j2html.tags.specialized.ATag;
+import j2html.tags.specialized.DivTag;
 
 public class SqsWebInspector implements DatarouterClientWebInspector{
 
@@ -98,19 +101,33 @@ public class SqsWebInspector implements DatarouterClientWebInspector{
 				.buildMav();
 	}
 
-	private ContainerTag<?> buildQueueNodeTable(ClientId clientId, HttpServletRequest request){
+	private DivTag buildQueueNodeTable(ClientId clientId, HttpServletRequest request){
 		Pair<List<Twin<String>>,List<String>> queueRegistry = queueRegistryService.getSqsQueuesForClient(clientId);
 		List<Twin<String>> knownQueueUrlByName = queueRegistry.getLeft();
+		Map<String,Optional<Double>> queueNamesAndApproximateAgeOfOldestMessage = sqsClientManager
+				.getApproximateAgeOfOldestUnackedMessageSecondsGroup(clientId,
+						Scanner.of(knownQueueUrlByName)
+								.map(Twin::getRight)
+								.list());
 		List<SqsWebInspectorDto> queueStatsRows = Scanner.of(knownQueueUrlByName)
 				.map(queueUrlAndName -> {
 					String queueName = queueUrlAndName.getRight();
 					String queueUrl = queueUrlAndName.getLeft();
+					String metricValue = "error";
+					if(queueNamesAndApproximateAgeOfOldestMessage.containsKey(queueName.replace("-", ""))){
+						metricValue = queueNamesAndApproximateAgeOfOldestMessage
+								.get(queueName.replace("-", ""))
+								.map(age -> new DatarouterDuration(age.longValue(), TimeUnit.SECONDS))
+								.map(Object::toString)
+								.get();
+					}
 					Map<String,String> attributesMap = sqsClientManager.getAllQueueAttributes(clientId, queueUrl);
 					return new SqsWebInspectorDto(
 							queueName,
 							attributesMap.get(QueueAttributeName.ApproximateNumberOfMessages.name()),
 							attributesMap.get(QueueAttributeName.ApproximateNumberOfMessagesDelayed.name()),
-							attributesMap.get(QueueAttributeName.ApproximateNumberOfMessagesNotVisible.name()));
+							attributesMap.get(QueueAttributeName.ApproximateNumberOfMessagesNotVisible.name()),
+							metricValue);
 				})
 				.sort(Comparator.comparing(dto -> dto.queueName))
 				.list();
@@ -123,6 +140,8 @@ public class SqsWebInspector implements DatarouterClientWebInspector{
 				.withHtmlColumn(th("Delayed").withClass("col-xs-1"), row -> td(row.messagesDelayed))
 				.withHtmlColumn(th("InFlight").withClass("col-xs-1"), row -> td(row.messagesInFlight))
 				.withHtmlColumn(th("Total").withClass("col-xs-1"), row -> td(row.getTotalMessagesAvailable()))
+				.withHtmlColumn(th("ApproximateAgeOfOldestMessage").withClass("col-xs-1"),
+						row -> td(String.valueOf(row.ageOfOldestMessage)))
 				.withHtmlColumn(th("").attr("width", "80"), row -> {
 					String href = buildActionPath(request, clientId, row.queueName, SqsQueueAction.PURGE);
 					ATag purgeIcon = a(i().withClass("fas fa-skull-crossbones fa-lg"))
@@ -160,7 +179,7 @@ public class SqsWebInspector implements DatarouterClientWebInspector{
 				.withStyle("padding-left: 0px");
 	}
 
-	private ContainerTag<?> buildReferenceTable(){
+	private DivTag buildReferenceTable(){
 		return new J2HtmlLegendTable()
 				.withHeader("Legend")
 				.withClass("sortable table table-sm my-4 border")
@@ -179,6 +198,8 @@ public class SqsWebInspector implements DatarouterClientWebInspector{
 				.withEntry("Total Messages", "A total of Available + InFlight messages")
 				.withEntry("Unreferenced Queue", "Queue which exists but the application is not aware of, "
 						+ "usually a result of the queue being renamed, or code refactored")
+				.withEntry("ApproximateAgeOfOldestMessage","The approximate age of the oldest non-deleted message in"
+						+ " the queue.")
 				.build()
 				.withClass("container-fluid my-4")
 				.withStyle("padding-left: 0px");
@@ -214,16 +235,19 @@ public class SqsWebInspector implements DatarouterClientWebInspector{
 		private final String messagesAvailableForRetrieval;
 		private final String messagesDelayed;
 		private final String messagesInFlight;
+		private final String ageOfOldestMessage;
 
 		private SqsWebInspectorDto(
 				String queueName,
 				String messagesAvailableForRetrieval,
 				String messagesDelayed,
-				String messagesInFlight){
+				String messagesInFlight,
+				String ageOfOldestMessage){
 			this.queueName = queueName;
 			this.messagesAvailableForRetrieval = messagesAvailableForRetrieval;
 			this.messagesDelayed = messagesDelayed;
 			this.messagesInFlight = messagesInFlight;
+			this.ageOfOldestMessage = ageOfOldestMessage;
 		}
 
 		private String getTotalMessagesAvailable(){

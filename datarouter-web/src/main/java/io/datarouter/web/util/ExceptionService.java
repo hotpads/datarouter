@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.util.string.XmlStringTool;
 import io.datarouter.web.config.DatarouterWebSettingRoot;
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.SpanTag;
 
 @Singleton
 public class ExceptionService{
@@ -51,7 +51,7 @@ public class ExceptionService{
 		}
 		stackTrace = XmlStringTool.escapeXmlKeepSpecialChar(stackTrace);
 		for(String highlight : datarouterWebSettingRoot.stackTraceHighlights.get()){
-			ContainerTag<?> tag = span(highlight)
+			SpanTag tag = span(highlight)
 					.withStyle("color:red; font-weight:bold; font-size:1.5em;");
 			stackTrace = stackTrace.replace(highlight, tag.render());
 		}

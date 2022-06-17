@@ -51,6 +51,7 @@ implements QueueStorageWriter<PK,D>{
 	public void ackMulti(Collection<QueueMessageKey> keys, Config config){
 		Objects.requireNonNull(keys);
 		Objects.requireNonNull(config);
+		keys.forEach(Objects::requireNonNull);
 		if(keys.isEmpty()){
 			return;
 		}
@@ -69,6 +70,7 @@ implements QueueStorageWriter<PK,D>{
 	public void putMulti(Collection<D> databeans, Config config){
 		Objects.requireNonNull(databeans);
 		Objects.requireNonNull(config);
+		databeans.forEach(Objects::requireNonNull);
 		if(databeans.isEmpty()){
 			return;
 		}

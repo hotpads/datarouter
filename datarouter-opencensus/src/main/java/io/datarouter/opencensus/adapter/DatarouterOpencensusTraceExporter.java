@@ -35,8 +35,7 @@ import io.datarouter.instrumentation.trace.Trace2SpanDto;
 import io.datarouter.instrumentation.trace.TraceSpanGroupType;
 import io.datarouter.instrumentation.trace.Traceparent;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.trace.conveyor.local.Trace2ForLocalFilterToMemoryBuffer;
-import io.datarouter.trace.conveyor.publisher.Trace2ForPublisherFilterToMemoryBuffer;
+import io.datarouter.trace.conveyor.TraceBuffers;
 import io.opencensus.common.Timestamp;
 import io.opencensus.trace.AttributeValue;
 import io.opencensus.trace.SpanId;
@@ -48,9 +47,7 @@ public class DatarouterOpencensusTraceExporter extends Handler{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterOpencensusTraceExporter.class);
 
 	@Inject
-	private Trace2ForLocalFilterToMemoryBuffer trace2BufferForLocal;
-	@Inject
-	private Trace2ForPublisherFilterToMemoryBuffer trace2BufferForPublisher;
+	private TraceBuffers traceBuffers;
 
 	@Override
 	public void export(Collection<SpanData> spanDataList){
@@ -111,8 +108,7 @@ public class DatarouterOpencensusTraceExporter extends Handler{
 				.stream()
 				.map(spans -> new Trace2BundleDto(null, List.of(), spans))
 				.map(bundleDto -> new Trace2BundleAndHttpRequestRecordDto(bundleDto, null))
-				.peek(trace2BufferForLocal::offer)
-				.forEach(trace2BufferForPublisher::offer);
+				.forEach(traceBuffers::offer);
 	}
 
 	private static int getIntegerValue(AttributeValue attributeValue){

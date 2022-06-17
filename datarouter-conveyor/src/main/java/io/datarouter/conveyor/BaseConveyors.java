@@ -76,7 +76,13 @@ public abstract class BaseConveyors implements DatarouterAppListener{
 	public void onShutDown(){
 		// explicitly shut those down before CountersAppListener onShutDown
 		for(Entry<String,Pair<ExecutorService,Conveyor>> entry : execsAndConveyorsByName.entrySet()){
-			logger.info("shutting down {}", entry.getKey());
+			var conveyor = entry.getValue().getRight();
+			conveyor.setIsShuttingDown();
+			if(conveyor.shouldRunOnShutdown()){
+				//intentionally run once more to allow cleaner shutdown
+				entry.getValue().getLeft().submit(conveyor);
+				logger.info("running conveyor={} onShutdown", entry.getKey());
+			}
 			ExecutorServiceTool.shutdown(entry.getValue().getLeft(), Duration.ofSeconds(5));
 		}
 	}

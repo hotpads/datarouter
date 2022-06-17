@@ -27,7 +27,7 @@ import io.datarouter.joblet.config.DatarouterJobletPaths;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
 import io.datarouter.web.digest.DailyDigestService;
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.DivTag;
 
 @Singleton
 public class FailedJobletDailyDigest implements DailyDigest{
@@ -40,7 +40,7 @@ public class FailedJobletDailyDigest implements DailyDigest{
 	private JobletDailyDigestService jobletDailyDigestService;
 
 	@Override
-	public Optional<ContainerTag<?>> getPageContent(ZoneId zoneId){
+	public Optional<DivTag> getPageContent(ZoneId zoneId){
 		var rows = jobletDailyDigestService.getFailedJoblets();
 		if(rows.isEmpty()){
 			return Optional.empty();
@@ -51,7 +51,7 @@ public class FailedJobletDailyDigest implements DailyDigest{
 	}
 
 	@Override
-	public Optional<ContainerTag<?>> getEmailContent(ZoneId zoneId){
+	public Optional<DivTag> getEmailContent(ZoneId zoneId){
 		var rows = jobletDailyDigestService.getFailedJoblets();
 		if(rows.isEmpty()){
 			return Optional.empty();

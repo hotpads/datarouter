@@ -135,7 +135,7 @@ public class ExceptionAnalysisHandler extends BaseHandler{
 		exceptionRecordId = trimExceptionRecordId(exceptionRecordId);
 		ExceptionRecord record = getExceptionRecord(exceptionRecordId);
 		if(record == null){
-			return new MessageMav("Exception record with id=" + exceptionRecordId + " does not exist");
+			return makeExceptionDoesNotExistMav(exceptionRecordId);
 		}
 		mav.put("exceptionRecord", toJspDto(record));
 		mav.put("coloredStackTrace", exceptionService.getColorized(record.getStackTrace()));
@@ -164,11 +164,15 @@ public class ExceptionAnalysisHandler extends BaseHandler{
 
 	@Handler
 	public Mav recordIssueAndRedirect(String type, String exceptionRecordId, String issue, OptionalBoolean muted){
+		ExceptionRecord exceptionRecord = getExceptionRecord(exceptionRecordId);
+		if(exceptionRecord == null){
+			return makeExceptionDoesNotExistMav(exceptionRecordId);
+		}
+		String exceptionLocation = exceptionRecord.getExceptionLocation();
 		if(StringTool.isNullOrEmptyOrWhitespace(issue)){
 			throw new IllegalArgumentException("Issue ID cannot be empty");
 		}
 		String trimmedIssue = issue.trim();
-		String exceptionLocation = getExceptionRecord(exceptionRecordId).getExceptionLocation();
 		createOrUpdateMetadata(type, exceptionLocation, metadata -> {
 			if(!trimmedIssue.equals(metadata.getIssue())){
 				metadata.setIssue(trimmedIssue);
@@ -227,6 +231,9 @@ public class ExceptionAnalysisHandler extends BaseHandler{
 		return new ExceptionRecordSummaryMetadata(key);
 	}
 
+	private static Mav makeExceptionDoesNotExistMav(String exceptionRecordId){
+		return new MessageMav("Exception record with id=" + exceptionRecordId + " does not exist");
+	}
 
 	/*---------------------------- JspDtos ----------------------------------*/
 

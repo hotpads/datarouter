@@ -15,7 +15,7 @@
  */
 package io.datarouter.web.user.role;
 
-import io.datarouter.enums.StringEnum;
+import io.datarouter.enums.MappedEnum;
 import io.datarouter.web.user.session.service.Role;
 import io.datarouter.web.user.session.service.RoleEnum;
 
@@ -30,17 +30,15 @@ public enum DatarouterUserRole implements RoleEnum<DatarouterUserRole>{
 	DATAROUTER_TOOLS("datarouterTools"),
 	DOC_USER("docUser"),
 	REQUESTOR("requestor"),
-	USER("user"),
-	;
+	USER("user");
+
+	public static final MappedEnum<DatarouterUserRole,String> BY_PERSISTENT_STRING
+			= new MappedEnum<>(values(), value -> value.role.persistentString);
 
 	private final Role role;
 
 	DatarouterUserRole(String persistentString){
 		this.role = new Role(persistentString);
-	}
-
-	public static DatarouterUserRole fromPersistentStringStatic(String persistentString){
-		return StringEnum.getEnumFromString(values(), persistentString, null);
 	}
 
 	@Override
@@ -50,7 +48,7 @@ public enum DatarouterUserRole implements RoleEnum<DatarouterUserRole>{
 
 	@Override
 	public DatarouterUserRole fromPersistentString(String str){
-		return fromPersistentStringStatic(str);
+		return BY_PERSISTENT_STRING.fromOrNull(str);
 	}
 
 	@Override

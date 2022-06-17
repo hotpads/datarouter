@@ -25,7 +25,6 @@ import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientId;
-import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.BaseNode;
 import io.datarouter.storage.node.Node;
 import io.datarouter.storage.node.NodeParams.NodeParamsBuilder;
@@ -41,9 +40,6 @@ extends BaseNode<PK,D,F>{
 	protected final N cachingNode;
 	protected final N backingNode;
 
-	protected long lastAttemptedContact = 0L;
-	protected long lastContact = 0L;
-
 	public BaseMapCachingNode(N cacheNode, N backingNode){
 		super(new NodeParamsBuilder<>(
 				backingNode.getFieldInfo().getDatabeanSupplier(),
@@ -51,21 +47,6 @@ extends BaseNode<PK,D,F>{
 				.build());
 		this.cachingNode = cacheNode;
 		this.backingNode = backingNode;
-	}
-
-	public void updateLastAttemptedContact(){
-		lastAttemptedContact = System.currentTimeMillis();
-	}
-
-	public void updateLastContact(){
-		lastContact = System.currentTimeMillis();
-	}
-
-	public static boolean useCache(Config config){
-		if(config == null || config.getCacheOk() == null){
-			return Config.DEFAULT_CACHE_OK;
-		}
-		return config.getCacheOk();
 	}
 
 	@Override

@@ -33,7 +33,7 @@ import com.google.cloud.spanner.TransactionContext;
 import com.google.cloud.spanner.TransactionRunner.TransactionCallable;
 
 import io.datarouter.gcp.spanner.field.SpannerBaseFieldCodec;
-import io.datarouter.gcp.spanner.field.SpannerFieldCodecRegistry;
+import io.datarouter.gcp.spanner.field.SpannerFieldCodecs;
 import io.datarouter.gcp.spanner.op.SpannerBaseOp;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.field.Field;
@@ -53,7 +53,7 @@ extends SpannerBaseOp<Void>{
 
 	protected final DatabaseClient client;
 	protected final Config config;
-	protected final SpannerFieldCodecRegistry codecRegistry;
+	protected final SpannerFieldCodecs fieldCodecs;
 	protected final String tableName;
 	private final Collection<K> keys;
 	protected final PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo;
@@ -63,13 +63,13 @@ extends SpannerBaseOp<Void>{
 			PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
 			Collection<K> keys,
 			Config config,
-			SpannerFieldCodecRegistry codecRegistry){
+			SpannerFieldCodecs fieldCodecs){
 		super("Spanner delete");
 		this.keys = keys;
 		this.fieldInfo = fieldInfo;
 		this.client = client;
 		this.config = config;
-		this.codecRegistry = codecRegistry;
+		this.fieldCodecs = fieldCodecs;
 		this.tableName = fieldInfo.getTableName();
 	}
 
@@ -122,7 +122,7 @@ extends SpannerBaseOp<Void>{
 
 	private com.google.cloud.spanner.Key primaryKeyConversion(K key){
 		Builder mutationKey = com.google.cloud.spanner.Key.newBuilder();
-		for(SpannerBaseFieldCodec<?,?> codec : codecRegistry.createCodecs(key.getFields())){
+		for(SpannerBaseFieldCodec<?,?> codec : fieldCodecs.createCodecs(key.getFields())){
 			mutationKey = codec.setKey(mutationKey);
 		}
 		return mutationKey.build();
@@ -130,14 +130,14 @@ extends SpannerBaseOp<Void>{
 
 	protected Mutation keyToDeleteMutation(PK key){
 		Builder mutationKey = com.google.cloud.spanner.Key.newBuilder();
-		for(SpannerBaseFieldCodec<?,?> codec : codecRegistry.createCodecs(key.getFields())){
+		for(SpannerBaseFieldCodec<?,?> codec : fieldCodecs.createCodecs(key.getFields())){
 			mutationKey = codec.setKey(mutationKey);
 		}
 		return Mutation.delete(tableName, mutationKey.build());
 	}
 
 	protected List<PK> createFromResultSet(ResultSet set, Supplier<PK> emtpyObject, List<Field<?>> fields){
-		List<? extends SpannerBaseFieldCodec<?,?>> codecs = codecRegistry.createCodecs(fields);
+		List<? extends SpannerBaseFieldCodec<?,?>> codecs = fieldCodecs.createCodecs(fields);
 		List<PK> objects = new ArrayList<>();
 		while(set.next()){
 			PK object = emtpyObject.get();

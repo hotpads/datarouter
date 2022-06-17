@@ -19,7 +19,7 @@ import java.util.Objects;
 
 public class Role implements Comparable<Role>{
 
-	private final String persistentString;
+	public final String persistentString;
 
 	public Role(String persistentString){
 		this.persistentString = persistentString;

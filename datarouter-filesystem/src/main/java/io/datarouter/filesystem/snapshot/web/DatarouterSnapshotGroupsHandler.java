@@ -35,7 +35,7 @@ import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import io.datarouter.web.requirejs.DatarouterWebRequireJsV2;
 import j2html.TagCreator;
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.DivTag;
 
 public class DatarouterSnapshotGroupsHandler extends BaseHandler{
 
@@ -59,7 +59,7 @@ public class DatarouterSnapshotGroupsHandler extends BaseHandler{
 				.buildMav();
 	}
 
-	private ContainerTag<?> buildGroupList(){
+	private DivTag buildGroupList(){
 		var thead = thead(tr(th("ID"), th("numSnapshots")));
 		var table = table()
 				.withClasses("sortable table table-sm table-striped my-4 border")

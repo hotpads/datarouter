@@ -34,7 +34,8 @@ public class SqsMessage extends BaseDatabean<SqsMessageKey,SqsMessage>{
 	private static class FieldKeys{
 		private static final StringFieldKey message = new StringFieldKey("message")
 				.withColumnName("Message")
-				.withSize(CommonFieldSizes.MAX_SQS_SIZE);
+				.withSize(CommonFieldSizes.MAX_SQS_SIZE)
+				.disableSizeValidation();
 	}
 
 	public static class SqsMessageFielder extends BaseDatabeanFielder<SqsMessageKey,SqsMessage>{

@@ -18,11 +18,12 @@ package io.datarouter.web.homepage;
 import javax.inject.Singleton;
 
 import io.datarouter.storage.tag.Tag;
+import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
 import io.datarouter.web.user.role.DatarouterUserRole;
 
 @Singleton
-public class DefaultHomepageRouteSet extends HomepageRouteSet{
+public class DefaultHomepageRouteSet extends BaseRouteSet implements HomepageRouteSet{
 
 	public DefaultHomepageRouteSet(){
 		super("");

@@ -15,8 +15,7 @@
  */
 package io.datarouter.httpclient.example;
 
-import com.google.gson.GsonBuilder;
-
+import io.datarouter.gson.serialization.GsonTool;
 import io.datarouter.httpclient.client.DatarouterHttpClient;
 import io.datarouter.httpclient.client.DatarouterHttpClientBuilder;
 import io.datarouter.httpclient.json.GsonJsonSerializer;
@@ -26,7 +25,7 @@ public class ExampleClientConfiguration{
 
 	// By default, datarouter-http-client uses vanilla gson.
 	// You can implement the JsonSerializer interface or create a GsonJsonSerializer.
-	JsonSerializer jsonSerializer = new GsonJsonSerializer(new GsonBuilder()
+	JsonSerializer jsonSerializer = new GsonJsonSerializer(GsonTool.GSON.newBuilder()
 			.serializeNulls()
 			.create());
 

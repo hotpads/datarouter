@@ -18,14 +18,13 @@ package io.datarouter.gcp.spanner;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.gcp.spanner.field.SpannerFieldCodecRegistry;
+import io.datarouter.gcp.spanner.field.SpannerFieldCodecs;
 import io.datarouter.gcp.spanner.node.SpannerNode;
 import io.datarouter.gcp.spanner.node.SpannerTallyNode;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.entity.Entity;
 import io.datarouter.model.key.entity.EntityKey;
 import io.datarouter.model.key.primary.EntityPrimaryKey;
-import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.opencensus.adapter.physical.PhysicalIndexedSortedMapStorageOpencensusAdapter;
 import io.datarouter.storage.client.imp.DatabeanClientNodeFactory;
@@ -38,8 +37,12 @@ import io.datarouter.storage.node.adapter.counter.physical.PhysicalIndexedSorted
 import io.datarouter.storage.node.adapter.sanitization.physical.PhysicalIndexedSortedMapStorageSanitizationAdapter;
 import io.datarouter.storage.node.adapter.trace.physical.PhysicalIndexedSortedMapStorageTraceAdapter;
 import io.datarouter.storage.node.entity.EntityNodeParams;
+import io.datarouter.storage.node.op.raw.TallyStorage.PhysicalTallyStorageNode;
 import io.datarouter.storage.node.type.index.ManagedNodesHolder;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
+import io.datarouter.storage.tally.Tally;
+import io.datarouter.storage.tally.Tally.TallyFielder;
+import io.datarouter.storage.tally.TallyKey;
 
 @Singleton
 public class SpannerClientNodeFactory
@@ -52,7 +55,7 @@ implements DatabeanClientNodeFactory, TallyClientNodeFactory{
 	@Inject
 	private SpannerClientManager spannerClientManager;
 	@Inject
-	private SpannerFieldCodecRegistry spannerFieldCodecRegistry;
+	private SpannerFieldCodecs fieldCodecs;
 	@Inject
 	private PhysicalIndexedSortedMapStorageAvailabilityAdapterFactory
 			physicalIndexedSortedMapStorageAvailabilityAdapterFactory;
@@ -75,7 +78,7 @@ implements DatabeanClientNodeFactory, TallyClientNodeFactory{
 				spannerClientType,
 				managedNodesHolder,
 				spannerClientManager,
-				spannerFieldCodecRegistry);
+				fieldCodecs);
 		return new PhysicalIndexedSortedMapStorageCallsiteAdapter<>(
 				new PhysicalIndexedSortedMapStorageSanitizationAdapter<>(
 				physicalIndexedSortedMapStorageAvailabilityAdapterFactory.create(
@@ -86,15 +89,12 @@ implements DatabeanClientNodeFactory, TallyClientNodeFactory{
 	}
 
 	@Override
-	public <PK extends PrimaryKey<PK>,
-			D extends Databean<PK,D>,
-			F extends DatabeanFielder<PK,D>>
-	PhysicalNode<PK,D,F> createTallyNode(NodeParams<PK,D,F> nodeParams){
-		var node = new SpannerTallyNode<>(
+	public PhysicalTallyStorageNode createTallyNode(NodeParams<TallyKey,Tally,TallyFielder> nodeParams){
+		var node = new SpannerTallyNode(
 				nodeParams,
 				spannerClientType,
 				spannerClientManager,
-				spannerFieldCodecRegistry);
+				fieldCodecs);
 		return nodeAdapters.wrapTallyNode(node);
 	}
 

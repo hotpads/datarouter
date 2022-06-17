@@ -36,6 +36,8 @@ public class HandlerMetrics{
 	private static final String PACKAGED_METHOD = "packagedMethod";
 	private static final String ACCOUNT = "account";
 	private static final String LATENCY_MS = "latencyMs";
+	private static final String CUMULATED_DURATION_MS = "cumulatedDurationMs";
+	private static final String CUMULATED_CPU_MS = "cumulatedCpuMs";
 
 	@Inject
 	private Gauges gauges;
@@ -65,6 +67,16 @@ public class HandlerMetrics{
 	public void saveMethodLatency(Class<? extends BaseHandler> handlerClass, Method method, long durationMs){
 		gauges.save(PREFIX + " " + HANDLER + " " + METHOD + " " + LATENCY_MS + " " + handlerClass.getSimpleName() + " "
 				+ method.getName(), durationMs);
+	}
+
+	public void incDuration(Class<? extends BaseHandler> handlerClass, Method method, long durationMs){
+		Counters.inc(PREFIX + " " + HANDLER + " " + METHOD + " " + CUMULATED_DURATION_MS + " " + handlerClass
+				.getSimpleName() + " " + method.getName(), durationMs);
+	}
+
+	public void incTotalCpuTime(Class<? extends BaseHandler> handlerClass, Method method, long totalCpuTimeMs){
+		Counters.inc(PREFIX + " " + HANDLER + " " + METHOD + " " + CUMULATED_CPU_MS + " " + handlerClass.getSimpleName()
+				+ " " + method.getName(), totalCpuTimeMs);
 	}
 
 }

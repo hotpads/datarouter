@@ -15,7 +15,7 @@
  */
 package io.datarouter.secret.op;
 
-import io.datarouter.enums.StringEnum;
+import io.datarouter.enums.MappedEnum;
 import io.datarouter.util.Require;
 import io.datarouter.util.string.StringTool;
 
@@ -54,27 +54,18 @@ public class SecretOpReason{
 		}
 	}
 
-	public static enum SecretOpReasonType implements StringEnum<SecretOpReasonType>{
-
+	public static enum SecretOpReasonType{
 		API("API"),
 		AUTOMATED("AUTOMATED"),
-		MANUAL("MANUAL"),
-		;
+		MANUAL("MANUAL");
 
-		private final String persistentString;
+		public static final MappedEnum<SecretOpReasonType,String> BY_PERSISTENT_STRING
+				= new MappedEnum<>(values(), value -> value.persistentString);
+
+		public final String persistentString;
 
 		SecretOpReasonType(String persistentString){
 			this.persistentString = persistentString;
-		}
-
-		@Override
-		public String getPersistentString(){
-			return persistentString;
-		}
-
-		@Override
-		public SecretOpReasonType fromPersistentString(String string){
-			return StringEnum.getEnumFromString(values(), string, null);
 		}
 
 	}

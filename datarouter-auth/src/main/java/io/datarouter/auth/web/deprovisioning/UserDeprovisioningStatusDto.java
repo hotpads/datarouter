@@ -48,8 +48,12 @@ public class UserDeprovisioningStatusDto{
 	public final boolean allowDeprovision;
 	public final boolean allowRestore;
 
-	private UserDeprovisioningStatusDto(String name, String description, boolean isUserEditable,
-			boolean allowDeprovision, boolean allowRestore){
+	private UserDeprovisioningStatusDto(
+			String name,
+			String description,
+			boolean isUserEditable,
+			boolean allowDeprovision,
+			boolean allowRestore){
 		this.name = name;
 		this.description = description;
 		this.isUserEditable = isUserEditable;

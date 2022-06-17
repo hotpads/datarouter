@@ -15,29 +15,6 @@
  */
 package io.datarouter.aws.sqs.enums;
 
-import io.datarouter.enums.StringEnum;
-
-public enum SqsKeyType implements StringEnum<SqsKeyType>{
-	FILE("file");
-
-	private final String persistentString;
-
-	SqsKeyType(String persistentString){
-		this.persistentString = persistentString;
-	}
-
-	@Override
-	public String getPersistentString(){
-		return persistentString;
-	}
-
-	@Override
-	public SqsKeyType fromPersistentString(String string){
-		return fromPersistentStringStatic(string);
-	}
-
-	public static SqsKeyType fromPersistentStringStatic(String string){
-		return StringEnum.getEnumFromString(values(), string, null);
-	}
-
+public enum SqsKeyType{
+	FILE;
 }

@@ -42,7 +42,7 @@ public class AwsMemcachedClientOptionsBuilder extends MemcachedClientOptionsBuil
 	public AwsMemcachedClientOptionsBuilder withClientMode(MemcachedClientMode clientMode){
 		String optionKeySuffix = AwsMemcachedOptions.makeAwsMemcachedKey(AwsMemcachedOptions.PROP_clientMode);
 		String optionKey = makeKey(optionKeySuffix);
-		properties.setProperty(optionKey, clientMode.getPersistentString());
+		properties.setProperty(optionKey, clientMode.persistentString);
 		return this;
 	}
 

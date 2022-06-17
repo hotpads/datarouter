@@ -15,17 +15,22 @@
  */
 package io.datarouter.bytes.binarydto.fieldcodec.other;
 
-import io.datarouter.bytes.LengthAndValue;
-import io.datarouter.bytes.binarydto.codec.BinaryDtoCodec;
-import io.datarouter.bytes.binarydto.dto.BinaryDto;
+import io.datarouter.bytes.binarydto.codec.BinaryDtoIndexedCodec;
+import io.datarouter.bytes.binarydto.dto.BaseBinaryDto;
 import io.datarouter.bytes.binarydto.fieldcodec.BinaryDtoBaseFieldCodec;
 
-public class NestedBinaryDtoFieldCodec<T extends BinaryDto<T>> extends BinaryDtoBaseFieldCodec<T>{
+public class NestedBinaryDtoFieldCodec<T extends BaseBinaryDto<T>>
+extends BinaryDtoBaseFieldCodec<T>{
 
-	private final BinaryDtoCodec<T> codec;
+	private final BinaryDtoIndexedCodec<T> codec;
 
 	public NestedBinaryDtoFieldCodec(Class<T> dtoClass){
-		this.codec = BinaryDtoCodec.of(dtoClass);
+		this.codec = BinaryDtoIndexedCodec.of(dtoClass);
+	}
+
+	@Override
+	public boolean supportsComparableCodec(){
+		return false;
 	}
 
 	@Override
@@ -34,13 +39,8 @@ public class NestedBinaryDtoFieldCodec<T extends BinaryDto<T>> extends BinaryDto
 	}
 
 	@Override
-	public T decode(byte[] bytes, int offset){
-		return decodeWithLength(bytes, offset).value;
-	}
-
-	@Override
-	public LengthAndValue<T> decodeWithLength(byte[] bytes, int offset){
-		return codec.decodeWithLength(bytes, offset);
+	public T decode(byte[] bytes, int offset, int length){
+		return codec.decode(bytes, offset, length);
 	}
 
 }

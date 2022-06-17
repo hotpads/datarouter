@@ -89,8 +89,9 @@ import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.types.optional.OptionalBoolean;
 import io.datarouter.web.handler.types.optional.OptionalString;
 import io.datarouter.web.html.j2html.J2HtmlLegendTable;
-import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
+import j2html.tags.specialized.ATag;
+import j2html.tags.specialized.DivTag;
 
 public class ClusterSettingsHandler extends BaseHandler{
 
@@ -189,7 +190,7 @@ public class ClusterSettingsHandler extends BaseHandler{
 		clusterSettingLogDao.put(clusterSettingLog);
 		String oldValue = clusterSetting.getValue();
 		sendEmail(clusterSettingLog, oldValue);
-		recordChangelog(clusterSettingLog.getKey().getName(), clusterSettingLog.getAction().getPersistentString(),
+		recordChangelog(clusterSettingLog.getKey().getName(), clusterSettingLog.getAction().persistentString,
 				clusterSettingLog.getChangedBy(), comment);
 		return result.markSuccess();
 	}
@@ -365,7 +366,7 @@ public class ClusterSettingsHandler extends BaseHandler{
 		sendEmail(log, oldValue);
 		recordChangelog(
 				log.getKey().getName(),
-				log.getAction().getPersistentString(),
+				log.getAction().persistentString,
 				log.getChangedBy(),
 				Optional.ofNullable(log.getComment()));
 		return result.markSuccess();
@@ -459,10 +460,10 @@ public class ClusterSettingsHandler extends BaseHandler{
 			this.displayValue = displayValue;
 		}
 
-		private ContainerTag<?> build(){
+		private DivTag build(){
 			List<Pair<String,DomContent>> kvs = new ArrayList<>();
 			kvs.add(new Pair<>("user", text(log.getChangedBy())));
-			kvs.add(new Pair<>("action", text(log.getAction().getPersistentString())));
+			kvs.add(new Pair<>("action", text(log.getAction().persistentString)));
 			kvs.add(new Pair<>("setting", makeClusterSettingLogLink()));
 			String timestamp = ZonedDateFormatterTool.formatReversedLongMsWithZone(log.getKey().getReverseCreatedMs(),
 					getUserZoneId());
@@ -488,7 +489,7 @@ public class ClusterSettingsHandler extends BaseHandler{
 			return standardDatarouterEmailHeaderService.makeStandardHeaderWithSupplements(kvs);
 		}
 
-		private DomContent makeClusterSettingLogLink(){
+		private ATag makeClusterSettingLogLink(){
 			return a(log.getKey().getName())
 					.withHref(completeLink(datarouterHtmlEmailService.startLinkBuilder(), log)
 							.build());

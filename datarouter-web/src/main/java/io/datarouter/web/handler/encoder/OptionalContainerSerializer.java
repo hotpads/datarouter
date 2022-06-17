@@ -15,14 +15,11 @@
  */
 package io.datarouter.web.handler.encoder;
 
-import java.util.Date;
-
 import javax.inject.Singleton;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
-import io.datarouter.gson.serialization.CompatibleDateTypeAdapter;
+import io.datarouter.gson.serialization.GsonTool;
 import io.datarouter.gson.serialization.OptionalContainerClassTypeAdapterFactory;
 import io.datarouter.gson.serialization.OptionalTypeAdapterFactory;
 import io.datarouter.httpclient.json.GsonJsonSerializer;
@@ -30,8 +27,7 @@ import io.datarouter.httpclient.json.GsonJsonSerializer;
 @Singleton
 public class OptionalContainerSerializer extends GsonJsonSerializer{
 
-	private static final Gson READ_GSON = new GsonBuilder()
-			.registerTypeAdapter(Date.class, new CompatibleDateTypeAdapter())
+	private static final Gson READ_GSON = GsonTool.GSON.newBuilder()
 			.registerTypeAdapterFactory(new OptionalContainerClassTypeAdapterFactory())
 			.registerTypeAdapterFactory(new OptionalTypeAdapterFactory())
 			.serializeNulls()

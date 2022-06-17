@@ -15,42 +15,26 @@
  */
 package io.datarouter.trace.storage.span;
 
-import io.datarouter.enums.StringEnum;
+import io.datarouter.enums.MappedEnum;
 import io.datarouter.instrumentation.trace.TraceSpanGroupType;
 
-public enum Trace2SpanGroupType implements StringEnum<Trace2SpanGroupType>{
+public enum Trace2SpanGroupType{
 	DATABASE(TraceSpanGroupType.DATABASE, "database"),
 	HTTP(TraceSpanGroupType.HTTP, "http call"),
 	SERIALIZATION(TraceSpanGroupType.SERIALIZATION, "serialization/deserialization"),
 	CLOUD_STORAGE(TraceSpanGroupType.CLOUD_STORAGE, "cloud storage(e.g. s3, gcs and etc)"),
 	MULTITHREADING(TraceSpanGroupType.MULTITHREADING, "multithreading"),
-	NONE(TraceSpanGroupType.NONE, "no group categrized"),
-	;
+	NONE(TraceSpanGroupType.NONE, "no group categrized");
 
-	private final String persistentString;
-	private final String description;
+	public static final MappedEnum<Trace2SpanGroupType,String> BY_PERSISTENT_STRING
+			= new MappedEnum<>(values(), value -> value.persistentString);
+
+	public final String persistentString;
+	public final String description;
 
 	Trace2SpanGroupType(TraceSpanGroupType type, String description){
 		this.persistentString = type.type;
 		this.description = description;
-	}
-
-	@Override
-	public String getPersistentString(){
-		return persistentString;
-	}
-
-	public String getDescription(){
-		return description;
-	}
-
-	@Override
-	public Trace2SpanGroupType fromPersistentString(String string){
-		return fromPersistentStringStatic(string);
-	}
-
-	public static Trace2SpanGroupType fromPersistentStringStatic(String str){
-		return StringEnum.getEnumFromString(values(), str, null);
 	}
 
 }

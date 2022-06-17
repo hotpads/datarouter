@@ -36,7 +36,8 @@ import io.datarouter.web.digest.DailyDigestGrouping;
 import io.datarouter.web.digest.DailyDigestService;
 import io.datarouter.web.html.j2html.J2HtmlTable;
 import j2html.TagCreator;
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.H3Tag;
 import j2html.tags.specialized.TableTag;
 
 @Singleton
@@ -62,12 +63,12 @@ public class SqsQueuesDailyDigest implements DailyDigest{
 	}
 
 	@Override
-	public Optional<ContainerTag<?>> getPageContent(ZoneId zoneId){
+	public Optional<DivTag> getPageContent(ZoneId zoneId){
 		return buildContent(ContentType.PAGE);
 	}
 
 	@Override
-	public Optional<ContainerTag<?>> getEmailContent(ZoneId zoneId){
+	public Optional<DivTag> getEmailContent(ZoneId zoneId){
 		return buildContent(ContentType.EMAIL);
 	}
 
@@ -76,7 +77,7 @@ public class SqsQueuesDailyDigest implements DailyDigest{
 		return DailyDigestType.ACTIONABLE;
 	}
 
-	private Optional<ContainerTag<?>> buildContent(ContentType contentType){
+	private Optional<DivTag> buildContent(ContentType contentType){
 		ClientId clientId = Scanner.of(datarouterClients.getClientIds())
 				.include(client -> datarouterClients.getClientTypeInstance(client) instanceof SqsClientType)
 				.findFirst()
@@ -101,7 +102,7 @@ public class SqsQueuesDailyDigest implements DailyDigest{
 					.withColumn("Queue Name", row -> row)
 					.build(unreferencedQueues);
 		}
-		ContainerTag<?> header = digestService.makeHeader(
+		H3Tag header = digestService.makeHeader(
 				"Unreferenced Sqs Queues",
 				paths.datarouter.client.inspectClient,
 				"?clientName=sqs");

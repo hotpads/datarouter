@@ -25,7 +25,7 @@ import com.google.cloud.spanner.Options.ReadOption;
 import com.google.cloud.spanner.ReadContext;
 import com.google.cloud.spanner.ResultSet;
 
-import io.datarouter.gcp.spanner.field.SpannerFieldCodecRegistry;
+import io.datarouter.gcp.spanner.field.SpannerFieldCodecs;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.index.IndexEntry;
 import io.datarouter.model.key.primary.PrimaryKey;
@@ -52,9 +52,9 @@ extends SpannerBaseReadIndexOp<PK,IK>{
 			PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
 			Collection<Range<IK>> ranges,
 			Config config,
-			SpannerFieldCodecRegistry codecRegistry,
+			SpannerFieldCodecs fieldCodecs,
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
-		super(client, config, codecRegistry, fieldInfo.getTableName());
+		super(client, config, fieldCodecs, fieldInfo.getTableName());
 		this.ranges = ranges;
 		this.indexEntryFieldInfo = indexEntryFieldInfo;
 	}

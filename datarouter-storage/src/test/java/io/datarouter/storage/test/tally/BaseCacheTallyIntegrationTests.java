@@ -16,9 +16,14 @@
 package io.datarouter.storage.test.tally;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import io.datarouter.storage.config.Config;
 
 public abstract class BaseCacheTallyIntegrationTests extends BaseTallyIntegrationTests{
 
@@ -42,6 +47,7 @@ public abstract class BaseCacheTallyIntegrationTests extends BaseTallyIntegratio
 			Thread.currentThread().interrupt();
 		}
 		Assert.assertFalse(dao.findTallyCount(key).isPresent());
+		dao.deleteTally(key);
 	}
 
 	@Test
@@ -62,6 +68,7 @@ public abstract class BaseCacheTallyIntegrationTests extends BaseTallyIntegratio
 			Thread.currentThread().interrupt();
 		}
 		Assert.assertFalse(dao.findTallyCount(key).isPresent());
+		dao.deleteTally(key);
 	}
 
 	@Test
@@ -78,6 +85,7 @@ public abstract class BaseCacheTallyIntegrationTests extends BaseTallyIntegratio
 			Thread.currentThread().interrupt();
 		}
 		Assert.assertFalse(dao.findTallyCount(key).isPresent());
+		dao.deleteTally(key);
 	}
 
 	@Test
@@ -86,6 +94,56 @@ public abstract class BaseCacheTallyIntegrationTests extends BaseTallyIntegratio
 		long newCount = dao.incrementAndGetCount(key, 3);
 		//should see a logger.warn
 		Assert.assertEquals(newCount, 0);//zero because we couldn't increment it
+		dao.deleteTally(key);
+	}
+
+	@Test
+	public void testVacuum(){
+		List<String> keys = new ArrayList<>();
+		for(int i = 0; i < 51; i++){
+			String key = "testVacuumKey" + i;
+			keys.add(key);
+			dao.incrementAndGetCount(key, 1, Duration.ofMillis(100));
+		}
+		try{
+			Thread.sleep(100);
+		}catch(InterruptedException e){
+			Thread.currentThread().interrupt();
+		}
+		String newKey = "newKey";
+		dao.incrementAndGetCount(newKey, 1, Duration.ofMinutes(10));
+		keys.add(newKey);
+		dao.vacuum(new Config().setResponseBatchSize(25));
+		Map<String,Long> keysToTally = dao.getMulti(keys);
+		Assert.assertEquals(keysToTally.size(), 1);
+		Assert.assertTrue(keysToTally.containsKey(newKey));
+		dao.deleteTally(newKey);
+	}
+
+	@Test
+	public void testGetMultiWithTtl(){
+		List<String> keys = new ArrayList<>();
+		for(int i = 0; i < 10; i++){
+			String keyOne = "" + i;
+			String keyTwo = i + 100 + "";
+			dao.incrementAndGetCount(keyOne, 1, Duration.ofMillis(10));
+			dao.incrementAndGetCount(keyTwo, 1, Duration.ofMinutes(5));
+			keys.add(keyOne);
+			keys.add(keyTwo);
+		}
+		try{
+			Thread.sleep(1000);
+		}catch(InterruptedException e){
+			Thread.currentThread().interrupt();
+		}
+		Map<String,Long> output = dao.getMulti(keys);
+		Assert.assertEquals(output.size(), 10);
+		for(int i = 0; i < 10; i++){
+			String key = i + 100 + "";
+			Assert.assertTrue(output.containsKey(key));
+			dao.deleteTally(key);
+		}
+
 	}
 
 }

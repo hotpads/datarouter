@@ -121,6 +121,7 @@ public class StringEnumField<E extends StringEnum<E>> extends BaseField<E>{
 				stringEnumField.key.isNullable(),
 				FieldGeneratorType.NONE, defaultValue,
 				stringEnumField.key.getSize(),
+				true,
 				stringEnumField.key.getAttributes());
 
 		return new StringField(stringEnumField.getPrefix(), key, value);

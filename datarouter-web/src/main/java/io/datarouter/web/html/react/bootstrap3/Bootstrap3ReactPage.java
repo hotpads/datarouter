@@ -40,6 +40,7 @@ import io.datarouter.web.requirejs.DatarouterWebRequireJs;
 import io.datarouter.web.requirejs.RequireJsTool;
 import j2html.tags.ContainerTag;
 import j2html.tags.EmptyTag;
+import j2html.tags.specialized.ScriptTag;
 
 public class Bootstrap3ReactPage{
 
@@ -61,7 +62,7 @@ public class Bootstrap3ReactPage{
 		//admin content
 		boolean isAdmin = mavProperties.getIsAdmin();
 		EmptyTag<?>[] datarouterNavbarCssImports = new EmptyTag[]{};
-		ContainerTag<?> datarouterNavbarRequestTimingJsImport = null;
+		ScriptTag datarouterNavbarRequestTimingJsImport = null;
 		ContainerTag<?> datarouterNavbar = null;
 		ContainerTag<?> datarouterNavbarRequestTimingScript = null;
 		if(isAdmin){

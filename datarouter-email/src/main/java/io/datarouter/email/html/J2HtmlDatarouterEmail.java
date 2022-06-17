@@ -25,9 +25,9 @@ import static j2html.TagCreator.tr;
 
 import java.util.List;
 
-import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.BodyTag;
+import j2html.tags.specialized.DivTag;
 
 public class J2HtmlDatarouterEmail{
 
@@ -94,7 +94,7 @@ public class J2HtmlDatarouterEmail{
 		return table(tr(td(logoLink), td(titleLink)));
 	}
 
-	private ContainerTag<?> makeFooter(){
+	private DivTag makeFooter(){
 		return div("eZEjPLFSzS")//unique string for email filters
 				.withStyle(String.join("", makeFilterStringStyles()));
 	}

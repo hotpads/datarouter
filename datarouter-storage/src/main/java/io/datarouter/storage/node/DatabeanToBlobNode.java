@@ -56,27 +56,27 @@ implements PhysicalMapStorageNode<PK,D,F>{
 	@Override
 	public boolean exists(PK key, Config config){
 		return codec.encodeKeyIfValid(key)
-				.map(blobNode::exists)
+				.map(encodedKey -> blobNode.exists(encodedKey, config))
 				.orElse(false);
 	}
 
 	@Override
 	public List<PK> getKeys(Collection<PK> keys, Config config){
-		return scanMultiInternal(keys)
+		return scanMultiInternal(keys, config)
 				.map(Databean::getKey)
 				.list();
 	}
 
 	@Override
 	public D get(PK key, Config config){
-		return scanMultiInternal(List.of(key))
+		return scanMultiInternal(List.of(key), config)
 				.findFirst()
 				.orElse(null);
 	}
 
 	@Override
 	public List<D> getMulti(Collection<PK> keys, Config config){
-		return scanMultiInternal(keys)
+		return scanMultiInternal(keys, config)
 				.list();
 	}
 
@@ -92,7 +92,7 @@ implements PhysicalMapStorageNode<PK,D,F>{
 		Scanner.of(keys)
 				.map(codec::encodeKeyIfValid)
 				.concat(OptionalScanner::of)
-				.forEach(blobNode::delete);
+				.forEach(encodedKey -> blobNode.delete(encodedKey, config));
 	}
 
 	@Override
@@ -113,11 +113,11 @@ implements PhysicalMapStorageNode<PK,D,F>{
 				.forEach(keyAndValue -> blobNode.write(keyAndValue.getLeft(), keyAndValue.getRight(), config));
 	}
 
-	private Scanner<D> scanMultiInternal(Collection<PK> keys){
+	private Scanner<D> scanMultiInternal(Collection<PK> keys, Config config){
 		Map<PathbeanKey,byte[]> bytesByKey = Scanner.of(keys)
 				.map(codec::encodeKeyIfValid)
 				.concat(OptionalScanner::of)
-				.listTo(blobNode::read);
+				.listTo(encodedKeys -> blobNode.read(encodedKeys, config));
 		return Scanner.of(bytesByKey.values())
 				.map(codec::decodeDatabean);
 	}

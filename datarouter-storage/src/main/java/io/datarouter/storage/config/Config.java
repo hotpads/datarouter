@@ -28,7 +28,6 @@ public class Config implements Cloneable{
 
 	public static final int DEFAULT_REQUEST_BATCH_SIZE = 100;
 	public static final int DEFAULT_RESPONSE_BATCH_SIZE = 100;
-	public static final Boolean DEFAULT_CACHE_OK = true;
 
 	/*-------------------------------- fields -------------------------------*/
 
@@ -62,7 +61,6 @@ public class Config implements Cloneable{
 	private Integer offset;//TODO use Long
 
 	//caching
-	private Boolean cacheOk = DEFAULT_CACHE_OK;
 	private Duration ttl;// = null;//infinite
 
 	//messaging
@@ -118,7 +116,6 @@ public class Config implements Cloneable{
 			.setLimit(limit)
 			.setOffset(offset)
 
-			.setCacheOk(cacheOk)
 			.setTtl(ttl)
 
 			.setVisibilityTimeoutMs(visibilityTimeoutMs)
@@ -196,17 +193,6 @@ public class Config implements Cloneable{
 		return setAnyDelay(true);
 	}
 
-	/*---------------------------- cache ok ---------------------------------*/
-
-	public Boolean getCacheOk(){
-		return cacheOk;
-	}
-
-	public Config setCacheOk(Boolean cacheOk){
-		this.cacheOk = cacheOk;
-		return this;
-	}
-
 	/*---------------------------- use session ------------------------------*/
 
 	public Boolean getUseSession(){
@@ -242,8 +228,8 @@ public class Config implements Cloneable{
 		return timeout;
 	}
 
-	public Duration getTimeoutOrUse(Duration alternative){
-		return timeout == null ? alternative : timeout;
+	public Optional<Duration> findTimeout(){
+		return Optional.ofNullable(timeout);
 	}
 
 	public Config setTimeout(Integer timeout, TemporalUnit temporalUnit){
@@ -318,10 +304,6 @@ public class Config implements Cloneable{
 
 	/*------------------------------ ttl ------------------------------------*/
 
-	public Duration getTtl(){
-		return ttl;
-	}
-
 	public Optional<Duration> findTtl(){
 		return Optional.ofNullable(ttl);
 	}
@@ -371,20 +353,13 @@ public class Config implements Cloneable{
 
 	/*-------------------------- error handling -----------------------------*/
 
-	public Boolean getIgnoreException(){
-		return ignoreException;
-	}
-
 	public Config setIgnoreException(Boolean paramIgnoreException){
 		this.ignoreException = paramIgnoreException;
 		return this;
 	}
 
-	public Boolean ignoreExceptionOrUse(Boolean alternative){
-		if(ignoreException != null){
-			return ignoreException;
-		}
-		return alternative;
+	public Optional<Boolean> findIgnoreException(){
+		return Optional.ofNullable(ignoreException);
 	}
 
 }

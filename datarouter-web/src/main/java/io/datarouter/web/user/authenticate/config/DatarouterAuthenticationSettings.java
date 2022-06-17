@@ -24,13 +24,14 @@ import io.datarouter.storage.config.environment.EnvironmentType;
 import io.datarouter.storage.setting.Setting;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.SettingNode;
+import io.datarouter.storage.setting.cached.CachedSetting;
 import io.datarouter.util.duration.DatarouterDuration;
 
 @Singleton
 public class DatarouterAuthenticationSettings extends SettingNode{
 
 	public final Setting<DatarouterDuration> userTokenTimeoutDuration;
-	public final Setting<DatarouterDuration> sessionTokenTimeoutDuration;
+	public final CachedSetting<DatarouterDuration> sessionTokenTimeoutDuration;
 
 	@Inject
 	public DatarouterAuthenticationSettings(SettingFinder finder){

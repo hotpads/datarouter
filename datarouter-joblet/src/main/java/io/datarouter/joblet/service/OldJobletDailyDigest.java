@@ -31,7 +31,7 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
 import io.datarouter.web.digest.DailyDigestService;
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.DivTag;
 
 @Singleton
 public class OldJobletDailyDigest implements DailyDigest{
@@ -44,7 +44,7 @@ public class OldJobletDailyDigest implements DailyDigest{
 	private JobletDailyDigestService jobletDailyDigestService;
 
 	@Override
-	public Optional<ContainerTag<?>> getPageContent(ZoneId zoneId){
+	public Optional<DivTag> getPageContent(ZoneId zoneId){
 		var rows = jobletDailyDigestService.getOldJoblets();
 		if(rows.isEmpty()){
 			return Optional.empty();
@@ -55,7 +55,7 @@ public class OldJobletDailyDigest implements DailyDigest{
 	}
 
 	@Override
-	public Optional<ContainerTag<?>> getEmailContent(ZoneId zoneId){
+	public Optional<DivTag> getEmailContent(ZoneId zoneId){
 		Map<OldJobletDto,List<OldJobletDto>> rows = Scanner.of(jobletDailyDigestService.getOldJoblets())
 				.groupBy(OldJobletDto::new, OldJobletDto::new);
 		if(rows.isEmpty()){

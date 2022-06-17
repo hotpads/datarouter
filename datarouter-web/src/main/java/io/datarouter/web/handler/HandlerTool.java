@@ -24,6 +24,7 @@ import java.util.Optional;
 
 import io.datarouter.httpclient.endpoint.BaseEndpoint;
 import io.datarouter.httpclient.endpoint.EndpointTool;
+import io.datarouter.httpclient.endpoint.NoOpResponseType;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.lang.ClassTool;
 import io.datarouter.util.lang.ReflectionTool;
@@ -52,11 +53,6 @@ public class HandlerTool{
 				// validation doesn't work when defaultHandler = true
 				return;
 			}
-			// disabling this check for now
-//			if(method.getReturnType().isAssignableFrom(Mav.class)){
-//				// validation doesn't work for internal pages
-//				return;
-//			}
 			String methodName = method.getName();
 			if(path.equals(methodName)){
 				if(!EndpointTool.paramIsEndpointObject(method)){
@@ -85,6 +81,9 @@ public class HandlerTool{
 					methodReturnType = ClassTool.getBoxedFromPrimitive(methodReturnType);
 				}
 				Type endpointResponseType = EndpointTool.getResponseType(endpoint);
+				if(endpointResponseType.equals(NoOpResponseType.class)){
+					return;
+				}
 				if(!methodReturnType.equals(endpointResponseType)){
 					throw new IllegalArgumentException(String.format(
 							"Handler-Endpoint Response Type Mismatch. handler=%s endpoint=%s handlerReturnType=%s "

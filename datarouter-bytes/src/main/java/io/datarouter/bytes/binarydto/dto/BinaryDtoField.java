@@ -20,7 +20,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import io.datarouter.bytes.LengthAndValue;
 import io.datarouter.bytes.binarydto.fieldcodec.BinaryDtoBaseFieldCodec;
 
 @Retention(RetentionPolicy.RUNTIME)
@@ -48,7 +47,12 @@ public @interface BinaryDtoField{
 		}
 
 		@Override
-		public LengthAndValue<Object> decodeWithLength(byte[] bytes, int offset){
+		public Object decode(byte[] bytes, int offset, int length){
+			throw new RuntimeException("This codec isn't meant to be used.");
+		}
+
+		@Override
+		public boolean supportsComparableCodec(){
 			throw new RuntimeException("This codec isn't meant to be used.");
 		}
 

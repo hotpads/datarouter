@@ -207,6 +207,10 @@ extends BaseDatabean<PK,D>{
 		return stackTrace;
 	}
 
+	public void setStackTrace(String stackTrace){
+		this.stackTrace = stackTrace;
+	}
+
 	public String getType(){
 		return type;
 	}

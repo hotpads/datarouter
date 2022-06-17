@@ -74,7 +74,7 @@ public class MysqlLockForUpdateJobletRequestSelector implements JobletRequestSel
 				jobletRequestQueueManager.onJobletRequestMissForAllPriorities(type);//for back-off
 				return Optional.empty();
 			}
-			if(!jobletRequest.getStatus().isRunning()){
+			if(!jobletRequest.getStatus().isRunning){
 				continue;// weird flow. it was probably just marked as timedOut, so skip it
 			}
 			var queueKey = new JobletRequestQueueKey(type, jobletRequest.getKey().getPriority());

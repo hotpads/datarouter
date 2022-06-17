@@ -74,7 +74,7 @@ public class JobletQueuesHandler extends BaseHandler{
 		var table = new J2HtmlTable<JobletSummary>()
 				.withClasses("sortable table table-sm table-striped border")
 				.withColumn("queueId", row -> row.getQueueId())
-				.withColumn("status", row -> row.getStatus().getPersistentString())
+				.withColumn("status", row -> row.getStatus().persistentString)
 				.withColumn("numFailures", row -> row.getNumFailures())
 				.withColumn("numJoblets", row -> row.getNumType())
 				.withColumn("firstReserved", row -> row.getFirstReservedAgo())

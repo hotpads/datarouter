@@ -21,9 +21,8 @@ import static j2html.TagCreator.li;
 import static j2html.TagCreator.ul;
 
 import java.util.Collection;
-import java.util.List;
 
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.DivTag;
 
 public class ConfigScanResponseTool{
 
@@ -41,13 +40,7 @@ public class ConfigScanResponseTool{
 		return new ConfigScanDto(h4.renderFormatted() + "\n" + ul.render(), true);
 	}
 
-	public static ConfigScanDto buildResponse(String description, List<ContainerTag<?>> links){
-		var h4 = h4(description);
-		var ul = ul().with(each(links, tag -> li(tag)));
-		return new ConfigScanDto(h4.renderFormatted() + "\n" + ul.render(), true);
-	}
-
-	public static ConfigScanDto buildResponse(ContainerTag<?> containerTag){
+	public static ConfigScanDto buildResponse(DivTag containerTag){
 		return new ConfigScanDto(containerTag.renderFormatted(), true);
 	}
 

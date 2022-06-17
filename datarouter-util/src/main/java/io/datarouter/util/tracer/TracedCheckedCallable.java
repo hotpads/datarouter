@@ -20,7 +20,6 @@ import java.util.concurrent.Callable;
 import io.datarouter.instrumentation.trace.Trace2Dto;
 import io.datarouter.instrumentation.trace.Tracer;
 import io.datarouter.instrumentation.trace.TracerThreadLocal;
-import io.datarouter.instrumentation.trace.TracerTool;
 
 public abstract class TracedCheckedCallable<V> implements Callable<V>{
 
@@ -50,7 +49,7 @@ public abstract class TracedCheckedCallable<V> implements Callable<V>{
 		if(shouldStartNestedTrace){
 			tracer = parentTracer.createChildTracer();
 			TracerThreadLocal.bindToThread(tracer);
-			TracerTool.createAndStartThread(tracer, traceThreadName, queueTime);
+			tracer.createAndStartThread(traceThreadName, queueTime);
 		}
 
 		V result = wrappedCall();
@@ -60,7 +59,7 @@ public abstract class TracedCheckedCallable<V> implements Callable<V>{
 
 		// should this by in a finally around wrappedCall ?
 		if(shouldStartNestedTrace){
-			TracerTool.finishThread(TracerThreadLocal.get());
+			tracer.finishThread();
 			tracer.getThreadQueue().forEach(parentTracer::addThread);
 			tracer.getSpanQueue().forEach(parentTracer::addSpan);
 			parentTracer.incrementDiscardedThreadCount(tracer.getDiscardedThreadCount());

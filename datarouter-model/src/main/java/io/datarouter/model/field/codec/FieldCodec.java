@@ -16,6 +16,7 @@
 package io.datarouter.model.field.codec;
 
 import java.util.Comparator;
+import java.util.Optional;
 
 import com.google.gson.reflect.TypeToken;
 
@@ -34,16 +35,19 @@ public class FieldCodec<A,B>{
 	 */
 	private final Comparator<A> comparator;
 	private final A sampleValue;
+	private final String docString;
 
 	public FieldCodec(
 			TypeToken<A> typeToken,
 			Codec<A,B> codec,
 			Comparator<A> comparator,
-			A sampleValue){
+			A sampleValue,
+			String docString){
 		this.typeToken = typeToken;
 		this.codec = codec;
 		this.comparator = Comparator.nullsFirst(comparator);
 		this.sampleValue = sampleValue;
+		this.docString = docString;
 	}
 
 	public TypeToken<A> getTypeToken(){
@@ -64,6 +68,10 @@ public class FieldCodec<A,B>{
 
 	public A getSampleValue(){
 		return sampleValue;
+	}
+
+	public Optional<String> findDocString(){
+		return Optional.ofNullable(docString);
 	}
 
 }

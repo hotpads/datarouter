@@ -18,24 +18,30 @@ package io.datarouter.bytes.binarydto.fieldcodec;
 import java.util.function.Function;
 
 import io.datarouter.bytes.Codec;
-import io.datarouter.bytes.LengthAndValue;
 
 public class BinaryDtoConvertingFieldCodec<R,T> extends BinaryDtoBaseFieldCodec<R>{
 
 	private final Codec<R,T> converter;
 	private final BinaryDtoBaseFieldCodec<T> codec;
+	private final boolean keyCompatible;
 
 	public BinaryDtoConvertingFieldCodec(
 			Function<R,T> convertTo,
 			Function<T,R> convertFrom,
-			BinaryDtoBaseFieldCodec<T> codec){
+			BinaryDtoBaseFieldCodec<T> codec,
+			boolean keyCompatible){
 		this.converter = Codec.of(convertTo, convertFrom);
 		this.codec = codec;
+		this.keyCompatible = keyCompatible;
 	}
 
-	public BinaryDtoConvertingFieldCodec(Codec<R,T> converter, BinaryDtoBaseFieldCodec<T> codec){
+	public BinaryDtoConvertingFieldCodec(
+			Codec<R,T> converter,
+			BinaryDtoBaseFieldCodec<T> codec,
+			boolean keyCompatible){
 		this.converter = converter;
 		this.codec = codec;
+		this.keyCompatible = keyCompatible;
 	}
 
 	@Override
@@ -49,22 +55,20 @@ public class BinaryDtoConvertingFieldCodec<R,T> extends BinaryDtoBaseFieldCodec<
 	}
 
 	@Override
+	public boolean supportsComparableCodec(){
+		return keyCompatible;
+	}
+
+	@Override
 	public byte[] encode(R value){
 		T convertedValue = converter.encode(value);
 		return codec.encode(convertedValue);
 	}
 
 	@Override
-	public R decode(byte[] bytes, int offset){
-		T rawValue = codec.decode(bytes, offset);
+	public R decode(byte[] bytes, int offset, int length){
+		T rawValue = codec.decode(bytes, offset, length);
 		return converter.decode(rawValue);
-	}
-
-	@Override
-	public LengthAndValue<R> decodeWithLength(byte[] bytes, int offset){
-		LengthAndValue<T> rawLengthAndValue = codec.decodeWithLength(bytes, offset);
-		R convertedValue = converter.decode(rawLengthAndValue.value);
-		return new LengthAndValue<>(rawLengthAndValue.length, convertedValue);
 	}
 
 }

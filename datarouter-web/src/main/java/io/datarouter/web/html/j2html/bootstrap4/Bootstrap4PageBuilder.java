@@ -36,6 +36,7 @@ import io.datarouter.web.navigation.WebappNavbarV2Html;
 import io.datarouter.web.requirejs.DatarouterWebRequireJsV2;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
+import j2html.tags.specialized.NavTag;
 
 public class Bootstrap4PageBuilder{
 
@@ -44,7 +45,7 @@ public class Bootstrap4PageBuilder{
 	private Set<String> require = new TreeSet<>();
 	private String title;
 	private boolean includeNav = true;
-	private List<ContainerTag<?>> navbars = new ArrayList<>();
+	private List<NavTag> navbars = new ArrayList<>();
 	private DomContent content;
 	private final Map<String,String> httpEquivs = new LinkedHashMap<>();
 
@@ -62,7 +63,7 @@ public class Bootstrap4PageBuilder{
 		NavBar navbar = mavProperties.getIsDatarouterPage()
 				? mavProperties.getDatarouterNavBar()
 				: mavProperties.getNavBar();
-		List<ContainerTag<?>> allNavbars = new ArrayList<>();
+		List<NavTag> allNavbars = new ArrayList<>();
 		if(includeNav){
 			if(isAdmin){
 				allNavbars.add(new DatarouterNavbarV2Html(mavProperties).build());
@@ -112,7 +113,7 @@ public class Bootstrap4PageBuilder{
 		return this;
 	}
 
-	public Bootstrap4PageBuilder withNavbar(ContainerTag<?> navbar){
+	public Bootstrap4PageBuilder withNavbar(NavTag navbar){
 		navbars.add(navbar);
 		return this;
 	}

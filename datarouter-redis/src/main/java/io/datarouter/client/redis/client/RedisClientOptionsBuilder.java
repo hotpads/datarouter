@@ -69,7 +69,7 @@ public class RedisClientOptionsBuilder implements ClientOptionsBuilder{
 	public RedisClientOptionsBuilder withClientMode(RedisClientMode clientMode){
 		String optionKeySuffix = RedisOptions.makeRedisKey(RedisOptions.PROP_clientMode);
 		String optionKey = makeKey(optionKeySuffix);
-		properties.setProperty(optionKey, clientMode.getPersistentString());
+		properties.setProperty(optionKey, clientMode.persistentString);
 		return this;
 	}
 

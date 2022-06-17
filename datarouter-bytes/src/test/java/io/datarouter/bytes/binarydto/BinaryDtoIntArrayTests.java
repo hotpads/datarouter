@@ -18,12 +18,12 @@ package io.datarouter.bytes.binarydto;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.bytes.binarydto.codec.BinaryDtoCodec;
-import io.datarouter.bytes.binarydto.dto.BinaryDto;
+import io.datarouter.bytes.binarydto.dto.ComparableBinaryDto;
+import io.datarouter.bytes.codec.bytestringcodec.CsvIntByteStringCodec;
 
 public class BinaryDtoIntArrayTests{
 
-	public static class TestDto extends BinaryDto<TestDto>{
+	public static class TestDto extends ComparableBinaryDto<TestDto>{
 		public final int[] f1;
 		public final int[] f2;
 		public final int[] f3;
@@ -37,25 +37,39 @@ public class BinaryDtoIntArrayTests{
 
 	@Test
 	public void testEncoding(){
-		var codec = BinaryDtoCodec.of(TestDto.class);
 		var dto = new TestDto(
-				new int[]{1, 2},
+				new int[]{5, 6},
 				null,
 				new int[]{});
-		byte[] expectedBytes = {
-				1,//f1 present
-				2,//f1 length 2
-				Byte.MIN_VALUE, 0, 0, 1,//f1 value 0
-				Byte.MIN_VALUE, 0, 0, 2,//f1 value 1
-				0,//f2 null
-				1,//f3 present
-				0};//f3 length 0
-		byte[] actualBytes = codec.encode(dto);
-		Assert.assertEquals(actualBytes, expectedBytes);
-
-		TestDto actual = codec.decode(actualBytes);
-		Assert.assertEquals(actual, dto);
+		Assert.assertEquals(dto.cloneIndexed(), dto);
+		Assert.assertEquals(dto.cloneComparable(), dto);
 	}
 
+	@Test
+	public void testIndexedEncodingCsvInt(){
+		var dto = new TestDto(
+				new int[]{5, 6},
+				null,
+				new int[]{});
+		byte[] bytes = dto.encodeIndexed();
+		String actual = CsvIntByteStringCodec.INSTANCE.encode(bytes);
+		String expected = "0,8,128,0,0,5,128,0,0,6"//index=0, length=8, data
+				+ ",2,0";//index=2, length=0
+		Assert.assertEquals(actual, expected);
+	}
+
+	@Test
+	public void testComparableEncodingCsvInt(){
+		var dto = new TestDto(
+				new int[]{5, 6},
+				null,
+				new int[]{});
+		byte[] bytes = dto.encodeComparable();
+		String actual = CsvIntByteStringCodec.INSTANCE.encode(bytes);
+		String expected = "1,128,1,2,1,2,5,128,1,2,1,2,6,0"//nonnull, escaped data, terminator
+				+ ",0"//null
+				+ ",1,0";//nonnull, (no data), terminator
+		Assert.assertEquals(actual, expected);
+	}
 
 }

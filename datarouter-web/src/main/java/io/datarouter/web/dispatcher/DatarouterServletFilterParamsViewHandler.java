@@ -26,7 +26,7 @@ import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.html.j2html.J2HtmlTable;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.DivTag;
 
 public class DatarouterServletFilterParamsViewHandler extends BaseHandler{
 
@@ -44,7 +44,7 @@ public class DatarouterServletFilterParamsViewHandler extends BaseHandler{
 				.buildMav();
 	}
 
-	private static ContainerTag<?> makeContent(List<FilterParams> rows){
+	private static DivTag makeContent(List<FilterParams> rows){
 		var h2 = h2("Servlet FilterParams");
 		var table = new J2HtmlTable<FilterParams>()
 				.withClasses("table table-sm table-striped my-4 border")

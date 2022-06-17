@@ -18,7 +18,7 @@ package io.datarouter.gcp.spanner.sql;
 import com.google.cloud.spanner.Statement;
 
 import io.datarouter.gcp.spanner.field.SpannerBaseFieldCodec;
-import io.datarouter.gcp.spanner.field.SpannerFieldCodecRegistry;
+import io.datarouter.gcp.spanner.field.SpannerFieldCodecs;
 import io.datarouter.model.field.Field;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.sql.Sql;
@@ -26,16 +26,16 @@ import io.datarouter.util.Require;
 
 public class SpannerSql extends Sql<Void,Statement.Builder,SpannerSql>{
 
-	private final SpannerFieldCodecRegistry codecRegistry;
+	private final SpannerFieldCodecs fieldCodecs;
 
-	public SpannerSql(SpannerFieldCodecRegistry codecFactory){
+	public SpannerSql(SpannerFieldCodecs fieldCodecs){
 		super(SpannerSql.class);
-		this.codecRegistry = codecFactory;
+		this.fieldCodecs = fieldCodecs;
 	}
 
 	@Override
 	public SpannerSql appendColumnEqualsValueParameter(Field<?> field){
-		SpannerBaseFieldCodec<?,?> codec = codecRegistry.createCodec(field);
+		SpannerBaseFieldCodec<?,?> codec = fieldCodecs.createCodec(field);
 		int index = parameterSetters.size();
 		appendParameter(codec.getParameterName(index, false), codec::setParameterValue);
 		return this;
@@ -53,7 +53,7 @@ public class SpannerSql extends Sql<Void,Statement.Builder,SpannerSql>{
 		append(field.getKey().getColumnName());
 		append(operator);
 		int index = parameterSetters.size();
-		SpannerBaseFieldCodec<?,?> codec = codecRegistry.createCodec(field);
+		SpannerBaseFieldCodec<?,?> codec = fieldCodecs.createCodec(field);
 		appendParameter(codec.getParameterName(index, true), codec::setParameterValue);
 		return this;
 	}

@@ -121,7 +121,7 @@ public class SqlCreateTableGenerator{
 		String comment = "created by " + serverName.get() + " ["
 				+ DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(ZonedDateTime.now()) + "]";
 		tableOptions.put("comment", "'" + comment + "'");
-		tableOptions.put("row_format", table.getRowFormat().getPersistentString());
+		tableOptions.put("row_format", table.getRowFormat().value);
 		tableOptions.entrySet().stream()
 				.map(entry -> entry.getKey() + " " + entry.getValue())
 				.collect(Collectors.collectingAndThen(Collectors.joining(", "), sb::append));

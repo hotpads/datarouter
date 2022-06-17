@@ -18,17 +18,39 @@ package io.datarouter.email.dto;
 import java.io.InputStream;
 import java.util.function.Supplier;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeBodyPart;
+
 public class DatarouterEmailFileAttachmentDto{
 
 	public final String fileName;
 	public final String contentType;
+	public final boolean isInlineContent;
 	public final Supplier<InputStream> attachmentInputStreamSupplier;
+	public final MimeBodyPartModifier modifier;
 
-	public DatarouterEmailFileAttachmentDto(String fileName, String contentType,
+	public DatarouterEmailFileAttachmentDto(
+			String fileName,
+			String contentType,
 			Supplier<InputStream> attachmentInputStreamSupplier){
+		this(fileName, contentType, false, attachmentInputStreamSupplier, $ -> {});
+	}
+
+	public DatarouterEmailFileAttachmentDto(
+			String fileName,
+			String contentType,
+			boolean isInlineContent,
+			Supplier<InputStream> attachmentInputStreamSupplier,
+			MimeBodyPartModifier modifier){
 		this.fileName = fileName;
-		this.attachmentInputStreamSupplier = attachmentInputStreamSupplier;
 		this.contentType = contentType;
+		this.isInlineContent = isInlineContent;
+		this.attachmentInputStreamSupplier = attachmentInputStreamSupplier;
+		this.modifier = modifier;
+	}
+
+	public interface MimeBodyPartModifier{
+		void modify(MimeBodyPart mimeBodyPart) throws MessagingException;
 	}
 
 }

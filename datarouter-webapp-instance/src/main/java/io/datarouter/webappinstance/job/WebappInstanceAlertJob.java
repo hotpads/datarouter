@@ -41,8 +41,8 @@ import io.datarouter.webappinstance.config.DatarouterWebappInstancePaths;
 import io.datarouter.webappinstance.config.DatarouterWebappInstanceSettingRoot;
 import io.datarouter.webappinstance.service.WebappInstanceService;
 import io.datarouter.webappinstance.storage.webappinstance.WebappInstance;
-import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
+import j2html.tags.specialized.TableTag;
 
 public class WebappInstanceAlertJob extends BaseJob{
 
@@ -90,7 +90,7 @@ public class WebappInstanceAlertJob extends BaseJob{
 		htmlEmailService.trySendJ2Html(emailBuilder);
 	}
 
-	private ContainerTag<?> makeContent(WebappInstance webappInstance, DatarouterDuration buildAge){
+	private TableTag makeContent(WebappInstance webappInstance, DatarouterDuration buildAge){
 		ZoneId zoneId = defaultDistributionListZoneId.get();
 		var rows = List.of(
 				new Twin<>("webapp", webappInstance.getKey().getWebappName()),

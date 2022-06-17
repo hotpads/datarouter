@@ -54,7 +54,7 @@ public class ClusterSettingScopeValue implements Comparable<ClusterSettingScopeV
 	}
 
 	public String getPersistentString(){
-		return scope.getPersistentString() + '_' + value;
+		return scope.persistentString + '_' + value;
 	}
 
 	public static ClusterSettingScopeValue parse(String persistentString){
@@ -65,7 +65,7 @@ public class ClusterSettingScopeValue implements Comparable<ClusterSettingScopeV
 		if(parts.length == 0){
 			return null;
 		}
-		ClusterSettingScope scope = ClusterSettingScope.fromPersistentStringStatic(parts[0]);
+		ClusterSettingScope scope = ClusterSettingScope.BY_PERSISTENT_STRING.fromOrNull(parts[0]);
 		switch(scope){
 		case DEFAULT_SCOPE:
 		case SERVER_TYPE:

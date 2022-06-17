@@ -17,33 +17,31 @@ package io.datarouter.bytes.binarydto.fieldcodec;
 
 import java.util.Arrays;
 
-import io.datarouter.bytes.LengthAndValue;
-
 public abstract class BinaryDtoBaseFieldCodec<T>{
 
 	public boolean isFixedLength(){
 		return false;
 	}
 
+	public boolean isVariableLength(){
+		return !isFixedLength();
+	}
+
 	public int fixedLength(){
 		throw new RuntimeException("Fixed length hasn't been specified.");
 	}
 
+	/**
+	 * Override with true if the codec is suitable for comparable encoding.
+	 */
+	public abstract boolean supportsComparableCodec();
+
 	public abstract byte[] encode(T value);
 
-	public T decode(byte[] bytes, int offset){
-		return decodeWithLength(bytes, offset).value;
-	}
+	public abstract T decode(byte[] bytes, int offset, int length);
 
-	public abstract LengthAndValue<T> decodeWithLength(byte[] bytes, int offset);
-
-	/**
-	 * Override this with optimized implementations that avoid value decoding.
-	 */
-	public int decodeLength(byte[] bytes, int offset){
-		return isFixedLength()
-				? fixedLength()
-				: decodeWithLength(bytes, offset).length;
+	public T decode(byte[] bytes){
+		return decode(bytes, 0, bytes.length);
 	}
 
 	/**

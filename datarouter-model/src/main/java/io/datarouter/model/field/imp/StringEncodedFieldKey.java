@@ -16,11 +16,12 @@
 package io.datarouter.model.field.imp;
 
 import java.util.Map;
+import java.util.Optional;
 
 import io.datarouter.model.field.BaseFieldKey;
 import io.datarouter.model.field.FieldKeyAttribute;
 import io.datarouter.model.field.FieldKeyAttributeKey;
-import io.datarouter.model.field.codec.StringFieldCodec;
+import io.datarouter.model.field.codec.FieldCodec;
 import io.datarouter.model.field.encoding.FieldGeneratorType;
 import io.datarouter.model.util.CommonFieldSizes;
 
@@ -28,12 +29,12 @@ public class StringEncodedFieldKey<T> extends BaseFieldKey<T,StringEncodedFieldK
 
 	private static final int DEFAULT_MAX_SIZE = CommonFieldSizes.DEFAULT_LENGTH_VARCHAR;
 
-	private final StringFieldCodec<T> codec;
+	private final FieldCodec<T,String> codec;
 	private final int size;
 
 	public StringEncodedFieldKey(
 			String name,
-			StringFieldCodec<T> codec){
+			FieldCodec<T,String> codec){
 		super(name, codec.getTypeToken());
 		this.codec = codec;
 		this.size = DEFAULT_MAX_SIZE;
@@ -41,7 +42,7 @@ public class StringEncodedFieldKey<T> extends BaseFieldKey<T,StringEncodedFieldK
 
 	public StringEncodedFieldKey(
 			String name,
-			StringFieldCodec<T> codec,
+			FieldCodec<T,String> codec,
 			String columnName,
 			boolean nullable,
 			FieldGeneratorType fieldGeneratorType,
@@ -94,6 +95,16 @@ public class StringEncodedFieldKey<T> extends BaseFieldKey<T,StringEncodedFieldK
 		return false;
 	}
 
+	@Override
+	public boolean isPossiblyCaseInsensitive(){
+		return true;
+	}
+
+	@Override
+	public Optional<Integer> findSize(){
+		return Optional.of(size);
+	}
+
 	public int getSize(){
 		return size;
 	}
@@ -103,8 +114,13 @@ public class StringEncodedFieldKey<T> extends BaseFieldKey<T,StringEncodedFieldK
 		return codec.getSampleValue();
 	}
 
-	public StringFieldCodec<T> getCodec(){
-		return this.codec;
+	public FieldCodec<T,String> getCodec(){
+		return codec;
+	}
+
+	@Override
+	public Optional<String> findDocString(){
+		return codec.findDocString();
 	}
 
 }

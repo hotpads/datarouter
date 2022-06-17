@@ -201,7 +201,7 @@ public class JobletService{
 	/*------------------- update ----------------------------*/
 
 	public void updateStatusToRunning(JobletRequest jobletRequest, String reservedBy){
-		if(jobletRequest.getStatus().isRunning()){
+		if(jobletRequest.getStatus().isRunning){
 			//this was a timed out joblet. increment # timeouts
 			jobletRequest.incrementNumTimeouts();
 			if(jobletRequest.getNumTimeouts() > JobletService.MAX_JOBLET_RETRIES){

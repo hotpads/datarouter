@@ -29,7 +29,8 @@ public class DefaultTaskTrackerAlertReportService implements TaskTrackerAlertRep
 
 	@Override
 	public void reportTaskTimeoutAlert(String serviceName, String host, String taskName, String subject,
-			J2HtmlDatarouterEmailBuilder emailBuilder, String eventName){
+			J2HtmlDatarouterEmailBuilder emailBuilder, String environment, String counterLink,
+			String tasksLink){
 		datarouterHtmlEmailService.trySendJ2Html(emailBuilder);
 	}
 

@@ -15,18 +15,29 @@
  */
 package io.datarouter.gcp.spanner.config;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import io.datarouter.gcp.spanner.config.SpannerProjectIdAndInstanceIdSupplier.NoOpSpannerProjectIdAndInstanceIdSupplier;
+import io.datarouter.gcp.spanner.field.SpannerBaseFieldCodec;
+import io.datarouter.gcp.spanner.field.SpannerFieldCodecRegistry;
+import io.datarouter.gcp.spanner.field.SpannerFieldCodecs;
+import io.datarouter.model.field.Field;
 import io.datarouter.opencensus.DatarouterOpencensusAppListener;
+import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.config.BaseWebPlugin;
 import io.datarouter.web.plugins.opencencus.metrics.OpencencusMetricsMapper;
 
 public class DatarouterGcpSpannerPlugin extends BaseWebPlugin{
 
 	private final Class<? extends SpannerProjectIdAndInstanceIdSupplier> spannerProjectIdAndInstanceIdSupplier;
+	private final List<Pair<Class<? extends Field<?>>,Class<? extends SpannerBaseFieldCodec<?,?>>>> fieldCodecs;
 
 	private DatarouterGcpSpannerPlugin(
-			Class<? extends SpannerProjectIdAndInstanceIdSupplier> spannerProjectIdAndInstanceIdSupplier){
+			Class<? extends SpannerProjectIdAndInstanceIdSupplier> spannerProjectIdAndInstanceIdSupplier,
+			List<Pair<Class<? extends Field<?>>,Class<? extends SpannerBaseFieldCodec<?,?>>>> fieldCodecs){
 		this.spannerProjectIdAndInstanceIdSupplier = spannerProjectIdAndInstanceIdSupplier;
+		this.fieldCodecs = fieldCodecs;
 		addDatarouterGithubDocLink("datarouter-gcp-spanner");
 		addDynamicNavBarItem(GcpSpannerNavBarItem.class);
 		addAppListener(DatarouterOpencensusAppListener.class);
@@ -36,12 +47,17 @@ public class DatarouterGcpSpannerPlugin extends BaseWebPlugin{
 	@Override
 	protected void configure(){
 		bind(SpannerProjectIdAndInstanceIdSupplier.class).to(spannerProjectIdAndInstanceIdSupplier);
+		var fieldCodecRegistry = new SpannerFieldCodecRegistry();
+		fieldCodecs.forEach(pair -> fieldCodecRegistry.addCodec(pair.getLeft(), pair.getRight()));
+		bind(SpannerFieldCodecs.class).toInstance(fieldCodecRegistry);
 	}
 
 	public static class DatarouterGcpSpannerPluginBuilder{
 
 		private Class<? extends SpannerProjectIdAndInstanceIdSupplier> spannerProjectIdAndInstanceIdSupplier
 				= NoOpSpannerProjectIdAndInstanceIdSupplier.class;
+		private final List<Pair<Class<? extends Field<?>>,Class<? extends SpannerBaseFieldCodec<?,?>>>> fieldCodecs
+				= new ArrayList<>();
 
 		public DatarouterGcpSpannerPluginBuilder setProjectIdAndInstanceId(
 				Class<? extends SpannerProjectIdAndInstanceIdSupplier> spannerProjectIdAndInstanceIdSupplier){
@@ -49,9 +65,17 @@ public class DatarouterGcpSpannerPlugin extends BaseWebPlugin{
 			return this;
 		}
 
+		public <F extends Field<?>,
+				C extends SpannerBaseFieldCodec<?,?>>
+		DatarouterGcpSpannerPluginBuilder addFieldCodec(
+				Class<F> fieldClass,
+				Class<C> codecClass){
+			fieldCodecs.add(new Pair<>(fieldClass, codecClass));
+			return this;
+		}
 
 		public DatarouterGcpSpannerPlugin build(){
-			return new DatarouterGcpSpannerPlugin(spannerProjectIdAndInstanceIdSupplier);
+			return new DatarouterGcpSpannerPlugin(spannerProjectIdAndInstanceIdSupplier, fieldCodecs);
 		}
 
 	}

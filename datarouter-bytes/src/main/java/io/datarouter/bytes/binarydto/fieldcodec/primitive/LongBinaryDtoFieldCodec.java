@@ -15,7 +15,6 @@
  */
 package io.datarouter.bytes.binarydto.fieldcodec.primitive;
 
-import io.datarouter.bytes.LengthAndValue;
 import io.datarouter.bytes.binarydto.fieldcodec.BinaryDtoBaseFieldCodec;
 import io.datarouter.bytes.codec.longcodec.ComparableLongCodec;
 
@@ -34,20 +33,18 @@ public class LongBinaryDtoFieldCodec extends BinaryDtoBaseFieldCodec<Long>{
 	}
 
 	@Override
+	public boolean supportsComparableCodec(){
+		return true;
+	}
+
+	@Override
 	public byte[] encode(Long value){
 		return CODEC.encode(value);
 	}
 
 	@Override
-	public Long decode(byte[] bytes, int offset){
+	public Long decode(byte[] bytes, int offset, int length){
 		return CODEC.decode(bytes, offset);
-	}
-
-	@Override
-	public LengthAndValue<Long> decodeWithLength(byte[] bytes, int offset){
-		int length = fixedLength();
-		long value = decode(bytes, offset);
-		return new LengthAndValue<>(length, value);
 	}
 
 	@Override

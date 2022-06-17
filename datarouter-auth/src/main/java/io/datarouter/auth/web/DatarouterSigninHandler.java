@@ -30,7 +30,7 @@ import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
 import io.datarouter.web.user.authenticate.saml.DatarouterSamlSettings;
 import io.datarouter.web.user.authenticate.saml.SamlService;
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.DivTag;
 
 public class DatarouterSigninHandler extends BaseHandler{
 
@@ -73,7 +73,7 @@ public class DatarouterSigninHandler extends BaseHandler{
 
 	private static class Html{
 
-		public static ContainerTag<?> makeContent(HtmlForm htmlForm){
+		public static DivTag makeContent(HtmlForm htmlForm){
 			var form = Bootstrap4FormHtml.render(htmlForm)
 					.withClass("card card-body bg-light");
 			return div(

@@ -28,7 +28,8 @@ import static j2html.TagCreator.tr;
 import java.util.ArrayList;
 import java.util.List;
 
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.TrTag;
 
 public class J2HtmlLegendTable{
 
@@ -77,21 +78,21 @@ public class J2HtmlLegendTable{
 		return this;
 	}
 
-	public ContainerTag<?> build(){
+	public DivTag build(){
 		var table = table()
 				.withClasses(classes.toArray(String[]::new))
 				.condWith(caption != null, caption(caption));
 		entries.stream()
 				.map(this::makeTr)
 				.forEach(table::with);
-		if(tableHeader != null){
-			return div(h4(tableHeader), table);
+		if(tableHeader == null){
+			return div(table);
 		}
-		return table;
+		return div(h4(tableHeader), table);
 	}
 
-	private ContainerTag<?> makeTr(J2HtmlTableEntry entry){
-		ContainerTag<?> row = tr();
+	private TrTag makeTr(J2HtmlTableEntry entry){
+		TrTag row = tr();
 		if(entry.classes != null){
 			row.withClass(entry.classes);
 		}

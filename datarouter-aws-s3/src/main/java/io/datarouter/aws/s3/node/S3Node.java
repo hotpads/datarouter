@@ -65,22 +65,27 @@ implements PhysicalBlobStorageNode{
 	}
 
 	@Override
-	public Optional<Long> length(PathbeanKey key){
+	public boolean exists(PathbeanKey key, Config config){
+		return s3DirectoryManager.exists(key.getPathAndFile());
+	}
+
+	@Override
+	public Optional<Long> length(PathbeanKey key, Config config){
 		return s3DirectoryManager.length(key.getPathAndFile());
 	}
 
 	@Override
-	public byte[] read(PathbeanKey key){
+	public byte[] read(PathbeanKey key, Config config){
 		return s3DirectoryManager.read(key.getPathAndFile());
 	}
 
 	@Override
-	public byte[] read(PathbeanKey key, long offset, int length){
+	public byte[] read(PathbeanKey key, long offset, int length, Config config){
 		return s3DirectoryManager.read(key.getPathAndFile(), offset, length);
 	}
 
 	@Override
-	public Map<PathbeanKey,byte[]> read(List<PathbeanKey> keys){
+	public Map<PathbeanKey,byte[]> read(List<PathbeanKey> keys, Config config){
 		return Scanner.of(keys)
 				.toMap(Function.identity(), this::read);
 	}
@@ -91,32 +96,27 @@ implements PhysicalBlobStorageNode{
 	}
 
 	@Override
-	public void write(PathbeanKey key, Scanner<byte[]> chunks){
+	public void write(PathbeanKey key, Scanner<byte[]> chunks, Config config){
 		s3DirectoryManager.write(key.getPathAndFile(), chunks);
 	}
 
 	@Override
-	public void write(PathbeanKey key, InputStream inputStream){
+	public void write(PathbeanKey key, InputStream inputStream, Config config){
 		s3DirectoryManager.write(key.getPathAndFile(), inputStream);
 	}
 
 	@Override
-	public void delete(PathbeanKey key){
+	public void delete(PathbeanKey key, Config config){
 		s3DirectoryManager.delete(key.getPathAndFile());
 	}
 
 	@Override
-	public void deleteAll(Subpath subpath){
+	public void deleteAll(Subpath subpath, Config config){
 		scanKeys(subpath).forEach(this::delete);
 	}
 
 	@Override
-	public boolean exists(PathbeanKey key){
-		return s3DirectoryManager.exists(key.getPathAndFile());
-	}
-
-	@Override
-	public Scanner<List<Pathbean>> scanPaged(Subpath subpath){
+	public Scanner<List<Pathbean>> scanPaged(Subpath subpath, Config config){
 		return s3DirectoryManager.scanS3ObjectsPaged(subpath)
 				.map(page -> Scanner.of(page)
 						.map(s3Object -> {
@@ -128,7 +128,7 @@ implements PhysicalBlobStorageNode{
 	}
 
 	@Override
-	public Scanner<List<PathbeanKey>> scanKeysPaged(Subpath subpath){
+	public Scanner<List<PathbeanKey>> scanKeysPaged(Subpath subpath, Config config){
 		return s3DirectoryManager.scanKeysPaged(subpath)
 				.map(page -> Scanner.of(page)
 						.map(PathbeanKey::of)

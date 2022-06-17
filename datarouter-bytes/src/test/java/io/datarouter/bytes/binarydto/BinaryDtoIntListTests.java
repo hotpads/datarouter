@@ -21,7 +21,6 @@ import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.bytes.binarydto.codec.BinaryDtoCodec;
 import io.datarouter.bytes.binarydto.dto.BinaryDto;
 
 public class BinaryDtoIntListTests{
@@ -40,27 +39,11 @@ public class BinaryDtoIntListTests{
 
 	@Test
 	public void testEncoding(){
-		var codec = BinaryDtoCodec.of(TestDto.class);
 		var dto = new TestDto(
 				Arrays.asList(1, null, 2),
 				null,
 				List.of());
-		byte[] expectedBytes = {
-				1,//f1 present
-				3,//f1 length 3
-				1,//f1 item0 present
-				Byte.MIN_VALUE, 0, 0, 1,//f1 item 0
-				0,//f1 item1 null
-				1,//f1 item2 present
-				Byte.MIN_VALUE, 0, 0, 2,//f1 item 2
-				0,//f2 null
-				1,//f3 present
-				0};//f3 length 0
-		byte[] actualBytes = codec.encode(dto);
-		Assert.assertEquals(actualBytes, expectedBytes);
-
-		TestDto actual = codec.decode(actualBytes);
-		Assert.assertEquals(actual, dto);
+		Assert.assertEquals(dto.cloneIndexed(), dto);
 	}
 
 

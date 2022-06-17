@@ -15,32 +15,21 @@
  */
 package io.datarouter.filesystem.snapshot.block;
 
-import io.datarouter.enums.StringEnum;
+import io.datarouter.enums.MappedEnum;
 
-public enum BlockType implements StringEnum<BlockType>{
+public enum BlockType{
 	ROOT("root"),
 	BRANCH("branch"),
 	LEAF("leaf"),
 	VALUE("value");
 
-	private final String persistentString;
+	public static final MappedEnum<BlockType,String> BY_PERSISTENT_STRING
+			= new MappedEnum<>(values(), value -> value.persistentString);
+
+	public final String persistentString;
 
 	BlockType(String persistentString){
 		this.persistentString = persistentString;
-	}
-
-	@Override
-	public String getPersistentString(){
-		return persistentString;
-	}
-
-	@Override
-	public BlockType fromPersistentString(String string){
-		return fromPersistentStringStatic(string);
-	}
-
-	public static BlockType fromPersistentStringStatic(String string){
-		return StringEnum.getEnumFromString(values(), string, null);
 	}
 
 }

@@ -17,9 +17,6 @@ package io.datarouter.bytes.binarydto.fieldcodec.array;
 
 import java.util.Arrays;
 
-import io.datarouter.bytes.ByteTool;
-import io.datarouter.bytes.LengthAndValue;
-import io.datarouter.bytes.VarIntTool;
 import io.datarouter.bytes.binarydto.fieldcodec.BinaryDtoBaseFieldCodec;
 import io.datarouter.bytes.codec.array.chararray.ComparableCharArrayCodec;
 
@@ -28,30 +25,22 @@ public class CharArrayBinaryDtoFieldCodec extends BinaryDtoBaseFieldCodec<char[]
 	private static final ComparableCharArrayCodec CODEC = ComparableCharArrayCodec.INSTANCE;
 
 	@Override
-	public byte[] encode(char[] value){
-		byte[] sizeBytes = VarIntTool.encode(value.length);
-		byte[] valueBytes = CODEC.encode(value);
-		return ByteTool.concat(sizeBytes, valueBytes);
+	public boolean supportsComparableCodec(){
+		return true;
 	}
 
 	@Override
-	public LengthAndValue<char[]> decodeWithLength(byte[] bytes, int offset){
-		int cursor = offset;
-		int size = VarIntTool.decodeInt(bytes, cursor);
-		cursor += VarIntTool.length(size);
-		int bytesLength = size * CODEC.itemLength();
-		char[] value = CODEC.decode(bytes, cursor, bytesLength);
-		cursor += bytesLength;
-		int length = cursor - offset;
-		return new LengthAndValue<>(length, value);
+	public byte[] encode(char[] value){
+		return CODEC.encode(value);
+	}
+
+	@Override
+	public char[] decode(byte[] bytes, int offset, int length){
+		return CODEC.decode(bytes, offset, length);
 	}
 
 	@Override
 	public int compareAsIfEncoded(char[] left, char[] right){
-		int sizeDiff = Integer.compare(left.length, right.length);
-		if(sizeDiff != 0){
-			return sizeDiff;
-		}
 		return Arrays.compare(left, right);
 	}
 

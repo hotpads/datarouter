@@ -15,6 +15,7 @@
  */
 package io.datarouter.nodewatch.storage.latesttablecount;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.function.Supplier;
@@ -83,8 +84,13 @@ public class LatestTableCount extends BaseDatabean<LatestTableCountKey,LatestTab
 				tableCount.getNumSlowSpans());
 	}
 
-	public LatestTableCount(String clientName, String tableName, Long numRows, Long countTimeMs,
-			Long numSpans, Long numSlowSpans){
+	public LatestTableCount(
+			String clientName,
+			String tableName,
+			Long numRows,
+			Long countTimeMs,
+			Long numSpans,
+			Long numSlowSpans){
 		super(new LatestTableCountKey(clientName, tableName));
 		this.numRows = numRows;
 		this.dateUpdated = new Date();
@@ -105,8 +111,8 @@ public class LatestTableCount extends BaseDatabean<LatestTableCountKey,LatestTab
 		return countTimeMs;
 	}
 
-	public Date getDateUpdated(){
-		return dateUpdated;
+	public Instant getDateUpdated(){
+		return dateUpdated.toInstant();
 	}
 
 	public Long getNumSpans(){

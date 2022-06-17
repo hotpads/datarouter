@@ -38,7 +38,7 @@ public class MysqlOpRetryTool{
 				NUM_ROLLBACK_ATTEMPTS,
 				ROLLBACK_BACKOFF_MS);
 		int numAttempts = config.getNumAttemptsOrUse(DEFAULT_NUM_ATTEMPTS);
-		boolean ignoreExceptions = config.ignoreExceptionOrUse(false);
+		boolean ignoreExceptions = config.findIgnoreException().orElse(false);
 		return RetryableTool.tryNTimesWithBackoffUnchecked(
 				retryingCallable,
 				numAttempts,

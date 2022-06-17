@@ -24,11 +24,14 @@ import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.imp.TallyClientNodeFactory;
-import io.datarouter.storage.node.Node;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.NodeParams.NodeParamsBuilder;
 import io.datarouter.storage.node.builder.TallyNodeBuilder;
+import io.datarouter.storage.node.op.raw.TallyStorage.PhysicalTallyStorageNode;
 import io.datarouter.storage.tag.Tag;
+import io.datarouter.storage.tally.Tally;
+import io.datarouter.storage.tally.Tally.TallyFielder;
+import io.datarouter.storage.tally.TallyKey;
 
 @Singleton
 public class TallyNodeFactory extends BaseNodeFactory{
@@ -36,25 +39,21 @@ public class TallyNodeFactory extends BaseNodeFactory{
 	public <PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
-	TallyNodeBuilder<PK,D,F> createTally(
+	TallyNodeBuilder createTally(
 			ClientId clientId,
-			Supplier<D> databeanSupplier,
-			Supplier<F> fielderSupplier){
-		return new TallyNodeBuilder<>(datarouter, this, clientId, databeanSupplier, fielderSupplier);
+			Supplier<Tally> databeanSupplier,
+			Supplier<TallyFielder> fielderSupplier){
+		return new TallyNodeBuilder(datarouter, this, clientId, databeanSupplier, fielderSupplier);
 	}
 
-	public <PK extends PrimaryKey<PK>,
-			D extends Databean<PK,D>,
-			F extends DatabeanFielder<PK,D>,
-			N extends Node<PK,D,F>>
-	N createTallyNode(
+	public PhysicalTallyStorageNode createTallyNode(
 			ClientId clientId,
-			Supplier<D> databeanSupplier,
-			Supplier<F> fielderSupplier,
-			int version,
+			Supplier<Tally> databeanSupplier,
+			Supplier<TallyFielder> fielderSupplier,
+			String version,
 			String tableName,
 			Tag tag){
-		NodeParams<PK,D,F> params = new NodeParamsBuilder<>(databeanSupplier, fielderSupplier)
+		NodeParams<TallyKey,Tally,TallyFielder> params = new NodeParamsBuilder<>(databeanSupplier, fielderSupplier)
 				.withClientId(clientId)
 				.withSchemaVersion(version)
 				.withTableName(tableName)

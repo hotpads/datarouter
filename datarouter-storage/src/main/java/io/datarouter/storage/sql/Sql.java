@@ -68,7 +68,7 @@ public abstract class Sql<C,P,Q extends Sql<C,P,Q>>{
 		return implementation;
 	}
 
-	public Q incrementTally(String tableName, String id, Long delta){
+	public Q incrementTally(String tableName, String id, Long delta, Long expirationMs){
 		append("insert");
 		append(" into ");
 		append(tableName);
@@ -76,10 +76,14 @@ public abstract class Sql<C,P,Q extends Sql<C,P,Q>>{
 		append(TallyKey.FieldKeys.id.getColumnName());
 		append(",");
 		append(Tally.FieldKeys.tally.getColumnName());
+		append(",");
+		append(Tally.FieldKeys.expirationMs.getColumnName());
 		append(") values (");
 		append(StringTool.escapeString(id));
 		append(",");
 		append("" + delta);
+		append(",");
+		append("" + expirationMs);
 		append(")");
 		append(" on duplicate key update ");
 		append(Tally.FieldKeys.tally.getColumnName());
@@ -87,6 +91,16 @@ public abstract class Sql<C,P,Q extends Sql<C,P,Q>>{
 		append(Tally.FieldKeys.tally.getColumnName());
 		append(" + ");
 		append("" + delta);
+		append(", ");
+		append(Tally.FieldKeys.expirationMs.getColumnName());
+		append(" = ");
+		append("IF(");
+		append(Tally.FieldKeys.expirationMs.getColumnName());
+		append("<");
+		append("" + System.currentTimeMillis());
+		append(", " + expirationMs);
+		append(", " + Tally.FieldKeys.expirationMs.getColumnName());
+		append(")");
 		return implementation;
 	}
 
@@ -195,11 +209,27 @@ public abstract class Sql<C,P,Q extends Sql<C,P,Q>>{
 		return implementation;
 	}
 
+	public Q appendWhereClauseDisjunctionClosed(Collection<? extends FieldSet<?>> fieldSets){
+		if(fieldSets == null || fieldSets.isEmpty()){
+			return implementation;
+		}
+		append(" where ");
+		append("(");
+		appendOrCojunctions(fieldSets);
+		append(")");
+		return implementation;
+	}
+
 	public Q appendWhereClauseDisjunction(Collection<? extends FieldSet<?>> fieldSets){
 		if(fieldSets == null || fieldSets.isEmpty()){
 			return implementation;
 		}
 		append(" where ");
+		appendOrCojunctions(fieldSets);
+		return implementation;
+	}
+
+	private void appendOrCojunctions(Collection<? extends FieldSet<?>> fieldSets){
 		boolean didOne = false;
 		for(FieldSet<?> fieldSet : fieldSets){
 			if(didOne){
@@ -208,7 +238,6 @@ public abstract class Sql<C,P,Q extends Sql<C,P,Q>>{
 			getSqlNameValuePairsEscapedConjunction(fieldSet.getFields());
 			didOne = true;
 		}
-		return implementation;
 	}
 
 	private boolean addPrefixWhereClause(FieldSet<?> prefix, boolean shouldAppendWhere){

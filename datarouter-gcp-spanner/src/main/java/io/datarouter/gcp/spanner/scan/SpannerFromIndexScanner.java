@@ -20,7 +20,7 @@ import java.util.List;
 
 import com.google.cloud.spanner.DatabaseClient;
 
-import io.datarouter.gcp.spanner.field.SpannerFieldCodecRegistry;
+import io.datarouter.gcp.spanner.field.SpannerFieldCodecs;
 import io.datarouter.gcp.spanner.op.read.index.SpannerGetFromIndexRangesOp;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.index.IndexEntry;
@@ -43,7 +43,7 @@ extends BaseNodeScanner<IK,IE>{
 
 	private final DatabaseClient client;
 	private final PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo;
-	private final SpannerFieldCodecRegistry codecRegistry;
+	private final SpannerFieldCodecs fieldCodecs;
 	private final IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo;
 
 	public SpannerFromIndexScanner(
@@ -51,13 +51,13 @@ extends BaseNodeScanner<IK,IE>{
 			PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
 			Collection<Range<IK>> ranges,
 			Config config,
-			SpannerFieldCodecRegistry codecRegistry,
+			SpannerFieldCodecs fieldCodecs,
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo,
 			boolean caseInsensitive){
 		super(ranges, config, caseInsensitive);
 		this.client = client;
 		this.fieldInfo = fieldInfo;
-		this.codecRegistry = codecRegistry;
+		this.fieldCodecs = fieldCodecs;
 		this.indexEntryFieldInfo = indexEntryFieldInfo;
 	}
 
@@ -68,7 +68,7 @@ extends BaseNodeScanner<IK,IE>{
 
 	@Override
 	protected List<IE> loadRanges(Collection<Range<IK>> ranges, Config config){
-		var fromIndexScanner = new SpannerGetFromIndexRangesOp<>(client, fieldInfo, ranges, config, codecRegistry,
+		var fromIndexScanner = new SpannerGetFromIndexRangesOp<>(client, fieldInfo, ranges, config, fieldCodecs,
 				indexEntryFieldInfo);
 		return fromIndexScanner.wrappedCall();
 	}

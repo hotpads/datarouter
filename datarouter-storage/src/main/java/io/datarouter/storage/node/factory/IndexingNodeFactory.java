@@ -44,14 +44,16 @@ import io.datarouter.storage.serialize.fieldcache.IndexEntryFieldInfo;
 
 public class IndexingNodeFactory extends BaseNodeFactory{
 
-	public static <PK extends PrimaryKey<PK>,
+	public static <
+			PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
 	IndexingMapStorageNode<PK,D,F,MapStorageNode<PK,D,F>> newMap(MapStorageNode<PK,D,F> mainNode){
 		return new IndexingMapStorageNode<>(mainNode);
 	}
 
-	public static <PK extends PrimaryKey<PK>,
+	public static <
+			PK extends PrimaryKey<PK>,
 			D extends Databean<PK, D>,
 			F extends DatabeanFielder<PK, D>,
 			N extends SortedMapStorageNode<PK,D,F>>
@@ -61,7 +63,8 @@ public class IndexingNodeFactory extends BaseNodeFactory{
 
 	/*----------------------------- listener --------------------------------*/
 
-	public static <PK extends PrimaryKey<PK>,
+	public static <
+			PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			IK extends PrimaryKey<IK>,
 			IE extends UniqueIndexEntry<IK,IE,PK,D>,
@@ -71,7 +74,8 @@ public class IndexingNodeFactory extends BaseNodeFactory{
 		return new IndexMapStorageWriterListener<>(indexEntrySupplier, indexNode);
 	}
 
-	public static <PK extends PrimaryKey<PK>,
+	public static <
+			PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			IK extends PrimaryKey<IK>,
 			IE extends MultiIndexEntry<IK,IE,PK,D>,
@@ -85,7 +89,8 @@ public class IndexingNodeFactory extends BaseNodeFactory{
 
 	/*--------------------------- manual indexes ----------------------------*/
 
-	public static <PK extends PrimaryKey<PK>,
+	public static <
+			PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			IK extends PrimaryKey<IK>,
 			IF extends DatabeanFielder<IK,IE>,
@@ -96,7 +101,8 @@ public class IndexingNodeFactory extends BaseNodeFactory{
 		return new ManualUniqueIndexNode<>(mainNode, indexNode);
 	}
 
-	public static <PK extends PrimaryKey<PK>,
+	public static <
+			PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			IK extends PrimaryKey<IK>,
 			IE extends MultiIndexEntry<IK,IE,PK,D>,
@@ -113,7 +119,8 @@ public class IndexingNodeFactory extends BaseNodeFactory{
 	 * WARNING: make sure the index fielder you pass in has the same character set and collation options as the backing
 	 * node's fielder or risk having incorrect, performance-hurting introducers in SQL
 	 */
-	public static <PK extends PrimaryKey<PK>,
+	public static <
+			PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			IK extends PrimaryKey<IK>,
 			IE extends UniqueIndexEntry<IK,IE,PK,D>,
@@ -136,7 +143,8 @@ public class IndexingNodeFactory extends BaseNodeFactory{
 	 * WARNING: make sure the index fielder you pass in has the same character set and collation options as the backing
 	 * node's fielder or risk having incorrect, performance-hurting introducers in SQL
 	 */
-	public static <PK extends PrimaryKey<PK>,
+	public static <
+			PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			IK extends PrimaryKey<IK>,
 			IE extends UniqueIndexEntry<IK,IE,PK,D>,
@@ -158,7 +166,7 @@ public class IndexingNodeFactory extends BaseNodeFactory{
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>,
 			IK extends FieldlessIndexEntryPrimaryKey<IK,PK,D>>
-			ManagedNodeBuilder<PK,D,IK,FieldlessIndexEntry<IK,PK,D>,FieldlessIndexEntryFielder<IK,PK,D>>
+	ManagedNodeBuilder<PK,D,IK,FieldlessIndexEntry<IK,PK,D>,FieldlessIndexEntryFielder<IK,PK,D>>
 	createKeyOnlyManagedIndex(
 			Supplier<IK> indexEntryKeySupplier,
 			IndexedMapStorageNode<PK,D,F> backingNode){

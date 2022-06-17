@@ -51,7 +51,7 @@ public class AwsElbConfigScanner{
 	private PublicDomain publicDomain;
 
 	public ConfigScanDto checkAlbSchemeForEc2Instance(){
-		Optional<Ec2InstanceDetailsDto> ec2InstanceDetailsDto = Ec2InstanceTool.getEc2InstanceDetails();
+		Optional<Ec2InstanceDetailsDto> ec2InstanceDetailsDto = Ec2InstanceTool.getEc2InstanceDetails(false);
 		String serverType = serverTypeSupplier.getServerTypeString();
 
 		if(ec2InstanceDetailsDto.isEmpty()){

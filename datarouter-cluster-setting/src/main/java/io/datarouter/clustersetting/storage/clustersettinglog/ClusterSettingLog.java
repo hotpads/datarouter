@@ -25,11 +25,11 @@ import io.datarouter.clustersetting.storage.clustersetting.ClusterSetting;
 import io.datarouter.clustersetting.storage.clustersetting.ClusterSettingKey;
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
+import io.datarouter.model.field.codec.StringMappedEnumFieldCodec;
+import io.datarouter.model.field.imp.StringEncodedField;
+import io.datarouter.model.field.imp.StringEncodedFieldKey;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
-import io.datarouter.model.field.imp.custom.LongDateFieldKey;
-import io.datarouter.model.field.imp.enums.StringEnumField;
-import io.datarouter.model.field.imp.enums.StringEnumFieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 import io.datarouter.model.util.CommonFieldSizes;
 
@@ -44,12 +44,12 @@ public class ClusterSettingLog extends BaseDatabean<ClusterSettingLogKey,Cluster
 	private String comment;
 
 	public static class FieldKeys{
-		public static final LongDateFieldKey timestamp = new LongDateFieldKey("timestamp");
 		public static final StringFieldKey changedBy = new StringFieldKey("changedBy")
 				.withSize(CommonFieldSizes.LENGTH_50);
-		public static final StringEnumFieldKey<ClusterSettingLogAction> action = new StringEnumFieldKey<>("action",
-				ClusterSettingLogAction.class)
-				.withSize(20);
+		public static final StringEncodedFieldKey<ClusterSettingLogAction> action = new StringEncodedFieldKey<>(
+				"action",
+				new StringMappedEnumFieldCodec<>(ClusterSettingLogAction.BY_PERSISTENT_STRING))
+				.withSize(ClusterSettingLogAction.BY_PERSISTENT_STRING.maxLength());
 		public static final StringFieldKey comment = new StringFieldKey("comment");
 	}
 
@@ -62,11 +62,11 @@ public class ClusterSettingLog extends BaseDatabean<ClusterSettingLogKey,Cluster
 		@Override
 		public List<Field<?>> getNonKeyFields(ClusterSettingLog databean){
 			return List.of(
-					new StringEnumField<>(ClusterSettingKey.FieldKeys.scope, databean.scope),
+					new StringEncodedField<>(ClusterSettingKey.FieldKeys.scope, databean.scope),
 					new StringField(ClusterSettingKey.FieldKeys.serverType, databean.serverType),
 					new StringField(ClusterSettingKey.FieldKeys.serverName, databean.serverName),
 					new StringField(ClusterSetting.FieldKeys.value, databean.value),
-					new StringEnumField<>(FieldKeys.action, databean.action),
+					new StringEncodedField<>(FieldKeys.action, databean.action),
 					new StringField(FieldKeys.changedBy, databean.changedBy),
 					new StringField(FieldKeys.comment, databean.comment));
 		}

@@ -105,7 +105,7 @@ public class SecretClientSupplierConfig{
 
 	private void logNotAllowed(SecretOp<?,?,?,?> secretOp, String reason){
 		String allowedOpsString = Scanner.of(allowedOps)
-				.map(SecretClientOpType::getPersistentString)
+				.map(op -> op.persistentString)
 				.collect(Collectors.joining(",", "[", "]"));
 
 		String allowedNamesString = allowedNames.isPresent()

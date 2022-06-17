@@ -36,7 +36,7 @@ import io.datarouter.web.html.j2html.J2HtmlTable;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import io.datarouter.web.requirejs.DatarouterWebRequireJsV2;
 import io.datarouter.web.service.DocumentationNamesAndLinksSupplier;
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.DivTag;
 
 public class ViewReadmesHandler extends BaseHandler{
 
@@ -55,7 +55,7 @@ public class ViewReadmesHandler extends BaseHandler{
 				.buildMav();
 	}
 
-	public static ContainerTag<?> makeContent(String title, Map<String,String> rows){
+	public static DivTag makeContent(String title, Map<String,String> rows){
 		var header = h2(title);
 		Set<Entry<String,String>> entrySet = rows.entrySet().stream()
 				.sorted(Comparator.comparing(Entry::getKey))

@@ -33,7 +33,7 @@ import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.html.j2html.J2HtmlTable;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import io.datarouter.web.requirejs.DatarouterWebRequireJsV2;
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.DivTag;
 
 public class ConveyorHandler extends BaseHandler{
 
@@ -57,7 +57,7 @@ public class ConveyorHandler extends BaseHandler{
 				.buildMav();
 	}
 
-	private ContainerTag<?> makeContent(Collection<ConveyorSummary> rows){
+	private DivTag makeContent(Collection<ConveyorSummary> rows){
 		var title = h4("Conveyors")
 				.withClass("mt-2");
 		var table = new J2HtmlTable<ConveyorSummary>()

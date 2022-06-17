@@ -72,13 +72,13 @@ implements BlobStorage{
 
 	@Override
 	public void write(PathbeanKey key, byte[] value, Config config){
-		parent.write(prependStoragePath(key), value);
+		parent.write(prependStoragePath(key), value, config);
 		count("write ops", 1);
 		count("write bytes", value.length);
 	}
 
 	@Override
-	public void write(PathbeanKey key, Scanner<byte[]> chunks){
+	public void write(PathbeanKey key, Scanner<byte[]> chunks, Config config){
 		Scanner<byte[]> chunksWithCounts = chunks;
 		if(optCounterName.isPresent()){
 			chunksWithCounts = chunks.each(chunk -> {
@@ -86,13 +86,13 @@ implements BlobStorage{
 				count("writeChunks bytes", chunk.length);
 			});
 		}
-		parent.write(prependStoragePath(key), chunksWithCounts);
+		parent.write(prependStoragePath(key), chunksWithCounts, config);
 		count("writeChunks ops", 1);
 	}
 
 	@Override
-	public void write(PathbeanKey key, InputStream inputStream){
-		parent.write(prependStoragePath(key), inputStream);
+	public void write(PathbeanKey key, InputStream inputStream, Config config){
+		parent.write(prependStoragePath(key), inputStream, config);
 		//TODO count bytes
 		count("writeInputStream ops", 1);
 	}
@@ -100,14 +100,14 @@ implements BlobStorage{
 	/*---------- delete ------------*/
 
 	@Override
-	public void delete(PathbeanKey key){
-		parent.delete(prependStoragePath(key));
+	public void delete(PathbeanKey key, Config config){
+		parent.delete(prependStoragePath(key), config);
 		count("delete ops", 1);
 	}
 
 	@Override
-	public void deleteAll(Subpath subpath){
-		parent.deleteAll(subpathInParent.append(subpath));
+	public void deleteAll(Subpath subpath, Config config){
+		parent.deleteAll(subpathInParent.append(subpath), config);
 		count("deleteAll ops", 1);
 	}
 
@@ -126,22 +126,22 @@ implements BlobStorage{
 	/*---------- read ------------*/
 
 	@Override
-	public boolean exists(PathbeanKey key){
-		boolean exists = parent.exists(prependStoragePath(key));
+	public boolean exists(PathbeanKey key, Config config){
+		boolean exists = parent.exists(prependStoragePath(key), config);
 		count("exists ops", 1);
 		return exists;
 	}
 
 	@Override
-	public Optional<Long> length(PathbeanKey key){
-		Optional<Long> optLength = parent.length(prependStoragePath(key));
+	public Optional<Long> length(PathbeanKey key, Config config){
+		Optional<Long> optLength = parent.length(prependStoragePath(key), config);
 		count("length ops", 1);
 		return optLength;
 	}
 
 	@Override
-	public byte[] read(PathbeanKey key){
-		Optional<byte[]> optBytes = Optional.ofNullable(parent.read(prependStoragePath(key)));
+	public byte[] read(PathbeanKey key, Config config){
+		Optional<byte[]> optBytes = Optional.ofNullable(parent.read(prependStoragePath(key), config));
 		count("read ops", 1);
 		optBytes.map(bytes -> bytes.length)
 				.ifPresent(length -> count("read bytes", length));
@@ -149,8 +149,8 @@ implements BlobStorage{
 	}
 
 	@Override
-	public byte[] read(PathbeanKey key, long offset, int length){
-		Optional<byte[]> optBytes = Optional.ofNullable(parent.read(prependStoragePath(key), offset, length));
+	public byte[] read(PathbeanKey key, long offset, int length, Config config){
+		Optional<byte[]> optBytes = Optional.ofNullable(parent.read(prependStoragePath(key), offset, length, config));
 		count("readOffsetLimit ops", 1);
 		optBytes.map(bytes -> bytes.length)
 				.ifPresent(actualLength -> count("readOffsetLimit bytes", actualLength));
@@ -158,10 +158,10 @@ implements BlobStorage{
 	}
 
 	@Override
-	public Map<PathbeanKey,byte[]> read(List<PathbeanKey> keys){
+	public Map<PathbeanKey,byte[]> read(List<PathbeanKey> keys, Config config){
 		Map<PathbeanKey,byte[]> keyValue = new HashMap<>();
 		keys.forEach(key -> {
-				Optional<byte[]> optBytes = Optional.ofNullable(parent.read(prependStoragePath(key)));
+				Optional<byte[]> optBytes = Optional.ofNullable(parent.read(prependStoragePath(key), config));
 				count("read ops", 1);
 				optBytes.map(bytes -> bytes.length)
 						.ifPresent(actualLength -> count("read bytes", actualLength));
@@ -173,8 +173,8 @@ implements BlobStorage{
 	/*---------- scan ------------*/
 
 	@Override
-	public Scanner<List<PathbeanKey>> scanKeysPaged(Subpath subpath){
-		return parent.scanKeysPaged(subpathInParent.append(subpath))
+	public Scanner<List<PathbeanKey>> scanKeysPaged(Subpath subpath, Config config){
+		return parent.scanKeysPaged(subpathInParent.append(subpath), config)
 				.map(keys -> Scanner.of(keys)
 						.map(this::removeStoragePath)
 						.list())
@@ -183,8 +183,8 @@ implements BlobStorage{
 	}
 
 	@Override
-	public Scanner<List<Pathbean>> scanPaged(Subpath subpath){
-		return parent.scanPaged(subpathInParent.append(subpath))
+	public Scanner<List<Pathbean>> scanPaged(Subpath subpath, Config config){
+		return parent.scanPaged(subpathInParent.append(subpath), config)
 				.map(page -> Scanner.of(page)
 						.map(pathbean -> new Pathbean(removeStoragePath(pathbean.getKey()), pathbean.getSize()))
 						.list())

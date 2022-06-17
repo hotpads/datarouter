@@ -25,8 +25,8 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.client.mysql.ddl.domain.MysqlTableOptions;
 import io.datarouter.model.databean.Databean;
-import io.datarouter.model.field.imp.StringField;
-import io.datarouter.model.field.imp.enums.StringEnumField;
+import io.datarouter.model.field.Field;
+import io.datarouter.model.field.FieldKey;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.nodewatch.storage.tablecount.TableCount;
@@ -72,12 +72,26 @@ public class TableSamplerService{
 		}
 		boolean isCountableClient = nodewatchClientConfiguration.isCountableClient(physicalNode.getFieldInfo()
 				.getClientId());
+		if(!isCountableClient){
+			return false;
+		}
+		//Can't scan a non-sorted node
 		boolean isSortedStorageWriter = physicalNode instanceof SortedStorageWriter;
-		boolean hasStringKeyFields = physicalNode.getFieldInfo().getPrimaryKeyFields().stream()
-				.anyMatch(field -> field instanceof StringField || field instanceof StringEnumField);
+		if(!isSortedStorageWriter){
+			return false;
+		}
+		//Strings will be case-sensitive, which is good for the scanners
 		boolean hasBinaryCollation = MysqlTableOptions.make(physicalNode.getFieldInfo().getSampleFielder())
 				.getCollation().isBinary();
-		return isCountableClient && isSortedStorageWriter && (!hasStringKeyFields || hasBinaryCollation);
+		if(hasBinaryCollation){
+			return true;
+		}
+		//Table is case-insensitive at this point.
+		// Don't attempt scanning it if PK contains possibly case-insensitive fields
+		boolean hasPossiblyCaseInsensitivePkFields = physicalNode.getFieldInfo().getPrimaryKeyFields().stream()
+				.map(Field::getKey)
+				.anyMatch(FieldKey::isPossiblyCaseInsensitive);
+		return !hasPossiblyCaseInsensitivePkFields;
 	}
 
 	public Scanner<PhysicalSortedStorageReaderNode<?,?,?>> scanCountableNodes(){

@@ -33,7 +33,7 @@ public class ExceptionRecordMemoryToPublisherConveyor extends BaseConveyor{
 	private static final Logger logger = LoggerFactory.getLogger(ExceptionRecordMemoryToPublisherConveyor.class);
 
 	//this only controls max buffer poll size. the publisher will split as necessary.
-	private static final int BATCH_SIZE = 500;
+	private static final int BATCH_SIZE = 10_000;
 
 	private final MemoryBuffer<ExceptionRecord> buffer;
 	private final DatarouterExceptionPublisher exceptionRecordPublisher;
@@ -64,7 +64,13 @@ public class ExceptionRecordMemoryToPublisherConveyor extends BaseConveyor{
 			logger.warn("", putMultiException);
 			ConveyorCounters.inc(this, "putMulti exception", 1);
 		}
-		return new ProcessBatchResult(false);
+		//process as many as possible if shutting down
+		return new ProcessBatchResult(isShuttingDown());
+	}
+
+	@Override
+	public boolean shouldRunOnShutdown(){
+		return true;
 	}
 
 }

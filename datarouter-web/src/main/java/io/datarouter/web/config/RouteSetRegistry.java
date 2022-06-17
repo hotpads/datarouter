@@ -18,7 +18,7 @@ package io.datarouter.web.config;
 import java.util.List;
 import java.util.function.Supplier;
 
-import io.datarouter.web.dispatcher.BaseRouteSet;
+import io.datarouter.web.dispatcher.RouteSet;
 
-public interface RouteSetRegistry extends Supplier<List<BaseRouteSet>>{
+public interface RouteSetRegistry extends Supplier<List<RouteSet>>{
 }

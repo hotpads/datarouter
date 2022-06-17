@@ -28,21 +28,37 @@ import io.datarouter.storage.util.Subpath;
  */
 public interface BlobStorageWriter extends BlobStorageReader{
 
+	void write(PathbeanKey key, byte[] value, Config config);
+
 	default void write(PathbeanKey key, byte[] value){
 		write(key, value, new Config());
 	}
 
-	void write(PathbeanKey key, byte[] value, Config config);
+	void write(PathbeanKey key, Scanner<byte[]> chunks, Config config);
 
-	void write(PathbeanKey key, Scanner<byte[]> chunks);
+	default void write(PathbeanKey key, Scanner<byte[]> chunks){
+		write(key, chunks, new Config());
+	}
 
-	void write(PathbeanKey key, InputStream inputStream);
+	void write(PathbeanKey key, InputStream inputStream, Config config);
 
-	void delete(PathbeanKey key);
+	default void write(PathbeanKey key, InputStream inputStream){
+		write(key, inputStream, new Config());
+	}
+
+	void delete(PathbeanKey key, Config config);
+
+	default void delete(PathbeanKey key){
+		delete(key, new Config());
+	}
 
 	/**
 	 * Delete all descendants and the subpath directory
 	 */
-	void deleteAll(Subpath subpath);
+	void deleteAll(Subpath subpath, Config config);
+
+	default void deleteAll(Subpath subpath){
+		deleteAll(subpath, new Config());
+	}
 
 }

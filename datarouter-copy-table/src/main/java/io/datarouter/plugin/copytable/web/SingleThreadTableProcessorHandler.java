@@ -25,7 +25,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.nodewatch.service.TableSamplerService;
@@ -34,7 +33,6 @@ import io.datarouter.plugin.copytable.tableprocessor.TableProcessor;
 import io.datarouter.plugin.copytable.tableprocessor.TableProcessorRegistry;
 import io.datarouter.plugin.copytable.tableprocessor.TableProcessorService;
 import io.datarouter.plugin.copytable.tableprocessor.TableProcessorService.TableProcessorSpanResult;
-import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.Config;
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.string.StringTool;
@@ -47,7 +45,7 @@ import io.datarouter.web.handler.types.optional.OptionalString;
 import io.datarouter.web.html.form.HtmlForm;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.DivTag;
 
 public class SingleThreadTableProcessorHandler extends BaseHandler{
 
@@ -76,8 +74,6 @@ public class SingleThreadTableProcessorHandler extends BaseHandler{
 	@Inject
 	private StandardDatarouterEmailHeaderService standardDatarouterEmailHeaderService;
 	@Inject
-	private DatarouterInjector injector;
-	@Inject
 	private TableSamplerService tableSamplerService;
 
 	@Handler(defaultHandler = true)
@@ -105,7 +101,8 @@ public class SingleThreadTableProcessorHandler extends BaseHandler{
 				.append("")
 				.sort()
 				.list();
-		List<String> possibleProcessors = Scanner.of(processorRegistry.getAll())
+		List<String> possibleProcessors = processorRegistry.scan()
+				.map(TableProcessor::getClass)
 				.map(Class::getSimpleName)
 				.sort()
 				.list();
@@ -151,8 +148,7 @@ public class SingleThreadTableProcessorHandler extends BaseHandler{
 				.map(StringTool::nullIfEmpty)
 				.map(Integer::valueOf)
 				.orElse(DEFAULT_SCAN_BATCH_SIZE);
-		TableProcessor<?,?> processor = injector.getInstance(processorRegistry.find(processorName.get())
-				.get());
+		TableProcessor<?,?> processor = processorRegistry.find(processorName.get()).get();
 		TableProcessorSpanResult result = service.runTableProcessor(
 				sourceName.get(),
 				lastKeyString.map(StringTool::nullIfEmpty).orElse(null),
@@ -193,7 +189,7 @@ public class SingleThreadTableProcessorHandler extends BaseHandler{
 
 	private static class Html{
 
-		public static ContainerTag<?> makeContent(HtmlForm htmlForm){
+		public static DivTag makeContent(HtmlForm htmlForm){
 			var form = Bootstrap4FormHtml.render(htmlForm)
 					.withClass("card card-body bg-light");
 			return div(

@@ -42,7 +42,9 @@ import io.datarouter.web.digest.DailyDigestGrouping;
 import io.datarouter.web.digest.DailyDigestService;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
 import io.datarouter.web.html.j2html.J2HtmlTable;
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.ATag;
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.TableTag;
 
 @Singleton
 public class LongRunningTaskDailyDigest implements DailyDigest{
@@ -63,7 +65,7 @@ public class LongRunningTaskDailyDigest implements DailyDigest{
 	private DomainFinder domainFinder;
 
 	@Override
-	public Optional<ContainerTag<?>> getPageContent(ZoneId zoneId){
+	public Optional<DivTag> getPageContent(ZoneId zoneId){
 		List<LongRunningTask> failedTasks = longRunningTaskDao.scan()
 				.include(task -> task.getKey().getTriggerTime().getTime()
 						> System.currentTimeMillis() - Duration.ofDays(1).toMillis())
@@ -79,7 +81,7 @@ public class LongRunningTaskDailyDigest implements DailyDigest{
 	}
 
 	@Override
-	public Optional<ContainerTag<?>> getEmailContent(ZoneId zoneId){
+	public Optional<DivTag> getEmailContent(ZoneId zoneId){
 		List<LongRunningTask> failedTasks = longRunningTaskDao.scan()
 				.include(task -> task.getKey().getTriggerTime().getTime()
 						> System.currentTimeMillis() - Duration.ofDays(1).toMillis())
@@ -109,7 +111,7 @@ public class LongRunningTaskDailyDigest implements DailyDigest{
 		return DailyDigestType.SUMMARY;
 	}
 
-	private ContainerTag<?> buildPageTable(List<LongRunningTask> rows, ZoneId zoneId){
+	private TableTag buildPageTable(List<LongRunningTask> rows, ZoneId zoneId){
 		return new J2HtmlTable<LongRunningTask>()
 				.withClasses("sortable table table-sm table-striped my-4 border")
 				.withHtmlColumn("Name", row -> td(makeTaskLink(row.getKey().getName())))
@@ -117,25 +119,25 @@ public class LongRunningTaskDailyDigest implements DailyDigest{
 						.getTriggerTime(), zoneId))
 				.withColumn("Duration", row -> row.getDurationString())
 				.withColumn("Triggered By", row -> row.getTriggeredBy())
-				.withColumn("Status", row -> row.getJobExecutionStatus().getPersistentString())
+				.withColumn("Status", row -> row.getJobExecutionStatus().persistentString)
 				.withHtmlColumn("Exception", row -> td(makeExceptionLink(row.getExceptionRecordId())))
 				.build(rows);
 	}
 
-	private ContainerTag<?> buildEmailTable(List<LongRunningTask> rows, ZoneId zoneId){
+	private TableTag buildEmailTable(List<LongRunningTask> rows, ZoneId zoneId){
 		return new J2HtmlEmailTable<LongRunningTask>()
 				.withColumn(new J2HtmlEmailTableColumn<>("Name", row -> makeTaskLink(row.getKey().getName())))
 				.withColumn("Trigger Time", row -> ZonedDateFormatterTool.formatDateWithZone(row.getKey()
 						.getTriggerTime(), zoneId))
 				.withColumn("Duration", row -> row.getDurationString())
 				.withColumn("Triggered By", row -> row.getTriggeredBy())
-				.withColumn("Status", row -> row.getJobExecutionStatus().getPersistentString())
+				.withColumn("Status", row -> row.getJobExecutionStatus().persistentString)
 				.withColumn(new J2HtmlEmailTableColumn<>("Exception",
 						row -> makeExceptionLink(row.getExceptionRecordId())))
 				.build(rows);
 	}
 
-	private ContainerTag<?> makeTaskLink(String longRunningTaskName){
+	private ATag makeTaskLink(String longRunningTaskName){
 		String href = emailService.startLinkBuilder()
 				.withLocalPath(paths.datarouter.longRunningTasks)
 				.withParam("name", longRunningTaskName)
@@ -145,7 +147,7 @@ public class LongRunningTaskDailyDigest implements DailyDigest{
 				.withHref(href);
 	}
 
-	private ContainerTag<?> makeExceptionLink(String exceptionRecordId){
+	private ATag makeExceptionLink(String exceptionRecordId){
 		String href = "https://" + domainFinder.getDomainPreferPublic() + contextSupplier.get().getContextPath()
 				+ exceptionLink.buildExceptionDetailLink(exceptionRecordId);
 		return a(exceptionRecordId)

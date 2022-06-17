@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -28,6 +29,7 @@ import io.datarouter.client.mysql.ddl.domain.MysqlCollation;
 import io.datarouter.client.mysql.execution.MysqlOpRetryTool;
 import io.datarouter.client.mysql.execution.SessionExecutor;
 import io.datarouter.client.mysql.field.codec.factory.MysqlFieldCodecFactory;
+import io.datarouter.client.mysql.op.read.MysqlFindTallyOp;
 import io.datarouter.client.mysql.op.read.MysqlGetKeysOp;
 import io.datarouter.client.mysql.op.read.MysqlGetOp;
 import io.datarouter.client.mysql.op.read.MysqlGetOpExecutor;
@@ -45,6 +47,7 @@ import io.datarouter.client.mysql.op.write.MysqlDeleteOp;
 import io.datarouter.client.mysql.op.write.MysqlIncrementOp;
 import io.datarouter.client.mysql.op.write.MysqlPutOp;
 import io.datarouter.client.mysql.op.write.MysqlUniqueIndexDeleteOp;
+import io.datarouter.client.mysql.op.write.MysqlVacuumTallyOp;
 import io.datarouter.client.mysql.scan.MysqlDatabeanScanner;
 import io.datarouter.client.mysql.scan.MysqlManagedIndexDatabeanScanner;
 import io.datarouter.client.mysql.scan.MysqlManagedIndexKeyScanner;
@@ -529,15 +532,60 @@ public class MysqlNodeManager{
 		return managedNodesHolder.getManagedNodes(fieldInfo);
 	}
 
-	public Long increment(PhysicalDatabeanFieldInfo<TallyKey,Tally,TallyFielder> fieldInfo, String key, Long amount){
+	public Long increment(
+			PhysicalDatabeanFieldInfo<TallyKey,Tally,TallyFielder> fieldInfo,
+			String key,
+			Long amount,
+			Config config){
 		var op = new MysqlIncrementOp<>(
 				datarouter,
 				fieldInfo,
 				fieldCodecFactory,
 				mysqlSqlFactory,
 				key,
-				amount);
+				amount,
+				config);
 		return sessionExecutor.runWithoutRetries(op);
+	}
+
+	public Optional<Long> findTally(
+			PhysicalDatabeanFieldInfo<TallyKey,Tally,TallyFielder> fieldInfo,
+			String key,
+			Config config){
+		var op = new MysqlFindTallyOp<>(
+				datarouter,
+				fieldInfo,
+				mysqlSqlFactory,
+				fieldCodecFactory,
+				List.of(key),
+				config);
+		List<Tally> response = sessionExecutor.runWithoutRetries(op);
+		return response.isEmpty() ? Optional.empty() : Optional.of(response.get(0).getTally());
+	}
+
+	public List<Tally> findTallyMulti(
+			PhysicalDatabeanFieldInfo<TallyKey,Tally,TallyFielder> fieldInfo,
+			Collection<String> keys,
+			Config config){
+		var op = new MysqlFindTallyOp<>(
+				datarouter,
+				fieldInfo,
+				mysqlSqlFactory,
+				fieldCodecFactory,
+				keys,
+				config);
+		return sessionExecutor.runWithoutRetries(op);
+	}
+
+	public void vacuum(
+			PhysicalDatabeanFieldInfo<TallyKey,Tally,TallyFielder> fieldInfo,
+			Config config){
+		var op = new MysqlVacuumTallyOp<>(
+				datarouter,
+				fieldInfo,
+				mysqlSqlFactory,
+				config);
+		sessionExecutor.runWithoutRetries(op);
 	}
 
 	private static String getTraceName(String nodeName, String opName){

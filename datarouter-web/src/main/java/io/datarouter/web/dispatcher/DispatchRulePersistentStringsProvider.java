@@ -38,7 +38,7 @@ public class DispatchRulePersistentStringsProvider{
 				.list();
 	}
 
-	private static Scanner<String> getApplicableEndpoints(BaseRouteSet routeSet,
+	private static Scanner<String> getApplicableEndpoints(RouteSet routeSet,
 			Class<? extends ApiKeyPredicate> predicateClass){
 		return Scanner.of(routeSet.getDispatchRules())
 				.include(DispatchRule::hasApiKey)

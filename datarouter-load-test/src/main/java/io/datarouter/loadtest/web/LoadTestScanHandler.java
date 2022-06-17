@@ -43,8 +43,8 @@ import io.datarouter.web.handler.types.optional.OptionalString;
 import io.datarouter.web.html.form.HtmlForm;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
-import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
+import j2html.tags.specialized.DivTag;
 
 public class LoadTestScanHandler extends BaseHandler{
 	private static final Logger logger = LoggerFactory.getLogger(LoadTestScanHandler.class);
@@ -136,7 +136,7 @@ public class LoadTestScanHandler extends BaseHandler{
 
 	private static class Html{
 
-		public static ContainerTag<?> makeContent(HtmlForm htmlForm){
+		public static DivTag makeContent(HtmlForm htmlForm){
 			var form = Bootstrap4FormHtml.render(htmlForm)
 					.withClass("card card-body bg-light");
 			return div(

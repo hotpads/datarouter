@@ -25,19 +25,22 @@ import org.apache.logging.log4j.Level;
 
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
+import io.datarouter.model.field.codec.StringListToBinaryCsvFieldCodec;
+import io.datarouter.model.field.codec.StringMappedEnumFieldCodec;
 import io.datarouter.model.field.imp.DateField;
 import io.datarouter.model.field.imp.DateFieldKey;
+import io.datarouter.model.field.imp.StringEncodedField;
+import io.datarouter.model.field.imp.StringEncodedFieldKey;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
+import io.datarouter.model.field.imp.array.ByteArrayEncodedField;
+import io.datarouter.model.field.imp.array.ByteArrayEncodedFieldKey;
 import io.datarouter.model.field.imp.comparable.BooleanField;
 import io.datarouter.model.field.imp.comparable.BooleanFieldKey;
 import io.datarouter.model.field.imp.comparable.LongField;
 import io.datarouter.model.field.imp.comparable.LongFieldKey;
-import io.datarouter.model.field.imp.enums.StringEnumField;
-import io.datarouter.model.field.imp.enums.StringEnumFieldKey;
-import io.datarouter.model.field.imp.list.DelimitedStringListField;
-import io.datarouter.model.field.imp.list.DelimitedStringListFieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
+import io.datarouter.model.util.CommonFieldSizes;
 
 public class LoggerConfig extends BaseDatabean<LoggerConfigKey,LoggerConfig>{
 
@@ -49,12 +52,14 @@ public class LoggerConfig extends BaseDatabean<LoggerConfigKey,LoggerConfig>{
 	private Long ttlMillis;
 
 	private static class FieldKeys{
-		private static final StringEnumFieldKey<LoggingLevel> level = new StringEnumFieldKey<>("level",
-				LoggingLevel.class)
-				.withSize(LoggingLevel.getSqlSize());
+		private static final StringEncodedFieldKey<LoggingLevel> level = new StringEncodedFieldKey<>(
+				"level",
+				new StringMappedEnumFieldCodec<>(LoggingLevel.BY_PERSISTENT_STRING))
+				.withSize(LoggingLevel.BY_PERSISTENT_STRING.maxLength());
 		private static final BooleanFieldKey additive = new BooleanFieldKey("additive");
-		private static final DelimitedStringListFieldKey appendersRef = new DelimitedStringListFieldKey(
-				"appendersRef", ",");
+		private static final ByteArrayEncodedFieldKey<List<String>> appendersRef = new ByteArrayEncodedFieldKey<>(
+				"appendersRef", StringListToBinaryCsvFieldCodec.INSTANCE)
+				.withSize(CommonFieldSizes.MAX_LENGTH_LONGBLOB);
 		private static final StringFieldKey email = new StringFieldKey("email");
 		@SuppressWarnings("deprecation")
 		private static final DateFieldKey lastUpdated = new DateFieldKey("lastUpdated");
@@ -71,9 +76,9 @@ public class LoggerConfig extends BaseDatabean<LoggerConfigKey,LoggerConfig>{
 		@Override
 		public List<Field<?>> getNonKeyFields(LoggerConfig loggerConfig){
 			return List.of(
-					new StringEnumField<>(FieldKeys.level, loggerConfig.level),
+					new StringEncodedField<>(FieldKeys.level, loggerConfig.level),
 					new BooleanField(FieldKeys.additive, loggerConfig.additive),
-					new DelimitedStringListField(FieldKeys.appendersRef, loggerConfig.appendersRef),
+					new ByteArrayEncodedField<>(FieldKeys.appendersRef, loggerConfig.appendersRef),
 					new StringField(FieldKeys.email, loggerConfig.email),
 					new DateField(FieldKeys.lastUpdated, loggerConfig.lastUpdated),
 					new LongField(FieldKeys.ttlMillis, loggerConfig.ttlMillis));
@@ -110,7 +115,13 @@ public class LoggerConfig extends BaseDatabean<LoggerConfigKey,LoggerConfig>{
 			String email,
 			Date lastUpdated,
 			Long ttlMillis){
-		this(name, LoggingLevel.fromString(level.name()), additive, appendersRef, email, lastUpdated, ttlMillis);
+		this(name,
+				LoggingLevel.BY_PERSISTENT_STRING.fromOrNull(level.name()),
+				additive,
+				appendersRef,
+				email,
+				lastUpdated,
+				ttlMillis);
 	}
 
 	@Override
