@@ -24,6 +24,7 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
@@ -50,6 +51,8 @@ public interface DatarouterS3Client{
 	void copyObject(String bucket, String sourceKey, String destinationKey, ObjectCannedACL acl);
 
 	void deleteObject(String bucket, String key);
+
+	void deleteObjects(String bucket, Collection<String> keys);
 
 	void putObjectWithHeartbeat(String bucket, String key, ContentType contentType, Path path, Runnable heartbeat);
 

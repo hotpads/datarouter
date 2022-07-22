@@ -67,8 +67,9 @@ implements PhysicalGroupQueueStorageNode<PK,D,F>{
 				.advanceWhile(Optional::isPresent)
 				.map(Optional::get)
 				.map(directoryQueueMessage -> {
-					byte[] id = directoryQueueMessage.getBytesId();
-					List<D> databeans = codec.fromStringMulti(directoryQueueMessage.content, fielder, databeanSupplier);
+					byte[] id = directoryQueueMessage.getIdUtf8Bytes();
+					List<D> databeans = codec.fromStringMulti(directoryQueueMessage.getContentUtf8(), fielder,
+							databeanSupplier);
 					return new GroupQueueMessage<>(id, databeans);
 				})
 				.list();

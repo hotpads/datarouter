@@ -23,14 +23,19 @@ import io.datarouter.aws.sqs.single.SqsNode;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.storage.client.imp.BlobQueueClientNodeFactory;
 import io.datarouter.storage.client.imp.QueueClientNodeFactory;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.adapter.NodeAdapters;
+import io.datarouter.storage.node.op.raw.BlobQueueStorage.PhysicalBlobQueueStorageNode;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
+import io.datarouter.storage.queue.BlobQueueMessage;
+import io.datarouter.storage.queue.BlobQueueMessage.BlobQueueMessageFielder;
+import io.datarouter.storage.queue.BlobQueueMessageKey;
 
 @Singleton
 public class SqsClientNodeFactory
-implements QueueClientNodeFactory{
+implements QueueClientNodeFactory, BlobQueueClientNodeFactory{
 
 	@Inject
 	private SqsNodeFactory sqsNodeFactory;
@@ -55,6 +60,13 @@ implements QueueClientNodeFactory{
 	PhysicalNode<PK,D,F> createGroupQueueNode(NodeParams<PK,D,F> nodeParams){
 		SqsGroupNode<PK,D,F> node = sqsNodeFactory.createGroupNode(nodeParams);
 		return nodeAdapters.wrapGroupQueueNode(node);
+	}
+
+	@Override
+	public PhysicalBlobQueueStorageNode createBlobQueueNode(
+			NodeParams<BlobQueueMessageKey,BlobQueueMessage,BlobQueueMessageFielder> nodeParams){
+		var node = sqsNodeFactory.createBlobQueueNode(nodeParams);
+		return nodeAdapters.wrapBlobQueueNode(node);
 	}
 
 }

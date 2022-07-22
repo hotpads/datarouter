@@ -22,8 +22,8 @@ import java.util.Optional;
 
 import javax.inject.Inject;
 
+import io.datarouter.exception.config.DatarouterExceptionSettingRoot;
 import io.datarouter.exception.storage.exceptionrecord.DatarouterExceptionRecordDao;
-import io.datarouter.exception.storage.exceptionrecord.ExceptionRecord;
 import io.datarouter.exception.storage.exceptionrecord.ExceptionRecordKey;
 import io.datarouter.exception.storage.summary.DatarouterExceptionRecordSummaryDao;
 import io.datarouter.exception.storage.summary.ExceptionRecordSummary;
@@ -31,6 +31,7 @@ import io.datarouter.exception.storage.summary.ExceptionRecordSummaryKey;
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.storage.config.Config;
 import io.datarouter.util.tuple.Range;
 
 public class ExceptionRecordAggregationJob extends BaseJob{
@@ -41,6 +42,8 @@ public class ExceptionRecordAggregationJob extends BaseJob{
 	private DatarouterExceptionRecordSummaryDao exceptionRecordSummaryDao;
 	@Inject
 	private DatarouterExceptionRecordDao exceptionRecordDao;
+	@Inject
+	private DatarouterExceptionSettingRoot datarouterExceptionSettingRoot;
 
 	@Override
 	public void run(TaskTracker tracker){
@@ -65,15 +68,20 @@ public class ExceptionRecordAggregationJob extends BaseJob{
 
 		Map<ExceptionRecordSummaryKey,Long> summaryCounts = new HashMap<>();
 		Map<ExceptionRecordSummaryKey,String> sampledRecordIds = new HashMap<>();
-		for(ExceptionRecord record : exceptionRecordDao.scan(range).iterable()){
-			String exceptionLocation = Optional.ofNullable(record.getExceptionLocation())
-					.orElse("");
-			String type = Optional.ofNullable(record.getType())
-					.orElse("");
-			ExceptionRecordSummaryKey summaryKey = new ExceptionRecordSummaryKey(periodStart, type, exceptionLocation);
-			summaryCounts.merge(summaryKey, 1L, Long::sum);
-			sampledRecordIds.putIfAbsent(summaryKey, record.getKey().getId());
-		}
+
+		var config = new Config()
+				.setResponseBatchSize(datarouterExceptionSettingRoot.exceptionRecordAggregationJobBatchSize.get());
+		exceptionRecordDao.scan(range, config)
+				.forEach(record -> {
+					String exceptionLocation = Optional.ofNullable(record.getExceptionLocation())
+							.orElse("");
+					String type = Optional.ofNullable(record.getType())
+							.orElse("");
+					ExceptionRecordSummaryKey summaryKey = new ExceptionRecordSummaryKey(periodStart, type,
+							exceptionLocation);
+					summaryCounts.merge(summaryKey, 1L, Long::sum);
+					sampledRecordIds.putIfAbsent(summaryKey, record.getKey().getId());
+				});
 
 		Scanner.of(summaryCounts.entrySet())
 				.map(entry -> new ExceptionRecordSummary(

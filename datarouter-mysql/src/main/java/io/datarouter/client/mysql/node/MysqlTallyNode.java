@@ -77,6 +77,10 @@ implements PhysicalTallyStorageNode{
 
 	@Override
 	public void vacuum(Config config){
-		mysqlNodeManager.vacuum(getTallyFieldInfo(), config);
+		mysqlNodeManager.vacuum(
+				getTallyFieldInfo(),
+				TallyKey.FieldKeys.id.getColumnName(),
+				Tally.FieldKeys.expirationMs.getColumnName(),
+				config);
 	}
 }

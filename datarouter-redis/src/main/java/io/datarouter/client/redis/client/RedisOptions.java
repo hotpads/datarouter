@@ -24,7 +24,7 @@ import java.util.stream.IntStream;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.enums.MappedEnum;
+import io.datarouter.enums.StringMappedEnum;
 import io.datarouter.storage.client.ClientOptions;
 import io.datarouter.storage.config.client.RedisGenericClientOptions.RedisGenericClientMode;
 
@@ -79,8 +79,8 @@ public class RedisOptions{
 		MULTI_NODE("multiNode", true),
 		STANDARD("standard", false);
 
-		public static final MappedEnum<RedisClientMode,String> BY_PERSISTENT_STRING
-				= new MappedEnum<>(values(), value -> value.persistentString);
+		public static final StringMappedEnum<RedisClientMode> BY_PERSISTENT_STRING
+				= new StringMappedEnum<>(values(), value -> value.persistentString);
 
 		public final String persistentString;
 		public final boolean isClustered;

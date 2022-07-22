@@ -28,6 +28,7 @@ import static j2html.TagCreator.tr;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -41,6 +42,7 @@ import io.datarouter.aws.rds.service.DatabaseAdministrationConfiguration;
 import io.datarouter.aws.rds.service.RdsService;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDtoBuilder;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.util.Require;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
@@ -79,12 +81,12 @@ public class AuroraInstancesHandler extends BaseHandler{
 		List<DnsHostEntryDto> otherReaderInstances = new ArrayList<>();
 		List<OtherClientDto> clientsMissingOtherInstances = new ArrayList<>();
 
-		Collection<DnsHostEntryDto> dnsEntriesForClients = dnsService.getDnsEntryForClients(false).values();
-		for(DnsHostEntryDto dnsEntry : dnsEntriesForClients){
-			if(!dnsEntry.reader){
+		Map<String,DnsHostEntryDto> dnsEntriesForClients = dnsService.getDnsEntryForClients();
+		for(DnsHostEntryDto dnsEntry : dnsEntriesForClients.values()){
+			if(dnsEntry.isWriter()){
 				String region = dnsEntry.getRegion();
-				DnsHostEntryDto otherEntry = dnsService.getOtherReader(dnsEntry.getClientName(),
-						dnsEntry.getClusterName());
+				DnsHostEntryDto otherEntry = dnsEntriesForClients.get(dnsEntry.getClientName()
+						+ AuroraDnsService.OTHER);
 				if(otherEntry == null){
 					clientsMissingOtherInstances.add(new OtherClientDto(dnsEntry.getClientName(),
 							dnsEntry.getClusterName(), region));
@@ -96,7 +98,10 @@ public class AuroraInstancesHandler extends BaseHandler{
 		}
 
 		List<DomContent> fragments = new ArrayList<>();
-		fragments.add(makeAuroraClientsTable("Aurora Clients", dnsEntriesForClients, false));
+		List<DnsHostEntryDto> dnsEntries = Scanner.of(dnsEntriesForClients.values())
+				.exclude(dnsEntry -> dnsEntry.isOther())
+				.list();
+		fragments.add(makeAuroraClientsTable("Aurora Clients", dnsEntries, false));
 		if(otherReaderInstances.size() != 0){
 			fragments.add(makeAuroraClientsTable("Aurora Other Instances", otherReaderInstances, true));
 		}
@@ -195,7 +200,7 @@ public class AuroraInstancesHandler extends BaseHandler{
 	public String getDeleteOtherClientUri(String contextPath, DnsHostEntryDto row){
 		String href = new URIBuilder().setPath(contextPath
 				+ paths.datarouter.auroraInstances.deleteOtherInstance.toSlashedString())
-				.addParameter(P_clientName, row.getClientName())
+				.addParameter(P_clientName, rdsSettings.dbPrefix.get() + row.getClientName())
 				.addParameter(P_region, row.getRegion())
 				.toString();
 		return href;

@@ -15,6 +15,8 @@
  */
 package io.datarouter.storage.callsite;
 
+import java.util.Objects;
+
 public class CallsiteStatKey{
 
 	private final String callsite;
@@ -35,11 +37,7 @@ public class CallsiteStatKey{
 
 	@Override
 	public int hashCode(){
-		int prime = 31;
-		int result = 1;
-		result = prime * result + (callsite == null ? 0 : callsite.hashCode());
-		result = prime * result + (nodeName == null ? 0 : nodeName.hashCode());
-		return result;
+		return Objects.hash(callsite, nodeName);
 	}
 
 	@Override

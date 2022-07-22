@@ -61,4 +61,6 @@ public interface BlobStorageWriter extends BlobStorageReader{
 		deleteAll(subpath, new Config());
 	}
 
+	void vacuum(Config config);
+
 }

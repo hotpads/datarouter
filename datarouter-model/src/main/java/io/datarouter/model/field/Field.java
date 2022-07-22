@@ -60,4 +60,6 @@ extends Comparable<Field<T>>,
 
 	String getPreparedStatementValue();
 
+	void validate();
+
 }

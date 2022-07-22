@@ -15,7 +15,7 @@
  */
 package io.datarouter.joblet.enums;
 
-import io.datarouter.enums.MappedEnum;
+import io.datarouter.enums.StringMappedEnum;
 import io.datarouter.scanner.Scanner;
 
 public enum JobletStatus{
@@ -27,8 +27,8 @@ public enum JobletStatus{
 	FAILED("failed", false),
 	TIMED_OUT("timedOut", false);
 
-	public static final MappedEnum<JobletStatus,String> BY_PERSISTENT_STRING
-			= new MappedEnum<>(values(), value -> value.persistentString);
+	public static final StringMappedEnum<JobletStatus> BY_PERSISTENT_STRING
+			= new StringMappedEnum<>(values(), value -> value.persistentString);
 
 	public final String persistentString;
 	public final boolean isRunning;

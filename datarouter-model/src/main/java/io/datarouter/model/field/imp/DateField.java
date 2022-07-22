@@ -83,7 +83,7 @@ public class DateField extends BasePrimitiveField<Date,DateFieldKey>{
 	}
 
 	@Override
-	public byte[] getBytes(){
+	public byte[] getValueBytes(){
 		if(value == null){
 			return null;
 		}
@@ -91,12 +91,12 @@ public class DateField extends BasePrimitiveField<Date,DateFieldKey>{
 	}
 
 	@Override
-	public int numBytesWithSeparator(byte[] bytes, int offset){
+	public int numKeyBytesWithSeparator(byte[] bytes, int offset){
 		return RAW_LONG_CODEC.length();
 	}
 
 	@Override
-	public Date fromBytesButDoNotSet(byte[] bytes, int offset){
+	public Date fromValueBytesButDoNotSet(byte[] bytes, int offset){
 		return decodeFromBytes(bytes, offset);
 	}
 

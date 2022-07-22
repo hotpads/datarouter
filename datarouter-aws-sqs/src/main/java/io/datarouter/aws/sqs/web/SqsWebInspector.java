@@ -25,13 +25,14 @@ import static j2html.TagCreator.th;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.http.client.utils.URIBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.amazonaws.services.sqs.model.QueueAttributeName;
 
@@ -63,6 +64,7 @@ import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 
 public class SqsWebInspector implements DatarouterClientWebInspector{
+	private static final Logger logger = LoggerFactory.getLogger(SqsWebInspector.class);
 
 	@Inject
 	private DatarouterWebRequestParamsFactory paramsFactory;
@@ -103,31 +105,30 @@ public class SqsWebInspector implements DatarouterClientWebInspector{
 
 	private DivTag buildQueueNodeTable(ClientId clientId, HttpServletRequest request){
 		Pair<List<Twin<String>>,List<String>> queueRegistry = queueRegistryService.getSqsQueuesForClient(clientId);
-		List<Twin<String>> knownQueueUrlByName = queueRegistry.getLeft();
-		Map<String,Optional<Double>> queueNamesAndApproximateAgeOfOldestMessage = sqsClientManager
-				.getApproximateAgeOfOldestUnackedMessageSecondsGroup(clientId,
-						Scanner.of(knownQueueUrlByName)
-								.map(Twin::getRight)
-								.list());
-		List<SqsWebInspectorDto> queueStatsRows = Scanner.of(knownQueueUrlByName)
+		List<Twin<String>> knownQueuesUrlAndName = queueRegistry.getLeft();
+		Map<String,Long> ageSByQueueName = sqsClientManager.getApproximateAgeOfOldestUnackedMessageSecondsGroup(
+				clientId,
+				Scanner.of(knownQueuesUrlAndName).map(Twin::getRight).list());
+		List<SqsWebInspectorDto> queueStatsRows = Scanner.of(knownQueuesUrlAndName)
 				.map(queueUrlAndName -> {
 					String queueName = queueUrlAndName.getRight();
 					String queueUrl = queueUrlAndName.getLeft();
-					String metricValue = "error";
-					if(queueNamesAndApproximateAgeOfOldestMessage.containsKey(queueName.replace("-", ""))){
-						metricValue = queueNamesAndApproximateAgeOfOldestMessage
-								.get(queueName.replace("-", ""))
-								.map(age -> new DatarouterDuration(age.longValue(), TimeUnit.SECONDS))
-								.map(Object::toString)
-								.get();
+					String age = "error";
+					Long ageS = ageSByQueueName.get(queueName);
+					if(ageS != null){
+						age = new DatarouterDuration(ageS, TimeUnit.SECONDS).toString(TimeUnit.SECONDS);
 					}
-					Map<String,String> attributesMap = sqsClientManager.getAllQueueAttributes(clientId, queueUrl);
-					return new SqsWebInspectorDto(
-							queueName,
-							attributesMap.get(QueueAttributeName.ApproximateNumberOfMessages.name()),
-							attributesMap.get(QueueAttributeName.ApproximateNumberOfMessagesDelayed.name()),
-							attributesMap.get(QueueAttributeName.ApproximateNumberOfMessagesNotVisible.name()),
-							metricValue);
+					String availableCount = "error";
+					String inFlightCount = "error";
+					try{
+						Map<String,String> attributesMap = sqsClientManager.getAllQueueAttributes(clientId, queueUrl);
+						availableCount = attributesMap.get(QueueAttributeName.ApproximateNumberOfMessages.name());
+						inFlightCount = attributesMap.get(
+								QueueAttributeName.ApproximateNumberOfMessagesNotVisible.name());
+					}catch(RuntimeException e){
+						logger.warn("failed to get attribute for queue={}", queueUrl);
+					}
+					return new SqsWebInspectorDto(queueName, availableCount, inFlightCount, age);
 				})
 				.sort(Comparator.comparing(dto -> dto.queueName))
 				.list();
@@ -137,10 +138,9 @@ public class SqsWebInspector implements DatarouterClientWebInspector{
 				.withHtmlColumn(th("Queue Name").withClass("col-xs-5"), row -> td(row.queueName))
 				.withHtmlColumn(th("Available For Retrieval").withClass("col-xs-3"),
 						row -> td(row.messagesAvailableForRetrieval))
-				.withHtmlColumn(th("Delayed").withClass("col-xs-1"), row -> td(row.messagesDelayed))
 				.withHtmlColumn(th("InFlight").withClass("col-xs-1"), row -> td(row.messagesInFlight))
 				.withHtmlColumn(th("Total").withClass("col-xs-1"), row -> td(row.getTotalMessagesAvailable()))
-				.withHtmlColumn(th("ApproximateAgeOfOldestMessage").withClass("col-xs-1"),
+				.withHtmlColumn(th("Age of oldest").withClass("col-xs-1"),
 						row -> td(String.valueOf(row.ageOfOldestMessage)))
 				.withHtmlColumn(th("").attr("width", "80"), row -> {
 					String href = buildActionPath(request, clientId, row.queueName, SqsQueueAction.PURGE);
@@ -187,18 +187,13 @@ public class SqsWebInspector implements DatarouterClientWebInspector{
 						"Messages Available For Retrieval",
 						"The approximate number of messages available for retrieval from the queue")
 				.withEntry(
-						"Messages Delayed",
-						"The approximate number of messages in the queue that are delayed and not available for reading"
-								+ " immediately. This can happen when the queue is configured as a delay queue or when "
-								+ "a message has been sent with a delay parameter.")
-				.withEntry(
 						"Messages In Flight",
 						"Messages are considered to be in flight if they have been sent to a client but have not yet "
 								+ "been deleted or have not yet reached the end of their visibility window.")
 				.withEntry("Total Messages", "A total of Available + InFlight messages")
 				.withEntry("Unreferenced Queue", "Queue which exists but the application is not aware of, "
 						+ "usually a result of the queue being renamed, or code refactored")
-				.withEntry("ApproximateAgeOfOldestMessage","The approximate age of the oldest non-deleted message in"
+				.withEntry("Age of oldest","The approximate age of the oldest non-deleted message in"
 						+ " the queue.")
 				.build()
 				.withClass("container-fluid my-4")
@@ -233,19 +228,16 @@ public class SqsWebInspector implements DatarouterClientWebInspector{
 
 		private final String queueName;
 		private final String messagesAvailableForRetrieval;
-		private final String messagesDelayed;
 		private final String messagesInFlight;
 		private final String ageOfOldestMessage;
 
 		private SqsWebInspectorDto(
 				String queueName,
 				String messagesAvailableForRetrieval,
-				String messagesDelayed,
 				String messagesInFlight,
 				String ageOfOldestMessage){
 			this.queueName = queueName;
 			this.messagesAvailableForRetrieval = messagesAvailableForRetrieval;
-			this.messagesDelayed = messagesDelayed;
 			this.messagesInFlight = messagesInFlight;
 			this.ageOfOldestMessage = ageOfOldestMessage;
 		}
@@ -262,7 +254,7 @@ public class SqsWebInspector implements DatarouterClientWebInspector{
 	private enum SqsQueueAction{
 		DELETE,
 		DELETE_ALL,
-		PURGE
+		PURGE,
 	}
 
 }

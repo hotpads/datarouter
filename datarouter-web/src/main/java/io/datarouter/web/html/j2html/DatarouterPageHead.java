@@ -26,6 +26,7 @@ import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 import j2html.tags.EmptyTag;
 import j2html.tags.specialized.HeadTag;
+import j2html.tags.specialized.ScriptTag;
 
 public class DatarouterPageHead{
 
@@ -39,6 +40,7 @@ public class DatarouterPageHead{
 	private final ContainerTag<?> datarouterNavbarRequestTimingScript;
 	private final String title;
 	private final Map<String,String> httpEquivs;
+	private final ScriptTag[] customScripts;
 
 	public DatarouterPageHead(
 			EmptyTag<?>[] datarouterWebCssImports,
@@ -50,7 +52,8 @@ public class DatarouterPageHead{
 			ContainerTag<?> datarouterNavbarRequestTimingJsImport,
 			ContainerTag<?> datarouterNavbarRequestTimingScript,
 			String title,
-			Map<String,String> httpEquivs){
+			Map<String,String> httpEquivs,
+			ScriptTag[] customScripts){
 		this.datarouterWebCssImports = datarouterWebCssImports;
 		this.datarouterWebRequireJsImport = datarouterWebRequireJsImport;
 		this.datarouterWebRequireJsConfig = datarouterWebRequireJsConfig;
@@ -61,6 +64,7 @@ public class DatarouterPageHead{
 		this.datarouterNavbarRequestTimingScript = datarouterNavbarRequestTimingScript;
 		this.title = title;
 		this.httpEquivs = httpEquivs;
+		this.customScripts = customScripts;
 	}
 
 	public HeadTag build(){
@@ -81,6 +85,7 @@ public class DatarouterPageHead{
 				.with(datarouterWebRequireJsConfig)
 				.with(webappRequireJsConfig)
 				.with(requireScript)
+				.with(customScripts)
 				.with(datarouterNavbarCssImports)
 				.with(datarouterNavbarRequestTimingJsImport)
 				.with(datarouterNavbarRequestTimingScript)

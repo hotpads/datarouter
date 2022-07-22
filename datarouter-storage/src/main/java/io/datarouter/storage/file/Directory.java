@@ -269,4 +269,9 @@ implements BlobStorage{
 
 	}
 
+	@Override
+	public void vacuum(Config config){
+		throw new UnsupportedOperationException();
+	}
+
 }

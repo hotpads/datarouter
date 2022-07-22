@@ -27,6 +27,9 @@ import java.util.TreeSet;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.tasktracker.scheduler.LongRunningTaskStatus;
 import io.datarouter.tasktracker.storage.LongRunningTask;
@@ -36,6 +39,7 @@ import io.datarouter.util.tuple.Range;
 
 @Singleton
 public class LongRunningTaskService{
+	private static final Logger logger = LoggerFactory.getLogger(LongRunningTaskService.class);
 
 	@Inject
 	private LongRunningTaskDao dao;
@@ -66,6 +70,22 @@ public class LongRunningTaskService{
 				.map(LongRunningTask::getFinishTimeInstant)
 				.exclude(Objects::isNull)
 				.findMax(Instant::compareTo);
+	}
+
+	public Optional<LongRunningTask> findLastNonRunningStatusTask(String name){
+		LongRunningTaskKey key = new LongRunningTaskKey(name, null, null);
+		return dao.scanWithPrefix(key)
+				.exclude(task -> task.getJobExecutionStatus() == LongRunningTaskStatus.RUNNING)
+				.exclude(task -> {
+					if(task.getFinishTimeInstant() == null){
+						logger.warn("LongRunningTask={} with status={} has null finishedTime.", task, task
+								.getJobExecutionStatus());
+						return true;
+					}
+					return false;
+				})
+				.sort((t1, t2) -> t1.getFinishTimeInstant().compareTo(t2.getFinishTimeInstant()))
+				.findLast();
 	}
 
 	public LongRunningTaskSummaryDto getSummary(){

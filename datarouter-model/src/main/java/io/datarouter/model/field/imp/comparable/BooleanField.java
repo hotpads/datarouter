@@ -45,17 +45,17 @@ public class BooleanField extends BasePrimitiveField<Boolean,BooleanFieldKey>{
 	}
 
 	@Override
-	public byte[] getBytes(){
+	public byte[] getValueBytes(){
 		return value == null ? null : RAW_BOOLEAN_CODEC.encode(value);
 	}
 
 	@Override
-	public int numBytesWithSeparator(byte[] bytes, int offset){
+	public int numKeyBytesWithSeparator(byte[] bytes, int offset){
 		return 1;
 	}
 
 	@Override
-	public Boolean fromBytesButDoNotSet(byte[] bytes, int offset){
+	public Boolean fromValueBytesButDoNotSet(byte[] bytes, int offset){
 		return RAW_BOOLEAN_CODEC.decode(bytes, offset);
 	}
 

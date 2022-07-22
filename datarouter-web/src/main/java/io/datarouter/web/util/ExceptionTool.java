@@ -15,9 +15,15 @@
  */
 package io.datarouter.web.util;
 
+import java.util.stream.Collectors;
+
 import org.apache.logging.log4j.core.impl.ThrowableProxy;
 
+import io.datarouter.util.string.StringTool;
+
 public class ExceptionTool{
+
+	private static final int MAX_STACK_TRACE_LINE_LENGTH = 500;
 
 	/**
 	 * This should NOT be used for logging. Instead of this use
@@ -33,7 +39,9 @@ public class ExceptionTool{
 	 */
 	public static String getStackTraceAsString(Throwable exception){
 		ThrowableProxy proxy = new ThrowableProxy(exception);
-		return proxy.getCauseStackTraceAsString("");
+		return proxy.getCauseStackTraceAsString("").lines()
+				.map(line -> StringTool.trimToSizeAndLog(line, MAX_STACK_TRACE_LINE_LENGTH, "[trimmed]", "stack trace"))
+				.collect(Collectors.joining("\n"));
 	}
 
 	@SafeVarargs

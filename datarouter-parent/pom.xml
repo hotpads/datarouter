@@ -22,7 +22,7 @@
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-metadata-parent</artifactId>
-		<version>0.0.114</version>
+		<version>0.0.115</version>
 		<relativePath>../datarouter-metadata-parent</relativePath>
 	</parent>
 
@@ -34,20 +34,19 @@
 
 	<properties>
 		<!-- libraries -->
-		<aws-sdk-version>1.12.136</aws-sdk-version>
-		<ben-manes-caffeine-version>3.0.6</ben-manes-caffeine-version>
-		<codehaus-plexus-version>2.11.1</codehaus-plexus-version>
+		<aws-sdk-version>1.12.259</aws-sdk-version>
+		<ben-manes-caffeine-version>3.1.1</ben-manes-caffeine-version>
+		<codehaus-plexus-version>2.12.1</codehaus-plexus-version>
 		<commons-codec-version>1.15</commons-codec-version>
 		<commons-io-version>2.11.0</commons-io-version>
-		<datarouter-version>0.0.114</datarouter-version>
-		<gson-version>2.8.9</gson-version>
-		<guice-version>5.0.1</guice-version>
-		<guava-version>31.0.1-jre</guava-version>
+		<datarouter-version>0.0.115</datarouter-version>
+		<guice-version>5.1.0</guice-version>
+		<guava-version>31.1-jre</guava-version>
 		<httpclient-version>4.5.13</httpclient-version>
 		<log4j-version>2.17.1</log4j-version>
-		<mockito-core-version>4.4.0</mockito-core-version>
+		<mockito-core-version>4.6.1</mockito-core-version>
 		<slf4j-version>1.7.33</slf4j-version>
-		<testng-version>7.3.0</testng-version>
+		<testng-version>7.6.1</testng-version>
 
 		<!-- plugins -->
 		<maven-jar-plugin-version>3.2.0</maven-jar-plugin-version>
@@ -57,7 +56,7 @@
 
 		<!-- other -->
 		<!-- upgrade scripts when bumping this version -->
-		<eclipse-compiler-version>3.29.0</eclipse-compiler-version>
+		<eclipse-compiler-version>3.30.0</eclipse-compiler-version>
 	</properties>
 
 	<dependencyManagement>
@@ -70,7 +69,7 @@
 			<dependency>
 				<groupId>com.google.cloud</groupId>
 				<artifactId>libraries-bom</artifactId>
-				<version>21.0.0</version>
+				<version>26.0.0</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -164,7 +163,7 @@
 					<dependency>
 						<groupId>com.puppycrawl.tools</groupId>
 						<artifactId>checkstyle</artifactId>
-						<version>9.2.1</version>
+						<version>10.3.1</version>
 					</dependency>
 					<dependency>
 						<groupId>io.datarouter</groupId>
@@ -241,7 +240,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-surefire-plugin</artifactId>
-					<version>3.0.0-M5</version>
+					<version>3.0.0-M7</version>
 					<executions>
 						<execution>
 							<id>default-test</id>
@@ -276,7 +275,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-failsafe-plugin</artifactId>
-					<version>3.0.0-M5</version>
+					<version>3.0.0-M7</version>
 					<executions>
 						<execution>
 							<goals>
@@ -294,7 +293,7 @@
 						<forkCount>1C</forkCount><!-- fork is a JVM.  the C multiplies by number of cores -->
 						<reuseForks>true</reuseForks>
 						<threadCount>2</threadCount>
-						<parallel>classesAndMethods</parallel>
+						<parallel>classes</parallel>
 						<includes>
 							<include>**/*IntegrationTests.class</include>
 						</includes>

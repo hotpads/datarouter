@@ -17,6 +17,7 @@ package io.datarouter.instrumentation.trace;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class Tracestate{
@@ -35,11 +36,15 @@ public class Tracestate{
 		tracestateMap.put(key, value);
 	}
 
-	public TracestateMemeber getLastestTracestate(){
+	public TracestateMember getLastestTracestate(){
 		return tracestateMap.entrySet().stream()
-				.map(entry -> new TracestateMemeber(entry.getKey(), entry.getValue()))
+				.map(entry -> new TracestateMember(entry.getKey(), entry.getValue()))
 				.findFirst()
 				.get();
+	}
+
+	public Optional<String> findMember(String key){
+		return Optional.ofNullable(tracestateMap.get(key));
 	}
 
 	/**
@@ -58,12 +63,12 @@ public class Tracestate{
 				.collect(Collectors.joining(TRACESTATE_MEMBER_DELIMITER));
 	}
 
-	public static class TracestateMemeber{
+	public static class TracestateMember{
 
 		public final String key;
 		public final String value;
 
-		public TracestateMemeber(String key, String value){
+		public TracestateMember(String key, String value){
 			this.key = key;
 			this.value = value;
 		}

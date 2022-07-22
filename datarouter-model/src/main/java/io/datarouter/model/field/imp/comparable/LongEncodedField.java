@@ -48,18 +48,18 @@ public class LongEncodedField<T> extends BaseField<T>{
 	}
 
 	@Override
-	public byte[] getBytes(){
+	public byte[] getValueBytes(){
 		Long longValue = key.getCodec().encode(value);
 		return longValue == null ? null : COMPARABLE_LONG_CODEC.encode(longValue);
 	}
 
 	@Override
-	public int numBytesWithSeparator(byte[] bytes, int offset){
+	public int numKeyBytesWithSeparator(byte[] bytes, int offset){
 		return COMPARABLE_LONG_CODEC.length();
 	}
 
 	@Override
-	public T fromBytesButDoNotSet(byte[] bytes, int offset){
+	public T fromValueBytesButDoNotSet(byte[] bytes, int offset){
 		long longValue = COMPARABLE_LONG_CODEC.decode(bytes, offset);
 		return key.getCodec().decode(longValue);
 	}

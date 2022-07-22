@@ -62,8 +62,8 @@ public class HBaseNonEntityResultParser<
 		}
 		int byteOffset = 0;
 		for(Field<?> field : fieldInfo.getPrimaryKeyFields()){
-			int numBytesWithSeparator = field.numBytesWithSeparator(rowWithoutPrefix, byteOffset);
-			Object value = field.fromBytesWithSeparatorButDoNotSet(rowWithoutPrefix, byteOffset);
+			int numBytesWithSeparator = field.numKeyBytesWithSeparator(rowWithoutPrefix, byteOffset);
+			Object value = field.fromKeyBytesWithSeparatorButDoNotSet(rowWithoutPrefix, byteOffset);
 			field.setUsingReflection(primaryKey, value);
 			byteOffset += numBytesWithSeparator;
 		}
@@ -89,7 +89,7 @@ public class HBaseNonEntityResultParser<
 			if(field == null){
 				continue;
 			}
-			Object value = field.fromBytesButDoNotSet(CellUtil.cloneValue(cell), 0);
+			Object value = field.fromValueBytesButDoNotSet(CellUtil.cloneValue(cell), 0);
 			field.setUsingReflection(databean, value);
 		}
 		return databean;

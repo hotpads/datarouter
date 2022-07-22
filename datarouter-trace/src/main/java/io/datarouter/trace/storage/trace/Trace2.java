@@ -19,8 +19,10 @@ import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import io.datarouter.instrumentation.trace.Trace2Dto;
+import io.datarouter.instrumentation.trace.TraceSaveReasonType;
 import io.datarouter.instrumentation.trace.Traceparent;
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
@@ -33,6 +35,9 @@ import io.datarouter.model.field.imp.comparable.LongFieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 import io.datarouter.model.serialize.fielder.TtlFielderConfig;
 import io.datarouter.model.util.CommonFieldSizes;
+import io.datarouter.scanner.IterableScanner;
+import io.datarouter.scanner.OptionalScanner;
+import io.datarouter.scanner.Scanner;
 
 public class Trace2 extends BaseDatabean<Trace2Key,Trace2>{
 
@@ -54,6 +59,7 @@ public class Trace2 extends BaseDatabean<Trace2Key,Trace2>{
 	private Long cpuTimeEndedNs;
 	private Long memoryAllocatedBytesBegin;
 	private Long memoryAllocatedBytesEnded;
+	private String saveReasons;
 
 	public static class FieldKeys{
 		public static final StringFieldKey initialParentId = new StringFieldKey("initialParentId");
@@ -79,6 +85,7 @@ public class Trace2 extends BaseDatabean<Trace2Key,Trace2>{
 				.withColumnName("memoryAllocatedBytesBegin2");
 		public static final LongFieldKey memoryAllocatedBytesEnded = new LongFieldKey("memoryAllocatedBytesEnded")
 				.withColumnName("memoryAllocatedBytesEnded2");
+		public static final StringFieldKey saveReasons = new StringFieldKey("saveReasons");
 	}
 
 	public static class Trace2Fielder extends BaseDatabeanFielder<Trace2Key,Trace2>{
@@ -104,7 +111,8 @@ public class Trace2 extends BaseDatabean<Trace2Key,Trace2>{
 					new LongField(FieldKeys.cpuTimeCreatedNs, databean.cpuTimeCreatedNs),
 					new LongField(FieldKeys.cpuTimeEndedNs, databean.cpuTimeEndedNs),
 					new LongField(FieldKeys.memoryAllocatedBytesBegin, databean.memoryAllocatedBytesBegin),
-					new LongField(FieldKeys.memoryAllocatedBytesEnded, databean.memoryAllocatedBytesEnded));
+					new LongField(FieldKeys.memoryAllocatedBytesEnded, databean.memoryAllocatedBytesEnded),
+					new StringField(FieldKeys.saveReasons, databean.saveReasons));
 		}
 	}
 
@@ -132,6 +140,9 @@ public class Trace2 extends BaseDatabean<Trace2Key,Trace2>{
 		this.cpuTimeEndedNs = dto.cpuTimeEndedNs;
 		this.memoryAllocatedBytesBegin = dto.memoryAllocatedBytesBegin;
 		this.memoryAllocatedBytesEnded = dto.memoryAllocatedBytesEnded;
+		this.saveReasons = IterableScanner.ofNullable(dto.saveReasons)
+				.map(reason -> reason.type)
+				.collect(Collectors.joining(","));
 	}
 
 	@Override
@@ -206,6 +217,16 @@ public class Trace2 extends BaseDatabean<Trace2Key,Trace2>{
 
 	public Traceparent getTraceparent(){
 		return new Traceparent(getTraceId(), getParentId());
+	}
+
+	public List<TraceSaveReasonType> getSaveReasons(){
+		if(saveReasons == null){
+			return List.of();
+		}
+		return Scanner.of(saveReasons.split(","))
+				.map(TraceSaveReasonType::fromType)
+				.concat(OptionalScanner::of)
+				.list();
 	}
 
 }

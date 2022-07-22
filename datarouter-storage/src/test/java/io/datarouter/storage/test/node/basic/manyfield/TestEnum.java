@@ -16,18 +16,19 @@
 package io.datarouter.storage.test.node.basic.manyfield;
 
 import io.datarouter.enums.MappedEnum;
+import io.datarouter.enums.StringMappedEnum;
 
 public enum TestEnum{
 
-	dog(19, "dog"),
-	cat(20, "cat"),
-	beast(21, "beast"),
-	fish(22, "fish");
+	DOG(19, "dog"),
+	CAT(20, "cat"),
+	BEAST(21, "beast"),
+	FISH(22, "fish");
 
 	public static final MappedEnum<TestEnum,Integer> BY_PERSISTENT_INTEGER
 			= new MappedEnum<>(values(), value -> value.persistentInteger);
-	public static final MappedEnum<TestEnum,String> BY_PERSISTENT_STRING
-			= new MappedEnum<>(values(), value -> value.persistentString);
+	public static final StringMappedEnum<TestEnum> BY_PERSISTENT_STRING
+			= new StringMappedEnum<>(values(), value -> value.persistentString);
 
 	public final int persistentInteger;
 	public final String persistentString;

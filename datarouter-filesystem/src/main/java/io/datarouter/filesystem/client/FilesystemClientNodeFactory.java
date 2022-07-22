@@ -35,19 +35,25 @@ import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.imp.BlobClientNodeFactory;
+import io.datarouter.storage.client.imp.BlobQueueClientNodeFactory;
 import io.datarouter.storage.client.imp.QueueClientNodeFactory;
-import io.datarouter.storage.file.Pathbean;
-import io.datarouter.storage.file.Pathbean.PathbeanFielder;
-import io.datarouter.storage.file.PathbeanKey;
+import io.datarouter.storage.file.DatabaseBlob;
+import io.datarouter.storage.file.DatabaseBlob.DatabaseBlobFielder;
+import io.datarouter.storage.file.DatabaseBlobKey;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.adapter.NodeAdapters;
+import io.datarouter.storage.node.op.raw.BlobQueueStorage.PhysicalBlobQueueStorageNode;
 import io.datarouter.storage.node.op.raw.BlobStorage.PhysicalBlobStorageNode;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
+import io.datarouter.storage.queue.BlobQueueMessage;
+import io.datarouter.storage.queue.BlobQueueMessage.BlobQueueMessageFielder;
+import io.datarouter.storage.queue.BlobQueueMessageKey;
+import io.datarouter.util.string.StringTool;
 import io.datarouter.web.config.service.ServiceName;
 
 @Singleton
 public class FilesystemClientNodeFactory
-implements BlobClientNodeFactory, QueueClientNodeFactory{
+implements BlobClientNodeFactory, BlobQueueClientNodeFactory, QueueClientNodeFactory{
 
 	@Inject
 	private FilesystemClientType clientType;
@@ -65,7 +71,8 @@ implements BlobClientNodeFactory, QueueClientNodeFactory{
 	/*-------------- BlobClientNodeFactory --------------*/
 
 	@Override
-	public PhysicalBlobStorageNode createBlobNode(NodeParams<PathbeanKey,Pathbean,PathbeanFielder> nodeParams){
+	public PhysicalBlobStorageNode createBlobNode(
+			NodeParams<DatabaseBlobKey,DatabaseBlob,DatabaseBlobFielder> nodeParams){
 		DirectoryBlobStorage directoryBlobStorage = makeDirectoryObjectStorage(nodeParams);
 		var node = new DirectoryBlobStorageNode(
 				nodeParams,
@@ -74,6 +81,17 @@ implements BlobClientNodeFactory, QueueClientNodeFactory{
 				nodeParams.getPhysicalName(),
 				nodeParams.getPath());
 		return nodeAdapters.wrapBlobNode(node);
+	}
+
+	/*-------------- BlobQueueClientNodeFactory --------------*/
+
+	@Override
+	public PhysicalBlobQueueStorageNode createBlobQueueNode(
+			NodeParams<BlobQueueMessageKey,BlobQueueMessage,BlobQueueMessageFielder> nodeParams){
+		var node = filesystemNodeFactory.createBlobNode(
+				makeDirectoryQueue(nodeParams),
+				nodeParams);
+		return nodeAdapters.wrapBlobQueueNode(node);
 	}
 
 	/*-------------- QueueClientNodeFactory --------------*/
@@ -115,7 +133,9 @@ implements BlobClientNodeFactory, QueueClientNodeFactory{
 
 	private DirectoryQueue makeDirectoryQueue(NodeParams<?,?,?> nodeParams){
 		Path rootPath = filesystemOptions.getRoot(nodeParams.getClientName());
-		String relativePathString = String.join("/", serviceName.get(), nodeParams.getPhysicalName());
+		String relativePathString = Scanner.of(serviceName.get(), nodeParams.getPhysicalName())
+				.exclude(StringTool::isEmpty)
+				.collect(Collectors.joining("/"));
 		Path relativePath = Paths.get(relativePathString);
 		Path fullPath = rootPath.resolve(relativePath);
 		DirectoryManager directoryManager = directoryManagerFactory.create(fullPath.toString());

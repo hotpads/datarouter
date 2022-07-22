@@ -15,9 +15,9 @@
  */
 package io.datarouter.clustersetting.service;
 
+import static j2html.TagCreator.b;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
-import static j2html.TagCreator.h4;
 import static j2html.TagCreator.small;
 import static j2html.TagCreator.td;
 import static j2html.TagCreator.th;
@@ -43,8 +43,8 @@ import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
 import io.datarouter.web.digest.DailyDigestService;
 import io.datarouter.web.html.j2html.J2HtmlTable;
-import j2html.TagCreator;
 import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.TableTag;
 
 @Singleton
 public class ClusterSettingDailyDigest implements DailyDigest{
@@ -70,12 +70,12 @@ public class ClusterSettingDailyDigest implements DailyDigest{
 
 	@Override
 	public Optional<DivTag> getPageContent(ZoneId zoneId){
-		return makeContent(new ClusterSettingDailyDigestPageTableFormatter());
+		return makeContent(new ClusterSettingDailyDigestPageFormatter(pageFormatter));
 	}
 
 	@Override
 	public Optional<DivTag> getEmailContent(ZoneId zoneId){
-		return makeContent(new ClusterSettingDailyDigestEmailTableFormatter());
+		return makeContent(new ClusterSettingDailyDigestPageFormatter(emailFormatter));
 	}
 
 	@Override
@@ -83,30 +83,30 @@ public class ClusterSettingDailyDigest implements DailyDigest{
 		return DailyDigestType.ACTIONABLE;
 	}
 
-	private Optional<DivTag> makeContent(ClusterSettingDailyDigestTableFormatter tableFormatter){
+	private Optional<DivTag> makeContent(ClusterSettingDailyDigestPageFormatter pageFormatter){
 		Optional<Pair<String,DivTag>> redundantTable = settingService
 				.scanWithValidity(ClusterSettingValidity.REDUNDANT)
-				.listTo(settings -> tableFormatter.makeTable(
+				.listTo(settings -> pageFormatter.build(
 						settings,
 						"Redundant",
 						Optional.of("Setting's value in database is the same as the code. Generally safe to delete "
 								+ "through the Cluster Setting UI")));
 		Optional<Pair<String,DivTag>> unreferencedTable = settingService
 				.scanWithValidity(ClusterSettingValidity.UNREFERENCED)
-				.listTo(settings -> tableFormatter.makeTable(
+				.listTo(settings -> pageFormatter.build(
 						settings,
 						"Unreferenced",
 						Optional.of("Settings exist in the database but not in the code.")));
 		Optional<Pair<String,DivTag>> oldTable = settingService
 				.scanWithValidity(ClusterSettingValidity.OLD)
-				.listTo(settings -> tableFormatter.makeTable(
+				.listTo(settings -> pageFormatter.build(
 						settings,
 						"Old",
 						Optional.of("Setting has lived in the database for over the threshold. Could update the "
 								+ "defaults in the code.")));
 		Optional<Pair<String,DivTag>> unknownTable = settingService
 				.scanWithValidity(ClusterSettingValidity.UNKNOWN)
-				.listTo(settings -> tableFormatter.makeTable(settings, "Unknown", Optional.empty()));
+				.listTo(settings -> pageFormatter.build(settings, "Unknown", Optional.empty()));
 
 		// Scanners can't figure out types
 		List<DivTag> tables = Stream.of(redundantTable, unreferencedTable, oldTable, unknownTable)
@@ -119,51 +119,48 @@ public class ClusterSettingDailyDigest implements DailyDigest{
 			return Optional.empty();
 		}
 		var header = digestService.makeHeader("Settings", paths.datarouter.settings.customSettings);
-		return Optional.of(div(header, each(tables, tag -> TagCreator.div(tag))));
+		return Optional.of(div(header, each(tables, tag -> div(tag))));
 	}
 
-	private abstract static class ClusterSettingDailyDigestTableFormatter{
-		public abstract Optional<Pair<String,DivTag>> makeTable(
-				List<ClusterSetting> settings,
-				String header,
-				Optional<String> caption);
+	private interface ClusterSettingDailyDigestTableFormatter{
+		TableTag makeTable(List<ClusterSetting> settings);
 	}
 
-	private class ClusterSettingDailyDigestEmailTableFormatter extends ClusterSettingDailyDigestTableFormatter{
-		@Override
-		public Optional<Pair<String,DivTag>> makeTable(
+	private class ClusterSettingDailyDigestPageFormatter{
+
+		private final ClusterSettingDailyDigestTableFormatter tableFormatter;
+
+		public ClusterSettingDailyDigestPageFormatter(ClusterSettingDailyDigestTableFormatter tableFormatter){
+			this.tableFormatter = tableFormatter;
+		}
+
+		public Optional<Pair<String,DivTag>> build(
 				List<ClusterSetting> settings,
 				String header,
 				Optional<String> caption){
 			if(settings.isEmpty()){
 				return Optional.empty();
 			}
-			var table = new J2HtmlEmailTable<ClusterSetting>()
+			return Optional.of(new Pair<>(
+					header,
+					div(div(b(header)), small(caption.orElse("")), tableFormatter.makeTable(settings))));
+		}
+
+	}
+
+	private final ClusterSettingDailyDigestTableFormatter emailFormatter = settings ->
+			new J2HtmlEmailTable<ClusterSetting>()
 					.withColumn(new J2HtmlEmailTableColumn<>("Name",
 							row -> configScanner.makeSettingLink(row.getName())))
 					// don't send values in an email
 					.build(settings);
-			return Optional.of(new Pair<>(header, div(h4(header), small(caption.orElse("")), table)));
-		}
-	}
 
-	private class ClusterSettingDailyDigestPageTableFormatter extends ClusterSettingDailyDigestTableFormatter{
-		@Override
-		public Optional<Pair<String,DivTag>> makeTable(
-				List<ClusterSetting> settings,
-				String header,
-				Optional<String> caption){
-			if(settings.isEmpty()){
-				return Optional.empty();
-			}
-			var table = new J2HtmlTable<ClusterSetting>()
+	private final ClusterSettingDailyDigestTableFormatter pageFormatter = settings ->
+			new J2HtmlTable<ClusterSetting>()
 					.withClasses("sortable table table-sm table-striped my-4 border")
 					.withHtmlColumn(th("Name").withClass("w-50"),
 							row -> td(configScanner.makeSettingLink(row.getName())))
 					.withHtmlColumn(th("Value").withClass("w-50"), row -> td(row.getValue()))
 					.build(settings);
-			return Optional.of(new Pair<>(header, div(h4(header), small(caption.orElse("")), table)));
-		}
-	}
 
 }

@@ -15,7 +15,7 @@
  */
 package io.datarouter.trace.storage.span;
 
-import io.datarouter.enums.MappedEnum;
+import io.datarouter.enums.StringMappedEnum;
 import io.datarouter.instrumentation.trace.TraceSpanGroupType;
 
 public enum Trace2SpanGroupType{
@@ -26,8 +26,8 @@ public enum Trace2SpanGroupType{
 	MULTITHREADING(TraceSpanGroupType.MULTITHREADING, "multithreading"),
 	NONE(TraceSpanGroupType.NONE, "no group categrized");
 
-	public static final MappedEnum<Trace2SpanGroupType,String> BY_PERSISTENT_STRING
-			= new MappedEnum<>(values(), value -> value.persistentString);
+	public static final StringMappedEnum<Trace2SpanGroupType> BY_PERSISTENT_STRING
+			= new StringMappedEnum<>(values(), value -> value.persistentString);
 
 	public final String persistentString;
 	public final String description;

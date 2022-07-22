@@ -21,28 +21,17 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
-import io.datarouter.gson.serialization.DurationLegacyTypeAdapter;
+import io.datarouter.gson.serialization.GsonTool;
 
 public class DurationLegacyTypeAdapterTests{
 
 	@Test
 	public void testInteroperability(){
 		Duration duration = Duration.ofSeconds(13, 739457283);
-		Gson legacyAdapterGson = new GsonBuilder()
-				.registerTypeAdapter(Duration.class, new DurationLegacyTypeAdapter())
-				.create();
+		Gson legacyAdapterGson = GsonTool.GSON;
 		String legacyAdapterJson = legacyAdapterGson.toJson(duration);
 		Assert.assertEquals(legacyAdapterGson.fromJson(legacyAdapterJson, Duration.class), duration);
-
-		// Remove to get to Java 16
-		Gson legacyReflectionGson = new Gson();
-		String legacyReflectionJson = legacyReflectionGson.toJson(duration);
-		Assert.assertEquals(legacyReflectionJson, legacyAdapterJson);
-		Assert.assertEquals(legacyReflectionGson.fromJson(legacyAdapterJson, Duration.class), duration);
-		Assert.assertEquals(legacyReflectionGson.fromJson(legacyReflectionJson, Duration.class), duration);
-		Assert.assertEquals(legacyAdapterGson.fromJson(legacyReflectionJson, Duration.class), duration);
 	}
 
 }

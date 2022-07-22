@@ -15,30 +15,20 @@
  */
 package io.datarouter.exception.storage.httprecord;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.datarouter.model.field.imp.StringFieldKey;
 import io.datarouter.util.string.StringTool;
 
 public class FieldTrimTool{
-	private static final Logger logger = LoggerFactory.getLogger(FieldTrimTool.class);
 
 	private static final String TRIMMING_REPLACEMENT = "trimmed";
-	private static final int TRIMMING_REPLACEMENT_LENGTH = TRIMMING_REPLACEMENT.length();
 
 	public static String trimField(StringFieldKey fieldKey, String field, String databeanId){
-		if(field == null){
-			return field;
-		}
-		int fieldSize = fieldKey.getSize();
-		int fieldValueLength = field.length();
-		if(fieldValueLength > fieldSize){
-			logger.warn("Trimmed {} to {} from {}, {}", fieldKey.getName(), fieldSize,
-					fieldValueLength, databeanId);
-			return StringTool.trimToSize(field, fieldSize - TRIMMING_REPLACEMENT_LENGTH) + TRIMMING_REPLACEMENT;
-		}
-		return field;
+		return StringTool.trimToSizeAndLog(
+				field,
+				fieldKey.getSize(),
+				TRIMMING_REPLACEMENT,
+				"field=" + fieldKey.getName(),
+				databeanId);
 	}
 
 }

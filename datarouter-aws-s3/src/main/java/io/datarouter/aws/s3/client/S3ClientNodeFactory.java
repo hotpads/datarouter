@@ -23,9 +23,9 @@ import io.datarouter.aws.s3.S3ClientType;
 import io.datarouter.aws.s3.node.S3DirectoryManager;
 import io.datarouter.aws.s3.node.S3Node;
 import io.datarouter.storage.client.imp.BlobClientNodeFactory;
-import io.datarouter.storage.file.Pathbean;
-import io.datarouter.storage.file.Pathbean.PathbeanFielder;
-import io.datarouter.storage.file.PathbeanKey;
+import io.datarouter.storage.file.DatabaseBlob;
+import io.datarouter.storage.file.DatabaseBlob.DatabaseBlobFielder;
+import io.datarouter.storage.file.DatabaseBlobKey;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.adapter.NodeAdapters;
 import io.datarouter.storage.node.op.raw.BlobStorage.PhysicalBlobStorageNode;
@@ -45,14 +45,15 @@ implements BlobClientNodeFactory{
 	/*---------------- BlobClientNodeFactory ------------------*/
 
 	@Override
-	public PhysicalBlobStorageNode createBlobNode(NodeParams<PathbeanKey,Pathbean,PathbeanFielder> nodeParams){
+	public PhysicalBlobStorageNode createBlobNode(
+			NodeParams<DatabaseBlobKey,DatabaseBlob,DatabaseBlobFielder> nodeParams){
 		var node = createInternal(nodeParams);
 		return nodeAdapters.wrapBlobNode(node);
 	}
 
 	/*---------------- private ------------------*/
 
-	private S3Node createInternal(NodeParams<PathbeanKey,Pathbean,PathbeanFielder> nodeParams){
+	private S3Node createInternal(NodeParams<DatabaseBlobKey,DatabaseBlob,DatabaseBlobFielder> nodeParams){
 		DatarouterS3Client client = s3ClientManager.getClient(nodeParams.getClientId());
 		String bucket = nodeParams.getPhysicalName();
 		Subpath path = nodeParams.getPath();

@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-import io.datarouter.bytes.codec.stringcodec.StringCodec;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
@@ -93,7 +92,7 @@ public interface StringDatabeanCodec{
 		return groups;
 	}
 
-	default String concatGroup(List<byte[]> group){
+	default byte[] concatGroup(List<byte[]> group){
 		var databeanGroup = new ByteArrayOutputStream();
 		databeanGroup.write(getCollectionPrefixBytes(), 0, getCollectionPrefixBytes().length);
 		for(int i = 0; i < group.size(); i++){
@@ -103,7 +102,7 @@ public interface StringDatabeanCodec{
 			}
 		}
 		databeanGroup.write(getCollectionSuffixBytes(), 0, getCollectionSuffixBytes().length);
-		return StringCodec.UTF_8.decode(databeanGroup.toByteArray());
+		return databeanGroup.toByteArray();
 	}
 
 }

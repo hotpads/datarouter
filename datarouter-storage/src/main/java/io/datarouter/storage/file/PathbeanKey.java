@@ -58,8 +58,12 @@ public class PathbeanKey extends BaseRegularPrimaryKey<PathbeanKey>{
 	}
 
 	public PathbeanKey(String path, String file){
+		this(path, file, false);
+	}
+
+	private PathbeanKey(String path, String file, boolean allowEmptyFile){
 		boolean isValidPath = path == null || isValidPath(path);
-		boolean isValidFile = file == null || isValidFile(file);
+		boolean isValidFile = file == null || isValidFile(file, allowEmptyFile);
 		if(!isValidPath || !isValidFile){
 			String message = String.format("validPath=%s, validFile=%s in [path=%s][file=%s]", isValidPath, isValidFile,
 					path, file);
@@ -69,7 +73,15 @@ public class PathbeanKey extends BaseRegularPrimaryKey<PathbeanKey>{
 		this.file = file;
 	}
 
+	public static PathbeanKey ofAllowEmptyFile(String pathAndFile){
+		return of(pathAndFile, true);
+	}
+
 	public static PathbeanKey of(String pathAndFile){
+		return of(pathAndFile, false);
+	}
+
+	private static PathbeanKey of(String pathAndFile, boolean allowEmptyFile){
 		int lastSlashIndex = pathAndFile.lastIndexOf('/');
 		String keyDirectory;
 		String keyFile;
@@ -80,7 +92,7 @@ public class PathbeanKey extends BaseRegularPrimaryKey<PathbeanKey>{
 			keyDirectory = pathAndFile.substring(0, lastSlashIndex + 1);
 			keyFile = pathAndFile.substring(lastSlashIndex + 1);
 		}
-		return new PathbeanKey(keyDirectory, keyFile);
+		return new PathbeanKey(keyDirectory, keyFile, allowEmptyFile);
 	}
 
 	public static PathbeanKey of(Path path){
@@ -115,12 +127,12 @@ public class PathbeanKey extends BaseRegularPrimaryKey<PathbeanKey>{
 		return true;
 	}
 
-	public static final boolean isValidFile(String file){
+	public static final boolean isValidFile(String file, boolean allowEmptyFile){
 		if(file.contains("/")){
 			return false;
 		}
 		if(file.length() == 0){
-			return false;
+			return allowEmptyFile;
 		}
 		return true;
 	}

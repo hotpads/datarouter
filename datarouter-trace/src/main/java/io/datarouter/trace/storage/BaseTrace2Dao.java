@@ -152,7 +152,9 @@ public abstract class BaseTrace2Dao extends BaseDao{
 	}
 
 	private boolean isExpired(Trace2EntityKey entityKey){
-		return entityKey.getAge().compareTo(Trace2.TTL) > 0;
+		return entityKey.getAge()
+				.map(age -> age.compareTo(Trace2.TTL) > 0)
+				.orElse(true);
 	}
 
 }

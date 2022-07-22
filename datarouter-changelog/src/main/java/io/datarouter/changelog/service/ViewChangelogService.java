@@ -37,8 +37,8 @@ import io.datarouter.util.time.ZonedDateFormatterTool;
 import io.datarouter.web.config.ServletContextSupplier;
 import io.datarouter.web.html.j2html.J2HtmlTable;
 import j2html.attributes.Attr;
-import j2html.tags.DomContent;
 import j2html.tags.specialized.TableTag;
+import j2html.tags.specialized.TdTag;
 
 @Singleton
 public class ViewChangelogService{
@@ -72,7 +72,7 @@ public class ViewChangelogService{
 				.build(rows);
 	}
 
-	public DomContent makeModal(String id, String comment, String type){
+	public TdTag makeModal(String id, String comment, String type){
 		if(comment == null){
 			return td();
 		}

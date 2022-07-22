@@ -70,7 +70,7 @@ public class LocalDateTimeField extends BasePrimitiveField<LocalDateTime,LocalDa
 	}
 
 	@Override
-	public byte[] getBytes(){
+	public byte[] getValueBytes(){
 		if(value == null){
 			return null;
 		}
@@ -87,12 +87,12 @@ public class LocalDateTimeField extends BasePrimitiveField<LocalDateTime,LocalDa
 	}
 
 	@Override
-	public int numBytesWithSeparator(byte[] bytes, int offset){
+	public int numKeyBytesWithSeparator(byte[] bytes, int offset){
 		return NUM_BYTES;
 	}
 
 	@Override
-	public LocalDateTime fromBytesButDoNotSet(byte[] bytes, int offset){
+	public LocalDateTime fromValueBytesButDoNotSet(byte[] bytes, int offset){
 		int year = COMPARABLE_INT_CODEC.decode(bytes, offset);
 		offset += 4;
 		int month = COMPARABLE_SHORT_CODEC.decode(bytes, offset);

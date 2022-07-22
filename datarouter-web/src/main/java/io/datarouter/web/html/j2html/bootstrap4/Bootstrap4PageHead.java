@@ -27,6 +27,7 @@ import io.datarouter.web.requirejs.DatarouterWebRequireJs;
 import io.datarouter.web.requirejs.DatarouterWebRequireJsV2;
 import io.datarouter.web.requirejs.RequireJsTool;
 import j2html.tags.EmptyTag;
+import j2html.tags.specialized.ScriptTag;
 
 public class Bootstrap4PageHead extends DatarouterPageHead{
 
@@ -39,7 +40,8 @@ public class Bootstrap4PageHead extends DatarouterPageHead{
 			String[] require,
 			boolean isAdmin,
 			String title,
-			Map<String,String> httpEquivs){
+			Map<String,String> httpEquivs,
+			ScriptTag[] customScripts){
 		super(
 				DatarouterWebCssV2.makeCssImportTags(contextPath),
 				DatarouterWebRequireJs.makeImportTag(contextPath),
@@ -51,7 +53,8 @@ public class Bootstrap4PageHead extends DatarouterPageHead{
 				isAdmin ? DatarouterWebJsTool.makeJsImport(contextPath, FILES.js.navbarRequestTimingV2Js) : null,
 				isAdmin ? DatarouterNavbarFactory.makeNavbarRequestTimingScriptV2(contextPath) : null,
 				title,
-				httpEquivs);
+				httpEquivs,
+				customScripts);
 	}
 
 }

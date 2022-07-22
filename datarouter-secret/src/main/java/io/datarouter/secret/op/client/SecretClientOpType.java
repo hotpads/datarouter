@@ -15,7 +15,7 @@
  */
 package io.datarouter.secret.op.client;
 
-import io.datarouter.enums.MappedEnum;
+import io.datarouter.enums.StringMappedEnum;
 
 public enum SecretClientOpType{
 
@@ -27,8 +27,8 @@ public enum SecretClientOpType{
 	PUT("PUT"),
 	MIGRATE("MIGRATE");
 
-	public static final MappedEnum<SecretClientOpType,String> BY_PERSISTENT_STRING
-			= new MappedEnum<>(values(), value -> value.persistentString);
+	public static final StringMappedEnum<SecretClientOpType> BY_PERSISTENT_STRING
+			= new StringMappedEnum<>(values(), value -> value.persistentString);
 
 	public final String persistentString;
 

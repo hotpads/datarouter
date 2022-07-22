@@ -48,17 +48,17 @@ public class LongField extends BasePrimitiveField<Long,LongFieldKey>{
 	}
 
 	@Override
-	public byte[] getBytes(){
+	public byte[] getValueBytes(){
 		return value == null ? null : COMPARABLE_LONG_CODEC.encode(value);
 	}
 
 	@Override
-	public int numBytesWithSeparator(byte[] bytes, int offset){
+	public int numKeyBytesWithSeparator(byte[] bytes, int offset){
 		return COMPARABLE_LONG_CODEC.length();
 	}
 
 	@Override
-	public Long fromBytesButDoNotSet(byte[] bytes, int offset){
+	public Long fromValueBytesButDoNotSet(byte[] bytes, int offset){
 		return COMPARABLE_LONG_CODEC.decode(bytes, offset);
 	}
 

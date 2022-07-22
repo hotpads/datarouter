@@ -31,9 +31,6 @@ import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
-import io.datarouter.storage.tally.Tally;
-import io.datarouter.storage.tally.Tally.TallyFielder;
-import io.datarouter.storage.tally.TallyKey;
 import io.datarouter.util.string.StringTool;
 
 public class MysqlVacuumTallyOp<
@@ -43,20 +40,24 @@ public class MysqlVacuumTallyOp<
 extends BaseMysqlOp<Void>{
 	private static final Logger logger = LoggerFactory.getLogger(MysqlVacuumTallyOp.class);
 
-	private static final String ID = TallyKey.FieldKeys.id.getColumnName();
-
 	private final MysqlSqlFactory mysqlSqlFactory;
-	private final PhysicalDatabeanFieldInfo<TallyKey,Tally,TallyFielder> fieldInfo;
+	private final PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo;
+	private final String keyId;
+	private final String ttlId;
 	private final Config config;
 
 	public MysqlVacuumTallyOp(
 			Datarouter datarouter,
-			PhysicalDatabeanFieldInfo<TallyKey,Tally,TallyFielder> fieldInfo,
+			PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
 			MysqlSqlFactory mysqlSqlFactory,
+			String keyId,
+			String ttlId,
 			Config config){
 		super(datarouter, fieldInfo.getClientId());
 		this.mysqlSqlFactory = mysqlSqlFactory;
 		this.fieldInfo = fieldInfo;
+		this.keyId = keyId;
+		this.ttlId = ttlId;
 		this.config = config;
 	}
 
@@ -74,7 +75,7 @@ extends BaseMysqlOp<Void>{
 			String startId = null;
 			String endId = null;
 			while(statementEnd.getResultSet().next()){
-				endId = statementEnd.getResultSet().getString(ID);
+				endId = statementEnd.getResultSet().getString(keyId);
 			}
 			while(startId != null || endId != null){
 				MysqlSql sqlDelete = buildSqlDeleteRange(tableName, disableIntroducer, nowMs, startId, endId);
@@ -89,7 +90,7 @@ extends BaseMysqlOp<Void>{
 				statementEnd = endSql.prepare(connection);
 				statementEnd.execute();
 				while(statementEnd.getResultSet().next()){
-					endId = statementEnd.getResultSet().getString(ID);
+					endId = statementEnd.getResultSet().getString(keyId);
 				}
 			}
 		}catch(SQLException e){
@@ -111,14 +112,15 @@ extends BaseMysqlOp<Void>{
 		if(!first && startKey == null){
 			return null;
 		}
-
 		if(!first){
 			sql.append(" where ");
-			sql.append(ID);
+			sql.append(keyId);
 			sql.append(">=");
 			sql.append(StringTool.escapeString(startKey));
+			sql.addLimitOffsetClause(new Config().setLimit(1).setOffset(offset));
+		}else{
+			sql.addLimitOffsetClause(new Config().setLimit(1));
 		}
-		sql.addLimitOffsetClause(new Config().setLimit(1).setOffset(offset));
 		return sql;
 	}
 
@@ -134,20 +136,20 @@ extends BaseMysqlOp<Void>{
 				.append(" where ");
 		if(startId != null){
 			sqlDelete
-				.append(ID)
+				.append(keyId)
 				.append(" >= ")
 				.append(StringTool.escapeString(startId))
 				.append(" and ");
 		}
 		if(endId != null){
 			sqlDelete
-				.append(ID)
+				.append(keyId)
 				.append(" < ")
 				.append(StringTool.escapeString(endId))
 				.append(" and ");
 		}
 		sqlDelete
-				.append(Tally.FieldKeys.expirationMs.getColumnName())
+				.append(ttlId)
 				.append(" < ")
 				.append("" + nowMs);
 		return sqlDelete;

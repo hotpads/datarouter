@@ -20,7 +20,7 @@ package io.datarouter.model.field.encoding;
  */
 public interface BinaryValueField<T>{
 
-	byte[] getBytes();
-	T fromBytesButDoNotSet(byte[] bytes, int byteOffset);
+	byte[] getValueBytes();
+	T fromValueBytesButDoNotSet(byte[] bytes, int byteOffset);
 
 }

@@ -17,6 +17,7 @@ package io.datarouter.filesystem.client;
 
 import javax.inject.Singleton;
 
+import io.datarouter.filesystem.node.queue.DirectoryBlobQueueNode;
 import io.datarouter.filesystem.node.queue.DirectoryGroupQueueNode;
 import io.datarouter.filesystem.node.queue.DirectoryQueueNode;
 import io.datarouter.filesystem.raw.queue.DirectoryQueue;
@@ -24,6 +25,10 @@ import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.node.NodeParams;
+import io.datarouter.storage.node.op.raw.BlobQueueStorage.PhysicalBlobQueueStorageNode;
+import io.datarouter.storage.queue.BlobQueueMessage;
+import io.datarouter.storage.queue.BlobQueueMessage.BlobQueueMessageFielder;
+import io.datarouter.storage.queue.BlobQueueMessageKey;
 
 @Singleton
 public class FilesystemNodeFactory{
@@ -44,6 +49,11 @@ public class FilesystemNodeFactory{
 		return new DirectoryGroupQueueNode<>(
 				directoryQueue,
 				params);
+	}
+
+	public PhysicalBlobQueueStorageNode createBlobNode(DirectoryQueue directoryQueue,
+			NodeParams<BlobQueueMessageKey,BlobQueueMessage,BlobQueueMessageFielder> params){
+		return new DirectoryBlobQueueNode(directoryQueue, params);
 	}
 
 }

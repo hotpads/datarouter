@@ -163,13 +163,7 @@ implements Comparable<Range<T>>{
 	//auto-gen
 	@Override
 	public int hashCode(){
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + (end == null ? 0 : end.hashCode());
-		result = prime * result + (endInclusive ? 1231 : 1237);
-		result = prime * result + (start == null ? 0 : start.hashCode());
-		result = prime * result + (startInclusive ? 1231 : 1237);
-		return result;
+		return Objects.hash(end, endInclusive, start, startInclusive);
 	}
 
 	//auto-gen

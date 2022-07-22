@@ -16,6 +16,7 @@
 package io.datarouter.aws.rds.service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -77,10 +78,19 @@ public class RdsService{
 				true);
 	}
 
+	public DBInstance getWriterInstance(String clusterName, String region){
+		Optional<String> writerInstance = Scanner.of(getCluster(clusterName, region).getDBClusterMembers())
+				.include(clusterMember -> clusterMember.isClusterWriter())
+				.map(DBClusterMember::getDBInstanceIdentifier)
+				.findFirst();
+		return getInstance(writerInstance.get(), region);
+	}
+
 	public void createOtherInstance(String clusterName, String region){
 		String otherInstanceName = clusterName + rdsSettings.dbOtherInstanceSuffix.get();
 		if(!getReaderInstanceIds(clusterName, region).contains(otherInstanceName)){
-			createDbInstance(otherInstanceName, clusterName, region);
+			String availabilityZone = getWriterInstance(clusterName, region).getAvailabilityZone();
+			createDbInstance(otherInstanceName, clusterName, region, availabilityZone);
 		}
 	}
 
@@ -97,13 +107,14 @@ public class RdsService{
 		}
 	}
 
-	public void createDbInstance(String instanceName, String clusterName, String region){
+	public void createDbInstance(String instanceName, String clusterName, String region, String availabilityZone){
 		String parameterGroup = rdsSettings.getParameterGroup(region);
 		var request = new CreateDBInstanceRequest()
 				.withDBInstanceIdentifier(instanceName)
 				.withDBInstanceClass(rdsSettings.dbOtherInstanceClass.get())
 				.withEngine(rdsSettings.dbOtherEngine.get())
 				.withDBParameterGroupName(parameterGroup)
+				.withAvailabilityZone(availabilityZone)
 				.withDBClusterIdentifier(clusterName);
 
 		request.setPromotionTier(rdsSettings.dbOtherPromotionTier.get());

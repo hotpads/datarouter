@@ -57,20 +57,18 @@ public class AmazonSqsHolder{
 				sqsOptions.getSecretKey(clientId.getName()));
 		var credentialsProvider = new AWSStaticCredentialsProvider(credentials);
 		AmazonSQS amazonSqs = AmazonSQSClient.builder()
-				.withClientConfiguration(conf)
-				.withCredentials(credentialsProvider)
 				.withRegion(sqsOptions.getRegion(clientId.getName()))
+				.withCredentials(credentialsProvider)
+				.withClientConfiguration(conf)
 				.build();
 		awsSupport.registerConnectionManager("sqs " + clientId.getName(), amazonSqs);
 		amazonSqsByClient.put(clientId, amazonSqs);
-		Region region = Region.of(sqsOptions.getRegion(clientId.getName()));
 		AwsCredentials awsCredentials = AwsBasicCredentials.create(
 				sqsOptions.getAccessKey(clientId.getName()),
 				sqsOptions.getSecretKey(clientId.getName()));
 		AwsCredentialsProvider awsCredentialsProvider = StaticCredentialsProvider.create(awsCredentials);
-		CloudWatchClient cloudWatchClient = CloudWatchClient
-				.builder()
-				.region(region)
+		CloudWatchClient cloudWatchClient = CloudWatchClient.builder()
+				.region(Region.of(sqsOptions.getRegion(clientId.getName())))
 				.credentialsProvider(awsCredentialsProvider)
 				.build();
 		amazonCloudWatchByClient.put(clientId, cloudWatchClient);

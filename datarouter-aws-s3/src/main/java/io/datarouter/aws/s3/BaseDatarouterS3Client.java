@@ -30,6 +30,7 @@ import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -80,7 +81,9 @@ import software.amazon.awssdk.services.s3.model.CompletedPart;
 import software.amazon.awssdk.services.s3.model.CopyObjectRequest;
 import software.amazon.awssdk.services.s3.model.CreateMultipartUploadRequest;
 import software.amazon.awssdk.services.s3.model.CreateMultipartUploadResponse;
+import software.amazon.awssdk.services.s3.model.Delete;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.DeleteObjectsRequest;
 import software.amazon.awssdk.services.s3.model.GetBucketLocationRequest;
 import software.amazon.awssdk.services.s3.model.GetBucketLocationResponse;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
@@ -95,6 +98,7 @@ import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
 import software.amazon.awssdk.services.s3.model.NoSuchBucketException;
 import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
 import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
+import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 import software.amazon.awssdk.services.s3.model.S3Object;
@@ -183,6 +187,22 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 		S3Client s3Client = getS3ClientForBucket(bucket);
 		try(var $ = TracerTool.startSpan("S3 deleteObject", TraceSpanGroupType.CLOUD_STORAGE)){
 			s3Client.deleteObject(request);
+		}
+	}
+
+	@Override
+	public void deleteObjects(String bucket, Collection<String> keys){
+		List<ObjectIdentifier> objectsToDelete = Scanner.of(keys)
+				.map(key -> ObjectIdentifier.builder().key(key).build())
+				.list();
+		DeleteObjectsRequest request = DeleteObjectsRequest.builder()
+				.bucket(bucket)
+				.delete(Delete.builder().objects(objectsToDelete).build())
+				.build();
+		S3Client s3Client = getS3ClientForBucket(bucket);
+		try(var $ = TracerTool.startSpan("S3 deleteObjects", TraceSpanGroupType.CLOUD_STORAGE)){
+			s3Client.deleteObjects(request);
+			TracerTool.appendToSpanInfo("deleted", objectsToDelete.size());
 		}
 	}
 

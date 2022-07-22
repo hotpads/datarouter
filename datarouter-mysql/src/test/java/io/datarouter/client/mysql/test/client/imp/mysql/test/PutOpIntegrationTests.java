@@ -32,7 +32,6 @@ import io.datarouter.client.mysql.test.client.insert.DatarouterPutOpTestDao;
 import io.datarouter.client.mysql.test.client.insert.PutOpTestBean;
 import io.datarouter.client.mysql.test.client.insert.PutOpTestBeanKey;
 import io.datarouter.model.databean.Databean;
-import io.datarouter.model.exception.DataAccessException;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.config.Config;
@@ -184,7 +183,7 @@ public class PutOpIntegrationTests{
 		String first = sb.toString();
 		Assert.assertTrue(first.length() > maxSize);
 		var bean = new PutOpTestBean(first, "bar", "baz");
-		Assert.assertThrows(DataAccessException.class, () -> dao.put(bean, new Config()));
+		Assert.assertThrows(IllegalArgumentException.class, () -> dao.put(bean, new Config()));
 	}
 
 	private static final String randomString(){

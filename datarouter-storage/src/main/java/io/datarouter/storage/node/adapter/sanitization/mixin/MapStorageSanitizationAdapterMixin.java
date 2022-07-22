@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.model.databean.Databean;
+import io.datarouter.model.field.Field;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.scanner.Scanner;
@@ -43,6 +44,7 @@ extends MapStorage<PK,D>, MapStorageReaderSanitizationAdapterMixin<PK,D,F,N>{
 		Objects.requireNonNull(databean);
 		Objects.requireNonNull(config);
 		PrimaryKeySanitizer.checkForNullPrimaryKeyValues(databean.getKey());
+		validate(databean);
 		getBackingNode().put(databean, config);
 	}
 
@@ -50,13 +52,14 @@ extends MapStorage<PK,D>, MapStorageReaderSanitizationAdapterMixin<PK,D,F,N>{
 	default void putMulti(Collection<D> databeans, Config config){
 		Objects.requireNonNull(databeans);
 		Objects.requireNonNull(config);
-		databeans.forEach(Objects::requireNonNull);
 		if(databeans.isEmpty()){
 			return;
 		}
+		databeans.forEach(Objects::requireNonNull);
 		Scanner.of(databeans)
 				.map(D::getKey)
 				.forEach(PrimaryKeySanitizer::checkForNullPrimaryKeyValues);
+		databeans.forEach(this::validate);
 		getBackingNode().putMulti(databeans, config);
 	}
 
@@ -71,10 +74,10 @@ extends MapStorage<PK,D>, MapStorageReaderSanitizationAdapterMixin<PK,D,F,N>{
 	default void deleteMulti(Collection<PK> keys, Config config){
 		Objects.requireNonNull(keys);
 		Objects.requireNonNull(config);
-		keys.forEach(Objects::requireNonNull);
 		if(keys.isEmpty()){
 			return;
 		}
+		keys.forEach(Objects::requireNonNull);
 		getBackingNode().deleteMulti(keys, config);
 	}
 
@@ -82,6 +85,10 @@ extends MapStorage<PK,D>, MapStorageReaderSanitizationAdapterMixin<PK,D,F,N>{
 	default void deleteAll(Config config){
 		Objects.requireNonNull(config);
 		getBackingNode().deleteAll(config);
+	}
+
+	private void validate(D databean){
+		getBackingNode().getFieldInfo().getFieldsWithValues(databean).forEach(Field::validate);
 	}
 
 }

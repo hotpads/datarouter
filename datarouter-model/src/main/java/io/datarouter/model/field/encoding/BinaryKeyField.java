@@ -22,8 +22,8 @@ package io.datarouter.model.field.encoding;
  */
 public interface BinaryKeyField<T>{
 
-	int numBytesWithSeparator(byte[] bytes, int byteOffset);
-	byte[] getBytesWithSeparator();
-	T fromBytesWithSeparatorButDoNotSet(byte[] bytes, int byteOffset);
+	int numKeyBytesWithSeparator(byte[] bytes, int byteOffset);
+	byte[] getKeyBytesWithSeparator();
+	T fromKeyBytesWithSeparatorButDoNotSet(byte[] bytes, int byteOffset);
 
 }

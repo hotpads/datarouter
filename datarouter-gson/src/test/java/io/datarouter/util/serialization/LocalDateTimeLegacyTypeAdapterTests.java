@@ -21,28 +21,17 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
-import io.datarouter.gson.serialization.LocalDateTimeLegacyTypeAdapter;
+import io.datarouter.gson.serialization.GsonTool;
 
 public class LocalDateTimeLegacyTypeAdapterTests{
 
 	@Test
 	public void testInteroperability(){
 		LocalDateTime localDateTime = LocalDateTime.of(2022, 3, 24, 5, 21, 54, 654634554);
-		Gson legacyAdapterGson = new GsonBuilder()
-				.registerTypeAdapter(LocalDateTime.class, new LocalDateTimeLegacyTypeAdapter())
-				.create();
+		Gson legacyAdapterGson = GsonTool.GSON;
 		String legacyAdapterJson = legacyAdapterGson.toJson(localDateTime);
 		Assert.assertEquals(legacyAdapterGson.fromJson(legacyAdapterJson, LocalDateTime.class), localDateTime);
-
-		// Remove to get to Java 16
-		Gson legacyReflectionGson = new Gson();
-		String legacyReflectionJson = legacyReflectionGson.toJson(localDateTime);
-		Assert.assertEquals(legacyReflectionJson, legacyAdapterJson);
-		Assert.assertEquals(legacyReflectionGson.fromJson(legacyAdapterJson, LocalDateTime.class), localDateTime);
-		Assert.assertEquals(legacyReflectionGson.fromJson(legacyReflectionJson, LocalDateTime.class), localDateTime);
-		Assert.assertEquals(legacyAdapterGson.fromJson(legacyReflectionJson, LocalDateTime.class), localDateTime);
 	}
 
 }

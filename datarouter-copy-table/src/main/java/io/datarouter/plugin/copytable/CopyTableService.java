@@ -27,9 +27,11 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.instrumentation.count.Counters;
 import io.datarouter.model.databean.Databean;
+import io.datarouter.model.field.Field;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.plugin.copytable.config.DatarouterCopyTableExecutors.DatarouterCopyTablePutMultiExecutor;
 import io.datarouter.scanner.ParallelScannerContext;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
@@ -84,6 +86,16 @@ public class CopyTableService{
 			sourceNode.scan(range, SCAN_CONFIG)
 					.each($ -> numScanned.incrementAndGet())
 					.each($ -> Counters.inc("copyTable " + sourceNodeName + " read"))
+					.include(databean -> {
+						try{
+							Scanner.of(targetNode.getFieldInfo().getFieldsWithValues(databean))
+									.forEach(Field::validate);
+							return true;
+						}catch(IllegalArgumentException e){
+							logger.warn("Skipping invalid databean pk={}", databean.getKey(), e);
+							return false;
+						}
+					})
 					.batch(batchSize)
 					.parallel(putMultiScannerContext.get(numThreads))
 					.each(batch -> targetNode.putMulti(batch, putConfig))

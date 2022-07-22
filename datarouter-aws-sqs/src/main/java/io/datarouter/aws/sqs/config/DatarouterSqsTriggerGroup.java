@@ -30,7 +30,7 @@ public class DatarouterSqsTriggerGroup extends BaseTriggerGroup{
 	public DatarouterSqsTriggerGroup(DatarouterSqsSettingsRoot settings){
 		super("DatarouterSqs", Tag.DATAROUTER, ZoneIds.AMERICA_NEW_YORK);
 		registerLocked(
-				"0 * * * * ?",
+				"30 * * * * ?",
 				settings.runSqsQueueLengthMonitoringJob,
 				SqsQueuesLengthMonitoringJob.class,
 				true);

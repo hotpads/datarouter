@@ -77,7 +77,7 @@ public class DatarouterUserEditService{
 		if(isUserDatarouterAdmin
 				&& !requestedRoles.contains(DatarouterUserRole.DATAROUTER_ADMIN.getRole())
 				&& !user.equals(editor)){
-			throw new RuntimeException("cannot disable datarouterAdmin user");
+			throw new RuntimeException("cannot edit datarouterAdmin user");
 		}
 		Set<Role> allowedRoles = datarouterUserService.getAllowedUserRoles(editor, requestedRoles);
 		boolean shouldUpdateSessions = false;

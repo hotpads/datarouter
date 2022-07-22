@@ -48,18 +48,18 @@ public class IntegerEncodedField<T> extends BaseField<T>{
 	}
 
 	@Override
-	public byte[] getBytes(){
+	public byte[] getValueBytes(){
 		Integer intValue = key.getCodec().encode(value);
 		return intValue == null ? null : COMPARABLE_INT_CODEC.encode(intValue);
 	}
 
 	@Override
-	public int numBytesWithSeparator(byte[] bytes, int offset){
+	public int numKeyBytesWithSeparator(byte[] bytes, int offset){
 		return COMPARABLE_INT_CODEC.length();
 	}
 
 	@Override
-	public T fromBytesButDoNotSet(byte[] bytes, int offset){
+	public T fromValueBytesButDoNotSet(byte[] bytes, int offset){
 		int intValue = COMPARABLE_INT_CODEC.decode(bytes, offset);
 		return key.getCodec().decode(intValue);
 	}

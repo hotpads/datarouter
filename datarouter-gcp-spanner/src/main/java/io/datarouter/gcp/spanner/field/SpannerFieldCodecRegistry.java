@@ -94,8 +94,13 @@ public class SpannerFieldCodecRegistry implements SpannerFieldCodecs{
 
 	@Override
 	public SpannerBaseFieldCodec<?,?> createCodec(Field<?> field){
+		Class<? extends SpannerBaseFieldCodec<?,?>> spannerCodecClass = codecByFieldClass.get(field.getClass());
+		if(spannerCodecClass == null){
+			String message = String.format("unkown field class=%s", field.getClass().getCanonicalName());
+			throw new IllegalArgumentException(message);
+		}
 		return ReflectionTool.createWithParameters(
-				codecByFieldClass.get(field.getClass()),
+				spannerCodecClass,
 				Collections.singletonList(field));
 	}
 

@@ -16,6 +16,7 @@
 package io.datarouter.tasktracker.scheduler;
 
 import io.datarouter.enums.MappedEnum;
+import io.datarouter.enums.StringMappedEnum;
 import io.datarouter.instrumentation.task.TaskStatus;
 
 public enum LongRunningTaskStatus{
@@ -27,8 +28,8 @@ public enum LongRunningTaskStatus{
 	TIMED_OUT(TaskStatus.TIMED_OUT, "timedOut", false, true),
 	INTERRUPTED(TaskStatus.INTERRUPTED, "interrupted", false, true);
 
-	public static final MappedEnum<LongRunningTaskStatus,String> BY_PERSISTENT_STRING
-			= new MappedEnum<>(values(), value -> value.persistentString);
+	public static final StringMappedEnum<LongRunningTaskStatus> BY_PERSISTENT_STRING
+			= new StringMappedEnum<>(values(), value -> value.persistentString);
 	public static final MappedEnum<LongRunningTaskStatus,TaskStatus> BY_TASK_STATUS
 			= new MappedEnum<>(values(), value -> value.status);
 

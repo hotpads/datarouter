@@ -52,30 +52,30 @@ public class ByteArrayEncodedField<T> extends BaseField<T>{
 	}
 
 	@Override
-	public byte[] getBytes(){
+	public byte[] getValueBytes(){
 		return getCodec().encode(value);
 	}
 
 	@Override
-	public byte[] getBytesWithSeparator(){
+	public byte[] getKeyBytesWithSeparator(){
 		//Would need to be implemented with something like TerminatedStringCodec
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public int numBytesWithSeparator(byte[] bytes, int offset){
+	public int numKeyBytesWithSeparator(byte[] bytes, int offset){
 		//Would need to be implemented with something like TerminatedStringCodec
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public T fromBytesWithSeparatorButDoNotSet(byte[] bytes, int offset){
+	public T fromKeyBytesWithSeparatorButDoNotSet(byte[] bytes, int offset){
 		//Would need to be implemented with something like TerminatedStringCodec
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public T fromBytesButDoNotSet(byte[] bytes, int offset){
+	public T fromValueBytesButDoNotSet(byte[] bytes, int offset){
 		byte[] bytesToDecode = offset == 0
 				? bytes
 				: Arrays.copyOfRange(bytes, offset, bytes.length);

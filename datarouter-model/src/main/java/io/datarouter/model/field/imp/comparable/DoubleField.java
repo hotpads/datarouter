@@ -44,17 +44,17 @@ public class DoubleField extends BasePrimitiveField<Double,DoubleFieldKey>{
 	}
 
 	@Override
-	public byte[] getBytes(){
+	public byte[] getValueBytes(){
 		return value == null ? null : COMPARABLE_CODEC.encode(value);
 	}
 
 	@Override
-	public int numBytesWithSeparator(byte[] bytes, int offset){
+	public int numKeyBytesWithSeparator(byte[] bytes, int offset){
 		return COMPARABLE_CODEC.length();
 	}
 
 	@Override
-	public Double fromBytesButDoNotSet(byte[] bytes, int offset){
+	public Double fromValueBytesButDoNotSet(byte[] bytes, int offset){
 		return COMPARABLE_CODEC.decode(bytes, offset);
 	}
 

@@ -28,14 +28,14 @@ public class StringFieldTests{
 	@Test
 	public void testEmptyString(){
 		byte[] bytes = EmptyArray.BYTE;
-		String value = FIELD.fromBytesWithSeparatorButDoNotSet(bytes, 0);
+		String value = FIELD.fromKeyBytesWithSeparatorButDoNotSet(bytes, 0);
 		Assert.assertEquals(value, "");
 	}
 
 	@Test
 	public void testEmptyTrailingString(){
 		byte[] bytes = {0, 0};
-		String value = FIELD.fromBytesWithSeparatorButDoNotSet(bytes, bytes.length);
+		String value = FIELD.fromKeyBytesWithSeparatorButDoNotSet(bytes, bytes.length);
 		Assert.assertEquals(value, "");
 	}
 
@@ -43,7 +43,7 @@ public class StringFieldTests{
 	public void testNonEmptyTrailingString(){
 		int offset = 2;
 		byte[] bytes = {0, 0, 'o', 'k'};
-		String value = FIELD.fromBytesWithSeparatorButDoNotSet(bytes, offset);
+		String value = FIELD.fromKeyBytesWithSeparatorButDoNotSet(bytes, offset);
 		Assert.assertEquals(value, "ok");
 	}
 

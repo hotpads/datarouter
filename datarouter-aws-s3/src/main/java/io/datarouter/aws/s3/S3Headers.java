@@ -17,7 +17,7 @@ package io.datarouter.aws.s3;
 
 import java.time.Duration;
 
-import io.datarouter.enums.MappedEnum;
+import io.datarouter.enums.StringMappedEnum;
 
 public class S3Headers{
 
@@ -74,8 +74,8 @@ public class S3Headers{
 		PDF("application/pdf", "pdf"),
 		MP3("audio/mpeg", "mp3");
 
-		public static final MappedEnum<ContentType,String> BY_MIME_TYPE
-				= new MappedEnum<>(values(), value -> value.mimeType);
+		public static final StringMappedEnum<ContentType> BY_MIME_TYPE
+				= new StringMappedEnum<>(values(), value -> value.mimeType);
 
 		public final String mimeType;
 		public final String extension;

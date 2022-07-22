@@ -182,6 +182,15 @@ public class StringToolTests{
 	}
 
 	@Test
+	public void testTrimToSizeAndLog(){
+		Assert.assertEquals(StringTool.trimToSizeAndLog(null, 2, "..."), null);
+		Assert.assertEquals(StringTool.trimToSizeAndLog("abcd", 2, "..."), "ab");
+		Assert.assertEquals(StringTool.trimToSizeAndLog("abcde", 5, "..."), "abcde");
+		Assert.assertEquals(StringTool.trimToSizeAndLog("abcdefg", 5, "..."), "ab...");
+		Assert.assertEquals(StringTool.trimToSizeAndLog("abcdefg", 5, "...", "info", "context=123"), "ab...");
+	}
+
+	@Test
 	public void testTrimToSizeFromEnd(){
 		Assert.assertEquals(StringTool.trimToSizeFromEnd("abcd", 2), "cd");
 		Assert.assertEquals(StringTool.trimToSizeFromEnd("abcd", 10), "abcd");

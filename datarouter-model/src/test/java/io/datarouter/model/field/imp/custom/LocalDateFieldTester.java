@@ -62,8 +62,8 @@ public class LocalDateFieldTester{
 		LocalDateTime localDateTime2 = LocalDateTime.parse(dateStr2, formatterWithNano);
 		LocalDateTimeField field1 = new LocalDateTimeField(new LocalDateTimeFieldKey("test"), localDateTime1);
 		LocalDateTimeField field2 = new LocalDateTimeField(new LocalDateTimeFieldKey("test"), localDateTime2);
-		LocalDateTime localDateTimeFromBytes1 = field1.fromBytesButDoNotSet(field1.getBytes(), 0);
-		LocalDateTime localDateTimeFromBytes2 = field2.fromBytesButDoNotSet(field2.getBytes(), 0);
+		LocalDateTime localDateTimeFromBytes1 = field1.fromValueBytesButDoNotSet(field1.getValueBytes(), 0);
+		LocalDateTime localDateTimeFromBytes2 = field2.fromValueBytesButDoNotSet(field2.getValueBytes(), 0);
 		Assert.assertEquals(field1.getValue(), localDateTimeFromBytes1);
 		Assert.assertEquals(field2.getValue(), localDateTimeFromBytes2);
 	}

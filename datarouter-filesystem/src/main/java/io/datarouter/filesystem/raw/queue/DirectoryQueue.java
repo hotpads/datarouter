@@ -41,6 +41,12 @@ public class DirectoryQueue{
 		this.openFilenames = new ConcurrentHashMap<>();
 	}
 
+	public String putMessage(byte[] message){
+		String id = UlidTool.nextUlid();
+		directoryManager.write(idToFilename(id), message);
+		return id;
+	}
+
 	public String putMessage(String message){
 		String id = UlidTool.nextUlid();
 		directoryManager.writeUtf8(idToFilename(id), message);
@@ -48,7 +54,7 @@ public class DirectoryQueue{
 	}
 
 	public DirectoryQueueMessage getMessage(String id){
-		String content = directoryManager.readUtf8(idToFilename(id));
+		byte[] content = directoryManager.read(idToFilename(id));
 		return new DirectoryQueueMessage(id, content);
 	}
 
@@ -60,7 +66,7 @@ public class DirectoryQueue{
 				.each(filename -> openFilenames.put(filename, Instant.now()))
 				.findFirst()
 				.map(filename -> {
-					String content = directoryManager.readUtf8(filename);
+					byte[] content = directoryManager.read(filename);
 					return new DirectoryQueueMessage(filenameToId(filename), content);
 				});
 	}

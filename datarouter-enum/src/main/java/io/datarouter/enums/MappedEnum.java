@@ -28,6 +28,7 @@ import java.util.function.Function;
  * Store enum values by an extracted and optionally transformed key.
  * Ensure the transformed keys are unique between values.
  * Prevent reads from accidentally returning null values.
+ * When parsing values, it's generally preferred to use fromOrThrow then fromOrDefault, while fromOrNull is discouraged.
  */
 public class MappedEnum<E,K>{
 
@@ -72,19 +73,41 @@ public class MappedEnum<E,K>{
 
 	/*------------- decode -------------*/
 
+	public Optional<E> from(K key){
+		K transformedKey = Optional.ofNullable(key)
+				.map(keyTransformer::apply)
+				.orElse(null);
+		return Optional.ofNullable(valueByKey.get(transformedKey));
+	}
+
+	/**
+	 * Equivalent to from(key).orElse(null) but can be useful for tracking down uses in your code base.
+	 */
 	public E fromOrNull(K key){
-		K transformedKey = keyTransformer.apply(key);
+		K transformedKey = Optional.ofNullable(key)
+				.map(keyTransformer::apply)
+				.orElse(null);
 		return valueByKey.get(transformedKey);
 	}
 
+	/**
+	 * Equivalent to from(key).orElse(defaultValue) but can be useful for tracking down uses in your code base.
+	 */
 	public E fromOrElse(K key, E defaultValue){
-		Objects.requireNonNull(defaultValue, "Use getOrNull for null default value");
-		K transformedKey = keyTransformer.apply(key);
+		Objects.requireNonNull(defaultValue, "Use fromOrNull for null default value");
+		K transformedKey = Optional.ofNullable(key)
+				.map(keyTransformer::apply)
+				.orElse(null);
 		return valueByKey.getOrDefault(transformedKey, defaultValue);
 	}
 
+	/**
+	 * Equivalent to from(key).orElseThrow(..) but can be useful for tracking down uses in your code base.
+	 */
 	public E fromOrThrow(K key){
-		K transformedKey = keyTransformer.apply(key);
+		K transformedKey = Optional.ofNullable(key)
+				.map(keyTransformer::apply)
+				.orElse(null);
 		E value = valueByKey.get(transformedKey);
 		if(value == null){
 			String message = String.format(
@@ -95,11 +118,6 @@ public class MappedEnum<E,K>{
 			throw new IllegalArgumentException(message);
 		}
 		return value;
-	}
-
-	public Optional<E> from(K key){
-		K transformedKey = keyTransformer.apply(key);
-		return Optional.ofNullable(valueByKey.get(transformedKey));
 	}
 
 	/*----------- get -------------*/

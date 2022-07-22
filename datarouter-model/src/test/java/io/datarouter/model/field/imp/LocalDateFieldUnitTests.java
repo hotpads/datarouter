@@ -42,7 +42,7 @@ public class LocalDateFieldUnitTests{
 		LocalDate localDate = LocalDate.of(year, month, day);
 		LocalDateField field = new LocalDateField(new LocalDateFieldKey("test"), localDate);
 
-		Assert.assertEquals(field.fromBytesButDoNotSet(field.getBytes(), 0), localDate);
+		Assert.assertEquals(field.fromValueBytesButDoNotSet(field.getValueBytes(), 0), localDate);
 	}
 
 }

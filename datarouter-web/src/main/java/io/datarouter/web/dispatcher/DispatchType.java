@@ -19,6 +19,7 @@ public enum DispatchType{
 
 	DEFAULT,
 	API_ENDPOINT,
+	INTERNAL_LINK,
 	;
 
 }

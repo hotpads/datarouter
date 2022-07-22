@@ -24,6 +24,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -74,6 +75,11 @@ public class TestDatarouterS3Client implements DatarouterS3Client{
 
 	@Override
 	public void deleteObject(String bucket, String key){
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void deleteObjects(String bucket, Collection<String>keys){
 		throw new UnsupportedOperationException();
 	}
 

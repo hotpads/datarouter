@@ -18,6 +18,7 @@ package io.datarouter.client.mysql.op;
 import java.sql.Connection;
 
 import io.datarouter.enums.MappedEnum;
+import io.datarouter.enums.StringMappedEnum;
 import io.datarouter.storage.config.ConfigKey;
 import io.datarouter.storage.config.ConfigValue;
 
@@ -32,8 +33,8 @@ public enum Isolation implements ConfigValue<Isolation>{
 	public static final Isolation DEFAULT = readCommitted;
 	public static final MappedEnum<Isolation,Integer> BY_PERSISTENT_INTEGER
 			= new MappedEnum<>(values(), value -> value.persistentInteger);
-	public static final MappedEnum<Isolation,String> BY_PERSISTENT_STRING
-			= new MappedEnum<>(values(), value -> value.persistentString);
+	public static final StringMappedEnum<Isolation> BY_PERSISTENT_STRING
+			= new StringMappedEnum<>(values(), value -> value.persistentString);
 
 	public final Integer jdbcVal;
 	public final int persistentInteger;

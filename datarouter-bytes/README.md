@@ -8,7 +8,7 @@ datarouter-bytes includes utility classes for serializing objects to bytes.
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-bytes</artifactId>
-	<version>0.0.114</version>
+	<version>0.0.115</version>
 </dependency>
 ```
 

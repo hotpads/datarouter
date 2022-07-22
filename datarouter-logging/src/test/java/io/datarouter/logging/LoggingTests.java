@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterSuite;
 import org.testng.annotations.Test;
 
 /*
@@ -43,6 +44,7 @@ public class LoggingTests{
 	private final Log4j2Configurator configurator = new Log4j2Configurator();
 
 	@AfterClass
+	@AfterSuite
 	public void after(){
 		configurator.shutdown();
 		TEST_FILE.delete();

@@ -60,7 +60,7 @@ public class RequestTool{
 	private static final Logger logger = LoggerFactory.getLogger(RequestTool.class);
 
 	protected static final String HEADER_VALUE_DELIMITER = ", ";
-	private static final String[] PRIVATE_NETS = {"10.0.0.0/8", "172.16.0.0/12"};
+	private static final String[] PRIVATE_NETS = {"10.0.0.0/8", "172.16.0.0/12", "100.64.0.0/10"};
 
 	public static final String INACCESSIBLE_BODY = "INACCESSIBLE BODY: ";
 	public static final String REQUEST_PHASE_TIMER = "requestPhaseTimer";
@@ -500,9 +500,9 @@ public class RequestTool{
 
 	private static Optional<String> getLastNonInternalIp(List<String> headerValues){
 		Collections.reverse(headerValues);
-		return headerValues.stream()
-				.filter(RequestTool::isAValidIpV4)
-				.filter(RequestTool::isPublicNet)
+		return Scanner.of(headerValues)
+				.include(RequestTool::isAValidIpV4)
+				.include(RequestTool::isPublicNet)
 				.findFirst();
 	}
 

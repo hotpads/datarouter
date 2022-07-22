@@ -129,7 +129,7 @@ implements PhysicalSortedMapStorageNode<PK,D,F>, HBaseIncrement<PK>{
 		for(Field<?> field : getFieldInfo().getNonKeyFieldsWithValues(databean)){
 			field.getKey().getColumnNameBytes();
 			byte[] columnNameBytes = field.getKey().getColumnNameBytes();
-			byte[] valueBytes = field.getBytes();
+			byte[] valueBytes = field.getValueBytes();
 			if(valueBytes == null){
 				if(!ignoreNulls){
 					delete.addColumns(HBaseClientManager.DEFAULT_FAMILY_QUALIFIER, columnNameBytes);

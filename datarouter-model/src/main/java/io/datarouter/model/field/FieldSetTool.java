@@ -44,7 +44,7 @@ public class FieldSetTool{
 			byte[] valueBytes = reader.varBytes();
 			Field<?> field = fieldByPrefixedName.get(prefixedName);
 			if(field != null){
-				Object value = field.fromBytesButDoNotSet(valueBytes, 0);
+				Object value = field.fromValueBytesButDoNotSet(valueBytes, 0);
 				field.setUsingReflection(fieldSet, value);
 			}
 		}
@@ -64,10 +64,10 @@ public class FieldSetTool{
 			if(byteOffset == bytes.length){// ran out of bytes. leave remaining fields blank
 				break;
 			}
-			int numBytesWithSeparator = field.numBytesWithSeparator(bytes, byteOffset);
+			int numBytesWithSeparator = field.numKeyBytesWithSeparator(bytes, byteOffset);
 			Object value;
 			try{
-				value = field.fromBytesWithSeparatorButDoNotSet(bytes, byteOffset);
+				value = field.fromKeyBytesWithSeparatorButDoNotSet(bytes, byteOffset);
 			}catch(Exception e){
 				throw new RuntimeException("could not decode class=" + cls.get().getClass().getName()
 						+ " field=" + field

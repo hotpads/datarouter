@@ -46,7 +46,7 @@ public class CommonFieldSizes{
 
 	/*----------- spanner -----------*/
 
-	public static final int MAX_CHARACTERS_SPANNER = 2_621_440;
+	public static final int MAX_CHARACTERS_SPANNER = 2_621_440; // 2.5 MiB
 
 	/*----------- sqs -----------*/
 

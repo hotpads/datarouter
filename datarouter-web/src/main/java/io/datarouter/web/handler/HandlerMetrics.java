@@ -77,6 +77,7 @@ public class HandlerMetrics{
 	public void incTotalCpuTime(Class<? extends BaseHandler> handlerClass, Method method, long totalCpuTimeMs){
 		Counters.inc(PREFIX + " " + HANDLER + " " + METHOD + " " + CUMULATED_CPU_MS + " " + handlerClass.getSimpleName()
 				+ " " + method.getName(), totalCpuTimeMs);
+		Counters.inc(PREFIX + " " + HANDLER + " " + CUMULATED_CPU_MS, totalCpuTimeMs);
 	}
 
 }

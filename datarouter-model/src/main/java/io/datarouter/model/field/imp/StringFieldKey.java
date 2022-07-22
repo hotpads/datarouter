@@ -31,11 +31,13 @@ public class StringFieldKey extends BaseFieldKey<String,StringFieldKey>{
 	private static final int DEFAULT_MAX_SIZE = CommonFieldSizes.DEFAULT_LENGTH_VARCHAR;
 
 	private final int size;
+	private final boolean logInvalidSize;
 	private final boolean validateSize;
 
 	public StringFieldKey(String name){
 		super(name, TypeToken.get(String.class));
 		this.size = DEFAULT_MAX_SIZE;
+		this.logInvalidSize = true;
 		this.validateSize = true;
 	}
 
@@ -46,26 +48,37 @@ public class StringFieldKey extends BaseFieldKey<String,StringFieldKey>{
 			FieldGeneratorType fieldGeneratorType,
 			String defaultValue,
 			int size,
+			boolean logInvalidSize,
 			boolean validateSize,
 			Map<FieldKeyAttributeKey<?>,FieldKeyAttribute<?>> attributes){
 		super(name, columnName, nullable, TypeToken.get(String.class), fieldGeneratorType, defaultValue, attributes);
 		this.size = size;
+		this.logInvalidSize = logInvalidSize;
 		this.validateSize = validateSize;
 	}
 
 	public StringFieldKey withSize(int sizeOverride){
 		return new StringFieldKey(name, columnName, nullable, fieldGeneratorType, defaultValue, sizeOverride,
-				validateSize, attributes);
+				logInvalidSize, validateSize, attributes);
 	}
 
 	public StringFieldKey withColumnName(String columnNameOverride){
 		return new StringFieldKey(name, columnNameOverride, nullable, fieldGeneratorType, defaultValue, size,
-				validateSize, attributes);
+				logInvalidSize, validateSize, attributes);
 	}
 
 	public StringFieldKey notNullable(){
-		return new StringFieldKey(name, columnName, false, fieldGeneratorType, defaultValue, size, validateSize,
-				attributes);
+		return new StringFieldKey(name, columnName, false, fieldGeneratorType, defaultValue, size, logInvalidSize,
+				validateSize, attributes);
+	}
+
+	/**
+	 * @deprecated Increase the size using .withSize(..) or restrict values to the current size.
+	 */
+	@Deprecated
+	public StringFieldKey disableInvalidSizeLogging(){
+		return new StringFieldKey(name, columnName, nullable, fieldGeneratorType, defaultValue, size, false,
+				validateSize, attributes);
 	}
 
 	/**
@@ -73,8 +86,8 @@ public class StringFieldKey extends BaseFieldKey<String,StringFieldKey>{
 	 */
 	@Deprecated
 	public StringFieldKey disableSizeValidation(){
-		return new StringFieldKey(name, columnName, nullable, fieldGeneratorType, defaultValue, size, false,
-				attributes);
+		return new StringFieldKey(name, columnName, nullable, fieldGeneratorType, defaultValue, size, logInvalidSize,
+				false, attributes);
 	}
 
 	@Override
@@ -94,6 +107,10 @@ public class StringFieldKey extends BaseFieldKey<String,StringFieldKey>{
 
 	public int getSize(){
 		return size;
+	}
+
+	public boolean shouldLogInvalidSize(){
+		return logInvalidSize;
 	}
 
 	public boolean shouldValidateSize(){

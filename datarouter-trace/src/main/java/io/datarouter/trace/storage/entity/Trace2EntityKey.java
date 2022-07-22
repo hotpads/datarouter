@@ -18,6 +18,7 @@ package io.datarouter.trace.storage.entity;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 import io.datarouter.instrumentation.trace.Traceparent;
 import io.datarouter.model.field.Field;
@@ -53,8 +54,9 @@ public class Trace2EntityKey extends BaseEntityKey<Trace2EntityKey>{
 		return traceId;
 	}
 
-	public Duration getAge(){
-		return Duration.between(new Traceparent(traceId).getInstant(), Instant.now());
+	public Optional<Duration> getAge(){
+		return new Traceparent(traceId).getInstant()
+				.map(instant -> Duration.between(instant, Instant.now()));
 	}
 
 }

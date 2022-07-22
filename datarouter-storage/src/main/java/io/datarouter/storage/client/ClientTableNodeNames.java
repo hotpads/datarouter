@@ -15,6 +15,8 @@
  */
 package io.datarouter.storage.client;
 
+import java.util.Objects;
+
 public class ClientTableNodeNames{
 
 	private final ClientId clientId;
@@ -45,14 +47,8 @@ public class ClientTableNodeNames{
 
 	@Override
 	public int hashCode(){
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((clientId == null) ? 0 : clientId.hashCode());
-		result = prime * result + ((nodeName == null) ? 0 : nodeName.hashCode());
-		result = prime * result + ((tableName == null) ? 0 : tableName.hashCode());
-		return result;
+		return Objects.hash(clientId, nodeName, tableName);
 	}
-
 
 	@Override
 	public boolean equals(Object obj){

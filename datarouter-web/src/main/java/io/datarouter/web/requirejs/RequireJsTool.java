@@ -57,6 +57,11 @@ public class RequireJsTool{
 		return script(TagCreator.rawHtml(rawHtml));
 	}
 
+	public static ScriptTag makeRequireScriptTagWithCallback(String[] names, String callback){
+		String rawHtml = String.format("require(%s, function(){%s})", makeRequireParams(names), callback);
+		return script(TagCreator.rawHtml(rawHtml));
+	}
+
 	public static String makeRequireParams(String... names){
 		return Arrays.stream(names)
 				.collect(Collectors.joining("', '", "['", "']"));

@@ -44,17 +44,17 @@ public class FloatField extends BasePrimitiveField<Float,FloatFieldKey>{
 	}
 
 	@Override
-	public byte[] getBytes(){
+	public byte[] getValueBytes(){
 		return value == null ? null : CODEC.encode(value);
 	}
 
 	@Override
-	public int numBytesWithSeparator(byte[] bytes, int offset){
+	public int numKeyBytesWithSeparator(byte[] bytes, int offset){
 		return 4;
 	}
 
 	@Override
-	public Float fromBytesButDoNotSet(byte[] bytes, int offset){
+	public Float fromValueBytesButDoNotSet(byte[] bytes, int offset){
 		return CODEC.decode(bytes, offset);
 	}
 

@@ -24,7 +24,7 @@ import java.util.function.Supplier;
 
 import io.datarouter.auth.storage.userhistory.DatarouterUserHistory;
 import io.datarouter.auth.storage.userhistory.DatarouterUserHistoryKey;
-import io.datarouter.enums.MappedEnum;
+import io.datarouter.enums.StringMappedEnum;
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.codec.StringMappedEnumFieldCodec;
@@ -157,8 +157,8 @@ extends BaseDatabean<DatarouterPermissionRequestKey,DatarouterPermissionRequest>
 		USER_CHANGED("changed"),//user was changed since request
 		DECLINED("declined");//request was manually declined
 
-		public static final MappedEnum<DatarouterPermissionRequestResolution,String> BY_PERSISTENT_STRING
-				= new MappedEnum<>(values(), value -> value.persistentString);
+		public static final StringMappedEnum<DatarouterPermissionRequestResolution> BY_PERSISTENT_STRING
+				= new StringMappedEnum<>(values(), value -> value.persistentString);
 
 		public final String persistentString;
 

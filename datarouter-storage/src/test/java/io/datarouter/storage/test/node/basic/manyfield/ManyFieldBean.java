@@ -27,7 +27,7 @@ import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.codec.DateToLongFieldCodec;
 import io.datarouter.model.field.codec.IntListFieldCodec;
-import io.datarouter.model.field.codec.IntMappedEnumFieldCodec;
+import io.datarouter.model.field.codec.IntegerMappedEnumFieldCodec;
 import io.datarouter.model.field.codec.StringListToBinaryCsvFieldCodec;
 import io.datarouter.model.field.codec.StringListToCsvFieldCodec;
 import io.datarouter.model.field.codec.StringMappedEnumFieldCodec;
@@ -101,7 +101,7 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 		public static final IntegerFieldKey integerField = new IntegerFieldKey("integerField");
 		public static final IntegerEncodedFieldKey<TestEnum> enumToIntegerField = new IntegerEncodedFieldKey<>(
 				"enumToIntegerField",
-				new IntMappedEnumFieldCodec<>(TestEnum.BY_PERSISTENT_INTEGER));
+				new IntegerMappedEnumFieldCodec<>(TestEnum.BY_PERSISTENT_INTEGER));
 		public static final LongFieldKey longField = new LongFieldKey("longField");
 		public static final FloatFieldKey floatField = new FloatFieldKey("floatField");
 		public static final DoubleFieldKey doubleField = new DoubleFieldKey("doubleField");

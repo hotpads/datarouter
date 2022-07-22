@@ -185,9 +185,11 @@ as you get to millions or billions of people it becomes extremely inefficient.
 Because the database only supports a limit on the number of matches, not on the number of skipped rows or total rows 
 scanned, we can’t limit the cost of such a query. Further, because queries are executed in a transaction, this query may cause a 
 lot of locking and/or versioning work that slows down other queries that touch the same rows. It’s stressful to worry 
-about query performance degradation, and it’s time consuming to monitor query performance in a large application.
+about query performance degradation, and it’s time consuming to monitor query performance in a large application.  
 
-Datarouter applications will generally have no long-running queries. While you can manually create secondary indexes in 
+Datarouter applications will generally have no long-running queries.
+
+While you can manually create secondary indexes in 
 the database it can be tricky to make sure they are kept up to date in an evolving application. So far, Datarouter doesn't
 focus on making it easy to trigger expensive queries, while it does focus on helping you design the application to scale 
 from the beginning.

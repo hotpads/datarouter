@@ -16,6 +16,8 @@
 package io.datarouter.instrumentation.trace;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
@@ -27,6 +29,7 @@ public class Traceparent{
 			"^[0-9a-f]{2}-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$");
 	private static final String TRACEPARENT_DELIMITER = "-";
 	private static final Integer MIN_CHARS_TRACEPARENT = 55;
+	private static final Instant RELEASE_INSTANT = LocalDate.of(2020, 1, 1).atStartOfDay(ZoneId.of("UTC")).toInstant();
 	private static final String CURRENT_VERSION = "00";
 	public static final int TRACE_ID_HEX_SIZE = 32;
 	public static final int PARENT_ID_HEX_SIZE = 16;
@@ -80,12 +83,20 @@ public class Traceparent{
 		return String.format("%016x", new Random().nextLong());
 	}
 
-	public long getTimestampInMs(){
+	private long getTimestampNs(){
 		return Long.parseLong(traceId.substring(0, 16), 16);
 	}
 
-	public Instant getInstant(){
-		return Instant.ofEpochMilli(getTimestampInMs());
+	public Optional<Instant> getInstant(){
+		try{
+			Instant instantFromTraceId = Instant.ofEpochMilli(getTimestampNs() / 1_000_000L);
+			if(instantFromTraceId.isAfter(RELEASE_INSTANT)){
+				return Optional.of(instantFromTraceId);
+			}
+			return Optional.empty();
+		}catch(NumberFormatException e){
+			return Optional.empty();
+		}
 	}
 
 	/*----------- trace flags ------------*/

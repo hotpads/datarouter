@@ -30,6 +30,7 @@ import io.datarouter.client.mysql.execution.MysqlOpRetryTool;
 import io.datarouter.client.mysql.execution.SessionExecutor;
 import io.datarouter.client.mysql.field.codec.factory.MysqlFieldCodecFactory;
 import io.datarouter.client.mysql.op.read.MysqlFindTallyOp;
+import io.datarouter.client.mysql.op.read.MysqlGetBlobOp;
 import io.datarouter.client.mysql.op.read.MysqlGetKeysOp;
 import io.datarouter.client.mysql.op.read.MysqlGetOp;
 import io.datarouter.client.mysql.op.read.MysqlGetOpExecutor;
@@ -45,10 +46,13 @@ import io.datarouter.client.mysql.op.write.MysqlDeleteAllOp;
 import io.datarouter.client.mysql.op.write.MysqlDeleteByIndexOp;
 import io.datarouter.client.mysql.op.write.MysqlDeleteOp;
 import io.datarouter.client.mysql.op.write.MysqlIncrementOp;
+import io.datarouter.client.mysql.op.write.MysqlPutBlobOp;
 import io.datarouter.client.mysql.op.write.MysqlPutOp;
 import io.datarouter.client.mysql.op.write.MysqlUniqueIndexDeleteOp;
 import io.datarouter.client.mysql.op.write.MysqlVacuumTallyOp;
 import io.datarouter.client.mysql.scan.MysqlDatabeanScanner;
+import io.datarouter.client.mysql.scan.MysqlLikePkScanner;
+import io.datarouter.client.mysql.scan.MysqlLikeScanner;
 import io.datarouter.client.mysql.scan.MysqlManagedIndexDatabeanScanner;
 import io.datarouter.client.mysql.scan.MysqlManagedIndexKeyScanner;
 import io.datarouter.client.mysql.scan.MysqlManagedIndexScanner;
@@ -63,6 +67,10 @@ import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.config.Config;
+import io.datarouter.storage.file.DatabaseBlob;
+import io.datarouter.storage.file.DatabaseBlob.DatabaseBlobFielder;
+import io.datarouter.storage.file.DatabaseBlobKey;
+import io.datarouter.storage.file.PathbeanKey;
 import io.datarouter.storage.node.op.raw.read.IndexedStorageReader;
 import io.datarouter.storage.node.op.raw.read.MapStorageReader;
 import io.datarouter.storage.node.op.raw.read.SortedStorageReader;
@@ -75,6 +83,7 @@ import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
 import io.datarouter.storage.tally.Tally;
 import io.datarouter.storage.tally.Tally.TallyFielder;
 import io.datarouter.storage.tally.TallyKey;
+import io.datarouter.storage.util.Subpath;
 import io.datarouter.util.tuple.Range;
 
 @Singleton
@@ -577,15 +586,77 @@ public class MysqlNodeManager{
 		return sessionExecutor.runWithoutRetries(op);
 	}
 
-	public void vacuum(
-			PhysicalDatabeanFieldInfo<TallyKey,Tally,TallyFielder> fieldInfo,
+	public <PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>>
+	void vacuum(
+			PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
+			String keyId,
+			String ttlId,
 			Config config){
 		var op = new MysqlVacuumTallyOp<>(
 				datarouter,
 				fieldInfo,
 				mysqlSqlFactory,
+				keyId,
+				ttlId,
 				config);
 		sessionExecutor.runWithoutRetries(op);
+	}
+
+	public Scanner<List<DatabaseBlob>> likePath(
+			Subpath path,
+			PhysicalDatabeanFieldInfo<DatabaseBlobKey,DatabaseBlob,DatabaseBlobFielder> fieldInfo,
+			Config config){
+		return new MysqlLikeScanner(
+				datarouter,
+				mysqlSqlFactory,
+				fieldCodecFactory,
+				fieldInfo,
+				path,
+				config,
+				sessionExecutor,
+				System.currentTimeMillis());
+	}
+
+	public Scanner<List<DatabaseBlobKey>> likePathKey(
+			Subpath path,
+			PhysicalDatabeanFieldInfo<DatabaseBlobKey,DatabaseBlob,DatabaseBlobFielder> fieldInfo,
+			Config config){
+		return new MysqlLikePkScanner(
+				datarouter,
+				mysqlSqlFactory,
+				fieldCodecFactory,
+				fieldInfo,
+				path,
+				config,
+				sessionExecutor,
+				System.currentTimeMillis());
+	}
+
+	public void putBlobOp(
+			PhysicalDatabeanFieldInfo<DatabaseBlobKey,DatabaseBlob,DatabaseBlobFielder> fieldInfo,
+			PathbeanKey key,
+			byte[] value,
+			Config config){
+		var op = new MysqlPutBlobOp<>(datarouter, fieldInfo, mysqlSqlFactory, key, value, config);
+		sessionExecutor.runWithoutRetries(op);
+	}
+
+	public List<DatabaseBlob> getBlob(
+			PhysicalDatabeanFieldInfo<DatabaseBlobKey,DatabaseBlob,DatabaseBlobFielder> fieldInfo,
+			Collection<PathbeanKey> keys,
+			List<String> fields,
+			Config config){
+		var op = new MysqlGetBlobOp<>(
+				datarouter,
+				fieldInfo,
+				mysqlSqlFactory,
+				fieldCodecFactory,
+				keys,
+				fields,
+				config);
+		return sessionExecutor.runWithoutRetries(op);
 	}
 
 	private static String getTraceName(String nodeName, String opName){

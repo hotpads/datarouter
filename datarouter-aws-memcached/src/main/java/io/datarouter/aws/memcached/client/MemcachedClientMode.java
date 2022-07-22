@@ -15,7 +15,7 @@
  */
 package io.datarouter.aws.memcached.client;
 
-import io.datarouter.enums.MappedEnum;
+import io.datarouter.enums.StringMappedEnum;
 import io.datarouter.storage.config.client.MemcachedGenericClientOptions.MemcachedGenericClientMode;
 import net.spy.memcached.ClientMode;
 
@@ -26,8 +26,8 @@ public enum MemcachedClientMode{
 	STATIC(ClientMode.Static, "static"),
 	DYNAMIC(ClientMode.Dynamic, "dynamic");
 
-	public static final MappedEnum<MemcachedClientMode,String> BY_PERSISTENT_STRING
-			= new MappedEnum<>(values(), value -> value.persistentString);
+	public static final StringMappedEnum<MemcachedClientMode> BY_PERSISTENT_STRING
+			= new StringMappedEnum<>(values(), value -> value.persistentString);
 
 	public final ClientMode clientMode;
 	public final String persistentString;

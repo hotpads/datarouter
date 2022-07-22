@@ -55,8 +55,8 @@ implements PhysicalQueueStorageNode<PK,D,F>{
 					DatabeanFielder<PK,D> fielder = getFieldInfo().getSampleFielder();
 					Supplier<D> databeanSupplier = getFieldInfo().getDatabeanSupplier();
 					StringDatabeanCodec codec = fielder.getStringDatabeanCodec();
-					D databean = codec.fromString(directoryQueueMessage.content, fielder, databeanSupplier);
-					byte[] receiptHandle = directoryQueueMessage.getBytesId();
+					D databean = codec.fromString(directoryQueueMessage.getContentUtf8(), fielder, databeanSupplier);
+					byte[] receiptHandle = directoryQueueMessage.getIdUtf8Bytes();
 					return new QueueMessage<>(receiptHandle, databean, Map.of());
 				})
 				.orElse(null);

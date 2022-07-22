@@ -33,7 +33,7 @@ extends MappedEnum<E,String>{
 	}
 
 	public StringMappedEnum(E[] values, Function<E,String> keyExtractor, int maxLength){
-		super(values, keyExtractor, String::toLowerCase);
+		super(values, keyExtractor);
 		this.maxLength = maxLength;
 		validateLengths(getValueByKey().keySet(), maxLength);
 	}

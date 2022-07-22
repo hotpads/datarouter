@@ -67,29 +67,29 @@ public class StringEnumField<E extends StringEnum<E>> extends BaseField<E>{
 	}
 
 	@Override
-	public byte[] getBytes(){
+	public byte[] getValueBytes(){
 		return value == null ? null : StringCodec.UTF_8.encode(value.getPersistentString());
 	}
 
 	@Override
-	public byte[] getBytesWithSeparator(){
-		return stringField.getBytesWithSeparator();
+	public byte[] getKeyBytesWithSeparator(){
+		return stringField.getKeyBytesWithSeparator();
 	}
 
 	@Override
-	public int numBytesWithSeparator(byte[] bytes, int offset){
-		return stringField.numBytesWithSeparator(bytes, offset);
+	public int numKeyBytesWithSeparator(byte[] bytes, int offset){
+		return stringField.numKeyBytesWithSeparator(bytes, offset);
 	}
 
 	@Override
-	public E fromBytesButDoNotSet(byte[] bytes, int offset){
-		String stringValue = stringField.fromBytesButDoNotSet(bytes, offset);
+	public E fromValueBytesButDoNotSet(byte[] bytes, int offset){
+		String stringValue = stringField.fromValueBytesButDoNotSet(bytes, offset);
 		return StringEnum.fromPersistentStringSafe(getSampleValue(), stringValue);
 	}
 
 	@Override
-	public E fromBytesWithSeparatorButDoNotSet(byte[] bytes, int offset){
-		String stringValue = stringField.fromBytesWithSeparatorButDoNotSet(bytes, offset);
+	public E fromKeyBytesWithSeparatorButDoNotSet(byte[] bytes, int offset){
+		String stringValue = stringField.fromKeyBytesWithSeparatorButDoNotSet(bytes, offset);
 		return StringEnum.fromPersistentStringSafe(getSampleValue(), stringValue);
 	}
 
@@ -121,6 +121,7 @@ public class StringEnumField<E extends StringEnum<E>> extends BaseField<E>{
 				stringEnumField.key.isNullable(),
 				FieldGeneratorType.NONE, defaultValue,
 				stringEnumField.key.getSize(),
+				true,
 				true,
 				stringEnumField.key.getAttributes());
 

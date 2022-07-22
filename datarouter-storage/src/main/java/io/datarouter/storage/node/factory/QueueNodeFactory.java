@@ -26,14 +26,21 @@ import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.DatarouterClients;
+import io.datarouter.storage.client.imp.BlobQueueClientNodeFactory;
 import io.datarouter.storage.client.imp.QueueClientNodeFactory;
 import io.datarouter.storage.node.Node;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.NodeParams.NodeParamsBuilder;
+import io.datarouter.storage.node.builder.BlobQueueNodeBuilder;
 import io.datarouter.storage.node.builder.GroupQueueNodeBuilder;
 import io.datarouter.storage.node.builder.QueueNodeBuilder;
 import io.datarouter.storage.node.builder.SingleQueueNodeBuilder;
+import io.datarouter.storage.node.op.raw.BlobQueueStorage.BlobQueueStorageNode;
+import io.datarouter.storage.queue.BlobQueueMessage;
+import io.datarouter.storage.queue.BlobQueueMessage.BlobQueueMessageFielder;
+import io.datarouter.storage.queue.BlobQueueMessageKey;
 import io.datarouter.storage.tag.Tag;
+import io.datarouter.util.Require;
 
 @Singleton
 public class QueueNodeFactory extends BaseNodeFactory{
@@ -61,6 +68,10 @@ public class QueueNodeFactory extends BaseNodeFactory{
 			Supplier<D> databeanSupplier,
 			Supplier<F> fielderSupplier){
 		return new GroupQueueNodeBuilder<>(datarouter, this, clientId, databeanSupplier, fielderSupplier);
+	}
+
+	public BlobQueueNodeBuilder createBlobQueue(ClientId clientId, String queueName){
+		return new BlobQueueNodeBuilder(datarouter, this, clientId, queueName);
 	}
 
 	public <PK extends PrimaryKey<PK>,
@@ -107,6 +118,25 @@ public class QueueNodeFactory extends BaseNodeFactory{
 				.build();
 		QueueClientNodeFactory clientFactories = getClientNodeFactory(clientId, QueueClientNodeFactory.class);
 		return cast(clientFactories.createGroupQueueNode(params));
+	}
+
+	public BlobQueueStorageNode createBlobQueueNode(
+			ClientId clientId,
+			String queueName,
+			String namespace,
+			String queueUrl,//TODO remove? wait for other impls to decide on removing.
+			Tag tag){
+		Require.notBlank(queueName);
+		NodeParams<BlobQueueMessageKey,BlobQueueMessage,BlobQueueMessageFielder> params =
+				new NodeParamsBuilder<>(BlobQueueMessage::new, BlobQueueMessageFielder::new)
+				.withClientId(clientId)
+				.withTableName(queueName)
+				.withNamespace(namespace)
+				.withQueueUrl(queueUrl)
+				.withTag(tag)
+				.build();
+		BlobQueueClientNodeFactory clientFactories = getClientNodeFactory(clientId, BlobQueueClientNodeFactory.class);
+		return clientFactories.createBlobQueueNode(params);
 	}
 
 }

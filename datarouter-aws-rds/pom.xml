@@ -22,7 +22,7 @@
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-parent</artifactId>
-		<version>0.0.114</version>
+		<version>0.0.115</version>
 		<relativePath>../datarouter-parent</relativePath>
 	</parent>
 
@@ -51,7 +51,7 @@
 		<dependency>
 			<groupId>dnsjava</groupId>
 			<artifactId>dnsjava</artifactId>
-			<version>3.5.0</version>
+			<version>3.5.1</version>
 		</dependency>
 	</dependencies>
 

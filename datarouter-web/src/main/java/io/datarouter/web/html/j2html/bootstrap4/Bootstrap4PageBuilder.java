@@ -37,6 +37,7 @@ import io.datarouter.web.requirejs.DatarouterWebRequireJsV2;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.NavTag;
+import j2html.tags.specialized.ScriptTag;
 
 public class Bootstrap4PageBuilder{
 
@@ -48,6 +49,7 @@ public class Bootstrap4PageBuilder{
 	private List<NavTag> navbars = new ArrayList<>();
 	private DomContent content;
 	private final Map<String,String> httpEquivs = new LinkedHashMap<>();
+	private final List<ScriptTag> scripts = new ArrayList<>();
 
 	public DatarouterPage build(){
 		require.add(DatarouterWebRequireJsV2.BOOTSTRAP);
@@ -59,7 +61,8 @@ public class Bootstrap4PageBuilder{
 				require.toArray(String[]::new),
 				isAdmin,
 				title,
-				httpEquivs);
+				httpEquivs,
+				scripts.toArray(ScriptTag[]::new));
 		NavBar navbar = mavProperties.getIsDatarouterPage()
 				? mavProperties.getDatarouterNavBar()
 				: mavProperties.getNavBar();
@@ -120,6 +123,11 @@ public class Bootstrap4PageBuilder{
 
 	public Bootstrap4PageBuilder withContent(DomContent content){
 		this.content = content;
+		return this;
+	}
+
+	public Bootstrap4PageBuilder withScript(ScriptTag script){
+		scripts.add(script);
 		return this;
 	}
 

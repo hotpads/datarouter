@@ -21,12 +21,14 @@ import java.util.Optional;
 import io.datarouter.auth.service.CopyUserListener;
 import io.datarouter.auth.service.CopyUserListener.DefaultCopyUserListener;
 import io.datarouter.auth.service.DatarouterAccountDeleteAction;
+import io.datarouter.auth.service.DatarouterPermissionRequestUserInfo;
 import io.datarouter.auth.service.DatarouterUserInfo;
 import io.datarouter.auth.service.DefaultDatarouterAccountKeys;
 import io.datarouter.auth.service.DefaultDatarouterAccountKeysSupplier;
 import io.datarouter.auth.service.DefaultDatarouterUserPassword;
 import io.datarouter.auth.service.DefaultDatarouterUserPasswordSupplier;
 import io.datarouter.auth.service.PermissionRequestDailyDigest;
+import io.datarouter.auth.service.PermissionRequestUserInfo;
 import io.datarouter.auth.service.UserInfo;
 import io.datarouter.auth.service.deprovisioning.DatarouterUserDeprovisioningStrategy;
 import io.datarouter.auth.service.deprovisioning.UserDeprovisioningListeners;
@@ -78,6 +80,7 @@ public class DatarouterAuthPlugin extends BaseWebPlugin{
 	private final Class<? extends UserDeprovisioningStrategy> userDeprovisioningStrategyClass;
 	private final Class<? extends UserDeprovisioningListeners> userDeprovisioningListenersClass;
 	private final Class<? extends CopyUserListener> copyUserListenerClass;
+	private final Class<? extends PermissionRequestUserInfo> permissionRequestUserInfoClass;
 	private final String defaultDatarouterUserPassword;
 	private final String defaultApiKey;
 	private final String defaultSecretKey;
@@ -90,6 +93,7 @@ public class DatarouterAuthPlugin extends BaseWebPlugin{
 			Class<? extends UserDeprovisioningStrategy> userDeprovisioningStrategyClass,
 			Class<? extends UserDeprovisioningListeners> userDeprovisioningListenersClass,
 			Class<? extends CopyUserListener> copyUserListenerClass,
+			Class<? extends PermissionRequestUserInfo> permissionRequestUserInfoClass,
 			String defaultDatarouterUserPassword,
 			String defaultApiKey,
 			String defaultSecretKey,
@@ -98,6 +102,7 @@ public class DatarouterAuthPlugin extends BaseWebPlugin{
 		this.userDeprovisioningStrategyClass = userDeprovisioningStrategyClass;
 		this.userDeprovisioningListenersClass = userDeprovisioningListenersClass;
 		this.copyUserListenerClass = copyUserListenerClass;
+		this.permissionRequestUserInfoClass = permissionRequestUserInfoClass;
 		this.defaultDatarouterUserPassword = defaultDatarouterUserPassword;
 		this.defaultApiKey = defaultApiKey;
 		this.defaultSecretKey = defaultSecretKey;
@@ -142,6 +147,7 @@ public class DatarouterAuthPlugin extends BaseWebPlugin{
 		bind(UserDeprovisioningStrategy.class).to(userDeprovisioningStrategyClass);
 		bindActual(UserDeprovisioningListeners.class, userDeprovisioningListenersClass);
 		bindActual(CopyUserListener.class, copyUserListenerClass);
+		bindDefault(PermissionRequestUserInfo.class, permissionRequestUserInfoClass);
 		bindActualInstance(DefaultDatarouterUserPasswordSupplier.class,
 				new DefaultDatarouterUserPassword(defaultDatarouterUserPassword));
 		bindActualInstance(DefaultDatarouterAccountKeysSupplier.class,
@@ -162,6 +168,8 @@ public class DatarouterAuthPlugin extends BaseWebPlugin{
 		private Class<? extends UserDeprovisioningListeners> userDeprovisioningListenersClass =
 				EmptyUserDeprovisioningListeners.class;
 		private Class<? extends CopyUserListener> copyUserListenerClass = DefaultCopyUserListener.class;
+		private Class<? extends PermissionRequestUserInfo> permissionRequestUserInfoClass =
+				DatarouterPermissionRequestUserInfo.class;
 		private String defaultDatarouterUserPassword = "";
 		private String defaultApiKey = "";
 		private String defaultSecretKey = "";
@@ -206,6 +214,12 @@ public class DatarouterAuthPlugin extends BaseWebPlugin{
 			return this;
 		}
 
+		public DatarouterAuthPluginBuilder setPermissionRequestUserInfo(
+				Class<? extends PermissionRequestUserInfo> permissionRequestUserInfo){
+			this.permissionRequestUserInfoClass = permissionRequestUserInfo;
+			return this;
+		}
+
 		public DatarouterAuthPlugin build(){
 			return new DatarouterAuthPlugin(
 					enableUserAuth,
@@ -224,6 +238,7 @@ public class DatarouterAuthPlugin extends BaseWebPlugin{
 					userDeprovisioningStrategyClass,
 					userDeprovisioningListenersClass,
 					copyUserListenerClass,
+					permissionRequestUserInfoClass,
 					defaultDatarouterUserPassword,
 					defaultApiKey,
 					defaultSecretKey,

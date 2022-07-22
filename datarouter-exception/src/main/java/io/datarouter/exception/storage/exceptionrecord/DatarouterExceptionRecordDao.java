@@ -26,6 +26,7 @@ import io.datarouter.exception.storage.exceptionrecord.ExceptionRecord.Exception
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
+import io.datarouter.storage.config.Config;
 import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
@@ -79,8 +80,8 @@ public class DatarouterExceptionRecordDao extends BaseDao{
 		node.putMulti(databeans);
 	}
 
-	public Scanner<ExceptionRecord> scan(Range<ExceptionRecordKey> range){
-		return node.scan(range);
+	public Scanner<ExceptionRecord> scan(Range<ExceptionRecordKey> range, Config config){
+		return node.scan(range, config);
 	}
 
 	public DatabeanVacuum<ExceptionRecordKey,ExceptionRecord> makeVacuum(){

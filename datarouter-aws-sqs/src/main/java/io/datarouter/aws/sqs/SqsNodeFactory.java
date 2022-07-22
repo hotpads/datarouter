@@ -18,6 +18,7 @@ package io.datarouter.aws.sqs;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.aws.sqs.blob.SqsBlobNode;
 import io.datarouter.aws.sqs.group.SqsGroupNode;
 import io.datarouter.aws.sqs.single.SqsNode;
 import io.datarouter.model.databean.Databean;
@@ -25,6 +26,10 @@ import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.config.properties.EnvironmentName;
 import io.datarouter.storage.node.NodeParams;
+import io.datarouter.storage.node.op.raw.BlobQueueStorage.PhysicalBlobQueueStorageNode;
+import io.datarouter.storage.queue.BlobQueueMessage;
+import io.datarouter.storage.queue.BlobQueueMessage.BlobQueueMessageFielder;
+import io.datarouter.storage.queue.BlobQueueMessageKey;
 import io.datarouter.web.config.service.ServiceName;
 
 @Singleton
@@ -63,6 +68,16 @@ public class SqsNodeFactory{
 				sqsClientType,
 				sqsClientManager,
 				params.getClientId());
+	}
+
+	public PhysicalBlobQueueStorageNode createBlobQueueNode(
+			NodeParams<BlobQueueMessageKey,BlobQueueMessage,BlobQueueMessageFielder> params){
+		return new SqsBlobNode(
+				params,
+				sqsClientType,
+				sqsClientManager,
+				environmentName,
+				serviceName);
 	}
 
 }

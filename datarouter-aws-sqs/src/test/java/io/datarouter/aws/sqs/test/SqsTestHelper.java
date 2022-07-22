@@ -24,9 +24,9 @@ import java.util.concurrent.Future;
 
 import org.testng.Assert;
 
-import io.datarouter.aws.sqs.BaseSqsNode;
 import io.datarouter.aws.sqs.SqsDataTooLargeException;
 import io.datarouter.bytes.codec.stringcodec.StringCodec;
+import io.datarouter.model.util.CommonFieldSizes;
 import io.datarouter.storage.test.TestDatabean;
 import io.datarouter.storage.test.TestDatabeanFielder;
 import io.datarouter.util.concurrent.ThreadTool;
@@ -40,7 +40,7 @@ public class SqsTestHelper{
 	}
 
 	public void testByteLimitMulti(){
-		String longString = makeLongStringWithDatabeanSizeTarget(BaseSqsNode.MAX_BYTES_PER_MESSAGE + 1);
+		String longString = makeLongStringWithDatabeanSizeTarget(CommonFieldSizes.MAX_SQS_SIZE + 1);
 		List<TestDatabean> databeans = new ArrayList<>();
 		databeans.add(new TestDatabean(longString, "", ""));
 		databeans.add(new TestDatabean(longString, "", ""));

@@ -15,7 +15,7 @@
  */
 package io.datarouter.client.mysql.ddl.domain;
 
-import io.datarouter.enums.MappedEnum;
+import io.datarouter.enums.StringMappedEnum;
 import io.datarouter.model.serialize.fielder.FielderConfigKey;
 import io.datarouter.model.serialize.fielder.FielderConfigValue;
 
@@ -26,8 +26,8 @@ public enum MysqlRowFormat implements FielderConfigValue<MysqlRowFormat>{
 	COMPRESSED("Compressed"),
 	REDUNDANT("Redundant");
 
-	public static final MappedEnum<MysqlRowFormat,String> BY_VALUE
-			= new MappedEnum<>(values(), value -> value.value);
+	public static final StringMappedEnum<MysqlRowFormat> BY_VALUE
+			= new StringMappedEnum<>(values(), value -> value.value);
 
 	public static final FielderConfigKey<MysqlRowFormat> KEY = new FielderConfigKey<>("mySqlRowFormat");
 

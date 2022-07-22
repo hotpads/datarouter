@@ -32,9 +32,9 @@ import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.client.imp.BlobClientNodeFactory;
 import io.datarouter.storage.client.imp.DatabeanClientNodeFactory;
 import io.datarouter.storage.client.imp.TallyClientNodeFactory;
-import io.datarouter.storage.file.Pathbean;
-import io.datarouter.storage.file.Pathbean.PathbeanFielder;
-import io.datarouter.storage.file.PathbeanKey;
+import io.datarouter.storage.file.DatabaseBlob;
+import io.datarouter.storage.file.DatabaseBlob.DatabaseBlobFielder;
+import io.datarouter.storage.file.DatabaseBlobKey;
 import io.datarouter.storage.file.ReservedBlobPaths;
 import io.datarouter.storage.node.DatabeanNodePrefix;
 import io.datarouter.storage.node.DatabeanToBlobCodec;
@@ -73,7 +73,8 @@ implements BlobClientNodeFactory, DatabeanClientNodeFactory, TallyClientNodeFact
 	/*---------------- BlobClientNodeFactory ------------------*/
 
 	@Override
-	public PhysicalBlobStorageNode createBlobNode(NodeParams<PathbeanKey,Pathbean,PathbeanFielder> nodeParams){
+	public PhysicalBlobStorageNode createBlobNode(
+			NodeParams<DatabaseBlobKey,DatabaseBlob,DatabaseBlobFielder> nodeParams){
 		var codec = new RedisBlobCodec(nodeParams.getPath());
 		var node = new RedisBlobNode(
 				nodeParams,
@@ -107,7 +108,7 @@ implements BlobClientNodeFactory, DatabeanClientNodeFactory, TallyClientNodeFact
 				.withPath(path)
 				.build();
 		var blobNode = new RedisBlobNode(
-				toPathbeanParams(blobParams),
+				castParams(blobParams),
 				redisClientType,
 				new RedisBlobCodec(path),
 				redisClientManager.getLazyClient(nodeParams.getClientId()));
@@ -128,8 +129,8 @@ implements BlobClientNodeFactory, DatabeanClientNodeFactory, TallyClientNodeFact
 	}
 
 	@SuppressWarnings("unchecked")
-	private NodeParams<PathbeanKey,Pathbean,PathbeanFielder> toPathbeanParams(NodeParams<?,?,?> params){
-		return (NodeParams<PathbeanKey,Pathbean,PathbeanFielder>)params;
+	private NodeParams<DatabaseBlobKey,DatabaseBlob,DatabaseBlobFielder> castParams(NodeParams<?,?,?> params){
+		return (NodeParams<DatabaseBlobKey,DatabaseBlob,DatabaseBlobFielder>)params;
 	}
 
 	/*---------------- TallyClientNodeFactory ------------------*/

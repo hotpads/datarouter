@@ -75,8 +75,9 @@ public class EndpointDecoder implements HandlerDecoder, JsonAwareHandlerCodec{
 				(Class<? extends BaseEndpoint<?,?>>)endpointType);
 
 		if(!baseEndpoint.method.matches(request.getMethod())){
-			throw new RuntimeException(String.format("Request type mismatch. Handler=%s Endpoint=%s",
-					baseEndpoint.method.persistentString, request.getMethod()));
+			logger.error("Request type mismatch. Handler={} Endpoint={}",
+					baseEndpoint.method.persistentString,
+					request.getMethod());
 		}
 
 		String body = null;

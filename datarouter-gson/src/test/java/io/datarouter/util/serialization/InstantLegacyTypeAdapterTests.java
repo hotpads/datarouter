@@ -21,28 +21,17 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
-import io.datarouter.gson.serialization.InstantLegacyTypeAdapter;
+import io.datarouter.gson.serialization.GsonTool;
 
 public class InstantLegacyTypeAdapterTests{
 
 	@Test
 	public void testInteroperability(){
 		Instant instant = Instant.ofEpochMilli(1647548719105L);
-		Gson legacyAdapterGson = new GsonBuilder()
-				.registerTypeAdapter(Instant.class, new InstantLegacyTypeAdapter())
-				.create();
+		Gson legacyAdapterGson = GsonTool.GSON;
 		String legacyAdapterJson = legacyAdapterGson.toJson(instant);
 		Assert.assertEquals(legacyAdapterGson.fromJson(legacyAdapterJson, Instant.class), instant);
-
-		// Remove to get to Java 16
-		Gson legacyReflectionGson = new Gson();
-		String legacyReflectionJson = legacyReflectionGson.toJson(instant);
-		Assert.assertEquals(legacyReflectionJson, legacyAdapterJson);
-		Assert.assertEquals(legacyReflectionGson.fromJson(legacyAdapterJson, Instant.class), instant);
-		Assert.assertEquals(legacyReflectionGson.fromJson(legacyReflectionJson, Instant.class), instant);
-		Assert.assertEquals(legacyAdapterGson.fromJson(legacyReflectionJson, Instant.class), instant);
 	}
 
 }

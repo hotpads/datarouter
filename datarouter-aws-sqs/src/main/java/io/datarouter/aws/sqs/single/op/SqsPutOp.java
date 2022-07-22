@@ -28,6 +28,7 @@ import io.datarouter.bytes.codec.stringcodec.StringCodec;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.model.util.CommonFieldSizes;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.serialize.fieldcache.FieldGeneratorTool;
@@ -59,7 +60,7 @@ extends SqsOp<PK,D,F,Void>{
 	protected Void run(){
 		FieldGeneratorTool.generateAndSetValueForFieldIfNecessary(fieldInfo, databean);
 		String encodedDatabean = codec.toString(databean, fielder);
-		if(StringCodec.UTF_8.encode(encodedDatabean).length > BaseSqsNode.MAX_BYTES_PER_MESSAGE){
+		if(StringCodec.UTF_8.encode(encodedDatabean).length > CommonFieldSizes.MAX_SQS_SIZE){
 			throw new SqsDataTooLargeException(List.of(encodedDatabean));
 		}
 		var request = new SendMessageRequest(queueUrl, encodedDatabean);

@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.httpclient.endpoint.BaseEndpoint;
+import io.datarouter.httpclient.endpoint.BaseLink;
 import io.datarouter.httpclient.endpoint.EndpointTool;
 import io.datarouter.pathnode.PathNode;
 import io.datarouter.util.lang.ReflectionTool;
@@ -72,9 +73,15 @@ public abstract class BaseRouteSet implements RouteSet{
 				.withDispatchType(DispatchType.API_ENDPOINT);
 	}
 
+	protected DispatchRule handleLink(Class<? extends BaseLink<?>> baseLinkClass){
+		BaseLink<?> baseLink = ReflectionTool.createWithoutNoArgs(baseLinkClass);
+		return handle(baseLink.pathNode)
+				.withDispatchType(DispatchType.INTERNAL_LINK);
+	}
+
 	/**
-	 * A convenience method to automatically register all Endpoints that are used in a Handler class. This only works if
-	 * all the handler methods inside the Handler class are using endpoints.
+	 * A convenience method to automatically register all Endpoints and Links that are used in a Handler class.
+	 * This only works if all the handler methods inside the Handler class are using endpoints or links.
 	 *
 	 * This method works for registration without any custom dispatch rules. The applyDefault is the only dispatch rule
 	 * used.
@@ -82,6 +89,9 @@ public abstract class BaseRouteSet implements RouteSet{
 	protected void registerHandler(Class<? extends BaseHandler> handler){
 		List<Class<? extends BaseEndpoint<?,?>>> endpoints = HandlerTool.getEndpointsFromHandler(handler);
 		endpoints.forEach(endpoint -> handle(endpoint).withHandler(handler));
+
+		List<Class<? extends BaseLink<?>>> links = HandlerTool.getLinksFromHandler(handler);
+		links.forEach(endpoint -> handleLink(endpoint).withHandler(handler));
 	}
 
 	protected DispatchRule applyDefaultAndAdd(DispatchRule rule){

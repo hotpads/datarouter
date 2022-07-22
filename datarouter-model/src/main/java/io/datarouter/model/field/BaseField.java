@@ -56,13 +56,13 @@ public abstract class BaseField<T> implements Field<T>{
 	/*----------------------------- ByteField -------------------------------*/
 
 	@Override
-	public byte[] getBytesWithSeparator(){
-		return getBytes();
+	public byte[] getKeyBytesWithSeparator(){
+		return getValueBytes();
 	}
 
 	@Override
-	public T fromBytesWithSeparatorButDoNotSet(byte[] bytes, int byteOffset){
-		return fromBytesButDoNotSet(bytes, byteOffset);
+	public T fromKeyBytesWithSeparatorButDoNotSet(byte[] bytes, int byteOffset){
+		return fromValueBytesButDoNotSet(bytes, byteOffset);
 	}
 
 	/*------------------------- reflective setters --------------------------*/
@@ -130,6 +130,10 @@ public abstract class BaseField<T> implements Field<T>{
 	@Override
 	public String getPreparedStatementValue(){
 		return "?";
+	}
+
+	@Override
+	public void validate(){
 	}
 
 }

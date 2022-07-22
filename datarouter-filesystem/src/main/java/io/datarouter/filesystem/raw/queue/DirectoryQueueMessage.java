@@ -15,18 +15,24 @@
  */
 package io.datarouter.filesystem.raw.queue;
 
+import io.datarouter.bytes.codec.stringcodec.StringCodec;
+
 public class DirectoryQueueMessage{
 
 	public final String id;
-	public final String content;
+	public final byte[] content;
 
-	public DirectoryQueueMessage(String id, String content){
+	public DirectoryQueueMessage(String id, byte[] content){
 		this.id = id;
 		this.content = content;
 	}
 
-	public byte[] getBytesId(){
-		return id.getBytes();
+	public byte[] getIdUtf8Bytes(){
+		return StringCodec.UTF_8.encode(id);
+	}
+
+	public String getContentUtf8(){
+		return StringCodec.UTF_8.decode(content);
 	}
 
 }

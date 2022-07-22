@@ -24,7 +24,7 @@ import java.util.function.Supplier;
 
 import io.datarouter.auth.web.deprovisioning.DeprovisionedUserDto;
 import io.datarouter.auth.web.deprovisioning.UserDeprovisioningStatusDto;
-import io.datarouter.enums.MappedEnum;
+import io.datarouter.enums.StringMappedEnum;
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.codec.StringListToBinaryCsvFieldCodec;
@@ -123,8 +123,8 @@ public class DeprovisionedUser extends BaseDatabean<DeprovisionedUserKey,Deprovi
 		DEPROVISIONED("deprovisioned", UserDeprovisioningStatusDto.DEPROVISIONED),
 		FLAGGED("flagged", UserDeprovisioningStatusDto.FLAGGED);
 
-		public static final MappedEnum<UserDeprovisioningStatus,String> BY_PERSISTENT_STRING
-				= new MappedEnum<>(values(), value -> value.persistentString);
+		public static final StringMappedEnum<UserDeprovisioningStatus> BY_PERSISTENT_STRING
+				= new StringMappedEnum<>(values(), value -> value.persistentString);
 
 		private final String persistentString;
 		private final UserDeprovisioningStatusDto dto;

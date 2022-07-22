@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import io.datarouter.util.lang.ObjectTool;
@@ -67,6 +68,24 @@ public class Require{
 		if(ObjectTool.notEquals(first, second)){
 			throw new IllegalArgumentException(message);
 		}
+	}
+
+	public static <T,B> Collection<T> allEqualBy(Collection<T> items, Function<T,B> function){
+		if(items.isEmpty()){
+			return items;
+		}
+		B firstExtractedValue = function.apply(items.iterator().next());
+		for(T item : items){
+			B extractedValue = function.apply(item);
+			if(!Objects.equals(firstExtractedValue, extractedValue)){
+				String message = String.format(
+						"First extracted value=%s, but found %s",
+						firstExtractedValue,
+						extractedValue);
+				throw new IllegalArgumentException(message);
+			}
+		}
+		return items;
 	}
 
 	public static <T> void notEquals(T first, T second){

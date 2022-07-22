@@ -49,8 +49,8 @@ public class DailyDigestService{
 	}
 
 	public H3Tag makeHeader(String title, String url){
-		return h3(a(title)
-				.withHref(url));
+		return h3(a(title).withHref(url))
+				.withStyle("margin-bottom:5px");
 	}
 
 	public ATag makeATagLink(String title, PathNode path){

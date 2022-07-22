@@ -39,6 +39,7 @@ public class DatarouterTraceFilterSettingRoot extends SettingRoot{
 	public final Setting<Boolean> addTraceparentHeader;
 	public final CachedSetting<String> traceDomain;
 	public final Setting<Set<String>> latencyRecordedHandlers;
+	public final Setting<Boolean> recordAllLatency;
 	public final CachedSetting<Boolean> saveTraceCpuTime;
 	public final CachedSetting<Boolean> saveTraceAllocatedBytes;
 	public final CachedSetting<Boolean> saveThreadCpuTime;
@@ -61,6 +62,7 @@ public class DatarouterTraceFilterSettingRoot extends SettingRoot{
 		traceDomain = registerString("traceDomain", "localhost:8443");
 		latencyRecordedHandlers = registerCommaSeparatedStrings("latencyRecordedHandlers", defaultTo(new HashSet<>()));
 		saveTraceCpuTime = registerBoolean("saveTraceCpuTime", true);
+		recordAllLatency = registerBoolean("recordAllLatency", true);
 		saveTraceAllocatedBytes = registerBoolean("saveTraceAllocatedBytes", true);
 		saveThreadCpuTime = registerBooleans("saveThreadCpuTime", defaultTo(true));
 		saveThreadMemoryAllocated = registerBooleans("saveThreadMemoryAllocated", defaultTo(false)

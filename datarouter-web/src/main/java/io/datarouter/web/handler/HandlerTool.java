@@ -23,7 +23,9 @@ import java.util.List;
 import java.util.Optional;
 
 import io.datarouter.httpclient.endpoint.BaseEndpoint;
+import io.datarouter.httpclient.endpoint.BaseLink;
 import io.datarouter.httpclient.endpoint.EndpointTool;
+import io.datarouter.httpclient.endpoint.LinkTool;
 import io.datarouter.httpclient.endpoint.NoOpResponseType;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.lang.ClassTool;
@@ -122,6 +124,30 @@ public class HandlerTool{
 			endpoints.add((Class<? extends BaseEndpoint<?,?>>)endpointType);
 		}
 		return endpoints;
+	}
+
+	@SuppressWarnings({"unchecked", "deprecation"})
+	public static List<Class<? extends BaseLink<?>>> getLinksFromHandler(
+			Class<? extends BaseHandler> handler){
+		List<Class<? extends BaseLink<?>>> links = new ArrayList<>();
+		for(Method method : handler.getDeclaredMethods()){
+			if(Modifier.isStatic(method.getModifiers())){
+				continue;
+			}
+			if(method.getAnnotation(Handler.class) == null){
+				continue;
+			}
+			if(method.getAnnotation(Handler.class).defaultHandler()){
+				// doesn't work when defaultHandler = true
+				continue;
+			}
+			if(!LinkTool.paramIsLinkObject(method)){
+				continue;
+			}
+			Class<?> linkType = method.getParameters()[0].getType();
+			links.add((Class<? extends BaseLink<?>>)linkType);
+		}
+		return links;
 	}
 
 }

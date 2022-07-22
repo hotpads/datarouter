@@ -25,8 +25,10 @@ import io.datarouter.aws.s3.DatarouterS3Client;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.config.Config;
+import io.datarouter.storage.file.DatabaseBlob;
+import io.datarouter.storage.file.DatabaseBlob.DatabaseBlobFielder;
+import io.datarouter.storage.file.DatabaseBlobKey;
 import io.datarouter.storage.file.Pathbean;
-import io.datarouter.storage.file.Pathbean.PathbeanFielder;
 import io.datarouter.storage.file.PathbeanKey;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.op.raw.BlobStorage.PhysicalBlobStorageNode;
@@ -34,14 +36,14 @@ import io.datarouter.storage.node.type.physical.base.BasePhysicalNode;
 import io.datarouter.storage.util.Subpath;
 
 public class S3Node
-extends BasePhysicalNode<PathbeanKey,Pathbean,PathbeanFielder>
+extends BasePhysicalNode<DatabaseBlobKey,DatabaseBlob,DatabaseBlobFielder>
 implements PhysicalBlobStorageNode{
 
 	private final DatarouterS3Client datarouterS3Client;
 	private final S3DirectoryManager s3DirectoryManager;
 
 	public S3Node(
-			NodeParams<PathbeanKey,Pathbean,PathbeanFielder> params,
+			NodeParams<DatabaseBlobKey,DatabaseBlob,DatabaseBlobFielder> params,
 			ClientType<?,?> clientType,
 			DatarouterS3Client datarouterS3Client,
 			S3DirectoryManager directoryManager){
@@ -131,8 +133,13 @@ implements PhysicalBlobStorageNode{
 	public Scanner<List<PathbeanKey>> scanKeysPaged(Subpath subpath, Config config){
 		return s3DirectoryManager.scanKeysPaged(subpath)
 				.map(page -> Scanner.of(page)
-						.map(PathbeanKey::of)
+						.map(PathbeanKey::ofAllowEmptyFile)
 						.list());
+	}
+
+	@Override
+	public void vacuum(Config config){
+		throw new UnsupportedOperationException();
 	}
 
 }

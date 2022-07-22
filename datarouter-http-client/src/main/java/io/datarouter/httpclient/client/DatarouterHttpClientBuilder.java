@@ -42,6 +42,7 @@ import org.apache.http.ssl.SSLContextBuilder;
 
 import io.datarouter.gson.serialization.GsonTool;
 import io.datarouter.httpclient.endpoint.EndpointType;
+import io.datarouter.httpclient.endpoint.LinkType;
 import io.datarouter.httpclient.json.GsonJsonSerializer;
 import io.datarouter.httpclient.json.JsonSerializer;
 import io.datarouter.httpclient.link.DatarouterLinkSettings;
@@ -179,9 +180,14 @@ public class DatarouterHttpClientBuilder{
 		return buildStandardDatarouterHttpClient();
 	}
 
-	public <R extends EndpointType> DatarouterEndpointHttpClient<R> buildEndpointClient(){
+	public <ET extends EndpointType> DatarouterEndpointClient<ET> buildEndpointClient(){
 		StandardDatarouterHttpClient client = buildStandardDatarouterHttpClient();
-		return new StandardDatarouterEndpointHttpClient<>(client);
+		return new StandardDatarouterEndpointClient<>(client);
+	}
+
+	public <L extends LinkType> DatarouterLinkClient<L> buildLinkClient(){
+		StandardDatarouterHttpClient client = buildStandardDatarouterHttpClient();
+		return new StandardDatarouterLinkClient<>(client);
 	}
 
 	public DatarouterHttpClientBuilder setRetryCount(Supplier<Integer> retryCount){

@@ -18,6 +18,7 @@ package io.datarouter.client.mysql;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.client.mysql.node.MysqlBlobNode;
 import io.datarouter.client.mysql.node.MysqlNode;
 import io.datarouter.client.mysql.node.MysqlNodeManager;
 import io.datarouter.client.mysql.node.MysqlTallyNode;
@@ -26,11 +27,16 @@ import io.datarouter.model.entity.Entity;
 import io.datarouter.model.key.entity.EntityKey;
 import io.datarouter.model.key.primary.EntityPrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.storage.client.imp.BlobClientNodeFactory;
 import io.datarouter.storage.client.imp.DatabeanClientNodeFactory;
 import io.datarouter.storage.client.imp.TallyClientNodeFactory;
+import io.datarouter.storage.file.DatabaseBlob;
+import io.datarouter.storage.file.DatabaseBlob.DatabaseBlobFielder;
+import io.datarouter.storage.file.DatabaseBlobKey;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.adapter.NodeAdapters;
 import io.datarouter.storage.node.entity.EntityNodeParams;
+import io.datarouter.storage.node.op.raw.BlobStorage.PhysicalBlobStorageNode;
 import io.datarouter.storage.node.op.raw.TallyStorage.PhysicalTallyStorageNode;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.storage.tally.Tally;
@@ -39,7 +45,7 @@ import io.datarouter.storage.tally.TallyKey;
 
 @Singleton
 public class MysqlClientNodeFactory
-implements DatabeanClientNodeFactory, TallyClientNodeFactory{
+implements BlobClientNodeFactory, DatabeanClientNodeFactory, TallyClientNodeFactory{
 
 	@Inject
 	private MysqlClientType mysqlClientType;
@@ -70,6 +76,13 @@ implements DatabeanClientNodeFactory, TallyClientNodeFactory{
 				mysqlClientType,
 				mysqlNodeManager);
 		return nodeAdapters.wrapTallyNode(node);
+	}
+
+	@Override
+	public PhysicalBlobStorageNode createBlobNode(
+			NodeParams<DatabaseBlobKey,DatabaseBlob,DatabaseBlobFielder> nodeParams){
+		var node = new MysqlBlobNode(mysqlNodeManager, nodeParams, mysqlClientType);
+		return nodeAdapters.wrapBlobNode(node);
 	}
 
 }

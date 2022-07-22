@@ -15,6 +15,7 @@
  */
 package io.datarouter.instrumentation.trace;
 
+import java.time.Instant;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -81,12 +82,8 @@ public class W3TraceContext{
 		tracestate.addDatarouterListMember(traceparent.parentId);
 	}
 
-	public Optional<Long> getTimestamp(){
-		// only parentId created by datarouter can be translated into timestamp
-		if(Tracestate.TRACESTATE_DR_KEY.equals(tracestate.getLastestTracestate().key)){
-			return Optional.of(traceparent.getTimestampInMs());
-		}
-		return Optional.empty();
+	public Optional<Long> getTimestampMs(){
+		return traceparent.getInstant().map(Instant::toEpochMilli);
 	}
 
 	private boolean validateAndSetTraceparent(String traceparentStr){
@@ -116,7 +113,9 @@ public class W3TraceContext{
 		String[] members = tracestateStr.split(Tracestate.TRACESTATE_MEMBER_DELIMITER);
 		for(String member : members){
 			String[] tokens = member.split(Tracestate.TRACESTATE_KEYVALUE_DELIMITER);
-			tracestate.addListMember(tokens[0], tokens[1]);
+			if(tokens.length > 1){
+				tracestate.addListMember(tokens[0], tokens[1]);
+			}
 		}
 	}
 

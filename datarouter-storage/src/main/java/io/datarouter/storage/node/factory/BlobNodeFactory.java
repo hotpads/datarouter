@@ -24,9 +24,9 @@ import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.imp.BlobClientNodeFactory;
-import io.datarouter.storage.file.Pathbean;
-import io.datarouter.storage.file.Pathbean.PathbeanFielder;
-import io.datarouter.storage.file.PathbeanKey;
+import io.datarouter.storage.file.DatabaseBlob;
+import io.datarouter.storage.file.DatabaseBlob.DatabaseBlobFielder;
+import io.datarouter.storage.file.DatabaseBlobKey;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.NodeParams.NodeParamsBuilder;
 import io.datarouter.storage.node.builder.BlobNodeBuilder;
@@ -52,9 +52,9 @@ public class BlobNodeFactory extends BaseNodeFactory{
 			ClientId clientId,
 			String bucketName,
 			Subpath path){
-		NodeParams<PathbeanKey,Pathbean,PathbeanFielder> params = new NodeParamsBuilder<>(
-				Pathbean::new,
-				PathbeanFielder::new)
+		NodeParams<DatabaseBlobKey,DatabaseBlob,DatabaseBlobFielder> params = new NodeParamsBuilder<>(
+				DatabaseBlob::new,
+				DatabaseBlobFielder::new)
 				.withClientId(clientId)
 				.withBucketName(bucketName)
 				.withPath(path)
@@ -72,7 +72,6 @@ public class BlobNodeFactory extends BaseNodeFactory{
 				node.getClientId(),
 				node.getBucket(),
 				fullPath);
-
 	}
 
 }

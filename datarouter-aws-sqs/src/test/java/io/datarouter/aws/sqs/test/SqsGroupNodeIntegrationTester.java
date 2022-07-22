@@ -30,6 +30,7 @@ import org.testng.annotations.Test;
 
 import io.datarouter.aws.sqs.BaseSqsNode;
 import io.datarouter.aws.sqs.DatarouterAwsSqsTestNgModuleFactory;
+import io.datarouter.model.util.CommonFieldSizes;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.queue.GroupQueueMessage;
 import io.datarouter.storage.test.TestDatabean;
@@ -69,8 +70,7 @@ public class SqsGroupNodeIntegrationTester{
 	@Test
 	public void testPutMultiAndPollMulti(){
 		List<TestDatabean> databeans = new ArrayList<>(DATABEAN_COUNT);
-		String longString = SqsTestHelper.makeStringOfByteSize(BaseSqsNode.MAX_BYTES_PER_MESSAGE / (DATABEAN_COUNT
-				- 1));
+		String longString = SqsTestHelper.makeStringOfByteSize(CommonFieldSizes.MAX_SQS_SIZE / (DATABEAN_COUNT - 1));
 		for(int i = 0; i < DATABEAN_COUNT; i++){
 			databeans.add(new TestDatabean(longString, makeRandomString(), makeRandomString()));
 		}

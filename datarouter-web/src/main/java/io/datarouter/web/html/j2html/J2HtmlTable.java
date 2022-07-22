@@ -35,6 +35,7 @@ import io.datarouter.scanner.Scanner;
 import j2html.TagCreator;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.TableTag;
+import j2html.tags.specialized.TdTag;
 import j2html.tags.specialized.TrTag;
 
 public class J2HtmlTable<T>{
@@ -50,7 +51,7 @@ public class J2HtmlTable<T>{
 	}
 
 	public J2HtmlTable<T> withColumn(String name, Function<T,Object> valueFunction){
-		Function<T,DomContent> function = dto -> Optional.ofNullable(valueFunction.apply(dto))
+		Function<T,TdTag> function = dto -> Optional.ofNullable(valueFunction.apply(dto))
 				.map(Object::toString)
 				.map(TagCreator::td)
 				.orElseGet(TagCreator::td);
@@ -58,12 +59,12 @@ public class J2HtmlTable<T>{
 		return this;
 	}
 
-	public J2HtmlTable<T> withHtmlColumn(String name, Function<T,DomContent> valueFunction){
+	public J2HtmlTable<T> withHtmlColumn(String name, Function<T,TdTag> valueFunction){
 		columns.add(new J2HtmlTableColumn<>(name, valueFunction));
 		return this;
 	}
 
-	public J2HtmlTable<T> withHtmlColumn(DomContent name, Function<T,DomContent> valueFunction){
+	public J2HtmlTable<T> withHtmlColumn(DomContent name, Function<T,TdTag> valueFunction){
 		columns.add(new J2HtmlTableColumn<>(name, valueFunction));
 		return this;
 	}
@@ -81,13 +82,13 @@ public class J2HtmlTable<T>{
 	private static class J2HtmlTableColumn<T>{
 
 		private DomContent name;
-		private Function<T,DomContent> valueFunction;
+		private Function<T,TdTag> valueFunction;
 
-		public J2HtmlTableColumn(String name, Function<T,DomContent> valueFunction){
+		public J2HtmlTableColumn(String name, Function<T,TdTag> valueFunction){
 			this(th(name), valueFunction);
 		}
 
-		public J2HtmlTableColumn(DomContent name, Function<T,DomContent> valueFunction){
+		public J2HtmlTableColumn(DomContent name, Function<T,TdTag> valueFunction){
 			this.name = name;
 			this.valueFunction = valueFunction;
 		}

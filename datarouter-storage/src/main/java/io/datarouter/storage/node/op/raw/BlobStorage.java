@@ -15,9 +15,9 @@
  */
 package io.datarouter.storage.node.op.raw;
 
-import io.datarouter.storage.file.Pathbean;
-import io.datarouter.storage.file.Pathbean.PathbeanFielder;
-import io.datarouter.storage.file.PathbeanKey;
+import io.datarouter.storage.file.DatabaseBlob;
+import io.datarouter.storage.file.DatabaseBlob.DatabaseBlobFielder;
+import io.datarouter.storage.file.DatabaseBlobKey;
 import io.datarouter.storage.node.op.raw.write.BlobStorageWriter;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 
@@ -29,7 +29,7 @@ public interface BlobStorage extends BlobStorageWriter{
 	}
 
 	public interface PhysicalBlobStorageNode
-	extends BlobStorageNode, PhysicalNode<PathbeanKey,Pathbean,PathbeanFielder>{
+	extends BlobStorageNode, PhysicalNode<DatabaseBlobKey,DatabaseBlob,DatabaseBlobFielder>{
 	}
 
 }

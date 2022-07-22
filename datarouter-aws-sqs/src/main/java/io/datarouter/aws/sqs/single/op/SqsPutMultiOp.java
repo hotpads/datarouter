@@ -32,6 +32,7 @@ import io.datarouter.bytes.codec.stringcodec.StringCodec;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.model.util.CommonFieldSizes;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.serialize.fieldcache.FieldGeneratorTool;
@@ -68,11 +69,11 @@ extends SqsOp<PK,D,F,Void>{
 			FieldGeneratorTool.generateAndSetValueForFieldIfNecessary(fieldInfo, databean);
 			String databeanAsString = codec.toString(databean, fielder);
 			int encodedDatabeanSize = StringCodec.UTF_8.encode(databeanAsString).length;
-			if(encodedDatabeanSize > BaseSqsNode.MAX_BYTES_PER_MESSAGE){
+			if(encodedDatabeanSize > CommonFieldSizes.MAX_SQS_SIZE){
 				rejectedDatabeans.add(databeanAsString);
 				continue;
 			}
-			if(currentPayloadSize + encodedDatabeanSize > BaseSqsNode.MAX_BYTES_PER_PAYLOAD
+			if(currentPayloadSize + encodedDatabeanSize > CommonFieldSizes.MAX_SQS_SIZE
 					|| entries.size() >= BaseSqsNode.MAX_MESSAGES_PER_BATCH){
 				putBatch(entries);
 				entries = new ArrayList<>();

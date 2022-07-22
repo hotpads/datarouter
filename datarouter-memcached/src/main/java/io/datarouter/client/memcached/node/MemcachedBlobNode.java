@@ -32,8 +32,10 @@ import io.datarouter.client.memcached.util.MemcachedExpirationTool;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.config.Config;
+import io.datarouter.storage.file.DatabaseBlob;
+import io.datarouter.storage.file.DatabaseBlob.DatabaseBlobFielder;
+import io.datarouter.storage.file.DatabaseBlobKey;
 import io.datarouter.storage.file.Pathbean;
-import io.datarouter.storage.file.Pathbean.PathbeanFielder;
 import io.datarouter.storage.file.PathbeanKey;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.op.raw.BlobStorage.PhysicalBlobStorageNode;
@@ -42,7 +44,7 @@ import io.datarouter.storage.util.Subpath;
 import io.datarouter.util.tuple.Pair;
 
 public class MemcachedBlobNode
-extends BasePhysicalNode<PathbeanKey,Pathbean,PathbeanFielder>
+extends BasePhysicalNode<DatabaseBlobKey,DatabaseBlob,DatabaseBlobFielder>
 implements PhysicalBlobStorageNode{
 
 	private static final boolean DEFAULT_IGNORE_EXCEPTION = true;
@@ -53,7 +55,7 @@ implements PhysicalBlobStorageNode{
 	private final Supplier<DatarouterMemcachedClient> lazyClient;
 
 	public MemcachedBlobNode(
-			NodeParams<PathbeanKey,Pathbean,PathbeanFielder> params,
+			NodeParams<DatabaseBlobKey,DatabaseBlob,DatabaseBlobFielder> params,
 			ClientType<?,?> clientType,
 			MemcachedBlobCodec blobCodec,
 			Supplier<DatarouterMemcachedClient> lazyClient){
@@ -183,6 +185,11 @@ implements PhysicalBlobStorageNode{
 						DEFAULT_TIMEOUT.toMillis(),
 						DEFAULT_IGNORE_EXCEPTION))
 				.map(blobCodec::decodeResult);
+	}
+
+	@Override
+	public void vacuum(Config config){
+		throw new UnsupportedOperationException();
 	}
 
 }

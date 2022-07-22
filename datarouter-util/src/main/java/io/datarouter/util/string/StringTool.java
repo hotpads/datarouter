@@ -23,9 +23,13 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.datarouter.util.lang.ObjectTool;
 
 public class StringTool{
+	protected static final Logger logger = LoggerFactory.getLogger(StringTool.class);
 
 	private static final Collator COLLATOR = Collator.getInstance();
 	private static final Pattern NOT_A_NUMBER_DOT_OR_MINUS_PATTERN = Pattern.compile("[^\\d\\.\\-]");
@@ -217,6 +221,18 @@ public class StringTool{
 			return str;
 		}
 		return str.substring(0, size);
+	}
+
+	public static String trimToSizeAndLog(String str, int size, String placeholder, String... logDetails){
+		int initialLength = length(str);
+		if(initialLength <= size){
+			return str;
+		}
+		logger.warn("Trimmed string from {} to {} {}", initialLength, size, String.join(", ", logDetails));
+		if(size <= placeholder.length()){
+			return str.substring(0, size);
+		}
+		return str.substring(0, size - placeholder.length()) + placeholder;
 	}
 
 	public static String trimToSizeFromEnd(String str, int size){

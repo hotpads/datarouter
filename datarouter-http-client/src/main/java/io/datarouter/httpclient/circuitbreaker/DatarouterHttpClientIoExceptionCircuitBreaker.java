@@ -58,6 +58,8 @@ public class DatarouterHttpClientIoExceptionCircuitBreaker extends ExceptionCirc
 	public static final String TRACEPARENT = "traceparent";
 	public static final String TRACESTATE = "tracestate";
 
+	public static final String HTTP_CLIENT_COUNTER_PREFIX = "httpClient";
+
 	public DatarouterHttpClientIoExceptionCircuitBreaker(String name){
 		super(name);
 	}
@@ -182,7 +184,7 @@ public class DatarouterHttpClientIoExceptionCircuitBreaker extends ExceptionCirc
 	}
 
 	private void count(String key){
-		Counters.inc("httpClient " + name + " " + key);
+		Counters.inc(HTTP_CLIENT_COUNTER_PREFIX + " " + name + " " + key);
 	}
 
 }

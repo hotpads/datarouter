@@ -33,11 +33,6 @@ public class ZoneIdLegacyTypeAdapterTests{
 		Gson legacyAdapterGson = GsonTool.GSON;
 		String legacyAdapterJson = legacyAdapterGson.toJson(zoneId);
 		Assert.assertEquals(legacyAdapterJson, expectedJson);
-
-		// Remove to get to Java 16
-		Gson legacyReflectionGson = new Gson();
-		String legacyReflectionJson = legacyReflectionGson.toJson(zoneId);
-		Assert.assertEquals(legacyReflectionJson, legacyAdapterJson);
 	}
 
 	@DataProvider

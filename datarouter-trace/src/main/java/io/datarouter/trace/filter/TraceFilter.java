@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -46,6 +47,7 @@ import io.datarouter.instrumentation.trace.Trace2BundleDto;
 import io.datarouter.instrumentation.trace.Trace2Dto;
 import io.datarouter.instrumentation.trace.Trace2SpanDto;
 import io.datarouter.instrumentation.trace.Trace2ThreadDto;
+import io.datarouter.instrumentation.trace.TraceSaveReasonType;
 import io.datarouter.instrumentation.trace.Traceparent;
 import io.datarouter.instrumentation.trace.Tracer;
 import io.datarouter.instrumentation.trace.TracerThreadLocal;
@@ -161,6 +163,7 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 					rootThread.setEnded(ended);
 					((DatarouterTracer)tracer).setCurrentThread(null);
 				}
+				List<TraceSaveReasonType> saveReasons = new ArrayList<>();
 				Trace2Dto trace2 = new Trace2Dto(
 						traceparent,
 						initialParentId,
@@ -175,7 +178,8 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 						cpuTimeBegin,
 						cpuTimeEnded,
 						threadAllocatedBytesBegin,
-						threadAllocatedBytesEnded);
+						threadAllocatedBytesEnded,
+						saveReasons);
 
 				Long traceDurationMs = trace2.getDurationInMs();
 				long mainThreadCpuTimeNs = saveCpuTime ? cpuTimeEnded - cpuTimeBegin : -1;
@@ -190,26 +194,26 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 				long totalCpuTimeMs = TimeUnit.NANOSECONDS.toMillis(totalCpuTimeNs);
 				Long threadAllocatedKB = saveAllocatedBytes ? (threadAllocatedBytesEnded - threadAllocatedBytesBegin)
 						/ 1024 : null;
-				String saveReason = null;
+				String traceCounterPrefix = "traceSaved ";
 				if(traceSettings.saveTraces.get()){
 					if(traceDurationMs > traceSettings.saveTracesOverMs.get()){
-						saveReason = "duration";
+						saveReasons.add(TraceSaveReasonType.DURATION);
 					}
 					if(RequestTool.getBoolean(request, "trace", false)){
-						saveReason = "queryParam";
+						saveReasons.add(TraceSaveReasonType.QUERY_PARAM);
 					}
 					if(tracer.shouldSample()){
-						saveReason = "traceContext";
+						saveReasons.add(TraceSaveReasonType.TRACE_CONTEXT);
 					}
 					if(errored){
-						saveReason = "error";
+						saveReasons.add(TraceSaveReasonType.ERROR);
 					}
 					if(totalCpuTimeMs > traceSettings.saveTracesCpuOverMs.get()){
-						saveReason = "cpu";
+						saveReasons.add(TraceSaveReasonType.CPU);
 					}
+					saveReasons.forEach(reason -> Counters.inc(traceCounterPrefix + reason.type));
 				}
-				if(saveReason != null){
-					Counters.inc("traceSaved " + saveReason);
+				if(!saveReasons.isEmpty()){
 					List<Trace2ThreadDto> threads = new ArrayList<>(tracer.getThreadQueue());
 					List<Trace2SpanDto> spans = new ArrayList<>(tracer.getSpanQueue());
 					if(rootThread != null){
@@ -222,10 +226,14 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 							.orElse("unknown");
 					HttpRequestRecordDto httpRequestRecord = buildHttpRequestRecord(errored, request, traceCreated,
 							userToken, traceparent);
-					String destination = offerTrace2(
+					Optional<String> destination = offerTrace2(
 							new Trace2BundleDto(trace2, threads, spans),
 							httpRequestRecord);
-					logger.warn("Trace saved"
+					if(destination.isEmpty()){
+						Counters.inc("traceSavedNotAllowed");
+						Counters.inc("traceSavedNotAllowed " + trace2.type);
+					}
+					logger.warn("Trace " + (destination.isPresent() ? "saved" : "not allowed to save")
 							+ " to={}"
 							+ " traceparent={}"
 							+ " initialParentId={}"
@@ -237,8 +245,9 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 							+ " path={}"
 							+ " query={}"
 							+ " userAgent=\"{}\""
-							+ " userToken={}",
-							destination,
+							+ " userToken={}"
+							+ " saveReasons={}",
+							destination.orElse(null),
 							traceparent,
 							initialParentId,
 							traceDurationMs,
@@ -249,7 +258,8 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 							trace2.type,
 							trace2.params,
 							userAgent,
-							userToken);
+							userToken,
+							saveReasons);
 				}else if(traceDurationMs > traceSettings.logTracesOverMs.get()
 						|| TracerTool.shouldLog()){
 					// only log once
@@ -261,7 +271,8 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 							+ " childThreadCount={}"
 							+ " threadAllocatedKB={}"
 							+ " path={}"
-							+ " query={}",
+							+ " query={}"
+							+ " saveReasons={}",
 							traceparent,
 							traceDurationMs,
 							TimeUnit.NANOSECONDS.toMillis(mainThreadCpuTimeNs),
@@ -270,7 +281,8 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 							threadAllocatedKB,
 							trace2.type,
 							trace2.params,
-							traceparent);
+							traceparent,
+							saveReasons);
 				}
 				Optional<Class<? extends BaseHandler>> handlerClassOpt = RequestAttributeTool.get(
 						request,
@@ -278,7 +290,8 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 				Optional<Method> handlerMethodOpt = RequestAttributeTool.get(request, BaseHandler.HANDLER_METHOD);
 				if(handlerClassOpt.isPresent() && handlerMethodOpt.isPresent()){
 					Class<? extends BaseHandler> handlerClass = handlerClassOpt.get();
-					if(traceSettings.latencyRecordedHandlers.get().contains(handlerClass.getName())){
+					if(traceSettings.recordAllLatency.get()
+							|| traceSettings.latencyRecordedHandlers.get().contains(handlerClass.getName())){
 						handlerMetrics.saveMethodLatency(handlerClass, handlerMethodOpt.get(), traceDurationMs);
 					}
 					handlerMetrics.incDuration(handlerClass, handlerMethodOpt.get(), traceDurationMs);
@@ -368,7 +381,7 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 
 	private static String formatParamMap(Map<String,String[]> paramMap){
 		Map<String,List<String>> trimmed = Scanner.of(paramMap.entrySet())
-				.toMap(entry -> entry.getKey(),
+				.toMap(Entry::getKey,
 						entry -> Scanner.of(entry.getValue())
 								.limit(10)
 								.map(str -> StringTool.trimToSize(str, 100))
@@ -376,10 +389,13 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 		return GsonTool.GSON.toJson(trimmed);
 	}
 
-	private String offerTrace2(Trace2BundleDto traceBundle, HttpRequestRecordDto httpRequestRecord){
+	private Optional<String> offerTrace2(Trace2BundleDto traceBundle, HttpRequestRecordDto httpRequestRecord){
+		if(traceBundle.traceDto.traceparent.getInstant().isEmpty()){
+			return Optional.empty();
+		}
 		Trace2BundleAndHttpRequestRecordDto traceAndHttpRequest = new Trace2BundleAndHttpRequestRecordDto(traceBundle,
 				httpRequestRecord);
-		return traceBuffers.offer(traceAndHttpRequest).orElse("");
+		return Optional.of(traceBuffers.offer(traceAndHttpRequest).orElse(""));
 	}
 
 }

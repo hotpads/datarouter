@@ -16,6 +16,7 @@
 package io.datarouter.instrumentation.trace;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class Trace2Dto{
@@ -34,6 +35,7 @@ public class Trace2Dto{
 	public final Long cpuTimeEndedNs;
 	public final Long memoryAllocatedBytesBegin;
 	public final Long memoryAllocatedBytesEnded;
+	public final List<TraceSaveReasonType> saveReasons;
 
 	public Trace2Dto(
 			Traceparent traceparent,
@@ -49,7 +51,8 @@ public class Trace2Dto{
 			Long cpuTimeCreatedNs,
 			Long cpuTimeEndedNs,
 			Long memoryAllocatedBytesBegin,
-			Long memoryAllocatedBytesEnded){
+			Long memoryAllocatedBytesEnded,
+			List<TraceSaveReasonType> saveReasons){
 		this.traceparent = traceparent;
 		this.created = created;
 		this.initialParentId = initialParentId;
@@ -64,6 +67,7 @@ public class Trace2Dto{
 		this.cpuTimeEndedNs = cpuTimeEndedNs;
 		this.memoryAllocatedBytesBegin = memoryAllocatedBytesBegin;
 		this.memoryAllocatedBytesEnded = memoryAllocatedBytesEnded;
+		this.saveReasons = saveReasons;
 	}
 
 	public long getDurationInNs(){

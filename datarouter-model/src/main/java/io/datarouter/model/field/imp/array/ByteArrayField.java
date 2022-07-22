@@ -50,30 +50,30 @@ public class ByteArrayField extends BaseField<byte[]>{
 	}
 
 	@Override
-	public byte[] getBytes(){
+	public byte[] getValueBytes(){
 		return value;
 	}
 
 	@Override
-	public byte[] getBytesWithSeparator(){
+	public byte[] getKeyBytesWithSeparator(){
 		//Would need to be implemented with something like TerminatedStringCodec
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public int numBytesWithSeparator(byte[] bytes, int offset){
+	public int numKeyBytesWithSeparator(byte[] bytes, int offset){
 		//Would need to be implemented with something like TerminatedStringCodec
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public byte[] fromBytesWithSeparatorButDoNotSet(byte[] bytes, int offset){
+	public byte[] fromKeyBytesWithSeparatorButDoNotSet(byte[] bytes, int offset){
 		//Would need to be implemented with something like TerminatedStringCodec
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public byte[] fromBytesButDoNotSet(byte[] bytes, int offset){
+	public byte[] fromValueBytesButDoNotSet(byte[] bytes, int offset){
 		if(offset == 0){
 			return bytes;
 		}

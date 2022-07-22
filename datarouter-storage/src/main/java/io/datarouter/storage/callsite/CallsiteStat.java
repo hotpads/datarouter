@@ -17,6 +17,7 @@ package io.datarouter.storage.callsite;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import io.datarouter.scanner.Scanner;
@@ -116,10 +117,7 @@ public class CallsiteStat{
 
 	@Override
 	public int hashCode(){
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + (key == null ? 0 : key.hashCode());
-		return result;
+		return Objects.hash(key);
 	}
 
 	@Override

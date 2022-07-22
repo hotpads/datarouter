@@ -48,17 +48,17 @@ public class IntegerField extends BasePrimitiveField<Integer,IntegerFieldKey>{
 	}
 
 	@Override
-	public byte[] getBytes(){
+	public byte[] getValueBytes(){
 		return value == null ? null : COMPARABLE_INT_CODEC.encode(value);
 	}
 
 	@Override
-	public int numBytesWithSeparator(byte[] bytes, int offset){
+	public int numKeyBytesWithSeparator(byte[] bytes, int offset){
 		return 4;
 	}
 
 	@Override
-	public Integer fromBytesButDoNotSet(byte[] bytes, int offset){
+	public Integer fromValueBytesButDoNotSet(byte[] bytes, int offset){
 		return COMPARABLE_INT_CODEC.decode(bytes, offset);
 	}
 

@@ -175,6 +175,7 @@ public class Bootstrap4FormHtml{
 				.withName(field.getName())
 				.withPlaceholder(field.getPlaceholder())
 				.withType("text")
+				.withCondReadonly(field.isReadOnly())
 				.withValue(field.getValue());
 		var error = field.getError() == null ? null : div(field.getError())
 				.withClass("invalid-feedback");

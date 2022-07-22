@@ -51,14 +51,12 @@ implements QueueStorageWriter<PK,D>{
 	// do not change, this is a limit from SQS
 	public static final int MAX_MESSAGES_PER_BATCH = 10;
 	public static final int MAX_TIMEOUT_SECONDS = 20;
-	public static final int MAX_BYTES_PER_MESSAGE = 256 * 1024;
-	public static final int MAX_BYTES_PER_PAYLOAD = 256 * 1024;
 	public static final int MIN_QUEUE_NAME_LENGTH = 1;
 	public static final int MAX_QUEUE_NAME_LENGTH = 80;
 
 	// SQS default is 30 sec
 	public static final long DEFAULT_VISIBILITY_TIMEOUT_MS = Duration.ofSeconds(30).toMillis();
-	private static final long RETENTION_S = Duration.ofDays(14).getSeconds();
+	public static final long RETENTION_S = Duration.ofDays(14).getSeconds();
 
 	private final EnvironmentName environmentName;
 	private final ServiceName serviceName;

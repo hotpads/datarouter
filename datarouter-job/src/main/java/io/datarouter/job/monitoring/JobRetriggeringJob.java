@@ -17,10 +17,8 @@ package io.datarouter.job.monitoring;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Collection;
 import java.util.Date;
 import java.util.Optional;
-import java.util.function.Predicate;
 
 import javax.inject.Inject;
 
@@ -36,7 +34,9 @@ import io.datarouter.job.scheduler.JobPackage;
 import io.datarouter.job.scheduler.JobScheduler;
 import io.datarouter.job.storage.clusterjoblock.ClusterJobLockKey;
 import io.datarouter.job.storage.clusterjoblock.DatarouterClusterJobLockDao;
+import io.datarouter.tasktracker.scheduler.LongRunningTaskStatus;
 import io.datarouter.tasktracker.service.LongRunningTaskService;
+import io.datarouter.tasktracker.storage.LongRunningTask;
 import io.datarouter.util.Count;
 import io.datarouter.util.Count.Counts;
 
@@ -65,22 +65,22 @@ public class JobRetriggeringJob extends BaseJob{
 			shouldRun = counts.add("shouldRun"),
 			notLocked = counts.add("notLocked"),
 			hasLastCompletionTime = counts.add("hasLastCompletionTime"),
-			retriggered = counts.add("retriggered");
+			retriggered = counts.add("retriggered"),
+			retriggerInterrupted = counts.add("retriggerInterrupted");
 
 	@Override
 	public void run(TaskTracker tracker){
-		triggerGroupClasses.get().stream()
-				.map(BaseTriggerGroup::getJobPackages)
-				.flatMap(Collection::stream)
-				.peek(total::increment)
-				.filter(JobPackage::usesLocking)
-				.peek(usesLocking::increment)
-				.filter(Predicate.not(this::runningAgainSoon))// avoid LongRunningTask scan for frequent jobs
-				.peek(notRunningAgainSoon::increment)
-				.filter(JobPackage::shouldRun)
-				.peek(shouldRun::increment)
-				.filter(Predicate.not(this::isLocked))
-				.peek(notLocked::increment)
+		triggerGroupClasses.get()
+				.concatIter(BaseTriggerGroup::getJobPackages)
+				.each(total::increment)
+				.include(JobPackage::usesLocking)
+				.each(usesLocking::increment)
+				.exclude(this::runningAgainSoon)// avoid LongRunningTask scan for frequent jobs
+				.each(notRunningAgainSoon::increment)
+				.include(JobPackage::shouldRun)
+				.each(shouldRun::increment)
+				.exclude(this::isLocked)
+				.each(notLocked::increment)
 				.forEach(jobPackage -> retriggerIfNecessary(jobPackage, tracker));
 		logger.warn(counts.toString());
 	}
@@ -88,28 +88,49 @@ public class JobRetriggeringJob extends BaseJob{
 	private boolean runningAgainSoon(JobPackage jobPackage){
 		//look backwards a little to avoid jobs that are triggering at the same time as this JobRetriggeringJob
 		Instant from = Instant.now().minus(Duration.ofSeconds(30));
-		return jobPackage.getNextValidTimeAfter(Date.from(from))
+		boolean runningAgainSoon = jobPackage.getNextValidTimeAfter(Date.from(from))
 				.map(nextTrigger -> Duration.between(from, nextTrigger.toInstant()))
 				.map(delay -> delay.compareTo(THRESHOLD) < 0)
 				.orElse(true);
+		logger.debug("job={} runningAgainSoon={}", jobPackage.jobClass.getSimpleName(), runningAgainSoon);
+		return runningAgainSoon;
 	}
 
 	private boolean isLocked(JobPackage jobPackage){
 		var key = new ClusterJobLockKey(jobPackage.jobClass.getSimpleName());
-		return clusterJobLockDao.exists(key);
+		boolean isLocked = clusterJobLockDao.exists(key);
+		logger.debug("job={} isLocked={}", jobPackage.jobClass.getSimpleName(), isLocked);
+		return isLocked;
 	}
 
 	private void retriggerIfNecessary(JobPackage jobPackage, TaskTracker tracker){
 		String longRunningTaskName = injector.getInstance(jobPackage.jobClass).getPersistentName();
-		Optional<Instant> lastCompletionTime = longRunningTaskService.findLastSuccessInstant(longRunningTaskName);
-		if(lastCompletionTime.isEmpty()){
+		Optional<LongRunningTask> lastNonRunningStatusTask = longRunningTaskService.findLastNonRunningStatusTask(
+				longRunningTaskName);
+		if(lastNonRunningStatusTask.isEmpty()){
+			// if this job has only or no running tasks, it means it does not need to be retriggered.
+			return;
+		}
+		if(lastNonRunningStatusTask.get().getJobExecutionStatus() == LongRunningTaskStatus.INTERRUPTED){
+			logger.warn("job={} retriggerInterrupted", jobPackage.jobClass.getSimpleName());
+			jobScheduler.scheduleRetriggeredJob(jobPackage, Instant.now());
+			retriggerInterrupted.increment();
+			tracker.increment();
+			return;
+		}
+		Optional<Instant> lastSuccessCompletionTime = longRunningTaskService.findLastSuccessInstant(
+				longRunningTaskName);
+		logger.debug("job={} lastSuccessCompletionTime={}", jobPackage.jobClass.getSimpleName(),
+				lastSuccessCompletionTime.orElse(null));
+		if(lastSuccessCompletionTime.isEmpty()){
 			return;
 		}
 		hasLastCompletionTime.increment();
-
 		//getNextValidTimeAfter should be present, because only non-manual jobs get scheduled
-		Instant testTriggerTime = jobPackage.getNextValidTimeAfter(lastCompletionTime.get()).get();
+		Instant testTriggerTime = jobPackage.getNextValidTimeAfter(lastSuccessCompletionTime.get()).get();
 		Instant now = Instant.now();
+		logger.debug("job={} nextTriggerTimeIsAfterNow={}", jobPackage.jobClass.getSimpleName(), testTriggerTime
+				.isAfter(now));
 		if(testTriggerTime.isAfter(now)){
 			return;
 		}

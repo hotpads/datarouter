@@ -44,17 +44,17 @@ public class ShortField extends BasePrimitiveField<Short,ShortFieldKey>{
 	}
 
 	@Override
-	public byte[] getBytes(){
+	public byte[] getValueBytes(){
 		return value == null ? null : COMPARABLE_SHORT_CODEC.encode(this.value);
 	}
 
 	@Override
-	public int numBytesWithSeparator(byte[] bytes, int offset){
+	public int numKeyBytesWithSeparator(byte[] bytes, int offset){
 		return 2;
 	}
 
 	@Override
-	public Short fromBytesButDoNotSet(byte[] bytes, int offset){
+	public Short fromValueBytesButDoNotSet(byte[] bytes, int offset){
 		return COMPARABLE_SHORT_CODEC.decode(bytes, offset);
 	}
 

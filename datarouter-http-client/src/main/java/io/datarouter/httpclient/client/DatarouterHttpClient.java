@@ -20,7 +20,6 @@ import java.util.function.Consumer;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.pool.PoolStats;
 
 import io.datarouter.httpclient.json.JsonSerializer;
 import io.datarouter.httpclient.request.DatarouterHttpRequest;
@@ -28,7 +27,7 @@ import io.datarouter.httpclient.response.Conditional;
 import io.datarouter.httpclient.response.DatarouterHttpResponse;
 import io.datarouter.httpclient.response.exception.DatarouterHttpException;
 
-public interface DatarouterHttpClient{
+public interface DatarouterHttpClient extends HttpPoolStats{
 
 	DatarouterHttpResponse execute(DatarouterHttpRequest request);
 	DatarouterHttpResponse execute(DatarouterHttpRequest request, Consumer<HttpEntity> httpEntityConsumer);
@@ -50,7 +49,6 @@ public interface DatarouterHttpClient{
 	DatarouterHttpClient addDtoToPayload(DatarouterHttpRequest request, Object dto, String dtoType);
 	DatarouterHttpClient setEntityDto(DatarouterHttpRequest request, Object dto);
 
-	PoolStats getPoolStats();
 	CloseableHttpClient getApacheHttpClient();
 	JsonSerializer getJsonSerializer();
 

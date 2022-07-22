@@ -34,9 +34,9 @@ public class HBaseEntityKeyTool{
 			if(byteOffset == rowBytes.length) {// ran out of bytes. leave remaining fields blank
 				break;
 			}
-			Object value = field.fromBytesWithSeparatorButDoNotSet(rowBytes, byteOffset);
+			Object value = field.fromKeyBytesWithSeparatorButDoNotSet(rowBytes, byteOffset);
 			field.setUsingReflection(ek, value);
-			byteOffset += field.numBytesWithSeparator(rowBytes, byteOffset);
+			byteOffset += field.numKeyBytesWithSeparator(rowBytes, byteOffset);
 		}
 		return ek;
 	}

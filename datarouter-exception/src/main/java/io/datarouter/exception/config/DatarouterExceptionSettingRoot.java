@@ -62,6 +62,8 @@ public class DatarouterExceptionSettingRoot extends SettingRoot{
 	public final Setting<Integer> exceptionRecordMemoryToDatabaseThreadCount;
 	public final Setting<Integer> httpRequestRecordMemoryToDatabaseThreadCount;
 
+	public final Setting<Integer> exceptionRecordAggregationJobBatchSize;
+
 	@Inject
 	public DatarouterExceptionSettingRoot(SettingFinder finder){
 		super(finder, DatarouterSettingCategory.DATAROUTER, "datarouterException.");
@@ -111,6 +113,8 @@ public class DatarouterExceptionSettingRoot extends SettingRoot{
 		exceptionRecordMemoryToDatabaseThreadCount = registerInteger("exceptionRecordMemoryToDatabaseThreadCount", 1);
 		httpRequestRecordMemoryToDatabaseThreadCount = registerInteger("httpRequestRecordMemoryToDatabaseThreadCount",
 				1);
+
+		exceptionRecordAggregationJobBatchSize = registerInteger("exceptionRecordAggregationJobBatchSize", 100);
 	}
 
 }

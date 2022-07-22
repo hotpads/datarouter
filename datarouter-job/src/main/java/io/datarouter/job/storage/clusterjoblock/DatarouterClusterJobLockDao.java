@@ -17,6 +17,7 @@ package io.datarouter.job.storage.clusterjoblock;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -74,8 +75,16 @@ public class DatarouterClusterJobLockDao extends BaseDao{
 				.setIgnoreException(true));
 	}
 
+	public void forcePut(ClusterJobLock databean){
+		node.put(databean);
+	}
+
 	public ClusterJobLock get(ClusterJobLockKey key){
 		return node.get(key);
+	}
+
+	public Optional<ClusterJobLock> find(ClusterJobLockKey key){
+		return node.find(key);
 	}
 
 	public boolean exists(ClusterJobLockKey key){

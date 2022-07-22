@@ -179,4 +179,8 @@ public class DatarouterDuration{
 		return this.nano > other.nano;
 	}
 
+	public boolean isShorterThan(DatarouterDuration other){
+		return this.nano < other.nano;
+	}
+
 }

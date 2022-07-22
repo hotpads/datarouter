@@ -58,6 +58,13 @@ public class RequireTests{
 	}
 
 	@Test
+	public void testAllEqualBy(){
+		List<String> inputs = List.of("Ben", "Bill", "Bob");
+		Require.allEqualBy(inputs, str -> str.charAt(0));
+		Assert.assertThrows(IllegalArgumentException.class, () -> Require.allEqualBy(inputs, str -> str.charAt(1)));
+	}
+
+	@Test
 	public void testNotEquals1(){
 		Require.notEquals("apple", "orange");
 	}

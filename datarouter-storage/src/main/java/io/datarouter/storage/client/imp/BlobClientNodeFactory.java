@@ -16,14 +16,14 @@
 package io.datarouter.storage.client.imp;
 
 import io.datarouter.storage.client.ClientNodeFactory;
-import io.datarouter.storage.file.Pathbean;
-import io.datarouter.storage.file.Pathbean.PathbeanFielder;
-import io.datarouter.storage.file.PathbeanKey;
+import io.datarouter.storage.file.DatabaseBlob;
+import io.datarouter.storage.file.DatabaseBlob.DatabaseBlobFielder;
+import io.datarouter.storage.file.DatabaseBlobKey;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.op.raw.BlobStorage.PhysicalBlobStorageNode;
 
 public interface BlobClientNodeFactory extends ClientNodeFactory{
 
-	PhysicalBlobStorageNode createBlobNode(NodeParams<PathbeanKey,Pathbean,PathbeanFielder> nodeParams);
+	PhysicalBlobStorageNode createBlobNode(NodeParams<DatabaseBlobKey,DatabaseBlob,DatabaseBlobFielder> nodeParams);
 
 }

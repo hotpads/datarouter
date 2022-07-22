@@ -22,7 +22,7 @@
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-java11-parent</artifactId>
-		<version>0.0.114</version>
+		<version>0.0.115</version>
 		<relativePath>../datarouter-java11-parent</relativePath>
 	</parent>
 
@@ -35,7 +35,11 @@
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
-			<version>${gson-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.datarouter</groupId>
+			<artifactId>datarouter-enum</artifactId>
+			<version>${datarouter-version}</version>
 		</dependency>
 		<dependency>
 			<groupId>io.datarouter</groupId>

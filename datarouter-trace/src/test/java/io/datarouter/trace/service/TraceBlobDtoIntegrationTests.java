@@ -150,7 +150,8 @@ public class TraceBlobDtoIntegrationTests{
 	}
 
 	private static Trace2BundleDto makeBundleDtoBlob(String id){
-		Trace2Dto dto = new Trace2Dto(null, id, null, null, null, null, null, null, null, null, null, null, null, null);
+		Trace2Dto dto = new Trace2Dto(null, id, null, null, null, null, null, null, null, null, null, null, null, null,
+				null);
 		return new Trace2BundleDto(dto, null, null);
 	}
 

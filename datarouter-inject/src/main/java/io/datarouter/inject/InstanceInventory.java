@@ -16,9 +16,9 @@
 package io.datarouter.inject;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.inject.Singleton;
 
@@ -27,7 +27,7 @@ import io.datarouter.util.tuple.Pair;
 @Singleton
 public class InstanceInventory{
 
-	private final Map<InstanceInventoryKey<?>,List<Pair<String,?>>> map = new HashMap<>();
+	private final Map<InstanceInventoryKey<?>,List<Pair<String,?>>> map = new ConcurrentHashMap<>();
 
 	@SuppressWarnings("unchecked") // safety enforced by the add method
 	public <T> List<Pair<String,T>> get(InstanceInventoryKey<T> key){

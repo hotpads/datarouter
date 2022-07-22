@@ -54,7 +54,7 @@ public class ClusterTriggerLockService{
 		}
 		var triggerLockAcquired = acquireTriggerLock(triggerLockConfig, triggerTime);
 		if(triggerLockAcquired.failed()){
-			releaseJobLock(triggerLockConfig, triggerTime);//could contend with another server?
+			releaseJobLock(triggerLockConfig.jobName);//could contend with another server?
 			return triggerLockAcquired;
 		}
 		return Outcome.success();
@@ -97,10 +97,10 @@ public class ClusterTriggerLockService{
 		}
 	}
 
-	public void releaseJobLock(TriggerLockConfig triggerLockConfig, Instant triggerTime){
-		ClusterJobLock jobLock = toJobLock(triggerLockConfig, triggerTime);
-		jobLockDao.delete(jobLock.getKey());
-		logAction(triggerLockConfig.jobName, triggerTime, "released clusterJobLock");
+	public void releaseJobLock(String jobName){
+		ClusterJobLockKey jobLockKey = new ClusterJobLockKey(jobName);
+		jobLockDao.delete(jobLockKey);
+		logAction(jobName, "released clusterJobLock");
 	}
 
 	/**
@@ -136,10 +136,22 @@ public class ClusterTriggerLockService{
 			logger.warn("failed to release clusterTriggerLock {} - {}", triggerLockConfig.jobName, triggerTime, e);
 		}
 		try{
-			releaseJobLock(triggerLockConfig, triggerTime);
+			releaseJobLock(triggerLockConfig.jobName);
 		}catch(Exception e){
 			logger.warn("failed to release jobLock for {}", triggerLockConfig.jobName, e);
 		}
+	}
+
+	// To be used by detached-jobs once the detach job starts
+	public void forceAcquireJobLock(TriggerLockConfig triggerLockConfig, Instant triggerTime, Duration delay){
+		jobLockDao.find(new ClusterJobLockKey(triggerLockConfig.jobName))
+				.ifPresentOrElse(
+						jobLock -> jobLockDao.forcePut(new ClusterJobLock(
+								jobLock.getKey().getJobName(),
+								jobLock.getTriggerTime(),
+								jobLock.getExpirationTime(),
+								serverName.get())),
+						() -> acquireJobLock(triggerLockConfig, triggerTime, delay));
 	}
 
 	private ClusterJobLock toJobLock(TriggerLockConfig triggerLockConfig, Instant triggerTime){
@@ -156,6 +168,10 @@ public class ClusterTriggerLockService{
 
 	private void logAction(String jobName, Instant triggerTime, String action){
 		String logName = jobName + "-" + DateTool.formatAlphanumeric(triggerTime.toEpochMilli());
+		logAction(logName, action);
+	}
+
+	private void logAction(String logName, String action){
 		logger.info("{} {} lockId {}", serverName.get(), action, logName);
 	}
 

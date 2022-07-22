@@ -25,8 +25,10 @@ import io.datarouter.scanner.ObjectScanner;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.config.Config;
+import io.datarouter.storage.file.DatabaseBlob;
+import io.datarouter.storage.file.DatabaseBlob.DatabaseBlobFielder;
+import io.datarouter.storage.file.DatabaseBlobKey;
 import io.datarouter.storage.file.Pathbean;
-import io.datarouter.storage.file.Pathbean.PathbeanFielder;
 import io.datarouter.storage.file.PathbeanKey;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.op.raw.BlobStorage.PhysicalBlobStorageNode;
@@ -34,7 +36,7 @@ import io.datarouter.storage.node.type.physical.base.BasePhysicalNode;
 import io.datarouter.storage.util.Subpath;
 
 public class DirectoryBlobStorageNode
-extends BasePhysicalNode<PathbeanKey,Pathbean,PathbeanFielder>
+extends BasePhysicalNode<DatabaseBlobKey,DatabaseBlob,DatabaseBlobFielder>
 implements PhysicalBlobStorageNode{
 
 	private final DirectoryBlobStorage directoryBlobStorage;
@@ -43,7 +45,7 @@ implements PhysicalBlobStorageNode{
 	private final Subpath rootPath;
 
 	public DirectoryBlobStorageNode(
-			NodeParams<PathbeanKey,Pathbean,PathbeanFielder> params,
+			NodeParams<DatabaseBlobKey,DatabaseBlob,DatabaseBlobFielder> params,
 			ClientType<?,?> clientType,
 			DirectoryBlobStorage directoryBlobStorage,
 			String bucket,
@@ -123,6 +125,11 @@ implements PhysicalBlobStorageNode{
 	@Override
 	public void deleteAll(Subpath subpath, Config config){
 		directoryBlobStorage.deleteAll(subpath);
+	}
+
+	@Override
+	public void vacuum(Config config){
+		throw new UnsupportedOperationException();
 	}
 
 }

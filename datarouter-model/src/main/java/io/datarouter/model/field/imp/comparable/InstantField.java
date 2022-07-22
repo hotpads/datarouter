@@ -43,7 +43,7 @@ public class InstantField extends BasePrimitiveField<Instant,InstantFieldKey>{
 	}
 
 	@Override
-	public byte[] getBytes(){
+	public byte[] getValueBytes(){
 		if(value == null){
 			return null;
 		}
@@ -51,12 +51,12 @@ public class InstantField extends BasePrimitiveField<Instant,InstantFieldKey>{
 	}
 
 	@Override
-	public Instant fromBytesButDoNotSet(byte[] bytes, int offset){
+	public Instant fromValueBytesButDoNotSet(byte[] bytes, int offset){
 		return decodeFromBytes(bytes, offset);
 	}
 
 	@Override
-	public int numBytesWithSeparator(byte[] bytes, int offset){
+	public int numKeyBytesWithSeparator(byte[] bytes, int offset){
 		return 16;
 	}
 

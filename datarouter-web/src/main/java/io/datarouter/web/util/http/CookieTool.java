@@ -65,7 +65,7 @@ public class CookieTool{
 				"HttpOnly",
 				"SameSite=None",
 				"Secure");
-		response.addHeader("Set-Cookie", cookie.toString());
+		response.addHeader("Set-Cookie", cookie);
 	}
 
 	public static String getCookieValue(HttpServletRequest request, String cookieName){
@@ -128,8 +128,7 @@ public class CookieTool{
 
 	public static Cookie getCookie(Cookie[] cookies, String cookieName){
 		if(cookies != null && cookieName != null){
-			for(int i = 0; i < cookies.length; i++){
-				Cookie cookie = cookies[i];
+			for(Cookie cookie : cookies){
 				if(cookieName.equals(cookie.getName())){
 					return cookie;
 				}

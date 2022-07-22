@@ -55,7 +55,7 @@ public class StringEncodedField<T> extends BaseField<T>{
 	/*-------------- BinaryValueField -----------*/
 
 	@Override
-	public byte[] getBytes(){
+	public byte[] getValueBytes(){
 		return Optional.ofNullable(value)
 				.map(key.getCodec()::encode)
 				.map(StringCodec.UTF_8::encode)
@@ -63,7 +63,7 @@ public class StringEncodedField<T> extends BaseField<T>{
 	}
 
 	@Override
-	public T fromBytesButDoNotSet(byte[] bytes, int offset){
+	public T fromValueBytesButDoNotSet(byte[] bytes, int offset){
 		String stringValue = StringCodec.UTF_8.decode(bytes, offset);
 		return key.getCodec().decode(stringValue);
 	}
@@ -71,18 +71,18 @@ public class StringEncodedField<T> extends BaseField<T>{
 	/*------------- BinaryKeyField ------------*/
 
 	@Override
-	public int numBytesWithSeparator(byte[] bytes, int offset){
+	public int numKeyBytesWithSeparator(byte[] bytes, int offset){
 		return TerminatedStringCodec.UTF_8.decode(bytes, offset).length;
 	}
 
 	@Override
-	public byte[] getBytesWithSeparator(){
+	public byte[] getKeyBytesWithSeparator(){
 		String stringValue = key.getCodec().encode(value);
 		return TerminatedStringCodec.UTF_8.encode(stringValue);
 	}
 
 	@Override
-	public T fromBytesWithSeparatorButDoNotSet(byte[] bytes, int offset){
+	public T fromKeyBytesWithSeparatorButDoNotSet(byte[] bytes, int offset){
 		String stringValue = TerminatedStringCodec.UTF_8.decode(bytes, offset).value;
 		return key.getCodec().decode(stringValue);
 	}

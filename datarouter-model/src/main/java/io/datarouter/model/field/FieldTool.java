@@ -45,8 +45,8 @@ public class FieldTool{
 			Field<?> field = fields.get(i);
 			boolean finalField = i == numTokens - 1;
 			tokens[i] = finalField
-					? field.getBytes()
-					: field.getBytesWithSeparator();
+					? field.getValueBytes()
+					: field.getKeyBytesWithSeparator();
 		}
 		return ByteTool.concat(tokens);
 	}
@@ -62,8 +62,8 @@ public class FieldTool{
 			Field<?> field = fields.get(i);
 			boolean finalField = i == fields.size() - 1;
 			tokens[i] = finalField
-					? field.getBytes()
-					: field.getBytesWithSeparator();
+					? field.getValueBytes()
+					: field.getKeyBytesWithSeparator();
 		}
 		return ByteTool.concat(tokens);
 	}
@@ -75,7 +75,7 @@ public class FieldTool{
 		}
 		byte[][] tokens = new byte[numTokens][];
 		for(int i = 0; i < numTokens; ++i){
-			tokens[i] = fields.get(i).getBytesWithSeparator();
+			tokens[i] = fields.get(i).getKeyBytesWithSeparator();
 		}
 		return ByteTool.concat(tokens);
 	}
@@ -90,7 +90,7 @@ public class FieldTool{
 			boolean skipNullValues){
 		List<byte[]> tokens = new ArrayList<>(4 * fields.size());
 		for(Field<?> field : fields){
-			byte[] value = field.getBytes();
+			byte[] value = field.getValueBytes();
 			if(value == null && skipNullValues){
 				continue;
 			}

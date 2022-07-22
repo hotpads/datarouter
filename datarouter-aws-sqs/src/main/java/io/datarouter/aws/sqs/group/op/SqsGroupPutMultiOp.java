@@ -30,6 +30,7 @@ import io.datarouter.bytes.codec.stringcodec.StringCodec;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.model.util.CommonFieldSizes;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.Config;
 import io.datarouter.util.concurrent.UncheckedInterruptedException;
@@ -55,7 +56,7 @@ extends SqsOp<PK,D,F,Void>{
 		this.databeans = databeans;
 		this.sqsClientManager = sqsClientManager;
 		this.clientId = clientId;
-		this.maxBoundedBytesPerMessage = BaseSqsNode.MAX_BYTES_PER_MESSAGE - codec.getCollectionPrefixBytes().length
+		this.maxBoundedBytesPerMessage = CommonFieldSizes.MAX_SQS_SIZE - codec.getCollectionPrefixBytes().length
 				- codec.getCollectionSuffixBytes().length;
 	}
 
@@ -86,7 +87,7 @@ extends SqsOp<PK,D,F,Void>{
 		if(group.isEmpty()){
 			return;
 		}
-		String stringGroup = codec.concatGroup(group);
+		String stringGroup = StringCodec.UTF_8.decode(codec.concatGroup(group));
 		SendMessageRequest request = new SendMessageRequest(queueUrl, stringGroup);
 		try{
 			sqsClientManager.getAmazonSqs(clientId).sendMessage(request);

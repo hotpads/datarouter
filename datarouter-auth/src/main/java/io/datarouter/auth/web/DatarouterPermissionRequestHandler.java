@@ -44,6 +44,7 @@ import io.datarouter.auth.config.DatarouterAuthPaths;
 import io.datarouter.auth.service.DatarouterUserEditService;
 import io.datarouter.auth.service.DatarouterUserInfo;
 import io.datarouter.auth.service.DatarouterUserService;
+import io.datarouter.auth.service.PermissionRequestUserInfo;
 import io.datarouter.auth.storage.permissionrequest.DatarouterPermissionRequest;
 import io.datarouter.auth.storage.permissionrequest.DatarouterPermissionRequestDao;
 import io.datarouter.email.type.DatarouterEmailTypes.PermissionRequestEmailType;
@@ -67,7 +68,6 @@ import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
 import io.datarouter.web.user.databean.DatarouterUser;
-import io.datarouter.web.user.detail.DatarouterUserExternalDetailService;
 import io.datarouter.web.user.role.DatarouterUserRole;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.DivTag;
@@ -96,8 +96,6 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 	@Inject
 	private DatarouterUserInfo datarouterUserInfo;
 	@Inject
-	private DatarouterUserExternalDetailService userExternalDetailService;
-	@Inject
 	private PermissionRequestEmailType permissionRequestEmailType;
 	@Inject
 	private ServiceName serviceName;
@@ -109,6 +107,8 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 	private DatarouterSubscribersSupplier subscibersEmail;
 	@Inject
 	private DatarouterEmailSubscriberSettings subscribersSettings;
+	@Inject
+	private PermissionRequestUserInfo userInfo;
 
 
 	@Handler(defaultHandler = true)
@@ -169,14 +169,14 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 				.withDisplay(String.format("Why you want to access %s:", this.serviceName.get()))
 				.withName("reason")
 				.isRequired();
-		form.addTextAreaField()
+		form.addTextField()
 				.withDisplay("Additional information we have detected: ")
 				.withName("specifics")
 				.withValue(defaultSpecifics.orElse(null))
 				.withReadOnly(true);
+
 		form.addButton()
 				.withDisplay("Submit");
-
 		DivTag formContent = div()
 				.with(div(Bootstrap4FormHtml.render(form)))
 				.withClasses("card card-body bg-light control-group");
@@ -195,6 +195,7 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 		if(!authenticationConfig.useDatarouterAuthentication()){
 			return new MessageMav(noDatarouterAuthentication());
 		}
+
 		String reason = params.required(P_REASON);
 		if(StringTool.isEmpty(reason)){
 			throw new IllegalArgumentException("Reason is required.");
@@ -269,9 +270,6 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 	}
 
 	private void sendRequestEmail(DatarouterUser user, String reason, String specifics){
-		String userProfileUrl = userExternalDetailService.getUserProfileUrl(user).orElse(null);
-		String userProfileDescription = userExternalDetailService.getUserProfileDescription()
-				.orElse("user profile");
 		String userEmail = user.getUsername();
 		String primaryHref = htmlEmailService.startLinkBuilder()
 				.withLocalPath(paths.admin.editUser.toSlashedString())
@@ -279,8 +277,7 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 				.build();
 		var table = table(tbody()
 				.with(createLabelValueTr("Service", text(serviceName.get()))
-				.with(createLabelValueTr("User", text(userEmail + " - "), userProfileUrl == null ? null
-						: a("view " + userProfileDescription).withHref(userProfileUrl))))
+				.with(userInfo.getUserInformation(user)))
 				.with(createLabelValueTr("Reason", text(reason)))
 				.condWith(StringTool.notEmpty(specifics), createLabelValueTr("Specifics", text(specifics))))
 				.withStyle("border-spacing: 0");
@@ -320,7 +317,7 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 		htmlEmailService.trySendJ2Html(emailBuilder);
 	}
 
-	private static TrTag createLabelValueTr(String label, DomContent...values){
+	public static TrTag createLabelValueTr(String label, DomContent...values){
 		return tr(td(b(label + ' ')).withStyle("text-align: right"), td().with(values).withStyle("padding-left: 8px"))
 				.withStyle("vertical-align: top");
 	}

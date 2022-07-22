@@ -177,7 +177,9 @@ public class JobScheduler{
 				return;
 			}
 			Outcome didRun;
-			if(jobPackage.usesLocking()){
+			if(jobPackage.shouldRunDetached){
+				didRun = runDetached(jobWrapper);
+			}else if(jobPackage.usesLocking()){
 				Duration delay = delayLockAquisitionBasedOnCurrentWorkload();
 				didRun = tryAcquireClusterLockAndRun(jobWrapper, jobPackage.triggerLockConfig, delay);
 			}else{
@@ -205,6 +207,9 @@ public class JobScheduler{
 
 	private Outcome triggerManual(JobWrapper jobWrapper){
 		JobPackage jobPackage = jobWrapper.jobPackage;
+		if(jobPackage.shouldRunDetached){
+			return runDetached(jobWrapper);
+		}
 		return jobPackage.usesLocking()
 				? tryAcquireClusterLockAndRun(jobWrapper, jobPackage.triggerLockConfig, Duration.ZERO)
 				: tryAcquireLocalLockAndRun(jobWrapper);
@@ -241,7 +246,7 @@ public class JobScheduler{
 		}
 		// On success release jobLock but keep clusterTriggerLock
 		try{
-			clusterTriggerLockService.releaseJobLock(triggerLockConfig, jobWrapper.triggerTime);
+			clusterTriggerLockService.releaseJobLock(triggerLockConfig.jobName);
 		}catch(Exception e){
 			logger.warn("failed to release jobLock for {}", triggerLockConfig.jobName, e);
 		}
@@ -254,23 +259,28 @@ public class JobScheduler{
 			return localLockAcquired;
 		}
 		try{
-			return jobWrapper.jobPackage.shouldRunDetached ? runDetached(jobWrapper) : runLocal(jobWrapper);
+			return localJobProcessor.run(jobWrapper);
 		}finally{
 			localTriggerLockService.release(jobWrapper.jobClass);
 		}
 	}
 
 	private Outcome runDetached(JobWrapper jobWrapper){
+		JobPackage jobPackage = jobWrapper.jobPackage;
+		Outcome jobAndTriggerLocksAcquired = clusterTriggerLockService
+				.acquireJobAndTriggerLocks(jobPackage.triggerLockConfig, jobWrapper.triggerTime, Duration.ZERO);
+		if(jobAndTriggerLocksAcquired.failed()){
+			return jobAndTriggerLocksAcquired;
+		}
 		try{
 			detachedJobExecutor.get().submit(jobWrapper);
-			return Outcome.success();
-		}catch(RuntimeException e){
-			return Outcome.failure(e.getMessage());
+			// Not releasing the JobLock here, 'ownership' transferred to the detached job
+		}catch(Exception e){
+			clusterTriggerLockService
+					.tryReleasingJobAndTriggerLocks(jobWrapper.jobPackage.triggerLockConfig, jobWrapper.triggerTime);
+			throw e;
 		}
-	}
-
-	private Outcome runLocal(JobWrapper jobWrapper){
-		return localJobProcessor.run(jobWrapper);
+		return Outcome.success();
 	}
 
 	/*---------------- helpers -------------------*/

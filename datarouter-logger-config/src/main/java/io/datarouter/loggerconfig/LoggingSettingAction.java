@@ -15,15 +15,15 @@
  */
 package io.datarouter.loggerconfig;
 
-import io.datarouter.enums.MappedEnum;
+import io.datarouter.enums.StringMappedEnum;
 
 public enum LoggingSettingAction{
 	INSERTED("inserted"),
 	UPDATED("updated"),
 	DELETED("deleted");
 
-	public static final MappedEnum<LoggingSettingAction,String> BY_PERSISTENT_STRING
-			= new MappedEnum<>(values(), value -> value.persistentString);
+	public static final StringMappedEnum<LoggingSettingAction> BY_PERSISTENT_STRING
+			= new StringMappedEnum<>(values(), value -> value.persistentString);
 
 	public final String persistentString;
 

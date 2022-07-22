@@ -27,7 +27,6 @@ import io.datarouter.model.field.Field;
 import io.datarouter.model.field.FieldKey;
 import io.datarouter.util.ComparableTool;
 import io.datarouter.util.array.ArrayTool;
-import io.datarouter.util.string.StringTool;
 
 public class StringField extends BaseField<String>{
 	private static final Logger logger = LoggerFactory.getLogger(StringField.class);
@@ -39,13 +38,13 @@ public class StringField extends BaseField<String>{
 	public StringField(StringFieldKey key, String value){
 		super(null, value);
 		this.key = key;
-		validateSize(value);
+		logInvalidSize();
 	}
 
 	public StringField(String prefix, StringFieldKey key, String value){
 		super(prefix, value);
 		this.key = key;
-		validateSize(value);
+		logInvalidSize();
 	}
 
 	@Override
@@ -72,14 +71,14 @@ public class StringField extends BaseField<String>{
 	}
 
 	@Override
-	public byte[] getBytes(){
+	public byte[] getValueBytes(){
 		return value == null ? null : StringCodec.UTF_8.encode(value);
 	}
 
 	@Override
-	public byte[] getBytesWithSeparator(){
+	public byte[] getKeyBytesWithSeparator(){
 		//TODO someday don't put the separator after the last field, but that would break all currently persisted keys
-		byte[] dataBytes = getBytes();
+		byte[] dataBytes = getValueBytes();
 		if(ArrayTool.containsUnsorted(dataBytes, SEPARATOR)){
 			throw new IllegalArgumentException("String cannot contain separator byteVal=" + SEPARATOR + ", stringBytes="
 					+ Arrays.toString(dataBytes) + ", string=" + value + ", key=" + key);
@@ -95,7 +94,7 @@ public class StringField extends BaseField<String>{
 
 	//warning: this tolerates a missing separator, returning the length without it
 	@Override
-	public int numBytesWithSeparator(byte[] bytes, int offset){
+	public int numKeyBytesWithSeparator(byte[] bytes, int offset){
 		for(int i = offset; i < bytes.length; ++i){
 			if(bytes[i] == SEPARATOR){
 				return i - offset + 1;//plus 1 for the separator
@@ -106,14 +105,14 @@ public class StringField extends BaseField<String>{
 	}
 
 	@Override
-	public String fromBytesButDoNotSet(byte[] bytes, int offset){
+	public String fromValueBytesButDoNotSet(byte[] bytes, int offset){
 		int length = bytes.length - offset;
 		return new String(bytes, offset, length, StandardCharsets.UTF_8);
 	}
 
 	@Override
-	public String fromBytesWithSeparatorButDoNotSet(byte[] bytes, int offset){
-		int lengthWithPossibleSeparator = numBytesWithSeparator(bytes, offset);
+	public String fromKeyBytesWithSeparatorButDoNotSet(byte[] bytes, int offset){
+		int lengthWithPossibleSeparator = numKeyBytesWithSeparator(bytes, offset);
 		if(lengthWithPossibleSeparator == 0){
 			return "";
 		}
@@ -125,29 +124,54 @@ public class StringField extends BaseField<String>{
 		return new String(bytes, offset, lengthWithoutSeparator, StandardCharsets.UTF_8);
 	}
 
+	@Override
+	public void validate(){
+		validateSize();
+	}
+
 	public int getSize(){
 		return key.getSize();
 	}
 
-	private String validateSize(String value){
-		if(value == null){
-			return value;
+	private void logInvalidSize(){
+		if(key.shouldLogInvalidSize() && isSizeInvalid()){
+			logger.warn(makeInvalidSizeMessage(), new Exception());
 		}
-		if(value.length() <= key.getSize()){
-			return value;
+	}
+
+	private void validateSize(){
+		if(key.shouldValidateSize() && isSizeInvalid()){
+			throw new IllegalArgumentException(makeInvalidSizeMessage());
 		}
-		if(key.shouldValidateSize()){
-			String trimmedValue = value.substring(0, Math.min(value.length(), 1_000));
-			String loggableValue = StringTool.removeNonStandardCharacters(trimmedValue);
-			//TODO throw exception, otherwise log
-			logger.warn("value length={} exceeds field size={} for column={} loggableValue={}",
-					value.length(),
-					key.getSize(),
-					key.getColumnName(),
-					loggableValue,
-					new Exception());
+	}
+
+	private boolean isSizeInvalid(){
+		return value != null && value.length() > key.getSize();
+	}
+
+	private String makeInvalidSizeMessage(){
+		return String.format(
+				"value length=%s exceeds field size=%s for column=%s printableValue=%s",
+				value.length(),
+				key.getSize(),
+				key.getColumnName(),
+				toLogSafeValue(value));
+	}
+
+	private static String toLogSafeValue(String input){
+		String trimmedValue = input.substring(0, Math.min(input.length(), 256));
+		var logSafeValue = new StringBuilder();
+		for(int i = 0; i < trimmedValue.length(); i++){
+			char ch = trimmedValue.charAt(i);
+			if(Character.isDigit(ch)
+					|| Character.isAlphabetic(ch)
+					|| Character.isSpaceChar(ch)){
+				logSafeValue.append(ch);
+			}else{
+				logSafeValue.append("-");
+			}
 		}
-		return value;
+		return logSafeValue.toString();
 	}
 
 }

@@ -19,7 +19,7 @@ import java.net.URI;
 
 import io.datarouter.pathnode.PathNode;
 
-public abstract class BaseLink<ET extends EndpointType>{
+public abstract class BaseLink<LT extends LinkType>{
 
 	@IgnoredField
 	public final PathNode pathNode;
@@ -33,7 +33,7 @@ public abstract class BaseLink<ET extends EndpointType>{
 		this.urlPrefix = null;
 	}
 
-	public final BaseLink<ET> setUrlPrefix(URI urlPrefix){
+	public final BaseLink<LT> setUrlPrefix(URI urlPrefix){
 		this.urlPrefix = urlPrefix.normalize().toString();
 		return this;
 	}

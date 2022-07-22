@@ -26,6 +26,7 @@ import io.datarouter.storage.file.Pathbean;
 import io.datarouter.storage.file.PathbeanKey;
 import io.datarouter.storage.node.factory.BlobNodeFactory;
 import io.datarouter.storage.node.op.NodeOps;
+import io.datarouter.storage.node.op.raw.BlobStorage.PhysicalBlobStorageNode;
 import io.datarouter.storage.util.Subpath;
 
 public class BlobNodeBuilder<
@@ -57,6 +58,10 @@ public class BlobNodeBuilder<
 
 	public <N extends NodeOps<PathbeanKey,Pathbean>> N build(){
 		return blobNodeFactory.create(clientId, bucket, path);
+	}
+
+	public PhysicalBlobStorageNode buildAndRegister(){
+		return datarouter.register(blobNodeFactory.create(clientId, bucket, path));
 	}
 
 }

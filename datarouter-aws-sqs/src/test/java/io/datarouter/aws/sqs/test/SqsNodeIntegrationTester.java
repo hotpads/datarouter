@@ -32,9 +32,9 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
-import io.datarouter.aws.sqs.BaseSqsNode;
 import io.datarouter.aws.sqs.DatarouterAwsSqsTestNgModuleFactory;
 import io.datarouter.aws.sqs.SqsDataTooLargeException;
+import io.datarouter.model.util.CommonFieldSizes;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.test.TestDatabean;
 
@@ -79,12 +79,12 @@ public class SqsNodeIntegrationTester{
 
 	@Test
 	public void testUnderByteLimit(){
-		testByteLimit(BaseSqsNode.MAX_BYTES_PER_MESSAGE);
+		testByteLimit(CommonFieldSizes.MAX_SQS_SIZE);
 	}
 
 	@Test(expectedExceptions = {SqsDataTooLargeException.class})
 	public void testOverByteLimit(){
-		testByteLimit(BaseSqsNode.MAX_BYTES_PER_MESSAGE + 1);
+		testByteLimit(CommonFieldSizes.MAX_SQS_SIZE + 1);
 	}
 
 	private void testByteLimit(int size){

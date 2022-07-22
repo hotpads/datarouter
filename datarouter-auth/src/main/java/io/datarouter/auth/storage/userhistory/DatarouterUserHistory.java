@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import io.datarouter.auth.storage.permissionrequest.DatarouterPermissionRequest;
-import io.datarouter.enums.MappedEnum;
+import io.datarouter.enums.StringMappedEnum;
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.codec.StringMappedEnumFieldCodec;
@@ -115,8 +115,8 @@ public class DatarouterUserHistory extends BaseDatabean<DatarouterUserHistoryKey
 		RESTORE("restore"),//user restored after being deprovisioned
 		INFO("info");//no change to this user
 
-		public static final MappedEnum<DatarouterUserChangeType,String> BY_PERSISTENT_STRING
-				= new MappedEnum<>(values(), value -> value.persistentString);
+		public static final StringMappedEnum<DatarouterUserChangeType> BY_PERSISTENT_STRING
+				= new StringMappedEnum<>(values(), value -> value.persistentString);
 
 		public final String persistentString;
 

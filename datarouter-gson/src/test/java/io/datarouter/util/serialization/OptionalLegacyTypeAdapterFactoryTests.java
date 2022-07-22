@@ -24,29 +24,18 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
-import io.datarouter.gson.serialization.OptionalLegacyTypeAdapterFactory;
+import io.datarouter.gson.serialization.GsonTool;
 
 public class OptionalLegacyTypeAdapterFactoryTests{
 
 	@Test(dataProvider = "dataProvider")
 	public void testInteroperability(Optional<Instant> instant){
 		Type type = new TypeToken<Optional<Instant>>(){}.getType();
-		Gson legacyAdapterGson = new GsonBuilder()
-				.registerTypeAdapterFactory(new OptionalLegacyTypeAdapterFactory())
-				.create();
+		Gson legacyAdapterGson = GsonTool.GSON;
 		String legacyAdapterJson = legacyAdapterGson.toJson(instant);
 		Assert.assertEquals(legacyAdapterGson.fromJson(legacyAdapterJson, type), instant);
-
-		// Remove to get to Java 16
-		Gson legacyReflectionGson = new Gson();
-		String legacyReflectionJson = legacyReflectionGson.toJson(instant);
-		Assert.assertEquals(legacyReflectionJson, legacyAdapterJson);
-		Assert.assertEquals(legacyReflectionGson.fromJson(legacyAdapterJson, type), instant);
-		Assert.assertEquals(legacyReflectionGson.fromJson(legacyReflectionJson, type), instant);
-		Assert.assertEquals(legacyAdapterGson.fromJson(legacyReflectionJson, type), instant);
 	}
 
 	@DataProvider

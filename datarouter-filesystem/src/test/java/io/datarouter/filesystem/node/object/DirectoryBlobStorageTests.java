@@ -52,12 +52,13 @@ public class DirectoryBlobStorageTests{
 		Assert.assertTrue(PathbeanKey.isValidPath("a/"));
 		Assert.assertTrue(PathbeanKey.isValidPath("a/a/"));
 		Assert.assertFalse(PathbeanKey.isValidPath("a//"));
-		Assert.assertFalse(PathbeanKey.isValidFile(""));
-		Assert.assertFalse(PathbeanKey.isValidFile("/"));
-		Assert.assertTrue(PathbeanKey.isValidFile("a"));
-		Assert.assertTrue(PathbeanKey.isValidFile("a.txt"));
-		Assert.assertTrue(PathbeanKey.isValidFile(".asdf"));
-		Assert.assertTrue(PathbeanKey.isValidFile("."));//should it be invalid?
+		Assert.assertFalse(PathbeanKey.isValidFile("", false));
+		Assert.assertTrue(PathbeanKey.isValidFile("", true));
+		Assert.assertFalse(PathbeanKey.isValidFile("/", false));
+		Assert.assertTrue(PathbeanKey.isValidFile("a", false));
+		Assert.assertTrue(PathbeanKey.isValidFile("a.txt", false));
+		Assert.assertTrue(PathbeanKey.isValidFile(".asdf", false));
+		Assert.assertTrue(PathbeanKey.isValidFile(".", false));//should it be invalid?
 	}
 
 	@Test

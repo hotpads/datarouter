@@ -34,7 +34,7 @@ public class DatarouterAccountKey extends BaseRegularPrimaryKey<DatarouterAccoun
 	}
 
 	public static class FieldKeys{
-		public static final StringFieldKey accountName = new StringFieldKey("accountName");
+		public static final StringFieldKey accountName = new StringFieldKey("accountName").withSize(64);
 	}
 
 	@Override

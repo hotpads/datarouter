@@ -17,11 +17,10 @@ package io.datarouter.aws.sqs;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.concurrent.atomic.LongAdder;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -33,12 +32,15 @@ import com.amazonaws.http.IdleConnectionReaper;
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.model.QueueAttributeName;
 
+import io.datarouter.aws.sqs.config.DatarouterSqsSettingsRoot;
+import io.datarouter.instrumentation.count.Counters;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.BaseClientManager;
 import io.datarouter.storage.client.ClientId;
 import software.amazon.awssdk.services.cloudwatch.CloudWatchClient;
 import software.amazon.awssdk.services.cloudwatch.model.Dimension;
 import software.amazon.awssdk.services.cloudwatch.model.GetMetricDataRequest;
+import software.amazon.awssdk.services.cloudwatch.model.GetMetricDataRequest.Builder;
 import software.amazon.awssdk.services.cloudwatch.model.GetMetricDataResponse;
 import software.amazon.awssdk.services.cloudwatch.model.Metric;
 import software.amazon.awssdk.services.cloudwatch.model.MetricDataQuery;
@@ -51,6 +53,8 @@ public class SqsClientManager extends BaseClientManager{
 
 	@Inject
 	private AmazonSqsHolder amazonSqsHolder;
+	@Inject
+	private DatarouterSqsSettingsRoot datarouterSqsSettingsRoot;
 
 	@Override
 	public void shutdown(ClientId clientId){
@@ -77,8 +81,7 @@ public class SqsClientManager extends BaseClientManager{
 	}
 
 	private MetricDataQuery createMetricDataQuery(String queueName){
-		Metric metric = Metric
-				.builder()
+		Metric metric = Metric.builder()
 				.metricName("ApproximateAgeOfOldestMessage")
 				.dimensions(Dimension.builder()
 						.name("QueueName")
@@ -86,25 +89,22 @@ public class SqsClientManager extends BaseClientManager{
 						.build())
 				.namespace("AWS/SQS")
 				.build();
-		MetricStat metricStat = MetricStat
-				.builder()
+		MetricStat metricStat = MetricStat.builder()
 				.stat("Average")
 				.period(60)
 				.metric(metric)
 				.build();
-		MetricDataQuery metricDataQuery = MetricDataQuery
-				.builder()
-				.id(queueName.replace("-", ""))
-				.label("ApproximateAgeOfOldestMessage")
-				.returnData(true)
+		MetricDataQuery metricDataQuery = MetricDataQuery.builder()
+				.id(queueName.replace("-", "").replace(":", ""))
 				.metricStat(metricStat)
 				.build();
 		return metricDataQuery;
 	}
 
-	public Map<String,Optional<Double>> getApproximateAgeOfOldestUnackedMessageSecondsGroup(ClientId clientId,
+	public Map<String,Long> getApproximateAgeOfOldestUnackedMessageSecondsGroup(ClientId clientId,
 			List<String> queueNames){
-		Map<String,Optional<Double>> queueNamesAndApproximateAgeOfOldestMessage = new HashMap<>();
+		count("queue", queueNames.size());
+		Map<String,Long> queueNamesAndApproximateAgeOfOldestMessage = new HashMap<>();
 		CloudWatchClient cloudWatch = amazonSqsHolder.getCloudWatch(clientId);
 		if(cloudWatch == null){
 			logger.error("CloudwatchClient is null for clientid={}", clientId);
@@ -113,54 +113,56 @@ public class SqsClientManager extends BaseClientManager{
 		List<MetricDataQuery> metricDataQueries = Scanner.of(queueNames)
 				.map(this::createMetricDataQuery)
 				.list();
-		GetMetricDataRequest getMetricDataRequest;
-		boolean done = false;
 		String nextToken = null;
-		List<MetricDataResult> result = new ArrayList<>();
-		Instant startTime = Instant.now().minus(5, ChronoUnit.MINUTES).truncatedTo(ChronoUnit.MINUTES);
-		Instant endTime = Instant.now().truncatedTo(ChronoUnit.MINUTES);
+		// end is exclusive
+		Instant endTime = Instant.now().plus(1, ChronoUnit.MINUTES).truncatedTo(ChronoUnit.MINUTES);
+		// 3 data point max (sometime only one is there)
+		Instant startTime = endTime.minus(datarouterSqsSettingsRoot.cloudWatchMinuteBack.get(), ChronoUnit.MINUTES);
+		int requestCount = 0;
+		int resultCount = 0;
+		var datapointCount = new LongAdder();
 		try{
-			while(!done){
-				GetMetricDataResponse response;
-				if(nextToken == null){
-					getMetricDataRequest = GetMetricDataRequest.builder()
-							.maxDatapoints(10)
-							.startTime(startTime)
-							.endTime(endTime)
-							.metricDataQueries(metricDataQueries)
-							.build();
-					response = cloudWatch.getMetricData(getMetricDataRequest);
-				}else{
-					getMetricDataRequest = GetMetricDataRequest.builder()
-							.maxDatapoints(10)
-							.startTime(startTime)
-							.endTime(endTime)
-							.metricDataQueries(metricDataQueries)
-							.nextToken(nextToken)
-							.build();
-					response = cloudWatch.getMetricData(getMetricDataRequest);
+			do{
+				Builder requestBuilder = GetMetricDataRequest.builder()
+						.startTime(startTime)
+						.endTime(endTime)
+						.metricDataQueries(metricDataQueries);
+				if(nextToken != null){
+					requestBuilder.nextToken(nextToken);
 				}
-
-				result = response.metricDataResults();
+				GetMetricDataResponse response = cloudWatch.getMetricData(requestBuilder.build());
+				nextToken = response.nextToken();
+				requestCount++;
+				count("request", 1);
+				List<MetricDataResult> result = response.metricDataResults();
+				resultCount += result.size();
+				count("result", result.size());
 				result.forEach(res -> {
-					if(!res.values().isEmpty()){
-						queueNamesAndApproximateAgeOfOldestMessage.put(res.id(), Optional.of(res.values().get(0)));
+					logger.debug("{}", res);
+					datapointCount.add(res.values().size());
+					count("datapointCount", res.values().size());
+					String queueName = res.label();
+					if(res.values().isEmpty()){
+						logger.warn("no data for {}", queueName);
+					}else{
+						count("queueWithData", 1);
+						// most recent value is first
+						queueNamesAndApproximateAgeOfOldestMessage.put(queueName, res.values().get(0).longValue());
 					}
 				});
-				if(response.nextToken() == null){
-					done = true;
-				}else{
-					nextToken = response.nextToken();
-					logger.info("nextToken={}", nextToken);
-				}
-			}
-
+			}while(nextToken != null);
 		}catch(RuntimeException e){
 			logger.error("Failed to obtain metrics from cloudwatch", e);
 			return Map.of();
 		}
-		logger.info("result={}", result);
+		logger.warn("start={} end={} queues={} requests={} result={} data={}", startTime, endTime, queueNames.size(),
+				requestCount, resultCount, datapointCount.sum());
+		logger.debug("result={}", queueNamesAndApproximateAgeOfOldestMessage);
 		return queueNamesAndApproximateAgeOfOldestMessage;
+	}
+
+	private void count(String string, long delta){
+		Counters.inc("GetMetricData ApproximateAgeOfOldestMessage " + string, delta);
 	}
 
 	public Map<String,String> getQueueAttributes(ClientId clientId, String queueUrl, List<String> attributes){

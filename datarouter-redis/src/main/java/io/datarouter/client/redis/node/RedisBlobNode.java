@@ -16,8 +16,10 @@ import io.datarouter.client.redis.codec.RedisBlobCodec;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.config.Config;
+import io.datarouter.storage.file.DatabaseBlob;
+import io.datarouter.storage.file.DatabaseBlob.DatabaseBlobFielder;
+import io.datarouter.storage.file.DatabaseBlobKey;
 import io.datarouter.storage.file.Pathbean;
-import io.datarouter.storage.file.Pathbean.PathbeanFielder;
 import io.datarouter.storage.file.PathbeanKey;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.op.raw.BlobStorage.PhysicalBlobStorageNode;
@@ -27,7 +29,7 @@ import io.datarouter.util.tuple.Twin;
 import io.lettuce.core.KeyValue;
 
 public class RedisBlobNode
-extends BasePhysicalNode<PathbeanKey,Pathbean,PathbeanFielder>
+extends BasePhysicalNode<DatabaseBlobKey,DatabaseBlob,DatabaseBlobFielder>
 implements PhysicalBlobStorageNode{
 
 	private final Supplier<DatarouterRedisClient> lazyClient;
@@ -36,7 +38,7 @@ implements PhysicalBlobStorageNode{
 	private final RedisBlobCodec codec;
 
 	public RedisBlobNode(
-			NodeParams<PathbeanKey,Pathbean,PathbeanFielder> params,
+			NodeParams<DatabaseBlobKey,DatabaseBlob,DatabaseBlobFielder> params,
 			ClientType<?,?> clientType,
 			RedisBlobCodec codec,
 			Supplier<DatarouterRedisClient> lazyClient){
@@ -164,6 +166,11 @@ implements PhysicalBlobStorageNode{
 
 	@Override
 	public void deleteAll(Subpath subpath, Config config){
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void vacuum(Config config){
 		throw new UnsupportedOperationException();
 	}
 

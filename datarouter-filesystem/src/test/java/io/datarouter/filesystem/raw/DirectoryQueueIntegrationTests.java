@@ -29,6 +29,7 @@ import org.testng.annotations.Test;
 
 import io.datarouter.filesystem.raw.DirectoryManager.DirectoryManagerFactory;
 import io.datarouter.filesystem.raw.queue.DirectoryQueue;
+import io.datarouter.filesystem.raw.queue.DirectoryQueueMessage;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.DatarouterFilesystemPaths;
 import io.datarouter.storage.util.Subpath;
@@ -58,7 +59,7 @@ public class DirectoryQueueIntegrationTests{
 		var singleFileQueue = new DirectoryQueue(testDirectory.createSubdirectory(new Subpath("singleFile")));
 		String content = "The time is " + Instant.now().toString();
 		String id = singleFileQueue.putMessage(content);
-		String content2 = singleFileQueue.getMessage(id).content;
+		String content2 = singleFileQueue.getMessage(id).getContentUtf8();
 		Assert.assertEquals(content2, content);
 		singleFileQueue.ack(id);
 		assertEmpty(singleFileQueue);
@@ -80,7 +81,7 @@ public class DirectoryQueueIntegrationTests{
 				.advanceUntil(Optional::isEmpty)
 				.map(Optional::get)
 				.each(message -> multiFileQueue.ack(message.id))
-				.map(message -> message.content)
+				.map(DirectoryQueueMessage::getContentUtf8)
 				.map(Integer::valueOf)
 				.sort()
 				.list();

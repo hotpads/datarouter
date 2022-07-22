@@ -62,12 +62,6 @@ public interface StringEnum<E> extends Comparable<E>, PersistentString{
 		return internalFindEnumFromString(values, value, true);
 	}
 
-	static <T extends PersistentString> Optional<T> findEnumFromStringCaseInsensitive(
-			T[] values,
-			String value){
-		return internalFindEnumFromString(values, value, false);
-	}
-
 	/*-------------- internal ------------*/
 
 	static <T extends PersistentString> Optional<T> internalFindEnumFromString(

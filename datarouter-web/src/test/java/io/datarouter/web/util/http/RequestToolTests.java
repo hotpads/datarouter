@@ -26,6 +26,7 @@ public class RequestToolTests{
 
 	private static final String PRIVATE_IP = "10.95.188.27";
 	private static final String PUBLIC_IP = "209.63.146.244";
+	private static final String SHARED_ADDRESS_SPACE_IP = "100.68.71.215";
 
 	@Test
 	public void testCheckDouble(){
@@ -91,6 +92,7 @@ public class RequestToolTests{
 	@Test
 	public void testIsInternalNet(){
 		Assert.assertFalse(RequestTool.isPublicNet(PRIVATE_IP));
+		Assert.assertFalse(RequestTool.isPublicNet(SHARED_ADDRESS_SPACE_IP));
 		Assert.assertTrue(RequestTool.isPublicNet(PUBLIC_IP));
 	}
 

@@ -27,18 +27,21 @@ import io.datarouter.storage.node.adapter.availability.PhysicalSortedMapStorageA
 import io.datarouter.storage.node.adapter.callsite.physical.PhysicalIndexedSortedMapStorageCallsiteAdapter;
 import io.datarouter.storage.node.adapter.callsite.physical.PhysicalMapStorageCallsiteAdapter;
 import io.datarouter.storage.node.adapter.callsite.physical.PhysicalSortedMapStorageCallsiteAdapter;
+import io.datarouter.storage.node.adapter.counter.physical.PhysicalBlobQueueStorageCounterAdapter;
 import io.datarouter.storage.node.adapter.counter.physical.PhysicalGroupQueueStorageCounterAdapter;
 import io.datarouter.storage.node.adapter.counter.physical.PhysicalIndexedSortedMapStorageCounterAdapter;
 import io.datarouter.storage.node.adapter.counter.physical.PhysicalMapStorageCounterAdapter;
 import io.datarouter.storage.node.adapter.counter.physical.PhysicalQueueStorageCounterAdapter;
 import io.datarouter.storage.node.adapter.counter.physical.PhysicalSortedMapStorageCounterAdapter;
 import io.datarouter.storage.node.adapter.counter.physical.PhysicalTallyStorageCounterAdapter;
+import io.datarouter.storage.node.adapter.sanitization.physical.PhysicalBlobQueueStorageSanitizationAdapter;
 import io.datarouter.storage.node.adapter.sanitization.physical.PhysicalGroupQueueStorageSanitizationAdapter;
 import io.datarouter.storage.node.adapter.sanitization.physical.PhysicalIndexedSortedMapStorageSanitizationAdapter;
 import io.datarouter.storage.node.adapter.sanitization.physical.PhysicalMapStorageSanitizationAdapter;
 import io.datarouter.storage.node.adapter.sanitization.physical.PhysicalQueueStorageSanitizationAdapter;
 import io.datarouter.storage.node.adapter.sanitization.physical.PhysicalSortedMapStorageSanitizationAdapter;
 import io.datarouter.storage.node.adapter.sanitization.physical.PhysicalTallyStorageSanitizationAdapter;
+import io.datarouter.storage.node.adapter.trace.physical.PhysicalBlobQueueStorageTraceAdapter;
 import io.datarouter.storage.node.adapter.trace.physical.PhysicalGroupQueueStorageTraceAdapter;
 import io.datarouter.storage.node.adapter.trace.physical.PhysicalIndexedSortedMapStorageTraceAdapter;
 import io.datarouter.storage.node.adapter.trace.physical.PhysicalMapStorageTraceAdapter;
@@ -47,6 +50,7 @@ import io.datarouter.storage.node.adapter.trace.physical.PhysicalSortedMapStorag
 import io.datarouter.storage.node.adapter.trace.physical.PhysicalTallyStorageTraceAdapter;
 import io.datarouter.storage.node.op.combo.IndexedSortedMapStorage.PhysicalIndexedSortedMapStorageNode;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.PhysicalSortedMapStorageNode;
+import io.datarouter.storage.node.op.raw.BlobQueueStorage.PhysicalBlobQueueStorageNode;
 import io.datarouter.storage.node.op.raw.BlobStorage.PhysicalBlobStorageNode;
 import io.datarouter.storage.node.op.raw.GroupQueueStorage.PhysicalGroupQueueStorageNode;
 import io.datarouter.storage.node.op.raw.MapStorage.PhysicalMapStorageNode;
@@ -128,6 +132,12 @@ public class NodeAdapters{
 		return new PhysicalGroupQueueStorageSanitizationAdapter<>(
 				new PhysicalGroupQueueStorageCounterAdapter<>(
 				new PhysicalGroupQueueStorageTraceAdapter<>(physicalQueueNode)));
+	}
+
+	public PhysicalBlobQueueStorageNode wrapBlobQueueNode(PhysicalBlobQueueStorageNode physicalQueueNode){
+		return new PhysicalBlobQueueStorageSanitizationAdapter(
+				new PhysicalBlobQueueStorageCounterAdapter(
+				new PhysicalBlobQueueStorageTraceAdapter(physicalQueueNode)));
 	}
 
 	/*-------------- tally ----------------*/

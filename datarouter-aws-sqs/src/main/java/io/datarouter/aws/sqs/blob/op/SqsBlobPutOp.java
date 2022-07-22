@@ -1,0 +1,60 @@
+/*
+ * Copyright © 2009 HotPads (admin@hotpads.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package io.datarouter.aws.sqs.blob.op;
+
+import java.util.List;
+
+import com.amazonaws.AbortedException;
+import com.amazonaws.services.sqs.model.SendMessageRequest;
+
+import io.datarouter.aws.sqs.SqsClientManager;
+import io.datarouter.aws.sqs.SqsDataTooLargeException;
+import io.datarouter.aws.sqs.op.SqsBlobOp;
+import io.datarouter.bytes.codec.stringcodec.StringCodec;
+import io.datarouter.model.util.CommonFieldSizes;
+import io.datarouter.storage.client.ClientId;
+import io.datarouter.storage.config.Config;
+import io.datarouter.util.concurrent.UncheckedInterruptedException;
+
+public class SqsBlobPutOp extends SqsBlobOp<Void>{
+
+	private final String data;
+
+	public SqsBlobPutOp(
+			byte[] data,
+			Config config,
+			SqsClientManager sqsClientManager,
+			ClientId clientId,
+			String queueUrl){
+		super(sqsClientManager, clientId, config, queueUrl);
+		this.data = StringCodec.UTF_8.decode(data);
+	}
+
+	@Override
+	protected Void run(){
+		if(data.length() > CommonFieldSizes.MAX_SQS_SIZE){
+			throw new SqsDataTooLargeException(List.of("a blob of size " + data.length()));
+		}
+		var request = new SendMessageRequest(queueUrl, data);
+		try{
+			sqsClientManager.getAmazonSqs(clientId).sendMessage(request);
+		}catch(AbortedException e){
+			throw new UncheckedInterruptedException("", e);
+		}
+		return null;
+	}
+
+}

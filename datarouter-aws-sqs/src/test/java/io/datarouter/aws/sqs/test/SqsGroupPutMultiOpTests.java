@@ -37,8 +37,8 @@ public class SqsGroupPutMultiOpTests{
 		List<byte[]> group = Stream.of("foo", "bar", "baz")
 				.map(StringCodec.UTF_8::encode)
 				.collect(Collectors.toList());
-		Assert.assertEquals(CODEC.concatGroup(group), "[foo,bar,baz]");
-		Assert.assertEquals(CODEC.concatGroup(List.of("foo".getBytes())), "[foo]");
+		Assert.assertEquals(StringCodec.UTF_8.decode(CODEC.concatGroup(group)), "[foo,bar,baz]");
+		Assert.assertEquals(StringCodec.UTF_8.decode(CODEC.concatGroup(List.of("foo".getBytes()))), "[foo]");
 	}
 
 	@Test

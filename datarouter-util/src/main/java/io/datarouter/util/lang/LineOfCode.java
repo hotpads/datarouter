@@ -15,6 +15,8 @@
  */
 package io.datarouter.util.lang;
 
+import java.util.Objects;
+
 import io.datarouter.util.ComparableTool;
 
 public class LineOfCode implements Comparable<LineOfCode>{
@@ -50,15 +52,8 @@ public class LineOfCode implements Comparable<LineOfCode>{
 
 	@Override
 	public int hashCode(){
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + (className == null ? 0 : className.hashCode());
-		result = prime * result + (lineNumber == null ? 0 : lineNumber.hashCode());
-		result = prime * result + (methodName == null ? 0 : methodName.hashCode());
-		result = prime * result + (packageName == null ? 0 : packageName.hashCode());
-		return result;
+		return Objects.hash(className, lineNumber, methodName, packageName);
 	}
-
 
 	@Override
 	public boolean equals(Object obj){

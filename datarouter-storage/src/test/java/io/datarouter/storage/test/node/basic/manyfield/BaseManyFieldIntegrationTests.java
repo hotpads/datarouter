@@ -133,10 +133,10 @@ public abstract class BaseManyFieldIntegrationTests{
 	@Test
 	public void testEnumToInteger(){
 		var bean = new ManyFieldBean();
-		bean.setEnumToIntegerField(TestEnum.beast);
+		bean.setEnumToIntegerField(TestEnum.BEAST);
 
 		ManyFieldBean roundTripped = putAndGet(bean);
-		Assert.assertSame(roundTripped.getEnumToIntegerField(), TestEnum.beast);
+		Assert.assertSame(roundTripped.getEnumToIntegerField(), TestEnum.BEAST);
 	}
 
 	@Test
@@ -267,8 +267,8 @@ public abstract class BaseManyFieldIntegrationTests{
 	@Test
 	public void testEnumToString(){
 		var bean = new ManyFieldBean();
-		bean.setEnumToStringField(TestEnum.beast);
-		Assert.assertSame(putAndGet(bean).getEnumToStringField(), TestEnum.beast);
+		bean.setEnumToStringField(TestEnum.BEAST);
+		Assert.assertSame(putAndGet(bean).getEnumToStringField(), TestEnum.BEAST);
 		bean.setEnumToStringField(null);
 		Assert.assertSame(putAndGet(bean).getEnumToStringField(), null);
 	}

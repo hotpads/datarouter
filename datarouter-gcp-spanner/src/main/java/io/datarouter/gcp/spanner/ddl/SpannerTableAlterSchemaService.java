@@ -49,7 +49,7 @@ public class SpannerTableAlterSchemaService{
 			SpannerUpdateStatements statements){
 		List<SpannerColumn> primaryKeyColumns = extractColumns(primaryKeyResult);
 		if(!primaryKeyColumns.equals(currentPkColumns)){
-			throw new RuntimeException("Cannot modify primary key columns in spanner");
+			throw new RuntimeException("Cannot modify primary key columns in spanner tableName=" + tableName);
 		}
 		List<SpannerColumn> columns = extractColumns(columnResult);
 		List<SpannerColumn> colToAdd = columnNameDifferences(currentColumns, columns);
