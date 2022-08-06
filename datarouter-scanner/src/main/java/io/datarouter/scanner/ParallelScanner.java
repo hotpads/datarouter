@@ -29,6 +29,14 @@ public class ParallelScanner<T>{
 		this.input = input;
 	}
 
+	public <R> Scanner<R> concat(Function<? super T,Scanner<R>> mapper){
+		if(context.enabled){
+			return map(mapper)
+					.concat(Function.identity());
+		}
+		return input.concat(mapper);
+	}
+
 	public Scanner<T> each(Consumer<? super T> consumer){
 		if(context.enabled){
 			return map(new ScannerConsumerFunction<>(consumer));
@@ -65,8 +73,12 @@ public class ParallelScanner<T>{
 
 	public <R> Scanner<R> map(Function<? super T,? extends R> mapper){
 		if(context.enabled){
-			return new ParallelMappingScanner<>(input, context.allowUnorderedResults, context.executor,
-					context.numThreads, mapper);
+			return new ParallelMappingScanner<>(
+					input,
+					context.allowUnorderedResults,
+					context.executor,
+					context.numThreads,
+					mapper);
 		}
 		return input.map(mapper);
 	}

@@ -22,6 +22,10 @@ import io.datarouter.enums.IntegerEnum;
 import io.datarouter.model.field.BaseField;
 import io.datarouter.model.field.Field;
 
+/**
+ * @deprecated  Use IntegerEncodedField
+ */
+@Deprecated
 public class IntegerEnumField<E extends IntegerEnum<E>> extends BaseField<E>{
 
 	private static final ComparableIntCodec COMPARABLE_INT_CODEC = ComparableIntCodec.INSTANCE;
@@ -85,6 +89,11 @@ public class IntegerEnumField<E extends IntegerEnum<E>> extends BaseField<E>{
 	@Override
 	public String getValueString(){
 		return value == null ? "null" : value.getPersistentInteger().toString();
+	}
+
+	@Override
+	public Object getGenericValue(){
+		return value.toString();
 	}
 
 }

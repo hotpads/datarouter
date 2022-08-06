@@ -126,7 +126,7 @@ public class SqsWebInspector implements DatarouterClientWebInspector{
 						inFlightCount = attributesMap.get(
 								QueueAttributeName.ApproximateNumberOfMessagesNotVisible.name());
 					}catch(RuntimeException e){
-						logger.warn("failed to get attribute for queue={}", queueUrl);
+						logger.warn("failed to get attribute for queue={}", queueUrl, e);
 					}
 					return new SqsWebInspectorDto(queueName, availableCount, inFlightCount, age);
 				})

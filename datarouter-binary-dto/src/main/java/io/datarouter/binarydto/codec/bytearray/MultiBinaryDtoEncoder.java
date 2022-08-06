@@ -19,6 +19,7 @@ import java.util.List;
 
 import io.datarouter.binarydto.codec.BinaryDtoIndexedCodec;
 import io.datarouter.binarydto.dto.BaseBinaryDto;
+import io.datarouter.bytes.ByteTool;
 import io.datarouter.bytes.VarIntTool;
 import io.datarouter.scanner.Scanner;
 
@@ -44,6 +45,19 @@ public class MultiBinaryDtoEncoder<T extends BaseBinaryDto<T>>{
 					byte[] dataBytes = codec.encode(dto);
 					byte[] lengthBytes = VarIntTool.encode(dataBytes.length);
 					return Scanner.of(lengthBytes, dataBytes);
+				});
+	}
+
+	public Scanner<byte[]> encodeWithConcatenatedLength(List<T> dtos){
+		return encodeWithConcatenatedLength(Scanner.of(dtos));
+	}
+
+	public Scanner<byte[]> encodeWithConcatenatedLength(Scanner<T> dtos){
+		return dtos
+				.map(dto -> {
+					byte[] dataBytes = codec.encode(dto);
+					byte[] lengthBytes = VarIntTool.encode(dataBytes.length);
+					return ByteTool.concat(lengthBytes, dataBytes);
 				});
 	}
 

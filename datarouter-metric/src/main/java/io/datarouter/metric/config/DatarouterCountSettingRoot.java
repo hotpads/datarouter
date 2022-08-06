@@ -47,8 +47,8 @@ public class DatarouterCountSettingRoot extends SettingRoot{
 		runCountMemoryToPublisherConveyor = registerBooleans("runCountMemoryToPublisherConveyor", defaultTo(false)
 				.withTag(DatarouterSettingTagType.COUNTPIPELINE, () -> true));
 
-		saveCountBlobsToQueueDaoInsteadOfDirectoryDao = registerBoolean("saveCountBlobsToQueueDaoInsteadOfDirectoryDao",
-				false);
+		saveCountBlobsToQueueDaoInsteadOfDirectoryDao = registerBoolean(
+				"saveCountBlobsToQueueDaoInsteadOfDirectoryDao", false);
 
 		conveyorThreadCount = registerInteger("conveyorThreadCount", 1);
 	}

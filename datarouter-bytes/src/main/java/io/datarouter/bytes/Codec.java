@@ -49,7 +49,7 @@ public interface Codec<A,B>{
 		private final Function<A,B> encodeFunction;
 		private final Function<B,A> decodeFunction;
 
-		private FunctionalCodec(
+		public FunctionalCodec(
 				Function<A,B> encodeFunction,
 				Function<B,A> decodeFunction){
 			this.encodeFunction = encodeFunction;
@@ -75,7 +75,7 @@ public interface Codec<A,B>{
 	public static class NullPassthroughCodec<A,B>
 	extends FunctionalCodec<A,B>{
 
-		private NullPassthroughCodec(
+		public NullPassthroughCodec(
 				Function<A,B> encodeFunction,
 				Function<B,A> decodeFunction){
 			super(NullPassthroughFunction.of(encodeFunction),

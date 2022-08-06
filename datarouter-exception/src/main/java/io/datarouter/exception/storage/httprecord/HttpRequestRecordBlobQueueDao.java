@@ -21,9 +21,6 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.conveyor.message.ConveyorMessage;
-import io.datarouter.conveyor.message.ConveyorMessage.ConveyorMessageFielder;
-import io.datarouter.conveyor.message.ConveyorMessageKey;
 import io.datarouter.conveyor.queue.QueueConsumer;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
@@ -32,6 +29,9 @@ import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.QueueNodeFactory;
 import io.datarouter.storage.node.op.raw.QueueStorage.QueueStorageNode;
+import io.datarouter.storage.queue.StringQueueMessage;
+import io.datarouter.storage.queue.StringQueueMessage.StringQueueMessageFielder;
+import io.datarouter.storage.queue.StringQueueMessageKey;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.virtualnode.redundant.RedundantQueueStorageNode;
 
@@ -46,16 +46,19 @@ public class HttpRequestRecordBlobQueueDao extends BaseDao{
 
 	}
 
-	private final QueueStorageNode<ConveyorMessageKey,ConveyorMessage,ConveyorMessageFielder> queueNode;
+	private final QueueStorageNode<StringQueueMessageKey,StringQueueMessage,StringQueueMessageFielder> queueNode;
 
 	@Inject
-	public HttpRequestRecordBlobQueueDao(Datarouter datarouter, HttpRequestRecordBlobQueueDaoParams params,
+	public HttpRequestRecordBlobQueueDao(
+			Datarouter datarouter,
+			HttpRequestRecordBlobQueueDaoParams params,
 			QueueNodeFactory queueNodeFactory){
 		super(datarouter);
 		queueNode = Scanner.of(params.clientIds)
 				.map(clientId -> {
-					QueueStorageNode<ConveyorMessageKey,ConveyorMessage,ConveyorMessageFielder> node = queueNodeFactory
-							.createSingleQueue(clientId, ConveyorMessage::new, ConveyorMessageFielder::new)
+					QueueStorageNode<StringQueueMessageKey,StringQueueMessage,StringQueueMessageFielder> node
+							= queueNodeFactory
+							.createSingleQueue(clientId, StringQueueMessage::new, StringQueueMessageFielder::new)
 							.withNamespace("shared")
 							.withQueueName("HttpRequestRecordBlob")
 							.withTag(Tag.DATAROUTER)
@@ -66,11 +69,11 @@ public class HttpRequestRecordBlobQueueDao extends BaseDao{
 		datarouter.register(queueNode);
 	}
 
-	public void putMulti(Collection<ConveyorMessage> databeans){
+	public void putMulti(Collection<StringQueueMessage> databeans){
 		queueNode.putMulti(databeans);
 	}
 
-	public QueueConsumer<ConveyorMessageKey,ConveyorMessage> getQueueConsumer(){
+	public QueueConsumer<StringQueueMessageKey,StringQueueMessage> getQueueConsumer(){
 		return new QueueConsumer<>(queueNode::peek, queueNode::ack);
 	}
 

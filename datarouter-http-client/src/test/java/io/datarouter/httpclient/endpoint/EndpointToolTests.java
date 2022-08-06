@@ -43,6 +43,10 @@ public class EndpointToolTests{
 			super(method, pathNode);
 		}
 
+		@Override
+		public CallerType getCallerType(){
+			return CallerTypes.UNKNOWN;
+		}
 	}
 
 	public static class ExampleEndpoint1{

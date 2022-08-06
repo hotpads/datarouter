@@ -18,6 +18,9 @@ package io.datarouter.auth.web;
 import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.h2;
+import static j2html.TagCreator.h5;
+import static j2html.TagCreator.li;
+import static j2html.TagCreator.ul;
 
 import java.util.List;
 
@@ -26,6 +29,7 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.auth.config.DatarouterAuthSettingRoot;
 import io.datarouter.auth.storage.account.DatarouterAccount;
 import io.datarouter.auth.storage.account.DatarouterAccountCredentialDao;
 import io.datarouter.auth.storage.account.DatarouterAccountDao;
@@ -40,6 +44,8 @@ import io.datarouter.auth.storage.useraccountmap.DatarouterUserAccountMapKey;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDtoBuilder;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.storage.setting.cached.CachedSetting;
+import io.datarouter.util.duration.DatarouterDuration;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.util.timer.PhaseTimer;
 import io.datarouter.web.handler.BaseHandler;
@@ -73,6 +79,8 @@ public class DatarouterAccountRenameHandler extends BaseHandler{
 	private ChangelogRecorder changelogRecorder;
 	@Inject
 	private Bootstrap4PageFactory pageFactory;
+	@Inject
+	private DatarouterAuthSettingRoot authSettings;
 
 	@Handler(defaultHandler = true)
 	public Mav renameAccounts(
@@ -109,12 +117,12 @@ public class DatarouterAccountRenameHandler extends BaseHandler{
 				.withValue(newAccountName.orElse(null));
 		form.addButton()
 				.withDisplay("Rename")
-				.withValue("anything");
+				.withValue("renameAccounts");
 
 		if(submitAction.isEmpty() || form.hasErrors()){
 			return pageFactory.startBuilder(request)
 					.withTitle("Dataroutetr Account Rename")
-					.withContent(Html.makeContent(form))
+					.withContent(makeContent(form))
 					.buildMav();
 		}
 
@@ -132,18 +140,21 @@ public class DatarouterAccountRenameHandler extends BaseHandler{
 				+ " to=" + newAccountName.get());
 	}
 
-	private static class Html{
+	public DivTag makeContent(HtmlForm htmlForm){
+		var form = Bootstrap4FormHtml.render(htmlForm)
+				.withClass("card card-body bg-light");
+		CachedSetting<DatarouterDuration> refreshSetting = authSettings.accountRefreshFrequencyDuration;
 
-		public static DivTag makeContent(HtmlForm htmlForm){
-			var form = Bootstrap4FormHtml.render(htmlForm)
-					.withClass("card card-body bg-light");
-			return div(
-					h2("Dataroutetr Account Rename"),
-					form,
-					br())
-					.withClass("container mt-3");
-		}
-
+		return div(
+				h2("Datarouter Account Rename"),
+				form,
+				br(),
+				h5("Important Details"),
+				ul(li("Requests using this account will be unavailable for a maximum of " + refreshSetting.get()
+						+ ". You can mitigate this by temporarily decreasing the cluster setting "
+						+ refreshSetting.getName()),
+						li("Metrics utilizing the old account name will not be renamed")))
+				.withClass("container mt-3");
 	}
 
 	private void rename(String oldAccountName, String newAccountName){
@@ -260,10 +271,11 @@ public class DatarouterAccountRenameHandler extends BaseHandler{
 
 	private void recordChangelog(String oldAccountName, String newAccountName, String tableUpdated){
 		var dto = new DatarouterChangelogDtoBuilder(
-				"Datarouter account rename",
-				oldAccountName + " -> " + newAccountName,
-				tableUpdated,
+				DatarouterAccountManagerHandler.CHANGELOG_TYPE,
+				oldAccountName + "->" + newAccountName,
+				"rename " + tableUpdated,
 				getSessionInfo().findNonEmptyUsername().orElse(""))
+				.withComment(oldAccountName + "->" + newAccountName)
 				.build();
 		changelogRecorder.record(dto);
 	}

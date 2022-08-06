@@ -17,11 +17,19 @@ package io.datarouter.auth.service.deprovisioning;
 
 import java.util.List;
 
+import io.datarouter.plugin.PluginConfigKey;
+import io.datarouter.plugin.PluginConfigType;
+import io.datarouter.plugin.PluginConfigValue;
+
 /**
  * these methods are intended to be called by {@link UserDeprovisioningService} in conjunction with
  * {@link UserDeprovisioningStrategy}. See {@link UserDeprovisioningService} for exact order and configuration.
  */
-public interface UserDeprovisioningListener{
+public interface UserDeprovisioningListener extends PluginConfigValue<UserDeprovisioningListener>{
+
+	PluginConfigKey<UserDeprovisioningListener> KEY = new PluginConfigKey<>(
+			"userDeprovisioningListener",
+			PluginConfigType.CLASS_LIST);
 
 	/**
 	 * @param usernames usernames that will be flagged
@@ -57,6 +65,12 @@ public interface UserDeprovisioningListener{
 	 * @param usernames usernames that were restored
 	 */
 	default void onRestoredUsers(List<String> usernames){
+	}
+
+
+	@Override
+	default PluginConfigKey<UserDeprovisioningListener> getKey(){
+		return KEY;
 	}
 
 }

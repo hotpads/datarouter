@@ -17,6 +17,7 @@ package io.datarouter.auth.job;
 
 import java.time.Instant;
 import java.time.Period;
+import java.util.Objects;
 
 import javax.inject.Inject;
 
@@ -30,7 +31,6 @@ import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.properties.AdminEmail;
-import io.datarouter.web.user.databean.DatarouterUser;
 import io.datarouter.web.user.databean.DatarouterUserKey;
 
 public class DatarouterPermissionRequestVacuumJob extends BaseJob{
@@ -54,18 +54,18 @@ public class DatarouterPermissionRequestVacuumJob extends BaseJob{
 			.include(permissionRequest -> permissionRequest.getKey().getRequestTime().isBefore(tooOldCutoff))
 			.map(DatarouterPermissionRequest::getKey)
 			.map(DatarouterPermissionRequestKey::getUserId)
-			.forEach(userId -> {
-				permissionRequestDao.declineAll(userId);
-				DatarouterUser user = datarouterUserDao.get(new DatarouterUserKey(userId));
-				var dto = new DatarouterChangelogDtoBuilder(
-						CHANGELOG_TYPE,
-						user.getUsername(),
-						"Auto Decline",
-						adminEmail.get())
-						.withComment(user.getUsername() + "'s permission request expired")
-						.build();
-				changelogRecorder.record(dto);
-			});
+			.each(permissionRequestDao::declineAll)
+			.map(DatarouterUserKey::new)
+			.map(datarouterUserDao::get)
+			.include(Objects::nonNull)
+			.map(user -> new DatarouterChangelogDtoBuilder(
+				CHANGELOG_TYPE,
+				user.getUsername(),
+				"Auto Decline",
+				adminEmail.get())
+				.withComment(user.getUsername() + "'s permission request expired")
+				.build())
+			.forEach(changelogRecorder::record);
 	}
 
 }

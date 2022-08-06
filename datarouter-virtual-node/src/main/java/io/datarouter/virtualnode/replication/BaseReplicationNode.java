@@ -17,15 +17,14 @@ package io.datarouter.virtualnode.replication;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.BaseNode;
@@ -72,38 +71,30 @@ implements ReplicationNode<PK,D,F,N>{
 
 	@Override
 	public String getName(){
-		return primaryAndReplicas.stream()
+		return Scanner.of(primaryAndReplicas)
 				.map(Node::getName)
 				.collect(Collectors.joining(",", getClass().getSimpleName() + "[", "]"));
 	}
 
 	@Override
 	public List<PhysicalNode<PK,D,F>> getPhysicalNodes(){
-		List<PhysicalNode<PK,D,F>> all = new ArrayList<>();
-		all.addAll(primary.getPhysicalNodes());
-		replicas.stream()
-				.map(N::getPhysicalNodes)
-				.forEach(all::addAll);
-		return all;
+		return Scanner.of(primaryAndReplicas)
+				.concatIter(N::getPhysicalNodes)
+				.collect(Collectors.toList());
 	}
 
 	@Override
 	public List<PhysicalNode<PK,D,F>> getPhysicalNodesForClient(String clientName){
-		List<PhysicalNode<PK,D,F>> all = new ArrayList<>();
-		all.addAll(primary.getPhysicalNodesForClient(clientName));
-		replicas.stream()
-				.map(replica -> replica.getPhysicalNodesForClient(clientName))
-				.forEach(all::addAll);
-		return all;
+		return Scanner.of(primaryAndReplicas)
+				.concatIter(node -> node.getPhysicalNodesForClient(clientName))
+				.collect(Collectors.toList());
 	}
 
 	@Override
 	public List<ClientId> getClientIds(){
-		Set<ClientId> clientIds = new HashSet<>(primary.getClientIds());
-		replicas.stream()
-				.map(N::getClientIds)
-				.forEach(clientIds::addAll);
-		return new ArrayList<>(clientIds);
+		return Scanner.of(primaryAndReplicas)
+				.concatIter(N::getClientIds)
+				.collect(Collectors.toList());
 	}
 
 	@Override
@@ -111,10 +102,9 @@ implements ReplicationNode<PK,D,F,N>{
 		if(primary.usesClient(clientName)){
 			return true;
 		}
-		return replicas.stream()
-				.filter(replica -> replica.usesClient(clientName))
-				.findAny()
-				.isPresent();
+		return Scanner.of(replicas)
+				.include(replica -> replica.usesClient(clientName))
+				.hasAny();
 	}
 
 	/*---------------- Replication methods ---------------------*/

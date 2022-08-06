@@ -15,6 +15,8 @@
  */
 package io.datarouter.auth.config;
 
+import java.util.concurrent.TimeUnit;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -22,6 +24,7 @@ import io.datarouter.storage.setting.DatarouterSettingCategory;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.SettingRoot;
 import io.datarouter.storage.setting.cached.CachedSetting;
+import io.datarouter.util.duration.DatarouterDuration;
 
 @Singleton
 public class DatarouterAuthSettingRoot extends SettingRoot{
@@ -32,6 +35,8 @@ public class DatarouterAuthSettingRoot extends SettingRoot{
 	public final CachedSetting<Boolean> runConfigurationScanReportEmailJob;
 	public final CachedSetting<Boolean> runPermissionRequestVacuumJob;
 	public final CachedSetting<Boolean> shouldUseDatarouterAccountCredentialInsteadOfDatarouterAccount;
+	public final CachedSetting<Boolean> enableHandlerAccountCallerValidator;
+	public final CachedSetting<DatarouterDuration> accountRefreshFrequencyDuration;
 
 	@Inject
 	public DatarouterAuthSettingRoot(SettingFinder finder){
@@ -44,6 +49,9 @@ public class DatarouterAuthSettingRoot extends SettingRoot{
 		runPermissionRequestVacuumJob = registerBoolean("runPermissionRequestVacuumJob", false);
 		shouldUseDatarouterAccountCredentialInsteadOfDatarouterAccount = registerBoolean(
 				"shouldUseDatarouterAccountCredentialInsteadOfDatarouterAccount", true);
+		enableHandlerAccountCallerValidator = registerBoolean("enableHandlerAccountCallerValidator", false);
+		accountRefreshFrequencyDuration = registerDuration("accountRefreshFrequencyDuration",
+				new DatarouterDuration(15, TimeUnit.SECONDS));
 	}
 
 }

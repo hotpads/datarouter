@@ -25,7 +25,7 @@ import io.datarouter.web.browse.DatarouterClientWebInspectorRegistry;
 @Singleton
 public class SqsClientType implements ClientType<SqsClientNodeFactory,SqsClientManager>{
 
-	protected static final String NAME = "sqs";
+	public static final String NAME = "sqs";
 
 	@Inject
 	public SqsClientType(DatarouterClientWebInspectorRegistry datarouterClientWebInspectorRegistry){

@@ -86,6 +86,8 @@ public class SpannerClientManager extends BaseClientManager{
 				.setFailIfPoolExhausted()
 				.build();
 		SpannerOptions spannerOptions = SpannerOptions.newBuilder()
+				//Disabled until behavior can be confirmed
+				//.setCompressorName(SpannerGrpcCompressor.IDENTITY.name)
 				.setCredentials(credentials)
 				.setNumChannels(numChannels)
 				.setSessionPoolOption(sessionPoolOptions)

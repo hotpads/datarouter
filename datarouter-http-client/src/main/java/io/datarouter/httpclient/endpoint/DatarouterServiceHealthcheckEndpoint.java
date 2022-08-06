@@ -34,4 +34,9 @@ public class DatarouterServiceHealthcheckEndpoint extends BaseEndpoint<Object,No
 		return new DatarouterServiceHealthcheckEndpoint();
 	}
 
+	@Override
+	public CallerType getCallerType(){
+		return CallerTypes.DATAROUTER_SERVICE;
+	}
+
 }

@@ -44,17 +44,17 @@ import io.datarouter.auth.config.DatarouterAuthPaths;
 import io.datarouter.auth.service.DatarouterUserEditService;
 import io.datarouter.auth.service.DatarouterUserInfo;
 import io.datarouter.auth.service.DatarouterUserService;
-import io.datarouter.auth.service.PermissionRequestUserInfo;
+import io.datarouter.auth.service.PermissionRequestUserInfo.PermissionRequestUserInfoSupplier;
 import io.datarouter.auth.storage.permissionrequest.DatarouterPermissionRequest;
 import io.datarouter.auth.storage.permissionrequest.DatarouterPermissionRequestDao;
 import io.datarouter.email.type.DatarouterEmailTypes.PermissionRequestEmailType;
 import io.datarouter.storage.config.DatarouterSubscribersSupplier;
 import io.datarouter.storage.config.properties.AdminEmail;
+import io.datarouter.storage.config.properties.ServiceName;
 import io.datarouter.storage.config.setting.DatarouterEmailSubscriberSettings;
 import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.util.time.ZonedDateFormatterTool;
-import io.datarouter.web.config.service.ServiceName;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
@@ -108,7 +108,7 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 	@Inject
 	private DatarouterEmailSubscriberSettings subscribersSettings;
 	@Inject
-	private PermissionRequestUserInfo userInfo;
+	private PermissionRequestUserInfoSupplier userInfoSupplier;
 
 
 	@Handler(defaultHandler = true)
@@ -123,11 +123,10 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 				.findMax(Comparator.comparing(request -> request.getKey().getRequestTime()))
 				.orElse(null);
 
-		Optional<String> defaultSpecifics = deniedUrl.map(url -> {
-			return "I tried to go to this URL: " + url + "." + allowedRoles
-					.map(" These are its allowed roles at the time of this request: "::concat)
-					.orElse("");
-		});
+		Optional<String> defaultSpecifics = deniedUrl
+				.map(url -> "I tried to go to this URL: " + url + "." + allowedRoles
+						.map(" These are its allowed roles at the time of this request: "::concat)
+						.orElse(""));
 
 		Set<String> emails = new HashSet<>();
 		if(serverTypeDetector.mightBeProduction()){
@@ -173,7 +172,7 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 				.withDisplay("Additional information we have detected: ")
 				.withName("specifics")
 				.withValue(defaultSpecifics.orElse(null))
-				.withReadOnly(true);
+				.readOnly();
 
 		form.addButton()
 				.withDisplay("Submit");
@@ -277,7 +276,7 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 				.build();
 		var table = table(tbody()
 				.with(createLabelValueTr("Service", text(serviceName.get()))
-				.with(userInfo.getUserInformation(user)))
+				.with(userInfoSupplier.get().getUserInformation(user)))
 				.with(createLabelValueTr("Reason", text(reason)))
 				.condWith(StringTool.notEmpty(specifics), createLabelValueTr("Specifics", text(specifics))))
 				.withStyle("border-spacing: 0");

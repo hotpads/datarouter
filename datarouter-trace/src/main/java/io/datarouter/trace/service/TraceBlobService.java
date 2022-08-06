@@ -21,10 +21,10 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.conveyor.message.ConveyorMessage;
 import io.datarouter.instrumentation.response.PublishingResponseDto;
 import io.datarouter.instrumentation.trace.Trace2BatchedBundleDto;
 import io.datarouter.instrumentation.trace.TracePublisher;
+import io.datarouter.storage.queue.StringQueueMessage;
 import io.datarouter.trace.config.MaxTraceBlobSize;
 import io.datarouter.trace.settings.DatarouterTracePublisherSettingRoot;
 import io.datarouter.trace.settings.TraceBlobPublishingSettings;
@@ -63,11 +63,11 @@ public class TraceBlobService implements TracePublisher{
 		TraceBlobDto dto = new TraceBlobDto(traceBlobPublishingSettings.getApiKey(), traceBatchedDto.batch);
 		String ulid = UlidTool.nextUlid();
 		if(traceSettings.saveTraceBlobsToQueueDaoInsteadOfDirectoryDao.get()){
-			var fielder = new ConveyorMessage.UnlimitedSizeConveyorMessageFielder();
-			int nonMessageLength = fielder.getStringDatabeanCodec().toString(new ConveyorMessage(ulid, ""), fielder)
+			var fielder = new StringQueueMessage.UnlimitedSizeStringQueueMessageFielder();
+			int nonMessageLength = fielder.getStringDatabeanCodec().toString(new StringQueueMessage(ulid, ""), fielder)
 					.length();
 			dto.serializeToStrings(maxTraceBlobSize.get() - nonMessageLength)
-					.map(blob -> new ConveyorMessage(ulid, blob))
+					.map(blob -> new StringQueueMessage(ulid, blob))
 					.flush(blobs -> {
 						if(blobs.size() > 1){
 							logger.warn("writing size={} blobs with key={}", blobs.size(), ulid);

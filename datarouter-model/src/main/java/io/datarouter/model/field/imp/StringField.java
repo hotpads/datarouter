@@ -27,6 +27,7 @@ import io.datarouter.model.field.Field;
 import io.datarouter.model.field.FieldKey;
 import io.datarouter.util.ComparableTool;
 import io.datarouter.util.array.ArrayTool;
+import io.datarouter.util.string.StringTool;
 
 public class StringField extends BaseField<String>{
 	private static final Logger logger = LoggerFactory.getLogger(StringField.class);
@@ -159,19 +160,9 @@ public class StringField extends BaseField<String>{
 	}
 
 	private static String toLogSafeValue(String input){
-		String trimmedValue = input.substring(0, Math.min(input.length(), 256));
-		var logSafeValue = new StringBuilder();
-		for(int i = 0; i < trimmedValue.length(); i++){
-			char ch = trimmedValue.charAt(i);
-			if(Character.isDigit(ch)
-					|| Character.isAlphabetic(ch)
-					|| Character.isSpaceChar(ch)){
-				logSafeValue.append(ch);
-			}else{
-				logSafeValue.append("-");
-			}
-		}
-		return logSafeValue.toString();
+		int trimmedLength = Math.min(input.length(), 1_000);
+		String trimmedValue = input.substring(0, trimmedLength);
+		return StringTool.removeNonStandardCharacters(trimmedValue);
 	}
 
 }

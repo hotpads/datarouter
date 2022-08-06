@@ -168,4 +168,11 @@ implements FieldKey<T>{
 				&& Objects.equals(defaultValue, otherKey.defaultValue);
 	}
 
+	/*---------------------------- avro generic ----------------------------------*/
+
+	@Override
+	public Type getGenericType(){
+		return getValueType();
+	}
+
 }

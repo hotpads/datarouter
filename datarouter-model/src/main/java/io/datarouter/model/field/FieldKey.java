@@ -49,6 +49,11 @@ public interface FieldKey<T>{
 	boolean isCollection();//this is used by viewNodeData.jsp to add line breaks to the table
 	boolean isPossiblyCaseInsensitive();//For DB strings.  If true it can cause scanner looping.
 
+	/**
+	 * Convert Field to generic types to use in Avro
+	 */
+	Type getGenericType();
+
 	T getDefaultValue();
 	T getSampleValue();
 	Optional<String> findDocString();

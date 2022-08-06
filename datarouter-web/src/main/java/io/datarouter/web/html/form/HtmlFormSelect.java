@@ -15,6 +15,7 @@
  */
 package io.datarouter.web.html.form;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,8 +29,11 @@ public class HtmlFormSelect extends BaseHtmlFormField{
 	private String name;
 	private String display;
 	private Map<String,String> displayByValue = new LinkedHashMap<>();
-	private boolean multiple = false;
+	private boolean multiple;
 	private String selected;
+	private List<String> selectedMultiple = new ArrayList<>();
+	private boolean required;
+	private int size;
 
 	public HtmlFormSelect withName(String name){
 		this.name = name;
@@ -67,6 +71,21 @@ public class HtmlFormSelect extends BaseHtmlFormField{
 		return this;
 	}
 
+	public HtmlFormSelect withSelectedMultiple(List<String> selected){
+		this.selectedMultiple = selected;
+		return this;
+	}
+
+	public HtmlFormSelect required(){
+		this.required = true;
+		return this;
+	}
+
+	public HtmlFormSelect withSize(int size){
+		this.size = size;
+		return this;
+	}
+
 	public String getName(){
 		return name;
 	}
@@ -85,6 +104,18 @@ public class HtmlFormSelect extends BaseHtmlFormField{
 
 	public String getSelected(){
 		return selected;
+	}
+
+	public List<String> getSelectedMultiple(){
+		return selectedMultiple;
+	}
+
+	public boolean isRequired(){
+		return required;
+	}
+
+	public String getSize(){
+		return Integer.toString(size);
 	}
 
 }

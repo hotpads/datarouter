@@ -25,6 +25,7 @@ import org.testng.annotations.Test;
 
 import io.datarouter.secret.client.BaseSecretClientInternalMethodUnitTests;
 
+@Test(singleThreaded = true)
 public class LocalStorageSecretClientUnitTests
 extends BaseSecretClientInternalMethodUnitTests<LocalStorageSecretClient>{
 

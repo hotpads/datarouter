@@ -28,13 +28,13 @@ import io.datarouter.storage.setting.cached.CachedSetting;
 @Singleton
 public class DatarouterSqsSettingsRoot extends SettingRoot{
 
-	public final CachedSetting<Boolean> runSqsQueueLengthMonitoringJob;
+	public final CachedSetting<Boolean> runSqsMonitoringJob;
 	public final CachedSetting<Integer> cloudWatchMinuteBack;
 
 	@Inject
 	public DatarouterSqsSettingsRoot(SettingFinder finder, ServerTypes serverTypes){
 		super(finder, DatarouterSettingCategory.DATAROUTER, "datarouterSqs.");
-		runSqsQueueLengthMonitoringJob = registerBooleans("runSqsQueueLengthMonitoringJob", defaultTo(false)
+		runSqsMonitoringJob = registerBooleans("runSqsMonitoringJob", defaultTo(false)
 				.withServerType(EnvironmentType.PRODUCTION, serverTypes.getJobServerType(), true));
 		cloudWatchMinuteBack = registerInteger("cloudWatchMinuteBack", 3);
 	}

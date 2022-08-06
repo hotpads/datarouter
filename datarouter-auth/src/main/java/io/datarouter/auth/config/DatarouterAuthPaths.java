@@ -29,6 +29,8 @@ public class DatarouterAuthPaths extends PathNode implements PathsRoot{
 	private static final DatarouterWebPaths WEB_PATHS = new DatarouterWebPaths();
 
 	public final AdminPaths admin = branch(AdminPaths::new, "admin");
+	public final DatarouterPaths datarouter = branch(DatarouterPaths::new, "datarouter");
+
 	public final UserDeprovisioningPaths userDeprovisioning = branch(UserDeprovisioningPaths::new,
 			"userDeprovisioning");
 	public final PermissionRequestPaths permissionRequest = WEB_PATHS.permissionRequest;
@@ -41,14 +43,41 @@ public class DatarouterAuthPaths extends PathNode implements PathsRoot{
 	public final PathNode home = leaf("");
 	public final PathNode signout = leaf("signout");
 
+	public static class DatarouterPaths extends PathNode{
+		public final AccountsPaths accounts = branch(AccountsPaths::new, "accounts");
+		public final AccountManagerPaths accountManager = branch(AccountManagerPaths::new, "accountManager");
+	}
+
+	public static class AccountsPaths extends PathNode{
+		public final PathNode renameAccounts = leaf("renameAccounts");
+		public final PathNode updateCallerType = leaf("updateCallerType");
+	}
+
+	public static class AccountManagerPaths extends PathNode{
+		public final PathNode index = leaf("index");
+		public final PathNode list = leaf("list");
+		public final PathNode getDetails = leaf("getDetails");
+		public final PathNode add = leaf("add");
+		public final PathNode toggleUserMappings = leaf("toggleUserMappings");
+		public final PathNode delete = leaf("delete");
+		public final PathNode lookupAccount = leaf("lookupAccount");
+		public final PathNode addCredential = leaf("addCredential");
+		public final PathNode deleteCredential = leaf("deleteCredential");
+		public final PathNode addSecretCredential = leaf("addSecretCredential");
+		public final PathNode deleteSecretCredential = leaf("deleteSecretCredential");
+		public final PathNode setCredentialActivation = leaf("setCredentialActivation");
+		public final PathNode getAvailableEndpoints = leaf("getAvailableEndpoints");
+		public final PathNode addPermission = leaf("addPermission");
+		public final PathNode deletePermission = leaf("deletePermission");
+		public final PathNode isServerTypeDev = leaf("isServerTypeDev");
+	}
+
 	public static class AdminPaths extends PathNode{
-		public final PathNode accounts = leaf("accounts");
 		public final PathNode createUser = leaf("createUser");
 		public final PathNode createUserSubmit = leaf("createUserSubmit");
 		public final PathNode editUser = leaf("editUser");
 		public final PathNode getUserDetails = leaf("getUserDetails");
 		public final PathNode listUsers = leaf("listUsers");
-		public final PathNode renameAccounts = leaf("renameAccounts");
 		public final PathNode updateUserDetails = leaf("updateUserDetails");
 		public final PathNode updatePassword = leaf("updatePassword");
 		public final PathNode copyUser = leaf("copyUser");

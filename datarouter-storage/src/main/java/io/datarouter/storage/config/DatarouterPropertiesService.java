@@ -34,6 +34,7 @@ import io.datarouter.storage.config.properties.ServerClusterDomains;
 import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.storage.config.properties.ServerPrivateIp;
 import io.datarouter.storage.config.properties.ServerPublicIp;
+import io.datarouter.storage.config.properties.ServiceName;
 import io.datarouter.util.Require;
 import io.datarouter.util.tuple.Twin;
 
@@ -48,6 +49,8 @@ public class DatarouterPropertiesService{
 	private EnvironmentDomain environmentDomain;
 	@Inject
 	private DatarouterEnvironmentTypeSupplier environmentType;
+	@Inject
+	private ServiceName serviceName;
 	@Inject
 	private InternalConfigDirectory internalConfigDirectory;
 	@Inject
@@ -71,6 +74,7 @@ public class DatarouterPropertiesService{
 				Twin.of(EnvironmentName.ENVIRONMENT, environmentName.get()),
 				Twin.of(EnvironmentDomain.ENVIRONMENT_DOMAIN, environmentDomain.get()),
 				Twin.of(DatarouterEnvironmentTypeSupplier.ENVIRONMENT_TYPE, environmentType.get()),
+				Twin.of(ServiceName.ENV_VARIABLE, serviceName.get()),
 				Twin.of(InternalConfigDirectory.INTERNAL_CONFIG_DIRECTORY, internalConfigDirectory.get()),
 				Twin.of(ServerClusterDomains.SERVER_CLUSTER_DOMAINS, serverClusterDomains.get().stream()
 						.sorted()

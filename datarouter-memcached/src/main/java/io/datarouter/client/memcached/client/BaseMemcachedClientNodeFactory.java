@@ -31,6 +31,7 @@ import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.client.imp.BlobClientNodeFactory;
 import io.datarouter.storage.client.imp.DatabeanClientNodeFactory;
 import io.datarouter.storage.client.imp.TallyClientNodeFactory;
+import io.datarouter.storage.config.properties.ServiceName;
 import io.datarouter.storage.file.DatabaseBlob;
 import io.datarouter.storage.file.DatabaseBlob.DatabaseBlobFielder;
 import io.datarouter.storage.file.DatabaseBlobKey;
@@ -50,7 +51,6 @@ import io.datarouter.storage.tally.Tally;
 import io.datarouter.storage.tally.Tally.TallyFielder;
 import io.datarouter.storage.tally.TallyKey;
 import io.datarouter.storage.util.Subpath;
-import io.datarouter.web.config.service.ServiceName;
 
 @Singleton
 public class BaseMemcachedClientNodeFactory

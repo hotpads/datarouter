@@ -30,9 +30,9 @@ import io.datarouter.email.html.J2HtmlDatarouterEmailBuilder;
 import io.datarouter.storage.config.DatarouterSubscribersSupplier;
 import io.datarouter.storage.config.properties.AdminEmail;
 import io.datarouter.storage.config.properties.EnvironmentName;
+import io.datarouter.storage.config.properties.ServiceName;
 import io.datarouter.storage.config.setting.DatarouterEmailSubscriberSettings;
 import io.datarouter.web.config.service.ContextName;
-import io.datarouter.web.config.service.ServiceName;
 
 @Singleton
 public class DatarouterHtmlEmailService{

@@ -33,16 +33,28 @@ const SubmitButton = ({compact, className='', ...props}) => (
 class AddAccountForm extends React.Component{
 	constructor(props){
 		super(props)
-		this.state = {accountName: ''}
+		this.state = {
+			accountName:'', 
+			callerTypes:[],
+			selectedCallerType:''}
+	}
+
+	componentWillMount(){
+		Fetch.get('getAvailableCallerTypes')
+			.then(callerTypes => this.setState({callerTypes, selectedCallerType: callerTypes[0]}))
 	}
 
 	handleChange = (event) => {
 		this.setState({accountName: event.target.value})
 	}
 
+	handleChange2 = (event) => {
+		this.setState({selectedCallerType: event.target.value})
+	}
+
 	submitForm = (event) => {
 		event.preventDefault()
-		this.props.addAccount(this.state.accountName)
+		this.props.addAccount(this.state.accountName, this.state.selectedCallerType)
 	}
 
 	render(){
@@ -52,7 +64,17 @@ class AddAccountForm extends React.Component{
 				<div className="form-group">
 					<label>Account Name</label>
 					<div className="input-group">
-						<input type="text" className="form-control" value={this.state.accountName} onChange={this.handleChange} />
+						<input 
+								type="text" 
+								className="form-control" 
+								value={this.state.accountName} 
+								onChange={this.handleChange} />
+						<select 
+								class="form-control" 
+								value={this.state.selectedCallerType} 
+								onChange={this.handleChange2}>
+						{this.state.callerTypes.map((callerType) => (<option value={callerType}>{callerType}</option>))}
+						</select>
 						<span className="input-group-append">
 							<SubmitButton
 								className="form-control-static btn"
@@ -130,18 +152,20 @@ const AccountTable = ({accountDetails, deleteAccount}) => (
 				<th>Account name</th>
 				<th>Last used</th>
 				<th>Credentials</th>
+				<th>Secret Credentials</th>
 				<th>Permissions</th>
 				<th>User Mappings</th>
-				<th/>
-				<th/>
-				<th/>
+				<th>Caller Type</th>
+				<th>Metrics</th>
+				<th>Edit</th>
+				<th>Delete</th>
 			</tr>
 		</thead>
 		<tbody>
 			{accountDetails.map(({account, credentials, secretCredentials, permissions, metricLink}) => (
 				<tr key={account.accountName}>
 					<td>{account.accountName}</td>
-					<td>{account.lastUsed}</td>
+					<td sorttable_customkey={account.lastUsedMs}>{account.lastUsed}</td>
 					<td className={credentials.length ? '' : 'table-warning'}>
 						{credentials.length ? credentials.length : 'No credentials'}
 					</td>
@@ -170,6 +194,7 @@ const AccountTable = ({accountDetails, deleteAccount}) => (
 							: (<span></span>)
 						}
 					</td>
+					<td>{account.callerType}</td>
 					<td>
 						<a href={metricLink} target="_blank" title="Account usage metrics">
 							<i class="fa fa-chart-line"></i>
@@ -301,8 +326,8 @@ class Accounts extends React.Component{
 		Fetch.get('list').then(accountDetails => this.setState({accountDetails}))
 	}
 
-	addAccount = (accountName) => {
-		Fetch.post('add', {accountName}).then(newAccountDetail => {
+	addAccount = (accountName, callerType) => {
+		Fetch.post('add', {accountName, callerType}).then(newAccountDetail => {
 			const newAccountDetails = [...this.state.accountDetails, newAccountDetail]
 			newAccountDetails.sort(({account: accountA}, {account: accountB}) =>
 				accountA.accountName < accountB.accountName ? -1 : 1)
@@ -355,7 +380,7 @@ const AccountDetailsBreakdown = ({
 			<dd>
 				<code style={{marginRight: '1em'}}>{account.enableUserMappings ? "true" : "false"}</code>
 				<SubmitButton compact onClick={toggleUserMappings} value="Toggle" />
-		</dd>
+			</dd>
 		</dl>
 	</div>
 )

@@ -18,7 +18,7 @@ package io.datarouter.aws.sqs.config;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.aws.sqs.job.SqsQueuesLengthMonitoringJob;
+import io.datarouter.aws.sqs.job.SqsMonitoringJob;
 import io.datarouter.job.BaseTriggerGroup;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.util.time.ZoneIds;
@@ -31,8 +31,8 @@ public class DatarouterSqsTriggerGroup extends BaseTriggerGroup{
 		super("DatarouterSqs", Tag.DATAROUTER, ZoneIds.AMERICA_NEW_YORK);
 		registerLocked(
 				"30 * * * * ?",
-				settings.runSqsQueueLengthMonitoringJob,
-				SqsQueuesLengthMonitoringJob.class,
+				settings.runSqsMonitoringJob,
+				SqsMonitoringJob.class,
 				true);
 	}
 

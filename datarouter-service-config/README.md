@@ -8,7 +8,7 @@ datarouter-service-config is a small tool that allows an app to publish informat
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-service-config</artifactId>
-	<version>0.0.115</version>
+	<version>0.0.116</version>
 </dependency>
 ```
 

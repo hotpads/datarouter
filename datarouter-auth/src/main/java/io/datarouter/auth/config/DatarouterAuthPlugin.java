@@ -15,11 +15,16 @@
  */
 package io.datarouter.auth.config;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
+import io.datarouter.auth.service.AccountCallerTypeRegistry;
 import io.datarouter.auth.service.CopyUserListener;
 import io.datarouter.auth.service.CopyUserListener.DefaultCopyUserListener;
+import io.datarouter.auth.service.DatarouterAccountDailyDigest;
 import io.datarouter.auth.service.DatarouterAccountDeleteAction;
 import io.datarouter.auth.service.DatarouterPermissionRequestUserInfo;
 import io.datarouter.auth.service.DatarouterUserInfo;
@@ -31,8 +36,6 @@ import io.datarouter.auth.service.PermissionRequestDailyDigest;
 import io.datarouter.auth.service.PermissionRequestUserInfo;
 import io.datarouter.auth.service.UserInfo;
 import io.datarouter.auth.service.deprovisioning.DatarouterUserDeprovisioningStrategy;
-import io.datarouter.auth.service.deprovisioning.UserDeprovisioningListeners;
-import io.datarouter.auth.service.deprovisioning.UserDeprovisioningListeners.EmptyUserDeprovisioningListeners;
 import io.datarouter.auth.service.deprovisioning.UserDeprovisioningStrategy;
 import io.datarouter.auth.storage.account.BaseDatarouterAccountCredentialDao;
 import io.datarouter.auth.storage.account.BaseDatarouterAccountDao;
@@ -58,8 +61,11 @@ import io.datarouter.auth.storage.useraccountmap.DatarouterUserAccountMapDao.Dat
 import io.datarouter.auth.storage.userhistory.DatarouterUserHistoryDao;
 import io.datarouter.auth.storage.userhistory.DatarouterUserHistoryDao.DatarouterUserHistoryDaoParams;
 import io.datarouter.auth.web.DatarouterDocumentationRouteSet;
+import io.datarouter.httpclient.endpoint.CallerType;
 import io.datarouter.job.BaseTriggerGroup;
 import io.datarouter.job.config.DatarouterJobRouteSet;
+import io.datarouter.plugin.PluginConfigKey;
+import io.datarouter.plugin.PluginConfigValue;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.dao.DaosModuleBuilder;
@@ -76,37 +82,32 @@ public class DatarouterAuthPlugin extends BaseWebPlugin{
 
 	private static final DatarouterAuthPaths PATHS = new DatarouterAuthPaths();
 
-	private final Class<? extends UserInfo> userInfoClass;
 	private final Class<? extends UserDeprovisioningStrategy> userDeprovisioningStrategyClass;
-	private final Class<? extends UserDeprovisioningListeners> userDeprovisioningListenersClass;
 	private final Class<? extends CopyUserListener> copyUserListenerClass;
-	private final Class<? extends PermissionRequestUserInfo> permissionRequestUserInfoClass;
 	private final String defaultDatarouterUserPassword;
 	private final String defaultApiKey;
 	private final String defaultSecretKey;
 	private final Optional<Class<? extends DatarouterAccountDeleteAction>> datarouterAccountDeleteAction;
+	private final List<CallerType> callerTypes;
 
 	private DatarouterAuthPlugin(
 			boolean enableUserAuth,
 			DatarouterAuthDaoModule daosModuleBuilder,
-			Class<? extends UserInfo> userInfoClass,
 			Class<? extends UserDeprovisioningStrategy> userDeprovisioningStrategyClass,
-			Class<? extends UserDeprovisioningListeners> userDeprovisioningListenersClass,
 			Class<? extends CopyUserListener> copyUserListenerClass,
-			Class<? extends PermissionRequestUserInfo> permissionRequestUserInfoClass,
 			String defaultDatarouterUserPassword,
 			String defaultApiKey,
 			String defaultSecretKey,
-			Optional<Class<? extends DatarouterAccountDeleteAction>> datarouterAccountDeleteAction){
-		this.userInfoClass = userInfoClass;
+			Optional<Class<? extends DatarouterAccountDeleteAction>> datarouterAccountDeleteAction,
+			List<CallerType> callerTypes,
+			Map<PluginConfigKey<?>,Class<? extends PluginConfigValue<?>>> configs){
 		this.userDeprovisioningStrategyClass = userDeprovisioningStrategyClass;
-		this.userDeprovisioningListenersClass = userDeprovisioningListenersClass;
 		this.copyUserListenerClass = copyUserListenerClass;
-		this.permissionRequestUserInfoClass = permissionRequestUserInfoClass;
 		this.defaultDatarouterUserPassword = defaultDatarouterUserPassword;
 		this.defaultApiKey = defaultApiKey;
 		this.defaultSecretKey = defaultSecretKey;
 		this.datarouterAccountDeleteAction = datarouterAccountDeleteAction;
+		this.callerTypes = callerTypes;
 
 		if(enableUserAuth){
 			addAppListener(DatarouterUserConfigAppListener.class);
@@ -118,8 +119,11 @@ public class DatarouterAuthPlugin extends BaseWebPlugin{
 		}
 
 		addAppListener(DatarouterAccountConfigAppListener.class);
-		addDatarouterNavBarItem(DatarouterNavBarCategory.KEYS, PATHS.admin.accounts, "Account Manager");
-		addDatarouterNavBarItem(DatarouterNavBarCategory.KEYS, PATHS.admin.renameAccounts, "Account Renamer");
+		addDatarouterNavBarItem(DatarouterNavBarCategory.KEYS, PATHS.datarouter.accountManager, "Account Manager");
+		addDatarouterNavBarItem(DatarouterNavBarCategory.KEYS, PATHS.datarouter.accounts.renameAccounts,
+				"Account Renamer");
+		addDatarouterNavBarItem(DatarouterNavBarCategory.KEYS, PATHS.datarouter.accounts.updateCallerType,
+				"Account Update Caller Type");
 
 		addAppNavBarItem(AppNavBarCategory.ADMIN, PATHS.userDeprovisioning, "User Deprovisioning");
 		addDynamicNavBarItem(ApiDocsNavBarItem.class);
@@ -132,6 +136,8 @@ public class DatarouterAuthPlugin extends BaseWebPlugin{
 		setDaosModule(daosModuleBuilder);
 		addDatarouterGithubDocLink("datarouter-auth");
 		addDailyDigest(PermissionRequestDailyDigest.class);
+		addDailyDigest(DatarouterAccountDailyDigest.class);
+		configs.forEach(this::addPluginEntry);
 	}
 
 	@Override
@@ -143,11 +149,9 @@ public class DatarouterAuthPlugin extends BaseWebPlugin{
 		bindActual(BaseDatarouterAccountPermissionDao.class, DatarouterAccountPermissionDao.class);
 		bindActual(BaseDatarouterUserAccountMapDao.class, DatarouterUserAccountMapDao.class);
 		bindActual(BaseDatarouterSamlDao.class, DatarouterSamlDao.class);
-		bind(UserInfo.class).to(userInfoClass);
+
 		bind(UserDeprovisioningStrategy.class).to(userDeprovisioningStrategyClass);
-		bindActual(UserDeprovisioningListeners.class, userDeprovisioningListenersClass);
 		bindActual(CopyUserListener.class, copyUserListenerClass);
-		bindDefault(PermissionRequestUserInfo.class, permissionRequestUserInfoClass);
 		bindActualInstance(DefaultDatarouterUserPasswordSupplier.class,
 				new DefaultDatarouterUserPassword(defaultDatarouterUserPassword));
 		bindActualInstance(DefaultDatarouterAccountKeysSupplier.class,
@@ -155,6 +159,7 @@ public class DatarouterAuthPlugin extends BaseWebPlugin{
 		datarouterAccountDeleteAction.ifPresent(clazz -> {
 			bind(DatarouterAccountDeleteAction.class).to(clazz);
 		});
+		bindActualInstance(AccountCallerTypeRegistry.class, new AccountCallerTypeRegistry(callerTypes));
 	}
 
 	public static class DatarouterAuthPluginBuilder{
@@ -162,43 +167,43 @@ public class DatarouterAuthPlugin extends BaseWebPlugin{
 		private final boolean enableUserAuth;
 		private final List<ClientId> defaultClientId;
 
-		private Class<? extends UserInfo> userInfoClass = DatarouterUserInfo.class;
+		private Map<PluginConfigKey<?>,Class<? extends PluginConfigValue<?>>> configs = new HashMap<>();
+
 		private Class<? extends UserDeprovisioningStrategy> userDeprovisioningStrategyClass =
 				DatarouterUserDeprovisioningStrategy.class;
-		private Class<? extends UserDeprovisioningListeners> userDeprovisioningListenersClass =
-				EmptyUserDeprovisioningListeners.class;
 		private Class<? extends CopyUserListener> copyUserListenerClass = DefaultCopyUserListener.class;
-		private Class<? extends PermissionRequestUserInfo> permissionRequestUserInfoClass =
-				DatarouterPermissionRequestUserInfo.class;
 		private String defaultDatarouterUserPassword = "";
 		private String defaultApiKey = "";
 		private String defaultSecretKey = "";
 		private Optional<Class<? extends DatarouterAccountDeleteAction>> datarouterAccountDeleteAction = Optional
 				.empty();
+		private List<CallerType> callerTypes = new ArrayList<>();
 
-		public DatarouterAuthPluginBuilder(boolean enableUserAuth, List<ClientId> defaultClientId,
-				String defaultDatarouterUserPassword, String defaultApiKey, String defaultSecretKey){
+		public DatarouterAuthPluginBuilder(
+				boolean enableUserAuth,
+				List<ClientId> defaultClientId,
+				String defaultDatarouterUserPassword,
+				String defaultApiKey,
+				String defaultSecretKey){
 			this.enableUserAuth = enableUserAuth;
 			this.defaultClientId = defaultClientId;
 			this.defaultDatarouterUserPassword = defaultDatarouterUserPassword;
 			this.defaultApiKey = defaultApiKey;
 			this.defaultSecretKey = defaultSecretKey;
+
+			// defaults
+			configs.put(PermissionRequestUserInfo.KEY, DatarouterPermissionRequestUserInfo.class);
+			configs.put(UserInfo.KEY, DatarouterUserInfo.class);
 		}
 
 		public DatarouterAuthPluginBuilder setUserInfoClass(Class<? extends UserInfo> userInfoClass){
-			this.userInfoClass = userInfoClass;
+			configs.put(UserInfo.KEY, userInfoClass);
 			return this;
 		}
 
 		public DatarouterAuthPluginBuilder setUserDeprovisioningStrategyClass(
 				Class<? extends UserDeprovisioningStrategy> userDeprovisioningStrategyClass){
 			this.userDeprovisioningStrategyClass = userDeprovisioningStrategyClass;
-			return this;
-		}
-
-		public DatarouterAuthPluginBuilder setUserDeprovisioningListenersClass(
-				Class<? extends UserDeprovisioningListeners> userDeprovisioningListenersClass){
-			this.userDeprovisioningListenersClass = userDeprovisioningListenersClass;
 			return this;
 		}
 
@@ -216,7 +221,12 @@ public class DatarouterAuthPlugin extends BaseWebPlugin{
 
 		public DatarouterAuthPluginBuilder setPermissionRequestUserInfo(
 				Class<? extends PermissionRequestUserInfo> permissionRequestUserInfo){
-			this.permissionRequestUserInfoClass = permissionRequestUserInfo;
+			configs.put(PermissionRequestUserInfo.KEY, permissionRequestUserInfo);
+			return this;
+		}
+
+		public DatarouterAuthPluginBuilder addCallerType(CallerType callerType){
+			this.callerTypes.add(callerType);
 			return this;
 		}
 
@@ -234,15 +244,14 @@ public class DatarouterAuthPlugin extends BaseWebPlugin{
 							defaultClientId,
 							defaultClientId,
 							defaultClientId),
-					userInfoClass,
 					userDeprovisioningStrategyClass,
-					userDeprovisioningListenersClass,
 					copyUserListenerClass,
-					permissionRequestUserInfoClass,
 					defaultDatarouterUserPassword,
 					defaultApiKey,
 					defaultSecretKey,
-					datarouterAccountDeleteAction);
+					datarouterAccountDeleteAction,
+					callerTypes,
+					configs);
 		}
 
 	}

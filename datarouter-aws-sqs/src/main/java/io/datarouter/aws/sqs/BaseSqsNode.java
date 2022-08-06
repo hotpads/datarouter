@@ -31,6 +31,7 @@ import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.config.properties.EnvironmentName;
+import io.datarouter.storage.config.properties.ServiceName;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.op.raw.write.QueueStorageWriter;
 import io.datarouter.storage.node.type.physical.base.BasePhysicalNode;
@@ -38,7 +39,6 @@ import io.datarouter.storage.queue.QueueMessageKey;
 import io.datarouter.util.singletonsupplier.SingletonSupplier;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.util.tuple.Twin;
-import io.datarouter.web.config.service.ServiceName;
 
 public abstract class BaseSqsNode<
 		PK extends PrimaryKey<PK>,

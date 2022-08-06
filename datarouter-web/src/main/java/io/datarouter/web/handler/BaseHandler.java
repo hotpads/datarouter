@@ -47,6 +47,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.httpclient.HttpHeaders;
+import io.datarouter.httpclient.endpoint.BaseEndpoint;
 import io.datarouter.httpclient.endpoint.EndpointTool;
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.instrumentation.trace.W3TraceContext;
@@ -65,6 +66,7 @@ import io.datarouter.web.handler.types.HandlerTypingHelper;
 import io.datarouter.web.handler.types.Param;
 import io.datarouter.web.handler.types.optional.OptionalParameter;
 import io.datarouter.web.handler.validator.DefaultRequestParamValidator;
+import io.datarouter.web.handler.validator.HandlerAccountCallerValidator;
 import io.datarouter.web.handler.validator.RequestParamValidator;
 import io.datarouter.web.handler.validator.RequestParamValidator.RequestParamValidatorErrorResponseDto;
 import io.datarouter.web.handler.validator.RequestParamValidator.RequestParamValidatorResponseDto;
@@ -115,6 +117,8 @@ public abstract class BaseHandler{
 	private RequestAwareCurrentSessionInfoFactory requestAwareCurrentSessionInfoFactory;
 	@Inject
 	private CurrentUserSessionInfoService currentUserSessionInfoService;
+	@Inject
+	private HandlerAccountCallerValidator handlerAccountCallerValidator;
 
 	private Class<? extends HandlerEncoder> defaultHandlerEncoder;
 	private Class<? extends HandlerDecoder> defaultHandlerDecoder;
@@ -318,6 +322,15 @@ public abstract class BaseHandler{
 		if(accountName != null && !accountName.isEmpty()){
 			handlerMetrics.incMethodInvocationByApiKeyPredicateName(getClass(), method.getName(), accountName);
 		}
+
+		if(args.length == 1
+				&& args[0] instanceof BaseEndpoint<?,?>
+				&& accountName != null
+				&& !accountName.isEmpty()){
+			BaseEndpoint<?,?> endpoint = (BaseEndpoint<?,?>)args[0];
+			handlerAccountCallerValidator.validate(accountName, endpoint);
+		}
+
 		Object result;
 		try{
 			result = method.invoke(this, args);

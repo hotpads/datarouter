@@ -28,13 +28,13 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.config.properties.EnvironmentName;
+import io.datarouter.storage.config.properties.ServiceName;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.op.raw.QueueStorage.PhysicalQueueStorageNode;
 import io.datarouter.storage.op.scan.queue.PeekMultiUntilEmptyQueueStorageScanner;
 import io.datarouter.storage.op.scan.queue.PollUntilEmptyQueueStorageScanner;
 import io.datarouter.storage.queue.BaseQueueMessage;
 import io.datarouter.storage.queue.QueueMessage;
-import io.datarouter.web.config.service.ServiceName;
 
 public class SqsNode<
 		PK extends PrimaryKey<PK>,

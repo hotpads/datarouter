@@ -23,6 +23,7 @@ import io.datarouter.httpclient.proxy.RequestProxySetter;
 import io.datarouter.pathnode.FilesRoot;
 import io.datarouter.pathnode.FilesRoot.NoOpFilesRoot;
 import io.datarouter.storage.client.ClientId;
+import io.datarouter.storage.config.properties.ServiceName;
 import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.dao.DaosModuleBuilder;
 import io.datarouter.storage.setting.SettingBootstrapIntegrationService;
@@ -34,7 +35,6 @@ import io.datarouter.web.config.properties.DefaultEmailDistributionListZoneId;
 import io.datarouter.web.config.service.ContextName;
 import io.datarouter.web.config.service.PrivateDomain;
 import io.datarouter.web.config.service.PublicDomain;
-import io.datarouter.web.config.service.ServiceName;
 import io.datarouter.web.digest.DailyDigestEmailZoneId;
 import io.datarouter.web.dispatcher.DatarouterWebDocsRouteSet;
 import io.datarouter.web.dispatcher.DatarouterWebRouteSet;
@@ -46,6 +46,7 @@ import io.datarouter.web.exception.ExceptionRecorder;
 import io.datarouter.web.filter.GuiceStaticFileFilter;
 import io.datarouter.web.filter.https.HttpsFilter;
 import io.datarouter.web.filter.requestcaching.GuiceRequestCachingFilter;
+import io.datarouter.web.handler.validator.HandlerAccountCallerValidator;
 import io.datarouter.web.homepage.DefaultHomepageRouteSet;
 import io.datarouter.web.homepage.HomepageHandler;
 import io.datarouter.web.homepage.HomepageRouteSet;
@@ -124,6 +125,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 	private final Class<? extends RequestProxySetter> requestProxy;
 	private final ZoneId defaultEmailDistributionListZoneId;
 	private final ZoneId dailyDigestEmailZoneId;
+	private Class<? extends HandlerAccountCallerValidator> handlerAccountCallerValidator;
 
 	// only used to get simple data from plugin
 	private DatarouterWebPlugin(
@@ -133,6 +135,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		this(daosModuleBuilder,
 				homepageRouteSet,
 				customStaticFileFilterRegex,
+				null,
 				null,
 				null,
 				null,
@@ -183,7 +186,8 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			String nodeWidgetTableCountLink,
 			Class<? extends RequestProxySetter> requestProxy,
 			ZoneId defaultEmailDistributionListZoneId,
-			ZoneId dailyDigestEmailZoneId){
+			ZoneId dailyDigestEmailZoneId,
+			Class<? extends HandlerAccountCallerValidator> handlerAccountCallerValidator){
 
 		addRouteSetOrdered(DatarouterWebRouteSet.class, null);
 		addRouteSet(homepageRouteSet);
@@ -277,6 +281,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		this.requestProxy = requestProxy;
 		this.defaultEmailDistributionListZoneId = defaultEmailDistributionListZoneId;
 		this.dailyDigestEmailZoneId = dailyDigestEmailZoneId;
+		this.handlerAccountCallerValidator = handlerAccountCallerValidator;
 	}
 
 	@Override
@@ -304,6 +309,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		bindActualInstance(DefaultEmailDistributionListZoneId.class,
 				new DefaultEmailDistributionListZoneId(defaultEmailDistributionListZoneId));
 		bindActualInstance(DailyDigestEmailZoneId.class, new DailyDigestEmailZoneId(dailyDigestEmailZoneId));
+		bindActual(HandlerAccountCallerValidator.class, handlerAccountCallerValidator);
 
 		bindActualInstance(ServiceName.class, new ServiceName(serviceName));
 		bindActualInstance(PublicDomain.class, new PublicDomain(publicDomain));
@@ -374,6 +380,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		private Class<? extends RequestProxySetter> requestProxy = NoOpRequestProxySetter.class;
 		private ZoneId defaultEmailDistributionListZoneId;
 		private ZoneId dailyDigestEmailZoneId = ZoneId.systemDefault();
+		private Class<? extends HandlerAccountCallerValidator> handlerAccountCallerValidator;
 
 		public DatarouterWebPluginBuilder(
 				String serviceName,
@@ -506,6 +513,12 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			return this;
 		}
 
+		public DatarouterWebPluginBuilder setHandlerAccountCallerValidator(
+				Class<? extends HandlerAccountCallerValidator> handlerAccountCallerValidator){
+			this.handlerAccountCallerValidator = handlerAccountCallerValidator;
+			return this;
+		}
+
 		public DatarouterWebPlugin getSimplePluginData(){
 			return new DatarouterWebPlugin(
 					new DatarouterWebDaoModule(defaultClientIds),
@@ -541,7 +554,8 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 					nodeWidgetTableCountLink,
 					requestProxy,
 					defaultEmailDistributionListZoneId,
-					dailyDigestEmailZoneId);
+					dailyDigestEmailZoneId,
+					handlerAccountCallerValidator);
 		}
 
 	}

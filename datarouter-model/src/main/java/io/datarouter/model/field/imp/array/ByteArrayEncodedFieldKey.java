@@ -15,6 +15,7 @@
  */
 package io.datarouter.model.field.imp.array;
 
+import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.Optional;
 
@@ -92,6 +93,11 @@ public class ByteArrayEncodedFieldKey<T> extends BaseFieldKey<T,ByteArrayEncoded
 
 	public FieldCodec<T,byte[]> getCodec(){
 		return codec;
+	}
+
+	@Override
+	public Type getGenericType(){
+		return byte[].class;
 	}
 
 	@Override

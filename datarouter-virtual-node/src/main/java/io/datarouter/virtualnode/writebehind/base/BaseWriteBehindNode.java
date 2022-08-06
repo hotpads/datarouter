@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.node.op.NodeOps;
 import io.datarouter.util.concurrent.FutureTool;
 import io.datarouter.virtualnode.writebehind.WriteBehindNode;
@@ -86,8 +87,8 @@ implements WriteBehindNode<PK,D,N>{
 	}
 
 	public void flush(){
-		queueFlusher.flushQueue().stream()
-				.filter(Objects::nonNull)
+		Scanner.of(queueFlusher.flushQueue())
+				.include(Objects::nonNull)
 				.forEach(FutureTool::get);
 	}
 

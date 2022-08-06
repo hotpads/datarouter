@@ -25,6 +25,10 @@ import io.datarouter.model.field.encoding.FieldGeneratorType;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
 
+/**
+ * @deprecated  Use StringEncodedField
+ */
+@Deprecated
 public class StringEnumField<E extends StringEnum<E>> extends BaseField<E>{
 
 	private static final Comparator<StringEnum<?>> VALUE_COMPARATOR = Comparator.nullsFirst(
@@ -96,6 +100,11 @@ public class StringEnumField<E extends StringEnum<E>> extends BaseField<E>{
 	@Override
 	public String getValueString(){
 		return value == null ? "null" : value.getPersistentString();
+	}
+
+	@Override
+	public Object getGenericValue(){
+		return getValueString();
 	}
 
 	public E getSampleValue(){

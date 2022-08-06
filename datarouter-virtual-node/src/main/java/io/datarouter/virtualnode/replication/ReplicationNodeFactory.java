@@ -16,7 +16,6 @@
 package io.datarouter.virtualnode.replication;
 
 import java.util.List;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 import javax.inject.Inject;
@@ -29,7 +28,6 @@ import io.datarouter.model.key.primary.RegularPrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
-import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ReplicationClientIds;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.NodeOps;
@@ -75,15 +73,15 @@ public class ReplicationNodeFactory{
 		options.disableIntroducer.ifPresent($ -> primaryBuilder.disableIntroducer());
 		options.nodewatchConfigurationBuilder.ifPresent(primaryBuilder::withNodewatchConfigurationBuilder);
 		N primary = primaryBuilder.build();
-		Function<ClientId,N> buildReplicaFunction = clientId -> {
-			var replicaBuilder = nodeFactory.create(clientId, databeanSupplier, fielderSupplier);
-			options.tableName.ifPresent(replicaBuilder::withTableName);
-			options.disableForcePrimary.ifPresent(replicaBuilder::withDisableForcePrimary);
-			options.disableIntroducer.ifPresent($ -> replicaBuilder.disableIntroducer());
-			return replicaBuilder.build();
-		};
 		List<N> replicas = Scanner.of(replicationClientIds.replicas)
-				.map(buildReplicaFunction)
+				.map(clientId -> {
+					var replicaBuilder = nodeFactory.create(clientId, databeanSupplier, fielderSupplier);
+					options.tableName.ifPresent(replicaBuilder::withTableName);
+					options.disableForcePrimary.ifPresent(replicaBuilder::withDisableForcePrimary);
+					options.disableIntroducer.ifPresent($ -> replicaBuilder.disableIntroducer());
+					N replicaNode = replicaBuilder.build();
+					return replicaNode;
+				})
 				.list();
 		return makeInternal(primary, replicas, options.everyNToPrimary.orElse(null));
 	}
@@ -103,7 +101,7 @@ public class ReplicationNodeFactory{
 		var options = new ReplicationNodeOptionsBuilder()
 				.build();
 		return build(replicationClientIds, entityKeySupplier, databeanSupplier, fielderSupplier, options);
-		}
+	}
 
 	public <EK extends EntityKey<EK>,
 			PK extends EntityPrimaryKey<EK,PK>,
@@ -123,16 +121,16 @@ public class ReplicationNodeFactory{
 		options.disableIntroducer.ifPresent($ -> primaryBuilder.disableIntroducer());
 		options.nodewatchConfigurationBuilder.ifPresent(primaryBuilder::withNodewatchConfigurationBuilder);
 		N primary = primaryBuilder.build();
-
-		Function<ClientId,N> buildReplicaFunction = clientId -> {
-			var replicaBuilder = nodeFactory.create(clientId, entityKeySupplier, databeanSupplier, fielderSupplier);
-			options.tableName.ifPresent(replicaBuilder::withTableName);
-			options.disableForcePrimary.ifPresent(replicaBuilder::withDisableForcePrimary);
-			options.disableIntroducer.ifPresent($ -> replicaBuilder.disableIntroducer());
-			return replicaBuilder.build();
-		};
 		List<N> replicas = Scanner.of(replicationClientIds.replicas)
-				.map(buildReplicaFunction)
+				.map(clientId -> {
+					var replicaBuilder = nodeFactory.create(clientId, entityKeySupplier, databeanSupplier,
+							fielderSupplier);
+					options.tableName.ifPresent(replicaBuilder::withTableName);
+					options.disableForcePrimary.ifPresent(replicaBuilder::withDisableForcePrimary);
+					options.disableIntroducer.ifPresent($ -> replicaBuilder.disableIntroducer());
+					N replicaNode = replicaBuilder.build();
+					return replicaNode;
+				})
 				.list();
 		return makeInternal(primary, replicas, options.everyNToPrimary.orElse(null));
 	}

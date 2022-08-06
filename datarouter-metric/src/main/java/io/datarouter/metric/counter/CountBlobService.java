@@ -23,14 +23,14 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.conveyor.message.ConveyorMessage;
 import io.datarouter.instrumentation.response.PublishingResponseDto;
 import io.datarouter.metric.config.DatarouterCountSettingRoot;
 import io.datarouter.metric.config.MaxMetricBlobSize;
 import io.datarouter.metric.counter.collection.CountPublisher;
 import io.datarouter.storage.config.properties.ServerName;
+import io.datarouter.storage.config.properties.ServiceName;
+import io.datarouter.storage.queue.StringQueueMessage;
 import io.datarouter.util.UlidTool;
-import io.datarouter.web.config.service.ServiceName;
 
 @Singleton
 public class CountBlobService implements CountPublisher{
@@ -67,7 +67,7 @@ public class CountBlobService implements CountPublisher{
 				metricBlobPublishingSettings.getApiKey());
 		if(countSettings.saveCountBlobsToQueueDaoInsteadOfDirectoryDao.get()){
 			dto.serializeToStrings(maxMetricBlobSize.get())
-					.map(blob -> new ConveyorMessage(dto.ulid, blob))
+					.map(blob -> new StringQueueMessage(dto.ulid, blob))
 					.flush(blobs -> {
 						if(blobs.size() > 1){
 							logger.warn("writing size={} blobs with key={}", blobs.size(), dto.ulid);

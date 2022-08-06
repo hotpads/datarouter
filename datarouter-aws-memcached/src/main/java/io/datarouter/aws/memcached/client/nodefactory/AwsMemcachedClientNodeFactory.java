@@ -21,8 +21,8 @@ import javax.inject.Singleton;
 import io.datarouter.aws.memcached.AwsMemcachedClientType;
 import io.datarouter.aws.memcached.client.AwsMemcachedClientManager;
 import io.datarouter.client.memcached.client.BaseMemcachedClientNodeFactory;
+import io.datarouter.storage.config.properties.ServiceName;
 import io.datarouter.storage.node.adapter.NodeAdapters;
-import io.datarouter.web.config.service.ServiceName;
 
 @Singleton
 public class AwsMemcachedClientNodeFactory

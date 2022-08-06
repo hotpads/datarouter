@@ -69,23 +69,18 @@ public class DatarouterExceptionSettingRoot extends SettingRoot{
 		super(finder, DatarouterSettingCategory.DATAROUTER, "datarouterException.");
 
 		runExceptionRecordMemoryToPublisherConveyor = registerBooleans(
-				"runExceptionRecordMemoryToPublisherConveyor",
-				defaultTo(false)
-						.withTag(DatarouterSettingTagType.TRACE2PIPELINE, () -> true));
+				"runExceptionRecordMemoryToPublisherConveyor", defaultTo(false)
+				.withTag(DatarouterSettingTagType.TRACE2PIPELINE, () -> true));
 		saveExceptionRecordBlobsToQueueDaoInsteadOfDirectoryDao = registerBooleans(
-				"saveExceptionRecordBlobsToQueueDaoInsteadOfDirectoryDao",
-				defaultTo(false)
-						.withTag(DatarouterSettingTagType.TRACE2PIPELINE, () -> true));
+				"saveExceptionRecordBlobsToQueueDaoInsteadOfDirectoryDao", defaultTo(false)
+				.withTag(DatarouterSettingTagType.TRACE2PIPELINE, () -> true));
 		exceptionRecordConveyorThreadCount = registerInteger("exceptionRecordConveyorThreadCount", 1);
 
 		runHttpRequestRecordMemoryToPublisherConveyor = registerBooleans(
-				"runHttpRequestRecordMemoryToPublisherConveyor",
-				defaultTo(false)
-						.withTag(DatarouterSettingTagType.TRACE2PIPELINE, () -> true));
-		saveHttpRequestRecordBlobsToQueueDaoInsteadOfDirectoryDao = registerBooleans(
-				"saveHttpRequestRecordBlobsToQueueDaoInsteadOfDirectoryDao",
-				defaultTo(false)
-						.withTag(DatarouterSettingTagType.TRACE2PIPELINE, () -> true));
+				"runHttpRequestRecordMemoryToPublisherConveyor", defaultTo(false)
+				.withTag(DatarouterSettingTagType.TRACE2PIPELINE, () -> true));
+		saveHttpRequestRecordBlobsToQueueDaoInsteadOfDirectoryDao = registerBoolean(
+				"saveHttpRequestRecordBlobsToQueueDaoInsteadOfDirectoryDao", false);
 		httpRequestRecordConveyorThreadCount = registerInteger("httpRequestRecordConveyorThreadCount", 1);
 
 		forceHideStackTrace = registerBoolean("forceHideStackTrace", false);

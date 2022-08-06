@@ -37,6 +37,7 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.imp.BlobClientNodeFactory;
 import io.datarouter.storage.client.imp.BlobQueueClientNodeFactory;
 import io.datarouter.storage.client.imp.QueueClientNodeFactory;
+import io.datarouter.storage.config.properties.ServiceName;
 import io.datarouter.storage.file.DatabaseBlob;
 import io.datarouter.storage.file.DatabaseBlob.DatabaseBlobFielder;
 import io.datarouter.storage.file.DatabaseBlobKey;
@@ -49,7 +50,6 @@ import io.datarouter.storage.queue.BlobQueueMessage;
 import io.datarouter.storage.queue.BlobQueueMessage.BlobQueueMessageFielder;
 import io.datarouter.storage.queue.BlobQueueMessageKey;
 import io.datarouter.util.string.StringTool;
-import io.datarouter.web.config.service.ServiceName;
 
 @Singleton
 public class FilesystemClientNodeFactory

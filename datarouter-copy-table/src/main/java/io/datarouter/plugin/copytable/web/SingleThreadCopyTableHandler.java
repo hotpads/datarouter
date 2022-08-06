@@ -38,6 +38,7 @@ import io.datarouter.web.email.StandardDatarouterEmailHeaderService;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.types.Param;
+import io.datarouter.web.handler.types.optional.OptionalBoolean;
 import io.datarouter.web.handler.types.optional.OptionalString;
 import io.datarouter.web.html.form.HtmlForm;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
@@ -51,12 +52,16 @@ public class SingleThreadCopyTableHandler extends BaseHandler{
 			P_targetNodeName = "targetNodeName",
 			P_lastKeyString = "lastKeyString",
 			P_numThreads = "numThreads",
+			P_scanBatchSize = "scanBatchSize",
 			P_putBatchSize = "putBatchSize",
+			P_skipInvalidDatabeans = "skipInvalidDatabeans",
 			P_toEmail = "toEmail",
 			P_submitAction = "submitAction";
 
 	private static final int DEFAULT_NUM_THREADS = 4;
-	private static final int DEFAULT_BATCH_SIZE = 1_000;
+	private static final int DEFAULT_SCAN_BATCH_SIZE = 500;
+	private static final int DEFAULT_PUT_BATCH_SIZE = 500;
+	private static final boolean DEFAULT_SKIP_INVALID_DATABEANS = false;
 
 	@Inject
 	private CopyTableService copyTableService;
@@ -81,23 +86,33 @@ public class SingleThreadCopyTableHandler extends BaseHandler{
 			@Param(P_targetNodeName) OptionalString targetNodeName,
 			@Param(P_lastKeyString) OptionalString lastKeyString,
 			@Param(P_toEmail) OptionalString toEmail,
-			@Param(P_numThreads) OptionalString numThreads,
-			@Param(P_putBatchSize) OptionalString putBatchSize,
+			@Param(P_numThreads) OptionalString optNumThreads,
+			@Param(P_scanBatchSize) OptionalString optScanBatchSize,
+			@Param(P_putBatchSize) OptionalString optPutBatchSize,
+			@Param(P_skipInvalidDatabeans) OptionalBoolean skipInvalidDatabeans,
 			@Param(P_submitAction) OptionalString submitAction){
 		String errorNumThreads = null;
+		String errorScanBatchSize = null;
 		String errorPutBatchSize = null;
 
 		if(submitAction.isPresent()){
 			try{
-				if(numThreads.map(StringTool::nullIfEmpty).isPresent()){
-					Integer.valueOf(numThreads.get());
+				if(optNumThreads.map(StringTool::nullIfEmpty).isPresent()){
+					Integer.valueOf(optNumThreads.get());
 				}
 			}catch(Exception e){
 				errorNumThreads = "Please specify an integer";
 			}
 			try{
-				if(putBatchSize.map(StringTool::nullIfEmpty).isPresent()){
-					Integer.valueOf(putBatchSize.get());
+				if(optScanBatchSize.map(StringTool::nullIfEmpty).isPresent()){
+					Integer.valueOf(optScanBatchSize.get());
+				}
+			}catch(Exception e){
+				errorScanBatchSize = "Please specify an integer";
+			}
+			try{
+				if(optPutBatchSize.map(StringTool::nullIfEmpty).isPresent()){
+					Integer.valueOf(optPutBatchSize.get());
 				}
 			}catch(Exception e){
 				errorPutBatchSize = "Please specify an integer";
@@ -134,13 +149,23 @@ public class SingleThreadCopyTableHandler extends BaseHandler{
 				.withError(errorNumThreads)
 				.withName(P_numThreads)
 				.withPlaceholder(DEFAULT_NUM_THREADS + "")
-				.withValue(numThreads.orElse(null));
+				.withValue(optNumThreads.orElse(null));
 		form.addTextField()
-				.withDisplay("Batch Size")
+				.withDisplay("Scan Batch Size")
+				.withError(errorScanBatchSize)
+				.withName(P_scanBatchSize)
+				.withPlaceholder(DEFAULT_SCAN_BATCH_SIZE + "")
+				.withValue(optScanBatchSize.orElse(null));
+		form.addTextField()
+				.withDisplay("Put Batch Size")
 				.withError(errorPutBatchSize)
 				.withName(P_putBatchSize)
-				.withPlaceholder(DEFAULT_BATCH_SIZE + "")
-				.withValue(putBatchSize.orElse(null));
+				.withPlaceholder(DEFAULT_PUT_BATCH_SIZE + "")
+				.withValue(optPutBatchSize.orElse(null));
+		form.addCheckboxField()
+				.withDisplay("Skip Invalid Databeans")
+				.withName(P_skipInvalidDatabeans)
+				.withChecked(DEFAULT_SKIP_INVALID_DATABEANS);
 		form.addTextField()
 				.withDisplay("Email on Completion")
 				//add validation
@@ -158,24 +183,30 @@ public class SingleThreadCopyTableHandler extends BaseHandler{
 					.buildMav();
 		}
 
-		int actualNumThreads = numThreads
+		int numThreads = optNumThreads
 				.map(StringTool::nullIfEmpty)
 				.map(Integer::valueOf)
 				.orElse(DEFAULT_NUM_THREADS);
-		int actualPutBatchSize = putBatchSize
+		int scanBatchSize = optScanBatchSize
 				.map(StringTool::nullIfEmpty)
 				.map(Integer::valueOf)
-				.orElse(DEFAULT_BATCH_SIZE);
+				.orElse(DEFAULT_SCAN_BATCH_SIZE);
+		int putBatchSize = optPutBatchSize
+				.map(StringTool::nullIfEmpty)
+				.map(Integer::valueOf)
+				.orElse(DEFAULT_PUT_BATCH_SIZE);
 
 		CopyTableSpanResult result = copyTableService.copyTableSpan(
 				sourceNodeName.get(),
 				targetNodeName.get(),
 				lastKeyString.map(StringTool::nullIfEmpty).orElse(null),
 				null,
-				actualNumThreads,
-				actualPutBatchSize,
+				numThreads,
+				scanBatchSize,
+				putBatchSize,
 				1,
-				1);
+				1,
+				skipInvalidDatabeans.orElse(DEFAULT_SKIP_INVALID_DATABEANS));
 		if(!result.success){
 			String message = String.format("The migration was interrupted unexpectedly with %s."
 					+ "  Please resume the migration with lastKey %s",
@@ -201,8 +232,11 @@ public class SingleThreadCopyTableHandler extends BaseHandler{
 					.to(toEmail.get());
 			htmlEmailService.trySendJ2Html(emailBuilder);
 		}
-		changelogRecorderService.recordChangelog(getSessionInfo(), "Single Thread", sourceNodeName.get(), targetNodeName
-				.get());
+		changelogRecorderService.recordChangelog(
+				getSessionInfo(),
+				"SingleThread",
+				sourceNodeName.get(),
+				targetNodeName.get());
 		return pageFactory.message(request, message);
 	}
 

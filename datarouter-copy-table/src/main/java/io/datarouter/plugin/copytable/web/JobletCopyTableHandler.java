@@ -43,6 +43,7 @@ import io.datarouter.util.string.StringTool;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.types.Param;
+import io.datarouter.web.handler.types.optional.OptionalBoolean;
 import io.datarouter.web.handler.types.optional.OptionalString;
 import io.datarouter.web.html.form.HtmlForm;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
@@ -54,10 +55,14 @@ public class JobletCopyTableHandler extends BaseHandler{
 	private static final String
 			P_sourceNodeName = "sourceNodeName",
 			P_targetNodeName = "targetNodeName",
+			P_scanBatchSize = "scanBatchSize",
 			P_putBatchSize = "putBatchSize",
+			P_skipInvalidDatabeans = "skipInvalidDatabeans",
 			P_submitAction = "submitAction";
 
-	private static final int DEFAULT_BATCH_SIZE = 1_000;
+	private static final int DEFAULT_SCAN_BATCH_SIZE = 100;
+	private static final int DEFAULT_PUT_BATCH_SIZE = 100;
+	public static final boolean DEFAULT_SKIP_INVALID_DATABEANS = false;
 
 	@Inject
 	private DatarouterNodes nodes;
@@ -76,14 +81,24 @@ public class JobletCopyTableHandler extends BaseHandler{
 	Mav defaultHandler(
 			@Param(P_sourceNodeName) OptionalString sourceNodeName,
 			@Param(P_targetNodeName) OptionalString targetNodeName,
-			@Param(P_putBatchSize) OptionalString putBatchSize,
+			@Param(P_scanBatchSize) OptionalString optScanBatchSize,
+			@Param(P_putBatchSize) OptionalString optPutBatchSize,
+			@Param(P_skipInvalidDatabeans) OptionalBoolean skipInvalidDatabeans,
 			@Param(P_submitAction) OptionalString submitAction){
+		String errorScanBatchSize = null;
 		String errorPutBatchSize = null;
 
 		if(submitAction.isPresent()){
 			try{
-				if(putBatchSize.map(StringTool::nullIfEmpty).isPresent()){
-					Integer.valueOf(putBatchSize.get());
+				if(optScanBatchSize.map(StringTool::nullIfEmpty).isPresent()){
+					Integer.valueOf(optScanBatchSize.get());
+				}
+			}catch(Exception e){
+				errorScanBatchSize = "Please specify an integer";
+			}
+			try{
+				if(optPutBatchSize.map(StringTool::nullIfEmpty).isPresent()){
+					Integer.valueOf(optPutBatchSize.get());
 				}
 			}catch(Exception e){
 				errorPutBatchSize = "Please specify an integer";
@@ -105,11 +120,21 @@ public class JobletCopyTableHandler extends BaseHandler{
 				.withName(P_targetNodeName)
 				.withValues(possibleNodes);
 		form.addTextField()
-				.withDisplay("Batch Size")
+				.withDisplay("Scan Batch Size")
+				.withError(errorScanBatchSize)
+				.withName(P_scanBatchSize)
+				.withPlaceholder(DEFAULT_SCAN_BATCH_SIZE + "")
+				.withValue(optScanBatchSize.orElse(null));
+		form.addTextField()
+				.withDisplay("Put Batch Size")
 				.withError(errorPutBatchSize)
 				.withName(P_putBatchSize)
-				.withPlaceholder(DEFAULT_BATCH_SIZE + "")
-				.withValue(putBatchSize.orElse(null));
+				.withPlaceholder(DEFAULT_PUT_BATCH_SIZE + "")
+				.withValue(optPutBatchSize.orElse(null));
+		form.addCheckboxField()
+				.withDisplay("Skip Invalid Databeans")
+				.withName(P_skipInvalidDatabeans)
+				.withChecked(DEFAULT_SKIP_INVALID_DATABEANS);
 		form.addButton()
 				.withDisplay("Create Joblets")
 				.withValue("anything");
@@ -130,10 +155,14 @@ public class JobletCopyTableHandler extends BaseHandler{
 		List<JobletPackage> jobletPackages = new ArrayList<>();
 		long numJoblets = samples.size() + 1;//+1 for databeans beyond the final sample
 		long counter = 1;
-		int batchSize = putBatchSize
+		int scanBatchSize = optScanBatchSize
 				.map(StringTool::nullIfEmpty)
 				.map(Integer::valueOf)
-				.orElse(DEFAULT_BATCH_SIZE);
+				.orElse(DEFAULT_SCAN_BATCH_SIZE);
+		int putBatchSize = optPutBatchSize
+				.map(StringTool::nullIfEmpty)
+				.map(Integer::valueOf)
+				.orElse(DEFAULT_PUT_BATCH_SIZE);
 		for(TableSample sample : samples){
 			PK fromKeyExclusive = TableSamplerTool.extractPrimaryKeyFromSampleKey(sourceNode, previousSampleKey);
 			PK toKeyInclusive = TableSamplerTool.extractPrimaryKeyFromSampleKey(sourceNode, sample.getKey());
@@ -143,10 +172,12 @@ public class JobletCopyTableHandler extends BaseHandler{
 					targetNodeName.get(),
 					fromKeyExclusive,
 					toKeyInclusive,
-					batchSize,
+					scanBatchSize,
+					putBatchSize,
 					sample.getNumRows(),
 					counter,
-					numJoblets));
+					numJoblets,
+					skipInvalidDatabeans.orElse(DEFAULT_SKIP_INVALID_DATABEANS)));
 			++counter;
 			previousSampleKey = sample.getKey();
 		}
@@ -158,15 +189,22 @@ public class JobletCopyTableHandler extends BaseHandler{
 				targetNodeName.get(),
 				fromKeyExclusive,
 				null, //open-ended
-				batchSize,
+				scanBatchSize,
+				putBatchSize,
 				1, //we have no idea about the true estNumDatabeans
 				counter,
-				numJoblets));
+				numJoblets,
+				skipInvalidDatabeans.orElse(DEFAULT_SKIP_INVALID_DATABEANS)));
 		++counter;
 		// shuffle as optimization to spread write load.  could be optional
-		Scanner.of(jobletPackages).shuffle().flush(jobletService::submitJobletPackages);
-		changelogRecorderService.recordChangelog(getSessionInfo(), "Joblet", sourceNodeName.get(), targetNodeName
-				.get());
+		Scanner.of(jobletPackages)
+				.shuffle()
+				.flush(jobletService::submitJobletPackages);
+		changelogRecorderService.recordChangelog(
+				getSessionInfo(),
+				"Joblets",
+				sourceNodeName.get(),
+				targetNodeName.get());
 		return pageFactory.message(request, "created " + numJoblets + " joblets");
 	}
 
@@ -176,19 +214,23 @@ public class JobletCopyTableHandler extends BaseHandler{
 			String targetNodeName,
 			PK fromKeyExclusive,
 			PK toKeyInclusive,
+			int scanBatchSize,
 			int putBatchSize,
 			long estNumDatabeans,
 			long jobletId,
-			long numJoblets){
+			long numJoblets,
+			boolean skipInvalidDatabeans){
 		CopyTableJobletParams jobletParams = new CopyTableJobletParams(
 				sourceNodeName,
 				targetNodeName,
 				fromKeyExclusive == null ? null : PrimaryKeyPercentCodecTool.encode(fromKeyExclusive),
 				toKeyInclusive == null ? null : PrimaryKeyPercentCodecTool.encode(toKeyInclusive),
+				scanBatchSize,
 				putBatchSize,
 				estNumDatabeans,
 				jobletId,
-				numJoblets);
+				numJoblets,
+				skipInvalidDatabeans);
 		return JobletPackage.create(
 				CopyTableJoblet.JOBLET_TYPE,
 				JobletPriority.DEFAULT,

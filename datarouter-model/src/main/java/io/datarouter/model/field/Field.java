@@ -17,7 +17,7 @@ package io.datarouter.model.field;
 
 import io.datarouter.model.field.encoding.BinaryKeyField;
 import io.datarouter.model.field.encoding.BinaryValueField;
-import io.datarouter.model.field.encoding.StringEncodedField;
+import io.datarouter.model.field.encoding.StringKeyField;
 
 /**
  * A Field consists of an immutable FieldKey and a value object. It is mainly a wrapper object to carry the key/value
@@ -29,7 +29,7 @@ import io.datarouter.model.field.encoding.StringEncodedField;
  */
 public interface Field<T>
 extends Comparable<Field<T>>,
-		StringEncodedField<T>,
+		StringKeyField<T>,
 		BinaryKeyField<T>,
 		BinaryValueField<T>{
 
@@ -57,6 +57,11 @@ extends Comparable<Field<T>>,
 	 * Parse the result of StringEncodedField::parseStringEncodedValueButDoNotSet and apply to the current object
 	 */
 	void fromString(String string);
+
+	/**
+	 * Convert Field to generic types to use in Avro
+	 */
+	Object getGenericValue();
 
 	String getPreparedStatementValue();
 

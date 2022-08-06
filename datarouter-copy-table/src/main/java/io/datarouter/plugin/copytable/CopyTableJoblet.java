@@ -16,6 +16,7 @@
 package io.datarouter.plugin.copytable;
 
 import java.time.Duration;
+import java.util.Optional;
 
 import javax.inject.Inject;
 
@@ -50,9 +51,12 @@ public class CopyTableJoblet extends BaseJoblet<CopyTableJobletParams>{
 				params.fromKeyExclusive,
 				params.toKeyInclusive,
 				1,//single thread, rely on joblet system for parallelism
-				params.batchSize,
+				params.scanBatchSize,
+				params.putBatchSize,
 				NumberTool.nullSafeLong(params.jobletId, 0L),//can remove null check after migration period
-				NumberTool.nullSafeLong(params.numJoblets, 0L));
+				NumberTool.nullSafeLong(params.numJoblets, 0L),
+				Optional.ofNullable(params.skipInvalidDatabeans)//TODO remove null check after migration period
+						.orElse(true));
 		if(!result.success){
 			throw result.exception;
 		}
@@ -64,28 +68,34 @@ public class CopyTableJoblet extends BaseJoblet<CopyTableJobletParams>{
 		public final String targetNodeName;
 		public final String fromKeyExclusive;
 		public final String toKeyInclusive;
-		public final Integer batchSize;
+		public final Integer scanBatchSize;
+		public final Integer putBatchSize;
 		public final Long estNumDatabeans;
 		public final Long jobletId;
 		public final Long numJoblets;
+		public final Boolean skipInvalidDatabeans;
 
 		public CopyTableJobletParams(
 				String sourceNodeName,
 				String targetNodeName,
 				String fromKeyExclusive,
 				String toKeyInclusive,
-				Integer batchSize,
+				Integer scanBatchSize,
+				Integer putBatchSize,
 				Long estNumDatabeans,
 				Long jobletId,
-				Long numJoblets){
+				Long numJoblets,
+				Boolean skipInvalidDatabeans){
 			this.sourceNodeName = sourceNodeName;
 			this.targetNodeName = targetNodeName;
 			this.fromKeyExclusive = fromKeyExclusive;
 			this.toKeyInclusive = toKeyInclusive;
-			this.batchSize = batchSize;
+			this.scanBatchSize = scanBatchSize;
+			this.putBatchSize = putBatchSize;
 			this.estNumDatabeans = estNumDatabeans;
 			this.jobletId = jobletId;
 			this.numJoblets = numJoblets;
+			this.skipInvalidDatabeans = skipInvalidDatabeans;
 		}
 
 	}

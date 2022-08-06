@@ -140,7 +140,7 @@ public class SqsClientManager extends BaseClientManager{
 				result.forEach(res -> {
 					logger.debug("{}", res);
 					datapointCount.add(res.values().size());
-					count("datapointCount", res.values().size());
+					count("datapoint", res.values().size());
 					String queueName = res.label();
 					if(res.values().isEmpty()){
 						logger.warn("no data for {}", queueName);

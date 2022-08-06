@@ -113,4 +113,9 @@ public abstract class BaseEndpoint<R,ET extends EndpointType>{
 		}
 	}
 
+	/**
+	 * @return the intended caller for this endpoint
+	 */
+	public abstract CallerType getCallerType();
+
 }

@@ -15,10 +15,12 @@
  */
 package io.datarouter.aws.secretsmanager;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.services.secretsmanager.AWSSecretsManager;
 import com.amazonaws.services.secretsmanager.AWSSecretsManagerClientBuilder;
@@ -39,6 +41,7 @@ import io.datarouter.secret.client.Secret;
 import io.datarouter.secret.client.SecretClient;
 import io.datarouter.secret.exception.SecretExistsException;
 import io.datarouter.secret.exception.SecretNotFoundException;
+import io.datarouter.web.config.AwsSupport;
 
 /**
  * Notes:
@@ -52,11 +55,16 @@ public class AwsSecretClient implements SecretClient{
 
 	private final AWSSecretsManager client;
 
-	public AwsSecretClient(AWSCredentialsProvider awsCredentialsProvider, String region){
+	public AwsSecretClient(AWSCredentialsProvider awsCredentialsProvider, String region, AwsSupport awsSupport){
+		var clientConfig = new ClientConfiguration()
+				.withSocketTimeout((int)Duration.ofSeconds(1).toMillis())
+				.withConnectionTimeout((int)Duration.ofSeconds(1).toMillis());
 		client = AWSSecretsManagerClientBuilder.standard()
+				.withClientConfiguration(clientConfig)
 				.withCredentials(awsCredentialsProvider)
 				.withRegion(region)
 				.build();
+		awsSupport.registerConnectionManager("secretManager", client);
 	}
 
 	@Override

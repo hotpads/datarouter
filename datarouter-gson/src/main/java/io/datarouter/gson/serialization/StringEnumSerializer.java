@@ -33,6 +33,10 @@ import com.google.gson.JsonSerializer;
 
 import io.datarouter.enums.StringEnum;
 
+/**
+ * @deprecated  Use StringMappedEnumSerializer
+ */
+@Deprecated
 public class StringEnumSerializer<T extends Enum<T> & StringEnum<T>>
 implements JsonSerializer<T>, JsonDeserializer<T>{
 	private static final Logger logger = LoggerFactory.getLogger(StringEnumSerializer.class);

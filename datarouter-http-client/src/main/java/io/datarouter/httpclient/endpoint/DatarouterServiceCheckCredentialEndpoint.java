@@ -34,4 +34,9 @@ extends BaseEndpoint<DatarouterAccountCredentialStatusDto,NoOpEndpointType>{
 		return new DatarouterServiceCheckCredentialEndpoint();
 	}
 
+	@Override
+	public CallerType getCallerType(){
+		return CallerTypes.DATAROUTER_SERVICE;
+	}
+
 }

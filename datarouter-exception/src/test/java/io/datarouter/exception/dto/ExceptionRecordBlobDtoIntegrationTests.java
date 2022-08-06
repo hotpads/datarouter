@@ -22,12 +22,12 @@ import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.conveyor.message.ConveyorMessage;
 import io.datarouter.exception.dto.ExceptionRecordBlobDto.ExceptionRecordBlobItemDto;
 import io.datarouter.gson.serialization.GsonTool;
 import io.datarouter.instrumentation.exception.ExceptionRecordBatchDto;
 import io.datarouter.instrumentation.exception.ExceptionRecordDto;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.storage.queue.StringQueueMessage;
 import io.datarouter.util.UlidTool;
 
 public class ExceptionRecordBlobDtoIntegrationTests{
@@ -139,10 +139,10 @@ public class ExceptionRecordBlobDtoIntegrationTests{
 
 	@Test
 	public void testTotalDatabeanSizePrediction(){
-		var fielder = new ConveyorMessage.UnlimitedSizeConveyorMessageFielder();
+		var fielder = new StringQueueMessage.UnlimitedSizeStringQueueMessageFielder();
 		String ulid = UlidTool.nextUlid();
 		Assert.assertEquals(
-				fielder.getStringDatabeanCodec().toString(new ConveyorMessage(ulid, ""), fielder).length(),
+				fielder.getStringDatabeanCodec().toString(new StringQueueMessage(ulid, ""), fielder).length(),
 				ulid.length() + EXTRA_JSON_LENGTH);
 
 		//build 2 encoded items
@@ -159,7 +159,7 @@ public class ExceptionRecordBlobDtoIntegrationTests{
 				+ ExceptionRecordsSplittingStringBuildersV2IntegrationTests.EMPTY_LENGTH * 2//2 encoded items
 				+ 1;//1 comma to separate 2 items
 		Assert.assertEquals(
-				fielder.getStringDatabeanCodec().toString(new ConveyorMessage(ulid, list.get(0)), fielder).length(),
+				fielder.getStringDatabeanCodec().toString(new StringQueueMessage(ulid, list.get(0)), fielder).length(),
 				expectedLength);
 	}
 

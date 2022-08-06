@@ -22,7 +22,7 @@
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-parent</artifactId>
-		<version>0.0.115</version>
+		<version>0.0.116</version>
 		<relativePath>../datarouter-parent</relativePath>
 	</parent>
 
@@ -47,6 +47,11 @@
 			<groupId>io.datarouter</groupId>
 			<artifactId>datarouter-secret-web</artifactId>
 			<version>${datarouter-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.github.ben-manes.caffeine</groupId>
+			<artifactId>caffeine</artifactId>
+			<version>${ben-manes-caffeine-version}</version>
 		</dependency>
 		<dependency>
 			<groupId>io.datarouter</groupId>

@@ -24,7 +24,7 @@ import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
 import io.datarouter.nodewatch.storage.latesttablecount.DatarouterLatestTableCountDao;
 import io.datarouter.nodewatch.storage.latesttablecount.LatestTableCount;
-import io.datarouter.web.config.service.ServiceName;
+import io.datarouter.storage.config.properties.ServiceName;
 
 public class LatestTableCountPublisherJob extends BaseJob{
 

@@ -70,6 +70,11 @@ public class LongEncodedField<T> extends BaseField<T>{
 	}
 
 	@Override
+	public Object getGenericValue(){
+		return key.getCodec().encode(value);
+	}
+
+	@Override
 	public int compareTo(Field<T> other){
 		return key.getCodec().getComparator().compare(value, other.getValue());
 	}

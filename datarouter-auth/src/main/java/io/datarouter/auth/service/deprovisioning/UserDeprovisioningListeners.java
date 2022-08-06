@@ -18,18 +18,20 @@ package io.datarouter.auth.service.deprovisioning;
 import java.util.List;
 import java.util.function.Supplier;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 
-public interface UserDeprovisioningListeners extends Supplier<List<UserDeprovisioningListener>>{
+import io.datarouter.plugin.PluginInjector;
 
-	@Singleton
-	public static class EmptyUserDeprovisioningListeners implements UserDeprovisioningListeners{
+@Singleton
+public class UserDeprovisioningListeners implements Supplier<List<UserDeprovisioningListener>>{
 
-		@Override
-		public List<UserDeprovisioningListener> get(){
-			return List.of();
-		}
+	@Inject
+	private PluginInjector injector;
 
+	@Override
+	public List<UserDeprovisioningListener> get(){
+		return injector.getInstances(UserDeprovisioningListener.KEY);
 	}
 
 }

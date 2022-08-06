@@ -15,6 +15,7 @@
  */
 package io.datarouter.auth.storage.account;
 
+import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
@@ -37,6 +38,11 @@ public class DatarouterAccount extends BaseDatabean<DatarouterAccountKey,Datarou
 	private String creator;
 	private Date lastUsed;
 	private Boolean enableUserMappings;
+	public String callerType; // IN-9144
+	/*
+	 * The official spec spells this as "referer"
+	 */
+	public String referrer; // IN-8049
 
 	private static class FieldKeys{
 		@SuppressWarnings("deprecation")
@@ -45,6 +51,8 @@ public class DatarouterAccount extends BaseDatabean<DatarouterAccountKey,Datarou
 		@SuppressWarnings("deprecation")
 		private static final DateFieldKey lastUsed = new DateFieldKey("lastUsed");
 		private static final BooleanFieldKey enableUserMappings = new BooleanFieldKey("enableUserMappings");
+		private static final StringFieldKey callerType = new StringFieldKey("callerType");
+		private static final StringFieldKey referrer = new StringFieldKey("referrer");
 	}
 
 	public DatarouterAccount(){
@@ -56,15 +64,24 @@ public class DatarouterAccount extends BaseDatabean<DatarouterAccountKey,Datarou
 		this.created = created;
 		this.creator = creator;
 		this.enableUserMappings = false;
+		this.callerType = null;
+		this.referrer = null;
 	}
 
-	// used for migrating account names
+	/**
+	 * This constructor is specifically used to migrating account names
+	 *
+	 * @param accountName new accountName
+	 * @param account the old account databean
+	 */
 	public DatarouterAccount(
 			String accountName,
 			DatarouterAccount account){
 		this(accountName, account.getCreated(), account.getCreator());
 		this.enableUserMappings = account.getEnableUserMappings();
 		this.lastUsed = account.getLastUsed();
+		this.callerType = account.getCallerType();
+		this.referrer = account.getReferrer();
 	}
 
 	public static class DatarouterAccountFielder extends BaseDatabeanFielder<DatarouterAccountKey,DatarouterAccount>{
@@ -80,7 +97,9 @@ public class DatarouterAccount extends BaseDatabean<DatarouterAccountKey,Datarou
 					new DateField(FieldKeys.created, account.created),
 					new StringField(FieldKeys.creator, account.creator),
 					new DateField(FieldKeys.lastUsed, account.lastUsed),
-					new BooleanField(FieldKeys.enableUserMappings, account.enableUserMappings));
+					new BooleanField(FieldKeys.enableUserMappings, account.enableUserMappings),
+					new StringField(FieldKeys.callerType, account.callerType),
+					new StringField(FieldKeys.referrer, account.referrer));
 		}
 
 	}
@@ -116,6 +135,13 @@ public class DatarouterAccount extends BaseDatabean<DatarouterAccountKey,Datarou
 		return lastUsed;
 	}
 
+	public Instant getLastUsedInstant(){
+		if(lastUsed == null){
+			return Instant.MIN;
+		}
+		return lastUsed.toInstant();
+	}
+
 	public void toggleUserMappings(){
 		if(enableUserMappings == null){
 			enableUserMappings = true;
@@ -137,6 +163,18 @@ public class DatarouterAccount extends BaseDatabean<DatarouterAccountKey,Datarou
 
 	public Date getCreated(){
 		return created;
+	}
+
+	public void setCallerType(String callerType){
+		this.callerType = callerType;
+	}
+
+	public String getCallerType(){
+		return callerType;
+	}
+
+	public String getReferrer(){
+		return referrer;
 	}
 
 }

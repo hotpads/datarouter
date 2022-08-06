@@ -22,7 +22,7 @@
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-parent</artifactId>
-		<version>0.0.115</version>
+		<version>0.0.116</version>
 		<relativePath>../datarouter-parent</relativePath>
 	</parent>
 
@@ -46,6 +46,11 @@
 		<dependency>
 			<groupId>io.datarouter</groupId>
 			<artifactId>datarouter-conveyor</artifactId>
+			<version>${datarouter-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.datarouter</groupId>
+			<artifactId>datarouter-binary-dto</artifactId>
 			<version>${datarouter-version}</version>
 		</dependency>
 		<dependency>

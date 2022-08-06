@@ -15,6 +15,7 @@
  */
 package io.datarouter.auth.service;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.HashMap;
@@ -37,6 +38,7 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.auth.cache.DatarouterAccountPermissionKeysByPrefixCache;
 import io.datarouter.auth.config.DatarouterAuthExecutors.DatarouterAccountCredentialCacheExecutor;
+import io.datarouter.auth.config.DatarouterAuthSettingRoot;
 import io.datarouter.auth.storage.account.BaseDatarouterAccountCredentialDao;
 import io.datarouter.auth.storage.account.BaseDatarouterAccountDao;
 import io.datarouter.auth.storage.account.BaseDatarouterAccountSecretCredentialDao;
@@ -91,7 +93,8 @@ public class DatarouterAccountCredentialService{
 			DatarouterAccountLastUsedDateService datarouterAccountLastUsedDateService,
 			DatarouterAccountCredentialCacheExecutor executor,
 			SecretService secretService,
-			SecretNamespacer secretNamespacer){
+			SecretNamespacer secretNamespacer,
+			DatarouterAuthSettingRoot datarouterAuthSettingRoot){
 		this.datarouterAccountDao = datarouterAccountDao;
 		this.datarouterAccountCredentialDao = datarouterAccountCredentialDao;
 		this.datarouterAccountSecretCredentialDao = datarouterAccountSecretCredentialDao;
@@ -104,8 +107,14 @@ public class DatarouterAccountCredentialService{
 		secretCredentialApiKeyBySecretName = new AtomicReference<>(new HashMap<>());
 		secretCredentialAccountKeyByApiKey = new AtomicReference<>(new HashMap<>());
 		mostRecentCreatedInstantByAccountName = new AtomicReference<>(new HashMap<>());
+		Duration accountRefreshFrequencyDuration = datarouterAuthSettingRoot.accountRefreshFrequencyDuration.get()
+				.toJavaDuration();
 		refreshCaches();
-		executor.scheduleWithFixedDelay(this::refreshCaches, 15, 15, TimeUnit.SECONDS);
+		executor.scheduleWithFixedDelay(
+				this::refreshCaches,
+				accountRefreshFrequencyDuration.getSeconds(),
+				accountRefreshFrequencyDuration.getSeconds(),
+				TimeUnit.SECONDS);
 	}
 
 	//intended for API key auth (updates last used date of key)

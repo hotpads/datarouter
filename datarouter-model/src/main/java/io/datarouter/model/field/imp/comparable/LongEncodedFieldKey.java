@@ -15,6 +15,7 @@
  */
 package io.datarouter.model.field.imp.comparable;
 
+import java.lang.reflect.Type;
 import java.util.Map;
 
 import io.datarouter.model.field.BaseFieldKey;
@@ -81,6 +82,11 @@ public class LongEncodedFieldKey<T> extends BaseFieldKey<T,LongEncodedFieldKey<T
 
 	public FieldCodec<T,Long> getCodec(){
 		return codec;
+	}
+
+	@Override
+	public Type getGenericType(){
+		return Long.class;
 	}
 
 	@Override

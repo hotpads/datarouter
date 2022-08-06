@@ -148,12 +148,12 @@ public class WebSocketToolHandler extends BaseHandler{
 								.withDisplay("topic")
 								.withName("topic")
 								.withValue(topic.orElse(""))
-								.withRequired(true),
+								.required(),
 						new HtmlFormText()
 								.withDisplay("message")
 								.withName("message")
 								.withValue(message.orElse(""))
-								.withRequired(true),
+								.required(),
 						new HtmlFormButton()
 								.withDisplay("Send")
 								.withValue("subscriptions"));

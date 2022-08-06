@@ -23,6 +23,7 @@ import javax.inject.Singleton;
 import io.datarouter.email.type.DatarouterEmailTypes.LongRunningTaskTrackerEmailType;
 import io.datarouter.storage.config.properties.EnvironmentName;
 import io.datarouter.storage.config.properties.ServerName;
+import io.datarouter.storage.config.properties.ServiceName;
 import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.tasktracker.TaskTrackerCounters;
 import io.datarouter.tasktracker.config.DatarouterTaskTrackerPaths;
@@ -30,7 +31,6 @@ import io.datarouter.tasktracker.config.DatarouterTaskTrackerSettingRoot;
 import io.datarouter.tasktracker.scheduler.LongRunningTaskType;
 import io.datarouter.tasktracker.storage.LongRunningTaskDao;
 import io.datarouter.tasktracker.web.LongRunningTaskGraphLink;
-import io.datarouter.web.config.service.ServiceName;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
 import io.datarouter.web.email.StandardDatarouterEmailHeaderService;
 

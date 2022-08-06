@@ -26,7 +26,7 @@ import io.datarouter.changelog.storage.ChangelogDao;
 import io.datarouter.instrumentation.changelog.ChangelogDto;
 import io.datarouter.instrumentation.changelog.ChangelogPublisher;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
-import io.datarouter.web.config.service.ServiceName;
+import io.datarouter.storage.config.properties.ServiceName;
 
 @Singleton
 public class ChangelogRecorderService implements ChangelogRecorder{

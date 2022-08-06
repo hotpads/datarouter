@@ -15,6 +15,7 @@
  */
 package io.datarouter.model.field.imp.enums;
 
+import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
@@ -30,6 +31,10 @@ import io.datarouter.model.field.encoding.FieldGeneratorType;
 import io.datarouter.model.util.CommonFieldSizes;
 import io.datarouter.util.lang.ReflectionTool;
 
+/**
+ * @deprecated  Use StringEncodedFieldKey with StringMappedEnumFieldCodec and StringMappedEnum
+ */
+@Deprecated
 public class StringEnumFieldKey<E extends StringEnum<E>>
 extends BaseFieldKey<E,StringEnumFieldKey<E>>{
 
@@ -123,6 +128,11 @@ extends BaseFieldKey<E,StringEnumFieldKey<E>>{
 	@Override
 	public E getSampleValue(){
 		return sampleValue;
+	}
+
+	@Override
+	public Type getGenericType(){
+		return String.class;
 	}
 
 	@Override

@@ -18,6 +18,7 @@ package io.datarouter.auth.config;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.auth.web.DatarouterAccountCallerTypeHandler;
 import io.datarouter.auth.web.DatarouterAccountManagerHandler;
 import io.datarouter.auth.web.DatarouterAccountRenameHandler;
 import io.datarouter.storage.tag.Tag;
@@ -31,8 +32,9 @@ public class DatarouterAccountRouteSet extends BaseRouteSet{
 	@Inject
 	public DatarouterAccountRouteSet(DatarouterAuthPaths paths){
 		super("");
-		handleAnyStringAfterPath(paths.admin.accounts).withHandler(DatarouterAccountManagerHandler.class);
-		handle(paths.admin.renameAccounts).withHandler(DatarouterAccountRenameHandler.class);
+		handleAnyStringAfterPath(paths.datarouter.accountManager).withHandler(DatarouterAccountManagerHandler.class);
+		handle(paths.datarouter.accounts.renameAccounts).withHandler(DatarouterAccountRenameHandler.class);
+		handle(paths.datarouter.accounts.updateCallerType).withHandler(DatarouterAccountCallerTypeHandler.class);
 	}
 
 	@Override

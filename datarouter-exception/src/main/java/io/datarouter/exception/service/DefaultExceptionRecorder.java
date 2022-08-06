@@ -33,12 +33,12 @@ import io.datarouter.exception.utils.ExceptionDetailsDetector.ExceptionRecorderD
 import io.datarouter.instrumentation.exception.ExceptionRecordDto;
 import io.datarouter.instrumentation.exception.HttpRequestRecordDto;
 import io.datarouter.storage.config.properties.ServerName;
+import io.datarouter.storage.config.properties.ServiceName;
 import io.datarouter.storage.exception.ExceptionCategory;
 import io.datarouter.storage.exception.UnknownExceptionCategory;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.app.WebappName;
 import io.datarouter.web.config.DatarouterWebSettingRoot;
-import io.datarouter.web.config.service.ServiceName;
 import io.datarouter.web.dispatcher.Dispatcher;
 import io.datarouter.web.exception.ExceptionCounters;
 import io.datarouter.web.exception.ExceptionHandlingConfig;

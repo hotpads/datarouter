@@ -16,12 +16,14 @@
 package io.datarouter.client.mysql.test.test.node.type.index;
 
 import org.testng.annotations.Guice;
+import org.testng.annotations.Test;
 
 import io.datarouter.client.mysql.DatarouterMysqlTestNgModuleFactory;
 import io.datarouter.client.mysql.test.DatarouterMysqlTestClientids;
 import io.datarouter.storage.test.node.type.index.BaseManagedIndexIntegrationTests;
 
 @Guice(moduleFactory = DatarouterMysqlTestNgModuleFactory.class)
+@Test(singleThreaded = true)
 public class MysqlManagedIndexIntegrationTests extends BaseManagedIndexIntegrationTests{
 
 	public MysqlManagedIndexIntegrationTests(){

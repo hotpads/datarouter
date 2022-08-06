@@ -27,6 +27,7 @@ import io.datarouter.secret.client.SecretClient;
 import io.datarouter.secret.client.SecretClient.SecretClientSupplier;
 import io.datarouter.secret.service.SecretNamespacer;
 import io.datarouter.storage.servertype.ServerTypeDetector;
+import io.datarouter.web.config.AwsSupport;
 
 @Singleton
 public class AwsSecretClientSupplier implements SecretClientSupplier{
@@ -39,6 +40,8 @@ public class AwsSecretClientSupplier implements SecretClientSupplier{
 	private SecretNamespacer secretNamespacer;
 	@Inject
 	private ServerTypeDetector serverTypeDetector;
+	@Inject
+	private AwsSupport awsSupport;
 
 	private AwsSecretClient awsSecretClient;
 
@@ -47,7 +50,7 @@ public class AwsSecretClientSupplier implements SecretClientSupplier{
 		if(awsSecretClient == null){
 			synchronized(this){
 				if(awsSecretClient == null){
-					awsSecretClient = new AwsSecretClient(getAwsCredentialsProvider().get(), REGION);
+					awsSecretClient = new AwsSecretClient(getAwsCredentialsProvider().get(), REGION, awsSupport);
 				}
 			}
 		}

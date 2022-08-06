@@ -21,7 +21,7 @@
 
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-modules</artifactId>
-	<version>0.0.115</version>
+	<version>0.0.116</version>
 	<packaging>pom</packaging>
 
 	<modules>
@@ -76,6 +76,7 @@
 		<module>datarouter-secret-web</module>
 		<module>datarouter-service-config</module>
 		<module>datarouter-snapshot</module>
+		<module>datarouter-snapshot-manager</module>
 		<module>datarouter-storage</module>
 		<module>datarouter-task-tracker</module>
 		<module>datarouter-testng</module>

@@ -28,7 +28,10 @@ public class CopyTableChangelogRecorderService{
 	@Inject
 	private ChangelogRecorder changelogRecorder;
 
-	public void recordChangelog(RequestAwareCurrentSessionInfo sessionInfo, String changelogType, String sourceNode,
+	public void recordChangelog(
+			RequestAwareCurrentSessionInfo sessionInfo,
+			String changelogType,
+			String sourceNode,
 			String targetNode){
 		var dto = new DatarouterChangelogDtoBuilder(
 				"CopyTable-" + changelogType,
@@ -39,8 +42,11 @@ public class CopyTableChangelogRecorderService{
 		changelogRecorder.record(dto);
 	}
 
-	public void recordChangelogForTableProcessor(RequestAwareCurrentSessionInfo sessionInfo, String changelogType,
-			String node, String processor){
+	public void recordChangelogForTableProcessor(
+			RequestAwareCurrentSessionInfo sessionInfo,
+			String changelogType,
+			String node,
+			String processor){
 		var dto = new DatarouterChangelogDtoBuilder(
 				"TableProcessor-" + changelogType,
 				node + " -" + processor,

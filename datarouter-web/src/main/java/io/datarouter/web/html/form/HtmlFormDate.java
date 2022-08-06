@@ -23,7 +23,7 @@ public class HtmlFormDate extends BaseHtmlFormField{
 	private String display;
 	private String placeholder;
 	private String value;
-	private boolean required = false;
+	private boolean required;
 
 	public HtmlFormDate withName(String name){
 		this.name = name;
@@ -45,8 +45,8 @@ public class HtmlFormDate extends BaseHtmlFormField{
 		return this;
 	}
 
-	public HtmlFormDate withRequired(boolean required){
-		this.required = required;
+	public HtmlFormDate required(){
+		this.required = true;
 		return this;
 	}
 

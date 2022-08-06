@@ -49,6 +49,7 @@ import io.datarouter.httpclient.security.DefaultSignatureGenerator.RefreshableDe
 import io.datarouter.httpclient.security.SecurityParameters;
 import io.datarouter.instrumentation.refreshable.RefreshableStringSupplier;
 
+@Test(singleThreaded = true)
 public class DatarouterHttpClientIntegrationTests{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterHttpClientIntegrationTests.class);
 

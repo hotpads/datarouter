@@ -18,6 +18,10 @@ package io.datarouter.enums;
 import java.util.Arrays;
 import java.util.Optional;
 
+/**
+ * @deprecated  Use StringMappedEnum, StringEncodedField, StringMappedEnumFieldCodec and StringMappedEnumSerializer
+ */
+@Deprecated
 public interface StringEnum<E> extends Comparable<E>, PersistentString{
 
 	E fromPersistentString(String string);

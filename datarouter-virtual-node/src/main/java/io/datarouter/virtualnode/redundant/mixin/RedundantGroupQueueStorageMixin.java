@@ -15,11 +15,9 @@
  */
 package io.datarouter.virtualnode.redundant.mixin;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,10 +44,9 @@ extends GroupQueueStorage<PK,D>, RedundantQueueNode<PK,D,F,N>{
 
 	@Override
 	default List<D> pollMulti(Config config){
-		return getReadNodes().stream()
-				.map(node -> node.pollMulti(config))
-				.flatMap(List::stream)
-				.collect(Collectors.toList());
+		return Scanner.of(getReadNodes())
+				.concatIter(node -> node.pollMulti(config))
+				.list();
 	}
 
 	@Override
@@ -101,8 +98,7 @@ extends GroupQueueStorage<PK,D>, RedundantQueueNode<PK,D,F,N>{
 					GroupQueueMessage<PK,D> databean = node.peek(config);
 					phaseTimer.add("node " + node);
 					return databean;
-				})
-				.include(Objects::nonNull)
+				}).include(Objects::nonNull)
 				.findFirst()
 				.orElse(null);
 	}
@@ -116,17 +112,15 @@ extends GroupQueueStorage<PK,D>, RedundantQueueNode<PK,D,F,N>{
 					List<GroupQueueMessage<PK,D>> messages = node.peekMulti(config);
 					phaseTimer.add("node " + node);
 					return messages;
-				})
-				.exclude(Collection::isEmpty)
+				}).exclude(Collection::isEmpty)
 				.findFirst()
 				.orElse(List.of());
 	}
 
 	@Override
 	default Scanner<GroupQueueMessage<PK,D>> peekUntilEmpty(Config config){
-		List<GroupQueueMessage<PK,D>> messages = new ArrayList<>();
-		getReadNodes().forEach(node -> node.peekUntilEmpty(config).iterator().forEachRemaining(messages::add));
-		return Scanner.of(messages);
+		return Scanner.of(getReadNodes())
+				.concat(node -> node.peekUntilEmpty(config));
 	}
 
 }

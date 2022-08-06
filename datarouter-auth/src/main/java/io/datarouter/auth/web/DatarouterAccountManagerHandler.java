@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
@@ -30,6 +31,7 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.auth.config.DatarouterAuthFiles;
 import io.datarouter.auth.config.DatarouterAuthPaths;
+import io.datarouter.auth.service.AccountCallerTypeRegistry;
 import io.datarouter.auth.service.DatarouterAccountAvailableEndpointsProvider;
 import io.datarouter.auth.service.DatarouterAccountCounters;
 import io.datarouter.auth.service.DatarouterAccountCredentialService;
@@ -67,6 +69,8 @@ import io.datarouter.web.user.session.service.Session;
 public class DatarouterAccountManagerHandler extends BaseHandler{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterAccountManagerHandler.class);
 
+	public static final String CHANGELOG_TYPE = "DatarouterAccount";
+
 	private final BaseDatarouterAccountDao datarouterAccountDao;
 	private final BaseDatarouterAccountPermissionDao datarouterAccountPermissionDao;
 	private final DatarouterAccountCredentialService acccountCredentialService;
@@ -78,6 +82,8 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 	private final MetricLinkBuilder metricLinkBuilder;
 	private final CurrentUserSessionInfoService currentSessionInfoService;
 	private final DatarouterAccountDeleteAction datarouterAccountDeleteAction;
+	private final AccountCallerTypeRegistry callerTypeRegistry;
+
 	private final String path;
 
 	@Inject
@@ -93,7 +99,8 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 			ChangelogRecorder changelogRecorder,
 			MetricLinkBuilder metricLinkBuilder,
 			CurrentUserSessionInfoService currentSessionInfoService,
-			DatarouterAccountDeleteAction datarouterAccountDeleteAction){
+			DatarouterAccountDeleteAction datarouterAccountDeleteAction,
+			AccountCallerTypeRegistry callerTypeRegistry){
 		this(datarouterAccountDao,
 				datarouterAccountPermissionDao,
 				acccountCredentialService,
@@ -105,7 +112,8 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 				metricLinkBuilder,
 				currentSessionInfoService,
 				datarouterAccountDeleteAction,
-				paths.admin.accounts.toSlashedString());
+				callerTypeRegistry,
+				paths.datarouter.accountManager.toSlashedString());
 	}
 
 	protected DatarouterAccountManagerHandler(
@@ -120,6 +128,8 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 			MetricLinkBuilder metricLinkBuilder,
 			CurrentUserSessionInfoService currentSessionInfoService,
 			DatarouterAccountDeleteAction datarouterAccountDeleteAction,
+			AccountCallerTypeRegistry callerTypeRegistry,
+
 			String path){
 		this.datarouterAccountDao = datarouterAccountDao;
 		this.datarouterAccountPermissionDao = datarouterAccountPermissionDao;
@@ -132,6 +142,7 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 		this.metricLinkBuilder = metricLinkBuilder;
 		this.currentSessionInfoService = currentSessionInfoService;
 		this.datarouterAccountDeleteAction = datarouterAccountDeleteAction;
+		this.callerTypeRegistry = callerTypeRegistry;
 
 		this.path = path;
 	}
@@ -157,13 +168,22 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 	}
 
 	@Handler
-	public DatarouterAccountDetails add(String accountName){
+	public DatarouterAccountDetails add(String accountName, String callerType){
 		Require.isFalse(accountName.isEmpty());
 		String creator = getSessionInfo().getRequiredSession().getUsername();
 		var account = new DatarouterAccount(accountName, new Date(), creator);
+		account.setCallerType(callerType);
 		datarouterAccountDao.put(account);
 		logAndRecordAction(accountName, "add");
 		return getDetailsForAccounts(List.of(account)).get(0);
+	}
+
+	@Handler
+	public List<String> getAvailableCallerTypes(){
+		return callerTypeRegistry.get().stream()
+				.map(callerType -> callerType.name)
+				.sorted()
+				.collect(Collectors.toList());
 	}
 
 	@Handler
@@ -301,12 +321,20 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 				.list();
 	}
 
-	private DatarouterAccountDetails getDetailsForAccount(AccountDto account, List<AccountCredentialDto> credentials,
-			List<SecretCredentialDto> secretCredentials, List<TextPermission> permissions){
+	private DatarouterAccountDetails getDetailsForAccount(
+			AccountDto account,
+			List<AccountCredentialDto> credentials,
+			List<SecretCredentialDto> secretCredentials,
+			List<TextPermission> permissions){
 		String counterName = DatarouterCounters.PREFIX + " " + DatarouterAccountCounters.ACCOUNT + " "
 				+ DatarouterAccountCounters.NAME + " " + account.accountName;
 		String metricLink = metricLinkBuilder.exactMetricLink(counterName);
-		return new DatarouterAccountDetails(account, credentials, secretCredentials, permissions, metricLink);
+		return new DatarouterAccountDetails(
+				account,
+				credentials,
+				secretCredentials,
+				permissions,
+				metricLink);
 	}
 
 	public DatarouterAccountDetails getDetailsForAccountName(String accountName){
@@ -321,7 +349,7 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 	private void logAndRecordAction(String account, String action, Optional<String> note){
 		var username = getSessionInfo().getNonEmptyUsernameOrElse("unknown");
 		logger.warn("account={} action={} by={} note: {}", account, action, username, note.orElse("none"));
-		var changelogBuilder = new DatarouterChangelogDtoBuilder("DatarouterAccount", account, action, username);
+		var changelogBuilder = new DatarouterChangelogDtoBuilder(CHANGELOG_TYPE, account, action, username);
 		note.ifPresent(changelogBuilder::withNote);
 		changelogRecorder.record(changelogBuilder.build());
 	}
@@ -360,8 +388,12 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 		public final String metricLink;
 		public final String error;
 
-		public DatarouterAccountDetails(AccountDto account, List<AccountCredentialDto> credentials,
-				List<SecretCredentialDto> secretCredentials, List<TextPermission> permissions, String metricLink){
+		public DatarouterAccountDetails(
+				AccountDto account,
+				List<AccountCredentialDto> credentials,
+				List<SecretCredentialDto> secretCredentials,
+				List<TextPermission> permissions,
+				String metricLink){
 			this.account = account;
 			this.credentials = credentials == null ? List.of() : credentials;
 			this.secretCredentials = secretCredentials == null ? List.of() : secretCredentials;
@@ -388,6 +420,8 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 		public final String creator;
 		public final String lastUsed;
 		public final Boolean enableUserMappings;
+		public final String callerType;
+		public final long lastUsedMs;
 
 		public AccountDto(DatarouterAccount account, ZoneId zoneId){
 			this.accountName = account.getKey().getAccountName();
@@ -395,6 +429,10 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 			this.creator = account.getCreator();
 			this.lastUsed = account.getLastUsedDate(zoneId);
 			this.enableUserMappings = account.getEnableUserMappings();
+			this.callerType = account.getCallerType();
+			this.lastUsedMs = Optional.ofNullable(account.getLastUsed())
+					.map(Date::getTime)
+					.orElse(0L);
 		}
 
 	}

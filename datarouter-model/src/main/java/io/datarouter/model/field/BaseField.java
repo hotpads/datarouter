@@ -136,4 +136,10 @@ public abstract class BaseField<T> implements Field<T>{
 	public void validate(){
 	}
 
+	/*---------------------------- avro generic ----------------------------------*/
+
+	@Override
+	public Object getGenericValue(){
+		return value;
+	}
 }

@@ -66,6 +66,8 @@ import io.datarouter.web.dispatcher.FilterParams;
 import io.datarouter.web.dispatcher.RouteSet;
 import io.datarouter.web.dispatcher.ServletParams;
 import io.datarouter.web.filter.https.HttpsOnlyHttpsConfiguration;
+import io.datarouter.web.handler.validator.HandlerAccountCallerValidator;
+import io.datarouter.web.handler.validator.HandlerAccountCallerValidator.NoOpHandlerAccountCallerValidator;
 import io.datarouter.web.homepage.DefaultHomepageRouteSet;
 import io.datarouter.web.homepage.HomepageHandler;
 import io.datarouter.web.homepage.HomepageRouteSet;
@@ -140,6 +142,7 @@ implements WebappBuilder{
 	private Class<? extends RequestProxySetter> requestProxy;
 	private ZoneId defaultEmailDistributionListZoneId;
 	private ZoneId dailyDigestEmailZoneId;
+	private Class<? extends HandlerAccountCallerValidator> handlerAccountCallerValidator;
 
 	// datarouter-web servlet
 	private final List<Ordered<FilterParams>> filterParamsOrdered;
@@ -235,6 +238,7 @@ implements WebappBuilder{
 		this.useDatarouterAuth = true;
 		this.defaultEmailDistributionListZoneId = ZoneId.systemDefault();
 		this.dailyDigestEmailZoneId = ZoneId.systemDefault();
+		this.handlerAccountCallerValidator = NoOpHandlerAccountCallerValidator.class;
 
 		// datarouter-web servlet
 		this.filterParamsOrdered = new ArrayList<>();
@@ -302,6 +306,7 @@ implements WebappBuilder{
 				.setRequestProxy(requestProxy)
 				.setDefaultEmailDistributionListZoneId(defaultEmailDistributionListZoneId)
 				.setDailyDigestEmailZoneId(dailyDigestEmailZoneId)
+				.setHandlerAccountCallerValidator(handlerAccountCallerValidator)
 				.build();
 		webPlugin.getStoragePlugins().forEach(this::addStoragePluginWithoutInstalling);
 		webPlugin.getWebPlugins().forEach(this::addWebPluginWithoutInstalling);
@@ -704,6 +709,12 @@ implements WebappBuilder{
 
 	public T addDailyDigest(Class<? extends DailyDigest> dailyDigest){
 		addPluginEntry(DailyDigest.KEY, dailyDigest);
+		return getSelf();
+	}
+
+	public T setHandlerAccountCallerValidator(
+			Class<? extends HandlerAccountCallerValidator> handlerAccountCallerValidator){
+		this.handlerAccountCallerValidator = handlerAccountCallerValidator;
 		return getSelf();
 	}
 

@@ -44,6 +44,11 @@ public class StringEncodedField<T> extends BaseField<T>{
 	}
 
 	@Override
+	public Object getGenericValue(){
+		return getStringEncodedValue();
+	}
+
+	@Override
 	public int compareTo(Field<T> other){
 		return key.getCodec().getComparator().compare(value, other.getValue());
 	}

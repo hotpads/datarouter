@@ -15,15 +15,14 @@
  */
 package io.datarouter.virtualnode.redundant.base;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.node.BaseNode;
 import io.datarouter.storage.node.Node;
@@ -57,39 +56,37 @@ implements RedundantNode<PK,D,F,N>{
 
 	@Override
 	public String getName(){
-		return Stream.concat(Stream.of(readNode), writeNodes.stream())
+		return Scanner.of(readNode)
+				.append(writeNodes)
 				.map(Node::getName)
 				.collect(Collectors.joining(",", getClass().getSimpleName() + "[", "]"));
 	}
 
 	@Override
 	public List<PhysicalNode<PK,D,F>> getPhysicalNodes(){
-		return writeNodes.stream()
-				.map(N::getPhysicalNodes)
-				.flatMap(List::stream)
+		return Scanner.of(writeNodes)
+				.concatIter(N::getPhysicalNodes)
 				.collect(Collectors.toList());
 	}
 
 	@Override
 	public List<PhysicalNode<PK,D,F>> getPhysicalNodesForClient(String clientName){
-		return writeNodes.stream()
-				.map(backingNode -> backingNode.getPhysicalNodesForClient(clientName))
-				.flatMap(List::stream)
+		return Scanner.of(writeNodes)
+				.concatIter(backingNode -> backingNode.getPhysicalNodesForClient(clientName))
 				.collect(Collectors.toList());
 	}
 
 	@Override
 	public List<ClientId> getClientIds(){
-		return writeNodes.stream()
-				.map(N::getClientIds)
-				.flatMap(Collection::stream)
+		return Scanner.of(writeNodes)
+				.concatIter(N::getClientIds)
 				.distinct()
 				.collect(Collectors.toList());
 	}
 
 	@Override
 	public boolean usesClient(String clientName){
-		return writeNodes.stream()
+		return Scanner.of(writeNodes)
 				.anyMatch(backingNode -> backingNode.usesClient(clientName));
 	}
 

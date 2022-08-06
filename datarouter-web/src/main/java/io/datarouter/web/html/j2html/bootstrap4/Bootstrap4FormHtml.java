@@ -28,6 +28,7 @@ import static j2html.TagCreator.textarea;
 
 import java.text.SimpleDateFormat;
 
+import io.datarouter.scanner.Scanner;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.html.form.HtmlForm;
 import io.datarouter.web.html.form.HtmlForm.BaseHtmlFormField;
@@ -143,12 +144,18 @@ public class Bootstrap4FormHtml{
 
 	private static DivTag selectField(HtmlFormSelect field){
 		var label = label(field.getDisplay())
+				.condWith(field.isRequired(), span("*").withClass("text-danger"))
 				.withClass(LABEL_CLASS);
 		var options = field.getDisplayByValue().entrySet().stream()
 				.map(entry -> {
 					var option = option(entry.getValue())
 							.withValue(entry.getKey());
-					if(entry.getValue().equals(field.getSelected())){
+					if(field.isMultiple()){
+						Scanner.of(field.getSelectedMultiple())
+								.include(selected -> entry.getValue().equals(selected))
+								.findFirst()
+								.ifPresent($ -> option.attr(Attr.SELECTED));
+					}else if(entry.getValue().equals(field.getSelected())){
 						option.attr(Attr.SELECTED);
 					}
 					return option;
@@ -157,6 +164,7 @@ public class Bootstrap4FormHtml{
 		var select = select(options)
 				.withClass("form-control")
 				.withName(field.getName())
+				.attr(Attr.SIZE, field.getSize())
 				.condAttr(field.isMultiple(), "multiple", null);
 		return div(label, select)
 				.withClass("form-group");
@@ -191,14 +199,18 @@ public class Bootstrap4FormHtml{
 		var label = label(text(field.getDisplay()))
 				.condWith(field.isRequired(), span("*").withClass("text-danger"))
 				.withClass(LABEL_CLASS);
-		var input = textarea()
+		var input = textarea(field.getValue())
 				.withClass(inputClass)
 				.withName(field.getName())
 				.withPlaceholder(field.getPlaceholder())
 				.withCondReadonly(field.isReadOnly())
-				.withCondPlaceholder(field.isReadOnly(), field.getValue())
-				.attr(Attr.TYPE, "textarea")
-				.attr(Attr.VALUE, field.getValue());
+				.withCondPlaceholder(field.isReadOnly(), field.getValue());
+		if(field.getMaxLength() != null){
+			input.attr(Attr.MAXLENGTH, field.getMaxLength());
+		}
+		if(field.getRows() != null){
+			input.attr(Attr.ROWS, field.getRows());
+		}
 		var error = field.getError() == null ? null : div(field.getError())
 				.withClass("invalid-feedback");
 		return div(label, input, error)

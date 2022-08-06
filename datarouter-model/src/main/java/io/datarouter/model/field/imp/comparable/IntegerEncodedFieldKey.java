@@ -15,6 +15,7 @@
  */
 package io.datarouter.model.field.imp.comparable;
 
+import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.Optional;
 
@@ -82,6 +83,11 @@ public class IntegerEncodedFieldKey<T> extends BaseFieldKey<T,IntegerEncodedFiel
 
 	public FieldCodec<T,Integer> getCodec(){
 		return codec;
+	}
+
+	@Override
+	public Type getGenericType(){
+		return Integer.class;
 	}
 
 	@Override

@@ -41,6 +41,7 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientInitializationTracker;
 import io.datarouter.storage.config.properties.ServerName;
+import io.datarouter.storage.config.properties.ServiceName;
 import io.datarouter.storage.config.setting.impl.DatarouterClientAvailabilitySwitchThresholdSettingsProvider;
 import io.datarouter.storage.metric.Gauges;
 import io.datarouter.storage.node.DatarouterNodes;
@@ -48,7 +49,6 @@ import io.datarouter.storage.node.op.raw.MapStorage.PhysicalMapStorageNode;
 import io.datarouter.util.StreamTool;
 import io.datarouter.util.duration.DatarouterDuration;
 import io.datarouter.web.config.DatarouterWebSettingRoot;
-import io.datarouter.web.config.service.ServiceName;
 
 @Singleton
 public class LatencyMonitoringService{

@@ -38,6 +38,11 @@ public class ByteArrayEncodedField<T> extends BaseField<T>{
 	}
 
 	@Override
+	public Object getGenericValue(){
+		return getValueBytes();
+	}
+
+	@Override
 	public String getStringEncodedValue(){
 		return Optional.ofNullable(value)
 				.map(getCodec()::encode)

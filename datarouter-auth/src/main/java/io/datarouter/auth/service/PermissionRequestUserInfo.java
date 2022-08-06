@@ -16,12 +16,42 @@
 package io.datarouter.auth.service;
 
 import java.util.List;
+import java.util.function.Supplier;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+import io.datarouter.plugin.PluginConfigKey;
+import io.datarouter.plugin.PluginConfigType;
+import io.datarouter.plugin.PluginConfigValue;
+import io.datarouter.plugin.PluginInjector;
 import io.datarouter.web.user.databean.DatarouterUser;
 import j2html.tags.DomContent;
 
-public interface PermissionRequestUserInfo{
+public interface PermissionRequestUserInfo extends PluginConfigValue<PermissionRequestUserInfo>{
+
+	PluginConfigKey<PermissionRequestUserInfo> KEY = new PluginConfigKey<>(
+			"permissionRequestUserInfo",
+			PluginConfigType.CLASS_SINGLE);
 
 	List<DomContent> getUserInformation(DatarouterUser user);
+
+	@Override
+	default PluginConfigKey<PermissionRequestUserInfo> getKey(){
+		return KEY;
+	}
+
+	@Singleton
+	class PermissionRequestUserInfoSupplier implements Supplier<PermissionRequestUserInfo>{
+
+		@Inject
+		private PluginInjector injector;
+
+		@Override
+		public PermissionRequestUserInfo get(){
+			return injector.getInstance(KEY);
+		}
+
+	}
 
 }

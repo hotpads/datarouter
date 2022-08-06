@@ -25,12 +25,12 @@ import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.config.properties.EnvironmentName;
+import io.datarouter.storage.config.properties.ServiceName;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.op.raw.BlobQueueStorage.PhysicalBlobQueueStorageNode;
 import io.datarouter.storage.queue.BlobQueueMessage;
 import io.datarouter.storage.queue.BlobQueueMessage.BlobQueueMessageFielder;
 import io.datarouter.storage.queue.BlobQueueMessageKey;
-import io.datarouter.web.config.service.ServiceName;
 
 @Singleton
 public class SqsNodeFactory{

@@ -27,16 +27,18 @@ import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder.NoOpChangelogRecorder;
 import io.datarouter.secret.config.DatarouterSecretPlugin.DatarouterSecretPluginBuilder.DatarouterSecretPluginBuilderImpl;
 import io.datarouter.storage.config.guice.DatarouterStorageGuiceModule;
+import io.datarouter.storage.config.properties.ServiceName;
 import io.datarouter.storage.setting.MemorySettingFinder;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.web.config.properties.DefaultEmailDistributionListZoneId;
 import io.datarouter.web.config.service.ContextName;
 import io.datarouter.web.config.service.PrivateDomain;
 import io.datarouter.web.config.service.PublicDomain;
-import io.datarouter.web.config.service.ServiceName;
 import io.datarouter.web.exception.ExceptionRecorder;
 import io.datarouter.web.exception.ExceptionRecorder.NoOpExceptionRecorder;
 import io.datarouter.web.handler.encoder.HandlerEncoder;
+import io.datarouter.web.handler.validator.HandlerAccountCallerValidator;
+import io.datarouter.web.handler.validator.HandlerAccountCallerValidator.NoOpHandlerAccountCallerValidator;
 import io.datarouter.web.inject.guice.BaseGuiceServletModule;
 import io.datarouter.web.monitoring.latency.LatencyMonitoringGraphLink;
 import io.datarouter.web.monitoring.latency.LatencyMonitoringGraphLink.NoOpLatencyMonitoringGraphLink;
@@ -103,6 +105,8 @@ public class DatarouterWebGuiceModule extends BaseGuiceServletModule{
 
 		bindDefaultInstance(DefaultEmailDistributionListZoneId.class,
 				new DefaultEmailDistributionListZoneId(ZoneId.systemDefault()));
+
+		bindDefault(HandlerAccountCallerValidator.class, NoOpHandlerAccountCallerValidator.class);
 	}
 
 	// allows this module to be installed multiple times

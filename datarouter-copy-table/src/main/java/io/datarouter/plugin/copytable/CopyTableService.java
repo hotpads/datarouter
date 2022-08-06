@@ -59,9 +59,11 @@ public class CopyTableService{
 			String fromKeyExclusiveString,
 			String toKeyInclusiveString,
 			int numThreads,
-			int batchSize,
+			int scanBatchSize,
+			int putBatchSize,
 			long batchId,
-			long numBatches){
+			long numBatches,
+			boolean skipInvalidDatabeans){
 		@SuppressWarnings("unchecked")
 		SortedMapStorageNode<PK,D,?> sourceNode = (SortedMapStorageNode<PK,D,?>) nodes.getNode(sourceNodeName);
 		Objects.requireNonNull(sourceNode, sourceNodeName + " not found");
@@ -73,10 +75,8 @@ public class CopyTableService{
 				fromKeyExclusiveString);
 		PK toKeyInclusive = PrimaryKeyPercentCodecTool.decode(sourceNode.getFieldInfo().getPrimaryKeySupplier(),
 				toKeyInclusiveString);
-		// hbase and bigtable put config
-		Config putConfig = new Config();
-				//.setPersistentPut(persistentPut)
-				//.setIgnoreNullFields(true);//could be configurable
+		Config putConfig = new Config()
+				.setResponseBatchSize(scanBatchSize);
 		var numSkipped = new AtomicLong();
 		Range<PK> range = new Range<>(fromKeyExclusive, false, toKeyInclusive, true);
 		var numScanned = new AtomicLong();
@@ -87,6 +87,9 @@ public class CopyTableService{
 					.each($ -> numScanned.incrementAndGet())
 					.each($ -> Counters.inc("copyTable " + sourceNodeName + " read"))
 					.include(databean -> {
+						if(!skipInvalidDatabeans){
+							return true;
+						}
 						try{
 							Scanner.of(targetNode.getFieldInfo().getFieldsWithValues(databean))
 									.forEach(Field::validate);
@@ -96,9 +99,18 @@ public class CopyTableService{
 							return false;
 						}
 					})
-					.batch(batchSize)
+					.batch(putBatchSize)
 					.parallel(putMultiScannerContext.get(numThreads))
-					.each(batch -> targetNode.putMulti(batch, putConfig))
+					.each(batch -> {
+						try{
+							targetNode.putMulti(batch, putConfig);
+						}catch(RuntimeException e){
+							logger.warn("putMulti failure, trying individual puts for targetNode={} numDatabeans={}",
+									targetNode.getName(),
+									batch.size());
+							batch.forEach(targetNode::put);
+						}
+					})
 					.each($ -> Counters.inc("copyTable " + sourceNodeName + " write"))
 					.each(batch -> numCopied.addAndGet(batch.size()))
 					.each(batch -> lastKey.set(ListTool.getLast(batch).getKey()))

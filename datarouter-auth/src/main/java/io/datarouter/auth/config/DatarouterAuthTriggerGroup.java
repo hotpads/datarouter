@@ -64,8 +64,11 @@ public class DatarouterAuthTriggerGroup extends BaseTriggerGroup{
 				settings.runPermissionRequestVacuumJob,
 				DatarouterPermissionRequestVacuumJob.class,
 				true);
+
+		long refreshFrequencySeconds = settings.accountRefreshFrequencyDuration.get()
+				.toSecond();
 		registerParallel(
-				"1/15 * * * * ?",
+				"1/" + refreshFrequencySeconds + " * * * * ?",
 				() -> true,
 				AccountPermissionCacheRefreshJob.class);
 	}

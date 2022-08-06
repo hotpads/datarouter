@@ -44,13 +44,10 @@ public class DatarouterTracePublisherSettingRoot extends SettingRoot{
 		saveTracesToMemory = registerBooleans("saveTracesToMemory", defaultTo(false)
 				.withTag(DatarouterSettingTagType.TRACE2PIPELINE, () -> true));
 		runTraceMemoryToPublisherConveyor = registerBooleans(
-				"runTraceMemoryToPublisherConveyor",
-				defaultTo(false)
-						.withTag(DatarouterSettingTagType.TRACE2PIPELINE, () -> true));
-		saveTraceBlobsToQueueDaoInsteadOfDirectoryDao = registerBooleans(
-				"saveTraceBlobsToQueueDaoInsteadOfDirectoryDao",
-				defaultTo(false)
-						.withTag(DatarouterSettingTagType.TRACE2PIPELINE, () -> true));
+				"runTraceMemoryToPublisherConveyor", defaultTo(false)
+				.withTag(DatarouterSettingTagType.TRACE2PIPELINE, () -> true));
+		saveTraceBlobsToQueueDaoInsteadOfDirectoryDao = registerBoolean(
+				"saveTraceBlobsToQueueDaoInsteadOfDirectoryDao", false);
 		conveyorThreadCount = registerInteger("conveyorThreadCount", 1);
 	}
 

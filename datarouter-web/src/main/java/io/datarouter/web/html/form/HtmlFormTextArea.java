@@ -23,8 +23,10 @@ public class HtmlFormTextArea extends BaseHtmlFormField{
 	private String display;
 	private String placeholder;
 	private String value;
-	private boolean required = false;
-	private boolean readOnly = false;
+	private boolean required;
+	private boolean readOnly;
+	private Integer maxLength;
+	private Integer rows;
 
 	public HtmlFormTextArea withName(String name){
 		this.name = name;
@@ -46,13 +48,23 @@ public class HtmlFormTextArea extends BaseHtmlFormField{
 		return this;
 	}
 
-	public HtmlFormTextArea withReadOnly(boolean readOnly){
-		this.readOnly = readOnly;
+	public HtmlFormTextArea readOnly(){
+		this.readOnly = true;
 		return this;
 	}
 
-	public HtmlFormTextArea withRequired(boolean required){
-		this.required = required;
+	public HtmlFormTextArea required(){
+		this.required = true;
+		return this;
+	}
+
+	public HtmlFormTextArea withMaxLength(int maxLength){
+		this.maxLength = maxLength;
+		return this;
+	}
+
+	public HtmlFormTextArea withRows(int rows){
+		this.rows = rows;
 		return this;
 	}
 
@@ -83,6 +95,14 @@ public class HtmlFormTextArea extends BaseHtmlFormField{
 
 	public boolean isReadOnly(){
 		return readOnly;
+	}
+
+	public Integer getMaxLength(){
+		return maxLength;
+	}
+
+	public Integer getRows(){
+		return rows;
 	}
 
 }

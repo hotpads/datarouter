@@ -22,7 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.bytes.ByteUnitType;
-import io.datarouter.conveyor.message.ConveyorMessage;
 import io.datarouter.exception.config.DatarouterExceptionSettingRoot;
 import io.datarouter.exception.config.MaxExceptionBlobSize;
 import io.datarouter.exception.dto.ExceptionRecordBlobDto;
@@ -36,6 +35,7 @@ import io.datarouter.instrumentation.exception.ExceptionRecordBatchDto;
 import io.datarouter.instrumentation.exception.HttpRequestRecordBatchDto;
 import io.datarouter.instrumentation.response.PublishingResponseDto;
 import io.datarouter.model.util.CommonFieldSizes;
+import io.datarouter.storage.queue.StringQueueMessage;
 import io.datarouter.util.UlidTool;
 
 @Singleton
@@ -84,11 +84,11 @@ public class DatarouterExceptionBlobService implements DatarouterExceptionPublis
 				exceptionBlobPublishingSettings.getApiKey());
 		String ulid = UlidTool.nextUlid();
 		if(exceptionSettings.saveExceptionRecordBlobsToQueueDaoInsteadOfDirectoryDao.get()){
-			var fielder = new ConveyorMessage.UnlimitedSizeConveyorMessageFielder();
-			int nonMessageLength = fielder.getStringDatabeanCodec().toString(new ConveyorMessage(ulid, ""), fielder)
+			var fielder = new StringQueueMessage.UnlimitedSizeStringQueueMessageFielder();
+			int nonMessageLength = fielder.getStringDatabeanCodec().toString(new StringQueueMessage(ulid, ""), fielder)
 					.length();
 			dto.serializeToStrings(maxExceptionBlobSize.get() - nonMessageLength)
-					.map(blob -> new ConveyorMessage(ulid, blob))
+					.map(blob -> new StringQueueMessage(ulid, blob))
 					.flush(blobs -> {
 						if(blobs.size() > 1){
 							logger.warn("writing size={} blobs with key={}", blobs.size(), ulid);
@@ -115,7 +115,7 @@ public class DatarouterExceptionBlobService implements DatarouterExceptionPublis
 		String ulid = UlidTool.nextUlid();
 		if(exceptionSettings.saveHttpRequestRecordBlobsToQueueDaoInsteadOfDirectoryDao.get()){
 			dto.serializeToStrings(MAX_SERIALIZED_BLOB_SIZE_SQS)
-					.map(blob -> new ConveyorMessage(ulid, blob))
+					.map(blob -> new StringQueueMessage(ulid, blob))
 					.flush(blobs -> {
 						if(blobs.size() > 1){
 							logger.warn("writing size={} blobs with key={}", blobs.size(), ulid);

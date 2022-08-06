@@ -156,6 +156,7 @@ public class AuroraDnsService{
 		List<DnsHostEntryDto> mismatchedEntries = new ArrayList<>();
 		for(DnsHostEntryDto dnsEntry : dnsEntryByHostname.values()){
 			if(dnsEntry.ip == null){
+				dnsEntry.setIsMissingIpFlag();
 				mismatchedEntries.add(dnsEntry);
 			}
 			if(dnsEntry.isWriter && dnsEntry.clusterHostname == null){
@@ -205,6 +206,7 @@ public class AuroraDnsService{
 		private final boolean isWriter;
 
 		private boolean isAuroraInstance = false;
+		private boolean isMissingIp = false;
 		private boolean readerPointedToWriter = false;
 		private boolean readerPointerdToWrongReader = false;
 		private boolean writerNotPointedToClusterEndpoint = false;
@@ -278,6 +280,10 @@ public class AuroraDnsService{
 			return isAuroraInstance;
 		}
 
+		public boolean isMissingIp(){
+			return isMissingIp;
+		}
+
 		public boolean isWriterNotPointedToClusterEndpoint(){
 			return writerNotPointedToClusterEndpoint;
 		}
@@ -292,6 +298,10 @@ public class AuroraDnsService{
 
 		public void setReaderPointedToWrongReaderFlag(){
 			this.readerPointerdToWrongReader = true;
+		}
+
+		public void setIsMissingIpFlag(){
+			this.isMissingIp = true;
 		}
 
 		public String getReplicationRole(){

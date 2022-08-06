@@ -27,6 +27,7 @@ import io.datarouter.filesystem.raw.DirectoryManager.DirectoryManagerFactory;
 import io.datarouter.storage.config.DatarouterFilesystemPaths;
 import io.datarouter.storage.util.Subpath;
 
+@Test(singleThreaded = true)
 @Guice
 public class BinarySmallFileServiceIntegrationTests{
 

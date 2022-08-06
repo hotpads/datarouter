@@ -41,7 +41,7 @@ import io.datarouter.auth.service.DatarouterUserCreationService;
 import io.datarouter.auth.service.DatarouterUserEditService;
 import io.datarouter.auth.service.DatarouterUserHistoryService;
 import io.datarouter.auth.service.DatarouterUserService;
-import io.datarouter.auth.service.UserInfo;
+import io.datarouter.auth.service.UserInfo.UserInfoSupplier;
 import io.datarouter.auth.storage.account.DatarouterAccountKey;
 import io.datarouter.auth.storage.deprovisioneduser.DeprovisionedUser;
 import io.datarouter.auth.storage.deprovisioneduser.DeprovisionedUserDao;
@@ -109,7 +109,7 @@ public class AdminEditUserHandler extends BaseHandler{
 	@Inject
 	private Bootstrap4ReactPageFactory reactPageFactory;
 	@Inject
-	private UserInfo userInfo;
+	private UserInfoSupplier userInfo;
 	@Inject
 	private CurrentUserSessionInfoService currentUserSessionInfoService;
 	@Inject
@@ -364,8 +364,8 @@ public class AdminEditUserHandler extends BaseHandler{
 
 	//TODO DATAROUTER-2788
 	private EditUserDetailsDto getEditUserDetailsDto(String username){
-		SessionBasedUser user = userInfo.getUserByUsername(username, false).orElseThrow();
-		Set<Role> roles = userInfo.getRolesByUsername(username, false);
+		SessionBasedUser user = userInfo.get().getUserByUsername(username, false).orElseThrow();
+		Set<Role> roles = userInfo.get().getRolesByUsername(username, false);
 
 		List<PermissionRequestDto> permissionRequests = datarouterPermissionRequestDao
 				.scanPermissionRequestsForUser(user.getId())

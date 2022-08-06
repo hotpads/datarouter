@@ -37,6 +37,7 @@ import io.datarouter.storage.test.node.type.index.databean.TestDatabeanWithManag
 import io.datarouter.storage.test.node.type.index.databean.TestDatabeanWithManagedIndexByBarKey;
 import io.datarouter.storage.test.node.type.index.node.DatarouterTestDatabeanWithIndexDao;
 
+@Test(singleThreaded = true)
 public abstract class BaseManagedIndexIntegrationTests{
 
 	private static final List<TestDatabean> TEST_DATABEANS = List.of(

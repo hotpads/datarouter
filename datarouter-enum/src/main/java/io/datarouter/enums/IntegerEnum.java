@@ -18,6 +18,10 @@ package io.datarouter.enums;
 import java.util.Arrays;
 import java.util.Optional;
 
+/**
+ * @deprecated  Use MappedEnum, IntegerEncodedField, IntegerMappedEnumFieldCodec and IntegerMappedEnumSerializer
+ */
+@Deprecated
 public interface IntegerEnum<E> extends Comparable<E>{
 
 	Integer getPersistentInteger();

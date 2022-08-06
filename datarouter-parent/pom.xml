@@ -22,7 +22,7 @@
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-metadata-parent</artifactId>
-		<version>0.0.115</version>
+		<version>0.0.116</version>
 		<relativePath>../datarouter-metadata-parent</relativePath>
 	</parent>
 
@@ -39,7 +39,7 @@
 		<codehaus-plexus-version>2.12.1</codehaus-plexus-version>
 		<commons-codec-version>1.15</commons-codec-version>
 		<commons-io-version>2.11.0</commons-io-version>
-		<datarouter-version>0.0.115</datarouter-version>
+		<datarouter-version>0.0.116</datarouter-version>
 		<guice-version>5.1.0</guice-version>
 		<guava-version>31.1-jre</guava-version>
 		<httpclient-version>4.5.13</httpclient-version>
@@ -201,8 +201,8 @@
 					<version>${maven-compiler-plugin-version}</version>
 					<configuration>
 						<compilerId>eclipse</compilerId>
-						<source>15</source>
-						<target>15</target>
+						<source>17</source>
+						<target>17</target>
 						<optimize>true</optimize>
 						<fork>true</fork>
 						<parameters>true</parameters>

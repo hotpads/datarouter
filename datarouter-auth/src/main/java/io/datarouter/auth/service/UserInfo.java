@@ -17,12 +17,25 @@ package io.datarouter.auth.service;
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Supplier;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+import io.datarouter.plugin.PluginConfigKey;
+import io.datarouter.plugin.PluginConfigType;
+import io.datarouter.plugin.PluginConfigValue;
+import io.datarouter.plugin.PluginInjector;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.web.user.session.service.Role;
 import io.datarouter.web.user.session.service.SessionBasedUser;
 
-public interface UserInfo{
+// inject this class through UserInfoSupplier
+public interface UserInfo extends PluginConfigValue<UserInfo>{
+
+	PluginConfigKey<UserInfo> KEY = new PluginConfigKey<>(
+			"userInfo",
+			PluginConfigType.CLASS_SINGLE);
 
 	//TODO DATAROUTER-2794
 	Scanner<? extends SessionBasedUser> scanAllUsers(boolean enabledOnly, Set<Role> includedRoles);
@@ -44,6 +57,24 @@ public interface UserInfo{
 
 	default Boolean hasRoleById(Long id, Role role, boolean allowCached){
 		return getRolesById(id, allowCached).contains(role);
+	}
+
+	@Override
+	default PluginConfigKey<UserInfo> getKey(){
+		return KEY;
+	}
+
+	@Singleton
+	class UserInfoSupplier implements Supplier<UserInfo>{
+
+		@Inject
+		private PluginInjector injector;
+
+		@Override
+		public UserInfo get(){
+			return injector.getInstance(UserInfo.KEY);
+		}
+
 	}
 
 }

@@ -29,6 +29,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.auth.config.DatarouterAuthPaths;
+import io.datarouter.auth.service.UserInfo.UserInfoSupplier;
 import io.datarouter.auth.storage.permissionrequest.DatarouterPermissionRequest;
 import io.datarouter.auth.storage.permissionrequest.DatarouterPermissionRequestDao;
 import io.datarouter.auth.storage.permissionrequest.DatarouterPermissionRequestKey;
@@ -58,7 +59,7 @@ public class PermissionRequestDailyDigest implements DailyDigest{
 	@Inject
 	private DatarouterUserExternalDetailService detailsService;
 	@Inject
-	private UserInfo userInfo;
+	private UserInfoSupplier userInfo;
 	@Inject
 	private DailyDigestService digestService;
 
@@ -104,7 +105,7 @@ public class PermissionRequestDailyDigest implements DailyDigest{
 				.map(DatarouterPermissionRequest::getKey)
 				.map(key -> Optional.of(key)
 						.map(DatarouterPermissionRequestKey::getUserId)
-						.map(id -> userInfo.getUserById(id, true))
+						.map(id -> userInfo.get().getUserById(id, true))
 						.filter(Optional::isPresent)
 						.map(Optional::get)
 						.map(user -> new PermissionRequestDto(user, key.getRequestTime())))

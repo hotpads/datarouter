@@ -15,6 +15,7 @@
  */
 package io.datarouter.model.field.imp;
 
+import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.Optional;
 
@@ -112,6 +113,11 @@ public class StringEncodedFieldKey<T> extends BaseFieldKey<T,StringEncodedFieldK
 	@Override
 	public T getSampleValue(){
 		return codec.getSampleValue();
+	}
+
+	@Override
+	public Type getGenericType(){
+		return String.class;
 	}
 
 	public FieldCodec<T,String> getCodec(){

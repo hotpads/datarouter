@@ -17,9 +17,6 @@ package io.datarouter.trace.storage;
 
 import java.util.Collection;
 
-import io.datarouter.conveyor.message.ConveyorMessage;
-import io.datarouter.conveyor.message.ConveyorMessage.ConveyorMessageFielder;
-import io.datarouter.conveyor.message.ConveyorMessageKey;
 import io.datarouter.conveyor.queue.GroupQueueConsumer;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
@@ -27,21 +24,24 @@ import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.QueueNodeFactory;
 import io.datarouter.storage.node.op.raw.GroupQueueStorage.GroupQueueStorageNode;
+import io.datarouter.storage.queue.StringQueueMessage;
+import io.datarouter.storage.queue.StringQueueMessage.StringQueueMessageFielder;
+import io.datarouter.storage.queue.StringQueueMessageKey;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.virtualnode.redundant.RedundantGroupQueueStorageNode;
 
 public abstract class BaseTraceQueueDao extends BaseDao{
 
-	private final GroupQueueStorageNode<ConveyorMessageKey,ConveyorMessage,ConveyorMessageFielder> queueNode;
+	private final GroupQueueStorageNode<StringQueueMessageKey,StringQueueMessage,StringQueueMessageFielder> queueNode;
 
 	public BaseTraceQueueDao(String queueName, Datarouter datarouter, BaseRedundantDaoParams params,
 			QueueNodeFactory queueNodeFactory){
 		super(datarouter);
 		queueNode = Scanner.of(params.clientIds)
 				.map(clientId -> {
-					GroupQueueStorageNode<ConveyorMessageKey,ConveyorMessage,ConveyorMessageFielder> node =
-							queueNodeFactory.createGroupQueue(clientId, ConveyorMessage::new,
-									ConveyorMessageFielder::new)
+					GroupQueueStorageNode<StringQueueMessageKey,StringQueueMessage,StringQueueMessageFielder> node =
+							queueNodeFactory.createGroupQueue(clientId, StringQueueMessage::new,
+									StringQueueMessageFielder::new)
 							.withQueueName(queueName)
 							.withTag(Tag.DATAROUTER)
 							.build();
@@ -51,11 +51,11 @@ public abstract class BaseTraceQueueDao extends BaseDao{
 		datarouter.register(queueNode);
 	}
 
-	public void putMulti(Collection<ConveyorMessage> databeans){
+	public void putMulti(Collection<StringQueueMessage> databeans){
 		queueNode.putMulti(databeans);
 	}
 
-	public GroupQueueConsumer<ConveyorMessageKey,ConveyorMessage> getGroupQueueConsumer(){
+	public GroupQueueConsumer<StringQueueMessageKey,StringQueueMessage> getGroupQueueConsumer(){
 		return new GroupQueueConsumer<>(queueNode::peek, queueNode::ack);
 	}
 

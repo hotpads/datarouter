@@ -23,7 +23,7 @@ import io.datarouter.util.string.StringTool;
 
 public class ExceptionTool{
 
-	private static final int MAX_STACK_TRACE_LINE_LENGTH = 500;
+	private static final int MAX_STACK_TRACE_LINE_LENGTH = 2000;
 
 	/**
 	 * This should NOT be used for logging. Instead of this use
@@ -40,7 +40,8 @@ public class ExceptionTool{
 	public static String getStackTraceAsString(Throwable exception){
 		ThrowableProxy proxy = new ThrowableProxy(exception);
 		return proxy.getCauseStackTraceAsString("").lines()
-				.map(line -> StringTool.trimToSizeAndLog(line, MAX_STACK_TRACE_LINE_LENGTH, "[trimmed]", "stack trace"))
+				.map(line -> StringTool.trimToSizeAndLog(line, MAX_STACK_TRACE_LINE_LENGTH, "[trimmed]", "stacktrace",
+						exception.getClass().getSimpleName()))
 				.collect(Collectors.joining("\n"));
 	}
 

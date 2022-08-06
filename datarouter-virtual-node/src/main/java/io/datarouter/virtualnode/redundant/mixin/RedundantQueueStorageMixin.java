@@ -40,13 +40,10 @@ extends QueueStorage<PK,D>, RedundantQueueNode<PK,D,F,N>{
 
 	@Override
 	default D poll(Config config){
-		for(N node : getReadNodes()){
-			D messages = node.poll(config);
-			if(messages != null){
-				return messages;
-			}
-		}
-		return null;
+		return Scanner.of(getReadNodes())
+				.map(node -> node.poll(config))
+				.findFirst()
+				.orElse(null);
 	}
 
 	@Override
@@ -111,8 +108,7 @@ extends QueueStorage<PK,D>, RedundantQueueNode<PK,D,F,N>{
 					QueueMessage<PK,D> databean = node.peek(config);
 					phaseTimer.add("node " + node);
 					return databean;
-				})
-				.include(Objects::nonNull)
+				}).include(Objects::nonNull)
 				.findFirst()
 				.orElse(null);
 	}
@@ -120,14 +116,14 @@ extends QueueStorage<PK,D>, RedundantQueueNode<PK,D,F,N>{
 	@Override
 	default List<QueueMessage<PK,D>> peekMulti(Config config){
 		PhaseTimer phaseTimer = new PhaseTimer();
-		for(N node : getReadNodes()){
-			List<QueueMessage<PK,D>> messages = node.peekMulti(config);
-			phaseTimer.add("node " + node);
-			if(!messages.isEmpty()){
-				return messages;
-			}
-		}
-		return List.of();
+		return Scanner.of(getReadNodes())
+				.map(node -> {
+					List<QueueMessage<PK,D>> messages = node.peekMulti(config);
+					phaseTimer.add("node " + node);
+					return messages;
+				}).exclude(Collection::isEmpty)
+				.findFirst()
+				.orElseGet(List::of);
 	}
 
 	@Override
