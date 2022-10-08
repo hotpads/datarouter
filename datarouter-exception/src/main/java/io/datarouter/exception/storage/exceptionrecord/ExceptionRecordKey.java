@@ -15,23 +15,44 @@
  */
 package io.datarouter.exception.storage.exceptionrecord;
 
+import java.util.List;
+
+import io.datarouter.model.field.Field;
+import io.datarouter.model.field.imp.StringField;
+import io.datarouter.model.field.imp.StringFieldKey;
+import io.datarouter.model.key.primary.base.BaseRegularPrimaryKey;
 import io.datarouter.util.number.RandomTool;
 
-public class ExceptionRecordKey extends BaseExceptionRecordKey<ExceptionRecordKey>{
+public class ExceptionRecordKey extends BaseRegularPrimaryKey<ExceptionRecordKey>{
 
 	private static final long PADDING = String.valueOf(Long.MAX_VALUE).length();
 	private static final String ID_FORMAT = "%d%0" + PADDING + "d";
+
+	private String id;
+
+	public static class FieldKeys{
+		public static final StringFieldKey id = new StringFieldKey("id");
+	}
+
+	@Override
+	public List<Field<?>> getFields(){
+		return List.of(new StringField(FieldKeys.id, id));
+	}
 
 	public ExceptionRecordKey(){
 	}
 
 	public ExceptionRecordKey(String id){
-		super(id);
+		this.id = id;
 	}
 
 	public static ExceptionRecordKey generate(){
 		String id = String.format(ID_FORMAT, System.currentTimeMillis(), RandomTool.nextPositiveLong());
 		return new ExceptionRecordKey(id);
+	}
+
+	public String getId(){
+		return id;
 	}
 
 }

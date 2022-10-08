@@ -65,12 +65,12 @@ public class DatarouterSnapshotEntriesHandler extends BaseHandler{
 			@Param(P_offset) OptionalLong optOffset,
 			@Param(P_limit) OptionalLong optLimit){
 		var snapshotKey = new SnapshotKey(groupId, snapshotId);
-		SnapshotGroup group = groups.getGroup(snapshotKey.groupId);
+		SnapshotGroup group = groups.getGroup(snapshotKey.groupId());
 		DomContent content;
 		if(group.getSnapshotEntryDecoderClass() == null){
 			String message = String.format("%s not defined for groupId=%s",
 					SnapshotRecordStringDecoder.class.getSimpleName(),
-					snapshotKey.groupId);
+					snapshotKey.groupId());
 			content = div(message);
 		}else{
 			long offset = optOffset.orElse(0L);
@@ -88,7 +88,7 @@ public class DatarouterSnapshotEntriesHandler extends BaseHandler{
 			SnapshotKey snapshotKey,
 			long offset,
 			long limit){
-		SnapshotGroup group = groups.getGroup(snapshotKey.groupId);
+		SnapshotGroup group = groups.getGroup(snapshotKey.groupId());
 		var reader = new ScanningSnapshotReader(snapshotKey, exec, 2, groups, 1);
 		SnapshotRecordStringDecoder decoder = ReflectionTool.create(group.getSnapshotEntryDecoderClass());
 		List<SnapshotRecordStrings> rows = reader.scan(0)
@@ -99,24 +99,24 @@ public class DatarouterSnapshotEntriesHandler extends BaseHandler{
 				.list();
 		var table = new J2HtmlTable<SnapshotRecordStrings>()
 				.withClasses("sortable table table-sm table-striped my-4 border")
-				.withColumn("id", row -> row.id)
-				.withColumn(decoder.keyName(), row -> row.key)
+				.withColumn("id", SnapshotRecordStrings::id)
+				.withColumn(decoder.keyName(), SnapshotRecordStrings::key)
 				.withColumn(decoder.valueName(), row -> {
-					if(row.value == null){
+					if(row.value() == null){
 						return "";
-					}else if(row.value.length() < 64){
-						return row.value;
+					}else if(row.value().length() < 64){
+						return row.value();
 					}else{
-						return row.value.subSequence(0, 64) + "...";
+						return row.value().subSequence(0, 64) + "...";
 					}
 				})
 				.withHtmlColumn("details", row -> {
 					String href = new URIBuilder()
 							.setPath(request.getContextPath() + snapshotPaths.datarouter.snapshot.individual.entry
 									.toSlashedString())
-							.addParameter(DatarouterSnapshotEntryHandler.P_groupId, snapshotKey.groupId)
-							.addParameter(DatarouterSnapshotEntryHandler.P_snapshotId, snapshotKey.snapshotId)
-							.addParameter(DatarouterSnapshotEntryHandler.P_id, Long.toString(row.id))
+							.addParameter(DatarouterSnapshotEntryHandler.P_groupId, snapshotKey.groupId())
+							.addParameter(DatarouterSnapshotEntryHandler.P_snapshotId, snapshotKey.snapshotId())
+							.addParameter(DatarouterSnapshotEntryHandler.P_id, Long.toString(row.id()))
 							.toString();
 					return td(a("view").withHref(href));
 				})

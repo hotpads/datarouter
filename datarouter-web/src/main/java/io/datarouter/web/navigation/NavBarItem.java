@@ -117,7 +117,7 @@ public class NavBarItem implements PluginConfigValue<NavBarItem>{
 		}
 
 		private String getCategoryDisplay(){
-			return category.getDisplay();
+			return category.display();
 		}
 
 	}

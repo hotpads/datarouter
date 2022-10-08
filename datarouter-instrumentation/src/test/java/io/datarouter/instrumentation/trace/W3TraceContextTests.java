@@ -32,7 +32,7 @@ public class W3TraceContextTests{
 		Traceparent traceparent = traceContext.getTraceparent();
 		Assert.assertEquals(traceparent.traceId, "4bf92f3577b34da6a3ce929d0e0e4736");
 		Assert.assertEquals(traceparent.parentId, traceContext.getTracestate().getLastestTracestate()
-				.value);
+				.value());
 		Assert.assertNotEquals(traceContext.getTimestampMs().get(), UNIX_TIME_MILLIS);
 		Assert.assertEquals(traceContext.getTracestate().toString(), validTracestate);
 	}
@@ -46,7 +46,7 @@ public class W3TraceContextTests{
 		W3TraceContext traceContext = new W3TraceContext(invalidTraceparent, invalidTracestate, UNIX_TIME_NANO);
 		Assert.assertNotEquals(traceContext.getTraceparent().traceId, "4bf92f3577b34da6a3ce");
 		Assert.assertEquals(traceContext.getTraceparent().parentId, traceContext.getTracestate().getLastestTracestate()
-				.value);
+				.value());
 		Assert.assertEquals(traceContext.getTraceparent().toString().length(), 55);
 		Assert.assertEquals(traceContext.getTimestampMs().get(), UNIX_TIME_MILLIS);
 		Assert.assertNotEquals(traceContext.getTracestate().toString(), invalidTracestate);

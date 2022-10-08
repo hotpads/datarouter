@@ -22,8 +22,4 @@ public abstract class BasePrimitiveMysqlFieldCodec<
 		F extends Field<T>>
 extends BaseMysqlFieldCodec<T,F>{
 
-	public BasePrimitiveMysqlFieldCodec(F field){
-		super(field);
-	}
-
 }

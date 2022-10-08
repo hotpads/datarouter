@@ -45,7 +45,6 @@ import io.datarouter.util.tuple.Range;
 public abstract class BaseTrace2Dao extends BaseDao{
 
 	private static final Config CONFIG = new Config()
-			.setIgnoreNullFields(true)
 			.setPersistentPut(false);
 
 	private final SortedMapStorageNode<

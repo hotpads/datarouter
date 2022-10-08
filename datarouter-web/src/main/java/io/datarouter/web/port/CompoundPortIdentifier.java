@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.util.MxBeans;
-import io.datarouter.util.tuple.Triple;
 
 @Singleton
 public class CompoundPortIdentifier implements PortIdentifier{
@@ -39,30 +38,30 @@ public class CompoundPortIdentifier implements PortIdentifier{
 			JETTY_SERVER_JMX_DOMAIN = "org.eclipse.jetty.server",
 			JBOSS_JMX_DOMAIN = "jboss.as";
 
-	private static final List<Triple<String,String,Class<? extends PortIdentifier>>> IDENTIFIERS = List.of(
-			new Triple<>("Tomcat", CATALINA_JMX_DOMAIN, TomcatPortIdentifier.class),
-			new Triple<>("Jetty", JETTY_SERVER_JMX_DOMAIN, JettyPortIdentifier.class),
-			new Triple<>("Wildfly (JBoss)", JBOSS_JMX_DOMAIN, WildFlyPortIdentifier.class));
+	private static final List<Identifier> IDENTIFIERS = List.of(
+			new Identifier("Tomcat", CATALINA_JMX_DOMAIN, TomcatPortIdentifier.class),
+			new Identifier("Jetty", JETTY_SERVER_JMX_DOMAIN, JettyPortIdentifier.class),
+			new Identifier("Wildfly (JBoss)", JBOSS_JMX_DOMAIN, WildFlyPortIdentifier.class));
 
 	private PortIdentifier portIdentifier;
 
 	@Inject
 	public CompoundPortIdentifier(DatarouterInjector injector){
 		List<String> domains = Arrays.asList(MxBeans.SERVER.getDomains());
-		Optional<Triple<String,String,Class<? extends PortIdentifier>>> optIdentifier = IDENTIFIERS.stream()
-				.filter(triple -> domains.contains(triple.getSecond()))
+		Optional<Identifier> optIdentifier = IDENTIFIERS.stream()
+				.filter(triple -> domains.contains(triple.domain()))
 				.findAny();
 		if(optIdentifier.isEmpty()){
 			logger.error("Servlet container not detected. Expect some features to not work.");
 			return;
 		}
-		Triple<String,String,Class<? extends PortIdentifier>> identifier = optIdentifier.get();
-		logger.info("{} detected as servlet container", identifier.getFirst());
+		Identifier identifier = optIdentifier.get();
+		logger.info("{} detected as servlet container", identifier.name());
 		try{
-			portIdentifier = injector.getInstance(identifier.getThird());
+			portIdentifier = injector.getInstance(identifier.portIdentifier());
 		}catch(Exception e){
 			portIdentifier = injector.getInstance(DefaultPortIdentifier.class);
-			logger.error("Error using {}, fell back to defaults", identifier.getThird(), e);
+			logger.error("Error using {}, fell back to defaults", identifier.portIdentifier(), e);
 		}
 		logger.warn("Using ports http={} https={} from {}",
 				portIdentifier.getHttpPort(),
@@ -78,6 +77,12 @@ public class CompoundPortIdentifier implements PortIdentifier{
 	@Override
 	public Integer getHttpsPort(){
 		return portIdentifier.getHttpsPort();
+	}
+
+	private record Identifier(
+			String name,
+			String domain,
+			Class<? extends PortIdentifier> portIdentifier){
 	}
 
 }

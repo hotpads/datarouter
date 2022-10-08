@@ -30,22 +30,18 @@ import io.datarouter.model.field.imp.LocalDateField;
 
 public class LocalDateMysqlFieldCodec extends BaseMysqlFieldCodec<LocalDate,LocalDateField>{
 
-	public LocalDateMysqlFieldCodec(LocalDateField field){
-		super(field);
-	}
-
 	@Override
-	public SqlColumn getSqlColumnDefinition(boolean allowNullable){
+	public SqlColumn getSqlColumnDefinition(boolean allowNullable, LocalDateField field){
 		return new SqlColumn(
 				field.getKey().getColumnName(),
-				getMysqlColumnType(),
+				getMysqlColumnType(field),
 				null,
 				allowNullable && field.getKey().isNullable(),
 				false);
 	}
 
 	@Override
-	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
+	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex, LocalDateField field){
 		try{
 			if(field.getValue() == null){
 				ps.setNull(parameterIndex, Types.DATE);
@@ -58,7 +54,7 @@ public class LocalDateMysqlFieldCodec extends BaseMysqlFieldCodec<LocalDate,Loca
 	}
 
 	@Override
-	public LocalDate fromMysqlResultSetButDoNotSet(ResultSet rs){
+	public LocalDate fromMysqlResultSetButDoNotSet(ResultSet rs, LocalDateField field){
 		try{
 			Date date = rs.getDate(field.getKey().getColumnName(), java.util.Calendar.getInstance());
 			if(rs.wasNull()){
@@ -71,7 +67,7 @@ public class LocalDateMysqlFieldCodec extends BaseMysqlFieldCodec<LocalDate,Loca
 	}
 
 	@Override
-	public MysqlColumnType getMysqlColumnType(){
+	public MysqlColumnType getMysqlColumnType(LocalDateField field){
 		return MysqlColumnType.DATE;
 	}
 

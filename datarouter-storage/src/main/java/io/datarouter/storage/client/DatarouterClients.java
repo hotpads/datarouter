@@ -15,7 +15,6 @@
  */
 package io.datarouter.storage.client;
 
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
@@ -41,8 +40,8 @@ import io.datarouter.storage.config.properties.DatarouterTestPropertiesFile;
 import io.datarouter.storage.config.properties.InternalConfigDirectory;
 import io.datarouter.util.duration.DatarouterDuration;
 import io.datarouter.util.properties.PropertiesTool;
+import io.datarouter.util.properties.PropertiesTool.PropertiesAndUrl;
 import io.datarouter.util.string.StringTool;
-import io.datarouter.util.tuple.Pair;
 
 /**
  * Clients is a registry or cache of all clients in a Datarouter. Clients are expensive to create, so we reuse them for
@@ -100,9 +99,9 @@ public class DatarouterClients{
 		}else if(StringTool.notEmpty(configFilePath) && !configFilePaths.contains(configFilePath)
 				&& Files.isReadable(Path.of(configFilePath))){
 			configFilePaths.add(configFilePath);
-			Pair<Properties,URL> propertiesAndLocation = PropertiesTool.parseAndGetLocation(configFilePath);
-			logger.warn("Got client properties from file {}", propertiesAndLocation.getRight());
-			clientOptions.addProperties(propertiesAndLocation.getLeft());
+			PropertiesAndUrl propertiesAndLocation = PropertiesTool.parseAndGetLocation(configFilePath);
+			logger.warn("Got client properties from file {}", propertiesAndLocation.url());
+			clientOptions.addProperties(propertiesAndLocation.properties());
 		}
 		Scanner.of(requiredClientIds.getRequiredClientIds())
 				.exclude(clientOptions::isClientTypePresent)

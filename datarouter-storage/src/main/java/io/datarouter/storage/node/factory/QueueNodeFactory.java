@@ -20,12 +20,14 @@ import java.util.function.Supplier;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.bytes.Codec;
 import io.datarouter.model.databean.Databean;
+import io.datarouter.model.databean.EmptyDatabean;
+import io.datarouter.model.databean.EmptyDatabean.EmptyDatabeanFielder;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
-import io.datarouter.storage.client.DatarouterClients;
 import io.datarouter.storage.client.imp.BlobQueueClientNodeFactory;
 import io.datarouter.storage.client.imp.QueueClientNodeFactory;
 import io.datarouter.storage.node.Node;
@@ -36,9 +38,6 @@ import io.datarouter.storage.node.builder.GroupQueueNodeBuilder;
 import io.datarouter.storage.node.builder.QueueNodeBuilder;
 import io.datarouter.storage.node.builder.SingleQueueNodeBuilder;
 import io.datarouter.storage.node.op.raw.BlobQueueStorage.BlobQueueStorageNode;
-import io.datarouter.storage.queue.BlobQueueMessage;
-import io.datarouter.storage.queue.BlobQueueMessage.BlobQueueMessageFielder;
-import io.datarouter.storage.queue.BlobQueueMessageKey;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.util.Require;
 
@@ -47,8 +46,6 @@ public class QueueNodeFactory extends BaseNodeFactory{
 
 	@Inject
 	private Datarouter datarouter;
-	@Inject
-	private DatarouterClients clients;
 
 	public <PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
@@ -70,8 +67,8 @@ public class QueueNodeFactory extends BaseNodeFactory{
 		return new GroupQueueNodeBuilder<>(datarouter, this, clientId, databeanSupplier, fielderSupplier);
 	}
 
-	public BlobQueueNodeBuilder createBlobQueue(ClientId clientId, String queueName){
-		return new BlobQueueNodeBuilder(datarouter, this, clientId, queueName);
+	public <T> BlobQueueNodeBuilder<T> createBlobQueue(ClientId clientId, String queueName, Codec<T,byte[]> codec){
+		return new BlobQueueNodeBuilder<>(datarouter, this, clientId, queueName, codec);
 	}
 
 	public <PK extends PrimaryKey<PK>,
@@ -85,13 +82,15 @@ public class QueueNodeFactory extends BaseNodeFactory{
 			Supplier<F> fielderSupplier,
 			String namespace,
 			String queueUrl,
-			Tag tag){
+			Tag tag,
+			boolean enableAgeMonitoring){
 		NodeParams<PK,D,F> params = new NodeParamsBuilder<>(databeanSupplier, fielderSupplier)
 				.withClientId(clientId)
 				.withTableName(queueName)
 				.withNamespace(namespace)
 				.withQueueUrl(queueUrl)
 				.withTag(tag)
+				.withAgeMonitoring(enableAgeMonitoring)
 				.build();
 		QueueClientNodeFactory clientFactories = getClientNodeFactory(clientId, QueueClientNodeFactory.class);
 		return cast(clientFactories.createSingleQueueNode(params));
@@ -108,35 +107,39 @@ public class QueueNodeFactory extends BaseNodeFactory{
 			Supplier<F> fielderSupplier,
 			String namespace,
 			String queueUrl,
-			Tag tag){
+			Tag tag,
+			boolean enableAgeMonitoring){
 		NodeParams<PK,D,F> params = new NodeParamsBuilder<>(databeanSupplier, fielderSupplier)
 				.withClientId(clientId)
 				.withTableName(queueName)
 				.withNamespace(namespace)
 				.withQueueUrl(queueUrl)
 				.withTag(tag)
+				.withAgeMonitoring(enableAgeMonitoring)
 				.build();
 		QueueClientNodeFactory clientFactories = getClientNodeFactory(clientId, QueueClientNodeFactory.class);
 		return cast(clientFactories.createGroupQueueNode(params));
 	}
 
-	public BlobQueueStorageNode createBlobQueueNode(
+	public <T> BlobQueueStorageNode<T> createBlobQueueNode(
 			ClientId clientId,
 			String queueName,
+			Codec<T,byte[]> codec,
 			String namespace,
 			String queueUrl,//TODO remove? wait for other impls to decide on removing.
-			Tag tag){
+			Tag tag,
+			boolean enableAgeMonitoring){
 		Require.notBlank(queueName);
-		NodeParams<BlobQueueMessageKey,BlobQueueMessage,BlobQueueMessageFielder> params =
-				new NodeParamsBuilder<>(BlobQueueMessage::new, BlobQueueMessageFielder::new)
+		var params = new NodeParamsBuilder<>(EmptyDatabean::new, EmptyDatabeanFielder::new)
 				.withClientId(clientId)
 				.withTableName(queueName)
 				.withNamespace(namespace)
 				.withQueueUrl(queueUrl)
 				.withTag(tag)
+				.withAgeMonitoring(enableAgeMonitoring)
 				.build();
 		BlobQueueClientNodeFactory clientFactories = getClientNodeFactory(clientId, BlobQueueClientNodeFactory.class);
-		return clientFactories.createBlobQueueNode(params);
+		return clientFactories.createBlobQueueNode(params, codec);
 	}
 
 }

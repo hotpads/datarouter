@@ -19,35 +19,15 @@ import io.datarouter.filesystem.snapshot.key.SnapshotKey;
 import io.datarouter.filesystem.snapshot.storage.block.CacheBlockKey;
 import io.datarouter.filesystem.snapshot.storage.file.FileKey;
 
-public class BlockKey{
-
-	public final SnapshotKey snapshotKey;
-	public final BlockType type;
-	public final int level;
-	public final int column;
-	public final int blockId;
-	public final int fileId;
-	public final int offset;
-	public final int length;
-
-	private BlockKey(
-			SnapshotKey snapshotKey,
-			BlockType type,
-			int level,
-			int column,
-			int blockId,
-			int fileId,
-			int offset,
-			int length){
-		this.snapshotKey = snapshotKey;
-		this.type = type;
-		this.level = level;
-		this.column = column;
-		this.blockId = blockId;
-		this.fileId = fileId;
-		this.offset = offset;
-		this.length = length;
-	}
+public record BlockKey(
+		SnapshotKey snapshotKey,
+		BlockType type,
+		int level,
+		int column,
+		int blockId,
+		int fileId,
+		int offset,
+		int length){
 
 	public static BlockKey root(SnapshotKey snapshotKey){
 		return new BlockKey(snapshotKey, BlockType.ROOT, -1, -1, -1, -1, -1, -1);
@@ -75,77 +55,6 @@ public class BlockKey{
 
 	public CacheBlockKey toCacheBlockKey(){
 		return new CacheBlockKey(snapshotKey, type, level, column, blockId);
-	}
-
-	@Override
-	public int hashCode(){
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + column;
-		result = prime * result + fileId;
-		result = prime * result + blockId;
-		result = prime * result + length;
-		result = prime * result + level;
-		result = prime * result + offset;
-		result = prime * result + ((snapshotKey == null) ? 0 : snapshotKey.hashCode());
-		result = prime * result + ((type == null) ? 0 : type.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj){
-		if(this == obj){
-			return true;
-		}
-		if(obj == null){
-			return false;
-		}
-		if(getClass() != obj.getClass()){
-			return false;
-		}
-		BlockKey other = (BlockKey)obj;
-		if(column != other.column){
-			return false;
-		}
-		if(fileId != other.fileId){
-			return false;
-		}
-		if(blockId != other.blockId){
-			return false;
-		}
-		if(length != other.length){
-			return false;
-		}
-		if(level != other.level){
-			return false;
-		}
-		if(offset != other.offset){
-			return false;
-		}
-		if(snapshotKey == null){
-			if(other.snapshotKey != null){
-				return false;
-			}
-		}else if(!snapshotKey.equals(other.snapshotKey)){
-			return false;
-		}
-		if(type != other.type){
-			return false;
-		}
-		return true;
-	}
-
-	@Override
-	public String toString(){
-		return "BlockKey ["
-				+ "snapshotKey=" + snapshotKey + ", "
-				+ "type=" + type + ", "
-				+ "level=" + level + ", "
-				+ "column=" + column + ", "
-				+ "blockId=" + blockId + ", "
-				+ "fileId=" + fileId + ", "
-				+ "offset=" + offset + ", "
-				+ "length=" + length + "]";
 	}
 
 }

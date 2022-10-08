@@ -107,7 +107,7 @@ public class LocalJobProcessor{
 				+ " deadline=" + new DatarouterDuration(hardTimeout), ex);
 		exceptionRecorder
 				.tryRecordException(exception, jobWrapper.jobClass.getName(), JobExceptionCategory.JOB)
-				.ifPresent(exceptionRecord -> jobWrapper.setExceptionRecordId(exceptionRecord.id));
+				.ifPresent(exceptionRecord -> jobWrapper.setExceptionRecordId(exceptionRecord.id()));
 		return exception;
 	}
 

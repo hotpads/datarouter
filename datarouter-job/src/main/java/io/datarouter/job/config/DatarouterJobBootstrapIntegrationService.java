@@ -15,7 +15,7 @@
  */
 package io.datarouter.job.config;
 
-import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -27,7 +27,6 @@ import io.datarouter.job.BaseTriggerGroup;
 import io.datarouter.job.TriggerGroupClasses;
 import io.datarouter.job.scheduler.JobSchedulerTestService;
 import io.datarouter.util.clazz.AnnotationTool;
-import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.config.SingletonTestService;
 
 /**
@@ -36,8 +35,8 @@ import io.datarouter.web.config.SingletonTestService;
 @Singleton
 public class DatarouterJobBootstrapIntegrationService implements TestableService{
 
-	private static final List<Pair<Class<?>,Boolean>> SINGLETON_CHECKS = List.of(
-			new Pair<>(BaseTriggerGroup.class, true));
+	private static final Map<Class<?>,Boolean> SINGLETON_CHECKS = Map.of(
+			BaseTriggerGroup.class, true);
 
 	@Inject
 	private TriggerGroupClasses triggerGroupClasses;
@@ -64,8 +63,7 @@ public class DatarouterJobBootstrapIntegrationService implements TestableService
 				.concatIter(BaseTriggerGroup::getJobPackages)
 				.map(jobPackage -> jobPackage.jobClass)
 				.forEach(clazz -> AnnotationTool.checkSingletonForClass(clazz, false));
-		SINGLETON_CHECKS.forEach(pair -> singletonTestService.checkSingletonForSubClasses(pair.getLeft(), pair
-				.getRight()));
+		SINGLETON_CHECKS.forEach((key, value) -> singletonTestService.checkSingletonForSubClasses(key, value));
 	}
 
 }

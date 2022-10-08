@@ -17,16 +17,8 @@ package io.datarouter.instrumentation.task;
 
 import java.time.Instant;
 
-public class TaskTrackerKeyDto{
-
-	public final String jobClass;
-	public final Instant triggerTime;
-	public final String serverName;
-
-	public TaskTrackerKeyDto(String jobClass, Instant triggerTime, String serverName){
-		this.jobClass = jobClass;
-		this.triggerTime = triggerTime;
-		this.serverName = serverName;
-	}
-
+public record TaskTrackerKeyDto(
+		String jobClass,
+		Instant triggerTime,
+		String serverName){
 }

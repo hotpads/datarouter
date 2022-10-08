@@ -21,7 +21,7 @@ public class ConveyorCounters{
 
 	private static final String PREFIX = "Conveyor";
 
-	public static void inc(Conveyor conveyor, String action, long by){
+	public static void inc(ConveyorRunnable conveyor, String action, long by){
 		Counters.inc(PREFIX + " " + action, by);
 		Counters.inc(PREFIX + " " + conveyor.getName() + " " + action, by);
 	}
@@ -31,52 +31,53 @@ public class ConveyorCounters{
 		Counters.inc(PREFIX + " buffer " + buffer.getName() + " " + action, by);
 	}
 
-	public static void incPutMultiOpAndDatabeans(Conveyor conveyor, long numDatabeans){
+	public static void incPutMultiOpAndDatabeans(ConveyorRunnable conveyor, long numDatabeans){
 		inc(conveyor, "putMulti ops", 1);
 		inc(conveyor, "putMulti databeans", numDatabeans);
 	}
 
-	public static void incConsumedOpAndDatabeans(Conveyor conveyor, long numDatabeans){
+	public static void incConsumedOpAndDatabeans(ConveyorRunnable conveyor, long numDatabeans){
 		inc(conveyor, "consumed ops", 1);
 		inc(conveyor, "consumed databeans", numDatabeans);
 	}
 
-	public static void incConsumedOpAndDatabeansWithPriority(Conveyor conveyor, long numDatabeans, String priority){
+	public static void incConsumedOpAndDatabeansWithPriority(ConveyorRunnable conveyor, long numDatabeans,
+			String priority){
 		incConsumedOpAndDatabeans(conveyor, numDatabeans);
 		inc(conveyor, priority + " consumed ops", 1);
 		inc(conveyor, priority + " consumed databeans", numDatabeans);
 	}
 
-	public static void incAck(Conveyor conveyor){
+	public static void incAck(ConveyorRunnable conveyor){
 		inc(conveyor, "ack", 1);
 	}
 
-	public static void incAck(Conveyor conveyor, long numDatabeans){
+	public static void incAck(ConveyorRunnable conveyor, long numDatabeans){
 		inc(conveyor, "ack", numDatabeans);
 	}
 
-	public static void incAckWithPriority(Conveyor conveyor, String priority){
+	public static void incAckWithPriority(ConveyorRunnable conveyor, String priority){
 		incAck(conveyor);
 		inc(conveyor, priority + " ack", 1);
 	}
 
-	public static void incProcessBatch(Conveyor conveyor){
+	public static void incProcessBatch(ConveyorRunnable conveyor){
 		inc(conveyor, "processBatch", 1);
 	}
 
-	public static void incInterrupted(Conveyor conveyor){
+	public static void incInterrupted(ConveyorRunnable conveyor){
 		inc(conveyor, "interrupted", 1);
 	}
 
-	public static void incException(Conveyor conveyor){
+	public static void incException(ConveyorRunnable conveyor){
 		inc(conveyor, "exception", 1);
 	}
 
-	public static void incFinishDrain(Conveyor conveyor){
+	public static void incFinishDrain(ConveyorRunnable conveyor){
 		inc(conveyor, "finishDrain", 1);
 	}
 
-	public static void incFlushBuffer(Conveyor conveyor, long numDatabeans){
+	public static void incFlushBuffer(ConveyorRunnable conveyor, long numDatabeans){
 		inc(conveyor, "flushBuffer", numDatabeans);
 	}
 

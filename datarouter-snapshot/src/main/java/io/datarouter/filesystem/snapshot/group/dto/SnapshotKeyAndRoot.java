@@ -18,14 +18,7 @@ package io.datarouter.filesystem.snapshot.group.dto;
 import io.datarouter.filesystem.snapshot.block.root.RootBlock;
 import io.datarouter.filesystem.snapshot.key.SnapshotKey;
 
-public class SnapshotKeyAndRoot{
-
-	public final SnapshotKey key;
-	public final RootBlock root;
-
-	public SnapshotKeyAndRoot(SnapshotKey key, RootBlock root){
-		this.key = key;
-		this.root = root;
-	}
-
+public record SnapshotKeyAndRoot(
+		SnapshotKey key,
+		RootBlock root){
 }

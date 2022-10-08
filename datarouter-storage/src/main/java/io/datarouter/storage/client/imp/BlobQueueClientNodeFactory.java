@@ -15,16 +15,17 @@
  */
 package io.datarouter.storage.client.imp;
 
+import io.datarouter.bytes.Codec;
+import io.datarouter.model.databean.EmptyDatabean;
+import io.datarouter.model.databean.EmptyDatabean.EmptyDatabeanFielder;
+import io.datarouter.model.key.EmptyDatabeanKey;
 import io.datarouter.storage.client.ClientNodeFactory;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.op.raw.BlobQueueStorage.PhysicalBlobQueueStorageNode;
-import io.datarouter.storage.queue.BlobQueueMessage;
-import io.datarouter.storage.queue.BlobQueueMessage.BlobQueueMessageFielder;
-import io.datarouter.storage.queue.BlobQueueMessageKey;
 
 public interface BlobQueueClientNodeFactory extends ClientNodeFactory{
 
-	PhysicalBlobQueueStorageNode createBlobQueueNode(
-			NodeParams<BlobQueueMessageKey,BlobQueueMessage,BlobQueueMessageFielder> nodeParams);
+	<T> PhysicalBlobQueueStorageNode<T> createBlobQueueNode(
+			NodeParams<EmptyDatabeanKey,EmptyDatabean,EmptyDatabeanFielder> nodeParams, Codec<T,byte[]> codec);
 
 }

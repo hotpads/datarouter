@@ -27,6 +27,13 @@ import com.amazonaws.services.sqs.model.QueueAttributeName;
 import io.datarouter.aws.sqs.BaseSqsNode;
 import io.datarouter.aws.sqs.SqsBlobOpFactory;
 import io.datarouter.aws.sqs.SqsClientManager;
+import io.datarouter.aws.sqs.SqsPhysicalNode;
+import io.datarouter.aws.sqs.service.QueueUrlAndName;
+import io.datarouter.bytes.Codec;
+import io.datarouter.bytes.codec.bytestringcodec.Base64ByteStringCodec;
+import io.datarouter.model.databean.EmptyDatabean;
+import io.datarouter.model.databean.EmptyDatabean.EmptyDatabeanFielder;
+import io.datarouter.model.key.EmptyDatabeanKey;
 import io.datarouter.model.util.CommonFieldSizes;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientType;
@@ -37,33 +44,33 @@ import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.op.raw.BlobQueueStorage.PhysicalBlobQueueStorageNode;
 import io.datarouter.storage.node.type.physical.base.BasePhysicalNode;
 import io.datarouter.storage.queue.BlobQueueMessage;
-import io.datarouter.storage.queue.BlobQueueMessage.BlobQueueMessageFielder;
-import io.datarouter.storage.queue.BlobQueueMessageDto;
-import io.datarouter.storage.queue.BlobQueueMessageKey;
 import io.datarouter.util.singletonsupplier.SingletonSupplier;
 import io.datarouter.util.string.StringTool;
-import io.datarouter.util.tuple.Twin;
 
-public class SqsBlobNode extends BasePhysicalNode<BlobQueueMessageKey,BlobQueueMessage,BlobQueueMessageFielder>
-implements PhysicalBlobQueueStorageNode{
+public class SqsBlobNode<T>
+extends BasePhysicalNode<EmptyDatabeanKey,EmptyDatabean,EmptyDatabeanFielder>
+implements PhysicalBlobQueueStorageNode<T>, SqsPhysicalNode<EmptyDatabeanKey,EmptyDatabean,EmptyDatabeanFielder>{
 	private static final Logger logger = LoggerFactory.getLogger(SqsBlobNode.class);
 
-	private final NodeParams<BlobQueueMessageKey,BlobQueueMessage,BlobQueueMessageFielder> params;
+	private final NodeParams<EmptyDatabeanKey,EmptyDatabean,EmptyDatabeanFielder> params;
+	private final Codec<T,byte[]> codec;
 	private final SqsClientManager sqsClientManager;
 	private final EnvironmentName environmentName;
 	private final ServiceName serviceName;
 	private final ClientId clientId;
 	private final boolean owned;
-	private final Supplier<Twin<String>> queueUrlAndName;
+	private final Supplier<QueueUrlAndName> queueUrlAndName;
 	private final SqsBlobOpFactory opFactory;
 
-	public SqsBlobNode(NodeParams<BlobQueueMessageKey,BlobQueueMessage,BlobQueueMessageFielder> params,
+	public SqsBlobNode(NodeParams<EmptyDatabeanKey,EmptyDatabean,EmptyDatabeanFielder> params,
+			Codec<T,byte[]> codec,
 			ClientType<?,?> clientType,
 			SqsClientManager sqsClientManager,
 			EnvironmentName environmentName,
 			ServiceName serviceName){
 		super(params, clientType);
 		this.params = params;
+		this.codec = codec;
 		this.sqsClientManager = sqsClientManager;
 		this.environmentName = environmentName;
 		this.serviceName = serviceName;
@@ -73,7 +80,7 @@ implements PhysicalBlobQueueStorageNode{
 		this.opFactory = new SqsBlobOpFactory(this, sqsClientManager, clientId);
 	}
 
-	private Twin<String> getOrCreateQueueUrl(){
+	private QueueUrlAndName getOrCreateQueueUrl(){
 		String queueUrl;
 		String queueName;
 		if(!owned){
@@ -88,7 +95,7 @@ implements PhysicalBlobQueueStorageNode{
 			logger.warn("retention updated queueName=" + queueName);
 		}
 		logger.warn("nodeName={}, queueUrl={}", getName(), queueUrl);
-		return new Twin<>(queueUrl, queueName);
+		return new QueueUrlAndName(queueUrl, queueName);
 	}
 
 	private String createQueueAndGetUrl(String queueName){
@@ -100,6 +107,7 @@ implements PhysicalBlobQueueStorageNode{
 		}
 	}
 
+	@Override
 	public String buildQueueName(String environmentName, String serviceName){
 		String namespace = params.getNamespace().orElseGet(() -> environmentName + "-" + serviceName);
 		String tableName = getFieldInfo().getTableName();
@@ -111,23 +119,41 @@ implements PhysicalBlobQueueStorageNode{
 		return queueName;
 	}
 
-	public Supplier<Twin<String>> getQueueUrlAndName(){
+	@Override
+	public String getAutomaticNamespace(){
+		return environmentName.get() + "-" + serviceName.get();
+	}
+
+	@Override
+	public Supplier<QueueUrlAndName> getQueueUrlAndName(){
 		return queueUrlAndName;
 	}
 
 	@Override
-	public int getMaxDataSize(){
-		return CommonFieldSizes.MAX_SQS_SIZE;
+	public boolean getAgeMonitoringStatusForMetricAlert(){
+		return params.getAgeMonitoringStatus();
 	}
 
 	@Override
-	public void put(byte[] data, Config config){
+	public int getMaxRawDataSize(){
+		//SQS does not allow raw bytes, so the data must be Baes64 encoded
+		return Base64ByteStringCodec.getMaxByteLength(CommonFieldSizes.MAX_SQS_SIZE);
+	}
+
+	@Override
+	public Codec<T,byte[]> getCodec(){
+		return codec;
+	}
+
+	@Override
+	public void putRaw(byte[] data, Config config){
 		opFactory.makePutOp(data, config).call();
 	}
 
 	@Override
-	public Optional<BlobQueueMessageDto> peek(Config config){
-		return Optional.ofNullable(opFactory.makePeekOp(config).call());
+	public Optional<BlobQueueMessage<T>> peek(Config config){
+		return Optional.ofNullable(opFactory.makePeekOp(config).call())
+				.map(rawDto -> new BlobQueueMessage<>(rawDto, codec));
 	}
 
 	@Override

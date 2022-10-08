@@ -16,6 +16,7 @@
 package io.datarouter.gcp.spanner.ddl;
 
 import java.util.Collections;
+import java.util.concurrent.ExecutionException;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -23,21 +24,19 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.api.gax.longrunning.OperationFuture;
-import com.google.cloud.spanner.Database;
 import com.google.cloud.spanner.DatabaseAdminClient;
 import com.google.cloud.spanner.DatabaseClient;
 import com.google.cloud.spanner.DatabaseId;
 import com.google.cloud.spanner.DatabaseNotFoundException;
+import com.google.cloud.spanner.ErrorCode;
 import com.google.cloud.spanner.ReadOnlyTransaction;
 import com.google.cloud.spanner.ResultSet;
 import com.google.cloud.spanner.Spanner;
+import com.google.cloud.spanner.SpannerException;
 import com.google.cloud.spanner.Statement;
-import com.google.spanner.admin.database.v1.CreateDatabaseMetadata;
 
 import io.datarouter.storage.config.schema.SchemaUpdateOptions;
 import io.datarouter.storage.config.schema.SchemaUpdateTool;
-import io.datarouter.util.concurrent.FutureTool;
 
 @Singleton
 public class SpannerDatabaseCreator{
@@ -61,14 +60,13 @@ public class SpannerDatabaseCreator{
 			logger.info(SchemaUpdateTool.generateFullWidthMessage(message));
 			return;
 		}
-		if(schemaUpdateOptions.getCreateDatabases(false)){
-			String message = String.format("Creating spanner database %s", databaseId.getDatabase());
-			logger.info(SchemaUpdateTool.generateFullWidthMessage(message));
-			create(spanner, databaseId);
-		}else{
+		if(!schemaUpdateOptions.getCreateDatabases(false)){
 			String format = "Database %s not found, and auto-creation not enabled in schemaUpdateOptions";
 			throw new RuntimeException(String.format(format, databaseId.getDatabase()));
 		}
+		String message = String.format("Creating spanner database %s", databaseId.getDatabase());
+		logger.info(SchemaUpdateTool.generateFullWidthMessage(message));
+		create(spanner, databaseId);
 	}
 
 	private boolean hasTables(Spanner spanner, DatabaseId databaseId){
@@ -100,11 +98,20 @@ public class SpannerDatabaseCreator{
 
 	private void create(Spanner spanner, DatabaseId databaseId){
 		DatabaseAdminClient databaseAdminClient = spanner.getDatabaseAdminClient();
-		OperationFuture<Database,CreateDatabaseMetadata> op = databaseAdminClient.createDatabase(
-				databaseId.getInstanceId().getInstance(),
-				databaseId.getDatabase(),
-				Collections.emptyList());
-		FutureTool.get(op);
+		try{
+			databaseAdminClient.createDatabase(
+					databaseId.getInstanceId().getInstance(),
+					databaseId.getDatabase(),
+					Collections.emptyList())
+					.get();
+		}catch(InterruptedException e){
+			throw new RuntimeException(e);
+		}catch(ExecutionException e){
+			if(e.getCause() instanceof SpannerException ex && ex.getErrorCode() == ErrorCode.ALREADY_EXISTS){
+				return;
+			}
+			throw new RuntimeException(e);
+		}
 	}
 
 }

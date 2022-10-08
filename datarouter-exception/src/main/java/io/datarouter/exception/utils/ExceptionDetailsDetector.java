@@ -30,7 +30,6 @@ import io.datarouter.exception.utils.nameparser.ExceptionSnapshot.StackTraceElem
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.scanner.OptionalScanner;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.util.tuple.Pair;
 
 @Singleton
 public class ExceptionDetailsDetector{
@@ -47,19 +46,19 @@ public class ExceptionDetailsDetector{
 	public ExceptionRecorderDetails detect(ExceptionSnapshot snapshot, String callOrigin, Set<String> highlights){
 		Optional<ExceptionCauseSnapshot> rootCause = snapshot.getRootCause();
 		Optional<String> parsedName = Optional.empty();
-		Optional<Pair<ExceptionNameParser,List<ExceptionCauseSnapshot>>> parserAndCauseOpt = Scanner.of(registry
+		Optional<ExceptionParserAndOutput> parserAndCauseOpt = Scanner.of(registry
 				.getNameParserClasses())
 				.map(injector::getInstance)
 				.map(ExceptionNameParser.class::cast)
 				.map(parser -> parser.getCausesFromType(snapshot)
-						.map(cause -> new Pair<>(parser, cause)))
+						.map(cause -> new ExceptionParserAndOutput(parser, cause)))
 				.concat(OptionalScanner::of)
 				.findFirst();
 		if(parserAndCauseOpt.isPresent()){
 			var parserAndCause = parserAndCauseOpt.get();
-			rootCause = Optional.of(parserAndCause.getRight().get(0));
-			ExceptionNameParser exceptionWithParser = parserAndCause.getLeft();
-			parsedName = exceptionWithParser.parseExceptionName(parserAndCause.getRight());
+			rootCause = Optional.of(parserAndCause.output().get(0));
+			ExceptionNameParser exceptionWithParser = parserAndCause.parser();
+			parsedName = exceptionWithParser.parseExceptionName(parserAndCause.output());
 		}
 		ExceptionCauseSnapshot exception = rootCause
 				.orElse(new ExceptionCauseSnapshot(null, null, null, List.of()));
@@ -77,6 +76,11 @@ public class ExceptionDetailsDetector{
 			.include(element -> Scanner.of(highlights)
 					.anyMatch(highlight -> element.declaringClass.contains(highlight)))
 			.findFirst();
+	}
+
+	public record ExceptionParserAndOutput(
+			ExceptionNameParser parser,
+			List<ExceptionCauseSnapshot> output){
 	}
 
 	public static class ExceptionRecorderDetails{

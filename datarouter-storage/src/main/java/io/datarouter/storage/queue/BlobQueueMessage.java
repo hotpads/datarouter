@@ -15,39 +15,37 @@
  */
 package io.datarouter.storage.queue;
 
-import java.util.List;
-import java.util.function.Supplier;
+import java.util.Map;
 
-import io.datarouter.model.databean.BaseDatabean;
-import io.datarouter.model.field.Field;
-import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
+import io.datarouter.bytes.Codec;
+import io.datarouter.scanner.Scanner;
+import io.datarouter.storage.node.op.raw.BlobQueueStorage;
 
-/**
- * This is a placeholder to satisfy generic parameters
- */
-public class BlobQueueMessage extends BaseDatabean<BlobQueueMessageKey,BlobQueueMessage>{
+public class BlobQueueMessage<T> extends RawBlobQueueMessage{
 
-	public static class BlobQueueMessageFielder
-	extends BaseDatabeanFielder<BlobQueueMessageKey,BlobQueueMessage>{
+	private final Codec<T,byte[]> codec;
 
-		public BlobQueueMessageFielder(){
-			super(BlobQueueMessageKey::new);
-		}
-
-		@Override
-		public List<Field<?>> getNonKeyFields(BlobQueueMessage databean){
-			return List.of();
-		}
-
+	public BlobQueueMessage(
+			byte[] handle,
+			byte[] data,
+			Map<String,String> messageAttributes,
+			Codec<T,byte[]> codec){
+		super(handle, data, messageAttributes);
+		this.codec = codec;
 	}
 
-	public BlobQueueMessage(){
-		super(new BlobQueueMessageKey());
+	public BlobQueueMessage(RawBlobQueueMessage rawMessage, Codec<T,byte[]> codec){
+		super(rawMessage.getHandle(), rawMessage.getRawData(), rawMessage.getMessageAttributes());
+		this.codec = codec;
 	}
 
-	@Override
-	public Supplier<BlobQueueMessageKey> getKeySupplier(){
-		return BlobQueueMessageKey::new;
+	/**
+	 * scan and decode each T that was stored with {@link BlobQueueStorage#combineAndPut}
+	 * @return scanner of each T
+	 */
+	public Scanner<T> scanSplitDecodedData(){
+		return scanSplitData()
+				.map(codec::decode);
 	}
 
 }

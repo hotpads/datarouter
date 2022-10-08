@@ -19,12 +19,12 @@ import io.datarouter.instrumentation.response.PublishingResponseDto;
 
 public interface GaugePublisher{
 
-	PublishingResponseDto add(GaugeBatchDto gaugeBatchDto);
+	PublishingResponseDto publish(GaugeBatchDto gaugeBatchDto);
 
 	public static class NoOpGaugePublisher implements GaugePublisher{
 
 		@Override
-		public PublishingResponseDto add(GaugeBatchDto gaugeBatchDto){
+		public PublishingResponseDto publish(GaugeBatchDto gaugeBatchDto){
 			return PublishingResponseDto.NO_OP;
 		}
 

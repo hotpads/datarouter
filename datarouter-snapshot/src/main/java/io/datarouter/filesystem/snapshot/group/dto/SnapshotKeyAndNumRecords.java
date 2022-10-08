@@ -20,21 +20,15 @@ import java.util.List;
 
 import io.datarouter.filesystem.snapshot.key.SnapshotKey;
 
-public class SnapshotKeyAndNumRecords{
+public record SnapshotKeyAndNumRecords(
+		SnapshotKey key,
+		long numRecords){
 
 	public static final Comparator<SnapshotKeyAndNumRecords> BY_NUM_RECORDS = Comparator.comparing(
 			input -> input.numRecords);
 
-	public final SnapshotKey key;
-	public final long numRecords;
-
-	public SnapshotKeyAndNumRecords(SnapshotKey key, long numRecords){
-		this.key = key;
-		this.numRecords = numRecords;
-	}
-
 	public SnapshotKeyAndNumRecords(SnapshotKeyAndRoot from){
-		this(from.key, from.root.numItems());
+		this(from.key(), from.root().numItems());
 	}
 
 	public static final long totalRecords(List<SnapshotKeyAndNumRecords> inputs){

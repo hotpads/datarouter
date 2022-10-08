@@ -58,11 +58,23 @@ public class ResponseTool{
 		return jsonObject.toString();
 	}
 
+	/**
+	 * @deprecated Not deprecated for all usage, however try to return a real java object as response object from the
+	 *             handler, instead of a json string. Tools like API-Docs require real objects as the response instead
+	 *             of strings
+	 */
+	@Deprecated
 	public static void sendJson(HttpServletResponse response, int code, String body) throws IOException{
 		response.setStatus(code);
 		sendJson(response, body);
 	}
 
+	/**
+	 * @deprecated Not deprecated for all usage, however try to return a real java object as response object from the
+	 *             handler, instead of a json string. Tools like API-Docs require real objects as the response instead
+	 *             of strings
+	 */
+	@Deprecated
 	public static void sendJson(HttpServletResponse response, String body) throws IOException{
 		response.setContentType(ResponseTool.CONTENT_TYPE_APPLICATION_JSON);
 		// close the writer before the trace to be able to include the close() duration in the measure

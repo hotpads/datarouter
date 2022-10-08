@@ -22,7 +22,6 @@ import javax.management.ObjectName;
 
 import io.datarouter.util.MxBeans;
 import io.datarouter.util.singletonsupplier.SingletonSupplier;
-import io.datarouter.util.tuple.Pair;
 
 @Singleton
 public class WildFlyPortIdentifier implements PortIdentifier{
@@ -32,7 +31,7 @@ public class WildFlyPortIdentifier implements PortIdentifier{
 			HTTPS = "socket-binding-group=standard-sockets,socket-binding=https",
 			PORT_ATTRIBUTE = "port";
 
-	private final Supplier<Pair<Integer,Integer>> ports;
+	private final Supplier<Port> ports;
 
 	public WildFlyPortIdentifier(){
 		this.ports = SingletonSupplier.of(() -> {
@@ -41,7 +40,7 @@ public class WildFlyPortIdentifier implements PortIdentifier{
 				int http = (int)MxBeans.SERVER.getAttribute(objectName, PORT_ATTRIBUTE);
 				objectName = new ObjectName(CompoundPortIdentifier.JBOSS_JMX_DOMAIN + ":" + HTTPS);
 				int https = (int)MxBeans.SERVER.getAttribute(objectName, PORT_ATTRIBUTE);
-				return new Pair<>(http, https);
+				return new Port(http, https);
 			}catch(Exception e){
 				throw new RuntimeException(e);
 			}
@@ -50,12 +49,17 @@ public class WildFlyPortIdentifier implements PortIdentifier{
 
 	@Override
 	public Integer getHttpPort(){
-		return ports.get().getLeft();
+		return ports.get().httpPort();
 	}
 
 	@Override
 	public Integer getHttpsPort(){
-		return ports.get().getRight();
+		return ports.get().httpsPort();
+	}
+
+	private record Port(
+			Integer httpPort,
+			Integer httpsPort){
 	}
 
 }

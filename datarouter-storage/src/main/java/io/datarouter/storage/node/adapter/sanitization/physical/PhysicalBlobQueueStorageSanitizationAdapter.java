@@ -17,43 +17,45 @@ package io.datarouter.storage.node.adapter.sanitization.physical;
 
 import java.util.Optional;
 
+import io.datarouter.bytes.Codec;
+import io.datarouter.model.databean.EmptyDatabean;
+import io.datarouter.model.databean.EmptyDatabean.EmptyDatabeanFielder;
+import io.datarouter.model.key.EmptyDatabeanKey;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.adapter.PhysicalAdapterMixin;
 import io.datarouter.storage.node.adapter.sanitization.BaseSanitizationAdapter;
 import io.datarouter.storage.node.op.raw.BlobQueueStorage.PhysicalBlobQueueStorageNode;
 import io.datarouter.storage.queue.BlobQueueMessage;
-import io.datarouter.storage.queue.BlobQueueMessage.BlobQueueMessageFielder;
-import io.datarouter.storage.queue.BlobQueueMessageDto;
-import io.datarouter.storage.queue.BlobQueueMessageKey;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
 import io.datarouter.util.Require;
 
-public class PhysicalBlobQueueStorageSanitizationAdapter
-extends BaseSanitizationAdapter<
-		BlobQueueMessageKey,
-		BlobQueueMessage,
-		BlobQueueMessageFielder,
-		PhysicalBlobQueueStorageNode>
-implements PhysicalBlobQueueStorageNode,
-		PhysicalAdapterMixin<BlobQueueMessageKey,BlobQueueMessage,BlobQueueMessageFielder,PhysicalBlobQueueStorageNode>{
+public class PhysicalBlobQueueStorageSanitizationAdapter<T>
+extends BaseSanitizationAdapter<EmptyDatabeanKey,EmptyDatabean,EmptyDatabeanFielder,PhysicalBlobQueueStorageNode<T>>
+implements PhysicalBlobQueueStorageNode<T>,
+		PhysicalAdapterMixin<EmptyDatabeanKey,EmptyDatabean,EmptyDatabeanFielder,PhysicalBlobQueueStorageNode<T>>{
 
-	public PhysicalBlobQueueStorageSanitizationAdapter(PhysicalBlobQueueStorageNode backingNode){
+	public PhysicalBlobQueueStorageSanitizationAdapter(PhysicalBlobQueueStorageNode<T> backingNode){
 		super(backingNode);
 	}
 
 	@Override
-	public int getMaxDataSize(){
-		return backingNode.getMaxDataSize();
+	public int getMaxRawDataSize(){
+		return backingNode.getMaxRawDataSize();
 	}
 
 	@Override
-	public void put(byte[] data, Config config){
+	public Codec<T,byte[]> getCodec(){
+		return backingNode.getCodec();
+	}
+
+	@Override
+	public void putRaw(byte[] data, Config config){
 		Require.noNulls(data, config);
-		backingNode.put(data, config);
+		backingNode.putRaw(data, config);
 	}
 
 	@Override
-	public Optional<BlobQueueMessageDto> peek(Config config){
+	public Optional<BlobQueueMessage<T>> peek(Config config){
 		Require.noNulls(config);
 		return backingNode.peek(config);
 	}
@@ -65,13 +67,13 @@ implements PhysicalBlobQueueStorageNode,
 	}
 
 	@Override
-	public Optional<BlobQueueMessageDto> poll(Config config){
+	public Optional<BlobQueueMessage<T>> poll(Config config){
 		Require.noNulls(config);
 		return backingNode.poll(config);
 	}
 
 	@Override
-	public PhysicalDatabeanFieldInfo<BlobQueueMessageKey, BlobQueueMessage, BlobQueueMessageFielder> getFieldInfo(){
+	public PhysicalDatabeanFieldInfo<EmptyDatabeanKey,EmptyDatabean,EmptyDatabeanFielder> getFieldInfo(){
 		return PhysicalAdapterMixin.super.getFieldInfo();
 	}
 

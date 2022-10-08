@@ -15,20 +15,57 @@
  */
 package io.datarouter.conveyor;
 
-public interface Conveyor extends Comparable<Conveyor>, Runnable{
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Supplier;
 
-	String getName();
-	boolean shouldRun();
-	void setIsShuttingDown();
-	boolean isShuttingDown();
+public class Conveyor implements ConveyorRunnable{
 
-	default boolean shouldRunOnShutdown(){
-		return false;
+	private final ConveyorService conveyorService;
+	private final ConveyorConfiguration conveyorConfiguration;
+	private final String name;
+	private final AtomicBoolean isShuttingDown;
+	private final Supplier<Boolean> shouldRun;
+
+	public Conveyor(ConveyorService conveyorService, ConveyorConfiguration conveyorConfiguration, String name,
+			Supplier<Boolean> shouldRun){
+		this.conveyorService = conveyorService;
+		this.conveyorConfiguration = conveyorConfiguration;
+		this.name = name;
+		this.shouldRun = shouldRun;
+		this.isShuttingDown = new AtomicBoolean();
 	}
 
 	@Override
-	default int compareTo(Conveyor other){
-		return getName().compareTo(other.getName());
+	public void run(){
+		conveyorService.run(conveyorConfiguration, this);
+	}
+
+	@Override
+	public String getName(){
+		return name;
+	}
+
+	@Override
+	public boolean shouldRun(){
+		return shouldRun.get();
+	}
+
+	@Override
+	public void setIsShuttingDown(){
+		isShuttingDown.set(true);
+	}
+
+	@Override
+	public boolean isShuttingDown(){
+		return isShuttingDown.get();
+	}
+
+	@Override
+	public boolean shouldRunOnShutdown(){
+		return conveyorConfiguration.shouldRunOnShutdown();
+	}
+
+	public record ProcessResult(boolean shouldContinueImmediately){
 	}
 
 }

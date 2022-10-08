@@ -34,14 +34,14 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonSyntaxException;
 
-import io.datarouter.httpclient.endpoint.BaseLink;
-import io.datarouter.httpclient.endpoint.EndpointRequestBody;
-import io.datarouter.httpclient.endpoint.EndpointTool;
-import io.datarouter.httpclient.endpoint.IgnoredField;
-import io.datarouter.httpclient.endpoint.LinkTool;
-import io.datarouter.httpclient.json.JsonSerializer;
+import io.datarouter.httpclient.endpoint.java.EndpointTool;
+import io.datarouter.httpclient.endpoint.link.BaseLink;
+import io.datarouter.httpclient.endpoint.link.LinkTool;
+import io.datarouter.httpclient.endpoint.param.RequestBody;
+import io.datarouter.httpclient.endpoint.param.IgnoredField;
 import io.datarouter.instrumentation.trace.TraceSpanGroupType;
 import io.datarouter.instrumentation.trace.TracerTool;
+import io.datarouter.json.JsonSerializer;
 import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.handler.encoder.HandlerEncoder;
@@ -108,7 +108,7 @@ public class LinkDecoder implements HandlerDecoder, JsonAwareHandlerCodec{
 			Type parameterType = field.getType();
 			String[] queryParam = queryParams.get(parameterName);
 
-			if(field.isAnnotationPresent(EndpointRequestBody.class)){
+			if(field.isAnnotationPresent(RequestBody.class)){
 				Object requestBody = decodeType(body, field.getGenericType());
 				field.set(baseLink, requestBody);
 				continue;

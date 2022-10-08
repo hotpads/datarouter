@@ -19,6 +19,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.gcp.spanner.field.SpannerFieldCodecs;
+import io.datarouter.gcp.spanner.node.SpannerBlobNode;
 import io.datarouter.gcp.spanner.node.SpannerNode;
 import io.datarouter.gcp.spanner.node.SpannerTallyNode;
 import io.datarouter.model.databean.Databean;
@@ -27,8 +28,12 @@ import io.datarouter.model.key.entity.EntityKey;
 import io.datarouter.model.key.primary.EntityPrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.opencensus.adapter.physical.PhysicalIndexedSortedMapStorageOpencensusAdapter;
+import io.datarouter.storage.client.imp.BlobClientNodeFactory;
 import io.datarouter.storage.client.imp.DatabeanClientNodeFactory;
 import io.datarouter.storage.client.imp.TallyClientNodeFactory;
+import io.datarouter.storage.file.DatabaseBlob;
+import io.datarouter.storage.file.DatabaseBlob.DatabaseBlobFielder;
+import io.datarouter.storage.file.DatabaseBlobKey;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.adapter.NodeAdapters;
 import io.datarouter.storage.node.adapter.availability.PhysicalIndexedSortedMapStorageAvailabilityAdapterFactory;
@@ -37,6 +42,7 @@ import io.datarouter.storage.node.adapter.counter.physical.PhysicalIndexedSorted
 import io.datarouter.storage.node.adapter.sanitization.physical.PhysicalIndexedSortedMapStorageSanitizationAdapter;
 import io.datarouter.storage.node.adapter.trace.physical.PhysicalIndexedSortedMapStorageTraceAdapter;
 import io.datarouter.storage.node.entity.EntityNodeParams;
+import io.datarouter.storage.node.op.raw.BlobStorage.PhysicalBlobStorageNode;
 import io.datarouter.storage.node.op.raw.TallyStorage.PhysicalTallyStorageNode;
 import io.datarouter.storage.node.type.index.ManagedNodesHolder;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
@@ -46,7 +52,7 @@ import io.datarouter.storage.tally.TallyKey;
 
 @Singleton
 public class SpannerClientNodeFactory
-implements DatabeanClientNodeFactory, TallyClientNodeFactory{
+implements BlobClientNodeFactory, DatabeanClientNodeFactory, TallyClientNodeFactory{
 
 	@Inject
 	private SpannerClientType spannerClientType;
@@ -96,6 +102,17 @@ implements DatabeanClientNodeFactory, TallyClientNodeFactory{
 				spannerClientManager,
 				fieldCodecs);
 		return nodeAdapters.wrapTallyNode(node);
+	}
+
+	@Override
+	public PhysicalBlobStorageNode createBlobNode(
+			NodeParams<DatabaseBlobKey,DatabaseBlob,DatabaseBlobFielder> nodeParams){
+		var node = new SpannerBlobNode(
+				nodeParams,
+				spannerClientType,
+				spannerClientManager,
+				fieldCodecs);
+		return nodeAdapters.wrapBlobNode(node);
 	}
 
 }

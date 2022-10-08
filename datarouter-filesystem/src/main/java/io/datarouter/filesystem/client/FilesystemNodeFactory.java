@@ -17,18 +17,19 @@ package io.datarouter.filesystem.client;
 
 import javax.inject.Singleton;
 
+import io.datarouter.bytes.Codec;
 import io.datarouter.filesystem.node.queue.DirectoryBlobQueueNode;
 import io.datarouter.filesystem.node.queue.DirectoryGroupQueueNode;
 import io.datarouter.filesystem.node.queue.DirectoryQueueNode;
 import io.datarouter.filesystem.raw.queue.DirectoryQueue;
 import io.datarouter.model.databean.Databean;
+import io.datarouter.model.databean.EmptyDatabean;
+import io.datarouter.model.databean.EmptyDatabean.EmptyDatabeanFielder;
+import io.datarouter.model.key.EmptyDatabeanKey;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.op.raw.BlobQueueStorage.PhysicalBlobQueueStorageNode;
-import io.datarouter.storage.queue.BlobQueueMessage;
-import io.datarouter.storage.queue.BlobQueueMessage.BlobQueueMessageFielder;
-import io.datarouter.storage.queue.BlobQueueMessageKey;
 
 @Singleton
 public class FilesystemNodeFactory{
@@ -37,23 +38,21 @@ public class FilesystemNodeFactory{
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
 	DirectoryQueueNode<PK,D,F> createSingleNode(DirectoryQueue directoryQueue, NodeParams<PK,D,F> params){
-		return new DirectoryQueueNode<>(
-				directoryQueue,
-				params);
+		return new DirectoryQueueNode<>(directoryQueue, params);
 	}
 
 	public <PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
 	DirectoryGroupQueueNode<PK,D,F> createGroupNode(DirectoryQueue directoryQueue, NodeParams<PK,D,F> params){
-		return new DirectoryGroupQueueNode<>(
-				directoryQueue,
-				params);
+		return new DirectoryGroupQueueNode<>(directoryQueue, params);
 	}
 
-	public PhysicalBlobQueueStorageNode createBlobNode(DirectoryQueue directoryQueue,
-			NodeParams<BlobQueueMessageKey,BlobQueueMessage,BlobQueueMessageFielder> params){
-		return new DirectoryBlobQueueNode(directoryQueue, params);
+	public <T> PhysicalBlobQueueStorageNode<T> createBlobNode(
+			DirectoryQueue directoryQueue,
+			NodeParams<EmptyDatabeanKey,EmptyDatabean,EmptyDatabeanFielder> params,
+			Codec<T,byte[]> codec){
+		return new DirectoryBlobQueueNode<>(directoryQueue, params, codec);
 	}
 
 }

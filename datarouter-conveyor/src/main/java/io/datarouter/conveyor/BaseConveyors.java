@@ -34,7 +34,6 @@ import io.datarouter.inject.InstanceRegistry;
 import io.datarouter.util.Require;
 import io.datarouter.util.concurrent.ExecutorServiceTool;
 import io.datarouter.util.concurrent.NamedThreadFactory;
-import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.listener.DatarouterAppListener;
 
 public abstract class BaseConveyors implements DatarouterAppListener{
@@ -42,7 +41,7 @@ public abstract class BaseConveyors implements DatarouterAppListener{
 
 	private static final long DELAY_SEC = 3L;
 
-	private final Map<String,Pair<ExecutorService,Conveyor>> execsAndConveyorsByName;
+	private final Map<String,ExecsAndConveyors> execsAndConveyorsByName;
 
 	@Inject
 	private InstanceRegistry instanceRegistry;
@@ -51,11 +50,11 @@ public abstract class BaseConveyors implements DatarouterAppListener{
 		this.execsAndConveyorsByName = new TreeMap<>();
 	}
 
-	protected void start(Conveyor conveyor, int numThreads){
+	protected void start(ConveyorRunnable conveyor, int numThreads){
 		start(conveyor, numThreads, DELAY_SEC);
 	}
 
-	protected void start(Conveyor conveyor, int numThreads, long delaySeconds){
+	protected void start(ConveyorRunnable conveyor, int numThreads, long delaySeconds){
 		String name = conveyor.getName();
 		Require.notContains(execsAndConveyorsByName.keySet(), name, name + " already exists");
 		String threadGroupName = name;
@@ -65,26 +64,31 @@ public abstract class BaseConveyors implements DatarouterAppListener{
 			exec.scheduleWithFixedDelay(conveyor, delaySeconds, delaySeconds, TimeUnit.SECONDS);
 		}
 		instanceRegistry.register(exec);
-		execsAndConveyorsByName.put(name, new Pair<>(exec, conveyor));
+		execsAndConveyorsByName.put(name, new ExecsAndConveyors(exec, conveyor));
 	}
 
-	public Map<String,Pair<ExecutorService,Conveyor>> getExecsAndConveyorsbyName(){
+	public Map<String,ExecsAndConveyors> getExecsAndConveyorsbyName(){
 		return execsAndConveyorsByName;
 	}
 
 	@Override
 	public void onShutDown(){
 		// explicitly shut those down before CountersAppListener onShutDown
-		for(Entry<String,Pair<ExecutorService,Conveyor>> entry : execsAndConveyorsByName.entrySet()){
-			var conveyor = entry.getValue().getRight();
+		for(Entry<String,ExecsAndConveyors> entry : execsAndConveyorsByName.entrySet()){
+			var conveyor = entry.getValue().conveyor();
 			conveyor.setIsShuttingDown();
 			if(conveyor.shouldRunOnShutdown()){
 				//intentionally run once more to allow cleaner shutdown
-				entry.getValue().getLeft().submit(conveyor);
+				entry.getValue().executor().submit(conveyor);
 				logger.info("running conveyor={} onShutdown", entry.getKey());
 			}
-			ExecutorServiceTool.shutdown(entry.getValue().getLeft(), Duration.ofSeconds(5));
+			ExecutorServiceTool.shutdown(entry.getValue().executor(), Duration.ofSeconds(5));
 		}
+	}
+
+	public record ExecsAndConveyors(
+			ExecutorService executor,
+			ConveyorRunnable conveyor){
 	}
 
 }

@@ -15,17 +15,26 @@
  */
 package io.datarouter.storage.node.op.raw;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
+import io.datarouter.bytes.BatchingByteArrayScanner;
+import io.datarouter.bytes.ByteTool;
+import io.datarouter.bytes.Codec;
+import io.datarouter.bytes.PrependLengthByteArrayScanner;
+import io.datarouter.bytes.VarIntTool;
+import io.datarouter.model.databean.EmptyDatabean;
+import io.datarouter.model.databean.EmptyDatabean.EmptyDatabeanFielder;
+import io.datarouter.model.key.EmptyDatabeanKey;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.Config;
+import io.datarouter.storage.exception.DataTooLargeException;
 import io.datarouter.storage.node.Node;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.storage.queue.BlobQueueMessage;
-import io.datarouter.storage.queue.BlobQueueMessage.BlobQueueMessageFielder;
-import io.datarouter.storage.queue.BlobQueueMessageDto;
-import io.datarouter.storage.queue.BlobQueueMessageKey;
 
-public interface BlobQueueStorage{
+public interface BlobQueueStorage<T>{
 
 	public static final String OP_getMaxDataSize = "getMaxDataSize";
 	public static final String OP_put = "put";
@@ -33,17 +42,47 @@ public interface BlobQueueStorage{
 	public static final String OP_ack = "ack";
 	public static final String OP_poll = "poll";
 
-	int getMaxDataSize();
+	int getMaxRawDataSize();
 
-	void put(byte[] data, Config config);
+	default boolean willFit(T data){
+		return getCodec().encode(data).length < getMaxRawDataSize();
+	}
 
-	default void put(byte[] data){
+	Codec<T,byte[]> getCodec();
+
+	void putRaw(byte[] data, Config config);
+
+	default void putRaw(byte[] data){
+		putRaw(data, new Config());
+	}
+
+	default void put(T data, Config config){
+		combineAndPut(Scanner.of(data), config);
+	}
+
+	default void put(T data){
 		put(data, new Config());
 	}
 
-	Optional<BlobQueueMessageDto> peek(Config config);
+	default void putMulti(Collection<T> data, Config config){
+		combineAndPut(Scanner.of(data), config);
+	}
 
-	default Optional<BlobQueueMessageDto> peek(){
+	default void putMulti(Collection<T> data){
+		putMulti(data, new Config());
+	}
+
+	default void putMulti(Scanner<T> data, Config config){
+		combineAndPut(data, config);
+	}
+
+	default void putMulti(Scanner<T> data){
+		putMulti(data, new Config());
+	}
+
+	Optional<BlobQueueMessage<T>> peek(Config config);
+
+	default Optional<BlobQueueMessage<T>> peek(){
 		return peek(new Config());
 	}
 
@@ -53,30 +92,56 @@ public interface BlobQueueStorage{
 		ack(handle, new Config());
 	}
 
-	default void ack(BlobQueueMessageDto blobQueueMessage, Config config){
+	default void ack(BlobQueueMessage<T> blobQueueMessage, Config config){
 		ack(blobQueueMessage.getHandle(), config);
 	}
 
-	default void ack(BlobQueueMessageDto blobQueueMessage){
+	default void ack(BlobQueueMessage<T> blobQueueMessage){
 		ack(blobQueueMessage, new Config());
 	}
 
-	default Optional<BlobQueueMessageDto> poll(Config config){
+	default Optional<BlobQueueMessage<T>> poll(Config config){
 		var optionalMessage = peek(config);
 		optionalMessage.ifPresent(message -> ack(message, config));
 		return optionalMessage;
 	}
 
-	default Optional<BlobQueueMessageDto> poll(){
+	default Optional<BlobQueueMessage<T>> poll(){
 		return poll(new Config());
 	}
 
-	interface BlobQueueStorageNode
-	extends BlobQueueStorage, Node<BlobQueueMessageKey,BlobQueueMessage,BlobQueueMessageFielder>{
+	/**
+	 * see {@link BlobQueueStorage#combineAndPut(Scanner, Config)}
+	 */
+	default void combineAndPut(Scanner<T> data){
+		combineAndPut(data, new Config());
 	}
 
-	interface PhysicalBlobQueueStorageNode
-	extends BlobQueueStorageNode, PhysicalNode<BlobQueueMessageKey,BlobQueueMessage,BlobQueueMessageFielder>{
+	/**
+	 * convenience method to automatically batch and put data with its length if each byte[] plus its length fits.
+	 * @param data each byte[] must be smaller than {@link BlobQueueStorage#getMaxRawDataSize()} -
+	 * {@link VarIntTool#encode(long)}d length
+	 */
+	default void combineAndPut(Scanner<T> data, Config config){
+		data
+				.map(getCodec()::encode)
+				.each(bytes -> {
+					if(bytes.length > getMaxRawDataSize() - VarIntTool.encode(bytes.length).length){
+						throw new DataTooLargeException("BlobQueueStorage", List.of("a blob of size " + bytes.length));
+					}
+				})
+				.apply(PrependLengthByteArrayScanner::of)
+				.apply(scanner -> new BatchingByteArrayScanner(scanner, getMaxRawDataSize()))
+				.map(ByteTool::concat)
+				.forEach(bytes -> putRaw(bytes, config));
+	}
+
+	interface BlobQueueStorageNode<T>
+	extends BlobQueueStorage<T>, Node<EmptyDatabeanKey,EmptyDatabean,EmptyDatabeanFielder>{
+	}
+
+	interface PhysicalBlobQueueStorageNode<T>
+	extends BlobQueueStorageNode<T>, PhysicalNode<EmptyDatabeanKey,EmptyDatabean,EmptyDatabeanFielder>{
 	}
 
 }

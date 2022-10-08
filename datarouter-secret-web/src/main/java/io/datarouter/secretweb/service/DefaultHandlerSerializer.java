@@ -21,7 +21,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
-import io.datarouter.httpclient.json.JsonSerializer;
+import io.datarouter.json.JsonSerializer;
 import io.datarouter.secret.service.SecretJsonSerializer;
 import io.datarouter.web.handler.encoder.HandlerEncoder;
 

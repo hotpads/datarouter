@@ -25,7 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.instrumentation.trace.TraceSpanGroupType;
 import io.datarouter.instrumentation.trace.TracerTool;
-import io.datarouter.util.tuple.Pair;
+import io.datarouter.web.handler.BaseHandler.HandlerMethodAndArgs;
 import io.datarouter.web.handler.BaseHandler.Handler;
 import io.datarouter.web.handler.BaseHandler.NullHandlerDecoder;
 
@@ -39,8 +39,10 @@ public class HandlerTypingHelper{
 	 * This methods goes through all methods who are named like methodName and tries to find the one that has the
 	 * largest number of parameters. It generates the array of arguments at the same time.
 	 */
-	public Pair<Method,Object[]> findMethodByName(Collection<Method> possibleMethods,
-			Class<? extends HandlerDecoder> handlerDecoderClass, HttpServletRequest request){
+	public HandlerMethodAndArgs findMethodByName(
+			Collection<Method> possibleMethods,
+			Class<? extends HandlerDecoder> handlerDecoderClass,
+			HttpServletRequest request){
 		Method method = null;
 		Object[] args = new Object[]{};
 		for(Method possibleMethod : possibleMethods){
@@ -63,7 +65,7 @@ public class HandlerTypingHelper{
 				method = possibleMethod;
 			}
 		}
-		return new Pair<>(method, args);
+		return new HandlerMethodAndArgs(method, args);
 	}
 
 }

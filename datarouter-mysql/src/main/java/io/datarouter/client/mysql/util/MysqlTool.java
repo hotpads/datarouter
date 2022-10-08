@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
 import com.mysql.cj.log.Slf4JLogger;
 
 import io.datarouter.client.mysql.connection.MysqlConnectionPoolHolder.MysqlConnectionPool;
-import io.datarouter.client.mysql.field.MysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.factory.MysqlFieldCodecFactory;
 import io.datarouter.instrumentation.trace.TraceSpanGroupType;
 import io.datarouter.instrumentation.trace.TracerTool;
@@ -110,11 +109,11 @@ public class MysqlTool{
 			}
 			ResultSet rs = ps.getResultSet();
 			List<PK> primaryKeys = new ArrayList<>();
-			List<MysqlFieldCodec<?>> codecs = fieldCodecFactory.createCodecs(fieldInfo.getPrimaryKeyFields());
 			while(rs.next()){
 				PK primaryKey = fieldSetFromMysqlResultSetUsingReflection(
+						fieldCodecFactory,
 						fieldInfo.getPrimaryKeySupplier(),
-						codecs,
+						fieldInfo.getPrimaryKeyFields(),
 						rs);
 				primaryKeys.add(primaryKey);
 			}
@@ -148,12 +147,12 @@ public class MysqlTool{
 			Supplier<D> databeanSupplier,
 			List<Field<?>> fields,
 			PreparedStatement ps){
-		try{
+		String spanName = databeanSupplier.get().getDatabeanName() + " getDatabeansFromSelectResult";
+		try(var $ = TracerTool.startSpan(spanName, TraceSpanGroupType.SERIALIZATION)){
 			ResultSet rs = ps.getResultSet();
 			List<D> databeans = new ArrayList<>();
-			List<MysqlFieldCodec<?>> codecs = fieldCodecFactory.createCodecs(fields);
 			while(rs.next()){
-				D databean = fieldSetFromMysqlResultSetUsingReflection(databeanSupplier, codecs, rs);
+				D databean = fieldSetFromMysqlResultSetUsingReflection(fieldCodecFactory, databeanSupplier, fields, rs);
 				databeans.add(databean);
 			}
 			return databeans;
@@ -179,11 +178,11 @@ public class MysqlTool{
 			}
 			ResultSet rs = ps.getResultSet();
 			List<IK> keys = new ArrayList<>();
-			List<MysqlFieldCodec<?>> codecs = fieldCodecFactory.createCodecs(fieldInfo.getPrimaryKeyFields());
 			while(rs.next()){
 				IK key = fieldSetFromMysqlResultSetUsingReflection(
+						fieldCodecFactory,
 						fieldInfo.getPrimaryKeySupplier(),
-						codecs,
+						fieldInfo.getPrimaryKeyFields(),
 						rs);
 				keys.add(key);
 			}
@@ -205,14 +204,25 @@ public class MysqlTool{
 	}
 
 	public static <F> F fieldSetFromMysqlResultSetUsingReflection(
+			MysqlFieldCodecFactory fieldCodecFactory,
 			Supplier<F> supplier,
-			List<MysqlFieldCodec<?>> codecs,
+			List<Field<?>> fields,
 			ResultSet rs){
 		F targetFieldSet = supplier.get();
-		for(MysqlFieldCodec<?> codec : codecs){
-			codec.fromMysqlResultSetUsingReflection(targetFieldSet, rs);
+		for(Field<?> field : fields){
+			fromMysqlResultSetUsingReflection(fieldCodecFactory, field, rs, targetFieldSet);
 		}
 		return targetFieldSet;
+	}
+
+	public static <T,F extends Field<T>,FS> void fromMysqlResultSetUsingReflection(
+			MysqlFieldCodecFactory fieldCodecFactory,
+			F field,
+			ResultSet rs,
+			FS targetFieldSet){
+		var codec = fieldCodecFactory.createCodec(field);
+		Object value = codec.fromMysqlResultSetButDoNotSet(rs, field);
+		field.setUsingReflection(targetFieldSet, value);
 	}
 
 	public static PreparedStatement prepareStatement(Connection connection, String sql){

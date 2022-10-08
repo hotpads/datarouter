@@ -110,7 +110,6 @@ public class HtmlForm{
 		return field;
 	}
 
-
 	public String getAction(){
 		return action;
 	}

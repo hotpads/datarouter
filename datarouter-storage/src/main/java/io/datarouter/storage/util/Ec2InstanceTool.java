@@ -20,7 +20,7 @@ import java.util.Optional;
 
 import io.datarouter.gson.serialization.GsonTool;
 import io.datarouter.util.net.NetTool;
-import io.datarouter.util.tuple.Pair;
+import io.datarouter.util.net.NetTool.Header;
 
 public class Ec2InstanceTool{
 
@@ -35,8 +35,8 @@ public class Ec2InstanceTool{
 
 	private static Optional<String> makeEc2Call(String ec2Url, boolean logError){
 		// IMDSv2
-		return NetTool.curl("PUT", EC2_TOKEN_URL, logError, new Pair<>(TTL_HEADER, TTL_S))
-				.flatMap(token -> NetTool.curl("GET", ec2Url, logError, new Pair<>(TOKEN_HEADER, token)))
+		return NetTool.curl("PUT", EC2_TOKEN_URL, logError, new Header(TTL_HEADER, TTL_S))
+				.flatMap(token -> NetTool.curl("GET", ec2Url, logError, new Header(TOKEN_HEADER, token)))
 				// IMDSv1
 				.or(() -> NetTool.curl("GET", ec2Url, logError, null));
 	}

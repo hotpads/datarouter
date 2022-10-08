@@ -21,10 +21,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.httpclient.dto.DatarouterAccountCredentialStatusDto;
-import io.datarouter.httpclient.endpoint.BaseEndpoint;
 import io.datarouter.httpclient.endpoint.DatarouterServiceCheckCredentialEndpoint;
 import io.datarouter.httpclient.endpoint.DatarouterServiceHealthcheckEndpoint;
-import io.datarouter.httpclient.endpoint.EndpointType;
+import io.datarouter.httpclient.endpoint.java.BaseEndpoint;
+import io.datarouter.httpclient.endpoint.java.EndpointType;
 import io.datarouter.httpclient.response.Conditional;
 
 //currently works as a mixin for existing BaseDatarouterEndpointClientWrappers

@@ -39,16 +39,12 @@ extends BaseMysqlFieldCodec<T,StringEncodedField<T>>{
 
 	private static final int MAX_LENGTH_VARCHAR = 1024;
 
-	public StringEncodedMysqlFieldCodec(StringEncodedField<T> field){
-		super(field);
-	}
-
 	@Override
-	public SqlColumn getSqlColumnDefinition(boolean allowNullable){
+	public SqlColumn getSqlColumnDefinition(boolean allowNullable, StringEncodedField<T> field){
 		boolean nullable = allowNullable && field.getKey().isNullable();
 		return new CharSequenceSqlColumn(
 				field.getKey().getColumnName(),
-				getMysqlColumnType(),
+				getMysqlColumnType(field),
 				getNormalizedSize(field.getSize()),
 				nullable,
 				false,
@@ -58,7 +54,7 @@ extends BaseMysqlFieldCodec<T,StringEncodedField<T>>{
 	}
 
 	@Override
-	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
+	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex, StringEncodedField<T> field){
 		try{
 			if(field.getValue() == null){
 				ps.setNull(parameterIndex, Types.VARCHAR);
@@ -71,7 +67,7 @@ extends BaseMysqlFieldCodec<T,StringEncodedField<T>>{
 	}
 
 	@Override
-	public T fromMysqlResultSetButDoNotSet(ResultSet rs){
+	public T fromMysqlResultSetButDoNotSet(ResultSet rs, StringEncodedField<T> field){
 		try{
 			String string = rs.getString(field.getKey().getColumnName());
 			return field.getCodec().decode(string);
@@ -81,7 +77,7 @@ extends BaseMysqlFieldCodec<T,StringEncodedField<T>>{
 	}
 
 	@Override
-	public MysqlColumnType getMysqlColumnType(){
+	public MysqlColumnType getMysqlColumnType(StringEncodedField<T> field){
 		return getColumnType(field.getSize());
 	}
 

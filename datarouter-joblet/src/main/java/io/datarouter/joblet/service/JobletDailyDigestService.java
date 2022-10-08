@@ -29,7 +29,6 @@ import javax.inject.Singleton;
 
 import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
-import io.datarouter.httpclient.dto.BaseGsonDto;
 import io.datarouter.joblet.enums.JobletStatus;
 import io.datarouter.joblet.storage.jobletrequest.DatarouterJobletRequestDao;
 import io.datarouter.joblet.storage.jobletrequest.JobletRequest;
@@ -57,7 +56,7 @@ public class JobletDailyDigestService{
 
 	public Map<FailedJobletDto,List<JobletRequest>> getFailedJoblets(){
 		return dao.scanFailedJoblets()
-				.groupBy(FailedJobletDto::new);
+				.groupBy(FailedJobletDto::fromRequest);
 	}
 
 	public List<JobletRequest> getOldJoblets(){
@@ -74,8 +73,8 @@ public class JobletDailyDigestService{
 						zoneId))
 				.withColumn("Execution Order", row -> row.getKey().getExecutionOrder())
 				.withColumn("Status", row -> row.getStatus().persistentString)
-				.withColumn("Num Timeouts", row -> row.getNumTimeouts())
-				.withColumn("Num Failures", row -> row.getNumFailures())
+				.withColumn("Num Timeouts", JobletRequest::getNumTimeouts)
+				.withColumn("Num Failures", JobletRequest::getNumFailures)
 				.build(joblets);
 	}
 
@@ -134,55 +133,37 @@ public class JobletDailyDigestService{
 				.withHref(href);
 	}
 
-	public static class OldJobletDto extends BaseGsonDto{
+	public record OldJobletDto(
+			String type,
+			int executionOrder,
+			JobletStatus status,
+			int numTimeouts,
+			int numFailures){
 
-		public final String type;
-		public final int executionOrder;
-		public final JobletStatus status;
-		public final int numTimeouts;
-		public final int numFailures;
-
-		public OldJobletDto(JobletRequest request){
-			this(
+		public static OldJobletDto fromRequest(JobletRequest request){
+			return new OldJobletDto(
 					request.getKey().getType(),
 					request.getKey().getExecutionOrder(),
 					request.getStatus(),
 					request.getNumTimeouts(),
 					request.getNumFailures());
-		}
-
-		public OldJobletDto(String type, int executionOrder, JobletStatus status, int numTimeouts, int numFailures){
-			this.type = type;
-			this.executionOrder = executionOrder;
-			this.status = status;
-			this.numTimeouts = numTimeouts;
-			this.numFailures = numFailures;
 		}
 	}
 
-	private static class FailedJobletDto extends BaseGsonDto{
+	private record FailedJobletDto(
+			String type,
+			int executionOrder,
+			JobletStatus status,
+			int numTimeouts,
+			int numFailures){
 
-		public final String type;
-		public final int executionOrder;
-		public final JobletStatus status;
-		public final int numTimeouts;
-		public final int numFailures;
-
-		public FailedJobletDto(JobletRequest request){
-			this(
+		public static FailedJobletDto fromRequest(JobletRequest request){
+			return new FailedJobletDto(
 					request.getKey().getType(),
 					request.getKey().getExecutionOrder(),
 					request.getStatus(),
 					request.getNumTimeouts(),
 					request.getNumFailures());
-		}
-
-		public FailedJobletDto(String type, int executionOrder, JobletStatus status, int numTimeouts, int numFailures){
-			this.type = type;
-			this.executionOrder = executionOrder;
-			this.status = status;
-			this.numTimeouts = numTimeouts;
-			this.numFailures = numFailures;
 		}
 
 	}

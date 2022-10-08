@@ -22,6 +22,7 @@ import javax.inject.Singleton;
 
 import io.datarouter.httpclient.client.BaseDatarouterHttpClientWrapper;
 import io.datarouter.httpclient.client.DatarouterHttpClientBuilder;
+import io.datarouter.httpclient.json.GsonJsonSerializer;
 import io.datarouter.httpclient.request.DatarouterHttpRequest;
 import io.datarouter.httpclient.request.HttpRequestMethod;
 import io.datarouter.httpclient.response.Conditional;
@@ -74,7 +75,7 @@ public class OutgoingIpFinderService{
 	public static class OutgoingIpFinderClient extends BaseDatarouterHttpClientWrapper{
 
 		public OutgoingIpFinderClient(){
-			super(new DatarouterHttpClientBuilder().build());
+			super(new DatarouterHttpClientBuilder(GsonJsonSerializer.DEFAULT).build());
 		}
 
 	}

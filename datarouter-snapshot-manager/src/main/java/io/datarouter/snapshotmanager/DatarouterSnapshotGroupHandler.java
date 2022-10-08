@@ -69,21 +69,21 @@ public class DatarouterSnapshotGroupHandler extends BaseHandler{
 				.with(thead);
 		group.keyReadOps(false).scanSnapshotKeys()
 				.map(snapshotKey -> {
-					var idTd = td(snapshotKey.snapshotId);
+					var idTd = td(snapshotKey.snapshotId());
 
 					String summaryHref = new URIBuilder()
 							.setPath(request.getContextPath() + snapshotPaths.datarouter.snapshot.individual.summary
 									.toSlashedString())
-							.addParameter(DatarouterSnapshotHandler.P_groupId, snapshotKey.groupId)
-							.addParameter(DatarouterSnapshotHandler.P_snapshotId, snapshotKey.snapshotId)
+							.addParameter(DatarouterSnapshotHandler.P_groupId, snapshotKey.groupId())
+							.addParameter(DatarouterSnapshotHandler.P_snapshotId, snapshotKey.snapshotId())
 							.toString();
 					var summaryTd = td(a("summary").withHref(summaryHref));
 
 					String entriesHref = new URIBuilder()
 							.setPath(request.getContextPath() + snapshotPaths.datarouter.snapshot.individual.entries
 									.toSlashedString())
-							.addParameter(DatarouterSnapshotHandler.P_groupId, snapshotKey.groupId)
-							.addParameter(DatarouterSnapshotHandler.P_snapshotId, snapshotKey.snapshotId)
+							.addParameter(DatarouterSnapshotHandler.P_groupId, snapshotKey.groupId())
+							.addParameter(DatarouterSnapshotHandler.P_snapshotId, snapshotKey.snapshotId())
 							.toString();
 					var entriesTd = td(a("entries").withHref(entriesHref));
 

@@ -43,7 +43,6 @@ import io.datarouter.httpclient.HttpHeaders;
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.instrumentation.count.Counters;
 import io.datarouter.instrumentation.exception.ExceptionRecordDto;
-import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.app.WebappName;
 import io.datarouter.web.config.DatarouterWebSettingRoot;
 import io.datarouter.web.exception.ExceptionRecorder;
@@ -134,9 +133,9 @@ public abstract class ExceptionHandlingFilter implements Filter, InjectorRetriev
 			String methodName = null;
 			String name = null;
 			String type = null;
-			Pair<String,Integer> pair = searchJspName(exception);
-			String location = pair.getLeft();
-			Integer lineNumber = pair.getRight();
+			PlaceAndLineNumber pair = searchJspName(exception);
+			String location = pair.place();
+			Integer lineNumber = pair.lineNumber();
 			if(location == null){
 				ExceptionRecorderDetails details = exceptionDetailsDetector.detect(exception, callOrigin,
 						webSettings.stackTraceHighlights.get());
@@ -149,14 +148,14 @@ public abstract class ExceptionHandlingFilter implements Filter, InjectorRetriev
 			ExceptionRecordDto exceptionRecord = exceptionRecorder.recordExceptionAndHttpRequest(exception, location,
 					methodName, name, type, lineNumber, request, callOrigin);
 
-			return Optional.of(new ExceptionRecordKey(exceptionRecord.id));
+			return Optional.of(new ExceptionRecordKey(exceptionRecord.id()));
 		}catch(Exception e){
 			logger.error("Exception while logging", e);
 			return Optional.empty();
 		}
 	}
 
-	private static Pair<String,Integer> searchJspName(Throwable exception){
+	private static PlaceAndLineNumber searchJspName(Throwable exception){
 		String place;
 		Integer lineNumber = null;
 		Throwable cause = exception;
@@ -176,7 +175,7 @@ public abstract class ExceptionHandlingFilter implements Filter, InjectorRetriev
 					lineNumber = Integer.parseInt(cause.getMessage().substring(index + key2.length(), endLine));
 				}catch(NumberFormatException ex){// It's OK if it's not a number
 				}
-				return new Pair<>(place, lineNumber);
+				return new PlaceAndLineNumber(place, lineNumber);
 			}
 			/* An error occurred at line: 3 in the jsp file: /WEB-INF/jsp/jspError.jsp */
 			String keyInTheJspFile = " in the jsp file: ";
@@ -190,21 +189,26 @@ public abstract class ExceptionHandlingFilter implements Filter, InjectorRetriev
 					lineNumber = Integer.parseInt(cause.getMessage().substring(index + key2.length(), indexOfBegin));
 				}catch(NumberFormatException ex){// It's OK if it's not a number
 				}
-				return new Pair<>(place, lineNumber);
+				return new PlaceAndLineNumber(place, lineNumber);
 			}
 			place = getJspName(cause.getMessage());
 			if(place != null){
-				return new Pair<>(place, lineNumber);
+				return new PlaceAndLineNumber(place, lineNumber);
 			}
 			for(StackTraceElement element : cause.getStackTrace()){
 				place = getJspName(element.getClassName());
 				if(place != null){
-					return new Pair<>(place, lineNumber);
+					return new PlaceAndLineNumber(place, lineNumber);
 				}
 			}
 			cause = cause.getCause();
 		}while(cause != null);
-		return new Pair<>(null, null);
+		return new PlaceAndLineNumber(null, null);
+	}
+
+	private record PlaceAndLineNumber(
+			String place,
+			Integer lineNumber){
 	}
 
 	private static String getJspName(String string){

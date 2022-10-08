@@ -16,6 +16,7 @@
 package io.datarouter.conveyor.queue;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -28,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.conveyor.BaseConveyor;
 import io.datarouter.conveyor.ConveyorCounters;
+import io.datarouter.conveyor.ConveyorGaugeRecorder;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.scanner.Scanner;
@@ -50,7 +52,7 @@ extends BaseConveyor{
 	private static final Duration VISIBILITY_TIMEOUT = Duration.ofSeconds(30);
 	private static final int BATCH_SIZE = 100;
 
-	private final BatchedQueueConsumer<PK,D> queueConsumer;
+	private final BatchedAckQueueConsumer<PK,D> queueConsumer;
 	private final Object lock = new Object();
 	private final List<MessageAndTime<PK,D>> buffer;
 
@@ -69,9 +71,10 @@ extends BaseConveyor{
 	public BaseBatchedQueueConsumerConveyor(
 			String name,
 			Supplier<Boolean> shouldRun,
-			BatchedQueueConsumer<PK,D> queueConsumer,
-			ExceptionRecorder exceptionRecorder){
-		super(name, shouldRun, () -> false, exceptionRecorder);
+			BatchedAckQueueConsumer<PK,D> queueConsumer,
+			ExceptionRecorder exceptionRecorder,
+			ConveyorGaugeRecorder metricRecorder){
+		super(name, shouldRun, () -> false, exceptionRecorder, metricRecorder);
 		this.queueConsumer = queueConsumer;
 		this.buffer = new ArrayList<>(BATCH_SIZE);
 	}
@@ -79,13 +82,16 @@ extends BaseConveyor{
 	@Override
 	public ProcessBatchResult processBatch(){
 		List<MessageAndTime<PK,D>> currentBuffer = Collections.emptyList();
+		Instant beforePeek = Instant.now();
 		QueueMessage<PK,D> message = queueConsumer.peek(PEEK_TIMEOUT, VISIBILITY_TIMEOUT);
+		Instant afterPeek = Instant.now();
+		gaugeRecorder.savePeekDurationMs(this, Duration.between(beforePeek, afterPeek).toMillis());
 		if(message == null){
 			logger.info("peeked conveyor={} nullMessage", name);
 			synchronized(lock){
 				currentBuffer = copyAndClearBuffer();
 			}
-			flushBuffer(currentBuffer);
+			flushBuffer(currentBuffer, afterPeek);
 			return new ProcessBatchResult(false);
 		}
 		synchronized(lock){
@@ -95,7 +101,7 @@ extends BaseConveyor{
 				currentBuffer = copyAndClearBuffer();
 			}
 		}
-		flushBuffer(currentBuffer);
+		flushBuffer(currentBuffer, afterPeek);
 		return new ProcessBatchResult(true);
 	}
 
@@ -106,22 +112,30 @@ extends BaseConveyor{
 			synchronized(lock){
 				currentBuffer = copyAndClearBuffer();
 			}
-			flushBuffer(currentBuffer);
+			flushBuffer(currentBuffer, null);
 		}catch(Exception ex){
 			throw new Exception("Exception processing buffer. bufferSize=" + buffer.size() + " bufferMessages=" + Arrays
 					.toString(buffer.toArray()), ex);
 		}
 	}
 
-	private void flushBuffer(List<MessageAndTime<PK,D>> currentBuffer){
+	private void flushBuffer(List<MessageAndTime<PK,D>> currentBuffer, Instant afterPeek){
 		if(currentBuffer.isEmpty()){
 				return;
 		}
-		long processingStart = System.currentTimeMillis();
+		Instant beforeProcessBuffer = Instant.now();
+		long processingStart = beforeProcessBuffer.toEpochMilli();
+		if(afterPeek != null){
+			gaugeRecorder.savePeekToProcessBufferDurationMs(this, Duration.between(afterPeek, beforeProcessBuffer)
+					.toMillis());
+		}
 		Scanner.of(currentBuffer)
 				.each(MessageAndTime::toString)
 				.map(mat -> mat.message)
 				.flush(this::processBuffer);
+		Instant afterProcessBuffer = Instant.now();
+		gaugeRecorder.saveProcessBufferDurationMs(this, Duration.between(beforeProcessBuffer, afterProcessBuffer)
+				.toMillis());
 		ConveyorCounters.incFlushBuffer(this, currentBuffer.size());
 		logger.info("consumed conveyor={} messageCount={}", name, currentBuffer.size());
 		ConveyorCounters.incConsumedOpAndDatabeans(this, currentBuffer.size());
@@ -137,9 +151,12 @@ extends BaseConveyor{
 								mat.message);
 					}
 				});
+		Instant beforeAck = Instant.now();
 		Scanner.of(currentBuffer)
 				.map(mat -> mat.queueMessageKey)
-				.flush(queueConsumer::ackMulti);
+				.flush(list -> queueConsumer.ackMulti(list.size(), list));
+		Instant afterAck = Instant.now();
+		gaugeRecorder.saveAckDurationMs(this, Duration.between(beforeAck, afterAck).toMillis());
 		logger.info("acked conveyor={} messageCount={}", name, currentBuffer.size());
 		ConveyorCounters.incAck(this, currentBuffer.size());
 	}

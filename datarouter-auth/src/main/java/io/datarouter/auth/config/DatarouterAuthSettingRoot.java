@@ -37,6 +37,7 @@ public class DatarouterAuthSettingRoot extends SettingRoot{
 	public final CachedSetting<Boolean> shouldUseDatarouterAccountCredentialInsteadOfDatarouterAccount;
 	public final CachedSetting<Boolean> enableHandlerAccountCallerValidator;
 	public final CachedSetting<DatarouterDuration> accountRefreshFrequencyDuration;
+	public final CachedSetting<Boolean> enableAccountDailyDigest;
 
 	@Inject
 	public DatarouterAuthSettingRoot(SettingFinder finder){
@@ -52,6 +53,7 @@ public class DatarouterAuthSettingRoot extends SettingRoot{
 		enableHandlerAccountCallerValidator = registerBoolean("enableHandlerAccountCallerValidator", false);
 		accountRefreshFrequencyDuration = registerDuration("accountRefreshFrequencyDuration",
 				new DatarouterDuration(15, TimeUnit.SECONDS));
+		enableAccountDailyDigest = registerBoolean("enableAccountDailyDigest", false);
 	}
 
 }

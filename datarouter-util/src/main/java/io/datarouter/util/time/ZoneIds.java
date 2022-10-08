@@ -19,7 +19,6 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.List;
 
-
 public class ZoneIds{
 
 	public static final ZoneId AMERICA_ANCHORAGE = ZoneId.of("America/Anchorage");

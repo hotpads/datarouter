@@ -15,6 +15,8 @@
  */
 package io.datarouter.exception.conveyors;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.function.Supplier;
 
 import org.slf4j.Logger;
@@ -22,6 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.conveyor.BaseConveyor;
 import io.datarouter.conveyor.ConveyorCounters;
+import io.datarouter.conveyor.ConveyorGauges;
 import io.datarouter.conveyor.MemoryBuffer;
 import io.datarouter.exception.storage.httprecord.HttpRequestRecord;
 import io.datarouter.instrumentation.exception.DatarouterExceptionPublisher;
@@ -43,23 +46,27 @@ public class HttpRequestRecordMemoryToPublisherConveyor extends BaseConveyor{
 			Supplier<Boolean> shouldRun,
 			MemoryBuffer<HttpRequestRecord> buffer,
 			ExceptionRecorder exceptionRecorder,
-			DatarouterExceptionPublisher exceptionRecordPublisher){
-		super(name, shouldRun, () -> false, exceptionRecorder);
+			DatarouterExceptionPublisher exceptionRecordPublisher,
+			ConveyorGauges conveyorGauges){
+		super(name, shouldRun, () -> false, exceptionRecorder, conveyorGauges);
 		this.buffer = buffer;
 		this.exceptionRecordPublisher = exceptionRecordPublisher;
 	}
 
 	@Override
 	public ProcessBatchResult processBatch(){
+		Instant beforePeek = Instant.now();
 		HttpRequestRecordBatchDto batch = Scanner.of(buffer.pollMultiWithLimit(BATCH_SIZE))
 				.map(HttpRequestRecord::toDto)
 				.listTo(HttpRequestRecordBatchDto::new);
-		if(batch.records.isEmpty()){
+		Instant afterPeek = Instant.now();
+		gaugeRecorder.savePeekDurationMs(this, Duration.between(beforePeek, afterPeek).toMillis());
+		if(batch.records().isEmpty()){
 			return new ProcessBatchResult(false);
 		}
 		try{
 			exceptionRecordPublisher.addHttpRequestRecord(batch);
-			ConveyorCounters.incPutMultiOpAndDatabeans(this, batch.records.size());
+			ConveyorCounters.incPutMultiOpAndDatabeans(this, batch.records().size());
 		}catch(Exception putMultiException){
 			logger.warn("", putMultiException);
 			ConveyorCounters.inc(this, "putMulti exception", 1);

@@ -93,6 +93,19 @@ public interface Scanner<T> extends Closeable{
 		return ScannerTool.take(this, numToTake);
 	}
 
+	/**
+	 * Consume the first item (if present) and return a Scanner equivalent to the whole original Scanner (this) before
+	 * the method call.
+	 *
+	 * The original Scanner (this) will be consumed, so the returned one should be used instead to avoid side effects.
+	 *
+	 * @param action called to consume first item, if present
+	 * @return Scanner with equivalent state to this before the method was called
+	 */
+	default Scanner<T> peekFirst(Consumer<? super T> action){
+		return ScannerTool.peekFirst(this, action);
+	}
+
 	/*----------------------------- Create ----------------------------------*/
 
 	/**

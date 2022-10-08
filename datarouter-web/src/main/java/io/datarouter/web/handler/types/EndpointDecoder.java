@@ -35,16 +35,17 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonSyntaxException;
 
-import io.datarouter.httpclient.endpoint.BaseEndpoint;
-import io.datarouter.httpclient.endpoint.EndpointRequestBody;
-import io.datarouter.httpclient.endpoint.EndpointTool;
-import io.datarouter.httpclient.endpoint.IgnoredField;
-import io.datarouter.httpclient.json.JsonSerializer;
-import io.datarouter.instrumentation.count.Counters;
+import io.datarouter.httpclient.endpoint.java.BaseEndpoint;
+import io.datarouter.httpclient.endpoint.java.EndpointTool;
+import io.datarouter.httpclient.endpoint.param.IgnoredField;
+import io.datarouter.httpclient.endpoint.param.RequestBody;
 import io.datarouter.instrumentation.trace.TraceSpanGroupType;
 import io.datarouter.instrumentation.trace.TracerTool;
+import io.datarouter.json.JsonSerializer;
 import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.util.string.StringTool;
+import io.datarouter.web.handler.BaseHandler;
+import io.datarouter.web.handler.HandlerMetrics;
 import io.datarouter.web.handler.encoder.HandlerEncoder;
 import io.datarouter.web.handler.encoder.JsonAwareHandlerCodec;
 import io.datarouter.web.util.http.RequestTool;
@@ -66,7 +67,10 @@ public class EndpointDecoder implements HandlerDecoder, JsonAwareHandlerCodec{
 		Parameter[] parameters = method.getParameters();
 		Class<?> endpointType = parameters[0].getType();
 		if(!EndpointTool.paramIsEndpointObject(method)){
-			throw new RuntimeException("object needs to extend BaseEndpoint");
+			String message = String.format("object needs to extend BaseEndpoint for %s.%s",
+					method.getDeclaringClass().getSimpleName(),
+					method.getName());
+			throw new RuntimeException(message);
 		}
 
 		// populate the fields with baseEndpoint with dummy values and then repopulate in getArgsFromEndpointObject
@@ -117,16 +121,15 @@ public class EndpointDecoder implements HandlerDecoder, JsonAwareHandlerCodec{
 			Type parameterType = field.getType();
 			String[] queryParam = queryParams.get(parameterName);
 
-			if(field.isAnnotationPresent(EndpointRequestBody.class)){
+			if(field.isAnnotationPresent(RequestBody.class)){
 				Object requestBody = decodeType(body, field.getGenericType());
 				field.set(baseEndpoint, requestBody);
-				if(requestBody instanceof Collection<?>){
-					Collection<?> requestBodyCollection = (Collection<?>)requestBody;
+				if(requestBody instanceof Collection<?> requestBodyCollection){
 					// Datarouter handler method batch <Handler.class.simpleName> <methodName>
-					String counter = String.format("Datarouter handler method batch %s %s",
-							method.getDeclaringClass().getSimpleName(),
-							method.getName());
-					Counters.inc(counter, requestBodyCollection.size());
+					HandlerMetrics.incRequestBodyCollectionSize(
+							(Class<? extends BaseHandler>) method.getDeclaringClass(),
+							method,
+							requestBodyCollection.size());
 				}
 				continue;
 			}
@@ -184,7 +187,8 @@ public class EndpointDecoder implements HandlerDecoder, JsonAwareHandlerCodec{
 
 	// same as DefaultDecoder.decode (keeping duplicate code for now)
 	private Object decodeType(String string, Type type){
-		try(var $ = TracerTool.startSpan("EndpointDecoder deserialize", TraceSpanGroupType.SERIALIZATION)){
+		try(var $ = TracerTool.startSpan(getClass().getSimpleName() + " deserialize",
+				TraceSpanGroupType.SERIALIZATION)){
 			TracerTool.appendToSpanInfo("characters", string.length());
 			// this prevents empty strings from being decoded as null by gson
 			Object obj;

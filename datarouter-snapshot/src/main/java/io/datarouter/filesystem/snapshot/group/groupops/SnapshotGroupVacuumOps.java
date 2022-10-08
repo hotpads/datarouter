@@ -67,19 +67,19 @@ public class SnapshotGroupVacuumOps{
 		List<SnapshotKey> keys = groupReader.scanSnapshotKeys().list();
 		SnapshotVacuumPlan plan = new SnapshotVacuumPlanner(vacuumConfig, snapshotKeyDecoder, keys).plan();
 		logger.warn("Starting vacuum id={}, group={}, {}/{} snapshots",
-				plan.id,
+				plan.id.value(),
 				groupId,
 				plan.items.size(),
 				keys.size());
 		Scanner.of(plan.items)
 				.each(result -> logger.warn("vacuum id={}, group={} deleting {} because {}",
-						plan.id,
+						plan.id.value(),
 						groupId,
-						result.snapshotKey.snapshotId,
+						result.snapshotKey.snapshotId(),
 						result.reason))
 				.forEach(result -> group.deleteOps().deleteSnapshot(result.snapshotKey, exec, numThreads));
 		logger.warn("Finished vacuum id={}, group={}, {}/{} snapshots",
-				plan.id,
+				plan.id.value(),
 				groupId,
 				plan.items.size(),
 				keys.size());
@@ -87,14 +87,14 @@ public class SnapshotGroupVacuumOps{
 
 	public void vacuumOrphanedFilesOlderThan(Duration duration){
 		Set<String> cachedIds = groupReader.scanSnapshotKeys()
-				.map(key -> key.snapshotId)
+				.map(SnapshotKey::snapshotId)
 				.collect(HashSet::new);
 		groupFileReader.scanSnapshotFilesFromStorage()
 				.advanceWhile(pathbeanKey -> {
 					SnapshotKey snapshotKey = getSnapshotKeyForFile(pathbeanKey);
 					return snapshotKeyDecoder.isOlderThan(snapshotKey, duration);
 				})
-				.exclude(pathbeanKey -> cachedIds.contains(getSnapshotKeyForFile(pathbeanKey).snapshotId))
+				.exclude(pathbeanKey -> cachedIds.contains(getSnapshotKeyForFile(pathbeanKey).snapshotId()))
 				.forEach(fileDirectory::delete);
 	}
 

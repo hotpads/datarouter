@@ -41,11 +41,21 @@ implements MapStorageNode<PK,D,F>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>,
 			N extends MapStorageNode<PK,D,F>>
-			MapStorageNode<PK,D,F> makeIfMulti(List<N> nodes){
+	MapStorageNode<PK,D,F> makeIfMulti(List<N> nodes){
 		if(nodes.size() == 1){
 			return nodes.get(0);
 		}
 		return new RedundantMapStorageNode<>(nodes);
+	}
+
+	@SafeVarargs
+	public static <
+			PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>,
+			N extends MapStorageNode<PK,D,F>>
+	MapStorageNode<PK,D,F> makeIfMulti(N... nodes){
+		return makeIfMulti(List.of(nodes));
 	}
 
 }

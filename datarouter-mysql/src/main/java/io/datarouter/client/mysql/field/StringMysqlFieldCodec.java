@@ -31,16 +31,12 @@ import io.datarouter.model.field.imp.StringField;
 public class StringMysqlFieldCodec
 extends BaseMysqlFieldCodec<String,StringField>{
 
-	public StringMysqlFieldCodec(StringField field){
-		super(field);
-	}
-
 	@Override
-	public SqlColumn getSqlColumnDefinition(boolean allowNullable){
+	public SqlColumn getSqlColumnDefinition(boolean allowNullable, StringField field){
 		boolean nullable = allowNullable && field.getKey().isNullable();
 		return new CharSequenceSqlColumn(
 				field.getKey().getColumnName(),
-				getMysqlColumnType(),
+				getMysqlColumnType(field),
 				StringEncodedMysqlFieldCodec.getNormalizedSize(field.getSize()),
 				nullable,
 				false,
@@ -50,7 +46,7 @@ extends BaseMysqlFieldCodec<String,StringField>{
 	}
 
 	@Override
-	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
+	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex, StringField field){
 		try{
 			if(field.getValue() == null){
 				ps.setNull(parameterIndex, Types.VARCHAR);
@@ -63,7 +59,7 @@ extends BaseMysqlFieldCodec<String,StringField>{
 	}
 
 	@Override
-	public String fromMysqlResultSetButDoNotSet(ResultSet rs){
+	public String fromMysqlResultSetButDoNotSet(ResultSet rs, StringField field){
 		try{
 			return rs.getString(field.getKey().getColumnName());
 		}catch(SQLException e){
@@ -72,7 +68,7 @@ extends BaseMysqlFieldCodec<String,StringField>{
 	}
 
 	@Override
-	public MysqlColumnType getMysqlColumnType(){
+	public MysqlColumnType getMysqlColumnType(StringField field){
 		return StringEncodedMysqlFieldCodec.getColumnType(field.getSize());
 	}
 

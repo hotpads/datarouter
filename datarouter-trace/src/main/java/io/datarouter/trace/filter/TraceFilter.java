@@ -60,7 +60,7 @@ import io.datarouter.trace.conveyor.TraceBuffers;
 import io.datarouter.trace.service.TraceUrlBuilder;
 import io.datarouter.trace.settings.DatarouterTraceFilterSettingRoot;
 import io.datarouter.util.MxBeans;
-import io.datarouter.util.UuidTool;
+import io.datarouter.util.Ulid;
 import io.datarouter.util.array.ArrayTool;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.util.tracer.DatarouterTracer;
@@ -294,9 +294,9 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 							|| traceSettings.latencyRecordedHandlers.get().contains(handlerClass.getName())){
 						handlerMetrics.saveMethodLatency(handlerClass, handlerMethodOpt.get(), traceDurationMs);
 					}
-					handlerMetrics.incDuration(handlerClass, handlerMethodOpt.get(), traceDurationMs);
+					HandlerMetrics.incDuration(handlerClass, handlerMethodOpt.get(), traceDurationMs);
 					if(totalCpuTimeNs != -1){
-						handlerMetrics.incTotalCpuTime(handlerClass, handlerMethodOpt.get(), totalCpuTimeMs);
+						HandlerMetrics.incTotalCpuTime(handlerClass, handlerMethodOpt.get(), totalCpuTimeMs);
 					}
 				}
 			}
@@ -319,7 +319,7 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 		long created = TimeUnit.NANOSECONDS.toMillis(Trace2Dto.getCurrentTimeInNs());
 		RecordedHttpHeaders headersWrapper = new RecordedHttpHeaders(request);
 		return new HttpRequestRecordDto(
-				UuidTool.generateV1Uuid(),
+				new Ulid().value(),
 				new Date(created),
 				new Date(receivedAt),
 				created - receivedAt,

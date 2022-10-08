@@ -26,10 +26,10 @@ import io.datarouter.auth.config.DatarouterAuthPaths;
 import io.datarouter.auth.service.deprovisioning.UserDeprovisioningService;
 import io.datarouter.auth.storage.deprovisioneduser.DeprovisionedUser;
 import io.datarouter.auth.storage.deprovisioneduser.DeprovisionedUserDao;
+import io.datarouter.httpclient.endpoint.param.RequestBody;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
-import io.datarouter.web.handler.types.RequestBody;
 import io.datarouter.web.html.react.bootstrap4.Bootstrap4ReactPageFactory;
 import io.datarouter.web.user.session.service.Session;
 

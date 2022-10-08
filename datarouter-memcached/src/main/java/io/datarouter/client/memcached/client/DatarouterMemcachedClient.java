@@ -24,11 +24,11 @@ import java.util.concurrent.TimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.client.memcached.util.MemcachedResult;
 import io.datarouter.instrumentation.trace.TraceSpanGroupType;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.instrumentation.trace.TracerTool.TraceSpanInfoBuilder;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.util.tuple.Pair;
 
 public class DatarouterMemcachedClient{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterMemcachedClient.class);
@@ -45,7 +45,7 @@ public class DatarouterMemcachedClient{
 
 	/*---------- read -------------*/
 
-	public Scanner<Pair<String,byte[]>> scanMultiBytes(
+	public Scanner<MemcachedResult<byte[]>> scanMultiBytes(
 			String nodeName,
 			Collection<String> keys,
 			long timeoutMs,
@@ -53,7 +53,7 @@ public class DatarouterMemcachedClient{
 		return scanMulti(nodeName, keys, byte[].class, timeoutMs, ignoreExceptions);
 	}
 
-	public Scanner<Pair<String,String>> scanMultiStrings(
+	public Scanner<MemcachedResult<String>> scanMultiStrings(
 			String nodeName,
 			Collection<String> keys,
 			long timeoutMs,
@@ -61,7 +61,7 @@ public class DatarouterMemcachedClient{
 		return scanMulti(nodeName, keys, String.class, timeoutMs, ignoreExceptions);
 	}
 
-	private <T> Scanner<Pair<String,T>> scanMulti(
+	private <T> Scanner<MemcachedResult<T>> scanMulti(
 			String nodeName,
 			Collection<String> keys,
 			Class<T> castValuesTo,
@@ -79,7 +79,7 @@ public class DatarouterMemcachedClient{
 						.add("keys", keys.size())
 						.add("results", results.size()));
 				return Scanner.of(results.entrySet())
-						.map(entry -> new Pair<>(entry.getKey(), castValuesTo.cast(entry.getValue())));
+						.map(entry -> new MemcachedResult<>(entry.getKey(), castValuesTo.cast(entry.getValue())));
 			}catch(TimeoutException e){
 				TracerTool.appendToSpanInfo("memcached timeout");
 				long elapsedMs = System.currentTimeMillis() - start;

@@ -16,11 +16,13 @@
 package io.datarouter.web.handler.documentation;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.RecordComponent;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
@@ -31,6 +33,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -55,12 +58,13 @@ import com.google.gson.JsonObject;
 
 import io.datarouter.gson.serialization.GsonTool;
 import io.datarouter.httpclient.DocumentedGenericHolder;
-import io.datarouter.httpclient.endpoint.BaseEndpoint;
 import io.datarouter.httpclient.endpoint.Endpoint;
-import io.datarouter.httpclient.endpoint.EndpointParam;
-import io.datarouter.httpclient.endpoint.EndpointRequestBody;
-import io.datarouter.httpclient.endpoint.EndpointTool;
-import io.datarouter.httpclient.endpoint.IgnoredField;
+import io.datarouter.httpclient.endpoint.java.BaseEndpoint;
+import io.datarouter.httpclient.endpoint.java.EndpointTool;
+import io.datarouter.httpclient.endpoint.param.EndpointParam;
+import io.datarouter.httpclient.endpoint.param.IgnoredField;
+import io.datarouter.httpclient.endpoint.param.RequestBody;
+import io.datarouter.httpclient.endpoint.web.BaseWebApi;
 import io.datarouter.httpclient.security.SecurityParameters;
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.scanner.OptionalScanner;
@@ -79,7 +83,6 @@ import io.datarouter.web.handler.encoder.JsonAwareHandlerCodec;
 import io.datarouter.web.handler.types.HandlerDecoder;
 import io.datarouter.web.handler.types.Param;
 import io.datarouter.web.handler.types.ParamDefaultEnum;
-import io.datarouter.web.handler.types.RequestBody;
 import io.datarouter.web.handler.types.optional.OptionalParameter;
 
 @Singleton
@@ -135,6 +138,15 @@ public class ApiDocService{
 							description = annotation.description();
 						}
 					}
+					if(EndpointTool.paramIsWebApiObject(method)){
+						@SuppressWarnings("unchecked")
+						Class<BaseWebApi<?,?>> baseWebApi = (Class<BaseWebApi<?,?>>)method.getParameters()[0]
+								.getType();
+						Endpoint annotation = baseWebApi.getAnnotation(Endpoint.class);
+						if(annotation != null){
+							description = annotation.description();
+						}
+					}
 				}
 				Class<? extends HandlerDecoder> decoderClass = handlerAnnotation.decoder();
 				if(decoderClass.equals(NullHandlerDecoder.class)){
@@ -184,6 +196,7 @@ public class ApiDocService{
 						buildEnumValuesString(responseExampleEnumDtos));
 				boolean isDeprecated = method.isAnnotationPresent(Deprecated.class)
 						|| handler.isAnnotationPresent(Deprecated.class);
+				String callerType = ReflectionTool.create(handlerAnnotation.callerType()).getName();
 				List<DocumentedErrorJspDto> errors = buildError(method);
 				Set<DocumentedExampleEnumDto> requestParamExampleEnumDtos = Scanner.of(parameters)
 						.concatIter(parameter -> parameter.exampleEnumDtos)
@@ -197,7 +210,8 @@ public class ApiDocService{
 						response,
 						isDeprecated,
 						errors,
-						buildEnumValuesString(requestParamExampleEnumDtos));
+						buildEnumValuesString(requestParamExampleEnumDtos),
+						callerType);
 				endpoints.add(endpoint);
 			}
 			handler = handler.getSuperclass().asSubclass(BaseHandler.class);
@@ -216,8 +230,7 @@ public class ApiDocService{
 	private static String buildTypeString(Type type){
 		if(type instanceof Class){
 			return ((Class<?>)type).getSimpleName();
-		}else if(type instanceof ParameterizedType){
-			ParameterizedType parameterizedType = (ParameterizedType)type;
+		}else if(type instanceof ParameterizedType parameterizedType){
 			String responseTypeString = ((Class<?>)parameterizedType.getRawType()).getSimpleName();
 			String paramterizedType = Scanner.of(parameterizedType.getActualTypeArguments())
 					.map(ApiDocService::buildTypeString)
@@ -240,6 +253,18 @@ public class ApiDocService{
 					.map(parameter -> createDocumentedParameterFromField(parameter, jsonDecoder))
 					.list();
 		}
+
+		boolean isWebApiObject = EndpointTool.paramIsWebApiObject(method);
+		if(isWebApiObject){
+			@SuppressWarnings("unchecked")
+			BaseWebApi<?,?> baseWebApi = ReflectionTool.createWithoutNoArgs(
+					(Class<? extends BaseWebApi<?,?>>)method.getParameters()[0].getType());
+			return Scanner.of(baseWebApi.getClass().getFields())
+					.exclude(field -> field.isAnnotationPresent(IgnoredField.class))
+					.map(parameter -> createDocumentedParameterFromField(parameter, jsonDecoder))
+					.list();
+		}
+
 		return Scanner.of(parameters)
 				.map(parameter -> createDocumentedParameterJspDto(parameter, jsonDecoder))
 				.list();
@@ -368,7 +393,7 @@ public class ApiDocService{
 				type,
 				example,
 				!isOptional,
-				field.isAnnotationPresent(EndpointRequestBody.class),
+				field.isAnnotationPresent(RequestBody.class),
 				HIDDEN_SPEC_PARAMS.contains(field.getName()),
 				Optional.ofNullable(field.getAnnotation(EndpointParam.class))
 						.map(EndpointParam::description)
@@ -402,8 +427,7 @@ public class ApiDocService{
 		Set<Type> parentsWithType = Scanner.of(parents)
 				.append(type)
 				.collect(HashSet::new);
-		if(type instanceof ParameterizedType){
-			ParameterizedType parameterizedType = (ParameterizedType)type;
+		if(type instanceof ParameterizedType parameterizedType){
 			Class<?> rawType = (Class<?>)parameterizedType.getRawType();
 			Type type0 = parameterizedType.getActualTypeArguments()[0];
 			if(List.class.isAssignableFrom(rawType)){
@@ -476,6 +500,9 @@ public class ApiDocService{
 			return new DocumentedExampleDto(null, new HashSet<>());
 		}
 		Class<?> clazz = (Class<?>)type;
+		if(clazz.isRecord()){
+			return handleRecords(clazz, jsonDecoder, type, parentsWithType, callWithoutWarning);
+		}
 		if(clazz.isArray()){
 			if(clazz.getComponentType().isPrimitive()){
 				Object array = Array.newInstance(clazz.getComponentType(), 1);
@@ -578,6 +605,42 @@ public class ApiDocService{
 			}
 		}
 		return new DocumentedExampleDto(example, exampleEnumDtos);
+	}
+
+	private static DocumentedExampleDto handleRecords(
+			Class<?> recordClazz,
+			JsonAwareHandlerCodec jsonDecoder,
+			Type type,
+			Set<Type> parentsWithType,
+			int callWithoutWarning){
+		Set<DocumentedExampleEnumDto> exampleEnumDtos = new HashSet<>();
+		List<Object> constructorParams = new ArrayList<>();
+		Object newRecord = null;
+		try{
+			Scanner.of(recordClazz.getRecordComponents())
+					.map(RecordComponent::getGenericType)
+					.map(genericType -> createBestExample(
+							jsonDecoder,
+							genericType,
+							parentsWithType,
+							callWithoutWarning))
+					.forEach(exampleDto -> {
+						exampleEnumDtos.addAll(exampleDto.exampleEnumDtos);
+						constructorParams.add(exampleDto.exampleObject);
+					});
+			newRecord = getCanonicalConstructor(recordClazz).newInstance(constructorParams.toArray());
+		}catch(Exception e){
+			logger.warn("error creating {}", type, e);
+		}
+		return new DocumentedExampleDto(newRecord, exampleEnumDtos);
+	}
+
+	private static Constructor<?> getCanonicalConstructor(Class<?> recordClazz)
+			throws NoSuchMethodException, SecurityException{
+		Class<?>[] recordComponents = Arrays.stream(recordClazz.getRecordComponents())
+				.map(RecordComponent::getType)
+				.toArray(Class<?>[]::new);
+		return recordClazz.getDeclaredConstructor(recordComponents);
 	}
 
 	private static String buildEnumValuesString(Collection<DocumentedExampleEnumDto> exampleEnumDtos){

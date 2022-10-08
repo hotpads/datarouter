@@ -21,31 +21,30 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import io.datarouter.storage.config.Config;
-import io.datarouter.storage.queue.BlobQueueMessageDto;
+import io.datarouter.storage.node.op.raw.BlobQueueStorage;
+import io.datarouter.storage.queue.BlobQueueMessage;
 
-public class BlobQueueConsumer{
+public class BlobQueueConsumer<T>{
 
-	private final Function<Config,Optional<BlobQueueMessageDto>> peekFunction;
-	private final Consumer<BlobQueueMessageDto> ackConsumer;
+	private final Function<Config,Optional<BlobQueueMessage<T>>> peekFunction;
+	private final Consumer<BlobQueueMessage<T>> ackConsumer;
 
-	public BlobQueueConsumer(
-			Function<Config,Optional<BlobQueueMessageDto>> peekFunction,
-			Consumer<BlobQueueMessageDto> ackConsumer){
-		this.peekFunction = peekFunction;
-		this.ackConsumer = ackConsumer;
+	public BlobQueueConsumer(BlobQueueStorage<T> storage){
+		this.peekFunction = storage::peek;
+		this.ackConsumer = storage::ack;
 	}
 
-	public Optional<BlobQueueMessageDto> peek(Duration timeout){
+	public Optional<BlobQueueMessage<T>> peek(Duration timeout){
 		return peekFunction.apply(new Config().setTimeout(timeout));
 	}
 
-	public Optional<BlobQueueMessageDto> peek(Duration timeout, Duration visibilityTimeout){
+	public Optional<BlobQueueMessage<T>> peek(Duration timeout, Duration visibilityTimeout){
 		return peekFunction.apply(new Config()
 				.setTimeout(timeout)
 				.setVisibilityTimeoutMs(visibilityTimeout.toMillis()));
 	}
 
-	public void ack(BlobQueueMessageDto key){
+	public void ack(BlobQueueMessage<T> key){
 		ackConsumer.accept(key);
 	}
 

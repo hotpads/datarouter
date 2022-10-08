@@ -17,7 +17,9 @@ package io.datarouter.httpclient.endpoint;
 
 import io.datarouter.httpclient.DatarouterServicePaths;
 import io.datarouter.httpclient.dto.DatarouterAccountCredentialStatusDto;
-import io.datarouter.httpclient.endpoint.EndpointType.NoOpEndpointType;
+import io.datarouter.httpclient.endpoint.caller.CallerTypeDatarouterService;
+import io.datarouter.httpclient.endpoint.java.BaseEndpoint;
+import io.datarouter.httpclient.endpoint.java.EndpointType.NoOpEndpointType;
 import io.datarouter.pathnode.PathNode;
 
 public class DatarouterServiceCheckCredentialEndpoint
@@ -26,17 +28,12 @@ extends BaseEndpoint<DatarouterAccountCredentialStatusDto,NoOpEndpointType>{
 	private static final PathNode PATHS = new DatarouterServicePaths().datarouter.api.accounts.checkCredential;
 
 	private DatarouterServiceCheckCredentialEndpoint(){
-		super(GET, PATHS);
+		super(GET, PATHS, CallerTypeDatarouterService.class);
 		setShouldSkipLogs(true);
 	}
 
 	public static DatarouterServiceCheckCredentialEndpoint getEndpoint(){
 		return new DatarouterServiceCheckCredentialEndpoint();
-	}
-
-	@Override
-	public CallerType getCallerType(){
-		return CallerTypes.DATAROUTER_SERVICE;
 	}
 
 }

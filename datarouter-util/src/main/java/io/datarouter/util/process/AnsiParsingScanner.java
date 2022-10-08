@@ -136,18 +136,7 @@ public class AnsiParsingScanner extends BaseLinkedScanner<String,String>{
 				.list();
 	}
 
-	public static class AnsiParsedLine{
-
-		public final boolean isHtml;
-		public final String line;
-		public final String text;
-
-		private AnsiParsedLine(boolean isHtml, String line, String text){
-			this.isHtml = isHtml;
-			this.line = line;
-			this.text = text;
-		}
-
+	public record AnsiParsedLine(boolean isHtml, String line, String text){
 	}
 
 }

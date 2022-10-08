@@ -34,42 +34,42 @@ public class SnapshotPathsV1 implements SnapshotPaths{
 
 	@Override
 	public String branchFile(FileKey fileKey){
-		String levelString = StringTool.pad(Integer.toString(fileKey.level), '0', 3);
-		return "branch/" + levelString + "/" + makeFilename(fileKey.fileId);
+		String levelString = StringTool.pad(Integer.toString(fileKey.level()), '0', 3);
+		return "branch/" + levelString + "/" + makeFilename(fileKey.fileId());
 	}
 
 	@Override
 	public String leafFile(FileKey fileKey){
-		return "leaf/" + makeFilename(fileKey.fileId);
+		return "leaf/" + makeFilename(fileKey.fileId());
 	}
 
 	@Override
 	public String valueFile(FileKey fileKey){
-		String columnString = StringTool.pad(Integer.toString(fileKey.column), '0', 3);
-		return "value/" + columnString + "/" + makeFilename(fileKey.fileId);
+		String columnString = StringTool.pad(Integer.toString(fileKey.column()), '0', 3);
+		return "value/" + columnString + "/" + makeFilename(fileKey.fileId());
 	}
 
 	@Override
 	public String branchBlock(CacheBlockKey cacheBlockKey){
 		return String.join("/",
 				"branch",
-				Integer.toString(cacheBlockKey.level),
-				Integer.toString(cacheBlockKey.blockId));
+				Integer.toString(cacheBlockKey.level()),
+				Integer.toString(cacheBlockKey.blockId()));
 	}
 
 	@Override
 	public String leafBlock(CacheBlockKey cacheBlockKey){
 		return String.join("/",
 				"leaf",
-				Integer.toString(cacheBlockKey.blockId));
+				Integer.toString(cacheBlockKey.blockId()));
 	}
 
 	@Override
 	public String valueBlock(CacheBlockKey cacheBlockKey){
 		return String.join("/",
 				"value",
-				Integer.toString(cacheBlockKey.column),
-				Integer.toString(cacheBlockKey.blockId));
+				Integer.toString(cacheBlockKey.column()),
+				Integer.toString(cacheBlockKey.blockId()));
 	}
 
 	private static String makeFilename(int index){

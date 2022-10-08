@@ -38,7 +38,6 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.string.StringTool;
-import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.types.optional.OptionalString;
@@ -95,7 +94,7 @@ public class WebSocketToolHandler extends BaseHandler{
 		Optional<String> message = params.optional("message");
 		if(destinations.isPresent()){
 			String[] parts = destinations.get().split("\r\n");
-			List<Pair<String,String>> results = new ArrayList<>();
+			List<Result> results = new ArrayList<>();
 			for(String destination : parts){
 				try{
 					String[] split = destination.split("/");
@@ -103,10 +102,10 @@ public class WebSocketToolHandler extends BaseHandler{
 					long sessionId = Long.parseLong(split[1]);
 					boolean success = pushService.forward(userToken, sessionId, message.get());
 					String resultString = success ? "success" : "failure";
-					results.add(new Pair<>(destination, resultString));
+					results.add(new Result(destination, resultString));
 				}catch(Exception e){
 					logger.warn("", e);
-					results.add(new Pair<>(destination, e.toString()));
+					results.add(new Result(destination, e.toString()));
 				}
 			}
 			mav.put("sendResults", results);
@@ -127,19 +126,19 @@ public class WebSocketToolHandler extends BaseHandler{
 			pushService.forwardToTopic(topic.get(), message.orElse(""));
 			sent = true;
 		}
-		List<Pair<String,Long>> rows = subscriptionDao.scanKeys()
+		List<TopicAndCount> rows = subscriptionDao.scanKeys()
 				.collect(Collectors.groupingBy(WebSocketSubscriptionKey::getTopic, Collectors.counting()))
 				.entrySet().stream()
 				.sorted(Comparator.comparing(Entry::getKey))
-				.map(entry -> new Pair<>(entry.getKey(), entry.getValue()))
+				.map(entry -> new TopicAndCount(entry.getKey(), entry.getValue()))
 				.collect(Collectors.toList());
-		Pair<String,Long> total = new Pair<>("Total", rows.stream()
-				.map(Pair::getRight)
+		TopicAndCount total = new TopicAndCount("Total", rows.stream()
+				.map(TopicAndCount::count)
 				.reduce(0L, Long::sum));
-		var table = new J2HtmlTable<Pair<String,Long>>()
+		var table = new J2HtmlTable<TopicAndCount>()
 				.withClasses("table", "table-sm")
-				.withColumn("Topic", Pair::getLeft)
-				.withColumn("Count", pair -> NumberFormatter.format(pair.getRight(), 0))
+				.withColumn("Topic", TopicAndCount::topic)
+				.withColumn("Count", pair -> NumberFormatter.format(pair.count(), 0))
 				.build(Scanner.of(rows, List.of(total)).concat(Scanner::of).list());
 		var form = new HtmlForm()
 				.withMethod("POST")
@@ -165,6 +164,26 @@ public class WebSocketToolHandler extends BaseHandler{
 						.with(div(table).withClasses("mt-3", "table-responsive"))
 						.withClasses("container", "my-5"))
 				.buildMav();
+	}
+
+	public record Result(
+			String destination,
+			String resultString){
+
+		// used by jsps
+		public String getLeft(){
+			return destination();
+		}
+
+		// used by jsps
+		public String getRight(){
+			return resultString();
+		}
+	}
+
+	private record TopicAndCount(
+			String topic,
+			Long count){
 	}
 
 	public static class WebSocketSessionJspDto{

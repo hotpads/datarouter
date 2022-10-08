@@ -103,29 +103,37 @@ public class BinaryDtoFieldCodecs{
 		}else{
 			if(fieldMetadataParser.isObjectArray()){
 				Class itemClass = fieldMetadataParser.getObjectArrayItemClass();
-				BinaryDtoBaseFieldCodec<Object> itemCodec = (BinaryDtoBaseFieldCodec)getLeafCodec(itemClass);
+				BinaryDtoBaseFieldCodec<Object> itemCodec = (BinaryDtoBaseFieldCodec)getLeafCodec(itemClass, field);
 				return new ObjectArrayBinaryDtoFieldCodec(
 						itemClass,
 						itemCodec,
 						fieldMetadataParser.isNullableItems());
 			}else if(fieldMetadataParser.isList()){
 				Class<Object> itemClass = fieldMetadataParser.getListItemClass();
-				BinaryDtoBaseFieldCodec<Object> itemCodec = (BinaryDtoBaseFieldCodec)getLeafCodec(itemClass);
+				BinaryDtoBaseFieldCodec<Object> itemCodec = (BinaryDtoBaseFieldCodec)getLeafCodec(itemClass, field);
 				return new ListBinaryDtoFieldCodec<>(
 						itemCodec,
 						fieldMetadataParser.isNullableItems());
 			}else if(fieldMetadataParser.isEnum()){
 				return new EnumBinaryDtoFieldCodec(field.getType());
 			}else{
-				return getLeafCodec(field.getType());
+				return getLeafCodec(field.getType(), field);
 			}
 		}
 	}
 
-	private static BinaryDtoBaseFieldCodec<?> getLeafCodec(Class<?> clazz){
-		return BaseBinaryDto.class.isAssignableFrom(clazz)
-				? new NestedBinaryDtoFieldCodec(clazz)
-				: LEAF_CODEC_BY_CLASS.get(clazz);
+	private static BinaryDtoBaseFieldCodec<?> getLeafCodec(Class<?> clazz, Field field){
+		if(BaseBinaryDto.class.isAssignableFrom(clazz)){
+			return new NestedBinaryDtoFieldCodec(clazz);
+		}
+		var codec = LEAF_CODEC_BY_CLASS.get(clazz);
+		if(codec != null){
+			return codec;
+		}
+		var itemClass = field.getType().getSimpleName().equals(clazz.getSimpleName())
+				? ""
+				: " (" + clazz.getSimpleName() + ")";
+		throw new NullPointerException("Codec not found for " + field + itemClass);
 	}
 
 }

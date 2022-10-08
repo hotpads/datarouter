@@ -27,9 +27,9 @@ import javax.inject.Singleton;
 
 import io.datarouter.httpclient.client.BaseApplicationHttpClient;
 import io.datarouter.httpclient.client.DatarouterHttpClient;
-import io.datarouter.httpclient.json.JsonSerializer;
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.instrumentation.test.TestableService;
+import io.datarouter.json.JsonSerializer;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.dao.BaseDao;
@@ -94,6 +94,7 @@ public class DatarouterWebBoostrapIntegrationService implements TestableService{
 		testSingletonsForSeralizers();
 		testAllRoles();
 		testHandlerMethodNameAndPathMatching();
+		testEncoderDecoderInjection();
 //		testHandlerMatching();
 	}
 
@@ -178,6 +179,18 @@ public class DatarouterWebBoostrapIntegrationService implements TestableService{
 		if(exceptions.size() != 0){
 			throw new IllegalArgumentException(String.join("\n", exceptions));
 		}
+	}
+
+	private void testEncoderDecoderInjection(){
+		Scanner.of(routeSetRegistry.get())
+				.concatIter(RouteSet::getDispatchRules)
+				.forEach(dispatchRule -> {
+					var decoderClass = dispatchRule.getDefaultHandlerDecoder();
+					injector.getInstance(decoderClass);
+
+					var encoderClass = dispatchRule.getDefaultHandlerEncoder();
+					injector.getInstance(encoderClass);
+				});
 	}
 
 }

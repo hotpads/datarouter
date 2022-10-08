@@ -15,19 +15,84 @@
  */
 package io.datarouter.exception.storage.exceptionrecord;
 
+import java.util.Date;
+import java.util.List;
 import java.util.function.Supplier;
 
+import io.datarouter.exception.storage.httprecord.FieldTrimTool;
 import io.datarouter.instrumentation.exception.ExceptionRecordDto;
-import io.datarouter.model.databean.Databean;
-import io.datarouter.util.lang.ClassTool;
+import io.datarouter.model.databean.BaseDatabean;
+import io.datarouter.model.field.Field;
+import io.datarouter.model.field.imp.DateField;
+import io.datarouter.model.field.imp.DateFieldKey;
+import io.datarouter.model.field.imp.StringField;
+import io.datarouter.model.field.imp.StringFieldKey;
+import io.datarouter.model.field.imp.comparable.IntegerField;
+import io.datarouter.model.field.imp.comparable.IntegerFieldKey;
+import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
+import io.datarouter.model.util.CommonFieldSizes;
+import io.datarouter.web.service.DatarouterServiceFieldKeys;
 
-public class ExceptionRecord extends BaseExceptionRecord<ExceptionRecordKey,ExceptionRecord>{
+public class ExceptionRecord extends BaseDatabean<ExceptionRecordKey,ExceptionRecord>{
 
-	public static class ExceptionRecordFielder extends BaseExceptionRecordFielder<ExceptionRecordKey,ExceptionRecord>{
+	private Date created;
+	private String serviceName;
+	private String serverName;
+	// exception category, e.g. job, joblet, web(http request or node), conveyor and etc.
+	private String category;
+	// smart exception naming, e.g. "{$serverName} error", "read timeout", "null pointer exception" and etc.
+	private String name;
+	private String stackTrace;
+	// class name of the Throwable, e.g. java.lang.IllegalArgumentException, java.lang.RuntimeException
+	private String type;
+	private String appVersion;
+	// the exception root cause class which has path prefix as "io.datarouter" or "com.hotpads"
+	private String exceptionLocation;
+	private String methodName;
+	private Integer lineNumber;
+	// the caller that's getting the exception
+	private String callOrigin;
+	private List<String> additionalAlertRecipients; // not persisted
+
+
+	public static class FieldKeys{
+		@SuppressWarnings("deprecation")
+		public static final DateFieldKey created = new DateFieldKey("created");
+		public static final StringFieldKey serverName = new StringFieldKey("serverName");
+		public static final StringFieldKey category = new StringFieldKey("category");
+		public static final StringFieldKey name = new StringFieldKey("name");
+		public static final StringFieldKey stackTrace = new StringFieldKey("stackTrace")
+				.withSize(CommonFieldSizes.MAX_LENGTH_MEDIUMTEXT);
+		public static final StringFieldKey type = new StringFieldKey("type");
+		public static final StringFieldKey appVersion = new StringFieldKey("appVersion");
+		public static final StringFieldKey exceptionLocation = new StringFieldKey("exceptionLocation");
+		public static final StringFieldKey methodName = new StringFieldKey("methodName");
+		public static final IntegerFieldKey lineNumber = new IntegerFieldKey("lineNumber");
+		public static final StringFieldKey callOrigin = new StringFieldKey("callOrigin");
+	}
+
+	public static class ExceptionRecordFielder extends BaseDatabeanFielder<ExceptionRecordKey,ExceptionRecord>{
 
 		public ExceptionRecordFielder(){
 			super(ExceptionRecordKey::new);
 		}
+
+		@Override
+		public List<Field<?>> getNonKeyFields(ExceptionRecord databean){
+			return List.of(
+					new DateField(FieldKeys.created, databean.getCreated()),
+					new StringField(DatarouterServiceFieldKeys.serviceName, databean.getServiceName()),
+					new StringField(FieldKeys.serverName, databean.getServerName()),
+					new StringField(FieldKeys.category, databean.getCategory()),
+					new StringField(FieldKeys.name, databean.getName()),
+					new StringField(FieldKeys.stackTrace, databean.getStackTrace()),
+					new StringField(FieldKeys.type, databean.getType()),
+					new StringField(FieldKeys.appVersion, databean.getAppVersion()),
+					new StringField(FieldKeys.exceptionLocation, databean.getExceptionLocation()),
+					new StringField(FieldKeys.methodName, databean.getMethodName()),
+					new IntegerField(FieldKeys.lineNumber, databean.getLineNumber()),
+					new StringField(FieldKeys.callOrigin, databean.getCallOrigin()));
+			}
 
 	}
 
@@ -35,29 +100,8 @@ public class ExceptionRecord extends BaseExceptionRecord<ExceptionRecordKey,Exce
 		super(new ExceptionRecordKey());
 	}
 
-	public ExceptionRecord(ExceptionRecordDto dto){
-		super(new ExceptionRecordKey(dto.id), dto.created.getTime(), dto.serviceName, dto.serverName, dto.category,
-				dto.name, dto.stackTrace, dto.type, dto.appVersion, dto.exceptionLocation, dto.methodName,
-				dto.lineNumber, dto.callOrigin);
-	}
-
 	public ExceptionRecord(
-			String serviceName,
-			String serverName,
-			String category,
-			String name,
-			String stackTrace,
-			String type,
-			String appVersion,
-			String exceptionLocation,
-			String methodName,
-			Integer lineNumber,
-			String callOrigin){
-		this(System.currentTimeMillis(), serviceName, serverName, category, name, stackTrace, type, appVersion,
-				exceptionLocation, methodName, lineNumber, callOrigin);
-	}
-
-	public ExceptionRecord(
+			ExceptionRecordKey key,
 			long dateMs,
 			String serviceName,
 			String serverName,
@@ -69,9 +113,39 @@ public class ExceptionRecord extends BaseExceptionRecord<ExceptionRecordKey,Exce
 			String exceptionLocation,
 			String methodName,
 			Integer lineNumber,
-			String callOrigin){
-		super(ExceptionRecordKey.generate(), dateMs, serviceName, serverName, category, name, stackTrace, type,
-				appVersion, exceptionLocation, methodName, lineNumber, callOrigin);
+			String callOrigin,
+			List<String> additionalAlertRecipients){
+		super(key);
+		this.created = new Date(dateMs);
+		this.serviceName = serviceName;
+		this.serverName = serverName;
+		this.category = category;
+		this.name = name;
+		this.stackTrace = stackTrace;
+		this.type = type;
+		this.appVersion = appVersion;
+		this.exceptionLocation = exceptionLocation;
+		this.methodName = methodName;
+		this.lineNumber = lineNumber;
+		this.callOrigin = callOrigin;
+		this.additionalAlertRecipients = additionalAlertRecipients;
+	}
+
+	public ExceptionRecord(ExceptionRecordDto dto){
+		this(new ExceptionRecordKey(dto.id()),
+				dto.created().getTime(),
+				dto.serviceName(),
+				dto.serverName(),
+				dto.category(),
+				dto.name(),
+				dto.stackTrace(),
+				dto.type(),
+				dto.appVersion(),
+				dto.exceptionLocation(),
+				dto.methodName(),
+				dto.lineNumber(),
+				dto.callOrigin(),
+				dto.additionalAlertRecipients());
 	}
 
 	@Override
@@ -79,30 +153,91 @@ public class ExceptionRecord extends BaseExceptionRecord<ExceptionRecordKey,Exce
 		return ExceptionRecordKey::new;
 	}
 
-	@Override
-	public int compareTo(Databean<?,?> that){
-		int diff = ClassTool.compareClass(this, that);
-		if(diff != 0){
-			return diff;
-		}
-		return getCreated().compareTo(((ExceptionRecord)that).getCreated());
-	}
-
 	public ExceptionRecordDto toDto(){
 		return new ExceptionRecordDto(
 				getKey().getId(),
-				getCreated(),
-				getServiceName(),
-				getServerName(),
-				getCategory(),
-				getName(),
-				getStackTrace(),
-				getType(),
-				getAppVersion(),
-				getExceptionLocation(),
-				getMethodName(),
-				getLineNumber(),
-				getCallOrigin());
+				created,
+				serviceName,
+				serverName,
+				category,
+				name,
+				stackTrace,
+				type,
+				appVersion,
+				exceptionLocation,
+				methodName,
+				lineNumber,
+				callOrigin,
+				additionalAlertRecipients);
 	}
+
+	public Date getCreated(){
+		return created;
+	}
+
+	public String getServiceName(){
+		return serviceName;
+	}
+
+	public String getServerName(){
+		return serverName;
+	}
+
+	public String getCategory(){
+		return category;
+	}
+
+	public String getName(){
+		return name;
+	}
+
+	public String getStackTrace(){
+		return stackTrace;
+	}
+
+	public void setStackTrace(String stackTrace){
+		this.stackTrace = stackTrace;
+	}
+
+	public String getType(){
+		return type;
+	}
+
+	public String getAppVersion(){
+		return appVersion;
+	}
+
+	public String getExceptionLocation(){
+		return exceptionLocation;
+	}
+
+	public String getMethodName(){
+		return methodName;
+	}
+
+	public Integer getLineNumber(){
+		return lineNumber;
+	}
+
+	public String getCallOrigin(){
+		return callOrigin;
+	}
+
+	public List<String> getAdditionalAlertRecipients(){
+		return additionalAlertRecipients;
+	}
+
+	public void trimFields(){
+		trimstackTrace();
+	}
+
+	public void trimstackTrace(){
+		stackTrace = trimField(FieldKeys.stackTrace, stackTrace);
+	}
+
+	private String trimField(StringFieldKey fieldKey, String field){
+		return FieldTrimTool.trimField(fieldKey, field, "exceptionRecordId=" + getKey().getId());
+	}
+
 
 }

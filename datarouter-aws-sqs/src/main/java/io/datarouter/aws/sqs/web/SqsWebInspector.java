@@ -39,7 +39,9 @@ import com.amazonaws.services.sqs.model.QueueAttributeName;
 import io.datarouter.aws.sqs.SqsClientManager;
 import io.datarouter.aws.sqs.SqsClientType;
 import io.datarouter.aws.sqs.config.DatarouterSqsPaths;
+import io.datarouter.aws.sqs.service.QueueUrlAndName;
 import io.datarouter.aws.sqs.service.SqsQueueRegistryService;
+import io.datarouter.aws.sqs.service.SqsQueueRegistryService.SqsQueuesForClient;
 import io.datarouter.aws.sqs.web.handler.SqsUpdateQueueHandler;
 import io.datarouter.pathnode.PathNode;
 import io.datarouter.scanner.Scanner;
@@ -48,8 +50,6 @@ import io.datarouter.storage.client.ClientOptions;
 import io.datarouter.util.duration.DatarouterDuration;
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.number.NumberTool;
-import io.datarouter.util.tuple.Pair;
-import io.datarouter.util.tuple.Twin;
 import io.datarouter.web.browse.DatarouterClientWebInspector;
 import io.datarouter.web.browse.dto.DatarouterWebRequestParamsFactory;
 import io.datarouter.web.handler.mav.Mav;
@@ -104,15 +104,17 @@ public class SqsWebInspector implements DatarouterClientWebInspector{
 	}
 
 	private DivTag buildQueueNodeTable(ClientId clientId, HttpServletRequest request){
-		Pair<List<Twin<String>>,List<String>> queueRegistry = queueRegistryService.getSqsQueuesForClient(clientId);
-		List<Twin<String>> knownQueuesUrlAndName = queueRegistry.getLeft();
+		SqsQueuesForClient queueRegistry = queueRegistryService.getSqsQueuesForClient(clientId);
+		List<QueueUrlAndName> knownQueuesUrlAndName = queueRegistry.knownQueueUrlByName();
 		Map<String,Long> ageSByQueueName = sqsClientManager.getApproximateAgeOfOldestUnackedMessageSecondsGroup(
 				clientId,
-				Scanner.of(knownQueuesUrlAndName).map(Twin::getRight).list());
+				Scanner.of(knownQueuesUrlAndName)
+						.map(QueueUrlAndName::queueName)
+						.list());
 		List<SqsWebInspectorDto> queueStatsRows = Scanner.of(knownQueuesUrlAndName)
 				.map(queueUrlAndName -> {
-					String queueName = queueUrlAndName.getRight();
-					String queueUrl = queueUrlAndName.getLeft();
+					String queueName = queueUrlAndName.queueName();
+					String queueUrl = queueUrlAndName.queueUrl();
 					String age = "error";
 					Long ageS = ageSByQueueName.get(queueName);
 					if(ageS != null){
@@ -142,16 +144,18 @@ public class SqsWebInspector implements DatarouterClientWebInspector{
 				.withHtmlColumn(th("Total").withClass("col-xs-1"), row -> td(row.getTotalMessagesAvailable()))
 				.withHtmlColumn(th("Age of oldest").withClass("col-xs-1"),
 						row -> td(String.valueOf(row.ageOfOldestMessage)))
-				.withHtmlColumn(th("").attr("width", "80"), row -> {
+				.withHtmlColumn(th("Purge Queue").withClass("col-xs-1"), row -> {
 					String href = buildActionPath(request, clientId, row.queueName, SqsQueueAction.PURGE);
 					ATag purgeIcon = a(i().withClass("fas fa-skull-crossbones fa-lg"))
 							.withHref(href)
 							.attr("data-toggle", "tooltip")
-							.attr("title", "Purge queue " + row.queueName);
+							.attr("title", "Purge queue " + row.queueName)
+							.attr("onclick", "return confirm('Are you sure you want to purge this queue "
+							+ row.queueName + "?');");
 					return td(purgeIcon).withStyle("text-align:center");
 				})
 				.build(queueStatsRows);
-		List<String> unreferencedQueues = queueRegistry.getRight();
+		List<String> unreferencedQueues = queueRegistry.unreferencedQueues();
 		if(unreferencedQueues.isEmpty()){
 			return div(h4("Queues"), table)
 					.withClass("container-fluid my-4")

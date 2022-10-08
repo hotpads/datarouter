@@ -31,14 +31,16 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.tag.Tag;
-import io.datarouter.util.tuple.Pair;
+import io.datarouter.web.dispatcher.ApiKeyPredicate.ApiKeyPredicateCheck;
 import io.datarouter.web.handler.BaseHandler;
+import io.datarouter.web.handler.encoder.BaseHandlerCodec;
 import io.datarouter.web.handler.encoder.DefaultEncoder;
 import io.datarouter.web.handler.encoder.HandlerEncoder;
 import io.datarouter.web.handler.types.DefaultDecoder;
 import io.datarouter.web.handler.types.EndpointDecoder;
 import io.datarouter.web.handler.types.HandlerDecoder;
 import io.datarouter.web.handler.types.LinkDecoder;
+import io.datarouter.web.handler.types.WebApiDecoder;
 import io.datarouter.web.security.CsrfValidator;
 import io.datarouter.web.security.SecurityValidationResult;
 import io.datarouter.web.security.SecurityValidator;
@@ -141,6 +143,12 @@ public class DispatchRule{
 		return this;
 	}
 
+	public DispatchRule withDefaultHandlerCodec(BaseHandlerCodec handlerCodec){
+		this.defaultHandlerEncoder = handlerCodec.encoderClass;
+		this.defaultHandlerDecoder = handlerCodec.decoderClass;
+		return this;
+	}
+
 	public DispatchRule withPersistentString(String persistentString){
 		this.persistentString = persistentString;
 		return this;
@@ -219,6 +227,7 @@ public class DispatchRule{
 			case DEFAULT -> DefaultDecoder.class;
 			case API_ENDPOINT -> EndpointDecoder.class;
 			case INTERNAL_LINK -> LinkDecoder.class;
+			case WEB_API -> WebApiDecoder.class;
 		};
 	}
 
@@ -235,17 +244,17 @@ public class DispatchRule{
 	}
 
 	private SecurityValidationResult checkApiKey(HttpServletRequest request){
-		Pair<Boolean,String> result;
+		ApiKeyPredicateCheck result;
 		if(apiKeyPredicate == null){
-			result = new Pair<>(true, "");
+			result = new ApiKeyPredicateCheck(true, "");
 		}else{
 			result = apiKeyPredicate.check(this, request);
 		}
-		String message = "API key check failed, " + result.getRight();
-		if(!result.getLeft()){
+		String message = "API key check failed, " + result.accountName();
+		if(!result.allowed()){
 			logFailure(message, request);
 		}
-		return new SecurityValidationResult(request, result.getLeft(), message);
+		return new SecurityValidationResult(request, result.allowed(), message);
 	}
 
 	private SecurityValidationResult checkCsrfToken(HttpServletRequest request){

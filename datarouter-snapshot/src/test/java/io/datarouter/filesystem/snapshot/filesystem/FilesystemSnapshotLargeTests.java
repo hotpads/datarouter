@@ -106,9 +106,9 @@ public class FilesystemSnapshotLargeTests{
 		reader.scan(0)
 				.forEach(record -> {
 					long id = count.getAndIncrement();
-					Assert.assertEquals(record.id, id);
-					Assert.assertEquals(record.key, SnapshotBenchmark.makeKey(id));
-					Assert.assertEquals(record.value, SnapshotBenchmark.makeValue(id));
+					Assert.assertEquals(record.id(), id);
+					Assert.assertEquals(record.key(), SnapshotBenchmark.makeKey(id));
+					Assert.assertEquals(record.value(), SnapshotBenchmark.makeValue(id));
 				});
 		Assert.assertEquals(count.get(), benchmark.numEntries);
 		ExecutorServiceTool.shutdown(exec, Duration.ofSeconds(2));
@@ -122,8 +122,8 @@ public class FilesystemSnapshotLargeTests{
 		var reader = new SnapshotIdReader(benchmark.snapshotKey, cache);
 		for(long id = 0; id < benchmark.numEntries; ++id){
 			SnapshotLeafRecord leafRecord = reader.leafRecord(id);
-			Assert.assertEquals(leafRecord.key, SnapshotBenchmark.makeKey(id));
-			Assert.assertEquals(leafRecord.value, SnapshotBenchmark.makeValue(id));
+			Assert.assertEquals(leafRecord.key(), SnapshotBenchmark.makeKey(id));
+			Assert.assertEquals(leafRecord.value(), SnapshotBenchmark.makeValue(id));
 		}
 	}
 

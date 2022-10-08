@@ -16,6 +16,7 @@
 package io.datarouter.storage.test.blob;
 
 import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -32,6 +33,7 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.Config;
+import io.datarouter.storage.file.Pathbean;
 import io.datarouter.storage.node.factory.BlobNodeFactory;
 import io.datarouter.storage.util.Subpath;
 
@@ -129,6 +131,32 @@ public abstract class BaseBlobIntegrationTests{
 		Assert.assertEquals(size, 10);
 		Scanner.of(keys)
 				.forEach(dao::delete);
+	}
+
+	@Test
+	public void vacuum(){
+		Set<String> keys = new HashSet<>();
+		for(int i = 0; i < 10; i++){
+			String key = "" + i;
+			keys.add(key);
+			dao.write(key,
+					key,
+					new Config().setTtl(Duration.of(1000, ChronoUnit.MILLIS)));
+		}
+		dao.write("11", "11", new Config().setTtl(Duration.of(10, ChronoUnit.MINUTES)));
+		try{
+			Thread.sleep(2000);
+		}catch(InterruptedException e){
+			Thread.currentThread().interrupt();
+		}
+		dao.vacuum();
+		List<List<Pathbean>> beans = dao.scan(DatarouterBlobTestDao.SUBPATH)
+				.list();
+		Assert.assertTrue(beans.size() >= 1);
+		Scanner.of(beans)
+				.concat(Scanner::of)
+				.forEach(item -> Assert.assertFalse(keys.contains(item.getKey().getFile())));
+		dao.delete("11");
 	}
 
 }

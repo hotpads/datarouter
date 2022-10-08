@@ -59,39 +59,16 @@ public class TableProcessorJoblet extends BaseJoblet<TableProcessorJobletParams>
 		}
 	}
 
-	public static class TableProcessorJobletParams{
-
-		public final String nodeName;
-		public final String fromKeyExclusive;
-		public final String toKeyInclusive;
-		public final int scanBatchSize;
-		public final String processorName;
-		public final Long estNumDatabeans;
-		public final Long jobletId;
-		public final Long numJoblets;
-		public final int executionOrder;
-
-		public TableProcessorJobletParams(
-				String nodeName,
-				String fromKeyExclusive,
-				String toKeyInclusive,
-				int scanBatchSize,
-				String processorName,
-				Long estNumDatabeans,
-				Long jobletId,
-				Long numJoblets,
-				int executionOrder){
-			this.nodeName = nodeName;
-			this.fromKeyExclusive = fromKeyExclusive;
-			this.toKeyInclusive = toKeyInclusive;
-			this.scanBatchSize = scanBatchSize;
-			this.processorName = processorName;
-			this.estNumDatabeans = estNumDatabeans;
-			this.jobletId = jobletId;
-			this.numJoblets = numJoblets;
-			this.executionOrder = executionOrder;
-		}
-
+	public record TableProcessorJobletParams(
+			String nodeName,
+			String fromKeyExclusive,
+			String toKeyInclusive,
+			int scanBatchSize,
+			String processorName,
+			Long estNumDatabeans,
+			Long jobletId,
+			Long numJoblets,
+			int executionOrder){
 	}
 
 	public static class TableProcessorJobletCodec extends BaseGsonJobletCodec<TableProcessorJobletParams>{

@@ -40,46 +40,43 @@ import io.datarouter.scanner.Scanner;
 public class SnapshotMerger{
 	private static final Logger logger = LoggerFactory.getLogger(SnapshotMerger.class);
 
-	private final Supplier<Boolean> shouldStop;
-	private final SnapshotGroup mergeGroup;
-	private final SnapshotGroup destinationGroup;
-	private final ExecutorService readExec;
-	private final ExecutorService writeExec;
-	private final SnapshotWriterConfig writerConfig;
-	private final int scanNumBlocks;
-	private final int mergeFactor;
-
-	public SnapshotMerger(
+	public record SnapshotMergerParams(
 			Supplier<Boolean> shouldStop,
 			SnapshotGroup mergeGroup,
 			SnapshotGroup destinationGroup,
 			ExecutorService readExec,
 			ExecutorService writeExec,
-			SnapshotWriterConfig writerConfig,
-			int scanNumBlocks,
+			SnapshotWriterConfig mergeWriterConfig,
+			SnapshotWriterConfig destinationWriterConfig,
+			int prefetchThreads,
+			int prefetchBlocks,
 			int mergeFactor){
-		this.shouldStop = shouldStop;
-		this.mergeGroup = mergeGroup;
-		this.destinationGroup = destinationGroup;
-		this.readExec = readExec;
-		this.writeExec = writeExec;
-		this.writerConfig = writerConfig;
-		this.scanNumBlocks = scanNumBlocks;
-		this.mergeFactor = mergeFactor;
+	}
+
+	private final SnapshotMergerParams params;
+
+	public SnapshotMerger(SnapshotMergerParams params){
+		this.params = params;
 	}
 
 	public void merge(){
-		Map<SnapshotKey,SnapshotKeyAndNumRecords> summaryByKey = mergeGroup.keyReadOps(false)
-				.scanSnapshotKeysAndRootBlocks(readExec, 10)
+		Map<SnapshotKey,SnapshotKeyAndNumRecords> summaryByKey = params.mergeGroup.keyReadOps(false)
+				.scanSnapshotKeysAndRootBlocks(params.readExec, 10)
 				.map(SnapshotKeyAndNumRecords::new)
-				.toMap(summary -> summary.key);
+				.toMap(SnapshotKeyAndNumRecords::key);
 		while(summaryByKey.size() > 1){
-			SnapshotGroup outputGroup = summaryByKey.size() <= mergeFactor ? destinationGroup : mergeGroup;
+			boolean isFinalSnapshot = summaryByKey.size() <= params.mergeFactor;
+			SnapshotGroup outputGroup = isFinalSnapshot
+					? params.destinationGroup
+					: params.mergeGroup;
+			SnapshotWriterConfig writerConfig = isFinalSnapshot
+					? params.destinationWriterConfig
+					: params.mergeWriterConfig;
 			Scanner.of(summaryByKey.values())
-					.minN(SnapshotKeyAndNumRecords.BY_NUM_RECORDS, mergeFactor)
-					.map(summary -> summary.key)
+					.minN(SnapshotKeyAndNumRecords.BY_NUM_RECORDS, params.mergeFactor)
+					.map(SnapshotKeyAndNumRecords::key)
 					.flush(keys -> {
-						SnapshotWriteResult result = combineSnapshots(keys, outputGroup);
+						SnapshotWriteResult result = combineSnapshots(keys, outputGroup, writerConfig);
 						var newSummary = new SnapshotKeyAndNumRecords(result.toSnapshotKeyAndRoot());
 						summaryByKey.put(result.key, newSummary);
 					})
@@ -87,19 +84,27 @@ public class SnapshotMerger{
 		}
 	}
 
-	private SnapshotWriteResult combineSnapshots(List<SnapshotKey> keys, SnapshotGroup outputGroup){
+	private SnapshotWriteResult combineSnapshots(
+			List<SnapshotKey> keys,
+			SnapshotGroup outputGroup,
+			SnapshotWriterConfig writerConfig){
 		SnapshotWriteResult result = Scanner.of(keys)
-				.map(key -> new ScanningSnapshotReader(key, readExec, 10, mergeGroup, scanNumBlocks))
+				.map(key -> new ScanningSnapshotReader(
+						key,
+						params.readExec,
+						params.prefetchThreads,
+						params.mergeGroup,
+						params.prefetchBlocks))
 				.collate(reader -> reader.scanLeafRecords(0), SnapshotLeafRecord.KEY_COMPARATOR)
-				.deduplicateConsecutiveBy(leafRecord -> leafRecord.key, Arrays::equals)
+				.deduplicateConsecutiveBy(SnapshotLeafRecord::key, Arrays::equals)
 				.map(SnapshotLeafRecord::entry)
 				.batch(10_000)
 				.apply(batches -> outputGroup.writeOps().write(
 						writerConfig,
 						batches,
-						writeExec,
-						shouldStop));
-		keys.forEach(key -> mergeGroup.deleteOps().deleteSnapshot(key, writeExec, 10));
+						params.writeExec,
+						params.shouldStop));
+		keys.forEach(key -> params.mergeGroup.deleteOps().deleteSnapshot(key, params.writeExec, 10));
 		logger.warn("combined {}, {}", keys.size(), keys);
 		return result;
 	}

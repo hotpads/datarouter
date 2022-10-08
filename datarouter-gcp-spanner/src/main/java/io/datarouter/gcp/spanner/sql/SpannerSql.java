@@ -34,7 +34,7 @@ public class SpannerSql extends Sql<Void,Statement.Builder,SpannerSql>{
 	}
 
 	@Override
-	public SpannerSql appendColumnEqualsValueParameter(Field<?> field){
+	public <T,F extends Field<T>> SpannerSql appendColumnEqualsValueParameter(F field){
 		SpannerBaseFieldCodec<?,?> codec = fieldCodecs.createCodec(field);
 		int index = parameterSetters.size();
 		appendParameter(codec.getParameterName(index, false), codec::setParameterValue);
@@ -42,8 +42,8 @@ public class SpannerSql extends Sql<Void,Statement.Builder,SpannerSql>{
 	}
 
 	@Override
-	public SpannerSql addSqlNameValueWithOperator(
-			Field<?> field,
+	public <T,F extends Field<T>> SpannerSql addSqlNameValueWithOperator(
+			F field,
 			String operator,
 			boolean rejectNulls){
 		if(rejectNulls && field.getValue() == null){

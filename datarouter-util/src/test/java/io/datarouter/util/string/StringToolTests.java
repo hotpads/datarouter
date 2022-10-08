@@ -169,6 +169,8 @@ public class StringToolTests{
 	public void testGetSimpleClassName(){
 		Assert.assertEquals(StringTool.getSimpleClassName("bar.Foo"), "Foo");
 		Assert.assertEquals(StringTool.getSimpleClassName("Foo"), "Foo");
+		Assert.assertEquals(StringTool.getSimpleClassName(String.class.getSimpleName()), "String");
+		Assert.assertEquals(StringTool.getSimpleClassName(String.class.getSimpleName()), String.class.getSimpleName());
 	}
 
 	@Test

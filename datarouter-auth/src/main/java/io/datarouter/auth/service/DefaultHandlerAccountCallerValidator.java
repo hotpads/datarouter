@@ -15,6 +15,7 @@
  */
 package io.datarouter.auth.service;
 
+import java.lang.reflect.Method;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -25,7 +26,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.auth.config.DatarouterAuthSettingRoot;
-import io.datarouter.httpclient.endpoint.BaseEndpoint;
+import io.datarouter.httpclient.endpoint.caller.CallerType;
+import io.datarouter.httpclient.endpoint.java.BaseEndpoint;
+import io.datarouter.util.lang.ReflectionTool;
+import io.datarouter.web.handler.BaseHandler.Handler;
 import io.datarouter.web.handler.validator.HandlerAccountCallerValidator;
 
 @Singleton
@@ -47,14 +51,41 @@ public class DefaultHandlerAccountCallerValidator implements HandlerAccountCalle
 		try{
 			// could be null if not set through the UI
 			String accountCallerType = callerTypeByAccountNameCache.get(accountName);
-			String endpointCallerType = endpoint.getCallerType().name;
+			Class<? extends CallerType> endpointCallerTypeClass = endpoint.callerType;
+			String endpointCallerType = ReflectionTool.create(endpointCallerTypeClass).getName();
 			if(accountCallerType == null || !accountCallerType.equals(endpointCallerType)){
 				String message = String.format("EndpointName=%s accountName=%s accountCallerType=%s "
 						+ "endpointCallerType=%s",
 						endpoint.getClass().getSimpleName(),
 						accountName,
 						accountCallerType,
-						endpoint.getCallerType().name);
+						endpointCallerType);
+				if(logs.add(message)){
+					logger.info(message);
+				}
+			}
+		}catch(Exception ex){
+			logger.error("", ex);
+		}
+	}
+
+	@Override
+	public void validate(String accountName, Method method){
+		if(!settings.enableHandlerAccountCallerValidator.get()){
+			return;
+		}
+		try{
+			// could be null if not set through the UI
+			String accountCallerType = callerTypeByAccountNameCache.get(accountName);
+			Class<? extends CallerType> handlerCallerTypeClass = method.getAnnotation(Handler.class).callerType();
+			String handlerCallerType = ReflectionTool.create(handlerCallerTypeClass).getName();
+			if(accountCallerType == null || !accountCallerType.equals(handlerCallerType)){
+				String message = String.format("HandlerClass=%s accountName=%s accountCallerType=%s "
+						+ "endpointCallerType=%s",
+						method.getDeclaringClass().getName() + "." + method.getName(),
+						accountName,
+						accountCallerType,
+						handlerCallerType);
 				if(logs.add(message)){
 					logger.info(message);
 				}

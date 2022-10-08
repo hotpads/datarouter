@@ -61,19 +61,19 @@ public class SnapshotFileWriter{
 		this.tracker = tracker;
 		this.fileStorage = snapshotFileStorage;
 		this.config = config;
-		paths = config.pathsSupplier.get();
+		paths = config.pathsSupplier().get();
 
 		this.onValueFileWriteCallback = onValueFileWriteCallback;
 		this.onLeafFileWriteCallback = onLeafFileWriteCallback;
 		this.onBranchFileWriteCallback = onBranchFileWriteCallback;
 
 		branchBlockQueueByLevel = new ConcurrentHashMap<>();
-		leafBlockQueue = new BlockQueue("leaf", config.leafBytesPerFile, config.leafBlocksPerFile);
+		leafBlockQueue = new BlockQueue("leaf", config.leafBytesPerFile(), config.leafBlocksPerFile());
 		valueBlockQueueByColumn = config.columnIds()
 				.map(columnId -> new BlockQueue(
 						"branch-" + columnId,
-						config.valueBytesPerFile,
-						config.valueBlocksPerFile))
+						config.valueBytesPerFile(),
+						config.valueBlocksPerFile()))
 				.list();
 	}
 
@@ -83,13 +83,13 @@ public class SnapshotFileWriter{
 		tracker.branchMemory(true, 1, block.totalLength);
 		BlockQueue queue = branchBlockQueueByLevel.computeIfAbsent(level, $ -> new BlockQueue(
 				"branch-" + level,
-				config.branchBytesPerFile,
-				config.branchBlocksPerFile));
+				config.branchBytesPerFile(),
+				config.branchBlocksPerFile()));
 		queue.submit(blockId, block).forEach(file -> writeBranchFile(level, file));
 	}
 
 	private void writeBranchFile(int level, SnapshotFile file){
-		if(config.persist){
+		if(config.persist()){
 			logWriteStart(file);
 			long startMs = System.currentTimeMillis();
 			fileStorage.addBranchFile(paths, FileKey.branch(level, file.id), file.compressedBlocks);
@@ -114,7 +114,7 @@ public class SnapshotFileWriter{
 	}
 
 	private void writeLeafFile(SnapshotFile file){
-		if(config.persist){
+		if(config.persist()){
 			logWriteStart(file);
 			long startMs = System.currentTimeMillis();
 			fileStorage.addLeafFile(paths, FileKey.leaf(file.id), file.compressedBlocks);
@@ -138,7 +138,7 @@ public class SnapshotFileWriter{
 	}
 
 	private void writeValueFile(int column, SnapshotFile file){
-		if(config.persist){
+		if(config.persist()){
 			logWriteStart(file);
 			long startMs = System.currentTimeMillis();
 			fileStorage.addValueFile(paths, FileKey.value(column, file.id), file.compressedBlocks);

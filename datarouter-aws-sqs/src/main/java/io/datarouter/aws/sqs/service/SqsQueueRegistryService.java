@@ -27,15 +27,13 @@ import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.model.ListQueuesResult;
 import com.amazonaws.services.sqs.model.QueueDoesNotExistException;
 
-import io.datarouter.aws.sqs.BaseSqsNode;
 import io.datarouter.aws.sqs.SqsClientManager;
+import io.datarouter.aws.sqs.SqsPhysicalNode;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.node.NodeTool;
 import io.datarouter.util.string.StringTool;
-import io.datarouter.util.tuple.Pair;
-import io.datarouter.util.tuple.Twin;
 
 @Singleton
 public class SqsQueueRegistryService{
@@ -45,20 +43,22 @@ public class SqsQueueRegistryService{
 	@Inject
 	private SqsClientManager sqsClientManager;
 
-	public Pair<List<Twin<String>>,List<String>> getSqsQueuesForClient(ClientId clientId){
+	public SqsQueuesForClient getSqsQueuesForClient(ClientId clientId){
 		Set<String> knownQueuesUrls = new HashSet<>();
 		AmazonSQS sqs = sqsClientManager.getAmazonSqs(clientId);
-		List<? extends BaseSqsNode<?,?,?>> sqsNodes = Scanner.of(nodes.getPhysicalNodesForClient(clientId.getName()))
+		List<? extends SqsPhysicalNode<?,?,?>> sqsNodes = Scanner.of(
+				nodes.getPhysicalNodesForClient(clientId.getName()))
 				.map(NodeTool::extractSinglePhysicalNode)
-				.map(physicalNode -> (BaseSqsNode<?,?,?>)physicalNode)
+				.map(physicalNode -> (SqsPhysicalNode<?,?,?>)physicalNode)
 				.list();
-		List<Twin<String>> knownQueueUrlByName = Scanner.of(sqsNodes)
-				.map(BaseSqsNode::getQueueUrlAndName)
+		List<QueueUrlAndName> knownQueueUrlByName = Scanner.of(sqsNodes)
+				.map(SqsPhysicalNode::getQueueUrlAndName)
 				.map(Supplier::get)
-				.each(twin -> knownQueuesUrls.add(twin.getLeft()))
+				.each(twin -> knownQueuesUrls.add(twin.queueUrl()))
 				.list();
 		List<String> unreferencedQueues = Scanner.of(sqsNodes)
-				.map(BaseSqsNode::buildNamespace)
+				//this intentionally avoids manually specified namespaces, since they could overlap with other services
+				.map(SqsPhysicalNode::getAutomaticNamespace)
 				.distinct()
 				.map(sqs::listQueues)
 				.concatIter(ListQueuesResult::getQueueUrls)
@@ -66,7 +66,12 @@ public class SqsQueueRegistryService{
 				.map(queueUrl -> StringTool.getStringAfterLastOccurrence("/", queueUrl))
 				.include(queueName -> sqsQueueExists(sqs, queueName))
 				.list();
-		return new Pair<>(knownQueueUrlByName, unreferencedQueues);
+		return new SqsQueuesForClient(knownQueueUrlByName, unreferencedQueues);
+	}
+
+	public record SqsQueuesForClient(
+			List<QueueUrlAndName> knownQueueUrlByName,
+			List<String> unreferencedQueues){
 	}
 
 	private boolean sqsQueueExists(AmazonSQS sqs, String queueName){

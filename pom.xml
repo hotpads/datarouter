@@ -21,7 +21,7 @@
 
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-modules</artifactId>
-	<version>0.0.116</version>
+	<version>0.0.117</version>
 	<packaging>pom</packaging>
 
 	<modules>
@@ -88,4 +88,3 @@
 		<module>datarouter-websocket</module>
 	</modules>
 </project>
-

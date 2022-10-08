@@ -19,28 +19,28 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
-import io.datarouter.conveyor.Conveyor;
+import io.datarouter.conveyor.BaseConveyors.ExecsAndConveyors;
+import io.datarouter.conveyor.ConveyorRunnable;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.util.tuple.Pair;
 
 public class ConveyorSummary{
 
 	public final String name;
 	public final ExecutorService executor;
-	public final Conveyor conveyor;
+	public final ConveyorRunnable conveyor;
 
-	public ConveyorSummary(String name, ExecutorService executor, Conveyor conveyor){
+	public ConveyorSummary(String name, ExecutorService executor, ConveyorRunnable conveyor){
 		this.name = name;
 		this.executor = executor;
 		this.conveyor = conveyor;
 	}
 
-	public static List<ConveyorSummary> summarize(Map<String,Pair<ExecutorService,Conveyor>> entries){
+	public static List<ConveyorSummary> summarize(Map<String,ExecsAndConveyors> entries){
 		return Scanner.of(entries.entrySet())
 				.map(entry -> new ConveyorSummary(
 						entry.getKey(),
-						entry.getValue().getLeft(),
-						entry.getValue().getRight()))
+						entry.getValue().executor(),
+						entry.getValue().conveyor()))
 				.list();
 	}
 

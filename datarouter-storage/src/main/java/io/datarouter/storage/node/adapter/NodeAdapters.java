@@ -134,10 +134,10 @@ public class NodeAdapters{
 				new PhysicalGroupQueueStorageTraceAdapter<>(physicalQueueNode)));
 	}
 
-	public PhysicalBlobQueueStorageNode wrapBlobQueueNode(PhysicalBlobQueueStorageNode physicalQueueNode){
-		return new PhysicalBlobQueueStorageSanitizationAdapter(
-				new PhysicalBlobQueueStorageCounterAdapter(
-				new PhysicalBlobQueueStorageTraceAdapter(physicalQueueNode)));
+	public <T> PhysicalBlobQueueStorageNode<T> wrapBlobQueueNode(PhysicalBlobQueueStorageNode<T> physicalQueueNode){
+		return new PhysicalBlobQueueStorageSanitizationAdapter<>(
+				new PhysicalBlobQueueStorageCounterAdapter<>(
+				new PhysicalBlobQueueStorageTraceAdapter<>(physicalQueueNode)));
 	}
 
 	/*-------------- tally ----------------*/

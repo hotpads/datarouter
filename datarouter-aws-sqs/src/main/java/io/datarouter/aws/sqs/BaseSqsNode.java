@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import com.amazonaws.services.sqs.model.CreateQueueRequest;
 import com.amazonaws.services.sqs.model.QueueAttributeName;
 
+import io.datarouter.aws.sqs.service.QueueUrlAndName;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
@@ -38,14 +39,13 @@ import io.datarouter.storage.node.type.physical.base.BasePhysicalNode;
 import io.datarouter.storage.queue.QueueMessageKey;
 import io.datarouter.util.singletonsupplier.SingletonSupplier;
 import io.datarouter.util.string.StringTool;
-import io.datarouter.util.tuple.Twin;
 
 public abstract class BaseSqsNode<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>>
 extends BasePhysicalNode<PK,D,F>
-implements QueueStorageWriter<PK,D>{
+implements QueueStorageWriter<PK,D>, SqsPhysicalNode<PK,D,F>{
 	private static final Logger logger = LoggerFactory.getLogger(BaseSqsNode.class);
 
 	// do not change, this is a limit from SQS
@@ -61,7 +61,7 @@ implements QueueStorageWriter<PK,D>{
 	private final EnvironmentName environmentName;
 	private final ServiceName serviceName;
 	private final NodeParams<PK,D,F> params;
-	private final Supplier<Twin<String>> queueUrlAndName;
+	private final Supplier<QueueUrlAndName> queueUrlAndName;
 	private final SqsClientManager sqsClientManager;
 	private final ClientId clientId;
 	protected final SqsOpFactory<PK,D,F> sqsOpFactory;
@@ -85,7 +85,7 @@ implements QueueStorageWriter<PK,D>{
 		this.owned = params.getQueueUrl() == null;
 	}
 
-	private Twin<String> getOrCreateQueueUrl(){
+	private QueueUrlAndName getOrCreateQueueUrl(){
 		String queueUrl;
 		String queueName;
 		if(!owned){
@@ -99,7 +99,7 @@ implements QueueStorageWriter<PK,D>{
 			logger.warn("retention updated queueName=" + queueName);
 		}
 		logger.warn("nodeName={}, queueUrl={}", getName(), queueUrl);
-		return new Twin<>(queueUrl, queueName);
+		return new QueueUrlAndName(queueUrl, queueName);
 	}
 
 	private String createQueueAndGetUrl(String queueName){
@@ -120,10 +120,12 @@ implements QueueStorageWriter<PK,D>{
 		return environmentName + "-" + serviceName;
 	}
 
-	public String buildNamespace(){
+	@Override
+	public String getAutomaticNamespace(){
 		return buildNamespace(environmentName.get(), serviceName.get());
 	}
 
+	@Override
 	public String buildQueueName(String environmentName, String serviceName){
 		String namespace = getOrBuildNamespace(environmentName, serviceName);
 		String tableName = getFieldInfo().getTableName();
@@ -135,8 +137,14 @@ implements QueueStorageWriter<PK,D>{
 		return queueName;
 	}
 
-	public Supplier<Twin<String>> getQueueUrlAndName(){
+	@Override
+	public Supplier<QueueUrlAndName> getQueueUrlAndName(){
 		return queueUrlAndName;
+	}
+
+	@Override
+	public boolean getAgeMonitoringStatusForMetricAlert(){
+		return params.getAgeMonitoringStatus();
 	}
 
 	public boolean isOwned(){

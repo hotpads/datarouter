@@ -18,7 +18,6 @@ package io.datarouter.exception.config;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.exception.job.ExceptionRecordAggregationJob;
 import io.datarouter.exception.job.ExceptionRecordVacuumJob;
 import io.datarouter.exception.job.HttpRequestRecordVacuumJob;
 import io.datarouter.job.BaseTriggerGroup;
@@ -35,11 +34,6 @@ public class DatarouterExceptionTriggerGroup extends BaseTriggerGroup{
 				"0 0 14 * * ?",
 				settings.runExceptionRecordVacuum,
 				ExceptionRecordVacuumJob.class,
-				true);
-		registerLocked(
-				"39 1 * * * ?",
-				settings.runExceptionRecordAggregationJob,
-				ExceptionRecordAggregationJob.class,
 				true);
 		registerLocked(
 				"0 0 13 * * ?",

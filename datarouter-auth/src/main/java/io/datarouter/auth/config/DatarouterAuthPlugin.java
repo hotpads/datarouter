@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import io.datarouter.auth.service.AccountCallerTypeRegistry;
+import io.datarouter.auth.service.AccountCallerTypeRegistry2;
 import io.datarouter.auth.service.CopyUserListener;
 import io.datarouter.auth.service.CopyUserListener.DefaultCopyUserListener;
 import io.datarouter.auth.service.DatarouterAccountDailyDigest;
@@ -61,7 +61,7 @@ import io.datarouter.auth.storage.useraccountmap.DatarouterUserAccountMapDao.Dat
 import io.datarouter.auth.storage.userhistory.DatarouterUserHistoryDao;
 import io.datarouter.auth.storage.userhistory.DatarouterUserHistoryDao.DatarouterUserHistoryDaoParams;
 import io.datarouter.auth.web.DatarouterDocumentationRouteSet;
-import io.datarouter.httpclient.endpoint.CallerType;
+import io.datarouter.httpclient.endpoint.caller.CallerType;
 import io.datarouter.job.BaseTriggerGroup;
 import io.datarouter.job.config.DatarouterJobRouteSet;
 import io.datarouter.plugin.PluginConfigKey;
@@ -88,7 +88,7 @@ public class DatarouterAuthPlugin extends BaseWebPlugin{
 	private final String defaultApiKey;
 	private final String defaultSecretKey;
 	private final Optional<Class<? extends DatarouterAccountDeleteAction>> datarouterAccountDeleteAction;
-	private final List<CallerType> callerTypes;
+	private final List<Class<? extends CallerType>> callerTypes2;
 
 	private DatarouterAuthPlugin(
 			boolean enableUserAuth,
@@ -99,7 +99,7 @@ public class DatarouterAuthPlugin extends BaseWebPlugin{
 			String defaultApiKey,
 			String defaultSecretKey,
 			Optional<Class<? extends DatarouterAccountDeleteAction>> datarouterAccountDeleteAction,
-			List<CallerType> callerTypes,
+			List<Class<? extends CallerType>> callerTypes2,
 			Map<PluginConfigKey<?>,Class<? extends PluginConfigValue<?>>> configs){
 		this.userDeprovisioningStrategyClass = userDeprovisioningStrategyClass;
 		this.copyUserListenerClass = copyUserListenerClass;
@@ -107,7 +107,7 @@ public class DatarouterAuthPlugin extends BaseWebPlugin{
 		this.defaultApiKey = defaultApiKey;
 		this.defaultSecretKey = defaultSecretKey;
 		this.datarouterAccountDeleteAction = datarouterAccountDeleteAction;
-		this.callerTypes = callerTypes;
+		this.callerTypes2 = callerTypes2;
 
 		if(enableUserAuth){
 			addAppListener(DatarouterUserConfigAppListener.class);
@@ -159,7 +159,7 @@ public class DatarouterAuthPlugin extends BaseWebPlugin{
 		datarouterAccountDeleteAction.ifPresent(clazz -> {
 			bind(DatarouterAccountDeleteAction.class).to(clazz);
 		});
-		bindActualInstance(AccountCallerTypeRegistry.class, new AccountCallerTypeRegistry(callerTypes));
+		bindActualInstance(AccountCallerTypeRegistry2.class, new AccountCallerTypeRegistry2(callerTypes2));
 	}
 
 	public static class DatarouterAuthPluginBuilder{
@@ -177,7 +177,7 @@ public class DatarouterAuthPlugin extends BaseWebPlugin{
 		private String defaultSecretKey = "";
 		private Optional<Class<? extends DatarouterAccountDeleteAction>> datarouterAccountDeleteAction = Optional
 				.empty();
-		private List<CallerType> callerTypes = new ArrayList<>();
+		private List<Class<? extends CallerType>> callerTypes2 = new ArrayList<>();
 
 		public DatarouterAuthPluginBuilder(
 				boolean enableUserAuth,
@@ -225,8 +225,8 @@ public class DatarouterAuthPlugin extends BaseWebPlugin{
 			return this;
 		}
 
-		public DatarouterAuthPluginBuilder addCallerType(CallerType callerType){
-			this.callerTypes.add(callerType);
+		public DatarouterAuthPluginBuilder addCallerType2(Class<? extends CallerType> callerType2){
+			this.callerTypes2.add(callerType2);
 			return this;
 		}
 
@@ -250,7 +250,7 @@ public class DatarouterAuthPlugin extends BaseWebPlugin{
 					defaultApiKey,
 					defaultSecretKey,
 					datarouterAccountDeleteAction,
-					callerTypes,
+					callerTypes2,
 					configs);
 		}
 

@@ -15,6 +15,7 @@
  */
 package io.datarouter.storage.test.node.basic.manyfield;
 
+import io.datarouter.enums.CaseInsensitiveStringMappedEnum;
 import io.datarouter.enums.MappedEnum;
 import io.datarouter.enums.StringMappedEnum;
 
@@ -25,10 +26,15 @@ public enum TestEnum{
 	BEAST(21, "beast"),
 	FISH(22, "fish");
 
-	public static final MappedEnum<TestEnum,Integer> BY_PERSISTENT_INTEGER
-			= new MappedEnum<>(values(), value -> value.persistentInteger);
+	// example mappings
+	public static final StringMappedEnum<TestEnum> BY_NAME
+			= new StringMappedEnum<>(values(), Enum::name);
 	public static final StringMappedEnum<TestEnum> BY_PERSISTENT_STRING
 			= new StringMappedEnum<>(values(), value -> value.persistentString);
+	public static final CaseInsensitiveStringMappedEnum<TestEnum> BY_PERSISTENT_STRING_CASE_INSENSITIVE
+			= new CaseInsensitiveStringMappedEnum<>(values(), value -> value.persistentString);
+	public static final MappedEnum<TestEnum,Integer> BY_PERSISTENT_INTEGER
+			= new MappedEnum<>(values(), value -> value.persistentInteger);
 
 	public final int persistentInteger;
 	public final String persistentString;

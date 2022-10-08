@@ -36,7 +36,6 @@ import io.datarouter.storage.test.node.basic.sorted.SortedBean.SortedBeanFielder
 import io.datarouter.storage.util.KeyRangeTool;
 import io.datarouter.util.ComparableTool;
 import io.datarouter.util.collection.ListTool;
-import io.datarouter.util.concurrent.ThreadTool;
 import io.datarouter.util.timer.PhaseTimer;
 import io.datarouter.util.tuple.Range;
 
@@ -45,9 +44,7 @@ public abstract class BaseSortedNodeIntegrationTests extends BaseSortedBeanInteg
 
 	protected void postTestTests(){
 		testSortedDelete();
-		testBlankDatabeanPut(new Config().setIgnoreNullFields(false));
-		testBlankDatabeanPut(new Config().setIgnoreNullFields(true));
-		testIgnoreNull();
+		testBlankDatabeanPut();
 	}
 
 	private void testSortedDelete(){
@@ -83,35 +80,19 @@ public abstract class BaseSortedNodeIntegrationTests extends BaseSortedBeanInteg
 		Assert.assertEquals(dao.count(), remainingElements);
 	}
 
-	private void testBlankDatabeanPut(Config config){
+	private void testBlankDatabeanPut(){
 		var blankDatabean = new SortedBean("a", "b", 1, "d1", null, null, null, null);
 		var nonBlankDatabean = new SortedBean("a", "b", 1, "d2", "non blank", null, null, null);
-		dao.putMulti(Arrays.asList(nonBlankDatabean, blankDatabean), config);
-		SortedBean blankDatabeanFromDb = dao.get(blankDatabean.getKey(), config);
+		dao.putMulti(Arrays.asList(nonBlankDatabean, blankDatabean));
+		SortedBean blankDatabeanFromDb = dao.get(blankDatabean.getKey());
 		Assert.assertNotNull(blankDatabeanFromDb);
 		new SortedBeanFielder().getNonKeyFields(blankDatabeanFromDb).stream()
 				.map(Field::getValue)
 				.forEach(Assert::assertNull);
 		Scanner.of(blankDatabean, nonBlankDatabean)
 				.map(Databean::getKey)
-				.flush(keys -> dao.deleteMulti(keys, config));
-		Assert.assertFalse(dao.exists(blankDatabean.getKey(), config));
-	}
-
-	protected void testIgnoreNull(){
-		var pk = new SortedBeanKey("a", "b", 3, "d");
-		String f1 = "Degermat";
-		String f3 = "Kenavo";
-		var databean = new SortedBean(pk, f1, null, null, null);
-		dao.put(databean);
-		ThreadTool.sleepUnchecked(1);//fix flaky test. see DATAROUTER-487
-		databean = new SortedBean(pk, null, null, f3, null);
-		dao.put(databean, new Config().setIgnoreNullFields(true));
-		databean = dao.get(pk);
-		Assert.assertEquals(databean.getF1(), f1);
-		Assert.assertEquals(databean.getF3(), f3);
-		dao.delete(pk);
-		Assert.assertFalse(dao.exists(pk));
+				.flush(keys -> dao.deleteMulti(keys));
+		Assert.assertFalse(dao.exists(blankDatabean.getKey()));
 	}
 
 	@Test

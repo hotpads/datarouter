@@ -16,6 +16,7 @@
 package io.datarouter.tasktracker.service;
 
 import java.time.Instant;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -72,6 +73,14 @@ public class LongRunningTaskService{
 				.findMax(Instant::compareTo);
 	}
 
+	public boolean isRunning(String name){
+		LongRunningTaskKey key = new LongRunningTaskKey(name, null, null);
+		return dao.scanWithPrefix(key)
+				.findLast()
+				.map(LongRunningTask::isRunning)
+				.orElse(false);
+	}
+
 	public Optional<LongRunningTask> findLastNonRunningStatusTask(String name){
 		LongRunningTaskKey key = new LongRunningTaskKey(name, null, null);
 		return dao.scanWithPrefix(key)
@@ -84,7 +93,7 @@ public class LongRunningTaskService{
 					}
 					return false;
 				})
-				.sort((t1, t2) -> t1.getFinishTimeInstant().compareTo(t2.getFinishTimeInstant()))
+				.sort(Comparator.comparing(LongRunningTask::getFinishTimeInstant))
 				.findLast();
 	}
 

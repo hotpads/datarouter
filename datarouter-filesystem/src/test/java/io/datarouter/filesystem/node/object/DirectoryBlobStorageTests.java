@@ -71,7 +71,7 @@ public class DirectoryBlobStorageTests{
 
 	@Test
 	public void testScanKeys(){
-		blobStorage.scanKeysPaged(Subpath.empty())
+		blobStorage.scanKeysPaged(Subpath.empty(), true)
 				.concat(Scanner::of)
 				.each(pathbeanKey -> Assert.assertFalse(pathbeanKey.getFile().isEmpty()))
 				.map(PathbeanKey::getPathAndFile)
@@ -80,7 +80,7 @@ public class DirectoryBlobStorageTests{
 
 	@Test
 	public void testScan(){
-		blobStorage.scanPaged(Subpath.empty())
+		blobStorage.scanPaged(Subpath.empty(), true)
 				.concat(Scanner::of)
 				.each(pathbean -> Assert.assertFalse(pathbean.getKey().getFile().isEmpty()))
 				.map(pathbean -> String.format("%s[%s]", pathbean.getKey().getPathAndFile(), pathbean.getSize()))

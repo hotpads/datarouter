@@ -17,33 +17,39 @@ package io.datarouter.virtualnode.redundant.mixin;
 
 import java.util.Optional;
 
+import io.datarouter.bytes.Codec;
+import io.datarouter.model.databean.EmptyDatabean;
+import io.datarouter.model.databean.EmptyDatabean.EmptyDatabeanFielder;
+import io.datarouter.model.key.EmptyDatabeanKey;
 import io.datarouter.scanner.OptionalScanner;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.op.raw.BlobQueueStorage;
 import io.datarouter.storage.node.op.raw.BlobQueueStorage.BlobQueueStorageNode;
 import io.datarouter.storage.queue.BlobQueueMessage;
-import io.datarouter.storage.queue.BlobQueueMessage.BlobQueueMessageFielder;
-import io.datarouter.storage.queue.BlobQueueMessageDto;
-import io.datarouter.storage.queue.BlobQueueMessageKey;
 import io.datarouter.virtualnode.redundant.RedundantQueueNode;
 
-public interface RedundantBlobQueueStorageMixin
-extends BlobQueueStorage,
-RedundantQueueNode<BlobQueueMessageKey,BlobQueueMessage,BlobQueueMessageFielder,BlobQueueStorageNode>{
+public interface RedundantBlobQueueStorageMixin<T>
+extends BlobQueueStorage<T>,
+		RedundantQueueNode<EmptyDatabeanKey,EmptyDatabean,EmptyDatabeanFielder,BlobQueueStorageNode<T>>{
 
 	@Override
-	default int getMaxDataSize(){
-		return getWriteNode().getMaxDataSize();
+	default int getMaxRawDataSize(){
+		return getWriteNode().getMaxRawDataSize();
 	}
 
 	@Override
-	default void put(byte[] data, Config config){
-		getWriteNode().put(data, config);
+	default Codec<T,byte[]> getCodec(){
+		return getWriteNode().getCodec();
 	}
 
 	@Override
-	default Optional<BlobQueueMessageDto> peek(Config config){
+	default void putRaw(byte[] data, Config config){
+		getWriteNode().putRaw(data, config);
+	}
+
+	@Override
+	default Optional<BlobQueueMessage<T>> peek(Config config){
 		return Scanner.of(getReadNodes())
 				.map(BlobQueueStorageNode::peek)
 				.concat(OptionalScanner::of)
@@ -56,7 +62,7 @@ RedundantQueueNode<BlobQueueMessageKey,BlobQueueMessage,BlobQueueMessageFielder,
 	}
 
 	@Override
-	default Optional<BlobQueueMessageDto> poll(){
+	default Optional<BlobQueueMessage<T>> poll(Config config){
 		return Scanner.of(getReadNodes())
 				.map(BlobQueueStorageNode::poll)
 				.concat(OptionalScanner::of)

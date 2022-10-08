@@ -27,7 +27,7 @@ import io.datarouter.metric.gauge.conveyor.GaugeBuffers;
 import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.storage.config.properties.ServiceName;
 import io.datarouter.storage.metric.Gauges;
-import io.datarouter.util.UlidTool;
+import io.datarouter.util.Ulid;
 
 @Singleton
 public class DatabeanGauges implements Gauges{
@@ -54,7 +54,7 @@ public class DatabeanGauges implements Gauges{
 				key,
 				serviceName.get(),
 				serverName.get(),
-				UlidTool.nextUlid(),//pass the timestamp of the event.  periods are a server-side concern
+				new Ulid().value(),//pass the timestamp of the event.  periods are a server-side concern
 				value);
 		buffers.offer(dto);
 	}

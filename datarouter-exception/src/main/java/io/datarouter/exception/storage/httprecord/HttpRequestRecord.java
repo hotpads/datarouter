@@ -25,7 +25,7 @@ import io.datarouter.exception.storage.exceptionrecord.ExceptionRecordKey;
 import io.datarouter.gson.serialization.GsonTool;
 import io.datarouter.instrumentation.exception.HttpRequestRecordDto;
 import io.datarouter.instrumentation.trace.W3TraceContext;
-import io.datarouter.util.UuidTool;
+import io.datarouter.util.Ulid;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.monitoring.exception.ExceptionDto;
@@ -52,8 +52,8 @@ public class HttpRequestRecord extends BaseHttpRequestRecord<HttpRequestRecordKe
 			HttpServletRequest request, String sessionRoles, String userToken, boolean omitPayload){
 		this(RequestAttributeTool.get(request, BaseHandler.REQUEST_RECEIVED_AT).orElse(new Date()),
 				exceptionRecordId,
-				traceContext.map(trace -> trace.getTraceId()).orElse(null),
-				traceContext.map(trace -> trace.getParentId()).orElse(null),
+				traceContext.map(W3TraceContext::getTraceId).orElse(null),
+				traceContext.map(W3TraceContext::getParentId).orElse(null),
 				request.getMethod(),
 				GsonTool.GSON.toJson(request.getParameterMap()),
 				request.getScheme(),
@@ -96,18 +96,18 @@ public class HttpRequestRecord extends BaseHttpRequestRecord<HttpRequestRecordKe
 			String sessionRoles,
 			String userToken,
 			RecordedHttpHeaders headersWrapper){
-		super(new HttpRequestRecordKey(UuidTool.generateV1Uuid()), receivedAt, exceptionRecordId, traceId, parentId,
+		super(new HttpRequestRecordKey(new Ulid()), receivedAt, exceptionRecordId, traceId, parentId,
 				httpMethod, httpParams, protocol, hostname, port, contextPath, path, queryString, binaryBody, ip,
 				sessionRoles, userToken, headersWrapper);
 	}
 
 	public HttpRequestRecord(ExceptionDto exceptionDto, String exceptionRecordId){
-		super(new HttpRequestRecordKey(UuidTool.generateV1Uuid()), exceptionDto, exceptionRecordId);
+		super(new HttpRequestRecordKey(new Ulid()), exceptionDto, exceptionRecordId);
 	}
 
 	public HttpRequestRecordDto toDto(){
 		return new HttpRequestRecordDto(
-				getKey().getId(),
+				getKey().getId().value(),
 				getCreated(),
 				getReceivedAt(),
 				getDuration(),

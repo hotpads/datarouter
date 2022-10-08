@@ -64,11 +64,11 @@ public class Changelog extends BaseDatabean<ChangelogKey,Changelog>{
 	}
 
 	public Changelog(ChangelogDto dto){
-		super(new ChangelogKey(dto.getReversedDateMs(), dto.changelogType, dto.name));
-		this.action = dto.action;
-		this.username = dto.username;
-		this.comment = dto.comment;
-		this.note = dto.note;
+		super(new ChangelogKey(dto.getReversedDateMs(), dto.changelogType(), dto.name()));
+		this.action = dto.action();
+		this.username = dto.username();
+		this.comment = dto.comment();
+		this.note = dto.note();
 	}
 
 	@Override

@@ -45,10 +45,10 @@ import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.util.time.ZonedDateFormatterTool;
 import io.datarouter.util.tuple.Range;
-import io.datarouter.util.tuple.Twin;
 import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
 import io.datarouter.web.email.StandardDatarouterEmailHeaderService;
+import io.datarouter.web.email.StandardDatarouterEmailHeaderService.EmailHeaderRow;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.MessageMav;
 import io.datarouter.web.handler.types.optional.OptionalBoolean;
@@ -196,17 +196,18 @@ public class ViewNodeDataHandler extends InspectNodeDataHandler{
 				NumberFormatter.addCommas(avgRps),
 				duration);
 		logger.warn(message);
-		List<Twin<String>> emailKvs = List.of(
-				Twin.of("node", node.getName()),
-				Twin.of("useOffsetting", actualUseOffsetting + ""),
-				Twin.of("stride", stride.map(Object::toString).orElse("default")),
-				Twin.of("totalCount", NumberFormatter.addCommas(count)),
-				Twin.of("lastKey", last == null ? "?" : last.toString()),
-				Twin.of("averageRps", NumberFormatter.addCommas(avgRps)),
-				Twin.of("start", ZonedDateFormatterTool.formatLongMsWithZone(startMs, ZoneId.systemDefault())),
-				Twin.of("end", ZonedDateFormatterTool.formatLongMsWithZone(endMs, ZoneId.systemDefault())),
-				Twin.of("duration", duration + ""),
-				Twin.of("triggeredBy", getSessionInfo().getRequiredSession().getUsername()));
+		List<EmailHeaderRow> emailKvs = List.of(
+				new EmailHeaderRow("node", node.getName()),
+				new EmailHeaderRow("useOffsetting", actualUseOffsetting + ""),
+				new EmailHeaderRow("stride", stride.map(Object::toString).orElse("default")),
+				new EmailHeaderRow("totalCount", NumberFormatter.addCommas(count)),
+				new EmailHeaderRow("lastKey", last == null ? "?" : last.toString()),
+				new EmailHeaderRow("averageRps", NumberFormatter.addCommas(avgRps)),
+				new EmailHeaderRow("start", ZonedDateFormatterTool.formatLongMsWithZone(startMs,
+						ZoneId.systemDefault())),
+				new EmailHeaderRow("end", ZonedDateFormatterTool.formatLongMsWithZone(endMs, ZoneId.systemDefault())),
+				new EmailHeaderRow("duration", duration + ""),
+				new EmailHeaderRow("triggeredBy", getSessionInfo().getRequiredSession().getUsername()));
 		sendEmail(node.getName(), emailKvs);
 		var dto = new DatarouterChangelogDtoBuilder(
 				"Inspect Node Data",
@@ -217,9 +218,9 @@ public class ViewNodeDataHandler extends InspectNodeDataHandler{
 		return pageFactory.message(request, message);
 	}
 
-	private void sendEmail(String nodeName, List<Twin<String>> kvs){
+	private void sendEmail(String nodeName, List<EmailHeaderRow> kvs){
 		String title = "Count Keys Result";
-		var table = standardDatarouterEmailHeaderService.makeStandardHeaderWithSupplementsText(kvs);
+		var table = standardDatarouterEmailHeaderService.makeStandardHeaderWithSupplements(kvs);
 		String primaryHref = htmlEmailService.startLinkBuilder()
 				.withLocalPath(paths.datarouter.nodes.browseData)
 				.withParam("nodeName", nodeName)

@@ -15,55 +15,66 @@
  */
 package io.datarouter.storage.node.builder;
 
+import io.datarouter.bytes.Codec;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.node.factory.QueueNodeFactory;
 import io.datarouter.storage.node.op.raw.BlobQueueStorage.BlobQueueStorageNode;
 import io.datarouter.storage.tag.Tag;
 
-public class BlobQueueNodeBuilder{
+public class BlobQueueNodeBuilder<T>{
 
 	protected final Datarouter datarouter;
 	protected final QueueNodeFactory queueNodeFactory;
 	protected final ClientId clientId;
 	protected final String queueName;
+	protected final Codec<T,byte[]> codec;
 
 	protected String namespace;
 	protected String queueUrl;
 	protected Tag tag;
+	protected boolean enableAgeMonitoring = true;
 
 	public BlobQueueNodeBuilder(
 			Datarouter datarouter,
 			QueueNodeFactory queueNodeFactory,
 			ClientId clientId,
-			String queueName){
+			String queueName,
+			Codec<T,byte[]> codec){
 		this.datarouter = datarouter;
 		this.queueNodeFactory = queueNodeFactory;
 		this.clientId = clientId;
 		this.queueName = queueName;
+		this.codec = codec;
 	}
 
-	public BlobQueueNodeBuilder withNamespace(String namespace){
+	public BlobQueueNodeBuilder<T> withNamespace(String namespace){
 		this.namespace = namespace;
 		return this;
 	}
 
-	public BlobQueueNodeBuilder withQueueUrl(String queueUrl){
+	public BlobQueueNodeBuilder<T> withQueueUrl(String queueUrl){
 		this.queueUrl = queueUrl;
 		return this;
 	}
 
-	public BlobQueueNodeBuilder withTag(Tag tag){
+	public BlobQueueNodeBuilder<T> withTag(Tag tag){
 		this.tag = tag;
 		return this;
 	}
 
-	public BlobQueueStorageNode buildAndRegister(){
+	public BlobQueueNodeBuilder<T> withAgeMonitoring(boolean enableAgeMonitoring){
+		this.enableAgeMonitoring = enableAgeMonitoring;
+		return this;
+	}
+
+	public BlobQueueStorageNode<T> buildAndRegister(){
 		return datarouter.register(build());
 	}
 
-	public BlobQueueStorageNode build(){
-		return queueNodeFactory.createBlobQueueNode(clientId, queueName, namespace, queueUrl, tag);
+	public BlobQueueStorageNode<T> build(){
+		return queueNodeFactory.createBlobQueueNode(clientId, queueName, codec, namespace, queueUrl, tag,
+				enableAgeMonitoring);
 	}
 
 }

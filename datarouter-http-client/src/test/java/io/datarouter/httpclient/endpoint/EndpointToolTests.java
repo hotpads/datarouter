@@ -28,26 +28,20 @@ import org.testng.annotations.Test;
 
 import com.google.gson.reflect.TypeToken;
 
-import io.datarouter.httpclient.endpoint.EndpointType.NoOpEndpointType;
-import io.datarouter.httpclient.request.HttpRequestMethod;
+import io.datarouter.gson.serialization.GsonTool;
+import io.datarouter.httpclient.endpoint.java.EndpointTool;
+import io.datarouter.httpclient.endpoint.link.NoOpResponseType;
+import io.datarouter.httpclient.endpoint.param.EndpointParam;
+import io.datarouter.httpclient.endpoint.param.ParamType;
+import io.datarouter.httpclient.endpoint.param.RequestBody;
+import io.datarouter.httpclient.json.GsonJsonSerializer;
+import io.datarouter.json.JsonSerializer;
 import io.datarouter.pathnode.PathNode;
 
 public class EndpointToolTests{
 
 	private static final PathNode PATH = new PathNode().leaf("");
-
-	public abstract static class EndpointToolTestEndpoint<R>
-	extends BaseEndpoint<R,NoOpEndpointType>{
-
-		public EndpointToolTestEndpoint(HttpRequestMethod method, PathNode pathNode){
-			super(method, pathNode);
-		}
-
-		@Override
-		public CallerType getCallerType(){
-			return CallerTypes.UNKNOWN;
-		}
-	}
+	private static final JsonSerializer SERIALIZER = new GsonJsonSerializer(GsonTool.GSON);
 
 	public static class ExampleEndpoint1{
 		@EndpointParam(serializedName = "name")
@@ -86,19 +80,19 @@ public class EndpointToolTests{
 
 	@Test
 	public void testGetParameterizedTypes(){
-		Type actual2 = EndpointTool.getResponseType(new Example2());
+		Type actual2 = EndpointTool.getResponseType(Example2.class);
 		Type expected2 = new TypeToken<Map<String,float[]>>(){}.getType();
 		Assert.assertEquals(actual2.getTypeName(), expected2.getTypeName());
 
-		Type actual3 = EndpointTool.getResponseType(new Example3());
+		Type actual3 = EndpointTool.getResponseType(Example3.class);
 		Type expected3 = String.class;
 		Assert.assertEquals(actual3.getTypeName(), expected3.getTypeName());
 
-		Type actual4 = EndpointTool.getResponseType(new Example4());
+		Type actual4 = EndpointTool.getResponseType(Example4.class);
 		Type expected4 = ExampleEndpoint1.class;
 		Assert.assertEquals(actual4.getTypeName(), expected4.getTypeName());
 
-		Type actual4b = EndpointTool.getResponseType(new Example4b());
+		Type actual4b = EndpointTool.getResponseType(Example4b.class);
 		Type expected4b = NoOpResponseType.class;
 		Assert.assertEquals(actual4b.getTypeName(), expected4b.getTypeName());
 	}
@@ -135,11 +129,11 @@ public class EndpointToolTests{
 	public void testToDatarouterHttpRequest() throws URISyntaxException{
 		Example5 endpoint5 = new Example5();
 		endpoint5.setUrlPrefix(new URI(""));
-		EndpointTool.toDatarouterHttpRequest(endpoint5);
+		EndpointTool.toDatarouterHttpRequest(endpoint5, SERIALIZER);
 
 		Example6 endpoint6 = new Example6();
 		endpoint6.setUrlPrefix(new URI(""));
-		EndpointTool.toDatarouterHttpRequest(endpoint6);
+		EndpointTool.toDatarouterHttpRequest(endpoint6, SERIALIZER);
 	}
 
 	/**
@@ -151,7 +145,7 @@ public class EndpointToolTests{
 	public void testToDatarouterHttpRequestThrows() throws URISyntaxException{
 		Example7 endpoint = new Example7();
 		endpoint.setUrlPrefix(new URI(""));
-		EndpointTool.toDatarouterHttpRequest(endpoint);
+		EndpointTool.toDatarouterHttpRequest(endpoint, SERIALIZER);
 	}
 
 	public static class Example8 extends EndpointToolTestEndpoint<Void>{
@@ -174,14 +168,14 @@ public class EndpointToolTests{
 	public void testEndpointNullParams() throws URISyntaxException{
 		Example8 endpoint = new Example8(null);
 		endpoint.setUrlPrefix(new URI(""));
-		EndpointTool.toDatarouterHttpRequest(endpoint);
+		EndpointTool.toDatarouterHttpRequest(endpoint, SERIALIZER);
 	}
 
 	@Test
 	public void testEndpointEmptyStringParams() throws URISyntaxException{
 		Example8 endpoint = new Example8("");
 		endpoint.setUrlPrefix(new URI(""));
-		EndpointTool.toDatarouterHttpRequest(endpoint);
+		EndpointTool.toDatarouterHttpRequest(endpoint, SERIALIZER);
 	}
 
 
@@ -231,7 +225,7 @@ public class EndpointToolTests{
 
 	public static class ValidateEndpoint2 extends EndpointToolTestEndpoint<Void>{
 
-		@EndpointRequestBody
+		@RequestBody
 		public final String str;
 
 		public ValidateEndpoint2(String str){
@@ -243,7 +237,7 @@ public class EndpointToolTests{
 
 	public static class ValidateEndpoint3 extends EndpointToolTestEndpoint<Void>{
 
-		@EndpointRequestBody
+		@RequestBody
 		public final String str;
 
 		// by default this is a post param
@@ -259,16 +253,19 @@ public class EndpointToolTests{
 
 	public static class ValidateEndpoint4 extends EndpointToolTestEndpoint<Void>{
 
-		@EndpointRequestBody
+		@RequestBody
 		public final String str;
 
 		@EndpointParam(paramType = ParamType.GET)
 		public final String str2;
+		@EndpointParam(paramType = ParamType.GET)
+		public final Integer number;
 
-		public ValidateEndpoint4(String str, String str2){
+		public ValidateEndpoint4(String str, String str2, Integer number){
 			super(POST, PATH);
 			this.str = str;
 			this.str2 = str2;
+			this.number = number;
 		}
 
 	}
@@ -290,13 +287,17 @@ public class EndpointToolTests{
 
 	@Test
 	public void validateEndpoint4(){
-		EndpointTool.validateEndpoint(new ValidateEndpoint4("", ""));
+		EndpointTool.validateEndpoint(new ValidateEndpoint4("", "", 1));
 	}
 
 	@Test
 	public void testGetParamFields(){
-		Map<String,String> actual = EndpointTool.getParamFields(new ValidateEndpoint4("123", "abc")).getParams;
-		Map<String,String> expected = Map.of("str2", "abc");
+		var endpoint = new ValidateEndpoint4("123", "abc", 1);
+		Map<String,String> actual = EndpointTool.getParamFields(endpoint, SERIALIZER)
+				.getParams;
+		Map<String,String> expected = Map.of(
+				"str2", "abc",
+				"number", "1");
 		Assert.assertEquals(actual, expected);
 	}
 

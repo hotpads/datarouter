@@ -26,8 +26,13 @@ class DatarouterDiskFileItem extends DiskFileItem{
 
 	private String defaultCharset = DiskFileItem.DEFAULT_CHARSET;
 
-	public DatarouterDiskFileItem(String fieldName, String contentType, boolean isFormField, String fileName,
-			int sizeThreshold, File repository){
+	public DatarouterDiskFileItem(
+			String fieldName,
+			String contentType,
+			boolean isFormField,
+			String fileName,
+			int sizeThreshold,
+			File repository){
 		super(fieldName, contentType, isFormField, fileName, sizeThreshold, repository);
 	}
 

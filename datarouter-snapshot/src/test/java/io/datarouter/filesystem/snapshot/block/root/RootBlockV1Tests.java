@@ -25,15 +25,15 @@ import io.datarouter.filesystem.snapshot.block.leaf.LeafBlockV1;
 import io.datarouter.filesystem.snapshot.block.value.ValueBlockV1;
 import io.datarouter.filesystem.snapshot.compress.PassthroughBlockCompressor;
 import io.datarouter.filesystem.snapshot.encode.RootBlockFields;
-import io.datarouter.filesystem.snapshot.encode.RootBlockFields.RootBlockEncoderBlockCounts;
-import io.datarouter.filesystem.snapshot.encode.RootBlockFields.RootBlockEncoderBlockEndings;
-import io.datarouter.filesystem.snapshot.encode.RootBlockFields.RootBlockEncoderBlocksPerFile;
-import io.datarouter.filesystem.snapshot.encode.RootBlockFields.RootBlockEncoderByteCountsCompressed;
-import io.datarouter.filesystem.snapshot.encode.RootBlockFields.RootBlockEncoderByteCountsEncoded;
-import io.datarouter.filesystem.snapshot.encode.RootBlockFields.RootBlockEncoderBytesPerFile;
-import io.datarouter.filesystem.snapshot.encode.RootBlockFields.RootBlockEncoderCompressors;
-import io.datarouter.filesystem.snapshot.encode.RootBlockFields.RootBlockEncoderFormats;
-import io.datarouter.filesystem.snapshot.encode.RootBlockFields.RootBlockEncoderTimings;
+import io.datarouter.filesystem.snapshot.encode.RootBlockFields.NestedRecords.RootBlockEncoderBlockCounts;
+import io.datarouter.filesystem.snapshot.encode.RootBlockFields.NestedRecords.RootBlockEncoderBlockEndings;
+import io.datarouter.filesystem.snapshot.encode.RootBlockFields.NestedRecords.RootBlockEncoderBlocksPerFile;
+import io.datarouter.filesystem.snapshot.encode.RootBlockFields.NestedRecords.RootBlockEncoderByteCountsCompressed;
+import io.datarouter.filesystem.snapshot.encode.RootBlockFields.NestedRecords.RootBlockEncoderByteCountsEncoded;
+import io.datarouter.filesystem.snapshot.encode.RootBlockFields.NestedRecords.RootBlockEncoderBytesPerFile;
+import io.datarouter.filesystem.snapshot.encode.RootBlockFields.NestedRecords.RootBlockEncoderCompressors;
+import io.datarouter.filesystem.snapshot.encode.RootBlockFields.NestedRecords.RootBlockEncoderFormats;
+import io.datarouter.filesystem.snapshot.encode.RootBlockFields.NestedRecords.RootBlockEncoderTimings;
 import io.datarouter.filesystem.snapshot.path.SnapshotPathsV1;
 
 public class RootBlockV1Tests{

@@ -25,27 +25,22 @@ import io.datarouter.client.mysql.ddl.domain.SqlColumn;
 import io.datarouter.client.mysql.field.codec.base.BasePrimitiveMysqlFieldCodec;
 import io.datarouter.model.exception.DataAccessException;
 import io.datarouter.model.field.Field;
-import io.datarouter.model.field.imp.comparable.FloatField;
 
 public class FloatMysqlFieldCodec
 extends BasePrimitiveMysqlFieldCodec<Float,Field<Float>>{
 
-	public FloatMysqlFieldCodec(FloatField field){
-		super(field);
-	}
-
 	@Override
-	public SqlColumn getSqlColumnDefinition(boolean allowNullable){
+	public SqlColumn getSqlColumnDefinition(boolean allowNullable, Field<Float> field){
 		return new SqlColumn(
 				field.getKey().getColumnName(),
-				getMysqlColumnType(),
+				getMysqlColumnType(field),
 				null,
 				allowNullable && field.getKey().isNullable(),
 				false);
 	}
 
 	@Override
-	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
+	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex, Field<Float> field){
 		try{
 			if(field.getValue() == null){
 				ps.setNull(parameterIndex, Types.FLOAT);
@@ -58,7 +53,7 @@ extends BasePrimitiveMysqlFieldCodec<Float,Field<Float>>{
 	}
 
 	@Override
-	public Float fromMysqlResultSetButDoNotSet(ResultSet rs){
+	public Float fromMysqlResultSetButDoNotSet(ResultSet rs, Field<Float> field){
 		try{
 			float value = rs.getFloat(field.getKey().getColumnName());
 			return rs.wasNull() ? null : value;
@@ -68,7 +63,7 @@ extends BasePrimitiveMysqlFieldCodec<Float,Field<Float>>{
 	}
 
 	@Override
-	public MysqlColumnType getMysqlColumnType(){
+	public MysqlColumnType getMysqlColumnType(Field<Float> field){
 		return MysqlColumnType.FLOAT;
 	}
 

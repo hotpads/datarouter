@@ -20,21 +20,24 @@ import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.util.tuple.Pair;
-
 public class WebappInstanceTableServiceTests{
 
 	@Test
 	public void testGetMostCommonValue(){
-		List<Pair<String,Integer>> items = List.of(
-				new Pair<>("a", 1),
-				new Pair<>("a", 2),
-				new Pair<>("b", 2));
+		List<Dto> items = List.of(
+				new Dto("a", 1),
+				new Dto("a", 2),
+				new Dto("b", 2));
 
-		Object mostCommon = WebappInstanceTableService.getMostCommonValue(items, Pair::getLeft);
+		Object mostCommon = WebappInstanceTableService.getMostCommonValue(items, Dto::string);
 		Assert.assertEquals(mostCommon, "a");
-		mostCommon = WebappInstanceTableService.getMostCommonValue(items, Pair::getRight);
+		mostCommon = WebappInstanceTableService.getMostCommonValue(items, Dto::value);
 		Assert.assertEquals(mostCommon, Integer.valueOf(2));
+	}
+
+	private record Dto(
+			String string,
+			Integer value){
 	}
 
 }

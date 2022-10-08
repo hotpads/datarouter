@@ -15,6 +15,8 @@
  */
 package io.datarouter.metric.gauge.conveyor;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -23,6 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.conveyor.BaseConveyor;
 import io.datarouter.conveyor.ConveyorCounters;
+import io.datarouter.conveyor.ConveyorGauges;
 import io.datarouter.conveyor.MemoryBuffer;
 import io.datarouter.instrumentation.gauge.GaugeBatchDto;
 import io.datarouter.instrumentation.gauge.GaugeDto;
@@ -32,7 +35,7 @@ import io.datarouter.web.exception.ExceptionRecorder;
 public class GaugeMemoryToPublisherConveyor extends BaseConveyor{
 	private static final Logger logger = LoggerFactory.getLogger(GaugeMemoryToPublisherConveyor.class);
 
-	//this only controls max buffer poll size. gaugeBlobService will split into as many messages as necessary
+	//this only controls max buffer poll size. publisher will split into as many messages as necessary
 	private static final int BATCH_SIZE = 5_000;
 
 	private final MemoryBuffer<GaugeDto> buffer;
@@ -43,20 +46,24 @@ public class GaugeMemoryToPublisherConveyor extends BaseConveyor{
 			Supplier<Boolean> shouldRun,
 			MemoryBuffer<GaugeDto> buffer,
 			ExceptionRecorder exceptionRecorder,
-			GaugePublisher gaugePublisher){
-		super(name, shouldRun, () -> false, exceptionRecorder);
+			GaugePublisher gaugePublisher,
+			ConveyorGauges conveyorGauges){
+		super(name, shouldRun, () -> false, exceptionRecorder, conveyorGauges);
 		this.buffer = buffer;
 		this.gaugePublisher = gaugePublisher;
 	}
 
 	@Override
 	public ProcessBatchResult processBatch(){
+		Instant beforePeek = Instant.now();
 		List<GaugeDto> dtos = buffer.pollMultiWithLimit(BATCH_SIZE);
+		Instant afterPeek = Instant.now();
+		gaugeRecorder.savePeekDurationMs(this, Duration.between(beforePeek, afterPeek).toMillis());
 		if(dtos.isEmpty()){
 			return new ProcessBatchResult(false);
 		}
 		try{
-			gaugePublisher.add(new GaugeBatchDto(dtos));
+			gaugePublisher.publish(new GaugeBatchDto(dtos));
 			ConveyorCounters.incPutMultiOpAndDatabeans(this, dtos.size());
 		}catch(Exception putMultiException){
 			logger.warn("", putMultiException);

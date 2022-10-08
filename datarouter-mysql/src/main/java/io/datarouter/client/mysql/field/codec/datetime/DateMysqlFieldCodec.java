@@ -30,22 +30,18 @@ import io.datarouter.model.field.imp.DateField;
 
 public class DateMysqlFieldCodec extends BaseMysqlFieldCodec<Date,DateField>{
 
-	public DateMysqlFieldCodec(DateField field){
-		super(field);
-	}
-
 	@Override
-	public SqlColumn getSqlColumnDefinition(boolean allowNullable){
+	public SqlColumn getSqlColumnDefinition(boolean allowNullable, DateField field){
 		return new SqlColumn(
 				field.getKey().getColumnName(),
-				getMysqlColumnType(),
+				getMysqlColumnType(field),
 				field.getNumDecimalSeconds(),
 				allowNullable && field.getKey().isNullable(),
 				false);
 	}
 
 	@Override
-	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
+	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex, DateField field){
 		try{
 			if(field.getValue() == null){
 				ps.setNull(parameterIndex, Types.DATE);
@@ -59,7 +55,7 @@ public class DateMysqlFieldCodec extends BaseMysqlFieldCodec<Date,DateField>{
 	}
 
 	@Override
-	public Date fromMysqlResultSetButDoNotSet(ResultSet rs){
+	public Date fromMysqlResultSetButDoNotSet(ResultSet rs, DateField field){
 		try{
 			Timestamp timeStamp = rs.getTimestamp(field.getKey().getColumnName());
 			if(rs.wasNull()){
@@ -73,7 +69,7 @@ public class DateMysqlFieldCodec extends BaseMysqlFieldCodec<Date,DateField>{
 	}
 
 	@Override
-	public MysqlColumnType getMysqlColumnType(){
+	public MysqlColumnType getMysqlColumnType(DateField field){
 		return MysqlColumnType.DATETIME;
 	}
 

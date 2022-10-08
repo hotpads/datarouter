@@ -18,10 +18,13 @@ package io.datarouter.aws.sqs.op;
 import java.util.concurrent.Callable;
 
 import io.datarouter.aws.sqs.SqsClientManager;
+import io.datarouter.bytes.codec.bytestringcodec.Base64ByteStringCodec;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.Config;
 
 public abstract class SqsBlobOp<V> implements Callable<V>{
+
+	public static final Base64ByteStringCodec SQS_BLOB_BASE_64_CODEC = Base64ByteStringCodec.INSTANCE;
 
 	protected final SqsClientManager sqsClientManager;
 	protected final ClientId clientId;

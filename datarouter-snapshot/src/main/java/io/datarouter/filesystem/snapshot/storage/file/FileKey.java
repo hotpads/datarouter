@@ -17,23 +17,11 @@ package io.datarouter.filesystem.snapshot.storage.file;
 
 import io.datarouter.filesystem.snapshot.block.BlockType;
 
-public class FileKey{
-
-	public final BlockType type;
-	public final int level;
-	public final int column;
-	public final int fileId;
-
-	public FileKey(
-			BlockType type,
-			int level,
-			int column,
-			int fileId){
-		this.type = type;
-		this.level = level;
-		this.column = column;
-		this.fileId = fileId;
-	}
+public record FileKey(
+		BlockType type,
+		int level,
+		int column,
+		int fileId){
 
 	public static FileKey root(){
 		return new FileKey(BlockType.ROOT, -1, -1, -1);
@@ -49,53 +37,6 @@ public class FileKey{
 
 	public static FileKey value(int column, int fileId){
 		return new FileKey(BlockType.VALUE, -1, column, fileId);
-	}
-
-	@Override
-	public int hashCode(){
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + column;
-		result = prime * result + fileId;
-		result = prime * result + level;
-		result = prime * result + ((type == null) ? 0 : type.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj){
-		if(this == obj){
-			return true;
-		}
-		if(obj == null){
-			return false;
-		}
-		if(getClass() != obj.getClass()){
-			return false;
-		}
-		FileKey other = (FileKey)obj;
-		if(column != other.column){
-			return false;
-		}
-		if(fileId != other.fileId){
-			return false;
-		}
-		if(level != other.level){
-			return false;
-		}
-		if(type != other.type){
-			return false;
-		}
-		return true;
-	}
-
-	@Override
-	public String toString(){
-		return "FileKey ["
-				+ "type=" + type + ", "
-				+ "level=" + level + ", "
-				+ "column=" + column + ", "
-				+ "fileId=" + fileId + "]";
 	}
 
 }

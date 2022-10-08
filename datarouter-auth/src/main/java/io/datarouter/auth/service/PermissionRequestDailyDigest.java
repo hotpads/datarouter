@@ -22,6 +22,7 @@ import static j2html.TagCreator.td;
 
 import java.time.Instant;
 import java.time.ZoneId;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,6 +44,7 @@ import io.datarouter.web.digest.DailyDigestGrouping;
 import io.datarouter.web.digest.DailyDigestService;
 import io.datarouter.web.html.j2html.J2HtmlTable;
 import io.datarouter.web.user.detail.DatarouterUserExternalDetailService;
+import io.datarouter.web.user.detail.DatarouterUserProfileLink;
 import io.datarouter.web.user.session.service.SessionBasedUser;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.TableTag;
@@ -110,6 +112,7 @@ public class PermissionRequestDailyDigest implements DailyDigest{
 						.map(Optional::get)
 						.map(user -> new PermissionRequestDto(user, key.getRequestTime())))
 				.concat(OptionalScanner::of)
+				.sort(Comparator.comparing((PermissionRequestDto dto) -> dto.user.getUsername()))
 				.list();
 	}
 
@@ -118,9 +121,9 @@ public class PermissionRequestDailyDigest implements DailyDigest{
 				.withClasses("table table-sm table-striped my-4 border")
 				.withColumn("Username", row -> row.user.getUsername())
 				.withHtmlColumn("Profile", row -> {
-					String detailsLink = detailsService.getUserProfileUrl(row.user.getUsername()).get();
-					return td(a(detailsLink)
-							.withHref(detailsLink));
+					String username = row.user.getUsername();
+					DatarouterUserProfileLink detailsLink = detailsService.getUserProfileLink(username).get();
+					return td(a(detailsLink.name()).withHref(detailsLink.url()));
 				})
 				.withColumn("Date Requested", row -> row.getInstantRequested(zoneId))
 				.withHtmlColumn("Details", row -> {
@@ -139,9 +142,9 @@ public class PermissionRequestDailyDigest implements DailyDigest{
 				.withColumn(new J2HtmlEmailTableColumn<>(
 						"Profile",
 						row -> {
-							String detailsLink = detailsService.getUserProfileUrl(row.user.getUsername()).get();
-							return a(detailsLink)
-									.withHref(detailsLink);
+							String username = row.user.getUsername();
+							DatarouterUserProfileLink detailsLink = detailsService.getUserProfileLink(username).get();
+							return a(detailsLink.name()).withHref(detailsLink.url());
 						}))
 				.withColumn("Date Requested", row -> row.getInstantRequested(zoneId))
 				.withColumn(new J2HtmlEmailTableColumn<>(

@@ -71,18 +71,18 @@ public class LatestBlockCache implements BlockLoader{
 
 	@Override
 	public BranchBlock branch(BlockKey key){
-		if(branchIndexes[key.level] != key.blockId){
-			branchBlocks[key.level] = blockLoader.branch(key);
-			branchIndexes[key.level] = key.blockId;
+		if(branchIndexes[key.level()] != key.blockId()){
+			branchBlocks[key.level()] = blockLoader.branch(key);
+			branchIndexes[key.level()] = key.blockId();
 		}
-		return branchBlocks[key.level];
+		return branchBlocks[key.level()];
 	}
 
 	@Override
 	public LeafBlock leaf(BlockKey key){
-		if(leafIndex != key.blockId){
+		if(leafIndex != key.blockId()){
 			leafBlock = blockLoader.leaf(key);
-			leafIndex = key.blockId;
+			leafIndex = key.blockId();
 		}
 		return leafBlock;
 	}
@@ -94,11 +94,11 @@ public class LatestBlockCache implements BlockLoader{
 
 	@Override
 	public ValueBlock value(BlockKey key){
-		if(valueIndexes[key.column] != key.blockId){
-			valueBlocks[key.column] = blockLoader.value(key);
-			valueIndexes[key.column] = key.blockId;
+		if(valueIndexes[key.column()] != key.blockId()){
+			valueBlocks[key.column()] = blockLoader.value(key);
+			valueIndexes[key.column()] = key.blockId();
 		}
-		return valueBlocks[key.column];
+		return valueBlocks[key.column()];
 	}
 
 }

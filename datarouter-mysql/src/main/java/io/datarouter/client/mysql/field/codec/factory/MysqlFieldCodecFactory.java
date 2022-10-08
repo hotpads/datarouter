@@ -15,9 +15,6 @@
  */
 package io.datarouter.client.mysql.field.codec.factory;
 
-import java.util.Collection;
-import java.util.List;
-
 import io.datarouter.client.mysql.field.MysqlFieldCodec;
 import io.datarouter.model.field.Field;
 
@@ -25,8 +22,6 @@ public interface MysqlFieldCodecFactory{
 
 	boolean hasCodec(Class<?> fieldType);
 
-	<C extends MysqlFieldCodec<?>,F extends Field<?>> C createCodec(F field);
-
-	List<MysqlFieldCodec<?>> createCodecs(Collection<Field<?>> fields);
+	<T,F extends Field<T>,C extends MysqlFieldCodec<T,F>> C createCodec(F field);
 
 }

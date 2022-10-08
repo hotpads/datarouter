@@ -22,7 +22,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Supplier;
 
-import io.datarouter.client.mysql.field.MysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.factory.MysqlFieldCodecFactory;
 import io.datarouter.client.mysql.op.BaseMysqlOp;
 import io.datarouter.client.mysql.op.Isolation;
@@ -103,11 +102,11 @@ extends BaseMysqlOp<List<IE>>{
 			}
 			ResultSet rs = ps.getResultSet();
 			List<IE> databeans = new ArrayList<>();
-			List<MysqlFieldCodec<?>> codecs = fieldCodecFactory.createCodecs(indexFielder.getFields(indexEntry));
 			while(rs.next()){
 				IE databean = MysqlTool.fieldSetFromMysqlResultSetUsingReflection(
+						fieldCodecFactory,
 						indexEntrySupplier,
-						codecs,
+						indexFielder.getFields(indexEntry),
 						rs);
 				databeans.add(databean);
 			}

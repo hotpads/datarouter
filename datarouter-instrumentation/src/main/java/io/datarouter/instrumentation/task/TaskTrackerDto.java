@@ -17,40 +17,15 @@ package io.datarouter.instrumentation.task;
 
 import java.time.Instant;
 
-public class TaskTrackerDto{
-
-	public final TaskTrackerKeyDto key;
-	public final String longRunningTaskType;
-	public final Instant startTime;
-	public final Instant finishTime;
-	public final Instant heartbeatTime;
-	public final String jobExecutionStatus;
-	public final String triggeredBy;
-	public final Long numItemsProcessed;
-	public final String lastItemProcessed;
-	public final String exceptionRecordId;
-
-	public TaskTrackerDto(
-			TaskTrackerKeyDto key,
-			String longRunningTaskType,
-			Instant startTime,
-			Instant finishTime,
-			Instant heartbeatTime,
-			String jobExecutionStatus,
-			String triggeredBy,
-			Long numItemsProcessed,
-			String lastItemProcessed,
-			String exceptionRecordId){
-		this.key = key;
-		this.longRunningTaskType = longRunningTaskType;
-		this.startTime = startTime;
-		this.finishTime = finishTime;
-		this.heartbeatTime = heartbeatTime;
-		this.jobExecutionStatus = jobExecutionStatus;
-		this.triggeredBy = triggeredBy;
-		this.numItemsProcessed = numItemsProcessed;
-		this.lastItemProcessed = lastItemProcessed;
-		this.exceptionRecordId = exceptionRecordId;
-	}
-
+public record TaskTrackerDto(
+		TaskTrackerKeyDto key,
+		String longRunningTaskType,
+		Instant startTime,
+		Instant finishTime,
+		Instant heartbeatTime,
+		String jobExecutionStatus,
+		String triggeredBy,
+		Long numItemsProcessed,
+		String lastItemProcessed,
+		String exceptionRecordId){
 }

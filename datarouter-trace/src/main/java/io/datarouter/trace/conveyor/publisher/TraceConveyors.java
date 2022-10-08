@@ -19,6 +19,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.conveyor.BaseConveyors;
+import io.datarouter.conveyor.ConveyorGauges;
 import io.datarouter.instrumentation.exception.DatarouterExceptionPublisher;
 import io.datarouter.instrumentation.trace.TracePublisher;
 import io.datarouter.trace.conveyor.TraceBuffers;
@@ -36,10 +37,11 @@ public class TraceConveyors extends BaseConveyors{
 	@Inject
 	private TracePublisher tracePublisher;
 	@Inject
-	private DatarouterExceptionPublisher httpRequstRecordPublisher;
-
+	private DatarouterExceptionPublisher httpRequestRecordPublisher;
 	@Inject
 	private ExceptionRecorder exceptionRecorder;
+	@Inject
+	private ConveyorGauges conveyorGauges;
 
 	@Override
 	public void onStartUp(){
@@ -49,7 +51,8 @@ public class TraceConveyors extends BaseConveyors{
 				exceptionRecorder,
 				traceBuffers.buffer,
 				tracePublisher,
-				httpRequstRecordPublisher),
+				httpRequestRecordPublisher,
+				conveyorGauges),
 				settings.conveyorThreadCount.get(),
 				5);
 	}

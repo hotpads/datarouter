@@ -8,11 +8,18 @@
 		require(['sorttable'])
 		function runJob(jobName, shouldRun, serverName, url){
 			if(confirm('shouldRun is ' + shouldRun + '. Are you sure you want to run ' + jobName + ' on ' + serverName + '?')){
-				fetch(url)
+				fetch(url + "&detached=" + detachedMap.get(jobName))
 					.then(response => response.text())
 					.then(alert);
 			}
 		}
+
+		const detachedMap = new Map();
+
+		function onClickHandler(element) {
+			detachedMap.set(element.id, element.checked);
+		}
+
 	</script>
 </head>
 <body>
@@ -51,6 +58,7 @@
 				<tr>
 					<th class="sorttable_nosort">#</th>
 					<th class="sorttable_nosort">Run</th>
+					<th>Detached</th>
 					<th>Job</th>
 					<th class="sorttable_nosort">CronExpression</th>
 					<th>Category</th>
@@ -65,7 +73,7 @@
 				<tr>
 					<td>${row.rowId}</td>
 					<td>
-						<a class="btn text-monospace 
+						<a class="btn text-monospace
 							<c:choose>
 								<c:when test="${row.shouldRun}">btn-success</c:when>
 								<c:otherwise>btn-warning</c:otherwise>
@@ -74,6 +82,14 @@
 							onclick="runJob('${row.classSimpleName}', '${row.shouldRun}', '${serverName}', 'run?name=${row.className}')">
 							run
 						</a>
+					</td>
+					<td>
+						<script>
+							detachedMap.set("${row.classSimpleName}", "${row.detachedJob}")
+						</script>
+						<input type="checkbox" name="detachedJob" id=${row.classSimpleName}
+								onclick="onClickHandler(this);"
+							${row.detachedJob ? 'checked' : ''} />
 					</td>
 					<td <c:choose>
 							<c:when test="${row.heartbeatStatus == 'stalled'}">class="table-danger"</c:when>
@@ -92,7 +108,7 @@
 					<td sorttable_customkey="${row.lastFinishSortableTime}">${row.lastFinishTime}</td>
 					<td>${row.runningOnServers}</td>
 					<td>
-						<a class="btn btn-danger text-monospace" 
+						<a class="btn btn-danger text-monospace"
 								href="interrupt?name=${row.className}&servers=${row.runningOnServers}"
 								onclick="return window.confirm('Are you sure?');">
 							interrupt

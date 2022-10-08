@@ -28,11 +28,12 @@ import io.datarouter.util.concurrent.UncheckedInterruptedException;
 import io.datarouter.web.exception.ExceptionRecorder;
 import io.datarouter.web.util.ExceptionTool;
 
-public abstract class BaseConveyor implements Conveyor{
+public abstract class BaseConveyor implements ConveyorRunnable{
 	private static final Logger logger = LoggerFactory.getLogger(BaseConveyor.class);
 
 	protected final String name;
 	protected final ExceptionRecorder exceptionRecorder;
+	protected final ConveyorGaugeRecorder gaugeRecorder;
 	private final Supplier<Boolean> shouldRunSetting;
 	private final Supplier<Boolean> compactExceptionLogging;
 	private final AtomicBoolean isShuttingDown;
@@ -41,11 +42,13 @@ public abstract class BaseConveyor implements Conveyor{
 			String name,
 			Supplier<Boolean> shouldRun,
 			Supplier<Boolean> compactExceptionLogging,
-			ExceptionRecorder exceptionRecorder){
+			ExceptionRecorder exceptionRecorder,
+			ConveyorGaugeRecorder gaugeRecorder){
 		this.name = Require.notBlank(name);
 		this.shouldRunSetting = shouldRun;
 		this.compactExceptionLogging = compactExceptionLogging;
 		this.exceptionRecorder = exceptionRecorder;
+		this.gaugeRecorder = gaugeRecorder;
 		this.isShuttingDown = new AtomicBoolean();
 	}
 

@@ -47,9 +47,9 @@ public abstract class Sql<C,P,Q extends Sql<C,P,Q>>{
 
 	public abstract Q addLimitOffsetClause(Config config);
 
-	public abstract Q addSqlNameValueWithOperator(Field<?> field, String operator, boolean rejectNulls);
+	public abstract <T,F extends Field<T>> Q addSqlNameValueWithOperator(F field, String operator, boolean rejectNulls);
 
-	public abstract Q appendColumnEqualsValueParameter(Field<?> field);
+	public abstract <T,F extends Field<T>> Q appendColumnEqualsValueParameter(F field);
 
 	public abstract P prepare(C connection);
 

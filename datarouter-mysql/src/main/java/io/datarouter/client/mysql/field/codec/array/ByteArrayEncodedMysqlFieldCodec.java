@@ -29,20 +29,16 @@ import io.datarouter.model.util.CommonFieldSizes;
 public class ByteArrayEncodedMysqlFieldCodec<T>
 extends BaseMysqlFieldCodec<T,ByteArrayEncodedField<T>>{
 
-	public ByteArrayEncodedMysqlFieldCodec(ByteArrayEncodedField<T> field){
-		super(field);
-	}
-
 	@Override
-	public SqlColumn getSqlColumnDefinition(boolean allowNullable){
+	public SqlColumn getSqlColumnDefinition(boolean allowNullable, ByteArrayEncodedField<T> field){
 		boolean nullable = allowNullable && field.getKey().isNullable();
-		MysqlColumnType type = getMysqlColumnType();
+		MysqlColumnType type = getMysqlColumnType(field);
 		int size = type == MysqlColumnType.LONGBLOB ? Integer.MAX_VALUE : field.getKey().getSize();
 		return new SqlColumn(field.getKey().getColumnName(), type, size, nullable, false);
 	}
 
 	@Override
-	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
+	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex, ByteArrayEncodedField<T> field){
 		try{
 			ps.setBytes(parameterIndex, field.getCodec().encode(field.getValue()));
 		}catch(SQLException e){
@@ -51,7 +47,7 @@ extends BaseMysqlFieldCodec<T,ByteArrayEncodedField<T>>{
 	}
 
 	@Override
-	public T fromMysqlResultSetButDoNotSet(ResultSet rs){
+	public T fromMysqlResultSetButDoNotSet(ResultSet rs, ByteArrayEncodedField<T> field){
 		try{
 			byte[] bytes = rs.getBytes(field.getKey().getColumnName());
 			return field.getCodec().decode(bytes);
@@ -61,7 +57,7 @@ extends BaseMysqlFieldCodec<T,ByteArrayEncodedField<T>>{
 	}
 
 	@Override
-	public MysqlColumnType getMysqlColumnType(){
+	public MysqlColumnType getMysqlColumnType(ByteArrayEncodedField<T> field){
 		int size = field.getKey().getSize();
 		return getMysqlColumnType(size);
 	}

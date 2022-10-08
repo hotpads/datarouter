@@ -129,8 +129,8 @@ public class SnapshotWriterTracker{
 		long itemsPerSec = (long)itemsPerSecDbl;
 
 		return String.format("group=%s, id=%s, readStall=%s%%, valueStall=%s%%, leafStall=%s%%, itemsPerSec=%s, %s",
-				snapshotKey.groupId,
-				snapshotKey.snapshotId,
+				snapshotKey.groupId(),
+				snapshotKey.snapshotId(),
 				readStallPct,
 				valueStallPct,
 				leafStallPct,

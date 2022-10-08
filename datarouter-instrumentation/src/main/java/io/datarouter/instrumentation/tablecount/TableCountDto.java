@@ -18,34 +18,18 @@ package io.datarouter.instrumentation.tablecount;
 import java.time.Instant;
 import java.util.Date;
 
-public class TableCountDto{
+public record TableCountDto(
+		String serviceName,
+		String clientName,
+		String tableName,
+		Long numRows,
+		Instant dateUpdated,
+		Long countTimeMs,
+		Long numSpans,
+		Long numSlowSpans){
 
-	public final String serviceName;
-	public final String clientName;
-	public final String tableName;
-	public final Long numRows;
-	public final Date dateUpdated;
-	public final Long countTimeMs;
-	public final Long numSpans;
-	public final Long numSlowSpans;
-
-	public TableCountDto(
-			String serviceName,
-			String clientName,
-			String tableName,
-			Long numRows,
-			Instant dateUpdated,
-			Long countTimeMs,
-			Long numSpans,
-			Long numSlowSpans){
-		this.serviceName = serviceName;
-		this.clientName = clientName;
-		this.tableName = tableName;
-		this.numRows = numRows;
-		this.dateUpdated = Date.from(dateUpdated);
-		this.countTimeMs = countTimeMs;
-		this.numSpans = numSpans;
-		this.numSlowSpans = numSlowSpans;
+	public Date getDateUpdate(){
+		return Date.from(dateUpdated);
 	}
 
 }

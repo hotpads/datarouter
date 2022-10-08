@@ -15,15 +15,9 @@
  */
 package io.datarouter.filesystem.snapshot.reader.record;
 
-public class SnapshotLeafSearchResult{
-
-	private final long recordId;
-	private final boolean exactMatch;
-
-	public SnapshotLeafSearchResult(long recordId, boolean exactMatch){
-		this.recordId = recordId;
-		this.exactMatch = exactMatch;
-	}
+public record SnapshotLeafSearchResult(
+		long recordId,
+		boolean exactMatch){
 
 	public long recordId(boolean inclusive){
 		if(exactMatch){

@@ -15,17 +15,20 @@
  */
 package io.datarouter.conveyor.config;
 
+import io.datarouter.conveyor.ConveyorAppListener;
 import io.datarouter.web.config.BaseWebPlugin;
 import io.datarouter.web.navigation.DatarouterNavBarCategory;
 
 public class DatarouterConveyorPlugin extends BaseWebPlugin{
 
 	public DatarouterConveyorPlugin(){
+		addAppListener(ConveyorAppListener.class);
 		addRouteSet(DatarouterConveyorRouteSet.class);
 		addDatarouterNavBarItem(
 				DatarouterNavBarCategory.MONITORING,
 				new DatarouterConveyorPaths().datarouter.conveyors.list,
 				"Conveyors");
+		addSettingRoot(DatarouterConveyorSettingRoot.class);
 	}
 
 }

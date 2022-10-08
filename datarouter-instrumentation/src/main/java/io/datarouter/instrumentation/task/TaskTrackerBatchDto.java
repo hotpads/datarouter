@@ -17,12 +17,6 @@ package io.datarouter.instrumentation.task;
 
 import java.util.List;
 
-public class TaskTrackerBatchDto{
-
-	public final List<TaskTrackerDto> dtos;
-
-	public TaskTrackerBatchDto(List<TaskTrackerDto> dtos){
-		this.dtos = dtos;
-	}
-
+public record TaskTrackerBatchDto(
+		List<TaskTrackerDto> dtos){
 }

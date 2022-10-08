@@ -34,7 +34,7 @@ public class BinaryDtoFieldSchema<F>{
 		var fieldMetadataParser = new BinaryDtoFieldMetadataParser<>(field);
 		isNullable = fieldMetadataParser.isNullable();
 		codec = (BinaryDtoBaseFieldCodec<F>)BinaryDtoFieldCodecs.getCodecForField(field);
-		Objects.requireNonNull(codec);
+		Objects.requireNonNull(codec, "Codec not found for " + field);
 	}
 
 	public String getName(){

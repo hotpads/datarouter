@@ -18,26 +18,12 @@ package io.datarouter.filesystem.snapshot.storage.block;
 import io.datarouter.filesystem.snapshot.block.BlockType;
 import io.datarouter.filesystem.snapshot.key.SnapshotKey;
 
-public class CacheBlockKey{
-
-	public final SnapshotKey snapshotKey;
-	public final BlockType type;
-	public final int level;
-	public final int column;
-	public final int blockId;
-
-	public CacheBlockKey(
-			SnapshotKey snapshotKey,
-			BlockType type,
-			int level,
-			int column,
-			int blockId){
-		this.snapshotKey = snapshotKey;
-		this.type = type;
-		this.level = level;
-		this.column = column;
-		this.blockId = blockId;
-	}
+public record CacheBlockKey(
+		SnapshotKey snapshotKey,
+		BlockType type,
+		int level,
+		int column,
+		int blockId){
 
 	public static CacheBlockKey root(SnapshotKey snapshotKey){
 		return new CacheBlockKey(snapshotKey, BlockType.ROOT, -1, -1, -1);
@@ -53,62 +39,6 @@ public class CacheBlockKey{
 
 	public static CacheBlockKey value(SnapshotKey snapshotKey, int column, int id){
 		return new CacheBlockKey(snapshotKey, BlockType.VALUE, -1, column, id);
-	}
-
-	@Override
-	public int hashCode(){
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + column;
-		result = prime * result + blockId;
-		result = prime * result + level;
-		result = prime * result + ((snapshotKey == null) ? 0 : snapshotKey.hashCode());
-		result = prime * result + ((type == null) ? 0 : type.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj){
-		if(this == obj){
-			return true;
-		}
-		if(obj == null){
-			return false;
-		}
-		if(getClass() != obj.getClass()){
-			return false;
-		}
-		CacheBlockKey other = (CacheBlockKey)obj;
-		if(column != other.column){
-			return false;
-		}
-		if(blockId != other.blockId){
-			return false;
-		}
-		if(level != other.level){
-			return false;
-		}
-		if(snapshotKey == null){
-			if(other.snapshotKey != null){
-				return false;
-			}
-		}else if(!snapshotKey.equals(other.snapshotKey)){
-			return false;
-		}
-		if(type != other.type){
-			return false;
-		}
-		return true;
-	}
-
-	@Override
-	public String toString(){
-		return "CacheBlockKey ["
-				+ "snapshotKey=" + snapshotKey + ", "
-				+ "type=" + type + ", "
-				+ "level=" + level + ", "
-				+ "column=" + column + ", "
-				+ "blockId=" + blockId + "]";
 	}
 
 }

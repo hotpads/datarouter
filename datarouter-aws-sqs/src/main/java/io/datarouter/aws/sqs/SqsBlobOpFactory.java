@@ -22,25 +22,25 @@ import io.datarouter.aws.sqs.blob.op.SqsBlobPutOp;
 import io.datarouter.aws.sqs.op.SqsBlobOp;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.Config;
-import io.datarouter.storage.queue.BlobQueueMessageDto;
+import io.datarouter.storage.queue.RawBlobQueueMessage;
 
 public class SqsBlobOpFactory{
 
-	private final SqsBlobNode node;
+	private final SqsBlobNode<?> node;
 	private final SqsClientManager clientManager;
 	private final ClientId clientId;
 
-	public SqsBlobOpFactory(SqsBlobNode node, SqsClientManager clientManager, ClientId clientId){
+	public SqsBlobOpFactory(SqsBlobNode<?> node, SqsClientManager clientManager, ClientId clientId){
 		this.node = node;
 		this.clientManager = clientManager;
 		this.clientId = clientId;
 	}
 
 	public SqsBlobOp<Void> makePutOp(byte[] data, Config config){
-		return new SqsBlobPutOp(data, config, clientManager, clientId, getQueueUrl());
+		return new SqsBlobPutOp(data, node.getMaxRawDataSize(), config, clientManager, clientId, getQueueUrl());
 	}
 
-	public SqsBlobOp<BlobQueueMessageDto> makePeekOp(Config config){
+	public SqsBlobOp<RawBlobQueueMessage> makePeekOp(Config config){
 		return new SqsBlobPeekOp(config, clientManager, clientId, getQueueUrl());
 	}
 
@@ -49,7 +49,7 @@ public class SqsBlobOpFactory{
 	}
 
 	private String getQueueUrl(){
-		return node.getQueueUrlAndName().get().getLeft();
+		return node.getQueueUrlAndName().get().queueUrl();
 	}
 
 }

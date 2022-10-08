@@ -28,22 +28,18 @@ import io.datarouter.model.field.Field;
 
 public class IntegerMysqlFieldCodec extends BasePrimitiveMysqlFieldCodec<Integer,Field<Integer>>{
 
-	public IntegerMysqlFieldCodec(Field<Integer> field){
-		super(field);
-	}
-
 	@Override
-	public SqlColumn getSqlColumnDefinition(boolean allowNullable){
+	public SqlColumn getSqlColumnDefinition(boolean allowNullable, Field<Integer> field){
 		return new SqlColumn(
 				field.getKey().getColumnName(),
-				getMysqlColumnType(),
+				getMysqlColumnType(field),
 				11,
 				allowNullable && field.getKey().isNullable(),
 				false);
 	}
 
 	@Override
-	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
+	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex, Field<Integer> field){
 		try{
 			if(field.getValue() == null){
 				ps.setNull(parameterIndex, Types.INTEGER);
@@ -56,7 +52,7 @@ public class IntegerMysqlFieldCodec extends BasePrimitiveMysqlFieldCodec<Integer
 	}
 
 	@Override
-	public Integer fromMysqlResultSetButDoNotSet(ResultSet rs){
+	public Integer fromMysqlResultSetButDoNotSet(ResultSet rs, Field<Integer> field){
 		try{
 			int value = rs.getInt(field.getKey().getColumnName());
 			return rs.wasNull() ? null : value;
@@ -66,7 +62,7 @@ public class IntegerMysqlFieldCodec extends BasePrimitiveMysqlFieldCodec<Integer
 	}
 
 	@Override
-	public MysqlColumnType getMysqlColumnType(){
+	public MysqlColumnType getMysqlColumnType(Field<Integer> field){
 		return MysqlColumnType.INT;
 	}
 

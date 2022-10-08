@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import io.datarouter.exception.config.DatarouterExceptionSettingRoot;
 import io.datarouter.exception.conveyors.DatarouterExceptionBuffers;
 import io.datarouter.exception.storage.exceptionrecord.ExceptionRecord;
+import io.datarouter.exception.storage.exceptionrecord.ExceptionRecordKey;
 import io.datarouter.exception.storage.httprecord.HttpRequestRecord;
 import io.datarouter.exception.utils.ExceptionDetailsDetector;
 import io.datarouter.exception.utils.ExceptionDetailsDetector.ExceptionRecorderDetails;
@@ -36,7 +37,6 @@ import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.storage.config.properties.ServiceName;
 import io.datarouter.storage.exception.ExceptionCategory;
 import io.datarouter.storage.exception.UnknownExceptionCategory;
-import io.datarouter.util.string.StringTool;
 import io.datarouter.web.app.WebappName;
 import io.datarouter.web.config.DatarouterWebSettingRoot;
 import io.datarouter.web.dispatcher.Dispatcher;
@@ -149,28 +149,27 @@ public class DefaultExceptionRecorder implements ExceptionRecorder{
 		ExceptionCounters.inc(type);
 		ExceptionCounters.inc(callOrigin);
 		ExceptionCounters.inc(type + " " + callOrigin);
-		String stackTrace = ExceptionTool.getStackTraceAsString(exception);
 		ExceptionRecord exceptionRecord = new ExceptionRecord(
+				ExceptionRecordKey.generate(),
+				System.currentTimeMillis(),
 				serviceName.get(),
 				serverName.get(),
 				category.name(),
 				Optional.ofNullable(name).orElse(ExceptionRecorderDetails.getDefaultName(type, name, callOrigin)),
-				stackTrace,
+				ExceptionTool.getStackTraceAsString(exception),
 				type,
 				gitProperties.getIdAbbrev().orElse(GitProperties.UNKNOWN_STRING),
 				location,
 				methodName,
 				lineNumber,
-				callOrigin);
+				callOrigin,
+				additionalEmailRecipients);
 		exceptionRecord.trimFields();
 		exceptionBuffers.exceptionRecordBuffer.offer(exceptionRecord);
 		logger.warn("Exception recorded ({})", exceptionRecordService.buildExceptionLinkForCurrentServer(
 				exceptionRecord));
 		if(settings.publishRecords.get()){
-			//copy to avoid mutating the other buffered ExceptionRecord
-			ExceptionRecord publishRecord = new ExceptionRecord(exceptionRecord.toDto());
-			publishRecord.setStackTrace(StringTool.trimToSize(stackTrace, settings.maxPublisherStackTraceLength.get()));
-			exceptionBuffers.exceptionRecordPublishingBuffer.offer(publishRecord);
+			exceptionBuffers.exceptionRecordPublishingBuffer.offer(exceptionRecord);
 		}
 		if(exceptionHandlingConfig.shouldReportError(exceptionRecord.toDto())){
 			report(exceptionRecord, category, additionalEmailRecipients);
@@ -243,7 +242,7 @@ public class DefaultExceptionRecorder implements ExceptionRecorder{
 
 		boolean omitPayload = RequestAttributeTool.get(request, Dispatcher.TRANSMITS_PII).orElse(false);
 		HttpRequestRecord httpRequestRecord = new HttpRequestRecord(
-				exceptionRecord == null ? null : exceptionRecord.id,
+				exceptionRecord == null ? null : exceptionRecord.id(),
 				RequestAttributeTool.get(request, BaseHandler.TRACE_CONTEXT),
 				request,
 				userRoles,

@@ -29,6 +29,8 @@ import io.datarouter.bytes.InputStreamTool;
 import io.datarouter.client.memcached.client.DatarouterMemcachedClient;
 import io.datarouter.client.memcached.codec.MemcachedBlobCodec;
 import io.datarouter.client.memcached.util.MemcachedExpirationTool;
+import io.datarouter.client.memcached.util.MemcachedPathbeanResult;
+import io.datarouter.client.memcached.util.MemcachedResult;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.config.Config;
@@ -41,7 +43,6 @@ import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.op.raw.BlobStorage.PhysicalBlobStorageNode;
 import io.datarouter.storage.node.type.physical.base.BasePhysicalNode;
 import io.datarouter.storage.util.Subpath;
-import io.datarouter.util.tuple.Pair;
 
 public class MemcachedBlobNode
 extends BasePhysicalNode<DatabaseBlobKey,DatabaseBlob,DatabaseBlobFielder>
@@ -87,7 +88,7 @@ implements PhysicalBlobStorageNode{
 	public Optional<Long> length(PathbeanKey key, Config config){
 		//TODO avoid fetching the bytes?
 		return scanMultiInternal(List.of(key))
-				.map(Pair::getRight)
+				.map(MemcachedPathbeanResult::value)
 				.map(bytes -> bytes.length)
 				.map(Integer::longValue)
 				.findFirst();
@@ -97,14 +98,14 @@ implements PhysicalBlobStorageNode{
 	public byte[] read(PathbeanKey key, Config config){
 		return scanMultiInternal(List.of(key))
 				.findFirst()
-				.map(Pair::getRight)
+				.map(MemcachedPathbeanResult::value)
 				.orElse(null);
 	}
 
 	@Override
 	public Map<PathbeanKey,byte[]> read(List<PathbeanKey> keys, Config config){
 		return scanMultiInternal(keys)
-				.toMap(Pair::getLeft, Pair::getRight);
+				.toMap(MemcachedPathbeanResult::key, MemcachedPathbeanResult::value);
 	}
 
 	@Override
@@ -112,7 +113,7 @@ implements PhysicalBlobStorageNode{
 		int intOffset = (int)offset;
 		return scanMultiInternal(List.of(key))
 				.findFirst()
-				.map(Pair::getRight)
+				.map(MemcachedPathbeanResult::value)
 				.map(bytes -> Arrays.copyOfRange(bytes, intOffset, intOffset + length))
 				.orElse(null);
 	}
@@ -172,11 +173,11 @@ implements PhysicalBlobStorageNode{
 						memcachedStringKeys,
 						DEFAULT_TIMEOUT.toMillis(),
 						DEFAULT_IGNORE_EXCEPTION))
-				.map(Pair::getLeft)
+				.map(MemcachedResult::key)
 				.map(blobCodec::decodeKey);
 	}
 
-	private Scanner<Pair<PathbeanKey,byte[]>> scanMultiInternal(Collection<PathbeanKey> keys){
+	private Scanner<MemcachedPathbeanResult> scanMultiInternal(Collection<PathbeanKey> keys){
 		return Scanner.of(keys)
 				.map(blobCodec::encodeKey)
 				.listTo(memcachedStringKeys -> lazyClient.get().scanMultiBytes(

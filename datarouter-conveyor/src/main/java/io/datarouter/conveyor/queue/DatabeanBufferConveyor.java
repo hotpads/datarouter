@@ -15,6 +15,8 @@
  */
 package io.datarouter.conveyor.queue;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
@@ -22,6 +24,7 @@ import java.util.function.Supplier;
 
 import io.datarouter.conveyor.BaseConveyor;
 import io.datarouter.conveyor.ConveyorCounters;
+import io.datarouter.conveyor.ConveyorGaugeRecorder;
 import io.datarouter.conveyor.MemoryBuffer;
 import io.datarouter.web.exception.ExceptionRecorder;
 
@@ -37,20 +40,28 @@ public class DatabeanBufferConveyor<D> extends BaseConveyor{
 			Supplier<Boolean> shouldRun,
 			MemoryBuffer<D> memoryBuffer,
 			Consumer<Collection<D>> putMultiConsumer,
-			ExceptionRecorder exceptionRecorder){
-		super(name, shouldRun, () -> false, exceptionRecorder);
+			ExceptionRecorder exceptionRecorder,
+			ConveyorGaugeRecorder gaugeRecorder){
+		super(name, shouldRun, () -> false, exceptionRecorder, gaugeRecorder);
 		this.memoryBuffer = memoryBuffer;
 		this.putMultiConsumer = putMultiConsumer;
 	}
 
 	@Override
 	public ProcessBatchResult processBatch(){
+		Instant beforePeek = Instant.now();
 		List<D> databeans = memoryBuffer.pollMultiWithLimit(BATCH_SIZE);
+		Instant afterPeek = Instant.now();
+		gaugeRecorder.savePeekDurationMs(this, Duration.between(beforePeek, afterPeek).toMillis());
 		if(databeans.isEmpty()){
 			return new ProcessBatchResult(false);
 		}
 		try{
+			Instant beforeProcessBuffer = Instant.now();
 			putMultiConsumer.accept(databeans);
+			Instant afterProcessBuffer = Instant.now();
+			gaugeRecorder.saveProcessBufferDurationMs(this, Duration.between(beforeProcessBuffer, afterProcessBuffer)
+					.toMillis());
 			ConveyorCounters.incPutMultiOpAndDatabeans(this, databeans.size());
 			return new ProcessBatchResult(true);
 		}catch(RuntimeException putMultiException){

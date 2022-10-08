@@ -22,6 +22,7 @@ import javax.inject.Singleton;
 
 import io.datarouter.httpclient.client.BaseDatarouterHttpClientWrapper;
 import io.datarouter.httpclient.client.DatarouterHttpClientBuilder;
+import io.datarouter.httpclient.json.GsonJsonSerializer;
 import io.datarouter.httpclient.security.DefaultCsrfGenerator;
 import io.datarouter.httpclient.security.DefaultSignatureGenerator;
 
@@ -30,7 +31,7 @@ public class PushServiceHttpClient extends BaseDatarouterHttpClientWrapper{
 
 	@Inject
 	public PushServiceHttpClient(PushServiceSettingsSupplier settings){
-		super(new DatarouterHttpClientBuilder()
+		super(new DatarouterHttpClientBuilder(GsonJsonSerializer.DEFAULT)
 				.setSignatureGenerator(new DefaultSignatureGenerator(settings::getSalt))
 				.setCsrfGenerator(new DefaultCsrfGenerator(settings::getCipherKey))
 				.setApiKeySupplier(settings::getApiKey)

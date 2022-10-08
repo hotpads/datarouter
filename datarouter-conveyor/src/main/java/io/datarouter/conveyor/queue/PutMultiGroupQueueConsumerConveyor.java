@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import io.datarouter.conveyor.ConveyorGauges;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.web.exception.ExceptionRecorder;
@@ -38,8 +39,9 @@ extends BaseGroupQueueConsumerConveyor<PK,D>{
 			GroupQueueConsumer<PK,D> groupQueueConsumer,
 			Consumer<Collection<D>> putMultiConsumer,
 			Duration peekTimeout,
-			ExceptionRecorder exceptionRecorder){
-		super(name, shouldRun, groupQueueConsumer, () -> false, peekTimeout, exceptionRecorder);
+			ExceptionRecorder exceptionRecorder,
+			ConveyorGauges conveyorGauges){
+		super(name, shouldRun, groupQueueConsumer, () -> false, peekTimeout, exceptionRecorder, conveyorGauges);
 		this.putMultiConsumer = putMultiConsumer;
 	}
 

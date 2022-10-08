@@ -26,8 +26,6 @@ import java.time.ZoneId;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -38,11 +36,12 @@ import io.datarouter.clustersetting.config.DatarouterClusterSettingPaths;
 import io.datarouter.clustersetting.storage.clustersetting.ClusterSetting;
 import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
-import io.datarouter.util.tuple.Pair;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
 import io.datarouter.web.digest.DailyDigestService;
 import io.datarouter.web.html.j2html.J2HtmlTable;
+import j2html.TagCreator;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.TableTag;
 
@@ -84,42 +83,41 @@ public class ClusterSettingDailyDigest implements DailyDigest{
 	}
 
 	private Optional<DivTag> makeContent(ClusterSettingDailyDigestPageFormatter pageFormatter){
-		Optional<Pair<String,DivTag>> redundantTable = settingService
+		Optional<HeaderAndContent> redundantTable = settingService
 				.scanWithValidity(ClusterSettingValidity.REDUNDANT)
 				.listTo(settings -> pageFormatter.build(
 						settings,
 						"Redundant",
 						Optional.of("Setting's value in database is the same as the code. Generally safe to delete "
 								+ "through the Cluster Setting UI")));
-		Optional<Pair<String,DivTag>> unreferencedTable = settingService
+		Optional<HeaderAndContent> unreferencedTable = settingService
 				.scanWithValidity(ClusterSettingValidity.UNREFERENCED)
 				.listTo(settings -> pageFormatter.build(
 						settings,
 						"Unreferenced",
 						Optional.of("Settings exist in the database but not in the code.")));
-		Optional<Pair<String,DivTag>> oldTable = settingService
+		Optional<HeaderAndContent> oldTable = settingService
 				.scanWithValidity(ClusterSettingValidity.OLD)
 				.listTo(settings -> pageFormatter.build(
 						settings,
 						"Old",
 						Optional.of("Setting has lived in the database for over the threshold. Could update the "
 								+ "defaults in the code.")));
-		Optional<Pair<String,DivTag>> unknownTable = settingService
+		Optional<HeaderAndContent> unknownTable = settingService
 				.scanWithValidity(ClusterSettingValidity.UNKNOWN)
 				.listTo(settings -> pageFormatter.build(settings, "Unknown", Optional.empty()));
 
-		// Scanners can't figure out types
-		List<DivTag> tables = Stream.of(redundantTable, unreferencedTable, oldTable, unknownTable)
-				.filter(Optional::isPresent)
+		List<DivTag> tables = Scanner.of(redundantTable, unreferencedTable, oldTable, unknownTable)
+				.include(Optional::isPresent)
 				.map(Optional::get)
-				.sorted(Comparator.comparing(Pair::getLeft))
-				.map(Pair::getRight)
-				.collect(Collectors.toList());
+				.sort(Comparator.comparing(HeaderAndContent::header))
+				.map(HeaderAndContent::content)
+				.list();
 		if(tables.size() == 0){
 			return Optional.empty();
 		}
 		var header = digestService.makeHeader("Settings", paths.datarouter.settings.customSettings);
-		return Optional.of(div(header, each(tables, tag -> div(tag))));
+		return Optional.of(div(header, each(tables, tag -> TagCreator.div(tag))));
 	}
 
 	private interface ClusterSettingDailyDigestTableFormatter{
@@ -134,18 +132,23 @@ public class ClusterSettingDailyDigest implements DailyDigest{
 			this.tableFormatter = tableFormatter;
 		}
 
-		public Optional<Pair<String,DivTag>> build(
+		public Optional<HeaderAndContent> build(
 				List<ClusterSetting> settings,
 				String header,
 				Optional<String> caption){
 			if(settings.isEmpty()){
 				return Optional.empty();
 			}
-			return Optional.of(new Pair<>(
+			return Optional.of(new HeaderAndContent(
 					header,
 					div(div(b(header)), small(caption.orElse("")), tableFormatter.makeTable(settings))));
 		}
 
+	}
+
+	private record HeaderAndContent(
+			String header,
+			DivTag content){
 	}
 
 	private final ClusterSettingDailyDigestTableFormatter emailFormatter = settings ->

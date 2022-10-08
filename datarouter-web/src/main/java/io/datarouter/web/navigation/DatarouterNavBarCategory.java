@@ -33,12 +33,12 @@ public enum DatarouterNavBarCategory implements NavBarCategory{
 	}
 
 	@Override
-	public String getDisplay(){
+	public String display(){
 		return display;
 	}
 
 	@Override
-	public NavBarItemType getType(){
+	public NavBarItemType type(){
 		return NavBarItemType.DATAROUTER;
 	}
 

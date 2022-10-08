@@ -31,15 +31,17 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.nodewatch.config.DatarouterNodewatchPaths;
-import io.datarouter.nodewatch.service.TableSizeMonitoringService.CountStat;
+import io.datarouter.nodewatch.service.TableSizeMonitoringService.PercentageCountStat;
+import io.datarouter.nodewatch.service.TableSizeMonitoringService.ThresholdCountStat;
 import io.datarouter.nodewatch.util.TableSizeMonitoringEmailBuilder;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.time.ZonedDateFormatterTool;
-import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
 import io.datarouter.web.digest.DailyDigestService;
 import io.datarouter.web.html.j2html.J2HtmlTable;
+import j2html.TagCreator;
+import j2html.tags.DomContent;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.TableTag;
 
@@ -57,46 +59,46 @@ public class NodewatchAboveThresholdsDailyDigest implements DailyDigest{
 
 	@Override
 	public Optional<DivTag> getPageContent(ZoneId zoneId){
-		Optional<Pair<String,DivTag>> aboveThresholdList = Scanner
-				.of(monitoringService.getAboveThresholdLists().getLeft())
-				.listTo(rows -> makePageTable(rows, "Tables exceeding threshold", zoneId));
-		Optional<Pair<String,DivTag>> abovePercentageList = Scanner
-				.of(monitoringService.getAboveThresholdLists().getRight())
-				.listTo(rows -> makePageTable(rows, "Tables that grew or shrank by more than "
+		Optional<TableRow> aboveThresholdList = Scanner
+				.of(monitoringService.getAboveThresholdLists().aboveThreshold())
+				.listTo(rows -> makeThresholdPageTable(rows, "Tables exceeding threshold", zoneId));
+		Optional<TableRow> abovePercentageList = Scanner
+				.of(monitoringService.getAboveThresholdLists().abovePercentage())
+				.listTo(rows -> makePercentagePageTable(rows, "Tables that grew or shrank by more than "
 						+ TableSizeMonitoringService.PERCENTAGE_THRESHOLD + "%", zoneId));
 		List<DivTag> tables = Stream.of(aboveThresholdList, abovePercentageList)
 				.filter(Optional::isPresent)
 				.map(Optional::get)
-				.sorted(Comparator.comparing(Pair::getLeft))
-				.map(Pair::getRight)
+				.sorted(Comparator.comparing(TableRow::header))
+				.map(TableRow::content)
 				.collect(Collectors.toList());
 		if(tables.size() == 0){
 			return Optional.empty();
 		}
 		var header = digestService.makeHeader("Table Thresholds", paths.datarouter.nodewatch.threshold);
-		return Optional.of(div(header, each(tables, tag -> div(tag))));
+		return Optional.of(div(header, each(tables, content -> TagCreator.div((DomContent)content))));
 	}
 
 	@Override
 	public Optional<DivTag> getEmailContent(ZoneId zoneId){
-		Optional<Pair<String,DivTag>> aboveThresholdList = Scanner
-				.of(monitoringService.getAboveThresholdLists().getLeft())
-				.listTo(rows -> makeEmailTable(rows, "Tables exceeding threshold"));
-		Optional<Pair<String,DivTag>> abovePercentageList = Scanner
-				.of(monitoringService.getAboveThresholdLists().getRight())
-				.listTo(rows -> makeEmailTable(rows, "Tables that grew or shrank by more than "
+		Optional<TableRow> aboveThresholdList = Scanner
+				.of(monitoringService.getAboveThresholdLists().aboveThreshold())
+				.listTo(rows -> makeThresholdEmailTable(rows, "Tables exceeding threshold"));
+		Optional<TableRow> abovePercentageList = Scanner
+				.of(monitoringService.getAboveThresholdLists().abovePercentage())
+				.listTo(rows -> makePercentageEmailTable(rows, "Tables that grew or shrank by more than "
 						+ TableSizeMonitoringService.PERCENTAGE_THRESHOLD + "%"));
 		List<DivTag> tables = Stream.of(aboveThresholdList, abovePercentageList)
 				.filter(Optional::isPresent)
 				.map(Optional::get)
-				.sorted(Comparator.comparing(Pair::getLeft))
-				.map(Pair::getRight)
+				.sorted(Comparator.comparing(TableRow::header))
+				.map(TableRow::content)
 				.collect(Collectors.toList());
 		if(tables.size() == 0){
 			return Optional.empty();
 		}
 		var header = digestService.makeHeader("Table Thresholds", paths.datarouter.nodewatch.threshold);
-		return Optional.of(div(header, each(tables, tag -> div(tag))));
+		return Optional.of(div(header, each(tables, content -> TagCreator.div((DomContent)content))));
 	}
 
 	@Override
@@ -104,11 +106,11 @@ public class NodewatchAboveThresholdsDailyDigest implements DailyDigest{
 		return DailyDigestType.SUMMARY;
 	}
 
-	private Optional<Pair<String,DivTag>> makePageTable(List<CountStat> rows, String header, ZoneId zoneId){
+	private Optional<TableRow> makePercentagePageTable(List<PercentageCountStat> rows, String header, ZoneId zoneId){
 		if(rows.isEmpty()){
 			return Optional.empty();
 		}
-		TableTag table = new J2HtmlTable<CountStat>()
+		TableTag table = new J2HtmlTable<PercentageCountStat>()
 				.withClasses("sortable table table-sm table-striped my-4 border")
 				.withColumn("Client", row -> row.latestSample.getKey().getClientName())
 				.withHtmlColumn("Table", row -> td(emailBuilder.makeTableLink(
@@ -121,15 +123,48 @@ public class NodewatchAboveThresholdsDailyDigest implements DailyDigest{
 				.withColumn("% Increase", row -> row.latestSample.getDateUpdated())
 				.withColumn("Count Increase", row -> row.latestSample.getDateUpdated())
 				.build(rows);
-		return Optional.of(new Pair<>(header, div(h4(header), table)));
+		return Optional.of(new TableRow(header, div(h4(header), table)));
 	}
 
-	private Optional<Pair<String,DivTag>> makeEmailTable(List<CountStat> rows, String header){
+
+	private Optional<TableRow> makeThresholdPageTable(List<ThresholdCountStat> rows, String header, ZoneId zoneId){
 		if(rows.isEmpty()){
 			return Optional.empty();
 		}
-		var table = emailBuilder.makeCountStatTable("Previous Count", rows);
-		return Optional.of(new Pair<>(header, div(h4(header), table)));
+		TableTag table = new J2HtmlTable<ThresholdCountStat>()
+				.withClasses("sortable table table-sm table-striped my-4 border")
+				.withColumn("Client", row -> row.latestSample().getKey().getClientName()).withHtmlColumn("Table",
+						row -> td(emailBuilder.makeTableLink(
+						row.latestSample().getKey().getTableName(),
+						row.latestSample().getKey().getClientName())))
+				.withColumn("Date Updated",
+						row -> ZonedDateFormatterTool.formatInstantWithZone(row.latestSample().getDateUpdated(),
+								zoneId))
+				.withColumn("Threshold ", ThresholdCountStat::threshold)
+				.withColumn("Latest Count", row -> row.latestSample().getDateUpdated())
+				.build(rows);
+		return Optional.of(new TableRow(header, div(h4(header), table)));
+	}
+
+	private Optional<TableRow> makePercentageEmailTable(List<PercentageCountStat> rows, String header){
+		if(rows.isEmpty()){
+			return Optional.empty();
+		}
+		var table = emailBuilder.makePercentageCountStatTable("Previous Count", rows);
+		return Optional.of(new TableRow(header, div(h4(header), table)));
+	}
+
+	private Optional<TableRow> makeThresholdEmailTable(List<ThresholdCountStat> rows, String header){
+		if(rows.isEmpty()){
+			return Optional.empty();
+		}
+		var table = emailBuilder.makeThresholdCountStatTable("Threshold", rows);
+		return Optional.of(new TableRow(header, div(h4(header), table)));
+	}
+
+	private record TableRow(
+			String header,
+			DivTag content){
 	}
 
 	@Override

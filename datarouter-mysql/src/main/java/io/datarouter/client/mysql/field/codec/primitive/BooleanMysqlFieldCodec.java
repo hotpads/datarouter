@@ -29,18 +29,14 @@ import io.datarouter.model.field.Field;
 public class BooleanMysqlFieldCodec
 extends BasePrimitiveMysqlFieldCodec<Boolean,Field<Boolean>>{
 
-	public BooleanMysqlFieldCodec(Field<Boolean> field){
-		super(field);
-	}
-
 	@Override
-	public SqlColumn getSqlColumnDefinition(boolean allowNullable){
+	public SqlColumn getSqlColumnDefinition(boolean allowNullable, Field<Boolean> field){
 		String defaultValue = field.getKey().getDefaultValue() == null
 				? null
 				: field.getKey().getDefaultValue() ? "1" : "0";
 		return new SqlColumn(
 				field.getKey().getColumnName(),
-				getMysqlColumnType(),
+				getMysqlColumnType(field),
 				1,
 				allowNullable && field.getKey().isNullable(),
 				false,
@@ -48,7 +44,7 @@ extends BasePrimitiveMysqlFieldCodec<Boolean,Field<Boolean>>{
 	}
 
 	@Override
-	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
+	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex, Field<Boolean> field){
 		try{
 			if(field.getValue() == null){
 				ps.setNull(parameterIndex, Types.TINYINT);
@@ -61,7 +57,7 @@ extends BasePrimitiveMysqlFieldCodec<Boolean,Field<Boolean>>{
 	}
 
 	@Override
-	public Boolean fromMysqlResultSetButDoNotSet(ResultSet rs){
+	public Boolean fromMysqlResultSetButDoNotSet(ResultSet rs, Field<Boolean> field){
 		try{
 			boolean value = rs.getBoolean(field.getKey().getColumnName());
 			return rs.wasNull() ? null : value;
@@ -71,7 +67,7 @@ extends BasePrimitiveMysqlFieldCodec<Boolean,Field<Boolean>>{
 	}
 
 	@Override
-	public MysqlColumnType getMysqlColumnType(){
+	public MysqlColumnType getMysqlColumnType(Field<Boolean> field){
 		return MysqlColumnType.TINYINT;
 	}
 

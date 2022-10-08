@@ -25,10 +25,10 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import io.datarouter.httpclient.json.JsonSerializer;
 import io.datarouter.httpclient.response.exception.DocumentedServerError;
 import io.datarouter.instrumentation.trace.TraceSpanGroupType;
 import io.datarouter.instrumentation.trace.TracerTool;
+import io.datarouter.json.JsonSerializer;
 import io.datarouter.web.exception.ExceptionHandlingConfig;
 import io.datarouter.web.exception.HandledException;
 import io.datarouter.web.handler.documentation.HttpDocumentedExceptionTool;
@@ -45,15 +45,20 @@ public class JsonEncoder implements HandlerEncoder, JsonAwareHandlerCodec{
 	private final ExceptionHandlingConfig exceptionHandlingConfig;
 
 	@Inject
-	public JsonEncoder(@Named(HandlerEncoder.DEFAULT_HANDLER_SERIALIZER) JsonSerializer jsonSerializer,
+	public JsonEncoder(
+			@Named(HandlerEncoder.DEFAULT_HANDLER_SERIALIZER) JsonSerializer jsonSerializer,
 			ExceptionHandlingConfig exceptionHandlingConfig){
 		this.jsonSerializer = jsonSerializer;
 		this.exceptionHandlingConfig = exceptionHandlingConfig;
 	}
 
 	@Override
-	public void finishRequest(Object result, ServletContext servletContext, HttpServletResponse response,
-			HttpServletRequest request) throws IOException{
+	public void finishRequest(
+			Object result,
+			ServletContext servletContext,
+			HttpServletResponse response,
+			HttpServletRequest request)
+	throws IOException{
 		sendRequestJson(response, request, serialize(result));
 	}
 
@@ -70,20 +75,30 @@ public class JsonEncoder implements HandlerEncoder, JsonAwareHandlerCodec{
 		}
 	}
 
-	protected void sendRequestJson(HttpServletResponse response, @SuppressWarnings("unused") HttpServletRequest request,
+	protected void sendRequestJson(
+			HttpServletResponse response,
+			@SuppressWarnings("unused") HttpServletRequest request,
 			String json)
 	throws IOException{
 		ResponseTool.sendJson(response, json);
 	}
 
 	@Override
-	public void sendHandledExceptionResponse(HandledException exception, ServletContext servletContext,
-			HttpServletResponse response, HttpServletRequest request) throws IOException{
+	public void sendHandledExceptionResponse(
+			HandledException exception,
+			ServletContext servletContext,
+			HttpServletResponse response,
+			HttpServletRequest request)
+	throws IOException{
 		sendErrorJson(exception.getHttpResponseCode(), getJsonForException(exception), response, request);
 	}
 
-	protected void sendErrorJson(int statusCode, String json, HttpServletResponse response,
-			@SuppressWarnings("unused") HttpServletRequest request) throws IOException{
+	protected void sendErrorJson(
+			int statusCode,
+			String json,
+			HttpServletResponse response,
+			@SuppressWarnings("unused") HttpServletRequest request)
+	throws IOException{
 		ResponseTool.sendJson(response, statusCode, json);
 	}
 
@@ -96,8 +111,12 @@ public class JsonEncoder implements HandlerEncoder, JsonAwareHandlerCodec{
 	}
 
 	@Override
-	public void sendInvalidRequestParamResponse(RequestParamValidatorErrorResponseDto errorResponseDto,
-			ServletContext servletContext, HttpServletResponse response, HttpServletRequest request) throws IOException{
+	public void sendInvalidRequestParamResponse(
+			RequestParamValidatorErrorResponseDto errorResponseDto,
+			ServletContext servletContext,
+			HttpServletResponse response,
+			HttpServletRequest request)
+	throws IOException{
 		String json = getJsonForRequestParamValidatorErrorResponseDto(errorResponseDto);
 		sendErrorJson(errorResponseDto.statusCode, json, response, request);
 	}
@@ -108,8 +127,12 @@ public class JsonEncoder implements HandlerEncoder, JsonAwareHandlerCodec{
 	}
 
 	@Override
-	public void sendExceptionResponse(HttpServletRequest request, HttpServletResponse response, Throwable exception,
-			Optional<String> exceptionId) throws IOException{
+	public void sendExceptionResponse(
+			HttpServletRequest request,
+			HttpServletResponse response,
+			Throwable exception,
+			Optional<String> exceptionId)
+	throws IOException{
 		Optional<Object> errorObject;
 		if(exceptionHandlingConfig.shouldDisplayStackTrace(request, exception)){
 			errorObject = buildDetailedErrorObject(exception, exceptionId);
@@ -122,8 +145,12 @@ public class JsonEncoder implements HandlerEncoder, JsonAwareHandlerCodec{
 		}
 	}
 
-	protected void finishSendException(@SuppressWarnings("unused") Throwable exception, Object errorObject,
-			HttpServletResponse response, HttpServletRequest request) throws IOException{
+	protected void finishSendException(
+			@SuppressWarnings("unused") Throwable exception,
+			Object errorObject,
+			HttpServletResponse response,
+			HttpServletRequest request)
+	throws IOException{
 		finishRequest(errorObject, null, response, request);
 	}
 
@@ -146,8 +173,10 @@ public class JsonEncoder implements HandlerEncoder, JsonAwareHandlerCodec{
 	 * @param exception The exception that occurred
 	 * @param httpStatusCode The HTTP status code that will be returned
 	 */
-	protected Optional<Object> buildSimpleErrorObject(@SuppressWarnings("unused") Throwable exception,
-			@SuppressWarnings("unused") int httpStatusCode, Optional<String> exceptionId){
+	protected Optional<Object> buildSimpleErrorObject(
+			@SuppressWarnings("unused") Throwable exception,
+			@SuppressWarnings("unused") int httpStatusCode,
+			Optional<String> exceptionId){
 		Optional<DocumentedServerError> optDoc = HttpDocumentedExceptionTool
 				.findDocumentationInChain(exception);
 		return Optional.of(new SimpleError(
@@ -157,8 +186,11 @@ public class JsonEncoder implements HandlerEncoder, JsonAwareHandlerCodec{
 
 	@SuppressWarnings("unused")
 	@Override
-	public void sendForbiddenResponse(HttpServletRequest request, HttpServletResponse response,
-			SecurityValidationResult securityValidationResult) throws IOException{
+	public void sendForbiddenResponse(
+			HttpServletRequest request,
+			HttpServletResponse response,
+			SecurityValidationResult securityValidationResult)
+	throws IOException{
 	}
 
 	private static class DetailedError{

@@ -24,18 +24,17 @@ import io.datarouter.gcp.spanner.field.SpannerFieldCodecRegistry;
 import io.datarouter.gcp.spanner.field.SpannerFieldCodecs;
 import io.datarouter.model.field.Field;
 import io.datarouter.opencensus.DatarouterOpencensusAppListener;
-import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.config.BaseWebPlugin;
 import io.datarouter.web.plugins.opencencus.metrics.OpencencusMetricsMapper;
 
 public class DatarouterGcpSpannerPlugin extends BaseWebPlugin{
 
 	private final Class<? extends SpannerProjectIdAndInstanceIdSupplier> spannerProjectIdAndInstanceIdSupplier;
-	private final List<Pair<Class<? extends Field<?>>,Class<? extends SpannerBaseFieldCodec<?,?>>>> fieldCodecs;
+	private final List<SpannerFieldCodec> fieldCodecs;
 
 	private DatarouterGcpSpannerPlugin(
 			Class<? extends SpannerProjectIdAndInstanceIdSupplier> spannerProjectIdAndInstanceIdSupplier,
-			List<Pair<Class<? extends Field<?>>,Class<? extends SpannerBaseFieldCodec<?,?>>>> fieldCodecs){
+			List<SpannerFieldCodec> fieldCodecs){
 		this.spannerProjectIdAndInstanceIdSupplier = spannerProjectIdAndInstanceIdSupplier;
 		this.fieldCodecs = fieldCodecs;
 		addDatarouterGithubDocLink("datarouter-gcp-spanner");
@@ -48,7 +47,7 @@ public class DatarouterGcpSpannerPlugin extends BaseWebPlugin{
 	protected void configure(){
 		bind(SpannerProjectIdAndInstanceIdSupplier.class).to(spannerProjectIdAndInstanceIdSupplier);
 		var fieldCodecRegistry = new SpannerFieldCodecRegistry();
-		fieldCodecs.forEach(pair -> fieldCodecRegistry.addCodec(pair.getLeft(), pair.getRight()));
+		fieldCodecs.forEach(dto -> fieldCodecRegistry.addCodec(dto.fieldClass(), dto.spannerCodec()));
 		bind(SpannerFieldCodecs.class).toInstance(fieldCodecRegistry);
 	}
 
@@ -56,8 +55,7 @@ public class DatarouterGcpSpannerPlugin extends BaseWebPlugin{
 
 		private Class<? extends SpannerProjectIdAndInstanceIdSupplier> spannerProjectIdAndInstanceIdSupplier
 				= NoOpSpannerProjectIdAndInstanceIdSupplier.class;
-		private final List<Pair<Class<? extends Field<?>>,Class<? extends SpannerBaseFieldCodec<?,?>>>> fieldCodecs
-				= new ArrayList<>();
+		private final List<SpannerFieldCodec> fieldCodecs = new ArrayList<>();
 
 		public DatarouterGcpSpannerPluginBuilder setProjectIdAndInstanceId(
 				Class<? extends SpannerProjectIdAndInstanceIdSupplier> spannerProjectIdAndInstanceIdSupplier){
@@ -70,7 +68,7 @@ public class DatarouterGcpSpannerPlugin extends BaseWebPlugin{
 		DatarouterGcpSpannerPluginBuilder addFieldCodec(
 				Class<F> fieldClass,
 				Class<C> codecClass){
-			fieldCodecs.add(new Pair<>(fieldClass, codecClass));
+			fieldCodecs.add(new SpannerFieldCodec(fieldClass, codecClass));
 			return this;
 		}
 

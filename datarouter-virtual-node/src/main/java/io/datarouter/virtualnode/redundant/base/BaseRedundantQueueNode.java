@@ -47,8 +47,12 @@ implements RedundantQueueNode<PK,D,F,N>{
 				writeNode.getFieldInfo().getDatabeanSupplier(),
 				writeNode.getFieldInfo().getFielderSupplier())
 				.build());
-		this.readNodes = Require.notEmpty(readNodes, "readNodes cannot be empty");
-		this.writeNode = Objects.requireNonNull(writeNode);
+		Objects.requireNonNull(writeNode);
+		Require.notEmpty(readNodes, "readNodes cannot be empty");
+		this.readNodes = Scanner.of(readNodes)
+				.reverse()//The writeNode is the new node; Read from the old node first.
+				.list();
+		this.writeNode = writeNode;
 		Require.contains(readNodes, writeNode, "writeNode must be in readNodes.");
 	}
 

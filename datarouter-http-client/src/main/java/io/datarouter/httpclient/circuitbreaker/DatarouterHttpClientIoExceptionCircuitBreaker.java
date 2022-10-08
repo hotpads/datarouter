@@ -53,7 +53,7 @@ import io.datarouter.instrumentation.trace.W3TraceContext;
 public class DatarouterHttpClientIoExceptionCircuitBreaker extends ExceptionCircuitBreaker{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterHttpClientIoExceptionCircuitBreaker.class);
 
-	private static final Duration LOG_SLOW_REQUEST_THRESHOLD = Duration.ofSeconds(2);
+	private static final Duration DEFAULT_LOG_SLOW_REQUEST_THRESHOLD = Duration.ofSeconds(2);
 
 	public static final String TRACEPARENT = "traceparent";
 	public static final String TRACESTATE = "tracestate";
@@ -132,7 +132,9 @@ public class DatarouterHttpClientIoExceptionCircuitBreaker extends ExceptionCirc
 				// if remote server has forced sample for trace, we also force sample the client's trace
 				TracerTool.setForceSample();
 			}
-			if(duration.compareTo(LOG_SLOW_REQUEST_THRESHOLD) > 0){
+			Duration logSlowRequestThreshold = request.findLogSlowRequestThreshold()
+					.orElse(DEFAULT_LOG_SLOW_REQUEST_THRESHOLD);
+			if(duration.compareTo(logSlowRequestThreshold) > 0){
 				logger.warn("Slow request target={} durationS={} remoteTraceparent={}", request.getPath(),
 						duration.getSeconds(), remoteTraceparent.orElse(null));
 			}

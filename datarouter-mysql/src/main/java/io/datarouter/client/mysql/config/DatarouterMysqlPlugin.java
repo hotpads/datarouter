@@ -17,7 +17,6 @@ package io.datarouter.client.mysql.config;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
 
 import io.datarouter.client.mysql.config.MysqlSchemaProvider.GenericMysqlSchemaProvider;
 import io.datarouter.client.mysql.field.MysqlFieldCodec;
@@ -32,14 +31,14 @@ public class DatarouterMysqlPlugin extends BaseWebPlugin{
 
 	private final Map<
 			Class<? extends Field<?>>,
-			Function<? extends Field<?>,? extends MysqlFieldCodec<?>>> additionalCodecClassByField;
+			MysqlFieldCodec<?,?>> additionalCodecByField;
 	private final boolean isPrimarySchema;
 
 	private DatarouterMysqlPlugin(Map<
 			Class<? extends Field<?>>,
-			Function<? extends Field<?>,? extends MysqlFieldCodec<?>>> additionalCodecClassByField,
-					boolean isPrimarySchema){
-		this.additionalCodecClassByField = additionalCodecClassByField;
+			MysqlFieldCodec<?,?>> additionalCodecClassByField,
+			boolean isPrimarySchema){
+		this.additionalCodecByField = additionalCodecClassByField;
 		this.isPrimarySchema = isPrimarySchema;
 		addAppListener(MysqlAppListener.class);
 		addSettingRoot(DatarouterMysqlSettingRoot.class);
@@ -50,7 +49,7 @@ public class DatarouterMysqlPlugin extends BaseWebPlugin{
 	@Override
 	public void configure(){
 		bindDefaultInstance(MysqlFieldCodecFactory.class, new StandardMysqlFieldCodecFactory(
-				additionalCodecClassByField));
+				additionalCodecByField));
 		bind(MysqlSchemaProvider.class).toInstance(new GenericMysqlSchemaProvider(isPrimarySchema));
 	}
 
@@ -58,12 +57,12 @@ public class DatarouterMysqlPlugin extends BaseWebPlugin{
 
 		private final Map<
 				Class<? extends Field<?>>,
-				Function<? extends Field<?>,? extends MysqlFieldCodec<?>>> codecsByField = new HashMap<>();
+				MysqlFieldCodec<?,?>> codecsByField = new HashMap<>();
 		private boolean isPrimarySchema = true;
 
-		public <F extends Field<?>,C extends MysqlFieldCodec<?>> DatarouterMysqlPluginBuilder addCodec(
+		public <F extends Field<?>,C extends MysqlFieldCodec<?,?>> DatarouterMysqlPluginBuilder addCodec(
 				Class<F> fieldClass,
-				Function<F,C> codecSupplier){
+				C codecSupplier){
 			codecsByField.put(fieldClass, codecSupplier);
 			return this;
 		}

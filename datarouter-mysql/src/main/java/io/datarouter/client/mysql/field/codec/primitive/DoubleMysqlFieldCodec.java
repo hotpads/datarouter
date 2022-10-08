@@ -25,27 +25,23 @@ import io.datarouter.client.mysql.ddl.domain.SqlColumn;
 import io.datarouter.client.mysql.field.codec.base.BasePrimitiveMysqlFieldCodec;
 import io.datarouter.model.exception.DataAccessException;
 import io.datarouter.model.field.Field;
-import io.datarouter.model.field.imp.comparable.DoubleField;
 
 public class DoubleMysqlFieldCodec
 extends BasePrimitiveMysqlFieldCodec<Double,Field<Double>>{
 
-	public DoubleMysqlFieldCodec(DoubleField field){
-		super(field);
-	}
-
 	@Override
-	public SqlColumn getSqlColumnDefinition(boolean allowNullable){
+	public SqlColumn getSqlColumnDefinition(boolean allowNullable, Field<Double> field){
 		boolean nullable = allowNullable && field.getKey().isNullable();
 		String defaultValue = null;
 		if(field.getKey().getDefaultValue() != null){
 			defaultValue = field.getKey().getDefaultValue().toString();
 		}
-		return new SqlColumn(field.getKey().getColumnName(), getMysqlColumnType(), null, nullable, false, defaultValue);
+		return new SqlColumn(field.getKey().getColumnName(), getMysqlColumnType(field), null, nullable, false,
+				defaultValue);
 	}
 
 	@Override
-	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
+	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex, Field<Double> field){
 		try{
 			if(field.getValue() == null){
 				ps.setNull(parameterIndex, Types.DOUBLE);
@@ -58,7 +54,7 @@ extends BasePrimitiveMysqlFieldCodec<Double,Field<Double>>{
 	}
 
 	@Override
-	public Double fromMysqlResultSetButDoNotSet(ResultSet rs){
+	public Double fromMysqlResultSetButDoNotSet(ResultSet rs, Field<Double> field){
 		try{
 			double value = rs.getDouble(field.getKey().getColumnName());
 			return rs.wasNull() ? null : value;
@@ -68,7 +64,7 @@ extends BasePrimitiveMysqlFieldCodec<Double,Field<Double>>{
 	}
 
 	@Override
-	public MysqlColumnType getMysqlColumnType(){
+	public MysqlColumnType getMysqlColumnType(Field<Double> field){
 		return MysqlColumnType.DOUBLE;
 	}
 

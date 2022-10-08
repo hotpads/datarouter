@@ -53,22 +53,46 @@ public class JobletPackage{
 
 	/*-------------- static -----------------*/
 
-	public static <P> JobletPackage createUnchecked(JobletType<?> uncheckedJobletType, JobletPriority priority,
-			boolean restartable, String queueId, String groupId, P params){
+	public static <P> JobletPackage createUnchecked(
+			JobletType<?> uncheckedJobletType,
+			JobletPriority priority,
+			boolean restartable,
+			String queueId,
+			String groupId,
+			P params){
 		@SuppressWarnings("unchecked")
 		JobletType<P> jobletType = (JobletType<P>)uncheckedJobletType;
 		return create(jobletType, priority, restartable, queueId, groupId, params);
 	}
 
-	public static <P> JobletPackage create(JobletType<P> jobletType, JobletPriority priority, boolean restartable,
-			String queueId, String groupId, P params){
+	public static <P> JobletPackage create(
+			JobletType<P> jobletType,
+			JobletPriority priority,
+			boolean restartable,
+			String queueId,
+			String groupId,
+			P params){
 		int batchSequence = RandomTool.nextPositiveInt();
-		return createDetailed(jobletType, priority, Instant.now(), batchSequence, restartable, queueId, groupId,
+		return createDetailed(
+				jobletType,
+				priority,
+				Instant.now(),
+				batchSequence,
+				restartable,
+				queueId,
+				groupId,
 				params);
 	}
 
-	public static <P> JobletPackage createDetailed(JobletType<P> jobletType, JobletPriority priority,
-			Instant dateCreated, int batchSequence, boolean restartable, String queueId, String groupId, P params){
+	public static <P> JobletPackage createDetailed(
+			JobletType<P> jobletType,
+			JobletPriority priority,
+			Instant dateCreated,
+			int batchSequence,
+			boolean restartable,
+			String queueId,
+			String groupId,
+			P params){
 		JobletCodec<P> codec = jobletType.getCodecSupplier().get();
 
 		//build JobletData
@@ -76,7 +100,12 @@ public class JobletPackage{
 		JobletData data = new JobletData(encodedParams);
 
 		//build JobletRequest
-		JobletRequest request = new JobletRequest(jobletType, priority, dateCreated, batchSequence, restartable,
+		JobletRequest request = new JobletRequest(
+				jobletType,
+				priority,
+				dateCreated,
+				batchSequence,
+				restartable,
 				getDataSignature(encodedParams));
 		request.setQueueId(queueId);
 		request.setGroupId(groupId);
@@ -86,11 +115,15 @@ public class JobletPackage{
 	}
 
 	public static List<JobletRequest> getJobletRequests(Collection<JobletPackage> jobletPackages){
-		return Scanner.of(jobletPackages).map(JobletPackage::getJobletRequest).list();
+		return Scanner.of(jobletPackages)
+				.map(JobletPackage::getJobletRequest)
+				.list();
 	}
 
 	public static List<JobletData> getJobletDatas(Collection<JobletPackage> jobletPackages){
-		return Scanner.of(jobletPackages).map(JobletPackage::getJobletData).list();
+		return Scanner.of(jobletPackages)
+				.map(JobletPackage::getJobletData)
+				.list();
 	}
 
 	public static <P> P unmarshallJobletData(JobletType<P> jobletType, JobletPackage jobletPackage){

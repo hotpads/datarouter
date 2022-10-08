@@ -15,6 +15,7 @@
  */
 package io.datarouter.auth.web;
 
+import java.io.ByteArrayOutputStream;
 import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Collection;
@@ -53,6 +54,7 @@ import io.datarouter.auth.web.DatarouterPermissionRequestHandler.PermissionReque
 import io.datarouter.auth.web.deprovisioning.DeprovisionedUserDto;
 import io.datarouter.auth.web.deprovisioning.UserDeprovisioningStatusDto;
 import io.datarouter.bytes.EmptyArray;
+import io.datarouter.httpclient.endpoint.param.RequestBody;
 import io.datarouter.pathnode.PathNode;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.servertype.ServerTypeDetector;
@@ -61,7 +63,6 @@ import io.datarouter.util.time.ZoneIds;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.InContextRedirectMav;
-import io.datarouter.web.handler.types.RequestBody;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import io.datarouter.web.html.react.bootstrap4.Bootstrap4ReactPageFactory;
 import io.datarouter.web.js.DatarouterWebJsTool;
@@ -69,6 +70,8 @@ import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig
 import io.datarouter.web.user.databean.DatarouterUser;
 import io.datarouter.web.user.databean.DatarouterUser.DatarouterUserByUsernameLookup;
 import io.datarouter.web.user.detail.DatarouterUserExternalDetailService;
+import io.datarouter.web.user.detail.DatarouterUserExternalDetails;
+import io.datarouter.web.user.detail.DatarouterUserProfileLink;
 import io.datarouter.web.user.session.CurrentUserSessionInfoService;
 import io.datarouter.web.user.session.service.Role;
 import io.datarouter.web.user.session.service.RoleManager;
@@ -132,7 +135,9 @@ public class AdminEditUserHandler extends BaseHandler{
 						user.getUsername(),
 						user.getToken(),
 						userIdsWithPermissionRequests.contains(user.getId()),
-						detailsService.getUserProfileUrl(user).orElse("")))
+						detailsService.getUserProfileLink(user.getUsername())
+								.map(DatarouterUserProfileLink::url)
+								.orElse("")))
 				.list();
 	}
 
@@ -182,14 +187,11 @@ public class AdminEditUserHandler extends BaseHandler{
 		DatarouterUser userToEdit = params.optional("username")
 				.map(DatarouterUserByUsernameLookup::new)
 				.map(datarouterUserDao::getByUsername)
-				.orElseGet(() -> {
-					Optional<Long> optionalUserId = params.optionalLong("userId");
-					if(optionalUserId.isPresent()){
+				.or(() -> params.optionalLong("userId")
 						//TODO DATAROUTER-2788? consider what to display, since this breaks the page
-						return optionalUserId.map(datarouterUserService::getUserById).get();
-					}
-					return currentUser;
-				});
+						.map(datarouterUserService::getUserById))
+				.orElse(currentUser);
+
 		if(!checkEditPermission(currentUser, userToEdit, datarouterUserService::canEditUser)){
 			return null;
 		}
@@ -207,6 +209,13 @@ public class AdminEditUserHandler extends BaseHandler{
 			return null;
 		}
 		return getEditUserDetailsDto(username);
+	}
+
+	@Handler
+	public void getUserProfileImage(String username){
+		detailsService.getUserImage(username)
+				.map(ByteArrayOutputStream::toByteArray)
+				.ifPresent(byteArray -> ResponseTool.writeToOutputStream(response, byteArray));
 	}
 
 	//TODO DATAROUTER-2759 make this work without DatarouterUser
@@ -376,6 +385,8 @@ public class AdminEditUserHandler extends BaseHandler{
 				.map(this::buildPermissionRequestDto)
 				.list();
 
+		Optional<DatarouterUserExternalDetails> details = detailsService.getUserDetails(username);
+
 		return new EditUserDetailsDto(
 				user.getUsername(),
 				user.getId().toString(),
@@ -391,7 +402,12 @@ public class AdminEditUserHandler extends BaseHandler{
 				true,
 				"",
 				// zoneId can be configured through the UI, fallback to system default
-				user.getZoneId().map(ZoneId::getId).orElse(ZoneId.systemDefault().getId()));
+				user.getZoneId().map(ZoneId::getId).orElse(ZoneId.systemDefault().getId()),
+				details.map(DatarouterUserExternalDetails::fullName).orElse(null),
+				detailsService.userImageSupported(),
+				details.map(DatarouterUserExternalDetails::displayDetails).map(Scanner::of).orElseGet(Scanner::empty)
+						.map(detail -> new EditUserDetailDto(detail.key(), detail.name(), detail.link().orElse(null)))
+						.list());
 	}
 
 	//TODO DATAROUTER-2789
@@ -416,20 +432,20 @@ public class AdminEditUserHandler extends BaseHandler{
 	}
 
 	private Map<String,String> buildPaths(String contextPath){
-		Map<String,String> allPaths = new HashMap<>();
-		allPaths.putAll(Map.of(
+		Map<String,String> allPaths = new HashMap<>(Map.of(
 				"editUser", getPath(contextPath, paths.admin.editUser),
 				"getUserDetails", getPath(contextPath, paths.admin.getUserDetails),
+				"getUserProfileImage", getPath(contextPath, paths.admin.getUserProfileImage),
 				"listUsers", getPath(contextPath, paths.admin.listUsers),
 				"viewUsers", getPath(contextPath, paths.admin.viewUsers),
 				"updatePassword", getPath(contextPath, paths.admin.updatePassword),
 				"updateUserDetails", getPath(contextPath, paths.admin.updateUserDetails),
 				"permissionRequest", getPath(contextPath, paths.permissionRequest),
 				"declinePermissionRequests", getPath(contextPath, paths.permissionRequest.declinePermissionRequests),
-				"deprovisionUsers", getPath(contextPath, paths.userDeprovisioning.deprovisionUsers),
-				"restoreUsers", getPath(contextPath, paths.userDeprovisioning.restoreUsers)));
+				"deprovisionUsers", getPath(contextPath, paths.userDeprovisioning.deprovisionUsers)));
 		//too many to fit in Map.of anymore
 		allPaths.put("copyUser", getPath(contextPath, paths.admin.copyUser));
+		allPaths.put("restoreUsers", getPath(contextPath, paths.userDeprovisioning.restoreUsers));
 		return allPaths;
 	}
 
@@ -471,6 +487,9 @@ public class AdminEditUserHandler extends BaseHandler{
 		public final Map<String,Boolean> currentAccounts;
 		public final List<String> availableZoneIds;
 		public final String currentZoneId;
+		public final String fullName;
+		public final Boolean hasProfileImage;
+		public final List<EditUserDetailDto> details;
 
 		//TODO DATAROUTER-2788
 		public final boolean success;
@@ -479,7 +498,8 @@ public class AdminEditUserHandler extends BaseHandler{
 		public EditUserDetailsDto(String username, String id, String token, List<PermissionRequestDto> requests,
 				DeprovisionedUserDto deprovisionedUserDto, Collection<Role> availableRoles,
 				Collection<Role> currentRoles, Collection<String> availableAccounts, Collection<String> currentAccounts,
-				boolean success, String message, String currentZoneId){
+				boolean success, String message, String currentZoneId, String fullName, boolean hasProfileImage,
+				List<EditUserDetailDto> details){
 			this.username = username;
 			this.id = id;
 			this.token = token;
@@ -510,6 +530,9 @@ public class AdminEditUserHandler extends BaseHandler{
 					.sort()
 					.list();
 			this.currentZoneId = currentZoneId;
+			this.fullName = fullName;
+			this.hasProfileImage = hasProfileImage;
+			this.details = details;
 		}
 
 		public EditUserDetailsDto(String errorMessage){
@@ -526,6 +549,23 @@ public class AdminEditUserHandler extends BaseHandler{
 			this.message = errorMessage;
 			this.availableZoneIds = null;
 			this.currentZoneId = null;
+			this.fullName = null;
+			this.hasProfileImage = null;
+			this.details = null;
+		}
+
+	}
+
+	public static class EditUserDetailDto{
+
+		public final String name;
+		public final String value;
+		public final String link;
+
+		public EditUserDetailDto(String name, String value, String link){
+			this.name = name;
+			this.value = value;
+			this.link = link;
 		}
 
 	}

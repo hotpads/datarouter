@@ -21,9 +21,9 @@
 
 	<parent>
 		<groupId>io.datarouter</groupId>
-		<artifactId>datarouter-java11-parent</artifactId>
-		<version>0.0.116</version>
-		<relativePath>../datarouter-java11-parent</relativePath>
+		<artifactId>datarouter-parent</artifactId>
+		<version>0.0.117</version>
+		<relativePath>../datarouter-parent</relativePath>
 	</parent>
 
 	<artifactId>datarouter-gson</artifactId>
@@ -32,6 +32,11 @@
 	<description>datarouter-gson</description>
 
 	<dependencies>
+		<dependency>
+			<groupId>javax.inject</groupId>
+			<artifactId>javax.inject</artifactId>
+			<version>1</version>
+		</dependency>
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>

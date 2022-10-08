@@ -42,7 +42,6 @@ import io.datarouter.storage.node.tableconfig.ClientTableEntityPrefixNameWrapper
 import io.datarouter.storage.node.tableconfig.NodewatchConfiguration;
 import io.datarouter.storage.node.tableconfig.TableConfigurationService;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
-import io.datarouter.util.tuple.Twin;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
 import j2html.tags.specialized.BodyTag;
 
@@ -75,9 +74,9 @@ public class TableSizeMonitoringService{
 	private DatarouterLatestTableCountDao datarouterLatestTableCountDao;
 
 	public void run(){
-		Twin<List<CountStat>> twin = getAboveThresholdLists();
-		List<CountStat> aboveThresholdList = twin.getLeft();
-		List<CountStat> abovePercentageList = twin.getRight();
+		AboveThreshold dto = getAboveThresholdLists();
+		List<ThresholdCountStat> aboveThresholdList = dto.aboveThreshold();
+		List<PercentageCountStat> abovePercentageList = dto.abovePercentage();
 		List<LatestTableCount> staleList = getStaleTableEntries();
 		if(aboveThresholdList.size() > 0
 				|| abovePercentageList.size() > 0
@@ -86,9 +85,9 @@ public class TableSizeMonitoringService{
 		}
 	}
 
-	public Twin<List<CountStat>> getAboveThresholdLists(){
-		List<CountStat> aboveThresholdList = new ArrayList<>();
-		List<CountStat> abovePercentageList = new ArrayList<>();
+	public AboveThreshold getAboveThresholdLists(){
+		List<ThresholdCountStat> aboveThresholdList = new ArrayList<>();
+		List<PercentageCountStat> abovePercentageList = new ArrayList<>();
 
 		for(PhysicalNode<?,?,?> node : datarouterNodes.getWritableNodes(clients.getClientIds())){
 			ClientTableEntityPrefixNameWrapper nodeNames = new ClientTableEntityPrefixNameWrapper(node);
@@ -135,12 +134,12 @@ public class TableSizeMonitoringService{
 				}
 				//check if node numRows exceeds threshold
 				if(threshold != null && latest.getNumRows() >= threshold){
-					aboveThresholdList.add(calculateStats(latest, threshold));
+					aboveThresholdList.add(new ThresholdCountStat(latest, threshold));
 				}
 			}
 
 			if(enablePercentChangeAlert){//check % growth if no absolute threshold set & !enablePercentChangeAlert
-				CountStat growthIncrease = calculateStats(latest, previous.getNumRows());
+				PercentageCountStat growthIncrease = calculatePercentageStats(latest, previous.getNumRows());
 				if(growthIncrease == null){
 					continue;
 				}
@@ -149,7 +148,7 @@ public class TableSizeMonitoringService{
 				}
 			}
 		}
-		return new Twin<>(aboveThresholdList, abovePercentageList);
+		return new AboveThreshold(aboveThresholdList, abovePercentageList);
 	}
 
 	private boolean checkStaleEntries(LatestTableCount latestSample){
@@ -175,15 +174,15 @@ public class TableSizeMonitoringService{
 				.list();
 	}
 
-	private CountStat calculateStats(TableCount latestSample, long comparableCount){
+	private PercentageCountStat calculatePercentageStats(TableCount latestSample, long comparableCount){
 		long increase = latestSample.getNumRows() - comparableCount;
 		Float percentIncrease = 100F * increase / comparableCount;
-		return new CountStat(latestSample, comparableCount, percentIncrease);
+		return new PercentageCountStat(latestSample, comparableCount, percentIncrease);
 	}
 
 	private void sendEmail(
-			List<CountStat> aboveThresholdList,
-			List<CountStat> abovePercentageList,
+			List<ThresholdCountStat> aboveThresholdList,
+			List<PercentageCountStat> abovePercentageList,
 			List<LatestTableCount> staleList){
 		String primaryHref = emailService.startLinkBuilder()
 				.withLocalPath(paths.datarouter.nodewatch.tableCount)
@@ -202,20 +201,28 @@ public class TableSizeMonitoringService{
 		emailService.trySendJ2Html(emailBuilder);
 	}
 
-	public static class CountStat{
+	public record AboveThreshold(
+			List<ThresholdCountStat> aboveThreshold,
+			List<PercentageCountStat> abovePercentage){
+	}
 
+	public static class PercentageCountStat{
 		public final TableCount latestSample;
 		public final long previousCount;
 		public final float percentageIncrease;
 		public final long countDifference;
 
-		public CountStat(TableCount latestSample, long previousCount, Float percentIncrease){
-			this.latestSample = latestSample;
-			this.previousCount = previousCount;
-			this.percentageIncrease = percentIncrease;
-			this.countDifference = latestSample.getNumRows() - previousCount;
-		}
+	public PercentageCountStat(TableCount latestSample, long previousCount, Float percentIncrease){
+				this.latestSample = latestSample;
+				this.previousCount = previousCount;
+				this.percentageIncrease = percentIncrease;
+				this.countDifference = latestSample.getNumRows() - previousCount;
+			}
+	}
 
+	public record ThresholdCountStat(
+			TableCount latestSample,
+			long threshold){
 	}
 
 }

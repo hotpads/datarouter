@@ -22,29 +22,32 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.inject.Singleton;
 
-import io.datarouter.util.tuple.Pair;
-
 @Singleton
 public class InstanceInventory{
 
-	private final Map<InstanceInventoryKey<?>,List<Pair<String,?>>> map = new ConcurrentHashMap<>();
+	private final Map<InstanceInventoryKey<?>,List<InstanceItem<?>>> map = new ConcurrentHashMap<>();
 
 	@SuppressWarnings("unchecked") // safety enforced by the add method
-	public <T> List<Pair<String,T>> get(InstanceInventoryKey<T> key){
-		List<Pair<String,?>> list = map.get(key);
+	public <T> List<InstanceItem<T>> get(InstanceInventoryKey<T> key){
+		List<InstanceItem<?>> list = map.get(key);
 		if(list == null){
 			return List.of();
 		}
-		List<Pair<String,T>> result = new ArrayList<>();
-		for(Pair<String,?> pair : list){
-			result.add((Pair<String,T>)pair);
+		List<InstanceItem<T>> result = new ArrayList<>();
+		for(InstanceItem<?> instanceItem : list){
+			result.add((InstanceItem<T>) instanceItem);
 		}
 		return result;
 	}
 
 	public <T> void add(InstanceInventoryKey<T> key, String name, T item){
 		map.computeIfAbsent(key, $ -> new ArrayList<>())
-				.add(new Pair<>(name, item));
+				.add(new InstanceItem<>(name, item));
+	}
+
+	public record InstanceItem<T>(
+			String name,
+			T item){
 	}
 
 }

@@ -32,6 +32,7 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.instrumentation.exception.ExceptionRecordDto;
 import io.datarouter.joblet.DatarouterJobletCounters;
 import io.datarouter.joblet.JobletExceptionCategory;
 import io.datarouter.joblet.enums.JobletQueueMechanism;
@@ -295,7 +296,7 @@ public class JobletService{
 
 	public void handleJobletError(PhaseTimer timer, JobletRequest jobletRequest, Exception exception, String location){
 		exceptionRecorder.tryRecordException(exception, location, JobletExceptionCategory.JOBLET)
-				.map(ex -> ex.id)
+				.map(ExceptionRecordDto::id)
 				.ifPresent(jobletRequest::setExceptionRecordId);
 		jobletRequest.setReservedBy(null);
 		jobletRequest.setReservedAt(null);

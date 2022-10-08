@@ -45,13 +45,13 @@ public class SnapshotGroups implements BlockLoader{
 
 	@Override
 	public Block get(BlockKey blockKey){
-		SnapshotGroup group = groupById.get(blockKey.snapshotKey.groupId);
+		SnapshotGroup group = groupById.get(blockKey.snapshotKey().groupId());
 		return group.get(blockKey);
 	}
 
 	@Override
 	public Scanner<LeafBlock> leafRange(LeafBlockRange range){
-		SnapshotGroup group = groupById.get(range.firstBlockKey.snapshotKey.groupId);
+		SnapshotGroup group = groupById.get(range.firstBlockKey.snapshotKey().groupId());
 		return group.leafRange(range);
 	}
 

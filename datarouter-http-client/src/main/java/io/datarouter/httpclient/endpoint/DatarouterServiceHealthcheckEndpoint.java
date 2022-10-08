@@ -16,7 +16,9 @@
 package io.datarouter.httpclient.endpoint;
 
 import io.datarouter.httpclient.DatarouterServicePaths;
-import io.datarouter.httpclient.endpoint.EndpointType.NoOpEndpointType;
+import io.datarouter.httpclient.endpoint.caller.CallerTypeDatarouterService;
+import io.datarouter.httpclient.endpoint.java.BaseEndpoint;
+import io.datarouter.httpclient.endpoint.java.EndpointType.NoOpEndpointType;
 import io.datarouter.pathnode.PathNode;
 
 public class DatarouterServiceHealthcheckEndpoint extends BaseEndpoint<Object,NoOpEndpointType>{
@@ -24,7 +26,7 @@ public class DatarouterServiceHealthcheckEndpoint extends BaseEndpoint<Object,No
 	private static final PathNode PATH = new DatarouterServicePaths().datarouter.healthcheck;
 
 	private DatarouterServiceHealthcheckEndpoint(){
-		super(GET, PATH);
+		super(GET, PATH, CallerTypeDatarouterService.class);
 		setRetrySafe(false);
 		setShouldSkipLogs(true);
 		setShouldSkipSecuiry(true);
@@ -32,11 +34,6 @@ public class DatarouterServiceHealthcheckEndpoint extends BaseEndpoint<Object,No
 
 	public static DatarouterServiceHealthcheckEndpoint getEndpoint(){
 		return new DatarouterServiceHealthcheckEndpoint();
-	}
-
-	@Override
-	public CallerType getCallerType(){
-		return CallerTypes.DATAROUTER_SERVICE;
 	}
 
 }

@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.bytes.Codec;
 import io.datarouter.filesystem.node.object.DirectoryBlobStorage;
 import io.datarouter.filesystem.node.object.DirectoryBlobStorageNode;
 import io.datarouter.filesystem.node.queue.DirectoryGroupQueueNode;
@@ -31,6 +32,9 @@ import io.datarouter.filesystem.raw.DirectoryManager;
 import io.datarouter.filesystem.raw.DirectoryManager.DirectoryManagerFactory;
 import io.datarouter.filesystem.raw.queue.DirectoryQueue;
 import io.datarouter.model.databean.Databean;
+import io.datarouter.model.databean.EmptyDatabean;
+import io.datarouter.model.databean.EmptyDatabean.EmptyDatabeanFielder;
+import io.datarouter.model.key.EmptyDatabeanKey;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.scanner.Scanner;
@@ -46,9 +50,6 @@ import io.datarouter.storage.node.adapter.NodeAdapters;
 import io.datarouter.storage.node.op.raw.BlobQueueStorage.PhysicalBlobQueueStorageNode;
 import io.datarouter.storage.node.op.raw.BlobStorage.PhysicalBlobStorageNode;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
-import io.datarouter.storage.queue.BlobQueueMessage;
-import io.datarouter.storage.queue.BlobQueueMessage.BlobQueueMessageFielder;
-import io.datarouter.storage.queue.BlobQueueMessageKey;
 import io.datarouter.util.string.StringTool;
 
 @Singleton
@@ -86,11 +87,13 @@ implements BlobClientNodeFactory, BlobQueueClientNodeFactory, QueueClientNodeFac
 	/*-------------- BlobQueueClientNodeFactory --------------*/
 
 	@Override
-	public PhysicalBlobQueueStorageNode createBlobQueueNode(
-			NodeParams<BlobQueueMessageKey,BlobQueueMessage,BlobQueueMessageFielder> nodeParams){
+	public <T> PhysicalBlobQueueStorageNode<T> createBlobQueueNode(
+			NodeParams<EmptyDatabeanKey,EmptyDatabean,EmptyDatabeanFielder> nodeParams,
+			Codec<T,byte[]> codec){
 		var node = filesystemNodeFactory.createBlobNode(
 				makeDirectoryQueue(nodeParams),
-				nodeParams);
+				nodeParams,
+				codec);
 		return nodeAdapters.wrapBlobQueueNode(node);
 	}
 

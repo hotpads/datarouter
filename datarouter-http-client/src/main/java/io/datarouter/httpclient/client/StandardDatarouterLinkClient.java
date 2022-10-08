@@ -25,9 +25,9 @@ import javax.inject.Singleton;
 
 import org.apache.http.impl.client.CloseableHttpClient;
 
-import io.datarouter.httpclient.endpoint.BaseLink;
-import io.datarouter.httpclient.endpoint.LinkTool;
-import io.datarouter.httpclient.endpoint.LinkType;
+import io.datarouter.httpclient.endpoint.link.BaseLink;
+import io.datarouter.httpclient.endpoint.link.LinkTool;
+import io.datarouter.httpclient.endpoint.link.LinkType;
 
 @Singleton
 public class StandardDatarouterLinkClient<

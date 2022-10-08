@@ -111,11 +111,13 @@ public class JobHandler extends BaseHandler{
 	}
 
 	@Handler
-	StringMav run(String name){
+	StringMav run(String name, OptionalBoolean detached){
 		Class<? extends BaseJob> jobClass = BaseJob.parseClass(name);
 		Date startTime = new Date();
 		String triggeredBy = getSessionInfo().getRequiredSession().getUsername();
-		var started = jobScheduler.triggerManualJob(jobClass, triggeredBy);
+		var started = detached.isPresent()
+				? jobScheduler.triggerManualJob(jobClass, triggeredBy, detached.get())
+				: jobScheduler.triggerManualJob(jobClass, triggeredBy);
 		String message;
 		if(started.failed()){
 			message = "Could not start " + jobClass.getSimpleName() + " reason=" + started.reason();
@@ -174,6 +176,7 @@ public class JobHandler extends BaseHandler{
 				jobPackage.jobClass.getName(),
 				jobPackage.jobClass.getSimpleName(),
 				jobPackage.shouldRunSupplier.get(),
+				jobPackage.shouldRunDetached,
 				heartbeatStatus,
 				jobPackage.usesLocking() ? "locked" : "parallel",
 				jobPackage.getCronExpressionString().orElse(""),
@@ -208,6 +211,7 @@ public class JobHandler extends BaseHandler{
 		public final String className;
 		public final String classSimpleName;
 		public final boolean shouldRun;
+		public final boolean detachedJob;
 		public final String heartbeatStatus;
 		public final String jobSchedule;
 		public final String cronExpression;
@@ -221,6 +225,7 @@ public class JobHandler extends BaseHandler{
 				String className,
 				String classSimpleName,
 				boolean shouldRun,
+				boolean detachedJob,
 				String status,
 				String jobSchedule,
 				String cronExpression,
@@ -232,6 +237,7 @@ public class JobHandler extends BaseHandler{
 			this.className = className;
 			this.classSimpleName = classSimpleName;
 			this.shouldRun = shouldRun;
+			this.detachedJob = detachedJob;
 			this.heartbeatStatus = status;
 			this.jobSchedule = jobSchedule;
 			this.cronExpression = cronExpression;
@@ -255,6 +261,10 @@ public class JobHandler extends BaseHandler{
 
 		public boolean isShouldRun(){
 			return shouldRun;
+		}
+
+		public boolean isDetachedJob(){
+			return detachedJob;
 		}
 
 		public String getHeartbeatStatus(){

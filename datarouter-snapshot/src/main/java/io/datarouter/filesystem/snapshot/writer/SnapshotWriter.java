@@ -89,7 +89,7 @@ public class SnapshotWriter implements AutoCloseable{
 				config, exec);
 		lastStatusLogMs = System.currentTimeMillis();
 
-		messages = new LinkedBlockingDeque<>(config.batchQueueLength);
+		messages = new LinkedBlockingDeque<>(config.batchQueueLength());
 		writerThreadCompletionLatch = new CountDownLatch(1);
 
 		//branch encoders
@@ -97,16 +97,16 @@ public class SnapshotWriter implements AutoCloseable{
 		this.numBranchBlocksByLevel = new ArrayList<>();
 
 		//leaf encoder
-		this.leafBlockEncoder = config.leafBlockEncoderSupplier.get();
+		this.leafBlockEncoder = config.leafBlockEncoderSupplier().get();
 		this.numLeafBlocks = 0;
 
 		//value encoder
-		this.numColumns = config.numColumns;
+		this.numColumns = config.numColumns();
 		this.valueBlockEncoders = new ArrayList<>();
 		this.numValueBlocksByColumn = new ArrayList<>();
 		this.numValuesInBlockByColumn = new ArrayList<>();
 		IntStream.range(0, numColumns).forEach($ -> {
-			valueBlockEncoders.add(config.valueBlockEncoderSupplier.get());
+			valueBlockEncoders.add(config.valueBlockEncoderSupplier().get());
 			numValueBlocksByColumn.add(0);
 			numValuesInBlockByColumn.add(0);
 		});
@@ -151,7 +151,7 @@ public class SnapshotWriter implements AutoCloseable{
 			String message = String.format("Expected %s values but found %s", numColumns, entry.columnValues.length);
 			throw new IllegalArgumentException(message);
 		}
-		if(config.sorted
+		if(config.sorted()
 				&& lastEntry != null
 				&& leafBlockEncoder.numRecords() == 0){// check sorting within block during encoding
 			int diff = Arrays.compareUnsigned(
@@ -185,10 +185,10 @@ public class SnapshotWriter implements AutoCloseable{
 			}
 		}
 		leafBlockEncoder.add(numLeafBlocks, keyId, entry, valueBlockIds, valueIndexes);
-		if(leafBlockEncoder.numBytes() >= config.leafBlockSize){
+		if(leafBlockEncoder.numBytes() >= config.leafBlockSize()){
 			addBranchEntry(0, keyId, entry, numLeafBlocks);
 			blockWriter.submitLeaf(leafBlockEncoder);
-			leafBlockEncoder = config.leafBlockEncoderSupplier.get();
+			leafBlockEncoder = config.leafBlockEncoderSupplier().get();
 			++numLeafBlocks;
 		}
 
@@ -197,9 +197,9 @@ public class SnapshotWriter implements AutoCloseable{
 			ValueBlockEncoder valueBlockEncoder = valueBlockEncoders.get(column);
 			valueBlockEncoder.add(entry, column);
 			numValuesInBlockByColumn.set(column, numValuesInBlockByColumn.get(column) + 1);
-			if(valueBlockEncoder.numBytes() >= config.valueBlockSize){
+			if(valueBlockEncoder.numBytes() >= config.valueBlockSize()){
 				blockWriter.submitValueBlock(column, numValueBlocksByColumn.get(column), valueBlockEncoder);
-				valueBlockEncoders.set(column, config.valueBlockEncoderSupplier.get());
+				valueBlockEncoders.set(column, config.valueBlockEncoderSupplier().get());
 				numValueBlocksByColumn.set(column, numValueBlocksByColumn.get(column) + 1);
 				numValuesInBlockByColumn.set(column, 0);
 			}
@@ -211,16 +211,16 @@ public class SnapshotWriter implements AutoCloseable{
 
 	private void addBranchEntry(int level, long keyId, SnapshotEntry entry, int childBlockId){
 		if(level > branchBlockEncoders.size() - 1){
-			branchBlockEncoders.add(config.branchBlockEncoderFactory.apply(level));
+			branchBlockEncoders.add(config.branchBlockEncoderFactory().apply(level));
 			numBranchBlocksByLevel.add(0);
 		}
 		BranchBlockEncoder encoder = branchBlockEncoders.get(level);
 		int blockId = numBranchBlocksByLevel.get(level);
 		encoder.add(blockId, keyId, entry, childBlockId);
-		if(encoder.numBytes() >= config.branchBlockSize){
+		if(encoder.numBytes() >= config.branchBlockSize()){
 			addBranchEntry(level + 1, keyId, entry, numBranchBlocksByLevel.get(level));
 			blockWriter.submitBranch(encoder);
-			branchBlockEncoders.set(level, config.branchBlockEncoderFactory.apply(level));
+			branchBlockEncoders.set(level, config.branchBlockEncoderFactory().apply(level));
 			numBranchBlocksByLevel.set(level, numBranchBlocksByLevel.get(level) + 1);
 		}
 	}
@@ -253,7 +253,7 @@ public class SnapshotWriter implements AutoCloseable{
 					addBranchEntry(level + 1, numKeys, lastEntry, numBranchBlocksByLevel.get(level));
 				}
 				blockWriter.submitBranch(branchEncoder);
-				branchBlockEncoders.set(level, config.branchBlockEncoderFactory.apply(level));
+				branchBlockEncoders.set(level, config.branchBlockEncoderFactory().apply(level));
 				numBranchBlocksByLevel.set(level, numBranchBlocksByLevel.get(level) + 1);
 			}
 		});
@@ -279,14 +279,14 @@ public class SnapshotWriter implements AutoCloseable{
 		String logTokens = Scanner.of(root.toKeyValueStrings().entrySet())
 				.map(kv -> kv.getKey() + "=" + kv.getValue())
 				.collect(Collectors.joining(", "));
-		logger.warn("Completed group={}, id={}, {}", snapshotKey.groupId, snapshotKey.snapshotId, logTokens);
+		logger.warn("Completed group={}, id={}, {}", snapshotKey.groupId(), snapshotKey.snapshotId(), logTokens);
 		return Optional.of(root);
 	}
 
 	private void logStatusOccasional(){
 		long now = System.currentTimeMillis();
 		long elapsedMs = now - lastStatusLogMs;
-		if(elapsedMs > config.logPeriodMs){
+		if(elapsedMs > config.logPeriodMs()){
 			logStatus();
 		}
 	}

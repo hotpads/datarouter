@@ -99,9 +99,8 @@ public class Bootstrap4HomepageCreatorService{
 	}
 
 	public UlTag docLinks(){
-		return ul(each(documentationNamesAndLinksSupplier.getReadmeDocs().entrySet(), entry -> {
-			return li(a(entry.getKey()).withHref(entry.getValue()));
-		}));
+		return ul(each(documentationNamesAndLinksSupplier.getReadmeDocs().entrySet(),
+				entry -> li(a(entry.getKey()).withHref(entry.getValue()))));
 	}
 
 	public DivTag appNavbarCards(){
@@ -117,7 +116,7 @@ public class Bootstrap4HomepageCreatorService{
 	}
 
 	private DivTag makeLinkBox(NavBarItemGroup group){
-		var title = div(group.category.getDisplay())
+		var title = div(group.category.display())
 				.withClass("card-header");
 		var body = div(each(group.items, this::makeLink))
 				.withClass(" card-body");

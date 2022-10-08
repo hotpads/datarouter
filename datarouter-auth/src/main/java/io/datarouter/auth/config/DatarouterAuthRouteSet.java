@@ -43,6 +43,7 @@ public class DatarouterAuthRouteSet extends BaseRouteSet{
 		handle(paths.admin.createUserSubmit).withHandler(AdminEditUserHandler.class);
 		handle(paths.admin.editUser).withHandler(AdminEditUserHandler.class);
 		handle(paths.admin.getUserDetails).withHandler(AdminEditUserHandler.class);
+		handle(paths.admin.getUserProfileImage).withHandler(AdminEditUserHandler.class);
 		handle(paths.admin.listUsers).withHandler(AdminEditUserHandler.class);
 		handle(paths.admin.updatePassword).withHandler(AdminEditUserHandler.class);
 		handle(paths.admin.updateUserDetails).withHandler(AdminEditUserHandler.class);

@@ -32,7 +32,6 @@ import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.file.PathbeanKey;
 import io.datarouter.storage.util.Subpath;
-import io.datarouter.util.tuple.Pair;
 
 public class DatabeanToBlobCodec<
 		PK extends PrimaryKey<PK>,
@@ -69,7 +68,7 @@ public class DatabeanToBlobCodec<
 		maxKeyLength = clientMaxKeyLength - pathLength;
 	}
 
-	public Optional<Pair<PathbeanKey,byte[]>> encodeDatabeanIfValid(D databean){
+	public Optional<PathBbeanKeyAndValue> encodeDatabeanIfValid(D databean){
 		Optional<PathbeanKey> pathbeanKey = encodeKeyIfValid(databean.getKey());
 		if(pathbeanKey.isEmpty()){
 			return Optional.empty();
@@ -79,7 +78,12 @@ public class DatabeanToBlobCodec<
 			logger.warn("object too big for {} length={} key={}", clientTypeName, value.length, databean.getKey());
 			return Optional.empty();
 		}
-		return Optional.of(new Pair<>(pathbeanKey.orElseThrow(), value));
+		return Optional.of(new PathBbeanKeyAndValue(pathbeanKey.orElseThrow(), value));
+	}
+
+	public record PathBbeanKeyAndValue(
+			PathbeanKey pathbeanKey,
+			byte[] value){
 	}
 
 	public Optional<PathbeanKey> encodeKeyIfValid(PK pk){

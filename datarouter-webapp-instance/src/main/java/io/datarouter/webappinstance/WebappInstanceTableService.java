@@ -49,7 +49,6 @@ import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 
 import io.datarouter.scanner.Scanner;
-import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.html.j2html.J2HtmlTable;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
@@ -231,11 +230,16 @@ public class WebappInstanceTableService{
 
 	}
 
+	public record CellClass<T>(
+			String cell,
+			Predicate<T> predicate){
+	}
+
 	public static class WebappInstanceColumn<T>{
 
 		private final String name;
 		private final Function<T,?> getValue;
-		private final List<Pair<String,Predicate<T>>> cellClasses = new ArrayList<>();
+		private final List<CellClass<T>> cellClasses = new ArrayList<>();
 		private boolean showUsageStats = false;
 		private boolean hideUsageStatsBreakdown = false;
 		private boolean cellLinkTargetBlank = false;
@@ -285,7 +289,7 @@ public class WebappInstanceTableService{
 		}
 
 		public WebappInstanceColumn<T> withCellClass(String className, Predicate<T> addClass){
-			cellClasses.add(new Pair<>(className, addClass));
+			cellClasses.add(new CellClass<>(className, addClass));
 			return this;
 		}
 
@@ -311,8 +315,8 @@ public class WebappInstanceTableService{
 			getTitle.map(fn -> fn.apply(item))
 					.ifPresent(td::withTitle);
 			Scanner.of(cellClasses)
-					.include(pair -> pair.getRight().test(item))
-					.map(Pair::getLeft)
+					.include(pair -> pair.predicate().test(item))
+					.map(CellClass::cell)
 					.forEach(td::withClass);
 			return td;
 		}

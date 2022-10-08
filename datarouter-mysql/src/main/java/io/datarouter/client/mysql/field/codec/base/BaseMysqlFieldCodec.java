@@ -15,20 +15,12 @@
  */
 package io.datarouter.client.mysql.field.codec.base;
 
-import java.sql.ResultSet;
-
 import io.datarouter.client.mysql.connection.MysqlConnectionPoolHolder;
 import io.datarouter.client.mysql.ddl.domain.MysqlLiveTableOptions;
 import io.datarouter.client.mysql.field.MysqlFieldCodec;
 import io.datarouter.model.field.Field;
 
-public abstract class BaseMysqlFieldCodec<T,F extends Field<T>> implements MysqlFieldCodec<T>{
-
-	protected F field;
-
-	public BaseMysqlFieldCodec(F field){
-		this.field = field;
-	}
+public abstract class BaseMysqlFieldCodec<T,F extends Field<T>> implements MysqlFieldCodec<T,F>{
 
 	@Override
 	public String getSqlParameter(){
@@ -36,20 +28,21 @@ public abstract class BaseMysqlFieldCodec<T,F extends Field<T>> implements Mysql
 	}
 
 	@Override
-	public String getIntroducedParameter(MysqlLiveTableOptions mysqlTableOptions, boolean disableIntroducer){
-		return introduce(mysqlTableOptions, "?", disableIntroducer);
+	public String getIntroducedParameter(MysqlLiveTableOptions mysqlTableOptions, boolean disableIntroducer, F field){
+		return introduce(mysqlTableOptions, "?", disableIntroducer, field);
 	}
 
-	private String introduce(MysqlLiveTableOptions mysqlTableOptions, String parameter, boolean disableIntroducer){
-		if(!shouldIntroduceLiteral(mysqlTableOptions, disableIntroducer)){
+	private String introduce(MysqlLiveTableOptions mysqlTableOptions, String parameter, boolean disableIntroducer,
+			F field){
+		if(!shouldIntroduceLiteral(mysqlTableOptions, disableIntroducer, field)){
 			return parameter;
 		}
 		return "_" + mysqlTableOptions.getCharacterSet().name() + " " + parameter + " COLLATE "
 				+ mysqlTableOptions.getCollation().name();
 	}
 
-	private boolean shouldIntroduceLiteral(MysqlLiveTableOptions mysqlTableOptions, boolean disableIntroducer){
-		if(!getMysqlColumnType().isIntroducible() || disableIntroducer){
+	private boolean shouldIntroduceLiteral(MysqlLiveTableOptions mysqlTableOptions, boolean disableIntroducer, F field){
+		if(!getMysqlColumnType(field).isIntroducible() || disableIntroducer){
 			return false;
 		}
 		boolean characterSetConnectionMismatch = mysqlTableOptions
@@ -58,12 +51,6 @@ public abstract class BaseMysqlFieldCodec<T,F extends Field<T>> implements Mysql
 				.getCollation() != MysqlConnectionPoolHolder.COLLATION_CONNECTION;
 		// literals only benefit from introducer if the column's settings differ from the connection's settings
 		return characterSetConnectionMismatch || collationConnectionMismatch;
-	}
-
-	@Override
-	public void fromMysqlResultSetUsingReflection(Object targetFieldSet, ResultSet resultSet){
-		T value = fromMysqlResultSetButDoNotSet(resultSet);
-		field.setUsingReflection(targetFieldSet, value);
 	}
 
 }

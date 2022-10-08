@@ -19,6 +19,7 @@ public enum HttpStatusCode{
 	SC_200_OK(200, "Ok"),
 	SC_201_CREATED(201, "Created"),
 	SC_202_ACCEPTED(202, "Accepted"),
+	SC_204_NO_CONTENT(204, "No Content"),
 	SC_301_MOVED_PERMANENTLY(301, "Moved Permanently"),
 	SC_302_MOVED_TEMPORARILY(302, "Moved Temporarily"),
 	SC_307_TEMPORARILY_REDIRECT(307, "Temporarily Redirect"),

@@ -26,17 +26,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.util.io.ReaderTool;
-import io.datarouter.util.tuple.Pair;
 
 public class NetTool{
 	private static final Logger logger = LoggerFactory.getLogger(NetTool.class);
 
-	public static Optional<String> curl(String method, String location, boolean logError, Pair<String,String> header){
+	public static Optional<String> curl(String method, String location, boolean logError, Header header){
 		try{
 			HttpURLConnection connection = (HttpURLConnection)new URL(location).openConnection();
 			connection.setRequestMethod(method);
 			if(header != null){
-				connection.setRequestProperty(header.getLeft(), header.getRight());
+				connection.setRequestProperty(header.key(), header.value());
 			}
 			connection.setConnectTimeout(3_000);
 			connection.setReadTimeout(3_000);
@@ -49,6 +48,11 @@ public class NetTool{
 			}
 			return Optional.empty();
 		}
+	}
+
+	public record Header(
+			String key,
+			String value){
 	}
 
 }

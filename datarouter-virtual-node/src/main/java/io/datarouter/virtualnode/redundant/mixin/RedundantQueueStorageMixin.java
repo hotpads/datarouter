@@ -61,7 +61,7 @@ extends QueueStorage<PK,D>, RedundantQueueNode<PK,D,F,N>{
 
 	@Override
 	default void ack(QueueMessageKey key, Config config){
-		PhaseTimer phaseTimer = new PhaseTimer();
+		var phaseTimer = new PhaseTimer();
 		for(N node : getReadNodes()){
 			try{
 				node.ack(key, config);
@@ -76,7 +76,7 @@ extends QueueStorage<PK,D>, RedundantQueueNode<PK,D,F,N>{
 
 	@Override
 	default void ackMulti(Collection<QueueMessageKey> keys, Config config){
-		PhaseTimer phaseTimer = new PhaseTimer();
+		var phaseTimer = new PhaseTimer();
 		for(N node : getReadNodes()){
 			try{
 				node.ackMulti(keys, config);
@@ -103,7 +103,6 @@ extends QueueStorage<PK,D>, RedundantQueueNode<PK,D,F,N>{
 	default QueueMessage<PK,D> peek(Config config){
 		var phaseTimer = new PhaseTimer();
 		return Scanner.of(getReadNodes())
-				.shuffle()
 				.map(node -> {
 					QueueMessage<PK,D> databean = node.peek(config);
 					phaseTimer.add("node " + node);
@@ -115,7 +114,7 @@ extends QueueStorage<PK,D>, RedundantQueueNode<PK,D,F,N>{
 
 	@Override
 	default List<QueueMessage<PK,D>> peekMulti(Config config){
-		PhaseTimer phaseTimer = new PhaseTimer();
+		var phaseTimer = new PhaseTimer();
 		return Scanner.of(getReadNodes())
 				.map(node -> {
 					List<QueueMessage<PK,D>> messages = node.peekMulti(config);

@@ -24,12 +24,14 @@ import java.util.Optional;
 
 import javax.inject.Inject;
 
-import io.datarouter.auth.service.AccountCallerTypeRegistry;
+import io.datarouter.auth.service.AccountCallerTypeRegistry2;
 import io.datarouter.auth.storage.account.DatarouterAccount;
 import io.datarouter.auth.storage.account.DatarouterAccountDao;
 import io.datarouter.auth.storage.account.DatarouterAccountKey;
+import io.datarouter.httpclient.endpoint.caller.CallerType;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDtoBuilder;
+import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.types.Param;
@@ -53,7 +55,7 @@ public class DatarouterAccountCallerTypeHandler extends BaseHandler{
 	@Inject
 	private Bootstrap4PageFactory pageFactory;
 	@Inject
-	private AccountCallerTypeRegistry accountCallerTypeRegistry;
+	private AccountCallerTypeRegistry2 accountCallerTypeRegistry;
 
 	@Handler(defaultHandler = true)
 	public Mav updateCallerType(
@@ -65,7 +67,8 @@ public class DatarouterAccountCallerTypeHandler extends BaseHandler{
 				.sort()
 				.list();
 		List<String> possibleCallerTypes = accountCallerTypeRegistry.get().stream()
-				.map(type -> type.name)
+				.map(ReflectionTool::create)
+				.map(CallerType::getName)
 				.sorted()
 				.distinct()
 				.toList();

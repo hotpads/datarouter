@@ -16,6 +16,7 @@
 package io.datarouter.conveyor.queue;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -24,6 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.conveyor.BaseConveyor;
 import io.datarouter.conveyor.ConveyorCounters;
+import io.datarouter.conveyor.ConveyorGaugeRecorder;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.storage.queue.GroupQueueMessage;
@@ -48,8 +50,9 @@ extends BaseConveyor{
 			GroupQueueConsumer<PK,D> consumer,
 			Supplier<Boolean> compactExceptionLogging,
 			Duration peekTimeout,
-			ExceptionRecorder exceptionRecorder){
-		super(name, shouldRun, compactExceptionLogging, exceptionRecorder);
+			ExceptionRecorder exceptionRecorder,
+			ConveyorGaugeRecorder metricRecorder){
+		super(name, shouldRun, compactExceptionLogging, exceptionRecorder, metricRecorder);
 		this.consumer = consumer;
 		this.peekTimeout = peekTimeout;
 	}
@@ -57,7 +60,10 @@ extends BaseConveyor{
 	@Override
 	public ProcessBatchResult processBatch(){
 		var timer = new PhaseTimer();
+		Instant beforePeek = Instant.now();
 		GroupQueueMessage<PK,D> message = consumer.peek(peekTimeout, VISIBILITY_TIMEOUT);
+		Instant afterPeek = Instant.now();
+		gaugeRecorder.savePeekDurationMs(this, Duration.between(beforePeek, afterPeek).toMillis());
 		if(message == null){
 			logger.info("peeked conveyor={} nullMessage", name);
 			return new ProcessBatchResult(false);
@@ -65,18 +71,27 @@ extends BaseConveyor{
 		List<D> databeans = message.getDatabeans();
 		logger.info("peeked conveyor={} messageCount={}", name, databeans.size());
 		timer.add("peek");
-		long start = System.currentTimeMillis();
+		Instant beforeProcessBuffer = Instant.now();
 		if(!processDatabeansShouldAck(databeans)){
 			return new ProcessBatchResult(true);
 		}
-		long durationMs = System.currentTimeMillis() - start;
-		if(durationMs > VISIBILITY_TIMEOUT.toMillis()){
-			logger.warn("slow conveyor conveyor={} durationMs={} databeanCount={}", name, durationMs, databeans.size());
+		Instant afterProcessBuffer = Instant.now();
+		gaugeRecorder.saveProcessBufferDurationMs(this, Duration.between(beforeProcessBuffer, afterProcessBuffer)
+				.toMillis());
+		if(Duration.between(beforeProcessBuffer, afterProcessBuffer)
+				.toMillis() > VISIBILITY_TIMEOUT.toMillis()){
+			logger.warn("slow conveyor conveyor={} durationMs={} databeanCount={}", name,
+					Duration.between(beforeProcessBuffer, afterProcessBuffer).toMillis(), databeans.size());
 		}
 		logger.info("wrote conveyor={} messageCount={}", name, databeans.size());
 		timer.add("wrote");
 		ConveyorCounters.incPutMultiOpAndDatabeans(this, databeans.size());
+
+		Instant beforeAck = Instant.now();
 		consumer.ack(message.getKey());
+		Instant afterAck = Instant.now();
+		gaugeRecorder.saveAckDurationMs(this, Duration.between(beforeAck, afterAck).toMillis());
+
 		logger.info("acked conveyor={} messageCount={}", name, databeans.size());
 		timer.add("acked");
 		ConveyorCounters.incAck(this);

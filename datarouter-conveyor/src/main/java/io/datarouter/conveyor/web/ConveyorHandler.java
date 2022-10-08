@@ -21,13 +21,13 @@ import static j2html.TagCreator.h4;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
 import io.datarouter.conveyor.BaseConveyors;
 import io.datarouter.conveyor.dto.ConveyorSummary;
 import io.datarouter.inject.DatarouterInjector;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.html.j2html.J2HtmlTable;
@@ -45,11 +45,10 @@ public class ConveyorHandler extends BaseHandler{
 	@Handler
 	private Mav list(){
 		Map<String,BaseConveyors> allBaseConveyors = injector.getInstancesOfType(BaseConveyors.class);
-		List<ConveyorSummary> collect = allBaseConveyors.values().stream()
+		List<ConveyorSummary> collect = Scanner.of(allBaseConveyors.values())
 				.map(BaseConveyors::getExecsAndConveyorsbyName)
-				.map(ConveyorSummary::summarize)
-				.flatMap(Collection::stream)
-				.collect(Collectors.toList());
+				.concatIter(ConveyorSummary::summarize)
+				.list();
 		return pageFactory.startBuilder(request)
 				.withTitle("Conveyors")
 				.withRequires(DatarouterWebRequireJsV2.SORTTABLE)

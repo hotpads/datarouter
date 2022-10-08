@@ -101,11 +101,10 @@ implements PhysicalSortedMapStorageNode<PK,D,F>, HBaseIncrement<PK>{
 			return;
 		}
 		Durability durability = HBaseConfigTool.getDurability(config);
-		boolean ignoreNulls = config.findIgnoreNullFields().orElse(false);
 		int batchSize = config.findRequestBatchSize().orElse(100);
 		Scanner.of(databeans)
 				.include(Objects::nonNull)
-				.map(databean -> makePutAndDelete(databean, ignoreNulls, durability))
+				.map(databean -> makePutAndDelete(databean, durability))
 				.batch(batchSize)
 				.map(ActionBatch::new)
 				.forEach(batch -> {
@@ -117,7 +116,7 @@ implements PhysicalSortedMapStorageNode<PK,D,F>, HBaseIncrement<PK>{
 				});
 	}
 
-	private PutAndDelete makePutAndDelete(D databean, boolean ignoreNulls, Durability durability){
+	private PutAndDelete makePutAndDelete(D databean, Durability durability){
 		byte[] keyBytesWithPrefix = queryBuilder.getPkBytesWithPartition(databean.getKey());
 		Put put = new Put(keyBytesWithPrefix).setDurability(durability);
 		Delete delete = new Delete(keyBytesWithPrefix).setDurability(durability);
@@ -131,11 +130,9 @@ implements PhysicalSortedMapStorageNode<PK,D,F>, HBaseIncrement<PK>{
 			byte[] columnNameBytes = field.getKey().getColumnNameBytes();
 			byte[] valueBytes = field.getValueBytes();
 			if(valueBytes == null){
-				if(!ignoreNulls){
-					delete.addColumns(HBaseClientManager.DEFAULT_FAMILY_QUALIFIER, columnNameBytes);
-					deleteBytes += columnNameBytes.length;
-					++numCellsDeleted;
-				}
+				delete.addColumns(HBaseClientManager.DEFAULT_FAMILY_QUALIFIER, columnNameBytes);
+				deleteBytes += columnNameBytes.length;
+				++numCellsDeleted;
 			}else{
 				put.addColumn(HBaseClientManager.DEFAULT_FAMILY_QUALIFIER, columnNameBytes, valueBytes);
 				putBytes += columnNameBytes.length;

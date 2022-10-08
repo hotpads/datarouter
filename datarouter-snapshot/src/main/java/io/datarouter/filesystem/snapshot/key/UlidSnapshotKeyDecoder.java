@@ -17,14 +17,14 @@ package io.datarouter.filesystem.snapshot.key;
 
 import java.time.Instant;
 
-import io.datarouter.util.UlidTool;
+import io.datarouter.util.Ulid;
 
 public class UlidSnapshotKeyDecoder implements SnapshotKeyDecoder{
 
 	@Override
 	public Instant toInstant(SnapshotKey snapshotKey){
 		try{
-			return UlidTool.getInstant(snapshotKey.snapshotId);
+			return new Ulid(snapshotKey.snapshotId()).getInstant();
 		}catch(Exception e){
 			String message = String.format("snapshotKey=%s", snapshotKey);
 			throw new IllegalArgumentException(message, e);

@@ -34,7 +34,7 @@ import io.datarouter.instrumentation.trace.TraceSpanGroupType;
 import io.datarouter.instrumentation.trace.Tracer;
 import io.datarouter.instrumentation.trace.W3TraceContext;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.util.UlidTool;
+import io.datarouter.util.Ulid;
 
 public class DatarouterSummaryTracer implements Tracer{
 
@@ -54,7 +54,7 @@ public class DatarouterSummaryTracer implements Tracer{
 	private boolean truncated = false;
 
 	public DatarouterSummaryTracer(){
-		this(UlidTool.nextUlid(), null, new W3TraceContext(Trace2Dto.getCurrentTimeInNs()));
+		this(new Ulid().value(), null, new W3TraceContext(Trace2Dto.getCurrentTimeInNs()));
 	}
 
 	private DatarouterSummaryTracer(String traceId, String keyPrefix, W3TraceContext w3TraceContext){

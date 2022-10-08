@@ -40,11 +40,8 @@ import org.apache.http.impl.client.LaxRedirectStrategy;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.ssl.SSLContextBuilder;
 
-import io.datarouter.gson.serialization.GsonTool;
-import io.datarouter.httpclient.endpoint.EndpointType;
-import io.datarouter.httpclient.endpoint.LinkType;
-import io.datarouter.httpclient.json.GsonJsonSerializer;
-import io.datarouter.httpclient.json.JsonSerializer;
+import io.datarouter.httpclient.endpoint.java.EndpointType;
+import io.datarouter.httpclient.endpoint.link.LinkType;
 import io.datarouter.httpclient.link.DatarouterLinkSettings;
 import io.datarouter.httpclient.security.CsrfGenerator;
 import io.datarouter.httpclient.security.CsrfGenerator.RefreshableCsrfGenerator;
@@ -52,13 +49,12 @@ import io.datarouter.httpclient.security.SecurityParameters;
 import io.datarouter.httpclient.security.SignatureGenerator;
 import io.datarouter.httpclient.security.SignatureGenerator.RefreshableSignatureGenerator;
 import io.datarouter.instrumentation.refreshable.RefreshableSupplier;
+import io.datarouter.json.JsonSerializer;
 
 public class DatarouterHttpClientBuilder{
 
 	public static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(3);
 	public static final int DEFAULT_MAX_TOTAL_CONNECTIONS = 200;
-
-	private static final JsonSerializer DEFAULT_SERIALIZER = new GsonJsonSerializer(GsonTool.GSON);
 
 	private int timeoutMs; // must be int due to RequestConfig.set*Timeout() methods
 	private int connectTimeoutMs;
@@ -85,7 +81,8 @@ public class DatarouterHttpClientBuilder{
 	private Supplier<Boolean> debugLog;
 	private String apiKeyFieldName;
 
-	public DatarouterHttpClientBuilder(){
+	public DatarouterHttpClientBuilder(JsonSerializer jsonSerializer){
+		this.jsonSerializer = jsonSerializer;
 		this.timeoutMs = (int)DEFAULT_TIMEOUT.toMillis();
 		this.connectTimeoutMs = (int)DEFAULT_TIMEOUT.toMillis();
 		this.maxTotalConnections = DEFAULT_MAX_TOTAL_CONNECTIONS;
@@ -151,9 +148,6 @@ public class DatarouterHttpClientBuilder{
 		if(config == null){
 			config = new DatarouterHttpClientDefaultConfig();
 		}
-		if(jsonSerializer == null){
-			jsonSerializer = DEFAULT_SERIALIZER;
-		}
 		if(enableBreakers == null){
 			enableBreakers = () -> false;
 		}
@@ -195,11 +189,6 @@ public class DatarouterHttpClientBuilder{
 			throw new UnsupportedOperationException("You cannot change the retry count of a custom http client");
 		}
 		this.retryCount = retryCount;
-		return this;
-	}
-
-	public DatarouterHttpClientBuilder setJsonSerializer(JsonSerializer jsonSerializer){
-		this.jsonSerializer = jsonSerializer;
 		return this;
 	}
 

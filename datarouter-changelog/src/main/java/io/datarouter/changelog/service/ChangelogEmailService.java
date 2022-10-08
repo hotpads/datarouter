@@ -29,7 +29,6 @@ import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDto;
 import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.storage.config.properties.ServiceName;
-import io.datarouter.util.tuple.Twin;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.TableTag;
@@ -75,18 +74,23 @@ public class ChangelogEmailService{
 			String comment,
 			String note){
 		var rows = List.of(
-				new Twin<>("Service", serviceName.get()),
-				new Twin<>("ServerName", serverName.get()),
-				new Twin<>("ChangelogType", changelogType),
-				new Twin<>("Name", name),
-				new Twin<>("Action", action),
-				new Twin<>("Username", username),
-				new Twin<>("Comment", comment),
-				new Twin<>("Note", note));
-		return new J2HtmlEmailTable<Twin<String>>()
-				.withColumn(new J2HtmlEmailTableColumn<>(null, row -> makeDivBoldRight(row.getLeft())))
-				.withColumn(new J2HtmlEmailTableColumn<>(null, row -> makeSpanWhiteSpacePre(row.getRight())))
+				new Row("Service", serviceName.get()),
+				new Row("ServerName", serverName.get()),
+				new Row("ChangelogType", changelogType),
+				new Row("Name", name),
+				new Row("Action", action),
+				new Row("Username", username),
+				new Row("Comment", comment),
+				new Row("Note", note));
+		return new J2HtmlEmailTable<Row>()
+				.withColumn(new J2HtmlEmailTableColumn<>(null, row -> makeDivBoldRight(row.header())))
+				.withColumn(new J2HtmlEmailTableColumn<>(null, row -> makeSpanWhiteSpacePre(row.content())))
 				.build(rows);
+	}
+
+	private record Row(
+			String header,
+			String content){
 	}
 
 	private static DomContent makeDivBoldRight(String text){

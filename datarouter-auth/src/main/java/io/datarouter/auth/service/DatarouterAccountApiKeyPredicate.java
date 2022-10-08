@@ -23,7 +23,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import io.datarouter.auth.storage.accountpermission.DatarouterAccountPermissionKey;
 import io.datarouter.httpclient.security.SecurityParameters;
-import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.dispatcher.ApiKeyPredicate;
 import io.datarouter.web.dispatcher.DispatchRule;
 
@@ -42,7 +41,9 @@ public class DatarouterAccountApiKeyPredicate extends ApiKeyPredicate{
 		private DatarouterAccountCounters datarouterAccountCounters;
 
 		public DatarouterAccountApiKeyPredicate create(String apiKeyFieldName){
-			return new DatarouterAccountApiKeyPredicate(apiKeyFieldName, datarouterAccountCredentialService,
+			return new DatarouterAccountApiKeyPredicate(
+					apiKeyFieldName,
+					datarouterAccountCredentialService,
 					datarouterAccountCounters);
 		}
 
@@ -55,7 +56,8 @@ public class DatarouterAccountApiKeyPredicate extends ApiKeyPredicate{
 		this(SecurityParameters.API_KEY, datarouterAccountApiKeyService, datarouterAccountCounters);
 	}
 
-	private DatarouterAccountApiKeyPredicate(String apiKeyFieldName,
+	private DatarouterAccountApiKeyPredicate(
+			String apiKeyFieldName,
 			DatarouterAccountCredentialService datarouterAccountCredentialService,
 			DatarouterAccountCounters datarouterAccountCounters){
 		super(apiKeyFieldName);
@@ -64,11 +66,11 @@ public class DatarouterAccountApiKeyPredicate extends ApiKeyPredicate{
 	}
 
 	@Override
-	public Pair<Boolean,String> innerCheck(DispatchRule rule, HttpServletRequest request, String apiKeyCandidate){
+	public ApiKeyPredicateCheck innerCheck(DispatchRule rule, HttpServletRequest request, String apiKeyCandidate){
 		Optional<String> endpoint = rule.getPersistentString();
 		return check(endpoint, apiKeyCandidate)
-				.map(accountName -> new Pair<>(true, accountName))
-				.orElseGet(() -> new Pair<>(false, "no account for " + obfuscate(apiKeyCandidate)));
+				.map(accountName -> new ApiKeyPredicateCheck(true, accountName))
+				.orElseGet(() -> new ApiKeyPredicateCheck(false, "no account for " + obfuscate(apiKeyCandidate)));
 	}
 
 	public Optional<String> check(Optional<String> endpoint, String apiKeyCandidate){

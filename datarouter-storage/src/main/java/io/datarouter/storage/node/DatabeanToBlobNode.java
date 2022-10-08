@@ -110,7 +110,7 @@ implements PhysicalMapStorageNode<PK,D,F>{
 		Scanner.of(databeans)
 				.map(codec::encodeDatabeanIfValid)
 				.concat(OptionalScanner::of)
-				.forEach(keyAndValue -> blobNode.write(keyAndValue.getLeft(), keyAndValue.getRight(), config));
+				.forEach(keyAndValue -> blobNode.write(keyAndValue.pathbeanKey(), keyAndValue.value(), config));
 	}
 
 	private Scanner<D> scanMultiInternal(Collection<PK> keys, Config config){

@@ -17,12 +17,6 @@ package io.datarouter.instrumentation.exception;
 
 import java.util.List;
 
-public class HttpRequestRecordBatchDto{
-
-	public final List<HttpRequestRecordDto> records;
-
-	public HttpRequestRecordBatchDto(List<HttpRequestRecordDto> records){
-		this.records = records;
-	}
-
+public record HttpRequestRecordBatchDto(
+		List<HttpRequestRecordDto> records){
 }

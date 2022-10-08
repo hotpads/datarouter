@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -31,9 +32,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.api.gax.longrunning.OperationFuture;
+import com.google.api.gax.longrunning.OperationSnapshot;
+import com.google.api.gax.retrying.RetryingFuture;
 import com.google.cloud.spanner.Database;
 import com.google.cloud.spanner.DatabaseClient;
+import com.google.cloud.spanner.ErrorCode;
 import com.google.cloud.spanner.ResultSet;
+import com.google.cloud.spanner.SpannerException;
 import com.google.cloud.spanner.Statement;
 import com.google.spanner.admin.database.v1.UpdateDatabaseDdlMetadata;
 
@@ -48,7 +53,7 @@ import io.datarouter.storage.config.schema.SchemaUpdateResult;
 import io.datarouter.storage.config.schema.SchemaUpdateTool;
 import io.datarouter.storage.node.op.raw.IndexedStorage;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
-import io.datarouter.util.concurrent.FutureTool;
+import io.datarouter.util.concurrent.ThreadTool;
 import io.datarouter.util.string.StringTool;
 
 @Singleton
@@ -173,7 +178,23 @@ public class SpannerSingleTableSchemaUpdateService{
 			OperationFuture<Void,UpdateDatabaseDdlMetadata> future = database.updateDdl(
 					statements.getExecuteStatements(),
 					null);
-			errorMessage = FutureTool.get(future.getPollingFuture().getAttemptResult()).getErrorMessage();
+			RetryingFuture<OperationSnapshot> pollingFuture = future.getPollingFuture();
+			OperationSnapshot opSnapshot = null;
+			do{
+				try{
+					opSnapshot = pollingFuture.getAttemptResult().get();
+				}catch(InterruptedException | ExecutionException e){
+					throw new RuntimeException(e);
+				}catch(SpannerException e){
+					if(e.getErrorCode() != ErrorCode.RESOURCE_EXHAUSTED){
+						throw new RuntimeException(e);
+					}
+					ThreadTool.trySleep(3_000);
+				}
+			}while(opSnapshot == null || !opSnapshot.isDone());
+
+			errorMessage = opSnapshot.getErrorMessage();
+
 			if(StringTool.notNullNorEmptyNorWhitespace(errorMessage)){
 				logger.error(errorMessage);
 			}

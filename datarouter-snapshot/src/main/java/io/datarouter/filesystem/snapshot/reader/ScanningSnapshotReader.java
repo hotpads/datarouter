@@ -62,7 +62,7 @@ public class ScanningSnapshotReader{
 	public Scanner<SnapshotLeafRecord> scanLeafRecords(long fromRecordIdInclusive){
 		return scanningBlockReader.scanLeafBlocks(fromRecordIdInclusive)
 				.concat(LeafBlock::leafRecords)
-				.include(leafRecord -> leafRecord.id >= fromRecordIdInclusive);
+				.include(leafRecord -> leafRecord.id() >= fromRecordIdInclusive);
 	}
 
 	public Scanner<SnapshotLeafRecord> scanLeafRecords(byte[] startKey, boolean inclusive){
@@ -86,34 +86,30 @@ public class ScanningSnapshotReader{
 	public Scanner<byte[]> scanColumnValues(int column){
 		var lastValueBlockId = new AtomicInteger(-1);
 		return scanningBlockReader.scanLeafBlocks(0)
-				.concat(leafBlock -> {
-					return leafBlock.valueBlockIds(column)
-							.include(valueBlockId -> lastValueBlockId.compareAndSet(valueBlockId - 1, valueBlockId))
-							.map(valueBlockId -> leafBlock.valueBlockKey(
-									snapshotKey,
-									column,
-									valueBlockId))
-							.map(blockLoader::value)
-							.concat(ValueBlock::valueCopies);
-				});
+				.concat(leafBlock -> leafBlock.valueBlockIds(column)
+						.include(valueBlockId -> lastValueBlockId.compareAndSet(valueBlockId - 1, valueBlockId))
+						.map(valueBlockId -> leafBlock.valueBlockKey(
+								snapshotKey,
+								column,
+								valueBlockId))
+						.map(blockLoader::value)
+						.concat(ValueBlock::valueCopies));
 	}
 
 	public Scanner<SnapshotRecord> scan(int fromRecordIdInclusive){
 		return scanningBlockReader.scanLeafBlocks(fromRecordIdInclusive)
-				.map(leafBlock -> {
-					return Scanner.iterate(0, column -> column + 1)
-							.limit(rootBlock.numColumns())
-							.map(column -> leafBlock.valueBlockIds(column)
-									.map(valueBlockId -> {
-										BlockKey valueBlockKey = leafBlock.valueBlockKey(
-												snapshotKey,
-												column,
-												valueBlockId);
-										return blockLoader.value(valueBlockKey);
-									})
-									.list())
-							.listTo(valueBlocks -> new LeafBlockWithValueBlocks(rootBlock, leafBlock, valueBlocks));
-				})
+				.map(leafBlock -> Scanner.iterate(0, column -> column + 1)
+						.limit(rootBlock.numColumns())
+						.map(column -> leafBlock.valueBlockIds(column)
+								.map(valueBlockId -> {
+									BlockKey valueBlockKey = leafBlock.valueBlockKey(
+											snapshotKey,
+											column,
+											valueBlockId);
+									return blockLoader.value(valueBlockKey);
+								})
+								.list())
+						.listTo(valueBlocks -> new LeafBlockWithValueBlocks(rootBlock, leafBlock, valueBlocks)))
 				.concat(leafBlockWithValueBlocks -> leafBlockWithValueBlocks.scan(fromRecordIdInclusive));
 	}
 

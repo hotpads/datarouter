@@ -27,13 +27,13 @@ import javax.inject.Singleton;
 
 import com.google.gson.GsonBuilder;
 
+import io.datarouter.httpclient.endpoint.param.RequestBody;
 import io.datarouter.httpclient.json.GsonJsonSerializer;
 import io.datarouter.util.timer.PhaseTimer;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.MessageMav;
 import io.datarouter.web.handler.types.DefaultDecoder;
 import io.datarouter.web.handler.types.Param;
-import io.datarouter.web.handler.types.RequestBody;
 import io.datarouter.web.handler.types.RequestBodyString;
 
 public class TestApiHandler extends BaseHandler{

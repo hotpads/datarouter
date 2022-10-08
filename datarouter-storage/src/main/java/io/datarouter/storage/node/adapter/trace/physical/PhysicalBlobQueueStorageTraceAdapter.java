@@ -17,44 +17,50 @@ package io.datarouter.storage.node.adapter.trace.physical;
 
 import java.util.Optional;
 
+import io.datarouter.bytes.Codec;
 import io.datarouter.instrumentation.trace.TracerTool;
+import io.datarouter.model.databean.EmptyDatabean;
+import io.datarouter.model.databean.EmptyDatabean.EmptyDatabeanFielder;
+import io.datarouter.model.key.EmptyDatabeanKey;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.adapter.PhysicalAdapterMixin;
 import io.datarouter.storage.node.adapter.trace.BaseTraceAdapter;
 import io.datarouter.storage.node.op.raw.BlobQueueStorage.PhysicalBlobQueueStorageNode;
 import io.datarouter.storage.queue.BlobQueueMessage;
-import io.datarouter.storage.queue.BlobQueueMessage.BlobQueueMessageFielder;
-import io.datarouter.storage.queue.BlobQueueMessageDto;
-import io.datarouter.storage.queue.BlobQueueMessageKey;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
 
-public class PhysicalBlobQueueStorageTraceAdapter
-extends BaseTraceAdapter<BlobQueueMessageKey,BlobQueueMessage,BlobQueueMessageFielder,PhysicalBlobQueueStorageNode>
-implements PhysicalBlobQueueStorageNode,
-		PhysicalAdapterMixin<BlobQueueMessageKey,BlobQueueMessage,BlobQueueMessageFielder,PhysicalBlobQueueStorageNode>{
+public class PhysicalBlobQueueStorageTraceAdapter<T>
+extends BaseTraceAdapter<EmptyDatabeanKey,EmptyDatabean,EmptyDatabeanFielder,PhysicalBlobQueueStorageNode<T>>
+implements PhysicalBlobQueueStorageNode<T>,
+		PhysicalAdapterMixin<EmptyDatabeanKey,EmptyDatabean,EmptyDatabeanFielder,PhysicalBlobQueueStorageNode<T>>{
 
-	public PhysicalBlobQueueStorageTraceAdapter(PhysicalBlobQueueStorageNode backingNode){
+	public PhysicalBlobQueueStorageTraceAdapter(PhysicalBlobQueueStorageNode<T> backingNode){
 		super(backingNode);
 	}
 
 	@Override
-	public int getMaxDataSize(){
+	public int getMaxRawDataSize(){
 		try(var $ = startSpanForOp(OP_getMaxDataSize)){
-			return backingNode.getMaxDataSize();
+			return backingNode.getMaxRawDataSize();
 		}
 	}
 
 	@Override
-	public void put(byte[] data, Config config){
+	public Codec<T,byte[]> getCodec(){
+		return backingNode.getCodec();//shouldn't need a trace
+	}
+
+	@Override
+	public void putRaw(byte[] data, Config config){
 		try(var $ = startSpanForOp(OP_put)){
-			backingNode.put(data, config);
+			backingNode.putRaw(data, config);
 		}
 	}
 
 	@Override
-	public Optional<BlobQueueMessageDto> peek(Config config){
+	public Optional<BlobQueueMessage<T>> peek(Config config){
 		try(var $ = startSpanForOp(OP_peek)){
-			Optional<BlobQueueMessageDto> message = backingNode.peek(config);
+			Optional<BlobQueueMessage<T>> message = backingNode.peek(config);
 			TracerTool.appendToSpanInfo(message.isPresent() ? "hit" : "miss");
 			return message;
 		}
@@ -68,16 +74,16 @@ implements PhysicalBlobQueueStorageNode,
 	}
 
 	@Override
-	public Optional<BlobQueueMessageDto> poll(Config config){
+	public Optional<BlobQueueMessage<T>> poll(Config config){
 		try(var $ = startSpanForOp(OP_poll)){
-			Optional<BlobQueueMessageDto> message = backingNode.poll(config);
+			Optional<BlobQueueMessage<T>> message = backingNode.poll(config);
 			TracerTool.appendToSpanInfo(message.isPresent() ? "hit" : "miss");
 			return message;
 		}
 	}
 
 	@Override
-	public PhysicalDatabeanFieldInfo<BlobQueueMessageKey, BlobQueueMessage, BlobQueueMessageFielder> getFieldInfo(){
+	public PhysicalDatabeanFieldInfo<EmptyDatabeanKey,EmptyDatabean,EmptyDatabeanFielder> getFieldInfo(){
 		return PhysicalAdapterMixin.super.getFieldInfo();
 	}
 

@@ -29,7 +29,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.http.entity.ContentType;
 
 import io.datarouter.httpclient.HttpHeaders;
-import io.datarouter.httpclient.json.JsonSerializer;
+import io.datarouter.json.JsonSerializer;
 import io.datarouter.web.exception.HandledException;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.validator.RequestParamValidator.RequestParamValidatorErrorResponseDto;
@@ -43,7 +43,9 @@ public class DefaultEncoder implements HandlerEncoder, JsonAwareHandlerCodec{
 	private final JsonEncoder jsonEncoder;
 
 	@Inject
-	public DefaultEncoder(MavEncoder mavEncoder, InputStreamHandlerEncoder inputStreamHandlerEncoder,
+	public DefaultEncoder(
+			MavEncoder mavEncoder,
+			InputStreamHandlerEncoder inputStreamHandlerEncoder,
 			JsonEncoder jsonEncoder){
 		this.mavEncoder = mavEncoder;
 		this.inputStreamHandlerEncoder = inputStreamHandlerEncoder;
@@ -51,7 +53,10 @@ public class DefaultEncoder implements HandlerEncoder, JsonAwareHandlerCodec{
 	}
 
 	@Override
-	public void finishRequest(Object result, ServletContext servletContext, HttpServletResponse response,
+	public void finishRequest(
+			Object result,
+			ServletContext servletContext,
+			HttpServletResponse response,
 			HttpServletRequest request)
 	throws ServletException, IOException{
 		if(result == null){
@@ -69,21 +74,30 @@ public class DefaultEncoder implements HandlerEncoder, JsonAwareHandlerCodec{
 	}
 
 	@Override
-	public void sendHandledExceptionResponse(HandledException exception, ServletContext servletContext,
-			HttpServletResponse response, HttpServletRequest request)
+	public void sendHandledExceptionResponse(
+			HandledException exception,
+			ServletContext servletContext,
+			HttpServletResponse response,
+			HttpServletRequest request)
 	throws IOException{
 		jsonEncoder.sendHandledExceptionResponse(exception, servletContext, response, request);
 	}
 
 	@Override
-	public void sendInvalidRequestParamResponse(RequestParamValidatorErrorResponseDto errorResponseDto,
-			ServletContext servletContext, HttpServletResponse response, HttpServletRequest request)
+	public void sendInvalidRequestParamResponse(
+			RequestParamValidatorErrorResponseDto errorResponseDto,
+			ServletContext servletContext,
+			HttpServletResponse response,
+			HttpServletRequest request)
 	throws IOException{
 		jsonEncoder.sendInvalidRequestParamResponse(errorResponseDto, servletContext, response, request);
 	}
 
 	@Override
-	public void sendExceptionResponse(HttpServletRequest request, HttpServletResponse response, Throwable exception,
+	public void sendExceptionResponse(
+			HttpServletRequest request,
+			HttpServletResponse response,
+			Throwable exception,
 			Optional<String> exceptionId)
 	throws IOException{
 		if(shouldSendHtml(request)){
@@ -95,7 +109,9 @@ public class DefaultEncoder implements HandlerEncoder, JsonAwareHandlerCodec{
 
 	@SuppressWarnings("unused")
 	@Override
-	public void sendForbiddenResponse(HttpServletRequest request, HttpServletResponse response,
+	public void sendForbiddenResponse(
+			HttpServletRequest request,
+			HttpServletResponse response,
 			SecurityValidationResult securityValidationResult)
 	throws IOException{
 	}

@@ -15,35 +15,15 @@
  */
 package io.datarouter.instrumentation.changelog;
 
-public class ChangelogDto{
-
-	public final String serviceName;
-	public final String changelogType;
-	public final String name;
-	public final long dateMs;
-	public final String action;
-	public final String username;
-	public final String comment;
-	public final String note;
-
-	public ChangelogDto(
-			String serviceName,
-			String changelogType,
-			String name,
-			long dateMs,
-			String action,
-			String username,
-			String comment,
-			String note){
-		this.serviceName = serviceName;
-		this.changelogType = changelogType;
-		this.name = name;
-		this.dateMs = dateMs;
-		this.action = action;
-		this.username = username;
-		this.comment = comment;
-		this.note = note;
-	}
+public record ChangelogDto(
+		String serviceName,
+		String changelogType,
+		String name,
+		long dateMs,
+		String action,
+		String username,
+		String comment,
+		String note){
 
 	public long getReversedDateMs(){
 		return Long.MAX_VALUE - dateMs;

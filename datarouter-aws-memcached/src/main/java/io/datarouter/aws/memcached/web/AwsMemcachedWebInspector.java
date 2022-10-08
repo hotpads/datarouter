@@ -27,7 +27,6 @@ import io.datarouter.aws.memcached.client.options.AwsMemcachedOptions;
 import io.datarouter.client.memcached.web.MemcachedWebInspector;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientId;
-import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.html.j2html.J2HtmlTable;
 import j2html.TagCreator;
 import j2html.tags.ContainerTag;
@@ -40,9 +39,8 @@ public class AwsMemcachedWebInspector extends MemcachedWebInspector{
 	private AwsMemcachedOptions options;
 
 	@Override
-	protected Pair<Integer,DivTag> getDetails(ClientId clientId){
+	protected MemcachedDetail getDetails(ClientId clientId){
 		MemcachedClientMode mode = options.getClientMode(clientId.getName());
-		Pair<Integer,DivTag> nodeCountByNodeTag = new Pair<>();
 		if(mode == MemcachedClientMode.DYNAMIC){
 			List<AwsMemcachedNodeEndpointDto> nodeEndpointDtos = Scanner.of(getSpyClient(clientId)
 							.getAllNodeEndPoints())
@@ -53,40 +51,27 @@ public class AwsMemcachedWebInspector extends MemcachedWebInspector{
 					.list();
 			var table = new J2HtmlTable<AwsMemcachedNodeEndpointDto>()
 					.withClasses("sortable table table-sm table-striped my-4 border")
-					.withColumn("HostName", dto -> dto.hostName)
-					.withColumn("IpAddress", dto -> dto.ipAddress)
-					.withColumn("Port", dto -> dto.port)
+					.withColumn("HostName", AwsMemcachedNodeEndpointDto::hostName)
+					.withColumn("IpAddress", AwsMemcachedNodeEndpointDto::ipAddress)
+					.withColumn("Port", AwsMemcachedNodeEndpointDto::port)
 					.build(nodeEndpointDtos);
 			DivTag divTable = div(table)
 					.withClass("container-fluid my-4")
 					.withStyle("padding-left: 0px");
-			nodeCountByNodeTag.setLeft(nodeEndpointDtos.size());
-			nodeCountByNodeTag.setRight(divTable);
-
-		}else{
-			List<LiTag> socketAddresses = Scanner.of(getSpyClient(clientId).getAvailableServers())
-					.map(Object::toString)
-					.map(TagCreator::li)
-					.list();
-			DivTag div = div(ul(socketAddresses.toArray(new ContainerTag[0])));
-			nodeCountByNodeTag.setLeft(socketAddresses.size());
-			nodeCountByNodeTag.setRight(div);
+			return new MemcachedDetail(nodeEndpointDtos.size(), divTable);
 		}
-		return nodeCountByNodeTag;
+		List<LiTag> socketAddresses = Scanner.of(getSpyClient(clientId).getAvailableServers())
+				.map(Object::toString)
+				.map(TagCreator::li)
+				.list();
+		DivTag div = div(ul(socketAddresses.toArray(new ContainerTag[0])));
+		return new MemcachedDetail(socketAddresses.size(), div);
 	}
 
-	private static class AwsMemcachedNodeEndpointDto{
-
-		private final String hostName;
-		private final String ipAddress;
-		private final int port;
-
-		public AwsMemcachedNodeEndpointDto(String hostName, String ipAddress, int port){
-			this.hostName = hostName;
-			this.ipAddress = ipAddress;
-			this.port = port;
-		}
-
+	private record AwsMemcachedNodeEndpointDto(
+			String hostName,
+			String ipAddress,
+			int port){
 	}
 
 }

@@ -29,6 +29,8 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.reflect.TypeToken;
 
+import io.datarouter.enums.MappedEnum;
+
 /**
  * Intercepts all enum serialization, preventing accidental serialization of enums without explicitly specifying
  * an encoding.
@@ -43,6 +45,15 @@ public abstract class EnumTypeAdapterFactory implements TypeAdapterFactory{
 	private final Map<Type,TypeAdapter<?>> adapterByType = new HashMap<>();
 	private boolean allowUnregistered = false;
 
+	/**
+	 * Not recommended.
+	 * Instead of throwing an exception for unregistered Enum types, let Gson serialize them by enum.name()
+	 */
+	protected EnumTypeAdapterFactory allowUnregistered(){
+		allowUnregistered = true;
+		return this;
+	}
+
 	protected <T> EnumTypeAdapterFactory register(Class<T> cls, TypeAdapter<T> typeAdapter){
 		if(!cls.isEnum()){
 			String message = String.format("%s is not an enum", cls.getCanonicalName());
@@ -52,10 +63,31 @@ public abstract class EnumTypeAdapterFactory implements TypeAdapterFactory{
 		return this;
 	}
 
-	protected EnumTypeAdapterFactory allowUnregistered(){
-		allowUnregistered = true;
+	/*----------- String MappedEnum convenience methods ------------*/
+
+	protected <T extends Enum<T>> EnumTypeAdapterFactory registerStringMappedEnumRequired(
+			MappedEnum<T,String> mappedEnum){
+		adapterByType.put(mappedEnum.getEnumClass(), StringMappedEnumTypeAdapter.required(mappedEnum));
 		return this;
 	}
+
+	protected <T extends Enum<T>> EnumTypeAdapterFactory registerStringMappedEnumOptional(
+			MappedEnum<T,String> mappedEnum,
+			T replacement){
+		adapterByType.put(mappedEnum.getEnumClass(), StringMappedEnumTypeAdapter.optional(mappedEnum, replacement));
+		return this;
+	}
+
+	protected <T extends Enum<T>> EnumTypeAdapterFactory registerStringMappedEnumOptionalWithLogging(
+			MappedEnum<T,String> mappedEnum,
+			T replacement){
+		adapterByType.put(
+				mappedEnum.getEnumClass(),
+				StringMappedEnumTypeAdapter.optionalWithLogging(mappedEnum, replacement));
+		return this;
+	}
+
+	/*----------- TypeAdapterFactory -------------*/
 
 	@Override
 	public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type){
@@ -67,15 +99,16 @@ public abstract class EnumTypeAdapterFactory implements TypeAdapterFactory{
 		if(typeAdapter == null){
 			if(allowUnregistered){
 				if(loggedTypes.add(type.toString())){
-					String message = String.format(
-							"Warning: please register a TypeAdapter for %s.  Currently serializing by enum.name()",
-							type);
+					String format = "Warning: Currently serializing missingEnum=%s by Enum.name()."
+							+ "Please register a TypeAdapter in %s.";
+					String message = String.format(format, type, getClass().getCanonicalName());
 					logger.warn(message);
 				}
 			}else{
 				String message = String.format(
-						"Error: please register a TypeAdapter for %s",
-						type);
+						"Error: please register a TypeAdapter for rejectedEnum=%s in %s",
+						type,
+						getClass().getCanonicalName());
 				throw new IllegalArgumentException(message);
 			}
 		}

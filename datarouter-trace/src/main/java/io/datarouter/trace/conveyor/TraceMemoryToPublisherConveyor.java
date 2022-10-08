@@ -15,6 +15,8 @@
  */
 package io.datarouter.trace.conveyor;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
@@ -24,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.conveyor.BaseConveyor;
 import io.datarouter.conveyor.ConveyorCounters;
+import io.datarouter.conveyor.ConveyorGauges;
 import io.datarouter.conveyor.MemoryBuffer;
 import io.datarouter.instrumentation.exception.DatarouterExceptionPublisher;
 import io.datarouter.instrumentation.exception.HttpRequestRecordBatchDto;
@@ -49,8 +52,9 @@ public class TraceMemoryToPublisherConveyor extends BaseConveyor{
 			ExceptionRecorder exceptionRecorder,
 			MemoryBuffer<Trace2BundleAndHttpRequestRecordDto> buffer,
 			TracePublisher tracePublisher,
-			DatarouterExceptionPublisher exceptionPublisher){
-		super(name, shouldRun, () -> false, exceptionRecorder);
+			DatarouterExceptionPublisher exceptionPublisher,
+			ConveyorGauges conveyorGauges){
+		super(name, shouldRun, () -> false, exceptionRecorder, conveyorGauges);
 		this.tracePublisher = tracePublisher;
 		this.exceptionPublisher = exceptionPublisher;
 		this.buffer = buffer;
@@ -68,7 +72,10 @@ public class TraceMemoryToPublisherConveyor extends BaseConveyor{
 
 	@Override
 	public ProcessBatchResult processBatch(){
+		Instant beforePeek = Instant.now();
 		List<Trace2BundleAndHttpRequestRecordDto> dtos = buffer.pollMultiWithLimit(BATCH_SIZE);
+		Instant afterPeek = Instant.now();
+		gaugeRecorder.savePeekDurationMs(this, Duration.between(beforePeek, afterPeek).toMillis());
 		if(dtos.isEmpty()){
 			return new ProcessBatchResult(false);
 		}

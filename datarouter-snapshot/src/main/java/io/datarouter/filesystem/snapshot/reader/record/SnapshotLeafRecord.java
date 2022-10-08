@@ -21,21 +21,14 @@ import java.util.Comparator;
 import io.datarouter.bytes.ByteTool;
 import io.datarouter.filesystem.snapshot.entry.SnapshotEntry;
 
-public class SnapshotLeafRecord{
+public record SnapshotLeafRecord(
+		long id,
+		byte[] key,
+		byte[] value){
 
 	public static final Comparator<SnapshotLeafRecord> KEY_COMPARATOR = Comparator.comparing(
 			snapshotLeafRecord -> snapshotLeafRecord.key,
-			(a, b) -> Arrays.compareUnsigned(a, b));
-
-	public final long id;
-	public final byte[] key;
-	public final byte[] value;
-
-	public SnapshotLeafRecord(long id, byte[] key, byte[] value){
-		this.id = id;
-		this.key = key;
-		this.value = value;
-	}
+			Arrays::compareUnsigned);
 
 	public SnapshotEntry entry(){
 		return new SnapshotEntry(key, value, ByteTool.EMPTY_ARRAY_2);

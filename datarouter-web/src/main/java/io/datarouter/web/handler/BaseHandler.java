@@ -47,15 +47,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.httpclient.HttpHeaders;
-import io.datarouter.httpclient.endpoint.BaseEndpoint;
-import io.datarouter.httpclient.endpoint.EndpointTool;
+import io.datarouter.httpclient.endpoint.caller.CallerType;
+import io.datarouter.httpclient.endpoint.caller.CallerTypeUnknown;
+import io.datarouter.httpclient.endpoint.java.BaseEndpoint;
+import io.datarouter.httpclient.endpoint.java.EndpointTool;
+import io.datarouter.httpclient.endpoint.web.JsClientType;
 import io.datarouter.inject.DatarouterInjector;
+import io.datarouter.instrumentation.exception.ExceptionRecordDto;
 import io.datarouter.instrumentation.trace.W3TraceContext;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.util.singletonsupplier.SingletonSupplier;
-import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.endpoint.EndpointValidator;
+import io.datarouter.web.endpoint.WebApiValidator;
 import io.datarouter.web.exception.ExceptionRecorder;
 import io.datarouter.web.exception.HandledException;
 import io.datarouter.web.handler.encoder.HandlerEncoder;
@@ -112,8 +116,6 @@ public abstract class BaseHandler{
 	@Inject
 	private Optional<ExceptionRecorder> exceptionRecorder;
 	@Inject
-	private HandlerMetrics handlerMetrics;
-	@Inject
 	private RequestAwareCurrentSessionInfoFactory requestAwareCurrentSessionInfoFactory;
 	@Inject
 	private CurrentUserSessionInfoService currentUserSessionInfoService;
@@ -167,14 +169,29 @@ public abstract class BaseHandler{
 		String description() default "";
 		Class<? extends HandlerEncoder> encoder() default NullHandlerEncoder.class;
 		Class<? extends HandlerDecoder> decoder() default NullHandlerDecoder.class;
+
 		/**
 		 * @deprecated  Specify the path directly. The method name should match the PathNode
 		 */
 		@Deprecated
 		boolean defaultHandler() default false;
+
+		/**
+		 * If the handler method is using a BaseEndpoint, this callerType field is ignored.
+		 *
+		 * @return the intended caller for the handler method
+		 */
+		Class<? extends CallerType> callerType() default CallerTypeUnknown.class;
+
+		/**
+		 * @deprecated this annotation isn't used anymore
+		 */
+		Class<? extends JsClientType>[] clientType() default {};
+
 	}
 
-	private Optional<RequestParamValidatorErrorResponseDto> validateRequestParamValidators(Method method,
+	private Optional<RequestParamValidatorErrorResponseDto> validateRequestParamValidators(
+			Method method,
 			Object[] args){
 		Parameter[] parameters = method.getParameters();
 		for(int index = 0; index < parameters.length; index++){
@@ -213,8 +230,20 @@ public abstract class BaseHandler{
 				.map(RequestParamValidatorErrorResponseDto::fromRequestParamValidatorResponseDto);
 	}
 
+	private Optional<RequestParamValidatorErrorResponseDto> validateRequestParamValidatorsFromWebApi(
+			Method method,
+			Object[] args){
+		return Optional.ofNullable(method.getParameters()[0].getAnnotation(WebApiValidator.class))
+				.map(WebApiValidator::validator)
+				.filter(Objects::nonNull)
+				.map(validate("endpoint", args[0]))
+				.filter(responseDto -> !responseDto.success)
+				.map(RequestParamValidatorErrorResponseDto::fromRequestParamValidatorResponseDto);
+	}
+
 	private <T> Function<Class<? extends RequestParamValidator<?>>,RequestParamValidatorResponseDto> validate(
-			String parameterName, Object parameterValue){
+			String parameterName,
+			Object parameterValue){
 		return validatorClass -> {
 			@SuppressWarnings("unchecked")
 			RequestParamValidator<T> validator = (RequestParamValidator<T>)injector.getInstance(validatorClass);
@@ -228,7 +257,9 @@ public abstract class BaseHandler{
 		return getParamValidator(cls, parameterValue, null);
 	}
 
-	protected <P,R extends RequestParamValidator<P>> R getParamValidator(Class<R> cls, P parameterValue,
+	protected <P,R extends RequestParamValidator<P>> R getParamValidator(
+			Class<R> cls,
+			P parameterValue,
 			String parameterName){
 		RequestParamValidator<?> paramValidator = paramValidators.stream()
 				.filter(validator -> validator.getClass().equals(cls))
@@ -245,9 +276,9 @@ public abstract class BaseHandler{
 		try{
 			permitted();
 
-			Pair<Method,Object[]> handlerMethodAndArgs = getHandlerMethodAndArgs();
-			Method method = handlerMethodAndArgs.getLeft();
-			Object[] args = handlerMethodAndArgs.getRight();
+			HandlerMethodAndArgs handlerMethodAndArgs = getHandlerMethodAndArgs();
+			Method method = handlerMethodAndArgs.method();
+			Object[] args = handlerMethodAndArgs.args();
 			RequestAttributeTool.set(request, HANDLER_CLASS, getClass());
 			RequestAttributeTool.set(request, HANDLER_METHOD, method);
 
@@ -257,6 +288,8 @@ public abstract class BaseHandler{
 			Optional<RequestParamValidatorErrorResponseDto> errorResponseDtoOptional;
 			if(EndpointTool.paramIsEndpointObject(method)){
 				errorResponseDtoOptional = validateRequestParamValidatorsFromEndpoint(method, args);
+			}else if(EndpointTool.paramIsWebApiObject(method)){
+				errorResponseDtoOptional = validateRequestParamValidatorsFromWebApi(method, args);
 			}else{
 				errorResponseDtoOptional = validateRequestParamValidators(method, args);
 			}
@@ -271,24 +304,26 @@ public abstract class BaseHandler{
 		}
 	}
 
-	private Pair<Method,Object[]> getHandlerMethodAndArgs(){
+	private HandlerMethodAndArgs getHandlerMethodAndArgs(){
 		String methodName = handlerMethodName();
 		List<Method> possibleMethods = ReflectionTool.getDeclaredMethodsWithName(getClass(), methodName).stream()
 				.filter(possibleMethod -> possibleMethod.isAnnotationPresent(Handler.class))
 				.collect(Collectors.toList());
 
-		Pair<Method,Object[]> pair = handlerTypingHelper.findMethodByName(possibleMethods, defaultHandlerDecoder,
+		HandlerMethodAndArgs pair = handlerTypingHelper.findMethodByName(
+				possibleMethods,
+				defaultHandlerDecoder,
 				request);
-		Method method = pair.getLeft();
-		Object[] args = pair.getRight();
+		Method method = pair.method();
+		Object[] args = pair.args();
 
 		Optional<Method> defaultHandlerMethod = getDefaultHandlerMethod();
 		if(method == null){
 			if(defaultHandlerMethod.isPresent()){
 				pair = handlerTypingHelper.findMethodByName(Collections.singletonList(defaultHandlerMethod.get()),
 						defaultHandlerDecoder, request);
-				method = pair.getLeft();
-				args = pair.getRight();
+				method = pair.method();
+				args = pair.args();
 			}
 		}
 		if(method == null){
@@ -302,7 +337,12 @@ public abstract class BaseHandler{
 				method = DEFAULT_HANDLER_METHOD;
 			}
 		}
-		return new Pair<>(method, Optional.ofNullable(args).orElse(new Object[]{}));
+		return new HandlerMethodAndArgs(method, Optional.ofNullable(args).orElse(new Object[]{}));
+	}
+
+	public record HandlerMethodAndArgs(
+			Method method,
+			Object[] args){
 	}
 
 	private HandlerEncoder getHandlerEncoder(Method method){
@@ -318,17 +358,17 @@ public abstract class BaseHandler{
 
 	public void invokeHandlerMethod(Method method, Object[] args, HandlerEncoder encoder)
 	throws ServletException, IOException{
-		handlerMetrics.incMethodInvocation(getClass(), method.getName());
+		HandlerMetrics.incMethodInvocation(getClass(), method.getName());
 		if(accountName != null && !accountName.isEmpty()){
-			handlerMetrics.incMethodInvocationByApiKeyPredicateName(getClass(), method.getName(), accountName);
+			HandlerMetrics.incMethodInvocationByApiKeyPredicateName(getClass(), method.getName(), accountName);
 		}
 
-		if(args.length == 1
-				&& args[0] instanceof BaseEndpoint<?,?>
-				&& accountName != null
-				&& !accountName.isEmpty()){
-			BaseEndpoint<?,?> endpoint = (BaseEndpoint<?,?>)args[0];
-			handlerAccountCallerValidator.validate(accountName, endpoint);
+		if(accountName != null && !accountName.isEmpty()){
+			if(args.length == 1 && args[0] instanceof BaseEndpoint<?,?> endpoint){
+				handlerAccountCallerValidator.validate(accountName, endpoint);
+			}else{
+				handlerAccountCallerValidator.validate(accountName, method);
+			}
 		}
 
 		Object result;
@@ -338,8 +378,7 @@ public abstract class BaseHandler{
 			throw new RuntimeException(e);
 		}catch(InvocationTargetException e){
 			Throwable cause = e.getCause();
-			if(cause instanceof HandledException){
-				HandledException handledException = (HandledException)cause;
+			if(cause instanceof HandledException handledException){
 				Exception exception = (Exception)cause;//don't allow HandledExceptions to be Throwable
 				Optional<String> eid = exceptionRecorder
 						.map(recorder -> {
@@ -358,7 +397,7 @@ public abstract class BaseHandler{
 								return null;
 							}
 						})
-						.map(exexceptionRecordDto -> exexceptionRecordDto.id);
+						.map(ExceptionRecordDto::id);
 				eid.ifPresent(exceptionId -> response.setHeader(HttpHeaders.X_EXCEPTION_ID, exceptionId));
 				encoder.sendHandledExceptionResponse(handledException, servletContext, response, request);
 				logger.warn("returning statusCode={} eid={} message={}", handledException.getHttpResponseCode(),
@@ -487,31 +526,45 @@ public abstract class BaseHandler{
 	public static class NullHandlerEncoder implements HandlerEncoder{
 
 		@Override
-		public void finishRequest(Object result, ServletContext servletContext, HttpServletResponse response,
+		public void finishRequest(
+				Object result,
+				ServletContext servletContext,
+				HttpServletResponse response,
 				HttpServletRequest request){
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
-		public void sendHandledExceptionResponse(HandledException exception, ServletContext servletContext,
-				HttpServletResponse response, HttpServletRequest request){
+		public void sendHandledExceptionResponse(
+				HandledException exception,
+				ServletContext servletContext,
+				HttpServletResponse response,
+				HttpServletRequest request){
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
-		public void sendInvalidRequestParamResponse(RequestParamValidatorErrorResponseDto errorResponseDto,
-				ServletContext servletContext, HttpServletResponse response, HttpServletRequest request){
+		public void sendInvalidRequestParamResponse(
+				RequestParamValidatorErrorResponseDto errorResponseDto,
+				ServletContext servletContext,
+				HttpServletResponse response,
+				HttpServletRequest request){
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
-		public void sendExceptionResponse(HttpServletRequest request, HttpServletResponse response,
-				Throwable exception, Optional<String> exceptionId){
+		public void sendExceptionResponse(
+				HttpServletRequest request,
+				HttpServletResponse response,
+				Throwable exception,
+				Optional<String> exceptionId){
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
-		public void sendForbiddenResponse(HttpServletRequest request, HttpServletResponse response,
+		public void sendForbiddenResponse(
+				HttpServletRequest request,
+				HttpServletResponse response,
 				SecurityValidationResult securityValidationResult){
 			throw new UnsupportedOperationException();
 		}

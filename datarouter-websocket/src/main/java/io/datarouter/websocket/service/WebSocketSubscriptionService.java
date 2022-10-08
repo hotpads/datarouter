@@ -74,9 +74,9 @@ public class WebSocketSubscriptionService implements WebSocketService{
 		;
 	}
 
-	public static class WebSocketSubscriptionRequest{
-		public WebSocketSubscriptionCommand command;
-		public String topic;
+	public record WebSocketSubscriptionRequest(
+			WebSocketSubscriptionCommand command,
+			String topic){
 	}
 
 }

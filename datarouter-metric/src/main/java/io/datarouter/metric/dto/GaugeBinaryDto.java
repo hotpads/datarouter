@@ -36,11 +36,11 @@ public class GaugeBinaryDto extends BinaryDto<GaugeBinaryDto>{
 	@BinaryDtoField(index = 3)
 	public final String apiKey;
 
-	private GaugeBinaryDto(String serviceName, String serverName, List<GaugeItemBinaryDto> items, String apiKey){
+	private GaugeBinaryDto(String serviceName, String serverName, List<GaugeItemBinaryDto> items){
 		this.serviceName = Require.notBlank(serviceName);
 		this.serverName = Require.notBlank(serverName);
 		this.items = items;
-		this.apiKey = Require.notBlank(apiKey);
+		this.apiKey = null;//removing this causes deserialization issues
 	}
 
 	public List<GaugeDto> toGaugeDtos(){
@@ -49,10 +49,9 @@ public class GaugeBinaryDto extends BinaryDto<GaugeBinaryDto>{
 				.list();
 	}
 
-	public static List<GaugeBinaryDto> createSizedDtos(GaugeBatchDto gaugeBatchDto, String apiKey, int itemsPerDto){
+	public static List<GaugeBinaryDto> createSizedDtos(GaugeBatchDto gaugeBatchDto, int itemsPerDto){
 		Require.notNull(gaugeBatchDto);
 		Require.notEmpty(gaugeBatchDto.batch);
-		Require.notBlank(apiKey);
 
 		return Scanner.of(gaugeBatchDto.batch)
 				.map(GaugeItemBinaryDto::new)
@@ -60,8 +59,7 @@ public class GaugeBinaryDto extends BinaryDto<GaugeBinaryDto>{
 				.map(items -> new GaugeBinaryDto(
 						gaugeBatchDto.batch.get(0).serviceName,
 						gaugeBatchDto.batch.get(0).serverName,
-						items,
-						apiKey))
+						items))
 				.list();
 	}
 
@@ -69,6 +67,7 @@ public class GaugeBinaryDto extends BinaryDto<GaugeBinaryDto>{
 		return BinaryDtoIndexedCodec.of(GaugeBinaryDto.class).decode(bytes);
 	}
 
+	//TODO make private and test if binary dto still works
 	public static class GaugeItemBinaryDto extends BinaryDto<GaugeItemBinaryDto>{
 
 		@BinaryDtoField(index = 0)

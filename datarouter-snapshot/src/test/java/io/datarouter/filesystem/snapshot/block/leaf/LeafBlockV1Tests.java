@@ -28,23 +28,27 @@ import io.datarouter.filesystem.snapshot.entry.SnapshotEntry;
 import io.datarouter.filesystem.snapshot.reader.record.SnapshotLeafRecord;
 import io.datarouter.filesystem.snapshot.reader.record.SnapshotLeafSearchResult;
 import io.datarouter.filesystem.snapshot.writer.BlockQueue.FileIdsAndEndings;
-import io.datarouter.util.tuple.Twin;
 
 public class LeafBlockV1Tests{
 
-	private static final List<Twin<String>> INPUTS = List.of(
-			new Twin<>("b", "vb0"),//0
-			new Twin<>("c", "vc0"),//1
-			new Twin<>("c", "vc1"),//2
-			new Twin<>("c", "vc2"),//3
-			new Twin<>("c", "vc3"),//4
-			new Twin<>("c", "vc4"),//5
-			new Twin<>("c", "vc5"),//6
-			new Twin<>("c", "vc6"),//7
-			new Twin<>("c", "vc7"),//8
-			new Twin<>("c", "vc8"),//9
-			new Twin<>("c", "vc9"),//10
-			new Twin<>("d", "vd0"));//11
+	private record Input(
+			String key,
+			String value){
+	}
+
+	private static final List<Input> INPUTS = List.of(
+			new Input("b", "vb0"),//0
+			new Input("c", "vc0"),//1
+			new Input("c", "vc1"),//2
+			new Input("c", "vc2"),//3
+			new Input("c", "vc3"),//4
+			new Input("c", "vc4"),//5
+			new Input("c", "vc5"),//6
+			new Input("c", "vc6"),//7
+			new Input("c", "vc7"),//8
+			new Input("c", "vc8"),//9
+			new Input("c", "vc9"),//10
+			new Input("d", "vd0"));//11
 
 	private static final LeafBlock BLOCK = makeBlock();
 
@@ -56,8 +60,8 @@ public class LeafBlockV1Tests{
 				blockId.get(),
 				keyId.getAndIncrement(),
 				new SnapshotEntry(
-						input.getLeft().getBytes(),
-						input.getRight().getBytes(),
+						input.key().getBytes(),
+						input.value().getBytes(),
 						ByteTool.EMPTY_ARRAY_2),
 				new int[]{blockId.getAndIncrement()},
 				new int[]{9}));
@@ -77,14 +81,13 @@ public class LeafBlockV1Tests{
 
 	@Test
 	public void testFindRecordId(){
-		INPUTS.stream()
-				.forEach(input -> Assert.assertTrue(BLOCK.findRecordId(input.getLeft().getBytes()).isPresent()));
+		INPUTS.forEach(input -> Assert.assertTrue(BLOCK.findRecordId(input.key().getBytes()).isPresent()));
 
 		IntStream.range(0, INPUTS.size())
 				.forEach(i -> {
 					SnapshotLeafRecord actual = BLOCK.snapshotLeafRecord(i);
-					Assert.assertEquals(INPUTS.get(i).getLeft(), new String(actual.key));
-					Assert.assertEquals(INPUTS.get(i).getRight(), new String(actual.value));
+					Assert.assertEquals(INPUTS.get(i).key(), new String(actual.key()));
+					Assert.assertEquals(INPUTS.get(i).value(), new String(actual.value()));
 				});
 	}
 

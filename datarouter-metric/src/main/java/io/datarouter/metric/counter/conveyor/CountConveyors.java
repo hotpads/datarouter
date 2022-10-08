@@ -19,6 +19,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.conveyor.BaseConveyors;
+import io.datarouter.conveyor.ConveyorGauges;
 import io.datarouter.metric.config.DatarouterCountSettingRoot;
 import io.datarouter.metric.counter.collection.CountPublisher;
 import io.datarouter.web.exception.ExceptionRecorder;
@@ -34,6 +35,8 @@ public class CountConveyors extends BaseConveyors{
 	private ExceptionRecorder exceptionRecorder;
 	@Inject
 	private CountPublisher countPublisher;
+	@Inject
+	private ConveyorGauges conveyorGauges;
 
 	@Override
 	public void onStartUp(){
@@ -42,7 +45,8 @@ public class CountConveyors extends BaseConveyors{
 				settings.runCountMemoryToPublisherConveyor,
 				buffers.countBuffer,
 				exceptionRecorder,
-				countPublisher),
+				countPublisher,
+				conveyorGauges),
 				settings.conveyorThreadCount.get(),
 				1);
 	}

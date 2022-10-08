@@ -72,6 +72,9 @@ public class NodeParams<
 	// for mysql utf8 to utf8mb4 migrations
 	private final boolean disableIntroducer;
 
+	//for queue metric Alert
+	private final boolean enableAgeMonitoring = true;
+
 	private NodeParams(
 			ClientId clientId,
 			String parentName,
@@ -137,6 +140,7 @@ public class NodeParams<
 		private boolean disableForcePrimary;
 		private Tag tag;
 		private boolean disableIntroducer;
+		private boolean enableAgeMonitoring;
 
 		/*--------------------------- construct -----------------------------*/
 
@@ -164,6 +168,7 @@ public class NodeParams<
 			disableForcePrimary = params.disableForcePrimary;
 			tag = params.tag;
 			disableIntroducer = params.disableIntroducer;
+			enableAgeMonitoring = params.enableAgeMonitoring;
 		}
 
 		/*---------------------------- with ---------------------------------*/
@@ -241,6 +246,11 @@ public class NodeParams<
 
 		public NodeParamsBuilder<PK,D,F> withDisableIntroducer(boolean disableIntroducer){
 			this.disableIntroducer = disableIntroducer;
+			return this;
+		}
+
+		public NodeParamsBuilder<PK,D,F> withAgeMonitoring(boolean enableAgeMonitoring){
+			this.enableAgeMonitoring = enableAgeMonitoring;
 			return this;
 		}
 
@@ -358,6 +368,10 @@ public class NodeParams<
 
 	public boolean getDisableIntroducer(){
 		return disableIntroducer;
+	}
+
+	public boolean getAgeMonitoringStatus(){
+		return enableAgeMonitoring;
 	}
 
 }

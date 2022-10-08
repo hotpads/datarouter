@@ -15,6 +15,8 @@
  */
 package io.datarouter.metric.counter.conveyor;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -24,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.conveyor.BaseConveyor;
 import io.datarouter.conveyor.ConveyorCounters;
+import io.datarouter.conveyor.ConveyorGauges;
 import io.datarouter.conveyor.MemoryBuffer;
 import io.datarouter.metric.counter.collection.CountPublisher;
 import io.datarouter.scanner.Scanner;
@@ -42,8 +45,9 @@ public class CountMemoryToPublisherConveyor extends BaseConveyor{
 			Supplier<Boolean> shouldRun,
 			MemoryBuffer<Map<Long,Map<String,Long>>> buffer,
 			ExceptionRecorder exceptionRecorder,
-			CountPublisher countPublisher){
-		super(name, shouldRun, () -> false, exceptionRecorder);
+			CountPublisher countPublisher,
+			ConveyorGauges conveyorGauges){
+		super(name, shouldRun, () -> false, exceptionRecorder, conveyorGauges);
 		this.buffer = buffer;
 		this.countPublisher = countPublisher;
 	}
@@ -51,7 +55,10 @@ public class CountMemoryToPublisherConveyor extends BaseConveyor{
 	@Override
 	public ProcessBatchResult processBatch(){
 		//this normally runs more frequently than the publisher, but polling > 1 allows catching up just in case
+		Instant beforePeek = Instant.now();
 		List<Map<Long,Map<String,Long>>> dtos = buffer.pollMultiWithLimit(POLL_LIMIT);
+		Instant afterPeek = Instant.now();
+		gaugeRecorder.savePeekDurationMs(this, Duration.between(beforePeek, afterPeek).toMillis());
 		if(dtos.isEmpty()){
 			return new ProcessBatchResult(false);
 		}
@@ -67,7 +74,7 @@ public class CountMemoryToPublisherConveyor extends BaseConveyor{
 					.map(Map::size)
 					.reduce(0, Integer::sum);
 			logger.info("counts numPeriods={}, numNames={}", counts.size(), numCounts);
-			countPublisher.add(counts);
+			countPublisher.publish(counts);
 			ConveyorCounters.incPutMultiOpAndDatabeans(this, numCounts);
 		}catch(Exception putMultiException){
 			logger.warn("", putMultiException);

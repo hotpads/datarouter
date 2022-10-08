@@ -23,32 +23,33 @@ import com.amazonaws.services.sqs.model.SendMessageRequest;
 import io.datarouter.aws.sqs.SqsClientManager;
 import io.datarouter.aws.sqs.SqsDataTooLargeException;
 import io.datarouter.aws.sqs.op.SqsBlobOp;
-import io.datarouter.bytes.codec.stringcodec.StringCodec;
-import io.datarouter.model.util.CommonFieldSizes;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.Config;
 import io.datarouter.util.concurrent.UncheckedInterruptedException;
 
 public class SqsBlobPutOp extends SqsBlobOp<Void>{
 
-	private final String data;
+	private final byte[] data;
+	private final int maxRawDataSize;
 
 	public SqsBlobPutOp(
 			byte[] data,
+			int maxRawDataSize,
 			Config config,
 			SqsClientManager sqsClientManager,
 			ClientId clientId,
 			String queueUrl){
 		super(sqsClientManager, clientId, config, queueUrl);
-		this.data = StringCodec.UTF_8.decode(data);
+		this.data = data;
+		this.maxRawDataSize = maxRawDataSize;
 	}
 
 	@Override
 	protected Void run(){
-		if(data.length() > CommonFieldSizes.MAX_SQS_SIZE){
-			throw new SqsDataTooLargeException(List.of("a blob of size " + data.length()));
+		if(data.length > maxRawDataSize){
+			throw new SqsDataTooLargeException(List.of("a blob of size " + data.length));
 		}
-		var request = new SendMessageRequest(queueUrl, data);
+		var request = new SendMessageRequest(queueUrl, SqsBlobOp.SQS_BLOB_BASE_64_CODEC.encode(data));
 		try{
 			sqsClientManager.getAmazonSqs(clientId).sendMessage(request);
 		}catch(AbortedException e){

@@ -17,46 +17,48 @@ package io.datarouter.storage.node.adapter.counter.physical;
 
 import java.util.Optional;
 
+import io.datarouter.bytes.Codec;
+import io.datarouter.model.databean.EmptyDatabean;
+import io.datarouter.model.databean.EmptyDatabean.EmptyDatabeanFielder;
+import io.datarouter.model.key.EmptyDatabeanKey;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.adapter.PhysicalAdapterMixin;
 import io.datarouter.storage.node.adapter.counter.BaseCounterAdapter;
 import io.datarouter.storage.node.op.raw.BlobQueueStorage;
 import io.datarouter.storage.node.op.raw.BlobQueueStorage.PhysicalBlobQueueStorageNode;
 import io.datarouter.storage.queue.BlobQueueMessage;
-import io.datarouter.storage.queue.BlobQueueMessage.BlobQueueMessageFielder;
-import io.datarouter.storage.queue.BlobQueueMessageDto;
-import io.datarouter.storage.queue.BlobQueueMessageKey;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
 
-public class PhysicalBlobQueueStorageCounterAdapter
-extends BaseCounterAdapter<
-		BlobQueueMessageKey,
-		BlobQueueMessage,
-		BlobQueueMessageFielder,
-		PhysicalBlobQueueStorageNode>
-implements PhysicalBlobQueueStorageNode,
-		PhysicalAdapterMixin<BlobQueueMessageKey,BlobQueueMessage,BlobQueueMessageFielder,PhysicalBlobQueueStorageNode>{
+public class PhysicalBlobQueueStorageCounterAdapter<T>
+extends BaseCounterAdapter<EmptyDatabeanKey,EmptyDatabean,EmptyDatabeanFielder,PhysicalBlobQueueStorageNode<T>>
+implements PhysicalBlobQueueStorageNode<T>,
+		PhysicalAdapterMixin<EmptyDatabeanKey,EmptyDatabean,EmptyDatabeanFielder,PhysicalBlobQueueStorageNode<T>>{
 
-	public PhysicalBlobQueueStorageCounterAdapter(PhysicalBlobQueueStorageNode backingNode){
+	public PhysicalBlobQueueStorageCounterAdapter(PhysicalBlobQueueStorageNode<T> backingNode){
 		super(backingNode);
 	}
 
 	@Override
-	public int getMaxDataSize(){
+	public Codec<T,byte[]> getCodec(){
+		return backingNode.getCodec();
+	}
+
+	@Override
+	public int getMaxRawDataSize(){
 		counter.count(BlobQueueStorage.OP_getMaxDataSize);
-		return backingNode.getMaxDataSize();
+		return backingNode.getMaxRawDataSize();
 	}
 
 	@Override
-	public void put(byte[] data, Config config){
+	public void putRaw(byte[] data, Config config){
 		counter.count(BlobQueueStorage.OP_put);
-		backingNode.put(data, config);
+		backingNode.putRaw(data, config);
 	}
 
 	@Override
-	public Optional<BlobQueueMessageDto> peek(Config config){
+	public Optional<BlobQueueMessage<T>> peek(Config config){
 		counter.count(BlobQueueStorage.OP_peek);
-		Optional<BlobQueueMessageDto> result = backingNode.peek(config);
+		Optional<BlobQueueMessage<T>> result = backingNode.peek(config);
 		String hitOrMiss = result.isPresent() ? "hit" : "miss";
 		counter.count(BlobQueueStorage.OP_peek + " " + hitOrMiss);
 		return result;
@@ -69,16 +71,16 @@ implements PhysicalBlobQueueStorageNode,
 	}
 
 	@Override
-	public Optional<BlobQueueMessageDto> poll(Config config){
+	public Optional<BlobQueueMessage<T>> poll(Config config){
 		counter.count(BlobQueueStorage.OP_poll);
-		Optional<BlobQueueMessageDto> result = backingNode.poll(config);
+		Optional<BlobQueueMessage<T>> result = backingNode.poll(config);
 		String hitOrMiss = result.isPresent() ? "hit" : "miss";
 		counter.count(BlobQueueStorage.OP_poll + " " + hitOrMiss);
 		return result;
 	}
 
 	@Override
-	public PhysicalDatabeanFieldInfo<BlobQueueMessageKey, BlobQueueMessage, BlobQueueMessageFielder> getFieldInfo(){
+	public PhysicalDatabeanFieldInfo<EmptyDatabeanKey,EmptyDatabean,EmptyDatabeanFielder> getFieldInfo(){
 		return PhysicalAdapterMixin.super.getFieldInfo();
 	}
 

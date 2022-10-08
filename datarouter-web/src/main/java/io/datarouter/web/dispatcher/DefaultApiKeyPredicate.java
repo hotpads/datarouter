@@ -20,7 +20,6 @@ import java.util.function.Supplier;
 import javax.servlet.http.HttpServletRequest;
 
 import io.datarouter.httpclient.security.SecurityParameters;
-import io.datarouter.util.tuple.Pair;
 
 public class DefaultApiKeyPredicate extends ApiKeyPredicate{
 
@@ -32,11 +31,11 @@ public class DefaultApiKeyPredicate extends ApiKeyPredicate{
 	}
 
 	@Override
-	public Pair<Boolean,String> innerCheck(DispatchRule rule, HttpServletRequest request, String apiKeyCandidate){
+	public ApiKeyPredicateCheck innerCheck(DispatchRule rule, HttpServletRequest request, String apiKeyCandidate){
 		if(apiKeySupplier.get().equals(apiKeyCandidate)){
-			return new Pair<>(true, "");
+			return new ApiKeyPredicateCheck(true, "");
 		}
-		return new Pair<>(false, "no match for " + obfuscate(apiKeyCandidate));
+		return new ApiKeyPredicateCheck(false, "no match for " + obfuscate(apiKeyCandidate));
 	}
 
 }

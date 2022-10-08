@@ -62,11 +62,11 @@ public class AppNavBar extends NavBar{
 		if(entry.getValue().size() == 1 && entry.getKey().allowSingleItemMenu()){
 			var item = new NavBarMenuItem(
 					entry.getValue().get(0).path,
-					entry.getKey().getDisplay(),
+					entry.getKey().display(),
 					entry.getValue().get(0).openInNewTab,
 					this);
 			entry.getValue().get(0).dispatchRule.ifPresent(item::setDispatchRule);
-			return new NavBarMenuItemWrapper(item, entry.getKey().getGrouping().group);
+			return new NavBarMenuItemWrapper(item, entry.getKey().grouping().group);
 		}
 		List<NavBarMenuItem> menuItems = entry.getValue().stream()
 				.sorted(Comparator.comparing((NavBarItem item) -> item.name))
@@ -76,20 +76,13 @@ public class AppNavBar extends NavBar{
 					return menuItem;
 				})
 				.collect(Collectors.toList());
-		var item = new NavBarMenuItem(entry.getKey().getDisplay(), menuItems);
-		return new NavBarMenuItemWrapper(item, entry.getKey().getGrouping().group);
+		var item = new NavBarMenuItem(entry.getKey().display(), menuItems);
+		return new NavBarMenuItemWrapper(item, entry.getKey().grouping().group);
 	}
 
-	private static final class NavBarMenuItemWrapper{
-
-		public final NavBarMenuItem item;
-		public final int grouping;
-
-		public NavBarMenuItemWrapper(NavBarMenuItem item, int grouping){
-			this.item = item;
-			this.grouping = grouping;
-		}
-
+	private record NavBarMenuItemWrapper(
+			NavBarMenuItem item,
+			int grouping){
 	}
 
 }

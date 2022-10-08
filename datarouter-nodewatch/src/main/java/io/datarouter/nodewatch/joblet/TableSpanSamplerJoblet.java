@@ -119,36 +119,15 @@ public class TableSpanSamplerJoblet extends BaseJoblet<TableSpanSamplerJobletPar
 		return samples;
 	}
 
-	public static class TableSpanSamplerJobletParams{
-
-		public final boolean scanUntilEnd;
-		public final long createdTimeMs;
-		public final int sampleEveryN;
-		public final int batchSize; //TODO primitive after migration
-		public final TableSampleKey startSampleKey;
-		public final TableSample endSample;
-		public final ClientTableEntityPrefixNameWrapper nodeNames;
-		public final long samplerId;
-
-		public TableSpanSamplerJobletParams(
-				boolean scanUntilEnd,
-				long createdTimeMs,
-				int sampleEveryN,
-				int batchSize,
-				TableSampleKey startSampleKey,
-				TableSample endSample,
-				ClientTableEntityPrefixNameWrapper nodeNames,
-				long samplerId){
-			this.scanUntilEnd = scanUntilEnd;
-			this.createdTimeMs = createdTimeMs;
-			this.sampleEveryN = sampleEveryN;
-			this.batchSize = batchSize;
-			this.startSampleKey = startSampleKey;
-			this.endSample = endSample;
-			this.nodeNames = nodeNames;
-			this.samplerId = samplerId;
-		}
-
+	public record TableSpanSamplerJobletParams(
+			boolean scanUntilEnd,
+			long createdTimeMs,
+			int sampleEveryN,
+			int batchSize,
+			TableSampleKey startSampleKey,
+			TableSample endSample,
+			ClientTableEntityPrefixNameWrapper nodeNames,
+			long samplerId){
 	}
 
 	public static class TableSpanSamplerJobletCodec extends BaseGsonJobletCodec<TableSpanSamplerJobletParams>{

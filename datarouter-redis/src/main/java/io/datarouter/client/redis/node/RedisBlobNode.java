@@ -11,6 +11,7 @@ import java.util.function.Supplier;
 import io.datarouter.bytes.ByteTool;
 import io.datarouter.bytes.InputStreamTool;
 import io.datarouter.client.redis.client.DatarouterRedisClient;
+import io.datarouter.client.redis.client.RedisKeyValue;
 import io.datarouter.client.redis.client.RedisRequestConfig;
 import io.datarouter.client.redis.codec.RedisBlobCodec;
 import io.datarouter.scanner.Scanner;
@@ -25,7 +26,6 @@ import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.op.raw.BlobStorage.PhysicalBlobStorageNode;
 import io.datarouter.storage.node.type.physical.base.BasePhysicalNode;
 import io.datarouter.storage.util.Subpath;
-import io.datarouter.util.tuple.Twin;
 import io.lettuce.core.KeyValue;
 
 public class RedisBlobNode
@@ -130,7 +130,7 @@ implements PhysicalBlobStorageNode{
 
 	@Override
 	public void write(PathbeanKey key, byte[] value, Config config){
-		Twin<byte[]> kv = new Twin<>(codec.encodeKey(key), value);
+		RedisKeyValue kv = new RedisKeyValue(codec.encodeKey(key), value);
 		config.findTtl()
 				.map(Duration::toMillis)
 				.ifPresentOrElse(

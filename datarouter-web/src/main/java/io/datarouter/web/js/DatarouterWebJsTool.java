@@ -24,7 +24,6 @@ import java.util.stream.Collectors;
 
 import io.datarouter.pathnode.PathNode;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.util.tuple.Twin;
 import j2html.tags.specialized.ScriptTag;
 
 public class DatarouterWebJsTool{
@@ -49,8 +48,11 @@ public class DatarouterWebJsTool{
 	 */
 	public static String buildRawJsPathsObject(Optional<String> pathPrefix, Collection<PathNode> nodes){
 		return Scanner.of(nodes)
-				.map(node -> new Twin<>(node.getValue(), node.join(pathPrefix.orElse("") + "/", "/", "")))
-				.map(twin -> twin.getLeft() + ": '" + twin.getRight() + "'")
+				.map(node -> {
+					String value = node.getValue();
+					String path = node.join(pathPrefix.orElse("") + "/", "/", "");
+					return value + ": '" + path + "'";
+				})
 				.collect(Collectors.joining(",\n", "{", "}"));
 	}
 

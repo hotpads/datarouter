@@ -18,7 +18,6 @@ package io.datarouter.client.mysql.ddl.generate.imp;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -85,9 +84,13 @@ public class FieldSqlTableGenerator{
 
 	private List<SqlColumn> makeSqlColumns(List<Field<?>> fields, boolean allowNullable){
 		return fields.stream()
-				.map((Function<Field<?>, MysqlFieldCodec<?>>)fieldCodecFactory::createCodec)
-				.map(codec -> codec.getSqlColumnDefinition(allowNullable))
+				.map(field -> getSqlColumnDefinition(allowNullable, field))
 				.collect(Collectors.toList());
+	}
+
+	private <T,F extends Field<T>> SqlColumn getSqlColumnDefinition(boolean allowNullable, F field){
+		MysqlFieldCodec<T,F> codec = fieldCodecFactory.createCodec(field);
+		return codec.getSqlColumnDefinition(allowNullable, field);
 	}
 
 	private List<String> makeSqlColumnNames(List<Field<?>> fields){

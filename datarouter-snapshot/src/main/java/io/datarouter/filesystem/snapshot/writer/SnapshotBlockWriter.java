@@ -33,15 +33,15 @@ import io.datarouter.filesystem.snapshot.encode.BranchBlockEncoder;
 import io.datarouter.filesystem.snapshot.encode.EncodedBlock;
 import io.datarouter.filesystem.snapshot.encode.LeafBlockEncoder;
 import io.datarouter.filesystem.snapshot.encode.RootBlockFields;
-import io.datarouter.filesystem.snapshot.encode.RootBlockFields.RootBlockEncoderBlockCounts;
-import io.datarouter.filesystem.snapshot.encode.RootBlockFields.RootBlockEncoderBlockEndings;
-import io.datarouter.filesystem.snapshot.encode.RootBlockFields.RootBlockEncoderBlocksPerFile;
-import io.datarouter.filesystem.snapshot.encode.RootBlockFields.RootBlockEncoderByteCountsCompressed;
-import io.datarouter.filesystem.snapshot.encode.RootBlockFields.RootBlockEncoderByteCountsEncoded;
-import io.datarouter.filesystem.snapshot.encode.RootBlockFields.RootBlockEncoderBytesPerFile;
-import io.datarouter.filesystem.snapshot.encode.RootBlockFields.RootBlockEncoderCompressors;
-import io.datarouter.filesystem.snapshot.encode.RootBlockFields.RootBlockEncoderFormats;
-import io.datarouter.filesystem.snapshot.encode.RootBlockFields.RootBlockEncoderTimings;
+import io.datarouter.filesystem.snapshot.encode.RootBlockFields.NestedRecords.RootBlockEncoderBlockCounts;
+import io.datarouter.filesystem.snapshot.encode.RootBlockFields.NestedRecords.RootBlockEncoderBlockEndings;
+import io.datarouter.filesystem.snapshot.encode.RootBlockFields.NestedRecords.RootBlockEncoderBlocksPerFile;
+import io.datarouter.filesystem.snapshot.encode.RootBlockFields.NestedRecords.RootBlockEncoderByteCountsCompressed;
+import io.datarouter.filesystem.snapshot.encode.RootBlockFields.NestedRecords.RootBlockEncoderByteCountsEncoded;
+import io.datarouter.filesystem.snapshot.encode.RootBlockFields.NestedRecords.RootBlockEncoderBytesPerFile;
+import io.datarouter.filesystem.snapshot.encode.RootBlockFields.NestedRecords.RootBlockEncoderCompressors;
+import io.datarouter.filesystem.snapshot.encode.RootBlockFields.NestedRecords.RootBlockEncoderFormats;
+import io.datarouter.filesystem.snapshot.encode.RootBlockFields.NestedRecords.RootBlockEncoderTimings;
 import io.datarouter.filesystem.snapshot.encode.ValueBlockEncoder;
 import io.datarouter.filesystem.snapshot.key.SnapshotKey;
 import io.datarouter.filesystem.snapshot.path.SnapshotPaths;
@@ -97,9 +97,9 @@ public class SnapshotBlockWriter{
 				this::onLeafFileWrite,
 				this::onBranchFileWrite);
 		this.exec = exec;
-		paths = config.pathsSupplier.get();
+		paths = config.pathsSupplier().get();
 
-		maxTasks = config.numThreads * 100;
+		maxTasks = config.numThreads() * 100;
 		stallMs = 1;
 
 		pendingLeafEncoders = new LinkedBlockingQueue<>();
@@ -126,26 +126,26 @@ public class SnapshotBlockWriter{
 				.mapToInt(Integer::intValue)
 				.toArray();
 		long writeDurationMs = System.currentTimeMillis() - writeStartTimeMs;
-		var encoder = config.rootBlockEncoderSupplier.get();
+		var encoder = config.rootBlockEncoderSupplier().get();
 		var rootBlockFields = new RootBlockFields(
-				config.sorted,
-				config.pathsSupplier.get(),
+				config.sorted(),
+				config.pathsSupplier().get(),
 				new RootBlockEncoderFormats(
-						config.branchBlockEncoderFactory.apply(0).format(),
-						config.leafBlockEncoderSupplier.get().format(),
-						config.valueBlockEncoderSupplier.get().format()),
+						config.branchBlockEncoderFactory().apply(0).format(),
+						config.leafBlockEncoderSupplier().get().format(),
+						config.valueBlockEncoderSupplier().get().format()),
 				new RootBlockEncoderCompressors(
-						config.branchBlockCompressor.name(),
-						config.leafBlockCompressor.name(),
-						config.valueBlockCompressor.name()),
+						config.branchBlockCompressor().name(),
+						config.leafBlockCompressor().name(),
+						config.valueBlockCompressor().name()),
 				new RootBlockEncoderBytesPerFile(
-						config.branchBytesPerFile,
-						config.leafBytesPerFile,
-						config.valueBytesPerFile),
+						config.branchBytesPerFile(),
+						config.leafBytesPerFile(),
+						config.valueBytesPerFile()),
 				new RootBlockEncoderBlocksPerFile(
-						config.branchBlocksPerFile,
-						config.leafBlocksPerFile,
-						config.valueBlocksPerFile),
+						config.branchBlocksPerFile(),
+						config.leafBlocksPerFile(),
+						config.valueBlocksPerFile()),
 				numKeys,
 				numBranchLevels,
 				new RootBlockEncoderBlockCounts(
@@ -168,7 +168,7 @@ public class SnapshotBlockWriter{
 		encoder.set(rootBlockFields);
 
 		EncodedBlock encodedRootBlock = encoder.encode();
-		if(config.persist){
+		if(config.persist()){
 			fileStorage.addRootFile(encodedRootBlock);
 		}
 		return new RootBlockV1(encodedRootBlock.concat());
@@ -216,12 +216,12 @@ public class SnapshotBlockWriter{
 						numEndings);
 			}
 			EncodedBlock encodedPages = encoder.encode(fileIdsAndEndings);
-			CompressedBlock compressedBlock = config.branchBlockCompressor.compress(
+			CompressedBlock compressedBlock = config.branchBlockCompressor().compress(
 					encodedPages,
-					config.compressorConcatChunks);
+					config.compressorConcatChunks());
 			tracker.branchBlock(encodedPages, compressedBlock);
 			fileWriter.addBranchBlock(encoder.level(), encoder.blockId(), compressedBlock);
-			if(blockStorage != null && config.updateCache){
+			if(blockStorage != null && config.updateCache()){
 				CacheBlockKey cacheBlockKey = CacheBlockKey.branch(snapshotKey, encoder.level(), encoder.blockId());
 				blockStorage.addBranchBlock(paths, cacheBlockKey, compressedBlock);
 			}
@@ -234,7 +234,7 @@ public class SnapshotBlockWriter{
 	/*------------------- leaf ---------------------*/
 
 	public void submitLeaf(LeafBlockEncoder encoder){
-		if(config.numColumns == 0){
+		if(config.numColumns() == 0){
 			flushLeaf(encoder);
 		}else{
 			pendingLeafEncoders.add(encoder);
@@ -242,7 +242,7 @@ public class SnapshotBlockWriter{
 	}
 
 	private boolean isLeafFlushable(LeafBlockEncoder encoder){
-		for(int column = 0; column < config.numColumns; ++column){
+		for(int column = 0; column < config.numColumns(); ++column){
 			if(!fileWriter.valueFileInfoReady(
 					column,
 					encoder.firstValueBlockId(column),
@@ -257,11 +257,11 @@ public class SnapshotBlockWriter{
 		leafBackpressure();
 		tracker.leafTasks.increment();
 		Future<?> future = exec.submit(() -> {
-			if(config.sorted){
+			if(config.sorted()){
 				encoder.assertKeysSorted();// primary writer thread only validates sorting between key blocks
 			}
-			var fileIdsAndEndings = new FileIdsAndEndings[config.numColumns];
-			for(int column = 0; column < config.numColumns; ++column){
+			var fileIdsAndEndings = new FileIdsAndEndings[config.numColumns()];
+			for(int column = 0; column < config.numColumns(); ++column){
 				int firstValueBlockId = encoder.firstValueBlockId(column);
 				int numValueBlocks = encoder.numValueBlocks(column);
 				int numEndings = numValueBlocks + 1;// +1 for previous block final endings
@@ -271,12 +271,12 @@ public class SnapshotBlockWriter{
 						numEndings);
 			}
 			EncodedBlock encodedPages = encoder.encode(fileIdsAndEndings);
-			CompressedBlock compressedBytes = config.leafBlockCompressor.compress(
+			CompressedBlock compressedBytes = config.leafBlockCompressor().compress(
 					encodedPages,
-					config.compressorConcatChunks);
+					config.compressorConcatChunks());
 			tracker.leafBlock(encodedPages, compressedBytes);
 			fileWriter.addLeafBlock(encoder.blockId(), compressedBytes);
-			if(blockStorage != null && config.updateCache){
+			if(blockStorage != null && config.updateCache()){
 				CacheBlockKey cacheBlockKey = CacheBlockKey.leaf(snapshotKey, encoder.blockId());
 				blockStorage.addLeafBlock(paths, cacheBlockKey, compressedBytes);
 			}
@@ -287,7 +287,7 @@ public class SnapshotBlockWriter{
 	}
 
 	private void leafBackpressure(){
-		if(config.numColumns > 0){
+		if(config.numColumns() > 0){
 			// don't block value files from flushing their pending leaves.  the value backpressure should limit leaves
 			return;
 		}
@@ -313,12 +313,12 @@ public class SnapshotBlockWriter{
 				ConcurrentHashMap::new);
 		Future<?> future = exec.submit(() -> {
 			EncodedBlock encodedPages = encoder.encode();
-			CompressedBlock compressedBytes = config.valueBlockCompressor.compress(
+			CompressedBlock compressedBytes = config.valueBlockCompressor().compress(
 					encodedPages,
-					config.compressorConcatChunks);
+					config.compressorConcatChunks());
 			tracker.valueBlock(encodedPages, compressedBytes);
 			fileWriter.addValueBlock(column, blockId, compressedBytes);
-			if(blockStorage != null && config.updateCache){
+			if(blockStorage != null && config.updateCache()){
 				CacheBlockKey cacheBlockKey = CacheBlockKey.value(snapshotKey, column, blockId);
 				blockStorage.addValueBlock(paths, cacheBlockKey, compressedBytes);
 			}

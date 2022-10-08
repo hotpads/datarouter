@@ -15,13 +15,11 @@
  */
 package io.datarouter.web.navigation;
 
-import java.util.Objects;
+public interface NavBarCategory{
 
-import io.datarouter.enums.Displayable;
+	String display();
 
-public interface NavBarCategory extends Displayable{
-
-	default AppNavBarCategoryGrouping getGrouping(){
+	default AppNavBarCategoryGrouping grouping(){
 		return AppNavBarCategoryGrouping.MISC;
 	}
 
@@ -30,10 +28,10 @@ public interface NavBarCategory extends Displayable{
 	}
 
 	default SimpleNavBarCategory toDto(){
-		return new SimpleNavBarCategory(getDisplay(), getGrouping(), allowSingleItemMenu());
+		return new SimpleNavBarCategory(display(), grouping(), allowSingleItemMenu());
 	}
 
-	default NavBarItemType getType(){
+	default NavBarItemType type(){
 		return NavBarItemType.APP;
 	}
 
@@ -43,57 +41,11 @@ public interface NavBarCategory extends Displayable{
 		;
 	}
 
-	class SimpleNavBarCategory implements NavBarCategory{
-
-		private final String display;
-		private final AppNavBarCategoryGrouping grouping;
-		private final boolean allowSingleItemMenu;
-
-		public SimpleNavBarCategory(String display, AppNavBarCategoryGrouping grouping, boolean allowSingleItemMenu){
-			this.display = display;
-			this.grouping = grouping;
-			this.allowSingleItemMenu = allowSingleItemMenu;
-		}
-
-		@Override
-		public String getDisplay(){
-			return display;
-		}
-
-		@Override
-		public AppNavBarCategoryGrouping getGrouping(){
-			return grouping;
-		}
-
-		@Override
-		public boolean allowSingleItemMenu(){
-			return allowSingleItemMenu;
-		}
-
-		@Override
-		public NavBarItemType getType(){
-			return NavBarItemType.APP;
-		}
-
-		@Override
-		public boolean equals(Object other){
-			if(this == other){
-				return true;
-			}
-			if(!(other instanceof NavBarCategory)){
-				return false;
-			}
-			NavBarCategory that = (NavBarCategory) other;
-			return this.getDisplay().equals(that.getDisplay())
-					&& this.getGrouping().group == that.getGrouping().group
-					&& this.allowSingleItemMenu() == that.allowSingleItemMenu();
-		}
-
-		@Override
-		public int hashCode(){
-			return Objects.hash(display, grouping.group, allowSingleItemMenu);
-		}
-
+	record SimpleNavBarCategory(
+			String display,
+			AppNavBarCategoryGrouping grouping,
+			boolean allowSingleItemMenu)
+	implements NavBarCategory{
 	}
 
 }

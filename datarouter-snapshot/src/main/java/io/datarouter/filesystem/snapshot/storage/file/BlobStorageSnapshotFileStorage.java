@@ -80,17 +80,17 @@ public class BlobStorageSnapshotFileStorage implements SnapshotFileStorage{
 
 	@Override
 	public byte[] getBranchBlock(SnapshotPaths paths, BlockKey blockKey){
-		return getBlock(paths.branchFile(blockKey.toFileKey()), blockKey.offset, blockKey.length);
+		return getBlock(paths.branchFile(blockKey.toFileKey()), blockKey.offset(), blockKey.length());
 	}
 
 	@Override
 	public byte[] getLeafBlock(SnapshotPaths paths, BlockKey blockKey){
-		return getBlock(paths.leafFile(blockKey.toFileKey()), blockKey.offset, blockKey.length);
+		return getBlock(paths.leafFile(blockKey.toFileKey()), blockKey.offset(), blockKey.length());
 	}
 
 	@Override
 	public byte[] getValueBlock(SnapshotPaths paths, BlockKey blockKey){
-		return getBlock(paths.valueFile(blockKey.toFileKey()), blockKey.offset, blockKey.length);
+		return getBlock(paths.valueFile(blockKey.toFileKey()), blockKey.offset(), blockKey.length());
 	}
 
 	private byte[] getBlock(String path, int offset, int length){

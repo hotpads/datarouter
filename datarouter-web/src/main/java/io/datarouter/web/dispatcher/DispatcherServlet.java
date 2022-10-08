@@ -29,8 +29,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import io.datarouter.inject.DatarouterInjector;
-import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.config.DatarouterWebSettingRoot;
+import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.navigation.AppNavBar;
 import io.datarouter.web.navigation.DatarouterNavBar;
 
@@ -135,7 +135,7 @@ public abstract class DispatcherServlet extends HttpServlet{
 		routeSets.stream()
 				.map(RouteSet::getDispatchRules)
 				.flatMap(List::stream)
-				.map(rule -> new Pair<>(rule.getRegex(), rule.getHandlerClass()))
+				.map(rule -> new RegexAndHandler(rule.getRegex(), rule.getHandlerClass()))
 				.reduce(new HashSet<>(), (rules, rule) -> {
 					if(rules.contains(rule)){
 						throw new IllegalStateException("Duplicate DispatchRule " + rule);
@@ -146,6 +146,11 @@ public abstract class DispatcherServlet extends HttpServlet{
 					rulesA.addAll(rulesB);
 					return rulesA;
 				});
+	}
+
+	private record RegexAndHandler(
+			String regex,
+			Class<? extends BaseHandler> handlerClass){
 	}
 
 }

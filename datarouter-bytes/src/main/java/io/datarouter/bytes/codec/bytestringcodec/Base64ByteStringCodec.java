@@ -30,4 +30,9 @@ public class Base64ByteStringCodec implements ByteStringCodec{
 		return Base64.getDecoder().decode(value);
 	}
 
+	//this is not intended to return the actual decoded length, since padding is not considered.
+	public static int getMaxByteLength(int base64EncodedLength){
+		return base64EncodedLength * 3 / 4;//Base64 uses 4 characters per 3 bytes
+	}
+
 }

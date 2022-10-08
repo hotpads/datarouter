@@ -31,9 +31,8 @@ public class DatarouterCountSettingRoot extends SettingRoot{
 	public final CachedSetting<Boolean> saveCountsToMemory;
 	//publish counts from buffer
 	public final CachedSetting<Boolean> runCountMemoryToPublisherConveyor;
-
 	//controls gauge publishing destination
-	public final CachedSetting<Boolean> saveCountBlobsToQueueDaoInsteadOfDirectoryDao;
+	public final CachedSetting<Boolean> saveCountsToQueueDaoInsteadOfDirectoryDao;
 
 	public final CachedSetting<Integer> conveyorThreadCount;
 
@@ -41,14 +40,13 @@ public class DatarouterCountSettingRoot extends SettingRoot{
 	public DatarouterCountSettingRoot(SettingFinder finder){
 		super(finder, DatarouterSettingCategory.DATAROUTER, "datarouterCount.");
 
-
 		saveCountsToMemory = registerBooleans("saveCountsToMemory", defaultTo(false)
 				.withTag(DatarouterSettingTagType.COUNTPIPELINE, () -> true));
 		runCountMemoryToPublisherConveyor = registerBooleans("runCountMemoryToPublisherConveyor", defaultTo(false)
 				.withTag(DatarouterSettingTagType.COUNTPIPELINE, () -> true));
 
-		saveCountBlobsToQueueDaoInsteadOfDirectoryDao = registerBoolean(
-				"saveCountBlobsToQueueDaoInsteadOfDirectoryDao", false);
+		saveCountsToQueueDaoInsteadOfDirectoryDao = registerBoolean(
+				"saveCountsToQueueDaoInsteadOfDirectoryDao", false);
 
 		conveyorThreadCount = registerInteger("conveyorThreadCount", 1);
 	}

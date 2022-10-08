@@ -82,7 +82,7 @@ public class SqsUpdateQueueHandler extends BaseHandler{
 			@Param(PARAM_clientName) String clientName,
 			@Param(PARAM_referer) String referer){
 		ClientId clientId = datarouterClients.getClientId(clientName);
-		List<String> unreferencedQueueNames = queueRegistryService.getSqsQueuesForClient(clientId).getRight();
+		List<String> unreferencedQueueNames = queueRegistryService.getSqsQueuesForClient(clientId).unreferencedQueues();
 		AmazonSQS sqs = sqsClientManager.getAmazonSqs(clientId);
 		Scanner.of(unreferencedQueueNames)
 				.map(sqs::getQueueUrl)

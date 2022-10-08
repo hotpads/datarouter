@@ -33,7 +33,6 @@ import io.datarouter.job.BaseJob;
 import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.util.duration.DatarouterDuration;
 import io.datarouter.util.time.ZonedDateFormatterTool;
-import io.datarouter.util.tuple.Twin;
 import io.datarouter.web.config.properties.DefaultEmailDistributionListZoneId;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
 import io.datarouter.web.email.StandardDatarouterEmailHeaderService;
@@ -93,23 +92,28 @@ public class WebappInstanceAlertJob extends BaseJob{
 	private TableTag makeContent(WebappInstance webappInstance, DatarouterDuration buildAge){
 		ZoneId zoneId = defaultDistributionListZoneId.get();
 		var rows = List.of(
-				new Twin<>("webapp", webappInstance.getKey().getWebappName()),
-				new Twin<>("build date", ZonedDateFormatterTool.formatInstantWithZone(
+				new Row("webapp", webappInstance.getKey().getWebappName()),
+				new Row("build date", ZonedDateFormatterTool.formatInstantWithZone(
 						webappInstance.getBuildInstant(),
 						zoneId)),
-				new Twin<>("build age", buildAge.toString()),
-				new Twin<>("startup date", ZonedDateFormatterTool.formatInstantWithZone(
+				new Row("build age", buildAge.toString()),
+				new Row("startup date", ZonedDateFormatterTool.formatInstantWithZone(
 						webappInstance.getStartupInstant(),
 						zoneId)),
-				new Twin<>("commitId", webappInstance.getCommitId()));
-		return new J2HtmlEmailTable<Twin<String>>()
-				.withColumn(new J2HtmlEmailTableColumn<>(null, row -> makeDivBoldRight(row.getLeft())))
-				.withColumn(new J2HtmlEmailTableColumn<>(null, row -> text(row.getRight())))
+				new Row("commitId", webappInstance.getCommitId()));
+		return new J2HtmlEmailTable<Row>()
+				.withColumn(new J2HtmlEmailTableColumn<>(null, row -> makeDivBoldRight(row.header())))
+				.withColumn(new J2HtmlEmailTableColumn<>(null, row -> text(row.content())))
 				.build(rows);
 	}
 
 	private static DomContent makeDivBoldRight(String text){
 		return div(text).withStyle("font-weight:bold;text-align:right;");
+	}
+
+	private record Row(
+			String header,
+			String content){
 	}
 
 }

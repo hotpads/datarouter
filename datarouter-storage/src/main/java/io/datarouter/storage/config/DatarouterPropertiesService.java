@@ -36,7 +36,6 @@ import io.datarouter.storage.config.properties.ServerPrivateIp;
 import io.datarouter.storage.config.properties.ServerPublicIp;
 import io.datarouter.storage.config.properties.ServiceName;
 import io.datarouter.util.Require;
-import io.datarouter.util.tuple.Twin;
 
 @Singleton
 public class DatarouterPropertiesService{
@@ -68,27 +67,34 @@ public class DatarouterPropertiesService{
 	@Inject
 	private ConfigDirectory configDirectory;
 
-	public List<Twin<String>> getAllProperties(){
+	public List<DatarouterProperty> getAllProperties(){
 		return Scanner.of(
-				Twin.of(AdminEmail.ADMINISTRATOR_EMAIL, adminEmail.get()),
-				Twin.of(EnvironmentName.ENVIRONMENT, environmentName.get()),
-				Twin.of(EnvironmentDomain.ENVIRONMENT_DOMAIN, environmentDomain.get()),
-				Twin.of(DatarouterEnvironmentTypeSupplier.ENVIRONMENT_TYPE, environmentType.get()),
-				Twin.of(ServiceName.ENV_VARIABLE, serviceName.get()),
-				Twin.of(InternalConfigDirectory.INTERNAL_CONFIG_DIRECTORY, internalConfigDirectory.get()),
-				Twin.of(ServerClusterDomains.SERVER_CLUSTER_DOMAINS, serverClusterDomains.get().stream()
+				new DatarouterProperty(AdminEmail.ADMINISTRATOR_EMAIL, adminEmail.get()),
+				new DatarouterProperty(EnvironmentName.ENVIRONMENT, environmentName.get()),
+				new DatarouterProperty(EnvironmentDomain.ENVIRONMENT_DOMAIN, environmentDomain.get()),
+				new DatarouterProperty(DatarouterEnvironmentTypeSupplier.ENVIRONMENT_TYPE, environmentType.get()),
+				new DatarouterProperty(ServiceName.ENV_VARIABLE, serviceName.get()),
+				new DatarouterProperty(InternalConfigDirectory.INTERNAL_CONFIG_DIRECTORY,
+						internalConfigDirectory.get()),
+				new DatarouterProperty(ServerClusterDomains.SERVER_CLUSTER_DOMAINS, serverClusterDomains.get().stream()
 						.sorted()
 						.collect(Collectors.joining(","))),
-				Twin.of(ServerName.SERVER_NAME, serverName.get()),
-				Twin.of(ServerPrivateIp.SERVER_PRIVATE_IP, serverPrivateIp.get()),
-				Twin.of(ServerPublicIp.SERVER_PUBLIC_IP, serverPublicIp.get()),
-				Twin.of(DatarouterServerTypeSupplier.SERVER_TYPE, serverType.get().getPersistentString()),
-				Twin.of("subscribers", subscribers.get().stream()
+				new DatarouterProperty(ServerName.SERVER_NAME, serverName.get()),
+				new DatarouterProperty(ServerPrivateIp.SERVER_PRIVATE_IP, serverPrivateIp.get()),
+				new DatarouterProperty(ServerPublicIp.SERVER_PUBLIC_IP, serverPublicIp.get()),
+				new DatarouterProperty(DatarouterServerTypeSupplier.SERVER_TYPE,
+						serverType.get().getPersistentString()),
+				new DatarouterProperty("subscribers", subscribers.get().stream()
 						.sorted()
 						.collect(Collectors.joining(","))),
-				Twin.of("configDirectory", configDirectory.get()))
-				.sort(Comparator.comparing(Twin::getLeft))
+				new DatarouterProperty("configDirectory", configDirectory.get()))
+				.sort(Comparator.comparing(DatarouterProperty::key))
 				.list();
+	}
+
+	public record DatarouterProperty(
+			String key,
+			String value){
 	}
 
 	public void assertRequired(){

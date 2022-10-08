@@ -210,9 +210,25 @@ public class Trace2 extends BaseDatabean<Trace2Key,Trace2>{
 		return cpuTimeEndedNs != null && cpuTimeCreatedNs != null ? cpuTimeEndedNs - cpuTimeCreatedNs : null;
 	}
 
+	public Long getCpuTimeCreatesNs(){
+		return cpuTimeCreatedNs;
+	}
+
+	public Long getCpuTimeEndedNs(){
+		return cpuTimeEndedNs;
+	}
+
 	public Long getMemoryAllocatedBytes(){
 		return memoryAllocatedBytesEnded != null && memoryAllocatedBytesBegin != null ? memoryAllocatedBytesEnded
 				- memoryAllocatedBytesBegin : null;
+	}
+
+	public Long getMemoryAllocatedBytesBegin(){
+		return memoryAllocatedBytesBegin;
+	}
+
+	public Long getMemoryAllocatedBytesEnded(){
+		return memoryAllocatedBytesEnded;
 	}
 
 	public Traceparent getTraceparent(){

@@ -32,7 +32,8 @@ import javax.inject.Singleton;
 import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
 import io.datarouter.nodewatch.config.DatarouterNodewatchPaths;
-import io.datarouter.nodewatch.service.TableSizeMonitoringService.CountStat;
+import io.datarouter.nodewatch.service.TableSizeMonitoringService.PercentageCountStat;
+import io.datarouter.nodewatch.service.TableSizeMonitoringService.ThresholdCountStat;
 import io.datarouter.nodewatch.storage.latesttablecount.LatestTableCount;
 import io.datarouter.util.DateTool;
 import io.datarouter.util.number.NumberFormatter;
@@ -60,21 +61,21 @@ public class TableSizeMonitoringEmailBuilder{
 	private DefaultEmailDistributionListZoneId defaultDistributionListZoneId;
 
 	public BodyTag build(
-			List<CountStat> thresholdRows,
+			List<ThresholdCountStat> thresholdRows,
 			float percentageThreshold,
-			List<CountStat> percentageRows,
+			List<PercentageCountStat> percentageRows,
 			List<LatestTableCount> staleRows){
 		var mainHeader = standardDatarouterEmailHeaderService.makeStandardHeader();
 		var body = body(mainHeader);
 		if(thresholdRows.size() > 0){
 			var header = h4("Tables exceeding threshold");
-			var table = makeCountStatTable("THRESHOLD", thresholdRows);
+			var table = makeThresholdCountStatTable("THRESHOLD", thresholdRows);
 			body.with(div(header, table));
 		}
 		if(percentageRows.size() > 0){
 			var header = h4("Tables that grew or shrank by more than " + percentageThreshold + "%");
 			var header2 = p("Please reply-all to indicate whether the changes are expected.");
-			var table = makeCountStatTable("PREVIOUS COUNT", percentageRows);
+			var table = makePercentageCountStatTable("PREVIOUS COUNT", percentageRows);
 			body.with(div(header, header2, table));
 		}
 		if(staleRows.size() > 0){
@@ -100,9 +101,9 @@ public class TableSizeMonitoringEmailBuilder{
 				.build(staleRows);
 	}
 
-	public TableTag makeCountStatTable(String comparableCount, List<CountStat> stats){
+	public TableTag makePercentageCountStatTable(String comparableCount, List<PercentageCountStat> stats){
 		ZoneId zoneId = defaultDistributionListZoneId.get();
-		return new J2HtmlEmailTable<CountStat>()
+		return new J2HtmlEmailTable<PercentageCountStat>()
 				.withColumn("Client", row -> row.latestSample.getKey().getClientName())
 				.withColumn(new J2HtmlEmailTableColumn<>("Table", row -> makeTableLink(
 						row.latestSample.getKey().getTableName(),
@@ -114,6 +115,22 @@ public class TableSizeMonitoringEmailBuilder{
 				.withColumn(alignRight("% Increase", row -> new DecimalFormat("#,###.##").format(row.percentageIncrease)
 						+ "%"))
 				.withColumn(alignRight("Count Increase", row -> NumberFormatter.addCommas(row.countDifference)))
+				.build(stats);
+	}
+
+	public TableTag makeThresholdCountStatTable(String comparableCount, List<ThresholdCountStat> stats){
+		ZoneId zoneId = defaultDistributionListZoneId.get();
+		return new J2HtmlEmailTable<ThresholdCountStat>()
+				.withColumn("Client", row -> row.latestSample().getKey().getClientName())
+				.withColumn(new J2HtmlEmailTableColumn<>("Table", row -> makeTableLink(
+						row.latestSample().getKey().getTableName(),
+						row.latestSample().getKey().getClientName())))
+				.withColumn("Date Updated",
+						row -> ZonedDateFormatterTool.formatInstantWithZone(
+								row.latestSample().getDateUpdated(), zoneId))
+				.withColumn(alignRight(comparableCount, row -> NumberFormatter.addCommas(row.threshold())))
+				.withColumn(alignRight("Latest Count", row -> NumberFormatter.addCommas(
+						row.latestSample().getNumRows())))
 				.build(stats);
 	}
 

@@ -43,7 +43,7 @@ extends QueueNodeBuilder<PK,D,F>{
 	@Override
 	public <N extends NodeOps<PK,D>> N build(){
 		return queueNodeFactory.createGroupQueueNode(clientId, databeanSupplier, queueName, fielderSupplier, namespace,
-				queueUrl, tag);
+				queueUrl, tag, enableAgeMonitoring);
 	}
 
 }

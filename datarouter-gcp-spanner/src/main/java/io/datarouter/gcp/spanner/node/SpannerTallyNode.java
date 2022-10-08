@@ -105,7 +105,11 @@ implements PhysicalTallyStorageNode{
 
 	@Override
 	public void vacuum(Config config){
-		var vacuum = new SpannerVacuum<>(clientManager.getDatabaseClient(getClientId()), getTallyFieldInfo(), config);
+		var vacuum = new SpannerVacuum<>(
+				clientManager.getDatabaseClient(getClientId()),
+				getTallyFieldInfo(),
+				TallyKey.FieldKeys.id.getColumnName(),
+				config);
 		vacuum.vacuum();
 	}
 

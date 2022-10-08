@@ -18,32 +18,34 @@ package io.datarouter.exception.storage.httprecord;
 import java.util.List;
 
 import io.datarouter.model.field.Field;
-import io.datarouter.model.field.imp.StringField;
-import io.datarouter.model.field.imp.StringFieldKey;
+import io.datarouter.model.field.codec.UlidToStringCodec;
+import io.datarouter.model.field.imp.StringEncodedField;
+import io.datarouter.model.field.imp.StringEncodedFieldKey;
 import io.datarouter.model.key.primary.RegularPrimaryKey;
 import io.datarouter.model.key.primary.base.BaseRegularPrimaryKey;
+import io.datarouter.util.Ulid;
 
 public abstract class BaseHttpRequestRecordKey<PK extends RegularPrimaryKey<PK>> extends BaseRegularPrimaryKey<PK>{
 
-	private String id;
+	private Ulid id;
 
 	public static class FieldKeys{
-		public static final StringFieldKey id = new StringFieldKey("id");
+		public static final StringEncodedFieldKey<Ulid> id = new StringEncodedFieldKey<>("id", new UlidToStringCodec());
 	}
 
 	public BaseHttpRequestRecordKey(){
 	}
 
-	public BaseHttpRequestRecordKey(String id){
+	public BaseHttpRequestRecordKey(Ulid id){
 		this.id = id;
 	}
 
 	@Override
 	public List<Field<?>> getFields(){
-		return List.of(new StringField(FieldKeys.id, id));
+		return List.of(new StringEncodedField<>(FieldKeys.id, id));
 	}
 
-	public String getId(){
+	public Ulid getId(){
 		return id;
 	}
 

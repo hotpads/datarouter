@@ -63,9 +63,9 @@ public class JobletSubnavFactory{
 	private Dropdown metrics(){
 		var dropdown = new Dropdown("Metrics");
 		DatarouterJobletCounters.UI_LINK_NAMES_AND_PREFIXES.stream()
-				.filter(twin -> externalLinkBuilder.get().counters(twin.getRight()).isPresent())
-				.map(twin -> new DropdownItem(twin.getLeft(), externalLinkBuilder.get().counters(
-						twin.getRight()).get()))
+				.filter(twin -> externalLinkBuilder.get().counters(twin.prefix()).isPresent())
+				.map(twin -> new DropdownItem(twin.linkName(), externalLinkBuilder.get().counters(
+						twin.prefix()).get()))
 				.forEach(dropdown::add);
 		return dropdown;
 	}

@@ -19,6 +19,7 @@ public enum DispatchType{
 
 	DEFAULT,
 	API_ENDPOINT,
+	WEB_API,// ie: external FE facing endpoints
 	INTERNAL_LINK,
 	;
 

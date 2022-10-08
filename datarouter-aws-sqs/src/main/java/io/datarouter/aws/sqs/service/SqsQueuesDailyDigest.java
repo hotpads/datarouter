@@ -86,7 +86,7 @@ public class SqsQueuesDailyDigest implements DailyDigest{
 			return Optional.empty();
 		}
 
-		List<String> unreferencedQueues = queueRegistryService.getSqsQueuesForClient(clientId).getRight();
+		List<String> unreferencedQueues = queueRegistryService.getSqsQueuesForClient(clientId).unreferencedQueues();
 		if(unreferencedQueues.isEmpty()){
 			return Optional.empty();
 		}

@@ -24,18 +24,19 @@ import static j2html.TagCreator.ul;
 
 import java.time.ZoneId;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Objects;
 
 import javax.inject.Inject;
 
 import io.datarouter.plugin.PluginInjector;
-import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.digest.DailyDigest.DailyDigestType;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import io.datarouter.web.requirejs.DatarouterWebRequireJsV2;
 import io.datarouter.web.user.session.CurrentUserSessionInfoService;
+import j2html.tags.DomContent;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.H2Tag;
 import j2html.tags.specialized.UlTag;
@@ -61,11 +62,11 @@ public class DailyDigestHandler extends BaseHandler{
 
 	private Mav view(DailyDigestType type){
 		ZoneId zoneId = currentSessionInfoService.getZoneId(request);
-		var digestsWithContent = pluginInjector.scanInstances(DailyDigest.KEY)
+		List<Digest> digestsWithContent = pluginInjector.scanInstances(DailyDigest.KEY)
 				.include(digest -> digest.getType() == type)
-				.map(dailyDigest -> new Pair<>(dailyDigest, dailyDigest.getPageContent(zoneId).orElse(null)))
-				.include(digestWithContent -> Objects.nonNull(digestWithContent.getRight()))
-				.sort(Comparator.comparing(Pair::getLeft, DailyDigest.COMPARATOR))
+				.map(dailyDigest -> new Digest(dailyDigest, dailyDigest.getPageContent(zoneId).orElse(null)))
+				.include(obj -> Objects.nonNull(obj.content))
+				.sort(Comparator.comparing(obj -> obj.digest, DailyDigest.COMPARATOR))
 				.list();
 
 		DivTag content;
@@ -75,11 +76,11 @@ public class DailyDigestHandler extends BaseHandler{
 		}else{
 			H2Tag header = h2("Daily Digest - " + type.display);
 			UlTag toc = ul(each(digestsWithContent, digestWithContent -> {
-				DailyDigest digest = digestWithContent.getLeft();
+				DailyDigest digest = digestWithContent.digest();
 				return li(a(digest.getTitle()).withHref("#" + digest.getId()));
 			}));
-			content = div(header, toc, each(digestsWithContent, digestWithContent -> div(digestWithContent.getRight())
-					.withId(digestWithContent.getLeft().getId())))
+			content = div(header, toc, each(digestsWithContent, digestWithContent -> div(digestWithContent.content())
+					.withId(digestWithContent.digest().getId())))
 					.withClass("container-fluid");
 		}
 		return pageFactory.startBuilder(request)
@@ -87,6 +88,12 @@ public class DailyDigestHandler extends BaseHandler{
 				.withContent(content)
 				.withRequires(DatarouterWebRequireJsV2.SORTTABLE)
 				.buildMav();
+	}
+
+	private record Digest(
+			DailyDigest digest,
+			DomContent content){
+
 	}
 
 }

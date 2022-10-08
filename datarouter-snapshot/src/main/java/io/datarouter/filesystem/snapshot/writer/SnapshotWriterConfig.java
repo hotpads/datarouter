@@ -26,113 +26,41 @@ import io.datarouter.filesystem.snapshot.encode.ValueBlockEncoder;
 import io.datarouter.filesystem.snapshot.path.SnapshotPaths;
 import io.datarouter.scanner.Scanner;
 
-public class SnapshotWriterConfig{
+public record SnapshotWriterConfig(
+		boolean sorted,
+		int numColumns,
 
-	public final boolean sorted;
-	public final int numColumns;
+		int batchQueueLength,
+		int numThreads,
+		long logPeriodMs,
+		boolean compressorConcatChunks,
+		boolean persist,
+		boolean updateCache,
 
-	public final int batchQueueLength;
-	public final int numThreads;
-	public final long logPeriodMs;
-	public final boolean compressorConcatChunks;
-	public final boolean persist;
-	public final boolean updateCache;
+		Supplier<SnapshotPaths> pathsSupplier,
 
-	public final Supplier<SnapshotPaths> pathsSupplier;
+		int leafEncoderChunkSize,
 
-	public final int leafEncoderChunkSize;
+		int branchBlockSize,
+		int leafBlockSize,
+		int valueBlockSize,
 
-	public final int branchBlockSize;
-	public final int leafBlockSize;
-	public final int valueBlockSize;
+		int branchBytesPerFile,
+		int leafBytesPerFile,
+		int valueBytesPerFile,
 
-	public final int branchBytesPerFile;
-	public final int leafBytesPerFile;
-	public final int valueBytesPerFile;
+		int branchBlocksPerFile,
+		int leafBlocksPerFile,
+		int valueBlocksPerFile,
 
-	public final int branchBlocksPerFile;
-	public final int leafBlocksPerFile;
-	public final int valueBlocksPerFile;
+		Supplier<RootBlockEncoder> rootBlockEncoderSupplier,
+		Function<Integer,BranchBlockEncoder> branchBlockEncoderFactory,
+		Supplier<LeafBlockEncoder> leafBlockEncoderSupplier,
+		Supplier<ValueBlockEncoder> valueBlockEncoderSupplier,
 
-	public final Supplier<RootBlockEncoder> rootBlockEncoderSupplier;
-	public final Function<Integer,BranchBlockEncoder> branchBlockEncoderFactory;
-	public final Supplier<LeafBlockEncoder> leafBlockEncoderSupplier;
-	public final Supplier<ValueBlockEncoder> valueBlockEncoderSupplier;
-
-	public final BlockCompressor branchBlockCompressor;
-	public final BlockCompressor leafBlockCompressor;
-	public final BlockCompressor valueBlockCompressor;
-
-	public SnapshotWriterConfig(
-			boolean sorted,
-			int numColumns,
-
-			int batchQueueLength,
-			int numThreads,
-			long logPeriodMs,
-			boolean compressorConcatChunks,
-			boolean persist,
-			boolean updateCache,
-
-			Supplier<SnapshotPaths> pathsSupplier,
-
-			int leafEncoderChunkSize,
-
-			int branchBlockSize,
-			int leafBlockSize,
-			int valueBlockSize,
-
-			int branchBytesPerFile,
-			int leafBytesPerFile,
-			int valueBytesPerFile,
-
-			int branchBlocksPerFile,
-			int leafBlocksPerFile,
-			int valueBlocksPerFile,
-
-			Supplier<RootBlockEncoder> rootBlockEncoderSupplier,
-			Function<Integer,BranchBlockEncoder> branchBlockEncoderFactory,
-			Supplier<LeafBlockEncoder> leafBlockEncoderSupplier,
-			Supplier<ValueBlockEncoder> valueBlockEncoderSupplier,
-
-			BlockCompressor branchBlockCompressor,
-			BlockCompressor leafBlockCompressor,
-			BlockCompressor valueBlockCompressor){
-		this.sorted = sorted;
-		this.numColumns = numColumns;
-
-		this.batchQueueLength = batchQueueLength;
-		this.numThreads = numThreads;
-		this.logPeriodMs = logPeriodMs;
-		this.compressorConcatChunks = compressorConcatChunks;
-		this.persist = persist;
-		this.updateCache = updateCache;
-
-		this.pathsSupplier = pathsSupplier;
-
-		this.leafEncoderChunkSize = leafEncoderChunkSize;
-
-		this.branchBlockSize = branchBlockSize;
-		this.leafBlockSize = leafBlockSize;
-		this.valueBlockSize = valueBlockSize;
-
-		this.branchBytesPerFile = branchBytesPerFile;
-		this.leafBytesPerFile = leafBytesPerFile;
-		this.valueBytesPerFile = valueBytesPerFile;
-
-		this.branchBlocksPerFile = branchBlocksPerFile;
-		this.leafBlocksPerFile = leafBlocksPerFile;
-		this.valueBlocksPerFile = valueBlocksPerFile;
-
-		this.rootBlockEncoderSupplier = rootBlockEncoderSupplier;
-		this.branchBlockEncoderFactory = branchBlockEncoderFactory;
-		this.leafBlockEncoderSupplier = leafBlockEncoderSupplier;
-		this.valueBlockEncoderSupplier = valueBlockEncoderSupplier;
-
-		this.branchBlockCompressor = branchBlockCompressor;
-		this.leafBlockCompressor = leafBlockCompressor;
-		this.valueBlockCompressor = valueBlockCompressor;
-	}
+		BlockCompressor branchBlockCompressor,
+		BlockCompressor leafBlockCompressor,
+		BlockCompressor valueBlockCompressor){
 
 	public Scanner<Integer> columnIds(){
 		return Scanner.iterate(0, i -> i + 1)

@@ -27,6 +27,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.auth.config.DatarouterAuthPaths;
+import io.datarouter.auth.config.DatarouterAuthSettingRoot;
 import io.datarouter.auth.storage.account.DatarouterAccount;
 import io.datarouter.auth.storage.account.DatarouterAccountDao;
 import io.datarouter.email.html.J2HtmlEmailTable;
@@ -51,6 +52,8 @@ public class DatarouterAccountDailyDigest implements DailyDigest{
 	private DatarouterAuthPaths paths;
 	@Inject
 	private DailyDigestService digestService;
+	@Inject
+	private DatarouterAuthSettingRoot settings;
 
 	private List<DatarouterAccount> getAccounts(){
 		return accountDao.scan()
@@ -61,6 +64,9 @@ public class DatarouterAccountDailyDigest implements DailyDigest{
 
 	@Override
 	public Optional<DivTag> getPageContent(ZoneId zoneId){
+		if(!settings.enableAccountDailyDigest.get()){
+			return Optional.empty();
+		}
 		List<DatarouterAccount> accounts = getAccounts();
 		if(accounts.isEmpty()){
 			return Optional.empty();
@@ -72,6 +78,9 @@ public class DatarouterAccountDailyDigest implements DailyDigest{
 
 	@Override
 	public Optional<DivTag> getEmailContent(ZoneId zoneId){
+		if(!settings.enableAccountDailyDigest.get()){
+			return Optional.empty();
+		}
 		List<DatarouterAccount> accounts = getAccounts();
 		if(accounts.isEmpty()){
 			return Optional.empty();

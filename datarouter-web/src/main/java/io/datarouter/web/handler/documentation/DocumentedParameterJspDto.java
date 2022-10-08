@@ -31,8 +31,15 @@ public class DocumentedParameterJspDto{
 
 	public final Set<DocumentedExampleEnumDto> exampleEnumDtos;
 
-	public DocumentedParameterJspDto(String name, String type, String example, Boolean required, Boolean requestBody,
-			Boolean hidden, String description, Set<DocumentedExampleEnumDto> exampleEnumDtos){
+	public DocumentedParameterJspDto(
+			String name,
+			String type,
+			String example,
+			Boolean required,
+			Boolean requestBody,
+			Boolean hidden,
+			String description,
+			Set<DocumentedExampleEnumDto> exampleEnumDtos){
 		this.name = name;
 		this.type = type;
 		this.example = example;

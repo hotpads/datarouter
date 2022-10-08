@@ -54,12 +54,10 @@ public class ByteArrayFieldCodec<T> extends FieldCodec<T,byte[]>{
 
 		public ByteArrayFieldCodecBuilder(
 				TypeToken<T> typeToken,
-				Codec<T,byte[]> codec,
-				T sampleValue){
+				Codec<T,byte[]> codec){
 			this.typeToken = typeToken;
 			this.codec = codec;
 			this.comparator = (left, right) -> compareEncoded(codec, left, right);
-			this.sampleValue = sampleValue;
 		}
 
 		public ByteArrayFieldCodec<T> build(){
@@ -79,6 +77,11 @@ public class ByteArrayFieldCodec<T> extends FieldCodec<T,byte[]>{
 		public ByteArrayFieldCodecBuilder<T> setComparator(Comparator<T> comparator){
 			Objects.requireNonNull(comparator, "Please provide a Comparator");
 			this.comparator = comparator;
+			return this;
+		}
+
+		public ByteArrayFieldCodecBuilder<T> setSampleValue(T sampleValue){
+			this.sampleValue = sampleValue;
 			return this;
 		}
 

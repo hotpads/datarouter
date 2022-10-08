@@ -15,8 +15,8 @@
  */
 package io.datarouter.httpclient.client;
 
-import io.datarouter.httpclient.endpoint.BaseLink;
-import io.datarouter.httpclient.endpoint.LinkType;
+import io.datarouter.httpclient.endpoint.link.BaseLink;
+import io.datarouter.httpclient.endpoint.link.LinkType;
 
 public abstract class BaseDatarouterLinkClientWrapper<
 		L extends LinkType>

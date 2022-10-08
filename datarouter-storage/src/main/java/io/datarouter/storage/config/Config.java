@@ -46,6 +46,7 @@ public class Config implements Cloneable{
 	//table scans
 	private Boolean scannerPrefetching;
 	private Boolean scannerCaching;
+	private Boolean allowUnsortedScan;
 	private Integer requestBatchSize;
 	private Integer responseBatchSize;
 
@@ -101,10 +102,10 @@ public class Config implements Cloneable{
 			.setAnyDelay(anyDelay)
 
 			.setPutMethod(putMethod)
-			.setIgnoreNullFields(ignoreNullFields)
 			.setPersistentPut(persistentPut)
 
 			.setScannerCaching(scannerCaching)
+			.setAllowUnsortedScan(allowUnsortedScan)
 			.setRequestBatchSize(requestBatchSize)
 			.setResponseBatchSize(responseBatchSize)
 
@@ -258,17 +259,6 @@ public class Config implements Cloneable{
 		return this;
 	}
 
-	/*--------------------------- ignore null fields ------------------------*/
-
-	public Optional<Boolean> findIgnoreNullFields(){
-		return Optional.ofNullable(ignoreNullFields);
-	}
-
-	public Config setIgnoreNullFields(Boolean ignoreNullFields){
-		this.ignoreNullFields = ignoreNullFields;
-		return this;
-	}
-
 	/*------------------------- scanner prefetching -----------------------------*/
 
 	public Optional<Boolean> findScannerPrefetching(){
@@ -288,6 +278,17 @@ public class Config implements Cloneable{
 
 	public Config setScannerCaching(Boolean scannerCaching){
 		this.scannerCaching = scannerCaching;
+		return this;
+	}
+
+	/*------------------------- unsorted scan -----------------------------*/
+
+	public Optional<Boolean> findAllowUnsortedScan(){
+		return Optional.ofNullable(allowUnsortedScan);
+	}
+
+	public Config setAllowUnsortedScan(Boolean allowUnsortedScan){
+		this.allowUnsortedScan = allowUnsortedScan;
 		return this;
 	}
 

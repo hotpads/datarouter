@@ -109,12 +109,16 @@ implements PhysicalBlobStorageNode{
 
 	@Override
 	public Scanner<List<Pathbean>> scanPaged(Subpath subpath, Config config){
-		return directoryBlobStorage.scanPaged(subpath);
+		//sorted should be true except when findAllowUnsortedScan is present and true
+		boolean sorted = !config.findAllowUnsortedScan().orElse(false);
+		return directoryBlobStorage.scanPaged(subpath, sorted);
 	}
 
 	@Override
 	public Scanner<List<PathbeanKey>> scanKeysPaged(Subpath subpath, Config config){
-		return directoryBlobStorage.scanKeysPaged(subpath);
+		//sorted should be true except when findAllowUnsortedScan is present and true
+		boolean sorted = !config.findAllowUnsortedScan().orElse(false);
+		return directoryBlobStorage.scanKeysPaged(subpath, sorted);
 	}
 
 	@Override

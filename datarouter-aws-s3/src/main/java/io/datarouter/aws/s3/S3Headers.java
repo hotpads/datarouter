@@ -55,24 +55,26 @@ public class S3Headers{
 	}
 
 	public enum ContentType implements S3ContentType{
-		PNG("image/png","png"),
+		APPLICATION_JSON("application/json","json"),
+		APPLICATION_OCTET_STREAM("application/octet-stream", null),
+		APPLICATION_XML("application/xml",null), //s3's default
+		BINARY("binary/octet-stream", null),
+		GZIP("application/x-gzip","gz"),
+		JAR("application/java-archive", "jar"),
 		JPEG("image/jpeg","jpg"),
+		MP3("audio/mpeg", "mp3"),
+		MULTIPART_MIXED("multipart/mixed",null),
+		PDF("application/pdf", "pdf"),
+		PNG("image/png","png"),
 		SWF("application/x-shockwave-flash","swf"),
 		TEXT_PLAIN("text/plain","txt"),
 		TEXT_CSV("text/csv","csv"),
 		TEXT_TSV("text/tsv","tsv"),
 		TEXT_XML("text/xml","xml"),
 		TEXT_SHELLSCRIPT("text/x-shellscript", "sh"),
-		APPLICATION_JSON("application/json","json"),
-		APPLICATION_XML("application/xml",null), //s3's default
 		TEXT_HTML("text/html","html"),
-		MULTIPART_MIXED("multipart/mixed",null),
-		GZIP("application/x-gzip","gz"),
 		ZIP("application/zip","zip"),
-		BINARY("binary/octet-stream", null),
-		APPLICATION_OCTET_STREAM("application/octet-stream", null),
-		PDF("application/pdf", "pdf"),
-		MP3("audio/mpeg", "mp3");
+		;
 
 		public static final StringMappedEnum<ContentType> BY_MIME_TYPE
 				= new StringMappedEnum<>(values(), value -> value.mimeType);

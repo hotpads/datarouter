@@ -66,6 +66,26 @@ public interface RootBlock extends Block{
 		return numBranchLevels() - 1;
 	}
 
+	/*----------- avg block sizes -----------------*/
+
+	default long avgBranchBlockBytesEncoded(){
+		return numBranchBlocks() == 0
+				? 0
+				: numBranchBytesEncoded() / numBranchBlocks();
+	}
+
+	default long avgLeafBlockBytesEncoded(){
+		return numLeafBlocks() == 0
+				? 0
+				: numLeafBytesEncoded() / numLeafBlocks();
+	}
+
+	default long avgValueBlockBytesEncoded(){
+		return numValueBlocks() == 0
+				? 0
+				: numValueBytesEncoded() / numValueBlocks();
+	}
+
 	/*----------- sizes -----------------*/
 
 	long numRootBytesEncoded();
@@ -164,6 +184,10 @@ public interface RootBlock extends Block{
 		kvs.put("numBranchBlocks", NumberFormatter.addCommas(numBranchBlocks()));
 		kvs.put("numLeafBlocks", NumberFormatter.addCommas(numLeafBlocks()));
 		kvs.put("numValueBlocks", NumberFormatter.addCommas(numValueBlocks()));
+
+		kvs.put("avgBranchBlockBytesEncoded", NumberFormatter.addCommas(avgBranchBlockBytesEncoded()));
+		kvs.put("avgLeafBlockBytesEncoded", NumberFormatter.addCommas(avgLeafBlockBytesEncoded()));
+		kvs.put("avgValueBlockBytesEncoded", NumberFormatter.addCommas(avgValueBlockBytesEncoded()));
 
 		kvs.put("numBranchBytesEncoded", NumberFormatter.addCommas(numBranchBytesEncoded()));
 		kvs.put("numLeafBytesEncoded", NumberFormatter.addCommas(numLeafBytesEncoded()));

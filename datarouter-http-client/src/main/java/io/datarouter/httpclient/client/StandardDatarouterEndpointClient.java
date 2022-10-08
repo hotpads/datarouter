@@ -45,10 +45,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.httpclient.circuitbreaker.DatarouterHttpClientIoExceptionCircuitBreaker;
-import io.datarouter.httpclient.endpoint.BaseEndpoint;
-import io.datarouter.httpclient.endpoint.EndpointTool;
-import io.datarouter.httpclient.endpoint.EndpointType;
-import io.datarouter.httpclient.json.JsonSerializer;
+import io.datarouter.httpclient.endpoint.java.BaseEndpoint;
+import io.datarouter.httpclient.endpoint.java.EndpointTool;
+import io.datarouter.httpclient.endpoint.java.EndpointType;
 import io.datarouter.httpclient.request.DatarouterHttpRequest;
 import io.datarouter.httpclient.request.HttpRequestMethod;
 import io.datarouter.httpclient.response.Conditional;
@@ -65,6 +64,7 @@ import io.datarouter.instrumentation.refreshable.RefreshableSupplier;
 import io.datarouter.instrumentation.trace.TraceSpanFinisher;
 import io.datarouter.instrumentation.trace.TraceSpanGroupType;
 import io.datarouter.instrumentation.trace.TracerTool;
+import io.datarouter.json.JsonSerializer;
 import io.datarouter.pathnode.PathNode;
 
 @Singleton
@@ -235,7 +235,7 @@ implements DatarouterEndpointClient<ET>{
 	@Override
 	public <R> Conditional<R> call(BaseEndpoint<R,ET> endpoint){
 		initUrlPrefix(endpoint);
-		DatarouterHttpRequest datarouterHttpRequest = EndpointTool.toDatarouterHttpRequest(endpoint);
+		DatarouterHttpRequest datarouterHttpRequest = EndpointTool.toDatarouterHttpRequest(endpoint, jsonSerializer);
 		EndpointTool.findEntity(endpoint).ifPresent(entity -> setEntityDto(datarouterHttpRequest, entity));
 		Type responseType = EndpointTool.getResponseType(endpoint);
 		return tryExecute(datarouterHttpRequest, endpoint.pathNode, responseType);
@@ -244,7 +244,7 @@ implements DatarouterEndpointClient<ET>{
 	@Override
 	public <E> Conditional<E> callAnyType(BaseEndpoint<E,?> endpoint){
 		endpoint.setUrlPrefix(urlPrefix.get());
-		DatarouterHttpRequest datarouterHttpRequest = EndpointTool.toDatarouterHttpRequest(endpoint);
+		DatarouterHttpRequest datarouterHttpRequest = EndpointTool.toDatarouterHttpRequest(endpoint, jsonSerializer);
 		EndpointTool.findEntity(endpoint).ifPresent(entity -> setEntityDto(datarouterHttpRequest, entity));
 		Type responseType = EndpointTool.getResponseType(endpoint);
 		return tryExecute(datarouterHttpRequest, endpoint.pathNode, responseType);
@@ -253,7 +253,7 @@ implements DatarouterEndpointClient<ET>{
 	@Override
 	public <R> R callChecked(BaseEndpoint<R,ET> endpoint) throws DatarouterHttpException{
 		initUrlPrefix(endpoint);
-		DatarouterHttpRequest datarouterHttpRequest = EndpointTool.toDatarouterHttpRequest(endpoint);
+		DatarouterHttpRequest datarouterHttpRequest = EndpointTool.toDatarouterHttpRequest(endpoint, jsonSerializer);
 		EndpointTool.findEntity(endpoint).ifPresent(entity -> setEntityDto(datarouterHttpRequest, entity));
 		Type responseType = EndpointTool.getResponseType(endpoint);
 		return executeChecked(datarouterHttpRequest, endpoint.pathNode, responseType);
@@ -265,7 +265,7 @@ implements DatarouterEndpointClient<ET>{
 		String finalUrl = URI.create(endpoint.urlPrefix + endpoint.pathNode.toSlashedString())
 				.normalize()
 				.toString();
-		Map<String,String> paramMap = EndpointTool.getParamFields(endpoint).getParams;
+		Map<String,String> paramMap = EndpointTool.getParamFields(endpoint, jsonSerializer).getParams;
 		String params = paramMap.entrySet().stream()
 				.map(entry -> entry.getKey() + "=" + entry.getValue())
 				.collect(Collectors.joining("&", "?", ""));

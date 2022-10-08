@@ -17,27 +17,26 @@ package io.datarouter.virtualnode.redundant;
 
 import java.util.List;
 
+import io.datarouter.model.databean.EmptyDatabean;
+import io.datarouter.model.databean.EmptyDatabean.EmptyDatabeanFielder;
+import io.datarouter.model.key.EmptyDatabeanKey;
 import io.datarouter.storage.node.op.raw.BlobQueueStorage.BlobQueueStorageNode;
-import io.datarouter.storage.queue.BlobQueueMessage;
-import io.datarouter.storage.queue.BlobQueueMessage.BlobQueueMessageFielder;
-import io.datarouter.storage.queue.BlobQueueMessageKey;
 import io.datarouter.virtualnode.redundant.base.BaseRedundantQueueNode;
 import io.datarouter.virtualnode.redundant.mixin.RedundantBlobQueueStorageMixin;
 
-public class RedundantBlobQueueStorageNode
-extends BaseRedundantQueueNode<BlobQueueMessageKey,BlobQueueMessage,BlobQueueMessageFielder,BlobQueueStorageNode>
-implements BlobQueueStorageNode, RedundantBlobQueueStorageMixin{
+public class RedundantBlobQueueStorageNode<T>
+extends BaseRedundantQueueNode<EmptyDatabeanKey,EmptyDatabean,EmptyDatabeanFielder,BlobQueueStorageNode<T>>
+implements BlobQueueStorageNode<T>, RedundantBlobQueueStorageMixin<T>{
 
-	private RedundantBlobQueueStorageNode(List<BlobQueueStorageNode> nodes){
+	private RedundantBlobQueueStorageNode(List<BlobQueueStorageNode<T>> nodes){
 		super(nodes.get(0), nodes);
 	}
 
-	public static BlobQueueStorageNode makeIfMulti(
-					List<BlobQueueStorageNode> nodes){
+	public static <T> BlobQueueStorageNode<T> makeIfMulti(List<BlobQueueStorageNode<T>> nodes){
 		if(nodes.size() == 1){
 			return nodes.get(0);
 		}
-		return new RedundantBlobQueueStorageNode(nodes);
+		return new RedundantBlobQueueStorageNode<>(nodes);
 	}
 
 }

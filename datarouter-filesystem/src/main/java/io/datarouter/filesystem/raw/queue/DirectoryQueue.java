@@ -27,7 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import io.datarouter.filesystem.raw.DirectoryManager;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.util.Subpath;
-import io.datarouter.util.UlidTool;
+import io.datarouter.util.Ulid;
 
 public class DirectoryQueue{
 
@@ -42,13 +42,13 @@ public class DirectoryQueue{
 	}
 
 	public String putMessage(byte[] message){
-		String id = UlidTool.nextUlid();
+		String id = new Ulid().value();
 		directoryManager.write(idToFilename(id), message);
 		return id;
 	}
 
 	public String putMessage(String message){
-		String id = UlidTool.nextUlid();
+		String id = new Ulid().value();
 		directoryManager.writeUtf8(idToFilename(id), message);
 		return id;
 	}

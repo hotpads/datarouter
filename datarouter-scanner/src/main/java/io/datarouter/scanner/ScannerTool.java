@@ -215,6 +215,15 @@ public class ScannerTool{
 		}
 	}
 
+	public static <T> Scanner<T> peekFirst(Scanner<T> scanner, Consumer<? super T> action){
+		List<T> item = scanner.take(1);
+		if(item.isEmpty()){
+			return new EmptyScanner<>();
+		}
+		action.accept(item.get(0));
+		return ObjectScanner.of(item.get(0)).append(scanner);
+	}
+
 	public static <T> Optional<T> reduce(Scanner<T> scanner, BinaryOperator<T> reducer){
 		try(Scanner<T> $ = scanner){
 			T result = null;

@@ -21,9 +21,9 @@
 
 	<parent>
 		<groupId>io.datarouter</groupId>
-		<artifactId>datarouter-java11-parent</artifactId>
-		<version>0.0.116</version>
-		<relativePath>../datarouter-java11-parent</relativePath>
+		<artifactId>datarouter-parent</artifactId>
+		<version>0.0.117</version>
+		<relativePath>../datarouter-parent</relativePath>
 	</parent>
 
 	<artifactId>datarouter-util</artifactId>
@@ -45,7 +45,7 @@
 		</dependency>
 		<dependency>
 			<groupId>io.datarouter</groupId>
-			<artifactId>datarouter-scanner</artifactId>
+			<artifactId>datarouter-bytes</artifactId>
 			<version>${datarouter-version}</version>
 		</dependency>
 		<dependency><!-- used by UuidTool -->

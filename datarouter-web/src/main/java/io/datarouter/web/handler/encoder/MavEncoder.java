@@ -47,7 +47,10 @@ public class MavEncoder implements HandlerEncoder{
 	private ExceptionHandlingConfig exceptionHandlingConfig;
 
 	@Override
-	public void finishRequest(Object result, ServletContext servletContext, HttpServletResponse response,
+	public void finishRequest(
+			Object result,
+			ServletContext servletContext,
+			HttpServletResponse response,
 			HttpServletRequest request)
 	throws ServletException, IOException{
 		if(result == null){
@@ -81,14 +84,20 @@ public class MavEncoder implements HandlerEncoder{
 	}
 
 	@Override
-	public void sendHandledExceptionResponse(HandledException exception, ServletContext servletContext,
-			HttpServletResponse response, HttpServletRequest request){
+	public void sendHandledExceptionResponse(
+			HandledException exception,
+			ServletContext servletContext,
+			HttpServletResponse response,
+			HttpServletRequest request){
 		sendErrorResponse(HttpServletResponse.SC_BAD_REQUEST, exception.getMessage(), response);
 	}
 
 	@Override
-	public void sendInvalidRequestParamResponse(RequestParamValidatorErrorResponseDto errorResponseDto,
-			ServletContext servletContext, HttpServletResponse response, HttpServletRequest request){
+	public void sendInvalidRequestParamResponse(
+			RequestParamValidatorErrorResponseDto errorResponseDto,
+			ServletContext servletContext,
+			HttpServletResponse response,
+			HttpServletRequest request){
 		sendErrorResponse(errorResponseDto.statusCode, errorResponseDto.message, response);
 	}
 
@@ -97,7 +106,10 @@ public class MavEncoder implements HandlerEncoder{
 	}
 
 	@Override
-	public void sendExceptionResponse(HttpServletRequest request, HttpServletResponse response, Throwable exception,
+	public void sendExceptionResponse(
+			HttpServletRequest request,
+			HttpServletResponse response,
+			Throwable exception,
 			Optional<String> exceptionId)
 	throws IOException{
 		response.setContentType("text/html;charset=" + StandardCharsets.UTF_8.name());
@@ -128,7 +140,9 @@ public class MavEncoder implements HandlerEncoder{
 	}
 
 	@Override
-	public void sendForbiddenResponse(HttpServletRequest request, HttpServletResponse response,
+	public void sendForbiddenResponse(
+			HttpServletRequest request,
+			HttpServletResponse response,
 			SecurityValidationResult securityValidationResult){
 	}
 

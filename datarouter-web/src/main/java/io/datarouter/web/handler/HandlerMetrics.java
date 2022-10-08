@@ -38,11 +38,12 @@ public class HandlerMetrics{
 	private static final String LATENCY_MS = "latencyMs";
 	private static final String CUMULATED_DURATION_MS = "cumulatedDurationMs";
 	private static final String CUMULATED_CPU_MS = "cumulatedCpuMs";
+	private static final String BATCH = "batch";
 
 	@Inject
 	private Gauges gauges;
 
-	public void incMethodInvocation(Class<?> handler, String methodName){
+	public static void incMethodInvocation(Class<?> handler, String methodName){
 		incInternal(CALL);
 		incInternal(CLASS, handler.getSimpleName());
 		incInternal(PACKAGED_CLASS, handler.getName());
@@ -50,17 +51,18 @@ public class HandlerMetrics{
 		incInternal(PACKAGED_METHOD, handler.getName() + " " + methodName);
 	}
 
-	public void incMethodInvocationByApiKeyPredicateName(Class<?> handler, String methodName, String accountName){
+	public static void incMethodInvocationByApiKeyPredicateName(Class<?> handler, String methodName,
+			String accountName){
 		incInternal(ACCOUNT + " " + accountName + " " + CALL);
 		incInternal(ACCOUNT + " " + accountName + " " + CLASS, handler.getSimpleName());
 		incInternal(ACCOUNT + " " + accountName + " " + METHOD, handler.getSimpleName() + " " + methodName);
 	}
 
-	private void incInternal(String format){
+	private static void incInternal(String format){
 		Counters.inc(PREFIX + " " + HANDLER + " " + format);
 	}
 
-	private void incInternal(String format, String suffix){
+	private static void incInternal(String format, String suffix){
 		Counters.inc(PREFIX + " " + HANDLER + " " + format + " " + suffix);
 	}
 
@@ -69,15 +71,21 @@ public class HandlerMetrics{
 				+ method.getName(), durationMs);
 	}
 
-	public void incDuration(Class<? extends BaseHandler> handlerClass, Method method, long durationMs){
+	public static void incDuration(Class<? extends BaseHandler> handlerClass, Method method, long durationMs){
 		Counters.inc(PREFIX + " " + HANDLER + " " + METHOD + " " + CUMULATED_DURATION_MS + " " + handlerClass
 				.getSimpleName() + " " + method.getName(), durationMs);
 	}
 
-	public void incTotalCpuTime(Class<? extends BaseHandler> handlerClass, Method method, long totalCpuTimeMs){
+	public static void incTotalCpuTime(Class<? extends BaseHandler> handlerClass, Method method, long totalCpuTimeMs){
 		Counters.inc(PREFIX + " " + HANDLER + " " + METHOD + " " + CUMULATED_CPU_MS + " " + handlerClass.getSimpleName()
 				+ " " + method.getName(), totalCpuTimeMs);
 		Counters.inc(PREFIX + " " + HANDLER + " " + CUMULATED_CPU_MS, totalCpuTimeMs);
+	}
+
+	public static void incRequestBodyCollectionSize(Class<? extends BaseHandler> handlerClass, Method method,
+			int batchSize){
+		Counters.inc(PREFIX + " " + HANDLER + " " + METHOD + " " + BATCH + " " + handlerClass.getSimpleName() + " "
+				+ method.getName(), batchSize);
 	}
 
 }

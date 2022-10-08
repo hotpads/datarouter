@@ -28,13 +28,16 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.bytes.ToStringTool;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.string.StringTool;
 
@@ -180,8 +183,7 @@ public class ReflectionTool{
 
 		@Override
 		public boolean equals(Object obj){
-			if(obj instanceof FieldInClass){
-				FieldInClass other = (FieldInClass)obj;
+			if(obj instanceof FieldInClass other){
 				return other.fieldName.equals(fieldName) && other.cls.equals(cls);
 			}
 			return false;
@@ -407,6 +409,28 @@ public class ReflectionTool{
 		}
 		return object;
 	}
+
+	/*------------- toString --------------------*/
+
+	// matching Eclipse auto-generated format
+	public static final <T> String toString(T obj){
+		List<Field> fields = getDeclaredFieldsIncludingAncestors(obj.getClass());
+		return Scanner.of(fields)
+				.map(field -> {
+					String name = field.getName();
+					Object value = get(name, obj);
+					String valueString = Optional.ofNullable(value)
+							.map(ToStringTool::toString)
+							.orElse(null);
+					return name + "=" + valueString;
+				})
+				.collect(Collectors.joining(
+						", ",
+						obj.getClass().getSimpleName() + " [",
+						"]"));
+	}
+
+	/*------------- UnsafeAllocator --------------------*/
 
 	/**
 	 * Borrowed from Gson's UnsafeAllocator

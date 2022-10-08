@@ -32,7 +32,6 @@ import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.util.DatarouterCounters;
-import io.datarouter.util.tuple.Twin;
 import io.lettuce.core.KeyValue;
 import io.lettuce.core.RedisFuture;
 import io.lettuce.core.cluster.api.async.RedisClusterAsyncCommands;
@@ -77,8 +76,8 @@ public class DatarouterRedisClient{
 
 	/*------------- write ---------------*/
 
-	public void set(Twin<byte[]> kv, RedisRequestConfig config){
-		exec("set", () -> lettuceClient.set(kv.getLeft(), kv.getRight()), config, null);
+	public void set(RedisKeyValue kv, RedisRequestConfig config){
+		exec("set", () -> lettuceClient.set(kv.key(), kv.value()), config, null);
 	}
 
 	public Long incrby(byte[] key, int by, RedisRequestConfig config){
@@ -90,8 +89,8 @@ public class DatarouterRedisClient{
 		exec("pexpire", () -> lettuceClient.pexpire(key, ttl.toMillis()), config, null);
 	}
 
-	public void psetex(Twin<byte[]> kv, long ttlMs, RedisRequestConfig config){
-		exec("psetex", () -> lettuceClient.psetex(kv.getLeft(), ttlMs, kv.getRight()), config, null);
+	public void psetex(RedisKeyValue kv, long ttlMs, RedisRequestConfig config){
+		exec("psetex", () -> lettuceClient.psetex(kv.key(), ttlMs, kv.value()), config, null);
 	}
 
 	public void del(byte[] key, RedisRequestConfig config){

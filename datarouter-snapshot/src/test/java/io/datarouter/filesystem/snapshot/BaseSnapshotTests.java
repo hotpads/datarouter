@@ -208,8 +208,8 @@ public abstract class BaseSnapshotTests{
 		Assert.assertEquals(actuals.size(), sortedInputs.size());
 		for(int i = 0; i < sortedInputs.size(); ++i){
 			Input input = sortedInputs.get(i);
-			Assert.assertEquals(input.entry.key(), actuals.get(i).key);
-			Assert.assertEquals(input.entry.value(), actuals.get(i).value);
+			Assert.assertEquals(input.entry.key(), actuals.get(i).key());
+			Assert.assertEquals(input.entry.value(), actuals.get(i).value());
 		}
 	}
 
@@ -278,12 +278,12 @@ public abstract class BaseSnapshotTests{
 		for(int i = 0; i < sortedInputs.size(); ++i){
 			Input input = sortedInputs.get(i);
 			SnapshotRecord output = outputs.get(i);
-			Assert.assertEquals(i, output.id);
+			Assert.assertEquals(i, output.id());
 			for(int column = 0; column < input.entry.columnValues.length; ++column){
 				if(!SnapshotEntry.equalColumnValue(input.entry, output.entry(), column)){
 					String message = String.format("%s, actual=%s, expected=%s",
 							i,
-							utf8(output.columnValues[column]),
+							utf8(output.columnValues()[column]),
 							utf8(input.entry.columnValues[column]));
 					throw new RuntimeException(message);
 				}
@@ -312,13 +312,13 @@ public abstract class BaseSnapshotTests{
 					for(int i = 0; i < limit; ++i){
 						Input input = sortedInputs.get(fromId + i);
 						SnapshotRecord output = outputs.get(i);
-						Assert.assertEquals(fromId + i, output.id);
-						Assert.assertEquals(new Bytes(input.entry.key()), new Bytes(output.key));
+						Assert.assertEquals(fromId + i, output.id());
+						Assert.assertEquals(new Bytes(input.entry.key()), new Bytes(output.key()));
 						for(int column = 0; column < input.entry.columnValues.length; ++column){
 							if(!SnapshotEntry.equalColumnValue(input.entry, output.entry(), column)){
 								String message = String.format("%s, actual=%s, expected=%s",
 										i,
-										utf8(output.columnValues[column]),
+										utf8(output.columnValues()[column]),
 										utf8(input.entry.columnValues[column]));
 								throw new RuntimeException(message);
 							}
@@ -345,15 +345,15 @@ public abstract class BaseSnapshotTests{
 					var idReader = new SnapshotIdReader(snapshotKey, blockLoader);
 
 					//known first key inclusive
-					byte[] searchKey = idReader.getRecord(fromId).key;
+					byte[] searchKey = idReader.getRecord(fromId).key();
 					List<SnapshotLeafRecord> outputsInclusive = reader.scanLeafRecords(searchKey, true)
 							.limit(limit)
 							.list();
 					for(int i = 0; i < limit; ++i){
 						Input input = sortedInputs.get(fromId + i);
 						SnapshotLeafRecord output = outputsInclusive.get(i);
-						Assert.assertEquals(fromId + i, output.id);
-						Assert.assertEquals(new Bytes(input.entry.key()), new Bytes(output.key));
+						Assert.assertEquals(fromId + i, output.id());
+						Assert.assertEquals(new Bytes(input.entry.key()), new Bytes(output.key()));
 					}
 
 					//known first key exclusive
@@ -363,8 +363,8 @@ public abstract class BaseSnapshotTests{
 					for(int i = 0; i < limit; ++i){
 						Input input = sortedInputs.get(fromId + i + 1);//plus one because exclusive
 						SnapshotLeafRecord output = outputsExclusive.get(i);
-						Assert.assertEquals(input.id, output.id);
-						Assert.assertEquals(new Bytes(input.entry.key()), new Bytes(output.key));
+						Assert.assertEquals(input.id, output.id());
+						Assert.assertEquals(new Bytes(input.entry.key()), new Bytes(output.key()));
 					}
 
 					//fake first key (should act like exclusive)
@@ -375,8 +375,8 @@ public abstract class BaseSnapshotTests{
 					for(int i = 0; i < limit; ++i){
 						Input input = sortedInputs.get(fromId + i + 1);//plus one because the first key didn't exist
 						SnapshotLeafRecord output = outputsNonExistentKey.get(i);
-						Assert.assertEquals(input.id, output.id);
-						Assert.assertEquals(new Bytes(input.entry.key()), new Bytes(output.key));
+						Assert.assertEquals(input.id, output.id());
+						Assert.assertEquals(new Bytes(input.entry.key()), new Bytes(output.key()));
 					}
 				});
 	}
@@ -626,34 +626,34 @@ public abstract class BaseSnapshotTests{
 						byte[] value = input.entry.value();
 						if(Operation.GET_LEAF_RECORD == operation){
 							SnapshotLeafRecord leafRecord = idReader.leafRecord(id);
-							if(!Arrays.equals(key, leafRecord.key)){
+							if(!Arrays.equals(key, leafRecord.key())){
 								String message = String.format("%s, expected=%s, actual=%s",
 										id,
 										utf8(key),
-										utf8(leafRecord.key));
+										utf8(leafRecord.key()));
 								throw new RuntimeException(message);
 							}
-							if(!Arrays.equals(value, leafRecord.value)){
+							if(!Arrays.equals(value, leafRecord.value())){
 								String message = String.format("%s, expected=%s, actual=%s",
 										id,
 										utf8(value),
-										utf8(leafRecord.value));
+										utf8(leafRecord.value()));
 								throw new RuntimeException(message);
 							}
 						}else if(Operation.GET_RECORD == operation){
 							SnapshotRecord result = idReader.getRecord(id);
-							if(id != result.id){
+							if(id != result.id()){
 								String message = String.format("%s, expected=%s, actual=%s",
 										id,
 										id,
-										result.id);
+										result.id());
 								throw new RuntimeException(message);
 							}
-							if(!Arrays.equals(key, result.key)){
+							if(!Arrays.equals(key, result.key())){
 								String message = String.format("%s, expected=%s, actual=%s",
 										id,
 										utf8(key),
-										utf8(result.key));
+										utf8(result.key()));
 								throw new RuntimeException(message);
 							}
 							if(!SnapshotEntry.equal(input.entry, result.entry())){
@@ -661,7 +661,7 @@ public abstract class BaseSnapshotTests{
 										i,
 										//TODO print more than column 0
 										utf8(input.entry.columnValues[0]),
-										utf8(result.columnValues[0]));
+										utf8(result.columnValues()[0]));
 								throw new RuntimeException(message);
 							}
 						}else if(Operation.FIND_ID == operation){
@@ -684,7 +684,7 @@ public abstract class BaseSnapshotTests{
 										i,
 										//TODO print more than column 0
 										utf8(batch.get(i).entry.columnValues[0]),
-										utf8(output.get().columnValues[0]));
+										utf8(output.get().columnValues()[0]));
 								throw new RuntimeException(message);
 							}
 						}

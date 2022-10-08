@@ -48,18 +48,12 @@ public interface BlockLoader{
 	}
 
 	default Block get(BlockKey key){
-		switch(key.type){
-		case ROOT:
-			return root(key);
-		case BRANCH:
-			return branch(key);
-		case LEAF:
-			return leaf(key);
-		case VALUE:
-			return value(key);
-		default:
-			throw new IllegalStateException("unknown BlockType " + key.type);
-		}
+		return switch(key.type()){
+			case ROOT -> root(key);
+			case BRANCH -> branch(key);
+			case LEAF -> leaf(key);
+			case VALUE -> value(key);
+		};
 	}
 
 }

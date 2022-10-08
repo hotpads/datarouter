@@ -37,6 +37,7 @@ import com.google.gson.reflect.TypeToken;
 import io.datarouter.gson.serialization.GsonTool;
 import io.datarouter.httpclient.client.BaseDatarouterHttpClientWrapper;
 import io.datarouter.httpclient.client.DatarouterHttpClientBuilder;
+import io.datarouter.httpclient.json.GsonJsonSerializer;
 import io.datarouter.httpclient.proxy.RequestProxySetter;
 import io.datarouter.httpclient.request.DatarouterHttpRequest;
 import io.datarouter.httpclient.request.HttpRequestMethod;
@@ -177,7 +178,7 @@ public class HttpTestHandler extends BaseHandler{
 	public static class HttpTesterClient extends BaseDatarouterHttpClientWrapper{
 
 		public HttpTesterClient(){
-			super(new DatarouterHttpClientBuilder().build());
+			super(new DatarouterHttpClientBuilder(GsonJsonSerializer.DEFAULT).build());
 		}
 
 	}
@@ -186,7 +187,9 @@ public class HttpTestHandler extends BaseHandler{
 	public static class HttpTesterWithoutRedirectClient extends BaseDatarouterHttpClientWrapper{
 
 		public HttpTesterWithoutRedirectClient(){
-			super(new DatarouterHttpClientBuilder().disableRedirectHandling().build());
+			super(new DatarouterHttpClientBuilder(GsonJsonSerializer.DEFAULT)
+					.disableRedirectHandling()
+					.build());
 		}
 
 	}

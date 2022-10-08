@@ -37,7 +37,7 @@ import io.datarouter.filesystem.snapshot.writer.SnapshotWriterConfig;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.file.Directory;
 import io.datarouter.storage.file.PathbeanKey;
-import io.datarouter.util.UlidTool;
+import io.datarouter.util.Ulid;
 
 public class SnapshotGroupWriteOps{
 	private static final Logger logger = LoggerFactory.getLogger(SnapshotGroupWriteOps.class);
@@ -70,7 +70,7 @@ public class SnapshotGroupWriteOps{
 			Scanner<List<SnapshotEntry>> entries,
 			ExecutorService exec,
 			Supplier<Boolean> shouldStop){
-		String snapshotId = UlidTool.nextUlid();
+		String snapshotId = new Ulid().value();
 		return writeWithId(config, entries, snapshotId, exec, shouldStop);
 	}
 
@@ -82,10 +82,10 @@ public class SnapshotGroupWriteOps{
 			ExecutorService exec,
 			Supplier<Boolean> shouldStop){
 		var snapshotKey = new SnapshotKey(groupId, snapshotId);
-		SnapshotFileStorage snapshotFileStorage = group.makeSnapshotFileStorage(snapshotKey.snapshotId);
+		SnapshotFileStorage snapshotFileStorage = group.makeSnapshotFileStorage(snapshotKey.snapshotId());
 		SnapshotBlockStorage snapshotBlockStorage = cacheStorage == null
 				? null
-				: group.makeCacheStorage(snapshotKey.snapshotId);
+				: group.makeCacheStorage(snapshotKey.snapshotId());
 		try(var writer = new SnapshotWriter(snapshotKey, snapshotFileStorage, snapshotBlockStorage, config, exec)){
 			entries.advanceUntil($ -> shouldStop.get())
 					.forEach(writer::addBatch);
@@ -94,12 +94,12 @@ public class SnapshotGroupWriteOps{
 			}
 			return writer.complete()
 					.map(rootBlock -> {
-						writeIdFile(snapshotKey.snapshotId);
+						writeIdFile(snapshotKey.snapshotId());
 						decodingBlockLoaderBySnapshotKey.put(
 								snapshotKey,
 								decodingBlockLoaderFactory.create(
 										rootBlock,
-										group.makeStorageReader(snapshotKey.snapshotId)));
+										group.makeStorageReader(snapshotKey.snapshotId())));
 						return SnapshotWriteResult.success(snapshotKey, rootBlock);
 					})
 					.orElseGet(() -> {

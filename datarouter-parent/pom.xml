@@ -22,7 +22,7 @@
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-metadata-parent</artifactId>
-		<version>0.0.116</version>
+		<version>0.0.117</version>
 		<relativePath>../datarouter-metadata-parent</relativePath>
 	</parent>
 
@@ -39,7 +39,7 @@
 		<codehaus-plexus-version>2.12.1</codehaus-plexus-version>
 		<commons-codec-version>1.15</commons-codec-version>
 		<commons-io-version>2.11.0</commons-io-version>
-		<datarouter-version>0.0.116</datarouter-version>
+		<datarouter-version>0.0.117</datarouter-version>
 		<guice-version>5.1.0</guice-version>
 		<guava-version>31.1-jre</guava-version>
 		<httpclient-version>4.5.13</httpclient-version>
@@ -61,11 +61,6 @@
 
 	<dependencyManagement>
 		<dependencies>
-			<dependency>
-				<groupId>com.google.guava</groupId>
-				<artifactId>guava</artifactId>
-				<version>${guava-version}</version>
-			</dependency>
 			<dependency>
 				<groupId>com.google.cloud</groupId>
 				<artifactId>libraries-bom</artifactId>
@@ -163,7 +158,7 @@
 					<dependency>
 						<groupId>com.puppycrawl.tools</groupId>
 						<artifactId>checkstyle</artifactId>
-						<version>10.3.1</version>
+						<version>10.3.2</version>
 					</dependency>
 					<dependency>
 						<groupId>io.datarouter</groupId>
@@ -322,6 +317,7 @@
 						</properties>
 						<excludes>
 							<exclude>src/main/resources/**</exclude>
+							<exclude>src/main/java/io/datarouter/gson/serialization/RecordTypeAdapterFactory.java</exclude>
 						</excludes>
 					</configuration>
 					<executions>

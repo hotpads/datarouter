@@ -22,7 +22,7 @@ import java.util.List;
 import io.datarouter.filesystem.snapshot.key.SnapshotKey;
 import io.datarouter.filesystem.snapshot.key.SnapshotKeyDecoder;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.util.UlidTool;
+import io.datarouter.util.Ulid;
 
 public class SnapshotVacuumPlanner{
 
@@ -38,7 +38,7 @@ public class SnapshotVacuumPlanner{
 
 	public static class SnapshotVacuumPlan{
 
-		public String id = UlidTool.nextUlid();
+		public Ulid id = new Ulid();
 		public List<SnapshotVacuumPlanItem> items = new ArrayList<>();
 
 		void add(SnapshotVacuumPlanItem item){

@@ -28,8 +28,6 @@ import io.datarouter.joblet.DatarouterJobletCounters;
 import io.datarouter.joblet.dto.JobletSummary;
 import io.datarouter.joblet.enums.JobletStatus;
 import io.datarouter.joblet.storage.jobletrequest.DatarouterJobletRequestDao;
-import io.datarouter.util.tuple.Pair;
-import io.datarouter.util.tuple.Triple;
 
 public class JobletCounterJob extends BaseJob{
 
@@ -81,12 +79,23 @@ public class JobletCounterJob extends BaseJob{
 		datarouterJobletCounters.saveFirstForQueueId(status, jobletType, queueId, getFirstCreatedMinutesToNow(summary));
 	}
 
-	private Pair<JobletStatus,String> toStatusTypeKey(JobletSummary summary){
-		return new Pair<>(summary.getStatus(), summary.getType());
+	private StatusAndTypeKey toStatusTypeKey(JobletSummary summary){
+		return new StatusAndTypeKey(summary.getStatus(), summary.getType());
 	}
 
-	private Triple<JobletStatus,String,String> toStatusTypeQueueKey(JobletSummary summary){
-		return new Triple<>(summary.getStatus(), summary.getType(), summary.getQueueId());
+	private JobletStatusAndTypeAndQueueId toStatusTypeQueueKey(JobletSummary summary){
+		return new JobletStatusAndTypeAndQueueId(summary.getStatus(), summary.getType(), summary.getQueueId());
+	}
+
+	private record StatusAndTypeKey(
+			JobletStatus status,
+			String type){
+	}
+
+	private record JobletStatusAndTypeAndQueueId(
+			JobletStatus status,
+			String type,
+			String queueId){
 	}
 
 	private Long getFirstCreatedMinutesToNow(JobletSummary summary){

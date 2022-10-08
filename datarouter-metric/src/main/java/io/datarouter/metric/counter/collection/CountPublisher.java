@@ -21,12 +21,12 @@ import io.datarouter.instrumentation.response.PublishingResponseDto;
 
 public interface CountPublisher{
 
-	PublishingResponseDto add(Map<Long,Map<String,Long>> counts);
+	PublishingResponseDto publish(Map<Long,Map<String,Long>> counts);
 
 	public static class NoOpCountPublisher implements CountPublisher{
 
 		@Override
-		public PublishingResponseDto add(Map<Long,Map<String,Long>> counts){
+		public PublishingResponseDto publish(Map<Long,Map<String,Long>> counts){
 			return PublishingResponseDto.NO_OP;
 		}
 

@@ -63,16 +63,9 @@ public class Tracestate{
 				.collect(Collectors.joining(TRACESTATE_MEMBER_DELIMITER));
 	}
 
-	public static class TracestateMember{
-
-		public final String key;
-		public final String value;
-
-		public TracestateMember(String key, String value){
-			this.key = key;
-			this.value = value;
-		}
-
+	public static record TracestateMember(
+			String key,
+			String value){
 	}
 
 }

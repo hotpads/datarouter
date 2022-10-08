@@ -19,6 +19,7 @@ import static j2html.TagCreator.a;
 import static j2html.TagCreator.text;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -26,6 +27,7 @@ import javax.inject.Singleton;
 import io.datarouter.auth.web.DatarouterPermissionRequestHandler;
 import io.datarouter.web.user.databean.DatarouterUser;
 import io.datarouter.web.user.detail.DatarouterUserExternalDetailService;
+import io.datarouter.web.user.detail.DatarouterUserProfileLink;
 import j2html.tags.DomContent;
 
 @Singleton
@@ -36,9 +38,9 @@ public class DatarouterPermissionRequestUserInfo implements PermissionRequestUse
 
 	@Override
 	public List<DomContent> getUserInformation(DatarouterUser user){
-		String userProfileUrl = userExternalDetailService.getUserProfileUrl(user).orElse(null);
-		String userProfileDescription = userExternalDetailService.getUserProfileDescription()
-				.orElse("user profile");
+		Optional<DatarouterUserProfileLink> profile = userExternalDetailService.getUserProfileLink(user.getUsername());
+		String userProfileUrl = profile.map(DatarouterUserProfileLink::url).orElse(null);
+		String userProfileDescription = profile.map(DatarouterUserProfileLink::name).orElse("user profile");
 		var userTr = DatarouterPermissionRequestHandler.createLabelValueTr(
 				"User",
 				text(user.getUsername() + " - "),

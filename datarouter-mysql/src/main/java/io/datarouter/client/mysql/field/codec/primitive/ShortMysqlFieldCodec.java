@@ -29,22 +29,18 @@ import io.datarouter.model.field.Field;
 public class ShortMysqlFieldCodec
 extends BasePrimitiveMysqlFieldCodec<Short,Field<Short>>{
 
-	public ShortMysqlFieldCodec(Field<Short> field){
-		super(field);
-	}
-
 	@Override
-	public SqlColumn getSqlColumnDefinition(boolean allowNullable){
+	public SqlColumn getSqlColumnDefinition(boolean allowNullable, Field<Short> field){
 		return new SqlColumn(
 				field.getKey().getColumnName(),
-				getMysqlColumnType(),
+				getMysqlColumnType(field),
 				6,
 				allowNullable && field.getKey().isNullable(),
 				false);
 	}
 
 	@Override
-	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
+	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex, Field<Short> field){
 		try{
 			if(field.getValue() == null){
 				ps.setNull(parameterIndex, Types.SMALLINT);
@@ -57,7 +53,7 @@ extends BasePrimitiveMysqlFieldCodec<Short,Field<Short>>{
 	}
 
 	@Override
-	public Short fromMysqlResultSetButDoNotSet(ResultSet rs){
+	public Short fromMysqlResultSetButDoNotSet(ResultSet rs, Field<Short> field){
 		try{
 			short value = rs.getShort(field.getKey().getColumnName());
 			return rs.wasNull() ? null : value;
@@ -67,7 +63,7 @@ extends BasePrimitiveMysqlFieldCodec<Short,Field<Short>>{
 	}
 
 	@Override
-	public MysqlColumnType getMysqlColumnType(){
+	public MysqlColumnType getMysqlColumnType(Field<Short> field){
 		return MysqlColumnType.SMALLINT;
 	}
 

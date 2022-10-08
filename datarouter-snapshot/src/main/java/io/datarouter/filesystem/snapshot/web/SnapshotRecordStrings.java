@@ -17,18 +17,9 @@ package io.datarouter.filesystem.snapshot.web;
 
 import java.util.List;
 
-public class SnapshotRecordStrings{
-
-	public final long id;
-	public final String key;
-	public final String value;
-	public final List<String> columnValues;
-
-	public SnapshotRecordStrings(long id, String key, String value, List<String> columnValues){
-		this.id = id;
-		this.key = key;
-		this.value = value;
-		this.columnValues = columnValues;
-	}
-
+public record SnapshotRecordStrings(
+		long id,
+		String key,
+		String value,
+		List<String> columnValues){
 }

@@ -17,7 +17,8 @@ package io.datarouter.conveyor.queue;
 
 import java.time.Duration;
 import java.util.Collection;
-import java.util.function.Consumer;
+import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 import io.datarouter.model.databean.Databean;
@@ -28,24 +29,25 @@ import io.datarouter.storage.queue.QueueMessageKey;
 
 public class BatchedQueueConsumer<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>{
 
-	private final Function<Config,QueueMessage<PK,D>> peekFunction;
-	private final Consumer<Collection<QueueMessageKey>> ackMultiConsumer;
+	private final Function<Config,List<QueueMessage<PK,D>>> peekMultiFunction;
+	private final BiConsumer<Collection<QueueMessageKey>,Config> ackMultiConsumer;
 
 	public BatchedQueueConsumer(
-			Function<Config,QueueMessage<PK,D>> peekFunction,
-			Consumer<Collection<QueueMessageKey>> ackMultiConsumer){
-		this.peekFunction = peekFunction;
+			Function<Config,List<QueueMessage<PK,D>>> peekMultiFunction,
+			BiConsumer<Collection<QueueMessageKey>,Config> ackMultiConsumer){
+		this.peekMultiFunction = peekMultiFunction;
 		this.ackMultiConsumer = ackMultiConsumer;
 	}
 
-	public QueueMessage<PK,D> peek(Duration timeout, Duration visibilityTimeout){
-		return peekFunction.apply(new Config()
+	public List<QueueMessage<PK,D>> peekMulti(Integer limit, Duration timeout, Duration visibilityTimeout){
+		return peekMultiFunction.apply(new Config()
+				.setLimit(limit)
 				.setTimeout(timeout)
 				.setVisibilityTimeoutMs(visibilityTimeout.toMillis()));
 	}
 
-	public void ackMulti(Collection<QueueMessageKey> keys){
-		ackMultiConsumer.accept(keys);
+	public void ackMulti(Integer limit, Collection<QueueMessageKey> keys){
+		ackMultiConsumer.accept(keys, new Config().setLimit(limit));
 	}
 
 }

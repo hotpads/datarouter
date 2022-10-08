@@ -32,6 +32,10 @@
 		<property name="fileExtensions" value="java" />
 	</module>
 	<module name="SuppressWithPlainTextCommentFilter"/>
+	<module name="SuppressWithPlainTextCommentFilter">
+		<property name="offCommentFormat" value='=\s+"""'/>
+		<property name="onCommentFormat" value='^\s+.*""";'/>
+	</module>
 	<module name="TreeWalker">
 		<module name="SuppressWarningsHolder" />
 		<module name="SuppressionCommentFilter" />

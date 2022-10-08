@@ -19,6 +19,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.conveyor.BaseConveyors;
+import io.datarouter.conveyor.ConveyorGauges;
 import io.datarouter.instrumentation.gauge.GaugePublisher;
 import io.datarouter.metric.config.DatarouterGaugeSettingRoot;
 import io.datarouter.web.exception.ExceptionRecorder;
@@ -34,6 +35,8 @@ public class GaugeConveyors extends BaseConveyors{
 	private ExceptionRecorder exceptionRecorder;
 	@Inject
 	private GaugePublisher gaugePublisher;
+	@Inject
+	private ConveyorGauges conveyorGauges;
 
 	@Override
 	public void onStartUp(){
@@ -42,7 +45,8 @@ public class GaugeConveyors extends BaseConveyors{
 				settings.runGaugeMemoryToPublisherConveyor,
 				buffers.gaugeBuffer,
 				exceptionRecorder,
-				gaugePublisher),
+				gaugePublisher,
+				conveyorGauges),
 				settings.conveyorThreadCount.get());
 	}
 

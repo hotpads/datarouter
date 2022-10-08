@@ -16,16 +16,16 @@
 package io.datarouter.conveyor.queue;
 
 import java.time.Duration;
-import java.util.Optional;
+import java.time.Instant;
 import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.bytes.Codec;
 import io.datarouter.conveyor.BaseConveyor;
 import io.datarouter.conveyor.ConveyorCounters;
-import io.datarouter.storage.queue.BlobQueueMessageDto;
+import io.datarouter.conveyor.ConveyorGaugeRecorder;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.web.exception.ExceptionRecorder;
 
 public abstract class BaseBlobQueueConsumerConveyor<T>
@@ -35,46 +35,53 @@ extends BaseConveyor{
 	private static final Duration PEEK_TIMEOUT = Duration.ofSeconds(30);
 	private static final Duration VISIBILITY_TIMEOUT = Duration.ofSeconds(30);
 
-	private final BlobQueueConsumer queueConsumer;
-	private final Codec<T,byte[]> codec;
+	private final BlobQueueConsumer<T> queueConsumer;
 
 	protected BaseBlobQueueConsumerConveyor(
 			String name,
 			Supplier<Boolean> shouldRun,
 			ExceptionRecorder exceptionRecorder,
-			BlobQueueConsumer queueConsumer,
-			Codec<T,byte[]> codec){
-		super(name, shouldRun, () -> false, exceptionRecorder);
+			BlobQueueConsumer<T> queueConsumer,
+			ConveyorGaugeRecorder metricRecorder){
+		super(name, shouldRun, () -> false, exceptionRecorder, metricRecorder);
 		this.queueConsumer = queueConsumer;
-		this.codec = codec;
 	}
 
 	@Override
 	public ProcessBatchResult processBatch(){
 		Duration visibilityTimeout = getVisibilityTimeout();
-		Optional<BlobQueueMessageDto> optionalMessage = queueConsumer.peek(PEEK_TIMEOUT, visibilityTimeout);
+		Instant beforePeek = Instant.now();
+		var optionalMessage = queueConsumer.peek(PEEK_TIMEOUT, visibilityTimeout);
+		Instant afterPeek = Instant.now();
+		gaugeRecorder.savePeekDurationMs(this, Duration.between(beforePeek, afterPeek).toMillis());
 		if(optionalMessage.isEmpty()){
 			logger.info("peeked conveyor={} nullMessage", name);
 			return new ProcessBatchResult(false);
 		}
-		BlobQueueMessageDto messageDto = optionalMessage.get();
+		var messageDto = optionalMessage.get();
 		logger.info("peeked conveyor={} messageCount={}", name, 1);
-		T data = codec.decode(messageDto.getData());
-		long start = System.currentTimeMillis();
+		Instant beforeProcessBuffer = Instant.now();
 		try{
-			if(!processOneShouldAck(data)){
+			if(!processOneShouldAck(messageDto.scanSplitDecodedData())){
 				return new ProcessBatchResult(true);
 			}
 		}catch(Exception e){
 			throw new RuntimeException("failed to process message", e);
 		}
-		long durationMs = System.currentTimeMillis() - start;
-		if(durationMs > visibilityTimeout.toMillis()){
-			logger.warn("slow conveyor conveyor={} durationMs={}", name, durationMs);
+		Instant afterProcessBuffer = Instant.now();
+		gaugeRecorder.saveProcessBufferDurationMs(this, Duration.between(beforeProcessBuffer, afterProcessBuffer)
+				.toMillis());
+		if(Duration.between(beforeProcessBuffer, afterProcessBuffer)
+				.toMillis() > visibilityTimeout.toMillis()){
+			logger.warn("slow conveyor conveyor={} durationMs={}", name,
+					Duration.between(beforeProcessBuffer, afterProcessBuffer).toMillis());
 		}
 		logger.info("consumed conveyor={} messageCount={}", name, 1);
 		ConveyorCounters.incConsumedOpAndDatabeans(this, 1);
+		Instant beforeAck = Instant.now();
 		queueConsumer.ack(messageDto);
+		Instant afterAck = Instant.now();
+		gaugeRecorder.saveAckDurationMs(this, Duration.between(beforeAck, afterAck).toMillis());
 		logger.info("acked conveyor={} messageCount={}", name, 1);
 		ConveyorCounters.incAck(this);
 		return new ProcessBatchResult(true);
@@ -84,13 +91,11 @@ extends BaseConveyor{
 		return VISIBILITY_TIMEOUT;
 	}
 
-	protected boolean processOneShouldAck(T data){
+	protected boolean processOneShouldAck(Scanner<T> data){
 		processOne(data);
 		return true;
 	}
 
-	protected void processOne(@SuppressWarnings("unused") T data){
-		throw new UnsupportedOperationException();
-	}
+	protected abstract void processOne(Scanner<T> data);
 
 }

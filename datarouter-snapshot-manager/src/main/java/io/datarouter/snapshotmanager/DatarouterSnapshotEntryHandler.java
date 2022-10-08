@@ -29,7 +29,6 @@ import io.datarouter.filesystem.snapshot.reader.record.SnapshotRecord;
 import io.datarouter.filesystem.snapshot.web.SnapshotRecordStringDecoder;
 import io.datarouter.filesystem.snapshot.web.SnapshotRecordStrings;
 import io.datarouter.util.lang.ReflectionTool;
-import io.datarouter.util.tuple.Twin;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.types.Param;
@@ -65,26 +64,31 @@ public class DatarouterSnapshotEntryHandler extends BaseHandler{
 	private TableTag buildTable(
 			SnapshotKey snapshotKey,
 			long id){
-		SnapshotGroup group = groups.getGroup(snapshotKey.groupId);
+		SnapshotGroup group = groups.getGroup(snapshotKey.groupId());
 		var reader = new SnapshotIdReader(snapshotKey, groups);
 		SnapshotRecord record = reader.getRecord(id);
 		SnapshotRecordStringDecoder decoder = ReflectionTool.create(group.getSnapshotEntryDecoderClass());
 		SnapshotRecordStrings decoded = decoder.decode(record);
-		List<Twin<String>> rows = new ArrayList<>();
-		rows.add(new Twin<>("id", Long.toString(record.id)));
-		rows.add(new Twin<>(decoder.keyName(), decoded.key));
-		rows.add(new Twin<>(decoder.valueName(), decoded.value));
-		IntStream.range(0, decoded.columnValues.size())
-				.mapToObj(column -> new Twin<>(
+		List<Row> rows = new ArrayList<>();
+		rows.add(new Row("id", Long.toString(record.id())));
+		rows.add(new Row(decoder.keyName(), decoded.key()));
+		rows.add(new Row(decoder.valueName(), decoded.value()));
+		IntStream.range(0, decoded.columnValues().size())
+				.mapToObj(column -> new Row(
 						decoder.columnValueName(column),
-						decoded.columnValues.get(column)))
+						decoded.columnValues().get(column)))
 				.forEach(rows::add);
-		var table = new J2HtmlTable<Twin<String>>()
+		var table = new J2HtmlTable<Row>()
 				.withClasses("sortable table table-sm table-striped my-4 border")
-				.withColumn("field", twin -> twin.getLeft())
-				.withColumn("value", twin -> twin.getRight())
+				.withColumn("field", Row::header)
+				.withColumn("value", Row::content)
 				.build(rows);
 		return table;
+	}
+
+	private record Row(
+			String header,
+			String content){
 	}
 
 }

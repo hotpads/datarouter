@@ -35,18 +35,6 @@ public class DatarouterExceptionRouteSet extends BaseRouteSet{
 		handle(paths.datarouter.exception.details)
 				.withHandler(ExceptionAnalysisHandler.class)
 				.allowRoles(DatarouterUserRole.DATAROUTER_MONITORING);
-		handle(paths.datarouter.exception.browse)
-				.withHandler(ExceptionAnalysisHandler.class)
-				.allowRoles(DatarouterUserRole.DATAROUTER_MONITORING);
-		handle(paths.datarouter.exception.mute)
-				.withHandler(ExceptionAnalysisHandler.class)
-				.allowRoles(DatarouterUserRole.DATAROUTER_MONITORING);
-		handle(paths.datarouter.exception.saveIssue)
-				.withHandler(ExceptionAnalysisHandler.class)
-				.allowRoles(DatarouterUserRole.DATAROUTER_MONITORING);
-		handle(paths.datarouter.exception.recordIssueAndRedirect)
-				.withHandler(ExceptionAnalysisHandler.class)
-				.allowRoles(DatarouterUserRole.DATAROUTER_MONITORING);
 
 		handle(paths.datarouter.errorGenerator.generate)
 				.withHandler(ExceptionGeneratorHandler.class)

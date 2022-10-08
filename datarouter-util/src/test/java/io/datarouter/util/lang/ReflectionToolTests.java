@@ -16,6 +16,7 @@
 package io.datarouter.util.lang;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -294,7 +295,71 @@ public class ReflectionToolTests{
 
 	@Test
 	public void testCreateWithoutNoArgsWithConstructorChecks(){
+		@SuppressWarnings("unused")
 		TypesExampleDto3 dto = ReflectionTool.createNullArgsWithUnsafeAllocator(TypesExampleDto3.class);
+	}
+
+	private static class InnerToStringTestDto{
+		final String inner1;
+		final double[] inner2;
+
+		public InnerToStringTestDto(String inner1, double[] inner2){
+			this.inner1 = inner1;
+			this.inner2 = inner2;
+		}
+
+		public String toStringEclipse(){
+			return "InnerToStringTestDto [inner1=" + this.inner1 + ", inner2=" + Arrays.toString(this.inner2) + "]";
+		}
+
+		@Override
+		public String toString(){
+			return ReflectionTool.toString(this);
+		}
+
+
+	}
+
+	private static class OuterToStringTestDto{
+		final int outer1;
+		final InnerToStringTestDto outer2;
+		final String outer3;
+
+		public OuterToStringTestDto(int outer1, InnerToStringTestDto outer2, String outer3){
+			this.outer1 = outer1;
+			this.outer2 = outer2;
+			this.outer3 = outer3;
+		}
+
+		public String toStringEclipse(){
+			return "OuterToStringTestDto [outer1=" + this.outer1 + ", outer2=" + this.outer2 + ", outer3=" + this.outer3
+					+ "]";
+		}
+
+		@Override
+		public String toString(){
+			return ReflectionTool.toString(this);
+		}
+	}
+
+	@Test
+	public void testToString(){
+		var inner = new InnerToStringTestDto("yogurt", new double[]{1.2, 1.3});
+		Assert.assertEquals(inner.toString(), inner.toStringEclipse());
+		String actualInner = inner.toString();
+		String expectedInner = String.format("InnerToStringTestDto [inner1=%s, inner2=%s]",
+				inner.inner1,
+				Arrays.toString(inner.inner2));
+		Assert.assertEquals(actualInner, expectedInner);
+
+		var outer = new OuterToStringTestDto(5, inner, "fridge");
+		Assert.assertEquals(outer.toString(), outer.toStringEclipse());
+		String actualOuter = outer.toString();
+		String expectedOuter = String.format("OuterToStringTestDto [outer1=%s, outer2=%s, outer3=%s]",
+				outer.outer1,
+				outer.outer2,
+				outer.outer3);
+		Assert.assertEquals(actualOuter, expectedOuter);
 	}
 
 }

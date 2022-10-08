@@ -55,18 +55,10 @@ public class SleepingJoblet extends BaseJoblet<SleepingJobletParams>{
 		}
 	}
 
-	public static class SleepingJobletParams{
-
-		public final String id;
-		public final long sleepTimeMs;
-		public final int numFailures;
-
-		public SleepingJobletParams(String id, long sleepTimeMs, int numFailures){
-			this.id = id;
-			this.sleepTimeMs = sleepTimeMs;
-			this.numFailures = numFailures;
-		}
-
+	public record SleepingJobletParams(
+			String id,
+			long sleepTimeMs,
+			int numFailures){
 	}
 
 	public static class SleepingJobletCodec extends BaseGsonJobletCodec<SleepingJobletParams>{

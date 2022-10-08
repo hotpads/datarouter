@@ -22,9 +22,9 @@ import com.google.inject.name.Names;
 
 import io.datarouter.gson.serialization.GsonTool;
 import io.datarouter.httpclient.json.GsonJsonSerializer;
-import io.datarouter.httpclient.json.JsonSerializer;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder.NoOpChangelogRecorder;
+import io.datarouter.json.JsonSerializer;
 import io.datarouter.secret.config.DatarouterSecretPlugin.DatarouterSecretPluginBuilder.DatarouterSecretPluginBuilderImpl;
 import io.datarouter.storage.config.guice.DatarouterStorageGuiceModule;
 import io.datarouter.storage.config.properties.ServiceName;

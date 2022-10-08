@@ -21,7 +21,7 @@
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-parent</artifactId>
-		<version>0.0.116</version>
+		<version>0.0.117</version>
 		<relativePath>../datarouter-parent</relativePath>
 	</parent>
 
@@ -56,7 +56,18 @@
 					<groupId>com.google.code.gson</groupId>
 					<artifactId>gson</artifactId>
 				</exclusion>
+				<exclusion>
+					<groupId>org.apache.hadoop</groupId>
+					<artifactId>hadoop-auth</artifactId>
+				</exclusion>
 			</exclusions>
+		</dependency>
+		<!-- excluded from hbase-client -->
+		<dependency>
+			<groupId>org.apache.hadoop</groupId>
+			<artifactId>hadoop-auth</artifactId>
+			<version>3.3.4</version>
+			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>io.datarouter</groupId>

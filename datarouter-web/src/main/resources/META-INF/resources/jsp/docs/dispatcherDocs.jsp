@@ -272,6 +272,7 @@
 					<div id="${collapseId}" class="collapse" data-parent="#accordion">
 						<div class="card-body">
 							<b>Handler:</b> ${endpoint.implementation}
+							<b>CallerType:</b> ${endpoint.callerType}
 							<c:choose>
 								<c:when test="${endpoint.isDeprecated}">
 									<span class="badge badge-warning">Deprecated</span>

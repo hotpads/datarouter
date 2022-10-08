@@ -17,11 +17,11 @@ package io.datarouter.httpclient.client;
 
 import org.apache.http.impl.client.CloseableHttpClient;
 
-import io.datarouter.httpclient.endpoint.BaseEndpoint;
-import io.datarouter.httpclient.endpoint.EndpointType;
-import io.datarouter.httpclient.json.JsonSerializer;
+import io.datarouter.httpclient.endpoint.java.BaseEndpoint;
+import io.datarouter.httpclient.endpoint.java.EndpointType;
 import io.datarouter.httpclient.response.Conditional;
 import io.datarouter.httpclient.response.exception.DatarouterHttpException;
+import io.datarouter.json.JsonSerializer;
 
 public interface DatarouterEndpointClient<ET extends EndpointType> extends HttpPoolStats{
 

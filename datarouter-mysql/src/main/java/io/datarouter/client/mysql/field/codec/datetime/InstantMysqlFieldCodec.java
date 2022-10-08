@@ -30,22 +30,18 @@ import io.datarouter.model.field.imp.comparable.InstantField;
 
 public class InstantMysqlFieldCodec extends BaseMysqlFieldCodec<Instant,InstantField>{
 
-	public InstantMysqlFieldCodec(InstantField field){
-		super(field);
-	}
-
 	@Override
-	public SqlColumn getSqlColumnDefinition(boolean allowNullable){
+	public SqlColumn getSqlColumnDefinition(boolean allowNullable, InstantField field){
 		return new SqlColumn(
 				field.getKey().getColumnName(),
-				getMysqlColumnType(),
+				getMysqlColumnType(field),
 				field.getKey().getNumFractionalSeconds(),
 				allowNullable && field.getKey().isNullable(),
 				false);
 	}
 
 	@Override
-	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
+	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex, InstantField field){
 		try{
 			if(field.getValue() == null){
 				ps.setNull(parameterIndex, Types.DATE);
@@ -58,7 +54,7 @@ public class InstantMysqlFieldCodec extends BaseMysqlFieldCodec<Instant,InstantF
 	}
 
 	@Override
-	public Instant fromMysqlResultSetButDoNotSet(ResultSet rs){
+	public Instant fromMysqlResultSetButDoNotSet(ResultSet rs, InstantField field){
 		try{
 			Timestamp timestamp = rs.getTimestamp(field.getKey().getColumnName());
 			if(rs.wasNull()){
@@ -71,7 +67,7 @@ public class InstantMysqlFieldCodec extends BaseMysqlFieldCodec<Instant,InstantF
 	}
 
 	@Override
-	public MysqlColumnType getMysqlColumnType(){
+	public MysqlColumnType getMysqlColumnType(InstantField field){
 		return MysqlColumnType.TIMESTAMP;
 	}
 

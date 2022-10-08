@@ -79,17 +79,16 @@ import io.datarouter.storage.setting.cached.CachedSetting;
 import io.datarouter.util.lang.ObjectTool;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.util.time.ZonedDateFormatterTool;
-import io.datarouter.util.tuple.Pair;
 import io.datarouter.util.tuple.Range;
 import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
 import io.datarouter.web.email.StandardDatarouterEmailHeaderService;
+import io.datarouter.web.email.StandardDatarouterEmailHeaderService.HtmlEmailHeaderRow;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.types.optional.OptionalBoolean;
 import io.datarouter.web.handler.types.optional.OptionalString;
 import io.datarouter.web.html.j2html.J2HtmlLegendTable;
-import j2html.tags.DomContent;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 
@@ -153,7 +152,9 @@ public class ClusterSettingsHandler extends BaseHandler{
 
 	@Handler
 	public List<String> roots(){
-		return Scanner.of(settingRootFinder.getRootNodesSortedByShortName()).map(SettingNode::getShortName).list();
+		return Scanner.of(settingRootFinder.getRootNodesSortedByShortName())
+				.map(SettingNode::getShortName)
+				.list();
 	}
 
 	@Handler
@@ -461,32 +462,32 @@ public class ClusterSettingsHandler extends BaseHandler{
 		}
 
 		private DivTag build(){
-			List<Pair<String,DomContent>> kvs = new ArrayList<>();
-			kvs.add(new Pair<>("user", text(log.getChangedBy())));
-			kvs.add(new Pair<>("action", text(log.getAction().persistentString)));
-			kvs.add(new Pair<>("setting", makeClusterSettingLogLink()));
+			List<HtmlEmailHeaderRow> kvs = new ArrayList<>();
+			kvs.add(new HtmlEmailHeaderRow("user", text(log.getChangedBy())));
+			kvs.add(new HtmlEmailHeaderRow("action", text(log.getAction().persistentString)));
+			kvs.add(new HtmlEmailHeaderRow("setting", makeClusterSettingLogLink()));
 			String timestamp = ZonedDateFormatterTool.formatReversedLongMsWithZone(log.getKey().getReverseCreatedMs(),
 					getUserZoneId());
-			kvs.add(new Pair<>("timestamp", text(timestamp)));
+			kvs.add(new HtmlEmailHeaderRow("timestamp", text(timestamp)));
 			if(ObjectTool.notEquals(ServerType.UNKNOWN.getPersistentString(), log.getServerType())){
-				kvs.add(new Pair<>("serverType", text(log.getServerType())));
+				kvs.add(new HtmlEmailHeaderRow("serverType", text(log.getServerType())));
 			}
 			if(StringTool.notEmpty(log.getServerName())){
-				kvs.add(new Pair<>("serverName", text(log.getServerName())));
+				kvs.add(new HtmlEmailHeaderRow("serverName", text(log.getServerName())));
 			}
 			if(displayValue){
 				if(ClusterSettingLogAction.INSERTED != log.getAction()){
-					kvs.add(new Pair<>("old value", text(oldValue)));
+					kvs.add(new HtmlEmailHeaderRow("old value", text(oldValue)));
 				}
 				if(ClusterSettingLogAction.DELETED != log.getAction()){
-					kvs.add(new Pair<>("new value", text(log.getValue())));
+					kvs.add(new HtmlEmailHeaderRow("new value", text(log.getValue())));
 				}
 			}
 			String comment = StringTool.notNullNorEmptyNorWhitespace(log.getComment())
 					? log.getComment()
 					: "No comment provided";
-			kvs.add(new Pair<>("comment", text(comment)));
-			return standardDatarouterEmailHeaderService.makeStandardHeaderWithSupplements(kvs);
+			kvs.add(new HtmlEmailHeaderRow("comment", text(comment)));
+			return standardDatarouterEmailHeaderService.makeStandardHeaderWithSupplementsHtml(kvs);
 		}
 
 		private ATag makeClusterSettingLogLink(){

@@ -24,10 +24,10 @@ import java.util.function.Function;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.web.html.form.HtmlForm;
 import io.datarouter.web.html.form.HtmlForm.BaseHtmlFormField;
-import io.datarouter.web.html.indexpager.IndexPager.IndexPageLink;
 import io.datarouter.web.html.form.HtmlFormButton;
 import io.datarouter.web.html.form.HtmlFormSelect;
 import io.datarouter.web.html.form.HtmlFormText;
+import io.datarouter.web.html.indexpager.IndexPager.IndexPageLink;
 
 public class IndexPagerHtml{
 

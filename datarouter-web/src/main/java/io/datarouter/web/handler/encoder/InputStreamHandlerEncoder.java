@@ -38,7 +38,10 @@ public class InputStreamHandlerEncoder implements HandlerEncoder{
 	 */
 
 	@Override
-	public void finishRequest(Object result, ServletContext servletContext, HttpServletResponse response,
+	public void finishRequest(
+			Object result,
+			ServletContext servletContext,
+			HttpServletResponse response,
 			HttpServletRequest request){
 		if(result == null){
 			return;
@@ -58,14 +61,20 @@ public class InputStreamHandlerEncoder implements HandlerEncoder{
 	}
 
 	@Override
-	public void sendHandledExceptionResponse(HandledException exception, ServletContext servletContext,
-			HttpServletResponse response, HttpServletRequest request){
+	public void sendHandledExceptionResponse(
+			HandledException exception,
+			ServletContext servletContext,
+			HttpServletResponse response,
+			HttpServletRequest request){
 		sendErrorResponse(HttpServletResponse.SC_BAD_REQUEST, exception.getMessage(), response);
 	}
 
 	@Override
-	public void sendInvalidRequestParamResponse(RequestParamValidatorErrorResponseDto errorResponseDto,
-			ServletContext servletContext, HttpServletResponse response, HttpServletRequest request){
+	public void sendInvalidRequestParamResponse(
+			RequestParamValidatorErrorResponseDto errorResponseDto,
+			ServletContext servletContext,
+			HttpServletResponse response,
+			HttpServletRequest request){
 		sendErrorResponse(errorResponseDto.statusCode, errorResponseDto.message, response);
 	}
 
@@ -74,13 +83,18 @@ public class InputStreamHandlerEncoder implements HandlerEncoder{
 	}
 
 	@Override
-	public void sendExceptionResponse(HttpServletRequest request, HttpServletResponse response, Throwable exception,
+	public void sendExceptionResponse(
+			HttpServletRequest request,
+			HttpServletResponse response,
+			Throwable exception,
 			Optional<String> exceptionId){
 		sendErrorResponse(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, exception.getMessage(), response);
 	}
 
 	@Override
-	public void sendForbiddenResponse(HttpServletRequest request, HttpServletResponse response,
+	public void sendForbiddenResponse(
+			HttpServletRequest request,
+			HttpServletResponse response,
 			SecurityValidationResult securityValidationResult){
 	}
 

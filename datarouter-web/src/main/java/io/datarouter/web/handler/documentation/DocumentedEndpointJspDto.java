@@ -28,10 +28,19 @@ public class DocumentedEndpointJspDto{
 	private final boolean isDeprecated;
 	private final List<DocumentedErrorJspDto> errors;
 	private final String paramsEnumValuesDisplay;
+	private final String callerType;
 
-	public DocumentedEndpointJspDto(String url, String implementation, List<DocumentedParameterJspDto> parameters,
-			String apiKeyFieldName, String description, DocumentedResponseJspDto response, boolean isDeprecated,
-			List<DocumentedErrorJspDto> errors, String paramsEnumValuesDisplay){
+	public DocumentedEndpointJspDto(
+			String url,
+			String implementation,
+			List<DocumentedParameterJspDto> parameters,
+			String apiKeyFieldName,
+			String description,
+			DocumentedResponseJspDto response,
+			boolean isDeprecated,
+			List<DocumentedErrorJspDto> errors,
+			String paramsEnumValuesDisplay,
+			String callerType){
 		this.url = url;
 		this.implementation = implementation;
 		this.parameters = parameters;
@@ -41,6 +50,7 @@ public class DocumentedEndpointJspDto{
 		this.isDeprecated = isDeprecated;
 		this.errors = errors;
 		this.paramsEnumValuesDisplay = paramsEnumValuesDisplay;
+		this.callerType = callerType;
 	}
 
 	public String getUrl(){
@@ -77,6 +87,10 @@ public class DocumentedEndpointJspDto{
 
 	public String getParamsEnumValuesDisplay(){
 		return paramsEnumValuesDisplay;
+	}
+
+	public String getCallerType(){
+		return callerType;
 	}
 
 }

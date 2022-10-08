@@ -24,7 +24,6 @@ import io.datarouter.instrumentation.count.Counters;
 import io.datarouter.joblet.enums.JobletStatus;
 import io.datarouter.joblet.type.JobletType;
 import io.datarouter.storage.metric.Gauges;
-import io.datarouter.util.tuple.Twin;
 
 @Singleton
 public class DatarouterJobletCounters{
@@ -35,16 +34,20 @@ public class DatarouterJobletCounters{
 	private static final String QUEUE_LENGTH_ITEMS = "queue length items ";
 	private static final String FIRST = "first ";
 
-	public static final List<Twin<String>> UI_LINK_NAMES_AND_PREFIXES = List.of(
-			Twin.of("First created", "Joblet first created "),
-			Twin.of("Queue Length Joblets", "Joblet queue length joblets "),
-			Twin.of("Queue Length Items", "Joblet queue length items "),
-			Twin.of("Joblets Inserted", "Joblet inserted "),
-			Twin.of("Joblets Processed", "Joblet processed "),
-			Twin.of("Items Processed", "Joblet items processed "),
-			Twin.of("Target Servers", "Joblet target servers "),
-			Twin.of("Actual Servers", "Joblet num servers "));
+	public static final List<JobletUiLinkNamesAndPrefix> UI_LINK_NAMES_AND_PREFIXES = List.of(
+			new JobletUiLinkNamesAndPrefix("First created", "Joblet first created "),
+			new JobletUiLinkNamesAndPrefix("Queue Length Joblets", "Joblet queue length joblets "),
+			new JobletUiLinkNamesAndPrefix("Queue Length Items", "Joblet queue length items "),
+			new JobletUiLinkNamesAndPrefix("Joblets Inserted", "Joblet inserted "),
+			new JobletUiLinkNamesAndPrefix("Joblets Processed", "Joblet processed "),
+			new JobletUiLinkNamesAndPrefix("Items Processed", "Joblet items processed "),
+			new JobletUiLinkNamesAndPrefix("Target Servers", "Joblet target servers "),
+			new JobletUiLinkNamesAndPrefix("Actual Servers", "Joblet num servers "));
 
+	public record JobletUiLinkNamesAndPrefix(
+			String linkName,
+			String prefix){
+	}
 
 	@Inject
 	private Gauges gauges;

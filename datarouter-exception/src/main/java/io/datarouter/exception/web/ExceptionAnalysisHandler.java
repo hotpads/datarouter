@@ -15,21 +15,10 @@
  */
 package io.datarouter.exception.web;
 
-import java.time.Instant;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Comparator;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
@@ -38,30 +27,19 @@ import com.google.gson.reflect.TypeToken;
 import io.datarouter.exception.config.DatarouterExceptionFiles;
 import io.datarouter.exception.config.DatarouterExceptionPaths;
 import io.datarouter.exception.service.ExceptionGraphLink;
-import io.datarouter.exception.service.ExceptionIssueLinkPrefixSupplier;
 import io.datarouter.exception.storage.exceptionrecord.DatarouterExceptionRecordDao;
 import io.datarouter.exception.storage.exceptionrecord.ExceptionRecord;
 import io.datarouter.exception.storage.exceptionrecord.ExceptionRecordKey;
 import io.datarouter.exception.storage.httprecord.DatarouterHttpRequestRecordDao;
 import io.datarouter.exception.storage.httprecord.HttpRequestRecord;
-import io.datarouter.exception.storage.metadata.DatarouterExceptionRecordSummaryMetadataDao;
-import io.datarouter.exception.storage.metadata.ExceptionRecordSummaryMetadata;
-import io.datarouter.exception.storage.metadata.ExceptionRecordSummaryMetadataKey;
-import io.datarouter.exception.storage.summary.DatarouterExceptionRecordSummaryDao;
-import io.datarouter.exception.storage.summary.ExceptionRecordSummary;
 import io.datarouter.gson.serialization.GsonTool;
 import io.datarouter.httpclient.HttpHeaders;
-import io.datarouter.model.databean.Databean;
-import io.datarouter.util.BooleanTool;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.util.time.ZonedDateFormatterTool;
-import io.datarouter.web.exception.ExceptionCounters;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
-import io.datarouter.web.handler.mav.imp.GlobalRedirectMav;
 import io.datarouter.web.handler.mav.imp.MessageMav;
 import io.datarouter.web.handler.types.Param;
-import io.datarouter.web.handler.types.optional.OptionalBoolean;
 import io.datarouter.web.handler.types.optional.OptionalString;
 import io.datarouter.web.user.session.CurrentUserSessionInfoService;
 import io.datarouter.web.util.ExceptionService;
@@ -82,48 +60,11 @@ public class ExceptionAnalysisHandler extends BaseHandler{
 	@Inject
 	private DatarouterHttpRequestRecordDao httpRequestRecordDao;
 	@Inject
-	private DatarouterExceptionRecordSummaryDao exceptionRecordSummaryDao;
-	@Inject
-	private DatarouterExceptionRecordSummaryMetadataDao exceptionSummaryMetadataDao;
-	@Inject
 	private ExceptionGraphLink exceptionGraphLink;
-	@Inject
-	private ExceptionIssueLinkPrefixSupplier issueLinkPrefixSupplier;
 	@Inject
 	private CurrentUserSessionInfoService currentUserSessionInfoService;
 
-	@Handler
-	public Mav browse(){
-		Mav mav = new Mav(files.jsp.datarouter.exception.browseExceptionsJsp);
-		Long lastPeriodStart = null;
-		SortedSet<ExceptionRecordSummary> summaries = new TreeSet<>(Comparator.comparing(
-				ExceptionRecordSummary::getNumExceptions,
-				Comparator.reverseOrder()));
-		Set<ExceptionRecordSummaryMetadataKey> metadataKeys = new HashSet<>();
-		for(var summary : exceptionRecordSummaryDao.scan().iterable()){
-			if(lastPeriodStart == null){
-				lastPeriodStart = summary.getKey().getPeriodStart();
-			}else if(lastPeriodStart != summary.getKey().getPeriodStart()){
-				break;
-			}
-			summaries.add(summary);
-			metadataKeys.add(summary.getKey().getExceptionRecordSummaryMetadataKey());
-		}
-		mav.put("exceptionRecordSummaries", summaries);
-		Map<ExceptionRecordSummaryMetadataKey,ExceptionRecordSummaryMetadata> summaryMetadatas =
-				exceptionSummaryMetadataDao.getMulti(metadataKeys).stream()
-				.collect(Collectors.toMap(Databean::getKey, Function.identity()));
-
-		mav.put("summaryMetadatas", summaryMetadatas);
-		if(lastPeriodStart != null){
-			mav.put("lastPeriodStart", ZonedDateTime.ofInstant(Instant.ofEpochMilli(lastPeriodStart),
-					ZoneId.systemDefault()).format(DateTimeFormatter.RFC_1123_DATE_TIME));
-		}
-		mav.put("detailsPath", paths.datarouter.exception.details.toSlashedString());
-		mav.put("issueLinkPrefix", issueLinkPrefixSupplier.get());
-		return mav;
-	}
-
+	// TODO use J2Html
 	@Handler
 	public Mav details(@Param(P_exceptionRecord) OptionalString exceptionRecord){
 		Mav mav = new Mav(files.jsp.datarouter.exception.exceptionDetailsJsp);
@@ -144,65 +85,7 @@ public class ExceptionAnalysisHandler extends BaseHandler{
 		findHttpRequestRecord(record)
 				.map(this::toJspDto)
 				.ifPresent(dto -> mav.put("httpRequestRecord", dto));
-		mav.put("browsePath", paths.datarouter.exception.browse.toSlashedString());
 		return mav;
-	}
-
-	@Handler
-	public String mute(String type, String exceptionLocation, Boolean muted){
-		return createOrUpdateMetadata(type, exceptionLocation, metadata -> metadata.setMuted(muted));
-	}
-
-	@Handler
-	public String saveIssue(String type, String exceptionLocation, String issue){
-		String cleanedIssue = Optional.of(issue)
-				.map(String::trim)
-				.filter(StringTool::notEmpty)
-				.orElse(null);
-		return createOrUpdateMetadata(type, exceptionLocation, metadata -> metadata.setIssue(cleanedIssue));
-	}
-
-	@Handler
-	public Mav recordIssueAndRedirect(String type, String exceptionRecordId, String issue, OptionalBoolean muted){
-		ExceptionRecord exceptionRecord = getExceptionRecord(exceptionRecordId);
-		if(exceptionRecord == null){
-			return makeExceptionDoesNotExistMav(exceptionRecordId);
-		}
-		String exceptionLocation = exceptionRecord.getExceptionLocation();
-		if(StringTool.isNullOrEmptyOrWhitespace(issue)){
-			throw new IllegalArgumentException("Issue ID cannot be empty");
-		}
-		String trimmedIssue = issue.trim();
-		createOrUpdateMetadata(type, exceptionLocation, metadata -> {
-			if(!trimmedIssue.equals(metadata.getIssue())){
-				metadata.setIssue(trimmedIssue);
-				ExceptionCounters.inc("linked issue");
-				ExceptionCounters.inc("linked issue " + StringTool.getStringBeforeFirstOccurrence('-', trimmedIssue));
-			}
-			if(BooleanTool.isFalseOrNull(metadata.getMuted())){
-				muted
-					.filter(BooleanTool::isTrue)
-					.ifPresent($ -> {
-						metadata.setMuted(true);
-						ExceptionCounters.inc("muted");
-					});
-			}
-		});
-		return new GlobalRedirectMav(request.getRequestURI());
-	}
-
-	private String createOrUpdateMetadata(
-			String type,
-			String exceptionLocation,
-			Consumer<ExceptionRecordSummaryMetadata> action){
-		ExceptionRecordSummaryMetadataKey key = getExceptionRecordSummaryMetadataKey(type, exceptionLocation);
-		ExceptionRecordSummaryMetadata metadata = exceptionSummaryMetadataDao.get(key);
-		if(metadata == null){
-			metadata = getExceptionRecordSummaryMetadata(key);
-		}
-		action.accept(metadata);
-		exceptionSummaryMetadataDao.put(metadata);
-		return "success";
 	}
 
 	private String trimExceptionRecordId(String exceptionRecordId){
@@ -212,23 +95,13 @@ public class ExceptionAnalysisHandler extends BaseHandler{
 		return exceptionRecordId;
 	}
 
-	protected ExceptionRecord getExceptionRecord(String id){
+	private ExceptionRecord getExceptionRecord(String id){
 		return exceptionRecordDao.get(new ExceptionRecordKey(id));
 	}
 
-	protected Optional<HttpRequestRecord> findHttpRequestRecord(ExceptionRecord exceptionRecord){
+	private Optional<HttpRequestRecord> findHttpRequestRecord(ExceptionRecord exceptionRecord){
 		return httpRequestRecordDao.scanByExceptionRecordIdPrefix(exceptionRecord.getKey().getId())
 				.findFirst();
-	}
-
-	protected ExceptionRecordSummaryMetadataKey getExceptionRecordSummaryMetadataKey(
-			String type,
-			String exceptionLocation){
-		return new ExceptionRecordSummaryMetadataKey(type, exceptionLocation);
-	}
-
-	protected ExceptionRecordSummaryMetadata getExceptionRecordSummaryMetadata(ExceptionRecordSummaryMetadataKey key){
-		return new ExceptionRecordSummaryMetadata(key);
 	}
 
 	private static Mav makeExceptionDoesNotExistMav(String exceptionRecordId){

@@ -165,6 +165,15 @@ extends BaseDatabean<Trace2SpanKey,Trace2Span>{
 		return ended - created;
 	}
 
+	public Long getCpuTimeUsedNs(){
+		return cpuTimeEndedNs != null && cpuTimeCreatedNs != null ? cpuTimeEndedNs - cpuTimeCreatedNs : null;
+	}
+
+	public Long getMemoryAllocatedBytes(){
+		return memoryAllocatedBytesEnded != null && memoryAllocatedBytesBegin != null ? memoryAllocatedBytesEnded
+				- memoryAllocatedBytesBegin : null;
+	}
+
 	public Traceparent getTraceparent(){
 		return new Traceparent(getKey().getEntityKey().getTrace2EntityId(), getKey().getParentId());
 	}

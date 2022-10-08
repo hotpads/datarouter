@@ -31,17 +31,17 @@ import io.datarouter.bytes.codec.stringcodec.StringCodec;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.Config;
-import io.datarouter.storage.queue.BlobQueueMessageDto;
+import io.datarouter.storage.queue.RawBlobQueueMessage;
 import io.datarouter.util.concurrent.UncheckedInterruptedException;
 
-public class SqsBlobPeekOp extends SqsBlobOp<BlobQueueMessageDto>{
+public class SqsBlobPeekOp extends SqsBlobOp<RawBlobQueueMessage>{
 
 	public SqsBlobPeekOp(Config config, SqsClientManager sqsClientManager, ClientId clientId, String queueUrl){
 		super(sqsClientManager, clientId, config, queueUrl);
 	}
 
 	@Override
-	protected BlobQueueMessageDto run(){
+	protected RawBlobQueueMessage run(){
 		ReceiveMessageRequest request = makeRequest();
 		ReceiveMessageResult result;
 		try{
@@ -55,11 +55,11 @@ public class SqsBlobPeekOp extends SqsBlobOp<BlobQueueMessageDto>{
 		}
 
 		Message message = messages.get(0);
-		byte[] data = StringCodec.UTF_8.encode(message.getBody());
+		byte[] data = SqsBlobOp.SQS_BLOB_BASE_64_CODEC.decode(message.getBody());
 		byte[] receiptHandle = StringCodec.UTF_8.encode(message.getReceiptHandle());
 		var attributes = Scanner.of(message.getMessageAttributes().entrySet())
 				.toMap(Entry::getKey, entry -> entry.getValue().getStringValue());
-		return new BlobQueueMessageDto(receiptHandle, data, attributes);
+		return new RawBlobQueueMessage(receiptHandle, data, attributes);
 	}
 
 	private ReceiveMessageRequest makeRequest(){

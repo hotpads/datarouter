@@ -32,15 +32,19 @@ import java.util.Properties;
 
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.io.FileTool;
-import io.datarouter.util.tuple.Pair;
 
 public class PropertiesTool{
 
-	public static Properties parse(String path){
-		return parseAndGetLocation(path).getLeft();
+	public record PropertiesAndUrl(
+			Properties properties,
+			URL url){
 	}
 
-	public static Pair<Properties,URL> parseAndGetLocation(String path){
+	public static Properties parse(String path){
+		return parseAndGetLocation(path).properties();
+	}
+
+	public static PropertiesAndUrl parseAndGetLocation(String path){
 		try{
 			return fromFile(path);
 		}catch(NullPointerException | IOException e){
@@ -52,14 +56,14 @@ public class PropertiesTool{
 		return Scanner.of(paths).map(PropertiesTool::parse).list();
 	}
 
-	private static Pair<Properties,URL> fromFile(String pathToFile) throws IOException{
+	private static PropertiesAndUrl fromFile(String pathToFile) throws IOException{
 		Objects.requireNonNull(pathToFile);
 		Properties properties = new Properties();
 		URL url = getUrl(pathToFile);
 		try(InputStream in = url.openStream()){
 			properties.load(in);
 		}
-		return new Pair<>(properties, url);
+		return new PropertiesAndUrl(properties, url);
 	}
 
 	private static URL getUrl(String pathToFile) throws IOException{

@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.exception.ExceptionRecorder;
+import io.datarouter.websocket.WebSocketCounters;
 import io.datarouter.websocket.storage.session.WebSocketSession;
 
 public class WebSocketServicesMessageHandler implements ClosableMessageHandler, MessageHandler.Whole<String>{
@@ -82,6 +83,7 @@ public class WebSocketServicesMessageHandler implements ClosableMessageHandler, 
 		}
 		openedServices.put(serviceString, service);
 		String payload = message.substring(prefixEndIndex + 1);
+		WebSocketCounters.inc("service " + service.getName());
 		try{
 			service.onMessage(webSocketSession, payload);
 		}catch(Exception exception){

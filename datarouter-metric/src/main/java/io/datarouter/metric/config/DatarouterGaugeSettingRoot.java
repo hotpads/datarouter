@@ -33,8 +33,7 @@ public class DatarouterGaugeSettingRoot extends SettingRoot{
 	public final CachedSetting<Boolean> runGaugeMemoryToPublisherConveyor;
 
 	//controls gauge publishing destination
-	public final CachedSetting<Boolean> saveGaugeBlobsToQueueDaoInsteadOfDirectoryDao;
-	public final CachedSetting<Boolean> useBinaryDtoQueue;
+	public final CachedSetting<Boolean> saveToQueueInsteadOfDirectory;
 
 	public final CachedSetting<Integer> conveyorThreadCount;
 
@@ -47,9 +46,8 @@ public class DatarouterGaugeSettingRoot extends SettingRoot{
 		runGaugeMemoryToPublisherConveyor = registerBooleans("runGaugeMemoryToPublisherConveyor", defaultTo(false)
 				.withTag(DatarouterSettingTagType.GAUGEPIPELINE, () -> true));
 
-		saveGaugeBlobsToQueueDaoInsteadOfDirectoryDao = registerBoolean(
-				"saveGaugeBlobsToQueueDaoInsteadOfDirectoryDao", false);
-		useBinaryDtoQueue = registerBoolean("useBinaryDtoQueue", false);
+		saveToQueueInsteadOfDirectory = registerBoolean(
+				"saveToQueueInsteadOfDirectory", false);
 
 		conveyorThreadCount = registerInteger("conveyorThreadCount", 1);
 	}

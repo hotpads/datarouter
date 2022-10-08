@@ -80,9 +80,13 @@ extends NodeOps<PathbeanKey,Pathbean>{
 		return scanPaged(subpath, new Config());
 	}
 
-	default Scanner<PathbeanKey> scanKeys(Subpath subpath){
-		return scanKeysPaged(subpath)
+	default Scanner<PathbeanKey> scanKeys(Subpath subpath, Config config){
+		return scanKeysPaged(subpath, config)
 				.concat(Scanner::of);
+	}
+
+	default Scanner<PathbeanKey> scanKeys(Subpath subpath){
+		return scanKeys(subpath, new Config());
 	}
 
 	default Scanner<Pathbean> scan(Subpath subpath){

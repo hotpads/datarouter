@@ -22,8 +22,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.bytes.codec.stringcodec.TerminatedStringCodec;
+import io.datarouter.client.memcached.util.MemcachedResult;
 import io.datarouter.storage.util.Subpath;
-import io.datarouter.util.tuple.Pair;
 
 public class MemcachedTallyCodec{
 	private static final Logger logger = LoggerFactory.getLogger(MemcachedTallyCodec.class);
@@ -66,11 +66,11 @@ public class MemcachedTallyCodec{
 		return Optional.of(encodedKey);
 	}
 
-	public Pair<String,Long> decodeResult(Pair<String,String> result){
-		String stringPk = decodeTallyId(nodeSubpathLength, result.getLeft());
-		String stringValue = result.getRight();
+	public MemcachedResult<Long> decodeResult(MemcachedResult<String> result){
+		String stringPk = decodeTallyId(nodeSubpathLength, result.key());
+		String stringValue = result.value();
 		long longValue = Long.parseLong(stringValue);
-		return new Pair<>(stringPk, longValue);
+		return new MemcachedResult<>(stringPk, longValue);
 	}
 
 	private static String encodeTallyId(Subpath subpath, String tallyId){

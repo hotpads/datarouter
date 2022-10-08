@@ -111,40 +111,30 @@ public class RunNativeInputStreamReader{
 				}
 				prev = input.current();
 			}
-			if(input.advance()){
-				TerminalLine curr = input.current();
-				while(prev.replace){
-					prev = curr;
-					if(input.advance()){
-						curr = input.current();
-					}else{
-						done = true;
-						break;
-					}
-				}
-				current = prev.line;
-				prev = curr;
-				return true;
-			}else{
+			if(!input.advance()){
 				current = prev.line;
 				prev = null;
 				done = true;
 				return true;
 			}
+			TerminalLine curr = input.current();
+			while(prev.replace){
+				prev = curr;
+				if(input.advance()){
+					curr = input.current();
+				}else{
+					done = true;
+					break;
+				}
+			}
+			current = prev.line;
+			prev = curr;
+			return true;
 		}
 
 	}
 
-	private static class TerminalLine{
-
-		public final boolean replace;
-		public final String line;
-
-		private TerminalLine(boolean replace, String line){
-			this.replace = replace;
-			this.line = line;
-		}
-
+	record TerminalLine(boolean replace, String line){
 	}
 
 }

@@ -34,26 +34,29 @@ public class SpannerVacuum<
 
 	private final PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo;
 	private final DatabaseClient client;
+	private final String id;
 	private final Config config;
 
 	public SpannerVacuum(
 			DatabaseClient client,
 			PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
+			String id,
 			Config config){
 		this.client = client;
 		this.fieldInfo = fieldInfo;
+		this.id = id;
 		this.config = config;
 	}
 
 	public void vacuum(){
 		long nowMs = System.currentTimeMillis();
-		var vacuumFindOp = new SpannerVacuumFindOp<>(client, fieldInfo, null, true, config);
+		var vacuumFindOp = new SpannerVacuumFindOp<>(client, fieldInfo, null, true, id, config);
 		String startKey = null;
 		Optional<String> endKey = vacuumFindOp.wrappedCall();
 		while(startKey != null || endKey.isPresent()){
 			var vacuumOp = new SpannerVacuumOp<>(client, fieldInfo, startKey, endKey.orElse(null), nowMs);
 			vacuumOp.wrappedCall();
-			vacuumFindOp = new SpannerVacuumFindOp<>(client, fieldInfo, endKey.orElse(null), false, config);
+			vacuumFindOp = new SpannerVacuumFindOp<>(client, fieldInfo, endKey.orElse(null), false, id, config);
 			startKey = endKey.orElse(null);
 			endKey = vacuumFindOp.wrappedCall();
 		}

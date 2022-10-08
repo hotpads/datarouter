@@ -52,7 +52,7 @@ public class ExceptionRecordService{
 	}
 
 	public String buildExceptionFormAction(String domainAndContext){
-		return "https://" + domainAndContext + paths.datarouter.exception.browse.toSlashedString();
+		return "https://" + domainAndContext + paths.datarouter.exception.details.toSlashedString();
 	}
 
 }

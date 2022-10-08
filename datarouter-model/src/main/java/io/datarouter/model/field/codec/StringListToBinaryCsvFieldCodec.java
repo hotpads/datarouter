@@ -17,8 +17,16 @@ package io.datarouter.model.field.codec;
 
 import java.util.List;
 
+/**
+ * @deprecated  Prefer StringListToCsvFieldCodec which is human-readable in the database
+ */
+@Deprecated
 public class StringListToBinaryCsvFieldCodec{
 
+	/**
+	 * @deprecated  Prefer StringListToCsvFieldCodec which is human-readable in the database
+	 */
+	@Deprecated
 	public static final FieldCodec<List<String>,byte[]> INSTANCE = new StringListToDelimitedBytesFieldCodec(",");
 
 }

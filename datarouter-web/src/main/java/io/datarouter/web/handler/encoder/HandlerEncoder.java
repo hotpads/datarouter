@@ -31,20 +31,38 @@ public interface HandlerEncoder{
 
 	String DEFAULT_HANDLER_SERIALIZER = "defaultHandlerSerializer";
 
-	void finishRequest(Object result, ServletContext servletContext, HttpServletResponse response,
-			HttpServletRequest request) throws ServletException, IOException;
-
-	void sendHandledExceptionResponse(HandledException exception, ServletContext servletContext,
-			HttpServletResponse response, HttpServletRequest request) throws ServletException, IOException;
-
-	void sendExceptionResponse(HttpServletRequest request, HttpServletResponse response, Throwable exception,
-			Optional<String> exceptionId) throws IOException;
-
-	void sendInvalidRequestParamResponse(RequestParamValidatorErrorResponseDto errorResponseDto,
-			ServletContext servletContext, HttpServletResponse response, HttpServletRequest request)
+	void finishRequest(
+			Object result,
+			ServletContext servletContext,
+			HttpServletResponse response,
+			HttpServletRequest request)
 	throws ServletException, IOException;
 
-	void sendForbiddenResponse(HttpServletRequest request, HttpServletResponse response,
-			SecurityValidationResult securityValidationResult) throws IOException;
+	void sendHandledExceptionResponse(
+			HandledException exception,
+			ServletContext servletContext,
+			HttpServletResponse response,
+			HttpServletRequest request)
+	throws ServletException, IOException;
+
+	void sendExceptionResponse(
+			HttpServletRequest request,
+			HttpServletResponse response,
+			Throwable exception,
+			Optional<String> exceptionId)
+	throws IOException;
+
+	void sendInvalidRequestParamResponse(
+			RequestParamValidatorErrorResponseDto errorResponseDto,
+			ServletContext servletContext,
+			HttpServletResponse response,
+			HttpServletRequest request)
+	throws ServletException, IOException;
+
+	void sendForbiddenResponse(
+			HttpServletRequest request,
+			HttpServletResponse response,
+			SecurityValidationResult securityValidationResult)
+	throws IOException;
 
 }

@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.auth.config.DatarouterAuthFiles;
 import io.datarouter.auth.config.DatarouterAuthPaths;
-import io.datarouter.auth.service.AccountCallerTypeRegistry;
+import io.datarouter.auth.service.AccountCallerTypeRegistry2;
 import io.datarouter.auth.service.DatarouterAccountAvailableEndpointsProvider;
 import io.datarouter.auth.service.DatarouterAccountCounters;
 import io.datarouter.auth.service.DatarouterAccountCredentialService;
@@ -47,6 +47,8 @@ import io.datarouter.auth.storage.account.DatarouterAccountKey;
 import io.datarouter.auth.storage.accountpermission.BaseDatarouterAccountPermissionDao;
 import io.datarouter.auth.storage.accountpermission.DatarouterAccountPermission;
 import io.datarouter.auth.storage.accountpermission.DatarouterAccountPermissionKey;
+import io.datarouter.httpclient.endpoint.caller.CallerType;
+import io.datarouter.httpclient.endpoint.param.RequestBody;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDtoBuilder;
 import io.datarouter.instrumentation.metric.MetricLinkBuilder;
@@ -56,11 +58,11 @@ import io.datarouter.storage.config.properties.DatarouterServerTypeSupplier;
 import io.datarouter.storage.servertype.ServerType;
 import io.datarouter.storage.util.DatarouterCounters;
 import io.datarouter.util.Require;
+import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.dispatcher.ApiKeyPredicate;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
-import io.datarouter.web.handler.types.RequestBody;
 import io.datarouter.web.html.react.bootstrap4.Bootstrap4ReactPageFactory;
 import io.datarouter.web.requirejs.DatarouterWebRequireJs;
 import io.datarouter.web.user.session.CurrentUserSessionInfoService;
@@ -82,7 +84,7 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 	private final MetricLinkBuilder metricLinkBuilder;
 	private final CurrentUserSessionInfoService currentSessionInfoService;
 	private final DatarouterAccountDeleteAction datarouterAccountDeleteAction;
-	private final AccountCallerTypeRegistry callerTypeRegistry;
+	private final AccountCallerTypeRegistry2 callerTypeRegistry;
 
 	private final String path;
 
@@ -100,7 +102,7 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 			MetricLinkBuilder metricLinkBuilder,
 			CurrentUserSessionInfoService currentSessionInfoService,
 			DatarouterAccountDeleteAction datarouterAccountDeleteAction,
-			AccountCallerTypeRegistry callerTypeRegistry){
+			AccountCallerTypeRegistry2 callerTypeRegistry){
 		this(datarouterAccountDao,
 				datarouterAccountPermissionDao,
 				acccountCredentialService,
@@ -128,7 +130,7 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 			MetricLinkBuilder metricLinkBuilder,
 			CurrentUserSessionInfoService currentSessionInfoService,
 			DatarouterAccountDeleteAction datarouterAccountDeleteAction,
-			AccountCallerTypeRegistry callerTypeRegistry,
+			AccountCallerTypeRegistry2 callerTypeRegistry,
 
 			String path){
 		this.datarouterAccountDao = datarouterAccountDao;
@@ -181,7 +183,8 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 	@Handler
 	public List<String> getAvailableCallerTypes(){
 		return callerTypeRegistry.get().stream()
-				.map(callerType -> callerType.name)
+				.map(ReflectionTool::create)
+				.map(CallerType::getName)
 				.sorted()
 				.collect(Collectors.toList());
 	}

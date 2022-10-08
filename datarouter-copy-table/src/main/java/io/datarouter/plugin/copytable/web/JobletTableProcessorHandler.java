@@ -87,7 +87,7 @@ public class JobletTableProcessorHandler extends BaseHandler{
 			@Param(P_nodeName) OptionalString nodeName,
 			@Param(P_scanBatchSize) OptionalString scanBatchSize,
 			@Param(P_processorName) OptionalString processorName,
-			@Param(P_executionOrder)OptionalString executionOrder,
+			@Param(P_executionOrder) OptionalString executionOrder,
 			@Param(P_submitAction) OptionalString submitAction){
 		String errorScanBatchSize = null;
 		if(submitAction.isPresent()){
@@ -112,7 +112,7 @@ public class JobletTableProcessorHandler extends BaseHandler{
 				.sort()
 				.list();
 		List<String> possibleJobletPriorities = Scanner.of(JobletPriority.values())
-				.map(JobletPriority::getComparableName)
+				.map(priority -> priority.display)
 				.append("")
 				.sort()
 				.list();
@@ -175,7 +175,7 @@ public class JobletTableProcessorHandler extends BaseHandler{
 					sample.getNumRows(),
 					counter,
 					numJoblets,
-					Integer.valueOf(executionOrder.get()));
+					JobletPriority.BY_DISPLAY.from(executionOrder.get()).orElse(JobletPriority.DEFAULT));
 			jobletPackages.add(jobletPackage);
 			++numJoblets;
 			counter++;
@@ -195,7 +195,7 @@ public class JobletTableProcessorHandler extends BaseHandler{
 				1, //we have no idea about the true estNumDatabeans
 				counter,
 				numJoblets,
-				Integer.valueOf(executionOrder.get()));
+				JobletPriority.BY_DISPLAY.from(executionOrder.get()).orElse(JobletPriority.DEFAULT));
 		++numJoblets;
 		jobletPackages.add(jobletPackage);
 		totalItemsProcessed++;
@@ -223,7 +223,7 @@ public class JobletTableProcessorHandler extends BaseHandler{
 			long estNumDatabeans,
 			long jobletId,
 			long numJoblets,
-			int executionOrder){
+			JobletPriority executionOrder){
 		TableProcessorJobletParams jobletParams = new TableProcessorJobletParams(
 				sourceNodeName,
 				fromKeyExclusive == null ? null : PrimaryKeyPercentCodecTool.encode(fromKeyExclusive),
@@ -233,10 +233,10 @@ public class JobletTableProcessorHandler extends BaseHandler{
 				estNumDatabeans,
 				jobletId,
 				numJoblets,
-				executionOrder);
+				executionOrder.getExecutionOrder());
 		return JobletPackage.create(
 				TableProcessorJoblet.JOBLET_TYPE,
-				JobletPriority.fromExecutionOrder(executionOrder),
+				executionOrder,
 				false,
 				tableName,
 				sourceNodeName,

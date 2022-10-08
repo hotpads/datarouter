@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -53,12 +52,10 @@ public class ActiveJobletTypeFactory{
 			CachedSetting<Integer> setting = jobletThreadCountSettings.getSettingForJobletType(type);
 			Map<WebappInstance,Integer> threadCountByWebAppInstance = clusterSettingService
 					.getSettingValueByWebappInstance(setting);
-			Optional<Integer> anyPositiveThreadCount = threadCountByWebAppInstance.values().stream()
+			threadCountByWebAppInstance.values().stream()
 					.filter(threadCount -> threadCount > 0)
-					.findAny();
-			if(anyPositiveThreadCount.isPresent()){
-				activeTypes.add(type);
-			}
+					.findAny()
+					.ifPresent($ -> activeTypes.add(type));
 		}
 		return activeTypes;
 	}

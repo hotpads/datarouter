@@ -19,6 +19,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.conveyor.BaseConveyors;
+import io.datarouter.conveyor.ConveyorGauges;
 import io.datarouter.conveyor.queue.DatabeanBufferConveyor;
 import io.datarouter.exception.config.DatarouterExceptionSettingRoot;
 import io.datarouter.exception.storage.exceptionrecord.DatarouterExceptionRecordDao;
@@ -41,6 +42,8 @@ public class ExceptionConveyors extends BaseConveyors{
 	private ExceptionRecorder exceptionRecorder;
 	@Inject
 	private DatarouterExceptionBuffers exceptionBuffers;
+	@Inject
+	private ConveyorGauges conveyorGauges;
 
 	@Override
 	public void onStartUp(){
@@ -49,7 +52,8 @@ public class ExceptionConveyors extends BaseConveyors{
 				exceptionsSettings.runExceptionRecordMemoryToPublisherConveyor,
 				exceptionBuffers.exceptionRecordPublishingBuffer,
 				exceptionRecorder,
-				exceptionRecordPublisher),
+				exceptionRecordPublisher,
+				conveyorGauges),
 				exceptionsSettings.exceptionRecordConveyorThreadCount.get(),
 				10);
 		start(new HttpRequestRecordMemoryToPublisherConveyor(
@@ -57,21 +61,24 @@ public class ExceptionConveyors extends BaseConveyors{
 				exceptionsSettings.runHttpRequestRecordMemoryToPublisherConveyor,
 				exceptionBuffers.httpRequestRecordPublishingBuffer,
 				exceptionRecorder,
-				exceptionRecordPublisher),
+				exceptionRecordPublisher,
+				conveyorGauges),
 				exceptionsSettings.httpRequestRecordConveyorThreadCount.get());
 		start(new DatabeanBufferConveyor<>(
 				"exceptionRecordMemoryToDatabase",
 				exceptionsSettings.runExceptionRecordMemoryToDatabaseConveyor,
 				exceptionBuffers.exceptionRecordBuffer,
 				exceptionRecordDao::putMulti,
-				exceptionRecorder),
+				exceptionRecorder,
+				conveyorGauges),
 				exceptionsSettings.exceptionRecordMemoryToDatabaseThreadCount.get());
 		start(new DatabeanBufferConveyor<>(
 				"httpRequestRecordMemoryToDatabase",
 				exceptionsSettings.runHttpRequestRecordMemoryToDatabaseConveyor,
 				exceptionBuffers.httpRequestRecordBuffer,
 				httpRequestRecordDao::putMulti,
-				exceptionRecorder),
+				exceptionRecorder,
+				conveyorGauges),
 				exceptionsSettings.httpRequestRecordMemoryToDatabaseThreadCount.get());
 	}
 

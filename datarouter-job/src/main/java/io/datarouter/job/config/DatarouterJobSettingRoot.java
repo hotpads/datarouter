@@ -35,6 +35,7 @@ public class DatarouterJobSettingRoot extends SettingRoot{
 	public final CachedSetting<Boolean> runTaskFailureAlertJob;
 
 	public final CachedSetting<Boolean> processJobs;
+	public final CachedSetting<Boolean> enableDetachedJobs;
 	public final CachedSetting<Boolean> runJobRetriggeringJob;
 	public final CachedSetting<Boolean> runJobStopperJob;
 
@@ -55,6 +56,7 @@ public class DatarouterJobSettingRoot extends SettingRoot{
 		runTaskFailureAlertJob = registerBooleans("runTaskFailureAlertJob", defaultTo(false));
 
 		processJobs = registerBoolean("processJobs", true);
+		enableDetachedJobs = registerBoolean("enableDetachedJobs", true);
 		runJobRetriggeringJob = registerBoolean("runJobRetriggeringJob", false);
 		runJobStopperJob = registerBoolean("runJobStopperJob", true);
 

@@ -32,7 +32,6 @@ import io.datarouter.util.Require;
 import io.datarouter.util.io.FileTool;
 import io.datarouter.util.properties.PropertiesTool;
 import io.datarouter.util.string.StringTool;
-import io.datarouter.util.tuple.Pair;
 
 @Singleton
 public class ComputedPropertiesFinder{
@@ -137,20 +136,20 @@ public class ComputedPropertiesFinder{
 	public String findProperty(
 			String propertyName,
 			List<FallbackPropertyValueSupplierDto> defaultValueSupplierDtos){
-		Optional<Pair<String,String>> propertyValueBySource = getPropFromJvmArg(propertyName)
+		Optional<PropertyValueBySource> propertyValueBySource = getPropFromJvmArg(propertyName)
 				.or(() -> getPropFromConfigFile(propertyName))
 				.or(() -> getPropFromDefaults(propertyName, defaultValueSupplierDtos));
-		if(propertyValueBySource.isPresent() && !propertyValueBySource.get().getLeft().isEmpty()){
+		if(propertyValueBySource.isPresent() && !propertyValueBySource.get().value().isEmpty()){
 			//successfully found property name and non-empty value
-			return propertyValueBySource.get().getLeft();
+			return propertyValueBySource.get().value();
 		}
 
 		if(propertyValueBySource.isPresent()){
 			//property name is found, but the value is empty
 			if(SHOW_LOGGER){
-				logger.warn("found {} with empty value from {}", propertyName, propertyValueBySource.get().getRight());
+				logger.warn("found {} with empty value from {}", propertyName, propertyValueBySource.get().source());
 			}else{
-				logger.info("found {} with empty value from {}", propertyName, propertyValueBySource.get().getRight());
+				logger.info("found {} with empty value from {}", propertyName, propertyValueBySource.get().source());
 			}
 		}else{
 			//both name and value are unknown
@@ -163,7 +162,7 @@ public class ComputedPropertiesFinder{
 		return null;
 	}
 
-	private Optional<Pair<String,String>> getPropFromConfigFile(String propertyName){
+	private Optional<PropertyValueBySource> getPropFromConfigFile(String propertyName){
 		Optional<String> propertyValue = propertiesFromConfigFile
 				.map(properties -> properties.getProperty(propertyName));
 		if(propertyValue.isEmpty()){
@@ -172,10 +171,10 @@ public class ComputedPropertiesFinder{
 		if(!propertyValue.get().isEmpty()){
 			logSource(propertyName, propertyValue.get(), configFileLocation);
 		}
-		return Optional.of(new Pair<>(propertyValue.get(), configFileLocation));
+		return Optional.of(new PropertyValueBySource(propertyValue.get(), configFileLocation));
 	}
 
-	private Optional<Pair<String,String>> getPropFromJvmArg(String jvmArg){
+	private Optional<PropertyValueBySource> getPropFromJvmArg(String jvmArg){
 		String jvmArgName = JVM_ARG_PREFIX + jvmArg;
 		String jvmArgValue = System.getProperty(jvmArgName);
 		if(jvmArgValue == null){
@@ -184,20 +183,20 @@ public class ComputedPropertiesFinder{
 		if(!jvmArgValue.isEmpty()){
 			logJvmArgSource(jvmArg, jvmArgValue, jvmArgName);
 		}
-		return Optional.of(new Pair<>(jvmArgValue, jvmArgName));
+		return Optional.of(new PropertyValueBySource(jvmArgValue, jvmArgName));
 	}
 
-	private Optional<Pair<String,String>> getPropFromDefaults(
+	private Optional<PropertyValueBySource> getPropFromDefaults(
 			String propertyName,
 			List<FallbackPropertyValueSupplierDto> defaultValueSupplierDtos){
 		var optionalValueAndSource = defaultValueSupplierDtos.stream()
-				.map(dto -> new Pair<>(dto.fallbackSupplier.get(), dto.propertySource))
+				.map(dto -> new PropertyValueBySource(dto.fallbackSupplier.get(), dto.propertySource))
 				//supplied value should only be used if it is not null
-				.filter(valueAndSource -> valueAndSource.getLeft() != null)
+				.filter(valueAndSource -> valueAndSource.value() != null)
 				.findFirst();
 		if(optionalValueAndSource.isPresent()){
 			var valueAndSource = optionalValueAndSource.get();
-			logSource(propertyName, valueAndSource.getLeft(), valueAndSource.getRight());
+			logSource(propertyName, valueAndSource.value(), valueAndSource.source());
 			return optionalValueAndSource;
 		}
 		return Optional.empty();
@@ -236,6 +235,11 @@ public class ComputedPropertiesFinder{
 				.include(StringTool::notEmptyNorWhitespace)
 				.map(String::trim)
 				.list();
+	}
+
+	private record PropertyValueBySource(
+			String value,
+			String source){
 	}
 
 	public static class FallbackPropertyValueSupplierDto{

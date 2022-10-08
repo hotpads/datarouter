@@ -29,22 +29,18 @@ import io.datarouter.model.field.imp.comparable.IntegerEncodedField;
 public class IntegerEncodedMysqlFieldCodec<T>
 extends BaseMysqlFieldCodec<T,IntegerEncodedField<T>>{
 
-	public IntegerEncodedMysqlFieldCodec(IntegerEncodedField<T> field){
-		super(field);
-	}
-
 	@Override
-	public SqlColumn getSqlColumnDefinition(boolean allowNullable){
+	public SqlColumn getSqlColumnDefinition(boolean allowNullable, IntegerEncodedField<T> field){
 		return new SqlColumn(
 				field.getKey().getColumnName(),
-				getMysqlColumnType(),
+				getMysqlColumnType(field),
 				11,
 				allowNullable && field.getKey().isNullable(),
 				false);
 	}
 
 	@Override
-	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
+	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex, IntegerEncodedField<T> field){
 		Integer integerValue = field.getCodec().encode(field.getValue());
 		try{
 			if(integerValue == null){
@@ -58,7 +54,7 @@ extends BaseMysqlFieldCodec<T,IntegerEncodedField<T>>{
 	}
 
 	@Override
-	public T fromMysqlResultSetButDoNotSet(ResultSet rs){
+	public T fromMysqlResultSetButDoNotSet(ResultSet rs, IntegerEncodedField<T> field){
 		try{
 			int value = rs.getInt(field.getKey().getColumnName());
 			if(rs.wasNull()){
@@ -72,7 +68,7 @@ extends BaseMysqlFieldCodec<T,IntegerEncodedField<T>>{
 	}
 
 	@Override
-	public MysqlColumnType getMysqlColumnType(){
+	public MysqlColumnType getMysqlColumnType(IntegerEncodedField<T> field){
 		return MysqlColumnType.INT;
 	}
 

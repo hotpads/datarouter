@@ -31,15 +31,11 @@ public class MysqlSortedNodeIntegrationTests extends BaseSortedNodeIntegrationTe
 		setup(DatarouterMysqlTestClientids.MYSQL);
 	}
 
+	@Override
 	@AfterClass
 	public void afterClass(){
 		postTestTests();
 		datarouter.shutdown();
-	}
-
-	@Override
-	protected void testIgnoreNull(){
-		// Skip because feature is not yet implemented
 	}
 
 }

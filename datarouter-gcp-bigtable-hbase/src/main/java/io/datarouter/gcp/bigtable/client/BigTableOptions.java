@@ -32,7 +32,6 @@ import io.datarouter.secret.service.SecretService;
 import io.datarouter.storage.client.ClientOptions;
 import io.datarouter.util.SystemTool;
 import io.datarouter.util.lang.ObjectTool;
-import io.datarouter.util.tuple.Twin;
 
 @Singleton
 public class BigTableOptions extends HBaseOptions{
@@ -66,29 +65,33 @@ public class BigTableOptions extends HBaseOptions{
 		return clientOptions.optString(clientName, makeBigtableKey(PROP_instanceId)).orElse("");
 	}
 
-	public Twin<String> bigtableConfigurationCredentialsKeyValue(String clientName){
+	public BigTableCredentials bigtableConfigurationCredentialsKeyValue(String clientName){
 		return readCredentialsSecretKeyValue(clientName)
 				.or(() -> readCredentialsFileKeyValue(clientName))
 				.orElseThrow(() -> new RuntimeException("no bigtable credentials configuration found"));
 	}
 
-	public Optional<Twin<String>> readCredentialsFileKeyValue(String clientName){
+	public Optional<BigTableCredentials> readCredentialsFileKeyValue(String clientName){
 		Optional<String> optProvided = clientOptions.optString(clientName, makeBigtableKey(
 				PROP_credentialsFileLocation));
 		if(optProvided.isEmpty()){
 			logger.warn("{} not specified", PROP_credentialsFileLocation);
 			return Optional.empty();
 		}
-		return optProvided.map(provided -> {
-			String corrected = provided.replace("~", SystemTool.getUserHome());
-			if(ObjectTool.notEquals(provided, corrected)){
-				logger.warn("updated credentialsLocation from {} to {}", provided, corrected);
-			}
-			return corrected;
-		}).map($ -> new Twin<>(BigtableOptionsFactory.BIGTABLE_SERVICE_ACCOUNT_JSON_KEYFILE_LOCATION_KEY, $));
+		return optProvided
+				.map(provided -> {
+						String corrected = provided.replace("~", SystemTool.getUserHome());
+						if(ObjectTool.notEquals(provided, corrected)){
+							logger.warn("updated credentialsLocation from {} to {}", provided, corrected);
+						}
+						return corrected;
+				})
+				.map(value -> new BigTableCredentials(
+						BigtableOptionsFactory.BIGTABLE_SERVICE_ACCOUNT_JSON_KEYFILE_LOCATION_KEY,
+						value));
 	}
 
-	public Optional<Twin<String>> readCredentialsSecretKeyValue(String clientName){
+	public Optional<BigTableCredentials> readCredentialsSecretKeyValue(String clientName){
 		Optional<String> optSecretLocation = clientOptions.optString(clientName, makeBigtableKey(
 				PROP_credentialsSecretLocation));
 		if(optSecretLocation.isEmpty()){
@@ -96,14 +99,17 @@ public class BigTableOptions extends HBaseOptions{
 			return Optional.empty();
 		}
 		return optSecretLocation
-				.map($ -> {
+				.map(key -> {
 					var config = SecretOpConfig.builder(SecretOpReason.automatedOp(this.getClass().getSimpleName()))
 							.useSharedNamespace()
 							.disableRecording()
 							.disableSerialization()
 							.build();
-					return secretService.read($, String.class, config);
-				}).map($ -> new Twin<>(BigtableOptionsFactory.BIGTABLE_SERVICE_ACCOUNT_JSON_VALUE_KEY, $));
+					return secretService.read(key, String.class, config);
+				})
+				.map(value -> new BigTableCredentials(
+						BigtableOptionsFactory.BIGTABLE_SERVICE_ACCOUNT_JSON_VALUE_KEY,
+						value));
 	}
 
 	protected static String makeBigtableKey(String propertyKey){

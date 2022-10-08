@@ -21,15 +21,15 @@ import java.sql.ResultSet;
 import io.datarouter.client.mysql.ddl.domain.MysqlColumnType;
 import io.datarouter.client.mysql.ddl.domain.MysqlLiveTableOptions;
 import io.datarouter.client.mysql.ddl.domain.SqlColumn;
+import io.datarouter.model.field.Field;
 
-public interface MysqlFieldCodec<T>{
+public interface MysqlFieldCodec<T,F extends Field<T>>{
 
-	MysqlColumnType getMysqlColumnType();
-	SqlColumn getSqlColumnDefinition(boolean allowNullable);
-	String getIntroducedParameter(MysqlLiveTableOptions mysqlTableOptions, boolean disableIntroducer);
+	MysqlColumnType getMysqlColumnType(F field);
+	SqlColumn getSqlColumnDefinition(boolean allowNullable, F field);
+	String getIntroducedParameter(MysqlLiveTableOptions mysqlTableOptions, boolean disableIntroducer, F field);
 	String getSqlParameter();
-	void setPreparedStatementValue(PreparedStatement ps, int parameterIndex);
-	void fromMysqlResultSetUsingReflection(Object targetFieldSet, ResultSet resultSet);
-	T fromMysqlResultSetButDoNotSet(ResultSet rs);
+	void setPreparedStatementValue(PreparedStatement ps, int parameterIndex, F field);
+	T fromMysqlResultSetButDoNotSet(ResultSet rs, F field);
 
 }

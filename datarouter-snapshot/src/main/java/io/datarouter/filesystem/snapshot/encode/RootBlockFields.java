@@ -15,191 +15,85 @@
  */
 package io.datarouter.filesystem.snapshot.encode;
 
+import io.datarouter.filesystem.snapshot.encode.RootBlockFields.NestedRecords.RootBlockEncoderBlockCounts;
+import io.datarouter.filesystem.snapshot.encode.RootBlockFields.NestedRecords.RootBlockEncoderBlockEndings;
+import io.datarouter.filesystem.snapshot.encode.RootBlockFields.NestedRecords.RootBlockEncoderBlocksPerFile;
+import io.datarouter.filesystem.snapshot.encode.RootBlockFields.NestedRecords.RootBlockEncoderByteCountsCompressed;
+import io.datarouter.filesystem.snapshot.encode.RootBlockFields.NestedRecords.RootBlockEncoderByteCountsEncoded;
+import io.datarouter.filesystem.snapshot.encode.RootBlockFields.NestedRecords.RootBlockEncoderBytesPerFile;
+import io.datarouter.filesystem.snapshot.encode.RootBlockFields.NestedRecords.RootBlockEncoderCompressors;
+import io.datarouter.filesystem.snapshot.encode.RootBlockFields.NestedRecords.RootBlockEncoderFormats;
+import io.datarouter.filesystem.snapshot.encode.RootBlockFields.NestedRecords.RootBlockEncoderTimings;
 import io.datarouter.filesystem.snapshot.path.SnapshotPaths;
+import io.datarouter.util.todo.NestedRecordImportWorkaround;
 
-public class RootBlockFields{
+public record RootBlockFields(
+		boolean sorted,
+		SnapshotPaths snapshotPaths,
+		RootBlockEncoderFormats formats,
+		RootBlockEncoderCompressors compressors,
+		RootBlockEncoderBytesPerFile bytesPerFile,
+		RootBlockEncoderBlocksPerFile blocksPerFile,
+		long numEntries,
+		int numBranchLevels,
+		RootBlockEncoderBlockCounts blockCounts,
+		RootBlockEncoderByteCountsEncoded byteCountsEncoded,
+		RootBlockEncoderByteCountsCompressed byteCountsCompressed,
+		RootBlockEncoderBlockEndings blockEndings,
+		RootBlockEncoderTimings timings){
 
-	public final boolean sorted;
-	public final SnapshotPaths paths;
-	public final RootBlockEncoderFormats formats;
-	public final RootBlockEncoderCompressors compressors;
-	public final RootBlockEncoderBytesPerFile bytesPerFile;
-	public final RootBlockEncoderBlocksPerFile blocksPerFile;
-	public final long numEntries;
-	public final int numBranchLevels;
-	public final RootBlockEncoderBlockCounts blockCounts;
-	public final RootBlockEncoderByteCountsEncoded byteCountsEncoded;
-	public final RootBlockEncoderByteCountsCompressed byteCountsCompressed;
-	public final RootBlockEncoderBlockEndings blockEndings;
-	public final RootBlockEncoderTimings timings;
+	@NestedRecordImportWorkaround
+	public static class NestedRecords{
 
-	public RootBlockFields(
-			boolean sorted,
-			SnapshotPaths snapshotPaths,
-			RootBlockEncoderFormats formats,
-			RootBlockEncoderCompressors compressors,
-			RootBlockEncoderBytesPerFile bytesPerFile,
-			RootBlockEncoderBlocksPerFile blocksPerFile,
-			long numEntries,
-			int numBranchLevels,
-			RootBlockEncoderBlockCounts blockCounts,
-			RootBlockEncoderByteCountsEncoded byteCountsEncoded,
-			RootBlockEncoderByteCountsCompressed byteCountsCompressed,
-			RootBlockEncoderBlockEndings blockEndings,
-			RootBlockEncoderTimings timings){
-		this.sorted = sorted;
-		this.paths = snapshotPaths;
-		this.formats = formats;
-		this.compressors = compressors;
-		this.bytesPerFile = bytesPerFile;
-		this.blocksPerFile = blocksPerFile;
-		this.numEntries = numEntries;
-		this.numBranchLevels = numBranchLevels;
-		this.blockCounts = blockCounts;
-		this.byteCountsEncoded = byteCountsEncoded;
-		this.byteCountsCompressed = byteCountsCompressed;
-		this.blockEndings = blockEndings;
-		this.timings = timings;
-	}
-
-	public static class RootBlockEncoderFormats{
-
-		public final String branchBlockFormat;
-		public final String leafBlockFormat;
-		public final String valueBlockFormat;
-
-		public RootBlockEncoderFormats(
+		public record RootBlockEncoderFormats(
 				String branchBlockFormat,
 				String leafBlockFormat,
 				String valueBlockFormat){
-			this.branchBlockFormat = branchBlockFormat;
-			this.leafBlockFormat = leafBlockFormat;
-			this.valueBlockFormat = valueBlockFormat;
 		}
 
-	}
-
-	public static class RootBlockEncoderCompressors{
-
-		public final String branchBlockCompressor;
-		public final String leafBlockCompressor;
-		public final String valueBlockCompressor;
-
-		public RootBlockEncoderCompressors(
+		public record RootBlockEncoderCompressors(
 				String branchBlockCompressor,
 				String leafBlockCompressor,
 				String valueBlockCompressor){
-			this.branchBlockCompressor = branchBlockCompressor;
-			this.leafBlockCompressor = leafBlockCompressor;
-			this.valueBlockCompressor = valueBlockCompressor;
 		}
 
-	}
-
-	public static class RootBlockEncoderBytesPerFile{
-
-		public final int branchBytesPerFile;
-		public final int leafBytesPerFile;
-		public final int valueBytesPerFile;
-
-		public RootBlockEncoderBytesPerFile(
+		public record RootBlockEncoderBytesPerFile(
 				int branchBytesPerFile,
 				int leafBytesPerFile,
 				int valueBytesPerFile){
-			this.branchBytesPerFile = branchBytesPerFile;
-			this.leafBytesPerFile = leafBytesPerFile;
-			this.valueBytesPerFile = valueBytesPerFile;
 		}
 
-	}
-
-	public static class RootBlockEncoderBlocksPerFile{
-
-		public final int branchBlocksPerFile;
-		public final int leafBlocksPerFile;
-		public final int valueBlocksPerFile;
-
-		public RootBlockEncoderBlocksPerFile(
+		public record RootBlockEncoderBlocksPerFile(
 				int branchBlocksPerFile,
 				int leafBlocksPerFile,
 				int valueBlocksPerFile){
-			this.branchBlocksPerFile = branchBlocksPerFile;
-			this.leafBlocksPerFile = leafBlocksPerFile;
-			this.valueBlocksPerFile = valueBlocksPerFile;
 		}
 
-	}
-
-	public static class RootBlockEncoderBlockCounts{
-
-		public final int[] numBranchBlocksByLevel;
-		public final int numLeafBlocks;
-		public final int[] numValueBlocksByColumn;
-
-		public RootBlockEncoderBlockCounts(
+		public record RootBlockEncoderBlockCounts(
 				int[] numBranchBlocksByLevel,
 				int numLeafBlocks,
 				int[] numValueBlocksByColumn){
-			this.numBranchBlocksByLevel = numBranchBlocksByLevel;
-			this.numLeafBlocks = numLeafBlocks;
-			this.numValueBlocksByColumn = numValueBlocksByColumn;
 		}
 
-	}
-
-	public static class RootBlockEncoderByteCountsEncoded{
-
-		public final long numBranchBytesEncoded;
-		public final long numLeafBytesEncoded;
-		public final long numValueBytesEncoded;
-
-		public RootBlockEncoderByteCountsEncoded(
+		public record RootBlockEncoderByteCountsEncoded(
 				long numBranchBytesEncoded,
 				long numLeafBytesEncoded,
 				long numValueBytesEncoded){
-			this.numBranchBytesEncoded = numBranchBytesEncoded;
-			this.numLeafBytesEncoded = numLeafBytesEncoded;
-			this.numValueBytesEncoded = numValueBytesEncoded;
 		}
 
-	}
-
-	public static class RootBlockEncoderByteCountsCompressed{
-
-		public final long numBranchBytesCompressed;
-		public final long numLeafBytesCompressed;
-		public final long numValueBytesCompressed;
-
-		public RootBlockEncoderByteCountsCompressed(
+		public record RootBlockEncoderByteCountsCompressed(
 				long numBranchBytesCompressed,
 				long numLeafBytesCompressed,
 				long numValueBytesCompressed){
-			this.numBranchBytesCompressed = numBranchBytesCompressed;
-			this.numLeafBytesCompressed = numLeafBytesCompressed;
-			this.numValueBytesCompressed = numValueBytesCompressed;
 		}
 
-	}
-
-	public static class RootBlockEncoderBlockEndings{
-
-		public final int rootBranchBlockLength;
-
-		public RootBlockEncoderBlockEndings(
+		public record RootBlockEncoderBlockEndings(
 				int rootBranchBlockLength){
-			this.rootBranchBlockLength = rootBranchBlockLength;
 		}
 
-	}
-
-	public static class RootBlockEncoderTimings{
-
-		public final long writeStartTimeMs;
-		public final long writeDurationMs;
-
-		public RootBlockEncoderTimings(long writeStartTimeMs, long writeDurationMs){
-			this.writeStartTimeMs = writeStartTimeMs;
-			this.writeDurationMs = Math.max(writeDurationMs, 1);
+		public record RootBlockEncoderTimings(
+				long writeStartTimeMs,
+				long writeDurationMs){
 		}
 
 	}

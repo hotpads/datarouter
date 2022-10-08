@@ -34,7 +34,6 @@ import io.datarouter.instrumentation.count.Counters;
 import io.datarouter.ratelimiter.storage.BaseTallyDao;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.time.ZoneIds;
-import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.util.http.RequestTool;
 
 public class DatarouterRateLimiter{
@@ -147,24 +146,13 @@ public class DatarouterRateLimiter{
 	 *   						 => 2009-06-06T11:08:00Z when timeUnit = minutes and bucketInterval = 4 minutes
 	 */
 	protected String getTimeStr(Instant instant){
-		ChronoField chornoField;
-		switch(config.unit){
-		case DAYS:
-			chornoField = ChronoField.DAY_OF_MONTH;
-			break;
-		case HOURS:
-			chornoField = ChronoField.HOUR_OF_DAY;
-			break;
-		case MINUTES:
-			chornoField = ChronoField.MINUTE_OF_HOUR;
-			break;
-		case SECONDS:
-			chornoField = ChronoField.SECOND_OF_MINUTE;
-			break;
-		default:
-			chornoField = ChronoField.MILLI_OF_SECOND;
-			break;
-		}
+		ChronoField chornoField = switch(config.unit){
+		case DAYS -> ChronoField.DAY_OF_MONTH;
+		case HOURS -> ChronoField.HOUR_OF_DAY;
+		case MINUTES -> ChronoField.MINUTE_OF_HOUR;
+		case SECONDS -> ChronoField.SECOND_OF_MINUTE;
+		default -> ChronoField.MILLI_OF_SECOND;
+		};
 		Instant truncatedInstant = setCalendarFieldForBucket(instant,config.unit, chornoField,
 				config.bucketTimeInterval);
 		return DateTimeFormatter.ISO_INSTANT.format(truncatedInstant);
@@ -190,13 +178,18 @@ public class DatarouterRateLimiter{
 	}
 
 	// inverse of makeMapKey
-	private static Pair<String,String> unmakeMapKey(String mapKey){
+	private static KeyTime unmakeMapKey(String mapKey){
 		String[] splits = mapKey.split("!");
-		return new Pair<>(splits[0].replaceAll("%21", "!"), splits[1]);
+		return new KeyTime(splits[0].replaceAll("%21", "!"), splits[1]);
+	}
+
+	private record KeyTime(
+			String key,
+			String time){
 	}
 
 	private static Instant getDateFromKey(String key){
-		String dateString = unmakeMapKey(key).getRight();
+		String dateString = unmakeMapKey(key).time();
 		try{
 			return Instant.parse(dateString);
 		}catch(DateTimeParseException e){

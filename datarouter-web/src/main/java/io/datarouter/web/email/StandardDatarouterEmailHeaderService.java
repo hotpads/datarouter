@@ -30,8 +30,6 @@ import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
 import io.datarouter.storage.config.properties.EnvironmentName;
 import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.storage.config.properties.ServiceName;
-import io.datarouter.util.tuple.Pair;
-import io.datarouter.util.tuple.Twin;
 import j2html.tags.DomContent;
 import j2html.tags.Text;
 import j2html.tags.specialized.DivTag;
@@ -50,28 +48,28 @@ public class StandardDatarouterEmailHeaderService{
 		return makeStandardHeaderWithSupplements(List.of());
 	}
 
-	public DivTag makeStandardHeaderWithSupplements(List<Pair<String,DomContent>> supplements){
-		List<Pair<String,DomContent>> rows = new ArrayList<>();
-		rows.add(new Pair<>("environment", makeText(environmentName.get())));
-		rows.add(new Pair<>("service", makeText(serviceName.get())));
-		rows.add(new Pair<>("serverName", makeText(serverName.get())));
-		supplements.forEach(row -> rows.add(new Pair<>(row.getLeft(), row.getRight())));
-		var table = new J2HtmlEmailTable<Pair<String,DomContent>>()
-				.withColumn(new J2HtmlEmailTableColumn<>(null, row -> makeDivBoldRight(row.getLeft())))
-				.withColumn(new J2HtmlEmailTableColumn<>(null, Pair::getRight))
+	public DivTag makeStandardHeaderWithSupplements(List<EmailHeaderRow> supplements){
+		List<HtmlEmailHeaderRow> rows = new ArrayList<>();
+		rows.add(new HtmlEmailHeaderRow("environment", makeText(environmentName.get())));
+		rows.add(new HtmlEmailHeaderRow("service", makeText(serviceName.get())));
+		rows.add(new HtmlEmailHeaderRow("serverName", makeText(serverName.get())));
+		supplements.forEach(row -> rows.add(new HtmlEmailHeaderRow(row.header(), text(row.value()))));
+		var table = new J2HtmlEmailTable<HtmlEmailHeaderRow>()
+				.withColumn(new J2HtmlEmailTableColumn<>(null, row -> makeDivBoldRight(row.header())))
+				.withColumn(new J2HtmlEmailTableColumn<>(null, HtmlEmailHeaderRow::value))
 				.build(rows);
 		return div(table, br());
 	}
 
-	public DivTag makeStandardHeaderWithSupplementsText(List<Twin<String>> supplements){
-		List<Pair<String,DomContent>> rows = new ArrayList<>();
-		rows.add(new Pair<>("environment", makeText(environmentName.get())));
-		rows.add(new Pair<>("service", makeText(serviceName.get())));
-		rows.add(new Pair<>("serverName", makeText(serverName.get())));
-		supplements.forEach(row -> rows.add(new Pair<>(row.getLeft(), text(row.getRight()))));
-		var table = new J2HtmlEmailTable<Pair<String,DomContent>>()
-				.withColumn(new J2HtmlEmailTableColumn<>(null, row -> makeDivBoldRight(row.getLeft())))
-				.withColumn(new J2HtmlEmailTableColumn<>(null, Pair::getRight))
+	public DivTag makeStandardHeaderWithSupplementsHtml(List<HtmlEmailHeaderRow> supplements){
+		List<HtmlEmailHeaderRow> rows = new ArrayList<>();
+		rows.add(new HtmlEmailHeaderRow("environment", makeText(environmentName.get())));
+		rows.add(new HtmlEmailHeaderRow("service", makeText(serviceName.get())));
+		rows.add(new HtmlEmailHeaderRow("serverName", makeText(serverName.get())));
+		supplements.forEach(row -> rows.add(new HtmlEmailHeaderRow(row.header(), row.value())));
+		var table = new J2HtmlEmailTable<HtmlEmailHeaderRow>()
+				.withColumn(new J2HtmlEmailTableColumn<>(null, row -> makeDivBoldRight(row.header())))
+				.withColumn(new J2HtmlEmailTableColumn<>(null, HtmlEmailHeaderRow::value))
 				.build(rows);
 		return div(table, br());
 	}
@@ -83,6 +81,16 @@ public class StandardDatarouterEmailHeaderService{
 
 	private Text makeText(String text){
 		return text(text);
+	}
+
+	public record EmailHeaderRow(
+			String header,
+			String value){
+	}
+
+	public record HtmlEmailHeaderRow(
+			String header,
+			DomContent value){
 	}
 
 }

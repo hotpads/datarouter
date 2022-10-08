@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.commons.codec.binary.Base64;
@@ -68,6 +69,7 @@ public class DatarouterHttpRequest{
 	private HttpHost proxy;
 	private Boolean shouldSkipSecurity;
 	private Boolean shouldSkipLogs;
+	private Duration logSlowRequestThreshold;
 
 	/**
 	 * Expects query string parameters to already be UTF-8 encoded. See AdvancedStringTool.makeUrlParameters().
@@ -493,6 +495,15 @@ public class DatarouterHttpRequest{
 
 	public DatarouterHttpRequest setShouldSkipLogs(boolean shouldSkipLogs){
 		this.shouldSkipLogs = shouldSkipLogs;
+		return this;
+	}
+
+	public Optional<Duration> findLogSlowRequestThreshold(){
+		return Optional.ofNullable(logSlowRequestThreshold);
+	}
+
+	public DatarouterHttpRequest setLogSlowRequestThreshold(Duration logSlowRequestThreshold){
+		this.logSlowRequestThreshold = logSlowRequestThreshold;
 		return this;
 	}
 

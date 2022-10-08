@@ -68,7 +68,6 @@ public interface Codec<A,B>{
 
 	}
 
-
 	/**
 	 * Skips the inner codecs when provided values are null, directly returning null.
 	 */
@@ -88,6 +87,16 @@ public interface Codec<A,B>{
 			return new NullPassthroughCodec<>(encodeFunction, decodeFunction);
 		}
 
+	}
+
+	static final Codec<?,?> IDENTITY_INSTANCE = Codec.of(Function.identity(), Function.identity());
+
+	/**
+	 * Use Codec.identity() when you must supply a Codec but don't need to encode anything.
+	 */
+	@SuppressWarnings("unchecked")
+	static <A> Codec<A,A> identity(){
+		return (Codec<A,A>)IDENTITY_INSTANCE;
 	}
 
 }

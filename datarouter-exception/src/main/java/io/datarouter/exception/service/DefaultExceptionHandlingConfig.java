@@ -19,9 +19,6 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
 import io.datarouter.exception.config.DatarouterExceptionSettingRoot;
-import io.datarouter.exception.storage.metadata.DatarouterExceptionRecordSummaryMetadataDao;
-import io.datarouter.exception.storage.metadata.ExceptionRecordSummaryMetadata;
-import io.datarouter.exception.storage.metadata.ExceptionRecordSummaryMetadataKey;
 import io.datarouter.instrumentation.exception.ExceptionRecordDto;
 import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.web.exception.ExceptionHandlingConfig;
@@ -36,8 +33,6 @@ public class DefaultExceptionHandlingConfig implements ExceptionHandlingConfig{
 	private DatarouterExceptionSettingRoot settings;
 	@Inject
 	private ServerTypeDetector serverTypeDetector;
-	@Inject
-	private DatarouterExceptionRecordSummaryMetadataDao exceptionSummaryMetadataDao;
 	@Inject
 	private RoleManager roleManager;
 	@Inject
@@ -57,21 +52,12 @@ public class DefaultExceptionHandlingConfig implements ExceptionHandlingConfig{
 
 	@Override
 	public boolean shouldReportError(ExceptionRecordDto exceptionRecord){
-		if(!settings.shouldReport.get()){
-			return false;
-		}
-		var metadataKey = new ExceptionRecordSummaryMetadataKey(exceptionRecord.type,
-				exceptionRecord.exceptionLocation);
-		ExceptionRecordSummaryMetadata recordMetadata = exceptionSummaryMetadataDao.get(metadataKey);
-		return recordMetadata == null || recordMetadata.getMuted() == null || !recordMetadata.getMuted();
+		return settings.shouldReport.get();
 	}
 
 	@Override
 	public boolean shouldReportError(ExceptionDto dto){
-		if(!settings.shouldReport.get()){
-			return false;
-		}
-		return true;
+		return settings.shouldReport.get();
 	}
 
 	@Override

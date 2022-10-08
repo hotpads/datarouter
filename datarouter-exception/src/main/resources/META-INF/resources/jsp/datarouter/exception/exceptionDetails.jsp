@@ -41,7 +41,6 @@
 <%@ include file="/jsp/menu/common-navbar-b4.jsp" %>
 <nav class="navbar navbar-light bg-light">
 	<div class="container justify-content-between">
-		<span class="navbar-item"><a class="btn btn-primary" href="${contextPath}${browsePath}"><i class="fas fa-angle-left mr-1"></i>All Exceptions</a></span>
 		<form class="form-inline ml-auto" action="${contextPath}${detailsPath}?exceptionRecord=${exceptionRecord}">
 			<input class="form-control mr-sm-2" type="search" placeholder="exception record ID" name="exceptionRecord">
 			<input type="submit" class="btn btn-primary" value="Search">
@@ -49,9 +48,6 @@
 	</div>
 </nav>
 <div class="container my-4">
-	<c:if test="${empty exceptionRecord}">
-		<div class="alert alert-danger">Exception record not found</div>
-	</c:if>
 	<c:if test="${not empty exceptionRecord}">
 		<h2>
 			Exception

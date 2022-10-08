@@ -16,6 +16,7 @@
 package io.datarouter.aws.sqs.test;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 import javax.inject.Inject;
@@ -28,22 +29,35 @@ import org.testng.annotations.Test;
 
 import io.datarouter.aws.sqs.DatarouterAwsSqsTestNgModuleFactory;
 import io.datarouter.aws.sqs.SqsDataTooLargeException;
+import io.datarouter.bytes.ByteTool;
+import io.datarouter.bytes.Codec;
+import io.datarouter.bytes.PrependLengthByteArrayScanner;
 import io.datarouter.bytes.codec.stringcodec.StringCodec;
-import io.datarouter.model.util.CommonFieldSizes;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
-import io.datarouter.storage.queue.BlobQueueMessageDto;
+import io.datarouter.storage.node.factory.QueueNodeFactory;
+import io.datarouter.storage.test.node.queue.BaseBlobQueueStorageTestDao;
+import io.datarouter.storage.test.node.queue.BloqQueueStorageTestDto;
+import io.datarouter.storage.test.node.queue.BloqQueueStorageTestDto.BloqQueueStorageTestDtoCodec;
 
 @Guice(moduleFactory = DatarouterAwsSqsTestNgModuleFactory.class)
 @Test(singleThreaded = true)
 public class SqsBlobNodeIntegrationTester{
 
+	private static final Codec<BloqQueueStorageTestDto,byte[]> CODEC = new BloqQueueStorageTestDtoCodec();
+
 	private final Datarouter datarouter;
-	private final SqsBlobTestDao dao;
+	private final BaseBlobQueueStorageTestDao<BloqQueueStorageTestDto> dao;
 
 	@Inject
-	public SqsBlobNodeIntegrationTester(Datarouter datarouter, SqsBlobTestDao dao){
+	public SqsBlobNodeIntegrationTester(Datarouter datarouter, QueueNodeFactory queueNodeFactory){
 		this.datarouter = datarouter;
-		this.dao = dao;
+		this.dao = new BaseBlobQueueStorageTestDao<>(
+				datarouter,
+				queueNodeFactory,
+				DatarouterSqsTestClientIds.SQS,
+				"SqsBlobTest",
+				CODEC);
 	}
 
 	@AfterClass
@@ -68,24 +82,41 @@ public class SqsBlobNodeIntegrationTester{
 	@Test
 	public void testSizeLimits(){
 		int maxDataSize = dao.getMaxDataSize();
-		Assert.assertTrue(maxDataSize == CommonFieldSizes.MAX_SQS_SIZE);
-
 		testByteLimit(maxDataSize);
 		//not enough room for topic
 		Assert.assertThrows(SqsDataTooLargeException.class, () ->
-				testByteLimit(CommonFieldSizes.MAX_SQS_SIZE + 1));
+				testByteLimit(maxDataSize + 1));
 	}
 
 	private void testByteLimit(int size){
-		dao.put(fillBytes('a', size));
+		dao.putRaw(fillBytes('a', size));
 	}
 
 	@Test
 	public void testPutAndPoll(){
 		byte[] randomBytes = makeRandomBytes();
-		dao.put(randomBytes);
-		BlobQueueMessageDto retrieved = dao.poll().get();
-		Assert.assertEquals(retrieved.getData(), randomBytes);
+		dao.putRaw(randomBytes);
+		var retrieved = dao.poll().get();
+		Assert.assertEquals(retrieved.getRawData(), randomBytes);
+		Assert.assertTrue(dao.poll().isEmpty());
+	}
+
+	@Test
+	public void testPutAndPollWithType(){
+		var dtos = List.of(
+				new BloqQueueStorageTestDto('c', 3, true),
+				new BloqQueueStorageTestDto('a', 0, true),
+				new BloqQueueStorageTestDto('a', 0, false),
+				new BloqQueueStorageTestDto('b', 0, false));
+		var raw = Scanner.of(dtos)
+				.map(CODEC::encode)
+				.apply(PrependLengthByteArrayScanner::of)
+				.listTo(ByteTool::concat);
+
+		dao.combineAndPut(dtos);
+		var result = dao.poll().get();
+		Assert.assertEquals(result.getRawData(), raw);
+		Assert.assertEquals(result.scanSplitDecodedData().list(), dtos);
 		Assert.assertTrue(dao.poll().isEmpty());
 	}
 

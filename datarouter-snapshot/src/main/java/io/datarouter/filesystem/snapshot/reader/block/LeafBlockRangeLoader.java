@@ -31,7 +31,7 @@ public class LeafBlockRangeLoader{
 
 	public static Scanner<LeafBlockRange> splitByFileAndBatch(Scanner<BlockKey> leafBlockKeys, int blocksPerBatch){
 		return leafBlockKeys
-				.splitBy(key -> key.fileId)
+				.splitBy(BlockKey::fileId)
 				.concat(keysInFile -> keysInFile
 						.batch(blocksPerBatch)
 						.map(LeafBlockRange::new))
@@ -52,11 +52,11 @@ public class LeafBlockRangeLoader{
 			this.blockKeys = blockKeys;
 			firstBlockKey = blockKeys.get(0);
 			lastBlockKey = ListTool.getLast(blockKeys);
-			snapshotKey = firstBlockKey.snapshotKey;
-			fileId = firstBlockKey.fileId;
-			Require.equals(firstBlockKey.fileId, lastBlockKey.fileId);
-			fileFrom = firstBlockKey.offset;
-			fileTo = lastBlockKey.offset + lastBlockKey.length;
+			snapshotKey = firstBlockKey.snapshotKey();
+			fileId = firstBlockKey.fileId();
+			Require.equals(firstBlockKey.fileId(), lastBlockKey.fileId());
+			fileFrom = firstBlockKey.offset();
+			fileTo = lastBlockKey.offset() + lastBlockKey.length();
 		}
 
 		/**
@@ -65,14 +65,14 @@ public class LeafBlockRangeLoader{
 		public BlockKey rangeBlockKey(){
 			int blockId = -1;//for lack of a better value
 			int length = fileTo - fileFrom;
-			return BlockKey.leaf(firstBlockKey.snapshotKey, blockId, fileId, fileFrom, length);
+			return BlockKey.leaf(firstBlockKey.snapshotKey(), blockId, fileId, fileFrom, length);
 		}
 
 		public Scanner<Bytes> parse(byte[] multiBlockBytes){
 			return Scanner.of(blockKeys)
 					.map(blockKey -> {
-						int from = blockKey.offset - fileFrom;
-						return new Bytes(multiBlockBytes, from, blockKey.length);
+						int from = blockKey.offset() - fileFrom;
+						return new Bytes(multiBlockBytes, from, blockKey.length());
 					});
 		}
 
@@ -81,8 +81,8 @@ public class LeafBlockRangeLoader{
 			LinkedHashMap<String,Object> kvs = new LinkedHashMap<>();
 			kvs.put("fileId", fileId);
 			kvs.put("numBlocks", blockKeys.size());
-			kvs.put("firstBlockId", firstBlockKey.blockId);
-			kvs.put("lastBlockId", lastBlockKey.blockId);
+			kvs.put("firstBlockId", firstBlockKey.blockId());
+			kvs.put("lastBlockId", lastBlockKey.blockId());
 			kvs.put("fileFrom", fileFrom);
 			kvs.put("fileTo", fileTo);
 			return kvs.entrySet().stream()

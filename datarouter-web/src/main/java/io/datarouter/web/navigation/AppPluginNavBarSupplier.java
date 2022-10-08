@@ -33,7 +33,7 @@ public class AppPluginNavBarSupplier implements Supplier<List<NavBarItem>>{
 	@Override
 	public List<NavBarItem> get(){
 		return pluginInjector.scanInstances(NavBarItem.KEY)
-				.include(item -> item.category.getType() == NavBarItemType.APP)
+				.include(item -> item.category.type() == NavBarItemType.APP)
 				.list();
 	}
 

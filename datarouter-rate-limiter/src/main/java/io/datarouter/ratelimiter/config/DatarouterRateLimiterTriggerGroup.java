@@ -15,7 +15,6 @@
  */
 package io.datarouter.ratelimiter.config;
 
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
 

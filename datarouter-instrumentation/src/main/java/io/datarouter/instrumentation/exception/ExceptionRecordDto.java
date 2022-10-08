@@ -16,50 +16,21 @@
 package io.datarouter.instrumentation.exception;
 
 import java.util.Date;
+import java.util.List;
 
-public class ExceptionRecordDto{
-
-	public final String id;
-	public final Date created;
-	public final String serviceName;
-	public final String serverName;
-	public final String category;
-	public final String name;
-	public final String stackTrace;
-	public final String type;
-	public final String appVersion;
-	public final String exceptionLocation;
-	public final String methodName;
-	public final Integer lineNumber;
-	public final String callOrigin;
-
-	public ExceptionRecordDto(
-			String id,
-			Date created,
-			String serviceName,
-			String serverName,
-			String category,
-			String name,
-			String stackTrace,
-			String type,
-			String appVersion,
-			String exceptionLocation,
-			String methodName,
-			Integer lineNumber,
-			String callOrigin){
-		this.id = id;
-		this.created = created;
-		this.serviceName = serviceName;
-		this.serverName = serverName;
-		this.category = category;
-		this.name = name;
-		this.stackTrace = stackTrace;
-		this.type = type;
-		this.appVersion = appVersion;
-		this.exceptionLocation = exceptionLocation;
-		this.methodName = methodName;
-		this.lineNumber = lineNumber;
-		this.callOrigin = callOrigin;
-	}
-
+public record ExceptionRecordDto(
+		String id,
+		Date created,
+		String serviceName,
+		String serverName,
+		String category,
+		String name,
+		String stackTrace,
+		String type,
+		String appVersion,
+		String exceptionLocation,
+		String methodName,
+		Integer lineNumber,
+		String callOrigin,
+		List<String> additionalAlertRecipients){
 }

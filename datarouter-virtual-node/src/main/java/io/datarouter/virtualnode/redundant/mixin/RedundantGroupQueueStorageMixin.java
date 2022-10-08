@@ -93,7 +93,6 @@ extends GroupQueueStorage<PK,D>, RedundantQueueNode<PK,D,F,N>{
 	default GroupQueueMessage<PK,D> peek(Config config){
 		var phaseTimer = new PhaseTimer();
 		return Scanner.of(getReadNodes())
-				.shuffle()
 				.map(node -> {
 					GroupQueueMessage<PK,D> databean = node.peek(config);
 					phaseTimer.add("node " + node);
@@ -107,7 +106,6 @@ extends GroupQueueStorage<PK,D>, RedundantQueueNode<PK,D,F,N>{
 	default List<GroupQueueMessage<PK,D>> peekMulti(Config config){
 		var phaseTimer = new PhaseTimer();
 		return Scanner.of(getReadNodes())
-				.shuffle()
 				.map(node -> {
 					List<GroupQueueMessage<PK,D>> messages = node.peekMulti(config);
 					phaseTimer.add("node " + node);

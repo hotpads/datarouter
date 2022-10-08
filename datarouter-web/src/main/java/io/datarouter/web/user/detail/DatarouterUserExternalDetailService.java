@@ -15,24 +15,27 @@
  */
 package io.datarouter.web.user.detail;
 
+import java.io.ByteArrayOutputStream;
 import java.util.Optional;
 
 import javax.inject.Singleton;
 
-import io.datarouter.web.user.databean.DatarouterUser;
-
 @Singleton
 public class DatarouterUserExternalDetailService{
 
-	public Optional<String> getUserProfileUrl(@SuppressWarnings("unused") DatarouterUser user){
+	public Optional<DatarouterUserProfileLink> getUserProfileLink(@SuppressWarnings("unused") String username){
 		return Optional.empty();
 	}
 
-	public Optional<String> getUserProfileUrl(@SuppressWarnings("unused") String username){
+	public Optional<DatarouterUserExternalDetails> getUserDetails(@SuppressWarnings("unused") String username){
 		return Optional.empty();
 	}
 
-	public Optional<String> getUserProfileDescription(){
+	public boolean userImageSupported(){
+		return false;
+	}
+
+	public Optional<ByteArrayOutputStream> getUserImage(@SuppressWarnings("unused") String username){
 		return Optional.empty();
 	}
 

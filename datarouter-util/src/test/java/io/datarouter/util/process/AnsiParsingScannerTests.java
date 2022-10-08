@@ -24,14 +24,18 @@ import org.testng.annotations.Test;
 
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.process.AnsiParsingScanner.AnsiParsedLine;
-import io.datarouter.util.tuple.Pair;
 
 public class AnsiParsingScannerTests{
 
+	private record ConsumedLog(
+			String line,
+			boolean isHtml){
+	}
+
 	@Test
 	public void testNoHtml(){
-		List<Pair<String,Boolean>> consumedLogs = new ArrayList<>();
-		Consumer<AnsiParsedLine> logConsumer = line -> consumedLogs.add(new Pair<>(line.line, line.isHtml));
+		List<ConsumedLog> consumedLogs = new ArrayList<>();
+		Consumer<AnsiParsedLine> logConsumer = line -> consumedLogs.add(new ConsumedLog(line.line(), line.isHtml()));
 
 		List<String> output = Scanner.of(
 				"no html",
@@ -41,14 +45,14 @@ public class AnsiParsingScannerTests{
 
 		Assert.assertEquals(output, List.of("no html", "normal text"));
 		Assert.assertEquals(consumedLogs, List.of(
-				new Pair<>("no html", false),
-				new Pair<>("normal text", false)));
+				new ConsumedLog("no html", false),
+				new ConsumedLog("normal text", false)));
 	}
 
 	@Test
 	public void testHtml(){
-		List<Pair<String,Boolean>> consumedLogs = new ArrayList<>();
-		Consumer<AnsiParsedLine> logConsumer = line -> consumedLogs.add(new Pair<>(line.line, line.isHtml));
+		List<ConsumedLog> consumedLogs = new ArrayList<>();
+		Consumer<AnsiParsedLine> logConsumer = line -> consumedLogs.add(new ConsumedLog(line.line(), line.isHtml()));
 
 		List<String> output = Scanner.of("\u001B[92mHello World!")
 				.link(scanner -> new AnsiParsingScanner(scanner, "sgr-", logConsumer))
@@ -56,13 +60,13 @@ public class AnsiParsingScannerTests{
 
 		Assert.assertEquals(output, List.of("Hello World!"));
 		Assert.assertEquals(consumedLogs, List.of(
-				new Pair<>("<span class=\"sgr-92\">Hello World!</span>", true)));
+				new ConsumedLog("<span class=\"sgr-92\">Hello World!</span>", true)));
 	}
 
 	@Test
 	public void testMixedContent(){
-		List<Pair<String,Boolean>> consumedLogs = new ArrayList<>();
-		Consumer<AnsiParsedLine> logConsumer = line -> consumedLogs.add(new Pair<>(line.line, line.isHtml));
+		List<ConsumedLog> consumedLogs = new ArrayList<>();
+		Consumer<AnsiParsedLine> logConsumer = line -> consumedLogs.add(new ConsumedLog(line.line(), line.isHtml()));
 
 		List<String> output = Scanner.of(
 				"\u001B[01mNeeds html",
@@ -73,15 +77,15 @@ public class AnsiParsingScannerTests{
 
 		Assert.assertEquals(output, List.of("Needs html", "No html", "Back to html"));
 		Assert.assertEquals(consumedLogs, List.of(
-				new Pair<>("<span class=\"sgr-01\">Needs html</span>", true),
-				new Pair<>("No html", false),
-				new Pair<>("<span class=\"sgr-92\">Back to html</span>", true)));
+				new ConsumedLog("<span class=\"sgr-01\">Needs html</span>", true),
+				new ConsumedLog("No html", false),
+				new ConsumedLog("<span class=\"sgr-92\">Back to html</span>", true)));
 	}
 
 	@Test
 	public void testMultiModifierHtml(){
-		List<Pair<String,Boolean>> consumedLogs = new ArrayList<>();
-		Consumer<AnsiParsedLine> logConsumer = line -> consumedLogs.add(new Pair<>(line.line, line.isHtml));
+		List<ConsumedLog> consumedLogs = new ArrayList<>();
+		Consumer<AnsiParsedLine> logConsumer = line -> consumedLogs.add(new ConsumedLog(line.line(), line.isHtml()));
 
 		List<String> output = Scanner.of("\u001B[33;01;47mMany classes")
 				.link(scanner -> new AnsiParsingScanner(scanner, "sgr-", logConsumer))
@@ -89,13 +93,13 @@ public class AnsiParsingScannerTests{
 
 		Assert.assertEquals(output, List.of("Many classes"));
 		Assert.assertEquals(consumedLogs, List.of(
-				new Pair<>("<span class=\"sgr-33 sgr-01 sgr-47\">Many classes</span>", true)));
+				new ConsumedLog("<span class=\"sgr-33 sgr-01 sgr-47\">Many classes</span>", true)));
 	}
 
 	@Test
 	public void testStackedModifierHtml(){
-		List<Pair<String,Boolean>> consumedLogs = new ArrayList<>();
-		Consumer<AnsiParsedLine> logConsumer = line -> consumedLogs.add(new Pair<>(line.line, line.isHtml));
+		List<ConsumedLog> consumedLogs = new ArrayList<>();
+		Consumer<AnsiParsedLine> logConsumer = line -> consumedLogs.add(new ConsumedLog(line.line(), line.isHtml()));
 
 		List<String> output = Scanner.of("\u001B[33m\u001B[44mStacked classes")
 				.link(scanner -> new AnsiParsingScanner(scanner, "sgr-", logConsumer))
@@ -103,13 +107,13 @@ public class AnsiParsingScannerTests{
 
 		Assert.assertEquals(output, List.of("Stacked classes"));
 		Assert.assertEquals(consumedLogs, List.of(
-				new Pair<>("<span class=\"sgr-33 sgr-44\">Stacked classes</span>", true)));
+				new ConsumedLog("<span class=\"sgr-33 sgr-44\">Stacked classes</span>", true)));
 	}
 
 	@Test
 	public void testChangingStyleHtml(){
-		List<Pair<String,Boolean>> consumedLogs = new ArrayList<>();
-		Consumer<AnsiParsedLine> logConsumer = line -> consumedLogs.add(new Pair<>(line.line, line.isHtml));
+		List<ConsumedLog> consumedLogs = new ArrayList<>();
+		Consumer<AnsiParsedLine> logConsumer = line -> consumedLogs.add(new ConsumedLog(line.line(), line.isHtml()));
 
 		List<String> output = Scanner.of("\u001B[33mHello \u001B[44mWorld\u001B[0m!")
 				.link(scanner -> new AnsiParsingScanner(scanner, "sgr-", logConsumer))
@@ -117,13 +121,15 @@ public class AnsiParsingScannerTests{
 
 		Assert.assertEquals(output, List.of("Hello World!"));
 		Assert.assertEquals(consumedLogs, List.of(
-				new Pair<>("<span class=\"sgr-33\">Hello </span><span class=\"sgr-33 sgr-44\">World</span>!", true)));
+				new ConsumedLog(
+						"<span class=\"sgr-33\">Hello </span><span class=\"sgr-33 sgr-44\">World</span>!",
+						true)));
 	}
 
 	@Test
 	public void testTrailingHtml(){
-		List<Pair<String,Boolean>> consumedLogs = new ArrayList<>();
-		Consumer<AnsiParsedLine> logConsumer = line -> consumedLogs.add(new Pair<>(line.line, line.isHtml));
+		List<ConsumedLog> consumedLogs = new ArrayList<>();
+		Consumer<AnsiParsedLine> logConsumer = line -> consumedLogs.add(new ConsumedLog(line.line(), line.isHtml()));
 
 		List<String> output = Scanner.of("Hello \u001B[44mWorld!")
 				.link(scanner -> new AnsiParsingScanner(scanner, "sgr-", logConsumer))
@@ -131,13 +137,13 @@ public class AnsiParsingScannerTests{
 
 		Assert.assertEquals(output, List.of("Hello World!"));
 		Assert.assertEquals(consumedLogs, List.of(
-				new Pair<>("Hello <span class=\"sgr-44\">World!</span>", true)));
+				new ConsumedLog("Hello <span class=\"sgr-44\">World!</span>", true)));
 	}
 
 	@Test
 	public void testSpecifyClassPrefix(){
-		List<Pair<String,Boolean>> consumedLogs = new ArrayList<>();
-		Consumer<AnsiParsedLine> logConsumer = line -> consumedLogs.add(new Pair<>(line.line, line.isHtml));
+		List<ConsumedLog> consumedLogs = new ArrayList<>();
+		Consumer<AnsiParsedLine> logConsumer = line -> consumedLogs.add(new ConsumedLog(line.line(), line.isHtml()));
 
 		List<String> output = Scanner.of("\u001B[92mHello World!")
 				.link(scanner -> new AnsiParsingScanner(scanner, "different-prefix_", logConsumer))
@@ -145,7 +151,7 @@ public class AnsiParsingScannerTests{
 
 		Assert.assertEquals(output, List.of("Hello World!"));
 		Assert.assertEquals(consumedLogs, List.of(
-				new Pair<>("<span class=\"different-prefix_92\">Hello World!</span>", true)));
+				new ConsumedLog("<span class=\"different-prefix_92\">Hello World!</span>", true)));
 	}
 
 }

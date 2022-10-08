@@ -28,8 +28,7 @@ public class IntListFieldCodec{
 
 	public static final ByteArrayFieldCodec<List<Integer>> INSTANCE = new ByteArrayFieldCodecBuilder<>(
 			new TypeToken<List<Integer>>(){},
-			NullPassthroughCodec.of(IntListCodec.INSTANCE::encode, IntListCodec.INSTANCE::decode),
-			List.of())
+			NullPassthroughCodec.of(IntListCodec.INSTANCE::encode, IntListCodec.INSTANCE::decode))
 			.setComparator(ListTool::compare)
 			.build();
 

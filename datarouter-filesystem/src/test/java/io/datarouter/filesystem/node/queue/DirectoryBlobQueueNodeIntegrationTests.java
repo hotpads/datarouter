@@ -15,6 +15,7 @@
  */
 package io.datarouter.filesystem.node.queue;
 
+import java.util.List;
 import java.util.UUID;
 
 import javax.inject.Inject;
@@ -25,22 +26,37 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
+import io.datarouter.bytes.ByteTool;
+import io.datarouter.bytes.Codec;
+import io.datarouter.bytes.PrependLengthByteArrayScanner;
 import io.datarouter.bytes.codec.stringcodec.StringCodec;
 import io.datarouter.filesystem.DatarouterFilesystemModuleFactory;
+import io.datarouter.filesystem.client.FilesystemTestClientIds;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
-import io.datarouter.storage.queue.BlobQueueMessageDto;
+import io.datarouter.storage.node.factory.QueueNodeFactory;
+import io.datarouter.storage.test.node.queue.BaseBlobQueueStorageTestDao;
+import io.datarouter.storage.test.node.queue.BloqQueueStorageTestDto;
+import io.datarouter.storage.test.node.queue.BloqQueueStorageTestDto.BloqQueueStorageTestDtoCodec;
 
 @Guice(moduleFactory = DatarouterFilesystemModuleFactory.class)
 @Test(singleThreaded = true)
 public class DirectoryBlobQueueNodeIntegrationTests{
 
+	private static final Codec<BloqQueueStorageTestDto,byte[]> CODEC = new BloqQueueStorageTestDtoCodec();
+
 	private final Datarouter datarouter;
-	private final DirectoryBlobQueueTestDao dao;
+	private final BaseBlobQueueStorageTestDao<BloqQueueStorageTestDto> dao;
 
 	@Inject
-	public DirectoryBlobQueueNodeIntegrationTests(Datarouter datarouter, DirectoryBlobQueueTestDao dao){
+	public DirectoryBlobQueueNodeIntegrationTests(Datarouter datarouter, QueueNodeFactory queueNodeFactory){
 		this.datarouter = datarouter;
-		this.dao = dao;
+		this.dao = new BaseBlobQueueStorageTestDao<>(
+				datarouter,
+				queueNodeFactory,
+				FilesystemTestClientIds.TEST,
+				"DirectoryBlobQueueTest",
+				CODEC);
 	}
 
 	@AfterClass
@@ -65,9 +81,28 @@ public class DirectoryBlobQueueNodeIntegrationTests{
 	@Test
 	public void testPutAndPoll(){
 		byte[] randomBytes = makeRandomBytes();
-		dao.put(randomBytes);
-		BlobQueueMessageDto retrieved = dao.poll().get();
-		Assert.assertEquals(retrieved.getData(), randomBytes);
+		dao.putRaw(randomBytes);
+		var retrieved = dao.poll().get();
+		Assert.assertEquals(retrieved.getRawData(), randomBytes);
+		Assert.assertTrue(dao.poll().isEmpty());
+	}
+
+	@Test
+	public void testPutAndPollWithType(){
+		var dtos = List.of(
+				new BloqQueueStorageTestDto('c', 3, true),
+				new BloqQueueStorageTestDto('a', 0, true),
+				new BloqQueueStorageTestDto('a', 0, false),
+				new BloqQueueStorageTestDto('b', 0, false));
+		var raw = Scanner.of(dtos)
+				.map(CODEC::encode)
+				.apply(PrependLengthByteArrayScanner::of)
+				.listTo(ByteTool::concat);
+
+		dao.combineAndPut(dtos);
+		var result = dao.poll().get();
+		Assert.assertEquals(result.getRawData(), raw);
+		Assert.assertEquals(result.scanSplitDecodedData().list(), dtos);
 		Assert.assertTrue(dao.poll().isEmpty());
 	}
 

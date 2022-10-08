@@ -17,12 +17,6 @@ package io.datarouter.instrumentation.exception;
 
 import java.util.List;
 
-public class ExceptionRecordBatchDto{
-
-	public final List<ExceptionRecordDto> records;
-
-	public ExceptionRecordBatchDto(List<ExceptionRecordDto> records){
-		this.records = records;
-	}
-
+public record ExceptionRecordBatchDto(
+		List<ExceptionRecordDto> records){
 }

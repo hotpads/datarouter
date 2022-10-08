@@ -131,17 +131,17 @@ public class WordTests{
 
 		Require.equals(outputs.size(), inputs.size());
 		for(int i = 0; i < outputs.size(); ++i){
-			if(!Arrays.equals(outputs.get(i).key, inputs.get(i).key())){
+			if(!Arrays.equals(outputs.get(i).key(), inputs.get(i).key())){
 				logger.warn("actual=[{}] expected=[{}]", outputs.get(i), inputs.get(i));
 				String message = String.format("key: actual=[%s] does not equal expected=[%s]",
-						CsvIntByteStringCodec.INSTANCE.encode(outputs.get(i).key),
+						CsvIntByteStringCodec.INSTANCE.encode(outputs.get(i).key()),
 						CsvIntByteStringCodec.INSTANCE.encode(inputs.get(i).key()));
 				throw new IllegalArgumentException(message);
 			}
-			if(!Arrays.equals(outputs.get(i).value, inputs.get(i).value())){
+			if(!Arrays.equals(outputs.get(i).value(), inputs.get(i).value())){
 				logger.warn("actual=[{}] expected=[{}]", outputs.get(i), inputs.get(i));
 				String message = String.format("value: actual=[%s] does not equal expected=[%s]",
-						CsvIntByteStringCodec.INSTANCE.encode(outputs.get(i).value),
+						CsvIntByteStringCodec.INSTANCE.encode(outputs.get(i).value()),
 						CsvIntByteStringCodec.INSTANCE.encode(inputs.get(i).value()));
 				throw new IllegalArgumentException(message);
 			}

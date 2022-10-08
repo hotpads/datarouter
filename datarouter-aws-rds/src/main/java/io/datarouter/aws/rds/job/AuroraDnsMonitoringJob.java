@@ -22,6 +22,7 @@ import static j2html.TagCreator.h3;
 import static j2html.TagCreator.pre;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -63,7 +64,8 @@ public class AuroraDnsMonitoringJob extends BaseJob{
 
 	@Override
 	public void run(TaskTracker tracker){
-		List<DnsHostEntryDto> mismatchedEntries = dnsService.checkClientEndpoint().getRight();
+		Map<String,DnsHostEntryDto> dnsEntries = dnsService.getDnsEntryForClients();
+		List<DnsHostEntryDto> mismatchedEntries = dnsService.checkClientEndpoint(dnsEntries).mismatchedEntries();
 		if(mismatchedEntries.isEmpty()){
 			return;
 		}

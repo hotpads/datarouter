@@ -24,6 +24,7 @@ import java.util.function.Supplier;
 import io.datarouter.client.memcached.client.DatarouterMemcachedClient;
 import io.datarouter.client.memcached.codec.MemcachedTallyCodec;
 import io.datarouter.client.memcached.util.MemcachedExpirationTool;
+import io.datarouter.client.memcached.util.MemcachedResult;
 import io.datarouter.scanner.OptionalScanner;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientType;
@@ -34,7 +35,6 @@ import io.datarouter.storage.node.type.physical.base.BasePhysicalNode;
 import io.datarouter.storage.tally.Tally;
 import io.datarouter.storage.tally.Tally.TallyFielder;
 import io.datarouter.storage.tally.TallyKey;
-import io.datarouter.util.tuple.Pair;
 
 public class MemcachedTallyNode
 extends BasePhysicalNode<TallyKey,Tally,TallyFielder>
@@ -84,7 +84,7 @@ implements PhysicalTallyStorageNode{
 						config.getTimeout().toMillis(),
 						config.findIgnoreException().orElse(DEFAULT_IGNORE_EXCEPTION)))
 				.map(tallyCodec::decodeResult)
-				.toMap(Pair::getLeft, Pair::getRight);
+				.toMap(MemcachedResult::key, MemcachedResult::value);
 	}
 
 	@Override

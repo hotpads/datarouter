@@ -43,15 +43,15 @@ public class MysqlSql extends Sql<Connection,PreparedStatement,MysqlSql>{
 	}
 
 	@Override
-	public MysqlSql appendColumnEqualsValueParameter(Field<?> field){
-		MysqlFieldCodec<?> codec = codecFactory.createCodec(field);
-		appendParameter(codec.getSqlParameter(), codec::setPreparedStatementValue);
+	public <T,F extends Field<T>> MysqlSql appendColumnEqualsValueParameter(F field){
+		MysqlFieldCodec<T,F> codec = codecFactory.createCodec(field);
+		appendParameter(codec.getSqlParameter(), (ps, index) -> codec.setPreparedStatementValue(ps, index, field));
 		return this;
 	}
 
 	@Override
-	public MysqlSql addSqlNameValueWithOperator(
-			Field<?> field,
+	public <T,F extends Field<T>> MysqlSql addSqlNameValueWithOperator(
+			F field,
 			String operator,
 			boolean rejectNulls){
 		if(rejectNulls && field.getValue() == null){
@@ -60,11 +60,11 @@ public class MysqlSql extends Sql<Connection,PreparedStatement,MysqlSql>{
 		}
 		append(field.getKey().getColumnName());
 		append(operator);
-		MysqlFieldCodec<?> codec = codecFactory.createCodec(field);
+		MysqlFieldCodec<T,F> codec = codecFactory.createCodec(field);
 		String parameter = field.getValue() == null
 				? codec.getSqlParameter()
-				: codec.getIntroducedParameter(mysqlLiveTableOptions, disableIntroducer);
-		appendParameter(parameter, codec::setPreparedStatementValue);
+				: codec.getIntroducedParameter(mysqlLiveTableOptions, disableIntroducer, field);
+		appendParameter(parameter, (ps, index) -> codec.setPreparedStatementValue(ps, index, field));
 		return this;
 	}
 

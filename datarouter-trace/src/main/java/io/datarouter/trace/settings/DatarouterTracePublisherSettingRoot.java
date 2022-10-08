@@ -33,7 +33,7 @@ public class DatarouterTracePublisherSettingRoot extends SettingRoot{
 	public final CachedSetting<Boolean> runTraceMemoryToPublisherConveyor;
 
 	//controls Trace publishing destination
-	public final CachedSetting<Boolean> saveTraceBlobsToQueueDaoInsteadOfDirectoryDao;
+	public final CachedSetting<Boolean> saveTracesToQueueDaoInsteadOfDirectoryDao;
 
 	public final CachedSetting<Integer> conveyorThreadCount;
 
@@ -46,8 +46,8 @@ public class DatarouterTracePublisherSettingRoot extends SettingRoot{
 		runTraceMemoryToPublisherConveyor = registerBooleans(
 				"runTraceMemoryToPublisherConveyor", defaultTo(false)
 				.withTag(DatarouterSettingTagType.TRACE2PIPELINE, () -> true));
-		saveTraceBlobsToQueueDaoInsteadOfDirectoryDao = registerBoolean(
-				"saveTraceBlobsToQueueDaoInsteadOfDirectoryDao", false);
+		saveTracesToQueueDaoInsteadOfDirectoryDao = registerBoolean(
+				"saveTracesToQueueDaoInsteadOfDirectoryDao", false);
 		conveyorThreadCount = registerInteger("conveyorThreadCount", 1);
 	}
 

@@ -31,8 +31,8 @@ import org.apache.commons.fileupload.FileUploadException;
 
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.util.net.UrlTool;
-import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.config.ServletContextSupplier;
+import io.datarouter.web.dispatcher.ApiKeyPredicate.ApiKeyPredicateCheck;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.params.MultipartParams;
 import io.datarouter.web.handler.params.Params;
@@ -101,9 +101,9 @@ public class Dispatcher{
 				RequestAttributeTool.set(request, TRANSMITS_PII, rule.doesTransmitPii());
 				if(rule.hasApiKey()){
 					// TODO avoid re evaluating the rule
-					Pair<Boolean,String> apiKeyPredicateExistsWithName = rule.getApiKeyPredicate().check(rule, request);
-					if(apiKeyPredicateExistsWithName.getLeft()){
-						handler.setAccountName(apiKeyPredicateExistsWithName.getRight());
+					ApiKeyPredicateCheck apiKeyPredicateExistsWithName = rule.getApiKeyPredicate().check(rule, request);
+					if(apiKeyPredicateExistsWithName.allowed()){
+						handler.setAccountName(apiKeyPredicateExistsWithName.accountName());
 					}
 				}
 				break;

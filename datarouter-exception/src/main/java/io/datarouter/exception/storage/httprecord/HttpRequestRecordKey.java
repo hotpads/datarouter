@@ -15,12 +15,14 @@
  */
 package io.datarouter.exception.storage.httprecord;
 
+import io.datarouter.util.Ulid;
+
 public class HttpRequestRecordKey extends BaseHttpRequestRecordKey<HttpRequestRecordKey>{
 
 	public HttpRequestRecordKey(){
 	}
 
-	public HttpRequestRecordKey(String id){
+	public HttpRequestRecordKey(Ulid id){
 		super(id);
 	}
 

@@ -49,7 +49,7 @@ import io.datarouter.client.mysql.op.write.MysqlIncrementOp;
 import io.datarouter.client.mysql.op.write.MysqlPutBlobOp;
 import io.datarouter.client.mysql.op.write.MysqlPutOp;
 import io.datarouter.client.mysql.op.write.MysqlUniqueIndexDeleteOp;
-import io.datarouter.client.mysql.op.write.MysqlVacuumTallyOp;
+import io.datarouter.client.mysql.op.write.MysqlVacuumOp;
 import io.datarouter.client.mysql.scan.MysqlDatabeanScanner;
 import io.datarouter.client.mysql.scan.MysqlLikePkScanner;
 import io.datarouter.client.mysql.scan.MysqlLikeScanner;
@@ -594,7 +594,7 @@ public class MysqlNodeManager{
 			String keyId,
 			String ttlId,
 			Config config){
-		var op = new MysqlVacuumTallyOp<>(
+		var op = new MysqlVacuumOp<>(
 				datarouter,
 				fieldInfo,
 				mysqlSqlFactory,

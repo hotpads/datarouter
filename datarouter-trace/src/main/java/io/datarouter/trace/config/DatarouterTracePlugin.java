@@ -25,17 +25,15 @@ import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.dao.DaosModuleBuilder;
 import io.datarouter.trace.conveyor.publisher.TraceConveyors;
 import io.datarouter.trace.filter.GuiceTraceFilter;
-import io.datarouter.trace.service.TraceBlobService;
+import io.datarouter.trace.service.TracePublisherService;
 import io.datarouter.trace.service.TraceUrlBuilder;
 import io.datarouter.trace.service.TraceUrlBuilder.NoOpTraceUrlBuilder;
 import io.datarouter.trace.settings.DatarouterTraceFilterSettingRoot;
 import io.datarouter.trace.settings.DatarouterTracePublisherSettingRoot;
-import io.datarouter.trace.settings.TraceBlobPublishingSettings;
-import io.datarouter.trace.settings.TraceBlobPublishingSettings.NoOpTraceBlobPublishingSettings;
-import io.datarouter.trace.storage.trace.TraceBlobDirectorySupplier;
-import io.datarouter.trace.storage.trace.TraceBlobDirectorySupplier.NoOpTraceBlobDirectorySupplier;
-import io.datarouter.trace.storage.trace.TraceBlobQueueDao;
-import io.datarouter.trace.storage.trace.TraceBlobQueueDao.TraceBlobQueueDaoParams;
+import io.datarouter.trace.storage.trace.TraceDirectorySupplier;
+import io.datarouter.trace.storage.trace.TraceDirectorySupplier.NoOpTraceDirectorySupplier;
+import io.datarouter.trace.storage.trace.TraceQueueDao;
+import io.datarouter.trace.storage.trace.TraceQueueDao.TraceQueueDaoParams;
 import io.datarouter.web.config.BaseWebPlugin;
 import io.datarouter.web.config.DatarouterServletGuiceModule;
 import io.datarouter.web.dispatcher.FilterParamGrouping;
@@ -45,23 +43,17 @@ public class DatarouterTracePlugin extends BaseWebPlugin{
 
 	private final Class<? extends TracePublisher> tracePublisher;
 	private final Class<? extends TraceUrlBuilder> traceUrlBuilder;
-	private final Class<? extends TraceBlobDirectorySupplier> traceBlobDirectorySupplier;
-	private final Class<? extends TraceBlobPublishingSettings> traceBlobPublishingSettings;
-	private final int maxTraceBlobSize;
+	private final Class<? extends TraceDirectorySupplier> traceDirectorySupplier;
 
 	private DatarouterTracePlugin(
 			boolean enablePublisherTraces,
 			DatarouterTraceDaoModule daosModule,
 			Class<? extends TracePublisher> tracePublisher,
 			Class<? extends TraceUrlBuilder> traceUrlBuilder,
-			Class<? extends TraceBlobDirectorySupplier> traceBlobDirectorySupplier,
-			Class<? extends TraceBlobPublishingSettings> traceBlobPublishingSettings,
-			int maxTraceBlobSize){
+			Class<? extends TraceDirectorySupplier> traceDirectorySupplier){
 		this.tracePublisher = tracePublisher;
 		this.traceUrlBuilder = traceUrlBuilder;
-		this.traceBlobDirectorySupplier = traceBlobDirectorySupplier;
-		this.traceBlobPublishingSettings = traceBlobPublishingSettings;
-		this.maxTraceBlobSize = maxTraceBlobSize;
+		this.traceDirectorySupplier = traceDirectorySupplier;
 
 		addSettingRoot(DatarouterTraceFilterSettingRoot.class);
 		if(enablePublisherTraces){
@@ -78,9 +70,7 @@ public class DatarouterTracePlugin extends BaseWebPlugin{
 	public void configure(){
 		bind(TracePublisher.class).to(tracePublisher);
 		bind(TraceUrlBuilder.class).to(traceUrlBuilder);
-		bind(TraceBlobDirectorySupplier.class).to(traceBlobDirectorySupplier);
-		bind(TraceBlobPublishingSettings.class).to(traceBlobPublishingSettings);
-		bind(MaxTraceBlobSize.class).toInstance(() -> maxTraceBlobSize);
+		bind(TraceDirectorySupplier.class).to(traceDirectorySupplier);
 	}
 
 	public static class DatarouterTracePluginBuilder{
@@ -89,36 +79,29 @@ public class DatarouterTracePlugin extends BaseWebPlugin{
 
 		private DatarouterTraceDaoModule daoModule;
 
-		private List<ClientId> traceBlobQueueClientId;
+		private List<ClientId> traceQueueClientId;
 
 		private Class<? extends TracePublisher> tracePublisher = NoOpTracePublisher.class;
 		private Class<? extends TraceUrlBuilder> traceUrlBuilder = NoOpTraceUrlBuilder.class;
-		private Class<? extends TraceBlobDirectorySupplier> traceBlobDirectorySupplier =
-				NoOpTraceBlobDirectorySupplier.class;
-		private Class<? extends TraceBlobPublishingSettings> traceBlobPublishingSettings =
-				NoOpTraceBlobPublishingSettings.class;
-		private int maxTraceBlobSize = 0;
+		private Class<? extends TraceDirectorySupplier> traceDirectorySupplier =
+				NoOpTraceDirectorySupplier.class;
 
 		public DatarouterTracePluginBuilder enableTracePublishing(
-				List<ClientId> traceBlobQueueClientId,
+				List<ClientId> traceQueueClientId,
 				Class<? extends TraceUrlBuilder> traceUrlBuilder,
-				Class<? extends TraceBlobDirectorySupplier> traceBlobDirectorySupplier,
-				Class<? extends TraceBlobPublishingSettings> traceBlobPublishingSettings,
-				int maxTraceBlobSize){
+				Class<? extends TraceDirectorySupplier> traceDirectorySupplier){
 			this.enableTracePublisher = true;
-			this.traceBlobQueueClientId = traceBlobQueueClientId;
-			this.tracePublisher = TraceBlobService.class;
+			this.traceQueueClientId = traceQueueClientId;
+			this.tracePublisher = TracePublisherService.class;
 			this.traceUrlBuilder = traceUrlBuilder;
-			this.traceBlobDirectorySupplier = traceBlobDirectorySupplier;
-			this.traceBlobPublishingSettings = traceBlobPublishingSettings;
-			this.maxTraceBlobSize = maxTraceBlobSize;
+			this.traceDirectorySupplier = traceDirectorySupplier;
 			return this;
 		}
 
 		public DatarouterTracePlugin build(){
 			DatarouterTraceDaoModule module;
 			if(daoModule == null){
-				module = new DatarouterTraceDaoModule(enableTracePublisher, traceBlobQueueClientId);
+				module = new DatarouterTraceDaoModule(enableTracePublisher, traceQueueClientId);
 			}else{
 				module = daoModule;
 			}
@@ -127,9 +110,7 @@ public class DatarouterTracePlugin extends BaseWebPlugin{
 					module,
 					tracePublisher,
 					traceUrlBuilder,
-					traceBlobDirectorySupplier,
-					traceBlobPublishingSettings,
-					maxTraceBlobSize);
+					traceDirectorySupplier);
 		}
 
 	}
@@ -137,18 +118,18 @@ public class DatarouterTracePlugin extends BaseWebPlugin{
 	public static class DatarouterTraceDaoModule extends DaosModuleBuilder{
 
 		private final boolean enableTracePublisher;
-		private final List<ClientId> traceBlobQueueClientId;
+		private final List<ClientId> traceQueueClientId;
 
-		public DatarouterTraceDaoModule(boolean enableTracePublisher, List<ClientId> traceBlobQueueClientId){
+		public DatarouterTraceDaoModule(boolean enableTracePublisher, List<ClientId> traceQueueClientId){
 			this.enableTracePublisher = enableTracePublisher;
-			this.traceBlobQueueClientId = traceBlobQueueClientId;
+			this.traceQueueClientId = traceQueueClientId;
 		}
 
 		@Override
 		public List<Class<? extends Dao>> getDaoClasses(){
 			List<Class<? extends Dao>> daos = new ArrayList<>();
 			if(enableTracePublisher){
-				daos.add(TraceBlobQueueDao.class);
+				daos.add(TraceQueueDao.class);
 			}
 			return daos;
 		}
@@ -156,7 +137,7 @@ public class DatarouterTracePlugin extends BaseWebPlugin{
 		@Override
 		public void configure(){
 			if(enableTracePublisher){
-				bind(TraceBlobQueueDaoParams.class).toInstance(new TraceBlobQueueDaoParams(traceBlobQueueClientId));
+				bind(TraceQueueDaoParams.class).toInstance(new TraceQueueDaoParams(traceQueueClientId));
 			}
 		}
 

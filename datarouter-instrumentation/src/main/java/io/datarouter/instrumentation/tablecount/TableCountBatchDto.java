@@ -17,12 +17,6 @@ package io.datarouter.instrumentation.tablecount;
 
 import java.util.List;
 
-public class TableCountBatchDto{
-
-	public final List<TableCountDto> batch;
-
-	public TableCountBatchDto(List<TableCountDto> batch){
-		this.batch = batch;
-	}
-
+public record TableCountBatchDto(
+		List<TableCountDto> batch){
 }

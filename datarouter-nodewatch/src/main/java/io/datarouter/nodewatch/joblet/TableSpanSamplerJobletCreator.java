@@ -45,7 +45,6 @@ import io.datarouter.util.DateTool;
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.number.RandomTool;
 import io.datarouter.util.timer.PhaseTimer;
-import io.datarouter.util.tuple.Pair;
 
 public class TableSpanSamplerJobletCreator<
 		PK extends PrimaryKey<PK>,
@@ -181,9 +180,9 @@ public class TableSpanSamplerJobletCreator<
 
 	private void considerCreatingJoblet(TableSample start, TableSample end, boolean isLastSample){
 		numConsidered++;
-		Pair<Boolean,JobletPriority> shouldCountAndPriority = shouldCount(end, isLastSample);
-		boolean shouldCount = shouldCountAndPriority.getLeft();
-		JobletPriority jobletPriority = shouldCountAndPriority.getRight();
+		ShouldCountAndPriority shouldCountAndPriority = shouldCount(end, isLastSample);
+		boolean shouldCount = shouldCountAndPriority.shouldCount();
+		JobletPriority jobletPriority = shouldCountAndPriority.priority();
 		if(!shouldCount){
 			return;
 		}
@@ -238,39 +237,39 @@ public class TableSpanSamplerJobletCreator<
 
 	/*--------------- scheduling and rate limiting -----------------*/
 
-	private Pair<Boolean,JobletPriority> shouldCount(TableSample end, boolean isLastSample){
+	private ShouldCountAndPriority shouldCount(TableSample end, boolean isLastSample){
 		if(forceCounting){
-			return new Pair<>(true, JobletPriority.DEFAULT);
+			return new ShouldCountAndPriority(true, JobletPriority.DEFAULT);
 		}
 		if(end.isInterrupted()){
-			return new Pair<>(true, JobletPriority.DEFAULT);
+			return new ShouldCountAndPriority(true, JobletPriority.DEFAULT);
 		}
 		if(end.hasExceededMaxTimeInQueue()){
-			return new Pair<>(true, JobletPriority.DEFAULT);
+			return new ShouldCountAndPriority(true, JobletPriority.DEFAULT);
 		}
 		if(end.isScheduledForRecount()){
 			++numSkippedAlreadyScheduled;
-			return new Pair<>(false, JobletPriority.DEFAULT);
+			return new ShouldCountAndPriority(false, JobletPriority.DEFAULT);
 		}
 		if(shouldDoAggressiveCount(end, isLastSample)){
 			logger.info("queueing aggressive sampling for {}, lastUpdated {}",
 					end.getKey(),
 					DateTool.getAgoString(end.getDateUpdated().toInstant()));
-			return new Pair<>(true, JobletPriority.HIGH);
+			return new ShouldCountAndPriority(true, JobletPriority.HIGH);
 		}
 		if(shouldSkipThisPeriod(end)){
 			++numSkippedSkipThisPeriod;
-			return new Pair<>(false, JobletPriority.DEFAULT);
+			return new ShouldCountAndPriority(false, JobletPriority.DEFAULT);
 		}
 		if(alreadyCountedThisPeriod(end)){
 			++numSkippedAlreadyCounted;
-			return new Pair<>(false, JobletPriority.DEFAULT);
+			return new ShouldCountAndPriority(false, JobletPriority.DEFAULT);
 		}
 		if(!haveReachedThisPeriodsTimeSlice(end.getKey())){
 			++numSkippedAwaitingTimeSlice;
-			return new Pair<>(false, JobletPriority.DEFAULT);
+			return new ShouldCountAndPriority(false, JobletPriority.DEFAULT);
 		}
-		return new Pair<>(true, JobletPriority.DEFAULT);
+		return new ShouldCountAndPriority(true, JobletPriority.DEFAULT);
 	}
 
 	private boolean shouldDoAggressiveCount(TableSample sample, boolean isLastSample){
@@ -335,9 +334,14 @@ public class TableSpanSamplerJobletCreator<
 				jobletCreationDate,
 				batchSequence,
 				false,
-				params.nodeNames.getClientName(),
+				params.nodeNames().getClientName(),
 				null,
 				params);
+	}
+
+	private record ShouldCountAndPriority(
+			boolean shouldCount,
+			JobletPriority priority){
 	}
 
 }

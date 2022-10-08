@@ -29,7 +29,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.util.net.UrlTool;
-import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.app.ApplicationPaths;
 
 @Singleton
@@ -41,7 +40,7 @@ public class ManifestDetails{
 	private static final List<String> BUILD_KEYWORDS = List.of("Build-Jdk-Spec", "Build-Jdk", "Built-JDK",
 			"Created-By");
 
-	private Pair<String,String> buildPair;
+	private KeywordValue buildPair;
 	private String manifestString;
 
 	@Inject
@@ -69,7 +68,7 @@ public class ManifestDetails{
 		for(String keyword : BUILD_KEYWORDS){
 			String value = manifest.getMainAttributes().getValue(keyword);
 			if(value != null){
-				this.buildPair = new Pair<>(keyword, value);
+				this.buildPair = new KeywordValue(keyword, value);
 				break;
 			}
 		}
@@ -83,7 +82,7 @@ public class ManifestDetails{
 		this.manifestString = new String(byteArray);
 	}
 
-	public Pair<String,String> getBuildPair(){
+	public KeywordValue getBuildPair(){
 		return buildPair;
 	}
 
@@ -91,4 +90,17 @@ public class ManifestDetails{
 		return manifestString;
 	}
 
+	public record KeywordValue(
+			String keyword,
+			String value){
+
+		public String getLeft(){
+			return keyword();
+		}
+
+		public String getRight(){
+			return value();
+		}
+
+	}
 }

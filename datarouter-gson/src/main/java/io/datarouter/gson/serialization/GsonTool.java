@@ -36,6 +36,7 @@ public class GsonTool{
 			.registerTypeAdapter(LocalDateTime.class, new LocalDateTimeLegacyTypeAdapter())
 			.registerTypeAdapterFactory(new OptionalLegacyTypeAdapterFactory())
 			.registerTypeHierarchyAdapter(ZoneId.class, new ZoneIdLegacyTypeAdapter())
+			.registerTypeAdapterFactory(new RecordTypeAdapterFactory())
 			.create();
 
 	public static final Gson GSON_PRETTY_PRINT = GSON.newBuilder()

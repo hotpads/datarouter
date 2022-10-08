@@ -29,7 +29,6 @@ import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
-import io.datarouter.storage.tally.TallyKey;
 import io.datarouter.util.string.StringTool;
 
 public class SpannerVacuumFindOp<
@@ -38,24 +37,25 @@ public class SpannerVacuumFindOp<
 		F extends DatabeanFielder<PK,D>>
 extends SpannerBaseOp<Optional<String>>{
 
-	private static final String ID = TallyKey.FieldKeys.id.getColumnName();
-
 	private final PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo;
 	private final DatabaseClient client;
 	private final String startKey;
 	private final Boolean isFirst;
+	private final String id;
 	private final Config config;
 
 	public SpannerVacuumFindOp(DatabaseClient client,
 			PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
 			String startKey,
 			Boolean isFirst,
+			String id,
 			Config config){
 		super("SpannerFindVacuum: " + fieldInfo.getTableName());
 		this.client = client;
 		this.fieldInfo = fieldInfo;
 		this.startKey = startKey;
 		this.isFirst = isFirst;
+		this.id = id;
 		this.config = config;
 	}
 
@@ -72,19 +72,19 @@ extends SpannerBaseOp<Optional<String>>{
 		QueryOption[] queryOptions = {};
 		try(ReadOnlyTransaction transaction = client.readOnlyTransaction()){
 			ResultSet resultSet = transaction.executeQuery(Statement.of(selectKeySql), queryOptions);
-			String endId = resultSet.next() ? resultSet.getString(ID) : null;
+			String endId = resultSet.next() ? resultSet.getString(id) : null;
 			return Optional.ofNullable(endId);
 		}
 	}
 
 	private String buildSelectSql(String tableName, String startId, int batchSize, boolean first){
 		var builder = new StringBuilder();
-		builder.append("select " + ID + " from " + tableName);
+		builder.append("select " + id + " from " + tableName);
 		if(!first && startId == null){
 			return null;
 		}
 		if(!first){
-			builder.append(" where " + ID + " >= " + StringTool.escapeString(startId));
+			builder.append(" where " + id + " >= " + StringTool.escapeString(startId));
 		}
 		builder.append(" limit 1 offset " + batchSize);
 		return builder.toString();

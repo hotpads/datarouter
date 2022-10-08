@@ -65,9 +65,15 @@ public class WebappInstanceServersHandler extends BaseHandler{
 	@Handler(defaultHandler = true)
 	private Mav view(){
 		Scanner<WebappInstanceLogDto> logs = Scanner.of(logDao.scan()
-				.groupBy(WebappInstanceLogKeyDto::new).entrySet())
+				.groupBy(log -> new WebappInstanceLogKeyDto(
+						log.getKey().getServerName(),
+						log.getKey().getBuild(),
+						log.getBuildId(),
+						log.getCommitId(),
+						log.getServerPrivateIp()))
+				.entrySet())
 				.map(entry -> new WebappInstanceLogDto(entry.getKey(), entry.getValue()))
-				.sort(Comparator.comparing((WebappInstanceLogDto dto) -> dto.key.buildDate).reversed());
+				.sort(Comparator.comparing((WebappInstanceLogDto dto) -> dto.key.buildDate()).reversed());
 		MemoryPager<WebappInstanceLogDto> pager = new MemoryPager<>(
 				Collections.emptyList(),
 				new MemorySorter<>(),
@@ -131,44 +137,12 @@ public class WebappInstanceServersHandler extends BaseHandler{
 				.withClass("container-fluid");
 	}
 
-	private static class WebappInstanceLogKeyDto{
-
-		public final String serverName;
-		public final Instant buildDate;
-		public final String buildId;
-		public final String commitId;
-		public final String serverPrivateIp;
-
-		public WebappInstanceLogKeyDto(WebappInstanceLog log){
-			this.serverName = log.getKey().getServerName();
-			this.buildDate = log.getKey().getBuild();
-			this.buildId = log.getBuildId();
-			this.commitId = log.getCommitId();
-			this.serverPrivateIp = log.getServerPrivateIp();
-		}
-
-		@Override
-		public boolean equals(Object other){
-			if(this == other){
-				return true;
-			}
-			if(!(other instanceof WebappInstanceLogKeyDto)){
-				return false;
-			}
-			WebappInstanceLogKeyDto that = (WebappInstanceLogKeyDto) other;
-
-			return Objects.equals(this.serverName, that.serverName)
-					&& Objects.equals(this.buildDate, that.buildDate)
-					&& Objects.equals(this.buildId, that.buildId)
-					&& Objects.equals(this.commitId, that.commitId)
-					&& Objects.equals(this.serverPrivateIp, that.serverPrivateIp);
-		}
-
-		@Override
-		public int hashCode(){
-			return Objects.hash(serverName, buildDate, buildId, commitId, serverPrivateIp);
-		}
-
+	private record WebappInstanceLogKeyDto(
+		String serverName,
+		Instant buildDate,
+		String buildId,
+		String commitId,
+		String serverPrivateIp){
 	}
 
 	private static class WebappInstanceLogDto{

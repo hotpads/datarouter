@@ -82,4 +82,42 @@ public class ScannerTests{
 		Assert.assertEquals(actual, List.of(1, 1, 2));
 	}
 
+	@Test
+	public void testPeekFirst(){
+		var scanner = Scanner.of("1", "2", "3");
+
+		//peekFirst returns the whole scanner, so chaining continues to peek the same first item
+		var peeked = new ArrayList<String>();
+		scanner.peekFirst(peeked::add)
+				.peekFirst(peeked::add)
+				.peekFirst(peeked::add);
+		Assert.assertEquals(peeked, List.of("1", "1", "1"));
+
+		//the original variable is being consumed as a side effect of take
+		var peekedConsumed = new ArrayList<String>();
+		scanner.peekFirst(peekedConsumed::add);
+		scanner.peekFirst(peekedConsumed::add);
+		scanner.peekFirst(peekedConsumed::add);//this one does nothing, since the Scanner is empty
+		Assert.assertEquals(peekedConsumed, List.of("2", "3"));
+
+		//peek each item twice until the scanner is consumed
+		var scannerWithNulls = Scanner.of(null, "2", null, "4", null);
+		var peekedWithNulls = new ArrayList<String>();
+		scannerWithNulls.peekFirst(peekedWithNulls::add)
+				.peekFirst(peekedWithNulls::add);
+		scannerWithNulls.peekFirst(peekedWithNulls::add)
+				.peekFirst(peekedWithNulls::add);
+		scannerWithNulls.peekFirst(peekedWithNulls::add)
+				.peekFirst(peekedWithNulls::add);
+		scannerWithNulls.peekFirst(peekedWithNulls::add)
+				.peekFirst(peekedWithNulls::add);
+		scannerWithNulls.peekFirst(peekedWithNulls::add)
+				.peekFirst(peekedWithNulls::add);
+		scannerWithNulls.peekFirst(peekedWithNulls::add)
+				.peekFirst(peekedWithNulls::add);
+		//can't pass nulls to List.of
+		var expected = Scanner.of(null, null, "2", "2", null, null, "4", "4", null, null).list();
+		Assert.assertEquals(peekedWithNulls, expected);
+	}
+
 }

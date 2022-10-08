@@ -15,9 +15,10 @@
  */
 package io.datarouter.client.memcached.codec;
 
+import io.datarouter.client.memcached.util.MemcachedPathbeanResult;
+import io.datarouter.client.memcached.util.MemcachedResult;
 import io.datarouter.storage.file.PathbeanKey;
 import io.datarouter.storage.util.Subpath;
-import io.datarouter.util.tuple.Pair;
 
 public class MemcachedBlobCodec{
 
@@ -38,8 +39,8 @@ public class MemcachedBlobCodec{
 		return PathbeanKey.of(stringPk);
 	}
 
-	public Pair<PathbeanKey,byte[]> decodeResult(Pair<String,byte[]> result){
-		return new Pair<>(PathbeanKey.of(result.getLeft()), result.getRight());
+	public MemcachedPathbeanResult decodeResult(MemcachedResult<byte[]> result){
+		return new MemcachedPathbeanResult(PathbeanKey.of(result.key()), result.value());
 	}
 
 }

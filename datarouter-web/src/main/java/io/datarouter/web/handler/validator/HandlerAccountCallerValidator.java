@@ -15,20 +15,28 @@
  */
 package io.datarouter.web.handler.validator;
 
+import java.lang.reflect.Method;
+
 import javax.inject.Singleton;
 
-import io.datarouter.httpclient.endpoint.BaseEndpoint;
+import io.datarouter.httpclient.endpoint.java.BaseEndpoint;
 
 // Cannot use PluginInjector since this class is instantiated early
 public interface HandlerAccountCallerValidator{
 
 	void validate(String accountName, BaseEndpoint<?,?> endpoint);
 
+	void validate(String accountName, Method method);
+
 	@Singleton
 	class NoOpHandlerAccountCallerValidator implements HandlerAccountCallerValidator{
 
 		@Override
 		public void validate(String accountName, BaseEndpoint<?,?> endpoint){
+		}
+
+		@Override
+		public void validate(String accountName, Method method){
 		}
 
 	}

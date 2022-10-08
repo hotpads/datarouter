@@ -71,8 +71,16 @@ public class DatabaseBlob extends BaseDatabean<DatabaseBlobKey,DatabaseBlob>{
 			PathbeanKey key,
 			byte[] data,
 			Long expirationMs){
+		this(key, data, (long)data.length, expirationMs);
+	}
+
+	public DatabaseBlob(
+			PathbeanKey key,
+			byte[] data,
+			Long size,
+			Long expirationMs){
 		super(new DatabaseBlobKey(key));
-		this.size = (long)data.length;
+		this.size = size;
 		this.data = data;
 		this.expirationMs = expirationMs;
 	}

@@ -43,7 +43,6 @@ import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientOptions;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.util.number.NumberFormatter;
-import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.browse.DatarouterClientWebInspector;
 import io.datarouter.web.browse.dto.DatarouterWebRequestParamsFactory;
 import io.datarouter.web.handler.mav.Mav;
@@ -95,24 +94,21 @@ public class MemcachedWebInspector implements DatarouterClientWebInspector{
 		return clientHolder.get(clientId).getSpyClient();
 	}
 
-	protected Pair<Integer,DivTag> getDetails(ClientId clientId){
-		Pair<Integer,DivTag> nodeCountByNodeTag = new Pair<>();
+	protected MemcachedDetail getDetails(ClientId clientId){
 		List<LiTag> socketAddresses = Scanner.of(memcachedOptions.getServers(clientId.getName()))
 				.map(InetSocketAddress::toString)
 				.map(TagCreator::li)
 				.list();
 		DivTag div = div(ul(socketAddresses.toArray(new ContainerTag[0])));
-		nodeCountByNodeTag.setLeft(socketAddresses.size());
-		nodeCountByNodeTag.setRight(div);
-		return nodeCountByNodeTag;
+		return new MemcachedDetail(socketAddresses.size(), div);
 	}
 
 	private DivTag buildOverview(ClientId clientId){
-		Pair<Integer,DivTag> listElements = getDetails(clientId);
+		MemcachedDetail listElements = getDetails(clientId);
 		return div(
-				p(b("Number of nodes: " + listElements.getLeft())),
+				p(b("Number of nodes: " + listElements.nodeCount())),
 				h4("Nodes"),
-				listElements.getRight());
+				listElements.content());
 	}
 
 	private DivTag buildStats(Map<SocketAddress,Map<String,String>> statsPerSocketAddress){
@@ -139,6 +135,11 @@ public class MemcachedWebInspector implements DatarouterClientWebInspector{
 		}catch(Exception e){
 			return value;
 		}
+	}
+
+	public record MemcachedDetail(
+			Integer nodeCount,
+			DivTag content){
 	}
 
 }

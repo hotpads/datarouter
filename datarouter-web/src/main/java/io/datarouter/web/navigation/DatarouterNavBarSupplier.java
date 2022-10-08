@@ -33,7 +33,7 @@ public class DatarouterNavBarSupplier implements Supplier<List<NavBarItem>>{
 	@Override
 	public List<NavBarItem> get(){
 		return pluginInjector.scanInstances(NavBarItem.KEY)
-				.include(item -> item.category.getType() == NavBarItemType.DATAROUTER)
+				.include(item -> item.category.type() == NavBarItemType.DATAROUTER)
 				.list();
 	}
 

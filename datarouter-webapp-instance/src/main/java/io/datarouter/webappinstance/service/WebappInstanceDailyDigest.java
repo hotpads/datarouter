@@ -26,7 +26,6 @@ import java.time.ZoneId;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 
 import javax.inject.Inject;
@@ -108,7 +107,10 @@ public class WebappInstanceDailyDigest implements DailyDigest{
 		var stop = new WebappInstanceLogByBuildInstantKey(endOfDay(), null, null, null);
 		var range = new Range<>(start, true, stop, true);
 		Map<WebappInstanceLogKeyDto,List<WebappInstanceLog>> ranges = dao.scanDatabeans(range)
-				.groupBy(WebappInstanceLogKeyDto::new);
+				.groupBy(log -> new WebappInstanceLogKeyDto(
+						log.getKey().getBuild(),
+						log.getBuildId(),
+						log.getCommitId()));
 		return Scanner.of(ranges.entrySet())
 				.map(entry -> new WebappInstanceLogDto(entry.getKey(), entry.getValue()))
 				.sort(Comparator.comparing((WebappInstanceLogDto dto) -> dto.key.build))
@@ -159,37 +161,10 @@ public class WebappInstanceDailyDigest implements DailyDigest{
 		return endOfDay.atZone(ZoneId.systemDefault()).toInstant();
 	}
 
-	private static class WebappInstanceLogKeyDto{
-
-		public final Instant build;
-		public final String buildId;
-		public final String commitId;
-
-		public WebappInstanceLogKeyDto(WebappInstanceLog log){
-			this.build = log.getKey().getBuild();
-			this.buildId = log.getBuildId();
-			this.commitId = log.getCommitId();
-		}
-
-		@Override
-		public boolean equals(Object other){
-			if(this == other){
-				return true;
-			}
-			if(!(other instanceof WebappInstanceLogKeyDto)){
-				return false;
-			}
-			WebappInstanceLogKeyDto that = (WebappInstanceLogKeyDto) other;
-			return Objects.equals(this.build, that.build)
-					&& Objects.equals(this.buildId, that.buildId)
-					&& Objects.equals(this.commitId, that.commitId);
-		}
-
-		@Override
-		public int hashCode(){
-			return Objects.hash(build, buildId, commitId);
-		}
-
+	private record WebappInstanceLogKeyDto(
+			Instant build,
+			String buildId,
+			String commitId){
 	}
 
 	private static class WebappInstanceLogDto{

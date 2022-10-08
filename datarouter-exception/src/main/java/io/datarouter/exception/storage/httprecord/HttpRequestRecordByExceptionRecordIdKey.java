@@ -19,9 +19,11 @@ import java.util.List;
 
 import io.datarouter.model.databean.FieldlessIndexEntry;
 import io.datarouter.model.field.Field;
+import io.datarouter.model.field.imp.StringEncodedField;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.key.FieldlessIndexEntryPrimaryKey;
 import io.datarouter.model.key.primary.base.BaseRegularPrimaryKey;
+import io.datarouter.util.Ulid;
 
 public class HttpRequestRecordByExceptionRecordIdKey
 extends BaseRegularPrimaryKey<HttpRequestRecordByExceptionRecordIdKey>
@@ -31,12 +33,12 @@ implements FieldlessIndexEntryPrimaryKey<
 		HttpRequestRecord>{
 
 	private String exceptionRecordId;
-	private String id;
+	private Ulid id;
 
 	public HttpRequestRecordByExceptionRecordIdKey(){
 	}
 
-	public HttpRequestRecordByExceptionRecordIdKey(String exceptionRecordId, String id){
+	public HttpRequestRecordByExceptionRecordIdKey(String exceptionRecordId, Ulid id){
 		this.exceptionRecordId = exceptionRecordId;
 		this.id = id;
 	}
@@ -45,7 +47,7 @@ implements FieldlessIndexEntryPrimaryKey<
 	public List<Field<?>> getFields(){
 		return List.of(
 				new StringField(BaseHttpRequestRecord.FieldKeys.exceptionRecordId, exceptionRecordId),
-				new StringField(BaseHttpRequestRecordKey.FieldKeys.id, id));
+				new StringEncodedField<>(BaseHttpRequestRecordKey.FieldKeys.id, id));
 
 	}
 

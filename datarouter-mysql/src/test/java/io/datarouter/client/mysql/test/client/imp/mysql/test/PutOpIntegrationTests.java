@@ -36,7 +36,6 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.config.PutMethod;
-import io.datarouter.util.tuple.Pair;
 
 @Guice(moduleFactory = DatarouterMysqlTestNgModuleFactory.class)
 public class PutOpIntegrationTests{
@@ -62,68 +61,68 @@ public class PutOpIntegrationTests{
 
 	@Test
 	public void testDefault(){
-		Pair<String,String> result = test("testDefault", new Config());
-		Assert.assertEquals(result.getLeft(), "baz");
-		Assert.assertEquals(result.getRight(), "qux");
+		Result result = test("testDefault", new Config());
+		Assert.assertEquals(result.left(), "baz");
+		Assert.assertEquals(result.right(), "qux");
 	}
 
 	@Test
 	public void testInsertIgnore(){
-		Pair<String,String> result = test("testInsertIgnore", new Config().setPutMethod(PutMethod.INSERT_IGNORE));
-		Assert.assertEquals(result.getLeft(), "baz");
-		Assert.assertEquals(result.getRight(), "baz");
+		Result result = test("testInsertIgnore", new Config().setPutMethod(PutMethod.INSERT_IGNORE));
+		Assert.assertEquals(result.left(), "baz");
+		Assert.assertEquals(result.right(), "baz");
 	}
 
 	@Test
 	public void testInsertOnDuplicateUpdate(){
 		var config = new Config().setPutMethod(PutMethod.INSERT_ON_DUPLICATE_UPDATE);
-		Pair<String,String> result = test("testInsertOnDuplicateUpdate", config);
-		Assert.assertEquals(result.getLeft(), "baz");
-		Assert.assertEquals(result.getRight(), "qux");
+		Result result = test("testInsertOnDuplicateUpdate", config);
+		Assert.assertEquals(result.left(), "baz");
+		Assert.assertEquals(result.right(), "qux");
 	}
 
 	@Test
 	public void testInsertOrBust(){
 		var config = new Config().setPutMethod(PutMethod.INSERT_OR_BUST);
-		Pair<String,String> result = test("testInsertOrBust", config, false, true);
-		Assert.assertEquals(result.getLeft(), "baz");
-		Assert.assertEquals(result.getRight(), "baz");
+		Result result = test("testInsertOrBust", config, false, true);
+		Assert.assertEquals(result.left(), "baz");
+		Assert.assertEquals(result.right(), "baz");
 	}
 
 	@Test
 	public void testInsertOrUpdate(){
-		Pair<String,String> result = test("testInsertOrUpdate", new Config().setPutMethod(PutMethod.INSERT_OR_UPDATE));
-		Assert.assertEquals(result.getLeft(), "baz");
-		Assert.assertEquals(result.getRight(), "qux");
+		Result result = test("testInsertOrUpdate", new Config().setPutMethod(PutMethod.INSERT_OR_UPDATE));
+		Assert.assertEquals(result.left(), "baz");
+		Assert.assertEquals(result.right(), "qux");
 	}
 
 	@Test
 	public void testUpdateOrInsert(){
-		Pair<String,String> result = test("testUpdateOrInsert", new Config().setPutMethod(PutMethod.UPDATE_OR_INSERT));
-		Assert.assertEquals(result.getLeft(), "baz");
-		Assert.assertEquals(result.getRight(), "qux");
+		Result result = test("testUpdateOrInsert", new Config().setPutMethod(PutMethod.UPDATE_OR_INSERT));
+		Assert.assertEquals(result.left(), "baz");
+		Assert.assertEquals(result.right(), "qux");
 	}
 
 	@Test
 	public void testUpdateOrBust(){
 		var config = new Config().setPutMethod(PutMethod.UPDATE_OR_BUST);
-		Pair<String,String> result = test("testUpdateOrBust", config, true, true);
-		Assert.assertNull(result.getLeft());
-		Assert.assertNull(result.getRight());
+		Result result = test("testUpdateOrBust", config, true, true);
+		Assert.assertNull(result.left());
+		Assert.assertNull(result.right());
 	}
 
 	@Test
 	public void testMerge(){
-		Pair<String,String> result = test("testMerge", new Config().setPutMethod(PutMethod.MERGE));
-		Assert.assertEquals(result.getLeft(), "baz");
-		Assert.assertEquals(result.getRight(), "qux");
+		Result result = test("testMerge", new Config().setPutMethod(PutMethod.MERGE));
+		Assert.assertEquals(result.left(), "baz");
+		Assert.assertEquals(result.right(), "qux");
 	}
 
-	private Pair<String,String> test(String testName, Config config){
+	private Result test(String testName, Config config){
 		return test(testName, config, false, false);
 	}
 
-	private Pair<String,String> test(
+	private Result test(
 			String testName,
 			Config config,
 			boolean expectedFirstCaught,
@@ -145,7 +144,7 @@ public class PutOpIntegrationTests{
 		}
 		String after = nullSafeGetC(dao.get(new PutOpTestBeanKey(testName, "bar")));
 
-		return new Pair<>(before, after);
+		return new Result(before, after);
 	}
 
 	private String nullSafeGetC(PutOpTestBean bean){
@@ -188,6 +187,11 @@ public class PutOpIntegrationTests{
 
 	private static final String randomString(){
 		return UUID.randomUUID().toString();
+	}
+
+	private record Result(
+			String left,
+			String right){
 	}
 
 }

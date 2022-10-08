@@ -27,9 +27,10 @@ import org.slf4j.LoggerFactory;
 
 import com.amazonaws.services.sqs.model.QueueAttributeName;
 
-import io.datarouter.aws.sqs.BaseSqsNode;
 import io.datarouter.aws.sqs.SqsClientManager;
 import io.datarouter.aws.sqs.SqsClientType;
+import io.datarouter.aws.sqs.SqsPhysicalNode;
+import io.datarouter.aws.sqs.service.QueueUrlAndName;
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
 import io.datarouter.storage.client.ClientId;
@@ -39,7 +40,6 @@ import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.node.NodeTool;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.storage.util.DatarouterQueueMetrics;
-import io.datarouter.util.tuple.Twin;
 
 public class SqsMonitoringJob extends BaseJob{
 	private static final Logger logger = LoggerFactory.getLogger(SqsMonitoringJob.class);
@@ -62,21 +62,21 @@ public class SqsMonitoringJob extends BaseJob{
 				.forEach(clientId -> {
 					Collection<PhysicalNode<?,?,?>> nodes = datarouterNodes.getPhysicalNodesForClient(
 							clientId.getName());
-					List<Twin<String>> queueUrlAndNames = nodes.stream()
+					List<QueueUrlAndName> queueUrlAndNames = nodes.stream()
 							.map(NodeTool::extractSinglePhysicalNode)
-							.map(physicalNode -> (BaseSqsNode<?,?,?>)physicalNode)
+							.map(physicalNode -> (SqsPhysicalNode<?,?,?>)physicalNode)
 							.peek($ -> tracker.increment())
-							.map(BaseSqsNode::getQueueUrlAndName)
+							.map(SqsPhysicalNode::getQueueUrlAndName)
 							.map(Supplier::get)
 							.collect(Collectors.toList());
 					saveUnackedMessageAgeMetricForQueues(clientId, queueUrlAndNames.stream()
-							.map(Twin::getRight)
+							.map(QueueUrlAndName::queueName)
 							.collect(Collectors.toList()));
 					queueUrlAndNames.forEach(queueUrlAndName -> {
 						try{
 							getQueueLengthAndSaveAsMetric(queueUrlAndName, clientId);
 						}catch(RuntimeException e){
-							logger.warn("failed to get attribute for queue=" + queueUrlAndName.getRight(), e);
+							logger.warn("failed to get attribute for queue=" + queueUrlAndName.queueName(), e);
 						}
 					});
 
@@ -89,11 +89,11 @@ public class SqsMonitoringJob extends BaseJob{
 						SqsClientType.NAME));
 	}
 
-	private void getQueueLengthAndSaveAsMetric(Twin<String> queueUrlAndName, ClientId clientId){
-		String queueLengthString = sqsClientManager.getQueueAttribute(clientId, queueUrlAndName.getLeft(),
+	private void getQueueLengthAndSaveAsMetric(QueueUrlAndName queueUrlAndName, ClientId clientId){
+		String queueLengthString = sqsClientManager.getQueueAttribute(clientId, queueUrlAndName.queueUrl(),
 				QueueAttributeName.ApproximateNumberOfMessages);
 		long queueLength = Long.parseLong(queueLengthString);
-		metrics.saveQueueLength(queueUrlAndName.getRight(), queueLength, SqsClientType.NAME);
+		metrics.saveQueueLength(queueUrlAndName.queueName(), queueLength, SqsClientType.NAME);
 	}
 
 }

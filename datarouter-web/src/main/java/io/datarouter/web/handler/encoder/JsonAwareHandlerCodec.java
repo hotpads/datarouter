@@ -15,7 +15,7 @@
  */
 package io.datarouter.web.handler.encoder;
 
-import io.datarouter.httpclient.json.JsonSerializer;
+import io.datarouter.json.JsonSerializer;
 
 public interface JsonAwareHandlerCodec{
 

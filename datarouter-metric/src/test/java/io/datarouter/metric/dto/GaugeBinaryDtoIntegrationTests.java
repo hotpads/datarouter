@@ -15,6 +15,7 @@
  */
 package io.datarouter.metric.dto;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.testng.Assert;
@@ -23,16 +24,15 @@ import org.testng.annotations.Test;
 import io.datarouter.binarydto.codec.BinaryDtoIndexedCodec;
 import io.datarouter.instrumentation.gauge.GaugeBatchDto;
 import io.datarouter.instrumentation.gauge.GaugeDto;
-import io.datarouter.util.UlidTool;
+import io.datarouter.util.Ulid;
 
 public class GaugeBinaryDtoIntegrationTests{
 
 	private static final String
 			NAME = "name",
-			ULID = UlidTool.nextUlid(),
+			ULID = new Ulid().value(),
 			SERVICE = "service",
-			SERVER = "server",
-			API_KEY = "apiKey";
+			SERVER = "server";
 
 	private static final GaugeDto OK_DTO = new GaugeDto(NAME, SERVICE, SERVER, ULID, 1L);
 
@@ -40,55 +40,60 @@ public class GaugeBinaryDtoIntegrationTests{
 
 	@Test
 	public void testConstructorValidation(){
-		var dto = makeBlob(SERVICE, SERVER, NAME, ULID, 1L, API_KEY);
+		var dto = makeDto(SERVICE, SERVER, NAME, ULID, 1L);
 		verifyOkDto(dto);
 
 		Assert.assertThrows(IllegalArgumentException.class, () ->
-				makeBlob("", SERVER, NAME, ULID, 1L, API_KEY));
+				makeDto("", SERVER, NAME, ULID, 1L));
 		Assert.assertThrows(IllegalArgumentException.class, () ->
-				makeBlob(null, SERVER, NAME, ULID, 1L, API_KEY));
+				makeDto(null, SERVER, NAME, ULID, 1L));
 
 		Assert.assertThrows(IllegalArgumentException.class, () ->
-				makeBlob(SERVICE, "", NAME, ULID, 1L, API_KEY));
+				makeDto(SERVICE, "", NAME, ULID, 1L));
 		Assert.assertThrows(IllegalArgumentException.class, () ->
-				makeBlob(SERVICE, null, NAME, ULID, 1L, API_KEY));
+				makeDto(SERVICE, null, NAME, ULID, 1L));
 
 		Assert.assertThrows(IllegalArgumentException.class, () ->
-				makeBlob(SERVICE, SERVER, "", ULID, 1L, API_KEY));
+				makeDto(SERVICE, SERVER, "", ULID, 1L));
 		Assert.assertThrows(IllegalArgumentException.class, () ->
-				makeBlob(SERVICE, SERVER, null, ULID, 1L, API_KEY));
+				makeDto(SERVICE, SERVER, null, ULID, 1L));
 
 		Assert.assertThrows(IllegalArgumentException.class, () ->
-				makeBlob(SERVICE, SERVER, NAME, "", 1L, API_KEY));
+				makeDto(SERVICE, SERVER, NAME, "", 1L));
 		Assert.assertThrows(IllegalArgumentException.class, () ->
-				makeBlob(SERVICE, SERVER, NAME, null, 1L, API_KEY));
+				makeDto(SERVICE, SERVER, NAME, null, 1L));
 
 		Assert.assertThrows(IllegalArgumentException.class, () ->
-				makeBlob(SERVICE, SERVER, NAME, ULID, null, API_KEY));
+				makeDto(SERVICE, SERVER, NAME, ULID, null));
 
 		Assert.assertThrows(IllegalArgumentException.class, () ->
-				makeBlob(SERVICE, SERVER, NAME, ULID, 1L, ""));
-		Assert.assertThrows(IllegalArgumentException.class, () ->
-				makeBlob(SERVICE, SERVER, NAME, ULID, 1L, null));
-
-		Assert.assertThrows(IllegalArgumentException.class, () ->
-				GaugeBinaryDto.createSizedDtos(null, API_KEY, Integer.MAX_VALUE).get(0));
+				GaugeBinaryDto.createSizedDtos(null, Integer.MAX_VALUE).get(0));
 		var nullBatch = new GaugeBatchDto(null);
 		Assert.assertThrows(IllegalArgumentException.class, () ->
-				GaugeBinaryDto.createSizedDtos(nullBatch, API_KEY, Integer.MAX_VALUE).get(0));
+				GaugeBinaryDto.createSizedDtos(nullBatch, Integer.MAX_VALUE).get(0));
 		var emptyBatch = new GaugeBatchDto(List.of());
 		Assert.assertThrows(IllegalArgumentException.class, () ->
-				GaugeBinaryDto.createSizedDtos(emptyBatch, API_KEY, Integer.MAX_VALUE).get(0));
+				GaugeBinaryDto.createSizedDtos(emptyBatch, Integer.MAX_VALUE).get(0));
 	}
 
 	@Test
 	public void testSingleRoundTrip(){
-		var dto = makeBlob(SERVICE, SERVER, NAME, ULID, 1L, API_KEY);
+		var dto = makeDto(SERVICE, SERVER, NAME, ULID, 1L);
 		verifyOkDto(CODEC.decode(CODEC.encode(dto)));
 	}
 
+	@Test
+	public void testCreateSizeDtosAll(){
+		var fiftyDtos = new ArrayList<GaugeDto>();
+		for(int i = 0; i < 50; i++){
+			fiftyDtos.add(OK_DTO);
+		}
+		var batch = new GaugeBatchDto(fiftyDtos);
+		Assert.assertEquals(GaugeBinaryDto.createSizedDtos(batch, 50).get(0).items.size(), 50);
+		Assert.assertEquals(GaugeBinaryDto.createSizedDtos(batch, fiftyDtos.size()).get(0).items.size(), 50);
+	}
+
 	private void verifyOkDto(GaugeBinaryDto dto){
-		Assert.assertEquals(dto.apiKey, API_KEY);
 		var actual = dto.toGaugeDtos().get(0);
 		Assert.assertEquals(actual.serviceName, OK_DTO.serviceName);
 		Assert.assertEquals(actual.serverName, OK_DTO.serverName);
@@ -97,10 +102,10 @@ public class GaugeBinaryDtoIntegrationTests{
 		Assert.assertEquals(actual.value, OK_DTO.value);
 	}
 
-	private GaugeBinaryDto makeBlob(String service, String server, String name, String ulid, Long value, String apikey){
+	private GaugeBinaryDto makeDto(String service, String server, String name, String ulid, Long value){
 		var gaugeDto = new GaugeDto(name, service, server, ulid, value);
 		var batchDto = new GaugeBatchDto(List.of(gaugeDto));
-		return GaugeBinaryDto.createSizedDtos(batchDto, apikey, 100).get(0);
+		return GaugeBinaryDto.createSizedDtos(batchDto, 100).get(0);
 	}
 
 }

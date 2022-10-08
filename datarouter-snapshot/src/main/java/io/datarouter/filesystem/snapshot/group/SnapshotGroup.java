@@ -145,7 +145,7 @@ public class SnapshotGroup implements BlockLoader{
 
 	@Override
 	public Block get(BlockKey blockKey){
-		return blockLoader(blockKey.snapshotKey).get(blockKey);
+		return blockLoader(blockKey.snapshotKey()).get(blockKey);
 	}
 
 	@Override
@@ -178,7 +178,7 @@ public class SnapshotGroup implements BlockLoader{
 	}
 
 	private DecodingBlockLoader makeDecodingBlockLoader(SnapshotKey snapshotKey){
-		SnapshotBlockStorageReader blockStorageReader = makeStorageReader(snapshotKey.snapshotId);
+		SnapshotBlockStorageReader blockStorageReader = makeStorageReader(snapshotKey.snapshotId());
 		byte[] rootBytes = blockStorageReader.getRootBlock();
 		RootBlock rootBlock = rootBlockDecoder.decode(rootBytes);
 		return decodingBlockLoaderFactory.create(rootBlock, blockStorageReader);

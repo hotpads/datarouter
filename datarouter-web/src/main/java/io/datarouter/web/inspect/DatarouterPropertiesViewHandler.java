@@ -47,7 +47,7 @@ public class DatarouterPropertiesViewHandler extends BaseHandler{
 				.withClass("sortable table table-sm border table-striped")
 				.withSingleRow(false);
 		service.getAllProperties()
-				.forEach(row -> table.withEntry(row.getLeft(), row.getRight() == null ? "" : row.getRight()));
+				.forEach(row -> table.withEntry(row.key(), row.value() == null ? "" : row.value()));
 		return div(table.build())
 				.withClass("container my-4");
 	}

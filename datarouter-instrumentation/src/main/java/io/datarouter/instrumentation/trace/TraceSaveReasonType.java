@@ -37,4 +37,5 @@ public enum TraceSaveReasonType{
 				.filter(saveReason -> saveReason.type.equals(type))
 				.findFirst();
 	}
+
 }

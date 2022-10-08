@@ -20,21 +20,20 @@ import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.util.tuple.Pair;
 import io.datarouter.webappinstance.WebappInstanceTableService.ColumnUsageStat;
 import io.datarouter.webappinstance.WebappInstanceTableService.WebappInstanceColumn;
 
 public class UsageStatsJspDtoTests{
 
-	private static final List<Pair<String,String>> pairs = List.of(
-			new Pair<>("a", "1"),
-			new Pair<>("a", "1"),
-			new Pair<>("a", "1"),
-			new Pair<>("a", "2"));
+	private static final List<Pair> pairs = List.of(
+			new Pair("a", "1"),
+			new Pair("a", "1"),
+			new Pair("a", "1"),
+			new Pair("a", "2"));
 
 	@Test
 	public void allCommon(){
-		var leftColumn = new WebappInstanceColumn<Pair<String,String>>("col", Pair::getLeft);
+		var leftColumn = new WebappInstanceColumn<>("col", Pair::left);
 		var leftUsage = new ColumnUsageStat<>(pairs, leftColumn);
 		Assert.assertTrue(leftUsage.allCommon);
 		Assert.assertEquals(leftUsage.mostCommon, "a");
@@ -45,7 +44,7 @@ public class UsageStatsJspDtoTests{
 
 	@Test
 	public void notAllCommon(){
-		var rightColumn = new WebappInstanceColumn<Pair<String,String>>("col", Pair::getRight);
+		var rightColumn = new WebappInstanceColumn<>("col", Pair::right);
 		var rightUsage = new ColumnUsageStat<>(pairs, rightColumn);
 		Assert.assertFalse(rightUsage.allCommon);
 		Assert.assertEquals(rightUsage.mostCommon, "1");
@@ -55,4 +54,8 @@ public class UsageStatsJspDtoTests{
 		Assert.assertTrue(rightUsage.usage.get(1).getUsagePercentagePrintable().contains("25.0"));
 	}
 
+	private record Pair(
+			String left,
+			String right){
+	}
 }

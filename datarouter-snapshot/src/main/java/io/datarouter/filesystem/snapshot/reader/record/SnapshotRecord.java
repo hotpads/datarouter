@@ -20,26 +20,18 @@ import java.util.Comparator;
 
 import io.datarouter.filesystem.snapshot.entry.SnapshotEntry;
 
-public class SnapshotRecord{
+public record SnapshotRecord(
+		long id,
+		byte[] key,
+		byte[] value,
+		byte[][] columnValues){
 
 	public static final Comparator<SnapshotRecord> KEY_COMPARATOR = Comparator.comparing(
 			snapshotRecord -> snapshotRecord.key,
-			(a, b) -> Arrays.compareUnsigned(a, b));
-
-	public final long id;
-	public final byte[] key;
-	public final byte[] value;
-	public final byte[][] columnValues;
+			Arrays::compareUnsigned);
 
 	public SnapshotRecord(long id, SnapshotEntry entry){
 		this(id, entry.key(), entry.value(), entry.columnValues);
-	}
-
-	public SnapshotRecord(long id, byte[] key, byte[] value, byte[][] columnValues){
-		this.id = id;
-		this.key = key;
-		this.value = value;
-		this.columnValues = columnValues;
 	}
 
 	public SnapshotEntry entry(){

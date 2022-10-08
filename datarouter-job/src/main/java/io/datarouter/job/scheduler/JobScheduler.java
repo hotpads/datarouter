@@ -102,9 +102,19 @@ public class JobScheduler{
 
 	public Outcome triggerManualJob(Class<? extends BaseJob> jobClass, String triggeredBy){
 		JobPackage jobPackage = JobPackage.createManualFromScheduledPackage(jobPackageTracker.getForClass(jobClass));
+		return triggerManualJob(jobClass, jobPackage, triggeredBy, jobPackage.shouldRunDetached);
+	}
+
+	public Outcome triggerManualJob(Class<? extends BaseJob> jobClass, String triggeredBy, boolean runDetached){
+		JobPackage jobPackage = JobPackage.createManualFromScheduledPackage(jobPackageTracker.getForClass(jobClass));
+		return triggerManualJob(jobClass, jobPackage, triggeredBy, runDetached);
+	}
+
+	private Outcome triggerManualJob(Class<? extends BaseJob> jobClass, JobPackage jobPackage, String triggeredBy,
+			boolean runDetached){
 		BaseJob job = injector.getInstance(jobClass);
 		JobWrapper jobWrapper = jobWrapperFactory.createManual(jobPackage, job, triggeredBy);
-		return triggerManual(jobWrapper);
+		return triggerManual(jobWrapper, runDetached);
 	}
 
 	public void shutdown(){
@@ -177,7 +187,7 @@ public class JobScheduler{
 				return;
 			}
 			Outcome didRun;
-			if(jobPackage.shouldRunDetached){
+			if(jobPackage.shouldRunDetached && jobSettings.enableDetachedJobs.get()){
 				didRun = runDetached(jobWrapper);
 			}else if(jobPackage.usesLocking()){
 				Duration delay = delayLockAquisitionBasedOnCurrentWorkload();
@@ -205,14 +215,15 @@ public class JobScheduler{
 		}
 	}
 
-	private Outcome triggerManual(JobWrapper jobWrapper){
-		JobPackage jobPackage = jobWrapper.jobPackage;
-		if(jobPackage.shouldRunDetached){
+	private Outcome triggerManual(JobWrapper jobWrapper, boolean runDetached){
+		if(runDetached){
 			return runDetached(jobWrapper);
+		}else{
+			JobPackage jobPackage = jobWrapper.jobPackage;
+			return jobPackage.usesLocking()
+					? tryAcquireClusterLockAndRun(jobWrapper, jobPackage.triggerLockConfig, Duration.ZERO)
+					: tryAcquireLocalLockAndRun(jobWrapper);
 		}
-		return jobPackage.usesLocking()
-				? tryAcquireClusterLockAndRun(jobWrapper, jobPackage.triggerLockConfig, Duration.ZERO)
-				: tryAcquireLocalLockAndRun(jobWrapper);
 	}
 
 	private Duration delayLockAquisitionBasedOnCurrentWorkload(){

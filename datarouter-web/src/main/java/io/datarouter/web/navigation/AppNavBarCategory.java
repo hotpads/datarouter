@@ -32,12 +32,12 @@ public enum AppNavBarCategory implements NavBarCategory{
 	}
 
 	@Override
-	public String getDisplay(){
+	public String display(){
 		return display;
 	}
 
 	@Override
-	public AppNavBarCategoryGrouping getGrouping(){
+	public AppNavBarCategoryGrouping grouping(){
 		return grouping;
 	}
 
@@ -47,7 +47,7 @@ public enum AppNavBarCategory implements NavBarCategory{
 	}
 
 	@Override
-	public NavBarItemType getType(){
+	public NavBarItemType type(){
 		return NavBarItemType.APP;
 	}
 

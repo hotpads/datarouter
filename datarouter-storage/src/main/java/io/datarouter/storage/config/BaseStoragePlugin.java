@@ -23,19 +23,12 @@ import java.util.Map;
 
 import com.google.inject.Module;
 
-import io.datarouter.inject.InjectionTool;
 import io.datarouter.inject.guice.BasePlugin;
 import io.datarouter.plugin.PluginConfigKey;
 import io.datarouter.plugin.PluginConfigValue;
-import io.datarouter.scanner.Scanner;
-import io.datarouter.storage.client.ClientId;
-import io.datarouter.storage.dao.BaseRedundantDaoParams;
-import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.dao.DaosModuleBuilder;
 import io.datarouter.storage.dao.DaosModuleBuilder.EmptyDaosModuleBuilder;
 import io.datarouter.storage.setting.SettingRoot;
-import io.datarouter.util.lang.ReflectionTool;
-import io.datarouter.util.tuple.Pair;
 
 /**
  * Plugins are verbose wrappers around GuiceModules for easy installation of datarouter modules. They use a builder
@@ -54,37 +47,6 @@ public abstract class BaseStoragePlugin extends BasePlugin{
 
 	protected void setDaosModule(DaosModuleBuilder daosModule){
 		this.daosModule = daosModule;
-	}
-
-	protected void setDaosModule(List<Pair<Class<? extends Dao>,List<ClientId>>> daosAndClients){
-		this.daosModule = new DaosModuleBuilder(){
-
-			@Override
-			public List<Class<? extends Dao>> getDaoClasses(){
-				return Scanner.of(daosAndClients)
-						.<Class<? extends Dao>>map(Pair::getLeft)
-						.list();
-			}
-
-			@Override
-			protected void configure(){
-				daosAndClients.forEach(this::buildAndBindDaoParam);
-			}
-
-			private <T> void buildAndBindDaoParam(Pair<Class<? extends Dao>,List<ClientId>> pair){
-				@SuppressWarnings("unchecked")
-				Class<T> daoParamsClass = (Class<T>)InjectionTool.findInjectableClasses(pair.getLeft())
-						.include(BaseRedundantDaoParams.class::isAssignableFrom)
-						.findFirst()
-						.orElseThrow(() ->
-								new RuntimeException("no injected BaseDaoParams found for " + pair.getLeft()));
-				T daoParamInstance = ReflectionTool.createWithParameters(
-						daoParamsClass,
-						List.of(pair.getRight()));//need a List<List<ClientIds>>
-				bind(daoParamsClass).toInstance(daoParamInstance);
-			}
-
-		};
 	}
 
 	public DaosModuleBuilder getDaosModuleBuilder(){

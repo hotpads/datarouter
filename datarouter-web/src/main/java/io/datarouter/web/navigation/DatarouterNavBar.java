@@ -63,7 +63,7 @@ public class DatarouterNavBar extends NavBar{
 					return menuItem;
 				})
 				.collect(Collectors.toList());
-		return new NavBarMenuItem(entry.getKey().getDisplay(), menuItems);
+		return new NavBarMenuItem(entry.getKey().display(), menuItems);
 	}
 
 }

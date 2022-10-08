@@ -19,6 +19,9 @@ import java.util.List;
 
 import io.datarouter.inject.guice.BaseGuiceModule;
 import io.datarouter.storage.config.properties.DatarouterTestPropertiesFile;
+import io.datarouter.storage.servertype.BaseServerTypes;
+import io.datarouter.storage.servertype.ServerType;
+import io.datarouter.storage.servertype.ServerTypes;
 import io.datarouter.testng.TestNgModuleFactory;
 import io.datarouter.web.config.DatarouterWebGuiceModule;
 
@@ -36,6 +39,7 @@ public class DatarouterAwsSqsTestNgModuleFactory extends TestNgModuleFactory{
 		protected void configure(){
 			bindActualInstance(DatarouterTestPropertiesFile.class,
 					new DatarouterTestPropertiesFile("aws-sqs.properties"));
+			bindActualInstance(ServerTypes.class, new BaseServerTypes(ServerType.DEV));
 		}
 
 	}

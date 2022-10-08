@@ -19,15 +19,15 @@ import static j2html.TagCreator.div;
 
 import java.time.Duration;
 import java.time.ZoneId;
-import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
+import io.datarouter.scanner.Scanner;
 import io.datarouter.tasktracker.config.DatarouterTaskTrackerFiles;
 import io.datarouter.tasktracker.scheduler.LongRunningTaskStatus;
 import io.datarouter.tasktracker.storage.LongRunningTask;
@@ -36,7 +36,6 @@ import io.datarouter.util.DateTool;
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.util.time.ZonedDateFormatterTool;
-import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.types.optional.OptionalString;
@@ -81,9 +80,9 @@ public class LongRunningTasksHandler extends BaseHandler{
 				.include(task -> showAllStatuses || task.getJobExecutionStatus() == filteredStatus)
 				.map(task -> new LongRunningTaskJspDto(task, zoneId))
 				.list();
-		Set<Pair<String,String>> statuses = Arrays.stream(LongRunningTaskStatus.values())
-				.map(jobExecutionStatus -> new Pair<>(jobExecutionStatus.name(), jobExecutionStatus.persistentString))
-				.collect(Collectors.toSet());
+		Set<TaskStatus> statuses = Scanner.of(LongRunningTaskStatus.values())
+				.map(taskStatus -> new TaskStatus(taskStatus.name(), taskStatus.persistentString))
+				.collect(HashSet::new);
 		mav.put("longRunningTasks", longRunningTasks);
 		mav.put("statuses", statuses);
 		mav.put("allStatusesValue", ALL_STATUSES_VALUE);
@@ -106,6 +105,22 @@ public class LongRunningTasksHandler extends BaseHandler{
 				.build();
 		return div(table)
 				.withClass("container mt-5");
+	}
+
+	public record TaskStatus(
+			String name,
+			String value){
+
+		// used in jsps
+		public String getLeft(){
+			return name();
+		}
+
+		// used in jsps
+		public String getRight(){
+			return value();
+		}
+
 	}
 
 	public static class LongRunningTaskJspDto{

@@ -83,6 +83,10 @@ public class Trace2ThreadDto{
 		return queuedEnded;
 	}
 
+	public void setQueuedEnded(Long queuedEnded){
+		this.queuedEnded = queuedEnded;
+	}
+
 	public void markStart(){
 		this.queuedEnded = Trace2Dto.getCurrentTimeInNs();
 	}

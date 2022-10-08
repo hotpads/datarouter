@@ -55,10 +55,10 @@ public class SnapshotGroupDeleteOps{
 			SnapshotKey snapshotKey,
 			ExecutorService exec,
 			int numThreads){
-		deleteIdFile(snapshotKey.snapshotId);
+		deleteIdFile(snapshotKey.snapshotId());
 		RootBlock rootBlock = group.root(BlockKey.root(snapshotKey));
 		//TODO delete from cache
-		SnapshotFileStorage snapshotFileStorage = group.makeSnapshotFileStorage(snapshotKey.snapshotId);
+		SnapshotFileStorage snapshotFileStorage = group.makeSnapshotFileStorage(snapshotKey.snapshotId());
 		new SnapshotFileDeleter(rootBlock, pathsRegistry, snapshotKey, snapshotFileStorage, exec, numThreads).delete();
 	}
 

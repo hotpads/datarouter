@@ -18,20 +18,26 @@ package io.datarouter.joblet.enums;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
+import io.datarouter.enums.StringMappedEnum;
 import io.datarouter.util.string.StringTool;
 
 public enum JobletPriority{
 	//IMPORTANT: maintain order
-	HIGH(10),
-	DEFAULT(100),
-	LOW(1000);
+	HIGH(10, "High"),
+	DEFAULT(100, "Default"),
+	LOW(1000, "Low");
 
-	private Integer executionOrder;
-	private String comparableName;
+	private final int executionOrder;
+	private final String comparableName;
+	public final String display;
 
-	private JobletPriority(Integer executionOrder){
+	public static final StringMappedEnum<JobletPriority> BY_DISPLAY
+			= new StringMappedEnum<>(values(), value -> value.display);
+
+	JobletPriority(Integer executionOrder, String display){
 		this.executionOrder = executionOrder;
 		this.comparableName = StringTool.pad(Integer.toString(executionOrder), '0', 4);
+		this.display = display;
 	}
 
 	public static JobletPriority fromExecutionOrder(Integer executionOrder){
