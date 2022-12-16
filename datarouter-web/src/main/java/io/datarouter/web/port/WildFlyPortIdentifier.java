@@ -15,13 +15,7 @@
  */
 package io.datarouter.web.port;
 
-import java.util.function.Supplier;
-
 import javax.inject.Singleton;
-import javax.management.ObjectName;
-
-import io.datarouter.util.MxBeans;
-import io.datarouter.util.singletonsupplier.SingletonSupplier;
 
 @Singleton
 public class WildFlyPortIdentifier implements PortIdentifier{
@@ -31,35 +25,13 @@ public class WildFlyPortIdentifier implements PortIdentifier{
 			HTTPS = "socket-binding-group=standard-sockets,socket-binding=https",
 			PORT_ATTRIBUTE = "port";
 
-	private final Supplier<Port> ports;
-
-	public WildFlyPortIdentifier(){
-		this.ports = SingletonSupplier.of(() -> {
-			try{
-				ObjectName objectName = new ObjectName(CompoundPortIdentifier.JBOSS_JMX_DOMAIN + ":" + HTTP);
-				int http = (int)MxBeans.SERVER.getAttribute(objectName, PORT_ATTRIBUTE);
-				objectName = new ObjectName(CompoundPortIdentifier.JBOSS_JMX_DOMAIN + ":" + HTTPS);
-				int https = (int)MxBeans.SERVER.getAttribute(objectName, PORT_ATTRIBUTE);
-				return new Port(http, https);
-			}catch(Exception e){
-				throw new RuntimeException(e);
-			}
-		});
-	}
-
 	@Override
-	public Integer getHttpPort(){
-		return ports.get().httpPort();
-	}
-
-	@Override
-	public Integer getHttpsPort(){
-		return ports.get().httpsPort();
-	}
-
-	private record Port(
-			Integer httpPort,
-			Integer httpsPort){
+	public PortIdentificationResult identify(){
+		var httpSocketBinding = JmxTool.newObjectName(CompoundPortIdentifier.JBOSS_JMX_DOMAIN + ":" + HTTP);
+		int http = (int)JmxTool.getAttribute(httpSocketBinding, PORT_ATTRIBUTE);
+		var httpsSocketBinding = JmxTool.newObjectName(CompoundPortIdentifier.JBOSS_JMX_DOMAIN + ":" + HTTPS);
+		int https = (int)JmxTool.getAttribute(httpsSocketBinding, PORT_ATTRIBUTE);
+		return PortIdentificationResult.success(http, https);
 	}
 
 }

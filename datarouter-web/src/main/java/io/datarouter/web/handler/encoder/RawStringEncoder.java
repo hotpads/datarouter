@@ -58,7 +58,7 @@ public class RawStringEncoder implements HandlerEncoder{
 			HttpServletResponse response,
 			HttpServletRequest request)
 	throws IOException{
-		sendErrorResponse(errorResponseDto.statusCode, errorResponseDto.message, response);
+		sendErrorResponse(errorResponseDto.statusCode(), errorResponseDto.message(), response);
 	}
 
 	public void sendErrorResponse(int statusCode, String errorMessage, HttpServletResponse response) throws IOException{

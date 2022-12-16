@@ -15,7 +15,6 @@
  */
 package io.datarouter.aws.s3;
 
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -27,6 +26,7 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
 
 import javax.inject.Singleton;
 
@@ -38,6 +38,7 @@ import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.model.Bucket;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
+import software.amazon.awssdk.services.s3.model.HeadObjectResponse;
 import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
 import software.amazon.awssdk.services.s3.model.S3Object;
 
@@ -90,13 +91,25 @@ public class TestDatarouterS3Client implements DatarouterS3Client{
 	}
 
 	@Override
-	public BufferedWriter putAsWriter(String bucket, String key, ContentType contentType){
+	public OutputStream put(String bucket, String key, S3ContentType contentType){
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public OutputStream put(String bucket, String key, S3ContentType contentType){
+	public void multipartUpload(String bucket, String key, S3ContentType contentType, InputStream inputStream){
 		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void multiThreadUpload(
+			String bucket,
+			String key,
+			S3ContentType contentType,
+			InputStream inputStream,
+			ExecutorService exec,
+			int numThreads){
+		throw new UnsupportedOperationException();
+
 	}
 
 	@Override
@@ -138,11 +151,6 @@ public class TestDatarouterS3Client implements DatarouterS3Client{
 	}
 
 	@Override
-	public void downloadFilesToDirectory(String bucket, String prefix, Path path){
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
 	public Path downloadFileToDirectory(String bucket, String key, Path path){
 		throw new UnsupportedOperationException();
 	}
@@ -154,21 +162,6 @@ public class TestDatarouterS3Client implements DatarouterS3Client{
 
 	@Override
 	public void downloadFileWithHeartbeat(String bucket, String key, Path path, Runnable heartbeat){
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public Scanner<List<String>> scanBatchesOfLinesWithPrefix(String bucket, String prefix, int batchSize){
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public Scanner<String> scanLines(String bucket, String key){
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public Scanner<List<String>> scanBatchesOfLines(String bucket, String key, int batchSize){
 		throw new UnsupportedOperationException();
 	}
 
@@ -193,26 +186,6 @@ public class TestDatarouterS3Client implements DatarouterS3Client{
 
 	@Override
 	public byte[] getPartialObject(String bucket, String key, long offset, int length){
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public String getObjectAsString(String bucket, String key){
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public Optional<Long> length(String bucket, String key){
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public Optional<Instant> findLastModified(String bucket, String key){
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public Optional<S3Object> findLastModifiedObjectWithPrefix(String bucket, String prefix){
 		throw new UnsupportedOperationException();
 	}
 
@@ -248,17 +221,12 @@ public class TestDatarouterS3Client implements DatarouterS3Client{
 	}
 
 	@Override
-	public boolean exists(String bucket, String key){
-		return false;
-	}
-
-	@Override
-	public boolean existsPrefix(String bucket, String prefix){
-		return false;
-	}
-
-	@Override
 	public Region getCachedOrLatestRegionForBucket(String bucketName){
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Optional<HeadObjectResponse> headObject(String bucket, String key){
 		throw new UnsupportedOperationException();
 	}
 

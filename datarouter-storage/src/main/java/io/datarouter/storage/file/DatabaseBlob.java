@@ -25,6 +25,7 @@ import io.datarouter.model.field.imp.array.ByteArrayFieldKey;
 import io.datarouter.model.field.imp.comparable.LongField;
 import io.datarouter.model.field.imp.comparable.LongFieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
+import io.datarouter.model.util.CommonFieldSizes;
 
 public class DatabaseBlob extends BaseDatabean<DatabaseBlobKey,DatabaseBlob>{
 
@@ -34,7 +35,8 @@ public class DatabaseBlob extends BaseDatabean<DatabaseBlobKey,DatabaseBlob>{
 
 	public static class FieldKeys{
 		public static final LongFieldKey size = new LongFieldKey("size");
-		public static final ByteArrayFieldKey data = new ByteArrayFieldKey("data");
+		public static final ByteArrayFieldKey data = new ByteArrayFieldKey("data")
+				.withSize(CommonFieldSizes.MAX_LENGTH_LONGBLOB);
 		public static final LongFieldKey expirationMs = new LongFieldKey("expirationMs");
 	}
 

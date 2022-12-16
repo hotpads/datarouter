@@ -35,16 +35,10 @@ extends SerializableAwsCredentialsProviderProvider<S3CredentialsDto>{
 		return StaticCredentialsProvider.create(AwsBasicCredentials.create(params.accessKey, params.secretKey));
 	}
 
-	public static class S3CredentialsDto implements Serializable{
-
-		public final String accessKey;
-		public final String secretKey;
-
-		public S3CredentialsDto(String accessKey, String secretKey){
-			this.accessKey = accessKey;
-			this.secretKey = secretKey;
-		}
-
+	public record S3CredentialsDto(
+			String accessKey,
+			String secretKey)
+	implements Serializable{
 	}
 
 }

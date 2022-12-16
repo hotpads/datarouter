@@ -15,9 +15,11 @@
  */
 package io.datarouter.filesystem.raw.small;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UncheckedIOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SeekableByteChannel;
 import java.nio.file.Files;
@@ -31,9 +33,9 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.bytes.split.ChunkScannerTool;
-import io.datarouter.scanner.ObjectScanner;
 import io.datarouter.scanner.ParallelScannerContext;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.util.tuple.Range;
 
 @Singleton
 public class BinaryFileService{
@@ -41,15 +43,11 @@ public class BinaryFileService{
 	@Inject
 	private CheckedBinaryFileService checkedService;
 
-	public void writeBytes(Path fullPath, byte[] contents){
-		writeBytes(fullPath, ObjectScanner.of(contents));
-	}
-
-	public void writeBytes(Path fullPath, Scanner<byte[]> chunks){
+	public void writeBytes(Path fullPath, byte[] bytes){
 		try{
-			checkedService.writeBytes(fullPath, chunks);
+			checkedService.writeBytes(fullPath, bytes);
 		}catch(IOException e){
-			throw new RuntimeException(e);
+			throw new UncheckedIOException(e);
 		}
 	}
 
@@ -57,7 +55,7 @@ public class BinaryFileService{
 		try{
 			checkedService.writeBytes(fullPath, inputStream);
 		}catch(IOException e){
-			throw new RuntimeException(e);
+			throw new UncheckedIOException(e);
 		}
 	}
 
@@ -65,7 +63,7 @@ public class BinaryFileService{
 		try{
 			return checkedService.length(fullPath);
 		}catch(IOException e){
-			throw new RuntimeException(e);
+			throw new UncheckedIOException(e);
 		}
 	}
 
@@ -73,7 +71,7 @@ public class BinaryFileService{
 		try{
 			return checkedService.readBytes(fullPath);
 		}catch(IOException e){
-			throw new RuntimeException(e);
+			throw new UncheckedIOException(e);
 		}
 	}
 
@@ -81,19 +79,31 @@ public class BinaryFileService{
 		try{
 			return checkedService.readBytes(fullPath, offset, length);
 		}catch(IOException e){
-			throw new RuntimeException(e);
+			throw new UncheckedIOException(e);
+		}
+	}
+
+	public InputStream readInputStream(Path fullPath){
+		try{
+			return checkedService.readInputStream(fullPath);
+		}catch(IOException e){
+			throw new UncheckedIOException(e);
 		}
 	}
 
 	public Scanner<byte[]> scanChunks(
 			Path fullPath,
+			Range<Long> range,
 			ExecutorService exec,
 			int numThreads,
 			int chunkSize){
-		long totalLength = length(fullPath).orElseThrow();
-		return ChunkScannerTool.scanChunks(totalLength, chunkSize)
+		long fromInclusive = range.hasStart() ? range.getStart() : 0;
+		long toExclusive = range.hasEnd()
+				? range.getEnd()
+				: length(fullPath).orElseThrow();// extra operation
+		return ChunkScannerTool.scanChunks(fromInclusive, toExclusive, chunkSize)
 				.parallel(new ParallelScannerContext(exec, numThreads, false))
-				.map(range -> readBytes(fullPath, range.start, range.length));
+				.map(chunkRange -> readBytes(fullPath, chunkRange.start, chunkRange.length));
 	}
 
 	@Singleton
@@ -101,18 +111,8 @@ public class BinaryFileService{
 
 		public void writeBytes(Path fullPath, byte[] contents)
 		throws IOException{
-			writeBytes(fullPath, ObjectScanner.of(contents));
-		}
-
-		public void writeBytes(Path fullPath, Scanner<byte[]> chunks)
-		throws IOException{
 			fullPath.getParent().toFile().mkdirs();
-			fullPath.toFile().createNewFile();
-			try(OutputStream outputStream = Files.newOutputStream(fullPath)){
-				for(byte[] chunk : chunks.iterable()){
-					outputStream.write(chunk);
-				}
-			}
+			Files.write(fullPath, contents);
 		}
 
 		public void writeBytes(Path fullPath, InputStream inputStream)
@@ -146,6 +146,13 @@ public class BinaryFileService{
 				channel.read(buffer);
 			}
 			return buffer.array();
+		}
+
+		public InputStream readInputStream(Path fullPath)
+		throws IOException{
+			// BufferedInputStream appears important for performance here.
+			// If removing for some reason, be sure to check that callers buffer.
+			return new BufferedInputStream(Files.newInputStream(fullPath));
 		}
 
 	}

@@ -31,7 +31,7 @@ public class ClusterSettingSearchService{
 	public List<SettingNameMatchResult> searchSettingNames(String query, int limit){
 		return cachedClusterSettingNames.get().stream()
 				.map(name -> getMatchResultFromNameAndQuery(name, query))
-				.sorted(Comparator.comparingInt(SettingNameMatchResult::getMatchPercentage).reversed())
+				.sorted(Comparator.comparingInt(SettingNameMatchResult::matchPercentage).reversed())
 				.limit(limit)
 				.collect(Collectors.toList());
 	}
@@ -58,24 +58,9 @@ public class ClusterSettingSearchService{
 		return new SettingNameMatchResult(name, normalizedMatchWeight);
 	}
 
-	public static class SettingNameMatchResult{
-
-		private final String name;
-		private final int matchWeight;
-
-		public SettingNameMatchResult(String name, int matchPercentage){
-			this.name = name;
-			this.matchWeight = matchPercentage;
-		}
-
-		public String getName(){
-			return name;
-		}
-
-		public int getMatchPercentage(){
-			return matchWeight;
-		}
-
+	public record SettingNameMatchResult(
+			String name,
+			int matchPercentage){
 	}
 
 }

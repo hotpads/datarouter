@@ -18,7 +18,7 @@ package io.datarouter.model.field.codec;
 import com.google.gson.reflect.TypeToken;
 
 import io.datarouter.bytes.Codec.NullPassthroughCodec;
-import io.datarouter.util.Ulid;
+import io.datarouter.types.Ulid;
 
 public class UlidToStringCodec extends FieldCodec<Ulid,String>{
 

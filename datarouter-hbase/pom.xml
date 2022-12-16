@@ -21,7 +21,7 @@
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-parent</artifactId>
-		<version>0.0.117</version>
+		<version>0.0.118</version>
 		<relativePath>../datarouter-parent</relativePath>
 	</parent>
 
@@ -68,6 +68,12 @@
 			<artifactId>hadoop-auth</artifactId>
 			<version>3.3.4</version>
 			<scope>runtime</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-reload4j</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>io.datarouter</groupId>

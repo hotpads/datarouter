@@ -18,6 +18,7 @@ package io.datarouter.web.http;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.security.Security;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -34,10 +35,10 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.reflect.TypeToken;
 
-import io.datarouter.gson.serialization.GsonTool;
+import io.datarouter.gson.GsonJsonSerializer;
+import io.datarouter.gson.GsonTool;
 import io.datarouter.httpclient.client.BaseDatarouterHttpClientWrapper;
 import io.datarouter.httpclient.client.DatarouterHttpClientBuilder;
-import io.datarouter.httpclient.json.GsonJsonSerializer;
 import io.datarouter.httpclient.proxy.RequestProxySetter;
 import io.datarouter.httpclient.request.DatarouterHttpRequest;
 import io.datarouter.httpclient.request.HttpRequestMethod;
@@ -84,10 +85,10 @@ public class HttpTestHandler extends BaseHandler{
 		mav.put("method", requestMethod.name());
 		DatarouterHttpRequest request = new DatarouterHttpRequest(requestMethod, url.get()).setRetrySafe(true);
 		if(headers.isPresent()){
-			Map<String,String> headersMap = GsonTool.GSON.fromJson(headers.get(),
+			Map<String,String> headersMap = GsonTool.withUnregisteredEnums().fromJson(headers.get(),
 					new TypeToken<Map<String,String>>(){}.getType());
 			request.addHeaders(headersMap);
-			mav.put("headersMap", GsonTool.GSON.toJson(headersMap));
+			mav.put("headersMap", GsonTool.withUnregisteredEnums().toJson(headersMap));
 		}
 		if(requestBody.isPresent()){
 			ContentType cont = contentType.isPresent() ? ContentType.getByMimeType(contentType.get())
@@ -178,7 +179,10 @@ public class HttpTestHandler extends BaseHandler{
 	public static class HttpTesterClient extends BaseDatarouterHttpClientWrapper{
 
 		public HttpTesterClient(){
-			super(new DatarouterHttpClientBuilder(GsonJsonSerializer.DEFAULT).build());
+			super(new DatarouterHttpClientBuilder(GsonJsonSerializer.DEFAULT)
+					.setTimeout(Duration.ofMinutes(5))
+					.setConnectTimeoutMs(Duration.ofSeconds(1))
+					.build());
 		}
 
 	}
@@ -188,6 +192,8 @@ public class HttpTestHandler extends BaseHandler{
 
 		public HttpTesterWithoutRedirectClient(){
 			super(new DatarouterHttpClientBuilder(GsonJsonSerializer.DEFAULT)
+					.setTimeout(Duration.ofMinutes(5))
+					.setConnectTimeoutMs(Duration.ofSeconds(1))
 					.disableRedirectHandling()
 					.build());
 		}

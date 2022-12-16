@@ -24,13 +24,16 @@ public class HexByteStringCodec implements ByteStringCodec{
 	private static final byte[] HEX_DIGITS = {
 			'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
 
-	@Override
-	public String encode(byte[] bytes){
-		byte[] hexBytes = toHexBytes(bytes);
-		return StringCodec.US_ASCII.decode(hexBytes);
+	private static final int[] VALUE_BY_HEX_DIGIT = new int['f' + 1];
+	static{
+		for(int value = 0; value < HEX_DIGITS.length; ++value){
+			int index = HEX_DIGITS[value];
+			VALUE_BY_HEX_DIGIT[index] = value;
+		}
 	}
 
-	private static byte[] toHexBytes(byte[] bytes){
+	@Override
+	public String encode(byte[] bytes){
 		byte[] hexBytes = new byte[2 * bytes.length];
 		int cursor = 0;
 		for(int i = 0; i < bytes.length; i++){
@@ -39,7 +42,41 @@ public class HexByteStringCodec implements ByteStringCodec{
 			hexBytes[cursor] = HEX_DIGITS[0x0F & bytes[i]];
 			++cursor;
 		}
-		return hexBytes;
+		return StringCodec.US_ASCII.decode(hexBytes);
+	}
+
+	@Override
+	public byte[] decode(String hex){
+		int hexLength = hex.length();
+		if(hexLength % 2 != 0){
+			throw new IllegalArgumentException("String length must be a multiple of 2");
+		}
+		int bytesLength = hexLength / 2;
+		byte[] bytes = new byte[bytesLength];
+		int hexCursor = 0;
+		int bytesCursor = 0;
+		while(hexCursor < hexLength){
+			char leftChar = hex.charAt(hexCursor);
+			++hexCursor;
+			validateChar(leftChar);
+			char rightChar = hex.charAt(hexCursor);
+			++hexCursor;
+			validateChar(rightChar);
+			int leftPart = VALUE_BY_HEX_DIGIT[leftChar] << 4;
+			int rightPart = VALUE_BY_HEX_DIGIT[rightChar];
+			int byteValue = leftPart + rightPart;
+			bytes[bytesCursor] = (byte)byteValue;
+			++bytesCursor;
+		}
+		return bytes;
+	}
+
+	private static final void validateChar(char ch){
+		boolean validDigit = ch >= '0' && ch <= '9';
+		boolean validChar = ch >= 'a' && ch <= 'f';
+		if(!(validDigit || validChar)){
+			throw new IllegalArgumentException("Invalid character=" + ch);
+		}
 	}
 
 }

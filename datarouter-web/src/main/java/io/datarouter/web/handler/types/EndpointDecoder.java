@@ -126,8 +126,11 @@ public class EndpointDecoder implements HandlerDecoder, JsonAwareHandlerCodec{
 				field.set(baseEndpoint, requestBody);
 				if(requestBody instanceof Collection<?> requestBodyCollection){
 					// Datarouter handler method batch <Handler.class.simpleName> <methodName>
+					@SuppressWarnings("unchecked")
+					Class<? extends BaseHandler> handlerClass = (Class<? extends BaseHandler>)method
+							.getDeclaringClass();
 					HandlerMetrics.incRequestBodyCollectionSize(
-							(Class<? extends BaseHandler>) method.getDeclaringClass(),
+							handlerClass,
 							method,
 							requestBodyCollection.size());
 				}

@@ -63,25 +63,25 @@ public class AuroraDnsService{
 		List<AuroraClientDto> auroraclientDtos = clientIdProvider.getAuroraClientDtos();
 		for(AuroraClientDto dto : auroraclientDtos){
 			addDnsEntry(
-					dto.getWriterClientId().getName(),
-					dto.getWriterDns(),
-					dto.getClusterName(),
-					dto.getWriterClientId().getName(),
+					dto.writerClientId().getName(),
+					dto.writerDns(),
+					dto.clusterName(),
+					dto.writerClientId().getName(),
 					true);
-			for(int i = 0; i < dto.getReaderClientIds().size(); i++){
+			for(int i = 0; i < dto.readerClientIds().size(); i++){
 				addDnsEntry(
-						dto.getReaderClientIds().get(i).getName(),
-						dto.getReaderDnss().get(i),
-						dto.getClusterName(),
-						dto.getWriterClientId().getName(),
+						dto.readerClientIds().get(i).getName(),
+						dto.readerDnss().get(i),
+						dto.clusterName(),
+						dto.writerClientId().getName(),
 						false);
 			}
 			//add other entry
 			addDnsEntry(
-					dto.getOtherName(),
-					dto.getOtherDns(),
-					dto.getClusterName(),
-					dto.getWriterClientId().getName(),
+					dto.otherName(),
+					dto.otherDns(),
+					dto.clusterName(),
+					dto.writerClientId().getName(),
 					false);
 		}
 		return dnsEntryByHostname;

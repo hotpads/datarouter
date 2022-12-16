@@ -25,6 +25,7 @@ import java.util.concurrent.ConcurrentSkipListMap;
 import io.datarouter.storage.setting.cached.CachedSetting;
 import io.datarouter.storage.setting.cached.impl.BooleanCachedSetting;
 import io.datarouter.storage.setting.cached.impl.CommaSeparatedStringCachedSetting;
+import io.datarouter.storage.setting.cached.impl.CommaSeparatedTrimmedStringCachedSetting;
 import io.datarouter.storage.setting.cached.impl.DoubleCachedSetting;
 import io.datarouter.storage.setting.cached.impl.DurationCachedSetting;
 import io.datarouter.storage.setting.cached.impl.IntegerCachedSetting;
@@ -175,6 +176,11 @@ public abstract class SettingNode{
 		return registerCommaSeparatedStrings(name, defaultTo(defaultValue));
 	}
 
+	public CommaSeparatedTrimmedStringCachedSetting registerCommaSeparatedTrimmedString(String name,
+			Set<String> defaultValue){
+		return registerCommaSeparatedTrimmedStrings(name, defaultTo(defaultValue));
+	}
+
 	public BooleanCachedSetting registerBoolean(String name, Boolean defaultValue){
 		return registerBooleans(name, defaultTo(defaultValue));
 	}
@@ -209,6 +215,12 @@ public abstract class SettingNode{
 			String name,
 			DefaultSettingValue<Set<String>> defaultValue){
 		return register(new CommaSeparatedStringCachedSetting(finder, getName() + name, defaultValue));
+	}
+
+	public CommaSeparatedTrimmedStringCachedSetting registerCommaSeparatedTrimmedStrings(
+			String name,
+			DefaultSettingValue<Set<String>> defaultValue){
+		return register(new CommaSeparatedTrimmedStringCachedSetting(finder, getName() + name, defaultValue));
 	}
 
 	public BooleanCachedSetting registerBooleans(String name, DefaultSettingValue<Boolean> defaultValue){

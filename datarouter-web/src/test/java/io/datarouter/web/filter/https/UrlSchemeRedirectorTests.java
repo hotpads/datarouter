@@ -17,16 +17,21 @@ package io.datarouter.web.filter.https;
 
 import java.net.URL;
 
+import javax.inject.Inject;
+
 import org.testng.Assert;
+import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
 import io.datarouter.httpclient.security.UrlConstants;
 import io.datarouter.httpclient.security.UrlScheme;
-import io.datarouter.web.port.PortIdentifier.DefaultPortIdentifier;
+import io.datarouter.web.test.DatarouterWebTestNgModuleFactory;
 
+@Guice(moduleFactory = DatarouterWebTestNgModuleFactory.class)
 public class UrlSchemeRedirectorTests{
 
-	private final UrlSchemeRedirector urlSchemeRedirector = new UrlSchemeRedirector(new DefaultPortIdentifier());
+	@Inject
+	private UrlSchemeRedirector urlSchemeRedirector;
 
 	private final String urlHttp = "http://x.com", urlHttps = "https://x.com", param = "/y?z=0",
 			urlWithHttpPort = urlHttp + ":" + UrlConstants.PORT_HTTP_DEV + param, urlWithHttpsPort = urlHttps + ":"

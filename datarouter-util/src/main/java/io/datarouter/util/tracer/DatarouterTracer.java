@@ -111,10 +111,10 @@ public class DatarouterTracer implements Tracer{
 
 	@Override
 	public void startThread(){
-		if(getCurrentThread() == null){
+		Trace2ThreadDto thread = getCurrentThread();
+		if(thread == null){
 			return;
 		}
-		Trace2ThreadDto thread = getCurrentThread();
 		if(saveThreadCpuTime){
 			thread.setCpuTimeCreatedNs(MxBeans.THREAD.getCurrentThreadCpuTime());
 		}
@@ -136,10 +136,10 @@ public class DatarouterTracer implements Tracer{
 
 	@Override
 	public void finishThread(){
-		if(getCurrentThread() == null){
+		Trace2ThreadDto thread = currentThread;
+		if(thread == null){
 			return;
 		}
-		Trace2ThreadDto thread = getCurrentThread();
 		if(saveThreadCpuTime){
 			thread.setCpuTimeEndedNs(MxBeans.THREAD.getCurrentThreadCpuTime());
 		}
@@ -166,7 +166,8 @@ public class DatarouterTracer implements Tracer{
 
 	@Override
 	public void startSpan(String name, TraceSpanGroupType groupType){
-		if(currentThread == null){
+		Trace2ThreadDto thread = currentThread;
+		if(thread == null){
 			return;
 		}
 		Integer parentSequence = null;
@@ -176,8 +177,8 @@ public class DatarouterTracer implements Tracer{
 			parentSequence = parent.getSequence();
 		}
 		Trace2SpanDto span = new Trace2SpanDto(
-				currentThread.getTraceparent(),
-				currentThread.getThreadId(),
+				thread.getTraceparent(),
+				thread.getThreadId(),
 				nextSpanSequence,
 				parentSequence,
 				name,
@@ -220,11 +221,12 @@ public class DatarouterTracer implements Tracer{
 
 	@Override
 	public void addSpan(Trace2SpanDto span){
-		if(currentThread == null){
+		Trace2ThreadDto thread = currentThread;
+		if(thread == null){
 			return;
 		}
 		if(!getSpanQueue().offer(span)){
-			currentThread.setDiscardedSpanCount(++discardedSpanCount);
+			thread.setDiscardedSpanCount(++discardedSpanCount);
 			logger.debug("cannot add span, max capacity traceId={}, discarded span count={}", w3TraceContext
 					.getTraceparent(), discardedSpanCount);
 		}

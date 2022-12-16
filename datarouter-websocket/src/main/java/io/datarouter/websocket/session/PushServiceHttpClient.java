@@ -20,9 +20,9 @@ import java.time.Duration;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.gson.GsonJsonSerializer;
 import io.datarouter.httpclient.client.BaseDatarouterHttpClientWrapper;
 import io.datarouter.httpclient.client.DatarouterHttpClientBuilder;
-import io.datarouter.httpclient.json.GsonJsonSerializer;
 import io.datarouter.httpclient.security.DefaultCsrfGenerator;
 import io.datarouter.httpclient.security.DefaultSignatureGenerator;
 

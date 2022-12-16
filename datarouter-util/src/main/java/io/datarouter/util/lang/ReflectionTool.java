@@ -27,7 +27,6 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -167,27 +166,9 @@ public class ReflectionTool{
 		return null;
 	}
 
-	private static class FieldInClass{
-		private final Class<?> cls;
-		private final String fieldName;
-
-		public FieldInClass(Class<?> cls, String fieldName){
-			this.cls = cls;
-			this.fieldName = fieldName;
-		}
-
-		@Override
-		public int hashCode(){
-			return Objects.hash(cls, fieldName);
-		}
-
-		@Override
-		public boolean equals(Object obj){
-			if(obj instanceof FieldInClass other){
-				return other.fieldName.equals(fieldName) && other.cls.equals(cls);
-			}
-			return false;
-		}
+	private record FieldInClass(
+			Class<?> cls,
+			String fieldName){
 	}
 
 	private static final Map<FieldInClass,Field> cachedDeclaredFields = new ConcurrentHashMap<>();

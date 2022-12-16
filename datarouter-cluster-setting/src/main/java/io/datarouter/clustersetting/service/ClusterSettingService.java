@@ -38,8 +38,10 @@ import io.datarouter.clustersetting.web.dto.ClusterSettingAndValidityJspDto;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.properties.DatarouterEnvironmentTypeSupplier;
 import io.datarouter.storage.config.properties.DatarouterServerTypeSupplier;
+import io.datarouter.storage.config.properties.EnvironmentCategoryName;
 import io.datarouter.storage.config.properties.EnvironmentName;
 import io.datarouter.storage.config.properties.ServerName;
+import io.datarouter.storage.config.properties.ServiceName;
 import io.datarouter.storage.servertype.ServerType;
 import io.datarouter.storage.servertype.ServerTypes;
 import io.datarouter.storage.setting.DatarouterSettingTag;
@@ -79,7 +81,11 @@ public class ClusterSettingService{
 	@Inject
 	private ServerName serverName;
 	@Inject
+	private ServiceName serviceName;
+	@Inject
 	private EnvironmentName environmentName;
+	@Inject
+	private EnvironmentCategoryName environmentCategoryName;
 	@Inject
 	private DatarouterServerTypeSupplier serverTypeSupplier;
 	@Inject
@@ -100,8 +106,10 @@ public class ClusterSettingService{
 		List<DatarouterSettingTag> settingTags = cachedClusterSettingTags.get();
 		return defaultSettingValue.getValue(
 				environmentType,
+				environmentCategoryName.get(),
 				environmentName.get(),
 				serverType,
+				serviceName.get(),
 				serverName.get(),
 				settingTags);
 	}
@@ -224,8 +232,10 @@ public class ClusterSettingService{
 			DefaultSettingValue<?> defaultSettingValue = memorySetting.getDefaultSettingValue();
 			Object defaultValue = defaultSettingValue.getValue(
 					environmentTypeSupplier.getDatarouterEnvironmentType(),
+					environmentCategoryName.get(),
 					environmentName.get(),
 					serverTypeSupplier.get(),
+					serviceName.get(),
 					serverName.get(),
 					cachedClusterSettingTags.get());
 			Object databeanSettingValue = databeanSetting.getTypedValue(memorySetting);

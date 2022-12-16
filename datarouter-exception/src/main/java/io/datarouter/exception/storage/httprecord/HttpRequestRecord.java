@@ -22,13 +22,13 @@ import java.util.function.Supplier;
 import javax.servlet.http.HttpServletRequest;
 
 import io.datarouter.exception.storage.exceptionrecord.ExceptionRecordKey;
-import io.datarouter.gson.serialization.GsonTool;
+import io.datarouter.gson.GsonTool;
 import io.datarouter.instrumentation.exception.HttpRequestRecordDto;
 import io.datarouter.instrumentation.trace.W3TraceContext;
-import io.datarouter.util.Ulid;
+import io.datarouter.types.Ulid;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.handler.BaseHandler;
-import io.datarouter.web.monitoring.exception.ExceptionDto;
+import io.datarouter.web.monitoring.exception.ExceptionAndHttpRequestDto;
 import io.datarouter.web.util.RequestAttributeTool;
 import io.datarouter.web.util.http.RecordedHttpHeaders;
 import io.datarouter.web.util.http.RequestTool;
@@ -55,7 +55,7 @@ public class HttpRequestRecord extends BaseHttpRequestRecord<HttpRequestRecordKe
 				traceContext.map(W3TraceContext::getTraceId).orElse(null),
 				traceContext.map(W3TraceContext::getParentId).orElse(null),
 				request.getMethod(),
-				GsonTool.GSON.toJson(request.getParameterMap()),
+				GsonTool.withUnregisteredEnums().toJson(request.getParameterMap()),
 				request.getScheme(),
 				request.getServerName(),
 				request.getServerPort(),
@@ -101,7 +101,7 @@ public class HttpRequestRecord extends BaseHttpRequestRecord<HttpRequestRecordKe
 				sessionRoles, userToken, headersWrapper);
 	}
 
-	public HttpRequestRecord(ExceptionDto exceptionDto, String exceptionRecordId){
+	public HttpRequestRecord(ExceptionAndHttpRequestDto exceptionDto, String exceptionRecordId){
 		super(new HttpRequestRecordKey(new Ulid()), exceptionDto, exceptionRecordId);
 	}
 

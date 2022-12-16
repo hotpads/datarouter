@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
-import io.datarouter.bytes.ByteUnitType;
+import io.datarouter.bytes.ByteLength;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.Count.Counts;
 import io.datarouter.util.number.NumberFormatter;
@@ -42,7 +42,7 @@ public class FilesystemScanTester{
 			// https://www.linux.com/news/discover-possibilities-proc-directory/
 			Path.of("/proc"));
 
-	private static final long FAKE_FILE_SIZE_THRESHOLD = ByteUnitType.TiB.toBytes(10);
+	private static final long FAKE_FILE_SIZE_THRESHOLD = ByteLength.ofTiB(10).toBytes();
 	private static final int LOG_EVERY_N = 10_000;
 	private static final int DISPLAY_MAX_N_SIZES = 20;
 

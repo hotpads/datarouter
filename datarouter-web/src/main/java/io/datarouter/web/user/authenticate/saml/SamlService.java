@@ -205,6 +205,7 @@ public class SamlService{
 
 	private Session createAndSetSession(HttpServletRequest request, HttpServletResponse response, Assertion assertion){
 		String username = assertion.getSubject().getNameID().getValue();
+		logger.warn("login in user from okta username={}", username);
 		Set<Role> roles = determineRoles(assertion, username, samlSettings.getAttributeToRoleGroupIdMap());
 		Session session = userSessionService.signInUserWithCreateIfNecessary(request, username, roles, "SAML User");
 		userSessionService.setSessionCookies(response, session);

@@ -20,7 +20,6 @@ import java.net.URL;
 import java.util.Set;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.inject.Singleton;
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
@@ -29,7 +28,6 @@ import io.datarouter.httpclient.security.UrlConstants;
 import io.datarouter.httpclient.security.UrlScheme;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.port.CompoundPortIdentifier;
-import io.datarouter.web.port.PortIdentifier;
 import io.datarouter.web.util.http.RequestTool;
 
 @Singleton
@@ -39,12 +37,8 @@ public class UrlSchemeRedirector{
 			UrlConstants.PORT_HTTP_STANDARD,
 			UrlConstants.PORT_HTTPS_STANDARD);
 
-	private final PortIdentifier portIdentifier;
-
 	@Inject
-	public UrlSchemeRedirector(@Named(CompoundPortIdentifier.COMPOUND_PORT_IDENTIFIER) PortIdentifier portIdentifier){
-		this.portIdentifier = portIdentifier;
-	}
+	private CompoundPortIdentifier portIdentifier;
 
 	public UrlScheme fromRequest(ServletRequest req){
 		String scheme = req.getScheme();
@@ -90,7 +84,8 @@ public class UrlSchemeRedirector{
 		boolean standard = STANDARD_PORTS.contains(originalPort);
 		if(UrlScheme.HTTP == requiredScheme){
 			return standard ? "" : ":" + portIdentifier.getHttpPort();
-		}else if(UrlScheme.HTTPS == requiredScheme){
+		}
+		if(UrlScheme.HTTPS == requiredScheme){
 			return standard ? "" : ":" + portIdentifier.getHttpsPort();
 		}
 		throw new IllegalArgumentException("UrlScheme.HTTPS filter is confused.  Terminating request.");

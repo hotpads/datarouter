@@ -41,10 +41,22 @@ public abstract class BaseWebApi<R,T extends WebApiType>{
 	public final PathNode pathNode;
 	@IgnoredField
 	public final Class<? extends CallerType> callerType;
+	@IgnoredField
+	public final EndpointAccessType endpointAccessType;
 
 	// initialized by the client
 	@IgnoredField
 	public String urlPrefix;
+
+	public BaseWebApi(HttpRequestMethod method, PathNode pathNode, Class<? extends CallerType> callerType,
+			EndpointAccessType endpointAccessType){
+		this.method = method;
+		this.pathNode = pathNode;
+		this.callerType = callerType;
+
+		this.urlPrefix = null;
+		this.endpointAccessType = endpointAccessType;
+	}
 
 	public BaseWebApi(HttpRequestMethod method, PathNode pathNode, Class<? extends CallerType> callerType){
 		this.method = method;
@@ -52,6 +64,11 @@ public abstract class BaseWebApi<R,T extends WebApiType>{
 		this.callerType = callerType;
 
 		this.urlPrefix = null;
+		this.endpointAccessType = EndpointAccessType.SKIP;
+	}
+
+	public BaseWebApi(HttpRequestMethod method, PathNode pathNode, EndpointAccessType endpointAccessType){
+		this(method, pathNode, CallerTypeInternalFrontEnd.class, endpointAccessType);
 	}
 
 	public BaseWebApi(HttpRequestMethod method, PathNode pathNode){
@@ -60,6 +77,7 @@ public abstract class BaseWebApi<R,T extends WebApiType>{
 		this.callerType = CallerTypeInternalFrontEnd.class;
 
 		this.urlPrefix = null;
+		this.endpointAccessType = EndpointAccessType.SKIP;
 	}
 
 	public final BaseWebApi<R,T> setUrlPrefix(URI urlPrefix){

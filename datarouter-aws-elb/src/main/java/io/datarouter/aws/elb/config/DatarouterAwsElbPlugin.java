@@ -15,15 +15,15 @@
  */
 package io.datarouter.aws.elb.config;
 
-import io.datarouter.job.BaseTriggerGroup;
+import io.datarouter.aws.elb.service.AwsElbStatusDailyDigest;
 import io.datarouter.web.config.BaseWebPlugin;
 
 public class DatarouterAwsElbPlugin extends BaseWebPlugin{
 
 	public DatarouterAwsElbPlugin(){
-		addPluginEntry(BaseTriggerGroup.KEY, DatarouterAwsElbTriggerGroup.class);
 		addSettingRoot(DatarouterAwsElbSettingRoot.class);
 		addDatarouterGithubDocLink("datarouter-aws-elb");
+		addDailyDigest(AwsElbStatusDailyDigest.class);
 	}
 
 }

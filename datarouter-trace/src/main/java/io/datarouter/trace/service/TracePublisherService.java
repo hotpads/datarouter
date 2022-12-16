@@ -29,7 +29,7 @@ import io.datarouter.trace.dto.TraceBinaryDto;
 import io.datarouter.trace.settings.DatarouterTracePublisherSettingRoot;
 import io.datarouter.trace.storage.trace.TraceDirectoryDao;
 import io.datarouter.trace.storage.trace.TraceQueueDao;
-import io.datarouter.util.Ulid;
+import io.datarouter.types.Ulid;
 
 @Singleton
 public class TracePublisherService implements TracePublisher{

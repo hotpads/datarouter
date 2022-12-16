@@ -191,6 +191,34 @@ public class Trace2Thread extends BaseDatabean<Trace2ThreadKey,Trace2Thread>{
 		return queuedEnded - created;
 	}
 
+	public Long getCreated(){
+		return created;
+	}
+
+	public Long getQueuedEnded(){
+		return queuedEnded;
+	}
+
+	public Long getEnded(){
+		return ended;
+	}
+
+	public Long getCpuTimeCreatedNs(){
+		return cpuTimeCreatedNs;
+	}
+
+	public Long getCpuTimeEndedNs(){
+		return cpuTimeEndedNs;
+	}
+
+	public Long getMemoryAllocatedBytesBegin(){
+		return memoryAllocatedBytesBegin;
+	}
+
+	public Long getMemoryAllocatedBytesEnded(){
+		return memoryAllocatedBytesEnded;
+	}
+
 	@Override
 	public String toString(){
 		return super.toString() + "[" + name + "]";

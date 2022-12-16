@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-import io.datarouter.bytes.ByteTool;
 import io.datarouter.bytes.InputStreamTool;
 import io.datarouter.client.redis.client.DatarouterRedisClient;
 import io.datarouter.client.redis.client.RedisKeyValue;
@@ -141,12 +140,6 @@ implements PhysicalBlobStorageNode{
 						() -> lazyClient.get().set(
 								kv,
 								RedisRequestConfig.forWrite(getName(), config)));
-	}
-
-	@Override
-	public void write(PathbeanKey key, Scanner<byte[]> chunks, Config config){
-		byte[] value = chunks.listTo(ByteTool::concat);
-		write(key, value, config);
 	}
 
 	@Override

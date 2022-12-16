@@ -50,8 +50,8 @@ public class SpannerClientOptions{
 	protected static final String PROP_databaseName = "databaseName";
 	protected static final String PROP_credentialsFileLocation = "credentialsFileLocation";
 	protected static final String PROP_credentialsSecretLocation = "credentialsSecretLocation";
-	protected static final String PROP_maxSessions = "maxSessions";
-	protected static final String PROP_numChannels = "numChannels";
+	public static final String PROP_maxSessions = "maxSessions";
+	public static final String PROP_numChannels = "numChannels";
 
 	private static final int DEFAULT_MAX_SESSIONS = 400;
 	private static final int DEFAULT_NUM_CHANNELS = 4;
@@ -104,7 +104,7 @@ public class SpannerClientOptions{
 		}
 	}
 
-	protected static String makeSpannerKey(String propertyKey){
+	public static String makeSpannerKey(String propertyKey){
 		return PREFIX_SPANNER + propertyKey;
 	}
 

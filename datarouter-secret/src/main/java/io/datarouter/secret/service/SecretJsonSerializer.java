@@ -19,7 +19,7 @@ import java.lang.reflect.Type;
 
 import javax.inject.Singleton;
 
-import io.datarouter.gson.serialization.GsonTool;
+import io.datarouter.gson.GsonTool;
 
 public interface SecretJsonSerializer{
 
@@ -31,12 +31,12 @@ public interface SecretJsonSerializer{
 
 		@Override
 		public <T> String serialize(T toSerialize){
-			return GsonTool.GSON.toJson(toSerialize);
+			return GsonTool.withUnregisteredEnums().toJson(toSerialize);
 		}
 
 		@Override
 		public <T> T deserialize(String toDeserialize, Type classOfT){
-			return GsonTool.GSON.fromJson(toDeserialize, classOfT);
+			return GsonTool.withUnregisteredEnums().fromJson(toDeserialize, classOfT);
 		}
 
 	}

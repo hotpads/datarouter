@@ -15,6 +15,8 @@
  */
 package io.datarouter.util.concurrent;
 
+import java.lang.StackWalker.Option;
+import java.lang.StackWalker.StackFrame;
 import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
@@ -30,7 +32,6 @@ import java.util.concurrent.TimeoutException;
 import io.datarouter.instrumentation.count.Counters;
 import io.datarouter.instrumentation.trace.TraceSpanFinisher;
 import io.datarouter.instrumentation.trace.TracerTool;
-import io.datarouter.util.lang.LineOfCode;
 import io.datarouter.util.tracer.TracedCheckedCallable;
 
 public class DatarouterExecutorService extends ThreadPoolExecutor{
@@ -110,6 +111,8 @@ public class DatarouterExecutorService extends ThreadPoolExecutor{
 
 	private static class TracedCheckedRunnable extends TracedCheckedCallable<Void> implements Runnable{
 
+		static final StackWalker WALKER = StackWalker.getInstance(Option.RETAIN_CLASS_REFERENCE);
+
 		final Runnable runnable;
 
 		TracedCheckedRunnable(Runnable runnable){
@@ -133,8 +136,11 @@ public class DatarouterExecutorService extends ThreadPoolExecutor{
 		}
 
 		static String findCaller(){
-			LineOfCode loc = new LineOfCode(5);
-			return loc.getClassName() + " " + loc.getMethodName();
+			StackFrame frame = WALKER.walk(frames -> frames
+					.skip(5)
+					.findFirst())
+					.get();
+			return frame.getDeclaringClass().getSimpleName() + " " + frame.getMethodName();
 		}
 	}
 

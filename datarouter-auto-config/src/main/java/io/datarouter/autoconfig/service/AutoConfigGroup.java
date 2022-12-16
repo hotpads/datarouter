@@ -43,9 +43,16 @@ public interface AutoConfigGroup extends Callable<String>, PluginConfigValue<Aut
 		sb.append(MARKER).append(NEW_LINE);
 		sb.append(getName()).append(NEW_LINE);
 		try{
-			configure().forEach(action -> sb.append(" - ").append(action).append(NEW_LINE));
+			configure().forEach(action -> {
+				try{
+					sb.append(" - ").append(action).append(NEW_LINE);
+				}catch(Exception e){
+					throw new RuntimeException("Exception while performing action: " + action);
+				}
+			});
 		}catch(Exception e){
-			sb.append(" - Error: ").append(e.getMessage());
+			logger.error("Exception while performing autoconfig", e);
+			sb.append(" - Exception: ").append(e.toString());
 		}
 		sb.append(NEW_LINE);
 		logger.warn(sb.toString());

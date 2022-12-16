@@ -18,7 +18,6 @@ package io.datarouter.conveyor.queue.configuration;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
-import java.util.function.Supplier;
 
 import javax.inject.Inject;
 
@@ -43,9 +42,6 @@ public abstract class BaseGroupQueueConsumerConveyorConfiguration<
 implements ConveyorConfiguration{
 	private static final Logger logger = LoggerFactory.getLogger(BaseGroupQueueConsumerConveyorConfiguration.class);
 
-	private static final Duration PEEK_TIMEOUT = Duration.ofSeconds(30);
-	private static final Duration VISIBILITY_TIMEOUT = Duration.ofSeconds(30);
-
 	@Inject
 	private ConveyorGauges gaugeRecorder;
 	@Inject
@@ -57,7 +53,7 @@ implements ConveyorConfiguration{
 	@Override
 	public ProcessResult process(ConveyorRunnable conveyor){
 		Instant beforePeek = Instant.now();
-		GroupQueueMessage<PK,D> message = getQueueConsumer().peek(PEEK_TIMEOUT, VISIBILITY_TIMEOUT);
+		GroupQueueMessage<PK,D> message = getQueueConsumer().peek(DEFAULT_PEEK_TIMEOUT, DEFAULT_VISIBILITY_TIMEOUT);
 		Instant afterPeek = Instant.now();
 		gaugeRecorder.savePeekDurationMs(conveyor, Duration.between(beforePeek, afterPeek).toMillis());
 		if(message == null){
@@ -78,7 +74,8 @@ implements ConveyorConfiguration{
 		Instant afterProcessBuffer = Instant.now();
 		gaugeRecorder.saveProcessBufferDurationMs(conveyor, Duration.between(beforeProcessBuffer, afterProcessBuffer)
 				.toMillis());
-		if(Duration.between(beforeProcessBuffer, afterProcessBuffer).toMillis() > VISIBILITY_TIMEOUT.toMillis()){
+		if(Duration.between(beforeProcessBuffer, afterProcessBuffer).toMillis() > DEFAULT_VISIBILITY_TIMEOUT
+				.toMillis()){
 			logger.warn("slow conveyor conveyor={} durationMs={} databeanCount={}", conveyor.getName(), Duration
 					.between(beforeProcessBuffer, afterProcessBuffer).toMillis(), databeans.size());
 		}
@@ -92,11 +89,6 @@ implements ConveyorConfiguration{
 		logger.info("acked conveyor={} messageCount={}", conveyor.getName(), databeans.size());
 		ConveyorCounters.incAck(conveyor);
 		return new ProcessResult(true);
-	}
-
-	@Override
-	public Supplier<Boolean> compactExceptionLogging(){
-		return () -> false;
 	}
 
 	protected boolean shouldAck(){

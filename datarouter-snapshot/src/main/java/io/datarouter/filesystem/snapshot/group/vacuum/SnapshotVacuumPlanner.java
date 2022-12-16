@@ -22,7 +22,7 @@ import java.util.List;
 import io.datarouter.filesystem.snapshot.key.SnapshotKey;
 import io.datarouter.filesystem.snapshot.key.SnapshotKeyDecoder;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.util.Ulid;
+import io.datarouter.types.Ulid;
 
 public class SnapshotVacuumPlanner{
 

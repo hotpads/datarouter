@@ -301,6 +301,7 @@
 										<tr>
 											<th>Environment Type</th>
 											<th>Environment Name</th>
+											<th>Environment Category</th>
 											<th>Server Type</th>
 											<th>Server Name</th>
 											<th>Value</th>
@@ -316,6 +317,7 @@
 											<tr ${rowStyle}>
 												<td class="setting-default">${def.globalOrEnvironmentType}</td>
 												<td class="setting-environment">${def.environmentName}</td>
+												<td class="setting-environment-category">${def.environmentCategoryName}</td>
 												<td class="setting-type">${def.serverType}</td>
 												<td class="setting-serverName">${def.serverName}</td>
 												<td class="setting-value">${def.value}</td>

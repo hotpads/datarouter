@@ -314,6 +314,7 @@ class ViewUser extends React.Component {
       username: props.defaultUsername,
       id: null,
       token: null,
+      profileLink: null,
       requests: [],
       deprovisionedUserDto: {},
       availableRoles: [],
@@ -343,6 +344,7 @@ class ViewUser extends React.Component {
           username: userDetails.username,
           id: userDetails.id,
           token: userDetails.token,
+          profileLink: userDetails.profileLink,
           requests: userDetails.requests,
           deprovisionedUserDto: userDetails.deprovisionedUserDto,
           availableRoles: userDetails.availableRoles,
@@ -440,6 +442,7 @@ class ViewUser extends React.Component {
             username={this.state.username}
             id={this.state.id}
             token={this.state.token}
+            profileLink={this.state.profileLink}
             deprovisioned={deprovisioned}
             hasOpenPermissionRequest={
               this.state.requests.length > 0 &&
@@ -561,6 +564,7 @@ const UserInformation = ({
   username,
   id,
   token,
+  profileLink,
 }) => {
   const deprovisionedBadge = deprovisioned ? ["Deprovisioned"] : [];
   const permissionRequestBadge = hasOpenPermissionRequest
@@ -598,9 +602,16 @@ const UserInformation = ({
             <h2>{fullName}</h2>
           </td>
         </tr>
+         <tr>
+            <td className="px-1">
+              <b>Username</b>
+            </td>
+            <td className="px-1">
+              {username} [<a href={profileLink}>Profile</a>]
+            </td>
+          </tr>
         {[
           ...details,
-          { name: "Username", value: username },
           { name: "ID", value: id },
           { name: "Token", value: token },
         ].map(({ name, value, link }) => (

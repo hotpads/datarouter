@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Optional;
 
 import io.datarouter.filesystem.raw.DirectoryManager;
-import io.datarouter.scanner.ObjectScanner;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.file.Pathbean;
 import io.datarouter.storage.file.PathbeanKey;
@@ -57,12 +56,12 @@ public class DirectoryBlobStorage{
 		return directoryManager.read(key.getPathAndFile(), offset, length);
 	}
 
-	public void write(PathbeanKey key, byte[] bytes){
-		write(key, ObjectScanner.of(bytes));
+	public InputStream readInputStream(PathbeanKey key){
+		return directoryManager.readInputStream(key.getPathAndFile());
 	}
 
-	public void write(PathbeanKey key, Scanner<byte[]> chunks){
-		directoryManager.write(key.getPathAndFile(), chunks);
+	public void write(PathbeanKey key, byte[] bytes){
+		directoryManager.write(key.getPathAndFile(), bytes);
 	}
 
 	public void write(PathbeanKey key, InputStream inputStream){

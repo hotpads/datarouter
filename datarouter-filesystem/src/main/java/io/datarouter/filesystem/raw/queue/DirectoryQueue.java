@@ -24,10 +24,11 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
+import io.datarouter.bytes.codec.stringcodec.StringCodec;
 import io.datarouter.filesystem.raw.DirectoryManager;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.util.Subpath;
-import io.datarouter.util.Ulid;
+import io.datarouter.types.Ulid;
 
 public class DirectoryQueue{
 
@@ -49,7 +50,8 @@ public class DirectoryQueue{
 
 	public String putMessage(String message){
 		String id = new Ulid().value();
-		directoryManager.writeUtf8(idToFilename(id), message);
+		byte[] messageBytes = StringCodec.UTF_8.encode(message);
+		directoryManager.write(idToFilename(id), messageBytes);
 		return id;
 	}
 

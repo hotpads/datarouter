@@ -78,6 +78,11 @@ public final class FileTool{
 		file.delete();
 	}
 
+	public static void deleteDirectory(File directory){
+		deleteDirectoryContent(directory);
+		directory.delete();
+	}
+
 	public static void deleteDirectoryContent(File directory){
 		if(!directory.isDirectory()){
 			throw new IllegalArgumentException(directory + " is not a directory");

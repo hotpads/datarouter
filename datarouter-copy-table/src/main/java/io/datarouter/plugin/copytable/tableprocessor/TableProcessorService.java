@@ -120,24 +120,11 @@ public class TableProcessorService{
 				throwable);
 	}
 
-	public static class TableProcessorSpanResult{
-
-		public final boolean success;
-		public final Throwable exception;
-		public final long numScanned;
-		public final String resumeFromKeyString;
-
-		public TableProcessorSpanResult(
-				boolean success,
-				Throwable exception,
-				long numScanned,
-				String resumeFromKeyString){
-			this.success = success;
-			this.exception = exception;
-			this.numScanned = numScanned;
-			this.resumeFromKeyString = resumeFromKeyString;
-		}
-
+	public record TableProcessorSpanResult(
+			boolean success,
+			Throwable exception,
+			long numScanned,
+			String resumeFromKeyString){
 	}
 
 }

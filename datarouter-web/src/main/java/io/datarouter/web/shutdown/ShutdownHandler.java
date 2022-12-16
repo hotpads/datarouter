@@ -41,9 +41,7 @@ public class ShutdownHandler extends BaseHandler{
 			return null;
 		}
 		if(secret.equals(settingRoot.shutdownSecret.get())){
-			int newSatusCode = shutdownService.advance();
-			logger.warn("advanced to next shutdown stage newSatusCode={}", newSatusCode);
-			return newSatusCode;
+			return shutdownService.advance();
 		}
 		logger.error("invalid secret={}", secret);
 		return null;

@@ -37,7 +37,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.gson.serialization.GsonTool;
+import io.datarouter.gson.GsonTool;
 import io.datarouter.httpclient.circuitbreaker.DatarouterHttpClientIoExceptionCircuitBreaker;
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.instrumentation.count.Counters;
@@ -59,9 +59,10 @@ import io.datarouter.storage.config.properties.ServiceName;
 import io.datarouter.trace.conveyor.TraceBuffers;
 import io.datarouter.trace.service.TraceUrlBuilder;
 import io.datarouter.trace.settings.DatarouterTraceFilterSettingRoot;
+import io.datarouter.types.Ulid;
 import io.datarouter.util.MxBeans;
-import io.datarouter.util.Ulid;
 import io.datarouter.util.array.ArrayTool;
+import io.datarouter.util.number.RandomTool;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.util.tracer.DatarouterTracer;
 import io.datarouter.web.dispatcher.Dispatcher;
@@ -104,6 +105,7 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 			HttpServletResponse response = (HttpServletResponse)res;
 
 			// get or create TraceContext
+			boolean shouldBeRandomlySampled = false;
 			Long traceCreated = Trace2Dto.getCurrentTimeInNs();
 			String traceparentStr = request.getHeader(DatarouterHttpClientIoExceptionCircuitBreaker.TRACEPARENT);
 			String tracestateStr = request.getHeader(DatarouterHttpClientIoExceptionCircuitBreaker.TRACESTATE);
@@ -113,8 +115,13 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 			RequestAttributeTool.set(
 					request,
 					BaseHandler.TRACE_URL_REQUEST_ATTRIBUTE,
-					urlBuilder.buildTraceForCurrentServer(traceContext.getTraceId(), traceContext.getParentId()));
+					urlBuilder.buildTraceForCurrentServer(traceContext.getTraceparent().toString()));
 			RequestAttributeTool.set(request, BaseHandler.TRACE_CONTEXT, traceContext.copy());
+			if(RandomTool.getRandomIntBetweenTwoNumbers(1,
+					traceSettings.randomSamplingMax.get()) <= traceSettings.randomSamplingThreshold.get()){
+				shouldBeRandomlySampled = true;
+				traceContext.getTraceparent().enableSample();
+			}
 
 			// need to set the header before doFilter
 			// traceflag might be incorrect because it might have been modified during request processing
@@ -210,6 +217,9 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 					}
 					if(totalCpuTimeMs > traceSettings.saveTracesCpuOverMs.get()){
 						saveReasons.add(TraceSaveReasonType.CPU);
+					}
+					if(shouldBeRandomlySampled){
+						saveReasons.add(TraceSaveReasonType.RANDOM_SAMPLING);
 					}
 					saveReasons.forEach(reason -> Counters.inc(traceCounterPrefix + reason.type));
 				}
@@ -386,7 +396,7 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 								.limit(10)
 								.map(str -> StringTool.trimToSize(str, 100))
 								.list());
-		return GsonTool.GSON.toJson(trimmed);
+		return GsonTool.withUnregisteredEnums().toJson(trimmed);
 	}
 
 	private Optional<String> offerTrace2(Trace2BundleDto traceBundle, HttpRequestRecordDto httpRequestRecord){

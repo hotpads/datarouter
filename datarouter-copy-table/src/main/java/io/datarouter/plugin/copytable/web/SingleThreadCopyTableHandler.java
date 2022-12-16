@@ -173,7 +173,7 @@ public class SingleThreadCopyTableHandler extends BaseHandler{
 				.withPlaceholder("you@email.com")
 				.withValue(toEmail.orElse(null));
 		form.addButton()
-				.withDisplay("Copy")
+				.withDisplay("Execute")
 				.withValue("anything");
 
 		if(submitAction.isEmpty() || form.hasErrors()){
@@ -207,16 +207,16 @@ public class SingleThreadCopyTableHandler extends BaseHandler{
 				1,
 				1,
 				skipInvalidDatabeans.orElse(DEFAULT_SKIP_INVALID_DATABEANS));
-		if(!result.success){
+		if(!result.success()){
 			String message = String.format("The migration was interrupted unexpectedly with %s."
 					+ "  Please resume the migration with lastKey %s",
-					result.exception.getMessage(),
-					result.resumeFromKeyString);
+					result.exception().getMessage(),
+					result.resumeFromKeyString());
 			return pageFactory.message(request, message);
 		}
 		var header = standardDatarouterEmailHeaderService.makeStandardHeader();
 		String message = String.format("Successfully migrated %s records from %s to %s",
-				NumberFormatter.addCommas(result.numCopied),
+				NumberFormatter.addCommas(result.numCopied()),
 				sourceNodeName.get(),
 				targetNodeName.get());
 		var body = body(header, p(message));

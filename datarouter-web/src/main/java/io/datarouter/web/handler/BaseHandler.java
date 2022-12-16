@@ -51,7 +51,6 @@ import io.datarouter.httpclient.endpoint.caller.CallerType;
 import io.datarouter.httpclient.endpoint.caller.CallerTypeUnknown;
 import io.datarouter.httpclient.endpoint.java.BaseEndpoint;
 import io.datarouter.httpclient.endpoint.java.EndpointTool;
-import io.datarouter.httpclient.endpoint.web.JsClientType;
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.instrumentation.exception.ExceptionRecordDto;
 import io.datarouter.instrumentation.trace.W3TraceContext;
@@ -105,9 +104,13 @@ public abstract class BaseHandler{
 	private static final String DEFAULT_HANDLER_METHOD_NAME = "noHandlerFound";
 	private static final Method DEFAULT_HANDLER_METHOD = ReflectionTool.getDeclaredMethodIncludingAncestors(
 			BaseHandler.class, DEFAULT_HANDLER_METHOD_NAME, String.class);
+
 	private static final String MISSING_PARAMETERS_HANDLER_METHOD_NAME = "handleMissingParameters";
 	private static final Method MISSING_PARAMETERS_HANDLER_METHOD = ReflectionTool.getDeclaredMethodIncludingAncestors(
-			BaseHandler.class, MISSING_PARAMETERS_HANDLER_METHOD_NAME, List.class, String.class);
+			BaseHandler.class,
+			MISSING_PARAMETERS_HANDLER_METHOD_NAME,
+			List.class,
+			String.class);
 
 	@Inject
 	private HandlerTypingHelper handlerTypingHelper;
@@ -182,12 +185,6 @@ public abstract class BaseHandler{
 		 * @return the intended caller for the handler method
 		 */
 		Class<? extends CallerType> callerType() default CallerTypeUnknown.class;
-
-		/**
-		 * @deprecated this annotation isn't used anymore
-		 */
-		Class<? extends JsClientType>[] clientType() default {};
-
 	}
 
 	private Optional<RequestParamValidatorErrorResponseDto> validateRequestParamValidators(
@@ -209,7 +206,7 @@ public abstract class BaseHandler{
 					.map(Param::validator)
 					.exclude(DefaultRequestParamValidator.class::equals)
 					.map(validate(parameterName, parameterValue))
-					.exclude(responseDto -> responseDto.success)
+					.exclude(RequestParamValidatorResponseDto::success)
 					.map(RequestParamValidatorErrorResponseDto::fromRequestParamValidatorResponseDto)
 					.findFirst();
 			if(errorResponseDto.isPresent()){
@@ -226,7 +223,7 @@ public abstract class BaseHandler{
 				.map(EndpointValidator::validator)
 				.filter(Objects::nonNull)
 				.map(validate("endpoint", args[0]))
-				.filter(responseDto -> !responseDto.success)
+				.filter(responseDto -> !responseDto.success())
 				.map(RequestParamValidatorErrorResponseDto::fromRequestParamValidatorResponseDto);
 	}
 
@@ -237,7 +234,7 @@ public abstract class BaseHandler{
 				.map(WebApiValidator::validator)
 				.filter(Objects::nonNull)
 				.map(validate("endpoint", args[0]))
-				.filter(responseDto -> !responseDto.success)
+				.filter(responseDto -> !responseDto.success())
 				.map(RequestParamValidatorErrorResponseDto::fromRequestParamValidatorResponseDto);
 	}
 
@@ -329,7 +326,12 @@ public abstract class BaseHandler{
 		if(method == null){
 			if(!possibleMethods.isEmpty() || defaultHandlerMethod.isPresent()){
 				Method desiredMethod = possibleMethods.isEmpty() ? defaultHandlerMethod.get() : possibleMethods.get(0);
-				List<String> missingParameters = getMissingParameterNames(desiredMethod);
+				List<String> missingParameters;
+				if(EndpointTool.paramIsEndpointObject(desiredMethod)){
+					missingParameters = getMissingParameterNamesIfEndpoint(desiredMethod);
+				}else{
+					missingParameters = getMissingParameterNames(desiredMethod);
+				}
 				args = new Object[]{missingParameters, desiredMethod.getName()};
 				method = MISSING_PARAMETERS_HANDLER_METHOD;
 			}else{
@@ -477,6 +479,17 @@ public abstract class BaseHandler{
 		return Scanner.of(method.getParameters())
 				.exclude(parameter -> OptionalParameter.class.isAssignableFrom(parameter.getType()))
 				.map(Parameter::getName)
+				.exclude(param -> params.toMap().containsKey(param))
+				.list();
+	}
+
+	private List<String> getMissingParameterNamesIfEndpoint(Method method){
+		Class<?> endpointType = method.getParameters()[0].getType();
+		@SuppressWarnings("unchecked")
+		BaseEndpoint<?,?> baseEndpoint = ReflectionTool.createWithoutNoArgs(
+				(Class<? extends BaseEndpoint<?,?>>)endpointType);
+
+		return Scanner.of(EndpointTool.getRequiredKeys(baseEndpoint).getAllKeys())
 				.exclude(param -> params.toMap().containsKey(param))
 				.list();
 	}

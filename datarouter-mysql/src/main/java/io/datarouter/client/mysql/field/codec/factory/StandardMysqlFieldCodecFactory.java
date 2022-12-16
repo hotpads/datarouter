@@ -75,10 +75,10 @@ public class StandardMysqlFieldCodecFactory implements MysqlFieldCodecFactory{
 		addCodec(StringField.class, new StringMysqlFieldCodec());
 
 		//encoded
-		addCodec(IntegerEncodedField.class, new IntegerEncodedMysqlFieldCodec());
-		addCodec(LongEncodedField.class, new LongEncodedMysqlFieldCodec());
-		addCodec(ByteArrayEncodedField.class, new ByteArrayEncodedMysqlFieldCodec());
-		addCodec(StringEncodedField.class, new StringEncodedMysqlFieldCodec());
+		addCodec(IntegerEncodedField.class, new IntegerEncodedMysqlFieldCodec<>());
+		addCodec(LongEncodedField.class, new LongEncodedMysqlFieldCodec<>());
+		addCodec(ByteArrayEncodedField.class, new ByteArrayEncodedMysqlFieldCodec<>());
+		addCodec(StringEncodedField.class, new StringEncodedMysqlFieldCodec<>());
 
 		//time
 		addCodec(DateField.class, new DateMysqlFieldCodec());

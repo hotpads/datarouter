@@ -80,7 +80,7 @@ public class RdsService{
 
 	public DBInstance getWriterInstance(String clusterName, String region){
 		Optional<String> writerInstance = Scanner.of(getCluster(clusterName, region).getDBClusterMembers())
-				.include(clusterMember -> clusterMember.isClusterWriter())
+				.include(DBClusterMember::isClusterWriter)
 				.map(DBClusterMember::getDBInstanceIdentifier)
 				.findFirst();
 		return getInstance(writerInstance.get(), region);
@@ -162,7 +162,7 @@ public class RdsService{
 
 	private AmazonRDS getAmazonRdsReadOnlyClient(String region){
 		RdsCredentialsDto credentialsDto = rdsSettings.rdsReadOnlyCredentials.get();
-		AWSCredentials credentials = new BasicAWSCredentials(credentialsDto.accessKey, credentialsDto.secretKey);
+		AWSCredentials credentials = new BasicAWSCredentials(credentialsDto.accessKey(), credentialsDto.secretKey());
 		return AmazonRDSClientBuilder.standard()
 				.withCredentials(new AWSStaticCredentialsProvider(credentials))
 				.withRegion(region)
@@ -171,7 +171,7 @@ public class RdsService{
 
 	private AmazonRDS getAmazonRdsAddTagsClient(String region){
 		RdsCredentialsDto credentialsDto = rdsSettings.rdsAddTagsCredentials.get();
-		AWSCredentials awsCredentials = new BasicAWSCredentials(credentialsDto.accessKey, credentialsDto.secretKey);
+		AWSCredentials awsCredentials = new BasicAWSCredentials(credentialsDto.accessKey(), credentialsDto.secretKey());
 		return AmazonRDSClientBuilder.standard()
 				.withCredentials(new AWSStaticCredentialsProvider(awsCredentials))
 				.withRegion(region)
@@ -181,7 +181,7 @@ public class RdsService{
 	//get RDS client for su_rdsdbothers IAM user
 	private AmazonRDS getAmazonRdsCreateOtherClient(String region){
 		RdsCredentialsDto credentialsDto = rdsSettings.rdsOtherCredentials.get();
-		AWSCredentials awsCredentials = new BasicAWSCredentials(credentialsDto.accessKey, credentialsDto.secretKey);
+		AWSCredentials awsCredentials = new BasicAWSCredentials(credentialsDto.accessKey(), credentialsDto.secretKey());
 		return AmazonRDSClientBuilder.standard()
 				.withCredentials(new AWSStaticCredentialsProvider(awsCredentials))
 				.withRegion(region)

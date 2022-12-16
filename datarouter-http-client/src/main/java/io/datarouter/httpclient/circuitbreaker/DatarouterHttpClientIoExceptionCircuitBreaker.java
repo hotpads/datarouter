@@ -53,7 +53,7 @@ import io.datarouter.instrumentation.trace.W3TraceContext;
 public class DatarouterHttpClientIoExceptionCircuitBreaker extends ExceptionCircuitBreaker{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterHttpClientIoExceptionCircuitBreaker.class);
 
-	private static final Duration DEFAULT_LOG_SLOW_REQUEST_THRESHOLD = Duration.ofSeconds(2);
+	private static final Duration DEFAULT_LOG_SLOW_REQUEST_THRESHOLD = Duration.ofSeconds(1);
 
 	public static final String TRACEPARENT = "traceparent";
 	public static final String TRACESTATE = "tracestate";
@@ -108,7 +108,6 @@ public class DatarouterHttpClientIoExceptionCircuitBreaker extends ExceptionCirc
 		long requestStartTimeNs = Trace2Dto.getCurrentTimeInNs();
 		try{
 			HttpResponse httpResponse = httpClient.execute(internalHttpRequest, context);
-			Duration duration = Duration.ofNanos(Trace2Dto.getCurrentTimeInNs() - requestStartTimeNs);
 			String entity = null;
 			int statusCode = httpResponse.getStatusLine().getStatusCode();
 			count("response " + statusCode);
@@ -122,6 +121,8 @@ public class DatarouterHttpClientIoExceptionCircuitBreaker extends ExceptionCirc
 					entity = EntityUtils.toString(httpEntity);
 				}
 			}
+			// include the entity processing. might be inaccurate in case of custom httpEntityConsumer
+			Duration duration = Duration.ofNanos(Trace2Dto.getCurrentTimeInNs() - requestStartTimeNs);
 			Optional<Traceparent> remoteTraceparent = Optional.ofNullable(httpResponse.getFirstHeader(TRACEPARENT))
 					.map(Header::getValue)
 					.map(Traceparent::parse)
@@ -135,8 +136,8 @@ public class DatarouterHttpClientIoExceptionCircuitBreaker extends ExceptionCirc
 			Duration logSlowRequestThreshold = request.findLogSlowRequestThreshold()
 					.orElse(DEFAULT_LOG_SLOW_REQUEST_THRESHOLD);
 			if(duration.compareTo(logSlowRequestThreshold) > 0){
-				logger.warn("Slow request target={} durationS={} remoteTraceparent={}", request.getPath(),
-						duration.getSeconds(), remoteTraceparent.orElse(null));
+				logger.warn("Slow request target={} durationMs={} remoteTraceparent={}", request.getPath(),
+						duration.toMillis(), remoteTraceparent.orElse(null));
 			}
 			DatarouterHttpResponse response = new DatarouterHttpResponse(httpResponse, context, statusCode, entity);
 			if(isBadStatusCode){

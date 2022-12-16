@@ -29,10 +29,10 @@ import org.testng.annotations.Test;
 import com.google.gson.Gson;
 
 import io.datarouter.enums.StringMappedEnum;
-import io.datarouter.gson.serialization.EnumTypeAdapterFactory;
-import io.datarouter.gson.serialization.GsonTool;
+import io.datarouter.gson.GsonJsonSerializer;
+import io.datarouter.gson.GsonTool;
+import io.datarouter.gson.typeadapterfactory.EnumTypeAdapterFactory;
 import io.datarouter.httpclient.endpoint.java.EndpointTool;
-import io.datarouter.httpclient.json.GsonJsonSerializer;
 import io.datarouter.json.JsonSerializer;
 import io.datarouter.pathnode.PathNode;
 
@@ -89,8 +89,7 @@ public class EndpointGsonSerializationTests{
 
 	private static class TestSerializer extends GsonJsonSerializer{
 
-		public static final Gson GSON = GsonTool.GSON.newBuilder()
-				.registerTypeAdapterFactory(new TestEnumTypeAdapterFactory())
+		public static final Gson GSON = GsonTool.builder(new TestEnumTypeAdapterFactory())
 				.create();
 
 		public TestSerializer(){

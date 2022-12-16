@@ -188,8 +188,8 @@ public class JobletService{
 		Optional<JobletRequest> jobletRequest = selector.getJobletRequestForProcessing(timer, type, reservedBy);
 		long durationMs = System.currentTimeMillis() - startMs;
 		if(durationMs > 1000){
-			String message = jobletRequest.map(Databean::getKey).map(Object::toString).orElse("none");
-			logger.warn("slow get joblet type={}, durationMs={}, got {}", type, durationMs, message);
+			String message = jobletRequest.map(Databean::getKey).map(JobletRequestKey::toString).orElse("none");
+			logger.warn("slow get joblet type={}, durationMs={}, got {} timer={}", type, durationMs, message, timer);
 		}
 		return jobletRequest;
 	}

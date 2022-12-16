@@ -56,7 +56,7 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
-import io.datarouter.gson.serialization.GsonTool;
+import io.datarouter.gson.GsonTool;
 import io.datarouter.httpclient.DocumentedGenericHolder;
 import io.datarouter.httpclient.endpoint.Endpoint;
 import io.datarouter.httpclient.endpoint.java.BaseEndpoint;
@@ -285,17 +285,20 @@ public class ApiDocService{
 			if(!param.enumClass().equals(ParamDefaultEnum.class)){
 				String enumValuesDisplay = Scanner.of(param.enumClass().getEnumConstants())
 						.map(jsonDecoder.getJsonSerializer()::serialize)
+						.sort()
 						.collect(Collectors.joining(","));
 				exampleEnumDtos.add(new DocumentedExampleEnumDto(param.enumClass().getSimpleName(), enumValuesDisplay));
 			}
 		}
+		boolean isDeprecated = parameter.isAnnotationPresent(Deprecated.class);
 		return createDocumentedParameter(
 				name,
 				parameter.getParameterizedType(),
 				parameter.isAnnotationPresent(RequestBody.class),
 				description,
 				exampleEnumDtos,
-				jsonDecoder);
+				jsonDecoder,
+				isDeprecated);
 	}
 
 	private DocumentedSecurityDetails createApplicableSecurityParameters(
@@ -316,7 +319,7 @@ public class ApiDocService{
 		}
 		List<DocumentedParameterJspDto> parameters = Scanner.of(applicableSecurityParameterNames)
 				.map(parameterName -> createDocumentedParameter(parameterName, String.class, false, null,
-						new HashSet<>(), jsonDecoder))
+						new HashSet<>(), jsonDecoder, false))
 				.list();
 		return new DocumentedSecurityDetails(parameters, apiKeyFieldName);
 	}
@@ -327,7 +330,8 @@ public class ApiDocService{
 			boolean requestBody,
 			String description,
 			Set<DocumentedExampleEnumDto> exampleEnumDtos,
-			JsonAwareHandlerCodec jsonDecoder){
+			JsonAwareHandlerCodec jsonDecoder,
+			boolean isDeprecated){
 		Type type = OptionalParameter.getOptionalInternalType(parameterType);
 		Optional<Class<?>> clazz = type instanceof Class ? Optional.of((Class<?>)type) : Optional.empty();
 		String example = null;
@@ -351,6 +355,7 @@ public class ApiDocService{
 				requestBody,
 				HIDDEN_SPEC_PARAMS.contains(parameterName),
 				description,
+				isDeprecated,
 				exampleEnumDtos);
 	}
 
@@ -388,6 +393,7 @@ public class ApiDocService{
 				}
 			}
 		}
+		boolean isDeprecated = field.isAnnotationPresent(Deprecated.class);
 		return new DocumentedParameterJspDto(
 				EndpointTool.getFieldName(field),
 				type,
@@ -398,6 +404,7 @@ public class ApiDocService{
 				Optional.ofNullable(field.getAnnotation(EndpointParam.class))
 						.map(EndpointParam::description)
 						.orElse(null),
+				isDeprecated,
 				exampleEnumDtos);
 	}
 
@@ -570,6 +577,7 @@ public class ApiDocService{
 			Class<? extends Enum> enumClass = (Class<? extends Enum>)clazz;
 			String enumValuesDisplay = Scanner.of(enumClass.getEnumConstants())
 					.map(jsonDecoder.getJsonSerializer()::serialize)
+					.sort()
 					.collect(Collectors.joining(","));
 			Set<DocumentedExampleEnumDto> exampleEnumDtos = new HashSet<>();
 			exampleEnumDtos.add(new DocumentedExampleEnumDto(clazz.getSimpleName(), enumValuesDisplay));
@@ -646,6 +654,7 @@ public class ApiDocService{
 	private static String buildEnumValuesString(Collection<DocumentedExampleEnumDto> exampleEnumDtos){
 		var builder = new StringBuilder();
 		Scanner.of(exampleEnumDtos)
+				.sort(Comparator.comparing((DocumentedExampleEnumDto enumDto) -> enumDto.enumName))
 				.forEach(dto -> {
 					builder.append(dto.enumName);
 					builder.append(": ");

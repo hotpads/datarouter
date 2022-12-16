@@ -34,7 +34,7 @@ import io.datarouter.instrumentation.trace.TraceSpanGroupType;
 import io.datarouter.instrumentation.trace.Tracer;
 import io.datarouter.instrumentation.trace.W3TraceContext;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.util.Ulid;
+import io.datarouter.types.Ulid;
 
 public class DatarouterSummaryTracer implements Tracer{
 

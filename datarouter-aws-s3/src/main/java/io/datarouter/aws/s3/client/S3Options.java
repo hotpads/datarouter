@@ -57,13 +57,13 @@ public class S3Options{
 
 	private String getAccessKey(String clientName){
 		return readCredentialsSecret(clientName)
-				.map(dto -> dto.accessKey)
+				.map(S3CredentialsDto::accessKey)
 				.orElseGet(() -> clientOptions.getRequiredString(clientName, PROP_accessKey));
 	}
 
 	private String getSecretKey(String clientName){
 		return readCredentialsSecret(clientName)
-				.map(dto -> dto.secretKey)
+				.map(S3CredentialsDto::secretKey)
 				.orElseGet(() -> clientOptions.getRequiredString(clientName, PROP_secretKey));
 	}
 

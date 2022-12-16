@@ -39,8 +39,9 @@ public class MapCachingMapStorageReaderNode<
 extends BaseMapCachingNode<PK,D,F,N>
 implements MapStorageReaderNode<PK,D,F>{
 
+	private static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(1);
 	private static final Config DEFAULT_CACHING_NODE_CONFIG = new Config()
-			.setTimeout(Duration.ofSeconds(1));
+			.setTimeout(DEFAULT_TIMEOUT);
 
 	protected final boolean cacheReads;
 
@@ -61,11 +62,10 @@ implements MapStorageReaderNode<PK,D,F>{
 		// for memcached, timeout <= 0 implies no wait per net.spy.memcached.internal.GetFuture
 		//   and java.util.concurrent.CountDownLatch.await(long, java.util.concurrent.TimeUnit)
 		// for redis, this setting is not used since the timeout is fixed at the time of client node construction
-		if(givenConfig.getTimeout() != null
-				&& givenConfig.getTimeout().toMillis() <= DEFAULT_CACHING_NODE_CONFIG.getTimeout().toMillis()){
-			return givenConfig;
-		}
-		givenConfig.setTimeout(DEFAULT_CACHING_NODE_CONFIG.getTimeout());
+		Duration actualTimeout = givenConfig.findTimeout()
+				.filter(timeout -> timeout.compareTo(DEFAULT_TIMEOUT) <= 0)
+				.orElse(DEFAULT_TIMEOUT);
+		givenConfig.setTimeout(actualTimeout);
 		return givenConfig;
 	}
 

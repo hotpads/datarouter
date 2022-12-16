@@ -24,7 +24,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import io.datarouter.conveyor.BaseConveyors;
+import io.datarouter.conveyor.ConveyorAppListener;
 import io.datarouter.conveyor.dto.ConveyorSummary;
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.scanner.Scanner;
@@ -44,9 +44,9 @@ public class ConveyorHandler extends BaseHandler{
 
 	@Handler
 	private Mav list(){
-		Map<String,BaseConveyors> allBaseConveyors = injector.getInstancesOfType(BaseConveyors.class);
+		Map<String,ConveyorAppListener> allBaseConveyors = injector.getInstancesOfType(ConveyorAppListener.class);
 		List<ConveyorSummary> collect = Scanner.of(allBaseConveyors.values())
-				.map(BaseConveyors::getExecsAndConveyorsbyName)
+				.map(ConveyorAppListener::getExecsAndConveyorsbyName)
 				.concatIter(ConveyorSummary::summarize)
 				.list();
 		return pageFactory.startBuilder(request)

@@ -24,7 +24,7 @@ import org.testng.annotations.Test;
 import io.datarouter.binarydto.codec.BinaryDtoIndexedCodec;
 import io.datarouter.instrumentation.gauge.GaugeBatchDto;
 import io.datarouter.instrumentation.gauge.GaugeDto;
-import io.datarouter.util.Ulid;
+import io.datarouter.types.Ulid;
 
 public class GaugeBinaryDtoIntegrationTests{
 

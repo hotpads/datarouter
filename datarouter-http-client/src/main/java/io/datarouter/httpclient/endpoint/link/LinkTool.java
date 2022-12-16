@@ -27,8 +27,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.httpclient.endpoint.param.EndpointParam;
-import io.datarouter.httpclient.endpoint.param.RequestBody;
 import io.datarouter.httpclient.endpoint.param.IgnoredField;
+import io.datarouter.httpclient.endpoint.param.RequestBody;
 
 public class LinkTool{
 	private static final Logger logger = LoggerFactory.getLogger(LinkTool.class);

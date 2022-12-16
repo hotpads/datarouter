@@ -15,27 +15,8 @@
  */
 package io.datarouter.web.port;
 
-import io.datarouter.httpclient.security.UrlConstants;
-
 public interface PortIdentifier{
 
-	Integer getHttpPort();
-	Integer getHttpsPort();
-
-	/*----------------------- fixed class for testing -----------------------*/
-
-	public static class DefaultPortIdentifier implements PortIdentifier{
-
-		@Override
-		public Integer getHttpPort(){
-			return UrlConstants.PORT_HTTP_DEV;
-		}
-
-		@Override
-		public Integer getHttpsPort(){
-			return UrlConstants.PORT_HTTPS_DEV;
-		}
-
-	}
+	PortIdentificationResult identify();
 
 }

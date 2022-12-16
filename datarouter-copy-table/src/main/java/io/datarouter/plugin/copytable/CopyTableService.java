@@ -191,21 +191,11 @@ public class CopyTableService{
 
 	}
 
-	public static class CopyTableSpanResult{
-
-		public final boolean success;
-		public final Throwable exception;
-		public final long numCopied;
-		public final String resumeFromKeyString;
-
-		public CopyTableSpanResult(boolean success, Throwable exception, long numCopied,
-				String resumeFromKeyString){
-			this.success = success;
-			this.exception = exception;
-			this.numCopied = numCopied;
-			this.resumeFromKeyString = resumeFromKeyString;
-		}
-
+	public record CopyTableSpanResult(
+			boolean success,
+			Throwable exception,
+			long numCopied,
+			String resumeFromKeyString){
 	}
 
 }

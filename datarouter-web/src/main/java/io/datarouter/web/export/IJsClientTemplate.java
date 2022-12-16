@@ -20,6 +20,7 @@ import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.Map;
 
+import io.datarouter.json.JsonSerializer;
 import io.datarouter.scanner.Scanner;
 
 // temp name. Don't prefix with "I"
@@ -27,7 +28,7 @@ public interface IJsClientTemplate{
 
 	Path getOutputPath();
 	String getOutputDirectory();
-	String buildTemplate();
+	String buildTemplate(JsonSerializer jsonSerializer);
 	String getTsDirectory();
 	String getFileName();
 

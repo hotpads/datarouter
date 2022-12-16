@@ -17,12 +17,12 @@ package io.datarouter.trace.service;
 
 public interface TraceUrlBuilder{
 
-	String buildTraceForCurrentServer(String traceId, String parentId);
+	String buildTraceForCurrentServer(String traceparent);
 
 	public static class NoOpTraceUrlBuilder implements TraceUrlBuilder{
 
 		@Override
-		public String buildTraceForCurrentServer(String traceId, String parentId){
+		public String buildTraceForCurrentServer(String traceparent){
 			return "";
 		}
 

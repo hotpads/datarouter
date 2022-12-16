@@ -29,13 +29,9 @@ public class DatarouterTracePublisherSettingRoot extends SettingRoot{
 
 	//save Traces in buffer
 	public final CachedSetting<Boolean> saveTracesToMemory;
-	//publish Traces from buffer
-	public final CachedSetting<Boolean> runTraceMemoryToPublisherConveyor;
 
 	//controls Trace publishing destination
 	public final CachedSetting<Boolean> saveTracesToQueueDaoInsteadOfDirectoryDao;
-
-	public final CachedSetting<Integer> conveyorThreadCount;
 
 	@Inject
 	public DatarouterTracePublisherSettingRoot(SettingFinder finder){
@@ -43,12 +39,8 @@ public class DatarouterTracePublisherSettingRoot extends SettingRoot{
 
 		saveTracesToMemory = registerBooleans("saveTracesToMemory", defaultTo(false)
 				.withTag(DatarouterSettingTagType.TRACE2PIPELINE, () -> true));
-		runTraceMemoryToPublisherConveyor = registerBooleans(
-				"runTraceMemoryToPublisherConveyor", defaultTo(false)
-				.withTag(DatarouterSettingTagType.TRACE2PIPELINE, () -> true));
 		saveTracesToQueueDaoInsteadOfDirectoryDao = registerBoolean(
 				"saveTracesToQueueDaoInsteadOfDirectoryDao", false);
-		conveyorThreadCount = registerInteger("conveyorThreadCount", 1);
 	}
 
 }

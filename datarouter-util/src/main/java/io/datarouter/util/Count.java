@@ -69,6 +69,10 @@ public class Count{
 		value.addAndGet(collection.size());
 	}
 
+	public void incrementByLength(byte[] array){
+		value.addAndGet(array.length);
+	}
+
 	public void incrementByLength(Object[] array){
 		value.addAndGet(array.length);
 	}

@@ -167,7 +167,8 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 		form.addTextAreaField()
 				.withDisplay(String.format("Why you want to access %s:", this.serviceName.get()))
 				.withName("reason")
-				.isRequired();
+				.withPlaceholder("explain reason here")
+				.required();
 		form.addTextField()
 				.withDisplay("Additional information we have detected: ")
 				.withName("specifics")

@@ -19,7 +19,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.auth.job.AccountPermissionCacheRefreshJob;
-import io.datarouter.auth.job.AuthConfigurationScanJob;
 import io.datarouter.auth.job.DatarouterAccountCredentialCleanupJob;
 import io.datarouter.auth.job.DatarouterAccountLastUsedFlushJob;
 import io.datarouter.auth.job.DatarouterPermissionRequestVacuumJob;
@@ -53,11 +52,6 @@ public class DatarouterAuthTriggerGroup extends BaseTriggerGroup{
 				"29 1/2 * * * ?",
 				settings.runUserSessionVacuumJob,
 				DatarouterSessionVacuumJob.class,
-				true);
-		registerLocked(
-				"0 0 14 ? * MON,TUE,WED,THU,FRI *",
-				settings.runConfigurationScanReportEmailJob,
-				AuthConfigurationScanJob.class,
 				true);
 		registerLocked(
 				"0 0 15 ? * * *",

@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Supplier;
 
 import io.datarouter.plugin.PluginConfigKey;
 import io.datarouter.plugin.PluginConfigType;
@@ -39,17 +38,8 @@ public abstract class ConveyorConfigurationGroup implements PluginConfigValue<Co
 
 	public void registerConveyor(
 			String name,
-			Class<? extends ConveyorConfiguration> configurationClass,
-			int defaultNumThread){
-		registerConveyor(name, configurationClass, () -> defaultNumThread);
-	}
-
-	public void registerConveyor(
-			String name,
-			Class<? extends ConveyorConfiguration> configurationClass,
-			Supplier<Integer> defaultNumThread){
-		conveyorPackages.put(configurationClass.getSimpleName(), new ConveyorPackage(name, configurationClass,
-				defaultNumThread));
+			Class<? extends ConveyorConfiguration> configurationClass){
+		conveyorPackages.put(configurationClass.getSimpleName(), new ConveyorPackage(name, configurationClass));
 	}
 
 	public List<ConveyorPackage> getConveyorPackages(){
@@ -67,8 +57,7 @@ public abstract class ConveyorConfigurationGroup implements PluginConfigValue<Co
 
 	public record ConveyorPackage(
 			String name,
-			Class<? extends ConveyorConfiguration> configurationClass,
-			Supplier<Integer> threadCount){
+			Class<? extends ConveyorConfiguration> configurationClass){
 	}
 
 }

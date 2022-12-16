@@ -15,6 +15,7 @@
  */
 package io.datarouter.storage.file;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -66,6 +67,12 @@ public class Pathbean extends BaseDatabean<PathbeanKey,Pathbean>{
 
 	public Long getSize(){
 		return size;
+	}
+
+	public static long totalSize(Collection<Pathbean> pathbeans){
+		return pathbeans.stream()
+				.mapToLong(Pathbean::getSize)
+				.sum();
 	}
 
 }

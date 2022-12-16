@@ -26,15 +26,13 @@ import io.datarouter.storage.setting.cached.CachedSetting;
 @Singleton
 public class DatarouterAwsElbSettingRoot extends SettingRoot{
 
-	public final CachedSetting<Boolean> runConfigurationScanReportEmailJob;
+	public final CachedSetting<Boolean> enableDailyDigest;
 
 	@Inject
 	public DatarouterAwsElbSettingRoot(SettingFinder finder, DatarouterAwsElbMonitoringSettings elbSettings){
 		super(finder, DatarouterSettingCategory.DATAROUTER, "datarouterAwsElb.");
-
 		registerChild(elbSettings);
-
-		runConfigurationScanReportEmailJob = registerBoolean("runConfigurationScanReportEmailJob", false);
+		enableDailyDigest = registerBooleans("enableDailyDigest", defaultTo(false));
 	}
 
 }

@@ -29,7 +29,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 
-import io.datarouter.gson.serialization.GsonTool;
+import io.datarouter.gson.GsonTool;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.number.NumberFormatter;
 import j2html.TagCreator;
@@ -80,7 +80,8 @@ public class J2HtmlEmailTable<T>{
 					String text = Optional.ofNullable(value).map(Object::toString).orElse("");
 					return TagCreator.text(text);
 				}catch(Exception e){
-					throw new RuntimeException("error column=" + name + " row=" + GsonTool.GSON.toJson(row), e);
+					throw new RuntimeException("error column=" + name
+							+ " row=" + GsonTool.withUnregisteredEnums().toJson(row), e);
 				}
 			});
 		}

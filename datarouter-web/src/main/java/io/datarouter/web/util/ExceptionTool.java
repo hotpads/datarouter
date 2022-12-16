@@ -15,10 +15,13 @@
  */
 package io.datarouter.web.util;
 
+import java.io.InterruptedIOException;
+import java.net.SocketTimeoutException;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.core.impl.ThrowableProxy;
 
+import io.datarouter.util.concurrent.UncheckedInterruptedException;
 import io.datarouter.util.string.StringTool;
 
 public class ExceptionTool{
@@ -56,6 +59,16 @@ public class ExceptionTool{
 			exception = exception.getCause();
 		}
 		return false;
+	}
+
+	public static boolean isInterrupted(Throwable exception){
+		// http client timeouts are SocketTimeoutException
+		// there are not interruption in the sense of a program shutdown or similar
+		if(isFromInstanceOf(exception, SocketTimeoutException.class)){
+			return false;
+		}
+		return isFromInstanceOf(exception, InterruptedException.class, UncheckedInterruptedException.class,
+				InterruptedIOException.class);
 	}
 
 }

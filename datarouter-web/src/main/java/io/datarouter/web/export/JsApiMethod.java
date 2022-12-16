@@ -16,30 +16,13 @@
 package io.datarouter.web.export;
 
 import java.lang.reflect.Method;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.Set;
 
 import io.datarouter.httpclient.endpoint.web.JsClientType;
-import io.datarouter.scanner.Scanner;
 
-public class JsApiMethod{
-
-	public final String url;
-	public final String methodName;
-	public final Method method;
-	public final Set<Class<? extends JsClientType>> clientTypes;
-
-	public JsApiMethod(
+public record JsApiMethod(
 			String url,
 			String methodName,
 			Method method,
-			Collection<Class<? extends JsClientType>> clientTypes){
-		this.url = url;
-		this.methodName = methodName;
-		this.method = method;
-		this.clientTypes = Scanner.of(clientTypes)
-				.collect(HashSet::new);
-	}
-
+			Set<Class<? extends JsClientType>> clientTypes){
 }

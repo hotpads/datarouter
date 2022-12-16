@@ -79,6 +79,11 @@ public class J2HtmlDatarouterEmail{
 				.withStyle(String.join("", makeBodyStyles()));
 	}
 
+	public BodyTag buildWithoutFooter(){
+		return body(makeHeader(), content)
+				.withStyle(String.join("", makeBodyStyles()));
+	}
+
 	private DomContent makeHeader(){
 		var titleLink = a(title)
 				.withHref(titleHref)

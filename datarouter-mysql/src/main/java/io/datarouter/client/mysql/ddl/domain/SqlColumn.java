@@ -20,7 +20,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import io.datarouter.gson.serialization.GsonTool;
+import io.datarouter.gson.GsonTool;
 
 public class SqlColumn{
 
@@ -59,7 +59,7 @@ public class SqlColumn{
 
 	@Override
 	public String toString(){
-		return GsonTool.GSON.toJson(this);
+		return GsonTool.withUnregisteredEnums().toJson(this);
 	}
 
 	@Override

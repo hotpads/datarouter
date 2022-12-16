@@ -57,47 +57,22 @@ public class CopyTableJoblet extends BaseJoblet<CopyTableJobletParams>{
 				NumberTool.nullSafeLong(params.numJoblets, 0L),
 				Optional.ofNullable(params.skipInvalidDatabeans)//TODO remove null check after migration period
 						.orElse(true));
-		if(!result.success){
-			throw result.exception;
+		if(!result.success()){
+			throw result.exception();
 		}
 	}
 
-	public static class CopyTableJobletParams{
-
-		public final String sourceNodeName;
-		public final String targetNodeName;
-		public final String fromKeyExclusive;
-		public final String toKeyInclusive;
-		public final Integer scanBatchSize;
-		public final Integer putBatchSize;
-		public final Long estNumDatabeans;
-		public final Long jobletId;
-		public final Long numJoblets;
-		public final Boolean skipInvalidDatabeans;
-
-		public CopyTableJobletParams(
-				String sourceNodeName,
-				String targetNodeName,
-				String fromKeyExclusive,
-				String toKeyInclusive,
-				Integer scanBatchSize,
-				Integer putBatchSize,
-				Long estNumDatabeans,
-				Long jobletId,
-				Long numJoblets,
-				Boolean skipInvalidDatabeans){
-			this.sourceNodeName = sourceNodeName;
-			this.targetNodeName = targetNodeName;
-			this.fromKeyExclusive = fromKeyExclusive;
-			this.toKeyInclusive = toKeyInclusive;
-			this.scanBatchSize = scanBatchSize;
-			this.putBatchSize = putBatchSize;
-			this.estNumDatabeans = estNumDatabeans;
-			this.jobletId = jobletId;
-			this.numJoblets = numJoblets;
-			this.skipInvalidDatabeans = skipInvalidDatabeans;
-		}
-
+	public record CopyTableJobletParams(
+			String sourceNodeName,
+			String targetNodeName,
+			String fromKeyExclusive,
+			String toKeyInclusive,
+			Integer scanBatchSize,
+			Integer putBatchSize,
+			Long estNumDatabeans,
+			Long jobletId,
+			Long numJoblets,
+			Boolean skipInvalidDatabeans){
 	}
 
 	public static class CopyTableJobletCodec extends BaseGsonJobletCodec<CopyTableJobletParams>{

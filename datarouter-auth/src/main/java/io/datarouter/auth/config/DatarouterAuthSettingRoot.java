@@ -32,7 +32,6 @@ public class DatarouterAuthSettingRoot extends SettingRoot{
 	public final CachedSetting<Boolean> runSamlAuthnRequestRedirectUrlVacuumJob;
 	public final CachedSetting<Boolean> runDatarouterAccountLastUsedFlushJob;
 	public final CachedSetting<Boolean> runUserSessionVacuumJob;
-	public final CachedSetting<Boolean> runConfigurationScanReportEmailJob;
 	public final CachedSetting<Boolean> runPermissionRequestVacuumJob;
 	public final CachedSetting<Boolean> shouldUseDatarouterAccountCredentialInsteadOfDatarouterAccount;
 	public final CachedSetting<Boolean> enableHandlerAccountCallerValidator;
@@ -46,7 +45,6 @@ public class DatarouterAuthSettingRoot extends SettingRoot{
 		runSamlAuthnRequestRedirectUrlVacuumJob = registerBoolean("runSamlAuthnRequestRedirectUrlVacuumJob", false);
 		runDatarouterAccountLastUsedFlushJob = registerBoolean("runDatarouterAccountLastUsedFlushJob", true);
 		runUserSessionVacuumJob = registerBoolean("runUserSessionVacuum", false);
-		runConfigurationScanReportEmailJob = registerBoolean("runConfigurationScanReportEmailJob", false);
 		runPermissionRequestVacuumJob = registerBoolean("runPermissionRequestVacuumJob", false);
 		shouldUseDatarouterAccountCredentialInsteadOfDatarouterAccount = registerBoolean(
 				"shouldUseDatarouterAccountCredentialInsteadOfDatarouterAccount", true);

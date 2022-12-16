@@ -15,32 +15,32 @@
  */
 package io.datarouter.clustersetting.service;
 
+import static j2html.TagCreator.a;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import javax.servlet.ServletContext;
-
-import org.apache.http.client.utils.URIBuilder;
 
 import io.datarouter.clustersetting.config.DatarouterClusterSettingPaths;
-import io.datarouter.storage.setting.Setting;
+import io.datarouter.web.email.DatarouterHtmlEmailService;
+import j2html.tags.specialized.ATag;
 
 @Singleton
 public class ClusterSettingLinkService{
 
 	@Inject
-	private ServletContext servletContext;
+	private DatarouterHtmlEmailService emailService;
 	@Inject
 	private DatarouterClusterSettingPaths paths;
 
-	public String browse(String settingName){
-		return new URIBuilder()
-				.setPath(servletContext.getContextPath() + paths.datarouter.settings.browseSettings.toSlashedString())
-				.addParameter("name", settingName)
-				.toString();
-	}
-
-	public String browse(Setting<?> setting){
-		return browse(setting.getName());
+	public ATag makeSettingLink(String settingName){
+		String href = emailService.startLinkBuilder()
+				.withLocalPath(paths.datarouter.settings)
+				.withParam("submitAction", "browseSettings")
+				.withParam("name", settingName)
+				.build();
+		return a(settingName)
+				.withHref(href)
+				.withStyle("text-decoration:none;");
 	}
 
 }

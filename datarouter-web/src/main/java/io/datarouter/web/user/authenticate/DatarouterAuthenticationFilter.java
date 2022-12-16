@@ -38,6 +38,8 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.util.BooleanTool;
 import io.datarouter.util.string.StringTool;
+import io.datarouter.web.WebAppLifecycle;
+import io.datarouter.web.WebAppLifecycleState;
 import io.datarouter.web.exception.InvalidApiCallException;
 import io.datarouter.web.exception.InvalidCredentialsException;
 import io.datarouter.web.shutdown.ShutdownService;
@@ -61,6 +63,8 @@ public class DatarouterAuthenticationFilter implements Filter{
 	private DatarouterSessionManager sessionManager;
 	@Inject
 	private ShutdownService shutdownService;
+	@Inject
+	private WebAppLifecycle webAppLifeCycle;
 
 	@Override
 	public void doFilter(ServletRequest req, ServletResponse res, FilterChain filterChain)
@@ -69,6 +73,7 @@ public class DatarouterAuthenticationFilter implements Filter{
 		final HttpServletResponse response = (HttpServletResponse)res;
 
 		shutdownService.logIfLate(request);
+		webAppLifeCycle.set(WebAppLifecycleState.HTTP_READY);
 
 		final String contextPath = request.getContextPath();
 		final String signinFormPath = authenticationConfig.getSigninPath();

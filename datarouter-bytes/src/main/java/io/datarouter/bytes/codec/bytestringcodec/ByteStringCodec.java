@@ -18,5 +18,6 @@ package io.datarouter.bytes.codec.bytestringcodec;
 public interface ByteStringCodec{
 
 	String encode(byte[] bytes);
+	byte[] decode(String str);
 
 }

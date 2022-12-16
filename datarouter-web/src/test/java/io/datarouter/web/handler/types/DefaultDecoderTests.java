@@ -29,8 +29,8 @@ import javax.servlet.http.HttpServletRequest;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.gson.serialization.GsonTool;
-import io.datarouter.httpclient.json.GsonJsonSerializer;
+import io.datarouter.gson.GsonJsonSerializer;
+import io.datarouter.gson.GsonTool;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.web.handler.TestApiHandler;
 import io.datarouter.web.handler.TestApiHandler.FooBar;
@@ -38,7 +38,7 @@ import io.datarouter.web.util.http.MockHttpServletRequestBuilder;
 
 public class DefaultDecoderTests{
 
-	private static final DefaultDecoder decoder = new DefaultDecoder(new GsonJsonSerializer(GsonTool.GSON));
+	private static final DefaultDecoder decoder = new DefaultDecoder(new GsonJsonSerializer(GsonTool.withoutEnums()));
 
 	private static final String firstname = "Goulven";
 	private static final String lastname = "Cornec";

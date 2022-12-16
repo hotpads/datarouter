@@ -25,7 +25,9 @@ public interface SettingFinder{
 
 	String getEnvironmentType();
 	String getEnvironmentName();
+	String getEnvironmentCategoryName();
 	ServerType getServerType();
+	String getServiceName();
 	String getServerName();
 	List<DatarouterSettingTag> getSettingTags();
 	Optional<String> getSettingValue(String name);

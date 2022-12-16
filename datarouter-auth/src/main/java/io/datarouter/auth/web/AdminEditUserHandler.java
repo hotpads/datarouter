@@ -386,11 +386,14 @@ public class AdminEditUserHandler extends BaseHandler{
 				.list();
 
 		Optional<DatarouterUserExternalDetails> details = detailsService.getUserDetails(username);
-
+		String profileLink = detailsService.getUserProfileLink(user.getUsername())
+				.map(DatarouterUserProfileLink::url)
+				.orElse("");
 		return new EditUserDetailsDto(
 				user.getUsername(),
 				user.getId().toString(),
 				user.getToken(),
+				profileLink,
 				permissionRequests,
 				deprovisionedUserDao.find(new DeprovisionedUserKey(username))
 						.map(DeprovisionedUser::toDto)
@@ -479,6 +482,7 @@ public class AdminEditUserHandler extends BaseHandler{
 		public final String username;
 		public final String id;
 		public final String token;
+		public final String profileLink;
 		public final List<PermissionRequestDto> requests;
 		public final DeprovisionedUserDto deprovisionedUserDto;
 		public final List<String> availableRoles;
@@ -495,14 +499,27 @@ public class AdminEditUserHandler extends BaseHandler{
 		public final boolean success;
 		public final String message;
 
-		public EditUserDetailsDto(String username, String id, String token, List<PermissionRequestDto> requests,
-				DeprovisionedUserDto deprovisionedUserDto, Collection<Role> availableRoles,
-				Collection<Role> currentRoles, Collection<String> availableAccounts, Collection<String> currentAccounts,
-				boolean success, String message, String currentZoneId, String fullName, boolean hasProfileImage,
+		public EditUserDetailsDto(
+				String username,
+				String id,
+				String token,
+				String profileLink,
+				List<PermissionRequestDto> requests,
+				DeprovisionedUserDto deprovisionedUserDto,
+				Collection<Role> availableRoles,
+				Collection<Role> currentRoles,
+				Collection<String> availableAccounts,
+				Collection<String> currentAccounts,
+				boolean success,
+				String message,
+				String currentZoneId,
+				String fullName,
+				boolean hasProfileImage,
 				List<EditUserDetailDto> details){
 			this.username = username;
 			this.id = id;
 			this.token = token;
+			this.profileLink = profileLink;
 			this.requests = requests;
 			this.deprovisionedUserDto = deprovisionedUserDto;
 			this.availableRoles = Scanner.of(availableRoles)
@@ -539,6 +556,7 @@ public class AdminEditUserHandler extends BaseHandler{
 			this.username = null;
 			this.id = null;
 			this.token = null;
+			this.profileLink = null;
 			this.requests = null;
 			this.deprovisionedUserDto = null;
 			this.availableRoles = null;

@@ -33,6 +33,9 @@ import com.google.cloud.spanner.SessionPoolOptions;
 import com.google.cloud.spanner.Spanner;
 import com.google.cloud.spanner.SpannerOptions;
 
+import io.datarouter.gcp.spanner.SpannerExecutors.SpannerEventLoopGroupExecutor;
+import io.datarouter.gcp.spanner.SpannerExecutors.SpannerManagedChannelExecutor;
+import io.datarouter.gcp.spanner.SpannerExecutors.SpannerManagedChannelOffloadExecutor;
 import io.datarouter.gcp.spanner.client.SpannerClientOptions;
 import io.datarouter.gcp.spanner.connection.SpannerDatabaseClientsHolder;
 import io.datarouter.gcp.spanner.ddl.SpannerDatabaseCreator;
@@ -43,10 +46,21 @@ import io.datarouter.storage.config.schema.SchemaUpdateOptions;
 import io.datarouter.storage.config.schema.SchemaUpdateResult;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.util.timer.PhaseTimer;
+//CHECKSTYLE:OFF
+import io.grpc.netty.shaded.io.grpc.netty.NettyChannelBuilder;
+import io.grpc.netty.shaded.io.netty.channel.Channel;
+import io.grpc.netty.shaded.io.netty.channel.EventLoopGroup;
+import io.grpc.netty.shaded.io.netty.channel.epoll.EpollEventLoopGroup;
+import io.grpc.netty.shaded.io.netty.channel.epoll.EpollSocketChannel;
+import io.grpc.netty.shaded.io.netty.channel.nio.NioEventLoopGroup;
+import io.grpc.netty.shaded.io.netty.channel.socket.nio.NioSocketChannel;
+//CHECKSTYLE:ON
 
 @Singleton
 public class SpannerClientManager extends BaseClientManager{
 	private static final Logger logger = LoggerFactory.getLogger(SpannerClientManager.class);
+
+	private static final int THREAD_COUNT_PER_EVENT_LOOP = 1;
 
 	@Inject
 	private SpannerClientOptions spannerClientOptions;
@@ -58,6 +72,12 @@ public class SpannerClientManager extends BaseClientManager{
 	private SpannerSchemaUpdateService schemaUpdateService;
 	@Inject
 	private SpannerDatabaseCreator databaseCreator;
+	@Inject
+	private SpannerManagedChannelExecutor spannerManagedChannelExecutor;
+	@Inject
+	private SpannerManagedChannelOffloadExecutor spannerManagedChannelOffloadExecutor;
+	@Inject
+	private SpannerEventLoopGroupExecutor spannerEventLoopGroupExecutor;
 
 	@Override
 	protected Future<Optional<SchemaUpdateResult>> doSchemaUpdate(PhysicalNode<?,?,?> node){
@@ -74,13 +94,18 @@ public class SpannerClientManager extends BaseClientManager{
 
 	@Override
 	protected void safeInitClient(ClientId clientId){
-		var timer = new PhaseTimer(clientId.getName());
+		DatabaseId databaseId = DatabaseId.of(
+				spannerClientOptions.projectId(clientId.getName()),
+				spannerClientOptions.instanceId(clientId.getName()),
+				spannerClientOptions.databaseName(clientId.getName()));
+		var timer = new PhaseTimer(clientId.getName() + "-" + databaseId);
 
 		Credentials credentials = spannerClientOptions.credentials(clientId.getName());
 		timer.add("readCredentials");
 
 		int maxSessions = spannerClientOptions.maxSessions(clientId.getName());
 		int numChannels = spannerClientOptions.numChannels(clientId.getName());
+		spannerEventLoopGroupExecutor.setMaximumPoolSize(numChannels * THREAD_COUNT_PER_EVENT_LOOP);
 		SessionPoolOptions sessionPoolOptions = SessionPoolOptions.newBuilder()
 				.setMaxSessions(maxSessions)
 				.setFailIfPoolExhausted()
@@ -91,16 +116,32 @@ public class SpannerClientManager extends BaseClientManager{
 				.setCredentials(credentials)
 				.setNumChannels(numChannels)
 				.setSessionPoolOption(sessionPoolOptions)
+				.setChannelConfigurator(managedChannelBuilder -> {
+					managedChannelBuilder.executor(spannerManagedChannelExecutor);
+					managedChannelBuilder.offloadExecutor(spannerManagedChannelOffloadExecutor);
+					NettyChannelBuilder nettyChannelBuilder = (NettyChannelBuilder) managedChannelBuilder;
+					Class<? extends Channel> channelType;
+					EventLoopGroup eventLoopGroup;
+					try{
+						Class.forName("io.grpc.netty.shaded.io.netty.channel.epoll.EpollEventLoop");
+						eventLoopGroup = new EpollEventLoopGroup(THREAD_COUNT_PER_EVENT_LOOP,
+								spannerEventLoopGroupExecutor);
+						channelType = EpollSocketChannel.class;
+					}catch(Throwable e){
+						eventLoopGroup = new NioEventLoopGroup(THREAD_COUNT_PER_EVENT_LOOP,
+								spannerEventLoopGroupExecutor);
+						channelType = NioSocketChannel.class;
+					}
+					nettyChannelBuilder.eventLoopGroup(eventLoopGroup);
+					nettyChannelBuilder.channelType(channelType);
+					logger.warn("Using channelType={}", channelType.getSimpleName());
+					return managedChannelBuilder;
+				})
 				.build();
 		Spanner spanner = spannerOptions.getService();
 		timer.add(String.format("buildSpannerService maxSessions=%s numChannels=%s", maxSessions, numChannels));
 
-		DatabaseId databaseId = DatabaseId.of(
-				spannerClientOptions.projectId(clientId.getName()),
-				spannerClientOptions.instanceId(clientId.getName()),
-				spannerClientOptions.databaseName(clientId.getName()));
-		databaseCreator.createIfMissing(spanner, databaseId);
-		timer.add("createDatabase");
+		databaseCreator.createIfMissing(spanner, databaseId, timer);
 
 		//create the clients after the database exists or else they won't see the new database
 		DatabaseAdminClient databaseAdminClient = spanner.getDatabaseAdminClient();

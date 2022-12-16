@@ -44,6 +44,7 @@ import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
+import j2html.tags.specialized.TextareaTag;
 
 public class Bootstrap4FormHtml{
 
@@ -199,12 +200,19 @@ public class Bootstrap4FormHtml{
 		var label = label(text(field.getDisplay()))
 				.condWith(field.isRequired(), span("*").withClass("text-danger"))
 				.withClass(LABEL_CLASS);
-		var input = textarea(field.getValue())
+		TextareaTag input;
+		if(field.getValue() != null){
+			input = textarea(field.getValue());
+		}else{
+			input = textarea();
+		}
+		input
 				.withClass(inputClass)
 				.withName(field.getName())
 				.withPlaceholder(field.getPlaceholder())
 				.withCondReadonly(field.isReadOnly())
-				.withCondPlaceholder(field.isReadOnly(), field.getValue());
+				.withCondPlaceholder(field.isReadOnly(), field.getValue())
+				.condAttr(field.isRequired(), "required", null);
 		if(field.getMaxLength() != null){
 			input.attr(Attr.MAXLENGTH, field.getMaxLength());
 		}

@@ -17,14 +17,9 @@ package io.datarouter.web.exception;
 
 import javax.servlet.http.HttpServletRequest;
 
-import io.datarouter.instrumentation.exception.ExceptionRecordDto;
-import io.datarouter.web.monitoring.exception.ExceptionDto;
-
 public interface ExceptionHandlingConfig{
 
 	boolean shouldDisplayStackTrace(HttpServletRequest request, Throwable exception);
-	boolean shouldReportError(ExceptionRecordDto exceptionRecord);
-	boolean shouldReportError(ExceptionDto dto);
 
 	String getHtmlErrorMessage(Exception exception);
 	boolean isDevServer();
@@ -35,16 +30,6 @@ public interface ExceptionHandlingConfig{
 
 		@Override
 		public boolean shouldDisplayStackTrace(HttpServletRequest request, Throwable exception){
-			return false;
-		}
-
-		@Override
-		public boolean shouldReportError(ExceptionRecordDto exceptionRecord){
-			return false;
-		}
-
-		@Override
-		public boolean shouldReportError(ExceptionDto dto){
 			return false;
 		}
 

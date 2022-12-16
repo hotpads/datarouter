@@ -30,4 +30,10 @@ public class Base2ByteStringCodec implements ByteStringCodec{
 		return sb.toString();
 	}
 
+	@Override
+	public byte[] decode(String str){
+		//TODO implement
+		throw new UnsupportedOperationException();
+	}
+
 }

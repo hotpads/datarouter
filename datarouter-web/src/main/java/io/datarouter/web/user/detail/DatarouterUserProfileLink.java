@@ -15,5 +15,7 @@
  */
 package io.datarouter.web.user.detail;
 
-public record DatarouterUserProfileLink(String url, String name){
+public record DatarouterUserProfileLink(
+		String url,
+		String name){
 }

@@ -58,39 +58,38 @@ public class LocalJobProcessor{
 			logger.warn("DatarouterJobExecutor is shutdown, {} cannot be triggered.",
 					jobWrapper.jobClass.getSimpleName());
 			return Outcome.failure("DatarouterJobExecutor is shutdown");
-		}else{
-			Duration hardTimeout = getHardTimeout(jobWrapper);
-			Future<Void> future;
-			try{
-				future = jobExecutor.submit(jobWrapper);
-				jobWrapper.setFuture(future);
-			}catch(RejectedExecutionException e){
-				jobWrapper.finishWithStatus(LongRunningTaskStatus.ERRORED);
-				throw wrapAndSaveException("rejected", jobWrapper, hardTimeout, e);
-			}
-			try{
-				future.get(hardTimeout.toMillis(), TimeUnit.MILLISECONDS);
-				return Outcome.success();
-			}catch(InterruptedException | ExecutionException | CancellationException e){
-				if(ExceptionTool.isFromInstanceOf(e,
-						InterruptedException.class,
-						UncheckedInterruptedException.class,//TODO this can't match here, since it's not in catch?
-						InterruptedIOException.class,
-						CancellationException.class)){
-					future.cancel(true);
-					jobWrapper.finishWithStatus(LongRunningTaskStatus.INTERRUPTED);
-					jobCounters.interrupted(jobWrapper.jobClass);
-					logger.warn("", wrapAndSaveException("interrupted", jobWrapper, hardTimeout, e));
-					return Outcome.failure("Interrupted. exception=" + e);
-				}
-				jobWrapper.finishWithStatus(LongRunningTaskStatus.ERRORED);
-				throw wrapAndSaveException("failed", jobWrapper, hardTimeout, e);
-			}catch(TimeoutException e){
+		}
+		Duration hardTimeout = getHardTimeout(jobWrapper);
+		Future<Void> future;
+		try{
+			future = jobExecutor.submit(jobWrapper);
+			jobWrapper.setFuture(future);
+		}catch(RejectedExecutionException e){
+			jobWrapper.finishWithStatus(LongRunningTaskStatus.ERRORED);
+			throw wrapAndSaveException("rejected", jobWrapper, hardTimeout, e);
+		}
+		try{
+			future.get(hardTimeout.toMillis(), TimeUnit.MILLISECONDS);
+			return Outcome.success();
+		}catch(InterruptedException | ExecutionException | CancellationException e){
+			if(ExceptionTool.isFromInstanceOf(e,
+					InterruptedException.class,
+					UncheckedInterruptedException.class,//TODO this can't match here, since it's not in catch?
+					InterruptedIOException.class,
+					CancellationException.class)){
 				future.cancel(true);
-				jobWrapper.finishWithStatus(LongRunningTaskStatus.TIMED_OUT);
-				jobCounters.timedOut(jobWrapper.jobClass);
-				throw wrapAndSaveException("didn't complete on time", jobWrapper, hardTimeout, e);
+				jobWrapper.finishWithStatus(LongRunningTaskStatus.INTERRUPTED);
+				jobCounters.interrupted(jobWrapper.jobClass);
+				logger.warn("", wrapAndSaveException("interrupted", jobWrapper, hardTimeout, e));
+				return Outcome.failure("Interrupted. exception=" + e);
 			}
+			jobWrapper.finishWithStatus(LongRunningTaskStatus.ERRORED);
+			throw wrapAndSaveException("failed", jobWrapper, hardTimeout, e);
+		}catch(TimeoutException e){
+			future.cancel(true);
+			jobWrapper.finishWithStatus(LongRunningTaskStatus.TIMED_OUT);
+			jobCounters.timedOut(jobWrapper.jobClass);
+			throw wrapAndSaveException("didn't complete on time", jobWrapper, hardTimeout, e);
 		}
 	}
 
@@ -116,4 +115,5 @@ public class LocalJobProcessor{
 				.map(deadline -> Duration.between(Instant.now(), deadline))
 				.orElse(MAX_JOB_TIMEOUT);
 	}
+
 }

@@ -99,7 +99,7 @@ public class AuroraInstancesHandler extends BaseHandler{
 
 		List<DomContent> fragments = new ArrayList<>();
 		List<DnsHostEntryDto> dnsEntries = Scanner.of(dnsEntriesForClients.values())
-				.exclude(dnsEntry -> dnsEntry.isOther())
+				.exclude(DnsHostEntryDto::isOther)
 				.list();
 		fragments.add(makeAuroraClientsTable("Aurora Clients", dnsEntries, false));
 		if(otherReaderInstances.size() != 0){
@@ -206,19 +206,10 @@ public class AuroraInstancesHandler extends BaseHandler{
 		return href;
 	}
 
-	//add region to this dto
-	private static class OtherClientDto{
-		private final String clientName;
-		private final String clusterName;
-		private final String region;
-
-		public OtherClientDto(String clientName, String clusterName, String region){
-			this.clientName = clientName;
-			this.clusterName = clusterName;
-			this.region = region;
-		}
-
-
+	private record OtherClientDto(
+			String clientName,
+			String clusterName,
+			String region){
 	}
 
 }

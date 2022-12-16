@@ -41,4 +41,27 @@ public class InputStreamToolTests{
 		Assert.assertEquals(chunks.get(1), new byte[]{4, 5});
 	}
 
+	@Test
+	public void testReadUntilLength(){
+		byte[] input = {0, 1, 2, 3, 4};
+		var inputStream = new ByteArrayInputStream(input);
+		byte[] buffer = new byte[2];
+
+		int numRead1 = InputStreamTool.readUntilLength(inputStream, buffer, 0, buffer.length);
+		Assert.assertEquals(numRead1, 2);
+		Assert.assertEquals(buffer, new byte[]{0, 1});
+
+		int numRead2 = InputStreamTool.readUntilLength(inputStream, buffer, 0, buffer.length);
+		Assert.assertEquals(numRead2, 2);
+		Assert.assertEquals(buffer, new byte[]{2, 3});
+
+		int numRead3 = InputStreamTool.readUntilLength(inputStream, buffer, 0, buffer.length);
+		Assert.assertEquals(numRead3, 1);
+		Assert.assertEquals(buffer, new byte[]{4, 3});//only first byte overwritten
+
+		int numRead4 = InputStreamTool.readUntilLength(inputStream, buffer, 0, buffer.length);
+		Assert.assertEquals(numRead4, -1);
+		Assert.assertEquals(buffer, new byte[]{4, 3});//nothing overwritten
+	}
+
 }

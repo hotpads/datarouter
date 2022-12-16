@@ -27,8 +27,8 @@ import javax.inject.Singleton;
 
 import com.google.gson.GsonBuilder;
 
+import io.datarouter.gson.GsonJsonSerializer;
 import io.datarouter.httpclient.endpoint.param.RequestBody;
-import io.datarouter.httpclient.json.GsonJsonSerializer;
 import io.datarouter.util.timer.PhaseTimer;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.MessageMav;

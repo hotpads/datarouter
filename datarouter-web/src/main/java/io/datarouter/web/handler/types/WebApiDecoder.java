@@ -39,12 +39,13 @@ import io.datarouter.httpclient.endpoint.java.EndpointTool;
 import io.datarouter.httpclient.endpoint.param.IgnoredField;
 import io.datarouter.httpclient.endpoint.param.RequestBody;
 import io.datarouter.httpclient.endpoint.web.BaseWebApi;
-import io.datarouter.instrumentation.count.Counters;
 import io.datarouter.instrumentation.trace.TraceSpanGroupType;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.json.JsonSerializer;
 import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.util.string.StringTool;
+import io.datarouter.web.handler.BaseHandler;
+import io.datarouter.web.handler.HandlerMetrics;
 import io.datarouter.web.handler.encoder.HandlerEncoder;
 import io.datarouter.web.handler.encoder.JsonAwareHandlerCodec;
 import io.datarouter.web.util.http.RequestTool;
@@ -125,10 +126,13 @@ public class WebApiDecoder implements HandlerDecoder, JsonAwareHandlerCodec{
 				field.set(baseWebApi, requestBody);
 				if(requestBody instanceof Collection<?> requestBodyCollection){
 					// Datarouter handler method batch <Handler.class.simpleName> <methodName>
-					String counter = String.format("Datarouter handler method batch %s %s",
-							method.getDeclaringClass().getSimpleName(),
-							method.getName());
-					Counters.inc(counter, requestBodyCollection.size());
+					@SuppressWarnings("unchecked")
+					Class<? extends BaseHandler> handlerClass = (Class<? extends BaseHandler>)method
+							.getDeclaringClass();
+					HandlerMetrics.incRequestBodyCollectionSize(
+							handlerClass,
+							method,
+							requestBodyCollection.size());
 				}
 				continue;
 			}

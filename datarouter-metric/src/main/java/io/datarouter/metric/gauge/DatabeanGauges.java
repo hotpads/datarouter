@@ -27,7 +27,7 @@ import io.datarouter.metric.gauge.conveyor.GaugeBuffers;
 import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.storage.config.properties.ServiceName;
 import io.datarouter.storage.metric.Gauges;
-import io.datarouter.util.Ulid;
+import io.datarouter.types.Ulid;
 
 @Singleton
 public class DatabeanGauges implements Gauges{

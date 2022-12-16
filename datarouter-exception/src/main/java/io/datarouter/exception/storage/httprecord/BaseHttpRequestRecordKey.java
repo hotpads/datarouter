@@ -23,7 +23,7 @@ import io.datarouter.model.field.imp.StringEncodedField;
 import io.datarouter.model.field.imp.StringEncodedFieldKey;
 import io.datarouter.model.key.primary.RegularPrimaryKey;
 import io.datarouter.model.key.primary.base.BaseRegularPrimaryKey;
-import io.datarouter.util.Ulid;
+import io.datarouter.types.Ulid;
 
 public abstract class BaseHttpRequestRecordKey<PK extends RegularPrimaryKey<PK>> extends BaseRegularPrimaryKey<PK>{
 

@@ -197,6 +197,10 @@ public class DatabeanFieldInfo<
 		return fields;
 	}
 
+	public Map<String,Field<?>> getFieldByColumnName(){
+		return fieldByColumnName;
+	}
+
 	public Map<String,Field<?>> getNonKeyFieldByColumnName(){
 		return nonKeyFieldByColumnName;
 	}

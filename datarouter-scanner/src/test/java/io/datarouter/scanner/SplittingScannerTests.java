@@ -71,7 +71,7 @@ public class SplittingScannerTests{
 	public void testSplitAndCount(){
 		List<Long> result = Scanner.of("a1", "a2", "a3", "b1", "c1", "c2")
 				.splitBy(FIRST)
-				.map(tokens -> tokens.count())
+				.map(Scanner::count)
 				.list();
 		Iterator<Long> iter = result.iterator();
 		Assert.assertEquals(iter.next(), Long.valueOf(3));
@@ -87,6 +87,20 @@ public class SplittingScannerTests{
 				.list();
 		//We didn't advance the sub-scanners but should still get 3 (terminated) scanners.
 		Assert.assertEquals(result.size(), 3);
+	}
+
+	@Test
+	public void testCustomEqualsPredicate(){
+		List<Long> result = Scanner.of("aa1", "aa2", "aa3", "bb1", "cc1", "cc2")
+				.map(String::getBytes)
+				.splitBy(bytes -> Arrays.copyOf(bytes, 2), Arrays::equals)
+				.map(Scanner::count)
+				.list();
+		Iterator<Long> iter = result.iterator();
+		Assert.assertEquals(iter.next(), Long.valueOf(3));
+		Assert.assertEquals(iter.next(), Long.valueOf(1));
+		Assert.assertEquals(iter.next(), Long.valueOf(2));
+		Assert.assertFalse(iter.hasNext());
 	}
 
 }

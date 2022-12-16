@@ -24,7 +24,7 @@ import org.apache.http.entity.ContentType;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.httpclient.json.GsonJsonSerializer;
+import io.datarouter.gson.GsonJsonSerializer;
 import io.datarouter.httpclient.request.DatarouterHttpRequest;
 import io.datarouter.httpclient.request.HttpRequestMethod;
 

@@ -37,7 +37,7 @@ import io.datarouter.filesystem.snapshot.writer.SnapshotWriterConfig;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.file.Directory;
 import io.datarouter.storage.file.PathbeanKey;
-import io.datarouter.util.Ulid;
+import io.datarouter.types.Ulid;
 
 public class SnapshotGroupWriteOps{
 	private static final Logger logger = LoggerFactory.getLogger(SnapshotGroupWriteOps.class);

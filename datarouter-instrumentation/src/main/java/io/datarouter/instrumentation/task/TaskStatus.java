@@ -15,6 +15,8 @@
  */
 package io.datarouter.instrumentation.task;
 
+import io.datarouter.enums.StringMappedEnum;
+
 public enum TaskStatus{
 
 	RUNNING,
@@ -25,5 +27,8 @@ public enum TaskStatus{
 	TIMED_OUT,
 	INTERRUPTED,
 	;
+
+	public static final StringMappedEnum<TaskStatus> BY_NAME
+			= new StringMappedEnum<>(values(), Enum::name);
 
 }

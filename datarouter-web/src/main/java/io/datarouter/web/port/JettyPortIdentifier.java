@@ -15,59 +15,40 @@
  */
 package io.datarouter.web.port;
 
+import java.util.ArrayList;
+
 import javax.inject.Singleton;
-import javax.management.JMException;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
+
+import org.apache.commons.lang3.mutable.MutableInt;
 
 import io.datarouter.util.MxBeans;
 
 @Singleton
 public class JettyPortIdentifier implements PortIdentifier{
 
-	private static final String
-			TYPE_PROPERTY = "type",
-			SERVERCONNECTOR_MBEAN_TYPE = "serverconnector",
-			PORT = "port",
-			DEFAULT_PROTOCOL = "defaultProtocol",
-			SSL_PROTOCOL = "SSL";
-
-	private int httpPort;
-	private int httpsPort;
-
-	public JettyPortIdentifier() throws MalformedObjectNameException{
-		ObjectName jettyServerNames = new ObjectName(CompoundPortIdentifier.JETTY_SERVER_JMX_DOMAIN + ":*");
+	@Override
+	public PortIdentificationResult identify(){
+		var httpPort = new MutableInt();
+		var httpsPort = new MutableInt();
+		var jettyServerNames = JmxTool.newObjectName(CompoundPortIdentifier.JETTY_SERVER_JMX_DOMAIN + ":*");
+		var serverConnectors = new ArrayList<String>();
 		MxBeans.SERVER.queryNames(jettyServerNames, null).stream()
-				.filter(objectName -> objectName.getKeyPropertyList().get(TYPE_PROPERTY)
-						.equals(SERVERCONNECTOR_MBEAN_TYPE))
-				.forEach(objectName -> {
-					int port;
-					String defaultProtocol;
-					try{
-						port = (int)MxBeans.SERVER.getAttribute(objectName, PORT);
-						defaultProtocol = (String)MxBeans.SERVER.getAttribute(objectName, DEFAULT_PROTOCOL);
-					}catch(JMException e){
-						throw new RuntimeException(e);
-					}
-					if(defaultProtocol.equals(SSL_PROTOCOL)){
-						this.httpsPort = port;
+				.filter(objectName -> "serverconnector".equals(objectName.getKeyPropertyList().get("type")))
+				.forEach(serverConnector -> {
+					serverConnectors.add(serverConnector.toString());
+					int port = (int)JmxTool.getAttribute(serverConnector, "port");
+					String defaultProtocol = (String)JmxTool.getAttribute(serverConnector, "defaultProtocol");
+					if("SSL".equals(defaultProtocol)){
+						httpsPort.setValue(port);
 					}else{
-						this.httpPort = port;
+						httpPort.setValue(port);
 					}
 				});
-		if(this.httpPort == 0 || this.httpsPort == 0){
-			throw new RuntimeException("JettyPortIdentifier didn't find port numbers in jmx");
+		if(httpPort.intValue() == 0 || httpsPort.intValue() == 0){
+			return PortIdentificationResult.errorWithdefaults("port not found httpPort=" + httpPort + " httpsPort="
+					+ httpsPort + " serverConnectors=" + serverConnectors);
 		}
-	}
-
-	@Override
-	public Integer getHttpPort(){
-		return httpPort;
-	}
-
-	@Override
-	public Integer getHttpsPort(){
-		return httpsPort;
+		return PortIdentificationResult.success(httpPort.intValue(), httpsPort.intValue());
 	}
 
 }

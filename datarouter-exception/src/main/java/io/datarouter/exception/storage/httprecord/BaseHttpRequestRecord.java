@@ -24,7 +24,7 @@ import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.gson.serialization.GsonTool;
+import io.datarouter.gson.GsonTool;
 import io.datarouter.httpclient.HttpHeaders;
 import io.datarouter.instrumentation.exception.HttpRequestRecordDto;
 import io.datarouter.instrumentation.trace.Traceparent;
@@ -47,7 +47,7 @@ import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 import io.datarouter.model.serialize.fielder.Fielder;
 import io.datarouter.model.util.CommonFieldSizes;
 import io.datarouter.util.array.ArrayTool;
-import io.datarouter.web.monitoring.exception.ExceptionDto;
+import io.datarouter.web.monitoring.exception.ExceptionAndHttpRequestDto;
 import io.datarouter.web.util.http.RecordedHttpHeaders;
 
 public abstract class BaseHttpRequestRecord<
@@ -335,7 +335,7 @@ extends BaseDatabean<PK,D>{
 		this.otherHeaders = dto.otherHeaders();
 	}
 
-	public BaseHttpRequestRecord(PK key, ExceptionDto dto, String exceptionRecordId){
+	public BaseHttpRequestRecord(PK key, ExceptionAndHttpRequestDto dto, String exceptionRecordId){
 		super(key);
 		this.created = new Date(dto.dateMs);
 		if(dto.receivedAtMs != null){
@@ -344,7 +344,7 @@ extends BaseDatabean<PK,D>{
 		}
 		this.exceptionRecordId = exceptionRecordId;
 		this.httpMethod = dto.httpMethod;
-		this.httpParams = GsonTool.GSON.toJson(dto.httpParams);
+		this.httpParams = GsonTool.withUnregisteredEnums().toJson(dto.httpParams);
 		this.protocol = dto.protocol;
 		this.hostname = dto.hostname;
 		this.port = dto.port;
@@ -376,7 +376,7 @@ extends BaseDatabean<PK,D>{
 		this.xForwardedFor = dto.forwardedFor;
 		this.xRequestedWith = dto.requestedWith;
 
-		this.otherHeaders = GsonTool.GSON.toJson(dto.others);
+		this.otherHeaders = GsonTool.withUnregisteredEnums().toJson(dto.others);
 	}
 
 	public Map<String,String> getHeaders(){

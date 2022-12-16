@@ -75,7 +75,7 @@ public class InputStreamHandlerEncoder implements HandlerEncoder{
 			ServletContext servletContext,
 			HttpServletResponse response,
 			HttpServletRequest request){
-		sendErrorResponse(errorResponseDto.statusCode, errorResponseDto.message, response);
+		sendErrorResponse(errorResponseDto.statusCode(), errorResponseDto.message(), response);
 	}
 
 	private void sendErrorResponse(int statusCode, String errorMessage, HttpServletResponse response){

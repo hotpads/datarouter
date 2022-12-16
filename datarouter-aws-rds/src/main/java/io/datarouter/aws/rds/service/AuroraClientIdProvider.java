@@ -38,57 +38,14 @@ public interface AuroraClientIdProvider{
 
 	}
 
-	public static class AuroraClientDto{
-
-		private final ClientId writerClientId;
-		private final List<ClientId> readerClientIds;
-		private final String writerDns;
-		private final List<String> readerDnss;
-		private final String otherName;
-		private final String otherDns;
-		private final String clusterName;
-
-
-		public AuroraClientDto(ClientId writerClientId, List<ClientId> readerClientIds, String writerDns,
-				List<String> readerDnss, String otherName, String otherDns, String clusterName){
-			this.writerClientId = writerClientId;
-			this.readerClientIds = readerClientIds;
-			this.writerDns = writerDns;
-			this.readerDnss = readerDnss;
-			this.otherName = otherName;
-			this.otherDns = otherDns;
-			this.clusterName = clusterName;
-		}
-
-		public ClientId getWriterClientId(){
-			return writerClientId;
-		}
-
-		public List<ClientId> getReaderClientIds(){
-			return readerClientIds;
-		}
-
-		public String getWriterDns(){
-			return writerDns;
-		}
-
-		public List<String> getReaderDnss(){
-			return readerDnss;
-		}
-
-		public String getClusterName(){
-			return clusterName;
-		}
-
-		public String getOtherName(){
-			return otherName;
-		}
-
-		public String getOtherDns(){
-			return otherDns;
-		}
-
-
+	public record AuroraClientDto(
+			ClientId writerClientId,
+			List<ClientId> readerClientIds,
+			String writerDns,
+			List<String> readerDnss,
+			String otherName,
+			String otherDns,
+			String clusterName){
 	}
 
 }

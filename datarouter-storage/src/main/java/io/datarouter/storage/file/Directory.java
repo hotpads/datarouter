@@ -21,7 +21,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
 
+import io.datarouter.bytes.ByteLength;
+import io.datarouter.bytes.CountingInputStream;
 import io.datarouter.instrumentation.count.Counters;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.Config;
@@ -35,6 +38,8 @@ import io.datarouter.util.Require;
  */
 public class Directory
 implements BlobStorage{
+
+	private static final int INPUT_STREAM_COUNT_INTERVAL = ByteLength.ofKiB(256).toBytesInt();
 
 	private final BlobStorage parent;
 	private final Subpath subpathInParent;
@@ -73,28 +78,33 @@ implements BlobStorage{
 	@Override
 	public void write(PathbeanKey key, byte[] value, Config config){
 		parent.write(prependStoragePath(key), value, config);
-		count("write ops", 1);
-		count("write bytes", value.length);
-	}
-
-	@Override
-	public void write(PathbeanKey key, Scanner<byte[]> chunks, Config config){
-		Scanner<byte[]> chunksWithCounts = chunks;
-		if(optCounterName.isPresent()){
-			chunksWithCounts = chunks.each(chunk -> {
-				count("writeChunks chunks", 1);
-				count("writeChunks bytes", chunk.length);
-			});
-		}
-		parent.write(prependStoragePath(key), chunksWithCounts, config);
-		count("writeChunks ops", 1);
+		count(CounterSuffix.WRITE_OPS, 1);
+		count(CounterSuffix.WRITE_BYTES, value.length);
 	}
 
 	@Override
 	public void write(PathbeanKey key, InputStream inputStream, Config config){
-		parent.write(prependStoragePath(key), inputStream, config);
-		//TODO count bytes
-		count("writeInputStream ops", 1);
+		var countingInputStream = new CountingInputStream(
+				inputStream,
+				INPUT_STREAM_COUNT_INTERVAL,
+				numBytes -> count(CounterSuffix.WRITE_INPUT_STREAM_BYTES, numBytes));
+		parent.write(prependStoragePath(key), countingInputStream, config);
+		count(CounterSuffix.WRITE_INPUT_STREAM_OPS, 1);
+	}
+
+	@Override
+	public void writeParallel(
+			PathbeanKey key,
+			InputStream inputStream,
+			ExecutorService exec,
+			int numThreads,
+			Config config){
+		var countingInputStream = new CountingInputStream(
+				inputStream,
+				INPUT_STREAM_COUNT_INTERVAL,
+				numBytes -> count(CounterSuffix.WRITE_INPUT_STREAM_BYTES, numBytes));
+		parent.writeParallel(prependStoragePath(key), countingInputStream, exec, numThreads, config);
+		count(CounterSuffix.WRITE_INPUT_STREAM_OPS, 1);
 	}
 
 	/*---------- delete ------------*/
@@ -102,13 +112,13 @@ implements BlobStorage{
 	@Override
 	public void delete(PathbeanKey key, Config config){
 		parent.delete(prependStoragePath(key), config);
-		count("delete ops", 1);
+		count(CounterSuffix.DELETE_OPS, 1);
 	}
 
 	@Override
 	public void deleteAll(Subpath subpath, Config config){
 		parent.deleteAll(subpathInParent.append(subpath), config);
-		count("deleteAll ops", 1);
+		count(CounterSuffix.DELETE_ALL_OPS, 1);
 	}
 
 	/*---------- metadata ------------*/
@@ -128,32 +138,32 @@ implements BlobStorage{
 	@Override
 	public boolean exists(PathbeanKey key, Config config){
 		boolean exists = parent.exists(prependStoragePath(key), config);
-		count("exists ops", 1);
+		count(CounterSuffix.EXISTS_OPS, 1);
 		return exists;
 	}
 
 	@Override
 	public Optional<Long> length(PathbeanKey key, Config config){
 		Optional<Long> optLength = parent.length(prependStoragePath(key), config);
-		count("length ops", 1);
+		count(CounterSuffix.LENGTH_OPS, 1);
 		return optLength;
 	}
 
 	@Override
 	public byte[] read(PathbeanKey key, Config config){
 		Optional<byte[]> optBytes = Optional.ofNullable(parent.read(prependStoragePath(key), config));
-		count("read ops", 1);
+		count(CounterSuffix.READ_OPS, 1);
 		optBytes.map(bytes -> bytes.length)
-				.ifPresent(length -> count("read bytes", length));
+				.ifPresent(length -> count(CounterSuffix.READ_BYTES, length));
 		return optBytes.orElse(null);
 	}
 
 	@Override
 	public byte[] read(PathbeanKey key, long offset, int length, Config config){
 		Optional<byte[]> optBytes = Optional.ofNullable(parent.read(prependStoragePath(key), offset, length, config));
-		count("readOffsetLimit ops", 1);
+		count(CounterSuffix.READ_OFFSET_LIMIT_OPS, 1);
 		optBytes.map(bytes -> bytes.length)
-				.ifPresent(actualLength -> count("readOffsetLimit bytes", actualLength));
+				.ifPresent(actualLength -> count(CounterSuffix.READ_OFFSET_LIMIT_BYTES, actualLength));
 		return optBytes.orElse(null);
 	}
 
@@ -162,12 +172,21 @@ implements BlobStorage{
 		Map<PathbeanKey,byte[]> keyValue = new HashMap<>();
 		keys.forEach(key -> {
 				Optional<byte[]> optBytes = Optional.ofNullable(parent.read(prependStoragePath(key), config));
-				count("read ops", 1);
+				count(CounterSuffix.READ_OPS, 1);
 				optBytes.map(bytes -> bytes.length)
-						.ifPresent(actualLength -> count("read bytes", actualLength));
+						.ifPresent(actualLength -> count(CounterSuffix.READ_BYTES, actualLength));
 				keyValue.putIfAbsent(key, optBytes.orElse(null));
 			});
 		return keyValue;
+	}
+
+	@Override
+	public InputStream readInputStream(PathbeanKey key, Config config){
+		count(CounterSuffix.READ_INPUT_STREAM_OPS, 1);
+		return new CountingInputStream(
+				parent.readInputStream(prependStoragePath(key), config),
+				INPUT_STREAM_COUNT_INTERVAL,
+				numBytes -> count(CounterSuffix.READ_INPUT_STREAM_BYTES, numBytes));
 	}
 
 	/*---------- scan ------------*/
@@ -178,8 +197,8 @@ implements BlobStorage{
 				.map(keys -> Scanner.of(keys)
 						.map(this::removeStoragePath)
 						.list())
-				.each($ -> count("scanKeys ops", 1))
-				.each(page -> count("scanKeys items", page.size()));
+				.each($ -> count(CounterSuffix.SCAN_KEYS_OPS, 1))
+				.each(page -> count(CounterSuffix.SCAN_KEYS_ITEMS, page.size()));
 	}
 
 	@Override
@@ -188,8 +207,8 @@ implements BlobStorage{
 				.map(page -> Scanner.of(page)
 						.map(pathbean -> new Pathbean(removeStoragePath(pathbean.getKey()), pathbean.getSize()))
 						.list())
-				.each($ -> count("scan ops", 1))
-				.each(page -> count("scan items", page.size()));
+				.each($ -> count(CounterSuffix.SCAN_OPS, 1))
+				.each(page -> count(CounterSuffix.SCAN_ITEMS, page.size()));
 	}
 
 	/*------------------ private ---------------------*/
@@ -206,11 +225,40 @@ implements BlobStorage{
 		return new PathbeanKey(directoryPath, storageKey.getFile());
 	}
 
-	private void count(String suffix, long by){
+	/*------------- counts --------------*/
+
+	private void count(CounterSuffix suffix, long by){
 		optCounterName.ifPresent(counterName -> {
-			String name = String.format("Directory %s %s", counterName, suffix);
+			String name = String.format("Directory %s %s", counterName, suffix.suffix);
 			Counters.inc(name, by);
 		});
+	}
+
+	private enum CounterSuffix{
+		DELETE_ALL_OPS("deleteAll ops"),
+		DELETE_OPS("delete ops"),
+		EXISTS_OPS("exists ops"),
+		LENGTH_OPS("length ops"),
+		READ_BYTES("read bytes"),
+		READ_INPUT_STREAM_BYTES("readInputStream bytes"),
+		READ_INPUT_STREAM_OPS("readInputStream ops"),
+		READ_OPS("read ops"),
+		READ_OFFSET_LIMIT_BYTES("readOffsetLimit bytes"),
+		READ_OFFSET_LIMIT_OPS("readOffsetLimit ops"),
+		SCAN_KEYS_OPS("scanKeys ops"),
+		SCAN_KEYS_ITEMS("scanKeys items"),
+		SCAN_OPS("scan ops"),
+		SCAN_ITEMS("scan items"),
+		WRITE_BYTES("write bytes"),
+		WRITE_OPS("write ops"),
+		WRITE_INPUT_STREAM_BYTES("writeInputStream bytes"),
+		WRITE_INPUT_STREAM_OPS("writeInputStream ops");
+
+		public final String suffix;
+
+		private CounterSuffix(String suffix){
+			this.suffix = suffix;
+		}
 	}
 
 	/*------------------ Object ---------------------*/

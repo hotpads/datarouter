@@ -17,10 +17,13 @@ package io.datarouter.scanner;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 public class CollatingScannerTests{
+	private static final Logger logger = LoggerFactory.getLogger(CollatingScannerTests.class);
 
 	@Test
 	public void test(){
@@ -34,8 +37,28 @@ public class CollatingScannerTests{
 		List<Integer> actual = batches
 				.collate(Scanner::of)
 				.list();
+		logger.warn("actual={}", actual);
 		List<Integer> expected = List.of(0, 1, 2, 2, 7, 7, 8, 9);
 		Assert.assertEquals(actual, expected);
+	}
+
+	@Test
+	public void testBiggerData(){
+		List<Long> input = Scanner.iterate(0L, i -> i + 1)
+				.limit(100_000)
+				.concatIter(i -> List.of(i, i, i))//create some duplicates
+				.list();
+		List<Long> randomizedInput = Scanner.of(input)
+				.shuffle()
+				.list();
+		List<List<Long>> sortedInputBatches = Scanner.of(randomizedInput)
+				.batch(10_000)
+				.map(batch -> Scanner.of(batch).sort().list())
+				.list();
+		List<Long> output = Scanner.of(sortedInputBatches)
+				.collate(Scanner::of)
+				.list();
+		Assert.assertEquals(output, input);
 	}
 
 }

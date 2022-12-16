@@ -23,6 +23,7 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
 import io.datarouter.gcp.spanner.SpannerClientType;
+import io.datarouter.gcp.spanner.client.SpannerClientOptions;
 import io.datarouter.storage.client.ClientOptions;
 import io.datarouter.web.browse.DatarouterClientWebInspector;
 import io.datarouter.web.browse.dto.DatarouterWebRequestParamsFactory;
@@ -40,6 +41,8 @@ public class SpannerWebInspector implements DatarouterClientWebInspector{
 	private DatarouterWebRequestParamsFactory paramsFactory;
 	@Inject
 	private ClientOptions clientOptions;
+	@Inject
+	private SpannerClientOptions spannerClientOptions;
 
 	@Override
 	public Mav inspectClient(Params params, HttpServletRequest request){
@@ -51,6 +54,12 @@ public class SpannerWebInspector implements DatarouterClientWebInspector{
 
 		var clientName = clientId.getName();
 		Map<String,String> allClientOptions = clientOptions.getAllClientOptions(clientName);
+		allClientOptions.put(
+				SpannerClientOptions.makeSpannerKey(SpannerClientOptions.PROP_maxSessions),
+				String.valueOf(spannerClientOptions.maxSessions(clientName)));
+		allClientOptions.put(
+				SpannerClientOptions.makeSpannerKey(SpannerClientOptions.PROP_numChannels),
+				String.valueOf(spannerClientOptions.numChannels(clientName)));
 		var content = div(
 				buildClientPageHeader(clientName),
 				buildClientOptionsTable(allClientOptions))

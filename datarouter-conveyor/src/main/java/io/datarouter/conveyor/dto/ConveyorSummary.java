@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
-import io.datarouter.conveyor.BaseConveyors.ExecsAndConveyors;
+import io.datarouter.conveyor.ConveyorAppListener.ExecsAndConveyors;
 import io.datarouter.conveyor.ConveyorRunnable;
 import io.datarouter.scanner.Scanner;
 

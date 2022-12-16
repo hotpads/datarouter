@@ -24,13 +24,16 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import com.amazonaws.services.sqs.AmazonSQS;
-import com.amazonaws.services.sqs.model.ListQueuesResult;
 import com.amazonaws.services.sqs.model.QueueDoesNotExistException;
 
 import io.datarouter.aws.sqs.SqsClientManager;
 import io.datarouter.aws.sqs.SqsPhysicalNode;
+import io.datarouter.aws.sqs.SqsQueueNameService;
+import io.datarouter.aws.sqs.config.DatarouterSqsPlugin.ServiceNameRegistry;
+import io.datarouter.plugin.PluginInjector;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientId;
+import io.datarouter.storage.config.properties.ServiceName;
 import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.node.NodeTool;
 import io.datarouter.util.string.StringTool;
@@ -42,36 +45,40 @@ public class SqsQueueRegistryService{
 	private DatarouterNodes nodes;
 	@Inject
 	private SqsClientManager sqsClientManager;
+	@Inject
+	private SqsQueueNameService sqsQueueNameService;
+	@Inject
+	private PluginInjector pluginInjector;
+	@Inject
+	private ServiceName serviceName;
 
 	public SqsQueuesForClient getSqsQueuesForClient(ClientId clientId){
-		Set<String> knownQueuesUrls = new HashSet<>();
 		AmazonSQS sqs = sqsClientManager.getAmazonSqs(clientId);
-		List<? extends SqsPhysicalNode<?,?,?>> sqsNodes = Scanner.of(
-				nodes.getPhysicalNodesForClient(clientId.getName()))
+		List<QueueUrlAndName> knownQueueUrlAndNames = Scanner.of(nodes.getPhysicalNodesForClient(clientId.getName()))
 				.map(NodeTool::extractSinglePhysicalNode)
 				.map(physicalNode -> (SqsPhysicalNode<?,?,?>)physicalNode)
-				.list();
-		List<QueueUrlAndName> knownQueueUrlByName = Scanner.of(sqsNodes)
 				.map(SqsPhysicalNode::getQueueUrlAndName)
 				.map(Supplier::get)
-				.each(twin -> knownQueuesUrls.add(twin.queueUrl()))
 				.list();
-		List<String> unreferencedQueues = Scanner.of(sqsNodes)
-				//this intentionally avoids manually specified namespaces, since they could overlap with other services
-				.map(SqsPhysicalNode::getAutomaticNamespace)
-				.distinct()
-				.map(sqs::listQueues)
-				.concatIter(ListQueuesResult::getQueueUrls)
-				.exclude(knownQueuesUrls::contains)
+		Set<String> knownQueuesUrls = Scanner.of(knownQueueUrlAndNames)
+				.map(QueueUrlAndName::queueUrl)
+				.collect(HashSet::new);
+
+		var unreferencedQueues = Scanner.of(sqs.listQueues(sqsQueueNameService.buildDefaultNamespace()).getQueueUrls())
+				.exclude(queueUrl -> checkForUnreferencedQueues(queueUrl, knownQueuesUrls))
 				.map(queueUrl -> StringTool.getStringAfterLastOccurrence("/", queueUrl))
+				// it can take up to 60 seconds for a deleted queue to stop showing up in the listQueues call,
+				// so double-check that the queue actually exists
 				.include(queueName -> sqsQueueExists(sqs, queueName))
 				.list();
-		return new SqsQueuesForClient(knownQueueUrlByName, unreferencedQueues);
+		return new SqsQueuesForClient(knownQueueUrlAndNames, unreferencedQueues);
 	}
 
-	public record SqsQueuesForClient(
-			List<QueueUrlAndName> knownQueueUrlByName,
-			List<String> unreferencedQueues){
+	private boolean checkForUnreferencedQueues(String queueUrl, Set<String> knownQueuesUrls){
+		return Scanner.of(pluginInjector.getInstance(ServiceNameRegistry.KEY).serviceNames)
+				.exclude(name -> name.equals(serviceName.get()))
+				.anyMatch(serviceName -> queueUrl.contains(serviceName)
+						|| knownQueuesUrls.contains(queueUrl));
 	}
 
 	private boolean sqsQueueExists(AmazonSQS sqs, String queueName){
@@ -81,6 +88,11 @@ public class SqsQueueRegistryService{
 		}catch(QueueDoesNotExistException e){
 			return false;
 		}
+	}
+
+	public record SqsQueuesForClient(
+			List<QueueUrlAndName> knownQueueUrlByName,
+			List<String> unreferencedQueues){
 	}
 
 }

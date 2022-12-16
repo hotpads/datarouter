@@ -19,6 +19,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
 
+import io.datarouter.scanner.Scanner;
+
 public class OutputStreamTool{
 
 	public static void write(OutputStream outputStream, byte[] bytes){
@@ -32,6 +34,16 @@ public class OutputStreamTool{
 	public static void write(OutputStream outputStream, byte[] bytes, int offset, int length){
 		try{
 			outputStream.write(bytes, offset, length);
+		}catch(IOException e){
+			throw new UncheckedIOException(e);
+		}
+	}
+
+	public static void write(OutputStream outputStream, Scanner<byte[]> byteArrays){
+		try{
+			for(byte[] bytes : byteArrays.iterable()){
+				outputStream.write(bytes);
+			}
 		}catch(IOException e){
 			throw new UncheckedIOException(e);
 		}

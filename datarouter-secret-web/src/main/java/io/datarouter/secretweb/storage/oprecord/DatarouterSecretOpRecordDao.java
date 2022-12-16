@@ -15,6 +15,8 @@
  */
 package io.datarouter.secretweb.storage.oprecord;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -37,6 +39,8 @@ import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import io.datarouter.storage.tag.Tag;
+import io.datarouter.storage.util.DatabeanVacuum;
+import io.datarouter.storage.util.DatabeanVacuum.DatabeanVacuumBuilder;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.virtualnode.redundant.RedundantSortedMapStorageNode;
 
@@ -89,6 +93,15 @@ public class DatarouterSecretOpRecordDao extends BaseDao implements SecretOpReco
 				secretOp.getSecretClientOpType(),
 				secretOp.getSecretOpReason().type,
 				reasonString));
+	}
+
+	public DatabeanVacuum<DatarouterSecretOpRecordKey,DatarouterSecretOpRecord> makeVacuum(){
+		Instant deleteBeforeTime = Instant.now().minus(30L, ChronoUnit.DAYS);
+		return new DatabeanVacuumBuilder<>(
+				node.scan(),
+				databean -> databean.getKey().getDate().isBefore(deleteBeforeTime),
+				node::deleteMulti)
+				.build();
 	}
 
 	@Singleton

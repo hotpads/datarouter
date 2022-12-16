@@ -15,7 +15,7 @@
  */
 package io.datarouter.exception.storage.httprecord;
 
-import io.datarouter.util.Ulid;
+import io.datarouter.types.Ulid;
 
 public class HttpRequestRecordKey extends BaseHttpRequestRecordKey<HttpRequestRecordKey>{
 

@@ -29,13 +29,10 @@ public class DatarouterGaugeSettingRoot extends SettingRoot{
 
 	//save gauges in buffer
 	public final CachedSetting<Boolean> saveGaugesToMemory;
-	//publish gauges from buffer
-	public final CachedSetting<Boolean> runGaugeMemoryToPublisherConveyor;
+	public final CachedSetting<Boolean> recordGaugeMemoryToPublisherGauges;
 
 	//controls gauge publishing destination
 	public final CachedSetting<Boolean> saveToQueueInsteadOfDirectory;
-
-	public final CachedSetting<Integer> conveyorThreadCount;
 
 	@Inject
 	public DatarouterGaugeSettingRoot(SettingFinder finder){
@@ -43,13 +40,10 @@ public class DatarouterGaugeSettingRoot extends SettingRoot{
 
 		saveGaugesToMemory = registerBooleans("saveGaugesToMemory", defaultTo(false)
 				.withTag(DatarouterSettingTagType.GAUGEPIPELINE, () -> true));
-		runGaugeMemoryToPublisherConveyor = registerBooleans("runGaugeMemoryToPublisherConveyor", defaultTo(false)
-				.withTag(DatarouterSettingTagType.GAUGEPIPELINE, () -> true));
+		recordGaugeMemoryToPublisherGauges = registerBoolean("recordGaugeMemoryToPublisherGauges", true);
 
 		saveToQueueInsteadOfDirectory = registerBoolean(
 				"saveToQueueInsteadOfDirectory", false);
-
-		conveyorThreadCount = registerInteger("conveyorThreadCount", 1);
 	}
 
 }

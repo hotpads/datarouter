@@ -41,7 +41,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
-import io.datarouter.bytes.ByteUnitTool;
+import io.datarouter.bytes.ByteLength;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.storage.util.Ec2InstanceTool;
@@ -127,10 +127,10 @@ public class MemoryMonitoringHandler extends BaseHandler implements NonEagerInit
 		mav.put("nonHeap", new MemoryUsageForDisplay(nonHeapMemoryUsage));
 
 		HostMemoryTool.getHostMemoryStats().ifSuccess(hostMemoryStats -> {
-			mav.put("hostMemoryUsed", ByteUnitTool.byteCountToDisplaySize(hostMemoryStats.get(
-					HostMemoryTool.HOST_MEM_NAME).get(HostMemoryTool.HOST_USED_LABEL)));
-			mav.put("hostMemoryTotal", ByteUnitTool.byteCountToDisplaySize(hostMemoryStats.get(
-					HostMemoryTool.HOST_MEM_NAME).get(HostMemoryTool.HOST_TOTAL_LABEL)));
+			mav.put("hostMemoryUsed", ByteLength.ofBytes(hostMemoryStats.get(
+					HostMemoryTool.HOST_MEM_NAME).get(HostMemoryTool.HOST_USED_LABEL)).toDisplay());
+			mav.put("hostMemoryTotal", ByteLength.ofBytes(hostMemoryStats.get(
+					HostMemoryTool.HOST_MEM_NAME).get(HostMemoryTool.HOST_TOTAL_LABEL)).toDisplay());
 		});
 
 		mav.put("vmNativeMemoryStats", buildNativeMemoryStatsTable());
@@ -183,8 +183,8 @@ public class MemoryMonitoringHandler extends BaseHandler implements NonEagerInit
 		Scanner.of(memoryStats)
 				.map(stat -> tr(
 						td(stat.category.getDisplay()),
-						td(ByteUnitTool.byteCountToDisplaySize(stat.reservedMemoryBytes)).attr(Attr.ALIGN, "right"),
-						td(ByteUnitTool.byteCountToDisplaySize(stat.committedMemoryBytes)).attr(Attr.ALIGN, "right")))
+						td(ByteLength.ofBytes(stat.reservedMemoryBytes).toDisplay()).attr(Attr.ALIGN, "right"),
+						td(ByteLength.ofBytes(stat.committedMemoryBytes).toDisplay()).attr(Attr.ALIGN, "right")))
 				.forEach(tbody::with);
 		var table = table(tbody)
 				.withClass("table table-striped table-bordered table-sm");
@@ -204,7 +204,7 @@ public class MemoryMonitoringHandler extends BaseHandler implements NonEagerInit
 		Scanner.of(memoryStats)
 				.map(stat -> tr(
 						td(stat.category.getDisplay()),
-						td(ByteUnitTool.byteCountToDisplaySize(stat.memoryBytes)).attr(Attr.ALIGN, "right")))
+						td(ByteLength.ofBytes(stat.memoryBytes).toDisplay()).attr(Attr.ALIGN, "right")))
 				.forEach(tbody::with);
 		var table = table(tbody)
 				.withClass("table table-striped table-bordered table-sm");
@@ -297,11 +297,11 @@ public class MemoryMonitoringHandler extends BaseHandler implements NonEagerInit
 			long maxBytes = memoryUsage.getMax();
 			long freeBytes = allocatedBytes - usedBytes;
 			long unallocatedBytes = maxBytes - allocatedBytes;
-			this.max = ByteUnitTool.byteCountToDisplaySize(maxBytes);
-			this.unallocated = ByteUnitTool.byteCountToDisplaySize(unallocatedBytes);
-			this.allocated = ByteUnitTool.byteCountToDisplaySize(allocatedBytes);
-			this.used = ByteUnitTool.byteCountToDisplaySize(usedBytes);
-			this.free = ByteUnitTool.byteCountToDisplaySize(freeBytes);
+			this.max = ByteLength.ofBytes(maxBytes).toDisplay();
+			this.unallocated = ByteLength.ofBytes(unallocatedBytes).toDisplay();
+			this.allocated = ByteLength.ofBytes(allocatedBytes).toDisplay();
+			this.used = ByteLength.ofBytes(usedBytes).toDisplay();
+			this.free = ByteLength.ofBytes(freeBytes).toDisplay();
 		}
 
 		public String getMax(){
@@ -366,9 +366,9 @@ public class MemoryMonitoringHandler extends BaseHandler implements NonEagerInit
 			this.name = name;
 			long diff = before - after;
 			if(diff >= 0){
-				this.saved = ByteUnitTool.byteCountToDisplaySize(diff);
+				this.saved = ByteLength.ofBytes(diff).toDisplay();
 			}else{
-				this.saved = "-" + ByteUnitTool.byteCountToDisplaySize(-diff);
+				this.saved = "-" + ByteLength.ofBytes(-diff).toDisplay();
 			}
 			if(before > 0){
 				this.pct = diff / (double)before;

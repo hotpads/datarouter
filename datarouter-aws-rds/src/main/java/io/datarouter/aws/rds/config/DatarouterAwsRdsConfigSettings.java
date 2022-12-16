@@ -100,16 +100,9 @@ public class DatarouterAwsRdsConfigSettings extends SettingNode{
 				: rdsClusterEndpointWest.get();
 	}
 
-	public static class RdsCredentialsDto{
-
-		public final String accessKey;
-		public final String secretKey;
-
-		public RdsCredentialsDto(String accessKey, String secretKey){
-			this.accessKey = accessKey;
-			this.secretKey = secretKey;
-		}
-
+	public record RdsCredentialsDto(
+			String accessKey,
+			String secretKey){
 	}
 
 }

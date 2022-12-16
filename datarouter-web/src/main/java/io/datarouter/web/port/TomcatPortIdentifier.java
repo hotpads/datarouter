@@ -18,9 +18,8 @@ package io.datarouter.web.port;
 import java.util.ArrayList;
 
 import javax.inject.Singleton;
-import javax.management.JMException;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
+
+import org.apache.commons.lang3.mutable.MutableInt;
 
 import io.datarouter.httpclient.security.UrlScheme;
 import io.datarouter.util.MxBeans;
@@ -28,44 +27,29 @@ import io.datarouter.util.MxBeans;
 @Singleton
 public class TomcatPortIdentifier implements PortIdentifier{
 
-	private Integer httpPort;
-	private Integer httpsPort;
-
-	public TomcatPortIdentifier() throws MalformedObjectNameException{
-		ObjectName query = new ObjectName(CompoundPortIdentifier.CATALINA_JMX_DOMAIN + ":type=ProtocolHandler,*");
+	@Override
+	public PortIdentificationResult identify(){
+		var httpPort = new MutableInt();
+		var httpsPort = new MutableInt();
+		var query = JmxTool.newObjectName(CompoundPortIdentifier.CATALINA_JMX_DOMAIN + ":type=ProtocolHandler,*");
 		var handlers = new ArrayList<String>();
-		MxBeans.SERVER.queryNames(query, null).forEach(objectName -> {
-			handlers.add(objectName.toString());
-			int port;
-			String scheme;
-			try{
-				port = (int)MxBeans.SERVER.getAttribute(objectName, "port");
-				objectName = new ObjectName(CompoundPortIdentifier.CATALINA_JMX_DOMAIN + ":type=Connector,port="
-						+ port);
-				scheme = (String)MxBeans.SERVER.getAttribute(objectName, "scheme");
-			}catch(JMException e){
-				throw new RuntimeException(e);
-			}
+		MxBeans.SERVER.queryNames(query, null).forEach(protocolHandler -> {
+			handlers.add(protocolHandler.toString());
+			int port = (int)JmxTool.getAttribute(protocolHandler, "port");
+			var connector = JmxTool.newObjectName(CompoundPortIdentifier.CATALINA_JMX_DOMAIN + ":type=Connector,port="
+					+ port);
+			String scheme = (String)JmxTool.getAttribute(connector, "scheme");
 			if(scheme.equals(UrlScheme.HTTPS.getStringRepresentation())){
-				httpsPort = port;
+				httpsPort.setValue(port);
 			}else if(scheme.equals(UrlScheme.HTTP.getStringRepresentation())){
-				httpPort = port;
+				httpPort.setValue(port);
 			}
 		});
-		if(httpPort == null || httpsPort == null){
-			throw new RuntimeException("port not found httpPort=" + httpPort + " httpsPort=" + httpsPort + " handlers="
-					+ handlers);
+		if(httpPort.intValue() == 0 || httpsPort.intValue() == 0){
+			return PortIdentificationResult.errorWithdefaults("port not found httpPort=" + httpPort + " httpsPort="
+					+ httpsPort + " handlers=" + handlers);
 		}
-	}
-
-	@Override
-	public Integer getHttpPort(){
-		return httpPort;
-	}
-
-	@Override
-	public Integer getHttpsPort(){
-		return httpsPort;
+		return PortIdentificationResult.success(httpPort.intValue(), httpsPort.intValue());
 	}
 
 }

@@ -17,6 +17,7 @@ package io.datarouter.secretweb.config;
 
 import java.util.List;
 
+import io.datarouter.job.BaseTriggerGroup;
 import io.datarouter.secret.config.DatarouterSecretPlugin;
 import io.datarouter.secret.config.DatarouterSecretPlugin.DatarouterSecretPluginBuilder;
 import io.datarouter.secretweb.service.DatarouterPropertiesAndServiceSecretNamespacer;
@@ -50,6 +51,8 @@ public class DatarouterSecretWebPlugin extends BaseWebPlugin{
 				new DatarouterSecretPaths().datarouter.secrets,
 				"Secrets");
 		addDatarouterGithubDocLink("datarouter-secrets-web");
+		addSettingRoot(DatarouterSecretWebSettingRoot.class);
+		addPluginEntry(BaseTriggerGroup.KEY, DatarouterSecretWebTriggerGroup.class);
 	}
 
 	@Override

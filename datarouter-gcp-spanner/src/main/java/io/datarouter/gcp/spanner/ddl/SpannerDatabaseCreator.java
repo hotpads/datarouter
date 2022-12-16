@@ -37,6 +37,7 @@ import com.google.cloud.spanner.Statement;
 
 import io.datarouter.storage.config.schema.SchemaUpdateOptions;
 import io.datarouter.storage.config.schema.SchemaUpdateTool;
+import io.datarouter.util.timer.PhaseTimer;
 
 @Singleton
 public class SpannerDatabaseCreator{
@@ -47,15 +48,19 @@ public class SpannerDatabaseCreator{
 	@Inject
 	private SchemaUpdateOptions schemaUpdateOptions;
 
-	public void createIfMissing(Spanner spanner, DatabaseId databaseId){
+	public void createIfMissing(Spanner spanner, DatabaseId databaseId, PhaseTimer timer){
 		//Try to check existence without the Admin API first since it has rate limiting
-		if(hasTables(spanner, databaseId)){
+		boolean hasTables = hasTables(spanner, databaseId);
+		timer.add("listTables");
+		if(hasTables){
 			String message = String.format("Database %s exists with tables", databaseId.getDatabase());
 			logger.info(SchemaUpdateTool.generateFullWidthMessage(message));
 			return;
 		}
 		//Fall back to the more expensive Admin API if no tables found
-		if(exists(spanner, databaseId)){
+		boolean exists = exists(spanner, databaseId);
+		timer.add("getDatabase");
+		if(exists){
 			String message = String.format("Database %s exists without tables", databaseId.getDatabase());
 			logger.info(SchemaUpdateTool.generateFullWidthMessage(message));
 			return;
@@ -67,6 +72,7 @@ public class SpannerDatabaseCreator{
 		String message = String.format("Creating spanner database %s", databaseId.getDatabase());
 		logger.info(SchemaUpdateTool.generateFullWidthMessage(message));
 		create(spanner, databaseId);
+		timer.add("createDatabase");
 	}
 
 	private boolean hasTables(Spanner spanner, DatabaseId databaseId){

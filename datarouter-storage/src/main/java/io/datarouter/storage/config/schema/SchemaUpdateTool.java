@@ -17,7 +17,7 @@ package io.datarouter.storage.config.schema;
 
 import org.slf4j.Logger;
 
-import io.datarouter.gson.serialization.GsonTool;
+import io.datarouter.gson.GsonTool;
 
 public class SchemaUpdateTool{
 
@@ -30,7 +30,7 @@ public class SchemaUpdateTool{
 			THANK_YOU_MESSAGE = generateFullWidthMessage("Thank You");
 
 	public static void printSchemaUpdate(Logger logger, String schemaUpdate){
-		logger.warn(SINGLE_LINE_SCHEMA_UPDATE_PREFIX + GsonTool.GSON.toJson(schemaUpdate));
+		logger.warn(SINGLE_LINE_SCHEMA_UPDATE_PREFIX + GsonTool.withUnregisteredEnums().toJson(schemaUpdate));
 		logger.warn(PLEASE_EXECUTE_SCHEMA_UPDATE_MESSAGE);
 		logger.warn(schemaUpdate);
 		logger.warn(THANK_YOU_MESSAGE);

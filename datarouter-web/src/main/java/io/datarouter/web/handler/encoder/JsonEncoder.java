@@ -118,12 +118,12 @@ public class JsonEncoder implements HandlerEncoder, JsonAwareHandlerCodec{
 			HttpServletRequest request)
 	throws IOException{
 		String json = getJsonForRequestParamValidatorErrorResponseDto(errorResponseDto);
-		sendErrorJson(errorResponseDto.statusCode, json, response, request);
+		sendErrorJson(errorResponseDto.statusCode(), json, response, request);
 	}
 
 	protected String getJsonForRequestParamValidatorErrorResponseDto(
 			RequestParamValidatorErrorResponseDto errorResponseDto){
-		return ResponseTool.getJsonForMessage(errorResponseDto.statusCode, errorResponseDto.message);
+		return ResponseTool.getJsonForMessage(errorResponseDto.statusCode(), errorResponseDto.message());
 	}
 
 	@Override
@@ -174,8 +174,8 @@ public class JsonEncoder implements HandlerEncoder, JsonAwareHandlerCodec{
 	 * @param httpStatusCode The HTTP status code that will be returned
 	 */
 	protected Optional<Object> buildSimpleErrorObject(
-			@SuppressWarnings("unused") Throwable exception,
-			@SuppressWarnings("unused") int httpStatusCode,
+			Throwable exception,
+			int httpStatusCode,
 			Optional<String> exceptionId){
 		Optional<DocumentedServerError> optDoc = HttpDocumentedExceptionTool
 				.findDocumentationInChain(exception);
@@ -193,31 +193,15 @@ public class JsonEncoder implements HandlerEncoder, JsonAwareHandlerCodec{
 	throws IOException{
 	}
 
-	private static class DetailedError{
-		@SuppressWarnings("unused")
-		private final String stackTrace;
-		@SuppressWarnings("unused")
-		private final String exceptionRecordUrl;
-		@SuppressWarnings("unused")
-		private final String message;
-
-		private DetailedError(String stackTrace, String exceptionRecordUrl, String message){
-			this.stackTrace = stackTrace;
-			this.exceptionRecordUrl = exceptionRecordUrl;
-			this.message = message;
-		}
+	private record DetailedError(
+			String stackTrace,
+			String exceptionRecordUrl,
+			String message){
 	}
 
-	private static class SimpleError{
-		@SuppressWarnings("unused")
-		private final String errorId;
-		@SuppressWarnings("unused")
-		private final String message;
-
-		private SimpleError(String errorId, String message){
-			this.errorId = errorId;
-			this.message = message;
-		}
+	private record SimpleError(
+			String errorId,
+			String message){
 	}
 
 }

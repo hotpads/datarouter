@@ -26,6 +26,8 @@ import io.datarouter.auth.service.CopyUserListener;
 import io.datarouter.auth.service.CopyUserListener.DefaultCopyUserListener;
 import io.datarouter.auth.service.DatarouterAccountDailyDigest;
 import io.datarouter.auth.service.DatarouterAccountDeleteAction;
+import io.datarouter.auth.service.DatarouterDefaultAccountKeysDailyDigest;
+import io.datarouter.auth.service.DatarouterDefaultUserDailyDigest;
 import io.datarouter.auth.service.DatarouterPermissionRequestUserInfo;
 import io.datarouter.auth.service.DatarouterUserInfo;
 import io.datarouter.auth.service.DefaultDatarouterAccountKeys;
@@ -137,6 +139,8 @@ public class DatarouterAuthPlugin extends BaseWebPlugin{
 		addDatarouterGithubDocLink("datarouter-auth");
 		addDailyDigest(PermissionRequestDailyDigest.class);
 		addDailyDigest(DatarouterAccountDailyDigest.class);
+		addDailyDigest(DatarouterDefaultAccountKeysDailyDigest.class);
+		addDailyDigest(DatarouterDefaultUserDailyDigest.class);
 		configs.forEach(this::addPluginEntry);
 	}
 

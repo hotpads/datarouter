@@ -33,8 +33,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.filesystem.raw.small.BinaryFileService;
-import io.datarouter.filesystem.raw.small.Utf8SmallFileService;
-import io.datarouter.scanner.ObjectScanner;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.util.Subpath;
 import io.datarouter.util.timer.PhaseTimer;
@@ -51,28 +49,23 @@ public class DirectoryManager{
 		private PathService pathService;
 		@Inject
 		private BinaryFileService binaryFileService;
-		@Inject
-		private Utf8SmallFileService utf8FileService;
 
 		public DirectoryManager create(String rootPathString){
-			return new DirectoryManager(pathService, binaryFileService, utf8FileService, rootPathString);
+			return new DirectoryManager(pathService, binaryFileService, rootPathString);
 		}
 
 	}
 
 	private final PathService pathService;
 	private final BinaryFileService binaryFileService;
-	private final Utf8SmallFileService utf8FileService;
 	private final Path root;
 
 	public DirectoryManager(
 			PathService pathService,
 			BinaryFileService binaryFileService,
-			Utf8SmallFileService utf8FileService,
 			String rootPathString){
 		this.pathService = pathService;
 		this.binaryFileService = binaryFileService;
-		this.utf8FileService = utf8FileService;
 		this.root = Paths.get(rootPathString);
 		boolean createdAnyParents = root.toFile().mkdirs();
 		if(createdAnyParents){
@@ -125,7 +118,6 @@ public class DirectoryManager{
 		return new DirectoryManager(
 				pathService,
 				binaryFileService,
-				utf8FileService,
 				resolveSubpath(subpath).toString());
 	}
 
@@ -145,14 +137,10 @@ public class DirectoryManager{
 		return pathService.size(resolveString(relativePathString));
 	}
 
-	/*------------ read/write -----------*/
+	/*------------ write -----------*/
 
-	public DirectoryManager write(String relativePathString, byte[] contents){
-		return write(relativePathString, ObjectScanner.of(contents));
-	}
-
-	public DirectoryManager write(String relativePathString, Scanner<byte[]> chunks){
-		binaryFileService.writeBytes(resolveString(relativePathString), chunks);
+	public DirectoryManager write(String relativePathString, byte[] bytes){
+		binaryFileService.writeBytes(resolveString(relativePathString), bytes);
 		return this;
 	}
 
@@ -161,10 +149,7 @@ public class DirectoryManager{
 		return this;
 	}
 
-	public DirectoryManager writeUtf8(String relativePathString, String contents){
-		utf8FileService.writeUtf8(resolveString(relativePathString), contents);
-		return this;
-	}
+	/*------------ read -----------*/
 
 	public byte[] read(String relativePathString){
 		if(ALLOW_LOGGING){
@@ -181,8 +166,8 @@ public class DirectoryManager{
 		return binaryFileService.readBytes(resolveString(relativePathString), offset, length);
 	}
 
-	public String readUtf8(String relativePathString){
-		return utf8FileService.readUtf8(resolveString(relativePathString));
+	public InputStream readInputStream(String relativePathString){
+		return binaryFileService.readInputStream(resolveString(relativePathString));
 	}
 
 	/*------------ delete -------------*/

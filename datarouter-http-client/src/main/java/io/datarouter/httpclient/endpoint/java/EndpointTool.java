@@ -22,6 +22,7 @@ import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -86,6 +87,13 @@ public class EndpointTool{
 			this.postKeys = postKeys;
 		}
 
+		public List<String> getAllKeys(){
+			List<String> keys = new ArrayList<>();
+			keys.addAll(getKeys);
+			keys.addAll(postKeys);
+			return keys;
+		}
+
 	}
 
 	/**
@@ -148,7 +156,7 @@ public class EndpointTool{
 		return new ParamsMap(getParams, postParams);
 	}
 
-	public static ParamsKeysMap getKeys(BaseEndpoint<?,?> endpoint){
+	public static ParamsKeysMap getRequiredKeys(BaseEndpoint<?,?> endpoint){
 		List<String> getKeys = new LinkedList<>();
 		List<String> postKeys = new LinkedList<>();
 		for(Field field : endpoint.getClass().getFields()){
@@ -162,7 +170,13 @@ public class EndpointTool{
 			if(field.getAnnotation(RequestBody.class) != null){
 				continue;
 			}
+			boolean isOptional = field.getType().isAssignableFrom(Optional.class);
+			if(isOptional){
+				continue;
+			}
+
 			String key = getFieldName(field);
+
 			EndpointParam param = field.getAnnotation(EndpointParam.class);
 			if(param == null || param.paramType() == null || param.paramType() == ParamType.DEFAULT){
 				if(endpoint.method == HttpRequestMethod.GET){

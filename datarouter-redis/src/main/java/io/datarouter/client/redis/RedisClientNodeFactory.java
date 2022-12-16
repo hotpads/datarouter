@@ -18,7 +18,7 @@ package io.datarouter.client.redis;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.bytes.ByteUnitType;
+import io.datarouter.bytes.ByteLength;
 import io.datarouter.client.redis.client.RedisClientManager;
 import io.datarouter.client.redis.codec.RedisBlobCodec;
 import io.datarouter.client.redis.codec.RedisTallyCodec;
@@ -58,7 +58,7 @@ public class RedisClientNodeFactory
 implements BlobClientNodeFactory, DatabeanClientNodeFactory, TallyClientNodeFactory{
 
 	//Redis max key length is 512 MB but we'll start out shorter
-	private static final int MAX_REDIS_KEY_SIZE = ByteUnitType.KiB.toBytesInt(64);
+	private static final int MAX_REDIS_KEY_SIZE = ByteLength.ofKiB(64).toBytesInt();
 	private static final int MAX_REDIS_VALUE_SIZE = Integer.MAX_VALUE;//java array size limit
 
 	@Inject

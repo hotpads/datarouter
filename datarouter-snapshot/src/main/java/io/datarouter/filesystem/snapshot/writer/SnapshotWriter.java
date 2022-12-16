@@ -40,7 +40,7 @@ import io.datarouter.filesystem.snapshot.storage.block.SnapshotBlockStorage;
 import io.datarouter.filesystem.snapshot.storage.file.SnapshotFileStorage;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.concurrent.CountDownLatchTool;
-import io.datarouter.util.concurrent.LinkedBlockingDequeTool;
+import io.datarouter.util.concurrent.BlockingDequeTool;
 
 public class SnapshotWriter implements AutoCloseable{
 	private static final Logger logger = LoggerFactory.getLogger(SnapshotWriter.class);
@@ -120,7 +120,7 @@ public class SnapshotWriter implements AutoCloseable{
 			Message batch;
 			do{
 				long beforeNs = System.nanoTime();
-				batch = LinkedBlockingDequeTool.pollForever(messages);
+				batch = BlockingDequeTool.pollForever(messages);
 				long ns = System.nanoTime() - beforeNs;
 				tracker.readStallNs.incrementBy(ns);
 				batch.entries.forEach(this::add);
@@ -141,7 +141,7 @@ public class SnapshotWriter implements AutoCloseable{
 	}
 
 	public void addBatch(List<SnapshotEntry> entries){
-		LinkedBlockingDequeTool.put(messages, Message.addBatch(entries));
+		BlockingDequeTool.put(messages, Message.addBatch(entries));
 		tracker.entriesQueued.incrementBySize(entries);
 		logStatusOccasional();
 	}
@@ -226,7 +226,7 @@ public class SnapshotWriter implements AutoCloseable{
 	}
 
 	public Optional<RootBlock> complete(){
-		LinkedBlockingDequeTool.put(messages, Message.last());
+		BlockingDequeTool.put(messages, Message.last());
 		CountDownLatchTool.await(writerThreadCompletionLatch);
 
 		// finish value blocks

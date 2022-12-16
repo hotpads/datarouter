@@ -98,7 +98,7 @@ public class SqsGroupNodeIntegrationTester{
 	@Test
 	public void testPeekTimeout(){
 		Assert.assertNull(dao.peek());
-		Assert.assertNull(dao.peek(Duration.ofSeconds(BaseSqsNode.MAX_TIMEOUT_SECONDS + 1)));
+		Assert.assertNull(dao.peek(BaseSqsNode.MAX_TIMEOUT.plusSeconds(1)));
 	}
 
 	@Test

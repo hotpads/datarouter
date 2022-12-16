@@ -15,18 +15,6 @@
  */
 package io.datarouter.instrumentation.maven;
 
-import java.time.Instant;
-
-public class LibraryDto{
-
-	public final String serviceName;
-	public final String dependency;
-	public final Instant added;
-
-	public LibraryDto(String serviceName, String dependency, Instant added){
-		this.serviceName = serviceName;
-		this.dependency = dependency;
-		this.added = added;
-	}
-
+public record LibraryDto(
+		String dependency){
 }

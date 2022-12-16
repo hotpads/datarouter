@@ -19,7 +19,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.job.BaseTriggerGroup;
-import io.datarouter.nodewatch.job.NodewatchConfigurationScanJob;
 import io.datarouter.nodewatch.job.TableCountJob;
 import io.datarouter.nodewatch.job.TableSamplerJob;
 import io.datarouter.nodewatch.job.TableSamplerJobletVacuumJob;
@@ -47,11 +46,6 @@ public class DatarouterNodewatchTriggerGroup extends BaseTriggerGroup{
 				"0 0 14 ? * MON-FRI",
 				settings.tableSizeMonitoringJob,
 				TableSizeMonitoringJob.class,
-				true);
-		registerLocked(
-				"0 0 14 ? * MON,TUE,WED,THU,FRI *",
-				settings.runConfigurationScanReportEmailJob,
-				NodewatchConfigurationScanJob.class,
 				true);
 		registerLocked(
 				"0 0 6 ? * * *",

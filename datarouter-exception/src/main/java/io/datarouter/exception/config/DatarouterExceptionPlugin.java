@@ -18,7 +18,8 @@ package io.datarouter.exception.config;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.datarouter.exception.conveyors.ExceptionConveyors;
+import io.datarouter.conveyor.ConveyorConfigurationGroup;
+import io.datarouter.exception.conveyors.ExceptionConveyorConfigurationGroup;
 import io.datarouter.exception.filter.GuiceExceptionHandlingFilter;
 import io.datarouter.exception.service.DatarouterExceptionPublisherService;
 import io.datarouter.exception.service.DefaultExceptionHandlingConfig;
@@ -107,7 +108,7 @@ public class DatarouterExceptionPlugin extends BaseWebPlugin{
 				"Exceptions");
 		addDatarouterGithubDocLink("datarouter-exception");
 		if(!exceptionRecordPublisher.isInstance(NoOpDatarouterExceptionPublisher.class)){
-			addAppListener(ExceptionConveyors.class);
+			addPluginEntry(ConveyorConfigurationGroup.KEY, ExceptionConveyorConfigurationGroup.class);
 		}
 		addDailyDigest(ExceptionRecordAggregationDailyDigest.class);
 	}

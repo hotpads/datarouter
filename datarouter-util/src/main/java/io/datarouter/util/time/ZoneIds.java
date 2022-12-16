@@ -26,6 +26,7 @@ public class ZoneIds{
 	public static final ZoneId AMERICA_DENVER = ZoneId.of("America/Denver");
 	public static final ZoneId AMERICA_LOS_ANGELES = ZoneId.of("America/Los_Angeles");
 	public static final ZoneId AMERICA_NEW_YORK = ZoneId.of("America/New_York");
+	public static final ZoneId AMERICA_PHOENIX = ZoneId.of("America/Phoenix");
 	public static final ZoneId ASIA_KOLKATA = ZoneId.of("Asia/Kolkata");
 
 	public static final ZoneId EUROPE_PARIS = ZoneId.of("Europe/Paris");
@@ -40,6 +41,7 @@ public class ZoneIds{
 			AMERICA_DENVER,
 			AMERICA_LOS_ANGELES,
 			AMERICA_NEW_YORK,
+			AMERICA_PHOENIX,
 			ASIA_KOLKATA,
 			EUROPE_PARIS,
 			PACIFIC_HONOLULU,

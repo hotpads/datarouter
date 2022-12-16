@@ -29,11 +29,10 @@ import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.util.MxBeans;
 
 @Singleton
-public class CompoundPortIdentifier implements PortIdentifier{
+public class CompoundPortIdentifier{
 	private static final Logger logger = LoggerFactory.getLogger(CompoundPortIdentifier.class);
 
 	public static final String
-			COMPOUND_PORT_IDENTIFIER = "compoundPortIdentifier",
 			CATALINA_JMX_DOMAIN = "Catalina",
 			JETTY_SERVER_JMX_DOMAIN = "org.eclipse.jetty.server",
 			JBOSS_JMX_DOMAIN = "jboss.as";
@@ -43,45 +42,41 @@ public class CompoundPortIdentifier implements PortIdentifier{
 			new Identifier("Jetty", JETTY_SERVER_JMX_DOMAIN, JettyPortIdentifier.class),
 			new Identifier("Wildfly (JBoss)", JBOSS_JMX_DOMAIN, WildFlyPortIdentifier.class));
 
-	private PortIdentifier portIdentifier;
+	private PortIdentificationResult portIdentificationResult;
 
 	@Inject
 	public CompoundPortIdentifier(DatarouterInjector injector){
-		List<String> domains = Arrays.asList(MxBeans.SERVER.getDomains());
+		List<String> jmxDomains = Arrays.asList(MxBeans.SERVER.getDomains());
 		Optional<Identifier> optIdentifier = IDENTIFIERS.stream()
-				.filter(triple -> domains.contains(triple.domain()))
+				.filter(identifier -> jmxDomains.contains(identifier.jmxDomain()))
 				.findAny();
+		PortIdentifier portIdentifier = null;
 		if(optIdentifier.isEmpty()){
-			logger.error("Servlet container not detected. Expect some features to not work.");
-			return;
-		}
-		Identifier identifier = optIdentifier.get();
-		logger.info("{} detected as servlet container", identifier.name());
-		try{
+			portIdentificationResult = PortIdentificationResult.errorWithdefaults("servlet container not detected");
+		}else{
+			Identifier identifier = optIdentifier.get();
+			logger.info("{} detected as servlet container", identifier.name());
 			portIdentifier = injector.getInstance(identifier.portIdentifier());
-		}catch(Exception e){
-			portIdentifier = injector.getInstance(DefaultPortIdentifier.class);
-			logger.error("Error using {}, fell back to defaults", identifier.portIdentifier(), e);
+			portIdentificationResult = portIdentifier.identify();
 		}
-		logger.warn("Using ports http={} https={} from {}",
-				portIdentifier.getHttpPort(),
-				portIdentifier.getHttpsPort(),
-				portIdentifier.getClass().getSimpleName());
+		logger.warn("Using ports http={} https={} from {} error: {}",
+				portIdentificationResult.httpPort(),
+				portIdentificationResult.httpsPort(),
+				portIdentifier,
+				portIdentificationResult.errorMessage());
 	}
 
-	@Override
 	public Integer getHttpPort(){
-		return portIdentifier.getHttpPort();
+		return portIdentificationResult.httpPort();
 	}
 
-	@Override
 	public Integer getHttpsPort(){
-		return portIdentifier.getHttpsPort();
+		return portIdentificationResult.httpsPort();
 	}
 
 	private record Identifier(
 			String name,
-			String domain,
+			String jmxDomain,
 			Class<? extends PortIdentifier> portIdentifier){
 	}
 

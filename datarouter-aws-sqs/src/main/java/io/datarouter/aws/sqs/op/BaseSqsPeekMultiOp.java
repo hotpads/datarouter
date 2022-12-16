@@ -71,9 +71,10 @@ extends SqsOp<PK,D,F,List<T>>{
 		var request = new ReceiveMessageRequest(queueUrl);
 
 		//waitTime
-		Duration configTimeout = config.findTimeout().orElse(Duration.ofMillis(Long.MAX_VALUE));
-		long waitTimeMs = Math.min(configTimeout.toMillis(), BaseSqsNode.MAX_TIMEOUT_SECONDS * 1000);
-		request.setWaitTimeSeconds((int)Duration.ofMillis(waitTimeMs).getSeconds());//must fit in an int
+		Duration configTimeout = config.findTimeout()
+				.filter(timeout -> timeout.compareTo(BaseSqsNode.MAX_TIMEOUT) <= 0)
+				.orElse(BaseSqsNode.MAX_TIMEOUT);
+		request.setWaitTimeSeconds(Math.toIntExact(configTimeout.getSeconds()));//must fit in an int
 
 		//visibility timeout
 		long visibilityTimeoutMs = config.getVisibilityTimeoutMsOrUse(BaseSqsNode.DEFAULT_VISIBILITY_TIMEOUT_MS);

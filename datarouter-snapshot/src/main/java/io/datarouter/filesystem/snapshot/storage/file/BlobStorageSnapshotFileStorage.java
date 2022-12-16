@@ -18,6 +18,7 @@ package io.datarouter.filesystem.snapshot.storage.file;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import io.datarouter.bytes.MultiByteArrayInputStream;
 import io.datarouter.filesystem.snapshot.block.BlockKey;
 import io.datarouter.filesystem.snapshot.compress.CompressedBlock;
 import io.datarouter.filesystem.snapshot.compress.CompressedBlocks;
@@ -26,7 +27,6 @@ import io.datarouter.filesystem.snapshot.path.SnapshotPaths;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.file.Directory;
 import io.datarouter.storage.file.PathbeanKey;
-import io.datarouter.storage.util.MultiByteArrayInputStream;
 import io.datarouter.storage.util.Subpath;
 
 public class BlobStorageSnapshotFileStorage implements SnapshotFileStorage{

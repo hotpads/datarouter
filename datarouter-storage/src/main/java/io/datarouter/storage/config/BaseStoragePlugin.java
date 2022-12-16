@@ -26,8 +26,9 @@ import com.google.inject.Module;
 import io.datarouter.inject.guice.BasePlugin;
 import io.datarouter.plugin.PluginConfigKey;
 import io.datarouter.plugin.PluginConfigValue;
+import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.dao.DaosModuleBuilder;
-import io.datarouter.storage.dao.DaosModuleBuilder.EmptyDaosModuleBuilder;
+import io.datarouter.storage.dao.DaosModuleBuilder.SimpleDaosModule;
 import io.datarouter.storage.setting.SettingRoot;
 
 /**
@@ -39,7 +40,7 @@ import io.datarouter.storage.setting.SettingRoot;
  */
 public abstract class BaseStoragePlugin extends BasePlugin{
 
-	private DaosModuleBuilder daosModule = new EmptyDaosModuleBuilder();
+	private DaosModuleBuilder daosModule = new SimpleDaosModule();
 
 	protected void addSettingRoot(Class<? extends SettingRoot> settingRoot){
 		addPluginEntry(SettingRoot.KEY, settingRoot);
@@ -51,6 +52,11 @@ public abstract class BaseStoragePlugin extends BasePlugin{
 
 	public DaosModuleBuilder getDaosModuleBuilder(){
 		return daosModule;
+	}
+
+	protected void setDaos(@SuppressWarnings("unchecked") Class<? extends Dao>...daos){
+		var daosModule = new SimpleDaosModule(daos);
+		setDaosModule(daosModule);
 	}
 
 	/*------------------------- add Storage plugins -------------------------*/

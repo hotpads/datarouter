@@ -24,6 +24,7 @@ public enum TraceSaveReasonType{
 	TRACE_CONTEXT("traceContext"),
 	ERROR("error"),
 	CPU("cpu"),
+	RANDOM_SAMPLING("randomSampling"),
 	;
 
 	public final String type;

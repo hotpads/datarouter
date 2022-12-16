@@ -28,7 +28,7 @@ import io.datarouter.metric.config.DatarouterCountSettingRoot;
 import io.datarouter.metric.counter.collection.CountPublisher;
 import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.storage.config.properties.ServiceName;
-import io.datarouter.util.Ulid;
+import io.datarouter.types.Ulid;
 
 @Singleton
 public class CountPublisherService implements CountPublisher{

@@ -28,28 +28,18 @@ import io.datarouter.storage.setting.cached.CachedSetting;
 @Singleton
 public class DatarouterExceptionSettingRoot extends SettingRoot{
 
-	//publish ExceptionRecords from buffer
-	public final CachedSetting<Boolean> runExceptionRecordMemoryToPublisherConveyor;
 	//controls ExceptionRecords publishing destination
 	public final CachedSetting<Boolean> saveExceptionRecordsToQueueDaoInsteadOfDirectoryDao;
-	public final CachedSetting<Integer> exceptionRecordConveyorThreadCount;
 
-	//publish HttpRequestRecords from buffer
-	public final CachedSetting<Boolean> runHttpRequestRecordMemoryToPublisherConveyor;
 	//controls ExceptionRecords publishing destination
 	public final CachedSetting<Boolean> saveHttpRequestRecordsToQueueDaoInsteadOfDirectoryDao;
-	public final CachedSetting<Integer> httpRequestRecordConveyorThreadCount;
 
 	public final CachedSetting<Boolean> forceHideStackTrace;
 	public final CachedSetting<String> exceptionRecorderDomainName;
-	public final CachedSetting<Boolean> shouldReport;
 
 	public final CachedSetting<Boolean> runExceptionRecordAggregationJob;
 	public final CachedSetting<Boolean> runExceptionRecordVacuum;
 	public final CachedSetting<Boolean> runHttpRequestRecordVacuumJob;
-
-	public final CachedSetting<Boolean> runExceptionRecordMemoryToDatabaseConveyor;
-	public final CachedSetting<Boolean> runHttpRequestRecordMemoryToDatabaseConveyor;
 
 	public final CachedSetting<Boolean> publishRecords;
 
@@ -57,42 +47,25 @@ public class DatarouterExceptionSettingRoot extends SettingRoot{
 
 	public final Setting<Integer> exceptionRecordPublishThreadCount;
 	public final Setting<Integer> httpRequestRecordPublishThreadCount;
-	public final Setting<Integer> exceptionRecordMemoryToDatabaseThreadCount;
-	public final Setting<Integer> httpRequestRecordMemoryToDatabaseThreadCount;
 
 	public final Setting<Integer> exceptionRecordAggregationJobBatchSize;
 
 	@Inject
 	public DatarouterExceptionSettingRoot(SettingFinder finder){
 		super(finder, DatarouterSettingCategory.DATAROUTER, "datarouterException.");
-
-		runExceptionRecordMemoryToPublisherConveyor = registerBooleans(
-				"runExceptionRecordMemoryToPublisherConveyor", defaultTo(false)
-				.withTag(DatarouterSettingTagType.TRACE2PIPELINE, () -> true));
 		saveExceptionRecordsToQueueDaoInsteadOfDirectoryDao = registerBooleans(
 				"saveExceptionRecordsToQueueDaoInsteadOfDirectoryDao", defaultTo(false)
 				.withTag(DatarouterSettingTagType.TRACE2PIPELINE, () -> true));
-		exceptionRecordConveyorThreadCount = registerInteger("exceptionRecordConveyorThreadCount", 1);
 
-		runHttpRequestRecordMemoryToPublisherConveyor = registerBooleans(
-				"runHttpRequestRecordMemoryToPublisherConveyor", defaultTo(false)
-				.withTag(DatarouterSettingTagType.TRACE2PIPELINE, () -> true));
 		saveHttpRequestRecordsToQueueDaoInsteadOfDirectoryDao = registerBoolean(
 				"saveHttpRequestRecordsToQueueDaoInsteadOfDirectoryDao", false);
-		httpRequestRecordConveyorThreadCount = registerInteger("httpRequestRecordConveyorThreadCount", 1);
 
 		forceHideStackTrace = registerBoolean("forceHideStackTrace", false);
 		exceptionRecorderDomainName = registerString("exceptionRecorderDomainName", "localhost:8443");
-		shouldReport = registerBoolean("shouldReport", false);
 
 		runExceptionRecordAggregationJob = registerBoolean("runExceptionRecordAggregationJob", false);
 		runExceptionRecordVacuum = registerBoolean("runExceptionRecordVacuum", false);
 		runHttpRequestRecordVacuumJob = registerBoolean("runHttpRequestRecordVacuumJob", false);
-
-		runExceptionRecordMemoryToDatabaseConveyor = registerBoolean("runExceptionRecordMemoryToDatabaseConveyor",
-				true);
-		runHttpRequestRecordMemoryToDatabaseConveyor = registerBoolean("runHttpRequestRecordMemoryToDatabaseConveyor",
-				true);
 
 		publishRecords = registerBooleans("publishRecords", defaultTo(false)
 				.withTag(DatarouterSettingTagType.TRACE2PIPELINE, () -> true));
@@ -100,9 +73,6 @@ public class DatarouterExceptionSettingRoot extends SettingRoot{
 		compactExceptionLoggingForConveyors = registerBoolean("compactExceptionLoggingForConveyors", true);
 		exceptionRecordPublishThreadCount = registerInteger("exceptionRecordPublishThreadCount", 1);
 		httpRequestRecordPublishThreadCount = registerInteger("httpRequestRecordPublishThreadCount", 1);
-		exceptionRecordMemoryToDatabaseThreadCount = registerInteger("exceptionRecordMemoryToDatabaseThreadCount", 1);
-		httpRequestRecordMemoryToDatabaseThreadCount = registerInteger("httpRequestRecordMemoryToDatabaseThreadCount",
-				1);
 
 		exceptionRecordAggregationJobBatchSize = registerInteger("exceptionRecordAggregationJobBatchSize", 100);
 	}

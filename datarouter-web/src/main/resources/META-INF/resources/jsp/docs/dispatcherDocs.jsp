@@ -308,7 +308,12 @@
 															<c:set var="paramName" value="requestBody"></c:set>
 														</c:when>
 														<c:otherwise>
-															${parameter.name}
+															<c:choose>
+																<c:when test="${parameter.isDeprecated}"><strike>${parameter.name}</strike>
+																	<span class="badge badge-warning">Deprecated</span>
+																</c:when>
+																<c:otherwise>${parameter.name}</c:otherwise>
+															</c:choose>
 															<c:set var="paramName" value="${parameter.name}"></c:set>
 														</c:otherwise>
 													</c:choose>

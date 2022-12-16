@@ -15,6 +15,7 @@
  */
 package io.datarouter.client.memcached.node;
 
+import java.time.Duration;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +42,7 @@ extends BasePhysicalNode<TallyKey,Tally,TallyFielder>
 implements PhysicalTallyStorageNode{
 
 	private static final Boolean DEFAULT_IGNORE_EXCEPTION = true;
+	private static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(3);
 
 	private final Supplier<DatarouterMemcachedClient> lazyClient;
 	private final MemcachedTallyCodec tallyCodec;
@@ -81,7 +83,7 @@ implements PhysicalTallyStorageNode{
 				.listTo(memcachedStringKeys -> lazyClient.get().scanMultiStrings(
 						getName(),
 						memcachedStringKeys,
-						config.getTimeout().toMillis(),
+						config.findTimeout().orElse(DEFAULT_TIMEOUT).toMillis(),
 						config.findIgnoreException().orElse(DEFAULT_IGNORE_EXCEPTION)))
 				.map(tallyCodec::decodeResult)
 				.toMap(MemcachedResult::key, MemcachedResult::value);
@@ -93,7 +95,7 @@ implements PhysicalTallyStorageNode{
 				.ifPresent(memcachedStringKey -> lazyClient.get().deleteTally(
 						getName(),
 						memcachedStringKey,
-						config.getTimeout(),
+						config.findTimeout().orElse(DEFAULT_TIMEOUT),
 						config.findIgnoreException().orElse(DEFAULT_IGNORE_EXCEPTION)));
 	}
 

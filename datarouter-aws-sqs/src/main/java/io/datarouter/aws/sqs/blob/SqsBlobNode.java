@@ -28,6 +28,7 @@ import io.datarouter.aws.sqs.BaseSqsNode;
 import io.datarouter.aws.sqs.SqsBlobOpFactory;
 import io.datarouter.aws.sqs.SqsClientManager;
 import io.datarouter.aws.sqs.SqsPhysicalNode;
+import io.datarouter.aws.sqs.SqsQueueNameService;
 import io.datarouter.aws.sqs.service.QueueUrlAndName;
 import io.datarouter.bytes.Codec;
 import io.datarouter.bytes.codec.bytestringcodec.Base64ByteStringCodec;
@@ -38,42 +39,37 @@ import io.datarouter.model.util.CommonFieldSizes;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.config.Config;
-import io.datarouter.storage.config.properties.EnvironmentName;
-import io.datarouter.storage.config.properties.ServiceName;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.op.raw.BlobQueueStorage.PhysicalBlobQueueStorageNode;
 import io.datarouter.storage.node.type.physical.base.BasePhysicalNode;
 import io.datarouter.storage.queue.BlobQueueMessage;
 import io.datarouter.util.singletonsupplier.SingletonSupplier;
-import io.datarouter.util.string.StringTool;
 
 public class SqsBlobNode<T>
 extends BasePhysicalNode<EmptyDatabeanKey,EmptyDatabean,EmptyDatabeanFielder>
 implements PhysicalBlobQueueStorageNode<T>, SqsPhysicalNode<EmptyDatabeanKey,EmptyDatabean,EmptyDatabeanFielder>{
 	private static final Logger logger = LoggerFactory.getLogger(SqsBlobNode.class);
 
+	private final String queueName;
 	private final NodeParams<EmptyDatabeanKey,EmptyDatabean,EmptyDatabeanFielder> params;
 	private final Codec<T,byte[]> codec;
 	private final SqsClientManager sqsClientManager;
-	private final EnvironmentName environmentName;
-	private final ServiceName serviceName;
 	private final ClientId clientId;
 	private final boolean owned;
 	private final Supplier<QueueUrlAndName> queueUrlAndName;
 	private final SqsBlobOpFactory opFactory;
 
-	public SqsBlobNode(NodeParams<EmptyDatabeanKey,EmptyDatabean,EmptyDatabeanFielder> params,
+	public SqsBlobNode(
+			SqsQueueNameService sqsQueueNameService,
+			NodeParams<EmptyDatabeanKey,EmptyDatabean,EmptyDatabeanFielder> params,
 			Codec<T,byte[]> codec,
 			ClientType<?,?> clientType,
-			SqsClientManager sqsClientManager,
-			EnvironmentName environmentName,
-			ServiceName serviceName){
+			SqsClientManager sqsClientManager){
 		super(params, clientType);
+		this.queueName = sqsQueueNameService.buildQueueName(params.getQueueUrl(), getFieldInfo().getTableName());
 		this.params = params;
 		this.codec = codec;
 		this.sqsClientManager = sqsClientManager;
-		this.environmentName = environmentName;
-		this.serviceName = serviceName;
 		this.clientId = params.getClientId();
 		this.owned = params.getQueueUrl() == null;
 		this.queueUrlAndName = SingletonSupplier.of(this::getOrCreateQueueUrl);
@@ -82,17 +78,13 @@ implements PhysicalBlobQueueStorageNode<T>, SqsPhysicalNode<EmptyDatabeanKey,Emp
 
 	private QueueUrlAndName getOrCreateQueueUrl(){
 		String queueUrl;
-		String queueName;
-		if(!owned){
-			queueUrl = params.getQueueUrl();
-			queueName = queueUrl.substring(queueUrl.lastIndexOf('/') + 1);
-			//don't issue the createQueue request because it is probably someone else's queue
-		}else{
-			queueName = buildQueueName(environmentName.get(), serviceName.get());
+		if(owned){
 			queueUrl = createQueueAndGetUrl(queueName);
 			sqsClientManager.updateAttr(clientId, queueUrl, QueueAttributeName.MessageRetentionPeriod,
 					BaseSqsNode.RETENTION_S);
 			logger.warn("retention updated queueName=" + queueName);
+		}else{
+			queueUrl = params.getQueueUrl();
 		}
 		logger.warn("nodeName={}, queueUrl={}", getName(), queueUrl);
 		return new QueueUrlAndName(queueUrl, queueName);
@@ -105,23 +97,6 @@ implements PhysicalBlobQueueStorageNode<T>, SqsPhysicalNode<EmptyDatabeanKey,Emp
 		}catch(RuntimeException e){
 			throw new RuntimeException("queueName=" + queueName + " queueNameLength=" + queueName.length(), e);
 		}
-	}
-
-	@Override
-	public String buildQueueName(String environmentName, String serviceName){
-		String namespace = params.getNamespace().orElseGet(() -> environmentName + "-" + serviceName);
-		String tableName = getFieldInfo().getTableName();
-		String queueName = StringTool.isEmpty(namespace) ? tableName : (namespace + "-" + tableName);
-		if(queueName.length() > BaseSqsNode.MAX_QUEUE_NAME_LENGTH){
-			// Future change to a throw.
-			logger.error("queue={} overflows the max size {}", queueName, BaseSqsNode.MAX_QUEUE_NAME_LENGTH);
-		}
-		return queueName;
-	}
-
-	@Override
-	public String getAutomaticNamespace(){
-		return environmentName.get() + "-" + serviceName.get();
 	}
 
 	@Override

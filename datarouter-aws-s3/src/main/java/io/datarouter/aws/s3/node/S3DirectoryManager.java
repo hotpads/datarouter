@@ -15,13 +15,10 @@
  */
 package io.datarouter.aws.s3.node;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.UncheckedIOException;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
 
 import io.datarouter.aws.s3.DatarouterS3Client;
 import io.datarouter.aws.s3.S3Headers;
@@ -92,9 +89,8 @@ public class S3DirectoryManager{
 		return client.getPartialObject(bucket, fullPath, offset, length);
 	}
 
-	public String readUtf8(String suffix){
-		byte[] bytes = read(suffix);
-		return new String(bytes, StandardCharsets.UTF_8);
+	public InputStream readInputStream(String suffix){
+		return client.getObject(bucket, fullPath(suffix));
 	}
 
 	public Long size(String suffix){
@@ -132,24 +128,18 @@ public class S3DirectoryManager{
 				content);
 	}
 
-	public void write(String suffix, Scanner<byte[]> chunks){
+	public void multipartUpload(String suffix, InputStream inputStream){
 		String fullPath = fullPath(suffix);
-		try(OutputStream outputStream = client.put(bucket, fullPath, ContentType.BINARY)){
-			for(byte[] chunk : chunks.iterable()){
-				outputStream.write(chunk);
-			}
-		}catch(IOException e){
-			throw new UncheckedIOException(e);
-		}
+		client.multipartUpload(bucket, fullPath, ContentType.BINARY, inputStream);
 	}
 
-	public void write(String suffix, InputStream inputStream){
+	public void multiThreadUpload(
+			String suffix,
+			InputStream inputStream,
+			ExecutorService exec,
+			int numThreads){
 		String fullPath = fullPath(suffix);
-		client.put(bucket, fullPath, ContentType.BINARY, inputStream);
-	}
-
-	public void writeUtf8(String suffix, String content){
-		write(suffix, content.getBytes(StandardCharsets.UTF_8));
+		client.multiThreadUpload(bucket, fullPath, ContentType.BINARY, inputStream, exec, numThreads);
 	}
 
 	/*------------ delete -------------*/

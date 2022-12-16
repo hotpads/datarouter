@@ -17,12 +17,7 @@ package io.datarouter.instrumentation.maven;
 
 import java.util.List;
 
-public class LibraryBatchDto{
-
-	public final List<LibraryDto> batch;
-
-	public LibraryBatchDto(List<LibraryDto> batch){
-		this.batch = batch;
-	}
-
+public record LibraryBatchDto(
+		String serviceName,
+		List<LibraryDto> batch){
 }

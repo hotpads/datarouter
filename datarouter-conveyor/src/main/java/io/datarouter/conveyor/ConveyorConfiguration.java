@@ -15,14 +15,21 @@
  */
 package io.datarouter.conveyor;
 
+import java.time.Duration;
 import java.util.function.Supplier;
 
 import io.datarouter.conveyor.Conveyor.ProcessResult;
 
 public interface ConveyorConfiguration{
 
-	Supplier<Boolean> compactExceptionLogging();
+	Duration DEFAULT_PEEK_TIMEOUT = Duration.ofSeconds(20);
+	Duration DEFAULT_VISIBILITY_TIMEOUT = Duration.ofSeconds(30);
+
 	ProcessResult process(ConveyorRunnable conveyor);
+
+	default Supplier<Boolean> compactExceptionLogging(){
+		return () -> false;
+	}
 
 	default long delaySeconds(){
 		return 3L;
@@ -30,6 +37,10 @@ public interface ConveyorConfiguration{
 
 	default boolean shouldRunOnShutdown(){
 		return false;
+	}
+
+	@SuppressWarnings("unused")
+	default void interrupted(ConveyorRunnable conveyor) throws Exception{
 	}
 
 }

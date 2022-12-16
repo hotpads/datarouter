@@ -15,21 +15,23 @@
  */
 package io.datarouter.scanner;
 
-import java.util.Objects;
+import java.util.function.BiPredicate;
 import java.util.function.Function;
 
 public class SplittingScanner<T,R> extends BaseLinkedScanner<T,Scanner<T>>{
 
 	private final Function<T,R> mapper;
+	private final BiPredicate<R,R> equalsPredicate;
 	private boolean outerStarted;
 	private boolean foundNext;
 	private T nextInnerFirstItem;
 	private R currentSplitKey;
 	private boolean innerIsActive;
 
-	public SplittingScanner(Scanner<T> input, Function<T,R> mapper){
+	public SplittingScanner(Scanner<T> input, Function<T,R> mapper, BiPredicate<R,R> equalsPredicate){
 		super(input);
 		this.mapper = mapper;
+		this.equalsPredicate = equalsPredicate;
 		this.outerStarted = false;
 		this.foundNext = false;
 		this.innerIsActive = false;
@@ -79,7 +81,7 @@ public class SplittingScanner<T,R> extends BaseLinkedScanner<T,Scanner<T>>{
 				return true;
 			}
 			if(input.advance()){
-				if(Objects.equals(currentSplitKey, mapper.apply(input.current()))){
+				if(equalsPredicate.test(currentSplitKey, mapper.apply(input.current()))){
 					current = input.current();
 					return true;
 				}

@@ -70,21 +70,24 @@ public abstract class BaseTrace2Dao extends BaseDao{
 				Trace2EntityKey::new,
 				Trace2::new,
 				Trace2Fielder::new)
-				.withTableName(tableNamePrefix.map(prefix -> prefix + Trace2.class.getSimpleName()).orElse(null))
+				.withTableName(tableNamePrefix.map(prefix -> prefix + Trace2.class.getSimpleName())
+						.orElse(null))
 				.buildAndRegister();
 		traceThreadNode = nodeFactory.create(
 				params.clientId,
 				Trace2EntityKey::new,
 				Trace2Thread::new,
 				Trace2ThreadFielder::new)
-				.withTableName(tableNamePrefix.map(prefix -> prefix + Trace2Thread.class.getSimpleName()).orElse(null))
+				.withTableName(tableNamePrefix
+						.map(prefix -> prefix + Trace2Thread.class.getSimpleName()).orElse(null))
 				.buildAndRegister();
 		traceSpanNode = nodeFactory.create(
 				params.clientId,
 				Trace2EntityKey::new,
 				Trace2Span::new,
 				Trace2SpanFielder::new)
-				.withTableName(tableNamePrefix.map(prefix -> prefix + Trace2Span.class.getSimpleName()).orElse(null))
+				.withTableName(tableNamePrefix
+						.map(prefix -> prefix + Trace2Span.class.getSimpleName()).orElse(null))
 				.buildAndRegister();
 	}
 

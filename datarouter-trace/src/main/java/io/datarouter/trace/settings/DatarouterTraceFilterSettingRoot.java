@@ -46,6 +46,8 @@ public class DatarouterTraceFilterSettingRoot extends SettingRoot{
 	public final CachedSetting<Boolean> saveThreadMemoryAllocated;
 	public final CachedSetting<Boolean> saveSpanCpuTime;
 	public final CachedSetting<Boolean> saveSpanMemoryAllocated;
+	public final CachedSetting<Integer> randomSamplingMax;
+	public final CachedSetting<Integer> randomSamplingThreshold;
 
 	@Inject
 	public DatarouterTraceFilterSettingRoot(SettingFinder finder){
@@ -71,6 +73,9 @@ public class DatarouterTraceFilterSettingRoot extends SettingRoot{
 				.withTag(DatarouterSettingTagType.TRACE2PIPELINE, () -> true));
 		saveSpanMemoryAllocated = registerBooleans("saveSpanMemoryAllocated", defaultTo(false)
 				.withTag(DatarouterSettingTagType.TRACE2PIPELINE, () -> true));
+
+		randomSamplingMax = registerInteger("randomSamplingMax", 10000);
+		randomSamplingThreshold = registerInteger("randomSamplingThreshold", 0);
 	}
 
 }

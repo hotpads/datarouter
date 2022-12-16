@@ -84,13 +84,15 @@ public class LatencyMonitoringService{
 	public void record(LatencyCheck check, DatarouterDuration duration){
 		saveGauge(check.name, duration);
 		addCheckResult(check, CheckResult.newSuccess(System.currentTimeMillis(), duration));
+		logger.debug("latency check success name={} durationUs={}", check.name, duration.to(TimeUnit.MICROSECONDS));
 	}
 
 	public void recordFailure(LatencyCheck check, DatarouterDuration duration, Exception exception){
 		saveGauge(check.name + " failure durationUs", duration);
 		Counters.inc(GAUGE_PREFIX + check.name + " failure");
 		addCheckResult(check, CheckResult.newFailure(System.currentTimeMillis(), exception.getMessage()));
-		logger.warn("{} failed - {}", check.name, duration, exception);
+		logger.warn("latency check failure name={} durationUs={}", check.name, duration.to(TimeUnit.MICROSECONDS),
+				exception);
 	}
 
 	private void saveGauge(String name, DatarouterDuration duration){

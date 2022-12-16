@@ -26,7 +26,7 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.file.PathbeanKey;
 import io.datarouter.storage.util.Subpath;
-import io.datarouter.util.Ulid;
+import io.datarouter.types.Ulid;
 
 @Singleton
 public class HttpRequestRecordDirectoryDao{

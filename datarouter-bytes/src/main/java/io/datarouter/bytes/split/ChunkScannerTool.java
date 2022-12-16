@@ -19,12 +19,13 @@ import io.datarouter.scanner.Scanner;
 
 public class ChunkScannerTool{
 
-	public static Scanner<ChunkRange> scanChunks(long totalLength, int chunkSize){
+	public static Scanner<ChunkRange> scanChunks(long fromInclusive, long toExclusive, int chunkSize){
+		long totalLength = toExclusive - fromInclusive;
 		int initialLength = (int)Math.min(chunkSize, totalLength);
-		var intialRange = new ChunkRange(0L, initialLength);
+		var intialRange = new ChunkRange(fromInclusive, initialLength);
 		return Scanner.iterate(intialRange, previous -> {
 					long start = previous.start + previous.length;
-					long remainingBytes = totalLength - start;
+					long remainingBytes = toExclusive - start;
 					int length = (int)Math.min(chunkSize, remainingBytes);
 					return new ChunkRange(start, length);
 				})

@@ -17,7 +17,6 @@ package io.datarouter.conveyor.queue.configuration;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.function.Supplier;
 
 import javax.inject.Inject;
 
@@ -28,6 +27,7 @@ import com.google.gson.Gson;
 
 import io.datarouter.conveyor.Conveyor.ProcessResult;
 import io.datarouter.conveyor.ConveyorConfiguration;
+import io.datarouter.conveyor.ConveyorConfigurationGroupService;
 import io.datarouter.conveyor.ConveyorCounters;
 import io.datarouter.conveyor.ConveyorGauges;
 import io.datarouter.conveyor.ConveyorRunnable;
@@ -42,14 +42,12 @@ public abstract class BaseQueueConsumerConveyorConfiguration<
 implements ConveyorConfiguration{
 	private static final Logger logger = LoggerFactory.getLogger(BaseQueueConsumerConveyorConfiguration.class);
 
-	private static final Duration PEEK_TIMEOUT = Duration.ofSeconds(30);
-	// same as the default BaseSqsNode.DEFAULT_VISIBILITY_TIMEOUT_MS
-	private static final Duration VISIBILITY_TIMEOUT = Duration.ofSeconds(30);
-
 	@Inject
 	private ConveyorGauges gaugeRecorder;
 	@Inject
 	private Gson gson;
+	@Inject
+	private ConveyorConfigurationGroupService conveyorConfigurationGroupService;
 
 	protected abstract void processOne(D databean);
 	protected abstract QueueConsumer<PK,D> getQueueConsumer();
@@ -57,7 +55,7 @@ implements ConveyorConfiguration{
 	@Override
 	public ProcessResult process(ConveyorRunnable conveyor){
 		Instant beforePeek = Instant.now();
-		QueueMessage<PK,D> message = getQueueConsumer().peek(PEEK_TIMEOUT, VISIBILITY_TIMEOUT);
+		QueueMessage<PK,D> message = getQueueConsumer().peek(DEFAULT_PEEK_TIMEOUT, DEFAULT_VISIBILITY_TIMEOUT);
 		Instant afterPeek = Instant.now();
 		gaugeRecorder.savePeekDurationMs(conveyor, Duration.between(beforePeek, afterPeek).toMillis());
 		if(message == null){
@@ -92,13 +90,12 @@ implements ConveyorConfiguration{
 		return new ProcessResult(true);
 	}
 
-	@Override
-	public Supplier<Boolean> compactExceptionLogging(){
-		return () -> false;
+	public String getName(){
+		return conveyorConfigurationGroupService.getConveyorName(this.getClass());
 	}
 
 	protected Duration getVisibilityTimeout(){
-		return VISIBILITY_TIMEOUT;
+		return DEFAULT_VISIBILITY_TIMEOUT;
 	}
 
 	protected boolean processOneShouldAck(D databean){

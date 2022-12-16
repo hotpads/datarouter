@@ -17,7 +17,7 @@ package io.datarouter.filesystem.snapshot.key;
 
 import java.time.Instant;
 
-import io.datarouter.util.Ulid;
+import io.datarouter.types.Ulid;
 
 public class UlidSnapshotKeyDecoder implements SnapshotKeyDecoder{
 

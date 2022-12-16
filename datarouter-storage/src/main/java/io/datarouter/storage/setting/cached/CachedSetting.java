@@ -23,6 +23,7 @@ import java.util.function.Supplier;
 
 import io.datarouter.storage.config.environment.DatarouterEnvironmentType;
 import io.datarouter.storage.servertype.ServerType;
+import io.datarouter.storage.setting.DatarouterSettingTag;
 import io.datarouter.storage.setting.DefaultSettingValue;
 import io.datarouter.storage.setting.DefaultSettingValueWinner;
 import io.datarouter.storage.setting.Setting;
@@ -82,8 +83,10 @@ implements Setting<T>{
 	public T getDefaultValue(){
 		return defaultSettingValue.getValue(
 				finder.getEnvironmentType(),
+				finder.getEnvironmentCategoryName(),
 				finder.getEnvironmentName(),
 				finder.getServerType(),
+				finder.getServiceName(),
 				finder.getServerName(),
 				finder.getSettingTags());
 	}
@@ -137,6 +140,14 @@ implements Setting<T>{
 		return this;
 	}
 
+	public CachedSetting<T> setEnvironmentCategoryNameDefault(
+			Supplier<DatarouterEnvironmentType> environmentType,
+			String environmentCategoryName,
+			T value){
+		defaultSettingValue.withEnvironmentCategoryName(environmentType, environmentCategoryName, value);
+		return this;
+	}
+
 	public CachedSetting<T> setServerTypeDefault(
 			Supplier<DatarouterEnvironmentType> environmentType,
 			ServerType serverType,
@@ -153,6 +164,21 @@ implements Setting<T>{
 		return this;
 	}
 
+	public CachedSetting<T> setServiceNameDefault(
+			Supplier<DatarouterEnvironmentType> environmentType,
+			String serviceName,
+			T value){
+		defaultSettingValue.withServiceName(environmentType, serviceName, value);
+		return this;
+	}
+
+	public CachedSetting<T> setTagDefault(
+			Supplier<DatarouterSettingTag> tagTypeSupplier,
+			Supplier<T> value){
+		defaultSettingValue.withTag(tagTypeSupplier, value);
+		return this;
+	}
+
 	public DefaultSettingValue<T> getDefaultSettingValue(){
 		return defaultSettingValue;
 	}
@@ -160,8 +186,10 @@ implements Setting<T>{
 	public DefaultSettingValueWinner getDefaultSettingValueWinner(){
 		defaultSettingValue.getValue(
 				finder.getEnvironmentType(),
+				finder.getEnvironmentCategoryName(),
 				finder.getEnvironmentName(),
 				finder.getServerType(),
+				finder.getServiceName(),
 				finder.getServerName(),
 				finder.getSettingTags());
 		return defaultSettingValue.getDefaultSettingValueWinner();

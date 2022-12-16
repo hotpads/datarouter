@@ -75,14 +75,9 @@ public abstract class BaseBinaryDto<T extends BaseBinaryDto<T>>{
 						BinaryDtoReflectionTool.getUnchecked(field, this)));
 	}
 
-	public static class FieldNameAndValue{
-		public final String name;
-		public final Object value;
-
-		public FieldNameAndValue(String name, Object value){
-			this.name = name;
-			this.value = value;
-		}
+	public record FieldNameAndValue(
+			String name,
+			Object value){
 	}
 
 	/*------------ Object ------------*/

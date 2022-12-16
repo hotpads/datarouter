@@ -178,6 +178,30 @@ extends BaseDatabean<Trace2SpanKey,Trace2Span>{
 		return new Traceparent(getKey().getEntityKey().getTrace2EntityId(), getKey().getParentId());
 	}
 
+	public Long getCreated(){
+		return created;
+	}
+
+	public Long getEnded(){
+		return ended;
+	}
+
+	public Long getCpuTimeCreatedNs(){
+		return cpuTimeCreatedNs;
+	}
+
+	public Long getCpuTimeEndedNs(){
+		return cpuTimeEndedNs;
+	}
+
+	public Long getMemoryAllocatedBytesBegin(){
+		return memoryAllocatedBytesBegin;
+	}
+
+	public Long getMemoryAllocatedBytesEnded(){
+		return memoryAllocatedBytesEnded;
+	}
+
 	@Override
 	public String toString(){
 		return getKey() + "[" + name + "][" + info + "]";

@@ -15,17 +15,26 @@
  */
 package io.datarouter.conveyor;
 
+import java.util.Objects;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.conveyor.ConveyorConfigurationGroup.ConveyorPackage;
+import io.datarouter.conveyor.config.DatarouterConveyorShouldRunSettings;
+import io.datarouter.conveyor.config.DatarouterConveyorThreadCountSettings;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.storage.setting.cached.CachedSetting;
 
 @Singleton
 public class ConveyorConfigurationGroupService{
 
 	@Inject
 	private ConveyorConfigurationGroupSupplier configurationGroupSupplier;
+	@Inject
+	private DatarouterConveyorShouldRunSettings conveyorShouldRunSettings;
+	@Inject
+	private DatarouterConveyorThreadCountSettings conveyorThreadCountSettings;
 
 	public Scanner<ConveyorPackage> getAllPackages(){
 		return configurationGroupSupplier.get()
@@ -36,8 +45,25 @@ public class ConveyorConfigurationGroupService{
 			Class<? extends ConveyorConfiguration> configurationClass){
 		return configurationGroupSupplier.get()
 				.map(group -> group.getPackageFromConfigurationClass(configurationClass))
+				.include(Objects::nonNull)
 				.findFirst()
 				.get();
+	}
+
+	public CachedSetting<Boolean> getShouldRunSetting(Class<? extends ConveyorConfiguration> configurationClass){
+		return conveyorShouldRunSettings.getSettingForConveyorPackage(getConveyorPackage(configurationClass));
+	}
+
+	public boolean getShouldRun(Class<? extends ConveyorConfiguration> configurationClass){
+		return conveyorShouldRunSettings.getSettingForConveyorPackage(getConveyorPackage(configurationClass)).get();
+	}
+
+	public CachedSetting<Integer> getThreadCountSetting(Class<? extends ConveyorConfiguration> configurationClass){
+		return conveyorThreadCountSettings.getSettingForConveyorPackage(getConveyorPackage(configurationClass));
+	}
+
+	public String getConveyorName(Class<? extends ConveyorConfiguration> configurationClass){
+		return getConveyorPackage(configurationClass).name();
 	}
 
 }

@@ -19,6 +19,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
 import java.util.function.Function;
 
 import io.datarouter.aws.s3.DatarouterS3Client;
@@ -93,18 +94,28 @@ implements PhysicalBlobStorageNode{
 	}
 
 	@Override
+	public InputStream readInputStream(PathbeanKey key, Config config){
+		return s3DirectoryManager.readInputStream(key.getPathAndFile());
+	}
+
+	@Override
 	public void write(PathbeanKey key, byte[] content, Config config){
 		s3DirectoryManager.write(key.getPathAndFile(), content);
 	}
 
 	@Override
-	public void write(PathbeanKey key, Scanner<byte[]> chunks, Config config){
-		s3DirectoryManager.write(key.getPathAndFile(), chunks);
+	public void write(PathbeanKey key, InputStream inputStream, Config config){
+		s3DirectoryManager.multipartUpload(key.getPathAndFile(), inputStream);
 	}
 
 	@Override
-	public void write(PathbeanKey key, InputStream inputStream, Config config){
-		s3DirectoryManager.write(key.getPathAndFile(), inputStream);
+	public void writeParallel(
+			PathbeanKey key,
+			InputStream inputStream,
+			ExecutorService exec,
+			int numThreads,
+			Config config){
+		s3DirectoryManager.multiThreadUpload(key.getPathAndFile(), inputStream, exec, numThreads);
 	}
 
 	@Override

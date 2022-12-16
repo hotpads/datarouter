@@ -85,7 +85,6 @@ public class HandlerTool{
 					if(endpointResponseType.equals(NoOpResponseType.class)){
 						return;
 					}
-					/*
 					if(endpointResponseType.toString().contains("?") || methodReturnType.toString().contains("?")){
 						throw new IllegalArgumentException(String.format(
 								"Unknown types are forbidden. Explicitly declare a return type  handler=%s endpoint=%s "
@@ -96,7 +95,6 @@ public class HandlerTool{
 								methodReturnType.getTypeName(),
 								endpointResponseType.getTypeName()));
 					}
-					*/
 					if(!methodReturnType.equals(endpointResponseType)){
 						throw new IllegalArgumentException(String.format(
 								"Handler-Endpoint Response Type Mismatch. handler=%s endpoint=%s handlerReturnType=%s "

@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import io.datarouter.bytes.ByteTool;
 import io.datarouter.bytes.InputStreamTool;
 import io.datarouter.gcp.spanner.SpannerClientManager;
 import io.datarouter.gcp.spanner.field.SpannerFieldCodecs;
@@ -72,12 +71,6 @@ implements PhysicalBlobStorageNode{
 				value,
 				config);
 		putOp.wrappedCall();
-	}
-
-	@Override
-	public void write(PathbeanKey key, Scanner<byte[]> chunks, Config config){
-		byte[] value = chunks.listTo(ByteTool::concat);
-		write(key, value, config);
 	}
 
 	@Override
@@ -177,7 +170,7 @@ implements PhysicalBlobStorageNode{
 		List<DatabaseBlob> blobs = op.wrappedCall();
 		return Scanner.of(blobs)
 				.toMap(blob -> PathbeanKey.of(blob.getKey().getPathAndFile()),
-						blob -> blob.getData());
+						DatabaseBlob::getData);
 	}
 
 	@Override

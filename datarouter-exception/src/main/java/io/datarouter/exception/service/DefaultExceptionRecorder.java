@@ -46,6 +46,7 @@ import io.datarouter.web.exception.ExceptionRecorder;
 import io.datarouter.web.exception.WebExceptionCategory;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.monitoring.GitProperties;
+import io.datarouter.web.monitoring.exception.ExceptionAndHttpRequestDto;
 import io.datarouter.web.user.session.CurrentSessionInfo;
 import io.datarouter.web.user.session.service.Session;
 import io.datarouter.web.util.ExceptionTool;
@@ -140,6 +141,28 @@ public class DefaultExceptionRecorder implements ExceptionRecorder{
 			Integer lineNumber,
 			String callOrigin,
 			List<String> additionalEmailRecipients){
+		return recordException(
+				category,
+				location,
+				methodName,
+				name,
+				type,
+				lineNumber,
+				callOrigin,
+				ExceptionTool.getStackTraceAsString(exception),
+				additionalEmailRecipients);
+	}
+
+	private ExceptionRecordDto recordException(
+			ExceptionCategory category,
+			String location,
+			String methodName,
+			String name,
+			String type,
+			Integer lineNumber,
+			String callOrigin,
+			String stackTrace,
+			List<String> additionalEmailRecipients){
 		if(callOrigin == null){
 			callOrigin = location;
 		}
@@ -156,7 +179,7 @@ public class DefaultExceptionRecorder implements ExceptionRecorder{
 				serverName.get(),
 				category.name(),
 				Optional.ofNullable(name).orElse(ExceptionRecorderDetails.getDefaultName(type, name, callOrigin)),
-				ExceptionTool.getStackTraceAsString(exception),
+				stackTrace,
 				type,
 				gitProperties.getIdAbbrev().orElse(GitProperties.UNKNOWN_STRING),
 				location,
@@ -170,9 +193,6 @@ public class DefaultExceptionRecorder implements ExceptionRecorder{
 				exceptionRecord));
 		if(settings.publishRecords.get()){
 			exceptionBuffers.exceptionRecordPublishingBuffer.offer(exceptionRecord);
-		}
-		if(exceptionHandlingConfig.shouldReportError(exceptionRecord.toDto())){
-			report(exceptionRecord, category, additionalEmailRecipients);
 		}
 		return exceptionRecord.toDto();
 	}
@@ -223,9 +243,21 @@ public class DefaultExceptionRecorder implements ExceptionRecorder{
 		return exceptionRecord;
 	}
 
-	protected void report(@SuppressWarnings("unused") ExceptionRecord exceptionRecord,
-			@SuppressWarnings("unused") ExceptionCategory category,
-			@SuppressWarnings("unused") List<String> additionalEmailRecipients){
+	@Override
+	public ExceptionRecordDto recordExceptionAndHttpRequest(ExceptionAndHttpRequestDto exceptionDto,
+			ExceptionCategory category){
+		ExceptionRecordDto exceptionRecordDto = recordException(
+				category,
+				exceptionDto.errorLocation,
+				exceptionDto.methodName,
+				exceptionDto.name,
+				exceptionDto.errorClass,
+				exceptionDto.lineNumber,
+				exceptionDto.callOrigin,
+				exceptionDto.stackTrace,
+				List.of());
+		recordHttpRequest(exceptionDto, exceptionRecordDto, true);
+		return exceptionRecordDto;
 	}
 
 	@Override
@@ -248,6 +280,18 @@ public class DefaultExceptionRecorder implements ExceptionRecorder{
 				userRoles,
 				userToken.orElse(null),
 				omitPayload);
+		saveAndPublishHttpRequest(httpRequestRecord, publish);
+	}
+
+	private void recordHttpRequest(
+			ExceptionAndHttpRequestDto exceptionDto,
+			ExceptionRecordDto exceptionRecord,
+			boolean publish){
+		HttpRequestRecord httpRequestRecord = new HttpRequestRecord(exceptionDto, exceptionRecord.id());;
+		saveAndPublishHttpRequest(httpRequestRecord, publish);
+	}
+
+	private void saveAndPublishHttpRequest(HttpRequestRecord httpRequestRecord, boolean publish){
 		httpRequestRecord.trimFields();
 		exceptionBuffers.httpRequestRecordBuffer.offer(httpRequestRecord);
 		httpRequestRecord.trimBinaryBody(HttpRequestRecordDto.BINARY_BODY_MAX_SIZE);

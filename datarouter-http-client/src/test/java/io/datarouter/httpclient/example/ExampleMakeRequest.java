@@ -15,9 +15,9 @@
  */
 package io.datarouter.httpclient.example;
 
+import io.datarouter.gson.GsonJsonSerializer;
 import io.datarouter.httpclient.client.DatarouterHttpClient;
 import io.datarouter.httpclient.client.DatarouterHttpClientBuilder;
-import io.datarouter.httpclient.json.GsonJsonSerializer;
 import io.datarouter.httpclient.request.DatarouterHttpRequest;
 import io.datarouter.httpclient.request.HttpRequestMethod;
 import io.datarouter.httpclient.response.DatarouterHttpResponse;

@@ -15,14 +15,10 @@
  */
 package io.datarouter.aws.s3;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.ByteArrayOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.Serializable;
 import java.net.URL;
 import java.nio.file.Files;
@@ -36,6 +32,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -57,14 +55,16 @@ import com.amazonaws.services.s3.transfer.Upload;
 
 import io.datarouter.aws.s3.S3Headers.ContentType;
 import io.datarouter.aws.s3.S3Headers.S3ContentType;
-import io.datarouter.bytes.ByteUnitTool;
+import io.datarouter.bytes.ByteLength;
+import io.datarouter.bytes.ExposedByteArrayOutputStream;
+import io.datarouter.bytes.InputStreamTool;
 import io.datarouter.instrumentation.trace.TraceSpanGroupType;
 import io.datarouter.instrumentation.trace.TracerTool;
+import io.datarouter.scanner.ParallelScannerContext;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.node.op.raw.read.DirectoryDto;
 import io.datarouter.util.Require;
 import io.datarouter.util.concurrent.ThreadTool;
-import io.datarouter.util.io.ReaderTool;
 import io.datarouter.util.number.NumberFormatter;
 import software.amazon.awssdk.core.ResponseBytes;
 import software.amazon.awssdk.core.ResponseInputStream;
@@ -73,6 +73,7 @@ import software.amazon.awssdk.core.sync.ResponseTransformer;
 import software.amazon.awssdk.http.apache.ApacheHttpClient;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.AbortMultipartUploadRequest;
 import software.amazon.awssdk.services.s3.model.Bucket;
 import software.amazon.awssdk.services.s3.model.CommonPrefix;
 import software.amazon.awssdk.services.s3.model.CompleteMultipartUploadRequest;
@@ -122,8 +123,10 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 	 * API changes.
 	 */
 	private static final Pattern EXPECTED_REGION_EXTRACTOR = Pattern.compile("expecting '(.*)'");
-	private static final int MIN_UPLOAD_PART_SIZE_BYTES = 5 * 1024 * 1024;
 	private static final Region DEFAULT_REGION = Region.US_EAST_1;
+
+	// With S3 limit of 10_000 parts, this limits file size to 320 GiB
+	private static final int MIN_UPLOAD_PART_SIZE_BYTES = ByteLength.ofMiB(32).toBytesInt();
 
 	private final SerializableAwsCredentialsProviderProvider<?> awsCredentialsProviderProvider;
 
@@ -207,7 +210,11 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 	}
 
 	@Override
-	public void putObjectWithHeartbeat(String bucket, String key, ContentType contentType, Path path,
+	public void putObjectWithHeartbeat(
+			String bucket,
+			String key,
+			ContentType contentType,
+			Path path,
 			Runnable heartbeat){
 		com.amazonaws.services.s3.model.PutObjectRequest putObjectRequest
 				= new com.amazonaws.services.s3.model.PutObjectRequest(bucket, key, path.toFile());
@@ -218,11 +225,6 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 			Upload upload = getTransferManagerForBucket(bucket).upload(putObjectRequest);
 			handleTransfer(upload, heartbeat);
 		}
-	}
-
-	@Override
-	public BufferedWriter putAsWriter(String bucket, String key, ContentType contentType){
-		return new BufferedWriter(new OutputStreamWriter(put(bucket, key, contentType)));
 	}
 
 	@Override
@@ -248,7 +250,7 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 			response = s3Client.createMultipartUpload(request);
 		}
 		String uploadId = response.uploadId();
-		ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+		var buffer = new ExposedByteArrayOutputStream(ByteLength.ofKiB(64).toBytesInt());
 		List<CompletedPart> completedParts = new ArrayList<>();
 		return new OutputStream(){
 
@@ -261,7 +263,10 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 						.uploadId(uploadId)
 						.partNumber(completedParts.size() + 1)
 						.build();
-				RequestBody requestBody = RequestBody.fromBytes(buffer.toByteArray());
+				// ExposedByteArrayOutputStream.toInputStream() avoids duplicating the data.
+				InputStream bufferInputStream = buffer.toInputStream();
+				// RequestBody.fromInputStream avoids duplicating the data.
+				RequestBody requestBody = RequestBody.fromInputStream(bufferInputStream, buffer.size());
 				UploadPartResponse response;
 				try(var $ = TracerTool.startSpan("S3 uploadPart", TraceSpanGroupType.CLOUD_STORAGE)){
 					response = s3Client.uploadPart(uploadPartRequest, requestBody);
@@ -273,6 +278,7 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 						.eTag(eTag)
 						.build();
 				completedParts.add(completedPart);
+				// don't reset the buffer until the upload has completed
 				buffer.reset();
 			}
 
@@ -317,6 +323,210 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 		};
 	}
 
+	/*
+	 * This has a slight advantage over multiThreadUpload in that it reuses the buffer to reduce memory turnover.
+	 * They should probably be combined somehow though.
+	 */
+	@Override
+	public void multipartUpload(String bucket, String key, S3ContentType contentType, InputStream inputStream){
+		S3Client s3Client = getS3ClientForBucket(bucket);
+
+		//create multipart request
+		CreateMultipartUploadRequest createRequest = CreateMultipartUploadRequest.builder()
+				.bucket(bucket)
+				.key(key)
+				.contentType(contentType.getMimeType())
+				.build();
+		CreateMultipartUploadResponse createResponse;
+		try(var $ = TracerTool.startSpan("S3 createMultipartUpload", TraceSpanGroupType.CLOUD_STORAGE)){
+			createResponse = s3Client.createMultipartUpload(createRequest);
+		}
+		String uploadId = createResponse.uploadId();
+
+		//upload parts
+		int partId = 1;//s3 part ids start at 1
+		byte[] buffer = new byte[MultipartUploadPartSize.sizeForPart(partId)];
+		List<CompletedPart> completedParts = new ArrayList<>();
+		int numBytesRead;
+		try(var $inputStream = inputStream){
+			while((numBytesRead = InputStreamTool.readUntilLength(inputStream, buffer, 0, buffer.length)) > 0){
+				UploadPartRequest uploadPartRequest = UploadPartRequest.builder()
+						.bucket(bucket)
+						.key(key)
+						.uploadId(uploadId)
+						.partNumber(partId)
+						.build();
+				InputStream bufferAsInputStream = new ByteArrayInputStream(buffer, 0, numBytesRead);
+				RequestBody requestBody = RequestBody.fromInputStream(bufferAsInputStream, numBytesRead);
+				UploadPartResponse uploadPartResponse;
+				try(var $ = TracerTool.startSpan("S3 uploadPart", TraceSpanGroupType.CLOUD_STORAGE)){
+					uploadPartResponse = s3Client.uploadPart(uploadPartRequest, requestBody);
+					TracerTool.appendToSpanInfo("Content-Length", uploadPartRequest.contentLength());
+					logger.info("Uploaded {}/{}, partId={}, size={}",
+							bucket,
+							key,
+							partId,
+							ByteLength.ofBytes(numBytesRead).toDisplay());
+				}
+				CompletedPart completedPart = CompletedPart.builder()
+						.partNumber(partId)
+						.eTag(uploadPartResponse.eTag())
+						.build();
+				completedParts.add(completedPart);
+				++partId;
+				int nextBufferSize = MultipartUploadPartSize.sizeForPart(partId);
+				if(buffer.length != nextBufferSize){// try to reuse buffer
+					buffer = new byte[nextBufferSize];
+				}
+			}
+
+			//mark upload complete
+			CompletedMultipartUpload completedMultipartUpload = CompletedMultipartUpload.builder()
+					.parts(completedParts)
+					.build();
+			CompleteMultipartUploadRequest completeMultipartUploadRequest = CompleteMultipartUploadRequest.builder()
+					.bucket(bucket)
+					.key(key)
+					.uploadId(uploadId)
+					.multipartUpload(completedMultipartUpload)
+					.build();
+			try(var $ = TracerTool.startSpan("S3 completeMultipartUpload", TraceSpanGroupType.CLOUD_STORAGE)){
+				s3Client.completeMultipartUpload(completeMultipartUploadRequest);
+			}
+		}catch(IOException | RuntimeException e){
+			// try to delete any uploaded parts
+			logger.warn("Aborting {}/{}, numParts={}", bucket, key, completedParts.size());
+			AbortMultipartUploadRequest abortRequest = AbortMultipartUploadRequest.builder()
+					.bucket(bucket)
+					.key(key)
+					.uploadId(uploadId)
+					.build();
+			try(var $ = TracerTool.startSpan("S3 abortMultipartUpload", TraceSpanGroupType.CLOUD_STORAGE)){
+				s3Client.abortMultipartUpload(abortRequest);
+			}
+			logger.warn("Aborted {}/{}, numParts={}", bucket, key, completedParts.size());
+			String message = String.format("Error on %s/%s", bucket, key);
+			throw new RuntimeException(message, e);
+		}
+	}
+
+	private record MultiThreadUploadPartIdAndBytes(
+			int partId,
+			byte[] bytes,
+			int numFilledBytes){
+
+		boolean hasAnyData(){
+			return numFilledBytes > 0;
+		}
+
+		ByteArrayInputStream toInputStream(){
+			return new ByteArrayInputStream(bytes, 0, numFilledBytes);
+		}
+	}
+
+	@Override
+	public void multiThreadUpload(
+			String bucket,
+			String key,
+			S3ContentType contentType,
+			InputStream inputStream,
+			ExecutorService exec,
+			int numThreads){
+		S3Client s3Client = getS3ClientForBucket(bucket);
+
+		//create multipart request
+		CreateMultipartUploadRequest createRequest = CreateMultipartUploadRequest.builder()
+				.bucket(bucket)
+				.key(key)
+				.contentType(contentType.getMimeType())
+				.build();
+		CreateMultipartUploadResponse createResponse;
+		try(var $ = TracerTool.startSpan("S3 createMultipartUpload", TraceSpanGroupType.CLOUD_STORAGE)){
+			createResponse = s3Client.createMultipartUpload(createRequest);
+		}
+		String uploadId = createResponse.uploadId();
+
+		//upload parts
+		var numCompletedParts = new AtomicInteger(0);
+		try{
+			//s3 part ids start at 1
+			List<CompletedPart> orderedCompletedParts = Scanner.iterate(1, partId -> partId + 1)
+					.map(partId -> {
+						byte[] buffer = new byte[MultipartUploadPartSize.sizeForPart(partId)];
+						int result = InputStreamTool.readUntilLength(
+								inputStream,
+								buffer,
+								0,
+								buffer.length);
+						int numRead = Math.max(result, 0);//remove potential -1
+						return new MultiThreadUploadPartIdAndBytes(partId, buffer, numRead);
+					})
+					.advanceWhile(MultiThreadUploadPartIdAndBytes::hasAnyData)
+					.parallel(new ParallelScannerContext(exec, numThreads, true))
+					.map(partIdAndBytes -> {
+						int partId = partIdAndBytes.partId();
+						int length = partIdAndBytes.numFilledBytes();
+						UploadPartRequest uploadPartRequest = UploadPartRequest.builder()
+								.bucket(bucket)
+								.key(key)
+								.uploadId(uploadId)
+								.partNumber(partId)
+								.build();
+						RequestBody requestBody = RequestBody.fromInputStream(
+								partIdAndBytes.toInputStream(),
+								length);
+						UploadPartResponse uploadPartResponse;
+						try(var $ = TracerTool.startSpan("S3 parallelUploadPart", TraceSpanGroupType.CLOUD_STORAGE)){
+							uploadPartResponse = s3Client.uploadPart(uploadPartRequest, requestBody);
+							numCompletedParts.incrementAndGet();
+							TracerTool.appendToSpanInfo("Content-Length", uploadPartRequest.contentLength());
+							logger.info("Uploaded {}/{}, partId={}, size={}",
+									bucket,
+									key,
+									partId,
+									ByteLength.ofBytes(length).toDisplay());
+						}
+						return CompletedPart.builder()
+								.partNumber(partId)
+								.eTag(uploadPartResponse.eTag())
+								.build();
+					})
+					// CompleteMultipartUploadRequest requires the parts be sorted
+					.sort(Comparator.comparing(CompletedPart::partNumber))
+					.list();
+
+			//mark upload complete
+			CompletedMultipartUpload completedMultipartUpload = CompletedMultipartUpload.builder()
+					.parts(orderedCompletedParts)
+					.build();
+			CompleteMultipartUploadRequest completeMultipartUploadRequest = CompleteMultipartUploadRequest.builder()
+					.bucket(bucket)
+					.key(key)
+					.uploadId(uploadId)
+					.multipartUpload(completedMultipartUpload)
+					.build();
+			try(var $ = TracerTool.startSpan("S3 completeMultipartUpload", TraceSpanGroupType.CLOUD_STORAGE)){
+				s3Client.completeMultipartUpload(completeMultipartUploadRequest);
+			}
+		}catch(RuntimeException e){
+			// try to delete any uploaded parts
+			logger.warn("Aborting {}/{}, at completedParts={}", bucket, key, numCompletedParts.get());
+			AbortMultipartUploadRequest abortRequest = AbortMultipartUploadRequest.builder()
+					.bucket(bucket)
+					.key(key)
+					.uploadId(uploadId)
+					.build();
+			try(var $ = TracerTool.startSpan("S3 abortMultipartUpload", TraceSpanGroupType.CLOUD_STORAGE)){
+				s3Client.abortMultipartUpload(abortRequest);
+			}
+			logger.warn("Aborted {}/{}, completedParts={}", bucket, key, numCompletedParts.get());
+			String message = String.format("Error on %s/%s", bucket, key);
+			throw new RuntimeException(message, e);
+		}finally{
+			InputStreamTool.close(inputStream);
+		}
+	}
+
 	@Override
 	public void putObjectAsString(String bucket, String key, ContentType contentType, String content){
 		S3Client s3Client = getS3ClientForBucket(bucket);
@@ -329,8 +539,13 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 	}
 
 	@Override
-	public void putObjectAsBytes(String bucket, String key, ContentType contentType, String cacheControl,
-			ObjectCannedACL acl, byte[] bytes){
+	public void putObjectAsBytes(
+			String bucket,
+			String key,
+			ContentType contentType,
+			String cacheControl,
+			ObjectCannedACL acl,
+			byte[] bytes){
 		S3Client s3Client = getS3ClientForBucket(bucket);
 		PutObjectRequest request = makePutObjectRequestBuilder(bucket, key, contentType)
 				.cacheControl(cacheControl)
@@ -344,8 +559,14 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 	}
 
 	@Override
-	public void putObjectAsBytesWithExpirationTime(String bucket, String key, ContentType contentType,
-			String cacheControl, ObjectCannedACL acl, byte[] bytes, Instant expirationTime){
+	public void putObjectAsBytesWithExpirationTime(
+			String bucket,
+			String key,
+			ContentType contentType,
+			String cacheControl,
+			ObjectCannedACL acl,
+			byte[] bytes,
+			Instant expirationTime){
 		S3Client s3Client = getS3ClientForBucket(bucket);
 		PutObjectRequest request = makePutObjectRequestBuilder(bucket, key, contentType)
 				.cacheControl(cacheControl)
@@ -367,13 +588,6 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 	@Override
 	public void putObject(String bucket, String key, ContentType contentType, Path path){
 		putObjectWithAcl(bucket, key, contentType, path, ObjectCannedACL.PRIVATE);
-	}
-
-	@Override
-	public void downloadFilesToDirectory(String bucket, String prefix, Path path){
-		scanObjects(bucket, prefix)
-				.map(S3Object::key)
-				.forEach(key -> downloadFileToDirectory(bucket, key, path));
 	}
 
 	@Override
@@ -403,24 +617,6 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 			download = transferManager.download(bucket, key, path.toFile());
 			handleTransfer(download, heartbeat);
 		}
-	}
-
-	@Override
-	public Scanner<List<String>> scanBatchesOfLinesWithPrefix(String bucket, String prefix, int batchSize){
-		return scanObjects(bucket, prefix)
-				.map(S3Object::key)
-				.concat(key -> scanBatchesOfLines(bucket, key, batchSize));
-	}
-
-	@Override
-	public Scanner<String> scanLines(String bucket, String key){
-		return ReaderTool.lines(new BufferedReader(new InputStreamReader(getObject(bucket, key))));
-	}
-
-	@Override
-	public Scanner<List<String>> scanBatchesOfLines(String bucket, String key, int batchSize){
-		return scanLines(bucket, key)
-				.batch(batchSize);
 	}
 
 	@Override
@@ -463,29 +659,6 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 			TracerTool.appendToSpanInfo("Content-Length", response.response().contentLength());
 		}
 		return response.asByteArray();
-	}
-
-	@Override
-	public String getObjectAsString(String bucket, String key){
-		return new String(getObjectAsBytes(bucket, key));
-	}
-
-	@Override
-	public Optional<Long> length(String bucket, String key){
-		return headObject(bucket, key)
-				.map(HeadObjectResponse::contentLength);
-	}
-
-	@Override
-	public Optional<Instant> findLastModified(String bucket, String key){
-		return headObject(bucket, key)
-				.map(HeadObjectResponse::lastModified);
-	}
-
-	@Override
-	public Optional<S3Object> findLastModifiedObjectWithPrefix(String bucket, String prefix){
-		return scanObjects(bucket, prefix)
-				.findMax(Comparator.comparing(S3Object::lastModified));
 	}
 
 	@Override
@@ -554,8 +727,13 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 	}
 
 	@Override
-	public Scanner<DirectoryDto> scanSubdirectories(String bucket, String prefix, String startAfter, String delimiter,
-			int pageSize, boolean currentDirectory){
+	public Scanner<DirectoryDto> scanSubdirectories(
+			String bucket,
+			String prefix,
+			String startAfter,
+			String delimiter,
+			int pageSize,
+			boolean currentDirectory){
 		ListObjectsV2Request request = ListObjectsV2Request.builder()
 				.bucket(bucket)
 				.prefix(prefix)
@@ -585,16 +763,6 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 	}
 
 	@Override
-	public boolean exists(String bucket, String key){
-		return headObject(bucket, key).isPresent();
-	}
-
-	@Override
-	public boolean existsPrefix(String bucket, String prefix){
-		return scanObjects(bucket, prefix).hasAny();
-	}
-
-	@Override
 	public Region getCachedOrLatestRegionForBucket(String bucket){
 		return regionByBucket.computeIfAbsent(bucket, this::getBucketRegion);
 	}
@@ -620,15 +788,19 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 			}catch(Exception e){
 				logger.error("couldn't heartbeat", e);
 			}
-			logger.warn("{} / {} pct={} bytesTransferred={} totalBytesToTransfer={}", ByteUnitTool
-					.byteCountToDisplaySize(progress.getBytesTransferred()), ByteUnitTool.byteCountToDisplaySize(
-					totalBytesToTransfer), NumberFormatter.format(progress.getPercentTransferred(), 2), progress
-					.getBytesTransferred(), totalBytesToTransfer);
+			logger.warn(
+					"{} / {} pct={} bytesTransferred={} totalBytesToTransfer={}",
+					ByteLength.ofBytes(progress.getBytesTransferred()).toDisplay(),
+					ByteLength.ofBytes(totalBytesToTransfer).toDisplay(),
+					NumberFormatter.format(progress.getPercentTransferred(), 2),
+					progress.getBytesTransferred(),
+					totalBytesToTransfer);
 			ThreadTool.sleepUnchecked(1000L);
 		}
 	}
 
-	private Optional<HeadObjectResponse> headObject(String bucket, String key){
+	@Override
+	public Optional<HeadObjectResponse> headObject(String bucket, String key){
 		try{
 			S3Client s3Client = getS3ClientForBucket(bucket);
 			HeadObjectRequest request = HeadObjectRequest.builder()
@@ -737,7 +909,9 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 				.build();
 	}
 
-	private static PutObjectRequest.Builder makePutObjectRequestBuilder(String bucket, String key,
+	private static PutObjectRequest.Builder makePutObjectRequestBuilder(
+			String bucket,
+			String key,
 			ContentType contentType){
 		return PutObjectRequest.builder()
 				.bucket(bucket)

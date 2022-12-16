@@ -26,7 +26,7 @@ import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.util.Bytes;
 
-import io.datarouter.gson.serialization.GsonTool;
+import io.datarouter.gson.GsonTool;
 import io.datarouter.instrumentation.trace.TraceSpanGroupType;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.model.exception.DataAccessException;
@@ -61,7 +61,7 @@ public class HBaseTableTool{
 		}catch(IOException e){
 			throw new IOException("start=" + start
 					+ " stop=" + Bytes.toStringBinary(scan.getStopRow())
-					+ " scan=" + GsonTool.GSON.toJson(scan), e);
+					+ " scan=" + GsonTool.withUnregisteredEnums().toJson(scan), e);
 		}
 	}
 

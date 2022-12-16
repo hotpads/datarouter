@@ -20,8 +20,8 @@ import java.time.ZoneId;
 import com.google.gson.Gson;
 import com.google.inject.name.Names;
 
-import io.datarouter.gson.serialization.GsonTool;
-import io.datarouter.httpclient.json.GsonJsonSerializer;
+import io.datarouter.gson.GsonJsonSerializer;
+import io.datarouter.gson.GsonTool;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder.NoOpChangelogRecorder;
 import io.datarouter.json.JsonSerializer;
@@ -45,8 +45,6 @@ import io.datarouter.web.monitoring.latency.LatencyMonitoringGraphLink.NoOpLaten
 import io.datarouter.web.navigation.AppNavBar;
 import io.datarouter.web.navigation.AppNavBarRegistrySupplier;
 import io.datarouter.web.navigation.AppNavBarRegistrySupplier.NoOpAppNavBarRegistry;
-import io.datarouter.web.port.CompoundPortIdentifier;
-import io.datarouter.web.port.PortIdentifier;
 import io.datarouter.web.user.BaseDatarouterSessionDao;
 import io.datarouter.web.user.BaseDatarouterSessionDao.NoOpDatarouterSessionDao;
 import io.datarouter.web.user.authenticate.config.BaseDatarouterAuthenticationConfig;
@@ -72,9 +70,6 @@ public class DatarouterWebGuiceModule extends BaseGuiceServletModule{
 		bind(JsonSerializer.class)
 				.annotatedWith(Names.named(HandlerEncoder.DEFAULT_HANDLER_SERIALIZER))
 				.to(GsonJsonSerializer.class);
-		bind(PortIdentifier.class)
-				.annotatedWith(Names.named(CompoundPortIdentifier.COMPOUND_PORT_IDENTIFIER))
-				.to(CompoundPortIdentifier.class);
 
 		bindDefault(DatarouterAuthenticationConfig.class, BaseDatarouterAuthenticationConfig.class);
 

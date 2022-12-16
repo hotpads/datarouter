@@ -70,6 +70,7 @@ public class SettingJspDto{
 						null,
 						null,
 						null,
+						null,
 						setting.toStringValue(value),
 						isActive,
 						isWinner));
@@ -85,12 +86,31 @@ public class SettingJspDto{
 						false,
 						environmentType.getPersistentString(),
 						null,
+						null,
 						serverType,
 						null,
 						setting.toStringValue(value),
 						isActive,
 						isWinner));
 					}));
+		// serviceName overrides
+		defaults.getValueByServiceNameByEnvironmentType().forEach((environmentType, defaultByServiceName) ->
+				defaultByServiceName.forEach((serviceName, value) -> {
+					boolean isActive = winnerEnvironmentType.equals(environmentType.getPersistentString())
+						&& winnerServerName.equals(serviceName);
+					boolean isWinner = !hasDatabaseOverride && isActive
+						&& defaultValueWinner.type == DefaultSettingValueWinnerType.SERVICE_NAME;
+					dtos.add(new ClusterSettingDefaultJspDto(
+						false,
+						environmentType.getPersistentString(),
+						null,
+						null,
+						null,
+						serviceName,
+						setting.toStringValue(value),
+						isActive,
+						isWinner));
+				}));
 		// serverName overrides
 		defaults.getValueByServerNameByEnvironmentType().forEach((environmentType, defaultByServerName) ->
 				defaultByServerName.forEach((serverName, value) -> {
@@ -101,6 +121,7 @@ public class SettingJspDto{
 					dtos.add(new ClusterSettingDefaultJspDto(
 						false,
 						environmentType.getPersistentString(),
+						null,
 						null,
 						null,
 						serverName,
@@ -122,10 +143,31 @@ public class SettingJspDto{
 						environmentName,
 						null,
 						null,
+						null,
 						setting.toStringValue(value),
 						isActive,
 						isWinner));
 					}));
+		// environmentCategory overrides
+		defaults.getValueByEnvironmentCategoryNameByEnvironmentType()
+				.forEach((environmentType, defaultByEnvironmentCategory) ->
+					defaultByEnvironmentCategory.forEach((environmentCategory, value) -> {
+					boolean isActive = !isGlobalDefault
+						&& winnerEnvironmentType.equals(environmentType.getPersistentString())
+						&& winnerEnvironmentName.equals(environmentCategory);
+					boolean isWinner = !hasDatabaseOverride && isActive
+						&& defaultValueWinner.type == DefaultSettingValueWinnerType.ENVIRONMENT_CATEGORY;
+					dtos.add(new ClusterSettingDefaultJspDto(
+						false,
+						environmentType.getPersistentString(),
+						null,
+						environmentCategory,
+						null,
+						null,
+						setting.toStringValue(value),
+						isActive,
+						isWinner));
+				}));
 		return dtos;
 	}
 

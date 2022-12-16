@@ -23,7 +23,7 @@ import io.datarouter.model.field.imp.StringEncodedField;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.key.FieldlessIndexEntryPrimaryKey;
 import io.datarouter.model.key.primary.base.BaseRegularPrimaryKey;
-import io.datarouter.util.Ulid;
+import io.datarouter.types.Ulid;
 
 public class HttpRequestRecordByExceptionRecordIdKey
 extends BaseRegularPrimaryKey<HttpRequestRecordByExceptionRecordIdKey>

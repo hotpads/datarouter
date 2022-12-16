@@ -15,18 +15,18 @@
  */
 package io.datarouter.model.util;
 
-import io.datarouter.bytes.ByteUnitType;
+import io.datarouter.bytes.ByteLength;
 
 public class CommonFieldSizes{
 
 	/*----------- GCP pubsub -----------*/
 
-	public static final int MAX_PUBSUB_SIZE = ByteUnitType.MB.toBytesInt(10);//MB is correct
+	public static final int MAX_PUBSUB_SIZE = ByteLength.ofMB(10).toBytesInt();//MB is correct
 
 	/*----------- memcached -----------*/
 
 	public static final int MEMCACHED_MAX_KEY_LENGTH = 250;
-	public static final int MEMCACHED_MAX_VALUE_LENGTH = ByteUnitType.MiB.toBytesInt(1);
+	public static final int MEMCACHED_MAX_VALUE_LENGTH = ByteLength.ofMiB(1).toBytesInt();
 
 	/*----------- mysql -----------*/
 
@@ -50,7 +50,7 @@ public class CommonFieldSizes{
 
 	/*----------- sqs -----------*/
 
-	public static final int MAX_SQS_SIZE = ByteUnitType.KiB.toBytesInt(256);
+	public static final int MAX_SQS_SIZE = ByteLength.ofKiB(256).toBytesInt();
 
 	/*------------ misc -----------*/
 

@@ -28,122 +28,7 @@ const SubmitButton = ({compact, className='', ...props}) => (
 		style={compact ? {margin: '0 5px'} : {}}
 		{...props}
 	/>
-)
-
-class AddAccountForm extends React.Component{
-	constructor(props){
-		super(props)
-		this.state = {
-			accountName:'', 
-			callerTypes:[],
-			selectedCallerType:''}
-	}
-
-	componentWillMount(){
-		Fetch.get('getAvailableCallerTypes')
-			.then(callerTypes => this.setState({callerTypes, selectedCallerType: callerTypes[0]}))
-	}
-
-	handleChange = (event) => {
-		this.setState({accountName: event.target.value})
-	}
-
-	handleChange2 = (event) => {
-		this.setState({selectedCallerType: event.target.value})
-	}
-
-	submitForm = (event) => {
-		event.preventDefault()
-		this.props.addAccount(this.state.accountName, this.state.selectedCallerType)
-	}
-
-	render(){
-		return (
-			<form>
-				<h3>Create Account</h3>
-				<div className="form-group">
-					<label>Account Name</label>
-					<div className="input-group">
-						<input 
-								type="text" 
-								className="form-control" 
-								value={this.state.accountName} 
-								onChange={this.handleChange} />
-						<select 
-								class="form-control" 
-								value={this.state.selectedCallerType} 
-								onChange={this.handleChange2}>
-						{this.state.callerTypes.map((callerType) => (<option value={callerType}>{callerType}</option>))}
-						</select>
-						<span className="input-group-append">
-							<SubmitButton
-								className="form-control-static btn"
-								onClick={this.submitForm}
-								disabled={!this.state.accountName}
-								value="Create account"
-							/>
-						</span>
-					</div>
-				</div>
-			</form>
-		)
-	}
-}
-
-class AccountLookupForm extends React.Component{
-
-	constructor(props){
-		super(props)
-		this.state = {apiKey: '', accounts: [], message: null}
-	}
-
-	handleChange = (event) => {
-		this.setState({apiKey: event.target.value})
-	}
-
-	submitForm = (event) => {
-		event.preventDefault()
-		Fetch.post('lookupAccount', {apiKey: this.state.apiKey})
-			.then(response => {
-				if(response && response.length){
-					console.log('stuff')
-					this.setState({message: null, accounts: response})
-				}else{
-					this.setState({message: 'Not found.', accounts: []})
-				}
-			})
-	}
-
-	render(){
-		return (
-			<form>
-				<h3>Lookup Account by apiKey</h3>
-				<div className="form-group">
-					<label>apiKey</label>
-					<div className="input-group">
-						<input type="text" placeholder="apiKey (xx*xx allowed)" className="form-control" value={this.state.apiKey} onChange={this.handleChange} />
-						<span className="input-group-append">
-							<SubmitButton
-								className="form-control-static btn"
-								onClick={this.submitForm}
-								disabled={!this.state.apiKey}
-								value="Lookup account"
-							/>
-						</span>
-					</div>
-				</div>
-				{this.state.accounts.map(account =>
-					<div>
-					<Link to={REACT_BASE_PATH + "details/" + account.accountName} title="Edit account">
-						Account name: {account.accountName} {account.secretName ? ' (Secret name: ' + account.secretName + ')' : ''}
-					</Link>
-					</div>
-				)}
-				{this.state.message && <p>{this.state.message}</p>}
-			</form>
-		)
-	}
-}
+);
 
 const AccountTable = ({accountDetails, deleteAccount}) => (
 	<table className="sortable table table-condensed table-striped">
@@ -316,6 +201,152 @@ const ActivationTd = ({active, keyName, value, message, setCredentialActivation}
 	</td>
 }
 
+const CreateAccountModal = ({addAccount}) => {
+	const modalId = 'createAccountModal';
+	const modalLabel = 'createAccountModalLabel';
+	const [accountName, setAccountName] = React.useState('');
+	const [callerTypes, setCallerTypes] = React.useState([]);
+	const [selectedCallerType, setSelectedCallerType] = React.useState('');
+
+	React.useEffect(() => {
+		Fetch.get('getAvailableCallerTypes')
+			.then(callerTypes => {
+				setCallerTypes(callerTypes);
+				setSelectedCallerType(callerTypes[0]);
+			});
+	}, []);
+
+	const handleNameChange = (event) => {
+		setAccountName(event.target.value);
+	}
+
+	const handleCallerType = (event) => {
+		setSelectedCallerType(event.target.value);
+	}
+
+	const submitForm = (event) => {
+		event.preventDefault();
+		if (accountName.length === 0) {
+			return;
+		}
+		addAccount(accountName, selectedCallerType);
+		$(`#${modalId}`).modal('hide');
+	}
+
+	return (
+		<div className="modal fade" id={modalId} tabIndex="-1" role="dialog" aria-labelledby={modalLabel}
+			 aria-hidden="true">
+			<div className="modal-dialog" role="document">
+				<div className="modal-content">
+					<div className="modal-header">
+						<h5 className="modal-title" id={modalLabel}>Create Account</h5>
+						<button type="button" className="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div className="modal-body">
+						<form onSubmit={submitForm}>
+							<div className="form-group">
+								<label>Account Name</label>
+								<div className="input-group">
+									<input
+										type="text"
+										className="form-control"
+										value={accountName}
+										onChange={handleNameChange}/>
+									<select
+										className="form-control"
+										value={selectedCallerType}
+										onChange={handleCallerType}>
+										{callerTypes.map((callerType) => (
+											<option value={callerType}>{callerType}</option>))}
+									</select>
+								</div>
+							</div>
+						</form>
+					</div>
+					<div className="modal-footer">
+						<button type="button" className="btn btn-secondary" data-dismiss="modal">Close</button>
+						<button type="button" className="btn btn-primary" onClick={submitForm}
+								disabled={!accountName}>Create Account</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	);
+}
+
+const AccountLookupModal = () => {
+	const modalId = 'lookupAccountModal';
+	const modalLabel = 'lookupAccountModalLabel';
+
+	const [apiKey, setApiKey] = React.useState('');
+	const [accounts, setAccounts] = React.useState([]);
+	const [message, setMessage] = React.useState(null);
+
+	const handleChange = (event) => {
+		setApiKey(event.target.value);
+	}
+
+	const submitForm = (event) => {
+		event.preventDefault()
+		if (apiKey.length === 0) {
+			return;
+		}
+		Fetch.post('lookupAccount', {apiKey})
+			.then(response => {
+				if(response && response.length){
+					setMessage(null);
+					setAccounts(response);
+				}else{
+					setMessage('Not found.');
+					setAccounts([]);
+				}
+			})
+	}
+
+	return (
+		<div className="modal fade" id={modalId} tabIndex="-1" role="dialog" aria-labelledby={modalLabel}
+			 aria-hidden="true">
+			<div className="modal-dialog" role="document">
+				<div className="modal-content">
+					<div className="modal-header">
+						<h5 className="modal-title" id={modalLabel}>Lookup Account by apiKey</h5>
+						<button type="button" className="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div className="modal-body">
+						<form onSubmit={submitForm}>
+							<div className="form-group">
+								<label>apiKey</label>
+								<div className="input-group">
+									<input type="text" placeholder="apiKey (xx*xx allowed)" className="form-control"
+										   value={apiKey} onChange={handleChange} />
+								</div>
+							</div>
+							{accounts.map(account =>
+								<div>
+									<Link to={REACT_BASE_PATH + "details/" + account.accountName} title="Edit account">
+										Account name: {account.accountName} {account.secretName ? ' (Secret name: ' + account.secretName + ')' : ''}
+									</Link>
+								</div>
+							)}
+							{message && <p>{message}</p>}
+						</form>
+					</div>
+					<div className="modal-footer">
+						<button type="button" className="btn btn-secondary" data-dismiss="modal">Close</button>
+						<button type="button" className="btn btn-primary" onClick={submitForm}
+								disabled={!apiKey}>Lookup account</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	);
+
+};
+
 class Accounts extends React.Component{
 	constructor(props){
 		super(props)
@@ -351,10 +382,8 @@ class Accounts extends React.Component{
 					accountDetails={this.state.accountDetails}
 					deleteAccount={this.deleteAccount}
 				/>
-				{Hr}
-				<AddAccountForm addAccount={this.addAccount} />
-				{Hr}
-				<AccountLookupForm />
+				<AccountLookupModal />
+				<CreateAccountModal addAccount={this.addAccount} />
 			</div>
 		)
 	}
@@ -593,7 +622,13 @@ class AccountDetails extends React.Component{
 
 ReactDOM.render(
 	<div className="container-fluid">
-		<h1>DatarouterAccounts</h1>
+		<div className="d-flex align-items-center">
+			<h1>DatarouterAccounts</h1>
+			<button type="button" className="btn btn-link ml-1 mr-1" data-toggle="modal"
+					data-target="#createAccountModal">Create Account</button>
+			<button type="button" className="btn btn-link" data-toggle="modal"
+					data-target="#lookupAccountModal">Lookup Account by apiKey</button>
+		</div>
 		<Router history={browserHistory}>
 			<Route path={REACT_BASE_PATH + "manage"} component={Accounts} />
 			<Route path={REACT_BASE_PATH + "details/:accountName"} component={AccountDetails} />

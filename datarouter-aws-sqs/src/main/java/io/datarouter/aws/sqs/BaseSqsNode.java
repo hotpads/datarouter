@@ -31,14 +31,11 @@ import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.Config;
-import io.datarouter.storage.config.properties.EnvironmentName;
-import io.datarouter.storage.config.properties.ServiceName;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.op.raw.write.QueueStorageWriter;
 import io.datarouter.storage.node.type.physical.base.BasePhysicalNode;
 import io.datarouter.storage.queue.QueueMessageKey;
 import io.datarouter.util.singletonsupplier.SingletonSupplier;
-import io.datarouter.util.string.StringTool;
 
 public abstract class BaseSqsNode<
 		PK extends PrimaryKey<PK>,
@@ -50,16 +47,13 @@ implements QueueStorageWriter<PK,D>, SqsPhysicalNode<PK,D,F>{
 
 	// do not change, this is a limit from SQS
 	public static final int MAX_MESSAGES_PER_BATCH = 10;
-	public static final int MAX_TIMEOUT_SECONDS = 20;
-	public static final int MIN_QUEUE_NAME_LENGTH = 1;
-	public static final int MAX_QUEUE_NAME_LENGTH = 80;
+	public static final Duration MAX_TIMEOUT = Duration.ofSeconds(20);
 
 	// SQS default is 30 sec
 	public static final long DEFAULT_VISIBILITY_TIMEOUT_MS = Duration.ofSeconds(30).toMillis();
 	public static final long RETENTION_S = Duration.ofDays(14).getSeconds();
 
-	private final EnvironmentName environmentName;
-	private final ServiceName serviceName;
+	private final String queueName;
 	private final NodeParams<PK,D,F> params;
 	private final Supplier<QueueUrlAndName> queueUrlAndName;
 	private final SqsClientManager sqsClientManager;
@@ -68,15 +62,13 @@ implements QueueStorageWriter<PK,D>, SqsPhysicalNode<PK,D,F>{
 	private final boolean owned;
 
 	public BaseSqsNode(
-			EnvironmentName environmentName,
-			ServiceName serviceName,
+			SqsQueueNameService sqsQueueNameService,
 			NodeParams<PK,D,F> params,
 			SqsClientType sqsClientType,
 			SqsClientManager sqsClientManager,
 			ClientId clientId){
 		super(params, sqsClientType);
-		this.environmentName = environmentName;
-		this.serviceName = serviceName;
+		this.queueName = sqsQueueNameService.buildQueueName(params.getQueueUrl(), getFieldInfo().getTableName());
 		this.params = params;
 		this.sqsClientManager = sqsClientManager;
 		this.clientId = clientId;
@@ -87,16 +79,12 @@ implements QueueStorageWriter<PK,D>, SqsPhysicalNode<PK,D,F>{
 
 	private QueueUrlAndName getOrCreateQueueUrl(){
 		String queueUrl;
-		String queueName;
-		if(!owned){
-			queueUrl = params.getQueueUrl();
-			queueName = queueUrl.substring(queueUrl.lastIndexOf('/') + 1);
-			//don't issue the createQueue request because it is probably someone else's queue
-		}else{
-			queueName = buildQueueName(environmentName.get(), serviceName.get());
+		if(owned){
 			queueUrl = createQueueAndGetUrl(queueName);
 			sqsClientManager.updateAttr(clientId, queueUrl, QueueAttributeName.MessageRetentionPeriod, RETENTION_S);
 			logger.warn("retention updated queueName=" + queueName);
+		}else{
+			queueUrl = params.getQueueUrl();
 		}
 		logger.warn("nodeName={}, queueUrl={}", getName(), queueUrl);
 		return new QueueUrlAndName(queueUrl, queueName);
@@ -110,31 +98,6 @@ implements QueueStorageWriter<PK,D>, SqsPhysicalNode<PK,D,F>{
 		}catch(RuntimeException e){
 			throw new RuntimeException("queueName=" + queueName + " queueNameLength=" + queueName.length(), e);
 		}
-	}
-
-	private String getOrBuildNamespace(String environmentName, String serviceName){
-		return params.getNamespace().orElseGet(() -> buildNamespace(environmentName, serviceName));
-	}
-
-	private String buildNamespace(String environmentName, String serviceName){
-		return environmentName + "-" + serviceName;
-	}
-
-	@Override
-	public String getAutomaticNamespace(){
-		return buildNamespace(environmentName.get(), serviceName.get());
-	}
-
-	@Override
-	public String buildQueueName(String environmentName, String serviceName){
-		String namespace = getOrBuildNamespace(environmentName, serviceName);
-		String tableName = getFieldInfo().getTableName();
-		String queueName = StringTool.isEmpty(namespace) ? tableName : (namespace + "-" + tableName);
-		if(queueName.length() > MAX_QUEUE_NAME_LENGTH){
-			// Future change to a throw.
-			logger.error("queue={} overflows the max size {}", queueName, MAX_QUEUE_NAME_LENGTH);
-		}
-		return queueName;
 	}
 
 	@Override

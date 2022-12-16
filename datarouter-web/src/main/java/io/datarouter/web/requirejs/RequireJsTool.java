@@ -23,12 +23,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import io.datarouter.gson.serialization.GsonTool;
+import com.google.gson.Gson;
+
+import io.datarouter.gson.GsonTool;
 import io.datarouter.pathnode.PathNode;
 import j2html.TagCreator;
 import j2html.tags.specialized.ScriptTag;
 
 public class RequireJsTool{
+
+	private static final Gson GSON = GsonTool.GSON.newBuilder()
+			.setPrettyPrinting()
+			.create();
 
 	public static ScriptTag makeRequireJsImportTag(String contextPath, PathNode path){
 		return script()
@@ -49,7 +55,7 @@ public class RequireJsTool{
 		Map<String,RequireJsShim> shim = new LinkedHashMap<>();
 		shimsByName.forEach((k, v) -> shim.put(k, new RequireJsShim(v)));
 		RequireJsConfigParam requireJsConfigParam = new RequireJsConfigParam(contextPath + "/", paths, shim);
-		return GsonTool.GSON_PRETTY_PRINT.toJson(requireJsConfigParam);
+		return GSON.toJson(requireJsConfigParam);
 	}
 
 	public static ScriptTag makeRequireScriptTag(String... names){

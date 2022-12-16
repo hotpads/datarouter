@@ -19,10 +19,8 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
 import io.datarouter.exception.config.DatarouterExceptionSettingRoot;
-import io.datarouter.instrumentation.exception.ExceptionRecordDto;
 import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.web.exception.ExceptionHandlingConfig;
-import io.datarouter.web.monitoring.exception.ExceptionDto;
 import io.datarouter.web.user.session.DatarouterSession;
 import io.datarouter.web.user.session.DatarouterSessionManager;
 import io.datarouter.web.user.session.service.RoleManager;
@@ -48,16 +46,6 @@ public class DefaultExceptionHandlingConfig implements ExceptionHandlingConfig{
 				.map(DatarouterSession::getRoles)
 				.map(roleManager::isAdmin)
 				.orElse(false);
-	}
-
-	@Override
-	public boolean shouldReportError(ExceptionRecordDto exceptionRecord){
-		return settings.shouldReport.get();
-	}
-
-	@Override
-	public boolean shouldReportError(ExceptionDto dto){
-		return settings.shouldReport.get();
 	}
 
 	@Override

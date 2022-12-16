@@ -54,8 +54,8 @@ public class TableProcessorJoblet extends BaseJoblet<TableProcessorJobletParams>
 				processor,
 				NumberTool.nullSafeLong(params.jobletId, 0L),//can remove null check after migration period
 				NumberTool.nullSafeLong(params.numJoblets, 0L));
-		if(!result.success){
-			throw result.exception;
+		if(!result.success()){
+			throw result.exception();
 		}
 	}
 

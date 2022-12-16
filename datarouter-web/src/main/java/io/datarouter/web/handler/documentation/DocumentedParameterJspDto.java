@@ -28,6 +28,7 @@ public class DocumentedParameterJspDto{
 	private final Boolean requestBody;
 	private final Boolean hidden;
 	private final String description;
+	private final boolean isDeprecated;
 
 	public final Set<DocumentedExampleEnumDto> exampleEnumDtos;
 
@@ -39,6 +40,7 @@ public class DocumentedParameterJspDto{
 			Boolean requestBody,
 			Boolean hidden,
 			String description,
+			boolean isDeprecated,
 			Set<DocumentedExampleEnumDto> exampleEnumDtos){
 		this.name = name;
 		this.type = type;
@@ -47,6 +49,7 @@ public class DocumentedParameterJspDto{
 		this.requestBody = requestBody;
 		this.hidden = hidden;
 		this.description = description;
+		this.isDeprecated = isDeprecated;
 		this.exampleEnumDtos = exampleEnumDtos;
 	}
 
@@ -76,6 +79,10 @@ public class DocumentedParameterJspDto{
 
 	public Boolean getHidden(){
 		return hidden;
+	}
+
+	public boolean getIsDeprecated(){
+		return isDeprecated;
 	}
 
 }

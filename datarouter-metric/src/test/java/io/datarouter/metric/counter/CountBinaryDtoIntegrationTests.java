@@ -26,7 +26,7 @@ import org.testng.annotations.Test;
 
 import io.datarouter.binarydto.codec.BinaryDtoIndexedCodec;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.util.Ulid;
+import io.datarouter.types.Ulid;
 
 public class CountBinaryDtoIntegrationTests{
 

@@ -27,8 +27,10 @@ public class DatarouterConveyorSettingRoot extends SettingRoot{
 
 	@Inject
 	public DatarouterConveyorSettingRoot(SettingFinder finder,
-			DatarouterConveyorShouldRunSettings conveyorThreadCountSettings){
+			DatarouterConveyorShouldRunSettings conveyorShouldRunSettings,
+			DatarouterConveyorThreadCountSettings conveyorThreadCountSettings){
 		super(finder, DatarouterSettingCategory.DATAROUTER, "datarouterConveyor.");
+		registerChild(conveyorShouldRunSettings);
 		registerChild(conveyorThreadCountSettings);
 	}
 

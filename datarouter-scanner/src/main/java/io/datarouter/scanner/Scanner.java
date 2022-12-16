@@ -295,6 +295,18 @@ public interface Scanner<T> extends Closeable{
 		return new CollatingScanner<>(scanners, comparator);
 	}
 
+	/**
+	 * New implementation with assumption that data is usually not random.
+	 * TODO make the default
+	 */
+	default <R> Scanner<R> collateV2(Function<? super T,Scanner<R>> mapper, Comparator<? super R> comparator){
+		List<Scanner<R>> scanners = map(mapper).list();
+		if(scanners.size() == 1){
+			return scanners.get(0);
+		}
+		return new CollatingScannerV2<>(scanners, comparator);
+	}
+
 	/*--------------------------- Chain ----------------------------*/
 
 	/**
@@ -454,8 +466,15 @@ public interface Scanner<T> extends Closeable{
 	 * Similar to groupBy on an unbounded amount of data, but will result in multiple of the same groupings depending
 	 * on the order of the input data.  Useful in the case of Scanning child objects and grouping by a parent.
 	 */
-	default Scanner<Scanner<T>> splitBy(Function<T,?> mapper){
-		return new SplittingScanner<>(this, mapper);
+	default <R> Scanner<Scanner<T>> splitBy(Function<T,R> mapper, BiPredicate<R,R> equalsPredicate){
+		return new SplittingScanner<>(this, mapper, equalsPredicate);
+	}
+
+	/**
+	 * Convenience method calling splitBy with the most commonly used equalsPredicate, Objects::equals.
+	 */
+	default <R> Scanner<Scanner<T>> splitBy(Function<T,R> mapper){
+		return new SplittingScanner<>(this, mapper, Objects::equals);
 	}
 
 	/*--------------------------- Reducing ops ----------------------------*/

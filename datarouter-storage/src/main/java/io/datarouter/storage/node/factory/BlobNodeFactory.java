@@ -63,15 +63,4 @@ public class BlobNodeFactory extends BaseNodeFactory{
 		return cast(clientFactories.createBlobNode(params));
 	}
 
-	public PhysicalBlobStorageNode
-	createSubdirectory(
-			PhysicalBlobStorageNode node,
-			Subpath subdirectoryPath){
-		Subpath fullPath = node.getRootPath().append(subdirectoryPath);
-		return create(
-				node.getClientId(),
-				node.getBucket(),
-				fullPath);
-	}
-
 }

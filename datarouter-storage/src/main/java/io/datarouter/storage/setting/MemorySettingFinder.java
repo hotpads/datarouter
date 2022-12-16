@@ -27,27 +27,33 @@ import io.datarouter.storage.setting.cached.CachedSetting;
 public class MemorySettingFinder implements SettingFinder{
 
 	private final String environmentType;
-	private final String environment;
+	private final String environmentName;
+	private final String environmentCategoryName;
 	private final ServerType serverType;
 	private final String serverName;
+	private final String serviceName;
 	private final List<DatarouterSettingTag> settingTags;
 	// protected so subclasses can modify the settings
 	protected final Map<String,Object> settings;
 
 	public MemorySettingFinder(){
-		this(null, null, null, null, List.of());
+		this(null, null, null, null, null, null, List.of());
 	}
 
 	public MemorySettingFinder(
 			String environmentType,
-			String environment,
+			String environmentName,
+			String environmentCategoryName,
 			ServerType serverType,
 			String serverName,
+			String serviceName,
 			List<DatarouterSettingTag> settingTags){
 		this.environmentType = environmentType;
-		this.environment = environment;
+		this.environmentName = environmentName;
+		this.environmentCategoryName = environmentCategoryName;
 		this.serverType = serverType;
 		this.serverName = serverName;
+		this.serviceName = serviceName;
 		this.settingTags = settingTags;
 		this.settings = new ConcurrentHashMap<>();
 	}
@@ -59,7 +65,12 @@ public class MemorySettingFinder implements SettingFinder{
 
 	@Override
 	public String getEnvironmentName(){
-		return environment;
+		return environmentName;
+	}
+
+	@Override
+	public String getEnvironmentCategoryName(){
+		return environmentCategoryName;
 	}
 
 	@Override
@@ -70,6 +81,11 @@ public class MemorySettingFinder implements SettingFinder{
 	@Override
 	public String getServerName(){
 		return serverName;
+	}
+
+	@Override
+	public String getServiceName(){
+		return serviceName;
 	}
 
 	@Override

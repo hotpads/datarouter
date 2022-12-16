@@ -15,8 +15,6 @@
  */
 package io.datarouter.conveyor;
 
-import java.io.InterruptedIOException;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -25,7 +23,6 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.conveyor.Conveyor.ProcessResult;
 import io.datarouter.conveyor.exception.ConveyorExceptionCategory;
-import io.datarouter.util.concurrent.UncheckedInterruptedException;
 import io.datarouter.web.exception.ExceptionRecorder;
 import io.datarouter.web.util.ExceptionTool;
 
@@ -35,10 +32,6 @@ public class ConveyorService{
 
 	@Inject
 	private ExceptionRecorder exceptionRecorder;
-
-	@SuppressWarnings("unused")
-	public void interrupted() throws Exception{
-	}
 
 	public void run(ConveyorConfiguration configuration, ConveyorRunnable conveyor){
 		if(!shouldRun(conveyor)){
@@ -61,12 +54,11 @@ public class ConveyorService{
 			logger.info("drain finished for conveyor={} duration={} iterations={} ", conveyor.getName(), duration,
 					iteration);
 		}catch(Throwable e){
-			boolean interrupted = ExceptionTool.isFromInstanceOf(e, InterruptedException.class,
-					UncheckedInterruptedException.class, InterruptedIOException.class);
+			boolean interrupted = ExceptionTool.isInterrupted(e);
 			if(interrupted){
 				ConveyorCounters.incInterrupted(conveyor);
 				try{
-					interrupted();
+					configuration.interrupted(conveyor);
 				}catch(Exception ex){
 					logger.error("interuption handling failed", ex);
 				}

@@ -21,6 +21,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 
@@ -37,13 +38,15 @@ import com.google.gson.JsonSyntaxException;
 import io.datarouter.httpclient.endpoint.java.EndpointTool;
 import io.datarouter.httpclient.endpoint.link.BaseLink;
 import io.datarouter.httpclient.endpoint.link.LinkTool;
-import io.datarouter.httpclient.endpoint.param.RequestBody;
 import io.datarouter.httpclient.endpoint.param.IgnoredField;
+import io.datarouter.httpclient.endpoint.param.RequestBody;
 import io.datarouter.instrumentation.trace.TraceSpanGroupType;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.json.JsonSerializer;
 import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.util.string.StringTool;
+import io.datarouter.web.handler.BaseHandler;
+import io.datarouter.web.handler.HandlerMetrics;
 import io.datarouter.web.handler.encoder.HandlerEncoder;
 import io.datarouter.web.handler.encoder.JsonAwareHandlerCodec;
 import io.datarouter.web.util.http.RequestTool;
@@ -70,10 +73,10 @@ public class LinkDecoder implements HandlerDecoder, JsonAwareHandlerCodec{
 
 		// populate the fields with baseLink with dummy values and then repopulate in getArgsFromEndpointObject
 		@SuppressWarnings("unchecked")
-		BaseLink<?> baseEndpoint = ReflectionTool.createWithoutNoArgs((Class<? extends BaseLink<?>>)linkType);
+		BaseLink<?> baseLink = ReflectionTool.createWithoutNoArgs((Class<? extends BaseLink<?>>)linkType);
 
 		String body = null;
-		if(EndpointTool.findRequestBody(baseEndpoint.getClass().getFields()).isPresent()){
+		if(EndpointTool.findRequestBody(baseLink.getClass().getFields()).isPresent()){
 			body = RequestTool.getBodyAsString(request);
 			if(StringTool.isEmpty(body)){
 				return null;
@@ -81,7 +84,7 @@ public class LinkDecoder implements HandlerDecoder, JsonAwareHandlerCodec{
 		}
 		Object[] args = null;
 		try{
-			args = getArgsFromEndpointObject(queryParams, baseEndpoint, body);
+			args = getArgsFromEndpointObject(queryParams, baseLink, body, method);
 		}catch(IllegalArgumentException | IllegalAccessException ex){
 			logger.warn("", ex);
 		}
@@ -91,7 +94,8 @@ public class LinkDecoder implements HandlerDecoder, JsonAwareHandlerCodec{
 	private Object[] getArgsFromEndpointObject(
 			Map<String,String[]> queryParams,
 			BaseLink<?> baseLink,
-			String body)
+			String body,
+			Method method)
 	throws IllegalArgumentException, IllegalAccessException{
 		Field[] fields = baseLink.getClass().getFields();
 		for(Field field : fields){
@@ -111,6 +115,16 @@ public class LinkDecoder implements HandlerDecoder, JsonAwareHandlerCodec{
 			if(field.isAnnotationPresent(RequestBody.class)){
 				Object requestBody = decodeType(body, field.getGenericType());
 				field.set(baseLink, requestBody);
+				if(requestBody instanceof Collection<?> requestBodyCollection){
+					// Datarouter handler method batch <Handler.class.simpleName> <methodName>
+					@SuppressWarnings("unchecked")
+					Class<? extends BaseHandler> handlerClass = (Class<? extends BaseHandler>)method
+							.getDeclaringClass();
+					HandlerMetrics.incRequestBodyCollectionSize(
+							handlerClass,
+							method,
+							requestBodyCollection.size());
+				}
 				continue;
 			}
 
@@ -167,7 +181,9 @@ public class LinkDecoder implements HandlerDecoder, JsonAwareHandlerCodec{
 
 	// same as DefaultDecoder.decode (keeping duplicate code for now)
 	private Object decodeType(String string, Type type){
-		try(var $ = TracerTool.startSpan("LinkDecoder deserialize", TraceSpanGroupType.SERIALIZATION)){
+		try(
+				var $ = TracerTool.startSpan(getClass().getSimpleName() + " deserialize",
+						TraceSpanGroupType.SERIALIZATION)){
 			TracerTool.appendToSpanInfo("characters", string.length());
 			// this prevents empty strings from being decoded as null by gson
 			Object obj;

@@ -26,7 +26,7 @@ import io.datarouter.instrumentation.gauge.GaugePublisher;
 import io.datarouter.instrumentation.response.PublishingResponseDto;
 import io.datarouter.metric.config.DatarouterGaugeSettingRoot;
 import io.datarouter.metric.dto.GaugeBinaryDto;
-import io.datarouter.util.Ulid;
+import io.datarouter.types.Ulid;
 
 @Singleton
 public class GaugePublisherService implements GaugePublisher{

@@ -31,7 +31,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.clustersetting.ClusterSettingValidity;
-import io.datarouter.clustersetting.config.DatarouterClusterSettingConfigScanner;
 import io.datarouter.clustersetting.config.DatarouterClusterSettingPaths;
 import io.datarouter.clustersetting.storage.clustersetting.ClusterSetting;
 import io.datarouter.email.html.J2HtmlEmailTable;
@@ -49,7 +48,7 @@ import j2html.tags.specialized.TableTag;
 public class ClusterSettingDailyDigest implements DailyDigest{
 
 	@Inject
-	private DatarouterClusterSettingConfigScanner configScanner;
+	private ClusterSettingLinkService linkService;
 	@Inject
 	private ClusterSettingService settingService;
 	@Inject
@@ -154,7 +153,7 @@ public class ClusterSettingDailyDigest implements DailyDigest{
 	private final ClusterSettingDailyDigestTableFormatter emailFormatter = settings ->
 			new J2HtmlEmailTable<ClusterSetting>()
 					.withColumn(new J2HtmlEmailTableColumn<>("Name",
-							row -> configScanner.makeSettingLink(row.getName())))
+							row -> linkService.makeSettingLink(row.getName())))
 					// don't send values in an email
 					.build(settings);
 
@@ -162,7 +161,7 @@ public class ClusterSettingDailyDigest implements DailyDigest{
 			new J2HtmlTable<ClusterSetting>()
 					.withClasses("sortable table table-sm table-striped my-4 border")
 					.withHtmlColumn(th("Name").withClass("w-50"),
-							row -> td(configScanner.makeSettingLink(row.getName())))
+							row -> td(linkService.makeSettingLink(row.getName())))
 					.withHtmlColumn(th("Value").withClass("w-50"), row -> td(row.getValue()))
 					.build(settings);
 

@@ -134,7 +134,7 @@ public class SingleThreadTableProcessorHandler extends BaseHandler{
 				.withPlaceholder("you@email.com")
 				.withValue(toEmail.orElse(null));
 		form.addButton()
-				.withDisplay("Copy")
+				.withDisplay("Execute")
 				.withValue("anything");
 
 		if(submitAction.isEmpty() || form.hasErrors()){
@@ -157,16 +157,16 @@ public class SingleThreadTableProcessorHandler extends BaseHandler{
 				processor,
 				1,
 				1);
-		if(!result.success){
+		if(!result.success()){
 			String message = String.format("The table processor was interrupted unexpectedly with %s."
 					+ "  Please resume the processor with lastKey %s",
-					result.exception.getMessage(),
-					result.resumeFromKeyString);
+					result.exception().getMessage(),
+					result.resumeFromKeyString());
 			return pageFactory.message(request, message);
 		}
 		var header = standardDatarouterEmailHeaderService.makeStandardHeader();
 		String message = String.format("Successfully processed %s records for %s - %s",
-				NumberFormatter.addCommas(result.numScanned),
+				NumberFormatter.addCommas(result.numScanned()),
 				sourceName.get(),
 				processorName.get());
 		var body = body(header, p(message));

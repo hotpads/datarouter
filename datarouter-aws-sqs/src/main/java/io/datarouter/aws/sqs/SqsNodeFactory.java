@@ -28,8 +28,6 @@ import io.datarouter.model.databean.EmptyDatabean.EmptyDatabeanFielder;
 import io.datarouter.model.key.EmptyDatabeanKey;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
-import io.datarouter.storage.config.properties.EnvironmentName;
-import io.datarouter.storage.config.properties.ServiceName;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.op.raw.BlobQueueStorage.PhysicalBlobQueueStorageNode;
 
@@ -37,9 +35,7 @@ import io.datarouter.storage.node.op.raw.BlobQueueStorage.PhysicalBlobQueueStora
 public class SqsNodeFactory{
 
 	@Inject
-	private EnvironmentName environmentName;
-	@Inject
-	private ServiceName serviceName;
+	private SqsQueueNameService sqsQueueNameService;
 	@Inject
 	private SqsClientType sqsClientType;
 	@Inject
@@ -50,8 +46,7 @@ public class SqsNodeFactory{
 			F extends DatabeanFielder<PK,D>>
 	SqsNode<PK,D,F> createSingleNode(NodeParams<PK,D,F> params){
 		return new SqsNode<>(
-				environmentName,
-				serviceName,
+				sqsQueueNameService,
 				params,
 				sqsClientType,
 				sqsClientManager,
@@ -63,8 +58,7 @@ public class SqsNodeFactory{
 			F extends DatabeanFielder<PK,D>>
 	SqsGroupNode<PK,D,F> createGroupNode(NodeParams<PK,D,F> params){
 		return new SqsGroupNode<>(
-				environmentName,
-				serviceName,
+				sqsQueueNameService,
 				params,
 				sqsClientType,
 				sqsClientManager,
@@ -75,12 +69,11 @@ public class SqsNodeFactory{
 			NodeParams<EmptyDatabeanKey,EmptyDatabean,EmptyDatabeanFielder> params,
 			Codec<T,byte[]> codec){
 		return new SqsBlobNode<>(
+				sqsQueueNameService,
 				params,
 				codec,
 				sqsClientType,
-				sqsClientManager,
-				environmentName,
-				serviceName);
+				sqsClientManager);
 	}
 
 }

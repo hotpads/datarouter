@@ -19,6 +19,7 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
@@ -31,9 +32,9 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.conveyor.BaseConveyors.ExecsAndConveyors;
 import io.datarouter.conveyor.ConveyorConfigurationGroup.ConveyorPackage;
 import io.datarouter.conveyor.config.DatarouterConveyorShouldRunSettings;
+import io.datarouter.conveyor.config.DatarouterConveyorThreadCountSettings;
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.inject.InstanceRegistry;
 import io.datarouter.util.Require;
@@ -57,6 +58,8 @@ public class ConveyorAppListener implements DatarouterAppListener{
 	private ConveyorService conveyorService;
 	@Inject
 	private DatarouterConveyorShouldRunSettings shouldRunSettings;
+	@Inject
+	private DatarouterConveyorThreadCountSettings threadCountSettings;
 
 	@Override
 	public final void onStartUp(){
@@ -70,7 +73,7 @@ public class ConveyorAppListener implements DatarouterAppListener{
 		ConveyorConfiguration configuration = injector.getInstance(conveyorPackage.configurationClass());
 		String threadGroupName = name;
 		ThreadFactory threadFactory = new NamedThreadFactory(threadGroupName, true);
-		int threadCount = conveyorPackage.threadCount().get();
+		int threadCount = threadCountSettings.getSettingForConveyorPackage(conveyorPackage).get();
 		ScheduledExecutorService exec = Executors.newScheduledThreadPool(threadCount,
 				threadFactory);
 		Supplier<Boolean> shouldRun = shouldRunSettings.getSettingForConveyorPackage(conveyorPackage);
@@ -96,6 +99,15 @@ public class ConveyorAppListener implements DatarouterAppListener{
 			}
 			ExecutorServiceTool.shutdown(entry.getValue().executor(), Duration.ofSeconds(5));
 		}
+	}
+
+	public Map<String,ExecsAndConveyors> getExecsAndConveyorsbyName(){
+		return execsAndConveyorsByName;
+	}
+
+	public record ExecsAndConveyors(
+			ExecutorService executor,
+			ConveyorRunnable conveyor){
 	}
 
 }

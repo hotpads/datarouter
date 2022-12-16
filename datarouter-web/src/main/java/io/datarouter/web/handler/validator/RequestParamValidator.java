@@ -23,17 +23,10 @@ public abstract class RequestParamValidator<T>{
 
 	protected String parameterName;
 
-	public static class RequestParamValidatorResponseDto{
-
-		public final boolean success;
-		public final int statusCode;
-		public final String errorMessage;
-
-		private RequestParamValidatorResponseDto(boolean success, int statusCode, String errorMessage){
-			this.success = success;
-			this.statusCode = statusCode;
-			this.errorMessage = errorMessage;
-		}
+	public record RequestParamValidatorResponseDto(
+			boolean success,
+			int statusCode,
+			String errorMessage){
 
 		public static RequestParamValidatorResponseDto makeErrorResponse(String errorMessage){
 			return makeErrorResponse(errorMessage, HttpStatus.SC_BAD_REQUEST);
@@ -60,15 +53,9 @@ public abstract class RequestParamValidator<T>{
 		}
 	}
 
-	public static class RequestParamValidatorErrorResponseDto{
-
-		public final String message;
-		public final int statusCode;
-
-		public RequestParamValidatorErrorResponseDto(String message, int statusCode){
-			this.message = message;
-			this.statusCode = statusCode;
-		}
+	public record RequestParamValidatorErrorResponseDto(
+			String message,
+			int statusCode){
 
 		public static RequestParamValidatorErrorResponseDto fromRequestParamValidatorResponseDto(
 				RequestParamValidatorResponseDto responseDto){

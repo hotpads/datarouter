@@ -72,6 +72,45 @@ public class InputStreamTool{
 		return count;
 	}
 
+	/**
+	 * Read 1 byte, throwing if it wasn't found.
+	 */
+	public static byte readRequiredByte(InputStream inputStream){
+		try{
+			int value = inputStream.read();
+			if(value == -1){
+				throw new IllegalStateException("Unexpected end of stream");
+			}
+			return (byte)value;
+		}catch(IOException e){
+			throw new UncheckedIOException(e);
+		}
+	}
+
+	/**
+	 * Keeps reading from the InputStream until length bytes are found, or we're out of data.
+	 * Can be used on InputStreams that return data incrementally but you prefer to block until length bytes are found.
+	 */
+	public static int readUntilLength(InputStream inputStream, byte[] buffer, int offset, int length){
+		try{
+			int cursor = offset;
+			int remaining = length;
+			int totalRead = 0;
+			while(remaining > 0){
+				int numRead = inputStream.read(buffer, cursor, remaining);
+				if(numRead == -1){
+					return totalRead > 0 ? totalRead : -1;
+				}
+				cursor += numRead;
+				remaining -= numRead;
+				totalRead += numRead;
+			}
+			return totalRead;
+		}catch(IOException e){
+			throw new UncheckedIOException(e);
+		}
+	}
+
 	public static byte[] readNBytes(InputStream inputStream, int len){
 		var bytes = new byte[len];
 		try{

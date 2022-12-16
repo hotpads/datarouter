@@ -38,19 +38,24 @@ public class ShutdownService{
 	private volatile long shutdownStartTime = Long.MAX_VALUE;
 
 	public ShutdownService(){
-		this.state = ShutdownState.RUNNING;
+		this.state = ShutdownState.WARMING;
 	}
 
 	public int advance(){
 		state = state.getNextState();
-		if(shutdownStartTime == Long.MAX_VALUE){
+		if(shutdownStartTime == Long.MAX_VALUE && state == ShutdownState.OFF){
 			shutdownStartTime = System.currentTimeMillis();
 		}
+		logger.warn("advanced to next shutdown stage newState={} newSatusCode={}", state, state.keepAliveErrorCode);
 		return state.keepAliveErrorCode;
 	}
 
 	public boolean isShutdownOngoing(){
-		return state != ShutdownState.RUNNING;
+		return state == ShutdownState.OFF;
+	}
+
+	public boolean isRunning(){
+		return state == ShutdownState.RUNNING;
 	}
 
 	public int getKeepAliveErrorCode(){
@@ -60,6 +65,7 @@ public class ShutdownService{
 	private enum ShutdownState{
 		OFF(null, SHUTDOWN_STATUS_CODE),
 		RUNNING(OFF, 200),
+		WARMING(RUNNING, SHUTDOWN_STATUS_CODE),
 		;
 
 		private final ShutdownState nextState;
@@ -86,6 +92,10 @@ public class ShutdownService{
 		}else{
 			logger.debug("receiving path={}", RequestTool.getPath(request));
 		}
+	}
+
+	public ShutdownState getState(){
+		return state;
 	}
 
 }

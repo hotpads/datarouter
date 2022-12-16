@@ -16,7 +16,6 @@
 package io.datarouter.storage.config;
 
 import java.time.Duration;
-import java.time.temporal.TemporalUnit;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -40,7 +39,6 @@ public class Config implements Cloneable{
 
 	//put options
 	private PutMethod putMethod = PutMethod.DEFAULT_PUT_METHOD;
-	private Boolean ignoreNullFields;
 	private Boolean persistentPut = true;
 
 	//table scans
@@ -54,7 +52,7 @@ public class Config implements Cloneable{
 	private Boolean ignoreException;
 
 	//retrying
-	private Duration timeout = Duration.ofMinutes(10);
+	private Duration timeout;
 	private Integer numAttempts;//do not set default here.  do it per-client
 
 	//paging
@@ -225,17 +223,8 @@ public class Config implements Cloneable{
 
 	/*---------------------------- timeout ----------------------------------*/
 
-	public Duration getTimeout(){
-		return timeout;
-	}
-
 	public Optional<Duration> findTimeout(){
 		return Optional.ofNullable(timeout);
-	}
-
-	public Config setTimeout(Integer timeout, TemporalUnit temporalUnit){
-		this.timeout = Duration.of(timeout, temporalUnit);
-		return this;
 	}
 
 	public Config setTimeout(Duration duration){

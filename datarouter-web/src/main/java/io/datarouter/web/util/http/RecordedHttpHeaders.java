@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
-import io.datarouter.gson.serialization.GsonTool;
+import io.datarouter.gson.GsonTool;
 import io.datarouter.httpclient.HttpHeaders;
 
 public class RecordedHttpHeaders{
@@ -69,7 +69,7 @@ public class RecordedHttpHeaders{
 		}
 		Map<String,List<String>> others = tmpHeaders.stream()
 				.collect(Collectors.toMap(Function.identity(), name -> Collections.list(request.getHeaders(name))));
-		headerMap.put("others", GsonTool.GSON.toJson(others));
+		headerMap.put("others", GsonTool.withUnregisteredEnums().toJson(others));
 	}
 
 
@@ -85,7 +85,7 @@ public class RecordedHttpHeaders{
 		}
 		Map<String,Collection<String>> others = tmpHeaders.stream()
 				.collect(Collectors.toMap(Function.identity(), sortedHeaders::get));
-		this.headerMap.put("others", GsonTool.GSON.toJson(others));
+		this.headerMap.put("others", GsonTool.withUnregisteredEnums().toJson(others));
 	}
 
 	public String getAcceptCharset(){

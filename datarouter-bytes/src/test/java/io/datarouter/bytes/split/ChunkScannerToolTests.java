@@ -24,9 +24,9 @@ public class ChunkScannerToolTests{
 	public void testSimple(){
 		long totalLength = 7;
 		int chunkSize = 3;
-		long actualNumChunks = ChunkScannerTool.scanChunks(totalLength, chunkSize).count();
+		long actualNumChunks = ChunkScannerTool.scanChunks(0, totalLength, chunkSize).count();
 		Assert.assertEquals(actualNumChunks, 3);
-		int actualLastChunkSize = ChunkScannerTool.scanChunks(totalLength, chunkSize)
+		int actualLastChunkSize = ChunkScannerTool.scanChunks(0, totalLength, chunkSize)
 				.findLast()
 				.map(chunkRange -> chunkRange.length)
 				.get();

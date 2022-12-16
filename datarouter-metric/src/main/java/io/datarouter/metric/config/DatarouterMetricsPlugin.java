@@ -18,6 +18,7 @@ package io.datarouter.metric.config;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.datarouter.conveyor.ConveyorConfigurationGroup;
 import io.datarouter.instrumentation.gauge.GaugePublisher;
 import io.datarouter.instrumentation.gauge.GaugePublisher.NoOpGaugePublisher;
 import io.datarouter.instrumentation.metric.MetricLinkBuilder;
@@ -29,7 +30,7 @@ import io.datarouter.metric.counter.CountQueueDao.DatarouterCountQueueDaoParams;
 import io.datarouter.metric.counter.CountersAppListener;
 import io.datarouter.metric.counter.collection.CountPublisher;
 import io.datarouter.metric.counter.collection.CountPublisher.NoOpCountPublisher;
-import io.datarouter.metric.counter.conveyor.CountConveyors;
+import io.datarouter.metric.counter.conveyor.CountConveyorConfigurationGroup;
 import io.datarouter.metric.dto.MetricDashboardDto;
 import io.datarouter.metric.dto.MetricName;
 import io.datarouter.metric.dto.MiscMetricLinksDto;
@@ -38,7 +39,7 @@ import io.datarouter.metric.gauge.GaugeDirectorySupplier;
 import io.datarouter.metric.gauge.GaugeDirectorySupplier.NoOpGaugeDirectorySupplier;
 import io.datarouter.metric.gauge.GaugeQueueDao;
 import io.datarouter.metric.gauge.GaugeQueueDao.GaugeQueueDaoParams;
-import io.datarouter.metric.gauge.conveyor.GaugeConveyors;
+import io.datarouter.metric.gauge.conveyor.GaugeConveyorConfigurationGroup;
 import io.datarouter.metric.links.MetricDashboardRegistry;
 import io.datarouter.metric.links.MetricNameRegistry;
 import io.datarouter.metric.links.MiscMetricsLinksRegistry;
@@ -83,12 +84,12 @@ public class DatarouterMetricsPlugin extends BaseWebPlugin{
 
 		if(enableCountPublishing){
 			addAppListenerOrdered(CountersAppListener.class, ComputedPropertiesAppListener.class);
-			addAppListener(CountConveyors.class);
+			addPluginEntry(ConveyorConfigurationGroup.KEY, CountConveyorConfigurationGroup.class);
 			addSettingRoot(DatarouterCountSettingRoot.class);
 		}
 
 		if(enableGaugePublishing){
-			addAppListener(GaugeConveyors.class);
+			addPluginEntry(ConveyorConfigurationGroup.KEY, GaugeConveyorConfigurationGroup.class);
 			addSettingRoot(DatarouterGaugeSettingRoot.class);
 		}
 		if(enableCountPublishing || enableGaugePublishing){

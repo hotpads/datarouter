@@ -31,20 +31,6 @@ extends PhysicalNode<PK,D,F>{
 
 	Supplier<QueueUrlAndName> getQueueUrlAndName();
 
-	/**
-	 * gets the automatically configured namespace. this might differ from manually specified namespaces.
-	 * @return namespace
-	 */
-	String getAutomaticNamespace();
-
-	/**
-	 * builds the expected queue name
-	 * @param environmentName environment to use
-	 * @param serviceName serviceName to use
-	 * @return automatically generated queue name for the parameters, or manually configured one if present
-	 */
-	String buildQueueName(String environmentName, String serviceName);
-
 	boolean getAgeMonitoringStatusForMetricAlert();
 
 }

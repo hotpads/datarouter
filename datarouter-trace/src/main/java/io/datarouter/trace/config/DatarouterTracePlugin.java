@@ -18,12 +18,13 @@ package io.datarouter.trace.config;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.datarouter.conveyor.ConveyorConfigurationGroup;
 import io.datarouter.instrumentation.trace.TracePublisher;
 import io.datarouter.instrumentation.trace.TracePublisher.NoOpTracePublisher;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.dao.DaosModuleBuilder;
-import io.datarouter.trace.conveyor.publisher.TraceConveyors;
+import io.datarouter.trace.conveyor.publisher.TraceConveyorConfigurationGroup;
 import io.datarouter.trace.filter.GuiceTraceFilter;
 import io.datarouter.trace.service.TracePublisherService;
 import io.datarouter.trace.service.TraceUrlBuilder;
@@ -57,7 +58,7 @@ public class DatarouterTracePlugin extends BaseWebPlugin{
 
 		addSettingRoot(DatarouterTraceFilterSettingRoot.class);
 		if(enablePublisherTraces){
-			addAppListener(TraceConveyors.class);
+			addPluginEntry(ConveyorConfigurationGroup.KEY, TraceConveyorConfigurationGroup.class);
 			addSettingRoot(DatarouterTracePublisherSettingRoot.class);
 		}
 		addFilterParams(new FilterParams(false, DatarouterServletGuiceModule.ROOT_PATH, GuiceTraceFilter.class,

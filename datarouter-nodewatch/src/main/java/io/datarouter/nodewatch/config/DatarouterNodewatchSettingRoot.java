@@ -29,7 +29,6 @@ public class DatarouterNodewatchSettingRoot extends SettingRoot{
 	public final CachedSetting<Boolean> tableSamplerJob;
 	public final CachedSetting<Boolean> tableCountJob;
 	public final CachedSetting<Boolean> tableSizeMonitoringJob;
-	public final CachedSetting<Boolean> runConfigurationScanReportEmailJob;
 	public final CachedSetting<Boolean> enableOffsetting;
 	public final CachedSetting<Boolean> runTableSamplerJobletVacuumJob;
 
@@ -39,7 +38,6 @@ public class DatarouterNodewatchSettingRoot extends SettingRoot{
 		tableSamplerJob = registerBoolean("tableSamplerJob", false);
 		tableCountJob = registerBoolean("tableCountJob", false);
 		tableSizeMonitoringJob = registerBoolean("tableSizeMonitoringJob", false);
-		runConfigurationScanReportEmailJob = registerBoolean("runConfigurationScanReportEmailJob", false);
 		enableOffsetting = registerBoolean("enableOffsetting", true);
 		runTableSamplerJobletVacuumJob = registerBoolean("runTableSamplerJobletVacuumJob", true);
 	}

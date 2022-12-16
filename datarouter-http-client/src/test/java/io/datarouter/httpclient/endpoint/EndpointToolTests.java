@@ -28,20 +28,20 @@ import org.testng.annotations.Test;
 
 import com.google.gson.reflect.TypeToken;
 
-import io.datarouter.gson.serialization.GsonTool;
+import io.datarouter.gson.GsonJsonSerializer;
+import io.datarouter.gson.GsonTool;
 import io.datarouter.httpclient.endpoint.java.EndpointTool;
 import io.datarouter.httpclient.endpoint.link.NoOpResponseType;
 import io.datarouter.httpclient.endpoint.param.EndpointParam;
 import io.datarouter.httpclient.endpoint.param.ParamType;
 import io.datarouter.httpclient.endpoint.param.RequestBody;
-import io.datarouter.httpclient.json.GsonJsonSerializer;
 import io.datarouter.json.JsonSerializer;
 import io.datarouter.pathnode.PathNode;
 
 public class EndpointToolTests{
 
 	private static final PathNode PATH = new PathNode().leaf("");
-	private static final JsonSerializer SERIALIZER = new GsonJsonSerializer(GsonTool.GSON);
+	private static final JsonSerializer SERIALIZER = new GsonJsonSerializer(GsonTool.withoutEnums());
 
 	public static class ExampleEndpoint1{
 		@EndpointParam(serializedName = "name")

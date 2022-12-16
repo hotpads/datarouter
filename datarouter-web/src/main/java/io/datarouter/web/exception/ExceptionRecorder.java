@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import io.datarouter.instrumentation.exception.ExceptionRecordDto;
 import io.datarouter.storage.exception.ExceptionCategory;
+import io.datarouter.web.monitoring.exception.ExceptionAndHttpRequestDto;
 
 public interface ExceptionRecorder{
 
@@ -42,6 +43,9 @@ public interface ExceptionRecorder{
 
 	ExceptionRecordDto recordExceptionAndHttpRequest(Throwable exception, String location, String methodName,
 			String name, String type, Integer lineNumber, HttpServletRequest request, String callOrigin);
+
+	ExceptionRecordDto recordExceptionAndHttpRequest(ExceptionAndHttpRequestDto exceptionDto,
+			ExceptionCategory category);
 
 	void recordHttpRequest(HttpServletRequest request);
 
@@ -86,6 +90,12 @@ public interface ExceptionRecorder{
 		@Override
 		public ExceptionRecordDto recordExceptionAndHttpRequest(Throwable exception, String location, String methodName,
 				String name, String type, Integer lineNumber, HttpServletRequest request, String callOrigin){
+			return null;
+		}
+
+		@Override
+		public ExceptionRecordDto recordExceptionAndHttpRequest(ExceptionAndHttpRequestDto exceptionDto,
+				ExceptionCategory category){
 			return null;
 		}
 

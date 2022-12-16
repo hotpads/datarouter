@@ -28,8 +28,10 @@ import io.datarouter.clustersetting.storage.clustersetting.DatarouterClusterSett
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.properties.DatarouterEnvironmentTypeSupplier;
 import io.datarouter.storage.config.properties.DatarouterServerTypeSupplier;
+import io.datarouter.storage.config.properties.EnvironmentCategoryName;
 import io.datarouter.storage.config.properties.EnvironmentName;
 import io.datarouter.storage.config.properties.ServerName;
+import io.datarouter.storage.config.properties.ServiceName;
 import io.datarouter.storage.servertype.ServerType;
 import io.datarouter.storage.setting.DatarouterSettingTag;
 import io.datarouter.storage.setting.SettingFinder;
@@ -51,36 +53,36 @@ public class ClusterSettingFinder implements SettingFinder{
 	@Inject
 	private EnvironmentName environmentName;
 	@Inject
+	private EnvironmentCategoryName environmentCategoryName;
+	@Inject
 	private DatarouterServerTypeSupplier serverTypeSupplier;
 	@Inject
 	private DatarouterEnvironmentTypeSupplier environmentType;
+	@Inject
+	private ServiceName serviceName;
 
 	private final List<CachedSetting<?>> allCachedSettings = new ArrayList<>();
 	private Boolean started = false;
 
 	@Override
-	public void registerCachedSetting(CachedSetting<?> setting){
-		synchronized(started){
-			if(started){
-				//after onStartUp, validate every added node immediately
-				validateSetting(setting);
-			}else{
-				//before onStartUp, save the nodes to validate later
-				allCachedSettings.add(setting);
-			}
+	public synchronized void registerCachedSetting(CachedSetting<?> setting){
+		if(started){
+			//after onStartUp, validate every added node immediately
+			validateSetting(setting);
+		}else{
+			//before onStartUp, save the nodes to validate later
+			allCachedSettings.add(setting);
 		}
 	}
 
 	@Override
-	public void validateAllCachedSettings(){
-		synchronized(started){
-			if(started){
-				return;
-			}
-			started = true;//no more writes to allCachedSettingNodes after this, so no ConccurentModificationException
-			allCachedSettings.forEach(ClusterSettingFinder::validateSetting);
-			allCachedSettings.clear();//no need to keep validated ones in memory anymore
+	public synchronized void validateAllCachedSettings(){
+		if(started){
+			return;
 		}
+		started = true;//no more writes to allCachedSettingNodes after this, so no ConccurentModificationException
+		allCachedSettings.forEach(ClusterSettingFinder::validateSetting);
+		allCachedSettings.clear();//no need to keep validated ones in memory anymore
 	}
 
 	private static void validateSetting(CachedSetting<?> setting){
@@ -98,6 +100,11 @@ public class ClusterSettingFinder implements SettingFinder{
 	}
 
 	@Override
+	public String getEnvironmentCategoryName(){
+		return environmentCategoryName.get();
+	}
+
+	@Override
 	public ServerType getServerType(){
 		return serverTypeSupplier.get();
 	}
@@ -105,6 +112,11 @@ public class ClusterSettingFinder implements SettingFinder{
 	@Override
 	public String getServerName(){
 		return serverName.get();
+	}
+
+	@Override
+	public String getServiceName(){
+		return serviceName.get();
 	}
 
 	@Override

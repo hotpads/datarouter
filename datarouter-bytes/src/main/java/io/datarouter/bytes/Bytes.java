@@ -15,6 +15,7 @@
  */
 package io.datarouter.bytes;
 
+import java.io.OutputStream;
 import java.util.Arrays;
 
 import io.datarouter.bytes.codec.bytestringcodec.CsvIntByteStringCodec;
@@ -45,6 +46,10 @@ public class Bytes implements Comparable<Bytes>{
 		var result = new byte[length];
 		System.arraycopy(bytes, offset, result, 0, length);
 		return result;
+	}
+
+	public void toOutputStream(OutputStream outputStream){
+		OutputStreamTool.write(outputStream, bytes, offset, length);
 	}
 
 	@Override
