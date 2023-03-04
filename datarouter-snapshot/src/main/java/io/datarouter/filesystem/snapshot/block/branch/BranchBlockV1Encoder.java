@@ -16,13 +16,13 @@
 package io.datarouter.filesystem.snapshot.block.branch;
 
 import io.datarouter.bytes.ByteWriter;
-import io.datarouter.bytes.PagedObjectArray;
 import io.datarouter.bytes.codec.intcodec.RawIntCodec;
 import io.datarouter.bytes.codec.longcodec.RawLongCodec;
 import io.datarouter.filesystem.snapshot.encode.BranchBlockEncoder;
 import io.datarouter.filesystem.snapshot.encode.EncodedBlock;
 import io.datarouter.filesystem.snapshot.entry.SnapshotEntry;
 import io.datarouter.filesystem.snapshot.writer.BlockQueue.FileIdsAndEndings;
+import io.datarouter.scanner.PagedList;
 
 public class BranchBlockV1Encoder implements BranchBlockEncoder{
 
@@ -35,15 +35,15 @@ public class BranchBlockV1Encoder implements BranchBlockEncoder{
 	private Integer firstChildBlockId;
 	private int numRecords;
 	private int numBytes;
-	private final PagedObjectArray<Long> recordIds;
-	private final PagedObjectArray<byte[]> keys;
+	private final PagedList<Long> recordIds;
+	private final PagedList<byte[]> keys;
 
 	public BranchBlockV1Encoder(int level){
 		this.level = level;
 		this.numRecords = 0;
 		this.numBytes = 0;
-		this.recordIds = new PagedObjectArray<>(256);
-		this.keys = new PagedObjectArray<>(256);
+		this.recordIds = new PagedList<>(256);
+		this.keys = new PagedList<>(256);
 	}
 
 	@Override

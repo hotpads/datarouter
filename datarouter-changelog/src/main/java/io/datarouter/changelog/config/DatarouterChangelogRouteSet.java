@@ -33,7 +33,6 @@ public class DatarouterChangelogRouteSet extends BaseRouteSet{
 
 	@Inject
 	public DatarouterChangelogRouteSet(DatarouterChangelogPaths paths){
-		super(paths.datarouter.changelog);
 		handle(paths.datarouter.changelog.edit).withHandler(EditChangelogHandler.class);
 		handle(paths.datarouter.changelog.insert).withHandler(ManualChangelogHandler.class);
 		handle(paths.datarouter.changelog.viewExact).withHandler(ViewExactChangelogHandler.class);

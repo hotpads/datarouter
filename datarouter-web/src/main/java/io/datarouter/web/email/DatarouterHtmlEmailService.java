@@ -21,6 +21,9 @@ import java.util.Set;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.datarouter.email.config.DatarouterEmailSettingsProvider;
 import io.datarouter.email.email.DatarouterEmailLinkBuilder;
 import io.datarouter.email.email.IDatarouterEmailService;
@@ -36,6 +39,7 @@ import io.datarouter.web.config.service.ContextName;
 
 @Singleton
 public class DatarouterHtmlEmailService{
+	private static final Logger logger = LoggerFactory.getLogger(DatarouterHtmlEmailService.class);
 
 	@Inject
 	private ServiceName serviceName;
@@ -92,8 +96,10 @@ public class DatarouterHtmlEmailService{
 	public J2HtmlDatarouterEmailBuilder startEmailBuilder(){
 		boolean includeLogo = datarouterEmailSettingsProvider.get().includeLogo.get();
 		if(includeLogo){
+			String hostPort = datarouterEmailSettingsProvider.get().emailLinkHostPort.get();
+			logger.warn("emailLinkHostPort used value={}", hostPort);
 			return emailService.startEmailBuilderWithLogo(
-					datarouterEmailSettingsProvider.get().emailLinkHostPort.get(),
+					hostPort,
 					contextName.getContextPath(),
 					serviceName.get(),
 					environmentName.get(),

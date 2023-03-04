@@ -31,10 +31,10 @@ import io.datarouter.conveyor.ConveyorConfiguration;
 import io.datarouter.conveyor.ConveyorCounters;
 import io.datarouter.conveyor.ConveyorGauges;
 import io.datarouter.conveyor.ConveyorRunnable;
-import io.datarouter.conveyor.queue.GroupQueueConsumer;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.storage.queue.GroupQueueMessage;
+import io.datarouter.storage.queue.consumer.GroupQueueConsumer;
 
 public abstract class BaseGroupQueueConsumerConveyorConfiguration<
 		PK extends PrimaryKey<PK>,

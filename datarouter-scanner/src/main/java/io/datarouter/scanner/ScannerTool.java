@@ -34,6 +34,19 @@ import java.util.stream.StreamSupport;
 
 public class ScannerTool{
 
+	public enum ModifiableListType{
+		MODIFIABLE,
+		WARN_ON_MODIFY,
+		ERROR_ON_MODIFY;
+	}
+
+	//TODO transition this to ERROR_ON_MODIFY and remove
+	private static ModifiableListType modifiableListType = ModifiableListType.MODIFIABLE;
+
+	public static synchronized void setModifiableListType(ModifiableListType type){
+		modifiableListType = type;
+	}
+
 	public static <T> boolean allMatch(Scanner<T> scanner, Predicate<? super T> predicate){
 		try(Scanner<T> $ = scanner){
 			while(scanner.advance()){
@@ -123,13 +136,17 @@ public class ScannerTool{
 		}
 	}
 
-	public static <T> ArrayList<T> list(Scanner<T> scanner){
+	public static <T> List<T> list(Scanner<T> scanner){
 		try(Scanner<T> $ = scanner){
-			ArrayList<T> list = new ArrayList<>();
+			List<T> list = new ArrayList<>();
 			while(scanner.advance()){
 				list.add(scanner.current());
 			}
-			return list;
+			return switch(modifiableListType){
+				case MODIFIABLE -> list;
+				case WARN_ON_MODIFY -> new WarnOnModifyRandomAccessList<>(list);
+				case ERROR_ON_MODIFY -> Collections.unmodifiableList(list);
+			};
 		}
 	}
 

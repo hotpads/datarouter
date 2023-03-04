@@ -18,14 +18,13 @@ package io.datarouter.bytes.split;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
 import io.datarouter.bytes.ByteTool;
 import io.datarouter.scanner.BaseLinkedScanner;
-import io.datarouter.scanner.ParallelScannerContext;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.scanner.Threads;
 
 public class ByteChunkSplitter<T>{
 
@@ -37,13 +36,12 @@ public class ByteChunkSplitter<T>{
 
 	public Scanner<List<T>> split(
 			Scanner<byte[]> byteArrays,
-			ExecutorService exec,
-			int numThreads,
+			Threads threads,
 			byte delimiter,
 			boolean skipFirst){
 		var remainingSkipFirst = new AtomicBoolean(skipFirst);
 		return byteArrays
-				.parallel(new ParallelScannerContext(exec, numThreads, false))
+				.parallelOrdered(threads)
 				.map(chunk -> split(chunk, delimiter, remainingSkipFirst.getAndSet(false), collectorSupplier.get()))
 				.link(chunkTokensScanner -> new ByteChunkParsingScanner<>(chunkTokensScanner, collectorSupplier.get()));
 	}

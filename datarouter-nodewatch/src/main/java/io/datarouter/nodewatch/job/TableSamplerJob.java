@@ -25,7 +25,7 @@ import io.datarouter.nodewatch.config.DatarouterNodewatchExecutors.DatarouterTab
 import io.datarouter.nodewatch.joblet.TableSpanSamplerJobletCreator;
 import io.datarouter.nodewatch.joblet.TableSpanSamplerJobletCreatorFactory;
 import io.datarouter.nodewatch.service.TableSamplerService;
-import io.datarouter.scanner.ParallelScannerContext;
+import io.datarouter.scanner.Threads;
 
 public class TableSamplerJob extends BaseJob{
 
@@ -51,7 +51,7 @@ public class TableSamplerJob extends BaseJob{
 						false,
 						true,
 						startTimeMs))
-				.parallel(new ParallelScannerContext(executor, 10, true))
+				.parallelUnordered(new Threads(executor, 10))
 				.each(TableSpanSamplerJobletCreator::createJoblets)
 				.advanceUntil($ -> tracker.increment().shouldStop())
 				.count();

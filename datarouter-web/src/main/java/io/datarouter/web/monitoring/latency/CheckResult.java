@@ -39,7 +39,10 @@ public class CheckResult{
 	}
 
 	public static CheckResult newFailure(long dateMs, String failureMessage){
-		return new CheckResult(dateMs, Optional.of(StringUtils.abbreviate(failureMessage, 200)), Optional.empty());
+		return new CheckResult(
+				dateMs,
+				Optional.ofNullable(StringUtils.abbreviate(failureMessage, 200)),
+				Optional.empty());
 	}
 
 	public String getCssClass(){

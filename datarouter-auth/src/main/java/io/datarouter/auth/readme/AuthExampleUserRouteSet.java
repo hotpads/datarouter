@@ -25,7 +25,6 @@ import io.datarouter.web.user.role.DatarouterUserRole;
 public class AuthExampleUserRouteSet extends BaseRouteSet{
 
 	public AuthExampleUserRouteSet(){
-		super("");
 
 		handleDir("/helloworld")
 				.withHandler(AuthHellowWorldHandler.class)

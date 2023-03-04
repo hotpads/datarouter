@@ -29,12 +29,22 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.datarouter.instrumentation.count.Counters;
 import io.datarouter.instrumentation.trace.TraceSpanFinisher;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.util.tracer.TracedCheckedCallable;
 
+/**
+ * - automatically add child thread tracing through TracedCheckedRunnable
+ * - add the future instrumentation, e.g. the "waiting for" span in the parent thread through DatarouterFutureTask
+ * - add execution counter through DatarouterExecutorService.afterExecute
+ * - we often do check the result of a Runnable and miss some exceptions, LoggingRunnable had logging for those
+ */
 public class DatarouterExecutorService extends ThreadPoolExecutor{
+	private static final Logger logger = LoggerFactory.getLogger(DatarouterExecutorService.class);
 
 	public static final String PREFIX_executor = "executor";
 
@@ -80,9 +90,12 @@ public class DatarouterExecutorService extends ThreadPoolExecutor{
 
 	@Override
 	protected <T> RunnableFuture<T> newTaskFor(Runnable runnable, T value){
-		return new DatarouterFutureTask<>(runnable, value);
+		return new DatarouterFutureTask<>(new LoggingRunnable(runnable), value);
 	}
 
+	/**
+	 * add the future instrumentation, e.g. the "waiting for" span in the parent thread
+	 */
 	private static class DatarouterFutureTask<V> extends FutureTask<V>{
 
 		public DatarouterFutureTask(Callable<V> callable){
@@ -109,6 +122,9 @@ public class DatarouterExecutorService extends ThreadPoolExecutor{
 
 	}
 
+	/**
+	 * automatically add child thread tracing
+	 */
 	private static class TracedCheckedRunnable extends TracedCheckedCallable<Void> implements Runnable{
 
 		static final StackWalker WALKER = StackWalker.getInstance(Option.RETAIN_CLASS_REFERENCE);
@@ -142,6 +158,26 @@ public class DatarouterExecutorService extends ThreadPoolExecutor{
 					.get();
 			return frame.getDeclaringClass().getSimpleName() + " " + frame.getMethodName();
 		}
+	}
+
+	private static class LoggingRunnable implements Runnable{
+
+		final Runnable runnable;
+
+		private LoggingRunnable(Runnable runnable){
+			this.runnable = runnable;
+		}
+
+		@Override
+		public void run(){
+			try{
+				runnable.run();
+			}catch(Throwable t){
+				logger.warn("Exception while running {}", runnable, t);
+				throw t;
+			}
+		}
+
 	}
 
 }

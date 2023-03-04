@@ -15,7 +15,6 @@
  */
 package io.datarouter.filesystem.snapshot.reader;
 
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import io.datarouter.filesystem.snapshot.block.BlockKey;
@@ -30,6 +29,7 @@ import io.datarouter.filesystem.snapshot.reader.record.SnapshotLeafRecord;
 import io.datarouter.filesystem.snapshot.reader.record.SnapshotLeafSearchResult;
 import io.datarouter.filesystem.snapshot.reader.record.SnapshotRecord;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.scanner.Threads;
 
 /**
  * Thread-safe
@@ -49,14 +49,13 @@ public class ScanningSnapshotReader{
 
 	public ScanningSnapshotReader(
 			SnapshotKey snapshotKey,
-			ExecutorService exec,
-			int numThreads,
+			Threads threads,
 			BlockLoader blockLoader,
 			int numBlocks){
 		this.snapshotKey = snapshotKey;
 		this.blockLoader = blockLoader;
 		this.rootBlock = blockLoader.root(BlockKey.root(snapshotKey));
-		scanningBlockReader = new ScanningBlockReader(snapshotKey, exec, numThreads, numBlocks, blockLoader);
+		scanningBlockReader = new ScanningBlockReader(snapshotKey, threads, numBlocks, blockLoader);
 	}
 
 	public Scanner<SnapshotLeafRecord> scanLeafRecords(long fromRecordIdInclusive){

@@ -18,7 +18,7 @@ package io.datarouter.bytes.kvfile;
 import java.util.Arrays;
 import java.util.Objects;
 
-import io.datarouter.bytes.VarIntTool;
+import io.datarouter.bytes.codec.bytestringcodec.HexByteStringCodec;
 import io.datarouter.bytes.codec.longcodec.ComparableLongCodec;
 
 /**
@@ -48,6 +48,8 @@ import io.datarouter.bytes.codec.longcodec.ComparableLongCodec;
 public class KvFileEntry{
 
 	private final byte[] bytes;
+	private final int offset;
+	private final int length;// Could be calculated but including it explicitly for now.
 	private final int keyOffset;
 	private final int keyLength;
 	private final int versionOffset;
@@ -58,6 +60,8 @@ public class KvFileEntry{
 
 	public KvFileEntry(
 			byte[] bytes,
+			int offset,
+			int length,
 			int keyOffset,
 			int keyLength,
 			int versionOffset,
@@ -71,6 +75,8 @@ public class KvFileEntry{
 			throw new IllegalArgumentException("Cannot have value with delete op");
 		}
 		this.bytes = bytes;
+		this.offset = offset;
+		this.length = length;
 		this.keyOffset = keyOffset;
 		this.keyLength = keyLength;
 		this.versionOffset = versionOffset;
@@ -78,6 +84,14 @@ public class KvFileEntry{
 		this.op = op;
 		this.valueOffset = valueOffset;
 		this.valueLength = valueLength;
+		if(length != valueOffset + valueLength - offset){
+			String message = String.format(
+					"length[%s] != valueOffset[%s]+valueLength[%s]",
+					length,
+					valueOffset,
+					valueLength);
+			throw new IllegalArgumentException(message);
+		}
 	}
 
 	public static KvFileEntry create(byte[] key, byte[] version, KvFileOp op, byte[] value){
@@ -123,6 +137,13 @@ public class KvFileEntry{
 		return Arrays.equals(left.bytes, left.keyOffset, leftTo, right.bytes, right.keyOffset, rightTo);
 	}
 
+	public static boolean equalsVersion(KvFileEntry left, KvFileEntry right){
+		int leftTo = left.versionOffset + left.versionLength;
+		int rightTo = right.versionOffset + right.versionLength;
+		return Arrays.equals(left.bytes, left.versionOffset, leftTo, right.bytes, right.versionOffset, rightTo);
+
+	}
+
 	/*--------- compare ----------*/
 
 	public static int compareKey(KvFileEntry left, KvFileEntry right){
@@ -160,22 +181,27 @@ public class KvFileEntry{
 
 	/*------- get -------*/
 
-	public byte[] bytes(){
+	public byte[] backingBytes(){
 		return bytes;
 	}
 
-	public int length(){
-		return VarIntTool.length(keyLength) + keyLength
-				+ VarIntTool.length(versionLength) + versionLength
-				+ KvFileOp.NUM_PERSISTENT_BYTES
-				+ VarIntTool.length(valueLength) + valueLength;
+	public byte[] copyOfBytes(){
+		return Arrays.copyOfRange(bytes, offset, offset + length);
 	}
 
-	public byte[] key(){
+	public int offset(){
+		return offset;
+	}
+
+	public int length(){
+		return length;
+	}
+
+	public byte[] copyOfKey(){
 		return Arrays.copyOfRange(bytes, keyOffset, keyOffset + keyLength);
 	}
 
-	public byte[] version(){
+	public byte[] copyOfVersion(){
 		return Arrays.copyOfRange(bytes, versionOffset, versionOffset + versionLength);
 	}
 
@@ -183,8 +209,13 @@ public class KvFileEntry{
 		return op;
 	}
 
-	public byte[] value(){
+	public byte[] copyOfValue(){
 		return Arrays.copyOfRange(bytes, valueOffset, valueOffset + valueLength);
+	}
+
+	@Override
+	public String toString(){
+		return HexByteStringCodec.INSTANCE.encode(copyOfBytes());
 	}
 
 }

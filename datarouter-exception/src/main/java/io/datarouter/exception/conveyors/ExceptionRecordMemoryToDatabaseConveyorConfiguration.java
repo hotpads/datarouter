@@ -21,10 +21,10 @@ import java.util.function.Consumer;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.conveyor.MemoryBuffer;
 import io.datarouter.conveyor.queue.configuration.BaseMemoryBufferPutMultiConsumerConveyorConfiguration;
 import io.datarouter.exception.storage.exceptionrecord.DatarouterExceptionRecordDao;
 import io.datarouter.exception.storage.exceptionrecord.ExceptionRecord;
+import io.datarouter.util.buffer.MemoryBuffer;
 
 @Singleton
 public class ExceptionRecordMemoryToDatabaseConveyorConfiguration

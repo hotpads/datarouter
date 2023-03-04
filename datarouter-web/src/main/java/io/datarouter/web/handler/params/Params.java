@@ -111,12 +111,9 @@ public class Params{
 		return optional(key).map(Integer::valueOf);
 	}
 
-	public Double requiredDouble(String key){
-		return Double.valueOf(required(key));
-	}
-
 	public Double optionalDouble(String key, Double defaultValue){
 		return optional(key)
+				.filter(StringTool::notNullNorEmptyNorWhitespace)
 				.map(Double::valueOf)
 				.orElse(defaultValue);
 	}
@@ -146,14 +143,6 @@ public class Params{
 	public Integer tryGetInteger(String key, Integer defaultValue){
 		try{
 			return optionalInteger(key, defaultValue);
-		}catch(NumberFormatException e){
-			return defaultValue;
-		}
-	}
-
-	public Double tryGetDouble(String key, Double defaultValue){
-		try{
-			return optionalDouble(key, defaultValue);
 		}catch(NumberFormatException e){
 			return defaultValue;
 		}

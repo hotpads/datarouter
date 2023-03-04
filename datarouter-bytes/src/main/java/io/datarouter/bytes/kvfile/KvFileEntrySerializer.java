@@ -15,16 +15,8 @@
  */
 package io.datarouter.bytes.kvfile;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.util.Objects;
-
 import io.datarouter.bytes.ByteTool;
-import io.datarouter.bytes.EmptyArray;
-import io.datarouter.bytes.InputStreamTool;
-import io.datarouter.bytes.MultiByteArrayInputStream;
 import io.datarouter.bytes.VarIntTool;
-import io.datarouter.scanner.Scanner;
 
 public class KvFileEntrySerializer{
 
@@ -35,35 +27,20 @@ public class KvFileEntrySerializer{
 			byte[] version,
 			KvFileOp op,
 			byte[] value){
-		byte[][] tokens = {
-				EmptyArray.BYTE,//placeholder for length
+		return ByteTool.concat(
 				VarIntTool.encode(key.length),
 				key,
 				VarIntTool.encode(version.length),
 				version,
 				op.persistentValueArray,
 				VarIntTool.encode(value.length),
-				value
-		};
-		tokens[0] = VarIntTool.encode(ByteTool.totalLength(tokens));
-		return ByteTool.concat(tokens);
-	}
-
-	/*----------- encode multi -----------*/
-
-	public static InputStream toInputStream(Scanner<KvFileEntry> entries){
-		return entries
-				.map(KvFileEntry::bytes)
-				.apply(MultiByteArrayInputStream::new);
+				value);
 	}
 
 	/*------------ decode one ------------*/
 
-	public static KvFileEntry fromBytes(byte[] bytes){
-		int cursor = 0;
-
-		int length = VarIntTool.decodeInt(bytes, cursor);
-		cursor += VarIntTool.length(length);
+	public static KvFileEntry fromBytes(byte[] bytes, int offset){
+		int cursor = offset;
 
 		int keyLength = VarIntTool.decodeInt(bytes, cursor);
 		cursor += VarIntTool.length(keyLength);
@@ -83,46 +60,19 @@ public class KvFileEntrySerializer{
 		int valueOffset = cursor;
 		cursor += valueLength;
 
+		int length = cursor - offset;
 		return new KvFileEntry(
 				bytes,
+				offset,
+				length,
 				keyOffset, keyLength,
 				versionOffset, versionLength,
 				op,
 				valueOffset, valueLength);
 	}
 
-	// Null indicates the end of the stream
-	public static byte[] entryBytesFromInputStream(InputStream inputStream){
-		Integer numDataBytes = VarIntTool.decodeIntOrNull(inputStream);
-		if(numDataBytes == null){
-			return null;
-		}
-		int numLengthBytes = VarIntTool.length(numDataBytes);
-		int totalLength = numLengthBytes + numDataBytes;
-		byte[] bytes = new byte[totalLength];
-		VarIntTool.encode(bytes, 0, numDataBytes);
-		InputStreamTool.readUntilLength(inputStream, bytes, numLengthBytes, numDataBytes);
-		return bytes;
-	}
-
-	// Null indicates the end of the stream
-	public static KvFileEntry entryFromInputStream(InputStream inputStream){
-		byte[] entryBytes = entryBytesFromInputStream(inputStream);
-		return entryBytes == null ? null : fromBytes(entryBytes);
-	}
-
-	/*-------------- decodeMulti ------------*/
-
-	public static Scanner<KvFileEntry> decodeMulti(byte[] bytes){
-		//TODO parse bytes directly
-		var inputStream = new ByteArrayInputStream(bytes);
-		return Scanner.generate(() -> entryFromInputStream(inputStream))
-				.advanceUntil(Objects::isNull);
-	}
-
-	public static Scanner<KvFileEntry> decodeMulti(InputStream inputStream){
-		return Scanner.generate(() -> entryFromInputStream(inputStream))
-				.advanceUntil(Objects::isNull);
+	public static KvFileEntry fromBytes(byte[] bytes){
+		return fromBytes(bytes, 0);
 	}
 
 }

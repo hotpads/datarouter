@@ -16,6 +16,7 @@
 package io.datarouter.conveyor;
 
 import io.datarouter.instrumentation.count.Counters;
+import io.datarouter.util.buffer.Buffer;
 
 public class ConveyorCounters{
 
@@ -79,6 +80,10 @@ public class ConveyorCounters{
 
 	public static void incFlushBuffer(ConveyorRunnable conveyor, long numDatabeans){
 		inc(conveyor, "flushBuffer", numDatabeans);
+	}
+
+	public static void incTotalCpuTime(ConveyorRunnable conveyor, long totalCpuTimeMs){
+		inc(conveyor, "cumulatedCpuMs", totalCpuTimeMs);
 	}
 
 }

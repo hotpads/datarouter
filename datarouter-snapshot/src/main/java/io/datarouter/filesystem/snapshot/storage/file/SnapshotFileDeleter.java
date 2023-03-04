@@ -15,7 +15,6 @@
  */
 package io.datarouter.filesystem.snapshot.storage.file;
 
-import java.util.concurrent.ExecutorService;
 import java.util.stream.IntStream;
 
 import org.slf4j.Logger;
@@ -25,8 +24,8 @@ import io.datarouter.filesystem.snapshot.block.root.RootBlock;
 import io.datarouter.filesystem.snapshot.key.SnapshotKey;
 import io.datarouter.filesystem.snapshot.path.SnapshotPaths;
 import io.datarouter.filesystem.snapshot.path.SnapshotPathsRegistry;
-import io.datarouter.scanner.ParallelScannerContext;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.scanner.Threads;
 import io.datarouter.util.number.NumberFormatter;
 
 public class SnapshotFileDeleter{
@@ -34,25 +33,22 @@ public class SnapshotFileDeleter{
 
 	private final SnapshotKey snapshotKey;
 	private final SnapshotFileStorage snapshotFileStorage;
-	private final int numThreads;
 
 	private final RootBlock rootBlock;
 	private final SnapshotPaths paths;
-	private final ExecutorService exec;
+	private final Threads threads;
 
 	public SnapshotFileDeleter(
 			RootBlock rootBlock,
 			SnapshotPathsRegistry pathsRegistry,
 			SnapshotKey snapshotKey,
 			SnapshotFileStorage snapshotFileStorage,
-			ExecutorService exec,
-			int numThreads){
+			Threads threads){
 		this.rootBlock = rootBlock;
 		paths = pathsRegistry.getPaths(rootBlock.pathFormat());
 		this.snapshotKey = snapshotKey;
 		this.snapshotFileStorage = snapshotFileStorage;
-		this.exec = exec;
-		this.numThreads = numThreads;
+		this.threads = threads;
 	}
 
 	public void delete(){
@@ -77,7 +73,7 @@ public class SnapshotFileDeleter{
 			Scanner.iterate(0, i -> i + 1)
 					.limit(numFiles)
 					.map(fileId -> FileKey.branch(level, fileId))
-					.parallel(new ParallelScannerContext(exec, numThreads, true))
+					.parallelUnordered(threads)
 					.forEach(this::tryDeleteBranchFile);
 		});
 	}
@@ -96,7 +92,7 @@ public class SnapshotFileDeleter{
 		Scanner.iterate(0, i -> i + 1)
 				.limit(numFiles)
 				.map(FileKey::leaf)
-				.parallel(new ParallelScannerContext(exec, numThreads, true))
+				.parallelUnordered(threads)
 				.forEach(this::tryDeleteLeafFile);
 	}
 
@@ -115,7 +111,7 @@ public class SnapshotFileDeleter{
 			Scanner.iterate(0, i -> i + 1)
 					.limit(numFiles)
 					.map(fileId -> FileKey.value(column, fileId))
-					.parallel(new ParallelScannerContext(exec, numThreads, true))
+					.parallelUnordered(threads)
 					.forEach(this::tryDeleteValueFile);
 		});
 	}

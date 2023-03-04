@@ -21,7 +21,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.binarydto.codec.BinaryDtoIndexedCodec;
-import io.datarouter.conveyor.queue.BlobQueueConsumer;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
@@ -29,6 +28,7 @@ import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.QueueNodeFactory;
 import io.datarouter.storage.node.op.raw.BlobQueueStorage.BlobQueueStorageNode;
+import io.datarouter.storage.queue.consumer.BlobQueueConsumer;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.virtualnode.redundant.RedundantBlobQueueStorageNode;
 
@@ -43,7 +43,10 @@ public class CountQueueDao extends BaseDao{
 
 	}
 
+	@Deprecated
 	private final BlobQueueStorageNode<CountBinaryDto> node;
+	// use V2 when SingleCountBinaryDto.count, min and max have values
+	private final BlobQueueStorageNode<CountBinaryDto> nodeV2;
 
 	@Inject
 	public CountQueueDao(
@@ -54,7 +57,22 @@ public class CountQueueDao extends BaseDao{
 		node = Scanner.of(params.clientIds)
 				.map(clientId -> {
 					var node = queueNodeFactory
-							.createBlobQueue(clientId, "CountBinaryDto", BinaryDtoIndexedCodec.of(CountBinaryDto.class))
+							.createBlobQueue(clientId,
+									"CountBinaryDto",
+									BinaryDtoIndexedCodec.of(CountBinaryDto.class))
+							.withNamespace("shared")
+							.withTag(Tag.DATAROUTER)
+							.withAgeMonitoring(false)
+							.build();
+					return node;
+				})
+				.listTo(RedundantBlobQueueStorageNode::makeIfMulti);
+		nodeV2 = Scanner.of(params.clientIds)
+				.map(clientId -> {
+					var node = queueNodeFactory
+							.createBlobQueue(clientId,
+									"CountBinaryDtoV2",
+									BinaryDtoIndexedCodec.of(CountBinaryDto.class))
 							.withNamespace("shared")
 							.withTag(Tag.DATAROUTER)
 							.withAgeMonitoring(false)
@@ -65,13 +83,25 @@ public class CountQueueDao extends BaseDao{
 		datarouter.register(node);
 	}
 
+	@Deprecated
 	public void combineAndPut(List<CountBinaryDto> dtos){
 		Scanner.of(dtos)
 				.then(node::combineAndPut);
 	}
 
+	// use V2 when SingleCountBinaryDto.count, min and max have values
+	public void combineAndPutV2(List<CountBinaryDto> dtos){
+		Scanner.of(dtos)
+				.then(nodeV2::combineAndPut);
+	}
+
+	@Deprecated
 	public BlobQueueConsumer<CountBinaryDto> getBlobQueueConsumer(){
 		return new BlobQueueConsumer<>(node);
+	}
+
+	public BlobQueueConsumer<CountBinaryDto> getBlobQueueConsumerV2(){
+		return new BlobQueueConsumer<>(nodeV2);
 	}
 
 }

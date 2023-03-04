@@ -17,8 +17,8 @@ package io.datarouter.metric.gauge.conveyor;
 
 import javax.inject.Singleton;
 
-import io.datarouter.conveyor.MemoryBuffer;
 import io.datarouter.instrumentation.gauge.GaugeDto;
+import io.datarouter.util.buffer.MemoryBuffer;
 
 @Singleton
 public class GaugeBuffers{

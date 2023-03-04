@@ -69,12 +69,12 @@ public class Dispatcher{
 	@Inject
 	private DatarouterSamlSettings samlSettings;
 
-	public RoutingResult handleRequestIfUrlMatch(HttpServletRequest request, HttpServletResponse response,
-			RouteSet routeSet) throws ServletException, IOException{
+	public RoutingResult handleRequestIfUrlMatch(
+			HttpServletRequest request,
+			HttpServletResponse response,
+			RouteSet routeSet)
+	throws ServletException, IOException{
 		String uri = request.getRequestURI();
-		if(!uri.startsWith(servletContext.get().getContextPath() + routeSet.getUrlPrefix())){
-			return RoutingResult.NOT_FOUND;
-		}
 		BaseHandler handler = null;
 		String afterContextPath = uri.substring(servletContext.get().getContextPath().length());
 		if(afterContextPath.contains(JSESSIONID_PATH_PARAM)){

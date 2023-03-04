@@ -26,9 +26,8 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
-import io.datarouter.bytes.ByteTool;
 import io.datarouter.bytes.Codec;
-import io.datarouter.bytes.PrependLengthByteArrayScanner;
+import io.datarouter.bytes.VarIntByteArraysTool;
 import io.datarouter.bytes.codec.stringcodec.StringCodec;
 import io.datarouter.filesystem.DatarouterFilesystemModuleFactory;
 import io.datarouter.filesystem.client.FilesystemTestClientIds;
@@ -96,8 +95,7 @@ public class DirectoryBlobQueueNodeIntegrationTests{
 				new BloqQueueStorageTestDto('b', 0, false));
 		var raw = Scanner.of(dtos)
 				.map(CODEC::encode)
-				.apply(PrependLengthByteArrayScanner::of)
-				.listTo(ByteTool::concat);
+				.apply(VarIntByteArraysTool::encodeMulti);
 
 		dao.combineAndPut(dtos);
 		var result = dao.poll().get();

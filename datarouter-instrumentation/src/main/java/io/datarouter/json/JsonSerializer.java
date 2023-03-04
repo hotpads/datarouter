@@ -20,7 +20,20 @@ import java.lang.reflect.Type;
 public interface JsonSerializer{
 
 	String serialize(Object toSerialize);
-
 	<T> T deserialize(String toDeserialize, Type classOfT);
+
+	class NoOpJsonSerializer implements JsonSerializer{
+
+		@Override
+		public String serialize(Object toSerialize){
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public <T> T deserialize(String toDeserialize, Type classOfT){
+			throw new UnsupportedOperationException();
+		}
+
+	}
 
 }

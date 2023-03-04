@@ -38,7 +38,6 @@ public class Mav{
 	private boolean redirect = false;
 	protected boolean shouldAppendModelQueryParams = false;
 	private String viewName;
-	private String context;
 	private String contentType = "text/html; charset=utf-8";
 	private Map<String,Object> model = new HashMap<>();
 	private String globalRedirectUrl;
@@ -55,15 +54,6 @@ public class Mav{
 
 	public Mav(String viewName){
 		this.setViewName(viewName);
-	}
-
-	public Mav(String context, PathNode pathNode){
-		this(context, pathNode.toSlashedString());
-	}
-
-	public Mav(String context, String viewName){
-		this(viewName);
-		this.context = context;
 	}
 
 	public Mav(PathNode pathNode, Map<String,Object> model){
@@ -128,12 +118,10 @@ public class Mav{
 			redirect = true;
 			shouldAppendModelQueryParams = true;
 			this.viewName = viewName.substring(REDIRECT.length());
+		}else if(viewName.contains(".")){
+			this.viewName = viewName;
 		}else{
-			if(viewName.contains(".")){
-				this.viewName = viewName;
-			}else{
-				this.viewName = toJspFile(viewName);
-			}
+			this.viewName = toJspFile(viewName);
 		}
 		return this;
 	}
@@ -157,10 +145,6 @@ public class Mav{
 
 	public String getViewName(){
 		return viewName;
-	}
-
-	public String getContext(){
-		return context;
 	}
 
 	public String getContentType(){

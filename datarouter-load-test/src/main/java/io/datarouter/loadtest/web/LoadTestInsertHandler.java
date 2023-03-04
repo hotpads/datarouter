@@ -25,6 +25,7 @@ import static j2html.TagCreator.h3;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -41,8 +42,8 @@ import io.datarouter.loadtest.service.LoadTestInsertDao;
 import io.datarouter.loadtest.storage.RandomValue;
 import io.datarouter.loadtest.storage.RandomValueKey;
 import io.datarouter.loadtest.util.LoadTestTool;
-import io.datarouter.scanner.ParallelScannerContext;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.scanner.Threads;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.op.raw.write.StorageWriter;
 import io.datarouter.util.concurrent.CallableTool;
@@ -53,7 +54,6 @@ import io.datarouter.util.timer.PhaseTimer;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.types.Param;
-import io.datarouter.web.handler.types.optional.OptionalString;
 import io.datarouter.web.html.form.HtmlForm;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
@@ -83,12 +83,12 @@ public class LoadTestInsertHandler extends BaseHandler{
 
 	@Handler(defaultHandler = true)
 	private Mav insert(
-			@Param(P_num) OptionalString num,
-			@Param(P_numThreads) OptionalString numThreads,
-			@Param(P_batchSize) OptionalString batchSize,
-			@Param(P_logPeriod) OptionalString logPeriod,
-			@Param(P_persistentPut) OptionalString persistentPut,
-			@Param(P_submitAction) OptionalString submitAction){
+			@Param(P_num) Optional<String> num,
+			@Param(P_numThreads) Optional<String> numThreads,
+			@Param(P_batchSize) Optional<String> batchSize,
+			@Param(P_logPeriod) Optional<String> logPeriod,
+			@Param(P_persistentPut) Optional<String> persistentPut,
+			@Param(P_submitAction) Optional<String> submitAction){
 		var form = new HtmlForm()
 				.withMethod("post");
 		form.addTextField()
@@ -171,7 +171,7 @@ public class LoadTestInsertHandler extends BaseHandler{
 						pLogPeriod,
 						lastBatchFinished,
 						counter))
-				.parallel(new ParallelScannerContext(executor, pNumThreads, true))
+				.parallelUnordered(new Threads(executor, pNumThreads))
 				.forEach(CallableTool::callUnchecked);
 		ExecutorServiceTool.shutdown(executor, Duration.ofSeconds(5));
 		timer.add("inserted " + counter.get());

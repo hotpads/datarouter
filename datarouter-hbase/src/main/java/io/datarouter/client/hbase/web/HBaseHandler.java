@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.function.Supplier;
@@ -64,9 +65,6 @@ import io.datarouter.web.browse.dto.DatarouterWebRequestParamsFactory.Datarouter
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.MessageMav;
-import io.datarouter.web.handler.types.optional.OptionalInteger;
-import io.datarouter.web.handler.types.optional.OptionalLong;
-import io.datarouter.web.handler.types.optional.OptionalString;
 import io.datarouter.web.util.http.RequestTool;
 
 public class HBaseHandler extends BaseHandler{
@@ -168,7 +166,7 @@ public class HBaseHandler extends BaseHandler{
 	}
 
 	@Handler
-	public Mav viewHBaseTableRegions(OptionalString groupBy){
+	public Mav viewHBaseTableRegions(Optional<String> groupBy){
 		initialize();
 		mav = new Mav(files.jsp.admin.datarouter.hbase.hbaseTableRegionsJsp);
 		mav.put("regionsByGroup", regionList.get().getRegionsGroupedBy(groupBy.orElse(DrRegionList.GROUP_BY_ALL)));
@@ -179,7 +177,7 @@ public class HBaseHandler extends BaseHandler{
 	/*---------------------------- update handlers --------------------------*/
 
 	@Handler
-	public Mav updateHBaseTableAttribute(OptionalLong maxFileSizeMb, OptionalLong memstoreFlushSizeMb)
+	public Mav updateHBaseTableAttribute(Optional<Long> maxFileSizeMb, Optional<Long> memstoreFlushSizeMb)
 	throws IOException{
 		initialize();
 		Admin admin = hBaseClientManager.getAdmin(datarouterWebRequestParams.getClientId());
@@ -239,7 +237,7 @@ public class HBaseHandler extends BaseHandler{
 	/*---------------------------- move handlers ----------------------------*/
 
 	@Handler
-	public Mav moveRegionsToCorrectServer(OptionalInteger pauseBetweenRegionsMs) throws IOException{
+	public Mav moveRegionsToCorrectServer(Optional<Integer> pauseBetweenRegionsMs) throws IOException{
 		initialize();
 		int counter = 0;
 		for(DrRegionInfo<?> region : regionList.get().getRegions()){

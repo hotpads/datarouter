@@ -29,7 +29,7 @@ public class DatarouterServiceHealthcheckEndpoint extends BaseEndpoint<Object,No
 		super(GET, PATH, CallerTypeDatarouterService.class);
 		setRetrySafe(false);
 		setShouldSkipLogs(true);
-		setShouldSkipSecuiry(true);
+		setShouldSkipSecurity(true);
 	}
 
 	public static DatarouterServiceHealthcheckEndpoint getEndpoint(){

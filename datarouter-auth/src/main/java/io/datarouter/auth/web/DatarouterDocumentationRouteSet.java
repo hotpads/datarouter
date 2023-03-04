@@ -29,7 +29,6 @@ public class DatarouterDocumentationRouteSet extends BaseRouteSet{
 
 	@Inject
 	public DatarouterDocumentationRouteSet(DatarouterAuthPaths paths){
-		super(paths.docs);
 		handleDir(paths.docs).withHandler(DatarouterDocumentationHandler.class);
 	}
 

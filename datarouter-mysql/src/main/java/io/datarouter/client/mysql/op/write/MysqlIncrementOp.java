@@ -40,7 +40,6 @@ import io.datarouter.storage.tally.Tally;
 import io.datarouter.storage.tally.Tally.TallyFielder;
 import io.datarouter.storage.tally.TallyKey;
 
-
 public class MysqlIncrementOp<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,

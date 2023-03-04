@@ -15,12 +15,15 @@
  */
 package io.datarouter.instrumentation.exception;
 
+import java.util.List;
+
 import io.datarouter.instrumentation.response.PublishingResponseDto;
 
 public interface DatarouterExceptionPublisher{
 
 	PublishingResponseDto addExceptionRecord(ExceptionRecordBatchDto exceptionRecordBatchDto);
 	PublishingResponseDto addHttpRequestRecord(HttpRequestRecordBatchDto httpRecordRequestBatchDto);
+	PublishingResponseDto addTaskExecutorRecord(List<TaskExecutorRecordDto> taskExecutorRecord);
 
 	public static class NoOpDatarouterExceptionPublisher implements DatarouterExceptionPublisher{
 
@@ -31,6 +34,11 @@ public interface DatarouterExceptionPublisher{
 
 		@Override
 		public PublishingResponseDto addHttpRequestRecord(HttpRequestRecordBatchDto httpRecordRequestBatchDto){
+			return PublishingResponseDto.NO_OP;
+		}
+
+		@Override
+		public PublishingResponseDto addTaskExecutorRecord(List<TaskExecutorRecordDto> taskExecutorRecord){
 			return PublishingResponseDto.NO_OP;
 		}
 

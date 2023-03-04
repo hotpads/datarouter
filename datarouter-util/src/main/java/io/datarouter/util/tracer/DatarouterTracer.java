@@ -30,7 +30,7 @@ import io.datarouter.instrumentation.trace.Trace2ThreadDto;
 import io.datarouter.instrumentation.trace.TraceSpanGroupType;
 import io.datarouter.instrumentation.trace.Tracer;
 import io.datarouter.instrumentation.trace.W3TraceContext;
-import io.datarouter.util.MxBeans;
+import io.datarouter.util.PlatformMxBeans;
 import io.datarouter.util.number.RandomTool;
 import io.datarouter.util.string.StringTool;
 
@@ -116,10 +116,10 @@ public class DatarouterTracer implements Tracer{
 			return;
 		}
 		if(saveThreadCpuTime){
-			thread.setCpuTimeCreatedNs(MxBeans.THREAD.getCurrentThreadCpuTime());
+			thread.setCpuTimeCreatedNs(PlatformMxBeans.THREAD.getCurrentThreadCpuTime());
 		}
 		if(saveThreadMemoryAllocated){
-			thread.setMemoryAllocatedBytesBegin(MxBeans.THREAD.getThreadAllocatedBytes(hostThreadId));
+			thread.setMemoryAllocatedBytesBegin(PlatformMxBeans.THREAD.getThreadAllocatedBytes(hostThreadId));
 		}
 		thread.markStart();
 	}
@@ -141,10 +141,10 @@ public class DatarouterTracer implements Tracer{
 			return;
 		}
 		if(saveThreadCpuTime){
-			thread.setCpuTimeEndedNs(MxBeans.THREAD.getCurrentThreadCpuTime());
+			thread.setCpuTimeEndedNs(PlatformMxBeans.THREAD.getCurrentThreadCpuTime());
 		}
 		if(saveThreadMemoryAllocated){
-			thread.setMemoryAllocatedBytesEnded(MxBeans.THREAD.getThreadAllocatedBytes(hostThreadId));
+			thread.setMemoryAllocatedBytesEnded(PlatformMxBeans.THREAD.getThreadAllocatedBytes(hostThreadId));
 		}
 		thread.setEnded(Trace2Dto.getCurrentTimeInNs());
 		thread.setTotalSpanCount(getSpanQueue().size());
@@ -185,10 +185,10 @@ public class DatarouterTracer implements Tracer{
 				groupType,
 				Trace2Dto.getCurrentTimeInNs());
 		if(saveSpanCpuTime){
-			span.setCpuTimeCreated(MxBeans.THREAD.getCurrentThreadCpuTime());
+			span.setCpuTimeCreated(PlatformMxBeans.THREAD.getCurrentThreadCpuTime());
 		}
 		if(saveSpanMemoryAllocated){
-			span.setMemoryAllocatedBegin(MxBeans.THREAD.getThreadAllocatedBytes(hostThreadId));
+			span.setMemoryAllocatedBegin(PlatformMxBeans.THREAD.getThreadAllocatedBytes(hostThreadId));
 		}
 		getSpanStack().add(span);
 		++nextSpanSequence;
@@ -210,10 +210,10 @@ public class DatarouterTracer implements Tracer{
 		}
 		Trace2SpanDto span = popSpanFromStack();
 		if(saveSpanCpuTime){
-			span.setCpuTimeEndedNs(MxBeans.THREAD.getCurrentThreadCpuTime());
+			span.setCpuTimeEndedNs(PlatformMxBeans.THREAD.getCurrentThreadCpuTime());
 		}
 		if(saveSpanMemoryAllocated){
-			span.setMemoryAllocatedBytesEnded(MxBeans.THREAD.getThreadAllocatedBytes(hostThreadId));
+			span.setMemoryAllocatedBytesEnded(PlatformMxBeans.THREAD.getThreadAllocatedBytes(hostThreadId));
 		}
 		span.markFinish();
 		addSpan(span);

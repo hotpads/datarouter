@@ -15,6 +15,9 @@
  */
 package io.datarouter.aws.s3;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.regex.Pattern;
 
 import io.datarouter.util.Require;
@@ -31,6 +34,23 @@ public class S3Tool{
 		}
 		Require.isFalse(S3_KEY_NON_SAFE_CHARACTERS.matcher(defaultReplacement).find());
 		return S3_KEY_NON_SAFE_CHARACTERS.matcher(input).replaceAll(defaultReplacement);
+	}
+
+	public static String makeGetPartialObjectRangeParam(long offset, int length){
+		long startInclusive = offset;
+		long endInclusive = offset + length - 1;
+		// https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.35
+		// https://github.com/aws/aws-sdk-java-v2/issues/1472
+		return "bytes=" + startInclusive + "-" + endInclusive;
+	}
+
+	public static void prepareLocalFileDestination(Path path){
+		try{
+			Files.createDirectories(path.getParent());
+			Files.deleteIfExists(path);
+		}catch(IOException e){
+			throw new RuntimeException(e);
+		}
 	}
 
 }

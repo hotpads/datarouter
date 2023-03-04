@@ -21,6 +21,7 @@ import static j2html.TagCreator.h2;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import javax.inject.Inject;
 
@@ -43,8 +44,6 @@ import io.datarouter.util.string.StringTool;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.types.Param;
-import io.datarouter.web.handler.types.optional.OptionalBoolean;
-import io.datarouter.web.handler.types.optional.OptionalString;
 import io.datarouter.web.html.form.HtmlForm;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
@@ -79,12 +78,12 @@ public class JobletCopyTableHandler extends BaseHandler{
 	private <PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>>
 	Mav defaultHandler(
-			@Param(P_sourceNodeName) OptionalString sourceNodeName,
-			@Param(P_targetNodeName) OptionalString targetNodeName,
-			@Param(P_scanBatchSize) OptionalString optScanBatchSize,
-			@Param(P_putBatchSize) OptionalString optPutBatchSize,
-			@Param(P_skipInvalidDatabeans) OptionalBoolean skipInvalidDatabeans,
-			@Param(P_submitAction) OptionalString submitAction){
+			@Param(P_sourceNodeName) Optional<String> sourceNodeName,
+			@Param(P_targetNodeName) Optional<String> targetNodeName,
+			@Param(P_scanBatchSize) Optional<String> optScanBatchSize,
+			@Param(P_putBatchSize) Optional<String> optPutBatchSize,
+			@Param(P_skipInvalidDatabeans) Optional<Boolean> skipInvalidDatabeans,
+			@Param(P_submitAction) Optional<String> submitAction){
 		String errorScanBatchSize = null;
 		String errorPutBatchSize = null;
 

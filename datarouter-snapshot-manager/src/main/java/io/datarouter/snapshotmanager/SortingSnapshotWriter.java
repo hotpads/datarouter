@@ -24,8 +24,8 @@ import io.datarouter.filesystem.snapshot.entry.SnapshotEntry;
 import io.datarouter.filesystem.snapshot.group.SnapshotGroup;
 import io.datarouter.filesystem.snapshot.writer.SnapshotWriterConfig;
 import io.datarouter.scanner.ObjectScanner;
-import io.datarouter.scanner.ParallelScannerContext;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.scanner.Threads;
 import io.datarouter.snapshotmanager.SnapshotMerger.SnapshotMergerParams;
 import io.datarouter.util.Require;
 
@@ -70,11 +70,9 @@ public class SortingSnapshotWriter{
 	private void createSortedSplits(){
 		params.entries
 				.advanceUntil($ -> params.shouldStop.get())
-				.parallel(new ParallelScannerContext(
-						params.sortExec,
-						params.sortThreads,
-						false,
-						params.sortThreads > 0))
+				.parallelOrdered(
+						new Threads(params.sortExec, params.sortThreads),
+						params.sortThreads > 0)
 				.each(split -> Collections.sort(split, SnapshotEntry.KEY_COMPARATOR))
 				.forEach(split -> params.mergeGroup.writeOps().write(
 						params.mergeWriterConfig,

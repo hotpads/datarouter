@@ -24,7 +24,9 @@ import io.datarouter.binarydto.dto.BinaryDtoField;
 import io.datarouter.instrumentation.exception.HttpRequestRecordDto;
 import io.datarouter.util.Require;
 
-public class HttpRequestRecordBinaryDto extends BinaryDto<HttpRequestRecordBinaryDto>{
+public class HttpRequestRecordBinaryDto
+extends BinaryDto<HttpRequestRecordBinaryDto>
+implements TaskExecutionRecordBinaryDto<HttpRequestRecordDto>{
 
 	@BinaryDtoField(index = 0)
 	public final String serviceName;
@@ -239,6 +241,7 @@ public class HttpRequestRecordBinaryDto extends BinaryDto<HttpRequestRecordBinar
 				record.otherHeaders());
 	}
 
+	@Override
 	public HttpRequestRecordDto toDto(){
 		return new HttpRequestRecordDto(
 				id,
@@ -285,6 +288,11 @@ public class HttpRequestRecordBinaryDto extends BinaryDto<HttpRequestRecordBinar
 
 	public static HttpRequestRecordBinaryDto decode(byte[] bytes){
 		return BinaryDtoIndexedCodec.of(HttpRequestRecordBinaryDto.class).decode(bytes);
+	}
+
+	@Override
+	public String getServiceName(){
+		return serviceName;
 	}
 
 }

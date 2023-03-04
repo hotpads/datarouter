@@ -36,6 +36,7 @@ import io.datarouter.filesystem.snapshot.reader.ScanningSnapshotReader;
 import io.datarouter.filesystem.snapshot.reader.SnapshotIdReader;
 import io.datarouter.filesystem.snapshot.reader.block.BlockLoader;
 import io.datarouter.filesystem.snapshot.reader.record.SnapshotLeafRecord;
+import io.datarouter.scanner.Threads;
 import io.datarouter.util.concurrent.ExecutorServiceTool;
 
 /**
@@ -100,8 +101,8 @@ public class FilesystemSnapshotLargeTests{
 		}
 		BlockLoader blockLoader = SCAN_WITH_CACHE ? cache : group;
 		int numThreads = Runtime.getRuntime().availableProcessors();
-		var exec = Executors.newFixedThreadPool(numThreads);
-		var reader = new ScanningSnapshotReader(benchmark.snapshotKey, exec, numThreads, blockLoader, SCAN_NUM_BLOCKS);
+		var threads = new Threads(Executors.newFixedThreadPool(numThreads), numThreads);
+		var reader = new ScanningSnapshotReader(benchmark.snapshotKey, threads, blockLoader, SCAN_NUM_BLOCKS);
 		var count = new AtomicLong();
 		reader.scan(0)
 				.forEach(record -> {
@@ -111,7 +112,7 @@ public class FilesystemSnapshotLargeTests{
 					Assert.assertEquals(record.value(), SnapshotBenchmark.makeValue(id));
 				});
 		Assert.assertEquals(count.get(), benchmark.numEntries);
-		ExecutorServiceTool.shutdown(exec, Duration.ofSeconds(2));
+		ExecutorServiceTool.shutdown(threads.exec(), Duration.ofSeconds(2));
 	}
 
 	@Test

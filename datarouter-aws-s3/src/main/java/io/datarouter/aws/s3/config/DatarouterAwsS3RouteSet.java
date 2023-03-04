@@ -29,7 +29,6 @@ public class DatarouterAwsS3RouteSet extends BaseRouteSet{
 
 	@Inject
 	public DatarouterAwsS3RouteSet(DatarouterAwsS3Paths paths){
-		super(paths.datarouter.clients.awsS3);
 		handle(paths.datarouter.clients.awsS3.countObjects).withHandler(S3BucketHandler.class);
 		handle(paths.datarouter.clients.awsS3.listObjects).withHandler(S3BucketHandler.class);
 	}

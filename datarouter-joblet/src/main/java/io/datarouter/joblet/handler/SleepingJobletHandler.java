@@ -20,6 +20,7 @@ import static j2html.TagCreator.div;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import javax.inject.Inject;
 
@@ -33,10 +34,6 @@ import io.datarouter.joblet.test.SleepingJoblet.SleepingJobletParams;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.types.Param;
-import io.datarouter.web.handler.types.optional.OptionalBoolean;
-import io.datarouter.web.handler.types.optional.OptionalInteger;
-import io.datarouter.web.handler.types.optional.OptionalLong;
-import io.datarouter.web.handler.types.optional.OptionalString;
 import io.datarouter.web.html.form.HtmlForm;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import j2html.TagCreator;
@@ -63,12 +60,12 @@ public class SleepingJobletHandler extends BaseHandler{
 
 	@Handler(defaultHandler = true)
 	private Mav createSleepingJoblets(
-			@Param(P_numJoblets) OptionalInteger numJoblets,
-			@Param(P_sleepMs) OptionalLong sleepMs,
-			@Param(P_executionOrder) OptionalInteger executionOrder,
-			@Param(P_includeFailures) OptionalBoolean includeFailures,
-			@Param(P_failEveryN) OptionalInteger failEveryN,
-			@Param(P_submitAction) OptionalString submitAction){
+			@Param(P_numJoblets) Optional<Integer> numJoblets,
+			@Param(P_sleepMs) Optional<Long> sleepMs,
+			@Param(P_executionOrder) Optional<Integer> executionOrder,
+			@Param(P_includeFailures) Optional<Boolean> includeFailures,
+			@Param(P_failEveryN) Optional<Integer> failEveryN,
+			@Param(P_submitAction) Optional<String> submitAction){
 
 		var form = new HtmlForm()
 				.withMethod("post");

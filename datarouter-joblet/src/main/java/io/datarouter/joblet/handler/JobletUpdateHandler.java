@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 import javax.inject.Inject;
 
@@ -44,7 +45,6 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.types.Param;
-import io.datarouter.web.handler.types.optional.OptionalString;
 
 public class JobletUpdateHandler extends BaseHandler{
 	private static final Logger logger = LoggerFactory.getLogger(JobletUpdateHandler.class);
@@ -95,7 +95,7 @@ public class JobletUpdateHandler extends BaseHandler{
 	}
 
 	@Handler
-	private Mav copyJobletRequestsToQueues(@Param(PARAM_jobletType) OptionalString jobletType){
+	private Mav copyJobletRequestsToQueues(@Param(PARAM_jobletType) Optional<String> jobletType){
 		List<JobletType<?>> jobletTypes = jobletType.isPresent()
 				? List.of(jobletTypeFactory.fromPersistentString(jobletType.get()))
 				: jobletTypeFactory.getAllTypes();
@@ -126,7 +126,7 @@ public class JobletUpdateHandler extends BaseHandler{
 
 	@Handler
 	private Mav restart(
-			@Param(PARAM_jobletType) OptionalString type,
+			@Param(PARAM_jobletType) Optional<String> type,
 			@Param(PARAM_status) String status){
 		JobletStatus jobletStatus = JobletStatus.BY_PERSISTENT_STRING.fromOrNull(status);
 		long numRestarted = 0;

@@ -31,22 +31,22 @@ public class DefaultDecoderDecodingTests{
 
 	@Test
 	public void testDecodingString(){
-		Assert.assertEquals(defaultDecoder.decode("", String.class), "");
-		Assert.assertEquals(defaultDecoder.decode(" ", String.class), "");
-		Assert.assertEquals(defaultDecoder.decode("\"\"", String.class), "");
-		Assert.assertEquals(defaultDecoder.decode("\"", String.class), "\"");
-		Assert.assertEquals(defaultDecoder.decode("\" ", String.class), "\" ");
-		Assert.assertEquals(defaultDecoder.decode("\" \"", String.class), " ");
-		Assert.assertEquals(defaultDecoder.decode("nulls", String.class), "nulls");
-		Assert.assertEquals(defaultDecoder.decode("\"correct json\"", String.class), "correct json");
+		Assert.assertEquals(defaultDecoder.decodeType("", String.class), "");
+		Assert.assertEquals(defaultDecoder.decodeType(" ", String.class), "");
+		Assert.assertEquals(defaultDecoder.decodeType("\"\"", String.class), "");
+		Assert.assertEquals(defaultDecoder.decodeType("\"", String.class), "\"");
+		Assert.assertEquals(defaultDecoder.decodeType("\" ", String.class), "\" ");
+		Assert.assertEquals(defaultDecoder.decodeType("\" \"", String.class), " ");
+		Assert.assertEquals(defaultDecoder.decodeType("nulls", String.class), "nulls");
+		Assert.assertEquals(defaultDecoder.decodeType("\"correct json\"", String.class), "correct json");
 	}
 
 	@Test
 	public void preventNullDecoding(){
-		assertFail(() -> defaultDecoder.decode("null", String.class));
-		assertFail(() -> defaultDecoder.decode(null, String.class));
-		assertFail(() -> defaultDecoder.decode("", Integer.class));
-		assertFail(() -> defaultDecoder.decode(" ", Integer.class));
+		assertFail(() -> defaultDecoder.decodeType("null", String.class));
+		assertFail(() -> defaultDecoder.decodeType(null, String.class));
+		assertFail(() -> defaultDecoder.decodeType("", Integer.class));
+		assertFail(() -> defaultDecoder.decodeType(" ", Integer.class));
 	}
 
 	private void assertFail(Runnable runnable){

@@ -60,7 +60,7 @@ import io.datarouter.trace.conveyor.TraceBuffers;
 import io.datarouter.trace.service.TraceUrlBuilder;
 import io.datarouter.trace.settings.DatarouterTraceFilterSettingRoot;
 import io.datarouter.types.Ulid;
-import io.datarouter.util.MxBeans;
+import io.datarouter.util.PlatformMxBeans;
 import io.datarouter.util.array.ArrayTool;
 import io.datarouter.util.number.RandomTool;
 import io.datarouter.util.string.StringTool;
@@ -143,10 +143,10 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 
 			Long threadId = Thread.currentThread().getId();
 			boolean saveCpuTime = traceSettings.saveTraceCpuTime.get();
-			Long cpuTimeBegin = saveCpuTime ? MxBeans.THREAD.getCurrentThreadCpuTime() : null;
+			Long cpuTimeBegin = saveCpuTime ? PlatformMxBeans.THREAD.getCurrentThreadCpuTime() : null;
 			boolean saveAllocatedBytes = traceSettings.saveTraceAllocatedBytes.get();
 			Long threadAllocatedBytesBegin = saveAllocatedBytes
-					? MxBeans.THREAD.getThreadAllocatedBytes(threadId)
+					? PlatformMxBeans.THREAD.getThreadAllocatedBytes(threadId)
 					: null;
 
 			boolean errored = false;
@@ -157,9 +157,9 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 				throw e;
 			}finally{
 				long ended = Trace2Dto.getCurrentTimeInNs();
-				Long cpuTimeEnded = saveCpuTime ? MxBeans.THREAD.getCurrentThreadCpuTime() : null;
+				Long cpuTimeEnded = saveCpuTime ? PlatformMxBeans.THREAD.getCurrentThreadCpuTime() : null;
 				Long threadAllocatedBytesEnded = saveAllocatedBytes
-						? MxBeans.THREAD.getThreadAllocatedBytes(threadId)
+						? PlatformMxBeans.THREAD.getThreadAllocatedBytes(threadId)
 						: null;
 				Traceparent traceparent = tracer.getTraceContext().get().getTraceparent();
 				Trace2ThreadDto rootThread = null;
@@ -209,7 +209,7 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 					if(RequestTool.getBoolean(request, "trace", false)){
 						saveReasons.add(TraceSaveReasonType.QUERY_PARAM);
 					}
-					if(tracer.shouldSample()){
+					if(!shouldBeRandomlySampled && tracer.shouldSample()){
 						saveReasons.add(TraceSaveReasonType.TRACE_CONTEXT);
 					}
 					if(errored){

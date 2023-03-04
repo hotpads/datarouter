@@ -70,6 +70,7 @@ public class DatarouterAuthPaths extends PathNode implements PathsRoot{
 		public final PathNode addPermission = leaf("addPermission");
 		public final PathNode deletePermission = leaf("deletePermission");
 		public final PathNode isServerTypeDev = leaf("isServerTypeDev");
+		public final PathNode updateReferrer = leaf("updateReferrer");
 	}
 
 	public static class AdminPaths extends PathNode{

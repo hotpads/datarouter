@@ -59,10 +59,15 @@ public class DatarouterServerTypeDetector implements ServerTypeDetector{
 
 	@Override
 	public boolean mightBeDevelopment(){
-		return EnvironmentType.DEVELOPMENT.get().getPersistentString().equals(environmentType);
+		return EnvironmentType.DEVELOPMENT.get().getPersistentString().equals(environmentType)
+				|| getAdditionalDevelopmentEnvironmentsTypes().contains(environmentType);
 	}
 
 	protected Set<String> getAdditionalProductionEnvironments(){
+		return Set.of();
+	}
+
+	protected Set<String> getAdditionalDevelopmentEnvironmentsTypes(){
 		return Set.of();
 	}
 

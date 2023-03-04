@@ -35,6 +35,8 @@ public class S3Headers{
 	public static final String CACHE_CONTROL_MONTHS_1 = makeCacheControlString(Duration.ofDays(30));
 	public static final String CACHE_CONTROL_YEARS_10 = makeCacheControlString(Duration.ofDays(365 * 10));
 
+	public static final String BUCKET_REGION = "x-amz-bucket-region";
+
 	private static String makeCacheControlString(Duration duration){
 		long seconds = duration.toSeconds();
 		return "max-age=" + seconds + ", public";

@@ -28,7 +28,6 @@ public class DatarouterSnapshotRouteSet extends BaseRouteSet{
 
 	@Inject
 	public DatarouterSnapshotRouteSet(DatarouterSnapshotPaths paths){
-		super(paths.datarouter);
 		handle(paths.datarouter.snapshot.benchmark).withHandler(DatarouterSnapshotBenchmarkHandler.class);
 		handle(paths.datarouter.snapshot.group.listGroups).withHandler(DatarouterSnapshotGroupsHandler.class);
 		handle(paths.datarouter.snapshot.group.listSnapshots).withHandler(DatarouterSnapshotGroupHandler.class);

@@ -26,8 +26,6 @@ import io.datarouter.secretweb.service.DefaultHandlerSerializer;
 import io.datarouter.secretweb.storage.oprecord.DatarouterSecretOpRecordDao;
 import io.datarouter.secretweb.storage.oprecord.DatarouterSecretOpRecordDao.DaoSecretOpRecorderSupplier;
 import io.datarouter.secretweb.storage.oprecord.DatarouterSecretOpRecordDao.DatarouterSecretOpRecordDaoParams;
-import io.datarouter.secretweb.web.DefaultSecretHandlerPermissions;
-import io.datarouter.secretweb.web.SecretHandlerPermissions;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.dao.DaosModuleBuilder;
@@ -37,13 +35,10 @@ import io.datarouter.web.navigation.DatarouterNavBarCategory;
 public class DatarouterSecretWebPlugin extends BaseWebPlugin{
 
 	private final DatarouterSecretPlugin basePlugin;
-	private final Class<? extends SecretHandlerPermissions> secretHandlerPermissions;
 
 	private DatarouterSecretWebPlugin(DatarouterSecretPlugin basePlugin,
-			Class<? extends SecretHandlerPermissions> secretHandlerPermissions,
 			DatarouterSecretDaoModule daosModuleBuilder){
 		this.basePlugin = basePlugin;
-		this.secretHandlerPermissions = secretHandlerPermissions;
 		addRouteSet(DatarouterSecretRouteSet.class);
 		setDaosModule(daosModuleBuilder);
 		addDatarouterNavBarItem(
@@ -58,15 +53,12 @@ public class DatarouterSecretWebPlugin extends BaseWebPlugin{
 	@Override
 	public void configure(){
 		install(basePlugin);
-		bindActual(SecretHandlerPermissions.class, secretHandlerPermissions);
 	}
 
 	public abstract static class DatarouterSecretWebPluginBuilder<T extends DatarouterSecretWebPluginBuilder<T>>
 	extends DatarouterSecretPluginBuilder<T>{
 
 		private final List<ClientId> defaultClientId;
-		private Class<? extends SecretHandlerPermissions> secretHandlerPermissions = DefaultSecretHandlerPermissions
-				.class;
 
 		public static class DatarouterSecretWebPluginBuilderImpl
 		extends DatarouterSecretWebPluginBuilder<DatarouterSecretWebPluginBuilderImpl>{
@@ -90,16 +82,9 @@ public class DatarouterSecretWebPlugin extends BaseWebPlugin{
 			setJsonSerializer(DefaultHandlerSerializer.class);
 		}
 
-		public T setSecretHandlerPermissions(
-				Class<? extends SecretHandlerPermissions> secretHandlerPermissions){
-			this.secretHandlerPermissions = secretHandlerPermissions;
-			return getSelf();
-		}
-
 		protected DatarouterSecretWebPlugin getWebPlugin(){
 			return new DatarouterSecretWebPlugin(
 					buildBasePlugin(),
-					secretHandlerPermissions,
 					new DatarouterSecretDaoModule(defaultClientId));
 		}
 

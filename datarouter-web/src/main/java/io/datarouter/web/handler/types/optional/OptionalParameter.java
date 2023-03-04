@@ -25,14 +25,18 @@ import java.util.function.Predicate;
 
 import io.datarouter.util.lang.ReflectionTool;
 
+/**
+ * @deprecated use the JDK {@code Optional<T>}
+ */
+@Deprecated
 public abstract class OptionalParameter<T>{
 
 	private static final Set<Class<? extends OptionalParameter<?>>> OPTIONAL_PARAMATER_TYPES = Set.of(
 			OptionalBoolean.class,
-			OptionalDouble.class,
 			OptionalInteger.class,
-			OptionalLong.class,
-			OptionalString.class);
+			OptionalString.class,
+			OptionalDouble.class,
+			OptionalLong.class);
 
 	protected final Optional<T> opt;
 

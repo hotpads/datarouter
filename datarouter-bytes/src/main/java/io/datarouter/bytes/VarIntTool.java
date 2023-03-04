@@ -248,7 +248,7 @@ public class VarIntTool{
 		return downcastToInt(decodeLong(bytes, 0));
 	}
 
-	public static long decodeInt(InputStream inputStream){
+	public static int decodeInt(InputStream inputStream){
 		return downcastToInt(decodeLongInternal(inputStream));
 	}
 

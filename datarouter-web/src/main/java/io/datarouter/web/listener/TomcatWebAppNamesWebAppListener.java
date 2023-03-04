@@ -16,15 +16,13 @@
 package io.datarouter.web.listener;
 
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 
 import javax.inject.Singleton;
 import javax.management.MBeanServer;
-import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
-import io.datarouter.util.MxBeans;
+import io.datarouter.util.JmxTool;
 import io.datarouter.util.singletonsupplier.SingletonSupplier;
 import io.datarouter.util.string.StringTool;
 
@@ -39,26 +37,21 @@ public class TomcatWebAppNamesWebAppListener extends DatarouterWebAppListener{
 		if(server == null){
 			return webApps;
 		}
-		try{
-			Set<ObjectName> modules = server.queryNames(new ObjectName("Catalina:j2eeType=WebModule,*"), null);
-			for(ObjectName module : modules){
-				String name = StringTool.getStringAfterLastOccurrence('/', module.getKeyProperty("name"));
-				String href = "/" + name;
-				if("".equals(name)){
-					name = "ROOT";
-				}
-				webApps.put(name, href);
+		for(ObjectName module : server.queryNames(JmxTool.newObjectName("Catalina:j2eeType=WebModule,*"), null)){
+			String name = StringTool.getStringAfterLastOccurrence('/', module.getKeyProperty("name"));
+			String href = "/" + name;
+			if("".equals(name)){
+				name = "ROOT";
 			}
-		}catch(MalformedObjectNameException e){
-			throw new RuntimeException(e);
+			webApps.put(name, href);
 		}
 		return webApps;
 	}
 
 	private static MBeanServer getTomcat(){
-		for(String domain : MxBeans.SERVER.getDomains()){
+		for(String domain : JmxTool.SERVER.getDomains()){
 			if("Catalina".equals(domain)){
-				return MxBeans.SERVER;
+				return JmxTool.SERVER;
 			}
 		}
 		return null;

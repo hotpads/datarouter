@@ -61,8 +61,6 @@ import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.GlobalRedirectMav;
 import io.datarouter.web.handler.mav.imp.InContextRedirectMav;
 import io.datarouter.web.handler.mav.imp.MessageMav;
-import io.datarouter.web.handler.types.optional.OptionalLong;
-import io.datarouter.web.handler.types.optional.OptionalString;
 import io.datarouter.web.html.form.HtmlForm;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
@@ -112,7 +110,7 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 
 
 	@Handler(defaultHandler = true)
-	public Mav showForm(OptionalString deniedUrl, OptionalString allowedRoles){
+	public Mav showForm(Optional<String> deniedUrl, Optional<String> allowedRoles){
 		if(!authenticationConfig.useDatarouterAuthentication()){
 			return new MessageMav(noDatarouterAuthentication());
 		}
@@ -191,7 +189,7 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 	}
 
 	@Handler
-	private Mav submit(OptionalString specifics){
+	private Mav submit(Optional<String> specifics){
 		if(!authenticationConfig.useDatarouterAuthentication()){
 			return new MessageMav(noDatarouterAuthentication());
 		}
@@ -211,11 +209,11 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 			return new InContextRedirectMav(request, paths.home);
 		}
 
-		return showForm(new OptionalString(null), new OptionalString(null));
+		return showForm(Optional.empty(), Optional.empty());
 	}
 
 	@Handler
-	private Mav declineAll(OptionalLong userId, OptionalString redirectPath){
+	private Mav declineAll(Optional<Long> userId, Optional<String> redirectPath){
 		if(!authenticationConfig.useDatarouterAuthentication()){
 			return new MessageMav(noDatarouterAuthentication());
 		}
@@ -237,7 +235,7 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 			if(currentUser.getRoles().size() > 1){
 				return new InContextRedirectMav(request, paths.home);
 			}
-			return showForm(new OptionalString(null), new OptionalString(null));
+			return showForm(Optional.empty(), Optional.empty());
 		}
 		return new GlobalRedirectMav(redirectPath.get());
 	}
@@ -330,18 +328,26 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 
 	public static class PermissionRequestDto{
 		public final String requestTime;
+		public final Long requestTimeMs;
 		public final String requestText;
 		public final String resolutionTime;
+		public final Long resolutionTimeMs;
 		public final String resolution;
+		public final String editor;
 
 		public PermissionRequestDto(Instant requestTime, String requestText, Optional<Instant> resolutionTime,
-				String resolution, ZoneId zoneId){
+				String resolution, ZoneId zoneId, String editor){
 			this.requestTime = ZonedDateFormatterTool.formatInstantWithZone(requestTime, zoneId);
+			this.requestTimeMs = requestTime.toEpochMilli();
 			this.requestText = requestText;
 			this.resolutionTime = resolutionTime
 					.map(instant -> ZonedDateFormatterTool.formatInstantWithZone(instant, zoneId))
 					.orElse(null);
+			this.resolutionTimeMs = resolutionTime
+					.map(Instant::toEpochMilli)
+					.orElse(null);
 			this.resolution = resolution;
+			this.editor = editor;
 		}
 
 	}

@@ -21,16 +21,24 @@ import java.util.function.Predicate;
 
 public class ParallelScanner<T>{
 
-	private final ParallelScannerContext context;
 	private final Scanner<T> input;
+	private final Threads threads;
+	private final boolean allowUnorderedResults;
+	private final boolean enabled;
 
-	public ParallelScanner(ParallelScannerContext context, Scanner<T> input){
-		this.context = context;
+	public ParallelScanner(
+			Scanner<T> input,
+			Threads threads,
+			boolean allowUnorderedResults,
+			boolean enabled){
 		this.input = input;
+		this.threads = threads;
+		this.allowUnorderedResults = allowUnorderedResults;
+		this.enabled = enabled;
 	}
 
 	public <R> Scanner<R> concat(Function<? super T,Scanner<R>> mapper){
-		if(context.enabled){
+		if(enabled){
 			return map(mapper)
 					.concat(Function.identity());
 		}
@@ -38,14 +46,14 @@ public class ParallelScanner<T>{
 	}
 
 	public Scanner<T> each(Consumer<? super T> consumer){
-		if(context.enabled){
+		if(enabled){
 			return map(new ScannerConsumerFunction<>(consumer));
 		}
 		return input.each(consumer);
 	}
 
 	public Scanner<T> exclude(Predicate<? super T> predicate){
-		if(context.enabled){
+		if(enabled){
 			return map(new ScannerPredicateFunction<>(predicate))
 					.exclude(result -> result.passes)
 					.map(result -> result.item);
@@ -54,7 +62,7 @@ public class ParallelScanner<T>{
 	}
 
 	public void forEach(Consumer<? super T> consumer){
-		if(context.enabled){
+		if(enabled){
 			map(new ScannerConsumerFunction<>(consumer))
 					.count();
 		}else{
@@ -63,7 +71,7 @@ public class ParallelScanner<T>{
 	}
 
 	public Scanner<T> include(Predicate<? super T> predicate){
-		if(context.enabled){
+		if(enabled){
 			return map(new ScannerPredicateFunction<>(predicate))
 					.include(result -> result.passes)
 					.map(result -> result.item);
@@ -72,12 +80,11 @@ public class ParallelScanner<T>{
 	}
 
 	public <R> Scanner<R> map(Function<? super T,? extends R> mapper){
-		if(context.enabled){
+		if(enabled){
 			return new ParallelMappingScanner<>(
 					input,
-					context.allowUnorderedResults,
-					context.executor,
-					context.numThreads,
+					threads,
+					allowUnorderedResults,
 					mapper);
 		}
 		return input.map(mapper);

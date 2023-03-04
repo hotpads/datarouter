@@ -28,7 +28,7 @@ import io.datarouter.conveyor.ConveyorConfiguration;
 import io.datarouter.conveyor.ConveyorCounters;
 import io.datarouter.conveyor.ConveyorGauges;
 import io.datarouter.conveyor.ConveyorRunnable;
-import io.datarouter.conveyor.MemoryBuffer;
+import io.datarouter.util.buffer.MemoryBuffer;
 
 public abstract class BaseMemoryBufferPutMultiConsumerConveyorConfiguration<D>
 implements ConveyorConfiguration{

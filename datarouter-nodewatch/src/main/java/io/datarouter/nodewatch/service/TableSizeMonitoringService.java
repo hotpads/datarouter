@@ -18,7 +18,6 @@ package io.datarouter.nodewatch.service;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,6 +34,7 @@ import io.datarouter.nodewatch.storage.latesttablecount.DatarouterLatestTableCou
 import io.datarouter.nodewatch.storage.latesttablecount.LatestTableCount;
 import io.datarouter.nodewatch.storage.tablecount.DatarouterTableCountDao;
 import io.datarouter.nodewatch.storage.tablecount.TableCount;
+import io.datarouter.nodewatch.storage.tablecount.TableCount.TableCountLatestEntryComparator;
 import io.datarouter.nodewatch.util.TableSizeMonitoringEmailBuilder;
 import io.datarouter.storage.client.DatarouterClients;
 import io.datarouter.storage.node.DatarouterNodes;
@@ -110,11 +110,12 @@ public class TableSizeMonitoringService{
 				continue;
 			}
 
-			List<TableCount> tableCountRecords = tableCountDao.getForTable(clientName, tableName);
+			List<TableCount> tableCountRecords = tableCountDao.scanForTable(clientName, tableName)
+					.sort(new TableCountLatestEntryComparator())
+					.list();
 			if(tableCountRecords.size() < 2){
 				continue;
 			}
-			Collections.sort(tableCountRecords, new TableCount.TableCountLatestEntryComparator());
 			TableCount latest = tableCountRecords.get(0);
 			TableCount previous = tableCountRecords.get(1);
 			if(previous.getNumRows() == 0){

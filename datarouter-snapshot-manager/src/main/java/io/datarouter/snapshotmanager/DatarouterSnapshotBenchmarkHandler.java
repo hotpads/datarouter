@@ -19,6 +19,8 @@ import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.h2;
 
+import java.util.Optional;
+
 import javax.inject.Inject;
 
 import io.datarouter.filesystem.snapshot.benchmark.SnapshotBenchmark;
@@ -28,8 +30,6 @@ import io.datarouter.util.Require;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.types.Param;
-import io.datarouter.web.handler.types.optional.OptionalBoolean;
-import io.datarouter.web.handler.types.optional.OptionalString;
 import io.datarouter.web.html.form.HtmlForm;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
@@ -54,11 +54,11 @@ public class DatarouterSnapshotBenchmarkHandler extends BaseHandler{
 
 	@Handler(defaultHandler = true)
 	public Mav defaultHandler(
-			@Param(P_group) OptionalString optGroup,
-			@Param(P_numEntries) OptionalString optNumEntries,
-			@Param(P_persist) OptionalBoolean optPersist,
-			@Param(P_delete) OptionalBoolean optDelete,
-			@Param(P_submitAction) OptionalString submitAction){
+			@Param(P_group) Optional<String> optGroup,
+			@Param(P_numEntries) Optional<String> optNumEntries,
+			@Param(P_persist) Optional<Boolean> optPersist,
+			@Param(P_delete) Optional<Boolean> optDelete,
+			@Param(P_submitAction) Optional<String> submitAction){
 
 		SnapshotGroup group = null;
 		String errorGroup = null;

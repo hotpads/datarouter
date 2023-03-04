@@ -47,7 +47,6 @@ public class DatarouterWebRouteSet extends BaseRouteSet{
 
 	@Inject
 	public DatarouterWebRouteSet(DatarouterWebPaths paths){
-		super(paths.datarouter);
 		handle(paths.datarouter.join("/", "/", "/") + "?")
 				.withHandler(DatarouterHomepageHandler.class)
 				.allowRoles(DatarouterUserRole.DATAROUTER_ACCOUNTS,

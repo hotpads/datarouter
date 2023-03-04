@@ -395,15 +395,6 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			this.defaultClientIds = defaultClientIds;
 		}
 
-		public DatarouterWebPluginBuilder(
-				String serviceName,
-				String publicDomain,
-				String privateDomain,
-				String contextName,
-				ClientId defaultClientId){
-			this(serviceName, publicDomain, privateDomain, contextName, List.of(defaultClientId));
-		}
-
 		public DatarouterWebPluginBuilder setFilesClass(Class<? extends FilesRoot> filesClass){
 			this.filesClass = filesClass;
 			return this;

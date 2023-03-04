@@ -22,9 +22,6 @@ import io.datarouter.web.handler.BaseHandler;
 public interface RouteSet{
 
 	List<DispatchRule> getDispatchRules();
-
-	String getUrlPrefix();
-
 	Class<? extends BaseHandler> getDefaultHandlerClass();
 
 }

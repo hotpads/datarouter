@@ -1,0 +1,62 @@
+/*
+ * Copyright © 2009 HotPads (admin@hotpads.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package io.datarouter.client.memory.node.databean;
+
+/**
+ * Wrap a databean encoded as bytes and metadata.
+ */
+public class MemoryDatabean{
+
+	private final byte[] key;
+	private final MemoryDatabeanAndIndexEntries databeanAndIndexEntries;
+	private final long createdMs;
+	private final Long expirationMs;
+
+	/**
+	 * @param ttlMs TTL in millis or null if no TTL
+	 */
+	public MemoryDatabean(byte[] key, MemoryDatabeanAndIndexEntries databeanAndIndexEntries, Long ttlMs){
+		this.key = key;
+		this.databeanAndIndexEntries = databeanAndIndexEntries;
+		createdMs = System.currentTimeMillis();
+		expirationMs = ttlMs == null
+				? null
+				: createdMs + ttlMs;
+	}
+
+	public byte[] getKey(){
+		return key;
+	}
+
+	public byte[] getDatabean(){
+		return databeanAndIndexEntries.databean;
+	}
+
+	public MemoryDatabeanAndIndexEntries getDatabeanAndIndexEntries(){
+		return databeanAndIndexEntries;
+	}
+
+	public boolean isExpired(){
+		return expirationMs == null
+				? false
+				: System.currentTimeMillis() > expirationMs;
+	}
+
+	public boolean notExpired(){
+		return !isExpired();
+	}
+
+}

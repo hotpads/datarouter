@@ -19,14 +19,16 @@ import io.datarouter.enums.DisplayablePersistentString;
 
 public interface ServerType extends DisplayablePersistentString, Comparable<ServerType>{
 
-	ServerType ALL = new SingleServerType("all", false);
-	ServerType UNKNOWN = new SingleServerType("unknown", false);
-	ServerType DEV = new SingleServerType("dev", false);
+	ServerType ALL = new SingleServerType("all", false, false);
+	ServerType UNKNOWN = new SingleServerType("unknown", false, false);
+	ServerType DEV = new SingleServerType("dev", false, false);
 
 	@Override
 	String getPersistentString();
 
 	boolean isProduction();
+
+	boolean isHttpExposed();
 
 	@Override
 	default String getDisplay(){

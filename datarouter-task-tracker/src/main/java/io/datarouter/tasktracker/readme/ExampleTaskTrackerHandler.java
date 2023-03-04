@@ -20,6 +20,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Optional;
 
 import javax.inject.Inject;
 
@@ -33,7 +34,6 @@ import io.datarouter.tasktracker.service.LongRunningTaskTrackerFactory;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.MessageMav;
-import io.datarouter.web.handler.types.optional.OptionalLong;
 
 public class ExampleTaskTrackerHandler extends BaseHandler{
 	private static final Logger logger = LoggerFactory.getLogger(ExampleTaskTrackerHandler.class);
@@ -42,7 +42,7 @@ public class ExampleTaskTrackerHandler extends BaseHandler{
 	private LongRunningTaskTrackerFactory trackerFactory;
 
 	@Handler
-	public Mav countFiles(String parentPath, OptionalLong logEveryN) throws IOException{
+	public Mav countFiles(String parentPath, Optional<Long> logEveryN) throws IOException{
 
 		//create a TaskTracker
 		TaskTracker tracker = trackerFactory.create(

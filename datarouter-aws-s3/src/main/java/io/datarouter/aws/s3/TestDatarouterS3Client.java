@@ -26,17 +26,22 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ExecutorService;
 
 import javax.inject.Singleton;
 
 import io.datarouter.aws.s3.S3Headers.ContentType;
 import io.datarouter.aws.s3.S3Headers.S3ContentType;
+import io.datarouter.bytes.ByteLength;
+import io.datarouter.bytes.InputStreamAndLength;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.scanner.Threads;
+import io.datarouter.storage.file.BucketAndKey;
+import io.datarouter.storage.file.BucketAndPrefix;
 import io.datarouter.storage.node.op.raw.read.DirectoryDto;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.model.Bucket;
+import software.amazon.awssdk.services.s3.model.CompletedPart;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.HeadObjectResponse;
 import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
@@ -65,7 +70,7 @@ public class TestDatarouterS3Client implements DatarouterS3Client{
 	}
 
 	@Override
-	public Region getBucketRegion(String bucket){
+	public Region getRegionForBucket(String bucket){
 		throw new UnsupportedOperationException();
 	}
 
@@ -75,73 +80,118 @@ public class TestDatarouterS3Client implements DatarouterS3Client{
 	}
 
 	@Override
-	public void deleteObject(String bucket, String key){
+	public void delete(BucketAndKey location){
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public void deleteObjects(String bucket, Collection<String>keys){
+	public void deleteMulti(String bucket, Collection<String>keys){
+		throw new UnsupportedOperationException();
+	}
+
+	/*--------- multipart upload -----------*/
+
+	@Override
+	public OutputStream put(BucketAndKey location, S3ContentType contentType){
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public void putObjectWithHeartbeat(String bucket, String key, ContentType contentType, Path path,
-			Runnable heartbeat){
+	public void multipartUpload(BucketAndKey location, S3ContentType contentType, InputStream inputStream){
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public OutputStream put(String bucket, String key, S3ContentType contentType){
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public void multipartUpload(String bucket, String key, S3ContentType contentType, InputStream inputStream){
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public void multiThreadUpload(
-			String bucket,
-			String key,
+	public void multithreadUpload(
+			BucketAndKey location,
 			S3ContentType contentType,
 			InputStream inputStream,
-			ExecutorService exec,
-			int numThreads){
-		throw new UnsupportedOperationException();
-
-	}
-
-	@Override
-	public OutputStream putWithPublicRead(String bucket, String key, S3ContentType contentType){
+			Threads threads,
+			ByteLength minPartSize){
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public void putObjectAsString(String bucket, String key, ContentType contentType, String content){
+	public void multithreadUpload(
+			BucketAndKey location,
+			S3ContentType contentType,
+			Scanner<InputStreamAndLength> parts,
+			Threads threads){
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public void putObjectAsBytes(String bucket, String key, ContentType contentType, String cacheControl,
-			ObjectCannedACL acl, byte[] bytes){
+	public String createMultipartUploadRequest(
+			BucketAndKey location,
+			S3ContentType contentType,
+			Optional<ObjectCannedACL> aclOpt){
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public void putObjectAsBytesWithExpirationTime(String bucket, String key, ContentType contentType,
-			String cacheControl, ObjectCannedACL acl, byte[] bytes, Instant instant){
+	public CompletedPart uploadPart(
+			BucketAndKey location,
+			String uploadId,
+			int partNumber,
+			InputStreamAndLength inputStreamAndLength){
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public void putPublicObject(String bucket, String key, ContentType contentType, Path path){
+	public void completeMultipartUploadRequest(
+			BucketAndKey location,
+			String uploadId,
+			List<CompletedPart> completedParts){
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public void putObject(String bucket, String key, ContentType contentType, Path path){
-		Path destinationPath = testFolder.resolve(Path.of(bucket, key));
+	public void abortMultipartUploadRequest(BucketAndKey location, String uploadId){
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public OutputStream putWithPublicRead(BucketAndKey location, S3ContentType contentType){
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void putObject(
+			BucketAndKey location,
+			ContentType contentType,
+			byte[] bytes){
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void putObjectWithPublicRead(
+			BucketAndKey location,
+			ContentType contentType,
+			String cacheControl,
+			ObjectCannedACL acl,
+			byte[] bytes){
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void putObjectWithExpirationTime(
+			BucketAndKey location,
+			ContentType contentType,
+			String cacheControl,
+			ObjectCannedACL acl,
+			byte[] bytes,
+			Instant instant){
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void putFilePublic(BucketAndKey location, ContentType contentType, Path path){
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void putFile(BucketAndKey location, ContentType contentType, Path path){
+		Path destinationPath = testFolder.resolve(Path.of(location.bucket(), location.key()));
 		try{
 			Files.createDirectories(destinationPath.getParent());
 			Files.copy(path, destinationPath);
@@ -151,72 +201,89 @@ public class TestDatarouterS3Client implements DatarouterS3Client{
 	}
 
 	@Override
-	public Path downloadFileToDirectory(String bucket, String key, Path path){
+	public Path downloadFileToDirectory(BucketAndKey location, Path path){
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public void downloadFile(String bucket, String key, Path path){
+	public void downloadFile(BucketAndKey location, Path path){
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public void downloadFileWithHeartbeat(String bucket, String key, Path path, Runnable heartbeat){
+	public ResponseInputStream<GetObjectResponse> getResponseInputStream(BucketAndKey location){
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public ResponseInputStream<GetObjectResponse> getObjectResponse(String bucket, String key){
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public InputStream getObject(String bucket, String key){
+	public InputStream getInputStream(BucketAndKey location){
 		try{
-			return Files.newInputStream(testFolder.resolve(Path.of(bucket, key)));
+			return Files.newInputStream(testFolder.resolve(Path.of(location.bucket(), location.key())));
 		}catch(IOException e){
 			throw new RuntimeException(e);
 		}
 	}
 
 	@Override
-	public byte[] getObjectAsBytes(String bucket, String key){
+	public byte[] getObjectAsBytes(BucketAndKey location){
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public byte[] getPartialObject(String bucket, String key, long offset, int length){
+	public byte[] getPartialObject(BucketAndKey location, long offset, int length){
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public URL generateLink(String bucket, String key, Duration expireAfter){
+	public URL generateLink(BucketAndKey location, Duration expireAfter){
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public Scanner<List<S3Object>> scanObjectsPaged(String bucket, String prefix){
+	public Scanner<List<S3Object>> scanPaged(BucketAndPrefix location){
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public Scanner<S3Object> scanObjects(String bucket, String prefix, String startAfter, String delimiter){
+	public Scanner<S3Object> scanAfter(BucketAndPrefix location, String startAfter, String delimiter){
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public Scanner<String> scanPrefixes(String bucket, String prefix, String startAfter, String delimiter){
+	public Scanner<String> scanPrefixes(BucketAndPrefix locationPrefix, String startAfter, String delimiter){
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public List<String> getCommonPrefixes(String bucket, String prefix, String delimiter){
+	public List<String> getCommonPrefixes(BucketAndPrefix locationPrefix, String delimiter){
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public Scanner<DirectoryDto> scanSubdirectories(String bucket, String prefix, String startAfter, String delimiter,
-			int pageSize, boolean currentDirectory){
+	public Scanner<DirectoryDto> scanSubdirectories(
+			BucketAndPrefix locationPrefix,
+			String startAfter,
+			String delimiter,
+			int pageSize,
+			boolean currentDirectory){
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Scanner<DirectoryDto> scanFilesOnly(
+			BucketAndPrefix locationPrefix,
+			String startAfter,
+			String delimiter,
+			int pageSize){
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Scanner<DirectoryDto> scanSubdirectoriesOnly(
+			BucketAndPrefix locationPrefix,
+			String startAfter,
+			String delimiter,
+			int pageSize){
 		throw new UnsupportedOperationException();
 	}
 
@@ -226,7 +293,7 @@ public class TestDatarouterS3Client implements DatarouterS3Client{
 	}
 
 	@Override
-	public Optional<HeadObjectResponse> headObject(String bucket, String key){
+	public Optional<HeadObjectResponse> head(BucketAndKey bucketAndKey){
 		throw new UnsupportedOperationException();
 	}
 

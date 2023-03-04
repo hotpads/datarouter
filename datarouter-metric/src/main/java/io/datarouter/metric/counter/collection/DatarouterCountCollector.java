@@ -38,23 +38,30 @@ public class DatarouterCountCollector implements CountCollector{
 	private final long flushIntervalMs;
 	private final CountBuffers countBuffers;
 	private final Setting<Boolean> saveCounts;
+	private final Setting<Boolean> saveCountStats;
 
+	@Deprecated
 	private HashMap<Long,Map<String,Long>> valueByNameByPeriodStartMs;
+	private HashMap<Long,Map<String,CountCollectorStats>> statsByNameByPeriodStartMs;
 	private long minTimeMs;
 	private long nextFlushMs;
 
 	public DatarouterCountCollector(long flushIntervalMs, CountBuffers countBuffers,
-			Setting<Boolean> saveCounts){
+			Setting<Boolean> saveCounts, Setting<Boolean> saveCountStats){
 		this.minTimeMs = DateTool.getPeriodStart(flushIntervalMs);
 		this.flushIntervalMs = flushIntervalMs;
 		this.nextFlushMs = minTimeMs + flushIntervalMs;
 		this.valueByNameByPeriodStartMs = new HashMap<>();
+		this.statsByNameByPeriodStartMs = new HashMap<>();
 		this.countBuffers = countBuffers;
 		this.saveCounts = saveCounts;
+		this.saveCountStats = saveCountStats;
 	}
 
 	private void flush(long flushingMs){
 		Map<Long,Map<String,Long>> snapshot;
+		Map<Long,Map<String,CountCollectorStats>> statsSnapshot;
+
 		//time to flush, a few threads may wait here
 		synchronized(this){
 			if(nextFlushMs != flushingMs){
@@ -64,6 +71,7 @@ public class DatarouterCountCollector implements CountCollector{
 			minTimeMs = flushingMs;
 			nextFlushMs = flushingMs + flushIntervalMs;
 			snapshot = valueByNameByPeriodStartMs;
+			statsSnapshot = statsByNameByPeriodStartMs;
 			if(logger.isInfoEnabled()){
 				logger.info(
 						"flushing periods=[{}], currentFlush={}",
@@ -73,9 +81,13 @@ public class DatarouterCountCollector implements CountCollector{
 						flushingMs);
 			}
 			valueByNameByPeriodStartMs = new HashMap<>();
+			statsByNameByPeriodStartMs = new HashMap<>();
 		}
 		if(saveCounts.get() && !snapshot.isEmpty()){
 			countBuffers.offer(snapshot);
+		}
+		if(saveCountStats.get() && !statsSnapshot.isEmpty()){
+			countBuffers.offerCountStats(statsSnapshot);
 		}
 	}
 
@@ -111,6 +123,12 @@ public class DatarouterCountCollector implements CountCollector{
 			total = valueByNameByPeriodStartMs
 					.computeIfAbsent(periodStartMs, $ -> new HashMap<>(METRICS_INITIAL_CAPACITY))
 					.merge(key, delta, Long::sum);
+
+			CountCollectorStats prevStats = statsByNameByPeriodStartMs
+					.computeIfAbsent(periodStartMs, $ -> new HashMap<>(METRICS_INITIAL_CAPACITY))
+					.computeIfAbsent(key, $ -> new CountCollectorStats(0, 0, delta, delta));
+			CountCollectorStats newStats = CountCollectorStats.updateStats(prevStats, delta);
+			statsByNameByPeriodStartMs.get(periodStartMs).put(key, newStats);
 		}
 		return total;
 	}
@@ -124,6 +142,21 @@ public class DatarouterCountCollector implements CountCollector{
 		String sanitized = StringTool.trimToSize(name, CommonFieldSizes.DEFAULT_LENGTH_VARCHAR);
 		sanitized = StringTool.removeNonStandardCharacters(sanitized);
 		return sanitized;
+	}
+
+	public static record CountCollectorStats(
+			long sum,
+			long count,
+			long min,
+			long max){
+
+		public static CountCollectorStats updateStats(CountCollectorStats prevStats, long delta){
+			return new CountCollectorStats(
+					prevStats.sum + delta,
+					prevStats.count + 1,
+					Math.min(prevStats.min, delta),
+					Math.max(prevStats.max, delta));
+		}
 	}
 
 }

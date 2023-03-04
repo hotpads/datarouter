@@ -56,9 +56,9 @@ public class DatarouterTraceFilterSettingRoot extends SettingRoot{
 		logRequests = registerBoolean("logRequests", false);
 		logTracesOverMs = registerInteger("logTracesOverMs", 500);
 		saveTraces = registerBooleans("saveTraces", defaultTo(false)
-				.withTag(DatarouterSettingTagType.TRACE2PIPELINE, () -> true));
+				.withTag(DatarouterSettingTagType.TRACE2_PIPELINE, () -> true));
 		saveTracesOverMs = registerIntegers("saveTracesOverMs", defaultTo(500)
-				.withTag(DatarouterSettingTagType.TRACE2PIPELINE, () -> 500));
+				.withTag(DatarouterSettingTagType.TRACE2_PIPELINE, () -> 500));
 		saveTracesCpuOverMs = registerIntegers("saveTracesCpuOverMs", defaultTo(500));
 		addTraceparentHeader = registerBoolean("addTraceparentHeader", true);
 		traceDomain = registerString("traceDomain", "localhost:8443");
@@ -68,14 +68,14 @@ public class DatarouterTraceFilterSettingRoot extends SettingRoot{
 		saveTraceAllocatedBytes = registerBoolean("saveTraceAllocatedBytes", true);
 		saveThreadCpuTime = registerBooleans("saveThreadCpuTime", defaultTo(true));
 		saveThreadMemoryAllocated = registerBooleans("saveThreadMemoryAllocated", defaultTo(false)
-				.withTag(DatarouterSettingTagType.TRACE2PIPELINE, () -> true));
+				.withTag(DatarouterSettingTagType.TRACE2_PIPELINE, () -> true));
 		saveSpanCpuTime = registerBooleans("saveSpanCpuTime", defaultTo(false)
-				.withTag(DatarouterSettingTagType.TRACE2PIPELINE, () -> true));
+				.withTag(DatarouterSettingTagType.TRACE2_PIPELINE, () -> true));
 		saveSpanMemoryAllocated = registerBooleans("saveSpanMemoryAllocated", defaultTo(false)
-				.withTag(DatarouterSettingTagType.TRACE2PIPELINE, () -> true));
+				.withTag(DatarouterSettingTagType.TRACE2_PIPELINE, () -> true));
 
 		randomSamplingMax = registerInteger("randomSamplingMax", 10000);
-		randomSamplingThreshold = registerInteger("randomSamplingThreshold", 0);
+		randomSamplingThreshold = registerInteger("randomSamplingThreshold", 5);
 	}
 
 }

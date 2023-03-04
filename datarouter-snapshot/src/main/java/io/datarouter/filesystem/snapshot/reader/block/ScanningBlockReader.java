@@ -15,7 +15,6 @@
  */
 package io.datarouter.filesystem.snapshot.reader.block;
 
-import java.util.concurrent.ExecutorService;
 import java.util.function.Function;
 
 import io.datarouter.filesystem.snapshot.block.BlockKey;
@@ -23,8 +22,8 @@ import io.datarouter.filesystem.snapshot.block.branch.BranchBlock;
 import io.datarouter.filesystem.snapshot.block.leaf.LeafBlock;
 import io.datarouter.filesystem.snapshot.block.root.RootBlock;
 import io.datarouter.filesystem.snapshot.key.SnapshotKey;
-import io.datarouter.scanner.ParallelScannerContext;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.scanner.Threads;
 
 /**
  * Thread-safe
@@ -38,21 +37,18 @@ import io.datarouter.scanner.Scanner;
 public class ScanningBlockReader{
 
 	private final SnapshotKey snapshotKey;
-	private final ExecutorService exec;
-	private final int numThreads;
+	private final Threads threads;
 	private final int numBlocks;
 	private final BlockLoader blockLoader;
 	private final RootBlock rootBlock;
 
 	public ScanningBlockReader(
 			SnapshotKey snapshotKey,
-			ExecutorService exec,
-			int numThreads,
+			Threads threads,
 			int numBlocks,
 			BlockLoader blockLoader){
 		this.snapshotKey = snapshotKey;
-		this.exec = exec;
-		this.numThreads = numThreads;
+		this.threads = threads;
 		this.numBlocks = numBlocks;
 		this.blockLoader = blockLoader;
 		this.rootBlock = blockLoader.root(BlockKey.root(snapshotKey));
@@ -61,7 +57,7 @@ public class ScanningBlockReader{
 	public Scanner<LeafBlock> scanLeafBlocks(long fromRecordIdInclusive){
 		return scanLeafBlockKeys(fromRecordIdInclusive)
 				.apply(leafBlockKeys -> LeafBlockRangeLoader.splitByFileAndBatch(leafBlockKeys, numBlocks))
-				.parallel(new ParallelScannerContext(exec, numThreads, false))
+				.parallelOrdered(threads)
 				.map(blockLoader::leafRange)
 				.concat(Function.identity());
 	}
@@ -71,15 +67,13 @@ public class ScanningBlockReader{
 		BranchBlock topBranchBlock = blockLoader.branch(topBranchBlockKey);
 		return scanDescendantBranchBlocks(topBranchBlock, fromRecordIdInclusive)
 				.include(branchBlock -> branchBlock.level() == 0)
-				.concat(branchBlock -> {
-					return Scanner.iterate(0, i -> i + 1)
-							.limit(branchBlock.numRecords())
-							.include(index -> branchBlock.recordId(index) >= fromRecordIdInclusive)
-							.map(branchBlock::childBlock)
-							.map(leafBlockId -> branchBlock.leafBlockKey(
-									snapshotKey,
-									leafBlockId));
-				});
+				.concat(branchBlock -> Scanner.iterate(0, i -> i + 1)
+						.limit(branchBlock.numRecords())
+						.include(index -> branchBlock.recordId(index) >= fromRecordIdInclusive)
+						.map(branchBlock::childBlock)
+						.map(leafBlockId -> branchBlock.leafBlockKey(
+								snapshotKey,
+								leafBlockId)));
 	}
 
 	private Scanner<BranchBlock> scanDescendantBranchBlocks(BranchBlock branchBlock, long fromRecordIdInclusive){
@@ -90,7 +84,7 @@ public class ScanningBlockReader{
 				.map(childBlockId -> branchBlock.childBranchBlockKey(
 						snapshotKey,
 						childBlockId))
-				.parallel(new ParallelScannerContext(exec, numThreads, false))
+				.parallelOrdered(threads)
 				.map(blockLoader::branch)
 				.include(childBranchBlock -> childBranchBlock.lastRecordId() >= fromRecordIdInclusive)
 				.concat(childBranchBlock -> scanDescendantBranchBlocks(childBranchBlock, fromRecordIdInclusive));

@@ -17,6 +17,8 @@ package io.datarouter.gcp.spanner;
 
 import javax.inject.Singleton;
 
+import io.datarouter.util.concurrent.DatarouterExecutorService;
+import io.datarouter.util.concurrent.ExecutorTool;
 import io.datarouter.util.concurrent.ScalingThreadPoolExecutor;
 
 public class SpannerExecutors{
@@ -43,10 +45,10 @@ public class SpannerExecutors{
 	 * This thread count is overridden in #SpannerClientManager
 	 */
 	@Singleton
-	public static class SpannerEventLoopGroupExecutor extends ScalingThreadPoolExecutor{
+	public static class SpannerEventLoopGroupExecutor extends DatarouterExecutorService{
 
 		public SpannerEventLoopGroupExecutor(){
-			super("spannerEventLoopGroupExecutor", 4);
+			super(ExecutorTool.createCached("spannerEventLoopGroupExecutor"));
 		}
 
 	}

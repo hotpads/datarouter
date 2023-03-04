@@ -22,13 +22,13 @@ import java.util.List;
 
 import io.datarouter.bytes.ByteTool;
 import io.datarouter.bytes.ByteWriter;
-import io.datarouter.bytes.PagedObjectArray;
 import io.datarouter.bytes.codec.bytestringcodec.CsvIntByteStringCodec;
 import io.datarouter.bytes.codec.intcodec.RawIntCodec;
 import io.datarouter.filesystem.snapshot.encode.EncodedBlock;
 import io.datarouter.filesystem.snapshot.encode.LeafBlockEncoder;
 import io.datarouter.filesystem.snapshot.entry.SnapshotEntry;
 import io.datarouter.filesystem.snapshot.writer.BlockQueue.FileIdsAndEndings;
+import io.datarouter.scanner.PagedList;
 
 public class LeafBlockV1Encoder implements LeafBlockEncoder{
 
@@ -44,7 +44,7 @@ public class LeafBlockV1Encoder implements LeafBlockEncoder{
 	private int numKeyBytes;
 	private int numValueBytes;
 	private int numBytes;
-	private final PagedObjectArray<SnapshotEntry> entries;
+	private final PagedList<SnapshotEntry> entries;
 
 	//value block references
 	private int numColumns;
@@ -62,7 +62,7 @@ public class LeafBlockV1Encoder implements LeafBlockEncoder{
 		numKeyBytes = 0;
 		numValueBytes = 0;
 		numBytes = 0;
-		entries = new PagedObjectArray<>(256);
+		entries = new PagedList<>(256);
 	}
 
 	@Override

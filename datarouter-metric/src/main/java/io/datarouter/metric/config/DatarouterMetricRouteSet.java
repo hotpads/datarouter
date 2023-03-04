@@ -32,7 +32,6 @@ public class DatarouterMetricRouteSet extends BaseRouteSet{
 
 	@Inject
 	public DatarouterMetricRouteSet(DatarouterMetricPaths paths){
-		super(paths.datarouter);
 		handle(paths.datarouter.metric.metricLinks.registeredNames).withHandler(RegisteredMetricNames.class);
 		handle(paths.datarouter.metric.metricLinks.metricDashboards).withHandler(MetricDashboardHandler.class);
 		handle(paths.datarouter.metric.metricLinks.miscMetricLinks).withHandler(MiscMetricLinksHandler.class);

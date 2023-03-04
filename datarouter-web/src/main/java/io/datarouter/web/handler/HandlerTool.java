@@ -31,7 +31,12 @@ import io.datarouter.httpclient.endpoint.web.BaseWebApi;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.lang.ClassTool;
 import io.datarouter.util.lang.ReflectionTool;
+import io.datarouter.web.dispatcher.DispatchRule;
 import io.datarouter.web.handler.BaseHandler.Handler;
+import io.datarouter.web.handler.BaseHandler.NoOpHandlerDecoder;
+import io.datarouter.web.handler.BaseHandler.NoOpHandlerEncoder;
+import io.datarouter.web.handler.encoder.HandlerEncoder;
+import io.datarouter.web.handler.types.HandlerDecoder;
 import io.datarouter.web.handler.types.optional.OptionalParameter;
 
 public class HandlerTool{
@@ -39,6 +44,9 @@ public class HandlerTool{
 	public static Optional<?> getParameterValue(Object parameterValue){
 		if(parameterValue instanceof OptionalParameter){
 			return ((OptionalParameter<?>)parameterValue).getOptional();
+		}
+		if(parameterValue instanceof Optional){
+			return (Optional<?>) parameterValue;
 		}
 		return Optional.ofNullable(parameterValue);
 	}
@@ -232,6 +240,26 @@ public class HandlerTool{
 			links.add((Class<? extends BaseLink<?>>)linkType);
 		}
 		return links;
+	}
+
+	public static Class<? extends HandlerDecoder> getHandlerDecoderClass(
+			Handler handlerAnnotation,
+			DispatchRule rule){
+		Class<? extends HandlerDecoder> decoderClass = handlerAnnotation.decoder();
+		if(decoderClass.equals(NoOpHandlerDecoder.class)){
+			decoderClass = rule.getDefaultHandlerDecoder();
+		}
+		return decoderClass;
+	}
+
+	public static Class<? extends HandlerEncoder> getHandlerEncoderClass(
+			Handler handlerAnnotation,
+			DispatchRule rule){
+		Class<? extends HandlerEncoder> encoderClass = handlerAnnotation.encoder();
+		if(encoderClass.equals(NoOpHandlerEncoder.class)){
+			encoderClass = rule.getDefaultHandlerEncoder();
+		}
+		return encoderClass;
 	}
 
 }

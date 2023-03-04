@@ -30,15 +30,20 @@ import org.testng.annotations.Test;
 import io.datarouter.bytes.ByteTool;
 import io.datarouter.bytes.EmptyArray;
 import io.datarouter.bytes.codec.longcodec.ComparableLongCodec;
+import io.datarouter.bytes.kvfile.KvFileBlock;
 import io.datarouter.bytes.kvfile.KvFileCollator;
+import io.datarouter.bytes.kvfile.KvFileCollator.KvFileCollatorPruneDeletesScanner;
 import io.datarouter.bytes.kvfile.KvFileEntry;
 import io.datarouter.bytes.kvfile.KvFileOp;
 import io.datarouter.bytes.kvfile.KvFileReader;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.scanner.Threads;
 import io.datarouter.util.number.NumberFormatter;
 
 public class KvFilePerformanceTester{
 	private static final Logger logger = LoggerFactory.getLogger(KvFilePerformanceTester.class);
+
+	private static final int ENTRIES_PER_BLOCK = 1_000;
 
 	/*--------- byte[] -------------*/
 
@@ -86,7 +91,9 @@ public class KvFilePerformanceTester{
 
 	private static byte[] makeSlab(long slabId){
 		return Scanner.of(makeList(slabId))
-				.map(KvFileEntry::bytes)
+				.batch(ENTRIES_PER_BLOCK)
+				.map(KvFileBlock::new)
+				.map(KvFileBlock::toBytes)
 				.listTo(ByteTool::concat);
 	}
 
@@ -195,18 +202,36 @@ public class KvFilePerformanceTester{
 	}
 
 	@Test
+	public void testCollateKvsV2(){
+		List<List<KvFileEntry>> lists = makeLists(20);
+		logger.warn("made lists");
+		for(int i = 0; i < 10; ++i){
+			System.gc();
+			long startMs = System.currentTimeMillis();
+			long count = Scanner.of(lists)
+					.collateV2(Scanner::of, KvFileEntry::compareKeyVersionOpOptimized)// 37mm/s
+					.link(KvFileCollatorPruneDeletesScanner::new)// 34mm/s
+					.concat(Scanner::of)
+					.count();
+			long durationMs = System.currentTimeMillis() - startMs;
+			long rps = count * 1000 / durationMs;
+			logger.warn("i={}, count={}, durationMs={}, rps={}", i, count, durationMs, NumberFormatter.addCommas(rps));
+		}
+	}
+
+	@Test
 	public void testCollateSlabs(){
 		int vcpus = Runtime.getRuntime().availableProcessors();
 		ExecutorService exec = Executors.newFixedThreadPool(vcpus);
+		var threads = new Threads(exec, Runtime.getRuntime().availableProcessors() / 2);
 		List<byte[]> slabs = makeSlabs(20);
 		logger.warn("made slabs");
 		for(int i = 0; i < 5; ++i){
 			long startMs = System.currentTimeMillis();
-			KvFileCollator merger = Scanner.of(slabs)
+			long count = Scanner.of(slabs)
 					.map(ByteArrayInputStream::new)
-					.map(KvFileReader::new)
-					.listTo(KvFileCollator::new);
-			long count = merger.mergeKeepingLatestVersion()// 13mm/s
+					.map(is -> new KvFileReader(is, threads))
+					.listTo(KvFileCollator::pruneAll)// 35mm/s
 					.count();
 			long durationMs = System.currentTimeMillis() - startMs;
 			long rps = count * 1000 / durationMs;

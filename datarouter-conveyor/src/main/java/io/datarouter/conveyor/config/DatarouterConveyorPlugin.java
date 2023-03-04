@@ -16,6 +16,8 @@
 package io.datarouter.conveyor.config;
 
 import io.datarouter.conveyor.ConveyorAppListener;
+import io.datarouter.conveyor.ConveyorConfigurationGroup;
+import io.datarouter.conveyor.trace.conveyor.ConveyorTraceConveyorConfigurationGroup;
 import io.datarouter.web.config.BaseWebPlugin;
 import io.datarouter.web.navigation.DatarouterNavBarCategory;
 
@@ -29,6 +31,7 @@ public class DatarouterConveyorPlugin extends BaseWebPlugin{
 				new DatarouterConveyorPaths().datarouter.conveyors.list,
 				"Conveyors");
 		addSettingRoot(DatarouterConveyorSettingRoot.class);
+		addPluginEntry(ConveyorConfigurationGroup.KEY, ConveyorTraceConveyorConfigurationGroup.class);
 	}
 
 }

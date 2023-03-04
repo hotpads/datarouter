@@ -51,8 +51,8 @@ import io.datarouter.filesystem.snapshot.reader.record.SnapshotLeafRecord;
 import io.datarouter.filesystem.snapshot.reader.record.SnapshotRecord;
 import io.datarouter.filesystem.snapshot.writer.SnapshotWriterConfig;
 import io.datarouter.filesystem.snapshot.writer.SnapshotWriterConfigBuilder;
-import io.datarouter.scanner.ParallelScannerContext;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.scanner.Threads;
 import io.datarouter.util.Require;
 import io.datarouter.util.collection.ListTool;
 import io.datarouter.util.number.NumberFormatter;
@@ -180,8 +180,8 @@ public abstract class BaseSnapshotTests{
 	@AfterClass
 	public void afterClass(){
 		if(shouldCleanup()){
-			getGroup().deleteOps().deleteSnapshot(snapshotKey, exec, getNumThreads());
-			getGroup().deleteOps().deleteGroup(exec, getNumThreads());
+			getGroup().deleteOps().deleteSnapshot(snapshotKey, new Threads(exec, getNumThreads()));
+			getGroup().deleteOps().deleteGroup(new Threads(exec, getNumThreads()));
 		}
 	}
 
@@ -203,7 +203,11 @@ public abstract class BaseSnapshotTests{
 			return;
 		}
 		BlockLoader blockLoader = makeBlockLoader(useMemoryCache(), shareMemoryCache());
-		var reader = new ScanningSnapshotReader(snapshotKey, exec, getNumThreads(), blockLoader, SCAN_NUM_BLOCKS);
+		var reader = new ScanningSnapshotReader(
+				snapshotKey,
+				new Threads(exec, getNumThreads()),
+				blockLoader,
+				SCAN_NUM_BLOCKS);
 		List<SnapshotLeafRecord> actuals = reader.scanLeafRecords(0).list();
 		Assert.assertEquals(actuals.size(), sortedInputs.size());
 		for(int i = 0; i < sortedInputs.size(); ++i){
@@ -219,7 +223,11 @@ public abstract class BaseSnapshotTests{
 			return;
 		}
 		BlockLoader blockLoader = makeBlockLoader(useMemoryCache(), shareMemoryCache());
-		var reader = new ScanningSnapshotReader(snapshotKey, exec, getNumThreads(), blockLoader, SCAN_NUM_BLOCKS);
+		var reader = new ScanningSnapshotReader(
+				snapshotKey,
+				new Threads(exec, getNumThreads()),
+				blockLoader,
+				SCAN_NUM_BLOCKS);
 		List<byte[]> actuals = reader.scanKeys().list();
 		Assert.assertEquals(actuals.size(), sortedInputs.size());
 		for(int i = 0; i < sortedInputs.size(); ++i){
@@ -234,7 +242,11 @@ public abstract class BaseSnapshotTests{
 			return;
 		}
 		BlockLoader blockLoader = makeBlockLoader(useMemoryCache(), shareMemoryCache());
-		var reader = new ScanningSnapshotReader(snapshotKey, exec, getNumThreads(), blockLoader, SCAN_NUM_BLOCKS);
+		var reader = new ScanningSnapshotReader(
+				snapshotKey,
+				new Threads(exec, getNumThreads()),
+				blockLoader,
+				SCAN_NUM_BLOCKS);
 		List<byte[]> actuals = reader.scanValues().list();
 		Assert.assertEquals(actuals.size(), sortedInputs.size());
 		for(int i = 0; i < sortedInputs.size(); ++i){
@@ -249,7 +261,11 @@ public abstract class BaseSnapshotTests{
 			return;
 		}
 		BlockLoader blockLoader = makeBlockLoader(useMemoryCache(), shareMemoryCache());
-		var reader = new ScanningSnapshotReader(snapshotKey, exec, getNumThreads(), blockLoader, SCAN_NUM_BLOCKS);
+		var reader = new ScanningSnapshotReader(
+				snapshotKey,
+				new Threads(exec, getNumThreads()),
+				blockLoader,
+				SCAN_NUM_BLOCKS);
 		IntStream.range(0, NUM_COLUMNS).forEach(column -> {
 			List<byte[]> actuals = reader.scanColumnValues(column).list();
 			Assert.assertEquals(actuals.size(), sortedInputs.size());
@@ -272,7 +288,11 @@ public abstract class BaseSnapshotTests{
 			return;
 		}
 		BlockLoader blockLoader = makeBlockLoader(useMemoryCache(), shareMemoryCache());
-		var reader = new ScanningSnapshotReader(snapshotKey, exec, getNumThreads(), blockLoader, SCAN_NUM_BLOCKS);
+		var reader = new ScanningSnapshotReader(
+				snapshotKey,
+				new Threads(exec, getNumThreads()),
+				blockLoader,
+				SCAN_NUM_BLOCKS);
 		List<SnapshotRecord> outputs = reader.scan(0).list();
 		Assert.assertEquals(outputs.size(), sortedInputs.size());
 		for(int i = 0; i < sortedInputs.size(); ++i){
@@ -297,12 +317,16 @@ public abstract class BaseSnapshotTests{
 			return;
 		}
 		BlockLoader blockLoader = makeBlockLoader(useMemoryCache(), shareMemoryCache());
-		var reader = new ScanningSnapshotReader(snapshotKey, exec, getNumThreads(), blockLoader, SCAN_NUM_BLOCKS);
+		var reader = new ScanningSnapshotReader(
+				snapshotKey,
+				new Threads(exec, getNumThreads()),
+				blockLoader,
+				SCAN_NUM_BLOCKS);
 		int step = 1000;
 		int limit = 1000;
 		Scanner.iterate(0, fromId -> fromId += step)
 				.advanceWhile(fromId -> fromId < sortedInputs.size() - limit)
-				.parallel(new ParallelScannerContext(scanExec, getNumThreads(), true))
+				.parallelUnordered(new Threads(scanExec, getNumThreads()))
 				.forEach(fromId -> {
 					var timer = new PhaseTimer(fromId + "");
 					List<SnapshotRecord> outputs = reader.scan(fromId)
@@ -335,12 +359,16 @@ public abstract class BaseSnapshotTests{
 			return;
 		}
 		BlockLoader blockLoader = makeBlockLoader(useMemoryCache(), shareMemoryCache());
-		var reader = new ScanningSnapshotReader(snapshotKey, exec, getNumThreads(), blockLoader, SCAN_NUM_BLOCKS);
+		var reader = new ScanningSnapshotReader(
+				snapshotKey,
+				new Threads(exec, getNumThreads()),
+				blockLoader,
+				SCAN_NUM_BLOCKS);
 		int step = 1000;
 		int limit = 1000;
 		Scanner.iterate(0, fromId -> fromId += step)
 				.advanceWhile(fromId -> fromId < sortedInputs.size() - limit)
-				.parallel(new ParallelScannerContext(scanExec, getNumThreads(), true))
+				.parallelUnordered(new Threads(scanExec, getNumThreads()))
 				.forEach(fromId -> {
 					var idReader = new SnapshotIdReader(snapshotKey, blockLoader);
 
@@ -611,11 +639,11 @@ public abstract class BaseSnapshotTests{
 			Operation operation){
 		List<Input> searchKeys = random ? randomInputs : sortedInputs;
 		int batchSize = 10_000;
-		var parallelScannerContext = new ParallelScannerContext(exec, getNumThreads(), true, multiThreaded);
+		var threads = new Threads(exec, getNumThreads());
 		var count = new AtomicLong();
 		Scanner.of(searchKeys)
 				.batch(batchSize)
-				.parallel(parallelScannerContext)
+				.parallelUnordered(threads, multiThreaded)
 				.forEach(batch -> {
 					var idReader = new SnapshotIdReader(snapshotKey, threadSafeBlockLoader);
 					var keyReader = new SnapshotKeyReader(snapshotKey, threadSafeBlockLoader);

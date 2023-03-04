@@ -15,13 +15,15 @@
  */
 package io.datarouter.web.monitoring.latency;
 
+import java.util.concurrent.Callable;
+
 import io.datarouter.storage.client.ClientId;
 
 public class DatarouterClientLatencyCheck extends LatencyCheck{
 
 	private final ClientId clientId;
 
-	public DatarouterClientLatencyCheck(String name, Runnable check, ClientId clientId){
+	public DatarouterClientLatencyCheck(String name, Callable<String> check, ClientId clientId){
 		super(name, check);
 		this.clientId = clientId;
 	}

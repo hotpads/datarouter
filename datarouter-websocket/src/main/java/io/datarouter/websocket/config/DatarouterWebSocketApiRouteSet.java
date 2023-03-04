@@ -36,7 +36,6 @@ public class DatarouterWebSocketApiRouteSet extends BaseRouteSet{
 
 	@Inject
 	public DatarouterWebSocketApiRouteSet(DatarouterWebSocketPaths paths, PushServiceSettingsSupplier settings){
-		super("");
 
 		handle(paths.websocketCommand.isAlive)
 				.withHandler(WebSocketApiHandler.class)

@@ -31,7 +31,6 @@ public class DatarouterWebappInstanceRouteSet extends BaseRouteSet{
 
 	@Inject
 	public DatarouterWebappInstanceRouteSet(DatarouterWebappInstancePaths paths){
-		super(paths.datarouter);
 		handleDir(paths.datarouter.webappInstances).withHandler(WebappInstanceHandler.class);
 		handle(paths.datarouter.webappInstanceLog).withHandler(WebappInstanceLogHandler.class);
 		handle(paths.datarouter.webappInstanceServers).withHandler(WebappInstanceServersHandler.class);

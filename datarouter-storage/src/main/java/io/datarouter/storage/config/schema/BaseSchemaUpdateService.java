@@ -56,7 +56,7 @@ public abstract class BaseSchemaUpdateService{
 
 	private final ServerName serverName;
 	private final EnvironmentName environmentName;
-	private final AdminEmail adminEmail;
+	protected final AdminEmail adminEmail;
 	private final DatarouterSchemaUpdateScheduler executor;
 	private final Provider<DatarouterClusterSchemaUpdateLockDao> schemaUpdateLockDao;
 	private final Provider<ChangelogRecorder> changelogRecorder;
@@ -151,9 +151,10 @@ public abstract class BaseSchemaUpdateService{
 			return;
 		}
 		printedSchemaUpdates.forEach((clientId, ddlList) -> {
-			String blocking = isBlocking ? " - Blocking " : " ";
-			String subject = "SchemaUpdate Request" + blocking + "on " + clientId.getName() + " from "
-					+ environmentName.get();
+			String subject = clientId.getName()
+					+ " - " + environmentName.get()
+					+ (isBlocking ? " - blocking" : "")
+					+ " - schema update";
 			StringBuilder allStatements = new StringBuilder();
 			ddlList.forEach(ddl -> allStatements.append(ddl).append("\n\n"));
 			logger.warn("Sending schema update email for client={}", clientId.getName());

@@ -18,12 +18,12 @@ package io.datarouter.bytes.split.collect;
 import java.util.Arrays;
 import java.util.List;
 
-import io.datarouter.bytes.PagedObjectArray;
 import io.datarouter.bytes.split.ByteChunkSplitterCollector;
+import io.datarouter.scanner.PagedList;
 
 public class ByteArrayByteChunkCollector implements ByteChunkSplitterCollector<byte[]>{
 
-	private final PagedObjectArray<byte[]> results = new PagedObjectArray<>(64);
+	private final PagedList<byte[]> results = new PagedList<>(64);
 
 	@Override
 	public byte[] encode(byte[] bytes, int start, int length){

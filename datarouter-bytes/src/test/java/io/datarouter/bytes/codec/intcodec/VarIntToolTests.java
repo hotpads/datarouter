@@ -264,7 +264,6 @@ public class VarIntToolTests{
 				IllegalArgumentException.class,
 				() -> VarIntTool.decodeInt(bytes));
 		Assert.assertEquals(exception.getMessage(), VarIntTool.ERROR_MESSAGE_INTEGER_OVERFLOW);
-
 	}
 
 }

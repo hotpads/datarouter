@@ -21,7 +21,7 @@
 
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-modules</artifactId>
-	<version>0.0.118</version>
+	<version>0.0.119</version>
 	<packaging>pom</packaging>
 
 	<modules>
@@ -41,11 +41,13 @@
 		<module>datarouter-cluster-setting</module>
 		<module>datarouter-conveyor</module>
 		<module>datarouter-copy-table</module>
+		<module>datarouter-data-export</module>
 		<module>datarouter-email</module>
 		<module>datarouter-enum</module>
 		<module>datarouter-exception</module>
 		<module>datarouter-filesystem</module>
 		<module>datarouter-gcp-bigtable-hbase</module>
+		<module>datarouter-gcp-pubsub</module>
 		<module>datarouter-gcp-spanner</module>
 		<module>datarouter-gson</module>
 		<module>datarouter-hbase</module>
@@ -59,6 +61,7 @@
 		<module>datarouter-logger-config</module>
 		<module>datarouter-logging</module>
 		<module>datarouter-memcached</module>
+		<module>datarouter-memory</module>
 		<module>datarouter-metadata-parent</module>
 		<module>datarouter-metric</module>
 		<module>datarouter-mockito</module>

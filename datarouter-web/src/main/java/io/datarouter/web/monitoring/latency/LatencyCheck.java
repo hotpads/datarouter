@@ -15,12 +15,14 @@
  */
 package io.datarouter.web.monitoring.latency;
 
+import java.util.concurrent.Callable;
+
 public class LatencyCheck{
 
 	public final String name;
-	public final Runnable check;
+	public final Callable<String> check;
 
-	public LatencyCheck(String name, Runnable check){
+	public LatencyCheck(String name, Callable<String> check){
 		this.name = name;
 		this.check = check;
 	}

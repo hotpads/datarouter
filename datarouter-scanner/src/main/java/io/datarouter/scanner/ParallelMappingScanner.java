@@ -35,17 +35,16 @@ public class ParallelMappingScanner<T,R> extends BaseScanner<R>{
 
 	public ParallelMappingScanner(
 			Scanner<T> input,
+			Threads threads,
 			boolean allowUnorderedResults,
-			ExecutorService executor,
-			int numThreads,
 			Function<? super T,? extends R> mapper){
 		this.input = input;
 		this.mapper = mapper;
+		this.executor = threads.exec();
 		this.allowUnorderedResults = allowUnorderedResults;
-		this.executor = executor;
 		this.runningFutures = new LinkedHashSet<>();
 		this.completionService = allowUnorderedResults ? new ExecutorCompletionService<>(executor) : null;
-		submitCallables(numThreads);
+		submitCallables(threads.count());
 	}
 
 	@Override

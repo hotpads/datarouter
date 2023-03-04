@@ -39,7 +39,7 @@ public class DatarouterGaugeSettingRoot extends SettingRoot{
 		super(finder, DatarouterSettingCategory.DATAROUTER, "datarouterGauge.");
 
 		saveGaugesToMemory = registerBooleans("saveGaugesToMemory", defaultTo(false)
-				.withTag(DatarouterSettingTagType.GAUGEPIPELINE, () -> true));
+				.withTag(DatarouterSettingTagType.GAUGE_PIPELINE, () -> true));
 		recordGaugeMemoryToPublisherGauges = registerBoolean("recordGaugeMemoryToPublisherGauges", true);
 
 		saveToQueueInsteadOfDirectory = registerBoolean(

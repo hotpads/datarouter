@@ -29,11 +29,11 @@ public class TableProcessorRegistry{
 	@Inject
 	private PluginInjector pluginInjector;
 
-	public Scanner<TableProcessor<?,?>> scan(){
+	public Scanner<TableProcessor<?>> scan(){
 		return pluginInjector.scanInstances(TableProcessor.KEY);
 	}
 
-	public Optional<TableProcessor<?,?>> find(String processorName){
+	public Optional<TableProcessor<?>> find(String processorName){
 		return scan()
 				.include(processor -> processor.getClass().getSimpleName().equals(processorName))
 				.findFirst();

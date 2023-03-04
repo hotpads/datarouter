@@ -46,7 +46,9 @@ public class DatarouterTableCountDao extends BaseDao{
 	private final SortedMapStorageNode<TableCountKey,TableCount,TableCountFielder> node;
 
 	@Inject
-	public DatarouterTableCountDao(Datarouter datarouter, NodeFactory nodeFactory,
+	public DatarouterTableCountDao(
+			Datarouter datarouter,
+			NodeFactory nodeFactory,
 			DatarouterTableCountDaoParams params){
 		super(datarouter);
 		node = Scanner.of(params.clientIds)
@@ -62,10 +64,9 @@ public class DatarouterTableCountDao extends BaseDao{
 	}
 
 	//currently not depending on table sort order
-	public List<TableCount> getForTable(String clientName, String tableName){
+	public Scanner<TableCount> scanForTable(String clientName, String tableName){
 		var prefix = TableCountKey.createClientTableKey(clientName, tableName);
-		return node.scanWithPrefix(prefix)
-				.list();
+		return node.scanWithPrefix(prefix);
 	}
 
 	public Scanner<TableCount> scan(){

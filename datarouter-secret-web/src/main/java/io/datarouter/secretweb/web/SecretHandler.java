@@ -54,8 +54,6 @@ public class SecretHandler extends BaseHandler{
 	@Inject
 	private DatarouterSecretPaths paths;
 	@Inject
-	private SecretHandlerPermissions permissions;
-	@Inject
 	private SecretJsonSerializer jsonSerializer;
 	@Inject
 	private SecretService secretService;
@@ -87,16 +85,14 @@ public class SecretHandler extends BaseHandler{
 				.map(SecretClientSupplierConfig::getConfigName)
 				.list();
 		return new SecretClientSupplierConfigsDto(orderedConfigs, Scanner.of(secretClientSupplierConfigs)
-				.map(config -> {
-					return new SecretClientSupplierConfigDto(
-							config.getConfigName(),
-							config.getSecretClientSupplierClass().getSimpleName(),
-							buildAllowedOps(config.getAllowedOps()),
-							config.getAllowedNames()
-									.map(Scanner::of)
-									.map(Scanner::toMap)
-									.orElseGet(Map::of));
-				}).toMap(dto -> dto.configName));
+				.map(config -> new SecretClientSupplierConfigDto(
+						config.getConfigName(),
+						config.getSecretClientSupplierClass().getSimpleName(),
+						buildAllowedOps(config.getAllowedOps()),
+						config.getAllowedNames()
+								.map(Scanner::of)
+								.map(Scanner::toMap)
+								.orElseGet(Map::of))).toMap(dto -> dto.configName));
 	}
 
 	@Handler
@@ -164,9 +160,6 @@ public class SecretHandler extends BaseHandler{
 		default:
 			return SecretHandlerOpResultDto.error("Unknown op.");
 		}
-		if(!permissions.isAuthorized(getSessionInfo().getRequiredSession(), requestDto)){
-			return SecretHandlerOpResultDto.denied("Permission denied for " + requestDto.op + " op.");
-		}
 		return null;
 	}
 
@@ -218,14 +211,16 @@ public class SecretHandler extends BaseHandler{
 				config = SecretOpConfig.builder(opReason)
 						.useTargetSecretClientConfig(configName)
 						.build();
-				List<String> appNames = secretService.listSecretNames(Optional.empty(), config);
-				appNames.sort(String.CASE_INSENSITIVE_ORDER);
+				List<String> appNames = Scanner.of(secretService.listSecretNames(Optional.empty(), config))
+						.sort(String.CASE_INSENSITIVE_ORDER)
+						.list();
 				config = SecretOpConfig.builder(opReason)
 						.useSharedNamespace()
 						.useTargetSecretClientConfig(configName)
 						.build();
-				List<String> sharedNames = secretService.listSecretNames(Optional.empty(), config);
-				sharedNames.sort(String.CASE_INSENSITIVE_ORDER);
+				List<String> sharedNames = Scanner.of(secretService.listSecretNames(Optional.empty(), config))
+						.sort(String.CASE_INSENSITIVE_ORDER)
+						.list();
 				return SecretHandlerOpResultDto.list(appNames, sharedNames);
 			default:
 				return SecretHandlerOpResultDto.error("Unknown op.");

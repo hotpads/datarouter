@@ -18,15 +18,17 @@ package io.datarouter.aws.s3.node;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ExecutorService;
 
 import io.datarouter.aws.s3.DatarouterS3Client;
-import io.datarouter.aws.s3.S3Headers;
 import io.datarouter.aws.s3.S3Headers.ContentType;
+import io.datarouter.bytes.ByteLength;
+import io.datarouter.bytes.InputStreamAndLength;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.scanner.Threads;
+import io.datarouter.storage.file.BucketAndKey;
+import io.datarouter.storage.file.BucketAndPrefix;
 import io.datarouter.storage.util.Subpath;
 import io.datarouter.util.Require;
-import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
 import software.amazon.awssdk.services.s3.model.S3Object;
 
 public class S3DirectoryManager{
@@ -70,32 +72,33 @@ public class S3DirectoryManager{
 	/*-------------- read ------------------*/
 
 	public boolean exists(String suffix){
-		String fullPath = fullPath(suffix);
-		return client.exists(bucket, fullPath);
+		var location = new BucketAndKey(bucket, fullPath(suffix));
+		return client.exists(location);
 	}
 
 	public Optional<Long> length(String suffix){
-		String fullPath = fullPath(suffix);
-		return client.length(bucket, fullPath);
+		var location = new BucketAndKey(bucket, fullPath(suffix));
+		return client.length(location);
 	}
 
 	public byte[] read(String suffix){
-		String fullPath = fullPath(suffix);
-		return client.getObjectAsBytes(bucket, fullPath);
+		var location = new BucketAndKey(bucket, fullPath(suffix));
+		return client.getObjectAsBytes(location);
 	}
 
 	public byte[] read(String suffix, long offset, int length){
-		String fullPath = fullPath(suffix);
-		return client.getPartialObject(bucket, fullPath, offset, length);
+		var location = new BucketAndKey(bucket, fullPath(suffix));
+		return client.getPartialObject(location, offset, length);
 	}
 
 	public InputStream readInputStream(String suffix){
-		return client.getObject(bucket, fullPath(suffix));
+		var location = new BucketAndKey(bucket, fullPath(suffix));
+		return client.getInputStream(location);
 	}
 
 	public Long size(String suffix){
-		String fullPath = fullPath(suffix);
-		return client.scanObjects(bucket, fullPath)
+		var locationPrefix = new BucketAndPrefix(bucket, fullPath(suffix));
+		return client.scan(locationPrefix)
 				.findFirst()
 				.map(S3Object::size)
 				.orElse(null);
@@ -104,11 +107,13 @@ public class S3DirectoryManager{
 	/*-------------- scan -----------------*/
 
 	public Scanner<List<S3Object>> scanS3ObjectsPaged(Subpath subpath){
-		return client.scanObjectsPaged(bucket, rootPath.append(subpath).toString());
+		var location = new BucketAndPrefix(bucket, rootPath.append(subpath).toString());
+		return client.scanPaged(location);
 	}
 
 	public Scanner<List<String>> scanKeysPaged(Subpath subpath){
-		return client.scanObjectsPaged(bucket, rootPath.append(subpath).toString())
+		var location = new BucketAndPrefix(bucket, rootPath.append(subpath).toString());
+		return client.scanPaged(location)
 				.map(page -> Scanner.of(page)
 						.map(S3Object::key)
 						.map(this::relativePath)
@@ -118,35 +123,40 @@ public class S3DirectoryManager{
 	/*------------ write -----------*/
 
 	public void write(String suffix, byte[] content){
-		String fullPath = fullPath(suffix);
-		client.putObjectAsBytes(
-				bucket,
-				fullPath,
+		var location = new BucketAndKey(bucket, fullPath(suffix));
+		client.putObject(
+				location,
 				ContentType.BINARY,
-				S3Headers.CACHE_CONTROL_NO_CACHE,
-				ObjectCannedACL.PRIVATE,
 				content);
 	}
 
 	public void multipartUpload(String suffix, InputStream inputStream){
-		String fullPath = fullPath(suffix);
-		client.multipartUpload(bucket, fullPath, ContentType.BINARY, inputStream);
+		var location = new BucketAndKey(bucket, fullPath(suffix));
+		client.multipartUpload(location, ContentType.BINARY, inputStream);
 	}
 
 	public void multiThreadUpload(
 			String suffix,
 			InputStream inputStream,
-			ExecutorService exec,
-			int numThreads){
-		String fullPath = fullPath(suffix);
-		client.multiThreadUpload(bucket, fullPath, ContentType.BINARY, inputStream, exec, numThreads);
+			Threads threads,
+			ByteLength minPartSize){
+		var location = new BucketAndKey(bucket, fullPath(suffix));
+		client.multithreadUpload(location, ContentType.BINARY, inputStream, threads, minPartSize);
+	}
+
+	public void multiThreadUpload(
+			String suffix,
+			Scanner<InputStreamAndLength> parts,
+			Threads threads){
+		var location = new BucketAndKey(bucket, fullPath(suffix));
+		client.multithreadUpload(location, ContentType.BINARY, parts, threads);
 	}
 
 	/*------------ delete -------------*/
 
 	public void delete(String suffix){
-		String fullPath = fullPath(suffix);
-		client.deleteObject(bucket, fullPath);
+		var location = new BucketAndKey(bucket, fullPath(suffix));
+		client.delete(location);
 	}
 
 }

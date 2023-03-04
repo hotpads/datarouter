@@ -143,12 +143,11 @@ public class DatarouterAccountCredentialService{
 					.include(accountKey -> accountKey.apiKey.startsWith(prefix) && accountKey.apiKey.endsWith(suffix))
 					.map(accountKey -> new AccountLookupDto(accountKey.accountName, accountKey.secretName))
 					.list();
-		}else{
-			return findAccountKeyApiKeyAuth(apiKey, false)
-					.map(accountKey -> new AccountLookupDto(accountKey.accountName, accountKey.secretName))
-					.map(List::of)
-					.orElseGet(List::of);
 		}
+		return findAccountKeyApiKeyAuth(apiKey, false)
+				.map(accountKey -> new AccountLookupDto(accountKey.accountName, accountKey.secretName))
+				.map(List::of)
+				.orElseGet(List::of);
 	}
 
 	public DatarouterAccountCredentialStatusDto getCredentialStatusDto(HttpServletRequest request){
@@ -164,16 +163,15 @@ public class DatarouterAccountCredentialService{
 					shouldRotate(accountKey.accountName, credential.getCreatedInstant()),
 					null,
 					null);
-		}else{
-			var credential = datarouterAccountCredentialDao.get(new DatarouterAccountCredentialKey(apiKey));
-			return new DatarouterAccountCredentialStatusDto(
-					accountKey.accountName,
-					null,//TODO figure out secure identifier for non-secret credentials
-					credential.getCreatedInstant(),
-					shouldRotate(accountKey.accountName, credential.getCreatedInstant()),
-					null,
-					null);
 		}
+		var credential = datarouterAccountCredentialDao.get(new DatarouterAccountCredentialKey(apiKey));
+		return new DatarouterAccountCredentialStatusDto(
+				accountKey.accountName,
+				null,//TODO figure out secure identifier for non-secret credentials
+				credential.getCreatedInstant(),
+				shouldRotate(accountKey.accountName, credential.getCreatedInstant()),
+				null,
+				null);
 
 	}
 
@@ -296,7 +294,7 @@ public class DatarouterAccountCredentialService{
 	public Map<String,List<AccountCredentialDto>> getCredentialsByAccountName(Set<String> accountNames, ZoneId zoneId){
 		return datarouterAccountCredentialDao.scanByAccountNames(accountNames)
 				.map(credential -> new AccountCredentialDto(credential, zoneId))
-				.groupBy(credential -> credential.accountName);
+				.groupBy(AccountCredentialDto::accountName);
 	}
 
 	public Map<String,List<SecretCredentialDto>> getSecretCredentialsByAccountName(Set<String> accountNames,

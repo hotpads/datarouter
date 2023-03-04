@@ -213,17 +213,17 @@ public class ClusterSettingService{
 		// get all db setting overrides with name
 		List<ClusterSetting> databeanSettings = clusterSettingFinder.getAllSettingsWithName(memorySetting.getName());
 		// filter for settings that apply only for current webapp instance
-		List<ClusterSetting> appliesToWebappInstance = ClusterSettingComparisonTool
-				.appliesToWebappInstance(databeanSettings, webappInstance);
+		List<ClusterSetting> appliesToWebappInstance = ClusterSettingComparisonTool.appliesToWebappInstance(
+				databeanSettings, webappInstance);
 		// do not check for redundancy if setting does not apply to current webapp instance
 		if(!appliesToWebappInstance.contains(databeanSetting)){
 			return false;
 		}
-		// necessary sort
-		appliesToWebappInstance.sort(new ClusterSettingScopeComparator().reversed());
 
 		// check if all settings in the chain have the same value, up to the current databean setting
 		boolean allMatch = Scanner.of(appliesToWebappInstance)
+				// necessary sort
+				.sort(new ClusterSettingScopeComparator().reversed())
 				.advanceUntil(setting -> ClusterSettingComparisonTool.equal(databeanSetting, setting))
 				.allMatch(setting -> setting.getValue().equals(databeanSetting.getValue()));
 

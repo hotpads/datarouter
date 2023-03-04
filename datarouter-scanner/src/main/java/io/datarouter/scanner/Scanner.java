@@ -16,6 +16,7 @@
 package io.datarouter.scanner;
 
 import java.io.Closeable;
+import java.time.Duration;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -340,8 +341,20 @@ public interface Scanner<T> extends Closeable{
 
 	/*----------------------------- Multi-Threaded --------------------------------*/
 
-	default ParallelScanner<T> parallel(ParallelScannerContext context){
-		return new ParallelScanner<>(context, this);
+	default ParallelScanner<T> parallelOrdered(Threads threads){
+		return new ParallelScanner<>(this, threads, false, true);
+	}
+
+	default ParallelScanner<T> parallelOrdered(Threads threads, boolean enabled){
+		return new ParallelScanner<>(this, threads, false, enabled);
+	}
+
+	default ParallelScanner<T> parallelUnordered(Threads threads){
+		return new ParallelScanner<>(this, threads, true, true);
+	}
+
+	default ParallelScanner<T> parallelUnordered(Threads threads, boolean enabled){
+		return new ParallelScanner<>(this, threads, true, enabled);
 	}
 
 	@SuppressWarnings("resource")
@@ -368,6 +381,14 @@ public interface Scanner<T> extends Closeable{
 
 	default Scanner<List<T>> batch(int batchSize){
 		return new BatchingScanner<>(this, batchSize);
+	}
+
+	/**
+	 * Return a new List of T when the sum of extracted sizes matches or exceeds the minSize.
+	 * The value returned by each sizeExtractor will be rounded down to the nearest long value.
+	 */
+	default Scanner<List<T>> batchByMinSize(long minSize, Function<T,Number> sizeExtractor){
+		return new BatchByMinSizeScanner<>(this, minSize, sizeExtractor);
 	}
 
 	/**
@@ -429,6 +450,21 @@ public interface Scanner<T> extends Closeable{
 	}
 
 	/**
+	 * Calls Consumer::accept on every Nth item.
+	 */
+	default Scanner<T> periodic(long period, Consumer<? super T> consumer){
+		return new CountingPeriodicScanner<>(this, period, consumer);
+	}
+
+	/**
+	 * Calls Consumer::accept on after the period has passed since the last call.
+	 * For emitting periodic events during a long-running Scanner.
+	 */
+	default Scanner<T> periodic(Duration period, Consumer<? super T> consumer){
+		return new TimingPeriodicScanner<>(this, period, consumer);
+	}
+
+	/**
 	 * For retaining a window of N previous items.
 	 *
 	 * @param retaining  The number of extra items to retain, in addition to the Scanner's default of zero.
@@ -475,6 +511,10 @@ public interface Scanner<T> extends Closeable{
 	 */
 	default <R> Scanner<Scanner<T>> splitBy(Function<T,R> mapper){
 		return new SplittingScanner<>(this, mapper, Objects::equals);
+	}
+
+	default Scanner<T> timeNanos(Consumer<Long> nanosConsumer){
+		return new TimeNanosScanner<>(this, nanosConsumer);
 	}
 
 	/*--------------------------- Reducing ops ----------------------------*/

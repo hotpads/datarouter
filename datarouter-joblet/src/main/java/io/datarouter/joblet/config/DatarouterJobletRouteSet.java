@@ -35,7 +35,6 @@ public class DatarouterJobletRouteSet extends BaseRouteSet{
 
 	@Inject
 	public DatarouterJobletRouteSet(DatarouterJobletPaths paths){
-		super(paths.datarouter.joblets);
 		handle(paths.datarouter.joblets.copyJobletRequestsToQueues).withHandler(JobletUpdateHandler.class);
 		handle(paths.datarouter.joblets.createSleepingJoblets).withHandler(SleepingJobletHandler.class);
 		handle(paths.datarouter.joblets.deleteGroup).withHandler(JobletUpdateHandler.class);

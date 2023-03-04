@@ -32,6 +32,7 @@ import io.datarouter.filesystem.snapshot.reader.ScanningSnapshotReader;
 import io.datarouter.filesystem.snapshot.reader.record.SnapshotLeafRecord;
 import io.datarouter.filesystem.snapshot.writer.SnapshotWriterConfig;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.scanner.Threads;
 
 /**
  * Merge snapshots in the mergeGroup until there are fewer than the mergeFactor, then merge the remaining into
@@ -61,7 +62,7 @@ public class SnapshotMerger{
 
 	public void merge(){
 		Map<SnapshotKey,SnapshotKeyAndNumRecords> summaryByKey = params.mergeGroup.keyReadOps(false)
-				.scanSnapshotKeysAndRootBlocks(params.readExec, 10)
+				.scanSnapshotKeysAndRootBlocks(new Threads(params.readExec, 10))
 				.map(SnapshotKeyAndNumRecords::new)
 				.toMap(SnapshotKeyAndNumRecords::key);
 		while(summaryByKey.size() > 1){
@@ -91,8 +92,7 @@ public class SnapshotMerger{
 		SnapshotWriteResult result = Scanner.of(keys)
 				.map(key -> new ScanningSnapshotReader(
 						key,
-						params.readExec,
-						params.prefetchThreads,
+						new Threads(params.readExec, params.prefetchThreads),
 						params.mergeGroup,
 						params.prefetchBlocks))
 				.collate(reader -> reader.scanLeafRecords(0), SnapshotLeafRecord.KEY_COMPARATOR)
@@ -104,7 +104,7 @@ public class SnapshotMerger{
 						batches,
 						params.writeExec,
 						params.shouldStop));
-		keys.forEach(key -> params.mergeGroup.deleteOps().deleteSnapshot(key, params.writeExec, 10));
+		keys.forEach(key -> params.mergeGroup.deleteOps().deleteSnapshot(key, new Threads(params.writeExec, 10)));
 		logger.warn("combined {}, {}", keys.size(), keys);
 		return result;
 	}

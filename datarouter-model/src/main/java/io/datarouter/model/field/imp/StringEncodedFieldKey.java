@@ -91,6 +91,18 @@ public class StringEncodedFieldKey<T> extends BaseFieldKey<T,StringEncodedFieldK
 				attributes);
 	}
 
+	public StringEncodedFieldKey<T> withDefaultValue(T defaultValueOverride){
+		return new StringEncodedFieldKey<>(
+				name,
+				codec,
+				columnName,
+				nullable,
+				fieldGeneratorType,
+				defaultValueOverride,
+				size,
+				attributes);
+	}
+
 	@Override
 	public boolean isFixedLength(){
 		return false;

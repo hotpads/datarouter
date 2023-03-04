@@ -36,7 +36,6 @@ import io.datarouter.util.tuple.Range;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.types.Param;
-import io.datarouter.web.handler.types.optional.OptionalString;
 import io.datarouter.web.html.form.HtmlForm;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
@@ -63,9 +62,9 @@ public class ViewChangelogForDateRangeHandler extends BaseHandler{
 
 	@Handler(defaultHandler = true)
 	public Mav viewForDateRange(
-			@Param(P_reversedDateMs_exact) OptionalString dateExact,
-			@Param(P_reversedDateMs_start) OptionalString dateStart,
-			@Param(P_reversedDateMs_end) OptionalString dateEnd){
+			@Param(P_reversedDateMs_exact) Optional<String> dateExact,
+			@Param(P_reversedDateMs_start) Optional<String> dateStart,
+			@Param(P_reversedDateMs_end) Optional<String> dateEnd){
 		var formExact = new HtmlForm();
 		formExact.addDateField()
 				.withDisplay("Exact Date")

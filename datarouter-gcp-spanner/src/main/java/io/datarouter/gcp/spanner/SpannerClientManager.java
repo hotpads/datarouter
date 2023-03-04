@@ -105,7 +105,7 @@ public class SpannerClientManager extends BaseClientManager{
 
 		int maxSessions = spannerClientOptions.maxSessions(clientId.getName());
 		int numChannels = spannerClientOptions.numChannels(clientId.getName());
-		spannerEventLoopGroupExecutor.setMaximumPoolSize(numChannels * THREAD_COUNT_PER_EVENT_LOOP);
+		logger.warn("spannerSessionPool maxSessions={} numChannels={}", maxSessions, numChannels);
 		SessionPoolOptions sessionPoolOptions = SessionPoolOptions.newBuilder()
 				.setMaxSessions(maxSessions)
 				.setFailIfPoolExhausted()

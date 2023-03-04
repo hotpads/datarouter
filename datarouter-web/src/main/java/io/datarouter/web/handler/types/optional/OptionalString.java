@@ -15,6 +15,10 @@
  */
 package io.datarouter.web.handler.types.optional;
 
+/**
+ * @deprecated use the JDK {@code Optional<String>}
+ */
+@Deprecated
 public class OptionalString extends OptionalParameter<String>{
 
 	public OptionalString(){

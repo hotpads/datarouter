@@ -28,8 +28,8 @@ import io.datarouter.conveyor.ConveyorConfiguration;
 import io.datarouter.conveyor.ConveyorCounters;
 import io.datarouter.conveyor.ConveyorGauges;
 import io.datarouter.conveyor.ConveyorRunnable;
-import io.datarouter.conveyor.queue.BlobQueueConsumer;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.storage.queue.consumer.BlobQueueConsumer;
 
 public abstract class BaseBlobQueueConsumerConveyorConfiguration<T>
 implements ConveyorConfiguration{

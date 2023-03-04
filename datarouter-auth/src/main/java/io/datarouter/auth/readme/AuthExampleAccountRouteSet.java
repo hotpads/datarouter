@@ -30,7 +30,6 @@ public class AuthExampleAccountRouteSet extends BaseRouteSet{
 
 	@Inject
 	public AuthExampleAccountRouteSet(DatarouterAccountApiKeyPredicate datarouterAccountApiKeyPredicate){
-		super("");
 		this.datarouterAccountApiKeyPredicate = datarouterAccountApiKeyPredicate;
 
 		handleDir("/testApi")

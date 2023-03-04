@@ -41,19 +41,20 @@ public class KvFileTests{
 						testKv.op,
 						STRING_CODEC.encode(testKv.value)),
 				binaryKv -> new TestKv(
-						STRING_CODEC.decode(binaryKv.key()),
-						ComparableIntCodec.INSTANCE.decode(binaryKv.version()),
+						STRING_CODEC.decode(binaryKv.copyOfKey()),
+						ComparableIntCodec.INSTANCE.decode(binaryKv.copyOfVersion()),
 						binaryKv.op(),
-						STRING_CODEC.decode(binaryKv.value())));
+						STRING_CODEC.decode(binaryKv.copyOfValue())));
 	}
 
-	private static final KvFileCodec<TestKv> KV_FILE_CODEC = new KvFileCodec<>(TestKv.CODEC);
 
 	private static final List<TestKv> KVS = List.of(
 			new TestKv("", 0, KvFileOp.PUT, ""),// 0 data bytes, 1 version byte
 			new TestKv("a", 1, KvFileOp.DELETE, ""),// 2 data bytes, 1 version byte
 			new TestKv("bb", 2, KvFileOp.PUT, "bb"),// 4 data bytes, 1 version byte
 			new TestKv("ccc", 135, KvFileOp.PUT, "ccc"));// 6 data bytes, 2 version bytes
+
+	private static final KvFileCodec<TestKv> KV_FILE_CODEC = new KvFileCodec<>(TestKv.CODEC);
 
 	private static final int KEY_META_LENGTH = 4;// 1 byte per item
 	private static final int KEY_DATA_LENGTH = 0 + 1 + 2 + 3;
@@ -71,31 +72,33 @@ public class KvFileTests{
 	private static final int VALUE_DATA_LENGTH = 0 + 0 + 2 + 3;
 	private static final int VALUE_LENGTH = VALUE_META_LENGTH + VALUE_DATA_LENGTH;
 
-	private static final int TOTAL_META_LENGTH = 4;// 1 byte per entry for the total length of the entry
-	private static final int TOTAL_DATA_LENGTH = KEY_LENGTH + VERSION_LENGTH + OP_LENGTH + VALUE_LENGTH;
-	private static final int TOTAL_LENGTH = TOTAL_META_LENGTH + TOTAL_DATA_LENGTH;
+	private static final int TOTAL_BLOCK_LENGTH_LENGTH = 1;
+	private static final int TOTAL_BLOCK_SIZE_LENGTH = 1;
+	private static final int TOTAL_BLOCK_META_LENGTH = TOTAL_BLOCK_LENGTH_LENGTH + TOTAL_BLOCK_SIZE_LENGTH;
+	private static final int TOTAL_BLOCK_DATA_LENGTH = KEY_LENGTH + VERSION_LENGTH + OP_LENGTH + VALUE_LENGTH;
+	private static final int TOTAL_BLOCK_LENGTH = TOTAL_BLOCK_META_LENGTH + TOTAL_BLOCK_DATA_LENGTH;
 
 	@Test
 	private void testWrite(){
 		byte[] bytes = KV_FILE_CODEC.toByteArray(KVS);
-		Assert.assertEquals(bytes.length, TOTAL_LENGTH);
+		Assert.assertEquals(bytes.length, TOTAL_BLOCK_LENGTH);
 	}
 
 	@Test
 	private void testRead(){
 		byte[] bytes = KV_FILE_CODEC.toByteArray(KVS);
 		List<TestKv> actual = KV_FILE_CODEC.decodeMulti(bytes).list();
-		Assert.assertEquals(KVS, actual);
+		Assert.assertEquals(actual, KVS);
 	}
 
 	@Test
 	private void testReadInputStream(){
 		byte[] bytes = KV_FILE_CODEC.toByteArray(KVS);
 		var reader = new KvFileReader(new ByteArrayInputStream(bytes));
-		List<TestKv> actual = reader.scanEntries()
+		List<TestKv> actual = reader.scanBlockEntries()
 				.map(KV_FILE_CODEC::decode)
 				.list();
-		Assert.assertEquals(KVS, actual);
+		Assert.assertEquals(actual, KVS);
 	}
 
 }

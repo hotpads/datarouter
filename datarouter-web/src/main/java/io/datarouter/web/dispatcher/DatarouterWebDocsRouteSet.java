@@ -29,7 +29,6 @@ public class DatarouterWebDocsRouteSet extends BaseRouteSet{
 
 	@Inject
 	public DatarouterWebDocsRouteSet(DatarouterWebPaths paths){
-		super(paths.documentation);
 		handle(paths.documentation.readmes).withHandler(ViewReadmesHandler.class);
 		handle(paths.documentation.systemDocs).withHandler(ViewSystemDocsHandler.class);
 	}

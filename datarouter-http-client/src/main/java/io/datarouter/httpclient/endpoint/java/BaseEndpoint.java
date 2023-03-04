@@ -89,7 +89,7 @@ public abstract class BaseEndpoint<R,ET extends EndpointType>{
 		return this;
 	}
 
-	public final BaseEndpoint<R,ET> setShouldSkipSecuiry(boolean shouldSkipSecurity){
+	public final BaseEndpoint<R,ET> setShouldSkipSecurity(boolean shouldSkipSecurity){
 		this.shouldSkipSecurity = shouldSkipSecurity;
 		return this;
 	}
@@ -105,17 +105,11 @@ public abstract class BaseEndpoint<R,ET extends EndpointType>{
 	}
 
 	public final boolean getRetrySafe(){
-		if(retrySafe.isPresent()){
-			return retrySafe.get();
-		}
-		switch(method){
-		case GET:
-			return true;
-		case POST:
-			return false;
-		default:
-			return false;
-		}
+		return retrySafe
+				.orElseGet(() -> switch(method){
+					case GET -> true;
+					case HEAD, DELETE, PATCH, PUT, POST -> false;
+				});
 	}
 
 }

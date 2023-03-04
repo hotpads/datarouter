@@ -15,27 +15,17 @@
  */
 package io.datarouter.httpclient.client;
 
-import org.apache.http.impl.client.CloseableHttpClient;
-
 import io.datarouter.httpclient.endpoint.java.BaseEndpoint;
 import io.datarouter.httpclient.endpoint.java.EndpointType;
 import io.datarouter.httpclient.response.Conditional;
 import io.datarouter.httpclient.response.exception.DatarouterHttpException;
-import io.datarouter.json.JsonSerializer;
 
-public interface DatarouterEndpointClient<ET extends EndpointType> extends HttpPoolStats{
+public interface DatarouterEndpointClient<ET extends EndpointType> extends HttpPoolStats, HttpConfig{
 
 	<R> Conditional<R> call(BaseEndpoint<R,ET> endpoint);
 	<R> Conditional<R> callAnyType(BaseEndpoint<R,?> endpoint);
 	<R> R callChecked(BaseEndpoint<R,ET> endpoint) throws DatarouterHttpException;
 
 	String toUrl(BaseEndpoint<?,ET> endpoint);
-
-	void shutdown();
-
-	CloseableHttpClient getApacheHttpClient();
-	JsonSerializer getJsonSerializer();
-
-	void initUrlPrefix(BaseEndpoint<?,ET> endpoint);
 
 }

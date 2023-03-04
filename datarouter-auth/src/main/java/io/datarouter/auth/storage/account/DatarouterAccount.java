@@ -30,6 +30,7 @@ import io.datarouter.model.field.imp.StringFieldKey;
 import io.datarouter.model.field.imp.comparable.BooleanField;
 import io.datarouter.model.field.imp.comparable.BooleanFieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
+import io.datarouter.util.string.StringTool;
 import io.datarouter.util.time.ZonedDateFormatterTool;
 
 public class DatarouterAccount extends BaseDatabean<DatarouterAccountKey,DatarouterAccount>{
@@ -175,6 +176,10 @@ public class DatarouterAccount extends BaseDatabean<DatarouterAccountKey,Datarou
 
 	public String getReferrer(){
 		return referrer;
+	}
+
+	public void setReferrer(String referrer){
+		this.referrer = StringTool.isEmptyOrWhitespace(referrer) ? null : referrer.trim();
 	}
 
 }

@@ -23,10 +23,10 @@ public class LineOfCode implements Comparable<LineOfCode>{
 
 	private static final int OFFSET_FROM_TOP_OF_STACK = 1;// top of stack is our constructor
 
-	private String packageName;
-	private String className;
-	private String methodName;
-	private Integer lineNumber;
+	private final String packageName;
+	private final String className;
+	private final String methodName;
+	private final Integer lineNumber;
 
 	public LineOfCode(){
 		this(OFFSET_FROM_TOP_OF_STACK);

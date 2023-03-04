@@ -15,6 +15,7 @@
  */
 package io.datarouter.auth.service;
 
+import java.time.Duration;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -44,8 +45,16 @@ public class DatarouterAccountCsrfValidator implements CsrfValidator{
 		@Inject
 		private DatarouterAccountCredentialService datarouterAccountCredentialService;
 
+		/**
+		 * {@link Deprecated} use create(Duration)
+		 */
+		@Deprecated
 		public DatarouterAccountCsrfValidator create(Long requestTimeoutMs){
 			return create(requestTimeoutMs, SecurityParameters.API_KEY);
+		}
+
+		public DatarouterAccountCsrfValidator create(Duration requestTimeout){
+			return create(requestTimeout.toMillis(), SecurityParameters.API_KEY);
 		}
 
 		public DatarouterAccountCsrfValidator create(Long requestTimeoutMs, String apiKeyFieldName){

@@ -34,6 +34,7 @@ import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.socket.PlainConnectionSocketFactory;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.TrustAllStrategy;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.LaxRedirectStrategy;
@@ -63,7 +64,7 @@ public class DatarouterHttpClientBuilder{
 	private Optional<Integer> validateAfterInactivityMs;
 	private final HttpClientBuilder httpClientBuilder;
 	private Supplier<Integer> retryCount;
-	private JsonSerializer jsonSerializer;
+	private final JsonSerializer jsonSerializer;
 	private CloseableHttpClient customHttpClient;
 	private SignatureGenerator signatureGenerator;
 	private CsrfGenerator csrfGenerator;
@@ -109,14 +110,14 @@ public class DatarouterHttpClientBuilder{
 				.build();
 		httpClientBuilder.setDefaultRequestConfig(defaultRequestConfig);
 		httpClientBuilder.setKeepAliveStrategy(new DatarouterConnectionKeepAliveStrategy(Duration.ofMinutes(5)));
-		PoolingHttpClientConnectionManager connectionManager;
+		SSLConnectionSocketFactory sslsf;
 		if(ignoreSsl || customSslContext != null){
-			SSLConnectionSocketFactory sslsf;
 			if(ignoreSsl){
 				try{
-					SSLContextBuilder builder = new SSLContextBuilder();
-					builder.loadTrustMaterial(null, (chain, authType) -> true);
-					sslsf = new SSLConnectionSocketFactory(builder.build(), NoopHostnameVerifier.INSTANCE);
+					var ssLContext = new SSLContextBuilder()
+							.loadTrustMaterial(null, TrustAllStrategy.INSTANCE)
+							.build();
+					sslsf = new SSLConnectionSocketFactory(ssLContext, NoopHostnameVerifier.INSTANCE);
 				}catch(KeyManagementException | KeyStoreException | NoSuchAlgorithmException e){
 					throw new RuntimeException(e);
 				}
@@ -125,14 +126,18 @@ public class DatarouterHttpClientBuilder{
 						customSslContext,
 						SSLConnectionSocketFactory.getDefaultHostnameVerifier());
 			}
-			Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory>create()
-					.register("http", PlainConnectionSocketFactory.getSocketFactory())
-					.register("https", sslsf)
-					.build();
-			connectionManager = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
 		}else{
-			connectionManager = new PoolingHttpClientConnectionManager();
+			sslsf = SSLConnectionSocketFactory.getSocketFactory();
 		}
+		Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder
+				.<ConnectionSocketFactory>create()
+				.register("http", new DatarouterConnectionSocketFactory(PlainConnectionSocketFactory.INSTANCE, name))
+				.register("https", new DatarouterLayeredConnectionSocketFactory(sslsf, name))
+				.build();
+		var connectionManager = new PoolingHttpClientConnectionManager(
+				socketFactoryRegistry,
+				null,
+				new DatarouterHttpClientDnsResolver(name));
 		connectionManager.setMaxTotal(maxTotalConnections);
 		connectionManager.setDefaultMaxPerRoute(maxConnectionsPerRoute);
 		if(validateAfterInactivityMs.isPresent()){

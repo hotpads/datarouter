@@ -32,5 +32,6 @@ public record ExceptionRecordDto(
 		String methodName,
 		Integer lineNumber,
 		String callOrigin,
-		List<String> additionalAlertRecipients){
+		List<String> additionalAlertRecipients)
+implements TaskExecutionRecordDto{
 }

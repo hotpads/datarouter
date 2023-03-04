@@ -16,24 +16,17 @@
 package io.datarouter.secret.op;
 
 import io.datarouter.enums.StringMappedEnum;
+import io.datarouter.secret.op.SecretOpReason.Nested.SecretOpReasonType;
 import io.datarouter.util.Require;
 import io.datarouter.util.string.StringTool;
+import io.datarouter.util.todo.NestedRecordImportWorkaround;
 
-public class SecretOpReason{
-
-	public final SecretOpReasonType type;
-	public final String username;
-	public final String userToken;
-	public final String apiKey;
-	public final String reason;
-
-	public SecretOpReason(SecretOpReasonType type, String username, String userToken, String apiKey, String reason){
-		this.type = type;
-		this.username = username;
-		this.userToken = userToken;
-		this.apiKey = apiKey;
-		this.reason = reason;
-	}
+public record SecretOpReason(
+		SecretOpReasonType type,
+		String username,
+		String userToken,
+		String apiKey,
+		String reason){
 
 	public static SecretOpReason automatedOp(String reason){
 		Require.isTrue(StringTool.notEmptyNorWhitespace(reason));
@@ -42,30 +35,31 @@ public class SecretOpReason{
 
 	@Override
 	public String toString(){
-		switch(type){
-		case API:
-			return "Triggered by apiKey=" + apiKey + " for reason: " + reason;
-		case AUTOMATED:
-			return "Triggered automatically for reason: " + reason;
-		case MANUAL:
-			return "Triggered by username=" + username + " userToken=" + userToken + " for reason: " + reason;
-		default:
-			throw new RuntimeException("impossible");
-		}
+		return switch(type){
+		case API -> String.format("Triggered by apiKey=%s for reason: %s", apiKey, reason);
+		case AUTOMATED -> String.format("Triggered automatically for reason: %s", reason);
+		case MANUAL -> String.format("Triggered by username=%s userToken=%s for reason: %s", username, userToken,
+				reason);
+		};
 	}
 
-	public static enum SecretOpReasonType{
-		API("API"),
-		AUTOMATED("AUTOMATED"),
-		MANUAL("MANUAL");
+	@NestedRecordImportWorkaround
+	public static class Nested{
 
-		public static final StringMappedEnum<SecretOpReasonType> BY_PERSISTENT_STRING
-				= new StringMappedEnum<>(values(), value -> value.persistentString);
+		public enum SecretOpReasonType{
+			API("API"),
+			AUTOMATED("AUTOMATED"),
+			MANUAL("MANUAL");
 
-		public final String persistentString;
+			public static final StringMappedEnum<SecretOpReasonType> BY_PERSISTENT_STRING
+					= new StringMappedEnum<>(values(), value -> value.persistentString);
 
-		SecretOpReasonType(String persistentString){
-			this.persistentString = persistentString;
+			public final String persistentString;
+
+			SecretOpReasonType(String persistentString){
+				this.persistentString = persistentString;
+			}
+
 		}
 
 	}

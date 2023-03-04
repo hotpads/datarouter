@@ -37,24 +37,18 @@ public abstract class BaseRouteSet implements RouteSet{
 	public static final String REGEX_TWO_DIRECTORY_PLUS = "/\\w+/\\w+[/]?.*";
 	public static final String MATCHING_ANY = ".*";
 
-	private final String urlPrefix;
 	private final List<DispatchRule> dispatchRules;
 
 	private Class<? extends BaseHandler> defaultHandlerClass;
 
-	public BaseRouteSet(String urlPrefix){
-		this.urlPrefix = urlPrefix;
+	public BaseRouteSet(){
 		this.dispatchRules = new ArrayList<>();
-	}
-
-	public BaseRouteSet(PathNode pathNode){
-		this(pathNode.toSlashedString());
 	}
 
 	/*---------------- create DispatchRules -----------------*/
 
-	protected DispatchRule handle(PathNode regex){
-		return handle(regex.toSlashedString());
+	protected DispatchRule handle(PathNode pathNode){
+		return handle(pathNode.join("/", "/", ""));
 	}
 
 	protected DispatchRule handle(String regex){
@@ -164,11 +158,6 @@ public abstract class BaseRouteSet implements RouteSet{
 	@Override
 	public List<DispatchRule> getDispatchRules(){
 		return this.dispatchRules;
-	}
-
-	@Override
-	public String getUrlPrefix(){
-		return urlPrefix;
 	}
 
 	@Override

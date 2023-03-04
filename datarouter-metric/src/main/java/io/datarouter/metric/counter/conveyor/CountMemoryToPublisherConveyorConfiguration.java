@@ -34,6 +34,7 @@ import io.datarouter.conveyor.ConveyorRunnable;
 import io.datarouter.metric.counter.collection.CountPublisher;
 import io.datarouter.scanner.Scanner;
 
+@Deprecated
 @Singleton
 public class CountMemoryToPublisherConveyorConfiguration implements ConveyorConfiguration{
 	private static final Logger logger = LoggerFactory.getLogger(CountMemoryToPublisherConveyorConfiguration.class);

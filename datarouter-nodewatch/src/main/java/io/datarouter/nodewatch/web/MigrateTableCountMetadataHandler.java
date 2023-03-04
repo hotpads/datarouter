@@ -20,6 +20,7 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.h2;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.inject.Inject;
 
@@ -33,7 +34,6 @@ import io.datarouter.nodewatch.storage.tablesample.TableSampleKey;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.types.Param;
-import io.datarouter.web.handler.types.optional.OptionalString;
 import io.datarouter.web.html.form.HtmlForm;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
@@ -59,9 +59,9 @@ public class MigrateTableCountMetadataHandler extends BaseHandler{
 
 	@Handler(defaultHandler = true)
 	public Mav migrateTableCountMetadata(
-			@Param(P_sourceNodeName) OptionalString sourceNodeName,
-			@Param(P_targetNodeName) OptionalString targetNodeName,
-			@Param(P_submitAction) OptionalString submitAction){
+			@Param(P_sourceNodeName) Optional<String> sourceNodeName,
+			@Param(P_targetNodeName) Optional<String> targetNodeName,
+			@Param(P_submitAction) Optional<String> submitAction){
 		List<String> possibleNodes = tableSamplerService.scanCountableNodes()
 				.map(node -> node.getClientId().getName() + "." + node.getFieldInfo().getTableName())
 				.append("")

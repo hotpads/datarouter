@@ -29,7 +29,6 @@ public class UserDeprovisioningRouteSet extends BaseRouteSet{
 
 	@Inject
 	public UserDeprovisioningRouteSet(DatarouterAuthPaths paths){
-		super("");
 		handleDir(paths.userDeprovisioning).withHandler(UserDeprovisioningHandler.class);
 	}
 

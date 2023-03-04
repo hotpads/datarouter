@@ -23,6 +23,7 @@ import static j2html.TagCreator.li;
 import static j2html.TagCreator.ul;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.inject.Inject;
 
@@ -51,7 +52,6 @@ import io.datarouter.util.timer.PhaseTimer;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.types.Param;
-import io.datarouter.web.handler.types.optional.OptionalString;
 import io.datarouter.web.html.form.HtmlForm;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
@@ -84,9 +84,9 @@ public class DatarouterAccountRenameHandler extends BaseHandler{
 
 	@Handler(defaultHandler = true)
 	public Mav renameAccounts(
-			@Param(P_oldAccountName) OptionalString oldAccountName,
-			@Param(P_newAccountName) OptionalString newAccountName,
-			@Param(P_submitAction) OptionalString submitAction){
+			@Param(P_oldAccountName) Optional<String> oldAccountName,
+			@Param(P_newAccountName) Optional<String> newAccountName,
+			@Param(P_submitAction) Optional<String> submitAction){
 		String errorNewAccountName = null;
 		if(submitAction.isPresent()){
 			try{

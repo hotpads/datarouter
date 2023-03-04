@@ -27,6 +27,7 @@ import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.SettingRoot;
 import io.datarouter.storage.setting.cached.CachedSetting;
 import io.datarouter.util.duration.DatarouterDuration;
+import io.datarouter.web.config.settings.DatarouterLocalhostCorsFilterSettings;
 import io.datarouter.web.config.settings.DatarouterSchemaUpdateEmailSettings;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationSettings;
 import io.datarouter.web.user.authenticate.saml.DatarouterSamlSettings;
@@ -41,25 +42,30 @@ public class DatarouterWebSettingRoot extends SettingRoot{
 	public final CachedSetting<Set<String>> stackTraceHighlights;
 	public final Setting<Boolean> saveLatencyGauges;
 	public final Setting<DatarouterDuration> keepAliveTimeout;
+	public final CachedSetting<Boolean> httpWarmup;
+	public final Setting<Integer> httpWarmupIteration;
 
 	@Inject
 	public DatarouterWebSettingRoot(
 			SettingFinder finder,
 			DatarouterAuthenticationSettings authenticationSettings,
 			DatarouterSamlSettings samlSettings,
-			DatarouterSchemaUpdateEmailSettings schemaUpdateEmailSettings){
+			DatarouterSchemaUpdateEmailSettings schemaUpdateEmailSettings,
+			DatarouterLocalhostCorsFilterSettings localhostCorsFilterSettings){
 		super(finder, DatarouterSettingCategory.DATAROUTER, "datarouterWeb.");
 
 		registerChild(authenticationSettings);
 		registerChild(samlSettings);
 		registerChild(schemaUpdateEmailSettings);
+		registerChild(localhostCorsFilterSettings);
 
 		maxCacheableContentLength = registerInteger("maxCacheableContentLength", ONE_MB);
 		shutdownSecret = registerString("shutdownSecret", "");
 		stackTraceHighlights = registerCommaSeparatedString("stackTraceHighlights", Set.of("io.datarouter"));
-		saveLatencyGauges = registerBooleans("saveLatencyGauges", defaultTo(true));
-		keepAliveTimeout = registerDurations("keepAliveTimeout",
-				defaultTo(new DatarouterDuration(0, TimeUnit.MINUTES)));
+		saveLatencyGauges = registerBoolean("saveLatencyGauges", true);
+		keepAliveTimeout = registerDuration("keepAliveTimeout", new DatarouterDuration(0, TimeUnit.MINUTES));
+		httpWarmup = registerBoolean("httpWarmup", false);
+		httpWarmupIteration = registerInteger("httpWarmupIteration", 5_000);
 	}
 
 }

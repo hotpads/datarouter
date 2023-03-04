@@ -31,7 +31,6 @@ public class DatarouterLoadTestRouteSet extends BaseRouteSet{
 
 	@Inject
 	public DatarouterLoadTestRouteSet(DatarouterLoadTestPaths paths){
-		super(paths.datarouter.loadTest);
 		handle(paths.datarouter.loadTest.get).withHandler(LoadTestGetHandler.class);
 		handle(paths.datarouter.loadTest.insert).withHandler(LoadTestInsertHandler.class);
 		handle(paths.datarouter.loadTest.scan).withHandler(LoadTestScanHandler.class);

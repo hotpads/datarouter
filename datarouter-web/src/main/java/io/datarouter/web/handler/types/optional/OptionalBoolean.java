@@ -17,6 +17,10 @@ package io.datarouter.web.handler.types.optional;
 
 import io.datarouter.util.BooleanTool;
 
+/**
+ * @deprecated use the JDK {@code Optional<Boolean>}
+ */
+@Deprecated
 public class OptionalBoolean extends OptionalParameter<Boolean>{
 
 	public OptionalBoolean(){

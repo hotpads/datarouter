@@ -22,7 +22,7 @@ import javax.inject.Singleton;
 import org.apache.commons.lang3.mutable.MutableInt;
 
 import io.datarouter.httpclient.security.UrlScheme;
-import io.datarouter.util.MxBeans;
+import io.datarouter.util.JmxTool;
 
 @Singleton
 public class TomcatPortIdentifier implements PortIdentifier{
@@ -33,13 +33,14 @@ public class TomcatPortIdentifier implements PortIdentifier{
 		var httpsPort = new MutableInt();
 		var query = JmxTool.newObjectName(CompoundPortIdentifier.CATALINA_JMX_DOMAIN + ":type=ProtocolHandler,*");
 		var handlers = new ArrayList<String>();
-		MxBeans.SERVER.queryNames(query, null).forEach(protocolHandler -> {
+		JmxTool.SERVER.queryNames(query, null).forEach(protocolHandler -> {
 			handlers.add(protocolHandler.toString());
 			int port = (int)JmxTool.getAttribute(protocolHandler, "port");
 			var connector = JmxTool.newObjectName(CompoundPortIdentifier.CATALINA_JMX_DOMAIN + ":type=Connector,port="
 					+ port);
 			String scheme = (String)JmxTool.getAttribute(connector, "scheme");
-			if(scheme.equals(UrlScheme.HTTPS.getStringRepresentation())){
+			boolean sslEnabled = (boolean)JmxTool.getAttribute(connector, "SSLEnabled");
+			if(sslEnabled && scheme.equals(UrlScheme.HTTPS.getStringRepresentation())){
 				httpsPort.setValue(port);
 			}else if(scheme.equals(UrlScheme.HTTP.getStringRepresentation())){
 				httpPort.setValue(port);

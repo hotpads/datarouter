@@ -23,6 +23,7 @@ import java.util.Map.Entry;
 import io.datarouter.binarydto.codec.BinaryDtoIndexedCodec;
 import io.datarouter.binarydto.dto.BinaryDto;
 import io.datarouter.binarydto.dto.BinaryDtoField;
+import io.datarouter.metric.counter.collection.DatarouterCountCollector.CountCollectorStats;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.Require;
 
@@ -39,7 +40,11 @@ public class CountBinaryDto extends BinaryDto<CountBinaryDto>{
 	@BinaryDtoField(index = 4)
 	public final List<SingleCountBinaryDto> counts;
 
-	private CountBinaryDto(String ulid, String serviceName, String serverName, Long period,
+	public CountBinaryDto(
+			String ulid,
+			String serviceName,
+			String serverName,
+			Long period,
 			List<SingleCountBinaryDto> counts){
 		this.ulid = Require.notBlank(ulid);
 		this.serviceName = Require.notBlank(serviceName);
@@ -49,17 +54,40 @@ public class CountBinaryDto extends BinaryDto<CountBinaryDto>{
 		this.counts = counts;
 	}
 
+	@Deprecated
 	public static List<CountBinaryDto> createSizedDtos(String ulid, String serviceName, String serverName,
 			Map<Long,Map<String,Long>> counts, int batchSize){
 		return Scanner.of(counts.keySet())
 				.concat(period -> Scanner.of(counts.get(period).entrySet())
-						.map(SingleCountBinaryDto::new)
+						.map(SingleCountBinaryDto::createFromCounts)
 						.batch(getLargestPeriodSize(counts, batchSize))
 						.map(countBatch -> new CountBinaryDto(ulid, serviceName, serverName, period, countBatch)))
 						.list();
 	}
 
+	public static List<CountBinaryDto> createSizedCountBinaryDtos(String ulid, String serviceName, String serverName,
+			Map<Long,Map<String,CountCollectorStats>> counts, int batchSize){
+		return Scanner.of(counts.keySet())
+				.concat(period -> Scanner.of(counts.get(period).entrySet())
+						.map(SingleCountBinaryDto::createFromCountStats)
+						.batch(getLargestPeriodSizeFromCountStats(counts, batchSize))
+						.map(countBatch -> new CountBinaryDto(ulid, serviceName, serverName, period, countBatch)))
+						.list();
+	}
+
+	@Deprecated
 	private static int getLargestPeriodSize(Map<Long,Map<String,Long>> counts, int batchSize){
+		if(batchSize == Integer.MAX_VALUE){
+			return Scanner.of(counts.values())
+					.map(Map::size)
+					.findMax(Comparator.naturalOrder())
+					.orElse(0);
+		}
+		return batchSize;
+	}
+
+	private static int getLargestPeriodSizeFromCountStats(Map<Long,Map<String,CountCollectorStats>> counts,
+			int batchSize){
 		if(batchSize == Integer.MAX_VALUE){
 			return Scanner.of(counts.values())
 					.map(Map::size)
@@ -74,11 +102,38 @@ public class CountBinaryDto extends BinaryDto<CountBinaryDto>{
 		@BinaryDtoField(index = 0)
 		public final String name;
 		@BinaryDtoField(index = 1)
-		public final Long value;
+		public final Long value; // sum
+		@BinaryDtoField(index = 2)
+		public final Long count;
+		@BinaryDtoField(index = 3)
+		public final Long min;
+		@BinaryDtoField(index = 4)
+		public final Long max;
 
-		private SingleCountBinaryDto(Entry<String,Long> entry){
-			this.name = Require.notNull(entry.getKey());
-			this.value = Require.greaterThan(Require.notNull(entry.getValue()), 0L);
+		public SingleCountBinaryDto(String name, Long value, Long count, Long min, Long max){
+			this.name = name;
+			this.value = value;
+			this.count = count;
+			this.min = min;
+			this.max = max;
+		}
+
+		@Deprecated
+		private static SingleCountBinaryDto createFromCounts(Entry<String,Long> entry){
+			return new SingleCountBinaryDto(
+					Require.notNull(entry.getKey()),
+					Require.greaterThan(Require.notNull(entry.getValue()), 0L),
+					null, null, null);
+		}
+
+		private static SingleCountBinaryDto createFromCountStats(Entry<String,CountCollectorStats> entry){
+			Require.notNull(entry.getValue());
+			var name = Require.notNull(entry.getKey());
+			var value = Require.greaterThan(Require.notNull(entry.getValue().sum()), 0L);
+			var count = Require.greaterThan(Require.notNull(entry.getValue().count()), 0L);
+			var min = Require.greaterThan(Require.notNull(entry.getValue().min()), 0L);
+			var max = Require.greaterThan(Require.notNull(entry.getValue().max()), 0L);
+			return new SingleCountBinaryDto(name, value, count, min, max);
 		}
 
 	}

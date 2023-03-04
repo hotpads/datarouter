@@ -32,7 +32,6 @@ public class DatarouterAuthRouteSet extends BaseRouteSet{
 
 	@Inject
 	public DatarouterAuthRouteSet(DatarouterAuthPaths paths){
-		super("");
 		handle(paths.signin)
 				.withHandler(DatarouterSigninHandler.class)
 				.allowAnonymous();

@@ -21,6 +21,7 @@ import java.util.Objects;
 
 public class ByteLength{
 
+	public static final ByteLength MIN = ByteLength.ofBytes(0);
 	public static final ByteLength MAX = ByteLength.ofBytes(Long.MAX_VALUE);
 
 	private static final Unit[] BIN_SORTED_ASC = {Unit.B, Unit.KiB, Unit.MiB, Unit.GiB, Unit.TiB, Unit.PiB};
@@ -183,4 +184,47 @@ public class ByteLength{
 		return new ByteLength(input * unit.unitValue);
 	}
 
+	public long toKB(){
+		return to(Unit.KB);
+	}
+
+	public long toMB(){
+		return to(Unit.MB);
+	}
+
+	public long toGB(){
+		return to(Unit.GB);
+	}
+
+	public long toTB(){
+		return to(Unit.TB);
+	}
+
+	public long toPB(){
+		return to(Unit.PB);
+	}
+
+	public long toKiB(){
+		return to(Unit.KiB);
+	}
+
+	public long toMiB(){
+		return to(Unit.MiB);
+	}
+
+	public long toGiB(){
+		return to(Unit.GiB);
+	}
+
+	public long toTiB(){
+		return to(Unit.TiB);
+	}
+
+	public long toPiB(){
+		return to(Unit.PiB);
+	}
+
+	private long to(Unit unit){
+		return this.length / unit.unitValue;
+	}
 }

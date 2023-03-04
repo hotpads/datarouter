@@ -38,7 +38,7 @@ public class DatarouterTracePublisherSettingRoot extends SettingRoot{
 		super(finder, DatarouterSettingCategory.DATAROUTER, "datarouterTracePublisher.");
 
 		saveTracesToMemory = registerBooleans("saveTracesToMemory", defaultTo(false)
-				.withTag(DatarouterSettingTagType.TRACE2PIPELINE, () -> true));
+				.withTag(DatarouterSettingTagType.TRACE2_PIPELINE, () -> true));
 		saveTracesToQueueDaoInsteadOfDirectoryDao = registerBoolean(
 				"saveTracesToQueueDaoInsteadOfDirectoryDao", false);
 	}

@@ -19,7 +19,6 @@ import java.time.Duration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +30,7 @@ import io.datarouter.filesystem.snapshot.group.vacuum.SnapshotVacuumPlanner.Snap
 import io.datarouter.filesystem.snapshot.key.SnapshotKey;
 import io.datarouter.filesystem.snapshot.key.SnapshotKeyDecoder;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.scanner.Threads;
 import io.datarouter.storage.file.Directory;
 import io.datarouter.storage.file.PathbeanKey;
 
@@ -63,7 +63,7 @@ public class SnapshotGroupVacuumOps{
 		this.groupReader = groupReader;
 	}
 
-	public void vacuum(ExecutorService exec, int numThreads){
+	public void vacuum(Threads threads){
 		List<SnapshotKey> keys = groupReader.scanSnapshotKeys().list();
 		SnapshotVacuumPlan plan = new SnapshotVacuumPlanner(vacuumConfig, snapshotKeyDecoder, keys).plan();
 		logger.warn("Starting vacuum id={}, group={}, {}/{} snapshots",
@@ -77,7 +77,7 @@ public class SnapshotGroupVacuumOps{
 						groupId,
 						result.snapshotKey.snapshotId(),
 						result.reason))
-				.forEach(result -> group.deleteOps().deleteSnapshot(result.snapshotKey, exec, numThreads));
+				.forEach(result -> group.deleteOps().deleteSnapshot(result.snapshotKey, threads));
 		logger.warn("Finished vacuum id={}, group={}, {}/{} snapshots",
 				plan.id.value(),
 				groupId,

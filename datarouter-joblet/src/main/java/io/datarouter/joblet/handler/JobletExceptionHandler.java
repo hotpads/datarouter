@@ -21,6 +21,7 @@ import static j2html.TagCreator.h4;
 import static j2html.TagCreator.td;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.inject.Inject;
 
@@ -33,7 +34,6 @@ import io.datarouter.joblet.type.JobletTypeFactory;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.types.Param;
-import io.datarouter.web.handler.types.optional.OptionalString;
 import io.datarouter.web.html.j2html.J2HtmlTable;
 import io.datarouter.web.requirejs.DatarouterWebRequireJsV2;
 import j2html.tags.specialized.DivTag;
@@ -53,7 +53,7 @@ public class JobletExceptionHandler extends BaseHandler{
 	private JobletExternalLinkBuilderSupplier externalLinkBuilder;
 
 	@Handler
-	private Mav exceptions(@Param(P_typeString) OptionalString typeString){
+	private Mav exceptions(@Param(P_typeString) Optional<String> typeString){
 		List<JobletRequest> jobletRequests = typeString
 				.map(jobletTypeFactory::fromPersistentString)
 				.map(jobletType -> jobletRequestDao.scanType(jobletType, true)

@@ -51,7 +51,6 @@ public class DatarouterRouteSetViewHandler extends BaseHandler{
 		var table = new J2HtmlTable<RouteSet>()
 				.withClasses("table table-sm table-striped my-4 border")
 				.withColumn("Route Set Class", row -> row.getClass().getSimpleName())
-				.withColumn("Url Prefix", row -> row.getUrlPrefix())
 				.withCaption("Total " + rows.size())
 				.build(rows);
 		return div(h2, table)

@@ -30,7 +30,6 @@ public class DatarouterExceptionRouteSet extends BaseRouteSet{
 
 	@Inject
 	public DatarouterExceptionRouteSet(DatarouterExceptionPaths paths){
-		super(paths.datarouter);
 
 		handle(paths.datarouter.exception.details)
 				.withHandler(ExceptionAnalysisHandler.class)

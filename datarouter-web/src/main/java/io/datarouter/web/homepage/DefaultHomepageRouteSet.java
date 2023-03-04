@@ -26,7 +26,6 @@ import io.datarouter.web.user.role.DatarouterUserRole;
 public class DefaultHomepageRouteSet extends BaseRouteSet implements HomepageRouteSet{
 
 	public DefaultHomepageRouteSet(){
-		super("");
 		// catch-all
 		handleDir("|/").withHandler(HomepageHandler.class);
 	}

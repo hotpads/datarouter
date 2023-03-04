@@ -29,7 +29,6 @@ public class DatarouterBigTableRouteSet extends BaseRouteSet{
 
 	@Inject
 	public DatarouterBigTableRouteSet(DatarouterBigTablePaths paths){
-		super(paths.datarouter.clients.bigtable);
 		handle(paths.datarouter.clients.bigtable).withHandler(BigTableHandler.class);
 	}
 

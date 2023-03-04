@@ -36,7 +36,7 @@ public class GaugeBinaryDto extends BinaryDto<GaugeBinaryDto>{
 	@BinaryDtoField(index = 3)
 	public final String apiKey;
 
-	private GaugeBinaryDto(String serviceName, String serverName, List<GaugeItemBinaryDto> items){
+	public GaugeBinaryDto(String serviceName, String serverName, List<GaugeItemBinaryDto> items){
 		this.serviceName = Require.notBlank(serviceName);
 		this.serverName = Require.notBlank(serverName);
 		this.items = items;

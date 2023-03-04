@@ -22,7 +22,7 @@ import java.util.Optional;
 import io.datarouter.bytes.BatchingByteArrayScanner;
 import io.datarouter.bytes.ByteTool;
 import io.datarouter.bytes.Codec;
-import io.datarouter.bytes.PrependLengthByteArrayScanner;
+import io.datarouter.bytes.VarIntByteArraysTool;
 import io.datarouter.bytes.VarIntTool;
 import io.datarouter.model.databean.EmptyDatabean;
 import io.datarouter.model.databean.EmptyDatabean.EmptyDatabeanFielder;
@@ -130,7 +130,7 @@ public interface BlobQueueStorage<T>{
 						throw new DataTooLargeException("BlobQueueStorage", List.of("a blob of size " + bytes.length));
 					}
 				})
-				.apply(PrependLengthByteArrayScanner::of)
+				.map(VarIntByteArraysTool::encodeOne)
 				.apply(scanner -> new BatchingByteArrayScanner(scanner, getMaxRawDataSize()))
 				.map(ByteTool::concat)
 				.forEach(bytes -> putRaw(bytes, config));

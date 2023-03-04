@@ -45,7 +45,7 @@ public class TableProcessorJoblet extends BaseJoblet<TableProcessorJobletParams>
 
 	@Override
 	public void process() throws Throwable{
-		TableProcessor<?,?> processor = processorRegistry.find(params.processorName).get();
+		TableProcessor<?> processor = processorRegistry.find(params.processorName).get();
 		TableProcessorSpanResult result = service.runTableProcessor(
 				params.nodeName,
 				params.fromKeyExclusive,

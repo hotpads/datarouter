@@ -32,7 +32,7 @@ public class BaseRouteSetTests{
 		return "/" + role.getPersistentString();
 	}
 
-	public static final BaseRouteSet testRouteSet = new BaseRouteSet(""){
+	public static final BaseRouteSet testRouteSet = new BaseRouteSet(){
 		{
 			handle(ANON_PATH).allowAnonymous();
 			Arrays.stream(DatarouterUserRole.values())

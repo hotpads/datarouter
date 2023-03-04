@@ -29,7 +29,6 @@ public class DatarouterJobRouteSet extends BaseRouteSet{
 
 	@Inject
 	public DatarouterJobRouteSet(DatarouterJobPaths paths){
-		super(paths.datarouter);
 		handle(paths.datarouter.triggers.list).withHandler(JobHandler.class);
 		handle(paths.datarouter.triggers.run).withHandler(JobHandler.class);
 		handle(paths.datarouter.triggers.interrupt).withHandler(JobHandler.class);

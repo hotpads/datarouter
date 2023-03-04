@@ -28,7 +28,10 @@ import io.datarouter.storage.setting.cached.CachedSetting;
 public class DatarouterCountSettingRoot extends SettingRoot{
 
 	//save counts in buffer
+	@Deprecated
 	public final CachedSetting<Boolean> saveCountsToMemory;
+	public final CachedSetting<Boolean> saveCountStatsToMemory;
+
 	//controls gauge publishing destination
 	public final CachedSetting<Boolean> saveCountsToQueueDaoInsteadOfDirectoryDao;
 
@@ -37,7 +40,9 @@ public class DatarouterCountSettingRoot extends SettingRoot{
 		super(finder, DatarouterSettingCategory.DATAROUTER, "datarouterCount.");
 
 		saveCountsToMemory = registerBooleans("saveCountsToMemory", defaultTo(false)
-				.withTag(DatarouterSettingTagType.COUNTPIPELINE, () -> true));
+				.withTag(DatarouterSettingTagType.COUNT_PIPELINE, () -> true));
+		saveCountStatsToMemory = registerBooleans("saveCountStatsToMemory", defaultTo(false)
+				.withTag(DatarouterSettingTagType.COUNT_PIPELINE, () -> true));
 		saveCountsToQueueDaoInsteadOfDirectoryDao = registerBoolean(
 				"saveCountsToQueueDaoInsteadOfDirectoryDao", false);
 	}

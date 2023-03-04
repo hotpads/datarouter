@@ -18,7 +18,6 @@ package io.datarouter.autoconfig.config;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.autoconfig.web.DatarouterAutoConfigHandler;
 import io.datarouter.autoconfig.web.ViewAutoConfigsHandler;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.BaseRouteSet;
@@ -30,21 +29,13 @@ public class DatarouterAutoConfigRouteSet extends BaseRouteSet{
 
 	@Inject
 	public DatarouterAutoConfigRouteSet(DatarouterAutoConfigPaths paths){
-		super(paths.datarouter);
-		handle(paths.datarouter.autoConfig)
-				.withHandler(DatarouterAutoConfigHandler.class)
-				.allowAnonymous();
-		handle(paths.datarouter.autoConfigs.runForName)
-				.withHandler(DatarouterAutoConfigHandler.class)
-				.allowAnonymous();
-		handle(paths.datarouter.autoConfigs.viewAutoConfigs)
-				.withHandler(ViewAutoConfigsHandler.class)
-				.allowRoles(DatarouterUserRole.DATAROUTER_ADMIN);
+		handle(paths.datarouter.autoConfigs.viewAutoConfigs).withHandler(ViewAutoConfigsHandler.class);
 	}
 
 	@Override
 	protected DispatchRule applyDefault(DispatchRule rule){
-		return rule.withTag(Tag.DATAROUTER);
+		return rule.withTag(Tag.DATAROUTER)
+				.allowRoles(DatarouterUserRole.DATAROUTER_ADMIN);
 	}
 
 }

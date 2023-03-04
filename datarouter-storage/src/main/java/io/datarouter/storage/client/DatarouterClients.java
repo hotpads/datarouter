@@ -33,8 +33,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.inject.DatarouterInjector;
-import io.datarouter.scanner.ParallelScannerContext;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.scanner.Threads;
 import io.datarouter.storage.config.executor.DatarouterStorageExecutors.DatarouterClientFactoryExecutor;
 import io.datarouter.storage.config.properties.DatarouterTestPropertiesFile;
 import io.datarouter.storage.config.properties.InternalConfigDirectory;
@@ -186,7 +186,7 @@ public class DatarouterClients{
 
 	private void initClientsInParallel(Collection<ClientId> clientIds){
 		Scanner.of(clientIds)
-				.parallel(new ParallelScannerContext(executorService, executorService.getMaximumPoolSize(), true))
+				.parallelUnordered(new Threads(executorService, executorService.getMaximumPoolSize()))
 				.forEach(clientId -> getClientManager(clientId).initClient(clientId));
 	}
 

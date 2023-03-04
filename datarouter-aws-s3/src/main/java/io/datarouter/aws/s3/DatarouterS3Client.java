@@ -15,12 +15,9 @@
  */
 package io.datarouter.aws.s3;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.net.URL;
 import java.nio.file.Path;
 import java.time.Duration;
@@ -29,19 +26,23 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ExecutorService;
 
 import io.datarouter.aws.s3.S3Headers.ContentType;
 import io.datarouter.aws.s3.S3Headers.S3ContentType;
+import io.datarouter.bytes.ByteLength;
+import io.datarouter.bytes.InputStreamAndLength;
 import io.datarouter.bytes.split.ChunkScannerTool;
-import io.datarouter.scanner.ParallelScannerContext;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.scanner.Threads;
+import io.datarouter.storage.file.BucketAndKey;
+import io.datarouter.storage.file.BucketAndPrefix;
 import io.datarouter.storage.node.op.raw.read.DirectoryDto;
-import io.datarouter.util.io.ReaderTool;
+import io.datarouter.util.io.WriterTool;
 import io.datarouter.util.tuple.Range;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.model.Bucket;
+import software.amazon.awssdk.services.s3.model.CompletedPart;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.HeadObjectResponse;
 import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
@@ -53,179 +54,216 @@ public interface DatarouterS3Client{
 
 	Scanner<Bucket> scanBuckets();
 
-	Region getBucketRegion(String bucket);
+	Region getRegionForBucket(String bucket);
 
 	Region getCachedOrLatestRegionForBucket(String bucketName);
 
-	/*--------- objects ---------*/
+	/*--------- object head ---------*/
 
-	Optional<HeadObjectResponse> headObject(String bucket, String key);
+	Optional<HeadObjectResponse> head(BucketAndKey location);
 
-	default boolean exists(String bucket, String key){
-		return headObject(bucket, key).isPresent();
+	default boolean exists(BucketAndKey location){
+		return head(location).isPresent();
 	}
 
-	default boolean existsPrefix(String bucket, String prefix){
-		return scanObjects(bucket, prefix).hasAny();
-	}
-
-	default Optional<Long> length(String bucket, String key){
-		return headObject(bucket, key)
+	default Optional<Long> length(BucketAndKey location){
+		return head(location)
 				.map(HeadObjectResponse::contentLength);
 	}
 
-	default Optional<Instant> findLastModified(String bucket, String key){
-		return headObject(bucket, key)
+	default Optional<Instant> findLastModified(BucketAndKey location){
+		return head(location)
 				.map(HeadObjectResponse::lastModified);
 	}
 
-	default Optional<S3Object> findLastModifiedObjectWithPrefix(String bucket, String prefix){
-		return scanObjects(bucket, prefix)
-				.findMax(Comparator.comparing(S3Object::lastModified));
-	}
+	/*---------- object link ----------*/
 
-	void deleteObject(String bucket, String key);
+	URL generateLink(BucketAndKey location, Duration expireAfter);
 
-	void deleteObjects(String bucket, Collection<String> keys);
+	/*--------- object scan---------*/
 
-	Scanner<List<S3Object>> scanObjectsPaged(String bucket, String prefix);
+	Scanner<List<S3Object>> scanPaged(BucketAndPrefix location);
 
-	default Scanner<S3Object> scanObjects(String bucket, String prefix){
-		return scanObjectsPaged(bucket, prefix)
+	default Scanner<S3Object> scan(BucketAndPrefix location){
+		return scanPaged(location)
 				.concat(Scanner::of);
 	}
 
-	Scanner<S3Object> scanObjects(String bucket, String prefix, String startAfter, String delimiter);
+	/*--------- object scan prefix---------*/
 
-	Scanner<String> scanPrefixes(String bucket, String prefix, String startAfter, String delimiter);
+	Scanner<S3Object> scanAfter(BucketAndPrefix location, String startAfter, String delimiter);
 
-	List<String> getCommonPrefixes(String bucket, String prefix, String delimiter);
+	Scanner<String> scanPrefixes(BucketAndPrefix locationPrefix, String startAfter, String delimiter);
+
+	List<String> getCommonPrefixes(BucketAndPrefix locationPrefix, String delimiter);
+
+	default boolean existsPrefix(BucketAndPrefix locationPrefix){
+		return scan(locationPrefix).hasAny();
+	}
+
+	default Optional<S3Object> findLastModifiedObjectWithPrefix(BucketAndPrefix locationPrefix){
+		return scan(locationPrefix)
+				.findMax(Comparator.comparing(S3Object::lastModified));
+	}
 
 	Scanner<DirectoryDto> scanSubdirectories(
-			String bucket,
-			String prefix,
+			BucketAndPrefix locationPrefix,
 			String startAfter,
 			String delimiter,
 			int pageSize,
 			boolean currentDirectory);
 
-	URL generateLink(String bucket, String key, Duration expireAfter);
+	Scanner<DirectoryDto> scanFilesOnly(
+			BucketAndPrefix locationPrefix,
+			String startAfter,
+			String delimiter,
+			int pageSize);
+
+	Scanner<DirectoryDto> scanSubdirectoriesOnly(
+			BucketAndPrefix locationPrefix,
+			String startAfter,
+			String delimiter,
+			int pageSize);
+
+	/*---------- object delete ----------*/
+
+	void delete(BucketAndKey location);
+
+	void deleteMulti(String bucket, Collection<String> keys);
 
 	/*---------- data read bytes ---------*/
 
-	ResponseInputStream<GetObjectResponse> getObjectResponse(String bucket, String key);
+	ResponseInputStream<GetObjectResponse> getResponseInputStream(BucketAndKey location);
 
-	InputStream getObject(String bucket, String key);
+	InputStream getInputStream(BucketAndKey location);
 
-	byte[] getObjectAsBytes(String bucket, String key);
+	byte[] getObjectAsBytes(BucketAndKey location);
 
-	byte[] getPartialObject(String bucket, String key, long offset, int length);
+	byte[] getPartialObject(BucketAndKey location, long offset, int length);
 
 	default Scanner<byte[]> scanObjectChunks(
-			String bucket,
-			String key,
+			BucketAndKey location,
 			Range<Long> range,
-			ExecutorService exec,
-			int numThreads,
+			Threads threads,
 			int chunkSize){
 		long fromInclusive = range.hasStart() ? range.getStart() : 0;
 		long toExclusive = range.hasEnd()
 				? range.getEnd()
-				: length(bucket, key).orElseThrow();// extra operation
+				: length(location).orElseThrow();// extra operation
 		return ChunkScannerTool.scanChunks(fromInclusive, toExclusive, chunkSize)
-				.parallel(new ParallelScannerContext(exec, numThreads, false))
-				.map(chunkRange -> getPartialObject(bucket, key, chunkRange.start, chunkRange.length));
+				.parallelOrdered(threads)
+				.map(chunkRange -> getPartialObject(
+						location,
+						chunkRange.start,
+						chunkRange.length));
 	}
 
 	/*---------- data read files -------*/
 
-	default void downloadFilesToDirectory(String bucket, String prefix, Path path){
-		scanObjects(bucket, prefix)
+	Path downloadFileToDirectory(BucketAndKey location, Path path);
+
+	void downloadFile(BucketAndKey location, Path path);
+
+	default void downloadFilesToDirectory(BucketAndPrefix bucketAndPrefix, Path path){
+		scan(bucketAndPrefix)
 				.map(S3Object::key)
-				.forEach(key -> downloadFileToDirectory(bucket, key, path));
-	}
-
-	Path downloadFileToDirectory(String bucket, String key, Path path);
-
-	void downloadFile(String bucket, String key, Path path);
-
-	void downloadFileWithHeartbeat(String bucket, String key, Path path, Runnable heartbeat);
-
-	/*---------- data read strings -------*/
-
-	default Scanner<List<String>> scanBatchesOfLinesWithPrefix(String bucket, String prefix, int batchSize){
-		return scanObjects(bucket, prefix)
-				.map(S3Object::key)
-				.concat(key -> scanBatchesOfLines(bucket, key, batchSize));
-	}
-
-	default Scanner<String> scanLines(String bucket, String key){
-		return ReaderTool.lines(new BufferedReader(new InputStreamReader(getObject(bucket, key))));
-	}
-
-	default Scanner<List<String>> scanBatchesOfLines(String bucket, String key, int batchSize){
-		return scanLines(bucket, key)
-				.batch(batchSize);
-	}
-
-	default String getObjectAsString(String bucket, String key){
-		return new String(getObjectAsBytes(bucket, key));
+				.map(key -> new BucketAndKey(bucketAndPrefix.bucket(), key))
+				.forEach(bucketAndKey -> downloadFileToDirectory(bucketAndKey, path));
 	}
 
 	/*---------- data write bytes ---------*/
 
 	void copyObject(String bucket, String sourceKey, String destinationKey, ObjectCannedACL acl);
 
-	OutputStream putWithPublicRead(String bucket, String key, S3ContentType contentType);
+	void putObject(
+			BucketAndKey location,
+			ContentType contentType,
+			byte[] bytes);
 
-	OutputStream put(String bucket, String key, S3ContentType contentType);
-
-	default void put(String bucket, String key, S3ContentType contentType, InputStream inputStream){
-		multipartUpload(bucket, key, contentType, inputStream);
-	}
-
-	void putObjectAsBytes(
-			String bucket,
-			String key,
+	void putObjectWithPublicRead(
+			BucketAndKey location,
 			ContentType contentType,
 			String cacheControl,
 			ObjectCannedACL acl,
 			byte[] bytes);
 
-	void putObjectAsBytesWithExpirationTime(
-			String bucket,
-			String key,
+	void putObjectWithExpirationTime(
+			BucketAndKey location,
 			ContentType contentType,
 			String cacheControl,
 			ObjectCannedACL acl,
 			byte[] bytes,
 			Instant expirationTime);
 
-	//TODO rename multiPartUpload
-	void multipartUpload(String bucket, String key, S3ContentType contentType, InputStream inputStream);
+	/*---------- data write bytes multipart OutputStream ---------*/
 
-	void multiThreadUpload(
-			String bucket,
-			String key,
+	OutputStream put(
+			BucketAndKey location,
+			S3ContentType contentType);
+
+	OutputStream putWithPublicRead(
+			BucketAndKey location,
+			S3ContentType contentType);
+
+	/*---------- data write bytes multipart InputStream ---------*/
+
+	void multipartUpload(
+			BucketAndKey location,
+			S3ContentType contentType,
+			InputStream inputStream);
+
+	void multithreadUpload(
+			BucketAndKey location,
 			S3ContentType contentType,
 			InputStream inputStream,
-			ExecutorService exec,
-			int numThreads);
+			Threads threads,
+			ByteLength minPartSize);
+
+	/*---------- data write bytes multipart Scanner ---------*/
+
+	/*
+	 * Each List<byte[]> becomes an UploadPart.
+	 * Implementation can upload the byte[]s within a part without concatenating them.
+	 * Caller therefore determines size of parts.
+	 */
+	void multithreadUpload(
+			BucketAndKey location,
+			S3ContentType contentType,
+			Scanner<InputStreamAndLength> parts,
+			Threads threads);
+
+	/*----------- data write bytes multipart sub-ops ----------*/
+
+	String createMultipartUploadRequest(
+			BucketAndKey location,
+			S3ContentType contentType,
+			Optional<ObjectCannedACL> aclOpt);
+
+	CompletedPart uploadPart(
+			BucketAndKey location,
+			String uploadId,
+			int partNumber,
+			InputStreamAndLength inputStreamAndLength);
+
+	void completeMultipartUploadRequest(
+			BucketAndKey location,
+			String uploadId,
+			List<CompletedPart> completedParts);
+
+	void abortMultipartUploadRequest(
+			BucketAndKey location,
+			String uploadId);
 
 	/*----------- data write files ----------*/
 
-	void putObjectWithHeartbeat(String bucket, String key, ContentType contentType, Path path, Runnable heartbeat);
+	void putFile(BucketAndKey location, ContentType contentType, Path path);
 
-	void putPublicObject(String bucket, String key, ContentType contentType, Path path);
-
-	void putObject(String bucket, String key, ContentType contentType, Path path);
+	void putFilePublic(BucketAndKey location, ContentType contentType, Path path);
 
 	/*---------- data write strings ---------*/
 
-	void putObjectAsString(String bucket, String key, ContentType contentType, String content);
-
-	default BufferedWriter putAsWriter(String bucket, String key, ContentType contentType){
-		return new BufferedWriter(new OutputStreamWriter(put(bucket, key, contentType)));
+	default Writer putAsWriter(BucketAndKey location, ContentType contentType){
+		return WriterTool.makeBufferedWriter(put(location, contentType));
 	}
 
 }

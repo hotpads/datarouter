@@ -26,12 +26,16 @@ import io.datarouter.storage.setting.SettingRoot;
 public class DatarouterConveyorSettingRoot extends SettingRoot{
 
 	@Inject
-	public DatarouterConveyorSettingRoot(SettingFinder finder,
+	public DatarouterConveyorSettingRoot(
+			SettingFinder finder,
 			DatarouterConveyorShouldRunSettings conveyorShouldRunSettings,
-			DatarouterConveyorThreadCountSettings conveyorThreadCountSettings){
+			DatarouterConveyorThreadCountSettings conveyorThreadCountSettings,
+			DatarouterConveyorTraceSettings conveyorTraceSettings){
 		super(finder, DatarouterSettingCategory.DATAROUTER, "datarouterConveyor.");
 		registerChild(conveyorShouldRunSettings);
 		registerChild(conveyorThreadCountSettings);
+		registerChild(conveyorTraceSettings);
+
 	}
 
 }

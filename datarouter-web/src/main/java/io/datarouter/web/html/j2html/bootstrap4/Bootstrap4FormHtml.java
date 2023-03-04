@@ -35,6 +35,7 @@ import io.datarouter.web.html.form.HtmlForm.BaseHtmlFormField;
 import io.datarouter.web.html.form.HtmlFormButton;
 import io.datarouter.web.html.form.HtmlFormCheckbox;
 import io.datarouter.web.html.form.HtmlFormDate;
+import io.datarouter.web.html.form.HtmlFormDateTime;
 import io.datarouter.web.html.form.HtmlFormEmail;
 import io.datarouter.web.html.form.HtmlFormPassword;
 import io.datarouter.web.html.form.HtmlFormSelect;
@@ -86,6 +87,8 @@ public class Bootstrap4FormHtml{
 			div = textField((HtmlFormTextArea)field);
 		}else if(field instanceof HtmlFormDate){
 			div = dateField((HtmlFormDate)field);
+		}else if(field instanceof HtmlFormDateTime){
+			div = dateTimeField((HtmlFormDateTime)field);
 		}else{
 			throw new IllegalArgumentException(field.getClass() + "is an unknown subclass of "
 					+ BaseHtmlFormField.class);
@@ -166,7 +169,8 @@ public class Bootstrap4FormHtml{
 				.withClass("form-control")
 				.withName(field.getName())
 				.attr(Attr.SIZE, field.getSize())
-				.condAttr(field.isMultiple(), "multiple", null);
+				.condAttr(field.isMultiple(), "multiple", null)
+				.condAttr(field.isRequired(), "required", null);
 		return div(label, select)
 				.withClass("form-group");
 	}
@@ -185,7 +189,8 @@ public class Bootstrap4FormHtml{
 				.withPlaceholder(field.getPlaceholder())
 				.withType("text")
 				.withCondReadonly(field.isReadOnly())
-				.withValue(field.getValue());
+				.withValue(field.getValue())
+				.condAttr(field.isRequired(), "required", null);
 		var error = field.getError() == null ? null : div(field.getError())
 				.withClass("invalid-feedback");
 		return div(label, input, error)
@@ -238,7 +243,29 @@ public class Bootstrap4FormHtml{
 				.withName(field.getName())
 				.withPlaceholder(field.getPlaceholder())
 				.withType("date")
-				.withValue(field.getValue());
+				.withValue(field.getValue())
+				.condAttr(field.isRequired(), "required", null);
+		var error = field.getError() == null ? null : div(field.getError())
+				.withClass("invalid-feedback");
+		return div(label, input, error)
+				.withClass("form-group");
+	}
+
+	private static DivTag dateTimeField(HtmlFormDateTime field){
+		String inputClass = "form-control";
+		if(field.getError() != null){
+			inputClass += " is-invalid";
+		}
+		var label = label(text(field.getDisplay()))
+				.condWith(field.isRequired(), span("*").withClass("text-danger"))
+				.withClass(LABEL_CLASS);
+		var input = input()
+				.withClass(inputClass)
+				.withName(field.getName())
+				.withPlaceholder(field.getPlaceholder())
+				.withType("datetime-local")
+				.withValue(field.getValue())
+				.condAttr(field.isRequired(), "required", null);
 		var error = field.getError() == null ? null : div(field.getError())
 				.withClass("invalid-feedback");
 		return div(label, input, error)

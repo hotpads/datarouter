@@ -37,7 +37,7 @@ import io.datarouter.util.string.StringTool;
 public class ComputedPropertiesFinder{
 	private static final Logger logger = LoggerFactory.getLogger(ComputedPropertiesFinder.class);
 
-	private static final String JVM_ARG_PREFIX = "datarouter.";
+	public static final String JVM_ARG_PREFIX = "datarouter.";
 	private static final String CONFIG_DIRECTORY_PROP = "config.directory";
 	public static final String SERVER_CONFIG_FILE_NAME = "server.properties";
 
@@ -151,13 +151,10 @@ public class ComputedPropertiesFinder{
 			}else{
 				logger.info("found {} with empty value from {}", propertyName, propertyValueBySource.get().source());
 			}
+		}else if(SHOW_LOGGER){//both name and value are unknown
+			logger.warn("couldn't find " + propertyName + ", no default provided");
 		}else{
-			//both name and value are unknown
-			if(SHOW_LOGGER){
-				logger.warn("couldn't find " + propertyName + ", no default provided");
-			}else{
-				logger.info("couldn't find " + propertyName + ", no default provided");
-			}
+			logger.info("couldn't find " + propertyName + ", no default provided");
 		}
 		return null;
 	}

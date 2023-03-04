@@ -15,6 +15,7 @@
  */
 package io.datarouter.exception.storage.exceptionrecord;
 
+import java.time.Instant;
 import java.util.List;
 
 import io.datarouter.model.field.Field;
@@ -25,7 +26,7 @@ import io.datarouter.util.number.RandomTool;
 
 public class ExceptionRecordKey extends BaseRegularPrimaryKey<ExceptionRecordKey>{
 
-	private static final long PADDING = String.valueOf(Long.MAX_VALUE).length();
+	private static final int PADDING = String.valueOf(Long.MAX_VALUE).length();
 	private static final String ID_FORMAT = "%d%0" + PADDING + "d";
 
 	private String id;
@@ -49,6 +50,11 @@ public class ExceptionRecordKey extends BaseRegularPrimaryKey<ExceptionRecordKey
 	public static ExceptionRecordKey generate(){
 		String id = String.format(ID_FORMAT, System.currentTimeMillis(), RandomTool.nextPositiveLong());
 		return new ExceptionRecordKey(id);
+	}
+
+	public static Instant exceptionIdToInstant(String exceptionId){
+		String timeMs = exceptionId.substring(0, exceptionId.length() - PADDING);
+		return Instant.ofEpochMilli(Long.parseLong(timeMs));
 	}
 
 	public String getId(){

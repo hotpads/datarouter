@@ -21,11 +21,10 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.inject.Singleton;
-import javax.management.JMException;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
-import io.datarouter.util.MxBeans;
+import io.datarouter.util.JmxTool;
 import io.datarouter.util.string.StringTool;
 
 @Singleton
@@ -38,20 +37,16 @@ public class C3p0StatsService{
 		}catch(MalformedObjectNameException e){
 			throw new RuntimeException(e);
 		}
-		return MxBeans.SERVER.queryNames(query, null).stream()
+		return JmxTool.SERVER.queryNames(query, null).stream()
 				.<Optional<C3p0StatsDto>>map(objectName -> {
-						try{
-							String jdbcUrl = (String)MxBeans.SERVER.getAttribute(objectName, "jdbcUrl");
-							Optional<String> clientName = extractClientName(jdbcUrl);
-							if(clientName.isEmpty()){
-								return Optional.empty();
-							}
-							int total = (int)MxBeans.SERVER.getAttribute(objectName, "numConnections");
-							int busy = (int)MxBeans.SERVER.getAttribute(objectName, "numBusyConnections");
-							return Optional.of(new C3p0StatsDto(clientName.get(), total, busy));
-						}catch(JMException e){
-							throw new RuntimeException(e);
-						}
+					String jdbcUrl = (String)JmxTool.getAttribute(objectName, "jdbcUrl");
+					Optional<String> clientName = extractClientName(jdbcUrl);
+					if(clientName.isEmpty()){
+						return Optional.empty();
+					}
+					int total = (int)JmxTool.getAttribute(objectName, "numConnections");
+					int busy = (int)JmxTool.getAttribute(objectName, "numBusyConnections");
+					return Optional.of(new C3p0StatsDto(clientName.get(), total, busy));
 				})
 				.flatMap(Optional::stream)
 				.collect(Collectors.toList());

@@ -35,7 +35,6 @@ import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.types.Param;
-import io.datarouter.web.handler.types.optional.OptionalString;
 import io.datarouter.web.html.form.HtmlForm;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
@@ -59,9 +58,9 @@ public class DatarouterAccountCallerTypeHandler extends BaseHandler{
 
 	@Handler(defaultHandler = true)
 	public Mav updateCallerType(
-			@Param(P_accountName) OptionalString accountName,
-			@Param(P_callerType) OptionalString callerType,
-			@Param(P_submitAction) OptionalString submitAction){
+			@Param(P_accountName) Optional<String> accountName,
+			@Param(P_callerType) Optional<String> callerType,
+			@Param(P_submitAction) Optional<String> submitAction){
 		List<String> possibleOldAccountNames = accountDao.scanKeys()
 				.map(DatarouterAccountKey::getAccountName)
 				.sort()

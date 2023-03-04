@@ -26,7 +26,7 @@ import io.datarouter.model.field.imp.StringEncodedFieldKey;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
-import io.datarouter.secret.op.SecretOpReason.SecretOpReasonType;
+import io.datarouter.secret.op.SecretOpReason.Nested.SecretOpReasonType;
 import io.datarouter.secret.op.client.SecretClientOpType;
 
 public class DatarouterSecretOpRecord

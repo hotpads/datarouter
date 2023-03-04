@@ -26,7 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.inject.DatarouterInjector;
-import io.datarouter.util.MxBeans;
+import io.datarouter.util.JmxTool;
 
 @Singleton
 public class CompoundPortIdentifier{
@@ -46,7 +46,7 @@ public class CompoundPortIdentifier{
 
 	@Inject
 	public CompoundPortIdentifier(DatarouterInjector injector){
-		List<String> jmxDomains = Arrays.asList(MxBeans.SERVER.getDomains());
+		List<String> jmxDomains = Arrays.asList(JmxTool.SERVER.getDomains());
 		Optional<Identifier> optIdentifier = IDENTIFIERS.stream()
 				.filter(identifier -> jmxDomains.contains(identifier.jmxDomain()))
 				.findAny();

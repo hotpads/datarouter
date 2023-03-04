@@ -36,8 +36,8 @@ import io.datarouter.aws.s3.config.DatarouterAwsS3Executors.BucketRegionExecutor
 import io.datarouter.aws.s3.config.DatarouterAwsS3Paths;
 import io.datarouter.aws.s3.node.S3Node;
 import io.datarouter.aws.s3.web.S3BucketHandler;
-import io.datarouter.scanner.ParallelScannerContext;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.scanner.Threads;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientOptions;
 import io.datarouter.storage.node.DatarouterNodes;
@@ -100,7 +100,7 @@ public class S3WebInspector implements DatarouterClientWebInspector{
 				.map(tableName -> nodes.getPhysicalNodeForClientAndTable(
 						clientId.getName(),
 						tableName))
-				.map(node -> NodeTool.extractSinglePhysicalNode(node))
+				.map(NodeTool::extractSinglePhysicalNode)
 				.map(S3Node.class::cast)
 				.map(s3Node -> new S3NodeDto(s3Node.getBucket(), s3Node.getRootPath().toString()))
 				.list();
@@ -138,12 +138,11 @@ public class S3WebInspector implements DatarouterClientWebInspector{
 	private DivTag buildBucketTable(String contextPath, ClientId clientId){
 		DatarouterS3Client client = s3ClientManager.getClient(clientId);
 		List<S3BucketDto> buckets = client.scanBuckets()
-				.parallel(new ParallelScannerContext(
+				.parallelUnordered(new Threads(
 						bucketRegionExecutor,
-						bucketRegionExecutor.getMaximumPoolSize(),
-						true))
+						bucketRegionExecutor.getMaximumPoolSize()))
 				.map(bucket -> {
-					Region region = client.getBucketRegion(bucket.name()); // RPC
+					Region region = client.getRegionForBucket(bucket.name()); // RPC
 					return new S3BucketDto(
 							clientId.getName(),
 							bucket.name(),

@@ -18,11 +18,14 @@ package io.datarouter.web.export;
 import java.lang.reflect.Method;
 import java.util.Set;
 
+import io.datarouter.httpclient.endpoint.web.EndpointAccessType;
 import io.datarouter.httpclient.endpoint.web.JsClientType;
 
 public record JsApiMethod(
 			String url,
 			String methodName,
 			Method method,
-			Set<Class<? extends JsClientType>> clientTypes){
+			Set<Class<? extends JsClientType>> clientTypes,
+			EndpointAccessType endpointAccessType){
+
 }

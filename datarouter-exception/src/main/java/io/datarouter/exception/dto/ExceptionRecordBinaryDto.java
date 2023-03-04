@@ -25,7 +25,9 @@ import io.datarouter.binarydto.dto.BinaryDtoField;
 import io.datarouter.instrumentation.exception.ExceptionRecordDto;
 import io.datarouter.util.Require;
 
-public class ExceptionRecordBinaryDto extends BinaryDto<ExceptionRecordBinaryDto>{
+public class ExceptionRecordBinaryDto
+extends BinaryDto<ExceptionRecordBinaryDto>
+implements TaskExecutionRecordBinaryDto<ExceptionRecordDto>{
 
 	@BinaryDtoField(index = 0)
 	public final String serviceName;
@@ -105,6 +107,7 @@ public class ExceptionRecordBinaryDto extends BinaryDto<ExceptionRecordBinaryDto
 				dto.additionalAlertRecipients());
 	}
 
+	@Override
 	public ExceptionRecordDto toDto(){
 		return new ExceptionRecordDto(
 				id,
@@ -125,6 +128,11 @@ public class ExceptionRecordBinaryDto extends BinaryDto<ExceptionRecordBinaryDto
 
 	public static ExceptionRecordBinaryDto decode(byte[] bytes){
 		return BinaryDtoIndexedCodec.of(ExceptionRecordBinaryDto.class).decode(bytes);
+	}
+
+	@Override
+	public String getServiceName(){
+		return serviceName;
 	}
 
 }

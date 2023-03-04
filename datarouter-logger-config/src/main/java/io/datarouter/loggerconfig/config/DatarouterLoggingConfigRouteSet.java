@@ -29,7 +29,6 @@ public class DatarouterLoggingConfigRouteSet extends BaseRouteSet{
 
 	@Inject
 	public DatarouterLoggingConfigRouteSet(DatarouterLoggingConfigPaths paths){
-		super(paths.datarouter.logging);
 		handle(paths.datarouter.logging).withHandler(LoggingSettingsHandler.class);
 		handle(paths.datarouter.logging.createLoggerConfig).withHandler(LoggingSettingsHandler.class);
 		handle(paths.datarouter.logging.deleteAppender).withHandler(LoggingSettingsHandler.class);

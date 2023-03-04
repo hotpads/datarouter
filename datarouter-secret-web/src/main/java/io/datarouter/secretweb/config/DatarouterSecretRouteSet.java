@@ -29,7 +29,6 @@ public class DatarouterSecretRouteSet extends BaseRouteSet{
 
 	@Inject
 	public DatarouterSecretRouteSet(DatarouterSecretPaths paths){
-		super(paths.datarouter);
 		handle(paths.datarouter.secrets).withHandler(SecretHandler.class);
 		handle(paths.datarouter.secrets.handle).withHandler(SecretHandler.class);
 		handle(paths.datarouter.secrets.getSecretClientSupplierConfig).withHandler(SecretHandler.class);
@@ -38,7 +37,7 @@ public class DatarouterSecretRouteSet extends BaseRouteSet{
 	@Override
 	protected DispatchRule applyDefault(DispatchRule rule){
 		return rule
-				.allowRoles(DatarouterUserRole.USER)
+				.allowRoles(DatarouterUserRole.DATAROUTER_ADMIN)
 				.withTag(Tag.DATAROUTER);
 	}
 

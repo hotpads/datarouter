@@ -23,10 +23,12 @@ public class SingleServerType implements ServerType{
 
 	private final String persistentString;
 	private final boolean isProduction;
+	private final boolean isHttpExposed;
 
-	public SingleServerType(String persistentString, boolean isProduction){
+	public SingleServerType(String persistentString, boolean isProduction, boolean isHttpExposed){
 		this.persistentString = persistentString;
 		this.isProduction = isProduction;
+		this.isHttpExposed = isHttpExposed;
 	}
 
 	@Override
@@ -37,6 +39,11 @@ public class SingleServerType implements ServerType{
 	@Override
 	public boolean isProduction(){
 		return isProduction;
+	}
+
+	@Override
+	public boolean isHttpExposed(){
+		return isHttpExposed;
 	}
 
 	@Override

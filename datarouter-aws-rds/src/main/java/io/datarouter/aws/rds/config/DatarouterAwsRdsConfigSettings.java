@@ -50,6 +50,7 @@ public class DatarouterAwsRdsConfigSettings extends SettingNode{
 	public final CachedSetting<String> dbOtherEastParameterGroup;
 	public final CachedSetting<String> dbOtherWestParameterGroup;
 	public final CachedSetting<Integer> dbOtherPromotionTier;
+	public final CachedSetting<String> dbOtherInstanceType;
 
 	@Inject
 	public DatarouterAwsRdsConfigSettings(SettingFinder finder, CachedSecretFactory cachedSecretFactory){
@@ -79,6 +80,7 @@ public class DatarouterAwsRdsConfigSettings extends SettingNode{
 		dbOtherEastParameterGroup = registerString("dbOtherEastParameterGroup", "");
 		dbOtherWestParameterGroup = registerString("dbOtherWestParameterGroup", "");
 		dbOtherPromotionTier = registerInteger("dbOtherPromotionTier", 15);
+		dbOtherInstanceType = registerString("dbOtherInstanceType", "db.t3.small");
 	}
 
 	public String getParameterGroup(String region){

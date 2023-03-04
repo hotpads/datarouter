@@ -32,8 +32,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.inject.DatarouterInjector;
-import io.datarouter.scanner.ParallelScannerContext;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.scanner.Threads;
 import io.datarouter.util.concurrent.ExecutorServiceTool;
 import io.datarouter.util.concurrent.NamedThreadFactory;
 import io.datarouter.util.timer.PhaseTimer;
@@ -57,7 +57,7 @@ public abstract class BaseDatarouterServletContextListener implements ServletCon
 	private final List<Class<? extends DatarouterAppListener>> listenerClasses;
 	private final List<Class<? extends DatarouterWebAppListener>> webListenerClasses;
 	private final List<DatarouterAppListener> allListeners;
-	private final List<ExecutionModeAndListeners> listenersByExecutionMods;
+	private final List<ExecutionModeAndListeners> listenersByExecutionMode;
 
 	public BaseDatarouterServletContextListener(
 			List<Class<? extends DatarouterAppListener>> listenerClasses,
@@ -65,7 +65,7 @@ public abstract class BaseDatarouterServletContextListener implements ServletCon
 		this.listenerClasses = listenerClasses;
 		this.webListenerClasses = webListenerClasses;
 		this.allListeners = new ArrayList<>();
-		this.listenersByExecutionMods = new ArrayList<>();
+		this.listenersByExecutionMode = new ArrayList<>();
 	}
 
 	@Override
@@ -76,10 +76,10 @@ public abstract class BaseDatarouterServletContextListener implements ServletCon
 
 	@Override
 	public void contextDestroyed(ServletContextEvent event){
-		Collections.reverse(listenersByExecutionMods);
-		listenersByExecutionMods.forEach(pair -> Collections.reverse(pair.listeners()));
+		Collections.reverse(listenersByExecutionMode);
+		listenersByExecutionMode.forEach(pair -> Collections.reverse(pair.listeners()));
 		processListeners(OnAction.SHUTDOWN, SHUTDOWN_ALL_LISTENERS_SYNCHRONOUSLY);
-		listenersByExecutionMods.clear();
+		listenersByExecutionMode.clear();
 		allListeners.clear();
 	}
 
@@ -95,11 +95,11 @@ public abstract class BaseDatarouterServletContextListener implements ServletCon
 
 		Scanner.of(allListeners)
 				.splitBy(DatarouterAppListener::safeToExecuteInParallel)
-				.map(Scanner::list)
+				.map(scanner -> scanner.collect(ArrayList::new))
 				.map(listeners -> new ExecutionModeAndListeners(
 						listeners.get(0).safeToExecuteInParallel() ? ExecutionMode.PARALLEL : ExecutionMode.SYNCHRONOUS,
 						listeners))
-				.forEach(listenersByExecutionMods::add);
+				.forEach(listenersByExecutionMode::add);
 	}
 
 	private void processListeners(OnAction onAction, boolean executeAllListenersSynchronously){
@@ -107,7 +107,7 @@ public abstract class BaseDatarouterServletContextListener implements ServletCon
 		ExecutorService executor = Executors.newFixedThreadPool(allListeners.size(), factory);
 		var timer = new PhaseTimer();
 		long shutdownStartMillis = System.currentTimeMillis();
-		for(ExecutionModeAndListeners listenersByShutdownMode : listenersByExecutionMods){
+		for(ExecutionModeAndListeners listenersByShutdownMode : listenersByExecutionMode){
 			List<DatarouterAppListener> listeners = listenersByShutdownMode.listeners();
 			ExecutionMode executionMode = executeAllListenersSynchronously
 					? ExecutionMode.SYNCHRONOUS
@@ -122,7 +122,7 @@ public abstract class BaseDatarouterServletContextListener implements ServletCon
 			}else if(executionMode == ExecutionMode.PARALLEL){
 				long shutdownParallelStartMillis = System.currentTimeMillis();
 				Scanner.of(listeners)
-						.parallel(new ParallelScannerContext(executor, listeners.size(), true))
+						.parallelUnordered(new Threads(executor, listeners.size()))
 						.map(executeOnAction(onAction))
 						.forEach(timer::add);
 				logger.info("Parallel {} total={}", onAction.display,

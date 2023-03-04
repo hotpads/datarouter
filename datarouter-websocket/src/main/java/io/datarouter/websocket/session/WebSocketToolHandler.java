@@ -40,7 +40,6 @@ import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
-import io.datarouter.web.handler.types.optional.OptionalString;
 import io.datarouter.web.html.form.HtmlForm;
 import io.datarouter.web.html.form.HtmlFormButton;
 import io.datarouter.web.html.form.HtmlFormText;
@@ -120,7 +119,7 @@ public class WebSocketToolHandler extends BaseHandler{
 	}
 
 	@Handler
-	public Mav subscriptions(OptionalString topic, OptionalString message){
+	public Mav subscriptions(Optional<String> topic, Optional<String> message){
 		boolean sent = false;
 		if(topic.filter(StringTool::notEmptyNorWhitespace).isPresent()){
 			pushService.forwardToTopic(topic.get(), message.orElse(""));

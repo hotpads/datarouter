@@ -33,26 +33,21 @@ import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.JsonSyntaxException;
-
 import io.datarouter.httpclient.endpoint.java.EndpointTool;
 import io.datarouter.httpclient.endpoint.link.BaseLink;
 import io.datarouter.httpclient.endpoint.link.LinkTool;
 import io.datarouter.httpclient.endpoint.param.IgnoredField;
 import io.datarouter.httpclient.endpoint.param.RequestBody;
-import io.datarouter.instrumentation.trace.TraceSpanGroupType;
-import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.json.JsonSerializer;
 import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.HandlerMetrics;
 import io.datarouter.web.handler.encoder.HandlerEncoder;
-import io.datarouter.web.handler.encoder.JsonAwareHandlerCodec;
 import io.datarouter.web.util.http.RequestTool;
 
 @Singleton
-public class LinkDecoder implements HandlerDecoder, JsonAwareHandlerCodec{
+public class LinkDecoder implements JsonAwareHandlerDecoder{
 	private static final Logger logger = LoggerFactory.getLogger(LinkDecoder.class);
 
 	private final JsonSerializer deserializer;
@@ -177,34 +172,6 @@ public class LinkDecoder implements HandlerDecoder, JsonAwareHandlerCodec{
 		Object[] args = new Object[1];
 		args[0] = baseLink;
 		return args;
-	}
-
-	// same as DefaultDecoder.decode (keeping duplicate code for now)
-	private Object decodeType(String string, Type type){
-		try(
-				var $ = TracerTool.startSpan(getClass().getSimpleName() + " deserialize",
-						TraceSpanGroupType.SERIALIZATION)){
-			TracerTool.appendToSpanInfo("characters", string.length());
-			// this prevents empty strings from being decoded as null by gson
-			Object obj;
-			try{
-				obj = deserializer.deserialize(string, type);
-			}catch(JsonSyntaxException e){
-				// If the JSON is malformed and String is expected, just assign the string
-				if(type.equals(String.class)){
-					return string;
-				}
-				throw new RuntimeException("failed to decode " + string + " to a " + type, e);
-			}
-			// deserialized successfully as null, but we want empty string instead of null for consistency with Params
-			if(obj == null && type.equals(String.class) && !"null".equals(string)){
-				return "";
-			}
-			if(obj == null){
-				throw new RuntimeException("could not decode " + string + " to a non null " + type);
-			}
-			return obj;
-		}
 	}
 
 	@Override

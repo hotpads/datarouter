@@ -19,33 +19,19 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.inject.Singleton;
-import javax.management.JMException;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
 
-import io.datarouter.util.MxBeans;
+import io.datarouter.util.JmxTool;
 import io.datarouter.web.port.CompoundPortIdentifier;
 
 @Singleton
 public class TomcatThreadMetrics{
 
 	public List<TomcatThreadsJspDto> getTomcatPoolMetrics(){
-		ObjectName query;
-		try{
-			query = new ObjectName(CompoundPortIdentifier.CATALINA_JMX_DOMAIN + ":type=ThreadPool,name=*");
-		}catch(MalformedObjectNameException e){
-			throw new RuntimeException(e);
-		}
-		return MxBeans.SERVER.queryNames(query, null).stream()
+		var query = JmxTool.newObjectName(CompoundPortIdentifier.CATALINA_JMX_DOMAIN + ":type=ThreadPool,name=*");
+		return JmxTool.SERVER.queryNames(query, null).stream()
 				.map(poolMxBean -> {
-					int currentThreadCount;
-					int currentThreadsBusy;
-					try{
-						currentThreadCount = (int)MxBeans.SERVER.getAttribute(poolMxBean, "currentThreadCount");
-						currentThreadsBusy = (int)MxBeans.SERVER.getAttribute(poolMxBean, "currentThreadsBusy");
-					}catch(JMException e){
-						throw new RuntimeException(e);
-					}
+					int currentThreadCount = (int)JmxTool.getAttribute(poolMxBean, "currentThreadCount");
+					int currentThreadsBusy = (int)JmxTool.getAttribute(poolMxBean, "currentThreadsBusy");
 					String poolMxBeanName = poolMxBean.getKeyProperty("name");
 					String poolName = poolMxBeanName.substring(1, poolMxBeanName.length() - 1);
 					return new TomcatThreadsJspDto(poolName, currentThreadCount, currentThreadsBusy);

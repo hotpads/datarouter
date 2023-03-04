@@ -29,7 +29,6 @@ public class DatarouterAwsRdsRouteSet extends BaseRouteSet{
 
 	@Inject
 	public DatarouterAwsRdsRouteSet(DatarouterAwsPaths paths){
-		super(paths.datarouter);
 		handle(paths.datarouter.auroraInstances.inspectClientUrl).withHandler(AuroraInstancesHandler.class);
 		handle(paths.datarouter.auroraInstances.createOtherInstance).withHandler(AuroraInstancesHandler.class);
 		handle(paths.datarouter.auroraInstances.deleteOtherInstance).withHandler(AuroraInstancesHandler.class);

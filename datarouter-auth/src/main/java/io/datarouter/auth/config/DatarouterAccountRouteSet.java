@@ -31,7 +31,6 @@ public class DatarouterAccountRouteSet extends BaseRouteSet{
 
 	@Inject
 	public DatarouterAccountRouteSet(DatarouterAuthPaths paths){
-		super("");
 		handleAnyStringAfterPath(paths.datarouter.accountManager).withHandler(DatarouterAccountManagerHandler.class);
 		handle(paths.datarouter.accounts.renameAccounts).withHandler(DatarouterAccountRenameHandler.class);
 		handle(paths.datarouter.accounts.updateCallerType).withHandler(DatarouterAccountCallerTypeHandler.class);

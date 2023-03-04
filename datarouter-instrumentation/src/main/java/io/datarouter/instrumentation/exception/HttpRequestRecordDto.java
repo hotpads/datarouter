@@ -59,7 +59,8 @@ public record HttpRequestRecordDto(
 		String userAgent,
 		String xForwardedFor,
 		String xRequestedWith,
-		String otherHeaders){
+		String otherHeaders)
+implements TaskExecutionRecordDto{
 
 	public static final byte[] CONFIDENTIALITY_MSG_BYTES = "body omitted for confidentiality".getBytes();
 	public static final int BINARY_BODY_MAX_SIZE = 10_000;

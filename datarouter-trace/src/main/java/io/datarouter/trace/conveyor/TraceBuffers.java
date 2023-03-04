@@ -23,10 +23,10 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.conveyor.MemoryBuffer;
 import io.datarouter.instrumentation.trace.Trace2BundleAndHttpRequestRecordDto;
 import io.datarouter.storage.setting.Setting;
 import io.datarouter.trace.settings.DatarouterTracePublisherSettingRoot;
+import io.datarouter.util.buffer.MemoryBuffer;
 
 @Singleton
 public class TraceBuffers{

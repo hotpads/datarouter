@@ -32,7 +32,6 @@ public class DatarouterCopyTableRouteSet extends BaseRouteSet{
 
 	@Inject
 	public DatarouterCopyTableRouteSet(DatarouterCopyTablePaths paths){
-		super(paths.datarouter);
 		handleDir(paths.datarouter.copyTableJoblets).withHandler(JobletCopyTableHandler.class);
 		handleDir(paths.datarouter.copyTableSingleThread).withHandler(SingleThreadCopyTableHandler.class);
 		handleDir(paths.datarouter.tableProcessorJoblets).withHandler(JobletTableProcessorHandler.class);

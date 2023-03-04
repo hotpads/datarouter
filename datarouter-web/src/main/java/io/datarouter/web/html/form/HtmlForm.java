@@ -110,6 +110,12 @@ public class HtmlForm{
 		return field;
 	}
 
+	public HtmlFormDateTime addDateTimeField(){
+		var field = new HtmlFormDateTime();
+		fields.add(field);
+		return field;
+	}
+
 	public String getAction(){
 		return action;
 	}
@@ -124,9 +130,7 @@ public class HtmlForm{
 
 	public boolean hasErrors(){
 		return fields.stream()
-				.filter(BaseHtmlFormField::hasError)
-				.findAny()
-				.isPresent();
+				.anyMatch(BaseHtmlFormField::hasError);
 	}
 
 }

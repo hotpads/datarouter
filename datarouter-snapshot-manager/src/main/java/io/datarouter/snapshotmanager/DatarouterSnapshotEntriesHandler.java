@@ -20,6 +20,7 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.td;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.inject.Inject;
 
@@ -31,12 +32,12 @@ import io.datarouter.filesystem.snapshot.key.SnapshotKey;
 import io.datarouter.filesystem.snapshot.reader.ScanningSnapshotReader;
 import io.datarouter.filesystem.snapshot.web.SnapshotRecordStringDecoder;
 import io.datarouter.filesystem.snapshot.web.SnapshotRecordStrings;
+import io.datarouter.scanner.Threads;
 import io.datarouter.snapshotmanager.DatarouterSnapshotExecutors.DatarouterSnapshotWebExecutor;
 import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.types.Param;
-import io.datarouter.web.handler.types.optional.OptionalLong;
 import io.datarouter.web.html.j2html.J2HtmlTable;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import io.datarouter.web.requirejs.DatarouterWebRequireJsV2;
@@ -62,8 +63,8 @@ public class DatarouterSnapshotEntriesHandler extends BaseHandler{
 	public Mav entries(
 			@Param(P_groupId) String groupId,
 			@Param(P_snapshotId) String snapshotId,
-			@Param(P_offset) OptionalLong optOffset,
-			@Param(P_limit) OptionalLong optLimit){
+			@Param(P_offset) Optional<Long> optOffset,
+			@Param(P_limit) Optional<Long> optLimit){
 		var snapshotKey = new SnapshotKey(groupId, snapshotId);
 		SnapshotGroup group = groups.getGroup(snapshotKey.groupId());
 		DomContent content;
@@ -89,7 +90,7 @@ public class DatarouterSnapshotEntriesHandler extends BaseHandler{
 			long offset,
 			long limit){
 		SnapshotGroup group = groups.getGroup(snapshotKey.groupId());
-		var reader = new ScanningSnapshotReader(snapshotKey, exec, 2, groups, 1);
+		var reader = new ScanningSnapshotReader(snapshotKey, new Threads(exec, 2), groups, 1);
 		SnapshotRecordStringDecoder decoder = ReflectionTool.create(group.getSnapshotEntryDecoderClass());
 		List<SnapshotRecordStrings> rows = reader.scan(0)
 				// TODO go directly to the first row

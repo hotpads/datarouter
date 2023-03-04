@@ -29,7 +29,6 @@ public class DatarouterHBaseRouteSet extends BaseRouteSet{
 
 	@Inject
 	public DatarouterHBaseRouteSet(DatarouterHBasePaths paths){
-		super(paths.datarouter.clients.hbase);
 		handle(paths.datarouter.clients.hbase).withHandler(HBaseHandler.class);
 	}
 

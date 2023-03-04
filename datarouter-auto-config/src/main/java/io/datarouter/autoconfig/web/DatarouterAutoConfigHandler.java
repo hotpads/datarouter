@@ -19,7 +19,6 @@ import javax.inject.Inject;
 
 import io.datarouter.autoconfig.service.AutoConfigService;
 import io.datarouter.web.handler.BaseHandler;
-import io.datarouter.web.handler.encoder.RawStringEncoder;
 import io.datarouter.web.handler.types.Param;
 
 public class DatarouterAutoConfigHandler extends BaseHandler{
@@ -29,12 +28,12 @@ public class DatarouterAutoConfigHandler extends BaseHandler{
 	@Inject
 	private AutoConfigService autoConfigService;
 
-	@Handler(defaultHandler = true, encoder = RawStringEncoder.class)
-	private String home(){
+	@Handler
+	public String autoConfig(){
 		return autoConfigService.runAutoConfigAll(getSessionInfo().getNonEmptyUsernameOrElse("Anonymous"));
 	}
 
-	@Handler(encoder = RawStringEncoder.class)
+	@Handler
 	public String runForName(@Param(P_name) String name) throws Exception{
 		return autoConfigService.runAutoConfigForName(name, getSessionInfo().getNonEmptyUsernameOrElse("Anonymous"));
 	}

@@ -91,7 +91,7 @@ public class DatarouterSecretOpRecordDao extends BaseDao implements SecretOpReco
 				secretOp.getNamespace(),
 				secretOp.getName(),
 				secretOp.getSecretClientOpType(),
-				secretOp.getSecretOpReason().type,
+				secretOp.getSecretOpReason().type(),
 				reasonString));
 	}
 

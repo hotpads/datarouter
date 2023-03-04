@@ -54,7 +54,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 
 import io.datarouter.gson.GsonTool;
 import io.datarouter.httpclient.DocumentedGenericHolder;
@@ -69,14 +71,15 @@ import io.datarouter.httpclient.security.SecurityParameters;
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.scanner.OptionalScanner;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.types.Ulid;
+import io.datarouter.util.lang.MethodParameterExtractionTool;
 import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
 import io.datarouter.web.dispatcher.RouteSet;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.BaseHandler.Handler;
-import io.datarouter.web.handler.BaseHandler.NullHandlerDecoder;
-import io.datarouter.web.handler.BaseHandler.NullHandlerEncoder;
+import io.datarouter.web.handler.HandlerTool;
 import io.datarouter.web.handler.documentation.DocumentedExampleDto.DocumentedExampleEnumDto;
 import io.datarouter.web.handler.encoder.HandlerEncoder;
 import io.datarouter.web.handler.encoder.JsonAwareHandlerCodec;
@@ -148,15 +151,14 @@ public class ApiDocService{
 						}
 					}
 				}
-				Class<? extends HandlerDecoder> decoderClass = handlerAnnotation.decoder();
-				if(decoderClass.equals(NullHandlerDecoder.class)){
-					decoderClass = rule.getDefaultHandlerDecoder();
-				}
+				Class<? extends HandlerDecoder> decoderClass = HandlerTool.getHandlerDecoderClass(
+						handlerAnnotation,
+						rule);
 				JsonAwareHandlerCodec jsonDecoder = null;
 				if(JsonAwareHandlerCodec.class.isAssignableFrom(decoderClass)){
 					jsonDecoder = (JsonAwareHandlerCodec)injector.getInstance(decoderClass);
 				}
-				DocumentedSecurityDetails securityDetails = createApplicableSecurityParameters(rule, jsonDecoder);
+				DocumentedSecurityDetails securityDetails = createApplicableSecurityParameters(rule);
 				parameters.addAll(securityDetails.parameters);
 				parameters.addAll(createMethodParameters(method, jsonDecoder));
 
@@ -173,10 +175,9 @@ public class ApiDocService{
 								new HashSet<>());
 						responseExampleEnumDtos = responseObject.exampleEnumDtos;
 
-						Class<? extends HandlerEncoder> encoderClass = handlerAnnotation.encoder();
-						if(encoderClass.equals(NullHandlerEncoder.class)){
-							encoderClass = rule.getDefaultHandlerEncoder();
-						}
+						Class<? extends HandlerEncoder> encoderClass = HandlerTool.getHandlerEncoderClass(
+								handlerAnnotation,
+								rule);
 						if(JsonAwareHandlerCodec.class.isAssignableFrom(encoderClass)){
 							JsonAwareHandlerCodec encoder = (JsonAwareHandlerCodec)injector.getInstance(encoderClass);
 							responseExample = GsonTool.prettyPrint(encoder.getJsonSerializer().serialize(
@@ -293,8 +294,7 @@ public class ApiDocService{
 		boolean isDeprecated = parameter.isAnnotationPresent(Deprecated.class);
 		return createDocumentedParameter(
 				name,
-				parameter.getParameterizedType(),
-				parameter.isAnnotationPresent(RequestBody.class),
+				parameter,
 				description,
 				exampleEnumDtos,
 				jsonDecoder,
@@ -302,8 +302,7 @@ public class ApiDocService{
 	}
 
 	private DocumentedSecurityDetails createApplicableSecurityParameters(
-			DispatchRule rule,
-			JsonAwareHandlerCodec jsonDecoder){
+			DispatchRule rule){
 		List<String> applicableSecurityParameterNames = new ArrayList<>();
 		if(rule.hasSignature()){
 			applicableSecurityParameterNames.add(SecurityParameters.SIGNATURE);
@@ -318,22 +317,47 @@ public class ApiDocService{
 			applicableSecurityParameterNames.add(SecurityParameters.CSRF_IV);
 		}
 		List<DocumentedParameterJspDto> parameters = Scanner.of(applicableSecurityParameterNames)
-				.map(parameterName -> createDocumentedParameter(parameterName, String.class, false, null,
-						new HashSet<>(), jsonDecoder, false))
+				// TODO double check the params here
+				.map(parameterName -> new DocumentedParameterJspDto(
+						parameterName,
+						buildTypeString(String.class),
+						null,
+						true,
+						false,
+						HIDDEN_SPEC_PARAMS.contains(parameterName),
+						null,
+						false,
+						new HashSet<>()))
 				.list();
 		return new DocumentedSecurityDetails(parameters, apiKeyFieldName);
 	}
 
 	private DocumentedParameterJspDto createDocumentedParameter(
-			String parameterName,
-			Type parameterType,
-			boolean requestBody,
+			String paramName,
+			Parameter parameter,
 			String description,
 			Set<DocumentedExampleEnumDto> exampleEnumDtos,
 			JsonAwareHandlerCodec jsonDecoder,
 			boolean isDeprecated){
-		Type type = OptionalParameter.getOptionalInternalType(parameterType);
-		Optional<Class<?>> clazz = type instanceof Class ? Optional.of((Class<?>)type) : Optional.empty();
+		Type type;
+		boolean isRequired;
+
+		if(OptionalParameter.class.isAssignableFrom(parameter.getType())
+				|| Optional.class.isAssignableFrom(parameter.getType())){
+			isRequired = false;
+			if(Optional.class.isAssignableFrom(parameter.getType())){
+				type = MethodParameterExtractionTool.extractParameterizedTypeFromOptionalParameter(parameter);
+			}else{
+				type = OptionalParameter.getOptionalInternalType(parameter.getParameterizedType());
+			}
+		}else{
+			isRequired = true;
+			type = parameter.getParameterizedType();
+		}
+
+		Optional<Class<?>> clazz = type instanceof Class
+				? Optional.of((Class<?>)type)
+				: Optional.empty();
 		String example = null;
 		if(includeType(clazz)){
 			try{
@@ -341,19 +365,17 @@ public class ApiDocService{
 				exampleEnumDtos.addAll(exampleDto.exampleEnumDtos);
 				example = GsonTool.prettyPrint(jsonDecoder.getJsonSerializer().serialize(exampleDto.exampleObject));
 			}catch(Exception e){
-				logger.warn("Could not create parameter example {} for {}", type, parameterName, e);
+				logger.warn("Could not create parameter example {} for {}", type, paramName, e);
 			}
 		}
-		boolean isRequired = !(parameterType instanceof Class)
-				|| !OptionalParameter.class.isAssignableFrom((Class<?>)parameterType);
 
 		return new DocumentedParameterJspDto(
-				parameterName,
+				paramName,
 				buildTypeString(type),
 				example,
 				isRequired,
-				requestBody,
-				HIDDEN_SPEC_PARAMS.contains(parameterName),
+				parameter.isAnnotationPresent(RequestBody.class),
+				HIDDEN_SPEC_PARAMS.contains(paramName),
 				description,
 				isDeprecated,
 				exampleEnumDtos);
@@ -380,6 +402,19 @@ public class ApiDocService{
 				}catch(Exception e){
 					logger.warn("Could not create parameter example {} for {}", field.getType(), field.getName(), e);
 				}
+			}
+		}else if(field.getGenericType() instanceof ParameterizedType parameterizedType){
+			type = parameterizedType.getTypeName();
+			try{
+				DocumentedExampleDto exampleDto = handleParameterizedTypes(
+						jsonDecoder,
+						parameterizedType,
+						new HashSet<>(),
+						new HashSet<>());
+				exampleEnumDtos = exampleDto.exampleEnumDtos;
+				example = GsonTool.prettyPrint(jsonDecoder.getJsonSerializer().serialize(exampleDto.exampleObject));
+			}catch(Exception e){
+				logger.warn("Could not create parameter example {} for {}", field.getType(), field.getName(), e);
 			}
 		}else{
 			type = field.getType().getSimpleName();
@@ -435,65 +470,7 @@ public class ApiDocService{
 				.append(type)
 				.collect(HashSet::new);
 		if(type instanceof ParameterizedType parameterizedType){
-			Class<?> rawType = (Class<?>)parameterizedType.getRawType();
-			Type type0 = parameterizedType.getActualTypeArguments()[0];
-			if(List.class.isAssignableFrom(rawType)){
-				DocumentedExampleDto exampleDto = createBestExample(jsonDecoder, type0, parentsWithType);
-				return new DocumentedExampleDto(List.of(exampleDto.exampleObject), exampleDto.exampleEnumDtos);
-			}
-			if(Set.class.isAssignableFrom(rawType) || Collection.class.isAssignableFrom(rawType)){
-				DocumentedExampleDto exampleDto = createBestExample(jsonDecoder, type0, parentsWithType);
-				return new DocumentedExampleDto(Collections.singleton(exampleDto.exampleObject),
-						exampleDto.exampleEnumDtos);
-			}
-			if(Map.class.isAssignableFrom(rawType)){
-				DocumentedExampleDto key = createBestExample(jsonDecoder, type0, parentsWithType);
-				DocumentedExampleDto value = createBestExample(
-						jsonDecoder,
-						parameterizedType.getActualTypeArguments()[1],
-						parentsWithType);
-				Set<DocumentedExampleEnumDto> exampleEnumDtos = Scanner.concat(key.exampleEnumDtos,
-						value.exampleEnumDtos)
-						.collect(Collectors.toSet());
-				if(SortedMap.class.isAssignableFrom(rawType)){
-					Map<Object,Object> map = new TreeMap<>();
-					map.put(key.exampleObject, value.exampleObject);
-					return new DocumentedExampleDto(map, exampleEnumDtos);
-				}
-				return new DocumentedExampleDto(Collections.singletonMap(key.exampleObject, value.exampleObject),
-						exampleEnumDtos);
-			}
-			if(Optional.class.isAssignableFrom(rawType)){
-				DocumentedExampleDto exampleDto = createBestExample(jsonDecoder, type0, parentsWithType);
-				return new DocumentedExampleDto(Optional.of(exampleDto.exampleObject), exampleDto.exampleEnumDtos);
-			}
-			if(DocumentedGenericHolder.class.isAssignableFrom(rawType)){
-				DocumentedExampleDto exampleDto = createBestExample(jsonDecoder, rawType, parents, 3);
-				DocumentedGenericHolder autoBuildable = (DocumentedGenericHolder)exampleDto.exampleObject;
-				List<DocumentedExampleDto> innerObjects = Scanner.of(parameterizedType.getActualTypeArguments())
-						.map(paramType -> createBestExample(jsonDecoder, paramType, parentsWithType))
-						.list();
-				List<String> fieldNames = autoBuildable.getGenericFieldNames();
-				for(int i = 0; i < innerObjects.size(); i++){
-					String fieldName = fieldNames.get(i);
-					Field field;
-					try{
-						field = rawType.getDeclaredField(fieldName);
-					}catch(NoSuchFieldException | SecurityException e){
-						logger.warn("fieldName={} rawType={}", fieldName, rawType, e);
-						continue;
-					}
-					field.setAccessible(true);
-					Object value = innerObjects.get(i).exampleObject;
-					ReflectionTool.set(field, autoBuildable, value);
-				}
-				Set<DocumentedExampleEnumDto> enums = Scanner.of(innerObjects)
-						.concatIter(dto -> dto.exampleEnumDtos)
-						.collect(Collectors.toSet());
-				enums.addAll(exampleDto.exampleEnumDtos);
-				return new DocumentedExampleDto(autoBuildable, enums);
-			}
-			return new DocumentedExampleDto(createBestExample(jsonDecoder, rawType, parentsWithType), new HashSet<>());
+			return handleParameterizedTypes(jsonDecoder, parameterizedType, parents, parentsWithType);
 		}
 		// undocumented generic (T or E or PK)
 		if(type instanceof TypeVariable){
@@ -507,6 +484,9 @@ public class ApiDocService{
 			return new DocumentedExampleDto(null, new HashSet<>());
 		}
 		Class<?> clazz = (Class<?>)type;
+		if(clazz == Ulid.class){
+			return new DocumentedExampleDto(new Ulid(), new HashSet<>());
+		}
 		if(clazz.isRecord()){
 			return handleRecords(clazz, jsonDecoder, type, parentsWithType, callWithoutWarning);
 		}
@@ -563,6 +543,10 @@ public class ApiDocService{
 		if(clazz == JsonArray.class){
 			return new DocumentedExampleDto(new JsonArray(), new HashSet<>());
 		}
+		if(clazz == JsonElement.class){
+			return new DocumentedExampleDto(new JsonPrimitive("{} || [] || 1 || true || \"string\" || null"),
+					new HashSet<>());
+		}
 		if(clazz == JsonObject.class){
 			return new DocumentedExampleDto(new JsonObject(), new HashSet<>());
 		}
@@ -615,6 +599,73 @@ public class ApiDocService{
 		return new DocumentedExampleDto(example, exampleEnumDtos);
 	}
 
+	private static DocumentedExampleDto handleParameterizedTypes(
+			JsonAwareHandlerCodec jsonDecoder,
+			ParameterizedType parameterizedType,
+			Set<Type> parents,
+			Set<Type> parentsWithType){
+		Class<?> rawType = (Class<?>)parameterizedType.getRawType();
+		Type type0 = parameterizedType.getActualTypeArguments()[0];
+		if(List.class.isAssignableFrom(rawType)){
+			DocumentedExampleDto exampleDto = createBestExample(jsonDecoder, type0, parentsWithType);
+			List<Object> list = exampleDto.exampleObject == null ? List.of() : List.of(exampleDto.exampleObject);
+			return new DocumentedExampleDto(list, exampleDto.exampleEnumDtos);
+		}
+		if(Set.class.isAssignableFrom(rawType) || Collection.class.isAssignableFrom(rawType)){
+			DocumentedExampleDto exampleDto = createBestExample(jsonDecoder, type0, parentsWithType);
+			return new DocumentedExampleDto(Collections.singleton(exampleDto.exampleObject),
+					exampleDto.exampleEnumDtos);
+		}
+		if(Map.class.isAssignableFrom(rawType)){
+			DocumentedExampleDto key = createBestExample(jsonDecoder, type0, parentsWithType);
+			DocumentedExampleDto value = createBestExample(
+					jsonDecoder,
+					parameterizedType.getActualTypeArguments()[1],
+					parentsWithType);
+			Set<DocumentedExampleEnumDto> exampleEnumDtos = Scanner.concat(key.exampleEnumDtos,
+					value.exampleEnumDtos)
+					.collect(Collectors.toSet());
+			if(SortedMap.class.isAssignableFrom(rawType)){
+				Map<Object,Object> map = new TreeMap<>();
+				map.put(key.exampleObject, value.exampleObject);
+				return new DocumentedExampleDto(map, exampleEnumDtos);
+			}
+			return new DocumentedExampleDto(Collections.singletonMap(key.exampleObject, value.exampleObject),
+					exampleEnumDtos);
+		}
+		if(Optional.class.isAssignableFrom(rawType)){
+			DocumentedExampleDto exampleDto = createBestExample(jsonDecoder, type0, parentsWithType);
+			return new DocumentedExampleDto(Optional.of(exampleDto.exampleObject), exampleDto.exampleEnumDtos);
+		}
+		if(DocumentedGenericHolder.class.isAssignableFrom(rawType)){
+			DocumentedExampleDto exampleDto = createBestExample(jsonDecoder, rawType, parents, 3);
+			DocumentedGenericHolder autoBuildable = (DocumentedGenericHolder)exampleDto.exampleObject;
+			List<DocumentedExampleDto> innerObjects = Scanner.of(parameterizedType.getActualTypeArguments())
+					.map(paramType -> createBestExample(jsonDecoder, paramType, parentsWithType))
+					.list();
+			List<String> fieldNames = autoBuildable.getGenericFieldNames();
+			for(int i = 0; i < innerObjects.size(); i++){
+				String fieldName = fieldNames.get(i);
+				Field field;
+				try{
+					field = rawType.getDeclaredField(fieldName);
+				}catch(NoSuchFieldException | SecurityException e){
+					logger.warn("fieldName={} rawType={}", fieldName, rawType, e);
+					continue;
+				}
+				field.setAccessible(true);
+				Object value = innerObjects.get(i).exampleObject;
+				ReflectionTool.set(field, autoBuildable, value);
+			}
+			Set<DocumentedExampleEnumDto> enums = Scanner.of(innerObjects)
+					.concatIter(dto -> dto.exampleEnumDtos)
+					.collect(Collectors.toSet());
+			enums.addAll(exampleDto.exampleEnumDtos);
+			return new DocumentedExampleDto(autoBuildable, enums);
+		}
+		return new DocumentedExampleDto(createBestExample(jsonDecoder, rawType, parentsWithType), new HashSet<>());
+	}
+
 	private static DocumentedExampleDto handleRecords(
 			Class<?> recordClazz,
 			JsonAwareHandlerCodec jsonDecoder,
@@ -636,7 +687,9 @@ public class ApiDocService{
 						exampleEnumDtos.addAll(exampleDto.exampleEnumDtos);
 						constructorParams.add(exampleDto.exampleObject);
 					});
-			newRecord = getCanonicalConstructor(recordClazz).newInstance(constructorParams.toArray());
+			Constructor<?> constructor = getCanonicalConstructor(recordClazz);
+			constructor.setAccessible(true);
+			newRecord = constructor.newInstance(constructorParams.toArray());
 		}catch(Exception e){
 			logger.warn("error creating {}", type, e);
 		}

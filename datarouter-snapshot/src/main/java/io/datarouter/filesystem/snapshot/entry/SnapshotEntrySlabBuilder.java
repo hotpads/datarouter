@@ -19,30 +19,30 @@ import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.bytes.ByteWriter;
-import io.datarouter.bytes.PagedObjectArray;
+import io.datarouter.scanner.PagedList;
 
 public class SnapshotEntrySlabBuilder{
 
 	private final ByteWriter keyWriter;
 	private int keyEnding;
-	private final PagedObjectArray<Integer> keyEndings;
+	private final PagedList<Integer> keyEndings;
 
 	private final ByteWriter valueWriter;
 	private int valueEnding;
-	private final PagedObjectArray<Integer> valueEndings;
+	private final PagedList<Integer> valueEndings;
 
-	private final PagedObjectArray<byte[][]> columnValuesList;
+	private final PagedList<byte[][]> columnValuesList;
 
 	public SnapshotEntrySlabBuilder(){
 		keyWriter = new ByteWriter(64);
 		keyEnding = 0;
-		keyEndings = new PagedObjectArray<>(64);
+		keyEndings = new PagedList<>(64);
 
 		valueWriter = new ByteWriter(64);
 		valueEnding = 0;
-		valueEndings = new PagedObjectArray<>(64);
+		valueEndings = new PagedList<>(64);
 
-		columnValuesList = new PagedObjectArray<>(64);
+		columnValuesList = new PagedList<>(64);
 	}
 
 	public void append(byte[] key, byte[] value, byte[][] columnValues){

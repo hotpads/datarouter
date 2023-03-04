@@ -23,14 +23,12 @@ import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import io.datarouter.scanner.ParallelScannerContext;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.scanner.Threads;
 
 /**
  * Gzip normally encodes and decodes in a single thread which underutilizes multi-threaded hardware.
@@ -43,6 +41,8 @@ import io.datarouter.scanner.Scanner;
  *
  * When reading, the main thread can pull gzipped blocks from the InputStream and pass them to other threads to decode.
  * Besides un-gzipping, blocks can further decoded in helper threads.
+ *
+ * Note that this is not compatible with the normal Gzip file format.
  */
 public class GzipBlockStream{
 
@@ -89,7 +89,8 @@ public class GzipBlockStream{
 	 * Encode the blocks to gzip.
 	 */
 	public Scanner<GzipBlockStreamEncodedBlock> encode(Scanner<GzipBlockStreamRow> rows){
-		return splitRowsIntoBlocks(rows)
+		return rows
+				.batchByMinSize(blockSize, GzipBlockStreamRow::length)
 				.map(this::encodeRowsToGzipBlock);
 	}
 
@@ -99,29 +100,11 @@ public class GzipBlockStream{
 	 */
 	public Scanner<GzipBlockStreamEncodedBlock> encodeParallel(
 			Scanner<GzipBlockStreamRow> rows,
-			ExecutorService exec,
-			int numThreads){
-		return splitRowsIntoBlocks(rows)
-				//do not allow unorderedResults
-				.parallel(new ParallelScannerContext(exec, numThreads, false))
-				.map(this::encodeRowsToGzipBlock);
-	}
-
-	/**
-	 * Split rows into bigger blocks when >= blockSize.
-	 */
-	private Scanner<List<GzipBlockStreamRow>> splitRowsIntoBlocks(Scanner<GzipBlockStreamRow> rows){
-		var blockId = new AtomicLong();
-		var currentBlockLength = new AtomicInteger();
+			Threads threads){
 		return rows
-				.each(row -> {
-					if(currentBlockLength.addAndGet(row.length()) >= blockSize){
-						blockId.incrementAndGet();
-						currentBlockLength.set(0);
-					}
-				})
-				.splitBy($ -> blockId.get())
-				.map(Scanner::list);
+				.batchByMinSize(blockSize, GzipBlockStreamRow::length)
+				.parallelOrdered(threads)// ordering matters
+				.map(this::encodeRowsToGzipBlock);
 	}
 
 	/**
@@ -160,11 +143,9 @@ public class GzipBlockStream{
 	 */
 	public Scanner<byte[]> decodeParallel(
 			InputStream inputStream,
-			ExecutorService exec,
-			int numThreads){
+			Threads threads){
 		return rawInputStreamToGzipBlocks(inputStream)
-				//do not allow unorderedResults
-				.parallel(new ParallelScannerContext(exec, numThreads, false))
+				.parallelOrdered(threads)// ordering matters
 				.map(this::gzipBlockToRawBlock);
 	}
 

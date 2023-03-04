@@ -19,14 +19,14 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ExecutorService;
 
 import io.datarouter.bytes.ByteLength;
 import io.datarouter.bytes.MultiByteArrayInputStream;
 import io.datarouter.bytes.split.ChunkScannerTool;
-import io.datarouter.scanner.ParallelScannerContext;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.scanner.Threads;
 import io.datarouter.storage.config.Config;
+import io.datarouter.storage.file.BucketAndPrefix;
 import io.datarouter.storage.file.Pathbean;
 import io.datarouter.storage.file.PathbeanKey;
 import io.datarouter.storage.node.op.NodeOps;
@@ -73,8 +73,10 @@ extends NodeOps<PathbeanKey,Pathbean>{
 	}
 
 	//TODO implement in all subclasses rather than defaulting to scanChunks
-	default InputStream readInputStream(PathbeanKey key, Config config){
-		return scanChunks(key, Range.everything(), ByteLength.ofMiB(4).toBytesInt())
+	default InputStream readInputStream(
+			PathbeanKey key,
+			@SuppressWarnings("unused") Config config){
+		return scanChunks(key, Range.everything(), ByteLength.ofMiB(4))
 				.apply(MultiByteArrayInputStream::new);
 	}
 
@@ -113,28 +115,34 @@ extends NodeOps<PathbeanKey,Pathbean>{
 	default Scanner<byte[]> scanChunks(
 			PathbeanKey key,
 			Range<Long> range,
-			int chunkSize){
+			ByteLength chunkSize){
 		long fromInclusive = range.hasStart() ? range.getStart() : 0;
 		long toExclusive = range.hasEnd()
 				? range.getEnd()
 				: length(key).orElseThrow();// extra operation
-		return ChunkScannerTool.scanChunks(fromInclusive, toExclusive, chunkSize)
+		return ChunkScannerTool.scanChunks(fromInclusive, toExclusive, chunkSize.toBytesInt())
 				.map(chunkRange -> read(key, chunkRange.start, chunkRange.length));
 	}
 
 	default Scanner<byte[]> scanChunks(
 			PathbeanKey key,
 			Range<Long> range,
-			ExecutorService exec,
-			int numThreads,
-			int chunkSize){
+			Threads threads,
+			ByteLength chunkSize){
 		long fromInclusive = range.hasStart() ? range.getStart() : 0;
 		long toExclusive = range.hasEnd()
 				? range.getEnd()
 				: length(key).orElseThrow();// extra operation
-		return ChunkScannerTool.scanChunks(fromInclusive, toExclusive, chunkSize)
-				.parallel(new ParallelScannerContext(exec, numThreads, false))
+		return ChunkScannerTool.scanChunks(fromInclusive, toExclusive, chunkSize.toBytesInt())
+				.parallelOrdered(threads)
 				.map(chunkRange -> read(key, chunkRange.start, chunkRange.length));
 	}
 
+	default Scanner<DirectoryDto> scanDirectories(BucketAndPrefix locationPrefix, String startAfter, int pageSize){
+		throw new UnsupportedOperationException("Not yet implemented");
+	}
+
+	default Scanner<DirectoryDto> scanFiles(BucketAndPrefix locationPrefix, String startAfter, int pageSize){
+		throw new UnsupportedOperationException("Not yet implemented");
+	}
 }

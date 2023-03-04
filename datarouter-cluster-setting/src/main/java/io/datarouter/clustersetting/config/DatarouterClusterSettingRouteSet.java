@@ -29,7 +29,6 @@ public class DatarouterClusterSettingRouteSet extends BaseRouteSet{
 
 	@Inject
 	public DatarouterClusterSettingRouteSet(DatarouterClusterSettingPaths paths){
-		super(paths.datarouter);
 		handle(paths.datarouter.settings).withHandler(ClusterSettingsHandler.class);
 		handle(paths.datarouter.settings.update).withHandler(ClusterSettingsHandler.class);
 		handle(paths.datarouter.settings.delete).withHandler(ClusterSettingsHandler.class);

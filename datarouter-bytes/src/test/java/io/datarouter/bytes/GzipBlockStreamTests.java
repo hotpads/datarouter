@@ -18,7 +18,6 @@ package io.datarouter.bytes;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.slf4j.Logger;
@@ -29,6 +28,7 @@ import org.testng.annotations.Test;
 import io.datarouter.bytes.GzipBlockStream.GzipBlockStreamRow;
 import io.datarouter.bytes.codec.stringcodec.StringCodec;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.scanner.Threads;
 
 public class GzipBlockStreamTests{
 	private static final Logger logger = LoggerFactory.getLogger(GzipBlockStreamTests.class);
@@ -66,19 +66,17 @@ public class GzipBlockStreamTests{
 
 	@Test
 	public void testRoundTripParallel(){
-		int numThreads = 4;
-		ExecutorService exec = Executors.newFixedThreadPool(numThreads);
-
 		var blockStream = new GzipBlockStream();
+		var threads = new Threads(Executors.newFixedThreadPool(4), 4);
 		var outputStream = new ByteArrayOutputStream();
-		blockStream.encodeParallel(Scanner.of(ROWS), exec, numThreads)
+		blockStream.encodeParallel(Scanner.of(ROWS), threads)
 				.forEach(gzipBlock -> gzipBlock.toOutputStream(outputStream));
 		int encodedSize = outputStream.size();
 		var inputStream = new ByteArrayInputStream(outputStream.toByteArray());
-		byte[] allOutputBytes = blockStream.decodeParallel(inputStream, exec, numThreads)
+		byte[] allOutputBytes = blockStream.decodeParallel(inputStream, threads)
 				.listTo(ByteTool::concat);
 
-		exec.shutdownNow();
+		threads.exec().shutdownNow();
 
 		logger.warn("rawSize={}", RAW_SIZE);
 		logger.warn("numBlocksEncoded={}", blockStream.getNumBlocksEncoded());

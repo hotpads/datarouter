@@ -33,8 +33,8 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.bytes.split.ChunkScannerTool;
-import io.datarouter.scanner.ParallelScannerContext;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.scanner.Threads;
 import io.datarouter.util.tuple.Range;
 
 @Singleton
@@ -102,7 +102,7 @@ public class BinaryFileService{
 				? range.getEnd()
 				: length(fullPath).orElseThrow();// extra operation
 		return ChunkScannerTool.scanChunks(fromInclusive, toExclusive, chunkSize)
-				.parallel(new ParallelScannerContext(exec, numThreads, false))
+				.parallelOrdered(new Threads(exec, numThreads))
 				.map(chunkRange -> readBytes(fullPath, chunkRange.start, chunkRange.length));
 	}
 

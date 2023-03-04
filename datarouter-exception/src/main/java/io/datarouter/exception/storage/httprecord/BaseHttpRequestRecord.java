@@ -115,7 +115,7 @@ extends BaseDatabean<PK,D>{
 				.withSize(Traceparent.PARENT_ID_HEX_SIZE);
 		public static final StringFieldKey httpMethod = new StringFieldKey("httpMethod").withSize(16);
 		public static final StringFieldKey httpParams = new StringFieldKey("httpParams")
-				.withSize(CommonFieldSizes.INT_LENGTH_LONGTEXT);
+				.withSize(CommonFieldSizes.MAX_CHARACTERS_SPANNER);
 		public static final StringFieldKey protocol = new StringFieldKey("protocol").withSize(5);
 		public static final StringFieldKey hostname = new StringFieldKey("hostname");
 		public static final IntegerFieldKey port = new IntegerFieldKey("port");
@@ -589,6 +589,7 @@ extends BaseDatabean<PK,D>{
 		trimOrigin();
 		trimPragma();
 		trimAccept();
+		trimHttpParams();
 	}
 
 	public void trimBinaryBody(int size){
@@ -630,6 +631,10 @@ extends BaseDatabean<PK,D>{
 
 	public void trimAccept(){
 		accept = trimField(FieldKeys.accept, accept);
+	}
+
+	public void trimHttpParams(){
+		httpParams = trimField(FieldKeys.httpParams, httpParams);
 	}
 
 	private String trimField(StringFieldKey fieldKey, String field){

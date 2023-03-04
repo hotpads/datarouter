@@ -27,8 +27,8 @@ import io.datarouter.autoconfig.config.DatarouterAutoConfigExecutors.AutoConfigE
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDtoBuilder;
 import io.datarouter.plugin.PluginInjector;
-import io.datarouter.scanner.ParallelScannerContext;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.scanner.Threads;
 import io.datarouter.storage.servertype.ServerTypeDetector;
 
 @Singleton
@@ -65,7 +65,7 @@ public class AutoConfigService{
 	public String runAutoConfigAll(String triggerer){
 		serverTypeDetector.assertNotProductionServer();
 		return Scanner.of(getAutoConfigByName().entrySet())
-				.parallel(new ParallelScannerContext(executor, 8, true))
+				.parallelUnordered(new Threads(executor, 8))
 				.map(entry -> {
 					try{
 						return runInternal(entry.getKey(), entry.getValue(), triggerer);

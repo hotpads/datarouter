@@ -19,13 +19,16 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ExecutorService;
 import java.util.function.Function;
 
 import io.datarouter.aws.s3.DatarouterS3Client;
+import io.datarouter.bytes.ByteLength;
+import io.datarouter.bytes.InputStreamAndLength;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.scanner.Threads;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.config.Config;
+import io.datarouter.storage.file.BucketAndPrefix;
 import io.datarouter.storage.file.DatabaseBlob;
 import io.datarouter.storage.file.DatabaseBlob.DatabaseBlobFielder;
 import io.datarouter.storage.file.DatabaseBlobKey;
@@ -33,6 +36,7 @@ import io.datarouter.storage.file.Pathbean;
 import io.datarouter.storage.file.PathbeanKey;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.op.raw.BlobStorage.PhysicalBlobStorageNode;
+import io.datarouter.storage.node.op.raw.read.DirectoryDto;
 import io.datarouter.storage.node.type.physical.base.BasePhysicalNode;
 import io.datarouter.storage.util.Subpath;
 
@@ -112,10 +116,22 @@ implements PhysicalBlobStorageNode{
 	public void writeParallel(
 			PathbeanKey key,
 			InputStream inputStream,
-			ExecutorService exec,
-			int numThreads,
+			Threads threads,
+			ByteLength minPartSize,
 			Config config){
-		s3DirectoryManager.multiThreadUpload(key.getPathAndFile(), inputStream, exec, numThreads);
+		s3DirectoryManager.multiThreadUpload(key.getPathAndFile(), inputStream, threads, minPartSize);
+	}
+
+	@Override
+	public void writeParallel(
+			PathbeanKey key,
+			Scanner<List<byte[]>> parts,
+			Threads threads,
+			Config config){
+		s3DirectoryManager.multiThreadUpload(
+				key.getPathAndFile(),
+				parts.map(InputStreamAndLength::new),
+				threads);
 	}
 
 	@Override
@@ -153,4 +169,14 @@ implements PhysicalBlobStorageNode{
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
+	public Scanner<DirectoryDto> scanDirectories(BucketAndPrefix locationPrefix, String startAfter, int pageSize){
+		return datarouterS3Client.scanSubdirectoriesOnly(locationPrefix, startAfter, FILE_PATH_DELIMITER,
+				pageSize);
+	}
+
+	@Override
+	public Scanner<DirectoryDto> scanFiles(BucketAndPrefix locationPrefix, String startAfter, int pageSize){
+		return datarouterS3Client.scanFilesOnly(locationPrefix, startAfter, FILE_PATH_DELIMITER, pageSize);
+	}
 }

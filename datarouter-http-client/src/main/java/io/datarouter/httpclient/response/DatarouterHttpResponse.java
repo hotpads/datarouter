@@ -15,6 +15,7 @@
  */
 package io.datarouter.httpclient.response;
 
+import java.net.InetSocketAddress;
 import java.util.List;
 
 import org.apache.http.Header;
@@ -27,6 +28,8 @@ import org.apache.http.cookie.Cookie;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.httpclient.client.DatarouterConnectionSocketFactory;
+
 /**
  * This class is an abstraction over the HttpResponse that handles several of the expected HTTP failures
  */
@@ -36,6 +39,7 @@ public class DatarouterHttpResponse{
 	private final HttpResponse response;
 	private final List<Cookie> cookies;
 	private final HttpRequest request;
+	private final InetSocketAddress remoteAddress;
 	private final int statusCode;
 	private final String entity;
 
@@ -43,6 +47,7 @@ public class DatarouterHttpResponse{
 		this.response = response;
 		this.cookies = context.getCookieStore().getCookies();
 		this.request = context.getRequest();
+		this.remoteAddress = (InetSocketAddress)context.getAttribute(DatarouterConnectionSocketFactory.REMOTE_ADDRESS);
 		this.statusCode = statusCode;
 		this.entity = entity;
 	}
@@ -73,6 +78,11 @@ public class DatarouterHttpResponse{
 
 	public HttpRequest getRequest(){
 		return request;
+	}
+
+	// non null only for initial request
+	public InetSocketAddress getRemoteAddress(){
+		return remoteAddress;
 	}
 
 	public StatusLine getStatusLine(){

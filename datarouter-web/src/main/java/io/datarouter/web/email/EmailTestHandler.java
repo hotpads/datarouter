@@ -23,6 +23,7 @@ import static j2html.TagCreator.p;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import javax.inject.Inject;
 
@@ -35,7 +36,6 @@ import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.types.Param;
-import io.datarouter.web.handler.types.optional.OptionalString;
 import io.datarouter.web.html.form.HtmlForm;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
@@ -65,7 +65,7 @@ public class EmailTestHandler extends BaseHandler{
 	private ServerName serverName;
 
 	@Handler(defaultHandler = true)
-	private Mav sendEmailTest(@Param(P_submitAction) OptionalString submitAction){
+	private Mav sendEmailTest(@Param(P_submitAction) Optional<String> submitAction){
 		var form = new HtmlForm();
 		form.addButton()
 				.withDisplay("Submit")

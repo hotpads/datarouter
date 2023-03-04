@@ -33,11 +33,11 @@ import io.datarouter.conveyor.ConveyorConfiguration;
 import io.datarouter.conveyor.ConveyorCounters;
 import io.datarouter.conveyor.ConveyorGauges;
 import io.datarouter.conveyor.ConveyorRunnable;
-import io.datarouter.conveyor.queue.BatchedQueueConsumer;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.queue.QueueMessage;
+import io.datarouter.storage.queue.consumer.BatchedQueueConsumer;
 
 /**
  * Drains the queue and stores the data in a buffer. When the buffer hits a set limit it will trigger the processing as

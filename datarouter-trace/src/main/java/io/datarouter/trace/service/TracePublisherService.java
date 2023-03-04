@@ -25,10 +25,10 @@ import io.datarouter.instrumentation.response.PublishingResponseDto;
 import io.datarouter.instrumentation.trace.Trace2BatchedBundleDto;
 import io.datarouter.instrumentation.trace.TracePublisher;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.trace.dto.TraceBinaryDto;
 import io.datarouter.trace.settings.DatarouterTracePublisherSettingRoot;
-import io.datarouter.trace.storage.trace.TraceDirectoryDao;
-import io.datarouter.trace.storage.trace.TraceQueueDao;
+import io.datarouter.trace.storage.TraceDirectoryDao;
+import io.datarouter.trace.storage.TraceQueueDao;
+import io.datarouter.trace.storage.binarydto.TraceBinaryDto;
 import io.datarouter.types.Ulid;
 
 @Singleton

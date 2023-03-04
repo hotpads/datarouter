@@ -23,6 +23,7 @@ import static j2html.TagCreator.td;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -38,15 +39,13 @@ import io.datarouter.aws.s3.config.DatarouterAwsS3Paths;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.DatarouterClients;
+import io.datarouter.storage.file.BucketAndPrefix;
 import io.datarouter.storage.node.op.raw.read.DirectoryDto;
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.types.Param;
-import io.datarouter.web.handler.types.optional.OptionalBoolean;
-import io.datarouter.web.handler.types.optional.OptionalInteger;
-import io.datarouter.web.handler.types.optional.OptionalString;
 import io.datarouter.web.html.form.HtmlForm;
 import io.datarouter.web.html.j2html.J2HtmlTable;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
@@ -80,12 +79,12 @@ public class S3BucketHandler extends BaseHandler{
 	public Mav index(
 			@Param(P_client) String client,
 			@Param(P_bucket) String bucket,
-			@Param(P_prefix) OptionalString prefix,
-			@Param(P_after) OptionalString after,
-			@Param(P_offset) OptionalInteger offset,
-			@Param(P_limit) OptionalInteger limit,
-			@Param(P_currentDirectory) OptionalBoolean currentDirectory,
-			@Param(P_delimiter) OptionalString delimiter){
+			@Param(P_prefix) Optional<String> prefix,
+			@Param(P_after) Optional<String> after,
+			@Param(P_offset) Optional<Integer> offset,
+			@Param(P_limit) Optional<Integer> limit,
+			@Param(P_currentDirectory) Optional<Boolean> currentDirectory,
+			@Param(P_delimiter) Optional<String> delimiter){
 
 		var form = new HtmlForm()
 				.withMethod("get");
@@ -132,8 +131,7 @@ public class S3BucketHandler extends BaseHandler{
 		ClientId clientId = clients.getClientId(client);
 		DatarouterS3Client s3Client = s3ClientManager.getClient(clientId);
 		List<DirectoryDto> objects = s3Client.scanSubdirectories(
-				bucket,
-				prefix.orElse(null),
+				new BucketAndPrefix(bucket, prefix.orElse(null)),
 				after.orElse(null),
 				delimiter.orElse(null),
 				limit.orElse(100),
@@ -143,34 +141,34 @@ public class S3BucketHandler extends BaseHandler{
 		TableTag table = new J2HtmlTable<DirectoryDto>()
 				.withClasses("sortable table table-sm table-striped my-4 border")
 				.withHtmlColumn("Key", object -> {
-					String name = object.name;
-					if(object.isDirectory){
+					String name = object.name();
+					if(object.isDirectory()){
 						return td(makePrefixLink(client, bucket, name, "/"));
 					}
 					return td(name);
 				})
 				.withHtmlColumn("Directory", object -> {
-					boolean isDirectory = object.isDirectory;
+					boolean isDirectory = object.isDirectory();
 					if(isDirectory){
 						String href = new URIBuilder()
 								.setPath(request.getContextPath() + paths.datarouter.clients.awsS3.countObjects
 										.toSlashedString())
 								.addParameter(P_client, client)
 								.addParameter(P_bucket, bucket)
-								.addParameter(P_prefix, object.name)
+								.addParameter(P_prefix, object.name())
 								.toString();
 						return td(a("true, view count").withHref(href));
 					}
 					return td(String.valueOf(isDirectory));
 				})
 				.withHtmlColumn("Size", object -> {
-					String commas = NumberFormatter.addCommas(object.size);
+					String commas = NumberFormatter.addCommas(object.size());
 					String padded = StringTool.pad(commas, ' ', sizePadding);
-					String escaped = padded.replaceAll(" ", "&nbsp;");
+					String escaped = padded.replace(" ", "&nbsp;");
 					return td(rawHtml(escaped));
 				})
-				.withColumn("Last Modified", object -> object.lastModified)
-				.withColumn("Storage Class", object -> object.storageClass)
+				.withColumn("Last Modified", DirectoryDto::lastModified)
+				.withColumn("Storage Class", DirectoryDto::storageClass)
 				.build(objects);
 		TableTag tableWrapper = table.withStyle("font-family:monospace; font-size:.9em;");
 		var content = div(
@@ -189,15 +187,14 @@ public class S3BucketHandler extends BaseHandler{
 	public Mav countObjects(
 			@Param(P_client) String client,
 			@Param(P_bucket) String bucket,
-			@Param(P_prefix) OptionalString prefix){
+			@Param(P_prefix) Optional<String> prefix){
 		ClientId clientId = clients.getClientId(client);
 		DatarouterS3Client s3Client = s3ClientManager.getClient(clientId);
 		var count = new AtomicLong();
 		var size = new AtomicLong();
 		var message = new AtomicReference<String>();
-		s3Client.scanObjects(
-				bucket,
-				prefix.orElse(""))
+		s3Client.scan(
+				new BucketAndPrefix(bucket, prefix.orElse("")))
 				.each($ -> count.incrementAndGet())
 				.each(obj -> size.addAndGet(obj.size()))
 				.sample(10_000, true)
@@ -228,7 +225,7 @@ public class S3BucketHandler extends BaseHandler{
 
 	private static int sizePadding(List<DirectoryDto> objects){
 		return Scanner.of(objects)
-				.map(object -> object.size)
+				.map(DirectoryDto::size)
 				.map(NumberFormatter::addCommas)
 				.map(String::length)
 				.findMax(Comparator.naturalOrder())

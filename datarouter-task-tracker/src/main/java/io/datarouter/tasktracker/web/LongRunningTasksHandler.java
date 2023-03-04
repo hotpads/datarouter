@@ -38,7 +38,6 @@ import io.datarouter.util.string.StringTool;
 import io.datarouter.util.time.ZonedDateFormatterTool;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
-import io.datarouter.web.handler.types.optional.OptionalString;
 import io.datarouter.web.html.j2html.J2HtmlLegendTable;
 import io.datarouter.web.user.session.CurrentUserSessionInfoService;
 import j2html.tags.specialized.DivTag;
@@ -57,7 +56,7 @@ public class LongRunningTasksHandler extends BaseHandler{
 	private CurrentUserSessionInfoService currentUserSessionInfoService;
 
 	@Handler(defaultHandler = true)
-	Mav longRunningTasks(OptionalString name, OptionalString status){
+	Mav longRunningTasks(Optional<String> name, Optional<String> status){
 		Mav mav = new Mav(files.jsp.admin.datarouter.tasktracker.longRunningTasksJsp);
 		String lowercaseNameSearch = name
 				.map(String::toLowerCase)

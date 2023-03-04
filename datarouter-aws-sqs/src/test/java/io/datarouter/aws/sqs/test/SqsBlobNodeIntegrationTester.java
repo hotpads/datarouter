@@ -29,9 +29,8 @@ import org.testng.annotations.Test;
 
 import io.datarouter.aws.sqs.DatarouterAwsSqsTestNgModuleFactory;
 import io.datarouter.aws.sqs.SqsDataTooLargeException;
-import io.datarouter.bytes.ByteTool;
 import io.datarouter.bytes.Codec;
-import io.datarouter.bytes.PrependLengthByteArrayScanner;
+import io.datarouter.bytes.VarIntByteArraysTool;
 import io.datarouter.bytes.codec.stringcodec.StringCodec;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
@@ -108,10 +107,9 @@ public class SqsBlobNodeIntegrationTester{
 				new BloqQueueStorageTestDto('a', 0, true),
 				new BloqQueueStorageTestDto('a', 0, false),
 				new BloqQueueStorageTestDto('b', 0, false));
-		var raw = Scanner.of(dtos)
+		byte[] raw = Scanner.of(dtos)
 				.map(CODEC::encode)
-				.apply(PrependLengthByteArrayScanner::of)
-				.listTo(ByteTool::concat);
+				.apply(VarIntByteArraysTool::encodeMulti);
 
 		dao.combineAndPut(dtos);
 		var result = dao.poll().get();

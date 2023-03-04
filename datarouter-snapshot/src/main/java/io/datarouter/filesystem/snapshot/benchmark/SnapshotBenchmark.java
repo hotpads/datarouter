@@ -18,7 +18,6 @@ package io.datarouter.filesystem.snapshot.benchmark;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.slf4j.Logger;
@@ -34,8 +33,8 @@ import io.datarouter.filesystem.snapshot.group.dto.SnapshotWriteResult;
 import io.datarouter.filesystem.snapshot.key.SnapshotKey;
 import io.datarouter.filesystem.snapshot.writer.SnapshotWriterConfig;
 import io.datarouter.filesystem.snapshot.writer.SnapshotWriterConfigBuilder;
-import io.datarouter.scanner.ParallelScannerContext;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.scanner.Threads;
 import io.datarouter.util.concurrent.ExecutorServiceTool;
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.timer.PhaseTimer;
@@ -50,10 +49,8 @@ public class SnapshotBenchmark{
 
 	public final SnapshotGroup group;
 
-	private final int numInputThreads;
-	private final ExecutorService scannerExec;
-	private final int numWriterThreads;
-	private final ExecutorService writerExec;
+	private final Threads inputThreads;
+	private final Threads writerThreads;
 
 	public final long numEntries;
 	public final int writeBatchSize;
@@ -70,10 +67,8 @@ public class SnapshotBenchmark{
 			int writeBatchSize,
 			boolean persist){
 		this.group = group;
-		this.scannerExec = Executors.newFixedThreadPool(numInputThreads);
-		this.numInputThreads = numInputThreads;
-		this.writerExec = Executors.newFixedThreadPool(numWriterThreads);
-		this.numWriterThreads = numWriterThreads;
+		this.inputThreads = new Threads(Executors.newFixedThreadPool(numInputThreads), numInputThreads);
+		this.writerThreads = new Threads(Executors.newFixedThreadPool(numWriterThreads), numWriterThreads);
 		this.numEntries = numEntries;
 		this.writeBatchSize = writeBatchSize;
 		this.persist = persist;
@@ -81,11 +76,11 @@ public class SnapshotBenchmark{
 
 	public RootBlock execute(){
 		var timer = new PhaseTimer("writeSnapshot");
-		SnapshotWriteResult result = makeEntryScanner(scannerExec, numInputThreads)
+		SnapshotWriteResult result = makeEntryScanner(inputThreads)
 				.apply(entries -> group.writeOps().write(
 						makeSnapshotWriterConfig(),
 						entries,
-						writerExec,
+						writerThreads.exec(),
 						() -> false));
 		snapshotKey = result.key;
 		timer.add("wrote " + NumberFormatter.addCommas(result.optRoot.get().numItems()));
@@ -94,27 +89,27 @@ public class SnapshotBenchmark{
 	}
 
 	public void cleanup(){
-		group.deleteOps().deleteSnapshot(snapshotKey, writerExec, numWriterThreads);
-		group.deleteOps().deleteGroup(writerExec, numWriterThreads);
+		group.deleteOps().deleteSnapshot(snapshotKey, writerThreads);
+		group.deleteOps().deleteGroup(writerThreads);
 	}
 
 	public void shutdown(){
-		ExecutorServiceTool.shutdown(scannerExec, Duration.ofSeconds(2));
-		ExecutorServiceTool.shutdown(writerExec, Duration.ofSeconds(2));
+		ExecutorServiceTool.shutdown(inputThreads.exec(), Duration.ofSeconds(2));
+		ExecutorServiceTool.shutdown(writerThreads.exec(), Duration.ofSeconds(2));
 	}
 
 	private SnapshotWriterConfig makeSnapshotWriterConfig(){
 		return new SnapshotWriterConfigBuilder(true, 0)
 				.withPersist(persist)
 				.withCompressor(new PassthroughBlockCompressor())
-				.withNumThreads(numWriterThreads)
+				.withNumThreads(writerThreads.count())
 				.build();
 	}
 
-	public Scanner<List<SnapshotEntry>> makeEntryScanner(ExecutorService exec, int numThreads){
+	public Scanner<List<SnapshotEntry>> makeEntryScanner(Threads threads){
 		return Scanner.iterate(0L, id -> id + writeBatchSize)
 				.advanceWhile(id -> id < numEntries)
-				.parallel(new ParallelScannerContext(exec, numThreads, false))
+				.parallelOrdered(threads)
 				.map(from -> makeEntries(from, writeBatchSize));
 	}
 

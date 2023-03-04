@@ -15,6 +15,7 @@
  */
 package io.datarouter.plugin.copytable;
 
+import java.time.Duration;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
@@ -30,8 +31,8 @@ import io.datarouter.model.databean.Databean;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.plugin.copytable.config.DatarouterCopyTableExecutors.DatarouterCopyTablePutMultiExecutor;
-import io.datarouter.scanner.ParallelScannerContext;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.scanner.Threads;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
@@ -44,12 +45,12 @@ import io.datarouter.util.tuple.Range;
 public class CopyTableService{
 	private static final Logger logger = LoggerFactory.getLogger(CopyTableService.class);
 
-	private static final Config SCAN_CONFIG = new Config().setResponseBatchSize(1_000);
+	private static final Duration LOG_PERIOD = Duration.ofSeconds(1);
 
 	@Inject
 	private DatarouterNodes nodes;
 	@Inject
-	private PutMultiScannerContext putMultiScannerContext;
+	private DatarouterCopyTablePutMultiExecutor executor;
 
 	public <PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>>
@@ -75,7 +76,7 @@ public class CopyTableService{
 				fromKeyExclusiveString);
 		PK toKeyInclusive = PrimaryKeyPercentCodecTool.decode(sourceNode.getFieldInfo().getPrimaryKeySupplier(),
 				toKeyInclusiveString);
-		Config putConfig = new Config()
+		Config scanConfig = new Config()
 				.setResponseBatchSize(scanBatchSize);
 		var numSkipped = new AtomicLong();
 		Range<PK> range = new Range<>(fromKeyExclusive, false, toKeyInclusive, true);
@@ -83,7 +84,7 @@ public class CopyTableService{
 		var numCopied = new AtomicLong();
 		AtomicReference<PK> lastKey = new AtomicReference<>();
 		try{
-			sourceNode.scan(range, SCAN_CONFIG)
+			sourceNode.scan(range, scanConfig)
 					.each($ -> numScanned.incrementAndGet())
 					.each($ -> Counters.inc("copyTable " + sourceNodeName + " read"))
 					.include(databean -> {
@@ -100,10 +101,11 @@ public class CopyTableService{
 						}
 					})
 					.batch(putBatchSize)
-					.parallel(putMultiScannerContext.get(numThreads))
+					//keep ordering for reliable lastKey tracking
+					.parallelOrdered(new Threads(executor, numThreads), numThreads > 1)
 					.each(batch -> {
 						try{
-							targetNode.putMulti(batch, putConfig);
+							targetNode.putMulti(batch);
 						}catch(RuntimeException e){
 							logger.warn("putMulti failure, trying individual puts for targetNode={} numDatabeans={}",
 									targetNode.getName(),
@@ -114,8 +116,7 @@ public class CopyTableService{
 					.each($ -> Counters.inc("copyTable " + sourceNodeName + " write"))
 					.each(batch -> numCopied.addAndGet(batch.size()))
 					.each(batch -> lastKey.set(ListTool.getLast(batch).getKey()))
-					.sample(10, true)
-					.forEach(batch -> logProgress(
+					.periodic(LOG_PERIOD, $ -> logProgress(
 							false,
 							numSkipped.get(),
 							numScanned.get(),
@@ -125,7 +126,8 @@ public class CopyTableService{
 							sourceNodeName,
 							targetNodeName,
 							lastKey.get(),
-							null));
+							null))
+					.count();
 			logProgress(
 					true,
 					numSkipped.get(),
@@ -173,22 +175,6 @@ public class CopyTableService{
 				targetNodeName,
 				lastKey == null ? null : PrimaryKeyPercentCodecTool.encode(lastKey),
 				throwable);
-	}
-
-	@Singleton
-	public static class PutMultiScannerContext{
-
-		@Inject
-		private DatarouterCopyTablePutMultiExecutor executor;
-
-		public ParallelScannerContext get(int numThreads){
-			return new ParallelScannerContext(
-					executor,
-					numThreads,
-					false,//keep ordering for reliable lastKey tracking
-					numThreads > 1);
-		}
-
 	}
 
 	public record CopyTableSpanResult(

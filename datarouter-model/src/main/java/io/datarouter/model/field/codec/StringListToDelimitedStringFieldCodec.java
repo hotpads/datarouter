@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 import com.google.gson.reflect.TypeToken;
 
@@ -60,7 +61,7 @@ public class StringListToDelimitedStringFieldCodec extends FieldCodec<List<Strin
 		if("".equals(string)){
 			return new ArrayList<>(0);
 		}
-		return new ArrayList<>(Arrays.asList(string.split(delimiter)));
+		return new ArrayList<>(Arrays.asList(string.split(Pattern.quote(delimiter))));
 	}
 
 	public static int compare(List<String> first, List<String> second, String delimiter){

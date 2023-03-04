@@ -15,6 +15,7 @@
  */
 package io.datarouter.scanner;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -34,7 +35,7 @@ public class SortingScanner<T> extends BaseLinkedScanner<T,T>{
 	@Override
 	protected boolean advanceInternal(){
 		if(!consumedInput){
-			List<T> items = input.list();
+			List<T> items = input.collect(ArrayList::new);
 			items.sort(comparator);
 			sortedScanner = Scanner.of(items);
 			consumedInput = true;

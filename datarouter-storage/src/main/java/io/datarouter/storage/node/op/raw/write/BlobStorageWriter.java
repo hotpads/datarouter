@@ -16,10 +16,12 @@
 package io.datarouter.storage.node.op.raw.write;
 
 import java.io.InputStream;
-import java.util.concurrent.ExecutorService;
+import java.util.List;
 
+import io.datarouter.bytes.ByteLength;
 import io.datarouter.bytes.MultiByteArrayInputStream;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.scanner.Threads;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.file.PathbeanKey;
 import io.datarouter.storage.node.op.raw.read.BlobStorageReader;
@@ -63,14 +65,36 @@ public interface BlobStorageWriter extends BlobStorageReader{
 	default void writeParallel(
 			PathbeanKey key,
 			InputStream inputStream,
-			@SuppressWarnings("unused") ExecutorService exec,
-			@SuppressWarnings("unused") int numThreads,
+			@SuppressWarnings("unused") Threads threads,
+			@SuppressWarnings("unused") ByteLength minPartSize,
 			Config config){
 		write(key, inputStream, config);
 	}
 
-	default void writeParallel(PathbeanKey key, InputStream inputStream, ExecutorService exec, int numThreads){
-		writeParallel(key, inputStream, exec, numThreads, new Config());
+	default void writeParallel(
+			PathbeanKey key,
+			InputStream inputStream,
+			Threads threads,
+			ByteLength minPartSize){
+		writeParallel(key, inputStream, threads, minPartSize, new Config());
+	}
+
+	/*----- write from an Scanner<List<byte[]>> with parallel uploads ---------*/
+
+	// Override in clients that support multi-part upload
+	default void writeParallel(
+			PathbeanKey key,
+			Scanner<List<byte[]>> parts,
+			@SuppressWarnings("unused") Threads threads,
+			Config config){
+		write(key, parts.concat(Scanner::of).apply(MultiByteArrayInputStream::new), config);
+	}
+
+	default void writeParallel(
+			PathbeanKey key,
+			Scanner<List<byte[]>> parts,
+			Threads threads){
+		writeParallel(key, parts, threads, new Config());
 	}
 
 	/*----- delete ---------*/

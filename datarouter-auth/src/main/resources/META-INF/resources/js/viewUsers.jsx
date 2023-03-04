@@ -1022,17 +1022,18 @@ class PermissionRequests extends React.Component {
                 <th>Request Time</th>
                 <th>Request Text</th>
                 <th>Resolution</th>
+                <th>Editor</th>
                 <th>Resolution Time</th>
               </tr>
             </thead>
             <tbody>
               {props.requests.map((request) => {
-                const { requestTime, requestText, resolution, resolutionTime } =
+                const { requestTimeMs, requestText, resolution, resolutionTimeMs } =
                   request;
                 const resolved = !!resolution;
                 return (
                   <tr class={resolved ? "" : "table-warning"}>
-                    <td>{requestTime}</td>
+                    <td>{new Date(requestTimeMs).toLocaleString()}</td>
                     <td>{requestText}</td>
                     <td>
                       {resolved ? (
@@ -1047,7 +1048,8 @@ class PermissionRequests extends React.Component {
                         </button>
                       )}
                     </td>
-                    <td>{resolved ? resolutionTime : ""}</td>
+                    <td>{request.editor}</td>
+                    <td>{resolved ? new Date(resolutionTimeMs).toLocaleString() : ""}</td>
                   </tr>
                 );
               })}

@@ -17,20 +17,10 @@ package io.datarouter.storage.node.op.raw.read;
 
 import java.time.Instant;
 
-public class DirectoryDto{
-
-	public final String name;
-	public final boolean isDirectory;
-	public final Long size;
-	public final Instant lastModified;
-	public final String storageClass;
-
-	public DirectoryDto(String name, boolean isDirectory, Long size, Instant lastModified, String storageClass){
-		this.name = name;
-		this.isDirectory = isDirectory;
-		this.size = size;
-		this.lastModified = lastModified;
-		this.storageClass = storageClass;
-	}
-
+public record DirectoryDto(
+		String name,
+		boolean isDirectory,
+		Long size,
+		Instant lastModified,
+		String storageClass){
 }

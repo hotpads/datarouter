@@ -22,6 +22,7 @@ import static j2html.TagCreator.h2;
 import static j2html.TagCreator.p;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.inject.Inject;
 
@@ -41,7 +42,6 @@ import io.datarouter.web.email.StandardDatarouterEmailHeaderService;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.types.Param;
-import io.datarouter.web.handler.types.optional.OptionalString;
 import io.datarouter.web.html.form.HtmlForm;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
@@ -80,12 +80,12 @@ public class SingleThreadTableProcessorHandler extends BaseHandler{
 	private <PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>>
 	Mav defaultHandler(
-			@Param(P_sourceNodeName) OptionalString sourceName,
-			@Param(P_lastKeyString) OptionalString lastKeyString,
-			@Param(P_scanBatchSize) OptionalString scanBatchSize,
-			@Param(P_processorName) OptionalString processorName,
-			@Param(P_toEmail) OptionalString toEmail,
-			@Param(P_submitAction) OptionalString submitAction){
+			@Param(P_sourceNodeName) Optional<String> sourceName,
+			@Param(P_lastKeyString) Optional<String> lastKeyString,
+			@Param(P_scanBatchSize) Optional<String> scanBatchSize,
+			@Param(P_processorName) Optional<String> processorName,
+			@Param(P_toEmail) Optional<String> toEmail,
+			@Param(P_submitAction) Optional<String> submitAction){
 		String errorScanBatchSize = null;
 		if(submitAction.isPresent()){
 			try{
@@ -148,7 +148,7 @@ public class SingleThreadTableProcessorHandler extends BaseHandler{
 				.map(StringTool::nullIfEmpty)
 				.map(Integer::valueOf)
 				.orElse(DEFAULT_SCAN_BATCH_SIZE);
-		TableProcessor<?,?> processor = processorRegistry.find(processorName.get()).get();
+		TableProcessor<?> processor = processorRegistry.find(processorName.get()).get();
 		TableProcessorSpanResult result = service.runTableProcessor(
 				sourceName.get(),
 				lastKeyString.map(StringTool::nullIfEmpty).orElse(null),

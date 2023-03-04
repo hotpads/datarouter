@@ -15,6 +15,7 @@
  */
 package io.datarouter.plugin.copytable.tableprocessor;
 
+import java.time.Duration;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
@@ -28,6 +29,8 @@ import org.slf4j.LoggerFactory;
 import io.datarouter.instrumentation.count.Counters;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
+import io.datarouter.plugin.copytable.tableprocessor.TableProcessor.DatabeanTableProcessor;
+import io.datarouter.plugin.copytable.tableprocessor.TableProcessor.PrimaryKeyTableProcessor;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
@@ -49,7 +52,7 @@ public class TableProcessorService{
 			String fromKeyExclusiveString,
 			String toKeyInclusiveString,
 			int scanBatchSize,
-			TableProcessor<PK,D> tableProcessor,
+			TableProcessor<?> tableProcessor,
 			long batchId,
 			long numBatches){
 		@SuppressWarnings("unchecked")
@@ -66,23 +69,41 @@ public class TableProcessorService{
 		var numScanned = new AtomicLong();
 		AtomicReference<PK> lastKey = new AtomicReference<>();
 		try{
-			node.scan(range, new Config().setResponseBatchSize(scanBatchSize))
-					.each($ -> Counters.inc("tableProcessor " + nodeName + " scanned"))
-					.each($ -> numScanned.incrementAndGet())
-					.each(databean -> lastKey.set(databean.getKey()))
-					.each($ -> {
-						if(numScanned.get() % 10_000 == 0){
-							logProgress(
+			if(tableProcessor instanceof DatabeanTableProcessor){
+				@SuppressWarnings("unchecked")
+				DatabeanTableProcessor<PK,D> processor = (DatabeanTableProcessor<PK,D>) tableProcessor;
+				node.scan(range, new Config().setResponseBatchSize(scanBatchSize))
+						.each($ -> Counters.inc("tableProcessor " + nodeName + " scanned"))
+						.each($ -> numScanned.incrementAndGet())
+						.each(databean -> lastKey.set(databean.getKey()))
+						.periodic(Duration.ofSeconds(5), $ -> logProgress(
 								false,
 								numScanned.get(),
 								batchId,
 								numBatches,
 								nodeName,
 								lastKey.get(),
-								null);
-						}
-					})
-					.then(tableProcessor::accept);
+								null))
+						.then(processor::accept);
+			}else if(tableProcessor instanceof PrimaryKeyTableProcessor){
+				@SuppressWarnings("unchecked")
+				PrimaryKeyTableProcessor<PK> processor = (PrimaryKeyTableProcessor<PK>) tableProcessor;
+				node.scanKeys(range, new Config().setResponseBatchSize(scanBatchSize))
+						.each($ -> Counters.inc("tableProcessor " + nodeName + " scanned"))
+						.each($ -> numScanned.incrementAndGet())
+						.each(lastKey::set)
+						.periodic(Duration.ofSeconds(5), $ -> logProgress(
+								false,
+								numScanned.get(),
+								batchId,
+								numBatches,
+								nodeName,
+								lastKey.get(),
+								null))
+						.then(processor::accept);
+			}else{
+				throw new RuntimeException("Not a valid Table Processor");
+			}
 			logProgress(
 					true,
 					numScanned.get(),
@@ -100,7 +121,8 @@ public class TableProcessorService{
 		}
 	}
 
-	private <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
+	private <
+			PK extends PrimaryKey<PK>>
 	void logProgress(
 			boolean finished,
 			long numScanned,

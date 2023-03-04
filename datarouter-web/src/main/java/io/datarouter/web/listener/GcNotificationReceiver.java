@@ -33,7 +33,7 @@ import com.sun.management.GcInfo;
 
 import io.datarouter.instrumentation.count.Counters;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.util.MxBeans;
+import io.datarouter.util.PlatformMxBeans;
 
 @Singleton
 public class GcNotificationReceiver implements DatarouterAppListener{
@@ -41,7 +41,7 @@ public class GcNotificationReceiver implements DatarouterAppListener{
 
 	@Override
 	public void onStartUp(){
-		for(GarbageCollectorMXBean gc : MxBeans.GCS){
+		for(GarbageCollectorMXBean gc : PlatformMxBeans.GCS){
 			((NotificationBroadcaster)gc).addNotificationListener((notification, $) -> {
 				var gcNotifInfo = GarbageCollectionNotificationInfo.from((CompositeData)notification.getUserData());
 				GcInfo gcInfo = gcNotifInfo.getGcInfo();

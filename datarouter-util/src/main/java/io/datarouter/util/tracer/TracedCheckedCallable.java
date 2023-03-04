@@ -78,6 +78,7 @@ public abstract class TracedCheckedCallable<V> implements Callable<V>{
 		return new FunctionalTracedCheckedCallable<>(threadName, callable);
 	}
 
+	// TODO delete because DatarouterExecutorService already provide tracing
 	public static <V> TracedCheckedCallable<V> of(Callable<V> callable){
 		return new FunctionalTracedCheckedCallable<>(callable);
 	}

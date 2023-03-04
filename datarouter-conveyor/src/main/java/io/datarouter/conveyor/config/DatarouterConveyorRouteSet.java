@@ -29,7 +29,6 @@ public class DatarouterConveyorRouteSet extends BaseRouteSet{
 
 	@Inject
 	public DatarouterConveyorRouteSet(DatarouterConveyorPaths paths){
-		super(paths.datarouter.conveyors);
 		handle(paths.datarouter.conveyors.list).withHandler(ConveyorHandler.class);
 	}
 

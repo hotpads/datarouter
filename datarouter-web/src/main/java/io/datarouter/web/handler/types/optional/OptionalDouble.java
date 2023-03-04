@@ -17,6 +17,10 @@ package io.datarouter.web.handler.types.optional;
 
 import io.datarouter.util.number.NumberTool;
 
+/**
+ * @deprecated use the JDK {@code Optional<Double>}
+ */
+@Deprecated
 public class OptionalDouble extends OptionalParameter<Double>{
 
 	public OptionalDouble(){

@@ -86,8 +86,6 @@ import io.datarouter.web.email.StandardDatarouterEmailHeaderService;
 import io.datarouter.web.email.StandardDatarouterEmailHeaderService.HtmlEmailHeaderRow;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
-import io.datarouter.web.handler.types.optional.OptionalBoolean;
-import io.datarouter.web.handler.types.optional.OptionalString;
 import io.datarouter.web.html.j2html.J2HtmlLegendTable;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
@@ -133,7 +131,7 @@ public class ClusterSettingsHandler extends BaseHandler{
 	private StandardDatarouterEmailHeaderService standardDatarouterEmailHeaderService;
 
 	@Handler
-	public Mav customSettings(OptionalString prefix){
+	public Mav customSettings(Optional<String> prefix){
 		Mav mav = new Mav(files.jsp.admin.datarouter.setting.editSettingsJsp);
 		mav.put("serverTypeOptions", serverTypes.getHtmlSelectOptionsVarNames());
 		mav.put("validities", buildLegend());
@@ -225,7 +223,7 @@ public class ClusterSettingsHandler extends BaseHandler{
 	}
 
 	@Handler
-	public Mav logsForAll(OptionalString explicitStartIso, OptionalBoolean inclusiveStart){
+	public Mav logsForAll(Optional<String> explicitStartIso, Optional<Boolean> inclusiveStart){
 		Mav mav = new Mav(files.jsp.admin.datarouter.setting.clusterSettingsLogJsp);
 		mav.put("showingAllSettings", true);
 		long startCreatedMs = explicitStartIso
@@ -247,7 +245,7 @@ public class ClusterSettingsHandler extends BaseHandler{
 	}
 
 	@Handler
-	public Mav browseSettings(OptionalString name){
+	public Mav browseSettings(Optional<String> name){
 		Mav mav = new Mav(files.jsp.admin.datarouter.setting.browseSettingsJsp);
 		String path = servletContext.getContextPath() + paths.datarouter.settings.customSettings.toSlashedString();
 		mav.put("customSettingsPath", path);

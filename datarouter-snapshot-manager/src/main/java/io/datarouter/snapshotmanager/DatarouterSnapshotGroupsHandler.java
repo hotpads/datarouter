@@ -28,7 +28,7 @@ import javax.inject.Inject;
 import org.apache.http.client.utils.URIBuilder;
 
 import io.datarouter.filesystem.snapshot.group.SnapshotGroups;
-import io.datarouter.scanner.ParallelScannerContext;
+import io.datarouter.scanner.Threads;
 import io.datarouter.snapshotmanager.DatarouterSnapshotExecutors.DatarouterSnapshotWebExecutor;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
@@ -66,7 +66,7 @@ public class DatarouterSnapshotGroupsHandler extends BaseHandler{
 				.with(thead);
 		groups.scanIds()
 				.sort()
-				.parallel(new ParallelScannerContext(exec, exec.getMaximumPoolSize(), false))
+				.parallelOrdered(new Threads(exec, exec.getMaximumPoolSize()))
 				.map(id -> {
 					String href = new URIBuilder()
 							.setPath(request.getContextPath() + snapshotPaths.datarouter.snapshot.group.listSnapshots

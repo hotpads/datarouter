@@ -35,6 +35,7 @@ import io.datarouter.clustersetting.config.DatarouterClusterSettingPaths;
 import io.datarouter.clustersetting.storage.clustersetting.ClusterSetting;
 import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
+import io.datarouter.scanner.OptionalScanner;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
@@ -107,8 +108,7 @@ public class ClusterSettingDailyDigest implements DailyDigest{
 				.listTo(settings -> pageFormatter.build(settings, "Unknown", Optional.empty()));
 
 		List<DivTag> tables = Scanner.of(redundantTable, unreferencedTable, oldTable, unknownTable)
-				.include(Optional::isPresent)
-				.map(Optional::get)
+				.concat(OptionalScanner::of)
 				.sort(Comparator.comparing(HeaderAndContent::header))
 				.map(HeaderAndContent::content)
 				.list();

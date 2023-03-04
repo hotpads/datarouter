@@ -25,7 +25,7 @@ import org.testng.annotations.Test;
 
 import io.datarouter.bytes.ByteTool;
 import io.datarouter.bytes.Codec;
-import io.datarouter.bytes.PrependLengthByteArrayScanner;
+import io.datarouter.bytes.VarIntByteArraysTool;
 import io.datarouter.bytes.codec.stringcodec.StringCodec;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.Config;
@@ -50,9 +50,8 @@ public class BlobQueueStorageCombineAndPutIntegrationTests{
 	@Test
 	public void testDtoMulti(){
 		List<byte[]> data = List.of(makeRandomBytes(), makeRandomBytes(), makeRandomBytes());
-		var lengthPrependedData = Scanner.of(data)
-				.apply(PrependLengthByteArrayScanner::of)
-				.listTo(ByteTool::concat);
+		byte[] lengthPrependedData = Scanner.of(data)
+				.apply(VarIntByteArraysTool::encodeMulti);
 		var msg = new BlobQueueMessage<>(null, lengthPrependedData, null, BYTE_ARRAY_CODEC);
 		assertEqualByteArrayLists(msg.scanSplitDecodedData().list(), data);
 	}
@@ -65,10 +64,9 @@ public class BlobQueueStorageCombineAndPutIntegrationTests{
 				new BloqQueueStorageTestDto('a', 0, true),
 				new BloqQueueStorageTestDto('a', 0, false),
 				new BloqQueueStorageTestDto('b', 0, false));
-		var raw = Scanner.of(dtos)
+		byte[] raw = Scanner.of(dtos)
 				.map(DTO_CODEC::encode)
-				.apply(PrependLengthByteArrayScanner::of)
-				.listTo(ByteTool::concat);
+				.apply(VarIntByteArraysTool::encodeMulti);
 
 		//one DTO per message
 		var singleDao = new MockBlobQueueStorage<>(BloqQueueStorageTestDtoCodec.length() + 1, DTO_CODEC);
@@ -89,7 +87,9 @@ public class BlobQueueStorageCombineAndPutIntegrationTests{
 		verifyRawAndDtos(allDao, dtos, raw);
 	}
 
-	private void verifyRawAndDtos(MockBlobQueueStorage<BloqQueueStorageTestDto> dao, List<BloqQueueStorageTestDto> dtos,
+	private void verifyRawAndDtos(
+			MockBlobQueueStorage<BloqQueueStorageTestDto> dao,
+			List<BloqQueueStorageTestDto> dtos,
 			byte[] raw){
 		var resultMessages = Scanner.of(dao.data)
 				.map(data -> new BlobQueueMessage<>(null, data, null, DTO_CODEC))
@@ -126,7 +126,8 @@ public class BlobQueueStorageCombineAndPutIntegrationTests{
 		assertEqualByteArrayLists(tooSmallWithLength.data, List.of(data.get(0)));
 		//but not when length is added
 		Assert.expectThrows(
-				DataTooLargeException.class, () -> tooSmallWithLength.combineAndPut(Scanner.of(data)));
+				DataTooLargeException.class,
+				() -> tooSmallWithLength.combineAndPut(Scanner.of(data)));
 
 		var storage = getByteArrayStorage(data.get(0).length + 1);//item + length will just fit in a message
 		storage.combineAndPut(Scanner.of(data));

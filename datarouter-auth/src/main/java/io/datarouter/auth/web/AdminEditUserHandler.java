@@ -41,6 +41,7 @@ import io.datarouter.auth.service.DatarouterAccountUserService;
 import io.datarouter.auth.service.DatarouterUserCreationService;
 import io.datarouter.auth.service.DatarouterUserEditService;
 import io.datarouter.auth.service.DatarouterUserHistoryService;
+import io.datarouter.auth.service.DatarouterUserHistoryService.HistoryChange;
 import io.datarouter.auth.service.DatarouterUserService;
 import io.datarouter.auth.service.UserInfo.UserInfoSupplier;
 import io.datarouter.auth.storage.account.DatarouterAccountKey;
@@ -415,15 +416,21 @@ public class AdminEditUserHandler extends BaseHandler{
 
 	//TODO DATAROUTER-2789
 	private PermissionRequestDto buildPermissionRequestDto(Entry<DatarouterPermissionRequest,
-			Optional<String>> entry){
+			Optional<HistoryChange>> entry){
 		ZoneId zoneId = currentUserSessionInfoService.getZoneId(getRequest());
 		DatarouterPermissionRequest request = entry.getKey();
 		return new PermissionRequestDto(
 				request.getKey().getRequestTime(),
 				request.getRequestText(),
 				request.getResolutionTime(),
-				entry.getValue().orElse(null),
-				zoneId);
+				entry.getValue()
+						.map(HistoryChange::changes)
+						.orElse(null),
+				zoneId,
+				entry.getValue()
+						.flatMap(HistoryChange::editor)
+						.map(DatarouterUser::getUsername)
+						.orElse(null));
 	}
 
 	private static DeprovisionedUserDto buildDeprovisionedUserDto(SessionBasedUser user, Set<Role> roles){

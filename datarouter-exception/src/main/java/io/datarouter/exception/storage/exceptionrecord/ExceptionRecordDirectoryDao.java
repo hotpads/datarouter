@@ -18,48 +18,25 @@ package io.datarouter.exception.storage.exceptionrecord;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.bytes.ExtractFromPrependedLengthByteArrayScanner;
-import io.datarouter.bytes.PrependLengthByteArrayScanner;
 import io.datarouter.exception.dto.ExceptionRecordBinaryDto;
-import io.datarouter.scanner.Scanner;
-import io.datarouter.storage.config.Config;
-import io.datarouter.storage.file.PathbeanKey;
-import io.datarouter.storage.util.Subpath;
-import io.datarouter.types.Ulid;
+import io.datarouter.exception.storage.BaseRecordDirectoryDao;
+import io.datarouter.storage.file.Directory;
 
 @Singleton
-public class ExceptionRecordDirectoryDao{
+public class ExceptionRecordDirectoryDao
+extends BaseRecordDirectoryDao<ExceptionRecordBinaryDto>{
 
 	@Inject
 	private ExceptionRecordDirectorySupplier directory;
 
-	public Scanner<ExceptionRecordBinaryDto> read(String filename){
-		return ExtractFromPrependedLengthByteArrayScanner.of(
-				directory.getExceptionRecordDirectory().read(PathbeanKey.of(filename)))
-				.map(ExceptionRecordBinaryDto::decode);
+	@Override
+	protected Directory getDirectory(){
+		return directory.getExceptionRecordDirectory();
 	}
 
-	public void write(Scanner<ExceptionRecordBinaryDto> dtos, Ulid ulid){
-		PathbeanKey key = PathbeanKey.of(ulid.value());
-		dtos
-				.map(ExceptionRecordBinaryDto::encodeIndexed)
-				.apply(PrependLengthByteArrayScanner::of)
-				.then(scanner -> directory.getExceptionRecordDirectory().write(key, scanner));
-	}
-
-	public Scanner<String> scanKeysAllowUnsorted(){
-		return directory.getExceptionRecordDirectory().scanKeys(
-				Subpath.empty(),
-				new Config().setAllowUnsortedScan(true))
-				.map(PathbeanKey::getPathAndFile);
-	}
-
-	public void delete(String filename){
-		directory.getExceptionRecordDirectory().delete(PathbeanKey.of(filename));
-	}
-
-	public void deleteAll(){
-		directory.getExceptionRecordDirectory().deleteAll(Subpath.empty());
+	@Override
+	protected ExceptionRecordBinaryDto decode(byte[] bytes){
+		return ExceptionRecordBinaryDto.decode(bytes);
 	}
 
 }

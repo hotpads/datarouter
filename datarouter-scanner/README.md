@@ -11,7 +11,7 @@ A Scanner can be converted to a single-use Iterable with `.iterable()` or to a S
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-scanner</artifactId>
-	<version>0.0.118</version>
+	<version>0.0.119</version>
 </dependency>
 ```
 
@@ -46,7 +46,7 @@ These methods share behavior with those in Stream but are implemented independen
 - No primitive support
 - Less overhead as there are fewer objects involved
 - Less focused on behind-the-scenes parallelism for simplicity
-  - Scanner is missing findAny() as it's equivalent to findFirst()
+- Scanner is missing findAny() as it's equivalent to findFirst()
 - More explicit parallelism on a step by step basis
   - Specify an executor and thread count for each parallel step
 
@@ -115,22 +115,17 @@ These methods share behavior with those in Stream but are implemented independen
 
 ### ParallelScanner
 ##### - [source code](./src/main/java/io/datarouter/scanner/ParallelScanner.java)
-Calling `.parallel(..)` returns a `ParallelScanner` which executes the next operation in an executor, useful when the operations are CPU or IO intensive. It has these methods:
+Calling `.parallelOrdered(..)` or `.parallelUnordered(..)` returns a `ParallelScanner` which executes the next operation in an executor, useful when the operations are CPU or IO intensive.
+- Specifying unordered allows the results to be reordered for better throughput, not blocking executor slots on a slow item. 
+- The `Threads` param gives the Scanner an ExecutorService and a thread count, where the thread count may be much lower than the underlying executor's max capacity, facilitating sharing an executor between many callers such as web requests.
+- The `enabled` flag allows for enabling or disabling of the parallelism via a runtime setting.
+
+It has these methods:
 - `map`
 - `exclude`
 - `include`
 - `each`
 - `forEach`
-
-The argument passed to parallel(..) is a `ParallelScannerContext` which contains:
-- an executor service
-- `boolean enabled`
-  - for toggling parallelism with a feature flag
-- `int maxThreads`
-  - constrains threads used by this scanner, despite a potentially larger executor
-- `boolean allowUnorderedResults`
-  - return items in the order they finish processing, which might be different than the original order, potentially
-    avoiding stalling other threads on slow items
 
 ## License
 

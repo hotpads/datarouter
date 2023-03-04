@@ -36,7 +36,6 @@ public class DatarouterAccountApiRouteSet extends BaseRouteSet{
 	@Inject
 	public DatarouterAccountApiRouteSet(DatarouterServicePaths paths, DatarouterAccountApiKeyPredicate apiKeyPredicate,
 			DatarouterAccountSignatureValidator signatureValidator){
-		super("");
 		this.apiKeyPredicate = apiKeyPredicate;
 		this.signatureValidator = signatureValidator;
 		handleAnyStringAfterPath(paths.datarouter.api.accounts).withHandler(DatarouterAccountApiHandler.class);

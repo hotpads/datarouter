@@ -18,7 +18,6 @@ package io.datarouter.filesystem.snapshot.filesystem;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.inject.Inject;
@@ -45,8 +44,8 @@ import io.datarouter.filesystem.snapshot.reader.ScanningSnapshotReader;
 import io.datarouter.filesystem.snapshot.reader.record.SnapshotRecord;
 import io.datarouter.filesystem.snapshot.writer.SnapshotWriterConfig;
 import io.datarouter.filesystem.snapshot.writer.SnapshotWriterConfigBuilder;
-import io.datarouter.scanner.ParallelScannerContext;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.scanner.Threads;
 import io.datarouter.util.Count;
 import io.datarouter.util.concurrent.ScalingThreadPoolExecutor;
 import io.datarouter.util.number.NumberFormatter;
@@ -66,8 +65,8 @@ public class FilesystemSnapshotSortingTests{
 	private final SnapshotGroup chunkGroup;
 	private final SnapshotGroup outputGroup;
 	private final int numThreads;
-	private final ExecutorService exec;
-	private final ExecutorService sortExec;
+	private final Threads defaultThreads;
+	private final Threads sortThreads;
 	private SnapshotKey inputSnapshotKey;
 	private List<SnapshotKey> chunkSnapshotKeys;
 	private SnapshotKey outputSnapshotKey;
@@ -79,8 +78,8 @@ public class FilesystemSnapshotSortingTests{
 		this.chunkGroup = groups.sortingChunk;
 		this.outputGroup = groups.sortingOutput;
 		numThreads = Runtime.getRuntime().availableProcessors();
-		exec = new ScalingThreadPoolExecutor("default", numThreads);
-		sortExec = new ScalingThreadPoolExecutor("sort", numThreads);
+		defaultThreads = new Threads(new ScalingThreadPoolExecutor("default", numThreads), numThreads);
+		sortThreads = new Threads(new ScalingThreadPoolExecutor("sort", numThreads), numThreads);
 		chunkSnapshotKeys = new ArrayList<>();
 	}
 
@@ -92,9 +91,9 @@ public class FilesystemSnapshotSortingTests{
 			chunkSnapshotKeys.forEach(key -> deleteSnapshot(chunkGroup, key));
 			deleteSnapshot(outputGroup, outputSnapshotKey);
 
-			inputGroup.deleteOps().deleteGroup(exec, numThreads);
-			chunkGroup.deleteOps().deleteGroup(exec, numThreads);
-			outputGroup.deleteOps().deleteGroup(exec, numThreads);
+			inputGroup.deleteOps().deleteGroup(defaultThreads);
+			chunkGroup.deleteOps().deleteGroup(defaultThreads);
+			outputGroup.deleteOps().deleteGroup(defaultThreads);
 		}
 	}
 
@@ -109,11 +108,11 @@ public class FilesystemSnapshotSortingTests{
 		timer.add("writeInputSnapshot");
 
 		//write sorted chunks
-		var inputReader = new ScanningSnapshotReader(inputSnapshotKey, exec, numThreads, inputGroup, SCAN_NUM_BLOCKS);
+		var inputReader = new ScanningSnapshotReader(inputSnapshotKey, defaultThreads, inputGroup, SCAN_NUM_BLOCKS);
 		var chunkId = new AtomicInteger();
 		chunkSnapshotKeys = inputReader.scan(0)
 				.batch(CHUNK_SIZE)
-				.parallel(new ParallelScannerContext(sortExec, numThreads, true))
+				.parallelUnordered(sortThreads)
 				.map(batch -> {
 					Collections.sort(batch, SnapshotRecord.KEY_COMPARATOR);
 					return writeChunkSnapshot(chunkId.getAndIncrement(), batch);
@@ -122,7 +121,7 @@ public class FilesystemSnapshotSortingTests{
 		timer.add("writeSortedChunks");
 
 		RootBlock outputRootBlock = Scanner.of(chunkSnapshotKeys)
-				.map(chunkKey -> new ScanningSnapshotReader(chunkKey, exec, numThreads, chunkGroup, SCAN_NUM_BLOCKS))
+				.map(chunkKey -> new ScanningSnapshotReader(chunkKey, defaultThreads, chunkGroup, SCAN_NUM_BLOCKS))
 				.collate(reader -> reader.scan(0), SnapshotRecord.KEY_COMPARATOR)
 				.apply(this::writeOutputSnapshot);
 		Assert.assertEquals(outputRootBlock.numItems(), NUM_ENTRIES);
@@ -130,8 +129,7 @@ public class FilesystemSnapshotSortingTests{
 
 		var outputReader = new ScanningSnapshotReader(
 				outputSnapshotKey,
-				exec,
-				numThreads,
+				defaultThreads,
 				outputGroup,
 				SCAN_NUM_BLOCKS);
 		var outputCount = new Count("output");
@@ -152,7 +150,7 @@ public class FilesystemSnapshotSortingTests{
 				.shuffle()
 				.map(FilesystemSnapshotSortingTests::makeEntry)
 				.batch(1000)
-				.apply(entries -> inputGroup.writeOps().write(config, entries, exec, () -> false));
+				.apply(entries -> inputGroup.writeOps().write(config, entries, defaultThreads.exec(), () -> false));
 		inputSnapshotKey = result.key;
 		timer.add("wrote " + NumberFormatter.addCommas(result.optRoot.get().numItems()));
 		logger.warn("{}", timer);
@@ -165,7 +163,7 @@ public class FilesystemSnapshotSortingTests{
 		SnapshotWriteResult result = Scanner.of(records)
 				.map(SnapshotRecord::entry)
 				.batch(1000)
-				.apply(entries -> chunkGroup.writeOps().write(config, entries, exec, () -> false));
+				.apply(entries -> chunkGroup.writeOps().write(config, entries, defaultThreads.exec(), () -> false));
 		timer.add("wrote " + NumberFormatter.addCommas(result.optRoot.get().numItems()));
 		logger.warn("{}", timer);
 		return result.key;
@@ -177,7 +175,7 @@ public class FilesystemSnapshotSortingTests{
 		SnapshotWriteResult result = records
 				.map(SnapshotRecord::entry)
 				.batch(1000)
-				.apply(entries -> outputGroup.writeOps().write(config, entries, exec, () -> false));
+				.apply(entries -> outputGroup.writeOps().write(config, entries, defaultThreads.exec(), () -> false));
 		outputSnapshotKey = result.key;
 		timer.add("wrote " + NumberFormatter.addCommas(result.optRoot.get().numItems()));
 		logger.warn("{}", timer);
@@ -205,7 +203,7 @@ public class FilesystemSnapshotSortingTests{
 	}
 
 	private void deleteSnapshot(SnapshotGroup group, SnapshotKey key){
-		group.deleteOps().deleteSnapshot(key, exec, numThreads);
+		group.deleteOps().deleteSnapshot(key, defaultThreads);
 	}
 
 }

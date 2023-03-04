@@ -21,7 +21,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.binarydto.codec.BinaryDtoIndexedCodec;
-import io.datarouter.conveyor.queue.BlobQueueConsumer;
 import io.datarouter.metric.dto.GaugeBinaryDto;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
@@ -30,6 +29,7 @@ import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.QueueNodeFactory;
 import io.datarouter.storage.node.op.raw.BlobQueueStorage.BlobQueueStorageNode;
+import io.datarouter.storage.queue.consumer.BlobQueueConsumer;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.virtualnode.redundant.RedundantBlobQueueStorageNode;
 

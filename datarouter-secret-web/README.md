@@ -6,7 +6,7 @@
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-secret-web</artifactId>
-	<version>0.0.118</version>
+	<version>0.0.119</version>
 </dependency>
 ```
 
@@ -28,8 +28,7 @@ of these are defaulted in `DatarouterSecretWebPluginBuilder`
 `DatarouterSecretOpRecordDao` simply records `SecretOp`s into a storage node.
 
 `SecretHandler` is the recommended way to manually access `Secret`s. It is a simple CRUD UI that takes advantage of all
-the built-in features of `SecretService`. A `SecretHandlerPermissions` implementation is required to grant permissions
-for real use, but `DefaultSecretHandlerPermissions`, which grants all permissions outside of production, is provided.
+the built-in features of `SecretService`.
 
 `DatarouterPropertiesAndServiceSecretNamespacer` is a useful implementation of `SecretNamespacer` with the following
 behavior: for "app-specific" `Secret`s, the namespace is "\<environment type\>/\<service name\>/", and for "shared"

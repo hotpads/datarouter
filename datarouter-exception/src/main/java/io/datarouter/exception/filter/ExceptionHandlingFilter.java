@@ -60,6 +60,7 @@ public abstract class ExceptionHandlingFilter implements Filter, InjectorRetriev
 
 	private static final Set<Integer> statusToLog = Set.of(
 			HttpServletResponse.SC_NOT_FOUND,
+			HttpServletResponse.SC_GONE,
 			HttpServletResponse.SC_FORBIDDEN,
 			ShutdownService.SHUTDOWN_STATUS_CODE);
 

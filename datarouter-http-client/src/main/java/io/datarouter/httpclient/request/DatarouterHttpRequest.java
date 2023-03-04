@@ -239,7 +239,10 @@ public class DatarouterHttpRequest{
 
 	public DatarouterHttpRequest setContentType(ContentType contentType){
 		if(contentType != null){
-			headers.computeIfAbsent(CONTENT_TYPE, $ -> new ArrayList<>()).add(contentType.getMimeType());
+			List<String> oldHeaders = Optional.ofNullable(headers.get(CONTENT_TYPE)).orElseGet(List::of);
+			List<String> newHeaders = new ArrayList<>(oldHeaders);
+			newHeaders.add(contentType.getMimeType());
+			headers.put(CONTENT_TYPE, newHeaders);
 		}
 		return this;
 	}

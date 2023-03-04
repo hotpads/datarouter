@@ -27,7 +27,7 @@ import io.datarouter.httpclient.response.DatarouterHttpResponse;
 @SuppressWarnings("serial")
 public class DatarouterHttpResponseException extends DatarouterHttpException{
 
-	public static String BAD_RESPONSE_STATUSCODE = "bad response statusCode";
+	public static final String BAD_RESPONSE_STATUSCODE = "bad response statusCode";
 
 	private final DatarouterHttpResponse response;
 

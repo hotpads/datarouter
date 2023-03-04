@@ -23,6 +23,7 @@ import static j2html.TagCreator.dt;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.h3;
 
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -39,7 +40,6 @@ import io.datarouter.util.timer.PhaseTimer;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.types.Param;
-import io.datarouter.web.handler.types.optional.OptionalString;
 import io.datarouter.web.html.form.HtmlForm;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
@@ -63,9 +63,9 @@ public class LoadTestScanHandler extends BaseHandler{
 
 	@Handler(defaultHandler = true)
 	private Mav scan(
-			@Param(P_num) OptionalString num,
-			@Param(P_batchSize) OptionalString batchSize,
-			@Param(P_submitAction) OptionalString submitAction){
+			@Param(P_num) Optional<String> num,
+			@Param(P_batchSize) Optional<String> batchSize,
+			@Param(P_submitAction) Optional<String> submitAction){
 
 		var form = new HtmlForm()
 				.withMethod("post");

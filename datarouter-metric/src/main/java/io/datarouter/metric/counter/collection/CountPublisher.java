@@ -18,15 +18,24 @@ package io.datarouter.metric.counter.collection;
 import java.util.Map;
 
 import io.datarouter.instrumentation.response.PublishingResponseDto;
+import io.datarouter.metric.counter.collection.DatarouterCountCollector.CountCollectorStats;
 
 public interface CountPublisher{
 
+	@Deprecated
 	PublishingResponseDto publish(Map<Long,Map<String,Long>> counts);
+
+	PublishingResponseDto publishStats(Map<Long,Map<String,CountCollectorStats>> counts);
 
 	public static class NoOpCountPublisher implements CountPublisher{
 
 		@Override
 		public PublishingResponseDto publish(Map<Long,Map<String,Long>> counts){
+			return PublishingResponseDto.NO_OP;
+		}
+
+		@Override
+		public PublishingResponseDto publishStats(Map<Long,Map<String,CountCollectorStats>> counts){
 			return PublishingResponseDto.NO_OP;
 		}
 

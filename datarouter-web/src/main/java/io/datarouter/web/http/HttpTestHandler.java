@@ -53,7 +53,6 @@ import io.datarouter.web.config.DatarouterWebFiles;
 import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
-import io.datarouter.web.handler.types.optional.OptionalString;
 import io.datarouter.web.util.ExceptionTool;
 
 public class HttpTestHandler extends BaseHandler{
@@ -73,8 +72,9 @@ public class HttpTestHandler extends BaseHandler{
 	private DatarouterWebPaths paths;
 
 	@Handler(defaultHandler = true)
-	public Mav httpTest(OptionalString url, OptionalString method, OptionalString requestBody, OptionalString headers,
-			OptionalString contentType, OptionalString useProxy, OptionalString followRedirects){
+	public Mav httpTest(Optional<String> url, Optional<String> method, Optional<String> requestBody,
+			Optional<String> headers, Optional<String> contentType, Optional<String> useProxy,
+			Optional<String> followRedirects){
 		Mav mav = new Mav(files.jsp.http.httpTesterJsp);
 		mav.put("path", paths.datarouter.http.tester.toSlashedString());
 		if(url.isEmpty() || method.isEmpty()){
@@ -124,7 +124,7 @@ public class HttpTestHandler extends BaseHandler{
 	}
 
 	@Handler
-	public Mav dnsLookup(OptionalString hostname){
+	public Mav dnsLookup(Optional<String> hostname){
 		Mav mav = new Mav(files.jsp.http.dnsLookupJsp);
 		mav.put("path", paths.datarouter.http.dnsLookup.toSlashedString());
 		mav.put("caching", Security.getProperty("networkaddress.cache.ttl"));

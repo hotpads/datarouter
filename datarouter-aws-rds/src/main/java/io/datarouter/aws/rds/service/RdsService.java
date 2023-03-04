@@ -69,11 +69,15 @@ public class RdsService{
 	}
 
 	public DBInstance getInstance(String instanceName, String region){
+		return getInstance(instanceName, region, NUM_ATTEMPTS);
+	}
+
+	public DBInstance getInstance(String instanceName, String region, int numRetryAttempts){
 		var request = new DescribeDBInstancesRequest().withDBInstanceIdentifier(instanceName);
 		int randomSleepMs = RandomTool.getRandomIntBetweenTwoNumbers(0, 3_000);
 		return RetryableTool.tryNTimesWithBackoffAndRandomInitialDelayUnchecked(
 				() -> getAmazonRdsReadOnlyClient(region).describeDBInstances(request).getDBInstances().get(0),
-				NUM_ATTEMPTS,
+				numRetryAttempts,
 				randomSleepMs,
 				true);
 	}

@@ -77,7 +77,7 @@ public abstract class EmailingSchemaUpdateService extends BaseSchemaUpdateServic
 				.withTitle("Schema Update")
 				.withTitleHref(primaryHref)
 				.withContent(body(header, pre(body)))
-				.fromAdmin()
+				.from("SchemaUpdate <" + adminEmail.get() + ">")
 				.to(schemaUpdatesEmailType.tos)
 				.toSubscribers()
 				.toAdmin(schemaUpdateEmailSettings.sendToAdmin.get());

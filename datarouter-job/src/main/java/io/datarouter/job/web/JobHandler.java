@@ -53,8 +53,6 @@ import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.InContextRedirectMav;
 import io.datarouter.web.handler.mav.imp.MessageMav;
 import io.datarouter.web.handler.mav.imp.StringMav;
-import io.datarouter.web.handler.types.optional.OptionalBoolean;
-import io.datarouter.web.handler.types.optional.OptionalString;
 
 public class JobHandler extends BaseHandler{
 	private static final Logger logger = LoggerFactory.getLogger(JobHandler.class);
@@ -84,13 +82,17 @@ public class JobHandler extends BaseHandler{
 	}
 
 	@Handler
-	Mav list(OptionalString category, OptionalString keyword, OptionalBoolean enabled, OptionalBoolean disabled){
+	Mav list(
+			Optional<String> category,
+			Optional<String> keyword,
+			Optional<Boolean> enabled,
+			Optional<Boolean> disabled){
 		Optional<String> message = params.optional("jobTriggerResponseMessage");
 		Mav mav = new Mav(files.jsp.admin.datarouter.job.triggersJsp);
 		if(message.isPresent()){
 			mav.put("message", message.get());
 		}
-		Optional<String> jobCategoryName = category.getOptional();
+		Optional<String> jobCategoryName = category;
 		boolean hideEnabled = enabled.orElse(false);
 		boolean hideDisabled = disabled.orElse(false);
 		mav.put("serverName", serverName.get());
@@ -111,7 +113,7 @@ public class JobHandler extends BaseHandler{
 	}
 
 	@Handler
-	StringMav run(String name, OptionalBoolean detached){
+	StringMav run(String name, Optional<Boolean> detached){
 		Class<? extends BaseJob> jobClass = BaseJob.parseClass(name);
 		Date startTime = new Date();
 		String triggeredBy = getSessionInfo().getRequiredSession().getUsername();

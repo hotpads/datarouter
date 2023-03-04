@@ -21,6 +21,7 @@ import static j2html.TagCreator.h2;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import javax.inject.Inject;
 
@@ -49,7 +50,6 @@ import io.datarouter.util.string.StringTool;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.types.Param;
-import io.datarouter.web.handler.types.optional.OptionalString;
 import io.datarouter.web.html.form.HtmlForm;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
@@ -84,11 +84,11 @@ public class JobletTableProcessorHandler extends BaseHandler{
 	private <PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>>
 	Mav defaultHandler(
-			@Param(P_nodeName) OptionalString nodeName,
-			@Param(P_scanBatchSize) OptionalString scanBatchSize,
-			@Param(P_processorName) OptionalString processorName,
-			@Param(P_executionOrder) OptionalString executionOrder,
-			@Param(P_submitAction) OptionalString submitAction){
+			@Param(P_nodeName) Optional<String> nodeName,
+			@Param(P_scanBatchSize) Optional<String> scanBatchSize,
+			@Param(P_processorName) Optional<String> processorName,
+			@Param(P_executionOrder) Optional<String> executionOrder,
+			@Param(P_submitAction) Optional<String> submitAction){
 		String errorScanBatchSize = null;
 		if(submitAction.isPresent()){
 			try{

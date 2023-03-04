@@ -155,6 +155,9 @@ public abstract class BaseHandler{
 		return mav;
 	}
 
+	/**
+	 * Used via reflection, see {@link #MISSING_PARAMETERS_HANDLER_METHOD_NAME}
+	 */
 	protected Object handleMissingParameters(List<String> missingParameters, String methodName){
 		String message = "missing parameters for " + getClass().getSimpleName() + "." + methodName + ": " + String.join(
 				", ", missingParameters);
@@ -170,8 +173,16 @@ public abstract class BaseHandler{
 	@Target(ElementType.METHOD)
 	public @interface Handler{
 		String description() default "";
-		Class<? extends HandlerEncoder> encoder() default NullHandlerEncoder.class;
-		Class<? extends HandlerDecoder> decoder() default NullHandlerDecoder.class;
+		/**
+		 * @deprecated  Specify the encoder in the RouteSet class
+		 */
+		@Deprecated
+		Class<? extends HandlerEncoder> encoder() default NoOpHandlerEncoder.class;
+		/**
+		 * @deprecated  Specify the decoder in the RouteSet class
+		 */
+		@Deprecated
+		Class<? extends HandlerDecoder> decoder() default NoOpHandlerDecoder.class;
 
 		/**
 		 * @deprecated  Specify the path directly. The method name should match the PathNode
@@ -351,7 +362,7 @@ public abstract class BaseHandler{
 		Class<? extends HandlerEncoder> encoderClass = defaultHandlerEncoder;
 		if(method.isAnnotationPresent(Handler.class)){
 			Class<? extends HandlerEncoder> methodEncoder = method.getAnnotation(Handler.class).encoder();
-			if(!methodEncoder.equals(NullHandlerEncoder.class)){
+			if(!methodEncoder.equals(NoOpHandlerEncoder.class)){
 				encoderClass = methodEncoder;
 			}
 		}
@@ -477,7 +488,8 @@ public abstract class BaseHandler{
 
 	private List<String> getMissingParameterNames(Method method){
 		return Scanner.of(method.getParameters())
-				.exclude(parameter -> OptionalParameter.class.isAssignableFrom(parameter.getType()))
+				.exclude(parameter -> OptionalParameter.class.isAssignableFrom(parameter.getType())
+						|| Optional.class.isAssignableFrom(parameter.getType()))
 				.map(Parameter::getName)
 				.exclude(param -> params.toMap().containsKey(param))
 				.list();
@@ -536,7 +548,7 @@ public abstract class BaseHandler{
 		this.accountName = accountName;
 	}
 
-	public static class NullHandlerEncoder implements HandlerEncoder{
+	public static class NoOpHandlerEncoder implements HandlerEncoder{
 
 		@Override
 		public void finishRequest(
@@ -584,7 +596,7 @@ public abstract class BaseHandler{
 
 	}
 
-	public static class NullHandlerDecoder implements HandlerDecoder{
+	public static class NoOpHandlerDecoder implements HandlerDecoder{
 
 		@Override
 		public Object[] decode(HttpServletRequest request, Method method){

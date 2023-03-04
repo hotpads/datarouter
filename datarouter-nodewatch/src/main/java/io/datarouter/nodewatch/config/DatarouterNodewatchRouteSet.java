@@ -31,7 +31,6 @@ public class DatarouterNodewatchRouteSet extends BaseRouteSet{
 
 	@Inject
 	public DatarouterNodewatchRouteSet(DatarouterNodewatchPaths paths){
-		super(paths.datarouter);
 
 		handle(paths.datarouter.nodewatch.tableCount)
 				.withHandler(TableCountHandler.class)

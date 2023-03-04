@@ -40,7 +40,7 @@ import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.MessageMav;
 import io.datarouter.web.handler.types.Param;
-import io.datarouter.web.handler.types.optional.OptionalString;
+
 import io.datarouter.web.user.session.CurrentUserSessionInfoService;
 import io.datarouter.web.util.ExceptionService;
 import io.datarouter.web.util.http.CookieTool;
@@ -66,7 +66,7 @@ public class ExceptionAnalysisHandler extends BaseHandler{
 
 	// TODO use J2Html
 	@Handler
-	public Mav details(@Param(P_exceptionRecord) OptionalString exceptionRecord){
+	public Mav details(@Param(P_exceptionRecord) Optional<String> exceptionRecord){
 		Mav mav = new Mav(files.jsp.datarouter.exception.exceptionDetailsJsp);
 		mav.put("detailsPath", paths.datarouter.exception.details.toSlashedString());
 		if(exceptionRecord.isEmpty()){

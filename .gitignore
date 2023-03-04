@@ -1,6 +1,14 @@
-.classpath
+test-output
 .settings
 .project
+*.classpath
+*/test-results
 target
-test-output
-*.iml
+*/build
+*/bin
+*~
+*.idea*
+*.iml*
+**/src/main/webapp/META-INF
+.DS_Store
+*.factorypath

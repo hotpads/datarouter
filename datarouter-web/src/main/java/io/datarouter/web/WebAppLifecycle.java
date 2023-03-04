@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.web.DatarouterWebExecutors.WebAppLifecycleExecutor;
 import io.datarouter.web.shutdown.ShutdownService;
+import io.datarouter.web.warmup.HttpWarmup;
 
 @Singleton
 public class WebAppLifecycle{
@@ -39,27 +40,26 @@ public class WebAppLifecycle{
 	private final Map<WebAppLifecycleState,List<WebAppLifecycleListener>> listeners = new HashMap<>();
 
 	@Inject
-	public WebAppLifecycle(WebAppLifecycleExecutor webAppLifecycleExecutor, ShutdownService shutdownService){
+	public WebAppLifecycle(WebAppLifecycleExecutor webAppLifecycleExecutor, ShutdownService shutdownService,
+			HttpWarmup httpWarmup){
 		this.webAppLifecycleExecutor = webAppLifecycleExecutor;
-		addListener(WebAppLifecycleState.HTTP_READY, newState -> {
-			logger.warn("making warmup http calls");
-			// TODO make http calls
+		addListener(WebAppLifecycleState.HTTP_READY, $ -> {
+			httpWarmup.makeHttpWamrupCalls();
 			set(WebAppLifecycleState.HTTP_WARMED);
 		});
-		addListener(WebAppLifecycleState.HTTP_WARMED, newState -> shutdownService.advance());
+		addListener(WebAppLifecycleState.HTTP_WARMED, $ -> shutdownService.advance());
 	}
 
 	/**
 	 * This method execute the state listeners in another thread. It will be return quickly.
-	 * I use synchronization to advancing multiple time to the same state.
+	 * I use synchronization to avoid advancing multiple time to the same state.
 	 */
 	public synchronized void set(WebAppLifecycleState newState){
 		if(newState.ordinal() > state.ordinal()){
 			state = newState;
-			logger.warn("new state={}", state);
-			webAppLifecycleExecutor.submit(() -> {
-				listeners.getOrDefault(newState, List.of()).forEach(listener -> listener.process(newState));
-			});
+			logger.warn("new state={}", newState);
+			webAppLifecycleExecutor.submit(() -> listeners.getOrDefault(newState, List.of())
+					.forEach(listener -> listener.process(newState)));
 		}
 	}
 

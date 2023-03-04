@@ -26,6 +26,7 @@ import javax.inject.Singleton;
 
 import io.datarouter.scanner.Scanner;
 import io.datarouter.web.config.DatarouterWebFiles;
+import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.navigation.NavBarCategory.NavBarItemType;
 import io.datarouter.web.navigation.NavBarCategory.SimpleNavBarCategory;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
@@ -38,23 +39,40 @@ public class DatarouterNavBar extends NavBar{
 			DatarouterWebFiles webFiles,
 			Optional<DatarouterAuthenticationConfig> config,
 			DatarouterNavBarSupplier navBarSupplier,
-			DynamicNavBarItemRegistry dynamicNavBarItemRegistry){
+			DynamicNavBarItemRegistry dynamicNavBarItemRegistry,
+			DatarouterWebPaths paths){
 		super(webFiles.jeeAssets.datarouterLogoPng.toSlashedString(), "Datarouter logo", config);
 		List<NavBarItem> dynamicNavBarItems = Scanner.of(dynamicNavBarItemRegistry.get())
 				.include(item -> item.getType() == NavBarItemType.DATAROUTER)
 				.include(DynamicNavBarItem::shouldDisplay)
 				.map(DynamicNavBarItem::getNavBarItem)
 				.list();
-		Scanner.concat(navBarSupplier.get(), dynamicNavBarItems)
+		Scanner.concat(
+				List.of(new NavBarItem(DatarouterNavBarCategory.HOME, paths.datarouter, "Home")),
+				navBarSupplier.get(), dynamicNavBarItems)
 				.groupBy(item -> item.category.toDto())
 				.entrySet()
 				.stream()
 				.map(this::createMenuItem)
-				.sorted(Comparator.comparing((NavBarMenuItem item) -> item.getText()))
+				.sorted(Comparator
+						.comparing((NavBarMenuItem item) ->
+								item.getHref().getPath().endsWith(paths.datarouter.getValue())
+										? 0 : 1)
+						.thenComparing(Comparator.comparing((NavBarMenuItem item) -> item.getText())))
 				.forEach(this::addMenuItems);
 	}
 
 	private NavBarMenuItem createMenuItem(Entry<SimpleNavBarCategory,List<NavBarItem>> entry){
+		if(entry.getValue().size() == 1
+				&& entry.getValue().get(0).category == DatarouterNavBarCategory.HOME){
+			var item = new NavBarMenuItem(
+					entry.getValue().get(0).path,
+					entry.getKey().display(),
+					entry.getValue().get(0).openInNewTab,
+					this);
+			entry.getValue().get(0).dispatchRule.ifPresent(item::setDispatchRule);
+			return item;
+		}
 		List<NavBarMenuItem> menuItems = entry.getValue().stream()
 				.sorted(Comparator.comparing((NavBarItem item) -> item.name))
 				.map(item -> {

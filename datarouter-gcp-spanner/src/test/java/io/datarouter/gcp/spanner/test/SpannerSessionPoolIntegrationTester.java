@@ -35,8 +35,8 @@ import com.google.cloud.spanner.SpannerException;
 
 import io.datarouter.gcp.spanner.SpannerTestNgModuleFactory;
 import io.datarouter.gcp.spanner.client.SpannerClientOptions;
-import io.datarouter.scanner.ParallelScannerContext;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.scanner.Threads;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.factory.NodeFactory;
@@ -113,7 +113,7 @@ public class SpannerSessionPoolIntegrationTester{
 
 		Scanner.iterate(0, i -> i + 1)
 				.limit(numIterations)
-				.parallel(new ParallelScannerContext(scannerExec, numThreads, false, paralleScan))
+				.parallelOrdered(new Threads(scannerExec, numThreads), paralleScan)
 				.each(i -> {
 					var future = opExec.submit(() -> {
 						try{

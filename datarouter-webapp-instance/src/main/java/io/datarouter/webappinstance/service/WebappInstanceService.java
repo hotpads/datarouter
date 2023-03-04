@@ -29,7 +29,7 @@ import io.datarouter.storage.config.properties.DatarouterServerTypeSupplier;
 import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.storage.config.properties.ServerPrivateIp;
 import io.datarouter.storage.config.properties.ServerPublicIp;
-import io.datarouter.util.MxBeans;
+import io.datarouter.util.PlatformMxBeans;
 import io.datarouter.util.SystemTool;
 import io.datarouter.web.app.WebappName;
 import io.datarouter.web.config.ServletContextSupplier;
@@ -102,7 +102,7 @@ public class WebappInstanceService{
 		this.serverPrivateIp = serverPrivateIp;
 		this.serverType = serverType;
 
-		this.startup = Instant.ofEpochMilli(MxBeans.RUNTIME.getStartTime());
+		this.startup = Instant.ofEpochMilli(PlatformMxBeans.RUNTIME.getStartTime());
 	}
 
 	public List<WebappInstance> getAll(){

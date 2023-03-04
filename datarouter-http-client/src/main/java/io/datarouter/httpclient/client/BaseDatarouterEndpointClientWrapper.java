@@ -74,9 +74,4 @@ implements DatarouterEndpointClient<ET>, DatarouterServiceEndpointClient<ET>{
 		return client.getJsonSerializer();
 	}
 
-	@Override
-	public void initUrlPrefix(BaseEndpoint<?,ET> endpoint){
-		client.initUrlPrefix(endpoint);
-	}
-
 }

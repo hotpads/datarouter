@@ -15,6 +15,8 @@
  */
 package io.datarouter.exception.service;
 
+import java.util.List;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -24,13 +26,17 @@ import org.slf4j.LoggerFactory;
 import io.datarouter.exception.config.DatarouterExceptionSettingRoot;
 import io.datarouter.exception.dto.ExceptionRecordBinaryDto;
 import io.datarouter.exception.dto.HttpRequestRecordBinaryDto;
+import io.datarouter.exception.dto.TaskExecutorRecordBinaryDto;
 import io.datarouter.exception.storage.exceptionrecord.ExceptionRecordDirectoryDao;
 import io.datarouter.exception.storage.exceptionrecord.ExceptionRecordQueueDao;
 import io.datarouter.exception.storage.httprecord.HttpRequestRecordDirectoryDao;
 import io.datarouter.exception.storage.httprecord.HttpRequestRecordQueueDao;
+import io.datarouter.exception.storage.taskexecutorrecord.TaskExecutorRecordDirectoryDao;
+import io.datarouter.exception.storage.taskexecutorrecord.TaskExecutorRecordQueueDao;
 import io.datarouter.instrumentation.exception.DatarouterExceptionPublisher;
 import io.datarouter.instrumentation.exception.ExceptionRecordBatchDto;
 import io.datarouter.instrumentation.exception.HttpRequestRecordBatchDto;
+import io.datarouter.instrumentation.exception.TaskExecutorRecordDto;
 import io.datarouter.instrumentation.response.PublishingResponseDto;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.properties.ServiceName;
@@ -48,6 +54,9 @@ public class DatarouterExceptionPublisherService implements DatarouterExceptionP
 	private final HttpRequestRecordDirectoryDao httpRequestRecordDirectoryDao;
 	private final HttpRequestRecordQueueDao httpRequestRecordQueueDao;
 
+	private final TaskExecutorRecordDirectoryDao taskExecutorRecordDirectoryDao;
+	private final TaskExecutorRecordQueueDao taskExecutorRecordQueueDao;
+
 	private final ServiceName serviceName;
 
 	@Inject
@@ -56,12 +65,16 @@ public class DatarouterExceptionPublisherService implements DatarouterExceptionP
 			ExceptionRecordQueueDao exceptionRecordQueueDao,
 			HttpRequestRecordDirectoryDao httpRequestRecordDirectoryDao,
 			HttpRequestRecordQueueDao httpRequestRecordQueueDao,
+			TaskExecutorRecordDirectoryDao taskExecutorRecordDirectoryDao,
+			TaskExecutorRecordQueueDao taskExecutorRecordQueueDao,
 			ServiceName serviceName){
 		this.exceptionSettings = exceptionSettings;
 		this.exceptionRecordDirectoryDao = exceptionRecordDirectoryDao;
 		this.exceptionRecordQueueDao = exceptionRecordQueueDao;
 		this.httpRequestRecordDirectoryDao = httpRequestRecordDirectoryDao;
 		this.httpRequestRecordQueueDao = httpRequestRecordQueueDao;
+		this.taskExecutorRecordDirectoryDao = taskExecutorRecordDirectoryDao;
+		this.taskExecutorRecordQueueDao = taskExecutorRecordQueueDao;
 		this.serviceName = serviceName;
 	}
 
@@ -108,6 +121,28 @@ public class DatarouterExceptionPublisherService implements DatarouterExceptionP
 		Scanner.of(httpRequestRecordBatchDto.records())
 				.map(dto -> new HttpRequestRecordBinaryDto(dto, serviceName.get()))
 				.then(scanner -> httpRequestRecordDirectoryDao.write(scanner, new Ulid()));
+		return PublishingResponseDto.SUCCESS;
+	}
+
+	@Override
+	public PublishingResponseDto addTaskExecutorRecord(List<TaskExecutorRecordDto> taskExecutorRecords){
+		if(taskExecutorRecords.isEmpty()){
+			return PublishingResponseDto.SUCCESS;
+		}
+		boolean isQueue = exceptionSettings.saveTaskExecutorRecordsToQueueDaoInsteadOfDirectoryDao.get();
+		logger.info(
+				"writing size={} httpRequestRecords to {}",
+				taskExecutorRecords.size(),
+				isQueue ? "queue" : "directory");
+		if(isQueue){
+			Scanner.of(taskExecutorRecords)
+					.map(record -> new TaskExecutorRecordBinaryDto(serviceName.get(), record))
+					.then(taskExecutorRecordQueueDao::combineAndPut);
+			return PublishingResponseDto.SUCCESS;
+		}
+		Scanner.of(taskExecutorRecords)
+				.map(record -> new TaskExecutorRecordBinaryDto(serviceName.get(), record))
+				.then(scanner -> taskExecutorRecordDirectoryDao.write(scanner, new Ulid()));
 		return PublishingResponseDto.SUCCESS;
 	}
 

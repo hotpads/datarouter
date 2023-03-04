@@ -30,15 +30,11 @@ public class DatarouterQueueMetrics{
 	@Inject
 	private Gauges gauges;
 
-	public static String makeNameForOldestMessageAgeM(String clientTypeName, String queueName){
-		return makeMetricName(clientTypeName, DatarouterQueueMetrics.OLDEST_MESSAGE_AGE_M, queueName);
-	}
-
-	private static String makeNameForOldestMessageAgeS(String clientTypeName, String queueName){
+	public static String makeNameForOldestMessageAgeS(String clientTypeName, String queueName){
 		return makeMetricName(clientTypeName, DatarouterQueueMetrics.OLDEST_MESSAGE_AGE_S, queueName);
 	}
 
-	private static String makeNameForQueueLength(String clientTypeName, String queueName){
+	public static String makeNameForQueueLength(String clientTypeName, String queueName){
 		return makeMetricName(clientTypeName, DatarouterQueueMetrics.QUEUE_LENGTH, queueName);
 	}
 
@@ -52,7 +48,6 @@ public class DatarouterQueueMetrics{
 
 	public void saveOldestAckMessageAge(String key, long oldestUnackedMessageAgeS, String clientTypeName){
 		gauges.save(makeNameForOldestMessageAgeS(clientTypeName, key), oldestUnackedMessageAgeS);
-		gauges.save(makeNameForOldestMessageAgeM(clientTypeName, key), oldestUnackedMessageAgeS / 60);
 	}
 
 }

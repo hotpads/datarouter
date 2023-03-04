@@ -26,5 +26,4 @@ public class SecretClientException extends RuntimeException{
 		super(message, th);
 	}
 
-
 }

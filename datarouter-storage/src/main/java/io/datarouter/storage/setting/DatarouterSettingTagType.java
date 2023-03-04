@@ -18,9 +18,11 @@ package io.datarouter.storage.setting;
 import java.util.function.Supplier;
 
 public enum DatarouterSettingTagType implements Supplier<DatarouterSettingTag>{
-	COUNTPIPELINE("countPipeline"),
-	GAUGEPIPELINE("gaugePipeline"),
-	TRACE2PIPELINE("trace2Pipeline"),
+	COUNT_PIPELINE("countPipeline"),
+	GAUGE_PIPELINE("gaugePipeline"),
+	TRACE2_PIPELINE("trace2Pipeline"),
+	CONVEYOR_TRACE_PIPELINE("conveyorTracePipeline"),
+	EXCEPTION_PIPELINE("exceptionPipeline")
 	;
 
 	private final DatarouterSettingTag datarouterSettingTag;

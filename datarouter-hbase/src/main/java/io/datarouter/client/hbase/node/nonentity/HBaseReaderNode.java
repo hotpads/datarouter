@@ -70,6 +70,9 @@ extends BasePhysicalNode<PK,D,F>
 implements MapStorageReader<PK,D>, SortedStorageReader<PK,D>{
 
 	private static final int DEFAULT_SCAN_BATCH_SIZE = 100;
+	// When combined with partitioned scanners, prefetching can use a lot of memory, so disable by default.
+	private static final boolean DEFAULT_ENABLE_SCANNER_PREFETCH = false;
+	private static final boolean DEFAULT_ENABLE_SCANNER_CACHING = true;
 	private static final FirstKeyOnlyFilter FIRST_KEY_ONLY_FILTER = new FirstKeyOnlyFilter();
 	private static final KeyOnlyFilter KEY_ONLY_FILTER = new KeyOnlyFilter();
 
@@ -209,8 +212,8 @@ implements MapStorageReader<PK,D>, SortedStorageReader<PK,D>{
 		int offset = config.findOffset().orElse(0);
 		Integer subscanLimit = config.findLimit().map(limit -> offset + limit).orElse(null);
 		int pageSize = config.findResponseBatchSize().orElse(DEFAULT_SCAN_BATCH_SIZE);
-		boolean prefetch = config.findScannerPrefetching().orElse(true);
-		boolean cacheBlocks = config.findScannerCaching().orElse(true);
+		boolean prefetch = config.findScannerPrefetching().orElse(DEFAULT_ENABLE_SCANNER_PREFETCH);
+		boolean cacheBlocks = config.findScannerCaching().orElse(DEFAULT_ENABLE_SCANNER_CACHING);
 		Scanner<Result> collatedPartitions = partitioner.scanPrefixes(range)
 				.collate(prefix -> scanResultsInByteRange(prefix, byteRange, pageSize, subscanLimit, prefetch,
 						cacheBlocks, keysOnly, startIsFullKey), resultComparator);

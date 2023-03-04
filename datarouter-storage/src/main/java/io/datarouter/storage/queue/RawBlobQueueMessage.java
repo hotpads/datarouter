@@ -17,7 +17,7 @@ package io.datarouter.storage.queue;
 
 import java.util.Map;
 
-import io.datarouter.bytes.ExtractFromPrependedLengthByteArrayScanner;
+import io.datarouter.bytes.VarIntByteArraysTool;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.node.op.raw.BlobQueueStorage;
 
@@ -51,7 +51,7 @@ public class RawBlobQueueMessage{
 	 * @return scanner of each byte[]
 	 */
 	public Scanner<byte[]> scanSplitData(){
-		return ExtractFromPrependedLengthByteArrayScanner.of(data);
+		return VarIntByteArraysTool.decodeMulti(data);
 	}
 
 	public Map<String,String> getMessageAttributes(){

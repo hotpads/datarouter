@@ -15,12 +15,12 @@
  */
 package io.datarouter.filesystem.snapshot.block.value;
 
-import io.datarouter.bytes.PagedObjectArray;
 import io.datarouter.bytes.VarIntTool;
 import io.datarouter.bytes.codec.intcodec.RawIntCodec;
 import io.datarouter.filesystem.snapshot.encode.EncodedBlock;
 import io.datarouter.filesystem.snapshot.encode.ValueBlockEncoder;
 import io.datarouter.filesystem.snapshot.entry.SnapshotEntry;
+import io.datarouter.scanner.PagedList;
 
 public class ValueBlockV1Encoder implements ValueBlockEncoder{
 
@@ -28,12 +28,12 @@ public class ValueBlockV1Encoder implements ValueBlockEncoder{
 
 	private int numRecords;
 	private int numBytes;
-	private final PagedObjectArray<byte[]> values;
+	private final PagedList<byte[]> values;
 
 	public ValueBlockV1Encoder(){
 		this.numRecords = 0;
 		this.numBytes = 0;
-		this.values = new PagedObjectArray<>(256);
+		this.values = new PagedList<>(256);
 	}
 
 	@Override

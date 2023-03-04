@@ -35,12 +35,16 @@ import io.datarouter.exception.storage.exceptionrecord.ExceptionRecordDirectoryS
 import io.datarouter.exception.storage.exceptionrecord.ExceptionRecordDirectorySupplier.NoOpExceptionRecordDirectorySupplier;
 import io.datarouter.exception.storage.exceptionrecord.ExceptionRecordQueueDao;
 import io.datarouter.exception.storage.exceptionrecord.ExceptionRecordQueueDao.ExceptionRecordQueueDaoParams;
-import io.datarouter.exception.storage.exceptionrecord.HttpRequestRecordDirectorySupplier;
-import io.datarouter.exception.storage.exceptionrecord.HttpRequestRecordDirectorySupplier.NoOpHttpRequestRecordDirectorySupplier;
 import io.datarouter.exception.storage.httprecord.DatarouterHttpRequestRecordDao;
 import io.datarouter.exception.storage.httprecord.DatarouterHttpRequestRecordDao.DatarouterHttpRequestRecordDaoParams;
+import io.datarouter.exception.storage.httprecord.HttpRequestRecordDirectorySupplier;
+import io.datarouter.exception.storage.httprecord.HttpRequestRecordDirectorySupplier.NoOpHttpRequestRecordDirectorySupplier;
 import io.datarouter.exception.storage.httprecord.HttpRequestRecordQueueDao;
 import io.datarouter.exception.storage.httprecord.HttpRequestRecordQueueDao.HttpRequestRecordQueueDaoParams;
+import io.datarouter.exception.storage.taskexecutorrecord.TaskExecutorRecordDirectorySupplier;
+import io.datarouter.exception.storage.taskexecutorrecord.TaskExecutorRecordDirectorySupplier.NoOpTaskExecutorRecordDirectorySupplier;
+import io.datarouter.exception.storage.taskexecutorrecord.TaskExecutorRecordQueueDao;
+import io.datarouter.exception.storage.taskexecutorrecord.TaskExecutorRecordQueueDao.TaskExecutorRecordQueueDaoParams;
 import io.datarouter.exception.utils.nameparser.ExceptionNameParserRegistry;
 import io.datarouter.exception.utils.nameparser.ExceptionNameParserRegistry.NoOpExceptionNameParserRegistry;
 import io.datarouter.instrumentation.exception.DatarouterExceptionPublisher;
@@ -68,6 +72,7 @@ public class DatarouterExceptionPlugin extends BaseWebPlugin{
 	private final Class<? extends DatarouterExceptionPublisher> exceptionRecordPublisher;
 	private final Class<? extends ExceptionRecordDirectorySupplier> exceptionRecordBlobDirectorySupplier;
 	private final Class<? extends HttpRequestRecordDirectorySupplier> httpRequestRecordDirectorySupplier;
+	private final Class<? extends TaskExecutorRecordDirectorySupplier> taskExecutorRecordDirectorySupplier;
 	private final Class<? extends ExceptionRecordSummaryCollector> exceptionRecordSummaryCollectorClass;
 	private final Class<? extends IssueLinkPrefixService> issueLinkPrefixService;
 	private final Class<? extends ExceptionNameParserRegistry> exceptionNameParserRegistryClass;
@@ -79,6 +84,7 @@ public class DatarouterExceptionPlugin extends BaseWebPlugin{
 			Class<? extends DatarouterExceptionPublisher> exceptionRecordPublisher,
 			Class<? extends ExceptionRecordDirectorySupplier> exceptionRecordDirectorySupplier,
 			Class<? extends HttpRequestRecordDirectorySupplier> httpRequestRecordDirectorySupplier,
+			Class<? extends TaskExecutorRecordDirectorySupplier> taskExecutorRecordDirectorySupplier,
 			Class<? extends ExceptionRecordSummaryCollector> exceptionRecordSummaryCollectorClass,
 			Class<? extends IssueLinkPrefixService> issueLinkPrefixService,
 			Class<? extends ExceptionNameParserRegistry> exceptionNameParserRegistryClass){
@@ -88,6 +94,7 @@ public class DatarouterExceptionPlugin extends BaseWebPlugin{
 		this.exceptionRecordPublisher = exceptionRecordPublisher;
 		this.exceptionRecordBlobDirectorySupplier = exceptionRecordDirectorySupplier;
 		this.httpRequestRecordDirectorySupplier = httpRequestRecordDirectorySupplier;
+		this.taskExecutorRecordDirectorySupplier = taskExecutorRecordDirectorySupplier;
 		this.exceptionRecordSummaryCollectorClass = exceptionRecordSummaryCollectorClass;
 		this.issueLinkPrefixService = issueLinkPrefixService;
 		this.exceptionNameParserRegistryClass = exceptionNameParserRegistryClass;
@@ -121,6 +128,7 @@ public class DatarouterExceptionPlugin extends BaseWebPlugin{
 		bind(DatarouterExceptionPublisher.class).to(exceptionRecordPublisher);
 		bind(ExceptionRecordDirectorySupplier.class).to(exceptionRecordBlobDirectorySupplier);
 		bind(HttpRequestRecordDirectorySupplier.class).to(httpRequestRecordDirectorySupplier);
+		bind(TaskExecutorRecordDirectorySupplier.class).to(taskExecutorRecordDirectorySupplier);
 		bind(ExceptionRecordSummaryCollector.class).to(exceptionRecordSummaryCollectorClass);
 		bind(IssueLinkPrefixService.class).to(issueLinkPrefixService);
 		bind(ExceptionNameParserRegistry.class).to(exceptionNameParserRegistryClass);
@@ -142,6 +150,8 @@ public class DatarouterExceptionPlugin extends BaseWebPlugin{
 				= NoOpExceptionRecordDirectorySupplier.class;
 		private Class<? extends HttpRequestRecordDirectorySupplier> httpRequestRecordDirectorySupplier
 				= NoOpHttpRequestRecordDirectorySupplier.class;
+		private Class<? extends TaskExecutorRecordDirectorySupplier> taskExecutorRecordDirectorySupplier
+				= NoOpTaskExecutorRecordDirectorySupplier.class;
 		private Class<? extends ExceptionRecordSummaryCollector> exceptionRecordSummaryCollector
 				= NoOpExceptionRecordSummaryCollector.class;
 		private Class<? extends IssueLinkPrefixService> issueLinkPrefixService = NoOpIssueLinkPrefixService.class;
@@ -179,11 +189,13 @@ public class DatarouterExceptionPlugin extends BaseWebPlugin{
 		public DatarouterExceptionPluginBuilder enablePublishing(
 				List<ClientId> blobQueueClientIds,
 				Class<? extends ExceptionRecordDirectorySupplier> exceptionRecordDirectorySupplier,
-				Class<? extends HttpRequestRecordDirectorySupplier> httpRequestRecordDirectorySupplier){
+				Class<? extends HttpRequestRecordDirectorySupplier> httpRequestRecordDirectorySupplier,
+				Class<? extends TaskExecutorRecordDirectorySupplier> taskExecutorRecordDirectorySupplier){
 			this.exceptionRecordPublisher = DatarouterExceptionPublisherService.class;
 			this.blobQueueClientIds = blobQueueClientIds;
 			this.exceptionRecordDirectorySupplier = exceptionRecordDirectorySupplier;
 			this.httpRequestRecordDirectorySupplier = httpRequestRecordDirectorySupplier;
+			this.taskExecutorRecordDirectorySupplier = taskExecutorRecordDirectorySupplier;
 			return this;
 		}
 
@@ -208,6 +220,7 @@ public class DatarouterExceptionPlugin extends BaseWebPlugin{
 					exceptionRecordPublisher,
 					exceptionRecordDirectorySupplier,
 					httpRequestRecordDirectorySupplier,
+					taskExecutorRecordDirectorySupplier,
 					exceptionRecordSummaryCollector,
 					issueLinkPrefixService,
 					exceptionNameParserRegistryClass);
@@ -244,6 +257,7 @@ public class DatarouterExceptionPlugin extends BaseWebPlugin{
 			if(queueClientIds != null){
 				daos.add(ExceptionRecordQueueDao.class);
 				daos.add(HttpRequestRecordQueueDao.class);
+				daos.add(TaskExecutorRecordQueueDao.class);
 			}
 			return daos;
 		}
@@ -260,6 +274,8 @@ public class DatarouterExceptionPlugin extends BaseWebPlugin{
 						.toInstance(new ExceptionRecordQueueDaoParams(queueClientIds));
 				bind(HttpRequestRecordQueueDaoParams.class)
 						.toInstance(new HttpRequestRecordQueueDaoParams(queueClientIds));
+				bind(TaskExecutorRecordQueueDaoParams.class)
+						.toInstance(new TaskExecutorRecordQueueDaoParams(queueClientIds));
 			}
 		}
 

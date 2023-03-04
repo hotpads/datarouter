@@ -17,7 +17,6 @@ package io.datarouter.nodewatch.web;
 
 import java.time.Instant;
 import java.time.ZoneId;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +40,7 @@ import io.datarouter.nodewatch.storage.latesttablecount.LatestTableCount;
 import io.datarouter.nodewatch.storage.latesttablecount.LatestTableCountKey;
 import io.datarouter.nodewatch.storage.tablecount.DatarouterTableCountDao;
 import io.datarouter.nodewatch.storage.tablecount.TableCount;
+import io.datarouter.nodewatch.storage.tablecount.TableCount.TableCountLatestEntryComparator;
 import io.datarouter.nodewatch.storage.tablecount.TableCountKey;
 import io.datarouter.nodewatch.storage.tablesample.DatarouterTableSampleDao;
 import io.datarouter.nodewatch.storage.tablesample.TableSampleKey;
@@ -109,8 +109,9 @@ public class TableCountHandler extends BaseHandler{
 		Mav mav = new Mav(files.jsp.datarouter.nodewatch.singleTableCountsJsp);
 		mav.put("clientName", clientName);
 		mav.put("tableName", tableName);
-		List<TableCount> results = tableCountDao.getForTable(clientName, tableName);
-		Collections.sort(results, new TableCount.TableCountLatestEntryComparator());
+		List<TableCount> results = tableCountDao.scanForTable(clientName, tableName)
+				.sort(new TableCountLatestEntryComparator())
+				.list();
 		mav.put("results", Scanner.of(results)
 				.map(count -> new TableCountJspDto(count, userZoneId))
 				.list());
@@ -194,7 +195,8 @@ public class TableCountHandler extends BaseHandler{
 	}
 
 	private JsonArray getRowCountData(String clientName, String tableName){
-		List<TableCount> data = tableCountDao.getForTable(clientName, tableName);
+		List<TableCount> data = tableCountDao.scanForTable(clientName, tableName)
+				.list();
 		JsonArray jsonData = getRowCountJson(data);
 		return jsonData;
 	}

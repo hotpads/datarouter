@@ -19,8 +19,8 @@ import javax.inject.Singleton;
 
 public interface LocalStorageConfig{
 
-	static final String DEFAULT_CONFIG_DIRECTORY = "/etc/datarouter/config";
-	static final String DEFAULT_CONFIG_FILENAME = "unencryptedSecretStorage.properties";
+	String DEFAULT_CONFIG_DIRECTORY = "/etc/datarouter/config";
+	String DEFAULT_CONFIG_FILENAME = "unencryptedSecretStorage.properties";
 
 	default String getConfigDirectory(){
 		return DEFAULT_CONFIG_DIRECTORY;
@@ -35,7 +35,7 @@ public interface LocalStorageConfig{
 	}
 
 	@Singleton
-	public static class DefaultLocalStorageConfig implements LocalStorageConfig{
+	class DefaultLocalStorageConfig implements LocalStorageConfig{
 	}
 
 }

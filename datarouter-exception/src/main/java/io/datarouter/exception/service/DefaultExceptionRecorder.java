@@ -168,7 +168,7 @@ public class DefaultExceptionRecorder implements ExceptionRecorder{
 		}
 		ExceptionCounters.inc(category.name());
 		ExceptionCounters.inc(category.name() + " " + webappName);
-		ExceptionCounters.inc(name);
+		ExceptionCounters.inc("name " + name);
 		ExceptionCounters.inc(type);
 		ExceptionCounters.inc(callOrigin);
 		ExceptionCounters.inc(type + " " + callOrigin);

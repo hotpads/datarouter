@@ -19,7 +19,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ExecutorService;
 import java.util.function.Supplier;
 
 import io.datarouter.filesystem.snapshot.block.BlockKey;
@@ -27,8 +26,8 @@ import io.datarouter.filesystem.snapshot.group.SnapshotGroup;
 import io.datarouter.filesystem.snapshot.group.dto.SnapshotKeyAndRoot;
 import io.datarouter.filesystem.snapshot.key.SnapshotKey;
 import io.datarouter.filesystem.snapshot.key.SnapshotKeyDecoder;
-import io.datarouter.scanner.ParallelScannerContext;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.scanner.Threads;
 import io.datarouter.util.cached.CachingSupplier;
 import io.datarouter.util.collection.ListTool;
 
@@ -72,9 +71,9 @@ public class SnapshotGroupKeyReadOps{
 				.advanceWhile(key -> snapshotKeyDecoder.toInstant(key).compareTo(endTime) < 0);
 	}
 
-	public Scanner<SnapshotKeyAndRoot> scanSnapshotKeysAndRootBlocks(ExecutorService exec, int numThreads){
+	public Scanner<SnapshotKeyAndRoot> scanSnapshotKeysAndRootBlocks(Threads threads){
 		return scanSnapshotKeys()
-				.parallel(new ParallelScannerContext(exec, numThreads, false))
+				.parallelOrdered(threads)
 				.map(key -> new SnapshotKeyAndRoot(key, group.root(BlockKey.root(key))));
 	}
 

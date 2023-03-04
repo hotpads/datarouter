@@ -37,10 +37,8 @@ import io.datarouter.web.handler.encoder.BaseHandlerCodec;
 import io.datarouter.web.handler.encoder.DefaultEncoder;
 import io.datarouter.web.handler.encoder.HandlerEncoder;
 import io.datarouter.web.handler.types.DefaultDecoder;
-import io.datarouter.web.handler.types.EndpointDecoder;
 import io.datarouter.web.handler.types.HandlerDecoder;
 import io.datarouter.web.handler.types.LinkDecoder;
-import io.datarouter.web.handler.types.WebApiDecoder;
 import io.datarouter.web.security.CsrfValidator;
 import io.datarouter.web.security.SecurityValidationResult;
 import io.datarouter.web.security.SecurityValidator;
@@ -225,9 +223,9 @@ public class DispatchRule{
 		}
 		return switch(dispatchType){
 			case DEFAULT -> DefaultDecoder.class;
-			case API_ENDPOINT -> EndpointDecoder.class;
+			case API_ENDPOINT -> DefaultDecoder.class;
 			case INTERNAL_LINK -> LinkDecoder.class;
-			case WEB_API -> WebApiDecoder.class;
+			case WEB_API -> DefaultDecoder.class;
 		};
 	}
 
@@ -241,6 +239,10 @@ public class DispatchRule{
 
 	public Tag getTag(){
 		return tag;
+	}
+
+	public DispatchType getDispatchType(){
+		return dispatchType;
 	}
 
 	private SecurityValidationResult checkApiKey(HttpServletRequest request){

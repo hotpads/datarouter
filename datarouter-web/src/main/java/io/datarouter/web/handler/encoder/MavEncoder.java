@@ -69,15 +69,8 @@ public class MavEncoder implements HandlerEncoder{
 		mav.getModel().forEach(request::setAttribute);
 
 		// forward to the jsp
-		String targetContextName = mav.getContext();
 		String viewName = mav.getViewName();
-		ServletContext targetContext = servletContext;
-		if(targetContextName != null){
-			targetContext = servletContext.getContext(targetContextName);
-			throw new RuntimeException("Could not acquire servletContext=" + targetContextName
-					+ ".  Make sure context has crossContext=true enabled.");
-		}
-		RequestDispatcher dispatcher = targetContext.getRequestDispatcher(viewName);
+		RequestDispatcher dispatcher = servletContext.getRequestDispatcher(viewName);
 		try(var $ = TracerTool.startSpan("RequestDispatcher.include", TraceSpanGroupType.HTTP)){
 			dispatcher.include(request, response);
 		}

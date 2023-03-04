@@ -40,6 +40,7 @@ import io.datarouter.client.mysql.factory.MysqlOptions;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.util.string.StringTool;
+
 import net.sf.log4jdbc.DriverSpy;
 
 @Singleton
@@ -67,7 +68,12 @@ public class MysqlConnectionPoolHolder{
 	private final Map<ClientId,MysqlConnectionPool> connectionPools = new ConcurrentHashMap<>();
 
 	public void createConnectionPool(ClientId clientId){
-		MysqlConnectionPool connectionPool = new MysqlConnectionPool(clientId);
+		createConnectionPool(clientId, mysqlOptions.url(clientId), mysqlOptions.user(clientId.getName(),
+				"root"), mysqlOptions.password(clientId.getName(), ""));
+	}
+
+	public void createConnectionPool(ClientId clientId, String url, String userId, String password){
+		MysqlConnectionPool connectionPool = new MysqlConnectionPool(clientId, url, userId, password);
 		try{
 			connectionPool.checkOut().close();
 		}catch(SQLException e){
@@ -85,10 +91,7 @@ public class MysqlConnectionPoolHolder{
 		private final ComboPooledDataSource pool;
 		private final String schemaName;
 
-		private MysqlConnectionPool(ClientId clientId){
-			String url = mysqlOptions.url(clientId);
-			String user = mysqlOptions.user(clientId.getName(), "root");
-			String password = mysqlOptions.password(clientId.getName(), "");
+		private MysqlConnectionPool(ClientId clientId, String url, String user, String password){
 			Integer minPoolSize = mysqlOptions.minPoolSize(clientId.getName(), 3);
 			Integer maxPoolSize = mysqlOptions.maxPoolSize(clientId.getName(), 50);
 			Integer acquireIncrement = mysqlOptions.acquireIncrement(clientId.getName(), 1);

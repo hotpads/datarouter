@@ -21,12 +21,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.ExecutorService;
 
 import io.datarouter.bytes.ByteLength;
+import io.datarouter.bytes.ByteTool;
 import io.datarouter.bytes.CountingInputStream;
 import io.datarouter.instrumentation.count.Counters;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.scanner.Threads;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.op.raw.BlobStorage;
 import io.datarouter.storage.util.Subpath;
@@ -96,15 +97,29 @@ implements BlobStorage{
 	public void writeParallel(
 			PathbeanKey key,
 			InputStream inputStream,
-			ExecutorService exec,
-			int numThreads,
+			Threads threads,
+			ByteLength minPartSize,
 			Config config){
 		var countingInputStream = new CountingInputStream(
 				inputStream,
 				INPUT_STREAM_COUNT_INTERVAL,
 				numBytes -> count(CounterSuffix.WRITE_INPUT_STREAM_BYTES, numBytes));
-		parent.writeParallel(prependStoragePath(key), countingInputStream, exec, numThreads, config);
+		parent.writeParallel(prependStoragePath(key), countingInputStream, threads, minPartSize, config);
 		count(CounterSuffix.WRITE_INPUT_STREAM_OPS, 1);
+	}
+
+	@Override
+	public void writeParallel(
+			PathbeanKey key,
+			Scanner<List<byte[]>> parts,
+			Threads threads,
+			Config config){
+		Scanner<List<byte[]>> countedParts = parts.each(part -> {
+			count(CounterSuffix.WRITE_PARTS_PARTS, 1);
+			count(CounterSuffix.WRITE_PARTS_BYTES, ByteTool.totalLength(part));
+		});
+		parent.writeParallel(prependStoragePath(key), countedParts, threads, config);
+		count(CounterSuffix.WRITE_PARTS_OPS, 1);
 	}
 
 	/*---------- delete ------------*/
@@ -252,7 +267,10 @@ implements BlobStorage{
 		WRITE_BYTES("write bytes"),
 		WRITE_OPS("write ops"),
 		WRITE_INPUT_STREAM_BYTES("writeInputStream bytes"),
-		WRITE_INPUT_STREAM_OPS("writeInputStream ops");
+		WRITE_INPUT_STREAM_OPS("writeInputStream ops"),
+		WRITE_PARTS_BYTES("writeParts bytes"),
+		WRITE_PARTS_OPS("writeParts ops"),
+		WRITE_PARTS_PARTS("writeParts parts");
 
 		public final String suffix;
 

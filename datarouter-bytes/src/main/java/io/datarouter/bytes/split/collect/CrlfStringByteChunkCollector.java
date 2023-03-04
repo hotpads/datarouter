@@ -18,14 +18,14 @@ package io.datarouter.bytes.split.collect;
 import java.util.List;
 
 import io.datarouter.bytes.Ascii;
-import io.datarouter.bytes.PagedObjectArray;
 import io.datarouter.bytes.split.ByteChunkSplitterCollector;
+import io.datarouter.scanner.PagedList;
 
 public class CrlfStringByteChunkCollector implements ByteChunkSplitterCollector<String>{
 
 	public static final byte DELIMITER = Ascii.LINE_FEED.code;
 
-	private final PagedObjectArray<String> results = new PagedObjectArray<>(64);
+	private final PagedList<String> results = new PagedList<>(64);
 
 	@Override
 	public String encode(byte[] bytes, int start, int length){

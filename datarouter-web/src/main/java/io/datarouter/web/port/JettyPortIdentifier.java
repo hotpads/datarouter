@@ -21,7 +21,7 @@ import javax.inject.Singleton;
 
 import org.apache.commons.lang3.mutable.MutableInt;
 
-import io.datarouter.util.MxBeans;
+import io.datarouter.util.JmxTool;
 
 @Singleton
 public class JettyPortIdentifier implements PortIdentifier{
@@ -32,7 +32,7 @@ public class JettyPortIdentifier implements PortIdentifier{
 		var httpsPort = new MutableInt();
 		var jettyServerNames = JmxTool.newObjectName(CompoundPortIdentifier.JETTY_SERVER_JMX_DOMAIN + ":*");
 		var serverConnectors = new ArrayList<String>();
-		MxBeans.SERVER.queryNames(jettyServerNames, null).stream()
+		JmxTool.SERVER.queryNames(jettyServerNames, null).stream()
 				.filter(objectName -> "serverconnector".equals(objectName.getKeyPropertyList().get("type")))
 				.forEach(serverConnector -> {
 					serverConnectors.add(serverConnector.toString());

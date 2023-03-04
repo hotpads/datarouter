@@ -63,16 +63,16 @@
 				}
 			});
 			var result = {};
+			const apiKeyFieldName = document.getElementById(url).dataset.apikeyfieldname;
 			if(needsCsrf && needsSignature){
-				const apiKeyFieldName = document.getElementById(url).dataset.apikeyfieldname;
 				result = fetchCsrf(paramMap, apiKeyFieldName)
 					.then(getJson)
 					.then(params => fetchSignature(params, requestBody, apiKeyFieldName))
 					.then(getJson);
 			}else if(needsCsrf){
-				result = fetchCsrf(paramMap).then(getJson);
+				result = fetchCsrf(paramMap, apiKeyFieldName).then(getJson);
 			}else if(needsSignature){
-				result = fetchSignature(paramMap).then(getJson);
+				result = fetchSignature(paramMap, requestBody, apiKeyFieldName).then(getJson);
 			}else{
 				result = Promise.resolve(paramMap);
 			}
@@ -111,7 +111,7 @@
 				document.getElementById(requestBodyId).innerHTML = '';
 				document.getElementById(responseCodeId).innerHTML = '';
 				document.getElementById(responseHeaderId).innerHTML = '';
-	
+
 				var options;
 				if(requestBody != null){
 					options = {
@@ -120,7 +120,7 @@
 						contentType: 'application/json'
 					};
 				}
-	
+
 				var requestUrl = '${contextPath}' + url + "?" + $.param(params);
 				console.log("url  =", requestUrl);
 				$.ajax(requestUrl, options)

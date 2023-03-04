@@ -29,8 +29,7 @@ public class DatarouterAccountConfigAppListener implements DatarouterAppListener
 
 	@Override
 	public void onStartUp(){
-		service.createDefaultAccountAndMapToDefaultAdminUser();
-		service.createDefaultAccountPermission();
+		service.createDefaultAccountRecords();
 	}
 
 }

@@ -30,9 +30,10 @@ public class DatarouterExceptionSettingRoot extends SettingRoot{
 
 	//controls ExceptionRecords publishing destination
 	public final CachedSetting<Boolean> saveExceptionRecordsToQueueDaoInsteadOfDirectoryDao;
-
 	//controls ExceptionRecords publishing destination
 	public final CachedSetting<Boolean> saveHttpRequestRecordsToQueueDaoInsteadOfDirectoryDao;
+	public final CachedSetting<Boolean> saveTaskExecutorRecordsToQueueDaoInsteadOfDirectoryDao;
+
 
 	public final CachedSetting<Boolean> forceHideStackTrace;
 	public final CachedSetting<String> exceptionRecorderDomainName;
@@ -55,10 +56,12 @@ public class DatarouterExceptionSettingRoot extends SettingRoot{
 		super(finder, DatarouterSettingCategory.DATAROUTER, "datarouterException.");
 		saveExceptionRecordsToQueueDaoInsteadOfDirectoryDao = registerBooleans(
 				"saveExceptionRecordsToQueueDaoInsteadOfDirectoryDao", defaultTo(false)
-				.withTag(DatarouterSettingTagType.TRACE2PIPELINE, () -> true));
+				.withTag(DatarouterSettingTagType.EXCEPTION_PIPELINE, () -> true));
 
 		saveHttpRequestRecordsToQueueDaoInsteadOfDirectoryDao = registerBoolean(
 				"saveHttpRequestRecordsToQueueDaoInsteadOfDirectoryDao", false);
+		saveTaskExecutorRecordsToQueueDaoInsteadOfDirectoryDao = registerBoolean(
+				"saveTaskExecutorRecordsToQueueDaoInsteadOfDirectoryDao", false);
 
 		forceHideStackTrace = registerBoolean("forceHideStackTrace", false);
 		exceptionRecorderDomainName = registerString("exceptionRecorderDomainName", "localhost:8443");
@@ -68,7 +71,7 @@ public class DatarouterExceptionSettingRoot extends SettingRoot{
 		runHttpRequestRecordVacuumJob = registerBoolean("runHttpRequestRecordVacuumJob", false);
 
 		publishRecords = registerBooleans("publishRecords", defaultTo(false)
-				.withTag(DatarouterSettingTagType.TRACE2PIPELINE, () -> true));
+				.withTag(DatarouterSettingTagType.EXCEPTION_PIPELINE, () -> true));
 
 		compactExceptionLoggingForConveyors = registerBoolean("compactExceptionLoggingForConveyors", true);
 		exceptionRecordPublishThreadCount = registerInteger("exceptionRecordPublishThreadCount", 1);

@@ -45,7 +45,7 @@ import io.datarouter.bytes.ByteLength;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.storage.util.Ec2InstanceTool;
-import io.datarouter.util.MxBeans;
+import io.datarouter.util.PlatformMxBeans;
 import io.datarouter.util.SystemTool;
 import io.datarouter.util.duration.DatarouterDuration;
 import io.datarouter.web.app.WebappName;
@@ -90,8 +90,8 @@ public class MemoryMonitoringHandler extends BaseHandler implements NonEagerInit
 	@Handler
 	public Mav view(){
 		Mav mav = new Mav(files.jsp.admin.datarouter.memoryStats.memoryJsp);
-		long startTime = MxBeans.RUNTIME.getStartTime();
-		long uptime = MxBeans.RUNTIME.getUptime();
+		long startTime = PlatformMxBeans.RUNTIME.getStartTime();
+		long uptime = PlatformMxBeans.RUNTIME.getUptime();
 		Map<String,GitPropertiesJspDto> gitDetailedLibraries = Scanner.of(loadedLibraries.gitDetailedLibraries
 				.entrySet())
 				.toMapSupplied(Entry::getKey, entry -> new GitPropertiesJspDto(entry.getValue()), LinkedHashMap::new);
@@ -103,7 +103,8 @@ public class MemoryMonitoringHandler extends BaseHandler implements NonEagerInit
 		mav.put("serverName", serverName.get());
 		mav.put("serverVersion", servletContext.getServerInfo());
 		mav.put("javaVersion", SystemTool.getJavaVersion());
-		mav.put("jvmVersion", MxBeans.RUNTIME.getVmName() + " (build " + MxBeans.RUNTIME.getVmVersion() + ")");
+		mav.put("jvmVersion", PlatformMxBeans.RUNTIME.getVmName() + " (build " + PlatformMxBeans.RUNTIME.getVmVersion()
+				+ ")");
 		mav.put("appName", webappName);
 		mav.put("gitDescribeShort", gitProperties.getDescribeShort().orElse(GitProperties.UNKNOWN_STRING));
 		mav.put("gitBranch", gitProperties.getBranch().orElse(GitProperties.UNKNOWN_STRING));
@@ -121,9 +122,9 @@ public class MemoryMonitoringHandler extends BaseHandler implements NonEagerInit
 		mav.put("tomcatThreadMetrics", tomcatThreadMetrics.getTomcatPoolMetrics());
 		mav.put("ec2InstanceId", Ec2InstanceTool.getEc2InstanceDetails(true).map(ec2 -> ec2.instanceId).orElse("no"));
 
-		MemoryUsage heap = MxBeans.MEMORY.getHeapMemoryUsage();
+		MemoryUsage heap = PlatformMxBeans.MEMORY.getHeapMemoryUsage();
 		mav.put("heap", new MemoryUsageForDisplay(heap));
-		MemoryUsage nonHeapMemoryUsage = MxBeans.MEMORY.getNonHeapMemoryUsage();
+		MemoryUsage nonHeapMemoryUsage = PlatformMxBeans.MEMORY.getNonHeapMemoryUsage();
 		mav.put("nonHeap", new MemoryUsageForDisplay(nonHeapMemoryUsage));
 
 		HostMemoryTool.getHostMemoryStats().ifSuccess(hostMemoryStats -> {
@@ -138,7 +139,7 @@ public class MemoryMonitoringHandler extends BaseHandler implements NonEagerInit
 
 		List<MemoryPoolForDisplay> heaps = new LinkedList<>();
 		List<MemoryPoolForDisplay> nonHeaps = new LinkedList<>();
-		for(MemoryPoolMXBean memoryPoolMxBean : MxBeans.MEMEORY_POOLS){
+		for(MemoryPoolMXBean memoryPoolMxBean : PlatformMxBeans.MEMEORY_POOLS){
 			switch(memoryPoolMxBean.getType()){
 			case HEAP:
 				heaps.add(new MemoryPoolForDisplay(memoryPoolMxBean));
@@ -155,16 +156,16 @@ public class MemoryMonitoringHandler extends BaseHandler implements NonEagerInit
 		int procNumber = runtime.availableProcessors();
 		mav.put("procNumber", procNumber);
 
-		int threadCount = MxBeans.THREAD.getThreadCount();
+		int threadCount = PlatformMxBeans.THREAD.getThreadCount();
 		mav.put("threadCount", threadCount);
-		int daemonCount = MxBeans.THREAD.getDaemonThreadCount();
+		int daemonCount = PlatformMxBeans.THREAD.getDaemonThreadCount();
 		mav.put("daemon", daemonCount);
 		mav.put("nonDaemon", threadCount - daemonCount);
-		mav.put("peak", MxBeans.THREAD.getPeakThreadCount());
-		mav.put("started", MxBeans.THREAD.getTotalStartedThreadCount());
+		mav.put("peak", PlatformMxBeans.THREAD.getPeakThreadCount());
+		mav.put("started", PlatformMxBeans.THREAD.getTotalStartedThreadCount());
 
 		List<GarbageCollectorForDisplay> gcs = new LinkedList<>();
-		for(GarbageCollectorMXBean garbageCollectorMxBean : MxBeans.GCS){
+		for(GarbageCollectorMXBean garbageCollectorMxBean : PlatformMxBeans.GCS){
 			gcs.add(new GarbageCollectorForDisplay(garbageCollectorMxBean));
 		}
 		mav.put("gcs", gcs);
@@ -220,14 +221,14 @@ public class MemoryMonitoringHandler extends BaseHandler implements NonEagerInit
 			return new GarbageCollectingResult(false, null, null);
 		}
 		Map<String,Long> map = new HashMap<>();
-		for(MemoryPoolMXBean memoryPoolMxBean : MxBeans.MEMEORY_POOLS){
+		for(MemoryPoolMXBean memoryPoolMxBean : PlatformMxBeans.MEMEORY_POOLS){
 			map.put(memoryPoolMxBean.getName(), memoryPoolMxBean.getUsage().getUsed());
 		}
 		long start = System.currentTimeMillis();
 		System.gc();
 		long duration = System.currentTimeMillis() - start;
 		List<GcEffect> effects = new LinkedList<>();
-		for(MemoryPoolMXBean memoryPoolMxBean : MxBeans.MEMEORY_POOLS){
+		for(MemoryPoolMXBean memoryPoolMxBean : PlatformMxBeans.MEMEORY_POOLS){
 			GcEffect gcEffect = new GcEffect(memoryPoolMxBean.getName(), map.get(memoryPoolMxBean.getName()),
 					memoryPoolMxBean.getUsage().getUsed());
 			effects.add(gcEffect);

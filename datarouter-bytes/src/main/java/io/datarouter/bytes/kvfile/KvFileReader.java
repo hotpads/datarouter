@@ -17,74 +17,84 @@ package io.datarouter.bytes.kvfile;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Objects;
-import java.util.concurrent.ExecutorService;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.datarouter.bytes.InputStreamTool;
 import io.datarouter.bytes.MultiByteArrayInputStream;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.scanner.Threads;
 
 /**
  * Named wrapper around an InputStream so we can trace where errors came from.
+ * Can offload block parsing to helper threads for faster reading.
  */
 public class KvFileReader{
+	private static final Logger logger = LoggerFactory.getLogger(KvFileReader.class);
+
+	private static final int DEFAULT_PARSE_BATCH_SIZE = 3;
 
 	private final InputStream inputStream;
 	private final String name;
-	private final ExecutorService prefetchBytesExec;
-	private final ExecutorService prefetchEntriesExec;
-	private final int prefetchN;
+	private final int parseBatchSize;
+	private final Threads parseThreads;
 
 	public KvFileReader(
 			InputStream inputStream,
 			String name,
-			ExecutorService prefetchBytesExec,
-			ExecutorService prefetchEntriesExec,
-			int prefetchN){
+			int parseBatchSize,
+			Threads parseThreads){
 		this.inputStream = inputStream;
 		this.name = name;
-		this.prefetchBytesExec = prefetchBytesExec;
-		this.prefetchEntriesExec = prefetchEntriesExec;
-		this.prefetchN = prefetchN;
+		this.parseBatchSize = parseBatchSize;
+		this.parseThreads = parseThreads;
 	}
 
-	public KvFileReader(byte[] bytes){
-		this(new ByteArrayInputStream(bytes), null, null, -1);
+	public KvFileReader(
+			byte[] bytes,
+			String name,
+			int parseBatchSize,
+			Threads parseThreads){
+		this(new ByteArrayInputStream(bytes),
+				name,
+				parseBatchSize,
+				parseThreads);
 	}
 
 	public KvFileReader(
 			Scanner<byte[]> chunkScanner,
 			String name,
-			ExecutorService prefetchBytesExec,
-			ExecutorService prefetchEntriesExec,
-			int prefetchN){
+			int parseBatchSize,
+			Threads parseThreads){
 		this(chunkScanner.apply(MultiByteArrayInputStream::new),
 				name,
-				prefetchBytesExec,
-				prefetchEntriesExec,
-				prefetchN);
-	}
-
-	public KvFileReader(Scanner<byte[]> chunkScanner, String name){
-		this(chunkScanner, name, null, null, -1);
+				parseBatchSize,
+				parseThreads);
 	}
 
 	public KvFileReader(
 			InputStream inputStream,
-			ExecutorService prefetchBytesExec,
-			ExecutorService prefetchEntriesExec,
-			int prefetchN){
-		this(inputStream, null, prefetchBytesExec, prefetchEntriesExec, prefetchN);
+			Threads parseThreads){
+		this(inputStream, null, DEFAULT_PARSE_BATCH_SIZE, parseThreads);
+	}
+
+	public KvFileReader(InputStream inputStream, String name){
+		this(inputStream, name, DEFAULT_PARSE_BATCH_SIZE, null);
 	}
 
 	public KvFileReader(InputStream inputStream){
-		this(inputStream, null, null, -1);
+		this(inputStream, null, DEFAULT_PARSE_BATCH_SIZE, null);
 	}
 
-	public Scanner<byte[]> scanEntryByteArrays(){
+	/*------------ scan blocks ----------------*/
+
+	public Scanner<byte[]> scanBlockByteArrays(){
 		return Scanner.generate(() -> {
 			try{
-				byte[] bytes = KvFileEntrySerializer.entryBytesFromInputStream(inputStream);
+				byte[] bytes = KvFileBlock.blockBytesFromInputStream(inputStream);
 				if(bytes == null){
 					InputStreamTool.close(inputStream);
 				}
@@ -101,16 +111,26 @@ public class KvFileReader{
 		.advanceUntil(Objects::isNull);
 	}
 
-	public Scanner<KvFileEntry> scanEntries(){
-		Scanner<byte[]> byteScanner = scanEntryByteArrays();
-		if(prefetchBytesExec != null){
-			byteScanner = byteScanner.prefetch(prefetchBytesExec, prefetchN);
+	public Scanner<KvFileBlock> scanBlocks(){
+		if(parseThreads == null){
+			return scanBlockByteArrays()
+					.map(KvFileBlock::fromBytes);
 		}
-		Scanner<KvFileEntry> entryScanner = byteScanner.map(KvFileEntrySerializer::fromBytes);
-		if(prefetchEntriesExec != null){
-			entryScanner = entryScanner.prefetch(prefetchEntriesExec, prefetchN);
-		}
-		return entryScanner;
+		return scanBlockByteArrays()
+				.batch(parseBatchSize)
+				// The prefetcher is allocating block byte[]s and filling them with data from the chunks
+				// TODO determine if it actually helps
+//				.prefetch(parseExec, 1 * numParseThreads)
+				.parallelOrdered(parseThreads)
+				.map(byteArrays -> Scanner.of(byteArrays)
+						.map(KvFileBlock::fromBytes)
+						.collect(() -> new ArrayList<>(byteArrays.size())))
+				.concat(Scanner::of);
+	}
+
+	public Scanner<KvFileEntry> scanBlockEntries(){
+		return scanBlocks()
+				.concat(KvFileBlock::scanEntries);
 	}
 
 }

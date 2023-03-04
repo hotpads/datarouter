@@ -30,7 +30,6 @@ public class DatarouterTaskTrackerRouteSet extends BaseRouteSet{
 
 	@Inject
 	public DatarouterTaskTrackerRouteSet(DatarouterTaskTrackerPaths paths){
-		super(paths.datarouter);
 		handle(paths.datarouter.longRunningTasks)
 				.withHandler(LongRunningTasksHandler.class)
 				.allowRoles(DatarouterUserRole.DATAROUTER_JOB);

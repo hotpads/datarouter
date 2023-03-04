@@ -245,8 +245,8 @@ public class ReflectionTool{
 	public static Scanner<Method> getDeclaredMethodsIncludingAncestors(Class<?> clazz){
 		Scanner<Method> ownMethods = Scanner.of(clazz.getDeclaredMethods());
 		Scanner<Method> superMethods = Scanner.of(getAllSuperClassesAndInterfaces(clazz))
-			.map(Class::getDeclaredMethods)
-			.concat(Scanner::of);
+				.map(Class::getDeclaredMethods)
+				.concat(Scanner::of);
 		return Scanner.concat(ownMethods, superMethods);
 	}
 

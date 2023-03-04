@@ -18,6 +18,7 @@ package io.datarouter.web.browse;
 import java.time.Duration;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
@@ -51,8 +52,6 @@ import io.datarouter.web.email.StandardDatarouterEmailHeaderService;
 import io.datarouter.web.email.StandardDatarouterEmailHeaderService.EmailHeaderRow;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.MessageMav;
-import io.datarouter.web.handler.types.optional.OptionalBoolean;
-import io.datarouter.web.handler.types.optional.OptionalInteger;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import io.datarouter.web.util.ExceptionTool;
 import io.datarouter.web.util.http.RequestTool;
@@ -128,11 +127,11 @@ public class ViewNodeDataHandler extends InspectNodeDataHandler{
 
 	@Handler
 	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> Mav countKeys(
-			OptionalInteger batchSize,
-			OptionalInteger logBatchSize,
-			OptionalInteger limit,
-			OptionalBoolean useOffsetting,
-			OptionalInteger stride){
+			Optional<Integer> batchSize,
+			Optional<Integer> logBatchSize,
+			Optional<Integer> limit,
+			Optional<Boolean> useOffsetting,
+			Optional<Integer> stride){
 		showForm();
 		if(!(node instanceof SortedStorageWriter<?,?>)){
 			return pageFactory.message(request, "Cannot browse unsorted node");

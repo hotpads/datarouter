@@ -22,7 +22,7 @@
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-metadata-parent</artifactId>
-		<version>0.0.118</version>
+		<version>0.0.119</version>
 		<relativePath>../datarouter-metadata-parent</relativePath>
 	</parent>
 
@@ -39,7 +39,7 @@
 		<codehaus-plexus-version>2.12.1</codehaus-plexus-version>
 		<commons-codec-version>1.15</commons-codec-version>
 		<commons-io-version>2.11.0</commons-io-version>
-		<datarouter-version>0.0.118</datarouter-version>
+		<datarouter-version>0.0.119</datarouter-version>
 		<guice-version>5.1.0</guice-version>
 		<guava-version>31.1-jre</guava-version>
 		<httpclient-version>4.5.13</httpclient-version>
@@ -57,6 +57,16 @@
 		<!-- other -->
 		<!-- upgrade scripts when bumping this version -->
 		<eclipse-compiler-version>3.30.0</eclipse-compiler-version>
+		
+		<!--
+		set to false to skip packing and installing app (like wars and uber jars)
+		it doesn't affect the packaging/installing of libraries
+		
+		this is implemented through a antrun execution and the skipPackaging property
+		
+		as a maven property, it can be set though command line (-DpackageApps=false) or profiles
+		-->
+		<packageApps>true</packageApps>
 	</properties>
 
 	<dependencyManagement>
@@ -71,7 +81,7 @@
 			<dependency>
 				<groupId>software.amazon.awssdk</groupId>
 				<artifactId>bom</artifactId>
-				<version>2.17.159</version>
+				<version>2.19.8</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -80,6 +90,31 @@
 
 	<build>
 		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>3.1.0</version>
+				<executions>
+					<execution>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+						<skip>${packageApps}</skip>
+						<exportAntProperties>true</exportAntProperties>
+							<target>
+								<condition property="skipPackaging">
+									<or>
+										<equals arg1="${project.packaging}" arg2="war"/>
+										<isset property="uberJar"/>
+									</or>
+								</condition>
+							</target>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-enforcer-plugin</artifactId>
@@ -199,7 +234,6 @@
 						<compilerId>eclipse</compilerId>
 						<source>17</source>
 						<target>17</target>
-						<optimize>true</optimize>
 						<fork>true</fork>
 						<parameters>true</parameters>
 						<compilerArgs>
@@ -357,6 +391,9 @@
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-war-plugin</artifactId>
 					<version>3.3.1</version>
+					<configuration>
+						<skip>${skipPackaging}</skip>
+					</configuration>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
@@ -372,6 +409,9 @@
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-install-plugin</artifactId>
 					<version>3.0.0-M1</version>
+					<configuration>
+						<skip>${skipPackaging}</skip>
+					</configuration>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>

@@ -20,6 +20,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.function.Function;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -30,6 +32,7 @@ import io.datarouter.bytes.codec.intcodec.ComparableIntCodec;
 import io.datarouter.scanner.Scanner;
 
 public class KvFileCollatorTests{
+	private static final Logger logger = LoggerFactory.getLogger(KvFileCollatorTests.class);
 
 	private record TestKv(
 			int key,
@@ -53,12 +56,10 @@ public class KvFileCollatorTests{
 						testKv.op,
 						EmptyArray.BYTE),
 				binaryKv -> new TestKv(
-						VarIntTool.decodeInt(binaryKv.key()),
-						ComparableIntCodec.INSTANCE.decode(binaryKv.version()),
+						VarIntTool.decodeInt(binaryKv.copyOfKey()),
+						ComparableIntCodec.INSTANCE.decode(binaryKv.copyOfVersion()),
 						binaryKv.op()));
 	}
-
-	private static final KvFileCodec<TestKv> KV_FILE_CODEC = new KvFileCodec<>(TestKv.CODEC);
 
 	private static final List<TestKv> INPUT_0 = List.of(
 			new TestKv(0, 0),
@@ -80,13 +81,16 @@ public class KvFileCollatorTests{
 			new TestKv(2, 2, KvFileOp.DELETE),
 			new TestKv(2, 3),
 			new TestKv(2, 4, KvFileOp.DELETE));//true delete
+
 	private static final List<List<TestKv>> INPUTS = List.of(INPUT_0, INPUT_1, INPUT_2);
 	private static final List<TestKv> ALL_INPUTS_SORTED = Scanner.of(INPUTS)
 			.concat(Scanner::of)
 			.sort(TestKv.COMPARE)
 			.list();
 
-	private static final List<TestKv> EXPECTED_KEEPING_EVERYTHING = List.of(
+	private static final KvFileCodec<TestKv> KV_FILE_CODEC = new KvFileCodec<>(TestKv.CODEC);
+
+	private static final List<TestKv> EXPECTED_KEEP_ALL = List.of(
 			new TestKv(0, 0),
 			new TestKv(0, 1),
 			new TestKv(0, 2),
@@ -105,18 +109,23 @@ public class KvFileCollatorTests{
 			new TestKv(2, 3),
 			new TestKv(2, 4, KvFileOp.DELETE));
 
-	private static final List<TestKv> EXPECTED_KEEPING_LATEST = List.of(
+	private static final List<TestKv> EXPECTED_PRUNE_VERSIONS = List.of(
+			new TestKv(0, 4),
+			new TestKv(1, 2),
+			new TestKv(2, 4, KvFileOp.DELETE));
+
+	private static final List<TestKv> EXPECTED_PRUNE_ALL = List.of(
 			new TestKv(0, 4),
 			new TestKv(1, 2));
 
-	private static List<TestKv> merge(Function<KvFileCollator,Scanner<KvFileEntry>> mergeMethod){
-		KvFileCollator merger = Scanner.of(INPUTS)
+	private static List<TestKv> collate(Function<List<KvFileReader>,Scanner<KvFileEntry>> collateMethod){
+		return Scanner.of(INPUTS)
 				.map(KV_FILE_CODEC::toByteArray)
 				.map(ByteArrayInputStream::new)
 				.map(KvFileReader::new)
-				.listTo(KvFileCollator::new);
-		return mergeMethod.apply(merger)
+				.listTo(collateMethod)
 				.map(TestKv.CODEC::decode)
+				.each(kv -> logger.info("kv={}", kv))
 				.list();
 	}
 
@@ -132,19 +141,25 @@ public class KvFileCollatorTests{
 
 	@Test
 	private void testExpectedAllMatchesSortedInputs(){
-		Assert.assertEquals(ALL_INPUTS_SORTED, EXPECTED_KEEPING_EVERYTHING);
+		Assert.assertEquals(ALL_INPUTS_SORTED, EXPECTED_KEEP_ALL);
 	}
 
 	@Test
-	private void testKeepingEverything(){
-		List<TestKv> actual = merge(KvFileCollator::mergeKeepingEverything);
-		Assert.assertEquals(actual, EXPECTED_KEEPING_EVERYTHING);
+	private void testKeepAll(){
+		List<TestKv> actual = collate(KvFileCollator::keepAll);
+		Assert.assertEquals(actual, EXPECTED_KEEP_ALL);
 	}
 
 	@Test
-	private void testKeepingLatestVersion(){
-		List<TestKv> actual = merge(KvFileCollator::mergeKeepingLatestVersion);
-		Assert.assertEquals(actual, EXPECTED_KEEPING_LATEST);
+	private void testPruneVersions(){
+		List<TestKv> actual = collate(KvFileCollator::pruneVersions);
+		Assert.assertEquals(actual, EXPECTED_PRUNE_VERSIONS);
+	}
+
+	@Test
+	private void testPruneAll(){
+		List<TestKv> actual = collate(KvFileCollator::pruneAll);
+		Assert.assertEquals(actual, EXPECTED_PRUNE_ALL);
 	}
 
 }

@@ -21,8 +21,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.OptionalDouble;
 import java.util.TreeMap;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.TimeUnit;
@@ -81,10 +81,13 @@ public class LatencyMonitoringService{
 
 	private List<LatencyFuture> runningChecks = Collections.emptyList();
 
-	public void record(LatencyCheck check, DatarouterDuration duration){
+	public void record(LatencyCheck check, DatarouterDuration duration, String infos){
 		saveGauge(check.name, duration);
 		addCheckResult(check, CheckResult.newSuccess(System.currentTimeMillis(), duration));
-		logger.debug("latency check success name={} durationUs={}", check.name, duration.to(TimeUnit.MICROSECONDS));
+		logger.info("latency check success name={} durationUs={} infos={}",
+				check.name,
+				duration.to(TimeUnit.MICROSECONDS),
+				infos);
 	}
 
 	public void recordFailure(LatencyCheck check, DatarouterDuration duration, Exception exception){
@@ -139,7 +142,7 @@ public class LatencyMonitoringService{
 
 	private Map<String,String> avg(int limit){
 		return lastResultsByName.entrySet().stream().collect(Collectors.toMap(Entry::getKey, entry -> {
-			OptionalDouble average = entry.getValue().stream()
+			java.util.OptionalDouble average = entry.getValue().stream()
 					.map(CheckResult::getLatency)
 					.flatMap(Optional::stream)
 					.limit(limit)
@@ -209,11 +212,14 @@ public class LatencyMonitoringService{
 						clientId));
 	}
 
-	private <PK extends PrimaryKey<PK>> Runnable makeGetCheck(PhysicalMapStorageNode<PK,?,?> node){
+	private <PK extends PrimaryKey<PK>> Callable<String> makeGetCheck(PhysicalMapStorageNode<PK,?,?> node){
 		PK pk = node.getFieldInfo().getPrimaryKeySupplier().get();
 		pk.getFields()
 				.forEach(field -> field.setUsingReflection(pk, field.getKey().getSampleValue()));
-		return () -> node.exists(pk);
+		return () -> {
+			node.exists(pk);
+			return null;
+		};
 	}
 
 }

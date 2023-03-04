@@ -23,6 +23,7 @@ import static j2html.TagCreator.td;
 import static j2html.TagCreator.text;
 
 import java.util.Collection;
+import java.util.Optional;
 
 import javax.inject.Inject;
 
@@ -40,7 +41,6 @@ import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.types.Param;
-import io.datarouter.web.handler.types.optional.OptionalString;
 import io.datarouter.web.html.j2html.J2HtmlTable;
 import io.datarouter.web.requirejs.DatarouterWebRequireJsV2;
 import j2html.tags.DomContent;
@@ -66,8 +66,8 @@ public class JobletHandler extends BaseHandler{
 
 	@Handler
 	private Mav list(
-			@Param(PARAM_whereStatus) OptionalString pStatus,
-			@Param(PARAM_type) OptionalString pType){
+			@Param(PARAM_whereStatus) Optional<String> pStatus,
+			@Param(PARAM_type) Optional<String> pType){
 		Scanner<JobletRequest> requests = jobletRequestDao.scan();
 		if(pStatus.isPresent() && pType.isPresent()){
 			JobletStatus status = JobletStatus.BY_PERSISTENT_STRING.fromOrNull(pStatus.get());

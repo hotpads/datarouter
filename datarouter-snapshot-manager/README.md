@@ -8,7 +8,7 @@ Hooks a snapshot into a block storage implementation and has tools for managing 
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-snapshot-manager</artifactId>
-	<version>0.0.118</version>
+	<version>0.0.119</version>
 </dependency>
 ```
 

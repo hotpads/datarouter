@@ -19,6 +19,8 @@ import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.h2;
 
+import java.util.Optional;
+
 import javax.inject.Inject;
 
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
@@ -27,7 +29,6 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.types.Param;
-import io.datarouter.web.handler.types.optional.OptionalString;
 import io.datarouter.web.html.form.HtmlForm;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
@@ -48,11 +49,11 @@ public class ManualChangelogHandler extends BaseHandler{
 
 	@Handler(defaultHandler = true)
 	public Mav insert(
-			@Param(P_name) OptionalString name,
-			@Param(P_action) OptionalString action,
-			@Param(P_toEmail) OptionalString toEmail,
-			@Param(P_note) OptionalString note,
-			@Param(P_submitAction) OptionalString submitAction){
+			@Param(P_name) Optional<String> name,
+			@Param(P_action) Optional<String> action,
+			@Param(P_toEmail) Optional<String> toEmail,
+			@Param(P_note) Optional<String> note,
+			@Param(P_submitAction) Optional<String> submitAction){
 		var form = new HtmlForm()
 				.withMethod("post");
 		form.addTextField()

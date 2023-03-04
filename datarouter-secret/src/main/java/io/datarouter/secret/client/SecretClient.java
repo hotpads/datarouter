@@ -86,7 +86,7 @@ public interface SecretClient{
 		validateName(secret.getName());
 	}
 
-	public interface SecretClientSupplier extends Supplier<SecretClient>{
+	interface SecretClientSupplier extends Supplier<SecretClient>{
 	}
 
 }

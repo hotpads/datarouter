@@ -74,23 +74,29 @@ public class DatarouterUserHistoryService{
 	@Inject
 	private ServerTypeDetector serverTypeDetector;
 
-	public Map<DatarouterPermissionRequest,Optional<String>> getResolvedRequestToHistoryChangesMap(
+	public Map<DatarouterPermissionRequest,Optional<HistoryChange>> getResolvedRequestToHistoryChangesMap(
 			List<DatarouterPermissionRequest> requests){
-		Map<DatarouterUserHistoryKey,String> historyMap = Scanner.of(requests)
+		Map<DatarouterUserHistoryKey,HistoryChange> historyMap = Scanner.of(requests)
 				.map(DatarouterPermissionRequest::toUserHistoryKey)
 				.map(key -> key.orElse(null))
 				.include(Objects::nonNull)
 				.batch(100)
 				.map(baseDatarouterUserHistoryDao::getMulti)
 				.concat(Scanner::of)
-				.toMap(DatarouterUserHistory::getKey, DatarouterUserHistory::getChanges);
+				.toMap(DatarouterUserHistory::getKey, history -> new HistoryChange(history.getChanges(),
+						Optional.ofNullable(datarouterUserService.getUserById(history.getEditor()))));
 
 		return Scanner.of(requests)
 				.deduplicateConsecutive()
 				.toMap(Function.identity(), request -> request.toUserHistoryKey()
 						.map(historyKey -> historyMap.getOrDefault(
 								historyKey,
-								request.getResolution().persistentString)));
+								new HistoryChange(request.getResolution().persistentString, Optional.empty()))));
+	}
+
+	public static record HistoryChange(
+			String changes,
+			Optional<DatarouterUser> editor){
 	}
 
 	public Optional<String> getResolutionDescription(

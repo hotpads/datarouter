@@ -48,8 +48,8 @@ public class BaseServerTypes implements ServerTypes{
 		this.serverTypes.addAll(List.of(webServerType, jobServerType, jobletServerType));
 	}
 
-	public static ServerType makeProduction(String persistentString){
-		return new SingleServerType(persistentString, true);
+	public static ServerType makeProduction(String persistentString, boolean isHttpExposed){
+		return new SingleServerType(persistentString, true, isHttpExposed);
 	}
 
 	public BaseServerTypes add(ServerType serverType){

@@ -27,7 +27,7 @@ import io.datarouter.instrumentation.trace.TraceSpanGroupType;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.web.handler.BaseHandler.Handler;
 import io.datarouter.web.handler.BaseHandler.HandlerMethodAndArgs;
-import io.datarouter.web.handler.BaseHandler.NullHandlerDecoder;
+import io.datarouter.web.handler.BaseHandler.NoOpHandlerDecoder;
 
 @Singleton
 public class HandlerTypingHelper{
@@ -48,7 +48,7 @@ public class HandlerTypingHelper{
 		for(Method possibleMethod : possibleMethods){
 			Class<? extends HandlerDecoder> decoderClass = handlerDecoderClass;
 			Class<? extends HandlerDecoder> methodDecoder = possibleMethod.getAnnotation(Handler.class).decoder();
-			if(!methodDecoder.equals(NullHandlerDecoder.class)){
+			if(!methodDecoder.equals(NoOpHandlerDecoder.class)){
 				decoderClass = methodDecoder;
 			}
 			HandlerDecoder decoder = injector.getInstance(decoderClass);

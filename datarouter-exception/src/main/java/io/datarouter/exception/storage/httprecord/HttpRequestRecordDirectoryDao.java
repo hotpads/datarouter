@@ -18,49 +18,25 @@ package io.datarouter.exception.storage.httprecord;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.bytes.ExtractFromPrependedLengthByteArrayScanner;
-import io.datarouter.bytes.PrependLengthByteArrayScanner;
 import io.datarouter.exception.dto.HttpRequestRecordBinaryDto;
-import io.datarouter.exception.storage.exceptionrecord.HttpRequestRecordDirectorySupplier;
-import io.datarouter.scanner.Scanner;
-import io.datarouter.storage.config.Config;
-import io.datarouter.storage.file.PathbeanKey;
-import io.datarouter.storage.util.Subpath;
-import io.datarouter.types.Ulid;
+import io.datarouter.exception.storage.BaseRecordDirectoryDao;
+import io.datarouter.storage.file.Directory;
 
 @Singleton
-public class HttpRequestRecordDirectoryDao{
+public class HttpRequestRecordDirectoryDao
+extends BaseRecordDirectoryDao<HttpRequestRecordBinaryDto>{
 
 	@Inject
 	private HttpRequestRecordDirectorySupplier directory;
 
-	public Scanner<HttpRequestRecordBinaryDto> read(String filename){
-		return ExtractFromPrependedLengthByteArrayScanner.of(
-				directory.getHttpRequestRecordDirectory().read(PathbeanKey.of(filename)))
-				.map(HttpRequestRecordBinaryDto::decode);
+	@Override
+	protected Directory getDirectory(){
+		return directory.getHttpRequestRecordDirectory();
 	}
 
-	public void write(Scanner<HttpRequestRecordBinaryDto> dtos, Ulid ulid){
-		PathbeanKey key = PathbeanKey.of(ulid.value());
-		dtos
-				.map(HttpRequestRecordBinaryDto::encodeIndexed)
-				.apply(PrependLengthByteArrayScanner::of)
-				.then(scanner -> directory.getHttpRequestRecordDirectory().write(key, scanner));
-	}
-
-	public Scanner<String> scanKeysAllowUnsorted(){
-		return directory.getHttpRequestRecordDirectory().scanKeys(
-				Subpath.empty(),
-				new Config().setAllowUnsortedScan(true))
-				.map(PathbeanKey::getPathAndFile);
-	}
-
-	public void delete(String filename){
-		directory.getHttpRequestRecordDirectory().delete(PathbeanKey.of(filename));
-	}
-
-	public void deleteAll(){
-		directory.getHttpRequestRecordDirectory().deleteAll(Subpath.empty());
+	@Override
+	protected HttpRequestRecordBinaryDto decode(byte[] bytes){
+		return HttpRequestRecordBinaryDto.decode(bytes);
 	}
 
 }

@@ -26,6 +26,9 @@ public class CountConveyorConfigurationGroup extends ConveyorConfigurationGroup{
 		registerConveyor(
 				"countMemoryToPublisher",
 				CountMemoryToPublisherConveyorConfiguration.class);
+		registerConveyor(
+				"countStatsMemoryToPublisher",
+				CountStatsMemoryToPublisherConveyorConfiguration.class);
 	}
 
 }
