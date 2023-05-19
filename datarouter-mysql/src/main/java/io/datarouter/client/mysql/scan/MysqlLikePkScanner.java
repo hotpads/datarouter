@@ -22,7 +22,7 @@ import io.datarouter.client.mysql.field.codec.factory.MysqlFieldCodecFactory;
 import io.datarouter.client.mysql.op.read.MysqlLikePathKeyOp;
 import io.datarouter.client.mysql.sql.MysqlSqlFactory;
 import io.datarouter.scanner.BaseScanner;
-import io.datarouter.storage.Datarouter;
+import io.datarouter.storage.client.DatarouterClients;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.file.DatabaseBlob;
 import io.datarouter.storage.file.DatabaseBlob.DatabaseBlobFielder;
@@ -32,7 +32,8 @@ import io.datarouter.storage.util.Subpath;
 
 public class MysqlLikePkScanner
 extends BaseScanner<List<DatabaseBlobKey>>{
-	private final Datarouter datarouter;
+
+	private final DatarouterClients datarouterClients;
 	private final MysqlSqlFactory mysqlSqlFactory;
 	private final MysqlFieldCodecFactory fieldCodecFactory;
 	private final PhysicalDatabeanFieldInfo<DatabaseBlobKey,DatabaseBlob,DatabaseBlobFielder> fieldInfo;
@@ -44,7 +45,7 @@ extends BaseScanner<List<DatabaseBlobKey>>{
 	private SessionExecutor sessionExecutor;
 
 	public MysqlLikePkScanner(
-			Datarouter datarouter,
+			DatarouterClients datarouterClients,
 			MysqlSqlFactory mysqlSqlFactory,
 			MysqlFieldCodecFactory fieldCodecFactory,
 			PhysicalDatabeanFieldInfo<DatabaseBlobKey,DatabaseBlob,DatabaseBlobFielder> fieldInfo,
@@ -52,7 +53,7 @@ extends BaseScanner<List<DatabaseBlobKey>>{
 			Config config,
 			SessionExecutor sessionExecutor,
 			long nowMs){
-		this.datarouter = datarouter;
+		this.datarouterClients = datarouterClients;
 		this.mysqlSqlFactory = mysqlSqlFactory;
 		this.fieldCodecFactory = fieldCodecFactory;
 		this.fieldInfo = fieldInfo;
@@ -65,7 +66,7 @@ extends BaseScanner<List<DatabaseBlobKey>>{
 	@Override
 	public boolean advance(){
 		var likeOp = new MysqlLikePathKeyOp<>(
-				datarouter,
+				datarouterClients,
 				mysqlSqlFactory,
 				fieldCodecFactory,
 				fieldInfo,

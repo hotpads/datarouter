@@ -34,9 +34,7 @@ import io.datarouter.auth.storage.accountpermission.DatarouterAccountPermission;
 import io.datarouter.auth.storage.accountpermission.DatarouterAccountPermissionKey;
 import io.datarouter.auth.storage.useraccountmap.BaseDatarouterUserAccountMapDao;
 import io.datarouter.auth.storage.useraccountmap.DatarouterUserAccountMap;
-import io.datarouter.storage.config.properties.DatarouterServerTypeSupplier;
-import io.datarouter.storage.servertype.ServerType;
-import io.datarouter.util.lang.ObjectTool;
+import io.datarouter.storage.servertype.ServerTypeDetector;
 
 @Singleton
 public class DatarouterAccountConfigAppListenerService{
@@ -60,12 +58,12 @@ public class DatarouterAccountConfigAppListenerService{
 	@Inject
 	private BaseDatarouterAccountPermissionDao accountPermissionDao;
 	@Inject
-	private DatarouterServerTypeSupplier serverType;
-	@Inject
 	private DefaultDatarouterAccountKeysSupplier defaultDatarouterAccountKeys;
+	@Inject
+	private ServerTypeDetector serverTypeDetector;
 
 	public void createDefaultAccountRecords(){
-		if(ObjectTool.notEquals(serverType.getServerTypeString(), ServerType.DEV.getPersistentString())){
+		if(serverTypeDetector.mightBeProduction()){
 			return;
 		}
 		createDefaultAccountAndAdminUser();

@@ -90,7 +90,7 @@
 							</select>
 							<select name="appenders" multiple required class="form-control input-group-append rounded-0 p-0" style="display: none;">
 								<c:forEach items="${appenders}" var="appender">
-									<option>${appender.value.name}</option>
+									<option <c:if test="${appender.value.name == defaultAppender}">selected</c:if>>${appender.value.name}</option>
 								</c:forEach>
 							</select>
 							<input type="text" readonly class="form-control input-group-append rounded-0 font-weight-bold" name="email" value="${currentUserEmail}">

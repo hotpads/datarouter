@@ -21,10 +21,12 @@ import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.node.op.raw.read.IndexedStorageReader;
 import io.datarouter.storage.node.op.raw.write.IndexedStorageWriter;
 
-public interface IndexedStorage<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
+public interface IndexedStorage<
+		PK extends PrimaryKey<PK>,
+		D extends Databean<PK,D>>
 extends IndexedStorageReader<PK,D>, IndexedStorageWriter<PK,D>{
 
-	public interface IndexedStorageNode<
+	interface IndexedStorageNode<
 			PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
@@ -32,7 +34,7 @@ extends IndexedStorageReader<PK,D>, IndexedStorageWriter<PK,D>{
 			IndexedStorageWriterNode<PK,D,F>{
 	}
 
-	public interface PhysicalIndexedStorageNode<
+	interface PhysicalIndexedStorageNode<
 			PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>

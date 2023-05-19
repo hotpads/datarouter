@@ -25,6 +25,7 @@ import io.datarouter.instrumentation.trace.Trace2BundleDto;
 import io.datarouter.instrumentation.trace.Trace2Dto;
 import io.datarouter.instrumentation.trace.Trace2SpanDto;
 import io.datarouter.instrumentation.trace.Trace2ThreadDto;
+import io.datarouter.instrumentation.trace.TraceCategory;
 import io.datarouter.instrumentation.trace.TraceSaveReasonType;
 import io.datarouter.instrumentation.trace.TraceSpanGroupType;
 import io.datarouter.instrumentation.trace.Traceparent;
@@ -73,10 +74,11 @@ public class TraceBinaryDtoTests{
 				6L,
 				7L,
 				8L,
-				List.of(TraceSaveReasonType.CPU, TraceSaveReasonType.QUERY_PARAM));
+				List.of(TraceSaveReasonType.CPU, TraceSaveReasonType.QUERY_PARAM),
+				TraceCategory.HTTP_REQUEST);
 		var thread = new Trace2ThreadDto(traceparent, 9L, 10L, "thread", "server", "host", 11L);
 		thread.setInfo("info1");
-		thread.setQueuedEnded(12L);;
+		thread.setQueuedEnded(12L);
 		thread.setEnded(13L);
 		thread.setDiscardedSpanCount(14);
 		thread.setTotalSpanCount(15);

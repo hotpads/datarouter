@@ -26,6 +26,7 @@ import io.datarouter.storage.servertype.ServerType;
 import io.datarouter.storage.setting.DatarouterSettingTag;
 import io.datarouter.storage.setting.DefaultSettingValue;
 import io.datarouter.storage.setting.DefaultSettingValueWinner;
+import io.datarouter.storage.setting.DefaultSettingValueWinner.DefaultSettingValueWinnerType;
 import io.datarouter.storage.setting.Setting;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.util.cached.Cached;
@@ -193,6 +194,11 @@ implements Setting<T>{
 				finder.getServerName(),
 				finder.getSettingTags());
 		return defaultSettingValue.getDefaultSettingValueWinner();
+	}
+
+	public boolean isGlobalDefault(){
+		return getMostSpecificDatabeanValue().isEmpty()
+				&& getDefaultSettingValueWinner().type == DefaultSettingValueWinnerType.GLOBAL_DEFAULT;
 	}
 
 }

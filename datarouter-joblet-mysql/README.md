@@ -9,13 +9,13 @@
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-joblet-mysql</artifactId>
-	<version>0.0.119</version>
+	<version>0.0.120</version>
 </dependency>
 ```
 
 ## Installation with Datarouter
 
-In the `DatarouterJobletWebappConfigBuilder`, specify the following selector types:
+In the `WebappConfigBuilder`, specify the following selector types:
 ```java
 .addJobletSelector(
 		JobletQueueMechanism.JDBC_LOCK_FOR_UPDATE.getPersistentString(),

@@ -26,15 +26,18 @@ public class DatarouterDataExportPaths extends PathNode implements PathsRoot{
 	public final DatarouterPaths datarouter = branch(DatarouterPaths::new, "datarouter");
 
 	public static class DatarouterPaths extends PathNode{
-		public final DataMigrationPaths dataMigration = branch(DataMigrationPaths::new, "dataMigration");
+		public final DataExportPaths dataExport = branch(DataExportPaths::new, "dataExport");
 	}
 
-	public static class DataMigrationPaths extends PathNode{
-		public final PathNode showForm = leaf("showForm");
-		public final PathNode exportData = leaf("exportData");
-		public final PathNode importFromS3 = leaf("importFromS3");
-		public final PathNode importS3KeyToNode = leaf("importS3KeyToNode");
-		public final PathNode localImport = leaf("localImport");
+	public static class DataExportPaths extends PathNode{
+		public final DatabeanExportPaths exportDatabeans = branch(DatabeanExportPaths::new, "exportDatabeans");
+		// "import" is a reserved word
+		public final PathNode importDatabeans = leaf("importDatabeans");
+	}
+
+	public static class DatabeanExportPaths extends PathNode{
+		public final PathNode singleTable = leaf("singleTable");
+		public final PathNode multiTable = leaf("multiTable");
 	}
 
 }

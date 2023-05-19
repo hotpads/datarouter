@@ -32,7 +32,7 @@ import io.datarouter.model.field.Field;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.storage.Datarouter;
+import io.datarouter.storage.client.DatarouterClients;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
 import io.datarouter.storage.tally.Tally;
@@ -52,13 +52,13 @@ extends BaseMysqlOp<List<Tally>>{
 	private final Config config;
 
 	public MysqlFindTallyOp(
-			Datarouter datarouter,
+			DatarouterClients datarouterClients,
 			PhysicalDatabeanFieldInfo<TallyKey,Tally,TallyFielder> fieldInfo,
 			MysqlSqlFactory mysqlSqlFactory,
 			MysqlFieldCodecFactory fieldCodecFactory,
 			Collection<String> keys,
 			Config config){
-		super(datarouter, fieldInfo.getClientId(), Isolation.readCommitted, true);
+		super(datarouterClients, fieldInfo.getClientId(), Isolation.readCommitted, true);
 		this.keys = keys;
 		this.mysqlSqlFactory = mysqlSqlFactory;
 		this.fieldInfo = fieldInfo;

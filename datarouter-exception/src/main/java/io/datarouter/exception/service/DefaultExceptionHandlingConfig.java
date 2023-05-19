@@ -21,9 +21,9 @@ import javax.servlet.http.HttpServletRequest;
 import io.datarouter.exception.config.DatarouterExceptionSettingRoot;
 import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.web.exception.ExceptionHandlingConfig;
+import io.datarouter.web.user.role.RoleManager;
 import io.datarouter.web.user.session.DatarouterSession;
 import io.datarouter.web.user.session.DatarouterSessionManager;
-import io.datarouter.web.user.session.service.RoleManager;
 
 public class DefaultExceptionHandlingConfig implements ExceptionHandlingConfig{
 

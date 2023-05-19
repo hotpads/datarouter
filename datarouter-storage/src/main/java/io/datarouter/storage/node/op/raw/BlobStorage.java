@@ -23,13 +23,13 @@ import io.datarouter.storage.node.type.physical.PhysicalNode;
 
 public interface BlobStorage extends BlobStorageWriter{
 
-	String FILE_PATH_DELIMITER = "/";
-	/*---------------------------- sub-interfaces ---------------------------*/
+	char FILE_PATH_DELIMITER_CHAR = '/';
+	String FILE_PATH_DELIMITER = Character.toString(FILE_PATH_DELIMITER_CHAR);
 
-	public interface BlobStorageNode extends BlobStorage{
+	interface BlobStorageNode extends BlobStorage{
 	}
 
-	public interface PhysicalBlobStorageNode
+	interface PhysicalBlobStorageNode
 	extends BlobStorageNode, PhysicalNode<DatabaseBlobKey,DatabaseBlob,DatabaseBlobFielder>{
 	}
 

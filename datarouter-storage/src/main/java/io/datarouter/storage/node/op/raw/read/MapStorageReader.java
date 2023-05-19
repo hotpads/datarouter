@@ -39,10 +39,10 @@ public interface MapStorageReader<
 		D extends Databean<PK,D>>
 extends NodeOps<PK,D>{
 
-	public static final String OP_exists = "exists";
-	public static final String OP_get = "get";
-	public static final String OP_getMulti = "getMulti";
-	public static final String OP_getKeys = "getKeys";
+	String OP_exists = "exists";
+	String OP_get = "get";
+	String OP_getMulti = "getMulti";
+	String OP_getKeys = "getKeys";
 
 
 	boolean exists(PK key, Config config);
@@ -95,7 +95,7 @@ extends NodeOps<PK,D>{
 
 	/*---------------------------- sub-interfaces ---------------------------*/
 
-	public interface MapStorageReaderNode<
+	interface MapStorageReaderNode<
 			PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
@@ -103,7 +103,7 @@ extends NodeOps<PK,D>{
 	}
 
 
-	public interface PhysicalMapStorageReaderNode<
+	interface PhysicalMapStorageReaderNode<
 			PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>

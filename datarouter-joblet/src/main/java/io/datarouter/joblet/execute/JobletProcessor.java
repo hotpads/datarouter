@@ -103,9 +103,14 @@ public class JobletProcessor{
 		ExecutorServiceTool.shutdown(exec, MAX_WAIT_FOR_SHUTDOWN);
 	}
 
-	public void killThread(long threadId){
-		Optional.ofNullable(jobletFutureById.get(threadId))
-				.map(future -> future.cancel(true));
+	/**
+	 * @return true is the thread was found
+	 */
+	public boolean killThread(long threadId){
+		return Optional.ofNullable(jobletFutureById.get(threadId))
+				.map(future -> future.cancel(true))
+				.map($ -> true)
+				.orElse(false);
 	}
 
 	/*----------------- private --------------------*/

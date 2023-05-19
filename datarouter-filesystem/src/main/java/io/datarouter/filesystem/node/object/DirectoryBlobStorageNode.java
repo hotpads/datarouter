@@ -126,6 +126,12 @@ implements PhysicalBlobStorageNode{
 	}
 
 	@Override
+	public void deleteMulti(List<PathbeanKey> keys, Config config){
+		// Don't know of a way to tell the filesystem to delete multiple files at once, so we loop through them.
+		keys.forEach(directoryBlobStorage::delete);
+	}
+
+	@Override
 	public void deleteAll(Subpath subpath, Config config){
 		directoryBlobStorage.deleteAll(subpath);
 	}

@@ -21,7 +21,6 @@ import java.util.List;
 import io.datarouter.client.gcp.pubsub.client.GcpPubsubClientManager;
 import io.datarouter.client.gcp.pubsub.node.BaseGcpPubsubNode;
 import io.datarouter.client.gcp.pubsub.op.GcpPubsubAckMultiOp;
-import io.datarouter.client.gcp.pubsub.op.GcpPubsubAckOp;
 import io.datarouter.client.gcp.pubsub.op.GcpPubsubGroupPeekMultiOp;
 import io.datarouter.client.gcp.pubsub.op.GcpPubsubGroupPutMultiOp;
 import io.datarouter.client.gcp.pubsub.op.GcpPubsubOp;
@@ -69,10 +68,6 @@ public class GcpPubSubOpFactory<
 
 	public GcpPubsubOp<PK,D,F,Void> makePutOp(D databean, Config config){
 		return new GcpPubsubPutOp<>(databean, config, baseGcpPubsubNode, clientManager, clientId);
-	}
-
-	public GcpPubsubOp<PK,D,F,Void> makeAckOp(QueueMessageKey key, Config config){
-		return new GcpPubsubAckOp<>(key, config, baseGcpPubsubNode, clientManager, clientId);
 	}
 
 	public GcpPubsubOp<PK,D,F,Void> makeGroupPutMultiOp(Collection<D> databeans, Config config){

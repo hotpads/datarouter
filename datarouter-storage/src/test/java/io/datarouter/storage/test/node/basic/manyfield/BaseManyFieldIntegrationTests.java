@@ -19,6 +19,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -193,6 +194,17 @@ public abstract class BaseManyFieldIntegrationTests{
 		ManyFieldBean roundTripped = putAndGet(bean);
 		Assert.assertEquals(roundTripped.getDateToLongField(), bean.getDateToLongField());
 		Assert.assertEquals(val, roundTripped.getDateToLongField());
+	}
+
+	@Test
+	public void testLocalTime(){
+		var bean = new ManyFieldBean();
+		LocalTime val = LocalTime.now();
+		bean.setLocalTimeField(val);
+
+		ManyFieldBean roundTripped = putAndGet(bean);
+		Assert.assertEquals(roundTripped.getLocalTimeField(), bean.getLocalTimeField());
+		Assert.assertTrue(val.equals(roundTripped.getLocalTimeField()));
 	}
 
 	@Test

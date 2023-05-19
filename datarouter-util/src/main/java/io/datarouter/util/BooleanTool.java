@@ -79,4 +79,11 @@ public class BooleanTool{
 		return b1 == null && b2 == null || isTrue(b1) && isTrue(b2) || isFalse(b1) && isFalse(b2);
 	}
 
+	/**
+	 * Because Boolean::toString is an ambiguous method reference
+	 */
+	public static String toString(boolean value){
+		return Boolean.toString(value);
+	}
+
 }

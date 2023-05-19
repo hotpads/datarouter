@@ -15,18 +15,11 @@
  */
 package io.datarouter.plugin.copytable.web;
 
-import static j2html.TagCreator.br;
-import static j2html.TagCreator.div;
-import static j2html.TagCreator.h2;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import javax.inject.Inject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import io.datarouter.joblet.enums.JobletPriority;
 import io.datarouter.joblet.model.JobletPackage;
@@ -37,6 +30,7 @@ import io.datarouter.nodewatch.service.TableSamplerService;
 import io.datarouter.nodewatch.storage.tablesample.TableSample;
 import io.datarouter.nodewatch.storage.tablesample.TableSampleKey;
 import io.datarouter.nodewatch.util.TableSamplerTool;
+import io.datarouter.plugin.copytable.config.DatarouterCopyTablePaths;
 import io.datarouter.plugin.copytable.tableprocessor.TableProcessor;
 import io.datarouter.plugin.copytable.tableprocessor.TableProcessorJoblet;
 import io.datarouter.plugin.copytable.tableprocessor.TableProcessorJoblet.TableProcessorJobletParams;
@@ -51,12 +45,10 @@ import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.types.Param;
 import io.datarouter.web.html.form.HtmlForm;
-import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
+import io.datarouter.web.html.form.HtmlFormValidator;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
-import j2html.tags.specialized.DivTag;
 
 public class JobletTableProcessorHandler extends BaseHandler{
-	private static final Logger logger = LoggerFactory.getLogger(JobletTableProcessorHandler.class);
 
 	private static final String
 			P_nodeName = "nodeName",
@@ -76,9 +68,11 @@ public class JobletTableProcessorHandler extends BaseHandler{
 	@Inject
 	private Bootstrap4PageFactory pageFactory;
 	@Inject
-	private CopyTableChangelogRecorderService changelogRecorderService;
+	private CopyTableChangelogService changelogService;
 	@Inject
 	private TableProcessorRegistry processorRegistry;
+	@Inject
+	private DatarouterCopyTablePaths paths;
 
 	@Handler(defaultHandler = true)
 	private <PK extends PrimaryKey<PK>,
@@ -89,17 +83,7 @@ public class JobletTableProcessorHandler extends BaseHandler{
 			@Param(P_processorName) Optional<String> processorName,
 			@Param(P_executionOrder) Optional<String> executionOrder,
 			@Param(P_submitAction) Optional<String> submitAction){
-		String errorScanBatchSize = null;
-		if(submitAction.isPresent()){
-			try{
-				if(scanBatchSize.map(StringTool::nullIfEmpty).isPresent()){
-					Integer.valueOf(scanBatchSize.get());
-				}
-			}catch(Exception e){
-				errorScanBatchSize = "Please specify an integer";
-			}
-		}
-
+		boolean shouldValidate = submitAction.isPresent();
 		List<String> possibleNodes = tableSamplerService.scanCountableNodes()
 				.map(node -> node.getClientId().getName() + "." + node.getFieldInfo().getTableName())
 				.append("")
@@ -120,19 +104,23 @@ public class JobletTableProcessorHandler extends BaseHandler{
 		var form = new HtmlForm()
 				.withMethod("post");
 		form.addSelectField()
-				.withDisplay("Node Name")
-				.withName(P_nodeName)
-				.withValues(possibleNodes);
-		form.addTextField()
-				.withDisplay("Scan Batch Size")
-				.withError(errorScanBatchSize)
-				.withName(P_scanBatchSize)
-				.withPlaceholder(DEFAULT_SCAN_BATCH_SIZE + "")
-				.withValue(scanBatchSize.orElse(null));
-		form.addSelectField()
 				.withDisplay("Processor Name")
 				.withName(P_processorName)
-				.withValues(possibleProcessors);
+				.withValues(possibleProcessors)
+				.withSelected(processorName.orElse(null));
+		form.addSelectField()
+				.withDisplay("Node Name")
+				.withName(P_nodeName)
+				.withValues(possibleNodes)
+				.withSelected(nodeName.orElse(null));
+		form.addTextField()
+				.withDisplay("Scan Batch Size")
+				.withName(P_scanBatchSize)
+				.withPlaceholder(DEFAULT_SCAN_BATCH_SIZE)
+				.withValue(
+						scanBatchSize.orElse(null),
+						shouldValidate && scanBatchSize.isPresent(),
+						HtmlFormValidator::positiveInteger);
 		form.addSelectField()
 				.withDisplay("Joblet Priority")
 				.withName(P_executionOrder)
@@ -144,7 +132,9 @@ public class JobletTableProcessorHandler extends BaseHandler{
 		if(submitAction.isEmpty() || form.hasErrors()){
 			return pageFactory.startBuilder(request)
 					.withTitle("Table Processor - Joblets")
-					.withContent(Html.makeContent(form))
+					.withContent(TableProcessorHtml.makeContent(
+							paths.datarouter.tableProcessor.joblets,
+							form))
 					.buildMav();
 		}
 
@@ -204,13 +194,14 @@ public class JobletTableProcessorHandler extends BaseHandler{
 		Scanner.of(jobletPackages)
 				.shuffle()
 				.flush(jobletService::submitJobletPackages);
-		changelogRecorderService.recordChangelogForTableProcessor(
+		changelogService.recordChangelogForTableProcessor(
 				getSessionInfo(),
 				"Joblet",
 				nodeName.get(),
 				processorName.get());
-		return pageFactory.message(request, "jobletsCreated=" + numJoblets + " totalSamplesProcessed="
-				+ totalItemsProcessed);
+		return pageFactory.message(
+				request,
+				"jobletsCreated=" + numJoblets + " totalSamplesProcessed=" + totalItemsProcessed);
 	}
 
 	private <PK extends PrimaryKey<PK>> JobletPackage createJobletPackage(
@@ -241,20 +232,6 @@ public class JobletTableProcessorHandler extends BaseHandler{
 				tableName,
 				sourceNodeName,
 				jobletParams);
-	}
-
-	private static class Html{
-
-		public static DivTag makeContent(HtmlForm htmlForm){
-			var form = Bootstrap4FormHtml.render(htmlForm)
-					.withClass("card card-body bg-light");
-			return div(
-					h2("Table Processor - Joblets"),
-					form,
-					br())
-					.withClass("container mt-3");
-		}
-
 	}
 
 }

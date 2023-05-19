@@ -28,6 +28,7 @@ import io.datarouter.conveyor.ConveyorConfiguration;
 import io.datarouter.conveyor.ConveyorCounters;
 import io.datarouter.conveyor.ConveyorGauges;
 import io.datarouter.conveyor.ConveyorRunnable;
+import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.util.buffer.MemoryBuffer;
 
 public abstract class BaseMemoryBufferPutMultiConsumerConveyorConfiguration<D>
@@ -47,6 +48,7 @@ implements ConveyorConfiguration{
 		List<D> databeans = getMemoryBuffer().pollMultiWithLimit(BATCH_SIZE);
 		Instant afterPeek = Instant.now();
 		gaugeRecorder.savePeekDurationMs(conveyor, Duration.between(beforePeek, afterPeek).toMillis());
+		TracerTool.setAlternativeStartTime();
 		if(databeans.isEmpty()){
 			return new ProcessResult(false);
 		}

@@ -39,8 +39,8 @@ import io.datarouter.filesystem.snapshot.key.SnapshotKey;
 import io.datarouter.filesystem.snapshot.storage.block.SnapshotBlockStorage;
 import io.datarouter.filesystem.snapshot.storage.file.SnapshotFileStorage;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.util.concurrent.CountDownLatchTool;
 import io.datarouter.util.concurrent.BlockingDequeTool;
+import io.datarouter.util.concurrent.CountDownLatchTool;
 
 public class SnapshotWriter implements AutoCloseable{
 	private static final Logger logger = LoggerFactory.getLogger(SnapshotWriter.class);

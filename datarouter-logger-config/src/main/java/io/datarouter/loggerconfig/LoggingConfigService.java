@@ -15,6 +15,8 @@
  */
 package io.datarouter.loggerconfig;
 
+import java.util.ArrayList;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -38,7 +40,7 @@ public class LoggingConfigService{
 		return new LoggingConfig(
 				consoleAppenderDao.scan().list(),
 				fileAppenderDao.scan().list(),
-				loggerConfigDao.scan().list());
+				loggerConfigDao.scan().collect(ArrayList::new));// TODO make unmodifiable (currently edited downstream)
 	}
 
 	public String getPreviousLoggingConfigSignatureForUpdaterJob(){

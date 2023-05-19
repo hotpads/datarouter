@@ -31,6 +31,7 @@ import io.datarouter.conveyor.ConveyorConfigurationGroupService;
 import io.datarouter.conveyor.ConveyorCounters;
 import io.datarouter.conveyor.ConveyorGauges;
 import io.datarouter.conveyor.ConveyorRunnable;
+import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.storage.queue.QueueMessage;
@@ -58,6 +59,7 @@ implements ConveyorConfiguration{
 		QueueMessage<PK,D> message = getQueueConsumer().peek(DEFAULT_PEEK_TIMEOUT, DEFAULT_VISIBILITY_TIMEOUT);
 		Instant afterPeek = Instant.now();
 		gaugeRecorder.savePeekDurationMs(conveyor, Duration.between(beforePeek, afterPeek).toMillis());
+		TracerTool.setAlternativeStartTime();
 		if(message == null){
 			logger.info("peeked conveyor={} nullMessage", conveyor.getName());
 			return new ProcessResult(false);

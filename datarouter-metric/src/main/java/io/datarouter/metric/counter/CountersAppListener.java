@@ -38,8 +38,7 @@ public class CountersAppListener implements DatarouterAppListener{
 	// add buffers to a collector and register it with the global Counters class
 	@Override
 	public void onStartUp(){
-		var collector = new DatarouterCountCollector(ROLL_PERIOD_MS, countBuffers, settings.saveCountsToMemory,
-				settings.saveCountStatsToMemory);
+		var collector = new DatarouterCountCollector(ROLL_PERIOD_MS, countBuffers, settings.saveCountStatsToMemory);
 		Counters.addCollector(collector);
 	}
 

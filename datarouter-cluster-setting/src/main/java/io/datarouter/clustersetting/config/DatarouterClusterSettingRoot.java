@@ -41,6 +41,9 @@ public class DatarouterClusterSettingRoot extends SettingRoot{
 	public final CachedSetting<Set<String>> settingsExcludedFromUnknownSettingsAlert;
 	public final CachedSetting<Boolean> sendUpdateEmail;
 
+	public final CachedSetting<Boolean> runAlertJob;
+	public final CachedSetting<Set<String>> alertJobRecipients;
+
 	@Inject
 	public DatarouterClusterSettingRoot(SettingFinder finder){
 		super(finder, DatarouterSettingCategory.DATAROUTER, "datarouterClusterSetting.");
@@ -51,6 +54,9 @@ public class DatarouterClusterSettingRoot extends SettingRoot{
 		settingsExcludedFromUnknownSettingsAlert = registerCommaSeparatedString(
 				"settingsExcludedFromUnknownSettingsAlert", Set.of());
 		sendUpdateEmail = registerBoolean("sendUpdateEmail", false);
+
+		runAlertJob = registerBoolean("runAlertJob", false);
+		alertJobRecipients = registerCommaSeparatedString("alertJobRecipients", Set.of());
 	}
 
 	public boolean isExcludedOldSettingString(String settingName){

@@ -140,6 +140,13 @@ implements PhysicalBlobStorageNode{
 	}
 
 	@Override
+	public void deleteMulti(List<PathbeanKey> keys, Config config){
+		Scanner.of(keys)
+				.map(PathbeanKey::getPathAndFile)
+				.flush(s3DirectoryManager::deleteMulti);
+	}
+
+	@Override
 	public void deleteAll(Subpath subpath, Config config){
 		scanKeys(subpath).forEach(this::delete);
 	}

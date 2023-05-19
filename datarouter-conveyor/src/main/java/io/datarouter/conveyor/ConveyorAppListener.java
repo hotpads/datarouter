@@ -33,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.conveyor.ConveyorConfigurationGroup.ConveyorPackage;
+import io.datarouter.conveyor.config.DatarouterConveyorSettingRoot;
 import io.datarouter.conveyor.config.DatarouterConveyorShouldRunSettings;
 import io.datarouter.conveyor.config.DatarouterConveyorThreadCountSettings;
 import io.datarouter.inject.DatarouterInjector;
@@ -46,7 +47,9 @@ import io.datarouter.web.listener.DatarouterAppListener;
 public class ConveyorAppListener implements DatarouterAppListener{
 	private static final Logger logger = LoggerFactory.getLogger(ConveyorAppListener.class);
 
-	private static final Map<String,ExecsAndConveyors> execsAndConveyorsByName = new HashMap<>();
+	@Deprecated
+	private static final Map<String,ExecAndConveyor> execsAndConveyorsByName = new HashMap<>();
+	private static final Map<String,ConveyorProcessor> processorByConveyorName = new HashMap<>();
 
 	@Inject
 	private ConveyorConfigurationGroupService conveyorConfigurationGroupService;
@@ -60,6 +63,8 @@ public class ConveyorAppListener implements DatarouterAppListener{
 	private DatarouterConveyorShouldRunSettings shouldRunSettings;
 	@Inject
 	private DatarouterConveyorThreadCountSettings threadCountSettings;
+	@Inject
+	private DatarouterConveyorSettingRoot conveyorSettings;
 
 	@Override
 	public final void onStartUp(){
@@ -71,43 +76,65 @@ public class ConveyorAppListener implements DatarouterAppListener{
 		String name = conveyorPackage.name();
 		Require.notContains(execsAndConveyorsByName.keySet(), name, name + " already exists");
 		ConveyorConfiguration configuration = injector.getInstance(conveyorPackage.configurationClass());
-		String threadGroupName = name;
-		ThreadFactory threadFactory = new NamedThreadFactory(threadGroupName, true);
-		int threadCount = threadCountSettings.getSettingForConveyorPackage(conveyorPackage).get();
-		ScheduledExecutorService exec = Executors.newScheduledThreadPool(threadCount,
-				threadFactory);
-		Supplier<Boolean> shouldRun = shouldRunSettings.getSettingForConveyorPackage(conveyorPackage);
-		Conveyor conveyor = new Conveyor(conveyorService, configuration, name, shouldRun);
-		for(int i = 0; i < threadCount; ++i){
-			exec.scheduleWithFixedDelay(conveyor, configuration.delaySeconds(), configuration.delaySeconds(),
-					TimeUnit.SECONDS);
+
+		if(conveyorSettings.enableDynamicThreads.get()){
+			var conveyorProcessor = new ConveyorProcessor(
+					shouldRunSettings,
+					threadCountSettings,
+					conveyorSettings,
+					conveyorPackage,
+					conveyorService,
+					configuration,
+					instanceRegistry);
+			processorByConveyorName.put(name, conveyorProcessor);
+		}else{
+			ThreadFactory threadFactory = new NamedThreadFactory(name, true);
+			int threadCount = threadCountSettings.getSettingForConveyorPackage(conveyorPackage).get();
+			Supplier<Boolean> shouldRun = shouldRunSettings.getSettingForConveyorPackage(conveyorPackage);
+			ScheduledExecutorService exec = Executors.newScheduledThreadPool(threadCount, threadFactory);
+			var conveyor = new Conveyor(conveyorService, configuration, name, shouldRun);
+			for(int i = 0; i < threadCount; ++i){
+				exec.scheduleWithFixedDelay(
+						conveyor,
+						configuration.delay().toMillis(),
+						configuration.delay().toMillis(),
+						TimeUnit.MILLISECONDS);
+			}
+			instanceRegistry.register(exec);
+			var execAndConveyor = new ExecAndConveyor(exec, conveyor, threadCount);
+			execsAndConveyorsByName.put(name, execAndConveyor);
 		}
-		instanceRegistry.register(exec);
-		execsAndConveyorsByName.put(name, new ExecsAndConveyors(exec, conveyor));
+
 	}
 
 	@Override
 	public final void onShutDown(){
 		// explicitly shut those down before CountersAppListener onShutDown
-		for(Entry<String,ExecsAndConveyors> entry : execsAndConveyorsByName.entrySet()){
-			var conveyor = entry.getValue().conveyor();
+		for(Entry<String,ExecAndConveyor> entry : execsAndConveyorsByName.entrySet()){
+			var conveyor = entry.getValue().conveyor;
 			conveyor.setIsShuttingDown();
 			if(conveyor.shouldRunOnShutdown()){
 				// intentionally run once more to allow cleaner shutdown
-				entry.getValue().executor().submit(conveyor);
+				entry.getValue().executor.submit(conveyor);
 				logger.info("running conveyor={} onShutdown", entry.getKey());
 			}
-			ExecutorServiceTool.shutdown(entry.getValue().executor(), Duration.ofSeconds(5));
+			if(conveyorSettings.enableDynamicThreads.get()){
+				processorByConveyorName.get(entry.getKey()).requestShutdown();
+			}else{
+				ExecutorServiceTool.shutdown(entry.getValue().executor, Duration.ofSeconds(5));
+			}
+
 		}
 	}
 
-	public Map<String,ExecsAndConveyors> getExecsAndConveyorsbyName(){
-		return execsAndConveyorsByName;
+	public Map<String,ConveyorProcessor> getProcessorByConveyorName(){
+		return processorByConveyorName;
 	}
 
-	public record ExecsAndConveyors(
+	public record ExecAndConveyor(
 			ExecutorService executor,
-			ConveyorRunnable conveyor){
+			ConveyorRunnable conveyor,
+			int maxNumThreads){
 	}
 
 }

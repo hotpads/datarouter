@@ -11,7 +11,7 @@ SQS is a hosted messaging service with high availability and elasticity and pred
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-aws-sqs</artifactId>
-	<version>0.0.119</version>
+	<version>0.0.120</version>
 </dependency>
 ```
 
@@ -20,12 +20,12 @@ SQS is a hosted messaging service with high availability and elasticity and pred
 You can install this module by adding its plugin to the `WebappBuilder`.
 
 ```java
-.addJobPlugin(new DatarouterSqsPlugin())
+.addPlugin(new DatarouterSqsPlugin())
 ```
 
 ## Queue Creation and Namespacing
 
-When an application starts and initializes the datarotuer-aws-sqs client, it will compare the registered nodes (in java)
+When an application starts and initializes the datarouter-aws-sqs client, it will compare the registered nodes (in java)
 with existing queues (in SQS) and create any queues that are missing.  Because multiple environments, 
 (production, staging, development, etc) may be sharing an AWS account or region, the queue names are prefixed with a
 namespace.  The default queue naming is `[environment]-[serviceName]-[databeanName]`, where environment is provided

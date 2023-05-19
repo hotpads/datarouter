@@ -32,9 +32,9 @@ public interface QueueStorageReader<
 		D extends Databean<PK,D>>
 extends NodeOps<PK,D>{
 
-	public static final String OP_peek = "peek";
-	public static final String OP_peekMulti = "peekMulti";
-	public static final String OP_peekUntilEmpty = "peekUntilEmpty";
+	String OP_peek = "peek";
+	String OP_peekMulti = "peekMulti";
+	String OP_peekUntilEmpty = "peekUntilEmpty";
 
 	QueueMessage<PK,D> peek(Config config);
 

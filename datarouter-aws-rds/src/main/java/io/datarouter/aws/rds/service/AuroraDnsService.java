@@ -93,7 +93,7 @@ public class AuroraDnsService{
 			String clusterName,
 			String writerClientName,
 			boolean isWriter){
-		logger.warn("adding dnsEntry for clientName={}. clientUrl={}, clusterName={}", clientName, clientUrl,
+		logger.warn("adding dnsEntry for clientName={} clientUrl={} clusterName={}", clientName, clientUrl,
 				clusterName);
 		DnsHostEntryDto dnsEntry = dnsLookUp(clientName, clientUrl, clusterName, writerClientName, isWriter);
 		if(dnsEntry.isAuroraInstance){
@@ -118,7 +118,7 @@ public class AuroraDnsService{
 			String writerClientName,
 			boolean isWriter)
 	throws IOException, InterruptedException{
-		logger.warn("dnslookup for clientName={}, hostname={}, clusterName={}", clientName, hostname, clusterName);
+		logger.warn("dnslookup for clientName={} hostname={} clusterName={}", clientName, hostname, clusterName);
 		// TODO use DigRunner
 		String ip = null;
 		String instanceHostname = null;
@@ -133,6 +133,7 @@ public class AuroraDnsService{
 		try(BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))){
 			String line;
 			while((line = reader.readLine()) != null){
+				logger.warn("hostname={} dig output line={}", hostname, line);
 				standardOutput.append(line).append("\n");
 				if(line.matches(IPADDRESS_PATTERN)){
 					ip = line;

@@ -106,13 +106,14 @@ public class LongRunningTaskFailureAlertJob extends BaseJob{
 		var header = standardDatarouterEmailHeaderService.makeStandardHeader();
 		var description = h4("There" + headerVerb + longRunningTaskList.size()
 				+ " non-successful long running tasks in the last 24 hours.");
+		@SuppressWarnings("deprecation")
 		TableTag taskTable = new J2HtmlEmailTable<LongRunningTask>()
 				.withColumn(new J2HtmlEmailTableColumn<>("Name",
 						row -> makeTaskLink(row.getKey().getName())))
 				.withColumn("Trigger Time", row -> ZonedDateFormatterTool.formatDateWithZone(row.getKey()
 						.getTriggerTime(), defaultDistributionListZoneId.get()))
-				.withColumn("Duration", row -> row.getDurationString())
-				.withColumn("Triggered By", row -> row.getTriggeredBy())
+				.withColumn("Duration", LongRunningTask::getDurationString)
+				.withColumn("Triggered By", LongRunningTask::getTriggeredBy)
 				.withColumn("Status", row -> row.getJobExecutionStatus().persistentString)
 				.withColumn(new J2HtmlEmailTableColumn<>("Exception Record Id",
 						row -> makeExceptionLink(row.getExceptionRecordId())))

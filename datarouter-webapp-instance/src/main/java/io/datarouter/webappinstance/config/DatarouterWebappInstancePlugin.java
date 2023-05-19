@@ -65,12 +65,8 @@ public class DatarouterWebappInstancePlugin extends BaseWebPlugin{
 		setDaosModule(daosModuleBuilder);
 		addDatarouterNavBarItem(
 				DatarouterNavBarCategory.MONITORING,
-				new DatarouterWebappInstancePaths().datarouter.webappInstances,
-				"Webapp Instances");
-		addDatarouterNavBarItem(
-				DatarouterNavBarCategory.MONITORING,
-				new DatarouterWebappInstancePaths().datarouter.webappInstanceServers,
-				"Webapp Servers");
+				new DatarouterWebappInstancePaths().datarouter.webappInstances.running,
+				"Running Servers");
 		addDatarouterGithubDocLink("datarouter-webapp-instance");
 		addDailyDigest(WebappInstanceDailyDigest.class);
 	}

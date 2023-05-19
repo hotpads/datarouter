@@ -32,15 +32,34 @@ public class DatarouterClusterSettingPaths extends PathNode implements PathsRoot
 	public static class SettingPaths extends PathNode{
 		public final PathNode browseSettings = leaf("browseSettings");
 		public final PathNode create = leaf("create");
-		public final PathNode customSettings = leaf("customSettings");
 		public final PathNode delete = leaf("delete");
 		public final PathNode isRecognizedRoot = leaf("isRecognizedRoot");
-		public final PathNode logsForAll = leaf("logsForAll");
-		public final PathNode logsForName = leaf("logsForName");
 		public final PathNode roots = leaf("roots");
 		public final PathNode searchSettingNames = leaf("searchSettingNames");
 		public final PathNode update = leaf("update");
 		public final PathNode updateSettingTags = leaf("updateSettingTags");
+		public final PathNode tags = leaf("tags");
+		public final SettingBrowse browse = branch(SettingBrowse::new, "browse");
+		public final SettingLog log = branch(SettingLog::new, "log");
+		public final SettingOverrides overrides = branch(SettingOverrides::new, "overrides");
+	}
+
+	public static class SettingBrowse extends PathNode{
+		public final PathNode all = leaf("all");
+	}
+
+	public static class SettingLog extends PathNode{
+		public final PathNode all = leaf("all");
+		public final PathNode node = leaf("node");
+		public final PathNode setting = leaf("setting");
+		public final PathNode single = leaf("single");
+	}
+
+	public static class SettingOverrides extends PathNode{
+		public final PathNode view = leaf("view");
+		public final PathNode create = leaf("create");
+		public final PathNode update = leaf("update");
+		public final PathNode delete = leaf("delete");
 	}
 
 }

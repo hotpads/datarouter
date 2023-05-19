@@ -46,8 +46,10 @@ public class DatarouterLoggerConfigPlugin extends BaseWebPlugin{
 		addSettingRoot(DatarouterLoggerConfigSettingRoot.class);
 		addPluginEntry(BaseTriggerGroup.KEY, DatarouterLoggerConfigTriggerGroup.class);
 		setDaosModule(daosModuleBuilder);
-		addDatarouterNavBarItem(DatarouterNavBarCategory.SETTINGS,
-				new DatarouterLoggingConfigPaths().datarouter.logging, "Logger Config");
+		addDatarouterNavBarItem(
+				DatarouterNavBarCategory.CONFIGURATION,
+				new DatarouterLoggingConfigPaths().datarouter.logging,
+				"Loggers");
 		addDatarouterGithubDocLink("datarouter-logger-config");
 		addDailyDigest(LoggerConfigDailyDigest.class);
 	}

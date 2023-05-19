@@ -40,7 +40,6 @@ import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.MessageMav;
 import io.datarouter.web.handler.types.Param;
-
 import io.datarouter.web.user.session.CurrentUserSessionInfoService;
 import io.datarouter.web.util.ExceptionService;
 import io.datarouter.web.util.http.CookieTool;
@@ -301,12 +300,14 @@ public class ExceptionAnalysisHandler extends BaseHandler{
 			this.otherHeaders = otherHeaders;
 		}
 
+		@SuppressWarnings("deprecation")
 		public Map<String,String[]> getOtherHeadersMap(){
 			return GsonTool.withUnregisteredEnums().fromJson(
 					otherHeaders,
 					new TypeToken<Map<String,String[]>>(){}.getType());
 		}
 
+		@SuppressWarnings("deprecation")
 		public Map<String,String[]> getHttpParamsMap(){
 			return GsonTool.withUnregisteredEnums().fromJson(
 					httpParams,

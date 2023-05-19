@@ -27,8 +27,6 @@ import io.datarouter.storage.config.properties.ServiceName;
 import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.dao.DaosModuleBuilder;
 import io.datarouter.storage.setting.SettingBootstrapIntegrationService;
-import io.datarouter.web.browse.widget.NodeWidgetDatabeanExporterLinkSupplier;
-import io.datarouter.web.browse.widget.NodeWidgetDatabeanExporterLinkSupplier.NodeWidgetDatabeanExporterLink;
 import io.datarouter.web.browse.widget.NodeWidgetTableCountLinkSupplier;
 import io.datarouter.web.browse.widget.NodeWidgetTableCountLinkSupplier.NodeWidgetTableCountLink;
 import io.datarouter.web.config.properties.DefaultEmailDistributionListZoneId;
@@ -46,6 +44,8 @@ import io.datarouter.web.exception.ExceptionRecorder;
 import io.datarouter.web.filter.GuiceStaticFileFilter;
 import io.datarouter.web.filter.https.HttpsFilter;
 import io.datarouter.web.filter.requestcaching.GuiceRequestCachingFilter;
+import io.datarouter.web.handler.UserAgentTypeConfig;
+import io.datarouter.web.handler.UserAgentTypeConfig.NoOpUserAgentTypeConfig;
 import io.datarouter.web.handler.validator.HandlerAccountCallerValidator;
 import io.datarouter.web.homepage.DefaultHomepageRouteSet;
 import io.datarouter.web.homepage.HomepageHandler;
@@ -79,9 +79,9 @@ import io.datarouter.web.user.DatarouterSessionDao;
 import io.datarouter.web.user.DatarouterSessionDao.DatarouterSessionDaoParams;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
 import io.datarouter.web.user.detail.DatarouterUserExternalDetailService;
+import io.datarouter.web.user.role.RoleManager;
 import io.datarouter.web.user.session.CurrentSessionInfo;
 import io.datarouter.web.user.session.CurrentSessionInfo.NoOpCurrentSessionInfo;
-import io.datarouter.web.user.session.service.RoleManager;
 import io.datarouter.web.user.session.service.UserSessionService;
 import io.datarouter.web.user.session.service.UserSessionService.NoOpUserSessionService;
 
@@ -112,6 +112,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 	private final Class<? extends ExceptionRecorder> exceptionRecorderClass;
 	private final List<Class<? extends DatarouterAppListener>> appListenerClasses;
 	private final List<Class<? extends DatarouterWebAppListener>> webAppListenerClasses;
+	private final Class<? extends UserAgentTypeConfig> userAgentTypeConfigClass;
 
 	private final Class<? extends RoleManager> roleManagerClass;
 	private final Class<? extends UserSessionService> userSessionServiceClass;
@@ -120,7 +121,6 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 	private final Class<? extends HomepageRouteSet> homepageRouteSet;
 	private final Class<? extends HomepageHandler> homepageHandler;
 	private final List<String> registeredPlugins;
-	private final String nodeWidgetDatabeanExporterLink;
 	private final String nodeWidgetTableCountLink;
 	private final Class<? extends RequestProxySetter> requestProxy;
 	private final ZoneId defaultEmailDistributionListZoneId;
@@ -172,6 +172,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			Class<? extends FilesRoot> filesClass,
 			Class<? extends DatarouterAuthenticationConfig> authenticationConfigClass,
 			Class<? extends CurrentSessionInfo> currentSessionInfoClass,
+			Class<? extends UserAgentTypeConfig> userAgentTypeConfigClass,
 			Class<? extends ExceptionHandlingConfig> exceptionHandlingConfigClass,
 			Class<? extends ExceptionRecorder> exceptionRecorderClass,
 			List<Class<? extends DatarouterAppListener>> appListenerClasses,
@@ -182,7 +183,6 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			Class<? extends AppNavBarRegistrySupplier> appNavBarRegistrySupplier,
 			Class<? extends HomepageHandler> homepageHandler,
 			List<String> registeredPlugins,
-			String nodeWidgetDatabeanExporterLink,
 			String nodeWidgetTableCountLink,
 			Class<? extends RequestProxySetter> requestProxy,
 			ZoneId defaultEmailDistributionListZoneId,
@@ -224,25 +224,27 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		addFilterParams(new FilterParams(false, BaseGuiceServletModule.ROOT_PATH, HttpsFilter.class,
 				FilterParamGrouping.DATAROUTER));
 
-		addDatarouterNavBarItem(DatarouterNavBarCategory.MONITORING, PATHS.datarouter.executors, "Executors");
-		addDatarouterNavBarItem(DatarouterNavBarCategory.MONITORING, PATHS.datarouter.memory.view, "Server Status");
-		addDatarouterNavBarItem(DatarouterNavBarCategory.MONITORING, PATHS.datarouter.dailyDigest.viewActionable,
-				"Daily Digest - Actionable");
-		addDatarouterNavBarItem(DatarouterNavBarCategory.MONITORING, PATHS.datarouter.dailyDigest.viewSummary,
-				"Daily Digest - Summary");
+		addDatarouterNavBarItem(
+				DatarouterNavBarCategory.MONITORING,
+				PATHS.datarouter.executors,
+				"Executors");
+		addDatarouterNavBarItem(
+				DatarouterNavBarCategory.MONITORING,
+				PATHS.datarouter.memory.view,
+				"Server Status");
+		addDatarouterNavBarItem(
+				DatarouterNavBarCategory.MONITORING,
+				PATHS.datarouter.dailyDigest.viewActionable,
+				"Daily Digest");
 
-		addDatarouterNavBarItem(DatarouterNavBarCategory.INFO, PATHS.datarouter.tableConfiguration,
-				"Custom Table Configs");
-		addDatarouterNavBarItem(DatarouterNavBarCategory.INFO, PATHS.datarouter.info.filterParams, "Filters");
-		addDatarouterNavBarItem(DatarouterNavBarCategory.INFO, PATHS.datarouter.info.listeners, "Listeners");
-		addDatarouterNavBarItem(DatarouterNavBarCategory.INFO, PATHS.datarouter.info.routeSets, "RouteSets");
-		addDatarouterNavBarItem(DatarouterNavBarCategory.INFO, PATHS.datarouter.info.properties,
-				"Datarouter Properties");
-		addDatarouterNavBarItem(DatarouterNavBarCategory.INFO, PATHS.datarouter.info.plugins, "Plugins");
+		addDatarouterNavBarItem(
+				DatarouterNavBarCategory.MONITORING,
+				PATHS.datarouter.info.clients,
+				"Datarouter Components");
 
-		addDatarouterNavBarItem(DatarouterNavBarCategory.TOOLS, PATHS.datarouter.emailTest, "Email Test");
-		addDatarouterNavBarItem(DatarouterNavBarCategory.TOOLS, PATHS.datarouter.http.tester, "HTTP Tester");
-		addDatarouterNavBarItem(DatarouterNavBarCategory.TOOLS, PATHS.datarouter.http.dnsLookup, "DNS Lookup");
+		addDatarouterNavBarItem(DatarouterNavBarCategory.TOOLS, PATHS.datarouter.http.dnsLookup, "Test - DNS");
+		addDatarouterNavBarItem(DatarouterNavBarCategory.TOOLS, PATHS.datarouter.emailTest, "Test - Email");
+		addDatarouterNavBarItem(DatarouterNavBarCategory.TOOLS, PATHS.datarouter.http.tester, "Test - HTTP");
 
 
 		addDynamicNavBarItem(ReadmeDocsNavBarItem.class);
@@ -276,12 +278,12 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		this.homepageHandler = homepageHandler;
 		this.homepageRouteSet = homepageRouteSet;
 		this.registeredPlugins = registeredPlugins;
-		this.nodeWidgetDatabeanExporterLink = nodeWidgetDatabeanExporterLink;
 		this.nodeWidgetTableCountLink = nodeWidgetTableCountLink;
 		this.requestProxy = requestProxy;
 		this.defaultEmailDistributionListZoneId = defaultEmailDistributionListZoneId;
 		this.dailyDigestEmailZoneId = dailyDigestEmailZoneId;
 		this.handlerAccountCallerValidator = handlerAccountCallerValidator;
+		this.userAgentTypeConfigClass = userAgentTypeConfigClass;
 	}
 
 	@Override
@@ -291,6 +293,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 
 		bindActualNullSafe(DatarouterAuthenticationConfig.class, authenticationConfigClass);
 		bindActualNullSafe(CurrentSessionInfo.class, currentSessionInfoClass);
+		bindActualNullSafe(UserAgentTypeConfig.class, userAgentTypeConfigClass);
 		bindDefault(ExceptionHandlingConfig.class, exceptionHandlingConfigClass);
 		bindActualInstance(AppListenersClasses.class, new DatarouterAppListenersClasses(appListenerClasses));
 		bindActualInstance(WebAppListenersClasses.class, new DatarouterWebAppListenersClasses(webAppListenerClasses));
@@ -301,8 +304,6 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		bind(HomepageHandler.class).to(homepageHandler);
 		bind(HomepageRouteSet.class).to(homepageRouteSet);
 		bindActualInstance(PluginRegistrySupplier.class, new PluginRegistry(registeredPlugins));
-		bindActualInstance(NodeWidgetDatabeanExporterLinkSupplier.class,
-				new NodeWidgetDatabeanExporterLink(nodeWidgetDatabeanExporterLink));
 		bindActualInstance(NodeWidgetTableCountLinkSupplier.class, new NodeWidgetTableCountLink(
 				nodeWidgetTableCountLink));
 		bind(RequestProxySetter.class).to(requestProxy);
@@ -363,6 +364,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		private Class<? extends FilesRoot> filesClass = NoOpFilesRoot.class;
 		private Class<? extends DatarouterAuthenticationConfig> authenticationConfig;
 		private Class<? extends CurrentSessionInfo> currentSessionInfo = NoOpCurrentSessionInfo.class;
+		private Class<? extends UserAgentTypeConfig> userAgentTypeConfig = NoOpUserAgentTypeConfig.class;
 		private Class<? extends ExceptionHandlingConfig> exceptionHandlingConfig = NoOpExceptionHandlingConfig.class;
 		private Class<? extends ExceptionRecorder> exceptionRecorder;
 		private List<Class<? extends DatarouterAppListener>> appListenerClasses;
@@ -375,7 +377,6 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		private Class<? extends HomepageHandler> homepageHandler = SimpleHomepageHandler.class;
 		private String customStaticFileFilterRegex;
 		private List<String> registeredPlugins = Collections.emptyList();
-		private String nodeWidgetDatabeanExporterLink;
 		private String nodeWidgetTableCountLink;
 		private Class<? extends RequestProxySetter> requestProxy = NoOpRequestProxySetter.class;
 		private ZoneId defaultEmailDistributionListZoneId;
@@ -409,6 +410,12 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		public DatarouterWebPluginBuilder setCurrentSessionInfoClass(
 				Class<? extends CurrentSessionInfo> currentSessionInfoClass){
 			this.currentSessionInfo = currentSessionInfoClass;
+			return this;
+		}
+
+		public DatarouterWebPluginBuilder setUserAgentTypeConfigClass(
+				Class<? extends UserAgentTypeConfig> userAgentTypeConfigClass){
+			this.userAgentTypeConfig = userAgentTypeConfigClass;
 			return this;
 		}
 
@@ -479,11 +486,6 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			return this;
 		}
 
-		public DatarouterWebPluginBuilder withNodeWidgetDatabeanExporterLink(String nodeWidgetDatabeanExporterLink){
-			this.nodeWidgetDatabeanExporterLink = nodeWidgetDatabeanExporterLink;
-			return this;
-		}
-
 		public DatarouterWebPluginBuilder withNodeWidgetTableCountLink(String nodeWidgetTableCountLink){
 			this.nodeWidgetTableCountLink = nodeWidgetTableCountLink;
 			return this;
@@ -531,6 +533,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 					filesClass,
 					authenticationConfig,
 					currentSessionInfo,
+					userAgentTypeConfig,
 					exceptionHandlingConfig,
 					exceptionRecorder,
 					appListenerClasses,
@@ -541,7 +544,6 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 					appNavBarRegistrySupplier,
 					homepageHandler,
 					registeredPlugins,
-					nodeWidgetDatabeanExporterLink,
 					nodeWidgetTableCountLink,
 					requestProxy,
 					defaultEmailDistributionListZoneId,

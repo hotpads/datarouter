@@ -40,14 +40,6 @@ implements Comparable<Range<T>>{
 
 	/*------------------------- constructors --------------------------------*/
 
-	public Range(T start){
-		this(start, true, null, false);
-	}
-
-	public Range(T start, boolean startInclusive){
-		this(start, startInclusive, null, false);
-	}
-
 	public Range(T start, T end){
 		this(start, true, end, false);
 	}
@@ -80,7 +72,7 @@ implements Comparable<Range<T>>{
 	}
 
 	public static <T> Range<T> everything(){
-		return new Range<>(null, true);
+		return new Range<>(null, null);
 	}
 
 	/*------------------------- methods -------------------------------------*/

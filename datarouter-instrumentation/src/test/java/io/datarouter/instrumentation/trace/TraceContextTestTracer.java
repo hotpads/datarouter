@@ -88,7 +88,7 @@ public class TraceContextTestTracer implements Tracer{
 	}
 
 	@Override
-	public void startSpan(String name, TraceSpanGroupType groupType){
+	public void startSpan(String name, TraceSpanGroupType groupType, long createdTimeNs){
 	}
 
 	@Override
@@ -100,7 +100,7 @@ public class TraceContextTestTracer implements Tracer{
 	}
 
 	@Override
-	public void finishSpan(){
+	public void finishSpan(long endTimeNs){
 	}
 
 	@Override
@@ -155,6 +155,16 @@ public class TraceContextTestTracer implements Tracer{
 	@Override
 	public Tracer createChildTracer(){
 		return null;
+	}
+
+	@Override
+	public void setAlternativeStartTimeNs(){
+		return;
+	}
+
+	@Override
+	public Optional<Long> getAlternativeStartTimeNs(){
+		return Optional.empty();
 	}
 
 }

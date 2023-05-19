@@ -125,7 +125,7 @@ public class TransferThread<T,R>{
 	/**
 	 * Contains either data or a poison pill indicating there are no more messages
 	 */
-	private static record TransferThreadMessage<T>(
+	private record TransferThreadMessage<T>(
 			T item,
 			boolean shouldTerminate){
 

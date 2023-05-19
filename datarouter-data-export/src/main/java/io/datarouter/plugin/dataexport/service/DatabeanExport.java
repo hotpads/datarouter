@@ -17,9 +17,7 @@ package io.datarouter.plugin.dataexport.service;
 
 import java.io.InputStream;
 import java.time.Duration;
-import java.util.Optional;
 import java.util.concurrent.ExecutorService;
-import java.util.function.Predicate;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +36,7 @@ import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.op.raw.read.SortedStorageReader.SortedStorageReaderNode;
 import io.datarouter.util.Count;
 import io.datarouter.util.Count.Counts;
+import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.tuple.Range;
 
 public class DatabeanExport<
@@ -46,56 +45,46 @@ public class DatabeanExport<
 		F extends DatabeanFielder<PK,D>>{
 	private static final Logger logger = LoggerFactory.getLogger(DatabeanExport.class);
 
-	public static final Config DATABEAN_CONFIG = new Config()
-			.setNumAttempts(30)
-			.setTimeout(Duration.ofSeconds(10));
 	private static final ByteLength BLOCK_SIZE = ByteLength.ofMiB(1);
+	private static final int PREFETCH_BLOCKS = 2;
 	private static final Duration LOG_PERIOD = Duration.ofSeconds(5);
 
-	private final String exportId;
-	private final SortedStorageReaderNode<PK,D,F> node;
-	private final Config config;
-	private final Range<PK> pkRange;
-	private final Predicate<D> predicate;
-	private final long maxRows;
-	private final ExecutorService prefetchExec;
+	public record DatabeanExportRequest<
+			PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>>(
+		String exportId,
+		SortedStorageReaderNode<PK,D,F> node,
+		Range<PK> pkRange,
+		long maxRows,
+		ExecutorService prefetchExec,
+		int scanBatchSize){
+	}
+
+	private final DatabeanExportRequest<PK,D,F> request;
 
 	private final Counts counts = new Counts();
 	private final Count numDatabeans = counts.add("numDatabeans");
 	private final Count numRawBytes = counts.add("numRawBytes");
 	private final Count numGzipBytes = counts.add("numGzipBytes");
 
-	public DatabeanExport(
-			String exportId,
-			SortedStorageReaderNode<PK,D,F> node,
-			Config config,
-			Range<PK> pkRange,
-			Predicate<D> predicate,
-			long maxRows,
-			ExecutorService prefetchExec){
-		this.exportId = exportId;
-		this.node = node;
-		this.config = config;
-		this.pkRange = pkRange;
-		this.predicate = Optional.ofNullable(predicate).orElse($ -> true);
-		this.maxRows = maxRows;
-		this.prefetchExec = prefetchExec;
+	private final RateTracker rateTracker = new RateTracker();
+
+	public DatabeanExport(DatabeanExportRequest<PK,D,F> request){
+		this.request = request;
 	}
 
 	public InputStream makeGzipInputStream(){
-		Codec<D,KvFileEntry> codec = new DatabeanExportCodec<>(node.getFieldInfo());
-		var rawInputStream = node.scan(pkRange, config)
-				.prefetch(prefetchExec, 10)
-				.advanceWhile(predicate)
-				.advanceWhile($ -> numDatabeans.value() < maxRows)
+		var config = new Config().setRequestBatchSize(request.scanBatchSize());
+		Codec<D,KvFileEntry> codec = new DatabeanExportCodec<>(request.node().getFieldInfo());
+		var rawInputStream = request.node.scan(request.pkRange, config)
+				.limit(request.maxRows)
 				.map(codec::encode)
 				.batchByMinSize(BLOCK_SIZE.toBytes(), KvFileEntry::length)
+				.prefetch(request.prefetchExec, PREFETCH_BLOCKS)
 				.each(numDatabeans::incrementBySize)
-				.periodic(LOG_PERIOD, $ -> logger.warn(
-						"exported {}, exportId={}, node={}",
-						counts,
-						exportId,
-						node.getName()))
+				.each(rateTracker::incrementBySize)
+				.periodic(LOG_PERIOD, $ -> logProgress())
 				.map(KvFileBlock::new)
 				.map(KvFileBlock::toBytes)
 				.apply(MultiByteArrayInputStream::new);
@@ -107,6 +96,26 @@ public class DatabeanExport<
 				GzipTool.encodeToInputStream(countingRawInputStream),
 				ByteLength.ofKiB(64).toBytesInt(),
 				numGzipBytes::incrementBy);
+	}
+
+	private void logProgress(){
+		String compressionString = "?";
+		if(numRawBytes.value() > 0 && numGzipBytes.value() > 0){
+			double compression = (double)numRawBytes.value() / (double)numGzipBytes.value();
+			compressionString = NumberFormatter.format(compression, 1);
+		}
+		logger.warn(
+				"exported databeans={}, perSec={}, perSecAvg={}, rawBytes={}, gzipBytes={}, compression={}"
+						+ ", exportId={}, node={}",
+				NumberFormatter.addCommas(numDatabeans.value()),
+				rateTracker.perSecDisplay(),
+				rateTracker.perSecAvgDisplay(),
+				ByteLength.ofBytes(numRawBytes.value()).toDisplay(),
+				ByteLength.ofBytes(numGzipBytes.value()).toDisplay(),
+				compressionString,
+				request.exportId,
+				request.node.getName());
+		rateTracker.markLogged();
 	}
 
 	public long getNumRecords(){

@@ -6,7 +6,7 @@
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-hbase</artifactId>
-	<version>0.0.119</version>
+	<version>0.0.120</version>
 </dependency>
 ```
 
@@ -15,7 +15,7 @@
 You can install this module by adding its plugin to the `WebappBuilder`.
 
 ```java
-.addJobPlugin(new DatarouterHbasePluginBuilder(...)
+.addPlugin(new DatarouterHbasePluginBuilder(...)
 		...
 		.build()
 ```

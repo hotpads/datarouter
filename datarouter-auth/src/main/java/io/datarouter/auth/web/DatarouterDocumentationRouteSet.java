@@ -27,6 +27,7 @@ import io.datarouter.web.user.role.DatarouterUserRole;
 @Singleton
 public class DatarouterDocumentationRouteSet extends BaseRouteSet{
 
+	@SuppressWarnings("deprecation")
 	@Inject
 	public DatarouterDocumentationRouteSet(DatarouterAuthPaths paths){
 		handleDir(paths.docs).withHandler(DatarouterDocumentationHandler.class);

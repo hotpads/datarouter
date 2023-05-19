@@ -9,7 +9,7 @@ collections which will treat them similarly to persistent datastores.
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-model</artifactId>
-	<version>0.0.119</version>
+	<version>0.0.120</version>
 </dependency>
 ```
 
@@ -58,7 +58,7 @@ public class RequestLogEntryKey extends BaseRegularPrimaryKey<RequestLogEntryKey
 
 	@Override
 	public List<Field<?>> getFields(){
-		return Arrays.asList(
+		return List.of(
 				new StringField(FieldKeys.path, path),
 				new InstantField(FieldKeys.date, date),
 				new StringField(FieldKeys.sessionId, sessionId));
@@ -132,7 +132,7 @@ public class RequestLogEntry extends BaseDatabean<RequestLogEntryKey,RequestLogE
 
 		@Override
 		public List<Field<?>> getNonKeyFields(RequestLogEntry entry){
-			return Arrays.asList(
+			return List.of(
 					new StringField(FieldKeys.serverId, entry.serverId),
 					new IntegerField(FieldKeys.responseCode, entry.responseCode),
 					new LongField(FieldKeys.durationMs, entry.durationMs));
@@ -140,8 +140,8 @@ public class RequestLogEntry extends BaseDatabean<RequestLogEntryKey,RequestLogE
 	}
 
 	@Override
-	public Class<RequestLogEntryKey> getKeyClass(){
-		return RequestLogEntryKey.class;
+	public Supplier<RequestLogEntryKey> getKeySupplier(){
+		return RequestLogEntryKey::new;
 	}
 
 	public String getServerId(){
@@ -169,7 +169,6 @@ public class RequestLogEntry extends BaseDatabean<RequestLogEntryKey,RequestLogE
 package io.datarouter.example.storage.request;
 
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.model.databean.FieldlessIndexEntry;
@@ -179,7 +178,7 @@ import io.datarouter.model.field.imp.comparable.InstantField;
 import io.datarouter.model.key.FieldlessIndexEntryPrimaryKey;
 import io.datarouter.model.key.primary.base.BaseRegularPrimaryKey;
 
-public class RequestLogEntryBySessionIdDateKey 
+public class RequestLogEntryBySessionIdDateKey
 extends BaseRegularPrimaryKey<RequestLogEntryBySessionIdDateKey>
 implements FieldlessIndexEntryPrimaryKey<
 		RequestLogEntryBySessionIdDateKey,
@@ -201,7 +200,7 @@ implements FieldlessIndexEntryPrimaryKey<
 
 	@Override
 	public List<Field<?>> getFields(){
-		return Arrays.asList(
+		return List.of(
 				new StringField(RequestLogEntryKey.FieldKeys.sessionId, sessionId),
 				new InstantField(RequestLogEntryKey.FieldKeys.date, date),
 				new StringField(RequestLogEntryKey.FieldKeys.path, path));
@@ -213,13 +212,16 @@ implements FieldlessIndexEntryPrimaryKey<
 	}
 
 	@Override
-	public FieldlessIndexEntry<RequestLogEntryBySessionIdDateKey,RequestLogEntryKey,RequestLogEntry> createFromDatabean(
-			RequestLogEntry databean){
-		RequestLogEntryBySessionIdDateKey indexEntry = new RequestLogEntryBySessionIdDateKey(
-				databean.getKey().getSessionId(),
-				databean.getKey().getDate(),
-				databean.getKey().getPath());
-		return new FieldlessIndexEntry<>(RequestLogEntryBySessionIdDateKey.class, indexEntry);
+	public FieldlessIndexEntry<
+			RequestLogEntryBySessionIdDateKey,
+			RequestLogEntryKey,
+			RequestLogEntry>
+	createFromDatabean(RequestLogEntry target){
+		var indexEntry = new RequestLogEntryBySessionIdDateKey(
+				target.getKey().getSessionId(),
+				target.getKey().getDate(),
+				target.getKey().getPath());
+		return new FieldlessIndexEntry<>(RequestLogEntryBySessionIdDateKey::new, indexEntry);
 	}
 
 }

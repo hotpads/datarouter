@@ -204,4 +204,9 @@ public class StringToolTests{
 		Assert.assertEquals(StringTool.snakeCaseToCamelCase("num__sessions_in_pool"), "numSessionsInPool");
 	}
 
+	@Test
+	public void testScanCharacters(){
+		Assert.assertEquals(StringTool.scanCharacters("ab").list(), List.of('a', 'b'));
+	}
+
 }

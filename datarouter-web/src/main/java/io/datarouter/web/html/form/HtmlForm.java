@@ -16,6 +16,7 @@
 package io.datarouter.web.html.form;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -38,9 +39,15 @@ public class HtmlForm{
 
 	}
 
+	public record HtmlFormHiddenField(
+			String name,
+			String value){
+	}
+
 	private String action;
 	private String method;
 	private List<BaseHtmlFormField> fields = new ArrayList<>();
+	private List<HtmlFormHiddenField> hiddenFields = new ArrayList<>();
 
 	public HtmlForm withAction(String action){
 		this.action = action;
@@ -49,6 +56,19 @@ public class HtmlForm{
 
 	public HtmlForm withMethod(String method){
 		this.method = method;
+		return this;
+	}
+
+	public HtmlForm withMethodGet(){
+		return withMethod("GET");
+	}
+
+	public HtmlForm withMethodPost(){
+		return withMethod("POST");
+	}
+
+	public HtmlForm addField(BaseHtmlFormField field){
+		this.fields.add(field);
 		return this;
 	}
 
@@ -74,6 +94,12 @@ public class HtmlForm{
 		return field;
 	}
 
+	public HtmlFormButtonWithoutSubmitAction addButtonWithoutSubmitAction(){
+		var field = new HtmlFormButtonWithoutSubmitAction();
+		fields.add(field);
+		return field;
+	}
+
 	public HtmlFormEmail addEmailField(){
 		var field = new HtmlFormEmail();
 		fields.add(field);
@@ -88,6 +114,12 @@ public class HtmlForm{
 
 	public HtmlFormSelect addSelectField(){
 		var field = new HtmlFormSelect();
+		fields.add(field);
+		return field;
+	}
+
+	public HtmlFormTimezoneSelect addTimezoneSelectField(){
+		var field = new HtmlFormTimezoneSelect();
 		fields.add(field);
 		return field;
 	}
@@ -116,6 +148,25 @@ public class HtmlForm{
 		return field;
 	}
 
+	public HtmlForm addHiddenField(String name, String value){
+		return addHiddenField(new HtmlFormHiddenField(name, value));
+	}
+
+	public HtmlForm addHiddenField(HtmlFormHiddenField hiddenField){
+		this.hiddenFields.add(hiddenField);
+		return this;
+	}
+
+	public HtmlForm addHiddenFields(List<HtmlFormHiddenField> hiddenFields){
+		hiddenFields.forEach(this::addHiddenField);
+		return this;
+	}
+
+	public HtmlForm addHiddenFields(HtmlFormHiddenField... hiddenFields){
+		Arrays.asList(hiddenFields).forEach(this::addHiddenField);
+		return this;
+	}
+
 	public String getAction(){
 		return action;
 	}
@@ -126,6 +177,10 @@ public class HtmlForm{
 
 	public List<BaseHtmlFormField> getFields(){
 		return fields;
+	}
+
+	public List<HtmlFormHiddenField> getHiddenFields(){
+		return hiddenFields;
 	}
 
 	public boolean hasErrors(){

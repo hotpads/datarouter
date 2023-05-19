@@ -15,6 +15,9 @@
  */
 package io.datarouter.web.html.form;
 
+import java.util.Optional;
+import java.util.function.Function;
+
 import io.datarouter.web.html.form.HtmlForm.BaseHtmlFormField;
 
 public class HtmlFormText extends BaseHtmlFormField{
@@ -25,6 +28,7 @@ public class HtmlFormText extends BaseHtmlFormField{
 	private String value;
 	private boolean required;
 	private boolean readOnly;
+	private boolean submitOnChange;
 
 	public HtmlFormText withName(String name){
 		this.name = name;
@@ -41,8 +45,24 @@ public class HtmlFormText extends BaseHtmlFormField{
 		return this;
 	}
 
+	public HtmlFormText withPlaceholder(Number placeholder){
+		this.placeholder = placeholder.toString();
+		return this;
+	}
+
 	public HtmlFormText withValue(String value){
 		this.value = value;
+		return this;
+	}
+
+	public HtmlFormText withValue(
+			String value,
+			boolean shouldValidate,
+			Function<String,Optional<String>> errorFinder){
+		this.value = value;
+		if(shouldValidate){
+			errorFinder.apply(value).ifPresent(this::withError);
+		}
 		return this;
 	}
 
@@ -53,6 +73,11 @@ public class HtmlFormText extends BaseHtmlFormField{
 
 	public HtmlFormText required(){
 		this.required = true;
+		return this;
+	}
+
+	public HtmlFormText withSubmitOnChange(){
+		this.submitOnChange = true;
 		return this;
 	}
 
@@ -83,6 +108,10 @@ public class HtmlFormText extends BaseHtmlFormField{
 
 	public boolean isReadOnly(){
 		return readOnly;
+	}
+
+	public boolean isSubmitOnChange(){
+		return submitOnChange;
 	}
 
 }

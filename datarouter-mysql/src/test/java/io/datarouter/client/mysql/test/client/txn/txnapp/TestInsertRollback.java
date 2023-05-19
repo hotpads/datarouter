@@ -21,8 +21,8 @@ import io.datarouter.client.mysql.op.BaseMysqlOp;
 import io.datarouter.client.mysql.op.Isolation;
 import io.datarouter.client.mysql.test.client.txn.DatarouterTxnTestDao;
 import io.datarouter.client.mysql.test.client.txn.TxnBean;
-import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
+import io.datarouter.storage.client.DatarouterClients;
 
 public class TestInsertRollback extends BaseMysqlOp<Void>{
 
@@ -30,12 +30,12 @@ public class TestInsertRollback extends BaseMysqlOp<Void>{
 	private final String beanPrefix;
 
 	public TestInsertRollback(
-			Datarouter datarouter,
+			DatarouterClients datarouterClients,
 			ClientId clientId,
 			Isolation isolation,
 			DatarouterTxnTestDao dao,
 			String beanPrefix){
-		super(datarouter, clientId, isolation, false);
+		super(datarouterClients, clientId, isolation, false);
 		this.dao = dao;
 		this.beanPrefix = beanPrefix;
 	}

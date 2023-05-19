@@ -22,6 +22,8 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 
+import io.datarouter.scanner.ObjectScanner;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.setting.cached.CachedSetting;
 import io.datarouter.storage.setting.cached.impl.BooleanCachedSetting;
 import io.datarouter.storage.setting.cached.impl.CommaSeparatedStringCachedSetting;
@@ -124,6 +126,12 @@ public abstract class SettingNode{
 		return name;
 	}
 
+	public Scanner<SettingNode> scanThisAndDescendents(){
+		return ObjectScanner.of(this)
+				.append(Scanner.of(children.values())
+						.concat(SettingNode::scanThisAndDescendents));
+	}
+
 	public List<SettingNode> getDescendantsByName(String nameParam){
 		ArrayList<SettingNode> list = new ArrayList<>();
 		if(getName().equals(nameParam)){
@@ -157,8 +165,16 @@ public abstract class SettingNode{
 		return new ArrayList<>(children.values());
 	}
 
+	public boolean hasChildNodes(){
+		return !children.isEmpty();
+	}
+
 	public ArrayList<CachedSetting<?>> getListSettings(){
 		return new ArrayList<>(settings.values());
+	}
+
+	public boolean hasSettings(){
+		return !settings.isEmpty();
 	}
 
 	public String getShortName(){
@@ -259,6 +275,10 @@ public abstract class SettingNode{
 
 	public SortedMap<String,SettingNode> getChildren(){
 		return children;
+	}
+
+	public boolean isRoot(){
+		return this instanceof SettingRoot;
 	}
 
 }

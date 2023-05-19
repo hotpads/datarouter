@@ -186,7 +186,7 @@ public class TableSizeMonitoringService{
 			List<PercentageCountStat> abovePercentageList,
 			List<LatestTableCount> staleList){
 		String primaryHref = emailService.startLinkBuilder()
-				.withLocalPath(paths.datarouter.nodewatch.tableCount)
+				.withLocalPath(paths.datarouter.nodewatch.tables)
 				.build();
 		BodyTag content = emailBuilder.build(
 				aboveThresholdList,

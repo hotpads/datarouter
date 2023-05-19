@@ -20,8 +20,8 @@ import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 
 import io.datarouter.storage.servertype.ServerTypeDetector;
+import io.datarouter.web.user.role.RoleManager;
 import io.datarouter.web.user.session.CurrentSessionInfo;
-import io.datarouter.web.user.session.service.RoleManager;
 
 @Singleton
 public class DatarouterMavPropertiesFactoryConfig{

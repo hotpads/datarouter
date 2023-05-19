@@ -19,7 +19,6 @@ import static j2html.TagCreator.a;
 import static j2html.TagCreator.td;
 
 import java.time.Duration;
-import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -33,7 +32,6 @@ import io.datarouter.joblet.enums.JobletStatus;
 import io.datarouter.joblet.storage.jobletrequest.DatarouterJobletRequestDao;
 import io.datarouter.joblet.storage.jobletrequest.JobletRequest;
 import io.datarouter.tasktracker.web.TaskTrackerExceptionLink;
-import io.datarouter.util.time.ZonedDateFormatterTool;
 import io.datarouter.web.config.ServletContextSupplier;
 import io.datarouter.web.config.service.DomainFinder;
 import io.datarouter.web.html.j2html.J2HtmlTable;
@@ -65,17 +63,16 @@ public class JobletDailyDigestService{
 				.list();
 	}
 
-	public TableTag makePageTableForOldJoblets(List<JobletRequest> joblets, ZoneId zoneId){
-		return new J2HtmlTable<JobletRequest>()
+	public TableTag makePageTableForOldJoblets(Map<OldJobletDto,List<OldJobletDto>> joblets){
+		return new J2HtmlTable<Entry<OldJobletDto,List<OldJobletDto>>>()
 				.withClasses("sortable table table-sm table-striped my-4 border")
-				.withColumn("Type", row -> row.getKey().getType())
-				.withColumn("Created", row -> ZonedDateFormatterTool.formatLongMsWithZone(row.getKey().getCreated(),
-						zoneId))
-				.withColumn("Execution Order", row -> row.getKey().getExecutionOrder())
-				.withColumn("Status", row -> row.getStatus().persistentString)
-				.withColumn("Num Timeouts", JobletRequest::getNumTimeouts)
-				.withColumn("Num Failures", JobletRequest::getNumFailures)
-				.build(joblets);
+				.withColumn("Type", row -> row.getKey().type)
+				.withColumn("Execution Order", row -> row.getKey().executionOrder, Number::toString)
+				.withColumn("Status", row -> row.getKey().status.persistentString)
+				.withColumn("Num Timeouts", row -> row.getKey().numTimeouts, Number::toString)
+				.withColumn("Num Failures", row -> row.getKey().numFailures, Number::toString)
+				.withColumn("Count", row -> row.getValue().size(), Number::toString)
+				.build(joblets.entrySet());
 	}
 
 	public TableTag makeEmailTableForOldJoblets(Map<OldJobletDto,List<OldJobletDto>> joblets){
@@ -93,10 +90,10 @@ public class JobletDailyDigestService{
 		return new J2HtmlTable<Entry<FailedJobletDto,List<JobletRequest>>>()
 				.withClasses("sortable table table-sm table-striped my-4 border")
 				.withColumn("Type", row -> row.getKey().type)
-				.withColumn("Execution Order", row -> row.getKey().executionOrder)
-				.withColumn("Status", row -> row.getKey().status)
-				.withColumn("Num Timeouts", row -> row.getKey().numTimeouts)
-				.withColumn("Num Failures", row -> row.getKey().numFailures)
+				.withColumn("Execution Order", row -> row.getKey().executionOrder, Number::toString)
+				.withColumn("Status", row -> row.getKey().status, JobletStatus::name)
+				.withColumn("Num Timeouts", row -> row.getKey().numTimeouts, Number::toString)
+				.withColumn("Num Failures", row -> row.getKey().numFailures, Number::toString)
 				.withHtmlColumn("Exception", row -> {
 					String exceptionId = row.getValue().stream()
 							.map(JobletRequest::getExceptionRecordId)

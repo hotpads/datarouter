@@ -103,8 +103,8 @@ public final class FileTool{
 				.anyMatch(extension -> path.endsWith(extension));
 	}
 
-	public static String readFile(File file) throws IOException{
-		byte[] bytes = Files.readAllBytes(file.toPath());
+	public static String readFile(File file){
+		byte[] bytes = FilesTool.readAllBytes(file.toPath());
 		return new String(bytes, StandardCharsets.UTF_8);
 	}
 

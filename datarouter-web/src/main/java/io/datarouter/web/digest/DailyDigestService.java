@@ -37,13 +37,13 @@ public class DailyDigestService{
 	private ServletContextSupplier servletContext;
 
 	public H3Tag makeHeader(String title, PathNode path, String pathSupplement){
-		String link = "https://" + domainFinder.getDomainPreferPublic() + servletContext.get().getContextPath()
+		String link = "https://" + domainFinder.getRelativeDomainPreferPublic() + servletContext.get().getContextPath()
 				+ path.join("/", "/", "") + pathSupplement;
 		return makeHeader(title, link);
 	}
 
 	public H3Tag makeHeader(String title, PathNode path){
-		String link = "https://" + domainFinder.getDomainPreferPublic() + servletContext.get().getContextPath()
+		String link = "https://" + domainFinder.getRelativeDomainPreferPublic() + servletContext.get().getContextPath()
 				+ path.join("/", "/", "");
 		return makeHeader(title, link);
 	}
@@ -54,13 +54,14 @@ public class DailyDigestService{
 	}
 
 	public ATag makeATagLink(String title, PathNode path){
-		String link = "https://" + domainFinder.getDomainPreferPublic() + servletContext.get().getContextPath()
+		String link = "https://" + domainFinder.getRelativeDomainPreferPublic() + servletContext.get().getContextPath()
 				+ path.join("/", "/", "");
 		return a(title).withHref(link);
 	}
 
 	public ATag makeATagLink(String title, String path){
-		String link = "https://" + domainFinder.getDomainPreferPublic() + servletContext.get().getContextPath() + path;
+		String link = "https://" + domainFinder.getRelativeDomainPreferPublic() + servletContext.get().getContextPath()
+				+ path;
 		return a(title).withHref(link);
 	}
 

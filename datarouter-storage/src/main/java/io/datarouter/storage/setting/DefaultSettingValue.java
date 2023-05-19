@@ -144,6 +144,10 @@ public class DefaultSettingValue<T>{
 		return valueByEnvironmentType;
 	}
 
+	public boolean hasTags(){
+		return !valueBySettingTag.isEmpty();
+	}
+
 	public Map<DatarouterSettingTag,Supplier<T>> getValueBySettingTag(){
 		return valueBySettingTag;
 	}

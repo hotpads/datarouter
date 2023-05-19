@@ -26,10 +26,10 @@ public class AuthExampleUserRouteSet extends BaseRouteSet{
 
 	public AuthExampleUserRouteSet(){
 
-		handleDir("/helloworld")
+		handle("/helloworld")
 				.withHandler(AuthHellowWorldHandler.class)
 				.allowRoles(DatarouterUserRole.USER);
-		handleDir("/docs")
+		handle("/docs")
 				.withHandler(AuthExampleDocHandler.class)
 				.allowRoles(DatarouterUserRole.DOC_USER);
 	}

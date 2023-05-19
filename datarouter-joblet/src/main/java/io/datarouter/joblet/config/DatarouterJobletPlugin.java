@@ -45,7 +45,9 @@ public class DatarouterJobletPlugin extends BaseWebPlugin{
 	private DatarouterJobletPlugin(
 			DatarouterJobletDaoModule daosModule){
 		addAppListener(DatarouterJobletAppListener.class);
-		addDatarouterNavBarItem(DatarouterNavBarCategory.JOBS, new DatarouterJobletPaths().datarouter.joblets.list,
+		addDatarouterNavBarItem(
+				DatarouterNavBarCategory.JOBS,
+				new DatarouterJobletPaths().datarouter.joblets.list,
 				"Joblets");
 		addRouteSet(DatarouterJobletRouteSet.class);
 		addPluginEntry(BaseTriggerGroup.KEY, DatarouterJobletTriggerGroup.class);

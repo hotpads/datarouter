@@ -49,7 +49,6 @@ public class DatarouterWebPaths extends PathNode implements PathsRoot{
 		public final PathNode ipDetection = leaf("ipDetection");
 		public final PathNode settings = leaf("settings");
 		public final PathNode shutdown = leaf("shutdown");
-		public final PathNode tableConfiguration = leaf("tableConfiguration");
 	}
 
 	public static class HttpPaths extends PathNode{
@@ -87,9 +86,11 @@ public class DatarouterWebPaths extends PathNode implements PathsRoot{
 
 
 	public static class InfoPaths extends PathNode{
+		public final PathNode clients = leaf("clients");
 		public final PathNode listeners = leaf("listeners");
 		public final PathNode routeSets = leaf("routeSets");
-		public final PathNode filterParams = leaf("filterParams");
+		public final PathNode filters = leaf("filters");
+		public final PathNode nodes = leaf("nodes");
 		public final PathNode plugins = leaf("plugins");
 		public final PathNode properties = leaf("properties");
 	}

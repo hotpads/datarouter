@@ -33,6 +33,8 @@ public interface Tracer{
 		createThread(name, queueTimeNs);
 		startThread();
 	}
+	void setAlternativeStartTimeNs();
+	Optional<Long> getAlternativeStartTimeNs();
 	void createThread(String name, long queueTimeNs);
 	void startThread();
 	void addThread(Trace2ThreadDto thread);
@@ -40,10 +42,10 @@ public interface Tracer{
 	void finishThread();
 
 	Integer getDiscardedSpanCount();
-	void startSpan(String name, TraceSpanGroupType groupType);
+	void startSpan(String name, TraceSpanGroupType groupType, long createdTimeNs);
 	void addSpan(Trace2SpanDto span);
 	void appendToSpanInfo(String text);
-	void finishSpan();
+	void finishSpan(long endTimeNs);
 	void incrementDiscardedSpanCount(int discardedSpanCount);
 	Trace2SpanDto getCurrentSpan();
 

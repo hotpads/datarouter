@@ -20,9 +20,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Objects;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.datarouter.bytes.InputStreamTool;
 import io.datarouter.bytes.MultiByteArrayInputStream;
 import io.datarouter.scanner.Scanner;
@@ -33,7 +30,6 @@ import io.datarouter.scanner.Threads;
  * Can offload block parsing to helper threads for faster reading.
  */
 public class KvFileReader{
-	private static final Logger logger = LoggerFactory.getLogger(KvFileReader.class);
 
 	private static final int DEFAULT_PARSE_BATCH_SIZE = 3;
 

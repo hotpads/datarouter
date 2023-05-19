@@ -21,6 +21,7 @@ import static j2html.TagCreator.h4;
 import static j2html.TagCreator.rawHtml;
 import static j2html.TagCreator.td;
 
+import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -167,7 +168,7 @@ public class S3BucketHandler extends BaseHandler{
 					String escaped = padded.replace(" ", "&nbsp;");
 					return td(rawHtml(escaped));
 				})
-				.withColumn("Last Modified", DirectoryDto::lastModified)
+				.withColumn("Last Modified", DirectoryDto::lastModified, Instant::toString)
 				.withColumn("Storage Class", DirectoryDto::storageClass)
 				.build(objects);
 		TableTag tableWrapper = table.withStyle("font-family:monospace; font-size:.9em;");

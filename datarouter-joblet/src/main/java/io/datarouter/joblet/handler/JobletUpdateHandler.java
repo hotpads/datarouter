@@ -17,6 +17,7 @@ package io.datarouter.joblet.handler;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -29,7 +30,7 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDtoBuilder;
-import io.datarouter.joblet.JobletPageFactory;
+import io.datarouter.joblet.config.DatarouterJobletPaths;
 import io.datarouter.joblet.enums.JobletStatus;
 import io.datarouter.joblet.queue.JobletRequestQueueManager;
 import io.datarouter.joblet.service.JobletService;
@@ -44,6 +45,7 @@ import io.datarouter.model.databean.Databean;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
+import io.datarouter.web.handler.mav.imp.InContextRedirectMav;
 import io.datarouter.web.handler.types.Param;
 
 public class JobletUpdateHandler extends BaseHandler{
@@ -64,9 +66,9 @@ public class JobletUpdateHandler extends BaseHandler{
 	@Inject
 	private JobletRequestQueueManager jobletRequestQueueManager;
 	@Inject
-	private JobletPageFactory pageFactory;
-	@Inject
 	private ChangelogRecorder changelogRecorder;
+	@Inject
+	private DatarouterJobletPaths paths;
 
 	@Handler
 	private Mav deleteGroup(
@@ -91,7 +93,7 @@ public class JobletUpdateHandler extends BaseHandler{
 				getSessionInfo().getRequiredSession().getUsername())
 				.build();
 		changelogRecorder.record(dto);
-		return pageFactory.message(request, message);
+		return redirectToListWithMessage(message);
 	}
 
 	@Handler
@@ -121,7 +123,7 @@ public class JobletUpdateHandler extends BaseHandler{
 				getSessionInfo().getRequiredSession().getUsername())
 				.build();
 		changelogRecorder.record(dto);
-		return pageFactory.message(request, "copied " + numCopied);
+		return redirectToListWithMessage("copied " + numCopied);
 	}
 
 	@Handler
@@ -145,7 +147,7 @@ public class JobletUpdateHandler extends BaseHandler{
 				getSessionInfo().getRequiredSession().getUsername())
 				.build();
 		changelogRecorder.record(dto);
-		return pageFactory.message(request, "restarted " + numRestarted);
+		return redirectToListWithMessage("restarted " + numRestarted);
 	}
 
 	//is this used?
@@ -169,7 +171,13 @@ public class JobletUpdateHandler extends BaseHandler{
 		}
 		changelogRecorder.record(new DatarouterChangelogDtoBuilder("Joblet", type, "timeoutStuckRunning",
 				getSessionInfo().getRequiredSession().getUsername()).build());
-		return pageFactory.message(request, "timedOut " + numTimedOut);
+		return redirectToListWithMessage("timedOut " + numTimedOut);
+	}
+
+	private Mav redirectToListWithMessage(String message){
+		Map<String,Object> queryParams = new HashMap<>();
+		queryParams.put("message", message);
+		return new InContextRedirectMav(request, paths.datarouter.joblets.list, queryParams);
 	}
 
 }

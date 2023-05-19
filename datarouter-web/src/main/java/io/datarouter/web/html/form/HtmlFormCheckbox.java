@@ -22,6 +22,7 @@ public class HtmlFormCheckbox extends BaseHtmlFormField{
 	private String name;
 	private String display;
 	private boolean checked = false;
+	private boolean submitOnChange;
 
 	public HtmlFormCheckbox withName(String name){
 		this.name = name;
@@ -38,6 +39,11 @@ public class HtmlFormCheckbox extends BaseHtmlFormField{
 		return this;
 	}
 
+	public HtmlFormCheckbox withSubmitOnChange(){
+		this.submitOnChange = true;
+		return this;
+	}
+
 	public String getName(){
 		return name;
 	}
@@ -48,6 +54,10 @@ public class HtmlFormCheckbox extends BaseHtmlFormField{
 
 	public boolean isChecked(){
 		return checked;
+	}
+
+	public boolean isSubmitOnChange(){
+		return submitOnChange;
 	}
 
 }

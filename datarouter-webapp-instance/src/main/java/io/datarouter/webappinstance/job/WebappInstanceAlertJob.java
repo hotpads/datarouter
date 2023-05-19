@@ -74,7 +74,7 @@ public class WebappInstanceAlertJob extends BaseJob{
 
 	private void sendEmail(WebappInstance webappInstance, DatarouterDuration buildAge){
 		String primaryHref = htmlEmailService.startLinkBuilder()
-				.withLocalPath(paths.datarouter.webappInstances)
+				.withLocalPath(paths.datarouter.webappInstances.running)
 				.build();
 		var header = standardDatarouterEmailHeaderService.makeStandardHeader();
 		var emailBuilder = htmlEmailService.startEmailBuilder()

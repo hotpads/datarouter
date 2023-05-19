@@ -250,6 +250,7 @@ public class DatarouterWebFiles extends FilesRoot{
 		public final PathNode messageJsp = leaf("message.jsp");
 		public final PathNode preludeJsp = leaf("prelude.jspf");
 		public final PathNode stringJsp = leaf("string.jsp");
+		public final PathNode timezoneCheckJsp = leaf("timezone-check.jsp");
 	}
 
 	public static class JspHttpFiles extends PathNode{

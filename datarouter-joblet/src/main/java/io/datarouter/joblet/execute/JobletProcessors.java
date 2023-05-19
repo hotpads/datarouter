@@ -18,6 +18,7 @@ package io.datarouter.joblet.execute;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -63,15 +64,19 @@ public class JobletProcessors{
 				.collect(Collectors.toList());
 	}
 
-	public void killThread(long threadId){
-		processorByType.values().forEach(processor -> processor.killThread(threadId));
+	public Optional<String> killThread(long threadId){
+		return processorByType.values().stream()
+				.filter(processor -> processor.killThread(threadId))
+				.findAny()
+				.map(JobletProcessor::getJobletType)
+				.map(io.datarouter.joblet.type.JobletType::getPersistentString);
 	}
 
 	public String getRunningJoblet(long threadId){
 		return processorByType.values().stream()
 				.map(JobletProcessor::getRunningJoblets)
 				.flatMap(Collection::stream)
-				.filter(joblet -> joblet.getId().equals(((Long)threadId).toString()))
+				.filter(joblet -> joblet.getId().equals(Long.toString(threadId)))
 				.map(RunningJoblet::getJobletData)
 				.collect(Collectors.joining(", "));
 	}

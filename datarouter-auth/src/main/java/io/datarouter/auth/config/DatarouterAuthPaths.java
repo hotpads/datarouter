@@ -35,9 +35,6 @@ public class DatarouterAuthPaths extends PathNode implements PathsRoot{
 			"userDeprovisioning");
 	public final PermissionRequestPaths permissionRequest = WEB_PATHS.permissionRequest;
 	public final SigninPaths signin = WEB_PATHS.signin;
-	public final SignupPaths signup = branch(SignupPaths::new, "signup");
-
-	public final PathNode deprovisionedUsers = leaf("deprovisionedUsers");
 
 	public final PathNode docs = leaf("docs");
 	public final PathNode home = leaf("");
@@ -58,19 +55,7 @@ public class DatarouterAuthPaths extends PathNode implements PathsRoot{
 		public final PathNode list = leaf("list");
 		public final PathNode getDetails = leaf("getDetails");
 		public final PathNode add = leaf("add");
-		public final PathNode toggleUserMappings = leaf("toggleUserMappings");
 		public final PathNode delete = leaf("delete");
-		public final PathNode lookupAccount = leaf("lookupAccount");
-		public final PathNode addCredential = leaf("addCredential");
-		public final PathNode deleteCredential = leaf("deleteCredential");
-		public final PathNode addSecretCredential = leaf("addSecretCredential");
-		public final PathNode deleteSecretCredential = leaf("deleteSecretCredential");
-		public final PathNode setCredentialActivation = leaf("setCredentialActivation");
-		public final PathNode getAvailableEndpoints = leaf("getAvailableEndpoints");
-		public final PathNode addPermission = leaf("addPermission");
-		public final PathNode deletePermission = leaf("deletePermission");
-		public final PathNode isServerTypeDev = leaf("isServerTypeDev");
-		public final PathNode updateReferrer = leaf("updateReferrer");
 	}
 
 	public static class AdminPaths extends PathNode{
@@ -80,14 +65,12 @@ public class DatarouterAuthPaths extends PathNode implements PathsRoot{
 		public final PathNode getUserDetails = leaf("getUserDetails");
 		public final PathNode getUserProfileImage = leaf("getUserProfileImage");
 		public final PathNode listUsers = leaf("listUsers");
-		public final PathNode updateUserDetails = leaf("updateUserDetails");
+		public final PathNode editRoles = leaf("editRoles");
+		public final PathNode editAccounts = leaf("editAccounts");
+		public final PathNode updateTimeZone = leaf("updateTimeZone");
 		public final PathNode updatePassword = leaf("updatePassword");
 		public final PathNode copyUser = leaf("copyUser");
 		public final PathNode viewUsers = leaf("viewUsers");
-	}
-
-	public static class SignupPaths extends PathNode{
-		public final PathNode submit = leaf("submit");
 	}
 
 	public static class UserDeprovisioningPaths extends PathNode{

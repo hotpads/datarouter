@@ -9,7 +9,7 @@ datarouter-trace is a tool to collect and visualize distributed request traces.
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-trace</artifactId>
-	<version>0.0.119</version>
+	<version>0.0.120</version>
 </dependency>
 ```
 
@@ -18,7 +18,7 @@ datarouter-trace is a tool to collect and visualize distributed request traces.
 You can install this module by adding its plugin to the `WebappBuilder`.
 
 ```java
-.addJobPlugin(new DatarouterTracePluginBuilder()
+.addPlugin(new DatarouterTracePluginBuilder()
 		...
 		.build())
 ```

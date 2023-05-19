@@ -19,6 +19,13 @@ public interface NavBarCategory{
 
 	String display();
 
+	/**
+	 * Sorted by String for flexibility
+	 */
+	default String sortBy(){
+		return display();
+	}
+
 	default AppNavBarCategoryGrouping grouping(){
 		return AppNavBarCategoryGrouping.MISC;
 	}

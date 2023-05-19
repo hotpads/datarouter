@@ -34,7 +34,7 @@ extends NodeOps<PK,D>{
 
 	/*---------------------------- sub-interfaces ---------------------------*/
 
-	public interface SortedStorageWriterNode<
+	interface SortedStorageWriterNode<
 			PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
@@ -42,7 +42,7 @@ extends NodeOps<PK,D>{
 	}
 
 
-	public interface PhysicalSortedStorageWriterNode<
+	interface PhysicalSortedStorageWriterNode<
 			PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>

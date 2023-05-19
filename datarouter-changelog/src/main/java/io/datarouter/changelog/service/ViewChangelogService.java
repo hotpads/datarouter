@@ -51,7 +51,7 @@ public class ViewChangelogService{
 	public TableTag buildTable(List<Changelog> rows, ZoneId zoneId){
 		return new J2HtmlTable<Changelog>()
 				.withClasses("table table-sm table-striped my-4 border")
-				.withHtmlColumn("", row -> td(a().withClass("fa fa-link").withHref(buildViewExactHref(row))))
+				.withHtmlColumn("", row -> td(a().withClass("fa fa-link").withHref(buildViewExactHref(row, true))))
 				.withColumn("Date", row -> {
 					long reversedDateMs = row.getKey().getReversedDateMs();
 					return ZonedDateFormatterTool.formatReversedLongMsWithZone(reversedDateMs, zoneId);
@@ -105,10 +105,14 @@ public class ViewChangelogService{
 				.withStyle("text-align:center");
 	}
 
-	public String buildViewExactHref(Changelog log){
+	public String buildViewExactHref(Changelog log, boolean withContext){
 		ChangelogKey key = log.getKey();
+		String path = paths.datarouter.changelog.viewExact.toSlashedString();
+		if(withContext){
+			path = servletContext.get().getContextPath() + path;
+		}
 		return new URIBuilder()
-				.setPath(servletContext.get().getContextPath() + paths.datarouter.changelog.viewExact.toSlashedString())
+				.setPath(path)
 				.addParameter(ViewExactChangelogHandler.P_reversedDateMs, key.getReversedDateMs().toString())
 				.addParameter(ViewExactChangelogHandler.P_changelogType, key.getChangelogType())
 				.addParameter(ViewExactChangelogHandler.P_name, key.getName())

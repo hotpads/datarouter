@@ -23,10 +23,10 @@ import javax.inject.Singleton;
 import javax.servlet.ServletRequest;
 
 import io.datarouter.web.user.authenticate.DatarouterAuthenticationFilter;
+import io.datarouter.web.user.role.Role;
 import io.datarouter.web.user.session.CurrentSessionInfo;
 import io.datarouter.web.user.session.DatarouterSession;
 import io.datarouter.web.user.session.DatarouterSessionManager;
-import io.datarouter.web.user.session.service.Role;
 
 /**
  * Implementation of {@link CurrentSessionInfo}.

@@ -15,30 +15,23 @@
  */
 package io.datarouter.plugin.dataexport.config;
 
-import java.util.List;
-
-import io.datarouter.plugin.dataexport.storage.DataExportDao;
-import io.datarouter.plugin.dataexport.storage.DataExportDao.DatarouterDataExportDaoParams;
-import io.datarouter.storage.client.ClientId;
-import io.datarouter.storage.dao.Dao;
-import io.datarouter.storage.dao.DaosModuleBuilder;
 import io.datarouter.web.config.BaseWebPlugin;
 import io.datarouter.web.navigation.DatarouterNavBarCategory;
 
 public class DatarouterDataExportPlugin extends BaseWebPlugin{
 
-	public static final String NODE_WIDGET_DATA_EXPORT_PATH = new DatarouterDataExportPaths().datarouter.dataMigration
-			.showForm.toSlashedString();
+	private static final DatarouterDataExportPaths PATHS = new DatarouterDataExportPaths();
 
 	private final Class<? extends DatarouterDataExportDirectorySupplier> directorySupplierClass;
 
 	private DatarouterDataExportPlugin(
-			DatarouterDataExportDaoModule daosModuleBuilder,
 			Class<? extends DatarouterDataExportDirectorySupplier> directorySupplierClass){
 		this.directorySupplierClass = directorySupplierClass;
 		addRouteSet(DatarouterDataExportRouteSet.class);
-		setDaosModule(daosModuleBuilder);
-		addDatarouterNavBarItem(DatarouterNavBarCategory.TOOLS, NODE_WIDGET_DATA_EXPORT_PATH, "Data Export");
+		addDatarouterNavBarItem(
+				DatarouterNavBarCategory.DATA,
+				PATHS.datarouter.dataExport.exportDatabeans.singleTable,
+				"Table - Exporter");
 	}
 
 	@Override
@@ -48,42 +41,16 @@ public class DatarouterDataExportPlugin extends BaseWebPlugin{
 
 	public static class DatarouterDataExportPluginBuilder{
 
-		private final List<ClientId> clientIds;
 		private final Class<? extends DatarouterDataExportDirectorySupplier> directorySupplierClass;
 
 		public DatarouterDataExportPluginBuilder(
-				List<ClientId> clientIds,
 				Class<? extends DatarouterDataExportDirectorySupplier> directorySupplierClass){
-			this.clientIds = clientIds;
 			this.directorySupplierClass = directorySupplierClass;
 		}
 
 		public DatarouterDataExportPlugin build(){
 			return new DatarouterDataExportPlugin(
-					new DatarouterDataExportDaoModule(clientIds),
 					directorySupplierClass);
-		}
-
-	}
-
-	public static class DatarouterDataExportDaoModule extends DaosModuleBuilder{
-
-		private final List<ClientId> datarouterDataExportClientIds;
-
-		public DatarouterDataExportDaoModule(
-				List<ClientId> datarouterDataExportClientIds){
-			this.datarouterDataExportClientIds = datarouterDataExportClientIds;
-		}
-
-		@Override
-		public List<Class<? extends Dao>> getDaoClasses(){
-			return List.of(DataExportDao.class);
-		}
-
-		@Override
-		public void configure(){
-			bind(DatarouterDataExportDaoParams.class)
-					.toInstance(new DatarouterDataExportDaoParams(datarouterDataExportClientIds));
 		}
 
 	}

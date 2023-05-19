@@ -25,17 +25,10 @@ import io.datarouter.util.buffer.MemoryBuffer;
 @Singleton
 public class CountBuffers{
 
-	@Deprecated
-	public final MemoryBuffer<Map<Long,Map<String,Long>>> countBuffer;
 	public final MemoryBuffer<Map<Long,Map<String,CountCollectorStats>>> countStatsBuffer;
 
 	public CountBuffers(){
-		this.countBuffer = new MemoryBuffer<>("countBuffer", 100);
 		this.countStatsBuffer = new MemoryBuffer<>("countStatsBuffer", 100);
-	}
-
-	public void offer(Map<Long,Map<String,Long>> metricDto){
-		countBuffer.offer(metricDto);
 	}
 
 	public void offerCountStats(Map<Long,Map<String,CountCollectorStats>> metricDto){

@@ -42,6 +42,7 @@ public class JobletType<P> implements Comparable<JobletType<?>>, PluginConfigVal
 	private final boolean causesScaling;
 	public final Duration pollingPeriod;
 	public final Tag tag;
+	public final Duration customMessageAgeThreshold;
 
 	private JobletType(
 			String persistentString,
@@ -50,7 +51,8 @@ public class JobletType<P> implements Comparable<JobletType<?>>, PluginConfigVal
 			Class<? extends Joblet<P>> clazz,
 			boolean causesScaling,
 			Duration pollingPeriod,
-			Tag tag){
+			Tag tag,
+			Duration customMessageAgeThreshold){
 		this.persistentString = persistentString;
 		Require.isTrue(shortQueueName.length() <= DatarouterJobletConstants.MAX_LENGTH_SHORT_QUEUE_NAME,
 				"shortQueueName length must be <= " + DatarouterJobletConstants.MAX_LENGTH_SHORT_QUEUE_NAME
@@ -61,6 +63,7 @@ public class JobletType<P> implements Comparable<JobletType<?>>, PluginConfigVal
 		this.causesScaling = causesScaling;
 		this.pollingPeriod = pollingPeriod;
 		this.tag = tag;
+		this.customMessageAgeThreshold = customMessageAgeThreshold;
 	}
 
 	public String getDisplay(){
@@ -114,6 +117,7 @@ public class JobletType<P> implements Comparable<JobletType<?>>, PluginConfigVal
 		private boolean causesScaling = true;
 		private Duration pollingPeriod = Duration.ofSeconds(5);
 		private Tag tag = Tag.APP;
+		private Duration customMessageAgeThreshold = Duration.ofDays(2);
 
 		public JobletTypeBuilder(
 				String persistentString,
@@ -147,6 +151,11 @@ public class JobletType<P> implements Comparable<JobletType<?>>, PluginConfigVal
 			return this;
 		}
 
+		public JobletTypeBuilder<P> withCustomMessageAgeThreshold(Duration customMessageAgeThreshold){
+			this.customMessageAgeThreshold = customMessageAgeThreshold;
+			return this;
+		}
+
 		public JobletType<P> build(){
 			return new JobletType<>(
 					persistentString,
@@ -155,7 +164,8 @@ public class JobletType<P> implements Comparable<JobletType<?>>, PluginConfigVal
 					clazz,
 					causesScaling,
 					pollingPeriod,
-					tag);
+					tag,
+					customMessageAgeThreshold);
 		}
 
 	}

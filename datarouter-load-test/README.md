@@ -9,7 +9,7 @@ Datarouter-load-test provides tools to stress test different datarouter-clients 
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-load-test</artifactId>
-	<version>0.0.119</version>
+	<version>0.0.120</version>
 </dependency>
 ```
 
@@ -18,7 +18,7 @@ Datarouter-load-test provides tools to stress test different datarouter-clients 
 You can install this module by adding its plugin to the `WebappBuilder`.
 
 ```java
-.addWebPlugin(new DatarouterLoadTestPluginBuilder()
+.addPlugin(new DatarouterLoadTestPluginBuilder()
 		...
 		.build()
 ```

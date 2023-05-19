@@ -33,11 +33,13 @@ public abstract class BaseGsonJobletCodec<P> implements JobletCodec<P>{
 		this.paramsType = paramsTypeToken.getType();
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public String marshallData(P params){
 		return GsonTool.withUnregisteredEnums().toJson(params);
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public P unmarshallData(String encodedParams){
 		return GsonTool.withUnregisteredEnums().fromJson(encodedParams, paramsType);

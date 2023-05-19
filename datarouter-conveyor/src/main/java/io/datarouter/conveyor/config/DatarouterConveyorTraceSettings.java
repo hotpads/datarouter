@@ -20,6 +20,7 @@ import java.time.Duration;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.storage.setting.DatarouterSettingTagType;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.SettingNode;
 import io.datarouter.storage.setting.cached.CachedSetting;
@@ -39,13 +40,17 @@ public class DatarouterConveyorTraceSettings extends SettingNode{
 	public DatarouterConveyorTraceSettings(SettingFinder finder){
 		super(finder, "datarouterConveyor.trace.");
 
-		saveTraces = registerBoolean("saveTraces", true);
+		saveTraces = registerBooleans("saveTraces", defaultTo(false)
+				.withTag(DatarouterSettingTagType.CONVEYOR_TRACE_PIPELINE, () -> true));
 		saveTraceCpuTime = registerBoolean("saveTraceCpuTime", true);
-		saveTracesOverMs = registerDuration("saveTracesOverMs", new DatarouterDuration(Duration
-				.ofMillis(100)));
-		saveTracesToMemory = registerBoolean("saveTracesToMemory", false);
+		saveTracesOverMs = registerDurations("saveTracesOverMs", defaultTo(new DatarouterDuration(Duration
+				.ofMillis(50)))
+				.withTag(DatarouterSettingTagType.CONVEYOR_TRACE_PIPELINE, () -> new DatarouterDuration(Duration
+						.ofMillis(50))));
 		saveTracesCpuOverMs = registerDuration("saveTracesCpuOverMs", new DatarouterDuration(Duration
-				.ofMillis(100)));
+				.ofMillis(50)));
+		saveTracesToMemory = registerBooleans("saveTracesToMemory", defaultTo(false)
+				.withTag(DatarouterSettingTagType.CONVEYOR_TRACE_PIPELINE, () -> true));
 	}
 
 }

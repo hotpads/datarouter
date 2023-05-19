@@ -41,6 +41,7 @@ import j2html.tags.specialized.TrTag;
 public class J2HtmlTable<T>{
 
 	private final List<String> classes = new ArrayList<>();
+	private final List<String> styles = new ArrayList<>();
 	private final List<J2HtmlTableColumn<T>> columns = new ArrayList<>();
 	private Optional<String> caption = Optional.empty();
 	private Optional<String> id = Optional.empty();
@@ -50,9 +51,26 @@ public class J2HtmlTable<T>{
 		return this;
 	}
 
-	public J2HtmlTable<T> withColumn(String name, Function<T,Object> valueFunction){
+	public J2HtmlTable<T> withStyles(String... styles){
+		this.styles.addAll(Arrays.asList(styles));
+		return this;
+	}
+
+	public J2HtmlTable<T> withColumn(String name, Function<T,String> valueFunction){
 		Function<T,TdTag> function = dto -> Optional.ofNullable(valueFunction.apply(dto))
 				.map(Object::toString)
+				.map(TagCreator::td)
+				.orElseGet(TagCreator::td);
+		columns.add(new J2HtmlTableColumn<>(name, function));
+		return this;
+	}
+
+	public <V> J2HtmlTable<T> withColumn(
+			String name,
+			Function<T,V> valueExtractorFn,
+			Function<V,String> valueToStringFn){
+		Function<T,TdTag> function = dto -> Optional.ofNullable(valueExtractorFn.apply(dto))
+				.map(valueToStringFn)
 				.map(TagCreator::td)
 				.orElseGet(TagCreator::td);
 		columns.add(new J2HtmlTableColumn<>(name, function));
@@ -134,6 +152,7 @@ public class J2HtmlTable<T>{
 		var tbody = tbody(each(rows, this::makeTr));
 		return table()
 				.withClasses(classes.toArray(String[]::new))
+				.withStyle(String.join(";", styles))
 				//The conditional still calls the value whether or not its present.
 				.condWith(caption.isPresent(), caption(caption.orElse("")))
 				.withCondId(id.isPresent(), id.orElse(""))

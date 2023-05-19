@@ -12,7 +12,7 @@ This is a small module that provides the AWS Secrets Manager client implementati
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-aws-secrets-manager</artifactId>
-	<version>0.0.119</version>
+	<version>0.0.120</version>
 </dependency>
 ```
 
@@ -21,7 +21,7 @@ This is a small module that provides the AWS Secrets Manager client implementati
 You can install this module by adding its plugin to the `WebappBuilder`.
 
 ```java
-.addWebPlugin(new DatarouterAwsSecretsManagerPluginBuilder()
+.addPlugin(new DatarouterAwsSecretsManagerPluginBuilder()
 	//.setHardcodedCredentials(...) if `DefaultAwsSecretClientCredentialsHolder` is insufficient
 	.build()
 ```

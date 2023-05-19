@@ -112,9 +112,13 @@ implements DatarouterEndpointClient<ET>{
 			}
 			throw e;
 		}finally{
-			int statusCode = response == null ? 0 : response.getStatusCode();
-			String counter = String.format("endpointHttpClient %s %s %d", name, pathNode.toSlashedString(), statusCode);
+			String counter = String.format("endpointHttpClient %s %s", name, pathNode.toSlashedString());
 			Counters.inc(counter);
+
+			int statusCode = response == null ? 0 : response.getStatusCode();
+			String counterWithStatus = String.format("endpointHttpClient %s %s %d", name, pathNode.toSlashedString(),
+					statusCode);
+			Counters.inc(counterWithStatus);
 		}
 	}
 
@@ -141,7 +145,7 @@ implements DatarouterEndpointClient<ET>{
 		endpoint.setUrlPrefix(urlPrefix.get());
 		DatarouterHttpRequest datarouterHttpRequest = EndpointTool.toDatarouterHttpRequest(endpoint, jsonSerializer);
 		EndpointTool.findEntity(endpoint).ifPresent(entity -> setEntityDto(datarouterHttpRequest, entity));
-		Type responseType = EndpointTool.getResponseType(endpoint);
+		Type responseType = EndpointTool.getResponseType(endpoint.getClass());
 		return tryExecute(datarouterHttpRequest, endpoint.pathNode, responseType);
 	}
 
@@ -150,7 +154,7 @@ implements DatarouterEndpointClient<ET>{
 		endpoint.setUrlPrefix(urlPrefix.get());
 		DatarouterHttpRequest datarouterHttpRequest = EndpointTool.toDatarouterHttpRequest(endpoint, jsonSerializer);
 		EndpointTool.findEntity(endpoint).ifPresent(entity -> setEntityDto(datarouterHttpRequest, entity));
-		Type responseType = EndpointTool.getResponseType(endpoint);
+		Type responseType = EndpointTool.getResponseType(endpoint.getClass());
 		return executeChecked(datarouterHttpRequest, endpoint.pathNode, responseType);
 	}
 

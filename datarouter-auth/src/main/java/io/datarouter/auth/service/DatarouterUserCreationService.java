@@ -34,7 +34,7 @@ import io.datarouter.util.number.RandomTool;
 import io.datarouter.web.user.authenticate.DatarouterTokenGenerator;
 import io.datarouter.web.user.databean.DatarouterUser;
 import io.datarouter.web.user.role.DatarouterUserRole;
-import io.datarouter.web.user.session.service.Role;
+import io.datarouter.web.user.role.Role;
 import io.datarouter.web.util.PasswordTool;
 
 @Singleton

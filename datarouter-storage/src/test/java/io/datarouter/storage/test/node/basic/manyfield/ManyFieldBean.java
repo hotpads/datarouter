@@ -18,6 +18,7 @@ package io.datarouter.storage.test.node.basic.manyfield;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -28,6 +29,7 @@ import io.datarouter.model.field.Field;
 import io.datarouter.model.field.codec.DateToLongFieldCodec;
 import io.datarouter.model.field.codec.IntListFieldCodec;
 import io.datarouter.model.field.codec.IntegerMappedEnumFieldCodec;
+import io.datarouter.model.field.codec.LocalTimeToLongFieldCodec;
 import io.datarouter.model.field.codec.StringListToBinaryCsvFieldCodec;
 import io.datarouter.model.field.codec.StringListToCsvFieldCodec;
 import io.datarouter.model.field.codec.StringMappedEnumFieldCodec;
@@ -79,6 +81,7 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 	private Float floatField;
 	private Double doubleField;
 	private Date dateToLongField;//for testing LongEncodedField
+	private LocalTime localTimeField;
 	private LocalDate localDateField;
 	private LocalDateTime localDateTimeField;
 	private Instant instantField;
@@ -108,6 +111,8 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 		public static final LongEncodedFieldKey<Date> dateToLongField = new LongEncodedFieldKey<>(
 				"dateToLongField",
 				new DateToLongFieldCodec());
+		public static final LongEncodedFieldKey<LocalTime> localTimeField = new LongEncodedFieldKey<>(
+				"localTimeField", new LocalTimeToLongFieldCodec());
 		public static final LocalDateFieldKey localDateField = new LocalDateFieldKey("localDateField");
 		public static final LocalDateTimeFieldKey localDateTimeField = new LocalDateTimeFieldKey("localDateTimeField");
 		public static final InstantFieldKey instantField = new InstantFieldKey("instantField");
@@ -159,6 +164,9 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 			return false;
 		}
 		if(ObjectTool.notEquals(dateToLongField, that.dateToLongField)){
+			return false;
+		}
+		if(ObjectTool.notEquals(localTimeField, that.localTimeField)){
 			return false;
 		}
 		if(ObjectTool.notEquals(localDateField, that.localDateField)){
@@ -217,6 +225,7 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 					new FloatField(FieldKeys.floatField, databean.floatField),
 					new DoubleField(FieldKeys.doubleField, databean.doubleField),
 					new LongEncodedField<>(FieldKeys.dateToLongField, databean.dateToLongField),
+					new LongEncodedField<>(FieldKeys.localTimeField, databean.localTimeField),
 					new LocalDateField(FieldKeys.localDateField, databean.localDateField),
 					new LocalDateTimeField(FieldKeys.localDateTimeField, databean.localDateTimeField),
 					new InstantField(FieldKeys.instantField, databean.instantField),
@@ -364,6 +373,14 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 
 	public void setDateToLongField(Date dateToLongField){
 		this.dateToLongField = dateToLongField;
+	}
+
+	public LocalTime getLocalTimeField(){
+		return localTimeField;
+	}
+
+	public void setLocalTimeField(LocalTime localTimeField){
+		this.localTimeField = localTimeField;
 	}
 
 	public LocalDate getLocalDateField(){

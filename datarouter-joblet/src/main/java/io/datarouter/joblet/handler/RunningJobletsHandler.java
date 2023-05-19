@@ -26,6 +26,9 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.datarouter.joblet.JobletPageFactory;
 import io.datarouter.joblet.config.DatarouterJobletPaths;
 import io.datarouter.joblet.dto.RunningJoblet;
@@ -40,6 +43,7 @@ import io.datarouter.web.requirejs.DatarouterWebRequireJsV2;
 import j2html.tags.specialized.DivTag;
 
 public class RunningJobletsHandler extends BaseHandler{
+	private static final Logger logger = LoggerFactory.getLogger(RunningJobletsHandler.class);
 
 	private static final String TITLE = "Local Running Joblets";
 	public static final String P_threadId = "threadId";
@@ -67,8 +71,11 @@ public class RunningJobletsHandler extends BaseHandler{
 
 	@Handler
 	private Mav kill(@Param(P_threadId) long threadId){
-		jobletProcessors.killThread(threadId);
-		return new InContextRedirectMav(request, paths.datarouter.joblets.running);
+		String killedThreadProcessor = jobletProcessors.killThread(threadId)
+				.orElse("thread not found");
+		logger.warn("killing joblet with threadId={} -> {}", threadId, killedThreadProcessor);
+		return new InContextRedirectMav(request, paths.datarouter.joblets.running.toSlashedString()
+				+ "?message=" + killedThreadProcessor);
 	}
 
 	private DivTag makeContent(List<RunningJoblet> rows){
@@ -76,11 +83,11 @@ public class RunningJobletsHandler extends BaseHandler{
 				.withClass("mt-2");
 		var table = new J2HtmlTable<RunningJoblet>()
 				.withClasses("sortable table table-sm table-striped border")
-				.withColumn("type", row -> row.getName())
-				.withColumn("id", row -> row.getId())
-				.withColumn("running time", row -> row.getRunningTimeString())
-				.withColumn("queue", row -> row.getQueueId())
-				.withColumn("joblet data", row -> row.getJobletData())
+				.withColumn("type", RunningJoblet::getName)
+				.withColumn("id", RunningJoblet::getId)
+				.withColumn("running time", RunningJoblet::getRunningTimeString)
+				.withColumn("queue", RunningJoblet::getQueueId)
+				.withColumn("joblet data", RunningJoblet::getJobletData)
 				.withHtmlColumn("kill", row -> {
 					String href = localLinkBuilder.kill(request.getContextPath(), row.getId());
 					return td(a("kill").withHref(href));

@@ -39,16 +39,44 @@ public class HandlerMetrics{
 	private static final String CUMULATED_DURATION_MS = "cumulatedDurationMs";
 	private static final String CUMULATED_CPU_MS = "cumulatedCpuMs";
 	private static final String BATCH = "batch";
+	private static final String USER_AGENT = "userAgent";
 
 	@Inject
 	private Gauges gauges;
+	@Inject
+	private UserAgentTypeConfig userAgentTypeConfig;
 
-	public static void incMethodInvocation(Class<?> handler, String methodName){
+	public void incMethodInvocation(Class<?> handler, String methodName, String userAgent){
 		incInternal(CALL);
 		incInternal(CLASS, handler.getSimpleName());
 		incInternal(PACKAGED_CLASS, handler.getName());
 		incInternal(METHOD, handler.getSimpleName() + " " + methodName);
 		incInternal(PACKAGED_METHOD, handler.getName() + " " + methodName);
+		String categorizedUserAgent = categorizeUserAgent(userAgent);
+		incInternal(USER_AGENT, categorizedUserAgent);
+		incInternal(CLASS, String.join(" ", handler.getSimpleName(), USER_AGENT, categorizedUserAgent));
+		incInternal(METHOD, String.join(" ", handler.getSimpleName(), methodName, USER_AGENT, categorizedUserAgent));
+	}
+
+	public String categorizeUserAgent(String userAgent){
+		if(userAgent == null){
+			return "null";
+		}
+		if(userAgentTypeConfig.getMobileUserAgents().stream().anyMatch(userAgent::contains)){
+			if(userAgentTypeConfig.getAndroidUserAgents().stream().anyMatch(userAgent::contains)){
+				return UserAgentTypeConfig.ANDROID_USER_AGENT;
+			}
+			if(userAgentTypeConfig.getIosUserAgents().stream().anyMatch(userAgent::contains)){
+				return UserAgentTypeConfig.IOS_USER_AGENT;
+			}
+		}
+		if(userAgentTypeConfig.getJavaUserAgents().stream().anyMatch(userAgent::contains)){
+			return UserAgentTypeConfig.JAVA_USER_AGENT;
+		}
+		if(userAgentTypeConfig.getBotUserAgents().stream().anyMatch(userAgent::contains)){
+			return UserAgentTypeConfig.BOT_USER_AGENT;
+		}
+		return UserAgentTypeConfig.WEB_USER_AGENT;
 	}
 
 	public static void incMethodInvocationByApiKeyPredicateName(Class<?> handler, String methodName,

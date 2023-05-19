@@ -65,6 +65,7 @@ public class PlatformMxBeans{
 	public static final List<BufferPoolMXBean> BUFFER_POOLS = ManagementFactory
 			.getPlatformMXBeans(BufferPoolMXBean.class);
 
+	@SuppressWarnings("unchecked")
 	public static Map<String,Long> getInternalThreadCpuNs(){
 		var hotspotThreading = JmxTool.newObjectName("sun.management:type=HotspotThreading");
 		return (Map<String,Long>)JmxTool.getAttribute(hotspotThreading, "InternalThreadCpuTimes");

@@ -30,12 +30,14 @@ import io.datarouter.storage.setting.cached.CachedSetting;
 @Singleton
 public class DatarouterConveyorShouldRunSettings extends SettingNode{
 
+	public static String SETTING_NAME_PREFIX = "shouldRun.";
+
 	private final Map<String,CachedSetting<Boolean>> settingByConveyorName = new HashMap<>();
 
 	@Inject
 	public DatarouterConveyorShouldRunSettings(SettingFinder finder,
 			ConveyorConfigurationGroupService conveyorConfigurationGroupService){
-		super(finder, "datarouterConveyor.shouldRun.");
+		super(finder, DatarouterConveyorSettingRoot.SETTING_NAME_PREFIX + SETTING_NAME_PREFIX);
 		conveyorConfigurationGroupService.getAllPackages()
 			.forEach(this::registerSetting);
 	}

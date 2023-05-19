@@ -97,6 +97,10 @@ public class DatarouterRedisClient{
 		exec("del", () -> lettuceClient.del(key), config, null);
 	}
 
+	public void del(byte[][] keys, RedisRequestConfig config){
+		exec("del", () -> lettuceClient.del(keys), config, null);
+	}
+
 	/*-------------- private ---------------*/
 
 	private <T> T exec(

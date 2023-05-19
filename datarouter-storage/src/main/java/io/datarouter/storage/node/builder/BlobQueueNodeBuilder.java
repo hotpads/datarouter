@@ -15,6 +15,8 @@
  */
 package io.datarouter.storage.node.builder;
 
+import java.time.Duration;
+
 import io.datarouter.bytes.Codec;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
@@ -34,6 +36,7 @@ public class BlobQueueNodeBuilder<T>{
 	protected String queueUrl;
 	protected Tag tag;
 	protected boolean enableAgeMonitoring = true;
+	protected Duration customMessageAgeThreshold = Duration.ofDays(2);
 
 	public BlobQueueNodeBuilder(
 			Datarouter datarouter,
@@ -68,13 +71,18 @@ public class BlobQueueNodeBuilder<T>{
 		return this;
 	}
 
+	public BlobQueueNodeBuilder<T> withCustomMessageAgeThreshold(Duration customMessageAgeThreshold){
+		this.customMessageAgeThreshold = customMessageAgeThreshold;
+		return this;
+	}
+
 	public BlobQueueStorageNode<T> buildAndRegister(){
 		return datarouter.register(build());
 	}
 
 	public BlobQueueStorageNode<T> build(){
 		return queueNodeFactory.createBlobQueueNode(clientId, queueName, codec, namespace, queueUrl, tag,
-				enableAgeMonitoring);
+				enableAgeMonitoring, customMessageAgeThreshold);
 	}
 
 }

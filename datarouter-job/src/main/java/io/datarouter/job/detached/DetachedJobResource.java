@@ -19,13 +19,17 @@ import java.util.Objects;
 
 public class DetachedJobResource{
 
+	public static final Integer DEFAULT_MAX_RAM_PERCENTAGE = 65;
+
 	private final int cpuMilli;
 	private final int memoryMb;
+	private final int maxRamPercentage;
 	private final String targetCluster;
 
-	private DetachedJobResource(int cpuMilli, int memoryMb, String targetCluster){
+	private DetachedJobResource(int cpuMilli, int memoryMb, int maxRamPercentage, String targetCluster){
 		this.cpuMilli = cpuMilli;
 		this.memoryMb = memoryMb;
+		this.maxRamPercentage = maxRamPercentage;
 		this.targetCluster = targetCluster;
 	}
 
@@ -37,6 +41,10 @@ public class DetachedJobResource{
 		return memoryMb;
 	}
 
+	public int getMaxRamPercentage(){
+		return maxRamPercentage;
+	}
+
 	public String getTargetCluster(){
 		return targetCluster;
 	}
@@ -44,11 +52,13 @@ public class DetachedJobResource{
 	public static class DetachedJobResourceBuilder{
 		private Integer cpuMilli = null;
 		private Integer memoryMb = null;
+		private Integer maxRamPercentage = DEFAULT_MAX_RAM_PERCENTAGE;
 		private String targetCluster = null;
 
 		public DetachedJobResourceBuilder withResource(DetachedJobResource resource){
 			this.cpuMilli = resource.getCpuMilli();
 			this.memoryMb = resource.getMemoryMb();
+			this.maxRamPercentage = resource.getMaxRamPercentage();
 			this.targetCluster = resource.getTargetCluster();
 			return this;
 		}
@@ -63,6 +73,11 @@ public class DetachedJobResource{
 			return this;
 		}
 
+		public DetachedJobResourceBuilder withMaxRamPercentage(Integer maxRamPercentage){
+			this.maxRamPercentage = maxRamPercentage;
+			return this;
+		}
+
 		public DetachedJobResourceBuilder withTargetCluster(String cluster){
 			this.targetCluster = cluster;
 			return this;
@@ -71,7 +86,7 @@ public class DetachedJobResource{
 		public DetachedJobResource build(){
 			Objects.requireNonNull(cpuMilli, "cpuMilli");
 			Objects.requireNonNull(memoryMb, "memoryMb");
-			return new DetachedJobResource(cpuMilli, memoryMb, targetCluster);
+			return new DetachedJobResource(cpuMilli, memoryMb, maxRamPercentage, targetCluster);
 		}
 	}
 

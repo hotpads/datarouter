@@ -36,14 +36,14 @@ import io.datarouter.joblet.storage.jobletrequestqueue.JobletRequestQueueKey;
 import io.datarouter.joblet.type.JobletType;
 import io.datarouter.jobletmysql.txn.ReserveJobletRequest;
 import io.datarouter.plugin.PluginConfigKey;
-import io.datarouter.storage.Datarouter;
+import io.datarouter.storage.client.DatarouterClients;
 import io.datarouter.util.timer.PhaseTimer;
 
 @Singleton
 public class MysqlUpdateAndScanJobletRequestSelector implements JobletRequestSelector{
 
 	@Inject
-	private Datarouter datarouter;
+	private DatarouterClients datarouterClients;
 	@Inject
 	private DatarouterJobletRequestDao jobletRequestDao;
 	@Inject
@@ -62,7 +62,7 @@ public class MysqlUpdateAndScanJobletRequestSelector implements JobletRequestSel
 			PhaseTimer timer,
 			JobletType<?> type,
 			String reservedBy){
-		ReserveJobletRequest mysqlOp = new ReserveJobletRequest(reservedBy, type, datarouter, jobletRequestDao,
+		ReserveJobletRequest mysqlOp = new ReserveJobletRequest(reservedBy, type, datarouterClients, jobletRequestDao,
 				mysqlSqlFactory, jobletRequestSqlBuilder);
 		while(sessionExecutor.runWithoutRetries(mysqlOp)){//returns false if no joblet found
 			JobletRequest jobletRequest = jobletRequestDao.getReservedRequest(type, reservedBy,

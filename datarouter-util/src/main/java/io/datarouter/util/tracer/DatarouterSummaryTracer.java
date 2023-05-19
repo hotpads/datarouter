@@ -133,7 +133,7 @@ public class DatarouterSummaryTracer implements Tracer{
 	/*---------------------------- TraceSpan --------------------------------*/
 
 	@Override
-	public void startSpan(String name, TraceSpanGroupType groupType){
+	public void startSpan(String name, TraceSpanGroupType groupType, long createdTimeNs){
 		SpanRecord prevRecord = spans.peek();
 		if(prevRecord != null && prevRecord.name == INTERSPAN){
 			addSummary(INTERSPAN, prevRecord.startMs, true);
@@ -143,11 +143,11 @@ public class DatarouterSummaryTracer implements Tracer{
 	}
 
 	@Override
-	public void finishSpan(){
+	public void finishSpan(long endTimeNs){
 		String summaryKey = getSpanRecordsPrefix();
 		SpanRecord currentSpan = spans.pop();
 		addSummary(summaryKey, currentSpan.startMs, false);
-		startSpan(INTERSPAN, TraceSpanGroupType.NONE);
+		startSpan(INTERSPAN, TraceSpanGroupType.NONE, Trace2Dto.getCurrentTimeInNs());
 	}
 
 	@Override
@@ -234,6 +234,16 @@ public class DatarouterSummaryTracer implements Tracer{
 	@Override
 	public void setSaveSpanMemoryAllocated(boolean saveSpanMemoryAllocated){
 		return;
+	}
+
+	@Override
+	public void setAlternativeStartTimeNs(){
+		return;
+	}
+
+	@Override
+	public Optional<Long> getAlternativeStartTimeNs(){
+		return Optional.empty();
 	}
 
 	public String getSpanRecordsPrefix(){

@@ -15,6 +15,7 @@
  */
 package io.datarouter.aws.sqs.blob;
 
+import java.time.Duration;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -107,6 +108,11 @@ implements PhysicalBlobQueueStorageNode<T>, SqsPhysicalNode<EmptyDatabeanKey,Emp
 	@Override
 	public boolean getAgeMonitoringStatusForMetricAlert(){
 		return params.getAgeMonitoringStatus();
+	}
+
+	@Override
+	public Duration getCustomMessageAgeThreshold(){
+		return params.getCustomMessageAgeThreshold();
 	}
 
 	@Override

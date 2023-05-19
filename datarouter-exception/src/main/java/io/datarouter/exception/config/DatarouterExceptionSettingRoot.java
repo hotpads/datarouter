@@ -29,9 +29,6 @@ import io.datarouter.storage.setting.cached.CachedSetting;
 public class DatarouterExceptionSettingRoot extends SettingRoot{
 
 	//controls ExceptionRecords publishing destination
-	public final CachedSetting<Boolean> saveExceptionRecordsToQueueDaoInsteadOfDirectoryDao;
-	//controls ExceptionRecords publishing destination
-	public final CachedSetting<Boolean> saveHttpRequestRecordsToQueueDaoInsteadOfDirectoryDao;
 	public final CachedSetting<Boolean> saveTaskExecutorRecordsToQueueDaoInsteadOfDirectoryDao;
 
 
@@ -54,12 +51,7 @@ public class DatarouterExceptionSettingRoot extends SettingRoot{
 	@Inject
 	public DatarouterExceptionSettingRoot(SettingFinder finder){
 		super(finder, DatarouterSettingCategory.DATAROUTER, "datarouterException.");
-		saveExceptionRecordsToQueueDaoInsteadOfDirectoryDao = registerBooleans(
-				"saveExceptionRecordsToQueueDaoInsteadOfDirectoryDao", defaultTo(false)
-				.withTag(DatarouterSettingTagType.EXCEPTION_PIPELINE, () -> true));
 
-		saveHttpRequestRecordsToQueueDaoInsteadOfDirectoryDao = registerBoolean(
-				"saveHttpRequestRecordsToQueueDaoInsteadOfDirectoryDao", false);
 		saveTaskExecutorRecordsToQueueDaoInsteadOfDirectoryDao = registerBoolean(
 				"saveTaskExecutorRecordsToQueueDaoInsteadOfDirectoryDao", false);
 

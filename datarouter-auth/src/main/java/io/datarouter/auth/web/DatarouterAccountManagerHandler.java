@@ -87,6 +87,7 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 	private final CurrentUserSessionInfoService currentSessionInfoService;
 	private final DatarouterAccountDeleteAction datarouterAccountDeleteAction;
 	private final AccountCallerTypeRegistry2 callerTypeRegistry;
+	private final DatarouterAuthPaths datarouterAuthPaths;
 
 	private final String path;
 
@@ -104,7 +105,8 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 			MetricLinkBuilder metricLinkBuilder,
 			CurrentUserSessionInfoService currentSessionInfoService,
 			DatarouterAccountDeleteAction datarouterAccountDeleteAction,
-			AccountCallerTypeRegistry2 callerTypeRegistry){
+			AccountCallerTypeRegistry2 callerTypeRegistry,
+			DatarouterAuthPaths datarouterAuthPaths){
 		this(datarouterAccountDao,
 				datarouterAccountPermissionDao,
 				acccountCredentialService,
@@ -117,6 +119,7 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 				currentSessionInfoService,
 				datarouterAccountDeleteAction,
 				callerTypeRegistry,
+				datarouterAuthPaths,
 				paths.datarouter.accountManager.toSlashedString());
 	}
 
@@ -133,6 +136,7 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 			CurrentUserSessionInfoService currentSessionInfoService,
 			DatarouterAccountDeleteAction datarouterAccountDeleteAction,
 			AccountCallerTypeRegistry2 callerTypeRegistry,
+			DatarouterAuthPaths datarouterAuthPaths,
 
 			String path){
 		this.datarouterAccountDao = datarouterAccountDao;
@@ -147,6 +151,7 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 		this.currentSessionInfoService = currentSessionInfoService;
 		this.datarouterAccountDeleteAction = datarouterAccountDeleteAction;
 		this.callerTypeRegistry = callerTypeRegistry;
+		this.datarouterAuthPaths = datarouterAuthPaths;
 
 		this.path = path;
 	}
@@ -158,12 +163,17 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 				.withRequires(DatarouterWebRequireJs.SORTTABLE)
 				.withReactScript(files.js.accountManagerJsx)
 				.withJsStringConstant("REACT_BASE_PATH", request.getContextPath() + path + "/")
+				.withJsStringConstant("RENAMER_PATH", request.getContextPath()
+						+ datarouterAuthPaths.datarouter.accounts.renameAccounts.toSlashedString())
+				.withJsStringConstant("CALLER_TYPE_PATH", request.getContextPath()
+						+ datarouterAuthPaths.datarouter.accounts.updateCallerType.toSlashedString())
 				.buildMav();
 	}
 
 	@Handler
 	public List<DatarouterAccountDetailsDto> list(){
-		return getDetailsForAccounts(datarouterAccountDao.scan().list());
+		return datarouterAccountDao.scan()
+				.listTo(this::getDetailsForAccounts);
 	}
 
 	@Handler

@@ -21,6 +21,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.clustersetting.config.DatarouterClusterSettingPaths;
+import io.datarouter.clustersetting.web.override.handler.ClusterSettingOverrideViewHandler.ClusterSettingOverrideViewLinks;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
 import j2html.tags.specialized.ATag;
 
@@ -31,6 +32,8 @@ public class ClusterSettingLinkService{
 	private DatarouterHtmlEmailService emailService;
 	@Inject
 	private DatarouterClusterSettingPaths paths;
+	@Inject
+	private ClusterSettingOverrideViewLinks overrideViewLinks;
 
 	public ATag makeSettingLink(String settingName){
 		String href = emailService.startLinkBuilder()
@@ -38,6 +41,13 @@ public class ClusterSettingLinkService{
 				.withParam("submitAction", "browseSettings")
 				.withParam("name", settingName)
 				.build();
+		return a(settingName)
+				.withHref(href)
+				.withStyle("text-decoration:none;");
+	}
+
+	public ATag makePrefixSettingLink(String settingName){
+		String href = overrideViewLinks.view(settingName);
 		return a(settingName)
 				.withHref(href)
 				.withStyle("text-decoration:none;");

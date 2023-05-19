@@ -28,6 +28,8 @@ import org.testng.annotations.Test;
 public abstract class BaseParallelExecutionTest{
 	private static final Logger logger = LoggerFactory.getLogger(BaseParallelExecutionTest.class);
 
+	public static final boolean RUN_SUITE = false;
+
 	@BeforeClass
 	public void beforeClass(){
 		print(getClass().getSimpleName() + " tests");

@@ -18,6 +18,7 @@ package io.datarouter.gcp.spanner;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
+import java.util.function.BiFunction;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -106,6 +107,8 @@ public class SpannerClientManager extends BaseClientManager{
 		int maxSessions = spannerClientOptions.maxSessions(clientId.getName());
 		int numChannels = spannerClientOptions.numChannels(clientId.getName());
 		logger.warn("spannerSessionPool maxSessions={} numChannels={}", maxSessions, numChannels);
+		var eventLoopGroupAndChannelType = makeEventLoopGroupAndChannelType();
+		logger.warn("Using channelType={}", eventLoopGroupAndChannelType.channelType.getSimpleName());
 		SessionPoolOptions sessionPoolOptions = SessionPoolOptions.newBuilder()
 				.setMaxSessions(maxSessions)
 				.setFailIfPoolExhausted()
@@ -120,21 +123,9 @@ public class SpannerClientManager extends BaseClientManager{
 					managedChannelBuilder.executor(spannerManagedChannelExecutor);
 					managedChannelBuilder.offloadExecutor(spannerManagedChannelOffloadExecutor);
 					NettyChannelBuilder nettyChannelBuilder = (NettyChannelBuilder) managedChannelBuilder;
-					Class<? extends Channel> channelType;
-					EventLoopGroup eventLoopGroup;
-					try{
-						Class.forName("io.grpc.netty.shaded.io.netty.channel.epoll.EpollEventLoop");
-						eventLoopGroup = new EpollEventLoopGroup(THREAD_COUNT_PER_EVENT_LOOP,
-								spannerEventLoopGroupExecutor);
-						channelType = EpollSocketChannel.class;
-					}catch(Throwable e){
-						eventLoopGroup = new NioEventLoopGroup(THREAD_COUNT_PER_EVENT_LOOP,
-								spannerEventLoopGroupExecutor);
-						channelType = NioSocketChannel.class;
-					}
-					nettyChannelBuilder.eventLoopGroup(eventLoopGroup);
-					nettyChannelBuilder.channelType(channelType);
-					logger.warn("Using channelType={}", channelType.getSimpleName());
+					nettyChannelBuilder.eventLoopGroup(eventLoopGroupAndChannelType.eventLoopGroup
+							.apply(THREAD_COUNT_PER_EVENT_LOOP, spannerEventLoopGroupExecutor));
+					nettyChannelBuilder.channelType(eventLoopGroupAndChannelType.channelType);
 					return managedChannelBuilder;
 				})
 				.build();
@@ -159,6 +150,20 @@ public class SpannerClientManager extends BaseClientManager{
 	public DatabaseClient getDatabaseClient(ClientId clientId){
 		initClient(clientId);
 		return databaseClientsHolder.getDatabaseClient(clientId);
+	}
+
+	private static EventLoopGroupAndChannelType makeEventLoopGroupAndChannelType(){
+		try{
+			Class.forName("io.grpc.netty.shaded.io.netty.channel.epoll.EpollEventLoop");
+			return new EventLoopGroupAndChannelType(EpollEventLoopGroup::new, EpollSocketChannel.class);
+		}catch(Throwable e){
+			return new EventLoopGroupAndChannelType(NioEventLoopGroup::new, NioSocketChannel.class);
+		}
+	}
+
+	record EventLoopGroupAndChannelType(
+			BiFunction<Integer,SpannerEventLoopGroupExecutor,EventLoopGroup> eventLoopGroup,
+			Class<? extends Channel> channelType){
 	}
 
 }

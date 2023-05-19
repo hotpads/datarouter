@@ -36,7 +36,6 @@ import io.datarouter.storage.file.DatabaseBlob.DatabaseBlobFielder;
 import io.datarouter.storage.file.DatabaseBlobKey;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.adapter.NodeAdapters;
-import io.datarouter.storage.node.adapter.availability.PhysicalIndexedSortedMapStorageAvailabilityAdapterFactory;
 import io.datarouter.storage.node.adapter.callsite.physical.PhysicalIndexedSortedMapStorageCallsiteAdapter;
 import io.datarouter.storage.node.adapter.counter.physical.PhysicalIndexedSortedMapStorageCounterAdapter;
 import io.datarouter.storage.node.adapter.sanitization.physical.PhysicalIndexedSortedMapStorageSanitizationAdapter;
@@ -63,9 +62,6 @@ implements BlobClientNodeFactory, DatabeanClientNodeFactory, TallyClientNodeFact
 	@Inject
 	private SpannerFieldCodecs fieldCodecs;
 	@Inject
-	private PhysicalIndexedSortedMapStorageAvailabilityAdapterFactory
-			physicalIndexedSortedMapStorageAvailabilityAdapterFactory;
-	@Inject
 	private NodeAdapters nodeAdapters;
 
 	/*---------------- DatabeanClientNodeFactory ------------------*/
@@ -87,11 +83,10 @@ implements BlobClientNodeFactory, DatabeanClientNodeFactory, TallyClientNodeFact
 				fieldCodecs);
 		return new PhysicalIndexedSortedMapStorageCallsiteAdapter<>(
 				new PhysicalIndexedSortedMapStorageSanitizationAdapter<>(
-				physicalIndexedSortedMapStorageAvailabilityAdapterFactory.create(
 				new PhysicalIndexedSortedMapStorageCounterAdapter<>(
 				new PhysicalIndexedSortedMapStorageTraceAdapter<>(
 				//custom OpencensusAdapter goes inside TraceAdapter
-				new PhysicalIndexedSortedMapStorageOpencensusAdapter<>(node))))));
+				new PhysicalIndexedSortedMapStorageOpencensusAdapter<>(node)))));
 	}
 
 	@Override

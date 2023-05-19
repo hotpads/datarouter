@@ -28,4 +28,11 @@ public class DatarouterAwsS3Executors{
 		}
 	}
 
+	@Singleton
+	public static class BulkDeleteExecutor extends ScalingThreadPoolExecutor{
+		public BulkDeleteExecutor(){
+			super("bulkDelete", 100);
+		}
+	}
+
 }

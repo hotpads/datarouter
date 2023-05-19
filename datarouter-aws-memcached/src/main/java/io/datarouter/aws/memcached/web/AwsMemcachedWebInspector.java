@@ -53,7 +53,7 @@ public class AwsMemcachedWebInspector extends MemcachedWebInspector{
 					.withClasses("sortable table table-sm table-striped my-4 border")
 					.withColumn("HostName", AwsMemcachedNodeEndpointDto::hostName)
 					.withColumn("IpAddress", AwsMemcachedNodeEndpointDto::ipAddress)
-					.withColumn("Port", AwsMemcachedNodeEndpointDto::port)
+					.withColumn("Port", AwsMemcachedNodeEndpointDto::port, Number::toString)
 					.build(nodeEndpointDtos);
 			DivTag divTable = div(table)
 					.withClass("container-fluid my-4")

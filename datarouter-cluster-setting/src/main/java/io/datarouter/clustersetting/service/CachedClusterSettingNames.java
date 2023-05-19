@@ -36,7 +36,7 @@ public class CachedClusterSettingNames extends Cached<TreeSet<String>>{
 
 	@Inject
 	public CachedClusterSettingNames(SettingRootFinder settingRootFinder){
-		super(1, TimeUnit.MINUTES);
+		super(10, TimeUnit.SECONDS);
 		this.settingRootFinder = settingRootFinder;
 	}
 

@@ -35,4 +35,8 @@ public interface ServerType extends DisplayablePersistentString, Comparable<Serv
 		return getPersistentString();
 	}
 
+	static boolean isUnknownPersistentString(String persistentString){
+		return UNKNOWN.getPersistentString().equals(persistentString);
+	}
+
 }

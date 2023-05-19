@@ -15,19 +15,20 @@
  */
 package io.datarouter.web.html.indexpager;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import io.datarouter.web.html.indexpager.BaseNamedScannerPager.RowsAndTotal;
-import io.datarouter.web.html.indexpager.IndexPager.IndexPagerParamNames;
-import io.datarouter.web.html.indexpager.IndexPager.IndexPagerParamNamesBuilder;
-import io.datarouter.web.html.indexpager.IndexPager.IndexPagerParams;
+import io.datarouter.web.html.indexpager.IndexPagerParamNames.IndexPagerParamNamesBuilder;
 
 public class IndexPage<T>{
 
 	public final List<String> sortOptions;
-	public final IndexPagerParamNames paramNames;
+	public final IndexPagerParamNames pagerParamNames;
+	public final List<String> retainedParamNames;
 	public final IndexPagerParams params;
 	public final List<T> rows;
 	public final long fromRow;
@@ -39,11 +40,13 @@ public class IndexPage<T>{
 
 	public IndexPage(
 			List<String> sortOptions,
-			IndexPagerParamNames paramNames,
+			IndexPagerParamNames pagerParamNames,
+			List<String> retainedParamNames,
 			IndexPagerParams params,
 			RowsAndTotal<T> rowsAndTotal){
 		this.sortOptions = sortOptions;
-		this.paramNames = paramNames;
+		this.pagerParamNames = pagerParamNames;
+		this.retainedParamNames = retainedParamNames;
 		this.params = params;
 		this.rows = rowsAndTotal.rows;
 		this.fromRow = params.offset + 1;
@@ -51,27 +54,64 @@ public class IndexPage<T>{
 		this.totalRows = rowsAndTotal.totalRows;
 		this.previousPage = params.page == 1 ? null : params.page - 1;
 		//TODO could overscan by one row to determine if next page exists
-		this.nextPage = params.page + 1;
+		if(totalRows.isEmpty() || toRow < totalRows.orElseThrow()){
+			this.nextPage = params.page + 1;
+		}else{
+			this.nextPage = null;
+		}
 		this.totalPages = totalRows.map(total -> total / params.pageSize + 1);
 	}
 
-	public static class IndexPageBuilder<T>{
-		public final BaseNamedScannerPager<T> namedScannerPager;
-		public IndexPagerParamNames paramNames = new IndexPagerParamNamesBuilder().build();
+	public static class IndexPageBuilder<P,T>{
+		public final BaseNamedScannerPager<P,T> namedScannerPager;
+		public IndexPagerParamNames pagerParamNames = new IndexPagerParamNamesBuilder().build();
+		public int defaultPageSize = 100;
+		public List<String> retainedParamNames = new ArrayList<>();
 
-		public IndexPageBuilder(BaseNamedScannerPager<T> namedScannerPager){
+		public IndexPageBuilder(BaseNamedScannerPager<P,T> namedScannerPager){
 			this.namedScannerPager = namedScannerPager;
 		}
 
-		public IndexPageBuilder<T> withParamNames(IndexPagerParamNames paramNames){
-			this.paramNames = paramNames;
+		public IndexPageBuilder<P,T> withDefaultPageSize(int defaultPageSize){
+			this.defaultPageSize = defaultPageSize;
 			return this;
 		}
 
-		public IndexPage<T> build(Map<String,String> paramByName){
-			var params = new IndexPagerParams(paramNames, paramByName, namedScannerPager.getFirstName());
-			var pager = new IndexPager<>(namedScannerPager, paramNames, params);
-			return pager.makePage();
+		public IndexPageBuilder<P,T> withParamNames(IndexPagerParamNames paramNames){
+			this.pagerParamNames = paramNames;
+			return this;
+		}
+
+		/**
+		 * Application params that should be included in links to other pages.
+		 */
+		public IndexPageBuilder<P,T> retainParam(String paramName){
+			retainedParamNames.add(paramName);
+			return this;
+		}
+
+		public IndexPageBuilder<P,T> retainParams(String... paramNames){
+			Arrays.asList(paramNames).forEach(this::retainParam);
+			return this;
+		}
+
+		public IndexPage<T> build(P filterParams, Map<String,String> requestParams){
+			var pagerParams = new IndexPagerParams(
+					pagerParamNames,
+					retainedParamNames,
+					requestParams,
+					namedScannerPager.getFirstName(),
+					defaultPageSize);
+			var pager = new IndexPager<>(
+					namedScannerPager,
+					pagerParamNames,
+					retainedParamNames,
+					pagerParams);
+			return pager.makePage(filterParams);
+		}
+
+		public IndexPage<T> build(Map<String,String> requestParams){
+			return build(null, requestParams);
 		}
 
 	}

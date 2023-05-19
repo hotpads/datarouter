@@ -25,8 +25,6 @@ public record MultipartUploadPartSize(
 		int partSizeBytes,
 		int lastPartIndex){
 
-	public static final int MAX_PARTS = 10_000;
-	public static final long MAX_S3_FILE_SIZE_BYTES = ByteLength.ofTiB(5).toBytes();
 	public static final int MIN_S3_PART_SIZE_BYTES = ByteLength.ofMiB(5).toBytesInt();
 	public static final int INITIAL_BUFFER_SIZE_BYTES = MIN_S3_PART_SIZE_BYTES;
 
@@ -40,14 +38,15 @@ public record MultipartUploadPartSize(
 			new MultipartUploadPartSize(bufferSize *= 2, 1_200),
 			new MultipartUploadPartSize(bufferSize *= 2, 1_600),
 			new MultipartUploadPartSize(bufferSize *= 2, 2_300),
-			new MultipartUploadPartSize(bufferSize *= 2, MAX_PARTS));
+			new MultipartUploadPartSize(bufferSize *= 2, S3Limits.MAX_MULTIPART_UPLOAD_PARTS));
 
 	public static int sizeForPart(int partId){
 		return Scanner.of(THRESHOLDS)
 				.include(threshold -> partId <= threshold.lastPartIndex)
 				.findFirst()
 				.map(MultipartUploadPartSize::partSizeBytes)
-				.orElseThrow(() -> new IllegalArgumentException("illegal partId=" + partId + ", max=" + MAX_PARTS));
+				.orElseThrow(() -> new IllegalArgumentException("illegal partId=" + partId
+						+ ", max=" + S3Limits.MAX_MULTIPART_UPLOAD_PARTS));
 	}
 
 	public static long totalSizeOfNParts(int numParts){

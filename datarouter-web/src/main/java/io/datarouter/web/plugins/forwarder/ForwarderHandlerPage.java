@@ -55,9 +55,7 @@ public class ForwarderHandlerPage{
 	}
 
 	private void validateCallbackUrl(HttpServletRequest request, String callbackUrl){
-		String currentHost = UrlTool.create(request.getRequestURL().toString())
-				.getHost();
-
+		String currentHost = request.getServerName();
 		validateCallbackUrl(callbackUrl, currentHost);
 	}
 

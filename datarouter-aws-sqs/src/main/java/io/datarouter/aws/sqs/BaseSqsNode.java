@@ -110,6 +110,11 @@ implements QueueStorageWriter<PK,D>, SqsPhysicalNode<PK,D,F>{
 		return params.getAgeMonitoringStatus();
 	}
 
+	@Override
+	public Duration getCustomMessageAgeThreshold(){
+		return params.getCustomMessageAgeThreshold();
+	}
+
 	public boolean isOwned(){
 		return owned;
 	}

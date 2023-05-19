@@ -15,6 +15,7 @@
  */
 package io.datarouter.storage.node;
 
+import java.time.Duration;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -75,6 +76,8 @@ public class NodeParams<
 	//for queue metric Alert
 	private final boolean enableAgeMonitoring = true;
 
+	private Duration customMessageAgeThreshold;
+
 	private NodeParams(
 			ClientId clientId,
 			String parentName,
@@ -93,7 +96,9 @@ public class NodeParams<
 			NodewatchConfiguration nodewatchConfiguration,
 			boolean disableForcePrimary,
 			Tag tag,
-			boolean disableIntroducer){
+			boolean disableIntroducer,
+			boolean enableAgeMonitoring,
+			Duration customMessageAgeThreshold){
 		this.clientId = clientId;
 		this.parentName = parentName;
 		this.databeanSupplier = databeanSupplier;
@@ -113,6 +118,7 @@ public class NodeParams<
 		this.disableForcePrimary = disableForcePrimary;
 		this.tag = tag;
 		this.disableIntroducer = disableIntroducer;
+		this.customMessageAgeThreshold = customMessageAgeThreshold;
 	}
 
 	/*----------------------------- builder ---------------------------------*/
@@ -141,6 +147,7 @@ public class NodeParams<
 		private Tag tag;
 		private boolean disableIntroducer;
 		private boolean enableAgeMonitoring;
+		private Duration customMessageAgeThreshold = Duration.ofDays(2);
 
 		/*--------------------------- construct -----------------------------*/
 
@@ -169,6 +176,7 @@ public class NodeParams<
 			tag = params.tag;
 			disableIntroducer = params.disableIntroducer;
 			enableAgeMonitoring = params.enableAgeMonitoring;
+			customMessageAgeThreshold = params.customMessageAgeThreshold;
 		}
 
 		/*---------------------------- with ---------------------------------*/
@@ -254,6 +262,11 @@ public class NodeParams<
 			return this;
 		}
 
+		public NodeParamsBuilder<PK,D,F> withCustomMessageAgeThreshold(Duration customMessageAgeThreshold){
+			this.customMessageAgeThreshold = customMessageAgeThreshold;
+			return this;
+		}
+
 		/*----------------------------- build -------------------------------*/
 
 		public NodeParams<PK,D,F> build(){
@@ -275,7 +288,9 @@ public class NodeParams<
 					nodewatchConfiguration,
 					disableForcePrimary,
 					tag,
-					disableIntroducer);
+					disableIntroducer,
+					enableAgeMonitoring,
+					customMessageAgeThreshold);
 		}
 
 	}
@@ -372,6 +387,10 @@ public class NodeParams<
 
 	public boolean getAgeMonitoringStatus(){
 		return enableAgeMonitoring;
+	}
+
+	public Duration getCustomMessageAgeThreshold(){
+		return customMessageAgeThreshold;
 	}
 
 }

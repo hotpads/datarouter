@@ -26,6 +26,7 @@ import io.datarouter.bytes.InputStreamAndLength;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.scanner.Threads;
 import io.datarouter.storage.file.BucketAndKey;
+import io.datarouter.storage.file.BucketAndKeys;
 import io.datarouter.storage.file.BucketAndPrefix;
 import io.datarouter.storage.util.Subpath;
 import io.datarouter.util.Require;
@@ -108,12 +109,12 @@ public class S3DirectoryManager{
 
 	public Scanner<List<S3Object>> scanS3ObjectsPaged(Subpath subpath){
 		var location = new BucketAndPrefix(bucket, rootPath.append(subpath).toString());
-		return client.scanPaged(location);
+		return client.scanPaged(location, DatarouterS3Client.DEFAULT_SCAN_PAGE_SIZE);
 	}
 
 	public Scanner<List<String>> scanKeysPaged(Subpath subpath){
 		var location = new BucketAndPrefix(bucket, rootPath.append(subpath).toString());
-		return client.scanPaged(location)
+		return client.scanPaged(location, DatarouterS3Client.DEFAULT_SCAN_PAGE_SIZE)
 				.map(page -> Scanner.of(page)
 						.map(S3Object::key)
 						.map(this::relativePath)
@@ -157,6 +158,13 @@ public class S3DirectoryManager{
 	public void delete(String suffix){
 		var location = new BucketAndKey(bucket, fullPath(suffix));
 		client.delete(location);
+	}
+
+	public void deleteMulti(List<String> suffixes){
+		BucketAndKeys bucketAndKeys = Scanner.of(suffixes)
+				.map(this::fullPath)
+				.listTo(keys -> new BucketAndKeys(bucket, keys));
+		client.deleteMulti(bucketAndKeys);
 	}
 
 }

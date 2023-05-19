@@ -34,7 +34,9 @@ public class DatarouterAutoConfigPlugin extends BaseWebPlugin{
 	private DatarouterAutoConfigPlugin(Map<PluginConfigKey<?>,List<Class<? extends PluginConfigValue<?>>>> configs){
 		addRouteSet(DatarouterAutoConfigRouteSet.class);
 		addRouteSet(DatarouterAutoConfigRawStringRouteSet.class);
-		addDatarouterNavBarItem(DatarouterNavBarCategory.INFO, PATHS.datarouter.autoConfigs.viewAutoConfigs,
+		addDatarouterNavBarItem(
+				DatarouterNavBarCategory.CONFIGURATION,
+				PATHS.datarouter.autoConfigs.viewAutoConfigs,
 				"AutoConfigs");
 		addDatarouterGithubDocLink("datarouter-auto-config");
 		addPluginConfig(configs);

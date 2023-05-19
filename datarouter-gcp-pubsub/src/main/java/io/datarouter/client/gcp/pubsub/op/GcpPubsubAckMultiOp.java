@@ -61,7 +61,11 @@ extends GcpPubsubOp<PK,D,F,Void>{
 					.setSubscription(subscriberId)
 					.addAllAckIds(ackIds)
 					.build();
-			subscriberStub.acknowledgeCallable().call(acknowledgeRequest);
+			try{
+				subscriberStub.acknowledgeCallable().call(acknowledgeRequest);
+			}catch(Exception e){
+				throw new RuntimeException(e);
+			}
 		}
 		return null;
 	}

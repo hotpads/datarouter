@@ -26,7 +26,7 @@ import io.datarouter.json.JsonSerializer;
 
 public abstract class BaseDatarouterEndpointClientWrapper<
 		ET extends EndpointType>
-implements DatarouterEndpointClient<ET>, DatarouterServiceEndpointClient<ET>{
+implements DatarouterServiceEndpointClient<ET>{
 
 	private final DatarouterEndpointClient<ET> client;
 

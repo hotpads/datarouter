@@ -10,7 +10,7 @@ Datarouter-websocket helps setting up websocket in a tomcat environment, managin
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-websocket</artifactId>
-	<version>0.0.119</version>
+	<version>0.0.120</version>
 </dependency>
 ```
 
@@ -19,7 +19,7 @@ Datarouter-websocket helps setting up websocket in a tomcat environment, managin
 You can install this module by adding its plugin to the `WebappBuilder`.
 
 ```java
-.addJobPlugin(new DatarouterWebSocketPluginBuilder(...)
+.addPlugin(new DatarouterWebSocketPluginBuilder(...)
 		.build())
 ```
 

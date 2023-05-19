@@ -117,8 +117,15 @@ public class ViewChangelogForDateRangeHandler extends BaseHandler{
 	}
 
 	private DivTag makeContent(FormTag formExact, FormTag formRange, List<Changelog> rows){
+		var header = ChangelogHtml.makeHeader(paths.datarouter.changelog.viewForDateRange);
 		var table = service.buildTable(rows, currentSessionInfoService.getZoneId(request));
-		return div(br(), formExact, h5("or"), formRange, table)
+		return div(
+				header,
+				br(),
+				formExact,
+				h5("or"),
+				formRange,
+				table)
 				.withClass("container-fluid");
 	}
 

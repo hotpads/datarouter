@@ -93,6 +93,7 @@ public class JobletCallable implements Callable<Void>{
 				jobletService.handleJobletCompletion(timer, jobletRequest);
 			}catch(Throwable e){
 				boolean isInterrupted = ExceptionTool.isInterrupted(e);
+				@SuppressWarnings("deprecation")
 				Exception wrappingException = new Exception("isInterrupted=" + isInterrupted + " jobletPackage="
 						+ GsonTool.withUnregisteredEnums().toJson(jobletPackage.get()), e);
 				logger.error("joblet failed", wrappingException);

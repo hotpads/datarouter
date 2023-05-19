@@ -66,12 +66,13 @@ public class ViewChangelogHandler extends BaseHandler{
 	}
 
 	private DivTag makeContent(Page<Changelog> page){
+		var header = ChangelogHtml.makeHeader(paths.datarouter.changelog.viewAll);
 		var form = Bootstrap4PagerHtml.renderForm(page)
 				.withClass("mt-4");
 		var linkBar = Bootstrap4PagerHtml.renderLinkBar(page)
 				.withClass("mt-2");
 		var table = service.buildTable(page.rows, currentSessionInfoService.getZoneId(request));
-		return div(form, linkBar, table)
+		return div(header, form, linkBar, table)
 				.withClass("container-fluid");
 	}
 

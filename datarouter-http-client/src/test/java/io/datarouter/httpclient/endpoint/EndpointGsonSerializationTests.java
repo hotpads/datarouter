@@ -18,7 +18,6 @@ package io.datarouter.httpclient.endpoint;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
@@ -108,7 +107,6 @@ public class EndpointGsonSerializationTests{
 		public final TestEnum2 enum2;
 		public final TestEnum3 enum3;
 
-//		public final Date date;
 		public final LocalDate localDate;
 		public final Duration duration;
 		public final Instant instant;
@@ -135,7 +133,6 @@ public class EndpointGsonSerializationTests{
 				TestEnum2 enum2,
 				TestEnum3 enum3,
 
-//				Date date,
 				LocalDate localDate,
 				Duration duration,
 				Instant instant){
@@ -149,7 +146,6 @@ public class EndpointGsonSerializationTests{
 			this.enum2 = enum2;
 			this.enum3 = enum3;
 
-//			this.date = date;
 			this.localDate = localDate;
 			this.duration = duration;
 			this.instant = instant;
@@ -212,7 +208,6 @@ public class EndpointGsonSerializationTests{
 	@Test
 	public void testSerialization(){
 		LocalDate localDate = LocalDate.of(2020, 1, 1);
-		Date date = Date.from(localDate.atStartOfDay(ZoneId.of("UTC")).toInstant());
 
 		var endpoint = new TestEndpoint(
 				"hello world",
@@ -223,7 +218,6 @@ public class EndpointGsonSerializationTests{
 				TestEnum2.CAT,
 				TestEnum3.RAT,
 
-//				date,
 				localDate,
 				Duration.ofMillis(1),
 				Instant.MIN)
@@ -236,7 +230,6 @@ public class EndpointGsonSerializationTests{
 				.withOptEnum2(TestEnum2.KITTEN)
 				.withOptEnum3(TestEnum3.MOUSE)
 
-//				.withOptDate(date)
 				.withOptLocalDate(localDate)
 				.withOptDuration(Duration.ofMillis(1))
 				.withOptInstant(Instant.MIN)
@@ -252,7 +245,6 @@ public class EndpointGsonSerializationTests{
 				Map.entry("enum2", "\"CAT\""),
 				Map.entry("enum3", "\"RAT\""),
 
-//				Map.entry("date", "\"Dec 31, 2019, 4:00:00 PM\""),
 				Map.entry("localDate", "{\"year\":2020,\"month\":1,\"day\":1}"),
 				Map.entry("duration", "{\"seconds\":0,\"nanos\":1000000}"),
 				Map.entry("instant", "{\"seconds\":-31557014167219200,\"nanos\":0}"),
@@ -265,7 +257,6 @@ public class EndpointGsonSerializationTests{
 				Map.entry("optEnum2", "\"KITTEN\""),
 				Map.entry("optEnum3", "\"MOUSE\""),
 
-//				Map.entry("optDate", "\"Dec 31, 2019, 4:00:00 PM\""),
 				Map.entry("optLocalDate", "{\"year\":2020,\"month\":1,\"day\":1}"),
 				Map.entry("optDuration", "{\"seconds\":0,\"nanos\":1000000}"),
 				Map.entry("optInstant", "{\"seconds\":-31557014167219200,\"nanos\":0}"));
@@ -288,6 +279,5 @@ public class EndpointGsonSerializationTests{
 		SERIALIZER.deserialize("RAT", TestEnum3.class);
 		SERIALIZER.deserialize("\"RAT\"", TestEnum3.class);
 	}
-
 
 }

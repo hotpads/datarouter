@@ -60,6 +60,8 @@ public class DatarouterTracer implements Tracer{
 	private boolean saveSpanCpuTime = false;
 	private boolean saveSpanMemoryAllocated = false;
 
+	private Long alternativeStartTimeNs;
+
 	public DatarouterTracer(String serverName, Long traceThreadParentId, W3TraceContext w3TraceContext){
 		this.serverName = serverName;
 		this.traceThreadParentId = traceThreadParentId;
@@ -165,7 +167,7 @@ public class DatarouterTracer implements Tracer{
 	/*---------------------------- TraceSpan --------------------------------*/
 
 	@Override
-	public void startSpan(String name, TraceSpanGroupType groupType){
+	public void startSpan(String name, TraceSpanGroupType groupType, long createdTimeNs){
 		Trace2ThreadDto thread = currentThread;
 		if(thread == null){
 			return;
@@ -183,7 +185,7 @@ public class DatarouterTracer implements Tracer{
 				parentSequence,
 				name,
 				groupType,
-				Trace2Dto.getCurrentTimeInNs());
+				createdTimeNs);
 		if(saveSpanCpuTime){
 			span.setCpuTimeCreated(PlatformMxBeans.THREAD.getCurrentThreadCpuTime());
 		}
@@ -204,7 +206,7 @@ public class DatarouterTracer implements Tracer{
 	}
 
 	@Override
-	public void finishSpan(){
+	public void finishSpan(long endTimeNs){
 		if(getCurrentSpan() == null){
 			return;
 		}
@@ -215,7 +217,7 @@ public class DatarouterTracer implements Tracer{
 		if(saveSpanMemoryAllocated){
 			span.setMemoryAllocatedBytesEnded(PlatformMxBeans.THREAD.getThreadAllocatedBytes(hostThreadId));
 		}
-		span.markFinish();
+		span.setEnded(endTimeNs);
 		addSpan(span);
 	}
 
@@ -350,6 +352,16 @@ public class DatarouterTracer implements Tracer{
 	@Override
 	public void setSaveSpanMemoryAllocated(boolean saveSpanMemoryAllocated){
 		this.saveSpanMemoryAllocated = saveSpanMemoryAllocated;
+	}
+
+	@Override
+	public Optional<Long> getAlternativeStartTimeNs(){
+		return Optional.ofNullable(alternativeStartTimeNs);
+	}
+
+	@Override
+	public void setAlternativeStartTimeNs(){
+		this.alternativeStartTimeNs = Trace2Dto.getCurrentTimeInNs();
 	}
 
 }

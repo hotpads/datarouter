@@ -105,6 +105,12 @@ public interface BlobStorageWriter extends BlobStorageReader{
 		delete(key, new Config());
 	}
 
+	void deleteMulti(List<PathbeanKey> keys, Config config);
+
+	default void deleteMulti(List<PathbeanKey> keys){
+		deleteMulti(keys, new Config());
+	}
+
 	/**
 	 * Delete all descendants and the subpath directory
 	 */

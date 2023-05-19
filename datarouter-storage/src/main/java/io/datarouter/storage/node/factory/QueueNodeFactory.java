@@ -15,6 +15,7 @@
  */
 package io.datarouter.storage.node.factory;
 
+import java.time.Duration;
 import java.util.function.Supplier;
 
 import javax.inject.Inject;
@@ -83,7 +84,8 @@ public class QueueNodeFactory extends BaseNodeFactory{
 			String namespace,
 			String queueUrl,
 			Tag tag,
-			boolean enableAgeMonitoring){
+			boolean enableAgeMonitoring,
+			Duration customMessageAgeThreshold){
 		NodeParams<PK,D,F> params = new NodeParamsBuilder<>(databeanSupplier, fielderSupplier)
 				.withClientId(clientId)
 				.withTableName(queueName)
@@ -91,6 +93,7 @@ public class QueueNodeFactory extends BaseNodeFactory{
 				.withQueueUrl(queueUrl)
 				.withTag(tag)
 				.withAgeMonitoring(enableAgeMonitoring)
+				.withCustomMessageAgeThreshold(customMessageAgeThreshold)
 				.build();
 		QueueClientNodeFactory clientFactories = getClientNodeFactory(clientId, QueueClientNodeFactory.class);
 		return cast(clientFactories.createSingleQueueNode(params));
@@ -108,7 +111,8 @@ public class QueueNodeFactory extends BaseNodeFactory{
 			String namespace,
 			String queueUrl,
 			Tag tag,
-			boolean enableAgeMonitoring){
+			boolean enableAgeMonitoring,
+			Duration customMessageAgeThreshold){
 		NodeParams<PK,D,F> params = new NodeParamsBuilder<>(databeanSupplier, fielderSupplier)
 				.withClientId(clientId)
 				.withTableName(queueName)
@@ -116,6 +120,7 @@ public class QueueNodeFactory extends BaseNodeFactory{
 				.withQueueUrl(queueUrl)
 				.withTag(tag)
 				.withAgeMonitoring(enableAgeMonitoring)
+				.withCustomMessageAgeThreshold(customMessageAgeThreshold)
 				.build();
 		QueueClientNodeFactory clientFactories = getClientNodeFactory(clientId, QueueClientNodeFactory.class);
 		return cast(clientFactories.createGroupQueueNode(params));
@@ -128,7 +133,8 @@ public class QueueNodeFactory extends BaseNodeFactory{
 			String namespace,
 			String queueUrl,//TODO remove? wait for other impls to decide on removing.
 			Tag tag,
-			boolean enableAgeMonitoring){
+			boolean enableAgeMonitoring,
+			Duration customMessageAgeThreshold){
 		Require.notBlank(queueName);
 		var params = new NodeParamsBuilder<>(EmptyDatabean::new, EmptyDatabeanFielder::new)
 				.withClientId(clientId)
@@ -137,6 +143,7 @@ public class QueueNodeFactory extends BaseNodeFactory{
 				.withQueueUrl(queueUrl)
 				.withTag(tag)
 				.withAgeMonitoring(enableAgeMonitoring)
+				.withCustomMessageAgeThreshold(customMessageAgeThreshold)
 				.build();
 		BlobQueueClientNodeFactory clientFactories = getClientNodeFactory(clientId, BlobQueueClientNodeFactory.class);
 		return clientFactories.createBlobQueueNode(params, codec);

@@ -28,7 +28,7 @@ import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.key.unique.UniqueKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
-import io.datarouter.storage.Datarouter;
+import io.datarouter.storage.client.DatarouterClients;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
 
@@ -47,14 +47,14 @@ extends BaseMysqlOp<List<D>>{
 	private final String indexName;
 
 	public MysqlLookupUniqueOp(
-			Datarouter datarouter,
+			DatarouterClients datarouterClients,
 			MysqlFieldCodecFactory fieldCodecFactory,
 			MysqlGetOpExecutor mysqlGetOpExecutor,
 			PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
 			String opName,
 			Collection<? extends UniqueKey<PK>> keys,
 			Config config){
-		super(datarouter, fieldInfo.getClientId(), Isolation.DEFAULT, true);
+		super(datarouterClients, fieldInfo.getClientId(), Isolation.DEFAULT, true);
 		this.fieldInfo = fieldInfo;
 		this.fieldCodecFactory = fieldCodecFactory;
 		this.opName = opName;

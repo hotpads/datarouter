@@ -18,7 +18,6 @@ package io.datarouter.bytes.primitivelist;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.RandomAccess;
 
 import io.datarouter.bytes.EmptyArray;
 
@@ -27,8 +26,7 @@ import io.datarouter.bytes.EmptyArray;
  * List elements can be modified, but the list can't change size.
  * Nulls are rejected.
  */
-public class PrimitiveFloatList extends BasePrimitiveList<Float>
-implements RandomAccess{
+public class PrimitiveFloatList extends BasePrimitiveList<Float>{
 
 	private static final PrimitiveFloatList EMPTY = new PrimitiveFloatList(EmptyArray.FLOAT);
 
@@ -57,8 +55,7 @@ implements RandomAccess{
 
 	@Override
 	protected boolean internalEquals(Object object){
-		if(object instanceof PrimitiveFloatList){
-			PrimitiveFloatList that = (PrimitiveFloatList)object;
+		if(object instanceof PrimitiveFloatList that){
 			return Arrays.equals(array, from, to, that.array, that.from, that.to);
 		}
 		return false;

@@ -15,25 +15,38 @@
  */
 package io.datarouter.conveyor.web;
 
+import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
-import static j2html.TagCreator.h4;
+import static j2html.TagCreator.h3;
+import static j2html.TagCreator.h5;
+import static j2html.TagCreator.i;
+import static j2html.TagCreator.span;
+import static j2html.TagCreator.td;
+import static j2html.TagCreator.th;
 
-import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
 
+import io.datarouter.clustersetting.service.ClusterSettingLinkServletService;
 import io.datarouter.conveyor.ConveyorAppListener;
+import io.datarouter.conveyor.ConveyorCounters;
+import io.datarouter.conveyor.config.DatarouterConveyorSettingRoot;
+import io.datarouter.conveyor.config.DatarouterConveyorShouldRunSettings;
 import io.datarouter.conveyor.dto.ConveyorSummary;
+import io.datarouter.conveyor.web.ConveyorExternalLinkBuilder.ConveyorExternalLinkBuilderSupplier;
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.html.j2html.J2HtmlTable;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import io.datarouter.web.requirejs.DatarouterWebRequireJsV2;
 import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.ThTag;
 
 public class ConveyorHandler extends BaseHandler{
 
@@ -41,30 +54,107 @@ public class ConveyorHandler extends BaseHandler{
 	private DatarouterInjector injector;
 	@Inject
 	private Bootstrap4PageFactory pageFactory;
+	@Inject
+	private ClusterSettingLinkServletService clusterSettinglinkService;
+	@Inject
+	private ConveyorExternalLinkBuilderSupplier externalLinkBuilder;
 
 	@Handler
 	private Mav list(){
 		Map<String,ConveyorAppListener> allBaseConveyors = injector.getInstancesOfType(ConveyorAppListener.class);
-		List<ConveyorSummary> collect = Scanner.of(allBaseConveyors.values())
-				.map(ConveyorAppListener::getExecsAndConveyorsbyName)
+		Map<Boolean,List<ConveyorSummary>> summariesByShouldRun = Scanner.of(allBaseConveyors.values())
+				.map(ConveyorAppListener::getProcessorByConveyorName)
 				.concatIter(ConveyorSummary::summarize)
-				.list();
+				.groupBy(ConveyorSummary::shouldRun);
+		List<ConveyorSummary> enabledConveyors = summariesByShouldRun.getOrDefault(true, List.of());
+		List<ConveyorSummary> disabledConveyors = summariesByShouldRun.getOrDefault(false, List.of());
+		var content = div(
+				h3("Conveyors"),
+				makeTableDiv("Enabled", enabledConveyors),
+				makeTableDiv("Disabled", disabledConveyors))
+				.withClass("container mt-3");
 		return pageFactory.startBuilder(request)
 				.withTitle("Conveyors")
 				.withRequires(DatarouterWebRequireJsV2.SORTTABLE)
-				.withContent(makeContent(collect))
+				.withContent(content)
 				.buildMav();
 	}
 
-	private DivTag makeContent(Collection<ConveyorSummary> rows){
-		var title = h4("Conveyors")
-				.withClass("mt-2");
-		var table = new J2HtmlTable<ConveyorSummary>()
-				.withClasses("sortable table table-sm table-striped border")
-				.withColumn("Name", row -> row.name)
-				.build(rows);
-		return div(title, table)
-				.withClass("container-fluid");
+	private DivTag makeTableDiv(String title, List<ConveyorSummary> rows){
+		List<ConveyorSummary> sortedRows = Scanner.of(rows)
+				.sort(Comparator.comparing(ConveyorSummary::name, String::compareToIgnoreCase))
+				.list();
+		var headerDiv = makeTableHeaderDiv(title, rows.size());
+		var table = makeTableBuilder().build(sortedRows);
+		var tableDiv = div(table)
+				.withClass("mt-1");
+		return div(headerDiv, tableDiv)
+				.withClass("mt-3");
+	}
+
+	private DivTag makeTableHeaderDiv(String name, int count){
+		var nameSpan = span(name);
+		var countSpan = span(String.format("(%s)", count))
+				.withStyle("color:gray;");
+		return div(h5(nameSpan, countSpan));
+	}
+
+	private J2HtmlTable<ConveyorSummary> makeTableBuilder(){
+		return new J2HtmlTable<ConveyorSummary>()
+				.withClasses("sortable table table-sm table-striped table-hover border")
+				.withHtmlColumn(
+						"Name",
+						row -> {
+							String metricNamePrefix = ConveyorCounters.PREFIX + " " + row.name();
+							return externalLinkBuilder.get().counters(metricNamePrefix)
+									.map(href -> td(a(row.name()).withHref(href)))
+									.orElse(td(row.name()));
+						})
+				.withHtmlColumn(
+						makeThTagWithFixedWidth("Threads"),
+						row -> td(NumberFormatter.addCommas(row.executor().getActiveCount())))
+				.withHtmlColumn(
+						makeThTagWithFixedWidth("Pool Size"),
+						row -> td(NumberFormatter.addCommas(row.executor().getPoolSize())))
+				.withHtmlColumn(
+						makeThTagWithFixedWidth("Max Threads"),
+						row -> {
+							String href = clusterSettinglinkService.browse(makeSettingLocation(row.name()));
+							return td(a(String.valueOf(row.maxAllowedThreadCount())).withHref(href));
+				})
+				.withHtmlColumn(
+						makeThTagWithFixedWidth("Enabled"),
+						row -> {
+							String href = clusterSettinglinkService.browse(makeSettingLocation(row.name()));
+							return td(a(String.valueOf(row.shouldRun())).withHref(href));
+				})
+				.withHtmlColumn(
+						makeThTagWithFixedWidth("Exceptions"),
+						row -> {
+							var chartIcon = i().withClass("fas fa-chart-line");
+							return externalLinkBuilder.get().exceptions(row.name())
+									.map(href -> td(a(chartIcon).withHref(href)))
+									.orElse(td("N/A"));
+
+				})
+				.withHtmlColumn(
+						makeThTagWithFixedWidth("Traces"),
+						row -> {
+							var chartIcon = i().withClass("fas fa-chart-line");
+							return externalLinkBuilder.get().traces(row.name())
+									.map(href -> td(a(chartIcon).withHref(href)))
+									.orElse(td("N/A"));
+						});
+	}
+
+	private ThTag makeThTagWithFixedWidth(String name){
+		return th(name).withStyle("width:100px;");
+	}
+
+	private String makeSettingLocation(String settingName){
+		return DatarouterConveyorSettingRoot.SETTING_NAME_PREFIX
+				+ DatarouterConveyorShouldRunSettings.SETTING_NAME_PREFIX
+				+ settingName;
 	}
 
 }

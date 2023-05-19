@@ -102,6 +102,10 @@ public class Trace2SpanDto{
 		return created;
 	}
 
+	public void setEnded(long ended){
+		this.ended = ended;
+	}
+
 	public Long getEnded(){
 		return ended;
 	}

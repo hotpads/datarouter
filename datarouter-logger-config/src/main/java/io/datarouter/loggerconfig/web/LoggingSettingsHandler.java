@@ -75,7 +75,7 @@ public class LoggingSettingsHandler extends BaseHandler{
 	private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 	private static final Boolean ADDITIVE = false;
 
-	private static final Level[] LEVELS = new Level[]{
+	private static final Level[] LEVELS = {
 			Level.ALL,
 			Level.TRACE,
 			Level.DEBUG,
@@ -157,6 +157,7 @@ public class LoggingSettingsHandler extends BaseHandler{
 		mav.put("appenderMap", appenderMap);
 		mav.put("configs", mergedConfigs);
 		mav.put("appenders", log4j2Configurator.getAppenders());
+		mav.put("defaultAppender", ConsoleAppender.PLUGIN_NAME);
 		return mav;
 	}
 
@@ -362,7 +363,7 @@ public class LoggingSettingsHandler extends BaseHandler{
 		private final List<String> appenderRefs;
 		private final String email;
 		private String lastUpdated;
-		private boolean canDelete;
+		private final boolean canDelete;
 		private final String ttl;
 
 		LoggerConfigMetadata(

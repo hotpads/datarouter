@@ -31,15 +31,17 @@ public class Counters{
 	public static String getSuffix(long periodMs){
 		if(periodMs >= MS_IN_DAY){
 			return periodMs / MS_IN_DAY + "d";
-		}else if(periodMs >= MS_IN_HOUR){
-			return periodMs / MS_IN_HOUR + "h";
-		}else if(periodMs >= MS_IN_MINUTE){
-			return periodMs / MS_IN_MINUTE + "m";
-		}else if(periodMs >= MS_IN_SECOND){
-			return periodMs / MS_IN_SECOND + "s";
-		}else{
-			throw new IllegalArgumentException("unknown duration:" + periodMs);
 		}
+		if(periodMs >= MS_IN_HOUR){
+			return periodMs / MS_IN_HOUR + "h";
+		}
+		if(periodMs >= MS_IN_MINUTE){
+			return periodMs / MS_IN_MINUTE + "m";
+		}
+		if(periodMs >= MS_IN_SECOND){
+			return periodMs / MS_IN_SECOND + "s";
+		}
+		throw new IllegalArgumentException("unknown duration:" + periodMs);
 	}
 
 	private static final ArrayList<CountCollector> COLLECTORS = new ArrayList<>();
@@ -51,8 +53,8 @@ public class Counters{
 	}
 
 	public static void stopAndFlushAll(){
-		for(int i = 0; i < COLLECTORS.size(); ++i){
-			COLLECTORS.get(i).stopAndFlushAll();
+		for(CountCollector collector : COLLECTORS){
+			collector.stopAndFlushAll();
 		}
 	}
 
@@ -63,8 +65,8 @@ public class Counters{
 	}
 
 	public static void inc(String key, long delta){
-		for(int i = 0; i < COLLECTORS.size(); ++i){
-			COLLECTORS.get(i).increment(key, delta);
+		for(CountCollector collector : COLLECTORS){
+			collector.increment(key, delta);
 		}
 	}
 

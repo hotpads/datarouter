@@ -19,6 +19,8 @@ import io.datarouter.web.config.BaseWebPlugin;
 
 public class DatarouterAwsS3Plugin extends BaseWebPlugin{
 
+	public static final String NAME = "Datarouter S3";
+
 	public DatarouterAwsS3Plugin(){
 		addRouteSet(DatarouterAwsS3RouteSet.class);
 		addDatarouterGithubDocLink("datarouter-aws-s3");

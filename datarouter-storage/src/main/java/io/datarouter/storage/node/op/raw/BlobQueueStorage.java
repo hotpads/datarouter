@@ -36,11 +36,11 @@ import io.datarouter.storage.queue.BlobQueueMessage;
 
 public interface BlobQueueStorage<T>{
 
-	public static final String OP_getMaxDataSize = "getMaxDataSize";
-	public static final String OP_put = "put";
-	public static final String OP_peek = "peek";
-	public static final String OP_ack = "ack";
-	public static final String OP_poll = "poll";
+	String OP_getMaxDataSize = "getMaxDataSize";
+	String OP_put = "put";
+	String OP_peek = "peek";
+	String OP_ack = "ack";
+	String OP_poll = "poll";
 
 	int getMaxRawDataSize();
 

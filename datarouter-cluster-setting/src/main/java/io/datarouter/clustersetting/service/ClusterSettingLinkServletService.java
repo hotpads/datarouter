@@ -17,24 +17,25 @@ package io.datarouter.clustersetting.service;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import javax.servlet.ServletContext;
 
 import org.apache.http.client.utils.URIBuilder;
 
 import io.datarouter.clustersetting.config.DatarouterClusterSettingPaths;
 import io.datarouter.storage.setting.Setting;
+import io.datarouter.web.config.ServletContextSupplier;
 
 @Singleton
 public class ClusterSettingLinkServletService{
 
 	@Inject
-	private ServletContext servletContext;
+	private ServletContextSupplier servletContextSupplier;
 	@Inject
 	private DatarouterClusterSettingPaths paths;
 
 	public String browse(String settingName){
 		return new URIBuilder()
-				.setPath(servletContext.getContextPath() + paths.datarouter.settings.browseSettings.toSlashedString())
+				.setPath(servletContextSupplier.get().getContextPath() + paths.datarouter.settings.browseSettings
+						.toSlashedString())
 				.addParameter("name", settingName)
 				.toString();
 	}

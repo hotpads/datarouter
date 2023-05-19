@@ -84,4 +84,8 @@ public class DatarouterTableSizeAlertThresholdDao extends BaseDao{
 		node.putMulti(databeans);
 	}
 
+	public void delete(TableSizeAlertThresholdKey key){
+		node.delete(key);
+	}
+
 }

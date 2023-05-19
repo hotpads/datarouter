@@ -16,6 +16,7 @@
 package io.datarouter.storage.util;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
@@ -27,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.scanner.Threads;
 import io.datarouter.util.number.NumberFormatter;
 
 public abstract class BaseNodeVacuum<PK extends PrimaryKey<PK>,T>{
@@ -37,25 +39,28 @@ public abstract class BaseNodeVacuum<PK extends PrimaryKey<PK>,T>{
 	private final Consumer<Collection<PK>> deleteConsumer;
 	private final Optional<Integer> logBatchSize;
 	private final Predicate<T> shouldDelete;
+	private final Threads threads;
 
 	protected BaseNodeVacuum(
 			Scanner<T> scanner,
 			Consumer<Collection<PK>> deleteConsumer,
 			int deleteBatchSize,
 			Optional<Integer> logBatchSize,
-			Predicate<T> shouldDelete){
+			Predicate<T> shouldDelete,
+			Threads threads){
 		this.scanner = scanner;
 		this.deleteBatchSize = deleteBatchSize;
 		this.deleteConsumer = deleteConsumer;
 		this.logBatchSize = logBatchSize;
 		this.shouldDelete = shouldDelete;
+		this.threads = threads;
 	}
 
 	protected abstract PK getKey(T item);
 
 	public void run(TaskTracker tracker){
 		var numDeleted = new AtomicLong();
-		scanner
+		Scanner<List<PK>> deletionScanner = scanner
 				.advanceUntil($ -> tracker.shouldStop())
 				.each($ -> tracker.increment())
 				.each(item -> tracker.setLastItemProcessed(item.toString()))
@@ -66,8 +71,15 @@ public abstract class BaseNodeVacuum<PK extends PrimaryKey<PK>,T>{
 				})
 				.include(shouldDelete)
 				.map(this::getKey)
-				.batch(deleteBatchSize)
-				.each(deleteConsumer::accept)
+				.batch(deleteBatchSize);
+		if(threads != null){
+			deletionScanner = deletionScanner
+					.parallelUnordered(threads)
+					.each(deleteConsumer::accept);
+		}else{
+			deletionScanner = deletionScanner.each(deleteConsumer::accept);
+		}
+		deletionScanner
 				.map(Collection::size)
 				.forEach(numDeleted::addAndGet);
 		logProgress(numDeleted.get(), tracker.getCount(), tracker.getLastItem());
@@ -90,6 +102,7 @@ public abstract class BaseNodeVacuum<PK extends PrimaryKey<PK>,T>{
 		protected final Consumer<Collection<PK>> deleteConsumer;
 		protected int deleteBatchSize;
 		protected Optional<Integer> logBatchSize;
+		protected Threads threads;
 
 		public BaseNodeVacuumBuilder(
 				Scanner<T> scanner,
@@ -111,6 +124,11 @@ public abstract class BaseNodeVacuum<PK extends PrimaryKey<PK>,T>{
 
 		public C withLogBatchSize(int logBatchSize){
 			this.logBatchSize = Optional.of(logBatchSize);
+			return self();
+		}
+
+		public C withThreads(Threads threads){
+			this.threads = threads;
 			return self();
 		}
 

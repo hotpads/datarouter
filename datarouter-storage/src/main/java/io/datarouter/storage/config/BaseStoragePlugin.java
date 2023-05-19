@@ -32,11 +32,20 @@ import io.datarouter.storage.dao.DaosModuleBuilder.SimpleDaosModule;
 import io.datarouter.storage.setting.SettingRoot;
 
 /**
- * Plugins are verbose wrappers around GuiceModules for easy installation of datarouter modules. They use a builder
- * pattern to specify required and optional implementations of classes used by the module. Some modules have their own
- * extensions of BasePlugin which allows more features to get configured easily.
+ * Plugins are verbose wrappers around GuiceModules for easy installation of datarouter modules and Guice bindings. They
+ * use a builder pattern to specify required and optional implementations of classes used by the module. Some modules
+ * have their own extensions of BasePlugin which allows more features to get configured easily.
  *
- * BasePlugin auto configures and binds cluster settings and dao registration.
+ * This base class auto configures and binds cluster settings and dao registrations.
+ *
+ * Plugins are extensible. You can add a new {@link PluginConfigKey} which can be bound to PluginValues. A PluginValue
+ * can be a single class, collection of classes, a single instance, or a collection of like instances.
+ *
+ * {@link PluginConfigValue} can be added across multiple modules without explicit inheritance, adding extensibility to
+ * the framework.
+ *
+ * To retrieve what is bound to a PluginConfigKey, you can use the PluginInjector. The PluginInjector is a light weight
+ * injector on top of the DatarouterInjector, which holds a map of keys and bound values.
  */
 public abstract class BaseStoragePlugin extends BasePlugin{
 

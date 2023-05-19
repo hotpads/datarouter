@@ -15,6 +15,7 @@
  */
 package io.datarouter.aws.sqs;
 
+import java.time.Duration;
 import java.util.function.Supplier;
 
 import io.datarouter.aws.sqs.service.QueueUrlAndName;
@@ -32,5 +33,7 @@ extends PhysicalNode<PK,D,F>{
 	Supplier<QueueUrlAndName> getQueueUrlAndName();
 
 	boolean getAgeMonitoringStatusForMetricAlert();
+
+	Duration getCustomMessageAgeThreshold();
 
 }

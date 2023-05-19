@@ -27,7 +27,7 @@ public class DatarouterConveyorPlugin extends BaseWebPlugin{
 		addAppListener(ConveyorAppListener.class);
 		addRouteSet(DatarouterConveyorRouteSet.class);
 		addDatarouterNavBarItem(
-				DatarouterNavBarCategory.MONITORING,
+				DatarouterNavBarCategory.JOBS,
 				new DatarouterConveyorPaths().datarouter.conveyors.list,
 				"Conveyors");
 		addSettingRoot(DatarouterConveyorSettingRoot.class);

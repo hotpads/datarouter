@@ -82,6 +82,10 @@ public class DatarouterClusterSettingDao extends BaseDao{
 		return node.scan(range);
 	}
 
+	public Scanner<ClusterSetting> scanWithName(String name){
+		return node.scanWithPrefix(ClusterSettingKey.prefix(name));
+	}
+
 	public Scanner<ClusterSetting> scanWithPrefix(ClusterSettingKey prefix){
 		return node.scanWithPrefix(prefix);
 	}

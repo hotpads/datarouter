@@ -15,12 +15,47 @@
  */
 package io.datarouter.web.plugins.forwarder;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.BiConsumer;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.google.inject.TypeLiteral;
+
 import io.datarouter.web.config.BaseWebPlugin;
 
 public class ForwarderPlugin extends BaseWebPlugin{
 
-	public ForwarderPlugin(){
+	private final List<Class<? extends ForwarderPluginInterceptor>> interceptors;
+
+	public ForwarderPlugin(List<Class<? extends ForwarderPluginInterceptor>> interceptors){
+		this.interceptors = interceptors;
 		addRouteSet(ForwarderRouteSet.class);
+	}
+
+	@Override
+	protected void configure(){
+		bind(new TypeLiteral<List<Class<? extends ForwarderPluginInterceptor>>>(){}).toInstance(interceptors);
+	}
+
+	public static class ForwarderPluginBuilder{
+
+		private final List<Class<? extends ForwarderPluginInterceptor>> interceptors = new ArrayList<>();
+
+		public ForwarderPlugin build(){
+			return new ForwarderPlugin(interceptors);
+		}
+
+		public ForwarderPluginBuilder addInterceptor(Class<? extends ForwarderPluginInterceptor> interceptor){
+			interceptors.add(interceptor);
+			return this;
+		}
+
+	}
+
+	public interface ForwarderPluginInterceptor extends BiConsumer<HttpServletRequest,HttpServletResponse>{
 	}
 
 }

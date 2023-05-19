@@ -43,10 +43,10 @@ import io.datarouter.web.security.CsrfValidator;
 import io.datarouter.web.security.SecurityValidationResult;
 import io.datarouter.web.security.SecurityValidator;
 import io.datarouter.web.security.SignatureValidator;
+import io.datarouter.web.user.role.Role;
+import io.datarouter.web.user.role.RoleEnum;
 import io.datarouter.web.user.session.DatarouterSession;
 import io.datarouter.web.user.session.DatarouterSessionManager;
-import io.datarouter.web.user.session.service.Role;
-import io.datarouter.web.user.session.service.RoleEnum;
 import io.datarouter.web.util.http.RequestTool;
 
 public class DispatchRule{

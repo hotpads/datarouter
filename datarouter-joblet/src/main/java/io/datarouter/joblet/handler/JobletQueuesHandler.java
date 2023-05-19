@@ -73,12 +73,12 @@ public class JobletQueuesHandler extends BaseHandler{
 		var subtitle = p(String.format("type: %s, executionOrder: %s", type.getPersistentString(), executionOrder));
 		var table = new J2HtmlTable<JobletSummary>()
 				.withClasses("sortable table table-sm table-striped border")
-				.withColumn("queueId", row -> row.getQueueId())
+				.withColumn("queueId", JobletSummary::getQueueId)
 				.withColumn("status", row -> row.getStatus().persistentString)
-				.withColumn("numFailures", row -> row.getNumFailures())
-				.withColumn("numJoblets", row -> row.getNumType())
-				.withColumn("firstReserved", row -> row.getFirstReservedAgo())
-				.withColumn("firstCreated", row -> row.getFirstCreatedAgo())
+				.withColumn("numFailures", JobletSummary::getNumFailures, Number::toString)
+				.withColumn("numJoblets", JobletSummary::getNumType, Number::toString)
+				.withColumn("firstReserved", JobletSummary::getFirstReservedAgo)
+				.withColumn("firstCreated", JobletSummary::getFirstCreatedAgo)
 				.withColumn("sumItems", row -> NumberFormatter.addCommas(row.getSumItems()))
 				.withColumn("avgItems", row -> NumberFormatter.format(row.getAvgItems(), 1))
 				.build(rows);

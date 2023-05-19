@@ -9,7 +9,7 @@ Datarouter-nodewatch is a tool to count tables in a configurable manner.
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-nodewatch</artifactId>
-	<version>0.0.119</version>
+	<version>0.0.120</version>
 </dependency>
 ```
 
@@ -18,7 +18,7 @@ Datarouter-nodewatch is a tool to count tables in a configurable manner.
 You can install this module by adding its plugin to the `WebappBuilder`.
 
 ```java
-.addJobletPlugin(new DatarouterNodewatchPluginBuilder(...)
+.addPlugin(new DatarouterNodewatchPluginBuilder(...)
 		...
 		// add clients that should be counted
 		.addNodewatchClientId(countableClient)

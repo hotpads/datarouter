@@ -44,9 +44,10 @@ import io.datarouter.web.navigation.DatarouterNavBarCategory;
 
 public class DatarouterNodewatchPlugin extends BaseWebPlugin{
 
+	public static final String NAME = "Nodewatch";
 	private static final DatarouterNodewatchPaths PATHS = new DatarouterNodewatchPaths();
-	public static final String NODE_WIDGET_TABLE_COUNT_PATH = PATHS.datarouter.nodewatch.tableCount.toSlashedString()
-			+ "?submitAction=singleTableWithNodeName";
+	public static final String NODE_WIDGET_TABLE_COUNT_PATH = PATHS.datarouter.nodewatch.table.nodeName
+			.toSlashedString();
 
 	private final List<ClientId> nodewatchClientIds;
 	private final Class<? extends TableCountPublisher> tableCountPublisher;
@@ -60,17 +61,9 @@ public class DatarouterNodewatchPlugin extends BaseWebPlugin{
 		this.tableCountPublisher = tableCountPublisher;
 
 		addDatarouterNavBarItem(
-				DatarouterNavBarCategory.SETTINGS,
-				PATHS.datarouter.nodewatch.threshold,
-				"Table Count Thresholds");
-		addDatarouterNavBarItem(
-				DatarouterNavBarCategory.MONITORING,
-				PATHS.datarouter.nodewatch.tableCount,
-				"Latest Table Counts");
-		addDatarouterNavBarItem(
-				DatarouterNavBarCategory.TOOLS,
-				PATHS.datarouter.nodewatch.migrateTableCountMetadata,
-				"Migrate Table Counts");
+				DatarouterNavBarCategory.DATA,
+				PATHS.datarouter.nodewatch.tables,
+				"Nodewatch");
 		addPluginEntry(TableSpanSamplerJoblet.JOBLET_TYPE);
 		addRouteSet(DatarouterNodewatchRouteSet.class);
 		addSettingRoot(DatarouterNodewatchSettingRoot.class);

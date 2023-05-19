@@ -8,7 +8,7 @@ datarouter-service-config is a small tool that allows an app to publish informat
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-service-config</artifactId>
-	<version>0.0.119</version>
+	<version>0.0.120</version>
 </dependency>
 ```
 
@@ -17,7 +17,7 @@ datarouter-service-config is a small tool that allows an app to publish informat
 You can install this module by adding its plugin to the `WebappBuilder`.
 
 ```java
-.addWebPlugin(new DatarouterServiceConfigPluginBuilder(...)
+.addPlugin(new DatarouterServiceConfigPluginBuilder(...)
 		...
 		.build()
 ```

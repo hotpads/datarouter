@@ -20,6 +20,7 @@ import static j2html.TagCreator.b;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.join;
 import static j2html.TagCreator.p;
+import static j2html.TagCreator.script;
 import static j2html.TagCreator.table;
 import static j2html.TagCreator.tbody;
 import static j2html.TagCreator.td;
@@ -47,7 +48,9 @@ import io.datarouter.auth.service.DatarouterUserService;
 import io.datarouter.auth.service.PermissionRequestUserInfo.PermissionRequestUserInfoSupplier;
 import io.datarouter.auth.storage.permissionrequest.DatarouterPermissionRequest;
 import io.datarouter.auth.storage.permissionrequest.DatarouterPermissionRequestDao;
+import io.datarouter.auth.storage.user.DatarouterUserDao;
 import io.datarouter.email.type.DatarouterEmailTypes.PermissionRequestEmailType;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.DatarouterSubscribersSupplier;
 import io.datarouter.storage.config.properties.AdminEmail;
 import io.datarouter.storage.config.properties.ServiceName;
@@ -62,11 +65,14 @@ import io.datarouter.web.handler.mav.imp.GlobalRedirectMav;
 import io.datarouter.web.handler.mav.imp.InContextRedirectMav;
 import io.datarouter.web.handler.mav.imp.MessageMav;
 import io.datarouter.web.html.form.HtmlForm;
+import io.datarouter.web.html.form.HtmlFormTimezoneSelect;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
 import io.datarouter.web.user.databean.DatarouterUser;
 import io.datarouter.web.user.role.DatarouterUserRole;
+import io.datarouter.web.user.role.Role;
+import io.datarouter.web.user.role.RoleManager;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.TrTag;
@@ -102,12 +108,15 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 	@Inject
 	private AdminEmail adminEmail;
 	@Inject
-	private DatarouterSubscribersSupplier subscibersEmail;
+	private DatarouterSubscribersSupplier subscribersEmail;
 	@Inject
 	private DatarouterEmailSubscriberSettings subscribersSettings;
 	@Inject
 	private PermissionRequestUserInfoSupplier userInfoSupplier;
-
+	@Inject
+	private DatarouterUserDao datarouterUserDao;
+	@Inject
+	private RoleManager roleManager;
 
 	@Handler(defaultHandler = true)
 	public Mav showForm(Optional<String> deniedUrl, Optional<String> allowedRoles){
@@ -132,7 +141,7 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 		}
 		emails.add(adminEmail.get());
 		if(subscribersSettings.includeSubscribers.get()){
-			emails.addAll(subscibersEmail.get());
+			emails.addAll(subscribersEmail.get());
 		}
 
 		String declinePath = paths.permissionRequest.declineAll.join("/");
@@ -155,9 +164,11 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 						serviceName.get(), ", submit the form below, and the administrator will follow up.")))
 				.with(p(join("You will need to ", a("Sign out")
 						.withHref(request.getContextPath() + "/" + paths.signout.getValue()),
-						" and sign back in to refresh your permissions")))
-				.with(p(join("If you have any questions, you may email the administrator(s) at ",
-						a(String.join(",", emails)).withHref("mailto: " + String.join(",", emails)))));
+						" and sign back in to refresh your permissions")));
+
+		String userTimezone = user.getZoneId()
+				.map(ZoneId::getId)
+				.orElse(null);
 
 		var form = new HtmlForm()
 				.withAction("?" + BaseHandler.SUBMIT_ACTION + "=submit")
@@ -172,7 +183,11 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 				.withName("specifics")
 				.withValue(defaultSpecifics.orElse(null))
 				.readOnly();
-
+		form.addHiddenField("allowedRoles", allowedRoles.orElse(null));
+		form.addTimezoneSelectField()
+				.withDisplay("Your Timezone")
+				.required()
+				.withSelected(userTimezone);
 		form.addButton()
 				.withDisplay("Submit");
 		DivTag formContent = div()
@@ -185,11 +200,27 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 		return bootstrap4PageFactory.startBuilder(request)
 					.withTitle("Datarouter - Permission Request")
 					.withContent(pageContent)
+					.withScript(script(HtmlFormTimezoneSelect.TIMEZONE_JS))
 					.buildMav();
 	}
 
 	@Handler
-	private Mav submit(Optional<String> specifics){
+	public String getUserTimezone(){
+		DatarouterUser user = getCurrentUser();
+		return user.getZoneId()
+				.map(ZoneId::getId)
+				.orElse(null);
+	}
+
+	@Handler
+	public void setTimezone(String timezone){
+		DatarouterUser user = getCurrentUser();
+		user.setZoneId(ZoneId.of(timezone));
+		datarouterUserDao.put(user);
+	}
+
+	@Handler
+	private Mav submit(Optional<String> specifics, Optional<String> allowedRoles){
 		if(!authenticationConfig.useDatarouterAuthentication()){
 			return new MessageMav(noDatarouterAuthentication());
 		}
@@ -201,9 +232,22 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 		String specificString = specifics.orElse("");
 		DatarouterUser user = getCurrentUser();
 
+		String timezone = params.required(HtmlFormTimezoneSelect.TIMEZONE_FIELD_NAME);
+		user.setZoneId(ZoneId.of(timezone));
+		datarouterUserDao.put(user);
+
 		datarouterPermissionRequestDao.createPermissionRequest(new DatarouterPermissionRequest(user.getId(), new Date(),
 				"reason: " + reason + ", specifics: " + specificString, null, null));
-		sendRequestEmail(user, reason, specificString);
+		Set<String> additionalRecipients = Set.of();
+		if(allowedRoles.isPresent()){
+			Set<Role> requestedRoles = new HashSet<>(Scanner.of(allowedRoles.get()
+							.split(","))
+					.map(roleManager::getRoleFromPersistentString)
+					.list());
+			additionalRecipients = roleManager.getAdditionalPermissionRequestEmailRecipients(user, requestedRoles);
+		}
+		sendRequestEmail(user, reason, specificString, additionalRecipients);
+
 		//not just requestor, so send them to the home page after they make their request
 		if(user.getRoles().size() > 1){
 			return new InContextRedirectMav(request, paths.home);
@@ -267,7 +311,11 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 		return datarouterUserService.getAndValidateCurrentUser(getSessionInfo().getRequiredSession());
 	}
 
-	private void sendRequestEmail(DatarouterUser user, String reason, String specifics){
+	private void sendRequestEmail(
+			DatarouterUser user,
+			String reason,
+			String specifics,
+			Set<String> additionalRecipients){
 		String userEmail = user.getUsername();
 		String primaryHref = htmlEmailService.startLinkBuilder()
 				.withLocalPath(paths.admin.editUser.toSlashedString())
@@ -287,9 +335,12 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 				.withContent(content)
 				.from(userEmail)
 				.to(userEmail)
+				.to(additionalRecipients)
 				.to(permissionRequestEmailType, serverTypeDetector.mightBeProduction())
-				.toSubscribers(serverTypeDetector.mightBeProduction())
 				.toAdmin(serverTypeDetector.mightBeDevelopment());
+		if(subscribersSettings.includeSubscribers.get()){
+			emailBuilder.toSubscribers();
+		}
 		htmlEmailService.trySendJ2Html(emailBuilder);
 	}
 

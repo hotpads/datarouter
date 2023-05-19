@@ -1,1159 +1,1443 @@
+const { Fragment, useState, useEffect, useMemo, useRef } = React;
+
 const FETCH_OPTIONS = {
-  credentials: "same-origin",
+	credentials: "same-origin",
 };
 
 const FETCH_POST_OPTIONS = {
-  ...FETCH_OPTIONS,
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
+	...FETCH_OPTIONS,
+	method: "POST",
+	headers: { "Content-Type": "application/json" },
 };
+
+const ROLE_UPDATE_TYPES = {
+	APPROVE: 'APPROVE',
+	UNAPPROVE: 'UNAPPROVE',
+	REVOKE: 'REVOKE',
+};
+
+const PagePermissionType = {
+	ADMIN: "ADMIN",
+	ROLES_ONLY: "ROLES_ONLY",
+	NONE: "NONE",
+}
+
 
 const PAGE_SIZE = 20;
 
-const doFetch = (path, extraOptions, bodyObject, onSuccess, onError) => {
-  extraOptions = extraOptions || {};
-  const allOptions = bodyObject
-    ? {
-        ...FETCH_POST_OPTIONS,
-        ...extraOptions,
-        body: JSON.stringify(bodyObject),
-      }
-    : { ...FETCH_OPTIONS, ...extraOptions };
-  fetch(path, allOptions)
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
-      }
-      try {
-        return response.json();
-      } catch (e) {
-        throw new Error("Fetch request succeeded but JSON parsing failed.");
-      }
-    })
-    .then((json) => {
-      try {
-        //TODO DATAROUTER-2788 determine success or failure based on standard fields and call onSuccess or onError
-        onSuccess && onSuccess(json);
-      } catch (e) {
-        throw new Error(
-          "Fetch request succeeded but response processing failed."
-        );
-      }
-    })
-    .catch((error) => {
-      onError && onError(error);
-    });
+const doFetch = ({
+	path,
+	extraOptions = {},
+	bodyObject,
+	onSuccess,
+	onError = () => undefined,
+	setIsLoading = () => undefined
+}) => {
+	extraOptions = extraOptions || {};
+	const allOptions = bodyObject
+		? {
+			...FETCH_POST_OPTIONS,
+			...extraOptions,
+			body: JSON.stringify(bodyObject),
+		}
+		: { ...FETCH_OPTIONS, ...extraOptions };
+	setIsLoading(true);
+	fetch(path, allOptions)
+		.then((response) => {
+			if (!response.ok) {
+				throw new Error(`HTTP ${response.status}`);
+			}
+			try {
+				return response.json();
+			} catch (e) {
+				throw new Error("Fetch request succeeded but JSON parsing failed.");
+			}
+		})
+		.then((json) => {
+			try {
+				onSuccess && onSuccess(json);
+			} catch (e) {
+				throw new Error(
+					"Fetch request succeeded but response processing failed."
+				);
+			}
+		})
+		.catch((error) => {
+			onError && onError(error);
+		})
+		.finally(() => setIsLoading(false));
 };
 
-class Users extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      users: [],
-      filteredUsers: [],
-      index: 0,
-      requestorsOnly: false,
-      emailFilter: "",
-      listRefreshTimestamp: Date.now(),
-    };
-    this.loadStartPage = this.loadStartPage.bind(this);
-    this.loadPrevPage = this.loadPrevPage.bind(this);
-    this.loadNextPage = this.loadNextPage.bind(this);
-    this.refreshList = this.refreshList.bind(this);
-    this.loadData = this.loadData.bind(this);
-    this.handleRequestorToggle = this.handleRequestorToggle.bind(this);
-    this.handleEmailFilter = this.handleEmailFilter.bind(this);
-  }
+const getTotalNumApprovalsRequiredForRole = (userRoleMetadata) =>
+	Object.values(userRoleMetadata.requirementStatusByApprovalType)
+		.reduce((accumulator, requirementStatus) => accumulator + requirementStatus.requiredApprovals, 0);
 
-  loadStartPage() {
-    this.setState({
-      index: 0,
-    });
-  }
 
-  loadPrevPage() {
-    this.setState((state) => ({
-      index: state.index < PAGE_SIZE ? 0 : state.index - PAGE_SIZE,
-    }));
-  }
+function ViewUsersPage({ display, openEditUser, requestListRefreshTimestamp }) {
+	const [users, setUsers] = useState([]);
+	const [index, setIndex] = useState(0);
+	const [requestorsOnly, setRequestorsOnly] = useState(false);
+	const [emailFilter, setEmailFilter] = useState("");
+	const [listRefreshTimestamp, setListRefreshTimestamp] = useState(null);
 
-  loadNextPage() {
-    this.setState((state) => ({
-      index:
-        state.index + PAGE_SIZE < state.filteredUsers.length
-          ? state.index + PAGE_SIZE
-          : state.index,
-    }));
-  }
+	const applyFilters = (users, requestorsOnly, emailFilter) => {
+		return users.filter((user) =>
+			!(requestorsOnly && !user.hasPermissionRequest)
+			&& !(emailFilter.length > 0 &&
+				user.username.toLowerCase().indexOf(emailFilter.toLowerCase()) < 0));
+	};
 
-  fetchUsers() {
-    return fetch("listUsers", FETCH_OPTIONS) //TODO DATAROUTER-2788 (and path)
-      .then((response) => response.json());
-  }
+	const filteredUsers = useMemo(
+		() => applyFilters(users, requestorsOnly, emailFilter),
+		[users, requestorsOnly, emailFilter]
+	);
 
-  refreshList() {
-    this.fetchUsers().then((json) =>
-      this.setState({
-        users: json,
-        filteredUsers: this.applyFilters(
-          json,
-          this.state.requestorsOnly,
-          this.state.emailFilter
-        ),
-        listRefreshTimestamp: Date.now(),
-      })
-    );
-  }
+	/* TODO error handling */
+	const refreshList = () => {
+		doFetch({
+			path: PATHS.listUsers,
+			onSuccess: (json) => {
+				setUsers(json);
+				setFilteredUsers(applyFilters(
+					json,
+					requestorsOnly,
+					emailFilter
+				));
+				setListRefreshTimestamp(Date.now());
+			},
+		});
+	};
 
-  loadData() {
-    this.fetchUsers().then((json) =>
-      this.setState({
-        users: json,
-        filteredUsers: json,
-      })
-    );
-  }
 
-  handleRequestorToggle() {
-    this.setState((state) => {
-      const newValue = !state.requestorsOnly;
-      const newFilteredUsers = this.applyFilters(
-        state.users,
-        newValue,
-        state.emailFilter
-      );
-      return {
-        requestorsOnly: newValue,
-        filteredUsers: newFilteredUsers,
-        index: 0,
-      };
-    });
-  }
+	useEffect(() => {
+			if (!listRefreshTimestamp || requestListRefreshTimestamp > listRefreshTimestamp) {
+				refreshList();
+			}
+		},
+		[requestListRefreshTimestamp, listRefreshTimestamp]
+	);
 
-  handleEmailFilter(event) {
-    const newValue = event.target.value;
-    this.setState((state) => {
-      const newFilteredUsers = this.applyFilters(
-        state.users,
-        state.requestorsOnly,
-        newValue
-      );
-      return {
-        emailFilter: newValue,
-        filteredUsers: newFilteredUsers,
-        index: 0,
-      };
-    });
-  }
 
-  applyFilters(users, requestorsOnly, emailFilter) {
-    return users.filter((user) => {
-      if (requestorsOnly && !user.hasPermissionRequest) {
-        return false;
-      }
-      if (
-        emailFilter.length > 0 &&
-        user.username.toLowerCase().indexOf(emailFilter.toLowerCase()) < 0
-      ) {
-        return false;
-      }
-      return true;
-    });
-  }
+	const handleRequestorToggle = () => {
+		setRequestorsOnly(!requestorsOnly);
+		setIndex(0);
+	};
 
-  componentWillMount() {
-    this.loadData();
-  }
+	const handleEmailFilter = (event) => {
+		setEmailFilter(event.target.value);
+		setIndex(0);
+	};
 
-  render() {
-    if (!this.props.display) {
-      return null;
-    }
-    if (
-      this.props.requestListRefreshTimestamp > this.state.listRefreshTimestamp
-    ) {
-      this.refreshList();
-    }
-    return (
-      <div>
-        <h1>Users</h1>
-        <Filters
-          requestorsOnly={this.state.requestorsOnly}
-          handleRequestorToggle={this.handleRequestorToggle}
-          emailFilter={this.state.emailFilter}
-          handleEmailFilter={this.handleEmailFilter}
-        />
-        <UserList
-          users={this.state.filteredUsers}
-          index={this.state.index}
-          loadStartPage={this.loadStartPage}
-          loadPrevPage={this.loadPrevPage}
-          loadNextPage={this.loadNextPage}
-          openEditUser={this.props.openEditUser}
-        />
-      </div>
-    );
-  }
+	if (!display) {
+		return null;
+	}
+
+	return (
+		<div>
+			<h1>Users</h1>
+			<Filters
+				requestorsOnly={requestorsOnly}
+				handleRequestorToggle={handleRequestorToggle}
+				emailFilter={emailFilter}
+				handleEmailFilter={handleEmailFilter}
+			/>
+			<UserList
+				users={filteredUsers}
+				index={index}
+				loadStartPage={() => setIndex(0)}
+				loadPrevPage={() => setIndex(index < PAGE_SIZE ? 0 : index - PAGE_SIZE)}
+				loadNextPage={() => setIndex(index + PAGE_SIZE < filteredUsers.length ? index + PAGE_SIZE : index)}
+				openEditUser={openEditUser}
+			/>
+		</div>
+	);
 }
 
 const Filters = (props) => (
-  <div class="form-group">
-    <div class="form-check">
-      <label class="form-check-label">
-        <input
-          class="form-check-input"
-          type="checkbox"
-          checked={props.requestorsOnly}
-          onChange={props.handleRequestorToggle}
-        />
-        Show requestors only
-      </label>
-    </div>
-    <div class="form-group">
-      <label for="emailFilter"> Email Filter: </label>
-      <input
-        type="text"
-        name="emailFilter"
-        class="form-control"
-        value={props.emailFilter}
-        onChange={props.handleEmailFilter}
-        id="emailFilter"
-      />
-    </div>
-  </div>
+	<div class="form-group">
+		<div class="form-check">
+			<label class="form-check-label">
+				<input
+					class="form-check-input"
+					type="checkbox"
+					checked={props.requestorsOnly}
+					onChange={props.handleRequestorToggle}
+				/>
+				Show requestors only
+			</label>
+		</div>
+		<div class="form-group">
+			<label for="emailFilter"> Email Filter: </label>
+			<input
+				type="text"
+				name="emailFilter"
+				class="form-control"
+				value={props.emailFilter}
+				onChange={props.handleEmailFilter}
+				id="emailFilter"
+			/>
+		</div>
+	</div>
 );
 
 const UserList = (props) => (
-  <div>
-    <table className="table table-condensed">
-      <thead>
-        <tr>
-          <th>Username</th>
-          <th>ID</th>
-          <th>Token</th>
-          <th>Profile</th>
-          <th></th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        {props.users.slice(props.index, props.index + PAGE_SIZE).map((user) => (
-          <tr>
-            <td>{user.username}</td>
-            <td>{user.id}</td>
-            <td>{user.token}</td>
-            <td>
-              <a href={user.profileLink} class={user.profileClass}>
-                profile
-              </a>
-            </td>
-            <td>
-              <Badges
-                badges={user.hasPermissionRequest ? ["Permission Request"] : []}
-              />
-            </td>
-            <td>
-              <button
-                type="button"
-                class="btn btn-primary"
-                name={user.username}
-                onClick={props.openEditUser}
-              >
-                Edit
-              </button>
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-    <nav>
-      <ul class="pagination">
-        <li>
-          <a class="page-link" onClick={props.loadPrevPage}>
-            Previous
-          </a>
-        </li>
-        <li>
-          <a class="page-link" onClick={props.loadStartPage}>
-            Start
-          </a>
-        </li>
-        <li>
-          <a class="page-link" onClick={props.loadNextPage}>
-            Next
-          </a>
-        </li>
-      </ul>
-    </nav>
-  </div>
+	<div>
+		<table className="table table-condensed">
+			<thead>
+			<tr>
+				<th>Username</th>
+				<th>ID</th>
+				<th>Token</th>
+				<th>Profile</th>
+				<th></th>
+				<th></th>
+			</tr>
+			</thead>
+			<tbody>
+			{props.users.slice(props.index, props.index + PAGE_SIZE).map((user) => (
+				<tr>
+					<td>{user.username}</td>
+					<td>{user.id}</td>
+					<td>{user.token}</td>
+					<td>
+						<a href={user.profileLink} class={user.profileClass}>
+							profile
+						</a>
+					</td>
+					<td>
+						<Badges
+							badges={user.hasPermissionRequest ? ["Permission Request"] : []}
+						/>
+					</td>
+					<td>
+						<button
+							type="button"
+							class="btn btn-primary"
+							name={user.username}
+							onClick={props.openEditUser}
+						>
+							Edit
+						</button>
+					</td>
+				</tr>
+			))}
+			</tbody>
+		</table>
+		<nav>
+			<ul class="pagination">
+				<li>
+					<a class="page-link" onClick={props.loadPrevPage}>
+						Previous
+					</a>
+				</li>
+				<li>
+					<a class="page-link" onClick={props.loadStartPage}>
+						Start
+					</a>
+				</li>
+				<li>
+					<a class="page-link" onClick={props.loadNextPage}>
+						Next
+					</a>
+				</li>
+			</ul>
+		</nav>
+	</div>
 );
 
-const Badges = (props) => {
-  const badges = props.badges || [];
-  return (
-    <h4>
-      {badges.map((content, index) => (
-        <span
-          class={
-            "badge badge-danger" + (index < badges.length - 1 ? " mr-3" : "")
-          }
-        >
-          {content}
-        </span>
-      ))}
-    </h4>
-  );
+const Badges = ({ badges = [] }) => {
+	return (
+		<h4>
+			{badges.map((content, index) => (
+				<span
+					class={
+						"badge badge-danger" + (index < badges.length - 1 ? " mr-3" : "")
+					}
+				>
+					{content}
+				</span>
+			))}
+		</h4>
+	);
 };
 
-class ViewUser extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      loaded: false,
-      error: "",
-      username: props.defaultUsername,
-      id: null,
-      token: null,
-      profileLink: null,
-      requests: [],
-      deprovisionedUserDto: {},
-      availableRoles: [],
-      currentRoles: [],
-      availableAccounts: [],
-      currentAccounts: [],
-      newPassword: "",
-      availableZoneIds: [],
-      currentZoneId: null,
-      fullName: null,
-      details: [],
-      hasProfileImage: false,
-    };
-    this.updateUserDetails = this.updateUserDetails.bind(this);
-    this.refresh = this.refresh.bind(this);
-    this.handleToggleRole = this.handleToggleRole.bind(this);
-    this.handleToggleAccount = this.handleToggleAccount.bind(this);
-    this.handleToggleTimeZone = this.handleToggleTimeZone.bind(this);
-  }
+function EditUserPage({ defaultUsername, requestListRefresh, closeEditUser }) {
+	const [loaded, setLoaded] = useState(false);
+	const [error, setError] = useState("");
+	const [editorUsername, setEditorUsername] = useState("");
+	const [pagePermissionType, setPagePermissionType] = useState(PagePermissionType.NONE);
+	const [username, setUsername] = useState(defaultUsername);
+	const [id, setId] = useState(null);
+	const [token, setToken] = useState(null);
+	const [profileLink, setProfileLink] = useState(null);
+	const [requests, setRequests] = useState([]);
+	const [history, setHistory] = useState([]);
+	const [deprovisionedUserDto, setDeprovisionedUserDto] = useState({});
+	const [userRoleMetadataList, setUserRoleMetadataList] = useState([]);
+	const [availableAccounts, setAvailableAccounts] = useState([]);
+	const [currentAccounts, setCurrentAccounts] = useState({}); // accountName -> boolean for currently checked
+	const [availableZoneIds, setAvailableZoneIds] = useState([]);
+	const [currentZoneId, setCurrentZoneId] = useState(null);
+	const [fullName, setFullName] = useState("");
+	const [details, setDetails] = useState([]);
+	const [hasProfileImage, setHasProfileImage] = useState(false);
+	const deprovisioned = loaded && !deprovisionedUserDto.status.isUserEditable;
 
-  updateUserDetails(userDetails, callback = () => {}) {
-    if (userDetails.success) {
-      this.setState(
-        {
-          loaded: true,
-          error: "",
-          username: userDetails.username,
-          id: userDetails.id,
-          token: userDetails.token,
-          profileLink: userDetails.profileLink,
-          requests: userDetails.requests,
-          deprovisionedUserDto: userDetails.deprovisionedUserDto,
-          availableRoles: userDetails.availableRoles,
-          currentRoles: userDetails.currentRoles,
-          availableAccounts: userDetails.availableAccounts,
-          currentAccounts: userDetails.currentAccounts,
-          availableZoneIds: userDetails.availableZoneIds,
-          currentZoneId: userDetails.currentZoneId,
-          fullName: userDetails.fullName,
-          details: userDetails.details,
-          hasProfileImage: userDetails.hasProfileImage,
-        },
-        callback
-      );
-    } else {
-      this.setState({ error: userDetails.message, loaded: false });
-    }
-  }
 
-  refresh(callback) {
-    const queryParam = "?username=" + encodeURIComponent(this.state.username);
-    doFetch(
-      PATHS.getUserDetails + queryParam,
-      {},
-      null,
-      (userDetails) => this.updateUserDetails(userDetails, callback),
-      (error) => {
-        this.setState({ error: error, loaded: false });
-      }
-    );
-  }
+	const updateUserDetails = (userDetails) => {
+		if (!userDetails.success) {
+			setLoaded(false);
+			setError(userDetails.message);
+			return;
+		}
+		setEditorUsername(userDetails.editorUsername);
+		setPagePermissionType(userDetails.pagePermissionType);
+		setUsername(userDetails.username);
+		setId(userDetails.id);
+		setToken(userDetails.token);
+		setProfileLink(userDetails.profileLink);
+		setRequests(userDetails.requests);
+		setHistory(userDetails.history);
+		setDeprovisionedUserDto(userDetails.deprovisionedUserDto);
+		setUserRoleMetadataList(userDetails.userRoleMetadataList);
+		setAvailableAccounts(userDetails.availableAccounts);
+		setCurrentAccounts(userDetails.currentAccounts);
+		setAvailableZoneIds(userDetails.availableZoneIds);
+		setCurrentZoneId(userDetails.currentZoneId);
+		setFullName(userDetails.fullName);
+		setDetails(userDetails.details);
+		setHasProfileImage(userDetails.hasProfileImage);
+		setLoaded(true);
+		setError("");
+	};
 
-  handleToggleRole(event) {
-    this.handleToggle("currentRoles", event.target.id);
-  }
+	const refresh = () => {
+		const queryParam = "?username=" + encodeURIComponent(username);
+		doFetch({
+			path: PATHS.getUserDetails + queryParam,
+			onSuccess: (userDetails) => updateUserDetails(userDetails),
+			onError: (error) => {
+				setError(error);
+				setLoaded(false);
+			}
+		});
+	};
 
-  handleToggleAccount(event) {
-    this.handleToggle("currentAccounts", event.target.id);
-  }
+	// Call getUserDetails API on initial render if the username is set.
+	useEffect(() => username && refresh(), []);
 
-  handleToggleTimeZone(event) {
-    this.setState({ currentZoneId: event.target.value });
-  }
+	const header = (
+		<h1 className="my-4 pb-2 border-bottom">
+			Edit User{" "}
+			<button
+				type="button"
+				class="btn btn-primary"
+				onClick={closeEditUser}
+			>
+				Back to User List
+			</button>
+		</h1>
+	);
 
-  handleToggle(object, key) {
-    this.setState((state) => {
-      return { [object]: { ...state[object], [key]: !state[object][key] } };
-    });
-  }
+	if (error && !loaded) {
+		return (
+			<div>
+				{header}
+				<div class="alert-danger">
+					<h3>{"Failed to load user. " + error}</h3>
+				</div>
+			</div>
+		);
+	}
 
-  componentDidMount() {
-    if (this.state.username) {
-      this.refresh();
-    }
-  }
-
-  render() {
-    if (!this.props.display) {
-      return null;
-    }
-
-    const header = (
-      <h1 className="my-4 pb-2 border-bottom">
-        Edit User{" "}
-        <button
-          type="button"
-          class="btn btn-primary"
-          onClick={this.props.closeEditUser}
-        >
-          Back to User List
-        </button>
-      </h1>
-    );
-    if (this.state.error && !this.state.loaded) {
-      return (
-        <div>
-          {header}
-          <div class="alert-danger">
-            <h3>{"Failed to load user. " + this.state.error}</h3>
-          </div>
-        </div>
-      );
-    }
-    const deprovisioned =
-      this.state.loaded &&
-      !this.state.deprovisionedUserDto.status.isUserEditable;
-    return (
-      this.state.loaded && (
-        <div>
-          {header}
-          <UserInformation
-            fullName={this.state.fullName}
-            details={this.state.details}
-            hasProfileImage={this.state.hasProfileImage}
-            username={this.state.username}
-            id={this.state.id}
-            token={this.state.token}
-            profileLink={this.state.profileLink}
-            deprovisioned={deprovisioned}
-            hasOpenPermissionRequest={
-              this.state.requests.length > 0 &&
-              !this.state.requests[0].resolution
-            }
-          />
-          <ProvisioningStatusCard
-            deprovisionedUserDto={this.state.deprovisionedUserDto}
-            refresh={this.refresh}
-          />
-          <CopyUserFormCard
-            updateUserDetails={this.updateUserDetails}
-            username={this.state.username}
-            disabled={false}
-            requestListRefresh={this.props.requestListRefresh}
-          />
-          <EditRolesAndAccountsCard
-            id={this.state.id}
-            username={this.state.username}
-            token={this.state.token}
-            availableRoles={this.state.availableRoles}
-            currentRoles={this.state.currentRoles}
-            availableAccounts={this.state.availableAccounts}
-            currentAccounts={this.state.currentAccounts}
-            disabled={deprovisioned}
-            handleToggleRole={this.handleToggleRole}
-            handleToggleAccount={this.handleToggleAccount}
-            updateUserDetails={this.updateUserDetails}
-            availableZoneIds={this.state.availableZoneIds}
-            currentZoneId={this.state.currentZoneId}
-            handleToggleTimeZone={this.handleToggleTimeZone}
-          />
-          <EditPasswordCard
-            username={this.state.username}
-            disabled={deprovisioned}
-            updateUserDetails={this.updateUserDetails}
-          />
-          <PermissionRequestsCard
-            id={this.state.id}
-            requests={this.state.requests}
-            refresh={this.refresh}
-          />
-        </div>
-      )
-    );
-  }
+	return (
+		loaded && (
+			<div>
+				{header}
+				<UserInformation
+					pagePermissionType={pagePermissionType}
+					fullName={fullName}
+					details={details}
+					hasProfileImage={hasProfileImage}
+					username={username}
+					id={id}
+					token={token}
+					profileLink={profileLink}
+					availableZoneIds={availableZoneIds}
+					currentZoneId={currentZoneId}
+					updateUserDetails={updateUserDetails}
+					setCurrentZoneId={setCurrentZoneId}
+				/>
+				{
+					PagePermissionType.ADMIN === pagePermissionType && (
+						<Fragment>
+							<ProvisioningStatusCard
+								deprovisionedUserDto={deprovisionedUserDto}
+								refresh={refresh}
+							/>
+							<CopyUserFormCard
+								username={username}
+								updateUserDetails={updateUserDetails}
+								userRoleMetadataList={userRoleMetadataList}
+								requestListRefresh={requestListRefresh}
+							/>
+						</Fragment>
+					)
+				}
+				{
+					[PagePermissionType.ADMIN, PagePermissionType.ROLES_ONLY].includes(pagePermissionType) &&
+					<EditRolesCard
+						username={username}
+						editorUsername={editorUsername}
+						userRoleMetadataList={userRoleMetadataList}
+						setUserRoleMetadataList={setUserRoleMetadataList}
+						updateUserDetails={updateUserDetails}
+						deprovisioned={deprovisioned}
+					/>
+				}
+				{
+					PagePermissionType.ADMIN === pagePermissionType && (
+						<Fragment>
+							<EditAccountsCard
+								username={username}
+								availableAccounts={availableAccounts}
+								currentAccounts={currentAccounts}
+								updateUserDetails={updateUserDetails}
+								disabled={deprovisioned}
+							/>
+							<EditPasswordCard
+								username={username}
+								disabled={deprovisioned}
+								updateUserDetails={updateUserDetails}
+							/>
+							<PermissionRequestsCard
+								id={id}
+								requests={requests}
+								refresh={refresh}
+								startCollapsed={true}
+							/>
+							<UserHistoryCard
+								id={id}
+								history={history}
+								refresh={refresh}
+								startCollapsed={true}
+							/>
+						</Fragment>
+					)
+				}
+			</div>
+		)
+	);
 }
 
-const withAlertCardContainer = (WrappedComponent, headerText) => {
-  return class extends React.Component {
-    constructor(props) {
-      super(props);
-      this.handle = this.handle.bind(this);
-      this.handleDanger = this.handleDanger.bind(this);
-      this.handleSuccess = this.handleSuccess.bind(this);
-      this.dismiss = this.dismiss.bind(this);
+const generateId = (function () {
+	const globalIds = new Set();
+	return () => {
+		let id;
+		do {
+			id = `${Math.round(Math.random() * Math.pow(10, 9))}`;
+		} while (globalIds.has(id));
+		globalIds.add(id);
+		return id;
+	};
+})();
 
-      this.state = {
-        display: false,
-        bootstrapClass: "",
-        message: "",
-      };
-    }
+const withAlertCardContainer = (WrappedComponent, headerText) => (props) => {
+	const { startCollapsed } = props;
+	const [display, setDisplay] = useState(false);
+	const [bootstrapClass, setBootstrapClass] = useState("");
+	const [message, setMessage] = useState("");
+	const [collapseBody, setCollapseBody] = useState(startCollapsed || false);
+	const [showUnsavedAlert, setShowUnsavedAlert] = useState(false);
+	const [isLoading, setIsLoading] = useState(false);
+	const id = useRef(generateId());
 
-    handle(bootstrapClass, message) {
-      this.setState({
-        display: true,
-        bootstrapClass: bootstrapClass,
-        message: message,
-      });
-    }
+	const handle = (bootstrapClass, message) => {
+		setDisplay(true);
+		setBootstrapClass(bootstrapClass);
+		setMessage(message);
+	};
 
-    handleDanger(message) {
-      this.handle("alert-danger", message);
-    }
+	const handleDanger = (message) => {
+		handle("alert-danger", message);
+	};
 
-    handleSuccess(message) {
-      this.handle("alert-success", message);
-    }
+	const handleWarning = (message) => {
+		handle("alert-warning", message);
+	};
 
-    dismiss() {
-      this.setState({ display: false });
-    }
+	const handleSuccess = (message) => {
+		handle("alert-success", message);
+	};
 
-    render() {
-      return (
-        <div class="card mb-3">
-          <div class="card-header">{headerText}</div>
-          <div class="card-body">
-            {this.state.display && (
-              <div class={"alert " + this.state.bootstrapClass}>
-                <p>{this.state.message}</p>
-                <span
-                  class="btn btn-link font-weight-light font-italic"
-                  onClick={this.dismiss}
-                >
-                  <small>dismiss</small>
-                </span>
-              </div>
-            )}
-            <WrappedComponent
-              handleDanger={this.handleDanger}
-              handleSuccess={this.handleSuccess}
-              {...this.props}
-            />
-          </div>
-        </div>
-      );
-    }
-  };
+	const handleToggleCollapse = () => {
+		setCollapseBody(!collapseBody);
+		// provides a smooth transition for the collapse
+		$('#' + id.current).collapse(collapseBody ? "show" : "hide");
+	};
+
+	const setIsLoadingWrapper = (isLoadingNewValue) => {
+		if (isLoadingNewValue) {
+			setDisplay(false);
+		}
+		setIsLoading(isLoadingNewValue);
+	}
+
+	return (
+		<div class="card mt-3">
+			<div class="card-header" style={{"cursor": "pointer"}} onClick={handleToggleCollapse}>
+				<div className="row">
+					<div className="col">
+						<i className={`fas fa-chevron-${collapseBody ? "down" : "up"}`} />&nbsp;{headerText}
+					</div>
+					{ showUnsavedAlert &&
+						<div className="col">
+							<div className="alert-warning"
+								 style={{
+									 float: "right",
+									 width: "fit-content"
+							}}>
+							<strong>Make sure to save to persist updates</strong>
+							</div>
+						</div>
+					}
+				</div>
+			</div>
+			<div id={id.current} className={`collapse ${startCollapsed ? "" : "show"}`}>
+				<div class="card-body">
+					{display && (
+						<div class={"alert " + bootstrapClass}>
+							<p>{message}</p>
+							<span
+								class="btn btn-link font-weight-light font-italic"
+								onClick={() => setDisplay(false)}
+							>
+								<small>dismiss</small>
+							</span>
+						</div>
+					)}
+					{ isLoading ?
+						<div className="d-flex justify-content-center">
+							<div
+								className="spinner-border text-primary"
+								style={{ width: "3rem", height: "3rem" }}
+								role="status"
+							>
+								<span className="sr-only">Loading...</span>
+							</div>
+						</div>
+						:
+						<WrappedComponent
+							handleDanger={handleDanger}
+							handleWarning={handleWarning}
+							handleSuccess={handleSuccess}
+							setShowUnsavedAlert={setShowUnsavedAlert}
+							setIsLoading={setIsLoadingWrapper}
+							{...props}
+						/>
+					}
+				</div>
+			</div>
+		</div>
+	);
 };
 
-const UserInformation = ({
-  fullName,
-  details,
-  hasProfileImage,
-  deprovisioned,
-  hasOpenPermissionRequest,
-  username,
-  id,
-  token,
-  profileLink,
-}) => {
-  const deprovisionedBadge = deprovisioned ? ["Deprovisioned"] : [];
-  const permissionRequestBadge = hasOpenPermissionRequest
-    ? ["Permission Request"]
-    : [];
-  return (
-    <div className="my-3">
-      <table className="table-responsive">
-        <tr>
-          <td
-            rowSpan={100}
-            style={{
-              verticalAlign: "top",
-            }}
-          >
-            {hasProfileImage && (
-              <div
-                className="mr-2"
-                style={{
-                  height: 120,
-                  width: 120,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                  backgroundImage:
-                    "url(" +
-                    PATHS.getUserProfileImage +
-                    "?username=" +
-                    username +
-                    ")",
-                }}
-              />
-            )}
-          </td>
-          <td colSpan={100}>
-            <h2>{fullName}</h2>
-          </td>
-        </tr>
-         <tr>
-            <td className="px-1">
-              <b>Username</b>
-            </td>
-            <td className="px-1">
-              {username} [<a href={profileLink}>Profile</a>]
-            </td>
-          </tr>
-        {[
-          ...details,
-          { name: "ID", value: id },
-          { name: "Token", value: token },
-        ].map(({ name, value, link }) => (
-          <tr key={name}>
-            <td className="px-1">
-              <b>{name}</b>
-            </td>
-            <td className="px-1">
-              <a href={link}>{value}</a>
-            </td>
-          </tr>
-        ))}
-      </table>
-    </div>
-  );
+function UserInformation(
+	{
+		pagePermissionType,
+		fullName,
+		details,
+		hasProfileImage,
+		username,
+		id,
+		token,
+		profileLink,
+		availableZoneIds,
+		currentZoneId,
+		updateUserDetails,
+	}
+) {
+
+	const handleTimeZoneChange = (event) => {
+		// TODO DATAROUTER-3355: error handling
+		doFetch({
+			path: PATHS.updateTimeZone,
+			bodyObject: { username, timeZoneId: event.target.value },
+			onSuccess: (response) => {
+				updateUserDetails(response.response);
+			},
+		});
+	};
+
+	return (
+		<div className="row">
+			<div className="col-sm-8" >
+				<table className="table-responsive">
+					<tr>
+						<td
+							rowSpan={100}
+							style={{
+								verticalAlign: "top",
+							}}
+						>
+							{hasProfileImage && (
+								<div
+									className="mr-2"
+									style={{
+										height: 120,
+										width: 120,
+										backgroundSize: "cover",
+										backgroundPosition: "center",
+										backgroundImage:
+											"url(" +
+											PATHS.getUserProfileImage +
+											"?username=" +
+											username +
+											")",
+									}}
+								/>
+							)}
+						</td>
+						<td colSpan={100}>
+							<h2>{fullName}</h2>
+						</td>
+					</tr>
+					<tr>
+						<td className="px-1">
+							<b>Username</b>
+						</td>
+						<td className="px-1">
+							{username} [<a href={profileLink}>Profile</a>]
+						</td>
+					</tr>
+					{[
+						...details,
+						{ name: "ID", value: id },
+						{ name: "Token", value: token },
+					].map(({ name, value, link }) => (
+						<tr key={name}>
+							<td className="px-1">
+								<b>{name}</b>
+							</td>
+							<td className="px-1">
+								<a href={link}>{value}</a>
+							</td>
+						</tr>
+					))}
+				</table>
+			</div>
+			<div className="col-sm-4">
+				<Select
+					title={"Time Zone"}
+					options={availableZoneIds}
+					defaultValue={currentZoneId}
+					onChange={handleTimeZoneChange}
+					containerStyle={{ float: "right" }}
+					disabled={pagePermissionType !== PagePermissionType.ADMIN}
+				/>
+			</div>
+		</div>
+	);
 };
 
-class ProvisioningStatusForm extends React.Component {
-  constructor(props) {
-    super(props);
-    this.handleDeprovision = this.handleDeprovision.bind(this);
-    this.handleRestore = this.handleRestore.bind(this);
-  }
+function ProvisioningStatusForm({ deprovisionedUserDto, refresh, handleSuccess, handleDanger, setIsLoading }) {
+	const status = deprovisionedUserDto.status;
+	let description = status.description;
+	if (!status.isUserEditable) {
+		const roles = deprovisionedUserDto.roles.reduce(
+			(acc, curr) => (acc.length === 0 ? curr : acc + ", " + curr),
+			""
+		);
+		description += " Roles at time of deprovisioning: " + roles;
+	}
 
-  handleDeprovision(event) {
-    event.preventDefault();
-    const username = this.props.deprovisionedUserDto.username;
-    doFetch(
-      PATHS.deprovisionUsers,
-      {},
-      { usernamesToDeprovision: [username] },
-      (json) => {
-        this.props.refresh();
-      },
-      (error) => {
-        this.props.handleDanger("Failed to deprovisioned user. " + error);
-      }
-    );
-  }
+	const handleDeprovision = (event) => {
+		event.preventDefault();
+		const username = deprovisionedUserDto.username;
+		setIsLoading()
+		doFetch({
+			path: PATHS.deprovisionUsers,
+			bodyObject: { usernamesToDeprovision: [username] },
+			onSuccess: () => {
+				refresh();
+				handleSuccess("User deprovisioned");
+			},
+			onError: (error) => {
+				handleDanger("Failed to deprovisioned user. " + error);
+			}
+		});
+	};
 
-  handleRestore(event) {
-    event.preventDefault();
-    const username = this.props.deprovisionedUserDto.username;
-    doFetch(
-      PATHS.restoreUsers,
-      {},
-      { usernamesToRestore: [username] },
-      (json) => {
-        this.props.refresh();
-      },
-      (error) => {
-        this.props.handleDanger("Failed to restore user. " + error);
-      }
-    );
-  }
+	const handleRestore = (event) => {
+		event.preventDefault();
+		const username = deprovisionedUserDto.username;
+		doFetch({
+			path: PATHS.restoreUsers,
+			bodyObject: { usernamesToRestore: [username] },
+			onSuccess: () => {
+				refresh();
+				handleSuccess("User restored");
+			},
+			onError: (error) => {
+				handleDanger("Failed to restore user. " + error);
+			},
+			setIsLoading,
+		});
+	};
 
-  render() {
-    const status = this.props.deprovisionedUserDto.status;
-    let description = status.description;
-    if (!status.isUserEditable) {
-      const roles = this.props.deprovisionedUserDto.roles.reduce(
-        (acc, curr) => (acc.length === 0 ? curr : acc + ", " + curr),
-        ""
-      );
-      description += " Roles at time of deprovisioning: " + roles;
-    }
-    return (
-      <form>
-        <p>{description}</p>
-        <hr hidden={!status.allowDeprovision && !status.allowRestore} />
-        <button
-          type="submit"
-          class="btn btn-danger"
-          hidden={!status.allowDeprovision}
-          onClick={this.handleDeprovision}
-        >
-          Disable User and Remove Roles
-        </button>
-        <button
-          type="submit"
-          class="btn btn-danger"
-          hidden={!status.allowRestore}
-          onClick={this.handleRestore}
-        >
-          Enable User and Restore Roles
-        </button>
-      </form>
-    );
-  }
+	return (
+		<form>
+			<p>{description}</p>
+			<hr hidden={!status.allowDeprovision && !status.allowRestore} />
+			<button
+				type="submit"
+				class="btn btn-danger"
+				hidden={!status.allowDeprovision}
+				onClick={handleDeprovision}
+			>
+				Disable User and Remove Roles
+			</button>
+			<button
+				type="submit"
+				class="btn btn-danger"
+				hidden={!status.allowRestore}
+				onClick={handleRestore}
+			>
+				Enable User and Restore Roles
+			</button>
+		</form>
+	);
 }
 
 const ProvisioningStatusCard = withAlertCardContainer(
-  ProvisioningStatusForm,
-  "Provisioning Status"
+	ProvisioningStatusForm,
+	"Provisioning Status"
 );
 
-class CopyUserForm extends React.Component {
-  constructor(props) {
-    super(props);
-    this.handleNewUsernameInput = this.handleNewUsernameInput.bind(this);
-    this.handleCopy = this.handleCopy.bind(this);
+function CopyUserForm({
+	username,
+	updateUserDetails,
+	userRoleMetadataList,
+	requestListRefresh,
+	handleSuccess,
+	handleWarning,
+	handleDanger,
+	setIsLoading,
+}) {
+	const [newUsername, setNewUsername] = useState("");
+	const userHasOutstandingApprovals = useMemo(() =>
+		userRoleMetadataList.reduce((accumulator, userRoleMetadata) => accumulator +
+			Object.values(userRoleMetadata.requirementStatusByApprovalType)
+			.reduce((accInner, requirementStatus) => accInner + requirementStatus.currentApprovers.length, 0),
+			0) > 0,
+		userRoleMetadataList);
+	const userHasRolesRequiringMultipleApprovals = useMemo(() =>
+			(userRoleMetadataList.some(userRoleMetadata =>
+				userRoleMetadata.privilegesGranted && getTotalNumApprovalsRequiredForRole(userRoleMetadata) > 1)),
+		userRoleMetadataList);
+	const userHasRolesEditorCantApprove = useMemo(() =>
+		userRoleMetadataList.some(userRoleMetadata =>
+			userRoleMetadata.privilegesGranted && !userRoleMetadata.editorPrioritizedApprovalType),
+		userRoleMetadataList);
 
-    this.state = {
-      newUsername: "",
-    };
-  }
+	const handleCopy = (event) => {
+		event.preventDefault();
+		const query = "?oldUsername=" + username + "&newUsername=" + newUsername;
+		doFetch({
+			path: PATHS.copyUser + query,
+			onSuccess: (response) => {
+				if (response.success) {
+					updateUserDetails(response.response, () => setNewUsername(""));
+					// check for partial success
+					if (response.error) {
+						handleWarning(response.error.message);
+					} else {
+						handleSuccess("Successfully copied.");
+					}
+				} else {
+					handleDanger("Failed to copy user. " + response.error.message);
+				}
+			},
+			onError: (error) => {
+				handleDanger("Failed to copy user. " + error);
+			},
+			setIsLoading,
+		});
+		requestListRefresh();
+	};
 
-  handleNewUsernameInput(event) {
-    this.setState({ newUsername: event.target.value });
-  }
-
-  handleCopy(event) {
-    event.preventDefault();
-    const query =
-      "?oldUsername=" +
-      this.props.username +
-      "&newUsername=" +
-      this.state.newUsername;
-    doFetch(
-      PATHS.copyUser + query,
-      {},
-      {},
-      (userDetails) => {
-        if (userDetails.success) {
-          this.props.updateUserDetails(userDetails, () => {
-            this.setState({ newUsername: "" });
-          });
-          this.props.handleSuccess("Successfully copied.");
-        } else {
-          this.props.handleDanger(
-            "Failed to copy user. " + userDetails.message
-          );
-        }
-      },
-      (error) => {
-        this.props.handleDanger("Failed to copy user. " + error);
-      }
-    );
-    this.props.requestListRefresh();
-  }
-
-  render() {
-    return (
-      <form class="form-inline">
-        <div class="form-group mr-3">
-          <label for="newUsername" class="mr-3">
-            Recipient Username
-          </label>
-          <input
-            type="text"
-            class="form-control"
-            id="newUsername"
-            disabled={this.props.disabled}
-            value={this.state.newUsername}
-            onChange={this.handleNewUsernameInput}
-          />
-        </div>
-        <button
-          type="submit"
-          class="btn btn-primary"
-          disabled={this.props.disabled}
-          onClick={this.handleCopy}
-        >
-          Copy User Details
-        </button>
-      </form>
-    );
-  }
+	return (
+		<Fragment>
+			<form class="form-inline mb-3">
+				<div class="form-group mr-3">
+					<label for="newUsername" class="mr-3">
+						Recipient Username
+					</label>
+					<input
+						type="text"
+						class="form-control"
+						id="newUsername"
+						value={newUsername}
+						onChange={(event) => setNewUsername(event.target.value)}
+					/>
+				</div>
+				<button
+					type="submit"
+					class="btn btn-primary"
+					disabled={!Boolean(newUsername)}
+					onClick={handleCopy}
+				>
+					Copy User Details
+				</button>
+			</form>
+			{ Boolean(newUsername) &&
+				<Fragment>
+					{
+						userHasRolesRequiringMultipleApprovals &&
+						<div className="alert alert-warning mt-2" role="alert">
+							This user has roles which require multiple approvals. For these roles the recipient will receive your approval if you have the appropriate approval permissions.
+						</div>
+					}
+					{
+						userHasOutstandingApprovals &&
+						<div className="alert alert-warning mt-2" role="alert">
+							This user has outstanding approvals for roles they don't have. These outstanding approvals will not be copied to the recipient.
+						</div>
+					}
+					{ userHasRolesEditorCantApprove &&
+						<div className="alert alert-warning mt-2" role="alert">
+							This user has roles you don't have permission to approve. These roles will therefore not be copied.
+						</div>
+					}
+				</Fragment>
+			}
+		</Fragment>
+	);
 }
 
 const CopyUserFormCard = withAlertCardContainer(
-  CopyUserForm,
-  "Copy User Details"
+	CopyUserForm,
+	"Copy User Details"
 );
 
-class EditRolesAndAccounts extends React.Component {
-  constructor(props) {
-    super(props);
-    this.handleSubmit = this.handleSubmit.bind(this);
-  }
+function EditRoleTable({ userRoleMetadataList, editorUsername, deprovisioned, handleToggleRole }) {
 
-  handleSubmit(event) {
-    event.preventDefault();
-    const editUserDetailsDto = {
-      username: this.props.username,
-      id: this.props.id,
-      token: this.props.token,
-      currentRoles: this.props.currentRoles,
-      currentAccounts: this.props.currentAccounts,
-      currentZoneId: this.props.currentZoneId,
-    };
-    doFetch(
-      PATHS.updateUserDetails,
-      {},
-      editUserDetailsDto,
-      (userDetails) => {
-        if (userDetails.success) {
-          this.props.updateUserDetails(userDetails);
-        } else {
-          this.props.handleDanger("Failed to update. " + userDetails.message);
-        }
-      },
-      (error) => {
-        this.props.handleDanger("Failed to update. " + error);
-      }
-    );
-  }
+	const getStringFromApprovalStatuses = (userRoleMetadata) => {
+		let mapFunction = userRoleMetadata.privilegesGranted ?
+			(key => `${requirementStatusByApprovalType[key].requiredApprovals} ${key}`)
+			: (key => `(${requirementStatusByApprovalType[key].currentApprovers.length}/${requirementStatusByApprovalType[key].requiredApprovals}) ${key}`);
 
-  render() {
-    return (
-      <div>
-        <div class="row">
-          <div class="col-sm-6">
-            <CheckList
-              title={"Roles"}
-              plural={"roles"}
-              orderedKeys={this.props.availableRoles}
-              checkedKeys={this.props.currentRoles}
-              disabled={this.props.disabled}
-              handleToggle={this.props.handleToggleRole}
-            />
-          </div>
-          <div class="col-sm-6">
-            <CheckList
-              title={"Accounts"}
-              plural={"accounts"}
-              orderedKeys={this.props.availableAccounts}
-              checkedKeys={this.props.currentAccounts}
-              disabled={this.props.disabled}
-              handleToggle={this.props.handleToggleAccount}
-            />
-          </div>
-        </div>
-        <div class="col-sm-12">
-          <Select
-            title={"Time Zone"}
-            options={this.props.availableZoneIds}
-            defaultValue={this.props.currentZoneId}
-            handleToggle={this.props.handleToggleTimeZone}
-          />
-        </div>
-        <hr />
-        <button
-          class="btn btn-primary mx-auto"
-          type="submit"
-          disabled={this.props.disabled}
-          onClick={this.handleSubmit}
-        >
-          Save
-        </button>
-      </div>
-    );
-  }
+		const requirementStatusByApprovalType = userRoleMetadata.requirementStatusByApprovalType;
+		return Object.keys(requirementStatusByApprovalType)
+			.map(mapFunction)
+			.join(', ');
+	};
+
+	const getActionButton = (userRoleMetadata) => {
+		let buttonClassName, buttonText, disabled = false;
+		const editorHasApproved = Object.values(userRoleMetadata.requirementStatusByApprovalType)
+			.some(requirementStatus => requirementStatus.currentApprovers.includes(editorUsername));
+		if (userRoleMetadata.privilegesGranted && !userRoleMetadata.updateType) {
+			buttonClassName = "btn btn-danger mx-auto";
+			buttonText = "Revoke";
+			disabled = !userRoleMetadata.editorCanRevoke;
+		} else if (userRoleMetadata.updateType === ROLE_UPDATE_TYPES.REVOKE) {
+			buttonClassName = "btn btn-warning mx-auto";
+			buttonText = "Undo Revoke";
+		} else if (editorHasApproved) {
+			buttonClassName = "btn btn-warning mx-auto";
+			buttonText = "Undo Approval";
+		} else {
+			buttonClassName = "btn btn-primary mx-auto";
+			buttonText = "Approve";
+			disabled = !userRoleMetadata.editorPrioritizedApprovalType;
+		}
+		disabled = disabled || deprovisioned;
+		return (
+			<button
+				className={buttonClassName}
+				onClick={() => handleToggleRole(userRoleMetadata.roleName)}
+				disabled={disabled}
+			>
+				{buttonText}
+			</button>
+		);
+	};
+
+	return (
+		<div>
+			<h3 className="card-title">Roles</h3>
+			<table className="table table-sm">
+				<thead>
+				<tr>
+					<th>Approval Status</th>
+					<th>Role</th>
+					<th>Approval Requirements</th>
+					<th className="text-right">Action</th>
+				</tr>
+				</thead>
+				<tbody>
+				{userRoleMetadataList.map((userRoleMetadata) => (
+					<tr>
+						<td>{userRoleMetadata.privilegesGranted ?
+							<i className="fas fa-check fa-lg" style={{ color: '#128a29'}}></i>:
+							<i className="fa fa-ban fa-lg" style={{ color: '#be1c00' }}></i>}
+						</td>
+						<td><p>{userRoleMetadata.roleName}</p></td>
+						<td>{getStringFromApprovalStatuses(userRoleMetadata)}</td>
+						<td className="text-right">{ getActionButton(userRoleMetadata) }</td>
+					</tr>
+				))}
+				</tbody>
+			</table>
+		</div>
+	);
 }
 
-const CheckList = (props) => {
-  const { title, plural, orderedKeys, checkedKeys, disabled, handleToggle } =
-    props;
-  return (
-    <div>
-      <h3 class="card-title">{title}</h3>
-      {orderedKeys.length === 0
-        ? "No " + plural + " available."
-        : orderedKeys.map((key) => (
-            <div class="form-check" key={key}>
-              <input
-                type="checkbox"
-                class="form-check-input"
-                id={key}
-                disabled={disabled}
-                checked={checkedKeys[key]}
-                onChange={handleToggle}
-              />
-              <label class="form-check-label" for={key}>
-                {key}
-              </label>
-            </div>
-          ))}
-    </div>
-  );
+const MultiApprovalRequirementRevokeConfirmationModal = ({ handleSubmit }) => (
+	<div className="modal fade" id="confirmationModal" tabIndex="-1" role="dialog"
+		 aria-labelledby="confirmationModalTitle" aria-hidden="true">
+		<div className="modal-dialog" role="document">
+			<div className="modal-content">
+				<div className="modal-header">
+					<h5 className="modal-title" id="confirmationModalTitle">Confirmation Required</h5>
+					<button type="button" className="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div className="modal-body">
+					You've revoked roles which require multiple people to approve. If you continue, the role will need
+					each of those approval requirements to be met once again to be reprovisioned.
+				</div>
+				<div className="modal-footer">
+					<button type="button" className="btn btn-secondary" data-dismiss="modal">Cancel</button>
+					<button
+						type="button"
+						className="btn btn-primary"
+						data-dismiss="modal"
+						onClick={handleSubmit}
+					>
+						Confirm Changes
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+);
+
+function EditRoles({
+	username,
+	editorUsername,
+	userRoleMetadataList,
+	setUserRoleMetadataList,
+	updateUserDetails,
+	deprovisioned,
+	handleSuccess,
+	handleWarning,
+	handleDanger,
+	setShowUnsavedAlert,
+	setIsLoading,
+}) {
+	const [numChangesUnsaved, setNumChangesUnsaved] = useState(0);
+	const [numRestrictedRolesRevoked, setNumRestrictedRolesRevoked] = useState(0);
+
+	const handleSubmit = (event) => {
+		event.preventDefault();
+		const updates = userRoleMetadataList
+			.filter(userRoleMetadata => Boolean(userRoleMetadata.updateType))
+			.map(userRoleMetadata => ({ roleName: userRoleMetadata.roleName, updateType: userRoleMetadata.updateType }));
+		const editRolesRequest = {
+			username,
+			updates
+		};
+		doFetch({
+			path: PATHS.editRoles,
+			bodyObject: editRolesRequest,
+			onSuccess: (response) => {
+				if (response.success) {
+					updateUserDetails(response.response);
+					setNumChangesUnsaved(0);
+					setShowUnsavedAlert(false);
+					// check for partial failure
+					if (response.error) {
+						handleWarning(response.error.message);
+					} else {
+						handleSuccess("Roles updated");
+					}
+				} else {
+					handleDanger("Failed to update. " + response.error.message);
+				}
+			},
+			onError: (error) => {
+				handleDanger("Failed to update. " + error);
+			},
+			setIsLoading,
+		});
+	};
+
+	const handleToggleRole = (roleName) => {
+		const userRoleMetadata = userRoleMetadataList.find(userRoleMetadata => userRoleMetadata.roleName === roleName);
+
+		const isRevoke = !userRoleMetadata.updateType && userRoleMetadata.privilegesGranted;
+		const isUndoRevoke = userRoleMetadata.updateType === ROLE_UPDATE_TYPES.REVOKE;
+		if (isRevoke) {
+			userRoleMetadata.updateType = ROLE_UPDATE_TYPES.REVOKE;
+			userRoleMetadata.privilegesGranted = false;
+			if (getTotalNumApprovalsRequiredForRole(userRoleMetadata) > 1) {
+				setNumRestrictedRolesRevoked(numRestrictedRolesRevoked + 1);
+				userRoleMetadata.isMultiApprovalRevoke = true;
+			}
+		} else if (isUndoRevoke) {
+			userRoleMetadata.updateType = null;
+			userRoleMetadata.privilegesGranted = true;
+			if (userRoleMetadata.isMultiApprovalRevoke) {
+				setNumRestrictedRolesRevoked(numRestrictedRolesRevoked - 1);
+				userRoleMetadata.isMultiApprovalRevoke = false;
+			}
+		} else {
+			// The editorPrioritizedApprovalType will be the type of current approval if the editor has approved
+			const editorHasApproved = userRoleMetadata
+				.requirementStatusByApprovalType[userRoleMetadata.editorPrioritizedApprovalType]
+				.currentApprovers.includes(editorUsername);
+			if (!editorHasApproved) {
+				const approversForPrioritizedApprovalType = userRoleMetadata
+					.requirementStatusByApprovalType[userRoleMetadata.editorPrioritizedApprovalType].currentApprovers;
+				approversForPrioritizedApprovalType.push(editorUsername);
+				userRoleMetadata.updateType = userRoleMetadata.updateType ? null : ROLE_UPDATE_TYPES.APPROVE;
+			} else {
+				userRoleMetadata.requirementStatusByApprovalType[userRoleMetadata.editorPrioritizedApprovalType]
+					.currentApprovers =
+					userRoleMetadata.requirementStatusByApprovalType[userRoleMetadata.editorPrioritizedApprovalType]
+						.currentApprovers
+						.filter(username => username !== editorUsername);
+				userRoleMetadata.updateType = userRoleMetadata.updateType ? null : ROLE_UPDATE_TYPES.UNAPPROVE;
+			}
+			userRoleMetadata.privilegesGranted = Object.values(userRoleMetadata.requirementStatusByApprovalType)
+				.every(requirementStatus =>
+					requirementStatus.currentApprovers.length === requirementStatus.requiredApprovals);
+		}
+		setUserRoleMetadataList([...userRoleMetadataList]);
+		const newNumChangesUnsaved = numChangesUnsaved + (userRoleMetadata.updateType ? 1 : -1);
+		setNumChangesUnsaved(newNumChangesUnsaved);
+		setShowUnsavedAlert(Boolean(newNumChangesUnsaved));
+	};
+
+	const normalSaveButton = (
+		<button
+			className="btn btn-primary mx-auto"
+			type="submit"
+			disabled={deprovisioned || numChangesUnsaved === 0}
+			onClick={handleSubmit}
+		>
+			Save
+		</button>
+	);
+
+	const revokeConfirmationButton = (
+		<Fragment>
+			<MultiApprovalRequirementRevokeConfirmationModal handleSubmit={handleSubmit} />
+			<button
+				className="btn btn-primary mx-auto"
+				data-toggle="modal"
+				data-target="#confirmationModal"
+			>
+				Save
+			</button>
+		</Fragment>
+	);
+
+	return (
+		<div>
+			<div className="row">
+				<div className="col-sm">
+					<EditRoleTable
+						userRoleMetadataList={userRoleMetadataList}
+						editorUsername={editorUsername}
+						handleToggleRole={handleToggleRole}
+						deprovisioned={deprovisioned}
+					/>
+				</div>
+			</div>
+			{ numRestrictedRolesRevoked > 0 ? revokeConfirmationButton : normalSaveButton }
+		</div>
+	);
+}
+
+const EditRolesCard = withAlertCardContainer(
+	EditRoles,
+	"Edit Roles"
+);
+
+function EditAccounts({
+	username,
+	availableAccounts,
+	currentAccounts,
+	updateUserDetails,
+	disabled,
+	handleSuccess,
+	handleDanger,
+	setShowUnsavedAlert,
+	setIsLoading,
+}) {
+	const [selectedAccounts, setSelectedAccounts] = useState({...currentAccounts});
+	const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+
+	const handleToggleAccount = (event) => {
+		selectedAccounts[event.target.id] = !selectedAccounts[event.target.id];
+		setSelectedAccounts({...selectedAccounts}); // new object required for re-render
+		const selectionsHaveChanged = JSON.stringify(selectedAccounts) !== JSON.stringify(currentAccounts);
+		setHasUnsavedChanges(selectionsHaveChanged)
+		setShowUnsavedAlert(selectionsHaveChanged);
+	};
+
+	const handleSubmit = (event) => {
+		event.preventDefault();
+		const requestDto = {
+			username,
+			updates: selectedAccounts,
+		};
+		doFetch({
+			path: PATHS.editAccounts,
+			bodyObject: requestDto,
+			onSuccess: (response) => {
+				if (response.success) {
+					updateUserDetails(response.response);
+					setShowUnsavedAlert(false);
+					handleSuccess("Accounts updated");
+				} else {
+					handleDanger("Failed to update. " + response.error.message);
+				}
+			},
+			onError: (error) => {
+				handleDanger("Failed to update. " + error);
+			},
+			setIsLoading,
+		});
+	};
+
+	return (
+		<div>
+			<div className="row">
+				<div className="col-sm-6">
+					<CheckList
+						title={"Accounts"}
+						plural={"accounts"}
+						orderedKeys={availableAccounts}
+						checkedKeys={selectedAccounts}
+						disabled={disabled}
+						handleToggle={handleToggleAccount}
+					/>
+				</div>
+			</div>
+			<hr/>
+			<button
+				className="btn btn-primary mx-auto"
+				type="submit"
+				disabled={disabled || !hasUnsavedChanges}
+				onClick={handleSubmit}
+			>
+				Save
+			</button>
+		</div>
+	);
+}
+
+const EditAccountsCard = withAlertCardContainer(
+	EditAccounts,
+	"Edit Accounts"
+);
+
+const CheckList = ({ title, plural, orderedKeys, checkedKeys, disabled, handleToggle }) => {
+	return (
+		<div>
+			<h3 class="card-title">{title}</h3>
+			{orderedKeys.length === 0
+				? "No " + plural + " available."
+				: orderedKeys.map((key) => (
+					<div class="form-check" key={key}>
+						<input
+							type="checkbox"
+							class="form-check-input"
+							id={key}
+							disabled={disabled}
+							checked={checkedKeys[key]}
+							onChange={handleToggle}
+						/>
+						<label class="form-check-label" for={key}>
+							{key}
+						</label>
+					</div>
+				))}
+		</div>
+	);
 };
 
-const Select = ({ title, options, defaultValue, handleToggle }) => (
-  <div>
-    <h4 class="card-title">{title}</h4>
-    <select onChange={handleToggle}>
-      {options.map((zone) => (
-        <option key={zone} selected={defaultValue == zone} value={zone}>
-          {zone}
-        </option>
-      ))}
-    </select>
-  </div>
+const Select = ({ title, options, defaultValue, onChange, containerStyle = {}, disabled=false }) => (
+	<div style={ containerStyle }>
+		<h4 class="card-title">{title}</h4>
+		<select onChange={onChange} disabled={disabled}>
+			{options.map((zone) => (
+				<option key={zone} selected={defaultValue == zone} value={zone}>
+					{zone}
+				</option>
+			))}
+		</select>
+	</div>
 );
 
-const EditRolesAndAccountsCard = withAlertCardContainer(
-  EditRolesAndAccounts,
-  "Edit Roles and Accounts"
-);
+function EditPasswordForm({ username, updateUserDetails, disabled, handleSuccess, handleDanger, setIsLoading }) {
+	const [newPassword, setNewPassword] = useState("");
 
-class EditPasswordForm extends React.Component {
-  constructor(props) {
-    super(props);
-    this.handleNewPasswordInput = this.handleNewPasswordInput.bind(this);
-    this.handleUpdatePassword = this.handleUpdatePassword.bind(this);
+	const handleUpdatePassword = (event) => {
+		event.preventDefault();
+		doFetch({
+			path: PATHS.updatePassword,
+			bodyObject: { username, newPassword },
+			onSuccess: (userDetails) => {
+				if (userDetails.success) {
+					updateUserDetails(userDetails, () => {
+						setNewPassword("");
+					});
+					handleSuccess("Password updated");
+				} else {
+					handleDanger("Failed to update password. " + userDetails.message);
+				}
+			},
+			onError: (error) => {
+				handleDanger("Failed to update password. " + error);
+			},
+			setIsLoading,
+		});
+	};
 
-    this.state = {
-      newPassword: "",
-    };
-  }
-
-  handleNewPasswordInput(event) {
-    this.setState({ newPassword: event.target.value });
-  }
-
-  handleUpdatePassword(event) {
-    event.preventDefault();
-    doFetch(
-      PATHS.updatePassword,
-      {},
-      { username: this.props.username, newPassword: this.state.newPassword },
-      (userDetails) => {
-        if (userDetails.success) {
-          this.props.updateUserDetails(userDetails, () => {
-            this.setState({ newPassword: "" });
-          });
-        } else {
-          this.props.handleDanger(
-            "Failed to update password. " + userDetails.message
-          );
-        }
-      },
-      (error) => {
-        this.props.handleDanger("Failed to update password. " + error);
-      }
-    );
-  }
-
-  render() {
-    return (
-      <form class="form-inline">
-        <div class="form-group mr-3">
-          <label for="newPassword" class="mr-3">
-            New Password
-          </label>
-          <input
-            type="text"
-            class="form-control"
-            id="newPassword"
-            disabled={this.props.disabled}
-            value={this.state.newPassword}
-            onChange={this.handleNewPasswordInput}
-          />
-        </div>
-        <button
-          type="submit"
-          class="btn btn-primary"
-          disabled={this.props.disabled}
-          onClick={this.handleUpdatePassword}
-        >
-          Save New Password
-        </button>
-      </form>
-    );
-  }
+	return (
+		<form className="form-inline">
+			<div className="form-group mr-3">
+				<label htmlFor="newPassword" className="mr-3">
+					New Password
+				</label>
+				<input
+					type="text"
+					className="form-control"
+					id="newPassword"
+					disabled={disabled}
+					value={newPassword}
+					onChange={(event) => setNewPassword(event.target.value)}
+				/>
+			</div>
+			<button
+				type="submit"
+				className="btn btn-primary"
+				disabled={disabled}
+				onClick={handleUpdatePassword}
+			>
+				Save New Password
+			</button>
+		</form>
+	);
 }
 
 const EditPasswordCard = withAlertCardContainer(
-  EditPasswordForm,
-  "Edit Password"
+	EditPasswordForm,
+	"Edit Password"
 );
 
-class PermissionRequests extends React.Component {
-  constructor(props) {
-    super(props);
-    this.handleDecline = this.handleDecline.bind(this);
-  }
+const historyTableCellStyle = {
+	border: "none",
+	paddingLeft: 0,
+	whiteSpace: "pre-wrap",
+};
 
-  handleDecline(event) {
-    event.preventDefault();
-    doFetch(
-      PATHS.declinePermissionRequests + "?userId=" + this.props.id,
-      {},
-      {},
-      (json) => {
-        if (json.success) {
-          this.props.refresh();
-        } else {
-          this.props.handleDanger("Failed to decline. " + json.message);
-        }
-      },
-      (error) => {
-        this.props.handleDanger("Failed to decline. " + error);
-      }
-    );
-  }
+const keyWidth = "110px";
+const historyTableKeyCellStyle = {
+	fontWeight: 500,
+	width: keyWidth,
+	maxWidth: keyWidth,
+	minWidth: keyWidth,
+	...historyTableCellStyle
+};
 
-  render() {
-    const props = this.props;
-    return (
-      <div>
-        {props.requests.length === 0 ? (
-          <p>No permission requests.</p>
-        ) : (
-          <table class="table table-sm table-hover">
-            <thead>
-              <tr>
-                <th>Request Time</th>
-                <th>Request Text</th>
-                <th>Resolution</th>
-                <th>Editor</th>
-                <th>Resolution Time</th>
-              </tr>
-            </thead>
-            <tbody>
-              {props.requests.map((request) => {
-                const { requestTimeMs, requestText, resolution, resolutionTimeMs } =
-                  request;
-                const resolved = !!resolution;
-                return (
-                  <tr class={resolved ? "" : "table-warning"}>
-                    <td>{new Date(requestTimeMs).toLocaleString()}</td>
-                    <td>{requestText}</td>
-                    <td>
-                      {resolved ? (
-                        resolution
-                      ) : (
-                        <button
-                          type="submit"
-                          class="btn btn-danger"
-                          onClick={this.handleDecline}
-                        >
-                          Decline
-                        </button>
-                      )}
-                    </td>
-                    <td>{request.editor}</td>
-                    <td>{resolved ? new Date(resolutionTimeMs).toLocaleString() : ""}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        )}
-      </div>
-    );
-  }
+function PermissionRequests({ requests, refresh, handleSuccess, handleDanger, id }) {
+
+	const handleDecline = (event) => {
+		event.preventDefault();
+		doFetch({
+			path: PATHS.declinePermissionRequests + "?userId=" + id,
+			onSuccess: (json) => {
+				if (json.success) {
+					refresh();
+					handleSuccess("Permission successfully declined");
+				} else {
+					handleDanger("Failed to decline. " + json.message);
+				}
+			},
+			onError: (error) => {
+				handleDanger("Failed to decline. " + error);
+			},
+		});
+	};
+
+	return (
+		<div>
+			{requests.length === 0 ? (
+				<p>No permission requests.</p>
+			) : (
+				requests.map((request, index) => {
+					const {
+						requestTimeMs,
+						requestText,
+						resolution,
+						resolutionTimeMs,
+						editor,
+					} = request;
+
+					const resolved = !!resolution;
+					const requestTime = new Date(requestTimeMs).toLocaleString();
+					const resolvedTime = resolved
+						? new Date(resolutionTimeMs).toLocaleString()
+						: "N/A";
+					return (
+						<Fragment key={requestTimeMs}>
+							<table class="table table-sm">
+								<tbody>
+								<tr>
+									<td style={historyTableKeyCellStyle}>Time</td>
+									<td style={historyTableCellStyle}>
+										{requestTime} - {resolvedTime}
+									</td>
+								</tr>
+								<tr>
+									<td style={historyTableKeyCellStyle}>Editor</td>
+									<td style={historyTableCellStyle}>{editor}</td>
+								</tr>
+								<tr>
+									<td style={historyTableKeyCellStyle}>Request Text</td>
+									<td style={historyTableCellStyle}>{requestText}</td>
+								</tr>
+								<tr>
+									<td style={historyTableKeyCellStyle}>Resolution</td>
+									<td style={historyTableCellStyle}>
+										{resolved ? (
+											resolution
+										) : (
+											<button
+												type="submit"
+												class="btn btn-danger"
+												onClick={handleDecline}
+											>
+												Decline
+											</button>
+										)}
+									</td>
+								</tr>
+								</tbody>
+							</table>
+							{index !== requests.length - 1 && <hr />}
+						</Fragment>
+					);
+				})
+			)}
+		</div>
+	);
 }
 
+const UserHistory = ({ history }) => {
+	return (
+		<div>
+			{history.length === 0 ? (
+				<p>No user history</p>
+			) : (
+				history.map((h, index) => {
+					const { timeMs, editor, changes, changeType } = h;
+					return (
+						<Fragment key={timeMs}>
+							<table className="table table-sm">
+								<tbody>
+									<tr>
+										<td style={historyTableKeyCellStyle}>Time</td>
+										<td style={historyTableCellStyle}>
+											{new Date(timeMs).toLocaleString()}
+										</td>
+									</tr>
+									<tr>
+										<td style={historyTableKeyCellStyle}>Editor</td>
+										<td style={historyTableCellStyle}>{editor}</td>
+									</tr>
+									<tr>
+										<td style={historyTableKeyCellStyle}>Change Type</td>
+										<td style={historyTableCellStyle}>{changeType}</td>
+									</tr>
+									<tr>
+										<td style={historyTableKeyCellStyle}>Changes</td>
+										<td style={historyTableCellStyle}>{changes}</td>
+									</tr>
+								</tbody>
+							</table>
+							{index !== history.length - 1 && <hr />}
+						</Fragment>
+					);
+				})
+			)}
+		</div>
+	);
+};
+
 const PermissionRequestsCard = withAlertCardContainer(
-  PermissionRequests,
-  "Permission Request History"
+	PermissionRequests,
+	"Permission Request History"
 );
 
-class ListAndEditUserPage extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = this.determineInitialState();
+const UserHistoryCard = withAlertCardContainer(UserHistory, "User History");
 
-    this.openEditUser = this.openEditUser.bind(this);
-    this.closeEditUser = this.closeEditUser.bind(this);
-    this.requestListRefresh = this.requestListRefresh.bind(this);
-    this.handleOnPopState = this.handleOnPopState.bind(this);
+function ListAndEditUserPage() {
+	const [activeUsername, setActiveUsername] = useState(INITIAL_USERNAME || null);
+	const [isEditing, setIsEditing] = useState(Boolean(INITIAL_USERNAME));
+	const [requestListRefreshTimestamp, setRequestListRefreshTimestamp] = useState(Date.now());
 
-    window.onpopstate = this.handleOnPopState;
-  }
+	const requestListRefresh = () => {
+		setRequestListRefreshTimestamp(Date.now());
+	}
 
-  determineInitialState() {
-    const usernameToEdit = INITIAL_USERNAME;
-    return {
-      activeUsername: usernameToEdit ? usernameToEdit : null,
-      isEditing: usernameToEdit ? true : false,
-      requestListRefreshTimestamp: Date.now(),
-    };
-  }
+	const openEditUser = (event) => {
+		setActiveUsername(event.target.name);
+		setIsEditing(true);
+		// TODO more elegant handling of back button between /viewUsers and /editUser
+		history.replaceState(null, null, PATHS.editUser + "?username=" + encodeURIComponent(event.target.name));
+		document.title = "Datarouter - Edit User " + event.target.name;
+	};
 
-  openEditUser(event) {
-    this.setState(
-      {
-        activeUsername: event.target.name,
-        isEditing: true,
-      },
-      () => {
-        history.pushState(
-          this.state,
-          null,
-          PATHS.editUser +
-            "?username=" +
-            encodeURIComponent(this.state.activeUsername)
-        );
-        document.title = "Datarouter - Edit User " + this.state.activeUsername;
-      }
-    );
-  }
+	const closeEditUser = () => {
+		setIsEditing(false);
+		// TODO more elegant handling of back button between /viewUsers and /editUser
+		history.replaceState(null, null, PATHS.viewUsers);
+		document.title = "Datarouter - Users";
+	};
 
-  closeEditUser() {
-    this.setState({ isEditing: false }, () => {
-      history.pushState(this.state, null, PATHS.viewUsers);
-      document.title = "Datarouter - Users";
-    });
-  }
-
-  requestListRefresh() {
-    this.setState({ requestListRefreshTimestamp: Date.now() });
-  }
-
-  handleOnPopState(event) {
-    const stateToLoad = event.state
-      ? event.state
-      : this.determineInitialState();
-    //avoid setting activeUsername unless the user is actually being edited, since it can trigger API requests
-    const stateToSet = stateToLoad.isEditing
-      ? stateToLoad
-      : { isEditing: false };
-    this.setState(stateToSet);
-  }
-
-  render() {
-    return (
-      <div>
-        <ViewUser
-          display={this.state.isEditing === true}
-          key={this.state.activeUsername}
-          defaultUsername={this.state.activeUsername}
-          closeEditUser={this.closeEditUser}
-          requestListRefresh={this.requestListRefresh}
-        />
-        <Users
-          display={this.state.isEditing === false}
-          openEditUser={this.openEditUser}
-          requestListRefreshTimestamp={this.state.requestListRefreshTimestamp}
-        />
-      </div>
-    );
-  }
+	return (
+		<Fragment>
+			{ isEditing ? (
+				<EditUserPage
+					defaultUsername={activeUsername}
+					closeEditUser={closeEditUser}
+					requestListRefresh={requestListRefresh}
+				/>
+			) : (
+				<ViewUsersPage
+					display={!isEditing}
+					openEditUser={openEditUser}
+					requestListRefreshTimestamp={requestListRefreshTimestamp}
+				/>
+				)
+			}
+		</Fragment>
+	);
 }
 
 ReactDOM.render(
-  <div>
-    <div className="container">
-      <ListAndEditUserPage />
-    </div>
-  </div>,
-  document.getElementById("app")
+	<div>
+		<div className="container pb-3">
+			<ListAndEditUserPage />
+		</div>
+	</div>,
+	document.getElementById("app")
 );

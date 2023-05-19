@@ -30,16 +30,29 @@ public class DatarouterNodewatchPaths extends PathNode implements PathsRoot{
 	}
 
 	public static class NodewatchPaths extends PathNode{
+		public final PathNode tables = leaf("tables");
+		public final PathNode summary = leaf("summary");
+		public final PathNode configs = leaf("configs");
+		public final PathNode slowSpans = leaf("slowSpans");
+		public final MetadataPaths metadata = branch(MetadataPaths::new, "metadata");
 		public final ThresholdPaths threshold = branch(ThresholdPaths::new, "threshold");
-		public final PathNode tableCount = leaf("tableCount");
-		public final PathNode tableCountChart = leaf("tableCountChart");
-		public final PathNode migrateTableCountMetadata = leaf("migrateTableCountMetadata");
+		public final TablePaths table = branch(TablePaths::new, "table");
+	}
+
+	public static class MetadataPaths extends PathNode{
+		public final PathNode migrate = leaf("migrate");
+	}
+
+	public static class TablePaths extends PathNode{
+		public final PathNode resample = leaf("resample");
+		public final PathNode deleteSamples = leaf("deleteSamples");
+		public final PathNode deleteAllMetadata = leaf("deleteAllMetadata");
+		public final PathNode nodeName = leaf("nodeName");
 	}
 
 	public static class ThresholdPaths extends PathNode{
-		public final PathNode displayThreshold = leaf("displayThreshold");
-		public final PathNode saveThresholds = leaf("saveThresholds");
-		public final PathNode updateThreshold = leaf("updateThreshold");
+		public final PathNode edit = leaf("edit");
+		public final PathNode delete = leaf("delete");
 	}
 
 }

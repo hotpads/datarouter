@@ -188,11 +188,12 @@
 	<!-- modal end -->
 	<%@ include file="/jsp/menu/common-navbar-b4.jsp" %>
 	<div class="container mt-4 mobile-friendly">
-		<a href="${customSettingsPath}" class="btn btn-primary"><i class="fas fa-angle-left"></i>&nbsp;Custom Settings</a>
-		<h2 class="mt-5 pb-2 mb-3 d-flex justify-content-between position-relative">
-			Cluster Settings Browser
+		<h4>Cluster Settings - Browse</h4>
+		Browse settings via the hierarchy defined in code
+		<h5 class="mt-3 d-flex justify-content-between position-relative">
+			Root Nodes
 			<input id="search-settings-autocomplete" class="d-none d-sm-block form-control w-auto" type="text" placeholder="Search...">
-		</h2>
+		</h5>
 		<c:if test="${!categoryMap.isEmpty()}">
 			<ul class="nav nav-tabs">
 				<c:forEach items="${categoryMap}" var="category">
@@ -218,33 +219,76 @@
 				</c:forEach>
 			</div>
 		</c:if>
-		<c:if test="${not empty ancestors}">
-			<nav class="my-2">
-				<ol class="breadcrumb m-0">
-					<c:forEach items="${ancestors}" var="ancestor">
-						<c:choose>
-							<c:when test="${nodeName.equals(ancestor.getName())}">
-								<li class="breadcrumb-item active">${ancestor.getShortName()}</li>
-							</c:when>
-							<c:otherwise>
-								<li class="breadcrumb-item">
-									<a href="?submitAction=browseSettings&name=${ancestor.getName()}">${ancestor.getShortName()}</a>
-								</li>
-							</c:otherwise>
-						</c:choose>
+		<br/>
+		<c:if test="${exists}">
+			<c:choose>
+				<c:when test="${isRoot}">
+					<h5>Location (Root)</h5>
+				</c:when>
+				<c:when test="${isNode}">
+					<h5>Location (Node)</h5>
+				</c:when>
+				<c:otherwise>
+					<h5>Location (Setting)</h5>
+				</c:otherwise>
+			</c:choose>
+			<div class="border my-2 p-2">
+				<nav class="my-2">
+					<ol class="breadcrumb m-0">
+						<c:forEach items="${ancestors}" var="ancestor">
+							<c:choose>
+								<c:when test="${nodeName.equals(ancestor.getName())}">
+									<li class="breadcrumb-item active">${ancestor.getShortName()}</li>
+								</c:when>
+								<c:otherwise>
+									<li class="breadcrumb-item">
+										<a href="?submitAction=browseSettings&name=${ancestor.getName()}">${ancestor.getShortName()}</a>
+									</li>
+								</c:otherwise>
+							</c:choose>
+						</c:forEach>
+						<li class="breadcrumb-item active">
+							<c:if test="${isSetting}">
+								${settingShortName}
+							</c:if>
+						</li>
+					</ol>
+				</nav>
+				Logs:
+				<c:choose>
+					<c:when test="${numNodeLogs > 0}">
+						<a href="${nodeLogHref}">View setting logs (${numNodeLogs})</a>
+					</c:when>
+					<c:otherwise>
+						No logs found
+					</c:otherwise>
+				</c:choose>
+				<br/>
+			</div>
+		</c:if>
+		<c:if test="${(isRoot || isNode) && fn:length(children) > 0}">
+			<br/>
+			<h5>Child Nodes (${fn:length(children)})</h5>
+			<div class="border my-2 p-2">
+				<ul class="nav nav-pills mb-1">
+					<c:forEach items="${children}" var="child">
+						<li class="nav-item"><a class="nav-link" href="?submitAction=browseSettings&name=${child.getName()}">${child.getShortName()}</a></li>
 					</c:forEach>
-				</ol>
-			</nav>
+				</ul>
+			</div>
 		</c:if>
-		<c:if test="${!children.isEmpty()}">
-			<ul class="nav nav-pills mb-4">
-				<c:forEach items="${children}" var="child">
-					<li class="nav-item"><a class="nav-link" href="?submitAction=browseSettings&name=${child.getName()}">${child.getShortName()}</a></li>
-				</c:forEach>
-			</ul>
-		</c:if>
+
 		<c:choose>
-			<c:when test="${listSettings != null && !listSettings.isEmpty()}">
+			<c:when test="${fn:length(listSettings) > 0}">
+				<br/>
+				<c:choose>
+					<c:when test="${isSetting}">
+						<h5>Selected Setting</h5>
+					</c:when>
+					<c:otherwise>
+						<h5>Child Settings (${fn:length(listSettings)})</h5>
+					</c:otherwise>
+				</c:choose>
 				<c:forEach items="${listSettings}" var="setting">
 					<c:set var="settingName" value="${setting.name}"></c:set>
 					<c:set var="customSettings" value="${mapListsCustomSettings.get(settingName)}"></c:set>
@@ -335,7 +379,14 @@
 							&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;&nbsp;
 							<a tabindex="0" id="add_${settingName}" class="show-create-form-btn">add</a>
 							&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;&nbsp;
-							<a href="?submitAction=logsForName&name=${settingName}">view log</a>
+							<c:choose>
+								<c:when test="${setting.numLogs > 0}">
+									<a href="${setting.logHref}">view logs (${setting.numLogs})</a>
+								</c:when>
+								<c:otherwise>
+									<span style="font-weight:100;">no logs found</span>
+								</c:otherwise>
+							</c:choose>
 							<div class="dbOverridesTable px-1 px-sm-4 table-responsive" style="${empty customSettings ? 'display: none' : ''}">
 								<table class="table table-sm settings-table">
 									<thead>
@@ -396,11 +447,17 @@
 				</c:forEach>
 			</c:when>
 			<c:otherwise>
-				<c:if test="${!nodeName.isEmpty()}">
-					<div>
-						<h3>No settings found for "${nodeName}"</h3>
-						<a href="?submitAction=logsForName&name=${nodeName}">try logs</a>
-					</div>
+				<c:if test="${!exists && not empty nodeName}">
+					<br/>
+					<h4>No settings found for "${nodeName}"</h4>
+					<c:choose>
+						<c:when test="${numNodeLogs > 0}">
+							<a href="${nodeLogHref}">View setting logs (${numNodeLogs})</a>
+						</c:when>
+						<c:otherwise>
+							No logs were found for this location either
+						</c:otherwise>
+					</c:choose>
 				</c:if>
 			</c:otherwise>
 		</c:choose>

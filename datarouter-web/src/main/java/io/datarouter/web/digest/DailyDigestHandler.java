@@ -15,13 +15,6 @@
  */
 package io.datarouter.web.digest;
 
-import static j2html.TagCreator.a;
-import static j2html.TagCreator.div;
-import static j2html.TagCreator.each;
-import static j2html.TagCreator.h2;
-import static j2html.TagCreator.li;
-import static j2html.TagCreator.ul;
-
 import java.time.ZoneId;
 import java.util.Comparator;
 import java.util.List;
@@ -38,8 +31,6 @@ import io.datarouter.web.requirejs.DatarouterWebRequireJsV2;
 import io.datarouter.web.user.session.CurrentUserSessionInfoService;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.DivTag;
-import j2html.tags.specialized.H2Tag;
-import j2html.tags.specialized.UlTag;
 
 public class DailyDigestHandler extends BaseHandler{
 
@@ -69,20 +60,7 @@ public class DailyDigestHandler extends BaseHandler{
 				.sort(Comparator.comparing(obj -> obj.digest, DailyDigest.COMPARATOR))
 				.list();
 
-		DivTag content;
-		if(digestsWithContent.isEmpty()){
-			content = div("No content for the daily digest.")
-					.withClass("container-fluid");
-		}else{
-			H2Tag header = h2("Daily Digest - " + type.display);
-			UlTag toc = ul(each(digestsWithContent, digestWithContent -> {
-				DailyDigest digest = digestWithContent.digest();
-				return li(a(digest.getTitle()).withHref("#" + digest.getId()));
-			}));
-			content = div(header, toc, each(digestsWithContent, digestWithContent -> div(digestWithContent.content())
-					.withId(digestWithContent.digest().getId())))
-					.withClass("container-fluid");
-		}
+		DivTag content = DailyDigestHtml.makeContent(type, digestsWithContent);
 		return pageFactory.startBuilder(request)
 				.withTitle("Daily Digest " + type.display)
 				.withContent(content)
@@ -90,10 +68,9 @@ public class DailyDigestHandler extends BaseHandler{
 				.buildMav();
 	}
 
-	private record Digest(
+	public record Digest(
 			DailyDigest digest,
 			DomContent content){
-
 	}
 
 }

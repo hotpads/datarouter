@@ -28,7 +28,7 @@ import io.datarouter.model.databean.Databean;
 import io.datarouter.model.exception.DataAccessException;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
-import io.datarouter.storage.Datarouter;
+import io.datarouter.storage.client.DatarouterClients;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.file.DatabaseBlob;
 import io.datarouter.storage.file.DatabaseBlob.DatabaseBlobFielder;
@@ -53,7 +53,7 @@ extends BaseMysqlOp<List<DatabaseBlobKey>>{
 	private final long nowMs;
 
 	public MysqlLikePathKeyOp(
-			Datarouter datarouter,
+			DatarouterClients datarouterClients,
 			MysqlSqlFactory mysqlSqlFactory,
 			MysqlFieldCodecFactory fieldCodecFactory,
 			PhysicalDatabeanFieldInfo<DatabaseBlobKey,DatabaseBlob,DatabaseBlobFielder> fieldInfo,
@@ -61,7 +61,7 @@ extends BaseMysqlOp<List<DatabaseBlobKey>>{
 			String startKey,
 			Config config,
 			long nowMs){
-		super(datarouter, fieldInfo.getClientId());
+		super(datarouterClients, fieldInfo.getClientId());
 		this.mysqlSqlFactory = mysqlSqlFactory;
 		this.fieldCodecFactory = fieldCodecFactory;
 		this.fieldInfo = fieldInfo;

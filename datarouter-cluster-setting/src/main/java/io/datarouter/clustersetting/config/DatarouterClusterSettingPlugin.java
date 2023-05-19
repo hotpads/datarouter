@@ -34,6 +34,7 @@ import io.datarouter.web.navigation.DatarouterNavBarCategory;
 
 public class DatarouterClusterSettingPlugin extends BaseWebPlugin{
 
+	public static final String NAME = "Cluster Settings";
 	private static final DatarouterClusterSettingPaths PATHS = new DatarouterClusterSettingPaths();
 
 	private DatarouterClusterSettingPlugin(DatarouterClusterSettingDaoModule daosModuleBuilder){
@@ -41,12 +42,23 @@ public class DatarouterClusterSettingPlugin extends BaseWebPlugin{
 		addRouteSet(DatarouterClusterSettingRouteSet.class);
 		addAppListener(SettingNodeValidationAppListener.class);
 		addPluginEntry(BaseTriggerGroup.KEY, DatarouterClusterSettingTriggerGroup.class);
-		String browseSettings = PATHS.datarouter.settings.toSlashedString() + "?submitAction=browseSettings";
-		String settingLogs = PATHS.datarouter.settings.toSlashedString() + "?submitAction=logsForAll";
-		addDatarouterNavBarItem(DatarouterNavBarCategory.SETTINGS, browseSettings, "Browse Settings");
-		addDatarouterNavBarItem(DatarouterNavBarCategory.SETTINGS, settingLogs, "Setting logs");
-		addDatarouterNavBarItem(DatarouterNavBarCategory.SETTINGS, PATHS.datarouter.settings.customSettings,
-				"Custom Settings");
+		addDatarouterNavBarItem(
+				DatarouterNavBarCategory.CONFIGURATION,
+				PATHS.datarouter.settings.toSlashedString() + "?submitAction=browseSettings",
+				DatarouterClusterSettingPlugin.NAME + " - Browse");
+		addDatarouterNavBarItem(
+				DatarouterNavBarCategory.CONFIGURATION,
+				PATHS.datarouter.settings.browse.all,
+				DatarouterClusterSettingPlugin.NAME + " - Browse V2");
+		addDatarouterNavBarItem(
+				DatarouterNavBarCategory.CONFIGURATION,
+				PATHS.datarouter.settings.log.all,
+				DatarouterClusterSettingPlugin.NAME + " - Logs");
+		addDatarouterNavBarItem(
+				DatarouterNavBarCategory.CONFIGURATION,
+				PATHS.datarouter.settings.overrides.view,
+				DatarouterClusterSettingPlugin.NAME + " - Overrides");
+		addDynamicNavBarItem(DatarouterClusterSettingTagsDynamicNavBarMenuItem.class);
 		setDaosModule(daosModuleBuilder);
 		addDatarouterGithubDocLink("datarouter-cluster-setting");
 		addDailyDigest(ClusterSettingDailyDigest.class);

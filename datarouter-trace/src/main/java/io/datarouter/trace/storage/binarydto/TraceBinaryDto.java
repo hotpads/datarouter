@@ -24,9 +24,11 @@ import io.datarouter.instrumentation.trace.Trace2BundleDto;
 import io.datarouter.instrumentation.trace.Trace2Dto;
 import io.datarouter.instrumentation.trace.Trace2SpanDto;
 import io.datarouter.instrumentation.trace.Trace2ThreadDto;
+import io.datarouter.instrumentation.trace.TraceCategory;
 import io.datarouter.instrumentation.trace.TraceSaveReasonType;
 import io.datarouter.instrumentation.trace.Traceparent;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.trace.storage.binarydto.codec.TraceCategoryFieldCodec;
 import io.datarouter.trace.storage.binarydto.codec.TraceSaveReasonTypeFieldCodec;
 import io.datarouter.trace.storage.binarydto.codec.TraceparentFieldCodec;
 
@@ -68,6 +70,9 @@ public class TraceBinaryDto extends BinaryDto<TraceBinaryDto>{
 	@BinaryDtoField(index = 16)
 	public final List<TraceSpanBinaryDto> spans;
 
+	@BinaryDtoField(index = 17, codec = TraceCategoryFieldCodec.class)
+	public final TraceCategory category;
+
 	public TraceBinaryDto(Trace2BundleDto dto){
 		this(
 				dto.traceDto.traceparent,
@@ -85,6 +90,7 @@ public class TraceBinaryDto extends BinaryDto<TraceBinaryDto>{
 				dto.traceDto.memoryAllocatedBytesBegin,
 				dto.traceDto.memoryAllocatedBytesEnded,
 				dto.traceDto.saveReasons,
+				dto.traceDto.category,
 				dto.traceThreadDtos == null
 						? null
 						: Scanner.of(dto.traceThreadDtos)
@@ -97,7 +103,7 @@ public class TraceBinaryDto extends BinaryDto<TraceBinaryDto>{
 								.list());
 	}
 
-	public TraceBinaryDto(
+	private TraceBinaryDto(
 			Traceparent traceparent,
 			String initialParentId,
 			String context,
@@ -113,6 +119,7 @@ public class TraceBinaryDto extends BinaryDto<TraceBinaryDto>{
 			Long memoryAllocatedBytesBegin,
 			Long memoryAllocatedBytesEnded,
 			List<TraceSaveReasonType> saveReasons,
+			TraceCategory category,
 			List<TraceThreadBinaryDto> threads,
 			List<TraceSpanBinaryDto> spans){
 		this.traceparent = traceparent;
@@ -130,6 +137,7 @@ public class TraceBinaryDto extends BinaryDto<TraceBinaryDto>{
 		this.memoryAllocatedBytesBegin = memoryAllocatedBytesBegin;
 		this.memoryAllocatedBytesEnded = memoryAllocatedBytesEnded;
 		this.saveReasons = saveReasons;
+		this.category = category;
 
 		this.threads = threads;
 		this.spans = spans;
@@ -151,7 +159,8 @@ public class TraceBinaryDto extends BinaryDto<TraceBinaryDto>{
 				cpuTimeEndedNs,
 				memoryAllocatedBytesBegin,
 				memoryAllocatedBytesEnded,
-				saveReasons);
+				saveReasons,
+				category);
 		List<Trace2ThreadDto> threadDtos = null;
 		if(threads != null){
 			threadDtos = Scanner.of(threads)

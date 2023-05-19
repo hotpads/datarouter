@@ -16,6 +16,7 @@
 package io.datarouter.client.gcp.pubsub.node;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -114,6 +115,11 @@ implements PhysicalBlobQueueStorageNode<T>, GcpPubsubPhysicalNode<EmptyDatabeanK
 	@Override
 	public boolean getAgeMonitoringStatusForMetricAlert(){
 		return params.getAgeMonitoringStatus();
+	}
+
+	@Override
+	public Duration getCustomMessageAgeThreshold(){
+		return params.getCustomMessageAgeThreshold();
 	}
 
 	@Override

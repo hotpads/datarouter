@@ -26,8 +26,8 @@ import io.datarouter.instrumentation.count.CountCollector;
 import io.datarouter.metric.counter.conveyor.CountBuffers;
 import io.datarouter.model.util.CommonFieldSizes;
 import io.datarouter.storage.setting.Setting;
-import io.datarouter.util.DateTool;
 import io.datarouter.util.string.StringTool;
+import io.datarouter.util.time.EpochMillisTool;
 
 public class DatarouterCountCollector implements CountCollector{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterCountCollector.class);
@@ -37,29 +37,21 @@ public class DatarouterCountCollector implements CountCollector{
 
 	private final long flushIntervalMs;
 	private final CountBuffers countBuffers;
-	private final Setting<Boolean> saveCounts;
 	private final Setting<Boolean> saveCountStats;
-
-	@Deprecated
-	private HashMap<Long,Map<String,Long>> valueByNameByPeriodStartMs;
 	private HashMap<Long,Map<String,CountCollectorStats>> statsByNameByPeriodStartMs;
 	private long minTimeMs;
 	private long nextFlushMs;
 
-	public DatarouterCountCollector(long flushIntervalMs, CountBuffers countBuffers,
-			Setting<Boolean> saveCounts, Setting<Boolean> saveCountStats){
-		this.minTimeMs = DateTool.getPeriodStart(flushIntervalMs);
+	public DatarouterCountCollector(long flushIntervalMs, CountBuffers countBuffers, Setting<Boolean> saveCountStats){
+		this.minTimeMs = EpochMillisTool.getPeriodStart(flushIntervalMs);
 		this.flushIntervalMs = flushIntervalMs;
 		this.nextFlushMs = minTimeMs + flushIntervalMs;
-		this.valueByNameByPeriodStartMs = new HashMap<>();
 		this.statsByNameByPeriodStartMs = new HashMap<>();
 		this.countBuffers = countBuffers;
-		this.saveCounts = saveCounts;
 		this.saveCountStats = saveCountStats;
 	}
 
 	private void flush(long flushingMs){
-		Map<Long,Map<String,Long>> snapshot;
 		Map<Long,Map<String,CountCollectorStats>> statsSnapshot;
 
 		//time to flush, a few threads may wait here
@@ -70,21 +62,16 @@ public class DatarouterCountCollector implements CountCollector{
 			//other threads waiting will return in the block above
 			minTimeMs = flushingMs;
 			nextFlushMs = flushingMs + flushIntervalMs;
-			snapshot = valueByNameByPeriodStartMs;
 			statsSnapshot = statsByNameByPeriodStartMs;
 			if(logger.isInfoEnabled()){
 				logger.info(
 						"flushing periods=[{}], currentFlush={}",
-						snapshot.keySet().stream()
+						statsSnapshot.keySet().stream()
 								.map(String::valueOf)
 								.collect(Collectors.joining(",")),
 						flushingMs);
 			}
-			valueByNameByPeriodStartMs = new HashMap<>();
 			statsByNameByPeriodStartMs = new HashMap<>();
-		}
-		if(saveCounts.get() && !snapshot.isEmpty()){
-			countBuffers.offer(snapshot);
 		}
 		if(saveCountStats.get() && !statsSnapshot.isEmpty()){
 			countBuffers.offerCountStats(statsSnapshot);
@@ -119,16 +106,14 @@ public class DatarouterCountCollector implements CountCollector{
 			//fix timeMs if it should have triggered a flush but didn't
 			timeMs = Long.min(timeMs, nextFlushMs - 1);
 			//if flushIntervalMs and PERIOD_GRANULARITY_MS do not line up, periodStartMs may be < minTimeMs (this is ok)
-			long periodStartMs = DateTool.getPeriodStart(timeMs, PERIOD_GRANULARITY_MS);
-			total = valueByNameByPeriodStartMs
-					.computeIfAbsent(periodStartMs, $ -> new HashMap<>(METRICS_INITIAL_CAPACITY))
-					.merge(key, delta, Long::sum);
+			long periodStartMs = EpochMillisTool.getPeriodStart(timeMs, PERIOD_GRANULARITY_MS);
 
 			CountCollectorStats prevStats = statsByNameByPeriodStartMs
 					.computeIfAbsent(periodStartMs, $ -> new HashMap<>(METRICS_INITIAL_CAPACITY))
 					.computeIfAbsent(key, $ -> new CountCollectorStats(0, 0, delta, delta));
 			CountCollectorStats newStats = CountCollectorStats.updateStats(prevStats, delta);
 			statsByNameByPeriodStartMs.get(periodStartMs).put(key, newStats);
+			total = newStats.sum();
 		}
 		return total;
 	}
@@ -140,11 +125,10 @@ public class DatarouterCountCollector implements CountCollector{
 
 	private static String sanitizeName(String name){
 		String sanitized = StringTool.trimToSize(name, CommonFieldSizes.DEFAULT_LENGTH_VARCHAR);
-		sanitized = StringTool.removeNonStandardCharacters(sanitized);
-		return sanitized;
+		return StringTool.removeNonStandardCharacters(sanitized);
 	}
 
-	public static record CountCollectorStats(
+	public record CountCollectorStats(
 			long sum,
 			long count,
 			long min,

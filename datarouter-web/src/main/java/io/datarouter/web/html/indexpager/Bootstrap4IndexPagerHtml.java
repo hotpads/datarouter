@@ -41,14 +41,19 @@ public class Bootstrap4IndexPagerHtml{
 	}
 
 	public static DivTag renderLinkBar(IndexPage<?> indexPage, String path){
-		String message = String.format("Showing %s to %s",
-				NumberFormatter.addCommas(indexPage.fromRow),
-				NumberFormatter.addCommas(indexPage.toRow));
-		if(indexPage.totalRows.isPresent()){
-			message += " of " + NumberFormatter.addCommas(indexPage.totalRows.get());
+		String message;
+		if(indexPage.totalRows.isPresent() && indexPage.totalRows.orElseThrow() == 0){
+			message = "No rows found";
+		}else{
+			message = String.format("Showing %s to %s",
+					NumberFormatter.addCommas(indexPage.fromRow),
+					NumberFormatter.addCommas(indexPage.toRow));
+			if(indexPage.totalRows.isPresent()){
+				message += " of " + NumberFormatter.addCommas(indexPage.totalRows.get());
+			}
 		}
 		var summary = span(message)
-				.withClass("mt-2 ml-2");
+				.withClass("mt-2 ml-3");
 		var links = Scanner.of(IndexPagerHtml.makeLinks(path, indexPage))
 				.map(pageLink -> a(pageLink.text)
 						.withHref(pageLink.href))

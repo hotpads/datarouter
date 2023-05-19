@@ -80,7 +80,7 @@ public class DatarouterAwsRdsConfigSettings extends SettingNode{
 		dbOtherEastParameterGroup = registerString("dbOtherEastParameterGroup", "");
 		dbOtherWestParameterGroup = registerString("dbOtherWestParameterGroup", "");
 		dbOtherPromotionTier = registerInteger("dbOtherPromotionTier", 15);
-		dbOtherInstanceType = registerString("dbOtherInstanceType", "db.t3.small");
+		dbOtherInstanceType = registerString("dbOtherInstanceType", "db.t4g.medium");
 	}
 
 	public String getParameterGroup(String region){

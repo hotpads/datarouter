@@ -30,8 +30,8 @@ public class DatarouterDocumentationHandler extends DatarouterUserBasedDocumenta
 	@Inject
 	private ServiceName serviceName;
 
-	@Handler(defaultHandler = true)
-	public Mav viewDocumentation(){
+	@Handler
+	public Mav docs(){
 		return Scanner.of(routeSetRegistry.get())
 				.include(clazz -> clazz instanceof DocumentationRouteSet)
 				.listTo(routeSets -> createDocumentationMav(serviceName.get(), "", routeSets));

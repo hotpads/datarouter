@@ -71,7 +71,7 @@ public class WebappInstanceDailyDigest implements DailyDigest{
 		if(logs.isEmpty()){
 			return Optional.empty();
 		}
-		var header = digestService.makeHeader("Deployments", paths.datarouter.webappInstances);
+		var header = digestService.makeHeader("Deployments", paths.datarouter.webappInstances.running);
 		var table = buildPageTable(logs, zoneId);
 		return Optional.of(div(header, table));
 	}
@@ -82,7 +82,7 @@ public class WebappInstanceDailyDigest implements DailyDigest{
 		if(logs.isEmpty() || logs.size() <= standardDeploymentCount.getNumberOfStandardDeployments()){
 			return Optional.empty();
 		}
-		var header = digestService.makeHeader("Deployments", paths.datarouter.webappInstances);
+		var header = digestService.makeHeader("Deployments", paths.datarouter.webappInstances.running);
 		var table = buildEmailTable(logs, zoneId);
 		return Optional.of(div(header, table));
 	}

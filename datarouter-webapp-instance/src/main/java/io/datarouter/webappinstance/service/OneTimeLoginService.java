@@ -36,7 +36,7 @@ import io.datarouter.webappinstance.storage.onetimelogintoken.OneTimeLoginTokenK
 import io.datarouter.webappinstance.storage.webappinstance.DatarouterWebappInstanceDao;
 import io.datarouter.webappinstance.storage.webappinstance.WebappInstance;
 import io.datarouter.webappinstance.storage.webappinstance.WebappInstanceKey;
-import io.datarouter.webappinstance.web.WebappInstanceHandler;
+import io.datarouter.webappinstance.web.WebappInstanceRunningHandler;
 
 @Singleton
 public class OneTimeLoginService{
@@ -71,8 +71,8 @@ public class OneTimeLoginService{
 		oneTimeLoginDao.put(oneTimeLoginToken);
 
 		var mav = new GlobalRedirectMav(buildRedirectUrl(request, target, shouldUseIp), true);
-		mav.put(WebappInstanceHandler.P_USER_ID, session.getUserId());
-		mav.put(WebappInstanceHandler.P_TOKEN, token);
+		mav.put(WebappInstanceRunningHandler.P_USER_ID, session.getUserId());
+		mav.put(WebappInstanceRunningHandler.P_TOKEN, token);
 		return mav;
 	}
 
@@ -83,7 +83,7 @@ public class OneTimeLoginService{
 				.append(":")
 				.append(request.getServerPort())
 				.append(target.getServletContextPath())
-				.append(paths.datarouter.webappInstances.toSlashedString())
+				.append(paths.datarouter.webappInstances.running.toSlashedString())
 				.toString();
 	}
 

@@ -66,6 +66,7 @@ public class DatarouterJobletQueueDao extends BaseDao{
 									JobletRequestFielder::new)
 									.withQueueName(nodeName)
 									.withTag(Tag.DATAROUTER)
+									.withCustomMessageAgeThreshold(queueKey.type.customMessageAgeThreshold)
 									.buildAndRegister();
 						});
 	}

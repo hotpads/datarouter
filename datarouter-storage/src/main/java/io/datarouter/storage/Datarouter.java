@@ -15,9 +15,6 @@
  */
 package io.datarouter.storage;
 
-import java.util.Collection;
-import java.util.List;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -54,18 +51,14 @@ public class Datarouter{
 			N extends Node<PK,D,F>>
 	N register(N node){
 		nodes.register(node);
-		for(ClientId clientId : registerClientIds(node.getClientIds())){
+		for(ClientId clientId : clients.registerClientIds(node.getClientIds())){
 			ClientManager clientManager = clients.getClientManager(clientId);
 			clientManager.doSchemaUpdate(node.getPhysicalNodesForClient(clientId.getName()));
 		}
 		return node;
 	}
 
-	private List<ClientId> registerClientIds(Collection<ClientId> clientIds){
-		return clients.registerClientIds(clientIds);
-	}
-
-	public synchronized void assertRegistered(Dao dao){
+	public void assertRegistered(Dao dao){
 		if(!(dao instanceof TestDao)
 				&& !daoClasses.get().contains(dao.getClass())){
 			throw new IllegalArgumentException("Unknown dao: " + dao.getClass().getSimpleName()
@@ -75,14 +68,6 @@ public class Datarouter{
 
 	public void shutdown(){
 		clients.shutdown();
-	}
-
-	public DatarouterClients getClientPool(){
-		return clients;
-	}
-
-	public DatarouterNodes getNodes(){
-		return nodes;
 	}
 
 }

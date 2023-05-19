@@ -18,32 +18,32 @@ package io.datarouter.client.mysql.op;
 import java.sql.Connection;
 
 import io.datarouter.client.mysql.MysqlConnectionClientManager;
-import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientManager;
+import io.datarouter.storage.client.DatarouterClients;
 
 public abstract class BaseMysqlOp<T>{
 
-	private final Datarouter datarouter;
+	private final DatarouterClients datarouterClients;
 	private final Isolation isolation;
 	private final boolean autoCommit;
 	private final ClientId clientId;
 
-	public BaseMysqlOp(Datarouter datarouter, ClientId clientId, Isolation isolation, boolean autoCommit){
-		this.datarouter = datarouter;
+	public BaseMysqlOp(DatarouterClients datarouterClients, ClientId clientId, Isolation isolation, boolean autoCommit){
+		this.datarouterClients = datarouterClients;
 		this.clientId = clientId;
 		this.isolation = isolation;
 		this.autoCommit = autoCommit;
 	}
 
-	public BaseMysqlOp(Datarouter datarouter, ClientId clientId){
-		this(datarouter, clientId, Isolation.DEFAULT, false);
+	public BaseMysqlOp(DatarouterClients datarouterClients, ClientId clientId){
+		this(datarouterClients, clientId, Isolation.DEFAULT, false);
 	}
 
 	public abstract T runOnce();
 
 	public Connection getConnection(){
-		ClientManager clientManager = datarouter.getClientPool().getClientManager(clientId);
+		ClientManager clientManager = datarouterClients.getClientManager(clientId);
 		if(clientManager instanceof MysqlConnectionClientManager){
 			MysqlConnectionClientManager mysqlConnectionClientManager = (MysqlConnectionClientManager)clientManager;
 			return mysqlConnectionClientManager.getExistingConnection(clientId);

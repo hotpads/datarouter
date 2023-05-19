@@ -32,8 +32,8 @@ public interface StorageWriter<
 		D extends Databean<PK,D>>
 extends NodeOps<PK,D>{
 
-	public static final String OP_put = "put";
-	public static final String OP_putMulti = "putMulti";
+	String OP_put = "put";
+	String OP_putMulti = "putMulti";
 
 	void put(D databean, Config config);
 
@@ -47,7 +47,7 @@ extends NodeOps<PK,D>{
 		putMulti(databeans, new Config());
 	}
 
-	public interface StorageWriterNode<
+	interface StorageWriterNode<
 			PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>

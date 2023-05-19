@@ -94,16 +94,9 @@ public class DatarouterUserHistoryService{
 								new HistoryChange(request.getResolution().persistentString, Optional.empty()))));
 	}
 
-	public static record HistoryChange(
+	public record HistoryChange(
 			String changes,
 			Optional<DatarouterUser> editor){
-	}
-
-	public Optional<String> getResolutionDescription(
-			DatarouterPermissionRequest request,
-			Map<DatarouterUserHistoryKey,String> historyMap){
-		return request.toUserHistoryKey()
-				.map(historyKey -> historyMap.getOrDefault(historyKey, request.getResolution().persistentString));
 	}
 
 	public void putAndRecordCreate(DatarouterUser user, Long editorId, String editorUsername, String description){
@@ -209,6 +202,11 @@ public class DatarouterUserHistoryService{
 		recordProvisioningChangelogs(users, editor, DatarouterUserChangeType.RESTORE);
 	}
 
+	public List<DatarouterUserHistory> getHistoryForUser(Long userId){
+		return baseDatarouterUserHistoryDao.scanWithPrefix(new DatarouterUserHistoryKey(userId, null))
+				.list();
+	}
+
 	private void recordProvisioningChangelogs(
 			List<DatarouterUser> users,
 			Optional<DatarouterUser> editor,
@@ -253,7 +251,7 @@ public class DatarouterUserHistoryService{
 	private void sendRoleEditEmail(DatarouterUser user, DatarouterUserHistory history, String signInUrl){
 		DatarouterUser editor = datarouterUserService.getUserById(history.getEditor());
 		var p1 = p(String.format("%s permissions have been edited by %s", user.getUsername(), editor.getUsername()));
-		var p2 = p("Changes: " + history.getChanges());
+		var p2 = p("Changes: " + history.getChanges()).withStyle("white-space: pre-wrap");
 		var content = div(p1, p2, makeSignInParagraph(signInUrl));
 		var emailBuilder = htmlEmailService.startEmailBuilder()
 				.withSubject(userEditService.getPermissionRequestEmailSubject(user))

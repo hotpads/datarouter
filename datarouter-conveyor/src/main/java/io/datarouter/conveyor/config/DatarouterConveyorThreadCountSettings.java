@@ -30,12 +30,14 @@ import io.datarouter.storage.setting.cached.CachedSetting;
 @Singleton
 public class DatarouterConveyorThreadCountSettings extends SettingNode{
 
+	public static String SETTING_NAME_PREFIX = "threadCount.";
+
 	private final Map<String,CachedSetting<Integer>> settingByConveyorName = new HashMap<>();
 
 	@Inject
 	public DatarouterConveyorThreadCountSettings(SettingFinder finder,
 			ConveyorConfigurationGroupService conveyorConfigurationGroupService){
-		super(finder, "datarouterConveyor.threadCount.");
+		super(finder, DatarouterConveyorSettingRoot.SETTING_NAME_PREFIX + SETTING_NAME_PREFIX);
 		conveyorConfigurationGroupService.getAllPackages()
 				.forEach(this::registerSetting);
 	}

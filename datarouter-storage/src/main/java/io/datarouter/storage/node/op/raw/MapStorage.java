@@ -21,17 +21,19 @@ import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.node.op.raw.read.MapStorageReader;
 import io.datarouter.storage.node.op.raw.write.MapStorageWriter;
 
-public interface MapStorage<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
+public interface MapStorage<
+		PK extends PrimaryKey<PK>,
+		D extends Databean<PK,D>>
 extends MapStorageReader<PK,D>, MapStorageWriter<PK,D>{
 
-	public interface MapStorageNode<
+	interface MapStorageNode<
 			PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
 	extends MapStorage<PK,D>, MapStorageReaderNode<PK,D,F>, MapStorageWriterNode<PK,D,F>{
 	}
 
-	public interface PhysicalMapStorageNode<
+	interface PhysicalMapStorageNode<
 			PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>

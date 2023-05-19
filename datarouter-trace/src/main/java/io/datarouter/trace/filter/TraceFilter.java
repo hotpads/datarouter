@@ -47,6 +47,7 @@ import io.datarouter.instrumentation.trace.Trace2BundleDto;
 import io.datarouter.instrumentation.trace.Trace2Dto;
 import io.datarouter.instrumentation.trace.Trace2SpanDto;
 import io.datarouter.instrumentation.trace.Trace2ThreadDto;
+import io.datarouter.instrumentation.trace.TraceCategory;
 import io.datarouter.instrumentation.trace.TraceSaveReasonType;
 import io.datarouter.instrumentation.trace.Traceparent;
 import io.datarouter.instrumentation.trace.Tracer;
@@ -186,7 +187,8 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 						cpuTimeEnded,
 						threadAllocatedBytesBegin,
 						threadAllocatedBytesEnded,
-						saveReasons);
+						saveReasons,
+						TraceCategory.HTTP_REQUEST);
 
 				Long traceDurationMs = trace2.getDurationInMs();
 				long mainThreadCpuTimeNs = saveCpuTime ? cpuTimeEnded - cpuTimeBegin : -1;
@@ -291,7 +293,6 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 							threadAllocatedKB,
 							trace2.type,
 							trace2.params,
-							traceparent,
 							saveReasons);
 				}
 				Optional<Class<? extends BaseHandler>> handlerClassOpt = RequestAttributeTool.get(
@@ -389,6 +390,7 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 				: binaryBody;
 	}
 
+	@SuppressWarnings("deprecation")
 	private static String formatParamMap(Map<String,String[]> paramMap){
 		Map<String,List<String>> trimmed = Scanner.of(paramMap.entrySet())
 				.toMap(Entry::getKey,

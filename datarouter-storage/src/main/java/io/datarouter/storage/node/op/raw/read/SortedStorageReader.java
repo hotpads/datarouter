@@ -42,13 +42,13 @@ public interface SortedStorageReader<
 		D extends Databean<PK,D>>
 extends NodeOps<PK,D>{
 
-	public static final String OP_getKeysInRange = "getKeysInRange";
-	public static final String OP_getRange = "getRange";
-	public static final String OP_getPrefixedRange = "getPrefixedRange";
-	public static final String OP_scanKeys = "scanKeys";
-	public static final String OP_scanRangesKeys = "scanRangesKeys";
-	public static final String OP_scan = "scan";
-	public static final String OP_scanRanges = "scanRanges";
+	String OP_getKeysInRange = "getKeysInRange";
+	String OP_getRange = "getRange";
+	String OP_getPrefixedRange = "getPrefixedRange";
+	String OP_scanKeys = "scanKeys";
+	String OP_scanRangesKeys = "scanRangesKeys";
+	String OP_scan = "scan";
+	String OP_scanRanges = "scanRanges";
 
 	/*-------------------------------- scan multi ---------------------------------*/
 
@@ -179,7 +179,7 @@ extends NodeOps<PK,D>{
 
 	/*---------------------------- sub-interfaces ---------------------------*/
 
-	public interface SortedStorageReaderNode<
+	interface SortedStorageReaderNode<
 			PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
@@ -187,10 +187,11 @@ extends NodeOps<PK,D>{
 	}
 
 
-	public interface PhysicalSortedStorageReaderNode<
+	interface PhysicalSortedStorageReaderNode<
 			PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
 	extends PhysicalNode<PK,D,F>, SortedStorageReaderNode<PK,D,F>{
 	}
+
 }

@@ -59,6 +59,10 @@ public class ClusterSettingKey extends BaseRegularPrimaryKey<ClusterSettingKey>{
 		this.serverName = serverName;
 	}
 
+	public static ClusterSettingKey prefix(String name){
+		return new ClusterSettingKey(name, null, null, null);
+	}
+
 	@Override
 	public List<Field<?>> getFields(){
 		return List.of(

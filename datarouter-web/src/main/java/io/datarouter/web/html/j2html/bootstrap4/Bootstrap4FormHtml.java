@@ -26,6 +26,7 @@ import static j2html.TagCreator.span;
 import static j2html.TagCreator.text;
 import static j2html.TagCreator.textarea;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
 import io.datarouter.scanner.Scanner;
@@ -33,6 +34,7 @@ import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.html.form.HtmlForm;
 import io.datarouter.web.html.form.HtmlForm.BaseHtmlFormField;
 import io.datarouter.web.html.form.HtmlFormButton;
+import io.datarouter.web.html.form.HtmlFormButtonWithoutSubmitAction;
 import io.datarouter.web.html.form.HtmlFormCheckbox;
 import io.datarouter.web.html.form.HtmlFormDate;
 import io.datarouter.web.html.form.HtmlFormDateTime;
@@ -57,10 +59,17 @@ public class Bootstrap4FormHtml{
 	}
 
 	public static FormTag render(HtmlForm form, boolean inline){
-		return form(renderFields(form))
+		var formTag = form(renderFields(form))
 				.withAction(form.getAction())
 				.withCondClass(inline, "form-inline")
 				.withMethod(form.getMethod());
+		Scanner.of(form.getHiddenFields())
+				.map(hiddenField -> input()
+						.withType("hidden")
+						.withName(hiddenField.name())
+						.withValue(hiddenField.value()))
+				.forEach(formTag::with);
+		return formTag;
 	}
 
 	private static DivTag[] renderFields(HtmlForm form){
@@ -69,28 +78,30 @@ public class Bootstrap4FormHtml{
 				.toArray(DivTag[]::new);
 	}
 
-	private static DivTag renderField(BaseHtmlFormField field){
+	private static DivTag renderField(BaseHtmlFormField baseField){
 		DivTag div;
-		if(field instanceof HtmlFormButton){
-			div = submitButton((HtmlFormButton)field);
-		}else if(field instanceof HtmlFormCheckbox){
-			div = checkboxField((HtmlFormCheckbox)field);
-		}else if(field instanceof HtmlFormEmail){
-			div = emailField((HtmlFormEmail)field);
-		}else if(field instanceof HtmlFormPassword){
-			div = passwordField((HtmlFormPassword)field);
-		}else if(field instanceof HtmlFormSelect){
-			div = selectField((HtmlFormSelect)field);
-		}else if(field instanceof HtmlFormText){
-			div = textField((HtmlFormText)field);
-		}else if(field instanceof HtmlFormTextArea){
-			div = textField((HtmlFormTextArea)field);
-		}else if(field instanceof HtmlFormDate){
-			div = dateField((HtmlFormDate)field);
-		}else if(field instanceof HtmlFormDateTime){
-			div = dateTimeField((HtmlFormDateTime)field);
+		if(baseField instanceof HtmlFormButton field){
+			div = submitButton(field);
+		}else if(baseField instanceof HtmlFormButtonWithoutSubmitAction field){
+			div = submitButtonWithoutSubmitAction(field);
+		}else if(baseField instanceof HtmlFormCheckbox field){
+			div = checkboxField(field);
+		}else if(baseField instanceof HtmlFormEmail field){
+			div = emailField(field);
+		}else if(baseField instanceof HtmlFormPassword field){
+			div = passwordField(field);
+		}else if(baseField instanceof HtmlFormSelect field){
+			div = selectField(field);
+		}else if(baseField instanceof HtmlFormText field){
+			div = textField(field);
+		}else if(baseField instanceof HtmlFormTextArea field){
+			div = textField(field);
+		}else if(baseField instanceof HtmlFormDate field){
+			div = dateField(field);
+		}else if(baseField instanceof HtmlFormDateTime field){
+			div = dateTimeField(field);
 		}else{
-			throw new IllegalArgumentException(field.getClass() + "is an unknown subclass of "
+			throw new IllegalArgumentException(baseField.getClass() + "is an unknown subclass of "
 					+ BaseHtmlFormField.class);
 		}
 		return div(div)
@@ -100,8 +111,19 @@ public class Bootstrap4FormHtml{
 	private static DivTag submitButton(HtmlFormButton field){
 		var button = button(field.getDisplay())
 				.withClass("btn btn-success mx-1")
-				.withName(BaseHandler.SUBMIT_ACTION)
+				.withName(BaseHandler.SUBMIT_ACTION)// Ideally this would not be here
 				.withType("submit")
+				.withValue(field.getValue());
+		return div(button)
+				.withClass("form-group");
+	}
+
+	// TODO this should become the standard, where submitAction is built into the path
+	private static DivTag submitButtonWithoutSubmitAction(HtmlFormButtonWithoutSubmitAction field){
+		var button = button(field.getDisplay())
+				.withClass("btn btn-success mx-1")
+				.withType("submit")
+				.withName(field.getName())
 				.withValue(field.getValue());
 		return div(button)
 				.withClass("form-group");
@@ -112,7 +134,9 @@ public class Bootstrap4FormHtml{
 				.withClass("form-check-input")
 				.withName(field.getName())
 				.withType("checkbox")
-				.condAttr(field.isChecked(), Attr.CHECKED, null);
+				.withValue("true")// replacing "on" for compatibility with standard Optional<Boolean> Handler params
+				.condAttr(field.isChecked(), Attr.CHECKED, null)
+				.condAttr(field.isSubmitOnChange(), "onchange", "this.form.submit()");
 		var label = label(input, text(field.getDisplay()))
 				.withClass("form-check-label");
 		return div(label)
@@ -159,7 +183,7 @@ public class Bootstrap4FormHtml{
 								.include(selected -> entry.getValue().equals(selected))
 								.findFirst()
 								.ifPresent($ -> option.attr(Attr.SELECTED));
-					}else if(entry.getValue().equals(field.getSelected())){
+					}else if(entry.getKey().equals(field.getSelected())){
 						option.attr(Attr.SELECTED);
 					}
 					return option;
@@ -170,7 +194,8 @@ public class Bootstrap4FormHtml{
 				.withName(field.getName())
 				.attr(Attr.SIZE, field.getSize())
 				.condAttr(field.isMultiple(), "multiple", null)
-				.condAttr(field.isRequired(), "required", null);
+				.condAttr(field.isRequired(), "required", null)
+				.condAttr(field.isSubmitOnChange(), "onchange", "this.form.submit()");
 		return div(label, select)
 				.withClass("form-group");
 	}
@@ -190,7 +215,8 @@ public class Bootstrap4FormHtml{
 				.withType("text")
 				.withCondReadonly(field.isReadOnly())
 				.withValue(field.getValue())
-				.condAttr(field.isRequired(), "required", null);
+				.condAttr(field.isRequired(), "required", null)
+				.condAttr(field.isSubmitOnChange(), "onchange", "this.form.submit()");
 		var error = field.getError() == null ? null : div(field.getError())
 				.withClass("invalid-feedback");
 		return div(label, input, error)
@@ -270,6 +296,15 @@ public class Bootstrap4FormHtml{
 				.withClass("invalid-feedback");
 		return div(label, input, error)
 				.withClass("form-group");
+	}
+
+	public static long parseDateFieldToEpochMillis(String dateString){
+		try{
+			return DATE_FORMAT.parse(dateString).getTime();
+		}catch(ParseException e){
+			String message = String.format("invalid input=%s", dateString);
+			throw new IllegalArgumentException(message, e);
+		}
 	}
 
 }

@@ -24,6 +24,8 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import io.datarouter.web.user.role.Role;
+
 public interface UserSessionService{
 
 	void setSessionCookies(HttpServletResponse response, Session session);

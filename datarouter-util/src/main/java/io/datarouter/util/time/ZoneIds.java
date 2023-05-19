@@ -47,6 +47,6 @@ public class ZoneIds{
 			PACIFIC_HONOLULU,
 			UTC);
 
-	public static final ZoneOffset EDT = ZoneOffset.ofHours(-4);
+	public static final ZoneOffset EDT_OFFSET = ZoneOffset.ofHours(-4);
 
 }

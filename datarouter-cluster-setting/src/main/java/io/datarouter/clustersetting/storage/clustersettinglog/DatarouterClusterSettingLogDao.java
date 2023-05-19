@@ -15,9 +15,11 @@
  */
 package io.datarouter.clustersetting.storage.clustersettinglog;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -36,6 +38,7 @@ import io.datarouter.storage.node.factory.SettinglessDatabeanNodeFactory;
 import io.datarouter.storage.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
 import io.datarouter.storage.node.op.index.IndexReader;
 import io.datarouter.storage.tag.Tag;
+import io.datarouter.storage.util.KeyRangeTool;
 import io.datarouter.util.DateTool;
 import io.datarouter.util.tuple.Range;
 import io.datarouter.virtualnode.redundant.RedundantIndexedSortedMapStorageNode;
@@ -85,12 +88,35 @@ public class DatarouterClusterSettingLogDao extends BaseDao{
 		datarouter.register(node);
 	}
 
+	public Optional<ClusterSettingLog> find(ClusterSettingLogKey key){
+		return node.find(key);
+	}
+
 	public void put(ClusterSettingLog databean){
 		node.put(databean);
 	}
 
 	public void putMulti(Collection<ClusterSettingLog> databeans){
 		node.putMulti(databeans);
+	}
+
+	public boolean hasLogs(String settingName){
+		var prefix = ClusterSettingLogKey.prefix(settingName);
+		return node.scanWithPrefix(prefix, new Config().setLimit(1))
+				.hasAny();
+	}
+
+	public long countSettingLogs(String settingName){
+		var prefix = ClusterSettingLogKey.prefix(settingName);
+		return node.scanWithPrefix(prefix)
+				.count();
+	}
+
+	public Scanner<ClusterSettingLog> scanWithWildcardPrefix(String settingNamePrefix){
+		Range<ClusterSettingLogKey> range = KeyRangeTool.forPrefixWithWildcard(
+				settingNamePrefix,
+				ClusterSettingLogKey::prefix);
+		return node.scan(range);
 	}
 
 	public Scanner<ClusterSettingLog> scanWithPrefix(ClusterSettingLogKey prefix){
@@ -101,16 +127,32 @@ public class DatarouterClusterSettingLogDao extends BaseDao{
 		return node.scanWithPrefixes(prefixes);
 	}
 
+	public Scanner<ClusterSettingLog> scanByReversedCreatedMs(){
+		return byReversedCreatedMs.scanDatabeans();
+	}
+
+	public Scanner<ClusterSettingLog> scanByReversedCreatedMs(
+			Range<ClusterSettingLogByReversedCreatedMsKey>range){
+		return byReversedCreatedMs.scanDatabeans(range);
+	}
+
 	public Scanner<ClusterSettingLog> scanByReversedCreatedMs(
 			Range<ClusterSettingLogByReversedCreatedMsKey>range,
 			int limit){
 		return byReversedCreatedMs.scanDatabeans(range, new Config().setLimit(limit));
 	}
 
+	public Scanner<ClusterSettingLog> scanBeforeDesc(Instant instant){
+		long reverseCreatedMs = DateTool.toReverseInstantLong(instant);
+		var prefix = ClusterSettingLogByReversedCreatedMsKey.prefix(reverseCreatedMs);
+		var range = new Range<>(prefix, false, null, true);
+		return scanByReversedCreatedMs(range);
+	}
+
 	public boolean isOldDatabaseSetting(ClusterSetting databeanSetting, int numOfDays){
 		Date maxSettingAge = DateTool.getDaysAgo(numOfDays);
 		return node
-				.scanKeysWithPrefix(ClusterSettingLogKey.createPrefix(databeanSetting.getName()),
+				.scanKeysWithPrefix(ClusterSettingLogKey.prefix(databeanSetting.getName()),
 						new Config().setLimit(1))
 				.findFirst()
 				.map(ClusterSettingLogKey::getCreated)

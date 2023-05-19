@@ -22,7 +22,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import io.datarouter.web.user.role.DatarouterUserRole;
-import io.datarouter.web.user.session.service.RoleEnum;
+import io.datarouter.web.user.role.RoleEnum;
 
 public class BaseRouteSetTests{
 

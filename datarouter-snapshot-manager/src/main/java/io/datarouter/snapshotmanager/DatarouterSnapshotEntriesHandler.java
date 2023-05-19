@@ -100,7 +100,7 @@ public class DatarouterSnapshotEntriesHandler extends BaseHandler{
 				.list();
 		var table = new J2HtmlTable<SnapshotRecordStrings>()
 				.withClasses("sortable table table-sm table-striped my-4 border")
-				.withColumn("id", SnapshotRecordStrings::id)
+				.withColumn("id", SnapshotRecordStrings::id, Number::toString)
 				.withColumn(decoder.keyName(), SnapshotRecordStrings::key)
 				.withColumn(decoder.valueName(), row -> {
 					if(row.value() == null){

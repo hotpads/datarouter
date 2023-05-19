@@ -65,6 +65,7 @@ public class ClusterSettingLogJspDto{
 		return name.split("\\.");
 	}
 
+	@SuppressWarnings("deprecation")
 	public String getCreated(){
 		return ZonedDateFormatterTool.formatDateWithZone(created, zoneId);
 	}

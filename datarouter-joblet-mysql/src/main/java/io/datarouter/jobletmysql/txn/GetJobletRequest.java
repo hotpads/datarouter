@@ -30,7 +30,7 @@ import io.datarouter.joblet.storage.jobletrequest.JobletRequest;
 import io.datarouter.joblet.storage.jobletrequest.JobletRequest.JobletRequestFielder;
 import io.datarouter.joblet.storage.jobletrequest.JobletRequestKey;
 import io.datarouter.joblet.type.JobletType;
-import io.datarouter.storage.Datarouter;
+import io.datarouter.storage.client.DatarouterClients;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
 
 public class GetJobletRequest extends BaseMysqlOp<JobletRequest>{
@@ -47,13 +47,13 @@ public class GetJobletRequest extends BaseMysqlOp<JobletRequest>{
 	public GetJobletRequest(
 			String reservedBy,
 			JobletType<?> jobletType,
-			Datarouter datarouter,
+			DatarouterClients datarouterClients,
 			DatarouterJobletRequestDao jobletRequestDao,
 			MysqlFieldCodecFactory mysqlFieldCodecFactory,
 			MysqlSqlFactory mysqlSqlFactory,
 			JobletRequestSqlBuilder jobletRequestSqlBuilder,
 			JobletService jobletService){
-		super(datarouter,
+		super(datarouterClients,
 				jobletRequestDao.getPhysicalNode().getClientId(),
 				Isolation.repeatableRead,
 				false);

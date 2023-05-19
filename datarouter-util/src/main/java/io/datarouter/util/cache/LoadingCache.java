@@ -61,7 +61,8 @@ public class LoadingCache<K,V>{
 		private int maxSize = DEFAULT_MAX_SIZE;
 		private Clock clock = Clock.systemDefaultZone();
 		private Function<K,V> loadingFunction;
-		private Function<K,RuntimeException> exceptionFunction = K -> new RuntimeException("Failed to lookup " + K);
+		private Function<K,RuntimeException> exceptionFunction = key ->
+				new RuntimeException("loadingFunction=" + loadingFunction + " returned empty for key=" + key);
 		private String name = new LineOfCode(1).getClassName();
 
 		public LoadingCacheBuilder<K,V> withExpireTtl(Duration expireTtl){

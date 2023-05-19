@@ -16,13 +16,16 @@
 package io.datarouter.changelog.web;
 
 import static j2html.TagCreator.a;
+import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
+import static j2html.TagCreator.h4;
 
 import java.time.ZoneId;
 import java.util.Optional;
 
 import javax.inject.Inject;
 
+import io.datarouter.changelog.config.DatarouterChangelogPaths;
 import io.datarouter.changelog.service.ViewChangelogService;
 import io.datarouter.changelog.storage.Changelog;
 import io.datarouter.changelog.storage.ChangelogDao;
@@ -51,6 +54,8 @@ public class ViewExactChangelogHandler extends BaseHandler{
 	private CurrentUserSessionInfoService sessionInfoService;
 	@Inject
 	private ViewChangelogService service;
+	@Inject
+	private DatarouterChangelogPaths paths;
 
 	@Handler(defaultHandler = true)
 	public Mav viewExact(
@@ -69,6 +74,7 @@ public class ViewExactChangelogHandler extends BaseHandler{
 	}
 
 	private DivTag makeContent(Changelog changelog){
+		var header = ChangelogHtml.makeHeader(paths.datarouter.changelog.viewExact);
 		var table = new J2HtmlLegendTable()
 				.withClass("table table-sm border table-striped")
 				.withSingleRow(false)
@@ -84,8 +90,14 @@ public class ViewExactChangelogHandler extends BaseHandler{
 		var editButton = a("Edit Note")
 				.withHref(service.buildEditHref(changelog))
 				.withClass("btn btn-primary");
-		return div(table, editButton)
-				.withClass("container my-4");
+		var container = div(
+				br(),
+				h4("View Single Changelog"),
+				table,
+				editButton)
+				.withClass("container");
+		return div(header, container)
+				.withClass("container-fluid");
 	}
 
 	private String printDate(Changelog row){

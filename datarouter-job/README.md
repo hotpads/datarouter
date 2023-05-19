@@ -8,14 +8,15 @@ datarouter-job makes it easy to schedule jobs across a cluster of servers.
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-job</artifactId>
-	<version>0.0.119</version>
+	<version>0.0.120</version>
 </dependency>
 ```
 ## Installation with Datarouter
 
-Datarouter-job brings in `BaseJobPlugin` and `DatarouterJobWebappBuilder`. `BaseJobPlugin` brings in everything 
-from `BaseWebPlugin` and adds the ability to add TriggerGroups. `DatarouterJobWebappBuilder` provides an easy 
-way to bootstrap the application and install web or job plugins. 
+You can add a collection of jobs by adding a `TriggerGroup` to a Plugin or `WebappConfigBuilder`. 
+```java
+addPluginEntry(BaseTriggerGroup.KEY, ExampleTriggerGroup.class);
+```
 
 ## Usage
 

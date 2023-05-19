@@ -21,8 +21,8 @@ import io.datarouter.web.handler.mav.imp.MessageMav;
 
 public class AuthExampleDocHandler extends BaseHandler{
 
-	@Handler(defaultHandler = true)
-	public Mav viewDocs(){
+	@Handler
+	public Mav docs(){
 		return new MessageMav("Hello World, here are some docs");
 	}
 

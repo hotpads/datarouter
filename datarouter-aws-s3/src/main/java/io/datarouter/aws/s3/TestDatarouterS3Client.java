@@ -23,7 +23,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,6 +35,10 @@ import io.datarouter.bytes.InputStreamAndLength;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.scanner.Threads;
 import io.datarouter.storage.file.BucketAndKey;
+import io.datarouter.storage.file.BucketAndKeyVersion;
+import io.datarouter.storage.file.BucketAndKeyVersionResult;
+import io.datarouter.storage.file.BucketAndKeyVersions;
+import io.datarouter.storage.file.BucketAndKeys;
 import io.datarouter.storage.file.BucketAndPrefix;
 import io.datarouter.storage.node.op.raw.read.DirectoryDto;
 import software.amazon.awssdk.core.ResponseInputStream;
@@ -85,19 +88,46 @@ public class TestDatarouterS3Client implements DatarouterS3Client{
 	}
 
 	@Override
-	public void deleteMulti(String bucket, Collection<String>keys){
+	public void deleteMulti(BucketAndKeys bucketAndKeys){
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void deleteVersion(BucketAndKeyVersion bucketAndKeyVersion){
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void deleteVersions(BucketAndKeyVersions bucketAndKeyVersions){
 		throw new UnsupportedOperationException();
 	}
 
 	/*--------- multipart upload -----------*/
 
+	/**
+	 * @deprecated  Use the InputStream based methods
+	 */
+	@Deprecated
 	@Override
-	public OutputStream put(BucketAndKey location, S3ContentType contentType){
+	public OutputStream multipartUploadOutputStream(
+			BucketAndKey location,
+			S3ContentType contentType){
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public void multipartUpload(BucketAndKey location, S3ContentType contentType, InputStream inputStream){
+	public void multipartUpload(
+			BucketAndKey location,
+			S3ContentType contentType,
+			InputStream inputStream){
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void multipartUploadWithPublicRead(
+			BucketAndKey location,
+			S3ContentType contentType,
+			InputStream inputStream){
 		throw new UnsupportedOperationException();
 	}
 
@@ -151,14 +181,9 @@ public class TestDatarouterS3Client implements DatarouterS3Client{
 	}
 
 	@Override
-	public OutputStream putWithPublicRead(BucketAndKey location, S3ContentType contentType){
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
 	public void putObject(
 			BucketAndKey location,
-			ContentType contentType,
+			S3ContentType contentType,
 			byte[] bytes){
 		throw new UnsupportedOperationException();
 	}
@@ -174,39 +199,12 @@ public class TestDatarouterS3Client implements DatarouterS3Client{
 	}
 
 	@Override
-	public void putObjectWithExpirationTime(
+	public void putObjectWithPublicReadAndExpirationTime(
 			BucketAndKey location,
 			ContentType contentType,
 			String cacheControl,
-			ObjectCannedACL acl,
 			byte[] bytes,
 			Instant instant){
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public void putFilePublic(BucketAndKey location, ContentType contentType, Path path){
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public void putFile(BucketAndKey location, ContentType contentType, Path path){
-		Path destinationPath = testFolder.resolve(Path.of(location.bucket(), location.key()));
-		try{
-			Files.createDirectories(destinationPath.getParent());
-			Files.copy(path, destinationPath);
-		}catch(IOException e){
-			throw new RuntimeException(e);
-		}
-	}
-
-	@Override
-	public Path downloadFileToDirectory(BucketAndKey location, Path path){
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public void downloadFile(BucketAndKey location, Path path){
 		throw new UnsupportedOperationException();
 	}
 
@@ -240,7 +238,7 @@ public class TestDatarouterS3Client implements DatarouterS3Client{
 	}
 
 	@Override
-	public Scanner<List<S3Object>> scanPaged(BucketAndPrefix location){
+	public Scanner<List<S3Object>> scanPaged(BucketAndPrefix location, int pageSize){
 		throw new UnsupportedOperationException();
 	}
 
@@ -251,6 +249,11 @@ public class TestDatarouterS3Client implements DatarouterS3Client{
 
 	@Override
 	public Scanner<String> scanPrefixes(BucketAndPrefix locationPrefix, String startAfter, String delimiter){
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public boolean hasCommonPrefixes(BucketAndPrefix locationPrefix, String delimiter){
 		throw new UnsupportedOperationException();
 	}
 
@@ -295,6 +298,59 @@ public class TestDatarouterS3Client implements DatarouterS3Client{
 	@Override
 	public Optional<HeadObjectResponse> head(BucketAndKey bucketAndKey){
 		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Scanner<List<BucketAndKeyVersionResult>> scanVersionsPaged(BucketAndPrefix location, int pageSize){
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Scanner<List<BucketAndKeyVersionResult>> scanVersionsFromPaged(
+			BucketAndPrefix location,
+			String from,
+			int pageSize){
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Scanner<String> scanVersionPrefixes(BucketAndPrefix locationPrefix, String delimiter){
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public boolean hasVersionCommonPrefixes(BucketAndPrefix locationPrefix, String delimiter){
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public List<String> getVersionCommonPrefixes(BucketAndPrefix locationPrefix, String delimiter){
+		throw new UnsupportedOperationException();
+	}
+
+	/*---------- object read to local file -------*/
+
+	@Override
+	public void downloadToLocalFile(BucketAndKey location, Path localFilePath){
+		throw new UnsupportedOperationException();
+	}
+
+	/*----------- object write from local file ----------*/
+
+	@Override
+	public void uploadLocalFileWithPublicRead(BucketAndKey location, ContentType contentType, Path localFilePath){
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void uploadLocalFile(BucketAndKey location, ContentType contentType, Path localFilePath){
+		Path destinationPath = testFolder.resolve(Path.of(location.bucket(), location.key()));
+		try{
+			Files.createDirectories(destinationPath.getParent());
+			Files.copy(localFilePath, destinationPath);
+		}catch(IOException e){
+			throw new RuntimeException(e);
+		}
 	}
 
 }

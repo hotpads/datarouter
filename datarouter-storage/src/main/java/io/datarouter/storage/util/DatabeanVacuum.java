@@ -23,6 +23,7 @@ import java.util.function.Predicate;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.scanner.Threads;
 
 public class DatabeanVacuum<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 extends BaseNodeVacuum<PK,D>{
@@ -32,8 +33,9 @@ extends BaseNodeVacuum<PK,D>{
 			Consumer<Collection<PK>> deleteConsumer,
 			int deleteBatchSize,
 			Predicate<D> shouldDelete,
-			Optional<Integer> logBatchSize){
-		super(scanner, deleteConsumer, deleteBatchSize, logBatchSize, shouldDelete);
+			Optional<Integer> logBatchSize,
+			Threads threads){
+		super(scanner, deleteConsumer, deleteBatchSize, logBatchSize, shouldDelete, threads);
 	}
 
 	@Override
@@ -57,7 +59,7 @@ extends BaseNodeVacuum<PK,D>{
 		}
 
 		public DatabeanVacuum<PK,D> build(){
-			return new DatabeanVacuum<>(scanner, deleteConsumer, deleteBatchSize, shouldDelete, logBatchSize);
+			return new DatabeanVacuum<>(scanner, deleteConsumer, deleteBatchSize, shouldDelete, logBatchSize, threads);
 		}
 
 	}

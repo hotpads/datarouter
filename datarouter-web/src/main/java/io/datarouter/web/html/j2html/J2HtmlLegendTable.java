@@ -20,7 +20,6 @@ import static j2html.TagCreator.caption;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.h4;
 import static j2html.TagCreator.join;
-import static j2html.TagCreator.p;
 import static j2html.TagCreator.table;
 import static j2html.TagCreator.td;
 import static j2html.TagCreator.tr;
@@ -97,9 +96,9 @@ public class J2HtmlLegendTable{
 			row.withClass(entry.classes);
 		}
 		if(singleRow){
-			row.with(td(p(join(b(entry.key), " - ", entry.value))));
+			row.with(td(join(b(entry.key), " - ", entry.value)));
 		}else{
-			row.with(td(p(b(entry.key), td(entry.value))));
+			row.with(td(b(entry.key), td(entry.value)));
 		}
 		return row;
 	}

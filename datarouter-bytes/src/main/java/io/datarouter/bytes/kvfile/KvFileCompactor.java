@@ -41,7 +41,8 @@ public class KvFileCompactor{
 			Supplier<Boolean> shouldStop,
 			int targetNumFiles,
 			boolean prune,
-			KvFileMergerParams mergerParams){
+			KvFileMergerParams mergerParams,
+			int deleteBatchSize){
 	}
 
 	private final KvFileCompactorParams params;
@@ -85,14 +86,16 @@ public class KvFileCompactor{
 		Scanner.of(plan.files())
 				.each(fileCache::remove)
 				.map(KvFileNameAndSize::name)
+				.batch(params.deleteBatchSize)
 				.parallelUnordered(params.mergerParams().writeParams().writeThreads())
-				.forEach(params.mergerParams().storageParams().storage()::delete);
+				.forEach(params.mergerParams().storageParams().storage()::deleteMulti);
 	}
 
 	private List<KvFileNameAndSize> listFilesInDirectory(){
 		return params.mergerParams().storageParams().storage().list();
 	}
 
+	@SuppressWarnings("unused")
 	private void validateFileCacheSize(){
 		int numFilesInDirectory = listFilesInDirectory().size();
 		if(fileCache.numFiles() != numFilesInDirectory){

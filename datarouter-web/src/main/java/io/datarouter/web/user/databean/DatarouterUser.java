@@ -44,7 +44,7 @@ import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 import io.datarouter.model.util.CommonFieldSizes;
 import io.datarouter.scanner.IterableScanner;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.web.user.session.service.Role;
+import io.datarouter.web.user.role.Role;
 import io.datarouter.web.user.session.service.SessionBasedUser;
 
 public class DatarouterUser extends BaseDatabean<DatarouterUserKey,DatarouterUser> implements SessionBasedUser{

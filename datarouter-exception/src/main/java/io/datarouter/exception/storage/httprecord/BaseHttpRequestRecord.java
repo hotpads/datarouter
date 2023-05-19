@@ -335,6 +335,7 @@ extends BaseDatabean<PK,D>{
 		this.otherHeaders = dto.otherHeaders();
 	}
 
+	@SuppressWarnings("deprecation")
 	public BaseHttpRequestRecord(PK key, ExceptionAndHttpRequestDto dto, String exceptionRecordId){
 		super(key);
 		this.created = new Date(dto.dateMs);

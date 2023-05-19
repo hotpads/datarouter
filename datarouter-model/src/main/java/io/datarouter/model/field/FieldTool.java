@@ -51,23 +51,6 @@ public class FieldTool{
 		return ByteTool.concat(tokens);
 	}
 
-	@Deprecated // Always include terminator
-	public static byte[] getConcatenatedValueBytesUnterminated(List<Field<?>> fields){
-		int numTokens = FieldTool.countNonNullLeadingFields(fields);
-		if(numTokens == 0){
-			return EmptyArray.BYTE;
-		}
-		byte[][] tokens = new byte[numTokens][];
-		for(int i = 0; i < numTokens; ++i){
-			Field<?> field = fields.get(i);
-			boolean finalField = i == fields.size() - 1;
-			tokens[i] = finalField
-					? field.getValueBytes()
-					: field.getKeyBytesWithSeparator();
-		}
-		return ByteTool.concat(tokens);
-	}
-
 	public static byte[] getConcatenatedValueBytes(List<Field<?>> fields){
 		int numTokens = FieldTool.countNonNullLeadingFields(fields);
 		if(numTokens == 0){

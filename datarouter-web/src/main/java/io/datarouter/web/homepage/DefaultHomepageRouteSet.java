@@ -25,6 +25,7 @@ import io.datarouter.web.user.role.DatarouterUserRole;
 @Singleton
 public class DefaultHomepageRouteSet extends BaseRouteSet implements HomepageRouteSet{
 
+	@SuppressWarnings("deprecation")
 	public DefaultHomepageRouteSet(){
 		// catch-all
 		handleDir("|/").withHandler(HomepageHandler.class);

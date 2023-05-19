@@ -31,12 +31,15 @@ import io.datarouter.client.mysql.test.client.txn.txnapp.TestMultiInsertRollback
 import io.datarouter.client.mysql.test.client.txn.txnapp.TestNestedTxn;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
+import io.datarouter.storage.client.DatarouterClients;
 import io.datarouter.storage.node.factory.NodeFactory;
 
 public abstract class BaseTxnIntegrationTests{
 
 	@Inject
 	private Datarouter datarouter;
+	@Inject
+	private DatarouterClients datarouterClients;
 	@Inject
 	private NodeFactory nodeFactory;
 	@Inject
@@ -75,7 +78,7 @@ public abstract class BaseTxnIntegrationTests{
 		String beanPrefix = "a";
 		try{
 			sessionExecutor.runWithoutRetries(new TestInsertRollback(
-					datarouter,
+					datarouterClients,
 					clientId,
 					Isolation.readCommitted,
 					dao, beanPrefix));
@@ -108,7 +111,7 @@ public abstract class BaseTxnIntegrationTests{
 		Assert.assertTrue(dao.exists(bean.getKey()));
 		try{
 			sessionExecutor.runWithoutRetries(new TestMultiInsertRollback(
-					datarouter,
+					datarouterClients,
 					clientId,
 					Isolation.readCommitted,
 					dao, beanPrefix));
@@ -128,7 +131,7 @@ public abstract class BaseTxnIntegrationTests{
 		int numExceptions = 0;
 		try{
 			sessionExecutor.runWithoutRetries(new TestNestedTxn(
-					datarouter,
+					datarouterClients,
 					clientId,
 					Isolation.readCommitted,
 					false,

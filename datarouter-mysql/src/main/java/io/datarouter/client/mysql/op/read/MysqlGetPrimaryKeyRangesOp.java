@@ -31,7 +31,7 @@ import io.datarouter.instrumentation.trace.TracerTool.TraceSpanInfoBuilder;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
-import io.datarouter.storage.Datarouter;
+import io.datarouter.storage.client.DatarouterClients;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.op.raw.read.SortedStorageReader;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
@@ -52,14 +52,14 @@ extends BaseMysqlOp<List<PK>>{
 	private final MysqlClientType mysqlClientType;
 
 	public MysqlGetPrimaryKeyRangesOp(
-			Datarouter datarouter,
+			DatarouterClients datarouterClients,
 			PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
 			MysqlFieldCodecFactory fieldCodecFactory,
 			MysqlSqlFactory mysqlSqlFactory,
 			Collection<Range<PK>> ranges,
 			Config config,
 			MysqlClientType mysqlClientType){
-		super(datarouter, fieldInfo.getClientId(), Isolation.DEFAULT, true);
+		super(datarouterClients, fieldInfo.getClientId(), Isolation.DEFAULT, true);
 		this.fieldInfo = fieldInfo;
 		this.fieldCodecFactory = fieldCodecFactory;
 		this.mysqlSqlFactory = mysqlSqlFactory;

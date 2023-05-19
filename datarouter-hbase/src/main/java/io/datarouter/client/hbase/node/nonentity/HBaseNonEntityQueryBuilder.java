@@ -15,11 +15,14 @@
  */
 package io.datarouter.client.hbase.node.nonentity;
 
+import java.util.List;
 import java.util.Objects;
 
 import io.datarouter.bytes.ByteTool;
 import io.datarouter.bytes.Bytes;
+import io.datarouter.bytes.EmptyArray;
 import io.datarouter.model.databean.Databean;
+import io.datarouter.model.field.Field;
 import io.datarouter.model.field.FieldTool;
 import io.datarouter.model.key.entity.EntityKey;
 import io.datarouter.model.key.entity.EntityPartitioner;
@@ -50,11 +53,11 @@ public class HBaseNonEntityQueryBuilder<
 	}
 
 	private byte[] getEkBytes(EK ek){
-		return FieldTool.getConcatenatedValueBytesUnterminated(ek.getFields());
+		return getConcatenatedValueBytesUnterminated(ek.getFields());
 	}
 
 	private byte[] getPkBytes(PK pk){
-		return FieldTool.getConcatenatedValueBytesUnterminated(pk.getFields());
+		return getConcatenatedValueBytesUnterminated(pk.getFields());
 	}
 
 	public byte[] getPkBytesWithPartition(PK pk){
@@ -75,6 +78,23 @@ public class HBaseNonEntityQueryBuilder<
 			return null;
 		}
 		return new Bytes(pkBytes);
+	}
+
+	@Deprecated // Always include terminator
+	public static byte[] getConcatenatedValueBytesUnterminated(List<Field<?>> fields){
+		int numTokens = FieldTool.countNonNullLeadingFields(fields);
+		if(numTokens == 0){
+			return EmptyArray.BYTE;
+		}
+		byte[][] tokens = new byte[numTokens][];
+		for(int i = 0; i < numTokens; ++i){
+			Field<?> field = fields.get(i);
+			boolean finalField = i == fields.size() - 1;
+			tokens[i] = finalField
+					? field.getValueBytes()
+					: field.getKeyBytesWithSeparator();
+		}
+		return ByteTool.concat(tokens);
 	}
 
 }

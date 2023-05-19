@@ -44,16 +44,9 @@ public class DatarouterChangelogPlugin extends BaseWebPlugin{
 		addRouteSet(DatarouterChangelogRouteSet.class);
 		setDaosModule(daosModule);
 		addDatarouterNavBarItem(
-				DatarouterNavBarCategory.CHANGELOG,
+				DatarouterNavBarCategory.MONITORING,
 				PATHS.datarouter.changelog.viewAll,
-				"View All");
-		addDatarouterNavBarItem(
-				DatarouterNavBarCategory.CHANGELOG,
-				PATHS.datarouter.changelog.viewForDateRange,
-				"View for Date Range");
-		addDatarouterNavBarItem(DatarouterNavBarCategory.CHANGELOG,
-				PATHS.datarouter.changelog.insert,
-				"Insert");
+				"Changelog");
 		addDatarouterGithubDocLink("datarouter-changelog");
 		addDailyDigest(ChangelogDailyDigest.class);
 	}

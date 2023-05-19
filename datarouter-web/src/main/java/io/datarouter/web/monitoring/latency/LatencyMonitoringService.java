@@ -42,7 +42,6 @@ import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientInitializationTracker;
 import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.storage.config.properties.ServiceName;
-import io.datarouter.storage.config.setting.impl.DatarouterClientAvailabilitySwitchThresholdSettingsProvider;
 import io.datarouter.storage.metric.Gauges;
 import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.node.op.raw.MapStorage.PhysicalMapStorageNode;
@@ -66,8 +65,6 @@ public class LatencyMonitoringService{
 	private Gauges gauges;
 	@Inject
 	private ServiceName serviceName;
-	@Inject
-	private DatarouterClientAvailabilitySwitchThresholdSettingsProvider availabilitySwitchThresholdSettingsProvider;
 	@Inject
 	private ClientInitializationTracker clientInitializationTracker;
 	@Inject
@@ -106,7 +103,7 @@ public class LatencyMonitoringService{
 
 	private void addCheckResult(LatencyCheck check, CheckResult checkResult){
 		Deque<CheckResult> lastResults = getLastResults(check.name);
-		while(lastResults.size() >= getNumLastChecksToRetain(check)){
+		while(lastResults.size() >= getNumLastChecksToRetain()){
 			lastResults.pollLast();
 		}
 		lastResults.offerFirst(checkResult);
@@ -123,12 +120,7 @@ public class LatencyMonitoringService{
 						.throwingMerger(), TreeMap::new));
 	}
 
-	private int getNumLastChecksToRetain(LatencyCheck check){
-		if(check instanceof DatarouterClientLatencyCheck){
-			ClientId clientId = ((DatarouterClientLatencyCheck)check).getClientId();
-			return Math.max(MIN_LAST_CHECKS_TO_RETAIN, 2 * availabilitySwitchThresholdSettingsProvider.get()
-					.getSwitchThreshold(clientId).get());
-		}
+	private int getNumLastChecksToRetain(){
 		return MIN_LAST_CHECKS_TO_RETAIN;
 	}
 

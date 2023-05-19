@@ -24,11 +24,14 @@ import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.op.NodeOps;
 import io.datarouter.storage.queue.GroupQueueMessage;
 
-public interface GroupQueueStorageReader<PK extends PrimaryKey<PK>,D extends Databean<PK,D>> extends NodeOps<PK,D>{
+public interface GroupQueueStorageReader<
+		PK extends PrimaryKey<PK>,
+		D extends Databean<PK,D>>
+extends NodeOps<PK,D>{
 
-	public static final String OP_peek = "peek";
-	public static final String OP_peekMulti = "peekMulti";
-	public static final String OP_peekUntilEmpty = "peekUntilEmpty";
+	String OP_peek = "peek";
+	String OP_peekMulti = "peekMulti";
+	String OP_peekUntilEmpty = "peekUntilEmpty";
 
 	GroupQueueMessage<PK,D> peek(Config config);
 

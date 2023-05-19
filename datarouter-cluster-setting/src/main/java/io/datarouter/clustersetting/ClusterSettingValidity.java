@@ -21,23 +21,67 @@ import java.util.stream.Stream;
 import io.datarouter.enums.PersistentString;
 
 public enum ClusterSettingValidity implements PersistentString{
-	VALID("valid", "table-default", "Valid override"),
-	INVALID_SERVER_TYPE("invalidServerType", "table-primary", "Unknown serverType"),
-	INVALID_SERVER_NAME("invalidServerName", "table-success", "Unknown serverName"),
-	REDUNDANT("redundant", "table-warning", "Value duplicates the default value"),
-	OLD("old", "table-info", "Setting hasn't changed in a while - consider moving it in the code"),
-	UNREFERENCED("unreferenced", "table-danger", "Setting not known to webapp - probably deleted from code"),
-	UNKNOWN("unknown", "table-secondary", "Root of setting not recognized by this webapp"),
+	VALID(
+			"valid",
+			"Valid",
+			"table-default",
+			"Valid override",
+			ClusterSettingOverrideSuggestion.NOTHING),
+	INVALID_SERVER_TYPE(
+			"invalidServerType",
+			"Invalid Server Type",
+			"table-primary",
+			"Unknown serverType",
+			ClusterSettingOverrideSuggestion.DELETE),
+	INVALID_SERVER_NAME(
+			"invalidServerName",
+			"Invalid Server Name",
+			"table-success",
+			"Unknown serverName",
+			ClusterSettingOverrideSuggestion.DELETE),
+	REDUNDANT(
+			"redundant",
+			"Redundant",
+			"table-warning",
+			"Value duplicates the default value",
+			ClusterSettingOverrideSuggestion.DELETE),
+	OLD(
+			"old",
+			"Old",
+			"table-info",
+			"Setting hasn't changed in a while",
+			ClusterSettingOverrideSuggestion.MOVE_TO_CODE),
+	UNREFERENCED(
+			"unreferenced",
+			"Unknown Setting",
+			"table-danger",
+			"Setting not in code",
+			ClusterSettingOverrideSuggestion.DELETE),
+	UNKNOWN(
+			"unknown",
+			"Unknown Root",
+			"table-secondary",
+			"Setting root not in code",
+			ClusterSettingOverrideSuggestion.DELETE),
 	;
 
 	public final String persistentString;
+	public final String display;
 	public final String color;
 	public final String description;
+	public final ClusterSettingOverrideSuggestion overrideSuggestion;
 
-	ClusterSettingValidity(String persistentString, String color, String description){
+	ClusterSettingValidity(
+			String persistentString,
+			String display,
+			String color,
+			String description,
+			ClusterSettingOverrideSuggestion overrideSuggestion){
 		this.persistentString = persistentString;
+		this.display = display;
 		this.color = color;
 		this.description = description;
+		this.overrideSuggestion = overrideSuggestion;
 	}
 
 	public static Stream<ClusterSettingValidity> stream(){

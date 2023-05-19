@@ -15,7 +15,10 @@
  */
 package io.datarouter.nodewatch.storage.tablecount;
 
+import java.time.Instant;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.imp.StringField;
@@ -25,6 +28,9 @@ import io.datarouter.model.field.imp.comparable.LongFieldKey;
 import io.datarouter.model.key.primary.base.BaseRegularPrimaryKey;
 
 public class TableCountKey extends BaseRegularPrimaryKey<TableCountKey>{
+
+	public static final Comparator<TableCountKey> COMPARE_CREATED_MS = Comparator.comparing(
+			TableCountKey::getCreatedMs);
 
 	private String clientName;
 	private String tableName;
@@ -53,7 +59,7 @@ public class TableCountKey extends BaseRegularPrimaryKey<TableCountKey>{
 		this.createdMs = createdMs;
 	}
 
-	public static TableCountKey createClientTableKey(String clientName, String tableName){
+	public static TableCountKey prefix(String clientName, String tableName){
 		return new TableCountKey(clientName, tableName, null);
 	}
 
@@ -67,6 +73,12 @@ public class TableCountKey extends BaseRegularPrimaryKey<TableCountKey>{
 
 	public Long getCreatedMs(){
 		return createdMs;
+	}
+
+	public Instant getCreated(){
+		return Optional.ofNullable(createdMs)
+				.map(Instant::ofEpochMilli)
+				.orElse(null);
 	}
 
 	public void setClientName(String clientName){

@@ -24,6 +24,17 @@ import io.datarouter.bytes.Codec.NullPassthroughCodec;
 
 public class InstantNanoToLongFieldCodec extends FieldCodec<Instant,Long>{
 
+	private static final long NANOS_PER_SECOND = 1000_000_000L;
+
+	// 2262-04-11T23:47:16.854775807Z
+	public static final Instant MAX_ENCODABLE_INSTANT = Instant.EPOCH.plusNanos(Long.MAX_VALUE);
+	// 1677-09-21T00:12:44Z
+	// Instant.EPOCH.plusNanos(Long.MIN_VALUE) will have values that will overflow the
+	// Chrono unit operations. see Math.multiplyExact
+	// For that reason we truncate at the second level
+	public static final Instant MIN_ENCODABLE_INSTANT =
+			Instant.EPOCH.plusSeconds(Long.MIN_VALUE / NANOS_PER_SECOND);
+
 	public InstantNanoToLongFieldCodec(){
 		super(TypeToken.get(Instant.class),
 				NullPassthroughCodec.of(
@@ -34,11 +45,17 @@ public class InstantNanoToLongFieldCodec extends FieldCodec<Instant,Long>{
 				null);
 	}
 
-	private static long toEpochNano(Instant instant){
+	protected static long toEpochNano(Instant instant){
+		if(instant.isAfter(MAX_ENCODABLE_INSTANT)){
+			throw new IllegalArgumentException("Instant is after MAX_ENCODABLE_INSTANT " + MAX_ENCODABLE_INSTANT);
+		}
+		if(instant.isBefore(MIN_ENCODABLE_INSTANT)){
+			throw new IllegalArgumentException("Instant is before MIN_ENCODABLE_INSTANT " + MIN_ENCODABLE_INSTANT);
+		}
 		return ChronoUnit.NANOS.between(Instant.EPOCH, instant);
 	}
 
-	private static Instant fromEpochNano(Long epochNano){
+	protected static Instant fromEpochNano(Long epochNano){
 		return Instant.EPOCH.plusNanos(epochNano);
 	}
 

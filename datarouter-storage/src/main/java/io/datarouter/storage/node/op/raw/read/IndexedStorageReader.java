@@ -40,16 +40,16 @@ public interface IndexedStorageReader<
 		D extends Databean<PK,D>>
 extends NodeOps<PK,D>, IndexedOps<PK,D>{
 
-	public static final String OP_lookupUnique = "lookupUnique";
-	public static final String OP_lookupMultiUnique = "lookupMultiUnique";
-	public static final String OP_getFromIndex = "getFromIndex";
-	public static final String OP_getByIndex = "getByIndex";
-	public static final String OP_getIndexRange = "getIndexRange";
-	public static final String OP_getIndexKeyRange = "getIndexKeyRange";
-	public static final String OP_getByIndexRange = "getByIndexRange";
-	public static final String OP_scanIndex = "scanIndex";
-	public static final String OP_scanByIndex = "scanByIndex";
-	public static final String OP_scanIndexKeys = "scanIndexKeys";
+	String OP_lookupUnique = "lookupUnique";
+	String OP_lookupMultiUnique = "lookupMultiUnique";
+	String OP_getFromIndex = "getFromIndex";
+	String OP_getByIndex = "getByIndex";
+	String OP_getIndexRange = "getIndexRange";
+	String OP_getIndexKeyRange = "getIndexKeyRange";
+	String OP_getByIndexRange = "getByIndexRange";
+	String OP_scanIndex = "scanIndex";
+	String OP_scanByIndex = "scanByIndex";
+	String OP_scanIndexKeys = "scanIndexKeys";
 
 
 	D lookupUnique(UniqueKey<PK> uniqueKey, Config config);
@@ -161,7 +161,7 @@ extends NodeOps<PK,D>, IndexedOps<PK,D>{
 
 	/*------------ sub-interfaces -------------*/
 
-	public interface IndexedStorageReaderNode<
+	interface IndexedStorageReaderNode<
 			PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
@@ -169,7 +169,7 @@ extends NodeOps<PK,D>, IndexedOps<PK,D>{
 	}
 
 
-	public interface PhysicalIndexedStorageReaderNode<
+	interface PhysicalIndexedStorageReaderNode<
 			PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>

@@ -8,7 +8,7 @@ datarouter-aws-rds provides tools to monitor amazon's relational-database-servic
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-aws-elb</artifactId>
-	<version>0.0.119</version>
+	<version>0.0.120</version>
 </dependency>
 ```
 
@@ -17,7 +17,7 @@ datarouter-aws-rds provides tools to monitor amazon's relational-database-servic
 You can install this module by adding its plugin to the `WebappBuilder`.
 
 ```java
-.addJobPlugin(new DatarouterAwsRdsluginBuilder(...)
+.addPlugin(new DatarouterAwsRdsluginBuilder(...)
 	...
 	.build())
 ```

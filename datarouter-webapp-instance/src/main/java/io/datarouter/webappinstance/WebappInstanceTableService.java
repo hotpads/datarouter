@@ -18,7 +18,6 @@ package io.datarouter.webappinstance;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.b;
 import static j2html.TagCreator.div;
-import static j2html.TagCreator.h2;
 import static j2html.TagCreator.li;
 import static j2html.TagCreator.span;
 import static j2html.TagCreator.strong;
@@ -53,7 +52,9 @@ import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.html.j2html.J2HtmlTable;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import io.datarouter.web.requirejs.DatarouterWebRequireJsV2;
+import io.datarouter.webappinstance.config.DatarouterWebappInstancePaths;
 import io.datarouter.webappinstance.job.WebappInstanceUpdateJob;
+import io.datarouter.webappinstance.web.WebappInstanceHtml;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.TableTag;
@@ -76,9 +77,16 @@ public class WebappInstanceTableService{
 
 	@Inject
 	private Bootstrap4PageFactory pageFactory;
+	@Inject
+	private DatarouterWebappInstancePaths paths;
 
-	public <T> Mav buildMav(HttpServletRequest request, List<T> instances, WebappInstanceTableOptions options,
+	public <T> Mav buildMav(
+			HttpServletRequest request,
+			List<T> instances,
+			WebappInstanceTableOptions options,
 			List<WebappInstanceColumn<T>> columns){
+		var header = WebappInstanceHtml.makeHeader(paths.datarouter.webappInstances.running);
+
 		Map<WebappInstanceColumn<T>,ColumnUsageStat<T>> statsByColumn = getStatsByColumn(instances, columns);
 
 		List<ColumnUsageStat<T>> columnStats = Scanner.of(columns)
@@ -124,17 +132,19 @@ public class WebappInstanceTableService{
 								.list())))
 				.list();
 
+		var content = div().withClass("container-fluid")
+				.with(header)
+				.with(options.beforeAlerts)
+				.condWith(options.showInstanceCount || !info.isEmpty(), div().withClasses("alert", "alert-info")
+						.condWith(options.showInstanceCount, makeInstanceCount(instances))
+						.with(info))
+				.condWith(!warning.isEmpty(), div().withClasses("alert", "alert-warning").with(warning))
+				.with(buildTable(instances, columns))
+				.with(div(LEGEND).withClasses("col-sm-6", "offset-sm-3"));
+
 		return pageFactory.startBuilder(request)
-				.withContent(div().withClass("container-fluid")
-						.with(h2("Webapp Instances").withClasses("mt-5", "pb-2", "mb-3", "border-bottom"))
-						.with(options.beforeAlerts)
-						.condWith(options.showInstanceCount || !info.isEmpty(), div().withClasses("alert", "alert-info")
-								.condWith(options.showInstanceCount, makeInstanceCount(instances))
-								.with(info))
-						.condWith(!warning.isEmpty(), div().withClasses("alert", "alert-warning").with(warning))
-						.with(buildTable(instances, columns))
-						.with(div(LEGEND).withClasses("col-sm-6", "offset-sm-3")))
-				.withTitle("Webapp Instances")
+				.withContent(content)
+				.withTitle("Running Servers - Current")
 				.withRequires(DatarouterWebRequireJsV2.SORTTABLE)
 				.buildMav();
 	}
@@ -143,7 +153,9 @@ public class WebappInstanceTableService{
 		return buildTable(instances, columns, getStatsByColumn(instances, columns));
 	}
 
-	private <T> TableTag buildTable(List<T> instances, List<WebappInstanceColumn<T>> columns,
+	private <T> TableTag buildTable(
+			List<T> instances,
+			List<WebappInstanceColumn<T>> columns,
 			Map<WebappInstanceColumn<T>,ColumnUsageStat<T>> statsByColumn){
 		var table = new J2HtmlTable<T>()
 				.withClasses("sortable", "table", "table-bordered", "table-sm", "table-striped");
@@ -168,7 +180,8 @@ public class WebappInstanceTableService{
 				.orElse("");
 	}
 
-	private <T> Map<WebappInstanceColumn<T>,ColumnUsageStat<T>> getStatsByColumn(List<T> instances,
+	private <T> Map<WebappInstanceColumn<T>,ColumnUsageStat<T>> getStatsByColumn(
+			List<T> instances,
 			List<WebappInstanceColumn<T>> columns){
 		return Scanner.of(columns)
 				.include(column -> column.showUsageStats)

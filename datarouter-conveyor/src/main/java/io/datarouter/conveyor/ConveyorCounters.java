@@ -16,11 +16,12 @@
 package io.datarouter.conveyor;
 
 import io.datarouter.instrumentation.count.Counters;
+import io.datarouter.instrumentation.trace.TraceSaveReasonType;
 import io.datarouter.util.buffer.Buffer;
 
 public class ConveyorCounters{
 
-	private static final String PREFIX = "Conveyor";
+	public static final String PREFIX = "Conveyor";
 
 	public static void inc(ConveyorRunnable conveyor, String action, long by){
 		Counters.inc(PREFIX + " " + action, by);
@@ -84,6 +85,10 @@ public class ConveyorCounters{
 
 	public static void incTotalCpuTime(ConveyorRunnable conveyor, long totalCpuTimeMs){
 		inc(conveyor, "cumulatedCpuMs", totalCpuTimeMs);
+	}
+
+	public static void incTraceSaved(ConveyorRunnable conveyor, TraceSaveReasonType type){
+		inc(conveyor, "traceSaved " + type.type, 1);
 	}
 
 }

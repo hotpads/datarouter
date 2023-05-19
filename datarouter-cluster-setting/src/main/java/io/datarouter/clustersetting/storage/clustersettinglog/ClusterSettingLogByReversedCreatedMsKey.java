@@ -25,7 +25,6 @@ import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.comparable.LongField;
 import io.datarouter.model.key.FieldlessIndexEntryPrimaryKey;
 import io.datarouter.model.key.primary.base.BaseRegularPrimaryKey;
-import io.datarouter.util.DateTool;
 
 public class ClusterSettingLogByReversedCreatedMsKey
 extends BaseRegularPrimaryKey<ClusterSettingLogByReversedCreatedMsKey>
@@ -45,6 +44,10 @@ implements FieldlessIndexEntryPrimaryKey<
 		this.name = name;
 	}
 
+	public static ClusterSettingLogByReversedCreatedMsKey prefix(Long reverseCreatedMs){
+		return new ClusterSettingLogByReversedCreatedMsKey(reverseCreatedMs, null);
+	}
+
 	@Override
 	public List<Field<?>> getFields(){
 		return List.of(
@@ -54,7 +57,7 @@ implements FieldlessIndexEntryPrimaryKey<
 
 	@Override
 	public ClusterSettingLogKey getTargetKey(){
-		return new ClusterSettingLogKey(name, DateTool.fromReverseInstantLong(reverseCreatedMs));
+		return new ClusterSettingLogKey(name, reverseCreatedMs);
 	}
 
 	@Override

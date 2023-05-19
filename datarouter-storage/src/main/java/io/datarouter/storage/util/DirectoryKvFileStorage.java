@@ -80,8 +80,10 @@ public class DirectoryKvFileStorage implements KvFileStorage{
 	}
 
 	@Override
-	public void delete(String name){
-		directory.delete(PathbeanKey.of(name));
+	public void deleteMulti(List<String> names){
+		Scanner.of(names)
+				.map(PathbeanKey::of)
+				.flush(directory::deleteMulti);
 	}
 
 }

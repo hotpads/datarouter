@@ -16,11 +16,13 @@
 package io.datarouter.nodewatch.storage.latesttablecount;
 
 import java.time.Instant;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.function.Supplier;
 
 import io.datarouter.model.databean.BaseDatabean;
+import io.datarouter.model.databean.Databean;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.imp.DateField;
 import io.datarouter.model.field.imp.DateFieldKey;
@@ -31,6 +33,19 @@ import io.datarouter.nodewatch.storage.tablecount.TableCount;
 import io.datarouter.util.number.NumberFormatter;
 
 public class LatestTableCount extends BaseDatabean<LatestTableCountKey,LatestTableCount>{
+
+	public static final Comparator<LatestTableCount> COMPARE_CLIENT
+			= Comparator.comparing(Databean::getKey, LatestTableCountKey.COMPARE_CLIENT);
+	public static final Comparator<LatestTableCount> COMPARE_TABLE
+			= Comparator.comparing(Databean::getKey, LatestTableCountKey.COMPARE_TABLE);
+	public static final Comparator<LatestTableCount> COMPARE_ROWS
+			= Comparator.comparing(LatestTableCount::getNumRows);
+	public static final Comparator<LatestTableCount> COMPARE_COUNT_TIME
+			= Comparator.comparing(LatestTableCount::getCountTimeMs);
+	public static final Comparator<LatestTableCount> COMPARE_SPANS
+			= Comparator.comparing(LatestTableCount::getNumSpans);
+	public static final Comparator<LatestTableCount> COMPARE_SLOW_SPANS
+			= Comparator.comparing(LatestTableCount::getNumSlowSpans);
 
 	private Long numRows;
 	private Date dateUpdated = new Date();
@@ -121,6 +136,17 @@ public class LatestTableCount extends BaseDatabean<LatestTableCountKey,LatestTab
 
 	public Long getNumSlowSpans(){
 		return numSlowSpans;
+	}
+
+	public Double getPercentSlowSpans(){
+		return calcSlowSpansPercent(numSlowSpans, numSpans);
+	}
+
+	public static Double calcSlowSpansPercent(Long numSlowSpans, Long numSpans){
+		if(numSlowSpans == null || numSpans == null || numSpans == 0){
+			return 0d;
+		}
+		return 100 * (double)numSlowSpans / (double)numSpans;
 	}
 
 }

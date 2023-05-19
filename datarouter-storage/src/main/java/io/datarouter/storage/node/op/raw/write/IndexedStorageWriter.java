@@ -37,9 +37,9 @@ public interface IndexedStorageWriter<
 		D extends Databean<PK,D>>
 extends NodeOps<PK,D>, IndexedOps<PK,D>{
 
-	public static final String OP_deleteUnique = "deleteUnique";
-	public static final String OP_deleteMultiUnique = "deleteMultiUnique";
-	public static final String OP_deleteByIndex = "deleteByIndex";
+	String OP_deleteUnique = "deleteUnique";
+	String OP_deleteMultiUnique = "deleteMultiUnique";
+	String OP_deleteByIndex = "deleteByIndex";
 
 	void deleteUnique(UniqueKey<PK> uniqueKey, Config config);
 
@@ -55,19 +55,23 @@ extends NodeOps<PK,D>, IndexedOps<PK,D>{
 
 	<IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK,IE,PK,D>,
-			IF extends DatabeanFielder<IK,IE>> void deleteByIndex(Collection<IK> keys, Config config,
+			IF extends DatabeanFielder<IK,IE>>
+	void deleteByIndex(
+			Collection<IK> keys, Config config,
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo);
 
 	default <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK,IE,PK,D>,
-			IF extends DatabeanFielder<IK,IE>> void deleteByIndex(Collection<IK> keys,
+			IF extends DatabeanFielder<IK,IE>>
+	void deleteByIndex(
+			Collection<IK> keys,
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
 		deleteByIndex(keys, new Config(), indexEntryFieldInfo);
 	}
 
 	/*---------------------------- sub-interfaces ---------------------------*/
 
-	public interface IndexedStorageWriterNode<
+	interface IndexedStorageWriterNode<
 			PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
@@ -75,7 +79,7 @@ extends NodeOps<PK,D>, IndexedOps<PK,D>{
 	}
 
 
-	public interface PhysicalIndexedStorageWriterNode<
+	interface PhysicalIndexedStorageWriterNode<
 			PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>

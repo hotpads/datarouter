@@ -17,14 +17,16 @@ package io.datarouter.changelog.web;
 
 import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
-import static j2html.TagCreator.h2;
+import static j2html.TagCreator.h4;
 
 import java.util.Optional;
 
 import javax.inject.Inject;
 
+import io.datarouter.changelog.config.DatarouterChangelogPaths;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDtoBuilder;
+import io.datarouter.pathnode.PathNode;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
@@ -46,6 +48,8 @@ public class ManualChangelogHandler extends BaseHandler{
 	private Bootstrap4PageFactory pageFactory;
 	@Inject
 	private ChangelogRecorder changelogRecorder;
+	@Inject
+	private DatarouterChangelogPaths paths;
 
 	@Handler(defaultHandler = true)
 	public Mav insert(
@@ -82,7 +86,7 @@ public class ManualChangelogHandler extends BaseHandler{
 		if(submitAction.isEmpty() || form.hasErrors()){
 			return pageFactory.startBuilder(request)
 					.withTitle("Manual Changelog")
-					.withContent(Html.makeContent(form))
+					.withContent(Html.makeContent(paths.datarouter.changelog.insert, form))
 					.buildMav();
 		}
 		String username = getSessionInfo().getRequiredSession().getUsername();
@@ -99,14 +103,19 @@ public class ManualChangelogHandler extends BaseHandler{
 
 	private static class Html{
 
-		public static DivTag makeContent(HtmlForm htmlForm){
+		public static DivTag makeContent(PathNode currentPath, HtmlForm htmlForm){
+			var header = ChangelogHtml.makeHeader(currentPath);
 			var form = Bootstrap4FormHtml.render(htmlForm)
 					.withClass("card card-body bg-light");
-			return div(
-					h2("Manual Changelog Recorder"),
-					form,
-					br())
+			var formDiv = div(
+					h4("Insert a Changelog"),
+					form)
 					.withClass("container mt-3");
+			return div(
+					header,
+					formDiv,
+					br())
+					.withClass("container-fluid mt-3");
 			}
 
 	}

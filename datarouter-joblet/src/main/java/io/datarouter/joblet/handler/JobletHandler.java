@@ -19,6 +19,7 @@ import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.h4;
 import static j2html.TagCreator.i;
+import static j2html.TagCreator.script;
 import static j2html.TagCreator.td;
 import static j2html.TagCreator.text;
 
@@ -52,6 +53,19 @@ public class JobletHandler extends BaseHandler{
 	private static final String TITLE = "Joblets";
 	public static final String PARAM_whereStatus = "whereStatus";
 	public static final String PARAM_type = "type";
+
+	public static final String MESSAGE_SCRIPT = """
+			require(['jquery'], function($){
+				$(window).load(function() {
+					setTimeout(function() {
+						const searchParams = new URLSearchParams(window.location.search);
+						if (searchParams.has("message")) {
+							alert(searchParams.get("message"));
+						}
+					}, 1);
+				});
+			})
+			""";
 
 	@Inject
 	private DatarouterJobletRequestDao jobletRequestDao;
@@ -87,6 +101,7 @@ public class JobletHandler extends BaseHandler{
 				.withTitle(TITLE)
 				.withRequires(DatarouterWebRequireJsV2.SORTTABLE)
 				.withContent(makeContent(summaries))
+				.withScript(script(MESSAGE_SCRIPT))
 				.buildMav();
 	}
 
@@ -104,7 +119,7 @@ public class JobletHandler extends BaseHandler{
 							.map(href -> td(a(text).withHref(href)))
 							.orElse(td(text));
 				})
-				.withColumn("Execution order", JobletSummary::getExecutionOrder)
+				.withColumn("Execution order", JobletSummary::getExecutionOrder, Number::toString)
 				.withColumn("Status", row -> row.getStatus().persistentString)
 				.withHtmlColumn("Num Joblets", row -> tdAlignRight(NumberFormatter.addCommas(row.getNumType())))
 				.withHtmlColumn("Sum items", row -> tdAlignRight(NumberFormatter.addCommas(row.getSumItems())))

@@ -17,22 +17,26 @@ package io.datarouter.changelog.web;
 
 import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
-import static j2html.TagCreator.h2;
+import static j2html.TagCreator.h4;
 
 import java.time.ZoneId;
 import java.util.Optional;
 
 import javax.inject.Inject;
 
+import io.datarouter.changelog.config.DatarouterChangelogPaths;
+import io.datarouter.changelog.service.ViewChangelogService;
 import io.datarouter.changelog.storage.Changelog;
 import io.datarouter.changelog.storage.ChangelogDao;
 import io.datarouter.changelog.storage.ChangelogKey;
 import io.datarouter.instrumentation.changelog.ChangelogDto;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
+import io.datarouter.pathnode.PathNode;
 import io.datarouter.storage.config.properties.ServiceName;
 import io.datarouter.util.time.ZonedDateFormatterTool;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
+import io.datarouter.web.handler.mav.imp.InContextRedirectMav;
 import io.datarouter.web.handler.types.Param;
 import io.datarouter.web.html.form.HtmlForm;
 import io.datarouter.web.html.j2html.J2HtmlLegendTable;
@@ -59,6 +63,10 @@ public class EditChangelogHandler extends BaseHandler{
 	private ChangelogRecorder recorder;
 	@Inject
 	private ServiceName serviceName;
+	@Inject
+	private DatarouterChangelogPaths paths;
+	@Inject
+	private ViewChangelogService viewChangelogService;
 
 	@Handler(defaultHandler = true)
 	public Mav edit(
@@ -95,7 +103,7 @@ public class EditChangelogHandler extends BaseHandler{
 		if(submitAction.isEmpty() || form.hasErrors()){
 			return pageFactory.startBuilder(request)
 					.withTitle("Manual Changelog")
-					.withContent(Html.makeContent(table, form))
+					.withContent(Html.makeContent(paths.datarouter.changelog.edit, table, form))
 					.buildMav();
 		}
 		note.ifPresent(newNote -> {
@@ -103,20 +111,27 @@ public class EditChangelogHandler extends BaseHandler{
 			ChangelogDto dto = changelog.toDto(serviceName.get());
 			recorder.update(dto);
 		});
-		return pageFactory.preformattedMessage(request, "Updated changelog entry.");
+		String href = viewChangelogService.buildViewExactHref(changelog, false);
+		return new InContextRedirectMav(request, href);
 	}
 
 	private static class Html{
 
-		public static DivTag makeContent(DivTag table, HtmlForm htmlForm){
+		public static DivTag makeContent(PathNode currentPath, DivTag table, HtmlForm htmlForm){
+			var header = ChangelogHtml.makeHeader(currentPath);
 			var form = Bootstrap4FormHtml.render(htmlForm)
 					.withClass("card card-body bg-light");
-			return div(
-					h2("Edit Changelog"),
+			var container = div(
+					h4("Edit Changelog Note"),
 					table,
-					form,
+					form)
+					.withClass("container");
+			return div(
+					header,
+					br(),
+					container,
 					br())
-					.withClass("container mt-3");
+					.withClass("container-fluid");
 			}
 
 	}

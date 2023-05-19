@@ -162,8 +162,8 @@ public class S3WebInspector implements DatarouterClientWebInspector{
 							.toString();
 					return td(a(bucket.bucketName).withHref(href));
 				})
-				.withColumn("Region", bucket -> bucket.region)
-				.withColumn("Created", bucket -> bucket.creationDate)
+				.withColumn("Region", bucket -> bucket.region, Region::toString)
+				.withColumn("Created", bucket -> bucket.creationDate, Instant::toString)
 				.build(buckets);
 		return div(h4("Buckets - " + buckets.size()), table)
 				.withClass("container-fluid my-4")

@@ -158,6 +158,13 @@ implements PhysicalBlobStorageNode{
 	}
 
 	@Override
+	public void deleteMulti(List<PathbeanKey> keys, Config config){
+		lazyClient.get().del(
+				codec.encodeKeys(keys),
+				RedisRequestConfig.forWrite(getName(), config));
+	}
+
+	@Override
 	public void deleteAll(Subpath subpath, Config config){
 		throw new UnsupportedOperationException();
 	}

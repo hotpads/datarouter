@@ -27,7 +27,7 @@ import io.datarouter.plugin.PluginConfigType;
 import io.datarouter.plugin.PluginConfigValue;
 import io.datarouter.plugin.PluginInjector;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.web.user.session.service.Role;
+import io.datarouter.web.user.role.Role;
 import io.datarouter.web.user.session.service.SessionBasedUser;
 
 // inject this class through UserInfoSupplier

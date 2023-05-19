@@ -48,6 +48,6 @@ public interface KvFileStorage{
 			Scanner<List<byte[]>> parts,
 			Threads threads);
 
-	void delete(String name);
+	void deleteMulti(List<String> names);
 
 }

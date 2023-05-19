@@ -51,33 +51,9 @@ public class CountPublisherService implements CountPublisher{
 		this.serverName = serverName;
 	}
 
-	@Deprecated
-	@Override
-	public PublishingResponseDto publish(Map<Long,Map<String,Long>> counts){
-		boolean isQueue = countSettings.saveCountsToQueueDaoInsteadOfDirectoryDao.get();
-		String ulid = new Ulid().value();
-		var dtos = CountBinaryDto.createSizedDtos(
-				ulid,
-				serviceName.get(),
-				serverName.get(),
-				counts,
-				isQueue ? 100 : Integer.MAX_VALUE);
-		logger.info(
-				"writing size={} CountBinaryDtos with key={} to {}",
-				dtos.size(),
-				ulid,
-				isQueue ? "queue" : "directory");
-		if(isQueue){
-			countQueueDao.combineAndPut(dtos);
-		}else{
-			countDirectoryDao.write(dtos.get(0), ulid);
-		}
-		return PublishingResponseDto.SUCCESS;
-	}
-
 	@Override
 	public PublishingResponseDto publishStats(Map<Long,Map<String,CountCollectorStats>> counts){
-		boolean isQueue = countSettings.saveCountsToQueueDaoInsteadOfDirectoryDao.get();
+		boolean isQueue = countSettings.saveCountStatsToQueueDaoInsteadOfDirectoryDao.get();
 		String ulid = new Ulid().value();
 		var dtos = CountBinaryDto.createSizedCountBinaryDtos(
 				ulid,
@@ -91,7 +67,7 @@ public class CountPublisherService implements CountPublisher{
 				ulid,
 				isQueue ? "queue" : "directory");
 		if(isQueue){
-			countQueueDao.combineAndPutV2(dtos);
+			countQueueDao.combineAndPut(dtos);
 		}else{
 			countDirectoryDao.write(dtos.get(0), ulid);
 		}

@@ -19,6 +19,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.aws.s3.web.S3BucketHandler;
+import io.datarouter.aws.s3.web.bulkdelete.S3BulkDeleteHandler;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
@@ -31,6 +32,11 @@ public class DatarouterAwsS3RouteSet extends BaseRouteSet{
 	public DatarouterAwsS3RouteSet(DatarouterAwsS3Paths paths){
 		handle(paths.datarouter.clients.awsS3.countObjects).withHandler(S3BucketHandler.class);
 		handle(paths.datarouter.clients.awsS3.listObjects).withHandler(S3BucketHandler.class);
+
+		// bulkDelete
+		handle(paths.datarouter.clients.awsS3.bulkDelete.form).withHandler(S3BulkDeleteHandler.class);
+		handle(paths.datarouter.clients.awsS3.bulkDelete.confirmation).withHandler(S3BulkDeleteHandler.class);
+		handle(paths.datarouter.clients.awsS3.bulkDelete.performDeletion).withHandler(S3BulkDeleteHandler.class);
 	}
 
 	@Override

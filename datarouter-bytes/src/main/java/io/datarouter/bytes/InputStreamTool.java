@@ -144,4 +144,12 @@ public class InputStreamTool{
 		}
 	}
 
+	public static long transferToAndClose(InputStream inputStream, OutputStream outputStream){
+		try(var closeInput = inputStream; var closeOutput = outputStream){
+			return inputStream.transferTo(outputStream);
+		}catch(IOException e){
+			throw new UncheckedIOException(e);
+		}
+	}
+
 }

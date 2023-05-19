@@ -24,10 +24,9 @@ import java.util.function.Function;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.web.html.form.HtmlForm;
 import io.datarouter.web.html.form.HtmlForm.BaseHtmlFormField;
-import io.datarouter.web.html.form.HtmlFormButton;
+import io.datarouter.web.html.form.HtmlForm.HtmlFormHiddenField;
 import io.datarouter.web.html.form.HtmlFormSelect;
 import io.datarouter.web.html.form.HtmlFormText;
-import io.datarouter.web.html.indexpager.IndexPager.IndexPageLink;
 
 public class IndexPagerHtml{
 
@@ -36,29 +35,35 @@ public class IndexPagerHtml{
 				.toMapSupplied(Function.identity(), LinkedHashMap::new);
 		var fieldSort = new HtmlFormSelect()
 				.withDisplay("Sort")
-				.withName(indexPage.paramNames.paramSort)
+				.withName(indexPage.pagerParamNames.paramSort)
 				.withDisplayByValue(displayByValue)
-				.withSelected(indexPage.params.sort);
+				.withSelected(indexPage.params.sort)
+				.withSubmitOnChange();
 		var fieldPage = new HtmlFormText()
 				.withDisplay("Page")
-				.withName(indexPage.paramNames.paramPage)
-				.withValue(indexPage.params.page + "");
+				.withName(indexPage.pagerParamNames.paramPage)
+				.withValue(indexPage.params.page + "")
+				.withSubmitOnChange();
 		var fieldPageSize = new HtmlFormText()
 				.withDisplay("Page Size")
-				.withName(indexPage.paramNames.paramPageSize)
-				.withValue(indexPage.params.pageSize + "");
-		var fieldSubmit = new HtmlFormButton()
-				.withDisplay("Submit");
+				.withName(indexPage.pagerParamNames.paramPageSize)
+				.withValue(indexPage.params.pageSize + "")
+				.withSubmitOnChange();
 
 		var sortFields = new ArrayList<BaseHtmlFormField>();
-		if(!displayByValue.isEmpty()){
+		if(displayByValue.size() > 1){
 			sortFields.add(fieldSort);
 		}
-		sortFields.add(fieldPage);
-		sortFields.add(fieldPageSize);
-		sortFields.add(fieldSubmit);
+		if(indexPage.totalPages.isPresent() && indexPage.totalPages.orElseThrow() > 1){
+			sortFields.add(fieldPage);
+			sortFields.add(fieldPageSize);
+		}
+		List<HtmlFormHiddenField> hiddenFields = Scanner.of(indexPage.params.retainedParams)
+				.map(retainedParam -> new HtmlFormHiddenField(retainedParam.name(), retainedParam.value()))
+				.list();
 		return new HtmlForm()
-				.addFields(sortFields);
+				.addFields(sortFields)
+				.addHiddenFields(hiddenFields);
 	}
 
 	public static List<IndexPageLink> makeLinks(String path, IndexPage<?> indexPage){
@@ -66,7 +71,7 @@ public class IndexPagerHtml{
 		if(indexPage.params.page > 1){
 			links.add(new IndexPageLink(
 					path,
-					indexPage.paramNames,
+					indexPage.pagerParamNames,
 					indexPage.params,
 					"first",
 					1));
@@ -74,7 +79,7 @@ public class IndexPagerHtml{
 		if(indexPage.previousPage != null){
 			links.add(new IndexPageLink(
 					path,
-					indexPage.paramNames,
+					indexPage.pagerParamNames,
 					indexPage.params,
 					"previous",
 					indexPage.previousPage));
@@ -82,7 +87,7 @@ public class IndexPagerHtml{
 		if(indexPage.nextPage != null){
 			links.add(new IndexPageLink(
 					path,
-					indexPage.paramNames,
+					indexPage.pagerParamNames,
 					indexPage.params,
 					"next",
 					indexPage.nextPage));
@@ -90,7 +95,7 @@ public class IndexPagerHtml{
 		if(indexPage.totalRows.isPresent() && indexPage.nextPage != null){
 			links.add(new IndexPageLink(
 					path,
-					indexPage.paramNames,
+					indexPage.pagerParamNames,
 					indexPage.params,
 					"last",
 					indexPage.totalPages.get()));

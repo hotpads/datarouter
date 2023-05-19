@@ -34,8 +34,10 @@ public class SettingJspDto{
 	private final boolean isGlobalDefault;
 	private final List<ClusterSettingDefaultJspDto> codeOverrides;
 	private final List<ClusterSettingTagJspDto> settingTags;
+	private final long numLogs;
+	private final String logHref;
 
-	public <T> SettingJspDto(CachedSetting<T> setting){
+	public <T> SettingJspDto(CachedSetting<T> setting, long numLogs, String logHref){
 		this.name = setting.getName();
 		this.hasRedundantCustomValue = setting.getHasRedundantCustomValue();
 		this.hasCustomValue = setting.getHasCustomValue();
@@ -46,14 +48,19 @@ public class SettingJspDto{
 				&& defaultValueWinner.type == DefaultSettingValueWinnerType.GLOBAL_DEFAULT;
 		this.codeOverrides = toDefaults(setting, setting.getDefaultSettingValue(), defaultValueWinner);
 		this.settingTags = toSettingTagJspDto(setting.getDefaultSettingValue(), defaultValueWinner);
+		this.numLogs = numLogs;
+		this.logHref = logHref;
 	}
 
-	private <T> List<ClusterSettingDefaultJspDto> toDefaults(CachedSetting<T> setting, DefaultSettingValue<T> defaults,
+	private <T> List<ClusterSettingDefaultJspDto> toDefaults(
+			CachedSetting<T> setting,
+			DefaultSettingValue<T> defaults,
 			DefaultSettingValueWinner defaultValueWinner){
 		List<ClusterSettingDefaultJspDto> dtos = new ArrayList<>();
 		String winnerEnvironmentType = defaultValueWinner.environmentType != null ? defaultValueWinner.environmentType
 				: "";
 		String winnerServerType = defaultValueWinner.serverType != null ? defaultValueWinner.serverType : "";
+		String winnerServiceName = defaultValueWinner.serviceName != null ? defaultValueWinner.serviceName : "";
 		String winnerServerName = defaultValueWinner.serverName != null ? defaultValueWinner.serverName : "";
 		String winnerEnvironmentName = defaultValueWinner.environmentName != null ? defaultValueWinner.environmentName
 				: "";
@@ -97,7 +104,7 @@ public class SettingJspDto{
 		defaults.getValueByServiceNameByEnvironmentType().forEach((environmentType, defaultByServiceName) ->
 				defaultByServiceName.forEach((serviceName, value) -> {
 					boolean isActive = winnerEnvironmentType.equals(environmentType.getPersistentString())
-						&& winnerServerName.equals(serviceName);
+						&& winnerServiceName.equals(serviceName);
 					boolean isWinner = !hasDatabaseOverride && isActive
 						&& defaultValueWinner.type == DefaultSettingValueWinnerType.SERVICE_NAME;
 					dtos.add(new ClusterSettingDefaultJspDto(
@@ -216,6 +223,14 @@ public class SettingJspDto{
 
 	public List<ClusterSettingTagJspDto> getSettingTags(){
 		return settingTags;
+	}
+
+	public long getNumLogs(){
+		return this.numLogs;
+	}
+
+	public String getLogHref(){
+		return this.logHref;
 	}
 
 }

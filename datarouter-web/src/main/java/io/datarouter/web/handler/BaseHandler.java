@@ -124,6 +124,8 @@ public abstract class BaseHandler{
 	private CurrentUserSessionInfoService currentUserSessionInfoService;
 	@Inject
 	private HandlerAccountCallerValidator handlerAccountCallerValidator;
+	@Inject
+	private HandlerMetrics handlerMetrics;
 
 	private Class<? extends HandlerEncoder> defaultHandlerEncoder;
 	private Class<? extends HandlerDecoder> defaultHandlerDecoder;
@@ -371,7 +373,7 @@ public abstract class BaseHandler{
 
 	public void invokeHandlerMethod(Method method, Object[] args, HandlerEncoder encoder)
 	throws ServletException, IOException{
-		HandlerMetrics.incMethodInvocation(getClass(), method.getName());
+		handlerMetrics.incMethodInvocation(getClass(), method.getName(), RequestTool.getUserAgent(getRequest()));
 		if(accountName != null && !accountName.isEmpty()){
 			HandlerMetrics.incMethodInvocationByApiKeyPredicateName(getClass(), method.getName(), accountName);
 		}

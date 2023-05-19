@@ -46,7 +46,7 @@ import io.datarouter.model.field.encoding.FieldGeneratorType;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.storage.Datarouter;
+import io.datarouter.storage.client.DatarouterClients;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.config.PutMethod;
 import io.datarouter.storage.serialize.fieldcache.FieldGeneratorTool;
@@ -68,13 +68,13 @@ extends BaseMysqlOp<Void>{
 	private final Config config;
 
 	public MysqlPutOp(
-			Datarouter datarouter,
+			DatarouterClients datarouterClients,
 			PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
 			MysqlNodeManager mysqlNodeManager,
 			MysqlSqlFactory mysqlSqlFactory,
 			Collection<D> databeans,
 			Config config){
-		super(datarouter, fieldInfo.getClientId(), getIsolation(config), shouldAutoCommit(databeans, config));
+		super(datarouterClients, fieldInfo.getClientId(), getIsolation(config), shouldAutoCommit(databeans, config));
 		this.fieldInfo = fieldInfo;
 		this.mysqlNodeManager = mysqlNodeManager;
 		this.mysqlSqlFactory = mysqlSqlFactory;

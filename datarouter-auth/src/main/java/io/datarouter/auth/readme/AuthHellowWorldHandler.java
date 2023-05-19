@@ -28,8 +28,8 @@ public class AuthHellowWorldHandler extends BaseHandler{
 	@Inject
 	private Bootstrap4PageFactory pageFactory;
 
-	@Handler(defaultHandler = true)
-	public Mav view(){
+	@Handler
+	public Mav helloWorld(){
 		var content = div("Hello World");
 		return pageFactory.startBuilder(request)
 				.withTitle("Hello World")

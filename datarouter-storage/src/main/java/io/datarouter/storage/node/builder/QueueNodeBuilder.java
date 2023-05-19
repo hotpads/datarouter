@@ -15,6 +15,7 @@
  */
 package io.datarouter.storage.node.builder;
 
+import java.time.Duration;
 import java.util.function.Supplier;
 
 import io.datarouter.model.databean.Databean;
@@ -42,6 +43,7 @@ public abstract class QueueNodeBuilder<
 	protected String queueUrl;
 	protected Tag tag;
 	protected boolean enableAgeMonitoring = true;
+	protected Duration customMessageAgeThreshold = Duration.ofDays(2);
 
 	public QueueNodeBuilder(
 			Datarouter datarouter,
@@ -78,6 +80,11 @@ public abstract class QueueNodeBuilder<
 
 	public QueueNodeBuilder<PK,D,F> withAgeMonitoring(boolean enableAgeMonitoring){
 		this.enableAgeMonitoring = enableAgeMonitoring;
+		return this;
+	}
+
+	public QueueNodeBuilder<PK,D,F> withCustomMessageAgeThreshold(Duration customMessageAgeThreshold){
+		this.customMessageAgeThreshold = customMessageAgeThreshold;
 		return this;
 	}
 

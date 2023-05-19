@@ -18,15 +18,16 @@ package io.datarouter.util.buffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 import io.datarouter.instrumentation.count.Counters;
+import io.datarouter.util.concurrent.BlockingQueueTool;
 
 public class MemoryBuffer<T> implements Buffer{
 
 	private final String name;
-	private final Queue<T> queue;
+	private final BlockingQueue<T> queue;
 
 	public MemoryBuffer(String name, int maxSize){
 		this.name = name;
@@ -38,6 +39,16 @@ public class MemoryBuffer<T> implements Buffer{
 		return name;
 	}
 
+	/**
+	 * Caller will block until space becomes available in the queue.
+	 */
+	public void put(T obj){
+		BlockingQueueTool.put(queue, obj);
+	}
+
+	/**
+	 * Item will be discarded if the queue is full.
+	 */
 	public boolean offer(T obj){
 		boolean accepted = queue.offer(obj);
 		if(!accepted){

@@ -26,9 +26,13 @@ public class DatarouterWebappInstancePaths extends PathNode implements PathsRoot
 	public final DatarouterPaths datarouter = branch(DatarouterPaths::new, "datarouter");
 
 	public static class DatarouterPaths extends PathNode{
-		public final PathNode webappInstances = leaf("webappInstances");
-		public final PathNode webappInstanceLog = leaf("webappInstanceLog");
-		public final PathNode webappInstanceServers = leaf("webappInstanceServers");
+		public final WebappInstancePaths webappInstances = branch(WebappInstancePaths::new, "webappInstances");
+	}
+
+	public static class WebappInstancePaths extends PathNode{
+		public final PathNode running = leaf("running");
+		public final PathNode instanceLogin = leaf("instanceLogin");
+		public final PathNode history = leaf("history");
 	}
 
 }

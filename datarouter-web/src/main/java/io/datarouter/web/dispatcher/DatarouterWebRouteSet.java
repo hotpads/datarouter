@@ -24,21 +24,23 @@ import io.datarouter.web.browse.DatarouterHomepageHandler;
 import io.datarouter.web.browse.DeleteNodeDataHandler;
 import io.datarouter.web.browse.GetNodeDataHandler;
 import io.datarouter.web.browse.NodeSearchHandler;
+import io.datarouter.web.browse.ViewClientsHandler;
 import io.datarouter.web.browse.ViewNodeDataHandler;
-import io.datarouter.web.browse.ViewTableConfigurationHandler;
+import io.datarouter.web.browse.components.DatarouterViewFiltersHandler;
+import io.datarouter.web.browse.components.DatarouterViewListenersHandler;
+import io.datarouter.web.browse.components.DatarouterViewNodesHandler;
+import io.datarouter.web.browse.components.DatarouterViewPluginsHandler;
+import io.datarouter.web.browse.components.DatarouterViewPropertiesHandler;
+import io.datarouter.web.browse.components.DatarouterViewRouteSetsHandler;
 import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.digest.DailyDigestHandler;
 import io.datarouter.web.email.EmailTestHandler;
 import io.datarouter.web.handler.IpDetectionHandler;
 import io.datarouter.web.handler.TestApiHandler;
 import io.datarouter.web.http.HttpTestHandler;
-import io.datarouter.web.inspect.DatarouterPropertiesViewHandler;
-import io.datarouter.web.listener.DatarouterListenersViewHandler;
 import io.datarouter.web.monitoring.DeploymentReportingHandler;
 import io.datarouter.web.monitoring.ExecutorsMonitoringHandler;
 import io.datarouter.web.monitoring.MemoryMonitoringHandler;
-import io.datarouter.web.plugin.ViewPluginsHandler;
-import io.datarouter.web.routeset.DatarouterRouteSetViewHandler;
 import io.datarouter.web.shutdown.ShutdownHandler;
 import io.datarouter.web.user.role.DatarouterUserRole;
 
@@ -75,13 +77,13 @@ public class DatarouterWebRouteSet extends BaseRouteSet{
 		handle(paths.datarouter.http.tester)
 				.withHandler(HttpTestHandler.class)
 				.allowRoles(DatarouterUserRole.DATAROUTER_TOOLS);
+
 		handle(paths.datarouter.nodes.browseData).withHandler(ViewNodeDataHandler.class);
 		handle(paths.datarouter.nodes.browseData.browseData).withHandler(ViewNodeDataHandler.class);
 		handle(paths.datarouter.nodes.browseData.countKeys).withHandler(ViewNodeDataHandler.class);
 		handle(paths.datarouter.nodes.deleteData).withHandler(DeleteNodeDataHandler.class);
 		handle(paths.datarouter.nodes.getData).withHandler(GetNodeDataHandler.class);
 		handle(paths.datarouter.nodes.search).withHandler(NodeSearchHandler.class);
-		handle(paths.datarouter.tableConfiguration).withHandler(ViewTableConfigurationHandler.class);
 
 		handle(paths.datarouter.client.initAllClients).withHandler(DatarouterClientHandler.class);
 		handle(paths.datarouter.client.initClient).withHandler(DatarouterClientHandler.class);
@@ -91,11 +93,14 @@ public class DatarouterWebRouteSet extends BaseRouteSet{
 		handle(paths.datarouter.deployment).withHandler(DeploymentReportingHandler.class).allowAnonymous();
 		handle(paths.datarouter.shutdown).withHandler(ShutdownHandler.class).allowAnonymous();
 
-		handle(paths.datarouter.info.filterParams).withHandler(DatarouterServletFilterParamsViewHandler.class);
-		handle(paths.datarouter.info.listeners).withHandler(DatarouterListenersViewHandler.class);
-		handle(paths.datarouter.info.routeSets).withHandler(DatarouterRouteSetViewHandler.class);
-		handle(paths.datarouter.info.plugins).withHandler(ViewPluginsHandler.class);
-		handle(paths.datarouter.info.properties).withHandler(DatarouterPropertiesViewHandler.class);
+		handle(paths.datarouter.info.clients).withHandler(ViewClientsHandler.class);
+		handle(paths.datarouter.info.filters).withHandler(DatarouterViewFiltersHandler.class);
+		handle(paths.datarouter.info.listeners).withHandler(DatarouterViewListenersHandler.class);
+		handle(paths.datarouter.info.nodes).withHandler(DatarouterViewNodesHandler.class);
+		handle(paths.datarouter.info.routeSets).withHandler(DatarouterViewRouteSetsHandler.class);
+		handle(paths.datarouter.info.plugins).withHandler(DatarouterViewPluginsHandler.class);
+		handle(paths.datarouter.info.properties).withHandler(DatarouterViewPropertiesHandler.class);
+
 		handle(paths.datarouter.dailyDigest.viewActionable).withHandler(DailyDigestHandler.class);
 		handle(paths.datarouter.dailyDigest.viewSummary).withHandler(DailyDigestHandler.class);
 

@@ -26,7 +26,7 @@ import io.datarouter.client.mysql.util.MysqlTool;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
-import io.datarouter.storage.Datarouter;
+import io.datarouter.storage.client.DatarouterClients;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
 
@@ -44,14 +44,14 @@ extends BaseMysqlOp<List<D>>{
 	private final Config config;
 
 	public MysqlGetOp(
-			Datarouter datarouter,
+			DatarouterClients datarouterClients,
 			MysqlFieldCodecFactory fieldCodecFactory,
 			MysqlGetOpExecutor mysqlGetOpExecutor,
 			PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
 			String opName,
 			Collection<PK> keys,
 			Config config){
-		super(datarouter, fieldInfo.getClientId(), Isolation.DEFAULT, true);
+		super(datarouterClients, fieldInfo.getClientId(), Isolation.DEFAULT, true);
 		this.fieldCodecFactory = fieldCodecFactory;
 		this.fieldInfo = fieldInfo;
 		this.opName = opName;

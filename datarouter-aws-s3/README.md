@@ -11,10 +11,12 @@ It supports uploading using an `OutputStream` or `BufferedWriter` of unpredictab
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-aws-s3</artifactId>
-	<version>0.0.119</version>
+	<version>0.0.120</version>
 </dependency>
 ```
+
 ## Usage
+
 ```java
 import io.datarouter.aws.s3.BaseDatarouterS3Client;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;

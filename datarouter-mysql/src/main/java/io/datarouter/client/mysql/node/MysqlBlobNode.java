@@ -70,6 +70,12 @@ implements PhysicalBlobStorageNode{
 	}
 
 	@Override
+	public void deleteMulti(List<PathbeanKey> keys, Config config){
+		// TODO delete multiple keys in one operation
+		keys.forEach(key -> delete(key, config));
+	}
+
+	@Override
 	public void deleteAll(Subpath subpath, Config config){
 		scanKeys(subpath).forEach(this::delete);
 	}

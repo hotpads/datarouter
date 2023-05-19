@@ -48,8 +48,6 @@ public class DatarouterClusterSettingFiles extends FilesRoot{
 
 	public static class ClusterSettingFiles extends PathNode{
 		public final PathNode browseSettingsJsp = leaf("browseSettings.jsp");
-		public final PathNode clusterSettingsLogJsp = leaf("clusterSettingsLog.jsp");
-		public final PathNode editSettingsJsp = leaf("editSettings.jsp");
 	}
 
 }

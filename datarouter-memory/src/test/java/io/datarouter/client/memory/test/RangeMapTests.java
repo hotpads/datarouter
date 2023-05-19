@@ -44,21 +44,21 @@ public class RangeMapTests{
 	@Test
 	public void testOnlyStartKey(){
 		Assert.assertEquals(
-				MAP.listValues(new Range<>(0)),
+				MAP.listValues(new Range<>(0, null)),
 				List.of(10, 20, 30));
 	}
 
 	@Test
 	public void testOnlyStartInclusive(){
 		Assert.assertEquals(
-				MAP.listValues(new Range<>(20)),
+				MAP.listValues(new Range<>(20, null)),
 				List.of(20, 30));
 	}
 
 	@Test
 	public void testOnlyStartExclusive(){
 		Assert.assertEquals(
-				MAP.listValues(new Range<Integer>(20, false)),
+				MAP.listValues(new Range<>(20, false, null, false)),
 				List.of(30));
 	}
 

@@ -29,11 +29,13 @@ import io.datarouter.bytes.InputStreamTool;
 import io.datarouter.client.memory.test.DatarouterMemoryTestClientIds;
 import io.datarouter.plugin.dataexport.config.DatarouterDataExportExecutors.DatabeanExportPrefetchExecutor;
 import io.datarouter.plugin.dataexport.service.DatabeanExport;
+import io.datarouter.plugin.dataexport.service.DatabeanExport.DatabeanExportRequest;
 import io.datarouter.plugin.dataexport.service.DatabeanImportService;
 import io.datarouter.plugin.dataexport.test.storage.BackupBean;
 import io.datarouter.plugin.dataexport.test.storage.BackupBeanDao;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
+import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.test.node.basic.sorted.SortedBeans;
 import io.datarouter.util.tuple.Range;
@@ -112,21 +114,22 @@ public class MemoryBackupIntegrationTests{
 	@Test
 	public void testRoundTripMemory(){
 		resetTable();
-		var backup = new DatabeanExport<>(
-				"myExportId",
+		String exportId = "myExportId";
+		var databeanExportRequest = new DatabeanExportRequest<>(
+				exportId,
 				dao.getNode(),
-				DatabeanExport.DATABEAN_CONFIG,
 				Range.everything(),
-				null,
 				Long.MAX_VALUE,
-				databeanExportPrefetchExec);
+				databeanExportPrefetchExec,
+				Config.DEFAULT_REQUEST_BATCH_SIZE);
+		var backup = new DatabeanExport<>(databeanExportRequest);
 		byte[] result = InputStreamTool.toArray(backup.makeGzipInputStream());
 
 		// clear table
 		clearTable();
 
 		// now read back in
-		regionRestoreService.importFromMemory(dao.getNode(), result);
+		regionRestoreService.importFromMemory(exportId, dao.getNode(), result);
 		checkImportedData();
 	}
 

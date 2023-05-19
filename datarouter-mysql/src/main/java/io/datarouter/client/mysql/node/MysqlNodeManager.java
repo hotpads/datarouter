@@ -65,7 +65,7 @@ import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.key.unique.UniqueKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.storage.Datarouter;
+import io.datarouter.storage.client.DatarouterClients;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.file.DatabaseBlob;
 import io.datarouter.storage.file.DatabaseBlob.DatabaseBlobFielder;
@@ -90,7 +90,7 @@ import io.datarouter.util.tuple.Range;
 public class MysqlNodeManager{
 
 	@Inject
-	private Datarouter datarouter;
+	private DatarouterClients datarouterClients;
 	@Inject
 	private MysqlFieldCodecFactory fieldCodecFactory;
 	@Inject
@@ -133,7 +133,7 @@ public class MysqlNodeManager{
 			F extends DatabeanFielder<PK,D>>
 	List<PK> getKeys(PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo, Collection<PK> keys, Config config){
 		String opName = MapStorageReader.OP_getKeys;
-		var op = new MysqlGetKeysOp<>(datarouter, fieldCodecFactory, mysqlGetOpExecutor, fieldInfo, opName, keys,
+		var op = new MysqlGetKeysOp<>(datarouterClients, fieldCodecFactory, mysqlGetOpExecutor, fieldInfo, opName, keys,
 				config);
 		return sessionExecutor.runWithoutRetries(op);
 	}
@@ -143,7 +143,8 @@ public class MysqlNodeManager{
 			F extends DatabeanFielder<PK,D>>
 	List<D> getMulti(PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo, Collection<PK> keys, Config config){
 		String opName = MapStorageReader.OP_getMulti;
-		var op = new MysqlGetOp<>(datarouter, fieldCodecFactory, mysqlGetOpExecutor, fieldInfo, opName, keys, config);
+		var op = new MysqlGetOp<>(datarouterClients, fieldCodecFactory, mysqlGetOpExecutor, fieldInfo, opName, keys,
+				config);
 		return sessionExecutor.runWithoutRetries(op);
 	}
 
@@ -156,7 +157,7 @@ public class MysqlNodeManager{
 		}
 		String opName = IndexedStorageReader.OP_lookupUnique;
 		MysqlLookupUniqueOp<PK,D,F> op = new MysqlLookupUniqueOp<>(
-				datarouter,
+				datarouterClients,
 				fieldCodecFactory,
 				mysqlGetOpExecutor,
 				fieldInfo,
@@ -178,7 +179,7 @@ public class MysqlNodeManager{
 		if(uniqueKeys == null || uniqueKeys.isEmpty()){
 			return new LinkedList<>();
 		}
-		var op = new MysqlLookupUniqueOp<>(datarouter, fieldCodecFactory, mysqlGetOpExecutor, fieldInfo, opName,
+		var op = new MysqlLookupUniqueOp<>(datarouterClients, fieldCodecFactory, mysqlGetOpExecutor, fieldInfo, opName,
 				uniqueKeys, config);
 		return sessionExecutor.runWithoutRetries(op, getTraceName(fieldInfo.getNodeName(), opName));
 	}
@@ -195,8 +196,8 @@ public class MysqlNodeManager{
 			Config config,
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
 		String opName = IndexedStorageReader.OP_getFromIndex;
-		var op = new MysqlGetIndexOp<>(datarouter, mysqlGetOpExecutor, fieldInfo, fieldCodecFactory, opName, config,
-				indexEntryFieldInfo, keys);
+		var op = new MysqlGetIndexOp<>(datarouterClients, mysqlGetOpExecutor, fieldInfo, fieldCodecFactory, opName,
+				config, indexEntryFieldInfo, keys);
 		return sessionExecutor.runWithoutRetries(op);
 	}
 
@@ -213,8 +214,8 @@ public class MysqlNodeManager{
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
 		String indexName = indexEntryFieldInfo.getIndexName();
 		String opName = IndexedStorageReader.OP_getByIndex;
-		var op = new MysqlGetByIndexOp<>(datarouter, fieldInfo, fieldCodecFactory, mysqlSqlFactory, mysqlClientType,
-				indexEntryFieldInfo, keys, config);
+		var op = new MysqlGetByIndexOp<>(datarouterClients, fieldInfo, fieldCodecFactory, mysqlSqlFactory,
+				mysqlClientType, indexEntryFieldInfo, keys, config);
 		return sessionExecutor.runWithoutRetries(op, getTraceName(indexName, opName));
 	}
 
@@ -231,7 +232,7 @@ public class MysqlNodeManager{
 		IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
 		String indexName = indexEntryFieldInfo.getIndexName();
 		String opName = IndexedStorageReader.OP_getIndexRange;
-		var op = new MysqlManagedIndexGetRangesOp<>(datarouter, fieldInfo, fieldCodecFactory, mysqlSqlFactory,
+		var op = new MysqlManagedIndexGetRangesOp<>(datarouterClients, fieldInfo, fieldCodecFactory, mysqlSqlFactory,
 				indexEntryFieldInfo, ranges, config, mysqlClientType);
 		return sessionExecutor.runWithoutRetries(op, getTraceName(indexName, opName));
 	}
@@ -249,7 +250,7 @@ public class MysqlNodeManager{
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
 		String indexName = indexEntryFieldInfo.getIndexName();
 		String opName = IndexedStorageReader.OP_getIndexKeyRange;
-		var op = new MysqlManagedIndexGetKeyRangesOp<>(datarouter, fieldInfo, fieldCodecFactory, mysqlSqlFactory,
+		var op = new MysqlManagedIndexGetKeyRangesOp<>(datarouterClients, fieldInfo, fieldCodecFactory, mysqlSqlFactory,
 				indexEntryFieldInfo, ranges, config, mysqlClientType);
 		return sessionExecutor.runWithoutRetries(op, getTraceName(indexName, opName));
 	}
@@ -267,8 +268,8 @@ public class MysqlNodeManager{
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
 		String indexName = indexEntryFieldInfo.getIndexName();
 		String opName = IndexedStorageReader.OP_getByIndexRange;
-		var op = new MysqlManagedIndexGetDatabeanRangesOp<>(datarouter, fieldInfo, fieldCodecFactory, mysqlSqlFactory,
-				indexEntryFieldInfo, ranges, config, mysqlClientType);
+		var op = new MysqlManagedIndexGetDatabeanRangesOp<>(datarouterClients, fieldInfo, fieldCodecFactory,
+				mysqlSqlFactory, indexEntryFieldInfo, ranges, config, mysqlClientType);
 		return sessionExecutor.runWithoutRetries(op, getTraceName(indexName, opName));
 	}
 
@@ -280,8 +281,8 @@ public class MysqlNodeManager{
 			return List.of();
 		}
 		String opName = SortedStorageReader.OP_getKeysInRange;
-		var op = new MysqlGetPrimaryKeyRangesOp<>(datarouter, fieldInfo, fieldCodecFactory, mysqlSqlFactory, ranges,
-				config, mysqlClientType);
+		var op = new MysqlGetPrimaryKeyRangesOp<>(datarouterClients, fieldInfo, fieldCodecFactory, mysqlSqlFactory,
+				ranges, config, mysqlClientType);
 		return sessionExecutor.runWithoutRetries(op, getTraceName(fieldInfo.getNodeName(), opName));
 	}
 
@@ -293,8 +294,8 @@ public class MysqlNodeManager{
 			return List.of();
 		}
 		String opName = SortedStorageReader.OP_getRange;
-		var op = new MysqlGetRangesOp<>(datarouter, fieldInfo, fieldCodecFactory, mysqlSqlFactory, ranges, config,
-				mysqlClientType);
+		var op = new MysqlGetRangesOp<>(datarouterClients, fieldInfo, fieldCodecFactory, mysqlSqlFactory, ranges,
+				config, mysqlClientType);
 		return sessionExecutor.runWithoutRetries(op, getTraceName(fieldInfo.getNodeName(), opName));
 	}
 
@@ -306,7 +307,7 @@ public class MysqlNodeManager{
 			return;
 		}
 		var op = new MysqlPutOp<>(
-				datarouter,
+				datarouterClients,
 				fieldInfo,
 				this,
 				mysqlSqlFactory,
@@ -322,7 +323,7 @@ public class MysqlNodeManager{
 		if(databeans == null || databeans.isEmpty()){
 			return;// avoid starting txn
 		}
-		var op = new MysqlPutOp<>(datarouter, fieldInfo, this, mysqlSqlFactory, databeans, config);
+		var op = new MysqlPutOp<>(datarouterClients, fieldInfo, this, mysqlSqlFactory, databeans, config);
 		MysqlOpRetryTool.tryNTimes(sessionExecutor.makeCallable(op, null), config);
 	}
 
@@ -330,7 +331,7 @@ public class MysqlNodeManager{
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
 	void deleteAll(PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo, Config config){
-		var op = new MysqlDeleteAllOp<>(datarouter, fieldInfo, config, mysqlSqlFactory);
+		var op = new MysqlDeleteAllOp<>(datarouterClients, fieldInfo, config, mysqlSqlFactory);
 		MysqlOpRetryTool.tryNTimes(sessionExecutor.makeCallable(op, null), config);
 	}
 
@@ -341,7 +342,7 @@ public class MysqlNodeManager{
 		}
 		String opName = MapStorageWriter.OP_delete;
 		var op = new MysqlDeleteOp<>(
-				datarouter,
+				datarouterClients,
 				fieldInfo,
 				mysqlSqlFactory,
 				mysqlClientType,
@@ -359,7 +360,8 @@ public class MysqlNodeManager{
 			return;// avoid starting txn
 		}
 		String opName = MapStorageWriter.OP_deleteMulti;
-		var op = new MysqlDeleteOp<>(datarouter, fieldInfo, mysqlSqlFactory, mysqlClientType, keys, config, opName);
+		var op = new MysqlDeleteOp<>(datarouterClients, fieldInfo, mysqlSqlFactory, mysqlClientType, keys, config,
+				opName);
 		MysqlOpRetryTool.tryNTimes(sessionExecutor.makeCallable(op, null), config);
 	}
 
@@ -372,7 +374,7 @@ public class MysqlNodeManager{
 		}
 		String opName = IndexedStorageWriter.OP_deleteUnique;
 		var op = new MysqlUniqueIndexDeleteOp<>(
-				datarouter,
+				datarouterClients,
 				fieldInfo,
 				mysqlSqlFactory,
 				mysqlClientType,
@@ -394,8 +396,8 @@ public class MysqlNodeManager{
 			return;// avoid starting txn
 		}
 		String opName = IndexedStorageWriter.OP_deleteMultiUnique;
-		var op = new MysqlUniqueIndexDeleteOp<>(datarouter, fieldInfo, mysqlSqlFactory, mysqlClientType, uniqueKeys,
-				config, opName);
+		var op = new MysqlUniqueIndexDeleteOp<>(datarouterClients, fieldInfo, mysqlSqlFactory, mysqlClientType,
+				uniqueKeys, config, opName);
 		MysqlOpRetryTool.tryNTimes(
 				sessionExecutor.makeCallable(op, getTraceName(fieldInfo.getNodeName(), opName)),
 				config);
@@ -413,7 +415,7 @@ public class MysqlNodeManager{
 		String indexName = indexEntryFieldInfo.getIndexName();
 		String opName = IndexedStorageWriter.OP_deleteByIndex;
 		var op = new MysqlDeleteByIndexOp<>(
-				datarouter,
+				datarouterClients,
 				databeanfieldInfo,
 				mysqlSqlFactory,
 				mysqlClientType,
@@ -547,7 +549,7 @@ public class MysqlNodeManager{
 			Long amount,
 			Config config){
 		var op = new MysqlIncrementOp<>(
-				datarouter,
+				datarouterClients,
 				fieldInfo,
 				fieldCodecFactory,
 				mysqlSqlFactory,
@@ -562,7 +564,7 @@ public class MysqlNodeManager{
 			String key,
 			Config config){
 		var op = new MysqlFindTallyOp<>(
-				datarouter,
+				datarouterClients,
 				fieldInfo,
 				mysqlSqlFactory,
 				fieldCodecFactory,
@@ -577,7 +579,7 @@ public class MysqlNodeManager{
 			Collection<String> keys,
 			Config config){
 		var op = new MysqlFindTallyOp<>(
-				datarouter,
+				datarouterClients,
 				fieldInfo,
 				mysqlSqlFactory,
 				fieldCodecFactory,
@@ -595,7 +597,7 @@ public class MysqlNodeManager{
 			String ttlId,
 			Config config){
 		var op = new MysqlVacuumOp<>(
-				datarouter,
+				datarouterClients,
 				fieldInfo,
 				mysqlSqlFactory,
 				keyId,
@@ -609,7 +611,7 @@ public class MysqlNodeManager{
 			PhysicalDatabeanFieldInfo<DatabaseBlobKey,DatabaseBlob,DatabaseBlobFielder> fieldInfo,
 			Config config){
 		return new MysqlLikeScanner(
-				datarouter,
+				datarouterClients,
 				mysqlSqlFactory,
 				fieldCodecFactory,
 				fieldInfo,
@@ -624,7 +626,7 @@ public class MysqlNodeManager{
 			PhysicalDatabeanFieldInfo<DatabaseBlobKey,DatabaseBlob,DatabaseBlobFielder> fieldInfo,
 			Config config){
 		return new MysqlLikePkScanner(
-				datarouter,
+				datarouterClients,
 				mysqlSqlFactory,
 				fieldCodecFactory,
 				fieldInfo,
@@ -639,7 +641,7 @@ public class MysqlNodeManager{
 			PathbeanKey key,
 			byte[] value,
 			Config config){
-		var op = new MysqlPutBlobOp<>(datarouter, fieldInfo, mysqlSqlFactory, key, value, config);
+		var op = new MysqlPutBlobOp<>(datarouterClients, fieldInfo, mysqlSqlFactory, key, value, config);
 		sessionExecutor.runWithoutRetries(op);
 	}
 
@@ -649,7 +651,7 @@ public class MysqlNodeManager{
 			List<String> fields,
 			Config config){
 		var op = new MysqlGetBlobOp<>(
-				datarouter,
+				datarouterClients,
 				fieldInfo,
 				mysqlSqlFactory,
 				fieldCodecFactory,

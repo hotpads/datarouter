@@ -18,7 +18,8 @@ package io.datarouter.plugin.dataexport.config;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.plugin.dataexport.web.DataExportHandler;
+import io.datarouter.plugin.dataexport.web.DatarouterDatabeanExportHandler;
+import io.datarouter.plugin.dataexport.web.DatarouterDatabeanImportHandler;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
@@ -29,12 +30,12 @@ public class DatarouterDataExportRouteSet extends BaseRouteSet{
 
 	@Inject
 	public DatarouterDataExportRouteSet(DatarouterDataExportPaths paths){
-		handle(paths.datarouter.dataMigration).withHandler(DataExportHandler.class);
-		handle(paths.datarouter.dataMigration.showForm).withHandler(DataExportHandler.class);
-		handle(paths.datarouter.dataMigration.exportData).withHandler(DataExportHandler.class);
-		handle(paths.datarouter.dataMigration.importFromS3).withHandler(DataExportHandler.class);
-		handle(paths.datarouter.dataMigration.importS3KeyToNode).withHandler(DataExportHandler.class);
-		handle(paths.datarouter.dataMigration.localImport).withHandler(DataExportHandler.class);
+		handle(paths.datarouter.dataExport.exportDatabeans.singleTable)
+				.withHandler(DatarouterDatabeanExportHandler.class);
+		handle(paths.datarouter.dataExport.exportDatabeans.multiTable)
+				.withHandler(DatarouterDatabeanExportHandler.class);
+		handle(paths.datarouter.dataExport.importDatabeans)
+				.withHandler(DatarouterDatabeanImportHandler.class);
 	}
 
 	@Override

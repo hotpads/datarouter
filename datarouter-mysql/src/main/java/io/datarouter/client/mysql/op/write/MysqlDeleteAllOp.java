@@ -24,7 +24,7 @@ import io.datarouter.client.mysql.util.MysqlTool;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
-import io.datarouter.storage.Datarouter;
+import io.datarouter.storage.client.DatarouterClients;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
 
@@ -39,11 +39,11 @@ extends BaseMysqlOp<Integer>{
 	private final MysqlSqlFactory mysqlSqlFactory;
 
 	public MysqlDeleteAllOp(
-			Datarouter datarouter,
+			DatarouterClients datarouterClients,
 			PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
 			Config config,
 			MysqlSqlFactory mysqlSqlFactory){
-		super(datarouter, fieldInfo.getClientId(), Isolation.DEFAULT, true);
+		super(datarouterClients, fieldInfo.getClientId(), Isolation.DEFAULT, true);
 		this.fieldInfo = fieldInfo;
 		this.config = config;
 		this.mysqlSqlFactory = mysqlSqlFactory;

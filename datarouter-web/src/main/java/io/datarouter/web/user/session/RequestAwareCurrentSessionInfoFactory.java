@@ -23,8 +23,8 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.servlet.ServletRequest;
 
-import io.datarouter.web.user.session.service.Role;
-import io.datarouter.web.user.session.service.RoleEnum;
+import io.datarouter.web.user.role.Role;
+import io.datarouter.web.user.role.RoleEnum;
 import io.datarouter.web.user.session.service.Session;
 
 @Singleton

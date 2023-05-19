@@ -78,6 +78,7 @@ public class DefaultDecoder implements JsonAwareHandlerDecoder{
 		return decodeDefault(request, method);
 	}
 
+	@SuppressWarnings("deprecation")
 	private Object[] decodeDefault(HttpServletRequest request, Method method){
 		Map<String,String[]> queryParams = request.getParameterMap();
 		Parameter[] parameters = method.getParameters();
@@ -420,6 +421,7 @@ public class DefaultDecoder implements JsonAwareHandlerDecoder{
 				.count();
 	}
 
+	@SuppressWarnings("deprecation")
 	private static long getOptionalParameterCount(Parameter[] parameters){
 		return Scanner.of(parameters)
 				.map(Parameter::getType)

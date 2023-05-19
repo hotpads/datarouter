@@ -34,7 +34,7 @@ import io.datarouter.model.exception.DataAccessException;
 import io.datarouter.model.index.IndexEntry;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
-import io.datarouter.storage.Datarouter;
+import io.datarouter.storage.client.DatarouterClients;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.serialize.fieldcache.IndexEntryFieldInfo;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
@@ -60,7 +60,7 @@ extends BaseMysqlOp<List<IE>>{
 	private final IE indexEntry;
 
 	public MysqlGetIndexOp(
-			Datarouter datarouter,
+			DatarouterClients datarouterClients,
 			MysqlGetOpExecutor mysqlGetOpExecutor,
 			PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
 			MysqlFieldCodecFactory fieldCodecFactory,
@@ -68,7 +68,7 @@ extends BaseMysqlOp<List<IE>>{
 			Config config,
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo,
 			Collection<IK> uniqueKeys){
-		super(datarouter, fieldInfo.getClientId(), Isolation.DEFAULT, true);
+		super(datarouterClients, fieldInfo.getClientId(), Isolation.DEFAULT, true);
 		this.mysqlGetOpExecutor = mysqlGetOpExecutor;
 		this.fieldInfo = fieldInfo;
 		this.fieldCodecFactory = fieldCodecFactory;

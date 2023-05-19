@@ -15,8 +15,12 @@
  */
 package io.datarouter.web.config.service;
 
+import java.util.Collection;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
+import io.datarouter.storage.config.properties.ServerClusterDomains;
 
 @Singleton
 public class DomainFinder{
@@ -25,6 +29,8 @@ public class DomainFinder{
 	private PrivateDomain privateDomain;
 	@Inject
 	private PublicDomain publicDomain;
+	@Inject
+	private ServerClusterDomains serverClusterDomains;
 
 	public String getDomainPreferPrivate(){
 		return privateDomain.hasPrivateDomain() ? privateDomain.get() : publicDomain.get();
@@ -32,6 +38,27 @@ public class DomainFinder{
 
 	public String getDomainPreferPublic(){
 		return publicDomain.hasPublicDomain() ? publicDomain.get() : privateDomain.get();
+	}
+
+	public String getRelativeDomainPreferPublic(){
+		Collection<String> domains = serverClusterDomains.get();
+		if(domains.isEmpty()){
+			return getDomainPreferPublic();
+		}
+		boolean islocalhost = domains.stream()
+				.anyMatch(domain -> domain.equals("localhost"));
+		if(islocalhost){
+			return "localhost:8443";
+		}
+
+		// can sometimes return private
+		String first = domains.stream()
+				.findFirst()
+				.get();
+		return domains.stream()
+				.filter(domain -> !domain.contains("private"))
+				.findFirst()
+				.orElse(first);
 	}
 
 }

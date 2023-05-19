@@ -18,6 +18,7 @@ package io.datarouter.bytes.kvfile;
 import java.util.Arrays;
 import java.util.Objects;
 
+import io.datarouter.bytes.EmptyArray;
 import io.datarouter.bytes.codec.bytestringcodec.HexByteStringCodec;
 import io.datarouter.bytes.codec.longcodec.ComparableLongCodec;
 
@@ -102,6 +103,16 @@ public class KvFileEntry{
 
 	/*--------- convenience -------*/
 
+	public static KvFileEntry putWithoutVersion(
+			byte[] key,
+			byte[] value){
+		return create(
+				key,
+				EmptyArray.BYTE,
+				KvFileOp.PUT,
+				value);
+	}
+
 	public static KvFileEntry putWithLongVersion(
 			byte[] key,
 			long version,
@@ -112,7 +123,6 @@ public class KvFileEntry{
 				KvFileOp.PUT,
 				value);
 	}
-
 
 	/*--------- equals ---------*/
 

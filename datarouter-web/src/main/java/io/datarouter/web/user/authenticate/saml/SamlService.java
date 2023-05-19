@@ -54,8 +54,8 @@ import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.GlobalRedirectMav;
 import io.datarouter.web.user.databean.SamlAuthnRequestRedirectUrl;
 import io.datarouter.web.user.databean.SamlAuthnRequestRedirectUrlKey;
-import io.datarouter.web.user.session.service.Role;
-import io.datarouter.web.user.session.service.RoleManager;
+import io.datarouter.web.user.role.Role;
+import io.datarouter.web.user.role.RoleManager;
 import io.datarouter.web.user.session.service.Session;
 import io.datarouter.web.user.session.service.UserSessionService;
 

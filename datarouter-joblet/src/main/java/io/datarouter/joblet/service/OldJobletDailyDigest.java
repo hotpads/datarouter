@@ -45,12 +45,13 @@ public class OldJobletDailyDigest implements DailyDigest{
 
 	@Override
 	public Optional<DivTag> getPageContent(ZoneId zoneId){
-		var rows = jobletDailyDigestService.getOldJoblets();
+		Map<OldJobletDto,List<OldJobletDto>> rows = Scanner.of(jobletDailyDigestService.getOldJoblets())
+				.groupBy(OldJobletDto::fromRequest, OldJobletDto::fromRequest);
 		if(rows.isEmpty()){
 			return Optional.empty();
 		}
 		var header = digestService.makeHeader("Old Joblets", paths.datarouter.joblets.list);
-		var table = jobletDailyDigestService.makePageTableForOldJoblets(rows, zoneId);
+		var table = jobletDailyDigestService.makePageTableForOldJoblets(rows);
 		return Optional.of(div(header, table));
 	}
 

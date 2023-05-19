@@ -26,6 +26,7 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.scanner.Scanner;
 import io.datarouter.util.lang.ObjectTool;
 
 public class StringTool{
@@ -104,6 +105,12 @@ public class StringTool{
 			return "";
 		}
 		return input.toLowerCase();
+	}
+
+	public static Scanner<Character> scanCharacters(String input){
+		return Scanner.iterate(0, i -> i + 1)
+				.limit(input.length())
+				.map(i -> Character.valueOf(input.charAt(i)));
 	}
 
 	public static boolean equalsCaseInsensitive(String left, String right){

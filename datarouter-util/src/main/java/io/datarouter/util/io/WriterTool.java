@@ -16,14 +16,24 @@
 package io.datarouter.util.io;
 
 import java.io.BufferedWriter;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.UncheckedIOException;
 import java.io.Writer;
 
 public class WriterTool{
 
 	public static Writer makeBufferedWriter(OutputStream outputStream){
 		return new BufferedWriter(new OutputStreamWriter(outputStream));
+	}
+
+	public static void write(Writer writer, String value){
+		try{
+			writer.write(value);
+		}catch(IOException e){
+			throw new UncheckedIOException(e);
+		}
 	}
 
 }

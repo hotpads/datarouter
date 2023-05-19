@@ -50,14 +50,6 @@ public class DateTool{
 			DayOfWeek.SATURDAY,
 			DayOfWeek.SUNDAY);
 
-	public static long getPeriodStart(long periodMs){
-		return getPeriodStart(System.currentTimeMillis(), periodMs);
-	}
-
-	public static long getPeriodStart(long timeMs, long periodMs){
-		return timeMs - timeMs % periodMs;
-	}
-
 	//TODO pass zoneId instead of using systemDefault
 	public static String getDateTime(Date date){
 		DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");

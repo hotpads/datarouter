@@ -61,6 +61,12 @@ public class MemoryBlobStorage{
 		}
 	}
 
+	public void deleteMulti(List<byte[]> keys){
+		try(var $ = lock.lockForWriting()){
+			keys.forEach(navigableMap::remove);
+		}
+	}
+
 	public void deleteAll(){
 		try(var $ = lock.lockForWriting()){
 			navigableMap.clear();

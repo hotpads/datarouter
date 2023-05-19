@@ -18,7 +18,7 @@ if the tasks are not completing.  The datarouter-job framework automatically cre
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-task-tracker</artifactId>
-	<version>0.0.119</version>
+	<version>0.0.120</version>
 </dependency>
 ```
 
@@ -27,7 +27,7 @@ if the tasks are not completing.  The datarouter-job framework automatically cre
 You can install this module by adding its plugin to the `WebappBuilder`.
 
 ```java
-.addWebPlugin(new DatarouterTaskTrackerPluginBuilder(...)
+.addPlugin(new DatarouterTaskTrackerPluginBuilder(...)
 		...
 		.build()
 ```

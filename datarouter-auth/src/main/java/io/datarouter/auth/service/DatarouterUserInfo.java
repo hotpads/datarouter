@@ -32,7 +32,7 @@ import io.datarouter.web.user.databean.DatarouterUser;
 import io.datarouter.web.user.databean.DatarouterUser.DatarouterUserByUserTokenLookup;
 import io.datarouter.web.user.databean.DatarouterUser.DatarouterUserByUsernameLookup;
 import io.datarouter.web.user.databean.DatarouterUserKey;
-import io.datarouter.web.user.session.service.Role;
+import io.datarouter.web.user.role.Role;
 
 @Singleton
 public class DatarouterUserInfo implements UserInfo{

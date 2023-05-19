@@ -29,35 +29,28 @@ public class GcpPubsubExecutors{
 	@Singleton
 	public static class GcpPubsubSubscriberStubExecutor extends ScheduledThreadPoolExecutor{
 		public GcpPubsubSubscriberStubExecutor(){
-			super(64, new NamedThreadFactory("gcpPubsubSubscriberStubExecutor", true));
+			super(2, new NamedThreadFactory("gcpPubsubSubscriberStubExecutor", true));
 		}
 	}
 
 	@Singleton
 	public static class GcpPubsubTransportChannelExecutor extends ScalingThreadPoolExecutor{
 		public GcpPubsubTransportChannelExecutor(){
-			super("gcpPubsubTransportChannelExecutor", 64);
+			super("gcpPubsubTransportChannelExecutor", 1);
 		}
 	}
 
 	@Singleton
 	public static class GcpPubsubManagedChannelExecutor extends ScalingThreadPoolExecutor{
 		public GcpPubsubManagedChannelExecutor(){
-			super("gcpPubsubManagedChannelExecutor", 64);
+			super("gcpPubsubManagedChannelExecutor", 128);
 		}
 	}
 
 	@Singleton
 	public static class GcpPubsubManagedChannelOffloadExecutor extends ScalingThreadPoolExecutor{
 		public GcpPubsubManagedChannelOffloadExecutor(){
-			super("gcpPubsubManagedChannelOffloadExecutor", 64);
-		}
-	}
-
-	@Singleton
-	public static class GcpPubsubNioEventLoopGroupExecutor extends DatarouterExecutorService{
-		public GcpPubsubNioEventLoopGroupExecutor(){
-			super(ExecutorTool.createFixedPool("gcpPubsubNioEventLoopGroupExecutor", 64));
+			super("gcpPubsubManagedChannelOffloadExecutor", 32);
 		}
 	}
 
@@ -71,14 +64,14 @@ public class GcpPubsubExecutors{
 	@Singleton
 	public static class GcpPubsubWatchdogExecutor extends ScheduledThreadPoolExecutor{
 		public GcpPubsubWatchdogExecutor(){
-			super(64, new NamedThreadFactory("gcpPubsubWatchdogExecutor", true));
+			super(16, new NamedThreadFactory("gcpPubsubWatchdogExecutor", true));
 		}
 	}
 
 	@Singleton
 	public static class GcpPubsubPublisherExecutor extends ScheduledThreadPoolExecutor{
 		public GcpPubsubPublisherExecutor(){
-			super(64, new NamedThreadFactory("gcpPubsubPublisherExecutor", true));
+			super(16, new NamedThreadFactory("gcpPubsubPublisherExecutor", true));
 		}
 	}
 

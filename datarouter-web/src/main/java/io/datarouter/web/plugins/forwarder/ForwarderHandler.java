@@ -15,21 +15,34 @@
  */
 package io.datarouter.web.plugins.forwarder;
 
+import java.util.List;
 import java.util.Optional;
 
 import javax.inject.Inject;
 
+import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
+import io.datarouter.web.plugins.forwarder.ForwarderPlugin.ForwarderPluginInterceptor;
 
 public class ForwarderHandler extends BaseHandler{
 
 	@Inject
 	private ForwarderHandlerPage forwarderHandlerPage;
+	@Inject
+	private List<Class<? extends ForwarderPluginInterceptor>> interceptors;
+	@Inject
+	private DatarouterInjector datarouterInjector;
 
 	@Handler(defaultHandler = true)
 	public Mav handler(String protocol, Optional<String> hostname, int port, String path){
 		String callbackUrl = protocol + "://" + hostname.orElse("localhost") + ":" + port + path;
+
+		for(Class<? extends ForwarderPluginInterceptor> interceptorClass : interceptors){
+			ForwarderPluginInterceptor interceptor = datarouterInjector.getInstance(interceptorClass);
+			interceptor.accept(request, response);
+		}
+
 		return forwarderHandlerPage.handler(request, callbackUrl);
 	}
 

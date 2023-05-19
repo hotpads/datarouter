@@ -21,18 +21,20 @@ import io.datarouter.util.lang.ObjectTool;
 import io.datarouter.util.string.StringTool;
 
 public enum ClusterSettingScope{
-	DEFAULT_SCOPE("defaultScope", 1000),
-	SERVER_TYPE("serverType", 100),
-	SERVER_NAME("serverName", 10);
+	DEFAULT_SCOPE("defaultScope", "Default", 1000),
+	SERVER_TYPE("serverType", "Server Type", 100),
+	SERVER_NAME("serverName", "Server Name", 10);
 
 	public static final StringMappedEnum<ClusterSettingScope> BY_PERSISTENT_STRING
 			= new StringMappedEnum<>(values(), value -> value.persistentString, 20);
 
 	public final String persistentString;
+	public final String display;
 	public final int specificity;
 
-	ClusterSettingScope(String persistentString, int specificity){
+	ClusterSettingScope(String persistentString, String display, int specificity){
 		this.persistentString = persistentString;
+		this.display = display;
 		this.specificity = specificity;
 	}
 
@@ -49,7 +51,9 @@ public enum ClusterSettingScope{
 	public static ClusterSettingScope fromParams(String serverTypePersistentString, String serverName){
 		if(StringTool.notEmpty(serverName)){
 			return ClusterSettingScope.SERVER_NAME;
-		}else if(ObjectTool.notEquals(ServerType.UNKNOWN.getPersistentString(), serverTypePersistentString)
+		}
+		if(serverTypePersistentString != null
+				&& ObjectTool.notEquals(ServerType.UNKNOWN.getPersistentString(), serverTypePersistentString)
 				&& ObjectTool.notEquals(ServerType.ALL.getPersistentString(), serverTypePersistentString)){
 			return ClusterSettingScope.SERVER_TYPE;
 		}

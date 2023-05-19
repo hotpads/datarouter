@@ -38,6 +38,13 @@ public class Bootstrap4PageFactory{
 				.withMavProperties(mavPropertiesFactory.buildAndSet(request));
 	}
 
+	public Mav simplePage(HttpServletRequest request, String title, DomContent content){
+		return startBuilder(request)
+				.withTitle(title)
+				.withContent(content)
+				.buildMav();
+	}
+
 	public Mav message(HttpServletRequest request, String message){
 		var content = div(h5(message))
 				.withStyle("margin:40px;");

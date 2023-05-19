@@ -38,8 +38,9 @@ public class InstanceRegistry{
 
 	private final Set<Object> set = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
-	public void register(Object obj){
+	public <T> T register(T obj){
 		set.add(obj);
+		return obj;
 	}
 
 	private <T> Collection<T> getRegisteredInstancesOfType(Class<T> type){

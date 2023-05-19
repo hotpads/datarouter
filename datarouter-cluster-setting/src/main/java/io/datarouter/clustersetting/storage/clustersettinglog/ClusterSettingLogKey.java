@@ -46,12 +46,16 @@ public class ClusterSettingLogKey extends BaseRegularPrimaryKey<ClusterSettingLo
 	public ClusterSettingLogKey(){
 	}
 
-	public ClusterSettingLogKey(String name, Instant instant){
+	public ClusterSettingLogKey(String name, Long reverseCreatedMs){
 		this.name = name;
-		this.reverseCreatedMs = DateTool.toReverseInstantLong(instant);
+		this.reverseCreatedMs = reverseCreatedMs;
 	}
 
-	public static ClusterSettingLogKey createPrefix(String name){
+	public static ClusterSettingLogKey forInstant(String name, Instant instant){
+		return new ClusterSettingLogKey(name, DateTool.toReverseInstantLong(instant));
+	}
+
+	public static ClusterSettingLogKey prefix(String name){
 		return new ClusterSettingLogKey(name, null);
 	}
 
@@ -69,6 +73,10 @@ public class ClusterSettingLogKey extends BaseRegularPrimaryKey<ClusterSettingLo
 
 	public Date getCreated(){
 		return DateTool.fromReverseDateLong(reverseCreatedMs);
+	}
+
+	public Instant getCreatedInstant(){
+		return getCreated().toInstant();
 	}
 
 }

@@ -49,7 +49,7 @@ public class HexBlockTool{
 		PrintStream out = System
 				.out;// Checkstyle hack
 		String header = String.format("##### hex start tabs=%s width=%s #####", numTabs, width);
-		String body = toHexBlock(bytes, numTabs, width);;
+		String body = toHexBlock(bytes, numTabs, width);
 		String footer = "##### hex end #####";
 		out.println(header);
 		out.println(body);

@@ -165,7 +165,7 @@ public class MysqlPreparedStatementBuilderIntegrationTests{
 				"TestTable",
 				CONFIG,
 				KEY_1.getFields(),
-				List.of(new Range<>(KEY_1)),
+				List.of(new Range<>(KEY_1, null)),
 				null,
 				MysqlTool.PRIMARY_KEY_INDEX_NAME)
 				.toString();
@@ -199,7 +199,7 @@ public class MysqlPreparedStatementBuilderIntegrationTests{
 				"TestTable",
 				CONFIG,
 				KEY_1.getFields(),
-				List.of(new Range<>(KEY_1), new Range<>(KEY_2)),
+				List.of(new Range<>(KEY_1, null), new Range<>(KEY_2, null)),
 				null,
 				MysqlTool.PRIMARY_KEY_INDEX_NAME)
 				.toString(),

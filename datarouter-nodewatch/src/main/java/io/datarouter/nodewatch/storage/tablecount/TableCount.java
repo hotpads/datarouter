@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import io.datarouter.model.databean.BaseDatabean;
+import io.datarouter.model.databean.Databean;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.imp.DateField;
 import io.datarouter.model.field.imp.DateFieldKey;
@@ -31,6 +32,12 @@ import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 import io.datarouter.util.number.NumberFormatter;
 
 public class TableCount extends BaseDatabean<TableCountKey,TableCount>{
+
+	public static final Comparator<TableCount> COMPARE_CREATED_MS = Comparator.comparing(
+			Databean::getKey,
+			TableCountKey.COMPARE_CREATED_MS);
+	public static final Comparator<TableCount> COMPARE_COUNT_TIME_MS = Comparator.comparing(
+			TableCount::getCountTimeMs);
 
 	private Long numRows;
 	private Date dateUpdated = new Date();

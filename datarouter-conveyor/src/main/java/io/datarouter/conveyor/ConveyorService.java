@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -37,6 +38,7 @@ import io.datarouter.instrumentation.trace.Trace2BundleDto;
 import io.datarouter.instrumentation.trace.Trace2Dto;
 import io.datarouter.instrumentation.trace.Trace2SpanDto;
 import io.datarouter.instrumentation.trace.Trace2ThreadDto;
+import io.datarouter.instrumentation.trace.TraceCategory;
 import io.datarouter.instrumentation.trace.TraceSaveReasonType;
 import io.datarouter.instrumentation.trace.Traceparent;
 import io.datarouter.instrumentation.trace.Tracer;
@@ -86,7 +88,8 @@ public class ConveyorService{
 				Long mainThreadCpuTimeBegin = saveCpuTime ? PlatformMxBeans.THREAD.getCurrentThreadCpuTime() : null;
 
 				boolean finishedOneProcess = false;
-				boolean errored = false;
+				AtomicBoolean errored = new AtomicBoolean(false);
+				AtomicBoolean interrupted = new AtomicBoolean(false);
 				try{
 					ProcessResult result = configuration.process(conveyor);
 					ConveyorCounters.incProcessBatch(conveyor);
@@ -95,9 +98,9 @@ public class ConveyorService{
 					}
 					finishedOneProcess = true;
 				}catch(Throwable e){
-					errored = true;
-					boolean interrupted = ExceptionTool.isInterrupted(e);
-					if(interrupted){
+					errored.set(true);
+					interrupted.set(ExceptionTool.isInterrupted(e));
+					if(interrupted.get()){
 						ConveyorCounters.incInterrupted(conveyor);
 						try{
 							configuration.interrupted(conveyor);
@@ -107,13 +110,13 @@ public class ConveyorService{
 					}else{
 						ConveyorCounters.incException(conveyor);
 					}
-					logger.warn("swallowing exception so ScheduledExecutorService restarts this Runnable "
-							+ "interrupted={}" + (configuration.compactExceptionLogging().get() ? " {}" : ""),
-							interrupted, e);
-					if(!interrupted){
-						exceptionRecord = exceptionRecorder.tryRecordException(e, getClass().getName(),
+					if(!interrupted.get()){
+						exceptionRecord = exceptionRecorder.tryRecordException(e, conveyor.getName(),
 								ConveyorExceptionCategory.CONVEYOR);
 					}
+					logger.warn("swallowing exception so ScheduledExecutorService restarts this Runnable "
+							+ "interrupted={}, exceptionId={}" + (configuration.compactExceptionLogging().get() ? " {}"
+									: ""), interrupted, exceptionRecord.map(ExceptionRecordDto::id).orElse(null), e);
 				}finally{
 					long traceEnded = Trace2Dto.getCurrentTimeInNs();
 					Long mainThreadCpuTimeEnded = saveCpuTime ? PlatformMxBeans.THREAD.getCurrentThreadCpuTime() : null;
@@ -121,6 +124,8 @@ public class ConveyorService{
 					Trace2ThreadDto rootThread = null;
 					if(tracer.getCurrentThreadId() != null){
 						rootThread = ((DatarouterTracer)tracer).getCurrentThread();
+						rootThread.setCpuTimeEndedNs(mainThreadCpuTimeEnded);
+						rootThread.setEnded(traceEnded);
 						((DatarouterTracer)tracer).setCurrentThread(null);
 					}
 
@@ -152,8 +157,12 @@ public class ConveyorService{
 							mainThreadCpuTimeEnded,
 							0L,
 							0L,
-							saveReasons);
-					Long traceDurationMs = trace2.getDurationInMs();
+							saveReasons,
+							TraceCategory.CONVEYOR);
+					Long traceDurationMs = tracer.getAlternativeStartTimeNs()
+							.map(time -> traceEnded - time)
+							.map(TimeUnit.NANOSECONDS::toMillis)
+							.orElse(trace2.getDurationInMs());
 					if(traceSettings.saveTraces.get()){
 						if(finishedOneProcess && traceDurationMs > traceSettings.saveTracesOverMs.get().toMillis()){
 							saveReasons.add(TraceSaveReasonType.DURATION);
@@ -161,9 +170,10 @@ public class ConveyorService{
 						if(totalCpuTimeMs.orElse(-1L) > traceSettings.saveTracesCpuOverMs.get().toMillis()){
 							saveReasons.add(TraceSaveReasonType.CPU);
 						}
-						if(errored){
+						if(errored.get()){
 							saveReasons.add(TraceSaveReasonType.ERROR);
 						}
+						saveReasons.forEach(reason -> ConveyorCounters.incTraceSaved(conveyor, reason));
 					}
 
 					if(!saveReasons.isEmpty()){
@@ -190,7 +200,9 @@ public class ConveyorService{
 										+ " totalCpuTimeMs={}"
 										+ " saveReasons={}"
 										+ " numThreads={}"
-										+ " numSpans={}",
+										+ " numSpans={}"
+										+ " errored={}"
+										+ " interrupted={}",
 										destination,
 										conveyor.getName(),
 										traceparent,
@@ -198,8 +210,9 @@ public class ConveyorService{
 										totalCpuTimeMs.orElse(null),
 										saveReasons,
 										threads.size(),
-										spans.size()));
-
+										spans.size(),
+										errored.get(),
+										interrupted.get()));
 					}
 				}
 

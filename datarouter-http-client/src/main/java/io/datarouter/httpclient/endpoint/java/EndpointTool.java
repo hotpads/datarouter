@@ -222,11 +222,6 @@ public class EndpointTool{
 		return Optional.empty();
 	}
 
-	@Deprecated
-	private static boolean hasEntity(BaseEndpoint<?,?> endpoint){
-		return hasEntity(endpoint.getClass());
-	}
-
 	private static boolean hasEntity(Class<?> clazz){
 		for(Field field : clazz.getFields()){
 			if(field.isAnnotationPresent(RequestBody.class)){
@@ -311,16 +306,15 @@ public class EndpointTool{
 	public static void validateEndpoint(BaseEndpoint<?,?> endpoint){
 		HttpRequestMethod requestType = endpoint.method;
 		if(requestType == HttpRequestMethod.GET){
-			if(findEntity(endpoint).isPresent()){
+			if(hasEntity(endpoint.getClass())){
 				String message = endpoint.getClass().getSimpleName() + " - GET request cannot have a POST-body";
-				logger.error(message);
 				throw new IllegalArgumentException(message);
 			}
 		}
 		// This is not a hard protocol restriction.
 		// Datarouter has trouble decoding if there is a body and post param for a POST request.
 		if(requestType == HttpRequestMethod.POST){
-			if(hasEntity(endpoint) && containsParamOfType(endpoint, ParamType.POST)){
+			if(hasEntity(endpoint.getClass()) && containsParamOfType(endpoint, ParamType.POST)){
 				String message = endpoint.getClass().getSimpleName()
 						+ " - Request cannot have a POST-body and POST params";
 				logger.error(message);
@@ -332,9 +326,8 @@ public class EndpointTool{
 	public static void validateWebApi(BaseWebApi<?,?> webApi){
 		HttpRequestMethod requestType = webApi.method;
 		if(requestType == HttpRequestMethod.GET){
-			if(findEntity(webApi).isPresent()){
+			if(hasEntity(webApi.getClass())){
 				String message = webApi.getClass().getSimpleName() + " - GET request cannot have a POST-body";
-				logger.error(message);
 				throw new IllegalArgumentException(message);
 			}
 		}

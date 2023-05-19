@@ -19,6 +19,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.Duration;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.zip.GZIPInputStream;
 
@@ -43,8 +44,10 @@ import io.datarouter.storage.config.Config;
 import io.datarouter.storage.file.Directory;
 import io.datarouter.storage.file.PathbeanKey;
 import io.datarouter.storage.node.op.raw.MapStorage.MapStorageNode;
+import io.datarouter.util.Count;
 import io.datarouter.util.Count.Counts;
 import io.datarouter.util.collection.ListTool;
+import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.tuple.Range;
 
 @Singleton
@@ -69,6 +72,7 @@ public class DatabeanImportService{
 	long importFromDirectory(
 			Directory directory,
 			PathbeanKey pathbeanKey,
+			String exportId,
 			MapStorageNode<PK,D,F> node,
 			int putBatchSize){
 		logger.warn("importing {}", pathbeanKey);
@@ -78,7 +82,7 @@ public class DatabeanImportService{
 				new Threads(scanChunksExec, 4),
 				ByteLength.ofMiB(4))
 				.apply(MultiByteArrayInputStream::new);
-		return runImportAndCloseInputStream(node, putBatchSize, inputStream);
+		return runImportAndCloseInputStream(exportId, node, putBatchSize, inputStream);
 	}
 
 	public <
@@ -86,10 +90,11 @@ public class DatabeanImportService{
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
 	long importFromMemory(
+			String exportId,
 			MapStorageNode<PK,D,F> node,
 			byte[] bytes){
 		var byteArrayInputStream = new ByteArrayInputStream(bytes);
-		return runImportAndCloseInputStream(node, 1_000, byteArrayInputStream);
+		return runImportAndCloseInputStream(exportId, node, 1_000, byteArrayInputStream);
 	}
 
 	private <
@@ -97,6 +102,7 @@ public class DatabeanImportService{
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
 	Long runImportAndCloseInputStream(
+			String exportId,
 			MapStorageNode<PK,D,F> node,
 			int putBatchSize,
 			InputStream inputStream){
@@ -105,6 +111,8 @@ public class DatabeanImportService{
 		var numRawBytes = counts.add("numRawBytes");
 		var numGzipBytes = counts.add("numGzipBytes");
 		var lastKey = new AtomicReference<PK>();
+		var rateTracker = new RateTracker();
+		int numThreads = Math.max(1, Runtime.getRuntime().availableProcessors() / 2);
 		var codec = new DatabeanExportCodec<>(node.getFieldInfo());
 		var kvFileCodec = new KvFileCodec<>(codec);
 		try(var countingGzipInputStream = new CountingInputStream(inputStream, 64, numGzipBytes::incrementBy);
@@ -113,17 +121,60 @@ public class DatabeanImportService{
 			new KvFileReader(countingRawInputStream).scanBlockEntries()
 					.map(kvFileCodec::decode)
 					.batch(putBatchSize)
-					.parallelUnordered(new Threads(putMultiExec, Runtime.getRuntime().availableProcessors()))
+					.parallelUnordered(new Threads(putMultiExec, numThreads))
 					.each(batch -> node.putMulti(batch, CONFIG))
 					.each(numDatabeans::incrementBySize)
+					.each(rateTracker::incrementBySize)
 					.each(batch -> lastKey.set(ListTool.getLast(batch).getKey()))
-					.periodic(LOG_PERIOD, batch -> logger.warn("importing {} through={}", counts, lastKey.get()))
+					.periodic(LOG_PERIOD, batch -> logProgress(
+							exportId,
+							node.getName(),
+							numDatabeans,
+							numRawBytes,
+							numGzipBytes,
+							rateTracker,
+							lastKey.get().toString()))
 					.count();
 		}catch(IOException e){
 			throw new RuntimeException(e);
 		}
-		logger.warn("imported, {}", counts);
+		logProgress(
+				exportId,
+				node.getName(),
+				numDatabeans,
+				numRawBytes,
+				numGzipBytes,
+				rateTracker,
+				Optional.ofNullable(lastKey.get()).map(PrimaryKey::toString).orElse(""));
 		return numDatabeans.value();
+	}
+
+	private void logProgress(
+			String exportId,
+			String nodeName,
+			Count numDatabeans,
+			Count numRawBytes,
+			Count numGzipBytes,
+			RateTracker rateTracker,
+			String lastKey){
+		String compressionString = "?";
+		if(numRawBytes.value() > 0 && numGzipBytes.value() > 0){
+			double compression = (double)numRawBytes.value() / (double)numGzipBytes.value();
+			compressionString = NumberFormatter.format(compression, 1);
+		}
+		logger.warn(
+				"imported databeans={}, perSec={}, perSecAvg={}, rawBytes={}, gzipBytes={}, compression={}"
+						+ ", exportId={}, node={}, lastKey={}",
+				NumberFormatter.addCommas(numDatabeans.value()),
+				rateTracker.perSecDisplay(),
+				rateTracker.perSecAvgDisplay(),
+				ByteLength.ofBytes(numRawBytes.value()).toDisplay(),
+				ByteLength.ofBytes(numGzipBytes.value()).toDisplay(),
+				compressionString,
+				exportId,
+				nodeName,
+				lastKey);
+		rateTracker.markLogged();
 	}
 
 }

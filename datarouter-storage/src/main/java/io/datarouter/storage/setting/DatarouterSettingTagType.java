@@ -17,6 +17,8 @@ package io.datarouter.storage.setting;
 
 import java.util.function.Supplier;
 
+import io.datarouter.scanner.Scanner;
+
 public enum DatarouterSettingTagType implements Supplier<DatarouterSettingTag>{
 	COUNT_PIPELINE("countPipeline"),
 	GAUGE_PIPELINE("gaugePipeline"),
@@ -34,6 +36,12 @@ public enum DatarouterSettingTagType implements Supplier<DatarouterSettingTag>{
 	@Override
 	public DatarouterSettingTag get(){
 		return datarouterSettingTag;
+	}
+
+	public static Scanner<String> scanPersistentStrings(){
+		return Scanner.of(DatarouterSettingTagType.values())
+				.map(DatarouterSettingTagType::get)
+				.map(DatarouterSettingTag::getPersistentString);
 	}
 
 }

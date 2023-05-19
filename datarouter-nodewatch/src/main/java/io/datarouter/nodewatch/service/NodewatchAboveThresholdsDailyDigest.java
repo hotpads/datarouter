@@ -20,6 +20,7 @@ import static j2html.TagCreator.each;
 import static j2html.TagCreator.h4;
 import static j2html.TagCreator.td;
 
+import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Comparator;
 import java.util.List;
@@ -75,7 +76,7 @@ public class NodewatchAboveThresholdsDailyDigest implements DailyDigest{
 		if(tables.size() == 0){
 			return Optional.empty();
 		}
-		var header = digestService.makeHeader("Table Thresholds", paths.datarouter.nodewatch.threshold);
+		var header = digestService.makeHeader("Table Thresholds", paths.datarouter.nodewatch.tables);
 		return Optional.of(div(header, each(tables, content -> TagCreator.div((DomContent)content))));
 	}
 
@@ -97,7 +98,7 @@ public class NodewatchAboveThresholdsDailyDigest implements DailyDigest{
 		if(tables.size() == 0){
 			return Optional.empty();
 		}
-		var header = digestService.makeHeader("Table Thresholds", paths.datarouter.nodewatch.threshold);
+		var header = digestService.makeHeader("Table Thresholds", paths.datarouter.nodewatch.tables);
 		return Optional.of(div(header, each(tables, content -> TagCreator.div((DomContent)content))));
 	}
 
@@ -118,10 +119,10 @@ public class NodewatchAboveThresholdsDailyDigest implements DailyDigest{
 						row.latestSample.getKey().getClientName())))
 				.withColumn("Date Updated",
 						row -> ZonedDateFormatterTool.formatInstantWithZone(row.latestSample.getDateUpdated(), zoneId))
-				.withColumn("Previous Count ", row -> row.latestSample.getDateUpdated())
-				.withColumn("Latest Count", row -> row.latestSample.getDateUpdated())
-				.withColumn("% Increase", row -> row.latestSample.getDateUpdated())
-				.withColumn("Count Increase", row -> row.latestSample.getDateUpdated())
+				.withColumn("Previous Count ", row -> row.latestSample.getDateUpdated(), Instant::toString)
+				.withColumn("Latest Count", row -> row.latestSample.getDateUpdated(), Instant::toString)
+				.withColumn("% Increase", row -> row.latestSample.getDateUpdated(), Instant::toString)
+				.withColumn("Count Increase", row -> row.latestSample.getDateUpdated(), Instant::toString)
 				.build(rows);
 		return Optional.of(new TableRow(header, div(h4(header), table)));
 	}
@@ -140,8 +141,8 @@ public class NodewatchAboveThresholdsDailyDigest implements DailyDigest{
 				.withColumn("Date Updated",
 						row -> ZonedDateFormatterTool.formatInstantWithZone(row.latestSample().getDateUpdated(),
 								zoneId))
-				.withColumn("Threshold ", ThresholdCountStat::threshold)
-				.withColumn("Latest Count", row -> row.latestSample().getDateUpdated())
+				.withColumn("Threshold ", ThresholdCountStat::threshold, Number::toString)
+				.withColumn("Latest Count", row -> row.latestSample().getDateUpdated(), Instant::toString)
 				.build(rows);
 		return Optional.of(new TableRow(header, div(h4(header), table)));
 	}

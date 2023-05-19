@@ -31,6 +31,7 @@ import io.datarouter.conveyor.ConveyorConfiguration;
 import io.datarouter.conveyor.ConveyorCounters;
 import io.datarouter.conveyor.ConveyorGauges;
 import io.datarouter.conveyor.ConveyorRunnable;
+import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.metric.counter.collection.CountPublisher;
 import io.datarouter.metric.counter.collection.DatarouterCountCollector.CountCollectorStats;
 import io.datarouter.scanner.Scanner;
@@ -55,6 +56,7 @@ public class CountStatsMemoryToPublisherConveyorConfiguration implements Conveyo
 		List<Map<Long,Map<String,CountCollectorStats>>> dtos = buffers.countStatsBuffer.pollMultiWithLimit(POLL_LIMIT);
 		Instant afterPeek = Instant.now();
 		gaugeRecorder.savePeekDurationMs(conveyor, Duration.between(beforePeek, afterPeek).toMillis());
+		TracerTool.setAlternativeStartTime();
 		if(dtos.isEmpty()){
 			return new ProcessResult(false);
 		}
@@ -84,8 +86,8 @@ public class CountStatsMemoryToPublisherConveyorConfiguration implements Conveyo
 	}
 
 	@Override
-	public long delaySeconds(){
-		return 1L;
+	public Duration delay(){
+		return Duration.ofSeconds(1L);
 	}
 
 }

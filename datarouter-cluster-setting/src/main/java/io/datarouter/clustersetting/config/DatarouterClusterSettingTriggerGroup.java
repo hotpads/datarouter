@@ -15,8 +15,10 @@
  */
 package io.datarouter.clustersetting.config;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.clustersetting.job.ClusterSettingAlertEmailJob;
 import io.datarouter.clustersetting.job.ClusterSettingCacheRefreshJob;
 import io.datarouter.job.BaseTriggerGroup;
 import io.datarouter.storage.tag.Tag;
@@ -25,12 +27,18 @@ import io.datarouter.util.time.ZoneIds;
 @Singleton
 public class DatarouterClusterSettingTriggerGroup extends BaseTriggerGroup{
 
-	public DatarouterClusterSettingTriggerGroup(){
+	@Inject
+	public DatarouterClusterSettingTriggerGroup(DatarouterClusterSettingRoot settings){
 		super("DatarouterClusterSetting", Tag.DATAROUTER, ZoneIds.AMERICA_NEW_YORK);
 		registerParallel(
 				"5/10 * * * * ?",
 				() -> true,
 				ClusterSettingCacheRefreshJob.class);
+		registerLocked(
+				"0 0 12 ? * MON-FRI *",
+				settings.runAlertJob,
+				ClusterSettingAlertEmailJob.class,
+				true);
 	}
 
 }

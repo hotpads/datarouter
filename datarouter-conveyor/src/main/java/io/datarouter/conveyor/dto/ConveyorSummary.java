@@ -17,30 +17,24 @@ package io.datarouter.conveyor.dto;
 
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
 
-import io.datarouter.conveyor.ConveyorAppListener.ExecsAndConveyors;
-import io.datarouter.conveyor.ConveyorRunnable;
+import io.datarouter.conveyor.ConveyorProcessor;
 import io.datarouter.scanner.Scanner;
 
-public class ConveyorSummary{
+public record ConveyorSummary(
+		String name,
+		ThreadPoolExecutor executor,
+		boolean shouldRun,
+		int maxAllowedThreadCount){
 
-	public final String name;
-	public final ExecutorService executor;
-	public final ConveyorRunnable conveyor;
-
-	public ConveyorSummary(String name, ExecutorService executor, ConveyorRunnable conveyor){
-		this.name = name;
-		this.executor = executor;
-		this.conveyor = conveyor;
-	}
-
-	public static List<ConveyorSummary> summarize(Map<String,ExecsAndConveyors> entries){
+	public static List<ConveyorSummary> summarize(Map<String,ConveyorProcessor> entries){
 		return Scanner.of(entries.entrySet())
 				.map(entry -> new ConveyorSummary(
 						entry.getKey(),
-						entry.getValue().executor(),
-						entry.getValue().conveyor()))
+						entry.getValue().getExecutorService(),
+						entry.getValue().shouldConveyorRun(),
+						entry.getValue().getMaxAllowedThreadCount()))
 				.list();
 	}
 

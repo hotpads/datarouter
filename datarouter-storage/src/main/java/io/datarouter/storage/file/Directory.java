@@ -131,6 +131,15 @@ implements BlobStorage{
 	}
 
 	@Override
+	public void deleteMulti(List<PathbeanKey> keys, Config config){
+		Scanner.of(keys)
+				.map(this::prependStoragePath)
+				.flush(parent::deleteMulti);
+		count(CounterSuffix.DELETE_MULTI_OPS, 1);
+		count(CounterSuffix.DELETE_MULTI_ITEMS, keys.size());
+	}
+
+	@Override
 	public void deleteAll(Subpath subpath, Config config){
 		parent.deleteAll(subpathInParent.append(subpath), config);
 		count(CounterSuffix.DELETE_ALL_OPS, 1);
@@ -251,6 +260,8 @@ implements BlobStorage{
 
 	private enum CounterSuffix{
 		DELETE_ALL_OPS("deleteAll ops"),
+		DELETE_MULTI_ITEMS("deleteMulti items"),
+		DELETE_MULTI_OPS("deleteMulti ops"),
 		DELETE_OPS("delete ops"),
 		EXISTS_OPS("exists ops"),
 		LENGTH_OPS("length ops"),
@@ -274,7 +285,7 @@ implements BlobStorage{
 
 		public final String suffix;
 
-		private CounterSuffix(String suffix){
+		CounterSuffix(String suffix){
 			this.suffix = suffix;
 		}
 	}

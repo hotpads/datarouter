@@ -40,7 +40,6 @@ import io.datarouter.client.mysql.factory.MysqlOptions;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.util.string.StringTool;
-
 import net.sf.log4jdbc.DriverSpy;
 
 @Singleton

@@ -46,7 +46,7 @@ public class ShutdownService{
 		if(shutdownStartTime == Long.MAX_VALUE && state == ShutdownState.OFF){
 			shutdownStartTime = System.currentTimeMillis();
 		}
-		logger.warn("advanced to next shutdown stage newState={} newSatusCode={}", state, state.keepAliveErrorCode);
+		logger.warn("advanced to next shutdown stage newState={} newStatusCode={}", state, state.keepAliveErrorCode);
 		return state.keepAliveErrorCode;
 	}
 

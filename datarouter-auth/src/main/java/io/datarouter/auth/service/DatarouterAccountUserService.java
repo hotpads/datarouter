@@ -17,8 +17,10 @@ package io.datarouter.auth.service;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -31,6 +33,7 @@ import io.datarouter.auth.storage.account.DatarouterAccountKey;
 import io.datarouter.auth.storage.useraccountmap.BaseDatarouterUserAccountMapDao;
 import io.datarouter.auth.storage.useraccountmap.DatarouterUserAccountMapKey;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.web.user.databean.DatarouterUser;
 import io.datarouter.web.user.session.service.Session;
 import io.datarouter.web.user.session.service.SessionBasedUser;
 
@@ -91,6 +94,13 @@ public class DatarouterAccountUserService{
 	public Set<String> findAccountNamesForUser(Session session){
 		return scanAccountNamesForUserIdWithUserMappingEnabled(session.getUserId())
 				.collect(HashSet::new);
+	}
+
+	public Map<String,Boolean> getAccountProvisioningStatusForUser(DatarouterUser user){
+		List<String> availableAccounts = getAllAccountNamesWithUserMappingsEnabled();
+		Set<String> currentAccounts = findAccountNamesForUser(user);
+		return Scanner.of(availableAccounts)
+				.toMap(Function.identity(), currentAccounts::contains);
 	}
 
 	//note: this does not return credentials from DatarouterAccountSecretCredentials

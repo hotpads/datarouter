@@ -66,6 +66,8 @@ import io.datarouter.web.dispatcher.FilterParams;
 import io.datarouter.web.dispatcher.RouteSet;
 import io.datarouter.web.dispatcher.ServletParams;
 import io.datarouter.web.filter.https.HttpsOnlyHttpsConfiguration;
+import io.datarouter.web.handler.UserAgentTypeConfig;
+import io.datarouter.web.handler.UserAgentTypeConfig.NoOpUserAgentTypeConfig;
 import io.datarouter.web.handler.validator.HandlerAccountCallerValidator;
 import io.datarouter.web.handler.validator.HandlerAccountCallerValidator.NoOpHandlerAccountCallerValidator;
 import io.datarouter.web.homepage.DefaultHomepageRouteSet;
@@ -85,10 +87,10 @@ import io.datarouter.web.service.ServiceDescriptionSupplier;
 import io.datarouter.web.user.authenticate.DatarouterAuthenticationFilter;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
 import io.datarouter.web.user.detail.DatarouterUserExternalDetailService;
+import io.datarouter.web.user.role.DatarouterRoleManager;
+import io.datarouter.web.user.role.RoleManager;
 import io.datarouter.web.user.session.CurrentSessionInfo;
 import io.datarouter.web.user.session.CurrentSessionInfo.NoOpCurrentSessionInfo;
-import io.datarouter.web.user.session.service.DatarouterRoleManager;
-import io.datarouter.web.user.session.service.RoleManager;
 import io.datarouter.web.user.session.service.UserSessionService;
 import io.datarouter.web.user.session.service.UserSessionService.NoOpUserSessionService;
 
@@ -130,13 +132,13 @@ implements WebappBuilder{
 
 	private Class<? extends RoleManager> roleManager;
 	private Class<? extends CurrentSessionInfo> currentSessionInfo;
+	private Class<? extends UserAgentTypeConfig> userAgentTypeConfig;
 	private Class<? extends UserSessionService> userSessionService;
 	private Class<? extends DatarouterAuthenticationConfig> authenticationConfig;
 	private Class<? extends DatarouterUserExternalDetailService> datarouterUserExternalDetail;
 	private Class<? extends HomepageRouteSet> homepageRouteSet;
 	private Class<? extends HomepageHandler> homepageHandler;
 	private String customStaticFileFilterRegex;
-	private String nodeWidgetDatabeanExporterLink;
 	private String nodeWidgetTableCountLink;
 	protected boolean useDatarouterAuth;
 	private Class<? extends RequestProxySetter> requestProxy;
@@ -226,6 +228,7 @@ implements WebappBuilder{
 		this.userSessionService = NoOpUserSessionService.class;
 		this.filesRoot = NoOpFilesRoot.class;
 		this.currentSessionInfo = NoOpCurrentSessionInfo.class;
+		this.userAgentTypeConfig = NoOpUserAgentTypeConfig.class;
 		this.appListenersOrdered = new ArrayList<>();
 		this.appListenersUnordered = new ArrayList<>();
 		this.appListenersUnorderedToExecuteLast = new ArrayList<>();
@@ -292,6 +295,7 @@ implements WebappBuilder{
 				.setFilesClass(filesRoot)
 				.setDatarouterAuthConfig(authenticationConfig)
 				.setCurrentSessionInfoClass(currentSessionInfo)
+				.setUserAgentTypeConfigClass(userAgentTypeConfig)
 				.setRoleManagerClass(roleManager)
 				.setUserSesssionServiceClass(userSessionService)
 				.setAppListenerClasses(OrderedTool.combine(appListenersOrdered, appListenersUnordered))
@@ -301,7 +305,6 @@ implements WebappBuilder{
 				.setHomepageHandler(homepageHandler)
 				.setCustomStaticFileFilterRegex(customStaticFileFilterRegex)
 				.withRegisteredPlugins(registeredPlugins)
-				.withNodeWidgetDatabeanExporterLink(nodeWidgetDatabeanExporterLink)
 				.withNodeWidgetTableCountLink(nodeWidgetTableCountLink)
 				.setRequestProxy(requestProxy)
 				.setDefaultEmailDistributionListZoneId(defaultEmailDistributionListZoneId)
@@ -384,12 +387,18 @@ implements WebappBuilder{
 		return getSelf();
 	}
 
+	@Deprecated // use addPlugin
 	public T addWebPlugin(BaseWebPlugin webPlugin){
+		return addPlugin(webPlugin);
+	}
+
+	public T addPlugin(BaseWebPlugin webPlugin){
 		addWebPluginInternal(webPlugin);
 		webPlugin.getStoragePlugins().forEach(this::addStoragePluginInternal);
 		webPlugin.getWebPlugins().forEach(this::addWebPluginInternal);
 		return getSelf();
 	}
+
 
 	protected void addStoragePluginInternal(BaseStoragePlugin storagePlugin){
 		boolean containsPlugin = storagePlugins.stream()
@@ -522,6 +531,11 @@ implements WebappBuilder{
 		return getSelf();
 	}
 
+	public T setUserAgentTypeConfig(Class<? extends UserAgentTypeConfig> userAgentTypeConfig){
+		this.userAgentTypeConfig = userAgentTypeConfig;
+		return getSelf();
+	}
+
 	public T setServerTypeDetector(Class<? extends ServerTypeDetector> serverTypeDetector){
 		this.serverTypeDetector = serverTypeDetector;
 		return getSelf();
@@ -628,11 +642,6 @@ implements WebappBuilder{
 
 	public T withCustomStaticFileFilterRegex(String customStaticFileFilterRegex){
 		this.customStaticFileFilterRegex = customStaticFileFilterRegex;
-		return getSelf();
-	}
-
-	public T withNodeWidgetDatabeanExporterLink(String nodeWidgetDatabeanExporterLink){
-		this.nodeWidgetDatabeanExporterLink = nodeWidgetDatabeanExporterLink;
 		return getSelf();
 	}
 

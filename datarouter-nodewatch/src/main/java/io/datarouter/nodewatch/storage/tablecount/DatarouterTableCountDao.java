@@ -65,7 +65,7 @@ public class DatarouterTableCountDao extends BaseDao{
 
 	//currently not depending on table sort order
 	public Scanner<TableCount> scanForTable(String clientName, String tableName){
-		var prefix = TableCountKey.createClientTableKey(clientName, tableName);
+		var prefix = TableCountKey.prefix(clientName, tableName);
 		return node.scanWithPrefix(prefix);
 	}
 

@@ -32,8 +32,8 @@ public interface QueueStorageWriter<
 		D extends Databean<PK,D>>
 extends StorageWriter<PK,D>{
 
-	public static final String OP_ack = "ack";
-	public static final String OP_ackMulti = "ackMulti";
+	String OP_ack = "ack";
+	String OP_ackMulti = "ackMulti";
 
 	void ack(QueueMessageKey key, Config config);
 
@@ -49,14 +49,14 @@ extends StorageWriter<PK,D>{
 
 	/*---------------------------- sub-interfaces ---------------------------*/
 
-	public interface QueueStorageWriterNode<
+	interface QueueStorageWriterNode<
 			PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
 	extends QueueStorageWriter<PK,D>, StorageWriterNode<PK,D,F>{
 	}
 
-	public interface PhysicalQueueStorageWriterNode<
+	interface PhysicalQueueStorageWriterNode<
 			PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>

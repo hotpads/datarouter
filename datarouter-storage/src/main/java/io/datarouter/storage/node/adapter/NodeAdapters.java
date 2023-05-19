@@ -15,15 +15,11 @@
  */
 package io.datarouter.storage.node.adapter;
 
-import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
-import io.datarouter.storage.node.adapter.availability.PhysicalIndexedSortedMapStorageAvailabilityAdapterFactory;
-import io.datarouter.storage.node.adapter.availability.PhysicalMapStorageAvailabilityAdapterFactory;
-import io.datarouter.storage.node.adapter.availability.PhysicalSortedMapStorageAvailabilityAdapterFactory;
 import io.datarouter.storage.node.adapter.callsite.physical.PhysicalIndexedSortedMapStorageCallsiteAdapter;
 import io.datarouter.storage.node.adapter.callsite.physical.PhysicalMapStorageCallsiteAdapter;
 import io.datarouter.storage.node.adapter.callsite.physical.PhysicalSortedMapStorageCallsiteAdapter;
@@ -61,14 +57,6 @@ import io.datarouter.storage.node.type.physical.PhysicalNode;
 @Singleton
 public class NodeAdapters{
 
-	@Inject
-	private PhysicalMapStorageAvailabilityAdapterFactory physicalMapStorageAvailabilityAdapterFactory;
-	@Inject
-	private PhysicalSortedMapStorageAvailabilityAdapterFactory physicalSortedMapStorageAvailabilityAdapterFactory;
-	@Inject
-	private PhysicalIndexedSortedMapStorageAvailabilityAdapterFactory
-			physicalIndexedSortedMapStorageAvailabilityAdapterFactory;
-
 	/*-------------- blob ----------------*/
 
 	public PhysicalBlobStorageNode wrapBlobNode(PhysicalBlobStorageNode physicalBlobNode){
@@ -87,9 +75,8 @@ public class NodeAdapters{
 	PhysicalNode<PK,D,F> wrapDatabeanMapNode(PhysicalMapStorageNode<PK,D,F> physicalDatabeanNode){
 		return new PhysicalMapStorageCallsiteAdapter<>(
 				new PhysicalMapStorageSanitizationAdapter<>(
-				physicalMapStorageAvailabilityAdapterFactory.create(
 				new PhysicalMapStorageCounterAdapter<>(
-				new PhysicalMapStorageTraceAdapter<>(physicalDatabeanNode)))));
+				new PhysicalMapStorageTraceAdapter<>(physicalDatabeanNode))));
 	}
 
 	public <PK extends PrimaryKey<PK>,
@@ -98,9 +85,8 @@ public class NodeAdapters{
 	PhysicalNode<PK,D,F> wrapDatabeanSortedNode(PhysicalSortedMapStorageNode<PK,D,F> physicalDatabeanNode){
 		return new PhysicalSortedMapStorageCallsiteAdapter<>(
 				new PhysicalSortedMapStorageSanitizationAdapter<>(
-				physicalSortedMapStorageAvailabilityAdapterFactory.create(
 				new PhysicalSortedMapStorageCounterAdapter<>(
-				new PhysicalSortedMapStorageTraceAdapter<>(physicalDatabeanNode)))));
+				new PhysicalSortedMapStorageTraceAdapter<>(physicalDatabeanNode))));
 	}
 
 	public <PK extends PrimaryKey<PK>,
@@ -109,9 +95,8 @@ public class NodeAdapters{
 	PhysicalNode<PK,D,F> wrapDatabeanIndexedNode(PhysicalIndexedSortedMapStorageNode<PK,D,F> physicalDatabeanNode){
 		return new PhysicalIndexedSortedMapStorageCallsiteAdapter<>(
 				new PhysicalIndexedSortedMapStorageSanitizationAdapter<>(
-				physicalIndexedSortedMapStorageAvailabilityAdapterFactory.create(
 				new PhysicalIndexedSortedMapStorageCounterAdapter<>(
-				new PhysicalIndexedSortedMapStorageTraceAdapter<>(physicalDatabeanNode)))));
+				new PhysicalIndexedSortedMapStorageTraceAdapter<>(physicalDatabeanNode))));
 	}
 
 	/*-------------- queue ----------------*/

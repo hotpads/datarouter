@@ -21,7 +21,7 @@
 
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-modules</artifactId>
-	<version>0.0.119</version>
+	<version>0.0.120</version>
 	<packaging>pom</packaging>
 
 	<modules>
@@ -33,7 +33,6 @@
 		<module>datarouter-aws-secrets-manager</module>
 		<module>datarouter-aws-sqs</module>
 		<module>datarouter-aws-s3</module>
-		<module>datarouter-batch-size-optimizer</module>
 		<module>datarouter-binary-dto</module>
 		<module>datarouter-bytes</module>
 		<module>datarouter-changelog</module>
@@ -54,6 +53,7 @@
 		<module>datarouter-http-client</module>
 		<module>datarouter-inject</module>
 		<module>datarouter-instrumentation</module>
+		<module>datarouter-java17-parent</module>
 		<module>datarouter-job</module>
 		<module>datarouter-joblet</module>
 		<module>datarouter-joblet-mysql</module>

@@ -32,6 +32,7 @@ import io.datarouter.instrumentation.exception.DatarouterExceptionPublisher;
 import io.datarouter.instrumentation.trace.ConveyorTraceAndTaskExecutorBundleDto;
 import io.datarouter.instrumentation.trace.Trace2BatchedBundleDto;
 import io.datarouter.instrumentation.trace.TracePublisher;
+import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.scanner.OptionalScanner;
 import io.datarouter.scanner.Scanner;
 
@@ -55,6 +56,7 @@ public class ConveyorTraceMemoryToPublisherConveyorConfiguration implements Conv
 		List<ConveyorTraceAndTaskExecutorBundleDto> dtos = traceBuffer.buffer.pollMultiWithLimit(BATCH_SIZE);
 		Instant afterPeek = Instant.now();
 		gaugeRecorder.savePeekDurationMs(conveyor, Duration.between(beforePeek, afterPeek).toMillis());
+		TracerTool.setAlternativeStartTime();
 		if(dtos.isEmpty()){
 			return new ProcessResult(false);
 		}

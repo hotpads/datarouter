@@ -31,6 +31,7 @@ import io.datarouter.joblet.nav.JobletExternalLinkBuilder.JobletExternalLinkBuil
 import io.datarouter.joblet.storage.jobletrequest.DatarouterJobletRequestDao;
 import io.datarouter.joblet.storage.jobletrequest.JobletRequest;
 import io.datarouter.joblet.type.JobletTypeFactory;
+import io.datarouter.util.BooleanTool;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.types.Param;
@@ -79,13 +80,13 @@ public class JobletExceptionHandler extends BaseHandler{
 							.orElse(td(id));
 				})
 				.withColumn("Type", row -> row.getKey().getType())
-				.withColumn("Execution order", row -> row.getKey().getExecutionOrder())
-				.withColumn("Batch sequence", row -> row.getKey().getBatchSequence())
-				.withColumn("Data ID", JobletRequest::getJobletDataId)
+				.withColumn("Execution order", row -> row.getKey().getExecutionOrder(), Number::toString)
+				.withColumn("Batch sequence", row -> row.getKey().getBatchSequence(), Number::toString)
+				.withColumn("Data ID", JobletRequest::getJobletDataId, Number::toString)
 				.withColumn("Reserved by", JobletRequest::getReservedBy)
 				.withColumn("Created ago", JobletRequest::getCreatedAgo)
-				.withColumn("Restartable", JobletRequest::getRestartable)
-				.withColumn("Num items", JobletRequest::getNumItems)
+				.withColumn("Restartable", JobletRequest::getRestartable, BooleanTool::toString)
+				.withColumn("Num items", JobletRequest::getNumItems, Number::toString)
 				.withColumn("Queue ID", JobletRequest::getQueueId)
 				.build(rows);
 		return div(title, table)

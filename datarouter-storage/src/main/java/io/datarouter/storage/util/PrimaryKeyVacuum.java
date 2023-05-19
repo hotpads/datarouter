@@ -22,6 +22,7 @@ import java.util.function.Predicate;
 
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.scanner.Threads;
 
 public class PrimaryKeyVacuum<PK extends PrimaryKey<PK>>
 extends BaseNodeVacuum<PK,PK>{
@@ -31,8 +32,9 @@ extends BaseNodeVacuum<PK,PK>{
 			Consumer<Collection<PK>> deleteConsumer,
 			int deleteBatchSize,
 			Predicate<PK> shouldDelete,
-			Optional<Integer> logBatchSize){
-		super(scanner, deleteConsumer, deleteBatchSize, logBatchSize, shouldDelete);
+			Optional<Integer> logBatchSize,
+			Threads threads){
+		super(scanner, deleteConsumer, deleteBatchSize, logBatchSize, shouldDelete, threads);
 	}
 
 	@Override
@@ -56,7 +58,13 @@ extends BaseNodeVacuum<PK,PK>{
 		}
 
 		public PrimaryKeyVacuum<PK> build(){
-			return new PrimaryKeyVacuum<>(scanner, deleteConsumer, deleteBatchSize, shouldDelete, logBatchSize);
+			return new PrimaryKeyVacuum<>(
+					scanner,
+					deleteConsumer,
+					deleteBatchSize,
+					shouldDelete,
+					logBatchSize,
+					threads);
 		}
 
 	}

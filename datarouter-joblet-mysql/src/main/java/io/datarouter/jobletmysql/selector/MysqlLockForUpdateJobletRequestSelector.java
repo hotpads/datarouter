@@ -35,14 +35,14 @@ import io.datarouter.joblet.storage.jobletrequestqueue.JobletRequestQueueKey;
 import io.datarouter.joblet.type.JobletType;
 import io.datarouter.jobletmysql.txn.GetJobletRequest;
 import io.datarouter.plugin.PluginConfigKey;
-import io.datarouter.storage.Datarouter;
+import io.datarouter.storage.client.DatarouterClients;
 import io.datarouter.util.timer.PhaseTimer;
 
 @Singleton
 public class MysqlLockForUpdateJobletRequestSelector implements JobletRequestSelector{
 
 	@Inject
-	private Datarouter datarouter;
+	private DatarouterClients datarouterClients;
 	@Inject
 	private DatarouterJobletRequestDao jobletRequestDao;
 	@Inject
@@ -66,8 +66,8 @@ public class MysqlLockForUpdateJobletRequestSelector implements JobletRequestSel
 			JobletType<?> type,
 			String reservedBy){
 		while(true){
-			var mysqlOp = new GetJobletRequest(reservedBy, type, datarouter, jobletRequestDao, mysqlFieldCodecFactory,
-					mysqlSqlFactory, jobletRequestSqlBuilder, jobletService);
+			var mysqlOp = new GetJobletRequest(reservedBy, type, datarouterClients, jobletRequestDao,
+					mysqlFieldCodecFactory, mysqlSqlFactory, jobletRequestSqlBuilder, jobletService);
 			JobletRequest jobletRequest = sessionExecutor.runWithoutRetries(mysqlOp);
 			timer.add("GetJobletRequest");
 			if(jobletRequest == null){

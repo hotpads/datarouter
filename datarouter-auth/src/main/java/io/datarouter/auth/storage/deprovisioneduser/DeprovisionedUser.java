@@ -38,7 +38,7 @@ import io.datarouter.model.field.imp.comparable.InstantFieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 import io.datarouter.model.util.CommonFieldSizes;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.web.user.session.service.Role;
+import io.datarouter.web.user.role.Role;
 
 public class DeprovisionedUser extends BaseDatabean<DeprovisionedUserKey,DeprovisionedUser>{
 

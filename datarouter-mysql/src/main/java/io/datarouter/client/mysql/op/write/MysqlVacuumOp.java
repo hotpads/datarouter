@@ -28,7 +28,7 @@ import io.datarouter.client.mysql.sql.MysqlSqlFactory;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
-import io.datarouter.storage.Datarouter;
+import io.datarouter.storage.client.DatarouterClients;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
 import io.datarouter.util.string.StringTool;
@@ -47,13 +47,13 @@ extends BaseMysqlOp<Void>{
 	private final Config config;
 
 	public MysqlVacuumOp(
-			Datarouter datarouter,
+			DatarouterClients datarouterClients,
 			PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
 			MysqlSqlFactory mysqlSqlFactory,
 			String keyId,
 			String ttlId,
 			Config config){
-		super(datarouter, fieldInfo.getClientId());
+		super(datarouterClients, fieldInfo.getClientId());
 		this.mysqlSqlFactory = mysqlSqlFactory;
 		this.fieldInfo = fieldInfo;
 		this.keyId = keyId;

@@ -16,8 +16,6 @@
 package io.datarouter.web.user.role;
 
 import io.datarouter.enums.StringMappedEnum;
-import io.datarouter.web.user.session.service.Role;
-import io.datarouter.web.user.session.service.RoleEnum;
 
 public enum DatarouterUserRole implements RoleEnum<DatarouterUserRole>{
 	ADMIN("admin"),

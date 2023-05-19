@@ -82,6 +82,10 @@ public class TableSampleKey extends BaseRegularPrimaryKey<TableSampleKey>{
 		this.rowKeyBytes = rowKeyBytes;
 	}
 
+	public static TableSampleKey prefix(String clientName, String tableName){
+		return new TableSampleKey(clientName, tableName, null, null);
+	}
+
 	public static TableSampleKey createSubEntityPrefix(ClientTableEntityPrefixNameWrapper nodeNames){
 		return new TableSampleKey(nodeNames, null);
 	}
@@ -96,14 +100,15 @@ public class TableSampleKey extends BaseRegularPrimaryKey<TableSampleKey>{
 
 	/*-----------------methods ---------------------*/
 
-	//DJB shifts left 5 bits after each byte, so should be plenty large
 	public long positiveLongHashCode(){
 		byte[] hashInput = ByteTool.concat(
 				StringCodec.UTF_8.encode(clientName),
 				StringCodec.UTF_8.encode(tableName),
 				StringCodec.UTF_8.encode(subEntityPrefix),
 				rowKeyBytes);
-		return HashMethods.longDjbHash(hashInput);
+		// Some keys have very small differences, for example a PK with a single Long field that is auto-incremented.
+		// MD5 seems to distribute these well enough.
+		return HashMethods.longMd5DjbHash(hashInput);
 	}
 
 	/*--------------- get/set ---------------*/

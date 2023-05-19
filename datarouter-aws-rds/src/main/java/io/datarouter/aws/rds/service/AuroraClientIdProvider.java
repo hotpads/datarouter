@@ -18,6 +18,7 @@ package io.datarouter.aws.rds.service;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientId;
@@ -25,7 +26,7 @@ import io.datarouter.storage.client.ClientId;
 public interface AuroraClientIdProvider{
 
 	List<AuroraClientDto> getAuroraClientDtos();
-	AuroraClientDto getAuroraClientDtoForClientName(String clientName);
+	Optional<AuroraClientDto> findAuroraClientDtoForClientName(String clientName);
 
 	class GenericAuroraClientIdProvider implements AuroraClientIdProvider{
 
@@ -45,8 +46,8 @@ public interface AuroraClientIdProvider{
 		}
 
 		@Override
-		public AuroraClientDto getAuroraClientDtoForClientName(String clientName){
-			return auroraClientDtoMap.get(clientName);
+		public Optional<AuroraClientDto> findAuroraClientDtoForClientName(String clientName){
+			return Optional.ofNullable(auroraClientDtoMap.get(clientName));
 		}
 
 	}

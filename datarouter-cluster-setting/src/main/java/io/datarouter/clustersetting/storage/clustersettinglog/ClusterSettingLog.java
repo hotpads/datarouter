@@ -82,7 +82,7 @@ public class ClusterSettingLog extends BaseDatabean<ClusterSettingLogKey,Cluster
 			ClusterSettingLogAction action,
 			String changedBy,
 			String comment){
-		super(new ClusterSettingLogKey(clusterSetting.getName(), Instant.now()));
+		super(ClusterSettingLogKey.forInstant(clusterSetting.getName(), Instant.now()));
 		this.scope = clusterSetting.getScope();
 		this.serverType = clusterSetting.getServerType();
 		this.serverName = clusterSetting.getServerName();

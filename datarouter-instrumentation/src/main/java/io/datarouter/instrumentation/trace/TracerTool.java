@@ -34,6 +34,13 @@ public class TracerTool{
 		return getTraceparent(TracerThreadLocal.get());
 	}
 
+	public static void setAlternativeStartTime(){
+		Tracer tracer = TracerThreadLocal.get();
+		if(tracer != null){
+			tracer.setAlternativeStartTimeNs();
+		}
+	}
+
 	/*---------------------------- TraceThread ------------------------------*/
 
 	public static void appendToThreadInfo(Tracer tracer, String text){
@@ -49,7 +56,7 @@ public class TracerTool{
 		if(tracer == null){
 			return new TraceSpanFinisher(tracer);
 		}
-		tracer.startSpan(name, groupType);
+		tracer.startSpan(name, groupType, Trace2Dto.getCurrentTimeInNs());
 		return new TraceSpanFinisher(tracer);
 	}
 
@@ -88,12 +95,23 @@ public class TracerTool{
 		if(tracer == null){
 			return;
 		}
-		tracer.finishSpan();
+		tracer.finishSpan(Trace2Dto.getCurrentTimeInNs());
 	}
 
 	public static void finishSpan(){
 		finishSpan(TracerThreadLocal.get());
 	}
+
+	public static void addSpan(String name, TraceSpanGroupType groupType, long endTimeNs, long durationNs){
+		Tracer tracer = TracerThreadLocal.get();
+		if(tracer == null){
+			return;
+		}
+		tracer.startSpan(name, groupType, endTimeNs - durationNs);
+		tracer.finishSpan(endTimeNs);
+	}
+
+	/*---------------------------- TraceFlag --------------------------------*/
 
 	public static void setForceLog(){
 		Tracer tracer = TracerThreadLocal.get();

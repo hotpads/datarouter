@@ -54,7 +54,6 @@ public class TableSpanSamplerJobletCreator<
 
 	private static final long RESAMPLE_PERIOD_MS = Duration.ofDays(7).toMillis();
 	private static final Duration AGGRESSIVE_RESAMPLE_WAIT = Duration.ofMinutes(5);
-	private static final int MAX_PERIODS_TO_SKIP = Integer.MAX_VALUE;//set unlimited until we decide how to limit
 	private static final int BATCH_SIZE = 1000;
 
 	private final DatarouterTableSampleDao tableSampleDao;
@@ -257,15 +256,11 @@ public class TableSpanSamplerJobletCreator<
 					DateTool.getAgoString(end.getDateUpdated().toInstant()));
 			return new ShouldCountAndPriority(true, JobletPriority.HIGH);
 		}
-		if(shouldSkipThisPeriod(end)){
-			++numSkippedSkipThisPeriod;
-			return new ShouldCountAndPriority(false, JobletPriority.DEFAULT);
-		}
 		if(alreadyCountedThisPeriod(end)){
 			++numSkippedAlreadyCounted;
 			return new ShouldCountAndPriority(false, JobletPriority.DEFAULT);
 		}
-		if(!haveReachedThisPeriodsTimeSlice(end.getKey())){
+		if(!haveReachedThisPeriodsTimeSlice(end)){
 			++numSkippedAwaitingTimeSlice;
 			return new ShouldCountAndPriority(false, JobletPriority.DEFAULT);
 		}
@@ -280,21 +275,18 @@ public class TableSpanSamplerJobletCreator<
 		return msSinceLastSampling > AGGRESSIVE_RESAMPLE_WAIT.toMillis();
 	}
 
-	private boolean shouldSkipThisPeriod(TableSample sample){
-		long startMsOfPreviousSuccessPeriod = calcPeriodStartMs(sample.getDateUpdated().getTime());
-		long numPeriodsToSkip = Math.min(sample.getNumStableCounts(), MAX_PERIODS_TO_SKIP);
-		long msToSkip = numPeriodsToSkip * RESAMPLE_PERIOD_MS;
-		long startMsOfNextScheduledPeriod = startMsOfPreviousSuccessPeriod + RESAMPLE_PERIOD_MS + msToSkip;
-		return startMsOfNextScheduledPeriod >= periodStartMs;
-	}
-
 	private boolean alreadyCountedThisPeriod(TableSample sample){
 		return sample.getDateUpdated().getTime() > periodStartMs;
 	}
 
-	private boolean haveReachedThisPeriodsTimeSlice(TableSampleKey sampleKey){
-		long hash = sampleKey.positiveLongHashCode();
+	private boolean haveReachedThisPeriodsTimeSlice(TableSample sample){
+		long hash = sample.getKey().positiveLongHashCode();
 		long sampleOffsetInPeriodMs = hash % RESAMPLE_PERIOD_MS;
+		logger.debug(
+				"tableName={}, sampleOffsetInPeriodHours={} stringKey={}",
+				sample.getKey().getTableName(),
+				Duration.ofMillis(sampleOffsetInPeriodMs).toHours(),
+				sample.getStringKey());
 		//the clock has ticked past this sample's start time
 		return offsetInPeriodMs + TableSamplerJob.SCHEDULING_INTERVAL.toMillis() > sampleOffsetInPeriodMs;
 	}

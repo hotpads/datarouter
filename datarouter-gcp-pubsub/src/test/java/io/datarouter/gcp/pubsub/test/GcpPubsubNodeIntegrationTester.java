@@ -82,7 +82,7 @@ public class GcpPubsubNodeIntegrationTester{
 		try{
 			testByteLimit(BaseGcpPubsubNode.MAX_SERIALIZED_REQUEST_SIZE);//not enough room for topic
 		}catch(GcpPubsubDataTooLargeException e){
-			;//intentional
+			//intentional
 		}
 	}
 

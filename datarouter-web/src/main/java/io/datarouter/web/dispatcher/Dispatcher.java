@@ -41,9 +41,9 @@ import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig
 import io.datarouter.web.user.authenticate.saml.DatarouterSamlSettings;
 import io.datarouter.web.user.authenticate.saml.SamlService;
 import io.datarouter.web.user.role.DatarouterUserRole;
+import io.datarouter.web.user.role.Role;
 import io.datarouter.web.user.session.DatarouterSession;
 import io.datarouter.web.user.session.DatarouterSessionManager;
-import io.datarouter.web.user.session.service.Role;
 import io.datarouter.web.util.RequestAttributeKey;
 import io.datarouter.web.util.RequestAttributeTool;
 import io.datarouter.web.util.http.RequestTool;

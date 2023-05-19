@@ -28,6 +28,7 @@ import io.datarouter.conveyor.ConveyorConfiguration;
 import io.datarouter.conveyor.ConveyorCounters;
 import io.datarouter.conveyor.ConveyorGauges;
 import io.datarouter.conveyor.ConveyorRunnable;
+import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.queue.consumer.BlobQueueConsumer;
 
@@ -47,6 +48,7 @@ implements ConveyorConfiguration{
 		var optionalMessage = getQueueConsumer().peek(DEFAULT_PEEK_TIMEOUT, DEFAULT_VISIBILITY_TIMEOUT);
 		Instant afterPeek = Instant.now();
 		gaugeRecorder.savePeekDurationMs(conveyor, Duration.between(beforePeek, afterPeek).toMillis());
+		TracerTool.setAlternativeStartTime();
 		if(optionalMessage.isEmpty()){
 			logger.info("peeked conveyor={} nullMessage", conveyor.getName());
 			return new ProcessResult(false);

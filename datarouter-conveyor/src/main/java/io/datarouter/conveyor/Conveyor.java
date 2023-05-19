@@ -20,13 +20,16 @@ import java.util.function.Supplier;
 
 public class Conveyor implements ConveyorRunnable{
 
+
 	private final ConveyorService conveyorService;
 	private final ConveyorConfiguration conveyorConfiguration;
 	private final String name;
 	private final AtomicBoolean isShuttingDown;
 	private final Supplier<Boolean> shouldRun;
 
-	public Conveyor(ConveyorService conveyorService, ConveyorConfiguration conveyorConfiguration, String name,
+	public Conveyor(ConveyorService conveyorService,
+			ConveyorConfiguration conveyorConfiguration,
+			String name,
 			Supplier<Boolean> shouldRun){
 		this.conveyorService = conveyorService;
 		this.conveyorConfiguration = conveyorConfiguration;
@@ -66,6 +69,11 @@ public class Conveyor implements ConveyorRunnable{
 	}
 
 	public record ProcessResult(boolean shouldContinueImmediately){
+	}
+
+	@Override
+	public String toString(){
+		return "Conveyor-" + name;
 	}
 
 }

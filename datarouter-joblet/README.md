@@ -10,15 +10,19 @@ The datarouter-joblet module helps you build a user-friendly queue processing sy
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-joblet</artifactId>
-	<version>0.0.119</version>
+	<version>0.0.120</version>
 </dependency>
 ```
 
 ## Installation with Datarouter
 
-Datarouter-joblet brings in `BaseJobletPlugin` and `DatarouterJobletWebappBuilder`. `BaseJobletPlugin` brings in 
-everything from `BaseJobPlugin` and adds the ability to register joblets. `DatarouterJobletWebappBuilder` provides 
-an easy way to bootstrap the application and install web, job or joblet plugins. 
+To enable Joblets, you can add the Plugin to your `WebappConfigBuilder`.
+ 
+```java
+.addPlugin(new DatarouterJobletPlugin(...)
+        ...
+        .build());
+```
 
 ## Concepts
 
@@ -149,7 +153,7 @@ Selecting available JobletRequests from a queue with multiple threads is a perfo
 messaging systems like SQS are designed to do this efficiently, so the `JobletQueueMechanism.SQS` is the preferred
 option for production, configurable via cluster setting.
 
-Through the `DatarouterJobletWebappBuilder` you can specify different selectors. For example, with `datrouter-joblet-mysql`
+You can specify different selectors. For example, with `datrouter-joblet-mysql`
  there  is a `JobletQueueMechanism.JDBC_LOCK_FOR_UPDATE` that uses `datarouter-mysql` with transactions as the backing store.
 This is an option for development or staging environments where you don't need high throughput and want
 to avoid creating lots of extra SQS queues.  Note that as throughput from multiple threads ramps up it will suffer
@@ -237,10 +241,10 @@ public static final JobletType<SleepingJobletParams> JOBLET_TYPE = new JobletTyp
 
 ### Register the JobletType
 
-In your `DatarouterWebappConfigBuilder` register the `JobletType`
+You can register the `JobletType` in a plugin directly or in the  `WebappConfigBuilder`.
 
 ```java
-		.addJobletTypes(List.of(SleepingJoblet.JOBLET_TYPE))
+		addJobletTypes(List.of(SleepingJoblet.JOBLET_TYPE))
 ```
 
 ## Monitoring

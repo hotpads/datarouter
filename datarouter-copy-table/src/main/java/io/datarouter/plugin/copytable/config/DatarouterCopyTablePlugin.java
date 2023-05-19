@@ -33,21 +33,13 @@ public class DatarouterCopyTablePlugin extends BaseWebPlugin{
 		addTestable(TableProcessorTestableService.class);
 
 		addDatarouterNavBarItem(
-				DatarouterNavBarCategory.TOOLS,
-				PATHS.datarouter.copyTableJoblets,
-				"Copy Table - Joblets");
+				DatarouterNavBarCategory.DATA,
+				PATHS.datarouter.copyTable.joblets,
+				"Table - Copier");
 		addDatarouterNavBarItem(
-				DatarouterNavBarCategory.TOOLS,
-				PATHS.datarouter.copyTableSingleThread,
-				"Copy Table - Single Thread");
-		addDatarouterNavBarItem(
-				DatarouterNavBarCategory.TOOLS,
-				PATHS.datarouter.tableProcessorJoblets,
-				"Table Processor - Joblets");
-		addDatarouterNavBarItem(
-				DatarouterNavBarCategory.TOOLS,
-				PATHS.datarouter.tableProcessorSingleThread,
-				"Table Processor - Single Thread");
+				DatarouterNavBarCategory.DATA,
+				PATHS.datarouter.tableProcessor.joblets,
+				"Table - Processor");
 
 		addDatarouterGithubDocLink("datarouter-copy-table");
 	}

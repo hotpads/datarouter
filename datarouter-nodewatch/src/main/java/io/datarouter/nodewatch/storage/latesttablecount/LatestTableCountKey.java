@@ -15,6 +15,7 @@
  */
 package io.datarouter.nodewatch.storage.latesttablecount;
 
+import java.util.Comparator;
 import java.util.List;
 
 import io.datarouter.model.field.Field;
@@ -23,6 +24,11 @@ import io.datarouter.model.field.imp.StringFieldKey;
 import io.datarouter.model.key.primary.base.BaseRegularPrimaryKey;
 
 public class LatestTableCountKey extends BaseRegularPrimaryKey<LatestTableCountKey>{
+
+	public static final Comparator<LatestTableCountKey> COMPARE_CLIENT
+			= Comparator.comparing(LatestTableCountKey::getClientName);
+	public static final Comparator<LatestTableCountKey> COMPARE_TABLE
+			= Comparator.comparing(LatestTableCountKey::getTableName);
 
 	private String clientName;
 	private String tableName;

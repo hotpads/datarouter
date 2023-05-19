@@ -83,4 +83,8 @@ public class DatarouterUserHistoryDao extends BaseDao{
 		return node.getMulti(keys);
 	}
 
+	public Scanner<DatarouterUserHistory> scanWithPrefix(DatarouterUserHistoryKey key){
+		return node.scanWithPrefix(key);
+	}
+
 }

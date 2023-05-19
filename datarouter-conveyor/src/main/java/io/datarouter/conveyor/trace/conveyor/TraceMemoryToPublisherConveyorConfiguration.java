@@ -37,6 +37,7 @@ import io.datarouter.instrumentation.trace.Trace2BatchedBundleDto;
 import io.datarouter.instrumentation.trace.Trace2BundleAndHttpRequestRecordDto;
 import io.datarouter.instrumentation.trace.TracePublisher;
 import io.datarouter.instrumentation.trace.Traceparent;
+import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.trace.conveyor.TraceBuffers;
 
@@ -70,6 +71,7 @@ public class TraceMemoryToPublisherConveyorConfiguration implements ConveyorConf
 		List<Trace2BundleAndHttpRequestRecordDto> dtos = traceBuffers.buffer.pollMultiWithLimit(BATCH_SIZE);
 		Instant afterPeek = Instant.now();
 		gaugeRecorder.savePeekDurationMs(conveyor, Duration.between(beforePeek, afterPeek).toMillis());
+		TracerTool.setAlternativeStartTime();
 		if(dtos.isEmpty()){
 			return new ProcessResult(false);
 		}
@@ -93,8 +95,8 @@ public class TraceMemoryToPublisherConveyorConfiguration implements ConveyorConf
 	}
 
 	@Override
-	public long delaySeconds(){
-		return 5L;
+	public Duration delay(){
+		return Duration.ofSeconds(5L);
 	}
 
 }

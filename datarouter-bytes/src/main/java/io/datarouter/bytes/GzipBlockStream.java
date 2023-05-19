@@ -225,7 +225,7 @@ public class GzipBlockStream{
 		 * Write the length bytes followed by the data bytes.
 		 */
 		public void toOutputStream(OutputStream outputStream){
-			VarIntTool.writeBytes(gzipBytes.length, outputStream);
+			VarIntTool.encode(outputStream, gzipBytes.length);
 			OutputStreamTool.write(outputStream, gzipBytes);
 		}
 

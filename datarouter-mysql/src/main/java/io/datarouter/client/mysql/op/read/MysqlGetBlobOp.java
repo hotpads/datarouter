@@ -32,7 +32,7 @@ import io.datarouter.model.field.Field;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.storage.Datarouter;
+import io.datarouter.storage.client.DatarouterClients;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.file.DatabaseBlob;
 import io.datarouter.storage.file.DatabaseBlob.DatabaseBlobFielder;
@@ -54,14 +54,14 @@ extends BaseMysqlOp<List<DatabaseBlob>>{
 	private final List<String> fields;
 
 	public MysqlGetBlobOp(
-			Datarouter datarouter,
+			DatarouterClients datarouterClients,
 			PhysicalDatabeanFieldInfo<DatabaseBlobKey,DatabaseBlob,DatabaseBlobFielder> fieldInfo,
 			MysqlSqlFactory mysqlSqlFactory,
 			MysqlFieldCodecFactory fieldCodecFactory,
 			Collection<PathbeanKey> keys,
 			List<String> fields,
 			Config config){
-		super(datarouter, fieldInfo.getClientId(), Isolation.readCommitted, true);
+		super(datarouterClients, fieldInfo.getClientId(), Isolation.readCommitted, true);
 		this.keys = keys;
 		this.mysqlSqlFactory = mysqlSqlFactory;
 		this.fieldInfo = fieldInfo;

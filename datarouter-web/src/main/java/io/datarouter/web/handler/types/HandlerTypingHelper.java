@@ -47,6 +47,7 @@ public class HandlerTypingHelper{
 		Object[] args = new Object[]{};
 		for(Method possibleMethod : possibleMethods){
 			Class<? extends HandlerDecoder> decoderClass = handlerDecoderClass;
+			@SuppressWarnings("deprecation")
 			Class<? extends HandlerDecoder> methodDecoder = possibleMethod.getAnnotation(Handler.class).decoder();
 			if(!methodDecoder.equals(NoOpHandlerDecoder.class)){
 				decoderClass = methodDecoder;

@@ -121,8 +121,12 @@ public class Require{
 	}
 
 	public static <T extends Comparable<T>> T greaterThan(T item, T minimum){
+		return greaterThan(item, minimum, "");
+	}
+
+	public static <T extends Comparable<T>> T greaterThan(T item, T minimum, String extraMessage){
 		if(item.compareTo(minimum) <= 0){
-			throw new IllegalArgumentException(item + " must be greater than " + minimum);
+			throw new IllegalArgumentException(item + " must be greater than " + minimum + " " + extraMessage);
 		}
 		return item;
 	}

@@ -34,6 +34,7 @@ public class HtmlFormSelect extends BaseHtmlFormField{
 	private List<String> selectedMultiple = new ArrayList<>();
 	private boolean required;
 	private int size;
+	private boolean submitOnChange;
 
 	public HtmlFormSelect withName(String name){
 		this.name = name;
@@ -86,6 +87,11 @@ public class HtmlFormSelect extends BaseHtmlFormField{
 		return this;
 	}
 
+	public HtmlFormSelect withSubmitOnChange(){
+		this.submitOnChange = true;
+		return this;
+	}
+
 	public String getName(){
 		return name;
 	}
@@ -116,6 +122,10 @@ public class HtmlFormSelect extends BaseHtmlFormField{
 
 	public String getSize(){
 		return Integer.toString(size);
+	}
+
+	public boolean isSubmitOnChange(){
+		return submitOnChange;
 	}
 
 }

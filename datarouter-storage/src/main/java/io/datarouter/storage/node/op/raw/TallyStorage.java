@@ -32,11 +32,11 @@ extends NodeOps<TallyKey,Tally>{
 
 	/*----------- op names --------------*/
 
-	public static final String OP_incrementAndGetCount = "incrementAndGetCount";
-	public static final String OP_findTallyCount = "findTallyCount";
-	public static final String OP_getMultiTallyCount = "getMultiTallyCount";
-	public static final String OP_deleteTally = "deleteTally";
-	public static final String OP_vacuum = "vacuum";
+	String OP_incrementAndGetCount = "incrementAndGetCount";
+	String OP_findTallyCount = "findTallyCount";
+	String OP_getMultiTallyCount = "getMultiTallyCount";
+	String OP_deleteTally = "deleteTally";
+	String OP_vacuum = "vacuum";
 
 	/*----------- increment --------------*/
 
@@ -73,11 +73,11 @@ extends NodeOps<TallyKey,Tally>{
 
 	/*------------- nodes -------------*/
 
-	public interface TallyStorageNode
+	interface TallyStorageNode
 	extends TallyStorage, Node<TallyKey,Tally,TallyFielder>{
 	}
 
-	public interface PhysicalTallyStorageNode
+	interface PhysicalTallyStorageNode
 	extends TallyStorageNode, PhysicalNode<TallyKey,Tally,TallyFielder>{
 	}
 

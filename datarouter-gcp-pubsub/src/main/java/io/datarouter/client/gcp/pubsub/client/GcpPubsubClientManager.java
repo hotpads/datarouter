@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.api.gax.core.CredentialsProvider;
 import com.google.api.gax.core.FixedExecutorProvider;
-import com.google.api.gax.grpc.ChannelPoolSettings;
 import com.google.api.gax.rpc.ApiException;
 import com.google.api.gax.rpc.InstantiatingWatchdogProvider;
 import com.google.api.gax.rpc.StatusCode;
@@ -57,35 +56,19 @@ import com.google.pubsub.v1.Subscription;
 import com.google.pubsub.v1.SubscriptionName;
 import com.google.pubsub.v1.TopicName;
 
-import io.datarouter.client.gcp.pubsub.GcpPubsubExecutors.GcpPubsubEventLoopGroupExecutor;
-import io.datarouter.client.gcp.pubsub.GcpPubsubExecutors.GcpPubsubManagedChannelExecutor;
-import io.datarouter.client.gcp.pubsub.GcpPubsubExecutors.GcpPubsubManagedChannelOffloadExecutor;
 import io.datarouter.client.gcp.pubsub.GcpPubsubExecutors.GcpPubsubPublisherExecutor;
 import io.datarouter.client.gcp.pubsub.GcpPubsubExecutors.GcpPubsubSubscriberStubExecutor;
-import io.datarouter.client.gcp.pubsub.GcpPubsubExecutors.GcpPubsubTransportChannelExecutor;
 import io.datarouter.client.gcp.pubsub.GcpPubsubExecutors.GcpPubsubWatchdogExecutor;
 import io.datarouter.client.gcp.pubsub.TopicAndSubscriptionName;
 import io.datarouter.storage.client.BaseClientManager;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.util.string.StringTool;
-//CHECKSTYLE:OFF
-import io.grpc.netty.shaded.io.grpc.netty.NettyChannelBuilder;
-import io.grpc.netty.shaded.io.netty.channel.Channel;
-import io.grpc.netty.shaded.io.netty.channel.EventLoopGroup;
-import io.grpc.netty.shaded.io.netty.channel.epoll.EpollEventLoopGroup;
-import io.grpc.netty.shaded.io.netty.channel.epoll.EpollSocketChannel;
-import io.grpc.netty.shaded.io.netty.channel.nio.NioEventLoopGroup;
-import io.grpc.netty.shaded.io.netty.channel.socket.nio.NioSocketChannel;
-//CHECKSTYLE:ON
 
 @Singleton
 public class GcpPubsubClientManager extends BaseClientManager{
 	private static final Logger logger = LoggerFactory.getLogger(GcpPubsubClientManager.class);
 
-	private static final int GRPC_CHANNEL_COUNT = 16;
-	private static final int MAX_MESSSAGE_RESPONSE_SIZE = 10 * 1024 * 1024;
 	private static final Duration ACKNOWLEDGEMENT_DEADLINE = Duration.ofMinutes(10);
-	private static final int THREAD_COUNT_PER_EVENT_LOOP = 4;
 
 	@Inject
 	private GcpPubsubClientHolder holder;
@@ -94,17 +77,11 @@ public class GcpPubsubClientManager extends BaseClientManager{
 	@Inject
 	private GcpPubsubSubscriberStubExecutor subscriberStubExecutor;
 	@Inject
-	private GcpPubsubTransportChannelExecutor gcpPubsubTransportChannelExecutor;
-	@Inject
-	private GcpPubsubManagedChannelExecutor gcpPubsubManagedChannelExecutor;
-	@Inject
-	private GcpPubsubManagedChannelOffloadExecutor gcpPubsubManagedChannelOffloadExecutor;
-	@Inject
 	private GcpPubsubWatchdogExecutor gcpPubsubWatchdogExecutor;
 	@Inject
 	private GcpPubsubPublisherExecutor gcpPubsubPublisherExecutor;
 	@Inject
-	private GcpPubsubEventLoopGroupExecutor gcpPubsubEventLoopGroupExecutor;
+	private DatarouterGcpPubSubTransportChannelProviderHolder transportChannelProviderHolder;
 
 	@Override
 	public void shutdown(ClientId clientId){
@@ -124,6 +101,7 @@ public class GcpPubsubClientManager extends BaseClientManager{
 					.setCredentialsProvider(credentialsProvider)
 					.setWatchdogProvider(InstantiatingWatchdogProvider.create()
 							.withExecutor(gcpPubsubWatchdogExecutor))
+					.setTransportChannelProvider(transportChannelProviderHolder.transportChannelProvider)
 					.build();
 			topicAdminClient = TopicAdminClient.create(topicAdminSettings);
 		}catch(IOException e){
@@ -135,6 +113,7 @@ public class GcpPubsubClientManager extends BaseClientManager{
 					.setCredentialsProvider(credentialsProvider)
 					.setWatchdogProvider(InstantiatingWatchdogProvider.create()
 							.withExecutor(gcpPubsubWatchdogExecutor))
+					.setTransportChannelProvider(transportChannelProviderHolder.transportChannelProvider)
 					.build();
 			subscriptionAdminClient = SubscriptionAdminClient.create(subscriptionAdminSettings);
 		}catch(IOException e){
@@ -143,33 +122,7 @@ public class GcpPubsubClientManager extends BaseClientManager{
 		SubscriberStub subscriber;
 		try{
 			SubscriberStubSettings subscriberStubSettings = SubscriberStubSettings.newBuilder()
-					.setTransportChannelProvider(
-							SubscriberStubSettings.defaultGrpcTransportProviderBuilder()
-							.setMaxInboundMessageSize(MAX_MESSSAGE_RESPONSE_SIZE)
-							.setExecutor(gcpPubsubTransportChannelExecutor)
-							.setChannelPoolSettings(ChannelPoolSettings.staticallySized(GRPC_CHANNEL_COUNT))
-							.setChannelConfigurator(managedChannelBuilder -> {
-								managedChannelBuilder.executor(gcpPubsubManagedChannelExecutor);
-								managedChannelBuilder.offloadExecutor(gcpPubsubManagedChannelOffloadExecutor);
-								NettyChannelBuilder nettyChannelBuilder = (NettyChannelBuilder) managedChannelBuilder;
-								Class<? extends Channel> channelType;
-								EventLoopGroup eventLoopGroup;
-								try{
-									Class.forName("io.grpc.netty.shaded.io.netty.channel.epoll.EpollEventLoop");
-									eventLoopGroup = new EpollEventLoopGroup(THREAD_COUNT_PER_EVENT_LOOP,
-											gcpPubsubEventLoopGroupExecutor);
-									channelType = EpollSocketChannel.class;
-								}catch(Throwable e){
-									eventLoopGroup = new NioEventLoopGroup(THREAD_COUNT_PER_EVENT_LOOP,
-											gcpPubsubEventLoopGroupExecutor);
-									channelType = NioSocketChannel.class;
-								}
-								nettyChannelBuilder.eventLoopGroup(eventLoopGroup);
-								nettyChannelBuilder.channelType(channelType);
-								logger.warn("Using channelType={}", channelType.getSimpleName());
-								return managedChannelBuilder;
-							})
-							.build())
+					.setTransportChannelProvider(transportChannelProviderHolder.transportChannelProvider)
 					.setCredentialsProvider(credentialsProvider)
 					.setBackgroundExecutorProvider(FixedExecutorProvider.create(subscriberStubExecutor))
 					.setStreamWatchdogProvider(InstantiatingWatchdogProvider.create()
@@ -187,6 +140,7 @@ public class GcpPubsubClientManager extends BaseClientManager{
 					.setCredentialsProvider(credentialsProvider)
 					.setWatchdogProvider(InstantiatingWatchdogProvider.create()
 							.withExecutor(gcpPubsubWatchdogExecutor))
+					.setTransportChannelProvider(transportChannelProviderHolder.transportChannelProvider)
 					.build();
 			metricServiceClient = MetricServiceClient.create(metricServiceSettings);
 		}catch(IOException e){
@@ -261,6 +215,7 @@ public class GcpPubsubClientManager extends BaseClientManager{
 			publisher = Publisher.newBuilder(topicName)
 					.setCredentialsProvider(gcpPubsubOptions.getCredentialProvider(clientId.getName()))
 					.setExecutorProvider(FixedExecutorProvider.create(gcpPubsubPublisherExecutor))
+					.setChannelProvider(transportChannelProviderHolder.transportChannelProvider)
 					.build();
 		}catch(IOException e){
 			throw new RuntimeException(e);

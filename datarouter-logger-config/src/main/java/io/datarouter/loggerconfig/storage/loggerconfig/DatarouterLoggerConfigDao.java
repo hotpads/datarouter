@@ -121,6 +121,7 @@ public class DatarouterLoggerConfigDao extends BaseDao{
 		if(expiredLoggerConfigs.isEmpty()){
 			return List.of();
 		}
+		// TODO don't edit the passed-in List
 		config.getLoggerConfigs().removeIf(expiredLoggerConfigs::contains);
 		deleteLoggerConfigs(expiredLoggerConfigs);
 		return expiredLoggerConfigs;

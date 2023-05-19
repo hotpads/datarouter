@@ -15,6 +15,7 @@
  */
 package io.datarouter.client.gcp.pubsub.node;
 
+import java.time.Duration;
 import java.util.function.Supplier;
 
 import io.datarouter.client.gcp.pubsub.TopicAndSubscriptionName;
@@ -31,5 +32,6 @@ extends PhysicalNode<PK,D,F>{
 
 	Supplier<TopicAndSubscriptionName> getTopicAndSubscriptionName();
 	boolean getAgeMonitoringStatusForMetricAlert();
+	Duration getCustomMessageAgeThreshold();
 
 }

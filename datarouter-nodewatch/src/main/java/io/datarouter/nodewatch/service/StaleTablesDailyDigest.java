@@ -56,7 +56,7 @@ public class StaleTablesDailyDigest implements DailyDigest{
 		if(staleTables.isEmpty()){
 			return Optional.empty();
 		}
-		var header = digestService.makeHeader("Stale Tables", paths.datarouter.nodewatch.tableCount);
+		var header = digestService.makeHeader("Stale Tables", paths.datarouter.nodewatch.tables);
 		var table = makePageTable(staleTables, zoneId);
 		return Optional.of(div(header, table));
 	}
@@ -67,7 +67,7 @@ public class StaleTablesDailyDigest implements DailyDigest{
 		if(staleTables.isEmpty()){
 			return Optional.empty();
 		}
-		var header = digestService.makeHeader("Stale Tables", paths.datarouter.nodewatch.tableCount);
+		var header = digestService.makeHeader("Stale Tables", paths.datarouter.nodewatch.tables);
 		var table = emailBuilder.makeEmailStaleTable(staleTables, zoneId);
 		return Optional.of(div(header, table));
 	}
@@ -95,7 +95,10 @@ public class StaleTablesDailyDigest implements DailyDigest{
 						row.getKey().getTableName(),
 						row.getKey().getClientName())))
 				.withColumn("Latest Count", row -> NumberFormatter.addCommas(row.getNumRows()))
-				.withColumn("Date Updated (" + zoneId + ")", row -> LocalDate.ofInstant(row.getDateUpdated(), zoneId))
+				.withColumn(
+						"Date Updated (" + zoneId + ")",
+						row -> LocalDate.ofInstant(row.getDateUpdated(), zoneId),
+						LocalDate::toString)
 				.withColumn("Updated Ago", row -> DateTool.getAgoString(row.getDateUpdated()))
 				.build(staleRows);
 	}

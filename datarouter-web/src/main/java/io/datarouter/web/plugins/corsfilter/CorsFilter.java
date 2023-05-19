@@ -48,6 +48,7 @@ public class CorsFilter implements Filter{
 		String origin = request.getHeader(HttpHeaders.ORIGIN);
 		if(matchOrigin(origin) && settings.allowed.get()){
 			addCorsHeaders(response, origin);
+			// preflight request
 			if(request.getMethod().equals("OPTIONS")){
 				response.setStatus(HttpStatus.SC_OK);
 				return;

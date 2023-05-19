@@ -28,6 +28,7 @@ import io.datarouter.joblet.JobletPageFactory;
 import io.datarouter.joblet.service.JobletService;
 import io.datarouter.joblet.service.JobletService.JobletServiceThreadCountResponse;
 import io.datarouter.joblet.type.JobletTypeFactory;
+import io.datarouter.util.BooleanTool;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.html.j2html.J2HtmlTable;
@@ -73,13 +74,13 @@ public class JobletThreadCountHandler extends BaseHandler{
 		var table = new J2HtmlTable<JobletServiceThreadCountResponse>()
 				.withClasses("sortable table table-sm table-striped border")
 				.withColumn("jobletType", row -> row.jobletType.getPersistentString())
-				.withColumn("clusterLimit", row -> row.clusterLimit)
-				.withColumn("instanceAvg", row -> row.clusterLimit / (double)serverNames.size())
-				.withColumn("instanceLimit", row -> row.instanceLimit)
-				.withColumn("numExtraThreads", row -> row.numExtraThreads)
-				.withColumn("firstExtraInstanceIndex", row -> row.firstExtraInstanceIdxInclusive)
+				.withColumn("clusterLimit", row -> row.clusterLimit, Number::toString)
+				.withColumn("instanceAvg", row -> row.clusterLimit / (double)serverNames.size(), Number::toString)
+				.withColumn("instanceLimit", row -> row.instanceLimit, Number::toString)
+				.withColumn("numExtraThreads", row -> row.numExtraThreads, Number::toString)
+				.withColumn("firstExtraInstanceIndex", row -> row.firstExtraInstanceIdxInclusive, Number::toString)
 				.withColumn("firstExtraInstanceServerName", row -> serverNames.get(row.firstExtraInstanceIdxInclusive))
-				.withColumn("thisInstanceRunsExtraThread", row -> row.runExtraThread)
+				.withColumn("thisInstanceRunsExtraThread", row -> row.runExtraThread, BooleanTool::toString)
 				.build(rows);
 		return div(title, subtitle, table)
 				.withClass("container-fluid");

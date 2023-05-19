@@ -51,7 +51,7 @@ public class HbaseRangeIntegrationTests{
 	public void testRange(){
 		testDatabeanDao.deleteAll();
 		testDatabeanDao.putMulti(DATABEANS);
-		List<TestDatabeanKey> list = testDatabeanDao.scanKeys(new Range<>(new TestDatabeanKey("12"), false))
+		var list = testDatabeanDao.scanKeys(new Range<>(new TestDatabeanKey("12"), false, null, false))
 				.list();
 		Assert.assertFalse(list.isEmpty());
 		Assert.assertEquals(list.get(0), new TestDatabeanKey("120"));

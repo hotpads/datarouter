@@ -20,19 +20,19 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Supplier;
+import java.util.function.Function;
 
 import io.datarouter.scanner.Scanner;
 
-public abstract class BaseNamedScannerPager<T>{
+public abstract class BaseNamedScannerPager<P,T>{
 
-	private final Map<String,ScannerPagerSortOption<T>> options = new LinkedHashMap<>();
+	private final Map<String,ScannerPagerSortOption<P,T>> options = new LinkedHashMap<>();
 
 	/**
 	 * Scans only enough rows to find the offset and fill the page.
 	 */
-	public void add(String name, Supplier<Scanner<T>> scannerSupplier){
-		options.put(name, new ScannerPagerSortOption<>(name, scannerSupplier, false));
+	public void add(String name, Function<P,Scanner<T>> paramsToScanner){
+		options.put(name, new ScannerPagerSortOption<>(name, paramsToScanner, false));
 	}
 
 	/**
@@ -40,8 +40,8 @@ public abstract class BaseNamedScannerPager<T>{
 	 *
 	 * Warning: this is dangerous for large scanners as all data is loaded into memory.
 	 */
-	public void addWithTotal(String name, Supplier<Scanner<T>> scannerSupplier){
-		options.put(name, new ScannerPagerSortOption<>(name, scannerSupplier, true));
+	public void addWithTotal(String name, Function<P,Scanner<T>> paramsToScanner){
+		options.put(name, new ScannerPagerSortOption<>(name, paramsToScanner, true));
 	}
 
 	public List<String> getNames(){
@@ -52,36 +52,37 @@ public abstract class BaseNamedScannerPager<T>{
 		return options.keySet().iterator().next();
 	}
 
-	public RowsAndTotal<T> findRows(String name, long page, long pageSize){
-		ScannerPagerSortOption<T> sortOption = options.get(name);
+	public RowsAndTotal<T> findRows(P scannerCreatorParams, String name, long page, long pageSize){
+		ScannerPagerSortOption<P,T> sortOption = options.get(name);
+		Scanner<T> scanner = sortOption.scannerCreator.apply(scannerCreatorParams);
 		long offset = (page - 1) * pageSize;
 		if(sortOption.collectAll){
-			List<T> allRows = sortOption.scannerSupplier.get().list();
+			List<T> allRows = scanner.list();
 			List<T> rows = Scanner.of(allRows)
 					.skip(offset)
 					.limit(pageSize)
 					.list();
 			return new RowsAndTotal<>(rows, allRows.size());
 		}
-		List<T> rows = sortOption.scannerSupplier.get()
+		List<T> rows = scanner
 				.skip(offset)
 				.limit(pageSize)
 				.list();
 		return new RowsAndTotal<>(rows);
 	}
 
-	public static class ScannerPagerSortOption<T>{
+	public static class ScannerPagerSortOption<P,T>{
 		public final String displayName;
 		//TODO add more url-friendly name
-		public final Supplier<Scanner<T>> scannerSupplier;
+		public final Function<P,Scanner<T>> scannerCreator;
 		public final boolean collectAll;
 
 		public ScannerPagerSortOption(
 				String displayName,
-				Supplier<Scanner<T>> scannerSupplier,
+				Function<P,Scanner<T>> scannerCreator,
 				boolean collectAll){
 			this.displayName = displayName;
-			this.scannerSupplier = scannerSupplier;
+			this.scannerCreator = scannerCreator;
 			this.collectAll = collectAll;
 		}
 	}

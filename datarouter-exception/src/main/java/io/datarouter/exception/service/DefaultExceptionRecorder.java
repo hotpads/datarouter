@@ -41,7 +41,6 @@ import io.datarouter.web.app.WebappName;
 import io.datarouter.web.config.DatarouterWebSettingRoot;
 import io.datarouter.web.dispatcher.Dispatcher;
 import io.datarouter.web.exception.ExceptionCounters;
-import io.datarouter.web.exception.ExceptionHandlingConfig;
 import io.datarouter.web.exception.ExceptionRecorder;
 import io.datarouter.web.exception.WebExceptionCategory;
 import io.datarouter.web.handler.BaseHandler;
@@ -55,8 +54,6 @@ import io.datarouter.web.util.RequestAttributeTool;
 public class DefaultExceptionRecorder implements ExceptionRecorder{
 	private static final Logger logger = LoggerFactory.getLogger(DefaultExceptionRecorder.class);
 
-	@Inject
-	private ExceptionHandlingConfig exceptionHandlingConfig;
 	@Inject
 	private GitProperties gitProperties;
 	@Inject
@@ -287,7 +284,7 @@ public class DefaultExceptionRecorder implements ExceptionRecorder{
 			ExceptionAndHttpRequestDto exceptionDto,
 			ExceptionRecordDto exceptionRecord,
 			boolean publish){
-		HttpRequestRecord httpRequestRecord = new HttpRequestRecord(exceptionDto, exceptionRecord.id());;
+		HttpRequestRecord httpRequestRecord = new HttpRequestRecord(exceptionDto, exceptionRecord.id());
 		saveAndPublishHttpRequest(httpRequestRecord, publish);
 	}
 

@@ -53,7 +53,6 @@
 					<th>Node Name</th>
 					<th>Count Keys</th>
 					<th ${showTableCountLink ? '' : "hidden"}>Table Size</th>
-					<th ${showExporterLink ? '' : "hidden"}>Export</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -78,9 +77,6 @@
 							<a href={CONTEXT_PATH + "${tableCountLink}" + encodeURIComponent(node.name)}>
 								<i className="fas fa-signal"></i>
 							</a>
-						</td>
-						<td ${showExporterLink ? '' : "hidden"}>
-							<a href={CONTEXT_PATH + "${exporterLink}" + encodeURIComponent(node.name)}> export </a>
 						</td>
 					</tr>
 				)}

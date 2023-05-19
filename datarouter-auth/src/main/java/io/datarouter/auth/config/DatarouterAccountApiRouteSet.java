@@ -34,7 +34,9 @@ public class DatarouterAccountApiRouteSet extends BaseRouteSet{
 	private final SignatureValidator signatureValidator;
 
 	@Inject
-	public DatarouterAccountApiRouteSet(DatarouterServicePaths paths, DatarouterAccountApiKeyPredicate apiKeyPredicate,
+	public DatarouterAccountApiRouteSet(
+			DatarouterServicePaths paths,
+			DatarouterAccountApiKeyPredicate apiKeyPredicate,
 			DatarouterAccountSignatureValidator signatureValidator){
 		this.apiKeyPredicate = apiKeyPredicate;
 		this.signatureValidator = signatureValidator;

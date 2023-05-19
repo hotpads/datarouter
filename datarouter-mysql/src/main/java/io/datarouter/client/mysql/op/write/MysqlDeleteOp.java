@@ -23,7 +23,7 @@ import io.datarouter.client.mysql.util.MysqlTool;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
-import io.datarouter.storage.Datarouter;
+import io.datarouter.storage.client.DatarouterClients;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
 
@@ -34,15 +34,15 @@ public class MysqlDeleteOp<
 extends BaseMysqlDeleteOp<PK,D,F,PK>{
 
 	public MysqlDeleteOp(
-			Datarouter datarouter,
+			DatarouterClients datarouterClients,
 			PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
 			MysqlSqlFactory mysqlSqlFactory,
 			MysqlClientType mysqlClientType,
 			Collection<PK> keys,
 			Config config,
 			String opName){
-		super(datarouter, fieldInfo, mysqlSqlFactory, mysqlClientType, keys, config, MysqlTool.PRIMARY_KEY_INDEX_NAME,
-				opName);
+		super(datarouterClients, fieldInfo, mysqlSqlFactory, mysqlClientType, keys, config,
+				MysqlTool.PRIMARY_KEY_INDEX_NAME, opName);
 	}
 
 }

@@ -157,7 +157,8 @@ public class ClusterSettingService{
 				});
 	}
 
-	private ClusterSettingValidity getValidityForWebappInstance(ClusterSetting databeanSetting,
+	public ClusterSettingValidity getValidityForWebappInstance(
+			ClusterSetting databeanSetting,
 			WebappInstance webappInstance){
 		String name = databeanSetting.getName();
 		ClusterSettingScope scope = databeanSetting.getScope();

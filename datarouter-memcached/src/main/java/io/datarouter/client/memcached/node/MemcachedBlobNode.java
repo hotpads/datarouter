@@ -146,7 +146,17 @@ implements PhysicalBlobStorageNode{
 
 	@Override
 	public void delete(PathbeanKey key, Config config){
-		lazyClient.get().delete(getName(), blobCodec.encodeKey(key), Duration.ofSeconds(3));
+		lazyClient.get().delete(
+				getName(),
+				blobCodec.encodeKey(key),
+				Duration.ofSeconds(3));
+	}
+
+	@Override
+	public void deleteMulti(List<PathbeanKey> keys, Config config){
+		// Not seeing a Spy client deleteMulti operation, so we'll delete individual items.
+		// Note that the timeouts could accumulate into a long time.
+		keys.forEach(key -> delete(key, config));
 	}
 
 	@Override

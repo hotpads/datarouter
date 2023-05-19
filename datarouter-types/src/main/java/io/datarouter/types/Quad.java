@@ -49,7 +49,6 @@ implements Comparable<Quad>{
 	private static final int NUM_EMPTY_BITS = 1;
 	private static final int NUM_BITS_IN_LONG = 64;
 	private static final int NUM_LEVELS_AFTER_ZERO = 28; // there's also level 0 which has an empty quad code
-	private static final int MAX_LEVEL = NUM_LEVELS_AFTER_ZERO;
 	private static final int NUM_GRID_BITS = 29 * 2; // one bit for each of x and y on each level
 	private static final int NUM_LEVEL_BITS = 5; // basically 29<<5
 

@@ -15,6 +15,7 @@
  */
 package io.datarouter.client.redis.codec;
 
+import java.util.List;
 import java.util.Optional;
 
 import io.datarouter.bytes.ByteTool;
@@ -34,6 +35,14 @@ public class RedisBlobCodec{
 	public byte[] encodeKey(PathbeanKey pk){
 		byte[] pkBytes = StringCodec.UTF_8.encode(pk.getPathAndFile());
 		return ByteTool.concat(pathBytes, pkBytes);
+	}
+
+	public byte[][] encodeKeys(List<PathbeanKey> pks){
+		byte[][] encodedKeys = new byte[pks.size()][];
+		for(int i = 0; i < pks.size(); ++i){
+			encodedKeys[i] = encodeKey(pks.get(i));
+		}
+		return encodedKeys;
 	}
 
 	public PathbeanKey decodeKey(byte[] fullBytesKey){

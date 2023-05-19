@@ -63,7 +63,7 @@ public class Tracestate{
 				.collect(Collectors.joining(TRACESTATE_MEMBER_DELIMITER));
 	}
 
-	public static record TracestateMember(
+	public record TracestateMember(
 			String key,
 			String value){
 	}

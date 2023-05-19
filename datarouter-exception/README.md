@@ -9,7 +9,7 @@ datarouter-exception is a tool to monitor and view exceptions
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-exception</artifactId>
-	<version>0.0.119</version>
+	<version>0.0.120</version>
 </dependency>
 ```
 
@@ -18,7 +18,7 @@ datarouter-exception is a tool to monitor and view exceptions
 You can install this module by adding its plugin to the `WebappBuilder`.
 
 ```java
-.addJobPlugin(new DatarouterExceptionPluginBuilder(...)
+.addPlugin(new DatarouterExceptionPluginBuilder(...)
 		.build()
 ```
 

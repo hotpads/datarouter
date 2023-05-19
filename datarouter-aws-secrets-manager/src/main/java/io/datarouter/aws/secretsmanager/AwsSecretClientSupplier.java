@@ -15,18 +15,13 @@
  */
 package io.datarouter.aws.secretsmanager;
 
-import java.util.Optional;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.regions.Regions;
 
 import io.datarouter.secret.client.SecretClient;
 import io.datarouter.secret.client.SecretClient.SecretClientSupplier;
-import io.datarouter.secret.service.SecretNamespacer;
-import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.web.config.AwsSupport;
 
 @Singleton
@@ -37,10 +32,6 @@ public class AwsSecretClientSupplier implements SecretClientSupplier{
 	@Inject
 	private AwsSecretClientCredentialsHolder awsCredentialsSupplier;
 	@Inject
-	private SecretNamespacer secretNamespacer;
-	@Inject
-	private ServerTypeDetector serverTypeDetector;
-	@Inject
 	private AwsSupport awsSupport;
 
 	private AwsSecretClient awsSecretClient;
@@ -50,21 +41,14 @@ public class AwsSecretClientSupplier implements SecretClientSupplier{
 		if(awsSecretClient == null){
 			synchronized(this){
 				if(awsSecretClient == null){
-					awsSecretClient = new AwsSecretClient(getAwsCredentialsProvider().get(), REGION, awsSupport);
+					awsSecretClient = new AwsSecretClient(
+							awsCredentialsSupplier.getCredentialsProvider(),
+							REGION,
+							awsSupport);
 				}
 			}
 		}
 		return awsSecretClient;
-	}
-
-	private Optional<AWSCredentialsProvider> getAwsCredentialsProvider(){
-		if(secretNamespacer.isDevelopment()){
-			return awsCredentialsSupplier.getDevCredentialsProvider();
-		}
-		if(serverTypeDetector.mightBeProduction()){
-			return awsCredentialsSupplier.getProdCredentialsProvider();
-		}
-		return awsCredentialsSupplier.getStagingCredentialsProvider();
 	}
 
 }

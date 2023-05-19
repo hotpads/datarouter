@@ -26,6 +26,10 @@ import io.datarouter.gcp.spanner.ddl.SpannerColumnType;
 import io.datarouter.gcp.spanner.field.SpannerBaseFieldCodec;
 import io.datarouter.model.field.imp.DateField;
 
+/**
+ * @deprecated use {@link io.datarouter.gcp.spanner.field.date.SpannerInstantFieldCodec}
+ */
+@Deprecated
 public class SpannerDateFieldCodec extends SpannerBaseFieldCodec<Date,DateField>{
 
 	public SpannerDateFieldCodec(DateField field){

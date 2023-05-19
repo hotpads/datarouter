@@ -48,6 +48,7 @@ public class HttpRequestRecord extends BaseHttpRequestRecord<HttpRequestRecordKe
 		super(new HttpRequestRecordKey());
 	}
 
+	@SuppressWarnings("deprecation")
 	public HttpRequestRecord(String exceptionRecordId, Optional<W3TraceContext> traceContext,
 			HttpServletRequest request, String sessionRoles, String userToken, boolean omitPayload){
 		this(RequestAttributeTool.get(request, BaseHandler.REQUEST_RECEIVED_AT).orElse(new Date()),

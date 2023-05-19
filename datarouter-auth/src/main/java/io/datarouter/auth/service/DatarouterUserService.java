@@ -16,20 +16,32 @@
 package io.datarouter.auth.service;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.auth.model.dto.RoleApprovalRequirementStatus;
+import io.datarouter.auth.model.dto.UserRoleMetadata;
+import io.datarouter.auth.storage.roleapprovals.DatarouterUserRoleApprovalDao;
 import io.datarouter.auth.storage.user.DatarouterUserDao;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.web.user.databean.DatarouterUser;
 import io.datarouter.web.user.databean.DatarouterUser.DatarouterUserByUserTokenLookup;
 import io.datarouter.web.user.databean.DatarouterUser.DatarouterUserByUsernameLookup;
 import io.datarouter.web.user.databean.DatarouterUserKey;
 import io.datarouter.web.user.role.DatarouterUserRole;
-import io.datarouter.web.user.session.service.Role;
-import io.datarouter.web.user.session.service.RoleManager;
+import io.datarouter.web.user.role.Role;
+import io.datarouter.web.user.role.RoleApprovalType;
+import io.datarouter.web.user.role.RoleManager;
 import io.datarouter.web.user.session.service.Session;
 import io.datarouter.web.util.PasswordTool;
 
@@ -40,6 +52,8 @@ public class DatarouterUserService{
 	private DatarouterUserDao nodes;
 	@Inject
 	private RoleManager roleManager;
+	@Inject
+	private DatarouterUserRoleApprovalDao roleApprovalDao;
 
 	public DatarouterUser getAndValidateCurrentUser(Session session){
 		DatarouterUser user = getUserBySession(session);
@@ -116,4 +130,88 @@ public class DatarouterUserService{
 		return user.getRoles().contains(DatarouterUserRole.DATAROUTER_ADMIN.getRole());
 	}
 
+	public Map<Role,Map<RoleApprovalType,Set<String>>> getCurrentRoleApprovals(DatarouterUser user){
+		return roleApprovalDao.getAllOutstandingApprovalsForUser(user)
+				.stream()
+				.collect(Collectors.groupingBy(
+						roleApproval ->
+								roleManager.getRoleFromPersistentString(roleApproval.getKey().getRequestedRole()),
+						Collectors.groupingBy(
+								roleApproval -> roleManager.getRoleApprovalTypeFromPersistentString(
+										roleApproval.getApprovalType()),
+								Collectors.mapping(roleApproval -> roleApproval.getKey().getApproverUsername(),
+										Collectors.toSet()))));
+	}
+
+	public List<UserRoleMetadata> getRoleMetadataForUser(DatarouterUser editor, DatarouterUser user){
+		Set<Role> currentRoles = new HashSet<>(user.getRoles());
+		Set<Role> availableRoles = roleManager.getConferrableRoles(roleManager.getAllRoles());
+		Map<Role,Map<RoleApprovalType,Integer>> roleApprovalRequirements = roleManager.getAllRoleApprovalRequirements();
+		Map<Role,Map<RoleApprovalType,Set<String>>> currentRoleApprovals = getCurrentRoleApprovals(user);
+		Set<RoleApprovalType> relevantApprovalTypes = new HashSet<>();
+		Scanner.of(roleApprovalRequirements.values())
+				.map(Map::keySet)
+				.forEach(relevantApprovalTypes::addAll);
+		List<RoleApprovalType> prioritizedApprovalTypes =
+				roleManager.getPrioritizedRoleApprovalTypes(editor, user, relevantApprovalTypes);
+
+		return Scanner.of(availableRoles)
+				.map(availableRole -> {
+					Map<RoleApprovalType,Integer> requirementsOfRole = roleApprovalRequirements
+							.getOrDefault(availableRole, new HashMap<>());
+					Map<RoleApprovalType,Set<String>> currentApprovalsForRole = currentRoleApprovals
+							.getOrDefault(availableRole, new HashMap<>());
+					Map<RoleApprovalType,RoleApprovalRequirementStatus> requirementStatusByApprovalType =
+							Scanner.of(requirementsOfRole.keySet())
+									.toMap(
+											Function.identity(),
+											roleApprovalType -> new RoleApprovalRequirementStatus(
+													requirementsOfRole.get(roleApprovalType),
+													currentApprovalsForRole.getOrDefault(
+															roleApprovalType, new HashSet<>())));
+					boolean rolePrivilegesGranted = currentRoles.contains(availableRole);
+
+					Optional<RoleApprovalType> currentEditorPreviouslyApprovedType = Optional.empty();
+					for(RoleApprovalType approvalType : currentApprovalsForRole.keySet()){
+						if(currentApprovalsForRole.get(approvalType).contains(editor.getUsername())){
+							if(!requirementStatusByApprovalType.containsKey(approvalType)){
+								roleApprovalDao.deleteOutstandingApprovalsOfApprovalTypeForRole(
+										availableRole.persistentString,
+										approvalType.persistentString);
+								continue;
+							}
+							currentEditorPreviouslyApprovedType = Optional.of(approvalType);
+						}
+					}
+
+					Optional<RoleApprovalType> prioritizedApprovalType;
+					if(!rolePrivilegesGranted){
+						if(currentEditorPreviouslyApprovedType.isPresent()){
+							prioritizedApprovalType = currentEditorPreviouslyApprovedType;
+						}else{
+							prioritizedApprovalType = prioritizedApprovalTypes.stream()
+									.filter(approvalType -> requirementStatusByApprovalType.containsKey(approvalType)
+											&& requirementStatusByApprovalType.get(approvalType)
+												.currentApprovers().size()
+											< requirementStatusByApprovalType.get(approvalType).requiredApprovals())
+									.findFirst();
+						}
+					}else{
+						prioritizedApprovalType = prioritizedApprovalTypes.stream()
+								.filter(requirementStatusByApprovalType::containsKey)
+								.findFirst();
+					}
+					boolean canRevoke = !DatarouterUserRole.DATAROUTER_ADMIN.getPersistentString().equals(
+							availableRole.getPersistentString())
+							&& roleManager.isAdmin(editor.getRoles())
+							|| user.equals(editor);
+					return new UserRoleMetadata(
+							availableRole,
+							currentRoles.contains(availableRole),
+							requirementStatusByApprovalType,
+							prioritizedApprovalType,
+							Optional.of(canRevoke));
+				})
+				.collect(Collectors.toList());
+	}
 }

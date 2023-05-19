@@ -35,9 +35,9 @@ public interface QueueStorage<
 		D extends Databean<PK,D>>
 extends QueueStorageWriter<PK,D>, QueueStorageReader<PK,D>{
 
-	public static final String OP_poll = "poll";
-	public static final String OP_pollMulti = "pollMulti";
-	public static final String OP_pollUntilEmpty = "pollUntilEmpty";
+	String OP_poll = "poll";
+	String OP_pollMulti = "pollMulti";
+	String OP_pollUntilEmpty = "pollUntilEmpty";
 
 
 	D poll(Config config);
@@ -60,14 +60,14 @@ extends QueueStorageWriter<PK,D>, QueueStorageReader<PK,D>{
 
 	/*---------------------------- sub-interfaces ---------------------------*/
 
-	public interface QueueStorageNode<
+	interface QueueStorageNode<
 			PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
 	extends QueueStorage<PK,D>, QueueStorageWriterNode<PK,D,F>{
 	}
 
-	public interface PhysicalQueueStorageNode<
+	interface PhysicalQueueStorageNode<
 			PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>

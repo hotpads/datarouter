@@ -541,6 +541,10 @@ public interface Scanner<T> extends Closeable{
 		return ScannerTool.count(this);
 	}
 
+	default int countInt(){
+		return ScannerTool.countInt(this);
+	}
+
 	/**
 	 * Return the first item encountered in the Scanner, wrapped in an Optional, otherwise Optional.empty() if no items
 	 * were found.

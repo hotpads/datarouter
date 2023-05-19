@@ -23,8 +23,8 @@ import io.datarouter.client.mysql.util.MysqlTool;
 import io.datarouter.joblet.JobletRequestSqlBuilder;
 import io.datarouter.joblet.storage.jobletrequest.DatarouterJobletRequestDao;
 import io.datarouter.joblet.type.JobletType;
-import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
+import io.datarouter.storage.client.DatarouterClients;
 
 public class ReserveJobletRequest extends BaseMysqlOp<Boolean>{
 
@@ -39,11 +39,11 @@ public class ReserveJobletRequest extends BaseMysqlOp<Boolean>{
 	public ReserveJobletRequest(
 			String reservedBy,
 			JobletType<?> jobletType,
-			Datarouter datarouter,
+			DatarouterClients datarouterClients,
 			DatarouterJobletRequestDao jobletRequestDao,
 			MysqlSqlFactory mysqlSqlFactory,
 			JobletRequestSqlBuilder jobletRequestSqlBuilder){
-		super(datarouter,
+		super(datarouterClients,
 				jobletRequestDao.getPhysicalNode().getClientId(),
 				Isolation.repeatableRead,
 				false);

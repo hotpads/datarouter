@@ -23,8 +23,8 @@ import java.util.Set;
 import javax.servlet.ServletRequest;
 
 import io.datarouter.util.string.StringTool;
-import io.datarouter.web.user.session.service.Role;
-import io.datarouter.web.user.session.service.RoleEnum;
+import io.datarouter.web.user.role.Role;
+import io.datarouter.web.user.role.RoleEnum;
 import io.datarouter.web.user.session.service.Session;
 
 /**

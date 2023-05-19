@@ -36,8 +36,8 @@ import io.datarouter.auth.storage.user.DatarouterUserDao;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.web.user.databean.DatarouterUser;
 import io.datarouter.web.user.databean.DatarouterUser.DatarouterUserByUsernameLookup;
-import io.datarouter.web.user.session.service.Role;
-import io.datarouter.web.user.session.service.RoleManager;
+import io.datarouter.web.user.role.Role;
+import io.datarouter.web.user.role.RoleManager;
 import io.datarouter.web.user.session.service.UserSessionService;
 
 @Singleton

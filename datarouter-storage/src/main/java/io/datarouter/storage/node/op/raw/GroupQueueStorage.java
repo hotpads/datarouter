@@ -29,8 +29,8 @@ public interface GroupQueueStorage<
 		D extends Databean<PK,D>>
 extends QueueStorageWriter<PK,D>, GroupQueueStorageReader<PK,D>{
 
-	public static final String OP_pollMulti = "pollMulti";
-	public static final String OP_pollUntilEmpty = "pollUntilEmpty";
+	String OP_pollMulti = "pollMulti";
+	String OP_pollUntilEmpty = "pollUntilEmpty";
 
 	List<D> pollMulti(Config config);
 
@@ -38,14 +38,14 @@ extends QueueStorageWriter<PK,D>, GroupQueueStorageReader<PK,D>{
 		return pollMulti(new Config());
 	}
 
-	public interface GroupQueueStorageNode<
+	interface GroupQueueStorageNode<
 			PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
 	extends GroupQueueStorage<PK,D>, QueueStorageWriterNode<PK,D,F>{
 	}
 
-	public interface PhysicalGroupQueueStorageNode<
+	interface PhysicalGroupQueueStorageNode<
 			PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>

@@ -33,6 +33,7 @@ import io.datarouter.conveyor.ConveyorRunnable;
 import io.datarouter.instrumentation.gauge.GaugeBatchDto;
 import io.datarouter.instrumentation.gauge.GaugeDto;
 import io.datarouter.instrumentation.gauge.GaugePublisher;
+import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.metric.config.DatarouterGaugeSettingRoot;
 
 @Singleton
@@ -58,6 +59,7 @@ public class GaugeMemoryToPublisherConveyorConfiguration implements ConveyorConf
 		if(settings.recordGaugeMemoryToPublisherGauges.get()){
 			gaugeRecorder.savePeekDurationMs(conveyor, Duration.between(beforePeek, afterPeek).toMillis());
 		}
+		TracerTool.setAlternativeStartTime();
 		if(dtos.isEmpty()){
 			return new ProcessResult(false);
 		}

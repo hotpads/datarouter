@@ -15,16 +15,15 @@
  */
 package io.datarouter.web.navigation;
 
+import io.datarouter.util.string.StringTool;
+
 public enum DatarouterNavBarCategory implements NavBarCategory{
-	HOME("Home"),
-	CHANGELOG("Changelog"),
-	EXTERNAL("External"),
-	JOBS("Jobs"),
-	INFO("Info"),
-	KEYS("Keys"),
-	SETTINGS("Settings"),
+	CONFIGURATION("Configuration"),
 	MONITORING("Monitoring"),
+	JOBS("Jobs"),
+	DATA("Data"),
 	TOOLS("Tools"),
+	EXTERNAL("External"),
 	;
 
 	private final String display;
@@ -36,6 +35,11 @@ public enum DatarouterNavBarCategory implements NavBarCategory{
 	@Override
 	public String display(){
 		return display;
+	}
+
+	@Override
+	public String sortBy(){
+		return StringTool.pad(Integer.toString(ordinal()), '0', 2);// 2 assumes max 100 menus which should be enough
 	}
 
 	@Override

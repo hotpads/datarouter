@@ -23,7 +23,7 @@ public class DatarouterSnapshotPlugin extends BaseWebPlugin{
 	public DatarouterSnapshotPlugin(){
 		addRouteSet(DatarouterSnapshotRouteSet.class);
 		addDatarouterNavBarItem(
-				DatarouterNavBarCategory.TOOLS,
+				DatarouterNavBarCategory.DATA,
 				new DatarouterSnapshotPaths().datarouter.snapshot.group.listGroups,
 				"Snapshot");
 	}

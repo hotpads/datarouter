@@ -16,9 +16,6 @@
 package io.datarouter.plugin.copytable.web;
 
 import static j2html.TagCreator.body;
-import static j2html.TagCreator.br;
-import static j2html.TagCreator.div;
-import static j2html.TagCreator.h2;
 import static j2html.TagCreator.p;
 
 import java.util.List;
@@ -43,9 +40,8 @@ import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.types.Param;
 import io.datarouter.web.html.form.HtmlForm;
-import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
+import io.datarouter.web.html.form.HtmlFormValidator;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
-import j2html.tags.specialized.DivTag;
 
 public class SingleThreadTableProcessorHandler extends BaseHandler{
 
@@ -70,7 +66,7 @@ public class SingleThreadTableProcessorHandler extends BaseHandler{
 	@Inject
 	private Bootstrap4PageFactory pageFactory;
 	@Inject
-	private CopyTableChangelogRecorderService changelogRecorderService;
+	private CopyTableChangelogService changelogService;
 	@Inject
 	private StandardDatarouterEmailHeaderService standardDatarouterEmailHeaderService;
 	@Inject
@@ -86,16 +82,7 @@ public class SingleThreadTableProcessorHandler extends BaseHandler{
 			@Param(P_processorName) Optional<String> processorName,
 			@Param(P_toEmail) Optional<String> toEmail,
 			@Param(P_submitAction) Optional<String> submitAction){
-		String errorScanBatchSize = null;
-		if(submitAction.isPresent()){
-			try{
-				if(scanBatchSize.map(StringTool::nullIfEmpty).isPresent()){
-					Integer.valueOf(scanBatchSize.get());
-				}
-			}catch(Exception e){
-				errorScanBatchSize = "Please specify an integer";
-			}
-		}
+		boolean shouldValidate = submitAction.isPresent();
 		List<String> possibleNodes = tableSamplerService.scanAllSortedMapStorageNodes()
 				.map(node -> node.getClientId().getName() + "." + node.getFieldInfo().getTableName())
 				.append("")
@@ -104,35 +91,38 @@ public class SingleThreadTableProcessorHandler extends BaseHandler{
 		List<String> possibleProcessors = processorRegistry.scan()
 				.map(TableProcessor::getClass)
 				.map(Class::getSimpleName)
+				.append("")
 				.sort()
 				.list();
 		var form = new HtmlForm()
 				.withMethod("post");
 		form.addSelectField()
+				.withDisplay("Processor Name")
+				.withName(P_processorName)
+				.withValues(possibleProcessors);
+		form.addSelectField()
 				.withDisplay("Node Name")
 				.withName(P_sourceNodeName)
 				.withValues(possibleNodes);
+		form.addTextField()
+				.withDisplay("Scan Batch Size")
+				.withName(P_scanBatchSize)
+				.withPlaceholder(DEFAULT_SCAN_BATCH_SIZE + "")
+				.withValue(
+						scanBatchSize.orElse(null),
+						shouldValidate && scanBatchSize.isPresent(),
+						HtmlFormValidator::positiveInteger);
 		form.addTextField()
 				.withDisplay("From Key String")
 				//add validation
 				.withName(P_lastKeyString)
 				.withValue(lastKeyString.orElse(null));
 		form.addTextField()
-				.withDisplay("Scan Batch Size")
-				.withError(errorScanBatchSize)
-				.withName(P_scanBatchSize)
-				.withPlaceholder(DEFAULT_SCAN_BATCH_SIZE + "")
-				.withValue(scanBatchSize.orElse(null));
-		form.addSelectField()
-				.withDisplay("Processor Name")
-				.withName(P_processorName)
-				.withValues(possibleProcessors);
-		form.addTextField()
 				.withDisplay("Email on Completion")
 				//add validation
 				.withName(P_toEmail)
 				.withPlaceholder("you@email.com")
-				.withValue(toEmail.orElse(null));
+				.withValue(toEmail.orElse(getSessionInfo().getRequiredSession().getUsername()));
 		form.addButton()
 				.withDisplay("Execute")
 				.withValue("anything");
@@ -140,7 +130,9 @@ public class SingleThreadTableProcessorHandler extends BaseHandler{
 		if(submitAction.isEmpty() || form.hasErrors()){
 			return pageFactory.startBuilder(request)
 					.withTitle("Table Processor - Single Thread")
-					.withContent(Html.makeContent(form))
+					.withContent(TableProcessorHtml.makeContent(
+							paths.datarouter.tableProcessor.singleThread,
+							form))
 					.buildMav();
 		}
 
@@ -172,7 +164,7 @@ public class SingleThreadTableProcessorHandler extends BaseHandler{
 		var body = body(header, p(message));
 		if(toEmail.filter(str -> !str.isEmpty()).isPresent()){
 			String primaryHref = htmlEmailService.startLinkBuilder()
-					.withLocalPath(paths.datarouter.copyTableSingleThread)
+					.withLocalPath(paths.datarouter.copyTable.singleThread)
 					.build();
 			var emailBuilder = htmlEmailService.startEmailBuilder()
 					.withTitle("Table Processor")
@@ -182,23 +174,12 @@ public class SingleThreadTableProcessorHandler extends BaseHandler{
 					.to(toEmail.get());
 			htmlEmailService.trySendJ2Html(emailBuilder);
 		}
-		changelogRecorderService.recordChangelogForTableProcessor(getSessionInfo(), "Single Thread", sourceName.get(),
+		changelogService.recordChangelogForTableProcessor(
+				getSessionInfo(),
+				"Single Thread",
+				sourceName.get(),
 				processorName.get());
 		return pageFactory.message(request, message);
-	}
-
-	private static class Html{
-
-		public static DivTag makeContent(HtmlForm htmlForm){
-			var form = Bootstrap4FormHtml.render(htmlForm)
-					.withClass("card card-body bg-light");
-			return div(
-					h2("Table Processor - Single Thread"),
-					form,
-					br())
-					.withClass("container mt-3");
-		}
-
 	}
 
 }

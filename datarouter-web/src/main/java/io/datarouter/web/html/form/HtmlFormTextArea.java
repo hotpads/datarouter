@@ -15,6 +15,9 @@
  */
 package io.datarouter.web.html.form;
 
+import java.util.Optional;
+import java.util.function.Function;
+
 import io.datarouter.web.html.form.HtmlForm.BaseHtmlFormField;
 
 public class HtmlFormTextArea extends BaseHtmlFormField{
@@ -45,6 +48,17 @@ public class HtmlFormTextArea extends BaseHtmlFormField{
 
 	public HtmlFormTextArea withValue(String value){
 		this.value = value;
+		return this;
+	}
+
+	public HtmlFormTextArea withValue(
+			String value,
+			boolean shouldValidate,
+			Function<String,Optional<String>> errorFinder){
+		this.value = value;
+		if(shouldValidate){
+			errorFinder.apply(value).ifPresent(this::withError);
+		}
 		return this;
 	}
 

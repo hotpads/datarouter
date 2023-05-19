@@ -8,7 +8,7 @@ Datarouter-changelog is a tool that records changes or user actions, which can b
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-changelog</artifactId>
-	<version>0.0.119</version>
+	<version>0.0.120</version>
 </dependency>
 ```
 
@@ -17,7 +17,7 @@ Datarouter-changelog is a tool that records changes or user actions, which can b
 You can install this module by adding its plugin to the `WebappBuilder`.
 
 ```java
-.addWeblugin(new DatarouterChangelogPluginBuilder(...)
+.addPlugin(new DatarouterChangelogPluginBuilder(...)
 		...
 		.build()
 ```

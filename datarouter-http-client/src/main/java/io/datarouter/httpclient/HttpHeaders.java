@@ -42,7 +42,6 @@ public class HttpHeaders{
 	public static final String X_REQUESTED_WITH = "x-requested-with";
 
 	// specific ones
-	public static final String X_BUILD_ID = "x-build-id";
 	public static final String X_CLIENT_IP = IpExtractor.X_CLIENT_IP;
 	public static final String X_EXCEPTION_ID = "x-eid";
 

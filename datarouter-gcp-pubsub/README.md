@@ -12,7 +12,7 @@ It provides reliable, many-to-many, asynchronous messaging between applications.
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-gcp-pubsub</artifactId>
-	<version>0.0.119</version>
+	<version>0.0.120</version>
 </dependency>
 ```
 ## Installation with Datarouter
@@ -20,7 +20,7 @@ It provides reliable, many-to-many, asynchronous messaging between applications.
 You can install this module by adding its plugin to the `WebappBuilder`.
 
 ```java
-.addWebPlugin(new DatarouterGcpPubsubPluginBuilder())
+.addPlugin(new DatarouterGcpPubsubPluginBuilder())
 ```
 
 ## Queue Creation and Namespacing

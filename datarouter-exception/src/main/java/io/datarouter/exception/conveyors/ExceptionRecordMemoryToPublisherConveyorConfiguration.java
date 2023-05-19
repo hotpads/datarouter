@@ -32,6 +32,7 @@ import io.datarouter.conveyor.ConveyorRunnable;
 import io.datarouter.exception.storage.exceptionrecord.ExceptionRecord;
 import io.datarouter.instrumentation.exception.DatarouterExceptionPublisher;
 import io.datarouter.instrumentation.exception.ExceptionRecordBatchDto;
+import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.scanner.Scanner;
 
 @Singleton
@@ -57,6 +58,7 @@ public class ExceptionRecordMemoryToPublisherConveyorConfiguration implements Co
 				.listTo(ExceptionRecordBatchDto::new);
 		Instant afterPeek = Instant.now();
 		gaugeRecorder.savePeekDurationMs(conveyor, Duration.between(beforePeek, afterPeek).toMillis());
+		TracerTool.setAlternativeStartTime();
 		if(batch.records().isEmpty()){
 			return new ProcessResult(false);
 		}
@@ -77,8 +79,8 @@ public class ExceptionRecordMemoryToPublisherConveyorConfiguration implements Co
 	}
 
 	@Override
-	public long delaySeconds(){
-		return 10L;
+	public Duration delay(){
+		return Duration.ofSeconds(10L);
 	}
 
 }

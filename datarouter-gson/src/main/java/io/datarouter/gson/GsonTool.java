@@ -26,13 +26,13 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 
-import io.datarouter.gson.serializer.DurationLegacyTypeAdapter;
-import io.datarouter.gson.serializer.InstantLegacyTypeAdapter;
-import io.datarouter.gson.serializer.LocalDateLegacyTypeAdapter;
-import io.datarouter.gson.serializer.LocalDateTimeLegacyTypeAdapter;
-import io.datarouter.gson.serializer.LocalTimeLegacyTypeAdapter;
-import io.datarouter.gson.serializer.UlidTypeAdapter;
-import io.datarouter.gson.serializer.ZoneIdLegacyTypeAdapter;
+import io.datarouter.gson.serializer.DurationLegacySerializer;
+import io.datarouter.gson.serializer.InstantLegacySerializer;
+import io.datarouter.gson.serializer.LocalDateLegacySerializer;
+import io.datarouter.gson.serializer.LocalDateTimeLegacySerializer;
+import io.datarouter.gson.serializer.LocalTimeLegacySerializer;
+import io.datarouter.gson.serializer.UlidLegacySerializer;
+import io.datarouter.gson.serializer.ZoneIdLegacySerializer;
 import io.datarouter.gson.typeadapter.QuadTypeAdapter;
 import io.datarouter.gson.typeadapterfactory.EnumTypeAdapterFactory;
 import io.datarouter.gson.typeadapterfactory.EnumTypeAdapterFactory.AnonymousAllowUnregisteredEnumTypeAdapterFactory;
@@ -45,15 +45,15 @@ public class GsonTool{
 
 	//TODO make private and use more specific static methods
 	public static final Gson GSON = new GsonBuilder()
-			.registerTypeAdapter(Instant.class, new InstantLegacyTypeAdapter())
-			.registerTypeAdapter(Duration.class, new DurationLegacyTypeAdapter())
-			.registerTypeAdapter(LocalDate.class, new LocalDateLegacyTypeAdapter())
-			.registerTypeAdapter(LocalTime.class, new LocalTimeLegacyTypeAdapter())
-			.registerTypeAdapter(LocalDateTime.class, new LocalDateTimeLegacyTypeAdapter())
+			.registerTypeAdapter(Instant.class, new InstantLegacySerializer())
+			.registerTypeAdapter(Duration.class, new DurationLegacySerializer())
+			.registerTypeAdapter(LocalDate.class, new LocalDateLegacySerializer())
+			.registerTypeAdapter(LocalTime.class, new LocalTimeLegacySerializer())
+			.registerTypeAdapter(LocalDateTime.class, new LocalDateTimeLegacySerializer())
 			.registerTypeAdapterFactory(new OptionalLegacyTypeAdapterFactory())
-			.registerTypeHierarchyAdapter(ZoneId.class, new ZoneIdLegacyTypeAdapter())
+			.registerTypeHierarchyAdapter(ZoneId.class, new ZoneIdLegacySerializer())
 			.registerTypeAdapter(Quad.class, new QuadTypeAdapter())
-			.registerTypeAdapter(Ulid.class, new UlidTypeAdapter())
+			.registerTypeAdapter(Ulid.class, new UlidLegacySerializer())
 			.create();
 
 	public static GsonBuilder builder(EnumTypeAdapterFactory enumTypeAdapterFactory){

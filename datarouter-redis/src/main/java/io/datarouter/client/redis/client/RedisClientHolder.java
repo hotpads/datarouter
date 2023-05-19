@@ -18,7 +18,6 @@ package io.datarouter.client.redis.client;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.storage.client.ClientId;
@@ -28,8 +27,7 @@ public class RedisClientHolder{
 
 	private final Map<ClientId,DatarouterRedisClient> redisByClientId;
 
-	@Inject
-	public RedisClientHolder(RedisOptions redisOptions){
+	public RedisClientHolder(){
 		redisByClientId = new ConcurrentHashMap<>();
 	}
 

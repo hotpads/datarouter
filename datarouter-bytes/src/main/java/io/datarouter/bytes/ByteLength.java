@@ -76,6 +76,10 @@ public class ByteLength{
 		return Math.toIntExact(length);
 	}
 
+	public double toBytesDouble(){
+		return length;
+	}
+
 	@Override
 	public int hashCode(){
 		return Objects.hash(length);

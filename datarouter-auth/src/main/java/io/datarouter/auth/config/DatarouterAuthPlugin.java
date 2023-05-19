@@ -55,6 +55,8 @@ import io.datarouter.auth.storage.deprovisioneduser.DeprovisionedUserDao;
 import io.datarouter.auth.storage.deprovisioneduser.DeprovisionedUserDao.DeprovisionedUserDaoParams;
 import io.datarouter.auth.storage.permissionrequest.DatarouterPermissionRequestDao;
 import io.datarouter.auth.storage.permissionrequest.DatarouterPermissionRequestDao.DatarouterPermissionRequestDaoParams;
+import io.datarouter.auth.storage.roleapprovals.DatarouterUserRoleApprovalDao;
+import io.datarouter.auth.storage.roleapprovals.DatarouterUserRoleApprovalDao.DatarouterUserRoleApprovalDaoParams;
 import io.datarouter.auth.storage.user.DatarouterUserDao;
 import io.datarouter.auth.storage.user.DatarouterUserDao.DatarouterUserDaoParams;
 import io.datarouter.auth.storage.useraccountmap.BaseDatarouterUserAccountMapDao;
@@ -121,11 +123,10 @@ public class DatarouterAuthPlugin extends BaseWebPlugin{
 		}
 
 		addAppListener(DatarouterAccountConfigAppListener.class);
-		addDatarouterNavBarItem(DatarouterNavBarCategory.KEYS, PATHS.datarouter.accountManager, "Account Manager");
-		addDatarouterNavBarItem(DatarouterNavBarCategory.KEYS, PATHS.datarouter.accounts.renameAccounts,
-				"Account Renamer");
-		addDatarouterNavBarItem(DatarouterNavBarCategory.KEYS, PATHS.datarouter.accounts.updateCallerType,
-				"Account Update Caller Type");
+		addDatarouterNavBarItem(
+				DatarouterNavBarCategory.CONFIGURATION,
+				PATHS.datarouter.accountManager,
+				"Accounts");
 
 		addAppNavBarItem(AppNavBarCategory.ADMIN, PATHS.userDeprovisioning, "User Deprovisioning");
 		addDynamicNavBarItem(ApiDocsNavBarItem.class);
@@ -247,6 +248,7 @@ public class DatarouterAuthPlugin extends BaseWebPlugin{
 							defaultClientId,
 							defaultClientId,
 							defaultClientId,
+							defaultClientId,
 							defaultClientId),
 					userDeprovisioningStrategyClass,
 					copyUserListenerClass,
@@ -272,6 +274,7 @@ public class DatarouterAuthPlugin extends BaseWebPlugin{
 		private final List<ClientId> datarouterUserClientIds;
 		private final List<ClientId> datarouterUserHistoryClientIds;
 		private final List<ClientId> deprovisionedUserClientIds;
+		private final List<ClientId> datarouterUserRoleApprovalClientIds;
 
 		public DatarouterAuthDaoModule(
 				List<ClientId> datarouterAccountClientIds,
@@ -283,7 +286,8 @@ public class DatarouterAuthPlugin extends BaseWebPlugin{
 				List<ClientId> datarouterUserAccountMapClientIds,
 				List<ClientId> datarouterUserClientIds,
 				List<ClientId> datarouterUserHistoryClientIds,
-				List<ClientId> deprovisionedUserClientIds){
+				List<ClientId> deprovisionedUserClientIds,
+				List<ClientId> datarouterUserRoleApprovalClientIds){
 			this.datarouterAccountClientIds = datarouterAccountClientIds;
 			this.datarouterAccountCredentialClientIds = datarouterAccountCredentialClientIds;
 			this.datarouterAccountSecretCredentialClientIds = datarouterAccountSecretCredentialClientIds;
@@ -294,6 +298,7 @@ public class DatarouterAuthPlugin extends BaseWebPlugin{
 			this.datarouterUserClientIds = datarouterUserClientIds;
 			this.datarouterUserHistoryClientIds = datarouterUserHistoryClientIds;
 			this.deprovisionedUserClientIds = deprovisionedUserClientIds;
+			this.datarouterUserRoleApprovalClientIds = datarouterUserRoleApprovalClientIds;
 		}
 
 		@Override
@@ -308,7 +313,8 @@ public class DatarouterAuthPlugin extends BaseWebPlugin{
 					DatarouterUserDao.class,
 					DatarouterUserHistoryDao.class,
 					DatarouterSamlDao.class,
-					DeprovisionedUserDao.class);
+					DeprovisionedUserDao.class,
+					DatarouterUserRoleApprovalDao.class);
 		}
 
 		@Override
@@ -334,6 +340,8 @@ public class DatarouterAuthPlugin extends BaseWebPlugin{
 					.toInstance(new DatarouterSamlDaoParams(datarouterSamlClientIds));
 			bind(DeprovisionedUserDaoParams.class)
 					.toInstance(new DeprovisionedUserDaoParams(deprovisionedUserClientIds));
+			bind(DatarouterUserRoleApprovalDaoParams.class)
+					.toInstance(new DatarouterUserRoleApprovalDaoParams(datarouterUserRoleApprovalClientIds));
 		}
 
 	}

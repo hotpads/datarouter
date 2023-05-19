@@ -8,7 +8,7 @@ datarouter-auth is a framework that brings in users and apikey accounts to datar
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-auth</artifactId>
-	<version>0.0.119</version>
+	<version>0.0.120</version>
 </dependency>
 ```
 
@@ -17,7 +17,7 @@ datarouter-auth is a framework that brings in users and apikey accounts to datar
 You can install this module by adding its plugin to the `WebappBuilder`.
 
 ```java
-.addJobPlugin(new DatarouterAuthPluginBuilder(...)
+.addPlugin(new DatarouterAuthPluginBuilder(...)
 		...
 		.build()
 ```
@@ -39,7 +39,7 @@ This allows for some useful features like the ability of the service to get the 
  fields. 
 
 When the application runs for the first time, a default user is created with a default userId and password.  The
- username is the same email address as the DatarouterPropeties's datarouterAdministrator. Additional DatarouterUsers
+ username is the same email address as the DatarouterProperties's datarouterAdministrator. Additional DatarouterUsers
  can be created through the CreateUser UI.
 
 ### Roles

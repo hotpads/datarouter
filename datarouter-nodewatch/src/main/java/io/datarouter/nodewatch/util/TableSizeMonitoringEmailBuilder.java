@@ -35,6 +35,7 @@ import io.datarouter.nodewatch.config.DatarouterNodewatchPaths;
 import io.datarouter.nodewatch.service.TableSizeMonitoringService.PercentageCountStat;
 import io.datarouter.nodewatch.service.TableSizeMonitoringService.ThresholdCountStat;
 import io.datarouter.nodewatch.storage.latesttablecount.LatestTableCount;
+import io.datarouter.nodewatch.web.handler.NodewatchTableHandler;
 import io.datarouter.util.DateTool;
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.time.ZonedDateFormatterTool;
@@ -141,10 +142,9 @@ public class TableSizeMonitoringEmailBuilder{
 
 	public ATag makeTableLink(String tableName, String clientName){
 		String href = emailService.startLinkBuilder()
-				.withLocalPath(paths.datarouter.nodewatch.tableCount)
-				.withParam("submitAction", "singleTable")
-				.withParam("tableName", tableName)
-				.withParam("clientName", clientName)
+				.withLocalPath(paths.datarouter.nodewatch.table)
+				.withParam(NodewatchTableHandler.P_clientName, clientName)
+				.withParam(NodewatchTableHandler.P_tableName, tableName)
 				.build();
 		return a(tableName)
 				.withHref(href);

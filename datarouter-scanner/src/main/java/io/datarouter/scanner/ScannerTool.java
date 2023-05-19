@@ -89,6 +89,19 @@ public class ScannerTool{
 		}
 	}
 
+	public static <T> int countInt(Scanner<T> scanner){
+		try(Scanner<T> $ = scanner){
+			long count = 0;
+			while(scanner.advance()){
+				++count;
+				if(count > Integer.MAX_VALUE){
+					throw new RuntimeException("Exceeded max int value");
+				}
+			}
+			return Math.toIntExact(count);
+		}
+	}
+
 	public static <T> Optional<T> findFirst(Scanner<T> scanner){
 		try(Scanner<T> $ = scanner){
 			if(scanner.advance()){

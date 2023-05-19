@@ -24,7 +24,7 @@ import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.key.unique.UniqueKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
-import io.datarouter.storage.Datarouter;
+import io.datarouter.storage.client.DatarouterClients;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
 
@@ -35,14 +35,14 @@ public class MysqlUniqueIndexDeleteOp<
 extends BaseMysqlDeleteOp<PK,D,F,UniqueKey<PK>>{
 
 	public MysqlUniqueIndexDeleteOp(
-			Datarouter datarouter,
+			DatarouterClients datarouterClients,
 			PhysicalDatabeanFieldInfo<PK,D,F> databeanFieldInfo,
 			MysqlSqlFactory mysqlSqlFactory,
 			MysqlClientType mysqlClientType,
 			Collection<? extends UniqueKey<PK>> keys,
 			Config config,
 			String opName){
-		super(datarouter,
+		super(datarouterClients,
 				databeanFieldInfo,
 				mysqlSqlFactory,
 				mysqlClientType,

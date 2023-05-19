@@ -48,8 +48,8 @@ import io.datarouter.web.handler.BaseHandler.Handler;
 import io.datarouter.web.handler.HandlerTool;
 import io.datarouter.web.listener.AppListenersClasses;
 import io.datarouter.web.user.role.DatarouterUserRole;
-import io.datarouter.web.user.session.service.Role;
-import io.datarouter.web.user.session.service.RoleManager;
+import io.datarouter.web.user.role.Role;
+import io.datarouter.web.user.role.RoleManager;
 
 /**
  * Use this class to check for injection problems

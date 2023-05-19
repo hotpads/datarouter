@@ -22,18 +22,18 @@ import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
 import io.datarouter.web.user.role.DatarouterUserRole;
-import io.datarouter.webappinstance.web.WebappInstanceHandler;
-import io.datarouter.webappinstance.web.WebappInstanceLogHandler;
-import io.datarouter.webappinstance.web.WebappInstanceServersHandler;
+import io.datarouter.webappinstance.web.WebappInstanceHistoryHandler;
+import io.datarouter.webappinstance.web.WebappInstanceLoginHandler;
+import io.datarouter.webappinstance.web.WebappInstanceRunningHandler;
 
 @Singleton
 public class DatarouterWebappInstanceRouteSet extends BaseRouteSet{
 
 	@Inject
 	public DatarouterWebappInstanceRouteSet(DatarouterWebappInstancePaths paths){
-		handleDir(paths.datarouter.webappInstances).withHandler(WebappInstanceHandler.class);
-		handle(paths.datarouter.webappInstanceLog).withHandler(WebappInstanceLogHandler.class);
-		handle(paths.datarouter.webappInstanceServers).withHandler(WebappInstanceServersHandler.class);
+		handle(paths.datarouter.webappInstances.running).withHandler(WebappInstanceRunningHandler.class);
+		handle(paths.datarouter.webappInstances.instanceLogin).withHandler(WebappInstanceLoginHandler.class);
+		handle(paths.datarouter.webappInstances.history).withHandler(WebappInstanceHistoryHandler.class);
 	}
 
 	@Override

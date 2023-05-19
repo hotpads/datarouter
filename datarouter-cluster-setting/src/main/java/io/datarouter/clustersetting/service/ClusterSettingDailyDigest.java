@@ -17,7 +17,6 @@ package io.datarouter.clustersetting.service;
 
 import static j2html.TagCreator.b;
 import static j2html.TagCreator.div;
-import static j2html.TagCreator.each;
 import static j2html.TagCreator.small;
 import static j2html.TagCreator.td;
 import static j2html.TagCreator.th;
@@ -69,12 +68,16 @@ public class ClusterSettingDailyDigest implements DailyDigest{
 
 	@Override
 	public Optional<DivTag> getPageContent(ZoneId zoneId){
-		return makeContent(new ClusterSettingDailyDigestPageFormatter(pageFormatter));
+		return makeContent(
+				new ClusterSettingDailyDigestPageFormatter(pageFormatter),
+				new ClusterSettingDailyDigestPageFormatter(pageFormatter));
 	}
 
 	@Override
 	public Optional<DivTag> getEmailContent(ZoneId zoneId){
-		return makeContent(new ClusterSettingDailyDigestPageFormatter(emailFormatter));
+		return makeContent(
+				new ClusterSettingDailyDigestPageFormatter(emailFormatter),
+				new ClusterSettingDailyDigestPageFormatter(emailPrefixFormatter));
 	}
 
 	@Override
@@ -82,30 +85,32 @@ public class ClusterSettingDailyDigest implements DailyDigest{
 		return DailyDigestType.ACTIONABLE;
 	}
 
-	private Optional<DivTag> makeContent(ClusterSettingDailyDigestPageFormatter pageFormatter){
+	private Optional<DivTag> makeContent(
+			ClusterSettingDailyDigestPageFormatter settingFormatter,
+			ClusterSettingDailyDigestPageFormatter prefixFormatter){
 		Optional<HeaderAndContent> redundantTable = settingService
 				.scanWithValidity(ClusterSettingValidity.REDUNDANT)
-				.listTo(settings -> pageFormatter.build(
+				.listTo(settings -> settingFormatter.build(
 						settings,
 						"Redundant",
 						Optional.of("Setting's value in database is the same as the code. Generally safe to delete "
 								+ "through the Cluster Setting UI")));
 		Optional<HeaderAndContent> unreferencedTable = settingService
 				.scanWithValidity(ClusterSettingValidity.UNREFERENCED)
-				.listTo(settings -> pageFormatter.build(
+				.listTo(settings -> settingFormatter.build(
 						settings,
 						"Unreferenced",
 						Optional.of("Settings exist in the database but not in the code.")));
 		Optional<HeaderAndContent> oldTable = settingService
 				.scanWithValidity(ClusterSettingValidity.OLD)
-				.listTo(settings -> pageFormatter.build(
+				.listTo(settings -> settingFormatter.build(
 						settings,
 						"Old",
 						Optional.of("Setting has lived in the database for over the threshold. Could update the "
 								+ "defaults in the code.")));
 		Optional<HeaderAndContent> unknownTable = settingService
 				.scanWithValidity(ClusterSettingValidity.UNKNOWN)
-				.listTo(settings -> pageFormatter.build(settings, "Unknown", Optional.empty()));
+				.listTo(settings -> prefixFormatter.build(settings, "Unknown", Optional.empty()));
 
 		List<DivTag> tables = Scanner.of(redundantTable, unreferencedTable, oldTable, unknownTable)
 				.concat(OptionalScanner::of)
@@ -115,8 +120,12 @@ public class ClusterSettingDailyDigest implements DailyDigest{
 		if(tables.size() == 0){
 			return Optional.empty();
 		}
-		var header = digestService.makeHeader("Settings", paths.datarouter.settings.customSettings);
-		return Optional.of(div(header, each(tables, tag -> TagCreator.div(tag))));
+		var header = digestService.makeHeader("Settings", paths.datarouter.settings.overrides.view);
+		var tablesDiv = div(header);
+		Scanner.of(tables)
+				.map(TagCreator::div)
+				.forEach(tablesDiv::with);
+		return Optional.of(tablesDiv);
 	}
 
 	private interface ClusterSettingDailyDigestTableFormatter{
@@ -154,6 +163,13 @@ public class ClusterSettingDailyDigest implements DailyDigest{
 			new J2HtmlEmailTable<ClusterSetting>()
 					.withColumn(new J2HtmlEmailTableColumn<>("Name",
 							row -> linkService.makeSettingLink(row.getName())))
+					// don't send values in an email
+					.build(settings);
+
+	private final ClusterSettingDailyDigestTableFormatter emailPrefixFormatter = settings ->
+			new J2HtmlEmailTable<ClusterSetting>()
+					.withColumn(new J2HtmlEmailTableColumn<>("Name",
+							row -> linkService.makePrefixSettingLink(row.getName())))
 					// don't send values in an email
 					.build(settings);
 

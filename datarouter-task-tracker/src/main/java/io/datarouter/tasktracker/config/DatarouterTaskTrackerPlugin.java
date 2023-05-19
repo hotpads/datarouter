@@ -56,7 +56,7 @@ public class DatarouterTaskTrackerPlugin extends BaseWebPlugin{
 		this.daosModuleBuilder = daosModuleBuilder;
 		this.taskTrackerAlertReportService = taskTrackerAlertReportService;
 
-		addDatarouterNavBarItem(DatarouterNavBarCategory.JOBS, PATHS.datarouter.longRunningTasks, "Long running tasks");
+		addDatarouterNavBarItem(DatarouterNavBarCategory.JOBS, PATHS.datarouter.longRunningTasks, "Long-Running Tasks");
 		addDatarouterNavBarItem(DatarouterNavBarCategory.JOBS, PATHS.datarouter.jobsHealth, "Jobs Health");
 		addSettingRoot(DatarouterTaskTrackerSettingRoot.class);
 		addRouteSet(DatarouterTaskTrackerRouteSet.class);

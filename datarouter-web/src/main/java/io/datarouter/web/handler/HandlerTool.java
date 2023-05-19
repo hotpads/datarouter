@@ -15,6 +15,7 @@
  */
 package io.datarouter.web.handler;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
@@ -27,6 +28,8 @@ import io.datarouter.httpclient.endpoint.java.EndpointTool;
 import io.datarouter.httpclient.endpoint.link.BaseLink;
 import io.datarouter.httpclient.endpoint.link.LinkTool;
 import io.datarouter.httpclient.endpoint.link.NoOpResponseType;
+import io.datarouter.httpclient.endpoint.param.IgnoredField;
+import io.datarouter.httpclient.endpoint.param.RequestBody;
 import io.datarouter.httpclient.endpoint.web.BaseWebApi;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.lang.ClassTool;
@@ -69,98 +72,53 @@ public class HandlerTool{
 				if(EndpointTool.paramIsEndpointObject(method)){
 					Class<?> endpointType = method.getParameters()[0].getType();
 					@SuppressWarnings("unchecked")
-					BaseEndpoint<?,?> endpoint = ReflectionTool.createWithoutNoArgs(
+					BaseEndpoint<?,?> apiClass = ReflectionTool.createWithoutNoArgs(
 							(Class<? extends BaseEndpoint<?,?>>)endpointType);
-					String endpointPath = Scanner.of(endpoint.pathNode.toSlashedString().split("/"))
+
+					validateOptionalFields(apiClass.getClass());
+
+					String endpointPath = Scanner.of(apiClass.pathNode.toSlashedString().split("/"))
 							.findLast()
 							.get();
-					if(!methodName.equals(endpointPath)){
-						throw new IllegalArgumentException(String.format(
-								"Handler-Endpoint Mismatch. handler=%s endpoint=%s, endpointPath=%s methodName=%s "
-										+ "dispatchRulePath=%s",
-								handlerClass.getSimpleName(),
-								endpoint.getClass().getSimpleName(),
-								endpointPath,
-								methodName,
-								path));
-					}
+					assertNonMismatch(methodName, endpointPath, handlerClass, apiClass.getClass(), path);
+
 					Type methodReturnType = method.getGenericReturnType();
 					boolean isPrimitive = method.getReturnType().isPrimitive();
 					if(isPrimitive){
 						methodReturnType = ClassTool.getBoxedFromPrimitive(methodReturnType);
 					}
-					Type endpointResponseType = EndpointTool.getResponseType(endpoint);
-					if(endpointResponseType.equals(NoOpResponseType.class)){
+					Type apiResponseType = EndpointTool.getResponseType(apiClass);
+					if(apiResponseType.equals(NoOpResponseType.class)){
 						return;
 					}
-					if(endpointResponseType.toString().contains("?") || methodReturnType.toString().contains("?")){
-						throw new IllegalArgumentException(String.format(
-								"Unknown types are forbidden. Explicitly declare a return type  handler=%s endpoint=%s "
-										+ "handlerReturnType=%s "
-										+ "endpointResponseType=%s",
-								handlerClass.getSimpleName(),
-								endpoint.getClass().getSimpleName(),
-								methodReturnType.getTypeName(),
-								endpointResponseType.getTypeName()));
-					}
-					if(!methodReturnType.equals(endpointResponseType)){
-						throw new IllegalArgumentException(String.format(
-								"Handler-Endpoint Response Type Mismatch. handler=%s endpoint=%s handlerReturnType=%s "
-										+ "endpointResponseType=%s",
-								handlerClass.getSimpleName(),
-								endpoint.getClass().getSimpleName(),
-								methodReturnType.getTypeName(),
-								endpointResponseType.getTypeName()));
-					}
+					validateUnknownTypes(apiResponseType, methodReturnType, handlerClass, apiClass.getClass());
+					validateReturnTypes(apiResponseType, methodReturnType, handlerClass, apiClass.getClass());
 					return;
 				}
 
 				if(EndpointTool.paramIsWebApiObject(method)){
 					Class<?> type = method.getParameters()[0].getType();
 					@SuppressWarnings("unchecked")
-					BaseWebApi<?,?> webApi = ReflectionTool.createWithoutNoArgs(
+					BaseWebApi<?,?> apiClass = ReflectionTool.createWithoutNoArgs(
 							(Class<? extends BaseWebApi<?,?>>)type);
-					String webApiPath = Scanner.of(webApi.pathNode.toSlashedString().split("/"))
+
+					validateOptionalFields(apiClass.getClass());
+
+					String webApiPath = Scanner.of(apiClass.pathNode.toSlashedString().split("/"))
 							.findLast()
 							.get();
-					if(!methodName.equals(webApiPath)){
-						throw new IllegalArgumentException(String.format(
-								"Handler-WebApi Mismatch. handler=%s endpoint=%s, path=%s methodName=%s "
-										+ "dispatchRulePath=%s",
-								handlerClass.getSimpleName(),
-								webApi.getClass().getSimpleName(),
-								webApiPath,
-								methodName,
-								path));
-					}
+					assertNonMismatch(methodName, webApiPath, handlerClass, apiClass.getClass(), path);
 					Type methodReturnType = method.getGenericReturnType();
 					boolean isPrimitive = method.getReturnType().isPrimitive();
 					if(isPrimitive){
 						methodReturnType = ClassTool.getBoxedFromPrimitive(methodReturnType);
 					}
-					Type responseType = EndpointTool.getResponseType(webApi.getClass());
-					if(responseType.equals(NoOpResponseType.class)){
+					Type apiResponseType = EndpointTool.getResponseType(apiClass.getClass());
+					if(apiResponseType.equals(NoOpResponseType.class)){
 						return;
 					}
-					if(responseType.toString().contains("?") || methodReturnType.toString().contains("?")){
-						throw new IllegalArgumentException(String.format(
-								"Unknown types are forbidden. Explicitly declare a return type  handler=%s endpoint=%s "
-										+ "handlerReturnType=%s "
-										+ "endpointResponseType=%s",
-								handlerClass.getSimpleName(),
-								webApi.getClass().getSimpleName(),
-								methodReturnType.getTypeName(),
-								responseType.getTypeName()));
-					}
-					if(!methodReturnType.equals(responseType)){
-						throw new IllegalArgumentException(String.format(
-								"Handler-WebApi Response Type Mismatch. handler=%s endpoint=%s handlerReturnType=%s "
-										+ "endpointResponseType=%s",
-								handlerClass.getSimpleName(),
-								webApi.getClass().getSimpleName(),
-								methodReturnType.getTypeName(),
-								responseType.getTypeName()));
-					}
+					validateUnknownTypes(apiResponseType, methodReturnType, handlerClass, apiClass.getClass());
+					validateReturnTypes(apiResponseType, methodReturnType, handlerClass, apiClass.getClass());
 					return;
 				}
 				return;
@@ -168,6 +126,85 @@ public class HandlerTool{
 		}
 		throw new IllegalArgumentException(handlerClass.getSimpleName() + " does not have a method that matches "
 				+ path);
+	}
+
+	private static void validateUnknownTypes(
+			Type apiResponseType,
+			Type methodReturnType,
+			Class<? extends BaseHandler> handlerClass,
+			Class<?> apiClass){
+		if(apiResponseType.toString().contains("?") || methodReturnType.toString().contains("?")){
+			throw new IllegalArgumentException(String.format(
+					"Unknown types are forbidden. Explicitly declare a return type  handler=%s endpoint=%s "
+							+ "handlerReturnType=%s "
+							+ "endpointResponseType=%s",
+					handlerClass.getSimpleName(),
+					apiClass.getSimpleName(),
+					methodReturnType.getTypeName(),
+					apiResponseType.getTypeName()));
+		}
+	}
+
+	private static void assertNonMismatch(
+			String methodName,
+			String apiPath,
+			Class<? extends BaseHandler> handlerClass,
+			Class<?> apiClass,
+			String path){
+		if(!methodName.equals(apiPath)){
+			throw new IllegalArgumentException(String.format(
+					"Handler Mismatch. handler=%s endpoint=%s, path=%s methodName=%s "
+							+ "dispatchRulePath=%s",
+					handlerClass.getSimpleName(),
+					apiClass.getClass().getSimpleName(),
+					apiPath,
+					methodName,
+					path));
+		}
+	}
+
+	private static void validateReturnTypes(
+			Type apiResponseType,
+			Type methodReturnType,
+			Class<? extends BaseHandler> handlerClass,
+			Class<?> responseTypeWrapperClass){
+		if(!methodReturnType.equals(apiResponseType)){
+			throw new IllegalArgumentException(String.format(
+					"Handler Response Type Mismatch. handler=%s endpoint=%s handlerReturnType=%s "
+							+ "endpointResponseType=%s",
+					handlerClass.getSimpleName(),
+					responseTypeWrapperClass.getSimpleName(),
+					methodReturnType.getTypeName(),
+					apiResponseType.getTypeName()));
+		}
+	}
+
+	/**
+	 * Validate optional fields are not final and initialized to Optional.empty()
+	 */
+	protected static void validateOptionalFields(Class<?> clazz){
+		for(Field field : clazz.getFields()){
+			IgnoredField ignoredField = field.getAnnotation(IgnoredField.class);
+			if(ignoredField != null){
+				continue;
+			}
+			if(Modifier.isStatic(field.getModifiers())){
+				continue;
+			}
+			if(field.getAnnotation(RequestBody.class) != null){
+				continue;
+			}
+			boolean isOptional = field.getType().isAssignableFrom(Optional.class);
+			if(!isOptional){
+				continue;
+			}
+			if(Modifier.isFinal(field.getModifiers())){
+				throw new RuntimeException(String.format(
+						"%s: Optional fields cannot be final. '%s' needs to be initialized to "
+						+ "Optional.empty() out side of the constructor.",
+						clazz.getSimpleName(), field.getName()));
+			}
+		}
 	}
 
 	@SuppressWarnings({"unchecked", "deprecation"})

@@ -19,6 +19,13 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.clustersetting.web.ClusterSettingsHandler;
+import io.datarouter.clustersetting.web.browse.ClusterSettingBrowseHandler;
+import io.datarouter.clustersetting.web.log.ClusterSettingLogHandler;
+import io.datarouter.clustersetting.web.override.handler.ClusterSettingOverrideCreateHandler;
+import io.datarouter.clustersetting.web.override.handler.ClusterSettingOverrideDeleteHandler;
+import io.datarouter.clustersetting.web.override.handler.ClusterSettingOverrideUpdateHandler;
+import io.datarouter.clustersetting.web.override.handler.ClusterSettingOverrideViewHandler;
+import io.datarouter.clustersetting.web.tag.ClusterSettingTagsHandler;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
@@ -37,10 +44,25 @@ public class DatarouterClusterSettingRouteSet extends BaseRouteSet{
 		handle(paths.datarouter.settings.browseSettings).withHandler(ClusterSettingsHandler.class);
 		handle(paths.datarouter.settings.isRecognizedRoot).withHandler(ClusterSettingsHandler.class);
 		handle(paths.datarouter.settings.updateSettingTags).withHandler(ClusterSettingsHandler.class);
-		handle(paths.datarouter.settings.logsForName).withHandler(ClusterSettingsHandler.class);
-		handle(paths.datarouter.settings.customSettings).withHandler(ClusterSettingsHandler.class);
-		handle(paths.datarouter.settings.logsForAll).withHandler(ClusterSettingsHandler.class);
 		handle(paths.datarouter.settings.searchSettingNames).withHandler(ClusterSettingsHandler.class);
+
+		//browse
+		handle(paths.datarouter.settings.browse.all).withHandler(ClusterSettingBrowseHandler.class);
+
+		//logs
+		handle(paths.datarouter.settings.log.all).withHandler(ClusterSettingLogHandler.class);
+		handle(paths.datarouter.settings.log.node).withHandler(ClusterSettingLogHandler.class);
+		handle(paths.datarouter.settings.log.setting).withHandler(ClusterSettingLogHandler.class);
+		handle(paths.datarouter.settings.log.single).withHandler(ClusterSettingLogHandler.class);
+
+		//overrides
+		handle(paths.datarouter.settings.overrides.view).withHandler(ClusterSettingOverrideViewHandler.class);
+		handle(paths.datarouter.settings.overrides.create).withHandler(ClusterSettingOverrideCreateHandler.class);
+		handle(paths.datarouter.settings.overrides.update).withHandler(ClusterSettingOverrideUpdateHandler.class);
+		handle(paths.datarouter.settings.overrides.delete).withHandler(ClusterSettingOverrideDeleteHandler.class);
+
+		//tags
+		handle(paths.datarouter.settings.tags).withHandler(ClusterSettingTagsHandler.class);
 	}
 
 	@Override

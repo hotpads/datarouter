@@ -17,12 +17,10 @@ package io.datarouter.aws.s3;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.Writer;
 import java.net.URL;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -35,9 +33,12 @@ import io.datarouter.bytes.split.ChunkScannerTool;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.scanner.Threads;
 import io.datarouter.storage.file.BucketAndKey;
+import io.datarouter.storage.file.BucketAndKeyVersion;
+import io.datarouter.storage.file.BucketAndKeyVersionResult;
+import io.datarouter.storage.file.BucketAndKeyVersions;
+import io.datarouter.storage.file.BucketAndKeys;
 import io.datarouter.storage.file.BucketAndPrefix;
 import io.datarouter.storage.node.op.raw.read.DirectoryDto;
-import io.datarouter.util.io.WriterTool;
 import io.datarouter.util.tuple.Range;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.regions.Region;
@@ -49,6 +50,8 @@ import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
 import software.amazon.awssdk.services.s3.model.S3Object;
 
 public interface DatarouterS3Client{
+
+	static final int DEFAULT_SCAN_PAGE_SIZE = 1_000;// matches S3 default
 
 	/*--------- buckets ---------*/
 
@@ -82,10 +85,10 @@ public interface DatarouterS3Client{
 
 	/*--------- object scan---------*/
 
-	Scanner<List<S3Object>> scanPaged(BucketAndPrefix location);
+	Scanner<List<S3Object>> scanPaged(BucketAndPrefix location, int pageSize);
 
 	default Scanner<S3Object> scan(BucketAndPrefix location){
-		return scanPaged(location)
+		return scanPaged(location, DEFAULT_SCAN_PAGE_SIZE)
 				.concat(Scanner::of);
 	}
 
@@ -93,7 +96,16 @@ public interface DatarouterS3Client{
 
 	Scanner<S3Object> scanAfter(BucketAndPrefix location, String startAfter, String delimiter);
 
+	/**
+	 * Avoid calling scanPrefixes on a directory with many files.
+	 * It takes forever, even if there are no subdirectories.
+	 */
 	Scanner<String> scanPrefixes(BucketAndPrefix locationPrefix, String startAfter, String delimiter);
+
+	/**
+	 * Returns quickly when there are no subdirectories.
+	 */
+	boolean hasCommonPrefixes(BucketAndPrefix locationPrefix, String delimiter);
 
 	List<String> getCommonPrefixes(BucketAndPrefix locationPrefix, String delimiter);
 
@@ -125,11 +137,44 @@ public interface DatarouterS3Client{
 			String delimiter,
 			int pageSize);
 
+	/*---------- object scan versions --------*/
+
+	Scanner<List<BucketAndKeyVersionResult>> scanVersionsPaged(
+			BucketAndPrefix location,
+			int pageSize);
+
+	default Scanner<BucketAndKeyVersionResult> scanVersions(BucketAndPrefix bucketAndPrefix){
+		return scanVersionsPaged(bucketAndPrefix, DEFAULT_SCAN_PAGE_SIZE)
+				.concat(Scanner::of);
+	}
+
+	Scanner<List<BucketAndKeyVersionResult>> scanVersionsFromPaged(
+			BucketAndPrefix location,
+			String after,
+			int pageSize);
+
+	default Scanner<BucketAndKeyVersionResult> scanVersionsFrom(
+			BucketAndPrefix bucketAndPrefix,
+			String from){
+		return scanVersionsFromPaged(bucketAndPrefix, from, DEFAULT_SCAN_PAGE_SIZE)
+				.concat(Scanner::of);
+	}
+
+	Scanner<String> scanVersionPrefixes(BucketAndPrefix bucketAndPrefix, String delimiter);
+
+	boolean hasVersionCommonPrefixes(BucketAndPrefix bucketAndPrefix, String delimiter);
+
+	List<String> getVersionCommonPrefixes(BucketAndPrefix bucketAndPrefix, String delimiter);
+
 	/*---------- object delete ----------*/
 
 	void delete(BucketAndKey location);
 
-	void deleteMulti(String bucket, Collection<String> keys);
+	void deleteMulti(BucketAndKeys bucketAndKeys);
+
+	void deleteVersion(BucketAndKeyVersion bucketAndKeyVersion);
+
+	void deleteVersions(BucketAndKeyVersions bucketAndKeyVersions);
 
 	/*---------- data read bytes ---------*/
 
@@ -158,26 +203,13 @@ public interface DatarouterS3Client{
 						chunkRange.length));
 	}
 
-	/*---------- data read files -------*/
-
-	Path downloadFileToDirectory(BucketAndKey location, Path path);
-
-	void downloadFile(BucketAndKey location, Path path);
-
-	default void downloadFilesToDirectory(BucketAndPrefix bucketAndPrefix, Path path){
-		scan(bucketAndPrefix)
-				.map(S3Object::key)
-				.map(key -> new BucketAndKey(bucketAndPrefix.bucket(), key))
-				.forEach(bucketAndKey -> downloadFileToDirectory(bucketAndKey, path));
-	}
-
 	/*---------- data write bytes ---------*/
 
 	void copyObject(String bucket, String sourceKey, String destinationKey, ObjectCannedACL acl);
 
 	void putObject(
 			BucketAndKey location,
-			ContentType contentType,
+			S3ContentType contentType,
 			byte[] bytes);
 
 	void putObjectWithPublicRead(
@@ -187,27 +219,31 @@ public interface DatarouterS3Client{
 			ObjectCannedACL acl,
 			byte[] bytes);
 
-	void putObjectWithExpirationTime(
+	void putObjectWithPublicReadAndExpirationTime(
 			BucketAndKey location,
 			ContentType contentType,
 			String cacheControl,
-			ObjectCannedACL acl,
 			byte[] bytes,
 			Instant expirationTime);
 
 	/*---------- data write bytes multipart OutputStream ---------*/
 
-	OutputStream put(
-			BucketAndKey location,
-			S3ContentType contentType);
-
-	OutputStream putWithPublicRead(
+	/**
+	 * @deprecated  Use the InputStream based methods
+	 */
+	@Deprecated
+	OutputStream multipartUploadOutputStream(
 			BucketAndKey location,
 			S3ContentType contentType);
 
 	/*---------- data write bytes multipart InputStream ---------*/
 
 	void multipartUpload(
+			BucketAndKey location,
+			S3ContentType contentType,
+			InputStream inputStream);
+
+	void multipartUploadWithPublicRead(
 			BucketAndKey location,
 			S3ContentType contentType,
 			InputStream inputStream);
@@ -254,16 +290,22 @@ public interface DatarouterS3Client{
 			BucketAndKey location,
 			String uploadId);
 
-	/*----------- data write files ----------*/
+	/*---------- object read to local file -------*/
 
-	void putFile(BucketAndKey location, ContentType contentType, Path path);
+	void downloadToLocalFile(BucketAndKey location, Path localFilePath);
 
-	void putFilePublic(BucketAndKey location, ContentType contentType, Path path);
-
-	/*---------- data write strings ---------*/
-
-	default Writer putAsWriter(BucketAndKey location, ContentType contentType){
-		return WriterTool.makeBufferedWriter(put(location, contentType));
+	default void downloadToLocalDirectory(BucketAndPrefix bucketAndPrefix, Path localDirectoryPath){
+		scan(bucketAndPrefix)
+				.map(S3Object::key)
+				.forEach(key -> downloadToLocalFile(
+						new BucketAndKey(bucketAndPrefix.bucket(), key),
+						localDirectoryPath.resolve(key)));
 	}
+
+	/*----------- object write from local file ----------*/
+
+	void uploadLocalFile(BucketAndKey location, ContentType contentType, Path localFilePath);
+
+	void uploadLocalFileWithPublicRead(BucketAndKey location, ContentType contentType, Path localFilePath);
 
 }

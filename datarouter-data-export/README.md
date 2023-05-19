@@ -8,7 +8,7 @@ Datarouter-data-export exports a table to BlobStorage (Filesystem, GCS, or S3) a
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-data-export</artifactId>
-	<version>0.0.119</version>
+	<version>0.0.120</version>
 </dependency>
 ```
 
@@ -19,7 +19,7 @@ You'll need to pass it the `ClientId`s that it's allowed to export/import,
   and a `DatarouterDataExportDirectorySupplier` that specifies a `Directory` where the data is stored.
 
 ```java
-addWebPlugin(new DatarouterDataExportPluginBuilder(
+addPlugin(new DatarouterDataExportPluginBuilder(
 		myClientIds,
 		MyDirectorySupplier.class)
 		.build());
@@ -27,8 +27,9 @@ addWebPlugin(new DatarouterDataExportPluginBuilder(
 
 ## Usage
 
-To export, select a `Node` from the datarouter UI that implements `SortedStorage` and click `export`.
-When the export is complete, you'll receive an email with a link to optionally import the data to `localhost`.
+Select a SortedStorage Databean node to export, optionally specifying a range of keys and a maximum number of rows.
+The databeans will be scanned from the database, encoded to an internal format, and saved to a file in the Directory specified in the plugin.
+When the export is complete, you'll receive an email with a link to import the data to localhost.
 
 ## License
 

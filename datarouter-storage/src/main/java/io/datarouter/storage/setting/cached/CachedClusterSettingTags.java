@@ -15,15 +15,15 @@
  */
 package io.datarouter.storage.setting.cached;
 
+import java.time.Duration;
+import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
-import java.util.concurrent.TimeUnit;
+import java.util.TreeSet;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.ConfigDirectoryConstants;
@@ -31,10 +31,10 @@ import io.datarouter.storage.servertype.DatarouterServerTypeDetector;
 import io.datarouter.storage.setting.DatarouterSettingTag;
 import io.datarouter.util.cached.Cached;
 import io.datarouter.util.properties.PropertiesTool;
+import io.datarouter.util.string.StringTool;
 
 @Singleton
 public class CachedClusterSettingTags extends Cached<List<DatarouterSettingTag>>{
-	private static final Logger logger = LoggerFactory.getLogger(CachedClusterSettingTags.class);
 
 	public static final String CONFIG_FILENAME = "clusterSetting.properties";
 	private static final String PROPERTY_TAGS_NAME = "tags";
@@ -42,35 +42,73 @@ public class CachedClusterSettingTags extends Cached<List<DatarouterSettingTag>>
 
 	@Inject
 	public CachedClusterSettingTags(DatarouterServerTypeDetector datarouterServerTypeDetector){
-		super(15, TimeUnit.SECONDS);
+		super(getCacheTtl());
 		this.datarouterServerTypeDetector = datarouterServerTypeDetector;
 	}
 
+	/*-------- read ----------*/
+
 	@Override
 	protected List<DatarouterSettingTag> reload(){
-		if(!datarouterServerTypeDetector.mightBeDevelopment()){
-			return List.of();
-		}
-		String configFileLocation = getConfigFilePath();
-		Properties properties;
+		return datarouterServerTypeDetector.mightBeDevelopment()
+				? readTags()
+				: List.of();
+	}
+
+	public Optional<Properties> findProperties(){
 		try{
-			properties = PropertiesTool.parse(configFileLocation);
-			logger.info("Got clusterSetting properties from file {}", configFileLocation);
-			if(properties.containsKey(PROPERTY_TAGS_NAME)){
-				return Scanner.of(properties.getProperty(PROPERTY_TAGS_NAME).split(","))
-						.map(DatarouterSettingTag::new)
-						.list();
-			}
-		}catch(RuntimeException e1){
-			logger.info("{} doesn't exist.", getConfigFilePath(), e1);
+			return Optional.of(PropertiesTool.parse(getConfigFilePath()));
+		}catch(RuntimeException e){
+			return Optional.empty();
 		}
-		return List.of();
+	}
+
+	public Optional<String> getPropertiesTagsStringValue(){
+		return findProperties()
+				.map(properties -> properties.getProperty(PROPERTY_TAGS_NAME));
+	}
+
+	public List<String> readTagNames(){
+		return getPropertiesTagsStringValue()
+				.map(csv -> Scanner.of(csv.split(","))
+						.exclude(StringTool::isEmpty)//TODO why is there an empty string?
+						.list())
+				.orElse(List.of());
+	}
+
+	public List<DatarouterSettingTag> readTags(){
+		return Scanner.of(readTagNames())
+				.map(DatarouterSettingTag::new)
+				.list();
+	}
+
+	/*---------- write -----------*/
+
+	public void updateTag(String name, boolean enabled){
+		TreeSet<String> newTagNames = new TreeSet<>(readTagNames());
+		if(enabled){
+			newTagNames.add(name);
+		}else{
+			newTagNames.remove(name);
+		}
+		writeToFile(newTagNames);
+	}
+
+	public void writeToFile(Collection<String> tagNames){
+		String csvValues = String.join(",", tagNames);
+		writeToFile(csvValues);
 	}
 
 	public void writeToFile(String value){
 		Properties props = new Properties();
 		props.setProperty(PROPERTY_TAGS_NAME, value);
 		PropertiesTool.writeToFile(props, getConfigFilePath());
+	}
+
+	/*-------- static ----------*/
+
+	public static Duration getCacheTtl(){
+		return Duration.ofSeconds(5);
 	}
 
 	public static String getConfigFilePath(){

@@ -36,6 +36,13 @@ public class DatarouterAwsS3Paths extends PathNode implements PathsRoot{
 	public static class AwsS3Paths extends PathNode{
 		public final PathNode listObjects = leaf("listObjects");
 		public final PathNode countObjects = leaf("countObjects");
+		public final AwsS3BulkDeletePaths bulkDelete = branch(AwsS3BulkDeletePaths::new, "bulkDelete");
+	}
+
+	public static class AwsS3BulkDeletePaths extends PathNode{
+		public final PathNode form = leaf("form");
+		public final PathNode confirmation = leaf("confirmation");
+		public final PathNode performDeletion = leaf("performDeletion");
 	}
 
 }

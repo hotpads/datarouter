@@ -15,7 +15,9 @@
  */
 package io.datarouter.client.gcp.pubsub.node;
 
+import java.time.Duration;
 import java.util.Collection;
+import java.util.List;
 import java.util.function.Supplier;
 
 import org.slf4j.Logger;
@@ -117,8 +119,13 @@ implements QueueStorageWriter<PK,D>, GcpPubsubPhysicalNode<PK,D,F>{
 	}
 
 	@Override
+	public Duration getCustomMessageAgeThreshold(){
+		return params.getCustomMessageAgeThreshold();
+	}
+
+	@Override
 	public void ack(QueueMessageKey key, Config config){
-		gcpPubSubOpFactory.makeAckOp(key, config).call();
+		ackMulti(List.of(key), config);
 	}
 
 	@Override

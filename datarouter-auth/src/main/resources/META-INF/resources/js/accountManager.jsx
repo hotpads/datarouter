@@ -909,6 +909,20 @@ ReactDOM.render(
       >
         Lookup Account by apiKey
       </button>
+      <a
+          type="button"
+          className="btn btn-link"
+          href={RENAMER_PATH}
+          >
+          Account Renamer
+      </a>
+      <a
+          type="button"
+          className="btn btn-link"
+          href={CALLER_TYPE_PATH}
+          >
+          Update Caller Types
+      </a>
     </div>
     <Router history={browserHistory}>
       <Route path={REACT_BASE_PATH + "manage"} component={Accounts} />

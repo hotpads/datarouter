@@ -42,7 +42,7 @@ public class DatarouterSecretWebPlugin extends BaseWebPlugin{
 		addRouteSet(DatarouterSecretRouteSet.class);
 		setDaosModule(daosModuleBuilder);
 		addDatarouterNavBarItem(
-				DatarouterNavBarCategory.KEYS,
+				DatarouterNavBarCategory.CONFIGURATION,
 				new DatarouterSecretPaths().datarouter.secrets,
 				"Secrets");
 		addDatarouterGithubDocLink("datarouter-secrets-web");

@@ -143,7 +143,7 @@ public class TableSamplerService{
 
 	public TableCount getCurrentTableCountFromSamples(String clientName, String tableName){
 		//not distinguishing sub-entities at the moment
-		TableSampleKey clientTablePrefix = new TableSampleKey(clientName, tableName, null, null);
+		var clientTablePrefix = new TableSampleKey(clientName, tableName, null, null);
 		long totalRows = 0;
 		long totalCountTimeMs = 0;
 		long numSpans = 0;
@@ -157,8 +157,14 @@ public class TableSamplerService{
 			}
 		}
 		logger.info("total of {} rows for {}.{}", totalRows, clientName, tableName);
-		return new TableCount(clientName, tableName, System.currentTimeMillis(), totalRows, totalCountTimeMs,
-				numSpans, numSlowSpans);
+		return new TableCount(
+				clientName,
+				tableName,
+				System.currentTimeMillis(),
+				totalRows,
+				totalCountTimeMs,
+				numSpans,
+				numSlowSpans);
 	}
 
 	public <PK extends PrimaryKey<PK>,

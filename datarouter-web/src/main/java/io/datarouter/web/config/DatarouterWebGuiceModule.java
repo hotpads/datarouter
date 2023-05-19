@@ -36,6 +36,8 @@ import io.datarouter.web.config.service.PrivateDomain;
 import io.datarouter.web.config.service.PublicDomain;
 import io.datarouter.web.exception.ExceptionRecorder;
 import io.datarouter.web.exception.ExceptionRecorder.NoOpExceptionRecorder;
+import io.datarouter.web.handler.UserAgentTypeConfig;
+import io.datarouter.web.handler.UserAgentTypeConfig.NoOpUserAgentTypeConfig;
 import io.datarouter.web.handler.encoder.HandlerEncoder;
 import io.datarouter.web.handler.validator.HandlerAccountCallerValidator;
 import io.datarouter.web.handler.validator.HandlerAccountCallerValidator.NoOpHandlerAccountCallerValidator;
@@ -52,10 +54,10 @@ import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig
 import io.datarouter.web.user.authenticate.saml.BaseDatarouterSamlDao;
 import io.datarouter.web.user.authenticate.saml.BaseDatarouterSamlDao.NoOpDatarouterSamlDao;
 import io.datarouter.web.user.authenticate.saml.SamlRegistrar;
+import io.datarouter.web.user.role.DatarouterRoleManager;
+import io.datarouter.web.user.role.RoleManager;
 import io.datarouter.web.user.session.CurrentSessionInfo;
 import io.datarouter.web.user.session.CurrentSessionInfo.NoOpCurrentSessionInfo;
-import io.datarouter.web.user.session.service.DatarouterRoleManager;
-import io.datarouter.web.user.session.service.RoleManager;
 import io.datarouter.web.user.session.service.UserSessionService;
 import io.datarouter.web.user.session.service.UserSessionService.NoOpUserSessionService;
 
@@ -89,6 +91,7 @@ public class DatarouterWebGuiceModule extends BaseGuiceServletModule{
 		bindDefault(SettingFinder.class, MemorySettingFinder.class);
 		bindDefault(UserSessionService.class, NoOpUserSessionService.class);
 		bindDefault(CurrentSessionInfo.class, NoOpCurrentSessionInfo.class);
+		bindDefault(UserAgentTypeConfig.class, NoOpUserAgentTypeConfig.class);
 
 		bindDefault(LatencyMonitoringGraphLink.class, NoOpLatencyMonitoringGraphLink.class);
 		bindDefault(AppNavBarRegistrySupplier.class, NoOpAppNavBarRegistry.class);

@@ -9,7 +9,7 @@ datarouter-gcp-bigtable-hbase uses the HBase client to talk to Google's Bigtable
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-gcp-bigtable-hbase</artifactId>
-	<version>0.0.119</version>
+	<version>0.0.120</version>
 </dependency>
 ```
 
@@ -18,7 +18,7 @@ datarouter-gcp-bigtable-hbase uses the HBase client to talk to Google's Bigtable
 You can install this module by adding its plugin to the `WebappBuilder`.
 
 ```java
-.addJobPlugin(new DatarouterBigTablePlugin())
+.addPlugin(new DatarouterBigTablePlugin())
 ```
 
 ## Local Testing

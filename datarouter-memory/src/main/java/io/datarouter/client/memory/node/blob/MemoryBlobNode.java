@@ -152,6 +152,13 @@ implements PhysicalBlobStorageNode{
 	}
 
 	@Override
+	public void deleteMulti(List<PathbeanKey> keys, Config config){
+		Scanner.of(keys)
+				.map(keyCodec::encode)
+				.flush(storage::deleteMulti);
+	}
+
+	@Override
 	public void deleteAll(Subpath subpath, Config config){
 		storage.deleteAll();
 	}

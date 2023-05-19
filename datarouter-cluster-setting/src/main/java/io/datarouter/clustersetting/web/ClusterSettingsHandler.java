@@ -15,15 +15,6 @@
  */
 package io.datarouter.clustersetting.web;
 
-import static j2html.TagCreator.a;
-import static j2html.TagCreator.text;
-
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -39,10 +30,11 @@ import javax.inject.Inject;
 
 import io.datarouter.clustersetting.ClusterSettingLogAction;
 import io.datarouter.clustersetting.ClusterSettingScope;
-import io.datarouter.clustersetting.ClusterSettingValidity;
 import io.datarouter.clustersetting.config.DatarouterClusterSettingFiles;
 import io.datarouter.clustersetting.config.DatarouterClusterSettingPaths;
 import io.datarouter.clustersetting.config.DatarouterClusterSettingRoot;
+import io.datarouter.clustersetting.service.ClusterSettingChangelogService;
+import io.datarouter.clustersetting.service.ClusterSettingEmailService;
 import io.datarouter.clustersetting.service.ClusterSettingSearchService;
 import io.datarouter.clustersetting.service.ClusterSettingSearchService.SettingNameMatchResult;
 import io.datarouter.clustersetting.service.ClusterSettingService;
@@ -50,25 +42,14 @@ import io.datarouter.clustersetting.storage.clustersetting.ClusterSetting;
 import io.datarouter.clustersetting.storage.clustersetting.ClusterSettingKey;
 import io.datarouter.clustersetting.storage.clustersetting.DatarouterClusterSettingDao;
 import io.datarouter.clustersetting.storage.clustersettinglog.ClusterSettingLog;
-import io.datarouter.clustersetting.storage.clustersettinglog.ClusterSettingLogByReversedCreatedMsKey;
-import io.datarouter.clustersetting.storage.clustersettinglog.ClusterSettingLogKey;
 import io.datarouter.clustersetting.storage.clustersettinglog.DatarouterClusterSettingLogDao;
 import io.datarouter.clustersetting.web.dto.ClusterSettingJspDto;
-import io.datarouter.clustersetting.web.dto.ClusterSettingLogJspDto;
 import io.datarouter.clustersetting.web.dto.SettingJspDto;
 import io.datarouter.clustersetting.web.dto.SettingNodeJspDto;
-import io.datarouter.email.email.DatarouterEmailLinkBuilder;
-import io.datarouter.email.html.J2HtmlDatarouterEmailBuilder;
-import io.datarouter.email.type.DatarouterEmailTypes.ClusterSettingEmailType;
-import io.datarouter.instrumentation.changelog.ChangelogRecorder;
-import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDtoBuilder;
+import io.datarouter.clustersetting.web.log.ClusterSettingLogHandler.ClusterSettingLogLinks;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.servertype.DatarouterServerTypeDetector;
-import io.datarouter.storage.servertype.ServerType;
-import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.storage.servertype.ServerTypes;
-import io.datarouter.storage.setting.DatarouterSettingTag;
-import io.datarouter.storage.setting.Setting;
 import io.datarouter.storage.setting.SettingCategory;
 import io.datarouter.storage.setting.SettingCategory.SimpleSettingCategory;
 import io.datarouter.storage.setting.SettingNode;
@@ -76,27 +57,14 @@ import io.datarouter.storage.setting.SettingRoot;
 import io.datarouter.storage.setting.SettingRoot.SettingRootFinder;
 import io.datarouter.storage.setting.cached.CachedClusterSettingTags;
 import io.datarouter.storage.setting.cached.CachedSetting;
-import io.datarouter.util.lang.ObjectTool;
 import io.datarouter.util.string.StringTool;
-import io.datarouter.util.time.ZonedDateFormatterTool;
-import io.datarouter.util.tuple.Range;
-import io.datarouter.web.config.DatarouterWebPaths;
-import io.datarouter.web.email.DatarouterHtmlEmailService;
-import io.datarouter.web.email.StandardDatarouterEmailHeaderService;
-import io.datarouter.web.email.StandardDatarouterEmailHeaderService.HtmlEmailHeaderRow;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
-import io.datarouter.web.html.j2html.J2HtmlLegendTable;
-import j2html.tags.specialized.ATag;
-import j2html.tags.specialized.DivTag;
 
 public class ClusterSettingsHandler extends BaseHandler{
 
-	private static final int CLUSTER_SETTING_LOGS_PAGE_SIZE = 50;
 	private static final int CLUSTER_SETTING_SEARCH_RESULTS = 10;
 
-	@Inject
-	private DatarouterHtmlEmailService datarouterHtmlEmailService;
 	@Inject
 	private SettingRootFinder settingRootFinder;
 	@Inject
@@ -110,11 +78,7 @@ public class ClusterSettingsHandler extends BaseHandler{
 	@Inject
 	private ClusterSettingService clusterSettingService;
 	@Inject
-	private DatarouterWebPaths datarouterWebPaths;
-	@Inject
 	private ClusterSettingSearchService clusterSettingSearchService;
-	@Inject
-	private ChangelogRecorder changelogRecorder;
 	@Inject
 	private DatarouterClusterSettingRoot settings;
 	@Inject
@@ -122,31 +86,13 @@ public class ClusterSettingsHandler extends BaseHandler{
 	@Inject
 	private CachedClusterSettingTags cachedClusterSettingTags;
 	@Inject
-	private ClusterSettingEmailType clusterSettingEmailType;
-	@Inject
-	private ServerTypeDetector serverTypeDetector;
-	@Inject
 	private DatarouterClusterSettingPaths paths;
 	@Inject
-	private StandardDatarouterEmailHeaderService standardDatarouterEmailHeaderService;
-
-	@Handler
-	public Mav customSettings(Optional<String> prefix){
-		Mav mav = new Mav(files.jsp.admin.datarouter.setting.editSettingsJsp);
-		mav.put("serverTypeOptions", serverTypes.getHtmlSelectOptionsVarNames());
-		mav.put("validities", buildLegend());
-		clusterSettingService.scanClusterSettingAndValidityWithPrefix(prefix.orElse(null))
-				.flush(settings -> mav.put("rows", settings));
-		boolean mightBeDevelopment = datarouterServerTypeDetector.mightBeDevelopment();
-		mav.put("mightBeDevelopment", mightBeDevelopment);
-		if(mightBeDevelopment){
-			mav.put("settingTagFilePath", CachedClusterSettingTags.getConfigFilePath());
-			List<DatarouterSettingTag> tags = cachedClusterSettingTags.get();
-			mav.put("settingTagValues", tags.stream().map(DatarouterSettingTag::getPersistentString).collect(Collectors
-					.joining(",")));
-		}
-		return mav;
-	}
+	private ClusterSettingLogLinks clusterSettingLogLinks;
+	@Inject
+	private ClusterSettingChangelogService clusterSettingChangelogService;
+	@Inject
+	private ClusterSettingEmailService clusterSettingEmailService;
 
 	@Handler
 	public List<String> roots(){
@@ -188,67 +134,22 @@ public class ClusterSettingsHandler extends BaseHandler{
 		clusterSettingDao.delete(clusterSettingKey);
 		clusterSettingLogDao.put(clusterSettingLog);
 		String oldValue = clusterSetting.getValue();
-		sendEmail(clusterSettingLog, oldValue);
-		recordChangelog(clusterSettingLog.getKey().getName(), clusterSettingLog.getAction().persistentString,
-				clusterSettingLog.getChangedBy(), comment);
+		clusterSettingEmailService.sendEmail(
+				clusterSettingLog,
+				oldValue,
+				getSessionInfo().findNonEmptyUsername(),
+				getUserZoneId());
+		clusterSettingChangelogService.recordChangelog(
+				clusterSettingLog.getKey().getName(),
+				clusterSettingLog.getAction().persistentString,
+				clusterSettingLog.getChangedBy(),
+				comment);
 		return result.markSuccess();
-	}
-
-	@Handler
-	public Mav logsForName(String name){
-		Mav mav = new Mav(files.jsp.admin.datarouter.setting.clusterSettingsLogJsp);
-		mav.put("showingAllSettings", false);
-		String settingName = name.endsWith(".") ? StringTool.getStringBeforeLastOccurrence('.', name) : name;
-		mav.put("nameParts", settingName.split("\\."));
-		Optional<SettingNode> node = getSettingNode(settingName);
-		mav.put("showingNodeSettings", node.isPresent());
-		Scanner<ClusterSettingLog> logScanner;
-		if(node.isPresent()){
-			// logs for node and its descendants
-			List<ClusterSettingLogKey> prefixes = node.get().getListSettings().stream()
-					.map(Setting::getName)
-					.map(ClusterSettingLogKey::createPrefix)
-					.collect(Collectors.toList());
-			logScanner = clusterSettingLogDao.scanWithPrefixes(prefixes)
-					.sort(Comparator.comparing((ClusterSettingLog log) -> log.getKey().getCreated()).reversed());
-		}else{
-			// logs for single setting
-			ClusterSettingLogKey prefix = ClusterSettingLogKey.createPrefix(settingName);
-			logScanner = clusterSettingLogDao.scanWithPrefix(prefix);
-		}
-		logScanner
-				.map(setting -> new ClusterSettingLogJspDto(setting, getUserZoneId()))
-				.flush(logs -> mav.put("logs", logs));
-		return mav;
-	}
-
-	@Handler
-	public Mav logsForAll(Optional<String> explicitStartIso, Optional<Boolean> inclusiveStart){
-		Mav mav = new Mav(files.jsp.admin.datarouter.setting.clusterSettingsLogJsp);
-		mav.put("showingAllSettings", true);
-		long startCreatedMs = explicitStartIso
-				.map(isoDate -> LocalDateTime.parse(isoDate, DateTimeFormatter.ISO_LOCAL_DATE_TIME))
-				.map(localDate -> localDate.atZone(ZoneId.systemDefault()))
-				.map(ZonedDateTime::toInstant)
-				.map(Instant::toEpochMilli)
-				.orElseGet(System::currentTimeMillis);
-		long reverseStartCreatedMs = Long.MAX_VALUE - startCreatedMs;
-		Range<ClusterSettingLogByReversedCreatedMsKey> range = new Range<>(
-				new ClusterSettingLogByReversedCreatedMsKey(reverseStartCreatedMs, null), inclusiveStart.orElse(false));
-		clusterSettingLogDao
-				.scanByReversedCreatedMs(range, CLUSTER_SETTING_LOGS_PAGE_SIZE)
-				.map(setting -> new ClusterSettingLogJspDto(setting, getUserZoneId()))
-				.flush(logs -> mav.put("logs", logs))
-				.flush(logs -> mav.put("hasNextPage", logs.size() == CLUSTER_SETTING_LOGS_PAGE_SIZE));
-		mav.put("hasPreviousPage", explicitStartIso.isPresent());
-		return mav;
 	}
 
 	@Handler
 	public Mav browseSettings(Optional<String> name){
 		Mav mav = new Mav(files.jsp.admin.datarouter.setting.browseSettingsJsp);
-		String path = servletContext.getContextPath() + paths.datarouter.settings.customSettings.toSlashedString();
-		mav.put("customSettingsPath", path);
 		String requestedNodeName = name.orElse(settingRootFinder.getName());
 		mav.put("nodeName", name.orElse(""));
 
@@ -277,6 +178,25 @@ public class ClusterSettingsHandler extends BaseHandler{
 			node = getMostRecentAncestorSettingNode(requestedNodeName);
 		}
 
+		if(name.isPresent()){
+			mav.put("exists", node.isPresent() || settings.getSettingByName(name.orElseThrow()).isPresent());
+			long numDots = StringTool.scanCharacters(name.orElseThrow())
+					.include(ch -> ch == '.')
+					.count();
+			boolean isRoot = name.orElseThrow().endsWith(".") && numDots == 1;
+			mav.put("isRoot", isRoot);
+			boolean isNode = name.orElseThrow().endsWith(".") && numDots > 1;
+			mav.put("isNode", isNode);
+			boolean isSetting = !name.orElseThrow().endsWith(".");
+			mav.put("isSetting", isSetting);
+			if(isSetting){
+				mav.put("settingShortName", name.orElseThrow().substring(
+						name.orElseThrow().lastIndexOf('.') + 1,
+						name.orElseThrow().length()));
+			}
+			mav.put("numNodeLogs", clusterSettingLogDao.scanWithWildcardPrefix(name.orElseThrow()).count());
+			mav.put("nodeLogHref", clusterSettingLogLinks.node(name.orElseThrow()));
+		}
 		if(node.isEmpty()){
 			return mav;
 		}
@@ -322,7 +242,12 @@ public class ClusterSettingsHandler extends BaseHandler{
 					})
 					.flush(customSettings -> customSettingsByName.put(setting.getName(), customSettings));
 		}
-		mav.put("listSettings", Scanner.of(settingsList).map(SettingJspDto::new).list());
+		mav.put("listSettings", Scanner.of(settingsList)
+				.map(setting -> new SettingJspDto(
+						setting,
+						clusterSettingLogDao.scanWithWildcardPrefix(setting.getName()).count(),
+						clusterSettingLogLinks.setting(setting.getName())))
+				.list());
 		mav.put("mightBeDevelopment", datarouterServerTypeDetector.mightBeDevelopment());
 		mav.put("mapListsCustomSettings", customSettingsByName);
 
@@ -362,8 +287,8 @@ public class ClusterSettingsHandler extends BaseHandler{
 		var log = new ClusterSettingLog(newClusterSetting, action, changedBy, comment.orElse(null));
 		clusterSettingDao.put(newClusterSetting);
 		clusterSettingLogDao.put(log);
-		sendEmail(log, oldValue);
-		recordChangelog(
+		clusterSettingEmailService.sendEmail(log, oldValue, getSessionInfo().findNonEmptyUsername(), getUserZoneId());
+		clusterSettingChangelogService.recordChangelog(
 				log.getKey().getName(),
 				log.getAction().persistentString,
 				log.getChangedBy(),
@@ -371,7 +296,7 @@ public class ClusterSettingsHandler extends BaseHandler{
 		return result.markSuccess();
 	}
 
-	private String normalizeSettingNodeName(String name){
+	public static String normalizeSettingNodeName(String name){
 		return name.endsWith(".") ? name : name + '.';
 	}
 
@@ -399,101 +324,6 @@ public class ClusterSettingsHandler extends BaseHandler{
 		String serverName = params.optional("serverName").orElse("");
 		ClusterSettingScope scope = ClusterSettingScope.fromParams(serverTypePersistentString, serverName);
 		return new ClusterSettingKey(name, scope, serverTypePersistentString, serverName);
-	}
-
-	private void sendEmail(ClusterSettingLog log, String oldValue){
-		if(!settings.sendUpdateEmail.get()){
-			return;
-		}
-		Optional<String> user = getSessionInfo().findNonEmptyUsername();
-		if(user.isEmpty()){
-			return;
-		}
-		String title = "Setting Update";
-		String primaryHref = completeLink(datarouterHtmlEmailService.startLinkBuilder(), log)
-				.build();
-		boolean displayValue = !settings.isExcludedOldSettingString(log.getKey().getName());
-		J2HtmlDatarouterEmailBuilder emailBuilder = datarouterHtmlEmailService.startEmailBuilder()
-				.withTitle(title)
-				.withTitleHref(primaryHref)
-				.withContent(new ClusterSettingChangeEmailContent(log, oldValue, displayValue).build())
-				.fromAdmin()
-				.to(clusterSettingEmailType.tos, serverTypeDetector.mightBeProduction())
-				.to(user.get());
-		datarouterHtmlEmailService.trySendJ2Html(emailBuilder);
-	}
-
-	private static String buildLegend(){
-		var legend = new J2HtmlLegendTable()
-					.withClass("table table-sm my-4 border");
-		ClusterSettingValidity.stream()
-				.forEach(validity -> legend.withEntry(
-						validity.persistentString,
-						validity.description,
-						validity.color));
-		return legend.build()
-				.renderFormatted();
-	}
-
-	private DatarouterEmailLinkBuilder completeLink(DatarouterEmailLinkBuilder linkBuilder, ClusterSettingLog log){
-		return linkBuilder
-				.withLocalPath(datarouterWebPaths.datarouter.settings)
-				.withParam("submitAction", "browseSettings")
-				.withParam("name", log.getKey().getName());
-	}
-
-	private void recordChangelog(String name, String action, String username, Optional<String> comment){
-		var dto = new DatarouterChangelogDtoBuilder("ClusterSetting", name, action, username);
-		comment.ifPresent(dto::withComment);
-		changelogRecorder.record(dto.build());
-	}
-
-	private class ClusterSettingChangeEmailContent{
-		private final ClusterSettingLog log;
-		private final String oldValue;
-		private final boolean displayValue;
-
-		public ClusterSettingChangeEmailContent(ClusterSettingLog log, String oldValue, boolean displayValue){
-			this.log = log;
-			this.oldValue = oldValue;
-			this.displayValue = displayValue;
-		}
-
-		private DivTag build(){
-			List<HtmlEmailHeaderRow> kvs = new ArrayList<>();
-			kvs.add(new HtmlEmailHeaderRow("user", text(log.getChangedBy())));
-			kvs.add(new HtmlEmailHeaderRow("action", text(log.getAction().persistentString)));
-			kvs.add(new HtmlEmailHeaderRow("setting", makeClusterSettingLogLink()));
-			String timestamp = ZonedDateFormatterTool.formatReversedLongMsWithZone(log.getKey().getReverseCreatedMs(),
-					getUserZoneId());
-			kvs.add(new HtmlEmailHeaderRow("timestamp", text(timestamp)));
-			if(ObjectTool.notEquals(ServerType.UNKNOWN.getPersistentString(), log.getServerType())){
-				kvs.add(new HtmlEmailHeaderRow("serverType", text(log.getServerType())));
-			}
-			if(StringTool.notEmpty(log.getServerName())){
-				kvs.add(new HtmlEmailHeaderRow("serverName", text(log.getServerName())));
-			}
-			if(displayValue){
-				if(ClusterSettingLogAction.INSERTED != log.getAction()){
-					kvs.add(new HtmlEmailHeaderRow("old value", text(oldValue)));
-				}
-				if(ClusterSettingLogAction.DELETED != log.getAction()){
-					kvs.add(new HtmlEmailHeaderRow("new value", text(log.getValue())));
-				}
-			}
-			String comment = StringTool.notNullNorEmptyNorWhitespace(log.getComment())
-					? log.getComment()
-					: "No comment provided";
-			kvs.add(new HtmlEmailHeaderRow("comment", text(comment)));
-			return standardDatarouterEmailHeaderService.makeStandardHeaderWithSupplementsHtml(kvs);
-		}
-
-		private ATag makeClusterSettingLogLink(){
-			return a(log.getKey().getName())
-					.withHref(completeLink(datarouterHtmlEmailService.startLinkBuilder(), log)
-							.build());
-		}
-
 	}
 
 	protected static class ClusterSettingActionResultJson{

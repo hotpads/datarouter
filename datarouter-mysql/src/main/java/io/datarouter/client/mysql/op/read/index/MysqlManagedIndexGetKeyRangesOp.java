@@ -32,7 +32,7 @@ import io.datarouter.model.databean.Databean;
 import io.datarouter.model.index.IndexEntry;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
-import io.datarouter.storage.Datarouter;
+import io.datarouter.storage.client.DatarouterClients;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.op.raw.read.IndexedStorageReader;
 import io.datarouter.storage.serialize.fieldcache.IndexEntryFieldInfo;
@@ -58,7 +58,7 @@ extends BaseMysqlOp<List<IK>>{
 	private final MysqlClientType mysqlClientType;
 
 	public MysqlManagedIndexGetKeyRangesOp(
-			Datarouter datarouter,
+			DatarouterClients datarouterClients,
 			PhysicalDatabeanFieldInfo<PK,D,F> databeanFieldInfo,
 			MysqlFieldCodecFactory fieldCodecFactory,
 			MysqlSqlFactory mysqlSqlFactory,
@@ -66,7 +66,7 @@ extends BaseMysqlOp<List<IK>>{
 			Collection<Range<IK>> ranges,
 			Config config,
 			MysqlClientType mysqlClientType){
-		super(datarouter, databeanFieldInfo.getClientId(), Isolation.DEFAULT, true);
+		super(datarouterClients, databeanFieldInfo.getClientId(), Isolation.DEFAULT, true);
 		this.ranges = ranges;
 		this.databeanFieldInfo = databeanFieldInfo;
 		this.fieldCodecFactory = fieldCodecFactory;

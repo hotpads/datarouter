@@ -13,7 +13,7 @@ deployed in a while.
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-webapp-instance</artifactId>
-	<version>0.0.119</version>
+	<version>0.0.120</version>
 </dependency>
 ```
 
@@ -22,7 +22,7 @@ deployed in a while.
 You can install this module by adding its plugin to the `WebappBuilder`.
 
 ```java
-.addJobPlugin(new DatarouterWebappInstancePluginBuilder(...)
+.addPlugin(new DatarouterWebappInstancePluginBuilder(...)
 		...
 		.build()
 ```
