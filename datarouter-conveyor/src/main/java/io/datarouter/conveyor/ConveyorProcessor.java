@@ -143,6 +143,10 @@ public class ConveyorProcessor{
 	}
 
 	public void requestShutdown(){
+		if(configuration.shouldRunOnShutdown()){
+			submitTasks(1);
+			logger.info("running conveyor={} onShutdown", conveyorPackage.name());
+		}
 		driverThread.interrupt();
 		ExecutorServiceTool.shutdown(exec, MAX_WAIT_FOR_SHUTDOWN);
 	}

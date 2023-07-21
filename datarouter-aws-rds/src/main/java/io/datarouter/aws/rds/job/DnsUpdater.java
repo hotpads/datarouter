@@ -18,9 +18,6 @@ package io.datarouter.aws.rds.job;
 import java.io.IOException;
 import java.net.UnknownHostException;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xbill.DNS.Message;
@@ -30,6 +27,9 @@ import org.xbill.DNS.TSIG;
 import org.xbill.DNS.TextParseException;
 import org.xbill.DNS.Type;
 import org.xbill.DNS.Update;
+
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DnsUpdater{

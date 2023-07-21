@@ -19,9 +19,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.joblet.enums.JobletQueueMechanism;
 import io.datarouter.joblet.type.JobletType;
 import io.datarouter.storage.setting.DatarouterSettingCategory;
@@ -29,6 +26,8 @@ import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.SettingRoot;
 import io.datarouter.storage.setting.cached.CachedSetting;
 import io.datarouter.util.duration.DatarouterDuration;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterJobletSettingRoot extends SettingRoot{

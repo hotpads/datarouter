@@ -15,14 +15,13 @@
  */
 package io.datarouter.clustersetting.config;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.clustersetting.job.ClusterSettingAlertEmailJob;
 import io.datarouter.clustersetting.job.ClusterSettingCacheRefreshJob;
 import io.datarouter.job.BaseTriggerGroup;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.util.time.ZoneIds;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterClusterSettingTriggerGroup extends BaseTriggerGroup{

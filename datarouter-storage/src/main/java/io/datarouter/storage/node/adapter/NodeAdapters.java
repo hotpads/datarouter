@@ -15,8 +15,6 @@
  */
 package io.datarouter.storage.node.adapter;
 
-import javax.inject.Singleton;
-
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
@@ -53,6 +51,7 @@ import io.datarouter.storage.node.op.raw.MapStorage.PhysicalMapStorageNode;
 import io.datarouter.storage.node.op.raw.QueueStorage.PhysicalQueueStorageNode;
 import io.datarouter.storage.node.op.raw.TallyStorage.PhysicalTallyStorageNode;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class NodeAdapters{

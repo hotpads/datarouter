@@ -34,7 +34,7 @@ import io.datarouter.aws.s3.request.DatarouterS3ObjectRequests;
 import io.datarouter.aws.s3.request.DatarouterS3PublicRequests;
 import io.datarouter.aws.s3.request.DatarouterS3VersionRequests;
 import io.datarouter.bytes.ByteLength;
-import io.datarouter.bytes.InputStreamAndLength;
+import io.datarouter.bytes.io.InputStreamAndLength;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.scanner.Threads;
 import io.datarouter.storage.file.BucketAndKey;
@@ -115,8 +115,8 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 	}
 
 	@Override
-	public Scanner<S3Object> scanAfter(BucketAndPrefix location, String startAfter, String delimiter){
-		return bucketRequests.scanAfter(location, startAfter, delimiter);
+	public Scanner<List<S3Object>> scanAfterPaged(BucketAndPrefix location, String startAfter, String delimiter){
+		return bucketRequests.scanAfterPaged(location, startAfter, delimiter);
 	}
 
 	/*--------- metadata scan prefix---------*/

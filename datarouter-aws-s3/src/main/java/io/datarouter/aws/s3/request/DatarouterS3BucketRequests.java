@@ -21,6 +21,7 @@ import java.util.Optional;
 import io.datarouter.aws.s3.DatarouterS3ClientManager;
 import io.datarouter.aws.s3.DatarouterS3Counters;
 import io.datarouter.aws.s3.DatarouterS3Counters.S3CounterSuffix;
+import io.datarouter.aws.s3.S3CostCounters;
 import io.datarouter.instrumentation.trace.TraceSpanGroupType;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.scanner.Scanner;
@@ -47,7 +48,10 @@ public class DatarouterS3BucketRequests{
 	public Scanner<Bucket> scanBuckets(){
 		DatarouterS3Counters.incNoBucket(S3CounterSuffix.SCAN_BUCKETS_SCANS, 1);
 		S3Client client = clientManager.getS3ClientForRegion(DatarouterS3ClientManager.DEFAULT_REGION);
-		List<Bucket> buckets = client.listBuckets().buckets();
+		List<Bucket> buckets;
+		try(var $ = TracerTool.startSpan("S3 listBuckets", TraceSpanGroupType.CLOUD_STORAGE)){
+			buckets = client.listBuckets().buckets();
+		}
 		DatarouterS3Counters.incNoBucket(S3CounterSuffix.LIST_BUCKETS_REQUESTS, 1);
 		DatarouterS3Counters.incNoBucket(S3CounterSuffix.LIST_BUCKETS_ROWS, buckets.size());
 		return Scanner.of(buckets);
@@ -74,26 +78,31 @@ public class DatarouterS3BucketRequests{
 				.each(page -> {
 					DatarouterS3Counters.inc(location.bucket(), S3CounterSuffix.LIST_OBJECTS_REQUESTS, 1);
 					DatarouterS3Counters.inc(location.bucket(), S3CounterSuffix.LIST_OBJECTS_ROWS, page.size());
+					S3CostCounters.list();
 				});
 	}
 
-	// TODO return pages?
-	public Scanner<S3Object> scanAfter(BucketAndPrefix location, String startAfter, String delimiter){
+	public Scanner<List<S3Object>> scanAfterPaged(BucketAndPrefix location, String startAfter, String delimiter){
 		DatarouterS3Counters.inc(location.bucket(), S3CounterSuffix.SCAN_OBJECTS_AFTER_SCANS, 1);
 		var requestBuilder = ListObjectsV2Request.builder()
 				.bucket(location.bucket());
 		Optional.ofNullable(location.prefix()).ifPresent(requestBuilder::prefix);
 		Optional.ofNullable(startAfter).ifPresent(requestBuilder::startAfter);
 		Optional.ofNullable(delimiter).ifPresent(requestBuilder::delimiter);
-		ListObjectsV2Iterable responsePages = clientManager.getS3ClientForBucket(location.bucket())
+		ListObjectsV2Iterable listObjectsV2Iterable = clientManager.getS3ClientForBucket(location.bucket())
 				.listObjectsV2Paginator(requestBuilder.build());
-		return Scanner.of(responsePages)
+		return Scanner.of(listObjectsV2Iterable)
+				.timeNanos(nanos -> TracerTool.addSpan(
+						"S3 ListObjectsV2 page",
+						TraceSpanGroupType.CLOUD_STORAGE,
+						System.nanoTime(),
+						nanos))
 				.map(ListObjectsV2Response::contents)
 				.each(page -> {
 					DatarouterS3Counters.inc(location.bucket(), S3CounterSuffix.LIST_OBJECTS_REQUESTS, 1);
 					DatarouterS3Counters.inc(location.bucket(), S3CounterSuffix.LIST_OBJECTS_ROWS, page.size());
-				})
-				.concat(Scanner::of);
+					S3CostCounters.list();
+				});
 	}
 
 	/*--------- object scan prefix---------*/
@@ -104,9 +113,14 @@ public class DatarouterS3BucketRequests{
 		Optional.ofNullable(locationPrefix.prefix()).ifPresent(requestBuilder::prefix);
 		Optional.ofNullable(startAfter).ifPresent(requestBuilder::startAfter);
 		Optional.ofNullable(delimiter).ifPresent(requestBuilder::delimiter);
-		ListObjectsV2Iterable responsePages = clientManager.getS3ClientForBucket(locationPrefix.bucket())
+		ListObjectsV2Iterable listObjectsV2Iterable = clientManager.getS3ClientForBucket(locationPrefix.bucket())
 				.listObjectsV2Paginator(requestBuilder.build());
-		return Scanner.of(responsePages)
+		return Scanner.of(listObjectsV2Iterable)
+				.timeNanos(nanos -> TracerTool.addSpan(
+						"S3 ListObjectsV2 commonPrefixes",
+						TraceSpanGroupType.CLOUD_STORAGE,
+						System.nanoTime(),
+						nanos))
 				.concatIter(ListObjectsV2Response::commonPrefixes)
 				.map(CommonPrefix::prefix);
 	}

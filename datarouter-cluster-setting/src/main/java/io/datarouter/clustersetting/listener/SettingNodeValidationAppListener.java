@@ -15,11 +15,10 @@
  */
 package io.datarouter.clustersetting.listener;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.web.listener.DatarouterAppListener;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class SettingNodeValidationAppListener implements DatarouterAppListener{

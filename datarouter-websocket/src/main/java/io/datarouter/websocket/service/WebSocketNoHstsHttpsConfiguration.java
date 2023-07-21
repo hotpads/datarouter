@@ -15,7 +15,7 @@
  */
 package io.datarouter.websocket.service;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class WebSocketNoHstsHttpsConfiguration extends WebSocketHttpsConfiguration{

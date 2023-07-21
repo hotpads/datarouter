@@ -18,7 +18,7 @@ package io.datarouter.clustersetting.storage.clustersetting;
 import java.util.List;
 import java.util.Objects;
 
-import io.datarouter.clustersetting.ClusterSettingScope;
+import io.datarouter.clustersetting.enums.ClusterSettingScope;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.codec.StringMappedEnumFieldCodec;
 import io.datarouter.model.field.imp.StringEncodedField;

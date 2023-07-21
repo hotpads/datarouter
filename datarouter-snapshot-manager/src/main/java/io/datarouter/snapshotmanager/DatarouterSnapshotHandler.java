@@ -17,8 +17,6 @@ package io.datarouter.snapshotmanager;
 
 import java.util.Map;
 
-import javax.inject.Inject;
-
 import io.datarouter.filesystem.snapshot.block.BlockKey;
 import io.datarouter.filesystem.snapshot.block.root.RootBlock;
 import io.datarouter.filesystem.snapshot.group.SnapshotGroups;
@@ -30,6 +28,7 @@ import io.datarouter.web.html.j2html.J2HtmlTable;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import io.datarouter.web.requirejs.DatarouterWebRequireJsV2;
 import j2html.tags.specialized.TableTag;
+import jakarta.inject.Inject;
 
 public class DatarouterSnapshotHandler extends BaseHandler{
 

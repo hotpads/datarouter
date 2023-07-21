@@ -17,12 +17,11 @@ package io.datarouter.joblet.metriclink;
 
 import java.util.List;
 
-import javax.inject.Singleton;
-
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.metriclinks.DefaultMetricLinkCategory;
 import io.datarouter.web.metriclinks.MetricLinkCategory;
 import io.datarouter.web.metriclinks.MetricLinkDto;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterJobletMetricLinkPage extends JobletMetricLinkPage{

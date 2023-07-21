@@ -22,8 +22,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import javax.inject.Inject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
@@ -37,6 +35,7 @@ import io.datarouter.aws.sqs.SqsDataTooLargeException;
 import io.datarouter.model.util.CommonFieldSizes;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.test.TestDatabean;
+import jakarta.inject.Inject;
 
 @Guice(moduleFactory = DatarouterAwsSqsTestNgModuleFactory.class)
 @Test(singleThreaded = true)

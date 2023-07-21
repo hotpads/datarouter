@@ -29,7 +29,7 @@ public class WebappInstanceTableTool{
 	public static <T> WebappInstanceColumn<T> buildDate(Function<T,Instant> getBuildDate, ZoneId zoneId){
 		return new WebappInstanceColumn<T>("Build Date", inst -> ZonedDateFormatterTool
 				.formatInstantWithZone(getBuildDate.apply(inst), zoneId))
-				.withShowUsageStats()
+				.withShowUsageStats(true)
 				.withSortableValue(inst -> toSortable(getBuildDate.apply(inst)))
 				.withTitle(inst -> ZonedDateFormatterTool.formatInstantWithZone(getBuildDate.apply(inst), zoneId))
 				.withCellClass(

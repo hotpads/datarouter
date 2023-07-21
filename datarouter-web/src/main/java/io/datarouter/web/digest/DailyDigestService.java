@@ -18,14 +18,13 @@ package io.datarouter.web.digest;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.h3;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.pathnode.PathNode;
 import io.datarouter.web.config.ServletContextSupplier;
 import io.datarouter.web.config.service.DomainFinder;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.H3Tag;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 // helper class for making html fragments
 @Singleton

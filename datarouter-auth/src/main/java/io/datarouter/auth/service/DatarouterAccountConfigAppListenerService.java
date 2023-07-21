@@ -17,9 +17,6 @@ package io.datarouter.auth.service;
 
 import java.util.Date;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +32,8 @@ import io.datarouter.auth.storage.accountpermission.DatarouterAccountPermissionK
 import io.datarouter.auth.storage.useraccountmap.BaseDatarouterUserAccountMapDao;
 import io.datarouter.auth.storage.useraccountmap.DatarouterUserAccountMap;
 import io.datarouter.storage.servertype.ServerTypeDetector;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterAccountConfigAppListenerService{

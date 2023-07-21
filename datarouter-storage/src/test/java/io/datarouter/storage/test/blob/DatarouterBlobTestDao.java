@@ -18,8 +18,6 @@ package io.datarouter.storage.test.blob;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-import javax.inject.Singleton;
-
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
@@ -33,6 +31,7 @@ import io.datarouter.storage.file.PathbeanKey;
 import io.datarouter.storage.node.factory.BlobNodeFactory;
 import io.datarouter.storage.node.op.raw.BlobStorage.PhysicalBlobStorageNode;
 import io.datarouter.storage.util.Subpath;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterBlobTestDao extends BaseDao implements TestDao{
@@ -75,7 +74,7 @@ public class DatarouterBlobTestDao extends BaseDao implements TestDao{
 	}
 
 	public void writeScannerOfBytes(String key, Scanner<byte[]> content){
-		node.write(PathbeanKey.of(SUBPATH + key), content);
+		node.writeChunks(PathbeanKey.of(SUBPATH + key), content);
 	}
 
 	public Scanner<List<Pathbean>> scan(Subpath path){

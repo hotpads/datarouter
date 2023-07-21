@@ -15,8 +15,6 @@
  */
 package io.datarouter.filesystem.node.object;
 
-import javax.inject.Inject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
@@ -29,6 +27,7 @@ import io.datarouter.filesystem.raw.DirectoryManager.DirectoryManagerFactory;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.file.PathbeanKey;
 import io.datarouter.storage.util.Subpath;
+import jakarta.inject.Inject;
 
 @Guice
 public class DirectoryBlobStorageTests{

@@ -15,10 +15,9 @@
  */
 package io.datarouter.email.config;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.inject.DatarouterInjector;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 /**
  * The main purpose of this class is to break a circular dependency by injecting a Provider of the availability

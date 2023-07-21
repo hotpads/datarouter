@@ -17,8 +17,6 @@ package io.datarouter.storage.node.factory;
 
 import java.util.function.Supplier;
 
-import javax.inject.Singleton;
-
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
@@ -32,6 +30,7 @@ import io.datarouter.storage.tag.Tag;
 import io.datarouter.storage.tally.Tally;
 import io.datarouter.storage.tally.Tally.TallyFielder;
 import io.datarouter.storage.tally.TallyKey;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class TallyNodeFactory extends BaseNodeFactory{

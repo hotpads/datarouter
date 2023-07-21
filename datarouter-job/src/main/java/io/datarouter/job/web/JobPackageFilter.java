@@ -17,12 +17,11 @@ package io.datarouter.job.web;
 
 import java.util.stream.Stream;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.job.scheduler.JobPackage;
 import io.datarouter.job.scheduler.JobPackageTracker;
 import io.datarouter.util.string.StringTool;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class JobPackageFilter{

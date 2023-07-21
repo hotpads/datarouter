@@ -22,9 +22,9 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import io.datarouter.binarydto.codec.BinaryDtoIndexedCodec;
-import io.datarouter.binarydto.codec.bytearray.BinaryDtoByteArrayScanner;
-import io.datarouter.binarydto.codec.bytearray.MultiBinaryDtoEncoder;
 import io.datarouter.binarydto.dto.BinaryDto;
+import io.datarouter.binarydto.multi.bytearray.BinaryDtoByteArrayScanner;
+import io.datarouter.binarydto.multi.bytearray.MultiBinaryDtoEncoder;
 import io.datarouter.bytes.BatchingByteArrayScanner;
 import io.datarouter.bytes.ByteTool;
 import io.datarouter.scanner.Scanner;
@@ -95,8 +95,9 @@ public class BatchingByteArrayScannerIntegrationTests{
 		var lengthOfOneDto = dtos.get(2).encodeIndexed().length;
 
 		//exception when batched items don't fit in output (1 extra byte for each dto's size)
-		Assert.assertThrows(RuntimeException.class, () ->
-				makeMultiBinaryDtoEncoderScanner(dtos, lengthOfOneDto).advance());
+		Assert.assertThrows(
+				RuntimeException.class,
+				() -> makeMultiBinaryDtoEncoderScanner(dtos, lengthOfOneDto).advance());
 
 		//one dto in each list
 		List<byte[]> batchedEncodedByteList = makeMultiBinaryDtoEncoderScanner(dtos, lengthOfOneDto + 1)

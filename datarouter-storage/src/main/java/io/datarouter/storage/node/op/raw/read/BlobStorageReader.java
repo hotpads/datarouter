@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import io.datarouter.bytes.ByteLength;
-import io.datarouter.bytes.MultiByteArrayInputStream;
+import io.datarouter.bytes.io.MultiByteArrayInputStream;
 import io.datarouter.bytes.split.ChunkScannerTool;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.scanner.Threads;
@@ -42,6 +42,10 @@ extends NodeOps<PathbeanKey,Pathbean>{
 	String getBucket();
 	Subpath getRootPath();
 
+	default BucketAndPrefix getBucketAndPrefix(){
+		return new BucketAndPrefix(getBucket(), getRootPath());
+	}
+
 	boolean exists(PathbeanKey key, Config config);
 
 	default boolean exists(PathbeanKey key){
@@ -60,16 +64,16 @@ extends NodeOps<PathbeanKey,Pathbean>{
 		return read(key, new Config());
 	}
 
-	byte[] read(PathbeanKey key, long offset, int length, Config config);
+	byte[] readPartial(PathbeanKey key, long offset, int length, Config config);
 
-	default byte[] read(PathbeanKey key, long offset, int length){
-		return read(key, offset, length, new Config());
+	default byte[] readPartial(PathbeanKey key, long offset, int length){
+		return readPartial(key, offset, length, new Config());
 	}
 
-	Map<PathbeanKey,byte[]> read(List<PathbeanKey> keys, Config config);
+	Map<PathbeanKey,byte[]> readMulti(List<PathbeanKey> keys, Config config);
 
-	default Map<PathbeanKey,byte[]> read(List<PathbeanKey> keys){
-		return read(keys, new Config());
+	default Map<PathbeanKey,byte[]> readMulti(List<PathbeanKey> keys){
+		return readMulti(keys, new Config());
 	}
 
 	//TODO implement in all subclasses rather than defaulting to scanChunks
@@ -121,7 +125,7 @@ extends NodeOps<PathbeanKey,Pathbean>{
 				? range.getEnd()
 				: length(key).orElseThrow();// extra operation
 		return ChunkScannerTool.scanChunks(fromInclusive, toExclusive, chunkSize.toBytesInt())
-				.map(chunkRange -> read(key, chunkRange.start, chunkRange.length));
+				.map(chunkRange -> readPartial(key, chunkRange.start, chunkRange.length));
 	}
 
 	default Scanner<byte[]> scanChunks(
@@ -135,7 +139,7 @@ extends NodeOps<PathbeanKey,Pathbean>{
 				: length(key).orElseThrow();// extra operation
 		return ChunkScannerTool.scanChunks(fromInclusive, toExclusive, chunkSize.toBytesInt())
 				.parallelOrdered(threads)
-				.map(chunkRange -> read(key, chunkRange.start, chunkRange.length));
+				.map(chunkRange -> readPartial(key, chunkRange.start, chunkRange.length));
 	}
 
 	default Scanner<DirectoryDto> scanDirectories(BucketAndPrefix locationPrefix, String startAfter, int pageSize){

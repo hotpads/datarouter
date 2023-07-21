@@ -8,7 +8,7 @@ datarouter-mysql is an implementation of [datarouter-storage](../datarouter-stor
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-mysql</artifactId>
-	<version>0.0.120</version>
+	<version>0.0.121</version>
 </dependency>
 ```
 ## Installation with Datarouter
@@ -28,6 +28,8 @@ You can install this module by adding its plugin to the `WebappBuilder`.
 This class represents the primary key of the MySQL table. Datarouter will define a `PRIMARY KEY` with the columns defined in this class.
 
 ```java
+package io.datarouter.example.docs.dataroutermysql;
+
 import java.util.List;
 
 import io.datarouter.model.field.Field;
@@ -73,6 +75,8 @@ When using composite primary keys, the ordering of the `getFields` method matter
 This class represents a MySQL table. Each instance will be a row of that table. Besides its primary key, this one defines an `INT` column called `someInt`.
 
 ```java
+package io.datarouter.example.docs.dataroutermysql;
+
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -144,15 +148,14 @@ The node is configured to use a database client called `mysqlClient`. We will us
 ```java
 package io.datarouter.example.docs.dataroutermysql;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.example.docs.dataroutermysql.MysqlExampleDatabean.MysqlExampleDatabeanFielder;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class MysqlExampleDao extends BaseDao{
@@ -176,13 +179,13 @@ public class MysqlExampleDao extends BaseDao{
 For this example, we will be using Guice to inject dependencies. It's also possible to use other dependency injectors like Spring.
 
 ```java
+package io.datarouter.example.docs.dataroutermysql;
+
 import java.util.Collections;
 
 import io.datarouter.client.mysql.field.codec.factory.MysqlFieldCodecFactory;
 import io.datarouter.client.mysql.field.codec.factory.StandardMysqlFieldCodecFactory;
 import io.datarouter.inject.guice.BaseGuiceModule;
-import io.datarouter.storage.config.DatarouterProperties;
-import io.datarouter.storage.config.SimpleDatarouterProperties;
 import io.datarouter.storage.config.guice.DatarouterStorageGuiceModule;
 import io.datarouter.storage.dao.DaoClasses;
 
@@ -195,7 +198,6 @@ public class MysqlExampleGuiceModule extends BaseGuiceModule{
 		// bind the standard codec factory - you can create your own if you want to define your own field types
 		bindDefaultInstance(MysqlFieldCodecFactory.class, new StandardMysqlFieldCodecFactory(Collections.emptyMap()));
 		// datarouter will use the application's name to look for configuration files
-		bind(DatarouterProperties.class).toInstance(new SimpleDatarouterProperties("testApp"));
 		// we register all the daos of our application here
 		bind(DaoClasses.class).toInstance(new DaoClasses(MysqlExampleDao.class));
 	}
@@ -301,7 +303,9 @@ We have everything we need to start writing application code and database querie
 The following main method will start the framework, write a databean to the MySQL table, and then read it.
 
 ```java
-import java.util.Arrays;
+package io.datarouter.example.docs.dataroutermysql;
+
+import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 import com.google.inject.Guice;
@@ -316,7 +320,7 @@ public class MysqlExampleMain{
 
 	public static void main(String[] args){
 		// create the Injector with our test module
-		Injector injector = Guice.createInjector(Arrays.asList(new MysqlExampleGuiceModule()));
+		Injector injector = Guice.createInjector(List.of(new MysqlExampleGuiceModule()));
 		// get an instance of our dao with the injector
 		MysqlExampleDao dao = injector.getInstance(MysqlExampleDao.class);
 		// instantiate a databean
@@ -337,7 +341,7 @@ public class MysqlExampleMain{
 		MysqlExampleDatabean anotherDatabean = new MysqlExampleDatabean("bar", anotherInt);
 		dao.node.put(anotherDatabean);
 		// you can fetch the rows given a range of primary keys, here, we fetch everything
-		long sum = dao.node.scan(Range.everything()).stream().mapToInt(MysqlExampleDatabean::getSomeInt).sum();
+		long sum = dao.node.scan(Range.everything()).streamInts(MysqlExampleDatabean::getSomeInt).sum();
 		Require.isTrue(sum == someInt + anotherInt);
 	}
 

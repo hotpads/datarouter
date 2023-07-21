@@ -22,15 +22,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import com.google.cloud.spanner.ResultSet;
 
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.FieldKey;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.schema.SchemaUpdateOptions;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class SpannerTableAlterSchemaService{

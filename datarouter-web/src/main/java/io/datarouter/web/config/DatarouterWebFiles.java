@@ -15,10 +15,9 @@
  */
 package io.datarouter.web.config;
 
-import javax.inject.Singleton;
-
 import io.datarouter.pathnode.FilesRoot;
 import io.datarouter.pathnode.PathNode;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterWebFiles extends FilesRoot{
@@ -189,6 +188,12 @@ public class DatarouterWebFiles extends FilesRoot{
 		public final PathNode coreCommonJs = leaf("core-common.js");
 		public final PathNode navbarRequestTimingJs = leaf("navbar-request-timing.js");
 		public final PathNode navbarRequestTimingV2Js = leaf("navbar-request-timing-v2.js");
+		public final ExecutorsMonitoringJsFiles executorsMonitoringJsFiles = branch(ExecutorsMonitoringJsFiles::new,
+				"executorsMonitoring");
+	}
+
+	public static class ExecutorsMonitoringJsFiles extends PathNode{
+		public final PathNode executors = leaf("executors.js");
 	}
 
 	public static class JsUtilFiles extends PathNode{

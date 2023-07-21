@@ -17,7 +17,7 @@ package io.datarouter.storage.queue;
 
 import java.util.Map;
 
-import io.datarouter.bytes.VarIntByteArraysTool;
+import io.datarouter.bytes.varint.VarIntByteArraysTool;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.node.op.raw.BlobQueueStorage;
 

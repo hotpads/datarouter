@@ -15,9 +15,8 @@
  */
 package io.datarouter.storage.dao;
 
-import javax.inject.Singleton;
-
 import io.datarouter.storage.Datarouter;
+import jakarta.inject.Singleton;
 
 @Singleton
 public abstract class BaseDao implements Dao{

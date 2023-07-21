@@ -15,15 +15,14 @@
  */
 package io.datarouter.plugin.dataexport.config;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
-import io.datarouter.plugin.dataexport.web.DatarouterDatabeanExportHandler;
-import io.datarouter.plugin.dataexport.web.DatarouterDatabeanImportHandler;
+import io.datarouter.plugin.dataexport.web.DatabeanExportHandler;
+import io.datarouter.plugin.dataexport.web.DatabeanImportHandler;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
 import io.datarouter.web.user.role.DatarouterUserRole;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterDataExportRouteSet extends BaseRouteSet{
@@ -31,11 +30,13 @@ public class DatarouterDataExportRouteSet extends BaseRouteSet{
 	@Inject
 	public DatarouterDataExportRouteSet(DatarouterDataExportPaths paths){
 		handle(paths.datarouter.dataExport.exportDatabeans.singleTable)
-				.withHandler(DatarouterDatabeanExportHandler.class);
+				.withHandler(DatabeanExportHandler.class);
 		handle(paths.datarouter.dataExport.exportDatabeans.multiTable)
-				.withHandler(DatarouterDatabeanExportHandler.class);
+				.withHandler(DatabeanExportHandler.class);
+		handle(paths.datarouter.dataExport.exportDatabeans.parallel)
+				.withHandler(DatabeanExportHandler.class);
 		handle(paths.datarouter.dataExport.importDatabeans)
-				.withHandler(DatarouterDatabeanImportHandler.class);
+				.withHandler(DatabeanImportHandler.class);
 	}
 
 	@Override

@@ -18,8 +18,6 @@ package io.datarouter.webappinstance.service;
 import java.time.Instant;
 import java.util.Date;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 
 import io.datarouter.util.Require;
@@ -37,6 +35,8 @@ import io.datarouter.webappinstance.storage.webappinstance.DatarouterWebappInsta
 import io.datarouter.webappinstance.storage.webappinstance.WebappInstance;
 import io.datarouter.webappinstance.storage.webappinstance.WebappInstanceKey;
 import io.datarouter.webappinstance.web.WebappInstanceRunningHandler;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class OneTimeLoginService{

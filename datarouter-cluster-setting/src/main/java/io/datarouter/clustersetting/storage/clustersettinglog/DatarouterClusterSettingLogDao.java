@@ -21,9 +21,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.clustersetting.storage.clustersetting.ClusterSetting;
 import io.datarouter.clustersetting.storage.clustersettinglog.ClusterSettingLog.ClusterSettingLogFielder;
 import io.datarouter.model.databean.FieldlessIndexEntry;
@@ -42,6 +39,8 @@ import io.datarouter.storage.util.KeyRangeTool;
 import io.datarouter.util.DateTool;
 import io.datarouter.util.tuple.Range;
 import io.datarouter.virtualnode.redundant.RedundantIndexedSortedMapStorageNode;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterClusterSettingLogDao extends BaseDao{

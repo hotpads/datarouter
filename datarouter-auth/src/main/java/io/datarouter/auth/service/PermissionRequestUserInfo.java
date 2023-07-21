@@ -18,15 +18,14 @@ package io.datarouter.auth.service;
 import java.util.List;
 import java.util.function.Supplier;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.plugin.PluginConfigKey;
 import io.datarouter.plugin.PluginConfigType;
 import io.datarouter.plugin.PluginConfigValue;
 import io.datarouter.plugin.PluginInjector;
 import io.datarouter.web.user.databean.DatarouterUser;
 import j2html.tags.DomContent;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 public interface PermissionRequestUserInfo extends PluginConfigValue<PermissionRequestUserInfo>{
 

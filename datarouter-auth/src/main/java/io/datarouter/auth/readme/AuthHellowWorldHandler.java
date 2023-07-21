@@ -17,11 +17,10 @@ package io.datarouter.auth.readme;
 
 import static j2html.TagCreator.div;
 
-import javax.inject.Inject;
-
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
+import jakarta.inject.Inject;
 
 public class AuthHellowWorldHandler extends BaseHandler{
 

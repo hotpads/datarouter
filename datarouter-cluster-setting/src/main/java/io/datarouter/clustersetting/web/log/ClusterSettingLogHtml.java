@@ -29,28 +29,30 @@ import static j2html.TagCreator.tr;
 
 import java.time.ZoneId;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
-import io.datarouter.clustersetting.ClusterSettingLogAction;
-import io.datarouter.clustersetting.ClusterSettingScope;
+import io.datarouter.clustersetting.enums.ClusterSettingLogAction;
+import io.datarouter.clustersetting.enums.ClusterSettingScope;
 import io.datarouter.clustersetting.storage.clustersettinglog.ClusterSettingLog;
 import io.datarouter.clustersetting.storage.clustersettinglog.ClusterSettingLogKey;
 import io.datarouter.clustersetting.web.ClusterSettingHtml;
-import io.datarouter.clustersetting.web.ClusterSettingLinks;
+import io.datarouter.clustersetting.web.browse.ClusterSettingBrowseHandler.ClusterSettingBrowseHandlerParams;
+import io.datarouter.clustersetting.web.browse.ClusterSettingBrowseHandler.ClusterSettingBrowseLinks;
 import io.datarouter.clustersetting.web.log.ClusterSettingLogHandler.ClusterSettingLogLinks;
 import io.datarouter.util.time.ZonedDateFormatterTool;
 import io.datarouter.web.html.j2html.J2HtmlTable;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.TdTag;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class ClusterSettingLogHtml{
 
 	@Inject
-	private ClusterSettingLinks clusterSettingLinks;
+	private ClusterSettingBrowseLinks browseLinks;
 	@Inject
 	private ClusterSettingLogLinks clusterSettingLogLinks;
+	@Inject
+	private ClusterSettingHtml clusterSettingHtml;
 
 	/*-------- card ----------*/
 
@@ -58,7 +60,8 @@ public class ClusterSettingLogHtml{
 		String time = ZonedDateFormatterTool.formatInstantWithZoneDesc(
 				log.getKey().getCreatedInstant(),
 				zoneId);
-		String browseHref = clusterSettingLinks.browseSettings(log.getKey().getName());
+		String browseHref = browseLinks.all(new ClusterSettingBrowseHandlerParams()
+				.withLocation(log.getKey().getName()));
 		var cardTitle = div(b(time))
 				.withClass("bg-light p-3");
 		var nameField = dl(
@@ -152,19 +155,20 @@ public class ClusterSettingLogHtml{
 	}
 
 	private TdTag makeNameCell(ClusterSettingLog log){
-		String browseHref = clusterSettingLinks.browseSettings(log.getKey().getName());
+		String browseHref = browseLinks.all(new ClusterSettingBrowseHandlerParams()
+				.withLocation(log.getKey().getName()));
 		var link = a(log.getKey().getName()).withHref(browseHref);
 		return td(link);
 	}
 
 	private TdTag makeCommentCell(ClusterSettingLog log){
 		String detailsHref = clusterSettingLogLinks.single(log.getKey().getName(), log.getKey().getReverseCreatedMs());
-		return ClusterSettingHtml.makeLimitedLengthLinkCell(log.getComment(), detailsHref);
+		return clusterSettingHtml.makeLimitedLengthLinkCell(log.getComment(), detailsHref);
 	}
 
 	private TdTag makeValueCell(ClusterSettingLog log){
 		String detailsHref = clusterSettingLogLinks.single(log.getKey().getName(), log.getKey().getReverseCreatedMs());
-		return ClusterSettingHtml.makeLimitedLengthLinkCell(log.getValue(), detailsHref);
+		return clusterSettingHtml.makeLimitedLengthLinkCell(log.getValue(), detailsHref);
 	}
 
 	private static String makeActionStyle(ClusterSettingLogAction action){

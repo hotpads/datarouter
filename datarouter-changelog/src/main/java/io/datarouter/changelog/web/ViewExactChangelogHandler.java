@@ -23,8 +23,6 @@ import static j2html.TagCreator.h4;
 import java.time.ZoneId;
 import java.util.Optional;
 
-import javax.inject.Inject;
-
 import io.datarouter.changelog.config.DatarouterChangelogPaths;
 import io.datarouter.changelog.service.ViewChangelogService;
 import io.datarouter.changelog.storage.Changelog;
@@ -39,6 +37,7 @@ import io.datarouter.web.html.j2html.J2HtmlLegendTable;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import io.datarouter.web.user.session.CurrentUserSessionInfoService;
 import j2html.tags.specialized.DivTag;
+import jakarta.inject.Inject;
 
 public class ViewExactChangelogHandler extends BaseHandler{
 

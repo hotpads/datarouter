@@ -17,60 +17,48 @@ package io.datarouter.metric.counter;
 
 import java.util.Map;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.instrumentation.response.PublishingResponseDto;
-import io.datarouter.metric.config.DatarouterCountSettingRoot;
 import io.datarouter.metric.counter.collection.CountPublisher;
 import io.datarouter.metric.counter.collection.DatarouterCountCollector.CountCollectorStats;
 import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.storage.config.properties.ServiceName;
 import io.datarouter.types.Ulid;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class CountPublisherService implements CountPublisher{
 	private static final Logger logger = LoggerFactory.getLogger(CountPublisherService.class);
 
-	private final CountDirectoryDao countDirectoryDao;
 	private final CountQueueDao countQueueDao;
-	private final DatarouterCountSettingRoot countSettings;
 	private final ServiceName serviceName;
 	private final ServerName serverName;
 
 	@Inject
-	public CountPublisherService(CountDirectoryDao countDirectoryDao, CountQueueDao countQueueDao,
-			DatarouterCountSettingRoot countSettings, ServiceName serviceName, ServerName serverName){
-		this.countDirectoryDao = countDirectoryDao;
+	public CountPublisherService(CountQueueDao countQueueDao, ServiceName serviceName, ServerName serverName){
 		this.countQueueDao = countQueueDao;
-		this.countSettings = countSettings;
 		this.serviceName = serviceName;
 		this.serverName = serverName;
 	}
 
 	@Override
 	public PublishingResponseDto publishStats(Map<Long,Map<String,CountCollectorStats>> counts){
-		boolean isQueue = countSettings.saveCountStatsToQueueDaoInsteadOfDirectoryDao.get();
 		String ulid = new Ulid().value();
 		var dtos = CountBinaryDto.createSizedCountBinaryDtos(
 				ulid,
 				serviceName.get(),
 				serverName.get(),
 				counts,
-				isQueue ? 100 : Integer.MAX_VALUE);
+				100);
 		logger.info(
 				"writing size={} CountBinaryDtos with key={} to {}",
 				dtos.size(),
 				ulid,
-				isQueue ? "queue" : "directory");
-		if(isQueue){
-			countQueueDao.combineAndPut(dtos);
-		}else{
-			countDirectoryDao.write(dtos.get(0), ulid);
-		}
+				"queue");
+		countQueueDao.combineAndPut(dtos);
 		return PublishingResponseDto.SUCCESS;
 	}
 

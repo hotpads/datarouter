@@ -18,9 +18,8 @@ package io.datarouter.clustersetting.web.browse;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import io.datarouter.scanner.ObjectScanner;
 import io.datarouter.scanner.OptionalScanner;
@@ -31,6 +30,8 @@ import io.datarouter.storage.setting.SettingNode;
 import io.datarouter.storage.setting.SettingRoot;
 import io.datarouter.storage.setting.SettingRoot.SettingRootFinder;
 import io.datarouter.storage.setting.cached.CachedSetting;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 /**
  * There are 4 levels of navigation for settings: Category -> Setting Root -> Setting Node -> Setting.
@@ -43,15 +44,24 @@ public class ClusterSettingHierarchy{
 
 	private final SettingRootFinder settingRootFinder;
 	private final HierarchyNode hierarchyRoot;
+	private final SortedSet<String> settingNamesSorted;
 
 	@Inject
 	public ClusterSettingHierarchy(SettingRootFinder settingRootFinder){
 		this.settingRootFinder = settingRootFinder;
 		hierarchyRoot = makeHierarchyRoot();
+		settingNamesSorted = hierarchyRoot.scanThisAndDescendents()
+				.include(HierarchyNode::isSetting)
+				.map(HierarchyNode::name)
+				.collect(TreeSet::new);
 	}
 
 	public HierarchyNode root(){
 		return hierarchyRoot;
+	}
+
+	public SortedSet<String> settingNamesSorted(){
+		return settingNamesSorted;
 	}
 
 	private HierarchyNode makeHierarchyRoot(){
@@ -140,6 +150,7 @@ public class ClusterSettingHierarchy{
 			this(type,
 					name,
 					name.toLowerCase(),
+					//TODO use ClusterSettingLocation for parsing
 					Scanner.of(name.split("\\.")).list(),
 					Scanner.of(name.split("\\.")).findLast().orElseThrow(),
 					Scanner.of(name.split("\\.")).countInt(),

@@ -15,8 +15,6 @@
  */
 package io.datarouter.auth.web;
 
-import javax.inject.Inject;
-
 import io.datarouter.auth.config.DatarouterAuthPaths;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
@@ -24,6 +22,7 @@ import io.datarouter.web.handler.mav.imp.InContextRedirectMav;
 import io.datarouter.web.user.authenticate.saml.DatarouterSamlSettings;
 import io.datarouter.web.user.authenticate.saml.SamlService;
 import io.datarouter.web.user.session.DatarouterSessionManager;
+import jakarta.inject.Inject;
 
 public class DatarouterSignoutHandler extends BaseHandler{
 

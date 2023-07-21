@@ -26,9 +26,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,6 +59,8 @@ import io.datarouter.util.timer.PhaseTimer;
 import io.datarouter.util.tuple.Range;
 import io.datarouter.web.exception.ExceptionRecorder;
 import io.datarouter.webappinstance.service.CachedWebappInstancesOfThisServerType;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class JobletService{

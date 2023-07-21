@@ -19,8 +19,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
-import javax.inject.Inject;
-
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeMethod;
@@ -28,8 +26,8 @@ import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
 import io.datarouter.bytes.Codec;
-import io.datarouter.bytes.VarIntByteArraysTool;
 import io.datarouter.bytes.codec.stringcodec.StringCodec;
+import io.datarouter.bytes.varint.VarIntByteArraysTool;
 import io.datarouter.client.gcp.pubsub.GcpPubsubDataTooLargeException;
 import io.datarouter.client.gcp.pubsub.node.GcpPubsubBlobNode;
 import io.datarouter.gcp.pubsub.DatarouterPubsubTestNgModuleFactory;
@@ -39,6 +37,7 @@ import io.datarouter.storage.node.factory.QueueNodeFactory;
 import io.datarouter.storage.test.node.queue.BaseBlobQueueStorageTestDao;
 import io.datarouter.storage.test.node.queue.BloqQueueStorageTestDto;
 import io.datarouter.storage.test.node.queue.BloqQueueStorageTestDto.BloqQueueStorageTestDtoCodec;
+import jakarta.inject.Inject;
 
 @Guice(moduleFactory = DatarouterPubsubTestNgModuleFactory.class)
 @Test(singleThreaded = true)

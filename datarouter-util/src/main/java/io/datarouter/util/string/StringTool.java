@@ -110,7 +110,7 @@ public class StringTool{
 	public static Scanner<Character> scanCharacters(String input){
 		return Scanner.iterate(0, i -> i + 1)
 				.limit(input.length())
-				.map(i -> Character.valueOf(input.charAt(i)));
+				.map(i -> input.charAt(i));
 	}
 
 	public static boolean equalsCaseInsensitive(String left, String right){

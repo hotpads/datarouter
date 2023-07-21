@@ -17,7 +17,7 @@ package io.datarouter.web.listener;
 
 import java.util.HashSet;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class NoJavaSessionWebAppListener extends DatarouterWebAppListener{

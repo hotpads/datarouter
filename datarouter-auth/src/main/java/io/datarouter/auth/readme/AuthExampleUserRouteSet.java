@@ -15,11 +15,10 @@
  */
 package io.datarouter.auth.readme;
 
-import javax.inject.Singleton;
-
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
 import io.datarouter.web.user.role.DatarouterUserRole;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class AuthExampleUserRouteSet extends BaseRouteSet{

@@ -20,7 +20,6 @@ import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
-import javax.inject.Inject;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -38,6 +37,7 @@ import io.datarouter.web.handler.validator.RequestParamValidator.RequestParamVal
 import io.datarouter.web.security.SecurityValidationResult;
 import io.datarouter.web.util.ExceptionService;
 import io.datarouter.web.util.http.ResponseTool;
+import jakarta.inject.Inject;
 
 public class MavEncoder implements HandlerEncoder{
 

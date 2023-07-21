@@ -17,8 +17,6 @@ package io.datarouter.storage.test.node.basic.sorted;
 
 import java.util.List;
 
-import javax.inject.Inject;
-
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Guice;
@@ -27,6 +25,7 @@ import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.test.DatarouterStorageTestNgModuleFactory;
+import jakarta.inject.Inject;
 
 @Guice(moduleFactory = DatarouterStorageTestNgModuleFactory.class)
 public abstract class BaseSortedBeanIntegrationTests{

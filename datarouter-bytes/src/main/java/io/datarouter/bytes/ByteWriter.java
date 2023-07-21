@@ -27,6 +27,7 @@ import io.datarouter.bytes.codec.intcodec.RawIntCodec;
 import io.datarouter.bytes.codec.longcodec.ComparableLongCodec;
 import io.datarouter.bytes.codec.longcodec.RawLongCodec;
 import io.datarouter.bytes.codec.stringcodec.StringCodec;
+import io.datarouter.bytes.varint.VarIntTool;
 import io.datarouter.scanner.Scanner;
 
 public class ByteWriter{

@@ -15,12 +15,11 @@
  */
 package io.datarouter.web.dispatcher;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.web.config.BaseDatarouterWebDispatcherServlet;
 import io.datarouter.web.config.RouteSetRegistry;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @SuppressWarnings("serial")
 @Singleton

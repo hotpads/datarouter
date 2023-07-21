@@ -22,7 +22,7 @@
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-metadata-parent</artifactId>
-		<version>0.0.120</version>
+		<version>0.0.121</version>
 		<relativePath>../datarouter-metadata-parent</relativePath>
 	</parent>
 
@@ -39,20 +39,21 @@
 		<codehaus-plexus-version>2.13.0</codehaus-plexus-version>
 		<commons-codec-version>1.15</commons-codec-version>
 		<commons-io-version>2.11.0</commons-io-version>
-		<datarouter-version>0.0.120</datarouter-version>
-		<guice-version>5.1.0</guice-version>
+		<datarouter-version>0.0.121</datarouter-version>
+		<guice-version>6.0.0</guice-version>
 		<guava-version>31.1-jre</guava-version>
 		<httpclient-version>4.5.14</httpclient-version>
+		<jakarta-inject-version>2.0.1</jakarta-inject-version>
 		<log4j-version>2.17.1</log4j-version>
 		<mockito-core-version>5.2.0</mockito-core-version>
 		<slf4j-version>1.7.33</slf4j-version>
 		<testng-version>7.7.1</testng-version>
 
 		<!-- plugins -->
-		<maven-jar-plugin-version>3.2.0</maven-jar-plugin-version>
-		<maven-checkstyle-plugin-version>3.1.2</maven-checkstyle-plugin-version>
-		<maven-compiler-plugin-version>3.8.1</maven-compiler-plugin-version>
-		<maven-resources-plugin-version>3.2.0</maven-resources-plugin-version>
+		<maven-jar-plugin-version>3.3.0</maven-jar-plugin-version>
+		<maven-checkstyle-plugin-version>3.3.0</maven-checkstyle-plugin-version>
+		<maven-compiler-plugin-version>3.11.0</maven-compiler-plugin-version>
+		<maven-resources-plugin-version>3.3.1</maven-resources-plugin-version>
 
 		<!-- other -->
 		<!-- upgrade scripts when bumping this version -->
@@ -147,9 +148,9 @@
 				<artifactId>maven-failsafe-plugin</artifactId>
 			</plugin>
 			<plugin>
-				<groupId>pl.project13.maven</groupId>
-				<artifactId>git-commit-id-plugin</artifactId>
-				<version>4.0.5</version>
+				<groupId>io.github.git-commit-id</groupId>
+				<artifactId>git-commit-id-maven-plugin</artifactId>
+				<version>6.0.0</version>
 				<executions>
 					<execution>
 						<goals>
@@ -194,7 +195,7 @@
 					<dependency>
 						<groupId>com.puppycrawl.tools</groupId>
 						<artifactId>checkstyle</artifactId>
-						<version>10.9.3</version>
+						<version>10.11.0</version>
 					</dependency>
 					<dependency>
 						<groupId>io.datarouter</groupId>
@@ -232,10 +233,11 @@
 					<version>${maven-compiler-plugin-version}</version>
 					<configuration>
 						<compilerId>eclipse</compilerId>
-						<source>18</source>
-						<target>18</target>
+						<source>19</source>
+						<target>19</target>
 						<fork>true</fork>
 						<parameters>true</parameters>
+						<showDeprecation>true</showDeprecation>
 						<compilerArgs>
 <!-- https://git.eclipse.org/c/jdt/eclipse.jdt.core.git/tree/org.eclipse.jdt.core/batch/org/eclipse/jdt/internal/compiler/batch/Main.java#n4116 -->
 							<arg>-err:+enumSwitch</arg>
@@ -270,7 +272,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-surefire-plugin</artifactId>
-					<version>3.0.0-M7</version>
+					<version>3.1.0</version>
 					<executions>
 						<execution>
 							<id>default-test</id>
@@ -305,7 +307,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-failsafe-plugin</artifactId>
-					<version>3.0.0-M7</version>
+					<version>3.1.0</version>
 					<executions>
 						<execution>
 							<goals>
@@ -343,7 +345,7 @@
 				<plugin>
 					<groupId>com.mycila</groupId>
 					<artifactId>license-maven-plugin</artifactId>
-					<version>4.1</version>
+					<version>4.2</version>
 					<configuration>
 						<header>com/mycila/maven/plugin/license/templates/APACHE-2.txt</header>
 						<properties>
@@ -366,7 +368,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-source-plugin</artifactId>
-					<version>3.2.1</version>
+					<version>3.3.0</version>
 					<executions>
 						<execution>
 							<goals>
@@ -378,7 +380,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-javadoc-plugin</artifactId>
-					<version>3.3.0</version>
+					<version>3.5.0</version>
 					<executions>
 						<execution>
 							<goals>
@@ -390,7 +392,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-war-plugin</artifactId>
-					<version>3.3.1</version>
+					<version>3.3.2</version>
 					<configuration>
 						<skip>${skipPackaging}</skip>
 					</configuration>
@@ -398,7 +400,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-clean-plugin</artifactId>
-					<version>3.1.0</version>
+					<version>3.2.0</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
@@ -408,7 +410,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-install-plugin</artifactId>
-					<version>3.0.0-M1</version>
+					<version>3.1.1</version>
 					<configuration>
 						<skip>${skipPackaging}</skip>
 					</configuration>
@@ -416,7 +418,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-jar-plugin</artifactId>
-					<version>3.2.0</version>
+					<version>${maven-jar-plugin-version}</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>

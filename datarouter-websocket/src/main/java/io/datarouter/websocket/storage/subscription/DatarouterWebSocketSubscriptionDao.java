@@ -18,9 +18,6 @@ package io.datarouter.websocket.storage.subscription;
 import java.util.Collection;
 import java.util.List;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.model.databean.FieldlessIndexEntry;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
@@ -34,6 +31,8 @@ import io.datarouter.storage.node.op.index.IndexReader;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.virtualnode.redundant.RedundantIndexedSortedMapStorageNode;
 import io.datarouter.websocket.storage.subscription.WebSocketSubscription.WebSocketSubscriptionFielder;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterWebSocketSubscriptionDao extends BaseDao{

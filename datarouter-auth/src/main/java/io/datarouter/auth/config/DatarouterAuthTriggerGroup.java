@@ -15,18 +15,18 @@
  */
 package io.datarouter.auth.config;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.auth.job.AccountPermissionCacheRefreshJob;
 import io.datarouter.auth.job.DatarouterAccountCredentialCleanupJob;
 import io.datarouter.auth.job.DatarouterAccountLastUsedFlushJob;
 import io.datarouter.auth.job.DatarouterPermissionRequestVacuumJob;
 import io.datarouter.auth.job.DatarouterSessionVacuumJob;
+import io.datarouter.auth.job.DeletedRoleCleanupJob;
 import io.datarouter.auth.job.SamlAuthnRequestRedirectUrlVacuumJob;
 import io.datarouter.job.BaseTriggerGroup;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.util.time.ZoneIds;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterAuthTriggerGroup extends BaseTriggerGroup{
@@ -57,6 +57,10 @@ public class DatarouterAuthTriggerGroup extends BaseTriggerGroup{
 				"0 0 15 ? * * *",
 				settings.runPermissionRequestVacuumJob,
 				DatarouterPermissionRequestVacuumJob.class,
+				true);
+		registerLocked("0 0 2 ? * *",
+				settings.runDeletedRoleCleanupJob,
+				DeletedRoleCleanupJob.class,
 				true);
 
 		long refreshFrequencySeconds = settings.accountRefreshFrequencyDuration.get()

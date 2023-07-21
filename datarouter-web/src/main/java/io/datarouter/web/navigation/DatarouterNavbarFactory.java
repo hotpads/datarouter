@@ -22,8 +22,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 
 import io.datarouter.pathnode.PathNode;
@@ -35,6 +33,8 @@ import io.datarouter.web.html.j2html.J2HtmlTool;
 import io.datarouter.web.js.DatarouterWebJsTool;
 import j2html.tags.EmptyTag;
 import j2html.tags.specialized.ScriptTag;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterNavbarFactory{
@@ -53,7 +53,7 @@ public class DatarouterNavbarFactory{
 				? mavProperties.getDatarouterNavBar()
 				: mavProperties.getNavBar();
 		List<String> fragments = new ArrayList<>();
-		if(mavProperties.getIsAdmin()){
+		if(mavProperties.getHasAnyDatarouterPrivileges()){
 			fragments.add(makeNavbarCssImportTagsRendered(request.getContextPath()));
 			fragments.add(new DatarouterNavbarHtml(mavProperties).build().renderFormatted());
 			fragments.add(makeNavbarRequestTiming(request.getContextPath()));
@@ -93,7 +93,7 @@ public class DatarouterNavbarFactory{
 		NavBar navbar = mavProperties.getIsDatarouterPage() ? mavProperties.getDatarouterNavBar()
 				: mavProperties.getNavBar();
 		List<String> fragments = new ArrayList<>();
-		if(mavProperties.getIsAdmin()){
+		if(mavProperties.getHasAnyDatarouterPrivileges()){
 			fragments.add(makeNavbarV2CssImportTagsRendered(mavProperties.getContextPath(), mavProperties
 					.getTomcatWebApps().size()));
 			fragments.add(new DatarouterNavbarV2Html(mavProperties).build().renderFormatted());

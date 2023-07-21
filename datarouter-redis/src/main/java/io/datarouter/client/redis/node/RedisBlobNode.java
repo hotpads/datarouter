@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-import io.datarouter.bytes.InputStreamTool;
+import io.datarouter.bytes.io.InputStreamTool;
 import io.datarouter.client.redis.client.DatarouterRedisClient;
 import io.datarouter.client.redis.client.RedisKeyValue;
 import io.datarouter.client.redis.client.RedisRequestConfig;
@@ -92,7 +92,7 @@ implements PhysicalBlobStorageNode{
 	}
 
 	@Override
-	public byte[] read(PathbeanKey key, long offset, int length, Config config){
+	public byte[] readPartial(PathbeanKey key, long offset, int length, Config config){
 		int from = (int)offset;
 		int to = from + length;
 		return Optional.of(key)
@@ -105,7 +105,7 @@ implements PhysicalBlobStorageNode{
 	}
 
 	@Override
-	public Map<PathbeanKey,byte[]> read(List<PathbeanKey> keys, Config config){
+	public Map<PathbeanKey,byte[]> readMulti(List<PathbeanKey> keys, Config config){
 		return Scanner.of(keys)
 				.map(codec::encodeKey)
 				.listTo(encodedKeys -> lazyClient.get().mget(
@@ -143,7 +143,7 @@ implements PhysicalBlobStorageNode{
 	}
 
 	@Override
-	public void write(PathbeanKey key, InputStream inputStream, Config config){
+	public void writeInputStream(PathbeanKey key, InputStream inputStream, Config config){
 		byte[] value = InputStreamTool.toArray(inputStream);
 		write(key, value, config);
 	}

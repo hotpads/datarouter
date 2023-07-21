@@ -25,8 +25,9 @@ import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.bytes.GzipBlockStream.GzipBlockStreamRow;
 import io.datarouter.bytes.codec.stringcodec.StringCodec;
+import io.datarouter.bytes.compress.gzip.GzipBlockStream;
+import io.datarouter.bytes.compress.gzip.GzipBlockStream.GzipBlockStreamRow;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.scanner.Threads;
 

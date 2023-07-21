@@ -15,15 +15,14 @@
  */
 package io.datarouter.client.hbase.config;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.client.hbase.balancer.HBaseRegionBalancerJob;
 import io.datarouter.client.hbase.compaction.HBaseCompactionInfo;
 import io.datarouter.client.hbase.compaction.HBaseCompactionJob;
 import io.datarouter.job.BaseTriggerGroup;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.util.time.ZoneIds;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterHBaseTriggerGroup extends BaseTriggerGroup{

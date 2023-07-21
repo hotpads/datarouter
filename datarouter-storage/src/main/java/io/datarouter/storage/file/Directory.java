@@ -24,7 +24,7 @@ import java.util.Optional;
 
 import io.datarouter.bytes.ByteLength;
 import io.datarouter.bytes.ByteTool;
-import io.datarouter.bytes.CountingInputStream;
+import io.datarouter.bytes.io.CountingInputStream;
 import io.datarouter.instrumentation.count.Counters;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.scanner.Threads;
@@ -84,12 +84,12 @@ implements BlobStorage{
 	}
 
 	@Override
-	public void write(PathbeanKey key, InputStream inputStream, Config config){
+	public void writeInputStream(PathbeanKey key, InputStream inputStream, Config config){
 		var countingInputStream = new CountingInputStream(
 				inputStream,
 				INPUT_STREAM_COUNT_INTERVAL,
 				numBytes -> count(CounterSuffix.WRITE_INPUT_STREAM_BYTES, numBytes));
-		parent.write(prependStoragePath(key), countingInputStream, config);
+		parent.writeInputStream(prependStoragePath(key), countingInputStream, config);
 		count(CounterSuffix.WRITE_INPUT_STREAM_OPS, 1);
 	}
 
@@ -183,16 +183,20 @@ implements BlobStorage{
 	}
 
 	@Override
-	public byte[] read(PathbeanKey key, long offset, int length, Config config){
-		Optional<byte[]> optBytes = Optional.ofNullable(parent.read(prependStoragePath(key), offset, length, config));
-		count(CounterSuffix.READ_OFFSET_LIMIT_OPS, 1);
+	public byte[] readPartial(PathbeanKey key, long offset, int length, Config config){
+		Optional<byte[]> optBytes = Optional.ofNullable(
+				parent.readPartial(prependStoragePath(key),
+				offset,
+				length,
+				config));
+		count(CounterSuffix.READ_PARTIAL_OPS, 1);
 		optBytes.map(bytes -> bytes.length)
-				.ifPresent(actualLength -> count(CounterSuffix.READ_OFFSET_LIMIT_BYTES, actualLength));
+				.ifPresent(actualLength -> count(CounterSuffix.READ_PARTIAL_BYTES, actualLength));
 		return optBytes.orElse(null);
 	}
 
 	@Override
-	public Map<PathbeanKey,byte[]> read(List<PathbeanKey> keys, Config config){
+	public Map<PathbeanKey,byte[]> readMulti(List<PathbeanKey> keys, Config config){
 		Map<PathbeanKey,byte[]> keyValue = new HashMap<>();
 		keys.forEach(key -> {
 				Optional<byte[]> optBytes = Optional.ofNullable(parent.read(prependStoragePath(key), config));
@@ -268,9 +272,9 @@ implements BlobStorage{
 		READ_BYTES("read bytes"),
 		READ_INPUT_STREAM_BYTES("readInputStream bytes"),
 		READ_INPUT_STREAM_OPS("readInputStream ops"),
+		READ_PARTIAL_BYTES("readPartial bytes"),
+		READ_PARTIAL_OPS("readPartial ops"),
 		READ_OPS("read ops"),
-		READ_OFFSET_LIMIT_BYTES("readOffsetLimit bytes"),
-		READ_OFFSET_LIMIT_OPS("readOffsetLimit ops"),
 		SCAN_KEYS_OPS("scanKeys ops"),
 		SCAN_KEYS_ITEMS("scanKeys items"),
 		SCAN_OPS("scan ops"),

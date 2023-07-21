@@ -18,9 +18,8 @@ package io.datarouter.auth.service;
 import java.util.List;
 import java.util.function.Supplier;
 
-import javax.inject.Singleton;
-
 import io.datarouter.httpclient.endpoint.caller.CallerType;
+import jakarta.inject.Singleton;
 
 // Can't use the PluginConfigValue/Key since CallerType lives in datarouter-http-client and can't see the
 // PluginConfigValue

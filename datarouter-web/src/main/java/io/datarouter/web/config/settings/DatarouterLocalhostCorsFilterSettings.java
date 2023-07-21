@@ -17,14 +17,13 @@ package io.datarouter.web.config.settings;
 
 import java.util.Set;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.httpclient.HttpHeaders;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.SettingNode;
 import io.datarouter.storage.setting.cached.impl.BooleanCachedSetting;
 import io.datarouter.storage.setting.cached.impl.CommaSeparatedStringCachedSetting;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterLocalhostCorsFilterSettings extends SettingNode{

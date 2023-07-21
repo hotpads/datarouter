@@ -15,12 +15,11 @@
  */
 package io.datarouter.exception.storage.taskexecutorrecord;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.exception.dto.TaskExecutorRecordBinaryDto;
 import io.datarouter.exception.storage.BaseRecordDirectoryDao;
 import io.datarouter.storage.file.Directory;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class TaskExecutorRecordDirectoryDao

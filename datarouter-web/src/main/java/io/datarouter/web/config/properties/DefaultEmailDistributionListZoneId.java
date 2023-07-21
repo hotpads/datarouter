@@ -18,7 +18,7 @@ package io.datarouter.web.config.properties;
 import java.time.ZoneId;
 import java.util.function.Supplier;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 /**
  * An injectable zoneId for where most of the people on a email distribution list are located

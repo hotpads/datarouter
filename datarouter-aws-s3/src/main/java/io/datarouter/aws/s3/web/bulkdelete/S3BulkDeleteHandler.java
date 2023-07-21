@@ -23,9 +23,6 @@ import static j2html.TagCreator.span;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.apache.http.client.utils.URIBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +30,7 @@ import org.slf4j.LoggerFactory;
 import io.datarouter.aws.s3.DatarouterS3Client;
 import io.datarouter.aws.s3.S3Limits;
 import io.datarouter.aws.s3.client.S3ClientManager;
-import io.datarouter.aws.s3.config.DatarouterAwsS3Executors.BulkDeleteExecutor;
+import io.datarouter.aws.s3.config.DatarouterAwsS3Executors.DatarouterS3BulkDeleteExecutor;
 import io.datarouter.aws.s3.config.DatarouterAwsS3Paths;
 import io.datarouter.aws.s3.config.DatarouterAwsS3Plugin;
 import io.datarouter.aws.s3.web.S3Html;
@@ -53,6 +50,8 @@ import io.datarouter.web.handler.mav.imp.GlobalRedirectMav;
 import io.datarouter.web.html.form.HtmlForm;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 public class S3BulkDeleteHandler extends BaseHandler{
 	private static final Logger logger = LoggerFactory.getLogger(S3BulkDeleteHandler.class);
@@ -77,7 +76,7 @@ public class S3BulkDeleteHandler extends BaseHandler{
 	@Inject
 	private S3BulkDeleteConfirmationHtml s3BulkDeleteConfirmationHtml;
 	@Inject
-	private BulkDeleteExecutor bulkDeleteExec;
+	private DatarouterS3BulkDeleteExecutor bulkDeleteExec;
 
 	@Handler
 	public Mav form(

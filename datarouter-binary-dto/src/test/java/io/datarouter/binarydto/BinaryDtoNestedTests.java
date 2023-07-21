@@ -32,7 +32,7 @@ import io.datarouter.binarydto.dto.ComparableBinaryDto;
 
 public class BinaryDtoNestedTests{
 
-	public static class InnerTestDto extends ComparableBinaryDto<InnerTestDto>{
+	private static class InnerTestDto extends ComparableBinaryDto<InnerTestDto>{
 		public final int f1;
 		public final Float f2;
 
@@ -43,7 +43,7 @@ public class BinaryDtoNestedTests{
 	}
 
 	//this doesn't really make sense as a key, but let's see what happens
-	public static class OuterTestDto extends BinaryDto<OuterTestDto>{
+	private static class OuterTestDto extends BinaryDto<OuterTestDto>{
 		public final InnerTestDto inner;
 		public final InnerTestDto inner2;
 		public final InnerTestDto[] innerArray;

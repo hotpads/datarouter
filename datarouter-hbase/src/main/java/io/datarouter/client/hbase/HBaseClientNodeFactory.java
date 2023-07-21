@@ -15,12 +15,11 @@
  */
 package io.datarouter.client.hbase;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.client.hbase.callback.CountingBatchCallbackFactory;
 import io.datarouter.client.hbase.config.DatarouterHBaseExecutors.DatarouterHbaseClientExecutor;
 import io.datarouter.storage.node.adapter.NodeAdapters;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class HBaseClientNodeFactory extends BaseHBaseClientNodeFactory{

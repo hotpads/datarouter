@@ -20,14 +20,13 @@ import static j2html.TagCreator.div;
 import java.time.ZoneId;
 import java.util.Optional;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.joblet.config.DatarouterJobletPaths;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
 import io.datarouter.web.digest.DailyDigestService;
 import j2html.tags.specialized.DivTag;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class FailedJobletDailyDigest implements DailyDigest{

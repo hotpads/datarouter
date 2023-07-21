@@ -27,8 +27,6 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import javax.inject.Singleton;
-
 import org.apache.http.HttpEntity;
 import org.apache.http.entity.ContentType;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -48,6 +46,7 @@ import io.datarouter.httpclient.security.SignatureGenerator;
 import io.datarouter.httpclient.security.SignatureGenerator.RefreshableSignatureGenerator;
 import io.datarouter.instrumentation.refreshable.RefreshableSupplier;
 import io.datarouter.json.JsonSerializer;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class StandardDatarouterHttpClient

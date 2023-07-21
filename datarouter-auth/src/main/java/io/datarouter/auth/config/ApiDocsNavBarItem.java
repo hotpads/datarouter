@@ -15,8 +15,6 @@
  */
 package io.datarouter.auth.config;
 
-import javax.inject.Inject;
-
 import io.datarouter.scanner.Scanner;
 import io.datarouter.web.config.RouteSetRegistry;
 import io.datarouter.web.handler.documentation.DocumentationRouteSet;
@@ -24,6 +22,7 @@ import io.datarouter.web.navigation.AppNavBarCategory;
 import io.datarouter.web.navigation.DynamicNavBarItem;
 import io.datarouter.web.navigation.NavBarCategory.NavBarItemType;
 import io.datarouter.web.navigation.NavBarItem;
+import jakarta.inject.Inject;
 
 public class ApiDocsNavBarItem implements DynamicNavBarItem{
 

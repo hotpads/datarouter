@@ -18,7 +18,7 @@ package io.datarouter.web.digest;
 import java.time.ZoneId;
 import java.util.function.Supplier;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DailyDigestEmailZoneId implements Supplier<ZoneId>{

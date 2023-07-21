@@ -18,15 +18,15 @@ package io.datarouter.web.user.role;
 import io.datarouter.enums.StringMappedEnum;
 
 public enum DatarouterRoleApprovalType implements RoleApprovalTypeEnum<DatarouterRoleApprovalType>{
-	ADMIN("admin");
+	ADMIN("admin", 100);
 
 	public static final StringMappedEnum<DatarouterRoleApprovalType> BY_PERSISTENT_STRING
-			= new StringMappedEnum<>(values(), value -> value.roleApprovalType.persistentString);
+			= new StringMappedEnum<>(values(), DatarouterRoleApprovalType::getPersistentString);
 
 	private final RoleApprovalType roleApprovalType;
 
-	DatarouterRoleApprovalType(String persistentString){
-		this.roleApprovalType = new RoleApprovalType(persistentString);
+	DatarouterRoleApprovalType(String persistentString, int priority){
+		this.roleApprovalType = new RoleApprovalType(persistentString, priority);
 	}
 
 	@Override
@@ -36,12 +36,17 @@ public enum DatarouterRoleApprovalType implements RoleApprovalTypeEnum<Dataroute
 
 	@Override
 	public String getPersistentString(){
-		return roleApprovalType.getPersistentString();
+		return roleApprovalType.persistentString();
 	}
 
 	@Override
 	public DatarouterRoleApprovalType fromPersistentString(String str){
 		return BY_PERSISTENT_STRING.fromOrNull(str);
+	}
+
+	@Override
+	public int getPriority(){
+		return roleApprovalType.priority();
 	}
 
 }

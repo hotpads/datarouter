@@ -18,7 +18,7 @@ package io.datarouter.clustersetting.storage.clustersetting;
 import java.util.List;
 import java.util.function.Supplier;
 
-import io.datarouter.clustersetting.ClusterSettingScope;
+import io.datarouter.clustersetting.enums.ClusterSettingScope;
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.imp.StringField;

@@ -18,14 +18,13 @@ package io.datarouter.conveyor.config;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.conveyor.ConveyorConfigurationGroup.ConveyorPackage;
 import io.datarouter.conveyor.ConveyorConfigurationGroupService;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.SettingNode;
 import io.datarouter.storage.setting.cached.CachedSetting;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterConveyorThreadCountSettings extends SettingNode{

@@ -17,12 +17,11 @@ package io.datarouter.loggerconfig;
 
 import java.util.ArrayList;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.loggerconfig.storage.consoleappender.DatarouterConsoleAppenderDao;
 import io.datarouter.loggerconfig.storage.fileappender.DatarouterFileAppenderDao;
 import io.datarouter.loggerconfig.storage.loggerconfig.DatarouterLoggerConfigDao;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class LoggingConfigService{

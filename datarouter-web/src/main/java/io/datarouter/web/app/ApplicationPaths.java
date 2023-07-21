@@ -17,12 +17,12 @@ package io.datarouter.web.app;
 
 import java.util.function.Supplier;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import javax.servlet.ServletContext;
 
 import io.datarouter.util.singletonsupplier.SingletonSupplier;
 import io.datarouter.web.config.ServletContextSupplier;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class ApplicationPaths{

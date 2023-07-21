@@ -20,8 +20,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-
 import io.datarouter.job.BaseTriggerGroup;
 import io.datarouter.job.TriggerGroupClasses;
 import io.datarouter.job.scheduler.JobPackage;
@@ -29,6 +27,7 @@ import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.metriclinks.MetricLinkDto;
 import io.datarouter.web.metriclinks.MetricLinkDto.LinkDto;
 import io.datarouter.web.metriclinks.MetricLinkPage;
+import jakarta.inject.Inject;
 
 public abstract class JobMetricLinkPage implements MetricLinkPage{
 

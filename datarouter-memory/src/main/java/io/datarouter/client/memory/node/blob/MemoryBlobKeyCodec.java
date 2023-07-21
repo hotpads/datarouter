@@ -19,7 +19,6 @@ import java.util.Arrays;
 
 import io.datarouter.bytes.ByteTool;
 import io.datarouter.bytes.Codec;
-import io.datarouter.bytes.EmptyArray;
 import io.datarouter.bytes.codec.stringcodec.StringCodec;
 import io.datarouter.storage.file.PathbeanKey;
 import io.datarouter.storage.util.Subpath;
@@ -46,7 +45,7 @@ implements Codec<PathbeanKey,byte[]>{
 	public Range<byte[]> encodeSubpathToRange(Subpath subpath){
 		byte[] subpathBytes = StringCodec.UTF_8.encode(subpath.toString());
 		if(subpathBytes.length == 0){
-			return new Range<>(Arrays::compareUnsigned, EmptyArray.BYTE, true, EmptyArray.BYTE, true);
+			return Range.everything();
 		}
 		byte[] startBytes = subpathBytes;
 		byte[] endBytes = ByteTool.unsignedIncrement(startBytes);

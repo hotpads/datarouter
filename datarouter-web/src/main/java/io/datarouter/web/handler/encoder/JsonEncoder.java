@@ -18,9 +18,6 @@ package io.datarouter.web.handler.encoder;
 import java.io.IOException;
 import java.util.Optional;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Singleton;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -37,6 +34,9 @@ import io.datarouter.web.security.SecurityValidationResult;
 import io.datarouter.web.util.ExceptionTool;
 import io.datarouter.web.util.http.ResponseTool;
 import io.datarouter.web.util.http.exception.HttpExceptionTool;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class JsonEncoder implements HandlerEncoder, JsonAwareHandlerCodec{

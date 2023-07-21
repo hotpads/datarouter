@@ -17,13 +17,12 @@ package io.datarouter.joblet;
 
 import java.util.List;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.instrumentation.count.Counters;
 import io.datarouter.joblet.enums.JobletStatus;
 import io.datarouter.joblet.type.JobletType;
 import io.datarouter.storage.metric.Gauges;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterJobletCounters{

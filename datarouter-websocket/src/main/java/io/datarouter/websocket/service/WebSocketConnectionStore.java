@@ -21,11 +21,11 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.inject.Singleton;
 import javax.websocket.Session;
 
 import io.datarouter.websocket.storage.session.WebSocketSession;
 import io.datarouter.websocket.storage.session.WebSocketSessionKey;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class WebSocketConnectionStore{

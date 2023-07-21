@@ -18,11 +18,10 @@ package io.datarouter.client.hbase.client;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.inject.Singleton;
-
 import org.apache.hadoop.hbase.client.Connection;
 
 import io.datarouter.storage.client.ClientId;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class HBaseConnectionHolder{

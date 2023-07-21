@@ -15,13 +15,12 @@
  */
 package io.datarouter.web.browse;
 
-import javax.inject.Inject;
-
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import io.datarouter.web.requirejs.DatarouterWebRequireJsV2;
 import io.datarouter.web.service.DocumentationNamesAndLinksSupplier;
+import jakarta.inject.Inject;
 
 public class ViewSystemDocsHandler extends BaseHandler{
 

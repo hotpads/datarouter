@@ -21,9 +21,6 @@ import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.auth.config.DatarouterAuthPaths;
 import io.datarouter.auth.storage.account.BaseDatarouterAccountCredentialDao;
 import io.datarouter.auth.storage.account.DatarouterAccountCredential;
@@ -35,6 +32,8 @@ import io.datarouter.web.digest.DailyDigestService;
 import io.datarouter.web.html.j2html.J2HtmlTable;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.TableTag;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterDefaultAccountKeysDailyDigest implements DailyDigest{

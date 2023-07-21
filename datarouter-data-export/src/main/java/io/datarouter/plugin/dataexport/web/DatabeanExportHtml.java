@@ -32,7 +32,6 @@ import io.datarouter.pathnode.PathNode;
 import io.datarouter.plugin.dataexport.config.DatarouterDataExportPaths;
 import io.datarouter.plugin.dataexport.config.DatarouterDataExportPaths.DatabeanExportPaths;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.storage.file.PathbeanKey;
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.web.html.form.HtmlForm;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
@@ -72,7 +71,11 @@ public class DatabeanExportHtml{
 				.add(new NavTab(
 						"Multi Table",
 						parentPath.multiTable.getValue(),
-						currentPath.equals(parentPath.multiTable)));
+						currentPath.equals(parentPath.multiTable)))
+				.add(new NavTab(
+						"Parallel",
+						parentPath.parallel.getValue(),
+						currentPath.equals(parentPath.parallel)));
 		return Bootstrap4NavTabsHtml.render(navTabs);
 	}
 
@@ -107,7 +110,7 @@ public class DatabeanExportHtml{
 					.setHost("localhost")
 					.setPort(8443)
 					.setPath(path)
-					.addParameter(DatarouterDatabeanImportHandler.P_exportId, exportId)
+					.addParameter(DatabeanImportHandler.P_exportId, exportId)
 					.build()
 					.toString();
 		}catch(URISyntaxException e){
@@ -115,10 +118,7 @@ public class DatabeanExportHtml{
 		}
 	}
 
-	public static DivTag makeImportCompleteContent(String exportId, List<PathbeanKey> keys, long totalDatabeans){
-		List<String> nodeNames = Scanner.of(keys)
-				.map(PathbeanKey::getFile)
-				.list();
+	public static DivTag makeImportCompleteContent(String exportId, List<String> nodeNames, long totalDatabeans){
 		return div(
 				h4("Databean Import Complete"),
 				div("exportId: " + exportId),

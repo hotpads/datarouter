@@ -21,8 +21,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-import javax.inject.Inject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,6 +53,7 @@ import io.datarouter.web.handler.mav.imp.MessageMav;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import io.datarouter.web.util.ExceptionTool;
 import io.datarouter.web.util.http.RequestTool;
+import jakarta.inject.Inject;
 
 public class ViewNodeDataHandler extends InspectNodeDataHandler{
 	private static final Logger logger = LoggerFactory.getLogger(ViewNodeDataHandler.class);

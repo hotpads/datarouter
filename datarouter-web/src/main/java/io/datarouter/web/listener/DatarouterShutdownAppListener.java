@@ -15,15 +15,14 @@
  */
 package io.datarouter.web.listener;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.storage.Datarouter;
 import io.datarouter.web.monitoring.BuildProperties;
 import io.datarouter.web.monitoring.GitProperties;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterShutdownAppListener implements DatarouterAppListener{

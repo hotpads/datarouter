@@ -20,9 +20,6 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +34,8 @@ import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode
 import io.datarouter.storage.util.PrimaryKeyPercentCodecTool;
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.tuple.Range;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class TableProcessorService{

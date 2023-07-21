@@ -15,9 +15,9 @@
  */
 package io.datarouter.util.clazz;
 
-import javax.inject.Singleton;
-
 import org.testng.annotations.Test;
+
+import jakarta.inject.Singleton;
 
 public class AnnotationToolTests{
 

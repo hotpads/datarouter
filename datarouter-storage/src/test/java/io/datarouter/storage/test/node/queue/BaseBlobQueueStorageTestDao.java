@@ -18,8 +18,6 @@ package io.datarouter.storage.test.node.queue;
 import java.util.List;
 import java.util.Optional;
 
-import javax.inject.Inject;
-
 import io.datarouter.bytes.Codec;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
@@ -29,6 +27,7 @@ import io.datarouter.storage.dao.TestDao;
 import io.datarouter.storage.node.factory.QueueNodeFactory;
 import io.datarouter.storage.node.op.raw.BlobQueueStorage.BlobQueueStorageNode;
 import io.datarouter.storage.queue.BlobQueueMessage;
+import jakarta.inject.Inject;
 
 public class BaseBlobQueueStorageTestDao<T> extends BaseDao implements TestDao{
 

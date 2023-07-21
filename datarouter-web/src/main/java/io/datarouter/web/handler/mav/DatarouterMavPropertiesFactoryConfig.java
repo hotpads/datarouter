@@ -15,19 +15,17 @@
  */
 package io.datarouter.web.handler.mav;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 
 import io.datarouter.storage.servertype.ServerTypeDetector;
-import io.datarouter.web.user.role.RoleManager;
+import io.datarouter.web.user.role.DatarouterUserRole;
 import io.datarouter.web.user.session.CurrentSessionInfo;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterMavPropertiesFactoryConfig{
 
-	@Inject
-	private RoleManager roleManager;
 	@Inject
 	private CurrentSessionInfo currentSessionInfo;
 	@Inject
@@ -45,9 +43,9 @@ public class DatarouterMavPropertiesFactoryConfig{
 		return serverTypeDetector.mightBeProduction();
 	}
 
-	public boolean getIsAdmin(HttpServletRequest request){
+	public boolean hasAnyDatarouterPrivileges(HttpServletRequest request){
 		return currentSessionInfo.getRoles(request).stream()
-				.anyMatch(roleManager::isAdmin);
+				.anyMatch(DatarouterUserRole.getDatarouterPrivilegedRoles()::contains);
 	}
 
 }

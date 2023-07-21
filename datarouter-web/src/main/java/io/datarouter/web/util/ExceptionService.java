@@ -21,15 +21,14 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.util.string.XmlStringTool;
 import io.datarouter.web.config.DatarouterWebSettingRoot;
 import j2html.tags.specialized.SpanTag;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class ExceptionService{

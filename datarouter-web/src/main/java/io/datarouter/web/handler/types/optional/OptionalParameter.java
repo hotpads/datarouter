@@ -15,6 +15,8 @@
  */
 package io.datarouter.web.handler.types.optional;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.Objects;
 import java.util.Optional;
@@ -54,12 +56,16 @@ public abstract class OptionalParameter<T>{
 
 	public abstract Class<T> getInternalType();
 
-	public abstract OptionalParameter<T> fromString(String stringValue);
+	public abstract OptionalParameter<T> fromString(String stringValue, Method method, Parameter parameter);
 
-	public static OptionalParameter<?> makeOptionalParameter(String stringValue, Type type){
+	public static OptionalParameter<?> makeOptionalParameter(
+			String stringValue,
+			Type type,
+			Method method,
+			Parameter parameter){
 		for(Class<? extends OptionalParameter<?>> optClass : OPTIONAL_PARAMATER_TYPES){
 			if(optClass.equals(type)){
-				return ReflectionTool.create(optClass).fromString(stringValue);
+				return ReflectionTool.create(optClass).fromString(stringValue, method, parameter);
 			}
 		}
 		return new OptionalString();

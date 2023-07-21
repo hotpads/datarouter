@@ -15,12 +15,11 @@
  */
 package io.datarouter.job;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.instrumentation.task.MemoryTaskTracker;
 import io.datarouter.instrumentation.task.TaskTracker;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 /**
  * Lightweight class for running jobs in the current thread without locking.

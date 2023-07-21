@@ -20,9 +20,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +32,8 @@ import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.metric.counter.collection.CountPublisher;
 import io.datarouter.metric.counter.collection.DatarouterCountCollector.CountCollectorStats;
 import io.datarouter.scanner.Scanner;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class CountStatsMemoryToPublisherConveyorConfiguration implements ConveyorConfiguration{
@@ -61,9 +60,8 @@ public class CountStatsMemoryToPublisherConveyorConfiguration implements Conveyo
 			return new ProcessResult(false);
 		}
 		dtos.forEach(counts -> publishCounts(counts, conveyor));
-		//process as many as possible if shutting down
 		//or continue processing immediately if this batch was full
-		return new ProcessResult(conveyor.isShuttingDown() || dtos.size() == POLL_LIMIT);
+		return new ProcessResult(dtos.size() == POLL_LIMIT);
 	}
 
 	private void publishCounts(Map<Long,Map<String,CountCollectorStats>> countStats, ConveyorRunnable conveyor){

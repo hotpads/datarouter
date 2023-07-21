@@ -18,8 +18,6 @@ package io.datarouter.web.handler.types;
 import java.lang.reflect.Method;
 import java.util.Collection;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 
 import io.datarouter.inject.DatarouterInjector;
@@ -28,6 +26,8 @@ import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.web.handler.BaseHandler.Handler;
 import io.datarouter.web.handler.BaseHandler.HandlerMethodAndArgs;
 import io.datarouter.web.handler.BaseHandler.NoOpHandlerDecoder;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class HandlerTypingHelper{

@@ -15,14 +15,13 @@
  */
 package io.datarouter.auth.config;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.auth.service.DatarouterUserCreationService;
 import io.datarouter.auth.service.DefaultDatarouterUserPasswordSupplier;
 import io.datarouter.auth.storage.user.DatarouterUserDao;
 import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.web.listener.DatarouterAppListener;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterUserConfigAppListener implements DatarouterAppListener{

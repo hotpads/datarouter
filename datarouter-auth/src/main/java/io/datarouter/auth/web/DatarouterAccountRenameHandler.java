@@ -25,8 +25,6 @@ import static j2html.TagCreator.ul;
 import java.util.List;
 import java.util.Optional;
 
-import javax.inject.Inject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,6 +54,7 @@ import io.datarouter.web.html.form.HtmlForm;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import j2html.tags.specialized.DivTag;
+import jakarta.inject.Inject;
 
 public class DatarouterAccountRenameHandler extends BaseHandler{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterAccountRenameHandler.class);

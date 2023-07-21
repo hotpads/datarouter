@@ -17,12 +17,11 @@ package io.datarouter.web.handler;
 
 import java.lang.reflect.Method;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.instrumentation.count.Counters;
 import io.datarouter.storage.metric.Gauges;
 import io.datarouter.storage.util.DatarouterCounters;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class HandlerMetrics{

@@ -15,9 +15,8 @@
  */
 package io.datarouter.web.port;
 
-import javax.inject.Singleton;
-
 import io.datarouter.util.JmxTool;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class WildFlyPortIdentifier implements PortIdentifier{

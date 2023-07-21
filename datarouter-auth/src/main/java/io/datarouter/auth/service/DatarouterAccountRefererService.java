@@ -18,8 +18,6 @@ package io.datarouter.auth.service;
 import java.time.Duration;
 import java.util.function.Function;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 
 import io.datarouter.auth.storage.account.DatarouterAccount;
@@ -28,6 +26,8 @@ import io.datarouter.auth.storage.account.DatarouterAccountKey;
 import io.datarouter.httpclient.HttpHeaders;
 import io.datarouter.util.cache.LoadingCache;
 import io.datarouter.util.cache.LoadingCache.LoadingCacheBuilder;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterAccountRefererService{

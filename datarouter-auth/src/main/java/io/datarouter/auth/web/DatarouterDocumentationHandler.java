@@ -15,13 +15,12 @@
  */
 package io.datarouter.auth.web;
 
-import javax.inject.Inject;
-
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.properties.ServiceName;
 import io.datarouter.web.config.RouteSetRegistry;
 import io.datarouter.web.handler.documentation.DocumentationRouteSet;
 import io.datarouter.web.handler.mav.Mav;
+import jakarta.inject.Inject;
 
 public class DatarouterDocumentationHandler extends DatarouterUserBasedDocumentationHandler{
 

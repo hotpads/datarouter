@@ -19,15 +19,14 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.util.concurrent.DatarouterCallerRunsPolicyFactory;
 import io.datarouter.util.concurrent.DatarouterExecutorService;
 import io.datarouter.util.concurrent.NamedThreadFactory;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 public class DatarouterHBaseExecutors{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterHBaseExecutors.class);

@@ -17,7 +17,7 @@ package io.datarouter.web.listener;
 
 import java.util.List;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 public interface WebAppListenersClasses{
 

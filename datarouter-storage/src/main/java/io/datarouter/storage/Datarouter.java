@@ -15,9 +15,6 @@
  */
 package io.datarouter.storage;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
@@ -29,6 +26,8 @@ import io.datarouter.storage.dao.DaoClasses;
 import io.datarouter.storage.dao.TestDao;
 import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.node.Node;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 /**
  * Datarouter is the top-level scope through which various components can share things like clients,

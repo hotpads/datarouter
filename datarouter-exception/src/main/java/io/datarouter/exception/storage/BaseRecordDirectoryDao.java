@@ -16,7 +16,7 @@
 package io.datarouter.exception.storage;
 
 import io.datarouter.binarydto.dto.BinaryDto;
-import io.datarouter.bytes.VarIntByteArraysTool;
+import io.datarouter.bytes.varint.VarIntByteArraysTool;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.file.Directory;
@@ -39,7 +39,7 @@ public abstract class BaseRecordDirectoryDao<E extends BinaryDto<?>>{
 		dtos
 				.map(E::encodeIndexed)
 				.map(VarIntByteArraysTool::encodeOne)
-				.then(scanner -> getDirectory().write(key, scanner));
+				.then(scanner -> getDirectory().writeChunks(key, scanner));
 	}
 
 	public Scanner<String> scanKeysAllowUnsorted(){

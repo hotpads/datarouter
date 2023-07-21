@@ -17,12 +17,11 @@ package io.datarouter.storage.config.properties;
 
 import java.util.function.Supplier;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.storage.config.ComputedPropertiesFinder;
 import io.datarouter.storage.config.environment.DatarouterEnvironmentType;
 import io.datarouter.storage.config.environment.EnvironmentType;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterEnvironmentTypeSupplier implements Supplier<String>{

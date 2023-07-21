@@ -22,9 +22,6 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,6 +41,8 @@ import io.datarouter.job.util.Outcome;
 import io.datarouter.util.DateTool;
 import io.datarouter.util.concurrent.ThreadTool;
 import io.datarouter.util.number.RandomTool;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 /**
  * Provides scheduling, shouldRun, local and cluster locking for jobs.

@@ -17,7 +17,6 @@ package io.datarouter.web.shutdown;
 
 import java.util.concurrent.TimeUnit;
 
-import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
@@ -25,6 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.util.duration.DatarouterDuration;
 import io.datarouter.web.util.http.RequestTool;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class ShutdownService{

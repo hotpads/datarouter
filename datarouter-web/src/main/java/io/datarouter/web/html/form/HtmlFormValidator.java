@@ -17,6 +17,7 @@ package io.datarouter.web.html.form;
 
 import java.util.Optional;
 
+import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.string.StringTool;
 
 public class HtmlFormValidator{
@@ -44,6 +45,17 @@ public class HtmlFormValidator{
 		return canParseLong(input)
 				? Optional.empty()
 				: Optional.of("Max value is " + Long.MAX_VALUE);
+	}
+
+	public static Optional<String> maxLength(String input, int maxLength){
+		if(input.length() > maxLength){
+			String message = String.format(
+					"Length %s is above max %s",
+					NumberFormatter.addCommas(input.length()),
+					NumberFormatter.addCommas(maxLength));
+			return Optional.of(message);
+		}
+		return Optional.empty();
 	}
 
 	private static boolean canParseInteger(String input){

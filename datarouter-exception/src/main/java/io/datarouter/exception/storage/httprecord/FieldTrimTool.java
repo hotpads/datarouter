@@ -20,7 +20,7 @@ import io.datarouter.util.string.StringTool;
 
 public class FieldTrimTool{
 
-	private static final String TRIMMING_REPLACEMENT = "trimmed";
+	public static final String TRIMMING_REPLACEMENT = "trimmed";
 
 	public static String trimField(StringFieldKey fieldKey, String field, String databeanId){
 		return StringTool.trimToSizeAndLog(

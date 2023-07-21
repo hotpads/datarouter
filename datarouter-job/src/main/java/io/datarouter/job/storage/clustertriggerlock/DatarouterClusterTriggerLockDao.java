@@ -20,9 +20,6 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.job.storage.clustertriggerlock.ClusterTriggerLock.ClusterTriggerLockFielder;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
@@ -37,6 +34,8 @@ import io.datarouter.storage.tag.Tag;
 import io.datarouter.storage.util.PrimaryKeyVacuum;
 import io.datarouter.storage.util.PrimaryKeyVacuum.PrimaryKeyVacuumBuilder;
 import io.datarouter.virtualnode.redundant.RedundantSortedMapStorageNode;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterClusterTriggerLockDao extends BaseDao{

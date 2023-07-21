@@ -15,13 +15,12 @@
  */
 package io.datarouter.client.mysql.sql;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.client.mysql.ddl.domain.MysqlLiveTableOptions;
 import io.datarouter.client.mysql.ddl.domain.MysqlLiveTableOptionsRefresher;
 import io.datarouter.client.mysql.field.codec.factory.MysqlFieldCodecFactory;
 import io.datarouter.storage.client.ClientId;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class MysqlSqlFactory{

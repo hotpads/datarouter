@@ -23,9 +23,6 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,6 +35,8 @@ import io.datarouter.secret.service.SecretService;
 import io.datarouter.storage.client.ClientOptions;
 import io.datarouter.util.SystemTool;
 import io.datarouter.util.lang.ObjectTool;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class SpannerClientOptions{

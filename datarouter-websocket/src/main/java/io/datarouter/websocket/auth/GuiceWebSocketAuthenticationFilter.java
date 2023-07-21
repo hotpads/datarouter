@@ -15,8 +15,8 @@
  */
 package io.datarouter.websocket.auth;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class GuiceWebSocketAuthenticationFilter extends WebSocketAuthenticationFilter{

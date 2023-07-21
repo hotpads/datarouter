@@ -15,10 +15,10 @@
  */
 package io.datarouter.web.user.authenticate.saml;
 
-import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 
 import io.datarouter.web.util.http.RequestTool;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class SamlConfigService{

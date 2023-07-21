@@ -30,8 +30,6 @@ import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-
 import org.apache.http.HttpStatus;
 
 import io.datarouter.auth.config.DatarouterAuthFiles;
@@ -92,6 +90,7 @@ import io.datarouter.web.user.role.RoleManager;
 import io.datarouter.web.user.session.CurrentUserSessionInfoService;
 import io.datarouter.web.user.session.service.SessionBasedUser;
 import io.datarouter.web.util.http.ResponseTool;
+import jakarta.inject.Inject;
 
 public class AdminEditUserHandler extends BaseHandler{
 
@@ -156,14 +155,13 @@ public class AdminEditUserHandler extends BaseHandler{
 				.list();
 	}
 
-	//TODO DATAROUTER-2786
 	@Handler
 	private Mav createUser(){
 		if(serverTypeDetector.mightBeProduction()){
 			return pageFactory.message(request, "This is not supported on production");
 		}
 		var template = new CreateUserFormHtml(
-				roleToStrings(roleManager.getConferrableRoles(getCurrentUser().getRoles())),
+				roleToStrings(roleManager.getAllRoles()),
 				authenticationConfig,
 				paths.admin.createUserSubmit.toSlashedStringAfter(paths.admin, false));
 		return pageFactory.startBuilder(request)
@@ -172,21 +170,23 @@ public class AdminEditUserHandler extends BaseHandler{
 				.buildMav();
 	}
 
-	//TODO DATAROUTER-2786
 	@Handler
 	private Mav createUserSubmit(){
 		if(serverTypeDetector.mightBeProduction()){
 			return pageFactory.message(request, "This is not supported on production");
 		}
 		DatarouterUser currentUser = getCurrentUser();
-		if(!roleManager.isAdmin(currentUser.getRoles())){
+		if(!datarouterUserService.isDatarouterAdmin(currentUser)){
 			handleInvalidRequest();
 		}
 		String username = params.required(authenticationConfig.getUsernameParam());
 		String password = params.required(authenticationConfig.getPasswordParam());
 		String[] roleStrings = params.optionalArray(authenticationConfig.getUserRolesParam()).orElse(EmptyArray.STRING);
-		Set<Role> requestedRoles = Arrays.stream(roleStrings)
-				.map(roleManager::getRoleFromPersistentString)
+		Set<Role> requestedRoles = Scanner.of(roleStrings)
+				.map(roleManager::findRoleFromPersistentString)
+				.map(optionalRole -> optionalRole.orElseThrow(
+						() -> new IllegalArgumentException(
+								"Attempt to create user with unknown role(s): " + Arrays.toString(roleStrings))))
 				.collect(Collectors.toSet());
 		boolean enabled = params.optionalBoolean(authenticationConfig.getEnabledParam(), true);
 
@@ -322,18 +322,22 @@ public class AdminEditUserHandler extends BaseHandler{
 				.collect(Collectors.toCollection(HashSet::new));
 		Optional<ZoneId> zoneId = oldUser.getZoneId();
 
-		//if newUser exists, do an "edit"; else do a "create" then "edit" (since accounts are not set in "create")
-		DatarouterUser newUser = datarouterUserDao.getByUsername(new DatarouterUserByUsernameLookup(newUsername));
 		var description = Optional.of("User copied from " + oldUsername + " by " + editor.getUsername());
+		DatarouterUser newUser = datarouterUserDao.getByUsername(new DatarouterUserByUsernameLookup(newUsername));
+		// if not production, we'll create a new user and before editing it (since accounts are not set in "create")
 		if(newUser == null){
-			newUser = datarouterUserCreationService.createManualUser(
-					editor,
-					newUsername,
-					null,
-					new HashSet<>(Set.of(DatarouterUserRole.REQUESTOR.getRole())), // needs to be mutable
-					true,
-					zoneId,
-					description);
+			if(serverTypeDetector.mightBeProduction()){
+				return ApiResponseDto.forbidden("Cannot copy user's permissions to a non-existent user in production.");
+			}else{
+				newUser = datarouterUserCreationService.createManualUser(
+						editor,
+						newUsername,
+						null,
+						new HashSet<>(Set.of(DatarouterUserRole.REQUESTOR.getRole())), // needs to be mutable
+						true,
+						zoneId,
+						description);
+			}
 		}else{
 			//preserve existing accounts that are not present on the source user of the copy
 			Scanner.of(datarouterAccountUserService.findAccountNamesForUser(newUser))
@@ -434,7 +438,8 @@ public class AdminEditUserHandler extends BaseHandler{
 				Scanner.of(datarouterUserHistoryService.getHistoryForUser(user.getId()))
 						.map(userHistory -> {
 							var currUsername =
-									Optional.ofNullable(datarouterUserService.getUserById(userHistory.getEditor()))
+									Optional.ofNullable(userHistory.getEditor())
+											.map(datarouterUserService::getUserById)
 											.map(DatarouterUser::getUsername)
 											.orElse(String.valueOf(userHistory.getEditor()));
 							return new DatarouterUserHistoryDto(
@@ -453,7 +458,8 @@ public class AdminEditUserHandler extends BaseHandler{
 		DatarouterUser editor = getCurrentUser();
 		DatarouterUser datarouterUser = datarouterUserService.getUserById(user.getId());
 		return new EditUserDetailsDto(
-				roleManager.isAdmin(editor.getRoles()) ? PagePermissionType.ADMIN : PagePermissionType.ROLES_ONLY,
+				datarouterUserService.isDatarouterAdmin(editor)
+						? PagePermissionType.ADMIN : PagePermissionType.ROLES_ONLY,
 				editor.getUsername(),
 				user.getUsername(),
 				user.getId().toString(),

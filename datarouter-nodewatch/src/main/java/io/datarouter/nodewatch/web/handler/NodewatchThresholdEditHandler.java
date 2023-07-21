@@ -20,8 +20,6 @@ import static j2html.TagCreator.div;
 
 import java.util.Optional;
 
-import javax.inject.Inject;
-
 import io.datarouter.nodewatch.config.DatarouterNodewatchPaths;
 import io.datarouter.nodewatch.config.DatarouterNodewatchPlugin;
 import io.datarouter.nodewatch.service.NodewatchChangelogService;
@@ -38,6 +36,7 @@ import io.datarouter.web.html.form.HtmlForm;
 import io.datarouter.web.html.form.HtmlFormValidator;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
+import jakarta.inject.Inject;
 
 public class NodewatchThresholdEditHandler extends BaseHandler{
 

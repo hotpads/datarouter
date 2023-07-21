@@ -22,10 +22,9 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.util.StreamTool;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 /**
  * For manually tracking instances in prototype scope or those created with 'new'

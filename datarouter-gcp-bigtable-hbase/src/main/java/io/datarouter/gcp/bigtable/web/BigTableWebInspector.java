@@ -15,11 +15,10 @@
  */
 package io.datarouter.gcp.bigtable.web;
 
-import javax.inject.Inject;
-
 import io.datarouter.client.hbase.web.HBaseWebInspector;
 import io.datarouter.gcp.bigtable.paths.DatarouterBigTablePaths;
 import io.datarouter.pathnode.PathNode;
+import jakarta.inject.Inject;
 
 public class BigTableWebInspector extends HBaseWebInspector{
 

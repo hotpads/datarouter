@@ -22,9 +22,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,6 +60,8 @@ import io.datarouter.client.gcp.pubsub.TopicAndSubscriptionName;
 import io.datarouter.storage.client.BaseClientManager;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.util.string.StringTool;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class GcpPubsubClientManager extends BaseClientManager{
@@ -81,7 +80,7 @@ public class GcpPubsubClientManager extends BaseClientManager{
 	@Inject
 	private GcpPubsubPublisherExecutor gcpPubsubPublisherExecutor;
 	@Inject
-	private DatarouterGcpPubSubTransportChannelProviderHolder transportChannelProviderHolder;
+	private DatarouterGcpPubSubTransportChannelProviderFactory transportChannelProviderFactory;
 
 	@Override
 	public void shutdown(ClientId clientId){
@@ -101,7 +100,7 @@ public class GcpPubsubClientManager extends BaseClientManager{
 					.setCredentialsProvider(credentialsProvider)
 					.setWatchdogProvider(InstantiatingWatchdogProvider.create()
 							.withExecutor(gcpPubsubWatchdogExecutor))
-					.setTransportChannelProvider(transportChannelProviderHolder.transportChannelProvider)
+					.setTransportChannelProvider(transportChannelProviderFactory.make(1))
 					.build();
 			topicAdminClient = TopicAdminClient.create(topicAdminSettings);
 		}catch(IOException e){
@@ -113,7 +112,7 @@ public class GcpPubsubClientManager extends BaseClientManager{
 					.setCredentialsProvider(credentialsProvider)
 					.setWatchdogProvider(InstantiatingWatchdogProvider.create()
 							.withExecutor(gcpPubsubWatchdogExecutor))
-					.setTransportChannelProvider(transportChannelProviderHolder.transportChannelProvider)
+					.setTransportChannelProvider(transportChannelProviderFactory.make(1))
 					.build();
 			subscriptionAdminClient = SubscriptionAdminClient.create(subscriptionAdminSettings);
 		}catch(IOException e){
@@ -122,7 +121,7 @@ public class GcpPubsubClientManager extends BaseClientManager{
 		SubscriberStub subscriber;
 		try{
 			SubscriberStubSettings subscriberStubSettings = SubscriberStubSettings.newBuilder()
-					.setTransportChannelProvider(transportChannelProviderHolder.transportChannelProvider)
+					.setTransportChannelProvider(transportChannelProviderFactory.make(16))
 					.setCredentialsProvider(credentialsProvider)
 					.setBackgroundExecutorProvider(FixedExecutorProvider.create(subscriberStubExecutor))
 					.setStreamWatchdogProvider(InstantiatingWatchdogProvider.create()
@@ -140,7 +139,7 @@ public class GcpPubsubClientManager extends BaseClientManager{
 					.setCredentialsProvider(credentialsProvider)
 					.setWatchdogProvider(InstantiatingWatchdogProvider.create()
 							.withExecutor(gcpPubsubWatchdogExecutor))
-					.setTransportChannelProvider(transportChannelProviderHolder.transportChannelProvider)
+					.setTransportChannelProvider(transportChannelProviderFactory.make(1))
 					.build();
 			metricServiceClient = MetricServiceClient.create(metricServiceSettings);
 		}catch(IOException e){
@@ -215,7 +214,7 @@ public class GcpPubsubClientManager extends BaseClientManager{
 			publisher = Publisher.newBuilder(topicName)
 					.setCredentialsProvider(gcpPubsubOptions.getCredentialProvider(clientId.getName()))
 					.setExecutorProvider(FixedExecutorProvider.create(gcpPubsubPublisherExecutor))
-					.setChannelProvider(transportChannelProviderHolder.transportChannelProvider)
+					.setChannelProvider(transportChannelProviderFactory.make(1))
 					.build();
 		}catch(IOException e){
 			throw new RuntimeException(e);

@@ -15,9 +15,6 @@
  */
 package io.datarouter.web.warmup;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,6 +25,8 @@ import io.datarouter.instrumentation.count.Counters;
 import io.datarouter.web.config.DatarouterWebSettingRoot;
 import io.datarouter.web.config.ServletContextSupplier;
 import io.datarouter.web.port.CompoundPortIdentifier;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class HttpWarmup{

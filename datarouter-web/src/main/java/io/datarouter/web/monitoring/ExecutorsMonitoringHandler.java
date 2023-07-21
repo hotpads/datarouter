@@ -19,8 +19,6 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.concurrent.ThreadPoolExecutor;
 
-import javax.inject.Inject;
-
 import io.datarouter.inject.InstanceRegistry;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.concurrent.NamedThreadFactory;
@@ -28,6 +26,7 @@ import io.datarouter.util.string.StringTool;
 import io.datarouter.web.config.DatarouterWebFiles;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
+import jakarta.inject.Inject;
 
 public class ExecutorsMonitoringHandler extends BaseHandler{
 

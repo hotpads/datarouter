@@ -21,14 +21,13 @@ import static j2html.TagCreator.text;
 import java.util.List;
 import java.util.Optional;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.auth.web.DatarouterPermissionRequestHandler;
 import io.datarouter.web.user.databean.DatarouterUser;
 import io.datarouter.web.user.detail.DatarouterUserExternalDetailService;
 import io.datarouter.web.user.detail.DatarouterUserProfileLink;
 import j2html.tags.DomContent;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterPermissionRequestUserInfo implements PermissionRequestUserInfo{

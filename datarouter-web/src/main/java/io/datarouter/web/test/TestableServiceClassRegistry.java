@@ -18,11 +18,10 @@ package io.datarouter.web.test;
 import java.util.List;
 import java.util.function.Supplier;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.instrumentation.test.TestableService;
 import io.datarouter.plugin.PluginInjector;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class TestableServiceClassRegistry implements Supplier<List<TestableService>>{

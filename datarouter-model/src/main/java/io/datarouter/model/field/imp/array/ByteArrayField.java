@@ -18,6 +18,7 @@ package io.datarouter.model.field.imp.array;
 import java.util.Arrays;
 import java.util.Base64;
 
+import io.datarouter.bytes.TerminatedByteArrayTool;
 import io.datarouter.bytes.codec.bytestringcodec.HexByteStringCodec;
 import io.datarouter.model.field.BaseField;
 import io.datarouter.model.field.Field;
@@ -56,20 +57,17 @@ public class ByteArrayField extends BaseField<byte[]>{
 
 	@Override
 	public byte[] getKeyBytesWithSeparator(){
-		//Would need to be implemented with something like TerminatedStringCodec
-		throw new UnsupportedOperationException();
+		return TerminatedByteArrayTool.escapeAndTerminate(value);
 	}
 
 	@Override
 	public int numKeyBytesWithSeparator(byte[] bytes, int offset){
-		//Would need to be implemented with something like TerminatedStringCodec
-		throw new UnsupportedOperationException();
+		return TerminatedByteArrayTool.lengthWithTerminator(bytes, offset);
 	}
 
 	@Override
 	public byte[] fromKeyBytesWithSeparatorButDoNotSet(byte[] bytes, int offset){
-		//Would need to be implemented with something like TerminatedStringCodec
-		throw new UnsupportedOperationException();
+		return TerminatedByteArrayTool.unescapeAndUnterminate(bytes, offset);
 	}
 
 	@Override

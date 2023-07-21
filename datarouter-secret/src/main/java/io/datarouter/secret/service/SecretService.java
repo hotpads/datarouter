@@ -18,15 +18,14 @@ package io.datarouter.secret.service;
 import java.util.List;
 import java.util.Optional;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.secret.client.Secret;
 import io.datarouter.secret.config.SecretClientSupplierConfig;
 import io.datarouter.secret.config.SecretClientSupplierConfigHolder;
 import io.datarouter.secret.op.SecretOpConfig;
 import io.datarouter.secret.op.SecretOpFactory;
 import io.datarouter.secret.op.SecretOpReason;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 /**
  * This is the recommended interface for accessing {@link Secret}s that need to be written to. Namespacing is

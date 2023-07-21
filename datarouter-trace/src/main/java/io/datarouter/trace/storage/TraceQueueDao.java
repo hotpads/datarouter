@@ -17,13 +17,11 @@ package io.datarouter.trace.storage;
 
 import java.util.List;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.binarydto.codec.BinaryDtoIndexedCodec;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
+import io.datarouter.storage.config.properties.EnvironmentName;
 import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.QueueNodeFactory;
@@ -32,6 +30,8 @@ import io.datarouter.storage.queue.consumer.BlobQueueConsumer;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.trace.storage.binarydto.TraceBinaryDto;
 import io.datarouter.virtualnode.redundant.RedundantBlobQueueStorageNode;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class TraceQueueDao extends BaseDao{
@@ -47,18 +47,21 @@ public class TraceQueueDao extends BaseDao{
 	private final BlobQueueStorageNode<TraceBinaryDto> node;
 
 	@Inject
-	public TraceQueueDao(Datarouter datarouter, TraceQueueDaoParams params,
-			QueueNodeFactory queueNodeFactory){
+	public TraceQueueDao(
+			Datarouter datarouter,
+			TraceQueueDaoParams params,
+			QueueNodeFactory queueNodeFactory,
+			EnvironmentName environmentNameSupplier){
 		super(datarouter);
+		String namespace = environmentNameSupplier.deprecatedIsProduction()
+				? "shared"
+				: environmentNameSupplier.get() + "-shared";
 		node = Scanner.of(params.clientIds)
-				.map(clientId -> {
-					var node = queueNodeFactory
-							.createBlobQueue(clientId, "TraceBinaryDto", BinaryDtoIndexedCodec.of(TraceBinaryDto.class))
-							.withNamespace("shared")
-							.withTag(Tag.DATAROUTER)
-							.build();
-					return node;
-				})
+				.map(clientId -> queueNodeFactory
+						.createBlobQueue(clientId, "TraceBinaryDto", BinaryDtoIndexedCodec.of(TraceBinaryDto.class))
+						.withNamespace(namespace)
+						.withTag(Tag.DATAROUTER)
+						.build())
 				.listTo(RedundantBlobQueueStorageNode::makeIfMulti);
 		datarouter.register(node);
 	}

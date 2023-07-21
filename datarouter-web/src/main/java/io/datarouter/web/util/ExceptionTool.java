@@ -17,6 +17,7 @@ package io.datarouter.web.util;
 
 import java.io.InterruptedIOException;
 import java.net.SocketTimeoutException;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.core.impl.ThrowableProxy;
@@ -50,15 +51,21 @@ public class ExceptionTool{
 
 	@SafeVarargs
 	public static boolean isFromInstanceOf(Throwable exception, Class<? extends Exception>... classes){
+		return getFirstMatchingExceptionIfApplicable(exception, classes).isPresent();
+	}
+
+	@SafeVarargs
+	public static Optional<Throwable> getFirstMatchingExceptionIfApplicable(Throwable exception,
+			Class<? extends Exception>... classes){
 		while(exception != null){
 			for(Class<? extends Exception> clazz : classes){
 				if(clazz.isAssignableFrom(exception.getClass())){
-					return true;
+					return Optional.of(exception);
 				}
 			}
 			exception = exception.getCause();
 		}
-		return false;
+		return Optional.empty();
 	}
 
 	public static boolean isInterrupted(Throwable exception){

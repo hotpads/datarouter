@@ -15,8 +15,6 @@
  */
 package io.datarouter.webappinstance.job;
 
-import javax.inject.Inject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,6 +22,7 @@ import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
 import io.datarouter.web.shutdown.ShutdownService;
 import io.datarouter.webappinstance.service.WebappInstanceService;
+import jakarta.inject.Inject;
 
 public class WebappInstanceUpdateJob extends BaseJob{
 	private static final Logger logger = LoggerFactory.getLogger(WebappInstanceUpdateJob.class);

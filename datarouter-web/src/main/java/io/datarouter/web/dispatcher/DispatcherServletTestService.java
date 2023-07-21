@@ -17,12 +17,12 @@ package io.datarouter.web.dispatcher;
 
 import java.util.List;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 
 import io.datarouter.inject.DatarouterInjector;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DispatcherServletTestService{

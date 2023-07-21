@@ -15,8 +15,9 @@
  */
 package io.datarouter.web.filter;
 
-import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
+
+import jakarta.inject.Singleton;
 
 @Singleton
 public class StaticFileFilterConfig{

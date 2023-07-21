@@ -15,6 +15,9 @@
  */
 package io.datarouter.web.handler.types.optional;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+
 import io.datarouter.util.number.NumberTool;
 
 /**
@@ -36,7 +39,7 @@ public class OptionalLong extends OptionalParameter<Long>{
 	}
 
 	@Override
-	public OptionalParameter<Long> fromString(String stringValue){
+	public OptionalParameter<Long> fromString(String stringValue, Method method, Parameter parameter){
 		return new OptionalLong(NumberTool.getLongNullSafe(stringValue, null));
 	}
 

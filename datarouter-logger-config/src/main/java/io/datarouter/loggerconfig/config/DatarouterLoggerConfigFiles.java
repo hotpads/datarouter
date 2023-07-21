@@ -15,10 +15,9 @@
  */
 package io.datarouter.loggerconfig.config;
 
-import javax.inject.Singleton;
-
 import io.datarouter.pathnode.FilesRoot;
 import io.datarouter.pathnode.PathNode;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterLoggerConfigFiles extends FilesRoot{

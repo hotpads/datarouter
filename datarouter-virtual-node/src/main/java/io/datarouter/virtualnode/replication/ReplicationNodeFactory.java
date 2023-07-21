@@ -18,9 +18,6 @@ package io.datarouter.virtualnode.replication;
 import java.util.List;
 import java.util.function.Supplier;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.entity.EntityKey;
 import io.datarouter.model.key.primary.EntityPrimaryKey;
@@ -35,6 +32,8 @@ import io.datarouter.storage.node.op.combo.IndexedSortedMapStorage.IndexedSorted
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import io.datarouter.storage.node.op.raw.MapStorage.MapStorageNode;
 import io.datarouter.virtualnode.replication.ReplicationNodeOptions.ReplicationNodeOptionsBuilder;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class ReplicationNodeFactory{

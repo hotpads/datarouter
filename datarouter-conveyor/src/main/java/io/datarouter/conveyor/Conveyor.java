@@ -15,7 +15,6 @@
  */
 package io.datarouter.conveyor;
 
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
 public class Conveyor implements ConveyorRunnable{
@@ -24,7 +23,6 @@ public class Conveyor implements ConveyorRunnable{
 	private final ConveyorService conveyorService;
 	private final ConveyorConfiguration conveyorConfiguration;
 	private final String name;
-	private final AtomicBoolean isShuttingDown;
 	private final Supplier<Boolean> shouldRun;
 
 	public Conveyor(ConveyorService conveyorService,
@@ -35,7 +33,6 @@ public class Conveyor implements ConveyorRunnable{
 		this.conveyorConfiguration = conveyorConfiguration;
 		this.name = name;
 		this.shouldRun = shouldRun;
-		this.isShuttingDown = new AtomicBoolean();
 	}
 
 	@Override
@@ -53,22 +50,8 @@ public class Conveyor implements ConveyorRunnable{
 		return shouldRun.get();
 	}
 
-	@Override
-	public void setIsShuttingDown(){
-		isShuttingDown.set(true);
-	}
-
-	@Override
-	public boolean isShuttingDown(){
-		return isShuttingDown.get();
-	}
-
-	@Override
-	public boolean shouldRunOnShutdown(){
-		return conveyorConfiguration.shouldRunOnShutdown();
-	}
-
-	public record ProcessResult(boolean shouldContinueImmediately){
+	public record ProcessResult(
+			boolean shouldContinueImmediately){
 	}
 
 	@Override

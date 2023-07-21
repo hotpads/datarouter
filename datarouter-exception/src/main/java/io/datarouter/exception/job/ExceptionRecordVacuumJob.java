@@ -15,11 +15,10 @@
  */
 package io.datarouter.exception.job;
 
-import javax.inject.Inject;
-
 import io.datarouter.exception.storage.exceptionrecord.DatarouterExceptionRecordDao;
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
+import jakarta.inject.Inject;
 
 public class ExceptionRecordVacuumJob extends BaseJob{
 

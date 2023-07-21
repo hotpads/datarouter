@@ -21,6 +21,8 @@ import java.io.InputStream;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import io.datarouter.bytes.io.ExposedByteArrayOutputStream;
+
 public class ExposedByteArrayOutputStreamTests{
 
 	@Test

@@ -15,10 +15,9 @@
  */
 package io.datarouter.gcp.spanner.sql;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.gcp.spanner.field.SpannerFieldCodecs;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class SpannerSqlFactory{

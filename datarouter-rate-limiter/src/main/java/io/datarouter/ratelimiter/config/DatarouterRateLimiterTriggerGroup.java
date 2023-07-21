@@ -15,13 +15,12 @@
  */
 package io.datarouter.ratelimiter.config;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.job.BaseTriggerGroup;
 import io.datarouter.ratelimiter.DatarouterRateLimiterTtlVacuumJob;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.util.time.ZoneIds;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterRateLimiterTriggerGroup extends BaseTriggerGroup{

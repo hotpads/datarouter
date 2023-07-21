@@ -21,13 +21,12 @@ import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import javax.inject.Singleton;
-
 import org.apache.http.impl.client.CloseableHttpClient;
 
 import io.datarouter.httpclient.endpoint.link.BaseLink;
 import io.datarouter.httpclient.endpoint.link.LinkTool;
 import io.datarouter.httpclient.endpoint.link.LinkType;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class StandardDatarouterLinkClient<

@@ -10,7 +10,7 @@
 <c:set var="fullPath" value="${mavProperties.fullPath}" />
 <c:set var="cssVersion" value="${mavProperties.cssVersion}" />
 <c:set var="jsVersion" value="${mavProperties.jsVersion}" />
-<c:set var="isAdmin" value="${mavProperties.isAdmin}" />
+<c:set var="hasAnyDatarouterPrivileges" value="${mavProperties.hasAnyDatarouterPrivileges}" />
 <c:set var="isProduction" value="${mavProperties.isProduction}" />
 
 <c:set var="tomcatWebApps" value="${mavProperties.tomcatWebApps}" />

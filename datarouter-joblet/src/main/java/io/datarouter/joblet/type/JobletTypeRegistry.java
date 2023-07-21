@@ -18,10 +18,9 @@ package io.datarouter.joblet.type;
 import java.util.List;
 import java.util.function.Supplier;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.plugin.PluginInjector;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class JobletTypeRegistry implements Supplier<List<JobletType<?>>>{

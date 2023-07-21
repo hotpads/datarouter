@@ -18,8 +18,6 @@ package io.datarouter.filesystem.snapshot.group;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.inject.Singleton;
-
 import io.datarouter.filesystem.snapshot.block.Block;
 import io.datarouter.filesystem.snapshot.block.BlockKey;
 import io.datarouter.filesystem.snapshot.block.leaf.LeafBlock;
@@ -27,6 +25,7 @@ import io.datarouter.filesystem.snapshot.reader.block.BlockLoader;
 import io.datarouter.filesystem.snapshot.reader.block.LeafBlockRangeLoader.LeafBlockRange;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.Require;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class SnapshotGroups implements BlockLoader{

@@ -21,7 +21,9 @@ import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import io.datarouter.clustersetting.enums.ClusterSettingScope;
 import io.datarouter.clustersetting.storage.clustersetting.ClusterSetting;
+import io.datarouter.clustersetting.util.ClusterSettingComparisonTool;
 import io.datarouter.storage.servertype.ServerType;
 
 public class ClusterSettingComparatorTests{

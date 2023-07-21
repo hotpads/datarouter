@@ -17,9 +17,8 @@ package io.datarouter.web.handler.validator;
 
 import java.lang.reflect.Method;
 
-import javax.inject.Singleton;
-
 import io.datarouter.httpclient.endpoint.java.BaseEndpoint;
+import jakarta.inject.Singleton;
 
 // Cannot use PluginInjector since this class is instantiated early
 public interface HandlerAccountCallerValidator{

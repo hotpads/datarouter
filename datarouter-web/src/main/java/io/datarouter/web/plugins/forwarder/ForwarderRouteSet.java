@@ -15,12 +15,11 @@
  */
 package io.datarouter.web.plugins.forwarder;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class ForwarderRouteSet extends BaseRouteSet{

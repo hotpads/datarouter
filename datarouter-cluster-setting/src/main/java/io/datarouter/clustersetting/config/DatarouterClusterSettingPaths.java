@@ -15,10 +15,9 @@
  */
 package io.datarouter.clustersetting.config;
 
-import javax.inject.Singleton;
-
 import io.datarouter.pathnode.PathNode;
 import io.datarouter.pathnode.PathsRoot;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterClusterSettingPaths extends PathNode implements PathsRoot{
@@ -30,14 +29,6 @@ public class DatarouterClusterSettingPaths extends PathNode implements PathsRoot
 	}
 
 	public static class SettingPaths extends PathNode{
-		public final PathNode browseSettings = leaf("browseSettings");
-		public final PathNode create = leaf("create");
-		public final PathNode delete = leaf("delete");
-		public final PathNode isRecognizedRoot = leaf("isRecognizedRoot");
-		public final PathNode roots = leaf("roots");
-		public final PathNode searchSettingNames = leaf("searchSettingNames");
-		public final PathNode update = leaf("update");
-		public final PathNode updateSettingTags = leaf("updateSettingTags");
 		public final PathNode tags = leaf("tags");
 		public final SettingBrowse browse = branch(SettingBrowse::new, "browse");
 		public final SettingLog log = branch(SettingLog::new, "log");

@@ -21,9 +21,6 @@ import java.util.List;
 import java.util.concurrent.Future;
 import java.util.function.Supplier;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDtoBuilder;
 import io.datarouter.job.BaseJob;
@@ -36,6 +33,8 @@ import io.datarouter.job.storage.stopjobrequest.StopJobRequestDao;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.util.concurrent.ThreadTool;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class JobStopperService{

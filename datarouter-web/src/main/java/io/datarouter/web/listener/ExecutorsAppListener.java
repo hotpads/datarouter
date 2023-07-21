@@ -18,11 +18,10 @@ package io.datarouter.web.listener;
 import java.time.Duration;
 import java.util.concurrent.ExecutorService;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.inject.InstanceRegistry;
 import io.datarouter.util.concurrent.ExecutorServiceTool;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class ExecutorsAppListener implements DatarouterAppListener{

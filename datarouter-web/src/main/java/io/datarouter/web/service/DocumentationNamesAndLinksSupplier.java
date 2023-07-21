@@ -20,15 +20,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.plugin.PluginConfigKey;
 import io.datarouter.plugin.PluginConfigType;
 import io.datarouter.plugin.PluginConfigValue;
 import io.datarouter.plugin.PluginInjector;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.web.service.DocumentationNamesAndLinksSupplier.DocDto;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DocumentationNamesAndLinksSupplier implements Supplier<List<DocDto>>{
@@ -55,7 +54,7 @@ public class DocumentationNamesAndLinksSupplier implements Supplier<List<DocDto>
 				.toMap(dto -> dto.name, dto -> dto.link);
 	}
 
-	public static enum DocType{
+	public enum DocType{
 		README,
 		SYSTEM_DOCS,
 		;

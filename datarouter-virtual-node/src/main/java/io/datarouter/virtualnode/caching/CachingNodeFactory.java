@@ -17,14 +17,13 @@ package io.datarouter.virtualnode.caching;
 
 import java.util.Objects;
 
-import javax.inject.Singleton;
-
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.node.adapter.callsite.MapStorageCallsiteAdapter;
 import io.datarouter.storage.node.adapter.counter.MapStorageCounterAdapter;
 import io.datarouter.storage.node.op.raw.MapStorage.MapStorageNode;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class CachingNodeFactory{

@@ -17,15 +17,14 @@ package io.datarouter.conveyor.config;
 
 import java.time.Duration;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.storage.setting.DatarouterSettingTagType;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.SettingNode;
 import io.datarouter.storage.setting.cached.CachedSetting;
 import io.datarouter.storage.setting.cached.impl.DurationCachedSetting;
 import io.datarouter.util.duration.DatarouterDuration;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterConveyorTraceSettings extends SettingNode{
@@ -35,6 +34,7 @@ public class DatarouterConveyorTraceSettings extends SettingNode{
 	public final DurationCachedSetting saveTracesOverMs;
 	public final DurationCachedSetting saveTracesCpuOverMs;
 	public final CachedSetting<Boolean> saveTracesToMemory;
+	public final CachedSetting<Integer> maxSpansPerTrace;
 
 	@Inject
 	public DatarouterConveyorTraceSettings(SettingFinder finder){
@@ -51,6 +51,7 @@ public class DatarouterConveyorTraceSettings extends SettingNode{
 				.ofMillis(50)));
 		saveTracesToMemory = registerBooleans("saveTracesToMemory", defaultTo(false)
 				.withTag(DatarouterSettingTagType.CONVEYOR_TRACE_PIPELINE, () -> true));
+		maxSpansPerTrace = registerInteger("maxSpansPerTrace", 200);
 	}
 
 }

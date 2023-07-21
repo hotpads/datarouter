@@ -20,8 +20,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
-import javax.inject.Inject;
-
 import io.datarouter.plugin.PluginInjector;
 import io.datarouter.web.digest.DailyDigest.DailyDigestType;
 import io.datarouter.web.handler.BaseHandler;
@@ -31,6 +29,7 @@ import io.datarouter.web.requirejs.DatarouterWebRequireJsV2;
 import io.datarouter.web.user.session.CurrentUserSessionInfoService;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.DivTag;
+import jakarta.inject.Inject;
 
 public class DailyDigestHandler extends BaseHandler{
 

@@ -15,9 +15,8 @@
  */
 package io.datarouter.util.concurrent;
 
-import javax.inject.Singleton;
-
 import io.datarouter.instrumentation.count.Counters;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterCallerRunsMonitor{

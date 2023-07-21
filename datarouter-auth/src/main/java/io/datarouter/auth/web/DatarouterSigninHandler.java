@@ -19,8 +19,6 @@ import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.h2;
 
-import javax.inject.Inject;
-
 import io.datarouter.auth.config.DatarouterAuthPaths;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
@@ -31,6 +29,7 @@ import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig
 import io.datarouter.web.user.authenticate.saml.DatarouterSamlSettings;
 import io.datarouter.web.user.authenticate.saml.SamlService;
 import j2html.tags.specialized.DivTag;
+import jakarta.inject.Inject;
 
 public class DatarouterSigninHandler extends BaseHandler{
 

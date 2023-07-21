@@ -24,8 +24,8 @@ extends BaseBinaryDto<T>{
 	/*----------- fields -----------*/
 
 	@Override
-	public final List<Field> getFieldsOrdered(){
-		return indexedCodec().getFieldsOrdered();
+	public final List<Field> getPresentFields(){
+		return indexedCodec().fieldCache.presentFields;
 	}
 
 }

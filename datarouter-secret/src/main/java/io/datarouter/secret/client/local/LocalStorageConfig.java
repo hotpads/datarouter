@@ -15,7 +15,7 @@
  */
 package io.datarouter.secret.client.local;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 public interface LocalStorageConfig{
 

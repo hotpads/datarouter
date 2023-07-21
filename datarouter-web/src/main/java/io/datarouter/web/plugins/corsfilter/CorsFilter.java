@@ -17,8 +17,6 @@ package io.datarouter.web.plugins.corsfilter;
 
 import java.io.IOException;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -31,6 +29,8 @@ import org.apache.http.HttpStatus;
 
 import io.datarouter.httpclient.HttpHeaders;
 import io.datarouter.web.config.settings.DatarouterLocalhostCorsFilterSettings;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class CorsFilter implements Filter{

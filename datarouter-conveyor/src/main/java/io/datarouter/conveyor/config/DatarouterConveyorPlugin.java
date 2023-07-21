@@ -15,9 +15,13 @@
  */
 package io.datarouter.conveyor.config;
 
+import java.util.List;
+
 import io.datarouter.conveyor.ConveyorAppListener;
 import io.datarouter.conveyor.ConveyorConfigurationGroup;
 import io.datarouter.conveyor.trace.conveyor.ConveyorTraceConveyorConfigurationGroup;
+import io.datarouter.instrumentation.description.Description;
+import io.datarouter.instrumentation.description.Detail;
 import io.datarouter.web.config.BaseWebPlugin;
 import io.datarouter.web.navigation.DatarouterNavBarCategory;
 
@@ -32,6 +36,14 @@ public class DatarouterConveyorPlugin extends BaseWebPlugin{
 				"Conveyors");
 		addSettingRoot(DatarouterConveyorSettingRoot.class);
 		addPluginEntry(ConveyorConfigurationGroup.KEY, ConveyorTraceConveyorConfigurationGroup.class);
+	}
+
+	@Override
+	public Description describe(){
+		return new Description(
+				getName(),
+				"Adds Datarouter Conveyor functionality and UI elements into an app",
+				List.of(new Detail("Maven", "Requires the datarouter-conveyor Maven module in pom.xml.")));
 	}
 
 }

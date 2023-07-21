@@ -15,6 +15,9 @@
  */
 package io.datarouter.web.handler.types.optional;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+
 import io.datarouter.util.number.NumberTool;
 
 /**
@@ -36,7 +39,7 @@ public class OptionalDouble extends OptionalParameter<Double>{
 	}
 
 	@Override
-	public OptionalParameter<Double> fromString(String stringValue){
+	public OptionalParameter<Double> fromString(String stringValue, Method method, Parameter parameter){
 		return new OptionalDouble(NumberTool.getDoubleNullSafe(stringValue, null));
 	}
 

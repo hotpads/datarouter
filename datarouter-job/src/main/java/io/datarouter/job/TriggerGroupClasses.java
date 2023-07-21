@@ -17,11 +17,10 @@ package io.datarouter.job;
 
 import java.util.function.Supplier;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.plugin.PluginInjector;
 import io.datarouter.scanner.Scanner;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class TriggerGroupClasses implements Supplier<Scanner<BaseTriggerGroup>>{

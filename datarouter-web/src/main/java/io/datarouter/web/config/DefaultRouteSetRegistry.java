@@ -17,9 +17,8 @@ package io.datarouter.web.config;
 
 import java.util.List;
 
-import javax.inject.Singleton;
-
 import io.datarouter.web.dispatcher.RouteSet;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DefaultRouteSetRegistry implements RouteSetRegistry{

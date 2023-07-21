@@ -18,7 +18,7 @@ package io.datarouter.util.cached;
 import java.time.Duration;
 import java.util.function.Supplier;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 public class CachingSupplier<T> extends Cached<T>{
 

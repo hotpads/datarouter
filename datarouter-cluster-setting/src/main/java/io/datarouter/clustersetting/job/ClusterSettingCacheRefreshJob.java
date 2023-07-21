@@ -15,11 +15,10 @@
  */
 package io.datarouter.clustersetting.job;
 
-import javax.inject.Inject;
-
 import io.datarouter.clustersetting.storage.clustersetting.DatarouterClusterSettingDao;
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
+import jakarta.inject.Inject;
 
 public class ClusterSettingCacheRefreshJob extends BaseJob{
 

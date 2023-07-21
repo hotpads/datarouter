@@ -15,10 +15,9 @@
  */
 package io.datarouter.plugin.dataexport.config;
 
-import javax.inject.Singleton;
-
 import io.datarouter.pathnode.PathNode;
 import io.datarouter.pathnode.PathsRoot;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterDataExportPaths extends PathNode implements PathsRoot{
@@ -38,6 +37,7 @@ public class DatarouterDataExportPaths extends PathNode implements PathsRoot{
 	public static class DatabeanExportPaths extends PathNode{
 		public final PathNode singleTable = leaf("singleTable");
 		public final PathNode multiTable = leaf("multiTable");
+		public final PathNode parallel = leaf("parallel");
 	}
 
 }

@@ -19,9 +19,6 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.instrumentation.serviceconfig.ServiceConfigurationDto;
 import io.datarouter.instrumentation.serviceconfig.ServiceConfigurationPublisher;
 import io.datarouter.storage.config.DatarouterSubscribersSupplier;
@@ -32,6 +29,8 @@ import io.datarouter.web.config.service.DomainFinder;
 import io.datarouter.web.listener.DatarouterAppListener;
 import io.datarouter.web.service.DocumentationNamesAndLinksSupplier;
 import io.datarouter.web.service.ServiceDescriptionSupplier;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterServiceConfigurationAppListener implements DatarouterAppListener{

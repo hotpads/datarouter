@@ -18,11 +18,10 @@ package io.datarouter.storage.dao;
 import java.util.List;
 import java.util.function.Supplier;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.scanner.Scanner;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class Daos implements Supplier<List<? extends Dao>>{

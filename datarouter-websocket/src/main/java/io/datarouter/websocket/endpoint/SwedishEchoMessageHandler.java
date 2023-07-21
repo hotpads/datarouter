@@ -15,11 +15,11 @@
  */
 package io.datarouter.websocket.endpoint;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import javax.websocket.MessageHandler;
 
 import io.datarouter.websocket.session.PushService;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 public class SwedishEchoMessageHandler implements ClosableMessageHandler, MessageHandler.Whole<String>{
 

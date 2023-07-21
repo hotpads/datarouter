@@ -17,8 +17,6 @@ package io.datarouter.gcp.spanner.test;
 
 import java.util.List;
 
-import javax.inject.Inject;
-
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Guice;
@@ -28,6 +26,7 @@ import io.datarouter.gcp.spanner.SpannerTestNgModuleFactory;
 import io.datarouter.gcp.spanner.test.generated.SpannerRandomGeneratedFieldBean;
 import io.datarouter.gcp.spanner.test.generated.SpannerRandomGeneratedFieldDao;
 import io.datarouter.scanner.Scanner;
+import jakarta.inject.Inject;
 
 @Guice(moduleFactory = SpannerTestNgModuleFactory.class)
 public class SpannerRandomGeneratedFieldTests{

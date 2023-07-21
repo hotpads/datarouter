@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
-import io.datarouter.clustersetting.ClusterSettingScope;
+import io.datarouter.clustersetting.enums.ClusterSettingScope;
 import io.datarouter.clustersetting.storage.clustersetting.ClusterSetting;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.servertype.ServerType;

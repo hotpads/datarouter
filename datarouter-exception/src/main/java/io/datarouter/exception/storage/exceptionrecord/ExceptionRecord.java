@@ -31,6 +31,7 @@ import io.datarouter.model.field.imp.comparable.IntegerField;
 import io.datarouter.model.field.imp.comparable.IntegerFieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 import io.datarouter.model.util.CommonFieldSizes;
+import io.datarouter.util.string.StringTool;
 import io.datarouter.web.service.DatarouterServiceFieldKeys;
 
 public class ExceptionRecord extends BaseDatabean<ExceptionRecordKey,ExceptionRecord>{
@@ -228,16 +229,16 @@ public class ExceptionRecord extends BaseDatabean<ExceptionRecordKey,ExceptionRe
 	}
 
 	public void trimFields(){
-		trimstackTrace();
+		trimStackTrace();
 	}
 
-	public void trimstackTrace(){
-		stackTrace = trimField(FieldKeys.stackTrace, stackTrace);
+	public void trimStackTrace(){
+		stackTrace = StringTool.trimToSizeAndLog(
+				stackTrace,
+				ExceptionRecordDto.STACK_TRACE_LENGTH_LIMIT,
+				FieldTrimTool.TRIMMING_REPLACEMENT,
+				"field=stackTrace",
+				"exceptionRecordId=" + getKey().getId());
 	}
-
-	private String trimField(StringFieldKey fieldKey, String field){
-		return FieldTrimTool.trimField(fieldKey, field, "exceptionRecordId=" + getKey().getId());
-	}
-
 
 }

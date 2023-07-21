@@ -22,8 +22,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -42,6 +40,8 @@ import io.datarouter.web.user.session.DatarouterSessionManager;
 import io.datarouter.web.user.session.service.Session;
 import io.datarouter.web.user.session.service.SessionBasedUser;
 import io.datarouter.web.user.session.service.UserSessionService;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterUserSessionService implements UserSessionService{

@@ -18,8 +18,6 @@ package io.datarouter.conveyor.queue.configuration;
 import java.time.Duration;
 import java.time.Instant;
 
-import javax.inject.Inject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +29,7 @@ import io.datarouter.conveyor.ConveyorRunnable;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.queue.consumer.BlobQueueConsumer;
+import jakarta.inject.Inject;
 
 public abstract class BaseBlobQueueConsumerConveyorConfiguration<T>
 implements ConveyorConfiguration{

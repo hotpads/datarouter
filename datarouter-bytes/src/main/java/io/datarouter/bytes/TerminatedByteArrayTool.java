@@ -36,6 +36,11 @@ public class TerminatedByteArrayTool{
 
 	/*------------- encode -----------------*/
 
+	public static int escapedAndTerminatedLength(byte[] input){
+		//TODO could be optimized
+		return escapeAndTerminate(input).length;
+	}
+
 	public static byte[] escapeAndTerminate(byte[] input){
 		int numToEscape = numToEscape(input);
 		if(numToEscape == 0){// Common case: use System.arraycopy instead of checking each byte
@@ -142,6 +147,15 @@ public class TerminatedByteArrayTool{
 			++unescapedIndex;
 		}
 		return unescapedBytes;
+	}
+
+	public static byte[] unescapeAndUnterminate(byte[] escapedBytes, int offset){
+		NumEscapedAndTerminalIndex numEscapedAndTerminalIndex = findEscapedCountAndTerminalIndex(escapedBytes, offset);
+		return unescapeAndUnterminate(
+				escapedBytes,
+				offset,
+				numEscapedAndTerminalIndex.numEscaped,
+				numEscapedAndTerminalIndex.terminalIndex);
 	}
 
 }

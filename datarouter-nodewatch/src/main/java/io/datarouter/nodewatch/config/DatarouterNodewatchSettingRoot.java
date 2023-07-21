@@ -15,13 +15,12 @@
  */
 package io.datarouter.nodewatch.config;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.storage.setting.DatarouterSettingCategory;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.SettingRoot;
 import io.datarouter.storage.setting.cached.CachedSetting;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterNodewatchSettingRoot extends SettingRoot{
@@ -31,6 +30,7 @@ public class DatarouterNodewatchSettingRoot extends SettingRoot{
 	public final CachedSetting<Boolean> tableSizeMonitoringJob;
 	public final CachedSetting<Boolean> enableOffsetting;
 	public final CachedSetting<Boolean> runTableSamplerJobletVacuumJob;
+	public final CachedSetting<Boolean> runTableStorageSummaryJob;
 
 	@Inject
 	public DatarouterNodewatchSettingRoot(SettingFinder finder){
@@ -40,6 +40,7 @@ public class DatarouterNodewatchSettingRoot extends SettingRoot{
 		tableSizeMonitoringJob = registerBoolean("tableSizeMonitoringJob", false);
 		enableOffsetting = registerBoolean("enableOffsetting", true);
 		runTableSamplerJobletVacuumJob = registerBoolean("runTableSamplerJobletVacuumJob", true);
+		runTableStorageSummaryJob = registerBoolean("runTableStorageSummaryJob", false);
 	}
 
 }

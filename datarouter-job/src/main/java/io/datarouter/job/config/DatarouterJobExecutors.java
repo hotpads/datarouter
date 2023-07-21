@@ -17,10 +17,9 @@ package io.datarouter.job.config;
 
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
-import javax.inject.Singleton;
-
 import io.datarouter.util.concurrent.NamedThreadFactory;
 import io.datarouter.util.concurrent.ScalingThreadPoolExecutor;
+import jakarta.inject.Singleton;
 
 public class DatarouterJobExecutors{
 

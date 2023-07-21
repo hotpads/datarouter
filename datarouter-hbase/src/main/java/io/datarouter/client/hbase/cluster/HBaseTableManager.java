@@ -19,9 +19,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.apache.hadoop.hbase.client.Admin;
 
 import io.datarouter.client.hbase.HBaseClientManager;
@@ -33,6 +30,8 @@ import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.node.Node;
 import io.datarouter.storage.node.NodeTool;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 public class HBaseTableManager<PK extends PrimaryKey<PK>>{
 

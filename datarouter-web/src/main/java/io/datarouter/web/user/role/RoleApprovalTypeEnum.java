@@ -22,4 +22,6 @@ public interface RoleApprovalTypeEnum<T>{
 	String getPersistentString();
 
 	T fromPersistentString(String string);
+
+	int getPriority();
 }

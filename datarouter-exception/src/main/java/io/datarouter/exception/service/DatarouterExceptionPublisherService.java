@@ -17,9 +17,6 @@ package io.datarouter.exception.service;
 
 import java.util.List;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,6 +36,8 @@ import io.datarouter.instrumentation.response.PublishingResponseDto;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.properties.ServiceName;
 import io.datarouter.types.Ulid;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterExceptionPublisherService implements DatarouterExceptionPublisher{

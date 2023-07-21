@@ -15,9 +15,8 @@
  */
 package io.datarouter.plugin.copytable.config;
 
-import javax.inject.Singleton;
-
 import io.datarouter.util.concurrent.ScalingThreadPoolExecutor;
+import jakarta.inject.Singleton;
 
 public class DatarouterCopyTableExecutors{
 

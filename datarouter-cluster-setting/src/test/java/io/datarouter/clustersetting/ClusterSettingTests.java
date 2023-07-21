@@ -18,6 +18,7 @@ package io.datarouter.clustersetting;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import io.datarouter.clustersetting.enums.ClusterSettingScope;
 import io.datarouter.clustersetting.storage.clustersetting.ClusterSettingKey;
 import io.datarouter.webappinstance.storage.webappinstance.WebappInstance;
 

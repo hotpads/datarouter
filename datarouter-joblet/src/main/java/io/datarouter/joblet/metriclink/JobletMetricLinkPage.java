@@ -18,8 +18,6 @@ package io.datarouter.joblet.metriclink;
 import java.util.List;
 import java.util.Optional;
 
-import javax.inject.Inject;
-
 import io.datarouter.joblet.type.JobletType;
 import io.datarouter.joblet.type.JobletTypeFactory;
 import io.datarouter.scanner.Scanner;
@@ -27,6 +25,7 @@ import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.metriclinks.MetricLinkDto;
 import io.datarouter.web.metriclinks.MetricLinkDto.LinkDto;
 import io.datarouter.web.metriclinks.MetricLinkPage;
+import jakarta.inject.Inject;
 
 public abstract class JobletMetricLinkPage implements MetricLinkPage{
 

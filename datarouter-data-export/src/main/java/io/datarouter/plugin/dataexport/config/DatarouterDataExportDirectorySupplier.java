@@ -15,10 +15,23 @@
  */
 package io.datarouter.plugin.dataexport.config;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Optional;
+
 import io.datarouter.storage.file.Directory;
 
 public interface DatarouterDataExportDirectorySupplier{
 
 	Directory getDirectory();
+
+	default Optional<Duration> findTtl(){
+		return Optional.empty();
+	}
+
+	default Optional<Instant> findVacuumEndInstant(){
+		return findTtl()
+				.map(ttl -> Instant.now().minus(ttl));
+	}
 
 }

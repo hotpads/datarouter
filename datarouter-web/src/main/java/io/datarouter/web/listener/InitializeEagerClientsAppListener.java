@@ -15,11 +15,10 @@
  */
 package io.datarouter.web.listener;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.storage.client.DatarouterClients;
 import io.datarouter.storage.dao.Daos;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class InitializeEagerClientsAppListener implements DatarouterAppListener{

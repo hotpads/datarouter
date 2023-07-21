@@ -20,9 +20,6 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.HConstants;
@@ -48,6 +45,8 @@ import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.util.mutable.MutableString;
 import io.datarouter.util.timer.PhaseTimer;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class HBaseClientManager extends BaseClientManager{

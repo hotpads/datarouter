@@ -21,8 +21,6 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoField;
 import java.util.concurrent.TimeUnit;
 
-import javax.inject.Inject;
-
 import org.testng.Assert;
 import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
@@ -30,6 +28,7 @@ import org.testng.annotations.Test;
 import io.datarouter.ratelimiter.DatarouterRateLimiterConfig.DatarouterRateLimiterConfigBuilder;
 import io.datarouter.ratelimiter.storage.BaseTallyDao;
 import io.datarouter.util.time.ZoneIds;
+import jakarta.inject.Inject;
 
 @Guice(moduleFactory = RateLimiterTestNgModuleFactory.class)
 public class BaseMapRateLimiterIntegrationTests{

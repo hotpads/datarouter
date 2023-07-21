@@ -63,12 +63,13 @@ public class Bootstrap4ReactPage{
 		require.add(DatarouterWebRequireJsV2.BOOTSTRAP);
 
 		//admin content
-		boolean isAdmin = mavProperties.getIsAdmin();
+		boolean hasAnyDatarouterPrivileges = mavProperties.getHasAnyDatarouterPrivileges();
 		EmptyTag<?>[] datarouterNavbarCssImports = new EmptyTag[]{};
 		ContainerTag<?> datarouterNavbarRequestTimingJsImport = null;
 		ContainerTag<?> datarouterNavbar = null;
 		ContainerTag<?> datarouterNavbarRequestTimingScript = null;
-		if(isAdmin){
+		if(hasAnyDatarouterPrivileges){
+			// Show the common navbar, which links to the datarouter pages
 			int numWebapps = mavProperties.getTomcatWebApps().size();
 			datarouterNavbarCssImports = DatarouterNavbarFactory.makeNavbarV2CssImportTags(contextPath, numWebapps);
 			datarouterNavbarRequestTimingJsImport = DatarouterWebJsTool.makeJsImport(contextPath,

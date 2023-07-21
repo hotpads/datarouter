@@ -19,8 +19,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.inject.Singleton;
-
 import io.datarouter.filesystem.snapshot.block.branch.BranchBlock;
 import io.datarouter.filesystem.snapshot.block.branch.BranchBlockV1;
 import io.datarouter.filesystem.snapshot.block.leaf.LeafBlock;
@@ -31,6 +29,7 @@ import io.datarouter.filesystem.snapshot.block.value.ValueBlock;
 import io.datarouter.filesystem.snapshot.block.value.ValueBlockV1;
 import io.datarouter.util.Require;
 import io.datarouter.util.lang.ReflectionTool;
+import jakarta.inject.Singleton;
 
 /**
  * Mapping of persistent block name string to the Block implementation class.  Custom implementations can be added

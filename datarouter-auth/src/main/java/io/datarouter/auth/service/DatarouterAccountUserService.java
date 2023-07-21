@@ -22,9 +22,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.auth.storage.account.BaseDatarouterAccountCredentialDao;
 import io.datarouter.auth.storage.account.BaseDatarouterAccountDao;
 import io.datarouter.auth.storage.account.DatarouterAccount;
@@ -36,6 +33,8 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.web.user.databean.DatarouterUser;
 import io.datarouter.web.user.session.service.Session;
 import io.datarouter.web.user.session.service.SessionBasedUser;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterAccountUserService{

@@ -15,9 +15,8 @@
  */
 package io.datarouter.client.redis;
 
-import javax.inject.Singleton;
-
 import io.datarouter.util.concurrent.ScalingThreadPoolExecutor;
+import jakarta.inject.Singleton;
 
 public class RedisExecutors{
 

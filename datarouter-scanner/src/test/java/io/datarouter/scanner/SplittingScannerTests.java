@@ -15,7 +15,6 @@
  */
 package io.datarouter.scanner;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -30,7 +29,7 @@ public class SplittingScannerTests{
 
 	@Test
 	public void testEmpty(){
-		boolean hasAny = Scanner.of(new ArrayList<String>())
+		boolean hasAny = Scanner.<String>empty()
 				.splitBy(FIRST)
 				.hasAny();
 		Assert.assertFalse(hasAny);

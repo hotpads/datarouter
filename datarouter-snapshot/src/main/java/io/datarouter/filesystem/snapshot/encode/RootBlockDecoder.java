@@ -17,12 +17,11 @@ package io.datarouter.filesystem.snapshot.encode;
 
 import java.util.List;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.filesystem.snapshot.block.BlockTypeRegistry;
 import io.datarouter.filesystem.snapshot.block.root.RootBlock;
 import io.datarouter.util.lang.ReflectionTool;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class RootBlockDecoder{

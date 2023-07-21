@@ -17,9 +17,9 @@ package io.datarouter.clustersetting.config;
 
 import java.util.List;
 
-import io.datarouter.clustersetting.ClusterSettingFinder;
 import io.datarouter.clustersetting.listener.SettingNodeValidationAppListener;
 import io.datarouter.clustersetting.service.ClusterSettingDailyDigest;
+import io.datarouter.clustersetting.service.ClusterSettingFinder;
 import io.datarouter.clustersetting.storage.clustersetting.DatarouterClusterSettingDao;
 import io.datarouter.clustersetting.storage.clustersetting.DatarouterClusterSettingDao.DatarouterClusterSettingDaoParams;
 import io.datarouter.clustersetting.storage.clustersettinglog.DatarouterClusterSettingLogDao;
@@ -44,12 +44,8 @@ public class DatarouterClusterSettingPlugin extends BaseWebPlugin{
 		addPluginEntry(BaseTriggerGroup.KEY, DatarouterClusterSettingTriggerGroup.class);
 		addDatarouterNavBarItem(
 				DatarouterNavBarCategory.CONFIGURATION,
-				PATHS.datarouter.settings.toSlashedString() + "?submitAction=browseSettings",
-				DatarouterClusterSettingPlugin.NAME + " - Browse");
-		addDatarouterNavBarItem(
-				DatarouterNavBarCategory.CONFIGURATION,
 				PATHS.datarouter.settings.browse.all,
-				DatarouterClusterSettingPlugin.NAME + " - Browse V2");
+				DatarouterClusterSettingPlugin.NAME + " - Browse");
 		addDatarouterNavBarItem(
 				DatarouterNavBarCategory.CONFIGURATION,
 				PATHS.datarouter.settings.log.all,

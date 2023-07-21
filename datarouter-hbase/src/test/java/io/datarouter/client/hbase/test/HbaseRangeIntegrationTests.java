@@ -18,8 +18,6 @@ package io.datarouter.client.hbase.test;
 import java.util.Collection;
 import java.util.List;
 
-import javax.inject.Inject;
-
 import org.testng.Assert;
 import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
@@ -28,6 +26,7 @@ import io.datarouter.client.hbase.config.DatarouterHBaseTestNgModuleFactory;
 import io.datarouter.storage.test.TestDatabean;
 import io.datarouter.storage.test.TestDatabeanKey;
 import io.datarouter.util.tuple.Range;
+import jakarta.inject.Inject;
 
 @Guice(moduleFactory = DatarouterHBaseTestNgModuleFactory.class)
 public class HbaseRangeIntegrationTests{

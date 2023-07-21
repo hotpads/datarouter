@@ -15,15 +15,14 @@
  */
 package io.datarouter.metric.counter;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.instrumentation.count.Counters;
 import io.datarouter.metric.config.DatarouterCountSettingRoot;
 import io.datarouter.metric.counter.collection.CountPartitions;
 import io.datarouter.metric.counter.collection.DatarouterCountCollector;
 import io.datarouter.metric.counter.conveyor.CountBuffers;
 import io.datarouter.web.listener.DatarouterAppListener;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class CountersAppListener implements DatarouterAppListener{

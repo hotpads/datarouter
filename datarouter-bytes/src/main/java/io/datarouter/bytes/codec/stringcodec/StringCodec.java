@@ -19,10 +19,12 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
+import io.datarouter.bytes.Codec;
+
 /**
  * Encodes a String without any length information or terminal bytes.
  */
-public class StringCodec{
+public class StringCodec implements Codec<String,byte[]>{
 
 	public static final StringCodec US_ASCII = new StringCodec(StandardCharsets.US_ASCII);
 	public static final StringCodec ISO_8859_1 = new StringCodec(StandardCharsets.ISO_8859_1);
@@ -43,6 +45,7 @@ public class StringCodec{
 		this.charsetName = charset.name();
 	}
 
+	@Override
 	public byte[] encode(String value){
 		try{
 			return value.getBytes(charsetName);
@@ -57,6 +60,7 @@ public class StringCodec{
 		return encodedBytes.length;
 	}
 
+	@Override
 	public String decode(byte[] bytes){
 		return decode(bytes, 0, bytes.length);
 	}

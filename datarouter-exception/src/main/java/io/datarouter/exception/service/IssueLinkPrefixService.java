@@ -15,7 +15,7 @@
  */
 package io.datarouter.exception.service;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 /**
  * Implementations of this class can be used for external services that track projects like JIRA

@@ -15,11 +15,8 @@
  */
 package io.datarouter.testng.parallel;
 
-import org.testng.annotations.Test;
-
 /**
  * To test TestNg and maven surefire parallel test execution
  */
-@Test(enabled = BaseParallelExecutionTest.RUN_SUITE)
 public class ParallelExecution1Tests extends BaseParallelExecutionTest{
 }

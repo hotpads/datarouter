@@ -17,7 +17,7 @@ package io.datarouter.storage.config.schema;
 
 import java.util.Properties;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 public interface SchemaUpdateOptionsFactory{
 

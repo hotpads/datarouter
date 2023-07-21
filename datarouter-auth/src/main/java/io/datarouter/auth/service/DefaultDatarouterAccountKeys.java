@@ -15,10 +15,9 @@
  */
 package io.datarouter.auth.service;
 
-import javax.inject.Singleton;
-
 import io.datarouter.util.Require;
 import io.datarouter.util.string.StringTool;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DefaultDatarouterAccountKeys implements DefaultDatarouterAccountKeysSupplier{

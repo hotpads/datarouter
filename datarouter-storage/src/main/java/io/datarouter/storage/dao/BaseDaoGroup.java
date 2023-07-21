@@ -18,9 +18,8 @@ package io.datarouter.storage.dao;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.inject.Singleton;
-
 import io.datarouter.util.Require;
+import jakarta.inject.Singleton;
 
 /**
  * A DaoGroup is a collection of related DAOs. It is easy to trace all uses of each DAO through your code using tools

@@ -22,13 +22,12 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.auth.config.DatarouterAuthPlugin;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 /**
  * Executes the {@link UserDeprovisioningStrategy} and {@link UserDeprovisioningListeners} configured in

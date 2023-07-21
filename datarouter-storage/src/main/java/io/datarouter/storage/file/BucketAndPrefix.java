@@ -15,6 +15,8 @@
  */
 package io.datarouter.storage.file;
 
+import io.datarouter.storage.util.Subpath;
+
 /**
  * Bucket name and Object key prefix are frequenly passed around together.
  * This wraps them into a more type safe object.
@@ -22,6 +24,12 @@ package io.datarouter.storage.file;
 public record BucketAndPrefix(
 		String bucket,
 		String prefix){
+
+	public BucketAndPrefix(
+			String bucket,
+			Subpath prefix){
+		this(bucket, prefix.toString());
+	}
 
 	@Override
 	public String toString(){

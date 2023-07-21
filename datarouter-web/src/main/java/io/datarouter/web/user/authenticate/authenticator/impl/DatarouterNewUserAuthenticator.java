@@ -15,8 +15,6 @@
  */
 package io.datarouter.web.user.authenticate.authenticator.impl;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -24,6 +22,8 @@ import io.datarouter.web.user.authenticate.DatarouterTokenGenerator;
 import io.datarouter.web.user.authenticate.authenticator.DatarouterAuthenticator;
 import io.datarouter.web.user.session.DatarouterSession;
 import io.datarouter.web.user.session.DatarouterSessionManager;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterNewUserAuthenticator implements DatarouterAuthenticator{

@@ -15,13 +15,13 @@
  */
 package io.datarouter.web.user.authenticate.authenticator.impl;
 
-import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import io.datarouter.web.user.authenticate.DatarouterTokenGenerator;
 import io.datarouter.web.user.authenticate.authenticator.DatarouterAuthenticator;
 import io.datarouter.web.user.session.DatarouterSession;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterAnonymousNonPersistentAuthenticator implements DatarouterAuthenticator{

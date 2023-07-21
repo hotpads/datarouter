@@ -19,12 +19,16 @@ import java.util.Collection;
 import java.util.Optional;
 
 import com.google.cloud.spanner.DatabaseClient;
+import com.google.cloud.spanner.ErrorCode;
 import com.google.cloud.spanner.Mutation;
+import com.google.cloud.spanner.SpannerException;
 
 import io.datarouter.gcp.spanner.op.SpannerBaseOp;
 import io.datarouter.model.exception.DataAccessException;
+import io.datarouter.model.exception.DatarouterInsertOrBustException;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.Config;
+import io.datarouter.storage.config.PutMethod;
 
 public abstract class SpannerBaseWriteOp<T> extends SpannerBaseOp<Void>{
 
@@ -35,6 +39,7 @@ public abstract class SpannerBaseWriteOp<T> extends SpannerBaseOp<Void>{
 
 	protected final String tableName;
 	protected final Collection<T> values;
+	private final PutMethod putMethod;
 
 	public SpannerBaseWriteOp(
 			DatabaseClient client,
@@ -46,14 +51,18 @@ public abstract class SpannerBaseWriteOp<T> extends SpannerBaseOp<Void>{
 		this.batchSize = config.findRequestBatchSize();
 		this.tableName = tableName;
 		this.values = values;
+		this.putMethod = config.getPutMethod();
 	}
 
 	@Override
 	public Void wrappedCall(){
 		// Add trace
 		Collection<Mutation> mutations = getMutations();
+
+		boolean isPutIgnore = putMethod == PutMethod.INSERT_IGNORE;
+
 		Scanner.of(mutations)
-				.batch(batchSize.orElse(DEFAULT_BATCH_SIZE))
+				.batch(isPutIgnore ? 1 : batchSize.orElse(DEFAULT_BATCH_SIZE))
 				.forEach(mutationBatch -> {
 					try{
 						client.write(mutationBatch);
@@ -64,8 +73,16 @@ public abstract class SpannerBaseWriteOp<T> extends SpannerBaseOp<Void>{
 						}else{
 							dataDesc = "data=" + values;
 						}
-						throw new DataAccessException("Error writing data to table=" + tableName + " with " + dataDesc,
-								ex);
+						if(ex instanceof SpannerException spannerEx
+								&& spannerEx.getErrorCode() == ErrorCode.ALREADY_EXISTS){
+							if(isPutIgnore){
+								return;
+							}
+							String message = String.format("error inserting table=%s", tableName);
+							throw new DatarouterInsertOrBustException(message, spannerEx);
+						}
+						String message = String.format("Error writing data to table=%s with %s", tableName, dataDesc);
+						throw new DataAccessException(message, ex);
 					}
 				});
 		return null;

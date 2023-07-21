@@ -15,16 +15,16 @@
  */
 package io.datarouter.nodewatch.config;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.job.BaseTriggerGroup;
 import io.datarouter.nodewatch.job.TableCountJob;
 import io.datarouter.nodewatch.job.TableSamplerJob;
 import io.datarouter.nodewatch.job.TableSamplerJobletVacuumJob;
 import io.datarouter.nodewatch.job.TableSizeMonitoringJob;
+import io.datarouter.nodewatch.job.TableStorageSummaryJob;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.util.time.ZoneIds;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterNodewatchTriggerGroup extends BaseTriggerGroup{
@@ -51,6 +51,11 @@ public class DatarouterNodewatchTriggerGroup extends BaseTriggerGroup{
 				"0 0 6 ? * * *",
 				settings.runTableSamplerJobletVacuumJob,
 				TableSamplerJobletVacuumJob.class,
+				true);
+		registerLocked(
+				"0 0 0 ? * * *",
+				settings.runTableStorageSummaryJob,
+				TableStorageSummaryJob.class,
 				true);
 	}
 

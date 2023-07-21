@@ -18,9 +18,6 @@ package io.datarouter.web.listener;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.web.css.DatarouterWebCss;
 import io.datarouter.web.css.DatarouterWebCssV2;
 import io.datarouter.web.handler.mav.MavPropertiesFactory;
@@ -29,6 +26,8 @@ import io.datarouter.web.navigation.DatarouterNavbarFactory;
 import io.datarouter.web.requirejs.DatarouterWebRequireJs;
 import io.datarouter.web.requirejs.DatarouterWebRequireJsV2;
 import io.datarouter.web.requirejs.RequireJsTool;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class JspWebappListener extends DatarouterWebAppListener{

@@ -15,14 +15,13 @@
  */
 package io.datarouter.aws.secretsmanager;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import com.amazonaws.regions.Regions;
 
 import io.datarouter.secret.client.SecretClient;
 import io.datarouter.secret.client.SecretClient.SecretClientSupplier;
 import io.datarouter.web.config.AwsSupport;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class AwsSecretClientSupplier implements SecretClientSupplier{

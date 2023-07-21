@@ -19,9 +19,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
@@ -37,6 +34,8 @@ import io.datarouter.web.user.databean.DatarouterUser.DatarouterUserByUserTokenL
 import io.datarouter.web.user.databean.DatarouterUser.DatarouterUserByUsernameLookup;
 import io.datarouter.web.user.databean.DatarouterUser.DatarouterUserFielder;
 import io.datarouter.web.user.databean.DatarouterUserKey;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterUserDao extends BaseDao{
@@ -92,6 +91,10 @@ public class DatarouterUserDao extends BaseDao{
 	}
 
 	public Optional<DatarouterUser> find(DatarouterUserByUserTokenLookup key){
+		return Optional.ofNullable(node.lookupUnique(key));
+	}
+
+	public Optional<DatarouterUser> findByUsername(DatarouterUserByUsernameLookup key){
 		return Optional.ofNullable(node.lookupUnique(key));
 	}
 

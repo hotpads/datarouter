@@ -15,9 +15,6 @@
  */
 package io.datarouter.joblet.service;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.joblet.model.Joblet;
 import io.datarouter.joblet.model.JobletPackage;
@@ -25,6 +22,8 @@ import io.datarouter.joblet.storage.jobletrequest.JobletRequest;
 import io.datarouter.joblet.type.JobletType;
 import io.datarouter.joblet.type.JobletTypeFactory;
 import io.datarouter.util.mutable.MutableBoolean;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class JobletFactory{

@@ -19,9 +19,6 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.auth.cache.DatarouterUserByIdCache;
 import io.datarouter.auth.cache.DatarouterUserByUserTokenCache;
 import io.datarouter.auth.cache.DatarouterUserByUsernameCache;
@@ -33,6 +30,8 @@ import io.datarouter.web.user.databean.DatarouterUser.DatarouterUserByUserTokenL
 import io.datarouter.web.user.databean.DatarouterUser.DatarouterUserByUsernameLookup;
 import io.datarouter.web.user.databean.DatarouterUserKey;
 import io.datarouter.web.user.role.Role;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterUserInfo implements UserInfo{

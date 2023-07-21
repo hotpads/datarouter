@@ -19,8 +19,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import javax.inject.Inject;
-
 import io.datarouter.auth.config.DatarouterAuthFiles;
 import io.datarouter.auth.config.DatarouterAuthPaths;
 import io.datarouter.auth.service.deprovisioning.UserDeprovisioningService;
@@ -32,6 +30,7 @@ import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.html.react.bootstrap4.Bootstrap4ReactPageFactory;
 import io.datarouter.web.user.session.service.Session;
+import jakarta.inject.Inject;
 
 public class UserDeprovisioningHandler extends BaseHandler{
 

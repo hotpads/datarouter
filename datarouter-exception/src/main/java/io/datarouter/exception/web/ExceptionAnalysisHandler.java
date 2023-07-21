@@ -20,8 +20,6 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
 
-import javax.inject.Inject;
-
 import com.google.gson.reflect.TypeToken;
 
 import io.datarouter.exception.config.DatarouterExceptionFiles;
@@ -43,6 +41,7 @@ import io.datarouter.web.handler.types.Param;
 import io.datarouter.web.user.session.CurrentUserSessionInfoService;
 import io.datarouter.web.util.ExceptionService;
 import io.datarouter.web.util.http.CookieTool;
+import jakarta.inject.Inject;
 
 public class ExceptionAnalysisHandler extends BaseHandler{
 

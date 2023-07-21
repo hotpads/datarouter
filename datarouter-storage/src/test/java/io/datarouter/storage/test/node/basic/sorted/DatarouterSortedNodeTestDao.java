@@ -19,8 +19,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Stream;
 
-import javax.inject.Singleton;
-
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
@@ -31,6 +29,7 @@ import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage;
 import io.datarouter.storage.test.node.basic.sorted.SortedBean.SortedBeanFielder;
 import io.datarouter.util.tuple.Range;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterSortedNodeTestDao extends BaseDao implements TestDao{

@@ -26,8 +26,6 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,6 +67,7 @@ import io.datarouter.web.html.react.bootstrap4.Bootstrap4ReactPageFactory;
 import io.datarouter.web.requirejs.DatarouterWebRequireJs;
 import io.datarouter.web.user.session.CurrentUserSessionInfoService;
 import io.datarouter.web.user.session.service.Session;
+import jakarta.inject.Inject;
 
 public class DatarouterAccountManagerHandler extends BaseHandler{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterAccountManagerHandler.class);

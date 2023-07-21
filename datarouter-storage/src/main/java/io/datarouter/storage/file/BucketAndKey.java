@@ -15,13 +15,69 @@
  */
 package io.datarouter.storage.file;
 
+import java.util.Objects;
+
 /**
  * Bucket name and Object key are frequenly passed around together.
  * This wraps them into a more type safe object.
  */
-public record BucketAndKey(
-		String bucket,
-		String key){
+public class BucketAndKey{
+
+	private static final boolean VALIDATE_BY_DEFAULT = true;
+
+	private final String bucket;
+	private final String key;
+
+	private BucketAndKey(String bucket, String key, boolean validate){
+		if(validate){
+			validateBlobStorageCompatibility(key);
+		}
+		this.bucket = bucket;
+		this.key = key;
+	}
+
+	public BucketAndKey(String bucket, String key){
+		this(bucket, key, VALIDATE_BY_DEFAULT);
+	}
+
+	public static BucketAndKey withoutBlobStorageCompatibilityValidation(String bucket, String key){
+		return new BucketAndKey(bucket, key, false);
+	}
+
+	public static String validateBlobStorageCompatibility(String key){
+		PathbeanKey.of(key);
+		return key;
+	}
+
+	public String bucket(){
+		return bucket;
+	}
+
+	public String key(){
+		return key;
+	}
+
+	/*------- Object --------*/
+
+	@Override
+	public boolean equals(Object obj){
+		if(this == obj){
+			return true;
+		}
+		if(obj == null){
+			return false;
+		}
+		if(getClass() != obj.getClass()){
+			return false;
+		}
+		BucketAndKey other = (BucketAndKey)obj;
+		return Objects.equals(this.bucket, other.bucket) && Objects.equals(this.key, other.key);
+	}
+
+	@Override
+	public int hashCode(){
+		return Objects.hash(bucket, key);
+	}
 
 	@Override
 	public String toString(){

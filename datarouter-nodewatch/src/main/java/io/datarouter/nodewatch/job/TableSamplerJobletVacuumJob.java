@@ -18,13 +18,12 @@ package io.datarouter.nodewatch.job;
 import java.time.Duration;
 import java.time.Instant;
 
-import javax.inject.Inject;
-
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
 import io.datarouter.joblet.storage.jobletrequest.DatarouterJobletRequestDao;
 import io.datarouter.joblet.storage.jobletrequest.JobletRequestKey;
 import io.datarouter.nodewatch.joblet.TableSpanSamplerJoblet;
+import jakarta.inject.Inject;
 
 public class TableSamplerJobletVacuumJob extends BaseJob{
 

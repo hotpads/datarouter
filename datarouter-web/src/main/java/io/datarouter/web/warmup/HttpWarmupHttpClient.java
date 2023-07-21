@@ -15,12 +15,11 @@
  */
 package io.datarouter.web.warmup;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.gson.GsonJsonSerializer;
 import io.datarouter.httpclient.client.BaseDatarouterHttpClientWrapper;
 import io.datarouter.httpclient.client.DatarouterHttpClientBuilder;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class HttpWarmupHttpClient extends BaseDatarouterHttpClientWrapper{

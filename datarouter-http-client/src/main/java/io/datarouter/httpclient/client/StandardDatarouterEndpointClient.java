@@ -26,8 +26,6 @@ import java.util.Map.Entry;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import javax.inject.Singleton;
-
 import org.apache.http.HttpEntity;
 import org.apache.http.entity.ContentType;
 import org.slf4j.Logger;
@@ -43,6 +41,7 @@ import io.datarouter.httpclient.response.exception.DatarouterHttpException;
 import io.datarouter.httpclient.response.exception.DatarouterHttpResponseException;
 import io.datarouter.instrumentation.count.Counters;
 import io.datarouter.pathnode.PathNode;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class StandardDatarouterEndpointClient<

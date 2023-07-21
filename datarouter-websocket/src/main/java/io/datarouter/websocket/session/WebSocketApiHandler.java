@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Optional;
 
-import javax.inject.Inject;
 import javax.websocket.RemoteEndpoint.Basic;
 import javax.websocket.Session;
 
@@ -34,6 +33,7 @@ import io.datarouter.websocket.WebSocketCounters;
 import io.datarouter.websocket.config.DatarouterWebSocketSettingRoot;
 import io.datarouter.websocket.service.WebSocketConnectionStore;
 import io.datarouter.websocket.service.WebSocketConnectionStore.WebSocketConnection;
+import jakarta.inject.Inject;
 
 public class WebSocketApiHandler extends BaseHandler{
 	private static final Logger logger = LoggerFactory.getLogger(WebSocketApiHandler.class);

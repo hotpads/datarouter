@@ -15,11 +15,10 @@
  */
 package io.datarouter.websocket;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.instrumentation.count.Counters;
 import io.datarouter.storage.metric.Gauges;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class WebSocketCounters{

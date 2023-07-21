@@ -15,15 +15,14 @@
  */
 package io.datarouter.client.hbase.config;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.storage.setting.DatarouterSettingCategory;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.SettingRoot;
 import io.datarouter.storage.setting.cached.CachedSetting;
 import io.datarouter.util.DateTool;
 import io.datarouter.util.number.NumberTool;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterHBaseSettingRoot extends SettingRoot{

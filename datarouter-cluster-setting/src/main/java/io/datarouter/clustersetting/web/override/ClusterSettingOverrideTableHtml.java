@@ -29,17 +29,15 @@ import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
-import io.datarouter.clustersetting.ClusterSettingOverrideSuggestion;
-import io.datarouter.clustersetting.ClusterSettingValidity;
-import io.datarouter.clustersetting.service.CachedClusterSettingNames;
+import io.datarouter.clustersetting.enums.ClusterSettingOverrideSuggestion;
+import io.datarouter.clustersetting.enums.ClusterSettingValidity;
 import io.datarouter.clustersetting.service.ClusterSettingService;
 import io.datarouter.clustersetting.storage.clustersetting.ClusterSetting;
 import io.datarouter.clustersetting.storage.clustersetting.DatarouterClusterSettingDao;
 import io.datarouter.clustersetting.web.ClusterSettingHtml;
-import io.datarouter.clustersetting.web.ClusterSettingLinks;
+import io.datarouter.clustersetting.web.browse.ClusterSettingBrowseHandler.ClusterSettingBrowseHandlerParams;
+import io.datarouter.clustersetting.web.browse.ClusterSettingBrowseHandler.ClusterSettingBrowseLinks;
+import io.datarouter.clustersetting.web.browse.ClusterSettingHierarchy;
 import io.datarouter.clustersetting.web.log.ClusterSettingLogHandler.ClusterSettingLogLinks;
 import io.datarouter.clustersetting.web.override.handler.ClusterSettingOverrideDeleteHandler.ClusterSettingOverrideDeleteLinks;
 import io.datarouter.clustersetting.web.override.handler.ClusterSettingOverrideUpdateHandler.ClusterSettingOverrideUpdateLinks;
@@ -53,16 +51,20 @@ import io.datarouter.webappinstance.storage.webappinstance.WebappInstance;
 import io.datarouter.webappinstance.storage.webappinstance.WebappInstanceKey;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.TdTag;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class ClusterSettingOverrideTableHtml{
 
 	@Inject
+	private ClusterSettingHtml clusterSettingHtml;
+	@Inject
 	private ClusterSettingOverrideHtml overrideHtml;
 	@Inject
 	private DatarouterClusterSettingDao dao;
 	@Inject
-	private ClusterSettingLinks links;
+	private ClusterSettingBrowseLinks browseLinks;
 	@Inject
 	private ClusterSettingLogLinks logLinks;
 	@Inject
@@ -74,9 +76,9 @@ public class ClusterSettingOverrideTableHtml{
 	@Inject
 	private WebappInstanceService webappInstanceService;
 	@Inject
-	private CachedClusterSettingNames cachedClusterSettingNames;
-	@Inject
 	private ClusterSettingService clusterSettingService;
+	@Inject
+	private ClusterSettingHierarchy clusterSettingHierarchy;
 
 	public DivTag makeTablesDiv(Optional<String> optPartialName, boolean suggestionsOnly){
 		WebappInstanceKey currentWebappInstanceKey = webappInstanceService.buildCurrentWebappInstanceKey();
@@ -180,7 +182,7 @@ public class ClusterSettingOverrideTableHtml{
 		if(suggestion.hasSuggestion){
 			String title = String.format("%s. Suggestion: %s", validity.description, suggestion.description);
 			td.withTitle(title);
-			td.withClass(ClusterSettingHtml.overrideSuggestionsTableClass(suggestion));
+			td.withClass(clusterSettingHtml.overrideSuggestionsTableClass(suggestion));
 			var icon = i().withClass("far fa-question-circle");
 			td.with(span(icon).withClass("ml-1"));
 		}
@@ -188,8 +190,9 @@ public class ClusterSettingOverrideTableHtml{
 	}
 
 	private TdTag makeNameCell(ClusterSetting setting){
-		if(cachedClusterSettingNames.get().contains(setting.getName())){
-			String browseHref = links.browseSettings(setting.getName());
+		if(clusterSettingHierarchy.settingNamesSorted().contains(setting.getName())){
+			String browseHref = browseLinks.all(new ClusterSettingBrowseHandlerParams()
+					.withLocation(setting.getName()));
 			var link = a(setting.getName()).withHref(browseHref);
 			return td(link);
 		}
@@ -203,7 +206,7 @@ public class ClusterSettingOverrideTableHtml{
 				setting.getName(),
 				Optional.ofNullable(setting.getServerType()),
 				Optional.ofNullable(setting.getServerName()));
-		return ClusterSettingHtml.makeLimitedLengthLinkCell(setting.getValue(), updateHref)
+		return clusterSettingHtml.makeLimitedLengthLinkCell(setting.getValue(), updateHref)
 				.withStyle("width:110px;");
 	}
 
@@ -220,6 +223,7 @@ public class ClusterSettingOverrideTableHtml{
 	private TdTag makeDeleteCell(ClusterSetting setting, Optional<String> optPartialName){
 		String deleteHref = overrideDeleteLinks.delete(
 				Optional.of(ClusterSettingEditSource.DATABASE),
+				Optional.empty(),
 				optPartialName,
 				setting.getName(),
 				Optional.ofNullable(setting.getServerType()),

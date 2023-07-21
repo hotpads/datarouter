@@ -22,9 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.joblet.config.DatarouterJobletPaths;
 import io.datarouter.joblet.service.JobletDailyDigestService.OldJobletDto;
 import io.datarouter.scanner.Scanner;
@@ -32,6 +29,8 @@ import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
 import io.datarouter.web.digest.DailyDigestService;
 import j2html.tags.specialized.DivTag;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class OldJobletDailyDigest implements DailyDigest{

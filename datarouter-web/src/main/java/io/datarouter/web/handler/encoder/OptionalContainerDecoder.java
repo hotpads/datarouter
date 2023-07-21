@@ -15,10 +15,9 @@
  */
 package io.datarouter.web.handler.encoder;
 
-import javax.inject.Singleton;
-
 import io.datarouter.gson.OptionalContainerSerializer;
 import io.datarouter.web.handler.types.DefaultDecoder;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class OptionalContainerDecoder extends DefaultDecoder{

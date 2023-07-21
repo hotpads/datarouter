@@ -15,14 +15,13 @@
  */
 package io.datarouter.metric.config;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.storage.setting.DatarouterSettingCategory;
 import io.datarouter.storage.setting.DatarouterSettingTagType;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.SettingRoot;
 import io.datarouter.storage.setting.cached.CachedSetting;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterGaugeSettingRoot extends SettingRoot{
@@ -31,9 +30,6 @@ public class DatarouterGaugeSettingRoot extends SettingRoot{
 	public final CachedSetting<Boolean> saveGaugesToMemory;
 	public final CachedSetting<Boolean> recordGaugeMemoryToPublisherGauges;
 
-	//controls gauge publishing destination
-	public final CachedSetting<Boolean> saveToQueueInsteadOfDirectory;
-
 	@Inject
 	public DatarouterGaugeSettingRoot(SettingFinder finder){
 		super(finder, DatarouterSettingCategory.DATAROUTER, "datarouterGauge.");
@@ -41,9 +37,6 @@ public class DatarouterGaugeSettingRoot extends SettingRoot{
 		saveGaugesToMemory = registerBooleans("saveGaugesToMemory", defaultTo(false)
 				.withTag(DatarouterSettingTagType.GAUGE_PIPELINE, () -> true));
 		recordGaugeMemoryToPublisherGauges = registerBoolean("recordGaugeMemoryToPublisherGauges", true);
-
-		saveToQueueInsteadOfDirectory = registerBoolean(
-				"saveToQueueInsteadOfDirectory", false);
 	}
 
 }

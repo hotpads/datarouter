@@ -20,9 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.scanner.Scanner;
@@ -31,6 +28,8 @@ import io.datarouter.tasktracker.storage.LongRunningTask;
 import io.datarouter.tasktracker.storage.LongRunningTaskDao;
 import io.datarouter.util.collection.ListTool;
 import io.datarouter.util.lang.ObjectTool;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class LongRunningTaskVacuumService{

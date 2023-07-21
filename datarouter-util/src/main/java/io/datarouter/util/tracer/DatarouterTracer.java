@@ -37,7 +37,6 @@ import io.datarouter.util.string.StringTool;
 public class DatarouterTracer implements Tracer{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterTracer.class);
 
-	private static final int MAX_SPANS = 200;
 	private static final int MAX_THREADS = 100;
 
 	private final String serverName;
@@ -45,10 +44,11 @@ public class DatarouterTracer implements Tracer{
 	private final Long hostThreadId;
 	private final String hostThreadName;
 	private final W3TraceContext w3TraceContext;
+	private final BlockingQueue<Trace2SpanDto> spanQueue;
+	private final int maxSpans;
 
 	private final BlockingQueue<Trace2ThreadDto> threadQueue = new ArrayBlockingQueue<>(MAX_THREADS);
 	private final List<Trace2SpanDto> spanStack = new ArrayList<>();
-	private final BlockingQueue<Trace2SpanDto> spanQueue = new ArrayBlockingQueue<>(MAX_SPANS);
 
 	private Integer nextSpanSequence = 0;
 	private int discardedSpanCount = 0;
@@ -62,19 +62,22 @@ public class DatarouterTracer implements Tracer{
 
 	private Long alternativeStartTimeNs;
 
-	public DatarouterTracer(String serverName, Long traceThreadParentId, W3TraceContext w3TraceContext){
+	public DatarouterTracer(String serverName, Long traceThreadParentId, W3TraceContext w3TraceContext,
+			int maxSpans){
 		this.serverName = serverName;
 		this.traceThreadParentId = traceThreadParentId;
 		this.hostThreadId = Thread.currentThread().getId();
 		this.hostThreadName = Thread.currentThread().getName();
 		this.w3TraceContext = w3TraceContext;
+		this.maxSpans = maxSpans;
+		this.spanQueue = new ArrayBlockingQueue<>(maxSpans);
 	}
 
 	/*---------------------------- Tracer------------------------------------*/
 
 	@Override
 	public Tracer createChildTracer(){
-		Tracer childTracer = new DatarouterTracer(serverName, getCurrentThreadId(), w3TraceContext);
+		Tracer childTracer = new DatarouterTracer(serverName, getCurrentThreadId(), w3TraceContext, maxSpans);
 		childTracer.setSaveThreadCpuTime(saveThreadCpuTime);
 		childTracer.setSaveThreadMemoryAllocated(saveThreadMemoryAllocated);
 		childTracer.setSaveSpanCpuTime(saveSpanCpuTime);

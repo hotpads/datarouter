@@ -18,9 +18,6 @@ package io.datarouter.storage.node.factory;
 import java.time.Duration;
 import java.util.function.Supplier;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.bytes.Codec;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.databean.EmptyDatabean;
@@ -41,6 +38,8 @@ import io.datarouter.storage.node.builder.SingleQueueNodeBuilder;
 import io.datarouter.storage.node.op.raw.BlobQueueStorage.BlobQueueStorageNode;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.util.Require;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class QueueNodeFactory extends BaseNodeFactory{

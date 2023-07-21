@@ -43,8 +43,6 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 
 import io.datarouter.scanner.Scanner;
@@ -59,6 +57,8 @@ import j2html.tags.DomContent;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.TableTag;
 import j2html.tags.specialized.TdTag;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class WebappInstanceTableService{
@@ -226,6 +226,16 @@ public class WebappInstanceTableService{
 				.get();
 	}
 
+	public static <S,T> Map<String,T> getMostCommonValueByWebappName(
+			List<S> objects,
+			Function<S,String> toWebappName,
+			Function<S,T> toValue){
+		return objects.stream()
+				.collect(Collectors.groupingBy(toWebappName,
+						Collectors.collectingAndThen(Collectors.toUnmodifiableList(),
+								instances -> getMostCommonValue(instances, toValue))));
+	}
+
 	public static class WebappInstanceTableOptions{
 
 		private DomContent beforeAlerts = tag(null);
@@ -268,13 +278,13 @@ public class WebappInstanceTableService{
 			this.getValue = getValue;
 		}
 
-		public WebappInstanceColumn<T> withShowUsageStats(){
-			showUsageStats = true;
+		public WebappInstanceColumn<T> withShowUsageStats(boolean showUsageStats){
+			this.showUsageStats = showUsageStats;
 			return this;
 		}
 
-		public WebappInstanceColumn<T> withHideUsageStatsBreakdown(){
-			hideUsageStatsBreakdown = true;
+		public WebappInstanceColumn<T> withHideUsageStatsBreakdown(boolean hideUsageStatsBreakdown){
+			this.hideUsageStatsBreakdown = hideUsageStatsBreakdown;
 			return this;
 		}
 

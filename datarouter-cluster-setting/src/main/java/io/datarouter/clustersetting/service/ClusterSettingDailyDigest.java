@@ -26,12 +26,10 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
-import io.datarouter.clustersetting.ClusterSettingValidity;
 import io.datarouter.clustersetting.config.DatarouterClusterSettingPaths;
+import io.datarouter.clustersetting.enums.ClusterSettingValidity;
 import io.datarouter.clustersetting.storage.clustersetting.ClusterSetting;
+import io.datarouter.clustersetting.web.ClusterSettingHtml;
 import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
 import io.datarouter.scanner.OptionalScanner;
@@ -43,18 +41,20 @@ import io.datarouter.web.html.j2html.J2HtmlTable;
 import j2html.TagCreator;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.TableTag;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class ClusterSettingDailyDigest implements DailyDigest{
 
-	@Inject
-	private ClusterSettingLinkService linkService;
 	@Inject
 	private ClusterSettingService settingService;
 	@Inject
 	private DailyDigestService digestService;
 	@Inject
 	private DatarouterClusterSettingPaths paths;
+	@Inject
+	private ClusterSettingHtml clusterSettingHtml;
 
 	@Override
 	public String getTitle(){
@@ -162,14 +162,14 @@ public class ClusterSettingDailyDigest implements DailyDigest{
 	private final ClusterSettingDailyDigestTableFormatter emailFormatter = settings ->
 			new J2HtmlEmailTable<ClusterSetting>()
 					.withColumn(new J2HtmlEmailTableColumn<>("Name",
-							row -> linkService.makeSettingLink(row.getName())))
+							row -> clusterSettingHtml.makeBrowseSettingLink(row.getName())))
 					// don't send values in an email
 					.build(settings);
 
 	private final ClusterSettingDailyDigestTableFormatter emailPrefixFormatter = settings ->
 			new J2HtmlEmailTable<ClusterSetting>()
 					.withColumn(new J2HtmlEmailTableColumn<>("Name",
-							row -> linkService.makePrefixSettingLink(row.getName())))
+							row -> clusterSettingHtml.makeOverridePrefixSettingLink(row.getName())))
 					// don't send values in an email
 					.build(settings);
 
@@ -177,7 +177,7 @@ public class ClusterSettingDailyDigest implements DailyDigest{
 			new J2HtmlTable<ClusterSetting>()
 					.withClasses("sortable table table-sm table-striped my-4 border")
 					.withHtmlColumn(th("Name").withClass("w-50"),
-							row -> td(linkService.makeSettingLink(row.getName())))
+							row -> td(clusterSettingHtml.makeBrowseSettingLink(row.getName())))
 					.withHtmlColumn(th("Value").withClass("w-50"), row -> td(row.getValue()))
 					.build(settings);
 

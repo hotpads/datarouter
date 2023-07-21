@@ -20,8 +20,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 
-import javax.inject.Inject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,6 +41,7 @@ import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.util.ComparableTool;
 import io.datarouter.util.lang.ObjectTool;
+import jakarta.inject.Inject;
 
 public class TableSpanSamplerJoblet extends BaseJoblet<TableSpanSamplerJobletParams>{
 	private static final Logger logger = LoggerFactory.getLogger(TableSpanSamplerJoblet.class);

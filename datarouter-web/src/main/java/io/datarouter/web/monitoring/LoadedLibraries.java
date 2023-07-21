@@ -25,10 +25,9 @@ import java.util.TreeSet;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.web.app.ApplicationPaths;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class LoadedLibraries{

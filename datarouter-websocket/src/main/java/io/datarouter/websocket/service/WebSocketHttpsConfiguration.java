@@ -15,12 +15,11 @@
  */
 package io.datarouter.websocket.service;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.httpclient.security.UrlScheme;
 import io.datarouter.web.config.HttpsConfiguration;
 import io.datarouter.websocket.config.DatarouterWebSocketPaths;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class WebSocketHttpsConfiguration implements HttpsConfiguration{

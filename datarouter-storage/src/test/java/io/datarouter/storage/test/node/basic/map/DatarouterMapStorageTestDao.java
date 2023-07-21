@@ -18,8 +18,6 @@ package io.datarouter.storage.test.node.basic.map;
 import java.util.Collection;
 import java.util.List;
 
-import javax.inject.Singleton;
-
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.BaseDao;
@@ -30,6 +28,7 @@ import io.datarouter.storage.test.node.basic.map.databean.MapStorageBean;
 import io.datarouter.storage.test.node.basic.map.databean.MapStorageBean.MapStorageBeanFielder;
 import io.datarouter.storage.test.node.basic.map.databean.MapStorageBeanEntityKey;
 import io.datarouter.storage.test.node.basic.map.databean.MapStorageBeanKey;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterMapStorageTestDao extends BaseDao implements TestDao{

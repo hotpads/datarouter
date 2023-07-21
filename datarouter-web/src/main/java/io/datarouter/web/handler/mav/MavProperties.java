@@ -20,6 +20,7 @@ import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
 
+import io.datarouter.web.html.PageScripts;
 import io.datarouter.web.navigation.AppNavBar;
 import io.datarouter.web.navigation.DatarouterNavBar;
 
@@ -30,29 +31,32 @@ public class MavProperties{
 
 	private final int cssVersion;
 	private final int jsVersion;
-	private final boolean isAdmin;
+	private final boolean hasAnyDatarouterPrivileges;
 	private final boolean isProduction;
 	private final Map<String,String> tomcatWebApps;
 	private final Optional<AppNavBar> appNavBar;
 	private final DatarouterNavBar datarouterNavBar;
+	private final PageScripts pageScripts;
 
 	MavProperties(
 			HttpServletRequest request,
 			int cssVersion,
 			int jsVersion,
-			boolean isAdmin,
+			boolean hasAnyDatarouterPrivileges,
 			Map<String,String> tomcatWebApps,
 			Optional<AppNavBar> appNavBar,
 			boolean isProduction,
-			DatarouterNavBar datarouterNavBar){
+			DatarouterNavBar datarouterNavBar,
+			PageScripts pageScripts){
 		this.request = request;
 		this.cssVersion = cssVersion;
 		this.jsVersion = jsVersion;
-		this.isAdmin = isAdmin;
+		this.hasAnyDatarouterPrivileges = hasAnyDatarouterPrivileges;
 		this.tomcatWebApps = tomcatWebApps;
 		this.appNavBar = appNavBar;
 		this.isProduction = isProduction;
 		this.datarouterNavBar = datarouterNavBar;
+		this.pageScripts = pageScripts;
 	}
 
 	public HttpServletRequest getRequest(){
@@ -79,8 +83,8 @@ public class MavProperties{
 		return jsVersion;
 	}
 
-	public Boolean getIsAdmin(){
-		return isAdmin;
+	public Boolean getHasAnyDatarouterPrivileges(){
+		return hasAnyDatarouterPrivileges;
 	}
 
 	public Map<String,String> getTomcatWebApps(){
@@ -101,6 +105,10 @@ public class MavProperties{
 
 	public boolean getIsDatarouterPage(){
 		return request.getRequestURI().contains("datarouter");
+	}
+
+	public PageScripts getPageScripts(){
+		return pageScripts;
 	}
 
 }

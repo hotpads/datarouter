@@ -18,9 +18,6 @@ package io.datarouter.secret.op;
 import java.util.List;
 import java.util.Optional;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.secret.client.Secret;
 import io.datarouter.secret.config.SecretClientSupplierConfigHolder;
@@ -41,6 +38,8 @@ import io.datarouter.secret.op.client.SecretClientOps;
 import io.datarouter.secret.service.SecretJsonSerializer;
 import io.datarouter.secret.service.SecretNamespacer;
 import io.datarouter.secret.service.SecretOpRecorderSupplier;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 /**
  * Contains convenience methods and injections to make creating standard {@link SecretOp}s easier.
@@ -92,7 +91,7 @@ public class SecretOpFactory{
 				name,
 				SecretClientOps.DELETE,
 				new StringNamespacingAdapter(secretNamespacer, config, NamespacingMode.ADDING),
-				new NoOpAdapter<Void>());
+				new NoOpAdapter<>());
 	}
 
 	public <T> SecretOp<TypedSecret<T>,Secret,Void,Void> buildPutOp(String name, T value,
@@ -117,12 +116,13 @@ public class SecretOpFactory{
 	private <T> SecretOp<TypedSecret<T>,Secret,Void,Void> buildWriteOp(String name, T value,
 			SecretOpConfig config, SecretClientOp<Secret,Void> secretClientOp){
 		TypedSecret<T> wrappedInput = new TypedSecret<>(name, value);
+		SerializingAdapter<T> serializingAdapter = new SerializingAdapter<>(jsonSerializer, config);
 		return buildOp(
 				config,
 				name,
 				wrappedInput,
 				secretClientOp,
-				new SecretOpAdapterChain<>(new SerializingAdapter<T>(jsonSerializer, config))
+				new SecretOpAdapterChain<>(serializingAdapter)
 						.chain(new SecretNamespacingAdapter(secretNamespacer, config, NamespacingMode.ADDING)),
 				new NoOpAdapter<>());
 	}

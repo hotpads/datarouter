@@ -166,7 +166,7 @@ public class SecretOpConfig{
 
 	}
 
-	public static enum Namespace{
+	public enum Namespace{
 		APP,
 		SHARED,
 		MANUAL,

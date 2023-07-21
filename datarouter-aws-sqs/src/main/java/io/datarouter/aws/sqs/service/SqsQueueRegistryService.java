@@ -20,9 +20,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.model.QueueDoesNotExistException;
 
@@ -37,6 +34,8 @@ import io.datarouter.storage.config.properties.ServiceName;
 import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.node.NodeTool;
 import io.datarouter.util.string.StringTool;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class SqsQueueRegistryService{

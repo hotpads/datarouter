@@ -180,9 +180,9 @@
 			<property name="message" value="Explicit no arg super constructor call"/>
 		</module>
 		<module name="Regexp">
-			<property name="format" value="com\.google\.inject\.Singleton\;|com\.google\.inject\.Inject\;|org\.springframework\.beans\.factory\.annotation\.Autowired\;"/>
+			<property name="format" value="com\.google\.inject\.Singleton\;|com\.google\.inject\.Inject\;|org\.springframework\.beans\.factory\.annotation\.Autowired\;|javax.inject.*"/>
 			<property name="illegalPattern" value="true"/>
-			<property name="message" value="Non javax.inject annotation"/>
+			<property name="message" value="Non jakarta.inject annotation"/>
 		</module>
 		<module name="Regexp">
 			<property name="format" value="import .*shaded.*"/>

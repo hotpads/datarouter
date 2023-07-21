@@ -15,9 +15,6 @@
  */
 package io.datarouter.aws.s3.client;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.aws.s3.DatarouterS3Client;
 import io.datarouter.aws.s3.S3ClientType;
 import io.datarouter.aws.s3.node.S3DirectoryManager;
@@ -30,6 +27,8 @@ import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.adapter.NodeAdapters;
 import io.datarouter.storage.node.op.raw.BlobStorage.PhysicalBlobStorageNode;
 import io.datarouter.storage.util.Subpath;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class S3ClientNodeFactory

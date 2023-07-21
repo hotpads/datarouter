@@ -15,12 +15,11 @@
  */
 package io.datarouter.secretweb.config;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.job.BaseTriggerGroup;
 import io.datarouter.secretweb.job.DatarouterSecretOpRecordVacuumJob;
 import io.datarouter.util.time.ZoneIds;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterSecretWebTriggerGroup extends BaseTriggerGroup{

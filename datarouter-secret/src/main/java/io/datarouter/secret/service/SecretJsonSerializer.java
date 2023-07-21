@@ -17,9 +17,8 @@ package io.datarouter.secret.service;
 
 import java.lang.reflect.Type;
 
-import javax.inject.Singleton;
-
 import io.datarouter.gson.GsonTool;
+import jakarta.inject.Singleton;
 
 public interface SecretJsonSerializer{
 

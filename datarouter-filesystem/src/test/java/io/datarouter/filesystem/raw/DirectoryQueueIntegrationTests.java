@@ -19,8 +19,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
-import javax.inject.Inject;
-
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -33,6 +31,7 @@ import io.datarouter.filesystem.raw.queue.DirectoryQueueMessage;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.DatarouterFilesystemPaths;
 import io.datarouter.storage.util.Subpath;
+import jakarta.inject.Inject;
 
 @Guice
 public class DirectoryQueueIntegrationTests{

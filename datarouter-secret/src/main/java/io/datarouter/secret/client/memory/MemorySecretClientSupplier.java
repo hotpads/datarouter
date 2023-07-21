@@ -15,10 +15,9 @@
  */
 package io.datarouter.secret.client.memory;
 
-import javax.inject.Singleton;
-
 import io.datarouter.secret.client.SecretClient;
 import io.datarouter.secret.client.SecretClient.SecretClientSupplier;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class MemorySecretClientSupplier implements SecretClientSupplier{

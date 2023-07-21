@@ -17,20 +17,20 @@ package io.datarouter.auth.config;
 
 import java.util.concurrent.TimeUnit;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.storage.setting.DatarouterSettingCategory;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.SettingRoot;
 import io.datarouter.storage.setting.cached.CachedSetting;
 import io.datarouter.util.duration.DatarouterDuration;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterAuthSettingRoot extends SettingRoot{
 
 	public final CachedSetting<Boolean> runSamlAuthnRequestRedirectUrlVacuumJob;
 	public final CachedSetting<Boolean> runDatarouterAccountLastUsedFlushJob;
+	public final CachedSetting<Boolean> runDeletedRoleCleanupJob;
 	public final CachedSetting<Boolean> runUserSessionVacuumJob;
 	public final CachedSetting<Boolean> runPermissionRequestVacuumJob;
 	public final CachedSetting<Boolean> shouldUseDatarouterAccountCredentialInsteadOfDatarouterAccount;
@@ -44,6 +44,7 @@ public class DatarouterAuthSettingRoot extends SettingRoot{
 
 		runSamlAuthnRequestRedirectUrlVacuumJob = registerBoolean("runSamlAuthnRequestRedirectUrlVacuumJob", false);
 		runDatarouterAccountLastUsedFlushJob = registerBoolean("runDatarouterAccountLastUsedFlushJob", true);
+		runDeletedRoleCleanupJob = registerBoolean("runDeletedRoleCleanupJob", true);
 		runUserSessionVacuumJob = registerBoolean("runUserSessionVacuum", false);
 		runPermissionRequestVacuumJob = registerBoolean("runPermissionRequestVacuumJob", false);
 		shouldUseDatarouterAccountCredentialInsteadOfDatarouterAccount = registerBoolean(

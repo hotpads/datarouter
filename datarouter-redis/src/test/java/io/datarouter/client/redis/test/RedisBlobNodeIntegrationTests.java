@@ -15,8 +15,6 @@
  */
 package io.datarouter.client.redis.test;
 
-import javax.inject.Inject;
-
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Guice;
@@ -25,6 +23,7 @@ import org.testng.annotations.Test;
 import io.datarouter.client.redis.DatarouterRedisTestNgModuleFactory;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
+import jakarta.inject.Inject;
 
 @Guice(moduleFactory = DatarouterRedisTestNgModuleFactory.class)
 @Test(singleThreaded = true)

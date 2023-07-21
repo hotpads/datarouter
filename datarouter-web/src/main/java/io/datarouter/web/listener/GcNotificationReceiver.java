@@ -21,7 +21,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
-import javax.inject.Singleton;
 import javax.management.NotificationBroadcaster;
 import javax.management.openmbean.CompositeData;
 
@@ -34,6 +33,7 @@ import com.sun.management.GcInfo;
 import io.datarouter.instrumentation.count.Counters;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.PlatformMxBeans;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class GcNotificationReceiver implements DatarouterAppListener{

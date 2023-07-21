@@ -38,7 +38,6 @@ import io.datarouter.web.handler.encoder.DefaultEncoder;
 import io.datarouter.web.handler.encoder.HandlerEncoder;
 import io.datarouter.web.handler.types.DefaultDecoder;
 import io.datarouter.web.handler.types.HandlerDecoder;
-import io.datarouter.web.handler.types.LinkDecoder;
 import io.datarouter.web.security.CsrfValidator;
 import io.datarouter.web.security.SecurityValidationResult;
 import io.datarouter.web.security.SecurityValidator;
@@ -221,12 +220,7 @@ public class DispatchRule{
 		if(defaultHandlerDecoder != null){
 			return defaultHandlerDecoder;
 		}
-		return switch(dispatchType){
-			case DEFAULT -> DefaultDecoder.class;
-			case API_ENDPOINT -> DefaultDecoder.class;
-			case INTERNAL_LINK -> LinkDecoder.class;
-			case WEB_API -> DefaultDecoder.class;
-		};
+		return DefaultDecoder.class;
 	}
 
 	public Optional<String> getPersistentString(){

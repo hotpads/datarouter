@@ -15,9 +15,6 @@
  */
 package io.datarouter.filesystem.snapshot.reader.block;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.filesystem.snapshot.block.root.RootBlock;
 import io.datarouter.filesystem.snapshot.compress.BlockDecompressor;
 import io.datarouter.filesystem.snapshot.compress.BlockDecompressorFactory;
@@ -26,6 +23,8 @@ import io.datarouter.filesystem.snapshot.encode.BlockDecoderFactory;
 import io.datarouter.filesystem.snapshot.path.SnapshotPaths;
 import io.datarouter.filesystem.snapshot.path.SnapshotPathsRegistry;
 import io.datarouter.filesystem.snapshot.storage.block.SnapshotBlockStorageReader;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DecodingBlockLoaderFactory{

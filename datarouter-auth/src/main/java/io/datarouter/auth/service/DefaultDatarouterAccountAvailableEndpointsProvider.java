@@ -17,10 +17,9 @@ package io.datarouter.auth.service;
 
 import java.util.List;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.web.dispatcher.DispatchRulePersistentStringsProvider;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DefaultDatarouterAccountAvailableEndpointsProvider

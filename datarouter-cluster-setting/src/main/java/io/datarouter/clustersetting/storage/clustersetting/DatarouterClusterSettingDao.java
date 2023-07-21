@@ -22,9 +22,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.clustersetting.storage.clustersetting.ClusterSetting.ClusterSettingFielder;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.scanner.Scanner;
@@ -38,6 +35,8 @@ import io.datarouter.storage.tag.Tag;
 import io.datarouter.util.singletonsupplier.SingletonSupplier;
 import io.datarouter.util.tuple.Range;
 import io.datarouter.virtualnode.redundant.RedundantSortedMapStorageNode;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterClusterSettingDao extends BaseDao{

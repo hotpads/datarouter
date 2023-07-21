@@ -15,10 +15,9 @@
  */
 package io.datarouter.storage.node.factory;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.storage.config.setting.DatarouterStorageSettingRoot;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class NodeFactory extends BaseDatabeanNodeFactory{

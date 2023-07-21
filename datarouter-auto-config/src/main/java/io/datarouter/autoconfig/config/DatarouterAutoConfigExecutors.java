@@ -15,9 +15,8 @@
  */
 package io.datarouter.autoconfig.config;
 
-import javax.inject.Singleton;
-
 import io.datarouter.util.concurrent.ScalingThreadPoolExecutor;
+import jakarta.inject.Singleton;
 
 public class DatarouterAutoConfigExecutors{
 

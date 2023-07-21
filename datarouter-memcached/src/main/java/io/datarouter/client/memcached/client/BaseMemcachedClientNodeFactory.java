@@ -15,8 +15,6 @@
  */
 package io.datarouter.client.memcached.client;
 
-import javax.inject.Singleton;
-
 import io.datarouter.client.memcached.codec.MemcachedBlobCodec;
 import io.datarouter.client.memcached.codec.MemcachedTallyCodec;
 import io.datarouter.client.memcached.node.MemcachedBlobNode;
@@ -51,6 +49,7 @@ import io.datarouter.storage.tally.Tally;
 import io.datarouter.storage.tally.Tally.TallyFielder;
 import io.datarouter.storage.tally.TallyKey;
 import io.datarouter.storage.util.Subpath;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class BaseMemcachedClientNodeFactory

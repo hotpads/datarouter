@@ -15,11 +15,10 @@
  */
 package io.datarouter.gcp.spanner;
 
-import javax.inject.Singleton;
-
 import io.datarouter.util.concurrent.DatarouterExecutorService;
 import io.datarouter.util.concurrent.ExecutorTool;
 import io.datarouter.util.concurrent.ScalingThreadPoolExecutor;
+import jakarta.inject.Singleton;
 
 public class SpannerExecutors{
 

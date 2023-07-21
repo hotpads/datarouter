@@ -16,14 +16,12 @@
 package io.datarouter.storage.setting;
 
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.stream.Collectors;
-
-import javax.inject.Inject;
 
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.instrumentation.test.TestableService;
 import io.datarouter.storage.setting.SettingRoot.SettingRootFinder;
+import jakarta.inject.Inject;
 
 public class SettingBootstrapIntegrationService implements TestableService{
 
@@ -36,11 +34,10 @@ public class SettingBootstrapIntegrationService implements TestableService{
 
 	@Override
 	public void testAll(){
-		String orphanSettings = datarouterInjector.getInstancesOfType(SettingNode.class).entrySet().stream()
-				.map(Entry::getValue)
+		String orphanSettings = datarouterInjector.scanValuesOfType(SettingNode.class)
 				// special case
-				.filter(node -> node != settingRootFinder)
-				.filter(node -> !isInTree(node, settingRootsSupplier.get()))
+				.exclude(node -> node == settingRootFinder)
+				.exclude(node -> isInTree(node, settingRootsSupplier.get()))
 				.map(SettingNode::getClass)
 				.map(Class::getName)
 				.collect(Collectors.joining(", "));

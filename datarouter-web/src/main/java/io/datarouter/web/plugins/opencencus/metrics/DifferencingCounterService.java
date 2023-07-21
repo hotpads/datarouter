@@ -19,13 +19,12 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
-import javax.inject.Singleton;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.instrumentation.count.Counters;
 import io.datarouter.util.duration.DatarouterDuration;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DifferencingCounterService{

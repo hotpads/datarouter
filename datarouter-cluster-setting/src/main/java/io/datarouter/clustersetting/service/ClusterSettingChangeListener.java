@@ -18,13 +18,12 @@ package io.datarouter.clustersetting.service;
 import java.time.ZoneId;
 import java.util.Optional;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
-import io.datarouter.clustersetting.ClusterSettingLogAction;
+import io.datarouter.clustersetting.enums.ClusterSettingLogAction;
 import io.datarouter.clustersetting.storage.clustersetting.ClusterSetting;
 import io.datarouter.clustersetting.storage.clustersettinglog.ClusterSettingLog;
 import io.datarouter.clustersetting.storage.clustersettinglog.DatarouterClusterSettingLogDao;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class ClusterSettingChangeListener{

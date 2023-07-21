@@ -17,9 +17,6 @@ package io.datarouter.webappinstance.storage.webappinstancelog;
 
 import java.util.List;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.model.databean.FieldlessIndexEntry;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
@@ -34,6 +31,8 @@ import io.datarouter.storage.tag.Tag;
 import io.datarouter.util.tuple.Range;
 import io.datarouter.virtualnode.redundant.RedundantIndexedSortedMapStorageNode;
 import io.datarouter.webappinstance.storage.webappinstancelog.WebappInstanceLog.WebappInstanceLogFielder;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterWebappInstanceLogDao extends BaseDao{

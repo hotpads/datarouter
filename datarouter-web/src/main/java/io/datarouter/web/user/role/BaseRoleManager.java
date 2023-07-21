@@ -16,7 +16,6 @@
 package io.datarouter.web.user.role;
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
@@ -37,11 +36,6 @@ public abstract class BaseRoleManager implements RoleManager{
 	private Map<String,Set<Role>> roleGroups;
 
 	@Override
-	public final Boolean isAdmin(Role role){
-		return getAdminRoles().contains(role);
-	}
-
-	@Override
 	public final Set<Role> getRolesForGroup(String groupId){
 		if(roleGroups == null){
 			buildRoleGroups();
@@ -49,45 +43,28 @@ public abstract class BaseRoleManager implements RoleManager{
 		return roleGroups.getOrDefault(StringTool.nullSafe(groupId), Collections.emptySet());
 	}
 
-	@Override
-	public final Set<Role> getRolesForSuperGroup(){
-		return getRolesForGroup(getSuperUserGroupId());
-	}
-
-	@Override
-	public final Set<Role> getRolesForDefaultGroup(){
-		return getRolesForGroup(getDefaultUserGroupId());
-	}
-
 	private void buildRoleGroups(){
-		Set<Role> superRoleGroup = getSuperRoles();
-		Set<Role> defaultRoleGroup = getDefaultRoles();
 		Map<String,Set<Role>> configurableRoleGroups = getConfigurableRoleGroups();
 
 		//warn about ID collisions and throw exception for missing IDs
-		checkAndWarnOverride(getSuperUserGroupId(), configurableRoleGroups);
+		checkAndWarnOverride(getSuperAdminGroupId(), configurableRoleGroups);
 		checkAndWarnOverride(getDefaultUserGroupId(), configurableRoleGroups);
-		if(getSuperUserGroupId().equals(getDefaultUserGroupId())){
+		if(getSuperAdminGroupId().equals(getDefaultUserGroupId())){
 			logger.warn("Super and default role group IDs are equal. Using default roles.");
 		}
 
 		Map<String,Set<Role>> roleGroups = configurableRoleGroups.entrySet().stream()
-				.collect(Collectors.toMap(Entry::getKey, entry -> Collections.unmodifiableSet(new HashSet<>(entry
-						.getValue()))));
-		roleGroups.put(getSuperUserGroupId(), Collections.unmodifiableSet(new HashSet<>(superRoleGroup)));
-		roleGroups.put(getDefaultUserGroupId(), Collections.unmodifiableSet(new HashSet<>(defaultRoleGroup)));
+				.collect(Collectors.toMap(Entry::getKey, entry -> Set.copyOf(entry.getValue())));
+		roleGroups.put(getSuperAdminGroupId(), Set.copyOf(getSuperAdminRoles()));
+		roleGroups.put(getDefaultUserGroupId(), Set.copyOf(getDefaultRoles()));
 		this.roleGroups = Collections.unmodifiableMap(roleGroups);
 	}
-
-	protected abstract Set<Role> getSuperRoles();
-	protected abstract Set<Role> getDefaultRoles();
-	protected abstract Set<Role> getAdminRoles(); // TODO rename to getDatarouterRoles
 
 	protected Map<String,Set<Role>> getConfigurableRoleGroups(){
 		return Collections.emptyMap();
 	}
 
-	protected String getSuperUserGroupId(){
+	protected String getSuperAdminGroupId(){
 		return SUPER_GROUP_ID;
 	}
 

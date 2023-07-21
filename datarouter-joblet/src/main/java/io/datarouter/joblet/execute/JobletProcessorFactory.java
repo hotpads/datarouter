@@ -17,14 +17,13 @@ package io.datarouter.joblet.execute;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.joblet.DatarouterJobletCounters;
 import io.datarouter.joblet.queue.JobletRequestQueueManager;
 import io.datarouter.joblet.service.JobletService;
 import io.datarouter.joblet.setting.DatarouterJobletSettingRoot;
 import io.datarouter.joblet.type.JobletType;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class JobletProcessorFactory{

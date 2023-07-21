@@ -17,6 +17,8 @@ package io.datarouter.bytes;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Objects;
 
 public class ByteLength{
@@ -231,4 +233,28 @@ public class ByteLength{
 	private long to(Unit unit){
 		return this.length / unit.unitValue;
 	}
+
+	/*-------- to Double precision -------*/
+
+	private double toDouble(Unit unit){
+		return (double)length / (double)unit.unitValue;
+	}
+
+	public double toTiBDouble(){
+		return toDouble(Unit.TiB);
+	}
+
+	/*-------- sum -----------*/
+
+	public static ByteLength sum(ByteLength... byteLengths){
+		return sum(Arrays.asList(byteLengths));
+	}
+
+	public static ByteLength sum(Collection<ByteLength> byteLengths){
+		long totalBytes = byteLengths.stream()
+				.mapToLong(ByteLength::toBytes)
+				.sum();
+		return ByteLength.ofBytes(totalBytes);
+	}
+
 }

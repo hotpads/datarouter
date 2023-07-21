@@ -15,11 +15,10 @@
  */
 package io.datarouter.auth.job;
 
-import javax.inject.Inject;
-
 import io.datarouter.auth.service.DatarouterAccountCredentialService;
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
+import jakarta.inject.Inject;
 
 public class DatarouterAccountCredentialCleanupJob extends BaseJob{
 

@@ -27,9 +27,6 @@ import static j2html.TagCreator.tr;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientInitializationTracker;
 import io.datarouter.storage.client.DatarouterClients;
@@ -41,6 +38,8 @@ import j2html.TagCreator;
 import j2html.tags.ContainerTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.TdTag;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterClientHandlerService{

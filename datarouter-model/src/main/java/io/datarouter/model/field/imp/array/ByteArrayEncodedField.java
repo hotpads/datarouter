@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.Optional;
 
+import io.datarouter.bytes.TerminatedByteArrayTool;
 import io.datarouter.model.field.BaseField;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.codec.FieldCodec;
@@ -63,20 +64,19 @@ public class ByteArrayEncodedField<T> extends BaseField<T>{
 
 	@Override
 	public byte[] getKeyBytesWithSeparator(){
-		//Would need to be implemented with something like TerminatedStringCodec
-		throw new UnsupportedOperationException();
+		byte[] bytes = getCodec().encode(value);
+		return TerminatedByteArrayTool.escapeAndTerminate(bytes);
 	}
 
 	@Override
 	public int numKeyBytesWithSeparator(byte[] bytes, int offset){
-		//Would need to be implemented with something like TerminatedStringCodec
-		throw new UnsupportedOperationException();
+		return TerminatedByteArrayTool.lengthWithTerminator(bytes, offset);
 	}
 
 	@Override
 	public T fromKeyBytesWithSeparatorButDoNotSet(byte[] bytes, int offset){
-		//Would need to be implemented with something like TerminatedStringCodec
-		throw new UnsupportedOperationException();
+		byte[] unescapedBytes = TerminatedByteArrayTool.unescapeAndUnterminate(bytes, offset);
+		return getCodec().decode(unescapedBytes);
 	}
 
 	@Override

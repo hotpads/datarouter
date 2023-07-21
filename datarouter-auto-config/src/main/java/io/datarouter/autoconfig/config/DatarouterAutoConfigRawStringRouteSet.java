@@ -15,14 +15,13 @@
  */
 package io.datarouter.autoconfig.config;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.autoconfig.web.DatarouterAutoConfigHandler;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
 import io.datarouter.web.handler.encoder.RawStringEncoder;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterAutoConfigRawStringRouteSet extends BaseRouteSet{

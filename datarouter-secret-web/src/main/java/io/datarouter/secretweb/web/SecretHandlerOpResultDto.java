@@ -54,7 +54,7 @@ public class SecretHandlerOpResultDto{
 		return new SecretHandlerOpResultDto(SecretOpStatus.SUCCESS, null, null, appSecretNames, sharedSecretNames);
 	}
 
-	public static enum SecretOpStatus{
+	public enum SecretOpStatus{
 
 		SUCCESS,
 		ERROR,

@@ -15,13 +15,12 @@
  */
 package io.datarouter.auth.readme;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.auth.service.DatarouterAccountApiKeyPredicate;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
 import io.datarouter.web.handler.TestApiHandler;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class AuthExampleAccountRouteSet extends BaseRouteSet{

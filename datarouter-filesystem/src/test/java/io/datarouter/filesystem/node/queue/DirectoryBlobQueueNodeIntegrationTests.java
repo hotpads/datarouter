@@ -18,8 +18,6 @@ package io.datarouter.filesystem.node.queue;
 import java.util.List;
 import java.util.UUID;
 
-import javax.inject.Inject;
-
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeMethod;
@@ -27,8 +25,8 @@ import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
 import io.datarouter.bytes.Codec;
-import io.datarouter.bytes.VarIntByteArraysTool;
 import io.datarouter.bytes.codec.stringcodec.StringCodec;
+import io.datarouter.bytes.varint.VarIntByteArraysTool;
 import io.datarouter.filesystem.DatarouterFilesystemModuleFactory;
 import io.datarouter.filesystem.client.FilesystemTestClientIds;
 import io.datarouter.scanner.Scanner;
@@ -37,6 +35,7 @@ import io.datarouter.storage.node.factory.QueueNodeFactory;
 import io.datarouter.storage.test.node.queue.BaseBlobQueueStorageTestDao;
 import io.datarouter.storage.test.node.queue.BloqQueueStorageTestDto;
 import io.datarouter.storage.test.node.queue.BloqQueueStorageTestDto.BloqQueueStorageTestDtoCodec;
+import jakarta.inject.Inject;
 
 @Guice(moduleFactory = DatarouterFilesystemModuleFactory.class)
 @Test(singleThreaded = true)

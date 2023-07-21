@@ -15,9 +15,6 @@
  */
 package io.datarouter.websocket.config;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.httpclient.security.DefaultCsrfGenerator;
 import io.datarouter.httpclient.security.DefaultSignatureGenerator;
 import io.datarouter.storage.tag.Tag;
@@ -30,6 +27,8 @@ import io.datarouter.web.user.role.DatarouterUserRole;
 import io.datarouter.websocket.session.PushServiceSettingsSupplier;
 import io.datarouter.websocket.session.WebSocketApiHandler;
 import io.datarouter.websocket.session.WebSocketToolHandler;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterWebSocketApiRouteSet extends BaseRouteSet{

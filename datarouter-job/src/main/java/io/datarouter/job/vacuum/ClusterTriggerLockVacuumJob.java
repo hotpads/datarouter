@@ -15,11 +15,10 @@
  */
 package io.datarouter.job.vacuum;
 
-import javax.inject.Inject;
-
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
 import io.datarouter.job.storage.clustertriggerlock.DatarouterClusterTriggerLockDao;
+import jakarta.inject.Inject;
 
 public class ClusterTriggerLockVacuumJob extends BaseJob{
 

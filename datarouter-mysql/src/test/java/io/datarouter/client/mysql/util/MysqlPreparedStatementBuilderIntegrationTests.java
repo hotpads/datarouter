@@ -17,8 +17,6 @@ package io.datarouter.client.mysql.util;
 
 import java.util.List;
 
-import javax.inject.Inject;
-
 import org.testng.Assert;
 import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
@@ -38,6 +36,7 @@ import io.datarouter.model.field.imp.comparable.IntegerFieldKey;
 import io.datarouter.model.key.BaseKey;
 import io.datarouter.storage.config.Config;
 import io.datarouter.util.tuple.Range;
+import jakarta.inject.Inject;
 
 @Guice(moduleFactory = DatarouterMysqlTestNgModuleFactory.class)
 public class MysqlPreparedStatementBuilderIntegrationTests{
@@ -189,7 +188,7 @@ public class MysqlPreparedStatementBuilderIntegrationTests{
 				"TestTable",
 				CONFIG,
 				KEY_1.getFields(),
-				List.of(new Range<TestKey>(null, null)),
+				List.of(new Range<>(null, null)),
 				null,
 				MysqlTool.PRIMARY_KEY_INDEX_NAME)
 				.toString();

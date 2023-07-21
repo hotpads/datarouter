@@ -15,9 +15,6 @@
  */
 package io.datarouter.client.mysql;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.client.mysql.node.MysqlBlobNode;
 import io.datarouter.client.mysql.node.MysqlNode;
 import io.datarouter.client.mysql.node.MysqlNodeManager;
@@ -42,6 +39,8 @@ import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.storage.tally.Tally;
 import io.datarouter.storage.tally.Tally.TallyFielder;
 import io.datarouter.storage.tally.TallyKey;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class MysqlClientNodeFactory

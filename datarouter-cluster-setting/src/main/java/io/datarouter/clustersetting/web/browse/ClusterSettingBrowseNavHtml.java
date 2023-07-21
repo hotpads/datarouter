@@ -30,10 +30,9 @@ import static j2html.TagCreator.ul;
 import java.util.List;
 import java.util.Optional;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
+import io.datarouter.clustersetting.web.browse.ClusterSettingBrowseHandler.ClusterSettingBrowseHandlerParams;
 import io.datarouter.clustersetting.web.browse.ClusterSettingBrowseHandler.ClusterSettingBrowseLinks;
+import io.datarouter.clustersetting.web.browse.ClusterSettingBrowseSettingNodeHtml.ClusterSettingBrowseSettingNodeHtmlFactory;
 import io.datarouter.clustersetting.web.browse.ClusterSettingHierarchy.HierarchyNode;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.setting.cached.CachedSetting;
@@ -44,46 +43,41 @@ import io.datarouter.web.html.nav.NavTabs;
 import io.datarouter.web.html.nav.NavTabs.NavTab;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.LiTag;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
-@Singleton
-public class ClusterSettingBrowseNavHtml{
+public record ClusterSettingBrowseNavHtml(
+		ClusterSettingBrowseLinks browseLinks,
+		ClusterSettingHierarchy hierarchy,
+		ClusterSettingBrowseSettingNodeHtml settingNodeHtml,
+		ClusterSettingBrowseHandlerParams params){
 
 	private static final int NAV_TREE_WIDTH = 300;
 	private static final String LIST_STYLE = "list-style-type:none;margin:0;padding:0;";
 
-	@Inject
-	private ClusterSettingBrowseLinks browseLinks;
-	@Inject
-	private ClusterSettingHierarchy hierarchy;
-	@Inject
-	private ClusterSettingBrowseSettingNodeHtml settingNodeHtml;
-
-	public DivTag makeBodyDiv(
-			Optional<String> optLocation,
-			Optional<String> optPartialName){
-		Optional<HierarchyNode> optHierarchy = hierarchy.root().filter(optPartialName);
+	public DivTag makeBodyDiv(){
+		Optional<HierarchyNode> optHierarchy = hierarchy.root().filter(params.partialName);
 		if(optHierarchy.isEmpty()){
-			String message = String.format("No settings matching '%s'", optPartialName.orElseThrow());
+			String message = String.format("No settings matching '%s'", params.partialName.orElseThrow());
 			return div(h5(message));
 		}
 		HierarchyNode filteredHierarchy = optHierarchy.orElseThrow();
-		Optional<HierarchyNode> optSelectedSetting = findSelectedSetting(filteredHierarchy, optLocation);
-		Optional<String> optNodeLocation = optLocation
+		Optional<HierarchyNode> optSelectedSetting = findSelectedSetting(filteredHierarchy);
+		Optional<String> optNodeLocation = params.location
 				.map(location -> location.substring(0, location.lastIndexOf('.') + 1));
 		HierarchyNode selectedNode = getLocation(filteredHierarchy, optNodeLocation);
 		HierarchyNode selectedCategory = getSelectedCategory(filteredHierarchy, selectedNode);
 		return div(
-				makeCountsDiv(hierarchy.root(), filteredHierarchy, optPartialName)
+				makeCountsDiv(hierarchy.root(), filteredHierarchy)
 						.withClass("ml-3 mt-2"),
-				makeCategoryTabsDiv(filteredHierarchy, selectedCategory, optPartialName)
+				makeCategoryTabsDiv(filteredHierarchy, selectedCategory)
 						.withClass("mt-2"),
-				makeBodyUnderTabsDiv(selectedCategory, selectedNode, optSelectedSetting, optPartialName));
+				makeBodyUnderTabsDiv(selectedCategory, selectedNode, optSelectedSetting));
 	}
 
 	public DivTag makeCountsDiv(
 			HierarchyNode unfilteredHierarchy,
-			HierarchyNode filteredHierarchy,
-			Optional<String> optPartialName){
+			HierarchyNode filteredHierarchy){
 		long total = unfilteredHierarchy.countDescendentSettings();
 		long filtered = filteredHierarchy.countDescendentSettings();
 		boolean isFiltered = filtered < total;
@@ -92,7 +86,7 @@ public class ClusterSettingBrowseNavHtml{
 						"Found %s of %s total settings with name like '%s'",
 						NumberFormatter.addCommas(filtered),
 						NumberFormatter.addCommas(total),
-						optPartialName.orElseThrow())
+						params.partialName.orElseThrow())
 				: String.format(
 						"%s total settings",
 						NumberFormatter.addCommas(total));
@@ -101,15 +95,15 @@ public class ClusterSettingBrowseNavHtml{
 
 	public DivTag makeCategoryTabsDiv(
 			HierarchyNode filteredHierarchy,
-			HierarchyNode selectedCategoryHierarchy,
-			Optional<String> optPartialName){
+			HierarchyNode selectedCategoryHierarchy){
 		NavTabs navTabs = new NavTabs();
 		filteredHierarchy.scanChildren()
 				.forEach(category -> navTabs.add(new NavTab(
 						category.name(),
 						browseLinks.all(
-								Optional.of(getFirstLocation(category).name()),
-								optPartialName),
+								new ClusterSettingBrowseHandlerParams()
+										.withLocation(getFirstLocation(category).name())
+										.withOptPartialName(params.partialName)),
 						category.name().equals(selectedCategoryHierarchy.name()))));
 		return div(Bootstrap4NavTabsHtml.render(navTabs));
 	}
@@ -117,17 +111,15 @@ public class ClusterSettingBrowseNavHtml{
 	public DivTag makeBodyUnderTabsDiv(
 			HierarchyNode categoryHierarchy,
 			HierarchyNode selectedNode,
-			Optional<HierarchyNode> optSelectedSetting,
-			Optional<String> optPartialName){
-		var navTreeDiv = makeCategoryTreeDiv(categoryHierarchy, selectedNode, optPartialName);
+			Optional<HierarchyNode> optSelectedSetting){
+		var navTreeDiv = makeCategoryTreeDiv(categoryHierarchy, selectedNode);
 		String location = optSelectedSetting
 				.map(HierarchyNode::name)
 				.orElse(selectedNode.name());
 		var settingsDiv = settingNodeHtml.makeSettingsDiv(
 				selectedNode,
 				settingsToDisplay(selectedNode, optSelectedSetting),
-				location,
-				optPartialName);
+				location);
 		var table = table(tr(
 				td(navTreeDiv).withStyle(String.format("vertical-align:top;width:%spx;", NAV_TREE_WIDTH)),
 				td(settingsDiv).withStyle("vertical-align:top;")))
@@ -137,28 +129,24 @@ public class ClusterSettingBrowseNavHtml{
 
 	public DivTag makeCategoryTreeDiv(
 			HierarchyNode categoryHierarchy,
-			HierarchyNode selectedHierarchy,
-			Optional<String> optPartialName){
+			HierarchyNode selectedHierarchy){
 		var categoryUl = ul()
 				.withStyle(LIST_STYLE);
 		categoryHierarchy.scanChildren()
 				.include(HierarchyNode::isSettingRootOrNode)
 				.forEach(node -> categoryUl.with(makeSettingNode(
 						node,
-						selectedHierarchy,
-						optPartialName)));
+						selectedHierarchy)));
 		return div(categoryUl)
 				.withClass("card-body bg-light border-0 mt-0 p-2");
 	}
 
 	public LiTag makeSettingNode(
 			HierarchyNode nodeHierarchy,
-			HierarchyNode selectedNode,
-			Optional<String> optPartialName){
+			HierarchyNode selectedNode){
 		var nodeLi = li(makeSettingNodeLiContent(
 				nodeHierarchy,
-				selectedNode,
-				optPartialName))
+				selectedNode))
 				.withStyle(LIST_STYLE);
 		List<HierarchyNode> childNodes = nodeHierarchy.scanChildren()
 				.include(HierarchyNode::isSettingRootOrNode)
@@ -169,8 +157,7 @@ public class ClusterSettingBrowseNavHtml{
 			Scanner.of(childNodes)
 					.map(childHierarchy -> makeSettingNode(
 							childHierarchy,
-							selectedNode,
-							optPartialName))
+							selectedNode))
 					.forEach(ul::with);
 			nodeLi.with(ul);
 		}
@@ -179,8 +166,7 @@ public class ClusterSettingBrowseNavHtml{
 
 	private DivTag makeSettingNodeLiContent(
 			HierarchyNode nodeHierarchy,
-			HierarchyNode selectedNode,
-			Optional<String> optPartialName){
+			HierarchyNode selectedNode){
 		int indent = nodeHierarchy.level() - 1;
 		var levelSpan = span(StringTool.repeat("-", indent))
 				.withStyle("color:gray;");
@@ -190,8 +176,9 @@ public class ClusterSettingBrowseNavHtml{
 				: text(nodeHierarchy.shortName());
 		var link = a(linkText)
 				.withHref(browseLinks.all(
-						Optional.of(nodeHierarchy.name()),
-						optPartialName));
+						new ClusterSettingBrowseHandlerParams()
+								.withLocation(nodeHierarchy.name())
+								.withOptPartialName(params.partialName)));
 		var countSpan = span(String.format(" (%s)", nodeHierarchy.countChildSettings()))
 				.withStyle("color:gray;font-size:.85em;");
 		String textIndentStyle = String.format("text-indent:%spx;", indent * 16);
@@ -204,9 +191,7 @@ public class ClusterSettingBrowseNavHtml{
 
 	/*----------- helper -------------*/
 
-	private HierarchyNode getLocation(
-			HierarchyNode filteredHierarchy,
-			Optional<String> optLocation){
+	private HierarchyNode getLocation(HierarchyNode filteredHierarchy, Optional<String> optLocation){
 		return optLocation
 				.map(location -> filteredHierarchy.scanDescendents()
 						.include(node -> node.name().equals(location))
@@ -233,10 +218,8 @@ public class ClusterSettingBrowseNavHtml{
 				.orElseThrow();
 	}
 
-	private Optional<HierarchyNode> findSelectedSetting(
-			HierarchyNode filteredHierarchy,
-			Optional<String> optLocation){
-		return optLocation
+	private Optional<HierarchyNode> findSelectedSetting(HierarchyNode filteredHierarchy){
+		return params.location
 				.map(location -> filteredHierarchy.scanDescendents()
 						.include(HierarchyNode::isSetting)
 						.include(node -> node.name().equals(location))
@@ -255,6 +238,24 @@ public class ClusterSettingBrowseNavHtml{
 						.include(HierarchyNode::isSetting)
 						.map(HierarchyNode::setting)
 						.list();
+	}
+
+	@Singleton
+	public static class ClusterSettingBrowseNavHtmlFactory{
+		@Inject
+		private ClusterSettingBrowseLinks browseLinks;
+		@Inject
+		private ClusterSettingHierarchy hierarchy;
+		@Inject
+		private ClusterSettingBrowseSettingNodeHtmlFactory settingNodeHtmlFactory;
+
+		public ClusterSettingBrowseNavHtml create(ClusterSettingBrowseHandlerParams params){
+			return new ClusterSettingBrowseNavHtml(
+					browseLinks,
+					hierarchy,
+					settingNodeHtmlFactory.create(params),
+					params);
+		}
 	}
 
 }

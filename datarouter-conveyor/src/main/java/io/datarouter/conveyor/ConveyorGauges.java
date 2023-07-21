@@ -15,10 +15,9 @@
  */
 package io.datarouter.conveyor;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.storage.metric.Gauges;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class ConveyorGauges implements ConveyorGaugeRecorder{

@@ -19,16 +19,17 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 
 import io.datarouter.util.singletonsupplier.SingletonSupplier;
+import io.datarouter.web.html.PageScripts;
 import io.datarouter.web.listener.TomcatWebAppNamesWebAppListener;
 import io.datarouter.web.navigation.AppNavBar;
 import io.datarouter.web.navigation.DatarouterNavBar;
 import io.datarouter.web.util.RequestAttributeKey;
 import io.datarouter.web.util.RequestAttributeTool;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class MavPropertiesFactory{
@@ -38,6 +39,7 @@ public class MavPropertiesFactory{
 	private final DatarouterMavPropertiesFactoryConfig config;
 	private final Supplier<Map<String,String>> tomcatWebApps;
 	private final Optional<AppNavBar> appNavBar;
+	private final PageScripts pageScripts;
 	private final DatarouterNavBar datarouterNavBar;
 
 	@Inject
@@ -45,10 +47,12 @@ public class MavPropertiesFactory{
 			TomcatWebAppNamesWebAppListener webAppsListener,
 			DatarouterMavPropertiesFactoryConfig config,
 			Optional<AppNavBar> appNavBar,
+			PageScripts pageScripts,
 			DatarouterNavBar datarouterNavBar){
 		this.config = config;
 		this.tomcatWebApps = SingletonSupplier.of(webAppsListener::getTomcatWebApps);
 		this.appNavBar = appNavBar;
+		this.pageScripts = pageScripts;
 		this.datarouterNavBar = datarouterNavBar;
 	}
 
@@ -58,11 +62,12 @@ public class MavPropertiesFactory{
 				request,
 				config.getCssVersion(),
 				config.getJsVersion(),
-				config.getIsAdmin(request),
+				config.hasAnyDatarouterPrivileges(request),
 				tomcatWebApps.get(),
 				appNavBar,
 				config.getIsProduction(),
-				datarouterNavBar);
+				datarouterNavBar,
+				pageScripts);
 		return RequestAttributeTool.set(request, MAV_PROPERTIES, mavProperties);
 	}
 

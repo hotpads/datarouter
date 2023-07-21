@@ -15,9 +15,6 @@
  */
 package io.datarouter.metric.config;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.metric.web.AdditionalMetricLinksHandlers.MetricDashboardHandler;
 import io.datarouter.metric.web.AdditionalMetricLinksHandlers.MiscMetricLinksHandler;
 import io.datarouter.metric.web.AdditionalMetricLinksHandlers.RegisteredMetricNames;
@@ -26,6 +23,8 @@ import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
 import io.datarouter.web.user.role.DatarouterUserRole;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterMetricRouteSet extends BaseRouteSet{

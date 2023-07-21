@@ -17,15 +17,14 @@ package io.datarouter.ratelimiter;
 
 import java.util.concurrent.TimeUnit;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.testng.Assert;
 import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
 import io.datarouter.ratelimiter.DatarouterRateLimiterConfig.DatarouterRateLimiterConfigBuilder;
 import io.datarouter.ratelimiter.storage.BaseTallyDao;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Guice(moduleFactory = RateLimiterTestNgModuleFactory.class)
 public class DatarouterRateLimiterIntegrationTests{

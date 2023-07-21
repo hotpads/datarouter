@@ -15,10 +15,6 @@
  */
 package io.datarouter.util.clazz;
 
-import java.util.Objects;
-
-import javax.inject.Singleton;
-
 import io.datarouter.util.Require;
 
 public class AnnotationTool{
@@ -27,12 +23,11 @@ public class AnnotationTool{
 		if(clazz.isInterface()){
 			return;
 		}
+		boolean hasAnnotation = clazz.getAnnotation(jakarta.inject.Singleton.class) != null;
 		if(shouldBeSingleton){
-			Objects.requireNonNull(clazz.getAnnotation(Singleton.class), clazz.getName()
-					+ " should have the Singleton annotation");
+			Require.isTrue(hasAnnotation, clazz.getName() + " should have the Singleton annotation");
 		}else{
-			Require.isNull(clazz.getAnnotation(Singleton.class), clazz.getName()
-					+ " should not have the Singleton annotation");
+			Require.isFalse(hasAnnotation, clazz.getName() + " should not have the Singleton annotation");
 		}
 	}
 

@@ -34,7 +34,9 @@ import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.httpclient.endpoint.link.BaseLink;
 import io.datarouter.httpclient.endpoint.param.EndpointParam;
+import io.datarouter.httpclient.endpoint.param.FormData;
 import io.datarouter.httpclient.endpoint.param.IgnoredField;
 import io.datarouter.httpclient.endpoint.param.ParamType;
 import io.datarouter.httpclient.endpoint.param.RequestBody;
@@ -156,10 +158,10 @@ public class EndpointTool{
 		return new ParamsMap(getParams, postParams);
 	}
 
-	public static ParamsKeysMap getRequiredKeys(BaseEndpoint<?,?> endpoint){
+	private static ParamsKeysMap getRequiredKeys(Field[] fields, HttpRequestMethod method){
 		List<String> getKeys = new LinkedList<>();
 		List<String> postKeys = new LinkedList<>();
-		for(Field field : endpoint.getClass().getFields()){
+		for(Field field : fields){
 			IgnoredField ignoredField = field.getAnnotation(IgnoredField.class);
 			if(ignoredField != null){
 				continue;
@@ -179,9 +181,9 @@ public class EndpointTool{
 
 			EndpointParam param = field.getAnnotation(EndpointParam.class);
 			if(param == null || param.paramType() == null || param.paramType() == ParamType.DEFAULT){
-				if(endpoint.method == HttpRequestMethod.GET){
+				if(method == HttpRequestMethod.GET){
 					getKeys.add(key);
-				}else if(endpoint.method == HttpRequestMethod.POST){
+				}else if(method == HttpRequestMethod.POST){
 					postKeys.add(key);
 				}
 				continue;
@@ -194,6 +196,14 @@ public class EndpointTool{
 			}
 		}
 		return new ParamsKeysMap(getKeys, postKeys);
+	}
+
+	public static ParamsKeysMap getRequiredKeys(BaseEndpoint<?,?> endpoint){
+		return getRequiredKeys(endpoint.getClass().getFields(), endpoint.method);
+	}
+
+	public static ParamsKeysMap getRequiredKeys(BaseWebApi<?,?> webApi){
+		return getRequiredKeys(webApi.getClass().getFields(), webApi.method);
 	}
 
 	public static Optional<Object> findEntity(BaseEndpoint<?,?> endpoint){
@@ -266,6 +276,12 @@ public class EndpointTool{
 				.orElseGet(field::getName);
 	}
 
+	public static Optional<Field> findFormData(Field[] fields){
+		return Stream.of(fields)
+				.filter(field -> field.isAnnotationPresent(FormData.class))
+				.findFirst();
+	}
+
 	public static Optional<Field> findRequestBody(Field[] fields){
 		return Stream.of(fields)
 				.filter(field -> field.isAnnotationPresent(RequestBody.class))
@@ -288,6 +304,15 @@ public class EndpointTool{
 		Parameter[] parameters = method.getParameters();
 		Class<?> endpointType = parameters[0].getType();
 		return method.getParameterCount() == 1 && BaseWebApi.class.isAssignableFrom(endpointType);
+	}
+
+	public static boolean paramIsLinkObject(Method method){
+		if(method.getParameterCount() != 1){
+			return false;
+		}
+		Parameter[] parameters = method.getParameters();
+		Class<?> endpointType = parameters[0].getType();
+		return method.getParameterCount() == 1 && BaseLink.class.isAssignableFrom(endpointType);
 	}
 
 	@Deprecated

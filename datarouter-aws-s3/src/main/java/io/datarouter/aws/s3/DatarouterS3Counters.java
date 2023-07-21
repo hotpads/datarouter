@@ -20,7 +20,8 @@ import io.datarouter.instrumentation.count.Counters;
 public class DatarouterS3Counters{
 
 	private static final String PREFIX = "Datarouter client S3";
-	private static final String BUCKET_NAME_ALL_BUCKETS = "allBuckets";
+	private static final String KEYWORD_ALL = "all"; // combined counts for all buckets
+	private static final String KEYWORD_BUCKET = "bucket"; // keyword before bucket names
 
 	public static void inc(String bucket, S3CounterSuffix suffix, long by){
 		incNoBucket(suffix, by);
@@ -28,11 +29,12 @@ public class DatarouterS3Counters{
 	}
 
 	public static void incNoBucket(S3CounterSuffix suffix, long by){
-		incBucket(BUCKET_NAME_ALL_BUCKETS, suffix, by);
+		String name = String.join(" ", PREFIX, KEYWORD_ALL, suffix.suffix);
+		Counters.inc(name, by);
 	}
 
 	private static void incBucket(String bucket, S3CounterSuffix suffix, long by){
-		String name = String.format("%s %s %s", PREFIX, bucket, suffix.suffix);
+		String name = String.join(" ", PREFIX, KEYWORD_BUCKET, bucket, suffix.suffix);
 		Counters.inc(name, by);
 	}
 
@@ -46,6 +48,7 @@ public class DatarouterS3Counters{
 		DELETE_VERSIONS_KEYS("deleteVersions keys"),
 		DOWNLOAD_FILE_REQUESTS("downloadFile requests"),
 		DOWNLOAD_FILE_BYTES("downloadFile bytes"),
+		GENERATE_LINK_REQUESTS("generateLink requests"),
 		HEAD_REQUESTS("head requests"),
 		HEAD_HIT("head hits"),
 		HEAD_MISS("head misses"),
@@ -55,8 +58,13 @@ public class DatarouterS3Counters{
 		LIST_OBJECTS_ROWS("listObjects rows"),
 		LIST_VERSIONS_REQUESTS("listVersions requests"),
 		LIST_VERSIONS_ROWS("listVersions rows"),
-		READ_REQUESTS("read requests"),
-		READ_BYTES("read bytes"),
+		MULTIPART_ABORT_REQUESTS("multipartAbort requests"),
+		MULTIPART_COMPLETE_REQUESTS("multipartComplete requests"),
+		MULTIPART_CREATE_REQUESTS("multipartCreate requests"),
+		MULTIPART_UPLOAD_BYTES("multipartUpload bytes"),
+		MULTIPART_UPLOAD_REQUESTS("multipartUpload requests"),
+		READ_OBJECT_REQUESTS("readObject requests"),
+		READ_OBJECT_BYTES("readObject bytes"),
 		READ_INPUT_STREAM_REQUESTS("readInputStream requests"),
 		READ_PARTIAL_REQUESTS("readPartial requests"),
 		READ_PARTIAL_BYTES("readPartial bytes"),
@@ -67,8 +75,8 @@ public class DatarouterS3Counters{
 		SCAN_VERSIONS_FROM_SCANS("scanVersionsFrom scans"),
 		UPLOAD_FILE_REQUESTS("uploadFile requests"),
 		UPLOAD_FILE_BYTES("uploadFile bytes"),
-		WRITE_REQUESTS("write requests"),
-		WRITE_BYTES("write bytes");
+		WRITE_OBJECT_REQUESTS("writeObject requests"),
+		WRITE_OBJECT_BYTES("writeObject bytes");
 
 		public final String suffix;
 

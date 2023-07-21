@@ -15,11 +15,10 @@
  */
 package io.datarouter.secret.service;
 
-import javax.inject.Singleton;
-
 import io.datarouter.secret.op.SecretOp;
 import io.datarouter.secret.op.SecretOpConfig;
 import io.datarouter.secret.op.client.SecretClientOp;
+import jakarta.inject.Singleton;
 
 /**
  * Determines the appropriate namespace to use as a prefix to a secret's name in the currently running service. The two

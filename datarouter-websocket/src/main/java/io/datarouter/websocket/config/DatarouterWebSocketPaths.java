@@ -15,11 +15,10 @@
  */
 package io.datarouter.websocket.config;
 
-import javax.inject.Singleton;
-
 import io.datarouter.pathnode.PathNode;
 import io.datarouter.pathnode.PathsRoot;
 import io.datarouter.websocket.service.WebSocketConfig;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterWebSocketPaths extends PathNode implements PathsRoot{

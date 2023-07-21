@@ -17,8 +17,6 @@ package io.datarouter.loggerconfig.job;
 
 import java.util.Collection;
 
-import javax.inject.Inject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +27,7 @@ import io.datarouter.loggerconfig.LoggingConfig;
 import io.datarouter.loggerconfig.LoggingConfigService;
 import io.datarouter.loggerconfig.storage.loggerconfig.DatarouterLoggerConfigDao;
 import io.datarouter.loggerconfig.storage.loggerconfig.LoggerConfig;
+import jakarta.inject.Inject;
 
 public class LoggerConfigUpdaterJob extends BaseJob{
 	private static final Logger logger = LoggerFactory.getLogger(LoggerConfigUpdaterJob.class);

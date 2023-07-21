@@ -23,7 +23,7 @@ public interface BaseDatarouterSamlDao{
 	void put(SamlAuthnRequestRedirectUrl databean);
 	SamlAuthnRequestRedirectUrl get(SamlAuthnRequestRedirectUrlKey key);
 
-	static class NoOpDatarouterSamlDao implements BaseDatarouterSamlDao{
+	class NoOpDatarouterSamlDao implements BaseDatarouterSamlDao{
 
 		@Override
 		public void put(SamlAuthnRequestRedirectUrl databean){

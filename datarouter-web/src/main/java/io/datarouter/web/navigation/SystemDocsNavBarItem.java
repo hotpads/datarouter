@@ -15,11 +15,10 @@
  */
 package io.datarouter.web.navigation;
 
-import javax.inject.Inject;
-
 import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.navigation.NavBarCategory.NavBarItemType;
 import io.datarouter.web.service.DocumentationNamesAndLinksSupplier;
+import jakarta.inject.Inject;
 
 public class SystemDocsNavBarItem implements DynamicNavBarItem{
 

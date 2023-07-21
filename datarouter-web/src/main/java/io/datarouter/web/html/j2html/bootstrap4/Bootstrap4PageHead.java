@@ -38,7 +38,7 @@ public class Bootstrap4PageHead extends DatarouterPageHead{
 			String contextPath,
 			String webappRequireJsConfigJsonString,
 			String[] require,
-			boolean isAdmin,
+			boolean hasAnyDatarouterPrivileges,
 			String title,
 			Map<String,String> httpEquivs,
 			ScriptTag[] customScripts){
@@ -48,10 +48,13 @@ public class Bootstrap4PageHead extends DatarouterPageHead{
 				DatarouterWebRequireJsV2.makeConfigScriptTag(contextPath),
 				RequireJsTool.makeConfigScriptTag(webappRequireJsConfigJsonString),
 				RequireJsTool.makeRequireScriptTag(require),
-				isAdmin ? DatarouterNavbarFactory.makeNavbarV2CssImportTags(contextPath, mavProperties
+				hasAnyDatarouterPrivileges
+						? DatarouterNavbarFactory.makeNavbarV2CssImportTags(contextPath, mavProperties
 						.getTomcatWebApps().size()) : new EmptyTag[]{},
-				isAdmin ? DatarouterWebJsTool.makeJsImport(contextPath, FILES.js.navbarRequestTimingV2Js) : null,
-				isAdmin ? DatarouterNavbarFactory.makeNavbarRequestTimingScriptV2(contextPath) : null,
+				hasAnyDatarouterPrivileges
+						? DatarouterWebJsTool.makeJsImport(contextPath, FILES.js.navbarRequestTimingV2Js) : null,
+				hasAnyDatarouterPrivileges
+						? DatarouterNavbarFactory.makeNavbarRequestTimingScriptV2(contextPath) : null,
 				title,
 				httpEquivs,
 				customScripts);

@@ -20,8 +20,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.inject.Inject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
@@ -50,6 +48,7 @@ import io.datarouter.util.Count;
 import io.datarouter.util.concurrent.ScalingThreadPoolExecutor;
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.timer.PhaseTimer;
+import jakarta.inject.Inject;
 
 @Guice(moduleFactory = DatarouterSnapshotModuleFactory.class)
 public class FilesystemSnapshotSortingTests{

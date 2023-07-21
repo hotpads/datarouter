@@ -25,10 +25,13 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.datarouter.aws.s3.S3Headers.ContentType;
 import io.datarouter.aws.s3.S3Headers.S3ContentType;
 import io.datarouter.bytes.ByteLength;
-import io.datarouter.bytes.InputStreamAndLength;
+import io.datarouter.bytes.io.InputStreamAndLength;
 import io.datarouter.bytes.split.ChunkScannerTool;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.scanner.Threads;
@@ -50,6 +53,7 @@ import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
 import software.amazon.awssdk.services.s3.model.S3Object;
 
 public interface DatarouterS3Client{
+	static final Logger logger = LoggerFactory.getLogger(DatarouterS3Client.class);
 
 	static final int DEFAULT_SCAN_PAGE_SIZE = 1_000;// matches S3 default
 
@@ -94,7 +98,12 @@ public interface DatarouterS3Client{
 
 	/*--------- object scan prefix---------*/
 
-	Scanner<S3Object> scanAfter(BucketAndPrefix location, String startAfter, String delimiter);
+	Scanner<List<S3Object>> scanAfterPaged(BucketAndPrefix location, String startAfter, String delimiter);
+
+	default Scanner<S3Object> scanAfter(BucketAndPrefix location, String startAfter, String delimiter){
+		return scanAfterPaged(location, startAfter, delimiter)
+				.concat(Scanner::of);
+	}
 
 	/**
 	 * Avoid calling scanPrefixes on a directory with many files.

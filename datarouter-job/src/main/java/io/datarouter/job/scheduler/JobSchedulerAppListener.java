@@ -15,11 +15,10 @@
  */
 package io.datarouter.job.scheduler;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.job.TriggerGroupClasses;
 import io.datarouter.web.listener.DatarouterAppListener;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class JobSchedulerAppListener implements DatarouterAppListener{

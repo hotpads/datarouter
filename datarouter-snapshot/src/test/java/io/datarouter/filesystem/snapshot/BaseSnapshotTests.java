@@ -62,7 +62,7 @@ import io.datarouter.util.timer.PhaseTimer;
 public abstract class BaseSnapshotTests{
 	private static final Logger logger = LoggerFactory.getLogger(BaseSnapshotTests.class);
 
-	private static enum TestId{
+	private enum TestId{
 		INDEX_LEVELS,
 		PARTIAL_SCANS,
 		RANDOM_MULTI_EXISTS,
@@ -639,11 +639,11 @@ public abstract class BaseSnapshotTests{
 			Operation operation){
 		List<Input> searchKeys = random ? randomInputs : sortedInputs;
 		int batchSize = 10_000;
-		var threads = new Threads(exec, getNumThreads());
+		var threads = new Threads(exec, multiThreaded ? getNumThreads() : 1);
 		var count = new AtomicLong();
 		Scanner.of(searchKeys)
 				.batch(batchSize)
-				.parallelUnordered(threads, multiThreaded)
+				.parallelUnordered(threads)
 				.forEach(batch -> {
 					var idReader = new SnapshotIdReader(snapshotKey, threadSafeBlockLoader);
 					var keyReader = new SnapshotKeyReader(snapshotKey, threadSafeBlockLoader);

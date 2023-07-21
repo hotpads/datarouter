@@ -21,8 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import javax.inject.Inject;
-
 import org.apache.hadoop.hbase.ServerName;
 import org.apache.hadoop.hbase.client.Admin;
 import org.slf4j.Logger;
@@ -43,6 +41,7 @@ import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.util.concurrent.ThreadTool;
 import io.datarouter.util.timer.PhaseTimer;
+import jakarta.inject.Inject;
 
 public class HBaseRegionBalancerJob extends BaseJob{
 	private static final Logger logger = LoggerFactory.getLogger(HBaseRegionBalancerJob.class);

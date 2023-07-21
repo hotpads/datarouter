@@ -19,9 +19,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.List;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.client.gcp.pubsub.node.BaseGcpPubsubNode;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
@@ -35,6 +32,8 @@ import io.datarouter.storage.queue.QueueMessageKey;
 import io.datarouter.storage.test.TestDatabean;
 import io.datarouter.storage.test.TestDatabeanFielder;
 import io.datarouter.storage.test.TestDatabeanKey;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class GcpPubsubTestDao extends BaseDao implements TestDao, GcpPubsubTestHelperDao{

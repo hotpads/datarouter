@@ -25,8 +25,6 @@ import static j2html.TagCreator.span;
 import java.time.Duration;
 import java.util.List;
 
-import javax.inject.Inject;
-
 import io.datarouter.email.html.J2HtmlDatarouterEmailBuilder;
 import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
@@ -47,6 +45,7 @@ import io.datarouter.web.email.StandardDatarouterEmailHeaderService;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.BodyTag;
 import j2html.tags.specialized.TableTag;
+import jakarta.inject.Inject;
 
 public class LongRunningTaskFailureAlertJob extends BaseJob{
 

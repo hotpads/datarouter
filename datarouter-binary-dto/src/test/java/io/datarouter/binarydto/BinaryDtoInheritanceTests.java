@@ -24,7 +24,7 @@ import io.datarouter.binarydto.dto.ComparableBinaryDto;
 
 public class BinaryDtoInheritanceTests{
 
-	public static class InnerTestDto<T extends InnerTestDto<T>> extends ComparableBinaryDto<T>{
+	private static class InnerTestDto<T extends InnerTestDto<T>> extends ComparableBinaryDto<T>{
 		public final String inner1;
 
 		public InnerTestDto(String inner1){
@@ -32,7 +32,7 @@ public class BinaryDtoInheritanceTests{
 		}
 	}
 
-	public static class OuterTestDto extends InnerTestDto<OuterTestDto>{
+	private static class OuterTestDto extends InnerTestDto<OuterTestDto>{
 		public final String outer1;
 
 		public OuterTestDto(String inner1, String outer1){

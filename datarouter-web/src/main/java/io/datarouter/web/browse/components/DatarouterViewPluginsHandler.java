@@ -20,8 +20,6 @@ import static j2html.TagCreator.div;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-
 import io.datarouter.pathnode.PathNode;
 import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.handler.BaseHandler;
@@ -30,6 +28,7 @@ import io.datarouter.web.html.j2html.J2HtmlTable;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import io.datarouter.web.plugin.PluginRegistrySupplier;
 import j2html.tags.specialized.DivTag;
+import jakarta.inject.Inject;
 
 public class DatarouterViewPluginsHandler extends BaseHandler{
 

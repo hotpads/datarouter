@@ -15,14 +15,13 @@
  */
 package io.datarouter.web.dispatcher;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.browse.ViewReadmesHandler;
 import io.datarouter.web.browse.ViewSystemDocsHandler;
 import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.user.role.DatarouterUserRole;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterWebDocsRouteSet extends BaseRouteSet{

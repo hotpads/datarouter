@@ -18,8 +18,6 @@ package io.datarouter.plugin.copytable;
 import java.time.Duration;
 import java.util.Optional;
 
-import javax.inject.Inject;
-
 import io.datarouter.joblet.codec.BaseGsonJobletCodec;
 import io.datarouter.joblet.model.BaseJoblet;
 import io.datarouter.joblet.type.JobletType;
@@ -28,6 +26,7 @@ import io.datarouter.plugin.copytable.CopyTableJoblet.CopyTableJobletParams;
 import io.datarouter.plugin.copytable.CopyTableService.CopyTableSpanResult;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.util.number.NumberTool;
+import jakarta.inject.Inject;
 
 public class CopyTableJoblet extends BaseJoblet<CopyTableJobletParams>{
 

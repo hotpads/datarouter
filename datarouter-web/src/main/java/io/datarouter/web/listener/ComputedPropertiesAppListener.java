@@ -15,10 +15,9 @@
  */
 package io.datarouter.web.listener;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.storage.config.DatarouterPropertiesService;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class ComputedPropertiesAppListener implements DatarouterAppListener{

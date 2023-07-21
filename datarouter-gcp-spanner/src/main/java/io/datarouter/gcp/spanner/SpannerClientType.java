@@ -15,11 +15,10 @@
  */
 package io.datarouter.gcp.spanner;
 
-import javax.inject.Inject;
-
 import io.datarouter.gcp.spanner.web.SpannerWebInspector;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.web.browse.DatarouterClientWebInspectorRegistry;
+import jakarta.inject.Inject;
 
 public class SpannerClientType implements ClientType<SpannerClientNodeFactory,SpannerClientManager>{
 

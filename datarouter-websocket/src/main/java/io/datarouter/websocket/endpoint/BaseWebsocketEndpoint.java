@@ -18,7 +18,6 @@ package io.datarouter.websocket.endpoint;
 import java.io.EOFException;
 import java.util.Date;
 
-import javax.inject.Inject;
 import javax.websocket.CloseReason;
 import javax.websocket.Endpoint;
 import javax.websocket.EndpointConfig;
@@ -35,6 +34,7 @@ import io.datarouter.websocket.service.ServerAddressProvider;
 import io.datarouter.websocket.service.WebSocketConnectionStore;
 import io.datarouter.websocket.session.PushService;
 import io.datarouter.websocket.storage.session.WebSocketSession;
+import jakarta.inject.Inject;
 
 public abstract class BaseWebsocketEndpoint extends Endpoint{
 	private static final Logger logger = LoggerFactory.getLogger(BaseWebsocketEndpoint.class);

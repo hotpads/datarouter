@@ -18,10 +18,9 @@ package io.datarouter.web.monitoring;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.inject.Singleton;
-
 import io.datarouter.util.JmxTool;
 import io.datarouter.web.port.CompoundPortIdentifier;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class TomcatThreadMetrics{

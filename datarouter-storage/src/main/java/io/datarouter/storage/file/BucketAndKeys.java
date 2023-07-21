@@ -38,4 +38,11 @@ public record BucketAndKeys(
 				.map(BucketAndKey::key)
 				.listTo(keys -> new BucketAndKeys(inputs.get(0).bucket(), keys));
 	}
+
+	public List<BucketAndKey> toIndividualKeys(){
+		return Scanner.of(keys)
+				.map(key -> new BucketAndKey(bucket, key))
+				.list();
+	}
+
 }

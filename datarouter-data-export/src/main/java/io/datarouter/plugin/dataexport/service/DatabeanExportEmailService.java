@@ -17,14 +17,13 @@ package io.datarouter.plugin.dataexport.service;
 
 import static j2html.TagCreator.body;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.plugin.dataexport.config.DatarouterDataExportPaths;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
 import io.datarouter.web.email.StandardDatarouterEmailHeaderService;
 import j2html.tags.specialized.BodyTag;
 import j2html.tags.specialized.DivTag;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatabeanExportEmailService{

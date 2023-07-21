@@ -20,6 +20,7 @@ import java.nio.file.Path;
 import io.datarouter.aws.s3.DatarouterS3ClientManager;
 import io.datarouter.aws.s3.DatarouterS3Counters;
 import io.datarouter.aws.s3.DatarouterS3Counters.S3CounterSuffix;
+import io.datarouter.aws.s3.S3CostCounters;
 import io.datarouter.aws.s3.S3Headers.ContentType;
 import io.datarouter.aws.s3.S3Tool;
 import io.datarouter.instrumentation.trace.TraceSpanGroupType;
@@ -57,6 +58,7 @@ public class DatarouterS3FileRequests{
 		}
 		DatarouterS3Counters.inc(location.bucket(), S3CounterSuffix.DOWNLOAD_FILE_REQUESTS, 1);
 		DatarouterS3Counters.inc(location.bucket(), S3CounterSuffix.DOWNLOAD_FILE_BYTES, response.contentLength());
+		S3CostCounters.read();
 	}
 
 	/*------------- write ------------*/
@@ -77,6 +79,7 @@ public class DatarouterS3FileRequests{
 		DatarouterS3Counters.inc(location.bucket(), S3CounterSuffix.UPLOAD_FILE_REQUESTS, 1);
 		// TODO non-deprecated alternative to requestBody.contentLength()
 		DatarouterS3Counters.inc(location.bucket(), S3CounterSuffix.UPLOAD_FILE_BYTES, requestBody.contentLength());
+		S3CostCounters.write();
 	}
 
 }

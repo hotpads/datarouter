@@ -18,8 +18,6 @@ package io.datarouter.conveyor.queue.configuration;
 import java.time.Duration;
 import java.time.Instant;
 
-import javax.inject.Inject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,6 +34,7 @@ import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.storage.queue.QueueMessage;
 import io.datarouter.storage.queue.consumer.QueueConsumer;
+import jakarta.inject.Inject;
 
 public abstract class BaseQueueConsumerConveyorConfiguration<
 		PK extends PrimaryKey<PK>,

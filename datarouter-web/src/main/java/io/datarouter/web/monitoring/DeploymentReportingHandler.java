@@ -17,9 +17,8 @@ package io.datarouter.web.monitoring;
 
 import java.time.format.DateTimeFormatter;
 
-import javax.inject.Inject;
-
 import io.datarouter.web.handler.BaseHandler;
+import jakarta.inject.Inject;
 
 public class DeploymentReportingHandler extends BaseHandler{
 

@@ -19,11 +19,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
-import io.datarouter.clustersetting.ClusterSettingScope;
+import io.datarouter.clustersetting.enums.ClusterSettingScope;
+import io.datarouter.clustersetting.storage.clustersettinglog.ClusterSettingLog;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.servertype.ServerType;
 import io.datarouter.storage.servertype.ServerTypes;
@@ -32,6 +31,8 @@ import io.datarouter.web.html.form.HtmlFormSelect;
 import io.datarouter.web.html.form.HtmlFormText;
 import io.datarouter.web.html.form.HtmlFormTextArea;
 import io.datarouter.web.html.form.HtmlFormValidator;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class ClusterSettingOverrideForms{
@@ -86,14 +87,19 @@ public class ClusterSettingOverrideForms{
 						HtmlFormValidator::notBlank);
 	}
 
-	public HtmlFormTextArea makeCommentField(String fieldName, Optional<String> value, boolean validate){
+	public HtmlFormTextArea makeCommentField(String fieldName, Optional<String> optValue, boolean validate){
+		List<Function<String,Optional<String>>> errorFinders = List.of(
+				HtmlFormValidator::notBlank,
+				value -> HtmlFormValidator.maxLength(
+						value,
+						ClusterSettingLog.FieldKeys.comment.getSize()));
 		return new HtmlFormTextArea()
 				.withDisplay("Comment")
 				.withName(fieldName)
 				.withValue(
-						value.orElse(""),
+						optValue.orElse(""),
 						validate,
-						HtmlFormValidator::notBlank);
+						errorFinders);
 	}
 
 	public HtmlFormTextArea makeSettingValueField(String fieldName, Optional<String> value, boolean validate){

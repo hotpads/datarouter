@@ -23,9 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
 import io.datarouter.joblet.enums.JobletStatus;
@@ -37,6 +34,8 @@ import io.datarouter.web.config.service.DomainFinder;
 import io.datarouter.web.html.j2html.J2HtmlTable;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.TableTag;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class JobletDailyDigestService{

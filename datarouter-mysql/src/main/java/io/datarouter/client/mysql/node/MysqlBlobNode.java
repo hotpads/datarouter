@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import io.datarouter.bytes.InputStreamTool;
+import io.datarouter.bytes.io.InputStreamTool;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.config.Config;
@@ -59,7 +59,7 @@ implements PhysicalBlobStorageNode{
 	}
 
 	@Override
-	public void write(PathbeanKey key, InputStream inputStream, Config config){
+	public void writeInputStream(PathbeanKey key, InputStream inputStream, Config config){
 		byte[] value = InputStreamTool.toArray(inputStream);
 		write(key, value, config);
 	}
@@ -122,7 +122,7 @@ implements PhysicalBlobStorageNode{
 	}
 
 	@Override
-	public byte[] read(PathbeanKey key, long offset, int length, Config config){
+	public byte[] readPartial(PathbeanKey key, long offset, int length, Config config){
 		List<DatabaseBlob> beans = manager.getBlob(this.getFieldInfo(), List.of(key), this.getFieldInfo()
 				.getFieldColumnNames(), config);
 		int from = (int)offset;
@@ -131,7 +131,7 @@ implements PhysicalBlobStorageNode{
 	}
 
 	@Override
-	public Map<PathbeanKey,byte[]> read(List<PathbeanKey> keys, Config config){
+	public Map<PathbeanKey,byte[]> readMulti(List<PathbeanKey> keys, Config config){
 		List<DatabaseBlob> beans = manager.getBlob(this.getFieldInfo(), keys, this.getFieldInfo()
 				.getFieldColumnNames(), config);
 		return Scanner.of(beans)

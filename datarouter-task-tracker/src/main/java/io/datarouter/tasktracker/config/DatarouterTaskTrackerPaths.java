@@ -15,10 +15,9 @@
  */
 package io.datarouter.tasktracker.config;
 
-import javax.inject.Singleton;
-
 import io.datarouter.pathnode.PathNode;
 import io.datarouter.pathnode.PathsRoot;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterTaskTrackerPaths extends PathNode implements PathsRoot{

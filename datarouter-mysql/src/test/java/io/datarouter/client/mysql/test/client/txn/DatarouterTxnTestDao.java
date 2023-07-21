@@ -17,8 +17,6 @@ package io.datarouter.client.mysql.test.client.txn;
 
 import java.util.Collection;
 
-import javax.inject.Singleton;
-
 import io.datarouter.client.mysql.test.client.txn.TxnBean.TxnBeanFielder;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
@@ -29,6 +27,7 @@ import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.TestDao;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterTxnTestDao extends BaseDao implements TestDao{

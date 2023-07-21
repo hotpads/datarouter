@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
 import io.datarouter.client.memcached.client.MemcachedClientHolder;
@@ -54,6 +53,7 @@ import j2html.TagCreator;
 import j2html.tags.ContainerTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.LiTag;
+import jakarta.inject.Inject;
 
 public class MemcachedWebInspector implements DatarouterClientWebInspector{
 

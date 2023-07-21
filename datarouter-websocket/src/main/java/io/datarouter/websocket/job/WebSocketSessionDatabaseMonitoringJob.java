@@ -17,12 +17,11 @@ package io.datarouter.websocket.job;
 
 import java.util.HashMap;
 
-import javax.inject.Inject;
-
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
 import io.datarouter.websocket.WebSocketCounters;
 import io.datarouter.websocket.storage.session.DatarouterWebSocketSessionDao;
+import jakarta.inject.Inject;
 
 public class WebSocketSessionDatabaseMonitoringJob extends BaseJob{
 

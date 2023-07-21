@@ -18,7 +18,7 @@ package io.datarouter.web.plugin;
 import java.util.List;
 import java.util.function.Supplier;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 public interface PluginRegistrySupplier extends Supplier<List<String>>{
 

@@ -17,14 +17,13 @@ package io.datarouter.job.readme;
 
 import java.time.Instant;
 
-import javax.inject.Inject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
 import io.datarouter.storage.config.properties.ServerName;
+import jakarta.inject.Inject;
 
 public class ExampleJob extends BaseJob{
 	private static final Logger logger = LoggerFactory.getLogger(ExampleJob.class);

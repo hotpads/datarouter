@@ -19,7 +19,7 @@ import java.io.InputStream;
 import java.util.List;
 
 import io.datarouter.bytes.ByteLength;
-import io.datarouter.bytes.MultiByteArrayInputStream;
+import io.datarouter.bytes.io.MultiByteArrayInputStream;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.scanner.Threads;
 import io.datarouter.storage.config.Config;
@@ -42,21 +42,21 @@ public interface BlobStorageWriter extends BlobStorageReader{
 
 	/*----- write a Scanner<byte[]> ---------*/
 
-	default void write(PathbeanKey key, Scanner<byte[]> chunks, Config config){
+	default void writeChunks(PathbeanKey key, Scanner<byte[]> chunks, Config config){
 		InputStream inputStream = new MultiByteArrayInputStream(chunks);
-		write(key, inputStream, config);
+		writeInputStream(key, inputStream, config);
 	}
 
-	default void write(PathbeanKey key, Scanner<byte[]> chunks){
-		write(key, chunks, new Config());
+	default void writeChunks(PathbeanKey key, Scanner<byte[]> chunks){
+		writeChunks(key, chunks, new Config());
 	}
 
 	/*----- write from an InputStream ---------*/
 
-	void write(PathbeanKey key, InputStream inputStream, Config config);
+	void writeInputStream(PathbeanKey key, InputStream inputStream, Config config);
 
-	default void write(PathbeanKey key, InputStream inputStream){
-		write(key, inputStream, new Config());
+	default void writeInputStream(PathbeanKey key, InputStream inputStream){
+		writeInputStream(key, inputStream, new Config());
 	}
 
 	/*----- write from an InputStream with parallel uploads ---------*/
@@ -68,7 +68,7 @@ public interface BlobStorageWriter extends BlobStorageReader{
 			@SuppressWarnings("unused") Threads threads,
 			@SuppressWarnings("unused") ByteLength minPartSize,
 			Config config){
-		write(key, inputStream, config);
+		writeInputStream(key, inputStream, config);
 	}
 
 	default void writeParallel(
@@ -87,7 +87,7 @@ public interface BlobStorageWriter extends BlobStorageReader{
 			Scanner<List<byte[]>> parts,
 			@SuppressWarnings("unused") Threads threads,
 			Config config){
-		write(key, parts.concat(Scanner::of).apply(MultiByteArrayInputStream::new), config);
+		writeInputStream(key, parts.concat(Scanner::of).apply(MultiByteArrayInputStream::new), config);
 	}
 
 	default void writeParallel(

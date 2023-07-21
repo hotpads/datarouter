@@ -18,9 +18,6 @@ package io.datarouter.client.mysql.test.client.insert;
 import java.util.Collection;
 import java.util.List;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.client.mysql.test.DatarouterMysqlTestClientids;
 import io.datarouter.client.mysql.test.client.insert.PutOpTestBean.PutOpTestBeanFielder;
 import io.datarouter.storage.Datarouter;
@@ -29,6 +26,8 @@ import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.TestDao;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.raw.MapStorage;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterPutOpTestDao extends BaseDao implements TestDao{

@@ -430,18 +430,6 @@ function EditUserPage({ defaultUsername, requestListRefresh, closeEditUser }) {
 	);
 }
 
-const generateId = (function () {
-	const globalIds = new Set();
-	return () => {
-		let id;
-		do {
-			id = `${Math.round(Math.random() * Math.pow(10, 9))}`;
-		} while (globalIds.has(id));
-		globalIds.add(id);
-		return id;
-	};
-})();
-
 const withAlertCardContainer = (WrappedComponent, headerText) => (props) => {
 	const { startCollapsed } = props;
 	const [display, setDisplay] = useState(false);
@@ -450,7 +438,7 @@ const withAlertCardContainer = (WrappedComponent, headerText) => (props) => {
 	const [collapseBody, setCollapseBody] = useState(startCollapsed || false);
 	const [showUnsavedAlert, setShowUnsavedAlert] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
-	const id = useRef(generateId());
+	const ref = useRef(null);
 
 	const handle = (bootstrapClass, message) => {
 		setDisplay(true);
@@ -473,7 +461,9 @@ const withAlertCardContainer = (WrappedComponent, headerText) => (props) => {
 	const handleToggleCollapse = () => {
 		setCollapseBody(!collapseBody);
 		// provides a smooth transition for the collapse
-		$('#' + id.current).collapse(collapseBody ? "show" : "hide");
+		if(ref.current) {
+			$(ref.current).collapse(collapseBody ? "show" : "hide");
+		}
 	};
 
 	const setIsLoadingWrapper = (isLoadingNewValue) => {
@@ -503,7 +493,7 @@ const withAlertCardContainer = (WrappedComponent, headerText) => (props) => {
 					}
 				</div>
 			</div>
-			<div id={id.current} className={`collapse ${startCollapsed ? "" : "show"}`}>
+			<div ref={ref} className={`collapse ${startCollapsed ? "" : "show"}`}>
 				<div class="card-body">
 					{display && (
 						<div class={"alert " + bootstrapClass}>
@@ -820,6 +810,35 @@ const CopyUserFormCard = withAlertCardContainer(
 	"Copy User Details"
 );
 
+function Tooltip({ title, body }) {
+	const ref = useRef(null);
+
+	useEffect(() => {
+		if (ref.current) {
+			$(ref.current).tooltip();
+		}
+	}, [ref]);
+
+	return (
+		<p
+			data-toggle="tooltip"
+			data-placement="right"
+			ref={ref}
+			title={title}
+			style={{
+				width: 'fit-content',
+				marginBottom: '0em', // override bootstrap
+				paddingTop: '0.5em', // to make on hover more forgiving
+				paddingBottom: '0.5em', // to make on hover more forgiving
+				paddingRight: '1em', // to make on hover more forgiving
+				textDecoration: "underline dashed",
+			}}
+		>
+			{ body }
+		</p>
+	);
+}
+
 function EditRoleTable({ userRoleMetadataList, editorUsername, deprovisioned, handleToggleRole }) {
 
 	const getStringFromApprovalStatuses = (userRoleMetadata) => {
@@ -867,7 +886,7 @@ function EditRoleTable({ userRoleMetadataList, editorUsername, deprovisioned, ha
 	return (
 		<div>
 			<h3 className="card-title">Roles</h3>
-			<table className="table table-sm">
+			<table className="table table-sm table-striped">
 				<thead>
 				<tr>
 					<th>Approval Status</th>
@@ -879,12 +898,17 @@ function EditRoleTable({ userRoleMetadataList, editorUsername, deprovisioned, ha
 				<tbody>
 				{userRoleMetadataList.map((userRoleMetadata) => (
 					<tr>
-						<td>{userRoleMetadata.privilegesGranted ?
-							<i className="fas fa-check fa-lg" style={{ color: '#128a29'}}></i>:
-							<i className="fa fa-ban fa-lg" style={{ color: '#be1c00' }}></i>}
+						<td class="align-middle">
+							{
+								userRoleMetadata.privilegesGranted ?
+									<i className="fas fa-check fa-lg" style={{ color: '#128a29'}} />
+									: <i className="fa fa-ban fa-lg" style={{ color: '#be1c00' }} />
+							}
 						</td>
-						<td><p>{userRoleMetadata.roleName}</p></td>
-						<td>{getStringFromApprovalStatuses(userRoleMetadata)}</td>
+						<td class="align-middle">
+							<Tooltip title={userRoleMetadata.roleDescription} body={userRoleMetadata.roleName} />
+						</td>
+						<td class="align-middle">{getStringFromApprovalStatuses(userRoleMetadata)}</td>
 						<td className="text-right">{ getActionButton(userRoleMetadata) }</td>
 					</tr>
 				))}
@@ -1396,7 +1420,7 @@ function ListAndEditUserPage() {
 
 	const requestListRefresh = () => {
 		setRequestListRefreshTimestamp(Date.now());
-	}
+	};
 
 	const openEditUser = (event) => {
 		setActiveUsername(event.target.name);

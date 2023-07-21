@@ -22,8 +22,6 @@ import static j2html.TagCreator.td;
 import java.util.Map.Entry;
 import java.util.concurrent.Callable;
 
-import javax.inject.Inject;
-
 import io.datarouter.autoconfig.config.DatarouterAutoConfigPaths;
 import io.datarouter.autoconfig.service.AutoConfigService;
 import io.datarouter.storage.servertype.ServerTypeDetector;
@@ -33,6 +31,7 @@ import io.datarouter.web.html.j2html.J2HtmlTable;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import j2html.TagCreator;
 import j2html.tags.specialized.DivTag;
+import jakarta.inject.Inject;
 
 public class ViewAutoConfigsHandler extends BaseHandler{
 

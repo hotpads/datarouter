@@ -19,9 +19,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.joblet.DatarouterJobletConstants;
 import io.datarouter.joblet.queue.JobletRequestQueueManager;
 import io.datarouter.joblet.storage.jobletrequest.JobletRequest;
@@ -35,6 +32,8 @@ import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.QueueNodeFactory;
 import io.datarouter.storage.node.op.raw.QueueStorage;
 import io.datarouter.storage.tag.Tag;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterJobletQueueDao extends BaseDao{

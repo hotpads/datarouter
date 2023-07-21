@@ -19,13 +19,13 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.h5;
 import static j2html.TagCreator.pre;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.MavPropertiesFactory;
 import j2html.tags.DomContent;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class Bootstrap4PageFactory{

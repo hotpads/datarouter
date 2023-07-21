@@ -20,8 +20,6 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.Optional;
 
-import javax.inject.Inject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,6 +37,7 @@ import io.datarouter.tasktracker.service.LongRunningTaskService;
 import io.datarouter.tasktracker.storage.LongRunningTask;
 import io.datarouter.util.Count;
 import io.datarouter.util.Count.Counts;
+import jakarta.inject.Inject;
 
 public class JobRetriggeringJob extends BaseJob{
 	private static final Logger logger = LoggerFactory.getLogger(JobRetriggeringJob.class);

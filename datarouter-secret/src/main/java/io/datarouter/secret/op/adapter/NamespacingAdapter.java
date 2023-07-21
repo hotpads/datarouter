@@ -69,7 +69,7 @@ public abstract class NamespacingAdapter<T> implements SecretOpAdapter<T,T>{
 				}).map(name -> name.substring(namespace.length()));
 	}
 
-	public static enum NamespacingMode{
+	public enum NamespacingMode{
 		ADDING,
 		REMOVING,
 		;

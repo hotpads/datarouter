@@ -15,14 +15,13 @@
  */
 package io.datarouter.websocket.config;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.joblet.setting.DatarouterJobletClusterThreadCountSettings;
 import io.datarouter.joblet.setting.DatarouterJobletThreadCountSettings;
 import io.datarouter.joblet.type.JobletType;
 import io.datarouter.storage.config.setting.DatarouterSettingOverrides;
 import io.datarouter.websocket.job.WebSocketSessionVacuumJoblet;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class WebSocketSettingOverrides implements DatarouterSettingOverrides{

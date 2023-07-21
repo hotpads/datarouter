@@ -47,9 +47,6 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,6 +84,8 @@ import io.datarouter.web.handler.types.HandlerDecoder;
 import io.datarouter.web.handler.types.Param;
 import io.datarouter.web.handler.types.ParamDefaultEnum;
 import io.datarouter.web.handler.types.optional.OptionalParameter;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class ApiDocService{

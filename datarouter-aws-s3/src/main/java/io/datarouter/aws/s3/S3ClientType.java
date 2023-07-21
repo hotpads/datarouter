@@ -15,14 +15,13 @@
  */
 package io.datarouter.aws.s3;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.aws.s3.client.S3ClientManager;
 import io.datarouter.aws.s3.client.S3ClientNodeFactory;
 import io.datarouter.aws.s3.client.S3WebInspector;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.web.browse.DatarouterClientWebInspectorRegistry;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class S3ClientType implements ClientType<S3ClientNodeFactory,S3ClientManager>{

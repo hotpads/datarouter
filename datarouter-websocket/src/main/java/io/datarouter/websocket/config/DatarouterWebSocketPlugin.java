@@ -28,6 +28,7 @@ import io.datarouter.web.dispatcher.FilterParams;
 import io.datarouter.web.inject.guice.BaseGuiceServletModule;
 import io.datarouter.web.navigation.DatarouterNavBarCategory;
 import io.datarouter.websocket.auth.GuiceWebSocketAuthenticationFilter;
+import io.datarouter.websocket.config.test.WebSocketInjectionTestableService;
 import io.datarouter.websocket.endpoint.WebSocketServices;
 import io.datarouter.websocket.job.WebSocketSessionVacuumJoblet;
 import io.datarouter.websocket.service.DefaultServerAddressProvider;
@@ -76,6 +77,7 @@ public class DatarouterWebSocketPlugin extends BaseWebPlugin{
 		setDaosModule(daosModule);
 		addDatarouterGithubDocLink("datarouter-websocket");
 		addPluginEntry(WebSocketSessionVacuumJoblet.JOBLET_TYPE);
+		addTestable(WebSocketInjectionTestableService.class);
 	}
 
 	@Override

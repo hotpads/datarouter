@@ -19,8 +19,6 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.inject.Inject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +33,7 @@ import io.datarouter.joblet.storage.jobletrequest.JobletRequestKey;
 import io.datarouter.joblet.type.JobletTypeFactory;
 import io.datarouter.util.ComparableTool;
 import io.datarouter.util.number.NumberFormatter;
+import jakarta.inject.Inject;
 
 public class JobletVacuumJob extends BaseJob{
 	private static final Logger logger = LoggerFactory.getLogger(JobletVacuumJob.class);

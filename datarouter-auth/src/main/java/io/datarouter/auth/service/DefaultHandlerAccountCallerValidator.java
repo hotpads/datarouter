@@ -19,9 +19,6 @@ import java.lang.reflect.Method;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +28,8 @@ import io.datarouter.httpclient.endpoint.java.BaseEndpoint;
 import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.web.handler.BaseHandler.Handler;
 import io.datarouter.web.handler.validator.HandlerAccountCallerValidator;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DefaultHandlerAccountCallerValidator implements HandlerAccountCallerValidator{

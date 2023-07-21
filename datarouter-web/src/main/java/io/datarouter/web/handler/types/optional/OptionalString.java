@@ -15,6 +15,9 @@
  */
 package io.datarouter.web.handler.types.optional;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+
 /**
  * @deprecated use the JDK {@code Optional<String>}
  */
@@ -34,7 +37,7 @@ public class OptionalString extends OptionalParameter<String>{
 	}
 
 	@Override
-	public OptionalParameter<String> fromString(String stringValue){
+	public OptionalParameter<String> fromString(String stringValue, Method method, Parameter parameter){
 		return new OptionalString(stringValue);
 	}
 

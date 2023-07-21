@@ -15,14 +15,13 @@
  */
 package io.datarouter.gcp.bigtable;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.client.hbase.HBaseClientType;
 import io.datarouter.gcp.bigtable.client.BigTableClientManager;
 import io.datarouter.gcp.bigtable.web.BigTableWebInspector;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.web.browse.DatarouterClientWebInspectorRegistry;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class BigTableClientType implements ClientType<BigTableClientNodeFactory,BigTableClientManager>{

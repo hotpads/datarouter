@@ -19,9 +19,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.exception.utils.nameparser.ExceptionNameParser;
 import io.datarouter.exception.utils.nameparser.ExceptionNameParserRegistry;
 import io.datarouter.exception.utils.nameparser.ExceptionSnapshot;
@@ -30,6 +27,8 @@ import io.datarouter.exception.utils.nameparser.ExceptionSnapshot.StackTraceElem
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.scanner.OptionalScanner;
 import io.datarouter.scanner.Scanner;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class ExceptionDetailsDetector{

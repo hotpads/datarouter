@@ -28,9 +28,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.nodewatch.config.DatarouterNodewatchPaths;
 import io.datarouter.nodewatch.service.TableSizeMonitoringService.PercentageCountStat;
 import io.datarouter.nodewatch.service.TableSizeMonitoringService.ThresholdCountStat;
@@ -45,6 +42,8 @@ import j2html.TagCreator;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.TableTag;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class NodewatchAboveThresholdsDailyDigest implements DailyDigest{

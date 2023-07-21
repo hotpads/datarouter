@@ -17,14 +17,12 @@ package io.datarouter.auth.service;
 
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +34,8 @@ import io.datarouter.web.user.databean.DatarouterUser;
 import io.datarouter.web.user.role.DatarouterUserRole;
 import io.datarouter.web.user.role.Role;
 import io.datarouter.web.util.PasswordTool;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterUserCreationService{
@@ -47,7 +47,6 @@ public class DatarouterUserCreationService{
 			DatarouterUserRole.DATAROUTER_ADMIN,
 			DatarouterUserRole.ADMIN,
 			DatarouterUserRole.USER,
-			DatarouterUserRole.API_USER,
 			DatarouterUserRole.REQUESTOR)
 			.map(DatarouterUserRole::getRole)
 			.collect(Collectors.toSet());
@@ -87,6 +86,7 @@ public class DatarouterUserCreationService{
 			String description,
 			Set<Role> roles,
 			boolean shouldPersist){
+		roles = new HashSet<>(roles);
 		roles.add(DatarouterUserRole.REQUESTOR.getRole());
 		var user = new DatarouterUser();
 		populateGeneratedFields(user, CreateType.AUTO, null, Optional.empty());
@@ -97,6 +97,7 @@ public class DatarouterUserCreationService{
 		return user;
 	}
 
+	// Only for non-production environments. Bypasses normal approval requirements.
 	public DatarouterUser createManualUser(
 			DatarouterUser creator,
 			String username,
@@ -107,11 +108,8 @@ public class DatarouterUserCreationService{
 			Optional<String> description){
 		var user = new DatarouterUser();
 		populateGeneratedFields(user, CreateType.MANUAL, password, zoneId);
-		populateManualFields(
-				user,
-				username,
-				datarouterUserService.getAllowedUserRoles(creator, requestedRoles),
-				enabled);
+		requestedRoles.add(DatarouterUserRole.REQUESTOR.getRole()); // everyone should have this
+		populateManualFields(user, username, requestedRoles, enabled);
 		String roles = user.getRoles().isEmpty() ? "" : (": roles: " + List.of() + " => " + user.getRoles());
 		String historyDescription = description.orElse("User manually created by " + creator.getUsername()) + roles;
 		return finishCreate(user, creator.getId(), creator.getUsername(), historyDescription);
@@ -148,7 +146,7 @@ public class DatarouterUserCreationService{
 		return user;
 	}
 
-	private static enum CreateType{
+	private enum CreateType{
 		ADMIN, AUTO, MANUAL;
 	}
 

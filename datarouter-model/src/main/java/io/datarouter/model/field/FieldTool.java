@@ -20,8 +20,8 @@ import java.util.List;
 
 import io.datarouter.bytes.ByteTool;
 import io.datarouter.bytes.EmptyArray;
-import io.datarouter.bytes.VarIntTool;
 import io.datarouter.bytes.codec.stringcodec.StringCodec;
+import io.datarouter.bytes.varint.VarIntTool;
 import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.util.string.StringTool;
 

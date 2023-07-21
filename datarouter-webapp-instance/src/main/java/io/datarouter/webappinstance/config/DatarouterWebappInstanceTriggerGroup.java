@@ -15,9 +15,6 @@
  */
 package io.datarouter.webappinstance.config;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.job.BaseTriggerGroup;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.util.time.ZoneIds;
@@ -26,6 +23,8 @@ import io.datarouter.webappinstance.job.OneTimeLoginTokenVacuumJob;
 import io.datarouter.webappinstance.job.WebappInstanceAlertJob;
 import io.datarouter.webappinstance.job.WebappInstanceUpdateJob;
 import io.datarouter.webappinstance.job.WebappInstanceVacuumJob;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterWebappInstanceTriggerGroup extends BaseTriggerGroup{

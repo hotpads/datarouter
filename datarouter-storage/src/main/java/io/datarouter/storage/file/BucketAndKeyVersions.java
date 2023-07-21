@@ -39,6 +39,12 @@ public record BucketAndKeyVersions(
 				.listTo(keyVersions -> new BucketAndKeyVersions(inputs.get(0).bucket(), keyVersions));
 	}
 
+	public List<BucketAndKeyVersion> toIndividualKeyVersions(){
+		return Scanner.of(keyVersions)
+				.map(keyVersion -> new BucketAndKeyVersion(bucket, keyVersion.key(), keyVersion.version()))
+				.list();
+	}
+
 	@NestedRecordImportWorkaround
 	public static class NestedRecords{
 

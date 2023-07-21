@@ -15,9 +15,12 @@
  */
 package io.datarouter.web.html.form;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
+import io.datarouter.scanner.OptionalScanner;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.web.html.form.HtmlForm.BaseHtmlFormField;
 
 public class HtmlFormTextArea extends BaseHtmlFormField{
@@ -58,6 +61,21 @@ public class HtmlFormTextArea extends BaseHtmlFormField{
 		this.value = value;
 		if(shouldValidate){
 			errorFinder.apply(value).ifPresent(this::withError);
+		}
+		return this;
+	}
+
+	public HtmlFormTextArea withValue(
+			String value,
+			boolean shouldValidate,
+			List<Function<String,Optional<String>>> errorFinders){
+		this.value = value;
+		if(shouldValidate){
+			Scanner.of(errorFinders)
+					.map(fn -> fn.apply(value))
+					.concat(OptionalScanner::of)
+					.findFirst()
+					.ifPresent(this::withError);
 		}
 		return this;
 	}

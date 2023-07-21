@@ -18,8 +18,6 @@ package io.datarouter.web.handler;
 import static j2html.TagCreator.body;
 import static j2html.TagCreator.pre;
 
-import javax.inject.Provider;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +33,7 @@ import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.config.settings.DatarouterSchemaUpdateEmailSettings;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
 import io.datarouter.web.email.StandardDatarouterEmailHeaderService;
+import jakarta.inject.Provider;
 
 public abstract class EmailingSchemaUpdateService extends BaseSchemaUpdateService{
 	private static final Logger logger = LoggerFactory.getLogger(EmailingSchemaUpdateService.class);

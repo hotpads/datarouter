@@ -15,13 +15,12 @@
  */
 package io.datarouter.ratelimiter;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.ratelimiter.storage.BaseTallyDao;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.dao.TestDao;
 import io.datarouter.storage.node.factory.TallyNodeFactory;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class TallyCacheRateLimiterTestDao extends BaseTallyDao implements TestDao{

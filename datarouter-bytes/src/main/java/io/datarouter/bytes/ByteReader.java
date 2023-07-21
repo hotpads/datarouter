@@ -22,6 +22,7 @@ import io.datarouter.bytes.codec.intcodec.RawIntCodec;
 import io.datarouter.bytes.codec.longcodec.ComparableLongCodec;
 import io.datarouter.bytes.codec.longcodec.RawLongCodec;
 import io.datarouter.bytes.codec.stringcodec.StringCodec;
+import io.datarouter.bytes.varint.VarIntTool;
 
 public class ByteReader{
 

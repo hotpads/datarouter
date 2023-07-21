@@ -17,13 +17,10 @@ package io.datarouter.storage.setting;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 
-import io.datarouter.scanner.ObjectScanner;
-import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.setting.cached.CachedSetting;
 import io.datarouter.storage.setting.cached.impl.BooleanCachedSetting;
 import io.datarouter.storage.setting.cached.impl.CommaSeparatedStringCachedSetting;
@@ -85,96 +82,12 @@ public abstract class SettingNode{
 		return setting;
 	}
 
-	public Optional<SettingNode> getNodeByName(String nameParam){
-		return getNodeByNameRecursively(nameParam, false);
-	}
-
-	public Optional<SettingNode> getMostRecentAncestorNodeByName(String nameParam){
-		return getNodeByNameRecursively(nameParam, true);
-	}
-
-	private Optional<SettingNode> getNodeByNameRecursively(String nameParam, boolean stopAtMostRecentNonNullAncestor){
-		if(getName().equals(nameParam)){
-			return Optional.of(this);
-		}
-		if(getChildren().containsKey(nameParam) && stopAtMostRecentNonNullAncestor){
-			return Optional.of(getChildren().get(nameParam));
-		}
-		if(getSettings().containsKey(removeTrailingPeriod(nameParam)) && stopAtMostRecentNonNullAncestor){
-			return Optional.of(this);
-		}
-		String nextChildShortName = nameParam.substring(getName().length());
-		int index = nextChildShortName.indexOf('.');
-		String nextChildPath = getName() + nextChildShortName.substring(0, index + 1);
-		if(getChildren().containsKey(nextChildPath)){
-			SettingNode ancestor = getChildren().get(nextChildPath);
-			Optional<SettingNode> moreRecentAncestor = ancestor.getNodeByNameRecursively(
-					nameParam,
-					stopAtMostRecentNonNullAncestor);
-			if(stopAtMostRecentNonNullAncestor && moreRecentAncestor.isEmpty()){
-				return Optional.of(ancestor);
-			}
-			return moreRecentAncestor;
-		}
-		return Optional.empty();
-	}
-
-	private String removeTrailingPeriod(String name){
-		if(name.endsWith(".")){
-			return name.substring(0, name.length() - 1);
-		}
-		return name;
-	}
-
-	public Scanner<SettingNode> scanThisAndDescendents(){
-		return ObjectScanner.of(this)
-				.append(Scanner.of(children.values())
-						.concat(SettingNode::scanThisAndDescendents));
-	}
-
-	public List<SettingNode> getDescendantsByName(String nameParam){
-		ArrayList<SettingNode> list = new ArrayList<>();
-		if(getName().equals(nameParam)){
-			list.add(this);
-			return list;
-		}
-		String nextChildShortName = nameParam.substring(getName().length());
-		int index = nextChildShortName.indexOf('.');
-		String nextChildPath = getName() + nextChildShortName.substring(0, index + 1);
-		if(getChildren().containsKey(nextChildPath)){
-			list.add(this);
-			list.addAll(getChildren().get(nextChildPath).getDescendantsByName(nameParam));
-		}
-		return list;
-	}
-
-	public Setting<?> getDescendantSettingByName(String settingNameParam){
-		if(getSettings().containsKey(settingNameParam)){
-			return getSettings().get(settingNameParam);
-		}
-		String nextChildShortName = settingNameParam.substring(getName().length());
-		int index = nextChildShortName.indexOf('.');
-		String nextChildPath = getName() + nextChildShortName.substring(0, index + 1);
-		if(getChildren().containsKey(nextChildPath)){
-			return getChildren().get(nextChildPath).getDescendantSettingByName(settingNameParam);
-		}
-		return null;
-	}
-
 	public List<SettingNode> getListChildren(){
 		return new ArrayList<>(children.values());
 	}
 
-	public boolean hasChildNodes(){
-		return !children.isEmpty();
-	}
-
-	public ArrayList<CachedSetting<?>> getListSettings(){
+	public List<CachedSetting<?>> getListSettings(){
 		return new ArrayList<>(settings.values());
-	}
-
-	public boolean hasSettings(){
-		return !settings.isEmpty();
 	}
 
 	public String getShortName(){

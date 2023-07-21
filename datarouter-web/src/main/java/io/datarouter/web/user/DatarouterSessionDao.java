@@ -18,9 +18,6 @@ package io.datarouter.web.user;
 import java.util.Collection;
 import java.util.List;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
@@ -33,6 +30,8 @@ import io.datarouter.virtualnode.redundant.RedundantSortedMapStorageNode;
 import io.datarouter.web.user.session.DatarouterSession;
 import io.datarouter.web.user.session.DatarouterSession.DatarouterSessionFielder;
 import io.datarouter.web.user.session.DatarouterSessionKey;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterSessionDao extends BaseDao implements BaseDatarouterSessionDao{

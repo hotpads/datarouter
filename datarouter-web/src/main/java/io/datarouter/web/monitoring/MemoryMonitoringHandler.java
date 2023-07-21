@@ -39,8 +39,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
-import javax.inject.Inject;
-
 import io.datarouter.bytes.ByteLength;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.properties.ServerName;
@@ -58,6 +56,7 @@ import io.datarouter.web.monitoring.memory.CgroupMemoryStatsDto;
 import io.datarouter.web.monitoring.memory.HostMemoryTool;
 import io.datarouter.web.monitoring.memory.VmNativeMemoryStatsDto;
 import j2html.attributes.Attr;
+import jakarta.inject.Inject;
 
 /**
  * This class needs to access a folder containing a library which doesn't exist during unit tests

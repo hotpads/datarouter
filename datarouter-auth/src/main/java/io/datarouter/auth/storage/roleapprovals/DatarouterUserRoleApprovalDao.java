@@ -19,9 +19,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +34,8 @@ import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.virtualnode.redundant.RedundantSortedMapStorageNode;
 import io.datarouter.web.user.databean.DatarouterUser;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterUserRoleApprovalDao extends BaseDao{

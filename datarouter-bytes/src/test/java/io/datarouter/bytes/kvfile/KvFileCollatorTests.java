@@ -15,7 +15,6 @@
  */
 package io.datarouter.bytes.kvfile;
 
-import java.io.ByteArrayInputStream;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Function;
@@ -27,8 +26,11 @@ import org.testng.annotations.Test;
 
 import io.datarouter.bytes.Codec;
 import io.datarouter.bytes.EmptyArray;
-import io.datarouter.bytes.VarIntTool;
 import io.datarouter.bytes.codec.intcodec.ComparableIntCodec;
+import io.datarouter.bytes.kvfile.kv.KvFileEntry;
+import io.datarouter.bytes.kvfile.kv.KvFileOp;
+import io.datarouter.bytes.kvfile.read.KvFileCollator;
+import io.datarouter.bytes.varint.VarIntTool;
 import io.datarouter.scanner.Scanner;
 
 public class KvFileCollatorTests{
@@ -88,8 +90,6 @@ public class KvFileCollatorTests{
 			.sort(TestKv.COMPARE)
 			.list();
 
-	private static final KvFileCodec<TestKv> KV_FILE_CODEC = new KvFileCodec<>(TestKv.CODEC);
-
 	private static final List<TestKv> EXPECTED_KEEP_ALL = List.of(
 			new TestKv(0, 0),
 			new TestKv(0, 1),
@@ -118,11 +118,9 @@ public class KvFileCollatorTests{
 			new TestKv(0, 4),
 			new TestKv(1, 2));
 
-	private static List<TestKv> collate(Function<List<KvFileReader>,Scanner<KvFileEntry>> collateMethod){
+	private static List<TestKv> collate(Function<List<Scanner<KvFileEntry>>,Scanner<KvFileEntry>> collateMethod){
 		return Scanner.of(INPUTS)
-				.map(KV_FILE_CODEC::toByteArray)
-				.map(ByteArrayInputStream::new)
-				.map(KvFileReader::new)
+				.map(inputGroup -> Scanner.of(inputGroup).map(TestKv.CODEC::encode))
 				.listTo(collateMethod)
 				.map(TestKv.CODEC::decode)
 				.each(kv -> logger.info("kv={}", kv))

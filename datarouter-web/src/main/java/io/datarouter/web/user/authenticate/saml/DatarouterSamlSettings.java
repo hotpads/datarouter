@@ -18,9 +18,6 @@ package io.datarouter.web.user.authenticate.saml;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.opensaml.security.credential.Credential;
 
 import io.datarouter.storage.config.environment.EnvironmentType;
@@ -32,6 +29,8 @@ import io.datarouter.storage.setting.cached.CachedSetting;
 import io.datarouter.util.cached.MemoizedComputation;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.config.DatarouterWebPaths;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterSamlSettings extends SettingNode{

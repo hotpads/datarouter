@@ -18,12 +18,11 @@ package io.datarouter.aws.memcached.client.options;
 import java.net.InetSocketAddress;
 import java.util.Optional;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.aws.memcached.client.MemcachedClientMode;
 import io.datarouter.client.memcached.client.options.MemcachedOptions;
 import io.datarouter.storage.client.ClientOptions;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class AwsMemcachedOptions extends MemcachedOptions{

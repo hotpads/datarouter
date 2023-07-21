@@ -17,11 +17,10 @@ package io.datarouter.web.dispatcher;
 
 import java.util.Optional;
 
-import javax.inject.Inject;
-import javax.inject.Provider;
-import javax.inject.Singleton;
-
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
+import jakarta.inject.Inject;
+import jakarta.inject.Provider;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class OptionalDatarouterAuthenticationDispatcherServletProvider

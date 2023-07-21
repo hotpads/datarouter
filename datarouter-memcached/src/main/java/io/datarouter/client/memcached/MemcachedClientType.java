@@ -15,14 +15,13 @@
  */
 package io.datarouter.client.memcached;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.client.memcached.client.MemcachedClientManager;
 import io.datarouter.client.memcached.client.MemcachedClientNodeFactory;
 import io.datarouter.client.memcached.web.MemcachedWebInspector;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.web.browse.DatarouterClientWebInspectorRegistry;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class MemcachedClientType implements ClientType<MemcachedClientNodeFactory,MemcachedClientManager>{

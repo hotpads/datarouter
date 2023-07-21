@@ -8,7 +8,7 @@ datarouter-web is a basic framework to handle HTTP requests.
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-web</artifactId>
-	<version>0.0.120</version>
+	<version>0.0.121</version>
 </dependency>
 ```
 
@@ -51,20 +51,32 @@ so you can match any subpath. There are helper methods to match a subdirectory, 
 not been matched yet.
 
 ```java
-import javax.inject.Singleton;
+package io.datarouter.example.docs.datarouterweb;
 
+import io.datarouter.example.SystemApiHandler;
+import io.datarouter.example.web.DatarouterExampleDefaultHandler;
 import io.datarouter.web.dispatcher.BaseRouteSet;
+import io.datarouter.web.dispatcher.DispatchRule;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class ExampleRouteSet extends BaseRouteSet{
 
-	public ExampleRouteSet(){
-		super(""); // this route set will match /context-path
+	@Inject
+	public ExampleRouteSet(ExampleRootPaths paths){
+		handleDir(paths.system).withHandler(SystemApiHandler.class);
+		handle(paths.example).withHandler(DatarouterExampleDefaultHandler.class);
+		handleDir("|/").withHandler(HelloWorldHandler.class); // all requests will go to this handler
+	}
 
-		handleOthers(HelloWorldHandler.class); // all requests will go to this handler
+	@Override
+	protected DispatchRule applyDefault(DispatchRule rule){
+		return rule.allowAnonymous();
 	}
 
 }
+
 ```
 
 ### Dispatcher servlet

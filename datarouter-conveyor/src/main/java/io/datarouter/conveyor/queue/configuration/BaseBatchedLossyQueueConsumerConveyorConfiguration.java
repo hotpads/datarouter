@@ -23,8 +23,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
-import javax.inject.Inject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,6 +37,7 @@ import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.queue.QueueMessage;
 import io.datarouter.storage.queue.consumer.BatchedQueueConsumer;
+import jakarta.inject.Inject;
 
 /**
  * Drains the queue and stores the data in a buffer. When the buffer hits a set limit it will trigger the processing as

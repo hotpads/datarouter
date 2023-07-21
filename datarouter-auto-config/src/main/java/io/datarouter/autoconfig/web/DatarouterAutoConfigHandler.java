@@ -15,11 +15,10 @@
  */
 package io.datarouter.autoconfig.web;
 
-import javax.inject.Inject;
-
 import io.datarouter.autoconfig.service.AutoConfigService;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.types.Param;
+import jakarta.inject.Inject;
 
 public class DatarouterAutoConfigHandler extends BaseHandler{
 

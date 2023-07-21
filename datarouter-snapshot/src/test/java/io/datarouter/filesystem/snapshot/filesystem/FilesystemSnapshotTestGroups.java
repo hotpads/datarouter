@@ -17,9 +17,6 @@ package io.datarouter.filesystem.snapshot.filesystem;
 
 import java.util.function.Function;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.filesystem.client.FilesystemTestClientIds;
 import io.datarouter.filesystem.snapshot.group.SnapshotGroup;
 import io.datarouter.filesystem.snapshot.group.SnapshotGroupFactory;
@@ -30,6 +27,8 @@ import io.datarouter.storage.file.Directory;
 import io.datarouter.storage.node.factory.BlobNodeFactory;
 import io.datarouter.storage.node.op.raw.BlobStorage.PhysicalBlobStorageNode;
 import io.datarouter.storage.util.Subpath;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class FilesystemSnapshotTestGroups{

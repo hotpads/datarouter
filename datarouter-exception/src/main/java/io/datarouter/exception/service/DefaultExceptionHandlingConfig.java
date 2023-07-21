@@ -15,15 +15,17 @@
  */
 package io.datarouter.exception.service;
 
-import javax.inject.Inject;
+import java.util.Collections;
+
 import javax.servlet.http.HttpServletRequest;
 
 import io.datarouter.exception.config.DatarouterExceptionSettingRoot;
 import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.web.exception.ExceptionHandlingConfig;
-import io.datarouter.web.user.role.RoleManager;
+import io.datarouter.web.user.role.DatarouterUserRole;
 import io.datarouter.web.user.session.DatarouterSession;
 import io.datarouter.web.user.session.DatarouterSessionManager;
+import jakarta.inject.Inject;
 
 public class DefaultExceptionHandlingConfig implements ExceptionHandlingConfig{
 
@@ -32,20 +34,18 @@ public class DefaultExceptionHandlingConfig implements ExceptionHandlingConfig{
 	@Inject
 	private ServerTypeDetector serverTypeDetector;
 	@Inject
-	private RoleManager roleManager;
-	@Inject
 	private ExceptionRecordService exceptionRecordService;
 
 	@Override
 	public boolean shouldDisplayStackTrace(HttpServletRequest request, Throwable exception){
-		return !settings.forceHideStackTrace.get() && isInternalUser(request);
+		return !settings.forceHideStackTrace.get() && canViewStackTrace(request);
 	}
 
-	protected boolean isInternalUser(HttpServletRequest request){
+	protected boolean canViewStackTrace(HttpServletRequest request){
 		return isDevServer() || DatarouterSessionManager.getFromRequest(request)
 				.map(DatarouterSession::getRoles)
-				.map(roleManager::isAdmin)
-				.orElse(false);
+				.orElse(Collections.emptySet())
+				.contains(DatarouterUserRole.DATAROUTER_MONITORING.getRole());
 	}
 
 	@Override

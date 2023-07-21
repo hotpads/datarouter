@@ -17,11 +17,10 @@ package io.datarouter.web.port;
 
 import java.util.ArrayList;
 
-import javax.inject.Singleton;
-
 import org.apache.commons.lang3.mutable.MutableInt;
 
 import io.datarouter.util.JmxTool;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class JettyPortIdentifier implements PortIdentifier{

@@ -53,22 +53,25 @@ public class Bootstrap4PageBuilder{
 
 	public DatarouterPage build(){
 		require.add(DatarouterWebRequireJsV2.BOOTSTRAP);
-		boolean isAdmin = mavProperties.getIsAdmin();
+		boolean hasAnyDatarouterPrivileges = mavProperties.getHasAnyDatarouterPrivileges();
+		var allScripts = new ArrayList<>();
+		allScripts.addAll(scripts);
+		allScripts.addAll(mavProperties.getPageScripts().scripts());
 		var head = new Bootstrap4PageHead(
 				mavProperties,
 				mavProperties.getContextPath(),
 				webappRequireJsConfigJsonString,
 				require.toArray(String[]::new),
-				isAdmin,
+				hasAnyDatarouterPrivileges,
 				title,
 				httpEquivs,
-				scripts.toArray(ScriptTag[]::new));
+				allScripts.toArray(ScriptTag[]::new));
 		NavBar navbar = mavProperties.getIsDatarouterPage()
 				? mavProperties.getDatarouterNavBar()
 				: mavProperties.getNavBar();
 		List<NavTag> allNavbars = new ArrayList<>();
 		if(includeNav){
-			if(isAdmin){
+			if(hasAnyDatarouterPrivileges){
 				allNavbars.add(new DatarouterNavbarV2Html(mavProperties).build());
 			}
 			allNavbars.add(new WebappNavbarV2Html(mavProperties, navbar).build());

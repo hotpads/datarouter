@@ -23,9 +23,6 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +34,8 @@ import io.datarouter.client.mysql.ddl.generate.imp.SqlTableMetadata;
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.util.timer.PhaseTimer;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 // This assumes that all columns have the same charset/collation
 @Singleton

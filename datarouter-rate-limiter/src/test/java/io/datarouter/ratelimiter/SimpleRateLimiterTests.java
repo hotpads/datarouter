@@ -79,7 +79,7 @@ public class SimpleRateLimiterTests{
 		// interval/limit
 
 		ThreadPoolExecutor executor = new ThreadPoolExecutor(numThreads, numThreads, 0L, TimeUnit.MILLISECONDS,
-				new LinkedBlockingQueue<Runnable>());
+				new LinkedBlockingQueue<>());
 
 		List<Callable<Integer>> counterCallables = new LinkedList<>();
 

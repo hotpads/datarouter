@@ -17,9 +17,8 @@ package io.datarouter.client.hbase.compaction;
 
 import java.util.List;
 
-import javax.inject.Singleton;
-
 import io.datarouter.storage.client.ClientId;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DefaultHBaseCompactionInfo implements HBaseCompactionInfo{

@@ -23,11 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
-import io.datarouter.clustersetting.ClusterSettingLogAction;
 import io.datarouter.clustersetting.config.DatarouterClusterSettingRoot;
+import io.datarouter.clustersetting.enums.ClusterSettingLogAction;
 import io.datarouter.clustersetting.storage.clustersettinglog.ClusterSettingLog;
 import io.datarouter.email.email.DatarouterEmailLinkBuilder;
 import io.datarouter.email.html.J2HtmlDatarouterEmailBuilder;
@@ -43,6 +40,8 @@ import io.datarouter.web.email.StandardDatarouterEmailHeaderService;
 import io.datarouter.web.email.StandardDatarouterEmailHeaderService.HtmlEmailHeaderRow;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class ClusterSettingEmailService{

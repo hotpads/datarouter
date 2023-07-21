@@ -15,14 +15,13 @@
  */
 package io.datarouter.client.hbase.balancer;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.client.hbase.HBaseClientType;
 import io.datarouter.client.hbase.balancer.imp.ConsistentHashBalancer;
 import io.datarouter.client.hbase.balancer.imp.NoOpBalancer;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.DatarouterClients;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DefaultHBaseBalancerFactory implements HBaseBalancerFactory{

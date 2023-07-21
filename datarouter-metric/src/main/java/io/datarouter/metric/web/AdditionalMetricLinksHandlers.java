@@ -15,14 +15,13 @@
  */
 package io.datarouter.metric.web;
 
-import javax.inject.Inject;
-
 import io.datarouter.metric.links.MetricNameRegistry;
 import io.datarouter.metric.service.ViewMetricNameService;
 import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import j2html.TagCreator;
+import jakarta.inject.Inject;
 
 public class AdditionalMetricLinksHandlers{
 

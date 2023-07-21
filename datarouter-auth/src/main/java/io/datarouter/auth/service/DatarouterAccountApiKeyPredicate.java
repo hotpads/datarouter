@@ -17,14 +17,14 @@ package io.datarouter.auth.service;
 
 import java.util.Optional;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 
 import io.datarouter.auth.storage.accountpermission.DatarouterAccountPermissionKey;
 import io.datarouter.httpclient.security.SecurityParameters;
 import io.datarouter.web.dispatcher.ApiKeyPredicate;
 import io.datarouter.web.dispatcher.DispatchRule;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterAccountApiKeyPredicate extends ApiKeyPredicate{

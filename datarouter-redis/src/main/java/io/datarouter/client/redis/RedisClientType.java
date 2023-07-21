@@ -15,13 +15,12 @@
  */
 package io.datarouter.client.redis;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.client.redis.client.RedisClientManager;
 import io.datarouter.client.redis.web.RedisWebInspector;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.web.browse.DatarouterClientWebInspectorRegistry;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class RedisClientType implements ClientType<RedisClientNodeFactory,RedisClientManager>{

@@ -17,9 +17,6 @@ package io.datarouter.tasktracker.storage;
 
 import java.util.List;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.instrumentation.task.TaskTrackerBatchDto;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
@@ -33,6 +30,8 @@ import io.datarouter.storage.tag.Tag;
 import io.datarouter.tasktracker.storage.LongRunningTask.LongRunningTaskFielder;
 import io.datarouter.util.tuple.Range;
 import io.datarouter.virtualnode.redundant.RedundantSortedMapStorageNode;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class LongRunningTaskDao extends BaseDao{

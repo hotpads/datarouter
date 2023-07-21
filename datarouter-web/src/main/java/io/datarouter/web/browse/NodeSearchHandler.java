@@ -18,13 +18,12 @@ package io.datarouter.web.browse;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-
 import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.node.Node;
 import io.datarouter.storage.node.NodeTool;
 import io.datarouter.web.browse.dto.NodeWrapper;
 import io.datarouter.web.handler.BaseHandler;
+import jakarta.inject.Inject;
 
 public class NodeSearchHandler extends BaseHandler{
 

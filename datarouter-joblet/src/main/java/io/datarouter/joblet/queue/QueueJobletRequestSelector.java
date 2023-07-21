@@ -18,9 +18,6 @@ package io.datarouter.joblet.queue;
 import java.time.Duration;
 import java.util.Optional;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,6 +36,8 @@ import io.datarouter.plugin.PluginConfigKey;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.queue.QueueMessage;
 import io.datarouter.util.timer.PhaseTimer;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class QueueJobletRequestSelector implements JobletRequestSelector{

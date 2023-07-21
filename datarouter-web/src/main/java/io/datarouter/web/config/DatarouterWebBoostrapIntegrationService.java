@@ -22,9 +22,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.httpclient.client.BaseApplicationHttpClient;
 import io.datarouter.httpclient.client.DatarouterHttpClient;
 import io.datarouter.inject.DatarouterInjector;
@@ -50,6 +47,8 @@ import io.datarouter.web.listener.AppListenersClasses;
 import io.datarouter.web.user.role.DatarouterUserRole;
 import io.datarouter.web.user.role.Role;
 import io.datarouter.web.user.role.RoleManager;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 /**
  * Use this class to check for injection problems
@@ -125,7 +124,7 @@ public class DatarouterWebBoostrapIntegrationService implements TestableService{
 	}
 
 	private void testSingletonsForSeralizers(){
-		injector.getInstancesOfType(DatarouterHttpClient.class).values().stream()
+		injector.scanValuesOfType(DatarouterHttpClient.class)
 				.map(DatarouterHttpClient::getJsonSerializer)
 				.distinct()
 				.map(JsonSerializer::getClass)

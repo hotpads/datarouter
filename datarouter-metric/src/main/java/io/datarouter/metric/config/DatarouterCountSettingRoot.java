@@ -15,22 +15,18 @@
  */
 package io.datarouter.metric.config;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.storage.setting.DatarouterSettingCategory;
 import io.datarouter.storage.setting.DatarouterSettingTagType;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.SettingRoot;
 import io.datarouter.storage.setting.cached.CachedSetting;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterCountSettingRoot extends SettingRoot{
 
 	public final CachedSetting<Boolean> saveCountStatsToMemory;
-
-	//controls gauge publishing destination
-	public final CachedSetting<Boolean> saveCountStatsToQueueDaoInsteadOfDirectoryDao;
 
 	@Inject
 	public DatarouterCountSettingRoot(SettingFinder finder){
@@ -38,8 +34,6 @@ public class DatarouterCountSettingRoot extends SettingRoot{
 
 		saveCountStatsToMemory = registerBooleans("saveCountStatsToMemory", defaultTo(false)
 				.withTag(DatarouterSettingTagType.COUNT_PIPELINE, () -> true));
-		saveCountStatsToQueueDaoInsteadOfDirectoryDao = registerBoolean(
-				"saveCountStatsToQueueDaoInsteadOfDirectoryDao", false);
 	}
 
 }

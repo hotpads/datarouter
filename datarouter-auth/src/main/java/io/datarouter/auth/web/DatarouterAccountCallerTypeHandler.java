@@ -22,8 +22,6 @@ import static j2html.TagCreator.h2;
 import java.util.List;
 import java.util.Optional;
 
-import javax.inject.Inject;
-
 import io.datarouter.auth.service.AccountCallerTypeRegistry2;
 import io.datarouter.auth.storage.account.DatarouterAccount;
 import io.datarouter.auth.storage.account.DatarouterAccountDao;
@@ -39,6 +37,7 @@ import io.datarouter.web.html.form.HtmlForm;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import j2html.tags.specialized.DivTag;
+import jakarta.inject.Inject;
 
 public class DatarouterAccountCallerTypeHandler extends BaseHandler{
 

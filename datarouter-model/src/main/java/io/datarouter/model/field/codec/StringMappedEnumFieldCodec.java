@@ -26,6 +26,7 @@ import com.google.gson.reflect.TypeToken;
 import io.datarouter.bytes.Codec.NullPassthroughCodec;
 import io.datarouter.enums.CaseInsensitiveStringMappedEnum;
 import io.datarouter.enums.MappedEnum;
+import io.datarouter.enums.StringMappedEnum;
 
 public class StringMappedEnumFieldCodec<E> extends FieldCodec<E,String>{
 	private static final Logger logger = LoggerFactory.getLogger(StringMappedEnumFieldCodec.class);
@@ -46,7 +47,12 @@ public class StringMappedEnumFieldCodec<E> extends FieldCodec<E,String>{
 
 	private static void logCaseInsensitive(MappedEnum<?,?> mappedEnum){
 		if(mappedEnum instanceof CaseInsensitiveStringMappedEnum){
-			logger.warn("CaseInsensitiveStringMappedEnum enumClass={}", mappedEnum.getEnumClass(), new Exception());
+			logger.warn(
+					"Databean Fielder: Please replace {} with a case-sensitive {} for enumClass={}",
+					CaseInsensitiveStringMappedEnum.class.getSimpleName(),
+					StringMappedEnum.class.getSimpleName(),
+					mappedEnum.getEnumClass(),
+					new Exception());
 		}
 	}
 

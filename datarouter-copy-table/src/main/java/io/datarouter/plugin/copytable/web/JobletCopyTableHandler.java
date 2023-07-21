@@ -19,8 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import javax.inject.Inject;
-
 import io.datarouter.joblet.enums.JobletPriority;
 import io.datarouter.joblet.model.JobletPackage;
 import io.datarouter.joblet.service.JobletService;
@@ -44,6 +42,7 @@ import io.datarouter.web.handler.types.Param;
 import io.datarouter.web.html.form.HtmlForm;
 import io.datarouter.web.html.form.HtmlFormValidator;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
+import jakarta.inject.Inject;
 
 public class JobletCopyTableHandler extends BaseHandler{
 

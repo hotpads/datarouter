@@ -15,14 +15,13 @@
  */
 package io.datarouter.trace.settings;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.storage.setting.DatarouterSettingCategory;
 import io.datarouter.storage.setting.DatarouterSettingTagType;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.SettingRoot;
 import io.datarouter.storage.setting.cached.CachedSetting;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterTracePublisherSettingRoot extends SettingRoot{
@@ -30,8 +29,6 @@ public class DatarouterTracePublisherSettingRoot extends SettingRoot{
 	//save Traces in buffer
 	public final CachedSetting<Boolean> saveTracesToMemory;
 
-	//controls Trace publishing destination
-	public final CachedSetting<Boolean> saveTracesToQueueDaoInsteadOfDirectoryDao;
 
 	@Inject
 	public DatarouterTracePublisherSettingRoot(SettingFinder finder){
@@ -39,8 +36,6 @@ public class DatarouterTracePublisherSettingRoot extends SettingRoot{
 
 		saveTracesToMemory = registerBooleans("saveTracesToMemory", defaultTo(false)
 				.withTag(DatarouterSettingTagType.TRACE2_PIPELINE, () -> true));
-		saveTracesToQueueDaoInsteadOfDirectoryDao = registerBoolean(
-				"saveTracesToQueueDaoInsteadOfDirectoryDao", false);
 	}
 
 }

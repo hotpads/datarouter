@@ -16,19 +16,20 @@
 package io.datarouter.secret.client.memory;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.UnaryOperator;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.scanner.Scanner;
 import io.datarouter.secret.client.SecretClient;
 import io.datarouter.secret.client.SecretClient.SecretClientSupplier;
 import io.datarouter.secret.service.SecretJsonSerializer;
 import io.datarouter.secret.service.SecretNamespacer;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class InjectedDefaultMemorySecretClientSupplier implements SecretClientSupplier{
@@ -87,16 +88,17 @@ public class InjectedDefaultMemorySecretClientSupplier implements SecretClientSu
 			this.preNamespacedSecrets = new HashMap<>(other.preNamespacedSecrets);
 		}
 
-		public DefaultMemorySecrets addAppSecret(String name, Object value){
-			return putSecret(appSecrets, name, value);
+		public DefaultMemorySecrets addAppSecret(SecretDefaultDto dto){
+			return putSecret(appSecrets, dto.name(), dto.defaultValue());
 		}
 
-		public DefaultMemorySecrets addSharedSecret(String name, Object value){
-			return putSecret(sharedSecrets, name, value);
+		public DefaultMemorySecrets addSharedSecret(SecretDefaultDto dto){
+			return putSecret(sharedSecrets, dto.name(), dto.defaultValue());
 		}
 
-		public DefaultMemorySecrets addPreNamespacedSecret(String name, Object value){
-			return putSecret(preNamespacedSecrets, name, value);
+		public DefaultMemorySecrets addSharedSecrets(List<SecretDefaultDto> dtos){
+			Scanner.of(dtos).forEach(this::addSharedSecret);
+			return this;
 		}
 
 		private DefaultMemorySecrets putSecret(Map<String,Object> map, String name, Object value){
@@ -106,16 +108,9 @@ public class InjectedDefaultMemorySecretClientSupplier implements SecretClientSu
 			return this;
 		}
 
-		public static DefaultMemorySecrets combine(DefaultMemorySecrets... defaultMemorySecrets){
-			DefaultMemorySecrets combined = new DefaultMemorySecrets(defaultMemorySecrets[0]);
-			for(int i = 1; i < defaultMemorySecrets.length; i++){
-				DefaultMemorySecrets adding = defaultMemorySecrets[i];
-				adding.appSecrets.forEach(combined::addAppSecret);
-				adding.sharedSecrets.forEach(combined::addSharedSecret);
-				adding.preNamespacedSecrets.forEach(combined::addPreNamespacedSecret);
-			}
-			return combined;
-		}
+		public record SecretDefaultDto(
+				String name,
+				Object defaultValue){}
 
 	}
 

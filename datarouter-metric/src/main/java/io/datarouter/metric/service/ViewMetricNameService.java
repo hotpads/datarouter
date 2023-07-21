@@ -25,9 +25,6 @@ import static j2html.TagCreator.th;
 import java.util.Comparator;
 import java.util.List;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.instrumentation.metric.MetricLinkBuilder;
 import io.datarouter.metric.dto.MetricDashboardDto;
 import io.datarouter.metric.dto.MetricName;
@@ -38,6 +35,8 @@ import io.datarouter.metric.types.MetricNameType;
 import io.datarouter.web.html.j2html.J2HtmlTable;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.TdTag;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class ViewMetricNameService{

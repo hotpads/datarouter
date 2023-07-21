@@ -18,14 +18,13 @@ package io.datarouter.web.metriclinks;
 import java.util.List;
 import java.util.Optional;
 
-import javax.inject.Inject;
-
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.config.RouteSetRegistry;
 import io.datarouter.web.dispatcher.DispatchRule;
 import io.datarouter.web.dispatcher.RouteSet;
 import io.datarouter.web.metriclinks.MetricLinkDto.LinkDto;
+import jakarta.inject.Inject;
 
 public abstract class HandlerMetricLinkPage implements MetricLinkPage{
 

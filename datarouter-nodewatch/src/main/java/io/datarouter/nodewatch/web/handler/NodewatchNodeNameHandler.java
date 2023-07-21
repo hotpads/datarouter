@@ -15,14 +15,13 @@
  */
 package io.datarouter.nodewatch.web.handler;
 
-import javax.inject.Inject;
-
 import io.datarouter.nodewatch.web.NodewatchLinks;
 import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.GlobalRedirectMav;
+import jakarta.inject.Inject;
 
 public class NodewatchNodeNameHandler extends BaseHandler{
 

@@ -18,11 +18,10 @@ package io.datarouter.web.navigation;
 import java.util.List;
 import java.util.function.Supplier;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.plugin.PluginInjector;
 import io.datarouter.web.navigation.NavBarCategory.NavBarItemType;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class AppPluginNavBarSupplier implements Supplier<List<NavBarItem>>{

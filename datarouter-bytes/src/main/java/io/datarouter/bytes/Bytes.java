@@ -19,6 +19,7 @@ import java.io.OutputStream;
 import java.util.Arrays;
 
 import io.datarouter.bytes.codec.bytestringcodec.CsvIntByteStringCodec;
+import io.datarouter.bytes.io.OutputStreamTool;
 
 public class Bytes implements Comparable<Bytes>{
 

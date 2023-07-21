@@ -22,8 +22,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
 
-import javax.inject.Inject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
@@ -41,6 +39,7 @@ import io.datarouter.storage.test.TestDatabeanKey;
 import io.datarouter.util.collection.ListTool;
 import io.datarouter.util.concurrent.ExecutorServiceTool;
 import io.datarouter.util.timer.PhaseTimer;
+import jakarta.inject.Inject;
 
 @Guice(moduleFactory = DatarouterAwsSqsTestNgModuleFactory.class)
 @Test(singleThreaded = true)

@@ -117,7 +117,7 @@ implements PhysicalMapStorageNode<PK,D,F>{
 		Map<PathbeanKey,byte[]> bytesByKey = Scanner.of(keys)
 				.map(codec::encodeKeyIfValid)
 				.concat(OptionalScanner::of)
-				.listTo(encodedKeys -> blobNode.read(encodedKeys, config));
+				.listTo(encodedKeys -> blobNode.readMulti(encodedKeys, config));
 		return Scanner.of(bytesByKey.values())
 				.map(codec::decodeDatabean);
 	}

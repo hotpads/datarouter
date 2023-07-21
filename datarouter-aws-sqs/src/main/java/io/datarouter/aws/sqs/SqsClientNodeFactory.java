@@ -15,9 +15,6 @@
  */
 package io.datarouter.aws.sqs;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.aws.sqs.group.SqsGroupNode;
 import io.datarouter.aws.sqs.single.SqsNode;
 import io.datarouter.bytes.Codec;
@@ -33,6 +30,8 @@ import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.adapter.NodeAdapters;
 import io.datarouter.storage.node.op.raw.BlobQueueStorage.PhysicalBlobQueueStorageNode;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class SqsClientNodeFactory

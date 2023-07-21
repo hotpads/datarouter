@@ -18,9 +18,6 @@ package io.datarouter.aws.sqs;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
@@ -29,6 +26,8 @@ import com.amazonaws.services.sqs.AmazonSQSClient;
 
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.web.config.AwsSupport;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.AwsCredentials;
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;

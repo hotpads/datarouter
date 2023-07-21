@@ -15,8 +15,6 @@
  */
 package io.datarouter.filesystem.raw;
 
-import javax.inject.Inject;
-
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -26,6 +24,7 @@ import org.testng.annotations.Test;
 import io.datarouter.filesystem.raw.DirectoryManager.DirectoryManagerFactory;
 import io.datarouter.storage.config.DatarouterFilesystemPaths;
 import io.datarouter.storage.util.Subpath;
+import jakarta.inject.Inject;
 
 @Test(singleThreaded = true)
 @Guice

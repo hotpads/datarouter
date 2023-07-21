@@ -15,10 +15,9 @@
  */
 package io.datarouter.nodewatch.config;
 
-import javax.inject.Singleton;
-
 import io.datarouter.pathnode.PathNode;
 import io.datarouter.pathnode.PathsRoot;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterNodewatchPaths extends PathNode implements PathsRoot{
@@ -48,6 +47,7 @@ public class DatarouterNodewatchPaths extends PathNode implements PathsRoot{
 		public final PathNode deleteSamples = leaf("deleteSamples");
 		public final PathNode deleteAllMetadata = leaf("deleteAllMetadata");
 		public final PathNode nodeName = leaf("nodeName");
+		public final PathNode storage = leaf("storage");
 	}
 
 	public static class ThresholdPaths extends PathNode{

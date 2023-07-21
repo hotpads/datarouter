@@ -18,8 +18,6 @@ package io.datarouter.nodewatch.metriclink;
 import java.util.List;
 import java.util.Optional;
 
-import javax.inject.Inject;
-
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.DatarouterClients;
@@ -29,6 +27,7 @@ import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.metriclinks.MetricLinkDto;
 import io.datarouter.web.metriclinks.MetricLinkDto.LinkDto;
 import io.datarouter.web.metriclinks.MetricLinkPage;
+import jakarta.inject.Inject;
 
 public abstract class NodewatchMetricLinkPage implements MetricLinkPage{
 

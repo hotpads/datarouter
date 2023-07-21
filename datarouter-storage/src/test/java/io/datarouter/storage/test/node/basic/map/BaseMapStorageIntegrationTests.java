@@ -19,8 +19,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import javax.inject.Inject;
-
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
@@ -34,6 +32,7 @@ import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.test.node.basic.map.databean.MapStorageBean;
 import io.datarouter.storage.test.node.basic.map.databean.MapStorageBean.MapStorageBeanFielder;
 import io.datarouter.storage.test.node.basic.map.databean.MapStorageBeanKey;
+import jakarta.inject.Inject;
 
 public abstract class BaseMapStorageIntegrationTests{
 

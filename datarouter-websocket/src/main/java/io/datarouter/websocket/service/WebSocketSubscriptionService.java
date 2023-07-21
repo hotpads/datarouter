@@ -15,9 +15,6 @@
  */
 package io.datarouter.websocket.service;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import com.google.gson.Gson;
 
 import io.datarouter.websocket.endpoint.WebSocketService;
@@ -27,6 +24,8 @@ import io.datarouter.websocket.storage.subscription.DatarouterWebSocketSubscript
 import io.datarouter.websocket.storage.subscription.WebSocketSubscription;
 import io.datarouter.websocket.storage.subscription.WebSocketSubscriptionByUserTokenKey;
 import io.datarouter.websocket.storage.subscription.WebSocketSubscriptionKey;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class WebSocketSubscriptionService implements WebSocketService{

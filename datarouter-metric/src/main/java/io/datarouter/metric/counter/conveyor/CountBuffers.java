@@ -17,10 +17,9 @@ package io.datarouter.metric.counter.conveyor;
 
 import java.util.Map;
 
-import javax.inject.Singleton;
-
 import io.datarouter.metric.counter.collection.DatarouterCountCollector.CountCollectorStats;
 import io.datarouter.util.buffer.MemoryBuffer;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class CountBuffers{

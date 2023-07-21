@@ -15,10 +15,9 @@
  */
 package io.datarouter.tasktracker;
 
-import javax.inject.Singleton;
-
 import io.datarouter.instrumentation.count.Counters;
 import io.datarouter.storage.util.DatarouterCounters;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class TaskTrackerCounters{

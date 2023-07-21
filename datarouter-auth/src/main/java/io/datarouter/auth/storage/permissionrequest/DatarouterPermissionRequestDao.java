@@ -21,9 +21,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.auth.storage.permissionrequest.DatarouterPermissionRequest.DatarouterPermissionRequestFielder;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
@@ -34,6 +31,8 @@ import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.virtualnode.redundant.RedundantSortedMapStorageNode;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterPermissionRequestDao extends BaseDao{

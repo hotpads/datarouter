@@ -15,8 +15,8 @@
  */
 package io.datarouter.job.scheduler;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class JobSchedulerTestService{

@@ -18,13 +18,12 @@ package io.datarouter.websocket.job;
 import java.time.Instant;
 import java.util.List;
 
-import javax.inject.Inject;
-
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
 import io.datarouter.joblet.enums.JobletPriority;
 import io.datarouter.joblet.model.JobletPackage;
 import io.datarouter.joblet.service.JobletService;
+import jakarta.inject.Inject;
 
 public class WebSocketSessionVacuumJob extends BaseJob{
 

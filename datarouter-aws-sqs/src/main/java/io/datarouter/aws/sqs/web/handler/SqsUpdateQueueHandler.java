@@ -21,8 +21,6 @@ import static j2html.TagCreator.i;
 
 import java.util.List;
 
-import javax.inject.Inject;
-
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.model.GetQueueUrlResult;
 import com.amazonaws.services.sqs.model.PurgeQueueRequest;
@@ -39,6 +37,7 @@ import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.types.Param;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import j2html.tags.specialized.DivTag;
+import jakarta.inject.Inject;
 
 public class SqsUpdateQueueHandler extends BaseHandler{
 

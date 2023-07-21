@@ -17,8 +17,6 @@ package io.datarouter.web.filter.https;
 
 import java.io.IOException;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -32,6 +30,8 @@ import io.datarouter.util.number.NumberTool;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.config.HttpsConfiguration;
 import io.datarouter.web.util.http.RequestTool;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class HttpsFilter implements Filter{

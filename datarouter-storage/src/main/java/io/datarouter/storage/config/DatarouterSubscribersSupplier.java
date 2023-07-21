@@ -20,14 +20,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.plugin.PluginConfigKey;
 import io.datarouter.plugin.PluginConfigType;
 import io.datarouter.plugin.PluginInjector;
 import io.datarouter.plugin.StringPluginConfigValue;
 import io.datarouter.scanner.Scanner;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 // Set of email aliases to receive all datarouter emails
 @Singleton

@@ -23,7 +23,7 @@ import java.util.function.Function;
 
 import io.datarouter.aws.s3.DatarouterS3Client;
 import io.datarouter.bytes.ByteLength;
-import io.datarouter.bytes.InputStreamAndLength;
+import io.datarouter.bytes.io.InputStreamAndLength;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.scanner.Threads;
 import io.datarouter.storage.client.ClientType;
@@ -87,12 +87,12 @@ implements PhysicalBlobStorageNode{
 	}
 
 	@Override
-	public byte[] read(PathbeanKey key, long offset, int length, Config config){
+	public byte[] readPartial(PathbeanKey key, long offset, int length, Config config){
 		return s3DirectoryManager.read(key.getPathAndFile(), offset, length);
 	}
 
 	@Override
-	public Map<PathbeanKey,byte[]> read(List<PathbeanKey> keys, Config config){
+	public Map<PathbeanKey,byte[]> readMulti(List<PathbeanKey> keys, Config config){
 		return Scanner.of(keys)
 				.toMap(Function.identity(), this::read);
 	}
@@ -108,7 +108,7 @@ implements PhysicalBlobStorageNode{
 	}
 
 	@Override
-	public void write(PathbeanKey key, InputStream inputStream, Config config){
+	public void writeInputStream(PathbeanKey key, InputStream inputStream, Config config){
 		s3DirectoryManager.multipartUpload(key.getPathAndFile(), inputStream);
 	}
 

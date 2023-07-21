@@ -19,8 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import javax.inject.Inject;
-
 import io.datarouter.joblet.enums.JobletPriority;
 import io.datarouter.joblet.model.JobletPackage;
 import io.datarouter.joblet.service.JobletService;
@@ -40,6 +38,7 @@ import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.node.op.raw.SortedStorage.PhysicalSortedStorageNode;
 import io.datarouter.storage.util.PrimaryKeyPercentCodecTool;
+import io.datarouter.types.Ulid;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
@@ -47,6 +46,7 @@ import io.datarouter.web.handler.types.Param;
 import io.datarouter.web.html.form.HtmlForm;
 import io.datarouter.web.html.form.HtmlFormValidator;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
+import jakarta.inject.Inject;
 
 public class JobletTableProcessorHandler extends BaseHandler{
 
@@ -84,7 +84,7 @@ public class JobletTableProcessorHandler extends BaseHandler{
 			@Param(P_executionOrder) Optional<String> executionOrder,
 			@Param(P_submitAction) Optional<String> submitAction){
 		boolean shouldValidate = submitAction.isPresent();
-		List<String> possibleNodes = tableSamplerService.scanCountableNodes()
+		List<String> possibleNodes = tableSamplerService.scanCountableNodes()//creating joblets from the samples
 				.map(node -> node.getClientId().getName() + "." + node.getFieldInfo().getTableName())
 				.append("")
 				.sort()
@@ -138,9 +138,10 @@ public class JobletTableProcessorHandler extends BaseHandler{
 					.buildMav();
 		}
 
+		String jobletQueueId = processorName.get();
+		String jobletGroupId = Ulid.newValue();
 		@SuppressWarnings("unchecked")
 		PhysicalSortedStorageNode<PK,D,?> sourceNode = (PhysicalSortedStorageNode<PK,D,?>)nodes.getNode(nodeName.get());
-		String tableName = sourceNode.getFieldInfo().getTableName();
 		List<TableSample> samples = tableSamplerService.scanSamplesForNode(sourceNode)
 				.list();
 		TableSampleKey previousSampleKey = null;
@@ -156,7 +157,8 @@ public class JobletTableProcessorHandler extends BaseHandler{
 			PK fromKeyExclusive = TableSamplerTool.extractPrimaryKeyFromSampleKey(sourceNode, previousSampleKey);
 			PK toKeyInclusive = TableSamplerTool.extractPrimaryKeyFromSampleKey(sourceNode, sample.getKey());
 			var jobletPackage = createJobletPackage(
-					tableName,
+					jobletQueueId,
+					jobletGroupId,
 					nodeName.get(),
 					fromKeyExclusive,
 					toKeyInclusive,
@@ -176,7 +178,8 @@ public class JobletTableProcessorHandler extends BaseHandler{
 		//include any rows created since the last sample
 		PK fromKeyExclusive = TableSamplerTool.extractPrimaryKeyFromSampleKey(sourceNode, previousSampleKey);
 		var jobletPackage = createJobletPackage(
-				tableName,
+				jobletQueueId,
+				jobletGroupId,
 				nodeName.get(),
 				fromKeyExclusive,
 				null, //open-ended
@@ -205,7 +208,8 @@ public class JobletTableProcessorHandler extends BaseHandler{
 	}
 
 	private <PK extends PrimaryKey<PK>> JobletPackage createJobletPackage(
-			String tableName,
+			String queueId,
+			String groupId,
 			String sourceNodeName,
 			PK fromKeyExclusive,
 			PK toKeyInclusive,
@@ -229,8 +233,8 @@ public class JobletTableProcessorHandler extends BaseHandler{
 				TableProcessorJoblet.JOBLET_TYPE,
 				executionOrder,
 				false,
-				tableName,
-				sourceNodeName,
+				queueId,
+				groupId,
 				jobletParams);
 	}
 

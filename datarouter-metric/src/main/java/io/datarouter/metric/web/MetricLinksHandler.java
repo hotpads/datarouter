@@ -28,8 +28,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-
 import io.datarouter.instrumentation.metric.MetricLinkBuilder;
 import io.datarouter.plugin.PluginInjector;
 import io.datarouter.scanner.Scanner;
@@ -43,6 +41,7 @@ import j2html.TagCreator;
 import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 import j2html.tags.specialized.DivTag;
+import jakarta.inject.Inject;
 
 public class MetricLinksHandler extends BaseHandler{
 

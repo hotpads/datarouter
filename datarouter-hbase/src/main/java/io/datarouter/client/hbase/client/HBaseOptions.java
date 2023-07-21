@@ -15,10 +15,9 @@
  */
 package io.datarouter.client.hbase.client;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.storage.client.ClientOptions;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class HBaseOptions{

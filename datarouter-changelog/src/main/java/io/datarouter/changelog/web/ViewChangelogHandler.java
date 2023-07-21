@@ -20,8 +20,6 @@ import static j2html.TagCreator.div;
 import java.util.Collections;
 import java.util.HashMap;
 
-import javax.inject.Inject;
-
 import io.datarouter.changelog.config.DatarouterChangelogPaths;
 import io.datarouter.changelog.service.ViewChangelogService;
 import io.datarouter.changelog.storage.Changelog;
@@ -35,6 +33,7 @@ import io.datarouter.web.html.pager.MemoryPager.Page;
 import io.datarouter.web.html.pager.MemorySorter;
 import io.datarouter.web.user.session.CurrentUserSessionInfoService;
 import j2html.tags.specialized.DivTag;
+import jakarta.inject.Inject;
 
 public class ViewChangelogHandler extends BaseHandler{
 

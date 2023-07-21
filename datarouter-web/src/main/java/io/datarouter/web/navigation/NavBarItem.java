@@ -47,7 +47,11 @@ public class NavBarItem implements PluginConfigValue<NavBarItem>{
 		this(category, pathNode.toSlashedString(), name, false, null);
 	}
 
-	private NavBarItem(NavBarCategory category, String path, String name, boolean openInNewTab,
+	private NavBarItem(
+			NavBarCategory category,
+			String path,
+			String name,
+			boolean openInNewTab,
 			DispatchRule dispatchRule){
 		this.category = category;
 		this.path = path;

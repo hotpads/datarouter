@@ -18,15 +18,14 @@ package io.datarouter.trace.settings;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.storage.setting.DatarouterSettingCategory;
 import io.datarouter.storage.setting.DatarouterSettingTagType;
 import io.datarouter.storage.setting.Setting;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.SettingRoot;
 import io.datarouter.storage.setting.cached.CachedSetting;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterTraceFilterSettingRoot extends SettingRoot{
@@ -48,6 +47,7 @@ public class DatarouterTraceFilterSettingRoot extends SettingRoot{
 	public final CachedSetting<Boolean> saveSpanMemoryAllocated;
 	public final CachedSetting<Integer> randomSamplingMax;
 	public final CachedSetting<Integer> randomSamplingThreshold;
+	public final CachedSetting<Integer> maxSpansPerTrace;
 
 	@Inject
 	public DatarouterTraceFilterSettingRoot(SettingFinder finder){
@@ -76,6 +76,7 @@ public class DatarouterTraceFilterSettingRoot extends SettingRoot{
 
 		randomSamplingMax = registerInteger("randomSamplingMax", 10000);
 		randomSamplingThreshold = registerInteger("randomSamplingThreshold", 5);
+		maxSpansPerTrace = registerInteger("maxSpansPerTrace", 1400);
 	}
 
 }

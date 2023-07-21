@@ -15,8 +15,6 @@
  */
 package io.datarouter.ratelimiter;
 
-import javax.inject.Inject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,6 +22,7 @@ import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
 import io.datarouter.ratelimiter.storage.BaseTallyDao;
 import io.datarouter.storage.config.Config;
+import jakarta.inject.Inject;
 
 public class DatarouterRateLimiterTtlVacuumJob extends BaseJob{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterRateLimiterTtlVacuumJob.class);

@@ -15,9 +15,8 @@
  */
 package io.datarouter.exception.filter;
 
-import javax.inject.Singleton;
-
 import io.datarouter.web.inject.guice.GuiceInjectorRetriever;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class GuiceExceptionHandlingFilter

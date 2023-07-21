@@ -15,11 +15,10 @@
  */
 package io.datarouter.secretweb.service;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.secret.client.local.LocalStorageConfig;
 import io.datarouter.storage.config.properties.ConfigDirectory;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterPropertiesLocalStorageConfig implements LocalStorageConfig{

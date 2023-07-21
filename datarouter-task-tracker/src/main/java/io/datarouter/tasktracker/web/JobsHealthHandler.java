@@ -21,8 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-
 import io.datarouter.tasktracker.config.DatarouterTaskTrackerFiles;
 import io.datarouter.tasktracker.storage.LongRunningTask;
 import io.datarouter.tasktracker.storage.LongRunningTaskDao;
@@ -31,6 +29,7 @@ import io.datarouter.tasktracker.web.LongRunningTasksHandler.LongRunningTaskJspD
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.user.session.CurrentUserSessionInfoService;
+import jakarta.inject.Inject;
 
 public class JobsHealthHandler extends BaseHandler{
 

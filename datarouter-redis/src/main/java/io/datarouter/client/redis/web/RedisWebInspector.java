@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
@@ -48,6 +47,7 @@ import io.datarouter.web.handler.params.Params;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import j2html.tags.specialized.DlTag;
 import j2html.tags.specialized.PreTag;
+import jakarta.inject.Inject;
 
 public class RedisWebInspector implements DatarouterClientWebInspector{
 	private static final Logger logger = LoggerFactory.getLogger(RedisWebInspector.class);

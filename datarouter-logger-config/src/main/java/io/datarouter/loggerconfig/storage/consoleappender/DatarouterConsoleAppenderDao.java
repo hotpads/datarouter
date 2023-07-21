@@ -17,9 +17,6 @@ package io.datarouter.loggerconfig.storage.consoleappender;
 
 import java.util.List;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.apache.logging.log4j.core.appender.ConsoleAppender.Target;
 
 import io.datarouter.loggerconfig.storage.consoleappender.ConsoleAppender.ConsoleAppenderFielder;
@@ -32,6 +29,8 @@ import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.virtualnode.redundant.RedundantSortedMapStorageNode;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterConsoleAppenderDao extends BaseDao{

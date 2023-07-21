@@ -28,9 +28,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.aws.s3.DatarouterS3Client;
 import io.datarouter.aws.s3.client.S3ClientManager;
 import io.datarouter.storage.client.ClientId;
@@ -40,6 +37,8 @@ import io.datarouter.storage.file.BucketAndPrefix;
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.web.html.j2html.J2HtmlTable;
 import j2html.tags.specialized.DivTag;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import software.amazon.awssdk.services.s3.model.S3Object;
 
 @Singleton

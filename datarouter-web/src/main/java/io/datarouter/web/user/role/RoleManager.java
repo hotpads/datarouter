@@ -15,42 +15,38 @@
  */
 package io.datarouter.web.user.role;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
+import io.datarouter.scanner.OptionalScanner;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.web.user.databean.DatarouterUser;
+import io.datarouter.web.user.role.RoleApprovalType.RoleApprovalTypePriorityComparator;
 
 public interface RoleManager{
 
 	RoleEnum<? extends RoleEnum<?>> getRoleEnum();
 
-	default Role getRoleFromPersistentString(String persistentString){
-		return getRoleEnum().fromPersistentString(persistentString).getRole();
+	default Optional<Role> findRoleFromPersistentString(String persistentString){
+		return Optional.ofNullable(getRoleEnum().fromPersistentString(persistentString))
+				.map(RoleEnum::getRole);
 	}
 
 	RoleApprovalTypeEnum<? extends RoleApprovalTypeEnum<?>> getRoleApprovalTypeEnum();
 
-	default RoleApprovalType getRoleApprovalTypeFromPersistentString(String persistentString){
-		return getRoleApprovalTypeEnum().fromPersistentString(persistentString).getRoleApprovalType();
-	}
-
-	Boolean isAdmin(Role role);
-
-	default Boolean isAdmin(Collection<Role> roles){
-		return roles.stream()
-				.anyMatch(this::isAdmin);
+	default Optional<RoleApprovalType> findRoleApprovalTypeFromPersistentString(String persistentString){
+		return Optional.ofNullable(getRoleApprovalTypeEnum().fromPersistentString(persistentString))
+				.map(RoleApprovalTypeEnum::getRoleApprovalType);
 	}
 
 	Set<Role> getAllRoles();
-	Set<Role> getConferrableRoles(Collection<Role> userRoles);
 	Set<Role> getRolesForGroup(String groupId);
-	Set<Role> getRolesForSuperGroup();
-	Set<Role> getRolesForDefaultGroup();
+	Set<Role> getSuperAdminRoles();
+	Set<Role> getDefaultRoles();
 
 	default Map<RoleApprovalType, Integer> getRoleApprovalRequirements(Role role){
 		return Map.of(DatarouterRoleApprovalType.ADMIN.getRoleApprovalType(), 1);
@@ -67,14 +63,25 @@ public interface RoleManager{
 		});
 	}
 
+	Map<RoleApprovalType,BiFunction<DatarouterUser,DatarouterUser,Boolean>> getApprovalTypeAuthorityValidators();
+
 	default List<RoleApprovalType> getPrioritizedRoleApprovalTypes(
 			DatarouterUser editor,
-			@SuppressWarnings("unused") DatarouterUser user,
-			@SuppressWarnings("unused") Set<RoleApprovalType> relevantApprovalTypes){
-		if(isAdmin(editor.getRoles())){
-			return List.of(DatarouterRoleApprovalType.ADMIN.getRoleApprovalType());
-		}
-		return Collections.emptyList();
+			DatarouterUser user,
+			Set<RoleApprovalType> relevantApprovalTypes){
+		var approvalTypeAuthorityValidators = getApprovalTypeAuthorityValidators();
+		return Scanner.of(relevantApprovalTypes)
+				.include(approvalTypeAuthorityValidators::containsKey)
+				.include(roleApprovalType -> {
+					var validatorFunction = approvalTypeAuthorityValidators.get(roleApprovalType);
+					return validatorFunction.apply(editor, user);
+				})
+				// For RoleManagers extending others and overriding the approval type's priority
+				.map(RoleApprovalType::persistentString)
+				.map(this::findRoleApprovalTypeFromPersistentString)
+				.concat(OptionalScanner::of)
+				.sort(new RoleApprovalTypePriorityComparator())
+				.list();
 	}
 
 	//these are roles that do not present a security risk, although they may be more than just the default roles

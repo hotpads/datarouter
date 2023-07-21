@@ -15,12 +15,11 @@
  */
 package io.datarouter.client.memory;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.client.memory.web.MemoryWebInspector;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.web.browse.DatarouterClientWebInspectorRegistry;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class MemoryClientType implements ClientType<MemoryClientNodeFactory,MemoryClientManager>{

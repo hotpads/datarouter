@@ -8,7 +8,7 @@ datarouter-auth is a framework that brings in users and apikey accounts to datar
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-auth</artifactId>
-	<version>0.0.120</version>
+	<version>0.0.121</version>
 </dependency>
 ```
 
@@ -48,7 +48,7 @@ Datarouter-auth brings in the ability attribute RouteSet classes with specific r
  set for the whole RouteSet class as a default, and specific paths within the RouteSet class can be given additional
  Roles. 
 
-Datarouter brings a default set of users, specified in `DatarouterUserRole`.
+Datarouter brings a default set of roles, specified in `DatarouterUserRole`.
 - Admin
 - Api-User
 - Datarouter-Admin
@@ -63,22 +63,22 @@ Datarouter brings a default set of users, specified in `DatarouterUserRole`.
 ### Example
 
 ```java
-import javax.inject.Singleton;
+package io.datarouter.auth.readme;
 
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
 import io.datarouter.web.user.role.DatarouterUserRole;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class AuthExampleUserRouteSet extends BaseRouteSet{
 
 	public AuthExampleUserRouteSet(){
-		super("");
 
-		handleDir("/helloWorld")
+		handle("/helloworld")
 				.withHandler(AuthHellowWorldHandler.class)
 				.allowRoles(DatarouterUserRole.USER);
-		handleDir("/docs")
+		handle("/docs")
 				.withHandler(AuthExampleDocHandler.class)
 				.allowRoles(DatarouterUserRole.DOC_USER);
 	}
@@ -110,13 +110,14 @@ DatarouterAccounts is a tool that allows external services to interact with the 
 DatarouterAccounts are created and managed through the `DatarouterAccountManagerHandler`.
 
 ```java
-import javax.inject.Inject;
-import javax.inject.Singleton;
+package io.datarouter.auth.readme;
 
 import io.datarouter.auth.service.DatarouterAccountApiKeyPredicate;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
 import io.datarouter.web.handler.TestApiHandler;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class AuthExampleAccountRouteSet extends BaseRouteSet{
@@ -125,12 +126,11 @@ public class AuthExampleAccountRouteSet extends BaseRouteSet{
 
 	@Inject
 	public AuthExampleAccountRouteSet(DatarouterAccountApiKeyPredicate datarouterAccountApiKeyPredicate){
-		super("");
 		this.datarouterAccountApiKeyPredicate = datarouterAccountApiKeyPredicate;
 
 		handleDir("/testApi")
 				.withHandler(TestApiHandler.class)
-				.withPersistentString("Test Path");
+				.withPersistentString("/testApi");
 	}
 
 	@Override

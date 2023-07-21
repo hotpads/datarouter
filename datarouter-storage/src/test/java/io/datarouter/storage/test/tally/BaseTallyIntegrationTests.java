@@ -15,8 +15,6 @@
  */
 package io.datarouter.storage.test.tally;
 
-import javax.inject.Inject;
-
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
@@ -25,6 +23,7 @@ import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.node.factory.TallyNodeFactory;
 import io.datarouter.storage.tally.Tally;
+import jakarta.inject.Inject;
 
 public abstract class BaseTallyIntegrationTests{
 

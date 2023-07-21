@@ -18,12 +18,11 @@ package io.datarouter.web.plugins.forwarder;
 import java.util.List;
 import java.util.Optional;
 
-import javax.inject.Inject;
-
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.plugins.forwarder.ForwarderPlugin.ForwarderPluginInterceptor;
+import jakarta.inject.Inject;
 
 public class ForwarderHandler extends BaseHandler{
 

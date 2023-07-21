@@ -17,8 +17,6 @@ package io.datarouter.websocket.job;
 
 import java.time.Instant;
 
-import javax.inject.Inject;
-
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.joblet.codec.BaseGsonJobletCodec;
 import io.datarouter.joblet.model.BaseJoblet;
@@ -27,6 +25,7 @@ import io.datarouter.joblet.type.JobletType.JobletTypeBuilder;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.tasktracker.scheduler.LongRunningTaskType;
 import io.datarouter.tasktracker.service.LongRunningTaskTrackerFactory;
+import jakarta.inject.Inject;
 
 public class WebSocketSessionVacuumJoblet extends BaseJoblet<Instant>{
 

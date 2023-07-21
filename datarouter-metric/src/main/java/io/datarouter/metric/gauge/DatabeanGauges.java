@@ -15,9 +15,6 @@
  */
 package io.datarouter.metric.gauge;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,6 +25,8 @@ import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.storage.config.properties.ServiceName;
 import io.datarouter.storage.metric.Gauges;
 import io.datarouter.types.Ulid;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatabeanGauges implements Gauges{

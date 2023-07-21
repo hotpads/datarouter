@@ -17,8 +17,6 @@ package io.datarouter.web.browse.components;
 
 import static j2html.TagCreator.div;
 
-import javax.inject.Inject;
-
 import io.datarouter.pathnode.PathNode;
 import io.datarouter.storage.config.DatarouterPropertiesService;
 import io.datarouter.web.config.DatarouterWebPaths;
@@ -27,6 +25,7 @@ import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.html.j2html.J2HtmlLegendTable;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import j2html.tags.specialized.DivTag;
+import jakarta.inject.Inject;
 
 public class DatarouterViewPropertiesHandler extends BaseHandler{
 

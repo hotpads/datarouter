@@ -15,14 +15,13 @@
  */
 package io.datarouter.websocket.service;
 
-import javax.inject.Inject;
-
 import io.datarouter.httpclient.security.UrlConstants;
 import io.datarouter.storage.config.properties.DatarouterServerTypeSupplier;
 import io.datarouter.storage.config.properties.ServerPrivateIp;
 import io.datarouter.storage.servertype.ServerType;
 import io.datarouter.web.config.ServletContextSupplier;
 import io.datarouter.web.port.CompoundPortIdentifier;
+import jakarta.inject.Inject;
 
 public abstract class BaseServerAddressProvider implements ServerAddressProvider{
 

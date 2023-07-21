@@ -15,15 +15,14 @@
  */
 package io.datarouter.gcp.bigtable.client;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.Connection;
 
 import com.google.cloud.bigtable.hbase.BigtableConfiguration;
 
 import io.datarouter.client.hbase.HBaseClientManager;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class BigTableClientManager extends HBaseClientManager{

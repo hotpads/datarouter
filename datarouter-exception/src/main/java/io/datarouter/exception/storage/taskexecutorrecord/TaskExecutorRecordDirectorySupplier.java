@@ -15,9 +15,8 @@
  */
 package io.datarouter.exception.storage.taskexecutorrecord;
 
-import javax.inject.Singleton;
-
 import io.datarouter.storage.file.Directory;
+import jakarta.inject.Singleton;
 
 public interface TaskExecutorRecordDirectorySupplier{
 

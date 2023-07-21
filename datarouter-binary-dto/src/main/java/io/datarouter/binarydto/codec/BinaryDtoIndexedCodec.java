@@ -15,7 +15,6 @@
  */
 package io.datarouter.binarydto.codec;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -25,11 +24,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import io.datarouter.binarydto.dto.BaseBinaryDto;
 import io.datarouter.binarydto.internal.BinaryDtoAllocator;
 import io.datarouter.binarydto.internal.BinaryDtoFieldSchema;
-import io.datarouter.binarydto.internal.BinaryDtoMetadataParser;
 import io.datarouter.bytes.ByteTool;
 import io.datarouter.bytes.Codec;
-import io.datarouter.bytes.VarIntTool;
-import io.datarouter.scanner.Scanner;
+import io.datarouter.bytes.varint.VarIntTool;
 
 /**
  * For encoding non-key fields.
@@ -55,31 +52,16 @@ implements Codec<T,byte[]>{
 
 	private static final int TOKENS_PER_FIELD = 3;// index, length, value
 
-	public final Class<T> dtoClass;
-	public final List<Field> fields;
-	public final List<? extends BinaryDtoFieldSchema<?>> fieldSchemas;
+	public final BinaryDtoFieldCache<T> fieldCache;
 
 	private BinaryDtoIndexedCodec(Class<T> dtoClass){
-		this.dtoClass = dtoClass;
-		T dto = BinaryDtoAllocator.allocate(dtoClass);
-		var metadataParser = new BinaryDtoMetadataParser<>(dto);
-		fields = metadataParser.listFields();
-		fieldSchemas = Scanner.of(fields)
-				.map(field -> {
-					if(field == null){
-						return null;
-					}
-					field.setAccessible(true);
-					BinaryDtoFieldSchema<?> fieldSchema = new BinaryDtoFieldSchema<>(field);
-					return fieldSchema;
-				})
-				.list();
+		fieldCache = new BinaryDtoFieldCache<>(dtoClass);
 	}
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	public static <T extends BaseBinaryDto<T>> BinaryDtoIndexedCodec<T> of(Class<? extends T> dtoClass){
 		//Can't use computeIfAbsent here because it prohibits recursive calls to this method.  We may therefore
-		// generate a few extra codecs.
+		// generate a few extra throwaway codecs.
 		BinaryDtoIndexedCodec<?> codec = CACHE.get(dtoClass);
 		if(codec == null){
 			codec = new BinaryDtoIndexedCodec(dtoClass);
@@ -88,17 +70,13 @@ implements Codec<T,byte[]>{
 		return (BinaryDtoIndexedCodec<T>) codec;
 	}
 
-	public List<Field> getFieldsOrdered(){
-		return fields;
-	}
-
 	/*---------- encode ------------*/
 
 	@Override
 	public byte[] encode(T dto){
-		List<byte[]> tokens = new ArrayList<>(TOKENS_PER_FIELD * fieldSchemas.size());
-		for(int i = 0; i < fieldSchemas.size(); ++i){
-			BinaryDtoFieldSchema<?> fieldSchema = fieldSchemas.get(i);
+		List<byte[]> tokens = new ArrayList<>(TOKENS_PER_FIELD * fieldCache.fieldSchemaByIndex.size());
+		for(int i = 0; i < fieldCache.fieldSchemaByIndex.size(); ++i){
+			BinaryDtoFieldSchema<?> fieldSchema = fieldCache.fieldSchemaByIndex.get(i);
 			if(fieldSchema != null){
 				if(fieldSchema.isNull(dto)){
 					if(!fieldSchema.isNullable()){
@@ -126,17 +104,23 @@ implements Codec<T,byte[]>{
 
 	public T decode(byte[] bytes, int offset, int length){
 		int to = offset + length;
-		T dto = BinaryDtoAllocator.allocate(dtoClass);
+		T dto = BinaryDtoAllocator.allocate(fieldCache.dtoClass);
 		int cursor = offset;
 		while(cursor < to){
 			int index = VarIntTool.decodeInt(bytes, cursor);
 			cursor += VarIntTool.length(index);
-			BinaryDtoFieldSchema<?> fieldSchema = fieldSchemas.get(index);
 			int fieldLength = VarIntTool.decodeInt(bytes, cursor);
 			cursor += VarIntTool.length(fieldLength);
-			byte[] fieldBytes = Arrays.copyOfRange(bytes, cursor, cursor + fieldLength);
-			cursor += fieldBytes.length;
-			fieldSchema.decodeIndexed(dto, fieldBytes);
+			int valueFrom = cursor;
+			int valueTo = cursor + fieldLength;
+			cursor = valueTo;
+			BinaryDtoFieldSchema<?> fieldSchema = index < fieldCache.fieldSchemaByIndex.size()
+					? fieldCache.fieldSchemaByIndex.get(index)
+					: null;
+			if(fieldSchema != null){
+				byte[] fieldBytes = Arrays.copyOfRange(bytes, valueFrom, valueTo);
+				fieldSchema.decodeIndexed(dto, fieldBytes);
+			}
 		}
 		return dto;
 	}

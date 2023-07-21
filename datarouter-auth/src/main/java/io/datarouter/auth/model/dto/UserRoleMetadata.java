@@ -50,16 +50,18 @@ public record UserRoleMetadata(
 	public UserRoleMetadataJsDto toJsDto(){
 		return new UserRoleMetadataJsDto(
 				role.persistentString,
+				role.description,
 				privilegesGranted,
 				Scanner.of(requirementStatusByApprovalType.keySet())
-						.toMap(RoleApprovalType::getPersistentString, requirementStatusByApprovalType::get),
-				editorPrioritizedApprovalType.map(roleApprovalType -> roleApprovalType.persistentString)
+						.toMap(RoleApprovalType::persistentString, requirementStatusByApprovalType::get),
+				editorPrioritizedApprovalType.map(RoleApprovalType::persistentString)
 						.orElse(null),
 				editorCanRevoke.orElse(null));
 	}
 
 	public record UserRoleMetadataJsDto(
 			String roleName,
+			String roleDescription,
 			boolean privilegesGranted,
 			Map<String,RoleApprovalRequirementStatus> requirementStatusByApprovalType,
 			String editorPrioritizedApprovalType,

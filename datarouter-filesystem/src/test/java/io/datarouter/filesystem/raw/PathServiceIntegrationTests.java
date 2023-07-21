@@ -21,8 +21,6 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
@@ -31,6 +29,7 @@ import org.testng.annotations.Test;
 
 import io.datarouter.scanner.RetainingGroup;
 import io.datarouter.scanner.Scanner;
+import jakarta.inject.Inject;
 
 @Guice
 public class PathServiceIntegrationTests{

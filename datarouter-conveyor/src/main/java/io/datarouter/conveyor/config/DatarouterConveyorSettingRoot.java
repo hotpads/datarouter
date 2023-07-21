@@ -17,21 +17,19 @@ package io.datarouter.conveyor.config;
 
 import java.util.concurrent.TimeUnit;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.storage.setting.DatarouterSettingCategory;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.SettingRoot;
 import io.datarouter.storage.setting.cached.CachedSetting;
 import io.datarouter.util.duration.DatarouterDuration;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterConveyorSettingRoot extends SettingRoot{
 
 	public static String SETTING_NAME_PREFIX = "datarouterConveyor.";
 
-	public final CachedSetting<Boolean> enableDynamicThreads;
 	public final CachedSetting<DatarouterDuration> sleepOnTaskCompletion;
 	public final CachedSetting<DatarouterDuration> pollTimeout;
 
@@ -46,7 +44,6 @@ public class DatarouterConveyorSettingRoot extends SettingRoot{
 		registerChild(conveyorThreadCountSettings);
 		registerChild(conveyorTraceSettings);
 
-		enableDynamicThreads = registerBoolean("enableDynamicThreads", true);
 		sleepOnTaskCompletion = registerDuration("sleepOnTaskCompletion", new DatarouterDuration(1, TimeUnit.SECONDS));
 		pollTimeout = registerDuration("pollTimeout", new DatarouterDuration(10, TimeUnit.SECONDS));
 	}

@@ -15,10 +15,9 @@
  */
 package io.datarouter.web.filter.https;
 
-import javax.inject.Singleton;
-
 import io.datarouter.httpclient.security.UrlScheme;
 import io.datarouter.web.config.HttpsConfiguration;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class HttpsOnlyHttpsConfiguration implements HttpsConfiguration{

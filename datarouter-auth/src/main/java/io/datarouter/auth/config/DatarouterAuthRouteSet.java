@@ -15,9 +15,6 @@
  */
 package io.datarouter.auth.config;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.auth.web.DatarouterPermissionRequestHandler;
 import io.datarouter.auth.web.DatarouterSigninHandler;
 import io.datarouter.auth.web.DatarouterSignoutHandler;
@@ -26,6 +23,8 @@ import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
 import io.datarouter.web.user.role.DatarouterUserRole;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterAuthRouteSet extends BaseRouteSet{

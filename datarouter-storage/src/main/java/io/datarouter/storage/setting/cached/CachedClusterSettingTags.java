@@ -22,9 +22,6 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.TreeSet;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.ConfigDirectoryConstants;
 import io.datarouter.storage.servertype.DatarouterServerTypeDetector;
@@ -32,6 +29,8 @@ import io.datarouter.storage.setting.DatarouterSettingTag;
 import io.datarouter.util.cached.Cached;
 import io.datarouter.util.properties.PropertiesTool;
 import io.datarouter.util.string.StringTool;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class CachedClusterSettingTags extends Cached<List<DatarouterSettingTag>>{

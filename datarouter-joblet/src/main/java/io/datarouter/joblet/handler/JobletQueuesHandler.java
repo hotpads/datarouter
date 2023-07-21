@@ -21,8 +21,6 @@ import static j2html.TagCreator.p;
 
 import java.util.Collection;
 
-import javax.inject.Inject;
-
 import io.datarouter.joblet.JobletPageFactory;
 import io.datarouter.joblet.dto.JobletSummary;
 import io.datarouter.joblet.storage.jobletrequest.DatarouterJobletRequestDao;
@@ -38,6 +36,7 @@ import io.datarouter.web.handler.types.Param;
 import io.datarouter.web.html.j2html.J2HtmlTable;
 import io.datarouter.web.requirejs.DatarouterWebRequireJsV2;
 import j2html.tags.specialized.DivTag;
+import jakarta.inject.Inject;
 
 public class JobletQueuesHandler extends BaseHandler{
 

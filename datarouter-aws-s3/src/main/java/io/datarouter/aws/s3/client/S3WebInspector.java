@@ -25,14 +25,13 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
-import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.http.client.utils.URIBuilder;
 
 import io.datarouter.aws.s3.DatarouterS3Client;
 import io.datarouter.aws.s3.S3ClientType;
-import io.datarouter.aws.s3.config.DatarouterAwsS3Executors.BucketRegionExecutor;
+import io.datarouter.aws.s3.config.DatarouterAwsS3Executors.DatarouterS3BucketRegionExecutor;
 import io.datarouter.aws.s3.config.DatarouterAwsS3Paths;
 import io.datarouter.aws.s3.node.S3Node;
 import io.datarouter.aws.s3.web.S3BucketHandler;
@@ -51,6 +50,7 @@ import io.datarouter.web.html.j2html.J2HtmlTable;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import io.datarouter.web.requirejs.DatarouterWebRequireJsV2;
 import j2html.tags.specialized.DivTag;
+import jakarta.inject.Inject;
 import software.amazon.awssdk.regions.Region;
 
 public class S3WebInspector implements DatarouterClientWebInspector{
@@ -68,7 +68,7 @@ public class S3WebInspector implements DatarouterClientWebInspector{
 	@Inject
 	private DatarouterAwsS3Paths paths;
 	@Inject
-	private BucketRegionExecutor bucketRegionExecutor;
+	private DatarouterS3BucketRegionExecutor bucketRegionExecutor;
 
 	@Override
 	public Mav inspectClient(Params params, HttpServletRequest request){

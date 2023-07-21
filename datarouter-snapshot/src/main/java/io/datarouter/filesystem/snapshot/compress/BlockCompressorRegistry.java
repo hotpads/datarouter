@@ -18,10 +18,9 @@ package io.datarouter.filesystem.snapshot.compress;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.inject.Singleton;
-
 import io.datarouter.util.Require;
 import io.datarouter.util.lang.ReflectionTool;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class BlockCompressorRegistry{

@@ -18,9 +18,6 @@ package io.datarouter.websocket.job;
 import java.net.NoRouteToHostException;
 import java.util.Collection;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.apache.http.conn.ConnectTimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +34,8 @@ import io.datarouter.websocket.session.PushService;
 import io.datarouter.websocket.storage.session.DatarouterWebSocketSessionDao;
 import io.datarouter.websocket.storage.session.WebSocketSession;
 import io.datarouter.websocket.storage.session.WebSocketSessionKey;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class WebSocketSessionVacuum{

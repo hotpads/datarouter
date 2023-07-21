@@ -19,9 +19,6 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.List;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.instrumentation.count.Counters;
 import io.datarouter.instrumentation.webappinstance.WebappInstanceDto;
 import io.datarouter.instrumentation.webappinstance.WebappInstancePublisher;
@@ -42,6 +39,8 @@ import io.datarouter.webappinstance.storage.webappinstance.WebappInstance;
 import io.datarouter.webappinstance.storage.webappinstance.WebappInstanceKey;
 import io.datarouter.webappinstance.storage.webappinstancelog.DatarouterWebappInstanceLogDao;
 import io.datarouter.webappinstance.storage.webappinstancelog.WebappInstanceLog;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class WebappInstanceService{

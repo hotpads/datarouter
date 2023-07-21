@@ -17,14 +17,13 @@ package io.datarouter.conveyor;
 
 import java.util.Objects;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.conveyor.ConveyorConfigurationGroup.ConveyorPackage;
 import io.datarouter.conveyor.config.DatarouterConveyorShouldRunSettings;
 import io.datarouter.conveyor.config.DatarouterConveyorThreadCountSettings;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.setting.cached.CachedSetting;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class ConveyorConfigurationGroupService{

@@ -31,8 +31,6 @@ import io.datarouter.trace.service.TraceUrlBuilder;
 import io.datarouter.trace.service.TraceUrlBuilder.NoOpTraceUrlBuilder;
 import io.datarouter.trace.settings.DatarouterTraceFilterSettingRoot;
 import io.datarouter.trace.settings.DatarouterTracePublisherSettingRoot;
-import io.datarouter.trace.storage.TraceDirectorySupplier;
-import io.datarouter.trace.storage.TraceDirectorySupplier.NoOpTraceDirectorySupplier;
 import io.datarouter.trace.storage.TraceQueueDao;
 import io.datarouter.trace.storage.TraceQueueDao.TraceQueueDaoParams;
 import io.datarouter.web.config.BaseWebPlugin;
@@ -44,17 +42,14 @@ public class DatarouterTracePlugin extends BaseWebPlugin{
 
 	private final Class<? extends TracePublisher> tracePublisher;
 	private final Class<? extends TraceUrlBuilder> traceUrlBuilder;
-	private final Class<? extends TraceDirectorySupplier> traceDirectorySupplier;
 
 	private DatarouterTracePlugin(
 			boolean enablePublisherTraces,
 			DatarouterTraceDaoModule daosModule,
 			Class<? extends TracePublisher> tracePublisher,
-			Class<? extends TraceUrlBuilder> traceUrlBuilder,
-			Class<? extends TraceDirectorySupplier> traceDirectorySupplier){
+			Class<? extends TraceUrlBuilder> traceUrlBuilder){
 		this.tracePublisher = tracePublisher;
 		this.traceUrlBuilder = traceUrlBuilder;
-		this.traceDirectorySupplier = traceDirectorySupplier;
 
 		addSettingRoot(DatarouterTraceFilterSettingRoot.class);
 		if(enablePublisherTraces){
@@ -71,7 +66,6 @@ public class DatarouterTracePlugin extends BaseWebPlugin{
 	public void configure(){
 		bind(TracePublisher.class).to(tracePublisher);
 		bind(TraceUrlBuilder.class).to(traceUrlBuilder);
-		bind(TraceDirectorySupplier.class).to(traceDirectorySupplier);
 	}
 
 	public static class DatarouterTracePluginBuilder{
@@ -84,18 +78,14 @@ public class DatarouterTracePlugin extends BaseWebPlugin{
 
 		private Class<? extends TracePublisher> tracePublisher = NoOpTracePublisher.class;
 		private Class<? extends TraceUrlBuilder> traceUrlBuilder = NoOpTraceUrlBuilder.class;
-		private Class<? extends TraceDirectorySupplier> traceDirectorySupplier =
-				NoOpTraceDirectorySupplier.class;
 
 		public DatarouterTracePluginBuilder enableTracePublishing(
 				List<ClientId> traceQueueClientId,
-				Class<? extends TraceUrlBuilder> traceUrlBuilder,
-				Class<? extends TraceDirectorySupplier> traceDirectorySupplier){
+				Class<? extends TraceUrlBuilder> traceUrlBuilder){
 			this.enableTracePublisher = true;
 			this.traceQueueClientId = traceQueueClientId;
 			this.tracePublisher = TracePublisherService.class;
 			this.traceUrlBuilder = traceUrlBuilder;
-			this.traceDirectorySupplier = traceDirectorySupplier;
 			return this;
 		}
 
@@ -110,8 +100,7 @@ public class DatarouterTracePlugin extends BaseWebPlugin{
 					enableTracePublisher,
 					module,
 					tracePublisher,
-					traceUrlBuilder,
-					traceDirectorySupplier);
+					traceUrlBuilder);
 		}
 
 	}

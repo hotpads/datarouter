@@ -15,11 +15,10 @@
  */
 package io.datarouter.tasktracker.service;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.instrumentation.task.TaskTrackerPublisher;
 import io.datarouter.tasktracker.storage.LongRunningTaskDao;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class TaskTrackerPublishService{

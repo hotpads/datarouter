@@ -15,15 +15,14 @@
  */
 package io.datarouter.web.config;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.pool.ConnPoolControl;
 
 import io.datarouter.inject.InstanceInventory;
 import io.datarouter.inject.InstanceInventoryKey;
 import io.datarouter.util.lang.ReflectionTool;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class AwsSupport{

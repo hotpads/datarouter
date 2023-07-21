@@ -23,9 +23,6 @@ import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.auth.config.DatarouterAuthPaths;
 import io.datarouter.auth.config.DatarouterAuthSettingRoot;
 import io.datarouter.auth.storage.account.DatarouterAccount;
@@ -39,6 +36,8 @@ import j2html.TagCreator;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.SmallTag;
 import j2html.tags.specialized.TableTag;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterAccountDailyDigest implements DailyDigest{

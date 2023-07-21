@@ -15,8 +15,6 @@
  */
 package io.datarouter.client.mysql.test.client.txn.test;
 
-import javax.inject.Inject;
-
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
@@ -33,6 +31,7 @@ import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.DatarouterClients;
 import io.datarouter.storage.node.factory.NodeFactory;
+import jakarta.inject.Inject;
 
 public abstract class BaseTxnIntegrationTests{
 

@@ -15,9 +15,6 @@
  */
 package io.datarouter.client.gcp.pubsub;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.bytes.Codec;
 import io.datarouter.client.gcp.pubsub.client.GcpPubsubClientManager;
 import io.datarouter.client.gcp.pubsub.node.GcpPubsubBlobNode;
@@ -32,6 +29,8 @@ import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.config.properties.EnvironmentName;
 import io.datarouter.storage.config.properties.ServiceName;
 import io.datarouter.storage.node.NodeParams;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class GcpPubsubNodeFactory{

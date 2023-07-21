@@ -20,12 +20,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import javax.inject.Singleton;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
 import io.datarouter.util.JmxTool;
 import io.datarouter.util.string.StringTool;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class C3p0StatsService{

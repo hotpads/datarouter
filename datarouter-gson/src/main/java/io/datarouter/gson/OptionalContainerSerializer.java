@@ -15,12 +15,11 @@
  */
 package io.datarouter.gson;
 
-import javax.inject.Singleton;
-
 import com.google.gson.Gson;
 
 import io.datarouter.gson.typeadapterfactory.OptionalContainerClassTypeAdapterFactory;
 import io.datarouter.gson.typeadapterfactory.OptionalTypeAdapterFactory;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class OptionalContainerSerializer extends GsonJsonSerializer{

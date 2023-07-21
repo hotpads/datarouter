@@ -21,9 +21,6 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,6 +48,8 @@ import io.datarouter.util.PlatformMxBeans;
 import io.datarouter.util.tracer.DatarouterTracer;
 import io.datarouter.web.exception.ExceptionRecorder;
 import io.datarouter.web.util.ExceptionTool;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class ConveyorService{
@@ -80,7 +79,8 @@ public class ConveyorService{
 				iteration++;
 				Long traceCreated = Trace2Dto.getCurrentTimeInNs();
 				var traceContext = new W3TraceContext(Trace2Dto.getCurrentTimeInNs());
-				Tracer tracer = new DatarouterTracer(serverName.get(), null, traceContext);
+				Tracer tracer = new DatarouterTracer(serverName.get(), null, traceContext,
+						traceSettings.maxSpansPerTrace.get());
 				boolean saveCpuTime = traceSettings.saveTraceCpuTime.get();
 				tracer.setSaveThreadCpuTime(saveCpuTime);
 				TracerThreadLocal.bindToThread(tracer);

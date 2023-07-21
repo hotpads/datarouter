@@ -20,9 +20,6 @@ import static j2html.TagCreator.span;
 
 import java.util.List;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.changelog.config.DatarouterChangelogPaths;
 import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
@@ -32,6 +29,8 @@ import io.datarouter.storage.config.properties.ServiceName;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.TableTag;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class ChangelogEmailService{

@@ -15,10 +15,9 @@
  */
 package io.datarouter.web.homepage;
 
-import javax.inject.Inject;
-
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4HomepageCreatorService;
+import jakarta.inject.Inject;
 
 public class SimpleHomepageHandler extends HomepageHandler{
 

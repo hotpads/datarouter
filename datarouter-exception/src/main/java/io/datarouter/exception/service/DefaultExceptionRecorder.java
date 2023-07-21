@@ -18,7 +18,6 @@ package io.datarouter.exception.service;
 import java.util.List;
 import java.util.Optional;
 
-import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
@@ -50,6 +49,7 @@ import io.datarouter.web.user.session.CurrentSessionInfo;
 import io.datarouter.web.user.session.service.Session;
 import io.datarouter.web.util.ExceptionTool;
 import io.datarouter.web.util.RequestAttributeTool;
+import jakarta.inject.Inject;
 
 public class DefaultExceptionRecorder implements ExceptionRecorder{
 	private static final Logger logger = LoggerFactory.getLogger(DefaultExceptionRecorder.class);

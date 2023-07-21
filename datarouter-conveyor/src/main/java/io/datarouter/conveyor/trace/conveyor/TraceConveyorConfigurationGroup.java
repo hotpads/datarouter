@@ -15,9 +15,8 @@
  */
 package io.datarouter.conveyor.trace.conveyor;
 
-import javax.inject.Singleton;
-
 import io.datarouter.conveyor.ConveyorConfigurationGroup;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class TraceConveyorConfigurationGroup extends ConveyorConfigurationGroup{

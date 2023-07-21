@@ -15,10 +15,9 @@
  */
 package io.datarouter.filesystem.snapshot.compress;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.filesystem.snapshot.block.root.RootBlock;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class BlockDecompressorFactory{

@@ -18,9 +18,6 @@ package io.datarouter.web.email;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,6 +33,8 @@ import io.datarouter.storage.config.properties.EnvironmentName;
 import io.datarouter.storage.config.properties.ServiceName;
 import io.datarouter.storage.config.setting.DatarouterEmailSubscriberSettings;
 import io.datarouter.web.config.service.ContextName;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterHtmlEmailService{

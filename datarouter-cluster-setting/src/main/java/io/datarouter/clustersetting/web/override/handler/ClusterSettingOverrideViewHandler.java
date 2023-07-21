@@ -21,9 +21,6 @@ import static j2html.TagCreator.h5;
 
 import java.util.Optional;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.apache.http.client.utils.URIBuilder;
 
 import io.datarouter.clustersetting.config.DatarouterClusterSettingPaths;
@@ -39,6 +36,8 @@ import io.datarouter.web.html.form.HtmlForm;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import j2html.tags.specialized.DivTag;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 public class ClusterSettingOverrideViewHandler extends BaseHandler{
 
@@ -48,6 +47,8 @@ public class ClusterSettingOverrideViewHandler extends BaseHandler{
 
 	@Inject
 	private Bootstrap4PageFactory pageFactory;
+	@Inject
+	private ClusterSettingHtml clusterSettingHtml;
 	@Inject
 	private ClusterSettingOverrideCreateLinks createLinks;
 	@Inject
@@ -59,9 +60,9 @@ public class ClusterSettingOverrideViewHandler extends BaseHandler{
 	public Mav view(
 			Optional<String> partialName,
 			Optional<Boolean> suggestionsOnly){
-		String title = ClusterSettingHtml.makeTitle("Overrides");
+		String title = clusterSettingHtml.makeTitle("Overrides");
 		var content = div(
-				ClusterSettingHtml.makeHeader(
+				clusterSettingHtml.makeHeader(
 						title,
 						"Overrides are stored in the database and take precedence over values defined in the code"),
 				br(),

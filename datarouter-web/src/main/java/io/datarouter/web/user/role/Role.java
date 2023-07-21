@@ -20,13 +20,24 @@ import java.util.Objects;
 public class Role implements Comparable<Role>{
 
 	public final String persistentString;
+	public final String description;
+
+	public Role(String persistentString, String description){
+		this.persistentString = persistentString;
+		this.description = description;
+	}
 
 	public Role(String persistentString){
 		this.persistentString = persistentString;
+		this.description = null;
 	}
 
 	public String getPersistentString(){
 		return persistentString;
+	}
+
+	public String getDescription(){
+		return description;
 	}
 
 	@Override

@@ -15,8 +15,6 @@
  */
 package io.datarouter.storage.node.factory;
 
-import javax.inject.Inject;
-
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
@@ -27,6 +25,7 @@ import io.datarouter.storage.client.ClientNodeFactory;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.client.DatarouterClients;
 import io.datarouter.storage.node.Node;
+import jakarta.inject.Inject;
 
 public abstract class BaseNodeFactory{
 

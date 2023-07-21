@@ -22,9 +22,8 @@ import java.util.Properties;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
-import javax.inject.Singleton;
-
 import io.datarouter.util.properties.TypedProperties;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class ClientOptions{

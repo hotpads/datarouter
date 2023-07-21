@@ -82,6 +82,10 @@ public class ByteTool{
 
 	/*------------------------- byte arrays ---------------------------------*/
 
+	public static boolean isEmpty(byte[] bytes){
+		return bytes.length == 0;
+	}
+
 	public static int totalLength(byte[]... arrays){
 		int total = 0;
 		for(int i = 0; i < arrays.length; ++i){

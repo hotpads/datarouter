@@ -18,14 +18,13 @@ package io.datarouter.joblet.job;
 import java.time.Duration;
 import java.util.List;
 
-import javax.inject.Inject;
-
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
 import io.datarouter.joblet.DatarouterJobletCounters;
 import io.datarouter.storage.servertype.ServerTypes;
 import io.datarouter.webappinstance.storage.webappinstance.DatarouterWebappInstanceDao;
 import io.datarouter.webappinstance.storage.webappinstance.WebappInstance;
+import jakarta.inject.Inject;
 
 public class JobletInstanceCounterJob extends BaseJob{
 

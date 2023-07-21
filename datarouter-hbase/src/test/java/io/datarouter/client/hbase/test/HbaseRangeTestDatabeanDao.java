@@ -17,9 +17,6 @@ package io.datarouter.client.hbase.test;
 
 import java.util.Collection;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.model.field.FieldTool;
 import io.datarouter.model.key.entity.base.BaseByteArrayEntityPartitioner;
 import io.datarouter.scanner.Scanner;
@@ -33,6 +30,8 @@ import io.datarouter.storage.test.TestDatabeanFielder;
 import io.datarouter.storage.test.TestDatabeanKey;
 import io.datarouter.util.HashMethods;
 import io.datarouter.util.tuple.Range;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class HbaseRangeTestDatabeanDao extends BaseDao implements TestDao{

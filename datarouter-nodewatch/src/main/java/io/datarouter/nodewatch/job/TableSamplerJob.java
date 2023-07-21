@@ -17,8 +17,6 @@ package io.datarouter.nodewatch.job;
 
 import java.time.Duration;
 
-import javax.inject.Inject;
-
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
 import io.datarouter.nodewatch.config.DatarouterNodewatchExecutors.DatarouterTableSamplerExecutor;
@@ -26,6 +24,7 @@ import io.datarouter.nodewatch.joblet.TableSpanSamplerJobletCreator;
 import io.datarouter.nodewatch.joblet.TableSpanSamplerJobletCreatorFactory;
 import io.datarouter.nodewatch.service.TableSamplerService;
 import io.datarouter.scanner.Threads;
+import jakarta.inject.Inject;
 
 public class TableSamplerJob extends BaseJob{
 

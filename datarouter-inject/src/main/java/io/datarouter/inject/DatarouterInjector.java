@@ -35,4 +35,8 @@ public interface DatarouterInjector{
 				.list();
 	}
 
+	default <T> Scanner<T> scanValuesOfType(Class<T> type){
+		return Scanner.of(getInstancesOfType(type).values());
+	}
+
 }

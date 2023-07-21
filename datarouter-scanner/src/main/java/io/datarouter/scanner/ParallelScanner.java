@@ -24,21 +24,18 @@ public class ParallelScanner<T>{
 	private final Scanner<T> input;
 	private final Threads threads;
 	private final boolean allowUnorderedResults;
-	private final boolean enabled;
 
 	public ParallelScanner(
 			Scanner<T> input,
 			Threads threads,
-			boolean allowUnorderedResults,
-			boolean enabled){
+			boolean allowUnorderedResults){
 		this.input = input;
 		this.threads = threads;
 		this.allowUnorderedResults = allowUnorderedResults;
-		this.enabled = enabled;
 	}
 
 	public <R> Scanner<R> concat(Function<? super T,Scanner<R>> mapper){
-		if(enabled){
+		if(threads.useExec()){
 			return map(mapper)
 					.concat(Function.identity());
 		}
@@ -46,14 +43,14 @@ public class ParallelScanner<T>{
 	}
 
 	public Scanner<T> each(Consumer<? super T> consumer){
-		if(enabled){
+		if(threads.useExec()){
 			return map(new ScannerConsumerFunction<>(consumer));
 		}
 		return input.each(consumer);
 	}
 
 	public Scanner<T> exclude(Predicate<? super T> predicate){
-		if(enabled){
+		if(threads.useExec()){
 			return map(new ScannerPredicateFunction<>(predicate))
 					.exclude(result -> result.passes)
 					.map(result -> result.item);
@@ -62,7 +59,7 @@ public class ParallelScanner<T>{
 	}
 
 	public void forEach(Consumer<? super T> consumer){
-		if(enabled){
+		if(threads.useExec()){
 			map(new ScannerConsumerFunction<>(consumer))
 					.count();
 		}else{
@@ -71,7 +68,7 @@ public class ParallelScanner<T>{
 	}
 
 	public Scanner<T> include(Predicate<? super T> predicate){
-		if(enabled){
+		if(threads.useExec()){
 			return map(new ScannerPredicateFunction<>(predicate))
 					.include(result -> result.passes)
 					.map(result -> result.item);
@@ -80,7 +77,7 @@ public class ParallelScanner<T>{
 	}
 
 	public <R> Scanner<R> map(Function<? super T,? extends R> mapper){
-		if(enabled){
+		if(threads.useExec()){
 			return new ParallelMappingScanner<>(
 					input,
 					threads,

@@ -21,8 +21,6 @@ import static j2html.TagCreator.span;
 import java.net.URL;
 import java.util.List;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 
 import io.datarouter.util.Require;
@@ -30,6 +28,8 @@ import io.datarouter.util.net.UrlTool;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import j2html.tags.specialized.DivTag;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class ForwarderHandlerPage{

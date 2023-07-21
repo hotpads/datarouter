@@ -133,7 +133,8 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 			}
 
 			// bind these to all threads, even if tracing is disabled
-			Tracer tracer = new DatarouterTracer(serverName.get(), null, traceContext);
+			Tracer tracer = new DatarouterTracer(serverName.get(), null, traceContext, traceSettings.maxSpansPerTrace
+					.get());
 			tracer.setSaveThreadCpuTime(traceSettings.saveThreadCpuTime.get());
 			tracer.setSaveThreadMemoryAllocated(traceSettings.saveThreadMemoryAllocated.get());
 			tracer.setSaveSpanCpuTime(traceSettings.saveSpanCpuTime.get());

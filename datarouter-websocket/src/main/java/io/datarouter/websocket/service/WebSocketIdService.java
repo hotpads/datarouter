@@ -15,14 +15,13 @@
  */
 package io.datarouter.websocket.service;
 
-import javax.inject.Inject;
-
 import com.google.gson.Gson;
 
 import io.datarouter.websocket.endpoint.WebSocketService;
 import io.datarouter.websocket.session.PushService;
 import io.datarouter.websocket.storage.session.WebSocketSession;
 import io.datarouter.websocket.storage.session.WebSocketSessionKey;
+import jakarta.inject.Inject;
 
 public class WebSocketIdService implements WebSocketService{
 

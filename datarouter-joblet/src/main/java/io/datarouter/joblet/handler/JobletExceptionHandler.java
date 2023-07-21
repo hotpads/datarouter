@@ -23,8 +23,6 @@ import static j2html.TagCreator.td;
 import java.util.List;
 import java.util.Optional;
 
-import javax.inject.Inject;
-
 import io.datarouter.joblet.JobletPageFactory;
 import io.datarouter.joblet.enums.JobletStatus;
 import io.datarouter.joblet.nav.JobletExternalLinkBuilder.JobletExternalLinkBuilderSupplier;
@@ -38,6 +36,7 @@ import io.datarouter.web.handler.types.Param;
 import io.datarouter.web.html.j2html.J2HtmlTable;
 import io.datarouter.web.requirejs.DatarouterWebRequireJsV2;
 import j2html.tags.specialized.DivTag;
+import jakarta.inject.Inject;
 
 public class JobletExceptionHandler extends BaseHandler{
 

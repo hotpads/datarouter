@@ -15,14 +15,13 @@
  */
 package io.datarouter.loggerconfig;
 
-import javax.inject.Singleton;
-
 import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 
 import io.datarouter.logging.Log4j2Configurator;
 import io.datarouter.logging.StartupConfigurationFactory;
 import io.datarouter.scanner.Scanner;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class GenericLog4j2Configurator extends Log4j2Configurator{

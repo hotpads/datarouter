@@ -24,8 +24,6 @@ import static j2html.TagCreator.tr;
 
 import java.util.Optional;
 
-import javax.inject.Inject;
-
 import io.datarouter.storage.config.DatarouterPropertiesService;
 import io.datarouter.web.browse.widget.NodeWidgetTableCountLinkSupplier;
 import io.datarouter.web.config.DatarouterWebFiles;
@@ -33,6 +31,7 @@ import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.user.role.DatarouterUserRole;
+import jakarta.inject.Inject;
 
 public class DatarouterHomepageHandler extends BaseHandler{
 

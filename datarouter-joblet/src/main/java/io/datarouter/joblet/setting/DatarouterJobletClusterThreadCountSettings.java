@@ -15,11 +15,10 @@
  */
 package io.datarouter.joblet.setting;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.joblet.type.JobletTypeFactory;
 import io.datarouter.storage.setting.SettingFinder;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterJobletClusterThreadCountSettings extends BaseDatarouterJobletThreadCountSettings{

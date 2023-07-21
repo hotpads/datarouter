@@ -22,7 +22,7 @@ import java.util.Optional;
 import io.datarouter.aws.s3.DatarouterS3Client;
 import io.datarouter.aws.s3.S3Headers.ContentType;
 import io.datarouter.bytes.ByteLength;
-import io.datarouter.bytes.InputStreamAndLength;
+import io.datarouter.bytes.io.InputStreamAndLength;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.scanner.Threads;
 import io.datarouter.storage.file.BucketAndKey;

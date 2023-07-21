@@ -18,14 +18,13 @@ package io.datarouter.gcp.spanner.connection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.inject.Singleton;
-
 import com.google.cloud.spanner.Database;
 import com.google.cloud.spanner.DatabaseAdminClient;
 import com.google.cloud.spanner.DatabaseClient;
 import com.google.cloud.spanner.DatabaseId;
 
 import io.datarouter.storage.client.ClientId;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class SpannerDatabaseClientsHolder{

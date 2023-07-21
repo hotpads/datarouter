@@ -15,14 +15,13 @@
  */
 package io.datarouter.filesystem.client;
 
-import javax.inject.Inject;
-
 import org.testng.Assert;
 import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
 import io.datarouter.filesystem.DatarouterFilesystemModuleFactory;
 import io.datarouter.storage.client.ClientTypeRegistry;
+import jakarta.inject.Inject;
 
 @Guice(moduleFactory = DatarouterFilesystemModuleFactory.class)
 public class FilesystemClientTypeTests{

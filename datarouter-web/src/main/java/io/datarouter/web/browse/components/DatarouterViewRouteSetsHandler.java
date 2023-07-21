@@ -17,8 +17,6 @@ package io.datarouter.web.browse.components;
 
 import java.util.List;
 
-import javax.inject.Inject;
-
 import io.datarouter.pathnode.PathNode;
 import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.config.RouteSetRegistry;
@@ -29,6 +27,7 @@ import io.datarouter.web.html.j2html.J2HtmlTable;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import j2html.TagCreator;
 import j2html.tags.specialized.DivTag;
+import jakarta.inject.Inject;
 
 public class DatarouterViewRouteSetsHandler extends BaseHandler{
 

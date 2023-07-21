@@ -20,19 +20,17 @@ import static j2html.TagCreator.div;
 
 import java.util.Optional;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.apache.http.client.utils.URIBuilder;
 
-import io.datarouter.clustersetting.ClusterSettingLogAction;
-import io.datarouter.clustersetting.ClusterSettingScope;
 import io.datarouter.clustersetting.config.DatarouterClusterSettingPaths;
+import io.datarouter.clustersetting.enums.ClusterSettingLogAction;
+import io.datarouter.clustersetting.enums.ClusterSettingScope;
 import io.datarouter.clustersetting.service.ClusterSettingChangeListener;
 import io.datarouter.clustersetting.storage.clustersetting.ClusterSetting;
 import io.datarouter.clustersetting.storage.clustersetting.ClusterSettingKey;
 import io.datarouter.clustersetting.storage.clustersetting.DatarouterClusterSettingDao;
 import io.datarouter.clustersetting.web.ClusterSettingHtml;
+import io.datarouter.clustersetting.web.browse.ClusterSettingBrowseHandler.ClusterSettingBrowseHandlerParams;
 import io.datarouter.clustersetting.web.browse.ClusterSettingBrowseHandler.ClusterSettingBrowseLinks;
 import io.datarouter.clustersetting.web.override.ClusterSettingEditSource;
 import io.datarouter.clustersetting.web.override.ClusterSettingOverrideForms;
@@ -47,6 +45,8 @@ import io.datarouter.web.html.form.HtmlForm;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import j2html.TagCreator;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 public class ClusterSettingOverrideUpdateHandler extends BaseHandler{
 
@@ -64,6 +64,8 @@ public class ClusterSettingOverrideUpdateHandler extends BaseHandler{
 	private Bootstrap4PageFactory pageFactory;
 	@Inject
 	private DatarouterClusterSettingPaths paths;
+	@Inject
+	private ClusterSettingHtml clusterSettingHtml;
 	@Inject
 	private ClusterSettingBrowseLinks browseLinks;
 	@Inject
@@ -87,7 +89,7 @@ public class ClusterSettingOverrideUpdateHandler extends BaseHandler{
 			Optional<String> value,
 			Optional<String> comment,
 			Optional<Boolean> submitButton){
-		String title = ClusterSettingHtml.makeTitle("Update Override");
+		String title = clusterSettingHtml.makeTitle("Update Override");
 		ClusterSettingScope scopeEnum = ClusterSettingScope.fromParams(
 				serverType.orElse(null),
 				serverName.orElse(null));
@@ -131,7 +133,7 @@ public class ClusterSettingOverrideUpdateHandler extends BaseHandler{
 					htmlForm)
 					.withStyle("width:400px;");
 			var content = div(
-					ClusterSettingHtml.makeHeader(title, "Update Setting Override Value"),
+					clusterSettingHtml.makeHeader(title, "Update Setting Override Value"),
 					br(),
 					summaryDiv,
 					br(),
@@ -154,7 +156,9 @@ public class ClusterSettingOverrideUpdateHandler extends BaseHandler{
 		// Redirect
 		String redirectTo = switch(sourceEnum){
 			case DATABASE -> overrideLinks.view();
-			case CODE -> browseLinks.all(Optional.of(name), partialName);
+			case CODE -> browseLinks.all(new ClusterSettingBrowseHandlerParams()
+					.withLocation(name)
+					.withOptPartialName(partialName));
 		};
 		return new GlobalRedirectMav(redirectTo);
 	}

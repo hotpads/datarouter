@@ -15,10 +15,9 @@
  */
 package io.datarouter.client.memory;
 
-import javax.inject.Singleton;
-
 import io.datarouter.storage.client.BaseClientManager;
 import io.datarouter.storage.client.ClientId;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class MemoryClientManager extends BaseClientManager{

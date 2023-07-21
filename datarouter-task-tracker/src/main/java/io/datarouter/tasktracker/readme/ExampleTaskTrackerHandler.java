@@ -22,8 +22,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Optional;
 
-import javax.inject.Inject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +32,7 @@ import io.datarouter.tasktracker.service.LongRunningTaskTrackerFactory;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.MessageMav;
+import jakarta.inject.Inject;
 
 public class ExampleTaskTrackerHandler extends BaseHandler{
 	private static final Logger logger = LoggerFactory.getLogger(ExampleTaskTrackerHandler.class);

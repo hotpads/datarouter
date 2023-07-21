@@ -20,10 +20,9 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
-import javax.inject.Inject;
-
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.lang.ReflectionTool;
+import jakarta.inject.Inject;
 
 public class InjectionTool{
 

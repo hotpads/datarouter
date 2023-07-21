@@ -19,6 +19,7 @@ import java.util.concurrent.Callable;
 import java.util.function.Supplier;
 
 import io.datarouter.aws.sqs.BaseSqsNode;
+import io.datarouter.aws.sqs.SqsCostCounters;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.StringDatabeanCodec;
@@ -52,6 +53,7 @@ implements Callable<V>{
 	@Override
 	public V call(){
 		// count
+		SqsCostCounters.request();
 		return run();
 	}
 

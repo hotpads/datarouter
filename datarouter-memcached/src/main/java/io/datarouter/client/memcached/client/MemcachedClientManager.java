@@ -19,11 +19,10 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.List;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.client.memcached.client.options.MemcachedOptions;
 import io.datarouter.storage.client.ClientId;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import net.spy.memcached.KetamaConnectionFactory;
 
 @Singleton

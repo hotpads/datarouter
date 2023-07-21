@@ -21,6 +21,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import io.datarouter.bytes.codec.stringcodec.StringCodec;
+import io.datarouter.bytes.varint.VarIntByteArraysTool;
 import io.datarouter.scanner.Scanner;
 
 public class VarIntByteArraysToolTests{

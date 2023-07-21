@@ -18,7 +18,7 @@ package io.datarouter.web.dispatcher;
 import java.util.List;
 import java.util.function.Supplier;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DispatcherServletClasses implements Supplier<List<Class<? extends DispatcherServlet>>>{

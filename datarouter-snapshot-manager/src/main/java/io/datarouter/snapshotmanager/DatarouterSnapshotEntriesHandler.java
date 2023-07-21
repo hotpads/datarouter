@@ -22,8 +22,6 @@ import static j2html.TagCreator.td;
 import java.util.List;
 import java.util.Optional;
 
-import javax.inject.Inject;
-
 import org.apache.http.client.utils.URIBuilder;
 
 import io.datarouter.filesystem.snapshot.group.SnapshotGroup;
@@ -42,6 +40,7 @@ import io.datarouter.web.html.j2html.J2HtmlTable;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import io.datarouter.web.requirejs.DatarouterWebRequireJsV2;
 import j2html.tags.DomContent;
+import jakarta.inject.Inject;
 
 public class DatarouterSnapshotEntriesHandler extends BaseHandler{
 

@@ -19,9 +19,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import javax.inject.Singleton;
-
 import io.datarouter.scanner.Scanner;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class PluginConfiguration{

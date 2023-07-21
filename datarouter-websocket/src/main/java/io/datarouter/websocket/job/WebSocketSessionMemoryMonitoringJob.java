@@ -15,13 +15,12 @@
  */
 package io.datarouter.websocket.job;
 
-import javax.inject.Inject;
-
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
 import io.datarouter.websocket.WebSocketCounters;
 import io.datarouter.websocket.service.ServerAddressProvider;
 import io.datarouter.websocket.service.WebSocketConnectionStore;
+import jakarta.inject.Inject;
 
 public class WebSocketSessionMemoryMonitoringJob extends BaseJob{
 

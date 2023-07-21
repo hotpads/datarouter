@@ -36,8 +36,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
-import javax.inject.Inject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,6 +62,7 @@ import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.GlobalRedirectMav;
 import io.datarouter.web.handler.mav.imp.InContextRedirectMav;
 import io.datarouter.web.handler.mav.imp.MessageMav;
+import io.datarouter.web.handler.types.Param;
 import io.datarouter.web.html.form.HtmlForm;
 import io.datarouter.web.html.form.HtmlFormTimezoneSelect;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
@@ -76,6 +75,7 @@ import io.datarouter.web.user.role.RoleManager;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.TrTag;
+import jakarta.inject.Inject;
 
 public class DatarouterPermissionRequestHandler extends BaseHandler{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterPermissionRequestHandler.class);
@@ -220,21 +220,26 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 	}
 
 	@Handler
-	private Mav submit(Optional<String> specifics, Optional<String> allowedRoles){
+	private Mav submit(
+			@Param(P_REASON) String reason,
+			@Param(HtmlFormTimezoneSelect.TIMEZONE_FIELD_NAME) Optional<String> timezone,
+			Optional<String> specifics,
+			Optional<String> allowedRoles){
 		if(!authenticationConfig.useDatarouterAuthentication()){
 			return new MessageMav(noDatarouterAuthentication());
 		}
 
-		String reason = params.required(P_REASON);
 		if(StringTool.isEmpty(reason)){
 			throw new IllegalArgumentException("Reason is required.");
 		}
 		String specificString = specifics.orElse("");
 		DatarouterUser user = getCurrentUser();
 
-		String timezone = params.required(HtmlFormTimezoneSelect.TIMEZONE_FIELD_NAME);
-		user.setZoneId(ZoneId.of(timezone));
-		datarouterUserDao.put(user);
+		timezone.map(ZoneId::of)
+				.ifPresent(zoneId -> {
+					user.setZoneId(zoneId);
+					datarouterUserDao.put(user);
+				});
 
 		datarouterPermissionRequestDao.createPermissionRequest(new DatarouterPermissionRequest(user.getId(), new Date(),
 				"reason: " + reason + ", specifics: " + specificString, null, null));
@@ -242,7 +247,10 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 		if(allowedRoles.isPresent()){
 			Set<Role> requestedRoles = new HashSet<>(Scanner.of(allowedRoles.get()
 							.split(","))
-					.map(roleManager::getRoleFromPersistentString)
+					.map(roleManager::findRoleFromPersistentString)
+					.map(optionalRole -> optionalRole.orElseThrow(
+							() -> new IllegalArgumentException(
+									"Permission request made with unknown role(s): " + allowedRoles.get())))
 					.list());
 			additionalRecipients = roleManager.getAdditionalPermissionRequestEmailRecipients(user, requestedRoles);
 		}

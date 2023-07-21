@@ -17,9 +17,6 @@ package io.datarouter.websocket.session;
 
 import java.util.Optional;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +34,8 @@ import io.datarouter.websocket.storage.session.WebSocketSession;
 import io.datarouter.websocket.storage.session.WebSocketSessionKey;
 import io.datarouter.websocket.storage.subscription.DatarouterWebSocketSubscriptionDao;
 import io.datarouter.websocket.storage.subscription.WebSocketSubscriptionKey;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class PushService{

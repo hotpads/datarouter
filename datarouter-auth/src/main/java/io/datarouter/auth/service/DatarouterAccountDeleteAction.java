@@ -15,15 +15,14 @@
  */
 package io.datarouter.auth.service;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.auth.config.DatarouterAuthExecutors.DatarouterAccountDeleteActionExecutor;
 import io.datarouter.auth.storage.account.DatarouterAccount;
 import io.datarouter.auth.storage.useraccountmap.DatarouterUserAccountMapDao;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDtoBuilder;
 import io.datarouter.storage.config.properties.AdminEmail;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterAccountDeleteAction{

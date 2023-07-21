@@ -15,8 +15,6 @@
  */
 package io.datarouter.filesystem.client;
 
-import javax.inject.Singleton;
-
 import io.datarouter.bytes.Codec;
 import io.datarouter.filesystem.node.queue.DirectoryBlobQueueNode;
 import io.datarouter.filesystem.node.queue.DirectoryGroupQueueNode;
@@ -30,6 +28,7 @@ import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.op.raw.BlobQueueStorage.PhysicalBlobQueueStorageNode;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class FilesystemNodeFactory{

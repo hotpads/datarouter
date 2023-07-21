@@ -30,8 +30,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
-import javax.inject.Provider;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,6 +45,7 @@ import io.datarouter.storage.config.storage.clusterschemaupdatelock.DatarouterCl
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.util.mutable.MutableString;
 import io.datarouter.util.singletonsupplier.SingletonSupplier;
+import jakarta.inject.Provider;
 
 public abstract class BaseSchemaUpdateService{
 	private static final Logger logger = LoggerFactory.getLogger(BaseSchemaUpdateService.class);

@@ -21,8 +21,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +30,7 @@ import io.datarouter.joblet.storage.jobletdata.DatarouterJobletDataDao;
 import io.datarouter.joblet.storage.jobletrequest.DatarouterJobletRequestDao;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.util.number.NumberFormatter;
+import jakarta.inject.Inject;
 
 public class JobletDataVacuumJob extends BaseJob{
 	private static final Logger logger = LoggerFactory.getLogger(JobletDataVacuumJob.class);

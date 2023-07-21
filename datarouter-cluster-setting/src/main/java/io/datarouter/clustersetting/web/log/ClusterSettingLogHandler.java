@@ -25,9 +25,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.apache.http.client.utils.URIBuilder;
 
 import io.datarouter.clustersetting.config.DatarouterClusterSettingPaths;
@@ -35,7 +32,8 @@ import io.datarouter.clustersetting.storage.clustersettinglog.ClusterSettingLog;
 import io.datarouter.clustersetting.storage.clustersettinglog.ClusterSettingLogKey;
 import io.datarouter.clustersetting.storage.clustersettinglog.DatarouterClusterSettingLogDao;
 import io.datarouter.clustersetting.web.ClusterSettingHtml;
-import io.datarouter.clustersetting.web.ClusterSettingLinks;
+import io.datarouter.clustersetting.web.browse.ClusterSettingBrowseHandler.ClusterSettingBrowseHandlerParams;
+import io.datarouter.clustersetting.web.browse.ClusterSettingBrowseHandler.ClusterSettingBrowseLinks;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.config.ServletContextSupplier;
@@ -48,6 +46,8 @@ import io.datarouter.web.html.indexpager.IndexPage.IndexPageBuilder;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import j2html.tags.specialized.DivTag;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 public class ClusterSettingLogHandler extends BaseHandler{
 
@@ -62,7 +62,9 @@ public class ClusterSettingLogHandler extends BaseHandler{
 	@Inject
 	private DatarouterClusterSettingPaths paths;
 	@Inject
-	private ClusterSettingLinks clusterSettingLinks;
+	private ClusterSettingBrowseLinks browseLinks;
+	@Inject
+	private ClusterSettingHtml clusterSettingHtml;
 	@Inject
 	private ClusterSettingLogHtml clusterSettingLogHtml;
 	@Inject
@@ -74,7 +76,7 @@ public class ClusterSettingLogHandler extends BaseHandler{
 
 	@Handler
 	public Mav all(Optional<String> beforeDate){
-		String title = ClusterSettingHtml.makeTitle("Logs For All Settings");
+		String title = clusterSettingHtml.makeTitle("Logs For All Settings");
 
 		// form
 		var dateForm = new HtmlForm()
@@ -97,7 +99,7 @@ public class ClusterSettingLogHandler extends BaseHandler{
 
 		// result html
 		String path = request.getContextPath() + paths.datarouter.settings.log.all.toSlashedString();
-		var headerDiv = ClusterSettingHtml.makeHeader(title, "Changes to all settings in this cluster");
+		var headerDiv = clusterSettingHtml.makeHeader(title, "Changes to all settings in this cluster");
 		var formTag = Bootstrap4FormHtml.render(dateForm, true);
 		var pagerDiv = Bootstrap4IndexPagerHtml.render(page, path);
 		var tableDiv = makeTableDiv(page.rows);
@@ -114,14 +116,15 @@ public class ClusterSettingLogHandler extends BaseHandler{
 
 	@Handler
 	public Mav node(String nodeName){
-		String title = ClusterSettingHtml.makeTitle("Logs For Setting Node");
+		String title = clusterSettingHtml.makeTitle("Logs For Setting Node");
 		List<ClusterSettingLog> logs = dao.scanWithWildcardPrefix(nodeName)
 				.sort(Comparator.comparing((ClusterSettingLog log) -> log.getKey().getCreated()).reversed())
 				.list();
-		var headerDiv = ClusterSettingHtml.makeHeader(title, "Changes to settings in the same parent node");
+		var headerDiv = clusterSettingHtml.makeHeader(title, "Changes to settings in the same parent node");
+		String href = browseLinks.all(new ClusterSettingBrowseHandlerParams().withLocation(nodeName));
 		var nodeNameDiv = div(
 				h5("Node name"),
-				div(a(nodeName).withHref(clusterSettingLinks.browseSettings(nodeName))));
+				div(a(nodeName).withHref(href)));
 		var tableDiv = makeTableDiv(logs);
 		var content = div(
 				headerDiv,
@@ -135,13 +138,14 @@ public class ClusterSettingLogHandler extends BaseHandler{
 
 	@Handler
 	public Mav setting(String settingName){
-		String title = ClusterSettingHtml.makeTitle("Logs For Single Setting");
+		String title = clusterSettingHtml.makeTitle("Logs For Single Setting");
 		ClusterSettingLogKey prefix = ClusterSettingLogKey.prefix(settingName);
 		List<ClusterSettingLog> logs = dao.scanWithPrefix(prefix).list();
-		var headerDiv = ClusterSettingHtml.makeHeader(title, "Changes to a single setting");
+		var headerDiv = clusterSettingHtml.makeHeader(title, "Changes to a single setting");
+		String href = browseLinks.all(new ClusterSettingBrowseHandlerParams().withLocation(settingName));
 		var settingNameDiv = div(
 				h5("Setting name"),
-				div(a(settingName).withHref(clusterSettingLinks.browseSettings(settingName))));
+				div(a(settingName).withHref(href)));
 		var tableDiv = makeTableDiv(logs);
 		var content = div(
 				headerDiv,
@@ -155,11 +159,11 @@ public class ClusterSettingLogHandler extends BaseHandler{
 
 	@Handler
 	public Mav single(String settingName, Long reverseCreatedMs){
-		String title = ClusterSettingHtml.makeTitle("Log Entry Details");
+		String title = clusterSettingHtml.makeTitle("Log Entry Details");
 		var key = new ClusterSettingLogKey(settingName, reverseCreatedMs);
 		ClusterSettingLog log = dao.find(key).orElseThrow();
 		var content = div(
-				ClusterSettingHtml.makeHeader(title, "Single setting log entry"),
+				clusterSettingHtml.makeHeader(title, "Single setting log entry"),
 				br(),
 				clusterSettingLogHtml.makeCard(getUserZoneId(), log))
 				.withClass("container");

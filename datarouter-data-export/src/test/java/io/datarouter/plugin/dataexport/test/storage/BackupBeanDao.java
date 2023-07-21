@@ -17,24 +17,21 @@ package io.datarouter.plugin.dataexport.test.storage;
 
 import java.util.Collection;
 
-import javax.inject.Singleton;
-
 import io.datarouter.plugin.dataexport.test.storage.BackupBean.BackupBeanFielder;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
-import io.datarouter.storage.config.Config;
-import io.datarouter.storage.config.PutMethod;
 import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.TestDao;
 import io.datarouter.storage.node.factory.NodeFactory;
-import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
+import io.datarouter.storage.node.op.combo.SortedMapStorage.PhysicalSortedMapStorageNode;
 import io.datarouter.storage.tag.Tag;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class BackupBeanDao extends BaseDao implements TestDao{
 
-	public final SortedMapStorageNode<BackupBeanKey,BackupBean,BackupBeanFielder> node;
+	private final PhysicalSortedMapStorageNode<BackupBeanKey,BackupBean,BackupBeanFielder> node;
 
 	public BackupBeanDao(Datarouter datarouter, NodeFactory nodeFactory, ClientId clientId){
 		super(datarouter);
@@ -43,7 +40,7 @@ public class BackupBeanDao extends BaseDao implements TestDao{
 				.buildAndRegister();
 	}
 
-	public SortedMapStorageNode<BackupBeanKey,BackupBean,BackupBeanFielder> getNode(){
+	public PhysicalSortedMapStorageNode<BackupBeanKey,BackupBean,BackupBeanFielder> getNode(){
 		return node;
 	}
 
@@ -55,8 +52,8 @@ public class BackupBeanDao extends BaseDao implements TestDao{
 		return node.scan();
 	}
 
-	public void putMultiOrBust(Collection<BackupBean> databeans){
-		node.putMulti(databeans, new Config().setPutMethod(PutMethod.INSERT_OR_BUST));
+	public void putMulti(Collection<BackupBean> databeans){
+		node.putMulti(databeans);
 	}
 
 }

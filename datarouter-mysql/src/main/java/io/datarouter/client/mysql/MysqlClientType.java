@@ -15,12 +15,11 @@
  */
 package io.datarouter.client.mysql;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.client.mysql.web.MysqlWebInspector;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.web.browse.DatarouterClientWebInspectorRegistry;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class MysqlClientType implements ClientType<MysqlClientNodeFactory,MysqlClientManager>{

@@ -39,7 +39,7 @@ implements Setting<T>{
 	protected final SettingFinder finder;
 	protected final String name;
 	protected final DefaultSettingValue<T> defaultSettingValue;
-	protected boolean hasCustomValues;
+	protected boolean hasCustomValues; // TODO delete?
 	protected boolean hasRedundantCustomValues;
 
 	public CachedSetting(SettingFinder finder, String name, DefaultSettingValue<T> defaultValue){

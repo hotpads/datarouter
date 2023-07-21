@@ -15,9 +15,8 @@
  */
 package io.datarouter.websocket.endpoint;
 
-import javax.inject.Inject;
-
 import io.datarouter.websocket.endpoint.SwedishEchoMessageHandler.SwedishEchoMessageHandlerFactory;
+import jakarta.inject.Inject;
 
 /**
  * return twice the message received

@@ -19,9 +19,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.plugin.PluginConfigKey;
 import io.datarouter.plugin.PluginConfigType;
 import io.datarouter.plugin.PluginConfigValue;
@@ -29,6 +26,8 @@ import io.datarouter.plugin.PluginInjector;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.web.user.role.Role;
 import io.datarouter.web.user.session.service.SessionBasedUser;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 // inject this class through UserInfoSupplier
 public interface UserInfo extends PluginConfigValue<UserInfo>{

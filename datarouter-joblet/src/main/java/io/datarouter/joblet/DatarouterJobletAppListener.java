@@ -15,11 +15,10 @@
  */
 package io.datarouter.joblet;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.joblet.execute.JobletProcessors;
 import io.datarouter.web.listener.DatarouterAppListener;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 /*
  * To run joblets, add this AppListener to your Webapp

@@ -19,9 +19,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +32,8 @@ import io.datarouter.job.util.Outcome;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.util.DateTool;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class ClusterTriggerLockService{

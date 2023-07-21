@@ -15,9 +15,8 @@
  */
 package io.datarouter.websocket.endpoint;
 
-import javax.inject.Inject;
-
 import io.datarouter.websocket.endpoint.WebSocketServicesMessageHandler.WebSocketServicesMessageHandlerFactory;
+import jakarta.inject.Inject;
 
 public class WebSocketServicesEndpoint extends BaseWebsocketEndpoint{
 

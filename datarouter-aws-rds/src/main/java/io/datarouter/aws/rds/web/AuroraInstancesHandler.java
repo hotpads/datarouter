@@ -30,8 +30,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import javax.inject.Inject;
-
 import org.apache.http.client.utils.URIBuilder;
 
 import io.datarouter.aws.rds.config.DatarouterAwsPaths;
@@ -53,6 +51,7 @@ import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.TrTag;
+import jakarta.inject.Inject;
 
 public class AuroraInstancesHandler extends BaseHandler{
 

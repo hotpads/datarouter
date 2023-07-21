@@ -27,8 +27,6 @@ import static j2html.TagCreator.ul;
 import java.net.URI;
 import java.util.List;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 
 import io.datarouter.storage.config.properties.ServiceName;
@@ -45,6 +43,8 @@ import j2html.tags.DomContent;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.UlTag;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class Bootstrap4HomepageCreatorService{

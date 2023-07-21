@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.http.client.utils.URIBuilder;
@@ -62,6 +61,7 @@ import io.datarouter.web.requirejs.DatarouterWebRequireJsV2;
 import j2html.TagCreator;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
+import jakarta.inject.Inject;
 
 public class SqsWebInspector implements DatarouterClientWebInspector{
 	private static final Logger logger = LoggerFactory.getLogger(SqsWebInspector.class);

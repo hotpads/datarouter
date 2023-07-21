@@ -17,13 +17,12 @@ package io.datarouter.secretweb.service;
 
 import java.util.Objects;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.secret.service.SecretNamespacer;
 import io.datarouter.storage.config.environment.EnvironmentType;
 import io.datarouter.storage.config.properties.DatarouterEnvironmentTypeSupplier;
 import io.datarouter.storage.config.properties.ServiceName;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterPropertiesAndServiceSecretNamespacer implements SecretNamespacer{

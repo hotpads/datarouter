@@ -27,9 +27,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.auth.storage.permissionrequest.DatarouterPermissionRequest;
 import io.datarouter.auth.storage.permissionrequest.DatarouterPermissionRequestDao;
 import io.datarouter.auth.storage.user.DatarouterUserDao;
@@ -47,11 +44,13 @@ import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
 import io.datarouter.web.user.databean.DatarouterUser;
 import j2html.tags.specialized.PTag;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterUserHistoryService{
 
-	private static final String CHANGELOG_TYPE = "DatarouterUserHistory";
+	public static final String CHANGELOG_TYPE = "DatarouterUserHistory";
 
 	@Inject
 	private AdminEmail adminEmail;

@@ -19,9 +19,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,6 +36,8 @@ import io.datarouter.virtualnode.redundant.RedundantSortedMapStorageNode;
 import io.datarouter.web.user.databean.SamlAuthnRequestRedirectUrl;
 import io.datarouter.web.user.databean.SamlAuthnRequestRedirectUrl.SamlAuthnRequestRedirectUrlFielder;
 import io.datarouter.web.user.databean.SamlAuthnRequestRedirectUrlKey;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterSamlDao extends BaseDao implements BaseDatarouterSamlDao{

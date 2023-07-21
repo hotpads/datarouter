@@ -15,11 +15,10 @@
  */
 package io.datarouter.client.mysql.job;
 
-import javax.inject.Inject;
-
 import io.datarouter.client.mysql.ddl.domain.MysqlLiveTableOptionsRefresher;
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
+import jakarta.inject.Inject;
 
 public class MysqlLiveTableOptionsRefresherJob extends BaseJob{
 

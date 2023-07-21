@@ -26,9 +26,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.auth.config.DatarouterAuthPaths;
 import io.datarouter.auth.service.UserInfo.UserInfoSupplier;
 import io.datarouter.auth.storage.permissionrequest.DatarouterPermissionRequest;
@@ -48,6 +45,8 @@ import io.datarouter.web.user.detail.DatarouterUserProfileLink;
 import io.datarouter.web.user.session.service.SessionBasedUser;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.TableTag;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class PermissionRequestDailyDigest implements DailyDigest{

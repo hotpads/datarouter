@@ -15,13 +15,14 @@
  */
 package io.datarouter.web.user.role;
 
-import java.util.Collection;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
-
-import javax.inject.Singleton;
+import java.util.function.BiFunction;
 
 import io.datarouter.scanner.Scanner;
+import io.datarouter.web.user.databean.DatarouterUser;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterRoleManager extends BaseRoleManager{
@@ -44,38 +45,33 @@ public class DatarouterRoleManager extends BaseRoleManager{
 	}
 
 	@Override
-	public Set<Role> getConferrableRoles(Collection<Role> userRoles){
-		if(userRoles.contains(DatarouterUserRole.DATAROUTER_ADMIN.getRole())){
-			return getAllRoles();
-		}
-		if(userRoles.contains(DatarouterUserRole.ADMIN.getRole())){
-			Set<Role> roles = getAllRoles();
-			roles.remove(DatarouterUserRole.DATAROUTER_ADMIN.getRole());
-			return roles;
-		}
-		return new HashSet<>(userRoles);
+	public Map<RoleApprovalType,BiFunction<DatarouterUser,DatarouterUser,Boolean>> getApprovalTypeAuthorityValidators(){
+		return Map.of(
+				DatarouterRoleApprovalType.ADMIN.getRoleApprovalType(),
+				(editor, $) -> editor.getRoles().contains(DatarouterUserRole.DATAROUTER_ADMIN.getRole()));
 	}
 
 	@Override
-	protected Set<Role> getSuperRoles(){
-		return getAllRoles();
+	public final Set<Role> getSuperAdminRoles(){
+		return Scanner.of(DatarouterUserRole.values())
+				.map(DatarouterUserRole::getRole)
+				.append(getAdditionalSuperAdminRoles())
+				.collect(HashSet::new);
+	}
+
+	protected Set<Role> getAdditionalSuperAdminRoles(){
+		return new HashSet<>();
 	}
 
 	@Override
-	protected Set<Role> getDefaultRoles(){
-		return Set.of(DatarouterUserRole.REQUESTOR.getRole());
+	public final Set<Role> getDefaultRoles(){
+		return Scanner.of(getAdditionalDefaultRoles())
+				.append(DatarouterUserRole.REQUESTOR.getRole())
+				.collect(HashSet::new);
 	}
 
-	@Override
-	protected Set<Role> getAdminRoles(){
-		return Set.of(
-				DatarouterUserRole.ADMIN.getRole(),
-				DatarouterUserRole.DATAROUTER_ACCOUNTS.getRole(),
-				DatarouterUserRole.DATAROUTER_ADMIN.getRole(),
-				DatarouterUserRole.DATAROUTER_JOB.getRole(),
-				DatarouterUserRole.DATAROUTER_MONITORING.getRole(),
-				DatarouterUserRole.DATAROUTER_SETTINGS.getRole(),
-				DatarouterUserRole.DATAROUTER_TOOLS.getRole());
+	protected Set<Role> getAdditionalDefaultRoles(){
+		return new HashSet<>();
 	}
 
 }

@@ -15,14 +15,13 @@
  */
 package io.datarouter.webappinstance.job;
 
-import javax.inject.Inject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
 import io.datarouter.webappinstance.storage.onetimelogintoken.DatarouterOneTimeLoginTokenDao;
+import jakarta.inject.Inject;
 
 public class OneTimeLoginTokenVacuumJob extends BaseJob{
 	private static final Logger logger = LoggerFactory.getLogger(OneTimeLoginTokenVacuumJob.class);

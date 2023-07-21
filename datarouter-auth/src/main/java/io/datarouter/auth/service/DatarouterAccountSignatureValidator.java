@@ -18,8 +18,6 @@ package io.datarouter.auth.service;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
@@ -31,6 +29,8 @@ import io.datarouter.web.security.DefaultSignatureValidator;
 import io.datarouter.web.security.SecurityValidationResult;
 import io.datarouter.web.security.SignatureValidator;
 import io.datarouter.web.util.http.RequestTool;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterAccountSignatureValidator implements SignatureValidator{

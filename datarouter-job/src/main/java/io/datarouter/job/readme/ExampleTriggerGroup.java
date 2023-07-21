@@ -15,10 +15,9 @@
  */
 package io.datarouter.job.readme;
 
-import javax.inject.Singleton;
-
 import io.datarouter.job.BaseTriggerGroup;
 import io.datarouter.util.time.ZoneIds;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class ExampleTriggerGroup extends BaseTriggerGroup{

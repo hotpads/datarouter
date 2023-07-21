@@ -9,7 +9,7 @@ serve as the basis for implementing cloud provider Memcached implementations, li
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-memcached</artifactId>
-	<version>0.0.120</version>
+	<version>0.0.121</version>
 </dependency>
 ```
 

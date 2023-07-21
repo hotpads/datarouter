@@ -15,11 +15,17 @@
  */
 package io.datarouter.plugin.dataexport.config;
 
-import javax.inject.Singleton;
-
 import io.datarouter.util.concurrent.ScalingThreadPoolExecutor;
+import jakarta.inject.Singleton;
 
 public class DatarouterDataExportExecutors{
+
+	@Singleton
+	public static class DatabeanExportParallelPartsExecutor extends ScalingThreadPoolExecutor{
+		public DatabeanExportParallelPartsExecutor(){
+			super("databeanExportParallelParts", 100);
+		}
+	}
 
 	@Singleton
 	public static class DatabeanExportPrefetchExecutor extends ScalingThreadPoolExecutor{
@@ -29,16 +35,30 @@ public class DatarouterDataExportExecutors{
 	}
 
 	@Singleton
-	public static class DatabeanExportWriteParallelExecutor extends ScalingThreadPoolExecutor{
-		public DatabeanExportWriteParallelExecutor(){
-			super("databeanExportWriteParallel", 100);
+	public static class DatabeanExportEncodeExecutor extends ScalingThreadPoolExecutor{
+		public DatabeanExportEncodeExecutor(){
+			super("databeanExportEncode", 100);
 		}
 	}
 
 	@Singleton
-	public static class DatabeanImportScanChunksExecutor extends ScalingThreadPoolExecutor{
-		public DatabeanImportScanChunksExecutor(){
-			super("databeanImportScanChunks", 100);
+	public static class DatabeanExportWriteExecutor extends ScalingThreadPoolExecutor{
+		public DatabeanExportWriteExecutor(){
+			super("databeanExportWrite", 100);
+		}
+	}
+
+	@Singleton
+	public static class DatabeanImportReadExecutor extends ScalingThreadPoolExecutor{
+		public DatabeanImportReadExecutor(){
+			super("databeanImportRead", 100);
+		}
+	}
+
+	@Singleton
+	public static class DatabeanImportDecodeExecutor extends ScalingThreadPoolExecutor{
+		public DatabeanImportDecodeExecutor(){
+			super("databeanImportDecode", 100);
 		}
 	}
 

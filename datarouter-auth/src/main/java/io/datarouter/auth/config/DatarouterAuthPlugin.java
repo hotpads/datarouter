@@ -115,7 +115,7 @@ public class DatarouterAuthPlugin extends BaseWebPlugin{
 
 		if(enableUserAuth){
 			addAppListener(DatarouterUserConfigAppListener.class);
-			addAppNavBarItem(AppNavBarCategory.ADMIN, PATHS.admin.viewUsers, "View Users");
+			addAppNavBarItem(AppNavBarCategory.USER, PATHS.admin.viewUsers, "View Users");
 			addAppNavBarItem(AppNavBarCategory.USER, PATHS.admin.editUser, "Edit User");
 			addAppNavBarItem(AppNavBarCategory.USER, PATHS.permissionRequest, "Permission Request");
 			addDynamicNavBarItem(CreateUserNavBarItem.class);
@@ -128,7 +128,7 @@ public class DatarouterAuthPlugin extends BaseWebPlugin{
 				PATHS.datarouter.accountManager,
 				"Accounts");
 
-		addAppNavBarItem(AppNavBarCategory.ADMIN, PATHS.userDeprovisioning, "User Deprovisioning");
+		addAppNavBarItem(AppNavBarCategory.USER, PATHS.userDeprovisioning, "User Deprovisioning");
 		addDynamicNavBarItem(ApiDocsNavBarItem.class);
 		addRouteSet(DatarouterAccountApiRouteSet.class);
 		addRouteSet(DatarouterAccountRouteSet.class);
@@ -161,9 +161,7 @@ public class DatarouterAuthPlugin extends BaseWebPlugin{
 				new DefaultDatarouterUserPassword(defaultDatarouterUserPassword));
 		bindActualInstance(DefaultDatarouterAccountKeysSupplier.class,
 				new DefaultDatarouterAccountKeys(defaultApiKey, defaultSecretKey));
-		datarouterAccountDeleteAction.ifPresent(clazz -> {
-			bind(DatarouterAccountDeleteAction.class).to(clazz);
-		});
+		datarouterAccountDeleteAction.ifPresent(clazz -> bind(DatarouterAccountDeleteAction.class).to(clazz));
 		bindActualInstance(AccountCallerTypeRegistry2.class, new AccountCallerTypeRegistry2(callerTypes2));
 	}
 
@@ -218,6 +216,7 @@ public class DatarouterAuthPlugin extends BaseWebPlugin{
 			return this;
 		}
 
+		// TODO delete?
 		public DatarouterAuthPluginBuilder setDatarouterAccountDeleteAction(
 				Class<? extends DatarouterAccountDeleteAction> datarouterAccountDeleteAction){
 			this.datarouterAccountDeleteAction = Optional.of(datarouterAccountDeleteAction);

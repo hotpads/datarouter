@@ -126,7 +126,7 @@ public abstract class SecretClientOp<I,O>{
 
 	public static class SecretClientOpResult<T>{
 
-		public static enum SecretClientOpStatus{
+		public enum SecretClientOpStatus{
 			SUCCESS,
 			VALIDATION_ERROR,
 			OP_ERROR

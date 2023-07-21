@@ -8,7 +8,7 @@ datarouter-job makes it easy to schedule jobs across a cluster of servers.
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-job</artifactId>
-	<version>0.0.120</version>
+	<version>0.0.121</version>
 </dependency>
 ```
 ## Installation with Datarouter
@@ -29,14 +29,13 @@ package io.datarouter.job.readme;
 
 import java.time.Instant;
 
-import javax.inject.Inject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
 import io.datarouter.storage.config.properties.ServerName;
+import jakarta.inject.Inject;
 
 public class ExampleJob extends BaseJob{
 	private static final Logger logger = LoggerFactory.getLogger(ExampleJob.class);
@@ -64,9 +63,9 @@ Schedule a job by registering it in a `TriggerGroup`. TriggerGroups support Quar
 ```java
 package io.datarouter.job.readme;
 
-import javax.inject.Singleton;
-
 import io.datarouter.job.BaseTriggerGroup;
+import io.datarouter.util.time.ZoneIds;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class ExampleTriggerGroup extends BaseTriggerGroup{
@@ -81,6 +80,7 @@ public class ExampleTriggerGroup extends BaseTriggerGroup{
 	}
 
 }
+
 ```
 
 The category name is used for grouping jobs in the web UI.

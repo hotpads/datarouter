@@ -21,8 +21,6 @@ import static j2html.TagCreator.h4;
 
 import java.util.Optional;
 
-import javax.inject.Inject;
-
 import io.datarouter.changelog.config.DatarouterChangelogPaths;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDtoBuilder;
@@ -35,6 +33,7 @@ import io.datarouter.web.html.form.HtmlForm;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import j2html.tags.specialized.DivTag;
+import jakarta.inject.Inject;
 
 public class ManualChangelogHandler extends BaseHandler{
 

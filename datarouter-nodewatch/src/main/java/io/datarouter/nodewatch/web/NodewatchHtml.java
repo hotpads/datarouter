@@ -48,9 +48,15 @@ public class NodewatchHtml{
 	public static DivTag makeTableInfoDiv(String clientName, String tableName){
 		var table = table(
 			tr(
-				td(text("client"), br(), h5(clientName)).withClass("px-4"),
+				td(text("client"), br(), h5(clientName)).withClass("pr-4"),
 				td(text("table"), br(), h5(tableName))));
 		return div(table);
+	}
+
+	public static ATag makeInfoButton(String name, String href){
+		return a(name)
+				.withClass("btn btn-info btn-sm ml-1")
+				.withHref(href);
 	}
 
 	public static ATag makeWarningButton(String name, String href, String confirmationMessage){

@@ -17,13 +17,12 @@ package io.datarouter.web.email;
 
 import java.util.Date;
 
-import javax.inject.Inject;
-
 import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
 import io.datarouter.email.html.EmailDto.EmailDtoBuilder;
 import io.datarouter.web.test.DatarouterWebTestNgModuleFactory;
+import jakarta.inject.Inject;
 
 @Guice(moduleFactory = DatarouterWebTestNgModuleFactory.class)
 public class DatarouterEmailServiceIntegrationTester{

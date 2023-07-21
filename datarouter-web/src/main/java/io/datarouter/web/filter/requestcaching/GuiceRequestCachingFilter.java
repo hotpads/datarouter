@@ -15,9 +15,8 @@
  */
 package io.datarouter.web.filter.requestcaching;
 
-import javax.inject.Singleton;
-
 import io.datarouter.web.inject.guice.GuiceInjectorRetriever;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class GuiceRequestCachingFilter

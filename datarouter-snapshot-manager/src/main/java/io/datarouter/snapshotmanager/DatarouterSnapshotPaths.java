@@ -15,10 +15,9 @@
  */
 package io.datarouter.snapshotmanager;
 
-import javax.inject.Singleton;
-
 import io.datarouter.pathnode.PathNode;
 import io.datarouter.pathnode.PathsRoot;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterSnapshotPaths extends PathNode implements PathsRoot{

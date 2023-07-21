@@ -25,7 +25,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import io.datarouter.bytes.EmptyArray;
-import io.datarouter.bytes.VarIntTool;
+import io.datarouter.bytes.varint.VarIntTool;
 
 public class VarIntToolTests{
 

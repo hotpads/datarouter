@@ -22,8 +22,6 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.function.Supplier;
 
-import javax.inject.Singleton;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +30,7 @@ import io.datarouter.util.Require;
 import io.datarouter.util.io.FileTool;
 import io.datarouter.util.properties.PropertiesTool;
 import io.datarouter.util.string.StringTool;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class ComputedPropertiesFinder{

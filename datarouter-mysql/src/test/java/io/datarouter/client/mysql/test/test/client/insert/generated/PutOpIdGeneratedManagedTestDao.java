@@ -17,9 +17,6 @@ package io.datarouter.client.mysql.test.test.client.insert.generated;
 
 import java.util.Collection;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.client.mysql.test.DatarouterMysqlTestClientids;
 import io.datarouter.client.mysql.test.client.insert.generated.managed.PutOpIdGeneratedManagedTestBean;
 import io.datarouter.client.mysql.test.client.insert.generated.managed.PutOpIdGeneratedManagedTestBean.PutOpIdGeneratedManagedTestBeanFielder;
@@ -30,6 +27,8 @@ import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.TestDao;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class PutOpIdGeneratedManagedTestDao

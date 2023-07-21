@@ -17,9 +17,6 @@ package io.datarouter.nodewatch.web;
 
 import static j2html.TagCreator.div;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.nodewatch.config.DatarouterNodewatchPaths;
 import io.datarouter.nodewatch.config.DatarouterNodewatchPaths.NodewatchPaths;
 import io.datarouter.nodewatch.storage.latesttablecount.DatarouterLatestTableCountDao;
@@ -28,6 +25,8 @@ import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4NavTabsHtml;
 import io.datarouter.web.html.nav.NavTabs;
 import io.datarouter.web.html.nav.NavTabs.NavTab;
 import j2html.tags.specialized.DivTag;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class NodewatchNavService{
@@ -88,6 +87,14 @@ public class NodewatchNavService{
 			navTabs.add(new NavTab(
 					"Table Details",
 					links.table(clientName, tableName),
+					true));
+			return this;
+		}
+
+		public NodewatchNavTabs addTableStorageTab(String clientName, String tableName){
+			navTabs.add(new NavTab(
+					"Table Storage",
+					links.tableStorage(clientName, tableName),
 					true));
 			return this;
 		}

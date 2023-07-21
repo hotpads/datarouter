@@ -20,8 +20,6 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 
-import javax.inject.Singleton;
-
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.Config;
@@ -31,6 +29,7 @@ import io.datarouter.storage.node.factory.TallyNodeFactory;
 import io.datarouter.storage.node.op.raw.TallyStorage;
 import io.datarouter.storage.tally.Tally;
 import io.datarouter.storage.tally.Tally.TallyFielder;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterTallyTestDao extends BaseDao implements TestDao{

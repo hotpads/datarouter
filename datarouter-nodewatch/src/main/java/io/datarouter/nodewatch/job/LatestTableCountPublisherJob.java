@@ -15,8 +15,6 @@
  */
 package io.datarouter.nodewatch.job;
 
-import javax.inject.Inject;
-
 import io.datarouter.instrumentation.tablecount.TableCountBatchDto;
 import io.datarouter.instrumentation.tablecount.TableCountDto;
 import io.datarouter.instrumentation.tablecount.TableCountPublisher;
@@ -25,6 +23,7 @@ import io.datarouter.job.BaseJob;
 import io.datarouter.nodewatch.storage.latesttablecount.DatarouterLatestTableCountDao;
 import io.datarouter.nodewatch.storage.latesttablecount.LatestTableCount;
 import io.datarouter.storage.config.properties.ServiceName;
+import jakarta.inject.Inject;
 
 public class LatestTableCountPublisherJob extends BaseJob{
 

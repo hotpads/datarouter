@@ -15,90 +15,126 @@
  */
 package io.datarouter.bytes.kvfile;
 
-import java.io.ByteArrayInputStream;
 import java.util.List;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import io.datarouter.bytes.BinaryDictionary;
 import io.datarouter.bytes.Codec;
-import io.datarouter.bytes.codec.intcodec.ComparableIntCodec;
+import io.datarouter.bytes.blockfile.BlockfileBuilder;
+import io.datarouter.bytes.blockfile.storage.BlockfileLocalStorage;
+import io.datarouter.bytes.blockfile.storage.BlockfileStorage;
 import io.datarouter.bytes.codec.stringcodec.StringCodec;
+import io.datarouter.bytes.kvfile.codec.KvFileBlockCodec;
+import io.datarouter.bytes.kvfile.io.KvFileBuilder;
+import io.datarouter.bytes.kvfile.io.header.KvFileHeader;
+import io.datarouter.bytes.kvfile.kv.KvFileEntry;
+import io.datarouter.bytes.kvfile.kv.KvFileOp;
+import io.datarouter.scanner.Scanner;
 
 public class KvFileTests{
 
-	private record TestKv(
+	private static final StringCodec STRING_CODEC = StringCodec.UTF_8;
+	private static final BlockfileStorage STORAGE = new BlockfileLocalStorage("/tmp/datarouterTest/kvfile/");
+	private static final String BLOCK_RAW_FILENAME = "blockRaw";
+	private static final String BLOCK_FILENAME = "block";
+	private static final String KV_FILENAME = "kv";
+	private static final int BLOCK_SIZE = 10;
+	private static final int NUM_BLOCKS = 100;
+
+	private record TestDto(
 			String key,
-			int version,
+			String version,
 			KvFileOp op,
 			String value){
 
-		static final StringCodec STRING_CODEC = StringCodec.UTF_8;
-		static final Codec<TestKv,KvFileEntry> CODEC = Codec.of(
-				testKv -> KvFileEntry.create(
-						STRING_CODEC.encode(testKv.key),
-						ComparableIntCodec.INSTANCE.encode(testKv.version),
-						testKv.op,
-						STRING_CODEC.encode(testKv.value)),
-				binaryKv -> new TestKv(
-						STRING_CODEC.decode(binaryKv.copyOfKey()),
-						ComparableIntCodec.INSTANCE.decode(binaryKv.copyOfVersion()),
-						binaryKv.op(),
-						STRING_CODEC.decode(binaryKv.copyOfValue())));
+		static final Codec<TestDto,KvFileEntry> KV_CODEC = Codec.of(
+				dto -> KvFileEntry.create(
+						STRING_CODEC.encode(dto.key),
+						STRING_CODEC.encode(dto.version),
+						dto.op,
+						STRING_CODEC.encode(dto.value)),
+				kv -> new TestDto(
+						STRING_CODEC.decode(kv.copyOfKey()),
+						STRING_CODEC.decode(kv.copyOfVersion()),
+						kv.op(),
+						STRING_CODEC.decode(kv.copyOfValue())));
 	}
 
+	private static final List<TestDto> DTOS = Scanner.iterate(0, i -> i + 1)
+			.limit(NUM_BLOCKS * BLOCK_SIZE)
+			.map(i -> new TestDto(
+					// padding not technically needed, but it's good for keys to be sortable
+					"key-" + intToPaddedString(i),
+					"version-" + i,
+					KvFileOp.PUT,
+					"value-" + i))
+			.list();
 
-	private static final List<TestKv> KVS = List.of(
-			new TestKv("", 0, KvFileOp.PUT, ""),// 0 data bytes, 1 version byte
-			new TestKv("a", 1, KvFileOp.DELETE, ""),// 2 data bytes, 1 version byte
-			new TestKv("bb", 2, KvFileOp.PUT, "bb"),// 4 data bytes, 1 version byte
-			new TestKv("ccc", 135, KvFileOp.PUT, "ccc"));// 6 data bytes, 2 version bytes
-
-	private static final KvFileCodec<TestKv> KV_FILE_CODEC = new KvFileCodec<>(TestKv.CODEC);
-
-	private static final int KEY_META_LENGTH = 4;// 1 byte per item
-	private static final int KEY_DATA_LENGTH = 0 + 1 + 2 + 3;
-	private static final int KEY_LENGTH = KEY_META_LENGTH + KEY_DATA_LENGTH;
-
-	private static final int VERSION_META_LENGTH = 4;// 1 byte per item
-	private static final int VERSION_DATA_LENGTH = 4 * 4;// 4 bytes per item
-	private static final int VERSION_LENGTH = VERSION_META_LENGTH + VERSION_DATA_LENGTH;
-
-	private static final int OP_META_LENGTH = 0;// no overhead, fixed length per entry
-	private static final int OP_DATA_LENGTH = 4;// 1 byte per item
-	private static final int OP_LENGTH = OP_META_LENGTH + OP_DATA_LENGTH;
-
-	private static final int VALUE_META_LENGTH = 4;// 1 byte per item
-	private static final int VALUE_DATA_LENGTH = 0 + 0 + 2 + 3;
-	private static final int VALUE_LENGTH = VALUE_META_LENGTH + VALUE_DATA_LENGTH;
-
-	private static final int TOTAL_BLOCK_LENGTH_LENGTH = 1;
-	private static final int TOTAL_BLOCK_SIZE_LENGTH = 1;
-	private static final int TOTAL_BLOCK_META_LENGTH = TOTAL_BLOCK_LENGTH_LENGTH + TOTAL_BLOCK_SIZE_LENGTH;
-	private static final int TOTAL_BLOCK_DATA_LENGTH = KEY_LENGTH + VERSION_LENGTH + OP_LENGTH + VALUE_LENGTH;
-	private static final int TOTAL_BLOCK_LENGTH = TOTAL_BLOCK_META_LENGTH + TOTAL_BLOCK_DATA_LENGTH;
-
+	// The test does the encoding to KvFileEntry.  Not sure it's needed.
 	@Test
-	private void testWrite(){
-		byte[] bytes = KV_FILE_CODEC.toByteArray(KVS);
-		Assert.assertEquals(bytes.length, TOTAL_BLOCK_LENGTH);
-	}
-
-	@Test
-	private void testRead(){
-		byte[] bytes = KV_FILE_CODEC.toByteArray(KVS);
-		List<TestKv> actual = KV_FILE_CODEC.decodeMulti(bytes).list();
-		Assert.assertEquals(actual, KVS);
-	}
-
-	@Test
-	private void testReadInputStream(){
-		byte[] bytes = KV_FILE_CODEC.toByteArray(KVS);
-		var reader = new KvFileReader(new ByteArrayInputStream(bytes));
-		List<TestKv> actual = reader.scanBlockEntries()
-				.map(KV_FILE_CODEC::decode)
+	private void testViaBlockfileRaw(){
+		var blockfile = new BlockfileBuilder<List<KvFileEntry>>(STORAGE).build();
+		var writer = blockfile.newWriterBuilder(BLOCK_RAW_FILENAME, KvFileBlockCodec.identity()::encode).build();
+		Scanner.of(DTOS)
+				.map(TestDto.KV_CODEC::encode)
+				.batch(BLOCK_SIZE)
+				.apply(writer::write);
+		var metadataReader = blockfile.newMetadataReaderBuilder(BLOCK_RAW_FILENAME).build();
+		var reader = blockfile.newReaderBuilder(metadataReader, KvFileBlockCodec.identity()::decode).build();
+		List<TestDto> decoded = reader.scanDecodedValues()
+				.concat(Scanner::of)
+				.map(TestDto.KV_CODEC::decode)
 				.list();
-		Assert.assertEquals(actual, KVS);
+		Assert.assertEquals(decoded, DTOS);
+	}
+
+	// Configures the KvFile via the underlying Blockfile
+	@Test
+	private void testViaBlockfile(){
+		var blockCodec = new KvFileBlockCodec<>(TestDto.KV_CODEC);
+		var blockfile = new BlockfileBuilder<List<TestDto>>(STORAGE).build();
+		var writer = blockfile.newWriterBuilder(BLOCK_FILENAME, blockCodec::encode).build();
+		Scanner.of(DTOS)
+				.batch(BLOCK_SIZE)
+				.apply(writer::write);
+		var metadataReader = blockfile.newMetadataReaderBuilder(BLOCK_FILENAME).build();
+		var reader = blockfile.newReaderBuilder(metadataReader, blockCodec::decode).build();
+		List<TestDto> decoded = reader.scanDecodedValues()
+				.concat(Scanner::of)
+				.list();
+		Assert.assertEquals(decoded, DTOS);
+		Assert.assertEquals(reader.footer().blockCount(), NUM_BLOCKS);
+	}
+
+	// Uses the KvFile layer for configuration.  This is what users will do.
+	@Test
+	private void testViaKvFile(){
+		var kvFile = new KvFileBuilder<TestDto>(STORAGE).build();
+		var writer = kvFile.newWriterBuilder(KV_FILENAME, TestDto.KV_CODEC::encode)
+				.setHeaderDictionary(new BinaryDictionary().put("hk", "hv"))
+				.setFooterDictionarySupplier(() -> new BinaryDictionary().put("fk", "fv"))
+				.build();
+		Scanner.of(DTOS)
+				.batch(BLOCK_SIZE)
+				.apply(writer::write);
+		var reader = kvFile.newReaderBuilder(KV_FILENAME, TestDto.KV_CODEC::decode).build();
+		List<TestDto> decoded = reader.scan()
+				.list();
+		Assert.assertEquals(decoded, DTOS);
+		Assert.assertEquals(reader.header().blockFormat(), KvFileHeader.BLOCK_FORMAT_PLACEHOLDER);
+		Assert.assertEquals(reader.blockfileFooter().blockCount(), NUM_BLOCKS);
+		Assert.assertEquals(reader.footer().kvCount(), DTOS.size());
+		Assert.assertEquals(reader.header().userDictionary().findStringValue("hk").orElseThrow(), "hv");
+		Assert.assertEquals(reader.footer().userDictionary().findStringValue("fk").orElseThrow(), "fv");
+	}
+
+	private static String intToPaddedString(int value){
+		int desiredLength = 10;
+		String unpadded = Integer.toString(value);
+		int paddingLength = desiredLength - unpadded.length();
+		return "0".repeat(paddingLength) + unpadded;
 	}
 
 }

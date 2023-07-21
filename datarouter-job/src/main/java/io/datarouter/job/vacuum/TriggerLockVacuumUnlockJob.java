@@ -15,12 +15,11 @@
  */
 package io.datarouter.job.vacuum;
 
-import javax.inject.Inject;
-
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
 import io.datarouter.job.BaseTriggerGroup;
 import io.datarouter.job.lock.ClusterTriggerLockService;
+import jakarta.inject.Inject;
 
 /**
  * Safety mechanism to make sure the TriggerLockVacuum itself doesn't get stuck.  Register it without a lock.

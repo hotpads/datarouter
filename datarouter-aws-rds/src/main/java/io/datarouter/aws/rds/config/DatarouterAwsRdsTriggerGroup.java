@@ -15,13 +15,12 @@
  */
 package io.datarouter.aws.rds.config;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.aws.rds.job.AuroraDnsMonitoringJob;
 import io.datarouter.job.BaseTriggerGroup;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.util.time.ZoneIds;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterAwsRdsTriggerGroup extends BaseTriggerGroup{

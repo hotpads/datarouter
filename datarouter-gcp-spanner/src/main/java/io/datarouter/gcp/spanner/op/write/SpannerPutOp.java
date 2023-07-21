@@ -94,21 +94,20 @@ extends SpannerBaseWriteOp<D>{
 						generatedField.get(),
 						this::generatedFieldDoesntAlreadyExists);
 				return null;
-			}else{
-				throw new UnsupportedOperationException("Spanner does not support managed field generation");
 			}
+			throw new UnsupportedOperationException("Spanner does not support managed field generation");
 		}
-		WriteBuilder mutation;
-		switch(config.getPutMethod()){
-		case INSERT_OR_BUST:
-			mutation = Mutation.newInsertBuilder(tableName);
-			break;
-		case UPDATE_OR_BUST:
-			mutation = Mutation.newUpdateBuilder(tableName);
-			break;
-		default:
-			mutation = Mutation.newInsertOrUpdateBuilder(tableName);
-		}
+		WriteBuilder mutation = switch(config.getPutMethod()){
+		case INSERT_IGNORE,
+				INSERT_OR_BUST -> Mutation.newInsertBuilder(tableName);
+		case UPDATE_OR_BUST -> Mutation.newUpdateBuilder(tableName);
+		case INSERT_ON_DUPLICATE_UPDATE,
+				INSERT_OR_UPDATE,
+				MERGE,
+				SELECT_FIRST_OR_LOOK_AT_PRIMARY_KEY,
+				UPDATE_IGNORE,
+				UPDATE_OR_INSERT -> Mutation.newInsertOrUpdateBuilder(tableName);
+		};
 		mutation = getMutationPartition(databean, mutation);
 		List<? extends SpannerBaseFieldCodec<?,?>> primaryKeyCodecs = fieldCodecs.createCodecs(
 				databean.getKey().getFields());

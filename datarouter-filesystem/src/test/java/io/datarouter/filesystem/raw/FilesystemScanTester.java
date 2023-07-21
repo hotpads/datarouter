@@ -21,8 +21,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
-import javax.inject.Inject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Guice;
@@ -32,6 +30,7 @@ import io.datarouter.bytes.ByteLength;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.Count.Counts;
 import io.datarouter.util.number.NumberFormatter;
+import jakarta.inject.Inject;
 
 @Guice
 public class FilesystemScanTester{

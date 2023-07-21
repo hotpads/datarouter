@@ -15,8 +15,10 @@
  */
 package io.datarouter.client.mysql.exception;
 
+import io.datarouter.model.exception.DatarouterInsertOrBustException;
+
 @SuppressWarnings("serial")
-public class DuplicateEntrySqlException extends RuntimeException{
+public class DuplicateEntrySqlException extends DatarouterInsertOrBustException{
 
 	public DuplicateEntrySqlException(String message, Throwable cause){
 		super(message, cause);

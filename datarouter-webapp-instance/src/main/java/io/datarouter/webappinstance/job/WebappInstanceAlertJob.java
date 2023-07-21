@@ -23,8 +23,6 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.List;
 
-import javax.inject.Inject;
-
 import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
 import io.datarouter.email.type.DatarouterEmailTypes.WebappInstanceAlertEmailType;
@@ -42,6 +40,7 @@ import io.datarouter.webappinstance.service.WebappInstanceService;
 import io.datarouter.webappinstance.storage.webappinstance.WebappInstance;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.TableTag;
+import jakarta.inject.Inject;
 
 public class WebappInstanceAlertJob extends BaseJob{
 

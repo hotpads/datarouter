@@ -20,8 +20,6 @@ import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,6 +38,7 @@ import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.node.NodeTool;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.storage.util.DatarouterQueueMetrics;
+import jakarta.inject.Inject;
 
 public class SqsMonitoringJob extends BaseJob{
 	private static final Logger logger = LoggerFactory.getLogger(SqsMonitoringJob.class);

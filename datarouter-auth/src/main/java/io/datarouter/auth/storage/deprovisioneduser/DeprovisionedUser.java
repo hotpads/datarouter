@@ -118,7 +118,7 @@ public class DeprovisionedUser extends BaseDatabean<DeprovisionedUserKey,Deprovi
 		return updated;
 	}
 
-	public static enum UserDeprovisioningStatus{
+	public enum UserDeprovisioningStatus{
 
 		DEPROVISIONED("deprovisioned", UserDeprovisioningStatusDto.DEPROVISIONED),
 		FLAGGED("flagged", UserDeprovisioningStatusDto.FLAGGED);

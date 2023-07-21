@@ -20,8 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import javax.inject.Inject;
-
 import org.apache.http.entity.StringEntity;
 
 import io.datarouter.auth.service.DatarouterAccountCredentialService;
@@ -37,6 +35,7 @@ import io.datarouter.web.handler.documentation.ApiDocService;
 import io.datarouter.web.handler.documentation.DocumentedEndpointJspDto;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.util.http.RequestTool;
+import jakarta.inject.Inject;
 
 public abstract class DatarouterUserBasedDocumentationHandler extends BaseHandler{
 

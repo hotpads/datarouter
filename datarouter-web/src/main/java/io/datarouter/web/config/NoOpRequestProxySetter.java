@@ -15,9 +15,8 @@
  */
 package io.datarouter.web.config;
 
-import javax.inject.Singleton;
-
 import io.datarouter.httpclient.proxy.RequestProxySetter;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class NoOpRequestProxySetter implements RequestProxySetter{

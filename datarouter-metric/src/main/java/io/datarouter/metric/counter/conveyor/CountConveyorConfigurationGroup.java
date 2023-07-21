@@ -15,9 +15,8 @@
  */
 package io.datarouter.metric.counter.conveyor;
 
-import javax.inject.Singleton;
-
 import io.datarouter.conveyor.ConveyorConfigurationGroup;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class CountConveyorConfigurationGroup extends ConveyorConfigurationGroup{

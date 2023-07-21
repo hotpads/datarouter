@@ -20,15 +20,14 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.metric.config.DatarouterMetricPaths;
 import io.datarouter.plugin.PluginInjector;
 import io.datarouter.web.html.nav.Subnav;
 import io.datarouter.web.html.nav.Subnav.Dropdown;
 import io.datarouter.web.metriclinks.MetricLinkCategory;
 import io.datarouter.web.metriclinks.MetricLinkPage;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class MetricNamesSubnavFactory{

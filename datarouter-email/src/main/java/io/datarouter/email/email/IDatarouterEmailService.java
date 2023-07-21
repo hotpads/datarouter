@@ -18,13 +18,12 @@ package io.datarouter.email.email;
 import java.util.Collection;
 import java.util.List;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.email.html.EmailDto;
 import io.datarouter.email.html.J2HtmlDatarouterEmail;
 import io.datarouter.email.html.J2HtmlDatarouterEmailBuilder;
 import io.datarouter.util.string.StringTool;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 // Injected support lives in datarouter-web
 @Singleton

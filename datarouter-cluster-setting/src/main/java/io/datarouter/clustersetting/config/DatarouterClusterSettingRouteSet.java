@@ -15,10 +15,6 @@
  */
 package io.datarouter.clustersetting.config;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
-import io.datarouter.clustersetting.web.ClusterSettingsHandler;
 import io.datarouter.clustersetting.web.browse.ClusterSettingBrowseHandler;
 import io.datarouter.clustersetting.web.log.ClusterSettingLogHandler;
 import io.datarouter.clustersetting.web.override.handler.ClusterSettingOverrideCreateHandler;
@@ -30,24 +26,16 @@ import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
 import io.datarouter.web.user.role.DatarouterUserRole;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterClusterSettingRouteSet extends BaseRouteSet{
 
 	@Inject
 	public DatarouterClusterSettingRouteSet(DatarouterClusterSettingPaths paths){
-		handle(paths.datarouter.settings).withHandler(ClusterSettingsHandler.class);
-		handle(paths.datarouter.settings.update).withHandler(ClusterSettingsHandler.class);
-		handle(paths.datarouter.settings.delete).withHandler(ClusterSettingsHandler.class);
-		handle(paths.datarouter.settings.roots).withHandler(ClusterSettingsHandler.class);
-		handle(paths.datarouter.settings.create).withHandler(ClusterSettingsHandler.class);
-		handle(paths.datarouter.settings.browseSettings).withHandler(ClusterSettingsHandler.class);
-		handle(paths.datarouter.settings.isRecognizedRoot).withHandler(ClusterSettingsHandler.class);
-		handle(paths.datarouter.settings.updateSettingTags).withHandler(ClusterSettingsHandler.class);
-		handle(paths.datarouter.settings.searchSettingNames).withHandler(ClusterSettingsHandler.class);
-
 		//browse
-		handle(paths.datarouter.settings.browse.all).withHandler(ClusterSettingBrowseHandler.class);
+		registerHandler(ClusterSettingBrowseHandler.class);
 
 		//logs
 		handle(paths.datarouter.settings.log.all).withHandler(ClusterSettingLogHandler.class);

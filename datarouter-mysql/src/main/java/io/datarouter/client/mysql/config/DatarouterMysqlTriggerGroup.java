@@ -15,14 +15,13 @@
  */
 package io.datarouter.client.mysql.config;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.client.mysql.job.FastMysqlLiveTableOptionsRefresherJob;
 import io.datarouter.client.mysql.job.MysqlLiveTableOptionsRefresherJob;
 import io.datarouter.job.BaseTriggerGroup;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.util.time.ZoneIds;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterMysqlTriggerGroup extends BaseTriggerGroup{

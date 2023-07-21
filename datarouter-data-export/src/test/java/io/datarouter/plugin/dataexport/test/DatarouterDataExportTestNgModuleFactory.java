@@ -17,8 +17,13 @@ package io.datarouter.plugin.dataexport.test;
 
 import java.util.List;
 
+import io.datarouter.client.memory.test.DatarouterMemoryTestClientIds;
 import io.datarouter.inject.guice.BaseGuiceModule;
+import io.datarouter.nodewatch.config.DatarouterNodewatchPlugin.DatarouterNodewatchPluginBuilder;
+import io.datarouter.plugin.dataexport.config.DatarouterDataExportDirectorySupplier;
 import io.datarouter.storage.config.properties.DatarouterTestPropertiesFile;
+import io.datarouter.storage.config.properties.ServiceName;
+import io.datarouter.storage.dao.DaoClasses;
 import io.datarouter.testng.TestNgModuleFactory;
 import io.datarouter.web.config.DatarouterWebGuiceModule;
 
@@ -35,8 +40,28 @@ public class DatarouterDataExportTestNgModuleFactory extends TestNgModuleFactory
 		@Override
 		protected void configure(){
 			bindActualInstance(
+					ServiceName.class,
+					new ServiceName("datarouter-data-export"));
+			bindActualInstance(
 					DatarouterTestPropertiesFile.class,
 					new DatarouterTestPropertiesFile("memory.properties"));
+			bindActual(
+					DatarouterDataExportDirectorySupplier.class,
+					TestDatarouterDataExportDirectorySupplier.class);
+			installNodewatch();
+		}
+
+		private void installNodewatch(){
+			var nodewatchPlugin = new DatarouterNodewatchPluginBuilder(
+					List.of(DatarouterMemoryTestClientIds.MEMORY))
+					.build();
+			install(nodewatchPlugin);
+
+			//TODO the Plugin could install the Daos
+			install(nodewatchPlugin.getDaosModuleBuilder());
+			bindActualInstance(
+					DaoClasses.class,
+					new DaoClasses(nodewatchPlugin.getDaosModuleBuilder().getDaoClasses()));
 		}
 
 	}

@@ -25,9 +25,6 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.apache.http.Header;
 import org.apache.http.entity.ContentType;
 import org.slf4j.Logger;
@@ -54,6 +51,8 @@ import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.util.ExceptionTool;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 public class HttpTestHandler extends BaseHandler{
 	private static final Logger logger = LoggerFactory.getLogger(HttpTestHandler.class);
@@ -181,7 +180,6 @@ public class HttpTestHandler extends BaseHandler{
 		public HttpTesterClient(){
 			super(new DatarouterHttpClientBuilder(GsonJsonSerializer.DEFAULT)
 					.setTimeout(Duration.ofMinutes(5))
-					.setConnectTimeoutMs(Duration.ofSeconds(1))
 					.build());
 		}
 
@@ -193,7 +191,6 @@ public class HttpTestHandler extends BaseHandler{
 		public HttpTesterWithoutRedirectClient(){
 			super(new DatarouterHttpClientBuilder(GsonJsonSerializer.DEFAULT)
 					.setTimeout(Duration.ofMinutes(5))
-					.setConnectTimeoutMs(Duration.ofSeconds(1))
 					.disableRedirectHandling()
 					.build());
 		}

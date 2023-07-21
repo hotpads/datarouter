@@ -23,8 +23,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 
-import javax.inject.Inject;
-
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
@@ -36,6 +34,7 @@ import io.datarouter.storage.config.Config;
 import io.datarouter.storage.file.Pathbean;
 import io.datarouter.storage.node.factory.BlobNodeFactory;
 import io.datarouter.storage.util.Subpath;
+import jakarta.inject.Inject;
 
 public abstract class BaseBlobIntegrationTests{
 

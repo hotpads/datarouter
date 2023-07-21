@@ -15,12 +15,11 @@
  */
 package io.datarouter.secretweb.storage.oprecord;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.secret.service.SecretOpRecorder;
 import io.datarouter.secret.service.SecretOpRecorderSupplier;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DaoSecretOpRecorderSupplier implements SecretOpRecorderSupplier{

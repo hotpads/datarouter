@@ -17,13 +17,12 @@ package io.datarouter.storage.servertype;
 
 import java.util.Set;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.storage.config.environment.EnvironmentType;
 import io.datarouter.storage.config.properties.DatarouterEnvironmentTypeSupplier;
 import io.datarouter.storage.config.properties.DatarouterServerTypeSupplier;
 import io.datarouter.storage.config.properties.EnvironmentName;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterServerTypeDetector implements ServerTypeDetector{

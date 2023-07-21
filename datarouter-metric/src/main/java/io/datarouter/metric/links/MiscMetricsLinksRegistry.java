@@ -17,9 +17,8 @@ package io.datarouter.metric.links;
 
 import java.util.List;
 
-import javax.inject.Singleton;
-
 import io.datarouter.metric.dto.MiscMetricLinksDto;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class MiscMetricsLinksRegistry{

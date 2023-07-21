@@ -15,7 +15,12 @@
  */
 package io.datarouter.inject.guice;
 
-public abstract class BasePlugin extends BaseGuiceModule{
+import java.util.List;
+
+import io.datarouter.instrumentation.description.Describeable;
+import io.datarouter.instrumentation.description.Description;
+
+public abstract class BasePlugin extends BaseGuiceModule implements Describeable{
 
 	/**
 	 * The name is used to identify which plugins have already been added, and which can be overridden.
@@ -25,6 +30,11 @@ public abstract class BasePlugin extends BaseGuiceModule{
 	 */
 	public final String getName(){
 		return getClass().getSimpleName();
+	}
+
+	@Override
+	public Description describe(){
+		return new Description(getName(), null, List.of());
 	}
 
 	/**

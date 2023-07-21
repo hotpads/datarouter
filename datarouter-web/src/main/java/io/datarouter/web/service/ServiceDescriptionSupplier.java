@@ -18,13 +18,12 @@ package io.datarouter.web.service;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.plugin.PluginConfigKey;
 import io.datarouter.plugin.PluginConfigType;
 import io.datarouter.plugin.PluginInjector;
 import io.datarouter.plugin.StringPluginConfigValue;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class ServiceDescriptionSupplier implements Supplier<String>{

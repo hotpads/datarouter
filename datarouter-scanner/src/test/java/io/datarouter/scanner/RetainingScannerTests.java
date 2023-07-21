@@ -15,7 +15,6 @@
  */
 package io.datarouter.scanner;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.testng.Assert;
@@ -25,7 +24,7 @@ public class RetainingScannerTests{
 
 	@Test
 	public void testEmptyInputScanner(){
-		Scanner<RetainingGroup<Integer>> retainingScanner = Scanner.of(new ArrayList<Integer>()).retain(3);
+		Scanner<RetainingGroup<Integer>> retainingScanner = Scanner.<Integer>empty().retain(3);
 		Assert.assertFalse(retainingScanner.advance());
 	}
 

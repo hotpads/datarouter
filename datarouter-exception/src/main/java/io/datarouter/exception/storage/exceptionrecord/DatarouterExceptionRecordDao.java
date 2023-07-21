@@ -19,9 +19,6 @@ import java.time.Duration;
 import java.util.Collection;
 import java.util.List;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.exception.storage.exceptionrecord.ExceptionRecord.ExceptionRecordFielder;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
@@ -36,6 +33,8 @@ import io.datarouter.storage.util.DatabeanVacuum;
 import io.datarouter.storage.util.DatabeanVacuum.DatabeanVacuumBuilder;
 import io.datarouter.util.tuple.Range;
 import io.datarouter.virtualnode.redundant.RedundantSortedMapStorageNode;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterExceptionRecordDao extends BaseDao{

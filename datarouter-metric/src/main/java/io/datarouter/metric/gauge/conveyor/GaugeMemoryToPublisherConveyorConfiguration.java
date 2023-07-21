@@ -19,9 +19,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +32,8 @@ import io.datarouter.instrumentation.gauge.GaugeDto;
 import io.datarouter.instrumentation.gauge.GaugePublisher;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.metric.config.DatarouterGaugeSettingRoot;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class GaugeMemoryToPublisherConveyorConfiguration implements ConveyorConfiguration{
@@ -70,8 +69,7 @@ public class GaugeMemoryToPublisherConveyorConfiguration implements ConveyorConf
 			logger.warn("", putMultiException);
 			ConveyorCounters.inc(conveyor, "putMulti exception", 1);
 		}
-		//process as many as possible if shutting down
-		return new ProcessResult(conveyor.isShuttingDown() || dtos.size() == BATCH_SIZE);
+		return new ProcessResult(dtos.size() == BATCH_SIZE);
 	}
 
 	@Override

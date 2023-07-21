@@ -19,7 +19,6 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
-import javax.inject.Singleton;
 import javax.servlet.ServletRequest;
 
 import io.datarouter.web.user.authenticate.DatarouterAuthenticationFilter;
@@ -27,6 +26,7 @@ import io.datarouter.web.user.role.Role;
 import io.datarouter.web.user.session.CurrentSessionInfo;
 import io.datarouter.web.user.session.DatarouterSession;
 import io.datarouter.web.user.session.DatarouterSessionManager;
+import jakarta.inject.Singleton;
 
 /**
  * Implementation of {@link CurrentSessionInfo}.

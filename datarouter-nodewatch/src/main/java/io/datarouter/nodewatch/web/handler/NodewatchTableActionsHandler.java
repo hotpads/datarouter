@@ -15,8 +15,6 @@
  */
 package io.datarouter.nodewatch.web.handler;
 
-import javax.inject.Inject;
-
 import io.datarouter.nodewatch.joblet.TableSpanSamplerJobletCreatorFactory;
 import io.datarouter.nodewatch.service.NodewatchChangelogService;
 import io.datarouter.nodewatch.service.TableSamplerService;
@@ -32,6 +30,7 @@ import io.datarouter.storage.node.op.raw.read.SortedStorageReader.PhysicalSorted
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.GlobalRedirectMav;
+import jakarta.inject.Inject;
 
 public class NodewatchTableActionsHandler extends BaseHandler{
 

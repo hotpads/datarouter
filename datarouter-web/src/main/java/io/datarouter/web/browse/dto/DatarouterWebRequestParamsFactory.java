@@ -18,9 +18,6 @@ package io.datarouter.web.browse.dto;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.client.DatarouterClients;
@@ -30,6 +27,8 @@ import io.datarouter.storage.node.NodeTool;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.util.singletonsupplier.SingletonSupplier;
 import io.datarouter.web.handler.params.Params;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterWebRequestParamsFactory{

@@ -17,12 +17,11 @@ package io.datarouter.web.handler.documentation;
 
 import java.util.List;
 
-import javax.inject.Inject;
-
 import io.datarouter.web.config.DatarouterWebFiles;
 import io.datarouter.web.dispatcher.RouteSet;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
+import jakarta.inject.Inject;
 
 public class DocumentationHandler extends BaseHandler{
 

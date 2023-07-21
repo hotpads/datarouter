@@ -22,8 +22,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.user.session.CurrentUserSessionInfoService;
@@ -35,6 +33,7 @@ import io.datarouter.webappinstance.service.WebappInstanceBuildIdLink;
 import io.datarouter.webappinstance.service.WebappInstanceCommitIdLink;
 import io.datarouter.webappinstance.storage.webappinstance.DatarouterWebappInstanceDao;
 import io.datarouter.webappinstance.storage.webappinstance.WebappInstance;
+import jakarta.inject.Inject;
 
 public class WebappInstanceRunningHandler extends BaseHandler{
 
@@ -71,12 +70,12 @@ public class WebappInstanceRunningHandler extends BaseHandler{
 				new WebappInstanceTableOptions(),
 				List.of(
 					new WebappInstanceColumn<WebappInstance>("Service", inst -> inst.getKey().getWebappName())
-							.withShowUsageStats()
-							.withHideUsageStatsBreakdown(),
-					new WebappInstanceColumn<WebappInstance>("Server Name", inst -> inst.getKey().getServerName()),
+							.withShowUsageStats(true)
+							.withHideUsageStatsBreakdown(true),
+					new WebappInstanceColumn<>("Server Name", inst -> inst.getKey().getServerName()),
 					new WebappInstanceColumn<>("Server Type", WebappInstance::getServerType),
 					new WebappInstanceColumn<>("Public IP", WebappInstance::getServerPublicIp)
-							.withShowUsageStats(),
+							.withShowUsageStats(true),
 					new WebappInstanceColumn<>("Private IP", WebappInstance::getServerPrivateIp)
 							.withCellLinkBuilder(false, inst -> "https://" + inst.getServerPrivateIp() + ":"
 									+ inst.getHttpsPort() + inst.getServletContextPath()),
@@ -84,19 +83,19 @@ public class WebappInstanceRunningHandler extends BaseHandler{
 					WebappInstanceTableTool.lastUpdated(WebappInstance::getRefreshedLastInstant),
 					WebappInstanceTableTool.buildDate(WebappInstance::getBuildInstant, zoneId),
 					new WebappInstanceColumn<>("Build Id", WebappInstance::getBuildId)
-							.withShowUsageStats()
+							.withShowUsageStats(true)
 							.withAsBadge((inst, stats) -> !Objects.equals(inst.getBuildId(), stats.mostCommon))
 							.withStatLinkBuilder(true, buildIdLink::getLink),
 					new WebappInstanceColumn<>("Commit Id", WebappInstance::getCommitId)
-							.withShowUsageStats()
+							.withShowUsageStats(true)
 							.withAsBadge((inst, stats) -> !mostCommonCommitByWebapp.get(inst.getKey().getWebappName())
 									.equals(inst.getCommitId()))
 							.withStatLinkBuilder(true, commitIdLink.getLinkPrefix()::concat),
 					new WebappInstanceColumn<>("Java Version", WebappInstance::getJavaVersion)
-							.withShowUsageStats()
+							.withShowUsageStats(true)
 							.withAsBadge((inst, stats) -> !Objects.equals(inst.getJavaVersion(), stats.mostCommon)),
 					new WebappInstanceColumn<>("Servlet Container", WebappInstance::getServletContainerVersion)
-							.withShowUsageStats()
+							.withShowUsageStats(true)
 							.withAsBadge((inst, stats) -> !Objects.equals(inst.getServletContainerVersion(),
 									stats.mostCommon))));
 	}

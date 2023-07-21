@@ -18,8 +18,6 @@ package io.datarouter.logging;
 import java.util.List;
 import java.util.Map;
 
-import javax.inject.Singleton;
-
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -33,6 +31,8 @@ import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.logging.log4j.core.layout.PatternLayout;
 import org.slf4j.LoggerFactory;
+
+import jakarta.inject.Singleton;
 
 @Singleton
 public class Log4j2Configurator{

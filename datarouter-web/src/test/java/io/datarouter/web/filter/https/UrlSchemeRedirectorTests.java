@@ -17,8 +17,6 @@ package io.datarouter.web.filter.https;
 
 import java.net.URL;
 
-import javax.inject.Inject;
-
 import org.testng.Assert;
 import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
@@ -26,6 +24,7 @@ import org.testng.annotations.Test;
 import io.datarouter.httpclient.security.UrlConstants;
 import io.datarouter.httpclient.security.UrlScheme;
 import io.datarouter.web.test.DatarouterWebTestNgModuleFactory;
+import jakarta.inject.Inject;
 
 @Guice(moduleFactory = DatarouterWebTestNgModuleFactory.class)
 public class UrlSchemeRedirectorTests{

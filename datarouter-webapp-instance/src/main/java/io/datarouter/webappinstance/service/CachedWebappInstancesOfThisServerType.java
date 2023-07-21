@@ -19,9 +19,6 @@ import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.properties.DatarouterServerTypeSupplier;
 import io.datarouter.util.cached.Cached;
@@ -29,6 +26,8 @@ import io.datarouter.web.app.WebappName;
 import io.datarouter.webappinstance.storage.webappinstance.DatarouterWebappInstanceDao;
 import io.datarouter.webappinstance.storage.webappinstance.WebappInstance;
 import io.datarouter.webappinstance.storage.webappinstance.WebappInstanceKey;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class CachedWebappInstancesOfThisServerType extends Cached<List<WebappInstance>>{

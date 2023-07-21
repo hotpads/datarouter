@@ -23,7 +23,6 @@ import static j2html.TagCreator.dt;
 import java.util.Map;
 import java.util.Optional;
 
-import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
 import io.datarouter.client.mysql.MysqlClientManager;
@@ -43,6 +42,7 @@ import io.datarouter.web.handler.params.Params;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import io.datarouter.web.requirejs.DatarouterWebRequireJsV2;
 import j2html.tags.specialized.DlTag;
+import jakarta.inject.Inject;
 
 public class MysqlWebInspector implements DatarouterClientWebInspector{
 

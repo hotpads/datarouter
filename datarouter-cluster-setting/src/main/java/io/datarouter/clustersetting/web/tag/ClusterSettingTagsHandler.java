@@ -20,9 +20,6 @@ import static j2html.TagCreator.div;
 
 import java.util.Optional;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.apache.http.client.utils.URIBuilder;
 
 import io.datarouter.clustersetting.config.DatarouterClusterSettingPaths;
@@ -33,6 +30,8 @@ import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.GlobalRedirectMav;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 public class ClusterSettingTagsHandler extends BaseHandler{
 
@@ -46,6 +45,8 @@ public class ClusterSettingTagsHandler extends BaseHandler{
 	private CachedClusterSettingTags cachedClusterSettingTags;
 	@Inject
 	private ClusterSettingTagsLinks clusterSettingTagLinks;
+	@Inject
+	private ClusterSettingHtml clusterSettingHtml;
 	@Inject
 	private ClusterSettingTagsHtml html;
 
@@ -61,9 +62,9 @@ public class ClusterSettingTagsHandler extends BaseHandler{
 		}
 
 		// display all
-		String title = ClusterSettingHtml.makeTitle("Tags");
+		String title = clusterSettingHtml.makeTitle("Tags");
 		var content = div(
-				ClusterSettingHtml.makeHeader(
+				clusterSettingHtml.makeHeader(
 						title,
 						"Tags are stored on the local filesystem and apply to all webapps on the machine"),
 				br(),

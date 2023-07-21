@@ -26,9 +26,6 @@ import java.time.ZoneId;
 import java.util.List;
 import java.util.function.Function;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
 import io.datarouter.nodewatch.config.DatarouterNodewatchPaths;
@@ -46,6 +43,8 @@ import io.datarouter.web.email.StandardDatarouterEmailHeaderService;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.BodyTag;
 import j2html.tags.specialized.TableTag;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class TableSizeMonitoringEmailBuilder{

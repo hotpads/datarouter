@@ -15,11 +15,10 @@
  */
 package io.datarouter.tasktracker.service;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.email.html.J2HtmlDatarouterEmailBuilder;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DefaultTaskTrackerAlertReportService implements TaskTrackerAlertReportService{

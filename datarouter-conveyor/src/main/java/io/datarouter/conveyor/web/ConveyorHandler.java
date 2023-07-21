@@ -28,13 +28,13 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
-import javax.inject.Inject;
-
-import io.datarouter.clustersetting.service.ClusterSettingLinkServletService;
+import io.datarouter.clustersetting.web.browse.ClusterSettingBrowseHandler.ClusterSettingBrowseHandlerParams;
+import io.datarouter.clustersetting.web.browse.ClusterSettingBrowseHandler.ClusterSettingBrowseLinks;
 import io.datarouter.conveyor.ConveyorAppListener;
 import io.datarouter.conveyor.ConveyorCounters;
 import io.datarouter.conveyor.config.DatarouterConveyorSettingRoot;
 import io.datarouter.conveyor.config.DatarouterConveyorShouldRunSettings;
+import io.datarouter.conveyor.config.DatarouterConveyorThreadCountSettings;
 import io.datarouter.conveyor.dto.ConveyorSummary;
 import io.datarouter.conveyor.web.ConveyorExternalLinkBuilder.ConveyorExternalLinkBuilderSupplier;
 import io.datarouter.inject.DatarouterInjector;
@@ -47,6 +47,7 @@ import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import io.datarouter.web.requirejs.DatarouterWebRequireJsV2;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.ThTag;
+import jakarta.inject.Inject;
 
 public class ConveyorHandler extends BaseHandler{
 
@@ -55,14 +56,13 @@ public class ConveyorHandler extends BaseHandler{
 	@Inject
 	private Bootstrap4PageFactory pageFactory;
 	@Inject
-	private ClusterSettingLinkServletService clusterSettinglinkService;
-	@Inject
 	private ConveyorExternalLinkBuilderSupplier externalLinkBuilder;
+	@Inject
+	private ClusterSettingBrowseLinks clusterSettingBrowseLinks;
 
 	@Handler
 	private Mav list(){
-		Map<String,ConveyorAppListener> allBaseConveyors = injector.getInstancesOfType(ConveyorAppListener.class);
-		Map<Boolean,List<ConveyorSummary>> summariesByShouldRun = Scanner.of(allBaseConveyors.values())
+		Map<Boolean,List<ConveyorSummary>> summariesByShouldRun = injector.scanValuesOfType(ConveyorAppListener.class)
 				.map(ConveyorAppListener::getProcessorByConveyorName)
 				.concatIter(ConveyorSummary::summarize)
 				.groupBy(ConveyorSummary::shouldRun);
@@ -119,13 +119,17 @@ public class ConveyorHandler extends BaseHandler{
 				.withHtmlColumn(
 						makeThTagWithFixedWidth("Max Threads"),
 						row -> {
-							String href = clusterSettinglinkService.browse(makeSettingLocation(row.name()));
+							var linkParams = new ClusterSettingBrowseHandlerParams()
+									.withLocation(makeMaxThreadCountSettingLocation(row.name()));
+							String href = clusterSettingBrowseLinks.all(linkParams);
 							return td(a(String.valueOf(row.maxAllowedThreadCount())).withHref(href));
 				})
 				.withHtmlColumn(
 						makeThTagWithFixedWidth("Enabled"),
 						row -> {
-							String href = clusterSettinglinkService.browse(makeSettingLocation(row.name()));
+							var linkParams = new ClusterSettingBrowseHandlerParams()
+									.withLocation(makeShouldRunSettingLocation(row.name()));
+							String href = clusterSettingBrowseLinks.all(linkParams);
 							return td(a(String.valueOf(row.shouldRun())).withHref(href));
 				})
 				.withHtmlColumn(
@@ -151,9 +155,15 @@ public class ConveyorHandler extends BaseHandler{
 		return th(name).withStyle("width:100px;");
 	}
 
-	private String makeSettingLocation(String settingName){
+	private String makeShouldRunSettingLocation(String settingName){
 		return DatarouterConveyorSettingRoot.SETTING_NAME_PREFIX
 				+ DatarouterConveyorShouldRunSettings.SETTING_NAME_PREFIX
+				+ settingName;
+	}
+
+	private String makeMaxThreadCountSettingLocation(String settingName){
+		return DatarouterConveyorSettingRoot.SETTING_NAME_PREFIX
+				+ DatarouterConveyorThreadCountSettings.SETTING_NAME_PREFIX
 				+ settingName;
 	}
 

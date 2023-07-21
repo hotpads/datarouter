@@ -19,8 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
 
-import javax.inject.Inject;
-
 import io.datarouter.filesystem.snapshot.group.SnapshotGroup;
 import io.datarouter.filesystem.snapshot.group.SnapshotGroups;
 import io.datarouter.filesystem.snapshot.key.SnapshotKey;
@@ -36,6 +34,7 @@ import io.datarouter.web.html.j2html.J2HtmlTable;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import io.datarouter.web.requirejs.DatarouterWebRequireJsV2;
 import j2html.tags.specialized.TableTag;
+import jakarta.inject.Inject;
 
 public class DatarouterSnapshotEntryHandler extends BaseHandler{
 

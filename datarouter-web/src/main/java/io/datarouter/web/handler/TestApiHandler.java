@@ -23,8 +23,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import javax.inject.Singleton;
-
 import com.google.gson.GsonBuilder;
 
 import io.datarouter.gson.GsonJsonSerializer;
@@ -35,6 +33,7 @@ import io.datarouter.web.handler.mav.imp.MessageMav;
 import io.datarouter.web.handler.types.DefaultDecoder;
 import io.datarouter.web.handler.types.Param;
 import io.datarouter.web.handler.types.RequestBodyString;
+import jakarta.inject.Singleton;
 
 public class TestApiHandler extends BaseHandler{
 

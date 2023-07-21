@@ -112,8 +112,7 @@ public class SamlTool{
 
 	public static final String ROLE_GROUP_ATTRIBUTE_NAME = "groupAttributes";
 	public static final String ROLE_ATTRIBUTE_NAME = "roleAttributes";
-
-	public static final String DEFAULT_ENTITY_ID = "https://datarouter.io";
+	public static final Duration MESSAGE_LIFETIME = Duration.ofMinutes(1);
 
 	// AuthnRequest
 
@@ -210,7 +209,7 @@ public class SamlTool{
 		// handler to check timing
 		MessageLifetimeSecurityHandler lifetimeSecurityHandler = new MessageLifetimeSecurityHandler();
 		lifetimeSecurityHandler.setClockSkew(Duration.ofMillis(1000));
-		lifetimeSecurityHandler.setMessageLifetime(Duration.ofMinutes(1));
+		lifetimeSecurityHandler.setMessageLifetime(MESSAGE_LIFETIME);
 		lifetimeSecurityHandler.setRequiredRule(true);
 
 		// handler to check that this is the right destination

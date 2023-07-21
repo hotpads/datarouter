@@ -26,12 +26,10 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
-import javax.inject.Singleton;
-
 import io.datarouter.aws.s3.S3Headers.ContentType;
 import io.datarouter.aws.s3.S3Headers.S3ContentType;
 import io.datarouter.bytes.ByteLength;
-import io.datarouter.bytes.InputStreamAndLength;
+import io.datarouter.bytes.io.InputStreamAndLength;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.scanner.Threads;
 import io.datarouter.storage.file.BucketAndKey;
@@ -41,6 +39,7 @@ import io.datarouter.storage.file.BucketAndKeyVersions;
 import io.datarouter.storage.file.BucketAndKeys;
 import io.datarouter.storage.file.BucketAndPrefix;
 import io.datarouter.storage.node.op.raw.read.DirectoryDto;
+import jakarta.inject.Singleton;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.model.Bucket;
@@ -243,7 +242,7 @@ public class TestDatarouterS3Client implements DatarouterS3Client{
 	}
 
 	@Override
-	public Scanner<S3Object> scanAfter(BucketAndPrefix location, String startAfter, String delimiter){
+	public Scanner<List<S3Object>> scanAfterPaged(BucketAndPrefix location, String startAfter, String delimiter){
 		throw new UnsupportedOperationException();
 	}
 

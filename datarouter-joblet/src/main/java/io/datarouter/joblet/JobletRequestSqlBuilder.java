@@ -15,9 +15,6 @@
  */
 package io.datarouter.joblet;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.joblet.enums.JobletStatus;
 import io.datarouter.joblet.setting.DatarouterJobletSettingRoot;
 import io.datarouter.joblet.storage.jobletrequest.DatarouterJobletRequestDao;
@@ -29,6 +26,8 @@ import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.comparable.BooleanField;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.storage.sql.Sql;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class JobletRequestSqlBuilder{

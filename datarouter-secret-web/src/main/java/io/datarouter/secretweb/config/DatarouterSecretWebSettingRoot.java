@@ -15,9 +15,6 @@
  */
 package io.datarouter.secretweb.config;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.storage.config.environment.EnvironmentType;
 import io.datarouter.storage.servertype.ServerTypes;
 import io.datarouter.storage.setting.DatarouterSettingCategory;
@@ -25,6 +22,8 @@ import io.datarouter.storage.setting.DefaultSettingValue;
 import io.datarouter.storage.setting.Setting;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.SettingRoot;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterSecretWebSettingRoot extends SettingRoot{

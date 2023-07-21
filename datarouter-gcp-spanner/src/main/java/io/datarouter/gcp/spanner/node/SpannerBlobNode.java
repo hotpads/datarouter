@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import io.datarouter.bytes.InputStreamTool;
+import io.datarouter.bytes.io.InputStreamTool;
 import io.datarouter.gcp.spanner.SpannerClientManager;
 import io.datarouter.gcp.spanner.field.SpannerFieldCodecs;
 import io.datarouter.gcp.spanner.op.SpannerVacuum;
@@ -74,7 +74,7 @@ implements PhysicalBlobStorageNode{
 	}
 
 	@Override
-	public void write(PathbeanKey key, InputStream inputStream, Config config){
+	public void writeInputStream(PathbeanKey key, InputStream inputStream, Config config){
 		byte[] value = InputStreamTool.toArray(inputStream);
 		write(key, value, config);
 	}
@@ -152,7 +152,7 @@ implements PhysicalBlobStorageNode{
 	}
 
 	@Override
-	public byte[] read(PathbeanKey key, long offset, int length, Config config){
+	public byte[] readPartial(PathbeanKey key, long offset, int length, Config config){
 		var op = new SpannerGetBlobOp<>(
 				clientManager.getDatabaseClient(getClientId()),
 				getFieldInfo(),
@@ -166,7 +166,7 @@ implements PhysicalBlobStorageNode{
 	}
 
 	@Override
-	public Map<PathbeanKey,byte[]> read(List<PathbeanKey> keys, Config config){
+	public Map<PathbeanKey,byte[]> readMulti(List<PathbeanKey> keys, Config config){
 		var op = new SpannerGetBlobOp<>(
 				clientManager.getDatabaseClient(getClientId()),
 				getFieldInfo(),

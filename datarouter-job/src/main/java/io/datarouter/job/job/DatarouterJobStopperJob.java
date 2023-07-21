@@ -15,11 +15,10 @@
  */
 package io.datarouter.job.job;
 
-import javax.inject.Inject;
-
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
 import io.datarouter.job.service.JobStopperService;
+import jakarta.inject.Inject;
 
 public class DatarouterJobStopperJob extends BaseJob{
 

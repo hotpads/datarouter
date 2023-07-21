@@ -15,9 +15,6 @@
  */
 package io.datarouter.auth.config;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.auth.service.DatarouterAccountApiKeyPredicate;
 import io.datarouter.auth.service.DatarouterAccountSignatureValidator;
 import io.datarouter.auth.web.DatarouterAccountApiHandler;
@@ -26,6 +23,8 @@ import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
 import io.datarouter.web.security.SignatureValidator;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterAccountApiRouteSet extends BaseRouteSet{

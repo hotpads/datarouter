@@ -21,8 +21,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.inject.Inject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +32,7 @@ import io.datarouter.web.app.WebappName;
 import io.datarouter.webappinstance.storage.webappinstancelog.DatarouterWebappInstanceLogDao;
 import io.datarouter.webappinstance.storage.webappinstancelog.WebappInstanceLog;
 import io.datarouter.webappinstance.storage.webappinstancelog.WebappInstanceLogKey;
+import jakarta.inject.Inject;
 
 public class DeadClusterJobLockVacuumJob extends BaseJob{
 	private static final Logger logger = LoggerFactory.getLogger(DeadClusterJobLockVacuumJob.class);

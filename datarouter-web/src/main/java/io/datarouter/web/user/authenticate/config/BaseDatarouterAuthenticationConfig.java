@@ -19,7 +19,6 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
 
-import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
 import io.datarouter.util.string.StringTool;
@@ -27,6 +26,7 @@ import io.datarouter.web.app.WebappName;
 import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.user.DatarouterCookieKeys;
 import io.datarouter.web.user.authenticate.authenticator.DatarouterAuthenticator;
+import jakarta.inject.Inject;
 
 public class BaseDatarouterAuthenticationConfig implements DatarouterAuthenticationConfig{
 

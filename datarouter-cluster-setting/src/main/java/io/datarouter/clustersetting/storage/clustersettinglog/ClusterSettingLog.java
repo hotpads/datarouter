@@ -19,8 +19,8 @@ import java.time.Instant;
 import java.util.List;
 import java.util.function.Supplier;
 
-import io.datarouter.clustersetting.ClusterSettingLogAction;
-import io.datarouter.clustersetting.ClusterSettingScope;
+import io.datarouter.clustersetting.enums.ClusterSettingLogAction;
+import io.datarouter.clustersetting.enums.ClusterSettingScope;
 import io.datarouter.clustersetting.storage.clustersetting.ClusterSetting;
 import io.datarouter.clustersetting.storage.clustersetting.ClusterSettingKey;
 import io.datarouter.model.databean.BaseDatabean;

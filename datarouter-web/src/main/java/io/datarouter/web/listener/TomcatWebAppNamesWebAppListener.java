@@ -18,13 +18,13 @@ package io.datarouter.web.listener;
 import java.util.Map;
 import java.util.TreeMap;
 
-import javax.inject.Singleton;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
 import io.datarouter.util.JmxTool;
 import io.datarouter.util.singletonsupplier.SingletonSupplier;
 import io.datarouter.util.string.StringTool;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class TomcatWebAppNamesWebAppListener extends DatarouterWebAppListener{

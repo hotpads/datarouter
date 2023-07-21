@@ -19,15 +19,14 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.List;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.aws.memcached.client.options.AwsMemcachedOptions;
 import io.datarouter.client.memcached.client.BaseMemcachedClientManager;
 import io.datarouter.client.memcached.client.DatarouterMemcachedClient;
 import io.datarouter.client.memcached.client.MemcachedClientHolder;
 import io.datarouter.client.memcached.client.SpyMemcachedClient;
 import io.datarouter.storage.client.ClientId;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import net.spy.memcached.DefaultConnectionFactory;
 import net.spy.memcached.KetamaConnectionFactory;
 

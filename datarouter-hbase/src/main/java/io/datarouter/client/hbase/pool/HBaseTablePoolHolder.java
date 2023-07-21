@@ -18,9 +18,6 @@ package io.datarouter.client.hbase.pool;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.apache.hadoop.hbase.client.Connection;
 
 import io.datarouter.client.hbase.client.HBaseConnectionHolder;
@@ -29,6 +26,8 @@ import io.datarouter.client.hbase.config.DatarouterHBaseSettingRoot;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.client.DatarouterClients;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class HBaseTablePoolHolder{

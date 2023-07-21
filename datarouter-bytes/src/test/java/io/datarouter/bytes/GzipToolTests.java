@@ -17,14 +17,65 @@ package io.datarouter.bytes;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.List;
+import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import io.datarouter.bytes.codec.bytestringcodec.HexByteStringCodec;
 import io.datarouter.bytes.codec.stringcodec.StringCodec;
+import io.datarouter.bytes.compress.gzip.GzipTool;
+import io.datarouter.bytes.io.InputStreamTool;
 import io.datarouter.scanner.Scanner;
 
 public class GzipToolTests{
+	private static final Logger logger = LoggerFactory.getLogger(GzipToolTests.class);
+
+	@Test
+	public void testEncodeDecode(){
+		String input = "0123456789";
+		byte[] inputBytes = StringCodec.UTF_8.encode(input);
+		byte[] compressedBytes = GzipTool.encode(inputBytes);
+//		HexBlockTool.print(compressedData);
+		String hex = "1f8b08000000000000ff3330343236313533b7b00400c6c784a60a000000";
+		byte[] hexBytes = HexBlockTool.fromHexBlock(hex);
+		Assert.assertEquals(compressedBytes, hexBytes);
+		byte[] decompressedBytes = GzipTool.decode(compressedBytes);
+		Assert.assertEquals(decompressedBytes, inputBytes);
+		String output = StringCodec.UTF_8.decode(decompressedBytes);
+		Assert.assertEquals(output, input);
+	}
+
+	@Test
+	public void testIndividualValues(){
+		var toBytes = StringCodec.UTF_8;
+		var toGzip = GzipTool.CODEC;
+		var toHex = HexByteStringCodec.INSTANCE;
+		Codec<String,String> toBytesToGzipToHex = Codec.of(
+				input -> Optional.of(input)
+						.map(toBytes::encode)
+						.map(toGzip::encode)
+						.map(toHex::encode)
+						.orElseThrow(),
+				hex -> Optional.of(hex)
+						.map(toHex::decode)
+						.map(toGzip::decode)
+						.map(toBytes::decode)
+						.orElseThrow());
+		List<String> values = List.of("Dolphins", "are", "mammals");
+		List<String> encodedValues = Scanner.of(values)
+				.map(toBytesToGzipToHex::encode)
+				.list();
+		encodedValues.forEach(encodedValue -> logger.info("encoded={}", encodedValue));
+		List<String> decodedValues = Scanner.of(encodedValues)
+				.map(toBytesToGzipToHex::decode)
+				.list();
+		decodedValues.forEach(decodedValue -> logger.info("decoded={}", decodedValue));
+		Assert.assertEquals(decodedValues, values);
+	}
 
 	@Test
 	public void testEncodeInputStream(){

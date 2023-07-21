@@ -17,10 +17,9 @@ package io.datarouter.storage.config.properties;
 
 import java.util.function.Supplier;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.storage.config.ComputedPropertiesFinder;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class EnvironmentName implements Supplier<String>{
@@ -37,6 +36,11 @@ public class EnvironmentName implements Supplier<String>{
 	@Override
 	public String get(){
 		return environmentName;
+	}
+
+	@Deprecated
+	public boolean deprecatedIsProduction(){
+		return "production".equals(environmentName);
 	}
 
 }

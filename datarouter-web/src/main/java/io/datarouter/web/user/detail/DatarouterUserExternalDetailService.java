@@ -18,7 +18,7 @@ package io.datarouter.web.user.detail;
 import java.io.ByteArrayOutputStream;
 import java.util.Optional;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterUserExternalDetailService{

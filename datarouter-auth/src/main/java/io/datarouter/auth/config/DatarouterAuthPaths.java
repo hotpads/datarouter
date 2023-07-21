@@ -15,13 +15,12 @@
  */
 package io.datarouter.auth.config;
 
-import javax.inject.Singleton;
-
 import io.datarouter.pathnode.PathNode;
 import io.datarouter.pathnode.PathsRoot;
 import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.config.DatarouterWebPaths.PermissionRequestPaths;
 import io.datarouter.web.config.DatarouterWebPaths.SigninPaths;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterAuthPaths extends PathNode implements PathsRoot{

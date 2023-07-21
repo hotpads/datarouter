@@ -30,8 +30,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-import javax.inject.Inject;
-
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.duration.DatarouterDuration;
 import io.datarouter.util.time.ZonedDateFormatterTool;
@@ -50,6 +48,7 @@ import io.datarouter.webappinstance.storage.webappinstancelog.DatarouterWebappIn
 import io.datarouter.webappinstance.storage.webappinstancelog.WebappInstanceLog;
 import io.datarouter.webappinstance.storage.webappinstancelog.WebappInstanceLogKey;
 import j2html.tags.specialized.DivTag;
+import jakarta.inject.Inject;
 
 public class WebappInstanceHistoryHandler extends BaseHandler{
 

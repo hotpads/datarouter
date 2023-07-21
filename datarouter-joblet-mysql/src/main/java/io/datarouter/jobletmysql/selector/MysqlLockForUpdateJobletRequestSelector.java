@@ -17,9 +17,6 @@ package io.datarouter.jobletmysql.selector;
 
 import java.util.Optional;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.client.mysql.execution.SessionExecutor;
 import io.datarouter.client.mysql.field.codec.factory.MysqlFieldCodecFactory;
 import io.datarouter.client.mysql.sql.MysqlSqlFactory;
@@ -37,6 +34,8 @@ import io.datarouter.jobletmysql.txn.GetJobletRequest;
 import io.datarouter.plugin.PluginConfigKey;
 import io.datarouter.storage.client.DatarouterClients;
 import io.datarouter.util.timer.PhaseTimer;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class MysqlLockForUpdateJobletRequestSelector implements JobletRequestSelector{

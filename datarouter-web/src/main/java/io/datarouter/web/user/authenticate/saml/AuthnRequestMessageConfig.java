@@ -27,8 +27,12 @@ public class AuthnRequestMessageConfig{
 	public final Optional<Integer> proxyCount;
 	public final Optional<KeyPair> signingKeyPair;
 
-	public AuthnRequestMessageConfig(String serviceProviderEntityId, String serviceProviderAssertionConsumerServiceUrl,
-			String identityProviderSingleSignOnServiceUrl, String relayState, Integer proxyCount,
+	public AuthnRequestMessageConfig(
+			String serviceProviderEntityId,
+			String serviceProviderAssertionConsumerServiceUrl,
+			String identityProviderSingleSignOnServiceUrl,
+			String relayState,
+			Integer proxyCount,
 			KeyPair signingKeyPair){
 		this.serviceProviderEntityId = serviceProviderEntityId;
 		this.serviceProviderAssertionConsumerServiceUrl = serviceProviderAssertionConsumerServiceUrl;

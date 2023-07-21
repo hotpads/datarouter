@@ -37,7 +37,7 @@ public class DatarouterDuration{
 	public static final String REGEX =
 			"^0$|^(m|M)(a|A)(x|X)$|^((\\d+d)?(\\d+h)?(\\d+m)?(\\d+s)?(\\d+ms)?(\\d+us)?){1,1}$";
 
-	private static final TimeUnit[] TIME_UNITS = new TimeUnit[]{
+	private static final TimeUnit[] TIME_UNITS = {
 		TimeUnit.DAYS,
 		TimeUnit.HOURS,
 		TimeUnit.MINUTES,

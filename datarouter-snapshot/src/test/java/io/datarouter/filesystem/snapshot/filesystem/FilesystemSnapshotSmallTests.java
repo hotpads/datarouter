@@ -17,14 +17,13 @@ package io.datarouter.filesystem.snapshot.filesystem;
 
 import java.util.List;
 
-import javax.inject.Inject;
-
 import org.testng.annotations.Guice;
 
 import io.datarouter.filesystem.DatarouterSnapshotModuleFactory;
 import io.datarouter.filesystem.snapshot.BaseSnapshotTests;
 import io.datarouter.filesystem.snapshot.group.SnapshotGroup;
 import io.datarouter.scanner.Scanner;
+import jakarta.inject.Inject;
 
 /**
  * Test a very small amount of data to verify the basics work.

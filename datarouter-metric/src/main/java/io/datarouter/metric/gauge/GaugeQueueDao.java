@@ -17,14 +17,12 @@ package io.datarouter.metric.gauge;
 
 import java.util.List;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.binarydto.codec.BinaryDtoIndexedCodec;
 import io.datarouter.metric.dto.GaugeBinaryDto;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
+import io.datarouter.storage.config.properties.EnvironmentName;
 import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.QueueNodeFactory;
@@ -32,6 +30,8 @@ import io.datarouter.storage.node.op.raw.BlobQueueStorage.BlobQueueStorageNode;
 import io.datarouter.storage.queue.consumer.BlobQueueConsumer;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.virtualnode.redundant.RedundantBlobQueueStorageNode;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class GaugeQueueDao extends BaseDao{
@@ -47,17 +47,21 @@ public class GaugeQueueDao extends BaseDao{
 	private final BlobQueueStorageNode<GaugeBinaryDto> node;
 
 	@Inject
-	public GaugeQueueDao(Datarouter datarouter, GaugeQueueDaoParams params, QueueNodeFactory queueNodeFactory){
+	public GaugeQueueDao(
+			Datarouter datarouter,
+			GaugeQueueDaoParams params,
+			QueueNodeFactory queueNodeFactory,
+			EnvironmentName environmentNameSupplier){
 		super(datarouter);
+		String namespace = environmentNameSupplier.deprecatedIsProduction()
+				? "shared"
+				: environmentNameSupplier.get() + "-shared";
 		node = Scanner.of(params.clientIds)
-				.map(clientId -> {
-					var node = queueNodeFactory
-							.createBlobQueue(clientId, "GaugeBinaryDto", BinaryDtoIndexedCodec.of(GaugeBinaryDto.class))
-							.withNamespace("shared")
-							.withTag(Tag.DATAROUTER)
-							.build();
-					return node;
-				})
+				.map(clientId -> queueNodeFactory
+						.createBlobQueue(clientId, "GaugeBinaryDto", BinaryDtoIndexedCodec.of(GaugeBinaryDto.class))
+						.withNamespace(namespace)
+						.withTag(Tag.DATAROUTER)
+						.build())
 				.listTo(RedundantBlobQueueStorageNode::makeIfMulti);
 		datarouter.register(node);
 	}

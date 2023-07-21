@@ -15,11 +15,10 @@
  */
 package io.datarouter.joblet.queue;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.joblet.enums.JobletQueueMechanism;
 import io.datarouter.joblet.setting.DatarouterJobletSettingRoot;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class JobletRequestSelectorFactory{

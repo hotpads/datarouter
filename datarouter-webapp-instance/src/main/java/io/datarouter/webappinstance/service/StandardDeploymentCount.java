@@ -15,7 +15,7 @@
  */
 package io.datarouter.webappinstance.service;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 public interface StandardDeploymentCount{
 

@@ -45,31 +45,39 @@ public abstract class BaseBinaryDto<T extends BaseBinaryDto<T>>{
 
 	/*----------- fields -----------*/
 
-	public abstract List<Field> getFieldsOrdered();
+	public abstract List<Field> getPresentFields();
 
+	public final Scanner<Field> scanPresentFields(){
+		return Scanner.of(getPresentFields());
+	}
+
+	/**
+	 * Find the value for each present index.
+	 */
 	public final Object[] getFieldValuesArray(){
-		List<Field> fields = getFieldsOrdered();
-		int numFields = fields.size();
-		var values = new Object[numFields];
-		for(int i = 0; i < numFields; ++i){
+		List<Field> fields = getPresentFields();
+		var values = new Object[fields.size()];
+		for(int i = 0; i < fields.size(); ++i){
 			Field field = fields.get(i);
-			values[i] = BinaryDtoReflectionTool.getUnchecked(field, this);
+			if(field != null){
+				values[i] = BinaryDtoReflectionTool.getUnchecked(field, this);
+			}
 		}
 		return values;
 	}
 
 	public final Scanner<String> scanFieldNames(){
-		return Scanner.of(getFieldsOrdered())
+		return scanPresentFields()
 				.map(Field::getName);
 	}
 
 	public final Scanner<Object> scanFieldValues(){
-		return Scanner.of(getFieldsOrdered())
+		return scanPresentFields()
 				.map(field -> BinaryDtoReflectionTool.getUnchecked(field, this));
 	}
 
 	public final Scanner<FieldNameAndValue> scanFieldNamesAndValues(){
-		return Scanner.of(getFieldsOrdered())
+		return scanPresentFields()
 				.map(field -> new FieldNameAndValue(
 						field.getName(),
 						BinaryDtoReflectionTool.getUnchecked(field, this)));
@@ -93,7 +101,7 @@ public abstract class BaseBinaryDto<T extends BaseBinaryDto<T>>{
 		if(getClass() != obj.getClass()){
 			return false;
 		}
-		return Scanner.of(getFieldsOrdered())
+		return scanPresentFields()
 				.allMatch(field -> Objects.deepEquals(
 						BinaryDtoReflectionTool.getUnchecked(field, this),
 						BinaryDtoReflectionTool.getUnchecked(field, obj)));

@@ -32,7 +32,7 @@ public class SecretHandlerOpRequestDto{
 		this.secretClass = secretClass;
 	}
 
-	public static enum SecretOpDto{
+	public enum SecretOpDto{
 
 		CREATE("create"),
 		READ("read"),

@@ -17,9 +17,6 @@ package io.datarouter.changelog.service;
 
 import java.time.Instant;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.changelog.config.DatarouterChangelogSettingRoot;
 import io.datarouter.changelog.storage.Changelog;
 import io.datarouter.changelog.storage.ChangelogDao;
@@ -27,6 +24,8 @@ import io.datarouter.instrumentation.changelog.ChangelogDto;
 import io.datarouter.instrumentation.changelog.ChangelogPublisher;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.storage.config.properties.ServiceName;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class ChangelogRecorderService implements ChangelogRecorder{

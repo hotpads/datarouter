@@ -17,15 +17,14 @@ package io.datarouter.auth.cache;
 
 import java.time.Duration;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.auth.storage.user.DatarouterUserDao;
 import io.datarouter.util.cache.LoadingCache.LoadingCacheBuilder;
 import io.datarouter.util.cache.LoadingCacheWrapper;
 import io.datarouter.web.exception.InvalidCredentialsException;
 import io.datarouter.web.user.databean.DatarouterUser;
 import io.datarouter.web.user.databean.DatarouterUser.DatarouterUserByUsernameLookup;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterUserByUsernameCache extends LoadingCacheWrapper<String,DatarouterUser>{

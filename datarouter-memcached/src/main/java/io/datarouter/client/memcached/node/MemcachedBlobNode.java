@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-import io.datarouter.bytes.InputStreamTool;
+import io.datarouter.bytes.io.InputStreamTool;
 import io.datarouter.client.memcached.client.DatarouterMemcachedClient;
 import io.datarouter.client.memcached.codec.MemcachedBlobCodec;
 import io.datarouter.client.memcached.util.MemcachedExpirationTool;
@@ -102,19 +102,19 @@ implements PhysicalBlobStorageNode{
 	}
 
 	@Override
-	public Map<PathbeanKey,byte[]> read(List<PathbeanKey> keys, Config config){
-		return scanMultiInternal(keys)
-				.toMap(MemcachedPathbeanResult::key, MemcachedPathbeanResult::value);
-	}
-
-	@Override
-	public byte[] read(PathbeanKey key, long offset, int length, Config config){
+	public byte[] readPartial(PathbeanKey key, long offset, int length, Config config){
 		int intOffset = (int)offset;
 		return scanMultiInternal(List.of(key))
 				.findFirst()
 				.map(MemcachedPathbeanResult::value)
 				.map(bytes -> Arrays.copyOfRange(bytes, intOffset, intOffset + length))
 				.orElse(null);
+	}
+
+	@Override
+	public Map<PathbeanKey,byte[]> readMulti(List<PathbeanKey> keys, Config config){
+		return scanMultiInternal(keys)
+				.toMap(MemcachedPathbeanResult::key, MemcachedPathbeanResult::value);
 	}
 
 	@Override
@@ -139,7 +139,7 @@ implements PhysicalBlobStorageNode{
 	}
 
 	@Override
-	public void write(PathbeanKey key, InputStream inputStream, Config config){
+	public void writeInputStream(PathbeanKey key, InputStream inputStream, Config config){
 		byte[] value = InputStreamTool.toArray(inputStream);
 		write(key, value, config);
 	}

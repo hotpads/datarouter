@@ -29,12 +29,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.aws.s3.DatarouterS3ClientManager;
+import io.datarouter.aws.s3.DatarouterS3Counters;
+import io.datarouter.aws.s3.DatarouterS3Counters.S3CounterSuffix;
 import io.datarouter.aws.s3.MultipartUploadPartSize;
+import io.datarouter.aws.s3.S3CostCounters;
 import io.datarouter.aws.s3.S3Headers.S3ContentType;
 import io.datarouter.bytes.ByteLength;
-import io.datarouter.bytes.ExposedByteArrayOutputStream;
-import io.datarouter.bytes.InputStreamAndLength;
-import io.datarouter.bytes.InputStreamTool;
+import io.datarouter.bytes.io.ExposedByteArrayOutputStream;
+import io.datarouter.bytes.io.InputStreamAndLength;
+import io.datarouter.bytes.io.InputStreamTool;
 import io.datarouter.instrumentation.trace.TraceSpanGroupType;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.scanner.Scanner;
@@ -93,7 +96,7 @@ public class DatarouterS3MultipartRequests{
 				// RequestBody.fromInputStream avoids duplicating the data.
 				RequestBody requestBody = RequestBody.fromInputStream(bufferInputStream, buffer.size());
 				UploadPartResponse response;
-				try(var $ = TracerTool.startSpan("S3 uploadPart", TraceSpanGroupType.CLOUD_STORAGE)){
+				try(var $ = TracerTool.startSpan("S3 uploadPartFromOutputStream", TraceSpanGroupType.CLOUD_STORAGE)){
 					response = s3Client.uploadPart(uploadPartRequest, requestBody);
 					TracerTool.appendToSpanInfo("Content-Length", uploadPartRequest.contentLength());
 				}
@@ -155,7 +158,6 @@ public class DatarouterS3MultipartRequests{
 			S3ContentType contentType,
 			Optional<ObjectCannedACL> acl,
 			InputStream inputStream){
-		S3Client s3Client = clientManager.getS3ClientForBucket(location.bucket());
 		String uploadId = createMultipartUploadRequest(location, contentType, acl);
 		int partNumber = FIRST_PART_NUMBER;
 		byte[] buffer = new byte[MultipartUploadPartSize.sizeForPart(partNumber)];
@@ -163,27 +165,9 @@ public class DatarouterS3MultipartRequests{
 		int numBytesRead;
 		try(var $inputStream = inputStream){
 			while((numBytesRead = InputStreamTool.readUntilLength(inputStream, buffer, 0, buffer.length)) > 0){
-				UploadPartRequest uploadPartRequest = UploadPartRequest.builder()
-						.bucket(location.bucket())
-						.key(location.key())
-						.uploadId(uploadId)
-						.partNumber(partNumber)
-						.build();
-				InputStream bufferAsInputStream = new ByteArrayInputStream(buffer, 0, numBytesRead);
-				RequestBody requestBody = RequestBody.fromInputStream(bufferAsInputStream, numBytesRead);
-				UploadPartResponse uploadPartResponse;
-				try(var $ = TracerTool.startSpan("S3 uploadPart", TraceSpanGroupType.CLOUD_STORAGE)){
-					uploadPartResponse = s3Client.uploadPart(uploadPartRequest, requestBody);
-					TracerTool.appendToSpanInfo("Content-Length", uploadPartRequest.contentLength());
-					logger.info("Uploaded {}, partId={}, size={}",
-							location,
-							partNumber,
-							ByteLength.ofBytes(numBytesRead).toDisplay());
-				}
-				CompletedPart completedPart = CompletedPart.builder()
-						.partNumber(partNumber)
-						.eTag(uploadPartResponse.eTag())
-						.build();
+				var bufferAsInputStream = new ByteArrayInputStream(buffer, 0, numBytesRead);
+				var inputStreamAndLength = new InputStreamAndLength(bufferAsInputStream, numBytesRead);
+				CompletedPart completedPart = uploadPart(location, uploadId, partNumber, inputStreamAndLength);
 				completedParts.add(completedPart);
 				++partNumber;
 				int nextBufferSize = MultipartUploadPartSize.sizeForPart(partNumber);
@@ -295,6 +279,7 @@ public class DatarouterS3MultipartRequests{
 			BucketAndKey location,
 			S3ContentType contentType,
 			Optional<ObjectCannedACL> aclOpt){
+		DatarouterS3Counters.inc(location.bucket(), S3CounterSuffix.MULTIPART_CREATE_REQUESTS, 1);
 		CreateMultipartUploadRequest createRequest = CreateMultipartUploadRequest.builder()
 				.acl(aclOpt.orElse(null))
 				.bucket(location.bucket())
@@ -306,6 +291,7 @@ public class DatarouterS3MultipartRequests{
 		try(var $ = TracerTool.startSpan("S3 createMultipartUpload", TraceSpanGroupType.CLOUD_STORAGE)){
 			createResponse = s3Client.createMultipartUpload(createRequest);
 		}
+		S3CostCounters.write();// Cost uncertain
 		return createResponse.uploadId();
 	}
 
@@ -314,6 +300,7 @@ public class DatarouterS3MultipartRequests{
 			String uploadId,
 			int partNumber,
 			InputStreamAndLength inputStreamAndLength){
+		DatarouterS3Counters.inc(location.bucket(), S3CounterSuffix.MULTIPART_UPLOAD_REQUESTS, 1);
 		UploadPartRequest uploadPartRequest = UploadPartRequest.builder()
 				.bucket(location.bucket())
 				.key(location.key())
@@ -325,7 +312,7 @@ public class DatarouterS3MultipartRequests{
 				inputStreamAndLength.length());
 		S3Client s3Client = clientManager.getS3ClientForBucket(location.bucket());
 		UploadPartResponse uploadPartResponse;
-		try(var $ = TracerTool.startSpan("S3 parallelUploadPart", TraceSpanGroupType.CLOUD_STORAGE)){
+		try(var $ = TracerTool.startSpan("S3 uploadPart", TraceSpanGroupType.CLOUD_STORAGE)){
 			uploadPartResponse = s3Client.uploadPart(uploadPartRequest, requestBody);
 			TracerTool.appendToSpanInfo("Content-Length", uploadPartRequest.contentLength());
 			logger.info(
@@ -334,6 +321,11 @@ public class DatarouterS3MultipartRequests{
 					partNumber,
 					ByteLength.ofBytes(inputStreamAndLength.length()).toDisplay());
 		}
+		DatarouterS3Counters.inc(
+				location.bucket(),
+				S3CounterSuffix.MULTIPART_UPLOAD_BYTES,
+				inputStreamAndLength.length());
+		S3CostCounters.write();
 		return CompletedPart.builder()
 				.partNumber(partNumber)
 				.eTag(uploadPartResponse.eTag())
@@ -344,6 +336,7 @@ public class DatarouterS3MultipartRequests{
 			BucketAndKey location,
 			String uploadId,
 			List<CompletedPart> completedParts){
+		DatarouterS3Counters.inc(location.bucket(), S3CounterSuffix.MULTIPART_COMPLETE_REQUESTS, 1);
 		List<CompletedPart> allCompletedParts = new ArrayList<>(completedParts);
 		if(completedParts.isEmpty()){
 			// Need to provide an empty part or S3 will error
@@ -370,12 +363,14 @@ public class DatarouterS3MultipartRequests{
 		try(var $ = TracerTool.startSpan("S3 completeMultipartUpload", TraceSpanGroupType.CLOUD_STORAGE)){
 			s3Client.completeMultipartUpload(completeMultipartUploadRequest);
 		}
+		S3CostCounters.write();// Cost uncertain
 	}
 
 	public void abortMultipartUploadRequest(
 			BucketAndKey location,
 			String uploadId){
 		logger.warn("Aborting {}", location);
+		DatarouterS3Counters.inc(location.bucket(), S3CounterSuffix.MULTIPART_ABORT_REQUESTS, 1);
 		AbortMultipartUploadRequest abortRequest = AbortMultipartUploadRequest.builder()
 				.bucket(location.bucket())
 				.key(location.key())
@@ -385,6 +380,7 @@ public class DatarouterS3MultipartRequests{
 		try(var $ = TracerTool.startSpan("S3 abortMultipartUpload", TraceSpanGroupType.CLOUD_STORAGE)){
 			s3Client.abortMultipartUpload(abortRequest);
 		}
+		S3CostCounters.write();// Cost uncertain
 		logger.warn("Aborted {}", location);
 	}
 

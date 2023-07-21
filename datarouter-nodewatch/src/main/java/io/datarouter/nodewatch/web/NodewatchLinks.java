@@ -15,16 +15,16 @@
  */
 package io.datarouter.nodewatch.web;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.apache.http.client.utils.URIBuilder;
 
 import io.datarouter.nodewatch.config.DatarouterNodewatchPaths;
+import io.datarouter.nodewatch.web.handler.NodewatchTableStorageHandler;
 import io.datarouter.nodewatch.web.handler.NodewatchTableActionsHandler;
 import io.datarouter.nodewatch.web.handler.NodewatchTableHandler;
 import io.datarouter.nodewatch.web.handler.NodewatchThresholdEditHandler;
 import io.datarouter.web.config.ServletContextSupplier;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class NodewatchLinks{
@@ -70,6 +70,14 @@ public class NodewatchLinks{
 				.setPath(contextSupplier.getContextPath() + paths.datarouter.nodewatch.table.toSlashedString())
 				.addParameter(NodewatchTableHandler.P_clientName, clientName)
 				.addParameter(NodewatchTableHandler.P_tableName, tableName);
+		return uriBuilder.toString();
+	}
+
+	public String tableStorage(String clientName, String tableName){
+		var uriBuilder = new URIBuilder()
+				.setPath(contextSupplier.getContextPath() + paths.datarouter.nodewatch.table.storage.toSlashedString())
+				.addParameter(NodewatchTableStorageHandler.P_clientName, clientName)
+				.addParameter(NodewatchTableStorageHandler.P_tableName, tableName);
 		return uriBuilder.toString();
 	}
 

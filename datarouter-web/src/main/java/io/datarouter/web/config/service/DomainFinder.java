@@ -17,10 +17,9 @@ package io.datarouter.web.config.service;
 
 import java.util.Collection;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.storage.config.properties.ServerClusterDomains;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DomainFinder{

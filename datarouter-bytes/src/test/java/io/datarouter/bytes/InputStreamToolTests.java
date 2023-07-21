@@ -21,6 +21,8 @@ import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import io.datarouter.bytes.io.InputStreamTool;
+
 public class InputStreamToolTests{
 
 	@Test

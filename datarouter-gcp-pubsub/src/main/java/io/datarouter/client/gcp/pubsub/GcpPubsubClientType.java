@@ -15,14 +15,13 @@
  */
 package io.datarouter.client.gcp.pubsub;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.client.gcp.pubsub.client.GcpPubsubClientManager;
 import io.datarouter.client.gcp.pubsub.config.PubSubPluginValidator;
 import io.datarouter.client.gcp.pubsub.web.GcpPubsubWebInspector;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.web.browse.DatarouterClientWebInspectorRegistry;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class GcpPubsubClientType implements ClientType<GcpPubsubClientNodeFactory,GcpPubsubClientManager>{

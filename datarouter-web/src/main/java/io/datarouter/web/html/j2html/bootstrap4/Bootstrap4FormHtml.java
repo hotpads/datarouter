@@ -28,6 +28,7 @@ import static j2html.TagCreator.textarea;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Optional;
 
 import io.datarouter.scanner.Scanner;
 import io.datarouter.web.handler.BaseHandler;
@@ -110,10 +111,16 @@ public class Bootstrap4FormHtml{
 
 	private static DivTag submitButton(HtmlFormButton field){
 		var button = button(field.getDisplay())
-				.withClass("btn btn-success mx-1")
 				.withName(BaseHandler.SUBMIT_ACTION)// Ideally this would not be here
 				.withType("submit")
 				.withValue(field.getValue());
+		Optional.ofNullable(field.getClazz())
+				.ifPresentOrElse(
+						button::withClass,
+						() -> button.withClass("btn btn-success mx-1"));
+		Optional.ofNullable(field.getOnClickConfirmText())
+				.ifPresent(text -> button
+						.attr("onclick", "return confirm('" + field.getOnClickConfirmText() + "')"));
 		return div(button)
 				.withClass("form-group");
 	}

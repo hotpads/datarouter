@@ -18,9 +18,6 @@ package io.datarouter.exception.conveyors;
 import java.time.Duration;
 import java.time.Instant;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +31,8 @@ import io.datarouter.instrumentation.exception.DatarouterExceptionPublisher;
 import io.datarouter.instrumentation.exception.HttpRequestRecordBatchDto;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.scanner.Scanner;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class HttpRequestRecordMemoryToPublisherConveyorConfiguration implements ConveyorConfiguration{
@@ -66,12 +65,13 @@ public class HttpRequestRecordMemoryToPublisherConveyorConfiguration implements 
 		try{
 			exceptionRecordPublisher.addHttpRequestRecord(batch);
 			ConveyorCounters.incPutMultiOpAndDatabeans(conveyor, batch.records().size());
+			return new ProcessResult(batch.records().size() == BATCH_SIZE);
 		}catch(Exception putMultiException){
 			logger.warn("", putMultiException);
 			ConveyorCounters.inc(conveyor, "putMulti exception", 1);
+			// try it again
+			return new ProcessResult(true);
 		}
-		//process as many as possible if shutting down
-		return new ProcessResult(conveyor.isShuttingDown());
 	}
 
 	@Override

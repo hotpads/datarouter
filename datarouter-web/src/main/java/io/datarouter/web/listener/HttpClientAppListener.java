@@ -15,11 +15,10 @@
  */
 package io.datarouter.web.listener;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.httpclient.client.DatarouterHttpClient;
 import io.datarouter.inject.InstanceRegistry;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class HttpClientAppListener implements DatarouterAppListener{

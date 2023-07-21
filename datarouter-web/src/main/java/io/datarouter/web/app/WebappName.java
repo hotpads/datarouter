@@ -15,11 +15,11 @@
  */
 package io.datarouter.web.app;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import javax.servlet.ServletContext;
 
 import io.datarouter.web.config.ServletContextSupplier;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class WebappName{

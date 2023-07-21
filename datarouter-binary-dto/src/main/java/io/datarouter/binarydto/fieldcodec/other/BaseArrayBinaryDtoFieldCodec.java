@@ -21,7 +21,7 @@ import java.util.List;
 import io.datarouter.binarydto.fieldcodec.BinaryDtoBaseFieldCodec;
 import io.datarouter.binarydto.internal.BinaryDtoNullFieldTool;
 import io.datarouter.bytes.ByteTool;
-import io.datarouter.bytes.VarIntTool;
+import io.datarouter.bytes.varint.VarIntTool;
 
 public abstract class BaseArrayBinaryDtoFieldCodec<T,A>
 extends BinaryDtoBaseFieldCodec<A>{
@@ -39,7 +39,6 @@ extends BinaryDtoBaseFieldCodec<A>{
 		return false;
 	}
 
-	//TODO should it include the size?  It makes decoding more efficient but ruins comparability
 	public byte[] encodeInternal(List<T> value){
 		int size = value.size();
 		List<byte[]> byteArrays = new ArrayList<>(1 + 2 * size);//null indicator and value for each item

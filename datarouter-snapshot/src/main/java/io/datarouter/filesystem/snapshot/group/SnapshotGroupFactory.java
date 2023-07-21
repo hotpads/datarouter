@@ -15,13 +15,12 @@
  */
 package io.datarouter.filesystem.snapshot.group;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.filesystem.snapshot.encode.RootBlockDecoder;
 import io.datarouter.filesystem.snapshot.path.SnapshotPathsRegistry;
 import io.datarouter.filesystem.snapshot.reader.block.DecodingBlockLoaderFactory;
 import io.datarouter.storage.file.Directory;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class SnapshotGroupFactory{

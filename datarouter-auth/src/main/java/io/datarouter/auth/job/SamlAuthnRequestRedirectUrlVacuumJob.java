@@ -15,11 +15,10 @@
  */
 package io.datarouter.auth.job;
 
-import javax.inject.Inject;
-
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
 import io.datarouter.web.user.authenticate.saml.DatarouterSamlDao;
+import jakarta.inject.Inject;
 
 public class SamlAuthnRequestRedirectUrlVacuumJob extends BaseJob{
 

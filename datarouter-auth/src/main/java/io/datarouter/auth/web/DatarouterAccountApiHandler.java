@@ -15,11 +15,10 @@
  */
 package io.datarouter.auth.web;
 
-import javax.inject.Inject;
-
 import io.datarouter.auth.service.DatarouterAccountCredentialService;
 import io.datarouter.httpclient.dto.DatarouterAccountCredentialStatusDto;
 import io.datarouter.web.handler.BaseHandler;
+import jakarta.inject.Inject;
 
 public class DatarouterAccountApiHandler extends BaseHandler{
 

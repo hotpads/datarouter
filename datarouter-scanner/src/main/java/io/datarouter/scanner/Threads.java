@@ -16,19 +16,42 @@
 package io.datarouter.scanner;
 
 import java.util.concurrent.ExecutorService;
-import java.util.function.Supplier;
 
 /**
  * Encapsulates an ExecutorService and thread allocation for limiting the number of threads used by an operation.
  */
 public record Threads(
 		ExecutorService exec,
-		int count){
+		int count,
+		boolean useCallerForSingleThread){
 
-	public Threads(
-			ExecutorService exec,
-			Supplier<Integer> count){
-		this(exec, count.get());
+	public Threads{
+		if(count < 1){
+			String message = String.format("count=%s must be greater than 0", count);
+			throw new IllegalArgumentException(message);
+		}
+	}
+
+	public Threads(ExecutorService exec, int count){
+		this(exec, count, true);
+	}
+
+	public static Threads none(){
+		return new Threads(null, 1, true);
+	}
+
+	public static Threads useExecForSingleThread(ExecutorService exec, int count){
+		return new Threads(exec, count, false);
+	}
+
+	boolean useExec(){
+		if(exec == null){
+			return false;
+		}
+		if(count > 1){
+			return true;
+		}
+		return !useCallerForSingleThread;
 	}
 
 }

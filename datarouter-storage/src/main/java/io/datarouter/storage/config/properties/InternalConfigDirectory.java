@@ -20,11 +20,10 @@ import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.function.Supplier;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.storage.config.ComputedPropertiesFinder;
 import io.datarouter.storage.config.ConfigDirectoryConstants;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class InternalConfigDirectory implements Supplier<String>{

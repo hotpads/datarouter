@@ -26,9 +26,6 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,6 +39,8 @@ import io.datarouter.util.duration.DatarouterDuration;
 import io.datarouter.util.properties.PropertiesTool;
 import io.datarouter.util.properties.PropertiesTool.PropertiesAndUrl;
 import io.datarouter.util.string.StringTool;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 /**
  * Clients is a registry or cache of all clients in a Datarouter. Clients are expensive to create, so we reuse them for

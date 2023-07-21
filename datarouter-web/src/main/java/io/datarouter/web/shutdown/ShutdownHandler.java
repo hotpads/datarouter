@@ -15,14 +15,13 @@
  */
 package io.datarouter.web.shutdown;
 
-import javax.inject.Inject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.config.DatarouterWebSettingRoot;
 import io.datarouter.web.handler.BaseHandler;
+import jakarta.inject.Inject;
 
 public class ShutdownHandler extends BaseHandler{
 	private static final Logger logger = LoggerFactory.getLogger(ShutdownHandler.class);

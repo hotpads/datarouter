@@ -26,8 +26,6 @@ import static j2html.TagCreator.text;
 import java.util.Collection;
 import java.util.Optional;
 
-import javax.inject.Inject;
-
 import io.datarouter.instrumentation.metric.MetricLinkBuilder;
 import io.datarouter.joblet.DatarouterJobletCounters;
 import io.datarouter.joblet.JobletPageFactory;
@@ -47,6 +45,7 @@ import io.datarouter.web.requirejs.DatarouterWebRequireJsV2;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.TdTag;
+import jakarta.inject.Inject;
 
 public class JobletHandler extends BaseHandler{
 

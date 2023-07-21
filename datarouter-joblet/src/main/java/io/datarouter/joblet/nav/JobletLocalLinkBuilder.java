@@ -15,9 +15,6 @@
  */
 package io.datarouter.joblet.nav;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.apache.http.client.utils.URIBuilder;
 
 import io.datarouter.joblet.config.DatarouterJobletPaths;
@@ -28,6 +25,8 @@ import io.datarouter.joblet.handler.JobletQueuesHandler;
 import io.datarouter.joblet.handler.JobletUpdateHandler;
 import io.datarouter.joblet.handler.RunningJobletsHandler;
 import io.datarouter.joblet.type.JobletType;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class JobletLocalLinkBuilder{

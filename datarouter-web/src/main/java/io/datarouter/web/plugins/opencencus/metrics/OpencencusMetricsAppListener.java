@@ -19,9 +19,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,6 +36,8 @@ import io.opencensus.metrics.export.Metric;
 import io.opencensus.metrics.export.MetricDescriptor.Type;
 import io.opencensus.metrics.export.Point;
 import io.opencensus.metrics.export.TimeSeries;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class OpencencusMetricsAppListener implements DatarouterAppListener{

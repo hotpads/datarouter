@@ -19,10 +19,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 
-import javax.inject.Singleton;
-
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.Require;
+import jakarta.inject.Singleton;
 
 public interface ClientOptionsFactory{
 

@@ -17,7 +17,7 @@ package io.datarouter.bytes.codec.stringcodec;
 
 import io.datarouter.bytes.ByteTool;
 import io.datarouter.bytes.LengthAndValue;
-import io.datarouter.bytes.VarIntTool;
+import io.datarouter.bytes.varint.VarIntTool;
 
 /**
  * Encodes a String as UTF-8 bytes prefixed with the number of bytes encoded as a VarInt.

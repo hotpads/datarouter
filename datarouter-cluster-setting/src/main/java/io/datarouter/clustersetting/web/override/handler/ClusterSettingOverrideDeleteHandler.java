@@ -21,19 +21,17 @@ import static j2html.TagCreator.h5;
 
 import java.util.Optional;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.apache.http.client.utils.URIBuilder;
 
-import io.datarouter.clustersetting.ClusterSettingLogAction;
-import io.datarouter.clustersetting.ClusterSettingScope;
 import io.datarouter.clustersetting.config.DatarouterClusterSettingPaths;
+import io.datarouter.clustersetting.enums.ClusterSettingLogAction;
+import io.datarouter.clustersetting.enums.ClusterSettingScope;
 import io.datarouter.clustersetting.service.ClusterSettingChangeListener;
 import io.datarouter.clustersetting.storage.clustersetting.ClusterSetting;
 import io.datarouter.clustersetting.storage.clustersetting.ClusterSettingKey;
 import io.datarouter.clustersetting.storage.clustersetting.DatarouterClusterSettingDao;
 import io.datarouter.clustersetting.web.ClusterSettingHtml;
+import io.datarouter.clustersetting.web.browse.ClusterSettingBrowseHandler.ClusterSettingBrowseHandlerParams;
 import io.datarouter.clustersetting.web.browse.ClusterSettingBrowseHandler.ClusterSettingBrowseLinks;
 import io.datarouter.clustersetting.web.override.ClusterSettingEditSource;
 import io.datarouter.clustersetting.web.override.ClusterSettingOverrideForms;
@@ -47,11 +45,14 @@ import io.datarouter.web.handler.mav.imp.GlobalRedirectMav;
 import io.datarouter.web.html.form.HtmlForm;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 public class ClusterSettingOverrideDeleteHandler extends BaseHandler{
 
 	private static final String
-			P_source = "source",
+			P_sourceType = "sourceType",
+			P_sourceLocation = "sourceLocation",
 			P_partialName = "partialName",
 			P_name = "name",
 			P_serverType = "serverType",
@@ -63,6 +64,8 @@ public class ClusterSettingOverrideDeleteHandler extends BaseHandler{
 	private Bootstrap4PageFactory pageFactory;
 	@Inject
 	private DatarouterClusterSettingPaths paths;
+	@Inject
+	private ClusterSettingHtml clusterSettingHtml;
 	@Inject
 	private ClusterSettingBrowseLinks browseLinks;
 	@Inject
@@ -78,26 +81,28 @@ public class ClusterSettingOverrideDeleteHandler extends BaseHandler{
 
 	@Handler
 	public Mav delete(
-			Optional<String> source,
+			Optional<String> sourceType,
+			Optional<String> sourceLocation,
 			Optional<String> partialName,
 			String name,
 			Optional<String> serverType,
 			Optional<String> serverName,
 			Optional<String> comment,
 			Optional<Boolean> submitButton){
-		String title = ClusterSettingHtml.makeTitle("Delete Setting Override");
+		String title = clusterSettingHtml.makeTitle("Delete Setting Override");
 		ClusterSettingScope scopeEnum = ClusterSettingScope.fromParams(
 				serverType.orElse(null),
 				serverName.orElse(null));
 		ClusterSettingEditSource sourceEnum = ClusterSettingEditSource.BY_PERSISTENT_STRING.fromOrThrow(
-				source.orElse(ClusterSettingEditSource.DATABASE.persistentString));
+				sourceType.orElse(ClusterSettingEditSource.DATABASE.persistentString));
 
 		// Make form
 		boolean submitted = submitButton.orElse(false);
 		var form = new HtmlForm()
 				.withMethodPost()
 				.withAction(request.getContextPath() + paths.datarouter.settings.overrides.delete.toSlashedString());
-		form.addHiddenField(P_source, sourceEnum.persistentString);
+		form.addHiddenField(P_sourceType, sourceEnum.persistentString);
+		sourceLocation.ifPresent(sourceLocationValue -> form.addHiddenField(P_sourceLocation, sourceLocationValue));
 		partialName.ifPresent(partialNameValue -> form.addHiddenField(P_partialName, partialNameValue));
 		form.addHiddenField(P_name, name);
 		serverType.ifPresent(serverTypeValue -> form.addHiddenField(P_serverType, serverTypeValue));
@@ -117,7 +122,7 @@ public class ClusterSettingOverrideDeleteHandler extends BaseHandler{
 			var formDiv = div(htmlForm)
 					.withStyle("width:400px;");
 			var content = div(
-					ClusterSettingHtml.makeHeader(title, "Delete a Setting Override"),
+					clusterSettingHtml.makeHeader(title, "Delete a Setting Override"),
 					br(),
 					summaryDiv,
 					br(),
@@ -134,6 +139,9 @@ public class ClusterSettingOverrideDeleteHandler extends BaseHandler{
 				serverType.orElse(ServerType.UNKNOWN.getPersistentString()),
 				serverName.orElse(""));
 		ClusterSetting oldSetting = dao.get(clusterSettingKey);
+		if(oldSetting == null){
+			return pageFactory.message(request, "Setting Override not found.");
+		}
 		dao.delete(clusterSettingKey);
 		changeListener.onUpdateOrDelete(
 				oldSetting,
@@ -145,7 +153,10 @@ public class ClusterSettingOverrideDeleteHandler extends BaseHandler{
 		// Redirect
 		String redirectTo = switch(sourceEnum){
 			case DATABASE -> overrideLinks.view();
-			case CODE -> browseLinks.all(Optional.of(name), partialName);
+			case CODE -> browseLinks.all(
+					new ClusterSettingBrowseHandlerParams()
+							.withOptLocation(sourceLocation)
+							.withOptPartialName(partialName));
 		};
 		return new GlobalRedirectMav(redirectTo);
 	}
@@ -159,7 +170,8 @@ public class ClusterSettingOverrideDeleteHandler extends BaseHandler{
 		private DatarouterClusterSettingPaths paths;
 
 		public String delete(
-				Optional<ClusterSettingEditSource> optSource,
+				Optional<ClusterSettingEditSource> optSourceType,
+				Optional<String> optSourceLocation,
 				Optional<String> optPartialName,
 				String name,
 				Optional<String> optServerType,
@@ -167,7 +179,8 @@ public class ClusterSettingOverrideDeleteHandler extends BaseHandler{
 			var uriBuilder = new URIBuilder()
 					.setPath(contextSupplier.getContextPath()
 							+ paths.datarouter.settings.overrides.delete.toSlashedString());
-			optSource.ifPresent(source -> uriBuilder.addParameter(P_source, source.persistentString));
+			optSourceType.ifPresent(sourceType -> uriBuilder.addParameter(P_sourceType, sourceType.persistentString));
+			optSourceLocation.ifPresent(sourceLocation -> uriBuilder.addParameter(P_sourceLocation, sourceLocation));
 			optPartialName.ifPresent(partialName -> uriBuilder.addParameter(P_partialName, partialName));
 			uriBuilder.addParameter(P_name, name);
 			optServerType.ifPresent(serverType -> uriBuilder.addParameter(P_serverType, serverType));

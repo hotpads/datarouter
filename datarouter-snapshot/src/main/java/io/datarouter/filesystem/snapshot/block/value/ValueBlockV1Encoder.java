@@ -15,8 +15,8 @@
  */
 package io.datarouter.filesystem.snapshot.block.value;
 
-import io.datarouter.bytes.VarIntTool;
 import io.datarouter.bytes.codec.intcodec.RawIntCodec;
+import io.datarouter.bytes.varint.VarIntTool;
 import io.datarouter.filesystem.snapshot.encode.EncodedBlock;
 import io.datarouter.filesystem.snapshot.encode.ValueBlockEncoder;
 import io.datarouter.filesystem.snapshot.entry.SnapshotEntry;

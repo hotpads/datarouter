@@ -1,5 +1,4 @@
-const { Router, Redirect, Route, IndexRoute, Link, browserHistory } =
-  ReactRouter;
+const { Router, Redirect, Route, Link, browserHistory } = ReactRouter;
 
 const Fetch = {
   fetchJson: (...args) => fetch(...args).then((response) => response.json()),

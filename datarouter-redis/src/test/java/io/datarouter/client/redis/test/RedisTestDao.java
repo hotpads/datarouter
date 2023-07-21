@@ -18,9 +18,6 @@ package io.datarouter.client.redis.test;
 import java.time.Duration;
 import java.util.Optional;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.client.redis.RedisTestClientIds;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.config.Config;
@@ -30,6 +27,8 @@ import io.datarouter.storage.node.factory.TallyNodeFactory;
 import io.datarouter.storage.node.op.raw.TallyStorage;
 import io.datarouter.storage.tally.Tally;
 import io.datarouter.storage.tally.Tally.TallyFielder;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class RedisTestDao extends BaseDao implements TestDao{

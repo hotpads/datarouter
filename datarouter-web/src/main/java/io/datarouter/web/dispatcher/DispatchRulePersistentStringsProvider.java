@@ -17,12 +17,11 @@ package io.datarouter.web.dispatcher;
 
 import java.util.List;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.scanner.OptionalScanner;
 import io.datarouter.scanner.Scanner;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DispatchRulePersistentStringsProvider{
@@ -31,7 +30,7 @@ public class DispatchRulePersistentStringsProvider{
 	private DatarouterInjector injector;
 
 	public List<String> getAvailableEndpoints(Class<? extends ApiKeyPredicate> predicateClass){
-		return Scanner.of(injector.getInstancesOfType(DispatcherServlet.class).values())
+		return injector.scanValuesOfType(DispatcherServlet.class)
 				.concatIter(DispatcherServlet::getRouteSets)
 				.concat(routeSet -> getApplicableEndpoints(routeSet, predicateClass))
 				.distinct()

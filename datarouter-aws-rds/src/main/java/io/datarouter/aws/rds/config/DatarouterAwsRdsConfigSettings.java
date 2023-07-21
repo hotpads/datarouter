@@ -15,9 +15,6 @@
  */
 package io.datarouter.aws.rds.config;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import com.amazonaws.regions.Regions;
 
 import io.datarouter.secret.service.CachedSecretFactory;
@@ -25,6 +22,8 @@ import io.datarouter.secret.service.CachedSecretFactory.CachedSecret;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.SettingNode;
 import io.datarouter.storage.setting.cached.CachedSetting;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterAwsRdsConfigSettings extends SettingNode{

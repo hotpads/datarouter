@@ -15,6 +15,7 @@
  */
 package io.datarouter.bytes;
 
+//TODO convert to record
 public class LengthAndValue<T>{
 
 	public final int length;
@@ -23,6 +24,22 @@ public class LengthAndValue<T>{
 	public LengthAndValue(int length, T value){
 		this.length = length;
 		this.value = value;
+	}
+
+	public LengthAndValue<T> assertLengthEquals(int expectedLength){
+		if(expectedLength != length){
+			String message = String.format("expectedLength=%s != actualLength=%s", expectedLength, length);
+			throw new IllegalArgumentException(message);
+		}
+		return this;
+	}
+
+	public int length(){
+		return length;
+	}
+
+	public T value(){
+		return value;
 	}
 
 }

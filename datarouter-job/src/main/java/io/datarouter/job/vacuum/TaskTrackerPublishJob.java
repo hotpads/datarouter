@@ -15,12 +15,11 @@
  */
 package io.datarouter.job.vacuum;
 
-import javax.inject.Inject;
-
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
 import io.datarouter.job.config.DatarouterJobSettingRoot;
 import io.datarouter.tasktracker.service.TaskTrackerPublishService;
+import jakarta.inject.Inject;
 
 public class TaskTrackerPublishJob extends BaseJob{
 

@@ -23,6 +23,9 @@ import java.time.Instant;
 import java.util.Optional;
 
 import io.datarouter.aws.s3.DatarouterS3ClientManager;
+import io.datarouter.aws.s3.DatarouterS3Counters;
+import io.datarouter.aws.s3.DatarouterS3Counters.S3CounterSuffix;
+import io.datarouter.aws.s3.S3CostCounters;
 import io.datarouter.aws.s3.S3Headers.ContentType;
 import io.datarouter.aws.s3.S3Headers.S3ContentType;
 import io.datarouter.instrumentation.trace.TraceSpanGroupType;
@@ -48,6 +51,7 @@ public class DatarouterS3PublicRequests{
 	/*---------- link ----------*/
 
 	public URL generateLink(BucketAndKey location, Duration expireAfter){
+		DatarouterS3Counters.inc(location.bucket(), S3CounterSuffix.GENERATE_LINK_REQUESTS, 1);
 		GetObjectRequest getObjectRequest = GetObjectRequest.builder()
 				.bucket(location.bucket())
 				.key(location.key())
@@ -56,7 +60,10 @@ public class DatarouterS3PublicRequests{
 				.getObjectRequest(getObjectRequest)
 				.signatureDuration(expireAfter)
 				.build();
-		return clientManager.getPresigner().presignGetObject(getObjectPresignRequest).url();
+		S3CostCounters.write();
+		try(var $ = TracerTool.startSpan("S3 generateLink", TraceSpanGroupType.CLOUD_STORAGE)){
+			return clientManager.getPresigner().presignGetObject(getObjectPresignRequest).url();
+		}
 	}
 
 	/*--------- write bytes ---------*/
@@ -76,10 +83,13 @@ public class DatarouterS3PublicRequests{
 				.acl(acl)
 				.build();
 		RequestBody requestBody = RequestBody.fromBytes(bytes);
-		try(var $ = TracerTool.startSpan("S3 putObjectPublic", TraceSpanGroupType.CLOUD_STORAGE)){
+		try(var $ = TracerTool.startSpan("S3 putObjectWithPublicRead", TraceSpanGroupType.CLOUD_STORAGE)){
 			s3Client.putObject(request, requestBody);
 			TracerTool.appendToSpanInfo("Content-Length", request.contentLength());
 		}
+		DatarouterS3Counters.inc(location.bucket(), S3CounterSuffix.WRITE_OBJECT_REQUESTS, 1);
+		DatarouterS3Counters.inc(location.bucket(), S3CounterSuffix.WRITE_OBJECT_BYTES, bytes.length);
+		S3CostCounters.write();
 	}
 
 	public void putObjectWithPublicReadAndExpirationTime(
@@ -98,10 +108,15 @@ public class DatarouterS3PublicRequests{
 				.expires(expirationTime)
 				.build();
 		RequestBody requestBody = RequestBody.fromBytes(bytes);
-		try(var $ = TracerTool.startSpan("S3 putObject", TraceSpanGroupType.CLOUD_STORAGE)){
+		try(var $ = TracerTool.startSpan(
+				"S3 putObjectWithPublicReadAndExpirationTime",
+				TraceSpanGroupType.CLOUD_STORAGE)){
 			s3Client.putObject(request, requestBody);
 			TracerTool.appendToSpanInfo("Content-Length", request.contentLength());
 		}
+		DatarouterS3Counters.inc(location.bucket(), S3CounterSuffix.WRITE_OBJECT_REQUESTS, 1);
+		DatarouterS3Counters.inc(location.bucket(), S3CounterSuffix.WRITE_OBJECT_BYTES, bytes.length);
+		S3CostCounters.write();
 	}
 
 	/*--------- write multipart --------*/
@@ -132,6 +147,10 @@ public class DatarouterS3PublicRequests{
 			s3Client.putObject(request, requestBody);
 			TracerTool.appendToSpanInfo("Content-Length", request.contentLength());
 		}
+		DatarouterS3Counters.inc(location.bucket(), S3CounterSuffix.UPLOAD_FILE_REQUESTS, 1);
+		// TODO non-deprecated alternative to requestBody.contentLength()
+		DatarouterS3Counters.inc(location.bucket(), S3CounterSuffix.UPLOAD_FILE_BYTES, requestBody.contentLength());
+		S3CostCounters.write();
 	}
 
 }

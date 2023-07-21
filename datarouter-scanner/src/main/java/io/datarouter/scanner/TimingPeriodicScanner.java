@@ -35,10 +35,11 @@ public class TimingPeriodicScanner<T> extends BaseLinkedScanner<T,T>{
 	public boolean advanceInternal(){
 		if(input.advance()){
 			current = input.current();
-			long nowNs = System.nanoTime();
-			if(nowNs >= nextActionableTimeNs){
+			if(System.nanoTime() >= nextActionableTimeNs){
 				consumer.accept(current);
-				nextActionableTimeNs += periodNs;
+				// Reset based on current time, skipping any backlogged time while processing.
+				// Essentially make the period the minimum time between logs.
+				nextActionableTimeNs = System.nanoTime() + periodNs;
 			}
 			return true;
 		}

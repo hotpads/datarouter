@@ -18,8 +18,6 @@ package io.datarouter.web.plugins.corsfilter;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import javax.inject.Inject;
-
 import org.testng.Assert;
 import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
@@ -29,6 +27,7 @@ import com.google.inject.Module;
 import io.datarouter.web.plugins.corsfilter.CorsFilterIntegrationTests.CorsFilterTestNgModuleFactory;
 import io.datarouter.web.plugins.corsfilter.CorsFilterPlugin.CorsFilterPluginBuilder;
 import io.datarouter.web.test.DatarouterWebTestNgModuleFactory;
+import jakarta.inject.Inject;
 
 @Guice(moduleFactory = CorsFilterTestNgModuleFactory.class)
 public class CorsFilterIntegrationTests{

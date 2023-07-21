@@ -21,6 +21,8 @@ public class HtmlFormButton extends BaseHtmlFormField{
 
 	private String value;
 	private String display;
+	private String clazz;
+	private String onClickConfirmText;
 
 	public HtmlFormButton withValue(String value){
 		this.value = value;
@@ -32,12 +34,30 @@ public class HtmlFormButton extends BaseHtmlFormField{
 		return this;
 	}
 
+	public HtmlFormButton withClass(String clazz){
+		this.clazz = clazz;
+		return this;
+	}
+
+	public HtmlFormButton withOnClickConfirmText(String onClickConfirmText){
+		this.onClickConfirmText = onClickConfirmText;
+		return this;
+	}
+
 	public String getValue(){
 		return value;
 	}
 
 	public String getDisplay(){
 		return display;
+	}
+
+	public String getOnClickConfirmText(){
+		return onClickConfirmText;
+	}
+
+	public String getClazz(){
+		return clazz;
 	}
 
 }

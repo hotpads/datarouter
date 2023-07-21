@@ -85,7 +85,7 @@ public class DatarouterHttpClientBuilder{
 	public DatarouterHttpClientBuilder(JsonSerializer jsonSerializer){
 		this.jsonSerializer = jsonSerializer;
 		this.timeoutMs = (int)DEFAULT_TIMEOUT.toMillis();
-		this.connectTimeoutMs = (int)DEFAULT_TIMEOUT.toMillis();
+		this.connectTimeoutMs = (int)Duration.ofSeconds(1).toMillis();
 		this.maxTotalConnections = DEFAULT_MAX_TOTAL_CONNECTIONS;
 		this.maxConnectionsPerRoute = 200;
 		this.validateAfterInactivityMs = Optional.empty();
@@ -249,9 +249,9 @@ public class DatarouterHttpClientBuilder{
 		return this;
 	}
 
+	// TODO rename to setReadTimeout
 	public DatarouterHttpClientBuilder setTimeout(Duration timeout){
 		this.timeoutMs = (int)timeout.toMillis();
-		this.connectTimeoutMs = timeoutMs;
 		return this;
 	}
 

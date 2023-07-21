@@ -15,11 +15,10 @@
  */
 package io.datarouter.exception.conveyors;
 
-import javax.inject.Singleton;
-
 import io.datarouter.exception.storage.exceptionrecord.ExceptionRecord;
 import io.datarouter.exception.storage.httprecord.HttpRequestRecord;
 import io.datarouter.util.buffer.MemoryBuffer;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterExceptionBuffers{

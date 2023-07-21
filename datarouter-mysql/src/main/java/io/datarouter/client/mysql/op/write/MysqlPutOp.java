@@ -51,6 +51,7 @@ import io.datarouter.storage.config.Config;
 import io.datarouter.storage.config.PutMethod;
 import io.datarouter.storage.serialize.fieldcache.FieldGeneratorTool;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
+import io.datarouter.util.string.StringTool;
 
 public class MysqlPutOp<
 		PK extends PrimaryKey<PK>,
@@ -235,8 +236,13 @@ extends BaseMysqlOp<Void>{
 			if(e instanceof SQLException && ((SQLException) e).getErrorCode() == MysqlErrorNumbers.ER_DUP_ENTRY){
 				throw new DuplicateEntrySqlException("error inserting table=" + fieldInfo.getTableName(), e);
 			}
+			String trimmiedSql = StringTool.trimToSizeAndLog(
+					preparedStatement.toString(),
+					10_000,
+					"trimmed",
+					"trimmiedSql");
 			throw new DataAccessException("error inserting table=" + fieldInfo.getTableName() + " rowCount="
-					+ databeans.size() + " sql=" + preparedStatement, e);
+					+ databeans.size() + " sql=" + trimmiedSql, e);
 		}
 	}
 

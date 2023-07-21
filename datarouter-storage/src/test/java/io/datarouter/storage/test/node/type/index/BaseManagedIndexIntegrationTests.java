@@ -19,8 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import javax.inject.Inject;
-
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -36,6 +34,7 @@ import io.datarouter.storage.test.TestDatabeanKey;
 import io.datarouter.storage.test.node.type.index.databean.TestDatabeanWithManagedIndexByBar;
 import io.datarouter.storage.test.node.type.index.databean.TestDatabeanWithManagedIndexByBarKey;
 import io.datarouter.storage.test.node.type.index.node.DatarouterTestDatabeanWithIndexDao;
+import jakarta.inject.Inject;
 
 @Test(singleThreaded = true)
 public abstract class BaseManagedIndexIntegrationTests{

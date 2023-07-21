@@ -33,8 +33,6 @@ package io.datarouter.client.gcp.pubsub.client;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.inject.Singleton;
-
 import com.google.cloud.monitoring.v3.MetricServiceClient;
 import com.google.cloud.pubsub.v1.Publisher;
 import com.google.cloud.pubsub.v1.SubscriptionAdminClient;
@@ -43,6 +41,7 @@ import com.google.cloud.pubsub.v1.stub.SubscriberStub;
 import com.google.pubsub.v1.TopicName;
 
 import io.datarouter.storage.client.ClientId;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class GcpPubsubClientHolder{

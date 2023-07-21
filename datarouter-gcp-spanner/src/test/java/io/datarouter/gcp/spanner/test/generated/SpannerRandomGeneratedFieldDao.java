@@ -17,9 +17,6 @@ package io.datarouter.gcp.spanner.test.generated;
 
 import java.util.Collection;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.gcp.spanner.test.SpannerTestCliendIds;
 import io.datarouter.gcp.spanner.test.generated.SpannerRandomGeneratedFieldBean.SpannerRandomGeneratedFieldBeanFielder;
 import io.datarouter.gcp.spanner.test.generated.SpannerRandomGeneratedFieldBean.SpannerRandomGeneratedFieldBeanKey;
@@ -29,6 +26,8 @@ import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.TestDao;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class SpannerRandomGeneratedFieldDao extends BaseDao implements TestDao{

@@ -19,8 +19,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Set;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 
@@ -29,6 +27,8 @@ import io.datarouter.httpclient.security.UrlScheme;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.port.CompoundPortIdentifier;
 import io.datarouter.web.util.http.RequestTool;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class UrlSchemeRedirector{

@@ -26,8 +26,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import javax.inject.Inject;
-
 import io.datarouter.nodewatch.config.DatarouterNodewatchPaths;
 import io.datarouter.nodewatch.config.DatarouterNodewatchPlugin;
 import io.datarouter.nodewatch.storage.latesttablecount.DatarouterLatestTableCountDao;
@@ -45,6 +43,7 @@ import io.datarouter.web.html.j2html.J2HtmlTable;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import io.datarouter.web.requirejs.DatarouterWebRequireJsV2;
 import j2html.tags.specialized.DivTag;
+import jakarta.inject.Inject;
 
 public class NodewatchSlowSpansHandler extends BaseHandler{
 

@@ -15,11 +15,10 @@
  */
 package io.datarouter.secretweb.job;
 
-import javax.inject.Inject;
-
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
 import io.datarouter.secretweb.storage.oprecord.DatarouterSecretOpRecordDao;
+import jakarta.inject.Inject;
 
 public class DatarouterSecretOpRecordVacuumJob extends BaseJob{
 

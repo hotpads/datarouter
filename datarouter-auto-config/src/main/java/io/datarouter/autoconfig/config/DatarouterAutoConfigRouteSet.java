@@ -15,14 +15,13 @@
  */
 package io.datarouter.autoconfig.config;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.autoconfig.web.ViewAutoConfigsHandler;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
 import io.datarouter.web.user.role.DatarouterUserRole;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterAutoConfigRouteSet extends BaseRouteSet{

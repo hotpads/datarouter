@@ -15,58 +15,46 @@
  */
 package io.datarouter.auth.service;
 
-import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.scanner.Scanner;
-import io.datarouter.web.user.role.Role;
-
 public class DatarouterUserEditServiceTests{
 
 	@Test
 	public void testChangeListSingleAdd(){
-		var before = generateRoleSet(List.of("user", "requestor"));
-		var after = generateRoleSet(List.of("testerTools", "user", "requestor"));
+		var before = Set.of("account1", "account2");
+		var after = Set.of("account3", "account1", "account2");
 
-		String output = DatarouterUserEditService.changeList("role", before, after);
-		Assert.assertEquals(output, "role added: [testerTools]");
+		String output = DatarouterUserEditService.changeList("account", before, after);
+		Assert.assertEquals(output, "account added: [account3]");
 	}
 
 	@Test
 	public void testChangeListSingleRemove(){
-		var before = generateRoleSet(List.of("user", "requestor", "testerTools"));
-		var after = generateRoleSet(List.of("user", "requestor"));
+		var before = Set.of("account1", "account2", "account3");
+		var after = Set.of("account1", "account2");
 
-		String output = DatarouterUserEditService.changeList("role", before, after);
-		Assert.assertEquals(output, "role removed: [testerTools]");
+		String output = DatarouterUserEditService.changeList("account", before, after);
+		Assert.assertEquals(output, "account removed: [account3]");
 	}
 
 	@Test
 	public void testChangeListMultiAddRemove(){
-		var before = generateRoleSet(List.of("rep", "admin", "user", "requestor"));
-		var after = generateRoleSet(List.of("viewerTools", "testerTools", "user", "requestor"));
+		var before = Set.of("account3", "account4", "account1", "account2");
+		var after = Set.of("account5", "account6", "account1", "account2");
 
-		String output = DatarouterUserEditService.changeList("role", before, after);
-		Assert.assertEquals(output, "roles added: [testerTools, viewerTools] roles removed: [admin, rep]");
+		String output = DatarouterUserEditService.changeList("account", before, after);
+		Assert.assertEquals(output, "accounts added: [account5, account6] accounts removed: [account3, account4]");
 	}
 
 	@Test
 	public void testChangeListNoChanges(){
-		var before = generateRoleSet(List.of("user", "requestor"));
-		var after = generateRoleSet(List.of("user", "requestor"));
+		var before = Set.of("account1", "account2");
+		var after = Set.of("account1", "account2");
 
-		String output = DatarouterUserEditService.changeList("role", before, after);
+		String output = DatarouterUserEditService.changeList("account", before, after);
 		Assert.assertEquals(output, "No changes");
-	}
-
-	private static Set<String> generateRoleSet(List<String> roleStrings){
-		return Scanner.of(roleStrings)
-				.map(Role::new)
-				.map(Role::toString)
-				.collect(HashSet::new);
 	}
 }

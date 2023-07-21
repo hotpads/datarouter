@@ -22,7 +22,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
-import javax.inject.Inject;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -33,6 +32,7 @@ import io.datarouter.web.config.DatarouterWebSettingRoot;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.navigation.AppNavBar;
 import io.datarouter.web.navigation.DatarouterNavBar;
+import jakarta.inject.Inject;
 
 @SuppressWarnings("serial")
 public abstract class DispatcherServlet extends HttpServlet{

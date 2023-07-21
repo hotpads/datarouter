@@ -15,7 +15,6 @@
  */
 package io.datarouter.auth.service;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -25,9 +24,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
 
 import io.datarouter.auth.model.dto.RoleApprovalRequirementStatus;
 import io.datarouter.auth.model.dto.UserRoleMetadata;
@@ -44,6 +40,8 @@ import io.datarouter.web.user.role.RoleApprovalType;
 import io.datarouter.web.user.role.RoleManager;
 import io.datarouter.web.user.session.service.Session;
 import io.datarouter.web.util.PasswordTool;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterUserService{
@@ -77,13 +75,13 @@ public class DatarouterUserService{
 	public boolean canEditUserPassword(DatarouterUser editor, DatarouterUser user){
 		return user.equals(editor)
 				|| !isDatarouterAdmin(user)
-				&& roleManager.isAdmin(editor.getRoles())
+				&& isDatarouterAdmin(editor)
 				&& editor.getEnabled();
 	}
 
 	public boolean canEditUser(DatarouterUser editor, DatarouterUser user){
 		return user.equals(editor)
-				|| roleManager.isAdmin(editor.getRoles())
+				|| isDatarouterAdmin(editor)
 				&& editor.getEnabled();
 	}
 
@@ -97,18 +95,6 @@ public class DatarouterUserService{
 		}
 		String passwordDigest = PasswordTool.digest(user.getPasswordSalt(), rawPassword);
 		return Objects.equals(user.getPasswordDigest(), passwordDigest);
-	}
-
-	public boolean isPasswordCorrect(String email, String rawPassword){
-		DatarouterUser user = nodes.getByUsername(new DatarouterUserByUsernameLookup(email));
-		return isPasswordCorrect(user, rawPassword);
-	}
-
-	public Set<Role> getAllowedUserRoles(DatarouterUser currentUser, Set<Role> userRoles){
-		Collection<Role> validRoles = roleManager.getConferrableRoles(currentUser.getRoles());
-		userRoles.retainAll(validRoles);
-		userRoles.add(DatarouterUserRole.REQUESTOR.getRole());// everyone should have this
-		return userRoles;
 	}
 
 	public void assertUserDoesNotExist(Long id, String userToken, String username){
@@ -131,21 +117,26 @@ public class DatarouterUserService{
 	}
 
 	public Map<Role,Map<RoleApprovalType,Set<String>>> getCurrentRoleApprovals(DatarouterUser user){
-		return roleApprovalDao.getAllOutstandingApprovalsForUser(user)
-				.stream()
+		return Scanner.of(roleApprovalDao.getAllOutstandingApprovalsForUser(user))
+				// role has been deleted
+				.exclude(roleApproval ->
+						roleManager.findRoleFromPersistentString(roleApproval.getKey().getRequestedRole()).isEmpty())
+				// role approval type has been deleted
+				.exclude(roleApproval ->
+						roleManager.findRoleApprovalTypeFromPersistentString(roleApproval.getApprovalType()).isEmpty())
 				.collect(Collectors.groupingBy(
-						roleApproval ->
-								roleManager.getRoleFromPersistentString(roleApproval.getKey().getRequestedRole()),
+						roleApproval -> roleManager
+								.findRoleFromPersistentString(roleApproval.getKey().getRequestedRole()).get(),
 						Collectors.groupingBy(
-								roleApproval -> roleManager.getRoleApprovalTypeFromPersistentString(
-										roleApproval.getApprovalType()),
+								roleApproval -> roleManager
+										.findRoleApprovalTypeFromPersistentString(roleApproval.getApprovalType()).get(),
 								Collectors.mapping(roleApproval -> roleApproval.getKey().getApproverUsername(),
 										Collectors.toSet()))));
 	}
 
 	public List<UserRoleMetadata> getRoleMetadataForUser(DatarouterUser editor, DatarouterUser user){
 		Set<Role> currentRoles = new HashSet<>(user.getRoles());
-		Set<Role> availableRoles = roleManager.getConferrableRoles(roleManager.getAllRoles());
+		Set<Role> availableRoles = roleManager.getAllRoles();
 		Map<Role,Map<RoleApprovalType,Integer>> roleApprovalRequirements = roleManager.getAllRoleApprovalRequirements();
 		Map<Role,Map<RoleApprovalType,Set<String>>> currentRoleApprovals = getCurrentRoleApprovals(user);
 		Set<RoleApprovalType> relevantApprovalTypes = new HashSet<>();
@@ -177,7 +168,7 @@ public class DatarouterUserService{
 							if(!requirementStatusByApprovalType.containsKey(approvalType)){
 								roleApprovalDao.deleteOutstandingApprovalsOfApprovalTypeForRole(
 										availableRole.persistentString,
-										approvalType.persistentString);
+										approvalType.persistentString());
 								continue;
 							}
 							currentEditorPreviouslyApprovedType = Optional.of(approvalType);
@@ -203,7 +194,7 @@ public class DatarouterUserService{
 					}
 					boolean canRevoke = !DatarouterUserRole.DATAROUTER_ADMIN.getPersistentString().equals(
 							availableRole.getPersistentString())
-							&& roleManager.isAdmin(editor.getRoles())
+							&& isDatarouterAdmin(editor)
 							|| user.equals(editor);
 					return new UserRoleMetadata(
 							availableRole,

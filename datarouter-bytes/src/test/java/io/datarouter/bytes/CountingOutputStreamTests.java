@@ -23,6 +23,9 @@ import java.util.function.Consumer;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import io.datarouter.bytes.io.CountingOutputStream;
+import io.datarouter.bytes.io.OutputStreamTool;
+
 public class CountingOutputStreamTests{
 
 	@Test

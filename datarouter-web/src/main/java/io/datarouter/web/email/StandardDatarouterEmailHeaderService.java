@@ -22,9 +22,6 @@ import static j2html.TagCreator.text;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
 import io.datarouter.storage.config.properties.EnvironmentName;
@@ -33,6 +30,8 @@ import io.datarouter.storage.config.properties.ServiceName;
 import j2html.tags.DomContent;
 import j2html.tags.Text;
 import j2html.tags.specialized.DivTag;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class StandardDatarouterEmailHeaderService{

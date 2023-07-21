@@ -15,23 +15,36 @@
  */
 package io.datarouter.aws.s3.config;
 
-import javax.inject.Singleton;
-
 import io.datarouter.util.concurrent.ScalingThreadPoolExecutor;
+import jakarta.inject.Singleton;
 
 public class DatarouterAwsS3Executors{
 
 	@Singleton
-	public static class BucketRegionExecutor extends ScalingThreadPoolExecutor{
-		public BucketRegionExecutor(){
-			super("bucketRegion", 100);
+	public static class DatarouterS3BucketRegionExecutor extends ScalingThreadPoolExecutor{
+		public DatarouterS3BucketRegionExecutor(){
+			super("datarouterS3BucketRegion", 100);
 		}
 	}
 
 	@Singleton
-	public static class BulkDeleteExecutor extends ScalingThreadPoolExecutor{
-		public BulkDeleteExecutor(){
-			super("bulkDelete", 100);
+	public static class DatarouterS3BulkCopyReadExecutor extends ScalingThreadPoolExecutor{
+		public DatarouterS3BulkCopyReadExecutor(){
+			super("datarouterS3BulkCopyRead", 100);
+		}
+	}
+
+	@Singleton
+	public static class DatarouterS3BulkCopyWriteExecutor extends ScalingThreadPoolExecutor{
+		public DatarouterS3BulkCopyWriteExecutor(){
+			super("datarouterS3BulkCopyWrite", 100);
+		}
+	}
+
+	@Singleton
+	public static class DatarouterS3BulkDeleteExecutor extends ScalingThreadPoolExecutor{
+		public DatarouterS3BulkDeleteExecutor(){
+			super("datarouterS3BulkDelete", 100);
 		}
 	}
 

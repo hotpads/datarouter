@@ -26,9 +26,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,6 +33,8 @@ import io.datarouter.filesystem.raw.small.BinaryFileService;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.util.Subpath;
 import io.datarouter.util.timer.PhaseTimer;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 public class DirectoryManager{
 	private static final Logger logger = LoggerFactory.getLogger(DirectoryManager.class);

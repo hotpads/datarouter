@@ -15,7 +15,7 @@
  */
 package io.datarouter.bytes.codec.intcodec;
 
-import io.datarouter.bytes.VarIntTool;
+import io.datarouter.bytes.varint.VarIntTool;
 
 public class VarIntCodec{
 

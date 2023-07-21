@@ -37,7 +37,6 @@ import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -51,6 +50,7 @@ import io.datarouter.httpclient.endpoint.caller.CallerType;
 import io.datarouter.httpclient.endpoint.caller.CallerTypeUnknown;
 import io.datarouter.httpclient.endpoint.java.BaseEndpoint;
 import io.datarouter.httpclient.endpoint.java.EndpointTool;
+import io.datarouter.httpclient.endpoint.web.BaseWebApi;
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.instrumentation.exception.ExceptionRecordDto;
 import io.datarouter.instrumentation.trace.W3TraceContext;
@@ -81,6 +81,7 @@ import io.datarouter.web.util.RequestAttributeKey;
 import io.datarouter.web.util.RequestAttributeTool;
 import io.datarouter.web.util.RequestDurationTool;
 import io.datarouter.web.util.http.RequestTool;
+import jakarta.inject.Inject;
 
 /*
  * a dispatcher servlet sets necessary parameters and then calls "handle()"
@@ -342,6 +343,8 @@ public abstract class BaseHandler{
 				List<String> missingParameters;
 				if(EndpointTool.paramIsEndpointObject(desiredMethod)){
 					missingParameters = getMissingParameterNamesIfEndpoint(desiredMethod);
+				}else if(EndpointTool.paramIsWebApiObject(desiredMethod)){
+					missingParameters = getMissingParameterNamesIfWebApi(desiredMethod);
 				}else{
 					missingParameters = getMissingParameterNames(desiredMethod);
 				}
@@ -504,6 +507,17 @@ public abstract class BaseHandler{
 				(Class<? extends BaseEndpoint<?,?>>)endpointType);
 
 		return Scanner.of(EndpointTool.getRequiredKeys(baseEndpoint).getAllKeys())
+				.exclude(param -> params.toMap().containsKey(param))
+				.list();
+	}
+
+	private List<String> getMissingParameterNamesIfWebApi(Method method){
+		Class<?> endpointType = method.getParameters()[0].getType();
+		@SuppressWarnings("unchecked")
+		BaseWebApi<?,?> webapi = ReflectionTool.createWithoutNoArgs(
+				(Class<? extends BaseWebApi<?,?>>)endpointType);
+
+		return Scanner.of(EndpointTool.getRequiredKeys(webapi).getAllKeys())
 				.exclude(param -> params.toMap().containsKey(param))
 				.list();
 	}

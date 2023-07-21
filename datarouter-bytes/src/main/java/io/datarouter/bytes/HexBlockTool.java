@@ -57,13 +57,17 @@ public class HexBlockTool{
 	}
 
 	public static void print(byte[] bytes){
-		print(bytes, 4, 80);
+		print(bytes, 0, 80);
 	}
 
 	public static byte[] fromHexBlock(String hexBlock){
+		String trimmed = trim(hexBlock);
+		return HexByteStringCodec.INSTANCE.decode(trimmed);
+	}
+
+	public static String trim(String hexBlock){
 		String[] lines = hexBlock.split("\n");
-		String hex = String.join("", lines);
-		return HexByteStringCodec.INSTANCE.decode(hex);
+		return String.join("", lines);
 	}
 
 }

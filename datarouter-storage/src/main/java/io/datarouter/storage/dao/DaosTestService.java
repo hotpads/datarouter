@@ -15,10 +15,9 @@
  */
 package io.datarouter.storage.dao;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.storage.client.DatarouterClients;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DaosTestService{

@@ -17,9 +17,8 @@ package io.datarouter.web.metriclinks;
 
 import java.util.List;
 
-import javax.inject.Singleton;
-
 import io.datarouter.storage.tag.Tag;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterHandlerMetricLinkPage extends HandlerMetricLinkPage{

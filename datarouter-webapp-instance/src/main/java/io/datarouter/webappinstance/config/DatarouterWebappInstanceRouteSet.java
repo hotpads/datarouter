@@ -15,9 +15,6 @@
  */
 package io.datarouter.webappinstance.config;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
@@ -25,6 +22,8 @@ import io.datarouter.web.user.role.DatarouterUserRole;
 import io.datarouter.webappinstance.web.WebappInstanceHistoryHandler;
 import io.datarouter.webappinstance.web.WebappInstanceLoginHandler;
 import io.datarouter.webappinstance.web.WebappInstanceRunningHandler;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterWebappInstanceRouteSet extends BaseRouteSet{

@@ -44,8 +44,8 @@ implements Comparable<T>{
 	/*----------- fields -----------*/
 
 	@Override
-	public final List<Field> getFieldsOrdered(){
-		return comparableCodec().getFieldsOrdered();
+	public final List<Field> getPresentFields(){
+		return comparableCodec().fieldCache.presentFields;
 	}
 
 	/*-------------- Comparable -------------*/
@@ -59,8 +59,7 @@ implements Comparable<T>{
 					that.getClass().getCanonicalName());
 			throw new IllegalArgumentException(message);
 		}
-		BinaryDtoComparableCodec<T> codec = comparableCodec();
-		for(BinaryDtoFieldSchema<?> fieldSchema : codec.fieldSchemas){
+		for(BinaryDtoFieldSchema<?> fieldSchema : comparableCodec().fieldCache.presentFieldSchemas){
 			int fieldDiff = fieldSchema.compareFieldValuesAsIfEncoded(this, that);
 			if(fieldDiff != 0){
 				return fieldDiff;

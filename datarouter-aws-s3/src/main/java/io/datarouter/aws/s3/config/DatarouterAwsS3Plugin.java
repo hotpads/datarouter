@@ -16,14 +16,20 @@
 package io.datarouter.aws.s3.config;
 
 import io.datarouter.web.config.BaseWebPlugin;
+import io.datarouter.web.navigation.DatarouterNavBarCategory;
 
 public class DatarouterAwsS3Plugin extends BaseWebPlugin{
 
 	public static final String NAME = "Datarouter S3";
+	private static final DatarouterAwsS3Paths PATHS = new DatarouterAwsS3Paths();
 
 	public DatarouterAwsS3Plugin(){
 		addRouteSet(DatarouterAwsS3RouteSet.class);
 		addDatarouterGithubDocLink("datarouter-aws-s3");
+		addDatarouterNavBarItem(
+				DatarouterNavBarCategory.DATA,
+				PATHS.datarouter.clients.awsS3.bulkCopy.form,
+				"S3 - Bulk Copy");
 	}
 
 	@Override

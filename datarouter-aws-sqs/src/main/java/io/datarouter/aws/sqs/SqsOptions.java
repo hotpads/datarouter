@@ -18,9 +18,6 @@ package io.datarouter.aws.sqs;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +26,8 @@ import io.datarouter.secret.op.SecretOpReason;
 import io.datarouter.secret.service.SecretNamespacer;
 import io.datarouter.secret.service.SecretService;
 import io.datarouter.storage.client.ClientOptions;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class SqsOptions{
@@ -51,13 +50,13 @@ public class SqsOptions{
 
 	public String getAccessKey(String clientName){
 		return readCredentialsSecret(clientName)
-				.map(dto -> dto.accessKey)
+				.map(SqsCredentialsDto::accessKey)
 				.orElseGet(() -> clientOptions.getRequiredString(clientName, PROP_accessKey));
 	}
 
 	public String getSecretKey(String clientName){
 		return readCredentialsSecret(clientName)
-				.map(dto -> dto.secretKey)
+				.map(SqsCredentialsDto::secretKey)
 				.orElseGet(() -> clientOptions.getRequiredString(clientName, PROP_secretKey));
 	}
 

@@ -23,9 +23,6 @@ import static j2html.TagCreator.td;
 import java.time.ZoneId;
 import java.util.List;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.apache.http.client.utils.URIBuilder;
 
 import io.datarouter.changelog.config.DatarouterChangelogPaths;
@@ -39,6 +36,8 @@ import io.datarouter.web.html.j2html.J2HtmlTable;
 import j2html.attributes.Attr;
 import j2html.tags.specialized.TableTag;
 import j2html.tags.specialized.TdTag;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class ViewChangelogService{

@@ -18,13 +18,12 @@ package io.datarouter.exception.conveyors;
 import java.util.Collection;
 import java.util.function.Consumer;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.conveyor.queue.configuration.BaseMemoryBufferPutMultiConsumerConveyorConfiguration;
 import io.datarouter.exception.storage.exceptionrecord.DatarouterExceptionRecordDao;
 import io.datarouter.exception.storage.exceptionrecord.ExceptionRecord;
 import io.datarouter.util.buffer.MemoryBuffer;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class ExceptionRecordMemoryToDatabaseConveyorConfiguration

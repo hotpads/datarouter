@@ -15,8 +15,6 @@
  */
 package io.datarouter.web.browse;
 
-import javax.inject.Inject;
-
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.DatarouterClients;
 import io.datarouter.web.config.DatarouterWebPaths;
@@ -24,6 +22,7 @@ import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.InContextRedirectMav;
 import io.datarouter.web.handler.mav.imp.MessageMav;
+import jakarta.inject.Inject;
 
 public class DatarouterClientHandler extends BaseHandler{
 

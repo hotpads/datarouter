@@ -15,9 +15,6 @@
  */
 package io.datarouter.client.memory;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.bytes.Codec;
 import io.datarouter.client.memory.node.blob.MemoryBlobNode;
 import io.datarouter.client.memory.node.blobqueue.MemoryBlobQueueNode;
@@ -52,6 +49,8 @@ import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.storage.tally.Tally;
 import io.datarouter.storage.tally.Tally.TallyFielder;
 import io.datarouter.storage.tally.TallyKey;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class MemoryClientNodeFactory

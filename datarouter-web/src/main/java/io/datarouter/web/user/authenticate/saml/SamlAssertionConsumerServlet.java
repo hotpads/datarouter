@@ -17,11 +17,12 @@ package io.datarouter.web.user.authenticate.saml;
 
 import java.io.IOException;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 @SuppressWarnings("serial")

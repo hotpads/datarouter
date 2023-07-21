@@ -15,14 +15,13 @@
  */
 package io.datarouter.opencensus;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.opencensus.adapter.DatarouterOpencensusTraceExporter;
 import io.datarouter.web.listener.DatarouterAppListener;
 import io.opencensus.trace.Tracing;
 import io.opencensus.trace.config.TraceConfig;
 import io.opencensus.trace.samplers.Samplers;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterOpencensusAppListener implements DatarouterAppListener{

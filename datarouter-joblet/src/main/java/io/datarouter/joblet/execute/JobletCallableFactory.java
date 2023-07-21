@@ -15,15 +15,14 @@
  */
 package io.datarouter.joblet.execute;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.joblet.DatarouterJobletCounters;
 import io.datarouter.joblet.service.JobletFactory;
 import io.datarouter.joblet.service.JobletService;
 import io.datarouter.joblet.type.JobletType;
 import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.util.mutable.MutableBoolean;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class JobletCallableFactory{

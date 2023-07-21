@@ -21,8 +21,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import javax.inject.Inject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
@@ -36,7 +34,6 @@ import com.google.cloud.spanner.SpannerException;
 import io.datarouter.gcp.spanner.SpannerTestNgModuleFactory;
 import io.datarouter.gcp.spanner.client.SpannerClientOptions;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.scanner.Threads;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.factory.NodeFactory;
@@ -45,6 +42,7 @@ import io.datarouter.storage.test.TestDatabean;
 import io.datarouter.storage.test.TestDatabeanFielder;
 import io.datarouter.storage.test.TestDatabeanKey;
 import io.datarouter.util.Count.Counts;
+import jakarta.inject.Inject;
 
 @Guice(moduleFactory = SpannerTestNgModuleFactory.class)
 public class SpannerSessionPoolIntegrationTester{
@@ -104,7 +102,6 @@ public class SpannerSessionPoolIntegrationTester{
 
 		int numIterations = maxSessions + 2;
 		int numThreads = 1;
-		boolean paralleScan = false;
 		var config = new Config().setResponseBatchSize(2_000);
 		int timeoutMs = 300;
 		boolean cancelFutures = true;
@@ -113,7 +110,7 @@ public class SpannerSessionPoolIntegrationTester{
 
 		Scanner.iterate(0, i -> i + 1)
 				.limit(numIterations)
-				.parallelOrdered(new Threads(scannerExec, numThreads), paralleScan)
+//				.parallelOrdered(new Threads(scannerExec, numThreads))
 				.each(i -> {
 					var future = opExec.submit(() -> {
 						try{

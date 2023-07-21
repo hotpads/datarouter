@@ -17,9 +17,6 @@ package io.datarouter.conveyor.trace;
 
 import java.util.Optional;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,6 +24,8 @@ import io.datarouter.conveyor.config.DatarouterConveyorTraceSettings;
 import io.datarouter.instrumentation.trace.ConveyorTraceAndTaskExecutorBundleDto;
 import io.datarouter.storage.setting.Setting;
 import io.datarouter.util.buffer.MemoryBuffer;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class ConveyorTraceBuffer{

@@ -17,9 +17,6 @@ package io.datarouter.job.config;
 
 import java.util.Map;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.instrumentation.test.TestableService;
 import io.datarouter.job.BaseJob;
@@ -28,6 +25,8 @@ import io.datarouter.job.TriggerGroupClasses;
 import io.datarouter.job.scheduler.JobSchedulerTestService;
 import io.datarouter.util.clazz.AnnotationTool;
 import io.datarouter.web.config.SingletonTestService;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 /**
  * Use this class to check for injection problems

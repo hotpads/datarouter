@@ -21,8 +21,6 @@ import static j2html.TagCreator.h2;
 
 import java.util.Optional;
 
-import javax.inject.Inject;
-
 import io.datarouter.filesystem.snapshot.benchmark.SnapshotBenchmark;
 import io.datarouter.filesystem.snapshot.group.SnapshotGroup;
 import io.datarouter.filesystem.snapshot.group.SnapshotGroups;
@@ -34,6 +32,7 @@ import io.datarouter.web.html.form.HtmlForm;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import j2html.tags.specialized.DivTag;
+import jakarta.inject.Inject;
 
 public class DatarouterSnapshotBenchmarkHandler extends BaseHandler{
 

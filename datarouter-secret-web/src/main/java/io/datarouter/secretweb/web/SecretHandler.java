@@ -21,8 +21,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import javax.inject.Inject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,6 +43,7 @@ import io.datarouter.util.string.StringTool;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.html.react.bootstrap4.Bootstrap4ReactPageFactory;
+import jakarta.inject.Inject;
 
 public class SecretHandler extends BaseHandler{
 	private static final Logger logger = LoggerFactory.getLogger(SecretHandler.class);

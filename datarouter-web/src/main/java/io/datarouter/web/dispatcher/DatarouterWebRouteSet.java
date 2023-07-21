@@ -15,9 +15,6 @@
  */
 package io.datarouter.web.dispatcher;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.browse.DatarouterClientHandler;
 import io.datarouter.web.browse.DatarouterHomepageHandler;
@@ -43,6 +40,8 @@ import io.datarouter.web.monitoring.ExecutorsMonitoringHandler;
 import io.datarouter.web.monitoring.MemoryMonitoringHandler;
 import io.datarouter.web.shutdown.ShutdownHandler;
 import io.datarouter.web.user.role.DatarouterUserRole;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterWebRouteSet extends BaseRouteSet{

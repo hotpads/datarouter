@@ -20,14 +20,13 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Enumeration;
 
-import javax.inject.Singleton;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
 
 import io.datarouter.web.listener.DatarouterAppListener;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class MysqlAppListener implements DatarouterAppListener{

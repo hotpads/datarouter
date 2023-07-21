@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.RandomAccess;
 
+import io.datarouter.bytes.varint.VarIntTool;
+
 /**
  * Concatenated List of byte arrays with RandomAccess
  */

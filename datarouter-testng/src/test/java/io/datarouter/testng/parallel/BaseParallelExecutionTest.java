@@ -28,8 +28,6 @@ import org.testng.annotations.Test;
 public abstract class BaseParallelExecutionTest{
 	private static final Logger logger = LoggerFactory.getLogger(BaseParallelExecutionTest.class);
 
-	public static final boolean RUN_SUITE = false;
-
 	@BeforeClass
 	public void beforeClass(){
 		print(getClass().getSimpleName() + " tests");
@@ -50,31 +48,31 @@ public abstract class BaseParallelExecutionTest{
 		print("End - " + method.getName());
 	}
 
-	@Test
+	@Test(enabled = false)
 	public void test1(){
 		print("Execute - test1");
 		sleep();
 	}
 
-	@Test
+	@Test(enabled = false)
 	public void test2(){
 		print("Execute - test2");
 		sleep();
 	}
 
-	@Test
+	@Test(enabled = false)
 	public void test3(){
 		print("Execute - test3");
 		sleep();
 	}
 
-	@Test
+	@Test(enabled = false)
 	public void test4(){
 		print("Execute - test4");
 		sleep();
 	}
 
-	@Test
+	@Test(enabled = false)
 	public void test5(){
 		print("Execute - test5");
 		sleep();

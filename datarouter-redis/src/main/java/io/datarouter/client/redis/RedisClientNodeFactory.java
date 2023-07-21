@@ -15,9 +15,6 @@
  */
 package io.datarouter.client.redis;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.bytes.ByteLength;
 import io.datarouter.client.redis.client.RedisClientManager;
 import io.datarouter.client.redis.codec.RedisBlobCodec;
@@ -52,6 +49,8 @@ import io.datarouter.storage.tally.Tally;
 import io.datarouter.storage.tally.Tally.TallyFielder;
 import io.datarouter.storage.tally.TallyKey;
 import io.datarouter.storage.util.Subpath;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class RedisClientNodeFactory

@@ -15,9 +15,6 @@
  */
 package io.datarouter.client.hbase.callback;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.apache.hadoop.hbase.HRegionInfo;
 import org.apache.hadoop.hbase.HRegionLocation;
 import org.apache.hadoop.hbase.ServerName;
@@ -35,6 +32,8 @@ import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.instrumentation.trace.TracerTool.TraceSpanInfoBuilder;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientTableNodeNames;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class CountingBatchCallbackFactory{

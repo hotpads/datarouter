@@ -24,8 +24,6 @@ import static j2html.TagCreator.pre;
 import java.util.List;
 import java.util.Map;
 
-import javax.inject.Inject;
-
 import io.datarouter.aws.rds.config.DatarouterAwsPaths;
 import io.datarouter.aws.rds.service.AuroraDnsService;
 import io.datarouter.aws.rds.service.AuroraDnsService.DnsHostEntryDto;
@@ -42,6 +40,7 @@ import io.datarouter.web.email.DatarouterHtmlEmailService;
 import io.datarouter.web.email.StandardDatarouterEmailHeaderService;
 import j2html.tags.specialized.BodyTag;
 import j2html.tags.specialized.PreTag;
+import jakarta.inject.Inject;
 
 public class AuroraDnsMonitoringJob extends BaseJob{
 

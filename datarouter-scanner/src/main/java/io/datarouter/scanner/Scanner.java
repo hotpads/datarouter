@@ -342,19 +342,11 @@ public interface Scanner<T> extends Closeable{
 	/*----------------------------- Multi-Threaded --------------------------------*/
 
 	default ParallelScanner<T> parallelOrdered(Threads threads){
-		return new ParallelScanner<>(this, threads, false, true);
-	}
-
-	default ParallelScanner<T> parallelOrdered(Threads threads, boolean enabled){
-		return new ParallelScanner<>(this, threads, false, enabled);
+		return new ParallelScanner<>(this, threads, false);
 	}
 
 	default ParallelScanner<T> parallelUnordered(Threads threads){
-		return new ParallelScanner<>(this, threads, true, true);
-	}
-
-	default ParallelScanner<T> parallelUnordered(Threads threads, boolean enabled){
-		return new ParallelScanner<>(this, threads, true, enabled);
+		return new ParallelScanner<>(this, threads, true);
 	}
 
 	@SuppressWarnings("resource")

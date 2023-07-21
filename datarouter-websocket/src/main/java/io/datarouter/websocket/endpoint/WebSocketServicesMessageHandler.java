@@ -18,8 +18,6 @@ package io.datarouter.websocket.endpoint;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import javax.websocket.MessageHandler;
 
 import org.slf4j.Logger;
@@ -29,6 +27,8 @@ import io.datarouter.util.string.StringTool;
 import io.datarouter.web.exception.ExceptionRecorder;
 import io.datarouter.websocket.WebSocketCounters;
 import io.datarouter.websocket.storage.session.WebSocketSession;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 public class WebSocketServicesMessageHandler implements ClosableMessageHandler, MessageHandler.Whole<String>{
 	private static final Logger logger = LoggerFactory.getLogger(WebSocketServicesMessageHandler.class);

@@ -17,15 +17,14 @@ package io.datarouter.auth.service;
 
 import java.time.Duration;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import com.github.benmanes.caffeine.cache.CacheLoader;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 
 import io.datarouter.auth.storage.account.DatarouterAccountDao;
 import io.datarouter.auth.storage.account.DatarouterAccountKey;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class CallerTypeByAccountNameCache{

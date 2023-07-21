@@ -17,9 +17,8 @@ package io.datarouter.storage.config.properties;
 
 import java.util.function.Supplier;
 
-import javax.inject.Singleton;
-
 import io.datarouter.storage.config.ConfigDirectoryConstants;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class TestConfigDirectory implements Supplier<String>{

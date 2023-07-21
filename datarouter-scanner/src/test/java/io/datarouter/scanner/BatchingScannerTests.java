@@ -15,7 +15,6 @@
  */
 package io.datarouter.scanner;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.testng.Assert;
@@ -25,7 +24,7 @@ public class BatchingScannerTests{
 
 	@Test
 	public void testEmptyInputScanner(){
-		Scanner<List<Integer>> batchingScanner = Scanner.of(new ArrayList<Integer>()).batch(3);
+		Scanner<List<Integer>> batchingScanner = Scanner.<Integer>empty().batch(3);
 		Assert.assertFalse(batchingScanner.advance());
 	}
 

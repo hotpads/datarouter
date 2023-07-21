@@ -15,14 +15,14 @@
  */
 package io.datarouter.joblet;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 
 import io.datarouter.joblet.nav.JobletSubnavFactory;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageBuilder;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4SubnavHtml;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class JobletPageFactory extends Bootstrap4PageFactory{

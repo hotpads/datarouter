@@ -17,7 +17,7 @@ package io.datarouter.web.config.service;
 
 import java.util.function.Supplier;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 /**
  * root path segment

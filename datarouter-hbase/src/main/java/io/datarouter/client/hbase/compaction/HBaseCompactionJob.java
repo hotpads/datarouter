@@ -18,8 +18,6 @@ package io.datarouter.client.hbase.compaction;
 import java.util.List;
 import java.util.concurrent.atomic.LongAdder;
 
-import javax.inject.Inject;
-
 import org.apache.hadoop.hbase.client.Admin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +34,7 @@ import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.util.timer.PhaseTimer;
+import jakarta.inject.Inject;
 
 public class HBaseCompactionJob extends BaseJob{
 	private static final Logger logger = LoggerFactory.getLogger(HBaseCompactionJob.class);

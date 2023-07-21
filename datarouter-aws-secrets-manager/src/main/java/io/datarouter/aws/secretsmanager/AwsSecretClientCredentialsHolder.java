@@ -15,8 +15,6 @@
  */
 package io.datarouter.aws.secretsmanager;
 
-import javax.inject.Singleton;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,6 +26,9 @@ import com.amazonaws.auth.EnvironmentVariableCredentialsProvider;
 import com.amazonaws.auth.SystemPropertiesCredentialsProvider;
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 
+import io.datarouter.util.lang.ReflectionTool;
+import jakarta.inject.Singleton;
+
 @Singleton
 public class AwsSecretClientCredentialsHolder{
 	private static final Logger logger = LoggerFactory.getLogger(AwsSecretClientCredentialsHolder.class);
@@ -35,13 +36,16 @@ public class AwsSecretClientCredentialsHolder{
 	public static final String PROFILE_NAME = "secretsmanager";
 
 	public AWSCredentialsProvider getCredentialsProvider(){
-		AWSCredentialsProvider provider = new AWSCredentialsProviderChain(
+		AWSCredentialsProviderChain provider = new AWSCredentialsProviderChain(
 				new SystemPropertiesCredentialsProvider(),
 				new EnvironmentVariableCredentialsProvider(),
 				new ProfileCredentialsProvider(PROFILE_NAME));
 		try{
 			AWSCredentials credentials = provider.getCredentials();
-			logger.warn("using accessKey={}", credentials.getAWSAccessKeyId());
+			Object usedProvider = ReflectionTool.get("lastUsedProvider", provider);
+			logger.warn("using accessKey={} from provider={}",
+					credentials.getAWSAccessKeyId(),
+					usedProvider.getClass().getSimpleName());
 			return provider;
 		}catch(SdkClientException e){
 			throw new RuntimeException("failed to find AWS credentials.");

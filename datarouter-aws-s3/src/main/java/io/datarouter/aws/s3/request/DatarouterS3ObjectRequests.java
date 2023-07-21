@@ -22,6 +22,7 @@ import java.util.Optional;
 import io.datarouter.aws.s3.DatarouterS3ClientManager;
 import io.datarouter.aws.s3.DatarouterS3Counters;
 import io.datarouter.aws.s3.DatarouterS3Counters.S3CounterSuffix;
+import io.datarouter.aws.s3.S3CostCounters;
 import io.datarouter.aws.s3.S3Headers.S3ContentType;
 import io.datarouter.aws.s3.S3Limits;
 import io.datarouter.aws.s3.S3Tool;
@@ -71,6 +72,7 @@ public class DatarouterS3ObjectRequests{
 				TracerTool.appendToSpanInfo("Content-Length", response.contentLength());
 			}
 			DatarouterS3Counters.inc(location.bucket(), S3CounterSuffix.HEAD_HIT, 1);
+			S3CostCounters.read();
 			return Optional.of(response);
 		}catch(NoSuchKeyException e){
 			DatarouterS3Counters.inc(location.bucket(), S3CounterSuffix.HEAD_MISS, 1);
@@ -87,11 +89,12 @@ public class DatarouterS3ObjectRequests{
 				.key(location.key())
 				.build();
 		ResponseInputStream<GetObjectResponse> response;
-		try(var $ = TracerTool.startSpan("S3 getObject", TraceSpanGroupType.CLOUD_STORAGE)){
+		try(var $ = TracerTool.startSpan("S3 getObjectInputStream", TraceSpanGroupType.CLOUD_STORAGE)){
 			response = s3Client.getObject(request);
 			TracerTool.appendToSpanInfo("Content-Length", response.response().contentLength());
 		}
 		DatarouterS3Counters.inc(location.bucket(), S3CounterSuffix.READ_INPUT_STREAM_REQUESTS, 1);
+		S3CostCounters.read();
 		// TODO add CountingInputStream to count bytes
 		return response;
 	}
@@ -112,8 +115,9 @@ public class DatarouterS3ObjectRequests{
 			TracerTool.appendToSpanInfo("Content-Length", response.response().contentLength());
 		}
 		byte[] bytes = response.asByteArray();
-		DatarouterS3Counters.inc(location.bucket(), S3CounterSuffix.READ_REQUESTS, 1);
-		DatarouterS3Counters.inc(location.bucket(), S3CounterSuffix.READ_BYTES, bytes.length);
+		DatarouterS3Counters.inc(location.bucket(), S3CounterSuffix.READ_OBJECT_REQUESTS, 1);
+		DatarouterS3Counters.inc(location.bucket(), S3CounterSuffix.READ_OBJECT_BYTES, bytes.length);
+		S3CostCounters.read();
 		return bytes;
 	}
 
@@ -134,6 +138,7 @@ public class DatarouterS3ObjectRequests{
 		byte[] bytes = response.asByteArray();
 		DatarouterS3Counters.inc(location.bucket(), S3CounterSuffix.READ_PARTIAL_REQUESTS, 1);
 		DatarouterS3Counters.inc(location.bucket(), S3CounterSuffix.READ_PARTIAL_BYTES, bytes.length);
+		S3CostCounters.read();
 		return bytes;
 	}
 
@@ -152,6 +157,7 @@ public class DatarouterS3ObjectRequests{
 			s3Client.copyObject(request);
 		}
 		DatarouterS3Counters.inc(bucket, S3CounterSuffix.COPY_REQUESTS, 1);
+		S3CostCounters.write();
 	}
 
 	public void putObject(
@@ -170,8 +176,9 @@ public class DatarouterS3ObjectRequests{
 			s3Client.putObject(request, requestBody);
 			TracerTool.appendToSpanInfo("Content-Length", request.contentLength());
 		}
-		DatarouterS3Counters.inc(location.bucket(), S3CounterSuffix.WRITE_REQUESTS, 1);
-		DatarouterS3Counters.inc(location.bucket(), S3CounterSuffix.WRITE_BYTES, bytes.length);
+		DatarouterS3Counters.inc(location.bucket(), S3CounterSuffix.WRITE_OBJECT_REQUESTS, 1);
+		DatarouterS3Counters.inc(location.bucket(), S3CounterSuffix.WRITE_OBJECT_BYTES, bytes.length);
+		S3CostCounters.write();
 	}
 
 	/*---------- delete ----------*/
@@ -186,6 +193,7 @@ public class DatarouterS3ObjectRequests{
 			s3Client.deleteObject(request);
 		}
 		DatarouterS3Counters.inc(location.bucket(), S3CounterSuffix.DELETE_REQUESTS, 1);
+		// Cost: S3 deletes are free
 	}
 
 	public void deleteMulti(BucketAndKeys bucketAndKeys){
@@ -214,6 +222,7 @@ public class DatarouterS3ObjectRequests{
 				bucketAndKeys.bucket(),
 				S3CounterSuffix.DELETE_MULTI_KEYS,
 				bucketAndKeys.keys().size());
+		// Cost: S3 deletes are free
 	}
 
 }

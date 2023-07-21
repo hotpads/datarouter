@@ -15,6 +15,7 @@
  */
 package io.datarouter.util.time;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
@@ -22,6 +23,11 @@ public class InstantTool{
 
 	public static Instant getDaysAgo(int daysAgo){
 		return Instant.now().minus(daysAgo, ChronoUnit.DAYS);
+	}
+
+	public static boolean isOlderThan(Instant instant, Duration ageLimit){
+		Duration age = Duration.between(instant, Instant.now());
+		return age.compareTo(ageLimit) > 0;
 	}
 
 }

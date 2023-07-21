@@ -15,9 +15,6 @@
  */
 package io.datarouter.job.config;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.job.BaseTriggerGroup;
 import io.datarouter.job.job.DatarouterJobStopperJob;
 import io.datarouter.job.monitoring.JobRetriggeringJob;
@@ -30,6 +27,8 @@ import io.datarouter.job.vacuum.TaskTrackerPublishJob;
 import io.datarouter.job.vacuum.TriggerLockVacuumUnlockJob;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.util.time.ZoneIds;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterJobTriggerGroup extends BaseTriggerGroup{

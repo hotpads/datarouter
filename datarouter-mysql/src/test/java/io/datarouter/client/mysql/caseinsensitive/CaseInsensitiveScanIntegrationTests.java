@@ -17,14 +17,13 @@ package io.datarouter.client.mysql.caseinsensitive;
 
 import java.util.List;
 
-import javax.inject.Inject;
-
 import org.testng.Assert;
 import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
 import io.datarouter.client.mysql.DatarouterMysqlTestNgModuleFactory;
 import io.datarouter.util.tuple.Range;
+import jakarta.inject.Inject;
 
 @Guice(moduleFactory = DatarouterMysqlTestNgModuleFactory.class)
 public class CaseInsensitiveScanIntegrationTests{

@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import io.datarouter.bytes.InputStreamTool;
+import io.datarouter.bytes.io.InputStreamTool;
 import io.datarouter.scanner.OptionalScanner;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientType;
@@ -91,16 +91,7 @@ implements PhysicalBlobStorageNode{
 	}
 
 	@Override
-	public Map<PathbeanKey,byte[]> read(List<PathbeanKey> keys, Config config){
-		return Scanner.of(keys)
-				.map(keyCodec::encode)
-				.map(storage::find)
-				.concat(OptionalScanner::of)
-				.toMap(keyCodec::decode, MemoryBlob::getValue);
-	}
-
-	@Override
-	public byte[] read(PathbeanKey key, long offset, int length, Config config){
+	public byte[] readPartial(PathbeanKey key, long offset, int length, Config config){
 		int from = (int)offset;
 		int to = from + length;
 		return Optional.of(key)
@@ -109,6 +100,15 @@ implements PhysicalBlobStorageNode{
 				.map(MemoryBlob::getValue)
 				.map(bytes -> Arrays.copyOfRange(bytes, from, to))
 				.orElse(null);
+	}
+
+	@Override
+	public Map<PathbeanKey,byte[]> readMulti(List<PathbeanKey> keys, Config config){
+		return Scanner.of(keys)
+				.map(keyCodec::encode)
+				.map(storage::find)
+				.concat(OptionalScanner::of)
+				.toMap(keyCodec::decode, MemoryBlob::getValue);
 	}
 
 	@Override
@@ -140,7 +140,7 @@ implements PhysicalBlobStorageNode{
 	}
 
 	@Override
-	public void write(PathbeanKey key, InputStream inputStream, Config config){
+	public void writeInputStream(PathbeanKey key, InputStream inputStream, Config config){
 		byte[] value = InputStreamTool.toArray(inputStream);
 		write(key, value);
 	}

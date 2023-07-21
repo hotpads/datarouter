@@ -21,9 +21,9 @@
 
 	<parent>
 		<groupId>io.datarouter</groupId>
-		<artifactId>datarouter-parent</artifactId>
-		<version>0.0.120</version>
-		<relativePath>../datarouter-parent</relativePath>
+		<artifactId>datarouter-java17-parent</artifactId>
+		<version>0.0.121</version>
+		<relativePath>../datarouter-java17-parent</relativePath>
 	</parent>
 
 	<artifactId>datarouter-path-node</artifactId>

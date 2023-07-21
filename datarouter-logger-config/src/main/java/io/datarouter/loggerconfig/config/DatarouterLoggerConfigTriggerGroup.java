@@ -15,14 +15,13 @@
  */
 package io.datarouter.loggerconfig.config;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.job.BaseTriggerGroup;
 import io.datarouter.loggerconfig.job.LoggerConfigCleanupJob;
 import io.datarouter.loggerconfig.job.LoggerConfigUpdaterJob;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.util.time.ZoneIds;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterLoggerConfigTriggerGroup extends BaseTriggerGroup{

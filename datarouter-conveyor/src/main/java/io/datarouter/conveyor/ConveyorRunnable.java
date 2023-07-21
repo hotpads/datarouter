@@ -19,12 +19,6 @@ public interface ConveyorRunnable extends Comparable<ConveyorRunnable>, Runnable
 
 	String getName();
 	boolean shouldRun();
-	void setIsShuttingDown();
-	boolean isShuttingDown();
-
-	default boolean shouldRunOnShutdown(){
-		return false;
-	}
 
 	@Override
 	default int compareTo(ConveyorRunnable other){

@@ -18,9 +18,6 @@ package io.datarouter.nodewatch.storage.tablesample;
 import java.util.Collection;
 import java.util.List;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.nodewatch.storage.tablesample.TableSample.TableSampleFielder;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
@@ -33,6 +30,8 @@ import io.datarouter.storage.node.tableconfig.ClientTableEntityPrefixNameWrapper
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.util.tuple.Range;
 import io.datarouter.virtualnode.redundant.RedundantSortedMapStorageNode;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterTableSampleDao extends BaseDao{

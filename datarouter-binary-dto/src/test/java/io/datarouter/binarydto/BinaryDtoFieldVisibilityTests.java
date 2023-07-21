@@ -24,7 +24,7 @@ import io.datarouter.binarydto.dto.ComparableBinaryDto;
 
 public class BinaryDtoFieldVisibilityTests{
 
-	public static class TestDto extends ComparableBinaryDto<TestDto>{
+	private static class TestDto extends ComparableBinaryDto<TestDto>{
 
 		//Ensure the static field is ignored
 		public static final int STATIC_FIELD = 0;

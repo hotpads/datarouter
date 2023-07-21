@@ -27,8 +27,6 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-
 import org.apache.hadoop.hbase.HRegionInfo;
 import org.apache.hadoop.hbase.HRegionLocation;
 import org.apache.hadoop.hbase.RegionLoad;
@@ -50,6 +48,7 @@ import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.storage.serialize.fieldcache.EntityFieldInfo;
 import io.datarouter.util.concurrent.CallableTool;
+import jakarta.inject.Inject;
 
 public class DrRegionListFactory{
 	private static final Logger logger = LoggerFactory.getLogger(DrRegionList.class);

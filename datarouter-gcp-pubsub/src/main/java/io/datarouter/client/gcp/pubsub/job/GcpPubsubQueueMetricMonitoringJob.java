@@ -15,8 +15,6 @@
  */
 package io.datarouter.client.gcp.pubsub.job;
 
-import javax.inject.Inject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,6 +40,7 @@ import io.datarouter.storage.util.DatarouterQueueMetrics;
 import io.datarouter.util.concurrent.ThreadTool;
 import io.datarouter.util.number.RandomTool;
 import io.datarouter.util.timer.PhaseTimer;
+import jakarta.inject.Inject;
 
 public class GcpPubsubQueueMetricMonitoringJob extends BaseJob{
 	private static final Logger logger = LoggerFactory.getLogger(GcpPubsubQueueMetricMonitoringJob.class);

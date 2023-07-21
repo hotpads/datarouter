@@ -17,10 +17,10 @@ package io.datarouter.pathnode;
 
 import java.util.List;
 
-import javax.inject.Singleton;
-
 import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import jakarta.inject.Singleton;
 
 public class PathNodeTests{
 

@@ -17,12 +17,11 @@ package io.datarouter.inject.guice;
 
 import java.util.Map;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import com.google.inject.Injector;
 
 import io.datarouter.inject.DatarouterInjector;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class GuiceInjector implements DatarouterInjector{

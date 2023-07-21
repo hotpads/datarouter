@@ -18,13 +18,12 @@ package io.datarouter.joblet.nav;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.plugin.PluginConfigKey;
 import io.datarouter.plugin.PluginConfigType;
 import io.datarouter.plugin.PluginConfigValue;
 import io.datarouter.plugin.PluginInjector;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 public interface JobletExternalLinkBuilder extends PluginConfigValue<JobletExternalLinkBuilder>{
 

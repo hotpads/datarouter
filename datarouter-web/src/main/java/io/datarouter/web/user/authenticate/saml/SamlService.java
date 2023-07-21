@@ -29,8 +29,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -58,6 +56,8 @@ import io.datarouter.web.user.role.Role;
 import io.datarouter.web.user.role.RoleManager;
 import io.datarouter.web.user.session.service.Session;
 import io.datarouter.web.user.session.service.UserSessionService;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 /**
  * To configure SAML:<ol>
@@ -103,7 +103,7 @@ public class SamlService{
 
 		PhaseTimer phaseTimer = new PhaseTimer();
 		if(logger.isDebugEnabled()){
-			logger.debug(Arrays.asList(Security.getProviders()).stream()
+			logger.debug(Arrays.stream(Security.getProviders())
 					.map(Provider::getInfo)
 					.collect(Collectors.joining(", ", "Security providers: ", "")));
 			phaseTimer.add("log");
@@ -214,9 +214,9 @@ public class SamlService{
 
 	private Set<Role> determineRoles(Assertion assertion, String username,
 			Map<String,String> attributeToRoleGroupIdMap){
-		Set<Role> rolesForDefaultGroup = roleManager.getRolesForDefaultGroup();
+		Set<Role> rolesForDefaultGroup = roleManager.getDefaultRoles();
 		var roleGroupAttributes = SamlTool.streamAttributeValuesByName(SamlTool.ROLE_GROUP_ATTRIBUTE_NAME, assertion)
-				.collect(Collectors.toList());
+				.toList();
 		List<Role> rolesForConfigurableRoleGroups = roleGroupAttributes.stream()
 				.map(roleManager::getRolesForGroup)
 				.flatMap(Set::stream)
@@ -229,11 +229,11 @@ public class SamlService{
 				.collect(Collectors.toList());
 		List<Role> rolesForRoleAttributes = SamlTool.streamAttributeValuesByName(SamlTool.ROLE_ATTRIBUTE_NAME,
 				assertion)
-				.map(roleManager::getRoleFromPersistentString)
-				.filter(Objects::nonNull)
+				.map(roleManager::findRoleFromPersistentString)
+				.flatMap(Optional::stream)
 				.collect(Collectors.toList());
 		Set<Role> superRolesForAdminUsers = username.equals(adminEmail.get())
-				? roleManager.getRolesForSuperGroup()
+				? roleManager.getSuperAdminRoles()
 				: Collections.emptySet();
 		return Scanner.concat(rolesForDefaultGroup, rolesForConfigurableRoleGroups, rolesForSettingRoleGroups,
 				rolesForRoleAttributes, superRolesForAdminUsers)
@@ -266,11 +266,9 @@ public class SamlService{
 		//get rid of query params if any
 		String urlForChecking = StringTool.nullSafe(url).toLowerCase().split("\\?")[0];
 		//try to avoid infinite login loops
-		if(StringTool.isEmptyOrWhitespace(urlForChecking) || urlForChecking.endsWith("signin") || urlForChecking
-				.endsWith("login")){
-			return false;
-		}
-		return true;
+		return !StringTool.isEmptyOrWhitespace(urlForChecking)
+				&& !urlForChecking.endsWith("signin")
+				&& !urlForChecking.endsWith("login");
 	}
 
 	private static String getRedirectUrlFromResponseContext(MessageContext responseContext,

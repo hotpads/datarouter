@@ -60,7 +60,8 @@ public class SecretOpAdapterChainUnitTests{
 	public void testMultiItemChain(){
 		var nsSpy = spy(new SecretNamespacingAdapter(namespacer, manualConfig, NamespacingMode.REMOVING));
 		var deserializeSpy = spy(new DeserializingAdapter<>(jsonSerializer, String.class, manualConfig));
-		var extractSpy = spy(new SecretValueExtractingAdapter<String>());
+		SecretValueExtractingAdapter<String> secretValueExtractingAdapter = new SecretValueExtractingAdapter<>();
+		var extractSpy = spy(secretValueExtractingAdapter);
 		SecretOpAdapterChain<Secret,String> chain = new SecretOpAdapterChain<>(nsSpy)
 				.chain(deserializeSpy)
 				.chain(extractSpy);
@@ -71,12 +72,10 @@ public class SecretOpAdapterChainUnitTests{
 		InOrder inOrder = inOrder(nsSpy, deserializeSpy, extractSpy);
 		inOrder.verify(nsSpy, times(1)).adapt(secret);
 		//Secret does not define equals, so I can't check the exact input
-		inOrder.verify(deserializeSpy, times(1)).adapt(Mockito.argThat(input -> {
-			return input.getName().equals("name") && input.getValue().equals("value");
-		}));
-		inOrder.verify(extractSpy, times(1)).adapt(Mockito.argThat(input -> {
-			return input.getName().equals("name") && input.getValue().equals("value");
-		}));
+		inOrder.verify(deserializeSpy, times(1))
+				.adapt(Mockito.argThat(input -> input.getName().equals("name") && input.getValue().equals("value")));
+		inOrder.verify(extractSpy, times(1))
+				.adapt(Mockito.argThat(input -> input.getName().equals("name") && input.getValue().equals("value")));
 		inOrder.verifyNoMoreInteractions();
 	}
 

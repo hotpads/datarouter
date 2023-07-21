@@ -15,11 +15,10 @@
  */
 package io.datarouter.webappinstance.job;
 
-import javax.inject.Inject;
-
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
 import io.datarouter.webappinstance.storage.webappinstance.DatarouterWebappInstanceDao;
+import jakarta.inject.Inject;
 
 public class WebappInstanceVacuumJob extends BaseJob{
 

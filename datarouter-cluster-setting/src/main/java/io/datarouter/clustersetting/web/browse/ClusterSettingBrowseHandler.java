@@ -20,42 +20,76 @@ import static j2html.TagCreator.div;
 
 import java.util.Optional;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.apache.http.client.utils.URIBuilder;
 
 import io.datarouter.clustersetting.config.DatarouterClusterSettingPaths;
 import io.datarouter.clustersetting.web.ClusterSettingHtml;
+import io.datarouter.clustersetting.web.browse.ClusterSettingBrowseNavHtml.ClusterSettingBrowseNavHtmlFactory;
+import io.datarouter.httpclient.endpoint.link.BaseLink;
+import io.datarouter.httpclient.endpoint.link.LinkType.NoOpLinkType;
 import io.datarouter.web.config.ServletContextSupplier;
+import io.datarouter.web.email.DatarouterHtmlEmailService;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.html.form.HtmlForm;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import j2html.tags.specialized.DivTag;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 public class ClusterSettingBrowseHandler extends BaseHandler{
-
-	public static final String
-			P_location = "location",
-			P_partialName = "partialName";
 
 	@Inject
 	private Bootstrap4PageFactory pageFactory;
 	@Inject
-	private ClusterSettingBrowseNavHtml navHtml;
+	private ClusterSettingBrowseNavHtmlFactory navHtmlFactory;
+	@Inject
+	private ClusterSettingHtml clusterSettingHtml;
 
-	/*------------ handlers ------------*/
+	public static class ClusterSettingBrowseHandlerParams extends BaseLink<NoOpLinkType>{
+
+		private static final String
+				P_location = "location",
+				P_partialName = "partialName";
+
+		public Optional<String> location = Optional.empty();
+		public Optional<String> partialName = Optional.empty();
+
+		public ClusterSettingBrowseHandlerParams(){
+			super(new DatarouterClusterSettingPaths().datarouter.settings.browse.all);
+		}
+
+		// location
+		public ClusterSettingBrowseHandlerParams withLocation(String location){
+			this.location = Optional.of(location);
+			return this;
+		}
+
+		public ClusterSettingBrowseHandlerParams withOptLocation(Optional<String> optLocation){
+			this.location = optLocation;
+			return this;
+		}
+
+		// partialName
+		public ClusterSettingBrowseHandlerParams withPartialName(String partialName){
+			this.partialName = Optional.of(partialName);
+			return this;
+		}
+
+		public ClusterSettingBrowseHandlerParams withOptPartialName(Optional<String> optPartialName){
+			this.partialName = optPartialName;
+			return this;
+		}
+	}
 
 	@Handler
-	public Mav all(
-			Optional<String> location,
-			Optional<String> partialName){
-		String title = ClusterSettingHtml.makeTitle("Browse");
-		var headerDiv = ClusterSettingHtml.makeHeader(title, "Browse settings via the hierarchy defined in code");
-		var filterDiv = makeFilterDiv(location, partialName);
-		var treeDiv = navHtml.makeBodyDiv(location, partialName);
+	public Mav all(ClusterSettingBrowseHandlerParams params){
+		String title = clusterSettingHtml.makeTitle("Browse");
+		var headerDiv = clusterSettingHtml.makeHeader(title, "Browse settings via the hierarchy defined in code");
+		var filterDiv = makeFilterDiv(params);
+		var navHtml = navHtmlFactory.create(params);
+		var treeDiv = navHtml.makeBodyDiv();
 		var content = div(
 				headerDiv,
 				br(),
@@ -65,42 +99,54 @@ public class ClusterSettingBrowseHandler extends BaseHandler{
 		return pageFactory.simplePage(request, title, content);
 	}
 
-	private DivTag makeFilterDiv(
-			Optional<String> optLocation,
-			Optional<String> optPartialName){
+	private DivTag makeFilterDiv(ClusterSettingBrowseHandlerParams params){
 		var form = new HtmlForm().withMethodGet();
-		optLocation.ifPresent(location -> form.addHiddenField(P_location, location));
+		params.location.ifPresent(location -> form.addHiddenField(
+				ClusterSettingBrowseHandlerParams.P_location,
+				location));
 		form.addTextField()
 				.withDisplay("Name")
 				.withPlaceholder("Partial name")
-				.withName(P_partialName)
-				.withValue(optPartialName.orElse(null));
+				.withName(ClusterSettingBrowseHandlerParams.P_partialName)
+				.withValue(params.partialName.orElse(null));
 		form.addButtonWithoutSubmitAction()
 				.withDisplay("Search");
 		return div(
 				Bootstrap4FormHtml.render(form, true));
 	}
 
-	/*----------- links ------------*/
-
+	// TODO replace by generic BaseLink link builder
 	@Singleton
 	public static class ClusterSettingBrowseLinks{
-
 		@Inject
 		private ServletContextSupplier contextSupplier;
-		@Inject
-		private DatarouterClusterSettingPaths paths;
 
-		public String all(
-				Optional<String> optLocation,
-				Optional<String> optPartialName){
+		public String all(ClusterSettingBrowseHandlerParams params){
 			var uriBuilder = new URIBuilder()
-					.setPath(contextSupplier.getContextPath() + paths.datarouter.settings.browse.all.toSlashedString());
-			optLocation.ifPresent(location -> uriBuilder.addParameter(P_location, location));
-			optPartialName.ifPresent(partialName -> uriBuilder.addParameter(P_partialName, partialName));
+					.setPath(contextSupplier.getContextPath() + params.pathNode.toSlashedString());
+			params.location.ifPresent(location -> uriBuilder.addParameter(
+					ClusterSettingBrowseHandlerParams.P_location,
+					location));
+			params.partialName.ifPresent(partialName -> uriBuilder.addParameter(
+					ClusterSettingBrowseHandlerParams.P_partialName,
+					partialName));
 			return uriBuilder.toString();
 		}
+	}
 
+	@Singleton
+	public static class ClusterSettingBrowseEmailLinks{
+		@Inject
+		private DatarouterClusterSettingPaths paths;
+		@Inject
+		private DatarouterHtmlEmailService emailService;
+
+		public String fromEmail(String location){
+			return emailService.startLinkBuilder()
+					.withLocalPath(paths.datarouter.settings.browse.all)
+					.withParam(ClusterSettingBrowseHandlerParams.P_location, location)
+					.build();
+		}
 	}
 
 }

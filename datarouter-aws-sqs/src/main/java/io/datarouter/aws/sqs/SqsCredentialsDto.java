@@ -16,14 +16,6 @@
 package io.datarouter.aws.sqs;
 
 //TODO DATAROUTER-2799
-public class SqsCredentialsDto{
-
-	public final String accessKey;
-	public final String secretKey;
-
-	public SqsCredentialsDto(String accessKey, String secretKey){
-		this.accessKey = accessKey;
-		this.secretKey = secretKey;
-	}
-
-}
+public record SqsCredentialsDto(
+		String accessKey,
+		String secretKey){}

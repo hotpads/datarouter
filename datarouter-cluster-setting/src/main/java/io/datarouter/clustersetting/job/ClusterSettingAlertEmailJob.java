@@ -17,8 +17,6 @@ package io.datarouter.clustersetting.job;
 
 import java.util.Optional;
 
-import javax.inject.Inject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +29,7 @@ import io.datarouter.storage.config.properties.ServiceName;
 import io.datarouter.util.time.ZoneIds;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
 import j2html.tags.specialized.DivTag;
+import jakarta.inject.Inject;
 
 /**
  * Similar to the DailyDigest. This job emails about old, unreferenced, and redundant cluster settings.

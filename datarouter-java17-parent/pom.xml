@@ -22,7 +22,7 @@
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-parent</artifactId>
-		<version>0.0.120</version>
+		<version>0.0.121</version>
 		<relativePath>../datarouter-parent</relativePath>
 	</parent>
 
@@ -43,6 +43,7 @@
 						<compilerId>eclipse</compilerId>
 						<source>17</source>
 						<target>17</target>
+						<showDeprecation>true</showDeprecation>
 					</configuration>
 				</plugin>
 			</plugins>

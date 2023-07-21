@@ -27,7 +27,7 @@ public interface BaseDatarouterUserAccountMapDao{
 	Scanner<DatarouterUserAccountMapKey> scanKeysWithPrefix(DatarouterUserAccountMapKey prefix);
 	boolean exists(DatarouterUserAccountMapKey key);
 
-	static class NoOpDatarouterUserAccountMapDao implements BaseDatarouterUserAccountMapDao{
+	class NoOpDatarouterUserAccountMapDao implements BaseDatarouterUserAccountMapDao{
 
 		@Override
 		public void deleteMulti(Collection<DatarouterUserAccountMapKey> keys){

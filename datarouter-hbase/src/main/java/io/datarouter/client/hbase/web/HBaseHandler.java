@@ -27,8 +27,6 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.function.Supplier;
 
-import javax.inject.Inject;
-
 import org.apache.hadoop.hbase.ClusterStatus;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HRegionInfo;
@@ -66,6 +64,7 @@ import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.MessageMav;
 import io.datarouter.web.util.http.RequestTool;
+import jakarta.inject.Inject;
 
 public class HBaseHandler extends BaseHandler{
 	private static final Logger logger = LoggerFactory.getLogger(HBaseHandler.class);

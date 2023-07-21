@@ -15,11 +15,10 @@
  */
 package io.datarouter.nodewatch.job;
 
-import javax.inject.Inject;
-
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
 import io.datarouter.nodewatch.service.TableSizeMonitoringService;
+import jakarta.inject.Inject;
 
 public class TableSizeMonitoringJob extends BaseJob{
 

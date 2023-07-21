@@ -17,14 +17,12 @@ package io.datarouter.exception.storage.taskexecutorrecord;
 
 import java.util.List;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.binarydto.codec.BinaryDtoIndexedCodec;
 import io.datarouter.exception.dto.TaskExecutorRecordBinaryDto;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
+import io.datarouter.storage.config.properties.EnvironmentName;
 import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.QueueNodeFactory;
@@ -32,6 +30,8 @@ import io.datarouter.storage.node.op.raw.BlobQueueStorage.BlobQueueStorageNode;
 import io.datarouter.storage.queue.consumer.BlobQueueConsumer;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.virtualnode.redundant.RedundantBlobQueueStorageNode;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class TaskExecutorRecordQueueDao extends BaseDao{
@@ -46,21 +46,24 @@ public class TaskExecutorRecordQueueDao extends BaseDao{
 	private final BlobQueueStorageNode<TaskExecutorRecordBinaryDto> node;
 
 	@Inject
-	public TaskExecutorRecordQueueDao(Datarouter datarouter,
+	public TaskExecutorRecordQueueDao(
+			Datarouter datarouter,
 			TaskExecutorRecordQueueDaoParams params,
-			QueueNodeFactory queueNodeFactory){
+			QueueNodeFactory queueNodeFactory,
+			EnvironmentName environmentNameSupplier){
 		super(datarouter);
+		String namespace = environmentNameSupplier.deprecatedIsProduction()
+				? "shared"
+				: environmentNameSupplier.get() + "-shared";
 		node = Scanner.of(params.clientIds)
-				.map(clientId -> {
-					return queueNodeFactory
-							.createBlobQueue(
-									clientId,
-									"TaskExecutorRecordBinaryDto",
-									BinaryDtoIndexedCodec.of(TaskExecutorRecordBinaryDto.class))
-							.withNamespace("shared")
-							.withTag(Tag.DATAROUTER)
-							.build();
-				})
+				.map(clientId -> queueNodeFactory
+						.createBlobQueue(
+								clientId,
+								"TaskExecutorRecordBinaryDto",
+								BinaryDtoIndexedCodec.of(TaskExecutorRecordBinaryDto.class))
+						.withNamespace(namespace)
+						.withTag(Tag.DATAROUTER)
+						.build())
 				.listTo(RedundantBlobQueueStorageNode::makeIfMulti);
 		datarouter.register(node);
 	}

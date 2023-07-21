@@ -20,12 +20,11 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.job.BaseJob;
 import io.datarouter.job.scheduler.JobWrapper;
 import io.datarouter.job.util.Outcome;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class LocalTriggerLockService{

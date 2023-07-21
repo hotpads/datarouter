@@ -19,9 +19,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.conveyor.Conveyor.ProcessResult;
 import io.datarouter.conveyor.ConveyorConfiguration;
 import io.datarouter.conveyor.ConveyorCounters;
@@ -35,6 +32,8 @@ import io.datarouter.instrumentation.trace.TracePublisher;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.scanner.OptionalScanner;
 import io.datarouter.scanner.Scanner;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class ConveyorTraceMemoryToPublisherConveyorConfiguration implements ConveyorConfiguration{

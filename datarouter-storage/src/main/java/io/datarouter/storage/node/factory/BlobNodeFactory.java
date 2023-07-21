@@ -17,8 +17,6 @@ package io.datarouter.storage.node.factory;
 
 import java.util.function.Supplier;
 
-import javax.inject.Singleton;
-
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
@@ -32,6 +30,7 @@ import io.datarouter.storage.node.NodeParams.NodeParamsBuilder;
 import io.datarouter.storage.node.builder.BlobNodeBuilder;
 import io.datarouter.storage.node.op.raw.BlobStorage.PhysicalBlobStorageNode;
 import io.datarouter.storage.util.Subpath;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class BlobNodeFactory extends BaseNodeFactory{

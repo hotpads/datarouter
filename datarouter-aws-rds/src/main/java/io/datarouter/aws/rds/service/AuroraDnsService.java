@@ -26,9 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,6 +35,8 @@ import io.datarouter.aws.rds.config.DatarouterAwsRdsConfigSettings;
 import io.datarouter.aws.rds.service.AuroraClientIdProvider.AuroraClientDto;
 import io.datarouter.util.io.ReaderTool;
 import io.datarouter.util.retry.RetryableTool;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class AuroraDnsService{
@@ -205,9 +204,8 @@ public class AuroraDnsService{
 				if(readerEntry.ip != null && readerEntry.ip.equals(writerEntry.ip)){
 					readerEntry.setReaderPointedToWriterFlag();
 					mismatchedEntries.add(readerEntry);
-				}
-				//check if a reader is already pointing to same instance
-				if(ipSet.contains(readerEntry.ip)){
+				}else if(ipSet.contains(readerEntry.ip)){
+					//check if a reader is already pointing to same instance
 					readerEntry.setReaderPointedToWrongReaderFlag();
 					mismatchedEntries.add(readerEntry);
 				}

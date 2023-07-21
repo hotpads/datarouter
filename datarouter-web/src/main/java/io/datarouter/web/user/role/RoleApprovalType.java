@@ -15,23 +15,17 @@
  */
 package io.datarouter.web.user.role;
 
+import java.util.Comparator;
 import java.util.Objects;
 
-public class RoleApprovalType implements Comparable<RoleApprovalType>{
-
-	public final String persistentString;
-
-	public RoleApprovalType(String persistentString){
-		this.persistentString = persistentString;
-	}
-
-	public String getPersistentString(){
-		return persistentString;
-	}
+public record RoleApprovalType(
+		String persistentString,
+		int priority)
+implements Comparable<RoleApprovalType>{
 
 	@Override
 	public int compareTo(RoleApprovalType other){
-		return persistentString.compareTo(other.getPersistentString());
+		return persistentString.compareTo(other.persistentString);
 	}
 
 	@Override
@@ -52,11 +46,20 @@ public class RoleApprovalType implements Comparable<RoleApprovalType>{
 		return RoleApprovalType.equals(this, (RoleApprovalType)obj);
 	}
 
-	static boolean equals(RoleApprovalType first, RoleApprovalType second){
+	public static boolean equals(RoleApprovalType first, RoleApprovalType second){
 		if(first == null){
 			return second == null;
 		}
-		return second != null && Objects.equals(first.getPersistentString(), second.getPersistentString());
+		return second != null && Objects.equals(first.persistentString(), second.persistentString());
+	}
+
+	public static class RoleApprovalTypePriorityComparator implements Comparator<RoleApprovalType>{
+
+		@Override
+		public int compare(RoleApprovalType first, RoleApprovalType second){
+			return Integer.compare(first.priority, second.priority);
+		}
+
 	}
 
 }

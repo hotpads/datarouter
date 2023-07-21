@@ -18,7 +18,7 @@ if the tasks are not completing.  The datarouter-job framework automatically cre
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-task-tracker</artifactId>
-	<version>0.0.120</version>
+	<version>0.0.121</version>
 </dependency>
 ```
 
@@ -51,8 +51,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
-
-import javax.inject.Inject;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,8 +63,7 @@ import io.datarouter.tasktracker.service.LongRunningTaskTrackerFactory;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.MessageMav;
-import io.datarouter.web.handler.types.optional.OptionalLong;
-import io.datarouter.web.user.session.currentSessionInfo;
+import jakarta.inject.Inject;
 
 public class ExampleTaskTrackerHandler extends BaseHandler{
 	private static final Logger logger = LoggerFactory.getLogger(ExampleTaskTrackerHandler.class);
@@ -74,12 +72,12 @@ public class ExampleTaskTrackerHandler extends BaseHandler{
 	private LongRunningTaskTrackerFactory trackerFactory;
 
 	@Handler
-	public Mav countFiles(String parentPath, OptionalLong logEveryN) throws IOException{
+	public Mav countFiles(String parentPath, Optional<Long> logEveryN) throws IOException{
 
 		//create a TaskTracker
 		TaskTracker tracker = trackerFactory.create(
 				//determines the tracker name
-				ExampleTaskTrackerHandler.class,
+				ExampleTaskTrackerHandler.class.getSimpleName(),
 				//triggered by web request
 				LongRunningTaskType.REQUEST,
 				//deadline

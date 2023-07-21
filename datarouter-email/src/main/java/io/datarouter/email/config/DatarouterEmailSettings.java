@@ -15,14 +15,13 @@
  */
 package io.datarouter.email.config;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.secret.service.CachedSecretFactory;
 import io.datarouter.secret.service.CachedSecretFactory.CachedSecret;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.SettingNode;
 import io.datarouter.storage.setting.cached.CachedSetting;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 /**
  * It's recommended to use DatarouterEmailSettingsProvider to avoid a circular dependency
@@ -57,7 +56,7 @@ public class DatarouterEmailSettings extends SettingNode{
 		smtpPort = registerInteger("smtpPort", DEFAULT_SMTP_PORT);
 		smtpUsername = registerString("smtpUsername", "");
 		smtpPasswordName = registerString("smtpPasswordName", "datarouter/email/smtpPassword");
-		smtpPassword = cachedSecretFactory.cacheSharedSecretString(smtpPasswordName, "");
+		smtpPassword = cachedSecretFactory.cacheSharedSecretString(smtpPasswordName);
 
 		emailLinkHostPort = registerString("emailLinkHostPort", "localhost:8443");
 		includeLogo = registerBoolean("includeLogo", true);
@@ -75,20 +74,10 @@ public class DatarouterEmailSettings extends SettingNode{
 		return new DatarouterEmailHostDetails(DEFAULT_SMTP_HOST, DEFAULT_SMTP_PORT, "", "");
 	}
 
-	public static class DatarouterEmailHostDetails{
-
-		public final String smtpHost;
-		public final int smtpPort;
-		public final String smtpUsername;
-		public final String smtpPassword;
-
-		public DatarouterEmailHostDetails(String smtpHost, int smtpPort, String smtpUsername, String smtpPassword){
-			this.smtpHost = smtpHost;
-			this.smtpPort = smtpPort;
-			this.smtpUsername = smtpUsername;
-			this.smtpPassword = smtpPassword;
-		}
-
-	}
+	public record DatarouterEmailHostDetails(
+			String smtpHost,
+			int smtpPort,
+			String smtpUsername,
+			String smtpPassword){}
 
 }

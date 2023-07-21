@@ -15,11 +15,11 @@
  */
 package io.datarouter.web.html.react.bootstrap3;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 
 import io.datarouter.web.handler.mav.MavPropertiesFactory;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class Bootstrap3ReactPageFactory{

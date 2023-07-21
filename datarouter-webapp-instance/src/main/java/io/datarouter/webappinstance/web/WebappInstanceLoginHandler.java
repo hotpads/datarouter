@@ -15,12 +15,11 @@
  */
 package io.datarouter.webappinstance.web;
 
-import javax.inject.Inject;
-
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.user.session.service.Session;
 import io.datarouter.webappinstance.service.OneTimeLoginService;
+import jakarta.inject.Inject;
 
 public class WebappInstanceLoginHandler extends BaseHandler{
 

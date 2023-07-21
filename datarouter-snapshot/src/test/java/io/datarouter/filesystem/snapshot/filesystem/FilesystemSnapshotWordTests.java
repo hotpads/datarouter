@@ -17,14 +17,13 @@ package io.datarouter.filesystem.snapshot.filesystem;
 
 import java.util.List;
 
-import javax.inject.Inject;
-
 import org.testng.annotations.Guice;
 
 import io.datarouter.filesystem.DatarouterSnapshotModuleFactory;
 import io.datarouter.filesystem.snapshot.BaseSnapshotTests;
 import io.datarouter.filesystem.snapshot.WordDataset;
 import io.datarouter.filesystem.snapshot.group.SnapshotGroup;
+import jakarta.inject.Inject;
 
 @Guice(moduleFactory = DatarouterSnapshotModuleFactory.class)
 public class FilesystemSnapshotWordTests extends BaseSnapshotTests{

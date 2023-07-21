@@ -19,7 +19,6 @@ import static j2html.TagCreator.div;
 
 import java.util.Map;
 
-import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
 import io.datarouter.storage.client.ClientOptions;
@@ -30,6 +29,7 @@ import io.datarouter.web.handler.mav.imp.MessageMav;
 import io.datarouter.web.handler.params.Params;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import io.datarouter.web.requirejs.DatarouterWebRequireJsV2;
+import jakarta.inject.Inject;
 
 public class FilesystemWebInspector implements DatarouterClientWebInspector{
 

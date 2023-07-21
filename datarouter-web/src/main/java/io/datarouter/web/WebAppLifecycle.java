@@ -20,15 +20,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.web.DatarouterWebExecutors.WebAppLifecycleExecutor;
 import io.datarouter.web.shutdown.ShutdownService;
 import io.datarouter.web.warmup.HttpWarmup;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class WebAppLifecycle{

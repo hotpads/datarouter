@@ -15,11 +15,10 @@
  */
 package io.datarouter.web.config;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.util.clazz.AnnotationTool;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class SingletonTestService{
@@ -28,7 +27,7 @@ public class SingletonTestService{
 	private DatarouterInjector injector;
 
 	public void checkSingletonForSubClasses(Class<?> baseClass, boolean shouldBeSingleton){
-		injector.getInstancesOfType(baseClass).values().stream()
+		injector.scanValuesOfType(baseClass)
 				.map(Object::getClass)
 				.forEach(clazz -> AnnotationTool.checkSingletonForClass(clazz, shouldBeSingleton));
 	}

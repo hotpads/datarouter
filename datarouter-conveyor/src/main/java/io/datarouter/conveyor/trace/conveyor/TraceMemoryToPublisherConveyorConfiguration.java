@@ -20,9 +20,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,6 +37,8 @@ import io.datarouter.instrumentation.trace.Traceparent;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.trace.conveyor.TraceBuffers;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class TraceMemoryToPublisherConveyorConfiguration implements ConveyorConfiguration{
@@ -78,14 +77,15 @@ public class TraceMemoryToPublisherConveyorConfiguration implements ConveyorConf
 		try{
 			processTraceEntityDtos(dtos);
 			ConveyorCounters.incPutMultiOpAndDatabeans(conveyor, dtos.size());
-			return new ProcessResult(conveyor.isShuttingDown());
+			return new ProcessResult(dtos.size() == BATCH_SIZE);
 		}catch(RuntimeException putMultiException){
 			List<Traceparent> ids = Scanner.of(dtos)
 					.map(Trace2BundleAndHttpRequestRecordDto::getTraceparent)
 					.list();
 			logger.warn("exception sending trace to sqs ids={}", ids, putMultiException);
 			ConveyorCounters.inc(conveyor, "putMulti exception", 1);
-			return new ProcessResult(conveyor.isShuttingDown());
+			// try it again
+			return new ProcessResult(true);
 		}
 	}
 

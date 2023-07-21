@@ -15,9 +15,6 @@
  */
 package io.datarouter.loadtest.storage;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.loadtest.service.LoadTestGetDao;
 import io.datarouter.loadtest.service.LoadTestInsertDao;
 import io.datarouter.loadtest.service.LoadTestScanDao;
@@ -33,6 +30,8 @@ import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import io.datarouter.storage.node.op.raw.read.MapStorageReader;
 import io.datarouter.storage.node.op.raw.write.StorageWriter;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 /**
  * The node needs to be of a MapStorageReader type, and the client needs to support that type.

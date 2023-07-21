@@ -60,12 +60,13 @@ public class Bootstrap3ReactPage{
 		require.add(DatarouterWebRequireJs.BOOTSTRAP);
 
 		//admin content
-		boolean isAdmin = mavProperties.getIsAdmin();
+		boolean hasAnyDatarouterPrivileges = mavProperties.getHasAnyDatarouterPrivileges();
 		EmptyTag<?>[] datarouterNavbarCssImports = new EmptyTag[]{};
 		ScriptTag datarouterNavbarRequestTimingJsImport = null;
 		ContainerTag<?> datarouterNavbar = null;
 		ContainerTag<?> datarouterNavbarRequestTimingScript = null;
-		if(isAdmin){
+		if(hasAnyDatarouterPrivileges){
+			// Show the common navbar, which links to the datarouter pages
 			datarouterNavbarCssImports = DatarouterNavbarFactory.makeNavbarCssImportTags(contextPath);
 			datarouterNavbarRequestTimingJsImport = DatarouterWebJsTool.makeJsImport(contextPath,
 					DATAROUTER_WEB_FILES.js.navbarRequestTimingJs);

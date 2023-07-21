@@ -20,9 +20,6 @@ import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.bytes.Codec;
 import io.datarouter.filesystem.node.object.DirectoryBlobStorage;
 import io.datarouter.filesystem.node.object.DirectoryBlobStorageNode;
@@ -51,6 +48,8 @@ import io.datarouter.storage.node.op.raw.BlobQueueStorage.PhysicalBlobQueueStora
 import io.datarouter.storage.node.op.raw.BlobStorage.PhysicalBlobStorageNode;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.util.string.StringTool;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class FilesystemClientNodeFactory

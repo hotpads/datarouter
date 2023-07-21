@@ -22,8 +22,6 @@ import static j2html.TagCreator.p;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-
 import io.datarouter.joblet.JobletPageFactory;
 import io.datarouter.joblet.service.JobletService;
 import io.datarouter.joblet.service.JobletService.JobletServiceThreadCountResponse;
@@ -35,6 +33,7 @@ import io.datarouter.web.html.j2html.J2HtmlTable;
 import io.datarouter.web.requirejs.DatarouterWebRequireJsV2;
 import io.datarouter.webappinstance.service.CachedWebappInstancesOfThisServerType;
 import j2html.tags.specialized.DivTag;
+import jakarta.inject.Inject;
 
 public class JobletThreadCountHandler extends BaseHandler{
 

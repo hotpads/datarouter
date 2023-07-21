@@ -15,10 +15,9 @@
  */
 package io.datarouter.storage.util;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.storage.metric.Gauges;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterQueueMetrics{

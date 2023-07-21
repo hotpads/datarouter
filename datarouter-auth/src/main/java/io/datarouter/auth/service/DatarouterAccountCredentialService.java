@@ -29,8 +29,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
@@ -61,6 +59,8 @@ import io.datarouter.util.Require;
 import io.datarouter.web.user.session.service.Session;
 import io.datarouter.web.util.PasswordTool;
 import io.datarouter.web.util.http.RequestTool;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterAccountCredentialService{

@@ -22,8 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import javax.inject.Inject;
-
 import io.datarouter.joblet.JobletPageFactory;
 import io.datarouter.joblet.enums.JobletPriority;
 import io.datarouter.joblet.model.JobletPackage;
@@ -38,6 +36,7 @@ import io.datarouter.web.html.form.HtmlForm;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import j2html.TagCreator;
 import j2html.tags.specialized.DivTag;
+import jakarta.inject.Inject;
 
 /**
  * SleepingJoblets are for testing

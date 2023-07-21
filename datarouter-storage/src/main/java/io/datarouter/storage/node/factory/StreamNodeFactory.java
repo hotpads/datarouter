@@ -17,8 +17,6 @@ package io.datarouter.storage.node.factory;
 
 import java.util.function.Supplier;
 
-import javax.inject.Singleton;
-
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
@@ -27,6 +25,7 @@ import io.datarouter.storage.client.imp.StreamClientNodeFactory;
 import io.datarouter.storage.node.Node;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.NodeParams.NodeParamsBuilder;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class StreamNodeFactory extends BaseNodeFactory{

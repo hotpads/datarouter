@@ -22,9 +22,6 @@ import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,6 +35,8 @@ import io.datarouter.tasktracker.service.LongRunningTaskTracker;
 import io.datarouter.tasktracker.service.LongRunningTaskTrackerFactory;
 import io.datarouter.util.ComparableTool;
 import io.datarouter.util.duration.DatarouterDuration;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 /**
  * A wrapper around jobs for instrumentation purposes.

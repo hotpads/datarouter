@@ -17,10 +17,10 @@ package io.datarouter.inject;
 
 import java.util.List;
 
-import javax.inject.Inject;
-
 import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import jakarta.inject.Inject;
 
 public class InjectionToolTests{
 

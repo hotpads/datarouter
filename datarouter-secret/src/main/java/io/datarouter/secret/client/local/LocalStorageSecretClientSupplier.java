@@ -15,11 +15,10 @@
  */
 package io.datarouter.secret.client.local;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.secret.client.SecretClient;
 import io.datarouter.secret.client.SecretClient.SecretClientSupplier;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class LocalStorageSecretClientSupplier implements SecretClientSupplier{

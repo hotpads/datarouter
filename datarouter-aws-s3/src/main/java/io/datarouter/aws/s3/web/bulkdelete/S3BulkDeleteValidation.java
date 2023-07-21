@@ -17,13 +17,12 @@ package io.datarouter.aws.s3.web.bulkdelete;
 
 import java.util.Optional;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.aws.s3.DatarouterS3Client;
 import io.datarouter.aws.s3.client.S3ClientManager;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.DatarouterClients;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import software.amazon.awssdk.services.s3.model.Bucket;
 
 @Singleton

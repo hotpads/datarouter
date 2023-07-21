@@ -18,16 +18,18 @@ package io.datarouter.bytes.codec.list.longlist;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.datarouter.bytes.Codec;
 import io.datarouter.bytes.EmptyArray;
 import io.datarouter.bytes.codec.longcodec.RawLongCodec;
 
-public class RawLongListCodec{
+public class RawLongListCodec implements Codec<List<Long>,byte[]>{
 
 	public static final RawLongListCodec INSTANCE = new RawLongListCodec();
 
 	private static final RawLongCodec RAW_LONG_CODEC = RawLongCodec.INSTANCE;
 	private static final int ITEM_LENGTH = RAW_LONG_CODEC.length();
 
+	@Override
 	public byte[] encode(List<Long> values){
 		if(values.size() == 0){
 			return EmptyArray.BYTE;
@@ -46,6 +48,7 @@ public class RawLongListCodec{
 		return values.size() * ITEM_LENGTH;
 	}
 
+	@Override
 	public List<Long> decode(byte[] bytes){
 		return decode(bytes, 0, bytes.length);
 	}

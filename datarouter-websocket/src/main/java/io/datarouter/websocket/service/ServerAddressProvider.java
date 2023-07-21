@@ -15,7 +15,7 @@
  */
 package io.datarouter.websocket.service;
 
-import javax.inject.Provider;
+import jakarta.inject.Provider;
 
 public interface ServerAddressProvider extends Provider<String>{
 }

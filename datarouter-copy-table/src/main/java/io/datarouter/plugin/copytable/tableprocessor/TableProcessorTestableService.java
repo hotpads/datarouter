@@ -15,11 +15,10 @@
  */
 package io.datarouter.plugin.copytable.tableprocessor;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.instrumentation.test.TestableService;
 import io.datarouter.util.clazz.AnnotationTool;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class TableProcessorTestableService implements TestableService{

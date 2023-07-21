@@ -20,9 +20,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +28,8 @@ import io.datarouter.client.mysql.util.MysqlTool;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.schema.SchemaUpdateOptions;
 import io.datarouter.util.string.StringTool;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatabaseCreator{

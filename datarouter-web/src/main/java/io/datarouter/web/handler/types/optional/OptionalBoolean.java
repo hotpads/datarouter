@@ -15,6 +15,12 @@
  */
 package io.datarouter.web.handler.types.optional;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.datarouter.util.BooleanTool;
 
 /**
@@ -22,6 +28,7 @@ import io.datarouter.util.BooleanTool;
  */
 @Deprecated
 public class OptionalBoolean extends OptionalParameter<Boolean>{
+	private static final Logger logger = LoggerFactory.getLogger(OptionalBoolean.class);
 
 	public OptionalBoolean(){
 	}
@@ -36,8 +43,16 @@ public class OptionalBoolean extends OptionalParameter<Boolean>{
 	}
 
 	@Override
-	public OptionalParameter<Boolean> fromString(String stringValue){
-		return new OptionalBoolean(BooleanTool.isBoolean(stringValue) ? BooleanTool.isTrue(stringValue) : null);
+	public OptionalParameter<Boolean> fromString(String stringValue, Method method, Parameter parameter){
+		boolean isBoolean = BooleanTool.isBoolean(stringValue);
+		if(isBoolean && !"true".equals(stringValue) && !"false".equals(stringValue)){
+			logger.warn("Bad boolean parameter value='{}' handler='{}' method='{}' parameter='{}'",
+					stringValue,
+					method.getDeclaringClass(),
+					method.getName(),
+					parameter.getName());
+		}
+		return new OptionalBoolean(isBoolean ? BooleanTool.isTrue(stringValue) : null);
 	}
 
 }

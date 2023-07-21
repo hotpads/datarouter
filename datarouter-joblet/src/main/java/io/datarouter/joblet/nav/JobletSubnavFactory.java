@@ -15,9 +15,6 @@
  */
 package io.datarouter.joblet.nav;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.joblet.DatarouterJobletCounters;
 import io.datarouter.joblet.config.DatarouterJobletPaths;
 import io.datarouter.joblet.enums.JobletStatus;
@@ -26,6 +23,8 @@ import io.datarouter.joblet.type.JobletTypeFactory;
 import io.datarouter.web.html.nav.Subnav;
 import io.datarouter.web.html.nav.Subnav.Dropdown;
 import io.datarouter.web.html.nav.Subnav.DropdownItem;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class JobletSubnavFactory{

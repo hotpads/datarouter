@@ -19,13 +19,13 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import javax.servlet.ServletRequest;
 
 import io.datarouter.web.user.role.Role;
 import io.datarouter.web.user.role.RoleEnum;
 import io.datarouter.web.user.session.service.Session;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class RequestAwareCurrentSessionInfoFactory{

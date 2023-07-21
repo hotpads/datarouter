@@ -19,8 +19,6 @@ import java.time.Instant;
 import java.time.Period;
 import java.util.Objects;
 
-import javax.inject.Inject;
-
 import io.datarouter.auth.storage.permissionrequest.DatarouterPermissionRequest;
 import io.datarouter.auth.storage.permissionrequest.DatarouterPermissionRequestDao;
 import io.datarouter.auth.storage.permissionrequest.DatarouterPermissionRequestKey;
@@ -32,6 +30,7 @@ import io.datarouter.job.BaseJob;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.properties.AdminEmail;
 import io.datarouter.web.user.databean.DatarouterUserKey;
+import jakarta.inject.Inject;
 
 public class DatarouterPermissionRequestVacuumJob extends BaseJob{
 

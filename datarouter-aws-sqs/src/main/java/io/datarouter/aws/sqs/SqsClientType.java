@@ -15,12 +15,11 @@
  */
 package io.datarouter.aws.sqs;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.aws.sqs.web.SqsWebInspector;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.web.browse.DatarouterClientWebInspectorRegistry;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class SqsClientType implements ClientType<SqsClientNodeFactory,SqsClientManager>{

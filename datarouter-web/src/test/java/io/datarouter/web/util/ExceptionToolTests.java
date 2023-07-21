@@ -15,6 +15,10 @@
  */
 package io.datarouter.web.util;
 
+import java.io.IOException;
+import java.util.ConcurrentModificationException;
+import java.util.Optional;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -39,6 +43,33 @@ public class ExceptionToolTests{
 				InterruptedException.class));
 		Assert.assertFalse(ExceptionTool.isFromInstanceOf(new Exception(), RuntimeException.class,
 				InterruptedException.class));
+	}
+
+	@Test
+	private void testGetFirstMatchingExceptionIfApplicableNoMatch(){
+		var nestedExceptions = new RuntimeException(new IOException(new IllegalArgumentException()));
+		Optional<Throwable> firstMatchingExceptionOptional = ExceptionTool.getFirstMatchingExceptionIfApplicable(
+				nestedExceptions, ConcurrentModificationException.class);
+		Assert.assertTrue(firstMatchingExceptionOptional.isEmpty());
+	}
+
+	@Test
+	private void testGetFirstMatchingExceptionIfApplicableMatch(){
+		var nestedExceptions = new RuntimeException(new IOException(new IllegalArgumentException()));
+		Optional<Throwable> firstMatchingExceptionOptional = ExceptionTool.getFirstMatchingExceptionIfApplicable(
+				nestedExceptions, ConcurrentModificationException.class,
+						IllegalArgumentException.class);
+		Assert.assertFalse(firstMatchingExceptionOptional.isEmpty());
+		Assert.assertTrue(firstMatchingExceptionOptional.get() instanceof IllegalArgumentException);
+	}
+
+	@Test
+	private void testGetFirstMatchingExceptionIfApplicableFirstMatch(){
+		var nestedExceptions = new RuntimeException(new IOException(new IllegalArgumentException()));
+		Optional<Throwable> firstMatchingExceptionOptional = ExceptionTool.getFirstMatchingExceptionIfApplicable(
+				nestedExceptions, IOException.class, IllegalArgumentException.class);
+		Assert.assertFalse(firstMatchingExceptionOptional.isEmpty());
+		Assert.assertTrue(firstMatchingExceptionOptional.get() instanceof IOException);
 	}
 
 }

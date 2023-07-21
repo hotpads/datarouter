@@ -15,15 +15,14 @@
  */
 package io.datarouter.exception.config;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.exception.web.ExceptionAnalysisHandler;
 import io.datarouter.exception.web.ExceptionGeneratorHandler;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
 import io.datarouter.web.user.role.DatarouterUserRole;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterExceptionRouteSet extends BaseRouteSet{

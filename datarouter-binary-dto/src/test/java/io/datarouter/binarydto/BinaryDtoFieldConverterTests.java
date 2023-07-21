@@ -35,7 +35,7 @@ import io.datarouter.scanner.Scanner;
 
 public class BinaryDtoFieldConverterTests{
 
-	public static enum TestEnum{
+	public enum TestEnum{
 		AA(5, "PA"),
 		BB(6, "PB"),
 		CC(7, "PC");
@@ -43,7 +43,7 @@ public class BinaryDtoFieldConverterTests{
 		public final int encodedInt;
 		public final String encodedString;
 
-		private TestEnum(int encodedInt, String encodedString){
+		TestEnum(int encodedInt, String encodedString){
 			this.encodedInt = encodedInt;
 			this.encodedString = encodedString;
 		}
@@ -78,7 +78,7 @@ public class BinaryDtoFieldConverterTests{
 
 	}
 
-	public static class TestDto extends BinaryDto<TestDto>{
+	private static class TestDto extends BinaryDto<TestDto>{
 
 		//convert to default (comparable 4 byte) int
 		@BinaryDtoField(codec = TestEnumBinaryDtoIntCodec.class)
@@ -89,7 +89,7 @@ public class BinaryDtoFieldConverterTests{
 		public final TestEnum f1;
 
 		//serialize default enum.name() to comparable ascii bytes with terminator
-		public final TestEnum f2;
+		private final TestEnum f2;
 
 		//test converter on null field value
 		@BinaryDtoField(codec = TestEnumBinaryDtoStringCodec.class)

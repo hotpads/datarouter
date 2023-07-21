@@ -25,9 +25,6 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
@@ -35,6 +32,9 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.httpclient.endpoint.java.BaseEndpoint;
 import io.datarouter.httpclient.endpoint.java.EndpointTool;
+import io.datarouter.httpclient.endpoint.link.BaseLink;
+import io.datarouter.httpclient.endpoint.link.LinkTool;
+import io.datarouter.httpclient.endpoint.param.FormData;
 import io.datarouter.httpclient.endpoint.param.IgnoredField;
 import io.datarouter.httpclient.endpoint.param.RequestBody;
 import io.datarouter.httpclient.endpoint.web.BaseWebApi;
@@ -48,6 +48,9 @@ import io.datarouter.web.handler.HandlerMetrics;
 import io.datarouter.web.handler.encoder.HandlerEncoder;
 import io.datarouter.web.handler.types.optional.OptionalParameter;
 import io.datarouter.web.util.http.RequestTool;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DefaultDecoder implements JsonAwareHandlerDecoder{
@@ -74,6 +77,9 @@ public class DefaultDecoder implements JsonAwareHandlerDecoder{
 		}
 		if(EndpointTool.paramIsWebApiObject(method)){
 			return decodeWebApi(request, method);
+		}
+		if(EndpointTool.paramIsLinkObject(method)){
+			return decodeLink(request, method);
 		}
 		return decodeDefault(request, method);
 	}
@@ -143,7 +149,8 @@ public class DefaultDecoder implements JsonAwareHandlerDecoder{
 				String parameterValue = queryParam == null ? null : queryParam[0];
 				if(isOptional){
 					if(OptionalParameter.class.isAssignableFrom(parameter.getType())){
-						args[i] = OptionalParameter.makeOptionalParameter(parameterValue, parameterType);
+						args[i] = OptionalParameter.makeOptionalParameter(parameterValue, parameterType, method,
+								parameter);
 					}else{
 						Class<?> innerType = MethodParameterExtractionTool
 								.extractParameterizedTypeFromOptionalParameter(parameter);
@@ -179,7 +186,8 @@ public class DefaultDecoder implements JsonAwareHandlerDecoder{
 				(Class<? extends BaseEndpoint<?,?>>)endpointType);
 
 		if(!baseEndpoint.method.matches(request.getMethod())){
-			logger.error("Request type mismatch. Handler={} Endpoint={}",
+			logger.error("Request type mismatch. RequestURI={}, Handler={} Endpoint={}",
+					request.getRequestURI(),
 					baseEndpoint.method.persistentString,
 					request.getMethod());
 		}
@@ -305,13 +313,15 @@ public class DefaultDecoder implements JsonAwareHandlerDecoder{
 		BaseWebApi<?,?> baseWebApi = ReflectionTool.createWithoutNoArgs((Class<? extends BaseWebApi<?,?>>)webApiType);
 
 		if(!baseWebApi.method.matches(request.getMethod())){
-			logger.error("Request type mismatch. Handler={} WebApi={}",
+			logger.error("Request type mismatch. RequestURI={}, Handler={} WebApi={}",
+					request.getRequestURI(),
 					baseWebApi.method.persistentString,
 					request.getMethod());
 		}
 
 		String body = null;
-		if(EndpointTool.findRequestBody(baseWebApi.getClass().getFields()).isPresent()){
+		if(EndpointTool.findFormData(baseWebApi.getClass().getFields()).isEmpty()
+				&& EndpointTool.findRequestBody(baseWebApi.getClass().getFields()).isPresent()){
 			body = RequestTool.getBodyAsString(request);
 			if(StringTool.isEmpty(body)){
 				return null;
@@ -346,6 +356,10 @@ public class DefaultDecoder implements JsonAwareHandlerDecoder{
 			String parameterName = EndpointTool.getFieldName(field);
 			Type parameterType = field.getType();
 			String[] queryParam = queryParams.get(parameterName);
+
+			if(field.isAnnotationPresent(FormData.class)){
+				continue;
+			}
 
 			if(field.isAnnotationPresent(RequestBody.class)){
 				Object requestBody = decodeType(body, field.getGenericType());
@@ -411,6 +425,122 @@ public class DefaultDecoder implements JsonAwareHandlerDecoder{
 
 		Object[] args = new Object[1];
 		args[0] = baseWebApi;
+		return args;
+	}
+
+	public Object[] decodeLink(HttpServletRequest request, Method method){
+		Map<String,String[]> queryParams = request.getParameterMap();
+		Parameter[] parameters = method.getParameters();
+		Class<?> linkType = parameters[0].getType();
+		if(!LinkTool.paramIsLinkObject(method)){
+			throw new RuntimeException("object needs to extend BaseLink");
+		}
+
+		// populate the fields with baseLink with dummy values and then repopulate in getArgsFromEndpointObject
+		@SuppressWarnings("unchecked")
+		BaseLink<?> baseLink = ReflectionTool.createWithoutNoArgs((Class<? extends BaseLink<?>>)linkType);
+
+		String body = null;
+		if(EndpointTool.findRequestBody(baseLink.getClass().getFields()).isPresent()){
+			body = RequestTool.getBodyAsString(request);
+			if(StringTool.isEmpty(body)){
+				return null;
+			}
+		}
+		Object[] args = null;
+		try{
+			args = getArgsFromLinkObject(queryParams, baseLink, body, method);
+		}catch(IllegalArgumentException | IllegalAccessException ex){
+			logger.warn("", ex);
+		}
+		return args;
+	}
+
+	private Object[] getArgsFromLinkObject(
+			Map<String,String[]> queryParams,
+			BaseLink<?> baseLink,
+			String body,
+			Method method)
+	throws IllegalArgumentException, IllegalAccessException{
+		Field[] fields = baseLink.getClass().getFields();
+		for(Field field : fields){
+			if(Modifier.isStatic(field.getModifiers())){
+				continue;
+			}
+			IgnoredField ignoredField = field.getAnnotation(IgnoredField.class);
+			if(ignoredField != null){
+				continue;
+			}
+			field.setAccessible(true);
+
+			String parameterName = EndpointTool.getFieldName(field);
+			Type parameterType = field.getType();
+			String[] queryParam = queryParams.get(parameterName);
+
+			if(field.isAnnotationPresent(RequestBody.class)){
+				Object requestBody = decodeType(body, field.getGenericType());
+				field.set(baseLink, requestBody);
+				if(requestBody instanceof Collection<?> requestBodyCollection){
+					// Datarouter handler method batch <Handler.class.simpleName> <methodName>
+					@SuppressWarnings("unchecked")
+					Class<? extends BaseHandler> handlerClass = (Class<? extends BaseHandler>)method
+							.getDeclaringClass();
+					HandlerMetrics.incRequestBodyCollectionSize(
+							handlerClass,
+							method,
+							requestBodyCollection.size());
+				}
+				continue;
+			}
+
+			boolean isOptional = field.getType().isAssignableFrom(Optional.class);
+
+			// pre-emptively try to check if the parameter is actually a form-encoded array and normalize the name
+			boolean isArray = parameterType instanceof Class && ((Class<?>)parameterType).isArray();
+			if(isArray && queryParam == null && !parameterName.endsWith("[]")){
+				parameterName += "[]";
+				queryParam = queryParams.get(parameterName);
+			}
+
+			if(queryParam == null && !isOptional){
+				return null;
+			}
+
+			boolean isFormEncodedArray = queryParam != null
+					&& (queryParam.length > 1 || parameterName.endsWith("[]"))
+					&& isArray;
+
+			if(isFormEncodedArray){
+				Class<?> componentClass = ((Class<?>)parameterType).getComponentType();
+				Object typedArray = Array.newInstance(componentClass, queryParam.length);
+				for(int index = 0; index < queryParam.length; index++){
+					Array.set(typedArray, index, decodeType(queryParam[index], componentClass));
+				}
+				field.set(baseLink, typedArray);
+				continue;
+			}
+
+			if(isOptional && !queryParams.containsKey(parameterName)){
+				field.set(baseLink, Optional.empty());
+				continue;
+			}
+
+			String parameterValue = queryParam == null ? null : queryParam[0];
+			if(isOptional){
+				if(parameterValue == null){
+					field.set(baseLink, Optional.empty());
+				}else{
+					Type type = EndpointTool.extractParameterizedType(field);
+					var optionalValue = decodeType(parameterValue, type);
+					field.set(baseLink, Optional.of(optionalValue));
+				}
+			}else{
+				field.set(baseLink, decodeType(parameterValue, parameterType));
+			}
+		}
+
+		Object[] args = new Object[1];
+		args[0] = baseLink;
 		return args;
 	}
 

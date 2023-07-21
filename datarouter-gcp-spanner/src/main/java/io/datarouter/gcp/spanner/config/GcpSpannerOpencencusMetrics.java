@@ -18,11 +18,10 @@ package io.datarouter.gcp.spanner.config;
 import java.util.List;
 import java.util.function.Function;
 
-import javax.inject.Singleton;
-
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.plugins.opencencus.metrics.OpencencusMetricsAppListener.OpencencusMetricsDto;
 import io.datarouter.web.plugins.opencencus.metrics.OpencencusMetricsMapper;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class GcpSpannerOpencencusMetrics implements OpencencusMetricsMapper{

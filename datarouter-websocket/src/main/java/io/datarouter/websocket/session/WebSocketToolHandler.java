@@ -29,8 +29,6 @@ import java.util.Optional;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,6 +52,7 @@ import io.datarouter.websocket.storage.session.WebSocketSession;
 import io.datarouter.websocket.storage.session.WebSocketSessionKey;
 import io.datarouter.websocket.storage.subscription.DatarouterWebSocketSubscriptionDao;
 import io.datarouter.websocket.storage.subscription.WebSocketSubscriptionKey;
+import jakarta.inject.Inject;
 
 public class WebSocketToolHandler extends BaseHandler{
 	private static final Logger logger = LoggerFactory.getLogger(WebSocketToolHandler.class);

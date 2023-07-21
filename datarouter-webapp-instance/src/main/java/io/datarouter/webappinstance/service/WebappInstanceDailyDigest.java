@@ -28,9 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
 import io.datarouter.scanner.Scanner;
@@ -48,6 +45,8 @@ import io.datarouter.webappinstance.storage.webappinstancelog.WebappInstanceLogB
 import io.datarouter.webappinstance.storage.webappinstancelog.WebappInstanceLogKey;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.TableTag;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class WebappInstanceDailyDigest implements DailyDigest{

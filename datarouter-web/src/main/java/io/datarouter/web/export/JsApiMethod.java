@@ -20,12 +20,14 @@ import java.util.Set;
 
 import io.datarouter.httpclient.endpoint.web.EndpointAccessType;
 import io.datarouter.httpclient.endpoint.web.JsClientType;
+import io.datarouter.httpclient.request.HttpRequestMethod;
 
 public record JsApiMethod(
-			String url,
-			String methodName,
-			Method method,
-			Set<Class<? extends JsClientType>> clientTypes,
-			EndpointAccessType endpointAccessType){
+		String url,
+		String methodName,
+		Method method,
+		Set<Class<? extends JsClientType>> clientTypes,
+		EndpointAccessType endpointAccessType,
+		HttpRequestMethod httpRequestMethod){
 
 }

@@ -17,8 +17,8 @@ package io.datarouter.web.config.service;
 
 import java.util.function.Supplier;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 //includes host and port, like localhost:8443
 @Singleton

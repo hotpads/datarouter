@@ -15,9 +15,8 @@
  */
 package io.datarouter.metric.gauge.conveyor;
 
-import javax.inject.Singleton;
-
 import io.datarouter.conveyor.ConveyorConfigurationGroup;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class GaugeConveyorConfigurationGroup extends ConveyorConfigurationGroup{

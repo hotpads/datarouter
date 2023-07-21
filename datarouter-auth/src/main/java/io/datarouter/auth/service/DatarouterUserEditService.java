@@ -28,9 +28,6 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,6 +53,8 @@ import io.datarouter.web.user.role.RoleApprovalType;
 import io.datarouter.web.user.role.RoleManager;
 import io.datarouter.web.user.session.DatarouterSession;
 import io.datarouter.web.util.PasswordTool;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterUserEditService{
@@ -101,9 +100,18 @@ public class DatarouterUserEditService{
 		List<String> changes = new ArrayList<>();
 		List<UserRoleUpdateDto> failedUpdates = new ArrayList<>();
 		for(UserRoleUpdateDto updateDto : updates){
-			Role roleToUpdate = roleManager.getRoleFromPersistentString(updateDto.roleName());
-			if(!userRoleMetadataByRole.containsKey(roleToUpdate)){
+			Optional<Role> roleToUpdateOptional = roleManager.findRoleFromPersistentString(updateDto.roleName());
+
+			if(roleToUpdateOptional.isEmpty()){
 				logger.warn("Role update attempted for {} by {} for unknown role={}",
+						user.getUsername(),
+						editor.getUsername(),
+						updateDto.roleName());
+				continue;
+			}
+			Role roleToUpdate = roleToUpdateOptional.get();
+			if(!userRoleMetadataByRole.containsKey(roleToUpdate)){  // TODO delete? IN-10435
+				logger.warn("Role update attempted for {} by {} for non-conferrable role={}",
 						user.getUsername(),
 						editor.getUsername(),
 						updateDto.roleName());
@@ -132,9 +140,9 @@ public class DatarouterUserEditService{
 		if(!changes.isEmpty()){
 			userHistoryService.putAndRecordEdit(user, editor, getRolesChangesString(changes), signinUrl);
 
-			Scanner<DatarouterSession> sessions = datarouterSessionDao.scan()
-					.include(session -> session.getUserToken().equals(user.getUserToken()));
-			sessions.each(session -> session.setRoles(user.getRoles()))
+			datarouterSessionDao.scan()
+					.include(session -> session.getUserToken().equals(user.getUserToken()))
+					.each(session -> session.setRoles(user.getRoles()))
 					.flush(datarouterSessionDao::putMulti);
 		}
 		return failedUpdates.isEmpty() ? Optional.empty()
@@ -192,22 +200,23 @@ public class DatarouterUserEditService{
 					editor.getUsername());
 			return Optional.empty();
 		}
-		Map<RoleApprovalType,RoleApprovalRequirementStatus> requirementStatusByApprovalType =
-				userRoleMetadata.requirementStatusByApprovalType();
-		RoleApprovalRequirementStatus requirementStatus =
-				requirementStatusByApprovalType.get(editorPrioritizedApprovalType);
-		Set<String> currentApprovers = new HashSet<>(requirementStatus.currentApprovers());
-		currentApprovers.add(editor.getUsername());
-		var updatedRequirementStatus = new RoleApprovalRequirementStatus(
-				requirementStatus.requiredApprovals(), currentApprovers);
-		requirementStatusByApprovalType.put(editorPrioritizedApprovalType, updatedRequirementStatus);
-		boolean areAllRequirementsMet = requirementStatusByApprovalType.values()
+		// deep copy the requirement status
+		Map<RoleApprovalType,RoleApprovalRequirementStatus> requirementStatusByApprovalTypeSnapshot =
+				Scanner.of(userRoleMetadata.requirementStatusByApprovalType().entrySet())
+						.toMap(Entry::getKey,
+								entry -> new RoleApprovalRequirementStatus(
+										entry.getValue().requiredApprovals(),
+										new HashSet<>(entry.getValue().currentApprovers())));
+		requirementStatusByApprovalTypeSnapshot.get(editorPrioritizedApprovalType)
+				.currentApprovers()
+				.add(editor.getUsername());
+		boolean areAllRequirementsMet = requirementStatusByApprovalTypeSnapshot.values()
 				.stream()
 				.allMatch(requirement -> requirement.requiredApprovals() == requirement.currentApprovers().size());
 		UserRoleMetadata updatedRoleMetadata = new UserRoleMetadata(
 				userRoleMetadata.role(),
 				areAllRequirementsMet,
-				requirementStatusByApprovalType,
+				requirementStatusByApprovalTypeSnapshot,
 				userRoleMetadata.editorPrioritizedApprovalType(),
 				null);
 		var userRoleApproval = new DatarouterUserRoleApproval(
@@ -215,7 +224,7 @@ public class DatarouterUserEditService{
 				userRoleMetadata.role().persistentString,
 				editor.getUsername(),
 				Instant.now(),
-				editorPrioritizedApprovalType.persistentString,
+				editorPrioritizedApprovalType.persistentString(),
 				null /* Filled in later */);
 		userRoleApprovalDao.put(userRoleApproval);
 		if(areAllRequirementsMet){
@@ -329,9 +338,9 @@ public class DatarouterUserEditService{
 			String changesStr = description.orElse("") + colon + String.join(", ", changes);
 			userHistoryService.putAndRecordEdit(user, editor, changesStr, signinUrl);
 			if(shouldDeleteSessions){
-				Scanner<DatarouterSession> sessions = datarouterSessionDao.scan()
-						.include(session -> session.getUserToken().equals(user.getUserToken()));
-				sessions.map(DatarouterSession::getKey)
+				datarouterSessionDao.scan()
+						.include(session -> session.getUserToken().equals(user.getUserToken()))
+						.map(DatarouterSession::getKey)
 						.flush(datarouterSessionDao::deleteMulti);
 			}
 		}else{

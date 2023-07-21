@@ -23,11 +23,10 @@ import static j2html.TagCreator.table;
 import static j2html.TagCreator.td;
 import static j2html.TagCreator.tr;
 
-import javax.inject.Singleton;
-
-import io.datarouter.clustersetting.ClusterSettingScope;
+import io.datarouter.clustersetting.enums.ClusterSettingScope;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class ClusterSettingOverrideHtml{

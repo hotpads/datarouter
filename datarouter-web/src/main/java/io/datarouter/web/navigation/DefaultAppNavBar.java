@@ -17,10 +17,9 @@ package io.datarouter.web.navigation;
 
 import java.util.Optional;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DefaultAppNavBar extends AppNavBar{

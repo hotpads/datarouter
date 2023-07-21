@@ -20,9 +20,8 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import javax.inject.Singleton;
-
 import io.datarouter.job.BaseJob;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class JobPackageTracker{

@@ -33,8 +33,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.IntStream;
 
-import javax.inject.Inject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,6 +57,7 @@ import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.DivTag;
+import jakarta.inject.Inject;
 
 public class LoadTestInsertHandler extends BaseHandler{
 	private static final Logger logger = LoggerFactory.getLogger(LoadTestInsertHandler.class);

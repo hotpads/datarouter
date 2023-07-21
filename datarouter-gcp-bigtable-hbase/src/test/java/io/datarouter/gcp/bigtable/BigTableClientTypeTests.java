@@ -15,14 +15,13 @@
  */
 package io.datarouter.gcp.bigtable;
 
-import javax.inject.Inject;
-
 import org.testng.Assert;
 import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
 import io.datarouter.gcp.bigtable.config.DatarouterBigTableTestNgModuleFactory;
 import io.datarouter.storage.client.ClientTypeRegistry;
+import jakarta.inject.Inject;
 
 @Guice(moduleFactory = DatarouterBigTableTestNgModuleFactory.class)
 public class BigTableClientTypeTests{

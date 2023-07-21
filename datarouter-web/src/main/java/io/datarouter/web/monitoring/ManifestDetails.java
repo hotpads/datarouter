@@ -21,15 +21,14 @@ import java.net.URL;
 import java.util.List;
 import java.util.jar.Manifest;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.util.net.UrlTool;
 import io.datarouter.web.app.ApplicationPaths;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class ManifestDetails{

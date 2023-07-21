@@ -20,8 +20,6 @@ import static j2html.TagCreator.ul;
 
 import java.util.List;
 
-import javax.inject.Inject;
-
 import io.datarouter.aws.memcached.client.MemcachedClientMode;
 import io.datarouter.aws.memcached.client.options.AwsMemcachedOptions;
 import io.datarouter.client.memcached.web.MemcachedWebInspector;
@@ -32,6 +30,7 @@ import j2html.TagCreator;
 import j2html.tags.ContainerTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.LiTag;
+import jakarta.inject.Inject;
 
 public class AwsMemcachedWebInspector extends MemcachedWebInspector{
 

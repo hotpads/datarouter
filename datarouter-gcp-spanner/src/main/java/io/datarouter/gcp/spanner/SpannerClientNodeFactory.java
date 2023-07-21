@@ -15,9 +15,6 @@
  */
 package io.datarouter.gcp.spanner;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.gcp.spanner.field.SpannerFieldCodecs;
 import io.datarouter.gcp.spanner.node.SpannerBlobNode;
 import io.datarouter.gcp.spanner.node.SpannerNode;
@@ -48,6 +45,8 @@ import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.storage.tally.Tally;
 import io.datarouter.storage.tally.Tally.TallyFielder;
 import io.datarouter.storage.tally.TallyKey;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class SpannerClientNodeFactory

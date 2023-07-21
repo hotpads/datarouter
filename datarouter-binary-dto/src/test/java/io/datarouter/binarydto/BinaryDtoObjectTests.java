@@ -25,7 +25,8 @@ import io.datarouter.binarydto.dto.BinaryDto;
 
 public class BinaryDtoObjectTests{
 
-	public static class TestDto extends BinaryDto<TestDto>{
+	// Fields should be assigned indexes alphabetically.
+	private static class TestDto extends BinaryDto<TestDto>{
 		public final Integer crab;
 		public final String bear;
 		public final short[] duck;

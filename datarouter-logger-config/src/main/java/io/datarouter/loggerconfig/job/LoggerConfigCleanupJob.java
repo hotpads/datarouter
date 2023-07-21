@@ -31,8 +31,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import javax.inject.Inject;
-
 import org.apache.logging.log4j.Level;
 
 import io.datarouter.email.type.DatarouterEmailTypes.LoggerConfigCleanupEmailType;
@@ -55,6 +53,7 @@ import io.datarouter.web.email.DatarouterHtmlEmailService;
 import io.datarouter.web.email.StandardDatarouterEmailHeaderService;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.PTag;
+import jakarta.inject.Inject;
 
 public class LoggerConfigCleanupJob extends BaseJob{
 

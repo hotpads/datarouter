@@ -25,9 +25,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,6 +45,8 @@ import io.datarouter.storage.config.schema.SchemaUpdateResult;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.storage.util.DatarouterCounters;
 import io.datarouter.util.timer.PhaseTimer;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class MysqlClientManager extends BaseClientManager implements MysqlConnectionClientManager, TxnClientManager{

@@ -18,9 +18,8 @@ package io.datarouter.filesystem.snapshot.path;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.inject.Singleton;
-
 import io.datarouter.util.Require;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class SnapshotPathsRegistry{

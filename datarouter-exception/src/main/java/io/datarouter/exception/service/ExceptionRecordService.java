@@ -15,13 +15,12 @@
  */
 package io.datarouter.exception.service;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.exception.config.DatarouterExceptionPaths;
 import io.datarouter.exception.config.DatarouterExceptionSettingRoot;
 import io.datarouter.exception.storage.exceptionrecord.ExceptionRecord;
 import io.datarouter.web.config.ServletContextSupplier;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class ExceptionRecordService{

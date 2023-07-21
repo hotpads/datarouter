@@ -17,11 +17,11 @@ package io.datarouter.web.user.session;
 
 import java.time.ZoneId;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import javax.servlet.ServletRequest;
 
 import io.datarouter.web.user.session.service.UserSessionService;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class CurrentUserSessionInfoService{

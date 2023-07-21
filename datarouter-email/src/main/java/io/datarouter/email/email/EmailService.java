@@ -23,8 +23,6 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import javax.mail.Message.RecipientType;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
@@ -44,6 +42,8 @@ import io.datarouter.email.dto.DatarouterEmailFileAttachmentDto;
 import io.datarouter.email.util.MimeMessageTool;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.string.StringTool;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class EmailService{
@@ -111,14 +111,14 @@ public class EmailService{
 		Properties props = new Properties();
 		DatarouterEmailHostDetails emailHostDetails = datarouterEmailSettingsProvider.get()
 				.getDatarouterEmailHostDetails();
-		if(StringTool.notNullNorEmpty(emailHostDetails.smtpPassword)){
+		if(StringTool.notNullNorEmpty(emailHostDetails.smtpPassword())){
 			props.put("mail.smtp.auth", "true");
 			props.put("mail.smtp.starttls.enable", "true");
 		}
-		String host = StringTool.nullIfEmpty(emailHostDetails.smtpHost);
-		int port = emailHostDetails.smtpPort;
-		String username = StringTool.nullIfEmpty(emailHostDetails.smtpUsername);
-		String password = StringTool.nullIfEmpty(emailHostDetails.smtpPassword);
+		String host = StringTool.nullIfEmpty(emailHostDetails.smtpHost());
+		int port = emailHostDetails.smtpPort();
+		String username = StringTool.nullIfEmpty(emailHostDetails.smtpUsername());
+		String password = StringTool.nullIfEmpty(emailHostDetails.smtpPassword());
 		Session session = Session.getInstance(props);
 		try(Transport transport = session.getTransport()){
 			transport.connect(host, port, username, password);
@@ -137,7 +137,7 @@ public class EmailService{
 					.collect(Collectors.joining(","));
 			message.setReplyTo(InternetAddress.parse(replyToEmailsString));
 			message.setSubject(subject);
-			headers.entrySet().forEach(entry -> MimeMessageTool.setHeader(message, entry.getKey(), entry.getValue()));
+			headers.forEach((key, value) -> MimeMessageTool.setHeader(message, key, value));
 
 			String subType = html ? "html" : "plain";
 			var textHtml = new MimeBodyPart();

@@ -15,15 +15,14 @@
  */
 package io.datarouter.websocket.config;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.job.BaseTriggerGroup;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.util.time.ZoneIds;
 import io.datarouter.websocket.job.WebSocketSessionDatabaseMonitoringJob;
 import io.datarouter.websocket.job.WebSocketSessionMemoryMonitoringJob;
 import io.datarouter.websocket.job.WebSocketSessionVacuumJob;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterWebSocketTriggerGroup extends BaseTriggerGroup{

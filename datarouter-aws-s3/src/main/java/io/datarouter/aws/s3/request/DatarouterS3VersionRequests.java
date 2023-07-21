@@ -21,6 +21,7 @@ import java.util.Optional;
 import io.datarouter.aws.s3.DatarouterS3ClientManager;
 import io.datarouter.aws.s3.DatarouterS3Counters;
 import io.datarouter.aws.s3.DatarouterS3Counters.S3CounterSuffix;
+import io.datarouter.aws.s3.S3CostCounters;
 import io.datarouter.aws.s3.S3ListVersionsResponse;
 import io.datarouter.instrumentation.trace.TraceSpanGroupType;
 import io.datarouter.instrumentation.trace.TracerTool;
@@ -62,7 +63,7 @@ public class DatarouterS3VersionRequests{
 				.listObjectVersionsPaginator(listObjectVersionsRequest);
 		return Scanner.of(listObjectVersionsIterable)
 				.timeNanos(nanos -> TracerTool.addSpan(
-						"S3 ListObjectVersions page",
+						"S3 listObjectVersions page",
 						TraceSpanGroupType.CLOUD_STORAGE,
 						System.nanoTime(),
 						nanos))
@@ -74,6 +75,7 @@ public class DatarouterS3VersionRequests{
 				.each(page -> {
 					DatarouterS3Counters.inc(location.bucket(), S3CounterSuffix.LIST_VERSIONS_REQUESTS, 1);
 					DatarouterS3Counters.inc(location.bucket(), S3CounterSuffix.LIST_VERSIONS_ROWS, page.size());
+					S3CostCounters.list();
 				});
 	}
 
@@ -92,7 +94,7 @@ public class DatarouterS3VersionRequests{
 				.listObjectVersionsPaginator(listObjectVersionsRequest);
 		return Scanner.of(listObjectVersionsIterable)
 				.timeNanos(nanos -> TracerTool.addSpan(
-						"S3 ListObjectVersions page",
+						"S3 listObjectVersions page",
 						TraceSpanGroupType.CLOUD_STORAGE,
 						System.nanoTime(),
 						nanos))
@@ -104,6 +106,7 @@ public class DatarouterS3VersionRequests{
 				.each(page -> {
 					DatarouterS3Counters.inc(location.bucket(), S3CounterSuffix.LIST_VERSIONS_REQUESTS, 1);
 					DatarouterS3Counters.inc(location.bucket(), S3CounterSuffix.LIST_VERSIONS_ROWS, page.size());
+					S3CostCounters.list();
 				});
 	}
 
@@ -112,9 +115,15 @@ public class DatarouterS3VersionRequests{
 				.bucket(locationPrefix.bucket());
 		Optional.ofNullable(locationPrefix.prefix()).ifPresent(requestBuilder::prefix);
 		Optional.ofNullable(delimiter).ifPresent(requestBuilder::delimiter);
-		ListObjectVersionsIterable responsePages = clientManager.getS3ClientForBucket(locationPrefix.bucket())
+		ListObjectVersionsIterable listObjectVersionsIterable = clientManager.getS3ClientForBucket(
+				locationPrefix.bucket())
 				.listObjectVersionsPaginator(requestBuilder.build());
-		return Scanner.of(responsePages)
+		return Scanner.of(listObjectVersionsIterable)
+				.timeNanos(nanos -> TracerTool.addSpan(
+						"S3 listObjectVersions page",
+						TraceSpanGroupType.CLOUD_STORAGE,
+						System.nanoTime(),
+						nanos))
 				.concatIter(ListObjectVersionsResponse::commonPrefixes)
 				.map(CommonPrefix::prefix);
 	}
@@ -139,7 +148,7 @@ public class DatarouterS3VersionRequests{
 				.maxKeys(maxKeys)
 				.build();
 		ListObjectVersionsResponse response;
-		try(var $ = TracerTool.startSpan("S3 ListObjectsVersions", TraceSpanGroupType.CLOUD_STORAGE)){
+		try(var $ = TracerTool.startSpan("S3 listObjectsVersions commonPrefixes", TraceSpanGroupType.CLOUD_STORAGE)){
 			response = s3Client.listObjectVersions(request);
 			TracerTool.appendToSpanInfo("size", response.commonPrefixes().size());
 		}
@@ -163,6 +172,7 @@ public class DatarouterS3VersionRequests{
 			s3Client.deleteObject(request);
 		}
 		DatarouterS3Counters.inc(bucketAndKeyVersion.bucket(), S3CounterSuffix.DELETE_VERSION_REQUESTS, 1);
+		// Cost: S3 deletes are free
 	}
 
 	public void deleteVersions(BucketAndKeyVersions bucketAndKeyVersions){
@@ -189,6 +199,7 @@ public class DatarouterS3VersionRequests{
 				bucketAndKeyVersions.bucket(),
 				S3CounterSuffix.DELETE_VERSIONS_KEYS,
 				bucketAndKeyVersions.keyVersions().size());
+		// Cost: S3 deletes are free
 	}
 
 }

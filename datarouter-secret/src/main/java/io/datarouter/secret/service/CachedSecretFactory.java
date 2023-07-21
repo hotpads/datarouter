@@ -15,18 +15,16 @@
  */
 package io.datarouter.secret.service;
 
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
 
 import io.datarouter.secret.op.SecretOpConfig;
 import io.datarouter.secret.op.SecretOpReason;
 import io.datarouter.util.Require;
 import io.datarouter.util.cached.Cached;
 import io.datarouter.util.string.StringTool;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 /**
@@ -40,50 +38,32 @@ public class CachedSecretFactory{
 
 	@Inject
 	private SecretService secretService;
-	@Inject
-	private SecretNamespacer secretNamespacer;
 
-	//not shared
+	/*--------------------------- Not shared ----------------------------*/
 
 	public CachedSecret<String> cacheSecretString(Supplier<String> nameSupplier){
 		return cacheSecret(nameSupplier, String.class);
 	}
 
-	public CachedSecret<String> cacheSecretString(Supplier<String> nameSupplier, String defaultValue){
-		return cacheSecret(nameSupplier, String.class, defaultValue);
-	}
-
 	public <T> CachedSecret<T> cacheSecret(Supplier<String> nameSupplier, Class<T> secretClass){
-		return cacheSecretInternal(nameSupplier, secretClass, Optional.empty(), false);
+		return cacheSecretInternal(nameSupplier, secretClass, false);
 	}
 
-	public <T> CachedSecret<T> cacheSecret(Supplier<String> nameSupplier, Class<T> secretClass, T defaultValue){
-		return cacheSecretInternal(nameSupplier, secretClass, Optional.of(defaultValue), false);
-	}
-
-	//shared
+	/*--------------------------- Shared ----------------------------*/
 
 	public CachedSecret<String> cacheSharedSecretString(Supplier<String> nameSupplier){
 		return cacheSharedSecret(nameSupplier, String.class);
 	}
 
-	public CachedSecret<String> cacheSharedSecretString(Supplier<String> nameSupplier, String defaultValue){
-		return cacheSharedSecret(nameSupplier, String.class, defaultValue);
-	}
-
 	public <T> CachedSecret<T> cacheSharedSecret(Supplier<String> nameSupplier, Class<T> secretClass){
-		return cacheSecretInternal(nameSupplier, secretClass, Optional.empty(), true);
-	}
-
-	public <T> CachedSecret<T> cacheSharedSecret(Supplier<String> nameSupplier, Class<T> secretClass, T defaultValue){
-		return cacheSecretInternal(nameSupplier, secretClass, Optional.of(defaultValue), true);
+		return cacheSecretInternal(nameSupplier, secretClass, true);
 	}
 
 	private <T> CachedSecret<T> cacheSecretInternal(Supplier<String> nameSupplier, Class<T> secretClass,
-			Optional<T> defaultValue, boolean isShared){
+			boolean isShared){
 		Require.noNulls(nameSupplier, secretClass);
 		Require.isFalse(StringTool.isNullOrEmptyOrWhitespace(nameSupplier.get()));
-		return new CachedSecret<>(nameSupplier, secretClass, isShared, defaultValue);
+		return new CachedSecret<>(nameSupplier, secretClass, isShared);
 	}
 
 	public final class CachedSecret<T> extends Cached<T>{
@@ -91,36 +71,21 @@ public class CachedSecretFactory{
 		private final Supplier<String> nameSupplier;
 		private final Class<T> secretClass;
 		private final boolean isShared;
-		private final Optional<T> defaultValue;
 
-		private CachedSecret(Supplier<String> nameSupplier, Class<T> secretClass, boolean isShared,
-				Optional<T> defaultValue){
+		private CachedSecret(Supplier<String> nameSupplier, Class<T> secretClass, boolean isShared){
 			super(CACHE_LENGTH, CACHE_LENGTH_UNIT);
 			this.nameSupplier = nameSupplier;
 			this.secretClass = secretClass;
 			this.isShared = isShared;
-			this.defaultValue = defaultValue;
 		}
 
 		@Override
 		protected T reload(){
-			boolean hasDefaultFallback = secretNamespacer.isDevelopment() && defaultValue.isPresent();
-			try{
-				SecretOpConfig.Builder builder = SecretOpConfig.builder(SecretOpReason.automatedOp("CachedSecret"));
-				if(isShared){
-					builder.useSharedNamespace();
-				}
-				if(hasDefaultFallback){
-					builder.disableLogging();
-				}
-				return secretService.read(nameSupplier.get(), secretClass, builder.build());
-			}catch(RuntimeException e){
-				//TODO consider making environment-based behavior possible (unless removing cached defaults)
-				if(hasDefaultFallback){
-					return defaultValue.get();
-				}
-				throw e;
+			SecretOpConfig.Builder builder = SecretOpConfig.builder(SecretOpReason.automatedOp("CachedSecret"));
+			if(isShared){
+				builder.useSharedNamespace();
 			}
+			return secretService.read(nameSupplier.get(), secretClass, builder.build());
 		}
 
 		@Override

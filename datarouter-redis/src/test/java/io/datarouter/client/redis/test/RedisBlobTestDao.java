@@ -17,9 +17,6 @@ package io.datarouter.client.redis.test;
 
 import java.nio.charset.StandardCharsets;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.client.redis.RedisTestClientIds;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
@@ -29,6 +26,8 @@ import io.datarouter.storage.file.PathbeanKey;
 import io.datarouter.storage.node.factory.BlobNodeFactory;
 import io.datarouter.storage.node.op.raw.BlobStorage.PhysicalBlobStorageNode;
 import io.datarouter.storage.util.Subpath;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class RedisBlobTestDao extends BaseDao implements TestDao{
@@ -71,7 +70,7 @@ public class RedisBlobTestDao extends BaseDao implements TestDao{
 	}
 
 	public void writeScannerOfBytes(String key, Scanner<byte[]> content){
-		node.write(PathbeanKey.of(node.getBucket() + "/" + SUBPATH + key), content);
+		node.writeChunks(PathbeanKey.of(node.getBucket() + "/" + SUBPATH + key), content);
 	}
 
 }

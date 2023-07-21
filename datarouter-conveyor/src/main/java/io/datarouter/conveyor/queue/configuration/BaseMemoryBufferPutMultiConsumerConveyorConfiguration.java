@@ -21,8 +21,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
 
-import javax.inject.Inject;
-
 import io.datarouter.conveyor.Conveyor.ProcessResult;
 import io.datarouter.conveyor.ConveyorConfiguration;
 import io.datarouter.conveyor.ConveyorCounters;
@@ -30,6 +28,7 @@ import io.datarouter.conveyor.ConveyorGauges;
 import io.datarouter.conveyor.ConveyorRunnable;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.util.buffer.MemoryBuffer;
+import jakarta.inject.Inject;
 
 public abstract class BaseMemoryBufferPutMultiConsumerConveyorConfiguration<D>
 implements ConveyorConfiguration{

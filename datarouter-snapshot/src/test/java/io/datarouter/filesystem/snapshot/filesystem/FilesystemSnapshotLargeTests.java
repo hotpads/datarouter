@@ -19,8 +19,6 @@ import java.time.Duration;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
 
-import javax.inject.Inject;
-
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -38,6 +36,7 @@ import io.datarouter.filesystem.snapshot.reader.block.BlockLoader;
 import io.datarouter.filesystem.snapshot.reader.record.SnapshotLeafRecord;
 import io.datarouter.scanner.Threads;
 import io.datarouter.util.concurrent.ExecutorServiceTool;
+import jakarta.inject.Inject;
 
 /**
  * For testing large snapshot write throughput.  Adjust NUM_ENTRIES into the billions for a large test, but that may be

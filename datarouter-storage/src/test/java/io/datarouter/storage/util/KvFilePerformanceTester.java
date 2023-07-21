@@ -15,11 +15,8 @@
  */
 package io.datarouter.storage.util;
 
-import java.io.ByteArrayInputStream;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 
@@ -30,20 +27,14 @@ import org.testng.annotations.Test;
 import io.datarouter.bytes.ByteTool;
 import io.datarouter.bytes.EmptyArray;
 import io.datarouter.bytes.codec.longcodec.ComparableLongCodec;
-import io.datarouter.bytes.kvfile.KvFileBlock;
-import io.datarouter.bytes.kvfile.KvFileCollator;
-import io.datarouter.bytes.kvfile.KvFileCollator.KvFileCollatorPruneDeletesScanner;
-import io.datarouter.bytes.kvfile.KvFileEntry;
-import io.datarouter.bytes.kvfile.KvFileOp;
-import io.datarouter.bytes.kvfile.KvFileReader;
+import io.datarouter.bytes.kvfile.kv.KvFileEntry;
+import io.datarouter.bytes.kvfile.kv.KvFileOp;
+import io.datarouter.bytes.kvfile.read.KvFileCollator.KvFileCollatorPruneDeletesScanner;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.scanner.Threads;
 import io.datarouter.util.number.NumberFormatter;
 
 public class KvFilePerformanceTester{
 	private static final Logger logger = LoggerFactory.getLogger(KvFilePerformanceTester.class);
-
-	private static final int ENTRIES_PER_BLOCK = 1_000;
 
 	/*--------- byte[] -------------*/
 
@@ -84,23 +75,6 @@ public class KvFilePerformanceTester{
 		return Scanner.iterate(0, i -> i + 1)
 				.limit(numLists)
 				.map(KvFilePerformanceTester::makeList)
-				.list();
-	}
-
-	/*--------- slab -------------*/
-
-	private static byte[] makeSlab(long slabId){
-		return Scanner.of(makeList(slabId))
-				.batch(ENTRIES_PER_BLOCK)
-				.map(KvFileBlock::new)
-				.map(KvFileBlock::toBytes)
-				.listTo(ByteTool::concat);
-	}
-
-	private static List<byte[]> makeSlabs(int numSlabs){
-		return Scanner.iterate(0, i -> i + 1)
-				.limit(numSlabs)
-				.map(KvFilePerformanceTester::makeSlab)
 				.list();
 	}
 
@@ -216,27 +190,6 @@ public class KvFilePerformanceTester{
 			long durationMs = System.currentTimeMillis() - startMs;
 			long rps = count * 1000 / durationMs;
 			logger.warn("i={}, count={}, durationMs={}, rps={}", i, count, durationMs, NumberFormatter.addCommas(rps));
-		}
-	}
-
-	@Test
-	public void testCollateSlabs(){
-		int vcpus = Runtime.getRuntime().availableProcessors();
-		ExecutorService exec = Executors.newFixedThreadPool(vcpus);
-		var threads = new Threads(exec, Runtime.getRuntime().availableProcessors() / 2);
-		List<byte[]> slabs = makeSlabs(20);
-		logger.warn("made slabs");
-		for(int i = 0; i < 5; ++i){
-			long startMs = System.currentTimeMillis();
-			long count = Scanner.of(slabs)
-					.map(ByteArrayInputStream::new)
-					.map(is -> new KvFileReader(is, threads))
-					.listTo(KvFileCollator::pruneAll)// 35mm/s
-					.count();
-			long durationMs = System.currentTimeMillis() - startMs;
-			long rps = count * 1000 / durationMs;
-			logger.warn("i={}, count={}, durationMs={}, rps={}", i, count, durationMs, NumberFormatter.addCommas(rps));
-			System.gc();
 		}
 	}
 

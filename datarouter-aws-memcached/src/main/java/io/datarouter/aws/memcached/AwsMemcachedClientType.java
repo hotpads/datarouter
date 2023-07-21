@@ -15,14 +15,13 @@
  */
 package io.datarouter.aws.memcached;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.aws.memcached.client.AwsMemcachedClientManager;
 import io.datarouter.aws.memcached.client.nodefactory.AwsMemcachedClientNodeFactory;
 import io.datarouter.aws.memcached.web.AwsMemcachedWebInspector;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.web.browse.DatarouterClientWebInspectorRegistry;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class AwsMemcachedClientType implements ClientType<AwsMemcachedClientNodeFactory,AwsMemcachedClientManager>{

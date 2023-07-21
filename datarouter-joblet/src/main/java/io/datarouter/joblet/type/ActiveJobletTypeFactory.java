@@ -20,13 +20,12 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.clustersetting.service.ClusterSettingService;
 import io.datarouter.joblet.setting.DatarouterJobletThreadCountSettings;
 import io.datarouter.storage.setting.cached.CachedSetting;
 import io.datarouter.webappinstance.storage.webappinstance.WebappInstance;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class ActiveJobletTypeFactory{

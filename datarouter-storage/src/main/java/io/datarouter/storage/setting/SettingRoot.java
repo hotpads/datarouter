@@ -16,24 +16,18 @@
 package io.datarouter.storage.setting;
 
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
 
 import io.datarouter.plugin.PluginConfigKey;
 import io.datarouter.plugin.PluginConfigType;
 import io.datarouter.plugin.PluginConfigValue;
 import io.datarouter.storage.setting.SettingCategory.SimpleSettingCategory;
-import io.datarouter.storage.setting.cached.CachedSetting;
 import io.datarouter.util.string.StringTool;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 public class SettingRoot extends SettingNode implements PluginConfigValue<SettingRoot>{
 
@@ -67,62 +61,19 @@ public class SettingRoot extends SettingNode implements PluginConfigValue<Settin
 		addToMap(settingNode);
 	}
 
-	public Optional<SettingNode> getNode(String nodeName){
-		for(SettingNode settingNode : rootNodes){
-			if(nodeName.startsWith(settingNode.getName())){
-				return settingNode.getNodeByName(nodeName);
-			}
-		}
-		return Optional.empty();
-	}
-
-	public Optional<SettingNode> getMostRecentAncestorNode(String nodeName){
-		for(SettingNode settingNode : rootNodes){
-			if(nodeName.startsWith(settingNode.getName())){
-				return settingNode.getMostRecentAncestorNodeByName(nodeName);
-			}
-		}
-		return Optional.empty();
-	}
-
-	public List<SettingNode> getDescendants(String nodeName){
-		for(SettingNode settingNode : rootNodes){
-			if(nodeName.startsWith(settingNode.getName())){
-				return settingNode.getDescendantsByName(nodeName);
-			}
-		}
-		return null;
-	}
-
-	public List<SettingNode> getRootNodesSortedByShortName(){
-		return rootNodes.stream()
-				.sorted(Comparator.comparing(SettingNode::getShortName))
-				.collect(Collectors.toList());
-	}
-
-	public Optional<CachedSetting<?>> getSettingByName(String name){
-		return getNode(name.substring(0, name.lastIndexOf(".") + 1))
-				.map(SettingNode::getSettings)
-				.map(settings -> settings.get(name));
-	}
-
 	public boolean isRecognized(String settingName){
 		String rootName = StringTool.getStringBeforeFirstOccurrence('.', settingName);
 		return isRecognizedRootName(rootName);
 	}
 
-	public boolean isRecognizedRootName(String rootNameWithoutTrailingDot){
+	private boolean isRecognizedRootName(String rootNameWithoutTrailingDot){
 		return rootNodes.stream()
 				.map(SettingNode::getShortName)
 				.anyMatch(shortName -> shortName.equals(rootNameWithoutTrailingDot));
 	}
 
-	public SimpleSettingCategory getSettingCategory(){
-		return category;
-	}
-
 	private void addToMap(SettingRoot root){
-		map.computeIfAbsent(root.getSettingCategory().toSimpleSettingCategory(), $ -> new LinkedHashSet<>()).add(root);
+		map.computeIfAbsent(root.category.toSimpleSettingCategory(), $ -> new LinkedHashSet<>()).add(root);
 	}
 
 	public Map<SimpleSettingCategory,Set<SettingRoot>> getRootNodesByCategory(){
