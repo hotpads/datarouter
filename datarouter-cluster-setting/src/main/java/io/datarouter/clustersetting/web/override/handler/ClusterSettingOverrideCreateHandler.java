@@ -41,6 +41,7 @@ import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.GlobalRedirectMav;
 import io.datarouter.web.html.form.HtmlForm;
+import io.datarouter.web.html.form.HtmlForm.HtmlFormMethod;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import jakarta.inject.Inject;
@@ -98,8 +99,7 @@ public class ClusterSettingOverrideCreateHandler extends BaseHandler{
 
 		// Make form
 		boolean submitted = submitButton.orElse(false);
-		var form = new HtmlForm()
-				.withMethodPost()
+		var form = new HtmlForm(HtmlFormMethod.POST)
 				.withAction(request.getContextPath() + paths.datarouter.settings.overrides.create.toSlashedString());
 		form.addHiddenField(P_source, sourceEnum.persistentString);
 		partialName.ifPresent(partialNameValue -> form.addHiddenField(P_partialName, partialNameValue));
@@ -111,7 +111,7 @@ public class ClusterSettingOverrideCreateHandler extends BaseHandler{
 		if(scopeEnum == ClusterSettingScope.SERVER_NAME){
 			form.addField(forms.makeServerNameField(P_serverName, serverName, submitted));
 		}
-		form.addField(forms.makeSettingValueField(P_value, value, submitted));
+		form.addField(forms.makeSettingValueField(P_value, value, submitted, name));
 		form.addField(forms.makeCommentField(P_comment, comment, submitted));
 		form.addField(forms.makeSubmitButton(P_submitButton, "Create"));
 

@@ -19,6 +19,14 @@ import java.time.ZoneId;
 import java.util.Collections;
 import java.util.List;
 
+import io.datarouter.auth.detail.DatarouterUserExternalDetailService;
+import io.datarouter.auth.role.RoleManager;
+import io.datarouter.auth.session.CurrentSessionInfo;
+import io.datarouter.auth.session.CurrentSessionInfo.NoOpCurrentSessionInfo;
+import io.datarouter.auth.session.UserSessionService;
+import io.datarouter.auth.session.UserSessionService.NoOpUserSessionService;
+import io.datarouter.auth.storage.user.session.DatarouterSessionDao;
+import io.datarouter.auth.storage.user.session.DatarouterSessionDao.DatarouterSessionDaoParams;
 import io.datarouter.httpclient.proxy.RequestProxySetter;
 import io.datarouter.pathnode.FilesRoot;
 import io.datarouter.pathnode.FilesRoot.NoOpFilesRoot;
@@ -75,15 +83,7 @@ import io.datarouter.web.navigation.ReadmeDocsNavBarItem;
 import io.datarouter.web.navigation.SystemDocsNavBarItem;
 import io.datarouter.web.plugin.PluginRegistrySupplier;
 import io.datarouter.web.plugin.PluginRegistrySupplier.PluginRegistry;
-import io.datarouter.web.user.DatarouterSessionDao;
-import io.datarouter.web.user.DatarouterSessionDao.DatarouterSessionDaoParams;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
-import io.datarouter.web.user.detail.DatarouterUserExternalDetailService;
-import io.datarouter.web.user.role.RoleManager;
-import io.datarouter.web.user.session.CurrentSessionInfo;
-import io.datarouter.web.user.session.CurrentSessionInfo.NoOpCurrentSessionInfo;
-import io.datarouter.web.user.session.service.UserSessionService;
-import io.datarouter.web.user.session.service.UserSessionService.NoOpUserSessionService;
 
 public class DatarouterWebPlugin extends BaseWebPlugin{
 
@@ -245,7 +245,8 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		addDatarouterNavBarItem(DatarouterNavBarCategory.TOOLS, PATHS.datarouter.http.dnsLookup, "Test - DNS");
 		addDatarouterNavBarItem(DatarouterNavBarCategory.TOOLS, PATHS.datarouter.emailTest, "Test - Email");
 		addDatarouterNavBarItem(DatarouterNavBarCategory.TOOLS, PATHS.datarouter.http.tester, "Test - HTTP");
-
+		addDatarouterNavBarItem(DatarouterNavBarCategory.TOOLS, PATHS.datarouter.handler.handlerSearch,
+				"Handler Search");
 
 		addDynamicNavBarItem(ReadmeDocsNavBarItem.class);
 		addDynamicNavBarItem(SystemDocsNavBarItem.class);

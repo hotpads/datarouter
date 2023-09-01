@@ -16,6 +16,7 @@
 package io.datarouter.nodewatch.config;
 
 import io.datarouter.job.BaseTriggerGroup;
+import io.datarouter.nodewatch.job.NodewatchCostMonitoringJob;
 import io.datarouter.nodewatch.job.TableCountJob;
 import io.datarouter.nodewatch.job.TableSamplerJob;
 import io.datarouter.nodewatch.job.TableSamplerJobletVacuumJob;
@@ -56,6 +57,11 @@ public class DatarouterNodewatchTriggerGroup extends BaseTriggerGroup{
 				"0 0 0 ? * * *",
 				settings.runTableStorageSummaryJob,
 				TableStorageSummaryJob.class,
+				true);
+		registerLocked(
+				"35 * * ? * * *",
+				settings.runNodewatchCostMonitoringJob,
+				NodewatchCostMonitoringJob.class,
 				true);
 	}
 

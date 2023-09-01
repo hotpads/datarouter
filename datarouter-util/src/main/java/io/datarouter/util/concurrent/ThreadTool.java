@@ -18,7 +18,6 @@ package io.datarouter.util.concurrent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.instrumentation.trace.TraceSpanFinisher;
 import io.datarouter.instrumentation.trace.TracerTool;
 
 public class ThreadTool{
@@ -28,7 +27,7 @@ public class ThreadTool{
 		if(ms <= 0){//sleep errors on negatives
 			return;
 		}
-		try(TraceSpanFinisher $ = TracerTool.startSpanNoGroupType("sleep " + ms)){
+		try(var $ = TracerTool.startSpanNoGroupType("sleep " + ms)){
 			Thread.sleep(ms);
 		}
 	}
@@ -37,7 +36,7 @@ public class ThreadTool{
 		if(ms <= 0){//sleep errors on negatives
 			return;
 		}
-		try(TraceSpanFinisher $ = TracerTool.startSpanNoGroupType("sleep " + ms)){
+		try(var $ = TracerTool.startSpanNoGroupType("sleep " + ms)){
 			Thread.sleep(ms);
 		}catch(InterruptedException e){
 			throw new UncheckedInterruptedException(e);
@@ -48,7 +47,7 @@ public class ThreadTool{
 		if(ms <= 0){//sleep errors on negatives
 			return;
 		}
-		try(TraceSpanFinisher $ = TracerTool.startSpanNoGroupType("sleep " + ms)){
+		try(var $ = TracerTool.startSpanNoGroupType("sleep " + ms)){
 			Thread.sleep(ms);
 		}catch(InterruptedException e){
 			logger.warn("sleep interrupted, continuing");

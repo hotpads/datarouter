@@ -81,8 +81,7 @@ public class DatarouterRedisClient{
 	}
 
 	public Long incrby(byte[] key, int by, RedisRequestConfig config){
-		Long newValue = exec("incrby", () -> lettuceClient.incrby(key, by), config, null);
-		return newValue;
+		return exec("incrby", () -> lettuceClient.incrby(key, by), config, null);
 	}
 
 	public void pexpire(byte[] key, Duration ttl, RedisRequestConfig config){

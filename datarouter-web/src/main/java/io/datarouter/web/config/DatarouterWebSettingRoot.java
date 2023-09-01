@@ -18,6 +18,7 @@ package io.datarouter.web.config;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import io.datarouter.auth.config.DatarouterAuthenticationSettings;
 import io.datarouter.storage.setting.DatarouterSettingCategory;
 import io.datarouter.storage.setting.Setting;
 import io.datarouter.storage.setting.SettingFinder;
@@ -26,7 +27,6 @@ import io.datarouter.storage.setting.cached.CachedSetting;
 import io.datarouter.util.duration.DatarouterDuration;
 import io.datarouter.web.config.settings.DatarouterLocalhostCorsFilterSettings;
 import io.datarouter.web.config.settings.DatarouterSchemaUpdateEmailSettings;
-import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationSettings;
 import io.datarouter.web.user.authenticate.saml.DatarouterSamlSettings;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;

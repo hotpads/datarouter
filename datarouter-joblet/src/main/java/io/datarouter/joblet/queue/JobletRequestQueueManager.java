@@ -21,7 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 
-import io.datarouter.joblet.DatarouterJobletCounters;
+import io.datarouter.joblet.JobletCounters;
 import io.datarouter.joblet.enums.JobletPriority;
 import io.datarouter.joblet.storage.jobletrequest.JobletRequest;
 import io.datarouter.joblet.storage.jobletrequest.JobletRequestKey;
@@ -35,17 +35,12 @@ import jakarta.inject.Singleton;
 public class JobletRequestQueueManager{
 
 	private final JobletTypeFactory jobletTypeFactory;
-	private final DatarouterJobletCounters datarouterJobletCounters;
-
 	private final List<JobletRequestQueueKey> queueKeys;
 	private final ConcurrentMap<JobletRequestQueueKey,Long> lastMissByQueue;
 
 	@Inject
-	public JobletRequestQueueManager(
-			JobletTypeFactory jobletTypeFactory,
-			DatarouterJobletCounters datarouterJobletCounters){
+	public JobletRequestQueueManager(JobletTypeFactory jobletTypeFactory){
 		this.jobletTypeFactory = jobletTypeFactory;
-		this.datarouterJobletCounters = datarouterJobletCounters;
 		this.lastMissByQueue = new ConcurrentHashMap<>();
 		queueKeys = jobletTypeFactory.getAllTypes().stream()
 				.flatMap(type -> JobletPriority.stream()
@@ -72,7 +67,7 @@ public class JobletRequestQueueManager{
 
 	public void onJobletRequestQueueMiss(JobletRequestQueueKey queueKey){
 		lastMissByQueue.put(queueKey, System.currentTimeMillis());
-		datarouterJobletCounters.incQueueMiss(queueKey.getQueueName());
+		JobletCounters.incQueueMiss(queueKey.getQueueName());
 	}
 
 	public boolean shouldSkipQueue(JobletRequestQueueKey queueKey){

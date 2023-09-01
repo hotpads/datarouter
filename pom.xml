@@ -21,11 +21,12 @@
 
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-modules</artifactId>
-	<version>0.0.121</version>
+	<version>0.0.122</version>
 	<packaging>pom</packaging>
 
 	<modules>
 		<module>datarouter-auth</module>
+		<module>datarouter-auth-web</module>
 		<module>datarouter-auto-config</module>
 		<module>datarouter-aws-elb</module>
 		<module>datarouter-aws-memcached</module>

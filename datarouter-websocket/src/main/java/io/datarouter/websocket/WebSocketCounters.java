@@ -16,22 +16,16 @@
 package io.datarouter.websocket;
 
 import io.datarouter.instrumentation.count.Counters;
-import io.datarouter.storage.metric.Gauges;
-import jakarta.inject.Inject;
-import jakarta.inject.Singleton;
+import io.datarouter.instrumentation.gauge.Gauges;
 
-@Singleton
 public class WebSocketCounters{
-
-	@Inject
-	private Gauges gauges;
 
 	public static void inc(String key){
 		Counters.inc("websocket " + key);
 	}
 
-	public void saveCount(String key, long value){
-		gauges.save("websocketCount " + key, value);
+	public static void saveCount(String key, long value){
+		Gauges.save("websocketCount " + key, value);
 	}
 
 }

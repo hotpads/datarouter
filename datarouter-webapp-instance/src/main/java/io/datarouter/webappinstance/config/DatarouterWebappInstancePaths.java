@@ -30,7 +30,6 @@ public class DatarouterWebappInstancePaths extends PathNode implements PathsRoot
 
 	public static class WebappInstancePaths extends PathNode{
 		public final PathNode running = leaf("running");
-		public final PathNode instanceLogin = leaf("instanceLogin");
 		public final PathNode history = leaf("history");
 	}
 

@@ -29,7 +29,7 @@ import io.datarouter.instrumentation.trace.TraceCategory;
 import io.datarouter.instrumentation.trace.TraceSaveReasonType;
 import io.datarouter.instrumentation.trace.TraceSpanGroupType;
 import io.datarouter.instrumentation.trace.Traceparent;
-import io.datarouter.trace.storage.binarydto.TraceBinaryDto;
+import io.datarouter.trace.storage.binarydto.TraceQueueBinaryDto;
 
 public class TraceBinaryDtoTests{
 
@@ -37,23 +37,23 @@ public class TraceBinaryDtoTests{
 
 	@Test
 	public void testConstructorValidation(){
-		Assert.assertThrows(NullPointerException.class, () -> new TraceBinaryDto(null));
+		Assert.assertThrows(NullPointerException.class, () -> new TraceQueueBinaryDto(null));
 	}
 
 	@Test
 	public void testConstructorFields(){
-		verifyOkDto(new TraceBinaryDto(VALID_BUNDLE_DTO));
+		verifyOkDto(new TraceQueueBinaryDto(VALID_BUNDLE_DTO));
 	}
 
 	@Test
 	public void testRoundTripBytes(){
-		var bytes = new TraceBinaryDto(VALID_BUNDLE_DTO).encodeIndexed();
-		var okDto = TraceBinaryDto.decode(new TraceBinaryDto(VALID_BUNDLE_DTO).encodeIndexed());
+		var bytes = new TraceQueueBinaryDto(VALID_BUNDLE_DTO).encodeIndexed();
+		var okDto = TraceQueueBinaryDto.decode(new TraceQueueBinaryDto(VALID_BUNDLE_DTO).encodeIndexed());
 		verifyOkDto(okDto);
 		Assert.assertEquals(okDto.encodeIndexed(), bytes);
 	}
 
-	private void verifyOkDto(TraceBinaryDto okDto){
+	private void verifyOkDto(TraceQueueBinaryDto okDto){
 		Assert.assertTrue(TraceBinaryDtoTests.equals(VALID_BUNDLE_DTO, okDto.toTrace2BundleDto()));
 	}
 

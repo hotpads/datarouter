@@ -112,7 +112,7 @@ public interface Scanner<T> extends Closeable{
 	/**
 	 * @return  A scanner that immediately returns advance=false
 	 */
-	public static <T> Scanner<T> empty(){
+	static <T> Scanner<T> empty(){
 		return EmptyScanner.singleton();
 	}
 
@@ -120,7 +120,7 @@ public interface Scanner<T> extends Closeable{
 	 * @param supplier  Supplier that generates items indefinitely
 	 * @return  A scanner that advances through the items
 	 */
-	public static <T> Scanner<T> generate(Supplier<T> supplier){
+	static <T> Scanner<T> generate(Supplier<T> supplier){
 		return new GeneratingScanner<>(supplier);
 	}
 
@@ -131,7 +131,7 @@ public interface Scanner<T> extends Closeable{
 	 * @param unaryOperator  A function applied to the current item to generate the next item
 	 * @return  A scanner that advances through the items
 	 */
-	public static <T> Scanner<T> iterate(T seed, UnaryOperator<T> unaryOperator){
+	static <T> Scanner<T> iterate(T seed, UnaryOperator<T> unaryOperator){
 		return new IteratingScanner<>(seed, unaryOperator);
 	}
 
@@ -141,7 +141,7 @@ public interface Scanner<T> extends Closeable{
 	 * @param object  A nullable Object
 	 * @return  An empty scanner if the Object was null, otherwise a single-item Scanner with the Object
 	 */
-	public static <T> Scanner<T> ofNullable(T object){
+	static <T> Scanner<T> ofNullable(T object){
 		return ObjectScanner.ofNullable(object);
 	}
 
@@ -151,7 +151,7 @@ public interface Scanner<T> extends Closeable{
 	 * @param object  A non-null Object
 	 * @return  A single-item Scanner with the Object
 	 */
-	public static <T> Scanner<T> of(T object){
+	static <T> Scanner<T> of(T object){
 		return ObjectScanner.of(object);
 	}
 
@@ -162,7 +162,7 @@ public interface Scanner<T> extends Closeable{
 	 * @return  A Scanner that visits each item in the array
 	 */
 	@SafeVarargs
-	public static <T> Scanner<T> of(T... array){
+	static <T> Scanner<T> of(T... array){
 		return ArrayScanner.of(array);
 	}
 
@@ -172,7 +172,7 @@ public interface Scanner<T> extends Closeable{
 	 * @param iterator  An Iterator
 	 * @return  A Scanner that visits each item in the Iterator
 	 */
-	public static <T> Scanner<T> of(Iterator<T> iterator){
+	static <T> Scanner<T> of(Iterator<T> iterator){
 		return IteratorScanner.of(iterator);
 	}
 
@@ -182,7 +182,7 @@ public interface Scanner<T> extends Closeable{
 	 * @param iterable  An Iterable, which includes any Collection
 	 * @return  A Scanner that visits each item in the Iterable
 	 */
-	public static <T> Scanner<T> of(Iterable<T> iterable){
+	static <T> Scanner<T> of(Iterable<T> iterable){
 		return IterableScanner.of(iterable);
 	}
 
@@ -192,7 +192,7 @@ public interface Scanner<T> extends Closeable{
 	 * @param stream  A Stream
 	 * @return  A Scanner that visits each item in the Stream
 	 */
-	public static <T> Scanner<T> of(Stream<T> stream){
+	static <T> Scanner<T> of(Stream<T> stream){
 		return StreamScanner.of(stream);
 	}
 
@@ -230,7 +230,7 @@ public interface Scanner<T> extends Closeable{
 	 * @return  Scanner containing the items from all input Scanners, starting with the first
 	 */
 	@SafeVarargs
-	public static <T> Scanner<T> concat(Scanner<T>... scanners){
+	static <T> Scanner<T> concat(Scanner<T>... scanners){
 		return Scanner.of(scanners).concat(Function.identity());
 	}
 
@@ -241,7 +241,7 @@ public interface Scanner<T> extends Closeable{
 	 * @return  Scanner containing the items from all input Iterables, starting with the first
 	 */
 	@SafeVarargs
-	public static <T> Scanner<T> concat(Iterable<T>... iterables){
+	static <T> Scanner<T> concat(Iterable<T>... iterables){
 		return Scanner.of(iterables).concat(Scanner::of);
 	}
 

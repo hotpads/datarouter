@@ -251,6 +251,13 @@ public class ClusterSettingHierarchy{
 			return name.substring(0, name.lastIndexOf('.'));
 		}
 
+		public Optional<CachedSetting<?>> findSetting(String name){
+			return scanThisAndDescendents()
+					.include(node -> node.name().equals(name))
+					.findFirst()
+					.map(HierarchyNode::setting);
+		}
+
 	}
 
 }

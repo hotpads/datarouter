@@ -39,6 +39,7 @@ import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.types.Param;
 import io.datarouter.web.html.form.HtmlForm;
+import io.datarouter.web.html.form.HtmlForm.HtmlFormMethod;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import j2html.tags.DomContent;
@@ -66,20 +67,19 @@ public class LoadTestScanHandler extends BaseHandler{
 			@Param(P_batchSize) Optional<String> batchSize,
 			@Param(P_submitAction) Optional<String> submitAction){
 
-		var form = new HtmlForm()
-				.withMethod("post");
-		form.addTextField()
-				.withDisplay("Num")
+		var form = new HtmlForm(HtmlFormMethod.POST);
+		form.addNumberField()
+				.withLabel("Num")
 				.withName(P_num)
-				.withPlaceholder("100,000")
+				.withPlaceholder(100_000)
 				.withValue(num.orElse(null));
-		form.addTextField()
-				.withDisplay("Batch Size")
+		form.addNumberField()
+				.withLabel("Batch Size")
 				.withName(P_batchSize)
-				.withPlaceholder("100")
+				.withPlaceholder(100)
 				.withValue(batchSize.orElse(null));
 		form.addButton()
-				.withDisplay("Run Scan")
+				.withLabel("Run Scan")
 				.withValue("anything");
 
 		if(submitAction.isEmpty() || form.hasErrors()){
@@ -93,12 +93,12 @@ public class LoadTestScanHandler extends BaseHandler{
 		//params
 		int pNum = num
 				.map(StringTool::nullIfEmpty)
-				.map(number -> number.replaceAll(",", ""))
+				.map(number -> number.replace(",", ""))
 				.map(Integer::valueOf)
 				.orElse(DEFAULT_NUM);
 		int pBatchSize = batchSize
 				.map(StringTool::nullIfEmpty)
-				.map(number -> number.replaceAll(",", ""))
+				.map(number -> number.replace(",", ""))
 				.map(Integer::valueOf)
 				.orElse(DEFAULT_BATCH_SIZE);
 

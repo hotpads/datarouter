@@ -17,11 +17,16 @@ package io.datarouter.web.config;
 
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import io.datarouter.auth.role.DatarouterUserRole;
+import io.datarouter.auth.role.Role;
+import io.datarouter.auth.role.RoleApprovalType;
+import io.datarouter.auth.role.RoleManager;
 import io.datarouter.httpclient.client.BaseApplicationHttpClient;
 import io.datarouter.httpclient.client.DatarouterHttpClient;
 import io.datarouter.inject.DatarouterInjector;
@@ -44,9 +49,6 @@ import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.BaseHandler.Handler;
 import io.datarouter.web.handler.HandlerTool;
 import io.datarouter.web.listener.AppListenersClasses;
-import io.datarouter.web.user.role.DatarouterUserRole;
-import io.datarouter.web.user.role.Role;
-import io.datarouter.web.user.role.RoleManager;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
@@ -77,7 +79,7 @@ public class DatarouterWebBoostrapIntegrationService implements TestableService{
 	@Inject
 	private SingletonTestService singletonTestService;
 	@Inject
-	private RoleManager manager;
+	private RoleManager roleManager;
 	@Inject
 	private DatarouterInjector injector;
 	@Inject
@@ -91,7 +93,8 @@ public class DatarouterWebBoostrapIntegrationService implements TestableService{
 		testSingletons();
 		testSingletonsForAppListeners();
 		testSingletonsForSeralizers();
-		testAllRoles();
+		testRoleEnumHasDatarouterRoles();
+		testRoleApprovalTypeValidators();
 		testHandlerMethodNameAndPathMatching();
 		testEncoderDecoderInjection();
 //		testHandlerMatching();
@@ -132,17 +135,30 @@ public class DatarouterWebBoostrapIntegrationService implements TestableService{
 	}
 
 	// Make sure RoleEnum overriders have all values
-	private void testAllRoles(){
-		Set<Role> roles = manager.getAllRoles();
+	private void testRoleEnumHasDatarouterRoles(){
+		Set<Role> roles = roleManager.getAllRoles();
 		Scanner.of(DatarouterUserRole.values())
 				.forEach(role -> Require.isTrue(roles.contains(role.getRole()),
 						role.getPersistentString() + " needs to be added to the RoleEnum"));
 	}
 
+	// Make sure RoleManager has a validator for each RoleApprovalType
+	private void testRoleApprovalTypeValidators(){
+		Map<Role,Map<RoleApprovalType,Integer>> roleApprovalRequirements = roleManager.getAllRoleApprovalRequirements();
+		Set<RoleApprovalType> approvalTypes = Scanner.of(roleApprovalRequirements.values())
+				.concatIter(Map::keySet)
+				.collect(HashSet::new);
+		for(RoleApprovalType approvalType : approvalTypes){
+			Require.isTrue(roleManager.getApprovalTypeAuthorityValidators().containsKey(approvalType)
+							&& roleManager.getApprovalTypeAuthorityValidators().get(approvalType) != null,
+					"Approval type validator not found for " + approvalType);
+		}
+	}
+
 	@SuppressWarnings("unused")
 	private void testHandlerPublicMethods(){
 		List<String> handlersWithPrivateMethods = Scanner.of(routeSetRegistry.get())
-				.concatIter(RouteSet::getDispatchRules)
+				.concatIter(RouteSet::getDispatchRulesNoRedirects)
 				.map(DispatchRule::getHandlerClass)
 				.concatIter(clazz -> Scanner.of(clazz.getDeclaredMethods())
 						.exclude(method -> method.getAnnotation(Handler.class) == null)
@@ -159,7 +175,7 @@ public class DatarouterWebBoostrapIntegrationService implements TestableService{
 	private void testHandlerMethodNameAndPathMatching(){
 		List<String> exceptions = new ArrayList<>();
 		Scanner.of(routeSetRegistry.get())
-				.concatIter(RouteSet::getDispatchRules)
+				.concatIter(RouteSet::getDispatchRulesNoRedirects)
 				.exclude(dispatchRule -> dispatchRule.getTag() == Tag.DATAROUTER)
 				.exclude(dispatchRule -> dispatchRule.getPattern().toString().endsWith("[/]?[^/]*"))
 				.exclude(dispatchRule -> dispatchRule.getPattern().toString().endsWith("*"))
@@ -182,7 +198,7 @@ public class DatarouterWebBoostrapIntegrationService implements TestableService{
 
 	private void testEncoderDecoderInjection(){
 		Scanner.of(routeSetRegistry.get())
-				.concatIter(RouteSet::getDispatchRules)
+				.concatIter(RouteSet::getDispatchRulesNoRedirects)
 				.forEach(dispatchRule -> {
 					var decoderClass = dispatchRule.getDefaultHandlerDecoder();
 					injector.getInstance(decoderClass);

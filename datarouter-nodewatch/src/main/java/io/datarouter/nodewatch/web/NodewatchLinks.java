@@ -18,9 +18,9 @@ package io.datarouter.nodewatch.web;
 import org.apache.http.client.utils.URIBuilder;
 
 import io.datarouter.nodewatch.config.DatarouterNodewatchPaths;
-import io.datarouter.nodewatch.web.handler.NodewatchTableStorageHandler;
 import io.datarouter.nodewatch.web.handler.NodewatchTableActionsHandler;
 import io.datarouter.nodewatch.web.handler.NodewatchTableHandler;
+import io.datarouter.nodewatch.web.handler.NodewatchTableStorageHandler;
 import io.datarouter.nodewatch.web.handler.NodewatchThresholdEditHandler;
 import io.datarouter.web.config.ServletContextSupplier;
 import jakarta.inject.Inject;

@@ -26,11 +26,12 @@ import org.apache.http.client.utils.URIBuilder;
 
 import io.datarouter.scanner.Scanner;
 import io.datarouter.web.handler.params.Params;
+import io.datarouter.web.html.form.BaseHtmlFormField;
 import io.datarouter.web.html.form.HtmlForm;
-import io.datarouter.web.html.form.HtmlForm.BaseHtmlFormField;
-import io.datarouter.web.html.form.HtmlFormButton;
+import io.datarouter.web.html.form.HtmlForm.HtmlFormMethod;
 import io.datarouter.web.html.form.HtmlFormCheckbox;
 import io.datarouter.web.html.form.HtmlFormSelect;
+import io.datarouter.web.html.form.HtmlFormSubmitActionButton;
 import io.datarouter.web.html.form.HtmlFormText;
 
 /**
@@ -44,7 +45,7 @@ public class MemoryPager<T>{
 	public static final String P_sort = "sort";
 	public static final String P_reverse = "reverse";
 
-	public final List<BaseHtmlFormField> filterFields;
+	public final List<BaseHtmlFormField<?>> filterFields;
 	public final MemorySorter<T> memorySorter;
 	public final String path;
 	public final Map<String,String> requiredParams;
@@ -55,7 +56,7 @@ public class MemoryPager<T>{
 	private final int offset;
 
 	public MemoryPager(
-			List<BaseHtmlFormField> filterFields,
+			List<BaseHtmlFormField<?>> filterFields,
 			MemorySorter<T> sorter,
 			String path,
 			Map<String,String> requiredParams,
@@ -75,7 +76,7 @@ public class MemoryPager<T>{
 	}
 
 	public MemoryPager(
-			List<BaseHtmlFormField> filterFields,
+			List<BaseHtmlFormField<?>> filterFields,
 			MemorySorter<T> sorter,
 			String path,
 			Map<String,String> requiredParams,
@@ -104,7 +105,7 @@ public class MemoryPager<T>{
 
 		public final String path;
 		public final Map<String,String> requiredParams;
-		public final List<BaseHtmlFormField> filterFields;
+		public final List<BaseHtmlFormField<?>> filterFields;
 		public final Map<String,String> sortDisplayByValue;
 		public final String sort;
 		public final boolean reverse;
@@ -121,7 +122,7 @@ public class MemoryPager<T>{
 
 		public Page(
 				MemoryPager<T> pager,
-				List<BaseHtmlFormField> filterFields,
+				List<BaseHtmlFormField<?>> filterFields,
 				String path,
 				List<T> rows,
 				int totalRows){
@@ -145,26 +146,26 @@ public class MemoryPager<T>{
 
 		public HtmlForm makeHtmlForm(){
 			var fieldSort = new HtmlFormSelect()
-					.withDisplay("Sort")
+					.withLabel("Sort")
 					.withName(MemoryPager.P_sort)
 					.withDisplayByValue(sortDisplayByValue)
 					.withSelected(sort);
 			var fieldReverse = new HtmlFormCheckbox()
-					.withDisplay("Reverse")
+					.withLabel("Reverse")
 					.withName(MemoryPager.P_reverse)
 					.withChecked(reverse);
 			var fieldPage = new HtmlFormText()
-					.withDisplay("Page")
+					.withLabel("Page")
 					.withName(MemoryPager.P_page)
 					.withValue(page + "");
 			var fieldPageSize = new HtmlFormText()
-					.withDisplay("Page Size")
+					.withLabel("Page Size")
 					.withName(MemoryPager.P_pageSize)
 					.withValue(pageSize + "");
-			var fieldSubmit = new HtmlFormButton()
-					.withDisplay("Submit");
+			var fieldSubmit = new HtmlFormSubmitActionButton()
+					.withLabel("Submit");
 
-			var sortFields = new ArrayList<BaseHtmlFormField>();
+			var sortFields = new ArrayList<BaseHtmlFormField<?>>();
 			if(!sortDisplayByValue.isEmpty()){
 				sortFields.add(fieldSort);
 				sortFields.add(fieldReverse);//can't easily reverse without a comparator
@@ -172,7 +173,7 @@ public class MemoryPager<T>{
 			sortFields.add(fieldPage);
 			sortFields.add(fieldPageSize);
 			sortFields.add(fieldSubmit);
-			return new HtmlForm()
+			return new HtmlForm(HtmlFormMethod.GET)
 					.addFields(filterFields)
 					.addFields(sortFields);
 		}
@@ -184,10 +185,10 @@ public class MemoryPager<T>{
 			Optional<PageLink> previous = previousPage == null
 					? Optional.empty()
 					: Optional.of(new PageLink(path, requiredParams, "previous", sort, pageSize,
-					previousPage.intValue(), reverse));
+					previousPage, reverse));
 			Optional<PageLink> next = nextPage == null
 					? Optional.empty()
-					: Optional.of(new PageLink(path, requiredParams, "next", sort, pageSize, nextPage.intValue(),
+					: Optional.of(new PageLink(path, requiredParams, "next", sort, pageSize, nextPage,
 					reverse));
 			Optional<PageLink> last = nextPage == null
 					? Optional.empty()

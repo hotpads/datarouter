@@ -8,7 +8,7 @@ datarouter-auth is a framework that brings in users and apikey accounts to datar
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-auth</artifactId>
-	<version>0.0.121</version>
+	<version>0.0.122</version>
 </dependency>
 ```
 
@@ -44,9 +44,9 @@ When the application runs for the first time, a default user is created with a d
 
 ### Roles
 
-Datarouter-auth brings in the ability attribute RouteSet classes with specific roles to control access.  Roles can be
- set for the whole RouteSet class as a default, and specific paths within the RouteSet class can be given additional
- Roles. 
+Datarouter-auth-web brings in the ability attribute RouteSet classes with specific roles to control access.
+Roles can be set for the whole RouteSet class as a default,
+and specific paths within the RouteSet class can be given additional Roles. 
 
 Datarouter brings a default set of roles, specified in `DatarouterUserRole`.
 - Admin
@@ -65,6 +65,8 @@ Datarouter brings a default set of roles, specified in `DatarouterUserRole`.
 ```java
 package io.datarouter.auth.readme;
 
+import io.datarouter.auth.web.readme.AuthExampleDocHandler;
+import io.datarouter.auth.web.readme.AuthHellowWorldHandler;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
 import io.datarouter.web.user.role.DatarouterUserRole;
@@ -73,21 +75,21 @@ import jakarta.inject.Singleton;
 @Singleton
 public class AuthExampleUserRouteSet extends BaseRouteSet{
 
-	public AuthExampleUserRouteSet(){
+ public AuthExampleUserRouteSet(){
 
-		handle("/helloworld")
-				.withHandler(AuthHellowWorldHandler.class)
-				.allowRoles(DatarouterUserRole.USER);
-		handle("/docs")
-				.withHandler(AuthExampleDocHandler.class)
-				.allowRoles(DatarouterUserRole.DOC_USER);
-	}
+  handle("/helloworld")
+          .withHandler(AuthHellowWorldHandler.class)
+          .allowRoles(DatarouterUserRole.USER);
+  handle("/docs")
+          .withHandler(AuthExampleDocHandler.class)
+          .allowRoles(DatarouterUserRole.DOC_USER);
+ }
 
-	// Users with the datarouter-admin role can view all the paths registered in this RouteSet
-	@Override
-	protected DispatchRule applyDefault(DispatchRule rule){
-		return rule.allowRoles(DatarouterUserRole.DATAROUTER_ADMIN);
-	}
+ // Users with the datarouter-admin role can view all the paths registered in this RouteSet
+ @Override
+ protected DispatchRule applyDefault(DispatchRule rule){
+  return rule.allowRoles(DatarouterUserRole.DATAROUTER_ADMIN);
+ }
 
 }
 ```
@@ -112,7 +114,7 @@ DatarouterAccounts are created and managed through the `DatarouterAccountManager
 ```java
 package io.datarouter.auth.readme;
 
-import io.datarouter.auth.service.DatarouterAccountApiKeyPredicate;
+import service.io.datarouter.auth.web.DatarouterAccountApiKeyPredicate;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
 import io.datarouter.web.handler.TestApiHandler;
@@ -122,22 +124,22 @@ import jakarta.inject.Singleton;
 @Singleton
 public class AuthExampleAccountRouteSet extends BaseRouteSet{
 
-	private final DatarouterAccountApiKeyPredicate datarouterAccountApiKeyPredicate;
+ private final DatarouterAccountApiKeyPredicate datarouterAccountApiKeyPredicate;
 
-	@Inject
-	public AuthExampleAccountRouteSet(DatarouterAccountApiKeyPredicate datarouterAccountApiKeyPredicate){
-		this.datarouterAccountApiKeyPredicate = datarouterAccountApiKeyPredicate;
+ @Inject
+ public AuthExampleAccountRouteSet(DatarouterAccountApiKeyPredicate datarouterAccountApiKeyPredicate){
+  this.datarouterAccountApiKeyPredicate = datarouterAccountApiKeyPredicate;
 
-		handleDir("/testApi")
-				.withHandler(TestApiHandler.class)
-				.withPersistentString("/testApi");
-	}
+  handleDir("/testApi")
+          .withHandler(TestApiHandler.class)
+          .withPersistentString("/testApi");
+ }
 
-	@Override
-	protected DispatchRule applyDefault(DispatchRule rule){
-		return rule.allowAnonymous()
-				.withApiKey(datarouterAccountApiKeyPredicate);
-	}
+ @Override
+ protected DispatchRule applyDefault(DispatchRule rule){
+  return rule.allowAnonymous()
+          .withApiKey(datarouterAccountApiKeyPredicate);
+ }
 
 }
 ```

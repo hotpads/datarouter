@@ -38,8 +38,7 @@ public abstract class HandlerMetricLinkPage implements MetricLinkPage{
 
 	protected List<MetricLinkDto> buildMetricLinks(Tag tag){
 		return Scanner.of(routeSetRegistry.get())
-				.map(RouteSet::getDispatchRules)
-				.concat(Scanner::of)
+				.concatIter(RouteSet::getDispatchRulesNoRedirects)
 				.include(rule -> rule.getTag() == tag)
 				.map(DispatchRule::getHandlerClass)
 				.map(Class::getSimpleName)

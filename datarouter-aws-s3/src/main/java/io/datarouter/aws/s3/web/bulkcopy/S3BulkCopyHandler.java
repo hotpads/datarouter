@@ -51,6 +51,7 @@ import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.GlobalRedirectMav;
 import io.datarouter.web.html.form.HtmlForm;
+import io.datarouter.web.html.form.HtmlForm.HtmlFormMethod;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import jakarta.inject.Inject;
@@ -117,30 +118,29 @@ public class S3BulkCopyHandler extends BaseHandler{
 
 		// make form
 		boolean submitted = params.submitButton.orElse(false);
-		var form = new HtmlForm()
-				.withMethod("post");
+		var form = new HtmlForm(HtmlFormMethod.POST);
 		form.addTextField()
-				.withDisplay("Datarouter Client Name")
+				.withLabel("Datarouter Client Name")
 				.withName(S3BulkCopyHandlerFormParams.P_client)
 				.withValue(params.client.orElse(""));
 		form.addTextField()
-				.withDisplay("From Bucket")
+				.withLabel("From Bucket")
 				.withName(S3BulkCopyHandlerFormParams.P_fromBucket)
 				.withValue(params.fromBucket.orElse(""));
 		form.addTextField()
-				.withDisplay("From Prefix")
+				.withLabel("From Prefix")
 				.withName(S3BulkCopyHandlerFormParams.P_fromPrefix)
 				.withValue(params.fromPrefix.orElse(""));
 		form.addTextField()
-				.withDisplay("To Bucket")
+				.withLabel("To Bucket")
 				.withName(S3BulkCopyHandlerFormParams.P_toBucket)
 				.withValue(params.toBucket.orElse(""));
 		form.addTextField()
-				.withDisplay("To Prefix")
+				.withLabel("To Prefix")
 				.withName(S3BulkCopyHandlerFormParams.P_toPrefix)
 				.withValue(params.toPrefix.orElse(""));
 		form.addButtonWithoutSubmitAction()
-				.withDisplay("Proceed to Confirmation")
+				.withLabel("Proceed to Confirmation")
 				.withName(S3BulkCopyHandlerFormParams.P_submitButton)
 				.withValue(Boolean.TRUE.toString());
 		var htmlForm = Bootstrap4FormHtml.render(form)

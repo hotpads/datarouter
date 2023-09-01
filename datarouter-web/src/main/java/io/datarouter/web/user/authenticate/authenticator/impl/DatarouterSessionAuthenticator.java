@@ -23,17 +23,18 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.auth.authenticate.authenticator.DatarouterAuthenticator;
+import io.datarouter.auth.storage.user.session.BaseDatarouterSessionDao;
+import io.datarouter.auth.storage.user.session.DatarouterSession;
+import io.datarouter.auth.storage.user.session.DatarouterSessionKey;
 import io.datarouter.util.lang.ObjectTool;
 import io.datarouter.util.string.StringTool;
-import io.datarouter.web.user.BaseDatarouterSessionDao;
-import io.datarouter.web.user.authenticate.authenticator.DatarouterAuthenticator;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
-import io.datarouter.web.user.session.DatarouterSession;
-import io.datarouter.web.user.session.DatarouterSessionKey;
 import io.datarouter.web.user.session.DatarouterSessionManager;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
+// TODO braydonh: figure out how to move this out of dr-web
 @Singleton
 public class DatarouterSessionAuthenticator implements DatarouterAuthenticator{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterSessionAuthenticator.class);

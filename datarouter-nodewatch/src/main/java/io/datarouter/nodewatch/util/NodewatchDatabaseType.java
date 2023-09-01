@@ -20,24 +20,40 @@ import java.util.Optional;
 import io.datarouter.bytes.ByteLength;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientType;
+import io.datarouter.util.time.DurationTool;
 
 public enum NodewatchDatabaseType{
 
-	AURORA("mysql", false, 100),// IO's billed separately
-	BIGTABLE_SSD("bigtable", true, 170),
-	SPANNER("spanner", false, 300);
+	AURORA(
+			"mysql",
+			false,
+			100,
+			1.4),// IO's billed separately
+	BIGTABLE_SSD(
+			"bigtable",
+			true,
+			170,
+			.4),
+	SPANNER(
+			"spanner",
+			false,
+			300,
+			1.4);
 
 	public final String clientTypeName;
 	public final boolean storesColumnNames;
 	public final double dollarsPerTiBPerMonth;
+	public final double storageMultiplier;// Blunt multiplier for compression.  Could be refined.
 
 	private NodewatchDatabaseType(
 			String clientTypeName,
 			boolean storesColumnNames,
-			double dollarsPerTiBPerMonth){
+			double dollarsPerTiBPerMonth,
+			double storageMultiplier){
 		this.clientTypeName = clientTypeName;
 		this.storesColumnNames = storesColumnNames;
 		this.dollarsPerTiBPerMonth = dollarsPerTiBPerMonth;
+		this.storageMultiplier = storageMultiplier;
 	}
 
 	public static Optional<NodewatchDatabaseType> findPrice(ClientType<?,?> clientType){
@@ -54,6 +70,11 @@ public enum NodewatchDatabaseType{
 			return Optional.of(SpannerNodeCost.yearlyNodeCostForStorage(storage));
 		}
 		return Optional.empty();
+	}
+
+	public Optional<Double> findMonthlyNodeCost(ByteLength storage){
+		return findYearlyNodeCost(storage)
+				.map(yearlyDollars -> yearlyDollars / DurationTool.AVG_MONTHS_PER_YEAR);
 	}
 
 	public double dollarsPerTiBPerYear(){

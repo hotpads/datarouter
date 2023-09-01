@@ -20,10 +20,7 @@ import java.security.KeyPair;
 import java.security.Provider;
 import java.security.Security;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -43,29 +40,33 @@ import org.opensaml.xmlsec.config.impl.JavaCryptoValidationInitializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.auth.authenticate.saml.AuthnRequestMessageConfig;
+import io.datarouter.auth.authenticate.saml.RandomSamlKeyPair;
+import io.datarouter.auth.authenticate.saml.SamlRegistrar;
+import io.datarouter.auth.authenticate.saml.SamlTool;
+import io.datarouter.auth.model.dto.InterpretedSamlAssertion;
+import io.datarouter.auth.session.Session;
+import io.datarouter.auth.session.UserSessionService;
+import io.datarouter.auth.storage.user.saml.BaseDatarouterSamlDao;
+import io.datarouter.auth.storage.user.saml.SamlAuthnRequestRedirectUrl;
+import io.datarouter.auth.storage.user.saml.SamlAuthnRequestRedirectUrlKey;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.storage.config.properties.AdminEmail;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.util.timer.PhaseTimer;
 import io.datarouter.web.exception.ExceptionRecorder;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.GlobalRedirectMav;
-import io.datarouter.web.user.databean.SamlAuthnRequestRedirectUrl;
-import io.datarouter.web.user.databean.SamlAuthnRequestRedirectUrlKey;
-import io.datarouter.web.user.role.Role;
-import io.datarouter.web.user.role.RoleManager;
-import io.datarouter.web.user.session.service.Session;
-import io.datarouter.web.user.session.service.UserSessionService;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
 /**
  * To configure SAML:<ol>
- * <li>Bind implementations of {@link UserSessionService} and {@link RoleManager}.</li>
+ * <li>Bind implementations of {@link UserSessionService}.</li>
  * <li>Serve {@link SamlAssertionConsumerServlet} (BEFORE /*). <li>
  * Add {@link DatarouterSamlSettings} to your settings and set it up appropriately.</li>
  * </ol>
  */
+// TODO braydonh: figure out how to move this out of dr-web
 @Singleton
 public class SamlService{
 	private static final Logger logger = LoggerFactory.getLogger(SamlService.class);
@@ -74,31 +75,25 @@ public class SamlService{
 
 	private final DatarouterSamlSettings samlSettings;
 	private final UserSessionService userSessionService;
-	private final RoleManager roleManager;
 	private final Optional<SamlRegistrar> samlRegistrar;
 	private final KeyPair signingKeyPair;
 	private final BaseDatarouterSamlDao samlDao;
 	private final ExceptionRecorder exceptionRecorder;
-	private final AdminEmail adminEmail;
 	private final SamlConfigService samlConfigService;
 
 	@Inject
 	public SamlService(
 			DatarouterSamlSettings samlSettings,
 			UserSessionService userSessionService,
-			RoleManager roleManager,
 			Optional<SamlRegistrar> jitSamlRegistrar,
 			BaseDatarouterSamlDao samlDao,
-			AdminEmail adminEmail,
 			ExceptionRecorder exceptionRecorder,
 			SamlConfigService samlConfigService){
 		this.samlSettings = samlSettings;
 		this.userSessionService = userSessionService;
-		this.roleManager = roleManager;
 		this.samlRegistrar = jitSamlRegistrar;
 		this.samlDao = samlDao;
 		this.exceptionRecorder = exceptionRecorder;
-		this.adminEmail = adminEmail;
 		this.samlConfigService = samlConfigService;
 
 		PhaseTimer phaseTimer = new PhaseTimer();
@@ -150,8 +145,8 @@ public class SamlService{
 					SamlTool.getUrlInRequestContext(request, samlSettings.assertionConsumerServicePath.get()),
 					samlSettings.idpSamlUrl.get(),
 					"",
-					null,
-					signingKeyPair);
+					Optional.empty(),
+					Optional.of(signingKeyPair));
 			MessageContext authnRequestContext = SamlTool.buildAuthnRequestAndContext(config);
 			persistAuthnRequestIdRedirectUrl(authnRequestContext, request);
 			SamlTool.redirectWithAuthnRequestContext(response, authnRequestContext);
@@ -204,40 +199,30 @@ public class SamlService{
 	}
 
 	private Session createAndSetSession(HttpServletRequest request, HttpServletResponse response, Assertion assertion){
-		String username = assertion.getSubject().getNameID().getValue();
-		logger.warn("login in user from okta username={}", username);
-		Set<Role> roles = determineRoles(assertion, username, samlSettings.getAttributeToRoleGroupIdMap());
-		Session session = userSessionService.signInUserWithCreateIfNecessary(request, username, roles, "SAML User");
+		InterpretedSamlAssertion interpretedSamlAssertion = interpretSamlAssertion(assertion);
+		logger.warn("login in user from okta username={}", interpretedSamlAssertion.username());
+		Session session = userSessionService.signInUserFromSamlResponse(request, interpretedSamlAssertion);
 		userSessionService.setSessionCookies(response, session);
 		return session;
 	}
 
-	private Set<Role> determineRoles(Assertion assertion, String username,
-			Map<String,String> attributeToRoleGroupIdMap){
-		Set<Role> rolesForDefaultGroup = roleManager.getDefaultRoles();
-		var roleGroupAttributes = SamlTool.streamAttributeValuesByName(SamlTool.ROLE_GROUP_ATTRIBUTE_NAME, assertion)
-				.toList();
-		List<Role> rolesForConfigurableRoleGroups = roleGroupAttributes.stream()
-				.map(roleManager::getRolesForGroup)
-				.flatMap(Set::stream)
-				.collect(Collectors.toList());
-		List<Role> rolesForSettingRoleGroups = roleGroupAttributes.stream()
-				.map(attributeToRoleGroupIdMap::get)
-				.filter(Objects::nonNull)
-				.map(roleManager::getRolesForGroup)
-				.flatMap(Set::stream)
-				.collect(Collectors.toList());
-		List<Role> rolesForRoleAttributes = SamlTool.streamAttributeValuesByName(SamlTool.ROLE_ATTRIBUTE_NAME,
-				assertion)
-				.map(roleManager::findRoleFromPersistentString)
-				.flatMap(Optional::stream)
-				.collect(Collectors.toList());
-		Set<Role> superRolesForAdminUsers = username.equals(adminEmail.get())
-				? roleManager.getSuperAdminRoles()
-				: Collections.emptySet();
-		return Scanner.concat(rolesForDefaultGroup, rolesForConfigurableRoleGroups, rolesForSettingRoleGroups,
-				rolesForRoleAttributes, superRolesForAdminUsers)
+	private InterpretedSamlAssertion interpretSamlAssertion(Assertion assertion){
+		Set<String> roleGroupAttributes =
+				SamlTool.streamAttributeValuesByName(SamlTool.ROLE_GROUP_ATTRIBUTE_NAME, assertion)
+						.collect(Collectors.toSet());
+		Set<String> mappedRoleGroups = Scanner.of(roleGroupAttributes)
+				.map(samlSettings.getAttributeToRoleGroupIdMap()::get)
 				.collect(HashSet::new);
+		Set<String> combinedRoleGroups = Scanner.concat(roleGroupAttributes, mappedRoleGroups)
+				.exclude(Objects::isNull)
+				.collect(HashSet::new);
+
+		Set<String> roleAttributes = SamlTool.streamAttributeValuesByName(SamlTool.ROLE_ATTRIBUTE_NAME, assertion)
+				.collect(Collectors.toSet());
+		return new InterpretedSamlAssertion(
+				assertion.getSubject().getNameID().getValue(),
+				combinedRoleGroups,
+				roleAttributes);
 	}
 
 	private void redirectAfterAuthentication(HttpServletRequest request, HttpServletResponse response,

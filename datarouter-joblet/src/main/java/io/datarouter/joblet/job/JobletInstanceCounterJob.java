@@ -20,7 +20,7 @@ import java.util.List;
 
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
-import io.datarouter.joblet.DatarouterJobletCounters;
+import io.datarouter.joblet.JobletCounters;
 import io.datarouter.storage.servertype.ServerTypes;
 import io.datarouter.webappinstance.storage.webappinstance.DatarouterWebappInstanceDao;
 import io.datarouter.webappinstance.storage.webappinstance.WebappInstance;
@@ -34,15 +34,13 @@ public class JobletInstanceCounterJob extends BaseJob{
 	private ServerTypes serverTypes;
 	@Inject
 	private DatarouterWebappInstanceDao webappInstanceDao;
-	@Inject
-	private DatarouterJobletCounters datarouterJobletCounters;
 
 	@Override
 	public void run(TaskTracker tracker){
 		List<WebappInstance> jobletInstances = webappInstanceDao.getWebappInstancesOfServerType(
 				serverTypes.getJobletServerType(),
 				HEARTBEAT_WITHIN);
-		datarouterJobletCounters.saveNumServers(WebappInstance.getUniqueServerNames(jobletInstances).size());
+		JobletCounters.saveNumServers(WebappInstance.getUniqueServerNames(jobletInstances).size());
 	}
 
 }

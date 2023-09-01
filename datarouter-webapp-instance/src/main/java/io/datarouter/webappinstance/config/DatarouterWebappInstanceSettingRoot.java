@@ -32,7 +32,6 @@ public class DatarouterWebappInstanceSettingRoot extends SettingRoot{
 	public final CachedSetting<DatarouterDuration> staleWebappInstanceThreshold;
 
 	public final CachedSetting<Boolean> runWebappInstanceVacuumJob;
-	public final CachedSetting<Boolean> runOneTimeLoginTokenVacuumJob;
 	public final CachedSetting<Boolean> runDeadClusterJobLockVacuumJob;
 
 	public final CachedSetting<Boolean> webappInstancePublisher;
@@ -46,7 +45,6 @@ public class DatarouterWebappInstanceSettingRoot extends SettingRoot{
 				new DatarouterDuration(7, TimeUnit.DAYS));
 
 		runWebappInstanceVacuumJob = registerBoolean("runWebappInstanceVacuumJob", false);
-		runOneTimeLoginTokenVacuumJob = registerBoolean("runOneTimeLoginTokenVacuumJob", false);
 		runDeadClusterJobLockVacuumJob = registerBoolean("runDeadClusterJobLockVacuumJob", false);
 
 		webappInstancePublisher = registerBoolean("webappInstancePublisher", false);

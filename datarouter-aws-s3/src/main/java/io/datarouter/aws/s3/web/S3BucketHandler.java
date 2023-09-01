@@ -46,6 +46,7 @@ import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.types.Param;
 import io.datarouter.web.html.form.HtmlForm;
+import io.datarouter.web.html.form.HtmlForm.HtmlFormMethod;
 import io.datarouter.web.html.j2html.J2HtmlTable;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
@@ -86,44 +87,43 @@ public class S3BucketHandler extends BaseHandler{
 			@Param(P_currentDirectory) Optional<Boolean> currentDirectory,
 			@Param(P_delimiter) Optional<String> delimiter){
 
-		var form = new HtmlForm()
-				.withMethod("get");
+		var form = new HtmlForm(HtmlFormMethod.GET);
 		form.addTextField()
-				.withDisplay("Client")
+				.withLabel("Client")
 				.withName(P_client)
 				.withPlaceholder("theClientName")
 				.withValue(client);
 		form.addTextField()
-				.withDisplay("Bucket")
+				.withLabel("Bucket")
 				.withName(P_bucket)
 				.withPlaceholder("the.bucket.name")
 				.withValue(bucket);
 		form.addTextField()
-				.withDisplay("Prefix")
+				.withLabel("Prefix")
 				.withName(P_prefix)
 				.withValue(prefix.orElse(""));
 		form.addTextField()
-				.withDisplay("After")
+				.withLabel("After")
 				.withName(P_after)
 				.withValue(after.orElse(""));
-		form.addTextField()
-				.withDisplay("Offset")
+		form.addNumberField()
+				.withLabel("Offset")
 				.withName(P_offset)
-				.withValue(offset.orElse(0) + "");
-		form.addTextField()
-				.withDisplay("Limit")
+				.withValue(offset.orElse(0));
+		form.addNumberField()
+				.withLabel("Limit")
 				.withName(P_limit)
-				.withValue(limit.orElse(100) + "");
+				.withValue(limit.orElse(100));
 		form.addTextField()
-				.withDisplay("Delimiter")
+				.withLabel("Delimiter")
 				.withName(P_delimiter)
 				.withValue(delimiter.orElse(""));
 		form.addCheckboxField()
-				.withDisplay("currentDirectory")
+				.withLabel("currentDirectory")
 				.withName(P_currentDirectory)
 				.withChecked(currentDirectory.orElse(false));
 		form.addButton()
-				.withDisplay("Submit")
+				.withLabel("Submit")
 				.withValue("");
 		var htmlForm = Bootstrap4FormHtml.render(form)
 				.withClass("card card-body bg-light");

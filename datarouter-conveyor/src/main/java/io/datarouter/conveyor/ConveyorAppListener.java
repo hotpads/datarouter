@@ -17,7 +17,6 @@ package io.datarouter.conveyor;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import io.datarouter.conveyor.ConveyorConfigurationGroup.ConveyorPackage;
 import io.datarouter.conveyor.config.DatarouterConveyorSettingRoot;
@@ -32,7 +31,7 @@ import jakarta.inject.Singleton;
 @Singleton
 public class ConveyorAppListener implements DatarouterAppListener{
 
-	private static final Map<String,ConveyorProcessor> processorByConveyorName = new HashMap<>();
+	private static final Map<String,ConveyorProcessor> PROCESSOR_BY_CONVEYOR_NAME = new HashMap<>();
 
 	@Inject
 	private ConveyorConfigurationGroupService conveyorConfigurationGroupService;
@@ -56,7 +55,6 @@ public class ConveyorAppListener implements DatarouterAppListener{
 	}
 
 	private void startConveyor(ConveyorPackage conveyorPackage){
-		String name = conveyorPackage.name();
 		ConveyorConfiguration configuration = injector.getInstance(conveyorPackage.configurationClass());
 
 		var conveyorProcessor = new ConveyorProcessor(
@@ -67,20 +65,18 @@ public class ConveyorAppListener implements DatarouterAppListener{
 				conveyorService,
 				configuration,
 				instanceRegistry);
-		processorByConveyorName.put(name, conveyorProcessor);
+		PROCESSOR_BY_CONVEYOR_NAME.put(conveyorPackage.name(), conveyorProcessor);
 	}
 
 	@Override
 	public final void onShutDown(){
 		// explicitly shut those down before CountersAppListener onShutDown
-		for(Entry<String,ConveyorProcessor> entry : processorByConveyorName.entrySet()){
-			processorByConveyorName.get(entry.getKey()).requestShutdown();
-
-		}
+		PROCESSOR_BY_CONVEYOR_NAME.values().stream()
+				.forEach(ConveyorProcessor::requestShutdown);
 	}
 
 	public Map<String,ConveyorProcessor> getProcessorByConveyorName(){
-		return processorByConveyorName;
+		return PROCESSOR_BY_CONVEYOR_NAME;
 	}
 
 }

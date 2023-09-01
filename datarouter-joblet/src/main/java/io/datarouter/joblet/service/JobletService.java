@@ -30,7 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.instrumentation.exception.ExceptionRecordDto;
-import io.datarouter.joblet.DatarouterJobletCounters;
+import io.datarouter.joblet.JobletCounters;
 import io.datarouter.joblet.JobletExceptionCategory;
 import io.datarouter.joblet.enums.JobletQueueMechanism;
 import io.datarouter.joblet.enums.JobletStatus;
@@ -85,8 +85,6 @@ public class JobletService{
 	@Inject
 	private JobletTypeFactory jobletTypeFactory;
 	@Inject
-	private DatarouterJobletCounters datarouterJobletCounters;
-	@Inject
 	private CachedWebappInstancesOfThisServerType cachedWebAppInstancesOfThisServerType;
 	@Inject
 	private DatarouterJobletQueueDao jobletQueueDao;
@@ -113,11 +111,11 @@ public class JobletService{
 			batch.forEach(JobletPackage::updateJobletDataIdReference);
 			List<JobletRequest> jobletRequests = JobletPackage.getJobletRequests(batch);
 			jobletRequestDao.putMultiOrBust(jobletRequests);
-			datarouterJobletCounters.incNumJobletsInserted(jobletRequests.size());
-			datarouterJobletCounters.incNumJobletsInserted(jobletType, jobletRequests.size());
+			JobletCounters.incNumJobletsInserted(jobletRequests.size());
+			JobletCounters.incNumJobletsInserted(jobletType, jobletRequests.size());
 			jobletRequests.stream()
 					.map(JobletRequest::getQueueId)
-					.forEach(queueId -> datarouterJobletCounters.incNumJobletsInserted(jobletType, queueId));
+					.forEach(queueId -> JobletCounters.incNumJobletsInserted(jobletType, queueId));
 			timer.add("inserted JobletRequest");
 			if(Objects.equals(jobletSettings.queueMechanism.get(), JobletQueueMechanism.QUEUE.getPersistentString())){
 				Map<JobletRequestQueueKey,List<JobletRequest>> requestsByQueueKey = Scanner.of(jobletRequests)

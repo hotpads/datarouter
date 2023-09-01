@@ -117,8 +117,7 @@ public class TestApiHandler extends BaseHandler{
 
 	@Handler
 	public FooBar banana(){
-		FooBar dto = new FooBar("hello", 42, Date.from(Instant.now()));
-		return dto;
+		return new FooBar("hello", 42, Date.from(Instant.now()));
 	}
 
 	@Handler
@@ -171,6 +170,11 @@ public class TestApiHandler extends BaseHandler{
 	@Handler
 	public Mav printPrimitiveIntArrayNoParamName(int[] numbers){
 		return new MessageMav(Arrays.toString(numbers));
+	}
+
+	@Handler
+	public Mav printIntListNoParamName(List<Integer> numbers){
+		return new MessageMav(numbers.toString());
 	}
 
 	@Handler

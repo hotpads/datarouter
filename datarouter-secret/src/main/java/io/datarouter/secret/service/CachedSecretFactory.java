@@ -18,6 +18,7 @@ package io.datarouter.secret.service;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
+import io.datarouter.httpclient.endpoint.DatarouterSharedSecretRetriever;
 import io.datarouter.secret.op.SecretOpConfig;
 import io.datarouter.secret.op.SecretOpReason;
 import io.datarouter.util.Require;
@@ -31,7 +32,7 @@ import jakarta.inject.Singleton;
  * This is the recommended interface for all read-only {@link Secret} retrieval. It allows reading values with automatic
  * namespacing provided by {@link SecretService}.
  */
-public class CachedSecretFactory{
+public class CachedSecretFactory implements DatarouterSharedSecretRetriever{
 
 	private static final long CACHE_LENGTH = 15;
 	private static final TimeUnit CACHE_LENGTH_UNIT = TimeUnit.SECONDS;

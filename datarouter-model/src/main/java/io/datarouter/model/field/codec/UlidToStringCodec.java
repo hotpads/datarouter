@@ -15,12 +15,17 @@
  */
 package io.datarouter.model.field.codec;
 
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Optional;
+
 import com.google.gson.reflect.TypeToken;
 
 import io.datarouter.bytes.Codec.NullPassthroughCodec;
 import io.datarouter.types.Ulid;
 
-public class UlidToStringCodec extends FieldCodec<Ulid,String>{
+public class UlidToStringCodec
+extends FieldCodec<Ulid,String>{
 
 	public UlidToStringCodec(){
 		super(TypeToken.get(Ulid.class),
@@ -28,6 +33,14 @@ public class UlidToStringCodec extends FieldCodec<Ulid,String>{
 				Ulid::compareTo,
 				new Ulid(),
 				null);
+	}
+
+	@Override
+	public Optional<String> findAuxiliaryHumanReadableString(
+			Ulid ulid,
+			DateTimeFormatter dateTimeFormatter,
+			ZoneId zoneId){
+		return Optional.of(ulid.getAsHumanReadableTime(dateTimeFormatter, zoneId));
 	}
 
 }

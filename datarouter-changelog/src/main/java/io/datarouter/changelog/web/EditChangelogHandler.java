@@ -22,6 +22,7 @@ import static j2html.TagCreator.h4;
 import java.time.ZoneId;
 import java.util.Optional;
 
+import io.datarouter.auth.service.CurrentUserSessionInfoService;
 import io.datarouter.changelog.config.DatarouterChangelogPaths;
 import io.datarouter.changelog.service.ViewChangelogService;
 import io.datarouter.changelog.storage.Changelog;
@@ -31,16 +32,16 @@ import io.datarouter.instrumentation.changelog.ChangelogDto;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.pathnode.PathNode;
 import io.datarouter.storage.config.properties.ServiceName;
-import io.datarouter.util.time.ZonedDateFormatterTool;
+import io.datarouter.types.MilliTimeReversed;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.InContextRedirectMav;
 import io.datarouter.web.handler.types.Param;
 import io.datarouter.web.html.form.HtmlForm;
+import io.datarouter.web.html.form.HtmlForm.HtmlFormMethod;
 import io.datarouter.web.html.j2html.J2HtmlLegendTable;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
-import io.datarouter.web.user.session.CurrentUserSessionInfoService;
 import j2html.tags.specialized.DivTag;
 import jakarta.inject.Inject;
 
@@ -69,12 +70,17 @@ public class EditChangelogHandler extends BaseHandler{
 
 	@Handler(defaultHandler = true)
 	public Mav edit(
-			@Param(P_reversedDateMs) Long reversedDateMs,
-			@Param(P_changelogType) String changelogType,
-			@Param(P_name) String name,
-			@Param(P_note) Optional<String> note,
-			@Param(P_submitAction) Optional<String> submitAction){
-		ChangelogKey key = new ChangelogKey(reversedDateMs, changelogType, name);
+			@Param(P_reversedDateMs)
+			MilliTimeReversed reversedDateMs,
+			@Param(P_changelogType)
+			String changelogType,
+			@Param(P_name)
+			String name,
+			@Param(P_note)
+			Optional<String> note,
+			@Param(P_submitAction)
+			Optional<String> submitAction){
+		var key = new ChangelogKey(reversedDateMs, changelogType, name);
 		Changelog changelog = dao.get(key);
 
 		DivTag table = new J2HtmlLegendTable()
@@ -89,15 +95,14 @@ public class EditChangelogHandler extends BaseHandler{
 				.withEntry("Note", Optional.ofNullable(changelog.getNote()).orElse(""))
 				.build();
 
-		var form = new HtmlForm()
-				.withMethod("post");
+		var form = new HtmlForm(HtmlFormMethod.POST);
 		form.addTextAreaField()
-				.withDisplay("Note (Optional)")
+				.withLabel("Note (Optional)")
 				.withName(P_note)
 				.withPlaceholder(Optional.ofNullable(changelog.getNote()).orElse(""))
 				.withValue(note.orElse(null));
 		form.addButton()
-				.withDisplay("update")
+				.withLabel("update")
 				.withValue("anything");
 		if(submitAction.isEmpty() || form.hasErrors()){
 			return pageFactory.startBuilder(request)
@@ -137,8 +142,7 @@ public class EditChangelogHandler extends BaseHandler{
 
 	private String printDate(Changelog row){
 		ZoneId zoneId = sessionInfoService.getZoneId(request);
-		long reversedDateMs = row.getKey().getReversedDateMs();
-		return ZonedDateFormatterTool.formatReversedLongMsWithZone(reversedDateMs, zoneId);
+		return row.getKey().getMilliTimeReversed().format(zoneId);
 	}
 
 }

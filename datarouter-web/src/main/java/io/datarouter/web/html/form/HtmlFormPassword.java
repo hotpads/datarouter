@@ -15,49 +15,15 @@
  */
 package io.datarouter.web.html.form;
 
-import io.datarouter.web.html.form.HtmlForm.BaseHtmlFormField;
+public class HtmlFormPassword extends BaseHtmlFormTypedInputField<HtmlFormPassword>{
 
-public class HtmlFormPassword extends BaseHtmlFormField{
+	public HtmlFormPassword(){
+		super("password");
+	}
 
-	private String name;
-	private String display;
-	private String placeholder;
-	private boolean required = false;
-
-	public HtmlFormPassword withName(String name){
-		this.name = name;
+	@Override
+	protected HtmlFormPassword self(){
 		return this;
-	}
-
-	public HtmlFormPassword withDisplay(String display){
-		this.display = display;
-		return this;
-	}
-
-	public HtmlFormPassword withPlaceholder(String placeholder){
-		this.placeholder = placeholder;
-		return this;
-	}
-
-	public HtmlFormPassword required(){
-		this.required = true;
-		return this;
-	}
-
-	public String getName(){
-		return name;
-	}
-
-	public String getDisplay(){
-		return display;
-	}
-
-	public String getPlaceholder(){
-		return placeholder;
-	}
-
-	public boolean isRequired(){
-		return required;
 	}
 
 }

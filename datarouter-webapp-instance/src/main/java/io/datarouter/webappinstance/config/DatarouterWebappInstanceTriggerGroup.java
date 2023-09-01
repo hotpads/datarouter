@@ -19,7 +19,6 @@ import io.datarouter.job.BaseTriggerGroup;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.util.time.ZoneIds;
 import io.datarouter.webappinstance.job.DeadClusterJobLockVacuumJob;
-import io.datarouter.webappinstance.job.OneTimeLoginTokenVacuumJob;
 import io.datarouter.webappinstance.job.WebappInstanceAlertJob;
 import io.datarouter.webappinstance.job.WebappInstanceUpdateJob;
 import io.datarouter.webappinstance.job.WebappInstanceVacuumJob;
@@ -44,11 +43,6 @@ public class DatarouterWebappInstanceTriggerGroup extends BaseTriggerGroup{
 				"43 3/10 * * * ?",
 				settings.runWebappInstanceVacuumJob,
 				WebappInstanceVacuumJob.class,
-				true);
-		registerLocked(
-				"23 0 0 * * ?",
-				settings.runOneTimeLoginTokenVacuumJob,
-				OneTimeLoginTokenVacuumJob.class,
 				true);
 		registerParallel(
 				"0 10/20 * * * ?",

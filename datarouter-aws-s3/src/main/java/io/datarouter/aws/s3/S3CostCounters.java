@@ -15,27 +15,27 @@
  */
 package io.datarouter.aws.s3;
 
-import io.datarouter.instrumentation.cost.CloudPriceType;
 import io.datarouter.instrumentation.cost.CostCounters;
 
 public class S3CostCounters{
 
-	public static void read(){
-		String id = CloudPriceType.BLOB_READ_AWS.id;
-		CostCounters.incInput(id, 1);
-		CostCounters.incNanos(id, CloudPriceType.BLOB_READ_AWS.nanoDollars);
-	}
+	// $0.005/k
+	private static final long LIST_NANOS = 5_000;
+	// $0.0004/k
+	private static final long READ_NANOS = 400;
+	// $0.005/k
+	private static final long WRITE_NANOS = 5_000;
 
 	public static void list(){
-		String id = CloudPriceType.BLOB_LIST_AWS.id;
-		CostCounters.incInput(id, 1);
-		CostCounters.incNanos(id, CloudPriceType.BLOB_LIST_AWS.nanoDollars);
+		CostCounters.nanos("data", "blob", "s3", "list", LIST_NANOS);
+	}
+
+	public static void read(){
+		CostCounters.nanos("data", "blob", "s3", "read", READ_NANOS);
 	}
 
 	public static void write(){
-		String id = CloudPriceType.BLOB_WRITE_AWS.id;
-		CostCounters.incInput(id, 1);
-		CostCounters.incNanos(id, CloudPriceType.BLOB_WRITE_AWS.nanoDollars);
+		CostCounters.nanos("data", "blob", "s3", "write", WRITE_NANOS);
 	}
 
 }

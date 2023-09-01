@@ -32,6 +32,7 @@ import io.datarouter.web.email.DatarouterHtmlEmailService;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.html.form.HtmlForm;
+import io.datarouter.web.html.form.HtmlForm.HtmlFormMethod;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import j2html.tags.specialized.DivTag;
@@ -100,17 +101,17 @@ public class ClusterSettingBrowseHandler extends BaseHandler{
 	}
 
 	private DivTag makeFilterDiv(ClusterSettingBrowseHandlerParams params){
-		var form = new HtmlForm().withMethodGet();
+		var form = new HtmlForm(HtmlFormMethod.GET);
 		params.location.ifPresent(location -> form.addHiddenField(
 				ClusterSettingBrowseHandlerParams.P_location,
 				location));
 		form.addTextField()
-				.withDisplay("Name")
+				.withLabel("Name")
 				.withPlaceholder("Partial name")
 				.withName(ClusterSettingBrowseHandlerParams.P_partialName)
 				.withValue(params.partialName.orElse(null));
 		form.addButtonWithoutSubmitAction()
-				.withDisplay("Search");
+				.withLabel("Search");
 		return div(
 				Bootstrap4FormHtml.render(form, true));
 	}

@@ -33,7 +33,6 @@ import io.datarouter.storage.servertype.ServerType;
 import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.util.lang.ObjectTool;
 import io.datarouter.util.string.StringTool;
-import io.datarouter.util.time.ZonedDateFormatterTool;
 import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
 import io.datarouter.web.email.StandardDatarouterEmailHeaderService;
@@ -113,9 +112,7 @@ public class ClusterSettingEmailService{
 			kvs.add(new HtmlEmailHeaderRow("user", text(log.getChangedBy())));
 			kvs.add(new HtmlEmailHeaderRow("action", text(log.getAction().persistentString)));
 			kvs.add(new HtmlEmailHeaderRow("setting", makeClusterSettingLogLink()));
-			String timestamp = ZonedDateFormatterTool.formatReversedLongMsWithZone(
-					log.getKey().getReverseCreatedMs(),
-					userZoneId);
+			String timestamp = log.getKey().getMilliTimeReversed().format(userZoneId);
 			kvs.add(new HtmlEmailHeaderRow("timestamp", text(timestamp)));
 			if(ObjectTool.notEquals(ServerType.UNKNOWN.getPersistentString(), log.getServerType())){
 				kvs.add(new HtmlEmailHeaderRow("serverType", text(log.getServerType())));

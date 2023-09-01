@@ -43,6 +43,7 @@ import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.GlobalRedirectMav;
 import io.datarouter.web.html.form.HtmlForm;
+import io.datarouter.web.html.form.HtmlForm.HtmlFormMethod;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import jakarta.inject.Inject;
@@ -98,8 +99,7 @@ public class ClusterSettingOverrideDeleteHandler extends BaseHandler{
 
 		// Make form
 		boolean submitted = submitButton.orElse(false);
-		var form = new HtmlForm()
-				.withMethodPost()
+		var form = new HtmlForm(HtmlFormMethod.POST)
 				.withAction(request.getContextPath() + paths.datarouter.settings.overrides.delete.toSlashedString());
 		form.addHiddenField(P_sourceType, sourceEnum.persistentString);
 		sourceLocation.ifPresent(sourceLocationValue -> form.addHiddenField(P_sourceLocation, sourceLocationValue));

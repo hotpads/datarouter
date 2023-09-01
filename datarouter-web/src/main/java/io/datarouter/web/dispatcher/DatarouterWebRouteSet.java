@@ -15,6 +15,7 @@
  */
 package io.datarouter.web.dispatcher;
 
+import io.datarouter.auth.role.DatarouterUserRole;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.browse.DatarouterClientHandler;
 import io.datarouter.web.browse.DatarouterHomepageHandler;
@@ -33,13 +34,14 @@ import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.digest.DailyDigestHandler;
 import io.datarouter.web.email.EmailTestHandler;
 import io.datarouter.web.handler.IpDetectionHandler;
+import io.datarouter.web.handler.PathLookupHandler;
 import io.datarouter.web.handler.TestApiHandler;
+import io.datarouter.web.http.HttpReuseTesterHandler;
 import io.datarouter.web.http.HttpTestHandler;
 import io.datarouter.web.monitoring.DeploymentReportingHandler;
 import io.datarouter.web.monitoring.ExecutorsMonitoringHandler;
 import io.datarouter.web.monitoring.MemoryMonitoringHandler;
 import io.datarouter.web.shutdown.ShutdownHandler;
-import io.datarouter.web.user.role.DatarouterUserRole;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
@@ -75,6 +77,9 @@ public class DatarouterWebRouteSet extends BaseRouteSet{
 				.allowRoles(DatarouterUserRole.DATAROUTER_TOOLS);
 		handle(paths.datarouter.http.tester)
 				.withHandler(HttpTestHandler.class)
+				.allowRoles(DatarouterUserRole.DATAROUTER_TOOLS);
+		handle(paths.datarouter.http.reuseTester)
+				.withHandler(HttpReuseTesterHandler.class)
 				.allowRoles(DatarouterUserRole.DATAROUTER_TOOLS);
 
 		handle(paths.datarouter.nodes.browseData).withHandler(ViewNodeDataHandler.class);
@@ -121,6 +126,9 @@ public class DatarouterWebRouteSet extends BaseRouteSet{
 		handle(paths.datarouter.testApi.printPrimitiveIntArrayNoParamName).withHandler(TestApiHandler.class);
 		handle(paths.datarouter.testApi.printComplicatedArrayParams).withHandler(TestApiHandler.class);
 		handle(paths.datarouter.testApi.timeContains).withHandler(TestApiHandler.class);
+
+		handle(paths.datarouter.handler.handlerSearch).withHandler(PathLookupHandler.class)
+				.allowRoles(DatarouterUserRole.DATAROUTER_TOOLS);
 	}
 
 	@Override

@@ -38,6 +38,7 @@ import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.types.Param;
 import io.datarouter.web.html.form.HtmlForm;
+import io.datarouter.web.html.form.HtmlForm.HtmlFormMethod;
 import io.datarouter.web.html.form.HtmlFormValidator;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import jakarta.inject.Inject;
@@ -93,37 +94,36 @@ public class SingleThreadTableProcessorHandler extends BaseHandler{
 				.append("")
 				.sort()
 				.list();
-		var form = new HtmlForm()
-				.withMethod("post");
+		var form = new HtmlForm(HtmlFormMethod.POST);
 		form.addSelectField()
-				.withDisplay("Processor Name")
+				.withLabel("Processor Name")
 				.withName(P_processorName)
 				.withValues(possibleProcessors);
 		form.addSelectField()
-				.withDisplay("Node Name")
+				.withLabel("Node Name")
 				.withName(P_sourceNodeName)
 				.withValues(possibleNodes);
-		form.addTextField()
-				.withDisplay("Scan Batch Size")
+		form.addNumberField()
+				.withLabel("Scan Batch Size")
 				.withName(P_scanBatchSize)
-				.withPlaceholder(DEFAULT_SCAN_BATCH_SIZE + "")
+				.withPlaceholder(DEFAULT_SCAN_BATCH_SIZE)
 				.withValue(
 						scanBatchSize.orElse(null),
 						shouldValidate && scanBatchSize.isPresent(),
 						HtmlFormValidator::positiveInteger);
 		form.addTextField()
-				.withDisplay("From Key String")
+				.withLabel("From Key String")
 				//add validation
 				.withName(P_lastKeyString)
 				.withValue(lastKeyString.orElse(null));
 		form.addTextField()
-				.withDisplay("Email on Completion")
+				.withLabel("Email on Completion")
 				//add validation
 				.withName(P_toEmail)
 				.withPlaceholder("you@email.com")
 				.withValue(toEmail.orElse(getSessionInfo().getRequiredSession().getUsername()));
 		form.addButton()
-				.withDisplay("Execute")
+				.withLabel("Execute")
 				.withValue("anything");
 
 		if(submitAction.isEmpty() || form.hasErrors()){

@@ -22,13 +22,16 @@ import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.auth.authenticate.saml.CustomSamlConfigParamsSupplier;
+import io.datarouter.auth.authenticate.saml.CustomSamlConfigParamsSupplier.CustomSamlConfigParam;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.web.config.ServletContextSupplier;
-import io.datarouter.web.user.authenticate.saml.CustomSamlConfigParamsSupplier.CustomSamlConfigParam;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
-// useful when there is an path re write
+// useful when there is a path re-write
+
+// TODO braydonh: figure out how to move this out of dr-web
 @Singleton
 public class CustomSamlConfigService extends SamlConfigService{
 	private static final Logger logger = LoggerFactory.getLogger(CustomSamlConfigService.class);

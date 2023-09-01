@@ -20,13 +20,13 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
+import io.datarouter.auth.service.CurrentUserSessionInfoService;
 import io.datarouter.plugin.PluginInjector;
 import io.datarouter.web.digest.DailyDigest.DailyDigestType;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import io.datarouter.web.requirejs.DatarouterWebRequireJsV2;
-import io.datarouter.web.user.session.CurrentUserSessionInfoService;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.DivTag;
 import jakarta.inject.Inject;

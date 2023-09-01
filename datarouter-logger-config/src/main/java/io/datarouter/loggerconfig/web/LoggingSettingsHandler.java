@@ -21,7 +21,6 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.text;
 
 import java.io.Serializable;
-import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -54,9 +53,11 @@ import io.datarouter.loggerconfig.config.DatarouterLoggingConfigPaths;
 import io.datarouter.loggerconfig.storage.consoleappender.DatarouterConsoleAppenderDao;
 import io.datarouter.loggerconfig.storage.fileappender.DatarouterFileAppenderDao;
 import io.datarouter.loggerconfig.storage.loggerconfig.DatarouterLoggerConfigDao;
+import io.datarouter.loggerconfig.storage.loggerconfig.LoggingLevel;
 import io.datarouter.logging.BaseLog4j2Configuration;
 import io.datarouter.logging.Log4j2Configurator;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.types.MilliTime;
 import io.datarouter.util.Require;
 import io.datarouter.util.duration.DatarouterDuration;
 import io.datarouter.util.string.StringTool;
@@ -129,7 +130,7 @@ public class LoggingSettingsHandler extends BaseHandler{
 			io.datarouter.loggerconfig.storage.loggerconfig.LoggerConfig configWithMetadata
 					= configsWithMetadata.get(name);
 			String email;
-			Instant lastUpdated = null;
+			MilliTime lastUpdated = null;
 			DatarouterDuration ttl = null;
 			boolean canDelete = true;
 			if(configWithMetadata != null){
@@ -202,7 +203,7 @@ public class LoggingSettingsHandler extends BaseHandler{
 		log4j2Configurator.updateOrCreateLoggerConfig(name, level, ADDITIVE, appenders);
 		loggerConfigDao.saveLoggerConfig(
 				name,
-				level,
+				LoggingLevel.BY_PERSISTENT_STRING.fromOrNull(level.name()),
 				ADDITIVE,
 				List.of(appenders),
 				getCurrentUsername(),
@@ -369,7 +370,7 @@ public class LoggingSettingsHandler extends BaseHandler{
 				LoggerConfig config,
 				String link,
 				String email,
-				Instant lastUpdated,
+				MilliTime lastUpdated,
 				boolean canDelete,
 				DatarouterDuration ttl,
 				ZoneId zoneId){
@@ -380,7 +381,7 @@ public class LoggingSettingsHandler extends BaseHandler{
 			this.appenderRefs = new ArrayList<>(config.getAppenders().keySet());
 			this.email = email;
 			if(lastUpdated != null){
-				this.lastUpdated = DATE_FORMAT.withZone(zoneId).format(lastUpdated);
+				this.lastUpdated = lastUpdated.format(DATE_FORMAT, zoneId);
 			}
 			this.canDelete = canDelete;
 			this.ttl = ttl == null ? null : ttl.toString();

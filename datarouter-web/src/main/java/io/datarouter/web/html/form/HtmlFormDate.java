@@ -15,64 +15,15 @@
  */
 package io.datarouter.web.html.form;
 
-import io.datarouter.web.html.form.HtmlForm.BaseHtmlFormField;
+public class HtmlFormDate extends BaseHtmlFormTypedInputField<HtmlFormDate>{
 
-public class HtmlFormDate extends BaseHtmlFormField{
+	public HtmlFormDate(){
+		super("date");
+	}
 
-	private String name;
-	private String display;
-	private String placeholder;
-	private String value;
-	private boolean required;
-
-	public HtmlFormDate withName(String name){
-		this.name = name;
+	@Override
+	protected HtmlFormDate self(){
 		return this;
-	}
-
-	public HtmlFormDate withDisplay(String display){
-		this.display = display;
-		return this;
-	}
-
-	public HtmlFormDate withPlaceholder(String placeholder){
-		this.placeholder = placeholder;
-		return this;
-	}
-
-	public HtmlFormDate withValue(String value){
-		this.value = value;
-		return this;
-	}
-
-	public HtmlFormDate required(){
-		this.required = true;
-		return this;
-	}
-
-	public HtmlFormDate withError(String error){
-		this.error = error;
-		return this;
-	}
-
-	public String getName(){
-		return name;
-	}
-
-	public String getDisplay(){
-		return display;
-	}
-
-	public String getPlaceholder(){
-		return placeholder;
-	}
-
-	public String getValue(){
-		return value;
-	}
-
-	public boolean isRequired(){
-		return required;
 	}
 
 }

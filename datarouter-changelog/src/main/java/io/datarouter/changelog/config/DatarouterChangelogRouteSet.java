@@ -15,6 +15,7 @@
  */
 package io.datarouter.changelog.config;
 
+import io.datarouter.auth.role.DatarouterUserRole;
 import io.datarouter.changelog.web.EditChangelogHandler;
 import io.datarouter.changelog.web.ManualChangelogHandler;
 import io.datarouter.changelog.web.ViewChangelogForDateRangeHandler;
@@ -23,7 +24,6 @@ import io.datarouter.changelog.web.ViewExactChangelogHandler;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
-import io.datarouter.web.user.role.DatarouterUserRole;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 

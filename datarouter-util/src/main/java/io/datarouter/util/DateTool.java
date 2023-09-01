@@ -26,13 +26,17 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAccessor;
 import java.util.Date;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import io.datarouter.types.MilliTime;
 import io.datarouter.util.duration.DurationUnit;
 import io.datarouter.util.duration.DurationWithCarriedUnits;
 
+/*
+ * @Deprecated use java.time.* or MilliTme instead
+ */
+@Deprecated
 public class DateTool{
 
 	public static final long MILLISECONDS_IN_DAY = Duration.ofDays(1).toMillis();
@@ -174,7 +178,7 @@ public class DateTool{
 	 * @return a labeled,
 	 */
 	public static String getMillisAsString(long timeMillis, int maxUnits, DurationUnit maxPrecision){
-		DurationWithCarriedUnits wud = new DurationWithCarriedUnits(timeMillis);
+		var wud = new DurationWithCarriedUnits(timeMillis);
 		return wud.toStringByMaxUnitsMaxPrecision(maxPrecision, maxUnits);
 	}
 
@@ -197,7 +201,7 @@ public class DateTool{
 
 	/*---------------- day of week ----------------*/
 
-	// Note: These should be change to use and Instant as parameter, and ultimately removed. Calculating the
+	// Note: These should be changed to use ZoneId and Instant as parameter, and ultimately removed. Calculating the
 	// day of Date is technically incorrect. You require a timezone to be able to precisely tell.
 	public static boolean isWeekend(Date date){
 		ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
@@ -206,27 +210,28 @@ public class DateTool{
 
 	/*---------------- reverse ------------------*/
 
-	// Use fromReverseInstantLong
-	public static Date fromReverseDateLong(long dateLong){
-		return new Date(Long.MAX_VALUE - dateLong);
-	}
-
+	@Deprecated // use MilliTime and MilliTimeReversed
 	public static Long toReverseInstantLong(Instant instant){
-		return Optional.ofNullable(instant)
-				.map(nonNullInstant -> Long.MAX_VALUE - nonNullInstant.toEpochMilli())
-				.orElse(null);
+		if(instant == null){
+			return null;
+		}
+		return MilliTime.of(instant).toReversedEpochMilli();
 	}
 
-	public static Long toReverseLong(Long timestamp){
-		return Optional.ofNullable(timestamp)
-				.map(nonNullTimestamp -> Long.MAX_VALUE - nonNullTimestamp)
-				.orElse(null);
+	@Deprecated // use MilliTime and MilliTimeReversed
+	public static Long toReverseLong(Long forwardTimeMs){
+		if(forwardTimeMs == null){
+			return null;
+		}
+		return MilliTime.ofEpochMilli(forwardTimeMs).toReversedEpochMilli();
 	}
 
-	public static Instant fromReverseInstantLong(Long reverseInstantLong){
-		return Optional.ofNullable(reverseInstantLong)
-				.map(nonNullReverseInstantLong -> Instant.ofEpochMilli(Long.MAX_VALUE - nonNullReverseInstantLong))
-				.orElse(null);
+	@Deprecated // use MilliTime and MilliTimeReversed
+	public static Instant fromReverseInstantLong(Long reversedTimeMs){
+		if(reversedTimeMs == null){
+			return null;
+		}
+		return MilliTime.ofReversedEpochMilli(reversedTimeMs).toInstant();
 	}
 
 }

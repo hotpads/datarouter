@@ -16,7 +16,11 @@
 package io.datarouter.model.field.codec;
 
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.Optional;
 
 import com.google.gson.reflect.TypeToken;
 
@@ -57,6 +61,15 @@ public class InstantNanoToLongFieldCodec extends FieldCodec<Instant,Long>{
 
 	protected static Instant fromEpochNano(Long epochNano){
 		return Instant.EPOCH.plusNanos(epochNano);
+	}
+
+	@Override
+	public Optional<String> findAuxiliaryHumanReadableString(
+			Instant instant,
+			DateTimeFormatter dateTimeFormatter,
+			ZoneId zoneId){
+		var zonedDateTime = ZonedDateTime.ofInstant(instant, zoneId);
+		return Optional.of(dateTimeFormatter.format(zonedDateTime));
 	}
 
 }

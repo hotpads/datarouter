@@ -15,6 +15,8 @@
  */
 package io.datarouter.model.field.imp;
 
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
 import io.datarouter.bytes.codec.stringcodec.StringCodec;
@@ -106,6 +108,12 @@ public class StringEncodedField<T> extends BaseField<T>{
 
 	public FieldCodec<T,String> getCodec(){
 		return key.getCodec();
+	}
+
+	@Override
+	public Optional<String> findAuxiliaryHumanReadableString(DateTimeFormatter dateTimeFormatter, ZoneId zoneId){
+		return Optional.ofNullable(getValue())
+				.flatMap(value -> getCodec().findAuxiliaryHumanReadableString(value, dateTimeFormatter, zoneId));
 	}
 
 }

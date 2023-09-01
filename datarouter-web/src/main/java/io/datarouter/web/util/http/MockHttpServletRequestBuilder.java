@@ -68,7 +68,7 @@ public class MockHttpServletRequestBuilder{
 	}
 
 	public <T> MockHttpServletRequestBuilder withAttribute(RequestAttributeKey<T> key, T value){
-		attributes.put(key.name, value);
+		attributes.put(key.name(), value);
 		return this;
 	}
 

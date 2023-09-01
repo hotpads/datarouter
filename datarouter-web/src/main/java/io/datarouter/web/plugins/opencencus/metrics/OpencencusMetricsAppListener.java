@@ -22,9 +22,9 @@ import java.util.function.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.instrumentation.gauge.Gauges;
 import io.datarouter.plugin.PluginInjector;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.storage.metric.Gauges;
 import io.datarouter.web.listener.DatarouterAppListener;
 import io.opencensus.common.Duration;
 import io.opencensus.exporter.metrics.util.IntervalMetricReader;
@@ -45,8 +45,6 @@ public class OpencencusMetricsAppListener implements DatarouterAppListener{
 
 	@Inject
 	private PluginInjector pluginInjector;
-	@Inject
-	private Gauges gauges;
 	@Inject
 	private DifferencingCounterService differencingCounterService;
 
@@ -125,30 +123,18 @@ public class OpencencusMetricsAppListener implements DatarouterAppListener{
 					continue;
 				}
 				switch(type){
-				case GAUGE_INT64:
-					gauges.save(datarouterMetricName, value);
-					break;
-				case CUMULATIVE_INT64:
-					differencingCounterService.add(datarouterMetricName, value);
-					break;
-				default:
-					throw new IllegalArgumentException("Unexpected value=" + type);
+				case GAUGE_INT64 -> Gauges.save(datarouterMetricName, value);
+				case CUMULATIVE_INT64 -> differencingCounterService.add(datarouterMetricName, value);
+				default -> throw new IllegalArgumentException("Unexpected value=" + type);
 				}
 				return;
 			}
 		}
 	}
 
-	public static class OpencencusMetricsDto{
-
-		public String name;
-		public List<String> labels;
-
-		public OpencencusMetricsDto(String name, List<String> labels){
-			this.name = name;
-			this.labels = labels;
-		}
-
+	public record OpencencusMetricsDto(
+			String name,
+			List<String> labels){
 	}
 
 }

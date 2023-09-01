@@ -17,11 +17,13 @@ package io.datarouter.plugin.dataexport.service.blockfile;
 
 import java.time.LocalDate;
 
+import io.datarouter.bytes.BinaryDictionary;
 import io.datarouter.bytes.blockfile.storage.BlockfileStorage;
 import io.datarouter.plugin.dataexport.config.DatarouterDataExportDirectorySupplier;
 import io.datarouter.plugin.dataexport.util.DatabeanExportFilenameTool;
 import io.datarouter.storage.config.properties.ServiceName;
 import io.datarouter.storage.file.Directory;
+import io.datarouter.storage.node.op.raw.EncodedBlobStorage;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.storage.util.BlockfileDirectoryStorage;
 import io.datarouter.storage.util.Subpath;
@@ -51,6 +53,10 @@ public class DatabeanExportKvFileStorageService{
 	public Directory makeExportMetaDirectory(Ulid exportId){
 		return makeExportIdDirectory(exportId)
 				.subdirectory(DatabeanExportFilenameTool.META_SUBPATH);
+	}
+
+	public EncodedBlobStorage<BinaryDictionary> makeMetaDictionaryStorage(Ulid exportId){
+		return makeExportMetaDirectory(exportId).encoded(BinaryDictionary.CODEC);
 	}
 
 	public Directory makeTableDataDirectory(Ulid exportId, PhysicalNode<?,?,?> node){

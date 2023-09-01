@@ -15,6 +15,7 @@
  */
 package io.datarouter.joblet.config;
 
+import io.datarouter.auth.role.DatarouterUserRole;
 import io.datarouter.joblet.handler.JobletExceptionHandler;
 import io.datarouter.joblet.handler.JobletHandler;
 import io.datarouter.joblet.handler.JobletQueuesHandler;
@@ -25,7 +26,6 @@ import io.datarouter.joblet.handler.SleepingJobletHandler;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
-import io.datarouter.web.user.role.DatarouterUserRole;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 

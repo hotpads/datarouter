@@ -29,7 +29,7 @@ public class DatarouterSchemaUpdateEmailSettings extends SettingNode{
 	@Inject
 	public DatarouterSchemaUpdateEmailSettings(SettingFinder finder){
 		super(finder, "datarouterWeb.schemaUpdateEmail.");
-		sendToAdmin = registerBooleans("sendToAdmin", defaultTo(true));
+		sendToAdmin = registerBooleans("sendToAdmin", defaultTo(false));
 	}
 
 }

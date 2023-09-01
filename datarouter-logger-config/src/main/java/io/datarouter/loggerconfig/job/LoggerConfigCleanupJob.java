@@ -24,7 +24,6 @@ import static j2html.TagCreator.p;
 import static j2html.TagCreator.text;
 
 import java.time.Duration;
-import java.time.Instant;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -47,7 +46,7 @@ import io.datarouter.storage.config.DatarouterSubscribersSupplier;
 import io.datarouter.storage.config.properties.AdminEmail;
 import io.datarouter.storage.config.setting.DatarouterEmailSubscriberSettings;
 import io.datarouter.storage.servertype.ServerTypeDetector;
-import io.datarouter.util.time.ZonedDateFormatterTool;
+import io.datarouter.types.MilliTime;
 import io.datarouter.web.config.properties.DefaultEmailDistributionListZoneId;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
 import io.datarouter.web.email.StandardDatarouterEmailHeaderService;
@@ -100,8 +99,9 @@ public class LoggerConfigCleanupJob extends BaseJob{
 	}
 
 	private void handleCustomLogLevel(LoggerConfig log){
-		Instant lastUpdatedThreshold = Instant.now().minus(settings.loggingConfigMaxAgeDays.get(), ChronoUnit.DAYS);
-		Instant loggerLastUpdatedDate = log.getLastUpdated();
+		MilliTime lastUpdatedThreshold = MilliTime.now().minus(settings.loggingConfigMaxAgeDays.get().longValue(),
+				ChronoUnit.DAYS);
+		MilliTime loggerLastUpdatedDate = log.getLastUpdated();
 		if(loggerLastUpdatedDate.isAfter(lastUpdatedThreshold)){
 			return;
 		}
@@ -122,7 +122,9 @@ public class LoggerConfigCleanupJob extends BaseJob{
 		if(databaseLoggerLevel.isMoreSpecificThan(rootLoggerLevel) && settings.sendLoggerConfigCleanupJobEmails.get()){
 			sendAlertEmail(List.of(), log, makeLoggerLevelAlertDetails(log, rootLoggerLevel));
 		}
-		int daysSinceLastUpdatedThreshold = (int)Duration.between(loggerLastUpdatedDate, lastUpdatedThreshold).toDays();
+		int daysSinceLastUpdatedThreshold = (int) Duration.ofMillis(lastUpdatedThreshold.minus(loggerLastUpdatedDate)
+				.toEpochMilli())
+				.toDays();
 		int daysLeftBeforeDeletingLogger = settings.loggingConfigSendEmailAlertDays.get()
 				- daysSinceLastUpdatedThreshold;
 		if(daysLeftBeforeDeletingLogger <= 0){
@@ -150,7 +152,7 @@ public class LoggerConfigCleanupJob extends BaseJob{
 	private PTag makeDefaultOldLoggerConfigDetails(LoggerConfig log){
 		return p(
 				text("The LoggerConfig named "),
-				b(log.getName()),
+				b(log.getKey().getName()),
 				text(" was last updated on "),
 				b(log.getLastUpdated() + ""),
 				text(" so it's older than the maximum age threshold of "),
@@ -163,7 +165,7 @@ public class LoggerConfigCleanupJob extends BaseJob{
 	private PTag makeLoggerLevelAlertDetails(LoggerConfig log, Level rootLoggerLevel){
 		return p(
 				text("The LoggerConfig "),
-				b(log.getName()),
+				b(log.getKey().getName()),
 				text(" has a level of "),
 				text(log.getLevel() + ""),
 				text(" which either overrides the root logger level "),
@@ -175,7 +177,7 @@ public class LoggerConfigCleanupJob extends BaseJob{
 	private PTag makeOldLoggerConfigAlertDetails(LoggerConfig log, int daysLeft){
 		return p(
 				text("The LoggerConfig "),
-				b(log.getName()),
+				b(log.getKey().getName()),
 				text(" was last updated on "),
 				text(log.getLastUpdated() + ""),
 				text(" so it's older than the maximum age threshold of "),
@@ -191,9 +193,9 @@ public class LoggerConfigCleanupJob extends BaseJob{
 		ZoneId zoneId = defaultEmailDistributionListZoneId.get();
 		return p(
 				text("The LoggerConfig "),
-				b(log.getName()),
+				b(log.getKey().getName()),
 				text(" was last updated on "),
-				b(ZonedDateFormatterTool.formatInstantWithZone(log.getLastUpdated(), zoneId)),
+				b(log.getLastUpdated().format(zoneId)),
 				text(" so it's older than the maximum age threshold of "),
 				b(settings.loggingConfigMaxAgeDays.get() + ""),
 				text(" days."),

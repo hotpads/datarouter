@@ -15,19 +15,27 @@
  */
 package io.datarouter.instrumentation.trace;
 
+import io.datarouter.enums.MappedEnum;
 import io.datarouter.enums.StringMappedEnum;
 
 public enum TraceCategory{
-	HTTP_REQUEST("httpRequest"),
-	CONVEYOR("conveyor"),
+	HTTP_REQUEST(0, "httpRequest"),
+	CONVEYOR(1, "conveyor"),
 	;
 
+	public static final MappedEnum<TraceCategory,Integer> BY_PERSISTENT_INT
+			= new MappedEnum<>(values(), value -> value.persistentInt);
 	public static final StringMappedEnum<TraceCategory> BY_PERSISTENT_STRING
 			= new StringMappedEnum<>(values(), value -> value.persistentString);
 
+	public final int persistentInt;
 	public final String persistentString;
 
-	TraceCategory(String persistentString){
+	TraceCategory(
+			int persistentInt,
+			String persistentString){
+		this.persistentInt = persistentInt;
 		this.persistentString = persistentString;
 	}
+
 }

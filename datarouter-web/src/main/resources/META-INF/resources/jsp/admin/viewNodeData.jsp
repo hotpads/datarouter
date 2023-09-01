@@ -125,7 +125,7 @@
 							<tr>
 								<c:forEach items="${rowOfFields}" var="field">
 									<c:if test="${! field.key.collection}">
-										<td>${field.valueString}</td>
+										<td title="${field.hoverString}">${field.valueString}</td>
 									</c:if>
 									<c:if test="${field.key.collection}">
 										<td>

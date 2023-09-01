@@ -25,7 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.gson.GsonTool;
-import io.datarouter.joblet.DatarouterJobletCounters;
+import io.datarouter.joblet.JobletCounters;
 import io.datarouter.joblet.dto.RunningJoblet;
 import io.datarouter.joblet.model.Joblet;
 import io.datarouter.joblet.model.JobletPackage;
@@ -49,7 +49,6 @@ public class JobletCallable implements Callable<Void>{
 	private final ServerName serverName;
 	private final JobletService jobletService;
 	private final JobletFactory jobletFactory;
-	private final DatarouterJobletCounters datarouterJobletCounters;
 
 	private final MutableBoolean shutdownRequested;
 	private final JobletProcessor processor;// for callback
@@ -62,7 +61,6 @@ public class JobletCallable implements Callable<Void>{
 			ServerName serverName,
 			JobletService jobletService,
 			JobletFactory jobletFactory,
-			DatarouterJobletCounters datarouterJobletCounters,
 			MutableBoolean shutdownRequested,
 			JobletProcessor processor,
 			JobletType<?> jobletType,
@@ -70,7 +68,6 @@ public class JobletCallable implements Callable<Void>{
 		this.serverName = serverName;
 		this.jobletService = jobletService;
 		this.jobletFactory = jobletFactory;
-		this.datarouterJobletCounters = datarouterJobletCounters;
 		this.shutdownRequested = shutdownRequested;
 		this.processor = processor;
 		this.jobletType = jobletType;
@@ -135,7 +132,7 @@ public class JobletCallable implements Callable<Void>{
 		timer.add("dequeued " + jobletRequest.getKey());
 		JobletPackage jobletPackage = jobletService.getJobletPackageForJobletRequest(jobletRequest);
 		if(jobletPackage.getJobletData() == null){
-			datarouterJobletCounters.ignoredDataMissingFromDb(jobletType);
+			JobletCounters.ignoredDataMissingFromDb(jobletType);
 			jobletService.handleMissingJobletData(jobletRequest);
 			timer.add("deleted, missing JobletData");
 			return Optional.empty();
@@ -158,14 +155,14 @@ public class JobletCallable implements Callable<Void>{
 		joblet.process();
 
 		// counters
-		datarouterJobletCounters.incNumJobletsProcessed();
-		datarouterJobletCounters.incNumJobletsProcessed(jobletType);
+		JobletCounters.incNumJobletsProcessed();
+		JobletCounters.incNumJobletsProcessed(jobletType);
 		int numItemsProcessed = Math.max(1, jobletRequest.getNumItems());
-		datarouterJobletCounters.incItemsProcessed(jobletType, numItemsProcessed);
+		JobletCounters.incItemsProcessed(jobletType, numItemsProcessed);
 		timer.add("processed " + numItemsProcessed + " items");
 		long endTimeMs = System.currentTimeMillis();
 		long durationMs = endTimeMs - startTimeMs;
-		datarouterJobletCounters.recordDuration(jobletType, durationMs, jobletRequest.getNumItems());
+		JobletCounters.recordDuration(jobletType, durationMs, jobletRequest.getNumItems());
 		String itemsPerSecond = NumberFormatter.format((double)jobletRequest.getNumItems() / ((double)durationMs
 				/ (double)1000), 1);
 

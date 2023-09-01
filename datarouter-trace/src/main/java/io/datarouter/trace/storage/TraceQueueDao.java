@@ -28,7 +28,7 @@ import io.datarouter.storage.node.factory.QueueNodeFactory;
 import io.datarouter.storage.node.op.raw.BlobQueueStorage.BlobQueueStorageNode;
 import io.datarouter.storage.queue.consumer.BlobQueueConsumer;
 import io.datarouter.storage.tag.Tag;
-import io.datarouter.trace.storage.binarydto.TraceBinaryDto;
+import io.datarouter.trace.storage.binarydto.TraceQueueBinaryDto;
 import io.datarouter.virtualnode.redundant.RedundantBlobQueueStorageNode;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -44,7 +44,7 @@ public class TraceQueueDao extends BaseDao{
 
 	}
 
-	private final BlobQueueStorageNode<TraceBinaryDto> node;
+	private final BlobQueueStorageNode<TraceQueueBinaryDto> node;
 
 	@Inject
 	public TraceQueueDao(
@@ -58,7 +58,10 @@ public class TraceQueueDao extends BaseDao{
 				: environmentNameSupplier.get() + "-shared";
 		node = Scanner.of(params.clientIds)
 				.map(clientId -> queueNodeFactory
-						.createBlobQueue(clientId, "TraceBinaryDto", BinaryDtoIndexedCodec.of(TraceBinaryDto.class))
+						.createBlobQueue(
+								clientId,
+								"TraceBinaryDto",
+								BinaryDtoIndexedCodec.of(TraceQueueBinaryDto.class))
 						.withNamespace(namespace)
 						.withTag(Tag.DATAROUTER)
 						.build())
@@ -66,11 +69,11 @@ public class TraceQueueDao extends BaseDao{
 		datarouter.register(node);
 	}
 
-	public void combineAndPut(Scanner<TraceBinaryDto> dtos){
+	public void combineAndPut(Scanner<TraceQueueBinaryDto> dtos){
 		dtos.then(node::combineAndPut);
 	}
 
-	public BlobQueueConsumer<TraceBinaryDto> getBlobQueueConsumer(){
+	public BlobQueueConsumer<TraceQueueBinaryDto> getBlobQueueConsumer(){
 		return new BlobQueueConsumer<>(node);
 	}
 

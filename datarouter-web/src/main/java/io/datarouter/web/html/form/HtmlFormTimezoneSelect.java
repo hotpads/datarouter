@@ -31,6 +31,14 @@ public class HtmlFormTimezoneSelect extends HtmlFormSelect{
 					}
 			});""".formatted(TIMEZONE_FIELD_NAME);
 
+	public static final String HIDDEN_TIMEZONE_JS = """
+			document.addEventListener("DOMContentLoaded", function(){
+					const fieldEl = document.getElementsByName("%s")[0];
+					if (!fieldEl.value) {
+						fieldEl.value = Intl.DateTimeFormat().resolvedOptions().timeZone;
+					}
+			});""".formatted(TIMEZONE_FIELD_NAME);
+
 	public HtmlFormTimezoneSelect(){
 		withName(TIMEZONE_FIELD_NAME);
 		withValues(Scanner.of(ZoneIds.ZONE_IDS)

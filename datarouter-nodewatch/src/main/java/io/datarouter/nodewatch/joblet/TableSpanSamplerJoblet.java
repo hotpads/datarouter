@@ -23,7 +23,7 @@ import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.joblet.DatarouterJobletCounters;
+import io.datarouter.joblet.JobletCounters;
 import io.datarouter.joblet.codec.BaseGsonJobletCodec;
 import io.datarouter.joblet.model.BaseJoblet;
 import io.datarouter.joblet.type.JobletType;
@@ -63,8 +63,6 @@ public class TableSpanSamplerJoblet extends BaseJoblet<TableSpanSamplerJobletPar
 	@Inject
 	private DatarouterNodes datarouterNodes;
 	@Inject
-	private DatarouterJobletCounters datarouterJobletCounters;
-	@Inject
 	private DatarouterNodewatchSettingRoot nodewatchSettingRoot;
 
 	private List<TableSample> samples;
@@ -84,8 +82,8 @@ public class TableSpanSamplerJoblet extends BaseJoblet<TableSpanSamplerJobletPar
 		Duration age = jobletRequest.getKey().getAge();
 		if(ComparableTool.gt(age, TableSample.MAX_TIME_IN_QUEUE)){
 			logger.warn("aborting expired joblet {} with age {}", jobletRequest, age);
-			datarouterJobletCounters.incNumJobletsExpired(1);
-			datarouterJobletCounters.incNumJobletsExpired(JOBLET_TYPE, 1);
+			JobletCounters.incNumJobletsExpired(1);
+			JobletCounters.incNumJobletsExpired(JOBLET_TYPE, 1);
 			return;
 			//the joblet creator will quickly create another one based on the stale dateScheduled
 		}

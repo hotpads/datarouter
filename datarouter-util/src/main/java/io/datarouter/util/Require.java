@@ -203,4 +203,14 @@ public class Require{
 		return optional;
 	}
 
+	public static void isEmpty(Optional<?> optional){
+		isEmpty(optional, null);
+	}
+
+	public static void isEmpty(Optional<?> optional, String message){
+		if(optional != null && optional.isPresent()){
+			throw new IllegalArgumentException(message);
+		}
+	}
+
 }

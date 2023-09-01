@@ -25,6 +25,7 @@ import java.util.Set;
 import io.datarouter.storage.setting.DatarouterSettingTagType;
 import io.datarouter.storage.setting.cached.CachedClusterSettingTags;
 import io.datarouter.web.html.form.HtmlForm;
+import io.datarouter.web.html.form.HtmlForm.HtmlFormMethod;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import j2html.tags.specialized.DivTag;
 import jakarta.inject.Inject;
@@ -49,11 +50,10 @@ public class ClusterSettingTagsHtml{
 	}
 
 	public DivTag makeTagCheckboxForm(String tagName, boolean checked){
-		var form = new HtmlForm()
-				.withMethod("GET");
+		var form = new HtmlForm(HtmlFormMethod.GET);
 		form.addHiddenField(ClusterSettingTagsHandler.P_tagName, tagName);
 		form.addCheckboxField()
-				.withDisplay(tagName)
+				.withLabel(tagName)
 				.withName(ClusterSettingTagsHandler.P_tagEnabled)
 				.withChecked(checked)
 				.withSubmitOnChange();

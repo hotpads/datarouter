@@ -33,6 +33,7 @@ import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.types.Param;
 import io.datarouter.web.html.form.HtmlForm;
+import io.datarouter.web.html.form.HtmlForm.HtmlFormMethod;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import j2html.TagCreator;
 import j2html.tags.specialized.DivTag;
@@ -66,36 +67,35 @@ public class SleepingJobletHandler extends BaseHandler{
 			@Param(P_failEveryN) Optional<Integer> failEveryN,
 			@Param(P_submitAction) Optional<String> submitAction){
 
-		var form = new HtmlForm()
-				.withMethod("post");
+		var form = new HtmlForm(HtmlFormMethod.POST);
 		form.addTextField()
-				.withDisplay("Number of Joblets")
+				.withLabel("Number of Joblets")
 				.withName(P_numJoblets)
 				.withPlaceholder("1000")
 				.withValue(numJoblets.map(Object::toString).orElse(1000 + ""));
-		form.addTextField()
-				.withDisplay("Sleep Millis")
+		form.addNumberField()
+				.withLabel("Sleep Millis")
 				.withName(P_sleepMs)
-				.withPlaceholder("1000")
-				.withValue(sleepMs.map(Object::toString).orElse(1000 + ""));
+				.withPlaceholder(1_000)
+				.withValue(sleepMs.orElse(1_000L));
 		form.addTextField()
-				.withDisplay("Execution Order")
+				.withLabel("Execution Order")
 				.withName(P_executionOrder)
 				.withPlaceholder(JobletPriority.DEFAULT.getExecutionOrder() + "")
 				.withValue(executionOrder
 						.map(Object::toString)
 						.orElse(JobletPriority.DEFAULT.getExecutionOrder() + ""));
 		form.addCheckboxField()
-				.withDisplay("Include Failures")
+				.withLabel("Include Failures")
 				.withName(P_includeFailures)
 				.withChecked(includeFailures.orElse(true));
-		form.addTextField()
-				.withDisplay("Fail Every N")
+		form.addNumberField()
+				.withLabel("Fail Every N")
 				.withName(P_failEveryN)
-				.withPlaceholder(100 + "")
-				.withValue(failEveryN.map(Object::toString).orElse(100 + ""));
+				.withPlaceholder(100)
+				.withValue(failEveryN.orElse(100));
 		form.addButton()
-				.withDisplay("Create Joblets")
+				.withLabel("Create Joblets")
 				.withValue("anything");
 
 		if(submitAction.isEmpty() || form.hasErrors()){

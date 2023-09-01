@@ -28,6 +28,7 @@ import java.util.TreeSet;
 import io.datarouter.pathnode.PathNode;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.web.config.DatarouterWebFiles;
+import io.datarouter.web.css.DatarouterWebCssTool;
 import io.datarouter.web.css.DatarouterWebCssV2;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.MavProperties;
@@ -43,6 +44,7 @@ import io.datarouter.web.requirejs.DatarouterWebRequireJsV2;
 import io.datarouter.web.requirejs.RequireJsTool;
 import j2html.tags.ContainerTag;
 import j2html.tags.EmptyTag;
+import j2html.tags.specialized.ScriptTag;
 
 public class Bootstrap4ReactPage{
 
@@ -54,6 +56,8 @@ public class Bootstrap4ReactPage{
 	private List<String> externalJsLibraries = new ArrayList<>();
 	private Map<String,String> jsStringConstants = new LinkedHashMap<>();
 	private Map<String,String> jsRawConstants = new LinkedHashMap<>();
+	private List<PathNode> externalCss = new ArrayList<>();
+
 	private String title;
 
 	public ReactHtml build(){
@@ -80,6 +84,10 @@ public class Bootstrap4ReactPage{
 
 		NavBar navbar = mavProperties.getIsDatarouterPage() ? mavProperties.getDatarouterNavBar()
 				: mavProperties.getNavBar();
+
+		var allScripts = mavProperties.getPageScripts().scripts();
+
+		EmptyTag<?>[] additionalCssImports = DatarouterWebCssTool.makeCssImportTags(contextPath, externalCss);
 		return new ReactHtml(
 				Scanner.concat(CloudflareImports.REACT_GROUP_2, externalJsLibraries).list(),
 				DatarouterWebCssV2.makeCssImportTags(contextPath),
@@ -94,7 +102,9 @@ public class Bootstrap4ReactPage{
 				jsStringConstants,
 				jsRawConstants,
 				datarouterNavbar,
-				new WebappNavbarV2Html(mavProperties, navbar).build());
+				new WebappNavbarV2Html(mavProperties, navbar).build(),
+				additionalCssImports,
+				allScripts.toArray(ScriptTag[]::new));
 	}
 
 	public Mav buildMav(){
@@ -117,6 +127,11 @@ public class Bootstrap4ReactPage{
 
 	public Bootstrap4ReactPage withReactScript(PathNode reactScript){
 		this.reactScript = reactScript;
+		return this;
+	}
+
+	public Bootstrap4ReactPage withCss(PathNode externalCss){
+		this.externalCss.add(externalCss);
 		return this;
 	}
 

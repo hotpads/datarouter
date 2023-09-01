@@ -18,7 +18,7 @@ package io.datarouter.websocket.auth;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import io.datarouter.web.user.session.CurrentSessionInfo;
+import io.datarouter.auth.session.CurrentSessionInfo;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 

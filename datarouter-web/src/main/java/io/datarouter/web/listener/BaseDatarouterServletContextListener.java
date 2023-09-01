@@ -131,7 +131,7 @@ public abstract class BaseDatarouterServletContextListener implements ServletCon
 		}
 		logger.warn(String.format("%s [total=%d][%s]", onAction, System.currentTimeMillis() - shutdownStartMillis,
 				timer.getPhaseNamesAndTimes().stream()
-						.map(pair -> pair.phaseName + "=" + pair.time)
+						.map(pair -> pair.name() + "=" + pair.time())
 						.collect(Collectors.joining("]["))));
 		ExecutorServiceTool.shutdown(executor, Duration.ofSeconds(2));
 	}

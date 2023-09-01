@@ -31,6 +31,7 @@ public class DatarouterNodewatchSettingRoot extends SettingRoot{
 	public final CachedSetting<Boolean> enableOffsetting;
 	public final CachedSetting<Boolean> runTableSamplerJobletVacuumJob;
 	public final CachedSetting<Boolean> runTableStorageSummaryJob;
+	public final CachedSetting<Boolean> runNodewatchCostMonitoringJob;
 
 	@Inject
 	public DatarouterNodewatchSettingRoot(SettingFinder finder){
@@ -41,6 +42,7 @@ public class DatarouterNodewatchSettingRoot extends SettingRoot{
 		enableOffsetting = registerBoolean("enableOffsetting", true);
 		runTableSamplerJobletVacuumJob = registerBoolean("runTableSamplerJobletVacuumJob", true);
 		runTableStorageSummaryJob = registerBoolean("runTableStorageSummaryJob", false);
+		runNodewatchCostMonitoringJob = registerBoolean("runNodewatchCostMonitoringJob", false);
 	}
 
 }

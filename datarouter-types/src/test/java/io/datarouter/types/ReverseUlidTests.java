@@ -51,8 +51,7 @@ public class ReverseUlidTests{
 				.limit(10_000)
 				.sorted()
 				.toList();
-		List<Ulid> actual = expected
-				.stream()
+		List<Ulid> actual = expected.stream()
 				.map(ReverseUlid::toReverseUlid)
 				.sorted(Comparator.reverseOrder())
 				.map(ReverseUlid::toUlid)

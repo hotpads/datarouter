@@ -20,7 +20,7 @@ import java.util.Optional;
 import io.datarouter.client.mysql.execution.SessionExecutor;
 import io.datarouter.client.mysql.field.codec.factory.MysqlFieldCodecFactory;
 import io.datarouter.client.mysql.sql.MysqlSqlFactory;
-import io.datarouter.joblet.DatarouterJobletCounters;
+import io.datarouter.joblet.JobletCounters;
 import io.datarouter.joblet.JobletRequestSqlBuilder;
 import io.datarouter.joblet.enums.JobletQueueMechanism;
 import io.datarouter.joblet.queue.JobletRequestQueueManager;
@@ -51,8 +51,6 @@ public class MysqlLockForUpdateJobletRequestSelector implements JobletRequestSel
 	@Inject
 	private JobletRequestQueueManager jobletRequestQueueManager;
 	@Inject
-	private DatarouterJobletCounters datarouterJobletCounters;
-	@Inject
 	private SessionExecutor sessionExecutor;
 	@Inject
 	private MysqlSqlFactory mysqlSqlFactory;
@@ -77,7 +75,7 @@ public class MysqlLockForUpdateJobletRequestSelector implements JobletRequestSel
 				continue;// weird flow. it was probably just marked as timedOut, so skip it
 			}
 			var queueKey = new JobletRequestQueueKey(type, jobletRequest.getKey().getPriority());
-			datarouterJobletCounters.incQueueHit(queueKey.getQueueName());
+			JobletCounters.incQueueHit(queueKey.getQueueName());
 			return Optional.of(jobletRequest);
 		}
 	}

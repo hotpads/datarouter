@@ -15,11 +15,11 @@
  */
 package io.datarouter.client.hbase.config;
 
+import io.datarouter.auth.role.DatarouterUserRole;
 import io.datarouter.client.hbase.web.HBaseHandler;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
-import io.datarouter.web.user.role.DatarouterUserRole;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 

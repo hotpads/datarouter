@@ -23,6 +23,8 @@ import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.auth.session.CurrentSessionInfo;
+import io.datarouter.auth.session.Session;
 import io.datarouter.exception.config.DatarouterExceptionSettingRoot;
 import io.datarouter.exception.conveyors.DatarouterExceptionBuffers;
 import io.datarouter.exception.storage.exceptionrecord.ExceptionRecord;
@@ -45,8 +47,6 @@ import io.datarouter.web.exception.WebExceptionCategory;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.monitoring.GitProperties;
 import io.datarouter.web.monitoring.exception.ExceptionAndHttpRequestDto;
-import io.datarouter.web.user.session.CurrentSessionInfo;
-import io.datarouter.web.user.session.service.Session;
 import io.datarouter.web.util.ExceptionTool;
 import io.datarouter.web.util.RequestAttributeTool;
 import jakarta.inject.Inject;

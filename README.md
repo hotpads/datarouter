@@ -83,7 +83,7 @@ These libraries can be used individually without importing the whole framework.
   - Wrapper around Apache Http Client
   - Includes many foundational datarouter web related classes
 - [web](datarouter-web/README.md)
-- [auth](datarouter-auth/README.md)
+- [auth](datarouter-auth-web/README.md)
   - User and Role system for web applications
 - [websocket](datarouter-websocket/README.md)
   - Makes websockets easier to use

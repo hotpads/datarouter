@@ -33,6 +33,7 @@ import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.GlobalRedirectMav;
 import io.datarouter.web.html.form.HtmlForm;
+import io.datarouter.web.html.form.HtmlForm.HtmlFormMethod;
 import io.datarouter.web.html.form.HtmlFormValidator;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
@@ -80,13 +81,12 @@ public class NodewatchThresholdEditHandler extends BaseHandler{
 		var subheader = NodewatchHtml.makeTableInfoDiv(clientName, tableName);
 
 		// show form
-		var form = new HtmlForm()
-				.withAction(paths.datarouter.nodewatch.threshold.edit.getValue())
-				.withMethod("post");
+		var form = new HtmlForm(HtmlFormMethod.POST)
+				.withAction(paths.datarouter.nodewatch.threshold.edit.getValue());
 		form.addHiddenField(P_clientName, clientName);
 		form.addHiddenField(P_tableName, tableName);
 		form.addTextField()
-				.withDisplay("Alert over N rows")
+				.withLabel("Alert over N rows")
 				.withName(P_maxRows)
 				.withValue(
 						maxRows.or(() -> existingMaxRows).orElse(""),
@@ -94,7 +94,7 @@ public class NodewatchThresholdEditHandler extends BaseHandler{
 						HtmlFormValidator::positiveLong)
 				.withPlaceholder("number");
 		form.addButtonWithoutSubmitAction()
-				.withDisplay("Update")
+				.withLabel("Update")
 				.withName(P_update)
 				.withValue(Boolean.TRUE.toString());
 		var formDiv = Bootstrap4FormHtml.render(form)

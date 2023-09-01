@@ -15,12 +15,11 @@
  */
 package io.datarouter.web.dispatcher;
 
-import java.util.List;
-
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 
 import io.datarouter.inject.DatarouterInjector;
+import io.datarouter.scanner.Scanner;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
@@ -44,12 +43,11 @@ public class DispatcherServletTestService{
 		}catch(ServletException e){
 			throw new RuntimeException(e);
 		}
-		servlet.getRouteSets().stream()
-				.map(RouteSet::getDispatchRules)
-				.flatMap(List::stream)
+		Scanner.of(servlet.getRouteSets())
+				.concatIter(RouteSet::getDispatchRulesNoRedirects)
 				.map(DispatchRule::getHandlerClass)
 				.distinct()
-				.filter(handler -> !NonEagerInitHandler.class.isAssignableFrom(handler))
+				.exclude(NonEagerInitHandler.class::isAssignableFrom)
 				.forEach(injector::getInstance);
 	}
 

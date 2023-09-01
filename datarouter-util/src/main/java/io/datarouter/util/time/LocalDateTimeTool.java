@@ -16,9 +16,7 @@
 package io.datarouter.util.time;
 
 import java.time.Clock;
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
@@ -42,28 +40,6 @@ public class LocalDateTimeTool{
 
 	public static LocalDateTime convertToLocalDateTime(Date date){
 		return LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
-	}
-
-	public static long atStartOfDayReversedMs(ZoneId zoneId){
-		long timeMs = atStartOfDay(zoneId).toEpochMilli();
-		return Long.MAX_VALUE - timeMs;
-	}
-
-	public static long atEndOfDayReversedMs(ZoneId zoneId){
-		long timeMs = atEndOfDay(zoneId).toEpochMilli();
-		return Long.MAX_VALUE - timeMs;
-	}
-
-	public static Instant atStartOfDay(ZoneId zoneId){
-		LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.now(), zoneId);
-		LocalDateTime startOfDay = localDateTime.with(LocalTime.MIN);
-		return startOfDay.atZone(zoneId).toInstant();
-	}
-
-	public static Instant atEndOfDay(ZoneId zoneId){
-		LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.now(), zoneId);
-		LocalDateTime endOfDay = localDateTime.with(LocalTime.MAX);
-		return endOfDay.atZone(zoneId).toInstant();
 	}
 
 }

@@ -46,8 +46,4 @@ public class LoggerConfigKey extends BaseRegularPrimaryKey<LoggerConfigKey>{
 		return name;
 	}
 
-	public void setName(String name){
-		this.name = name;
-	}
-
 }

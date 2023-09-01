@@ -65,7 +65,6 @@ public class JobScheduler{
 	private final LocalTriggerLockService localTriggerLockService;
 	private final ClusterTriggerLockService clusterTriggerLockService;
 	private final JobWrapperFactory jobWrapperFactory;
-	private final JobCounters jobCounters;
 	private final AtomicBoolean shutdown;
 
 	@Inject
@@ -79,8 +78,7 @@ public class JobScheduler{
 			LocalJobProcessor localJobProcessor,
 			LocalTriggerLockService localTriggerLockService,
 			ClusterTriggerLockService clusterTriggerLockService,
-			JobWrapperFactory jobWrapperFactory,
-			JobCounters jobCounters){
+			JobWrapperFactory jobWrapperFactory){
 		this.injector = injector;
 		this.triggerExecutor = triggerExecutor;
 		this.detachedJobExecutor = detachedJobExecutor;
@@ -91,7 +89,6 @@ public class JobScheduler{
 		this.localTriggerLockService = localTriggerLockService;
 		this.clusterTriggerLockService = clusterTriggerLockService;
 		this.jobWrapperFactory = jobWrapperFactory;
-		this.jobCounters = jobCounters;
 		this.shutdown = new AtomicBoolean();
 	}
 
@@ -201,7 +198,7 @@ public class JobScheduler{
 				logger.warn("{} did not run, reason={}", jobClass.getName(), didRun.reason());
 			}
 		}catch(Exception e){
-			jobCounters.exception(jobClass);
+			JobCounters.exception(jobClass);
 			logger.warn("exception jobName={}", jobClass.getName(), e);
 		}finally{
 			try{
@@ -217,12 +214,11 @@ public class JobScheduler{
 	private Outcome triggerManual(JobWrapper jobWrapper, boolean runDetached){
 		if(runDetached){
 			return runDetached(jobWrapper);
-		}else{
-			JobPackage jobPackage = jobWrapper.jobPackage;
-			return jobPackage.usesLocking()
-					? tryAcquireClusterLockAndRun(jobWrapper, jobPackage.triggerLockConfig, Duration.ZERO)
-					: tryAcquireLocalLockAndRun(jobWrapper);
 		}
+		JobPackage jobPackage = jobWrapper.jobPackage;
+		return jobPackage.usesLocking()
+				? tryAcquireClusterLockAndRun(jobWrapper, jobPackage.triggerLockConfig, Duration.ZERO)
+				: tryAcquireLocalLockAndRun(jobWrapper);
 	}
 
 	private Duration delayLockAquisitionBasedOnCurrentWorkload(){

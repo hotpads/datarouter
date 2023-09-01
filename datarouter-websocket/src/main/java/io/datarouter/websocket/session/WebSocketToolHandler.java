@@ -39,7 +39,8 @@ import io.datarouter.util.string.StringTool;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.html.form.HtmlForm;
-import io.datarouter.web.html.form.HtmlFormButton;
+import io.datarouter.web.html.form.HtmlForm.HtmlFormMethod;
+import io.datarouter.web.html.form.HtmlFormSubmitActionButton;
 import io.datarouter.web.html.form.HtmlFormText;
 import io.datarouter.web.html.j2html.J2HtmlTable;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
@@ -138,21 +139,20 @@ public class WebSocketToolHandler extends BaseHandler{
 				.withColumn("Topic", TopicAndCount::topic)
 				.withColumn("Count", pair -> NumberFormatter.format(pair.count(), 0))
 				.build(Scanner.of(rows, List.of(total)).concat(Scanner::of).list());
-		var form = new HtmlForm()
-				.withMethod("POST")
+		var form = new HtmlForm(HtmlFormMethod.POST)
 				.addFields(
 						new HtmlFormText()
-								.withDisplay("topic")
+								.withLabel("topic")
 								.withName("topic")
 								.withValue(topic.orElse(""))
 								.required(),
 						new HtmlFormText()
-								.withDisplay("message")
+								.withLabel("message")
 								.withName("message")
 								.withValue(message.orElse(""))
 								.required(),
-						new HtmlFormButton()
-								.withDisplay("Send")
+						new HtmlFormSubmitActionButton()
+								.withLabel("Send")
 								.withValue("subscriptions"));
 		return pageFactory.startBuilder(request)
 				.withTitle("WebSocket Subscriptions")

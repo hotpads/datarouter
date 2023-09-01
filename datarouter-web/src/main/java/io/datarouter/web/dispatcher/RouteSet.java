@@ -17,11 +17,19 @@ package io.datarouter.web.dispatcher;
 
 import java.util.List;
 
+import io.datarouter.scanner.Scanner;
 import io.datarouter.web.handler.BaseHandler;
 
 public interface RouteSet{
 
 	List<DispatchRule> getDispatchRules();
+
+	default List<DispatchRule> getDispatchRulesNoRedirects(){
+		return Scanner.of(getDispatchRules())
+				.exclude(dispatchRule -> dispatchRule.getRedirectUrl().isPresent())
+				.list();
+	}
+
 	Class<? extends BaseHandler> getDefaultHandlerClass();
 
 }

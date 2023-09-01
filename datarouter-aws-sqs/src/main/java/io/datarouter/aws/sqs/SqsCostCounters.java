@@ -15,18 +15,15 @@
  */
 package io.datarouter.aws.sqs;
 
-import io.datarouter.instrumentation.cost.CloudPriceType;
 import io.datarouter.instrumentation.cost.CostCounters;
 
 public class SqsCostCounters{
 
-	public static void request(){
-		inc(CloudPriceType.MESSAGE_REQUEST_AWS);
-	}
+	// $0.4/mm
+	private static final long REQUEST_NANOS = 400;
 
-	private static void inc(CloudPriceType price){
-		CostCounters.incInput(price.id, 1);
-		CostCounters.incNanos(price.id, price.nanoDollars);
+	public static void request(){
+		CostCounters.nanos("data", "messaging", "sqs", "request", REQUEST_NANOS);
 	}
 
 }

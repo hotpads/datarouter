@@ -15,6 +15,7 @@
  */
 package io.datarouter.nodewatch.config;
 
+import io.datarouter.auth.role.DatarouterUserRole;
 import io.datarouter.nodewatch.web.handler.NodewatchConfigsHandler;
 import io.datarouter.nodewatch.web.handler.NodewatchMetadataMigrateHandler;
 import io.datarouter.nodewatch.web.handler.NodewatchNodeNameHandler;
@@ -28,7 +29,6 @@ import io.datarouter.nodewatch.web.handler.NodewatchThresholdEditHandler;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
-import io.datarouter.web.user.role.DatarouterUserRole;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 

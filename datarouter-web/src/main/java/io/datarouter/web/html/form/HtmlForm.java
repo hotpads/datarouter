@@ -20,64 +20,33 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-public class HtmlForm{
-
-	public abstract static class BaseHtmlFormField{
-
-		protected String error;
-
-		public BaseHtmlFormField(){
-		}
-
-		public String getError(){
-			return error;
-		}
-
-		public boolean hasError(){
-			return error != null;
-		}
-
-	}
-
-	public record HtmlFormHiddenField(
-			String name,
-			String value){
-	}
+public class HtmlForm extends BaseHtmlFormField<HtmlForm>{
 
 	private String action;
-	private String method;
-	private List<BaseHtmlFormField> fields = new ArrayList<>();
-	private List<HtmlFormHiddenField> hiddenFields = new ArrayList<>();
+	private final HtmlFormMethod method;
+	private final List<BaseHtmlFormField<?>> fields = new ArrayList<>();
+	private final List<HtmlFormHiddenField> hiddenFields = new ArrayList<>();
+
+	public HtmlForm(HtmlFormMethod method){
+		this.method = method;
+	}
 
 	public HtmlForm withAction(String action){
 		this.action = action;
 		return this;
 	}
 
-	public HtmlForm withMethod(String method){
-		this.method = method;
-		return this;
-	}
-
-	public HtmlForm withMethodGet(){
-		return withMethod("GET");
-	}
-
-	public HtmlForm withMethodPost(){
-		return withMethod("POST");
-	}
-
-	public HtmlForm addField(BaseHtmlFormField field){
+	public HtmlForm addField(BaseHtmlFormField<?> field){
 		this.fields.add(field);
 		return this;
 	}
 
-	public HtmlForm addFields(Collection<BaseHtmlFormField> fields){
+	public HtmlForm addFields(Collection<BaseHtmlFormField<?>> fields){
 		this.fields.addAll(fields);
 		return this;
 	}
 
-	public HtmlForm addFields(BaseHtmlFormField... fields){
+	public HtmlForm addFields(BaseHtmlFormField<?>... fields){
 		this.fields.addAll(List.of(fields));
 		return this;
 	}
@@ -88,14 +57,20 @@ public class HtmlForm{
 		return field;
 	}
 
-	public HtmlFormButton addButton(){
-		var field = new HtmlFormButton();
+	public HtmlFormCheckboxTable addCheckboxTableField(){
+		var field = new HtmlFormCheckboxTable();
 		fields.add(field);
 		return field;
 	}
 
-	public HtmlFormButtonWithoutSubmitAction addButtonWithoutSubmitAction(){
-		var field = new HtmlFormButtonWithoutSubmitAction();
+	public HtmlFormSubmitActionButton addButton(){
+		var field = new HtmlFormSubmitActionButton();
+		fields.add(field);
+		return field;
+	}
+
+	public HtmlFormSubmitWithoutSubmitActionButton addButtonWithoutSubmitAction(){
+		var field = new HtmlFormSubmitWithoutSubmitActionButton();
 		fields.add(field);
 		return field;
 	}
@@ -136,6 +111,12 @@ public class HtmlForm{
 		return field;
 	}
 
+	public HtmlFormNumber addNumberField(){
+		var field = new HtmlFormNumber();
+		fields.add(field);
+		return field;
+	}
+
 	public HtmlFormDate addDateField(){
 		var field = new HtmlFormDate();
 		fields.add(field);
@@ -171,11 +152,11 @@ public class HtmlForm{
 		return action;
 	}
 
-	public String getMethod(){
+	public HtmlFormMethod getMethod(){
 		return method;
 	}
 
-	public List<BaseHtmlFormField> getFields(){
+	public List<BaseHtmlFormField<?>> getFields(){
 		return fields;
 	}
 
@@ -185,7 +166,29 @@ public class HtmlForm{
 
 	public boolean hasErrors(){
 		return fields.stream()
-				.anyMatch(BaseHtmlFormField::hasError);
+				.anyMatch(field -> field.getError() != null);
+	}
+
+	@Override
+	protected HtmlForm self(){
+		return this;
+	}
+
+	public record HtmlFormHiddenField(
+			String name,
+			String value){
+	}
+
+	public enum HtmlFormMethod{
+		GET("get"),
+		POST("post");
+
+		public final String method;
+
+		HtmlFormMethod(String method){
+			this.method = method;
+		}
+
 	}
 
 }

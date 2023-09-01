@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import io.datarouter.auth.service.CurrentUserSessionInfoService;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.tasktracker.config.DatarouterTaskTrackerFiles;
 import io.datarouter.tasktracker.scheduler.LongRunningTaskStatus;
@@ -37,7 +38,6 @@ import io.datarouter.util.time.ZonedDateFormatterTool;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.html.j2html.J2HtmlLegendTable;
-import io.datarouter.web.user.session.CurrentUserSessionInfoService;
 import j2html.tags.specialized.DivTag;
 import jakarta.inject.Inject;
 

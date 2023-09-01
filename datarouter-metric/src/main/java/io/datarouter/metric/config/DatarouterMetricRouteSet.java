@@ -15,6 +15,7 @@
  */
 package io.datarouter.metric.config;
 
+import io.datarouter.auth.role.DatarouterUserRole;
 import io.datarouter.metric.web.AdditionalMetricLinksHandlers.MetricDashboardHandler;
 import io.datarouter.metric.web.AdditionalMetricLinksHandlers.MiscMetricLinksHandler;
 import io.datarouter.metric.web.AdditionalMetricLinksHandlers.RegisteredMetricNames;
@@ -22,7 +23,6 @@ import io.datarouter.metric.web.MetricLinksHandler;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
-import io.datarouter.web.user.role.DatarouterUserRole;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 

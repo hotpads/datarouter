@@ -227,7 +227,7 @@ public class DatarouterJobletRequestDao extends BaseDao{
 			.hasAny();
 	}
 
-	public List<JobletRequest> filterForDataNotAlreadyInQueue(List<JobletRequest> jobletRequests){
+	public List<JobletRequest> excludeDataAlreadyInQueue(List<JobletRequest> jobletRequests){
 		String type = assertSameType(jobletRequests);
 		Collection<Long> alreadyInQueue = Scanner.of(jobletRequests)
 				.map(JobletRequest::getDataSignature)

@@ -27,6 +27,7 @@ import com.google.protobuf.ByteString;
 import com.google.pubsub.v1.PubsubMessage;
 
 import io.datarouter.client.gcp.pubsub.GcpPubsubDataTooLargeException;
+import io.datarouter.client.gcp.pubsub.PubsubCostCounters;
 import io.datarouter.client.gcp.pubsub.client.GcpPubsubClientManager;
 import io.datarouter.client.gcp.pubsub.node.BaseGcpPubsubNode;
 import io.datarouter.model.databean.Databean;
@@ -68,6 +69,7 @@ extends GcpPubsubOp<PK,D,F,Void>{
 				continue;
 			}
 			PubsubMessage pubsubMessage = PubsubMessage.newBuilder().setData(data).build();
+			PubsubCostCounters.countMessage(pubsubMessage);
 			ApiFuture<String> messageIdFuture = publisher.publish(pubsubMessage);
 			messageIdFutures.add(messageIdFuture);
 		}

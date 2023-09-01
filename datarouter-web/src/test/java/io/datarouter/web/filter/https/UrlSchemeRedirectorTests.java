@@ -33,8 +33,8 @@ public class UrlSchemeRedirectorTests{
 	private UrlSchemeRedirector urlSchemeRedirector;
 
 	private final String urlHttp = "http://x.com", urlHttps = "https://x.com", param = "/y?z=0",
-			urlWithHttpPort = urlHttp + ":" + UrlConstants.PORT_HTTP_DEV + param, urlWithHttpsPort = urlHttps + ":"
-					+ UrlConstants.PORT_HTTPS_DEV + param;
+			urlWithHttpPort = urlHttp + ":" + UrlConstants.PORT_HTTP_DEV + param,
+			urlWithHttpsPort = urlHttps + ":" + UrlConstants.PORT_HTTPS_DEV + param;
 
 	@Test
 	public void testGetRedirectUrlPortStringWithColon(){

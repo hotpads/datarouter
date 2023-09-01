@@ -51,8 +51,6 @@ public class SqsMonitoringJob extends BaseJob{
 	private SqsClientManager sqsClientManager;
 	@Inject
 	private ClientInitializationTracker clientInitializationTracker;
-	@Inject
-	private DatarouterQueueMetrics metrics;
 
 	@Override
 	public void run(TaskTracker tracker){
@@ -84,7 +82,7 @@ public class SqsMonitoringJob extends BaseJob{
 
 	private void saveUnackedMessageAgeMetricForQueues(ClientId clientId, List<String> queueNames){
 		sqsClientManager.getApproximateAgeOfOldestUnackedMessageSecondsGroup(clientId, queueNames).entrySet()
-				.forEach(entry -> metrics.saveOldestAckMessageAge(entry.getKey(), entry.getValue(),
+				.forEach(entry -> DatarouterQueueMetrics.saveOldestAckMessageAge(entry.getKey(), entry.getValue(),
 						SqsClientType.NAME));
 	}
 
@@ -92,7 +90,7 @@ public class SqsMonitoringJob extends BaseJob{
 		String queueLengthString = sqsClientManager.getQueueAttribute(clientId, queueUrlAndName.queueUrl(),
 				QueueAttributeName.ApproximateNumberOfMessages);
 		long queueLength = Long.parseLong(queueLengthString);
-		metrics.saveQueueLength(queueUrlAndName.queueName(), queueLength, SqsClientType.NAME);
+		DatarouterQueueMetrics.saveQueueLength(queueUrlAndName.queueName(), queueLength, SqsClientType.NAME);
 	}
 
 }

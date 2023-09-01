@@ -117,12 +117,11 @@ public class DatabeanExportService{
 			Ulid exportId,
 			PhysicalSortedStorageNode<PK,D,F> node,
 			DatabeanExportResponse exportResponse){
-		Directory metaDirectory = kvFileStorageService.makeExportMetaDirectory(exportId);
-		var dictionary = new BinaryDictionary();
-		dictionary.put(StringCodec.UTF_8.encode("NUM_PARTS"), VarIntTool.encode(exportResponse.numParts()));
-		dictionary.put(StringCodec.UTF_8.encode("NUM_DATABEANS"), VarIntTool.encode(exportResponse.numDatabeans()));
-		String filename = DatabeanExportFilenameTool.makeClientAndTableName(node);
-		metaDirectory.write(PathbeanKey.of(filename), dictionary.encode());
+		var key = PathbeanKey.of(DatabeanExportFilenameTool.makeClientAndTableName(node));
+		var value = new BinaryDictionary();
+		value.put(StringCodec.UTF_8.encode("NUM_PARTS"), VarIntTool.encode(exportResponse.numParts()));
+		value.put(StringCodec.UTF_8.encode("NUM_DATABEANS"), VarIntTool.encode(exportResponse.numDatabeans()));
+		kvFileStorageService.makeMetaDictionaryStorage(exportId).write(key, value);
 	}
 
 }

@@ -22,17 +22,17 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 
-import io.datarouter.auth.storage.account.BaseDatarouterAccountCredentialDao;
+import io.datarouter.auth.session.Session;
+import io.datarouter.auth.session.SessionBasedUser;
 import io.datarouter.auth.storage.account.BaseDatarouterAccountDao;
 import io.datarouter.auth.storage.account.DatarouterAccount;
-import io.datarouter.auth.storage.account.DatarouterAccountCredential;
 import io.datarouter.auth.storage.account.DatarouterAccountKey;
-import io.datarouter.auth.storage.useraccountmap.BaseDatarouterUserAccountMapDao;
-import io.datarouter.auth.storage.useraccountmap.DatarouterUserAccountMapKey;
+import io.datarouter.auth.storage.account.credential.BaseDatarouterAccountCredentialDao;
+import io.datarouter.auth.storage.account.credential.DatarouterAccountCredential;
+import io.datarouter.auth.storage.user.datarouteruser.DatarouterUser;
+import io.datarouter.auth.storage.user.useraccountmap.BaseDatarouterUserAccountMapDao;
+import io.datarouter.auth.storage.user.useraccountmap.DatarouterUserAccountMapKey;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.web.user.databean.DatarouterUser;
-import io.datarouter.web.user.session.service.Session;
-import io.datarouter.web.user.session.service.SessionBasedUser;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 

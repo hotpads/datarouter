@@ -32,6 +32,7 @@ import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.types.Param;
 import io.datarouter.web.html.form.HtmlForm;
+import io.datarouter.web.html.form.HtmlForm.HtmlFormMethod;
 import io.datarouter.web.html.form.HtmlFormText;
 import io.datarouter.web.html.form.HtmlFormValidator;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
@@ -209,10 +210,9 @@ public class DatabeanExportHandler extends BaseHandler{
 				.sort()
 				.list();
 
-		var form = new HtmlForm()
-				.withMethod("post");
+		var form = new HtmlForm(HtmlFormMethod.POST);
 		form.addSelectField()
-				.withDisplay("Node Name")
+				.withLabel("Node Name")
 				.withName(P_nodeName)
 				.withValues(possibleNodes)
 				.withSelected(nodeName.orElse(null));
@@ -221,7 +221,7 @@ public class DatabeanExportHandler extends BaseHandler{
 		form.addField(makeStartKeyInclusiveField(nodeName, startKeyInclusive, shouldValidate));
 		form.addField(makeEndKeyExclusiveField(nodeName, endKeyExclusive, shouldValidate));
 		form.addButtonWithoutSubmitAction()
-				.withDisplay("Export");
+				.withLabel("Export");
 		return form;
 	}
 
@@ -230,10 +230,9 @@ public class DatabeanExportHandler extends BaseHandler{
 			Optional<String> maxRows,
 			Optional<String> scanBatchSize,
 			boolean shouldValidate){
-		var form = new HtmlForm()
-				.withMethod("post");
+		var form = new HtmlForm(HtmlFormMethod.POST);
 		form.addTextAreaField()
-				.withDisplay("Node Names (whitespace separated)")
+				.withLabel("Node Names (whitespace separated)")
 				.withName(P_nodeNames)
 				.withValue(
 						String.join("\n", nodeNames),
@@ -242,7 +241,7 @@ public class DatabeanExportHandler extends BaseHandler{
 		form.addField(makeScanBatchSizeField(scanBatchSize, shouldValidate));
 		form.addField(makeMaxRowsField("Max Rows Per Table", maxRows, shouldValidate));
 		form.addButtonWithoutSubmitAction()
-				.withDisplay("Export");
+				.withLabel("Export");
 		return form;
 	}
 
@@ -258,10 +257,9 @@ public class DatabeanExportHandler extends BaseHandler{
 				.sort()
 				.list();
 
-		var form = new HtmlForm()
-				.withMethod("post");
+		var form = new HtmlForm(HtmlFormMethod.POST);
 		form.addSelectField()
-				.withDisplay("Node Name")
+				.withLabel("Node Name")
 				.withName(P_nodeName)
 				.withValues(possibleNodes)
 				.withSelected(nodeName.orElse(null));
@@ -270,7 +268,7 @@ public class DatabeanExportHandler extends BaseHandler{
 		form.addField(makeStartKeyInclusiveField(nodeName, startKeyInclusive, shouldValidate));
 		form.addField(makeEndKeyExclusiveField(nodeName, endKeyExclusive, shouldValidate));
 		form.addButtonWithoutSubmitAction()
-				.withDisplay("Export");
+				.withLabel("Export");
 		return form;
 	}
 
@@ -281,7 +279,7 @@ public class DatabeanExportHandler extends BaseHandler{
 			Optional<String> startKeyInclusive,
 			boolean shouldValidate){
 		return new HtmlFormText()
-				.withDisplay("Start Key Inclusive")
+				.withLabel("Start Key Inclusive")
 				.withName(P_startKeyInclusive)
 				.withPlaceholder("optional")
 				.withValue(
@@ -295,7 +293,7 @@ public class DatabeanExportHandler extends BaseHandler{
 			Optional<String> endKeyExclusive,
 			boolean shouldValidate){
 		return new HtmlFormText()
-				.withDisplay("End Key Exclusive")
+				.withLabel("End Key Exclusive")
 				.withName(P_endKeyExclusive)
 				.withPlaceholder("optional")
 				.withValue(
@@ -308,9 +306,9 @@ public class DatabeanExportHandler extends BaseHandler{
 			Optional<String> scanBatchSize,
 			boolean shouldValidate){
 		return new HtmlFormText()
-				.withDisplay("Scan Batch Size")
+				.withLabel("Scan Batch Size")
 				.withName(P_scanBatchSize)
-				.withPlaceholder(DEFAULT_SCAN_BATCH_SIZE)
+				.withPlaceholder(Integer.toString(DEFAULT_SCAN_BATCH_SIZE))
 				.withValue(
 						scanBatchSize.orElse(""),
 						shouldValidate && scanBatchSize.isPresent(),
@@ -321,9 +319,9 @@ public class DatabeanExportHandler extends BaseHandler{
 			Optional<String> numThreads,
 			boolean shouldValidate){
 		return new HtmlFormText()
-				.withDisplay("Threads")
+				.withLabel("Threads")
 				.withName(P_numThreads)
-				.withPlaceholder(DEFAULT_NUM_THREADS)
+				.withPlaceholder(Integer.toString(DEFAULT_NUM_THREADS))
 				.withValue(
 						numThreads.orElse(""),
 						shouldValidate && numThreads.isPresent(),
@@ -335,7 +333,7 @@ public class DatabeanExportHandler extends BaseHandler{
 			Optional<String> maxRows,
 			boolean shouldValidate){
 		return new HtmlFormText()
-				.withDisplay(display)
+				.withLabel(display)
 				.withName(P_maxRows)
 				.withPlaceholder("optional")
 				.withValue(

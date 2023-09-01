@@ -48,7 +48,6 @@ import io.datarouter.httpclient.security.SecurityParameters;
 import io.datarouter.httpclient.security.SignatureGenerator;
 import io.datarouter.httpclient.security.SignatureGenerator.RefreshableSignatureGenerator;
 import io.datarouter.instrumentation.refreshable.RefreshableSupplier;
-import io.datarouter.instrumentation.trace.TraceSpanFinisher;
 import io.datarouter.instrumentation.trace.TraceSpanGroupType;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.json.JsonSerializer;
@@ -237,7 +236,7 @@ public abstract class BaseHttpClient implements HttpConfig{
 
 	protected <E> E deserializeEntity(String entity, Type deserializeToType){
 		long length = entity == null ? 0 : entity.length();
-		try(TraceSpanFinisher $ = TracerTool.startSpan("JsonSerializer deserialize", TraceSpanGroupType.SERIALIZATION)){
+		try(var $ = TracerTool.startSpan("JsonSerializer deserialize", TraceSpanGroupType.SERIALIZATION)){
 			TracerTool.appendToSpanInfo("characters", length);
 			return jsonSerializer.deserialize(entity, deserializeToType);
 		}

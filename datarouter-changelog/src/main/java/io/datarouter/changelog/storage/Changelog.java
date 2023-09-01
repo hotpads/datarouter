@@ -25,6 +25,7 @@ import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 import io.datarouter.model.util.CommonFieldSizes;
+import io.datarouter.types.MilliTimeReversed;
 
 public class Changelog extends BaseDatabean<ChangelogKey,Changelog>{
 
@@ -64,7 +65,10 @@ public class Changelog extends BaseDatabean<ChangelogKey,Changelog>{
 	}
 
 	public Changelog(ChangelogDto dto){
-		super(new ChangelogKey(dto.getReversedDateMs(), dto.changelogType(), dto.name()));
+		super(new ChangelogKey(
+				MilliTimeReversed.ofEpochMilli(dto.dateMs()),
+				dto.changelogType(),
+				dto.name()));
 		this.action = dto.action();
 		this.username = dto.username();
 		this.comment = dto.comment();
@@ -101,7 +105,7 @@ public class Changelog extends BaseDatabean<ChangelogKey,Changelog>{
 				serviceName,
 				getKey().getChangelogType(),
 				getKey().getName(),
-				Long.MAX_VALUE - getKey().getReversedDateMs(),
+				getKey().getMilliTimeReversed().toEpochMilli(),
 				action,
 				username,
 				comment,

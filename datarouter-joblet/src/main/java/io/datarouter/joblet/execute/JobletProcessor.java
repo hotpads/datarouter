@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.joblet.DatarouterJobletCounters;
+import io.datarouter.joblet.JobletCounters;
 import io.datarouter.joblet.dto.RunningJoblet;
 import io.datarouter.joblet.queue.JobletRequestQueueManager;
 import io.datarouter.joblet.service.JobletService;
@@ -58,7 +58,6 @@ public class JobletProcessor{
 	private final DatarouterJobletSettingRoot jobletSettings;
 	private final JobletRequestQueueManager jobletRequestQueueManager;
 	private final JobletCallableFactory jobletCallableFactory;
-	private final DatarouterJobletCounters datarouterJobletCounters;
 	private final JobletService jobletService;
 	//not injectable
 	private final AtomicLong idGenerator;
@@ -73,14 +72,12 @@ public class JobletProcessor{
 			DatarouterJobletSettingRoot jobletSettings,
 			JobletRequestQueueManager jobletRequestQueueManager,
 			JobletCallableFactory jobletCallableFactory,
-			DatarouterJobletCounters datarouterJobletCounters,
 			JobletService jobletService,
 			AtomicLong idGenerator,
 			JobletType<?> jobletType){
 		this.jobletSettings = jobletSettings;
 		this.jobletRequestQueueManager = jobletRequestQueueManager;
 		this.jobletCallableFactory = jobletCallableFactory;
-		this.datarouterJobletCounters = datarouterJobletCounters;
 		this.jobletService = jobletService;
 
 		this.idGenerator = idGenerator;
@@ -174,7 +171,7 @@ public class JobletProcessor{
 				jobletFutureById.put(id, jobletFuture);
 				return;//return so we loop back immediately
 			}catch(RejectedExecutionException ree){
-				datarouterJobletCounters.rejectedCallable(jobletType);
+				JobletCounters.rejectedCallable(jobletType);
 				sleepABit(Duration.ofMillis(backoffMs));
 				backoffMs = Math.min(2 * backoffMs, MAX_EXEC_BACKOFF_TIME.toMillis());
 			}

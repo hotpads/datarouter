@@ -20,6 +20,7 @@ public interface MetricLinkBuilder{
 	String availableMetricsLink(String prefix);
 	String exactMetricLink(String name);
 	String dashboardLink(String id);
+	String serviceCostLink();
 
 	static class NoOpMetricLinkBuilder implements MetricLinkBuilder{
 
@@ -35,6 +36,11 @@ public interface MetricLinkBuilder{
 
 		@Override
 		public String dashboardLink(String id){
+			return "";
+		}
+
+		@Override
+		public String serviceCostLink(){
 			return "";
 		}
 

@@ -18,12 +18,5 @@ package io.datarouter.web.util;
 /**
  * @param <T> is used for compile time type check, see {@link RequestAttributeTool}
  */
-public class RequestAttributeKey<T>{
-
-	public final String name;
-
-	public RequestAttributeKey(String name){
-		this.name = name;
-	}
-
+public record RequestAttributeKey<T>(String name){
 }

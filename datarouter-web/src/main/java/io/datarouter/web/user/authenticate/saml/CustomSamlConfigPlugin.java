@@ -17,9 +17,11 @@ package io.datarouter.web.user.authenticate.saml;
 
 import java.util.List;
 
+import io.datarouter.auth.authenticate.saml.CustomSamlConfigParamsSupplier;
+import io.datarouter.auth.authenticate.saml.CustomSamlConfigParamsSupplier.CustomSamlConfigParam;
 import io.datarouter.web.config.BaseWebPlugin;
-import io.datarouter.web.user.authenticate.saml.CustomSamlConfigParamsSupplier.CustomSamlConfigParam;
 
+// TODO braydonh: figure out how to move this out of dr-web
 public class CustomSamlConfigPlugin extends BaseWebPlugin{
 
 	private final List<CustomSamlConfigParam> params;

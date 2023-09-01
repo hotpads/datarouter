@@ -15,13 +15,13 @@
  */
 package io.datarouter.loadtest.config;
 
+import io.datarouter.auth.role.DatarouterUserRole;
 import io.datarouter.loadtest.web.LoadTestGetHandler;
 import io.datarouter.loadtest.web.LoadTestInsertHandler;
 import io.datarouter.loadtest.web.LoadTestScanHandler;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
-import io.datarouter.web.user.role.DatarouterUserRole;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 

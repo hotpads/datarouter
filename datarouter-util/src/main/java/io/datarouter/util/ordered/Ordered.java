@@ -25,4 +25,9 @@ public class Ordered<T>{
 		this.after = after;
 	}
 
+	@Override
+	public String toString(){
+		return item + " (after " + after + ")";
+	}
+
 }

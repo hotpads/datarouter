@@ -34,6 +34,7 @@ import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.storage.client.ClientAndTableNames;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.storage.serialize.fieldcache.DatabeanFieldInfo;
@@ -116,6 +117,13 @@ public class DatarouterNodes{
 				.map(PhysicalDatabeanFieldInfo::getTableName)
 				.distinct()
 				.collect(Collectors.toList());
+	}
+
+	public PhysicalNode<?,?,?> getPhysicalNode(ClientAndTableNames clientAndTableNames){
+		return physicalNodeByTableNameByClientName.getOrDefault(
+				clientAndTableNames.client(),
+				Collections.emptyMap())
+				.get(clientAndTableNames.table());
 	}
 
 	public PhysicalNode<?,?,?> getPhysicalNodeForClientAndTable(String clientName, String tableName){

@@ -33,6 +33,7 @@ import io.datarouter.web.config.ServletContextSupplier;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.html.form.HtmlForm;
+import io.datarouter.web.html.form.HtmlForm.HtmlFormMethod;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import j2html.tags.specialized.DivTag;
@@ -87,19 +88,19 @@ public class ClusterSettingOverrideViewHandler extends BaseHandler{
 	private DivTag makeFilterDiv(
 			Optional<Boolean> suggestionsOnly,
 			Optional<String> partialName){
-		var form = new HtmlForm().withMethodGet();
+		var form = new HtmlForm(HtmlFormMethod.GET);
 		form.addCheckboxField()
-				.withDisplay("Suggestions only")
+				.withLabel("Suggestions only")
 				.withName(P_suggestionsOnly)
 				.withChecked(suggestionsOnly.orElse(false))
 				.withSubmitOnChange();
 		form.addTextField()
-				.withDisplay("Name")
+				.withLabel("Name")
 				.withPlaceholder("Partial name")
 				.withName(P_partialName)
 				.withValue(partialName.orElse(null));
 		form.addButtonWithoutSubmitAction()
-				.withDisplay("Search");
+				.withLabel("Search");
 		return div(
 				h5("Search"),
 				Bootstrap4FormHtml.render(form, true));

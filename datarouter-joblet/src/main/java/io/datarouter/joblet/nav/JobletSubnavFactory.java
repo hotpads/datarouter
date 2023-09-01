@@ -15,7 +15,7 @@
  */
 package io.datarouter.joblet.nav;
 
-import io.datarouter.joblet.DatarouterJobletCounters;
+import io.datarouter.joblet.JobletCounters;
 import io.datarouter.joblet.config.DatarouterJobletPaths;
 import io.datarouter.joblet.enums.JobletStatus;
 import io.datarouter.joblet.nav.JobletExternalLinkBuilder.JobletExternalLinkBuilderSupplier;
@@ -61,10 +61,9 @@ public class JobletSubnavFactory{
 
 	private Dropdown metrics(){
 		var dropdown = new Dropdown("Metrics");
-		DatarouterJobletCounters.UI_LINK_NAMES_AND_PREFIXES.stream()
+		JobletCounters.UI_LINK_NAMES_AND_PREFIXES.stream()
 				.filter(twin -> externalLinkBuilder.get().counters(twin.prefix()).isPresent())
-				.map(twin -> new DropdownItem(twin.linkName(), externalLinkBuilder.get().counters(
-						twin.prefix()).get()))
+				.map(twin -> new DropdownItem(twin.linkName(), externalLinkBuilder.get().counters(twin.prefix()).get()))
 				.forEach(dropdown::add);
 		return dropdown;
 	}

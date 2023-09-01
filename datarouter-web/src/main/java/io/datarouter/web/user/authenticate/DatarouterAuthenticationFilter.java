@@ -34,17 +34,17 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.auth.authenticate.authenticator.DatarouterAuthenticator;
+import io.datarouter.auth.exception.InvalidCredentialsException;
+import io.datarouter.auth.storage.user.session.BaseDatarouterSessionDao;
+import io.datarouter.auth.storage.user.session.DatarouterSession;
 import io.datarouter.util.BooleanTool;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.WebAppLifecycle;
 import io.datarouter.web.WebAppLifecycleState;
 import io.datarouter.web.exception.InvalidApiCallException;
-import io.datarouter.web.exception.InvalidCredentialsException;
 import io.datarouter.web.shutdown.ShutdownService;
-import io.datarouter.web.user.BaseDatarouterSessionDao;
-import io.datarouter.web.user.authenticate.authenticator.DatarouterAuthenticator;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
-import io.datarouter.web.user.session.DatarouterSession;
 import io.datarouter.web.user.session.DatarouterSessionManager;
 import io.datarouter.web.util.http.RequestTool;
 import io.datarouter.web.util.http.ResponseTool;
@@ -161,7 +161,7 @@ public class DatarouterAuthenticationFilter implements Filter{
 				return;
 			}
 		}
-		throw new RuntimeException("no session returned.  make sure you have a catch-all authenticator");
+		throw new RuntimeException("no session returned, make sure you have a catch-all authenticator");
 	}
 
 	private void handleBadCredentials(HttpServletRequest request, HttpServletResponse response, String contextPath,

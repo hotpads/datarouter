@@ -26,7 +26,6 @@ import java.util.stream.Collectors;
 
 import io.datarouter.scanner.Scanner;
 import io.datarouter.web.config.DatarouterWebFiles;
-import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.navigation.NavBarCategory.NavBarItemType;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
 import jakarta.inject.Inject;
@@ -40,8 +39,7 @@ public class DatarouterNavBar extends NavBar{
 			DatarouterWebFiles webFiles,
 			Optional<DatarouterAuthenticationConfig> config,
 			DatarouterNavBarSupplier navBarSupplier,
-			DynamicNavBarItemRegistry dynamicNavBarItemRegistry,
-			DatarouterWebPaths paths){
+			DynamicNavBarItemRegistry dynamicNavBarItemRegistry){
 		super(webFiles.jeeAssets.datarouterLogoPng.toSlashedString(), "Datarouter logo", config);
 		List<NavBarItem> dynamicNavBarItems = Scanner.of(dynamicNavBarItemRegistry.get())
 				.include(item -> item.getType() == NavBarItemType.DATAROUTER)

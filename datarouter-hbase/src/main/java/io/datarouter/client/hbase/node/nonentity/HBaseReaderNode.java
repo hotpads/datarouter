@@ -215,8 +215,16 @@ implements MapStorageReader<PK,D>, SortedStorageReader<PK,D>{
 		boolean prefetch = config.findScannerPrefetching().orElse(DEFAULT_ENABLE_SCANNER_PREFETCH);
 		boolean cacheBlocks = config.findScannerCaching().orElse(DEFAULT_ENABLE_SCANNER_CACHING);
 		Scanner<Result> collatedPartitions = partitioner.scanPrefixes(range)
-				.collate(prefix -> scanResultsInByteRange(prefix, byteRange, pageSize, subscanLimit, prefetch,
-						cacheBlocks, keysOnly, startIsFullKey), resultComparator);
+				.collate(prefix -> scanResultsInByteRange(
+								prefix,
+								byteRange,
+								pageSize,
+								subscanLimit,
+								prefetch,
+								cacheBlocks,
+								keysOnly,
+								startIsFullKey),
+						resultComparator);
 		return ScannerConfigTool.applyOffsetAndLimit(collatedPartitions, config);
 	}
 

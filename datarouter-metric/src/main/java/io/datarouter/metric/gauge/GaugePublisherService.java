@@ -21,7 +21,8 @@ import org.slf4j.LoggerFactory;
 import io.datarouter.instrumentation.gauge.GaugeBatchDto;
 import io.datarouter.instrumentation.gauge.GaugePublisher;
 import io.datarouter.instrumentation.response.PublishingResponseDto;
-import io.datarouter.metric.dto.GaugeBinaryDto;
+import io.datarouter.metric.dto.RawGaugeBinaryDto;
+import io.datarouter.metric.gauge.conveyor.RawGaugeQueueDao;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
@@ -29,16 +30,12 @@ import jakarta.inject.Singleton;
 public class GaugePublisherService implements GaugePublisher{
 	private static final Logger logger = LoggerFactory.getLogger(GaugePublisherService.class);
 
-	private final GaugeQueueDao gaugeQueueDao;
-
 	@Inject
-	public GaugePublisherService(GaugeQueueDao gaugeQueueDao){
-		this.gaugeQueueDao = gaugeQueueDao;
-	}
+	private RawGaugeQueueDao gaugeQueueDao;
 
 	@Override
 	public PublishingResponseDto publish(GaugeBatchDto gaugeBatchDto){
-		var dtos = GaugeBinaryDto.createSizedDtos(
+		var dtos = RawGaugeBinaryDto.createSizedDtos(
 				gaugeBatchDto,
 				100);//100 should easily fit inside a single queue message and still provide good space saving
 		logger.info("writing size={} blobs", dtos.size());

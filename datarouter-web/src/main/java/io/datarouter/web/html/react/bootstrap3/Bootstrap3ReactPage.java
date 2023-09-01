@@ -74,6 +74,7 @@ public class Bootstrap3ReactPage{
 			datarouterNavbar = new DatarouterNavbarHtml(mavProperties).build();
 		}
 
+		var allScripts = mavProperties.getPageScripts().scripts();
 		NavBar navbar = mavProperties.getIsDatarouterPage()
 				? mavProperties.getDatarouterNavBar()
 				: mavProperties.getNavBar();
@@ -91,7 +92,9 @@ public class Bootstrap3ReactPage{
 				jsStringConstants,
 				jsRawConstants,
 				datarouterNavbar,
-				new WebappNavbarHtml(mavProperties, navbar).build());
+				new WebappNavbarHtml(mavProperties, navbar).build(),
+				new EmptyTag[0],
+				allScripts.toArray(ScriptTag[]::new));
 	}
 
 	public Mav buildMav(){

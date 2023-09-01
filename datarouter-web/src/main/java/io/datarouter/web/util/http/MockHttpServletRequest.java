@@ -55,6 +55,8 @@ public class MockHttpServletRequest implements HttpServletRequest{
 	private final Cookie[] cookies;
 	private final String serverName;
 	private final String method;
+	private String pathInfo;
+	private String servletPath;
 
 	public MockHttpServletRequest(Map<String, String[]> parameterMap, Reader reader, Map<String, Set<String>> headers,
 			Map<String, Object> attributes, List<Cookie> cookies, String serverName, String method){
@@ -307,8 +309,15 @@ public class MockHttpServletRequest implements HttpServletRequest{
 		return method;
 	}
 
+	public void setPathInfo(String pathInfo){
+		this.pathInfo = pathInfo;
+	}
+
 	@Override
 	public String getPathInfo(){
+		if(pathInfo != null){
+			return pathInfo;
+		}
 		throw new UnsupportedOperationException();
 	}
 
@@ -357,9 +366,16 @@ public class MockHttpServletRequest implements HttpServletRequest{
 		throw new UnsupportedOperationException();
 	}
 
+	public void setServletPath(String servletPath){
+		this.servletPath = servletPath;
+	}
+
 	@Override
 	public String getServletPath(){
-		throw new UnsupportedOperationException();
+		if(servletPath == null){
+			throw new UnsupportedOperationException();
+		}
+		return servletPath;
 	}
 
 	@Override

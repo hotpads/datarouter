@@ -31,14 +31,20 @@ import io.datarouter.gson.serializer.InstantLegacySerializer;
 import io.datarouter.gson.serializer.LocalDateLegacySerializer;
 import io.datarouter.gson.serializer.LocalDateTimeLegacySerializer;
 import io.datarouter.gson.serializer.LocalTimeLegacySerializer;
-import io.datarouter.gson.serializer.UlidLegacySerializer;
+import io.datarouter.gson.serializer.MilliTimeReversedTypeAdapter;
+import io.datarouter.gson.serializer.MilliTimeTypeAdapter;
+import io.datarouter.gson.serializer.ReverseUlidTypeAdapter;
+import io.datarouter.gson.serializer.UlidSerializer;
 import io.datarouter.gson.serializer.ZoneIdLegacySerializer;
 import io.datarouter.gson.typeadapter.QuadTypeAdapter;
 import io.datarouter.gson.typeadapterfactory.EnumTypeAdapterFactory;
 import io.datarouter.gson.typeadapterfactory.EnumTypeAdapterFactory.AnonymousAllowUnregisteredEnumTypeAdapterFactory;
 import io.datarouter.gson.typeadapterfactory.EnumTypeAdapterFactory.RejectAllEnumTypeAdapterFactory;
 import io.datarouter.gson.typeadapterfactory.OptionalLegacyTypeAdapterFactory;
+import io.datarouter.types.MilliTime;
+import io.datarouter.types.MilliTimeReversed;
 import io.datarouter.types.Quad;
+import io.datarouter.types.ReverseUlid;
 import io.datarouter.types.Ulid;
 
 public class GsonTool{
@@ -53,7 +59,10 @@ public class GsonTool{
 			.registerTypeAdapterFactory(new OptionalLegacyTypeAdapterFactory())
 			.registerTypeHierarchyAdapter(ZoneId.class, new ZoneIdLegacySerializer())
 			.registerTypeAdapter(Quad.class, new QuadTypeAdapter())
-			.registerTypeAdapter(Ulid.class, new UlidLegacySerializer())
+			.registerTypeAdapter(Ulid.class, new UlidSerializer())
+			.registerTypeAdapter(ReverseUlid.class, new ReverseUlidTypeAdapter())
+			.registerTypeAdapter(MilliTime.class, new MilliTimeTypeAdapter())
+			.registerTypeAdapter(MilliTimeReversed.class, new MilliTimeReversedTypeAdapter())
 			.create();
 
 	public static GsonBuilder builder(EnumTypeAdapterFactory enumTypeAdapterFactory){

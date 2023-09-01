@@ -22,6 +22,7 @@ import java.util.Optional;
 
 import com.google.gson.reflect.TypeToken;
 
+import io.datarouter.auth.service.CurrentUserSessionInfoService;
 import io.datarouter.exception.config.DatarouterExceptionFiles;
 import io.datarouter.exception.config.DatarouterExceptionPaths;
 import io.datarouter.exception.service.ExceptionGraphLink;
@@ -38,7 +39,6 @@ import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.MessageMav;
 import io.datarouter.web.handler.types.Param;
-import io.datarouter.web.user.session.CurrentUserSessionInfoService;
 import io.datarouter.web.util.ExceptionService;
 import io.datarouter.web.util.http.CookieTool;
 import jakarta.inject.Inject;

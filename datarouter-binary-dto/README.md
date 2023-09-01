@@ -8,7 +8,7 @@ datarouter-binary-dto enables building nested DTOs that are serialized to a comp
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-binary-dto</artifactId>
-	<version>0.0.121</version>
+	<version>0.0.122</version>
 </dependency>
 ```
 
@@ -53,7 +53,7 @@ It means you can pass the encoded dtos to other systems that know nothing about 
   and those systems can do interesting things with them.
   
 For example, a generic system can collect billions of the encoded dtos, 
-  sort them in chunk that fit in memory, 
+  sort them in chunks that fit in memory, 
   persist each chunk,
   merge the chunks in a streaming way,
   then give them back to you.

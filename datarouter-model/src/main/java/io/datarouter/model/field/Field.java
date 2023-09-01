@@ -15,6 +15,10 @@
  */
 package io.datarouter.model.field;
 
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Optional;
+
 import io.datarouter.model.field.encoding.BinaryKeyField;
 import io.datarouter.model.field.encoding.BinaryValueField;
 import io.datarouter.model.field.encoding.StringKeyField;
@@ -66,5 +70,13 @@ extends Comparable<Field<T>>,
 	String getPreparedStatementValue();
 
 	void validate();
+
+	default Optional<String> findAuxiliaryHumanReadableString(
+			@SuppressWarnings("unused")
+			DateTimeFormatter dateTimeFormatter,
+			@SuppressWarnings("unused")
+			ZoneId zoneId){
+		return Optional.empty();
+	}
 
 }

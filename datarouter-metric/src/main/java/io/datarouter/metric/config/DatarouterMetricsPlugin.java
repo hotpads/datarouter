@@ -32,24 +32,31 @@ import io.datarouter.metric.counter.conveyor.CountConveyorConfigurationGroup;
 import io.datarouter.metric.dto.MetricDashboardDto;
 import io.datarouter.metric.dto.MetricName;
 import io.datarouter.metric.dto.MiscMetricLinksDto;
-import io.datarouter.metric.gauge.DatabeanGauges;
-import io.datarouter.metric.gauge.GaugeQueueDao;
-import io.datarouter.metric.gauge.GaugeQueueDao.GaugeQueueDaoParams;
+import io.datarouter.metric.gauge.GaugesAppListener;
 import io.datarouter.metric.gauge.conveyor.GaugeConveyorConfigurationGroup;
+import io.datarouter.metric.gauge.conveyor.RawGaugeQueueDao;
+import io.datarouter.metric.gauge.conveyor.RawGaugeQueueDao.RawGaugeQueueDaoParams;
 import io.datarouter.metric.links.MetricDashboardRegistry;
 import io.datarouter.metric.links.MetricNameRegistry;
 import io.datarouter.metric.links.MiscMetricsLinksRegistry;
+import io.datarouter.metric.name.MetricTemplateAppListener;
+import io.datarouter.metric.name.MetricTemplateConveyorConfigurationGroup;
+import io.datarouter.metric.name.MetricTemplatePublisher;
+import io.datarouter.metric.name.MetricTemplatePublisher.NoOpMetricTemplatePublisher;
+import io.datarouter.metric.name.MetricTemplateQueueDao;
+import io.datarouter.metric.name.MetricTemplateQueueDao.MetricTemplateQueueDaoParams;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.dao.DaosModuleBuilder;
-import io.datarouter.storage.metric.Gauges;
 import io.datarouter.web.config.BaseWebPlugin;
 import io.datarouter.web.listener.ComputedPropertiesAppListener;
+import io.datarouter.web.listener.DatarouterAppListener;
 
 public class DatarouterMetricsPlugin extends BaseWebPlugin{
 
 	private final Class<? extends CountPublisher> countPublisher;
 	private final Class<? extends GaugePublisher> gaugePublisher;
+	private final Class<? extends MetricTemplatePublisher> metricTemplatePublisher;
 	private final Class<? extends MetricLinkBuilder> metricLinkBuilder;
 	private final List<MetricName> metricNames;
 	private final List<MetricDashboardDto> dashboards;
@@ -59,14 +66,17 @@ public class DatarouterMetricsPlugin extends BaseWebPlugin{
 			DatarouterMetricsDaosModule daosModuleBuilder,
 			Class<? extends CountPublisher> countPublisher,
 			Class<? extends GaugePublisher> gaugePublisher,
+			Class<? extends MetricTemplatePublisher> metricTemplatePublisher,
 			Class<? extends MetricLinkBuilder> metricLinkBuilder,
 			boolean enableCountPublishing,
 			boolean enableGaugePublishing,
+			boolean enableMetricTemplatePublishing,
 			List<MetricName> metricNames,
 			List<MetricDashboardDto> dashboards,
 			List<MiscMetricLinksDto> miscMetricLinks){
 		this.countPublisher = countPublisher;
 		this.gaugePublisher = gaugePublisher;
+		this.metricTemplatePublisher = metricTemplatePublisher;
 		this.metricLinkBuilder = metricLinkBuilder;
 		this.metricNames = metricNames;
 		this.dashboards = dashboards;
@@ -79,11 +89,21 @@ public class DatarouterMetricsPlugin extends BaseWebPlugin{
 		}
 
 		if(enableGaugePublishing){
+			Class<? extends DatarouterAppListener> after = enableCountPublishing
+					? CountersAppListener.class
+					: ComputedPropertiesAppListener.class;
+			addAppListenerOrdered(GaugesAppListener.class, after);
 			addPluginEntry(ConveyorConfigurationGroup.KEY, GaugeConveyorConfigurationGroup.class);
 			addSettingRoot(DatarouterGaugeSettingRoot.class);
 		}
 		if(enableCountPublishing || enableGaugePublishing){
 			addDynamicNavBarItem(MetricLinksNavBarItem.class);
+		}
+
+		if(enableMetricTemplatePublishing){
+			addAppListener(MetricTemplateAppListener.class);
+			addPluginEntry(ConveyorConfigurationGroup.KEY, MetricTemplateConveyorConfigurationGroup.class);
+			addSettingRoot(DatarouterMetricTemplateSettingRoot.class);
 		}
 
 		addRouteSet(DatarouterMetricRouteSet.class);
@@ -95,7 +115,7 @@ public class DatarouterMetricsPlugin extends BaseWebPlugin{
 	public void configure(){
 		bind(CountPublisher.class).to(countPublisher);
 		bind(GaugePublisher.class).to(gaugePublisher);
-		bindActual(Gauges.class, DatabeanGauges.class);
+		bind(MetricTemplatePublisher.class).to(metricTemplatePublisher);
 		bind(MetricNameRegistry.class).toInstance(new MetricNameRegistry(metricNames));
 		bind(MetricDashboardRegistry.class).toInstance(new MetricDashboardRegistry(dashboards));
 		bind(MiscMetricsLinksRegistry.class).toInstance(new MiscMetricsLinksRegistry(miscMetricLinks));
@@ -111,6 +131,7 @@ public class DatarouterMetricsPlugin extends BaseWebPlugin{
 
 		private Class<? extends CountPublisher> countPublisher = NoOpCountPublisher.class;
 		private Class<? extends GaugePublisher> gaugePublisher = NoOpGaugePublisher.class;
+		private Class<? extends MetricTemplatePublisher> metricTemplatePublisher = NoOpMetricTemplatePublisher.class;
 		private Class<? extends MetricLinkBuilder> metricLinkBuilder = NoOpMetricLinkBuilder.class;
 
 		private DatarouterMetricsDaosModule daosModule;
@@ -118,10 +139,12 @@ public class DatarouterMetricsPlugin extends BaseWebPlugin{
 		public DatarouterMetricsPluginBuilder(
 				List<ClientId> metricQueueClientId,
 				Class<? extends CountPublisher> countPublisher,
-				Class<? extends GaugePublisher> gaugePublisher){
+				Class<? extends GaugePublisher> gaugePublisher,
+				Class<? extends MetricTemplatePublisher> metricTemplatePublisher){
 			this.metricQueueClientId = metricQueueClientId;
 			this.countPublisher = countPublisher;
 			this.gaugePublisher = gaugePublisher;
+			this.metricTemplatePublisher = metricTemplatePublisher;
 			this.metricNames = new ArrayList<>();
 			this.dashboards = new ArrayList<>();
 			this.miscMetricLinks = new ArrayList<>();
@@ -139,6 +162,12 @@ public class DatarouterMetricsPlugin extends BaseWebPlugin{
 
 		public DatarouterMetricsPluginBuilder withGaugePublisher(Class<? extends GaugePublisher> gaugePublisher){
 			this.gaugePublisher = gaugePublisher;
+			return this;
+		}
+
+		public DatarouterMetricsPluginBuilder withMetricTemplatePublisher(
+				Class<? extends MetricTemplatePublisher> metricTemplatePublisher){
+			this.metricTemplatePublisher = metricTemplatePublisher;
 			return this;
 		}
 
@@ -181,19 +210,24 @@ public class DatarouterMetricsPlugin extends BaseWebPlugin{
 		public DatarouterMetricsPlugin build(){
 			boolean enableCountPublishing = !countPublisher.isInstance(NoOpCountPublisher.class);
 			boolean enableGaugePublishing = !gaugePublisher.isInstance(NoOpGaugePublisher.class);
+			boolean enableMetricTemplatePublishing = !metricTemplatePublisher
+					.isInstance(NoOpMetricTemplatePublisher.class);
 
 			return new DatarouterMetricsPlugin(
 					daosModule == null
 							? new DatarouterMetricsDaosModule(
 									metricQueueClientId,
 									enableCountPublishing,
-									enableGaugePublishing)
+									enableGaugePublishing,
+									enableMetricTemplatePublishing)
 							: daosModule,
 					countPublisher,
 					gaugePublisher,
+					metricTemplatePublisher,
 					metricLinkBuilder,
 					enableCountPublishing,
 					enableGaugePublishing,
+					enableMetricTemplatePublishing,
 					metricNames,
 					dashboards,
 					miscMetricLinks);
@@ -207,14 +241,17 @@ public class DatarouterMetricsPlugin extends BaseWebPlugin{
 
 		private final boolean enableCountPublishing;
 		private final boolean enableGaugePublishing;
+		private final boolean enableMetricTemplatePublishing;
 
 		public DatarouterMetricsDaosModule(
 				List<ClientId> metricBlobQueueClientId,
 				boolean enableCountPublishing,
-				boolean enableGaugePublishing){
+				boolean enableGaugePublishing,
+				boolean enableMetricTemplatePublishing){
 			this.metricBlobQueueClientId = metricBlobQueueClientId;
 			this.enableCountPublishing = enableCountPublishing;
 			this.enableGaugePublishing = enableGaugePublishing;
+			this.enableMetricTemplatePublishing = enableMetricTemplatePublishing;
 		}
 
 		@Override
@@ -224,7 +261,10 @@ public class DatarouterMetricsPlugin extends BaseWebPlugin{
 				daos.add(CountQueueDao.class);
 			}
 			if(enableGaugePublishing){
-				daos.add(GaugeQueueDao.class);
+				daos.add(RawGaugeQueueDao.class);
+			}
+			if(enableMetricTemplatePublishing){
+				daos.add(MetricTemplateQueueDao.class);
 			}
 			return daos;
 		}
@@ -232,12 +272,16 @@ public class DatarouterMetricsPlugin extends BaseWebPlugin{
 		@Override
 		public void configure(){
 			if(enableCountPublishing){
-				bind(DatarouterCountQueueDaoParams.class).toInstance(new DatarouterCountQueueDaoParams(
-						metricBlobQueueClientId));
+				bind(DatarouterCountQueueDaoParams.class)
+						.toInstance(new DatarouterCountQueueDaoParams(metricBlobQueueClientId));
 			}
 			if(enableGaugePublishing){
-				bind(GaugeQueueDaoParams.class).toInstance(new GaugeQueueDaoParams(
-						metricBlobQueueClientId));
+				bind(RawGaugeQueueDaoParams.class)
+						.toInstance(new RawGaugeQueueDaoParams(metricBlobQueueClientId));
+			}
+			if(enableMetricTemplatePublishing){
+				bind(MetricTemplateQueueDaoParams.class)
+						.toInstance(new MetricTemplateQueueDaoParams(metricBlobQueueClientId));
 			}
 		}
 

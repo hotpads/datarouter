@@ -40,14 +40,14 @@ public class GcpSpannerOpencencusMetrics implements OpencencusMetricsMapper{
 	}
 
 	private String mapSpanner(String ocName, OpencencusMetricsDto metric){
-		if(!metric.name.equals(ocName)){
+		if(!metric.name().equals(ocName)){
 			return null;
 		}
-		String name = metric.name.substring(PREFIX.length());
+		String name = metric.name().substring(PREFIX.length());
 		name = StringTool.snakeCaseToCamelCase(name);
-		String database = metric.labels.get(1);
-		if(metric.labels.size() > 4){
-			name += " " + StringTool.snakeCaseToCamelCase(metric.labels.get(4));
+		String database = metric.labels().get(1);
+		if(metric.labels().size() > 4){
+			name += " " + StringTool.snakeCaseToCamelCase(metric.labels().get(4));
 		}
 		return "Datarouter client spanner " + database + " " + name;
 	}

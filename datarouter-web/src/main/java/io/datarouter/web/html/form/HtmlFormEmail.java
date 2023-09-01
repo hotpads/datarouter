@@ -15,59 +15,15 @@
  */
 package io.datarouter.web.html.form;
 
-import io.datarouter.web.html.form.HtmlForm.BaseHtmlFormField;
+public class HtmlFormEmail extends BaseHtmlFormTypedInputField<HtmlFormEmail>{
 
-public class HtmlFormEmail extends BaseHtmlFormField{
+	public HtmlFormEmail(){
+		super("email");
+	}
 
-	private String name;
-	private String display;
-	private String placeholder;
-	private boolean required = false;
-	private boolean autofocus = false;
-
-	public HtmlFormEmail withName(String name){
-		this.name = name;
+	@Override
+	protected HtmlFormEmail self(){
 		return this;
-	}
-
-	public HtmlFormEmail withDisplay(String display){
-		this.display = display;
-		return this;
-	}
-
-	public HtmlFormEmail withPlaceholder(String placeholder){
-		this.placeholder = placeholder;
-		return this;
-	}
-
-	public HtmlFormEmail required(){
-		this.required = true;
-		return this;
-	}
-
-	public HtmlFormEmail autofocus(){
-		this.autofocus = true;
-		return this;
-	}
-
-	public String getName(){
-		return name;
-	}
-
-	public String getDisplay(){
-		return display;
-	}
-
-	public String getPlaceholder(){
-		return placeholder;
-	}
-
-	public boolean isRequired(){
-		return required;
-	}
-
-	public boolean isAutofocus(){
-		return autofocus;
 	}
 
 }

@@ -26,6 +26,7 @@ import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.storage.client.ClientInitializationTracker;
 import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.node.Node;
+import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -40,6 +41,11 @@ public class ManagedNodesHolder{
 
 	private final Map<PhysicalDatabeanFieldInfo<?,?,?>,List<ManagedNode<?,?,?,?,?>>> managedNodes
 			= new ConcurrentHashMap<>();
+
+	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
+	List<ManagedNode<PK,D,?,?,?>> getManagedNodes(PhysicalNode<PK,D,?> physicalNode){
+		return getManagedNodes(physicalNode.getFieldInfo());
+	}
 
 	@SuppressWarnings("unchecked")
 	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>

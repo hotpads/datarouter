@@ -15,6 +15,8 @@
  */
 package io.datarouter.web.exception;
 
+import io.datarouter.auth.exception.InvalidCredentialsException;
+
 @SuppressWarnings("serial")
 public class IncorrectPasswordException extends InvalidCredentialsException{
 

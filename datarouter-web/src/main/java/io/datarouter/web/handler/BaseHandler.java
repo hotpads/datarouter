@@ -45,6 +45,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.auth.service.CurrentUserSessionInfoService;
+import io.datarouter.auth.session.RequestAwareCurrentSessionInfoFactory;
+import io.datarouter.auth.session.RequestAwareCurrentSessionInfoFactory.RequestAwareCurrentSessionInfo;
 import io.datarouter.httpclient.HttpHeaders;
 import io.datarouter.httpclient.endpoint.caller.CallerType;
 import io.datarouter.httpclient.endpoint.caller.CallerTypeUnknown;
@@ -74,9 +77,6 @@ import io.datarouter.web.handler.validator.RequestParamValidator;
 import io.datarouter.web.handler.validator.RequestParamValidator.RequestParamValidatorErrorResponseDto;
 import io.datarouter.web.handler.validator.RequestParamValidator.RequestParamValidatorResponseDto;
 import io.datarouter.web.security.SecurityValidationResult;
-import io.datarouter.web.user.session.CurrentUserSessionInfoService;
-import io.datarouter.web.user.session.RequestAwareCurrentSessionInfoFactory;
-import io.datarouter.web.user.session.RequestAwareCurrentSessionInfoFactory.RequestAwareCurrentSessionInfo;
 import io.datarouter.web.util.RequestAttributeKey;
 import io.datarouter.web.util.RequestAttributeTool;
 import io.datarouter.web.util.RequestDurationTool;
@@ -361,6 +361,23 @@ public abstract class BaseHandler{
 	public record HandlerMethodAndArgs(
 			Method method,
 			Object[] args){
+	}
+
+	// This lookup does not take into account params
+	public String estimateHandlerMethod(){
+		String methodName = handlerMethodName();
+		List<Method> possibleMethods = ReflectionTool.getDeclaredMethodsWithName(getClass(), methodName).stream()
+				.filter(possibleMethod -> possibleMethod.isAnnotationPresent(Handler.class))
+				.collect(Collectors.toList());
+
+		Optional<Method> defaultHandlerMethod = getDefaultHandlerMethod();
+		Method method;
+		if(!possibleMethods.isEmpty() || defaultHandlerMethod.isPresent()){
+			method = possibleMethods.isEmpty() ? defaultHandlerMethod.get() : possibleMethods.get(0);
+		}else{
+			method = DEFAULT_HANDLER_METHOD;
+		}
+		return method.getName();
 	}
 
 	private HandlerEncoder getHandlerEncoder(Method method){

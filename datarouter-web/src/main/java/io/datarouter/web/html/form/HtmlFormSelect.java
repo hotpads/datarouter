@@ -19,32 +19,16 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import io.datarouter.web.html.form.HtmlForm.BaseHtmlFormField;
+public class HtmlFormSelect extends BaseHtmlFormTextField<HtmlFormSelect>{
 
-public class HtmlFormSelect extends BaseHtmlFormField{
-
-	private String name;
-	private String display;
 	private Map<String,String> displayByValue = new LinkedHashMap<>();
+	private List<String> selected = new ArrayList<>();
 	private boolean multiple;
-	private String selected;
-	private List<String> selectedMultiple = new ArrayList<>();
-	private boolean required;
 	private int size;
-	private boolean submitOnChange;
-
-	public HtmlFormSelect withName(String name){
-		this.name = name;
-		return this;
-	}
-
-	public HtmlFormSelect withDisplay(String display){
-		this.display = display;
-		return this;
-	}
 
 	public HtmlFormSelect withDisplayByValue(Map<String,String> displayByValue){
 		this.displayByValue = displayByValue;
@@ -62,70 +46,44 @@ public class HtmlFormSelect extends BaseHtmlFormField{
 		return this;
 	}
 
+	public boolean isMultiple(){
+		return multiple;
+	}
+
 	public HtmlFormSelect multiple(){
 		this.multiple = true;
-		return this;
+		return self();
 	}
 
 	public HtmlFormSelect withSelected(String selected){
+		return withSelected(Optional.ofNullable(selected).map(List::of).orElseGet(List::of));
+	}
+
+	public HtmlFormSelect withSelected(List<String> selected){
 		this.selected = selected;
-		return this;
+		return self();
 	}
 
-	public HtmlFormSelect withSelectedMultiple(List<String> selected){
-		this.selectedMultiple = selected;
-		return this;
+	public List<String> getSelected(){
+		return selected;
 	}
 
-	public HtmlFormSelect required(){
-		this.required = true;
-		return this;
+	public Integer getSize(){
+		return size;
 	}
 
 	public HtmlFormSelect withSize(int size){
 		this.size = size;
-		return this;
-	}
-
-	public HtmlFormSelect withSubmitOnChange(){
-		this.submitOnChange = true;
-		return this;
-	}
-
-	public String getName(){
-		return name;
-	}
-
-	public String getDisplay(){
-		return display;
+		return self();
 	}
 
 	public Map<String,String> getDisplayByValue(){
 		return displayByValue;
 	}
 
-	public boolean isMultiple(){
-		return multiple;
-	}
-
-	public String getSelected(){
-		return selected;
-	}
-
-	public List<String> getSelectedMultiple(){
-		return selectedMultiple;
-	}
-
-	public boolean isRequired(){
-		return required;
-	}
-
-	public String getSize(){
-		return Integer.toString(size);
-	}
-
-	public boolean isSubmitOnChange(){
-		return submitOnChange;
+	@Override
+	protected HtmlFormSelect self(){
+		return this;
 	}
 
 }

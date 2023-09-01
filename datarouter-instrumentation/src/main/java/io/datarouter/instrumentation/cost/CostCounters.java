@@ -17,34 +17,55 @@ package io.datarouter.instrumentation.cost;
 
 import io.datarouter.instrumentation.count.Counters;
 
+/**
+ * For counting the cost of cloud services.
+ * "Nanos" are billionths of dollars.
+ * Should be viewed as estimates.
+ * Factors that affect costs:
+ *   - Time: they tend to drop over time
+ *   - Location: they differ by cloud region
+ *   - Usage: price can reduce for higher usage
+ *   - Reservations: price can be lower if you pre-pay for an amount
+ *   - Taxes: these estimates don't include taxes
+ *   - Discounts: large customers might negotiate discounts
+ */
 public class CostCounters{
 
 	// Overall Cost counter prefix
-	private static final String COST = "Cost";
-	// For various input units, mostly for debugging
-	private static final String INPUT = "input";
-	// Nano-dollars
-	private static final String NANOS = "nanos";
-	// Total nano-dollars for viewing independently of per-type nanos.
-	private static final String TOTAL_NANOS = "totalNanos";
+	private static final String ROOT = "Cost";
 
-	/*-------- input ---------*/
+	// Groupings
+	private static final String GROUP_TOTAL = "total";
+	private static final String GROUP_CATEGORY = "category";// network, data, compute, etc
+	private static final String GROUP_TYPE = "type";// cache, messaging, database, etc
+	private static final String GROUP_PRODUCT = "product";// sqs, spanner, etc
+	private static final String GROUP_SKU = "sku";// s3 list, s3 put, etc
 
-	public static void incInput(String type, long by){
-		incCost(join(INPUT, type), by);
-	}
+	// Search
+	private static final String WILDCARD = ".*";
+	public static final String SEARCH_TOTAL = join(ROOT, GROUP_TOTAL);
+	public static final String SEARCH_PRODUCT = join(ROOT, GROUP_PRODUCT, WILDCARD);
+	public static final String SEARCH_SKU = join(ROOT, GROUP_SKU, WILDCARD);
 
 	/*-------- nanos ---------*/
 
-	public static void incNanos(String type, long by){
-		incCost(join(NANOS, type), by);
-		incCost(TOTAL_NANOS, by);
+	public static void nanos(
+			String category,
+			String type,
+			String product,
+			String sku,
+			long nanos){
+		incCost(GROUP_TOTAL, nanos);
+		incCost(join(GROUP_CATEGORY, category), nanos);
+		incCost(join(GROUP_TYPE, type), nanos);
+		incCost(join(GROUP_PRODUCT, product), nanos);
+		incCost(join(GROUP_SKU, product, sku), nanos);
 	}
 
 	/*-------- cost ----------*/
 
-	public static void incCost(String suffix, long by){
-		Counters.inc(join(COST, suffix), by);
+	private static void incCost(String suffix, long nanos){
+		Counters.inc(join(ROOT, suffix), nanos);
 	}
 
 	/*------- join ---------*/

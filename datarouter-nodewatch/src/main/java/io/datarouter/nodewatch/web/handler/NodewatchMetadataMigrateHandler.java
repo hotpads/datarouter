@@ -35,6 +35,7 @@ import io.datarouter.nodewatch.web.NodewatchNavService;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.html.form.HtmlForm;
+import io.datarouter.web.html.form.HtmlForm.HtmlFormMethod;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import j2html.tags.specialized.DivTag;
@@ -71,18 +72,17 @@ public class NodewatchMetadataMigrateHandler extends BaseHandler{
 				.append("")
 				.sort()
 				.list();
-		var form = new HtmlForm()
-				.withMethod("post");
+		var form = new HtmlForm(HtmlFormMethod.POST);
 		form.addSelectField()
-				.withDisplay("Source Node Name")
+				.withLabel("Source Node Name")
 				.withName(P_sourceNodeName)
 				.withValues(possibleNodes);
 		form.addSelectField()
-				.withDisplay("Target Node Name")
+				.withLabel("Target Node Name")
 				.withName(P_targetNodeName)
 				.withValues(possibleNodes);
 		form.addButtonWithoutSubmitAction()
-				.withDisplay("Migrate");
+				.withLabel("Migrate");
 
 		if(!shouldValidate || form.hasErrors()){
 			return pageFactory.startBuilder(request)

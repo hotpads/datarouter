@@ -15,6 +15,7 @@
  */
 package io.datarouter.web.browse;
 
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -36,6 +37,8 @@ import io.datarouter.storage.util.PrimaryKeyPercentCodecTool;
 import io.datarouter.util.collection.ListTool;
 import io.datarouter.util.net.UrlTool;
 import io.datarouter.util.string.StringTool;
+import io.datarouter.web.browse.dto.DatabeanJspDto;
+import io.datarouter.web.browse.dto.FieldJspDto;
 import io.datarouter.web.config.DatarouterWebFiles;
 import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.handler.BaseHandler;
@@ -90,16 +93,25 @@ public abstract class InspectNodeDataHandler extends BaseHandler{
 		return mav;
 	}
 
-	protected <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
+	protected <
+			PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>>
 	void addDatabeansToMav(Mav mav, List<D> databeans){
-		mav.put("databeans", databeans);
-		List<List<Field<?>>> rowsOfFields = new ArrayList<>();
+		ZoneId zoneId = getUserZoneId();
+		List<DatabeanJspDto<PK,D>> databeanJspDtos = Scanner.of(databeans)
+				.map(databean -> new DatabeanJspDto<>(databean, zoneId))
+				.list();
+		mav.put("databeans", databeanJspDtos);
+		List<List<FieldJspDto>> rowsOfFields = new ArrayList<>();
 		List<String> fieldKeysAndValues = new ArrayList<>();
 		@SuppressWarnings("unchecked")
 		DatabeanFielder<PK,D> fielder = (DatabeanFielder<PK,D>)node.getFieldInfo().getSampleFielder();
 		if(fielder != null){
 			for(D databean : databeans){
-				rowsOfFields.add(fielder.getFields(databean));
+				List<FieldJspDto> fieldJspDtos = Scanner.of(fielder.getFields(databean))
+						.map(field -> new FieldJspDto(field, zoneId))
+						.list();
+				rowsOfFields.add(fieldJspDtos);
 				List<Field<?>> databeanFieldKeys = databean.getKeyFields();
 				String databeanFieldKey = "";
 				for(Field<?> field : databeanFieldKeys){
@@ -117,7 +129,9 @@ public abstract class InspectNodeDataHandler extends BaseHandler{
 		}
 	}
 
-	private <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
+	private <
+			PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>>
 	Map<String,String> getFieldAbbreviationByFieldName(
 			DatabeanFielder<PK,D> fielder,
 			Collection<? extends D> databeans){

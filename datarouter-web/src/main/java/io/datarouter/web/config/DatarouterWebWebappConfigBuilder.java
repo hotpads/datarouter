@@ -29,6 +29,13 @@ import javax.servlet.http.HttpServlet;
 
 import com.google.inject.Module;
 
+import io.datarouter.auth.detail.DatarouterUserExternalDetailService;
+import io.datarouter.auth.role.DatarouterRoleManager;
+import io.datarouter.auth.role.RoleManager;
+import io.datarouter.auth.session.CurrentSessionInfo;
+import io.datarouter.auth.session.CurrentSessionInfo.NoOpCurrentSessionInfo;
+import io.datarouter.auth.session.UserSessionService;
+import io.datarouter.auth.session.UserSessionService.NoOpUserSessionService;
 import io.datarouter.httpclient.proxy.RequestProxySetter;
 import io.datarouter.inject.guice.BasePlugin;
 import io.datarouter.instrumentation.test.TestableService;
@@ -86,13 +93,6 @@ import io.datarouter.web.service.DocumentationNamesAndLinksSupplier.DocType;
 import io.datarouter.web.service.ServiceDescriptionSupplier;
 import io.datarouter.web.user.authenticate.DatarouterAuthenticationFilter;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
-import io.datarouter.web.user.detail.DatarouterUserExternalDetailService;
-import io.datarouter.web.user.role.DatarouterRoleManager;
-import io.datarouter.web.user.role.RoleManager;
-import io.datarouter.web.user.session.CurrentSessionInfo;
-import io.datarouter.web.user.session.CurrentSessionInfo.NoOpCurrentSessionInfo;
-import io.datarouter.web.user.session.service.UserSessionService;
-import io.datarouter.web.user.session.service.UserSessionService.NoOpUserSessionService;
 
 public abstract class DatarouterWebWebappConfigBuilder<T extends DatarouterWebWebappConfigBuilder<T>>
 implements WebappBuilder{

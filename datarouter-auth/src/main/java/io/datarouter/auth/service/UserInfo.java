@@ -19,13 +19,13 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 
+import io.datarouter.auth.role.Role;
+import io.datarouter.auth.session.SessionBasedUser;
 import io.datarouter.plugin.PluginConfigKey;
 import io.datarouter.plugin.PluginConfigType;
 import io.datarouter.plugin.PluginConfigValue;
 import io.datarouter.plugin.PluginInjector;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.web.user.role.Role;
-import io.datarouter.web.user.session.service.SessionBasedUser;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
@@ -38,24 +38,14 @@ public interface UserInfo extends PluginConfigValue<UserInfo>{
 
 	//TODO DATAROUTER-2794
 	Scanner<? extends SessionBasedUser> scanAllUsers(boolean enabledOnly, Set<Role> includedRoles);
-	Optional<? extends SessionBasedUser> getUserByUsername(String username, boolean allowCached);
-	Optional<? extends SessionBasedUser> getUserByToken(String token, boolean allowCached);
-	Optional<? extends SessionBasedUser> getUserById(Long id, boolean allowCached);
+	Optional<? extends SessionBasedUser> findUserByUsername(String username, boolean allowCached);
+	Optional<? extends SessionBasedUser> findUserByToken(String token, boolean allowCached);
+	Optional<? extends SessionBasedUser> findUserById(Long id, boolean allowCached);
 
 	Set<Role> getRolesByUsername(String username, boolean allowCached);
-	Set<Role> getRolesByToken(String token, boolean allowCached);
-	Set<Role> getRolesById(Long id, boolean allowCached);
 
 	default Boolean hasRoleByUsername(String username, Role role, boolean allowCached){
 		return getRolesByUsername(username, allowCached).contains(role);
-	}
-
-	default Boolean hasRoleByToken(String token, Role role, boolean allowCached){
-		return getRolesByToken(token, allowCached).contains(role);
-	}
-
-	default Boolean hasRoleById(Long id, Role role, boolean allowCached){
-		return getRolesById(id, allowCached).contains(role);
 	}
 
 	@Override

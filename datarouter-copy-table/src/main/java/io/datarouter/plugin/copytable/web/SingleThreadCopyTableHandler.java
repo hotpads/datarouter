@@ -35,6 +35,7 @@ import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.types.Param;
 import io.datarouter.web.html.form.HtmlForm;
+import io.datarouter.web.html.form.HtmlForm.HtmlFormMethod;
 import io.datarouter.web.html.form.HtmlFormValidator;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import jakarta.inject.Inject;
@@ -96,28 +97,27 @@ public class SingleThreadCopyTableHandler extends BaseHandler{
 				.append("")
 				.sort()
 				.list();
-		var form = new HtmlForm()
-				.withMethod("post");
+		var form = new HtmlForm(HtmlFormMethod.POST);
 		form.addSelectField()
-				.withDisplay("Source Node Name")
+				.withLabel("Source Node Name")
 				.withName(P_sourceNodeName)
 				.withValues(possibleSourceNodes)
 				.withSelected(sourceNodeName.orElse(null));
 		form.addSelectField()
-				.withDisplay("Target Node Name")
+				.withLabel("Target Node Name")
 				.withName(P_targetNodeName)
 				.withValues(possibleTargetNodes)
 				.withSelected(targetNodeName.orElse(null));
-		form.addTextField()
-				.withDisplay("Scan Batch Size")
+		form.addNumberField()
+				.withLabel("Scan Batch Size")
 				.withName(P_scanBatchSize)
 				.withPlaceholder(DEFAULT_SCAN_BATCH_SIZE)
 				.withValue(
 						optScanBatchSize.orElse(null),
 						shouldValidate && optScanBatchSize.isPresent(),
 						HtmlFormValidator::positiveInteger);
-		form.addTextField()
-				.withDisplay("Put Batch Size")
+		form.addNumberField()
+				.withLabel("Put Batch Size")
 				.withName(P_putBatchSize)
 				.withPlaceholder(DEFAULT_PUT_BATCH_SIZE)
 				.withValue(
@@ -125,12 +125,12 @@ public class SingleThreadCopyTableHandler extends BaseHandler{
 						shouldValidate && optPutBatchSize.isPresent(),
 						HtmlFormValidator::positiveInteger);
 		form.addTextField()
-				.withDisplay("Last Key String")
+				.withLabel("Last Key String")
 				//add validation
 				.withName(P_lastKeyString)
 				.withValue(lastKeyString.orElse(null));
-		form.addTextField()
-				.withDisplay("Num Threads")
+		form.addNumberField()
+				.withLabel("Num Threads")
 				.withName(P_numThreads)
 				.withPlaceholder(DEFAULT_NUM_THREADS)
 				.withValue(
@@ -138,17 +138,17 @@ public class SingleThreadCopyTableHandler extends BaseHandler{
 						shouldValidate && optNumThreads.isPresent(),
 						HtmlFormValidator::positiveInteger);
 		form.addCheckboxField()
-				.withDisplay("Skip Invalid Databeans")
+				.withLabel("Skip Invalid Databeans")
 				.withName(P_skipInvalidDatabeans)
 				.withChecked(DEFAULT_SKIP_INVALID_DATABEANS);
 		form.addTextField()
-				.withDisplay("Email on Completion")
+				.withLabel("Email on Completion")
 				//add validation
 				.withName(P_toEmail)
 				.withPlaceholder("you@email.com")
 				.withValue(toEmail.orElse(getSessionInfo().getRequiredSession().getUsername()));
 		form.addButton()
-				.withDisplay("Execute")
+				.withLabel("Execute")
 				.withValue("anything");
 
 		if(submitAction.isEmpty() || form.hasErrors()){

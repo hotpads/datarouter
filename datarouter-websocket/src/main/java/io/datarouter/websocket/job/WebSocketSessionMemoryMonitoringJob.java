@@ -27,14 +27,12 @@ public class WebSocketSessionMemoryMonitoringJob extends BaseJob{
 	@Inject
 	private WebSocketConnectionStore webSocketConnectionStore;
 	@Inject
-	private WebSocketCounters webSocketCounters;
-	@Inject
 	private ServerAddressProvider serverAddressProvider;
 
 	@Override
 	public void run(TaskTracker tracker){
 		int connectionCount = webSocketConnectionStore.list().size();
-		webSocketCounters.saveCount("memory " + serverAddressProvider.get(), connectionCount);
+		WebSocketCounters.saveCount("memory " + serverAddressProvider.get(), connectionCount);
 		tracker.increment(connectionCount);
 	}
 

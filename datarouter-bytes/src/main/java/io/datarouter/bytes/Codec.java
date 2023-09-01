@@ -87,6 +87,10 @@ public interface Codec<A,B>{
 			return new NullPassthroughCodec<>(encodeFunction, decodeFunction);
 		}
 
+		public static <A,B> NullPassthroughCodec<A,B> of(Codec<A,B> codec){
+			return new NullPassthroughCodec<>(codec::encode, codec::decode);
+		}
+
 	}
 
 	static final Codec<?,?> IDENTITY_INSTANCE = Codec.of(Function.identity(), Function.identity());

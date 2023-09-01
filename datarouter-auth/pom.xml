@@ -22,7 +22,7 @@
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-parent</artifactId>
-		<version>0.0.121</version>
+		<version>0.0.122</version>
 		<relativePath>../datarouter-parent</relativePath>
 	</parent>
 
@@ -30,6 +30,9 @@
 
 	<name>datarouter-auth</name>
 	<description>datarouter-auth</description>
+	<properties>
+		<opensaml.version>4.0.1</opensaml.version>
+	</properties>
 
 	<dependencies>
 		<dependency>
@@ -39,14 +42,41 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
+			<groupId>org.opensaml</groupId>
+			<artifactId>opensaml-saml-impl</artifactId>
+			<version>${opensaml.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.google.guava</groupId>
+					<artifactId>guava</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.opensaml</groupId>
+			<artifactId>opensaml-messaging-impl</artifactId>
+			<version>${opensaml.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.google.guava</groupId>
+					<artifactId>guava</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
 			<groupId>io.datarouter</groupId>
-			<artifactId>datarouter-secret-web</artifactId>
+			<artifactId>datarouter-virtual-node</artifactId>
 			<version>${datarouter-version}</version>
 		</dependency>
 		<dependency>
-			<groupId>com.github.ben-manes.caffeine</groupId>
-			<artifactId>caffeine</artifactId>
-			<version>${ben-manes-caffeine-version}</version>
+			<groupId>io.datarouter</groupId>
+			<artifactId>datarouter-http-client</artifactId>
+			<version>${datarouter-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.datarouter</groupId>
+			<artifactId>datarouter-storage</artifactId>
+			<version>${datarouter-version}</version>
 		</dependency>
 		<dependency>
 			<groupId>io.datarouter</groupId>
@@ -54,12 +84,7 @@
 			<version>${datarouter-version}</version>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>io.datarouter</groupId>
-			<artifactId>datarouter-logging</artifactId>
-			<version>${datarouter-version}</version>
-			<scope>test</scope>
-		</dependency>
+
 	</dependencies>
 
 	<build>

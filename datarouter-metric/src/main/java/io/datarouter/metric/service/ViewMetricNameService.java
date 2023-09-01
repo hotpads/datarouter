@@ -77,17 +77,17 @@ public class ViewMetricNameService{
 
 
 	public DivTag getDashboardsTable(){
-		var dasboards = dashboardRegistry.dashboards;
-		if(dasboards.size() == 0){
+		var dashboards = dashboardRegistry.dashboards;
+		if(dashboards.size() == 0){
 			return div();
 		}
 		var h2 = h2("Metric Dashboards");
-		dasboards.sort(Comparator.comparing(metricName -> metricName.displayName));
+		dashboards.sort(Comparator.comparing(metricName -> metricName.displayName));
 		var table = new J2HtmlTable<MetricDashboardDto>()
 				.withClasses("table table-sm table-striped my-4 border")
 				.withHtmlColumn(th("Dashboard Name").withClass("w-50"), row -> td(row.displayName))
 				.withHtmlColumn(th("").withClass("w-25"), this::getDashboardLink)
-				.build(dasboards);
+				.build(dashboards);
 		return div(h2, table)
 				.withClass("container my-4");
 	}

@@ -20,8 +20,11 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -106,10 +109,8 @@ public class DefaultDecoder implements JsonAwareHandlerDecoder{
 			Type parameterType = parameter.getParameterizedType();
 			{
 				Param parameterAnnotation = parameter.getAnnotation(Param.class);
-				if(parameterAnnotation != null){
-					if(!parameterAnnotation.value().isEmpty()){
-						parameterName = parameterAnnotation.value();
-					}
+				if(parameterAnnotation != null && !parameterAnnotation.value().isEmpty()){
+					parameterName = parameterAnnotation.value();
 				}
 			}
 			if(parameter.isAnnotationPresent(RequestBody.class)){
@@ -354,7 +355,7 @@ public class DefaultDecoder implements JsonAwareHandlerDecoder{
 			field.setAccessible(true);
 
 			String parameterName = EndpointTool.getFieldName(field);
-			Type parameterType = field.getType();
+			Type parameterType = field.getGenericType();
 			String[] queryParam = queryParams.get(parameterName);
 
 			if(field.isAnnotationPresent(FormData.class)){
@@ -380,8 +381,23 @@ public class DefaultDecoder implements JsonAwareHandlerDecoder{
 			boolean isOptional = field.getType().isAssignableFrom(Optional.class);
 
 			// pre-emptively try to check if the parameter is actually a form-encoded array and normalize the name
-			boolean isArray = parameterType instanceof Class && ((Class<?>)parameterType).isArray();
-			if(isArray && queryParam == null && !parameterName.endsWith("[]")){
+			boolean isArray;
+			boolean isList;
+			boolean isIterable;
+			if(parameterType instanceof Class<?> parameterClass){
+				isArray = parameterClass.isArray();
+				isList = false;
+				isIterable = isArray;
+			}else if(parameterType instanceof ParameterizedType parameterParameterizedType){
+				isArray = false;
+				isList = List.class.isAssignableFrom((Class<?>)parameterParameterizedType.getRawType());
+				isIterable = isList;
+			}else{
+				isArray = false;
+				isList = false;
+				isIterable = false;
+			}
+			if(isIterable && queryParam == null && !parameterName.endsWith("[]")){
 				parameterName += "[]";
 				queryParam = queryParams.get(parameterName);
 			}
@@ -392,15 +408,28 @@ public class DefaultDecoder implements JsonAwareHandlerDecoder{
 
 			boolean isFormEncodedArray = queryParam != null
 					&& (queryParam.length > 1 || parameterName.endsWith("[]"))
-					&& isArray;
+					&& isIterable;
 
 			if(isFormEncodedArray){
-				Class<?> componentClass = ((Class<?>)parameterType).getComponentType();
-				Object typedArray = Array.newInstance(componentClass, queryParam.length);
-				for(int index = 0; index < queryParam.length; index++){
-					Array.set(typedArray, index, decodeType(queryParam[index], componentClass));
+				Object iterable;
+				if(isArray){
+					Class<?> componentClass = ((Class<?>)parameterType).getComponentType();
+					iterable = Array.newInstance(componentClass, queryParam.length);
+					for(int index = 0; index < queryParam.length; index++){
+						Array.set(iterable, index, decodeType(queryParam[index], componentClass));
+					}
+				}else if(isList){
+					List<Object> list = new ArrayList<>(queryParam.length);
+					for(String queryParamValue : queryParam){
+						list.add(decodeType(
+								queryParamValue,
+								((ParameterizedType)parameterType).getActualTypeArguments()[0]));
+					}
+					iterable = list;
+				}else{
+					throw new RuntimeException("unrecognized iterable");
 				}
-				field.set(baseWebApi, typedArray);
+				field.set(baseWebApi, iterable);
 				continue;
 			}
 

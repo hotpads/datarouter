@@ -15,6 +15,10 @@
  */
 package io.datarouter.model.field.imp.comparable;
 
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Optional;
+
 import io.datarouter.bytes.codec.intcodec.ComparableIntCodec;
 import io.datarouter.model.field.BaseField;
 import io.datarouter.model.field.Field;
@@ -81,6 +85,12 @@ public class IntegerEncodedField<T> extends BaseField<T>{
 
 	public FieldCodec<T,Integer> getCodec(){
 		return key.getCodec();
+	}
+
+	@Override
+	public Optional<String> findAuxiliaryHumanReadableString(DateTimeFormatter dateTimeFormatter, ZoneId zoneId){
+		return Optional.ofNullable(getValue())
+				.flatMap(value -> getCodec().findAuxiliaryHumanReadableString(value, dateTimeFormatter, zoneId));
 	}
 
 }

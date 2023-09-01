@@ -12,7 +12,7 @@ making it easier to create all the nodes and then control which physical node se
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-virtual-node</artifactId>
-	<version>0.0.121</version>
+	<version>0.0.122</version>
 </dependency>
 ```
 
@@ -45,16 +45,6 @@ you:
 - change the redundant node to read from the target node, and deploy to validate that everything works
 - wait for a safe-rollback period to pass
 - remove the source and redundant nodes, leaving only the target node
-
-### WriteBehind
-
-WriteBehind nodes act as a transient buffer that flushes data to the database in the background.  Simply provide them with a backing node that is actually persistent.
-Their purpose is to reduce the latency of the write for the application, so it can progress through a web request or job faster, leaving the delayed flushing
-work to be done by the WriteBehind nodes's internal thread.  The naming is to signify it has the opposite effect of a write-ahead log whose purpose is to safely
-persist the data before completing a request.
-
-WriteBehind nodes have mostly been superseded by the Conveyor functionality in datarouter-conveyor.  Along with more consistent monitoring and configuration, the 
-conveyors allow simpler memory storage using MemoryBuffer and more reliable (and potentially multi-threaded) background flushing using the conveyor library.
 
 ## License
 

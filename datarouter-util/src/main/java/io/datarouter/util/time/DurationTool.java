@@ -25,18 +25,27 @@ import io.datarouter.util.duration.DurationWithCarriedUnits;
 
 public class DurationTool{
 
+	public static final double AVG_DAYS_PER_MONTH = 30.436875;
+	public static final long AVG_SECONDS_PER_MONTH = (long)(AVG_DAYS_PER_MONTH * 24 * 60 * 60);
+	public static final Duration AVG_MONTH = Duration.ofSeconds(AVG_SECONDS_PER_MONTH);
+	public static final double AVG_DAYS_PER_YEAR = 365.2425;
+	public static final long AVG_SECONDS_PER_YEAR = (long)(AVG_DAYS_PER_YEAR * 24 * 60 * 60);
+	public static final Duration AVG_YEAR = Duration.ofSeconds(AVG_SECONDS_PER_YEAR);
+	public static final double AVG_MONTHS_PER_YEAR = AVG_DAYS_PER_YEAR / AVG_DAYS_PER_MONTH;
+
 	public static Duration sinceDate(Date date){
 		Objects.requireNonNull(date);
 		return Duration.ofMillis(System.currentTimeMillis() - date.getTime());
 	}
 
+	@Deprecated // inline
 	public static Duration sinceInstant(Instant from){
 		Objects.requireNonNull(from);
 		return Duration.between(from, Instant.now());
 	}
 
 	public static String toString(Duration duration){
-		DurationWithCarriedUnits wud = new DurationWithCarriedUnits(duration.toMillis());
+		var wud = new DurationWithCarriedUnits(duration.toMillis());
 		return wud.toStringByMaxUnitsMaxPrecision(DurationUnit.MILLISECONDS, 2);
 	}
 

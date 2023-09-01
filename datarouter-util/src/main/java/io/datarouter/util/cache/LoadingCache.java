@@ -38,11 +38,18 @@ public class LoadingCache<K,V>{
 	private final Function<K,V> loadingFunction;
 	private final Function<K,RuntimeException> exceptionFunction;
 	private final String name;
+	private final CacheTracer tracer;
 
 	private Clock clock; // not final for tests
 
-	private LoadingCache(Duration expireTtl, int maxSize, Clock clock, Function<K,V> loadingFunction,
-			Function<K,RuntimeException> exceptionFunction, String name){
+	private LoadingCache(
+			Duration expireTtl,
+			int maxSize,
+			Clock clock,
+			Function<K,V> loadingFunction,
+			Function<K,RuntimeException> exceptionFunction,
+			String name,
+			CacheTracer tracer){
 		this.expireTtl = expireTtl;
 		this.maxSize = maxSize;
 		this.map = new LinkedHashMap<>(maxSize, 0.75F, true);
@@ -50,6 +57,7 @@ public class LoadingCache<K,V>{
 		this.loadingFunction = loadingFunction;
 		this.exceptionFunction = exceptionFunction;
 		this.name = name;
+		this.tracer = tracer;
 	}
 
 	public static class LoadingCacheBuilder<K,V>{
@@ -64,6 +72,7 @@ public class LoadingCache<K,V>{
 		private Function<K,RuntimeException> exceptionFunction = key ->
 				new RuntimeException("loadingFunction=" + loadingFunction + " returned empty for key=" + key);
 		private String name = new LineOfCode(1).getClassName();
+		private CacheTracer cacheTracer = CacheTracer.DEFAULT;
 
 		public LoadingCacheBuilder<K,V> withExpireTtl(Duration expireTtl){
 			this.expireTtl = expireTtl;
@@ -90,20 +99,25 @@ public class LoadingCache<K,V>{
 			return this;
 		}
 
+		public LoadingCacheBuilder<K,V> disableTracing(){
+			this.cacheTracer = CacheTracer.NO_OP;
+			return this;
+		}
+
 		LoadingCacheBuilder<K,V> withClock(Clock clock){
 			this.clock = clock;
 			return this;
 		}
 
 		public LoadingCache<K,V> build(){
-			return new LoadingCache<>(expireTtl, maxSize, clock, loadingFunction, exceptionFunction, name);
+			return new LoadingCache<>(expireTtl, maxSize, clock, loadingFunction, exceptionFunction, name, cacheTracer);
 		}
 
 	}
 
 	public Optional<V> get(K key){
-		try(TraceSpanFinisher $ = TracerTool.startSpan(name + " get", TraceSpanGroupType.DATABASE)){
-			TracerTool.appendToSpanInfo(key.toString());
+		try(var $ = tracer.startSpan(name + " get", TraceSpanGroupType.DATABASE)){
+			tracer.appendToSpanInfo(key.toString());
 			return getSynchronized(key);
 		}
 	}
@@ -114,8 +128,8 @@ public class LoadingCache<K,V>{
 	}
 
 	public V getOrThrow(K key){
-		try(TraceSpanFinisher $ = TracerTool.startSpan(name + " getOrThrows", TraceSpanGroupType.DATABASE)){
-			TracerTool.appendToSpanInfo(key.toString());
+		try(var $ = tracer.startSpan(name + " getOrThrows", TraceSpanGroupType.DATABASE)){
+			tracer.appendToSpanInfo(key.toString());
 			return getOrThrowsSynchronized(key);
 		}
 	}
@@ -134,8 +148,8 @@ public class LoadingCache<K,V>{
 	 * @return whether the value exists in the cache before inserting
 	 */
 	public boolean load(K key){
-		try(TraceSpanFinisher $ = TracerTool.startSpan(name + " load", TraceSpanGroupType.DATABASE)){
-			TracerTool.appendToSpanInfo(key.toString());
+		try(var $ = tracer.startSpan(name + " load", TraceSpanGroupType.DATABASE)){
+			tracer.appendToSpanInfo(key.toString());
 			return loadSynchronized(key);
 		}
 	}
@@ -152,8 +166,8 @@ public class LoadingCache<K,V>{
 	 * @return whether the key exists in the cache
 	 */
 	public boolean contains(K key){
-		try(TraceSpanFinisher $ = TracerTool.startSpan(name + " contains", TraceSpanGroupType.DATABASE)){
-			TracerTool.appendToSpanInfo(key.toString());
+		try(var $ = tracer.startSpan(name + " contains", TraceSpanGroupType.DATABASE)){
+			tracer.appendToSpanInfo(key.toString());
 			return containsSynchronized(key);
 		}
 	}
@@ -164,8 +178,8 @@ public class LoadingCache<K,V>{
 	}
 
 	private boolean put(K key, V value){
-		try(TraceSpanFinisher $ = TracerTool.startSpan(name + " put", TraceSpanGroupType.DATABASE)){
-			TracerTool.appendToSpanInfo(key.toString());
+		try(var $ = tracer.startSpan(name + " put", TraceSpanGroupType.DATABASE)){
+			tracer.appendToSpanInfo(key.toString());
 			return putSynchronized(key, value);
 		}
 	}
@@ -208,8 +222,8 @@ public class LoadingCache<K,V>{
 	}
 
 	private CachedObject<V> getIfNotExpired(K key){
-		try(TraceSpanFinisher $ = TracerTool.startSpan(name + " getIfNotExpired", TraceSpanGroupType.DATABASE)){
-			TracerTool.appendToSpanInfo(key.toString());
+		try(var $ = tracer.startSpan(name + " getIfNotExpired", TraceSpanGroupType.DATABASE)){
+			tracer.appendToSpanInfo(key.toString());
 			return getIfNotExpiredSynchronized(key);
 		}
 	}
@@ -229,6 +243,40 @@ public class LoadingCache<K,V>{
 	// only used for tests
 	protected void updateClock(Clock clock){
 		this.clock = clock;
+	}
+
+	private interface CacheTracer{
+
+		TraceSpanFinisher startSpan(String name, TraceSpanGroupType type);
+		void appendToSpanInfo(String info);
+
+		CacheTracer
+				NO_OP = new CacheTracer(){
+
+					@Override
+					public TraceSpanFinisher startSpan(String name, TraceSpanGroupType type){
+						return TraceSpanFinisher.NO_OP;
+					}
+
+					@Override
+					public void appendToSpanInfo(String info){
+					}
+
+				},
+				DEFAULT = new CacheTracer(){
+
+					@Override
+					public TraceSpanFinisher startSpan(String name, TraceSpanGroupType type){
+						return TracerTool.startSpan(name, type);
+					}
+
+					@Override
+					public void appendToSpanInfo(String info){
+						TracerTool.appendToSpanInfo(info);
+					}
+
+				};
+
 	}
 
 }

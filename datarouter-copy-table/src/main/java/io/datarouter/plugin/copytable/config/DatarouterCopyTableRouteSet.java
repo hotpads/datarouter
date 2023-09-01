@@ -15,6 +15,7 @@
  */
 package io.datarouter.plugin.copytable.config;
 
+import io.datarouter.auth.role.DatarouterUserRole;
 import io.datarouter.plugin.copytable.web.JobletCopyTableHandler;
 import io.datarouter.plugin.copytable.web.JobletTableProcessorHandler;
 import io.datarouter.plugin.copytable.web.SingleThreadCopyTableHandler;
@@ -22,7 +23,6 @@ import io.datarouter.plugin.copytable.web.SingleThreadTableProcessorHandler;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
-import io.datarouter.web.user.role.DatarouterUserRole;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 

@@ -24,9 +24,4 @@ public record ChangelogDto(
 		String username,
 		String comment,
 		String note){
-
-	public long getReversedDateMs(){
-		return Long.MAX_VALUE - dateMs;
-	}
-
 }

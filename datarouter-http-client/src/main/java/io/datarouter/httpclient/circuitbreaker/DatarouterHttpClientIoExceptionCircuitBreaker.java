@@ -34,6 +34,7 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.httpclient.client.DatarouterHttpClientMetrics;
 import io.datarouter.httpclient.request.DatarouterHttpRequest;
 import io.datarouter.httpclient.response.DatarouterHttpResponse;
 import io.datarouter.httpclient.response.exception.DatarouterHttpCircuitBreakerException;
@@ -41,7 +42,6 @@ import io.datarouter.httpclient.response.exception.DatarouterHttpConnectionAbort
 import io.datarouter.httpclient.response.exception.DatarouterHttpException;
 import io.datarouter.httpclient.response.exception.DatarouterHttpRequestInterruptedException;
 import io.datarouter.httpclient.response.exception.DatarouterHttpResponseException;
-import io.datarouter.instrumentation.count.Counters;
 import io.datarouter.instrumentation.trace.Trace2Dto;
 import io.datarouter.instrumentation.trace.TraceSpanGroupType;
 import io.datarouter.instrumentation.trace.Traceparent;
@@ -57,8 +57,6 @@ public class DatarouterHttpClientIoExceptionCircuitBreaker extends ExceptionCirc
 
 	public static final String TRACEPARENT = "traceparent";
 	public static final String TRACESTATE = "tracestate";
-
-	public static final String HTTP_CLIENT_COUNTER_PREFIX = "httpClient";
 
 	public DatarouterHttpClientIoExceptionCircuitBreaker(String name){
 		super(name);
@@ -87,7 +85,7 @@ public class DatarouterHttpClientIoExceptionCircuitBreaker extends ExceptionCirc
 			traceContext = tracer.getTraceContext().get().copy();
 			traceContext.updateParentIdAndAddTracestateMember();
 		}else{
-			count("traceContext null");
+			DatarouterHttpClientMetrics.incTraceContextNull(name);
 			traceContext = new W3TraceContext(Trace2Dto.getCurrentTimeInNs());
 		}
 		String traceparent = traceContext.getTraceparent().toString();
@@ -95,7 +93,7 @@ public class DatarouterHttpClientIoExceptionCircuitBreaker extends ExceptionCirc
 			request.addGetParam(TRACEPARENT, traceparent);
 		}
 		HttpRequestBase internalHttpRequest = request.getRequest();
-		count("request");
+		DatarouterHttpClientMetrics.incRequest(name);
 		logger.debug("traceparent={} passing to request={}", traceparent, request.getPath());
 		internalHttpRequest.addHeader(TRACEPARENT, traceparent);
 		internalHttpRequest.addHeader(TRACESTATE, traceContext.getTracestate().toString());
@@ -110,7 +108,7 @@ public class DatarouterHttpClientIoExceptionCircuitBreaker extends ExceptionCirc
 			HttpResponse httpResponse = httpClient.execute(internalHttpRequest, context);
 			String entity = null;
 			int statusCode = httpResponse.getStatusLine().getStatusCode();
-			count("response " + statusCode);
+			DatarouterHttpClientMetrics.incResponseStatusCode(name, statusCode);
 			boolean isBadStatusCode = statusCode >= HttpStatus.SC_BAD_REQUEST;
 			HttpEntity httpEntity = httpResponse.getEntity();
 			if(httpEntity != null){
@@ -123,6 +121,7 @@ public class DatarouterHttpClientIoExceptionCircuitBreaker extends ExceptionCirc
 			}
 			// include the entity processing. might be inaccurate in case of custom httpEntityConsumer
 			Duration duration = Duration.ofNanos(Trace2Dto.getCurrentTimeInNs() - requestStartTimeNs);
+			DatarouterHttpClientMetrics.durationMs(name, duration.toMillis());
 			Optional<Traceparent> remoteTraceparent = Optional.ofNullable(httpResponse.getFirstHeader(TRACEPARENT))
 					.map(Header::getValue)
 					.map(Traceparent::parse)
@@ -136,6 +135,7 @@ public class DatarouterHttpClientIoExceptionCircuitBreaker extends ExceptionCirc
 			Duration logSlowRequestThreshold = request.findLogSlowRequestThreshold()
 					.orElse(DEFAULT_LOG_SLOW_REQUEST_THRESHOLD);
 			if(duration.compareTo(logSlowRequestThreshold) > 0){
+				DatarouterHttpClientMetrics.incSlowRequest(name);
 				logger.warn("Slow request target={} durationMs={} remoteTraceparent={}", request.getPath(),
 						duration.toMillis(), remoteTraceparent.orElse(null));
 			}
@@ -157,13 +157,13 @@ public class DatarouterHttpClientIoExceptionCircuitBreaker extends ExceptionCirc
 			callResultQueue.insertTrueResult();
 			return response;
 		}catch(IOException e){
-			count("IOException");
+			DatarouterHttpClientMetrics.incIoException(name);
 			TracerTool.appendToSpanInfo("exception", e.getMessage());
 			ex = new DatarouterHttpConnectionAbortedException(e, TimeUnit.NANOSECONDS.toMillis(requestStartTimeNs),
 					traceparent, request.getPath());
 			callResultQueue.insertFalseResultWithException(ex);
 		}catch(CancellationException e){
-			count("CancellationException");
+			DatarouterHttpClientMetrics.incCancellationException(name);
 			TracerTool.appendToSpanInfo("exception", e.getMessage());
 			ex = new DatarouterHttpRequestInterruptedException(e, TimeUnit.NANOSECONDS.toMillis(requestStartTimeNs),
 					traceparent, request.getPath());
@@ -184,10 +184,6 @@ public class DatarouterHttpClientIoExceptionCircuitBreaker extends ExceptionCirc
 		}catch(Exception e){
 			logger.error("aborting internal http request failed", e);
 		}
-	}
-
-	private void count(String key){
-		Counters.inc(HTTP_CLIENT_COUNTER_PREFIX + " " + name + " " + key);
 	}
 
 }

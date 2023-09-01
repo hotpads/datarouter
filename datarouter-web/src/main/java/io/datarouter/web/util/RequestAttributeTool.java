@@ -23,12 +23,12 @@ public class RequestAttributeTool{
 
 	public static <T> Optional<T> get(ServletRequest request, RequestAttributeKey<T> key){
 		@SuppressWarnings("unchecked") // safety enforced by the set method
-		T attribute = (T)request.getAttribute(key.name);
+		T attribute = (T)request.getAttribute(key.name());
 		return Optional.ofNullable(attribute);
 	}
 
 	public static <T> T set(ServletRequest request, RequestAttributeKey<T> key, T value){
-		request.setAttribute(key.name, value);
+		request.setAttribute(key.name(), value);
 		return value;
 	}
 

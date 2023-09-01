@@ -20,12 +20,13 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import io.datarouter.auth.authenticate.authenticator.DatarouterAuthenticator;
+import io.datarouter.auth.session.Session;
 import io.datarouter.util.Require;
 import io.datarouter.util.time.DurationTool;
 import io.datarouter.web.config.DatarouterWebPaths;
-import io.datarouter.web.user.authenticate.authenticator.DatarouterAuthenticator;
-import io.datarouter.web.user.session.service.Session;
 
+// TODO braydonh figure out how to move this out of dr-web
 public interface DatarouterAuthenticationConfig{
 
 	DatarouterWebPaths PATHS = new DatarouterWebPaths();

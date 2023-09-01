@@ -22,9 +22,10 @@ import java.util.Map;
 import java.util.function.Function;
 
 import io.datarouter.scanner.Scanner;
+import io.datarouter.web.html.form.BaseHtmlFormField;
 import io.datarouter.web.html.form.HtmlForm;
-import io.datarouter.web.html.form.HtmlForm.BaseHtmlFormField;
 import io.datarouter.web.html.form.HtmlForm.HtmlFormHiddenField;
+import io.datarouter.web.html.form.HtmlForm.HtmlFormMethod;
 import io.datarouter.web.html.form.HtmlFormSelect;
 import io.datarouter.web.html.form.HtmlFormText;
 
@@ -34,23 +35,23 @@ public class IndexPagerHtml{
 		Map<String,String> displayByValue = Scanner.of(indexPage.sortOptions)
 				.toMapSupplied(Function.identity(), LinkedHashMap::new);
 		var fieldSort = new HtmlFormSelect()
-				.withDisplay("Sort")
+				.withLabel("Sort")
 				.withName(indexPage.pagerParamNames.paramSort)
 				.withDisplayByValue(displayByValue)
 				.withSelected(indexPage.params.sort)
 				.withSubmitOnChange();
 		var fieldPage = new HtmlFormText()
-				.withDisplay("Page")
+				.withLabel("Page")
 				.withName(indexPage.pagerParamNames.paramPage)
 				.withValue(indexPage.params.page + "")
 				.withSubmitOnChange();
 		var fieldPageSize = new HtmlFormText()
-				.withDisplay("Page Size")
+				.withLabel("Page Size")
 				.withName(indexPage.pagerParamNames.paramPageSize)
 				.withValue(indexPage.params.pageSize + "")
 				.withSubmitOnChange();
 
-		var sortFields = new ArrayList<BaseHtmlFormField>();
+		var sortFields = new ArrayList<BaseHtmlFormField<?>>();
 		if(displayByValue.size() > 1){
 			sortFields.add(fieldSort);
 		}
@@ -61,7 +62,7 @@ public class IndexPagerHtml{
 		List<HtmlFormHiddenField> hiddenFields = Scanner.of(indexPage.params.retainedParams)
 				.map(retainedParam -> new HtmlFormHiddenField(retainedParam.name(), retainedParam.value()))
 				.list();
-		return new HtmlForm()
+		return new HtmlForm(HtmlFormMethod.GET)
 				.addFields(sortFields)
 				.addHiddenFields(hiddenFields);
 	}

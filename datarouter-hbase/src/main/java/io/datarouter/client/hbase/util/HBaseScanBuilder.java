@@ -29,7 +29,6 @@ import io.datarouter.bytes.ByteTool;
 import io.datarouter.bytes.Bytes;
 import io.datarouter.bytes.EmptyArray;
 import io.datarouter.bytes.codec.stringcodec.StringCodec;
-import io.datarouter.util.Require;
 import io.datarouter.util.tuple.Range;
 
 public class HBaseScanBuilder{
@@ -52,7 +51,7 @@ public class HBaseScanBuilder{
 	public HBaseScanBuilder withPrefix(byte[] prefix){
 		this.prefix = prefix;
 		this.nextPrefix = getNextPrefix();
-		this.hasNextPrefix = anyNonZero(nextPrefix);
+		this.hasNextPrefix = nextPrefix != null && anyNonZero(nextPrefix);
 		return this;
 	}
 
@@ -110,7 +109,6 @@ public class HBaseScanBuilder{
 	private Scan getScanForRange(){
 		byte[] startWithPrefix = ByteTool.concat(prefix, getStart());
 		byte[] endExclusiveWithoutPrefix = getEndExclusive();
-		Require.isFalse(prefix.length == 0);
 		Scan scan = new Scan();
 		if(startIsFullKey || range.getStart() == null || range.getStartInclusive()){
 			scan.withStartRow(startWithPrefix, range.getStartInclusive());

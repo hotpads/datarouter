@@ -28,7 +28,7 @@ import io.datarouter.storage.node.op.raw.read.BlobStorageReader;
 import io.datarouter.storage.util.Subpath;
 
 /**
- * Methods for writing to an object store such as the filesystem or S3.
+ * Methods for writing to an blob store such as the filesystem or S3.
  */
 public interface BlobStorageWriter extends BlobStorageReader{
 

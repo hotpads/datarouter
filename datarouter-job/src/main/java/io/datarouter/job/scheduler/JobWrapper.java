@@ -49,8 +49,6 @@ public class JobWrapper implements Callable<Void>{
 
 		@Inject
 		private LongRunningTaskTrackerFactory longRunningTaskTrackerFactory;
-		@Inject
-		private JobCounters jobCounters;
 
 		public JobWrapper createScheduled(
 				JobPackage jobPackage,
@@ -61,7 +59,6 @@ public class JobWrapper implements Callable<Void>{
 			return new JobWrapper(
 					jobPackage,
 					longRunningTaskTrackerFactory,
-					jobCounters,
 					job,
 					triggerTime,
 					scheduledTime,
@@ -78,7 +75,6 @@ public class JobWrapper implements Callable<Void>{
 			return new JobWrapper(
 					jobPackage,
 					longRunningTaskTrackerFactory,
-					jobCounters,
 					job,
 					triggerTime,
 					scheduledTime,
@@ -91,7 +87,6 @@ public class JobWrapper implements Callable<Void>{
 			return new JobWrapper(
 					jobPackage,
 					longRunningTaskTrackerFactory,
-					jobCounters,
 					job,
 					now,
 					now,
@@ -103,7 +98,6 @@ public class JobWrapper implements Callable<Void>{
 			return new JobWrapper(
 					jobPackage,
 					longRunningTaskTrackerFactory,
-					jobCounters,
 					job,
 					triggerTime,
 					Instant.now(),
@@ -113,12 +107,10 @@ public class JobWrapper implements Callable<Void>{
 
 		public JobWrapper createRequestTriggered(BaseJob job, String triggeredBy){
 			Instant now = Instant.now();
-			return new JobWrapper(longRunningTaskTrackerFactory, jobCounters, job, now, now, false, triggeredBy);
+			return new JobWrapper(longRunningTaskTrackerFactory, job, now, now, false, triggeredBy);
 		}
 	}
 
-	//singletons
-	private final JobCounters jobCounters;
 	//final fields
 	public final JobPackage jobPackage;
 	public final BaseJob job;
@@ -134,7 +126,6 @@ public class JobWrapper implements Callable<Void>{
 	private JobWrapper(
 			JobPackage jobPackage,
 			LongRunningTaskTrackerFactory longRunningTaskTrackerFactory,
-			JobCounters jobCounters,
 			BaseJob job,
 			Instant triggerTime,
 			Instant scheduledTime,
@@ -142,7 +133,6 @@ public class JobWrapper implements Callable<Void>{
 			String triggeredBy){
 		this(
 				jobPackage,
-				jobCounters,
 				job,
 				triggerTime,
 				scheduledTime,
@@ -159,7 +149,6 @@ public class JobWrapper implements Callable<Void>{
 
 	protected JobWrapper(
 			LongRunningTaskTrackerFactory longRunningTaskTrackerFactory,
-			JobCounters jobCounters,
 			BaseJob job,
 			Instant triggerTime,
 			Instant scheduledTime,
@@ -167,7 +156,6 @@ public class JobWrapper implements Callable<Void>{
 			String triggeredBy){
 		this(
 				null,
-				jobCounters,
 				job,
 				triggerTime,
 				scheduledTime,
@@ -184,7 +172,6 @@ public class JobWrapper implements Callable<Void>{
 
 	protected JobWrapper(
 			JobPackage jobPackage,
-			JobCounters jobCounters,
 			BaseJob job,
 			Instant triggerTime,
 			Instant scheduledTime,
@@ -192,7 +179,6 @@ public class JobWrapper implements Callable<Void>{
 			String triggeredBy,
 			LongRunningTaskTracker taskTracker){
 		this.jobPackage = jobPackage;
-		this.jobCounters = jobCounters;
 		this.job = job;
 		this.triggerTime = triggerTime;
 		this.scheduledTime = scheduledTime;
@@ -271,12 +257,12 @@ public class JobWrapper implements Callable<Void>{
 	}
 
 	protected void trackBefore(){
-		jobCounters.started(jobClass);
+		JobCounters.started(jobClass);
 		tracker.start();
 	}
 
 	protected void trackAfter(){
-		jobCounters.finished(jobClass);
+		JobCounters.finished(jobClass);
 		tracker.finish();
 	}
 
@@ -292,17 +278,17 @@ public class JobWrapper implements Callable<Void>{
 	protected void logSuccess(){
 		long startDelayMs = Duration.between(scheduledTime, tracker.getStartTime()).toMillis();
 		Duration elapsedTime = Duration.between(tracker.getStartTime(), tracker.getFinishTime());
-		jobCounters.duration(jobClass, elapsedTime);
+		JobCounters.duration(jobClass, elapsedTime);
 		Optional<Instant> nextJobTriggerTime = jobPackage.getNextValidTimeAfter(Date.from(scheduledTime))
 				.map(Date::toInstant);
 		String jobCompletionLog = "finished in " + new DatarouterDuration(elapsedTime) + " jobName="
 				+ jobClass.getSimpleName() + " durationMs=" + elapsedTime.toMillis();
 		if(startDelayMs > 1000){
-			jobCounters.startedAfterLongDelay(jobClass);
+			JobCounters.startedAfterLongDelay(jobClass);
 			jobCompletionLog += " startDelayMs= " + startDelayMs;
 		}
 		if(nextJobTriggerTime.isPresent() && Instant.now().isAfter(nextJobTriggerTime.get())){
-			jobCounters.missedNextTrigger(jobClass);
+			JobCounters.missedNextTrigger(jobClass);
 			jobCompletionLog += " missed next trigger";
 		}
 		if(ComparableTool.gt(elapsedTime, Duration.ofHours(3))){

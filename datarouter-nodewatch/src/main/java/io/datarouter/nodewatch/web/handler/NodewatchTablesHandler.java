@@ -114,7 +114,7 @@ public class NodewatchTablesHandler extends BaseHandler{
 				.withColumn(
 						"Updated",
 						LatestTableCount::getDateUpdated,
-						instant -> ZonedDateFormatterTool.formatInstantWithZone(instant, userZoneId))
+						instant -> ZonedDateFormatterTool.formatInstantWithZoneDesc(instant, userZoneId))
 				.withColumn(
 						"Spans",
 						LatestTableCount::getNumSpans,
@@ -203,6 +203,12 @@ public class NodewatchTablesHandler extends BaseHandler{
 							.sort(LatestTableCount.COMPARE_CLIENT
 									.thenComparing(LatestTableCount.COMPARE_COUNT_TIME.reversed())
 									.thenComparing(LatestTableCount.COMPARE_ROWS.reversed())
+									.thenComparing(LatestTableCount.COMPARE_TABLE)));
+			addWithTotal(
+					"Date Updated",
+					$ -> dao.scan()
+							.sort(LatestTableCount.COMPARE_DATE_UPDATED
+									.thenComparing(LatestTableCount.COMPARE_CLIENT)
 									.thenComparing(LatestTableCount.COMPARE_TABLE)));
 			addWithTotal(
 					"Client and Table",

@@ -20,11 +20,14 @@ import java.util.Optional;
 
 public interface ExceptionRecordSummaryCollector{
 
-	List<ExceptionRecordSummaryDto> getSummaries(long periodStart, long periodEnd, String serviceName,
+	List<ExceptionRecordSummaryDto> getSummaries(
+			long periodStartMs,
+			long periodEndMs,
+			String serviceName,
 			Optional<Integer> minThreshold);
 	Optional<String> getBrowsePageLink(String serviceName);
 
-	public static class NoOpExceptionRecordSummaryCollector implements ExceptionRecordSummaryCollector{
+	class NoOpExceptionRecordSummaryCollector implements ExceptionRecordSummaryCollector{
 
 		@Override
 		public List<ExceptionRecordSummaryDto> getSummaries(long periodStart, long periodEnd, String serviceName,

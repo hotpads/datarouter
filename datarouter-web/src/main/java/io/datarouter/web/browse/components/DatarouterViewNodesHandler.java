@@ -25,7 +25,9 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.DatarouterClients;
 import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.node.Node;
+import io.datarouter.storage.node.type.index.ManagedNodesHolder;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
+import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
@@ -43,6 +45,8 @@ public class DatarouterViewNodesHandler extends BaseHandler{
 	private DatarouterNodes datarouterNodes;
 	@Inject
 	private DatarouterClients datarouterClients;
+	@Inject
+	private ManagedNodesHolder managedNodesHolder;
 
 	@Handler
 	public Mav nodes(){
@@ -59,8 +63,14 @@ public class DatarouterViewNodesHandler extends BaseHandler{
 		var physicalNodesTable = new J2HtmlTable<Node<?,?,?>>()
 				.withClasses("table table-sm table-striped border")
 				.withColumn("Node Name", Node::getName)
-				.withColumn("Client Type", this::getClientName)
-				.withColumn("Client Name", this::getClientTypeName)
+				.withColumn("Client Type", this::getClientTypeName)
+				.withColumn("Client Name", this::getClientName)
+				.withColumn(
+						"Indexes",
+						node -> {
+							int numManagedNodes = managedNodesHolder.getManagedNodes((PhysicalNode<?,?,?>)node).size();
+							return numManagedNodes == 0 ? "" : NumberFormatter.addCommas(numManagedNodes);
+						})
 				.build(physicalNodes);
 		var virtualNodesTable = new J2HtmlTable<Node<?,?,?>>()
 				.withClasses("table table-sm table-striped border")

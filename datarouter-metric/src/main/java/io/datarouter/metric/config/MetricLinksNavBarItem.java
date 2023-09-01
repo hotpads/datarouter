@@ -15,13 +15,13 @@
  */
 package io.datarouter.metric.config;
 
+import io.datarouter.auth.role.DatarouterUserRole;
 import io.datarouter.web.dispatcher.DispatchRule;
 import io.datarouter.web.navigation.DatarouterNavBarCategory;
 import io.datarouter.web.navigation.DynamicNavBarItem;
 import io.datarouter.web.navigation.NavBarCategory.NavBarItemType;
 import io.datarouter.web.navigation.NavBarItem;
 import io.datarouter.web.navigation.NavBarItem.NavBarItemBuilder;
-import io.datarouter.web.user.role.DatarouterUserRole;
 import jakarta.inject.Inject;
 
 public class MetricLinksNavBarItem implements DynamicNavBarItem{

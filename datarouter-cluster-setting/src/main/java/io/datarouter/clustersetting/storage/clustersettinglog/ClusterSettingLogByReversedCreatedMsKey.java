@@ -22,9 +22,10 @@ import io.datarouter.clustersetting.storage.clustersettinglog.ClusterSettingLogK
 import io.datarouter.model.databean.FieldlessIndexEntry;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.imp.StringField;
-import io.datarouter.model.field.imp.comparable.LongField;
+import io.datarouter.model.field.imp.comparable.LongEncodedField;
 import io.datarouter.model.key.FieldlessIndexEntryPrimaryKey;
 import io.datarouter.model.key.primary.base.BaseRegularPrimaryKey;
+import io.datarouter.types.MilliTimeReversed;
 
 public class ClusterSettingLogByReversedCreatedMsKey
 extends BaseRegularPrimaryKey<ClusterSettingLogByReversedCreatedMsKey>
@@ -33,25 +34,25 @@ implements FieldlessIndexEntryPrimaryKey<
 		ClusterSettingLogKey,
 		ClusterSettingLog>{
 
-	private Long reverseCreatedMs;
+	private MilliTimeReversed reverseCreatedMs;
 	private String name;
 
 	public ClusterSettingLogByReversedCreatedMsKey(){
 	}
 
-	public ClusterSettingLogByReversedCreatedMsKey(Long reverseCreatedMs, String name){
+	public ClusterSettingLogByReversedCreatedMsKey(MilliTimeReversed reverseCreatedMs, String name){
 		this.reverseCreatedMs = reverseCreatedMs;
 		this.name = name;
 	}
 
-	public static ClusterSettingLogByReversedCreatedMsKey prefix(Long reverseCreatedMs){
+	public static ClusterSettingLogByReversedCreatedMsKey prefix(MilliTimeReversed reverseCreatedMs){
 		return new ClusterSettingLogByReversedCreatedMsKey(reverseCreatedMs, null);
 	}
 
 	@Override
 	public List<Field<?>> getFields(){
 		return List.of(
-				new LongField(FieldKeys.reverseCreatedMs, reverseCreatedMs),
+				new LongEncodedField<>(FieldKeys.reverseCreatedMs, reverseCreatedMs),
 				new StringField(ClusterSettingKey.FieldKeys.name, name));
 	}
 
@@ -66,7 +67,7 @@ implements FieldlessIndexEntryPrimaryKey<
 		return new FieldlessIndexEntry<>(
 				ClusterSettingLogByReversedCreatedMsKey::new,
 				new ClusterSettingLogByReversedCreatedMsKey(
-						target.getKey().getReverseCreatedMs(),
+						target.getKey().getMilliTimeReversed(),
 						target.getKey().getName()));
 	}
 

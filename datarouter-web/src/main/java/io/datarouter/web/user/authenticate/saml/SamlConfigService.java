@@ -20,6 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 import io.datarouter.web.util.http.RequestTool;
 import jakarta.inject.Singleton;
 
+// TODO braydonh: figure out how to move this out of dr-web
 @Singleton
 public class SamlConfigService{
 

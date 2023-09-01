@@ -48,7 +48,7 @@ public abstract class DispatcherServlet extends HttpServlet{
 	@Inject
 	private DatarouterWebSettingRoot datarouterWebSettingRoot;
 
-	private List<RouteSet> routeSets = new ArrayList<>();
+	private final List<RouteSet> routeSets = new ArrayList<>();
 
 	@Override
 	public void init(){
@@ -65,10 +65,10 @@ public abstract class DispatcherServlet extends HttpServlet{
 	protected abstract void registerRouteSets();
 
 	protected List<DispatcherServletListener> getInitListeners(){
-		List<DispatcherServletListener> initListerners = new ArrayList<>();
-		appNavBar.ifPresent(initListerners::add);
-		initListerners.add(datarouterNavBar);
-		return initListerners;
+		List<DispatcherServletListener> initListeners = new ArrayList<>();
+		appNavBar.ifPresent(initListeners::add);
+		initListeners.add(datarouterNavBar);
+		return initListeners;
 	}
 
 	protected final void register(RouteSet newRouteSet){
@@ -79,7 +79,7 @@ public abstract class DispatcherServlet extends HttpServlet{
 		// init handlers once, as a sort of eager health check
 		Optional.ofNullable(routeSet.getDefaultHandlerClass())
 				.map(injector::getInstance);
-		routeSet.getDispatchRules().stream()
+		routeSet.getDispatchRulesNoRedirects().stream()
 				.map(DispatchRule::getHandlerClass)
 				.distinct()
 				.forEach(injector::getInstance);
@@ -104,18 +104,15 @@ public abstract class DispatcherServlet extends HttpServlet{
 		}
 
 		switch(routingResult){
-		case NOT_FOUND:
+		case NOT_FOUND -> {
 			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
 			response.setContentType("text/plain");
 			try(PrintWriter out = response.getWriter()){
 				out.print(getClass().getCanonicalName() + " could not find Handler for " + request.getRequestURI());
 			}
-			break;
-		case FORBIDDEN:
-			response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-			break;
-		default:
-			break;
+		}
+		case FORBIDDEN -> response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+		case ROUTED -> {}
 		}
 	}
 

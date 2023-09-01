@@ -15,12 +15,11 @@
  */
 package io.datarouter.webappinstance.config;
 
+import io.datarouter.auth.role.DatarouterUserRole;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
-import io.datarouter.web.user.role.DatarouterUserRole;
 import io.datarouter.webappinstance.web.WebappInstanceHistoryHandler;
-import io.datarouter.webappinstance.web.WebappInstanceLoginHandler;
 import io.datarouter.webappinstance.web.WebappInstanceRunningHandler;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -31,7 +30,6 @@ public class DatarouterWebappInstanceRouteSet extends BaseRouteSet{
 	@Inject
 	public DatarouterWebappInstanceRouteSet(DatarouterWebappInstancePaths paths){
 		handle(paths.datarouter.webappInstances.running).withHandler(WebappInstanceRunningHandler.class);
-		handle(paths.datarouter.webappInstances.instanceLogin).withHandler(WebappInstanceLoginHandler.class);
 		handle(paths.datarouter.webappInstances.history).withHandler(WebappInstanceHistoryHandler.class);
 	}
 

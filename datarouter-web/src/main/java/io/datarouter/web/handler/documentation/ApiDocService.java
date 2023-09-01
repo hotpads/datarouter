@@ -101,7 +101,7 @@ public class ApiDocService{
 
 	public List<DocumentedEndpointJspDto> buildDocumentation(String apiUrlContext, List<RouteSet> routeSets){
 		return Scanner.of(routeSets)
-				.concatIter(RouteSet::getDispatchRules)
+				.concatIter(RouteSet::getDispatchRulesNoRedirects)
 				.include(rule -> rule.getPattern().pattern().startsWith(apiUrlContext))
 				.concatIter(this::buildEndpointDocumentation)
 				.sort(Comparator.comparing(DocumentedEndpointJspDto::getUrl))

@@ -23,9 +23,9 @@ import java.util.Optional;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import io.datarouter.auth.role.DatarouterUserRole;
 import io.datarouter.web.dispatcher.BaseRouteSetTests;
 import io.datarouter.web.dispatcher.DispatcherServletTestServlet;
-import io.datarouter.web.user.role.DatarouterUserRole;
 
 public class NavBarTests{
 

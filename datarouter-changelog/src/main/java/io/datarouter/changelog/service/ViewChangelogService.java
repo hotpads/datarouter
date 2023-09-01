@@ -30,7 +30,6 @@ import io.datarouter.changelog.storage.Changelog;
 import io.datarouter.changelog.storage.ChangelogKey;
 import io.datarouter.changelog.web.ViewExactChangelogHandler;
 import io.datarouter.util.number.RandomTool;
-import io.datarouter.util.time.ZonedDateFormatterTool;
 import io.datarouter.web.config.ServletContextSupplier;
 import io.datarouter.web.html.j2html.J2HtmlTable;
 import j2html.attributes.Attr;
@@ -51,20 +50,17 @@ public class ViewChangelogService{
 		return new J2HtmlTable<Changelog>()
 				.withClasses("table table-sm table-striped my-4 border")
 				.withHtmlColumn("", row -> td(a().withClass("fa fa-link").withHref(buildViewExactHref(row, true))))
-				.withColumn("Date", row -> {
-					long reversedDateMs = row.getKey().getReversedDateMs();
-					return ZonedDateFormatterTool.formatReversedLongMsWithZone(reversedDateMs, zoneId);
-				})
+				.withColumn("Date", row -> row.getKey().getMilliTimeReversed().format(zoneId))
 				.withColumn("Type", row -> row.getKey().getChangelogType())
 				.withColumn("Name", row -> row.getKey().getName())
 				.withColumn("Action", Changelog::getAction)
 				.withColumn("User", Changelog::getUsername)
 				.withHtmlColumn("Comment", row -> {
-					String id = row.getKey().getReversedDateMs() + "" + RandomTool.nextPositiveInt();
+					String id = row.getKey().getMilliTimeReversed() + "" + RandomTool.nextPositiveInt();
 					return makeModal(id, row.getComment(), "comment");
 				})
 				.withHtmlColumn("Note", row -> {
-					String id = row.getKey().getReversedDateMs() + "" + RandomTool.nextPositiveInt();
+					String id = row.getKey().getMilliTimeReversed() + "" + RandomTool.nextPositiveInt();
 					return makeModal(id, row.getNote(), "note");
 				})
 				.withHtmlColumn("Edit", row -> td(a().withClass("fa fa-edit").withHref(buildEditHref(row))))
@@ -112,7 +108,7 @@ public class ViewChangelogService{
 		}
 		return new URIBuilder()
 				.setPath(path)
-				.addParameter(ViewExactChangelogHandler.P_reversedDateMs, key.getReversedDateMs().toString())
+				.addParameter(ViewExactChangelogHandler.P_reversedDateMs, key.getMilliTimeReversed().toString())
 				.addParameter(ViewExactChangelogHandler.P_changelogType, key.getChangelogType())
 				.addParameter(ViewExactChangelogHandler.P_name, key.getName())
 				.toString();
@@ -122,7 +118,7 @@ public class ViewChangelogService{
 		ChangelogKey key = log.getKey();
 		return new URIBuilder()
 				.setPath(servletContext.get().getContextPath() + paths.datarouter.changelog.edit.toSlashedString())
-				.addParameter(ViewExactChangelogHandler.P_reversedDateMs, key.getReversedDateMs().toString())
+				.addParameter(ViewExactChangelogHandler.P_reversedDateMs, key.getMilliTimeReversed().toString())
 				.addParameter(ViewExactChangelogHandler.P_changelogType, key.getChangelogType())
 				.addParameter(ViewExactChangelogHandler.P_name, key.getName())
 				.toString();

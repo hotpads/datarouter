@@ -20,7 +20,6 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -36,40 +35,9 @@ import io.datarouter.util.duration.DatarouterDuration;
  */
 public class PhaseTimer{
 
-	public static class PhaseNameAndTime{
-
-		public String phaseName;
-		public Long time;
-
-		public PhaseNameAndTime(String phaseName, Long time){
-			this.phaseName = phaseName;
-			this.time = time;
-		}
-
-		public void setTime(Long time){
-			this.time = time;
-		}
-
-		@Override
-		public int hashCode(){
-			return Objects.hash(phaseName, time);
-		}
-
-		@Override
-		public boolean equals(Object obj){
-			if(this == obj){
-				return true;
-			}
-			if(obj == null){
-				return false;
-			}
-			if(getClass() != obj.getClass()){
-				return false;
-			}
-			PhaseNameAndTime other = (PhaseNameAndTime)obj;
-			return Objects.equals(phaseName, other.phaseName) && Objects.equals(time, other.time);
-		}
-
+	public record PhaseNameAndTime(
+			String name,
+			Long time){
 	}
 
 	private final String name;
@@ -107,14 +75,16 @@ public class PhaseTimer{
 	}
 
 	public PhaseTimer sum(String eventName){
-		Optional<PhaseNameAndTime> nameAndTimeOpt = searchForName(eventName);
-		if(nameAndTimeOpt.isEmpty()){
+		int eventIndex = findIndexByName(eventName);
+		if(eventIndex < 0){
 			return add(eventName);
 		}
-		long newMarker = System.currentTimeMillis();
-		PhaseNameAndTime nameAndTime = nameAndTimeOpt.get();
-		nameAndTime.setTime(nameAndTime.time + newMarker - lastMarker);
-		lastMarker = newMarker;
+		synchronized(phaseNamesAndTimes){
+			long newMarker = System.currentTimeMillis();
+			PhaseNameAndTime prev = phaseNamesAndTimes.get(eventIndex);
+			phaseNamesAndTimes.set(eventIndex, new PhaseNameAndTime(eventName, prev.time() + newMarker - lastMarker));
+			lastMarker = newMarker;
+		}
 		return this;
 	}
 
@@ -126,8 +96,17 @@ public class PhaseTimer{
 
 	private Optional<PhaseNameAndTime> searchForName(String eventName){
 		return phaseNamesAndTimes.stream()
-				.filter(nameAndTime -> nameAndTime.phaseName.equals(eventName))
+				.filter(nameAndTime -> nameAndTime.name().equals(eventName))
 				.findAny();
+	}
+
+	private int findIndexByName(String eventName){
+		for(int i = 0; i < phaseNamesAndTimes.size(); ++i){
+			if(phaseNamesAndTimes.get(i).name().equals(eventName)){
+				return i;
+			}
+		}
+		return -1;
 	}
 
 	public int numEvents(){
@@ -136,19 +115,20 @@ public class PhaseTimer{
 
 	@Override
 	public String toString(){
-		StringBuilder sb = new StringBuilder();
-		sb.append("[total=").append(getElapsedTimeBetweenFirstAndLastEvent());
+		var sb = new StringBuilder()
+				.append("[total=")
+				.append(getElapsedTimeBetweenFirstAndLastEvent());
 		if(name != null){
 			sb.append(" name=").append(name);
 		}
 		sb.append("]");
-		phaseNamesAndTimes.forEach(dto -> sb.append("[" + dto.phaseName + "=" + dto.time + "]"));
+		phaseNamesAndTimes.forEach(dto -> sb.append("[" + dto.name() + "=" + dto.time() + "]"));
 		return sb.toString();
 	}
 
 	public long getElapsedTimeBetweenFirstAndLastEvent(){
 		return phaseNamesAndTimes.stream()
-				.map(dto -> dto.time)
+				.map(PhaseNameAndTime::time)
 				.mapToLong(Long::longValue)
 				.sum();
 	}
@@ -168,7 +148,7 @@ public class PhaseTimer{
 
 	public Map<String,Long> asMap(){
 		return Scanner.of(phaseNamesAndTimes)
-				.toMapSupplied(dto -> dto.phaseName, dto -> dto.time, LinkedHashMap::new);
+				.toMapSupplied(PhaseNameAndTime::name, PhaseNameAndTime::time, LinkedHashMap::new);
 	}
 
 	public String getName(){

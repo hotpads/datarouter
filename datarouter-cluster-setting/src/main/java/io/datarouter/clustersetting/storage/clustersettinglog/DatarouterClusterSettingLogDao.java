@@ -15,9 +15,9 @@
  */
 package io.datarouter.clustersetting.storage.clustersettinglog;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,7 +36,7 @@ import io.datarouter.storage.node.op.combo.IndexedSortedMapStorage.IndexedSorted
 import io.datarouter.storage.node.op.index.IndexReader;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.storage.util.KeyRangeTool;
-import io.datarouter.util.DateTool;
+import io.datarouter.types.MilliTimeReversed;
 import io.datarouter.util.tuple.Range;
 import io.datarouter.virtualnode.redundant.RedundantIndexedSortedMapStorageNode;
 import jakarta.inject.Inject;
@@ -142,20 +142,21 @@ public class DatarouterClusterSettingLogDao extends BaseDao{
 	}
 
 	public Scanner<ClusterSettingLog> scanBeforeDesc(Instant instant){
-		long reverseCreatedMs = DateTool.toReverseInstantLong(instant);
-		var prefix = ClusterSettingLogByReversedCreatedMsKey.prefix(reverseCreatedMs);
+		var timeReversed = MilliTimeReversed.of(instant);
+		var prefix = ClusterSettingLogByReversedCreatedMsKey.prefix(timeReversed);
 		var range = new Range<>(prefix, false, null, true);
 		return scanByReversedCreatedMs(range);
 	}
 
 	public boolean isOldDatabaseSetting(ClusterSetting databeanSetting, int numOfDays){
-		Date maxSettingAge = DateTool.getDaysAgo(numOfDays);
+		Instant maxSettingAge = Instant.now().minus(Duration.ofDays(numOfDays));
 		return node
 				.scanKeysWithPrefix(ClusterSettingLogKey.prefix(databeanSetting.getName()),
 						new Config().setLimit(1))
 				.findFirst()
-				.map(ClusterSettingLogKey::getCreated)
-				.map(created -> created.compareTo(maxSettingAge) < 0)
+				.map(ClusterSettingLogKey::getMilliTimeReversed)
+				.map(MilliTimeReversed::toInstant)
+				.map(created -> created.isBefore(maxSettingAge))
 				.orElse(false);
 	}
 

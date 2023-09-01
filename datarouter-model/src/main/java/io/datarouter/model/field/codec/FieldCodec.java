@@ -15,6 +15,8 @@
  */
 package io.datarouter.model.field.codec;
 
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.Optional;
 
@@ -72,6 +74,16 @@ public class FieldCodec<A,B>{
 
 	public Optional<String> findDocString(){
 		return Optional.ofNullable(docString);
+	}
+
+	public Optional<String> findAuxiliaryHumanReadableString(
+			@SuppressWarnings("unused")
+			A object,
+			@SuppressWarnings("unused")
+			DateTimeFormatter dateTimeFormatter,
+			@SuppressWarnings("unused")
+			ZoneId zoneId){
+		return Optional.empty();
 	}
 
 }

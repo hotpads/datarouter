@@ -27,31 +27,115 @@ import java.util.stream.Collectors;
 
 import io.datarouter.auth.model.dto.RoleApprovalRequirementStatus;
 import io.datarouter.auth.model.dto.UserRoleMetadata;
-import io.datarouter.auth.storage.roleapprovals.DatarouterUserRoleApprovalDao;
-import io.datarouter.auth.storage.user.DatarouterUserDao;
+import io.datarouter.auth.role.DatarouterUserRole;
+import io.datarouter.auth.role.Role;
+import io.datarouter.auth.role.RoleApprovalType;
+import io.datarouter.auth.role.RoleManager;
+import io.datarouter.auth.session.Session;
+import io.datarouter.auth.storage.user.datarouteruser.DatarouterUser;
+import io.datarouter.auth.storage.user.datarouteruser.DatarouterUser.DatarouterUserByUserTokenLookup;
+import io.datarouter.auth.storage.user.datarouteruser.DatarouterUser.DatarouterUserByUsernameLookup;
+import io.datarouter.auth.storage.user.datarouteruser.DatarouterUserDao;
+import io.datarouter.auth.storage.user.datarouteruser.DatarouterUserKey;
+import io.datarouter.auth.storage.user.datarouteruser.cache.DatarouterUserByIdCache;
+import io.datarouter.auth.storage.user.datarouteruser.cache.DatarouterUserByUserTokenCache;
+import io.datarouter.auth.storage.user.datarouteruser.cache.DatarouterUserByUsernameCache;
+import io.datarouter.auth.storage.user.roleapprovals.DatarouterUserRoleApprovalDao;
+import io.datarouter.auth.util.PasswordTool;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.web.user.databean.DatarouterUser;
-import io.datarouter.web.user.databean.DatarouterUser.DatarouterUserByUserTokenLookup;
-import io.datarouter.web.user.databean.DatarouterUser.DatarouterUserByUsernameLookup;
-import io.datarouter.web.user.databean.DatarouterUserKey;
-import io.datarouter.web.user.role.DatarouterUserRole;
-import io.datarouter.web.user.role.Role;
-import io.datarouter.web.user.role.RoleApprovalType;
-import io.datarouter.web.user.role.RoleManager;
-import io.datarouter.web.user.session.service.Session;
-import io.datarouter.web.util.PasswordTool;
+import io.datarouter.util.Require;
+import io.datarouter.util.string.StringTool;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
 @Singleton
-public class DatarouterUserService{
+public class DatarouterUserService implements UserInfo{
 
 	@Inject
-	private DatarouterUserDao nodes;
+	private DatarouterUserDao userDao;
 	@Inject
-	private RoleManager roleManager;
+	private DatarouterUserByUsernameCache datarouterUserByUsernameCache;
+	@Inject
+	private DatarouterUserByUserTokenCache datarouterUserByUserTokenCache;
+	@Inject
+	private DatarouterUserByIdCache datarouterUserByIdCache;
 	@Inject
 	private DatarouterUserRoleApprovalDao roleApprovalDao;
+	@Inject
+	private RoleManager roleManager;
+
+	@Override
+	public Scanner<DatarouterUser> scanAllUsers(boolean enabledOnly, Set<Role> includedRoles){
+		if(includedRoles.isEmpty()){
+			return Scanner.empty();
+		}
+		return userDao.scan()
+				.include(user -> !enabledOnly || user.getEnabled())
+				.include(user -> user.getRolesIgnoreSaml().stream().anyMatch(includedRoles::contains));
+	}
+
+	@Override
+	public Optional<DatarouterUser> findUserByUsername(String username, boolean allowCached){
+		if(StringTool.isEmptyOrWhitespace(username)){
+			return Optional.empty();
+		}
+		if(allowCached){
+			return datarouterUserByUsernameCache.get(username);
+		}
+		return Optional.ofNullable(userDao.getByUsername(new DatarouterUserByUsernameLookup(username)));
+	}
+
+	public DatarouterUser getUserByUsername(String username, boolean allowCached){
+		return findUserByUsername(username, allowCached)
+				.orElseThrow(() -> new RuntimeException("User not found for username=" + username));
+	}
+
+	@Override
+	public Optional<DatarouterUser> findUserByToken(String token, boolean allowCached){
+		if(StringTool.isEmptyOrWhitespace(token)){
+			return Optional.empty();
+		}
+		if(allowCached){
+			return datarouterUserByUserTokenCache.get(token);
+		}
+		return userDao.find(new DatarouterUserByUserTokenLookup(token));
+	}
+
+	public DatarouterUser getUserByToken(String token, boolean allowCached){
+		return findUserByToken(token, allowCached)
+				.orElseThrow(() -> new RuntimeException("User not found for userToken=" + token));
+	}
+
+	@Override
+	public Optional<DatarouterUser> findUserById(Long id, boolean allowCached){
+		if(id == null){
+			return Optional.empty();
+		}
+		if(allowCached){
+			return datarouterUserByIdCache.get(id);
+		}
+		return userDao.find(new DatarouterUserKey(id));
+	}
+
+	public DatarouterUser getUserById(Long id, boolean allowCached){
+		return findUserById(id, allowCached)
+				.orElseThrow(() -> new RuntimeException("User not found for id=" + id));
+	}
+
+	public Set<Role> getUserRolesWithSamlGroups(DatarouterUser user){
+		return getUserRolesWithSamlGroups(Optional.ofNullable(user));
+	}
+
+	public Set<Role> getUserRolesWithSamlGroups(Optional<DatarouterUser> optionalUser){
+		return optionalUser.map(user -> user.getRolesWithSamlGroups(roleManager))
+				.map(HashSet::new)
+				.orElseGet(HashSet::new);
+	}
+
+	@Override
+	public Set<Role> getRolesByUsername(String username, boolean allowCached){
+		return getUserRolesWithSamlGroups(findUserByUsername(username, allowCached));
+	}
 
 	public DatarouterUser getAndValidateCurrentUser(Session session){
 		DatarouterUser user = getUserBySession(session);
@@ -65,11 +149,7 @@ public class DatarouterUserService{
 		if(session == null || session.getUserId() == null){
 			return null;
 		}
-		return nodes.get(new DatarouterUserKey(session.getUserId()));
-	}
-
-	public DatarouterUser getUserById(Long id){
-		return nodes.get(new DatarouterUserKey(id));
+		return userDao.get(new DatarouterUserKey(session.getUserId()));
 	}
 
 	public boolean canEditUserPassword(DatarouterUser editor, DatarouterUser user){
@@ -98,22 +178,13 @@ public class DatarouterUserService{
 	}
 
 	public void assertUserDoesNotExist(Long id, String userToken, String username){
-		DatarouterUser userWithId = getUserById(id);
-		if(userWithId != null){
-			throw new IllegalArgumentException("DatarouterUser already exists with id=" + id);
-		}
-		DatarouterUser userWithUserToken = nodes.getByUserToken(new DatarouterUserByUserTokenLookup(userToken));
-		if(userWithUserToken != null){
-			throw new IllegalArgumentException("DatarouterUser already exists with userToken=" + userToken);
-		}
-		DatarouterUser userWithEmail = nodes.getByUsername(new DatarouterUserByUsernameLookup(username));
-		if(userWithEmail != null){
-			throw new IllegalArgumentException("DatarouterUser already exists with username=" + username);
-		}
+		Require.isEmpty(findUserById(id, false), "DatarouterUser already exists with id=" + id);
+		Require.isEmpty(findUserByToken(userToken, false), "DatarouterUser already exists with userToken=" + userToken);
+		Require.isEmpty(findUserByUsername(username, false), "DatarouterUser already exists with username=" + username);
 	}
 
 	public boolean isDatarouterAdmin(DatarouterUser user){
-		return user.getRoles().contains(DatarouterUserRole.DATAROUTER_ADMIN.getRole());
+		return getUserRolesWithSamlGroups(user).contains(DatarouterUserRole.DATAROUTER_ADMIN.getRole());
 	}
 
 	public Map<Role,Map<RoleApprovalType,Set<String>>> getCurrentRoleApprovals(DatarouterUser user){
@@ -135,7 +206,7 @@ public class DatarouterUserService{
 	}
 
 	public List<UserRoleMetadata> getRoleMetadataForUser(DatarouterUser editor, DatarouterUser user){
-		Set<Role> currentRoles = new HashSet<>(user.getRoles());
+		Set<Role> currentRoles = new HashSet<>(user.getRolesIgnoreSaml());
 		Set<Role> availableRoles = roleManager.getAllRoles();
 		Map<Role,Map<RoleApprovalType,Integer>> roleApprovalRequirements = roleManager.getAllRoleApprovalRequirements();
 		Map<Role,Map<RoleApprovalType,Set<String>>> currentRoleApprovals = getCurrentRoleApprovals(user);
@@ -145,6 +216,7 @@ public class DatarouterUserService{
 				.forEach(relevantApprovalTypes::addAll);
 		List<RoleApprovalType> prioritizedApprovalTypes =
 				roleManager.getPrioritizedRoleApprovalTypes(editor, user, relevantApprovalTypes);
+		Map<Role, List<String>> groupsHasByRole = roleManager.getGroupsByRole(user.getSamlGroups());
 
 		return Scanner.of(availableRoles)
 				.map(availableRole -> {
@@ -201,8 +273,10 @@ public class DatarouterUserService{
 							currentRoles.contains(availableRole),
 							requirementStatusByApprovalType,
 							prioritizedApprovalType,
-							Optional.of(canRevoke));
+							Optional.of(canRevoke),
+							groupsHasByRole.get(availableRole));
 				})
 				.collect(Collectors.toList());
 	}
+
 }

@@ -20,7 +20,7 @@ import java.util.Optional;
 import io.datarouter.client.mysql.execution.SessionExecutor;
 import io.datarouter.client.mysql.op.Isolation;
 import io.datarouter.client.mysql.sql.MysqlSqlFactory;
-import io.datarouter.joblet.DatarouterJobletCounters;
+import io.datarouter.joblet.JobletCounters;
 import io.datarouter.joblet.JobletRequestSqlBuilder;
 import io.datarouter.joblet.enums.JobletQueueMechanism;
 import io.datarouter.joblet.enums.JobletStatus;
@@ -50,8 +50,6 @@ public class MysqlUpdateAndScanJobletRequestSelector implements JobletRequestSel
 	@Inject
 	private JobletRequestQueueManager jobletRequestQueueManager;
 	@Inject
-	private DatarouterJobletCounters datarouterJobletCounters;
-	@Inject
 	private SessionExecutor sessionExecutor;
 	@Inject
 	private MysqlSqlFactory mysqlSqlFactory;
@@ -79,7 +77,7 @@ public class MysqlUpdateAndScanJobletRequestSelector implements JobletRequestSel
 			if(jobletRequest.getNumTimeouts() <= JobletService.MAX_JOBLET_RETRIES){
 				jobletRequestDao.put(jobletRequest);
 				JobletRequestQueueKey queueKey = new JobletRequestQueueKey(type, jobletRequest.getKey().getPriority());
-				datarouterJobletCounters.incQueueHit(queueKey.getQueueName());
+				JobletCounters.incQueueHit(queueKey.getQueueName());
 				return Optional.of(jobletRequest);
 			}
 

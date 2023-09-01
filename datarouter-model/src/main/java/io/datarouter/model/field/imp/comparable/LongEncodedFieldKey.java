@@ -24,7 +24,8 @@ import io.datarouter.model.field.FieldKeyAttributeKey;
 import io.datarouter.model.field.codec.FieldCodec;
 import io.datarouter.model.field.encoding.FieldGeneratorType;
 
-public class LongEncodedFieldKey<T> extends BaseFieldKey<T,LongEncodedFieldKey<T>>{
+public class LongEncodedFieldKey<T>
+extends BaseFieldKey<T,LongEncodedFieldKey<T>>{
 
 	private final FieldCodec<T,Long> codec;
 

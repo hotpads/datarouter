@@ -27,7 +27,7 @@ import java.util.Collection;
 import java.util.Optional;
 
 import io.datarouter.instrumentation.metric.MetricLinkBuilder;
-import io.datarouter.joblet.DatarouterJobletCounters;
+import io.datarouter.joblet.JobletCounters;
 import io.datarouter.joblet.JobletPageFactory;
 import io.datarouter.joblet.dto.JobletSummary;
 import io.datarouter.joblet.enums.JobletStatus;
@@ -111,8 +111,7 @@ public class JobletHandler extends BaseHandler{
 		var table = new J2HtmlTable<JobletSummary>()
 				.withClasses("sortable table table-sm table-striped table-bordered table-hover")
 				.withHtmlColumn("Type", row -> {
-					String metricNamePrefix = DatarouterJobletCounters.makeQueueLengthJobletsCreatedPrefix(row
-							.getType());
+					String metricNamePrefix = JobletCounters.makeQueueLengthJobletsCreatedPrefix(row.getType());
 					String text = row.getType();
 					return externalLinkBuilder.get().counters(metricNamePrefix)
 							.map(href -> td(a(text).withHref(href)))

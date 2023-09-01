@@ -15,20 +15,10 @@
  */
 package io.datarouter.instrumentation.gauge;
 
-public class GaugeDto{
-
-	public final String name;
-	public final String serviceName;
-	public final String serverName;
-	public final String ulid;
-	public final Long value;
-
-	public GaugeDto(String name, String serviceName, String serverName, String ulid, Long value){
-		this.name = name;
-		this.serviceName = serviceName;
-		this.serverName = serverName;
-		this.ulid = ulid;
-		this.value = value;
-	}
-
+public record GaugeDto(
+		String name,
+		String serviceName,
+		String serverName,
+		String ulid,
+		Long value){
 }

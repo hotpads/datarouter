@@ -15,6 +15,7 @@
  */
 package io.datarouter.websocket.config;
 
+import io.datarouter.auth.role.DatarouterUserRole;
 import io.datarouter.httpclient.security.DefaultCsrfGenerator;
 import io.datarouter.httpclient.security.DefaultSignatureGenerator;
 import io.datarouter.storage.tag.Tag;
@@ -23,7 +24,6 @@ import io.datarouter.web.dispatcher.DefaultApiKeyPredicate;
 import io.datarouter.web.dispatcher.DispatchRule;
 import io.datarouter.web.security.DefaultCsrfValidator;
 import io.datarouter.web.security.DefaultSignatureValidator;
-import io.datarouter.web.user.role.DatarouterUserRole;
 import io.datarouter.websocket.session.PushServiceSettingsSupplier;
 import io.datarouter.websocket.session.WebSocketApiHandler;
 import io.datarouter.websocket.session.WebSocketToolHandler;

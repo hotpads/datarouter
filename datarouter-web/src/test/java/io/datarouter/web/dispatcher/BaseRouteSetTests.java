@@ -21,8 +21,8 @@ import java.util.regex.Pattern;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.web.user.role.DatarouterUserRole;
-import io.datarouter.web.user.role.RoleEnum;
+import io.datarouter.auth.role.DatarouterUserRole;
+import io.datarouter.auth.role.RoleEnum;
 
 public class BaseRouteSetTests{
 

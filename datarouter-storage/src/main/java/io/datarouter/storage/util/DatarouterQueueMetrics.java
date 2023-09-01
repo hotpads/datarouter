@@ -15,38 +15,32 @@
  */
 package io.datarouter.storage.util;
 
-import io.datarouter.storage.metric.Gauges;
-import jakarta.inject.Inject;
-import jakarta.inject.Singleton;
+import io.datarouter.instrumentation.gauge.Gauges;
 
-@Singleton
 public class DatarouterQueueMetrics{
 
 	public static final String QUEUE_LENGTH = "queue length";
 	public static final String OLDEST_MESSAGE_AGE_S = "oldestMessageAgeS";
 	public static final String OLDEST_MESSAGE_AGE_M = "oldestMessageAgeM";
 
-	@Inject
-	private Gauges gauges;
-
 	public static String makeNameForOldestMessageAgeS(String clientTypeName, String queueName){
-		return makeMetricName(clientTypeName, DatarouterQueueMetrics.OLDEST_MESSAGE_AGE_S, queueName);
+		return makeMetricName(clientTypeName, OLDEST_MESSAGE_AGE_S, queueName);
 	}
 
 	public static String makeNameForQueueLength(String clientTypeName, String queueName){
-		return makeMetricName(clientTypeName, DatarouterQueueMetrics.QUEUE_LENGTH, queueName);
+		return makeMetricName(clientTypeName, QUEUE_LENGTH, queueName);
 	}
 
 	private static String makeMetricName(String clientTypeName, String key, String queueName){
 		return DatarouterCounters.PREFIX + " " + clientTypeName + " " + key + " " + queueName;
 	}
 
-	public void saveQueueLength(String key, long queueLength, String clientTypeName){
-		gauges.save(makeNameForQueueLength(clientTypeName, key), queueLength);
+	public static void saveQueueLength(String key, long queueLength, String clientTypeName){
+		Gauges.save(makeNameForQueueLength(clientTypeName, key), queueLength);
 	}
 
-	public void saveOldestAckMessageAge(String key, long oldestUnackedMessageAgeS, String clientTypeName){
-		gauges.save(makeNameForOldestMessageAgeS(clientTypeName, key), oldestUnackedMessageAgeS);
+	public static void saveOldestAckMessageAge(String key, long oldestUnackedMessageAgeS, String clientTypeName){
+		Gauges.save(makeNameForOldestMessageAgeS(clientTypeName, key), oldestUnackedMessageAgeS);
 	}
 
 }

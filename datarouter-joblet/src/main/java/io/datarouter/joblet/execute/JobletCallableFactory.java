@@ -15,7 +15,6 @@
  */
 package io.datarouter.joblet.execute;
 
-import io.datarouter.joblet.DatarouterJobletCounters;
 import io.datarouter.joblet.service.JobletFactory;
 import io.datarouter.joblet.service.JobletService;
 import io.datarouter.joblet.type.JobletType;
@@ -33,16 +32,16 @@ public class JobletCallableFactory{
 	private JobletService jobletService;
 	@Inject
 	private JobletFactory jobletFactory;
-	@Inject
-	private DatarouterJobletCounters datarouterJobletCounters;
 
-	public JobletCallable create(MutableBoolean shutdownRequested, JobletProcessor jobletProcessor,
-			JobletType<?> jobletType, long id){
+	public JobletCallable create(
+			MutableBoolean shutdownRequested,
+			JobletProcessor jobletProcessor,
+			JobletType<?> jobletType,
+			long id){
 		return new JobletCallable(
 				serverName,
 				jobletService,
 				jobletFactory,
-				datarouterJobletCounters,
 				shutdownRequested,
 				jobletProcessor,
 				jobletType,

@@ -16,7 +16,9 @@
 package io.datarouter.web.html;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
+import io.datarouter.scanner.Scanner;
 import j2html.tags.specialized.ScriptTag;
 
 public record PageScripts(
@@ -26,4 +28,10 @@ public record PageScripts(
 		this(List.of());
 	}
 
+	@Override
+	public String toString(){
+		return Scanner.of(scripts)
+				.map(ScriptTag::renderFormatted)
+				.collect(Collectors.joining("\n"));
+	}
 }

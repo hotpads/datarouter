@@ -29,7 +29,7 @@ public enum LoggingLevel{
 	OFF(Level.OFF);
 
 	public static final StringMappedEnum<LoggingLevel> BY_PERSISTENT_STRING
-			= new StringMappedEnum<>(values(), value -> value.name(), 5);
+			= new StringMappedEnum<>(values(), LoggingLevel::name, 5);
 
 	public final Level level;
 

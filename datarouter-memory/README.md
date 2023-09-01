@@ -10,7 +10,7 @@ BlobStorage, MapStorage, SortedStorage, and TallyStorage.  IndexedStorage is not
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-memory</artifactId>
-	<version>0.0.121</version>
+	<version>0.0.122</version>
 </dependency>
 ```
 

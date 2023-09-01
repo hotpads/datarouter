@@ -15,16 +15,12 @@
  */
 package io.datarouter.loggerconfig.storage.loggerconfig;
 
-import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import org.apache.logging.log4j.Level;
 
 import io.datarouter.loggerconfig.LoggingConfig;
 import io.datarouter.loggerconfig.storage.loggerconfig.LoggerConfig.LoggerConfigFielder;
@@ -36,6 +32,7 @@ import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import io.datarouter.storage.tag.Tag;
+import io.datarouter.types.MilliTime;
 import io.datarouter.virtualnode.redundant.RedundantSortedMapStorageNode;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -76,12 +73,12 @@ public class DatarouterLoggerConfigDao extends BaseDao{
 
 	public void saveLoggerConfig(
 			String name,
-			Level level,
+			LoggingLevel level,
 			boolean additive,
 			List<String> appendersRef,
 			String email,
 			Long ttlMillis){
-		var loggerConfig = new LoggerConfig(name, level, additive, appendersRef, email, new Date(), ttlMillis);
+		var loggerConfig = new LoggerConfig(name, level, additive, appendersRef, email, MilliTime.now(), ttlMillis);
 		node.put(loggerConfig);
 	}
 
@@ -106,11 +103,11 @@ public class DatarouterLoggerConfigDao extends BaseDao{
 				.orElse("?");
 	}
 
-	public Map<String, LoggerConfig> getLoggerConfigs(List<String> names){
+	public Map<String,LoggerConfig> getLoggerConfigs(List<String> names){
 		return Scanner.of(names)
 				.map(LoggerConfigKey::new)
-				.listTo(keys -> Scanner.of(node.getMulti(keys)))
-				.toMap(LoggerConfig::getName);
+				.listTo(node::scanMulti)
+				.toMap(config -> config.getKey().getName());
 	}
 
 	public Collection<LoggerConfig> expireLoggerConfigs(LoggingConfig config){
@@ -131,7 +128,7 @@ public class DatarouterLoggerConfigDao extends BaseDao{
 		if(ttl == null || ttl == 0){
 			return false;
 		}
-		return Instant.now().isAfter(loggerConfig.getLastUpdated().plus(ttl, ChronoUnit.MILLIS));
+		return MilliTime.now().isAfter(loggerConfig.getLastUpdated().plus(ttl, ChronoUnit.MILLIS));
 	}
 
 }

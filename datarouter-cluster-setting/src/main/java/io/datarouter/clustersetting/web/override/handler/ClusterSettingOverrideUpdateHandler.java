@@ -42,6 +42,7 @@ import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.GlobalRedirectMav;
 import io.datarouter.web.html.form.HtmlForm;
+import io.datarouter.web.html.form.HtmlForm.HtmlFormMethod;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import j2html.TagCreator;
@@ -104,9 +105,8 @@ public class ClusterSettingOverrideUpdateHandler extends BaseHandler{
 
 		// Make form
 		boolean submitted = submitButton.orElse(false);
-		var form = new HtmlForm()
-				.withAction(request.getContextPath() + paths.datarouter.settings.overrides.update.toSlashedString())
-				.withMethodPost();
+		var form = new HtmlForm(HtmlFormMethod.POST)
+				.withAction(request.getContextPath() + paths.datarouter.settings.overrides.update.toSlashedString());
 		form.addHiddenField(P_source, sourceEnum.persistentString);
 		partialName.ifPresent(partialNameValue -> form.addHiddenField(P_partialName, partialNameValue));
 		form.addHiddenField(P_name, name);
@@ -115,7 +115,8 @@ public class ClusterSettingOverrideUpdateHandler extends BaseHandler{
 		form.addField(forms.makeSettingValueField(
 				P_value,
 				value.isPresent() ? value : Optional.of(setting.getValue()),
-				submitted));
+				submitted,
+				Optional.of(name)));
 		form.addField(forms.makeCommentField(P_comment, comment, submitted));
 		form.addField(forms.makeSubmitButton(P_submitButton, "Update"));
 
@@ -143,11 +144,10 @@ public class ClusterSettingOverrideUpdateHandler extends BaseHandler{
 		}
 
 		// Save changes
-		ClusterSetting oldSetting = dao.get(settingKey);
 		setting.setValue(value.orElseThrow());
 		dao.put(setting);
 		changeListener.onUpdateOrDelete(
-				oldSetting,
+				setting,
 				ClusterSettingLogAction.UPDATED,
 				getSessionInfo().getRequiredSession().getUsername(),
 				comment,

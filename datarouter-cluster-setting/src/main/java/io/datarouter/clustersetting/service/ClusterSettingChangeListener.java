@@ -36,14 +36,14 @@ public class ClusterSettingChangeListener{
 	private ClusterSettingEmailService emailService;
 
 	public void onCreate(
-			ClusterSetting newSetting,
+			ClusterSetting setting,
 			String username,
 			Optional<String> optComment,
 			ZoneId zoneId){
 
 		// ClusterSettingLog
 		var clusterSettingLog = new ClusterSettingLog(
-				newSetting,
+				setting,
 				ClusterSettingLogAction.INSERTED,
 				username,
 				optComment.orElse(null));
@@ -65,7 +65,7 @@ public class ClusterSettingChangeListener{
 	}
 
 	public void onUpdateOrDelete(
-			ClusterSetting oldSetting,
+			ClusterSetting setting,
 			ClusterSettingLogAction action,
 			String username,
 			Optional<String> optComment,
@@ -73,7 +73,7 @@ public class ClusterSettingChangeListener{
 
 		// ClusterSettingLog
 		var clusterSettingLog = new ClusterSettingLog(
-				oldSetting,
+				setting,
 				action,
 				username,
 				optComment.orElse(null));
@@ -89,7 +89,7 @@ public class ClusterSettingChangeListener{
 		// Email
 		emailService.sendEmail(
 				clusterSettingLog,
-				oldSetting.getValue(),
+				setting.getValue(),
 				Optional.of(username),
 				zoneId);
 	}

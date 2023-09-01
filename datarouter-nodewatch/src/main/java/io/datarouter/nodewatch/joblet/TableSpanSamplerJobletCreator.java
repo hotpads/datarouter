@@ -320,14 +320,19 @@ public class TableSpanSamplerJobletCreator<
 				end,
 				nodeNames,
 				samplerId);
+		String queueId = String.join(
+				"-",
+				params.nodeNames().getClientName(),
+				params.nodeNames().getTableName());
+		String groupId = null;// set to some timestamp?
 		return JobletPackage.createDetailed(
 				TableSpanSamplerJoblet.JOBLET_TYPE,
 				jobletPriority,
 				jobletCreationDate,
 				batchSequence,
 				false,
-				params.nodeNames().getClientName(),
-				null,
+				queueId,
+				groupId,
 				params);
 	}
 

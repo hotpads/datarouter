@@ -15,6 +15,7 @@
  */
 package io.datarouter.storage.node.op.raw;
 
+import io.datarouter.bytes.Codec;
 import io.datarouter.storage.file.DatabaseBlob;
 import io.datarouter.storage.file.DatabaseBlob.DatabaseBlobFielder;
 import io.datarouter.storage.file.DatabaseBlobKey;
@@ -31,6 +32,10 @@ public interface BlobStorage extends BlobStorageWriter{
 
 	interface PhysicalBlobStorageNode
 	extends BlobStorageNode, PhysicalNode<DatabaseBlobKey,DatabaseBlob,DatabaseBlobFielder>{
+	}
+
+	default <T> EncodedBlobStorage<T> encoded(Codec<T,byte[]> codec){
+		return new EncodedBlobStorage<>(this, codec);
 	}
 
 }

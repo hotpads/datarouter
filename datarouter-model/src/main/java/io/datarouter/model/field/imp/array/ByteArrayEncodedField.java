@@ -15,6 +15,8 @@
  */
 package io.datarouter.model.field.imp.array;
 
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Optional;
@@ -94,6 +96,12 @@ public class ByteArrayEncodedField<T> extends BaseField<T>{
 
 	public FieldCodec<T,byte[]> getCodec(){
 		return key.getCodec();
+	}
+
+	@Override
+	public Optional<String> findAuxiliaryHumanReadableString(DateTimeFormatter dateTimeFormatter, ZoneId zoneId){
+		return Optional.ofNullable(getValue())
+				.flatMap(value -> getCodec().findAuxiliaryHumanReadableString(value, dateTimeFormatter, zoneId));
 	}
 
 }

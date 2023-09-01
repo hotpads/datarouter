@@ -22,6 +22,7 @@ import com.google.pubsub.v1.PullRequest;
 import com.google.pubsub.v1.PullResponse;
 import com.google.pubsub.v1.ReceivedMessage;
 
+import io.datarouter.client.gcp.pubsub.PubsubCostCounters;
 import io.datarouter.client.gcp.pubsub.client.GcpPubsubClientManager;
 import io.datarouter.client.gcp.pubsub.node.BaseGcpPubsubNode;
 import io.datarouter.model.databean.Databean;
@@ -54,7 +55,9 @@ extends GcpPubsubOp<PK,D,F,List<T>>{
 				.build();
 		try{
 			PullResponse pullResponse = subscriberStub.pullCallable().call(pullRequest);
-			return extractDatabeans(pullResponse.getReceivedMessagesList());
+			List<ReceivedMessage> receivedMessages = pullResponse.getReceivedMessagesList();
+			receivedMessages.forEach(PubsubCostCounters::countMessage);
+			return extractDatabeans(receivedMessages);
 		}catch(Exception e){
 			throw new RuntimeException(e);
 		}

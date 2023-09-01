@@ -22,12 +22,13 @@ import java.util.Optional;
 import java.util.function.Function;
 
 import io.datarouter.clustersetting.enums.ClusterSettingScope;
+import io.datarouter.clustersetting.service.ClusterSettingValidationService;
 import io.datarouter.clustersetting.storage.clustersettinglog.ClusterSettingLog;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.servertype.ServerType;
 import io.datarouter.storage.servertype.ServerTypes;
-import io.datarouter.web.html.form.HtmlFormButtonWithoutSubmitAction;
 import io.datarouter.web.html.form.HtmlFormSelect;
+import io.datarouter.web.html.form.HtmlFormSubmitWithoutSubmitActionButton;
 import io.datarouter.web.html.form.HtmlFormText;
 import io.datarouter.web.html.form.HtmlFormTextArea;
 import io.datarouter.web.html.form.HtmlFormValidator;
@@ -39,10 +40,12 @@ public class ClusterSettingOverrideForms{
 
 	@Inject
 	private ServerTypes serverTypes;
+	@Inject
+	private ClusterSettingValidationService validationService;
 
 	public HtmlFormText makeSettingNameField(String fieldName, Optional<String> value, boolean validate){
 		return new HtmlFormText()
-				.withDisplay("Setting Name")
+				.withLabel("Setting Name")
 				.withName(fieldName)
 				.withValue(
 						value.orElse(""),
@@ -57,7 +60,7 @@ public class ClusterSettingOverrideForms{
 						scopeValue -> scopeValue.display,
 						LinkedHashMap::new);
 		return new HtmlFormSelect()
-				.withDisplay("Scope")
+				.withLabel("Scope")
 				.withName(fieldName)
 				.withDisplayByValue(scopeDisplayByValue)
 				.withSelected(value.persistentString)
@@ -71,7 +74,7 @@ public class ClusterSettingOverrideForms{
 				.map(ServerType::getPersistentString)
 				.list();
 		return new HtmlFormSelect()
-				.withDisplay("Server Type")
+				.withLabel("Server Type")
 				.withName(fieldName)
 				.withValues(serverTypeStrings)
 				.withSelected(value.orElse(null));
@@ -79,7 +82,7 @@ public class ClusterSettingOverrideForms{
 
 	public HtmlFormText makeServerNameField(String fieldName, Optional<String> value, boolean validate){
 		return new HtmlFormText()
-				.withDisplay("Server Name")
+				.withLabel("Server Name")
 				.withName(fieldName)
 				.withValue(
 						value.orElse(""),
@@ -94,7 +97,7 @@ public class ClusterSettingOverrideForms{
 						value,
 						ClusterSettingLog.FieldKeys.comment.getSize()));
 		return new HtmlFormTextArea()
-				.withDisplay("Comment")
+				.withLabel("Comment")
 				.withName(fieldName)
 				.withValue(
 						optValue.orElse(""),
@@ -102,19 +105,27 @@ public class ClusterSettingOverrideForms{
 						errorFinders);
 	}
 
-	public HtmlFormTextArea makeSettingValueField(String fieldName, Optional<String> value, boolean validate){
+	public HtmlFormTextArea makeSettingValueField(
+			String fieldName,
+			Optional<String> value,
+			boolean validate,
+			Optional<String> optSettingName){
 		return new HtmlFormTextArea()
-				.withDisplay("Setting Value")
+				.withLabel("Setting Value")
 				.withName(fieldName)
 				.withValue(
 						value.orElse(""),
 						validate,
-						HtmlFormValidator::notBlank);
+						valueToValidate -> optSettingName
+								.map(settingName -> validationService.findErrorForSettingValue(
+										settingName,
+										valueToValidate))
+								.orElse(Optional.empty()));
 	}
 
-	public HtmlFormButtonWithoutSubmitAction makeSubmitButton(String fieldName, String display){
-		return new HtmlFormButtonWithoutSubmitAction()
-				.withDisplay(display)
+	public HtmlFormSubmitWithoutSubmitActionButton makeSubmitButton(String fieldName, String display){
+		return new HtmlFormSubmitWithoutSubmitActionButton()
+				.withLabel(display)
 				.withName(fieldName)
 				.withValue(Boolean.TRUE.toString());
 	}

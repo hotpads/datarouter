@@ -89,10 +89,11 @@ public class DatarouterTracer implements Tracer{
 
 	@Override
 	public Long getCurrentThreadId(){
-		if(getCurrentThread() == null){
+		Trace2ThreadDto thread = getCurrentThread();
+		if(thread == null){
 			return null;
 		}
-		return getCurrentThread().getThreadId();
+		return thread.getThreadId();
 	}
 
 	@Override

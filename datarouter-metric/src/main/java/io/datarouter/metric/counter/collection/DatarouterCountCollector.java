@@ -23,32 +23,36 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.instrumentation.count.CountCollector;
+import io.datarouter.metric.config.DatarouterCountSettingRoot;
 import io.datarouter.metric.counter.conveyor.CountBuffers;
 import io.datarouter.model.util.CommonFieldSizes;
-import io.datarouter.storage.setting.Setting;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.util.time.EpochMillisTool;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
+@Singleton
 public class DatarouterCountCollector implements CountCollector{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterCountCollector.class);
 
+	private static final long FLUSH_INTERVAL_MS = CountPartitions.PERIOD_5s.getPeriodMs();
 	public static final long PERIOD_GRANULARITY_MS = CountPartitions.PERIOD_5s.getPeriodMs();
 	public static final int METRICS_INITIAL_CAPACITY = 512;//try to set higher than est num counters
 
-	private final long flushIntervalMs;
 	private final CountBuffers countBuffers;
-	private final Setting<Boolean> saveCountStats;
+	private final DatarouterCountSettingRoot settings;
+
 	private HashMap<Long,Map<String,CountCollectorStats>> statsByNameByPeriodStartMs;
 	private long minTimeMs;
 	private long nextFlushMs;
 
-	public DatarouterCountCollector(long flushIntervalMs, CountBuffers countBuffers, Setting<Boolean> saveCountStats){
-		this.minTimeMs = EpochMillisTool.getPeriodStart(flushIntervalMs);
-		this.flushIntervalMs = flushIntervalMs;
-		this.nextFlushMs = minTimeMs + flushIntervalMs;
-		this.statsByNameByPeriodStartMs = new HashMap<>();
+	@Inject
+	public DatarouterCountCollector(CountBuffers countBuffers, DatarouterCountSettingRoot settings){
 		this.countBuffers = countBuffers;
-		this.saveCountStats = saveCountStats;
+		this.settings = settings;
+		this.minTimeMs = EpochMillisTool.getPeriodStart(FLUSH_INTERVAL_MS);
+		this.nextFlushMs = minTimeMs + FLUSH_INTERVAL_MS;
+		this.statsByNameByPeriodStartMs = new HashMap<>();
 	}
 
 	private void flush(long flushingMs){
@@ -61,7 +65,7 @@ public class DatarouterCountCollector implements CountCollector{
 			}
 			//other threads waiting will return in the block above
 			minTimeMs = flushingMs;
-			nextFlushMs = flushingMs + flushIntervalMs;
+			nextFlushMs = flushingMs + FLUSH_INTERVAL_MS;
 			statsSnapshot = statsByNameByPeriodStartMs;
 			if(logger.isInfoEnabled()){
 				logger.info(
@@ -73,7 +77,7 @@ public class DatarouterCountCollector implements CountCollector{
 			}
 			statsByNameByPeriodStartMs = new HashMap<>();
 		}
-		if(saveCountStats.get() && !statsSnapshot.isEmpty()){
+		if(settings.saveCountStatsToMemory.get() && !statsSnapshot.isEmpty()){
 			countBuffers.offerCountStats(statsSnapshot);
 		}
 	}
@@ -141,6 +145,7 @@ public class DatarouterCountCollector implements CountCollector{
 					Math.min(prevStats.min, delta),
 					Math.max(prevStats.max, delta));
 		}
+
 	}
 
 }

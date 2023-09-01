@@ -17,7 +17,6 @@ package io.datarouter.joblet.execute;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-import io.datarouter.joblet.DatarouterJobletCounters;
 import io.datarouter.joblet.queue.JobletRequestQueueManager;
 import io.datarouter.joblet.service.JobletService;
 import io.datarouter.joblet.setting.DatarouterJobletSettingRoot;
@@ -35,13 +34,16 @@ public class JobletProcessorFactory{
 	@Inject
 	private JobletCallableFactory jobletCallableFactory;
 	@Inject
-	private DatarouterJobletCounters datarouterJobletCounters;
-	@Inject
 	private JobletService jobletService;
 
 	public JobletProcessor create(AtomicLong idGenerator, JobletType<?> jobletType){
-		return new JobletProcessor(jobletSettings, jobletRequestQueueManager, jobletCallableFactory,
-				datarouterJobletCounters, jobletService, idGenerator, jobletType);
+		return new JobletProcessor(
+				jobletSettings,
+				jobletRequestQueueManager,
+				jobletCallableFactory,
+				jobletService,
+				idGenerator,
+				jobletType);
 	}
 
 }

@@ -39,7 +39,7 @@ public class LoggingConfig{
 			builder.append(fileAppender.getFileName());
 		});
 		loggerConfigs.forEach(loggerConfig -> {
-			builder.append(loggerConfig.getName());
+			builder.append(loggerConfig.getKey().getName());
 			builder.append(loggerConfig.getLevel());
 			builder.append(loggerConfig.getAdditive());
 			builder.append(loggerConfig.getAppendersRef());

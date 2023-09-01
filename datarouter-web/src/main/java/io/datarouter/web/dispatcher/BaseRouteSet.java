@@ -153,6 +153,17 @@ public abstract class BaseRouteSet implements RouteSet{
 		return rule;
 	}
 
+	protected DispatchRule redirect(PathNode origin, String localRedirectPath){
+		return redirect(origin, "", localRedirectPath);
+	}
+
+	protected DispatchRule redirect(PathNode origin, String redirectDomain, String redirectPath){
+		var rule = new DispatchRule(this, origin.join("/", "/", ""))
+				.withRedirect(redirectDomain + redirectPath);
+		this.dispatchRules.add(rule);
+		return rule;
+	}
+
 	/*------------------ getters -------------------*/
 
 	@Override

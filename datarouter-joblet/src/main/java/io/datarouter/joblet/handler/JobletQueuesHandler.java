@@ -74,12 +74,12 @@ public class JobletQueuesHandler extends BaseHandler{
 				.withClasses("sortable table table-sm table-striped border")
 				.withColumn("queueId", JobletSummary::getQueueId)
 				.withColumn("status", row -> row.getStatus().persistentString)
-				.withColumn("numFailures", JobletSummary::getNumFailures, Number::toString)
-				.withColumn("numJoblets", JobletSummary::getNumType, Number::toString)
+				.withColumn("numFailures", JobletSummary::getNumFailures, NumberFormatter::addCommas)
+				.withColumn("numJoblets", JobletSummary::getNumType, NumberFormatter::addCommas)
 				.withColumn("firstReserved", JobletSummary::getFirstReservedAgo)
 				.withColumn("firstCreated", JobletSummary::getFirstCreatedAgo)
-				.withColumn("sumItems", row -> NumberFormatter.addCommas(row.getSumItems()))
-				.withColumn("avgItems", row -> NumberFormatter.format(row.getAvgItems(), 1))
+				.withColumn("sumItems", JobletSummary::getSumItems, NumberFormatter::addCommas)
+				.withColumn("avgItems", JobletSummary::getAvgItems, avg -> NumberFormatter.format(avg, 1))
 				.build(rows);
 		return div(title, subtitle, table)
 				.withClass("container-fluid");

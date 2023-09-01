@@ -23,6 +23,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import io.datarouter.auth.storage.user.session.DatarouterSession;
 import io.datarouter.util.net.UrlTool;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
@@ -32,11 +33,13 @@ import io.datarouter.web.util.http.CookieTool;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
+
+// TODO braydonh: figure out how to move this out of dr-web
 @Singleton
 public class DatarouterSessionManager{
 
-	public static final RequestAttributeKey<DatarouterSession> DATAROUTER_SESSION_ATTRIBUTE = new RequestAttributeKey<>(
-			"datarouterSession");
+	public static final RequestAttributeKey<DatarouterSession> DATAROUTER_SESSION_ATTRIBUTE =
+			new RequestAttributeKey<>("datarouterSession");
 	private static final int TARGET_URL_COOKIE_EXPIRATION_SECONDS = 30 * 60;
 
 	@Inject

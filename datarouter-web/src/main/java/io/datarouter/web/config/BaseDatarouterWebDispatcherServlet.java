@@ -30,7 +30,6 @@ import jakarta.inject.Singleton;
 public class BaseDatarouterWebDispatcherServlet extends DispatcherServlet{
 
 	private final DatarouterInjector injector;
-
 	private final List<Class<RouteSet>> routeSetClasses;
 	private final List<RouteSet> routeSets;
 

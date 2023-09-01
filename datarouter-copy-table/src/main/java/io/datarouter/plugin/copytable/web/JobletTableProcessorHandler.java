@@ -44,6 +44,7 @@ import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.types.Param;
 import io.datarouter.web.html.form.HtmlForm;
+import io.datarouter.web.html.form.HtmlForm.HtmlFormMethod;
 import io.datarouter.web.html.form.HtmlFormValidator;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import jakarta.inject.Inject;
@@ -101,20 +102,19 @@ public class JobletTableProcessorHandler extends BaseHandler{
 				.sort()
 				.list();
 
-		var form = new HtmlForm()
-				.withMethod("post");
+		var form = new HtmlForm(HtmlFormMethod.POST);
 		form.addSelectField()
-				.withDisplay("Processor Name")
+				.withLabel("Processor Name")
 				.withName(P_processorName)
 				.withValues(possibleProcessors)
 				.withSelected(processorName.orElse(null));
 		form.addSelectField()
-				.withDisplay("Node Name")
+				.withLabel("Node Name")
 				.withName(P_nodeName)
 				.withValues(possibleNodes)
 				.withSelected(nodeName.orElse(null));
-		form.addTextField()
-				.withDisplay("Scan Batch Size")
+		form.addNumberField()
+				.withLabel("Scan Batch Size")
 				.withName(P_scanBatchSize)
 				.withPlaceholder(DEFAULT_SCAN_BATCH_SIZE)
 				.withValue(
@@ -122,11 +122,11 @@ public class JobletTableProcessorHandler extends BaseHandler{
 						shouldValidate && scanBatchSize.isPresent(),
 						HtmlFormValidator::positiveInteger);
 		form.addSelectField()
-				.withDisplay("Joblet Priority")
+				.withLabel("Joblet Priority")
 				.withName(P_executionOrder)
 				.withValues(possibleJobletPriorities);
 		form.addButton()
-				.withDisplay("Create Joblets")
+				.withLabel("Create Joblets")
 				.withValue("anything");
 
 		if(submitAction.isEmpty() || form.hasErrors()){

@@ -17,12 +17,14 @@ package io.datarouter.secret.config;
 
 import java.util.List;
 
+import io.datarouter.httpclient.endpoint.DatarouterSharedSecretRetriever;
 import io.datarouter.inject.guice.BaseGuiceModule;
 import io.datarouter.inject.guice.BasePlugin;
 import io.datarouter.secret.client.local.LocalStorageConfig;
 import io.datarouter.secret.client.local.LocalStorageConfig.DefaultLocalStorageConfig;
 import io.datarouter.secret.client.local.LocalStorageSecretClientSupplier;
 import io.datarouter.secret.client.memory.InjectedDefaultMemorySecretClientSupplier.DefaultMemorySecrets;
+import io.datarouter.secret.service.CachedSecretFactory;
 import io.datarouter.secret.service.SecretJsonSerializer;
 import io.datarouter.secret.service.SecretJsonSerializer.GsonToolJsonSerializer;
 import io.datarouter.secret.service.SecretNamespacer;
@@ -62,6 +64,7 @@ public class DatarouterSecretPlugin extends BasePlugin{
 		bindActual(SecretJsonSerializer.class, jsonSerializer);
 		bindActual(LocalStorageConfig.class, localStorageConfig);
 		bindActualInstance(DefaultMemorySecrets.class, defaultMemorySecrets);
+		bindActual(DatarouterSharedSecretRetriever.class, CachedSecretFactory.class);
 	}
 
 	@Override

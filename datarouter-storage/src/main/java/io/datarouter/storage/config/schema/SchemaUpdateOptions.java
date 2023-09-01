@@ -74,7 +74,7 @@ public class SchemaUpdateOptions{
 	private final List<String> ignoreClients;
 	private final List<String> ignoreTables;
 
-	private TypedProperties properties;
+	private final TypedProperties properties;
 
 	@Inject
 	public SchemaUpdateOptions(

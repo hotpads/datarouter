@@ -29,6 +29,9 @@ import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.auth.role.Role;
+import io.datarouter.auth.role.RoleEnum;
+import io.datarouter.auth.storage.user.session.DatarouterSession;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.ApiKeyPredicate.ApiKeyPredicateCheck;
@@ -42,9 +45,6 @@ import io.datarouter.web.security.CsrfValidator;
 import io.datarouter.web.security.SecurityValidationResult;
 import io.datarouter.web.security.SecurityValidator;
 import io.datarouter.web.security.SignatureValidator;
-import io.datarouter.web.user.role.Role;
-import io.datarouter.web.user.role.RoleEnum;
-import io.datarouter.web.user.session.DatarouterSession;
 import io.datarouter.web.user.session.DatarouterSessionManager;
 import io.datarouter.web.util.http.RequestTool;
 
@@ -55,13 +55,13 @@ public class DispatchRule{
 	private final String regex;
 	private final Pattern pattern;
 	private final List<SecurityValidator> securityValidators;
+	private final Set<Role> allowedRoles;
 
 	private Class<? extends BaseHandler> handlerClass;
 	private ApiKeyPredicate apiKeyPredicate;
 	private CsrfValidator csrfValidator;
 	private SignatureValidator signatureValidator;
 	private boolean requireHttps;
-	private Set<Role> allowedRoles;
 	private boolean allowAnonymous;
 	private Class<? extends HandlerEncoder> defaultHandlerEncoder = DefaultEncoder.class;
 	private Class<? extends HandlerDecoder> defaultHandlerDecoder;
@@ -69,6 +69,7 @@ public class DispatchRule{
 	private boolean transmitsPii;
 	private Tag tag = Tag.APP;
 	private DispatchType dispatchType = DispatchType.DEFAULT;
+	private String redirectUrl; // can be full URL or partial path
 
 	public DispatchRule(){
 		this(null, "");
@@ -166,6 +167,11 @@ public class DispatchRule{
 		return this;
 	}
 
+	public DispatchRule withRedirect(String redirectUrl){
+		this.redirectUrl = redirectUrl;
+		return this;
+	}
+
 	/*------------------------------ getters --------------------------------*/
 
 	public BaseRouteSet getRouteSet(){
@@ -239,6 +245,10 @@ public class DispatchRule{
 		return dispatchType;
 	}
 
+	public Optional<String> getRedirectUrl(){
+		return Optional.ofNullable(redirectUrl);
+	}
+
 	private SecurityValidationResult checkApiKey(HttpServletRequest request){
 		ApiKeyPredicateCheck result;
 		if(apiKeyPredicate == null){
@@ -288,7 +298,7 @@ public class DispatchRule{
 
 	private SecurityValidationResult checkHttps(HttpServletRequest request){
 		String message = "HTTPS check failed";
-		boolean result = !requireHttps || requireHttps && request.isSecure();
+		boolean result = !requireHttps || request.isSecure();
 		if(!result){
 			logFailure(message, request);
 		}

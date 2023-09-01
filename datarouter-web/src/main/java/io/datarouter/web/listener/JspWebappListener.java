@@ -21,6 +21,7 @@ import java.util.List;
 import io.datarouter.web.css.DatarouterWebCss;
 import io.datarouter.web.css.DatarouterWebCssV2;
 import io.datarouter.web.handler.mav.MavPropertiesFactory;
+import io.datarouter.web.html.PageScripts;
 import io.datarouter.web.html.j2html.J2HtmlTool;
 import io.datarouter.web.navigation.DatarouterNavbarFactory;
 import io.datarouter.web.requirejs.DatarouterWebRequireJs;
@@ -40,11 +41,14 @@ public class JspWebappListener extends DatarouterWebAppListener{
 	protected static final String BASE_HEAD_CONTENT = register("datarouterBaseHeadContent");
 	protected static final String NEW_BASE_HEAD_CONTENT = register("datarouterNewBaseHeadContent");
 	protected static final String NAVBAR_FACTORY = register("datarouterNavbarFactory");
+	protected static final String PAGE_SCRIPTS = register("pageScripts");
 
 	@Inject
 	private MavPropertiesFactory mavPropertiesFactory;
 	@Inject
 	private DatarouterNavbarFactory datarouterNavbarFactory;
+	@Inject
+	private PageScripts pageScripts;
 
 	@Override
 	public void onStartUp(){
@@ -55,6 +59,7 @@ public class JspWebappListener extends DatarouterWebAppListener{
 		servletContext.setAttribute(BASE_HEAD_CONTENT, makeBaseHeadContent(contextPath));
 		servletContext.setAttribute(NEW_BASE_HEAD_CONTENT, makeNewBaseHeadContent(contextPath));
 		servletContext.setAttribute(NAVBAR_FACTORY, datarouterNavbarFactory);
+		servletContext.setAttribute(PAGE_SCRIPTS, pageScripts);
 	}
 
 	@Override

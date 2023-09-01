@@ -16,43 +16,44 @@
 package io.datarouter.clustersetting.storage.clustersettinglog;
 
 import java.time.Instant;
-import java.util.Date;
 import java.util.List;
 
 import io.datarouter.clustersetting.storage.clustersetting.ClusterSettingKey;
 import io.datarouter.model.field.Field;
+import io.datarouter.model.field.codec.MilliTimeReversedFieldCodec;
 import io.datarouter.model.field.imp.StringField;
-import io.datarouter.model.field.imp.comparable.LongField;
-import io.datarouter.model.field.imp.comparable.LongFieldKey;
+import io.datarouter.model.field.imp.comparable.LongEncodedField;
+import io.datarouter.model.field.imp.comparable.LongEncodedFieldKey;
 import io.datarouter.model.key.primary.base.BaseRegularPrimaryKey;
-import io.datarouter.util.DateTool;
+import io.datarouter.types.MilliTimeReversed;
 
 public class ClusterSettingLogKey extends BaseRegularPrimaryKey<ClusterSettingLogKey>{
 
 	private String name;
-	private Long reverseCreatedMs;
+	private MilliTimeReversed reverseCreatedMs;
 
 	public static class FieldKeys{
-		public static final LongFieldKey reverseCreatedMs = new LongFieldKey("reverseCreatedMs");
+		public static final LongEncodedFieldKey<MilliTimeReversed> reverseCreatedMs = new LongEncodedFieldKey<>(
+				"reverseCreatedMs", new MilliTimeReversedFieldCodec());
 	}
 
 	@Override
 	public List<Field<?>> getFields(){
 		return List.of(
 				new StringField(ClusterSettingKey.FieldKeys.name, name),
-				new LongField(FieldKeys.reverseCreatedMs, reverseCreatedMs));
+				new LongEncodedField<>(FieldKeys.reverseCreatedMs, reverseCreatedMs));
 	}
 
 	public ClusterSettingLogKey(){
 	}
 
-	public ClusterSettingLogKey(String name, Long reverseCreatedMs){
+	public ClusterSettingLogKey(String name, MilliTimeReversed reverseCreatedMs){
 		this.name = name;
 		this.reverseCreatedMs = reverseCreatedMs;
 	}
 
 	public static ClusterSettingLogKey forInstant(String name, Instant instant){
-		return new ClusterSettingLogKey(name, DateTool.toReverseInstantLong(instant));
+		return new ClusterSettingLogKey(name, MilliTimeReversed.of(instant));
 	}
 
 	public static ClusterSettingLogKey prefix(String name){
@@ -67,16 +68,8 @@ public class ClusterSettingLogKey extends BaseRegularPrimaryKey<ClusterSettingLo
 		this.name = name;
 	}
 
-	public Long getReverseCreatedMs(){
+	public MilliTimeReversed getMilliTimeReversed(){
 		return reverseCreatedMs;
-	}
-
-	public Date getCreated(){
-		return DateTool.fromReverseDateLong(reverseCreatedMs);
-	}
-
-	public Instant getCreatedInstant(){
-		return getCreated().toInstant();
 	}
 
 }

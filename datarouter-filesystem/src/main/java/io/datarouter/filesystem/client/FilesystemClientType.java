@@ -23,7 +23,7 @@ import jakarta.inject.Singleton;
 @Singleton
 public class FilesystemClientType implements ClientType<FilesystemClientNodeFactory,FilesystemClientManager>{
 
-	protected static final String NAME = "filesystem";
+	public static final String NAME = "filesystem";
 
 	@Inject
 	public FilesystemClientType(DatarouterClientWebInspectorRegistry datarouterClientWebInspectorRegistry){

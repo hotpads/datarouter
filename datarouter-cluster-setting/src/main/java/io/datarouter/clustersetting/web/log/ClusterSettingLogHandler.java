@@ -35,11 +35,13 @@ import io.datarouter.clustersetting.web.ClusterSettingHtml;
 import io.datarouter.clustersetting.web.browse.ClusterSettingBrowseHandler.ClusterSettingBrowseHandlerParams;
 import io.datarouter.clustersetting.web.browse.ClusterSettingBrowseHandler.ClusterSettingBrowseLinks;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.types.MilliTimeReversed;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.config.ServletContextSupplier;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.html.form.HtmlForm;
+import io.datarouter.web.html.form.HtmlForm.HtmlFormMethod;
 import io.datarouter.web.html.indexpager.BaseNamedScannerPager;
 import io.datarouter.web.html.indexpager.Bootstrap4IndexPagerHtml;
 import io.datarouter.web.html.indexpager.IndexPage.IndexPageBuilder;
@@ -79,14 +81,13 @@ public class ClusterSettingLogHandler extends BaseHandler{
 		String title = clusterSettingHtml.makeTitle("Logs For All Settings");
 
 		// form
-		var dateForm = new HtmlForm()
-				.withMethod("GET");
+		var dateForm = new HtmlForm(HtmlFormMethod.GET);
 		dateForm.addDateField()
-				.withDisplay("Before")
+				.withLabel("Before")
 				.withName(P_beforeDate)
 				.withValue(beforeDate.orElse(null));
 		dateForm.addButtonWithoutSubmitAction()
-				.withDisplay("Search");
+				.withLabel("Search");
 
 		// result data
 		Instant beforeTime = beforeDate
@@ -118,7 +119,7 @@ public class ClusterSettingLogHandler extends BaseHandler{
 	public Mav node(String nodeName){
 		String title = clusterSettingHtml.makeTitle("Logs For Setting Node");
 		List<ClusterSettingLog> logs = dao.scanWithWildcardPrefix(nodeName)
-				.sort(Comparator.comparing((ClusterSettingLog log) -> log.getKey().getCreated()).reversed())
+				.sort(Comparator.comparing((ClusterSettingLog log) -> log.getKey().getMilliTimeReversed()))
 				.list();
 		var headerDiv = clusterSettingHtml.makeHeader(title, "Changes to settings in the same parent node");
 		String href = browseLinks.all(new ClusterSettingBrowseHandlerParams().withLocation(nodeName));
@@ -158,7 +159,7 @@ public class ClusterSettingLogHandler extends BaseHandler{
 	}
 
 	@Handler
-	public Mav single(String settingName, Long reverseCreatedMs){
+	public Mav single(String settingName, MilliTimeReversed reverseCreatedMs){
 		String title = clusterSettingHtml.makeTitle("Log Entry Details");
 		var key = new ClusterSettingLogKey(settingName, reverseCreatedMs);
 		ClusterSettingLog log = dao.find(key).orElseThrow();
@@ -225,11 +226,11 @@ public class ClusterSettingLogHandler extends BaseHandler{
 			return uriBuilder.toString();
 		}
 
-		public String single(String settingName, Long reverseCreatedMs){
+		public String single(String settingName, MilliTimeReversed timeReversed){
 			var uriBuilder = new URIBuilder()
 					.setPath(contextSupplier.getContextPath() + paths.datarouter.settings.log.single.toSlashedString())
 					.addParameter(ClusterSettingLogHandler.P_settingName, settingName)
-					.addParameter(ClusterSettingLogHandler.P_reverseCreatedMs, Long.toString(reverseCreatedMs));
+					.addParameter(ClusterSettingLogHandler.P_reverseCreatedMs, timeReversed.toString());
 			return uriBuilder.toString();
 		}
 

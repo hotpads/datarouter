@@ -37,6 +37,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.auth.session.CurrentSessionInfo;
+import io.datarouter.auth.session.Session;
 import io.datarouter.gson.GsonTool;
 import io.datarouter.httpclient.circuitbreaker.DatarouterHttpClientIoExceptionCircuitBreaker;
 import io.datarouter.inject.DatarouterInjector;
@@ -70,8 +72,6 @@ import io.datarouter.web.dispatcher.Dispatcher;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.HandlerMetrics;
 import io.datarouter.web.inject.InjectorRetriever;
-import io.datarouter.web.user.session.CurrentSessionInfo;
-import io.datarouter.web.user.session.service.Session;
 import io.datarouter.web.util.RequestAttributeTool;
 import io.datarouter.web.util.http.RecordedHttpHeaders;
 import io.datarouter.web.util.http.RequestTool;
@@ -84,7 +84,6 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 	private TraceBuffers traceBuffers;
 	private TraceUrlBuilder urlBuilder;
 	private CurrentSessionInfo currentSessionInfo;
-	private HandlerMetrics handlerMetrics;
 	private ServiceName serviceName;
 
 	@Override
@@ -95,7 +94,6 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 		traceSettings = injector.getInstance(DatarouterTraceFilterSettingRoot.class);
 		urlBuilder = injector.getInstance(TraceUrlBuilder.class);
 		currentSessionInfo = injector.getInstance(CurrentSessionInfo.class);
-		handlerMetrics = injector.getInstance(HandlerMetrics.class);
 		serviceName = injector.getInstance(ServiceName.class);
 	}
 
@@ -304,7 +302,7 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 					Class<? extends BaseHandler> handlerClass = handlerClassOpt.get();
 					if(traceSettings.recordAllLatency.get()
 							|| traceSettings.latencyRecordedHandlers.get().contains(handlerClass.getName())){
-						handlerMetrics.saveMethodLatency(handlerClass, handlerMethodOpt.get(), traceDurationMs);
+						HandlerMetrics.saveMethodLatency(handlerClass, handlerMethodOpt.get(), traceDurationMs);
 					}
 					HandlerMetrics.incDuration(handlerClass, handlerMethodOpt.get(), traceDurationMs);
 					if(totalCpuTimeNs != -1){

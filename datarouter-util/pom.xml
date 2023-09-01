@@ -22,7 +22,7 @@
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-java17-parent</artifactId>
-		<version>0.0.121</version>
+		<version>0.0.122</version>
 		<relativePath>../datarouter-java17-parent</relativePath>
 	</parent>
 
@@ -56,7 +56,7 @@
 		<dependency><!-- used by UuidTool -->
 			<groupId>com.fasterxml.uuid</groupId>
 			<artifactId>java-uuid-generator</artifactId>
-			<version>4.1.0</version>
+			<version>4.2.0</version>
 			<exclusions>
 				<exclusion>
 					<groupId>log4j</groupId>

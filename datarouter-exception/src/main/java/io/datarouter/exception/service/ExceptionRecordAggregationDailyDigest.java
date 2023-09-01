@@ -22,7 +22,6 @@ import static j2html.TagCreator.small;
 import static j2html.TagCreator.td;
 import static j2html.TagCreator.th;
 
-import java.time.Instant;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
@@ -34,8 +33,8 @@ import io.datarouter.exception.web.ExceptionAnalysisHandler;
 import io.datarouter.instrumentation.exception.ExceptionRecordSummaryCollector;
 import io.datarouter.instrumentation.exception.ExceptionRecordSummaryDto;
 import io.datarouter.storage.config.properties.ServiceName;
+import io.datarouter.types.MilliTime;
 import io.datarouter.util.number.NumberFormatter;
-import io.datarouter.util.time.LocalDateTimeTool;
 import io.datarouter.web.config.ServletContextSupplier;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
@@ -104,9 +103,12 @@ public class ExceptionRecordAggregationDailyDigest implements DailyDigest{
 	}
 
 	private List<ExceptionRecordSummaryDto> getExceptionSummaries(ZoneId zoneId){
-		Instant startOfDay = LocalDateTimeTool.atStartOfDay(zoneId);
-		return recordSummaryCollector.getSummaries(startOfDay.toEpochMilli(),
-				System.currentTimeMillis(), serviceName.get(), Optional.of(EXCEPTIONS_THRESHOLD));
+		long startOfDayMs = MilliTime.atStartOfDay(zoneId).toEpochMilli();
+		return recordSummaryCollector.getSummaries(
+				startOfDayMs,
+				System.currentTimeMillis(),
+				serviceName.get(),
+				Optional.of(EXCEPTIONS_THRESHOLD));
 	}
 
 

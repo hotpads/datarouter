@@ -23,35 +23,46 @@ import static j2html.TagCreator.label;
 import static j2html.TagCreator.option;
 import static j2html.TagCreator.select;
 import static j2html.TagCreator.span;
+import static j2html.TagCreator.table;
+import static j2html.TagCreator.td;
 import static j2html.TagCreator.text;
 import static j2html.TagCreator.textarea;
+import static j2html.TagCreator.thead;
+import static j2html.TagCreator.tr;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Optional;
+import java.util.List;
+import java.util.Objects;
 
 import io.datarouter.scanner.Scanner;
-import io.datarouter.web.handler.BaseHandler;
+import io.datarouter.web.html.form.BaseHtmlFormField;
+import io.datarouter.web.html.form.BaseHtmlFormSubmitInputField;
+import io.datarouter.web.html.form.BaseHtmlFormSubmitInputField.HtmlFormButtonSize;
+import io.datarouter.web.html.form.BaseHtmlFormSubmitInputField.HtmlFormButtonStyle;
+import io.datarouter.web.html.form.BaseHtmlFormTypedInputField;
+import io.datarouter.web.html.form.BaseHtmlLabeledFormField;
 import io.datarouter.web.html.form.HtmlForm;
-import io.datarouter.web.html.form.HtmlForm.BaseHtmlFormField;
-import io.datarouter.web.html.form.HtmlFormButton;
-import io.datarouter.web.html.form.HtmlFormButtonWithoutSubmitAction;
 import io.datarouter.web.html.form.HtmlFormCheckbox;
-import io.datarouter.web.html.form.HtmlFormDate;
-import io.datarouter.web.html.form.HtmlFormDateTime;
-import io.datarouter.web.html.form.HtmlFormEmail;
-import io.datarouter.web.html.form.HtmlFormPassword;
+import io.datarouter.web.html.form.HtmlFormCheckboxTable;
+import io.datarouter.web.html.form.HtmlFormCheckboxTable.Column;
 import io.datarouter.web.html.form.HtmlFormSelect;
-import io.datarouter.web.html.form.HtmlFormText;
 import io.datarouter.web.html.form.HtmlFormTextArea;
+import j2html.TagCreator;
 import j2html.attributes.Attr;
-import j2html.tags.ContainerTag;
+import j2html.tags.DomContent;
+import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
+import j2html.tags.specialized.InputTag;
+import j2html.tags.specialized.LabelTag;
+import j2html.tags.specialized.SelectTag;
+import j2html.tags.specialized.TableTag;
 import j2html.tags.specialized.TextareaTag;
 
 public class Bootstrap4FormHtml{
 
+	private static final String FORM_GROUP_CLASS = "form-group";
 	private static final String LABEL_CLASS = "form-label mr-2";
 	public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -60,17 +71,20 @@ public class Bootstrap4FormHtml{
 	}
 
 	public static FormTag render(HtmlForm form, boolean inline){
-		var formTag = form(renderFields(form))
+		return form()
+				.withId(form.getId())
 				.withAction(form.getAction())
 				.withCondClass(inline, "form-inline")
-				.withMethod(form.getMethod());
-		Scanner.of(form.getHiddenFields())
-				.map(hiddenField -> input()
-						.withType("hidden")
-						.withName(hiddenField.name())
-						.withValue(hiddenField.value()))
-				.forEach(formTag::with);
-		return formTag;
+				.withMethod(form.getMethod().method)
+				.condWith(form.getError() != null, div(form.getError())
+						.withClasses("alert", "alert-danger")
+						.attr(Attr.ROLE, "alert"))
+				.with(renderFields(form))
+				.with(form.getHiddenFields().stream()
+						.map(field -> input()
+								.withType("hidden")
+								.withName(field.name())
+								.withValue(field.value())));
 	}
 
 	private static DivTag[] renderFields(HtmlForm form){
@@ -79,230 +93,168 @@ public class Bootstrap4FormHtml{
 				.toArray(DivTag[]::new);
 	}
 
-	private static DivTag renderField(BaseHtmlFormField baseField){
-		DivTag div;
-		if(baseField instanceof HtmlFormButton field){
-			div = submitButton(field);
-		}else if(baseField instanceof HtmlFormButtonWithoutSubmitAction field){
-			div = submitButtonWithoutSubmitAction(field);
-		}else if(baseField instanceof HtmlFormCheckbox field){
-			div = checkboxField(field);
-		}else if(baseField instanceof HtmlFormEmail field){
-			div = emailField(field);
-		}else if(baseField instanceof HtmlFormPassword field){
-			div = passwordField(field);
-		}else if(baseField instanceof HtmlFormSelect field){
-			div = selectField(field);
-		}else if(baseField instanceof HtmlFormText field){
-			div = textField(field);
+	private static DivTag renderField(BaseHtmlFormField<?> baseField){
+		DomContent rendered;
+		if(baseField instanceof HtmlFormCheckbox field){
+			rendered = checkboxField(field);
+		}else if(baseField instanceof HtmlFormCheckboxTable field){
+			rendered = checkboxTableField(field);
 		}else if(baseField instanceof HtmlFormTextArea field){
-			div = textField(field);
-		}else if(baseField instanceof HtmlFormDate field){
-			div = dateField(field);
-		}else if(baseField instanceof HtmlFormDateTime field){
-			div = dateTimeField(field);
+			rendered = textareaField(field);
+		}else if(baseField instanceof HtmlFormSelect field){
+			rendered = selectField(field);
+		}else if(baseField instanceof BaseHtmlFormSubmitInputField field){
+			rendered = submitButton(field);
+		}else if(baseField instanceof BaseHtmlFormTypedInputField field){
+			rendered = inputAndLabel(field);
 		}else{
 			throw new IllegalArgumentException(baseField.getClass() + "is an unknown subclass of "
 					+ BaseHtmlFormField.class);
 		}
-		return div(div)
+		return div(rendered)
+				.condWith(baseField.getError() != null, div(baseField.getError()).withClass("invalid-feedback"))
 				.withClass("mx-3");
 	}
 
-	private static DivTag submitButton(HtmlFormButton field){
-		var button = button(field.getDisplay())
-				.withName(BaseHandler.SUBMIT_ACTION)// Ideally this would not be here
-				.withType("submit")
-				.withValue(field.getValue());
-		Optional.ofNullable(field.getClazz())
-				.ifPresentOrElse(
-						button::withClass,
-						() -> button.withClass("btn btn-success mx-1"));
-		Optional.ofNullable(field.getOnClickConfirmText())
-				.ifPresent(text -> button
-						.attr("onclick", "return confirm('" + field.getOnClickConfirmText() + "')"));
-		return div(button)
-				.withClass("form-group");
-	}
-
-	// TODO this should become the standard, where submitAction is built into the path
-	private static DivTag submitButtonWithoutSubmitAction(HtmlFormButtonWithoutSubmitAction field){
-		var button = button(field.getDisplay())
-				.withClass("btn btn-success mx-1")
-				.withType("submit")
-				.withName(field.getName())
-				.withValue(field.getValue());
-		return div(button)
-				.withClass("form-group");
-	}
-
-	private static DivTag checkboxField(HtmlFormCheckbox field){
-		var input = input()
-				.withClass("form-check-input")
-				.withName(field.getName())
-				.withType("checkbox")
-				.withValue("true")// replacing "on" for compatibility with standard Optional<Boolean> Handler params
-				.condAttr(field.isChecked(), Attr.CHECKED, null)
-				.condAttr(field.isSubmitOnChange(), "onchange", "this.form.submit()");
-		var label = label(input, text(field.getDisplay()))
-				.withClass("form-check-label");
-		return div(label)
-				.withClass("form-group form-check");
-	}
-
-	private static DivTag emailField(HtmlFormEmail field){
-		var label = label(field.getDisplay())
-				.withClass(LABEL_CLASS);
-		var input = input()
-				.withClass("form-control")
-				.withName(field.getName())
-				.withPlaceholder(field.getPlaceholder())
-				.withType("email")
-				.condAttr(field.isAutofocus(), "autofocus", null)
-				.condAttr(field.isRequired(), "required", null);
-		return div(label, input)
-				.withClass("form-group");
-	}
-
-	private static DivTag passwordField(HtmlFormPassword field){
-		var label = label(field.getDisplay())
-				.withClass(LABEL_CLASS);
-		var input = input()
-				.withClass("form-control")
-				.withName(field.getName())
-				.withPlaceholder(field.getPlaceholder())
-				.withType("password")
-				.condAttr(field.isRequired(), "required", null);
-		return div(label, input)
-				.withClass("form-group");
+	private static DivTag checkboxTableField(HtmlFormCheckboxTable field){
+		TableTag table = table()
+				.withId(field.getId())
+				.withClass("table table-hover bg-white")
+				.with(thead(tr()
+						.with(field.getColumns().stream()
+								.map(Column::display)
+								.map(TagCreator::th))))
+				.with(Scanner.of(field.getRows())
+						.map(row -> tr()
+								.with(td(input()
+											.withType("checkbox")
+											.withName(row.name())
+											.withCondChecked(row.checked())
+											.withCondDisabled(row.disabled())))
+								.with(row.values().stream().map(TagCreator::td)))
+						.list());
+		return fieldAndLabel(field, table);
 	}
 
 	private static DivTag selectField(HtmlFormSelect field){
-		var label = label(field.getDisplay())
-				.condWith(field.isRequired(), span("*").withClass("text-danger"))
-				.withClass(LABEL_CLASS);
-		var options = field.getDisplayByValue().entrySet().stream()
-				.map(entry -> {
-					var option = option(entry.getValue())
-							.withValue(entry.getKey());
-					if(field.isMultiple()){
-						Scanner.of(field.getSelectedMultiple())
-								.include(selected -> entry.getValue().equals(selected))
-								.findFirst()
-								.ifPresent($ -> option.attr(Attr.SELECTED));
-					}else if(entry.getKey().equals(field.getSelected())){
-						option.attr(Attr.SELECTED);
-					}
-					return option;
-				})
-				.toArray(ContainerTag[]::new);
-		var select = select(options)
-				.withClass("form-control")
-				.withName(field.getName())
-				.attr(Attr.SIZE, field.getSize())
-				.condAttr(field.isMultiple(), "multiple", null)
-				.condAttr(field.isRequired(), "required", null)
+		SelectTag select = select()
+				.with(field.getDisplayByValue().entrySet().stream()
+						.map(entry -> option(entry.getValue())
+								.withValue(entry.getKey())
+								.withCondSelected(field.getSelected().contains(entry.getKey()))))
+				.withClasses(getInputClasses(field))
+				.withCondName(field.getName() != null, field.getName())
+				.withCondSize(field.getSize() != null, Objects.toString(field.getSize()))
+				.withCondMultiple(field.isMultiple())
+				.withCondRequired(field.isRequired())
+				.withCondDisabled(field.isDisabled())
+				.withCondAutofocus(field.isAutofocus())
 				.condAttr(field.isSubmitOnChange(), "onchange", "this.form.submit()");
-		return div(label, select)
-				.withClass("form-group");
+		return fieldAndLabel(field, select);
 	}
 
-	private static DivTag textField(HtmlFormText field){
-		String inputClass = "form-control";
-		if(field.getError() != null){
-			inputClass += " is-invalid";
-		}
-		var label = label(text(field.getDisplay()))
-				.condWith(field.isRequired(), span("*").withClass("text-danger"))
-				.withClass(LABEL_CLASS);
-		var input = input()
-				.withClass(inputClass)
-				.withName(field.getName())
-				.withPlaceholder(field.getPlaceholder())
-				.withType("text")
-				.withCondReadonly(field.isReadOnly())
-				.withValue(field.getValue())
-				.condAttr(field.isRequired(), "required", null)
+	private static DivTag fieldAndLabel(BaseHtmlLabeledFormField<?> field, DomContent content){
+		return div(makeLabel(field), content)
+				.withClass(FORM_GROUP_CLASS);
+	}
+
+	private static DivTag inputAndLabel(BaseHtmlFormTypedInputField<?> field){
+		return fieldAndLabel(field, inputField(field).withClasses(getInputClasses(field)));
+	}
+
+	private static DivTag textareaField(HtmlFormTextArea field){
+		TextareaTag textarea = textarea()
+				.withId(field.getId())
+				.withClasses(getInputClasses(field))
+				.withCondName(field.getName() != null, field.getName())
+				.condWith(field.getValue() != null, text(field.getValue()))
+				.withCondPlaceholder(field.getPlaceholder() != null, field.getPlaceholder())
+				.withCondMaxlength(field.getMaxLength() != null, Objects.toString(field.getMaxLength()))
+				.withCondDisabled(field.isDisabled())
+				.withCondAutofocus(field.isAutofocus())
+				.withCondReadonly(field.isReadonly())
+				.withCondRequired(field.isRequired())
+				.condAttr(field.isSubmitOnChange(), "onchange", "this.form.submit()")
+				.withCondRows(field.getRows() != null, Objects.toString(field.getRows()));
+		return fieldAndLabel(field, textarea);
+	}
+
+	private static ButtonTag submitButton(BaseHtmlFormSubmitInputField<?> field){
+		return button(field.getLabel())
+				.withId(field.getId())
+				.withType("submit")
+				.withClasses(getInputClasses(field))
+				.withCondName(field.getName() != null, field.getName())
+				.withCondValue(field.getValue() != null, field.getValue())
+				.withCondDisabled(field.isDisabled())
+				.withCondAutofocus(field.isAutofocus())
+				.condAttr(field.isSubmitOnChange(), "onchange", "this.form.submit()")
+				.withClasses(
+						"btn",
+						getButtonStyleClass(field.getStyle()),
+						getButtonStyleSize(field.getElementSize()),
+						"mx-1")
+				.condAttr(field.getOnClickConfirmText() != null, "onclick",
+						"return confirm('" + field.getOnClickConfirmText() + "')");
+	}
+
+	private static DivTag checkboxField(HtmlFormCheckbox field){
+		LabelTag label = label()
+				.with(inputField(field)
+						.withCondChecked(field.isChecked())
+						.withClass("form-check-input"))
+				.withText(field.getLabel())
+				.withClasses("form-check-label");
+
+		return div(label)
+				.withClasses(FORM_GROUP_CLASS, "form-check");
+	}
+
+	private static InputTag inputField(BaseHtmlFormTypedInputField<?> field){
+		return input()
+				.withId(field.getId())
+				.withType(field.getType())
+				.withCondName(field.getName() != null, field.getName())
+				.withCondValue(field.getValue() != null, field.getValue())
+				.withCondSize(field.getSize() != null, Objects.toString(field.getSize()))
+				.withCondPlaceholder(field.getPlaceholder() != null, field.getPlaceholder())
+				.withCondMaxlength(field.getMaxLength() != null, Objects.toString(field.getMaxLength()))
+				.withCondDisabled(field.isDisabled())
+				.withCondAutofocus(field.isAutofocus())
+				.withCondReadonly(field.isReadonly())
+				.withCondRequired(field.isRequired())
 				.condAttr(field.isSubmitOnChange(), "onchange", "this.form.submit()");
-		var error = field.getError() == null ? null : div(field.getError())
-				.withClass("invalid-feedback");
-		return div(label, input, error)
-				.withClass("form-group");
 	}
 
-	private static DivTag textField(HtmlFormTextArea field){
-		String inputClass = "form-control";
-		if(field.getError() != null){
-			inputClass += " is-invalid";
-		}
-		var label = label(text(field.getDisplay()))
-				.condWith(field.isRequired(), span("*").withClass("text-danger"))
-				.withClass(LABEL_CLASS);
-		TextareaTag input;
-		if(field.getValue() != null){
-			input = textarea(field.getValue());
-		}else{
-			input = textarea();
-		}
-		input
-				.withClass(inputClass)
-				.withName(field.getName())
-				.withPlaceholder(field.getPlaceholder())
-				.withCondReadonly(field.isReadOnly())
-				.withCondPlaceholder(field.isReadOnly(), field.getValue())
-				.condAttr(field.isRequired(), "required", null);
-		if(field.getMaxLength() != null){
-			input.attr(Attr.MAXLENGTH, field.getMaxLength());
-		}
-		if(field.getRows() != null){
-			input.attr(Attr.ROWS, field.getRows());
-		}
-		var error = field.getError() == null ? null : div(field.getError())
-				.withClass("invalid-feedback");
-		return div(label, input, error)
-				.withClass("form-group");
+	private static String getButtonStyleClass(HtmlFormButtonStyle style){
+		return switch(style){
+		case PRIMARY -> "btn-primary";
+		case SECONDARY -> "btn-secondary";
+		case SUCCESS -> "btn-success";
+		case WARNING -> "btn-warning";
+		case DANGER -> "btn-danger";
+		case INFO -> "btn-info";
+		};
 	}
 
-	private static DivTag dateField(HtmlFormDate field){
-		String inputClass = "form-control";
-		if(field.getError() != null){
-			inputClass += " is-invalid";
-		}
-		var label = label(text(field.getDisplay()))
-				.condWith(field.isRequired(), span("*").withClass("text-danger"))
-				.withClass(LABEL_CLASS);
-		var input = input()
-				.withClass(inputClass)
-				.withName(field.getName())
-				.withPlaceholder(field.getPlaceholder())
-				.withType("date")
-				.withValue(field.getValue())
-				.condAttr(field.isRequired(), "required", null);
-		var error = field.getError() == null ? null : div(field.getError())
-				.withClass("invalid-feedback");
-		return div(label, input, error)
-				.withClass("form-group");
+	private static String getButtonStyleSize(HtmlFormButtonSize size){
+		return switch(size){
+		case SMALL -> "btn-sm";
+		case DEFAULT -> null;
+		case LARGE -> "btn-lg";
+		};
 	}
 
-	private static DivTag dateTimeField(HtmlFormDateTime field){
-		String inputClass = "form-control";
-		if(field.getError() != null){
-			inputClass += " is-invalid";
-		}
-		var label = label(text(field.getDisplay()))
+	private static String[] getInputClasses(BaseHtmlFormField<?> field){
+		return field.getError() == null
+				? new String[]{"form-control"}
+				: new String[]{"form-control", "is-invalid"};
+	}
+
+	private static LabelTag makeLabel(BaseHtmlLabeledFormField<?> field){
+		return label(field.getLabel())
 				.condWith(field.isRequired(), span("*").withClass("text-danger"))
 				.withClass(LABEL_CLASS);
-		var input = input()
-				.withClass(inputClass)
-				.withName(field.getName())
-				.withPlaceholder(field.getPlaceholder())
-				.withType("datetime-local")
-				.withValue(field.getValue())
-				.condAttr(field.isRequired(), "required", null);
-		var error = field.getError() == null ? null : div(field.getError())
-				.withClass("invalid-feedback");
-		return div(label, input, error)
-				.withClass("form-group");
 	}
 
 	public static long parseDateFieldToEpochMillis(String dateString){
@@ -312,6 +264,11 @@ public class Bootstrap4FormHtml{
 			String message = String.format("invalid input=%s", dateString);
 			throw new IllegalArgumentException(message, e);
 		}
+	}
+
+	private record ContentAndClasses(
+			List<DomContent> content,
+			List<String> containerClasses){
 	}
 
 }

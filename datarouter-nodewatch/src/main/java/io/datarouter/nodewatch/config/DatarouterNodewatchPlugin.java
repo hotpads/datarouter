@@ -51,14 +51,17 @@ public class DatarouterNodewatchPlugin extends BaseWebPlugin{
 
 	private final List<ClientId> nodewatchClientIds;
 	private final Class<? extends TableCountPublisher> tableCountPublisher;
+	private final Class<? extends DatarouterNodewatchDirectorySupplier> directorySupplierClass;
 
 	private DatarouterNodewatchPlugin(
 			List<ClientId> nodewatchClientIds,
 			DatarouterNodewatchDaoModule daosModuleBuilder,
 			Class<? extends TableCountPublisher> tableCountPublisher,
-			boolean enablePublishing){
+			boolean enablePublishing,
+			Class<? extends DatarouterNodewatchDirectorySupplier> directorySupplierClass){
 		this.nodewatchClientIds = nodewatchClientIds;
 		this.tableCountPublisher = tableCountPublisher;
+		this.directorySupplierClass = directorySupplierClass;
 
 		addDatarouterNavBarItem(
 				DatarouterNavBarCategory.DATA,
@@ -87,6 +90,7 @@ public class DatarouterNodewatchPlugin extends BaseWebPlugin{
 				NodewatchClientConfiguration.class,
 				new GenericNodewatchClientConfiguration(nodewatchClientIds));
 		bind(TableCountPublisher.class).to(tableCountPublisher);
+		bind(DatarouterNodewatchDirectorySupplier.class).to(directorySupplierClass);
 	}
 
 	public static class DatarouterNodewatchPluginBuilder{
@@ -96,9 +100,13 @@ public class DatarouterNodewatchPlugin extends BaseWebPlugin{
 
 		private Class<? extends TableCountPublisher> tableCountPublisherClass = NoOpTableCountPublisher.class;
 		private boolean enablePublishing = false;
+		private final Class<? extends DatarouterNodewatchDirectorySupplier> directorySupplierClass;
 
-		public DatarouterNodewatchPluginBuilder(List<ClientId> defaultClientId){
+		public DatarouterNodewatchPluginBuilder(
+				List<ClientId> defaultClientId,
+				Class<? extends DatarouterNodewatchDirectorySupplier> directorySupplierClass){
 			this.defaultClientId = defaultClientId;
+			this.directorySupplierClass = directorySupplierClass;
 			this.nodewatchClientIds = new ArrayList<>();
 		}
 
@@ -117,10 +125,14 @@ public class DatarouterNodewatchPlugin extends BaseWebPlugin{
 		public DatarouterNodewatchPlugin build(){
 			return new DatarouterNodewatchPlugin(
 					nodewatchClientIds,
-					new DatarouterNodewatchDaoModule(defaultClientId, defaultClientId, defaultClientId,
+					new DatarouterNodewatchDaoModule(
+							defaultClientId,
+							defaultClientId,
+							defaultClientId,
 							defaultClientId),
 					tableCountPublisherClass,
-					enablePublishing);
+					enablePublishing,
+					directorySupplierClass);
 		}
 
 	}

@@ -18,70 +18,64 @@ package io.datarouter.job;
 import java.time.Duration;
 
 import io.datarouter.instrumentation.count.Counters;
-import io.datarouter.storage.metric.Gauges;
+import io.datarouter.instrumentation.gauge.Gauges;
 import io.datarouter.storage.util.DatarouterCounters;
-import jakarta.inject.Inject;
-import jakarta.inject.Singleton;
 
-@Singleton
 public class JobCounters{
 
 	private static final String PREFIX = "job";
 
-	@Inject
-	private Gauges gauges;
-
-	public void exception(Class<? extends BaseJob> jobClass){
+	public static void exception(Class<? extends BaseJob> jobClass){
 		count(jobClass, "exception");
 	}
 
-	public void finished(Class<? extends BaseJob> jobClass){
+	public static void finished(Class<? extends BaseJob> jobClass){
 		count(jobClass, "finished");
 	}
 
-	public void interrupted(Class<? extends BaseJob> jobClass){
+	public static void interrupted(Class<? extends BaseJob> jobClass){
 		count(jobClass, "interrupted");
 	}
 
-	public void timedOut(Class<? extends BaseJob> jobClass){
+	public static void timedOut(Class<? extends BaseJob> jobClass){
 		count(jobClass, "timedOut");
 	}
 
-	public void missedNextTrigger(Class<? extends BaseJob> jobClass){
+	public static void missedNextTrigger(Class<? extends BaseJob> jobClass){
 		count(jobClass, "missed next trigger");
 	}
 
-	public void started(Class<? extends BaseJob> jobClass){
+	public static void started(Class<? extends BaseJob> jobClass){
 		count(jobClass, "started");
 	}
 
-	public void startedAfterLongDelay(Class<? extends BaseJob> jobClass){
+	public static void startedAfterLongDelay(Class<? extends BaseJob> jobClass){
 		count(jobClass, "started after long delay");
 	}
 
-	public void heartbeat(String jobName){
+	public static void heartbeat(String jobName){
 		count(jobName, "heartbeat");
 	}
 
-	public void shouldStop(String jobName, String reason){
+	public static void shouldStop(String jobName, String reason){
 		count(jobName, "shouldStop " + reason);
 	}
 
-	public void duration(Class<? extends BaseJob> jobClass, Duration elapsedTime){
+	public static void duration(Class<? extends BaseJob> jobClass, Duration elapsedTime){
 		String name = "durationMs";
 		long value = elapsedTime.toMillis();
 		String jobName = jobClass.getSimpleName();
-		gauges.save(DatarouterCounters.PREFIX + " " + PREFIX + " " + name, value);
-		gauges.save(DatarouterCounters.PREFIX + " " + PREFIX + " " + jobName + " " + name, value);
+		Gauges.save(DatarouterCounters.PREFIX + " " + PREFIX + " " + name, value);
+		Gauges.save(DatarouterCounters.PREFIX + " " + PREFIX + " " + jobName + " " + name, value);
 	}
 
 	/*---------------- private -----------------*/
 
-	private void count(Class<? extends BaseJob> jobClass, String name){
+	private static void count(Class<? extends BaseJob> jobClass, String name){
 		count(jobClass.getSimpleName(), name);
 	}
 
-	private void count(String jobName, String name){
+	private static void count(String jobName, String name){
 		Counters.inc(DatarouterCounters.PREFIX + " " + PREFIX + " " + name);
 		Counters.inc(DatarouterCounters.PREFIX + " " + PREFIX + " " + jobName + " " + name);
 	}

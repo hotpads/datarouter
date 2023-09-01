@@ -52,8 +52,6 @@ public class GcpPubsubQueueMetricMonitoringJob extends BaseJob{
 	@Inject
 	private ClientInitializationTracker clientInitializationTracker;
 	@Inject
-	private DatarouterQueueMetrics metrics;
-	@Inject
 	private GcpPubsubClientManager clientManager;
 	@Inject
 	private GcpPubsubQueueLengthMonitoringJobExecutor executor;
@@ -106,7 +104,7 @@ public class GcpPubsubQueueMetricMonitoringJob extends BaseJob{
 		GcpPubsubMetricDto metricDto = clientManager.getGcpMetricDto(topicAndSubscriptionName, clientId);
 		timer.add("getMetric");
 		if(metricDto.oldestUnackedMessageAgeS().isPresent()){
-			metrics.saveOldestAckMessageAge(
+			DatarouterQueueMetrics.saveOldestAckMessageAge(
 					metricDto.queueName(),
 					metricDto.oldestUnackedMessageAgeS().get(),
 					GcpPubsubClientType.NAME);
@@ -121,7 +119,7 @@ public class GcpPubsubQueueMetricMonitoringJob extends BaseJob{
 		GcpPubsubMetricDto metricDto = clientManager.getGcpMetricDto(topicAndSubscriptionName, clientId);
 		timer.add("getMetric");
 		if(metricDto.numUndeliveredMessages().isPresent()){
-			metrics.saveQueueLength(
+			DatarouterQueueMetrics.saveQueueLength(
 					metricDto.queueName(),
 					metricDto.numUndeliveredMessages().get(),
 					GcpPubsubClientType.NAME);

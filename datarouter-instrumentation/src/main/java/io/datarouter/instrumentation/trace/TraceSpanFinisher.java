@@ -17,6 +17,8 @@ package io.datarouter.instrumentation.trace;
 
 public class TraceSpanFinisher implements AutoCloseable{
 
+	public static final TraceSpanFinisher NO_OP = new TraceSpanFinisher(null);
+
 	private final Tracer tracer;
 
 	public TraceSpanFinisher(Tracer tracer){

@@ -25,7 +25,6 @@ import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.adapter.counter.CounterAdapter;
 import io.datarouter.storage.node.op.raw.SortedStorage;
 import io.datarouter.storage.node.op.raw.SortedStorage.SortedStorageNode;
-import io.datarouter.storage.node.op.raw.read.SortedStorageReader;
 import io.datarouter.util.tuple.Range;
 
 public interface SortedStorageCounterAdapterMixin<
@@ -35,36 +34,97 @@ public interface SortedStorageCounterAdapterMixin<
 		N extends SortedStorageNode<PK,D,F>>
 extends SortedStorage<PK,D>, CounterAdapter<PK,D,F,N>{
 
-	//Reader
+	// keys
+	final String NAME_scanKeys_scans = "scanKeys scans";
+	final String NAME_scanKeys_ranges = "scanKeys ranges";
+	final String NAME_scanKeys_batches = "scanKeys batches";
+	final String NAME_scanKeys_rows = "scanKeys rows";
+	// databeans
+	final String NAME_scanDatabeans_scans = "scanDatabeans scans";
+	final String NAME_scanDatabeans_ranges = "scanDatabeans ranges";
+	final String NAME_scanDatabeans_batches = "scanDatabeans batches";
+	final String NAME_scanDatabeans_rows = "scanDatabeans rows";
+	// keys+databeans
+	final String NAME_scan_scans = "scan scans";
+	final String NAME_scan_ranges = "scan ranges";
+	final String NAME_scan_batches = "scan batches";
+	final String NAME_scan_rows = "scan rows";
+
+	// TODO To avoid batching/unbatching:
+	//   Modify the SortedStorageReader interface to allow implementations to return batches.
+	//   Convert the per-row scanner methods to default interface methods that flatten the batches.
+
+	// TODO To avoid duplicate code:
+	//   Make scanKeys(range) and scan(range) default interface methods.
+	//   They can call scanKeysRanges(List.of(range)) and scanRanges(List.of(range)).
 
 	@Override
 	default Scanner<PK> scanKeys(Range<PK> range, Config config){
-		String opName = SortedStorageReader.OP_scanKeys;
-		getCounter().count(opName);
-		return getBackingNode().scanKeys(range, config);
+		getCounter().count(NAME_scan_scans);
+		getCounter().count(NAME_scanKeys_scans);
+		getCounter().count(NAME_scan_ranges);
+		getCounter().count(NAME_scanKeys_ranges);
+		return getBackingNode().scanKeys(range, config)
+				// Assumes batch/count/flatten is more efficient than incrementing for each row.
+				.batch(config.findResponseBatchSize().orElse(Config.DEFAULT_RESPONSE_BATCH_SIZE))
+				.each(batch -> {
+					getCounter().count(NAME_scan_batches);
+					getCounter().count(NAME_scanKeys_batches);
+					getCounter().count(NAME_scan_rows, batch.size());
+					getCounter().count(NAME_scanKeys_rows, batch.size());
+				})
+				.concat(Scanner::of);
 	}
 
 	@Override
 	default Scanner<PK> scanRangesKeys(Collection<Range<PK>> ranges, Config config){
-		String opName = SortedStorageReader.OP_scanRangesKeys;
-		getCounter().count(opName);
-		getCounter().count(opName + " ranges", ranges.size());
-		return getBackingNode().scanRangesKeys(ranges, config);
+		getCounter().count(NAME_scan_scans);
+		getCounter().count(NAME_scanKeys_scans);
+		getCounter().count(NAME_scan_ranges, ranges.size());
+		getCounter().count(NAME_scanKeys_ranges, ranges.size());
+		return getBackingNode().scanRangesKeys(ranges, config)
+				.batch(config.findResponseBatchSize().orElse(Config.DEFAULT_RESPONSE_BATCH_SIZE))
+				.each(batch -> {
+					getCounter().count(NAME_scan_batches);
+					getCounter().count(NAME_scanKeys_batches);
+					getCounter().count(NAME_scan_rows, batch.size());
+					getCounter().count(NAME_scanKeys_rows, batch.size());
+				})
+				.concat(Scanner::of);
 	}
 
 	@Override
 	default Scanner<D> scan(Range<PK> range, Config config){
-		String opName = SortedStorageReader.OP_scan;
-		getCounter().count(opName);
-		return getBackingNode().scan(range, config);
+		getCounter().count(NAME_scan_scans);
+		getCounter().count(NAME_scanDatabeans_scans);
+		getCounter().count(NAME_scan_ranges);
+		getCounter().count(NAME_scanDatabeans_ranges);
+		return getBackingNode().scan(range, config)
+				.batch(config.findResponseBatchSize().orElse(Config.DEFAULT_RESPONSE_BATCH_SIZE))
+				.each(batch -> {
+					getCounter().count(NAME_scan_batches);
+					getCounter().count(NAME_scanDatabeans_batches);
+					getCounter().count(NAME_scan_rows, batch.size());
+					getCounter().count(NAME_scanDatabeans_rows, batch.size());
+				})
+				.concat(Scanner::of);
 	}
 
 	@Override
 	default Scanner<D> scanRanges(Collection<Range<PK>> ranges, Config config){
-		String opName = SortedStorageReader.OP_scanRanges;
-		getCounter().count(opName);
-		getCounter().count(opName + " ranges", ranges.size());
-		return getBackingNode().scanRanges(ranges, config);
+		getCounter().count(NAME_scan_scans);
+		getCounter().count(NAME_scanDatabeans_scans);
+		getCounter().count(NAME_scan_ranges, ranges.size());
+		getCounter().count(NAME_scanDatabeans_ranges, ranges.size());
+		return getBackingNode().scanRanges(ranges, config)
+				.batch(config.findResponseBatchSize().orElse(Config.DEFAULT_RESPONSE_BATCH_SIZE))
+				.each(batch -> {
+					getCounter().count(NAME_scan_batches);
+					getCounter().count(NAME_scanDatabeans_batches);
+					getCounter().count(NAME_scan_rows, batch.size());
+					getCounter().count(NAME_scanDatabeans_rows, batch.size());
+				})
+				.concat(Scanner::of);
 	}
 
 }

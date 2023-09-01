@@ -26,8 +26,7 @@ import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.loggerconfig.config.DatarouterLoggingConfigPaths;
 import io.datarouter.loggerconfig.storage.loggerconfig.DatarouterLoggerConfigDao;
 import io.datarouter.loggerconfig.storage.loggerconfig.LoggerConfig;
-import io.datarouter.util.time.LocalDateTimeTool;
-import io.datarouter.util.time.ZonedDateFormatterTool;
+import io.datarouter.types.MilliTime;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
 import io.datarouter.web.digest.DailyDigestService;
@@ -58,9 +57,8 @@ public class LoggerConfigDailyDigest implements DailyDigest{
 				.withClasses("sortable table table-sm table-striped my-4 border")
 				.withColumn("Name", row -> row.getKey().getName())
 				.withColumn("Level", row -> row.getLevel().getPersistentString())
-				.withColumn("User", row -> row.getEmail())
-				.withColumn("Updated", row -> ZonedDateFormatterTool.formatInstantWithZone(row.getLastUpdated(),
-						zoneId))
+				.withColumn("User", LoggerConfig::getEmail)
+				.withColumn("Updated", row -> row.getLastUpdated().format(zoneId))
 				.build(loggers);
 		return Optional.of(div(header, description, table));
 	}
@@ -76,9 +74,8 @@ public class LoggerConfigDailyDigest implements DailyDigest{
 		var table = new J2HtmlEmailTable<LoggerConfig>()
 				.withColumn("Name", row -> row.getKey().getName())
 				.withColumn("Level", row -> row.getLevel().getPersistentString())
-				.withColumn("User", row -> row.getEmail())
-				.withColumn("Updated", row -> ZonedDateFormatterTool.formatInstantWithZone(row.getLastUpdated(),
-						zoneId))
+				.withColumn("User", LoggerConfig::getEmail)
+				.withColumn("Updated", row -> row.getLastUpdated().format(zoneId))
 				.build(loggers);
 		return Optional.of(div(header, description, table));
 	}
@@ -101,7 +98,7 @@ public class LoggerConfigDailyDigest implements DailyDigest{
 	private List<LoggerConfig> getTodaysLoggers(ZoneId zoneId){
 		return dao.scan()
 				.exclude(config -> config.getLastUpdated() == null)
-				.exclude(config -> config.getLastUpdated().isBefore(LocalDateTimeTool.atStartOfDay(zoneId)))
+				.exclude(config -> config.getLastUpdated().isBefore(MilliTime.atStartOfDay(zoneId)))
 				.list();
 	}
 

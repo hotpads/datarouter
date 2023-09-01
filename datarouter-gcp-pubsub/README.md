@@ -12,7 +12,7 @@ It provides reliable, many-to-many, asynchronous messaging between applications.
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-gcp-pubsub</artifactId>
-	<version>0.0.121</version>
+	<version>0.0.122</version>
 </dependency>
 ```
 ## Installation with Datarouter

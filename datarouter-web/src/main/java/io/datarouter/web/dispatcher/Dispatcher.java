@@ -17,6 +17,8 @@ package io.datarouter.web.dispatcher;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -27,6 +29,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.fileupload.FileUploadException;
 
+import io.datarouter.auth.role.DatarouterUserRole;
+import io.datarouter.auth.role.Role;
+import io.datarouter.auth.storage.user.session.DatarouterSession;
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.util.net.UrlTool;
 import io.datarouter.web.config.ServletContextSupplier;
@@ -38,12 +43,10 @@ import io.datarouter.web.security.SecurityValidationResult;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
 import io.datarouter.web.user.authenticate.saml.DatarouterSamlSettings;
 import io.datarouter.web.user.authenticate.saml.SamlService;
-import io.datarouter.web.user.role.DatarouterUserRole;
-import io.datarouter.web.user.role.Role;
-import io.datarouter.web.user.session.DatarouterSession;
 import io.datarouter.web.user.session.DatarouterSessionManager;
 import io.datarouter.web.util.RequestAttributeKey;
 import io.datarouter.web.util.RequestAttributeTool;
+import io.datarouter.web.util.http.MockHttpServletRequest;
 import io.datarouter.web.util.http.RequestTool;
 import io.datarouter.web.util.http.ResponseTool;
 import jakarta.inject.Inject;
@@ -55,6 +58,8 @@ public class Dispatcher{
 	private static final String JSESSIONID_PATH_PARAM = ";jsessionid=";
 
 	public static final RequestAttributeKey<Boolean> TRANSMITS_PII = new RequestAttributeKey<>("transmitsPii");
+
+	public static final String ACCOUNT_NAME_HEADER = "x-datarouter-account-name";
 
 	@Inject
 	private DatarouterAuthenticationConfig authenticationConfig;
@@ -81,33 +86,47 @@ public class Dispatcher{
 			afterContextPath = afterContextPath.substring(0, afterContextPath.indexOf(JSESSIONID_PATH_PARAM));
 		}
 		for(DispatchRule rule : routeSet.getDispatchRules()){
-			if(rule.getPattern().matcher(afterContextPath).matches()){
-				SecurityValidationResult securityCheckResult = rule.applySecurityValidation(request);
-				request = securityCheckResult.getWrappedRequest();
-				if(!securityCheckResult.isSuccess()){
-					injector.getInstance(rule.getDefaultHandlerEncoder()).sendForbiddenResponse(request, response,
-							securityCheckResult);
-					return RoutingResult.FORBIDDEN;
-				}
-				if(authenticationConfig.useDatarouterAuthentication() && !rule.checkRoles(request)){
-					handleMissingRoles(request, response, rule.getAllowedRoles());
-					return RoutingResult.ROUTED;
-				}
-				handler = injector.getInstance(rule.getHandlerClass());
-				handler.setDefaultHandlerEncoder(rule.getDefaultHandlerEncoder());
-				handler.setDefaultHandlerDecoder(rule.getDefaultHandlerDecoder());
-				RequestAttributeTool.set(request, BaseHandler.HANDLER_ENCODER_ATTRIBUTE, injector.getInstance(rule
-						.getDefaultHandlerEncoder()));
-				RequestAttributeTool.set(request, TRANSMITS_PII, rule.doesTransmitPii());
-				if(rule.hasApiKey()){
-					// TODO avoid re evaluating the rule
-					ApiKeyPredicateCheck apiKeyPredicateExistsWithName = rule.getApiKeyPredicate().check(rule, request);
-					if(apiKeyPredicateExistsWithName.allowed()){
-						handler.setAccountName(apiKeyPredicateExistsWithName.accountName());
-					}
-				}
-				break;
+			if(!rule.getPattern().matcher(afterContextPath).matches()){
+				continue;
 			}
+			if(rule.getRedirectUrl().isPresent()){
+				ResponseTool.sendRedirect(
+						request,
+						response,
+						HttpServletResponse.SC_SEE_OTHER,
+						rule.getRedirectUrl().get());
+				return RoutingResult.ROUTED;
+			}
+			SecurityValidationResult securityCheckResult = rule.applySecurityValidation(request);
+			request = securityCheckResult.getWrappedRequest();
+			if(!securityCheckResult.isSuccess()){
+				injector.getInstance(rule.getDefaultHandlerEncoder()).sendForbiddenResponse(request, response,
+						securityCheckResult);
+				return RoutingResult.FORBIDDEN;
+			}
+			if(authenticationConfig.useDatarouterAuthentication() && !rule.checkRoles(request)){
+				handleMissingRoles(request, response, rule.getAllowedRoles());
+				return RoutingResult.ROUTED;
+			}
+			handler = injector.getInstance(rule.getHandlerClass());
+			handler.setDefaultHandlerEncoder(rule.getDefaultHandlerEncoder());
+			handler.setDefaultHandlerDecoder(rule.getDefaultHandlerDecoder());
+			RequestAttributeTool.set(request, BaseHandler.HANDLER_ENCODER_ATTRIBUTE, injector.getInstance(rule
+					.getDefaultHandlerEncoder()));
+			RequestAttributeTool.set(request, TRANSMITS_PII, rule.doesTransmitPii());
+			if(rule.hasApiKey()){
+				// TODO avoid re evaluating the rule
+				ApiKeyPredicateCheck apiKeyPredicateExistsWithName = rule.getApiKeyPredicate().check(rule, request);
+				if(apiKeyPredicateExistsWithName.allowed()){
+					handler.setAccountName(apiKeyPredicateExistsWithName.accountName());
+				}
+			}
+
+			String appFromHeader = request.getHeader(ACCOUNT_NAME_HEADER);
+			if(appFromHeader != null && !appFromHeader.isEmpty()){
+				handler.setAccountName(appFromHeader);
+			}
+			break; // only one rule can match
 		}
 
 		Class<? extends BaseHandler> defaultHandlerClass = routeSet.getDefaultHandlerClass();
@@ -125,6 +144,60 @@ public class Dispatcher{
 		handler.setParams(params);
 		handler.handleWrapper();
 		return RoutingResult.ROUTED;
+	}
+
+	// This method is an "estimate" because it doesn't come from a real HttpServletRequest and doesn't require the
+	// correct params
+	public Optional<HandlerDto> estimateHandlerForPath(String path, RouteSet routeSet){
+		BaseHandler handler = null;
+		String afterContextPath = path.substring(servletContext.get().getContextPath().length());
+
+		MockHttpServletRequest request = new MockHttpServletRequest(
+				Map.of(),
+				null,
+				Map.of(),
+				Map.of(),
+				List.of(),
+				"example.hotpads.com",
+				"GET");
+
+		String servletPath = afterContextPath.substring(0, afterContextPath.lastIndexOf("/") == -1
+				? afterContextPath.length() : afterContextPath.lastIndexOf("/"));
+		String pathInfo = afterContextPath.lastIndexOf("/") == -1
+				? afterContextPath : afterContextPath.substring(afterContextPath.lastIndexOf("/"));
+		request.setServletPath(servletPath);
+		request.setPathInfo(pathInfo);
+
+		for(DispatchRule rule : routeSet.getDispatchRulesNoRedirects()){
+			if(rule.getPattern().matcher(afterContextPath).matches()){
+				handler = injector.getInstance(rule.getHandlerClass());
+				handler.setDefaultHandlerEncoder(rule.getDefaultHandlerEncoder());
+				handler.setDefaultHandlerDecoder(rule.getDefaultHandlerDecoder());
+				break;
+			}
+		}
+
+		Class<? extends BaseHandler> defaultHandlerClass = routeSet.getDefaultHandlerClass();
+		if(handler == null){
+			if(defaultHandlerClass == null){
+				return Optional.empty();
+			}
+			handler = injector.getInstance(defaultHandlerClass);
+		}
+
+		handler.setParams(new Params(request));
+		handler.setRequest(request);
+		handler.setServletContext(servletContext.get());
+
+		String className = handler.getClass().getName();
+		String methodName = handler.estimateHandlerMethod();
+
+		return Optional.of(new HandlerDto(className, methodName));
+	}
+
+	public record HandlerDto(
+			String className,
+			String methodName){
 	}
 
 	private Params parseParams(HttpServletRequest request, Charset defaultCharset) throws ServletException{

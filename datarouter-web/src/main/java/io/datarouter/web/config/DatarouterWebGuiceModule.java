@@ -20,6 +20,17 @@ import java.time.ZoneId;
 import com.google.gson.Gson;
 import com.google.inject.name.Names;
 
+import io.datarouter.auth.authenticate.saml.SamlRegistrar;
+import io.datarouter.auth.role.DatarouterRoleManager;
+import io.datarouter.auth.role.RoleManager;
+import io.datarouter.auth.session.CurrentSessionInfo;
+import io.datarouter.auth.session.CurrentSessionInfo.NoOpCurrentSessionInfo;
+import io.datarouter.auth.session.UserSessionService;
+import io.datarouter.auth.session.UserSessionService.NoOpUserSessionService;
+import io.datarouter.auth.storage.user.saml.BaseDatarouterSamlDao;
+import io.datarouter.auth.storage.user.saml.BaseDatarouterSamlDao.NoOpDatarouterSamlDao;
+import io.datarouter.auth.storage.user.session.BaseDatarouterSessionDao;
+import io.datarouter.auth.storage.user.session.BaseDatarouterSessionDao.NoOpDatarouterSessionDao;
 import io.datarouter.gson.GsonJsonSerializer;
 import io.datarouter.gson.GsonTool;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
@@ -47,19 +58,8 @@ import io.datarouter.web.monitoring.latency.LatencyMonitoringGraphLink.NoOpLaten
 import io.datarouter.web.navigation.AppNavBar;
 import io.datarouter.web.navigation.AppNavBarRegistrySupplier;
 import io.datarouter.web.navigation.AppNavBarRegistrySupplier.NoOpAppNavBarRegistry;
-import io.datarouter.web.user.BaseDatarouterSessionDao;
-import io.datarouter.web.user.BaseDatarouterSessionDao.NoOpDatarouterSessionDao;
 import io.datarouter.web.user.authenticate.config.BaseDatarouterAuthenticationConfig;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
-import io.datarouter.web.user.authenticate.saml.BaseDatarouterSamlDao;
-import io.datarouter.web.user.authenticate.saml.BaseDatarouterSamlDao.NoOpDatarouterSamlDao;
-import io.datarouter.web.user.authenticate.saml.SamlRegistrar;
-import io.datarouter.web.user.role.DatarouterRoleManager;
-import io.datarouter.web.user.role.RoleManager;
-import io.datarouter.web.user.session.CurrentSessionInfo;
-import io.datarouter.web.user.session.CurrentSessionInfo.NoOpCurrentSessionInfo;
-import io.datarouter.web.user.session.service.UserSessionService;
-import io.datarouter.web.user.session.service.UserSessionService.NoOpUserSessionService;
 
 public class DatarouterWebGuiceModule extends BaseGuiceServletModule{
 
@@ -110,10 +110,7 @@ public class DatarouterWebGuiceModule extends BaseGuiceServletModule{
 	// allows this module to be installed multiple times
 	@Override
 	public boolean equals(Object that){
-		if(that == null || getClass() != that.getClass()){
-			return false;
-		}
-		return true;
+		return that != null && getClass() == that.getClass();
 	}
 
 	@Override

@@ -32,8 +32,6 @@ import java.util.concurrent.TimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.instrumentation.count.Counters;
-import io.datarouter.instrumentation.trace.TraceSpanFinisher;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.util.tracer.TracedCheckedCallable;
 
@@ -45,8 +43,6 @@ import io.datarouter.util.tracer.TracedCheckedCallable;
  */
 public class DatarouterExecutorService extends ThreadPoolExecutor{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterExecutorService.class);
-
-	public static final String PREFIX_executor = "executor";
 
 	private final Optional<String> name;
 
@@ -75,7 +71,7 @@ public class DatarouterExecutorService extends ThreadPoolExecutor{
 	@Override
 	protected void afterExecute(Runnable runnable, Throwable throwable){
 		super.afterExecute(runnable, throwable);
-		name.ifPresent(execName -> Counters.inc(PREFIX_executor + " " + execName + " processed"));
+		name.ifPresent(execName -> DatarouterExecutorMetrics.name(execName).processed.count());
 	}
 
 	@Override
@@ -108,14 +104,14 @@ public class DatarouterExecutorService extends ThreadPoolExecutor{
 
 		@Override
 		public V get() throws InterruptedException, ExecutionException{
-			try(TraceSpanFinisher $ = TracerTool.startSpanNoGroupType("waiting for subtask")){
+			try(var $ = TracerTool.startSpanNoGroupType("waiting for subtask")){
 				return super.get();
 			}
 		}
 
 		@Override
 		public V get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException{
-			try(TraceSpanFinisher $ = TracerTool.startSpanNoGroupType("waiting for subtask")){
+			try(var $ = TracerTool.startSpanNoGroupType("waiting for subtask")){
 				return super.get(timeout, unit);
 			}
 		}

@@ -15,23 +15,14 @@
  */
 package io.datarouter.web.html.form;
 
-import io.datarouter.web.html.form.HtmlForm.BaseHtmlFormField;
+public class HtmlFormCheckbox extends BaseHtmlFormTypedInputField<HtmlFormCheckbox>{
 
-public class HtmlFormCheckbox extends BaseHtmlFormField{
-
-	private String name;
-	private String display;
 	private boolean checked = false;
-	private boolean submitOnChange;
 
-	public HtmlFormCheckbox withName(String name){
-		this.name = name;
-		return this;
-	}
-
-	public HtmlFormCheckbox withDisplay(String display){
-		this.display = display;
-		return this;
+	public HtmlFormCheckbox(){
+		super("checkbox");
+		// replacing "on" for compatibility with standard Optional<Boolean> Handler params
+		withValue(Boolean.TRUE.toString());
 	}
 
 	public HtmlFormCheckbox withChecked(boolean checked){
@@ -39,25 +30,13 @@ public class HtmlFormCheckbox extends BaseHtmlFormField{
 		return this;
 	}
 
-	public HtmlFormCheckbox withSubmitOnChange(){
-		this.submitOnChange = true;
-		return this;
-	}
-
-	public String getName(){
-		return name;
-	}
-
-	public String getDisplay(){
-		return display;
-	}
-
 	public boolean isChecked(){
 		return checked;
 	}
 
-	public boolean isSubmitOnChange(){
-		return submitOnChange;
+	@Override
+	protected HtmlFormCheckbox self(){
+		return this;
 	}
 
 }

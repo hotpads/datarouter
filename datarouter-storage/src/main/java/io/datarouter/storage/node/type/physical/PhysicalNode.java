@@ -18,6 +18,7 @@ package io.datarouter.storage.node.type.physical;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.storage.client.ClientAndTableNames;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.node.Node;
@@ -39,5 +40,11 @@ extends Node<PK,D,F>{
 	ClientId getClientId();
 	@Override
 	PhysicalDatabeanFieldInfo<PK,D,F> getFieldInfo();
+
+	default ClientAndTableNames clientAndTableNames(){
+		return new ClientAndTableNames(
+				getClientId().getName(),
+				getFieldInfo().getTableName());
+	}
 
 }

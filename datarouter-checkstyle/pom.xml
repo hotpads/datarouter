@@ -22,7 +22,7 @@
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-metadata-parent</artifactId>
-		<version>0.0.121</version>
+		<version>0.0.122</version>
 		<relativePath>../datarouter-metadata-parent</relativePath>
 	</parent>
 

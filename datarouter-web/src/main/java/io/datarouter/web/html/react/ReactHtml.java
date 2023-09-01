@@ -54,6 +54,8 @@ public class ReactHtml{
 	//body header
 	private final ContainerTag<?> datarouterNavbar;
 	private final ContainerTag<?> webappNavbar;
+	private final EmptyTag<?>[] additionalCssImports;
+	private final ScriptTag[] additionalScriptImports;
 
 	public ReactHtml(
 			List<String> externalReactScripts,
@@ -69,7 +71,9 @@ public class ReactHtml{
 			Map<String,String> jsStringConstants,
 			Map<String,String> jsRawConstants,
 			ContainerTag<?> datarouterNavbar,
-			ContainerTag<?> webappNavbar){
+			ContainerTag<?> webappNavbar,
+			EmptyTag<?>[] additionalCssImports,
+			ScriptTag[] additionalScriptImports){
 		this.externalReactScripts = externalReactScripts;
 		this.datarouterWebCssImports = datarouterWebCssImports;
 		this.datarouterWebRequireJsImport = datarouterWebRequireJsImport;
@@ -84,6 +88,8 @@ public class ReactHtml{
 		this.jsRawConstants = jsRawConstants;
 		this.datarouterNavbar = datarouterNavbar;
 		this.webappNavbar = webappNavbar;
+		this.additionalCssImports = additionalCssImports;
+		this.additionalScriptImports = additionalScriptImports;
 	}
 
 	public HtmlTag build(){
@@ -107,6 +113,8 @@ public class ReactHtml{
 				.with(datarouterNavbarCssImports)
 				.with(datarouterNavbarRequestTimingJsImport)
 				.with(datarouterNavbarRequestTimingScript)
+				.with(additionalCssImports)
+				.with(additionalScriptImports)
 				.with(title(title))
 				.with(makeJsConstantScript())
 				.with(script);

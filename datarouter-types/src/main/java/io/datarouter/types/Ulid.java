@@ -16,6 +16,9 @@
 package io.datarouter.types;
 
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Random;
 
 import de.huxhorn.sulky.ulid.ULID;
@@ -80,6 +83,11 @@ implements Comparable<Ulid>{
 	@Override
 	public int compareTo(Ulid other){
 		return value.compareTo(other.value);
+	}
+
+	public String getAsHumanReadableTime(DateTimeFormatter formatter, ZoneId zoneId){
+		var zonedDateTime = ZonedDateTime.ofInstant(getInstant(), zoneId);
+		return formatter.format(zonedDateTime);
 	}
 
 }

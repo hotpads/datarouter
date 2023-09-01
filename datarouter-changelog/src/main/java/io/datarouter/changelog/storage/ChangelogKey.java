@@ -18,20 +18,24 @@ package io.datarouter.changelog.storage;
 import java.util.List;
 
 import io.datarouter.model.field.Field;
+import io.datarouter.model.field.codec.MilliTimeReversedFieldCodec;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
-import io.datarouter.model.field.imp.comparable.LongField;
-import io.datarouter.model.field.imp.comparable.LongFieldKey;
+import io.datarouter.model.field.imp.comparable.LongEncodedField;
+import io.datarouter.model.field.imp.comparable.LongEncodedFieldKey;
 import io.datarouter.model.key.primary.base.BaseRegularPrimaryKey;
+import io.datarouter.types.MilliTimeReversed;
 
 public class ChangelogKey extends BaseRegularPrimaryKey<ChangelogKey>{
 
-	private Long reversedDateMs;
+	private MilliTimeReversed reversedDateMs;
 	private String changelogType;
 	private String name;
 
 	public static class FieldKeys{
-		public static final LongFieldKey reversedDateMs = new LongFieldKey("reversedDateMs");
+		public static final LongEncodedFieldKey<MilliTimeReversed> reversedDateMs = new LongEncodedFieldKey<>(
+				"reversedDateMs",
+				new MilliTimeReversedFieldCodec());
 		public static final StringFieldKey changelogType = new StringFieldKey("changelogType")
 				.withSize(100);
 		public static final StringFieldKey name = new StringFieldKey("name");
@@ -40,8 +44,8 @@ public class ChangelogKey extends BaseRegularPrimaryKey<ChangelogKey>{
 	public ChangelogKey(){
 	}
 
-	public ChangelogKey(Long reversedDateMs, String changelogType, String name){
-		this.reversedDateMs = reversedDateMs;
+	public ChangelogKey(MilliTimeReversed milliTimeReversed, String changelogType, String name){
+		this.reversedDateMs = milliTimeReversed;
 		this.changelogType = changelogType;
 		this.name = name;
 	}
@@ -49,12 +53,12 @@ public class ChangelogKey extends BaseRegularPrimaryKey<ChangelogKey>{
 	@Override
 	public List<Field<?>> getFields(){
 		return List.of(
-				new LongField(FieldKeys.reversedDateMs, reversedDateMs),
+				new LongEncodedField<>(FieldKeys.reversedDateMs, reversedDateMs),
 				new StringField(FieldKeys.changelogType, changelogType),
 				new StringField(FieldKeys.name, name));
 	}
 
-	public Long getReversedDateMs(){
+	public MilliTimeReversed getMilliTimeReversed(){
 		return reversedDateMs;
 	}
 

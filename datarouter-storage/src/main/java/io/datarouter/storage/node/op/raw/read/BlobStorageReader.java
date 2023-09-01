@@ -34,7 +34,7 @@ import io.datarouter.storage.util.Subpath;
 import io.datarouter.util.tuple.Range;
 
 /**
- * Methods for reading from an blob store such as the filesystem or S3.
+ * Methods for reading from a blob store such as the filesystem or S3.
  */
 public interface BlobStorageReader
 extends NodeOps<PathbeanKey,Pathbean>{

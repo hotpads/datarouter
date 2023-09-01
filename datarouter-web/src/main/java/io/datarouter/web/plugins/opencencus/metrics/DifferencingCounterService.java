@@ -30,11 +30,11 @@ import jakarta.inject.Singleton;
 public class DifferencingCounterService{
 	private static final Logger logger = LoggerFactory.getLogger(DifferencingCounterService.class);
 
-	private final Map<String,DifferencingCounterDto> previousGauge = new ConcurrentHashMap<>();
+	private final Map<String,DifferencingCounter> previousGauge = new ConcurrentHashMap<>();
 
 	public void add(String key, long value){
-		DifferencingCounterDto newDto = new DifferencingCounterDto(value, System.currentTimeMillis());
-		DifferencingCounterDto previousDto = previousGauge.put(key, newDto);
+		DifferencingCounter newDto = new DifferencingCounter(value, System.currentTimeMillis());
+		DifferencingCounter previousDto = previousGauge.put(key, newDto);
 		if(previousDto == null){
 			return;
 		}
@@ -47,16 +47,9 @@ public class DifferencingCounterService{
 		}
 	}
 
-	private static class DifferencingCounterDto{
-
-		private final long value;
-		private final long dateMs;
-
-		private DifferencingCounterDto(long value, long dateMs){
-			this.value = value;
-			this.dateMs = dateMs;
-		}
-
+	private record DifferencingCounter(
+			long value,
+			long dateMs){
 	}
 
 }

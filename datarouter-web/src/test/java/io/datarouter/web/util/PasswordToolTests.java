@@ -18,6 +18,8 @@ package io.datarouter.web.util;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import io.datarouter.auth.util.PasswordTool;
+
 public class PasswordToolTests{
 
 	@Test

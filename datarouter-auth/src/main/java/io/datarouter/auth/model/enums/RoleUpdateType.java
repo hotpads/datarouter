@@ -30,4 +30,5 @@ public enum RoleUpdateType{
 	RoleUpdateType(String persistentString){
 		this.persistentString = persistentString;
 	}
+
 }

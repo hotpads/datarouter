@@ -17,9 +17,9 @@ package io.datarouter.web.handler.mav;
 
 import javax.servlet.http.HttpServletRequest;
 
+import io.datarouter.auth.role.DatarouterUserRole;
+import io.datarouter.auth.session.CurrentSessionInfo;
 import io.datarouter.storage.servertype.ServerTypeDetector;
-import io.datarouter.web.user.role.DatarouterUserRole;
-import io.datarouter.web.user.session.CurrentSessionInfo;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 

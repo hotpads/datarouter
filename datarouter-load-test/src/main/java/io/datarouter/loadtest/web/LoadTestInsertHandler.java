@@ -53,6 +53,7 @@ import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.types.Param;
 import io.datarouter.web.html.form.HtmlForm;
+import io.datarouter.web.html.form.HtmlForm.HtmlFormMethod;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import j2html.tags.DomContent;
@@ -88,35 +89,34 @@ public class LoadTestInsertHandler extends BaseHandler{
 			@Param(P_logPeriod) Optional<String> logPeriod,
 			@Param(P_persistentPut) Optional<String> persistentPut,
 			@Param(P_submitAction) Optional<String> submitAction){
-		var form = new HtmlForm()
-				.withMethod("post");
-		form.addTextField()
-				.withDisplay("Num")
+		var form = new HtmlForm(HtmlFormMethod.POST);
+		form.addNumberField()
+				.withLabel("Num")
 				.withName(P_num)
-				.withPlaceholder("100,000")
+				.withPlaceholder(100_000)
 				.withValue(num.orElse(null));
-		form.addTextField()
-				.withDisplay("Num Threads")
+		form.addNumberField()
+				.withLabel("Num Threads")
 				.withName(P_numThreads)
-				.withPlaceholder("10")
+				.withPlaceholder(10)
 				.withValue(numThreads.orElse(null));
-		form.addTextField()
-				.withDisplay("Batch Size")
+		form.addNumberField()
+				.withLabel("Batch Size")
 				.withName(P_batchSize)
-				.withPlaceholder("100")
+				.withPlaceholder(100)
 				.withValue(batchSize.orElse(null));
-		form.addTextField()
-				.withDisplay("Log Period")
+		form.addNumberField()
+				.withLabel("Log Period")
 				.withName(P_logPeriod)
-				.withPlaceholder("10,000")
+				.withPlaceholder(10_000)
 				.withValue(logPeriod.orElse(null));
 		form.addTextField()
-				.withDisplay("Persistent Put")
+				.withLabel("Persistent Put")
 				.withName(P_persistentPut)
 				.withPlaceholder("true")
 				.withValue(persistentPut.orElse(null));
 		form.addButton()
-				.withDisplay("Run Insert")
+				.withLabel("Run Insert")
 				.withValue("anything");
 
 		if(submitAction.isEmpty() || form.hasErrors()){
@@ -129,22 +129,22 @@ public class LoadTestInsertHandler extends BaseHandler{
 		//params
 		int pNum = num
 				.map(StringTool::nullIfEmpty)
-				.map(number -> number.replaceAll(",", ""))
+				.map(number -> number.replace(",", ""))
 				.map(Integer::valueOf)
 				.orElse(DEFAULT_NUM);
 		int pNumThreads = numThreads
 				.map(StringTool::nullIfEmpty)
-				.map(number -> number.replaceAll(",", ""))
+				.map(number -> number.replace(",", ""))
 				.map(Integer::valueOf)
 				.orElse(DEFAULT_NUM_THREADS);
 		int pBatchSize = batchSize
 				.map(StringTool::nullIfEmpty)
-				.map(number -> number.replaceAll(",", ""))
+				.map(number -> number.replace(",", ""))
 				.map(Integer::valueOf)
 				.orElse(DEFAULT_BATCH_SIZE);
 		int pLogPeriod = logPeriod
 				.map(StringTool::nullIfEmpty)
-				.map(number -> number.replaceAll(",", ""))
+				.map(number -> number.replace(",", ""))
 				.map(Integer::valueOf)
 				.orElse(DEFAULT_LOG_PERIOD);
 		boolean pPersistentPut = persistentPut

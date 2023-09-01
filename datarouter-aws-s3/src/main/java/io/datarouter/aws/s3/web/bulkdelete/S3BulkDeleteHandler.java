@@ -48,6 +48,7 @@ import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.GlobalRedirectMav;
 import io.datarouter.web.html.form.HtmlForm;
+import io.datarouter.web.html.form.HtmlForm.HtmlFormMethod;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import jakarta.inject.Inject;
@@ -92,36 +93,35 @@ public class S3BulkDeleteHandler extends BaseHandler{
 
 		// make form
 		boolean submitted = submit.orElse(false);
-		var form = new HtmlForm()
-				.withMethod("post");
+		var form = new HtmlForm(HtmlFormMethod.POST);
 		form.addTextField()
-				.withDisplay("Datarouter Client Name")
+				.withLabel("Datarouter Client Name")
 				.withName(P_client)
 				.withValue(
 						client.orElse(""),
 						submitted,
 						s3BulkDeleteValidation::validateClientName);
 		form.addTextField()
-				.withDisplay("Bucket")
+				.withLabel("Bucket")
 				.withName(P_bucket)
 				.withValue(
 						bucket.orElse(""),
 						submitted,
 						bucketName -> s3BulkDeleteValidation.validateBucketName(client, bucketName));
 		form.addTextField()
-				.withDisplay("Prefix")
+				.withLabel("Prefix")
 				.withName(P_prefix)
 				.withValue(prefix.orElse(""));
-		form.addTextField()
-				.withDisplay("Limit")
+		form.addNumberField()
+				.withLabel("Limit")
 				.withName(P_limit)
-				.withValue(limit.map(Number::toString).orElse(""));
+				.withValue(limit.orElse(null));
 		form.addCheckboxField()
-				.withDisplay("Delete All Versions")
+				.withLabel("Delete All Versions")
 				.withName(P_deleteAllVersions)
 				.withChecked(deleteAllVersions.orElse(false));
 		form.addButtonWithoutSubmitAction()
-				.withDisplay("Proceed to Confirmation")
+				.withLabel("Proceed to Confirmation")
 				.withName(P_submit)
 				.withValue(Boolean.TRUE.toString());
 		var htmlForm = Bootstrap4FormHtml.render(form)

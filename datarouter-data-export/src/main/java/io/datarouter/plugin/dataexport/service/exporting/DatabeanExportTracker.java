@@ -92,7 +92,8 @@ public record DatabeanExportTracker(
 		if(Duration.between(startTime, Instant.now()).compareTo(logDelay) < 0){
 			return;
 		}
-		String message = String.join("-", "track", type.name().toLowerCase()) + new KvString()
+		String trackerType = String.join("-", "track", type.name().toLowerCase());
+		var attributes = new KvString()
 				.add("databeans", databeanCount.value(), NumberFormatter::addCommas)
 				.add("perSec", rateTracker.perSecDisplay())
 				.add("perSecAvg", rateTracker.perSecAvgDisplay())
@@ -101,7 +102,7 @@ public record DatabeanExportTracker(
 				.add("exportId", String.join("/", exportId.toString(), clientName, tableName))
 				.add("lastKey", Optional.ofNullable(lastKey.get()).map(PrimaryKey::toString).orElse("?"))
 				.add("threads", threadCount, Number::toString);
-		logger.warn(message);
+		logger.warn("{} {}", trackerType, attributes);
 		rateTracker.markLogged();
 	}
 

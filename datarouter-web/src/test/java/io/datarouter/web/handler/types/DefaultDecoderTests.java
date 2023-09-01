@@ -34,6 +34,7 @@ import io.datarouter.gson.GsonTool;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.web.handler.TestApiHandler;
 import io.datarouter.web.handler.TestApiHandler.FooBar;
+import io.datarouter.web.handler.types.TestWebApiHandler.PrintIntList;
 import io.datarouter.web.util.http.MockHttpServletRequestBuilder;
 
 public class DefaultDecoderTests{
@@ -185,6 +186,8 @@ public class DefaultDecoderTests{
 		Assert.assertEquals(args[2], Arrays.toString(stringArray));
 	}
 
+	/* multi value processing*/
+
 	@Test
 	public void testPrimitiveFormEncodedArrays() throws NoSuchMethodException, SecurityException{
 		Method method = TestApiHandler.class.getMethod("printPrimitiveIntArray", int[].class);
@@ -237,6 +240,46 @@ public class DefaultDecoderTests{
 		Assert.assertEquals(args[0], new int[]{1, 2, 3});
 	}
 
+	// broken, need IN-10619
+	@Test(enabled = false)
+	public void testPrintIntListNoParamName() throws NoSuchMethodException, SecurityException{
+		Method method = TestApiHandler.class.getMethod("printIntListNoParamName", List.class);
+		HttpServletRequest request = new MockHttpServletRequestBuilder()
+				.withArrayParameter("numbers[]", "1", "2", "3")
+				.build();
+
+		Object[] args = decoder.decode(request, method);
+		Assert.assertEquals(args.length, 1);
+		Assert.assertTrue(args[0] instanceof int[]);
+		Assert.assertEquals(args[0], new int[]{1, 2, 3});
+	}
+
+	@Test
+	public void testPrintIntListWebApi() throws NoSuchMethodException, SecurityException{
+		Method method = TestWebApiHandler.class.getMethod("printIntList", PrintIntList.class);
+		HttpServletRequest request = new MockHttpServletRequestBuilder()
+				.withMethod("GET")
+				.withArrayParameter("numbers[]", "1", "2", "3")
+				.build();
+
+		Object[] args = decoder.decode(request, method);
+		Assert.assertEquals(args.length, 1);
+		Assert.assertEquals(((PrintIntList)args[0]).numbers, Arrays.asList(1, 2, 3));
+	}
+
+	@Test
+	public void testPrintIntListWebApiJsonStyle() throws NoSuchMethodException, SecurityException{
+		Method method = TestWebApiHandler.class.getMethod("printIntList", PrintIntList.class);
+		HttpServletRequest request = new MockHttpServletRequestBuilder()
+				.withMethod("GET")
+				.withArrayParameter("numbers", "[1,2,3]")
+				.build();
+
+		Object[] args = decoder.decode(request, method);
+		Assert.assertEquals(args.length, 1);
+		Assert.assertEquals(((PrintIntList)args[0]).numbers, Arrays.asList(1, 2, 3));
+	}
+
 	@Test
 	public void testComplexFormEncodedArray() throws NoSuchMethodException, SecurityException{
 		Method method = TestApiHandler.class.getMethod("printComplicatedArrayParams", int[].class, Integer[].class,
@@ -258,5 +301,6 @@ public class DefaultDecoderTests{
 		Assert.assertEquals(args[1], new Integer[]{1, 2});
 		Assert.assertEquals(args[2], new int[]{1});
 	}
+
 
 }

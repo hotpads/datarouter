@@ -57,9 +57,7 @@ public class ClusterSettingLogHtml{
 	/*-------- card ----------*/
 
 	public DivTag makeCard(ZoneId zoneId, ClusterSettingLog log){
-		String time = ZonedDateFormatterTool.formatInstantWithZoneDesc(
-				log.getKey().getCreatedInstant(),
-				zoneId);
+		String time = log.getKey().getMilliTimeReversed().format(zoneId);
 		String browseHref = browseLinks.all(new ClusterSettingBrowseHandlerParams()
 				.withLocation(log.getKey().getName()));
 		var cardTitle = div(b(time))
@@ -148,8 +146,8 @@ public class ClusterSettingLogHtml{
 	}
 
 	private TdTag makeTimeCell(ClusterSettingLogKey key, ZoneId zoneId){
-		String text = ZonedDateFormatterTool.formatInstantWithZoneDesc(key.getCreatedInstant(), zoneId);
-		String href = clusterSettingLogLinks.single(key.getName(), key.getReverseCreatedMs());
+		String text = key.getMilliTimeReversed().format(ZonedDateFormatterTool.FORMATTER_DESC, zoneId);
+		String href = clusterSettingLogLinks.single(key.getName(), key.getMilliTimeReversed());
 		var link = a(text).withHref(href);
 		return td(link);
 	}
@@ -162,12 +160,12 @@ public class ClusterSettingLogHtml{
 	}
 
 	private TdTag makeCommentCell(ClusterSettingLog log){
-		String detailsHref = clusterSettingLogLinks.single(log.getKey().getName(), log.getKey().getReverseCreatedMs());
+		String detailsHref = clusterSettingLogLinks.single(log.getKey().getName(), log.getKey().getMilliTimeReversed());
 		return clusterSettingHtml.makeLimitedLengthLinkCell(log.getComment(), detailsHref);
 	}
 
 	private TdTag makeValueCell(ClusterSettingLog log){
-		String detailsHref = clusterSettingLogLinks.single(log.getKey().getName(), log.getKey().getReverseCreatedMs());
+		String detailsHref = clusterSettingLogLinks.single(log.getKey().getName(), log.getKey().getMilliTimeReversed());
 		return clusterSettingHtml.makeLimitedLengthLinkCell(log.getValue(), detailsHref);
 	}
 

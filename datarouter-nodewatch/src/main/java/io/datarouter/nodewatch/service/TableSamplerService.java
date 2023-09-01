@@ -32,6 +32,7 @@ import io.datarouter.nodewatch.storage.tablesample.TableSample;
 import io.datarouter.nodewatch.storage.tablesample.TableSampleKey;
 import io.datarouter.nodewatch.util.TableSamplerTool;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.storage.client.ClientAndTableNames;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.DatarouterClients;
 import io.datarouter.storage.node.DatarouterNodes;
@@ -138,6 +139,10 @@ public class TableSamplerService{
 		NodewatchConfiguration nodeConfig = tableConfigurationService.getTableConfigMap()
 				.get(new ClientTableEntityPrefixNameWrapper(node));
 		return nodeConfig == null ? NodewatchConfigurationBuilder.DEFAULT_BATCH_SIZE : nodeConfig.batchSize;
+	}
+
+	public TableCount getCurrentTableCountFromSamples(ClientAndTableNames clientAndTableNames){
+		return getCurrentTableCountFromSamples(clientAndTableNames.client(), clientAndTableNames.table());
 	}
 
 	public TableCount getCurrentTableCountFromSamples(String clientName, String tableName){

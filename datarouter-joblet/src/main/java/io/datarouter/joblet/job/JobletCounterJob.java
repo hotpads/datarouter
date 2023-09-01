@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
-import io.datarouter.joblet.DatarouterJobletCounters;
+import io.datarouter.joblet.JobletCounters;
 import io.datarouter.joblet.dto.JobletSummary;
 import io.datarouter.joblet.enums.JobletStatus;
 import io.datarouter.joblet.storage.jobletrequest.DatarouterJobletRequestDao;
@@ -32,8 +32,6 @@ public class JobletCounterJob extends BaseJob{
 
 	@Inject
 	private DatarouterJobletRequestDao jobletRequestDao;
-	@Inject
-	private DatarouterJobletCounters datarouterJobletCounters;
 
 	@Override
 	public void run(TaskTracker tracker){
@@ -41,49 +39,54 @@ public class JobletCounterJob extends BaseJob{
 				.advanceUntil($ -> tracker.increment().shouldStop())
 				.map(JobletSummary::new)
 				//aggregate by (status, type, queueId)
-				.toMap(this::toStatusTypeQueueKey, Function.identity(), JobletSummary::absorbStats)
+				.toMap(JobletCounterJob::toStatusTypeQueueKey, Function.identity(), JobletSummary::absorbStats)
 				.values().stream()
-				.peek(this::saveQueueStatsByStatusTypeAndQueueId)
+				.peek(JobletCounterJob::saveQueueStatsByStatusTypeAndQueueId)
 				//aggregate by (status, type)
-				.collect(Collectors.toMap(this::toStatusTypeKey, Function.identity(), JobletSummary::absorbStats))
+				.collect(Collectors.toMap(JobletCounterJob::toStatusTypeKey, Function.identity(),
+						JobletSummary::absorbStats))
 				.values().stream()
-				.peek(this::saveQueueStatsByStatusAndType)
+				.peek(JobletCounterJob::saveQueueStatsByStatusAndType)
 				//aggregate by (status)
 				.collect(Collectors.toMap(JobletSummary::getStatus, Function.identity(), JobletSummary::absorbStats))
 				.values().stream()
-				.forEach(this::saveQueueStatsByStatus);
+				.forEach(JobletCounterJob::saveQueueStatsByStatus);
 	}
 
-	private void saveQueueStatsByStatus(JobletSummary summary){
+	private static void saveQueueStatsByStatus(JobletSummary summary){
 		JobletStatus status = summary.getStatus();
-		datarouterJobletCounters.saveGlobalQueueLengthJoblets(status, summary.getNumType());
-		datarouterJobletCounters.saveGlobalQueueLengthItems(status, summary.getSumItems());
-		datarouterJobletCounters.saveGlobalFirst(status, getFirstCreatedMinutesToNow(summary));
+		JobletCounters.saveGlobalQueueLengthJoblets(status, summary.getNumType());
+		JobletCounters.saveGlobalQueueLengthItems(status, summary.getSumItems());
+		JobletCounters.saveGlobalFirst(status, getFirstCreatedMinutesToNow(summary));
 	}
 
-	private void saveQueueStatsByStatusAndType(JobletSummary summary){
+	private static void saveQueueStatsByStatusAndType(JobletSummary summary){
 		JobletStatus status = summary.getStatus();
 		String jobletType = summary.getType();
-		datarouterJobletCounters.saveQueueLengthJoblets(status, jobletType, summary.getNumType());
-		datarouterJobletCounters.saveQueueLengthItems(status, jobletType, summary.getSumItems());
-		datarouterJobletCounters.saveFirst(status, jobletType, getFirstCreatedMinutesToNow(summary));
+		JobletCounters.saveQueueLengthJoblets(status, jobletType, summary.getNumType());
+		JobletCounters.saveQueueLengthItems(status, jobletType, summary.getSumItems());
+		JobletCounters.saveFirst(status, jobletType, getFirstCreatedMinutesToNow(summary));
 	}
 
-	private void saveQueueStatsByStatusTypeAndQueueId(JobletSummary summary){
+	private static void saveQueueStatsByStatusTypeAndQueueId(JobletSummary summary){
 		JobletStatus status = summary.getStatus();
 		String jobletType = summary.getType();
 		String queueId = summary.getQueueId();
-		datarouterJobletCounters.saveQueueLengthJobletsForQueueId(status, jobletType, queueId, summary.getNumType());
-		datarouterJobletCounters.saveQueueLengthItemsForQueueId(status, jobletType, queueId, summary.getSumItems());
-		datarouterJobletCounters.saveFirstForQueueId(status, jobletType, queueId, getFirstCreatedMinutesToNow(summary));
+		JobletCounters.saveQueueLengthJobletsForQueueId(status, jobletType, queueId, summary.getNumType());
+		JobletCounters.saveQueueLengthItemsForQueueId(status, jobletType, queueId, summary.getSumItems());
+		JobletCounters.saveFirstForQueueId(status, jobletType, queueId, getFirstCreatedMinutesToNow(summary));
 	}
 
-	private StatusAndTypeKey toStatusTypeKey(JobletSummary summary){
+	private static StatusAndTypeKey toStatusTypeKey(JobletSummary summary){
 		return new StatusAndTypeKey(summary.getStatus(), summary.getType());
 	}
 
-	private JobletStatusAndTypeAndQueueId toStatusTypeQueueKey(JobletSummary summary){
+	private static JobletStatusAndTypeAndQueueId toStatusTypeQueueKey(JobletSummary summary){
 		return new JobletStatusAndTypeAndQueueId(summary.getStatus(), summary.getType(), summary.getQueueId());
+	}
+
+	private static Long getFirstCreatedMinutesToNow(JobletSummary summary){
+		return summary.getFirstCreated().until(Instant.now(), ChronoUnit.MINUTES);
 	}
 
 	private record StatusAndTypeKey(
@@ -95,10 +98,6 @@ public class JobletCounterJob extends BaseJob{
 			JobletStatus status,
 			String type,
 			String queueId){
-	}
-
-	private Long getFirstCreatedMinutesToNow(JobletSummary summary){
-		return summary.getFirstCreated().until(Instant.now(), ChronoUnit.MINUTES);
 	}
 
 }

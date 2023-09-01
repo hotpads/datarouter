@@ -40,6 +40,8 @@ public class LatestTableCount extends BaseDatabean<LatestTableCountKey,LatestTab
 			= Comparator.comparing(Databean::getKey, LatestTableCountKey.COMPARE_TABLE);
 	public static final Comparator<LatestTableCount> COMPARE_ROWS
 			= Comparator.comparing(LatestTableCount::getNumRows);
+	public static final Comparator<LatestTableCount> COMPARE_DATE_UPDATED
+			= Comparator.comparing(LatestTableCount::getDateUpdated);
 	public static final Comparator<LatestTableCount> COMPARE_COUNT_TIME
 			= Comparator.comparing(LatestTableCount::getCountTimeMs);
 	public static final Comparator<LatestTableCount> COMPARE_SPANS

@@ -35,6 +35,7 @@ import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.types.Param;
 import io.datarouter.web.html.form.HtmlForm;
+import io.datarouter.web.html.form.HtmlForm.HtmlFormMethod;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import j2html.tags.specialized.DivTag;
@@ -65,9 +66,9 @@ public class EmailTestHandler extends BaseHandler{
 
 	@Handler(defaultHandler = true)
 	private Mav sendEmailTest(@Param(P_submitAction) Optional<String> submitAction){
-		var form = new HtmlForm();
+		var form = new HtmlForm(HtmlFormMethod.GET);
 		form.addButton()
-				.withDisplay("Submit")
+				.withLabel("Submit")
 				.withValue("");
 		if(submitAction.isEmpty()){
 			return pageFactory.startBuilder(request)

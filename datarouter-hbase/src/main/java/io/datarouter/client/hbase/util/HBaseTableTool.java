@@ -17,6 +17,7 @@ package io.datarouter.client.hbase.util;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Get;
@@ -26,6 +27,8 @@ import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.util.Bytes;
 
+import io.datarouter.bytes.KvString;
+import io.datarouter.bytes.codec.bytestringcodec.HexByteStringCodec;
 import io.datarouter.gson.GsonTool;
 import io.datarouter.instrumentation.trace.TraceSpanGroupType;
 import io.datarouter.instrumentation.trace.TracerTool;
@@ -54,14 +57,20 @@ public class HBaseTableTool{
 	}
 
 	public static ResultScanner getResultScanner(Table table, Scan scan) throws IOException{
-		String start = Bytes.toStringBinary(scan.getStartRow());
+		byte[] start = scan.getStartRow();
 		try(var $ = TracerTool.startSpan(table.getName() + " getScanner", TraceSpanGroupType.DATABASE)){
-			TracerTool.appendToSpanInfo("start", start);
+			TracerTool.appendToSpanInfo("start", Bytes.toStringBinary(start));
 			return table.getScanner(scan);
 		}catch(IOException e){
-			throw new IOException("start=" + start
-					+ " stop=" + Bytes.toStringBinary(scan.getStopRow())
-					+ " scan=" + GsonTool.withUnregisteredEnums().toJson(scan), e);
+			byte[] stop = scan.getStopRow();
+			String message = new KvString()
+					.add("startString", Optional.ofNullable(start).map(Bytes::toStringBinary).orElse("null"))
+					.add("stopString", Optional.ofNullable(stop).map(Bytes::toStringBinary).orElse("null"))
+					.add("startHex", Optional.ofNullable(start).map(HexByteStringCodec.INSTANCE::encode).orElse("null"))
+					.add("stopHex", Optional.ofNullable(stop).map(HexByteStringCodec.INSTANCE::encode).orElse("null"))
+					.add("scan", GsonTool.forLogsPretty().toJson(scan))
+					.toString();
+			throw new IOException(message, e);
 		}
 	}
 

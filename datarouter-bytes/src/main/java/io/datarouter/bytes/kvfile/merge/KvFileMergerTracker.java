@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.bytes.ByteLength;
+import io.datarouter.bytes.KvString;
 import io.datarouter.bytes.blockfile.dto.BlockfileNameAndSize;
 import io.datarouter.scanner.Scanner;
 
@@ -78,13 +79,13 @@ public class KvFileMergerTracker{
 	}
 
 	public void logInitializationStats(){
-		Function<Number,String> withCommas = number -> new DecimalFormat("###,###,###,###,###,###,###").format(number);
-		logger.warn(
-				"initialized compressedBytes={}, decompressedBytes={}, blocks={}, records={}",
-				ByteLength.ofBytes(compressedBytesRead.get()).toDisplay(),
-				ByteLength.ofBytes(decompressedBytesRead.get()).toDisplay(),
-				withCommas.apply(blocksRead.get()),
-				withCommas.apply(recordsRead.get()));
+		Function<Long,String> fmtBytes = bytes -> ByteLength.ofBytes(bytes).toDisplay();
+		Function<Number,String> fmtCommas = number -> new DecimalFormat("###,###,###,###,###,###,###").format(number);
+		logger.warn("initialized {}", new KvString()
+				.add("compressedBytes", compressedBytesRead.get(), fmtBytes::apply)
+				.add("decompressedBytes", decompressedBytesRead.get(), fmtBytes::apply)
+				.add("blocks", blocksRead.get(), fmtCommas::apply)
+				.add("records", recordsRead.get(), fmtCommas::apply));
 	}
 
 	public void logIntermediateProgress(){

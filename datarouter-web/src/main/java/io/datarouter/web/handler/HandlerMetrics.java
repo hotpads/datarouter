@@ -18,7 +18,7 @@ package io.datarouter.web.handler;
 import java.lang.reflect.Method;
 
 import io.datarouter.instrumentation.count.Counters;
-import io.datarouter.storage.metric.Gauges;
+import io.datarouter.instrumentation.gauge.Gauges;
 import io.datarouter.storage.util.DatarouterCounters;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -40,8 +40,6 @@ public class HandlerMetrics{
 	private static final String BATCH = "batch";
 	private static final String USER_AGENT = "userAgent";
 
-	@Inject
-	private Gauges gauges;
 	@Inject
 	private UserAgentTypeConfig userAgentTypeConfig;
 
@@ -93,8 +91,8 @@ public class HandlerMetrics{
 		Counters.inc(PREFIX + " " + HANDLER + " " + format + " " + suffix);
 	}
 
-	public void saveMethodLatency(Class<? extends BaseHandler> handlerClass, Method method, long durationMs){
-		gauges.save(PREFIX + " " + HANDLER + " " + METHOD + " " + LATENCY_MS + " " + handlerClass.getSimpleName() + " "
+	public static void saveMethodLatency(Class<? extends BaseHandler> handlerClass, Method method, long durationMs){
+		Gauges.save(PREFIX + " " + HANDLER + " " + METHOD + " " + LATENCY_MS + " " + handlerClass.getSimpleName() + " "
 				+ method.getName(), durationMs);
 	}
 

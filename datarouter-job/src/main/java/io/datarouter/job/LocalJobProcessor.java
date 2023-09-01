@@ -48,8 +48,6 @@ public class LocalJobProcessor{
 	@Inject
 	private DatarouterJobExecutor jobExecutor;
 	@Inject
-	private JobCounters jobCounters;
-	@Inject
 	private ExceptionRecorder exceptionRecorder;
 
 	public Outcome run(JobWrapper jobWrapper){
@@ -78,7 +76,7 @@ public class LocalJobProcessor{
 					CancellationException.class)){
 				future.cancel(true);
 				jobWrapper.finishWithStatus(LongRunningTaskStatus.INTERRUPTED);
-				jobCounters.interrupted(jobWrapper.jobClass);
+				JobCounters.interrupted(jobWrapper.jobClass);
 				logger.warn("", wrapAndSaveException("interrupted", jobWrapper, hardTimeout, e));
 				return Outcome.failure("Interrupted. exception=" + e);
 			}
@@ -87,7 +85,7 @@ public class LocalJobProcessor{
 		}catch(TimeoutException e){
 			future.cancel(true);
 			jobWrapper.finishWithStatus(LongRunningTaskStatus.TIMED_OUT);
-			jobCounters.timedOut(jobWrapper.jobClass);
+			JobCounters.timedOut(jobWrapper.jobClass);
 			throw wrapAndSaveException("didn't complete on time", jobWrapper, hardTimeout, e);
 		}
 	}

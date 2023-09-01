@@ -22,9 +22,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import io.datarouter.auth.service.CurrentUserSessionInfoService;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
-import io.datarouter.web.user.session.CurrentUserSessionInfoService;
 import io.datarouter.webappinstance.WebappInstanceTableService;
 import io.datarouter.webappinstance.WebappInstanceTableService.WebappInstanceColumn;
 import io.datarouter.webappinstance.WebappInstanceTableService.WebappInstanceTableOptions;

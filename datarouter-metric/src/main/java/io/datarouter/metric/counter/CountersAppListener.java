@@ -16,10 +16,7 @@
 package io.datarouter.metric.counter;
 
 import io.datarouter.instrumentation.count.Counters;
-import io.datarouter.metric.config.DatarouterCountSettingRoot;
-import io.datarouter.metric.counter.collection.CountPartitions;
 import io.datarouter.metric.counter.collection.DatarouterCountCollector;
-import io.datarouter.metric.counter.conveyor.CountBuffers;
 import io.datarouter.web.listener.DatarouterAppListener;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -27,17 +24,11 @@ import jakarta.inject.Singleton;
 @Singleton
 public class CountersAppListener implements DatarouterAppListener{
 
-	private static final long ROLL_PERIOD_MS = CountPartitions.PERIOD_5s.getPeriodMs();
-
 	@Inject
-	private DatarouterCountSettingRoot settings;
-	@Inject
-	private CountBuffers countBuffers;
+	private DatarouterCountCollector collector;
 
-	// add buffers to a collector and register it with the global Counters class
 	@Override
 	public void onStartUp(){
-		var collector = new DatarouterCountCollector(ROLL_PERIOD_MS, countBuffers, settings.saveCountStatsToMemory);
 		Counters.addCollector(collector);
 	}
 

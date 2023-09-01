@@ -32,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.instrumentation.count.Counters;
+import io.datarouter.instrumentation.gauge.Gauges;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.scanner.OptionalScanner;
 import io.datarouter.scanner.Scanner;
@@ -39,7 +40,6 @@ import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientInitializationTracker;
 import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.storage.config.properties.ServiceName;
-import io.datarouter.storage.metric.Gauges;
 import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.node.op.raw.MapStorage.PhysicalMapStorageNode;
 import io.datarouter.util.StreamTool;
@@ -60,8 +60,6 @@ public class LatencyMonitoringService{
 
 	@Inject
 	private DatarouterNodes nodes;
-	@Inject
-	private Gauges gauges;
 	@Inject
 	private ServiceName serviceName;
 	@Inject
@@ -96,7 +94,7 @@ public class LatencyMonitoringService{
 
 	private void saveGauge(String name, DatarouterDuration duration){
 		if(datarouterWebSettingRoot.saveLatencyGauges.get()){
-			gauges.save(GAUGE_PREFIX + name, duration.to(TimeUnit.MICROSECONDS));
+			Gauges.save(GAUGE_PREFIX + name, duration.to(TimeUnit.MICROSECONDS));
 		}
 	}
 

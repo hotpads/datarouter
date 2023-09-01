@@ -48,11 +48,17 @@ public class DatarouterWebPaths extends PathNode implements PathsRoot{
 		public final PathNode ipDetection = leaf("ipDetection");
 		public final PathNode settings = leaf("settings");
 		public final PathNode shutdown = leaf("shutdown");
+		public final HandlerPaths handler = branch(HandlerPaths::new, "handler");
+	}
+
+	public static class HandlerPaths extends PathNode{
+		public final PathNode handlerSearch = leaf("handlerSearch");
 	}
 
 	public static class HttpPaths extends PathNode{
 		public final PathNode tester = leaf("tester");
 		public final PathNode dnsLookup = leaf("dnsLookup");
+		public final PathNode reuseTester = leaf("reuseTester");
 	}
 
 	public static class ExecutorPaths extends PathNode{

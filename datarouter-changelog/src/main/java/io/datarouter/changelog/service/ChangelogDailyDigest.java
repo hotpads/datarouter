@@ -29,8 +29,7 @@ import io.datarouter.changelog.storage.ChangelogKey;
 import io.datarouter.changelog.web.ViewExactChangelogHandler;
 import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
-import io.datarouter.util.time.LocalDateTimeTool;
-import io.datarouter.util.time.ZonedDateFormatterTool;
+import io.datarouter.types.MilliTime;
 import io.datarouter.util.tuple.Range;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
@@ -92,8 +91,10 @@ public class ChangelogDailyDigest implements DailyDigest{
 	}
 
 	private List<Changelog> getChangelogs(ZoneId zoneId){
-		var start = new ChangelogKey(LocalDateTimeTool.atEndOfDayReversedMs(zoneId), null, null);
-		var stop = new ChangelogKey(LocalDateTimeTool.atStartOfDayReversedMs(zoneId), null, null);
+		var startTime = MilliTime.atEndOfDay(zoneId).toMilliTimeReversed();
+		var endTime = MilliTime.atStartOfDay(zoneId).toMilliTimeReversed();
+		var start = new ChangelogKey(startTime, null, null);
+		var stop = new ChangelogKey(endTime, null, null);
 		Range<ChangelogKey> range = new Range<>(start, true, stop, true);
 		return dao.scan(range).list();
 	}
@@ -102,15 +103,13 @@ public class ChangelogDailyDigest implements DailyDigest{
 		return new J2HtmlEmailTable<Changelog>()
 				.withColumn(new J2HtmlEmailTableColumn<>("", row -> {
 					String href = paths.datarouter.changelog.viewExact.toSlashedString()
-							+ "?" + ViewExactChangelogHandler.P_reversedDateMs + "=" + row.getKey().getReversedDateMs()
+							+ "?" + ViewExactChangelogHandler.P_reversedDateMs + "="
+									+ row.getKey().getMilliTimeReversed()
 							+ "&" + ViewExactChangelogHandler.P_changelogType + "=" + row.getKey().getChangelogType()
 							+ "&" + ViewExactChangelogHandler.P_name + "=" + row.getKey().getName();
 					return digestService.makeATagLink("#", href);
 				}))
-				.withColumn("Date", row -> {
-					long reversedDateMs = row.getKey().getReversedDateMs();
-					return ZonedDateFormatterTool.formatReversedLongMsWithZone(reversedDateMs, zoneId);
-				})
+				.withColumn("Date", row -> row.getKey().getMilliTimeReversed().format(zoneId))
 				.withColumn("Type", row -> row.getKey().getChangelogType())
 				.withColumn("Name", row -> row.getKey().getName())
 				.withColumn("Action", Changelog::getAction)

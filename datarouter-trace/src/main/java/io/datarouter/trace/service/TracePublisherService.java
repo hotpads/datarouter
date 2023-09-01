@@ -23,7 +23,7 @@ import io.datarouter.instrumentation.trace.Trace2BatchedBundleDto;
 import io.datarouter.instrumentation.trace.TracePublisher;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.trace.storage.TraceQueueDao;
-import io.datarouter.trace.storage.binarydto.TraceBinaryDto;
+import io.datarouter.trace.storage.binarydto.TraceQueueBinaryDto;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
@@ -42,7 +42,7 @@ public class TracePublisherService implements TracePublisher{
 	@Override
 	public PublishingResponseDto addBatch(Trace2BatchedBundleDto traceBatchedDto){
 		logger.info("writing size={} traces to {}", traceBatchedDto.batch.size(), "queue");
-		var traces = Scanner.of(traceBatchedDto.batch).map(TraceBinaryDto::new);
+		var traces = Scanner.of(traceBatchedDto.batch).map(TraceQueueBinaryDto::new);
 		traceQueueDao.combineAndPut(traces);
 		return PublishingResponseDto.SUCCESS;
 	}

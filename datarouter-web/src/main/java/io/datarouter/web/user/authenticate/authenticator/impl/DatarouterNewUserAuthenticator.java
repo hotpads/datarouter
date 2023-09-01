@@ -18,13 +18,14 @@ package io.datarouter.web.user.authenticate.authenticator.impl;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import io.datarouter.web.user.authenticate.DatarouterTokenGenerator;
-import io.datarouter.web.user.authenticate.authenticator.DatarouterAuthenticator;
-import io.datarouter.web.user.session.DatarouterSession;
+import io.datarouter.auth.authenticate.DatarouterTokenGenerator;
+import io.datarouter.auth.authenticate.authenticator.DatarouterAuthenticator;
+import io.datarouter.auth.storage.user.session.DatarouterSession;
 import io.datarouter.web.user.session.DatarouterSessionManager;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
+// TODO braydonh: figure out how to move this out of dr-web
 @Singleton
 public class DatarouterNewUserAuthenticator implements DatarouterAuthenticator{
 

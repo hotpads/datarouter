@@ -23,7 +23,7 @@ import io.datarouter.httpclient.security.SecurityParameters;
 
 public class DefaultApiKeyPredicate extends ApiKeyPredicate{
 
-	private final Supplier<String> apiKeySupplier;
+	protected final Supplier<String> apiKeySupplier;
 
 	public DefaultApiKeyPredicate(Supplier<String> apiKeySupplier){
 		super(SecurityParameters.API_KEY);

@@ -21,7 +21,7 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.joblet.DatarouterJobletCounters;
+import io.datarouter.joblet.JobletCounters;
 import io.datarouter.joblet.enums.JobletPriority;
 import io.datarouter.joblet.enums.JobletQueueMechanism;
 import io.datarouter.joblet.enums.JobletStatus;
@@ -48,8 +48,6 @@ public class QueueJobletRequestSelector implements JobletRequestSelector{
 	@Inject
 	private JobletRequestQueueManager jobletRequestQueueManager;
 	@Inject
-	private DatarouterJobletCounters datarouterJobletCounters;
-	@Inject
 	private DatarouterJobletQueueDao jobletQueueDao;
 	@Inject
 	private DatarouterJobletSettingRoot datarouterJobletSettingRoot;
@@ -62,7 +60,7 @@ public class QueueJobletRequestSelector implements JobletRequestSelector{
 		for(JobletPriority priority : JobletPriority.values()){
 			JobletRequestQueueKey queueKey = new JobletRequestQueueKey(type, priority);
 			if(jobletRequestQueueManager.shouldSkipQueue(queueKey)){
-				datarouterJobletCounters.incQueueSkip(queueKey.getQueueName());
+				JobletCounters.incQueueSkip(queueKey.getQueueName());
 				continue;
 			}
 			// set timeout to 0 so we return immediately. processor threads can do the waiting
@@ -76,13 +74,13 @@ public class QueueJobletRequestSelector implements JobletRequestSelector{
 				jobletRequestQueueManager.onJobletRequestQueueMiss(queueKey);
 				continue;
 			}
-			datarouterJobletCounters.incQueueHit(queueKey.getQueueName());
+			JobletCounters.incQueueHit(queueKey.getQueueName());
 			JobletRequest jobletRequest = message.getDatabean();
 			boolean existsInDb = jobletRequestDao.exists(jobletRequest.getKey());
 			timer.add("check exists");
 			if(!existsInDb){
 				logger.warn("draining non-existent JobletRequest without processing jobletRequest={}", jobletRequest);
-				datarouterJobletCounters.ignoredRequestMissingFromDb(type);
+				JobletCounters.ignoredRequestMissingFromDb(type);
 				jobletQueueDao.getQueue(queueKey).ack(message.getKey());
 				timer.add("ack missing request");
 				continue;

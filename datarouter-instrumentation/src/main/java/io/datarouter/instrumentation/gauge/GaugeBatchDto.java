@@ -17,12 +17,6 @@ package io.datarouter.instrumentation.gauge;
 
 import java.util.List;
 
-public class GaugeBatchDto{
-
-	public final List<GaugeDto> batch;
-
-	public GaugeBatchDto(List<GaugeDto> batch){
-		this.batch = batch;
-	}
-
+public record GaugeBatchDto(
+		List<GaugeDto> batch){
 }

@@ -20,6 +20,7 @@ import java.util.Optional;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.storage.client.ClientAndTableNames;
 import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.PhysicalSortedMapStorageNode;
 import io.datarouter.storage.util.PrimaryKeyPercentCodecTool;
@@ -44,6 +45,11 @@ public class PhysicalSortedNodeWrapper<
 	public PhysicalSortedNodeWrapper(DatarouterNodes datarouterNodes, String clientName, String tableName){
 		this((PhysicalSortedMapStorageNode<PK,D,F>)datarouterNodes
 				.getPhysicalNodeForClientAndTable(clientName, tableName));
+	}
+
+	@SuppressWarnings("unchecked")
+	public PhysicalSortedNodeWrapper(DatarouterNodes datarouterNodes, ClientAndTableNames clientAndTableNames){
+		this((PhysicalSortedMapStorageNode<PK,D,F>)datarouterNodes.getPhysicalNode(clientAndTableNames));
 	}
 
 	public PK parsePk(String stringKey){

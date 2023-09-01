@@ -15,13 +15,13 @@
  */
 package io.datarouter.aws.s3.config;
 
+import io.datarouter.auth.role.DatarouterUserRole;
 import io.datarouter.aws.s3.web.S3BucketHandler;
 import io.datarouter.aws.s3.web.bulkcopy.S3BulkCopyHandler;
 import io.datarouter.aws.s3.web.bulkdelete.S3BulkDeleteHandler;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
-import io.datarouter.web.user.role.DatarouterUserRole;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 

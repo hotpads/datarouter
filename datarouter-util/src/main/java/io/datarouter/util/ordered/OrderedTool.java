@@ -49,7 +49,7 @@ public class OrderedTool{
 			for(Ordered<T> object : extraPassObjects){
 				// prevent the loop running forever
 				if(tracker > extraPassObjects.size()){
-					throw new IllegalStateException("The expected order is not possible.");
+					throw new IllegalStateException("The expected order is not possible. " + objects);
 				}
 				int index = sorted.indexOf(object.after);
 				if(index != -1){

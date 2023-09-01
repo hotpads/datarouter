@@ -24,20 +24,22 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 
+import io.datarouter.auth.service.CurrentUserSessionInfoService;
 import io.datarouter.changelog.config.DatarouterChangelogPaths;
 import io.datarouter.changelog.service.ViewChangelogService;
 import io.datarouter.changelog.storage.Changelog;
 import io.datarouter.changelog.storage.ChangelogDao;
 import io.datarouter.changelog.storage.ChangelogKey;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.types.MilliTimeReversed;
 import io.datarouter.util.tuple.Range;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.types.Param;
 import io.datarouter.web.html.form.HtmlForm;
+import io.datarouter.web.html.form.HtmlForm.HtmlFormMethod;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
-import io.datarouter.web.user.session.CurrentUserSessionInfoService;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import jakarta.inject.Inject;
@@ -61,34 +63,37 @@ public class ViewChangelogForDateRangeHandler extends BaseHandler{
 
 	@Handler(defaultHandler = true)
 	public Mav viewForDateRange(
-			@Param(P_reversedDateMs_exact) Optional<String> dateExact,
-			@Param(P_reversedDateMs_start) Optional<String> dateStart,
-			@Param(P_reversedDateMs_end) Optional<String> dateEnd){
-		var formExact = new HtmlForm();
+			@Param(P_reversedDateMs_exact)
+			Optional<String> dateExact,
+			@Param(P_reversedDateMs_start)
+			Optional<String> dateStart,
+			@Param(P_reversedDateMs_end)
+			Optional<String> dateEnd){
+		var formExact = new HtmlForm(HtmlFormMethod.GET);
 		formExact.addDateField()
-				.withDisplay("Exact Date")
+				.withLabel("Exact Date")
 				.withName(P_reversedDateMs_exact)
 				.withValue(dateExact.orElse(null))
 				.isRequired();
 		formExact.addButton()
-				.withDisplay("Search")
+				.withLabel("Search")
 				.withValue("anything");
 		formExact.withAction(servletContext.getContextPath() + paths.datarouter.changelog.viewForDateRange
 				.toSlashedString());
 
-		var formRange = new HtmlForm();
+		var formRange = new HtmlForm(HtmlFormMethod.GET);
 		formRange.addDateField()
-				.withDisplay("Date Start")
+				.withLabel("Date Start")
 				.withName(P_reversedDateMs_start)
 				.withValue(dateStart.orElse(null))
 				.isRequired();
 		formRange.addDateField()
-				.withDisplay("Date End")
+				.withLabel("Date End")
 				.withName(P_reversedDateMs_end)
 				.withValue(dateEnd.orElse(null))
 				.isRequired();
 		formRange.addButton()
-				.withDisplay("Search")
+				.withLabel("Search")
 				.withValue("anything");
 		formRange.withAction(servletContext.getContextPath() + paths.datarouter.changelog.viewForDateRange
 				.toSlashedString());
@@ -158,10 +163,8 @@ public class ViewChangelogForDateRangeHandler extends BaseHandler{
 	}
 
 	private Range<ChangelogKey> makeRangeInternal(long dateStartMs, long dateEndMs){
-		long reversedateMsStart = Long.MAX_VALUE - dateStartMs;
-		long reversedateMsEnd = Long.MAX_VALUE - dateEndMs;
-		var start = new ChangelogKey(reversedateMsStart, null, null);
-		var stop = new ChangelogKey(reversedateMsEnd, null, null);
+		var start = new ChangelogKey(MilliTimeReversed.ofEpochMilli(dateStartMs), null, null);
+		var stop = new ChangelogKey(MilliTimeReversed.ofEpochMilli(dateEndMs), null, null);
 		return new Range<>(stop, true, start, true);
 	}
 

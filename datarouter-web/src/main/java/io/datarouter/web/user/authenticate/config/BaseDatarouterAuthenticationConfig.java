@@ -21,13 +21,15 @@ import java.util.Objects;
 
 import javax.servlet.http.HttpServletRequest;
 
+import io.datarouter.auth.authenticate.authenticator.DatarouterAuthenticator;
+import io.datarouter.auth.config.DatarouterAuthenticationSettings;
+import io.datarouter.auth.model.enums.DatarouterCookieKeys;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.app.WebappName;
 import io.datarouter.web.config.DatarouterWebPaths;
-import io.datarouter.web.user.DatarouterCookieKeys;
-import io.datarouter.web.user.authenticate.authenticator.DatarouterAuthenticator;
 import jakarta.inject.Inject;
 
+// TODO braydonh: figure out how to move this out of dr-web
 public class BaseDatarouterAuthenticationConfig implements DatarouterAuthenticationConfig{
 
 	@Inject

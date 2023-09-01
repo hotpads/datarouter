@@ -27,8 +27,6 @@ public class WebSocketSessionDatabaseMonitoringJob extends BaseJob{
 
 	@Inject
 	private DatarouterWebSocketSessionDao dao;
-	@Inject
-	private WebSocketCounters webSocketCounters;
 
 	@Override
 	public void run(TaskTracker tracker){
@@ -37,9 +35,9 @@ public class WebSocketSessionDatabaseMonitoringJob extends BaseJob{
 			tracker.increment();
 			counter.merge(webSocket.getServerName(), 1, Integer::sum);
 		});
-		counter.forEach((server, count) -> webSocketCounters.saveCount("database " + server, count));
+		counter.forEach((server, count) -> WebSocketCounters.saveCount("database " + server, count));
 		int total = counter.values().stream().mapToInt(Integer::intValue).sum();
-		webSocketCounters.saveCount("databaseTotal", total);
+		WebSocketCounters.saveCount("databaseTotal", total);
 	}
 
 }

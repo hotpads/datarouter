@@ -20,6 +20,7 @@ import java.util.Map;
 
 import org.opensaml.security.credential.Credential;
 
+import io.datarouter.auth.authenticate.saml.SamlTool;
 import io.datarouter.storage.config.environment.EnvironmentType;
 import io.datarouter.storage.config.properties.EnvironmentName;
 import io.datarouter.storage.config.properties.ServerName;
@@ -32,6 +33,7 @@ import io.datarouter.web.config.DatarouterWebPaths;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
+// TODO braydonh: figure out how to move this out of dr-web
 @Singleton
 public class DatarouterSamlSettings extends SettingNode{
 
@@ -51,7 +53,10 @@ public class DatarouterSamlSettings extends SettingNode{
 	private final Boolean isLive;
 
 	@Inject
-	public DatarouterSamlSettings(SettingFinder finder, EnvironmentName environmentName, DatarouterWebPaths paths,
+	public DatarouterSamlSettings(
+			SettingFinder finder,
+			EnvironmentName environmentName,
+			DatarouterWebPaths paths,
 			ServerName serverName){
 		super(finder, "datarouterWeb.saml.");
 		entityId = registerString("entityId", "https://" + serverName.get());

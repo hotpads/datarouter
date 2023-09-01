@@ -28,6 +28,7 @@ import com.google.pubsub.v1.PubsubMessage;
 
 import io.datarouter.bytes.codec.stringcodec.StringCodec;
 import io.datarouter.client.gcp.pubsub.GcpPubsubDataTooLargeException;
+import io.datarouter.client.gcp.pubsub.PubsubCostCounters;
 import io.datarouter.client.gcp.pubsub.client.GcpPubsubClientManager;
 import io.datarouter.client.gcp.pubsub.node.BaseGcpPubsubNode;
 import io.datarouter.model.databean.Databean;
@@ -80,6 +81,7 @@ extends GcpPubsubOp<PK,D,F,Void>{
 	private void flush(Publisher publisher, List<byte[]> group){
 		ByteString data = ByteString.copyFrom(codec.concatGroup(group));
 		PubsubMessage pubsubMessage = PubsubMessage.newBuilder().setData(data).build();
+		PubsubCostCounters.countMessage(pubsubMessage);
 		ApiFuture<String> messageIdFuture = publisher.publish(pubsubMessage);
 		try{
 			messageIdFuture.get();

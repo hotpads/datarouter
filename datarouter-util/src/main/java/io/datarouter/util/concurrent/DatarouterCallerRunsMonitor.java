@@ -15,14 +15,13 @@
  */
 package io.datarouter.util.concurrent;
 
-import io.datarouter.instrumentation.count.Counters;
 import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterCallerRunsMonitor{
 
 	public void inc(String executorName){
-		Counters.inc(DatarouterExecutorService.PREFIX_executor + " " + executorName + " callerRuns");
+		DatarouterExecutorMetrics.name(executorName).callerRuns.count();
 	}
 
 }

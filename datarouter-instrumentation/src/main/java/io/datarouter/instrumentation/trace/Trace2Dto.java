@@ -26,8 +26,8 @@ public class Trace2Dto{
 	public final String context;
 	public final String type;
 	public final String params;
-	public final Long created;
-	public final Long ended;
+	public final Long created;// nano
+	public final Long ended;// nano
 	public final String serviceName;
 	public final Integer discardedThreadCount;
 	public final Integer totalThreadCount;
@@ -44,8 +44,8 @@ public class Trace2Dto{
 			String context,
 			String type,
 			String params,
-			Long created,
-			Long ended,
+			Long created,// nano
+			Long ended,// nano
 			String serviceName,
 			Integer discardedThreadCount,
 			Integer totalThreadCount,

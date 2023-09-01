@@ -89,7 +89,7 @@ public class Bootstrap4HomepageCreatorService{
 
 	public ContainerTag<?> headerAndDescription(){
 		String description = serviceDescriptionSupplier.get();
-		if(description.isBlank()){
+		if(description == null || description.isBlank()){
 			return h2(text(serviceName.get()));
 		}
 		return div(

@@ -30,7 +30,7 @@ public class AppNavBar extends NavBar{
 
 	private static final Comparator<NavBarMenuItemWrapper> NAVBAR_COMPARATOR = Comparator
 			.comparing((NavBarMenuItemWrapper wrapper) -> wrapper.grouping)
-			.thenComparing(Comparator.comparing((NavBarMenuItemWrapper wrapper) -> wrapper.item.getText()));
+			.thenComparing((NavBarMenuItemWrapper wrapper) -> wrapper.item.getText());
 
 	protected AppNavBar(
 			Optional<DatarouterAuthenticationConfig> config,

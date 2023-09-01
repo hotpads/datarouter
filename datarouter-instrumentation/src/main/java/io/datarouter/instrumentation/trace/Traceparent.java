@@ -54,12 +54,16 @@ public class Traceparent{
 	}
 
 	public static Traceparent generateNew(long createdTimestamp){
-		return new Traceparent(createNewTraceId(createdTimestamp), createNewParentId(),
+		return new Traceparent(
+				createNewTraceId(createdTimestamp),
+				createNewParentId(),
 				createDefaultTraceFlag());
 	}
 
 	public static Traceparent generateNewWithCurrentTimeInNs(){
-		return new Traceparent(createNewTraceId(Trace2Dto.getCurrentTimeInNs()), createNewParentId(),
+		return new Traceparent(
+				createNewTraceId(Trace2Dto.getCurrentTimeInNs()),
+				createNewParentId(),
 				createDefaultTraceFlag());
 	}
 
@@ -71,8 +75,8 @@ public class Traceparent{
 	 * TraceId is a 32 hex digit String. We convert the root request created unix time into lowercase base16
 	 * and append it with a randomly generated long lowercase base16 representation.
 	 * */
-	private static String createNewTraceId(long createdTimestamp){
-		return String.format("%016x", createdTimestamp) + String.format("%016x", new Random().nextLong());
+	private static String createNewTraceId(long createdNs){
+		return String.format("%016x", createdNs) + String.format("%016x", new Random().nextLong());
 	}
 
 	/*

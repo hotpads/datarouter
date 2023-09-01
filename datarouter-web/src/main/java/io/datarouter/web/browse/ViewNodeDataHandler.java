@@ -19,7 +19,6 @@ import java.time.Duration;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,11 +37,11 @@ import io.datarouter.storage.node.op.raw.write.SortedStorageWriter;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.storage.op.scan.stride.StrideScanner.StrideScannerBuilder;
 import io.datarouter.storage.util.PrimaryKeyPercentCodecTool;
+import io.datarouter.types.MilliTime;
 import io.datarouter.util.ComparableTool;
 import io.datarouter.util.duration.DatarouterDuration;
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.string.StringTool;
-import io.datarouter.util.time.ZonedDateFormatterTool;
 import io.datarouter.util.tuple.Range;
 import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
@@ -141,7 +140,7 @@ public class ViewNodeDataHandler extends InspectNodeDataHandler{
 		@SuppressWarnings("unchecked")
 		SortedStorageReader<PK,D> sortedNode = (SortedStorageReader<PK,D>)node;
 		long count = 0;
-		long startMs = System.currentTimeMillis() - 1;
+		MilliTime startMs = MilliTime.now().minus(Duration.ofMillis(1));
 		PK last = null;
 		if(actualUseOffsetting){
 			var countingToolBuilder = new StrideScannerBuilder<>(sortedNode)
@@ -154,7 +153,7 @@ public class ViewNodeDataHandler extends InspectNodeDataHandler{
 					.orElse(0L);
 		}else{
 			Config config = new Config()
-					.setResponseBatchSize(batchSize.orElse(1000))
+					.setResponseBatchSize(batchSize.orElse(1_000))
 					.setScannerCaching(false) //disabled due to BigTable bug?
 					.setTimeout(Duration.ofMinutes(1))
 					.anyDelay()
@@ -183,16 +182,16 @@ public class ViewNodeDataHandler extends InspectNodeDataHandler{
 		if(count < 1){
 			return pageFactory.message(request, "no rows found");
 		}
-		long endMs = System.currentTimeMillis();
-		long durationMs = endMs - startMs;
-		DatarouterDuration duration = new DatarouterDuration(durationMs, TimeUnit.MILLISECONDS);
-		double avgRps = count * 1_000 / durationMs;
+		MilliTime endMs = MilliTime.now();
+		Duration duration = Duration.ofMillis(endMs.minus(startMs).toEpochMilli());
+		DatarouterDuration datarouterDuration = new DatarouterDuration(duration);
+		double avgRps = count * 1_000 / duration.toMillis();
 		String message = String.format("finished counting %s at %s %s @%srps totalDuration=%s",
 				node.getName(),
 				NumberFormatter.addCommas(count),
 				last == null ? "?" : last.toString(),
 				NumberFormatter.addCommas(avgRps),
-				duration);
+				datarouterDuration);
 		logger.warn(message);
 		List<EmailHeaderRow> emailKvs = List.of(
 				new EmailHeaderRow("node", node.getName()),
@@ -201,10 +200,9 @@ public class ViewNodeDataHandler extends InspectNodeDataHandler{
 				new EmailHeaderRow("totalCount", NumberFormatter.addCommas(count)),
 				new EmailHeaderRow("lastKey", last == null ? "?" : last.toString()),
 				new EmailHeaderRow("averageRps", NumberFormatter.addCommas(avgRps)),
-				new EmailHeaderRow("start", ZonedDateFormatterTool.formatLongMsWithZone(startMs,
-						ZoneId.systemDefault())),
-				new EmailHeaderRow("end", ZonedDateFormatterTool.formatLongMsWithZone(endMs, ZoneId.systemDefault())),
-				new EmailHeaderRow("duration", duration + ""),
+				new EmailHeaderRow("start", startMs.format(ZoneId.systemDefault())),
+				new EmailHeaderRow("end", endMs.format(ZoneId.systemDefault())),
+				new EmailHeaderRow("duration", datarouterDuration + ""),
 				new EmailHeaderRow("triggeredBy", getSessionInfo().getRequiredSession().getUsername()));
 		sendEmail(node.getName(), emailKvs);
 		var dto = new DatarouterChangelogDtoBuilder(

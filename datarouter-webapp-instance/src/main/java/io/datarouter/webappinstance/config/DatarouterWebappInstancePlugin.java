@@ -33,8 +33,6 @@ import io.datarouter.webappinstance.service.WebappInstanceBuildIdLink.NoOpWebapp
 import io.datarouter.webappinstance.service.WebappInstanceCommitIdLink;
 import io.datarouter.webappinstance.service.WebappInstanceCommitIdLink.NoOpWebappInstanceCommitIdLink;
 import io.datarouter.webappinstance.service.WebappInstanceDailyDigest;
-import io.datarouter.webappinstance.storage.onetimelogintoken.DatarouterOneTimeLoginTokenDao;
-import io.datarouter.webappinstance.storage.onetimelogintoken.DatarouterOneTimeLoginTokenDao.DatarouterOneTimeLoginTokenDaoParams;
 import io.datarouter.webappinstance.storage.webappinstance.DatarouterWebappInstanceDao;
 import io.datarouter.webappinstance.storage.webappinstance.DatarouterWebappInstanceDao.DatarouterWebappInstanceDaoParams;
 import io.datarouter.webappinstance.storage.webappinstancelog.DatarouterWebappInstanceLogDao;
@@ -116,7 +114,7 @@ public class DatarouterWebappInstancePlugin extends BaseWebPlugin{
 
 		public DatarouterWebappInstancePlugin build(){
 			return new DatarouterWebappInstancePlugin(
-					new DatarouterWebappInstanceDaoModule(defaultClientId, defaultClientId, defaultClientId),
+					new DatarouterWebappInstanceDaoModule(defaultClientId, defaultClientId),
 					webappInstancePublisher,
 					buildIdLink,
 					commitIdLink,
@@ -127,15 +125,12 @@ public class DatarouterWebappInstancePlugin extends BaseWebPlugin{
 
 	public static class DatarouterWebappInstanceDaoModule extends DaosModuleBuilder{
 
-		private final List<ClientId> datarouterOneTimeLoginTokenClientId;
 		private final List<ClientId> datarouterWebappInstanceClientId;
 		private final List<ClientId> datarouterWebappInstanceLogClientId;
 
 		public DatarouterWebappInstanceDaoModule(
-				List<ClientId> datarouterOneTimeLoginTokenClientId,
 				List<ClientId> datarouterWebappInstanceClientId,
 				List<ClientId> datarouterWebappInstanceLogClientId){
-			this.datarouterOneTimeLoginTokenClientId = datarouterOneTimeLoginTokenClientId;
 			this.datarouterWebappInstanceClientId = datarouterWebappInstanceClientId;
 			this.datarouterWebappInstanceLogClientId = datarouterWebappInstanceLogClientId;
 		}
@@ -143,7 +138,6 @@ public class DatarouterWebappInstancePlugin extends BaseWebPlugin{
 		@Override
 		public List<Class<? extends Dao>> getDaoClasses(){
 			return List.of(
-					DatarouterOneTimeLoginTokenDao.class,
 					DatarouterWebappInstanceDao.class,
 					DatarouterWebappInstanceLogDao.class);
 		}
@@ -154,8 +148,6 @@ public class DatarouterWebappInstancePlugin extends BaseWebPlugin{
 					.toInstance(new DatarouterWebappInstanceDaoParams(datarouterWebappInstanceClientId));
 			bind(DatarouterWebappInstanceLogDaoParams.class)
 					.toInstance(new DatarouterWebappInstanceLogDaoParams(datarouterWebappInstanceLogClientId));
-			bind(DatarouterOneTimeLoginTokenDaoParams.class)
-					.toInstance(new DatarouterOneTimeLoginTokenDaoParams(datarouterOneTimeLoginTokenClientId));
 		}
 
 	}

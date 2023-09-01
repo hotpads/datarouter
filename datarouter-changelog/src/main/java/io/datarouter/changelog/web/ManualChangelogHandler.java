@@ -30,6 +30,7 @@ import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.types.Param;
 import io.datarouter.web.html.form.HtmlForm;
+import io.datarouter.web.html.form.HtmlForm.HtmlFormMethod;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import j2html.tags.specialized.DivTag;
@@ -57,30 +58,29 @@ public class ManualChangelogHandler extends BaseHandler{
 			@Param(P_toEmail) Optional<String> toEmail,
 			@Param(P_note) Optional<String> note,
 			@Param(P_submitAction) Optional<String> submitAction){
-		var form = new HtmlForm()
-				.withMethod("post");
+		var form = new HtmlForm(HtmlFormMethod.POST);
 		form.addTextField()
-				.withDisplay("Name")
+				.withLabel("Name")
 				.withName(P_name)
 				.withPlaceholder("Xyz Migration")
 				.withValue(name.orElse(null));
 		form.addTextField()
-				.withDisplay("Action")
+				.withLabel("Action")
 				.withName(P_action)
 				.withPlaceholder("Backfill")
 				.withValue(action.orElse(null));
 		form.addTextField()
-				.withDisplay("Email To (csv) (Optional). All administrators are included by default")
+				.withLabel("Email To (csv) (Optional). All administrators are included by default")
 				.withName(P_toEmail)
 				.withPlaceholder("a@something.com,b@something.com")
 				.withValue(toEmail.orElse(null));
 		form.addTextAreaField()
-				.withDisplay("Note (Optional)")
+				.withLabel("Note (Optional)")
 				.withName(P_note)
 				.withPlaceholder("Migration for tables xyz")
 				.withValue(note.orElse(null));
 		form.addButton()
-				.withDisplay("Record & Email")
+				.withLabel("Record & Email")
 				.withValue("anything");
 		if(submitAction.isEmpty() || form.hasErrors()){
 			return pageFactory.startBuilder(request)

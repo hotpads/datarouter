@@ -15,10 +15,10 @@
  */
 package io.datarouter.nodewatch.service;
 
+import io.datarouter.auth.session.RequestAwareCurrentSessionInfoFactory.RequestAwareCurrentSessionInfo;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDtoBuilder;
 import io.datarouter.nodewatch.config.DatarouterNodewatchPlugin;
-import io.datarouter.web.user.session.RequestAwareCurrentSessionInfoFactory.RequestAwareCurrentSessionInfo;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 

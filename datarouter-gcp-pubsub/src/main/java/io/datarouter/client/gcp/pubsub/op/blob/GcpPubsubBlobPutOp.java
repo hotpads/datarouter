@@ -24,6 +24,7 @@ import com.google.protobuf.ByteString;
 import com.google.pubsub.v1.PubsubMessage;
 
 import io.datarouter.client.gcp.pubsub.GcpPubsubDataTooLargeException;
+import io.datarouter.client.gcp.pubsub.PubsubCostCounters;
 import io.datarouter.client.gcp.pubsub.client.GcpPubsubClientManager;
 import io.datarouter.client.gcp.pubsub.node.GcpPubsubBlobNode;
 import io.datarouter.storage.client.ClientId;
@@ -49,6 +50,7 @@ public class GcpPubsubBlobPutOp extends GcpPubsubBlobOp<Void>{
 		ByteString byteString = ByteString.copyFrom(data);
 		Publisher publisher = clientManager.getPublisher(clientId, topicId);
 		PubsubMessage pubsubMessage = PubsubMessage.newBuilder().setData(byteString).build();
+		PubsubCostCounters.countMessage(pubsubMessage);
 		ApiFuture<String> future = publisher.publish(pubsubMessage);
 		try{
 			future.get();

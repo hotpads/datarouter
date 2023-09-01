@@ -25,17 +25,16 @@ import java.util.function.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.auth.config.DatarouterAuthPlugin;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
 /**
  * Executes the {@link UserDeprovisioningStrategy} and {@link UserDeprovisioningListeners} configured in
- * {@link DatarouterAuthPlugin}
+ * DatarouterAuthPlugin
  */
 @Singleton
 public class UserDeprovisioningService{
-	private static Logger logger = LoggerFactory.getLogger(UserDeprovisioningService.class);
+	private static final Logger logger = LoggerFactory.getLogger(UserDeprovisioningService.class);
 
 	@Inject
 	private UserDeprovisioningStrategy userDeprovisioningServiceStrategy;
