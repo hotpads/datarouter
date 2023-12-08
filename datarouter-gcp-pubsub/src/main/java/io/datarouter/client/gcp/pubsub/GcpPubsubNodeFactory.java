@@ -17,6 +17,7 @@ package io.datarouter.client.gcp.pubsub;
 
 import io.datarouter.bytes.Codec;
 import io.datarouter.client.gcp.pubsub.client.GcpPubsubClientManager;
+import io.datarouter.client.gcp.pubsub.config.DatarouterGcpPubsubSettingsRoot;
 import io.datarouter.client.gcp.pubsub.node.GcpPubsubBlobNode;
 import io.datarouter.client.gcp.pubsub.node.GcpPubsubGroupNode;
 import io.datarouter.client.gcp.pubsub.node.GcpPubsubNode;
@@ -43,6 +44,8 @@ public class GcpPubsubNodeFactory{
 	private GcpPubsubClientType clientType;
 	@Inject
 	private GcpPubsubClientManager clientManager;
+	@Inject
+	private DatarouterGcpPubsubSettingsRoot settingRoot;
 
 	public <PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
@@ -54,6 +57,7 @@ public class GcpPubsubNodeFactory{
 				params,
 				clientType,
 				clientManager,
+				settingRoot,
 				params.getClientId());
 	}
 
@@ -67,6 +71,7 @@ public class GcpPubsubNodeFactory{
 				params,
 				clientType,
 				clientManager,
+				settingRoot,
 				params.getClientId());
 	}
 
@@ -78,6 +83,7 @@ public class GcpPubsubNodeFactory{
 				codec,
 				clientType,
 				clientManager,
+				settingRoot,
 				environmentName,
 				serviceName);
 	}

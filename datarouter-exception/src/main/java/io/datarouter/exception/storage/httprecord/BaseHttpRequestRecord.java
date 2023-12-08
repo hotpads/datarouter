@@ -15,7 +15,6 @@
  */
 package io.datarouter.exception.storage.httprecord;
 
-import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,12 +26,10 @@ import org.slf4j.LoggerFactory;
 import io.datarouter.gson.GsonTool;
 import io.datarouter.httpclient.HttpHeaders;
 import io.datarouter.instrumentation.exception.HttpRequestRecordDto;
-import io.datarouter.instrumentation.trace.Traceparent;
+import io.datarouter.instrumentation.trace.TraceIdTool;
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
-import io.datarouter.model.field.codec.DateToLongFieldCodec;
-import io.datarouter.model.field.imp.DateField;
-import io.datarouter.model.field.imp.DateFieldKey;
+import io.datarouter.model.field.codec.MilliTimeFieldCodec;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
 import io.datarouter.model.field.imp.array.ByteArrayField;
@@ -46,6 +43,7 @@ import io.datarouter.model.field.imp.comparable.LongFieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 import io.datarouter.model.serialize.fielder.Fielder;
 import io.datarouter.model.util.CommonFieldSizes;
+import io.datarouter.types.MilliTime;
 import io.datarouter.util.array.ArrayTool;
 import io.datarouter.web.monitoring.exception.ExceptionAndHttpRequestDto;
 import io.datarouter.web.util.http.RecordedHttpHeaders;
@@ -56,8 +54,8 @@ public abstract class BaseHttpRequestRecord<
 extends BaseDatabean<PK,D>{
 	private static final Logger logger = LoggerFactory.getLogger(BaseHttpRequestRecord.class);
 
-	private Date created;
-	private Date receivedAt;
+	private MilliTime createdAt;
+	private MilliTime receivedAt;
 	private Long duration;
 
 	private String exceptionRecordId;
@@ -102,17 +100,18 @@ extends BaseDatabean<PK,D>{
 	private String otherHeaders;
 
 	public static class FieldKeys{
-		@SuppressWarnings("deprecation")
-		public static final DateFieldKey created = new DateFieldKey("created");
-		public static final LongEncodedFieldKey<Date> receivedAt = new LongEncodedFieldKey<>(
+		public static final LongEncodedFieldKey<MilliTime> createdAt = new LongEncodedFieldKey<>(
+				"createdAt",
+				new MilliTimeFieldCodec());
+		public static final LongEncodedFieldKey<MilliTime> receivedAt = new LongEncodedFieldKey<>(
 				"receivedAt",
-				new DateToLongFieldCodec());
+				new MilliTimeFieldCodec());
 		public static final LongFieldKey duration = new LongFieldKey("duration");
 		public static final StringFieldKey exceptionRecordId = new StringFieldKey("exceptionRecordId");
 		public static final StringFieldKey traceId = new StringFieldKey("traceId")
-				.withSize(Traceparent.TRACE_ID_HEX_SIZE);
+				.withSize(TraceIdTool.TRACE_ID_HEX_LENGTH);
 		public static final StringFieldKey parentId = new StringFieldKey("parentId")
-				.withSize(Traceparent.PARENT_ID_HEX_SIZE);
+				.withSize(TraceIdTool.PARENT_ID_HEX_LENGTH);
 		public static final StringFieldKey httpMethod = new StringFieldKey("httpMethod").withSize(16);
 		public static final StringFieldKey httpParams = new StringFieldKey("httpParams")
 				.withSize(CommonFieldSizes.MAX_CHARACTERS_SPANNER);
@@ -166,11 +165,10 @@ extends BaseDatabean<PK,D>{
 			super(primaryKeyFielderSupplier);
 		}
 
-		@SuppressWarnings("deprecation")
 		@Override
 		public List<Field<?>> getNonKeyFields(D record){
 			return List.of(
-					new DateField(FieldKeys.created, record.getCreated()),
+					new LongEncodedField<>(FieldKeys.createdAt, record.getCreatedAt()),
 					new LongEncodedField<>(FieldKeys.receivedAt, record.getReceivedAt()),
 					new LongField(FieldKeys.duration, record.getDuration()),
 
@@ -225,7 +223,7 @@ extends BaseDatabean<PK,D>{
 
 	public BaseHttpRequestRecord(
 			PK key,
-			Date receivedAt,
+			MilliTime receivedAt,
 			String exceptionRecordId,
 			String traceId,
 			String parentId,
@@ -243,10 +241,10 @@ extends BaseDatabean<PK,D>{
 			String userToken,
 			RecordedHttpHeaders headersWrapper){
 		super(key);
-		this.created = new Date();
+		this.createdAt = MilliTime.now();
 		this.receivedAt = receivedAt;
 		if(receivedAt != null){
-			this.duration = created.getTime() - receivedAt.getTime();
+			this.duration = createdAt.minus(receivedAt).toEpochMilli();
 		}
 
 		this.exceptionRecordId = exceptionRecordId;
@@ -294,8 +292,8 @@ extends BaseDatabean<PK,D>{
 
 	public BaseHttpRequestRecord(PK key, HttpRequestRecordDto dto){
 		super(key);
-		this.created = dto.created();
-		this.receivedAt = dto.receivedAt();
+		this.createdAt = MilliTime.of(dto.created());
+		this.receivedAt = MilliTime.of(dto.receivedAt());
 		this.duration = dto.duration();
 		this.exceptionRecordId = dto.exceptionRecordId();
 		this.traceId = dto.traceId();
@@ -338,9 +336,9 @@ extends BaseDatabean<PK,D>{
 	@SuppressWarnings("deprecation")
 	public BaseHttpRequestRecord(PK key, ExceptionAndHttpRequestDto dto, String exceptionRecordId){
 		super(key);
-		this.created = new Date(dto.dateMs);
+		this.createdAt = MilliTime.ofEpochMilli(dto.dateMs);
 		if(dto.receivedAtMs != null){
-			this.receivedAt = new Date(dto.receivedAtMs);
+			this.receivedAt = MilliTime.ofEpochMilli(dto.receivedAtMs);
 			this.duration = dto.dateMs - dto.receivedAtMs;
 		}
 		this.exceptionRecordId = exceptionRecordId;
@@ -405,21 +403,12 @@ extends BaseDatabean<PK,D>{
 		return map;
 	}
 
-	public Date getCreated(){
-		return created;
+	public MilliTime getCreatedAt(){
+		return createdAt;
 	}
-
-	public void setCreated(Date created){
-		this.created = created;
-	}
-
 
 	public String getExceptionRecordId(){
 		return exceptionRecordId;
-	}
-
-	public void setExceptionRecordId(String exceptionRecordId){
-		this.exceptionRecordId = exceptionRecordId;
 	}
 
 	public String getTraceId(){
@@ -573,7 +562,7 @@ extends BaseDatabean<PK,D>{
 		return duration;
 	}
 
-	public Date getReceivedAt(){
+	public MilliTime getReceivedAt(){
 		return receivedAt;
 	}
 

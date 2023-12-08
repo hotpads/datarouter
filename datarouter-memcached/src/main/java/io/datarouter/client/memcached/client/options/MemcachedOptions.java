@@ -18,7 +18,6 @@ package io.datarouter.client.memcached.client.options;
 import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import io.datarouter.storage.client.ClientOptions;
@@ -41,7 +40,7 @@ public class MemcachedOptions{
 				.mapToObj(index -> makeMemcachedKey(PROP_server + "." + index))
 				.map(propertyKey -> clientOptions.optInetSocketAddress(clientName, propertyKey))
 				.map(Optional::get)
-				.collect(Collectors.toList());
+				.toList();
 	}
 
 	private Integer getNumServers(String clientName){

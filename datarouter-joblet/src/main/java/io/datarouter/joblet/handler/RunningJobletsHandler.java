@@ -22,7 +22,6 @@ import static j2html.TagCreator.td;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +31,7 @@ import io.datarouter.joblet.config.DatarouterJobletPaths;
 import io.datarouter.joblet.dto.RunningJoblet;
 import io.datarouter.joblet.execute.JobletProcessors;
 import io.datarouter.joblet.nav.JobletLocalLinkBuilder;
+import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.InContextRedirectMav;
@@ -60,7 +60,7 @@ public class RunningJobletsHandler extends BaseHandler{
 	private Mav running(){
 		List<RunningJoblet> runningJoblets = jobletProcessors.getRunningJoblets().stream()
 				.sorted(Comparator.comparing(RunningJoblet::getStartedAt).reversed())
-				.collect(Collectors.toList());
+				.collect(WarnOnModifyList.deprecatedCollector());
 		return pageFactory.startBuilder(request)
 				.withTitle(TITLE)
 				.withRequires(DatarouterWebRequireJsV2.SORTTABLE)

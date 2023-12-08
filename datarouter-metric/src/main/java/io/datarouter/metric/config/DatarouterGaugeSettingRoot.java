@@ -29,6 +29,7 @@ public class DatarouterGaugeSettingRoot extends SettingRoot{
 	//save gauges in buffer
 	public final CachedSetting<Boolean> saveGaugesToMemory;
 	public final CachedSetting<Boolean> recordGaugeMemoryToPublisherGauges;
+	public final CachedSetting<Boolean> saveGaugeStatsToMemory;
 
 	@Inject
 	public DatarouterGaugeSettingRoot(SettingFinder finder){
@@ -37,6 +38,8 @@ public class DatarouterGaugeSettingRoot extends SettingRoot{
 		saveGaugesToMemory = registerBooleans("saveGaugesToMemory", defaultTo(false)
 				.withTag(DatarouterSettingTagType.GAUGE_PIPELINE, () -> true));
 		recordGaugeMemoryToPublisherGauges = registerBoolean("recordGaugeMemoryToPublisherGauges", true);
+		saveGaugeStatsToMemory = registerBooleans("saveGaugeStatsToMemory", defaultTo(false)
+				.withTag(DatarouterSettingTagType.GAUGE_PIPELINE, () -> true));
 	}
 
 }

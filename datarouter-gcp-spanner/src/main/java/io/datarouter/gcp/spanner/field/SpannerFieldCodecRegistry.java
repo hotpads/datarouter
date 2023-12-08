@@ -21,7 +21,6 @@ import java.util.Map;
 
 import io.datarouter.gcp.spanner.field.array.SpannerByteArrayEncodedFieldCodec;
 import io.datarouter.gcp.spanner.field.array.SpannerByteArrayFieldCodec;
-import io.datarouter.gcp.spanner.field.date.SpannerDateFieldCodec;
 import io.datarouter.gcp.spanner.field.date.SpannerInstantFieldCodec;
 import io.datarouter.gcp.spanner.field.date.SpannerLocalDateFieldCodec;
 import io.datarouter.gcp.spanner.field.date.SpannerLocalDateTimeFieldCodec;
@@ -34,7 +33,6 @@ import io.datarouter.gcp.spanner.field.primitive.SpannerLongEncodedFieldCodec;
 import io.datarouter.gcp.spanner.field.primitive.SpannerLongFieldCodec;
 import io.datarouter.gcp.spanner.field.primitive.SpannerShortFieldCodec;
 import io.datarouter.model.field.Field;
-import io.datarouter.model.field.imp.DateField;
 import io.datarouter.model.field.imp.LocalDateField;
 import io.datarouter.model.field.imp.StringEncodedField;
 import io.datarouter.model.field.imp.StringField;
@@ -52,7 +50,6 @@ import io.datarouter.model.field.imp.comparable.ShortField;
 import io.datarouter.model.field.imp.custom.LocalDateTimeField;
 import io.datarouter.util.lang.ReflectionTool;
 
-@SuppressWarnings("deprecation")
 public class SpannerFieldCodecRegistry implements SpannerFieldCodecs{
 
 	private final Map<Class<? extends Field<?>>,Class<? extends SpannerBaseFieldCodec<?,?>>> codecByFieldClass;
@@ -76,7 +73,6 @@ public class SpannerFieldCodecRegistry implements SpannerFieldCodecs{
 		addCodec(StringEncodedField.class, SpannerStringEncodedFieldCodec.class);
 
 		//time
-		addCodec(DateField.class, SpannerDateFieldCodec.class);
 		addCodec(InstantField.class, SpannerInstantFieldCodec.class);
 		addCodec(LocalDateField.class, SpannerLocalDateFieldCodec.class);
 		addCodec(LocalDateTimeField.class, SpannerLocalDateTimeFieldCodec.class);

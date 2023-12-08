@@ -24,6 +24,9 @@ public class GaugeConveyorConfigurationGroup extends ConveyorConfigurationGroup{
 	public GaugeConveyorConfigurationGroup(){
 		registerConveyor(
 				"gaugeMemoryToPublisher",
+				RawGaugeMemoryToPublisherConveyorConfiguration.class);
+		registerConveyor(
+				"gaugeV2MemoryToPublisher",
 				GaugeMemoryToPublisherConveyorConfiguration.class);
 	}
 

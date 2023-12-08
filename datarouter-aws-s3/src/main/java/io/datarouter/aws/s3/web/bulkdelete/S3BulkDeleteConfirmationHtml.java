@@ -109,7 +109,7 @@ public class S3BulkDeleteConfirmationHtml{
 	}
 
 	private Optional<DivTag> makeConfirmationEmptyPrefixWarningDiv(Optional<String> prefix){
-		if(prefix.isPresent() && prefix.orElseThrow().length() > 0){
+		if(prefix.isPresent() && !prefix.orElseThrow().isEmpty()){
 			return Optional.empty();
 		}
 		var divTag = div(li(

@@ -107,7 +107,9 @@ public class AwsSecretClient implements SecretClient{
 		List<String> secretNames = new ArrayList<>();
 		String nextToken = null;
 		do{
-			var request = new ListSecretsRequest().withNextToken(nextToken);
+			var request = new ListSecretsRequest()
+					.withMaxResults(100)
+					.withNextToken(nextToken);
 			ListSecretsResult result;
 			try(var $ = TracerTool.startSpan("AWSSecretsManager listSecrets", TraceSpanGroupType.CLOUD_STORAGE)){
 				TracerTool.appendToSpanInfo(prefix.orElse(""));
@@ -171,8 +173,8 @@ public class AwsSecretClient implements SecretClient{
 		validateNameStatic(name);
 	}
 
-	public static final void validateNameStatic(String name){
-		if(name == null || name.length() == 0){
+	public static void validateNameStatic(String name){
+		if(name == null || name.isEmpty()){
 			throw new RuntimeException("validation failed name=" + name);
 		}
 		boolean allCharactersAllowed = name.toLowerCase().chars()
@@ -185,16 +187,13 @@ public class AwsSecretClient implements SecretClient{
 				if(character > 96 && character < 123){
 					return true;
 				}
-				if(character == '/'
+				return character == '/'
 						|| character == '_'
 						|| character == '+'
 						|| character == '='
 						|| character == '.'
 						|| character == '@'
-						|| character == '-'){
-					return true;
-				}
-				return false;
+						|| character == '-';
 			});
 		if(!allCharactersAllowed || name.length() > 6 && name.charAt(name.length() - 7) == '-'){
 			throw new RuntimeException("validation failed name=" + name);

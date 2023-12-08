@@ -8,7 +8,7 @@ Datarouter-data-export exports a table to BlobStorage (Filesystem, GCS, or S3) a
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-data-export</artifactId>
-	<version>0.0.122</version>
+	<version>0.0.123</version>
 </dependency>
 ```
 

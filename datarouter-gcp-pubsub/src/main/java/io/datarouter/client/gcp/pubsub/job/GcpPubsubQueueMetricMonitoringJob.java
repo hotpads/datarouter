@@ -91,39 +91,31 @@ public class GcpPubsubQueueMetricMonitoringJob extends BaseJob{
 		var queueOwner = pluginInjector.getInstance(SharedQueueNameRegistry.KEY).queueOwnerByQueueName.get(topicName);
 		boolean shouldSave = queueOwner == null || queueOwner.equals(serviceName.get());
 		if(shouldSave){
-			saveQueueLength(topicAndSubscriptionName, clientId, timer);
-			saveOldestAckMessageAge(topicAndSubscriptionName, clientId, timer);
+			GcpPubsubMetricDto metricDto = clientManager.getGcpMetricDto(topicAndSubscriptionName, clientId);
+			timer.add("getMetric");
+			saveQueueLength(metricDto);
+			timer.add("saveGaugeNumUndeliveredMessages");
+			saveOldestAckMessageAge(metricDto);
+			timer.add("saveGaugeOldestUnackMessageAge");
 		}
 		logger.info("{}", timer);
 	}
 
-	private void saveOldestAckMessageAge(
-			TopicAndSubscriptionName topicAndSubscriptionName,
-			ClientId clientId,
-			PhaseTimer timer){
-		GcpPubsubMetricDto metricDto = clientManager.getGcpMetricDto(topicAndSubscriptionName, clientId);
-		timer.add("getMetric");
+	private void saveOldestAckMessageAge(GcpPubsubMetricDto metricDto){
 		if(metricDto.oldestUnackedMessageAgeS().isPresent()){
 			DatarouterQueueMetrics.saveOldestAckMessageAge(
 					metricDto.queueName(),
 					metricDto.oldestUnackedMessageAgeS().get(),
 					GcpPubsubClientType.NAME);
-			timer.add("saveGaugeOldestUnackMessageAge");
 		}
 	}
 
-	private void saveQueueLength(
-			TopicAndSubscriptionName topicAndSubscriptionName,
-			ClientId clientId,
-			PhaseTimer timer){
-		GcpPubsubMetricDto metricDto = clientManager.getGcpMetricDto(topicAndSubscriptionName, clientId);
-		timer.add("getMetric");
+	private void saveQueueLength(GcpPubsubMetricDto metricDto){
 		if(metricDto.numUndeliveredMessages().isPresent()){
 			DatarouterQueueMetrics.saveQueueLength(
 					metricDto.queueName(),
 					metricDto.numUndeliveredMessages().get(),
 					GcpPubsubClientType.NAME);
-			timer.add("saveGaugeNumUndeliveredMessages");
 		}
 	}
 

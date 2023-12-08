@@ -29,14 +29,11 @@ import io.datarouter.secret.service.SecretJsonSerializer;
 import io.datarouter.secret.service.SecretJsonSerializer.GsonToolJsonSerializer;
 import io.datarouter.secret.service.SecretNamespacer;
 import io.datarouter.secret.service.SecretNamespacer.DevelopmentNamespacer;
-import io.datarouter.secret.service.SecretOpRecorderSupplier;
-import io.datarouter.secret.service.SecretOpRecorderSupplier.NoOpSecretOpRecorderSupplier;
 
 public class DatarouterSecretPlugin extends BasePlugin{
 
 	private final SecretClientSupplierConfigHolder secretClientConfigHolder;
 	private final Class<? extends SecretNamespacer> secretNamespacer;
-	private final Class<? extends SecretOpRecorderSupplier> secretOpRecorderSupplier;
 	private final Class<? extends SecretJsonSerializer> jsonSerializer;
 	private final Class<? extends LocalStorageConfig> localStorageConfig;
 	private final DefaultMemorySecrets defaultMemorySecrets;
@@ -44,13 +41,11 @@ public class DatarouterSecretPlugin extends BasePlugin{
 	private DatarouterSecretPlugin(
 			SecretClientSupplierConfigHolder secretClientConfigHolder,
 			Class<? extends SecretNamespacer> secretNamespacer,
-			Class<? extends SecretOpRecorderSupplier> secretOpRecorderSupplier,
 			Class<? extends SecretJsonSerializer> jsonSerializer,
 			Class<? extends LocalStorageConfig> localStorageConfig,
 			DefaultMemorySecrets defaultMemorySecrets){
 		this.secretClientConfigHolder = secretClientConfigHolder;
 		this.secretNamespacer = secretNamespacer;
-		this.secretOpRecorderSupplier = secretOpRecorderSupplier;
 		this.jsonSerializer = jsonSerializer;
 		this.localStorageConfig = localStorageConfig;
 		this.defaultMemorySecrets = defaultMemorySecrets;
@@ -60,7 +55,6 @@ public class DatarouterSecretPlugin extends BasePlugin{
 	public void configure(){
 		bindActualInstance(SecretClientSupplierConfigHolder.class, secretClientConfigHolder);
 		bindActual(SecretNamespacer.class, secretNamespacer);
-		bindActual(SecretOpRecorderSupplier.class, secretOpRecorderSupplier);
 		bindActual(SecretJsonSerializer.class, jsonSerializer);
 		bindActual(LocalStorageConfig.class, localStorageConfig);
 		bindActualInstance(DefaultMemorySecrets.class, defaultMemorySecrets);
@@ -78,7 +72,6 @@ public class DatarouterSecretPlugin extends BasePlugin{
 		public void configure(){
 			bindDefaultInstance(SecretClientSupplierConfigHolder.class, secretClientConfigHolder);
 			bindDefault(SecretNamespacer.class, secretNamespacer);
-			bindDefault(SecretOpRecorderSupplier.class, secretOpRecorderSupplier);
 			bindDefault(SecretJsonSerializer.class, jsonSerializer);
 			bindDefault(LocalStorageConfig.class, localStorageConfig);
 			bindDefaultInstance(DefaultMemorySecrets.class, defaultMemorySecrets);
@@ -95,7 +88,6 @@ public class DatarouterSecretPlugin extends BasePlugin{
 		private SecretClientSupplierConfigHolder secretClientConfigHolder = new SecretClientSupplierConfigHolder(
 				List.of(LOCAL_STORAGE_ALL_OPS));
 		private Class<? extends SecretNamespacer> secretNamespacer = DevelopmentNamespacer.class;
-		private Class<? extends SecretOpRecorderSupplier> secretOpRecorderSupplier = NoOpSecretOpRecorderSupplier.class;
 		private Class<? extends SecretJsonSerializer> jsonSerializer = GsonToolJsonSerializer.class;
 		private Class<? extends LocalStorageConfig> localStorageConfig = DefaultLocalStorageConfig.class;
 		private DefaultMemorySecrets defaultMemorySecrets = new DefaultMemorySecrets();
@@ -122,11 +114,6 @@ public class DatarouterSecretPlugin extends BasePlugin{
 			return getSelf();
 		}
 
-		public T setSecretOpRecorderSupplier(Class<? extends SecretOpRecorderSupplier> secretOpRecorderSupplier){
-			this.secretOpRecorderSupplier = secretOpRecorderSupplier;
-			return getSelf();
-		}
-
 		public T setJsonSerializer(Class<? extends SecretJsonSerializer> jsonSerializer){
 			this.jsonSerializer = jsonSerializer;
 			return getSelf();
@@ -146,7 +133,6 @@ public class DatarouterSecretPlugin extends BasePlugin{
 			return new DatarouterSecretPlugin(
 					secretClientConfigHolder,
 					secretNamespacer,
-					secretOpRecorderSupplier,
 					jsonSerializer,
 					localStorageConfig,
 					defaultMemorySecrets);

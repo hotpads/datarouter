@@ -16,16 +16,17 @@
 package io.datarouter.client.gcp.pubsub.op;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import com.google.pubsub.v1.ReceivedMessage;
 
 import io.datarouter.bytes.codec.stringcodec.StringCodec;
 import io.datarouter.client.gcp.pubsub.client.GcpPubsubClientManager;
+import io.datarouter.client.gcp.pubsub.config.DatarouterGcpPubsubSettingsRoot;
 import io.datarouter.client.gcp.pubsub.node.BaseGcpPubsubNode;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.queue.QueueMessage;
@@ -40,8 +41,9 @@ extends BaseGcpPubsubPeekMultiOp<PK,D,F,QueueMessage<PK,D>>{
 			Config config,
 			BaseGcpPubsubNode<PK,D,F> basePubSubNode,
 			GcpPubsubClientManager clientManager,
+			DatarouterGcpPubsubSettingsRoot settingRoot,
 			ClientId clientId){
-		super(config, basePubSubNode, clientManager, clientId);
+		super(config, basePubSubNode, clientManager, settingRoot, clientId);
 	}
 
 	@Override
@@ -55,7 +57,7 @@ extends BaseGcpPubsubPeekMultiOp<PK,D,F,QueueMessage<PK,D>>{
 					byte[] receiptHandle = StringCodec.UTF_8.encode(message.getAckId());
 					return new QueueMessage<>(receiptHandle, databean, message.getMessage().getAttributesMap());
 				})
-				.collect(Collectors.toList());
+				.collect(WarnOnModifyList.deprecatedCollector());
 	}
 
 }

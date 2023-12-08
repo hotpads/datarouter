@@ -73,10 +73,9 @@ public class EntitySections<EK extends EntityKey<EK>>{
 
 		@Override
 		public boolean equals(Object obj){
-			if(!(obj instanceof EntitySection)){
+			if(!(obj instanceof EntitySection other)){
 				return false;
 			}
-			EntitySection other = (EntitySection)obj;
 			return Objects.equals(databeanClass, other.databeanClass)
 					&& Objects.equals(qualifierPrefix, other.qualifierPrefix);
 		}

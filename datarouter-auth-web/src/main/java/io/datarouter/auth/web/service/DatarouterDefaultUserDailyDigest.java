@@ -55,21 +55,6 @@ public class DatarouterDefaultUserDailyDigest implements DailyDigest{
 	}
 
 	@Override
-	public Optional<DivTag> getPageContent(ZoneId zoneId){
-		if(!serverTypeDetector.mightBeProduction()){
-			return Optional.empty();
-		}
-		Optional<List<String>> username = findDefaultUsername()
-				.map(List::of);
-		if(username.isEmpty()){
-			return Optional.empty();
-		}
-		var header = dailyDigestService.makeHeader("Please remove the default user", authPaths.admin.viewUsers);
-		var table = buildTable(username.get());
-		return Optional.of(div(header, table));
-	}
-
-	@Override
 	public Optional<DivTag> getEmailContent(ZoneId zoneId){
 		if(!serverTypeDetector.mightBeProduction()){
 			return Optional.empty();

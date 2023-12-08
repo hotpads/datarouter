@@ -22,11 +22,15 @@ public record TableCountDto(
 		String serviceName,
 		String clientName,
 		String tableName,
+		String clientType,
+		String tag,
 		Long numRows,
-		Instant dateUpdated,
-		Long countTimeMs,
 		Long numSpans,
-		Long numSlowSpans){
+		Long numSlowSpans,
+		Long countTimeMs,
+		Instant dateUpdated,
+		Long numBytes,
+		Double dollarsPerYear){
 
 	public Date getDateUpdate(){
 		return Date.from(dateUpdated);

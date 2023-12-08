@@ -50,9 +50,7 @@ public class MemoryDatabean{
 	}
 
 	public boolean isExpired(){
-		return expirationMs == null
-				? false
-				: System.currentTimeMillis() > expirationMs;
+		return expirationMs != null && System.currentTimeMillis() > expirationMs;
 	}
 
 	public boolean notExpired(){

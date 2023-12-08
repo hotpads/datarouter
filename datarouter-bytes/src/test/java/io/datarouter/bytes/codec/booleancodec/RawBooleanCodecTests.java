@@ -30,9 +30,9 @@ public class RawBooleanCodecTests{
 
 	@Test
 	public void testDecode(){
-		Assert.assertEquals(CODEC.decode(new byte[]{0}, 0), false);
-		Assert.assertEquals(CODEC.decode(new byte[]{1, 0}, 1), false);
-		Assert.assertEquals(CODEC.decode(new byte[]{-37}, 0), true);
+		Assert.assertFalse(CODEC.decode(new byte[]{0}, 0));
+		Assert.assertFalse(CODEC.decode(new byte[]{1, 0}, 1));
+		Assert.assertTrue(CODEC.decode(new byte[]{-37}, 0));
 	}
 
 }

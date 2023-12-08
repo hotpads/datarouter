@@ -15,21 +15,21 @@
  */
 package io.datarouter.auth.web.job;
 
-import java.time.Instant;
-import java.time.Period;
+import java.time.Duration;
 import java.util.Objects;
 
 import io.datarouter.auth.storage.user.datarouteruser.DatarouterUserDao;
 import io.datarouter.auth.storage.user.datarouteruser.DatarouterUserKey;
-import io.datarouter.auth.storage.user.permissionrequest.DatarouterPermissionRequest;
 import io.datarouter.auth.storage.user.permissionrequest.DatarouterPermissionRequestDao;
-import io.datarouter.auth.storage.user.permissionrequest.DatarouterPermissionRequestKey;
+import io.datarouter.auth.storage.user.permissionrequest.PermissionRequest;
+import io.datarouter.auth.storage.user.permissionrequest.PermissionRequestKey;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDtoBuilder;
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.properties.AdminEmail;
+import io.datarouter.types.MilliTime;
 import jakarta.inject.Inject;
 
 public class DatarouterPermissionRequestVacuumJob extends BaseJob{
@@ -47,13 +47,13 @@ public class DatarouterPermissionRequestVacuumJob extends BaseJob{
 
 	@Override
 	public void run(TaskTracker tracker){
-		Scanner<DatarouterPermissionRequest> permissionRequests = permissionRequestDao.scanOpenPermissionRequests();
-		Instant tooOldCutoff = Instant.now().minus(Period.ofDays(30));
+		Scanner<PermissionRequest> permissionRequests = permissionRequestDao.scanOpenPermissionRequests();
+		MilliTime tooOldCutoff = MilliTime.now().minus(Duration.ofDays(30));
 		permissionRequests
 			.include(permissionRequest -> permissionRequest.getKey().getRequestTime().isBefore(tooOldCutoff))
-			.map(DatarouterPermissionRequest::getKey)
-			.map(DatarouterPermissionRequestKey::getUserId)
-			.each(permissionRequestDao::declineAll)
+			.map(PermissionRequest::getKey)
+			.map(PermissionRequestKey::getUserId)
+			.each(permissionRequestDao::expireAll)
 			.map(DatarouterUserKey::new)
 			.map(datarouterUserDao::get)
 			.include(Objects::nonNull)

@@ -18,16 +18,16 @@ package io.datarouter.metric.counter.collection;
 import java.util.Map;
 
 import io.datarouter.instrumentation.response.PublishingResponseDto;
-import io.datarouter.metric.counter.collection.DatarouterCountCollector.CountCollectorStats;
+import io.datarouter.metric.service.AggregatedGaugesPublisher.MetricCollectorStats;
 
 public interface CountPublisher{
 
-	PublishingResponseDto publishStats(Map<Long,Map<String,CountCollectorStats>> counts);
+	PublishingResponseDto publishStats(Map<Long,Map<String,MetricCollectorStats>> counts);
 
 	public static class NoOpCountPublisher implements CountPublisher{
 
 		@Override
-		public PublishingResponseDto publishStats(Map<Long,Map<String,CountCollectorStats>> counts){
+		public PublishingResponseDto publishStats(Map<Long,Map<String,MetricCollectorStats>> counts){
 			return PublishingResponseDto.NO_OP;
 		}
 

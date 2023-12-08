@@ -39,10 +39,10 @@ public class StringTool{
 	private static final Pattern MINUS_PATTERN = Pattern.compile("-");
 	private static final Pattern NOT_LOWERCASE_ALPHA_PATTERN = Pattern.compile("[^a-z]");
 
-	public static final Comparator<String> COLLATOR_COMPARATOR = (first, second) -> COLLATOR.compare(first, second);
+	public static final Comparator<String> COLLATOR_COMPARATOR = COLLATOR::compare;
 
 	public static boolean notEmpty(String input){
-		return input != null && input.length() > 0;
+		return input != null && !input.isEmpty();
 	}
 
 	public static boolean isEmpty(String input){
@@ -110,7 +110,7 @@ public class StringTool{
 	public static Scanner<Character> scanCharacters(String input){
 		return Scanner.iterate(0, i -> i + 1)
 				.limit(input.length())
-				.map(i -> input.charAt(i));
+				.map(input::charAt);
 	}
 
 	public static boolean equalsCaseInsensitive(String left, String right){
@@ -408,6 +408,21 @@ public class StringTool{
 			firstLetter = firstLetter.toLowerCase();
 		}
 		return firstLetter + input.substring(1);
+	}
+
+	public static String getStringAfterFirstOccurrence(char ch, String sourceString){
+		return getStringAfterFirstOccurrence(Character.toString(ch), sourceString);
+	}
+
+	public static String getStringAfterFirstOccurrence(String searchFor, String sourceString){
+		if(sourceString == null){
+			return null;
+		}
+		int firstOccurrence = sourceString.indexOf(searchFor);
+		if(firstOccurrence == -1){
+			return "";
+		}
+		return sourceString.substring(firstOccurrence + searchFor.length());
 	}
 
 	public static String getStringAfterLastOccurrence(char ch, String sourceString){

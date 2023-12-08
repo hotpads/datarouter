@@ -49,11 +49,8 @@ public class DatarouterServerTypeDetector implements ServerTypeDetector{
 		if(environmentType.equals(EnvironmentType.PRODUCTION.get().getPersistentString())){
 			return true;
 		}
-		if(environment.equals(EnvironmentType.PRODUCTION.get().getPersistentString())
-				|| getAdditionalProductionEnvironments().contains(environment)){
-			return true;
-		}
-		return false;
+		return environment.equals(EnvironmentType.PRODUCTION.get().getPersistentString())
+				|| getAdditionalProductionEnvironments().contains(environment);
 	}
 
 	@Override

@@ -27,10 +27,9 @@ import io.datarouter.conveyor.ConveyorRunnable;
 import io.datarouter.conveyor.trace.ConveyorTraceBuffer;
 import io.datarouter.instrumentation.exception.DatarouterExceptionPublisher;
 import io.datarouter.instrumentation.trace.ConveyorTraceAndTaskExecutorBundleDto;
-import io.datarouter.instrumentation.trace.Trace2BatchedBundleDto;
+import io.datarouter.instrumentation.trace.TraceBatchedBundleDto;
 import io.datarouter.instrumentation.trace.TracePublisher;
 import io.datarouter.instrumentation.trace.TracerTool;
-import io.datarouter.scanner.OptionalScanner;
 import io.datarouter.scanner.Scanner;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -62,14 +61,13 @@ public class ConveyorTraceMemoryToPublisherConveyorConfiguration implements Conv
 		Instant beforeProcess = Instant.now();
 		Scanner.of(dtos)
 				.map(ConveyorTraceAndTaskExecutorBundleDto::traceBundleDto)
-				.flush(traceBundles -> tracePublisher.addBatch(new Trace2BatchedBundleDto(traceBundles)));
+				.flush(traceBundles -> tracePublisher.addBatch(new TraceBatchedBundleDto(traceBundles)));
 		Scanner.of(dtos)
-				.map(ConveyorTraceAndTaskExecutorBundleDto::taskExecutorRecord)
-				.concat(OptionalScanner::of)
+				.concatOpt(ConveyorTraceAndTaskExecutorBundleDto::taskExecutorRecord)
 				.flush(exceptionPublisher::addTaskExecutorRecord);
 		Instant afterProcess = Instant.now();
-		ConveyorCounters.incConsumedOpAndDatabeans(conveyor, Duration.between(beforeProcess, afterProcess).toMillis());
-		gaugeRecorder.saveProcessBufferDurationMs(conveyor, BATCH_SIZE);
+		ConveyorCounters.incConsumedOpAndDatabeans(conveyor, dtos.size());
+		gaugeRecorder.saveProcessBufferDurationMs(conveyor, Duration.between(beforeProcess, afterProcess).toMillis());
 		return new ProcessResult(true);
 	}
 

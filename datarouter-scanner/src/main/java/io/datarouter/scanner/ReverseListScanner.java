@@ -33,11 +33,10 @@ public class ReverseListScanner<T> implements Scanner<T>{
 	}
 
 	public static <T> Scanner<T> of(List<T> list){
-		if(list.size() == 0){
+		if(list.isEmpty()){
 			return EmptyScanner.singleton();
 		}
-		if(list instanceof LinkedList){
-			LinkedList<T> linkedList = (LinkedList<T>)list;
+		if(list instanceof LinkedList<T> linkedList){
 			Iterator<T> descendingIterator = linkedList.descendingIterator();
 			return IteratorScanner.of(descendingIterator);
 		}

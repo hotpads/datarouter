@@ -44,7 +44,7 @@ public class BlockfileReader<T>{
 
 	public record BlockfileReaderConfig<T>(
 			BlockfileStorage storage,
-			Function<byte[],T> decoder,
+			Function<BlockfileReader<T>,Function<byte[],T>> decoderExtractor,
 			BlockfileHeaderCodec headerCodec,
 			Threads readThreads,
 			ByteLength readChunkSize,
@@ -56,6 +56,7 @@ public class BlockfileReader<T>{
 
 	private final BlockfileMetadataReader<T> metadataReader;
 	private final BlockfileReaderConfig<T> config;
+	private final Function<byte[],T> decoder;
 
 	/*---------- construct ---------*/
 
@@ -64,6 +65,7 @@ public class BlockfileReader<T>{
 			BlockfileReaderConfig<T> config){
 		this.metadataReader = metadataReader;
 		this.config = config;
+		decoder = config.decoderExtractor.apply(this);
 	}
 
 	/*---------- metadata ---------*/
@@ -227,7 +229,7 @@ public class BlockfileReader<T>{
 				validateChecksum(parsedBlock);
 			}
 			byte[] decompressedBytes = compressorCodec.decode(parsedBlock.compressedValue);
-			T value = config.decoder().apply(decompressedBytes);
+			T value = decoder.apply(decompressedBytes);
 			var decodedBlock = new BlockfileDecodedBlock<>(
 					numMetadataBytes + parsedBlock.compressedValue.length,
 					numMetadataBytes + decompressedBytes.length,

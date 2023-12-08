@@ -19,22 +19,17 @@ import io.datarouter.storage.setting.DefaultSettingValue;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.cached.CachedSetting;
 import io.datarouter.storage.setting.type.IntegerSetting;
+import io.datarouter.storage.setting.validator.IntegerSettingValidator;
 
 public class IntegerCachedSetting extends CachedSetting<Integer> implements IntegerSetting{
 
 	public IntegerCachedSetting(SettingFinder finder, String name, DefaultSettingValue<Integer> defaultValue){
-		super(finder, name, defaultValue);
+		super(finder, name, defaultValue, new IntegerSettingValidator());
 	}
 
-	@Override
-	public boolean isValid(String value){
-		//Is there a better way to know if a string is parsable to Integer?
-		try{
-			Integer.parseInt(value);
-			return true;
-		}catch(NumberFormatException e){
-			return false;
-		}
+	public IntegerCachedSetting(SettingFinder finder, String name, DefaultSettingValue<Integer> defaultValue,
+			IntegerSettingValidator validator){
+		super(finder, name, defaultValue, validator);
 	}
 
 }

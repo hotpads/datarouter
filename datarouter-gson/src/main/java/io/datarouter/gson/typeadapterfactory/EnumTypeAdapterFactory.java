@@ -86,8 +86,9 @@ implements TypeAdapterFactory{
 
 	protected <T extends Enum<T>> EnumTypeAdapterFactory registerStringMappedEnumOptional(
 			MappedEnum<T,String> mappedEnum,
-			T replacement){
-		adapterByType.put(mappedEnum.getEnumClass(), StringMappedEnumTypeAdapter.optional(mappedEnum, replacement));
+			T defaultValue){
+		adapterByType.put(mappedEnum.getEnumClass(), StringMappedEnumTypeAdapter
+				.optional(mappedEnum, defaultValue));
 		return this;
 	}
 

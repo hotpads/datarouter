@@ -42,10 +42,10 @@ public class KeyRangeToolTests{
 		Assert.assertFalse(range.getEndInclusive());
 		Assert.assertEquals(range.getStart().foo, foo);
 		Assert.assertEquals(range.getStart().bar, barPrefix);
-		Assert.assertEquals(range.getStart().baz, null);
+		Assert.assertNull(range.getStart().baz);
 		Assert.assertEquals(range.getEnd().foo, foo);
 		Assert.assertEquals(range.getEnd().bar, "degemes");
-		Assert.assertEquals(range.getEnd().baz, null);
+		Assert.assertNull(range.getEnd().baz);
 		Assert.assertTrue(range.contains(new TestKey(foo, "degemer", null)));
 		Assert.assertTrue(range.contains(new TestKey(foo, "degemermat", 53L)));
 		Assert.assertFalse(range.contains(new TestKey(foo, "degemeola", null)));

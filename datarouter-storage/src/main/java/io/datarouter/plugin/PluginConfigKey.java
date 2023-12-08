@@ -34,10 +34,9 @@ public class PluginConfigKey<T extends PluginConfigValue<T>>{
 
 	@Override
 	public boolean equals(Object obj){
-		if(!(obj instanceof PluginConfigKey)){
+		if(!(obj instanceof PluginConfigKey<?> other)){
 			return false;
 		}
-		PluginConfigKey<?> other = (PluginConfigKey<?>)obj;
 		return Objects.equals(persistentString, other.persistentString)
 				&& Objects.equals(type, other.type);
 	}

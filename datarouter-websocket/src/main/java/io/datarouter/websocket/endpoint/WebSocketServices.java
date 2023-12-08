@@ -37,11 +37,9 @@ public abstract class WebSocketServices{
 		this.injector = injector;
 		this.services = new ArrayList<>();
 		// lazy to avoid circular dependency
-		this.serviceMap = SingletonSupplier.of(() -> {
-			return services.stream()
-					.map(injector::getInstance)
-					.collect(Collectors.toMap(WebSocketService::getName, Function.identity()));
-		});
+		this.serviceMap = SingletonSupplier.of(() -> services.stream()
+				.map(injector::getInstance)
+				.collect(Collectors.toMap(WebSocketService::getName, Function.identity())));
 	}
 
 	protected void registerService(Class<? extends WebSocketService> clazz){

@@ -21,19 +21,19 @@ import java.util.Objects;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.instrumentation.trace.Trace2BundleDto;
-import io.datarouter.instrumentation.trace.Trace2Dto;
-import io.datarouter.instrumentation.trace.Trace2SpanDto;
-import io.datarouter.instrumentation.trace.Trace2ThreadDto;
+import io.datarouter.instrumentation.trace.TraceBundleDto;
 import io.datarouter.instrumentation.trace.TraceCategory;
+import io.datarouter.instrumentation.trace.TraceDto;
 import io.datarouter.instrumentation.trace.TraceSaveReasonType;
+import io.datarouter.instrumentation.trace.TraceSpanDto;
 import io.datarouter.instrumentation.trace.TraceSpanGroupType;
+import io.datarouter.instrumentation.trace.TraceThreadDto;
 import io.datarouter.instrumentation.trace.Traceparent;
 import io.datarouter.trace.storage.binarydto.TraceQueueBinaryDto;
 
 public class TraceBinaryDtoTests{
 
-	private static final Trace2BundleDto VALID_BUNDLE_DTO = makeBundleDto();
+	private static final TraceBundleDto VALID_BUNDLE_DTO = makeBundleDto();
 
 	@Test
 	public void testConstructorValidation(){
@@ -54,12 +54,12 @@ public class TraceBinaryDtoTests{
 	}
 
 	private void verifyOkDto(TraceQueueBinaryDto okDto){
-		Assert.assertTrue(TraceBinaryDtoTests.equals(VALID_BUNDLE_DTO, okDto.toTrace2BundleDto()));
+		Assert.assertTrue(TraceBinaryDtoTests.equals(VALID_BUNDLE_DTO, okDto.toTraceBundleDto()));
 	}
 
-	private static Trace2BundleDto makeBundleDto(){
+	private static TraceBundleDto makeBundleDto(){
 		var traceparent = Traceparent.generateNewWithCurrentTimeInNs();
-		var trace = new Trace2Dto(
+		var trace = new TraceDto(
 				traceparent,
 				"parent",
 				"context",
@@ -76,7 +76,7 @@ public class TraceBinaryDtoTests{
 				8L,
 				List.of(TraceSaveReasonType.CPU, TraceSaveReasonType.QUERY_PARAM),
 				TraceCategory.HTTP_REQUEST);
-		var thread = new Trace2ThreadDto(traceparent, 9L, 10L, "thread", "server", "host", 11L);
+		var thread = new TraceThreadDto(traceparent, 9L, 10L, "thread", "server", "host", 11L);
 		thread.setInfo("info1");
 		thread.setQueuedEnded(12L);
 		thread.setEnded(13L);
@@ -86,27 +86,21 @@ public class TraceBinaryDtoTests{
 		thread.setCpuTimeEndedNs(17L);
 		thread.setMemoryAllocatedBytesBegin(18L);
 		thread.setMemoryAllocatedBytesEnded(19L);
-		var span = new Trace2SpanDto(
+		var span = new TraceSpanDto(
 				traceparent, 20L, 21, 22, "span", TraceSpanGroupType.CLOUD_STORAGE, "info2", 23L, 24L);
 		span.setCpuTimeCreated(25L);
 		span.setCpuTimeEndedNs(26L);
 		span.setMemoryAllocatedBegin(27L);
 		span.setMemoryAllocatedBytesEnded(28L);
-		return new Trace2BundleDto(trace, List.of(thread), List.of(span));
+		return new TraceBundleDto(trace, List.of(thread), List.of(span));
 	}
 
 	//only works for one item in threads/spans
-	public static boolean equals(Trace2BundleDto first, Trace2BundleDto second){
+	public static boolean equals(TraceBundleDto first, TraceBundleDto second){
 		if(first == second){
 			return true;
 		}
-		if(first == null){
-			if(second == null){
-				return true;
-			}
-			return false;
-		}
-		if(second == null){
+		if(first == null || second == null){
 			return false;
 		}
 		boolean dto = Objects.equals(first.traceDto.context, second.traceDto.context)

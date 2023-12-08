@@ -16,9 +16,8 @@
 package io.datarouter.bytes.blockfile.section;
 
 import io.datarouter.bytes.ByteTool;
-import io.datarouter.bytes.EmptyArray;
 import io.datarouter.bytes.blockfile.dto.BlockfileTokens;
-import io.datarouter.bytes.blockfile.enums.BlockfileSection;
+import io.datarouter.bytes.blockfile.dto.tokens.BlockfileTrailerTokens;
 import io.datarouter.bytes.codec.intcodec.RawIntCodec;
 
 public record BlockfileTrailer(
@@ -29,7 +28,7 @@ public record BlockfileTrailer(
 		byte[] value = ByteTool.concat(
 				RawIntCodec.INSTANCE.encode(headerBlockLength),
 				RawIntCodec.INSTANCE.encode(footerBlockLength));
-		return new BlockfileTokens(BlockfileSection.TRAILER, EmptyArray.BYTE, EmptyArray.BYTE, value);
+		return new BlockfileTrailerTokens(value);
 	}
 
 	public static BlockfileTrailer decode(byte[] bytes){

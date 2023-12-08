@@ -37,7 +37,6 @@ import io.datarouter.secret.op.client.SecretClientOp;
 import io.datarouter.secret.op.client.SecretClientOp.SecretClientOpResult;
 import io.datarouter.secret.op.client.SecretClientOpType;
 import io.datarouter.secret.service.SecretNamespacer;
-import io.datarouter.secret.service.SecretOpRecorderSupplier;
 
 /**
  * SecretOp encapsulates the configuration, execution, and result of a single secret operation instance. The op is
@@ -69,7 +68,6 @@ public class SecretOp<I,CI,CO,O>{
 	private final SecretClientOp<CI,CO> clientOp;
 	private final SecretOpAdapter<I,CI> clientInputAdapter;
 	private final SecretOpAdapter<CO,O> clientOutputAdapter;
-	private final SecretOpRecorderSupplier secretOpRecorderSupplier;
 
 	//populated after execution
 	private boolean wasExecuted = false;
@@ -85,12 +83,17 @@ public class SecretOp<I,CI,CO,O>{
 	 * @param clientOp {@link SecretClientOp#validateAndExecute(SecretClient, Object)} will be invoked on this
 	 * @param clientInputAdapter adapts I to clientOp
 	 * @param clientOutputAdapter adapts clientOp's output to O
-	 * @param secretOpRecorderSupplier used to get recorder if {@link SecretOpConfig#shouldRecord}
 	 */
-	public SecretOp(String name, SecretNamespacer namespacer, I input, SecretOpConfig config,
-			DatarouterInjector injector, SecretClientSupplierConfigHolder secretClientConfigHolder,
-			SecretClientOp<CI,CO> clientOp, SecretOpAdapter<I,CI> clientInputAdapter,
-			SecretOpAdapter<CO,O> clientOutputAdapter, SecretOpRecorderSupplier secretOpRecorderSupplier){
+	public SecretOp(
+			String name,
+			SecretNamespacer namespacer,
+			I input,
+			SecretOpConfig config,
+			DatarouterInjector injector,
+			SecretClientSupplierConfigHolder secretClientConfigHolder,
+			SecretClientOp<CI,CO> clientOp,
+			SecretOpAdapter<I,CI> clientInputAdapter,
+			SecretOpAdapter<CO,O> clientOutputAdapter){
 		this.name = name;
 		this.namespace = namespacer.getConfigNamespace(config);
 		this.input = input;
@@ -101,7 +104,6 @@ public class SecretOp<I,CI,CO,O>{
 		this.clientOp = clientOp;
 		this.clientInputAdapter = clientInputAdapter;
 		this.clientOutputAdapter = clientOutputAdapter;
-		this.secretOpRecorderSupplier = secretOpRecorderSupplier;
 	}
 
 	//multiple calls and multi-threaded usage are not expected, but this is idempotent and thread safe
@@ -111,9 +113,6 @@ public class SecretOp<I,CI,CO,O>{
 		}
 		wasExecuted = true;
 		CI secretClientInput = clientInputAdapter.adapt(input);
-		if(config.shouldRecord){
-			secretOpRecorderSupplier.get().recordOp(this);
-		}
 
 		for(Iterator<SecretClientSupplierConfig> iter = getSecretClientConfigs(); iter.hasNext();){
 			SecretClientSupplierConfig supplierConfig = iter.next();
@@ -144,13 +143,13 @@ public class SecretOp<I,CI,CO,O>{
 			return this;
 		}
 		//all suppliers successfully applied
-		if(attemptedOps.size() > 0 && config.shouldApplyToAllClients && Scanner.of(attemptedOps)
+		if(!attemptedOps.isEmpty() && config.shouldApplyToAllClients && Scanner.of(attemptedOps)
 				.allMatch(SecretClientOpAttempt::isSuccess)){
 			return this;
 		}
 		//overall failure
-		if(attemptedOps.size() > 0){
-			attemptedOps.forEach(attemptedOp -> logError(attemptedOp));
+		if(!attemptedOps.isEmpty()){
+			attemptedOps.forEach(this::logError);
 			//throw the most recent failed op exception
 			throw attemptedOps.get(attemptedOps.size() - 1).getException();
 		}

@@ -82,10 +82,10 @@ extends SqsOp<PK,D,F,Void>{
 			entries.add(new SendMessageBatchRequestEntry(UUID.randomUUID().toString(), databeanAsString));
 			currentPayloadSize += encodedDatabeanSize;
 		}
-		if(entries.size() > 0){
+		if(!entries.isEmpty()){
 			putBatch(entries);
 		}
-		if(rejectedDatabeans.size() > 0){
+		if(!rejectedDatabeans.isEmpty()){
 			throw new SqsDataTooLargeException(rejectedDatabeans);
 		}
 		return null;

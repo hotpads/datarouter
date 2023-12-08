@@ -24,7 +24,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.TableName;
-import org.apache.hadoop.hbase.client.Admin;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
 import org.apache.hadoop.hbase.client.Table;
@@ -34,8 +33,6 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.client.hbase.client.HBaseConnectionHolder;
 import io.datarouter.client.hbase.client.HBaseOptions;
-import io.datarouter.client.hbase.pool.HBaseTablePool;
-import io.datarouter.client.hbase.pool.HBaseTablePoolHolder;
 import io.datarouter.storage.client.BaseClientManager;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.schema.SchemaUpdateOptions;
@@ -43,7 +40,6 @@ import io.datarouter.storage.config.schema.SchemaUpdateResult;
 import io.datarouter.storage.exception.UnavailableException;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.util.lang.ReflectionTool;
-import io.datarouter.util.mutable.MutableString;
 import io.datarouter.util.timer.PhaseTimer;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -60,38 +56,27 @@ public class HBaseClientManager extends BaseClientManager{
 	public static final byte[] DUMMY_FIELD_VALUE = new byte[]{Byte.MIN_VALUE};
 
 	@Inject
-	private HBaseTablePoolHolder hBaseTablePoolHolder;
-	@Inject
 	private SchemaUpdateOptions schemaUpdateOptions;
 	@Inject
-	private HBaseConnectionHolder hBaseConnectionHolder;
+	private HBaseConnectionHolder hbaseConnectionHolder;
 	@Inject
-	private HBaseOptions hBaseOptions;
+	private HBaseOptions hbaseOptions;
 	@Inject
-	private HBaseSchemaUpdateService hBaseSchemaUpdateService;
+	private HBaseSchemaUpdateService hbaseSchemaUpdateService;
 
 	@Override
 	protected void safeInitClient(ClientId clientId){
 		logger.info("activating HBase client " + clientId.getName());
 		PhaseTimer timer = new PhaseTimer(clientId.getName());
 		Connection connection = makeConnection(clientId.getName());
+		hbaseConnectionHolder.register(clientId, connection);
 		timer.add("init hbase connection");
-		hBaseTablePoolHolder.register(clientId, connection);
-		timer.add("init hbase pool");
 		logger.warn(timer.add("done").toString());
 	}
 
 	public Connection getConnection(ClientId clientId){
 		initClient(clientId);
-		return hBaseConnectionHolder.getConnection(clientId);
-	}
-
-	public Admin getAdmin(ClientId clientId){
-		try{
-			return getConnection(clientId).getAdmin();
-		}catch(IOException e){
-			throw new RuntimeException(e);
-		}
+		return hbaseConnectionHolder.getConnection(clientId);
 	}
 
 	public Table getTable(ClientId clientId, String tableName){
@@ -103,7 +88,7 @@ public class HBaseClientManager extends BaseClientManager{
 	}
 
 	protected Connection makeConnection(String clientName){
-		String zkQuorum = hBaseOptions.zookeeperQuorum(clientName);
+		String zkQuorum = hbaseOptions.zookeeperQuorum(clientName);
 		Configuration hbaseConfig = HBaseConfiguration.create();
 		hbaseConfig.set(HConstants.ZOOKEEPER_QUORUM, zkQuorum);
 		Connection connection;
@@ -123,28 +108,15 @@ public class HBaseClientManager extends BaseClientManager{
 	@Override
 	protected Future<Optional<SchemaUpdateResult>> doSchemaUpdate(PhysicalNode<?,?,?> node){
 		if(schemaUpdateOptions.getEnabled()){
-			return hBaseSchemaUpdateService.queueNodeForSchemaUpdate(node.getFieldInfo().getClientId(), node);
+			return hbaseSchemaUpdateService.queueNodeForSchemaUpdate(node.getFieldInfo().getClientId(), node);
 		}
 		return CompletableFuture.completedFuture(Optional.empty());
 	}
 
-	public HBaseTablePool getHTablePool(ClientId clientId){
-		initClient(clientId);
-		return hBaseTablePoolHolder.getHBaseTablePool(clientId);
-	}
-
-	public Table checkOutTable(ClientId clientId, String name, MutableString progress){
-		return getHTablePool(clientId).checkOut(name, progress);
-	}
-
-	public void checkInTable(ClientId clientId, Table table, boolean possiblyTarnished){
-		getHTablePool(clientId).checkIn(table, possiblyTarnished);
-	}
-
 	@Override
 	public void shutdown(ClientId clientId){
-		hBaseSchemaUpdateService.gatherSchemaUpdates(true);
-		getHTablePool(clientId).shutdown();
+		hbaseSchemaUpdateService.gatherSchemaUpdates(true);
+		hbaseConnectionHolder.closeConnection(clientId);
 		eagerlyInitializeShutdownHookManager();
 	}
 

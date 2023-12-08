@@ -22,16 +22,12 @@ import io.datarouter.storage.setting.DefaultSettingValue;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.cached.CachedSetting;
 import io.datarouter.storage.setting.type.StringSetting;
+import io.datarouter.storage.setting.validator.StringSettingValidator;
 
 public class StringCachedSetting extends CachedSetting<String> implements StringSetting{
 
 	public StringCachedSetting(SettingFinder finder, String name, DefaultSettingValue<String> defaultValue){
-		super(finder, name, defaultValue);
-	}
-
-	@Override
-	public boolean isValid(String value){
-		return true;
+		super(finder, name, defaultValue, new StringSettingValidator());
 	}
 
 	public static class RefreshableStringCachedSetting extends BaseMemoizedRefreshableSupplier<String>{

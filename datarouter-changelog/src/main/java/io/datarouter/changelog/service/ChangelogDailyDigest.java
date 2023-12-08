@@ -48,25 +48,11 @@ public class ChangelogDailyDigest implements DailyDigest{
 	private DailyDigestService digestService;
 	@Inject
 	private DatarouterChangelogPaths paths;
-	@Inject
-	private ViewChangelogService viewChangelogService;
-
-	@Override
-	public Optional<DivTag> getPageContent(ZoneId zoneId){
-		var list = getChangelogs(zoneId);
-		if(list.size() == 0){
-			return Optional.empty();
-		}
-		var header = digestService.makeHeader("Changelog", paths.datarouter.changelog.viewAll);
-		var description = small("For the current day");
-		var table = viewChangelogService.buildTable(list, zoneId);
-		return Optional.of(div(header, description, table));
-	}
 
 	@Override
 	public Optional<DivTag> getEmailContent(ZoneId zoneId){
 		var list = getChangelogs(zoneId);
-		if(list.size() == 0){
+		if(list.isEmpty()){
 			return Optional.empty();
 		}
 		var header = digestService.makeHeader("Changelog", paths.datarouter.changelog.viewAll);

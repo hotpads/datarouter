@@ -81,8 +81,8 @@ public class BinaryDtoFieldSchema<F>{
 			cursor += codec.fixedLength();
 		}else{
 			LengthAndValue<byte[]> lengthAndEncodedValue = TerminatedByteArrayCodec.INSTANCE.decode(bytes, cursor);
-			cursor += lengthAndEncodedValue.length;
-			fieldValue = codec.decode(lengthAndEncodedValue.value);
+			cursor += lengthAndEncodedValue.length();
+			fieldValue = codec.decode(lengthAndEncodedValue.value());
 		}
 		setFieldValue(object, fieldValue);
 		return cursor - offset;

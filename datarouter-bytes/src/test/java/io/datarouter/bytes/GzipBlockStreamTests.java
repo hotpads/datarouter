@@ -36,7 +36,7 @@ public class GzipBlockStreamTests{
 
 	private static final List<GzipBlockStreamRow> ROWS = Scanner.iterate(0L, i -> i + 1)
 			.limit(1_000_000)
-			.map(i -> i.toString())//variable length tokens (ambiguous method reference)
+			.map(Object::toString)//variable length tokens (ambiguous method reference)
 			.map(StringCodec.US_ASCII::encode)
 			.map(token -> new GzipBlockStreamRow(List.of(token, new byte[2])))
 			.list();

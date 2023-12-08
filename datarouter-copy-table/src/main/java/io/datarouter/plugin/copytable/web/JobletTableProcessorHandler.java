@@ -219,7 +219,7 @@ public class JobletTableProcessorHandler extends BaseHandler{
 			long jobletId,
 			long numJoblets,
 			JobletPriority executionOrder){
-		TableProcessorJobletParams jobletParams = new TableProcessorJobletParams(
+		var jobletParams = new TableProcessorJobletParams(
 				sourceNodeName,
 				fromKeyExclusive == null ? null : PrimaryKeyPercentCodecTool.encode(fromKeyExclusive),
 				toKeyInclusive == null ? null : PrimaryKeyPercentCodecTool.encode(toKeyInclusive),

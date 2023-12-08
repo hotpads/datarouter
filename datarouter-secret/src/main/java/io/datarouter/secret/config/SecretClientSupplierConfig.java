@@ -49,7 +49,7 @@ public class SecretClientSupplierConfig{
 		this.configName = configName;
 		this.secretClientSupplierClass = secretClientSupplierClass;
 		this.allowedOps = allowedOps;
-		this.allowedNames = allowedNames.size() > 0 ? Optional.of(allowedNames) : Optional.empty();
+		this.allowedNames = !allowedNames.isEmpty() ? Optional.of(allowedNames) : Optional.empty();
 	}
 
 	public static SecretClientSupplierConfig allOps(String configName,

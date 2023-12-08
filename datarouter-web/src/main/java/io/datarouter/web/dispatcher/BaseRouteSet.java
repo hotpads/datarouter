@@ -36,6 +36,7 @@ public abstract class BaseRouteSet implements RouteSet{
 	public static final String REGEX_ONE_DIRECTORY = "[/]?[^/]*";
 	public static final String REGEX_TWO_DIRECTORY_PLUS = "/\\w+/\\w+[/]?.*";
 	public static final String MATCHING_ANY = ".*";
+	public static final String MATCHING_CHILD_PATHS_AND_QUERY_PARAMS = "((\\?|/).*)?";
 
 	private final List<DispatchRule> dispatchRules;
 
@@ -48,7 +49,7 @@ public abstract class BaseRouteSet implements RouteSet{
 	/*---------------- create DispatchRules -----------------*/
 
 	protected DispatchRule handle(PathNode pathNode){
-		return handle(pathNode.join("/", "/", ""));
+		return handle(pathNode.toSlashedString());
 	}
 
 	protected DispatchRule handle(String regex){
@@ -158,7 +159,7 @@ public abstract class BaseRouteSet implements RouteSet{
 	}
 
 	protected DispatchRule redirect(PathNode origin, String redirectDomain, String redirectPath){
-		var rule = new DispatchRule(this, origin.join("/", "/", ""))
+		var rule = new DispatchRule(this, origin.toSlashedString() + MATCHING_CHILD_PATHS_AND_QUERY_PARAMS)
 				.withRedirect(redirectDomain + redirectPath);
 		this.dispatchRules.add(rule);
 		return rule;

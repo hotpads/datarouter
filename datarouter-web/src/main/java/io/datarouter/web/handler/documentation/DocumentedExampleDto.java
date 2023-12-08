@@ -48,10 +48,9 @@ public class DocumentedExampleDto{
 			if(this == other){
 				return true;
 			}
-			if(!(other instanceof DocumentedExampleEnumDto)){
+			if(!(other instanceof DocumentedExampleEnumDto that)){
 				return false;
 			}
-			DocumentedExampleEnumDto that = (DocumentedExampleEnumDto) other;
 			return this.enumName.equals(that.enumName) && this.enumValuesDisplay.equals(that.enumValuesDisplay);
 		}
 

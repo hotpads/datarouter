@@ -27,7 +27,6 @@ import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.dao.BaseDao;
-import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
 import io.datarouter.storage.tag.Tag;
@@ -38,12 +37,7 @@ import jakarta.inject.Singleton;
 @Singleton
 public class DatarouterUserDao extends BaseDao{
 
-	public static class DatarouterUserDaoParams extends BaseRedundantDaoParams{
-
-		public DatarouterUserDaoParams(List<ClientId> clientIds){
-			super(clientIds);
-		}
-
+	public record DatarouterUserDaoParams(List<ClientId> clientIds){
 	}
 
 	private final IndexedSortedMapStorageNode<DatarouterUserKey,DatarouterUser,DatarouterUserFielder> node;

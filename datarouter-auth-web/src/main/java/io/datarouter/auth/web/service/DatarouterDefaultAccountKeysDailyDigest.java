@@ -58,19 +58,6 @@ public class DatarouterDefaultAccountKeysDailyDigest implements DailyDigest{
 	}
 
 	@Override
-	public Optional<DivTag> getPageContent(ZoneId zoneId){
-		List<String> accounts = getAccounts();
-		if(accounts.isEmpty()){
-			return Optional.empty();
-		}
-		var header = dailyDigestService.makeHeader(
-				"Account Credentials with default api or secret keys",
-				authPaths.datarouter.accountManager);
-		var table = buildTable(accounts);
-		return Optional.of(div(header, table));
-	}
-
-	@Override
 	public Optional<DivTag> getEmailContent(ZoneId zoneId){
 		List<String> accounts = getAccounts();
 		if(accounts.isEmpty()){

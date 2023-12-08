@@ -67,18 +67,18 @@ public class TableSizeMonitoringEmailBuilder{
 			List<LatestTableCount> staleRows){
 		var mainHeader = standardDatarouterEmailHeaderService.makeStandardHeader();
 		var body = body(mainHeader);
-		if(thresholdRows.size() > 0){
+		if(!thresholdRows.isEmpty()){
 			var header = h4("Tables exceeding threshold");
 			var table = makeThresholdCountStatTable("THRESHOLD", thresholdRows);
 			body.with(div(header, table));
 		}
-		if(percentageRows.size() > 0){
+		if(!percentageRows.isEmpty()){
 			var header = h4("Tables that grew or shrank by more than " + percentageThreshold + "%");
 			var header2 = p("Please reply-all to indicate whether the changes are expected.");
 			var table = makePercentageCountStatTable("PREVIOUS COUNT", percentageRows);
 			body.with(div(header, header2, table));
 		}
-		if(staleRows.size() > 0){
+		if(!staleRows.isEmpty()){
 			var header = h4("Unrecognized tables");
 			var header2 = p("Please reply-all to confirm these tables can be dropped from the database.");
 			var table = makeEmailStaleTable(staleRows, dailyDigestEmailZoneId.get());

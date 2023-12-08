@@ -34,7 +34,7 @@ public class ReadmeDocsNavBarItem implements DynamicNavBarItem{
 
 	@Override
 	public Boolean shouldDisplay(){
-		return docNameAndLinksSupplier.getReadmeDocs().size() != 0;
+		return !docNameAndLinksSupplier.getReadmeDocs().isEmpty();
 	}
 
 	@Override

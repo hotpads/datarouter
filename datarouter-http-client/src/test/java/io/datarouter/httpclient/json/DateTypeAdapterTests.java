@@ -22,10 +22,13 @@ import java.util.Date;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import com.google.gson.Gson;
 import com.google.gson.internal.PreJava9DateFormatProvider;
 
 import io.datarouter.gson.GsonTool;
+import io.datarouter.gson.typeadapter.Java8DateTypeAdapter;
 
+@SuppressWarnings("deprecation")
 public class DateTypeAdapterTests{
 
 	@Test
@@ -37,6 +40,22 @@ public class DateTypeAdapterTests{
 
 		String java9Date = "Feb 13, 2019, 10:40:25 PM";
 		Assert.assertEquals(GsonTool.withoutEnums().fromJson('"' + java9Date + '"', Date.class), date);
+
+		String java20Date = "Feb 13, 2019, 10:40:25\u202fPM";
+		Assert.assertEquals(GsonTool.withoutEnums().fromJson('"' + java20Date + '"', Date.class), date);
+		Assert.assertEquals(GsonTool.withoutEnums().toJson(date), '"' + java9Date + '"');
+	}
+
+	@Test
+	public void testJava8DateTypeAdapter(){
+		Gson java8TypeAdapterAtTheEnd = GsonTool.withoutEnums().newBuilder()
+				.registerTypeAdapter(Date.class, new Java8DateTypeAdapter())
+				.create();
+		String java8Date = "Feb 13, 2019 10:40:25 PM";
+		String java20Date = "Feb 13, 2019, 10:40:25\u202fPM";
+		Date date = GsonTool.withoutEnums().fromJson('"' + java20Date + '"', Date.class);
+		Assert.assertEquals(java8TypeAdapterAtTheEnd.toJson(date), '"' + java8Date + '"');
+		Assert.assertEquals(java8TypeAdapterAtTheEnd.fromJson('"' + java8Date + '"', Date.class), date);
 	}
 
 }

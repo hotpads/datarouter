@@ -21,8 +21,6 @@ import io.datarouter.model.field.Field;
 import io.datarouter.model.field.imp.comparable.LongField;
 import io.datarouter.model.field.imp.comparable.LongFieldKey;
 import io.datarouter.model.key.entity.base.BaseEntityKey;
-import io.datarouter.model.key.entity.base.BaseStringEntityPartitioner;
-import io.datarouter.util.HashMethods;
 
 public class MapStorageBeanEntityKey extends BaseEntityKey<MapStorageBeanEntityKey>{
 
@@ -35,20 +33,6 @@ public class MapStorageBeanEntityKey extends BaseEntityKey<MapStorageBeanEntityK
 	@Override
 	public List<Field<?>> getFields(){
 		return List.of(new LongField(FieldKeys.entityId, entityId));
-	}
-
-	public static class MapStorageBeanEntityPartitioner
-	extends BaseStringEntityPartitioner<MapStorageBeanEntityKey>{
-
-		public MapStorageBeanEntityPartitioner(){
-			super(HashMethods::longDjbHash, 4);
-		}
-
-		@Override
-		protected String makeStringHashInput(MapStorageBeanEntityKey ek){
-			return String.valueOf(ek.entityId);
-		}
-
 	}
 
 	public MapStorageBeanEntityKey(){

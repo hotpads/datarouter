@@ -25,9 +25,9 @@ import jakarta.inject.Singleton;
 @Singleton
 public class DatarouterJobSettingRoot extends SettingRoot{
 
-	public final CachedSetting<Boolean> runClusterJobLockVacuum;
-	public final CachedSetting<Boolean> runClusterJobLockVacuumUnlockJob;
-	public final CachedSetting<Boolean> runClusterTriggerLockVacuumJob;
+	public final CachedSetting<Boolean> runjobLockVacuum;
+	public final CachedSetting<Boolean> runjobLockVacuumUnlockJob;
+	public final CachedSetting<Boolean> runTriggerLockVacuumJob;
 	public final CachedSetting<Boolean> runStopJobRequestVacuumJob;
 
 	public final CachedSetting<Boolean> runLongRunningTaskVacuum;
@@ -45,9 +45,9 @@ public class DatarouterJobSettingRoot extends SettingRoot{
 	public DatarouterJobSettingRoot(SettingFinder finder){
 		super(finder, DatarouterSettingCategory.DATAROUTER, "datarouterJob.");
 
-		runClusterJobLockVacuum = registerBoolean("runClusterJobLockVacuum", true);
-		runClusterJobLockVacuumUnlockJob = registerBoolean("runClusterJobLockVacuumUnlockJob", true);
-		runClusterTriggerLockVacuumJob = registerBoolean("runClusterTriggerLockVacuumJob", true);
+		runjobLockVacuum = registerBoolean("runClusterJobLockVacuum", true);
+		runjobLockVacuumUnlockJob = registerBoolean("runClusterJobLockVacuumUnlockJob", true);
+		runTriggerLockVacuumJob = registerBoolean("runClusterTriggerLockVacuumJob", true);
 		runStopJobRequestVacuumJob = registerBoolean("runStopJobRequestVacuumJob", true);
 
 		runLongRunningTaskVacuum = registerBoolean("runLongRunningTaskVacuum", false);

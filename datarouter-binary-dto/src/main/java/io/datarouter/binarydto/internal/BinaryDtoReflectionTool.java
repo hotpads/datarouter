@@ -35,7 +35,7 @@ public class BinaryDtoReflectionTool{
 	}
 
 	public static Scanner<Field> scanFieldsIncludingSuperclasses(@SuppressWarnings("rawtypes") Class type){
-		return Scanner.iterate(type, cls -> cls.getSuperclass())
+		return Scanner.iterate(type, Class::getSuperclass)
 				.advanceUntil(Objects::isNull)
 				.map(Class::getDeclaredFields)
 				.concat(Scanner::of)

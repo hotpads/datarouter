@@ -136,7 +136,7 @@ public class DatarouterUserEditService{
 				.collect(Collectors.toSet()));
 
 		if(!changes.isEmpty()){
-			userHistoryService.putAndRecordEdit(user, editor, getRolesChangesString(changes), signinUrl);
+			userHistoryService.putAndRecordPermissionChange(user, editor, getRolesChangesString(changes), signinUrl);
 
 			datarouterSessionDao.scan()
 					.include(session -> session.getUserToken().equals(user.getUserToken()))
@@ -331,10 +331,10 @@ public class DatarouterUserEditService{
 			}
 		});
 
-		if(changes.size() > 0 || description.isPresent()){
-			String colon = changes.size() > 0 && description.isPresent() ? ": " : "";
+		if(!changes.isEmpty() || description.isPresent()){
+			String colon = !changes.isEmpty() && description.isPresent() ? ": " : "";
 			String changesStr = description.orElse("") + colon + String.join(", ", changes);
-			userHistoryService.putAndRecordEdit(user, editor, changesStr, signinUrl);
+			userHistoryService.putAndRecordPermissionChange(user, editor, changesStr, signinUrl);
 			if(shouldDeleteSessions){
 				datarouterSessionDao.scan()
 						.include(session -> session.getUserToken().equals(user.getUserToken()))
@@ -358,7 +358,7 @@ public class DatarouterUserEditService{
 				.collect(HashSet::new);
 		String changes = handleAccountChanges(user, requestedAccounts).orElseThrow();
 
-		userHistoryService.putAndRecordEdit(user, editor, changes, signinUrl);
+		userHistoryService.putAndRecordPermissionChange(user, editor, changes, signinUrl);
 		return datarouterAccountUserService.getAccountProvisioningStatusForUser(user);
 	}
 
@@ -406,7 +406,7 @@ public class DatarouterUserEditService{
 				"timezone",
 				currentZoneId.map(ZoneId::getId).orElse(""),
 				newZoneId.getId());
-		userHistoryService.putAndRecordEdit(user, editor, changeStr, signInUrl);
+		userHistoryService.putAndRecordTimezoneUpdate(user, editor, changeStr, signInUrl);
 	}
 
 	public void changePassword(DatarouterUser user, DatarouterUser editor, String newPassword, String signinUrl){
@@ -425,7 +425,7 @@ public class DatarouterUserEditService{
 				.list();
 
 		String output = generateChangeOutput(added, name, "added") + generateChangeOutput(removed, name, "removed");
-		return output.length() == 0 ? "No changes" : output.trim();
+		return output.isEmpty() ? "No changes" : output.trim();
 	}
 
 	private static String generateChangeOutput(List<String> updates, String name, String description){
@@ -448,7 +448,20 @@ public class DatarouterUserEditService{
 
 	// similar to standard datarouter-email subject, but required for proper email threading
 	public String getPermissionRequestEmailSubject(DatarouterUser user){
-		return String.format("Permission Request %s - %s - %s",
+		return getEmailSubject("Permission Request", user);
+	}
+
+	public String getPasswordChangedEmailSubject(DatarouterUser user){
+		return getEmailSubject("Password Changed", user);
+	}
+
+	public String getTimezoneChangedEmailSubject(DatarouterUser user){
+		return getEmailSubject("Timezone Changed", user);
+	}
+
+	private String getEmailSubject(String prefix, DatarouterUser user){
+		return String.format("%s %s - %s - %s",
+				prefix,
 				user.getUsername(),
 				environmentName.get(),
 				serviceName.get());

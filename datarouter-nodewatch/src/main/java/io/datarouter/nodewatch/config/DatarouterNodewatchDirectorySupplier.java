@@ -24,6 +24,7 @@ public interface DatarouterNodewatchDirectorySupplier{
 
 	//storageStats subpaths
 	final Subpath SUBPATH_CLIENT_TYPE = new Subpath("clientType");
+	final Subpath SUBPATH_SERVICE = new Subpath("service");
 	final Subpath SUBPATH_TABLE = new Subpath("table");
 
 	Directory getDirectory();
@@ -34,6 +35,10 @@ public interface DatarouterNodewatchDirectorySupplier{
 
 	default Directory getStorageStatsClientTypeDirectory(){
 		return getStorageStatsDirectory().subdirectory(SUBPATH_CLIENT_TYPE);
+	}
+
+	default Directory getStorageStatsServiceDirectory(){
+		return getStorageStatsDirectory().subdirectory(SUBPATH_SERVICE);
 	}
 
 	default Directory getStorageStatsTableDirectory(){

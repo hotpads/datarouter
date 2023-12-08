@@ -17,9 +17,7 @@ package io.datarouter.filesystem.node.object;
 
 import java.io.InputStream;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
 
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientType;
@@ -76,19 +74,13 @@ implements PhysicalBlobStorageNode{
 	}
 
 	@Override
-	public byte[] read(PathbeanKey key, Config config){
+	public Optional<byte[]> read(PathbeanKey key, Config config){
 		return directoryBlobStorage.read(key);
 	}
 
 	@Override
-	public byte[] readPartial(PathbeanKey key, long offset, int length, Config config){
+	public Optional<byte[]> readPartial(PathbeanKey key, long offset, int length, Config config){
 		return directoryBlobStorage.read(key, offset, length);
-	}
-
-	@Override
-	public Map<PathbeanKey,byte[]> readMulti(List<PathbeanKey> keys, Config config){
-		return Scanner.of(keys)
-				.toMap(Function.identity(), directoryBlobStorage::read);
 	}
 
 	@Override

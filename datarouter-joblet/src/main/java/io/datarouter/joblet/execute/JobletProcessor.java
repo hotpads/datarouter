@@ -27,39 +27,41 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.bytes.KvString;
 import io.datarouter.joblet.JobletCounters;
 import io.datarouter.joblet.dto.RunningJoblet;
 import io.datarouter.joblet.queue.JobletRequestQueueManager;
 import io.datarouter.joblet.service.JobletService;
 import io.datarouter.joblet.setting.DatarouterJobletSettingRoot;
 import io.datarouter.joblet.type.JobletType;
+import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.util.concurrent.ExecutorServiceTool;
 import io.datarouter.util.concurrent.NamedThreadFactory;
 import io.datarouter.util.mutable.MutableBoolean;
-import io.datarouter.util.number.RandomTool;
+import io.datarouter.util.number.NumberFormatter;
 
 public class JobletProcessor{
 	private static final Logger logger = LoggerFactory.getLogger(JobletProcessor.class);
 
-	private static final Duration SLEEP_TIME_WHEN_DISABLED = Duration.ofSeconds(5);
-	private static final Duration WAKEUP_PERIOD = Duration.ofSeconds(5);
-	private static final Duration MAX_EXEC_BACKOFF_TIME = Duration.ofSeconds(1);
-	private static final Duration MAX_WAIT_FOR_EXECUTOR = Duration.ofSeconds(5);
+	// sleep durations
+	private static final Duration SLEEP_WHEN_DISABLED = Duration.ofSeconds(10);
+	private static final Duration SLEEP_AFTER_RECENT_QUEUE_MISSES = Duration.ofSeconds(1);
+	private static final Duration SLEEP_AFTER_REJECTED_EXECUTION = Duration.ofMillis(100);
+	private static final Duration SLEEP_AFTER_EXCEPTION = Duration.ofSeconds(5);
+
 	private static final Duration MAX_WAIT_FOR_SHUTDOWN = Duration.ofSeconds(5);
-	private static final Duration SLEEP_TIME_AFTER_EXCEPTION = Duration.ofSeconds(5);
 	public static final Long RUNNING_JOBLET_TIMEOUT_MS = 1000L * 60 * 10;  //10 minutes
 
-	//injectable
+	// injectable
 	private final DatarouterJobletSettingRoot jobletSettings;
 	private final JobletRequestQueueManager jobletRequestQueueManager;
 	private final JobletCallableFactory jobletCallableFactory;
 	private final JobletService jobletService;
-	//not injectable
+	// not injectable
 	private final AtomicLong idGenerator;
 	private final JobletType<?> jobletType;
 	private final MutableBoolean shutdownRequested;
@@ -82,7 +84,7 @@ public class JobletProcessor{
 
 		this.idGenerator = idGenerator;
 		this.jobletType = jobletType;
-		//create a separate shutdownRequested for each processor so we can disable them independently
+		// Create a separate shutdownRequested for each processor so we can disable them independently.
 		this.shutdownRequested = new MutableBoolean(false);
 		ThreadFactory threadFactory = new NamedThreadFactory("joblet-" + jobletType.getPersistentString(), true);
 		this.exec = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 5L, TimeUnit.SECONDS, new SynchronousQueue<>(),
@@ -106,8 +108,7 @@ public class JobletProcessor{
 	public boolean killThread(long threadId){
 		return Optional.ofNullable(jobletFutureById.get(threadId))
 				.map(future -> future.cancel(true))
-				.map($ -> true)
-				.orElse(false);
+				.isPresent();
 	}
 
 	/*----------------- private --------------------*/
@@ -117,7 +118,7 @@ public class JobletProcessor{
 				&& numThreads > 0;
 	}
 
-	//this method must continue indefinitely, so be sure to catch all exceptions
+	// This method must continue indefinitely, so be sure to catch all exceptions.
 	public void run(){
 		while(true){
 			try{
@@ -127,18 +128,23 @@ public class JobletProcessor{
 				}
 				int numThreads = getThreadCount();
 				if(!shouldRun(numThreads)){
-					sleepABit(SLEEP_TIME_WHEN_DISABLED);
+					// Don't poll the queues as often when disabled.
+					sleepABit("disabled", SLEEP_WHEN_DISABLED);
 					continue;
 				}
 				if(!jobletRequestQueueManager.shouldCheckAnyQueues(jobletType)){
-					sleepARandomBit(WAKEUP_PERIOD);
+					// A previous task recorded that all queues were empty within the polling period.
+					sleepABit("recentQueueMisses", SLEEP_AFTER_RECENT_QUEUE_MISSES);
 					continue;
 				}
-				tryEnqueueJobletCallable(numThreads);
+				// Must be > 0.  Call only when shouldRun=true.
+				exec.setMaximumPoolSize(numThreads);
+				tryEnqueueJobletCallable();
 			}catch(Throwable e){//catch everything; don't let the loop break
 				logger.error("", e);
 				try{
-					sleepABit(SLEEP_TIME_AFTER_EXCEPTION);
+					// Avoid flooding the logs and other things if there's a recurring error.
+					sleepABit("exception", SLEEP_AFTER_EXCEPTION);
 				}catch(Exception problemSleeping){
 					logger.error("uh oh, problem sleeping", problemSleeping);
 				}
@@ -146,48 +152,27 @@ public class JobletProcessor{
 		}
 	}
 
-	/**
-	 * aggressively try to add to the queue until MAX_EXEC_BACKOFF_TIME.  this is to keep topping off the queue when
-	 * we're processing joblets that finish quickly
-	 *
-	 * TODO make a BlockingRejectedExecutionHandler?
-	 */
-	private void tryEnqueueJobletCallable(int numThreads){
-		exec.setMaximumPoolSize(numThreads);//must be > 0
-		long startMs = System.currentTimeMillis();
-		long backoffMs = 10L;
-		while(System.currentTimeMillis() - startMs < MAX_WAIT_FOR_EXECUTOR.toMillis()){
-			if(Thread.currentThread().isInterrupted()){
-				break;
-			}
-			if(!jobletRequestQueueManager.shouldCheckAnyQueues(jobletType)){
-				return;//stop trying
-			}
-			try{
-				long id = idGenerator.incrementAndGet();
-				JobletCallable jobletCallable = jobletCallableFactory.create(shutdownRequested, this, jobletType, id);
-				Future<Void> jobletFuture = exec.submit(jobletCallable);
-				jobletCallableById.put(id, jobletCallable);
-				jobletFutureById.put(id, jobletFuture);
-				return;//return so we loop back immediately
-			}catch(RejectedExecutionException ree){
-				JobletCounters.rejectedCallable(jobletType);
-				sleepABit(Duration.ofMillis(backoffMs));
-				backoffMs = Math.min(2 * backoffMs, MAX_EXEC_BACKOFF_TIME.toMillis());
-			}
+	private void tryEnqueueJobletCallable(){
+		try{
+			long id = idGenerator.incrementAndGet();
+			JobletCallable jobletCallable = jobletCallableFactory.create(shutdownRequested, this, jobletType, id);
+			Future<Void> jobletFuture = exec.submit(jobletCallable);
+			jobletCallableById.put(id, jobletCallable);
+			jobletFutureById.put(id, jobletFuture);
+			// Return so we loop back immediately.
+			return;
+		}catch(RejectedExecutionException ree){
+			JobletCounters.rejectedCallable(jobletType);
+			// The executor is maxed out.  Trying to feed it too quickly could be wasteful.
+			sleepABit("rejectedExecution", SLEEP_AFTER_REJECTED_EXECUTION);
 		}
 	}
 
-	//sleep between .5 and 1.5x the requested value
-	private void sleepARandomBit(Duration duration){
-		long requestedMs = duration.toMillis();
-		long randomness = RandomTool.nextPositiveLong(requestedMs);
-		long actualMs = requestedMs / 2 + randomness;
-		logger.debug("{} sleeping {} ms", jobletType.getPersistentString(), actualMs);
-		sleepABit(Duration.ofMillis(actualMs));
-	}
-
-	private void sleepABit(Duration duration){
+	private void sleepABit(String reason, Duration duration){
+		logger.debug("sleeping {}", new KvString()
+				.add("type", jobletType.getPersistentString())
+				.add("millis", duration.toMillis(), NumberFormatter::addCommas)
+				.add("reason", reason));
 		try{
 			Thread.sleep(duration.toMillis());
 		}catch(InterruptedException e){
@@ -204,7 +189,7 @@ public class JobletProcessor{
 		return jobletCallableById.values().stream()
 				.map(JobletCallable::getRunningJoblet)
 				.filter(RunningJoblet::hasPayload)
-				.collect(Collectors.toList());
+				.collect(WarnOnModifyList.deprecatedCollector());
 	}
 
 	public int getNumRunningJoblets(){

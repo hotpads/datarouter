@@ -28,7 +28,7 @@ public class TerminatedByteArrayCodecTests{
 		var encoded = CODEC.encode(input);
 		var expected = new byte[]{0};
 		Assert.assertEquals(encoded, expected);
-		var decoded = CODEC.decode(encoded, 0).value;
+		var decoded = CODEC.decode(encoded, 0).value();
 		Assert.assertEquals(decoded, input);
 	}
 
@@ -38,7 +38,7 @@ public class TerminatedByteArrayCodecTests{
 		var encoded = CODEC.encode(input);
 		var expected = new byte[]{5, 6, 0};
 		Assert.assertEquals(encoded, expected);
-		var decoded = CODEC.decode(encoded, 0).value;
+		var decoded = CODEC.decode(encoded, 0).value();
 		Assert.assertEquals(decoded, input);
 	}
 
@@ -48,7 +48,7 @@ public class TerminatedByteArrayCodecTests{
 		var encoded = CODEC.encode(input);
 		var expected = new byte[]{1, 2, 1, 3, 0};
 		Assert.assertEquals(encoded, expected);
-		var decoded = CODEC.decode(encoded, 0).value;
+		var decoded = CODEC.decode(encoded, 0).value();
 		Assert.assertEquals(decoded, input);
 	}
 

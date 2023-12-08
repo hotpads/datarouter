@@ -129,13 +129,6 @@ public class DateTool{
 		return format("yyyy-MM-dd_HH:mm:ss.SSS", ms);
 	}
 
-	/**
-	 * Easy selecting and searching, like for logs.
-	 */
-	public static String formatAlphanumeric(Long ms){
-		return format("yyyy'y'MM'm'dd'd'HH'h'mm'm'ss's'SSS'ms'", ms);
-	}
-
 	public static String format(String pattern, Long ms){
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
 		return LocalDateTime.ofInstant(Instant.ofEpochMilli(ms), ZoneId.systemDefault()).format(formatter);

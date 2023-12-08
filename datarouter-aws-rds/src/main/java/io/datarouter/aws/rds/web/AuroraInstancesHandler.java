@@ -101,10 +101,10 @@ public class AuroraInstancesHandler extends BaseHandler{
 				.exclude(DnsHostEntryDto::isOther)
 				.list();
 		fragments.add(makeAuroraClientsTable("Aurora Clients", dnsEntries, false));
-		if(otherReaderInstances.size() != 0){
+		if(!otherReaderInstances.isEmpty()){
 			fragments.add(makeAuroraClientsTable("Aurora Other Instances", otherReaderInstances, true));
 		}
-		if(clientsMissingOtherInstances.size() != 0){
+		if(!clientsMissingOtherInstances.isEmpty()){
 			fragments.add(makeCreateOtherSection(clientsMissingOtherInstances));
 		}
 		DivTag content = div(each(fragments.stream()))
@@ -197,12 +197,11 @@ public class AuroraInstancesHandler extends BaseHandler{
 	}
 
 	public String getDeleteOtherClientUri(String contextPath, DnsHostEntryDto row){
-		String href = new URIBuilder().setPath(contextPath
+		return new URIBuilder().setPath(contextPath
 				+ paths.datarouter.auroraInstances.deleteOtherInstance.toSlashedString())
 				.addParameter(P_clientName, rdsSettings.dbPrefix.get() + row.getClientName())
 				.addParameter(P_region, row.getRegion())
 				.toString();
-		return href;
 	}
 
 	private record OtherClientDto(

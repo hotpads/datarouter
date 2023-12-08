@@ -39,17 +39,6 @@ public class FailedJobletDailyDigest implements DailyDigest{
 	private JobletDailyDigestService jobletDailyDigestService;
 
 	@Override
-	public Optional<DivTag> getPageContent(ZoneId zoneId){
-		var rows = jobletDailyDigestService.getFailedJoblets();
-		if(rows.isEmpty()){
-			return Optional.empty();
-		}
-		var header = digestService.makeHeader("Failed Joblets", paths.datarouter.joblets.list);
-		var table = jobletDailyDigestService.makePageTableForFailedJoblets(rows);
-		return Optional.of(div(header, table));
-	}
-
-	@Override
 	public Optional<DivTag> getEmailContent(ZoneId zoneId){
 		var rows = jobletDailyDigestService.getFailedJoblets();
 		if(rows.isEmpty()){

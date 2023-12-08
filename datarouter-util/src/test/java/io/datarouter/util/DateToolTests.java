@@ -26,6 +26,7 @@ import org.testng.annotations.Test;
 
 import io.datarouter.util.duration.DurationUnit;
 
+@SuppressWarnings("deprecation")
 public class DateToolTests{
 
 	@Test

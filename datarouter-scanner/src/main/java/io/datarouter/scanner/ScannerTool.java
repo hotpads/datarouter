@@ -34,19 +34,6 @@ import java.util.stream.StreamSupport;
 
 public class ScannerTool{
 
-	public enum ModifiableListType{
-		MODIFIABLE,
-		WARN_ON_MODIFY,
-		ERROR_ON_MODIFY;
-	}
-
-	//TODO transition this to ERROR_ON_MODIFY and remove
-	private static ModifiableListType modifiableListType = ModifiableListType.MODIFIABLE;
-
-	public static synchronized void setModifiableListType(ModifiableListType type){
-		modifiableListType = type;
-	}
-
 	public static <T> boolean allMatch(Scanner<T> scanner, Predicate<? super T> predicate){
 		try(Scanner<T> $ = scanner){
 			while(scanner.advance()){
@@ -155,11 +142,7 @@ public class ScannerTool{
 			while(scanner.advance()){
 				list.add(scanner.current());
 			}
-			return switch(modifiableListType){
-				case MODIFIABLE -> list;
-				case WARN_ON_MODIFY -> new WarnOnModifyRandomAccessList<>(list);
-				case ERROR_ON_MODIFY -> Collections.unmodifiableList(list);
-			};
+			return Collections.unmodifiableList(list);
 		}
 	}
 
@@ -230,7 +213,7 @@ public class ScannerTool{
 	public static <T> Stream<T> nativeStream(Scanner<T> scanner){
 		Spliterator<T> spliterator = spliterator(scanner);
 		Stream<T> stream = StreamSupport.stream(spliterator, false);
-		stream.onClose(() -> scanner.close());
+		stream.onClose(scanner::close);
 		return stream;
 	}
 
@@ -294,6 +277,14 @@ public class ScannerTool{
 
 	public static <T> Spliterator<T> spliterator(Scanner<T> scanner){
 		return Spliterators.spliteratorUnknownSize(scanner.iterator(), 0);
+	}
+
+	public static <T> ScannerNextItem<T> next(Scanner<T> scanner){
+		if(!scanner.advance()){
+			scanner.close();
+			return new ScannerNextItem<>(false, null);
+		}
+		return new ScannerNextItem<>(true, scanner.current());
 	}
 
 	public static <T> List<T> take(Scanner<T> scanner, int numToTake){

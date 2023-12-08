@@ -17,6 +17,7 @@ package io.datarouter.scanner;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -39,5 +40,25 @@ public class OptionalScannerTests{
 				.list();
 		Assert.assertEquals(output, List.of(1, 2));
 	}
+
+	@Test
+	public void testConcatOpt(){
+		List<Integer> output = Scanner.<Optional<Integer>>of(Optional.of(1), Optional.empty(), Optional.of(2))
+				.concatOpt(Function.identity())
+				.list();
+		Assert.assertEquals(output, List.of(1, 2));
+	}
+
+	@Test
+	public void testNulls(){
+		Scanner<Optional<Integer>> scanner = Scanner.of(
+				Optional.empty(),
+				null,
+				Optional.of(2));
+		Assert.assertThrows(
+				NullPointerException.class,
+				() -> scanner.concatOpt(Function.identity()).count());
+	}
+
 
 }

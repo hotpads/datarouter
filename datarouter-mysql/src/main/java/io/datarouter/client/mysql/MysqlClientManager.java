@@ -147,9 +147,7 @@ public class MysqlClientManager extends BaseClientManager implements MysqlConnec
 					clientId.getName(),
 					connNumber,
 					ConnectionHandle.OUTERMOST_TICKET_NUMBER);
-			if(handleByThread(clientId).get(threadId) == null){
-				handleByThread(clientId).put(threadId, handle);
-			}
+			handleByThread(clientId).putIfAbsent(threadId, handle);
 			connectionByHandle(clientId).put(handle, newConnection);
 			// logger.warn("new connection:"+handle);
 			TracerTool.appendToSpanInfo("connection", "new");

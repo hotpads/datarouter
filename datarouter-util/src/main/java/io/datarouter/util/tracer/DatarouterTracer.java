@@ -24,10 +24,10 @@ import java.util.concurrent.BlockingQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.instrumentation.trace.Trace2Dto;
-import io.datarouter.instrumentation.trace.Trace2SpanDto;
-import io.datarouter.instrumentation.trace.Trace2ThreadDto;
+import io.datarouter.instrumentation.trace.TraceSpanDto;
 import io.datarouter.instrumentation.trace.TraceSpanGroupType;
+import io.datarouter.instrumentation.trace.TraceThreadDto;
+import io.datarouter.instrumentation.trace.TraceTimeTool;
 import io.datarouter.instrumentation.trace.Tracer;
 import io.datarouter.instrumentation.trace.W3TraceContext;
 import io.datarouter.util.PlatformMxBeans;
@@ -44,16 +44,16 @@ public class DatarouterTracer implements Tracer{
 	private final Long hostThreadId;
 	private final String hostThreadName;
 	private final W3TraceContext w3TraceContext;
-	private final BlockingQueue<Trace2SpanDto> spanQueue;
+	private final BlockingQueue<TraceSpanDto> spanQueue;
 	private final int maxSpans;
 
-	private final BlockingQueue<Trace2ThreadDto> threadQueue = new ArrayBlockingQueue<>(MAX_THREADS);
-	private final List<Trace2SpanDto> spanStack = new ArrayList<>();
+	private final BlockingQueue<TraceThreadDto> threadQueue = new ArrayBlockingQueue<>(MAX_THREADS);
+	private final List<TraceSpanDto> spanStack = new ArrayList<>();
 
 	private Integer nextSpanSequence = 0;
 	private int discardedSpanCount = 0;
 	private int discardedThreadCount = 0;
-	private Trace2ThreadDto currentThread;//should we be holding a map of current threads?  not sure yet
+	private TraceThreadDto currentThread;//should we be holding a map of current threads?  not sure yet
 
 	private boolean saveThreadCpuTime = false;
 	private boolean saveThreadMemoryAllocated = false;
@@ -62,8 +62,7 @@ public class DatarouterTracer implements Tracer{
 
 	private Long alternativeStartTimeNs;
 
-	public DatarouterTracer(String serverName, Long traceThreadParentId, W3TraceContext w3TraceContext,
-			int maxSpans){
+	public DatarouterTracer(String serverName, Long traceThreadParentId, W3TraceContext w3TraceContext, int maxSpans){
 		this.serverName = serverName;
 		this.traceThreadParentId = traceThreadParentId;
 		this.hostThreadId = Thread.currentThread().getId();
@@ -89,7 +88,7 @@ public class DatarouterTracer implements Tracer{
 
 	@Override
 	public Long getCurrentThreadId(){
-		Trace2ThreadDto thread = getCurrentThread();
+		TraceThreadDto thread = getCurrentThread();
 		if(thread == null){
 			return null;
 		}
@@ -104,7 +103,7 @@ public class DatarouterTracer implements Tracer{
 		Long parentId = getTraceThreadParentId();
 		Long threadId = parentId == null ? 0L : RandomTool.nextPositiveLong();
 
-		Trace2ThreadDto thread = new Trace2ThreadDto(
+		var thread = new TraceThreadDto(
 				w3TraceContext.getTraceparent(),
 				threadId,
 				parentId,
@@ -117,7 +116,7 @@ public class DatarouterTracer implements Tracer{
 
 	@Override
 	public void startThread(){
-		Trace2ThreadDto thread = getCurrentThread();
+		TraceThreadDto thread = getCurrentThread();
 		if(thread == null){
 			return;
 		}
@@ -135,14 +134,14 @@ public class DatarouterTracer implements Tracer{
 		if(getCurrentThread() == null){
 			return;
 		}
-		Trace2ThreadDto thread = getCurrentThread();
+		TraceThreadDto thread = getCurrentThread();
 		boolean addSpace = StringTool.notEmpty(thread.getInfo());
 		thread.setInfo(StringTool.nullSafe(thread.getInfo()) + (addSpace ? " " : "") + text);
 	}
 
 	@Override
 	public void finishThread(){
-		Trace2ThreadDto thread = currentThread;
+		TraceThreadDto thread = currentThread;
 		if(thread == null){
 			return;
 		}
@@ -152,18 +151,20 @@ public class DatarouterTracer implements Tracer{
 		if(saveThreadMemoryAllocated){
 			thread.setMemoryAllocatedBytesEnded(PlatformMxBeans.THREAD.getThreadAllocatedBytes(hostThreadId));
 		}
-		thread.setEnded(Trace2Dto.getCurrentTimeInNs());
+		thread.setEnded(TraceTimeTool.epochNano());
 		thread.setTotalSpanCount(getSpanQueue().size());
 		setCurrentThread(null);
 		addThread(thread);
 	}
 
 	@Override
-	public void addThread(Trace2ThreadDto thread){
+	public void addThread(TraceThreadDto thread){
 		if(!getThreadQueue().offer(thread)){
 			++discardedThreadCount;
-			logger.debug("cannot add thread, max capacity reached traceId={}, discarded thread count={}", w3TraceContext
-					.getTraceparent(), discardedThreadCount);
+			logger.debug(
+					"cannot add thread, max capacity reached traceId={}, discarded thread count={}",
+					w3TraceContext.getTraceparent(),
+					discardedThreadCount);
 		}
 	}
 
@@ -172,17 +173,17 @@ public class DatarouterTracer implements Tracer{
 
 	@Override
 	public void startSpan(String name, TraceSpanGroupType groupType, long createdTimeNs){
-		Trace2ThreadDto thread = currentThread;
+		TraceThreadDto thread = currentThread;
 		if(thread == null){
 			return;
 		}
 		Integer parentSequence = null;
-		List<Trace2SpanDto> spanStack = getSpanStack();
+		List<TraceSpanDto> spanStack = getSpanStack();
 		if(spanStack != null && !spanStack.isEmpty()){
-			Trace2SpanDto parent = getSpanStack().get(getSpanStack().size() - 1);
+			TraceSpanDto parent = getSpanStack().get(getSpanStack().size() - 1);
 			parentSequence = parent.getSequence();
 		}
-		Trace2SpanDto span = new Trace2SpanDto(
+		var span = new TraceSpanDto(
 				thread.getTraceparent(),
 				thread.getThreadId(),
 				nextSpanSequence,
@@ -205,7 +206,7 @@ public class DatarouterTracer implements Tracer{
 		if(getCurrentSpan() == null){
 			return;
 		}
-		Trace2SpanDto span = getCurrentSpan();
+		TraceSpanDto span = getCurrentSpan();
 		span.setInfo(StringTool.nullSafe(span.getInfo()) + '[' + text + ']');
 	}
 
@@ -214,7 +215,7 @@ public class DatarouterTracer implements Tracer{
 		if(getCurrentSpan() == null){
 			return;
 		}
-		Trace2SpanDto span = popSpanFromStack();
+		TraceSpanDto span = popSpanFromStack();
 		if(saveSpanCpuTime){
 			span.setCpuTimeEndedNs(PlatformMxBeans.THREAD.getCurrentThreadCpuTime());
 		}
@@ -226,27 +227,29 @@ public class DatarouterTracer implements Tracer{
 	}
 
 	@Override
-	public void addSpan(Trace2SpanDto span){
-		Trace2ThreadDto thread = currentThread;
+	public void addSpan(TraceSpanDto span){
+		TraceThreadDto thread = currentThread;
 		if(thread == null){
 			return;
 		}
 		if(!getSpanQueue().offer(span)){
 			thread.setDiscardedSpanCount(++discardedSpanCount);
-			logger.debug("cannot add span, max capacity traceId={}, discarded span count={}", w3TraceContext
-					.getTraceparent(), discardedSpanCount);
+			logger.debug(
+					"cannot add span, max capacity traceId={}, discarded span count={}",
+					w3TraceContext.getTraceparent(),
+					discardedSpanCount);
 		}
 	}
 
 	@Override
-	public Trace2SpanDto getCurrentSpan(){
+	public TraceSpanDto getCurrentSpan(){
 		if(spanStack == null || spanStack.isEmpty()){
 			return null;
 		}
 		return spanStack.get(spanStack.size() - 1);
 	}
 
-	private Trace2SpanDto popSpanFromStack(){
+	private TraceSpanDto popSpanFromStack(){
 		if(spanStack == null || spanStack.isEmpty()){
 			return null;
 		}
@@ -262,7 +265,7 @@ public class DatarouterTracer implements Tracer{
 
 	/*---------------------------- get/set ----------------------------------*/
 
-	public Trace2ThreadDto getCurrentThread(){
+	public TraceThreadDto getCurrentThread(){
 		return currentThread;
 	}
 
@@ -276,17 +279,17 @@ public class DatarouterTracer implements Tracer{
 		return discardedThreadCount;
 	}
 
-	public void setCurrentThread(Trace2ThreadDto currentThread){
+	public void setCurrentThread(TraceThreadDto currentThread){
 		this.currentThread = currentThread;
 	}
 
 	@Override
-	public BlockingQueue<Trace2ThreadDto> getThreadQueue(){
+	public BlockingQueue<TraceThreadDto> getThreadQueue(){
 		return threadQueue;
 	}
 
 	@Override
-	public BlockingQueue<Trace2SpanDto> getSpanQueue(){
+	public BlockingQueue<TraceSpanDto> getSpanQueue(){
 		return spanQueue;
 	}
 
@@ -309,7 +312,7 @@ public class DatarouterTracer implements Tracer{
 		return traceThreadParentId;
 	}
 
-	public List<Trace2SpanDto> getSpanStack(){
+	public List<TraceSpanDto> getSpanStack(){
 		return spanStack;
 	}
 
@@ -365,7 +368,7 @@ public class DatarouterTracer implements Tracer{
 
 	@Override
 	public void setAlternativeStartTimeNs(){
-		this.alternativeStartTimeNs = Trace2Dto.getCurrentTimeInNs();
+		this.alternativeStartTimeNs = TraceTimeTool.epochNano();
 	}
 
 }

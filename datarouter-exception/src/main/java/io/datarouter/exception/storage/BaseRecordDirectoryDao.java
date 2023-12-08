@@ -30,7 +30,7 @@ public abstract class BaseRecordDirectoryDao<E extends BinaryDto<?>>{
 	protected abstract E decode(byte[] bytes);
 
 	public Scanner<E> read(String filename){
-		return VarIntByteArraysTool.decodeMulti(getDirectory().read(PathbeanKey.of(filename)))
+		return VarIntByteArraysTool.decodeMulti(getDirectory().read(PathbeanKey.of(filename)).orElse(null))
 				.map(this::decode);
 	}
 

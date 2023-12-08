@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -28,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.scanner.Scanner;
+import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.util.singletonsupplier.SingletonSupplier;
 import io.datarouter.web.dispatcher.DispatchRule;
 
@@ -49,7 +49,7 @@ public class NavBarMenuItem{
 		this.text = text;
 		this.subItems = subItems.stream()
 				.filter(Objects::nonNull)
-				.collect(Collectors.toList());
+				.collect(WarnOnModifyList.deprecatedCollector());
 		this.dispatchRule = SingletonSupplier.of(Optional::empty);
 		this.openInNewTab = false;
 	}

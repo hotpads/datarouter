@@ -29,12 +29,12 @@ public class RawDoubleCodecTests{
 		double valueA = 12354234.456D;
 		byte[] abytes = CODEC.encode(valueA);
 		double aback = CODEC.decode(abytes, 0);
-		Assert.assertTrue(valueA == aback);
+		Assert.assertEquals(aback, valueA);
 
 		double valueB = -1234568.456D;
 		byte[] bbytes = CODEC.encode(valueB);
 		double bback = CODEC.decode(bbytes, 0);
-		Assert.assertTrue(valueB == bback);
+		Assert.assertEquals(bback, valueB);
 
 		Assert.assertTrue(Arrays.compareUnsigned(abytes, bbytes) < 0);//positives and negatives are reversed
 	}

@@ -15,12 +15,16 @@
  */
 package io.datarouter.gcp.bigtable.test;
 
+import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Guice;
+import org.testng.annotations.Test;
 
 import io.datarouter.gcp.bigtable.config.DatarouterBigTableTestNgModuleFactory;
 import io.datarouter.storage.test.node.basic.sorted.BaseSortedNodeIntegrationTests;
+import io.datarouter.storage.test.node.basic.sorted.SortedBean;
+import io.datarouter.storage.test.node.basic.sorted.SortedBeanKey;
 
 @Guice(moduleFactory = DatarouterBigTableTestNgModuleFactory.class)
 public class BigTableSortedNodeIntegrationTests extends BaseSortedNodeIntegrationTests{
@@ -30,10 +34,23 @@ public class BigTableSortedNodeIntegrationTests extends BaseSortedNodeIntegratio
 		setup(DatarouterBigTableTestClientIds.BIG_TABLE);
 	}
 
+	@Override
 	@AfterClass
 	public void afterClass(){
 		postTestTests();
 		datarouter.shutdown();
+	}
+
+	@Test
+	public void testEmptyTrailingStringInKey(){
+		String firstField = "testEmptyTrailingStringInKey";
+		String trailingString = "";
+		SortedBeanKey pk = new SortedBeanKey(firstField, "bar", 3, trailingString);
+		SortedBean input = new SortedBean(pk, "f1", 2L, "f3", 4D);
+		dao.put(input);
+		SortedBean getOutput = dao.get(pk);
+		Assert.assertEquals(getOutput, input);
+		dao.delete(pk);
 	}
 
 }

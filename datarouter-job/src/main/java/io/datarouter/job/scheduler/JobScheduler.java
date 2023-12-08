@@ -33,12 +33,12 @@ import io.datarouter.job.LocalJobProcessor;
 import io.datarouter.job.config.DatarouterJobExecutors.DatarouterJobScheduler;
 import io.datarouter.job.config.DatarouterJobSettingRoot;
 import io.datarouter.job.detached.DetachedJobExecutor.DetachedJobExecutorSupplier;
-import io.datarouter.job.lock.ClusterTriggerLockService;
 import io.datarouter.job.lock.LocalTriggerLockService;
 import io.datarouter.job.lock.TriggerLockConfig;
+import io.datarouter.job.lock.TriggerLockService;
 import io.datarouter.job.scheduler.JobWrapper.JobWrapperFactory;
 import io.datarouter.job.util.Outcome;
-import io.datarouter.util.DateTool;
+import io.datarouter.types.MilliTime;
 import io.datarouter.util.concurrent.ThreadTool;
 import io.datarouter.util.number.RandomTool;
 import jakarta.inject.Inject;
@@ -63,7 +63,7 @@ public class JobScheduler{
 	private final JobPackageTracker jobPackageTracker;
 	private final LocalJobProcessor localJobProcessor;
 	private final LocalTriggerLockService localTriggerLockService;
-	private final ClusterTriggerLockService clusterTriggerLockService;
+	private final TriggerLockService triggerLockService;
 	private final JobWrapperFactory jobWrapperFactory;
 	private final AtomicBoolean shutdown;
 
@@ -77,7 +77,7 @@ public class JobScheduler{
 			JobPackageTracker jobPackageTracker,
 			LocalJobProcessor localJobProcessor,
 			LocalTriggerLockService localTriggerLockService,
-			ClusterTriggerLockService clusterTriggerLockService,
+			TriggerLockService triggerLockService,
 			JobWrapperFactory jobWrapperFactory){
 		this.injector = injector;
 		this.triggerExecutor = triggerExecutor;
@@ -87,7 +87,7 @@ public class JobScheduler{
 		this.jobPackageTracker = jobPackageTracker;
 		this.localJobProcessor = localJobProcessor;
 		this.localTriggerLockService = localTriggerLockService;
-		this.clusterTriggerLockService = clusterTriggerLockService;
+		this.triggerLockService = triggerLockService;
 		this.jobWrapperFactory = jobWrapperFactory;
 		this.shutdown = new AtomicBoolean();
 	}
@@ -121,7 +121,7 @@ public class JobScheduler{
 		localJobProcessor.shutdown(); // interrupt all jobs
 		triggerExecutor.shutdownNow(); // interrupt all triggers
 		releaseThisServersActiveTriggerLocks();
-		clusterTriggerLockService.releaseThisServersJobLocks();
+		triggerLockService.releaseThisServersJobLocks();
 	}
 
 	/*-------------- schedule ----------------*/
@@ -141,15 +141,14 @@ public class JobScheduler{
 		schedule(jobWrapper, durationUntilNextTrigger.toMillis(), false, false);
 	}
 
-	@Deprecated // use scheduleRetriggeredJob(JobPackage, Instant)
-	public void scheduleRetriggeredJob(JobPackage jobPackage, Date officialTriggerTime){
+	public void scheduleRetriggeredJob(JobPackage jobPackage, MilliTime officialTriggerTime){
 		scheduleRetriggeredJob(jobPackage, officialTriggerTime.toInstant());
 	}
 
 	public void scheduleRetriggeredJob(JobPackage jobPackage, Instant officialTriggerTime){
 		logger.warn("retriggering {} with official triggerTime {} to run immediately",
 				jobPackage.jobClass.getSimpleName(),
-				DateTool.formatAlphanumeric(officialTriggerTime.toEpochMilli()));
+				TriggerLockService.formatTime(officialTriggerTime));
 		BaseJob nextJobInstance = injector.getInstance(jobPackage.jobClass);
 		JobWrapper jobWrapper = jobWrapperFactory.createRetriggered(
 				jobPackage,
@@ -236,23 +235,23 @@ public class JobScheduler{
 			TriggerLockConfig triggerLockConfig,
 			Duration delay){
 		var jobAndTriggerLocksAcquired =
-				clusterTriggerLockService.acquireJobAndTriggerLocks(triggerLockConfig, jobWrapper.triggerTime, delay);
+				triggerLockService.acquireJobAndTriggerLocks(triggerLockConfig, jobWrapper.triggerTime, delay);
 		if(jobAndTriggerLocksAcquired.failed()){
 			return jobAndTriggerLocksAcquired;
 		}
 		try{
 			var started = tryAcquireLocalLockAndRun(jobWrapper);
 			if(started.failed()){
-				clusterTriggerLockService.tryReleasingJobAndTriggerLocks(triggerLockConfig, jobWrapper.triggerTime);
+				triggerLockService.tryReleasingJobAndTriggerLocks(triggerLockConfig, jobWrapper.triggerTime);
 				return started;
 			}
 		}catch(Exception e){
-			clusterTriggerLockService.tryReleasingJobAndTriggerLocks(triggerLockConfig, jobWrapper.triggerTime);
+			triggerLockService.tryReleasingJobAndTriggerLocks(triggerLockConfig, jobWrapper.triggerTime);
 			throw e;
 		}
 		// On success release jobLock but keep clusterTriggerLock
 		try{
-			clusterTriggerLockService.releaseJobLock(triggerLockConfig.jobName);
+			triggerLockService.releaseJobLock(triggerLockConfig.jobName);
 		}catch(Exception e){
 			logger.warn("failed to release jobLock for {}", triggerLockConfig.jobName, e);
 		}
@@ -273,7 +272,7 @@ public class JobScheduler{
 
 	private Outcome runDetached(JobWrapper jobWrapper){
 		JobPackage jobPackage = jobWrapper.jobPackage;
-		Outcome jobAndTriggerLocksAcquired = clusterTriggerLockService
+		Outcome jobAndTriggerLocksAcquired = triggerLockService
 				.acquireJobAndTriggerLocks(jobPackage.triggerLockConfig, jobWrapper.triggerTime, Duration.ZERO);
 		if(jobAndTriggerLocksAcquired.failed()){
 			return jobAndTriggerLocksAcquired;
@@ -282,7 +281,7 @@ public class JobScheduler{
 			detachedJobExecutor.get().submit(jobWrapper);
 			// Not releasing the JobLock here, 'ownership' transferred to the detached job
 		}catch(Exception e){
-			clusterTriggerLockService
+			triggerLockService
 					.tryReleasingJobAndTriggerLocks(jobWrapper.jobPackage.triggerLockConfig, jobWrapper.triggerTime);
 			throw e;
 		}
@@ -308,7 +307,7 @@ public class JobScheduler{
 		localTriggerLockService.getJobWrappers().forEach(jobWrapper -> {
 			String jobName = BaseTriggerGroup.lockName(jobWrapper.jobClass);
 			Instant triggerTime = jobWrapper.triggerTime;
-			clusterTriggerLockService.releaseTriggerLock(jobName, triggerTime);
+			triggerLockService.releaseTriggerLock(jobName, triggerTime);
 		});
 	}
 

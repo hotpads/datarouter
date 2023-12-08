@@ -29,12 +29,12 @@ public class RawFloatCodecTests{
 		float floatA = 123.456f;
 		byte[] bytesA = CODEC.encode(floatA);
 		float backA = CODEC.decode(bytesA, 0);
-		Assert.assertTrue(floatA == backA);
+		Assert.assertEquals(backA, floatA);
 
 		float floatB = -123.456f;
 		byte[] bytesB = CODEC.encode(floatB);
 		float backB = CODEC.decode(bytesB, 0);
-		Assert.assertTrue(floatB == backB);
+		Assert.assertEquals(backB, floatB);
 
 		Assert.assertTrue(Arrays.compareUnsigned(bytesA, bytesB) < 0); //positives and negatives are reversed
 	}

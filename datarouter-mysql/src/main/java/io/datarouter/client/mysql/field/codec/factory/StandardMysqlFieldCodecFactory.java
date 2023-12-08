@@ -23,7 +23,6 @@ import io.datarouter.client.mysql.field.StringMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.StringEncodedMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.array.ByteArrayEncodedMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.array.ByteArrayMysqlFieldCodec;
-import io.datarouter.client.mysql.field.codec.datetime.DateMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.datetime.InstantMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.datetime.LocalDateMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.datetime.LocalDateTimeMysqlFieldCodec;
@@ -36,7 +35,6 @@ import io.datarouter.client.mysql.field.codec.primitive.LongEncodedMysqlFieldCod
 import io.datarouter.client.mysql.field.codec.primitive.LongMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.primitive.ShortMysqlFieldCodec;
 import io.datarouter.model.field.Field;
-import io.datarouter.model.field.imp.DateField;
 import io.datarouter.model.field.imp.LocalDateField;
 import io.datarouter.model.field.imp.StringEncodedField;
 import io.datarouter.model.field.imp.StringField;
@@ -53,7 +51,6 @@ import io.datarouter.model.field.imp.comparable.LongField;
 import io.datarouter.model.field.imp.comparable.ShortField;
 import io.datarouter.model.field.imp.custom.LocalDateTimeField;
 
-@SuppressWarnings("deprecation")
 public class StandardMysqlFieldCodecFactory implements MysqlFieldCodecFactory{
 
 	private final Map<
@@ -81,7 +78,6 @@ public class StandardMysqlFieldCodecFactory implements MysqlFieldCodecFactory{
 		addCodec(StringEncodedField.class, new StringEncodedMysqlFieldCodec<>());
 
 		//time
-		addCodec(DateField.class, new DateMysqlFieldCodec());
 		addCodec(LocalDateField.class, new LocalDateMysqlFieldCodec());
 		addCodec(LocalDateTimeField.class, new LocalDateTimeMysqlFieldCodec());
 		addCodec(InstantField.class, new InstantMysqlFieldCodec());

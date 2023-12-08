@@ -90,19 +90,6 @@ public class DatarouterCounters{
 		incInternal(AGGREGATION_table, type, compoundKey, delta);
 	}
 
-	/*------------ region -------------------*/
-
-	public static void incClientTableOpRegion(
-			String clientTypeString,
-			String clientName,
-			String tableName,
-			String opName,
-			String regionName,
-			long delta){
-		String compoundKey = clientName + " " + tableName + " " + opName + " " + regionName;
-		incInternalStringWithClientType(AGGREGATION_region, clientTypeString, compoundKey, delta);
-	}
-
 	/*------------ private -------------------*/
 
 	private static void incInternal(String aggregationLevel, ClientType<?,?> clientType, String key, long delta){

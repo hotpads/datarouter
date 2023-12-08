@@ -18,7 +18,6 @@ package io.datarouter.enums;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * MappedEnum specific to Strings, including length validation.
@@ -42,10 +41,10 @@ extends MappedEnum<E,String>{
 		return maxLength;
 	}
 
-	private static final void validateLengths(Collection<String> strings, int maxLength){
+	private static void validateLengths(Collection<String> strings, int maxLength){
 		List<String> tooLong = strings.stream()
 				.filter(str -> str.length() > maxLength)
-				.collect(Collectors.toList());
+				.toList();
 		if(!tooLong.isEmpty()){
 			String message = String.format("Some entries (%s) exceed the max length=%s", tooLong, maxLength);
 			throw new IllegalArgumentException(message);

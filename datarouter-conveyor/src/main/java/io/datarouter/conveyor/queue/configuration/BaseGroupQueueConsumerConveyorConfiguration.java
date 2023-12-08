@@ -73,12 +73,16 @@ implements ConveyorConfiguration{
 			throw new RuntimeException("databeans=" + gson.toJson(databeans), e);
 		}
 		Instant afterProcessBuffer = Instant.now();
-		gaugeRecorder.saveProcessBufferDurationMs(conveyor, Duration.between(beforeProcessBuffer, afterProcessBuffer)
-				.toMillis());
-		if(Duration.between(beforeProcessBuffer, afterProcessBuffer).toMillis() > DEFAULT_VISIBILITY_TIMEOUT
-				.toMillis()){
-			logger.warn("slow conveyor conveyor={} durationMs={} databeanCount={}", conveyor.getName(), Duration
-					.between(beforeProcessBuffer, afterProcessBuffer).toMillis(), databeans.size());
+		gaugeRecorder.saveProcessBufferDurationMs(
+				conveyor,
+				Duration.between(beforeProcessBuffer, afterProcessBuffer).toMillis());
+		if(Duration.between(beforeProcessBuffer, afterProcessBuffer).toMillis()
+				> DEFAULT_VISIBILITY_TIMEOUT.toMillis()){
+			logger.warn(
+					"slow conveyor conveyor={} durationMs={} databeanCount={}",
+					conveyor.getName(),
+					Duration.between(beforeProcessBuffer, afterProcessBuffer).toMillis(),
+					databeans.size());
 		}
 		logger.info("consumed conveyor={} messageCount={}", conveyor.getName(), databeans.size());
 		ConveyorCounters.incConsumedOpAndDatabeans(conveyor, databeans.size());

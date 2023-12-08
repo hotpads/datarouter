@@ -58,10 +58,9 @@ public class Bytes implements Comparable<Bytes>{
 		if(this == thatObject){
 			return true;
 		}
-		if(!(thatObject instanceof Bytes)){
+		if(!(thatObject instanceof Bytes that)){
 			return false;
 		}
-		Bytes that = (Bytes)thatObject;
 		int thisTo = offset + length;
 		int otherTo = that.offset + that.length;
 		return Arrays.equals(bytes, offset, thisTo, that.bytes, that.offset, otherTo);

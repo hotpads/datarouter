@@ -15,43 +15,20 @@
  */
 package io.datarouter.joblet.storage.jobletrequestqueue;
 
-import java.util.Objects;
-
 import io.datarouter.joblet.enums.JobletPriority;
 import io.datarouter.joblet.type.JobletType;
 import io.datarouter.util.ComparableTool;
-import io.datarouter.util.lang.ClassTool;
 
-public class JobletRequestQueueKey implements Comparable<JobletRequestQueueKey>{
-
-	public final JobletType<?> type;
-	public final JobletPriority priority;
-
-	public JobletRequestQueueKey(JobletType<?> type, JobletPriority priority){
-		this.type = type;
-		this.priority = priority;
-	}
+public record JobletRequestQueueKey(
+		JobletType<?> type,
+		JobletPriority priority)
+implements Comparable<JobletRequestQueueKey>{
 
 	public String getQueueName(){
 		return type.getShortQueueName() + "-" + priority.getComparableName();
 	}
 
 	/*---------------- Object ------------------*/
-
-	@Override
-	public boolean equals(Object obj){
-		if(ClassTool.differentClass(this, obj)){
-			return false;
-		}
-		JobletRequestQueueKey other = (JobletRequestQueueKey)obj;
-		return Objects.equals(type, other.type)
-				&& Objects.equals(priority, other.priority);
-	}
-
-	@Override
-	public int hashCode(){
-		return Objects.hash(type, priority);
-	}
 
 	@Override
 	public String toString(){
@@ -67,16 +44,6 @@ public class JobletRequestQueueKey implements Comparable<JobletRequestQueueKey>{
 			return diff;
 		}
 		return ComparableTool.nullFirstCompareTo(priority, other.priority);
-	}
-
-	/*-------------- get/set ------------------------*/
-
-	public JobletType<?> getType(){
-		return type;
-	}
-
-	public JobletPriority getPriority(){
-		return priority;
 	}
 
 }

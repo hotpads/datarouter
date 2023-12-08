@@ -20,8 +20,10 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.instrumentation.trace.Trace2BundleAndHttpRequestRecordDto;
+import io.datarouter.instrumentation.trace.TraceBundleAndHttpRequestRecordDto;
+import io.datarouter.instrumentation.trace.Traceparent;
 import io.datarouter.storage.setting.Setting;
+import io.datarouter.trace.filter.TraceFilter;
 import io.datarouter.trace.settings.DatarouterTracePublisherSettingRoot;
 import io.datarouter.util.buffer.MemoryBuffer;
 import jakarta.inject.Inject;
@@ -33,7 +35,7 @@ public class TraceBuffers{
 
 	private static final int MAX_TRACES = 1_000;
 
-	public final MemoryBuffer<Trace2BundleAndHttpRequestRecordDto> buffer;
+	public final MemoryBuffer<TraceBundleAndHttpRequestRecordDto> buffer;
 	private final Setting<Boolean> shouldRunSetting;
 
 	@Inject
@@ -42,11 +44,11 @@ public class TraceBuffers{
 		this.shouldRunSetting = settings.saveTracesToMemory;
 	}
 
-	public Optional<String> offer(Trace2BundleAndHttpRequestRecordDto dto){
-		return offerDtoToBuffer(dto);
-	}
-
-	private Optional<String> offerDtoToBuffer(Trace2BundleAndHttpRequestRecordDto dto){
+	public Optional<String> offer(TraceBundleAndHttpRequestRecordDto dto){
+		Traceparent traceparent = dto.traceBundleDto.traceDto.traceparent;
+		if(TraceFilter.isTraceIdTimestampOutsideCutoffTimes(traceparent)){
+			return Optional.empty();
+		}
 		if(!shouldRunSetting.get()){
 			return Optional.empty();
 		}

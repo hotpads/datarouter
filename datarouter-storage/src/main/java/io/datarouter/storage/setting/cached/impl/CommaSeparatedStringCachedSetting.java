@@ -23,6 +23,7 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.setting.DefaultSettingValue;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.cached.CachedSetting;
+import io.datarouter.storage.setting.validator.CommaSeparatedStringSettingValidator;
 
 public class CommaSeparatedStringCachedSetting extends CachedSetting<Set<String>>{
 
@@ -32,12 +33,7 @@ public class CommaSeparatedStringCachedSetting extends CachedSetting<Set<String>
 			SettingFinder finder,
 			String name,
 			DefaultSettingValue<Set<String>> defaultValue){
-		super(finder, name, defaultValue);
-	}
-
-	@Override
-	public boolean isValid(String value){
-		return true;
+		super(finder, name, defaultValue, new CommaSeparatedStringSettingValidator());
 	}
 
 	@Override

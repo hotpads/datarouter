@@ -33,8 +33,8 @@ import io.datarouter.exception.storage.httprecord.DatarouterHttpRequestRecordDao
 import io.datarouter.exception.storage.httprecord.HttpRequestRecord;
 import io.datarouter.gson.GsonTool;
 import io.datarouter.httpclient.HttpHeaders;
+import io.datarouter.types.MilliTime;
 import io.datarouter.util.string.StringTool;
-import io.datarouter.util.time.ZonedDateFormatterTool;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.MessageMav;
@@ -126,7 +126,7 @@ public class ExceptionAnalysisHandler extends BaseHandler{
 	public static class ExceptionRecordJspDto{
 
 		private final String id;
-		private final Date created;
+		private final MilliTime created;
 		private final String serverName;
 		private final String type;
 		private final String appVersion;
@@ -139,7 +139,7 @@ public class ExceptionAnalysisHandler extends BaseHandler{
 
 		public ExceptionRecordJspDto(
 				String id,
-				Date created,
+				MilliTime created,
 				String serverName,
 				String type,
 				String appVersion,
@@ -167,7 +167,7 @@ public class ExceptionAnalysisHandler extends BaseHandler{
 		}
 
 		public String getCreated(){
-			return ZonedDateFormatterTool.formatDateWithZone(created, zoneId);
+			return created.format(zoneId);
 		}
 
 		public String getServerName(){
@@ -206,8 +206,8 @@ public class ExceptionAnalysisHandler extends BaseHandler{
 
 	private HttpRequestRecordJspDto toJspDto(HttpRequestRecord httpRequestRecord){
 		return new HttpRequestRecordJspDto(
-				httpRequestRecord.getCreated(),
-				httpRequestRecord.getReceivedAt(),
+				httpRequestRecord.getCreatedAt().toDate(),
+				httpRequestRecord.getReceivedAt().toDate(),
 				httpRequestRecord.getDuration(),
 				httpRequestRecord.getExceptionRecordId(),
 				httpRequestRecord.getHttpMethod(),

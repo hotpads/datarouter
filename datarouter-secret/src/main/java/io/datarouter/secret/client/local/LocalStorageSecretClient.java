@@ -20,8 +20,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
-import java.util.stream.Collectors;
 
+import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.secret.client.Secret;
 import io.datarouter.secret.client.SecretClient;
 import io.datarouter.secret.exception.SecretExistsException;
@@ -55,7 +55,7 @@ public class LocalStorageSecretClient implements SecretClient{
 
 	}
 
-	private final void writeSecrets(Properties properties){
+	private void writeSecrets(Properties properties){
 		PropertiesTool.writeToFile(properties, config.getConfigFilePath());
 	}
 
@@ -85,7 +85,7 @@ public class LocalStorageSecretClient implements SecretClient{
 				.map(obj -> (String)obj)
 				.filter(name -> prefix.map(current -> current.length() < name.length() && name.startsWith(current))
 						.orElse(true))
-				.collect(Collectors.toList());
+				.collect(WarnOnModifyList.deprecatedCollector());
 	}
 
 	@Override

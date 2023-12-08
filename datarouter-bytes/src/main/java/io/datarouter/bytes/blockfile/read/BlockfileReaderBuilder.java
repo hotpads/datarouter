@@ -29,7 +29,7 @@ public class BlockfileReaderBuilder<T>{
 	// required
 	private final Blockfile<T> blockfile;
 	private final BlockfileMetadataReader<T> metadataReader;
-	private final Function<byte[],T> decoder;
+	private final Function<BlockfileReader<T>,Function<byte[],T>> decoderExtractor;
 	// optional
 	private Threads readThreads = Threads.none();
 	private ByteLength readChunkSize = ByteLength.ofMiB(4);
@@ -42,10 +42,10 @@ public class BlockfileReaderBuilder<T>{
 	public BlockfileReaderBuilder(
 			Blockfile<T> blockfile,
 			BlockfileMetadataReader<T> metadataReader,
-			Function<byte[],T> decoder){
+			Function<BlockfileReader<T>,Function<byte[],T>> decoderExtractor){
 		this.blockfile = blockfile;
 		this.metadataReader = metadataReader;
-		this.decoder = decoder;
+		this.decoderExtractor = decoderExtractor;
 	}
 
 	//options
@@ -81,7 +81,7 @@ public class BlockfileReaderBuilder<T>{
 				blockfile.registeredChecksummers());
 		var config = new BlockfileReaderConfig<>(
 				blockfile.storage(),
-				decoder,
+				decoderExtractor,
 				headerCodec,
 				readThreads,
 				readChunkSize,

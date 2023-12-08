@@ -23,7 +23,6 @@ import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.properties.EnvironmentName;
 import io.datarouter.storage.dao.BaseDao;
-import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.QueueNodeFactory;
 import io.datarouter.storage.node.op.raw.BlobQueueStorage.BlobQueueStorageNode;
 import io.datarouter.storage.queue.consumer.BlobQueueConsumer;
@@ -35,12 +34,7 @@ import jakarta.inject.Singleton;
 @Singleton
 public class CountQueueDao extends BaseDao{
 
-	public static class DatarouterCountQueueDaoParams extends BaseRedundantDaoParams{
-
-		public DatarouterCountQueueDaoParams(List<ClientId> clientIds){
-			super(clientIds);
-		}
-
+	public record DatarouterCountQueueDaoParams(List<ClientId> clientIds){
 	}
 
 	private final BlobQueueStorageNode<CountBinaryDto> nodeV2;
@@ -52,6 +46,7 @@ public class CountQueueDao extends BaseDao{
 			QueueNodeFactory queueNodeFactory,
 			EnvironmentName environmentNameSupplier){
 		super(datarouter);
+		@SuppressWarnings("deprecation")
 		String namespace = environmentNameSupplier.deprecatedIsProduction()
 				? "shared"
 				: environmentNameSupplier.get() + "-shared";

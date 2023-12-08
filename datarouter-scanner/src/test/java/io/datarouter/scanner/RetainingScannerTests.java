@@ -43,7 +43,7 @@ public class RetainingScannerTests{
 		List<RetainingGroup<Integer>> groups = retainingScanner.list();
 		Assert.assertEquals(groups.size(), 2);
 		Assert.assertEquals(groups.get(0).current().intValue(), 1);
-		Assert.assertEquals(groups.get(0).peekBack(1), null);
+		Assert.assertNull(groups.get(0).peekBack(1));
 		Assert.assertEquals(groups.get(1).current().intValue(), 2);
 		Assert.assertEquals(groups.get(1).peekBack(1).intValue(), 1);
 	}
@@ -55,18 +55,18 @@ public class RetainingScannerTests{
 		List<RetainingGroup<Integer>> groups = retainingScanner.list();
 		Assert.assertEquals(groups.size(), 2);
 		Assert.assertEquals(groups.get(0).current().intValue(), 1);
-		Assert.assertEquals(groups.get(0).peekBack(1), null);
-		Assert.assertEquals(groups.get(0).peekBack(2), null);
+		Assert.assertNull(groups.get(0).peekBack(1));
+		Assert.assertNull(groups.get(0).peekBack(2));
 		Assert.assertEquals(groups.get(1).current().intValue(), 2);
 		Assert.assertEquals(groups.get(1).peekBack(1).intValue(), 1);
-		Assert.assertEquals(groups.get(1).peekBack(2), null);
+		Assert.assertNull(groups.get(1).peekBack(2));
 	}
 
 	@Test
 	public void indexOutOfBoundErrorWhenPeekingTooFarBack(){
 		RetainingGroup<Integer> retainingGroup = Scanner.of(1).retain(1).findFirst().get();
 		Assert.assertEquals(retainingGroup.current().intValue(), 1);
-		Assert.assertEquals(retainingGroup.peekBack(1), null);
+		Assert.assertNull(retainingGroup.peekBack(1));
 		Assert.assertThrows(IndexOutOfBoundsException.class, () -> retainingGroup.peekBack(2));
 	}
 

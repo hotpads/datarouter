@@ -145,7 +145,7 @@ public class DatarouterDuration{
 			long unit = TIME_UNITS[i].toNanos(1);
 			long val = rest / unit;
 			rest = rest % unit;
-			if(val != 0 || i == maxIndex && builder.length() == 0){
+			if(val != 0 || i == maxIndex && builder.isEmpty()){
 				builder.append(val + UNIT_STRINGS.get(i));
 			}
 		}

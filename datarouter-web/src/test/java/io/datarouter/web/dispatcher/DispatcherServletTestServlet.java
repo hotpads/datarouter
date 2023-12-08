@@ -17,7 +17,7 @@ package io.datarouter.web.dispatcher;
 
 public class DispatcherServletTestServlet{
 
-	public static final DispatcherServlet getTestServlet(){
+	public static DispatcherServlet getTestServlet(){
 		@SuppressWarnings("serial")
 		DispatcherServlet servlet = new DispatcherServlet(){
 			@Override

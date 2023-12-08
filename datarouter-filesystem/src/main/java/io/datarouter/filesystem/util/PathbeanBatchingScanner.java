@@ -50,7 +50,7 @@ public class PathbeanBatchingScanner extends BaseLinkedScanner<Pathbean,List<Pat
 			//batching conditions
 			long wouldBeBytes = batchBytes + numBytes;
 			int wouldBePathbeans = batch.size() + 1;
-			boolean hasAtLeastOne = batch.size() > 0;
+			boolean hasAtLeastOne = !batch.isEmpty();
 			boolean exceedsMaxBytes = wouldBeBytes > maxBytes;
 			boolean exceedsMaxPathbeans = wouldBePathbeans > maxPathbeans;
 			boolean exceedsMax = exceedsMaxBytes || exceedsMaxPathbeans;

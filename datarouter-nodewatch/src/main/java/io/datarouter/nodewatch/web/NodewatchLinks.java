@@ -19,25 +19,24 @@ import org.apache.http.client.utils.URIBuilder;
 
 import io.datarouter.nodewatch.config.DatarouterNodewatchPaths;
 import io.datarouter.nodewatch.web.handler.NodewatchTableActionsHandler;
-import io.datarouter.nodewatch.web.handler.NodewatchTableHandler;
-import io.datarouter.nodewatch.web.handler.NodewatchTableStorageHandler;
 import io.datarouter.nodewatch.web.handler.NodewatchThresholdEditHandler;
 import io.datarouter.web.config.ServletContextSupplier;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
+// Includes local contextPath
 @Singleton
 public class NodewatchLinks{
 
 	@Inject
 	private ServletContextSupplier contextSupplier;
 	@Inject
+	private NodewatchPublicLinks publicLinks;
+	@Inject
 	private DatarouterNodewatchPaths paths;
 
 	public String tables(){
-		var uriBuilder = new URIBuilder()
-				.setPath(contextSupplier.getContextPath() + paths.datarouter.nodewatch.tables.toSlashedString());
-		return uriBuilder.toString();
+		return contextSupplier.getContextPath() + publicLinks.tables();
 	}
 
 	public String summary(){
@@ -66,19 +65,11 @@ public class NodewatchLinks{
 	}
 
 	public String table(String clientName, String tableName){
-		var uriBuilder = new URIBuilder()
-				.setPath(contextSupplier.getContextPath() + paths.datarouter.nodewatch.table.toSlashedString())
-				.addParameter(NodewatchTableHandler.P_clientName, clientName)
-				.addParameter(NodewatchTableHandler.P_tableName, tableName);
-		return uriBuilder.toString();
+		return contextSupplier.getContextPath() + publicLinks.table(clientName, tableName);
 	}
 
 	public String tableStorage(String clientName, String tableName){
-		var uriBuilder = new URIBuilder()
-				.setPath(contextSupplier.getContextPath() + paths.datarouter.nodewatch.table.storage.toSlashedString())
-				.addParameter(NodewatchTableStorageHandler.P_clientName, clientName)
-				.addParameter(NodewatchTableStorageHandler.P_tableName, tableName);
-		return uriBuilder.toString();
+		return contextSupplier.getContextPath() + publicLinks.tableStorage(clientName, tableName);
 	}
 
 	public String tableResample(String clientName, String tableName){

@@ -19,10 +19,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
+import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.storage.client.ClientInitializationTracker;
 import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.node.Node;
@@ -54,7 +54,7 @@ public class ManagedNodesHolder{
 						fieldInfo,
 						$ -> new ArrayList<>()).stream()
 				.map(node -> (ManagedNode<PK,D,?,?,?>)node)
-				.collect(Collectors.toList());
+				.collect(WarnOnModifyList.deprecatedCollector());
 	}
 
 	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,N extends ManagedNode<PK,D,?,?,?>>

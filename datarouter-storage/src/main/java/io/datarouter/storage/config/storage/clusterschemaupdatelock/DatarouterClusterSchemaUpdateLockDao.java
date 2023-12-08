@@ -25,7 +25,6 @@ import io.datarouter.storage.config.Config;
 import io.datarouter.storage.config.PutMethod;
 import io.datarouter.storage.config.storage.clusterschemaupdatelock.ClusterSchemaUpdateLock.ClusterSchemaUpdateLockFielder;
 import io.datarouter.storage.dao.BaseDao;
-import io.datarouter.storage.dao.BaseDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage;
 import io.datarouter.storage.tag.Tag;
@@ -35,12 +34,13 @@ import jakarta.inject.Singleton;
 @Singleton
 public class DatarouterClusterSchemaUpdateLockDao extends BaseDao{
 
-	public static class DatarouterClusterSchemaUpdateLockDaoParams extends BaseDaoParams{
+	public static class DatarouterClusterSchemaUpdateLockDaoParams{
 
+		public final ClientId clientId;
 		public final Optional<ClientId> optRedundantClientId;
 
 		public DatarouterClusterSchemaUpdateLockDaoParams(List<ClientId> clientIds){
-			super(clientIds.get(0));
+			this.clientId = clientIds.get(0);
 			this.optRedundantClientId = clientIds.size() > 1 ? Optional.of(clientIds.get(1)) : Optional.empty();
 		}
 

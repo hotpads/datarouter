@@ -62,7 +62,7 @@ public record ClusterSettingBrowseSettingNodeHtml(
 			settingsDiv.with(logsDiv);
 		}
 		Scanner.of(settings)
-				.map(setting -> settingHtml.makeSettingDiv(setting))
+				.map(settingHtml::makeSettingDiv)
 				.forEach(settingsDiv::with);
 		return settingsDiv;
 	}

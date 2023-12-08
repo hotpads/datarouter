@@ -15,7 +15,7 @@
  */
 package io.datarouter.tasktracker.service;
 
-import java.util.Date;
+import java.util.concurrent.atomic.AtomicLong;
 
 import io.datarouter.tasktracker.scheduler.LongRunningTaskStatus;
 import io.datarouter.tasktracker.scheduler.LongRunningTaskType;
@@ -26,15 +26,15 @@ public class LongRunningTaskInfo{
 	public final String name;
 	public final LongRunningTaskType type;
 	public final String triggeredBy;
+	public final AtomicLong numItemsProcessed;
 
-	public Date triggerTime;
+	public Long triggerTimeMs;
 	public String databeanName;
-	public Date finishTime;
+	public Long finishTimeMs;
 	public LongRunningTaskStatus longRunningTaskStatus;
-	public Date startTime;
-	public long numItemsProcessed;
+	public Long startTimeMs;
 	public String lastItemProcessed;
-	public Date heartbeatTime;
+	public Long heartbeatTimeMs;
 	public String exceptionRecordId;
 
 	public LongRunningTaskInfo(String name, String serverName, LongRunningTaskType type, String triggeredBy){
@@ -42,6 +42,7 @@ public class LongRunningTaskInfo{
 		this.serverName = serverName;
 		this.type = type;
 		this.triggeredBy = triggeredBy;
+		this.numItemsProcessed = new AtomicLong();
 	}
 
 }

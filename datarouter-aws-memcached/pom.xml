@@ -22,7 +22,7 @@
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-parent</artifactId>
-		<version>0.0.122</version>
+		<version>0.0.123</version>
 		<relativePath>../datarouter-parent</relativePath>
 	</parent>
 
@@ -52,7 +52,7 @@
 		<dependency>
 			<groupId>com.amazonaws</groupId>
 			<artifactId>elasticache-java-cluster-client</artifactId>
-			<version>1.2.0</version>
+			<version>1.2.2</version>
 		</dependency>
 		<dependency>
 			<groupId>io.datarouter</groupId>

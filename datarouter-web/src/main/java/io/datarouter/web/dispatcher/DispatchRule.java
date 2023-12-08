@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
@@ -58,7 +59,7 @@ public class DispatchRule{
 	private final Set<Role> allowedRoles;
 
 	private Class<? extends BaseHandler> handlerClass;
-	private ApiKeyPredicate apiKeyPredicate;
+	private List<ApiKeyPredicate> apiKeyPredicates;
 	private CsrfValidator csrfValidator;
 	private SignatureValidator signatureValidator;
 	private boolean requireHttps;
@@ -81,6 +82,7 @@ public class DispatchRule{
 		this.pattern = Pattern.compile(regex);
 		this.allowedRoles = new HashSet<>();
 		this.securityValidators = new ArrayList<>();
+		this.apiKeyPredicates = new ArrayList<>();
 	}
 
 	/*---------------------- builder pattern methods ------------------------*/
@@ -96,7 +98,7 @@ public class DispatchRule{
 	}
 
 	public DispatchRule withApiKey(ApiKeyPredicate apiKeyPredicate){
-		this.apiKeyPredicate = apiKeyPredicate;
+		this.apiKeyPredicates.add(apiKeyPredicate);
 		return this;
 	}
 
@@ -190,12 +192,12 @@ public class DispatchRule{
 		return handlerClass;
 	}
 
-	public ApiKeyPredicate getApiKeyPredicate(){
-		return apiKeyPredicate;
+	public List<ApiKeyPredicate> getApiKeyPredicates(){
+		return apiKeyPredicates;
 	}
 
 	public boolean hasApiKey(){
-		return apiKeyPredicate != null;
+		return !apiKeyPredicates.isEmpty();
 	}
 
 	public boolean hasCsrfToken(){
@@ -251,10 +253,16 @@ public class DispatchRule{
 
 	private SecurityValidationResult checkApiKey(HttpServletRequest request){
 		ApiKeyPredicateCheck result;
-		if(apiKeyPredicate == null){
+		if(apiKeyPredicates.isEmpty()){
 			result = new ApiKeyPredicateCheck(true, "");
 		}else{
-			result = apiKeyPredicate.check(this, request);
+			var firstPredicateRef = new AtomicReference<ApiKeyPredicateCheck>();
+			result = Scanner.of(apiKeyPredicates)
+					.map(predicate -> predicate.check(this, request))
+					.peekFirst(firstPredicate -> firstPredicateRef.set(firstPredicate))
+					.include(ApiKeyPredicateCheck::allowed)
+					.findFirst()
+					.orElseGet(() -> firstPredicateRef.get());
 		}
 		String message = "API key check failed, " + result.accountName();
 		if(!result.allowed()){

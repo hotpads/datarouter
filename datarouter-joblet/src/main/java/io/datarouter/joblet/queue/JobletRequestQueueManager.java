@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.stream.Collectors;
 
 import io.datarouter.joblet.JobletCounters;
 import io.datarouter.joblet.enums.JobletPriority;
@@ -28,6 +27,8 @@ import io.datarouter.joblet.storage.jobletrequest.JobletRequestKey;
 import io.datarouter.joblet.storage.jobletrequestqueue.JobletRequestQueueKey;
 import io.datarouter.joblet.type.JobletType;
 import io.datarouter.joblet.type.JobletTypeFactory;
+import io.datarouter.scanner.Scanner;
+import io.datarouter.scanner.WarnOnModifyList;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
@@ -42,10 +43,10 @@ public class JobletRequestQueueManager{
 	public JobletRequestQueueManager(JobletTypeFactory jobletTypeFactory){
 		this.jobletTypeFactory = jobletTypeFactory;
 		this.lastMissByQueue = new ConcurrentHashMap<>();
-		queueKeys = jobletTypeFactory.getAllTypes().stream()
-				.flatMap(type -> JobletPriority.stream()
+		queueKeys = Scanner.of(jobletTypeFactory.getAllTypes())
+				.concat(type -> Scanner.of(JobletPriority.values())
 						.map(priority -> new JobletRequestQueueKey(type, priority)))
-				.collect(Collectors.toList());
+				.collect(WarnOnModifyList.deprecatedCollector());
 		queueKeys.forEach(key -> lastMissByQueue.put(key, 0L));
 	}
 
@@ -60,7 +61,7 @@ public class JobletRequestQueueManager{
 	}
 
 	public void onJobletRequestMissForAllPriorities(JobletType<?> type){
-		JobletPriority.stream()
+		Scanner.of(JobletPriority.values())
 				.map(priority -> new JobletRequestQueueKey(type, priority))
 				.forEach(this::onJobletRequestQueueMiss);
 	}
@@ -72,18 +73,18 @@ public class JobletRequestQueueManager{
 
 	public boolean shouldSkipQueue(JobletRequestQueueKey queueKey){
 		long lastMissAgoMs = System.currentTimeMillis() - lastMissByQueue.get(queueKey);
-		return lastMissAgoMs < queueKey.type.pollingPeriod.toMillis();
+		return lastMissAgoMs < queueKey.type().pollingPeriod.toMillis();
 	}
 
-	public Optional<JobletRequestQueueKey> getQueueToCheck(JobletType<?> jobletType){
-		return JobletPriority.stream()
+	public Optional<JobletRequestQueueKey> findQueueToCheck(JobletType<?> jobletType){
+		return Scanner.of(JobletPriority.values())
 				.map(priority -> new JobletRequestQueueKey(jobletType, priority))
-				.filter(queueKey -> !shouldSkipQueue(queueKey))
-				.findAny();
+				.exclude(this::shouldSkipQueue)
+				.findFirst();
 	}
 
 	public boolean shouldCheckAnyQueues(JobletType<?> jobletType){
-		return getQueueToCheck(jobletType).isPresent();
+		return findQueueToCheck(jobletType).isPresent();
 	}
 
 	public List<JobletRequestQueueKey> getQueueKeys(){

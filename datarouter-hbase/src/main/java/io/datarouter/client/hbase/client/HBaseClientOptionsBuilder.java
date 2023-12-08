@@ -35,7 +35,6 @@ public class HBaseClientOptionsBuilder implements ClientOptionsBuilder{
 	public HBaseClientOptionsBuilder(HBaseGenericClientOptions genericOptions){
 		this(genericOptions.clientId);
 		withZookeeperQuorum(genericOptions.zookeeperQuorum);
-		withMinPoolSize(genericOptions.minPoolSize);
 	}
 
 	protected HBaseClientOptionsBuilder(ClientId clientId, String clientTypeName){
@@ -48,34 +47,6 @@ public class HBaseClientOptionsBuilder implements ClientOptionsBuilder{
 		String optionKeySuffix = HBaseOptions.makeHbaseKey(HBaseOptions.PROP_zookeeperQuorum);
 		String optionKey = makeKey(optionKeySuffix);
 		properties.setProperty(optionKey, zookeeperQuorum);
-		return this;
-	}
-
-	public HBaseClientOptionsBuilder withMaxHTables(String maxHTables){
-		String optionKeySuffix = HBaseOptions.makeHbaseKey(HBaseOptions.PROP_maxHTables);
-		String optionKey = makeKey(optionKeySuffix);
-		properties.setProperty(optionKey, maxHTables);
-		return this;
-	}
-
-	public HBaseClientOptionsBuilder withMinThreadsPerHTable(String minThreadsPerHTable){
-		String optionKeySuffix = HBaseOptions.makeHbaseKey(HBaseOptions.PROP_minThreadsPerHTable);
-		String optionKey = makeKey(optionKeySuffix);
-		properties.setProperty(optionKey, minThreadsPerHTable);
-		return this;
-	}
-
-	public HBaseClientOptionsBuilder withMaxThreadsPerHTable(String maxThreadsPerHTable){
-		String optionKeySuffix = HBaseOptions.makeHbaseKey(HBaseOptions.PROP_maxThreadsPerHTable);
-		String optionKey = makeKey(optionKeySuffix);
-		properties.setProperty(optionKey, maxThreadsPerHTable);
-		return this;
-	}
-
-	public HBaseClientOptionsBuilder withMinPoolSize(int minPoolSize){
-		String optionKeySuffix = HBaseOptions.makeHbaseKey(HBaseOptions.PROP_minPoolSize);
-		String optionKey = makeKey(optionKeySuffix);
-		properties.setProperty(optionKey, String.valueOf(minPoolSize));
 		return this;
 	}
 

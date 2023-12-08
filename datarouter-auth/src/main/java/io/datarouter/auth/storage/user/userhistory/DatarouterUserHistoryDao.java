@@ -18,12 +18,11 @@ package io.datarouter.auth.storage.user.userhistory;
 import java.util.Collection;
 import java.util.List;
 
-import io.datarouter.auth.storage.user.userhistory.DatarouterUserHistory.DatarouterUserHistoryFielder;
+import io.datarouter.auth.storage.user.userhistory.DatarouterUserHistoryLog.DatarouterUserHistoryLogFielder;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.BaseDao;
-import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import io.datarouter.storage.tag.Tag;
@@ -34,18 +33,14 @@ import jakarta.inject.Singleton;
 @Singleton
 public class DatarouterUserHistoryDao extends BaseDao{
 
-	public static class DatarouterUserHistoryDaoParams extends BaseRedundantDaoParams{
-
-		public DatarouterUserHistoryDaoParams(List<ClientId> clientIds){
-			super(clientIds);
-		}
-
+	public record DatarouterUserHistoryDaoParams(List<ClientId> clientIds){
 	}
 
 	private final SortedMapStorageNode<
-			DatarouterUserHistoryKey,
-			DatarouterUserHistory,
-			DatarouterUserHistoryFielder> node;
+			DatarouterUserHistoryLogKey,
+			DatarouterUserHistoryLog,
+			DatarouterUserHistoryLogFielder> node;
+
 
 	@Inject
 	public DatarouterUserHistoryDao(
@@ -56,12 +51,12 @@ public class DatarouterUserHistoryDao extends BaseDao{
 		node = Scanner.of(params.clientIds)
 				.map(clientId -> {
 					SortedMapStorageNode<
-							DatarouterUserHistoryKey,
-							DatarouterUserHistory,
-							DatarouterUserHistoryFielder> node = nodeFactory.create(
+							DatarouterUserHistoryLogKey,
+							DatarouterUserHistoryLog,
+							DatarouterUserHistoryLogFielder> node = nodeFactory.create(
 									clientId,
-									DatarouterUserHistory::new,
-									DatarouterUserHistoryFielder::new)
+									DatarouterUserHistoryLog::new,
+									DatarouterUserHistoryLogFielder::new)
 							.withTag(Tag.DATAROUTER)
 							.build();
 					return node;
@@ -70,19 +65,19 @@ public class DatarouterUserHistoryDao extends BaseDao{
 		datarouter.register(node);
 	}
 
-	public void put(DatarouterUserHistory databean){
+	public void put(DatarouterUserHistoryLog databean){
 		node.put(databean);
 	}
 
-	public void putMulti(Collection<DatarouterUserHistory> databeans){
+	public void putMulti(Collection<DatarouterUserHistoryLog> databeans){
 		node.putMulti(databeans);
 	}
 
-	public List<DatarouterUserHistory> getMulti(Collection<DatarouterUserHistoryKey> keys){
+	public List<DatarouterUserHistoryLog> getMulti(Collection<DatarouterUserHistoryLogKey> keys){
 		return node.getMulti(keys);
 	}
 
-	public Scanner<DatarouterUserHistory> scanWithPrefix(DatarouterUserHistoryKey key){
+	public Scanner<DatarouterUserHistoryLog> scanWithPrefix(DatarouterUserHistoryLogKey key){
 		return node.scanWithPrefix(key);
 	}
 

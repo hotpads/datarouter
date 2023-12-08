@@ -15,6 +15,8 @@
  */
 package io.datarouter.storage.client;
 
+import java.util.Objects;
+
 public class ConnectionHandle{
 
 	public static final int OUTERMOST_TICKET_NUMBER = 1;
@@ -86,20 +88,9 @@ public class ConnectionHandle{
 			return false;
 		}
 		ConnectionHandle other = (ConnectionHandle)obj;
-		if(clientName == null){
-			if(other.clientName != null){
-				return false;
-			}
-		}else if(!clientName.equals(other.clientName)){
-			return false;
-		}
-		if(handleNum != other.handleNum){
-			return false;
-		}
-		if(threadId != other.threadId){
-			return false;
-		}
-		return true;
+		return Objects.equals(clientName, other.clientName)
+				&& handleNum == other.handleNum
+				&& threadId == other.threadId;
 	}
 
 	public String getClientName(){

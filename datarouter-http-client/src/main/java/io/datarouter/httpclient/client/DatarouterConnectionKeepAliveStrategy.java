@@ -24,19 +24,19 @@ import org.apache.http.protocol.HttpContext;
 
 public class DatarouterConnectionKeepAliveStrategy implements ConnectionKeepAliveStrategy{
 
-	private final long fallbackIdleTime;
+	private final long fallbackIdleTimeMs;
 
 	public DatarouterConnectionKeepAliveStrategy(Duration fallbackIdleTime){
-		this.fallbackIdleTime = fallbackIdleTime.toMillis();
+		this.fallbackIdleTimeMs = fallbackIdleTime.toMillis();
 	}
 
 	@Override
 	public long getKeepAliveDuration(HttpResponse response, HttpContext context){
-		long duration = DefaultConnectionKeepAliveStrategy.INSTANCE.getKeepAliveDuration(response, context);
-		if(duration >= 0){
-			return duration;
+		long durationMs = DefaultConnectionKeepAliveStrategy.INSTANCE.getKeepAliveDuration(response, context);
+		if(durationMs >= 0){
+			return durationMs;
 		}
-		return fallbackIdleTime;
+		return fallbackIdleTimeMs;
 	}
 
 }

@@ -30,11 +30,12 @@ import io.datarouter.job.BaseTriggerGroup;
 import io.datarouter.job.TriggerGroupClasses;
 import io.datarouter.job.scheduler.JobPackage;
 import io.datarouter.job.scheduler.JobScheduler;
-import io.datarouter.job.storage.clusterjoblock.ClusterJobLockKey;
-import io.datarouter.job.storage.clusterjoblock.DatarouterClusterJobLockDao;
+import io.datarouter.job.storage.joblock.DatarouterJobLockDao;
+import io.datarouter.job.storage.joblock.JobLockKey;
 import io.datarouter.tasktracker.scheduler.LongRunningTaskStatus;
 import io.datarouter.tasktracker.service.LongRunningTaskService;
 import io.datarouter.tasktracker.storage.LongRunningTask;
+import io.datarouter.types.MilliTime;
 import io.datarouter.util.Count;
 import io.datarouter.util.Count.Counts;
 import jakarta.inject.Inject;
@@ -53,7 +54,7 @@ public class JobRetriggeringJob extends BaseJob{
 	@Inject
 	private LongRunningTaskService longRunningTaskService;
 	@Inject
-	private DatarouterClusterJobLockDao clusterJobLockDao;
+	private DatarouterJobLockDao clusterJobLockDao;
 
 	private final Counts counts = new Counts();
 
@@ -96,7 +97,7 @@ public class JobRetriggeringJob extends BaseJob{
 	}
 
 	private boolean isLocked(JobPackage jobPackage){
-		var key = new ClusterJobLockKey(jobPackage.jobClass.getSimpleName());
+		var key = new JobLockKey(jobPackage.jobClass.getSimpleName());
 		boolean isLocked = clusterJobLockDao.exists(key);
 		logger.debug("job={} isLocked={}", jobPackage.jobClass.getSimpleName(), isLocked);
 		return isLocked;
@@ -117,8 +118,8 @@ public class JobRetriggeringJob extends BaseJob{
 			tracker.increment();
 			return;
 		}
-		Optional<Instant> lastSuccessCompletionTime = longRunningTaskService.findLastSuccessInstant(
-				longRunningTaskName);
+		Optional<MilliTime> lastSuccessCompletionTime = longRunningTaskService.findLastSuccess(longRunningTaskName)
+				.map(MilliTime::of);
 		logger.debug("job={} lastSuccessCompletionTime={}", jobPackage.jobClass.getSimpleName(),
 				lastSuccessCompletionTime.orElse(null));
 		if(lastSuccessCompletionTime.isEmpty()){
@@ -126,8 +127,8 @@ public class JobRetriggeringJob extends BaseJob{
 		}
 		hasLastCompletionTime.increment();
 		//getNextValidTimeAfter should be present, because only non-manual jobs get scheduled
-		Instant testTriggerTime = jobPackage.getNextValidTimeAfter(lastSuccessCompletionTime.get()).get();
-		Instant now = Instant.now();
+		MilliTime testTriggerTime = jobPackage.getNextValidTimeAfter(lastSuccessCompletionTime.get()).get();
+		MilliTime now = MilliTime.now();
 		logger.debug("job={} nextTriggerTimeIsAfterNow={}", jobPackage.jobClass.getSimpleName(), testTriggerTime
 				.isAfter(now));
 		if(testTriggerTime.isAfter(now)){
@@ -135,7 +136,7 @@ public class JobRetriggeringJob extends BaseJob{
 		}
 
 		//advance to the latest trigger time before the current date
-		Instant triggerTime = testTriggerTime;
+		MilliTime triggerTime = testTriggerTime;
 		while(testTriggerTime.isBefore(now)){
 			testTriggerTime = jobPackage.getNextValidTimeAfter(testTriggerTime).get();
 			if(testTriggerTime.isBefore(now)){

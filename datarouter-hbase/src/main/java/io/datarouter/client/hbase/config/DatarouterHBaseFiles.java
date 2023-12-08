@@ -38,9 +38,6 @@ public class DatarouterHBaseFiles extends FilesRoot{
 
 	public static class HbaseFiles extends PathNode{
 		public final PathNode hbaseClientSummaryJsp = leaf("hbaseClientSummary.jsp");
-		public final PathNode hbaseServersJsp = leaf("hbaseServers.jsp");
-		public final PathNode hbaseTableRegionsJsp = leaf("hbaseTableRegions.jsp");
-		public final PathNode hbaseTableSettingsJsp = leaf("hbaseTableSettings.jsp");
 	}
 
 }

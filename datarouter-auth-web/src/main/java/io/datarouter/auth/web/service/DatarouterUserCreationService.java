@@ -16,7 +16,6 @@
 package io.datarouter.auth.web.service;
 
 import java.time.ZoneId;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -33,6 +32,7 @@ import io.datarouter.auth.storage.user.datarouteruser.DatarouterUser;
 import io.datarouter.auth.util.PasswordTool;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.properties.AdminEmail;
+import io.datarouter.types.MilliTime;
 import io.datarouter.util.number.RandomTool;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -101,8 +101,8 @@ public class DatarouterUserCreationService{
 		user.getKey().setId(type == CreateType.ADMIN ? ADMIN_ID : RandomTool.nextPositiveLong());
 		user.setUserToken(DatarouterTokenGenerator.generateRandomToken());
 
-		user.setCreated(new Date());
-		user.setLastLoggedIn(type == CreateType.ADMIN ? user.getCreatedInstant() : null);
+		user.setCreated(MilliTime.now());
+		user.setLastLoggedIn(type == CreateType.ADMIN ? user.getCreated() : null);
 
 		//AUTO users have no passwords. ADMIN and MANUAL users do have passwords.
 		user.setPasswordSalt(type == CreateType.AUTO ? null : PasswordTool.generateSalt());

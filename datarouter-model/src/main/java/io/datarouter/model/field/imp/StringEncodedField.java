@@ -79,7 +79,7 @@ public class StringEncodedField<T> extends BaseField<T>{
 
 	@Override
 	public int numKeyBytesWithSeparator(byte[] bytes, int offset){
-		return TerminatedStringCodec.UTF_8.decode(bytes, offset).length;
+		return TerminatedStringCodec.UTF_8.decode(bytes, offset).length();
 	}
 
 	@Override
@@ -90,7 +90,7 @@ public class StringEncodedField<T> extends BaseField<T>{
 
 	@Override
 	public T fromKeyBytesWithSeparatorButDoNotSet(byte[] bytes, int offset){
-		String stringValue = TerminatedStringCodec.UTF_8.decode(bytes, offset).value;
+		String stringValue = TerminatedStringCodec.UTF_8.decode(bytes, offset).value();
 		return key.getCodec().decode(stringValue);
 	}
 

@@ -15,28 +15,40 @@
  */
 package io.datarouter.client.hbase.client;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.hadoop.hbase.client.Connection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.datarouter.storage.client.ClientId;
 import jakarta.inject.Singleton;
 
 @Singleton
 public class HBaseConnectionHolder{
+	private static final Logger logger = LoggerFactory.getLogger(HBaseConnectionHolder.class);
 
-	private final Map<ClientId,Connection> connectionsByClientId = new ConcurrentHashMap<>();
+	private final Map<ClientId,Connection> connectionByClientId = new ConcurrentHashMap<>();
 
 	public void register(ClientId clientId, Connection connection){
-		if(connectionsByClientId.containsKey(clientId)){
+		if(connectionByClientId.containsKey(clientId)){
 			throw new RuntimeException(clientId + " already registered a connection");
 		}
-		connectionsByClientId.put(clientId, connection);
+		connectionByClientId.put(clientId, connection);
 	}
 
 	public Connection getConnection(ClientId clientId){
-		return connectionsByClientId.get(clientId);
+		return connectionByClientId.get(clientId);
+	}
+
+	public void closeConnection(ClientId clientId){
+		try{
+			connectionByClientId.get(clientId).close();
+		}catch(IOException e){
+			logger.warn("", e);
+		}
 	}
 
 }

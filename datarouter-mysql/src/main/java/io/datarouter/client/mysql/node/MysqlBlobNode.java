@@ -115,27 +115,42 @@ implements PhysicalBlobStorageNode{
 	}
 
 	@Override
-	public byte[] read(PathbeanKey key, Config config){
-		List<DatabaseBlob> beans = manager.getBlob(this.getFieldInfo(), List.of(key), this.getFieldInfo()
-				.getFieldColumnNames(), config);
-		return beans.isEmpty() ? null : beans.get(0).getData();
+	public Optional<byte[]> read(PathbeanKey key, Config config){
+		List<DatabaseBlob> beans = manager.getBlob(
+				getFieldInfo(),
+				List.of(key),
+				getFieldInfo().getFieldColumnNames(),
+				config);
+		return beans.isEmpty()
+				? Optional.empty()
+				: Optional.of(beans.get(0).getData());
 	}
 
 	@Override
-	public byte[] readPartial(PathbeanKey key, long offset, int length, Config config){
-		List<DatabaseBlob> beans = manager.getBlob(this.getFieldInfo(), List.of(key), this.getFieldInfo()
-				.getFieldColumnNames(), config);
+	public Optional<byte[]> readPartial(PathbeanKey key, long offset, int length, Config config){
+		List<DatabaseBlob> beans = manager.getBlob(
+				getFieldInfo(),
+				List.of(key),
+				getFieldInfo().getFieldColumnNames(),
+				config);
 		int from = (int)offset;
 		int to = from + length;
-		return beans.isEmpty() ? null : Arrays.copyOfRange(beans.get(0).getData(), from, to);
+		return beans.isEmpty()
+				? Optional.empty()
+				: Optional.of(Arrays.copyOfRange(beans.get(0).getData(), from, to));
 	}
 
 	@Override
 	public Map<PathbeanKey,byte[]> readMulti(List<PathbeanKey> keys, Config config){
-		List<DatabaseBlob> beans = manager.getBlob(this.getFieldInfo(), keys, this.getFieldInfo()
-				.getFieldColumnNames(), config);
+		List<DatabaseBlob> beans = manager.getBlob(
+				getFieldInfo(),
+				keys,
+				getFieldInfo().getFieldColumnNames(),
+				config);
 		return Scanner.of(beans)
-				.toMap(left -> PathbeanKey.of(left.getKey().getPathAndFile()), DatabaseBlob::getData);
+				.toMap(
+						left -> PathbeanKey.of(left.getKey().getPathAndFile()),
+						DatabaseBlob::getData);
 	}
 
 	@Override

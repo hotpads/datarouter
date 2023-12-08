@@ -34,28 +34,11 @@ public class ParallelScanner<T>{
 		this.allowUnorderedResults = allowUnorderedResults;
 	}
 
-	public <R> Scanner<R> concat(Function<? super T,Scanner<R>> mapper){
-		if(threads.useExec()){
-			return map(mapper)
-					.concat(Function.identity());
-		}
-		return input.concat(mapper);
-	}
-
 	public Scanner<T> each(Consumer<? super T> consumer){
 		if(threads.useExec()){
 			return map(new ScannerConsumerFunction<>(consumer));
 		}
 		return input.each(consumer);
-	}
-
-	public Scanner<T> exclude(Predicate<? super T> predicate){
-		if(threads.useExec()){
-			return map(new ScannerPredicateFunction<>(predicate))
-					.exclude(result -> result.passes)
-					.map(result -> result.item);
-		}
-		return input.exclude(predicate);
 	}
 
 	public void forEach(Consumer<? super T> consumer){

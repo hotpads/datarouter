@@ -93,7 +93,7 @@ public class Mav{
 			return null;
 		}
 		String queryParams = "";
-		if(shouldAppendModelQueryParams && model.size() > 0){
+		if(shouldAppendModelQueryParams && !model.isEmpty()){
 			try{
 				StringBuilder queryParamsBuilder = new StringBuilder("?");
 				for(Entry<String,Object> entry : model.entrySet()){

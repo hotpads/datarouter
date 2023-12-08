@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import io.datarouter.joblet.enums.JobletPriority;
 import io.datarouter.joblet.enums.JobletStatus;
@@ -40,6 +39,7 @@ import io.datarouter.model.field.imp.comparable.IntegerFieldKey;
 import io.datarouter.model.field.imp.comparable.LongField;
 import io.datarouter.model.field.imp.comparable.LongFieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
+import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.storage.queue.QueueMessageKey;
 import io.datarouter.util.DateTool;
 import io.datarouter.util.lang.ObjectTool;
@@ -155,7 +155,7 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 	public static List<JobletDataKey> getJobletDataKeys(List<JobletRequest> jobletRequests){
 		return jobletRequests.stream()
 				.map(JobletRequest::getJobletDataKey)
-				.collect(Collectors.toList());
+				.collect(WarnOnModifyList.deprecatedCollector());
 	}
 
 	public JobletDataKey getJobletDataKey(){

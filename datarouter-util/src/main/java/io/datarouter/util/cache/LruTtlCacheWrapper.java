@@ -31,6 +31,10 @@ public abstract class LruTtlCacheWrapper<K,V>{
 		return cache.put(key, value);
 	}
 
+	public void invalidate(){
+		cache.invalidate();
+	}
+
 	public boolean contains(K key){
 		return cache.contains(key);
 	}

@@ -71,8 +71,7 @@ public class ConveyorAppListener implements DatarouterAppListener{
 	@Override
 	public final void onShutDown(){
 		// explicitly shut those down before CountersAppListener onShutDown
-		PROCESSOR_BY_CONVEYOR_NAME.values().stream()
-				.forEach(ConveyorProcessor::requestShutdown);
+		PROCESSOR_BY_CONVEYOR_NAME.values().forEach(ConveyorProcessor::requestShutdown);
 	}
 
 	public Map<String,ConveyorProcessor> getProcessorByConveyorName(){

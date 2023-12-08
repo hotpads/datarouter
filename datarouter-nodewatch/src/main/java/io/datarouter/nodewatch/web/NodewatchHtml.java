@@ -33,9 +33,7 @@ import j2html.tags.specialized.DivTag;
 public class NodewatchHtml{
 
 	public static DivTag makeHeader(String titleSuffix, String subtitle){
-		var header = div(
-				makeTitle(titleSuffix, subtitle));
-		return header;
+		return div(makeTitle(titleSuffix, subtitle));
 	}
 
 	public static DivTag makeTitle(String titleSuffix, String subtitle){

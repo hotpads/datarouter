@@ -18,7 +18,6 @@ package io.datarouter.types;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Represents a Microsoft style String "quad" like 03112003 in a 64 bit long.
@@ -122,7 +121,7 @@ implements Comparable<Quad>{
 	}
 
 	private static long stringQuadToBits(String str){
-		if(str == null || str.length() == 0 || TOP_QUAD_STRING.equals(str)){
+		if(str == null || str.isEmpty() || TOP_QUAD_STRING.equals(str)){
 			return 0;
 		}
 		long workingBits;
@@ -152,10 +151,7 @@ implements Comparable<Quad>{
 	}
 
 	public boolean isRoot(){
-		if(getLevel() == 0){
-			return true;
-		}
-		return false;
+		return getLevel() == 0;
 	}
 
 	public Quad getAtLevel(int level){
@@ -229,11 +225,9 @@ implements Comparable<Quad>{
 	private long gridBitsAtLevel(int level){
 		int levelsDeeper = level - this.getLevel();
 		if(levelsDeeper > 0){
-			long shiftedGridBits = getGridBits() << 2 * levelsDeeper;
-			return shiftedGridBits;
+			return getGridBits() << 2 * levelsDeeper;
 		}else if(levelsDeeper < 0){
-			long shiftedGridBits = getGridBits() >>> -2 * levelsDeeper;
-			return shiftedGridBits;
+			return getGridBits() >>> -2 * levelsDeeper;
 		}else{
 			return getGridBits();
 		}
@@ -434,17 +428,15 @@ implements Comparable<Quad>{
 	public static List<Quad> fromMicrosoftStyleStrings(Collection<String> microsoftStrings){
 		return microsoftStrings.stream()
 				.map(Quad::new)
-				.collect(Collectors.toList());
+				.toList();
 	}
 
 	private static long setRightBits(int numSetBitsOnRight){
-		long builder = LONG_ALL_BITS;
-		return builder >>> (64 - numSetBitsOnRight);
+		return LONG_ALL_BITS >>> (64 - numSetBitsOnRight);
 	}
 
 	private static long setLeftBits(int numSetBitsOnLeft){
-		long builder = LONG_ALL_BITS;
-		return builder << (64 - numSetBitsOnLeft);
+		return LONG_ALL_BITS << (64 - numSetBitsOnLeft);
 	}
 
 	/*----------- Object -------------*/

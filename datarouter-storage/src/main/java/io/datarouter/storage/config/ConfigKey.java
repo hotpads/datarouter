@@ -32,10 +32,9 @@ public class ConfigKey<T extends ConfigValue<T>>{
 
 	@Override
 	public boolean equals(Object obj){
-		if(!(obj instanceof ConfigKey)){
+		if(!(obj instanceof ConfigKey<?> other)){
 			return false;
 		}
-		ConfigKey<?> other = (ConfigKey<?>)obj;
 		return Objects.equals(persistentString, other.persistentString);
 	}
 

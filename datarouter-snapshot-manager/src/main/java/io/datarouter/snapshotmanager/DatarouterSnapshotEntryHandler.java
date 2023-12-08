@@ -77,12 +77,11 @@ public class DatarouterSnapshotEntryHandler extends BaseHandler{
 						decoder.columnValueName(column),
 						decoded.columnValues().get(column)))
 				.forEach(rows::add);
-		var table = new J2HtmlTable<Row>()
+		return new J2HtmlTable<Row>()
 				.withClasses("sortable table table-sm table-striped my-4 border")
 				.withColumn("field", Row::header)
 				.withColumn("value", Row::content)
 				.build(rows);
-		return table;
 	}
 
 	private record Row(

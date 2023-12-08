@@ -33,34 +33,24 @@ public class W3TraceContextTests{
 		Assert.assertEquals(traceparent.traceId, "4bf92f3577b34da6a3ce929d0e0e4736");
 		Assert.assertEquals(traceparent.parentId, traceContext.getTracestate().getLastestTracestate()
 				.value());
-		Assert.assertNotEquals(traceContext.getTimestampMs().get(), UNIX_TIME_MILLIS);
+		Assert.assertNotEquals(traceContext.getTimestampMs(), UNIX_TIME_MILLIS);
 		Assert.assertEquals(traceContext.getTracestate().toString(), validTracestate);
 	}
 
 	@Test
-	public void inValidTraceContextTest(){
+	public void invalidTraceContextTest(){
 		String invalidTraceparent = "00-4bf92f3577b34da6a3ce-00000175e4110dbe-01";
 		String invalidTracestate = "datarouter=00000175e4110dbe,rojo=00f067aa0ba902b7,congo=t61rcWkgMzE";
-		String newTracestate = Tracestate.TRACESTATE_DR_KEY + "=" + Traceparent.createNewParentId();
+		String newTracestate = Tracestate.TRACESTATE_DR_KEY + "=" + TraceIdTool.newParentId();
 
 		W3TraceContext traceContext = new W3TraceContext(invalidTraceparent, invalidTracestate, UNIX_TIME_NANO);
 		Assert.assertNotEquals(traceContext.getTraceparent().traceId, "4bf92f3577b34da6a3ce");
 		Assert.assertEquals(traceContext.getTraceparent().parentId, traceContext.getTracestate().getLastestTracestate()
 				.value());
 		Assert.assertEquals(traceContext.getTraceparent().toString().length(), 55);
-		Assert.assertEquals(traceContext.getTimestampMs().get(), UNIX_TIME_MILLIS);
+		Assert.assertEquals(traceContext.getTimestampMs(), UNIX_TIME_MILLIS);
 		Assert.assertNotEquals(traceContext.getTracestate().toString(), invalidTracestate);
 		Assert.assertEquals(traceContext.getTracestate().toString().length(), newTracestate.length());
-	}
-
-	@Test
-	public void testTimestampInTraceId(){
-		var traceparent1 = Traceparent.generateNew(963078936000L * 1_000_000L); // 07/08/2000
-		Assert.assertTrue(traceparent1.getInstant().isEmpty());
-		var traceparent2 = new Traceparent("000000000000000007749e53da18e037");
-		Assert.assertTrue(traceparent2.getInstant().isEmpty());
-		var traceparent3 = Traceparent.generateNew(1657302936000L * 1_000_000L); // 07/08/2022
-		Assert.assertTrue(traceparent3.getInstant().isPresent());
 	}
 
 	@Test

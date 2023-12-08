@@ -18,7 +18,7 @@ package io.datarouter.job.vacuum;
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
 import io.datarouter.job.BaseTriggerGroup;
-import io.datarouter.job.lock.ClusterTriggerLockService;
+import io.datarouter.job.lock.TriggerLockService;
 import jakarta.inject.Inject;
 
 /**
@@ -27,12 +27,12 @@ import jakarta.inject.Inject;
 public class TriggerLockVacuumUnlockJob extends BaseJob{
 
 	@Inject
-	private ClusterTriggerLockService clusterTriggerLockService;
+	private TriggerLockService triggerLockService;
 
 	@Override
 	public void run(TaskTracker tracker){
-		String lockName = BaseTriggerGroup.lockName(ClusterJobLockVacuumJob.class);
-		clusterTriggerLockService.deleteJobLockIfExpired(lockName);
+		String lockName = BaseTriggerGroup.lockName(JobLockVacuumJob.class);
+		triggerLockService.deleteJobLockIfExpired(lockName);
 	}
 
 }

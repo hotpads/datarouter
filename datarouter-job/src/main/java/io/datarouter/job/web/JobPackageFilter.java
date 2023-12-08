@@ -45,10 +45,7 @@ public class JobPackageFilter{
 		if(hideEnabled && enabled){
 			return false;
 		}
-		if(hideDisabled && !enabled){
-			return false;
-		}
-		return true;
+		return !hideDisabled || enabled;
 	}
 
 	private static boolean matchesCategoryName(JobPackage jobPackage, String categoryName){

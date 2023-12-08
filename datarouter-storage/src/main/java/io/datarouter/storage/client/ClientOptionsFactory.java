@@ -25,7 +25,7 @@ import jakarta.inject.Singleton;
 
 public interface ClientOptionsFactory{
 
-	Properties getInternalConfigDirectoryTypeOptions(String internalConfigDirectoryTypeName);
+	Properties getInternalConfigDirectoryTypeOptions(String internalConfigDirectory);
 
 	default Properties mergeOptions(Properties... options){
 		var merged = new Properties();

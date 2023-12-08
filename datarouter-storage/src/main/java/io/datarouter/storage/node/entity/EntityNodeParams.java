@@ -19,7 +19,6 @@ import java.util.function.Supplier;
 
 import io.datarouter.model.entity.Entity;
 import io.datarouter.model.key.entity.EntityKey;
-import io.datarouter.model.key.entity.EntityPartitioner;
 
 public class EntityNodeParams<
 		EK extends EntityKey<EK>,
@@ -28,19 +27,16 @@ public class EntityNodeParams<
 	private final String nodeName;
 	private final Supplier<EK> entityKeySupplier;
 	private final Supplier<E> entitySupplier;
-	private final Supplier<EntityPartitioner<EK>> entityPartitionerSupplier;
 	private final String entityTableName;
 
 	public EntityNodeParams(
 			String nodeName,
 			Supplier<EK> entityKeySupplier,
 			Supplier<E> entitySupplier,
-			Supplier<EntityPartitioner<EK>> entityPartitionerSupplier,
 			String entityTableName){
 		this.nodeName = nodeName;
 		this.entityKeySupplier = entityKeySupplier;
 		this.entitySupplier = entitySupplier;
-		this.entityPartitionerSupplier = entityPartitionerSupplier;
 		this.entityTableName = entityTableName;
 	}
 
@@ -54,10 +50,6 @@ public class EntityNodeParams<
 
 	public Supplier<E> getEntitySupplier(){
 		return entitySupplier;
-	}
-
-	public Supplier<EntityPartitioner<EK>> getEntityPartitionerSupplier(){
-		return entityPartitionerSupplier;
 	}
 
 	public String getEntityTableName(){

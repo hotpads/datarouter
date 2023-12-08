@@ -16,7 +16,6 @@
 package io.datarouter.auth.storage.user.saml;
 
 import java.time.Duration;
-import java.time.Instant;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -27,12 +26,12 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.BaseDao;
-import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import io.datarouter.storage.tag.Tag;
-import io.datarouter.storage.util.DatabeanVacuum;
-import io.datarouter.storage.util.DatabeanVacuum.DatabeanVacuumBuilder;
+import io.datarouter.storage.vacuum.DatabeanVacuum;
+import io.datarouter.storage.vacuum.DatabeanVacuum.DatabeanVacuumBuilder;
+import io.datarouter.types.MilliTime;
 import io.datarouter.virtualnode.redundant.RedundantSortedMapStorageNode;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -41,15 +40,12 @@ import jakarta.inject.Singleton;
 public class DatarouterSamlDao extends BaseDao implements BaseDatarouterSamlDao{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterSamlDao.class);
 
-	public static class DatarouterSamlDaoParams extends BaseRedundantDaoParams{
-
-		public DatarouterSamlDaoParams(List<ClientId> clientIds){
-			super(clientIds);
-		}
-
+	public record DatarouterSamlDaoParams(List<ClientId> clientIds){
 	}
 
-	private final SortedMapStorageNode<SamlAuthnRequestRedirectUrlKey,SamlAuthnRequestRedirectUrl,
+	private final SortedMapStorageNode<
+			SamlAuthnRequestRedirectUrlKey,
+			SamlAuthnRequestRedirectUrl,
 			SamlAuthnRequestRedirectUrlFielder> node;
 
 	@Inject
@@ -81,11 +77,11 @@ public class DatarouterSamlDao extends BaseDao implements BaseDatarouterSamlDao{
 	}
 
 	public DatabeanVacuum<SamlAuthnRequestRedirectUrlKey,SamlAuthnRequestRedirectUrl> makeVacuum(){
-		Instant deleteBefore = Instant.now().minus(Duration.ofSeconds(5));
+		var deleteBefore = MilliTime.now().minus(Duration.ofSeconds(5));
 		return new DatabeanVacuumBuilder<>(
 				node.scan(),
 				databean -> {
-					boolean willDelete = databean.getCreated().toInstant().isBefore(deleteBefore);
+					boolean willDelete = databean.getCreated().isBefore(deleteBefore);
 					if(willDelete){
 						logger.warn(
 								"will delete old SamlAuthnRequestRedirectUrl authnRequestId={} created={} url={}",

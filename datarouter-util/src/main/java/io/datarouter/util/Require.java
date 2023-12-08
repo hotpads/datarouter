@@ -213,4 +213,12 @@ public class Require{
 		}
 	}
 
+	public static <T,C extends Collection<T>> C isEmpty(C items){
+		if(items == null || !items.isEmpty()){
+			String message = String.format("Expected empty but found %s", items);
+			throw new IllegalArgumentException(message);
+		}
+		return items;
+	}
+
 }

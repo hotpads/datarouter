@@ -156,10 +156,9 @@ public class FileSystemNode{
 		if(this == obj){
 			return true;
 		}
-		if(!(obj instanceof FileSystemNode)){
+		if(!(obj instanceof FileSystemNode other)){
 			return false;
 		}
-		FileSystemNode other = (FileSystemNode)obj;
 		return isFile == other.isFile && Objects.equals(toSlashedString(), other.toSlashedString());
 	}
 

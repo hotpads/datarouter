@@ -58,7 +58,8 @@ public class DatarouterAuthTriggerGroup extends BaseTriggerGroup{
 				settings.runPermissionRequestVacuumJob,
 				DatarouterPermissionRequestVacuumJob.class,
 				true);
-		registerLocked("0 0 2 ? * *",
+		registerLocked(
+				"0 0 2 ? * *",
 				settings.runDeletedRoleCleanupJob,
 				DeletedRoleCleanupJob.class,
 				true);

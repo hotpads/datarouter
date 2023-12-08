@@ -28,7 +28,7 @@ public class BaseRouteSetTests{
 
 	public static final String ANON_PATH = "/anon";
 
-	public static final <T extends RoleEnum<T>> String getPathForRole(RoleEnum<T> role){
+	public static <T extends RoleEnum<T>> String getPathForRole(RoleEnum<T> role){
 		return "/" + role.getPersistentString();
 	}
 
@@ -71,6 +71,17 @@ public class BaseRouteSetTests{
 		Assert.assertFalse(oneDirectoryPattern.matcher("//abcd").matches());
 		Assert.assertFalse(oneDirectoryPattern.matcher("/abcd/").matches());
 		Assert.assertFalse(oneDirectoryPattern.matcher("/abc/efg").matches());
+
+		Pattern childPathsAndQueryParams = Pattern.compile(prefix + BaseRouteSet.MATCHING_CHILD_PATHS_AND_QUERY_PARAMS);
+		Assert.assertTrue(childPathsAndQueryParams.matcher(prefix).matches());
+		Assert.assertTrue(childPathsAndQueryParams.matcher(prefix + "/").matches());
+		Assert.assertTrue(childPathsAndQueryParams.matcher(prefix + "/sub-path/sub_sub_path").matches());
+		Assert.assertTrue(childPathsAndQueryParams.matcher(prefix + "?queryParam=value").matches());
+
+		Assert.assertFalse(childPathsAndQueryParams.matcher(prefix + prefix).matches());
+		Assert.assertFalse(childPathsAndQueryParams.matcher(prefix + "a/").matches());
+		Assert.assertFalse(childPathsAndQueryParams.matcher("").matches());
+		Assert.assertFalse(childPathsAndQueryParams.matcher("/abc/efg").matches());
 	}
 
 }

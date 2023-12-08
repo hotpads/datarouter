@@ -22,6 +22,7 @@ import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import io.datarouter.bytes.LengthAndValue;
 import io.datarouter.scanner.Scanner;
 
 public class TerminatedStringCodecTests{
@@ -40,7 +41,7 @@ public class TerminatedStringCodecTests{
 	@Test
 	public void testDecode(){
 		byte[] expectedBytes = {'a', 1, 2, 1, 3, 'b', 0};
-		String actualString = CODEC.decode(expectedBytes).value;
+		String actualString = CODEC.decode(expectedBytes).value();
 		String expectedString = new String(new byte[]{'a', 0, 1, 'b'});
 		Assert.assertEquals(actualString, expectedString);
 	}
@@ -76,7 +77,7 @@ public class TerminatedStringCodecTests{
 				.list();
 		List<String> outputStrings = Scanner.of(outputBytes)
 				.map(CODEC::decode)
-				.map(lengthAndValue -> lengthAndValue.value)
+				.map(LengthAndValue::value)
 				.list();
 		List<String> expectedOutputStrings = List.of(string0, string1, string2, string3);
 		Assert.assertEquals(outputStrings, expectedOutputStrings);

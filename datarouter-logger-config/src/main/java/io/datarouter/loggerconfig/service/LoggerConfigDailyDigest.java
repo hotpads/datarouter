@@ -30,7 +30,6 @@ import io.datarouter.types.MilliTime;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
 import io.datarouter.web.digest.DailyDigestService;
-import io.datarouter.web.html.j2html.J2HtmlTable;
 import j2html.tags.specialized.DivTag;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -46,27 +45,9 @@ public class LoggerConfigDailyDigest implements DailyDigest{
 	private DatarouterLoggingConfigPaths paths;
 
 	@Override
-	public Optional<DivTag> getPageContent(ZoneId zoneId){
-		List<LoggerConfig> loggers = getTodaysLoggers(zoneId);
-		if(loggers.size() == 0){
-			return Optional.empty();
-		}
-		var header = digestService.makeHeader("Logger Configs", paths.datarouter.logging);
-		var description = small("Updated Today");
-		var table = new J2HtmlTable<LoggerConfig>()
-				.withClasses("sortable table table-sm table-striped my-4 border")
-				.withColumn("Name", row -> row.getKey().getName())
-				.withColumn("Level", row -> row.getLevel().getPersistentString())
-				.withColumn("User", LoggerConfig::getEmail)
-				.withColumn("Updated", row -> row.getLastUpdated().format(zoneId))
-				.build(loggers);
-		return Optional.of(div(header, description, table));
-	}
-
-	@Override
 	public Optional<DivTag> getEmailContent(ZoneId zoneId){
 		List<LoggerConfig> loggers = getTodaysLoggers(zoneId);
-		if(loggers.size() == 0){
+		if(loggers.isEmpty()){
 			return Optional.empty();
 		}
 		var header = digestService.makeHeader("Logger Configs", paths.datarouter.logging);

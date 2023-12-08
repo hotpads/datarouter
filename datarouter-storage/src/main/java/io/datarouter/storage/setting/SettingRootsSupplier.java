@@ -18,9 +18,9 @@ package io.datarouter.storage.setting;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import io.datarouter.plugin.PluginInjector;
+import io.datarouter.scanner.WarnOnModifyList;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
@@ -34,7 +34,7 @@ public class SettingRootsSupplier implements Supplier<List<SettingRoot>>{
 	public List<SettingRoot> get(){
 		return pluginInjector.getInstances(SettingRoot.KEY).stream()
 				.filter(Objects::nonNull) // TODO remove null filtering
-				.collect(Collectors.toList());
+				.collect(WarnOnModifyList.deprecatedCollector());
 	}
 
 }

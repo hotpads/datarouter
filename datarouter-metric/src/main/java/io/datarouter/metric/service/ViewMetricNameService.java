@@ -49,7 +49,7 @@ public class ViewMetricNameService{
 	private MiscMetricsLinksRegistry miscMetricLinksRegistry;
 
 	public DivTag makeMetricNameTable(String header, List<MetricName> rows){
-		if(rows.size() == 0){
+		if(rows.isEmpty()){
 			return div();
 		}
 		var h2 = h2(header);
@@ -78,7 +78,7 @@ public class ViewMetricNameService{
 
 	public DivTag getDashboardsTable(){
 		var dashboards = dashboardRegistry.dashboards;
-		if(dashboards.size() == 0){
+		if(dashboards.isEmpty()){
 			return div();
 		}
 		var h2 = h2("Metric Dashboards");
@@ -102,7 +102,7 @@ public class ViewMetricNameService{
 
 	public DivTag miscMetricLinksTable(){
 		var links = miscMetricLinksRegistry.miscMetricLinks;
-		if(links.size() == 0){
+		if(links.isEmpty()){
 			return div();
 		}
 		var h2 = h2("Misc Metric Links");
@@ -110,12 +110,12 @@ public class ViewMetricNameService{
 		var table = new J2HtmlTable<MiscMetricLinksDto>()
 				.withClasses("table table-sm table-striped my-4 border")
 				.withHtmlColumn(th("Metric Name").withClass("w-50"), row -> td(row.display))
-				.withHtmlColumn(th("").withClass("w-25"), row -> {
-					return td(a(i().withClass("fa fa-link"))
-							.withClass("btn btn-link w-100 py-0")
-							.withHref(row.link)
-							.withTarget("_blank"));
-				})
+				.withHtmlColumn(
+						th("").withClass("w-25"),
+						row -> td(a(i().withClass("fa fa-link"))
+								.withClass("btn btn-link w-100 py-0")
+								.withHref(row.link)
+								.withTarget("_blank")))
 				.build(links);
 		return div(h2, table)
 				.withClass("container my-4");

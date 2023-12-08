@@ -33,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.scanner.Scanner;
+import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.string.StringTool;
@@ -130,7 +131,7 @@ public class WebSocketToolHandler extends BaseHandler{
 				.entrySet().stream()
 				.sorted(Comparator.comparing(Entry::getKey))
 				.map(entry -> new TopicAndCount(entry.getKey(), entry.getValue()))
-				.collect(Collectors.toList());
+				.collect(WarnOnModifyList.deprecatedCollector());
 		TopicAndCount total = new TopicAndCount("Total", rows.stream()
 				.map(TopicAndCount::count)
 				.reduce(0L, Long::sum));
@@ -194,7 +195,7 @@ public class WebSocketToolHandler extends BaseHandler{
 		WebSocketSessionJspDto(WebSocketSession webSocketSession){
 			this.userToken = webSocketSession.getKey().getUserToken();
 			this.id = webSocketSession.getKey().getId();
-			this.openingDate = webSocketSession.getOpeningDate();
+			this.openingDate = webSocketSession.getOpeningDate().toDate();
 			this.serverName = webSocketSession.getServerName();
 		}
 

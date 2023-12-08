@@ -23,7 +23,8 @@ import org.testng.annotations.Test;
 import io.datarouter.bytes.Codec;
 import io.datarouter.bytes.codec.intcodec.ComparableIntCodec;
 import io.datarouter.bytes.codec.stringcodec.StringCodec;
-import io.datarouter.bytes.kvfile.codec.KvFileBlockCodec;
+import io.datarouter.bytes.kvfile.block.KvFileBlockCodec;
+import io.datarouter.bytes.kvfile.blockformat.KvFileStandardBlockFormats;
 import io.datarouter.bytes.kvfile.kv.KvFileEntry;
 import io.datarouter.bytes.kvfile.kv.KvFileOp;
 
@@ -47,7 +48,8 @@ public class KvFileSerializerTests{
 						ComparableIntCodec.INSTANCE.decode(binaryKv.copyOfVersion()),
 						binaryKv.op(),
 						STRING_CODEC.decode(binaryKv.copyOfValue())));
-		static final Codec<List<TestKv>,byte[]> BLOCKFILE_CODEC = new KvFileBlockCodec<>(KV_CODEC);
+		static final KvFileBlockCodec<TestKv> BLOCKFILE_CODEC = KvFileStandardBlockFormats.SEQUENTIAL
+				.newBlockCodec(KV_CODEC);
 	}
 
 
@@ -80,14 +82,14 @@ public class KvFileSerializerTests{
 
 	@Test
 	private void testWrite(){
-		byte[] bytes = TestKv.BLOCKFILE_CODEC.encode(KVS);
+		byte[] bytes = TestKv.BLOCKFILE_CODEC.encodeAll(KVS);
 		Assert.assertEquals(bytes.length, TOTAL_BLOCK_LENGTH);
 	}
 
 	@Test
 	private void testRead(){
-		byte[] bytes = TestKv.BLOCKFILE_CODEC.encode(KVS);
-		List<TestKv> actual = TestKv.BLOCKFILE_CODEC.decode(bytes);
+		byte[] bytes = TestKv.BLOCKFILE_CODEC.encodeAll(KVS);
+		List<TestKv> actual = TestKv.BLOCKFILE_CODEC.decodeAll(bytes);
 		Assert.assertEquals(actual, KVS);
 	}
 

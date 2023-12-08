@@ -16,8 +16,7 @@
 package io.datarouter.tasktracker.storage;
 
 import java.time.Duration;
-import java.time.Instant;
-import java.util.Date;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -25,14 +24,15 @@ import java.util.function.Supplier;
 import io.datarouter.instrumentation.task.TaskTrackerDto;
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
+import io.datarouter.model.field.codec.MilliTimeFieldCodec;
 import io.datarouter.model.field.codec.StringMappedEnumFieldCodec;
-import io.datarouter.model.field.imp.DateField;
-import io.datarouter.model.field.imp.DateFieldKey;
 import io.datarouter.model.field.imp.StringEncodedField;
 import io.datarouter.model.field.imp.StringEncodedFieldKey;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
 import io.datarouter.model.field.imp.comparable.BooleanFieldKey;
+import io.datarouter.model.field.imp.comparable.LongEncodedField;
+import io.datarouter.model.field.imp.comparable.LongEncodedFieldKey;
 import io.datarouter.model.field.imp.comparable.LongField;
 import io.datarouter.model.field.imp.comparable.LongFieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
@@ -40,8 +40,8 @@ import io.datarouter.model.util.CommonFieldSizes;
 import io.datarouter.tasktracker.scheduler.LongRunningTaskStatus;
 import io.datarouter.tasktracker.scheduler.LongRunningTaskType;
 import io.datarouter.tasktracker.service.LongRunningTaskInfo;
+import io.datarouter.types.MilliTime;
 import io.datarouter.util.ComparableTool;
-import io.datarouter.util.DateTool;
 import io.datarouter.util.time.DurationTool;
 
 public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunningTask>{
@@ -50,9 +50,9 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 	public static final Duration HEARTBEAT_STATUS_STALLED = Duration.ofSeconds(10);
 
 	private LongRunningTaskType type;
-	private Date startTime;
-	private Date finishTime;
-	private Date heartbeatTime;
+	private MilliTime start;
+	private MilliTime finish;
+	private MilliTime heartbeat;
 	private LongRunningTaskStatus jobExecutionStatus;
 	private String triggeredBy;
 	private Long numItemsProcessed;
@@ -63,13 +63,16 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 		public static final StringEncodedFieldKey<LongRunningTaskType> type = new StringEncodedFieldKey<>(
 				"type",
 				new StringMappedEnumFieldCodec<>(LongRunningTaskType.BY_PERSISTENT_STRING));
-		@SuppressWarnings("deprecation")
-		public static final DateFieldKey startTime = new DateFieldKey("startTime");
+		public static final LongEncodedFieldKey<MilliTime> start = new LongEncodedFieldKey<>(
+				"start",
+				new MilliTimeFieldCodec());
 		public static final BooleanFieldKey interrupt = new BooleanFieldKey("interrupt");
-		@SuppressWarnings("deprecation")
-		public static final DateFieldKey finishTime = new DateFieldKey("finishTime");
-		@SuppressWarnings("deprecation")
-		public static final DateFieldKey heartbeatTime = new DateFieldKey("heartbeatTime");
+		public static final LongEncodedFieldKey<MilliTime> finish = new LongEncodedFieldKey<>(
+				"finish",
+				new MilliTimeFieldCodec());
+		public static final LongEncodedFieldKey<MilliTime> heartbeat = new LongEncodedFieldKey<>(
+				"heartbeat",
+				new MilliTimeFieldCodec());
 		public static final StringEncodedFieldKey<LongRunningTaskStatus> longRunningTaskStatus
 				= new StringEncodedFieldKey<>(
 				"jobExecutionStatus",
@@ -87,14 +90,13 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 			super(LongRunningTaskKey::new);
 		}
 
-		@SuppressWarnings("deprecation")
 		@Override
 		public List<Field<?>> getNonKeyFields(LongRunningTask databean){
 			return List.of(
 					new StringEncodedField<>(FieldKeys.type, databean.type),
-					new DateField(FieldKeys.startTime, databean.startTime),
-					new DateField(FieldKeys.finishTime, databean.finishTime),
-					new DateField(FieldKeys.heartbeatTime, databean.heartbeatTime),
+					new LongEncodedField<>(FieldKeys.start, databean.start),
+					new LongEncodedField<>(FieldKeys.finish, databean.finish),
+					new LongEncodedField<>(FieldKeys.heartbeat, databean.heartbeat),
 					new StringEncodedField<>(FieldKeys.longRunningTaskStatus, databean.jobExecutionStatus),
 					new StringField(FieldKeys.triggeredBy, databean.triggeredBy),
 					new LongField(FieldKeys.numItemsProcessed, databean.numItemsProcessed),
@@ -108,14 +110,20 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 	}
 
 	public LongRunningTask(LongRunningTaskInfo task){
-		super(new LongRunningTaskKey(task.name, task.triggerTime, task.serverName));
+		super(new LongRunningTaskKey(task.name, MilliTime.ofEpochMilli(task.triggerTimeMs), task.serverName));
 		this.type = task.type;
-		this.startTime = task.startTime;
-		this.finishTime = task.finishTime;
-		this.heartbeatTime = task.heartbeatTime;
+		this.start = Optional.ofNullable(task.startTimeMs)
+				.map(MilliTime::ofEpochMilli)
+				.orElse(null);
+		this.finish = Optional.ofNullable(task.finishTimeMs)
+				.map(MilliTime::ofEpochMilli)
+				.orElse(null);
+		this.heartbeat = Optional.ofNullable(task.heartbeatTimeMs)
+				.map(MilliTime::ofEpochMilli)
+				.orElse(null);
 		this.jobExecutionStatus = task.longRunningTaskStatus;
 		this.triggeredBy = task.triggeredBy;
-		this.numItemsProcessed = task.numItemsProcessed;
+		this.numItemsProcessed = task.numItemsProcessed.get();
 		this.lastItemProcessed = task.lastItemProcessed;
 		this.exceptionRecordId = task.exceptionRecordId;
 	}
@@ -126,18 +134,21 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 	}
 
 	public Duration getDuration(){
-		Instant from = startTime != null ? startTime.toInstant() : getKey().getTriggerTime().toInstant();
-		Instant to;
-		if(finishTime != null){
-			to = finishTime.toInstant();
+		MilliTime from = start != null
+				? start
+				: getKey().getTriggerTime();
+		MilliTime to;
+		if(finish != null){
+			to = finish;
 		}else if(jobExecutionStatus == LongRunningTaskStatus.RUNNING){
-			to = Instant.now();
-		}else if(heartbeatTime != null){
-			to = heartbeatTime.toInstant();
+			to = MilliTime.now();
+		}else if(heartbeat != null){
+			to = heartbeat;
 		}else{
 			return null;
 		}
-		return Duration.between(from, to);
+		long differenceMs = to.minus(from).toEpochMilli();
+		return Duration.ofMillis(differenceMs);
 	}
 
 	public String getDurationString(){
@@ -148,18 +159,18 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 		return DurationTool.toString(duration);
 	}
 
-	public String getLastHeartbeatString(){
-		if(heartbeatTime == null){
+	public String getLastHeartbeatString(ZoneId zoneId){
+		if(heartbeat == null){
 			return "";
 		}
-		return DateTool.getAgoString(heartbeatTime.toInstant());
+		return heartbeat.format(zoneId);
 	}
 
-	public String getFinishTimeString(){
-		if(finishTime == null){
+	public String getFinishTimeString(ZoneId zoneId){
+		if(finish == null){
 			return "";
 		}
-		return DateTool.getAgoString(finishTime.toInstant());
+		return finish.format(zoneId);
 	}
 
 	public boolean isRunning(){
@@ -175,10 +186,10 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 	}
 
 	public LongRunningTaskHeartBeatStatus getHeartbeatStatus(){
-		if(heartbeatTime == null || !isRunning()){
+		if(heartbeat == null || !isRunning()){
 			return null;
 		}
-		Duration elapsed = DurationTool.sinceDate(heartbeatTime);
+		Duration elapsed = DurationTool.sinceDate(heartbeat.toDate());
 		if(ComparableTool.gt(elapsed, HEARTBEAT_STATUS_STALLED)){
 			return LongRunningTaskHeartBeatStatus.STALLED;
 		}else if(ComparableTool.gt(elapsed, HEARTBEAT_STATUS_WARNING)){
@@ -188,32 +199,32 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 		}
 	}
 
-	public Date getStartTime(){
-		return startTime;
+	public MilliTime getStart(){
+		return start;
 	}
 
-	public void setStartTime(Date startTime){
-		this.startTime = startTime;
+	public Optional<MilliTime> findStart(){
+		return Optional.ofNullable(start);
 	}
 
-	public Date getFinishTime(){
-		return finishTime;
+	public void setStartTime(MilliTime start){
+		this.start = start;
 	}
 
-	public Instant getFinishTimeInstant(){
-		return finishTime == null ? null : finishTime.toInstant();
+	public MilliTime getFinish(){
+		return finish;
 	}
 
-	public void setFinishTime(Date finishTime){
-		this.finishTime = finishTime;
+	public void setFinishTime(MilliTime finish){
+		this.finish = finish;
 	}
 
-	public Date getHeartbeatTime(){
-		return heartbeatTime;
+	public MilliTime getHeartbeat(){
+		return heartbeat;
 	}
 
-	public void setHeartbeatTime(Date heartbeatTime){
-		this.heartbeatTime = heartbeatTime;
+	public void setHeartbeatTime(MilliTime heartbeat){
+		this.heartbeat = heartbeat;
 	}
 
 	public LongRunningTaskStatus getJobExecutionStatus(){
@@ -256,14 +267,14 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 		return new TaskTrackerDto(
 				getKey().toDto(),
 				type.persistentString,
-				Optional.ofNullable(startTime)
-						.map(Date::toInstant)
+				Optional.ofNullable(start)
+						.map(MilliTime::toInstant)
 						.orElse(null),
-				Optional.ofNullable(finishTime)
-						.map(Date::toInstant)
+				Optional.ofNullable(finish)
+						.map(MilliTime::toInstant)
 						.orElse(null),
-				Optional.ofNullable(heartbeatTime)
-						.map(Date::toInstant)
+				Optional.ofNullable(heartbeat)
+						.map(MilliTime::toInstant)
 						.orElse(null),
 				jobExecutionStatus.persistentString,
 				triggeredBy,

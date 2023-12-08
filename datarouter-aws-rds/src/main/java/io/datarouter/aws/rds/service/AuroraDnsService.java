@@ -124,7 +124,6 @@ public class AuroraDnsService{
 		String clusterHostname = null;
 		String instanceEndPointSuffix = rdsSettings.rdsInstanceHostnameSuffixEast.get();
 		String region = rdsSettings.eastRegion.get();
-		boolean writer = isWriter;
 		boolean isAuroraInstance = false;
 		String cmd = "dig +short " + hostname;
 		Process process = Runtime.getRuntime().exec(cmd);
@@ -155,14 +154,14 @@ public class AuroraDnsService{
 		int exitValue = process.exitValue();
 		if(exitValue > 0){
 			logger.warn("clientUrl= {} clusterHostname={} writer={} instanceHostname={} ip={} standard={} error={} "
-					+ "exitValue={}", hostname, clusterHostname, writer, instanceHostname, ip, standardOutput,
+					+ "exitValue={}", hostname, clusterHostname, isWriter, instanceHostname, ip, standardOutput,
 					errorOutput, exitValue);
 		}
 		return new DnsHostEntryDto(
 				clientName,
 				hostname,
 				clusterHostname,
-				writer,
+				isWriter,
 				instanceHostname,
 				ip,
 				clusterName,
@@ -345,10 +344,7 @@ public class AuroraDnsService{
 		}
 
 		public boolean isOther(){
-			if(clientName.endsWith(OTHER)){
-				return true;
-			}
-			return false;
+			return clientName.endsWith(OTHER);
 		}
 
 		public boolean isWriter(){

@@ -24,6 +24,8 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.JsonSyntaxException;
+
 import io.datarouter.httpclient.endpoint.param.RequestBody;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDtoBuilder;
@@ -224,6 +226,15 @@ public class SecretHandler extends BaseHandler{
 			default:
 				return SecretHandlerOpResultDto.error("Unknown op.");
 			}
+		}catch(JsonSyntaxException e){
+			String errorMessage = String.format(
+					"Failed SecretHandler operation due to JsonSyntaxException for secretName=%s, operation=%s, "
+					+ "decodedClassType=%s",
+					requestDto.name,
+					requestDto.op.getPersistentString(),
+					requestDto.secretClass);
+			logger.warn(errorMessage);
+			return SecretHandlerOpResultDto.error(errorMessage);
 		}catch(RuntimeException e){
 			logger.warn("Failed SecretHandler operation: ", e);
 			return SecretHandlerOpResultDto.error(e.getMessage());

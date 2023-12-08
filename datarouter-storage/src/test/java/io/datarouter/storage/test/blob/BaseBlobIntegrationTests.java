@@ -79,7 +79,7 @@ public abstract class BaseBlobIntegrationTests{
 	public void testDelete(){
 		dao.write(DELETE_KEY, CONTENT);
 		dao.delete(DELETE_KEY);
-		Assert.assertEquals(false, dao.exists(DELETE_KEY));
+		Assert.assertFalse(dao.exists(DELETE_KEY));
 	}
 
 	@Test

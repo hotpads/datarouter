@@ -93,12 +93,8 @@ public class ComparableShortCodecTests{
 		for(; shortValue < Short.MAX_VALUE; shortValue += 1){
 			byte[] bytes = CODEC.encode(shortValue);
 			short roundTripped = CODEC.decode(bytes);
-			try{
-				Assert.assertTrue(Arrays.compareUnsigned(lastBytes, bytes) < 0);
-				Assert.assertEquals(roundTripped, shortValue);
-			}catch(AssertionError e){
-				throw e;
-			}
+			Assert.assertTrue(Arrays.compareUnsigned(lastBytes, bytes) < 0);
+			Assert.assertEquals(roundTripped, shortValue);
 			lastBytes = bytes;
 			++counter;
 		}

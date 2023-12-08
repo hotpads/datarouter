@@ -18,7 +18,6 @@ package io.datarouter.nodewatch.joblet;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -41,6 +40,7 @@ import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.op.raw.read.SortedStorageReader;
 import io.datarouter.storage.node.op.raw.read.SortedStorageReader.PhysicalSortedStorageReaderNode;
 import io.datarouter.storage.node.tableconfig.ClientTableEntityPrefixNameWrapper;
+import io.datarouter.types.MilliTime;
 import io.datarouter.util.DateTool;
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.number.RandomTool;
@@ -129,7 +129,7 @@ public class TableSpanSamplerJobletCreator<
 		//TODO check if first sample was considered or merged
 		logSummary();
 		timer.add("scan");
-		if(jobletPackages.size() > 0 && submitJoblets){
+		if(!jobletPackages.isEmpty() && submitJoblets){
 			jobletService.submitJobletPackages(jobletPackages);
 		}
 		timer.add("submitJoblets");
@@ -147,8 +147,8 @@ public class TableSpanSamplerJobletCreator<
 		if(optPk.isPresent()){
 			// insert dummy sample to prevent future runs from creating duplicate joblets
 			long samplerId = RandomTool.nextPositiveLong();
-			var sample = new TableSample(nodeNames, optPk.get().getFields(), 1L, new Date(), 1L, false, true);
-			sample.setScheduleFields(samplerId, new Date());
+			var sample = new TableSample(nodeNames, optPk.get().getFields(), 1L, MilliTime.now(), 1L, false, true);
+			sample.setScheduleFields(samplerId, MilliTime.now());
 			tableSampleDao.put(sample);
 			jobletPackages.add(createJobletPackage(JobletPriority.DEFAULT, null, sample, samplerId, true));
 		}else{
@@ -193,7 +193,7 @@ public class TableSpanSamplerJobletCreator<
 			//TODO clearing violates the return value that integration tests are expecting
 			jobletPackages.clear();
 		}
-		end.setScheduleFields(samplerId, new Date());
+		end.setScheduleFields(samplerId, MilliTime.now());
 		tableSampleDao.put(end);
 	}
 
@@ -271,12 +271,12 @@ public class TableSpanSamplerJobletCreator<
 		if(!isLastSample){
 			return false;
 		}
-		long msSinceLastSampling = System.currentTimeMillis() - sample.getDateUpdated().getTime();
+		long msSinceLastSampling = MilliTime.now().minus(sample.getDateUpdated()).toEpochMilli();
 		return msSinceLastSampling > AGGRESSIVE_RESAMPLE_WAIT.toMillis();
 	}
 
 	private boolean alreadyCountedThisPeriod(TableSample sample){
-		return sample.getDateUpdated().getTime() > periodStartMs;
+		return sample.getDateUpdated().toEpochMilli() > periodStartMs;
 	}
 
 	private boolean haveReachedThisPeriodsTimeSlice(TableSample sample){

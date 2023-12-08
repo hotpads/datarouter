@@ -88,10 +88,7 @@ public class LinkTool{
 			return Optional.of(value.toString());
 		}
 		Optional<?> optionalValue = (Optional<?>)value;
-		if(optionalValue.isPresent()){
-			return Optional.of(optionalValue.get().toString());
-		}
-		return Optional.empty();
+		return optionalValue.map(Object::toString);
 	}
 
 	public static boolean paramIsLinkObject(Method method){

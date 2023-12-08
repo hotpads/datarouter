@@ -20,7 +20,7 @@ import java.util.Optional;
 import io.datarouter.instrumentation.exception.TaskExecutorRecordDto;
 
 public record ConveyorTraceAndTaskExecutorBundleDto(
-		Trace2BundleDto traceBundleDto,
+		TraceBundleDto traceBundleDto,
 		Optional<TaskExecutorRecordDto> taskExecutorRecord){
 
 }

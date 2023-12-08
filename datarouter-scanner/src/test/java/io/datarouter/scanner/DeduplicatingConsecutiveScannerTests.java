@@ -137,10 +137,9 @@ public class DeduplicatingConsecutiveScannerTests{
 
 		@Override
 		public boolean equals(Object other){
-			if(!(other instanceof Person)){
+			if(!(other instanceof Person otherPerson)){
 				return false;
 			}
-			Person otherPerson = (Person)other;
 			return Objects.equals(firstName, otherPerson.firstName)
 					&& Objects.equals(age, otherPerson.age);
 		}

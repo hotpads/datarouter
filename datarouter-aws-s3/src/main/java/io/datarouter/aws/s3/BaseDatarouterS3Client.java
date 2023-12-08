@@ -231,13 +231,13 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 	}
 
 	@Override
-	public byte[] getObjectAsBytes(BucketAndKey location){
-		return objectRequests.getObjectAsBytes(location);
+	public Optional<byte[]> findObject(BucketAndKey location){
+		return objectRequests.findObject(location);
 	}
 
 	@Override
-	public byte[] getPartialObject(BucketAndKey location, long offset, int length){
-		return objectRequests.getPartialObject(location, offset, length);
+	public Optional<byte[]> findPartialObject(BucketAndKey location, long offset, int length){
+		return objectRequests.findPartialObject(location, offset, length);
 	}
 
 	/*---------- object write ---------*/

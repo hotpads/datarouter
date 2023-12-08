@@ -47,10 +47,9 @@ public interface SettingCategory extends Displayable{
 			if(this == other){
 				return true;
 			}
-			if(!(other instanceof SimpleSettingCategory)){
+			if(!(other instanceof SimpleSettingCategory that)){
 				return false;
 			}
-			SimpleSettingCategory that = (SimpleSettingCategory) other;
 			return this.getDisplay().equals(that.getDisplay());
 		}
 

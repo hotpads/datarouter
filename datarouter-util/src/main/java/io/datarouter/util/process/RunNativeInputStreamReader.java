@@ -67,10 +67,7 @@ public class RunNativeInputStreamReader{
 							return true;
 						}
 					}
-					if(sb.length() > 0){
-						return true;
-					}
-					return false;
+					return !sb.isEmpty();
 				}catch(IOException e){
 					throw new UncheckedIOException(e);
 				}

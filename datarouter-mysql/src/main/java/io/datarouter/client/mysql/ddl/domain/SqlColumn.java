@@ -72,10 +72,9 @@ public class SqlColumn{
 		if(otherObject == this){
 			return true;
 		}
-		if(!(otherObject instanceof SqlColumn)){
+		if(!(otherObject instanceof SqlColumn other)){
 			return false;
 		}
-		SqlColumn other = (SqlColumn)otherObject;
 		return Objects.equals(name, other.name)
 				&& Objects.equals(type, other.type)
 				&& Objects.equals(maxLength, other.maxLength)

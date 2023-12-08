@@ -56,7 +56,7 @@ public class PrefixedStringCodec{
 	}
 
 	public String decode(byte[] bytes, int offset){
-		return decodeWithLength(bytes, offset).value;
+		return decodeWithLength(bytes, offset).value();
 	}
 
 	public LengthAndValue<String> decodeWithLength(byte[] bytes, int offset){

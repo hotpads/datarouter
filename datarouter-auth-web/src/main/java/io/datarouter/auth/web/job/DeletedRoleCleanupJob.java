@@ -15,7 +15,6 @@
  */
 package io.datarouter.auth.web.job;
 
-import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -24,9 +23,9 @@ import io.datarouter.auth.role.Role;
 import io.datarouter.auth.role.RoleManager;
 import io.datarouter.auth.storage.user.datarouteruser.DatarouterUser;
 import io.datarouter.auth.storage.user.datarouteruser.DatarouterUserDao;
-import io.datarouter.auth.storage.user.userhistory.DatarouterUserHistory;
-import io.datarouter.auth.storage.user.userhistory.DatarouterUserHistory.DatarouterUserChangeType;
 import io.datarouter.auth.storage.user.userhistory.DatarouterUserHistoryDao;
+import io.datarouter.auth.storage.user.userhistory.DatarouterUserHistoryLog;
+import io.datarouter.auth.storage.user.userhistory.DatarouterUserHistoryLog.DatarouterUserChangeType;
 import io.datarouter.auth.web.service.DatarouterUserCreationService;
 import io.datarouter.auth.web.service.DatarouterUserHistoryService;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
@@ -36,6 +35,7 @@ import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.properties.AdminEmail;
+import io.datarouter.types.MilliTime;
 import jakarta.inject.Inject;
 
 public class DeletedRoleCleanupJob extends BaseJob{
@@ -53,7 +53,7 @@ public class DeletedRoleCleanupJob extends BaseJob{
 
 	private record DeletedRoleCleanupDto(
 			DatarouterUser updatedUser,
-			DatarouterUserHistory historyEntry,
+			DatarouterUserHistoryLog historyEntry,
 			DatarouterChangelogDto changelogEntry){}
 
 	@Override
@@ -72,9 +72,9 @@ public class DeletedRoleCleanupJob extends BaseJob{
 										.map(Role::getPersistentString)
 										.list();
 								String changes = "Removed deleted role types: " + removedRolePersistentStrings;
-								var userHistory = new DatarouterUserHistory(
+								var userHistory = new DatarouterUserHistoryLog(
 										user.getId(),
-										Instant.now(),
+										MilliTime.now(),
 										DatarouterUserCreationService.ADMIN_ID,
 										DatarouterUserChangeType.EDIT,
 										changes);

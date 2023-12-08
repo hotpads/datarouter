@@ -18,12 +18,12 @@ package io.datarouter.bytes.kvfile.merge;
 import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 import io.datarouter.bytes.ByteLength;
 import io.datarouter.bytes.blockfile.Blockfile;
 import io.datarouter.bytes.blockfile.compress.BlockfileCompressor;
+import io.datarouter.bytes.kvfile.blockformat.KvFileBlockFormat;
 import io.datarouter.bytes.kvfile.kv.KvFileEntry;
 import io.datarouter.bytes.kvfile.merge.KvFileMergerParams.Nested.KvFileMergerReadParams;
 import io.datarouter.bytes.kvfile.merge.KvFileMergerParams.Nested.KvFileMergerStorageParams;
@@ -31,6 +31,7 @@ import io.datarouter.bytes.kvfile.merge.KvFileMergerParams.Nested.KvFileMergerWr
 
 public record KvFileMergerParams(
 		KvFileMergerStorageParams storageParams,
+		KvFileBlockFormat blockFormat,
 		KvFileMergerReadParams readParams,
 		KvFileMergerWriteParams writeParams,
 		Duration heartbeatPeriod){
@@ -43,7 +44,6 @@ public record KvFileMergerParams(
 		}
 
 		public record KvFileMergerReadParams(
-				Function<byte[],List<KvFileEntry>> decoder,
 				int memoryFanIn,
 				int streamingFanIn,
 				ExecutorService prefetchExec,
@@ -55,7 +55,6 @@ public record KvFileMergerParams(
 		}
 
 		public record KvFileMergerWriteParams(
-				Function<List<KvFileEntry>,byte[]> encoder,
 				BlockfileCompressor compressor,
 				ByteLength minBlockSize,
 				int encodeBatchSize,

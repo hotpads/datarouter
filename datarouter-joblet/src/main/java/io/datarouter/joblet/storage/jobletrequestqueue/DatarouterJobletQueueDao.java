@@ -28,7 +28,6 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.BaseDao;
-import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.QueueNodeFactory;
 import io.datarouter.storage.node.op.raw.QueueStorage;
 import io.datarouter.storage.tag.Tag;
@@ -38,12 +37,7 @@ import jakarta.inject.Singleton;
 @Singleton
 public class DatarouterJobletQueueDao extends BaseDao{
 
-	public static class DatarouterJobletQueueDaoParams extends BaseRedundantDaoParams{
-
-		public DatarouterJobletQueueDaoParams(List<ClientId> clientIds){
-			super(clientIds);
-		}
-
+	public record DatarouterJobletQueueDaoParams(List<ClientId> clientIds){
 	}
 
 	private final Map<JobletRequestQueueKey,QueueStorage<JobletRequestKey,JobletRequest>> jobletRequestQueueByKey;
@@ -65,7 +59,7 @@ public class DatarouterJobletQueueDao extends BaseDao{
 									JobletRequestFielder::new)
 									.withQueueName(nodeName)
 									.withTag(Tag.DATAROUTER)
-									.withCustomMessageAgeThreshold(queueKey.type.customMessageAgeThreshold)
+									.withCustomMessageAgeThreshold(queueKey.type().customMessageAgeThreshold)
 									.buildAndRegister();
 						});
 	}

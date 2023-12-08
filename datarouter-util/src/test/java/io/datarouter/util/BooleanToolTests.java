@@ -22,13 +22,13 @@ public class BooleanToolTests{
 
 	@Test
 	public void testNullSafeSame(){
-		Assert.assertEquals(BooleanTool.nullSafeSame(null, null), true);
-		Assert.assertEquals(BooleanTool.nullSafeSame(true, true), true);
-		Assert.assertEquals(BooleanTool.nullSafeSame(false, false), true);
-		Assert.assertEquals(BooleanTool.nullSafeSame(true, null), false);
-		Assert.assertEquals(BooleanTool.nullSafeSame(null, true), false);
-		Assert.assertEquals(BooleanTool.nullSafeSame(false, null), false);
-		Assert.assertEquals(BooleanTool.nullSafeSame(null, false), false);
+		Assert.assertTrue(BooleanTool.nullSafeSame(null, null));
+		Assert.assertTrue(BooleanTool.nullSafeSame(true, true));
+		Assert.assertTrue(BooleanTool.nullSafeSame(false, false));
+		Assert.assertFalse(BooleanTool.nullSafeSame(true, null));
+		Assert.assertFalse(BooleanTool.nullSafeSame(null, true));
+		Assert.assertFalse(BooleanTool.nullSafeSame(false, null));
+		Assert.assertFalse(BooleanTool.nullSafeSame(null, false));
 	}
 
 }

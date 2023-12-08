@@ -21,8 +21,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.stream.Collectors;
 
+import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.secret.client.Secret;
 import io.datarouter.secret.client.SecretClient;
 import io.datarouter.secret.exception.SecretExistsException;
@@ -61,10 +61,9 @@ public class MemorySecretClient implements SecretClient{
 			names = Set.copyOf(secrets.keySet());
 		}
 		return names.stream()
-				.map(obj -> obj)
 				.filter(name -> prefix.map(current -> current.length() < name.length() && name.startsWith(current))
 						.orElse(true))
-				.collect(Collectors.toList());
+				.collect(WarnOnModifyList.deprecatedCollector());
 	}
 
 	@Override

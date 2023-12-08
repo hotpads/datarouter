@@ -60,20 +60,12 @@ public class ClientId implements Comparable<ClientId>{
 		if(this == obj){
 			return true;
 		}
-		if(!(obj instanceof ClientId)){
+		if(!(obj instanceof ClientId other)){
 			return false;
 		}
-		ClientId other = (ClientId)obj;
-		if(!name.equals(other.name)){
-			return false;
-		}
-		if(writable != other.writable){
-			return false;
-		}
-		if(disableable != other.disableable){
-			return false;
-		}
-		return true;
+		return Objects.equals(name, other.name)
+				&& writable == other.writable
+				&& disableable == other.disableable;
 	}
 
 	@Override

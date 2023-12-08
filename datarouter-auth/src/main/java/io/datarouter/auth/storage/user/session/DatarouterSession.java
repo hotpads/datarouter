@@ -18,7 +18,6 @@ package io.datarouter.auth.storage.user.session;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
@@ -30,19 +29,21 @@ import io.datarouter.auth.session.Session;
 import io.datarouter.auth.storage.user.datarouteruser.DatarouterUser;
 import io.datarouter.auth.storage.user.datarouteruser.DatarouterUserKey;
 import io.datarouter.model.field.Field;
+import io.datarouter.model.field.codec.MilliTimeFieldCodec;
 import io.datarouter.model.field.codec.StringListToBinaryCsvFieldCodec;
-import io.datarouter.model.field.imp.DateField;
-import io.datarouter.model.field.imp.DateFieldKey;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
 import io.datarouter.model.field.imp.array.ByteArrayEncodedField;
 import io.datarouter.model.field.imp.array.ByteArrayEncodedFieldKey;
+import io.datarouter.model.field.imp.comparable.LongEncodedField;
+import io.datarouter.model.field.imp.comparable.LongEncodedFieldKey;
 import io.datarouter.model.field.imp.comparable.LongField;
 import io.datarouter.model.field.imp.comparable.LongFieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 import io.datarouter.model.util.CommonFieldSizes;
 import io.datarouter.scanner.IterableScanner;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.types.MilliTime;
 
 /*
  * A single user may have multiple sessions via different computers, browsers, tabs, etc.  Create one of these for each
@@ -58,7 +59,7 @@ implements Session{
 	//cached fields from DatarouterUser
 	private String userToken;
 	private String username;
-	private Date userCreated;
+	private MilliTime userCreatedAt;
 	private List<String> roles;
 	private Boolean persistent = true;
 
@@ -69,8 +70,9 @@ implements Session{
 		public static final ByteArrayEncodedFieldKey<List<String>> roles
 				= new ByteArrayEncodedFieldKey<>("roles", StringListToBinaryCsvFieldCodec.INSTANCE)
 				.withSize(CommonFieldSizes.MAX_LENGTH_LONGBLOB);
-		@SuppressWarnings("deprecation")
-		public static final DateFieldKey userCreated = new DateFieldKey("userCreated");
+		public static final LongEncodedFieldKey<MilliTime> userCreatedAt = new LongEncodedFieldKey<>(
+				"userCreatedAt",
+				new MilliTimeFieldCodec());
 	}
 
 	public static class DatarouterSessionFielder extends BaseDatabeanFielder<DatarouterSessionKey,DatarouterSession>{
@@ -79,7 +81,6 @@ implements Session{
 			super(DatarouterSessionKey::new);
 		}
 
-		@SuppressWarnings("deprecation")
 		@Override
 		public List<Field<?>> getNonKeyFields(DatarouterSession databean){
 			List<Field<?>> nonKeyFields = new ArrayList<>(databean.getNonKeyFields());
@@ -87,7 +88,7 @@ implements Session{
 			nonKeyFields.add(new StringField(FieldKeys.userToken, databean.userToken));
 			nonKeyFields.add(new StringField(FieldKeys.username, databean.username));
 			nonKeyFields.add(new ByteArrayEncodedField<>(FieldKeys.roles, databean.roles));
-			nonKeyFields.add(new DateField(FieldKeys.userCreated, databean.userCreated));
+			nonKeyFields.add(new LongEncodedField<>(FieldKeys.userCreatedAt, databean.userCreatedAt));
 			return nonKeyFields;
 		}
 
@@ -106,14 +107,13 @@ implements Session{
 		var session = new DatarouterSession();
 		session.setUserToken(userToken);
 		session.getKey().setSessionToken(DatarouterTokenGenerator.generateRandomToken());
-		Date now = new Date();
-		session.setCreated(now);
-		session.setUpdated(now);
+		MilliTime now = MilliTime.now();
+		session.setCreated(now.toDate());
+		session.setUpdated(now.toDate());
 		session.setRoles(Collections.emptyList());
 		return session;
 	}
 
-	@SuppressWarnings("deprecation")
 	public static DatarouterSession createFromUser(DatarouterUser user){
 		DatarouterSession session = createAnonymousSession(user.getUserToken());
 		session.setUserId(user.getId());
@@ -207,12 +207,12 @@ implements Session{
 		this.userId = userId;
 	}
 
-	public Date getUserCreated(){
-		return userCreated;
+	public MilliTime getUserCreated(){
+		return userCreatedAt;
 	}
 
-	public void setUserCreated(Date userCreated){
-		this.userCreated = userCreated;
+	public void setUserCreated(MilliTime userCreated){
+		this.userCreatedAt = userCreated;
 	}
 
 	public Boolean getPersistent(){

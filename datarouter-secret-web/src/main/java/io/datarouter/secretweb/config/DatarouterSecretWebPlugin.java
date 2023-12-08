@@ -15,20 +15,11 @@
  */
 package io.datarouter.secretweb.config;
 
-import java.util.List;
-
-import io.datarouter.job.BaseTriggerGroup;
 import io.datarouter.secret.config.DatarouterSecretPlugin;
 import io.datarouter.secret.config.DatarouterSecretPlugin.DatarouterSecretPluginBuilder;
 import io.datarouter.secretweb.service.DatarouterPropertiesAndServiceSecretNamespacer;
 import io.datarouter.secretweb.service.DatarouterPropertiesLocalStorageConfig;
 import io.datarouter.secretweb.service.DefaultHandlerSerializer;
-import io.datarouter.secretweb.storage.oprecord.DatarouterSecretOpRecordDao;
-import io.datarouter.secretweb.storage.oprecord.DatarouterSecretOpRecordDao.DaoSecretOpRecorderSupplier;
-import io.datarouter.secretweb.storage.oprecord.DatarouterSecretOpRecordDao.DatarouterSecretOpRecordDaoParams;
-import io.datarouter.storage.client.ClientId;
-import io.datarouter.storage.dao.Dao;
-import io.datarouter.storage.dao.DaosModuleBuilder;
 import io.datarouter.web.config.BaseWebPlugin;
 import io.datarouter.web.navigation.DatarouterNavBarCategory;
 
@@ -36,18 +27,14 @@ public class DatarouterSecretWebPlugin extends BaseWebPlugin{
 
 	private final DatarouterSecretPlugin basePlugin;
 
-	private DatarouterSecretWebPlugin(DatarouterSecretPlugin basePlugin,
-			DatarouterSecretDaoModule daosModuleBuilder){
+	private DatarouterSecretWebPlugin(DatarouterSecretPlugin basePlugin){
 		this.basePlugin = basePlugin;
 		addRouteSet(DatarouterSecretRouteSet.class);
-		setDaosModule(daosModuleBuilder);
 		addDatarouterNavBarItem(
 				DatarouterNavBarCategory.CONFIGURATION,
 				new DatarouterSecretPaths().datarouter.secrets,
 				"Secrets");
 		addDatarouterGithubDocLink("datarouter-secrets-web");
-		addSettingRoot(DatarouterSecretWebSettingRoot.class);
-		addPluginEntry(BaseTriggerGroup.KEY, DatarouterSecretWebTriggerGroup.class);
 	}
 
 	@Override
@@ -58,13 +45,10 @@ public class DatarouterSecretWebPlugin extends BaseWebPlugin{
 	public abstract static class DatarouterSecretWebPluginBuilder<T extends DatarouterSecretWebPluginBuilder<T>>
 	extends DatarouterSecretPluginBuilder<T>{
 
-		private final List<ClientId> defaultClientId;
-
 		public static class DatarouterSecretWebPluginBuilderImpl
 		extends DatarouterSecretWebPluginBuilder<DatarouterSecretWebPluginBuilderImpl>{
 
-			public DatarouterSecretWebPluginBuilderImpl(List<ClientId> defaultClientId){
-				super(defaultClientId);
+			public DatarouterSecretWebPluginBuilderImpl(){
 			}
 
 			@Override
@@ -74,44 +58,20 @@ public class DatarouterSecretWebPlugin extends BaseWebPlugin{
 
 		}
 
-		public DatarouterSecretWebPluginBuilder(List<ClientId> defaultClientId){
-			this.defaultClientId = defaultClientId;
+		public DatarouterSecretWebPluginBuilder(){
 			setSecretNamespacer(DatarouterPropertiesAndServiceSecretNamespacer.class);
-			setSecretOpRecorderSupplier(DaoSecretOpRecorderSupplier.class);
 			setLocalStorageConfig(DatarouterPropertiesLocalStorageConfig.class);
 			setJsonSerializer(DefaultHandlerSerializer.class);
 		}
 
 		protected DatarouterSecretWebPlugin getWebPlugin(){
 			return new DatarouterSecretWebPlugin(
-					buildBasePlugin(),
-					new DatarouterSecretDaoModule(defaultClientId));
+					buildBasePlugin());
 		}
 
 		@Override
 		public BaseWebPlugin build(){
 			return getWebPlugin();
-		}
-
-	}
-
-	public static class DatarouterSecretDaoModule extends DaosModuleBuilder{
-
-		private final List<ClientId> datarouterSecretOpRecordDaoClientId;
-
-		public DatarouterSecretDaoModule(List<ClientId> datarouterSecretOpRecordDaoClientId){
-			this.datarouterSecretOpRecordDaoClientId = datarouterSecretOpRecordDaoClientId;
-		}
-
-		@Override
-		public List<Class<? extends Dao>> getDaoClasses(){
-			return List.of(DatarouterSecretOpRecordDao.class);
-		}
-
-		@Override
-		public void configure(){
-			bind(DatarouterSecretOpRecordDaoParams.class)
-					.toInstance(new DatarouterSecretOpRecordDaoParams(datarouterSecretOpRecordDaoClientId));
 		}
 
 	}

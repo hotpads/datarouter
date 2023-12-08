@@ -43,11 +43,8 @@ public class CachingHttpServletRequest extends HttpServletRequestWrapper{
 	public static CachingHttpServletRequest getOrCreate(HttpServletRequest request){
 		Optional<CachingHttpServletRequest> cachedRequestOptional = getWrappedRequest(request,
 				CachingHttpServletRequest.class);
-		if(cachedRequestOptional.isPresent()){
-			return cachedRequestOptional.get();
-		}
-
-		return new CachingHttpServletRequest(request);
+		return cachedRequestOptional
+				.orElseGet(() -> new CachingHttpServletRequest(request));
 	}
 
 	private CachingHttpServletRequest(HttpServletRequest request){

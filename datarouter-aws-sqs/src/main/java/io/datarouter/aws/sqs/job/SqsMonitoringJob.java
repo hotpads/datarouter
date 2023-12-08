@@ -18,7 +18,6 @@ package io.datarouter.aws.sqs.job;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +30,7 @@ import io.datarouter.aws.sqs.SqsPhysicalNode;
 import io.datarouter.aws.sqs.service.QueueUrlAndName;
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
+import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientInitializationTracker;
 import io.datarouter.storage.client.DatarouterClients;
@@ -65,10 +65,10 @@ public class SqsMonitoringJob extends BaseJob{
 							.peek($ -> tracker.increment())
 							.map(SqsPhysicalNode::getQueueUrlAndName)
 							.map(Supplier::get)
-							.collect(Collectors.toList());
+							.collect(WarnOnModifyList.deprecatedCollector());
 					saveUnackedMessageAgeMetricForQueues(clientId, queueUrlAndNames.stream()
 							.map(QueueUrlAndName::queueName)
-							.collect(Collectors.toList()));
+							.collect(WarnOnModifyList.deprecatedCollector()));
 					queueUrlAndNames.forEach(queueUrlAndName -> {
 						try{
 							getQueueLengthAndSaveAsMetric(queueUrlAndName, clientId);

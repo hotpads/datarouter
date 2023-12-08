@@ -219,12 +219,10 @@ public record ClusterSettingBrowseNavHtml(
 	}
 
 	private Optional<HierarchyNode> findSelectedSetting(HierarchyNode filteredHierarchy){
-		return params.location
-				.map(location -> filteredHierarchy.scanDescendents()
-						.include(HierarchyNode::isSetting)
-						.include(node -> node.name().equals(location))
-						.findFirst())
-				.orElse(Optional.empty());
+		return params.location.flatMap(location -> filteredHierarchy.scanDescendents()
+				.include(HierarchyNode::isSetting)
+				.include(node -> node.name().equals(location))
+				.findFirst());
 	}
 
 	private List<? extends CachedSetting<?>> settingsToDisplay(

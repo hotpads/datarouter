@@ -16,14 +16,14 @@
 package io.datarouter.bytes.kvfile.io.write;
 
 import java.util.List;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 import io.datarouter.bytes.BinaryDictionary;
+import io.datarouter.bytes.Codec;
 import io.datarouter.bytes.blockfile.checksum.BlockfileChecksummer;
 import io.datarouter.bytes.blockfile.compress.BlockfileCompressor;
 import io.datarouter.bytes.blockfile.write.BlockfileWriterBuilder;
-import io.datarouter.bytes.kvfile.codec.KvFileBlockCodec.KvFileBlockEncoder;
+import io.datarouter.bytes.kvfile.blockformat.KvFileBlockFormat;
 import io.datarouter.bytes.kvfile.io.KvFile;
 import io.datarouter.bytes.kvfile.io.write.KvFileWriter.KvFileWriterConfig;
 import io.datarouter.bytes.kvfile.kv.KvFileEntry;
@@ -32,17 +32,20 @@ import io.datarouter.scanner.Threads;
 public class KvFileWriterBuilder<T>{
 
 	private final BlockfileWriterBuilder<List<T>> blockfileWriterBuilder;
+	private final KvFileBlockFormat kvBlockFormat;
 	private BinaryDictionary headerUserDictionary = new BinaryDictionary();
 	private Supplier<BinaryDictionary> footerUserDictionarySupplier = BinaryDictionary::new;
 
 	public KvFileWriterBuilder(
 			KvFile<T> kvFile,
-			Function<T,KvFileEntry> encoder,
-			String pathAndFile){
+			Codec<T,KvFileEntry> kvCodec,
+			String pathAndFile,
+			KvFileBlockFormat kvBlockFormat){
 		blockfileWriterBuilder = new BlockfileWriterBuilder<>(
 				kvFile.blockfile(),
-				new KvFileBlockEncoder<>(encoder)::encode,
+				kvBlockFormat.newBlockCodec(kvCodec)::encodeAll,
 				pathAndFile);
+		this.kvBlockFormat = kvBlockFormat;
 	}
 
 	/*-------BlockfileWriterBuilder pass-through options --------*/
@@ -102,6 +105,7 @@ public class KvFileWriterBuilder<T>{
 	public KvFileWriter<T> build(){
 		var kvFileWriterConfig = new KvFileWriterConfig<>(
 				blockfileWriterBuilder,
+				kvBlockFormat,
 				headerUserDictionary,
 				footerUserDictionarySupplier);
 		return new KvFileWriter<>(kvFileWriterConfig);

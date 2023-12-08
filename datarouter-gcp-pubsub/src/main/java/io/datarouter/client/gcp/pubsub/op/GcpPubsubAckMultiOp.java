@@ -22,6 +22,7 @@ import com.google.cloud.pubsub.v1.stub.SubscriberStub;
 import com.google.pubsub.v1.AcknowledgeRequest;
 
 import io.datarouter.client.gcp.pubsub.client.GcpPubsubClientManager;
+import io.datarouter.client.gcp.pubsub.config.DatarouterGcpPubsubSettingsRoot;
 import io.datarouter.client.gcp.pubsub.node.BaseGcpPubsubNode;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
@@ -44,8 +45,9 @@ extends GcpPubsubOp<PK,D,F,Void>{
 			Config config,
 			BaseGcpPubsubNode<PK,D,F> basePubsubNode,
 			GcpPubsubClientManager clientManager,
+			DatarouterGcpPubsubSettingsRoot settingRoot,
 			ClientId clientId){
-		super(config, basePubsubNode, clientManager, clientId);
+		super(config, basePubsubNode, clientManager, settingRoot, clientId);
 		this.keys = keys;
 	}
 

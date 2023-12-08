@@ -168,6 +168,7 @@ public class DefaultExceptionRecorder implements ExceptionRecorder{
 		ExceptionCounters.inc("name " + name);
 		ExceptionCounters.inc(type);
 		ExceptionCounters.inc(callOrigin);
+		ExceptionCounters.inc(category.name() + " origin " + callOrigin);
 		ExceptionCounters.inc(type + " " + callOrigin);
 		ExceptionRecord exceptionRecord = new ExceptionRecord(
 				ExceptionRecordKey.generate(),

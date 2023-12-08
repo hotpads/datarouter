@@ -45,8 +45,7 @@ extends BaseScanner<T>{
 		}
 		int length = VarIntTool.decodeInt(bytes, cursor);
 		cursor += VarIntTool.length(length);
-		T value = codec.decode(bytes, cursor, length);
-		current = value;
+		current = codec.decode(bytes, cursor, length);
 		cursor += length;
 		return true;
 	}

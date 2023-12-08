@@ -31,10 +31,9 @@ import io.datarouter.tasktracker.config.DatarouterTaskTrackerFiles;
 import io.datarouter.tasktracker.scheduler.LongRunningTaskStatus;
 import io.datarouter.tasktracker.storage.LongRunningTask;
 import io.datarouter.tasktracker.storage.LongRunningTaskDao;
-import io.datarouter.util.DateTool;
+import io.datarouter.types.MilliTime;
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.string.StringTool;
-import io.datarouter.util.time.ZonedDateFormatterTool;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.html.j2html.J2HtmlLegendTable;
@@ -127,15 +126,15 @@ public class LongRunningTasksHandler extends BaseHandler{
 		private final String heartbeatStatus;
 		private final String name;
 		private final String serverName;
-		private final Date triggerTime;
-		private final Date startTime;
+		private final MilliTime triggerTime;
+		private final MilliTime startTime;
 		private final Duration duration;
 		private final String durationString;
-		private final Date lastHeartbeat;
+		private final MilliTime lastHeartbeat;
 		private final String lastHeartbeatString;
 		private final String lastItemProcessed;
 		private final Long numItemsProcessed;
-		private final Date finishTime;
+		private final MilliTime finishTime;
 		private final String finishTimeString;
 		private final String triggeredBy;
 		private final String exceptionRecordId;
@@ -143,20 +142,21 @@ public class LongRunningTasksHandler extends BaseHandler{
 
 		public LongRunningTaskJspDto(LongRunningTask task, ZoneId zoneId){
 			this.status = task.getJobExecutionStatus().persistentString;
-			this.heartbeatStatus = task.getHeartbeatStatus() == null ? null
+			this.heartbeatStatus = task.getHeartbeatStatus() == null
+					? null
 					: task.getHeartbeatStatus().status;
 			this.name = task.getKey().getName();
 			this.serverName = task.getKey().getServerName();
 			this.triggerTime = task.getKey().getTriggerTime();
-			this.startTime = task.getStartTime();
+			this.startTime = task.getStart();
 			this.duration = task.getDuration();
 			this.durationString = task.getDurationString();
-			this.lastHeartbeat = task.getHeartbeatTime();
-			this.lastHeartbeatString = task.getLastHeartbeatString();
+			this.lastHeartbeat = task.getHeartbeat();
+			this.lastHeartbeatString = task.getLastHeartbeatString(zoneId);
 			this.lastItemProcessed = task.getLastItemProcessed();
 			this.numItemsProcessed = task.getNumItemsProcessed();
-			this.finishTime = task.getFinishTime();
-			this.finishTimeString = task.getFinishTimeString();
+			this.finishTime = task.getFinish();
+			this.finishTimeString = task.getFinishTimeString(zoneId);
 			this.triggeredBy = task.getTriggeredBy();
 			this.exceptionRecordId = task.getExceptionRecordId();
 			this.zoneId = zoneId;
@@ -183,14 +183,14 @@ public class LongRunningTasksHandler extends BaseHandler{
 		}
 
 		public long getStartTime(){
-			return startTime != null ? startTime.getTime() : triggerTime.getTime();
+			return startTime != null ? startTime.toEpochMilli() : triggerTime.toEpochMilli();
 		}
 
 		public String getStartString(){
 			if(startTime == null){
-				return ZonedDateFormatterTool.formatDateWithZone(triggerTime, zoneId) + " (trigger)";
+				return triggerTime.format(zoneId) + " (trigger)";
 			}else{
-				return ZonedDateFormatterTool.formatDateWithZone(startTime, zoneId);
+				return startTime.format(zoneId);
 			}
 		}
 
@@ -198,7 +198,7 @@ public class LongRunningTasksHandler extends BaseHandler{
 			if(finishTime == null){
 				return "";
 			}
-			return ZonedDateFormatterTool.formatDateWithZone(finishTime, zoneId);
+			return finishTime.format(zoneId);
 		}
 
 		public Long getSortableDuration(){
@@ -210,11 +210,13 @@ public class LongRunningTasksHandler extends BaseHandler{
 		}
 
 		public Date getLastHeartbeat(){
-			return lastHeartbeat;
+			return Optional.ofNullable(lastHeartbeat)
+					.map(MilliTime::toDate)
+					.orElse(null);
 		}
 
 		public Long getSortableLastHeartbeat(){
-			return lastHeartbeat != null ? lastHeartbeat.getTime() : -1;
+			return lastHeartbeat != null ? lastHeartbeat.toEpochMilli() : -1;
 		}
 
 		public String getLastHeartbeatString(){
@@ -230,7 +232,7 @@ public class LongRunningTasksHandler extends BaseHandler{
 		}
 
 		public Long getSortableFinishTime(){
-			return finishTime != null ? finishTime.getTime() : -1;
+			return finishTime != null ? finishTime.toEpochMilli() : -1;
 		}
 
 		public String getFinishTimeString(){
@@ -242,10 +244,9 @@ public class LongRunningTasksHandler extends BaseHandler{
 
 		public String getStartSubtitle(){
 			var trigger = "Triggered " + triggerTime
-					+ "\nTriggered " + DateTool.getAgoString(triggerTime.toInstant());
+					+ "\nTriggered " + triggerTime.format(zoneId);
 			return Optional.ofNullable(startTime)
-					.map(Date::toInstant)
-					.map(DateTool::getAgoString)
+					.map(time -> time.format(zoneId))
 					.map("\nStarted "::concat)
 					.map(trigger::concat)
 					.orElse(trigger);

@@ -22,7 +22,6 @@ import java.util.Map;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
-import io.datarouter.scanner.OptionalScanner;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.config.Config;
@@ -90,8 +89,7 @@ implements PhysicalMapStorageNode<PK,D,F>{
 	@Override
 	public void deleteMulti(Collection<PK> keys, Config config){
 		Scanner.of(keys)
-				.map(codec::encodeKeyIfValid)
-				.concat(OptionalScanner::of)
+				.concatOpt(codec::encodeKeyIfValid)
 				.forEach(encodedKey -> blobNode.delete(encodedKey, config));
 	}
 
@@ -108,15 +106,13 @@ implements PhysicalMapStorageNode<PK,D,F>{
 	@Override
 	public void putMulti(Collection<D> databeans, Config config){
 		Scanner.of(databeans)
-				.map(codec::encodeDatabeanIfValid)
-				.concat(OptionalScanner::of)
+				.concatOpt(codec::encodeDatabeanIfValid)
 				.forEach(keyAndValue -> blobNode.write(keyAndValue.pathbeanKey(), keyAndValue.value(), config));
 	}
 
 	private Scanner<D> scanMultiInternal(Collection<PK> keys, Config config){
 		Map<PathbeanKey,byte[]> bytesByKey = Scanner.of(keys)
-				.map(codec::encodeKeyIfValid)
-				.concat(OptionalScanner::of)
+				.concatOpt(codec::encodeKeyIfValid)
 				.listTo(encodedKeys -> blobNode.readMulti(encodedKeys, config));
 		return Scanner.of(bytesByKey.values())
 				.map(codec::decodeDatabean);

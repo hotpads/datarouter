@@ -16,7 +16,6 @@
 package io.datarouter.scanner;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.testng.Assert;
@@ -39,7 +38,7 @@ public class ShufflingScannerTests{
 		int numItems = 100;
 		List<Integer> input = Stream.iterate(0, i -> i + 1)
 				.limit(numItems)
-				.collect(Collectors.toList());
+				.collect(WarnOnModifyList.deprecatedCollector());
 		List<Integer> output = Scanner.of(input)
 				.shuffle()
 				.list();

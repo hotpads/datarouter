@@ -17,6 +17,8 @@ package io.datarouter.gcp.bigtable.client;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.Connection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.cloud.bigtable.hbase.BigtableConfiguration;
 
@@ -26,6 +28,7 @@ import jakarta.inject.Singleton;
 
 @Singleton
 public class BigTableClientManager extends HBaseClientManager{
+	private static final Logger logger = LoggerFactory.getLogger(BigTableClientManager.class);
 
 	@Inject
 	private BigTableOptions bigTableOptions;
@@ -41,6 +44,8 @@ public class BigTableClientManager extends HBaseClientManager{
 		String instanceId = bigTableOptions.instanceId(clientName);
 		Configuration config = BigtableConfiguration.configure(projectId, instanceId);
 		BigTableCredentials credentials = bigTableOptions.bigtableConfigurationCredentialsKeyValue(clientName);
+		logger.warn("connecting to bigtable projectId={} instanceId={} credsType={}",
+				projectId, instanceId, credentials.key());
 		config.set(credentials.key(), credentials.value());
 		return BigtableConfiguration.connect(config);
 	}

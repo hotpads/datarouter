@@ -46,8 +46,7 @@ public class BinaryDtoFieldCache<T extends BaseBinaryDto<T>>{
 						return null;
 					}
 					field.setAccessible(true);
-					BinaryDtoFieldSchema<?> fieldSchema = new BinaryDtoFieldSchema<>(field);
-					return fieldSchema;
+					return new BinaryDtoFieldSchema<>(field);
 				})
 				.list();
 		presentFieldSchemas = Scanner.of(fieldSchemaByIndex)

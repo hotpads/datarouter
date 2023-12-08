@@ -35,23 +35,27 @@ public class DatarouterAuthRouteSet extends BaseRouteSet{
 		handle(paths.signin)
 				.withHandler(DatarouterSigninHandler.class)
 				.allowAnonymous();
+
 		handle(paths.signout)
 				.withHandler(DatarouterSignoutHandler.class)
 				.allowAnonymous();
+
+		handle(paths.admin.copyUser).withHandler(AdminEditUserHandler.class);
 		handle(paths.admin.createUser).withHandler(AdminEditUserHandler.class);
 		handle(paths.admin.createUserSubmit).withHandler(AdminEditUserHandler.class);
+		handle(paths.admin.editAccounts).withHandler(AdminEditUserHandler.class);
+		handle(paths.admin.editRoles).withHandler(AdminEditUserHandler.class).allowRoles(DatarouterUserRole.REQUESTOR);
 		handle(paths.admin.editUser).withHandler(AdminEditUserHandler.class).allowRoles(DatarouterUserRole.REQUESTOR);
+		handle(paths.admin.getAllRoles).withHandler(AdminEditUserHandler.class);
+		handle(paths.admin.getIsSamlEnabled).withHandler(AdminEditUserHandler.class);
 		handle(paths.admin.getUserDetails).withHandler(AdminEditUserHandler.class)
 				.allowRoles(DatarouterUserRole.REQUESTOR);
 		handle(paths.admin.getUserProfileImage).withHandler(AdminEditUserHandler.class);
 		handle(paths.admin.listUsers).withHandler(AdminEditUserHandler.class);
 		handle(paths.admin.updatePassword).withHandler(AdminEditUserHandler.class);
-		handle(paths.admin.getAllRoles).withHandler(AdminEditUserHandler.class);
-		handle(paths.admin.editRoles).withHandler(AdminEditUserHandler.class).allowRoles(DatarouterUserRole.REQUESTOR);
-		handle(paths.admin.editAccounts).withHandler(AdminEditUserHandler.class);
 		handle(paths.admin.updateTimeZone).withHandler(AdminEditUserHandler.class);
-		handle(paths.admin.copyUser).withHandler(AdminEditUserHandler.class);
 		handle(paths.admin.viewUsers).withHandler(AdminEditUserHandler.class);
+
 		handleDir(paths.permissionRequest)
 				.withHandler(DatarouterPermissionRequestHandler.class)
 				.allowRoles(DatarouterUserRole.REQUESTOR);

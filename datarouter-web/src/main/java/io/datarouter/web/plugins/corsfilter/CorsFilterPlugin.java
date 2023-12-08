@@ -49,7 +49,7 @@ public class CorsFilterPlugin extends BaseWebPlugin{
 		private final List<Predicate<String>> originFilters = new ArrayList<>();
 
 		public CorsFilterPluginBuilder allowLocalhost(){
-			return allow(Pattern.compile("https?://localhost(:\\d+)?"));
+			return allow(Pattern.compile("^https?://localhost(:\\d+)?$"));
 		}
 
 		public CorsFilterPluginBuilder allow(Collection<String> equals){

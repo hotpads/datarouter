@@ -109,13 +109,9 @@ public class ComparableLongCodecTests{
 			}
 			byte[] bytes = CODEC.encode(value);
 			long roundTripped = CODEC.decode(bytes);
-			try{
-				Assert.assertTrue(value > lastValue);
-				Assert.assertTrue(Arrays.compareUnsigned(lastBytes, bytes) < 0);
-				Assert.assertEquals(roundTripped, value);
-			}catch(AssertionError e){
-				throw e;
-			}
+			Assert.assertTrue(value > lastValue);
+			Assert.assertTrue(Arrays.compareUnsigned(lastBytes, bytes) < 0);
+			Assert.assertEquals(roundTripped, value);
 			lastBytes = bytes;
 			++counter;
 			lastValue = value;

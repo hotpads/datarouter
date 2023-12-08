@@ -24,7 +24,6 @@ import static j2html.TagCreator.text;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -140,14 +139,14 @@ public class LongRunningTaskTracker implements TaskTracker{
 
 	@Override
 	public LongRunningTaskTracker setScheduledTime(Instant scheduledTime){
-		task.triggerTime = Date.from(scheduledTime);
+		task.triggerTimeMs = scheduledTime.toEpochMilli();
 		return this;
 	}
 
 	@Override
 	public Instant getScheduledTime(){
-		return Optional.ofNullable(task.triggerTime)
-				.map(Date::toInstant)
+		return Optional.ofNullable(task.triggerTimeMs)
+				.map(Instant::ofEpochMilli)
 				.orElse(null);
 	}
 
@@ -163,7 +162,7 @@ public class LongRunningTaskTracker implements TaskTracker{
 	@Override
 	public LongRunningTaskTracker start(){
 		Instant now = Instant.now();
-		task.startTime = Date.from(now);
+		task.startTimeMs = now.toEpochMilli();
 		if(getScheduledTime() == null){
 			setScheduledTime(now);
 		}
@@ -174,7 +173,7 @@ public class LongRunningTaskTracker implements TaskTracker{
 
 	@Override
 	public Instant getStartTime(){
-		return task.startTime.toInstant();
+		return Instant.ofEpochMilli(task.startTimeMs);
 	}
 
 	@Override
@@ -184,7 +183,7 @@ public class LongRunningTaskTracker implements TaskTracker{
 	}
 
 	public LongRunningTaskTracker onFinish(TaskStatus status){
-		task.finishTime = new Date();
+		task.finishTimeMs = System.currentTimeMillis();
 		setStatus(status);
 		doReportTasks();
 		return this;
@@ -192,14 +191,14 @@ public class LongRunningTaskTracker implements TaskTracker{
 
 	@Override
 	public Instant getFinishTime(){
-		return task.finishTime.toInstant();
+		return Instant.ofEpochMilli(task.finishTimeMs);
 	}
 
 	/*------------ counting ---------------*/
 
 	@Override
 	public long getCount(){
-		return task.numItemsProcessed;
+		return task.numItemsProcessed.get();
 	}
 
 	@Override
@@ -217,20 +216,20 @@ public class LongRunningTaskTracker implements TaskTracker{
 	@Override
 	public LongRunningTaskTracker increment(long delta){
 		counters.increment(task.name, delta);
-		task.numItemsProcessed += delta;
+		task.numItemsProcessed.addAndGet(delta);
 		return heartbeat();
 	}
 
 	@Override
 	public LongRunningTaskTracker heartbeat(long numItemsProcessed){
-		task.numItemsProcessed = numItemsProcessed;
+		task.numItemsProcessed.set(numItemsProcessed);
 		return heartbeat();
 	}
 
 	@Override
 	public LongRunningTaskTracker heartbeat(){
 		counters.heartbeat(task.name);
-		task.heartbeatTime = new Date();
+		task.heartbeatTimeMs = System.currentTimeMillis();
 		reportIfEnoughTimeElapsed();
 		return this;
 	}
@@ -319,8 +318,15 @@ public class LongRunningTaskTracker implements TaskTracker{
 				.toAdmin(serverTypeDetector.mightBeDevelopment())
 				.toSubscribers(serverTypeDetector.mightBeProduction())
 				.to(longRunningTaskTrackerEmailType.tos, serverTypeDetector.mightBeProduction());
-		alertReportService.reportTaskTimeoutAlert(serviceName.get(), serverName.get(), task.name,
-				emailBuilder.getSubject(), emailBuilder, environmentName, counterHref, primaryHref);
+		alertReportService.reportTaskTimeoutAlert(
+				serviceName.get(),
+				serverName.get(),
+				task.name,
+				emailBuilder.getSubject(),
+				emailBuilder,
+				environmentName,
+				counterHref,
+				primaryHref);
 	}
 
 	private BodyTag makeEmailBody(String name, String serverName, String detailsHref, String counterHref){
@@ -346,9 +352,9 @@ public class LongRunningTaskTracker implements TaskTracker{
 	}
 
 	public void doReportTasks(){
-		if(task.triggerTime == null){
+		if(task.triggerTimeMs == null){
 			logger.warn("setting null triggerTime to now on {}", task.databeanName);
-			task.triggerTime = new Date();
+			task.triggerTimeMs = System.currentTimeMillis();
 		}
 		reportCallbacks();
 		persist();
@@ -381,7 +387,7 @@ public class LongRunningTaskTracker implements TaskTracker{
 			try{
 				node.put(new LongRunningTask(task));
 			}catch(RuntimeException e){
-				logger.error("Failed to persist task={} with {}", task, e);
+				logger.error("Failed to persist task={}", task, e);
 			}
 		}
 		lastPersisted = Instant.now();

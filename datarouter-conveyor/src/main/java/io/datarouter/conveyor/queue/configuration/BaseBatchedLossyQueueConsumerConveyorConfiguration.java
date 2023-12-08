@@ -71,10 +71,14 @@ implements ConveyorConfiguration{
 	public ProcessResult process(ConveyorRunnable conveyor){
 		List<QueueMessage<PK,D>> currentBuffer = Collections.emptyList();
 		Instant beforePeek = Instant.now();
-		List<QueueMessage<PK,D>> messages = getQueueConsumer().peekMulti(getMaxQuerySize(), getPeekTimeout(),
+		List<QueueMessage<PK,D>> messages = getQueueConsumer().peekMulti(
+				getMaxQuerySize(),
+				getPeekTimeout(),
 				DEFAULT_VISIBILITY_TIMEOUT);
 		Instant afterPeek = Instant.now();
-		gaugeRecorder.savePeekDurationMs(conveyor, Duration.between(beforePeek, afterPeek).toMillis());
+		gaugeRecorder.savePeekDurationMs(
+				conveyor,
+				Duration.between(beforePeek, afterPeek).toMillis());
 		TracerTool.setAlternativeStartTime();
 		if(messages.isEmpty()){
 			logger.info("peeked conveyor={} nullMessage", conveyor.getName());
@@ -89,7 +93,9 @@ implements ConveyorConfiguration{
 				.map(QueueMessage::getKey)
 				.flush(list -> getQueueConsumer().ackMulti(list.size(), list));
 		Instant afterAck = Instant.now();
-		gaugeRecorder.saveAckDurationMs(conveyor, Duration.between(beforeAck, afterAck).toMillis());
+		gaugeRecorder.saveAckDurationMs(
+				conveyor,
+				Duration.between(beforeAck, afterAck).toMillis());
 		logger.info("acked conveyor={} messageCount={}", conveyor.getName(), messages.size());
 		ConveyorCounters.incAck(conveyor);
 
@@ -115,20 +121,24 @@ implements ConveyorConfiguration{
 		flushBuffer(currentBuffer, Optional.empty(), conveyor);
 	}
 
-	private void flushBuffer(List<QueueMessage<PK,D>> currentBuffer, Optional<Instant> afterPeek,
+	private void flushBuffer(
+			List<QueueMessage<PK,D>> currentBuffer,
+			Optional<Instant> afterPeek,
 			ConveyorRunnable conveyor){
 		if(currentBuffer.isEmpty()){
 			return;
 		}
 		Instant beforeProcessBuffer = Instant.now();
-		afterPeek.ifPresent(time -> gaugeRecorder.savePeekToProcessBufferDurationMs(conveyor, Duration.between(time,
-				beforeProcessBuffer).toMillis()));
+		afterPeek.ifPresent(time -> gaugeRecorder.savePeekToProcessBufferDurationMs(
+				conveyor,
+				Duration.between(time, beforeProcessBuffer).toMillis()));
 		Scanner.of(currentBuffer)
 				.map(QueueMessage::getDatabean)
 				.flush(this::processBuffer);
 		Instant afterProcessBuffer = Instant.now();
-		gaugeRecorder.saveProcessBufferDurationMs(conveyor, Duration.between(beforeProcessBuffer, afterProcessBuffer)
-				.toMillis());
+		gaugeRecorder.saveProcessBufferDurationMs(
+				conveyor,
+				Duration.between(beforeProcessBuffer, afterProcessBuffer).toMillis());
 		ConveyorCounters.incFlushBuffer(conveyor, currentBuffer.size());
 	}
 

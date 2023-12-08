@@ -120,7 +120,7 @@ public class RefreshableIntegrationTests{
 		//subsequent refreshes will not be allowed within the attemptInterval
 		Assert.assertEquals(predictable.getCount(), 0);
 		RefreshableSupplier<String> refreshable = new RefreshableStringSupplier(predictable, Duration.ZERO, Duration
-				.ofMillis(75L));
+				.ofMillis(100L));
 		Assert.assertEquals(predictable.getCount(), 1);
 		Instant firstRefreshInstant = refreshable.refresh();
 
@@ -133,7 +133,7 @@ public class RefreshableIntegrationTests{
 
 		//after attemptInterval has passed, a new refresh attempt will be made, but since the value is the same, no
 		//refresh will happen
-		passTime(25L);
+		passTime(50L);
 		Assert.assertEquals(predictable.getCount(), 1);
 		Assert.assertEquals(refreshable.get(), values[0]);
 		Assert.assertTrue(getNowAndPassTime().isAfter(refreshable.refresh()));

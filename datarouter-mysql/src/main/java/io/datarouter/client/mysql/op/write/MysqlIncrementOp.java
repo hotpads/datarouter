@@ -105,7 +105,7 @@ extends BaseMysqlOp<Long>{
 			try{
 				connection.rollback();
 			}catch(SQLException exception){
-				logger.error("error with rollbacking sql. exception {}", exception);
+				logger.error("error with rolling back sql.", exception);
 			}
 		}
 		return null;

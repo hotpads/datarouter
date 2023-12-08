@@ -29,8 +29,7 @@ public class ZoneIdLegacySerializer implements JsonSerializer<ZoneId>{
 	@Override
 	public JsonElement serialize(ZoneId zoneId, Type typeOfSrc, JsonSerializationContext context){
 		JsonObject serialized = new JsonObject();
-		if(zoneId instanceof ZoneOffset){
-			ZoneOffset offset = (ZoneOffset)zoneId;
+		if(zoneId instanceof ZoneOffset offset){
 			serialized.addProperty("totalSeconds", offset.getTotalSeconds());
 		}else{
 			serialized.addProperty("id", zoneId.getId());

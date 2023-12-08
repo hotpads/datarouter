@@ -22,23 +22,27 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.td;
 import static j2html.TagCreator.text;
 
-import java.time.ZoneId;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
+import io.datarouter.bytes.ByteLength;
 import io.datarouter.nodewatch.config.DatarouterNodewatchPaths;
 import io.datarouter.nodewatch.config.DatarouterNodewatchPlugin;
+import io.datarouter.nodewatch.service.NodewatchTableStatsService;
+import io.datarouter.nodewatch.service.NodewatchTableStatsService.PhysicalNodeStats;
+import io.datarouter.nodewatch.service.NodewatchTableStatsService.SamplerStats;
+import io.datarouter.nodewatch.service.NodewatchTableStatsService.StorageStats;
+import io.datarouter.nodewatch.service.NodewatchTableStatsService.TableStats;
 import io.datarouter.nodewatch.storage.alertthreshold.DatarouterTableSizeAlertThresholdDao;
 import io.datarouter.nodewatch.storage.alertthreshold.TableSizeAlertThreshold;
 import io.datarouter.nodewatch.storage.alertthreshold.TableSizeAlertThresholdKey;
-import io.datarouter.nodewatch.storage.latesttablecount.DatarouterLatestTableCountDao;
-import io.datarouter.nodewatch.storage.latesttablecount.LatestTableCount;
 import io.datarouter.nodewatch.web.NodewatchHtml;
 import io.datarouter.nodewatch.web.NodewatchLinks;
 import io.datarouter.nodewatch.web.NodewatchNavService;
+import io.datarouter.storage.client.ClientAndTableNames;
 import io.datarouter.util.duration.DatarouterDuration;
 import io.datarouter.util.number.NumberFormatter;
-import io.datarouter.util.time.ZonedDateFormatterTool;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.html.indexpager.BaseNamedScannerPager;
@@ -83,59 +87,78 @@ public class NodewatchTablesHandler extends BaseHandler{
 	}
 
 	private DivTag makeTableDiv(){
-		var page = new IndexPageBuilder<>(namedScannerPager).build(params.toMap());
+		var page = new IndexPageBuilder<>(namedScannerPager)
+				.withDefaultPageSize(500)
+				.build(params.toMap());
 		String path = request.getContextPath() + paths.datarouter.nodewatch.tables.toSlashedString();
 		var header = Bootstrap4IndexPagerHtml.render(page, path);
-		var table = makeTableBuilder().build(page.rows);
+		var table = makeTableBuilder(page.fromRow).build(page.rows);
 		return div(header, table);
 	}
 
-	private J2HtmlTable<LatestTableCount> makeTableBuilder(){
-		ZoneId userZoneId = getUserZoneId();
-		return new J2HtmlTable<LatestTableCount>()
+	private J2HtmlTable<TableStats> makeTableBuilder(long fromRowId){
+		var rowId = new AtomicLong(fromRowId);
+		return new J2HtmlTable<TableStats>()
 				.withClasses("table table-sm table-striped my-2 border")
+				.withColumn("#", $ -> rowId.getAndIncrement(), NumberFormatter::addCommas)
+				.withColumn(
+						"Tag",
+						row -> row.optPhysicalNodeStats().map(PhysicalNodeStats::tagString).orElse(""))
 				.withColumn(
 						"Client",
-						row -> row.getKey().getClientName())
+						TableStats::clientName)
 				.withHtmlColumn(
 						"Table",
-						row -> td(a(row.getKey().getTableName())
-								.withHref(links.table(
-										row.getKey().getClientName(),
-										row.getKey().getTableName()))))
-				.withColumn(
+						row -> td(a(row.tableName())
+								.withHref(links.table(row.clientName(), row.tableName()))))
+				.withHtmlColumn(
 						"Rows",
-						LatestTableCount::getNumRows,
+						row -> row.optSamplerStats()
+								.map(SamplerStats::numRows)
+								.map(NumberFormatter::addCommas)
+								.map(anchorText -> td(a(anchorText)
+										.withHref(links.table(row.clientName(), row.tableName()))))
+								.orElse(td()))
+				.withHtmlColumn(
+						"Bytes",
+						row -> row.optStorageStats()
+								.map(StorageStats::numBytes)
+								.map(ByteLength::ofBytes)
+								.map(ByteLength::toDisplay)
+								.map(anchorText -> td(a(anchorText)
+										.withHref(links.tableStorage(row.clientName(), row.tableName()))))
+								.orElse(td()))
+				.withColumn(
+						"$ / Year",
+						row -> row.optStorageStats()
+								.flatMap(StorageStats::optYearlyTotalCostDollars)
+								.map(dollars -> "$" + NumberFormatter.format(dollars, 2))
+								.orElse(""))
+				.withColumn(
+						"Spans",
+						row -> row.optSamplerStats().map(SamplerStats::numSpans).orElse(null),
 						NumberFormatter::addCommas)
 				.withColumn(
 						"Count Time",
-						LatestTableCount::getCountTimeMs,
-						ms -> new DatarouterDuration(ms, TimeUnit.MILLISECONDS).toString())
+						row -> row.optSamplerStats().map(SamplerStats::countTime).orElse(null),
+						duration -> new DatarouterDuration(duration).toString(TimeUnit.SECONDS))
 				.withColumn(
 						"Updated",
-						LatestTableCount::getDateUpdated,
-						instant -> ZonedDateFormatterTool.formatInstantWithZoneDesc(instant, userZoneId))
-				.withColumn(
-						"Spans",
-						LatestTableCount::getNumSpans,
-						NumberFormatter::addCommas)
-				.withColumn(
-						"Slow Spans",
-						LatestTableCount::getNumSlowSpans,
-						NumberFormatter::addCommas)
+						row -> row.optSamplerStats().map(SamplerStats::updatedAgo).orElse(null),
+						duration -> new DatarouterDuration(duration).toString(TimeUnit.MINUTES))
 				.withHtmlColumn(
-						"Alert At",
-						this::makeThresholdTableCell);
+						"Alert",
+						row -> makeThresholdTableCell(row.clientAndTableNames()));
 	}
 
-	private TdTag makeThresholdTableCell(LatestTableCount latestTableCount){
+	private TdTag makeThresholdTableCell(ClientAndTableNames clientAndTableNames){
 		var thresholdKey = new TableSizeAlertThresholdKey(
-				latestTableCount.getKey().getClientName(),
-				latestTableCount.getKey().getTableName());
+				clientAndTableNames.client(),
+				clientAndTableNames.table());
 		Optional<TableSizeAlertThreshold> optThreshold = tableSizeAlertThresholdDao.find(thresholdKey);
 		String href = links.thresholdEdit(
-				latestTableCount.getKey().getClientName(),
-				latestTableCount.getKey().getTableName());
+				clientAndTableNames.client(),
+				clientAndTableNames.table());
 		var text = optThreshold
 				.map(TableSizeAlertThreshold::getMaxRows)
 				.map(NumberFormatter::addCommas)
@@ -146,80 +169,103 @@ public class NodewatchTablesHandler extends BaseHandler{
 
 	@Singleton
 	private static class NodewatchTableListNamedScannerPager
-	extends BaseNamedScannerPager<Void,LatestTableCount>{
+	extends BaseNamedScannerPager<Void,TableStats>{
 
 		@Inject
-		public NodewatchTableListNamedScannerPager(DatarouterLatestTableCountDao dao){
+		public NodewatchTableListNamedScannerPager(NodewatchTableStatsService statsService){
+			addWithTotal(
+					"Tag / Rows",
+					$ -> statsService.scanStats()
+							.sort(TableStats.COMPARE_TAG
+									.thenComparing(TableStats.COMPARE_NUM_ROWS.reversed())
+									.thenComparing(TableStats.COMPARE_TABLE)));
+			addWithTotal(
+					"Tag / Bytes",
+					$ -> statsService.scanStats()
+							.sort(TableStats.COMPARE_TAG
+									.thenComparing(TableStats.COMPARE_NUM_BYTES.reversed())
+									.thenComparing(TableStats.COMPARE_TABLE)));
+			addWithTotal(
+					"Tag / Cost",
+					$ -> statsService.scanStats()
+							.sort(TableStats.COMPARE_TAG
+									.thenComparing(TableStats.COMPARE_YEARLY_STORAGE_COST.reversed())
+									.thenComparing(TableStats.COMPARE_TABLE)));
+			addWithTotal(
+					"Tag / Spans",
+					$ -> statsService.scanStats()
+							.sort(TableStats.COMPARE_TAG
+									.thenComparing(TableStats.COMPARE_NUM_SPANS.reversed())
+									.thenComparing(TableStats.COMPARE_TABLE)));
+			addWithTotal(
+					"Tag / Count Time",
+					$ -> statsService.scanStats()
+							.sort(TableStats.COMPARE_TAG
+									.thenComparing(TableStats.COMPARE_COUNT_TIME.reversed())
+									.thenComparing(TableStats.COMPARE_NUM_ROWS.reversed())
+									.thenComparing(TableStats.COMPARE_TABLE)));
+			addWithTotal(
+					"Tag / Client / Table",
+					$ -> statsService.scanStats()
+							.sort(TableStats.COMPARE_TAG
+									.thenComparing(TableStats.COMPARE_CLIENT)
+									.thenComparing(TableStats.COMPARE_TABLE)));
+			addWithTotal(
+					"Client / Rows",
+					$ -> statsService.scanStats()
+							.sort(TableStats.COMPARE_CLIENT
+									.thenComparing(TableStats.COMPARE_NUM_ROWS.reversed())
+									.thenComparing(TableStats.COMPARE_TABLE)));
+			addWithTotal(
+					"Client / Spans",
+					$ -> statsService.scanStats()
+							.sort(TableStats.COMPARE_CLIENT
+									.thenComparing(TableStats.COMPARE_NUM_SPANS.reversed())
+									.thenComparing(TableStats.COMPARE_NUM_ROWS.reversed())
+									.thenComparing(TableStats.COMPARE_TABLE)));
+			addWithTotal(
+					"Client / Count Time",
+					$ -> statsService.scanStats()
+							.sort(TableStats.COMPARE_CLIENT
+									.thenComparing(TableStats.COMPARE_COUNT_TIME.reversed())
+									.thenComparing(TableStats.COMPARE_NUM_ROWS.reversed())
+									.thenComparing(TableStats.COMPARE_TABLE)));
+			addWithTotal(
+					"Client / Table",
+					$ -> statsService.scanStats()
+							.sort(TableStats.COMPARE_CLIENT
+									.thenComparing(TableStats.COMPARE_TABLE)));
 			addWithTotal(
 					"Rows",
-					$ -> dao.scan()
-							.sort(LatestTableCount.COMPARE_ROWS.reversed()
-									.thenComparing(LatestTableCount.COMPARE_CLIENT)
-									.thenComparing(LatestTableCount.COMPARE_TABLE)));
-			addWithTotal(
-					"Rows by Client",
-					$ -> dao.scan()
-							.sort(LatestTableCount.COMPARE_CLIENT
-									.thenComparing(LatestTableCount.COMPARE_ROWS.reversed())
-									.thenComparing(LatestTableCount.COMPARE_TABLE)));
+					$ -> statsService.scanStats()
+							.sort(TableStats.COMPARE_NUM_ROWS.reversed()
+									.thenComparing(TableStats.COMPARE_CLIENT)
+									.thenComparing(TableStats.COMPARE_TABLE)));
 			addWithTotal(
 					"Spans",
-					$ -> dao.scan()
-							.sort(LatestTableCount.COMPARE_SPANS.reversed()
-									.thenComparing(LatestTableCount.COMPARE_ROWS.reversed())
-									.thenComparing(LatestTableCount.COMPARE_CLIENT)
-									.thenComparing(LatestTableCount.COMPARE_TABLE)));
-			addWithTotal(
-					"Spans by Client",
-					$ -> dao.scan()
-							.sort(LatestTableCount.COMPARE_CLIENT
-									.thenComparing(LatestTableCount.COMPARE_SPANS.reversed())
-									.thenComparing(LatestTableCount.COMPARE_ROWS.reversed())
-									.thenComparing(LatestTableCount.COMPARE_TABLE)));
-			addWithTotal(
-					"Slow Spans",
-					$ -> dao.scan()
-							.sort(LatestTableCount.COMPARE_SLOW_SPANS.reversed()
-									.thenComparing(LatestTableCount.COMPARE_ROWS.reversed())
-									.thenComparing(LatestTableCount.COMPARE_CLIENT)
-									.thenComparing(LatestTableCount.COMPARE_TABLE)));
-			addWithTotal(
-					"Slow Spans by Client",
-					$ -> dao.scan()
-							.sort(LatestTableCount.COMPARE_CLIENT
-									.thenComparing(LatestTableCount.COMPARE_SLOW_SPANS.reversed())
-									.thenComparing(LatestTableCount.COMPARE_ROWS.reversed())
-									.thenComparing(LatestTableCount.COMPARE_TABLE)));
+					$ -> statsService.scanStats()
+							.sort(TableStats.COMPARE_NUM_SPANS.reversed()
+									.thenComparing(TableStats.COMPARE_NUM_ROWS.reversed())
+									.thenComparing(TableStats.COMPARE_CLIENT)
+									.thenComparing(TableStats.COMPARE_TABLE)));
 			addWithTotal(
 					"Count Time",
-					$ -> dao.scan()
-							.sort(LatestTableCount.COMPARE_COUNT_TIME.reversed()
-									.thenComparing(LatestTableCount.COMPARE_ROWS.reversed())
-									.thenComparing(LatestTableCount.COMPARE_CLIENT)
-									.thenComparing(LatestTableCount.COMPARE_TABLE)));
-			addWithTotal(
-					"Count Time by Client",
-					$ -> dao.scan()
-							.sort(LatestTableCount.COMPARE_CLIENT
-									.thenComparing(LatestTableCount.COMPARE_COUNT_TIME.reversed())
-									.thenComparing(LatestTableCount.COMPARE_ROWS.reversed())
-									.thenComparing(LatestTableCount.COMPARE_TABLE)));
-			addWithTotal(
-					"Date Updated",
-					$ -> dao.scan()
-							.sort(LatestTableCount.COMPARE_DATE_UPDATED
-									.thenComparing(LatestTableCount.COMPARE_CLIENT)
-									.thenComparing(LatestTableCount.COMPARE_TABLE)));
-			addWithTotal(
-					"Client and Table",
-					$ -> dao.scan()
-							.sort(LatestTableCount.COMPARE_CLIENT
-									.thenComparing(LatestTableCount.COMPARE_TABLE)));
+					$ -> statsService.scanStats()
+							.sort(TableStats.COMPARE_COUNT_TIME.reversed()
+									.thenComparing(TableStats.COMPARE_NUM_ROWS.reversed())
+									.thenComparing(TableStats.COMPARE_CLIENT)
+									.thenComparing(TableStats.COMPARE_TABLE)));
 			addWithTotal(
 					"Table",
-					$ -> dao.scan()
-							.sort(LatestTableCount.COMPARE_TABLE
-									.thenComparing(LatestTableCount.COMPARE_CLIENT)));
+					$ -> statsService.scanStats()
+							.sort(TableStats.COMPARE_TABLE
+									.thenComparing(TableStats.COMPARE_CLIENT)));
+			addWithTotal(
+					"Updated Ago",
+					$ -> statsService.scanStats()
+							.sort(TableStats.COMPARE_UPDATED_AGO
+									.thenComparing(TableStats.COMPARE_CLIENT)
+									.thenComparing(TableStats.COMPARE_TABLE)));
 		}
 
 	}

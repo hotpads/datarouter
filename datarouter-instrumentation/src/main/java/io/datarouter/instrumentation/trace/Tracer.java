@@ -22,8 +22,8 @@ public interface Tracer{
 
 	String getServerName();
 	Optional<W3TraceContext> getTraceContext();
-	BlockingQueue<Trace2ThreadDto> getThreadQueue();
-	BlockingQueue<Trace2SpanDto> getSpanQueue();
+	BlockingQueue<TraceThreadDto> getThreadQueue();
+	BlockingQueue<TraceSpanDto> getSpanQueue();
 
 	Long getCurrentThreadId();
 	Integer getDiscardedThreadCount();
@@ -37,17 +37,17 @@ public interface Tracer{
 	Optional<Long> getAlternativeStartTimeNs();
 	void createThread(String name, long queueTimeNs);
 	void startThread();
-	void addThread(Trace2ThreadDto thread);
+	void addThread(TraceThreadDto thread);
 	void appendToThreadInfo(String text);
 	void finishThread();
 
 	Integer getDiscardedSpanCount();
 	void startSpan(String name, TraceSpanGroupType groupType, long createdTimeNs);
-	void addSpan(Trace2SpanDto span);
+	void addSpan(TraceSpanDto span);
 	void appendToSpanInfo(String text);
 	void finishSpan(long endTimeNs);
 	void incrementDiscardedSpanCount(int discardedSpanCount);
-	Trace2SpanDto getCurrentSpan();
+	TraceSpanDto getCurrentSpan();
 
 	boolean shouldSample();
 	void setForceSample();

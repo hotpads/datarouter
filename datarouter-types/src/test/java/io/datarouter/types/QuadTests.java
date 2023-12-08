@@ -140,9 +140,9 @@ public class QuadTests{
 		Assert.assertTrue(q0.bits() != q1.bits());
 		Assert.assertTrue(qp.bits() != q1.bits());
 		Assert.assertTrue(qp.bits() != q0.bits());
-		Assert.assertFalse(q0.equals(q1));
-		Assert.assertFalse(qp.equals(q0));
-		Assert.assertFalse(qp.equals(q1));
+		Assert.assertNotEquals(q1, q0);
+		Assert.assertNotEquals(q0, qp);
+		Assert.assertNotEquals(q1, qp);
 	}
 
 	@Test

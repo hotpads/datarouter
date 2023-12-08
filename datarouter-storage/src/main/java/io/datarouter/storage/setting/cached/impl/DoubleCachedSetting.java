@@ -19,23 +19,12 @@ import io.datarouter.storage.setting.DefaultSettingValue;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.cached.CachedSetting;
 import io.datarouter.storage.setting.type.DoubleSetting;
+import io.datarouter.storage.setting.validator.DoubleSettingValidator;
 
 public class DoubleCachedSetting extends CachedSetting<Double> implements DoubleSetting{
 
 	public DoubleCachedSetting(SettingFinder finder, String name, DefaultSettingValue<Double> defaultValue){
-		super(finder, name, defaultValue);
-	}
-
-	//Not a great implementation but at that time,
-	//there is no simple way to check that a String is parsable to a Double
-	@Override
-	public boolean isValid(String value){
-		try{
-			Double.parseDouble(value);
-			return true;
-		}catch(NumberFormatException e){
-			return false;
-		}
+		super(finder, name, defaultValue, new DoubleSettingValidator());
 	}
 
 }

@@ -38,7 +38,6 @@ import io.datarouter.tasktracker.config.DatarouterTaskTrackerPaths;
 import io.datarouter.tasktracker.storage.LongRunningTask;
 import io.datarouter.tasktracker.storage.LongRunningTaskDao;
 import io.datarouter.tasktracker.web.TaskTrackerExceptionLink;
-import io.datarouter.util.time.ZonedDateFormatterTool;
 import io.datarouter.web.config.properties.DefaultEmailDistributionListZoneId;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
 import io.datarouter.web.email.StandardDatarouterEmailHeaderService;
@@ -73,14 +72,14 @@ public class LongRunningTaskFailureAlertJob extends BaseJob{
 	@Override
 	public void run(TaskTracker tracker){
 		longRunningTaskDao.scan()
-				.include(task -> task.getKey().getTriggerTime().getTime()
+				.include(task -> task.getKey().getTriggerTime().toEpochMilli()
 						> System.currentTimeMillis() - Duration.ofDays(1).toMillis())
 				.include(LongRunningTask::isBadState)
 				.flush(this::sendEmail);
 	}
 
 	private void sendEmail(List<LongRunningTask> longRunningTaskList){
-		if(longRunningTaskList.size() > 0){
+		if(!longRunningTaskList.isEmpty()){
 			String primaryHref = emailService.startLinkBuilder()
 					.withLocalPath(paths.datarouter.triggers)
 					.build();
@@ -105,12 +104,11 @@ public class LongRunningTaskFailureAlertJob extends BaseJob{
 		var header = standardDatarouterEmailHeaderService.makeStandardHeader();
 		var description = h4("There" + headerVerb + longRunningTaskList.size()
 				+ " non-successful long running tasks in the last 24 hours.");
-		@SuppressWarnings("deprecation")
 		TableTag taskTable = new J2HtmlEmailTable<LongRunningTask>()
 				.withColumn(new J2HtmlEmailTableColumn<>("Name",
 						row -> makeTaskLink(row.getKey().getName())))
-				.withColumn("Trigger Time", row -> ZonedDateFormatterTool.formatDateWithZone(row.getKey()
-						.getTriggerTime(), defaultDistributionListZoneId.get()))
+				.withColumn("Trigger Time", row -> row.getKey().getTriggerTime()
+						.format(defaultDistributionListZoneId.get()))
 				.withColumn("Duration", LongRunningTask::getDurationString)
 				.withColumn("Triggered By", LongRunningTask::getTriggeredBy)
 				.withColumn("Status", row -> row.getJobExecutionStatus().persistentString)

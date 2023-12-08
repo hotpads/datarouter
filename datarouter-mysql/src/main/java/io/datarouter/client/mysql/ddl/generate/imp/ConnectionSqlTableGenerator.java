@@ -143,7 +143,10 @@ public class ConnectionSqlTableGenerator{
 		statement.setString(1, schemaName);
 		statement.setString(2, tableName);
 		ResultSet resultSet = statement.executeQuery();
-		resultSet.next();
+		boolean tableExists = resultSet.next();
+		if(!tableExists){
+			throw new RuntimeException("table missing from db schema=" + schemaName + " table=" + tableName);
+		}
 		MysqlTableEngine engine = MysqlTableEngine.parse(resultSet.getString(ENGINE));
 		MysqlRowFormat rowFormat = MysqlRowFormat.BY_VALUE.fromOrNull(resultSet.getString(ROW_FORMAT));
 		MysqlCollation collation = MysqlCollation.parse(resultSet.getString(TABLE_COLLATION));

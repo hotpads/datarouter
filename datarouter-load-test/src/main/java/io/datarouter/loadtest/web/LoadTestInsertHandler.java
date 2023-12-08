@@ -42,7 +42,6 @@ import io.datarouter.loadtest.storage.RandomValueKey;
 import io.datarouter.loadtest.util.LoadTestTool;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.scanner.Threads;
-import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.op.raw.write.StorageWriter;
 import io.datarouter.util.concurrent.CallableTool;
 import io.datarouter.util.concurrent.ExecutorServiceTool;
@@ -67,13 +66,11 @@ public class LoadTestInsertHandler extends BaseHandler{
 	private static final String P_numThreads = "numThreads";
 	private static final String P_batchSize = "batchSize";
 	private static final String P_logPeriod = "logPeriod";
-	private static final String P_persistentPut = "persistentPut";
 	private static final String P_submitAction = "submitAction";
 
 	private static final int DEFAULT_NUM = 1_000_000;
 	private static final int DEFAULT_NUM_THREADS = 10;
 	private static final int DEFAULT_BATCH_SIZE = 100;
-	private static final boolean DEFAULT_PERSISTENT_PUT = true;
 	private static final int DEFAULT_LOG_PERIOD = 10_000;
 
 	@Inject
@@ -87,7 +84,6 @@ public class LoadTestInsertHandler extends BaseHandler{
 			@Param(P_numThreads) Optional<String> numThreads,
 			@Param(P_batchSize) Optional<String> batchSize,
 			@Param(P_logPeriod) Optional<String> logPeriod,
-			@Param(P_persistentPut) Optional<String> persistentPut,
 			@Param(P_submitAction) Optional<String> submitAction){
 		var form = new HtmlForm(HtmlFormMethod.POST);
 		form.addNumberField()
@@ -110,11 +106,6 @@ public class LoadTestInsertHandler extends BaseHandler{
 				.withName(P_logPeriod)
 				.withPlaceholder(10_000)
 				.withValue(logPeriod.orElse(null));
-		form.addTextField()
-				.withLabel("Persistent Put")
-				.withName(P_persistentPut)
-				.withPlaceholder("true")
-				.withValue(persistentPut.orElse(null));
 		form.addButton()
 				.withLabel("Run Insert")
 				.withValue("anything");
@@ -147,26 +138,21 @@ public class LoadTestInsertHandler extends BaseHandler{
 				.map(number -> number.replace(",", ""))
 				.map(Integer::valueOf)
 				.orElse(DEFAULT_LOG_PERIOD);
-		boolean pPersistentPut = persistentPut
-				.map(StringTool::nullIfEmpty)
-				.map(Boolean::valueOf)
-				.orElse(DEFAULT_PERSISTENT_PUT);
 
-		PhaseTimer timer = new PhaseTimer("insert");
+		var timer = new PhaseTimer("insert");
 
 		//tracking
-		AtomicInteger counter = new AtomicInteger(0);
-		AtomicLong lastBatchFinished = new AtomicLong(System.nanoTime());
+		var counter = new AtomicInteger(0);
+		var lastBatchFinished = new AtomicLong(System.nanoTime());
 
 		//execute
 		int numBatches = LoadTestTool.numBatches(pNum, pBatchSize);
 		ExecutorService executor = Executors.newFixedThreadPool(pNumThreads);
-		Scanner.of(IntStream.range(0, numBatches).mapToObj(Integer::valueOf))
+		Scanner.of(IntStream.range(0, numBatches).boxed())
 				.map(batchId -> LoadTestTool.makePredictableIdBatch(pNum, pBatchSize, batchId))
 				.map(ids -> new InsertBatchCallable(
 						dao.getWriterNode(),
 						ids,
-						pPersistentPut,
 						pLogPeriod,
 						lastBatchFinished,
 						counter))
@@ -189,8 +175,7 @@ public class LoadTestInsertHandler extends BaseHandler{
 							dt("Num"), dd(pNum + ""),
 							dt("Num Threads"), dd(pNumThreads + ""),
 							dt("Batch Size"), dd(pBatchSize + ""),
-							dt("Log Period"), dd(pLogPeriod + ""),
-							dt("Persistent Put"), dd(pPersistentPut + ""))))
+							dt("Log Period"), dd(pLogPeriod + ""))))
 				.withClass("container");
 		logger.warn("total={}, rps={}, num={}, numThreads={} batchSize={}, logPeriod={}, persistentPut={}",
 				timer.getElapsedString(),
@@ -198,8 +183,7 @@ public class LoadTestInsertHandler extends BaseHandler{
 				pNum,
 				pNumThreads,
 				pBatchSize,
-				pLogPeriod,
-				pPersistentPut);
+				pLogPeriod);
 		return pageFactory.message(request, message);
 	}
 
@@ -221,7 +205,6 @@ public class LoadTestInsertHandler extends BaseHandler{
 
 		private final StorageWriter<RandomValueKey,RandomValue> node;
 		private final List<Integer> ids;
-		private final boolean persistentPut;
 		private final int logPeriod;
 		private final AtomicLong lastBatchFinished;
 		private final AtomicInteger counter;
@@ -229,13 +212,11 @@ public class LoadTestInsertHandler extends BaseHandler{
 		public InsertBatchCallable(
 				StorageWriter<RandomValueKey,RandomValue> node,
 				List<Integer> ids,
-				boolean persistentPut,
 				int logPeriod,
 				AtomicLong lastBatchFinished,
 				AtomicInteger counter){
 			this.node = node;
 			this.ids = ids;
-			this.persistentPut = persistentPut;
 			this.logPeriod = logPeriod;
 			this.lastBatchFinished = lastBatchFinished;
 			this.counter = counter;
@@ -245,9 +226,7 @@ public class LoadTestInsertHandler extends BaseHandler{
 		public Void call(){
 			Scanner.of(ids)
 					.map(RandomValue::new)
-					.flush(databeans -> node.putMulti(databeans, new Config()
-							.setPersistentPut(persistentPut)
-							.setNumAttempts(10)))
+					.flush(node::putMulti)
 					.forEach($ -> trackEachRow());
 			return null;
 		}

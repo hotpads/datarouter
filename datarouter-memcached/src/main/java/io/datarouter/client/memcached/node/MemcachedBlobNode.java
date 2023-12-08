@@ -94,21 +94,19 @@ implements PhysicalBlobStorageNode{
 	}
 
 	@Override
-	public byte[] read(PathbeanKey key, Config config){
+	public Optional<byte[]> read(PathbeanKey key, Config config){
 		return scanMultiInternal(List.of(key))
 				.findFirst()
-				.map(MemcachedPathbeanResult::value)
-				.orElse(null);
+				.map(MemcachedPathbeanResult::value);
 	}
 
 	@Override
-	public byte[] readPartial(PathbeanKey key, long offset, int length, Config config){
+	public Optional<byte[]> readPartial(PathbeanKey key, long offset, int length, Config config){
 		int intOffset = (int)offset;
 		return scanMultiInternal(List.of(key))
 				.findFirst()
 				.map(MemcachedPathbeanResult::value)
-				.map(bytes -> Arrays.copyOfRange(bytes, intOffset, intOffset + length))
-				.orElse(null);
+				.map(bytes -> Arrays.copyOfRange(bytes, intOffset, intOffset + length));
 	}
 
 	@Override

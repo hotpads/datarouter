@@ -143,7 +143,7 @@ public class ScannerToolTests{
 	@Test
 	public void testReduce(){
 		Scanner<Integer> input = Scanner.of(2, 1, 4, 5, 3);
-		BinaryOperator<Integer> reducer = (a, b) -> Math.max(a, b);
+		BinaryOperator<Integer> reducer = Math::max;
 		int expected = 5;
 		int actual = input.reduce(reducer).get();
 		Assert.assertEquals(actual, expected);
@@ -152,7 +152,7 @@ public class ScannerToolTests{
 	@Test
 	public void testReduceEmpty(){
 		List<Integer> input = List.of();
-		BinaryOperator<Integer> reducer = (a, b) -> Math.max(a, b);
+		BinaryOperator<Integer> reducer = Math::max;
 		Optional<Integer> actual = Scanner.of(input).reduce(reducer);
 		Assert.assertFalse(actual.isPresent());
 	}
@@ -160,14 +160,14 @@ public class ScannerToolTests{
 	@Test(expectedExceptions = NullPointerException.class)
 	public void testReduceNullItem(){
 		Scanner<Integer> input = Scanner.of(null, 1);
-		BinaryOperator<Integer> reducer = (a, b) -> Math.max(a, b);
+		BinaryOperator<Integer> reducer = Math::max;
 		input.reduce(reducer);
 	}
 
 	@Test
 	public void testReduceWithSeed(){
 		Scanner<Integer> input = Scanner.of(2, 1, 4, 5, 3);
-		BinaryOperator<Integer> reducer = (a, b) -> Math.max(a, b);
+		BinaryOperator<Integer> reducer = Math::max;
 		int expected = 6;
 		int actual = input.reduce(6, reducer);
 		Assert.assertEquals(actual, expected);
@@ -176,7 +176,7 @@ public class ScannerToolTests{
 	@Test
 	public void testReduceWithSeedEmpty(){
 		List<Integer> input = List.of();
-		BinaryOperator<Integer> reducer = (a, b) -> Math.max(a, b);
+		BinaryOperator<Integer> reducer = Math::max;
 		int actual = Scanner.of(input).reduce(6, reducer);
 		Assert.assertEquals(actual, 6);
 	}

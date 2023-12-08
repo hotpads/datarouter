@@ -21,15 +21,18 @@ public class Role implements Comparable<Role>{
 
 	public final String persistentString;
 	public final String description;
+	public final RoleRiskFactor riskFactor;
 
-	public Role(String persistentString, String description){
+	public Role(String persistentString, String description, RoleRiskFactor riskFactor){
 		this.persistentString = persistentString;
 		this.description = description;
+		this.riskFactor = riskFactor;
 	}
 
 	public Role(String persistentString){
 		this.persistentString = persistentString;
 		this.description = null;
+		this.riskFactor = null;
 	}
 
 	public String getPersistentString(){

@@ -85,7 +85,16 @@ public interface Scanner<T> extends Closeable{
 	}
 
 	/**
+	 * Consume 1 item without closing, only closing the scanner if the last item was consumed.
+	 * Not safe to call concurrently from multiple threads.
+	 */
+	default ScannerNextItem<T> next(){
+		return ScannerTool.next(this);
+	}
+
+	/**
 	 * Consume up to N items without closing, only closing the scanner if the last item was consumed.
+	 * Not safe to call concurrently from multiple threads.
 	 *
 	 * @param numToTake  Maximum returned items
 	 * @return  List with up to numToTake items
@@ -199,27 +208,40 @@ public interface Scanner<T> extends Closeable{
 	/*--------------------------- Concat ----------------------------*/
 
 	/**
-	 * Combine the items from multiple Iterables into a single Scanner.  Use Function.identity() if they're already
-	 * Iterables.
+	 * Combine the items from multiple Iterables into a single Scanner.
+	 * Use Function.identity() if they're already Iterables.
 	 *
-	 * @param mapToIterable  Converts the input items into the Iterables to be combined
+	 * @param toIterableFn  Converts the input items into the Iterables to be combined
 	 * @return  Scanner containing the items from all input Iterables, starting with the first
 	 */
-	default <R> Scanner<R> concatIter(Function<? super T,Iterable<R>> mapToIterable){
-		Scanner<Iterable<R>> iterables = map(mapToIterable);
+	default <R> Scanner<R> concatIter(Function<? super T,Iterable<R>> toIterableFn){
+		Scanner<Iterable<R>> iterables = map(toIterableFn);
 		Scanner<Scanner<R>> scanners = iterables.map(IterableScanner::of);
 		return new ConcatenatingScanner<>(scanners);
+	}
+
+	/**
+	 * Ignores empty Optionals, and dereferences the remaining ones.
+	 * The Optionals must be non-null, or else a NullPointerException will be thrown.
+	 *
+	 * @param toOptionalFn  Converts the input items into the Optionals to be combined
+	 * @return  Scanner containing the values from the non-empty Optionals
+	 */
+	default <R> Scanner<R> concatOpt(Function<? super T,Optional<R>> toOptionalFn){
+		return map(toOptionalFn)
+				.include(Optional::isPresent)
+				.map(Optional::orElseThrow);
 	}
 
 	/**
 	 * Combine the items from multiple Scanners into a single Scanner.  Use Function.identity() if they're already
 	 * Scanners.
 	 *
-	 * @param mapToScanner  Converts the input items into the Scanners to be combined
+	 * @param toScannerFn  Converts the input items into the Scanners to be combined
 	 * @return  Scanner containing the items from all input Scanners, starting with the first
 	 */
-	default <R> Scanner<R> concat(Function<? super T,Scanner<R>> mapToScanner){
-		Scanner<Scanner<R>> scanners = map(mapToScanner);
+	default <R> Scanner<R> concat(Function<? super T,Scanner<R>> toScannerFn){
+		Scanner<Scanner<R>> scanners = map(toScannerFn);
 		return new ConcatenatingScanner<>(scanners);
 	}
 
@@ -277,8 +299,8 @@ public interface Scanner<T> extends Closeable{
 	 * @return  Assuming input scanners are sorted, a single Scanner of all items in sorted order.
 	 */
 	@SuppressWarnings("unchecked")
-	default <R> Scanner<R> collate(Function<? super T,Scanner<R>> mapper){
-		return collate(mapper, (Comparator<? super R>)Comparator.naturalOrder());
+	default <R> Scanner<R> collate(Function<? super T,Scanner<R>> toScannerFn){
+		return collate(toScannerFn, (Comparator<? super R>)Comparator.naturalOrder());
 	}
 
 	/**
@@ -288,8 +310,8 @@ public interface Scanner<T> extends Closeable{
 	 * @return  Assuming input scanners are sorted according to the comparator, a single Scanner of all items in sorted
 	 *         order.
 	 */
-	default <R> Scanner<R> collate(Function<? super T,Scanner<R>> mapper, Comparator<? super R> comparator){
-		List<Scanner<R>> scanners = map(mapper).list();
+	default <R> Scanner<R> collate(Function<? super T,Scanner<R>> toScannerFn, Comparator<? super R> comparator){
+		List<Scanner<R>> scanners = map(toScannerFn).list();
 		if(scanners.size() == 1){
 			return scanners.get(0);
 		}
@@ -300,12 +322,24 @@ public interface Scanner<T> extends Closeable{
 	 * New implementation with assumption that data is usually not random.
 	 * TODO make the default
 	 */
-	default <R> Scanner<R> collateV2(Function<? super T,Scanner<R>> mapper, Comparator<? super R> comparator){
-		List<Scanner<R>> scanners = map(mapper).list();
+	default <R> Scanner<R> collateV2(Function<? super T,Scanner<R>> toScannerFn, Comparator<? super R> comparator){
+		List<Scanner<R>> scanners = map(toScannerFn).list();
 		if(scanners.size() == 1){
 			return scanners.get(0);
 		}
 		return new CollatingScannerV2<>(scanners, comparator);
+	}
+
+	/*--------------------------- Merge ----------------------------*/
+
+	/**
+	 * Convert input items to Scanners.
+	 * Take the first available item from any of the input Scanners.
+	 * Pulls from the first N Scanners at a time, avoiding initializing potentially many of them.
+	 */
+	default <R> Scanner<R> merge(Threads threads, Function<? super T,Scanner<R>> toScannerFn){
+		Scanner<Scanner<R>> scanners = map(toScannerFn);
+		return new MergingScanner<>(threads, scanners);
 	}
 
 	/*--------------------------- Chain ----------------------------*/

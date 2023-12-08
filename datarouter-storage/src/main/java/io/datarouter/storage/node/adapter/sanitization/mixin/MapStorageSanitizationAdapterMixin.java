@@ -67,6 +67,7 @@ extends MapStorage<PK,D>, MapStorageReaderSanitizationAdapterMixin<PK,D,F,N>{
 	default void delete(PK key, Config config){
 		Objects.requireNonNull(key);
 		Objects.requireNonNull(config);
+		PrimaryKeySanitizer.logForNullPrimaryKeyValues(key);
 		getBackingNode().delete(key, config);
 	}
 
@@ -78,6 +79,7 @@ extends MapStorage<PK,D>, MapStorageReaderSanitizationAdapterMixin<PK,D,F,N>{
 			return;
 		}
 		keys.forEach(Objects::requireNonNull);
+		keys.forEach(PrimaryKeySanitizer::logForNullPrimaryKeyValues);
 		getBackingNode().deleteMulti(keys, config);
 	}
 

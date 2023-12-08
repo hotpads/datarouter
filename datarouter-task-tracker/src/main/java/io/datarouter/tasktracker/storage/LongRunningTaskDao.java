@@ -22,7 +22,6 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.BaseDao;
-import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
@@ -36,12 +35,8 @@ import jakarta.inject.Singleton;
 @Singleton
 public class LongRunningTaskDao extends BaseDao{
 
-	public static class LongRunningTaskDaoParams extends BaseRedundantDaoParams{
-
-		public LongRunningTaskDaoParams(List<ClientId> clientId){
-			super(clientId);
-		}
-
+	public record LongRunningTaskDaoParams(
+			List<ClientId> clientIds){
 	}
 
 	private final SortedMapStorageNode<LongRunningTaskKey,LongRunningTask,LongRunningTaskFielder> node;

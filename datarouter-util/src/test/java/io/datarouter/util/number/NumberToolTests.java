@@ -43,9 +43,9 @@ public class NumberToolTests{
 		Assert.assertEquals(NumberTool.parseIntegerFromNumberString("5.9", null), Integer.valueOf(5));
 		Assert.assertEquals(NumberTool.parseIntegerFromNumberString("-9", null), Integer.valueOf(-9));
 		Assert.assertEquals(NumberTool.parseIntegerFromNumberString("-9", -9), Integer.valueOf(-9));
-		Assert.assertEquals(NumberTool.parseIntegerFromNumberString("5-9", null), null);
-		Assert.assertEquals(NumberTool.parseIntegerFromNumberString(null, null), null);
-		Assert.assertEquals(NumberTool.parseIntegerFromNumberString("banana", null), null);
+		Assert.assertNull(NumberTool.parseIntegerFromNumberString("5-9", null));
+		Assert.assertNull(NumberTool.parseIntegerFromNumberString(null, null));
+		Assert.assertNull(NumberTool.parseIntegerFromNumberString("banana", null));
 		Assert.assertEquals(NumberTool.parseIntegerFromNumberString("banana", 2), Integer.valueOf(2));
 		Assert.assertEquals(NumberTool.parseIntegerFromNumberString("banana", 2), Integer.valueOf(2));
 		Assert.assertEquals(NumberTool.parseIntegerFromNumberString("2", 3), Integer.valueOf(2));
@@ -64,19 +64,19 @@ public class NumberToolTests{
 		Integer bar0 = 1000;
 		Assert.assertTrue(foo0 <= bar0);
 		Assert.assertTrue(foo0 >= bar0);
-		Assert.assertFalse(foo0 == bar0);
+		Assert.assertNotSame(foo0, bar0);
 
 		Integer foo1 = 42;
 		Integer bar1 = 42;
 		Assert.assertTrue(foo1 <= bar1);
 		Assert.assertTrue(foo1 >= bar1);
-		Assert.assertTrue(foo1 == bar1);
+		Assert.assertSame(foo1, bar1);
 
 		Integer foo2 = 1000;
 		int bar2 = 1000;
 		Assert.assertTrue(foo2 <= bar2);
 		Assert.assertTrue(foo2 >= bar2);
-		Assert.assertTrue(foo2 == bar2);
+		Assert.assertEquals(bar2, (int)foo2);
 	}
 
 	@Test

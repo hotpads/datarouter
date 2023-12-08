@@ -29,7 +29,7 @@ public class HashMethodsTests{
 		long hash1 = HashMethods.longDjbHash("public-school_HOLMES ELEMENTARY_4902 MT. ARARAT DR_SAN DIEGO_CA_92111");
 		long hash2 = HashMethods.longDjbHash(
 				"private-school_Burleson Adventist School_1635 Fox Lane_Burleson_TX_76028");
-		Assert.assertFalse(hash1 == hash2);
+		Assert.assertNotEquals(hash2, hash1);
 	}
 
 	@Test

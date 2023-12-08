@@ -16,8 +16,8 @@
 package io.datarouter.web.browse;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
+import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.node.Node;
 import io.datarouter.storage.node.NodeTool;
@@ -42,7 +42,7 @@ public class NodeSearchHandler extends BaseHandler{
 						.findAny()
 						.orElseThrow(() -> new RuntimeException(node + "")))
 				.distinct()
-				.collect(Collectors.toList());
+				.collect(WarnOnModifyList.deprecatedCollector());
 		return NodeWrapper.getNodeWrappers(nodes);
 	}
 

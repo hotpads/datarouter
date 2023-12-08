@@ -16,7 +16,6 @@
 package io.datarouter.loadtest.util;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import io.datarouter.util.number.RandomTool;
@@ -27,7 +26,7 @@ public class LoadTestTool{
 		int thisBatchSize = adjustedBatchSize(totalRows, targetBatchSize, batchId);
 		return IntStream.range(0, thisBatchSize)
 				.mapToObj($ -> RandomTool.nextPositiveInt(maxId))
-				.collect(Collectors.toList());
+				.toList();
 	}
 
 	public static List<Integer> makePredictableIdBatch(int totalRows, int targetBatchSize, int batchId){
@@ -35,7 +34,7 @@ public class LoadTestTool{
 		int thisBatchSize = adjustedBatchSize(totalRows, targetBatchSize, batchId);
 		return IntStream.range(0, thisBatchSize)
 				.mapToObj(i -> i * numBatches + batchId)
-				.collect(Collectors.toList());
+				.toList();
 	}
 
 	public static int adjustedBatchSize(int totalRows, int targetBatchSize, int batchId){

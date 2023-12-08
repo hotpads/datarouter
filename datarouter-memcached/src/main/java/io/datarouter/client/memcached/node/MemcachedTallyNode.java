@@ -26,7 +26,6 @@ import io.datarouter.client.memcached.client.DatarouterMemcachedClient;
 import io.datarouter.client.memcached.codec.MemcachedTallyCodec;
 import io.datarouter.client.memcached.util.MemcachedExpirationTool;
 import io.datarouter.client.memcached.util.MemcachedResult;
-import io.datarouter.scanner.OptionalScanner;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.config.Config;
@@ -78,8 +77,7 @@ implements PhysicalTallyStorageNode{
 	@Override
 	public Map<String,Long> getMultiTallyCount(Collection<String> tallyStringKeys, Config config){
 		return Scanner.of(tallyStringKeys)
-				.map(tallyCodec::encodeKeyIfValid)
-				.concat(OptionalScanner::of)
+				.concatOpt(tallyCodec::encodeKeyIfValid)
 				.listTo(memcachedStringKeys -> lazyClient.get().scanMultiStrings(
 						getName(),
 						memcachedStringKeys,

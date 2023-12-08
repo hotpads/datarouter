@@ -22,7 +22,6 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import io.datarouter.scanner.ObjectScanner;
-import io.datarouter.scanner.OptionalScanner;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.setting.Setting;
 import io.datarouter.storage.setting.SettingCategory.SimpleSettingCategory;
@@ -174,8 +173,7 @@ public class ClusterSettingHierarchy{
 						: Optional.empty();
 			}
 			List<HierarchyNode> matchingChildren = Scanner.of(children)
-					.map(child -> child.filter(optPartialName))
-					.concat(OptionalScanner::of)
+					.concatOpt(child -> child.filter(optPartialName))
 					.list();
 			return matchingChildren.isEmpty()
 					? Optional.empty()

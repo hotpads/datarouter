@@ -53,9 +53,9 @@ public class BinarySmallFileServiceIntegrationTests{
 		String filename = "testfile";
 		String content = "hello";
 		testDirectory.write(filename, content.getBytes());
-		String actualFullFile = new String(testDirectory.read(filename));
+		String actualFullFile = testDirectory.read(filename).map(String::new).orElseThrow();
 		Assert.assertEquals(actualFullFile, content);
-		String actualPartialFile = new String(testDirectory.read(filename, 2, 2));
+		String actualPartialFile = testDirectory.read(filename, 2, 2).map(String::new).orElseThrow();
 		Assert.assertEquals(actualPartialFile, "ll");
 		testDirectory.delete(filename);
 	}
@@ -66,9 +66,9 @@ public class BinarySmallFileServiceIntegrationTests{
 		String initialContent = "hello";
 		String replaceContent = "ByeBye";
 		testDirectory.write(filename, initialContent.getBytes());
-		Assert.assertEquals(new String(testDirectory.read(filename)), initialContent);
+		Assert.assertEquals(testDirectory.read(filename).map(String::new).orElseThrow(), initialContent);
 		testDirectory.write(filename, replaceContent.getBytes());
-		Assert.assertEquals(new String(testDirectory.read(filename)), replaceContent);
+		Assert.assertEquals(testDirectory.read(filename).map(String::new).orElseThrow(), replaceContent);
 	}
 
 }

@@ -19,6 +19,7 @@ import io.datarouter.bytes.BinaryDictionary;
 import io.datarouter.bytes.ByteLength;
 import io.datarouter.bytes.blockfile.compress.BlockfileStandardCompressors;
 import io.datarouter.bytes.blockfile.storage.BlockfileStorage;
+import io.datarouter.bytes.kvfile.blockformat.KvFileStandardBlockFormats;
 import io.datarouter.bytes.kvfile.io.KvFileBuilder;
 import io.datarouter.bytes.kvfile.io.read.KvFileReader;
 import io.datarouter.bytes.kvfile.io.write.KvFileWriter;
@@ -26,7 +27,6 @@ import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.plugin.dataexport.config.DatarouterDataExportExecutors.DatabeanExportEncodeExecutor;
-import io.datarouter.plugin.dataexport.config.DatarouterDataExportExecutors.DatabeanExportWriteExecutor;
 import io.datarouter.plugin.dataexport.config.DatarouterDataExportExecutors.DatabeanImportDecodeExecutor;
 import io.datarouter.plugin.dataexport.config.DatarouterDataExportExecutors.DatabeanImportReadExecutor;
 import io.datarouter.plugin.dataexport.util.DatabeanExportCodec;
@@ -43,8 +43,6 @@ public class DatabeanExportKvFileService{
 
 	@Inject
 	private DatabeanExportEncodeExecutor encodeExec;
-	@Inject
-	private DatabeanExportWriteExecutor writeExec;
 	@Inject
 	private DatabeanImportReadExecutor readExec;
 	@Inject
@@ -64,7 +62,10 @@ public class DatabeanExportKvFileService{
 		var headerDictionary = new BinaryDictionary();
 		ColumnNamesDictionaryCodec.addToDictionary(node.getFieldInfo().getFieldColumnNames(), headerDictionary);
 		String filename = DatabeanExportFilenameTool.makePartFilename(partId);
-		return kvFile.newWriterBuilder(filename, kvCodec::encode)
+		return kvFile.newWriterBuilder(
+				filename,
+				kvCodec,
+				KvFileStandardBlockFormats.SEQUENTIAL)
 				.setCompressor(BlockfileStandardCompressors.GZIP)
 				.setHeaderDictionary(headerDictionary)
 				.setEncodeThreads(new Threads(encodeExec, 4))
@@ -86,7 +87,7 @@ public class DatabeanExportKvFileService{
 		BinaryDictionary userDictionary = metadataReader.header().userDictionary();
 		ColumnNameCodec columnNameCodec = ColumnNameCodec.fromBinaryDictionary(userDictionary);
 		var kvCodec = new DatabeanExportCodec<>(node.getFieldInfo(), columnNameCodec);
-		return kvFile.newReaderBuilder(filename, kvCodec::decode)
+		return kvFile.newReaderBuilder(filename, kvCodec)
 				.setReadChunkSize(ByteLength.ofMiB(4))
 				.setReadThreads(new Threads(readExec, 4))
 				.setDecodeThreads(new Threads(decodeExec, 2))

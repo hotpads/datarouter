@@ -16,7 +16,6 @@
 package io.datarouter.storage.test.node.basic.map;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.testng.Assert;
@@ -124,7 +123,7 @@ public abstract class BaseMapStorageIntegrationTests{
 	private List<MapStorageBean> initBeans(int size){
 		return IntStream.range(0, size)
 				.mapToObj(i -> new MapStorageBean("data" + i))
-				.collect(Collectors.toList());
+				.toList();
 	}
 
 	private void deleteRecord(MapStorageBean databean){

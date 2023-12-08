@@ -16,6 +16,7 @@
 package io.datarouter.client.gcp.pubsub;
 
 import io.datarouter.client.gcp.pubsub.client.GcpPubsubClientManager;
+import io.datarouter.client.gcp.pubsub.config.DatarouterGcpPubsubSettingsRoot;
 import io.datarouter.client.gcp.pubsub.node.GcpPubsubBlobNode;
 import io.datarouter.client.gcp.pubsub.op.blob.GcpPubSubBlobPeekOp;
 import io.datarouter.client.gcp.pubsub.op.blob.GcpPubsubBlobAckOp;
@@ -28,27 +29,30 @@ public class GcpPubSubBlobOpFactory{
 
 	private final GcpPubsubBlobNode<?> blobNode;
 	private final GcpPubsubClientManager clientManager;
+	private final DatarouterGcpPubsubSettingsRoot settingRoot;
 	private final ClientId clientId;
 
 	public GcpPubSubBlobOpFactory(
 			GcpPubsubBlobNode<?> blobNode,
 			GcpPubsubClientManager clientManager,
+			DatarouterGcpPubsubSettingsRoot settingRoot,
 			ClientId clientId){
 		this.blobNode = blobNode;
 		this.clientManager = clientManager;
+		this.settingRoot = settingRoot;
 		this.clientId = clientId;
 	}
 
 	public GcpPubsubBlobOp<Void> makePutOp(byte[] data){
-		return new GcpPubsubBlobPutOp(data, blobNode, clientManager, clientId);
+		return new GcpPubsubBlobPutOp(data, blobNode, clientManager, settingRoot, clientId);
 	}
 
 	public GcpPubsubBlobOp<RawBlobQueueMessage> makePeekOp(){
-		return new GcpPubSubBlobPeekOp(blobNode, clientManager, clientId);
+		return new GcpPubSubBlobPeekOp(blobNode, clientManager, settingRoot, clientId);
 	}
 
 	public GcpPubsubBlobOp<Void> makeAckOp(byte[] handle){
-		return new GcpPubsubBlobAckOp(handle, blobNode, clientManager, clientId);
+		return new GcpPubsubBlobAckOp(handle, blobNode, clientManager, settingRoot, clientId);
 	}
 
 }

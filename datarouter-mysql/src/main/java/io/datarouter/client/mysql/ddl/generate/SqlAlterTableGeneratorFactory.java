@@ -27,6 +27,7 @@ import java.util.stream.Stream;
 import io.datarouter.client.mysql.ddl.domain.SqlColumn;
 import io.datarouter.client.mysql.ddl.domain.SqlIndex;
 import io.datarouter.client.mysql.ddl.domain.SqlTable;
+import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.storage.config.schema.SchemaUpdateOptions;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -48,6 +49,7 @@ public class SqlAlterTableGeneratorFactory{
 		final List<CharSequence> executeAlters;
 		final List<CharSequence> quickPrintAlters;
 		final List<CharSequence> thoroughPrintAlters;
+
 		boolean preventStartUp;
 
 		DdlBuilder(){
@@ -114,7 +116,11 @@ public class SqlAlterTableGeneratorFactory{
 					preventStartUp);
 		}
 
-		private String percona(String hostname, String databaseName, String tableName, List<CharSequence> clauses){
+		private static String percona(
+				String hostname,
+				String databaseName,
+				String tableName,
+				List<CharSequence> clauses){
 			return "pt-online-schema-change "
 					+ "h=" + hostname + ",D=" + databaseName + ",t=" + tableName + " "
 					+ "--execute "
@@ -139,6 +145,8 @@ public class SqlAlterTableGeneratorFactory{
 
 	@Inject
 	private SchemaUpdateOptions schemaUpdateOptions;
+	@Inject
+	private DatabaseHostnameUrlSupplier databaseDnsSupplier;
 
 	public class SqlAlterTableGenerator{
 
@@ -155,12 +163,14 @@ public class SqlAlterTableGeneratorFactory{
 		}
 
 		public Ddl generateDdl(){
-			SqlTableDiffGenerator diff = new SqlTableDiffGenerator(current, requested);
+			var diff = new SqlTableDiffGenerator(current, requested);
 			if(!diff.isTableModified()){
 				return new Ddl(Optional.empty(), Optional.empty(), false);
 			}
 			DdlBuilder ddlBuilder = generate(diff);
-			return ddlBuilder.build(hostname, databaseName, current.getName());
+			String hostnameUrl = databaseDnsSupplier.getHostnameUrl(databaseName)
+					.orElse(hostname);
+			return ddlBuilder.build(hostnameUrl, databaseName, current.getName());
 		}
 
 		private boolean printOrExecute(Function<Boolean,Boolean> option){
@@ -270,20 +280,20 @@ public class SqlAlterTableGeneratorFactory{
 		private List<CharSequence> getAlterTableForAddingColumns(List<SqlColumn> colsToAdd){
 			return colsToAdd.stream()
 					.map(this::makeAddColumnDefinition)
-					.collect(Collectors.toList());
+					.collect(WarnOnModifyList.deprecatedCollector());
 		}
 
 		private List<CharSequence> getAlterTableForRemovingColumns(List<SqlColumn> colsToRemove){
 			return colsToRemove.stream()
 					.map(SqlColumn::getName)
 					.map("drop column "::concat)
-					.collect(Collectors.toList());
+					.collect(WarnOnModifyList.deprecatedCollector());
 		}
 
 		private List<CharSequence> getAlterTableForModifyingColumns(List<SqlColumn> columnsToModify){
 			return columnsToModify.stream()
 					.map(this::makeModifyColumnDefinition)
-					.collect(Collectors.toList());
+					.collect(WarnOnModifyList.deprecatedCollector());
 		}
 
 		private StringBuilder makeModifyColumnDefinition(SqlColumn column){
@@ -298,7 +308,7 @@ public class SqlAlterTableGeneratorFactory{
 			return indexesToDrop.stream()
 					.map(SqlIndex::getName)
 					.map("drop index "::concat)
-					.collect(Collectors.toList());
+					.collect(WarnOnModifyList.deprecatedCollector());
 		}
 
 		private List<CharSequence> getAlterTableForAddingIndexes(
@@ -314,7 +324,7 @@ public class SqlAlterTableGeneratorFactory{
 						}
 						return sb.append("index ").append(index.getName()).append(csvColumns);
 					})
-					.collect(Collectors.toList());
+					.collect(WarnOnModifyList.deprecatedCollector());
 		}
 
 	}

@@ -19,11 +19,11 @@ import io.datarouter.job.BaseTriggerGroup;
 import io.datarouter.job.job.DatarouterJobStopperJob;
 import io.datarouter.job.monitoring.JobRetriggeringJob;
 import io.datarouter.job.monitoring.LongRunningTaskFailureAlertJob;
-import io.datarouter.job.vacuum.ClusterJobLockVacuumJob;
-import io.datarouter.job.vacuum.ClusterTriggerLockVacuumJob;
+import io.datarouter.job.vacuum.JobLockVacuumJob;
 import io.datarouter.job.vacuum.LongRunningTaskVacuumJob;
 import io.datarouter.job.vacuum.StopJobRequestVacuumJob;
 import io.datarouter.job.vacuum.TaskTrackerPublishJob;
+import io.datarouter.job.vacuum.TriggerLockVacuumJob;
 import io.datarouter.job.vacuum.TriggerLockVacuumUnlockJob;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.util.time.ZoneIds;
@@ -48,17 +48,17 @@ public class DatarouterJobTriggerGroup extends BaseTriggerGroup{
 				true);
 		registerLocked(
 				"39 0/1 * * * ?",
-				settings.runClusterJobLockVacuum,
-				ClusterJobLockVacuumJob.class,
+				settings.runjobLockVacuum,
+				JobLockVacuumJob.class,
 				true);
 		registerParallel(
 				"4 * * * * ?",
-				settings.runClusterJobLockVacuumUnlockJob,
+				settings.runjobLockVacuumUnlockJob,
 				TriggerLockVacuumUnlockJob.class);
 		registerLocked(
 				"24 3 * * * ?",
-				settings.runClusterTriggerLockVacuumJob,
-				ClusterTriggerLockVacuumJob.class,
+				settings.runTriggerLockVacuumJob,
+				TriggerLockVacuumJob.class,
 				true);
 		registerLocked(
 				"44 1/15 * * * ?",

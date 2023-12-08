@@ -19,32 +19,21 @@ import java.util.List;
 
 import io.datarouter.bytes.ByteTool;
 import io.datarouter.bytes.blockfile.enums.BlockfileSection;
-import io.datarouter.bytes.blockfile.write.BlockfileWriter;
 import io.datarouter.scanner.Scanner;
 
-public record BlockfileTokens(
-		BlockfileSection section,
-		byte[] length,
-		byte[] checksum,
-		byte[] value){
+public interface BlockfileTokens{
 
-	public int totalLength(){
-		return section == BlockfileSection.TRAILER // No section byte
-				? value.length
-				: length.length + checksum.length + BlockfileWriter.NUM_SECTION_BYTES + value.length;
-	}
+	BlockfileSection section();
 
-	public List<byte[]> toList(){
-		return section == BlockfileSection.TRAILER
-				? List.of(value)
-				: List.of(length, checksum, section.codeBytes, value);
-	}
+	int totalLength();
 
-	public Scanner<byte[]> scan(){
+	List<byte[]> toList();
+
+	default Scanner<byte[]> scan(){
 		return Scanner.of(toList());
 	}
 
-	public byte[] concat(){
+	default byte[] concat(){
 		return ByteTool.concat(toList());
 	}
 

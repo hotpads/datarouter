@@ -24,7 +24,8 @@ import jakarta.inject.Singleton;
 public class SpannerTableOperationsGenerator{
 
 	public String getListOfTables(){
-		return "SELECT table_name FROM information_schema.tables WHERE table_catalog = '' and table_schema = '';";
+		return "SELECT table_name, spanner_state FROM information_schema.tables WHERE table_catalog = ''"
+				+ " and table_schema = '';";
 	}
 
 	public String getTableSchema(String tableName){

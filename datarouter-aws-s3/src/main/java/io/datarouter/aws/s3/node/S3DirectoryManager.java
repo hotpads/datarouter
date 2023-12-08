@@ -82,14 +82,14 @@ public class S3DirectoryManager{
 		return client.length(location);
 	}
 
-	public byte[] read(String suffix){
+	public Optional<byte[]> read(String suffix){
 		var location = new BucketAndKey(bucket, fullPath(suffix));
-		return client.getObjectAsBytes(location);
+		return client.findObject(location);
 	}
 
-	public byte[] read(String suffix, long offset, int length){
+	public Optional<byte[]> read(String suffix, long offset, int length){
 		var location = new BucketAndKey(bucket, fullPath(suffix));
-		return client.getPartialObject(location, offset, length);
+		return client.findPartialObject(location, offset, length);
 	}
 
 	public InputStream readInputStream(String suffix){

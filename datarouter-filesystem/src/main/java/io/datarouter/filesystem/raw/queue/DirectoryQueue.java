@@ -56,7 +56,7 @@ public class DirectoryQueue{
 	}
 
 	public DirectoryQueueMessage getMessage(String id){
-		byte[] content = directoryManager.read(idToFilename(id));
+		byte[] content = directoryManager.read(idToFilename(id)).orElse(null);//TODO return optional?
 		return new DirectoryQueueMessage(id, content);
 	}
 
@@ -68,7 +68,7 @@ public class DirectoryQueue{
 				.each(filename -> openFilenames.put(filename, Instant.now()))
 				.findFirst()
 				.map(filename -> {
-					byte[] content = directoryManager.read(filename);
+					byte[] content = directoryManager.read(filename).orElse(null);//TODO return optional?
 					return new DirectoryQueueMessage(filenameToId(filename), content);
 				});
 	}

@@ -64,6 +64,12 @@ public class TableStorageStatsBinaryDto extends BinaryDto<TableStorageStatsBinar
 				.sum();
 	}
 
+	public long avgBytesPerRow(boolean includeNameBytes){
+		return includeNameBytes
+				? avgValueBytesPerRow() + avgNameBytesPerRow()
+				: avgValueBytesPerRow();
+	}
+
 	/*----- nested -------*/
 
 	public static class ColumnStorageStatsBinaryDto extends BinaryDto<ColumnStorageStatsBinaryDto>{

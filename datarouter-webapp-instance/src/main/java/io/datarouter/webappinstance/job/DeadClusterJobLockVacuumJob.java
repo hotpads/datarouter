@@ -26,8 +26,8 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
-import io.datarouter.job.storage.clusterjoblock.ClusterJobLock;
-import io.datarouter.job.storage.clusterjoblock.DatarouterClusterJobLockDao;
+import io.datarouter.job.storage.joblock.DatarouterJobLockDao;
+import io.datarouter.job.storage.joblock.JobLock;
 import io.datarouter.web.app.WebappName;
 import io.datarouter.webappinstance.storage.webappinstancelog.DatarouterWebappInstanceLogDao;
 import io.datarouter.webappinstance.storage.webappinstancelog.WebappInstanceLog;
@@ -44,7 +44,7 @@ public class DeadClusterJobLockVacuumJob extends BaseJob{
 	@Inject
 	private WebappName webappName;
 	@Inject
-	private DatarouterClusterJobLockDao clusterJobLockDao;
+	private DatarouterJobLockDao clusterJobLockDao;
 
 	@Override
 	public void run(TaskTracker tracker){
@@ -53,7 +53,7 @@ public class DeadClusterJobLockVacuumJob extends BaseJob{
 				.include(lock -> deadServers.computeIfAbsent(lock.getServerName(), this::isDeadServer))
 				.each(lock -> logger.warn("Unlocking job={} serverName={}", lock.getKey().getJobName(),
 						lock.getServerName()))
-				.map(ClusterJobLock::getKey)
+				.map(JobLock::getKey)
 				.batch(100)
 				.forEach(clusterJobLockDao::deleteMulti);
 	}

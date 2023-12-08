@@ -29,6 +29,7 @@ import com.google.pubsub.v1.PubsubMessage;
 import io.datarouter.client.gcp.pubsub.GcpPubsubDataTooLargeException;
 import io.datarouter.client.gcp.pubsub.PubsubCostCounters;
 import io.datarouter.client.gcp.pubsub.client.GcpPubsubClientManager;
+import io.datarouter.client.gcp.pubsub.config.DatarouterGcpPubsubSettingsRoot;
 import io.datarouter.client.gcp.pubsub.node.BaseGcpPubsubNode;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
@@ -50,8 +51,9 @@ extends GcpPubsubOp<PK,D,F,Void>{
 			Config config,
 			BaseGcpPubsubNode<PK,D,F> basePubSubNode,
 			GcpPubsubClientManager clientManager,
+			DatarouterGcpPubsubSettingsRoot settingRoot,
 			ClientId clientId){
-		super(config, basePubSubNode, clientManager, clientId);
+		super(config, basePubSubNode, clientManager, settingRoot, clientId);
 		this.databeans = databeans;
 	}
 

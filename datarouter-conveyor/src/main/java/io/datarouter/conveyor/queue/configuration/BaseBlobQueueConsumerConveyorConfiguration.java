@@ -64,12 +64,15 @@ implements ConveyorConfiguration{
 			throw new RuntimeException("failed to process message", e);
 		}
 		Instant afterProcessBuffer = Instant.now();
-		gaugeRecorder.saveProcessBufferDurationMs(conveyor, Duration.between(beforeProcessBuffer, afterProcessBuffer)
-				.toMillis());
-		if(Duration.between(beforeProcessBuffer, afterProcessBuffer).toMillis() > DEFAULT_VISIBILITY_TIMEOUT
-				.toMillis()){
-			logger.warn("slow conveyor conveyor={} durationMs={}", conveyor.getName(), Duration.between(
-					beforeProcessBuffer, afterProcessBuffer).toMillis());
+		gaugeRecorder.saveProcessBufferDurationMs(
+				conveyor,
+				Duration.between(beforeProcessBuffer, afterProcessBuffer).toMillis());
+		if(Duration.between(beforeProcessBuffer, afterProcessBuffer).toMillis()
+				> DEFAULT_VISIBILITY_TIMEOUT.toMillis()){
+			logger.warn(
+					"slow conveyor conveyor={} durationMs={}",
+					conveyor.getName(),
+					Duration.between(beforeProcessBuffer, afterProcessBuffer).toMillis());
 		}
 		logger.info("consumed conveyor={} messageCount={}", conveyor.getName(), 1);
 		ConveyorCounters.incConsumedOpAndDatabeans(conveyor, 1);

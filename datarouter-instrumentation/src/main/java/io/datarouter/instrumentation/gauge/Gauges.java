@@ -19,15 +19,25 @@ import java.util.ArrayList;
 
 public class Gauges{
 
-	private static final ArrayList<GaugeCollector> COLLECTORS = new ArrayList<>();
+	private static final ArrayList<MetricCollector> COLLECTORS = new ArrayList<>();
+	private static final ArrayList<MetricCollector> RAW_COLLECTORS = new ArrayList<>();
 
 	/*----------- admin -------------*/
 
-	public static void addCollector(GaugeCollector collector){
+	public static void addCollector(MetricCollector collector){
 		COLLECTORS.add(collector);
 	}
 
+	public static void addRawCollector(MetricCollector collector){
+		RAW_COLLECTORS.add(collector);
+	}
+
 	/*------------ client -----------*/
+
+	public static void saveWithPercentiles(String key, long value){
+		save(key, value);
+		RAW_COLLECTORS.forEach(collector -> collector.save(key, value));
+	}
 
 	public static void save(String key, long value){
 		COLLECTORS.forEach(collector -> collector.save(key, value));

@@ -18,7 +18,6 @@ package io.datarouter.nodewatch.joblet;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
@@ -44,6 +43,7 @@ import io.datarouter.storage.node.op.raw.read.SortedStorageReader.SortedStorageR
 import io.datarouter.storage.node.tableconfig.ClientTableEntityPrefixNameWrapper;
 import io.datarouter.storage.op.scan.stride.StrideScanner.StrideScannerBuilder;
 import io.datarouter.storage.util.PrimaryKeyPercentCodecTool;
+import io.datarouter.types.MilliTime;
 import io.datarouter.util.DateTool;
 import io.datarouter.util.Require;
 import io.datarouter.util.lang.ObjectTool;
@@ -193,9 +193,8 @@ implements Callable<List<TableSample>>{
 							insertIntermediateSample();
 						}
 					});
-		}else{ //TODO remove after validating offsetting
-			Config scanConfig = new Config()
-					.setScannerCaching(false)
+		}else{
+			var scanConfig = new Config()
 					.setResponseBatchSize(batchSize)
 					.anyDelay();
 			Iterator<PK> iterator = node.scanKeys(posiblyOpenEndedPkRange, scanConfig).iterator();
@@ -294,10 +293,10 @@ implements Callable<List<TableSample>>{
 				+ ", " + this;
 		logger.info(log);
 
-		Date sampleDateCreated = Optional.ofNullable(forceCreatedAt)
-				.map(Date::from)
-				.orElseGet(Date::new);
-		var sample = new TableSample(
+		MilliTime sampleDateCreated = Optional.ofNullable(forceCreatedAt)
+				.map(MilliTime::of)
+				.orElseGet(MilliTime::now);
+		return new TableSample(
 				nodeNames,
 				pk.getFields(),
 				numSinceLastMarker,
@@ -305,7 +304,6 @@ implements Callable<List<TableSample>>{
 				getLatestSpanCountTime().toMillis(),
 				markInterrupted,
 				isLastSpan);
-		return sample;
 	}
 
 	private void putAndKeepSample(TableSample sample){

@@ -56,7 +56,7 @@ public class TracerTool{
 		if(tracer == null){
 			return new TraceSpanFinisher(tracer);
 		}
-		tracer.startSpan(name, groupType, Trace2Dto.getCurrentTimeInNs());
+		tracer.startSpan(name, groupType, TraceTimeTool.epochNano());
 		return new TraceSpanFinisher(tracer);
 	}
 
@@ -95,7 +95,7 @@ public class TracerTool{
 		if(tracer == null){
 			return;
 		}
-		tracer.finishSpan(Trace2Dto.getCurrentTimeInNs());
+		tracer.finishSpan(TraceTimeTool.epochNano());
 	}
 
 	public static void finishSpan(){

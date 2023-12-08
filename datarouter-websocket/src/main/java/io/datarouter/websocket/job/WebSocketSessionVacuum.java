@@ -26,8 +26,8 @@ import io.datarouter.httpclient.response.exception.DatarouterHttpConnectionAbort
 import io.datarouter.httpclient.response.exception.DatarouterHttpResponseException;
 import io.datarouter.httpclient.response.exception.DatarouterHttpRuntimeException;
 import io.datarouter.instrumentation.task.TaskTracker;
-import io.datarouter.storage.util.DatabeanVacuum;
-import io.datarouter.storage.util.DatabeanVacuum.DatabeanVacuumBuilder;
+import io.datarouter.storage.vacuum.DatabeanVacuum;
+import io.datarouter.storage.vacuum.DatabeanVacuum.DatabeanVacuumBuilder;
 import io.datarouter.websocket.WebSocketCounters;
 import io.datarouter.websocket.endpoint.WebSocketServices;
 import io.datarouter.websocket.session.PushService;
@@ -80,8 +80,7 @@ public class WebSocketSessionVacuum{
 					isAlive = false;
 					reason = "noRouteToHost";
 				}
-			}else if(throwable != null && throwable instanceof DatarouterHttpResponseException){
-				DatarouterHttpResponseException httpException = (DatarouterHttpResponseException)throwable;
+			}else if(throwable != null && throwable instanceof DatarouterHttpResponseException httpException){
 				// the websocket api is not accessible, the server address got repurposed for something else
 				if(httpException.getResponse().getStatusCode() == 404){
 					isAlive = false;

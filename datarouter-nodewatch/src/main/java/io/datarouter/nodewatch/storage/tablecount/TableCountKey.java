@@ -15,17 +15,17 @@
  */
 package io.datarouter.nodewatch.storage.tablecount;
 
-import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 
 import io.datarouter.model.field.Field;
+import io.datarouter.model.field.codec.MilliTimeFieldCodec;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
-import io.datarouter.model.field.imp.comparable.LongField;
-import io.datarouter.model.field.imp.comparable.LongFieldKey;
+import io.datarouter.model.field.imp.comparable.LongEncodedField;
+import io.datarouter.model.field.imp.comparable.LongEncodedFieldKey;
 import io.datarouter.model.key.primary.base.BaseRegularPrimaryKey;
+import io.datarouter.types.MilliTime;
 
 public class TableCountKey extends BaseRegularPrimaryKey<TableCountKey>{
 
@@ -34,12 +34,13 @@ public class TableCountKey extends BaseRegularPrimaryKey<TableCountKey>{
 
 	private String clientName;
 	private String tableName;
-	private Long createdMs;
+	private MilliTime createdMs;
 
 	public static class FieldKeys{
 		public static final StringFieldKey clientName = new StringFieldKey("clientName");
 		public static final StringFieldKey tableName = new StringFieldKey("tableName");
-		public static final LongFieldKey createdMs = new LongFieldKey("createdMs");
+		public static final LongEncodedFieldKey<MilliTime> createdMs = new LongEncodedFieldKey<>("createdMs",
+				new MilliTimeFieldCodec());
 	}
 
 	@Override
@@ -47,13 +48,13 @@ public class TableCountKey extends BaseRegularPrimaryKey<TableCountKey>{
 		return List.of(
 				new StringField(FieldKeys.clientName, clientName),
 				new StringField(FieldKeys.tableName, tableName),
-				new LongField(FieldKeys.createdMs, createdMs));
+				new LongEncodedField<>(FieldKeys.createdMs, createdMs));
 	}
 
 	public TableCountKey(){
 	}
 
-	public TableCountKey(String clientName, String tableName, Long createdMs){
+	public TableCountKey(String clientName, String tableName, MilliTime createdMs){
 		this.clientName = clientName;
 		this.tableName = tableName;
 		this.createdMs = createdMs;
@@ -71,14 +72,8 @@ public class TableCountKey extends BaseRegularPrimaryKey<TableCountKey>{
 		return tableName;
 	}
 
-	public Long getCreatedMs(){
+	public MilliTime getCreatedMs(){
 		return createdMs;
-	}
-
-	public Instant getCreated(){
-		return Optional.ofNullable(createdMs)
-				.map(Instant::ofEpochMilli)
-				.orElse(null);
 	}
 
 	public void setClientName(String clientName){

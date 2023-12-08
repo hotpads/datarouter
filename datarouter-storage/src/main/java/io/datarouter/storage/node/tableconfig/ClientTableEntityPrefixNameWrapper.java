@@ -62,28 +62,9 @@ public class ClientTableEntityPrefixNameWrapper implements Comparable<ClientTabl
 			return false;
 		}
 		ClientTableEntityPrefixNameWrapper other = (ClientTableEntityPrefixNameWrapper)obj;
-		if(clientName == null){
-			if(other.clientName != null){
-				return false;
-			}
-		}else if(!clientName.equals(other.clientName)){
-			return false;
-		}
-		if(subEntityPrefix == null){
-			if(other.subEntityPrefix != null){
-				return false;
-			}
-		}else if(!subEntityPrefix.equals(other.subEntityPrefix)){
-			return false;
-		}
-		if(tableName == null){
-			if(other.tableName != null){
-				return false;
-			}
-		}else if(!tableName.equals(other.tableName)){
-			return false;
-		}
-		return true;
+		return Objects.equals(clientName, other.clientName)
+				&& Objects.equals(subEntityPrefix, other.subEntityPrefix)
+				&& Objects.equals(tableName, other.tableName);
 	}
 
 	@Override

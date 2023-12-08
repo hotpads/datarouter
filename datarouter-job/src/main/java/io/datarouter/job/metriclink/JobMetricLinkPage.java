@@ -18,11 +18,11 @@ package io.datarouter.job.metriclink;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import io.datarouter.job.BaseTriggerGroup;
 import io.datarouter.job.TriggerGroupClasses;
 import io.datarouter.job.scheduler.JobPackage;
+import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.metriclinks.MetricLinkDto;
 import io.datarouter.web.metriclinks.MetricLinkDto.LinkDto;
@@ -49,7 +49,7 @@ public abstract class JobMetricLinkPage implements MetricLinkPage{
 					var availbleMetric = LinkDto.of("Datarouter job " + jobName);
 					return new MetricLinkDto(jobName, Optional.empty(), Optional.of(availbleMetric));
 				})
-				.collect(Collectors.toList());
+				.collect(WarnOnModifyList.deprecatedCollector());
 	}
 
 	/*

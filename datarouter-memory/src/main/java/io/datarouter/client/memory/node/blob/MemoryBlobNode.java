@@ -23,7 +23,6 @@ import java.util.Map;
 import java.util.Optional;
 
 import io.datarouter.bytes.io.InputStreamTool;
-import io.datarouter.scanner.OptionalScanner;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.config.Config;
@@ -82,32 +81,30 @@ implements PhysicalBlobStorageNode{
 	}
 
 	@Override
-	public byte[] read(PathbeanKey key, Config config){
+	public Optional<byte[]> read(PathbeanKey key, Config config){
 		return Optional.of(key)
 				.map(keyCodec::encode)
 				.flatMap(storage::find)
-				.map(MemoryBlob::getValue)
-				.orElse(null);
+				.map(MemoryBlob::getValue);
 	}
 
 	@Override
-	public byte[] readPartial(PathbeanKey key, long offset, int length, Config config){
+	public Optional<byte[]> readPartial(PathbeanKey key, long offset, int length, Config config){
 		int from = (int)offset;
 		int to = from + length;
 		return Optional.of(key)
 				.map(keyCodec::encode)
 				.flatMap(storage::find)
 				.map(MemoryBlob::getValue)
-				.map(bytes -> Arrays.copyOfRange(bytes, from, to))
-				.orElse(null);
+				.map(bytes -> Arrays.copyOfRange(bytes, from, to));
 	}
 
 	@Override
 	public Map<PathbeanKey,byte[]> readMulti(List<PathbeanKey> keys, Config config){
+		//TODO storage.findMulti inside the same read lock
 		return Scanner.of(keys)
 				.map(keyCodec::encode)
-				.map(storage::find)
-				.concat(OptionalScanner::of)
+				.concatOpt(storage::find)
 				.toMap(keyCodec::decode, MemoryBlob::getValue);
 	}
 

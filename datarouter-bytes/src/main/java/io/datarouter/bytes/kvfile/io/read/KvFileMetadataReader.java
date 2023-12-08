@@ -20,6 +20,7 @@ import java.util.List;
 import io.datarouter.bytes.BinaryDictionary;
 import io.datarouter.bytes.blockfile.read.BlockfileMetadataCache;
 import io.datarouter.bytes.blockfile.read.BlockfileMetadataReader;
+import io.datarouter.bytes.kvfile.blockformat.KvFileBlockFormats;
 import io.datarouter.bytes.kvfile.io.footer.KvFileFooter;
 import io.datarouter.bytes.kvfile.io.header.KvFileHeader;
 import io.datarouter.bytes.kvfile.io.header.KvFileHeader.KvFileHeaderCodec;
@@ -28,7 +29,7 @@ public class KvFileMetadataReader<T>{
 
 	public record KvFileMetadataReaderConfig<T>(
 			BlockfileMetadataReader<List<T>> blockfileMetadataReader,
-			List<String> blockFormats){
+			KvFileBlockFormats blockFormats){
 	}
 
 	private final KvFileMetadataReaderConfig<T> config;

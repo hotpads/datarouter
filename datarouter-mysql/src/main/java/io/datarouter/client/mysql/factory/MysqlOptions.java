@@ -98,7 +98,6 @@ public class MysqlOptions{
 					SecretOpConfig config = SecretOpConfig.builder(
 							SecretOpReason.automatedOp(this.getClass().getSimpleName()))
 							.useSharedNamespace()
-							.disableRecording()
 							.build();
 					String result = secretService.read(secretLocation, String.class, config);
 					logger.warn("using secret at secretLocation={}", namespacedLocationForLogs);

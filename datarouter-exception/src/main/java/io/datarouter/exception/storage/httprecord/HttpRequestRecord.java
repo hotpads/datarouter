@@ -25,6 +25,7 @@ import io.datarouter.exception.storage.exceptionrecord.ExceptionRecordKey;
 import io.datarouter.gson.GsonTool;
 import io.datarouter.instrumentation.exception.HttpRequestRecordDto;
 import io.datarouter.instrumentation.trace.W3TraceContext;
+import io.datarouter.types.MilliTime;
 import io.datarouter.types.Ulid;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.handler.BaseHandler;
@@ -49,8 +50,13 @@ public class HttpRequestRecord extends BaseHttpRequestRecord<HttpRequestRecordKe
 	}
 
 	@SuppressWarnings("deprecation")
-	public HttpRequestRecord(String exceptionRecordId, Optional<W3TraceContext> traceContext,
-			HttpServletRequest request, String sessionRoles, String userToken, boolean omitPayload){
+	public HttpRequestRecord(
+			String exceptionRecordId,
+			Optional<W3TraceContext> traceContext,
+			HttpServletRequest request,
+			String sessionRoles,
+			String userToken,
+			boolean omitPayload){
 		this(RequestAttributeTool.get(request, BaseHandler.REQUEST_RECEIVED_AT).orElse(new Date()),
 				exceptionRecordId,
 				traceContext.map(W3TraceContext::getTraceId).orElse(null),
@@ -97,9 +103,25 @@ public class HttpRequestRecord extends BaseHttpRequestRecord<HttpRequestRecordKe
 			String sessionRoles,
 			String userToken,
 			RecordedHttpHeaders headersWrapper){
-		super(new HttpRequestRecordKey(new Ulid()), receivedAt, exceptionRecordId, traceId, parentId,
-				httpMethod, httpParams, protocol, hostname, port, contextPath, path, queryString, binaryBody, ip,
-				sessionRoles, userToken, headersWrapper);
+		super(new HttpRequestRecordKey(
+				new Ulid()),
+				MilliTime.of(receivedAt),
+				exceptionRecordId,
+				traceId,
+				parentId,
+				httpMethod,
+				httpParams,
+				protocol,
+				hostname,
+				port,
+				contextPath,
+				path,
+				queryString,
+				binaryBody,
+				ip,
+				sessionRoles,
+				userToken,
+				headersWrapper);
 	}
 
 	public HttpRequestRecord(ExceptionAndHttpRequestDto exceptionDto, String exceptionRecordId){
@@ -109,8 +131,8 @@ public class HttpRequestRecord extends BaseHttpRequestRecord<HttpRequestRecordKe
 	public HttpRequestRecordDto toDto(){
 		return new HttpRequestRecordDto(
 				getKey().getId().value(),
-				getCreated(),
-				getReceivedAt(),
+				getCreatedAt().toDate(),
+				getReceivedAt().toDate(),
 				getDuration(),
 
 				getExceptionRecordId(),

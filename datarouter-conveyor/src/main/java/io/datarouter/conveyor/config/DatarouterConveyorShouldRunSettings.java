@@ -38,7 +38,7 @@ public class DatarouterConveyorShouldRunSettings extends SettingNode{
 			ConveyorConfigurationGroupService conveyorConfigurationGroupService){
 		super(finder, DatarouterConveyorSettingRoot.SETTING_NAME_PREFIX + SETTING_NAME_PREFIX);
 		conveyorConfigurationGroupService.getAllPackages()
-			.forEach(this::registerSetting);
+				.forEach(this::registerSetting);
 	}
 
 	private void registerSetting(ConveyorPackage conveyorPackage){

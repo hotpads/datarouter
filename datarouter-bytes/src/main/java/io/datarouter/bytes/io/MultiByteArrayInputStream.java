@@ -125,6 +125,11 @@ public class MultiByteArrayInputStream extends InputStream{
 		return count;
 	}
 
+	@Override
+	public void close(){
+		scanner.close();
+	}
+
 	private int remainingInCurrent(){
 		return current.length - position;
 	}

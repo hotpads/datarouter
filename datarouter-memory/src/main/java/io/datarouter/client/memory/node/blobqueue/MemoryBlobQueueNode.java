@@ -65,7 +65,8 @@ implements PhysicalBlobQueueStorageNode<T>{
 
 	@Override
 	public Optional<BlobQueueMessage<T>> peek(Config config){
-		long visibilityTimeoutMs = config.getVisibilityTimeoutMsOrUse(MemoryQueueStorage.DEFAULT_VISIBILITY_TIMEOUT_MS);
+		long visibilityTimeoutMs = config.findVisibilityTimeoutMs()
+				.orElse(MemoryQueueStorage.DEFAULT_VISIBILITY_TIMEOUT_MS);
 		var messages = storage.peek(1, visibilityTimeoutMs);
 		if(messages.isEmpty()){
 			return Optional.empty();

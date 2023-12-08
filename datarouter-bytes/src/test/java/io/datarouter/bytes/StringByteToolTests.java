@@ -51,12 +51,12 @@ public class StringByteToolTests{
 		Assert.assertEquals(euroUtf8.length, 2);
 		Assert.assertEquals(euroUsAscii.length, 1);
 
-		Assert.assertFalse(euroFromUsAscii.equals(euroFromLatin1));
+		Assert.assertNotEquals(euroFromLatin1, euroFromUsAscii);
 	}
 
 	@Test
 	public void testAsciiExtensions(){
-		Assert.assertTrue(unknownCharacterInt.equals(65533));
+		Assert.assertEquals((int)unknownCharacterInt, 65533);
 
 		for(int i = 0; i < 256; ++i){
 			String ascii = new String(new byte[]{(byte)i}, StandardCharsets.US_ASCII);
@@ -79,16 +79,16 @@ public class StringByteToolTests{
 				Assert.assertEquals(utf8, utf16be);
 			}else if(i < 160){
 				Assert.assertEquals(unknownCharacter.toString(), ascii);// invalid octet
-				Assert.assertEquals(latin1.charAt(0), i);// valid octet, but not not mapped to any character
-				Assert.assertTrue(windows1252.length() > 0);
-				Assert.assertTrue(latin1.equals(utf16be));
-				Assert.assertTrue(!windows1252.equals(utf16be));
+				Assert.assertEquals(latin1.charAt(0), i);// valid octet, but not mapped to any character
+				Assert.assertFalse(windows1252.isEmpty());
+				Assert.assertEquals(utf16be, latin1);
+				Assert.assertNotEquals(utf16be, windows1252);
 				Assert.assertEquals(unknownCharacter.toString(), utf8);// utf8 will expect 2 bytes here, so our 1
 																		// byte is junk
 			}else{
 				Assert.assertEquals(unknownCharacter.toString(), ascii);// invalid octet
-				Assert.assertTrue(latin1.length() > 0);
-				Assert.assertTrue(windows1252.length() > 0);
+				Assert.assertFalse(latin1.isEmpty());
+				Assert.assertFalse(windows1252.isEmpty());
 				Assert.assertEquals(windows1252, latin1);
 				Assert.assertEquals(utf16be, windows1252);
 				Assert.assertEquals(unknownCharacter.toString(), utf8);// utf8 will expect 2 bytes here, so our 1

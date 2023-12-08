@@ -31,7 +31,7 @@ import jakarta.inject.Singleton;
  */
 public interface SecretNamespacer{
 
-	static final String SHARED = "shared";
+	String SHARED = "shared";
 
 	String getAppNamespace();
 	String getSharedNamespace();
@@ -46,20 +46,16 @@ public interface SecretNamespacer{
 	}
 
 	default String getConfigNamespace(SecretOpConfig config){
-		switch(config.namespaceType){
-		case APP:
-			return getAppNamespace();
-		case SHARED:
-			return getSharedNamespace();
-		case MANUAL:
-			return config.manualNamespace;
-		default:
-			throw new RuntimeException();
-		}
+		return switch(config.namespaceType){
+		case APP -> getAppNamespace();
+		case SHARED -> getSharedNamespace();
+		case MANUAL -> config.manualNamespace;
+		default -> throw new RuntimeException();
+		};
 	}
 
 	@Singleton
-	public static class DevelopmentNamespacer implements SecretNamespacer{
+	class DevelopmentNamespacer implements SecretNamespacer{
 
 		private static final String DEVELOPMENT = "development";
 

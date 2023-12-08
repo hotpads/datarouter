@@ -177,8 +177,7 @@ implements DatarouterEndpointClient<ET>{
 		String serializedDto = jsonSerializer.serialize(dto);
 		String dtoTypeNullSafe = dtoType;
 		if(dtoType == null){
-			if(dto instanceof Iterable){
-				Iterable<?> dtos = (Iterable<?>)dto;
+			if(dto instanceof Iterable<?> dtos){
 				dtoTypeNullSafe = dtos.iterator().hasNext() ? dtos.iterator().next().getClass().getCanonicalName() : "";
 			}else{
 				dtoTypeNullSafe = dto.getClass().getCanonicalName();

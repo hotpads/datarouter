@@ -25,14 +25,13 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.BaseDao;
-import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.IndexingNodeFactory;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
 import io.datarouter.storage.node.op.index.IndexReader;
 import io.datarouter.storage.tag.Tag;
-import io.datarouter.storage.util.DatabeanVacuum;
-import io.datarouter.storage.util.DatabeanVacuum.DatabeanVacuumBuilder;
+import io.datarouter.storage.vacuum.DatabeanVacuum;
+import io.datarouter.storage.vacuum.DatabeanVacuum.DatabeanVacuumBuilder;
 import io.datarouter.virtualnode.redundant.RedundantIndexedSortedMapStorageNode;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -40,12 +39,7 @@ import jakarta.inject.Singleton;
 @Singleton
 public class DatarouterHttpRequestRecordDao extends BaseDao{
 
-	public static class DatarouterHttpRequestRecordDaoParams extends BaseRedundantDaoParams{
-
-		public DatarouterHttpRequestRecordDaoParams(List<ClientId> clientIds){
-			super(clientIds);
-		}
-
+	public record DatarouterHttpRequestRecordDaoParams(List<ClientId> clientIds){
 	}
 
 	private final IndexedSortedMapStorageNode<HttpRequestRecordKey,HttpRequestRecord,HttpRequestRecordFielder> node;
@@ -112,7 +106,7 @@ public class DatarouterHttpRequestRecordDao extends BaseDao{
 		var lifespan = Duration.ofDays(14);
 		return new DatabeanVacuumBuilder<>(
 				node.scan(),
-				databean -> System.currentTimeMillis() - databean.getCreated().getTime() > lifespan.toMillis(),
+				databean -> System.currentTimeMillis() - databean.getCreatedAt().toEpochMilli() > lifespan.toMillis(),
 				node::deleteMulti)
 				.build();
 	}

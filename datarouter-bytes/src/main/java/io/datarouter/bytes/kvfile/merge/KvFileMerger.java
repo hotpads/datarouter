@@ -106,7 +106,7 @@ public class KvFileMerger{
 				.build();
 		var readerBuilder = params.storageParams().blockfile().newReaderBuilder(
 				metadataReader,
-				params.readParams().decoder())
+				$ -> params.blockFormat().newBlockCodec()::decodeAll)
 				.setReadChunkSize(params.readParams().readChunkSize())
 				.setDecodeBatchSize(params.readParams().decodeBatchSize())
 				.setDecodeThreads(new Threads(params.readParams().readExec(), numVcpus));
@@ -141,7 +141,7 @@ public class KvFileMerger{
 				params.writeParams().writeThreads());
 		return params.storageParams().blockfile().newWriterBuilder(
 				filename,
-				params.writeParams().encoder())
+				params.blockFormat().newBlockCodec()::encodeAll)
 				.setCompressor(params.writeParams().compressor())
 				.setEncodeBatchSize(params.writeParams().encodeBatchSize())
 				.setEncodeThreads(new Threads(params.writeParams().encodeExec(), numVcpus))

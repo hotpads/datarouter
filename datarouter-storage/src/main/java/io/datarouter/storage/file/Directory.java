@@ -16,7 +16,6 @@
 package io.datarouter.storage.file;
 
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -34,8 +33,9 @@ import io.datarouter.storage.util.Subpath;
 import io.datarouter.util.Require;
 
 /**
- * Lightweight directory representation that is not tracked by the framework.  Duplicates can be created at will for
- * convenience in the application.
+ * Lightweight directory representation that is not tracked by the framework.
+ * Duplicates can be created at will for convenience in the application.
+ * Counting is implemented at this layer if specified.
  */
 public class Directory
 implements BlobStorage{
@@ -174,38 +174,37 @@ implements BlobStorage{
 	}
 
 	@Override
-	public byte[] read(PathbeanKey key, Config config){
-		Optional<byte[]> optBytes = Optional.ofNullable(parent.read(prependStoragePath(key), config));
+	public Optional<byte[]> read(PathbeanKey key, Config config){
+		Optional<byte[]> optBytes = parent.read(prependStoragePath(key), config);
 		count(CounterSuffix.READ_OPS, 1);
 		optBytes.map(bytes -> bytes.length)
 				.ifPresent(length -> count(CounterSuffix.READ_BYTES, length));
-		return optBytes.orElse(null);
+		return optBytes;
 	}
 
 	@Override
-	public byte[] readPartial(PathbeanKey key, long offset, int length, Config config){
-		Optional<byte[]> optBytes = Optional.ofNullable(
-				parent.readPartial(prependStoragePath(key),
+	public Optional<byte[]> readPartial(PathbeanKey key, long offset, int length, Config config){
+		Optional<byte[]> optBytes = parent.readPartial(
+				prependStoragePath(key),
 				offset,
 				length,
-				config));
+				config);
 		count(CounterSuffix.READ_PARTIAL_OPS, 1);
 		optBytes.map(bytes -> bytes.length)
 				.ifPresent(actualLength -> count(CounterSuffix.READ_PARTIAL_BYTES, actualLength));
-		return optBytes.orElse(null);
+		return optBytes;
 	}
 
 	@Override
 	public Map<PathbeanKey,byte[]> readMulti(List<PathbeanKey> keys, Config config){
-		Map<PathbeanKey,byte[]> keyValue = new HashMap<>();
-		keys.forEach(key -> {
-				Optional<byte[]> optBytes = Optional.ofNullable(parent.read(prependStoragePath(key), config));
-				count(CounterSuffix.READ_OPS, 1);
-				optBytes.map(bytes -> bytes.length)
-						.ifPresent(actualLength -> count(CounterSuffix.READ_BYTES, actualLength));
-				keyValue.putIfAbsent(key, optBytes.orElse(null));
-			});
-		return keyValue;
+		Map<PathbeanKey,byte[]> result = parent.readMulti(keys, config);
+		count(CounterSuffix.READ_MULTI_OPS, 1);
+		count(CounterSuffix.READ_MULTI_KEYS, keys.size());
+		long totalBytes = result.values().stream()
+				.mapToLong(bytes -> bytes.length)
+				.sum();
+		count(CounterSuffix.READ_MULTI_BYTES, totalBytes);
+		return result;
 	}
 
 	@Override
@@ -275,6 +274,9 @@ implements BlobStorage{
 		READ_PARTIAL_BYTES("readPartial bytes"),
 		READ_PARTIAL_OPS("readPartial ops"),
 		READ_OPS("read ops"),
+		READ_MULTI_OPS("readMulti ops"),
+		READ_MULTI_KEYS("readMulti keys"),
+		READ_MULTI_BYTES("readMulti bytes"),
 		SCAN_KEYS_OPS("scanKeys ops"),
 		SCAN_KEYS_ITEMS("scanKeys items"),
 		SCAN_OPS("scan ops"),

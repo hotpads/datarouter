@@ -41,6 +41,7 @@ public class DatarouterGcpSpannerPlugin extends BaseWebPlugin{
 		addDynamicNavBarItem(GcpSpannerNavBarItem.class);
 		addAppListener(DatarouterOpencensusAppListener.class);
 		addPluginEntry(OpencencusMetricsMapper.KEY, GcpSpannerOpencencusMetrics.class);
+//		DatarouterSpannerLog4j2Configuration.assertHasRun();
 	}
 
 	@Override

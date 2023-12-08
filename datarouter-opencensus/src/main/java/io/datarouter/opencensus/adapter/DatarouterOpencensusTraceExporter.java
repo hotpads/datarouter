@@ -26,9 +26,9 @@ import java.util.function.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.instrumentation.trace.Trace2BundleAndHttpRequestRecordDto;
-import io.datarouter.instrumentation.trace.Trace2BundleDto;
-import io.datarouter.instrumentation.trace.Trace2SpanDto;
+import io.datarouter.instrumentation.trace.TraceBundleAndHttpRequestRecordDto;
+import io.datarouter.instrumentation.trace.TraceBundleDto;
+import io.datarouter.instrumentation.trace.TraceSpanDto;
 import io.datarouter.instrumentation.trace.TraceSpanGroupType;
 import io.datarouter.instrumentation.trace.Traceparent;
 import io.datarouter.scanner.Scanner;
@@ -74,7 +74,7 @@ public class DatarouterOpencensusTraceExporter extends Handler{
 						return null;
 					}
 					Map<String,AttributeValue> attributes = bindingSpan.getAttributes().getAttributeMap();
-					Traceparent traceparent = Traceparent.parse(getInnerValue(attributes.get(
+					Traceparent traceparent = Traceparent.parseIfValid(getInnerValue(attributes.get(
 							DatarouterOpencensusTool.TRACEPARENT_ATTRIBUTE_KEY))).get();
 					Long threadId = getInnerValue(attributes.get(DatarouterOpencensusTool.THREAD_ID_ATTRIBUTE_KEY));
 					Function<SpanId,Integer> nextSequenceGenerator = $ -> sequenceByThreadIdByTraceparent
@@ -90,7 +90,7 @@ public class DatarouterOpencensusTraceExporter extends Handler{
 					}
 					Integer sequence = sequenceBySpanId.computeIfAbsent(spanData.getContext().getSpanId(),
 							nextSequenceGenerator);
-					return new Trace2SpanDto(
+					return new TraceSpanDto(
 							traceparent,
 							threadId,
 							sequence,
@@ -102,11 +102,11 @@ public class DatarouterOpencensusTraceExporter extends Handler{
 							toNanoTimestamp(toInstant(spanData.getEndTimestamp())));
 				})
 				.include(Objects::nonNull)
-				.groupBy(Trace2SpanDto::getTraceparent)
+				.groupBy(TraceSpanDto::getTraceparent)
 				.values()
 				.stream()
-				.map(spans -> new Trace2BundleDto(null, List.of(), spans))
-				.map(bundleDto -> new Trace2BundleAndHttpRequestRecordDto(bundleDto, null))
+				.map(spans -> new TraceBundleDto(null, List.of(), spans))
+				.map(bundleDto -> new TraceBundleAndHttpRequestRecordDto(bundleDto, null))
 				.forEach(traceBuffers::offer);
 	}
 

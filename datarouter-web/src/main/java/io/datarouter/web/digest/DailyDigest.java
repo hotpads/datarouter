@@ -28,11 +28,9 @@ public interface DailyDigest extends PluginConfigValue<DailyDigest>{
 
 	PluginConfigKey<DailyDigest> KEY = new PluginConfigKey<>("dailyDigest", PluginConfigType.CLASS_LIST);
 
-	Comparator<DailyDigest> COMPARATOR = Comparator
-			.comparing(DailyDigest::getGrouping)
+	Comparator<DailyDigest> COMPARATOR = Comparator.comparing(DailyDigest::getGrouping)
 			.thenComparing(DailyDigest::getTitle);
 
-	Optional<DivTag> getPageContent(ZoneId zoneId);
 	Optional<DivTag> getEmailContent(ZoneId zoneId);
 
 	DailyDigestGrouping getGrouping();

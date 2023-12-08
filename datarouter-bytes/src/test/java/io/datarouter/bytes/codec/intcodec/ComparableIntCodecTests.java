@@ -48,12 +48,8 @@ public class ComparableIntCodecTests{
 		for(; intValue < Integer.MAX_VALUE / 2; intValue += 1 + Math.abs(random.nextInt() % 53 * 47 * 991)){
 			byte[] bytes = CODEC.encode(intValue);
 			int roundTripped = CODEC.decode(bytes);
-			try{
-				Assert.assertTrue(Arrays.compareUnsigned(lastBytes, bytes) < 0);
-				Assert.assertEquals(roundTripped, intValue);
-			}catch(AssertionError e){
-				throw e;
-			}
+			Assert.assertTrue(Arrays.compareUnsigned(lastBytes, bytes) < 0);
+			Assert.assertEquals(roundTripped, intValue);
 			lastBytes = bytes;
 			++counter;
 		}

@@ -25,12 +25,12 @@ import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.dao.BaseDao;
-import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import io.datarouter.storage.tag.Tag;
-import io.datarouter.storage.util.DatabeanVacuum;
-import io.datarouter.storage.util.DatabeanVacuum.DatabeanVacuumBuilder;
+import io.datarouter.storage.vacuum.DatabeanVacuum;
+import io.datarouter.storage.vacuum.DatabeanVacuum.DatabeanVacuumBuilder;
+import io.datarouter.types.MilliTime;
 import io.datarouter.util.tuple.Range;
 import io.datarouter.virtualnode.redundant.RedundantSortedMapStorageNode;
 import jakarta.inject.Inject;
@@ -39,12 +39,7 @@ import jakarta.inject.Singleton;
 @Singleton
 public class DatarouterExceptionRecordDao extends BaseDao{
 
-	public static class DatarouterExceptionRecordDaoParams extends BaseRedundantDaoParams{
-
-		public DatarouterExceptionRecordDaoParams(List<ClientId> clientIds){
-			super(clientIds);
-		}
-
+	public record DatarouterExceptionRecordDaoParams(List<ClientId> clientIds){
 	}
 
 	private final SortedMapStorageNode<ExceptionRecordKey,ExceptionRecord,ExceptionRecordFielder> node;
@@ -87,7 +82,7 @@ public class DatarouterExceptionRecordDao extends BaseDao{
 		var lifespan = Duration.ofDays(14);
 		return new DatabeanVacuumBuilder<>(
 				node.scan(),
-				databean -> System.currentTimeMillis() - databean.getCreated().getTime() > lifespan.toMillis(),
+				databean -> MilliTime.now().minus(databean.getCreated()).toEpochMilli() > lifespan.toMillis(),
 				node::deleteMulti)
 				.build();
 	}

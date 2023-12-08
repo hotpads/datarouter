@@ -15,9 +15,7 @@
  */
 package io.datarouter.client.hbase;
 
-import io.datarouter.client.hbase.callback.CountingBatchCallbackFactory;
-import io.datarouter.client.hbase.config.DatarouterHBaseExecutors.DatarouterHbaseClientExecutor;
-import io.datarouter.client.hbase.node.nonentity.HBaseNode;
+import io.datarouter.client.hbase.node.HBaseNode;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.entity.Entity;
 import io.datarouter.model.key.entity.EntityKey;
@@ -34,21 +32,15 @@ public abstract class BaseHBaseClientNodeFactory
 implements DatabeanClientNodeFactory{
 
 	private final ClientType<?,?> clientType;
-	private final CountingBatchCallbackFactory countingBatchCallbackFactory;
 	private final HBaseClientManager hBaseClientManager;
-	private final DatarouterHbaseClientExecutor datarouterHbaseClientExecutor;
 	private final NodeAdapters nodeAdapters;
 
 	public BaseHBaseClientNodeFactory(
 			ClientType<?,?> clientType,
-			CountingBatchCallbackFactory countingBatchCallbackFactory,
 			HBaseClientManager hBaseClientManager,
-			DatarouterHbaseClientExecutor datarouterHbaseClientExecutor,
 			NodeAdapters nodeAdapters){
 		this.clientType = clientType;
-		this.countingBatchCallbackFactory = countingBatchCallbackFactory;
 		this.hBaseClientManager = hBaseClientManager;
-		this.datarouterHbaseClientExecutor = datarouterHbaseClientExecutor;
 		this.nodeAdapters = nodeAdapters;
 	}
 
@@ -66,8 +58,6 @@ implements DatabeanClientNodeFactory{
 		var node = new HBaseNode<>(
 				hBaseClientManager,
 				clientType,
-				countingBatchCallbackFactory,
-				datarouterHbaseClientExecutor,
 				entityNodeParams,
 				nodeParams);
 		return nodeAdapters.wrapDatabeanSortedNode(node);

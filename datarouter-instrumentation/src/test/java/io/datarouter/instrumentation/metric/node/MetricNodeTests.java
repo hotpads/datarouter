@@ -18,8 +18,8 @@ package io.datarouter.instrumentation.metric.node;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.instrumentation.count.CountCollector;
 import io.datarouter.instrumentation.count.Counters;
+import io.datarouter.instrumentation.gauge.MetricCollector;
 import io.datarouter.instrumentation.metric.node.MetricNodeTests.MetricNodeExample.VariableOne;
 import io.datarouter.instrumentation.metric.node.MetricNodeTests.MetricNodeExample.VariableTwo;
 
@@ -42,22 +42,13 @@ public class MetricNodeTests{
 
 	@Test
 	public void incHeartbeat(){
-		var testCountCollector = new CountCollector(){
+		var testCountCollector = new MetricCollector(){
 
 			public long count = 0;
 
 			@Override
-			public void stopAndFlushAll(){
-			}
-
-			@Override
-			public long increment(String key, long delta){
-				return count += delta;
-			}
-
-			@Override
-			public long increment(String key){
-				return count++;
+			public void save(String key, long value){
+				count += value;
 			}
 
 		};

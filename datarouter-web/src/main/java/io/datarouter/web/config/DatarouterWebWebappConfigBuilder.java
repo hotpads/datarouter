@@ -387,18 +387,12 @@ implements WebappBuilder{
 		return getSelf();
 	}
 
-	@Deprecated // use addPlugin
-	public T addWebPlugin(BaseWebPlugin webPlugin){
-		return addPlugin(webPlugin);
-	}
-
 	public T addPlugin(BaseWebPlugin webPlugin){
 		addWebPluginInternal(webPlugin);
 		webPlugin.getStoragePlugins().forEach(this::addStoragePluginInternal);
 		webPlugin.getWebPlugins().forEach(this::addWebPluginInternal);
 		return getSelf();
 	}
-
 
 	protected void addStoragePluginInternal(BaseStoragePlugin storagePlugin){
 		boolean containsPlugin = storagePlugins.stream()
@@ -459,9 +453,9 @@ implements WebappBuilder{
 		testModules.addAll(plugin.getTestModules());
 
 		// TODO do we need to check for overwriting?
-		plugin.classSingle.forEach((key, value) -> classSingle.put(key, value));
+		plugin.classSingle.forEach(classSingle::put);
 		plugin.classList.forEach((key, value) -> classList.computeIfAbsent(key, $ -> new ArrayList<>()).addAll(value));
-		plugin.instanceSingle.forEach((key, value) -> instanceSingle.put(key, value));
+		plugin.instanceSingle.forEach(instanceSingle::put);
 		plugin.instanceList
 				.forEach((key, value) -> instanceList.computeIfAbsent(key, $ -> new ArrayList<>()).addAll(value));
 		return getSelf();
@@ -733,7 +727,7 @@ implements WebappBuilder{
 	}
 
 	public T addPluginEntries(List<PluginConfigValue<?>> values){
-		values.forEach(value -> addPluginEntry(value));
+		values.forEach(this::addPluginEntry);
 		return getSelf();
 	}
 

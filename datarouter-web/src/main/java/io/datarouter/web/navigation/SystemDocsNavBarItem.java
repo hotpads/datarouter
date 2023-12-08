@@ -34,7 +34,7 @@ public class SystemDocsNavBarItem implements DynamicNavBarItem{
 
 	@Override
 	public Boolean shouldDisplay(){
-		return docNameAndLinksSupplier.getSystemDocs().size() != 0;
+		return !docNameAndLinksSupplier.getSystemDocs().isEmpty();
 	}
 
 	@Override

@@ -15,32 +15,50 @@
  */
 package io.datarouter.metric.gauge;
 
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.instrumentation.gauge.GaugeBatchDto;
-import io.datarouter.instrumentation.gauge.GaugePublisher;
 import io.datarouter.instrumentation.response.PublishingResponseDto;
-import io.datarouter.metric.dto.RawGaugeBinaryDto;
-import io.datarouter.metric.gauge.conveyor.RawGaugeQueueDao;
+import io.datarouter.metric.gauge.conveyor.GaugeQueueDao;
+import io.datarouter.metric.service.AggregatedGaugesPublisher;
+import io.datarouter.storage.config.properties.ServerName;
+import io.datarouter.storage.config.properties.ServiceName;
+import io.datarouter.types.Ulid;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
 @Singleton
-public class GaugePublisherService implements GaugePublisher{
+public class GaugePublisherService implements AggregatedGaugesPublisher{
 	private static final Logger logger = LoggerFactory.getLogger(GaugePublisherService.class);
 
+	private static final String LOG_STRING = "queue";
+
 	@Inject
-	private RawGaugeQueueDao gaugeQueueDao;
+	private GaugeQueueDao gaugeQueueDao;
+	@Inject
+	private ServiceName serviceName;
+	@Inject
+	private ServerName serverName;
 
 	@Override
-	public PublishingResponseDto publish(GaugeBatchDto gaugeBatchDto){
-		var dtos = RawGaugeBinaryDto.createSizedDtos(
-				gaugeBatchDto,
-				100);//100 should easily fit inside a single queue message and still provide good space saving
-		logger.info("writing size={} blobs", dtos.size());
+	public PublishingResponseDto publish(Map<Long,Map<String,MetricCollectorStats>> gauges){
+		String ulid = new Ulid().value();
+		var dtos = GaugeBinaryDto.createSizedGaugeBinaryDtosFromMetricStats(
+				ulid,
+				serviceName.get(),
+				serverName.get(),
+				gauges,
+				100);
+		logger.info(
+				"writing size={} GaugeBinaryDtos with key={} to {}",
+				dtos.size(),
+				ulid,
+				LOG_STRING);
 		gaugeQueueDao.combineAndPut(dtos);
 		return PublishingResponseDto.SUCCESS;
+
 	}
 
 }

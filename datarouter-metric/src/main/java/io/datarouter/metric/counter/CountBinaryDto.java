@@ -23,7 +23,7 @@ import java.util.Map.Entry;
 import io.datarouter.binarydto.codec.BinaryDtoIndexedCodec;
 import io.datarouter.binarydto.dto.BinaryDto;
 import io.datarouter.binarydto.dto.BinaryDtoField;
-import io.datarouter.metric.counter.collection.DatarouterCountCollector.CountCollectorStats;
+import io.datarouter.metric.service.AggregatedGaugesPublisher.MetricCollectorStats;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.Require;
 
@@ -55,7 +55,7 @@ public class CountBinaryDto extends BinaryDto<CountBinaryDto>{
 	}
 
 	public static List<CountBinaryDto> createSizedCountBinaryDtos(String ulid, String serviceName, String serverName,
-			Map<Long,Map<String,CountCollectorStats>> counts, int batchSize){
+			Map<Long,Map<String,MetricCollectorStats>> counts, int batchSize){
 		return Scanner.of(counts.keySet())
 				.concat(period -> Scanner.of(counts.get(period).entrySet())
 						.map(SingleCountBinaryDto::createFromCountStats)
@@ -64,7 +64,7 @@ public class CountBinaryDto extends BinaryDto<CountBinaryDto>{
 						.list();
 	}
 
-	private static int getLargestPeriodSizeFromCountStats(Map<Long,Map<String,CountCollectorStats>> counts,
+	private static int getLargestPeriodSizeFromCountStats(Map<Long,Map<String,MetricCollectorStats>> counts,
 			int batchSize){
 		if(batchSize == Integer.MAX_VALUE){
 			return Scanner.of(counts.values())
@@ -81,29 +81,23 @@ public class CountBinaryDto extends BinaryDto<CountBinaryDto>{
 		public final String name;
 		@BinaryDtoField(index = 1)
 		public final Long value; // sum
-		@BinaryDtoField(index = 2)
-		public final Long count;
-		@BinaryDtoField(index = 3)
-		public final Long min;
-		@BinaryDtoField(index = 4)
-		public final Long max;
+//		@BinaryDtoField(index = 2)
+//		public final Long count;
+//		@BinaryDtoField(index = 3)
+//		public final Long min;
+//		@BinaryDtoField(index = 4)
+//		public final Long max;
 
-		public SingleCountBinaryDto(String name, Long value, Long count, Long min, Long max){
+		public SingleCountBinaryDto(String name, Long value){
 			this.name = name;
 			this.value = value;
-			this.count = count;
-			this.min = min;
-			this.max = max;
 		}
 
-		private static SingleCountBinaryDto createFromCountStats(Entry<String,CountCollectorStats> entry){
+		private static SingleCountBinaryDto createFromCountStats(Entry<String,MetricCollectorStats> entry){
 			Require.notNull(entry.getValue());
 			var name = Require.notNull(entry.getKey());
 			var value = Require.greaterThan(Require.notNull(entry.getValue().sum()), 0L, name);
-			var count = Require.greaterThan(Require.notNull(entry.getValue().count()), 0L, name);
-			var min = Require.greaterThan(Require.notNull(entry.getValue().min()), 0L, name);
-			var max = Require.greaterThan(Require.notNull(entry.getValue().max()), 0L, name);
-			return new SingleCountBinaryDto(name, value, count, min, max);
+			return new SingleCountBinaryDto(name, value);
 		}
 
 	}

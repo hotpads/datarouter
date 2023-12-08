@@ -140,9 +140,7 @@ public class DatarouterHttpClientBuilder{
 				new DatarouterHttpClientDnsResolver(name));
 		connectionManager.setMaxTotal(maxTotalConnections);
 		connectionManager.setDefaultMaxPerRoute(maxConnectionsPerRoute);
-		if(validateAfterInactivityMs.isPresent()){
-			connectionManager.setValidateAfterInactivity(validateAfterInactivityMs.get());
-		}
+		validateAfterInactivityMs.ifPresent(connectionManager::setValidateAfterInactivity);
 		httpClientBuilder.setConnectionManager(connectionManager);
 		CloseableHttpClient builtHttpClient;
 		if(customHttpClient == null){

@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import j2html.TagCreator;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
 
@@ -36,6 +37,13 @@ public class J2HtmlTool{
 			Collection<ContainerTag<?>> collection,
 			Function<? super ContainerTag<?>, DomContent> mapper){
 		return each(collection, mapper);
+	}
+
+	/**
+	 * Multiple items not wrapped in a parent tag.
+	 */
+	public static DomContent siblings(Collection<? extends DomContent> items){
+		return TagCreator.each(items, Function.identity());
 	}
 
 }

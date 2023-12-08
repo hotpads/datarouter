@@ -15,8 +15,7 @@
  */
 package io.datarouter.client.redis.test;
 
-import java.nio.charset.StandardCharsets;
-
+import io.datarouter.bytes.codec.stringcodec.StringCodec;
 import io.datarouter.client.redis.RedisTestClientIds;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
@@ -57,8 +56,9 @@ public class RedisBlobTestDao extends BaseDao implements TestDao{
 	}
 
 	public String read(String key){
-		byte[] testBytes = node.read(PathbeanKey.of(node.getBucket() + "/" + SUBPATH + key));
-		return new String(testBytes, StandardCharsets.UTF_8);
+		return node.read(PathbeanKey.of(node.getBucket() + "/" + SUBPATH + key))
+				.map(StringCodec.UTF_8::decode)
+				.orElseThrow();
 	}
 
 	public Long length(String key){

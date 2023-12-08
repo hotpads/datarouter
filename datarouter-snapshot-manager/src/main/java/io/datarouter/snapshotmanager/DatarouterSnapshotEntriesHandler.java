@@ -97,7 +97,7 @@ public class DatarouterSnapshotEntriesHandler extends BaseHandler{
 				.limit(limit)
 				.map(decoder::decode)
 				.list();
-		var table = new J2HtmlTable<SnapshotRecordStrings>()
+		return new J2HtmlTable<SnapshotRecordStrings>()
 				.withClasses("sortable table table-sm table-striped my-4 border")
 				.withColumn("id", SnapshotRecordStrings::id, Number::toString)
 				.withColumn(decoder.keyName(), SnapshotRecordStrings::key)
@@ -121,7 +121,6 @@ public class DatarouterSnapshotEntriesHandler extends BaseHandler{
 					return td(a("view").withHref(href));
 				})
 				.build(rows);
-		return table;
 	}
 
 }

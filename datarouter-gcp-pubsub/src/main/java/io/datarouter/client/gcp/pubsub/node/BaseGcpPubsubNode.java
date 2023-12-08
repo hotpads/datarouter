@@ -31,6 +31,7 @@ import io.datarouter.client.gcp.pubsub.GcpPubSubOpFactory;
 import io.datarouter.client.gcp.pubsub.GcpPubsubClientType;
 import io.datarouter.client.gcp.pubsub.TopicAndSubscriptionName;
 import io.datarouter.client.gcp.pubsub.client.GcpPubsubClientManager;
+import io.datarouter.client.gcp.pubsub.config.DatarouterGcpPubsubSettingsRoot;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
@@ -66,6 +67,7 @@ implements QueueStorageWriter<PK,D>, GcpPubsubPhysicalNode<PK,D,F>{
 	private final ServiceName serviceName;
 	private final NodeParams<PK,D,F> params;
 	private final GcpPubsubClientManager gcpPubsubClientManager;
+	protected final DatarouterGcpPubsubSettingsRoot settingRoot;
 	private final ClientId clientId;
 	private final Supplier<TopicAndSubscriptionName> topicAndSubscription;
 	protected final GcpPubSubOpFactory<PK,D,F> gcpPubSubOpFactory;
@@ -76,15 +78,17 @@ implements QueueStorageWriter<PK,D>, GcpPubsubPhysicalNode<PK,D,F>{
 			NodeParams<PK,D,F> params,
 			GcpPubsubClientType clientType,
 			GcpPubsubClientManager clientManager,
+			DatarouterGcpPubsubSettingsRoot settingRoot,
 			ClientId clientId){
 		super(params, clientType);
 		this.environmentName = environmentName;
 		this.serviceName = serviceName;
 		this.params = params;
 		this.gcpPubsubClientManager = clientManager;
+		this.settingRoot = settingRoot;
 		this.clientId = clientId;
 		this.topicAndSubscription = SingletonSupplier.of(this::getOrCreateTopic);
-		this.gcpPubSubOpFactory = new GcpPubSubOpFactory<>(this, clientManager, clientId);
+		this.gcpPubSubOpFactory = new GcpPubSubOpFactory<>(this, clientManager, settingRoot, clientId);
 	}
 
 	private TopicAndSubscriptionName getOrCreateTopic(){

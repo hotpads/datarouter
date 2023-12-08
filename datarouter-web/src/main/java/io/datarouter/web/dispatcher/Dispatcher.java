@@ -93,7 +93,7 @@ public class Dispatcher{
 				ResponseTool.sendRedirect(
 						request,
 						response,
-						HttpServletResponse.SC_SEE_OTHER,
+						HttpServletResponse.SC_FOUND,
 						rule.getRedirectUrl().get());
 				return RoutingResult.ROUTED;
 			}
@@ -116,9 +116,12 @@ public class Dispatcher{
 			RequestAttributeTool.set(request, TRANSMITS_PII, rule.doesTransmitPii());
 			if(rule.hasApiKey()){
 				// TODO avoid re evaluating the rule
-				ApiKeyPredicateCheck apiKeyPredicateExistsWithName = rule.getApiKeyPredicate().check(rule, request);
-				if(apiKeyPredicateExistsWithName.allowed()){
-					handler.setAccountName(apiKeyPredicateExistsWithName.accountName());
+				for(ApiKeyPredicate apiKeyPredicate : rule.getApiKeyPredicates()){
+					ApiKeyPredicateCheck apiKeyPredicateExistsWithName = apiKeyPredicate.check(rule, request);
+					if(apiKeyPredicateExistsWithName.allowed()){
+						handler.setAccountName(apiKeyPredicateExistsWithName.accountName());
+						break;
+					}
 				}
 			}
 

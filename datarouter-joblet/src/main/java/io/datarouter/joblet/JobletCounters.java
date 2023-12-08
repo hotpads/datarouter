@@ -157,6 +157,14 @@ public class JobletCounters{
 		Counters.inc(PREFIX + "ignored data missing from db " + jobletType.getPersistentString());
 	}
 
+	public static void incInterrupted(JobletType<?> jobletType){
+		Counters.inc(PREFIX + "interrupted " + jobletType.getPersistentString());
+	}
+
+	public static void incErrored(JobletType<?> jobletType){
+		Counters.inc(PREFIX + "errored " + jobletType.getPersistentString());
+	}
+
 	public record JobletUiLinkNamesAndPrefix(
 			String linkName,
 			String prefix){

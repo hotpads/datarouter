@@ -34,8 +34,7 @@ public class ExecutorServiceTool{
 
 	public static void shutdown(ExecutorService exec, Duration timeout, boolean verboseLogging){
 		String name = "";
-		if(exec instanceof ThreadPoolExecutor){
-			ThreadPoolExecutor threadPool = (ThreadPoolExecutor)exec;
+		if(exec instanceof ThreadPoolExecutor threadPool){
 			Optional<String> factoryName = NamedThreadFactory.findName(threadPool.getThreadFactory());
 			if(factoryName.isPresent()){
 				name = factoryName.get() + "-";

@@ -62,7 +62,7 @@ extends SqsOp<PK,D,F,Void>{
 
 	@Override
 	protected Void run(){
-		if(databeans.size() == 0){
+		if(databeans.isEmpty()){
 			return null;
 		}
 		List<String> rejectedDatabeans = new ArrayList<>();

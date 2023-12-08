@@ -85,6 +85,7 @@ public class KvFilePerformanceTester{
 		List<List<byte[]>> keyLists = makeKeyLists(20);
 		logger.warn("made keys");
 		for(int i = 0; i < 10; ++i){
+			@SuppressWarnings("unused")
 			var counter = new AtomicLong();
 			long startMs = System.currentTimeMillis();
 			long count = Scanner.of(keyLists)

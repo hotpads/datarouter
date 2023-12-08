@@ -188,10 +188,7 @@ implements Comparable<Range<T>>{
 		}else if(!start.equals(other.start)){
 			return false;
 		}
-		if(startInclusive != other.startInclusive){
-			return false;
-		}
-		return true;
+		return startInclusive == other.startInclusive;
 	}
 
 	/*

@@ -26,6 +26,7 @@ import com.google.pubsub.v1.PubsubMessage;
 import io.datarouter.client.gcp.pubsub.GcpPubsubDataTooLargeException;
 import io.datarouter.client.gcp.pubsub.PubsubCostCounters;
 import io.datarouter.client.gcp.pubsub.client.GcpPubsubClientManager;
+import io.datarouter.client.gcp.pubsub.config.DatarouterGcpPubsubSettingsRoot;
 import io.datarouter.client.gcp.pubsub.node.GcpPubsubBlobNode;
 import io.datarouter.storage.client.ClientId;
 
@@ -37,8 +38,9 @@ public class GcpPubsubBlobPutOp extends GcpPubsubBlobOp<Void>{
 			byte[] data,
 			GcpPubsubBlobNode<?> node,
 			GcpPubsubClientManager clientManager,
+			DatarouterGcpPubsubSettingsRoot settingRoot,
 			ClientId clientId){
-		super(node, clientManager, clientId);
+		super(node, clientManager, settingRoot, clientId);
 		this.data = data;
 	}
 

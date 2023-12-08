@@ -62,11 +62,6 @@ public class SqsQueuesDailyDigest implements DailyDigest{
 	}
 
 	@Override
-	public Optional<DivTag> getPageContent(ZoneId zoneId){
-		return buildContent(ContentType.PAGE);
-	}
-
-	@Override
 	public Optional<DivTag> getEmailContent(ZoneId zoneId){
 		return buildContent(ContentType.EMAIL);
 	}

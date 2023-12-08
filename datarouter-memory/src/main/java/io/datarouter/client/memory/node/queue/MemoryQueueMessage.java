@@ -43,9 +43,7 @@ public class MemoryQueueMessage{
 	}
 
 	public boolean isVisibilityExpired(){
-		return visibilityExpirationMs == null
-				? false
-				: System.currentTimeMillis() > visibilityExpirationMs;
+		return visibilityExpirationMs != null && System.currentTimeMillis() > visibilityExpirationMs;
 	}
 
 }

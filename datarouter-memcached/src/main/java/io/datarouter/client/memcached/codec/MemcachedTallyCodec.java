@@ -82,7 +82,7 @@ public class MemcachedTallyCodec{
 	private static String decodeTallyId(int subpathLength, String fullMemcachedKey){
 		String encodedTallyId = fullMemcachedKey.substring(subpathLength);
 		byte[] tallyIdBytes = Base64.getUrlDecoder().decode(encodedTallyId);
-		return TerminatedStringCodec.UTF_8.decode(tallyIdBytes).value;
+		return TerminatedStringCodec.UTF_8.decode(tallyIdBytes).value();
 	}
 
 }

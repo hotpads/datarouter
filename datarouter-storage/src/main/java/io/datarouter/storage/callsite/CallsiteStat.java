@@ -132,14 +132,7 @@ public class CallsiteStat{
 			return false;
 		}
 		CallsiteStat other = (CallsiteStat)obj;
-		if(key == null){
-			if(other.key != null){
-				return false;
-			}
-		}else if(!key.equals(other.key)){
-			return false;
-		}
-		return true;
+		return Objects.equals(key, other.key);
 	}
 
 	@Override

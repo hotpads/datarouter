@@ -18,7 +18,6 @@ package io.datarouter.tasktracker.service;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.model.databean.Databean;
@@ -64,7 +63,7 @@ public class LongRunningTaskVacuumService{
 		Instant tooOldCutoff = Instant.now().minus(settings.maxAge.get().toJavaDuration());
 		List<LongRunningTask> tooOld = tasks.stream()
 				.filter(task -> task.getKey().getTriggerTime().toInstant().isBefore(tooOldCutoff))
-				.collect(Collectors.toList());
+				.toList();
 		Scanner.of(tooOld)
 				.map(Databean::getKey)
 				.then(dao::deleteBatched);

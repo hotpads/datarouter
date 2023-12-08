@@ -53,11 +53,11 @@ public class RequestToolTests{
 
 	@Test
 	public void testMakeRedirectUriIfTrailingSlash(){
-		Assert.assertEquals(RequestTool.makeRedirectUriIfTrailingSlash("example.com", null), null);
+		Assert.assertNull(RequestTool.makeRedirectUriIfTrailingSlash("example.com", null));
 		Assert.assertEquals(RequestTool.makeRedirectUriIfTrailingSlash("example.com/", null), "example.com");
 		Assert.assertEquals(RequestTool.makeRedirectUriIfTrailingSlash("example.com/", "stuff=things"),
 				"example.com?stuff=things");
-		Assert.assertEquals(RequestTool.makeRedirectUriIfTrailingSlash("example.com", "stuff=things"), null);
+		Assert.assertNull(RequestTool.makeRedirectUriIfTrailingSlash("example.com", "stuff=things"));
 	}
 
 	@Test

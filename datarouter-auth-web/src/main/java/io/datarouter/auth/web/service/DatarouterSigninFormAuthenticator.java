@@ -15,8 +15,6 @@
  */
 package io.datarouter.auth.web.service;
 
-import java.time.Instant;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -31,6 +29,7 @@ import io.datarouter.auth.storage.user.datarouteruser.DatarouterUserDao;
 import io.datarouter.auth.storage.user.datarouteruser.cache.DatarouterUserByUsernameCache;
 import io.datarouter.auth.storage.user.session.DatarouterSession;
 import io.datarouter.auth.web.config.DatarouterAuthPaths;
+import io.datarouter.types.MilliTime;
 import io.datarouter.util.BooleanTool;
 import io.datarouter.util.lang.ObjectTool;
 import io.datarouter.util.string.StringTool;
@@ -76,11 +75,10 @@ public class DatarouterSigninFormAuthenticator implements DatarouterAuthenticato
 
 		DatarouterUser user = lookupAndValidateUser(username, password);
 
-		user.setLastLoggedIn(Instant.now());
+		user.setLastLoggedIn(MilliTime.now());
 		datarouterUserDao.put(user);
 
-		DatarouterSession session = DatarouterSession.createFromUser(user);
-		return session;
+		return DatarouterSession.createFromUser(user);
 	}
 
 

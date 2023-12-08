@@ -42,8 +42,8 @@ import io.datarouter.httpclient.response.exception.DatarouterHttpConnectionAbort
 import io.datarouter.httpclient.response.exception.DatarouterHttpException;
 import io.datarouter.httpclient.response.exception.DatarouterHttpRequestInterruptedException;
 import io.datarouter.httpclient.response.exception.DatarouterHttpResponseException;
-import io.datarouter.instrumentation.trace.Trace2Dto;
 import io.datarouter.instrumentation.trace.TraceSpanGroupType;
+import io.datarouter.instrumentation.trace.TraceTimeTool;
 import io.datarouter.instrumentation.trace.Traceparent;
 import io.datarouter.instrumentation.trace.Tracer;
 import io.datarouter.instrumentation.trace.TracerThreadLocal;
@@ -86,7 +86,7 @@ public class DatarouterHttpClientIoExceptionCircuitBreaker extends ExceptionCirc
 			traceContext.updateParentIdAndAddTracestateMember();
 		}else{
 			DatarouterHttpClientMetrics.incTraceContextNull(name);
-			traceContext = new W3TraceContext(Trace2Dto.getCurrentTimeInNs());
+			traceContext = new W3TraceContext(TraceTimeTool.epochNano());
 		}
 		String traceparent = traceContext.getTraceparent().toString();
 		if(traceInQueryString.get()){
@@ -103,7 +103,7 @@ public class DatarouterHttpClientIoExceptionCircuitBreaker extends ExceptionCirc
 					internalHttpRequest.getMethod(),
 					internalHttpRequest.getURI());
 		}
-		long requestStartTimeNs = Trace2Dto.getCurrentTimeInNs();
+		long requestStartTimeNs = TraceTimeTool.epochNano();
 		try{
 			HttpResponse httpResponse = httpClient.execute(internalHttpRequest, context);
 			String entity = null;
@@ -120,11 +120,11 @@ public class DatarouterHttpClientIoExceptionCircuitBreaker extends ExceptionCirc
 				}
 			}
 			// include the entity processing. might be inaccurate in case of custom httpEntityConsumer
-			Duration duration = Duration.ofNanos(Trace2Dto.getCurrentTimeInNs() - requestStartTimeNs);
+			Duration duration = Duration.ofNanos(TraceTimeTool.epochNano() - requestStartTimeNs);
 			DatarouterHttpClientMetrics.durationMs(name, duration.toMillis());
 			Optional<Traceparent> remoteTraceparent = Optional.ofNullable(httpResponse.getFirstHeader(TRACEPARENT))
 					.map(Header::getValue)
-					.map(Traceparent::parse)
+					.map(Traceparent::parseIfValid)
 					.filter(Optional::isPresent)
 					.map(Optional::get);
 			remoteTraceparent.ifPresent(tp -> TracerTool.appendToSpanInfo("remote parentId", tp.parentId));

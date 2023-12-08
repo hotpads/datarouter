@@ -19,8 +19,8 @@ import java.util.List;
 import java.util.Map;
 
 import io.datarouter.auth.model.dto.DeprovisionedUserDto;
+import io.datarouter.auth.model.dto.PermissionRequestDto;
 import io.datarouter.auth.model.dto.UserRoleMetadata.UserRoleMetadataJsDto;
-import io.datarouter.auth.web.web.DatarouterPermissionRequestHandler.PermissionRequestDto;
 import io.datarouter.auth.web.web.adminedituser.dto.EditUserDetailsDto.Nested.PagePermissionType;
 import io.datarouter.util.todo.NestedRecordImportWorkaround;
 

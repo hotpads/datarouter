@@ -32,19 +32,22 @@ public class SecretOpConfig{
 	public final SecretOpConfig.Namespace namespaceType;
 	public final String manualNamespace;
 	public final SecretOpReason reason;
-	public final boolean shouldRecord;
 	public final boolean shouldLog;
 	public final boolean shouldSkipSerialization;
 	public final boolean shouldApplyToAllClients;
 	public final Optional<String> targetSecretClientConfig;
 
-	private SecretOpConfig(SecretOpConfig.Namespace namespaceType, String manualNamespace, SecretOpReason reason,
-			boolean shouldRecord, boolean shouldLog, boolean shouldSkipSerialization, boolean shouldApplyToAllSuppliers,
+	private SecretOpConfig(
+			SecretOpConfig.Namespace namespaceType,
+			String manualNamespace,
+			SecretOpReason reason,
+			boolean shouldLog,
+			boolean shouldSkipSerialization,
+			boolean shouldApplyToAllSuppliers,
 			Optional<String> targetSecretClientConfig){
 		this.namespaceType = namespaceType;
 		this.manualNamespace = manualNamespace;
 		this.reason = reason;
-		this.shouldRecord = shouldRecord;
 		this.shouldLog = shouldLog;
 		this.shouldSkipSerialization = shouldSkipSerialization;
 		this.shouldApplyToAllClients = shouldApplyToAllSuppliers;
@@ -71,7 +74,6 @@ public class SecretOpConfig{
 		private SecretOpConfig.Namespace namespaceType;
 		private String manualNamespace;
 		private final SecretOpReason reason;
-		private boolean shouldRecord;
 		private boolean shouldLog;
 		private boolean shouldApplyToAllSuppliers;
 		private boolean shouldSkipSerialization;
@@ -81,7 +83,6 @@ public class SecretOpConfig{
 			this.namespaceType = Namespace.APP;
 			this.manualNamespace = "";
 			this.reason = reason;
-			this.shouldRecord = true;
 			this.shouldLog = true;
 			this.shouldSkipSerialization = false;
 			this.shouldApplyToAllSuppliers = false;
@@ -93,7 +94,6 @@ public class SecretOpConfig{
 					namespaceType,
 					manualNamespace,
 					reason,
-					shouldRecord,
 					shouldLog,
 					shouldSkipSerialization,
 					shouldApplyToAllSuppliers,
@@ -126,15 +126,6 @@ public class SecretOpConfig{
 		public Builder useTargetSecretClientConfig(Optional<String> targetSecretClientConfig){
 			this.targetSecretClientConfig = Require.notNull(targetSecretClientConfig)
 					.map(Require::notBlank);
-			return this;
-		}
-
-		/**
-		 * do not attempt to record the op. This is necessary when the op is fetching the credentials that are required
-		 * to initialize the recorder of the op.
-		 */
-		public Builder disableRecording(){
-			this.shouldRecord = false;
 			return this;
 		}
 

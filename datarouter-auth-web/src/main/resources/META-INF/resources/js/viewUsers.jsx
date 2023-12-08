@@ -76,7 +76,7 @@ const getTotalNumApprovalsRequiredForRole = (userRoleMetadata) =>
 function ViewUsersPage({ display, openEditUser, requestListRefreshTimestamp }) {
 	const [users, setUsers] = useState([]);
 	const [index, setIndex] = useState(0);
-	const [filterExpanded, setFilterExpanded] = useState(false);
+	const [filterExpanded, setFilterExpanded] = useState(true);
 	const [filteredUsers, setFilteredUsers] = useState([]);
 	const [listRefreshTimestamp, setListRefreshTimestamp] = useState(null);
 
@@ -202,7 +202,8 @@ function Filters({ filterExpanded, users, handleFilteredUsersUpdate }) {
 			path: PATHS.getAllRoles,
 			onSuccess: (response) => {
 				if (response.success) {
-					setAllRoles(response.response.roles);
+					setAllRoles(response.response.roles
+						.sort((a, b) => a.persistentString.localeCompare(b.persistentString)));
 				}
 			},
 		});
@@ -216,7 +217,7 @@ function Filters({ filterExpanded, users, handleFilteredUsersUpdate }) {
 		setEmailFilter(event.target.value);
 	};
 
-	if (!filterExpanded) {
+	if (!filterExpanded || !allRoles.length) {
 		return null;
 	}
 
@@ -302,7 +303,7 @@ const UserList = ({ users, index, openEditUser, loadPrevPage, loadStartPage, loa
 					<td>{user.id}</td>
 					<td>{user.token}</td>
 					<td>
-						<a href={user.profileLink} class={user.profileClass}>
+						<a href={user.profileLink} className={user.profileClass}>
 							profile
 						</a>
 					</td>
@@ -314,7 +315,7 @@ const UserList = ({ users, index, openEditUser, loadPrevPage, loadStartPage, loa
 					<td>
 						<button
 							type="button"
-							class="btn btn-primary"
+							className="btn btn-primary"
 							name={user.username}
 							onClick={openEditUser}
 						>
@@ -326,19 +327,19 @@ const UserList = ({ users, index, openEditUser, loadPrevPage, loadStartPage, loa
 			</tbody>
 		</table>
 		<nav>
-			<ul class="pagination">
+			<ul className="pagination">
 				<li>
-					<a class="page-link" onClick={loadPrevPage}>
+					<a className="page-link" onClick={loadPrevPage}>
 						Previous
 					</a>
 				</li>
 				<li>
-					<a class="page-link" onClick={loadStartPage}>
+					<a className="page-link" onClick={loadStartPage}>
 						Start
 					</a>
 				</li>
 				<li>
-					<a class="page-link" onClick={loadNextPage}>
+					<a className="page-link" onClick={loadNextPage}>
 						Next
 					</a>
 				</li>
@@ -352,7 +353,7 @@ const Badges = ({ badges = [] }) => {
 		<h4>
 			{badges.map((content, index) => (
 				<span
-					class={
+					className={
 						"badge badge-danger" + (index < badges.length - 1 ? " mr-3" : "")
 					}
 				>
@@ -383,6 +384,7 @@ function EditUserPage({ defaultUsername, requestListRefresh, closeEditUser }) {
 	const [fullName, setFullName] = useState("");
 	const [details, setDetails] = useState([]);
 	const [hasProfileImage, setHasProfileImage] = useState(false);
+	const [isSamlEnabled, setIsSamlEnabled] = useState(false);
 	const deprovisioned = loaded && !deprovisionedUserDto.status.isUserEditable;
 
 
@@ -401,7 +403,7 @@ function EditUserPage({ defaultUsername, requestListRefresh, closeEditUser }) {
 		setRequests(userDetails.requests);
 		setHistory(userDetails.history);
 		setDeprovisionedUserDto(userDetails.deprovisionedUserDto);
-		setUserRoleMetadataList(userDetails.userRoleMetadataList);
+		setUserRoleMetadataList(userDetails.userRoleMetadataList.sort((a, b) => a.roleName.localeCompare(b.roleName)));
 		setAvailableAccounts(userDetails.availableAccounts);
 		setCurrentAccounts(userDetails.currentAccounts);
 		setAvailableZoneIds(userDetails.availableZoneIds);
@@ -428,12 +430,26 @@ function EditUserPage({ defaultUsername, requestListRefresh, closeEditUser }) {
 	// Call getUserDetails API on initial render if the username is set.
 	useEffect(() => username && refresh(), []);
 
+	useEffect(() => {
+		if(PagePermissionType.ADMIN !== pagePermissionType){
+			return;
+		}
+		doFetch({
+			path: PATHS.getIsSamlEnabled,
+			onSuccess: (response) => {
+				if (response.success) {
+					setIsSamlEnabled(response.response.isSamlEnabled);
+				}
+			},
+		});
+	}, [pagePermissionType]);
+
 	const header = (
 		<h1 className="mb-4 pt-4 pb-2 border-bottom">
 			Edit User{" "}
 			<button
 				type="button"
-				class="btn btn-primary"
+				className="btn btn-primary"
 				onClick={closeEditUser}
 			>
 				Back to User List
@@ -445,7 +461,7 @@ function EditUserPage({ defaultUsername, requestListRefresh, closeEditUser }) {
 		return (
 			<div>
 				{header}
-				<div class="alert-danger">
+				<div className="alert-danger">
 					<h3>{"Failed to load user. " + error}</h3>
 				</div>
 			</div>
@@ -472,22 +488,6 @@ function EditUserPage({ defaultUsername, requestListRefresh, closeEditUser }) {
 						setCurrentZoneId={setCurrentZoneId}
 					/>
 					{
-						PagePermissionType.ADMIN === pagePermissionType && (
-							<Fragment>
-								<ProvisioningStatusCard
-									deprovisionedUserDto={deprovisionedUserDto}
-									refresh={refresh}
-								/>
-								<CopyUserFormCard
-									username={username}
-									updateUserDetails={updateUserDetails}
-									userRoleMetadataList={userRoleMetadataList}
-									requestListRefresh={requestListRefresh}
-								/>
-							</Fragment>
-						)
-					}
-					{
 						[PagePermissionType.ADMIN, PagePermissionType.ROLES_ONLY].includes(pagePermissionType) &&
 						<EditRolesCard
 							username={username}
@@ -508,11 +508,23 @@ function EditUserPage({ defaultUsername, requestListRefresh, closeEditUser }) {
 									updateUserDetails={updateUserDetails}
 									disabled={deprovisioned}
 								/>
-								<EditPasswordCard
-									username={username}
-									disabled={deprovisioned}
-									updateUserDetails={updateUserDetails}
+								<ProvisioningStatusCard
+									deprovisionedUserDto={deprovisionedUserDto}
+									refresh={refresh}
 								/>
+								<CopyUserFormCard
+									username={username}
+									updateUserDetails={updateUserDetails}
+									userRoleMetadataList={userRoleMetadataList}
+									requestListRefresh={requestListRefresh}
+								/>
+								{ !isSamlEnabled && (
+									<EditPasswordCard
+										username={username}
+										disabled={deprovisioned}
+										updateUserDetails={updateUserDetails}
+									/>
+								)}
 								<PermissionRequestsCard
 									id={id}
 									requests={requests}
@@ -566,7 +578,9 @@ const withAlertCardContainer = (WrappedComponent, headerText) => (props) => {
 		setCollapseBody(!collapseBody);
 		// provides a smooth transition for the collapse
 		if(ref.current) {
-			$(ref.current).collapse(collapseBody ? "show" : "hide");
+			require(["jquery"], () => {
+				$(ref.current).collapse(collapseBody ? "show" : "hide");
+			});
 		}
 	};
 
@@ -578,8 +592,8 @@ const withAlertCardContainer = (WrappedComponent, headerText) => (props) => {
 	}
 
 	return (
-		<div class="card mt-3">
-			<div class="card-header" style={{"cursor": "pointer"}} onClick={handleToggleCollapse}>
+		<div className="card mt-3">
+			<div className="card-header" style={{"cursor": "pointer"}} onClick={handleToggleCollapse}>
 				<div className="row">
 					<div className="col">
 						<i className={`fas fa-chevron-${collapseBody ? "down" : "up"}`} />&nbsp;{headerText}
@@ -598,12 +612,12 @@ const withAlertCardContainer = (WrappedComponent, headerText) => (props) => {
 				</div>
 			</div>
 			<div ref={ref} className={`collapse ${startCollapsed ? "" : "show"}`}>
-				<div class="card-body">
+				<div className="card-body">
 					{display && (
-						<div class={"alert " + bootstrapClass}>
+						<div className={"alert " + bootstrapClass}>
 							<p>{message}</p>
 							<span
-								class="btn btn-link font-weight-light font-italic"
+								className="btn btn-link font-weight-light font-italic"
 								onClick={() => setDisplay(false)}
 							>
 								<small>dismiss</small>
@@ -664,7 +678,7 @@ function UserInformation(
 	};
 
 	return (
-		<div className="row">
+		<div className="row pb-3">
 			<div className="col-sm-8" >
 				<table className="table-responsive">
 					<tr>
@@ -785,7 +799,7 @@ function ProvisioningStatusForm({ deprovisionedUserDto, refresh, handleSuccess, 
 			<hr hidden={!status.allowDeprovision && !status.allowRestore} />
 			<button
 				type="submit"
-				class="btn btn-danger"
+				className="btn btn-danger"
 				hidden={!status.allowDeprovision}
 				onClick={handleDeprovision}
 			>
@@ -793,7 +807,7 @@ function ProvisioningStatusForm({ deprovisionedUserDto, refresh, handleSuccess, 
 			</button>
 			<button
 				type="submit"
-				class="btn btn-danger"
+				className="btn btn-danger"
 				hidden={!status.allowRestore}
 				onClick={handleRestore}
 			>
@@ -862,14 +876,14 @@ function CopyUserForm({
 
 	return (
 		<Fragment>
-			<form class="form-inline mb-3">
-				<div class="form-group mr-3">
-					<label for="newUsername" class="mr-3">
+			<form className="form-inline mb-3">
+				<div className="form-group mr-3">
+					<label for="newUsername" className="mr-3">
 						Recipient Username
 					</label>
 					<input
 						type="text"
-						class="form-control"
+						className="form-control"
 						id="newUsername"
 						value={newUsername}
 						onChange={(event) => setNewUsername(event.target.value)}
@@ -877,7 +891,7 @@ function CopyUserForm({
 				</div>
 				<button
 					type="submit"
-					class="btn btn-primary"
+					className="btn btn-primary"
 					disabled={!Boolean(newUsername)}
 					onClick={handleCopy}
 				>
@@ -919,7 +933,9 @@ function Tooltip({ title, body }) {
 
 	useEffect(() => {
 		if (ref.current) {
-			$(ref.current).tooltip();
+			require(["jquery", "multiple-select"], () => {
+				$(ref.current).tooltip();
+			});
 		}
 	}, [ref]);
 
@@ -981,15 +997,17 @@ function EditRoleTable({ userRoleMetadataList, editorUsername, deprovisioned, ha
 				className={buttonClassName}
 				onClick={() => handleToggleRole(userRoleMetadata.roleName)}
 				disabled={disabled}
+				style={{ minWidth: '5.5em' }} // make 'Approve' and 'Revoke the same size
 			>
 				{buttonText}
 			</button>
 		);
 	};
 
-	const getIcon = (userRoleMetadata) => {
+	const getApprovalStatusIcon = (userRoleMetadata) => {
+		const marginLeft = '4px';
 		if (userRoleMetadata.hasRole) {
-			return <i className="fas fa-check-circle fa-lg" style={{ color: '#128a29'}} />;
+			return <i className="fas fa-check-circle fa-lg" style={{ color: '#128a29', marginLeft }} />;
 		} else if (userRoleMetadata.groupsHasWithRole && userRoleMetadata.groupsHasWithRole.length) {
 			return (
 				<Tooltip
@@ -997,13 +1015,13 @@ function EditRoleTable({ userRoleMetadataList, editorUsername, deprovisioned, ha
 					body={
 						<i
 							className="far fa-check-circle fa-lg"
-							style={{ color: '#71c27a'}}
+							style={{ color: '#71c27a', marginLeft }}
 						/>
 					}
 				/>
 			);
 		} else {
-			return <i className="fa fa-ban fa-lg" style={{ color: '#be1c00' }} />;
+			return <i className="fa fa-ban fa-lg" style={{ color: '#be1c00', marginLeft }} />;
 		}
 	}
 
@@ -1015,6 +1033,7 @@ function EditRoleTable({ userRoleMetadataList, editorUsername, deprovisioned, ha
 				<tr>
 					<th>Approval Status</th>
 					<th>Role</th>
+					<th>Risk Factor</th>
 					<th>Approval Requirements</th>
 					<th>Current Role-Granting Groups</th>
 					<th className="text-right">Action</th>
@@ -1025,14 +1044,20 @@ function EditRoleTable({ userRoleMetadataList, editorUsername, deprovisioned, ha
 					<tr>
 						<td className="align-middle">
 							{
-								getIcon(userRoleMetadata)
+								getApprovalStatusIcon(userRoleMetadata)
 							}
 						</td>
 						<td className="align-middle">
-							<Tooltip title={userRoleMetadata.roleDescription} body={userRoleMetadata.roleName} />
+							<Tooltip title={ userRoleMetadata.roleDescription } body={ userRoleMetadata.roleName } />
 						</td>
-						<td className="align-middle">{getStringFromApprovalStatuses(userRoleMetadata)}</td>
-						<td className="align-middle">{userRoleMetadata.groupsHasWithRole}</td>
+						<td>
+							<Tooltip
+								title={ userRoleMetadata.roleRiskFactorDescription }
+								body={ userRoleMetadata.roleRiskFactor }
+							/>
+						</td>
+						<td className="align-middle">{ getStringFromApprovalStatuses(userRoleMetadata) }</td>
+						<td className="align-middle">{ userRoleMetadata.groupsHasWithRole }</td>
 						<td className="text-right">{ getActionButton(userRoleMetadata) }</td>
 					</tr>
 				))}
@@ -1298,20 +1323,20 @@ const EditAccountsCard = withAlertCardContainer(
 const CheckList = ({ title, plural, orderedKeys, checkedKeys, disabled, handleToggle }) => {
 	return (
 		<div>
-			<h3 class="card-title">{title}</h3>
+			<h3 className="card-title">{title}</h3>
 			{orderedKeys.length === 0
 				? "No " + plural + " available."
 				: orderedKeys.map((key) => (
-					<div class="form-check" key={key}>
+					<div className="form-check" key={key}>
 						<input
 							type="checkbox"
-							class="form-check-input"
+							className="form-check-input"
 							id={key}
 							disabled={disabled}
 							checked={checkedKeys[key]}
 							onChange={handleToggle}
 						/>
-						<label class="form-check-label" for={key}>
+						<label className="form-check-label" for={key}>
 							{key}
 						</label>
 					</div>
@@ -1322,7 +1347,7 @@ const CheckList = ({ title, plural, orderedKeys, checkedKeys, disabled, handleTo
 
 const Select = ({ title, options, defaultValue, onChange, containerStyle = {}, disabled=false }) => (
 	<div style={ containerStyle }>
-		<h4 class="card-title">{title}</h4>
+		<h4 className="card-title">{title}</h4>
 		<select onChange={onChange} disabled={disabled}>
 			{options.map((zone) => (
 				<option key={zone} selected={defaultValue == zone} value={zone}>
@@ -1446,7 +1471,7 @@ function PermissionRequests({ requests, refresh, handleSuccess, handleDanger, id
 						: "N/A";
 					return (
 						<Fragment key={requestTimeMs}>
-							<table class="table table-sm">
+							<table className="table table-sm">
 								<tbody>
 								<tr>
 									<td style={historyTableKeyCellStyle}>Time</td>
@@ -1470,7 +1495,7 @@ function PermissionRequests({ requests, refresh, handleSuccess, handleDanger, id
 										) : (
 											<button
 												type="submit"
-												class="btn btn-danger"
+												className="btn btn-danger"
 												onClick={handleDecline}
 											>
 												Decline

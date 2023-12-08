@@ -70,7 +70,7 @@ public abstract class BaseLog4j2Configuration{
 		addLoggerConfig(name, level, additive, List.of(appenders));
 	}
 
-	private final void addLoggerConfig(String name, Level level, boolean additive, Iterable<Appender> appenders){
+	private void addLoggerConfig(String name, Level level, boolean additive, Iterable<Appender> appenders){
 		LoggerConfig loggerConfig = new LoggerConfig(name, level, additive);
 		appenders.forEach(appender -> loggerConfig.addAppender(appender, null, null));
 		loggerConfigs.put(loggerConfig.getName(), loggerConfig);

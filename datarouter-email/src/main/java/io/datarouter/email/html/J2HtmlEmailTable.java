@@ -81,7 +81,7 @@ public class J2HtmlEmailTable<T>{
 					return TagCreator.text(text);
 				}catch(Exception e){
 					throw new RuntimeException("error column=" + name
-							+ " row=" + GsonTool.withUnregisteredEnums().toJson(row), e);
+							+ " row=" + GsonTool.withoutEnums().toJson(row), e);
 				}
 			});
 		}

@@ -99,8 +99,7 @@ public class MysqlSingleTableSchemaUpdateService{
 		MysqlCharacterSet characterSet = mysqlTableOptions.getCharacterSet();
 		MysqlRowFormat rowFormat = mysqlTableOptions.getRowFormat();
 
-		if(physicalNode instanceof IndexedStorage){
-			IndexedStorage<?,?> indexedStorage = (IndexedStorage<?,?>)physicalNode;
+		if(physicalNode instanceof IndexedStorage<?,?> indexedStorage){
 			indexes = indexedStorage.getManagedNodes().stream()
 					.collect(Collectors.toMap(ManagedNode::getName,
 							managedNode -> managedNode.getIndexEntryFieldInfo().getFields()));

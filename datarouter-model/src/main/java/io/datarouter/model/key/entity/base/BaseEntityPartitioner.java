@@ -109,8 +109,7 @@ implements EntityPartitioner<EK>{
 	//TODO skip intermediate array
 	public byte[] getPrefix(EK ek){
 		int partition = getPartition(ek);
-		byte[] prefix = getPrefix(partition);
-		return prefix;
+		return getPrefix(partition);
 	}
 
 	@Override

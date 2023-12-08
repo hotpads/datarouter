@@ -24,7 +24,6 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.BaseDao;
-import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import io.datarouter.storage.tag.Tag;
@@ -37,17 +36,18 @@ import jakarta.inject.Singleton;
 @Singleton
 public class DatarouterAccountDao extends BaseDao implements BaseDatarouterAccountDao{
 
-	public static class DatarouterAccountDaoParams extends BaseRedundantDaoParams{
+	public static class DatarouterAccountDaoParams{
 
+		public final List<ClientId> clientIds;
 		public final Optional<String> tableName;
 
 		public DatarouterAccountDaoParams(List<ClientId> clientIds){
-			super(clientIds);
+			this.clientIds = clientIds;
 			tableName = Optional.empty();
 		}
 
 		public DatarouterAccountDaoParams(List<ClientId> clientIds, String tableName){
-			super(clientIds);
+			this.clientIds = clientIds;
 			Require.isTrue(StringTool.notNullNorEmpty(tableName));
 			this.tableName = Optional.of(tableName);
 		}

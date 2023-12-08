@@ -21,21 +21,26 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.nio.charset.Charset;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -53,11 +58,14 @@ import io.datarouter.httpclient.endpoint.caller.CallerType;
 import io.datarouter.httpclient.endpoint.caller.CallerTypeUnknown;
 import io.datarouter.httpclient.endpoint.java.BaseEndpoint;
 import io.datarouter.httpclient.endpoint.java.EndpointTool;
+import io.datarouter.httpclient.endpoint.param.IgnoredField;
+import io.datarouter.httpclient.endpoint.param.RequestBody;
 import io.datarouter.httpclient.endpoint.web.BaseWebApi;
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.instrumentation.exception.ExceptionRecordDto;
 import io.datarouter.instrumentation.trace.W3TraceContext;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.util.singletonsupplier.SingletonSupplier;
 import io.datarouter.web.endpoint.EndpointValidator;
@@ -72,6 +80,7 @@ import io.datarouter.web.handler.types.HandlerTypingHelper;
 import io.datarouter.web.handler.types.Param;
 import io.datarouter.web.handler.types.optional.OptionalParameter;
 import io.datarouter.web.handler.validator.DefaultRequestParamValidator;
+import io.datarouter.web.handler.validator.FieldValidator;
 import io.datarouter.web.handler.validator.HandlerAccountCallerValidator;
 import io.datarouter.web.handler.validator.RequestParamValidator;
 import io.datarouter.web.handler.validator.RequestParamValidator.RequestParamValidatorErrorResponseDto;
@@ -252,6 +261,156 @@ public abstract class BaseHandler{
 				.map(RequestParamValidatorErrorResponseDto::fromRequestParamValidatorResponseDto);
 	}
 
+	private Optional<RequestParamValidatorErrorResponseDto> validateEndpointRequestField(
+			Method method,
+			Object[] args){
+		if(args.length == 1 && args[0] instanceof BaseEndpoint<?,?> endpoint){
+			return validateRequestFieldValidators(method, endpoint);
+		}
+		return Optional.empty();
+	}
+
+	private Optional<RequestParamValidatorErrorResponseDto> validateWebApiRequestField(
+			Method method,
+			Object[] args){
+		if(args.length == 1 && args[0] instanceof BaseWebApi<?,?> endpoint){
+			return validateRequestFieldValidators(method, endpoint);
+		}
+		return Optional.empty();
+	}
+
+	private Optional<RequestParamValidatorErrorResponseDto> validateRequestFieldValidators(
+			Method method,
+			Object endpoint){
+		List<Field> endpointFields = Scanner.of(endpoint.getClass().getFields())
+				.exclude(field -> field.isAnnotationPresent(IgnoredField.class))
+				.list();
+		Set<Field> requestBodyFields = new HashSet<>(endpointFields.size());
+		Set<Field> otherEndpointFields = new HashSet<>(endpointFields.size());
+		Scanner.of(endpointFields)
+				.forEach(field -> {
+					if(field.isAnnotationPresent(RequestBody.class)){
+						requestBodyFields.add(field);
+					}else{
+						otherEndpointFields.add(field);
+					}
+				});
+		Optional<RequestParamValidatorErrorResponseDto> error = Optional.empty();
+		// handle endpoint GET fields validators
+		if(!otherEndpointFields.isEmpty()){
+			error = validateClassFields(otherEndpointFields, method, endpoint);
+		}
+		if(error.isPresent()){
+			return error;
+		}
+		Optional<Field> requestBodyFieldOptional = Scanner.of(requestBodyFields)
+				.findFirst();
+		if(requestBodyFieldOptional.isEmpty()){
+			return error;
+		}
+		Field requestBodyField = requestBodyFieldOptional.get();
+		Object requestBody;
+		try{
+			requestBody = requestBodyField.get(endpoint);
+		}catch(IllegalAccessException | IllegalArgumentException e){
+			// maybe return a specific error?
+			return error;
+		}
+		// handle validator annotated requestBody
+		if(requestBodyField.isAnnotationPresent(FieldValidator.class)){
+			return Optional.ofNullable(requestBodyField.getAnnotation(FieldValidator.class))
+					.map(FieldValidator::value)
+					.filter(validator -> !DefaultRequestParamValidator.class.isAssignableFrom(validator))
+					.map(validator -> validate(requestBodyField.getName(), requestBody).apply(validator))
+					.filter(responseDto -> !responseDto.success())
+					.map(RequestParamValidatorErrorResponseDto::fromRequestParamValidatorResponseDto);
+		}
+		// handle record requestBody fields validators
+		if(requestBodyField.getType().isRecord()){
+			Map<String,Class<? extends RequestParamValidator<?>>> validatorByRequestBodyFieldName = Scanner
+					.of(requestBodyField.getType().getDeclaredFields())
+					.exclude(field -> {
+						FieldValidator annotation = field.getAnnotation(FieldValidator.class);
+						if(annotation == null){
+							return true;
+						}
+						Class<? extends RequestParamValidator<?>> validator = annotation.value();
+						return DefaultRequestParamValidator.class.isAssignableFrom(validator);
+					})
+					.toMap(Field::getName, field -> field.getAnnotation(FieldValidator.class).value());
+			error = Scanner.of(requestBodyField.getType().getRecordComponents())
+					.include(comp -> validatorByRequestBodyFieldName.containsKey(comp.getName()))
+					.map(comp -> {
+						String fieldName = comp.getName();
+						Object fieldValue;
+						try{
+							fieldValue = comp.getAccessor().invoke(requestBody);
+						}catch(IllegalAccessException | InvocationTargetException e){
+							logger.error("Unable to retrieve value for field '{}', method '{}'",
+									fieldName,
+									method.getName(),
+									e);
+							// maybe return error?
+							return RequestParamValidatorResponseDto.makeSuccessResponse();
+						}
+						Optional<?> optionalFieldValue = HandlerTool.getParameterValue(fieldValue);
+						if(optionalFieldValue.isEmpty()){
+							return RequestParamValidatorResponseDto.makeSuccessResponse();
+						}
+						Object value = optionalFieldValue.get();
+						logger.debug("methodName={}; fieldName={}; fieldValue={}", method.getName(), fieldName, value);
+						Class<? extends RequestParamValidator<?>> validator =
+								validatorByRequestBodyFieldName.get(fieldName);
+						return validate(fieldName, value).apply(validator);
+					})
+					.exclude(RequestParamValidatorResponseDto::success)
+					.findFirst()
+					.map(RequestParamValidatorErrorResponseDto::fromRequestParamValidatorResponseDto);
+		}
+		if(error.isPresent()){
+			return error;
+		}
+		// validate class entity fields
+		return validateClassFields(Arrays.asList(requestBodyField.getType().getDeclaredFields()), method, requestBody);
+	}
+
+	private Optional<RequestParamValidatorErrorResponseDto> validateClassFields(
+			Collection<Field> fields,
+			Method method,
+			Object endpointOrRequestBody){
+		return Scanner.of(fields)
+				.include(field -> field.isAnnotationPresent(FieldValidator.class))
+				.map(field -> {
+					FieldValidator annotation = field.getAnnotation(FieldValidator.class);
+					Class<? extends RequestParamValidator<?>> validator = annotation.value();
+					if(DefaultRequestParamValidator.class.isAssignableFrom(validator)){
+						return RequestParamValidatorResponseDto.makeSuccessResponse();
+					}
+					String fieldName = field.getName();
+					Object fieldValue;
+					try{
+						fieldValue = field.get(endpointOrRequestBody);
+					}catch(IllegalAccessException | IllegalArgumentException e){
+						logger.error("Unable to retrieve value for field '{}', method '{}'",
+								fieldName,
+								method.getName(),
+								e);
+						// maybe return error?
+						return RequestParamValidatorResponseDto.makeSuccessResponse();
+					}
+					Optional<?> optionalFieldValue = HandlerTool.getParameterValue(fieldValue);
+					if(optionalFieldValue.isEmpty()){
+						return RequestParamValidatorResponseDto.makeSuccessResponse();
+					}
+					Object value = optionalFieldValue.get();
+					logger.debug("methodName={}; fieldName={}; fieldValue={}", method.getName(), fieldName, value);
+					return validate(fieldName, value).apply(validator);
+				})
+				.exclude(RequestParamValidatorResponseDto::success)
+				.findFirst()
+				.map(RequestParamValidatorErrorResponseDto::fromRequestParamValidatorResponseDto);
+	}
+
 	private <T> Function<Class<? extends RequestParamValidator<?>>,RequestParamValidatorResponseDto> validate(
 			String parameterName,
 			Object parameterValue){
@@ -298,9 +457,19 @@ public abstract class BaseHandler{
 
 			Optional<RequestParamValidatorErrorResponseDto> errorResponseDtoOptional;
 			if(EndpointTool.paramIsEndpointObject(method)){
-				errorResponseDtoOptional = validateRequestParamValidatorsFromEndpoint(method, args);
+				Parameter[] parameters = method.getParameters();
+				if(Optional.ofNullable(parameters[0].getAnnotation(EndpointValidator.class)).isPresent()){
+					errorResponseDtoOptional = validateRequestParamValidatorsFromEndpoint(method, args);
+				}else{
+					errorResponseDtoOptional = validateEndpointRequestField(method, args);
+				}
 			}else if(EndpointTool.paramIsWebApiObject(method)){
-				errorResponseDtoOptional = validateRequestParamValidatorsFromWebApi(method, args);
+				Parameter[] parameters = method.getParameters();
+				if(Optional.ofNullable(parameters[0].getAnnotation(WebApiValidator.class)).isPresent()){
+					errorResponseDtoOptional = validateRequestParamValidatorsFromWebApi(method, args);
+				}else{
+					errorResponseDtoOptional = validateWebApiRequestField(method, args);
+				}
 			}else{
 				errorResponseDtoOptional = validateRequestParamValidators(method, args);
 			}
@@ -319,7 +488,7 @@ public abstract class BaseHandler{
 		String methodName = handlerMethodName();
 		List<Method> possibleMethods = ReflectionTool.getDeclaredMethodsWithName(getClass(), methodName).stream()
 				.filter(possibleMethod -> possibleMethod.isAnnotationPresent(Handler.class))
-				.collect(Collectors.toList());
+				.collect(WarnOnModifyList.deprecatedCollector());
 
 		HandlerMethodAndArgs pair = handlerTypingHelper.findMethodByName(
 				possibleMethods,
@@ -368,7 +537,7 @@ public abstract class BaseHandler{
 		String methodName = handlerMethodName();
 		List<Method> possibleMethods = ReflectionTool.getDeclaredMethodsWithName(getClass(), methodName).stream()
 				.filter(possibleMethod -> possibleMethod.isAnnotationPresent(Handler.class))
-				.collect(Collectors.toList());
+				.collect(WarnOnModifyList.deprecatedCollector());
 
 		Optional<Method> defaultHandlerMethod = getDefaultHandlerMethod();
 		Method method;

@@ -22,11 +22,8 @@ import static j2html.TagCreator.i;
 import static j2html.TagCreator.td;
 import static j2html.TagCreator.th;
 
-import java.util.Comparator;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
@@ -56,20 +53,17 @@ public class ViewReadmesHandler extends BaseHandler{
 
 	public static DivTag makeContent(String title, Map<String,String> rows){
 		var header = h2(title);
-		Set<Entry<String,String>> entrySet = rows.entrySet().stream()
-				.sorted(Comparator.comparing(Entry::getKey))
-				.collect(Collectors.toSet());
 		var table = new J2HtmlTable<Entry<String,String>>()
 				.withClasses("sortable table table-sm table-striped my-4 border")
 				.withCaption("Total : " + rows.size())
 				.withHtmlColumn(th("Name").withClass("w-50"), row -> td(row.getKey()))
-				.withHtmlColumn(th("").withClass("w-25"), row -> {
-					return td(a(i().withClass("fa fa-link"))
-							.withClass("btn btn-link w-100 py-0")
-							.withHref(row.getValue())
-							.withTarget("_blank"));
-				})
-				.build(entrySet);
+				.withHtmlColumn(
+						th("").withClass("w-25"),
+						row -> td(a(i().withClass("fa fa-link"))
+								.withClass("btn btn-link w-100 py-0")
+								.withHref(row.getValue())
+								.withTarget("_blank")))
+				.build(rows.entrySet());
 		return div(header, table)
 				.withClass("container my-4");
 	}

@@ -21,7 +21,7 @@
 
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-metadata-parent</artifactId>
-	<version>0.0.122</version>
+	<version>0.0.123</version>
 	<packaging>pom</packaging>
 
 	<name>datarouter-metadata-parent</name>
@@ -123,6 +123,12 @@
 		<developer>
 			<name>Rakesh Konda</name>
 			<email>rakeshk@hotpads.com</email>
+			<organization>HotPads</organization>
+			<organizationUrl>https://hotpads.com</organizationUrl>
+		</developer>
+		<developer>
+			<name>Ryan Tomlinson</name>
+			<email>ryantom@hotpads.com</email>
 			<organization>HotPads</organization>
 			<organizationUrl>https://hotpads.com</organizationUrl>
 		</developer>

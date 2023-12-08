@@ -40,11 +40,7 @@ public class EntityTool{
 		NavigableMap<EK,List<PK>> pksByEntityKey = new TreeMap<>();
 		for(PK pk : pks){
 			EK ek = pk.getEntityKey();
-			List<PK> pksForEntity = pksByEntityKey.get(ek);
-			if(pksForEntity == null){
-				pksForEntity = new ArrayList<>();
-				pksByEntityKey.put(ek, pksForEntity);
-			}
+			List<PK> pksForEntity = pksByEntityKey.computeIfAbsent(ek, $ -> new ArrayList<>());
 			pksForEntity.add(pk);
 		}
 		return pksByEntityKey;
@@ -59,11 +55,7 @@ public class EntityTool{
 			}// seem to be getting some null entries from TraceFlushController?
 			PK pk = databean.getKey();//leave on individual line for NPE trace
 			EK ek = pk.getEntityKey();
-			List<D> databeansForEntity = databeansByEntityKey.get(ek);
-			if(databeansForEntity == null){
-				databeansForEntity = new ArrayList<>();
-				databeansByEntityKey.put(ek, databeansForEntity);
-			}
+			List<D> databeansForEntity = databeansByEntityKey.computeIfAbsent(ek, $ -> new ArrayList<>());
 			databeansForEntity.add(databean);
 		}
 		return databeansByEntityKey;

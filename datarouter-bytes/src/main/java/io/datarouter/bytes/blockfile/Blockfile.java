@@ -21,6 +21,7 @@ import io.datarouter.bytes.blockfile.checksum.BlockfileChecksummers;
 import io.datarouter.bytes.blockfile.compress.BlockfileCompressors;
 import io.datarouter.bytes.blockfile.read.BlockfileMetadataReader;
 import io.datarouter.bytes.blockfile.read.BlockfileMetadataReaderBuilder;
+import io.datarouter.bytes.blockfile.read.BlockfileReader;
 import io.datarouter.bytes.blockfile.read.BlockfileReaderBuilder;
 import io.datarouter.bytes.blockfile.storage.BlockfileStorage;
 import io.datarouter.bytes.blockfile.write.BlockfileWriterBuilder;
@@ -49,18 +50,18 @@ public record Blockfile<T>(
 
 	public BlockfileReaderBuilder<T> newReaderBuilder(
 			BlockfileMetadataReader<T> metadataReader,
-			Function<byte[],T> decoder){
-		return new BlockfileReaderBuilder<>(this, metadataReader, decoder);
+			Function<BlockfileReader<T>,Function<byte[],T>> decoderExtractor){
+		return new BlockfileReaderBuilder<>(this, metadataReader, decoderExtractor);
 	}
 
 	public BlockfileReaderBuilder<T> newReaderBuilderKnownFileLength(
 			String pathAndFile,
-			long knownFileLength,
-			Function<byte[],T> decoder){
+			Function<BlockfileReader<T>,Function<byte[],T>> decoderExtractor,
+			long knownFileLength){
 		var metadataReader = newMetadataReaderBuilder(pathAndFile)
 				.setKnownFileLength(knownFileLength)
 				.build();
-		return new BlockfileReaderBuilder<>(this, metadataReader, decoder);
+		return new BlockfileReaderBuilder<>(this, metadataReader, decoderExtractor);
 	}
 
 }

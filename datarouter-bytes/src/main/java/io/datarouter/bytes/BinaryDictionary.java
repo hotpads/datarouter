@@ -109,10 +109,9 @@ public class BinaryDictionary{
 		if(obj == this){
 			return true;
 		}
-		if(!(obj instanceof BinaryDictionary)){
+		if(!(obj instanceof BinaryDictionary that)){
 			return false;
 		}
-		BinaryDictionary that = (BinaryDictionary)obj;
 		if(size() != that.size()){
 			return false;
 		}

@@ -18,7 +18,6 @@ package io.datarouter.tasktracker.service;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.small;
-import static j2html.TagCreator.td;
 
 import java.time.Duration;
 import java.time.ZoneId;
@@ -31,14 +30,12 @@ import io.datarouter.tasktracker.config.DatarouterTaskTrackerPaths;
 import io.datarouter.tasktracker.storage.LongRunningTask;
 import io.datarouter.tasktracker.storage.LongRunningTaskDao;
 import io.datarouter.tasktracker.web.TaskTrackerExceptionLink;
-import io.datarouter.util.time.ZonedDateFormatterTool;
 import io.datarouter.web.config.ServletContextSupplier;
 import io.datarouter.web.config.service.DomainFinder;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
 import io.datarouter.web.digest.DailyDigestService;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
-import io.datarouter.web.html.j2html.J2HtmlTable;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.TableTag;
@@ -64,25 +61,9 @@ public class LongRunningTaskDailyDigest implements DailyDigest{
 	private DomainFinder domainFinder;
 
 	@Override
-	public Optional<DivTag> getPageContent(ZoneId zoneId){
-		List<LongRunningTask> failedTasks = longRunningTaskDao.scan()
-				.include(task -> task.getKey().getTriggerTime().getTime()
-						> System.currentTimeMillis() - Duration.ofDays(1).toMillis())
-				.include(LongRunningTask::isBadState)
-				.list();
-		if(failedTasks.isEmpty()){
-			return Optional.empty();
-		}
-		var header = digestService.makeHeader("Failed Long Running Tasks", paths.datarouter.longRunningTasks);
-		var description = small("From the last 24 hours");
-		var table = buildPageTable(failedTasks, zoneId);
-		return Optional.of(div(header, description, table));
-	}
-
-	@Override
 	public Optional<DivTag> getEmailContent(ZoneId zoneId){
 		List<LongRunningTask> failedTasks = longRunningTaskDao.scan()
-				.include(task -> task.getKey().getTriggerTime().getTime()
+				.include(task -> task.getKey().getTriggerTime().toEpochMilli()
 						> System.currentTimeMillis() - Duration.ofDays(1).toMillis())
 				.include(LongRunningTask::isBadState)
 				.list();
@@ -110,26 +91,12 @@ public class LongRunningTaskDailyDigest implements DailyDigest{
 		return DailyDigestType.SUMMARY;
 	}
 
-	private TableTag buildPageTable(List<LongRunningTask> rows, ZoneId zoneId){
-		return new J2HtmlTable<LongRunningTask>()
-				.withClasses("sortable table table-sm table-striped my-4 border")
-				.withHtmlColumn("Name", row -> td(makeTaskLink(row.getKey().getName())))
-				.withColumn("Trigger Time", row -> ZonedDateFormatterTool.formatDateWithZone(row.getKey()
-						.getTriggerTime(), zoneId))
-				.withColumn("Duration", row -> row.getDurationString())
-				.withColumn("Triggered By", row -> row.getTriggeredBy())
-				.withColumn("Status", row -> row.getJobExecutionStatus().persistentString)
-				.withHtmlColumn("Exception", row -> td(makeExceptionLink(row.getExceptionRecordId())))
-				.build(rows);
-	}
-
 	private TableTag buildEmailTable(List<LongRunningTask> rows, ZoneId zoneId){
 		return new J2HtmlEmailTable<LongRunningTask>()
 				.withColumn(new J2HtmlEmailTableColumn<>("Name", row -> makeTaskLink(row.getKey().getName())))
-				.withColumn("Trigger Time", row -> ZonedDateFormatterTool.formatDateWithZone(row.getKey()
-						.getTriggerTime(), zoneId))
-				.withColumn("Duration", row -> row.getDurationString())
-				.withColumn("Triggered By", row -> row.getTriggeredBy())
+				.withColumn("Trigger Time", row -> row.getKey().getTriggerTime().format(zoneId))
+				.withColumn("Duration", LongRunningTask::getDurationString)
+				.withColumn("Triggered By", LongRunningTask::getTriggeredBy)
 				.withColumn("Status", row -> row.getJobExecutionStatus().persistentString)
 				.withColumn(new J2HtmlEmailTableColumn<>("Exception",
 						row -> makeExceptionLink(row.getExceptionRecordId())))

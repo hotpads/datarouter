@@ -17,6 +17,8 @@ package io.datarouter.trace.filter;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -39,18 +41,20 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.auth.session.CurrentSessionInfo;
 import io.datarouter.auth.session.Session;
+import io.datarouter.bytes.KvString;
 import io.datarouter.gson.GsonTool;
 import io.datarouter.httpclient.circuitbreaker.DatarouterHttpClientIoExceptionCircuitBreaker;
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.instrumentation.count.Counters;
 import io.datarouter.instrumentation.exception.HttpRequestRecordDto;
-import io.datarouter.instrumentation.trace.Trace2BundleAndHttpRequestRecordDto;
-import io.datarouter.instrumentation.trace.Trace2BundleDto;
-import io.datarouter.instrumentation.trace.Trace2Dto;
-import io.datarouter.instrumentation.trace.Trace2SpanDto;
-import io.datarouter.instrumentation.trace.Trace2ThreadDto;
+import io.datarouter.instrumentation.trace.TraceBundleAndHttpRequestRecordDto;
+import io.datarouter.instrumentation.trace.TraceBundleDto;
 import io.datarouter.instrumentation.trace.TraceCategory;
+import io.datarouter.instrumentation.trace.TraceDto;
 import io.datarouter.instrumentation.trace.TraceSaveReasonType;
+import io.datarouter.instrumentation.trace.TraceSpanDto;
+import io.datarouter.instrumentation.trace.TraceThreadDto;
+import io.datarouter.instrumentation.trace.TraceTimeTool;
 import io.datarouter.instrumentation.trace.Traceparent;
 import io.datarouter.instrumentation.trace.Tracer;
 import io.datarouter.instrumentation.trace.TracerThreadLocal;
@@ -79,6 +83,12 @@ import io.datarouter.web.util.http.RequestTool;
 public abstract class TraceFilter implements Filter, InjectorRetriever{
 	private static final Logger logger = LoggerFactory.getLogger(TraceFilter.class);
 
+	// Trace backend storage is often time-sorted.
+	// TraceIds with abnormal future or past timestamps can cause problems with the storage.
+	// We therefore discard traces that are further into the future or past than this.
+	private static final Duration FUTURE_TIMESTAMP_TOLERANCE = Duration.ofSeconds(5);
+	private static final Duration PAST_TIMESTAMP_TOLERANCE = Duration.ofDays(1);
+
 	private ServerName serverName;
 	private DatarouterTraceFilterSettingRoot traceSettings;
 	private TraceBuffers traceBuffers;
@@ -105,10 +115,14 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 
 			// get or create TraceContext
 			boolean shouldBeRandomlySampled = false;
-			Long traceCreated = Trace2Dto.getCurrentTimeInNs();
 			String traceparentStr = request.getHeader(DatarouterHttpClientIoExceptionCircuitBreaker.TRACEPARENT);
 			String tracestateStr = request.getHeader(DatarouterHttpClientIoExceptionCircuitBreaker.TRACESTATE);
-			W3TraceContext traceContext = new W3TraceContext(traceparentStr, tracestateStr, traceCreated);
+			long traceCreatedEpochNanos = TraceTimeTool.epochNano();
+			var traceContext = new W3TraceContext(traceparentStr, tracestateStr, traceCreatedEpochNanos);
+			if(isTraceIdTimestampOutsideCutoffTimes(traceContext.getTraceparent())){
+				traceContext = new W3TraceContext(traceCreatedEpochNanos);
+				Counters.inc("trace discarding original traceContext");
+			}
 			String initialParentId = traceContext.getTraceparent().parentId;
 			traceContext.updateParentIdAndAddTracestateMember();
 			RequestAttributeTool.set(
@@ -116,8 +130,8 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 					BaseHandler.TRACE_URL_REQUEST_ATTRIBUTE,
 					urlBuilder.buildTraceForCurrentServer(traceContext.getTraceparent().toString()));
 			RequestAttributeTool.set(request, BaseHandler.TRACE_CONTEXT, traceContext.copy());
-			if(RandomTool.getRandomIntBetweenTwoNumbers(1,
-					traceSettings.randomSamplingMax.get()) <= traceSettings.randomSamplingThreshold.get()){
+			if(RandomTool.getRandomIntBetweenTwoNumbers(1, traceSettings.randomSamplingMax.get())
+					<= traceSettings.randomSamplingThreshold.get()){
 				shouldBeRandomlySampled = true;
 				traceContext.getTraceparent().enableSample();
 			}
@@ -131,15 +145,18 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 			}
 
 			// bind these to all threads, even if tracing is disabled
-			Tracer tracer = new DatarouterTracer(serverName.get(), null, traceContext, traceSettings.maxSpansPerTrace
-					.get());
+			Tracer tracer = new DatarouterTracer(
+					serverName.get(),
+					null,
+					traceContext,
+					traceSettings.maxSpansPerTrace.get());
 			tracer.setSaveThreadCpuTime(traceSettings.saveThreadCpuTime.get());
 			tracer.setSaveThreadMemoryAllocated(traceSettings.saveThreadMemoryAllocated.get());
 			tracer.setSaveSpanCpuTime(traceSettings.saveSpanCpuTime.get());
 			tracer.setSaveSpanMemoryAllocated(traceSettings.saveSpanMemoryAllocated.get());
 			TracerThreadLocal.bindToThread(tracer);
 			String requestThreadName = (request.getContextPath() + " request").trim();
-			tracer.createAndStartThread(requestThreadName, Trace2Dto.getCurrentTimeInNs());
+			tracer.createAndStartThread(requestThreadName, TraceTimeTool.epochNano());
 
 			Long threadId = Thread.currentThread().getId();
 			boolean saveCpuTime = traceSettings.saveTraceCpuTime.get();
@@ -156,13 +173,13 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 				errored = true;
 				throw e;
 			}finally{
-				long ended = Trace2Dto.getCurrentTimeInNs();
+				long ended = TraceTimeTool.epochNano();
 				Long cpuTimeEnded = saveCpuTime ? PlatformMxBeans.THREAD.getCurrentThreadCpuTime() : null;
 				Long threadAllocatedBytesEnded = saveAllocatedBytes
 						? PlatformMxBeans.THREAD.getThreadAllocatedBytes(threadId)
 						: null;
 				Traceparent traceparent = tracer.getTraceContext().get().getTraceparent();
-				Trace2ThreadDto rootThread = null;
+				TraceThreadDto rootThread = null;
 				if(tracer.getCurrentThreadId() != null){
 					rootThread = ((DatarouterTracer)tracer).getCurrentThread();
 					rootThread.setCpuTimeEndedNs(cpuTimeEnded);
@@ -171,13 +188,13 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 					((DatarouterTracer)tracer).setCurrentThread(null);
 				}
 				List<TraceSaveReasonType> saveReasons = new ArrayList<>();
-				Trace2Dto trace2 = new Trace2Dto(
+				var trace = new TraceDto(
 						traceparent,
 						initialParentId,
 						request.getContextPath(),
 						request.getRequestURI().toString(),
 						request.getQueryString(),
-						traceCreated,
+						traceCreatedEpochNanos,
 						ended,
 						serviceName.get(),
 						tracer.getDiscardedThreadCount(),
@@ -189,19 +206,20 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 						saveReasons,
 						TraceCategory.HTTP_REQUEST);
 
-				Long traceDurationMs = trace2.getDurationInMs();
+				Long traceDurationMs = trace.getDurationInMs();
 				long mainThreadCpuTimeNs = saveCpuTime ? cpuTimeEnded - cpuTimeBegin : -1;
 				long totalCpuTimeNs = -1;
 				if(saveCpuTime && traceSettings.saveThreadCpuTime.get()){
 					totalCpuTimeNs = mainThreadCpuTimeNs;
-					for(Trace2ThreadDto thread : tracer.getThreadQueue()){
+					for(TraceThreadDto thread : tracer.getThreadQueue()){
 						totalCpuTimeNs += thread.getCpuTimeEndedNs() - thread.getCpuTimeCreatedNs();
 					}
 				}
 				int childThreadCount = tracer.getThreadQueue().size() + tracer.getDiscardedThreadCount();
 				long totalCpuTimeMs = TimeUnit.NANOSECONDS.toMillis(totalCpuTimeNs);
-				Long threadAllocatedKB = saveAllocatedBytes ? (threadAllocatedBytesEnded - threadAllocatedBytesBegin)
-						/ 1024 : null;
+				Long threadAllocatedKB = saveAllocatedBytes
+						? (threadAllocatedBytesEnded - threadAllocatedBytesBegin) / 1024
+						: null;
 				String traceCounterPrefix = "traceSaved ";
 				if(traceSettings.saveTraces.get()){
 					if(traceDurationMs > traceSettings.saveTracesOverMs.get()){
@@ -225,8 +243,8 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 					saveReasons.forEach(reason -> Counters.inc(traceCounterPrefix + reason.type));
 				}
 				if(!saveReasons.isEmpty()){
-					List<Trace2ThreadDto> threads = new ArrayList<>(tracer.getThreadQueue());
-					List<Trace2SpanDto> spans = new ArrayList<>(tracer.getSpanQueue());
+					List<TraceThreadDto> threads = new ArrayList<>(tracer.getThreadQueue());
+					List<TraceSpanDto> spans = new ArrayList<>(tracer.getSpanQueue());
 					if(rootThread != null){
 						rootThread.setTotalSpanCount(spans.size());
 						threads.add(rootThread); // force to save the rootThread even though the queue could be full
@@ -235,64 +253,53 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 					String userToken = currentSessionInfo.getSession(request)
 							.map(Session::getUserToken)
 							.orElse("unknown");
-					HttpRequestRecordDto httpRequestRecord = buildHttpRequestRecord(errored, request, traceCreated,
-							userToken, traceparent);
-					Optional<String> destination = offerTrace2(
-							new Trace2BundleDto(trace2, threads, spans),
+					HttpRequestRecordDto httpRequestRecord = buildHttpRequestRecord(
+							errored,
+							request,
+							traceCreatedEpochNanos,
+							userToken,
+							traceparent);
+					Optional<String> destination = offerTrace(
+							new TraceBundleDto(trace, threads, spans),
 							httpRequestRecord);
 					if(destination.isEmpty()){
 						Counters.inc("traceSavedNotAllowed");
-						Counters.inc("traceSavedNotAllowed " + trace2.type);
+						Counters.inc("traceSavedNotAllowed " + trace.type);
 					}
-					logger.warn("Trace " + (destination.isPresent() ? "saved" : "not allowed to save")
-							+ " to={}"
-							+ " traceparent={}"
-							+ " initialParentId={}"
-							+ " durationMs={}"
-							+ " mainThreadCpuTimeMs={}"
-							+ " totalCpuTimeMs={}"
-							+ " childThreadCount={}"
-							+ " threadAllocatedKB={}"
-							+ " path={}"
-							+ " query={}"
-							+ " userAgent=\"{}\""
-							+ " userToken={}"
-							+ " saveReasons={}",
-							destination.orElse(null),
-							traceparent,
-							initialParentId,
-							traceDurationMs,
-							TimeUnit.NANOSECONDS.toMillis(mainThreadCpuTimeNs),
-							totalCpuTimeMs,
-							childThreadCount,
-							threadAllocatedKB,
-							trace2.type,
-							trace2.params,
-							userAgent,
-							userToken,
-							saveReasons);
+					String logAction = destination.isPresent() ? "saved" : "not allowed to save";
+					var logAttributes = new KvString()
+							.add("to", destination.orElse(null))
+							.add("traceparent", traceparent, Traceparent::toString)
+							.add("initialParentId", initialParentId)
+							.add("durationMs", traceDurationMs, Number::toString)
+							.add("mainThreadCpuTimeMs",
+									TimeUnit.NANOSECONDS.toMillis(mainThreadCpuTimeNs),
+									Number::toString)
+							.add("totalCpuTimeMs", totalCpuTimeMs, Number::toString)
+							.add("childThreadCount", childThreadCount, Number::toString)
+							.add("threadAllocatedKB", threadAllocatedKB, Number::toString)
+							.add("path", trace.type)
+							.add("query", trace.params)
+							.add("userAgent", "\"" + userAgent + "\"")
+							.add("userToken", userToken)
+							.add("saveReasons", saveReasons, List::toString);
+					logger.warn("Trace {} {}", logAction, logAttributes);
 				}else if(traceDurationMs > traceSettings.logTracesOverMs.get()
 						|| TracerTool.shouldLog()){
 					// only log once
-					logger.warn("Trace logged"
-							+ " traceparent={}"
-							+ " durationMs={}"
-							+ " mainThreadCpuTimeMs={}"
-							+ " totalCpuTimeMs={}"
-							+ " childThreadCount={}"
-							+ " threadAllocatedKB={}"
-							+ " path={}"
-							+ " query={}"
-							+ " saveReasons={}",
-							traceparent,
-							traceDurationMs,
-							TimeUnit.NANOSECONDS.toMillis(mainThreadCpuTimeNs),
-							totalCpuTimeMs,
-							childThreadCount,
-							threadAllocatedKB,
-							trace2.type,
-							trace2.params,
-							saveReasons);
+					var logAttributes = new KvString()
+							.add("traceparent", traceparent, Traceparent::toString)
+							.add("durationMs", traceDurationMs, Number::toString)
+							.add("mainThreadCpuTimeMs",
+									TimeUnit.NANOSECONDS.toMillis(mainThreadCpuTimeNs),
+									Number::toString)
+							.add("totalCpuTimeMs", totalCpuTimeMs, Number::toString)
+							.add("childThreadCount", childThreadCount, Number::toString)
+							.add("threadAllocatedKB", threadAllocatedKB, Number::toString)
+							.add("path", trace.type)
+							.add("query", trace.params)
+							.add("saveReasons", saveReasons, List::toString);
+					logger.warn("Trace logged {}", logAttributes);
 				}
 				Optional<Class<? extends BaseHandler>> handlerClassOpt = RequestAttributeTool.get(
 						request,
@@ -326,7 +333,7 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 			return null;
 		}
 		receivedAt = TimeUnit.NANOSECONDS.toMillis(receivedAt);
-		long created = TimeUnit.NANOSECONDS.toMillis(Trace2Dto.getCurrentTimeInNs());
+		long created = TimeUnit.NANOSECONDS.toMillis(TraceTimeTool.epochNano());
 		RecordedHttpHeaders headersWrapper = new RecordedHttpHeaders(request);
 		return new HttpRequestRecordDto(
 				new Ulid().value(),
@@ -400,13 +407,46 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 		return GsonTool.withUnregisteredEnums().toJson(trimmed);
 	}
 
-	private Optional<String> offerTrace2(Trace2BundleDto traceBundle, HttpRequestRecordDto httpRequestRecord){
-		if(traceBundle.traceDto.traceparent.getInstant().isEmpty()){
-			return Optional.empty();
-		}
-		Trace2BundleAndHttpRequestRecordDto traceAndHttpRequest = new Trace2BundleAndHttpRequestRecordDto(traceBundle,
-				httpRequestRecord);
+	private Optional<String> offerTrace(TraceBundleDto traceBundle, HttpRequestRecordDto httpRequestRecord){
+		var traceAndHttpRequest = new TraceBundleAndHttpRequestRecordDto(traceBundle, httpRequestRecord);
 		return Optional.of(traceBuffers.offer(traceAndHttpRequest).orElse(""));
+	}
+
+	public static boolean isTraceIdTimestampOutsideCutoffTimes(Traceparent traceparent){
+		Instant timestamp;
+		try{
+			timestamp = traceparent.getInstantTruncatedToMillis();
+		}catch(NumberFormatException e){
+			logger.warn("discarding invalid traceid {}", new KvString()
+					.add("traceparent", traceparent.toString()),
+					e);
+			countDiscarding("invalid traceid");
+			return true;
+		}
+		Instant now = Instant.now();
+		Instant cutoffFuture = now.plus(FUTURE_TIMESTAMP_TOLERANCE);
+		if(timestamp.isAfter(cutoffFuture)){
+			logger.warn("discarding future timestamp {}", new KvString()
+					.add("cutoff", cutoffFuture.toString())
+					.add("traceparent", traceparent.toString())
+					.add("timestamp", timestamp.toString()));
+			countDiscarding("future timestamp");
+			return true;
+		}
+		Instant cutoffPast = now.minus(PAST_TIMESTAMP_TOLERANCE);
+		if(timestamp.isBefore(cutoffPast)){
+			logger.warn("discarding past timestamp {}", new KvString()
+					.add("cutoff", cutoffPast.toString())
+					.add("traceparent", traceparent.toString())
+					.add("timestamp", timestamp.toString()));
+			countDiscarding("past timestamp");
+			return true;
+		}
+		return false;
+	}
+
+	private static void countDiscarding(String string){
+		Counters.inc("trace discarding " + string);
 	}
 
 }

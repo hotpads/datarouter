@@ -81,7 +81,7 @@ public class DatarouterSnapshotBenchmarkHandler extends BaseHandler{
 		boolean persist = DEFAULT_PERSIST;
 		String errorPersist = null;
 		try{
-			persist = optPersist.map(Boolean::valueOf).orElse(persist);
+			persist = optPersist.orElse(persist);
 		}catch(Exception e){
 			errorPersist = "Must be \"true\" or \"false\"";
 		}
@@ -89,7 +89,7 @@ public class DatarouterSnapshotBenchmarkHandler extends BaseHandler{
 		boolean delete = DEFAULT_DELETE;
 		String errorDelete = null;
 		try{
-			delete = optDelete.map(Boolean::valueOf).orElse(delete);
+			delete = optDelete.orElse(delete);
 		}catch(Exception e){
 			errorDelete = "Must be \"true\" or \"false\"";
 		}

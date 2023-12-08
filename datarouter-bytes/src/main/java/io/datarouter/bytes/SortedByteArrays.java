@@ -61,8 +61,7 @@ public class SortedByteArrays extends ByteArrays{
 
 	@Override
 	public boolean contains(Object other){
-		if(other instanceof byte[]){
-			byte[] target = (byte[])other;
+		if(other instanceof byte[] target){
 			return binarySearch(target) >= 0;
 		}
 		return false;

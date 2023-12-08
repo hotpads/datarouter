@@ -97,7 +97,7 @@ public class ByteChunkSplitter<T>{
 		public final byte[] last;// potential prefix of later token
 
 		public ParsedByteChunk(byte[] first, List<T> middle, byte[] last){
-			if(first == null && middle.size() == 0 && last == null){
+			if(first == null && middle.isEmpty() && last == null){
 				throw new IllegalArgumentException("no data");
 			}
 			this.first = first;

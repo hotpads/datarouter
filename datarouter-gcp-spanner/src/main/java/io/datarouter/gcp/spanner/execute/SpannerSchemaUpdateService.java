@@ -21,6 +21,9 @@ import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.function.Supplier;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.cloud.spanner.DatabaseClient;
 import com.google.cloud.spanner.ResultSet;
 import com.google.cloud.spanner.Statement;
@@ -50,6 +53,7 @@ import jakarta.inject.Singleton;
 
 @Singleton
 public class SpannerSchemaUpdateService extends EmailingSchemaUpdateService{
+	private static final Logger logger = LoggerFactory.getLogger(SpannerSchemaUpdateService.class);
 
 	private final SpannerSingleTableSchemaUpdateService singleTableSchemaUpdateFactory;
 	private final SpannerTableOperationsGenerator tableOperationsGenerator;
@@ -106,6 +110,7 @@ public class SpannerSchemaUpdateService extends EmailingSchemaUpdateService{
 				.getListOfTables()));
 		while(resultSet.next()){
 			existingTableNames.add(resultSet.getString("table_name"));
+			logger.warn("table={} state={}", resultSet.getString("table_name"), resultSet.getString("spanner_state"));
 		}
 		return existingTableNames;
 	}

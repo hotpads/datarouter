@@ -23,12 +23,12 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.BaseDao;
-import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.IndexingNodeFactory;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
 import io.datarouter.storage.node.op.index.IndexReader;
 import io.datarouter.storage.tag.Tag;
+import io.datarouter.util.tuple.Range;
 import io.datarouter.virtualnode.redundant.RedundantIndexedSortedMapStorageNode;
 import io.datarouter.websocket.storage.subscription.WebSocketSubscription.WebSocketSubscriptionFielder;
 import jakarta.inject.Inject;
@@ -37,12 +37,7 @@ import jakarta.inject.Singleton;
 @Singleton
 public class DatarouterWebSocketSubscriptionDao extends BaseDao{
 
-	public static class DatarouterWebSocketSubscriptionDaoParams extends BaseRedundantDaoParams{
-
-		public DatarouterWebSocketSubscriptionDaoParams(List<ClientId> clientIds){
-			super(clientIds);
-		}
-
+	public record DatarouterWebSocketSubscriptionDaoParams(List<ClientId> clientIds){
 	}
 
 	private final IndexedSortedMapStorageNode<
@@ -85,6 +80,10 @@ public class DatarouterWebSocketSubscriptionDao extends BaseDao{
 
 	public Scanner<WebSocketSubscriptionKey> scanKeys(){
 		return node.scanKeys();
+	}
+
+	public Scanner<WebSocketSubscriptionKey> scanKeys(Range<WebSocketSubscriptionKey> range){
+		return node.scanKeys(range);
 	}
 
 	public Scanner<WebSocketSubscriptionByUserTokenKey> scanKeysWithPrefixByUserToken(

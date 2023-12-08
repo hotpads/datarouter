@@ -18,7 +18,6 @@ package io.datarouter.auth.storage.user.datarouteruser;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -36,8 +35,6 @@ import io.datarouter.model.field.Field;
 import io.datarouter.model.field.codec.MilliTimeFieldCodec;
 import io.datarouter.model.field.codec.StringListToBinaryCsvFieldCodec;
 import io.datarouter.model.field.codec.StringListToCsvFieldCodec;
-import io.datarouter.model.field.imp.DateField;
-import io.datarouter.model.field.imp.DateFieldKey;
 import io.datarouter.model.field.imp.StringEncodedField;
 import io.datarouter.model.field.imp.StringEncodedFieldKey;
 import io.datarouter.model.field.imp.StringField;
@@ -63,9 +60,7 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey,DatarouterUse
 	private Boolean enabled;
 	private List<String> roles;
 	private List<String> samlGroups;
-	private Date created;
 	private MilliTime createdMs;
-	private Date lastLoggedIn;
 	private MilliTime lastLoggedInMs;
 	private String zoneId;
 
@@ -82,12 +77,8 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey,DatarouterUse
 		public static final StringEncodedFieldKey<List<String>> samlGroups
 				= new StringEncodedFieldKey<>("samlGroups", StringListToCsvFieldCodec.INSTANCE)
 				.withSize(CommonFieldSizes.MAX_LENGTH_LONGBLOB);
-		@SuppressWarnings("deprecation")
-		public static final DateFieldKey created = new DateFieldKey("created");
 		public static final LongEncodedFieldKey<MilliTime> createdMs =
 				new LongEncodedFieldKey<>("createdMs", new MilliTimeFieldCodec());
-		@SuppressWarnings("deprecation")
-		public static final DateFieldKey lastLoggedIn = new DateFieldKey("lastLoggedIn");
 		public static final LongEncodedFieldKey<MilliTime> lastLoggedInMs =
 				new LongEncodedFieldKey<>("lastLoggedInMs", new MilliTimeFieldCodec());
 		public static final StringFieldKey zoneId = new StringFieldKey("zoneId");
@@ -99,7 +90,6 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey,DatarouterUse
 			super(DatarouterUserKey::new);
 		}
 
-		@SuppressWarnings("deprecation")
 		@Override
 		public List<Field<?>> getNonKeyFields(DatarouterUser user){
 			return List.of(
@@ -110,9 +100,7 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey,DatarouterUse
 					new BooleanField(FieldKeys.enabled, user.enabled),
 					new ByteArrayEncodedField<>(FieldKeys.roles, user.roles),
 					new StringEncodedField<>(FieldKeys.samlGroups, user.samlGroups),
-					new DateField(FieldKeys.created, user.created),
 					new LongEncodedField<>(FieldKeys.createdMs, user.createdMs),
-					new DateField(FieldKeys.lastLoggedIn, user.lastLoggedIn),
 					new LongEncodedField<>(FieldKeys.lastLoggedInMs, user.lastLoggedInMs),
 					new StringField(FieldKeys.zoneId, user.zoneId));
 		}
@@ -221,18 +209,12 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey,DatarouterUse
 				&& Objects.equals(first.getZoneId(), second.getZoneId());
 	}
 
-	@Deprecated // use getCreatedInstant
-	public Date getCreated(){
-		return created;
+	public MilliTime getCreated(){
+		return createdMs;
 	}
 
-	public Instant getCreatedInstant(){
-		return created.toInstant();
-	}
-
-	public void setCreated(Date created){
-		this.created = created;
-		this.createdMs = MilliTime.of(created);
+	public void setCreated(MilliTime createdMs){
+		this.createdMs = createdMs;
 	}
 
 	@Override
@@ -292,19 +274,13 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey,DatarouterUse
 	}
 
 	public Instant getLastLoggedIn(){
-		return Optional.ofNullable(lastLoggedIn)
-				.map(Date::toInstant)
+		return Optional.ofNullable(lastLoggedInMs)
+				.map(MilliTime::toInstant)
 				.orElse(null);
 	}
 
-	public void setLastLoggedIn(Instant lastLoggedIn){
-		if(lastLoggedIn == null){
-			this.lastLoggedIn = null;
-			this.lastLoggedInMs = null;
-		}else{
-			this.lastLoggedIn = Date.from(lastLoggedIn);
-			this.lastLoggedInMs = MilliTime.of(lastLoggedIn);
-		}
+	public void setLastLoggedIn(MilliTime lastLoggedIn){
+		this.lastLoggedInMs = lastLoggedIn;
 	}
 
 	@Override

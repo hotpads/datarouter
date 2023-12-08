@@ -17,7 +17,7 @@ package io.datarouter.util.tracer;
 
 import java.util.concurrent.Callable;
 
-import io.datarouter.instrumentation.trace.Trace2Dto;
+import io.datarouter.instrumentation.trace.TraceTimeTool;
 import io.datarouter.instrumentation.trace.Tracer;
 import io.datarouter.instrumentation.trace.TracerThreadLocal;
 
@@ -32,7 +32,7 @@ public abstract class TracedCheckedCallable<V> implements Callable<V>{
 		this.traceThreadName = traceThreadName;
 		this.parentThread = Thread.currentThread();
 		this.parentTracer = TracerThreadLocal.get();
-		this.queueTime = Trace2Dto.getCurrentTimeInNs(); // approximate queue time with task creation time
+		this.queueTime = TraceTimeTool.epochNano(); // approximate queue time with task creation time
 	}
 
 	@Override

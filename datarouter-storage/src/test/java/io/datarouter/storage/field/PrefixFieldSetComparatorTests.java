@@ -63,7 +63,7 @@ public class PrefixFieldSetComparatorTests{
 		Range<SortedBeanKey> rangeEnd2Exclusive = new Range<>(null, true, endOfRange2, false);
 		// the candidate would normally compare after the endOfRange, but should be included here
 		SortedBeanKey candidate3 = new SortedBeanKey("emu", "d", 5, "g");
-		Assert.assertTrue(candidate3.compareTo(endOfRange2) == 0);
+		Assert.assertEquals(candidate3.compareTo(endOfRange2), 0);
 		// but in the prefix range
 		Assert.assertTrue(FieldSetRangeFilter.include(candidate3, rangeEnd2Inclusive, NODE_NAME));
 		// even with inclusive=false

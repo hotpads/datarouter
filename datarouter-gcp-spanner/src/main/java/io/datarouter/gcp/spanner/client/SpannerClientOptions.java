@@ -141,7 +141,6 @@ public class SpannerClientOptions{
 					SecretOpConfig config = SecretOpConfig.builder(
 							SecretOpReason.automatedOp(this.getClass().getSimpleName()))
 							.useSharedNamespace()
-							.disableRecording()
 							.disableSerialization()
 							.build();
 					return secretService.read($, String.class, config);

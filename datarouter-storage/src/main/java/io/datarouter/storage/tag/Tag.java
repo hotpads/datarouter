@@ -35,4 +35,8 @@ public enum Tag implements Displayable{
 		return display;
 	}
 
+	public String displayLowerCase(){
+		return display.toLowerCase();
+	}
+
 }

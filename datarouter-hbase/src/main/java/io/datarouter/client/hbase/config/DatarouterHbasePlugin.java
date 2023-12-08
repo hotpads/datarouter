@@ -15,56 +15,12 @@
  */
 package io.datarouter.client.hbase.config;
 
-import io.datarouter.client.hbase.balancer.DefaultHBaseBalancerFactory;
-import io.datarouter.client.hbase.balancer.HBaseBalancerFactory;
-import io.datarouter.client.hbase.compaction.DefaultHBaseCompactionInfo;
-import io.datarouter.client.hbase.compaction.HBaseCompactionInfo;
-import io.datarouter.job.BaseTriggerGroup;
 import io.datarouter.web.config.BaseWebPlugin;
 
-public class DatarouterHbasePlugin extends BaseWebPlugin{
+public class DatarouterHBasePlugin extends BaseWebPlugin{
 
-	private final Class<? extends HBaseCompactionInfo> hbaseCompactionInfoClass;
-	private final Class<? extends HBaseBalancerFactory> hbaseBalancerFactoryClass;
-
-	private DatarouterHbasePlugin(
-			Class<? extends HBaseCompactionInfo> hbaseCompactionInfoClass,
-			Class<? extends HBaseBalancerFactory> hbaseBalancerFactoryClass){
-		this.hbaseCompactionInfoClass = hbaseCompactionInfoClass;
-		this.hbaseBalancerFactoryClass = hbaseBalancerFactoryClass;
-		addRouteSet(DatarouterHBaseRouteSet.class);
-		addSettingRoot(DatarouterHBaseSettingRoot.class);
-		addPluginEntry(BaseTriggerGroup.KEY, DatarouterHBaseTriggerGroup.class);
+	public DatarouterHBasePlugin(){
 		addDatarouterGithubDocLink("datarouter-hbase");
-	}
-
-	@Override
-	protected void configure(){
-		bind(HBaseCompactionInfo.class).to(hbaseCompactionInfoClass);
-		bind(HBaseBalancerFactory.class).to(hbaseBalancerFactoryClass);
-	}
-
-	public static class DatarouterHbasePluginBuilder{
-
-		private Class<? extends HBaseCompactionInfo> hbaseCompactionInfoClass = DefaultHBaseCompactionInfo.class;
-		private Class<? extends HBaseBalancerFactory> hbaseBalancerFactoryClass = DefaultHBaseBalancerFactory.class;
-
-		public DatarouterHbasePluginBuilder setHbaseCompactionInfoClass(
-				Class<? extends HBaseCompactionInfo> hbaseCompactionInfoClass){
-			this.hbaseCompactionInfoClass = hbaseCompactionInfoClass;
-			return this;
-		}
-
-		public DatarouterHbasePluginBuilder setHBaseBalancerFactoryClass(
-				Class<? extends HBaseBalancerFactory> hbaseBalancerFactoryClass){
-			this.hbaseBalancerFactoryClass = hbaseBalancerFactoryClass;
-			return this;
-		}
-
-		public DatarouterHbasePlugin build(){
-			return new DatarouterHbasePlugin(hbaseCompactionInfoClass, hbaseBalancerFactoryClass);
-		}
-
 	}
 
 }

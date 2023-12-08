@@ -27,6 +27,7 @@ import static j2html.TagCreator.table;
 import static j2html.TagCreator.td;
 import static j2html.TagCreator.text;
 import static j2html.TagCreator.textarea;
+import static j2html.TagCreator.th;
 import static j2html.TagCreator.thead;
 import static j2html.TagCreator.tr;
 
@@ -121,9 +122,11 @@ public class Bootstrap4FormHtml{
 				.withId(field.getId())
 				.withClass("table table-hover bg-white")
 				.with(thead(tr()
-						.with(field.getColumns().stream()
-								.map(Column::display)
-								.map(TagCreator::th))))
+						.with(Scanner.of(th())
+								.append(Scanner.of(field.getColumns())
+										.map(Column::display)
+										.map(TagCreator::th))
+								.list())))
 				.with(Scanner.of(field.getRows())
 						.map(row -> tr()
 								.with(td(input()

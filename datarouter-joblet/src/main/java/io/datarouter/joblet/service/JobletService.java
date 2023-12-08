@@ -51,6 +51,7 @@ import io.datarouter.joblet.type.JobletType;
 import io.datarouter.joblet.type.JobletTypeFactory;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.config.PutMethod;
 import io.datarouter.storage.config.properties.ServerName;
@@ -173,7 +174,7 @@ public class JobletService{
 					JobletData jobletData = dataKeyToJobletData.get(dataKey);
 					return new JobletPackage(jobletRequest, jobletData);
 				})
-				.collect(Collectors.toList());
+				.collect(WarnOnModifyList.deprecatedCollector());
 	}
 
 	/*------------ queue -------------------*/
@@ -365,9 +366,7 @@ public class JobletService{
 			runExtraThread = IntStream.range(0, numExtraThreads)
 					.mapToObj(threadIdx -> (firstExtraInstanceIdx + threadIdx) % numInstances)
 					.map(serverNames::get)
-					.filter(thisServerName::equals)
-					.findAny()
-					.isPresent();
+					.anyMatch(thisServerName::equals);
 			if(runExtraThread){
 				++effectiveLimit;
 			}

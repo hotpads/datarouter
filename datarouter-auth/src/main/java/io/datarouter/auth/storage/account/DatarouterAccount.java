@@ -17,56 +17,59 @@ package io.datarouter.auth.storage.account;
 
 import java.time.Instant;
 import java.time.ZoneId;
-import java.util.Date;
 import java.util.List;
 import java.util.function.Supplier;
 
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
-import io.datarouter.model.field.imp.DateField;
-import io.datarouter.model.field.imp.DateFieldKey;
+import io.datarouter.model.field.codec.MilliTimeFieldCodec;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
 import io.datarouter.model.field.imp.comparable.BooleanField;
 import io.datarouter.model.field.imp.comparable.BooleanFieldKey;
+import io.datarouter.model.field.imp.comparable.LongEncodedField;
+import io.datarouter.model.field.imp.comparable.LongEncodedFieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
+import io.datarouter.types.MilliTime;
 import io.datarouter.util.string.StringTool;
-import io.datarouter.util.time.ZonedDateFormatterTool;
 
 public class DatarouterAccount extends BaseDatabean<DatarouterAccountKey,DatarouterAccount>{
 
-	private Date created;
+	private MilliTime createdAt;
 	private String creator;
-	private Date lastUsed;
+	private MilliTime lastUsedAt;
 	private Boolean enableUserMappings;
 	public String callerType; // IN-9144
 	/*
 	 * The official spec spells this as "referer"
 	 */
-	public String referrer; // IN-8049
+	public String referer;
 
-	private static class FieldKeys{
-		@SuppressWarnings("deprecation")
-		private static final DateFieldKey created = new DateFieldKey("created");
-		private static final StringFieldKey creator = new StringFieldKey("creator");
-		@SuppressWarnings("deprecation")
-		private static final DateFieldKey lastUsed = new DateFieldKey("lastUsed");
-		private static final BooleanFieldKey enableUserMappings = new BooleanFieldKey("enableUserMappings");
-		private static final StringFieldKey callerType = new StringFieldKey("callerType");
-		private static final StringFieldKey referrer = new StringFieldKey("referrer");
+	public static class FieldKeys{
+		public static final LongEncodedFieldKey<MilliTime> createdAt = new LongEncodedFieldKey<>(
+				"createdAt",
+				new MilliTimeFieldCodec());
+		public static final StringFieldKey creator = new StringFieldKey("creator");
+		public static final LongEncodedFieldKey<MilliTime> lastUsedAt = new LongEncodedFieldKey<>(
+				"lastUsedAt",
+				new MilliTimeFieldCodec());
+		public static final BooleanFieldKey enableUserMappings = new BooleanFieldKey("enableUserMappings");
+		public static final StringFieldKey callerType = new StringFieldKey("callerType");
+		public static final StringFieldKey referrer = new StringFieldKey("referrer");
+		public static final StringFieldKey referer = new StringFieldKey("referer");
 	}
 
 	public DatarouterAccount(){
 		super(new DatarouterAccountKey());
 	}
 
-	public DatarouterAccount(String accountName, Date created, String creator){
+	public DatarouterAccount(String accountName, MilliTime createdAt, String creator){
 		super(new DatarouterAccountKey(accountName));
-		this.created = created;
+		this.createdAt = createdAt;
 		this.creator = creator;
 		this.enableUserMappings = false;
 		this.callerType = null;
-		this.referrer = null;
+		this.referer = null;
 	}
 
 	/**
@@ -78,11 +81,14 @@ public class DatarouterAccount extends BaseDatabean<DatarouterAccountKey,Datarou
 	public DatarouterAccount(
 			String accountName,
 			DatarouterAccount account){
-		this(accountName, account.getCreated(), account.getCreator());
+		this(
+				accountName,
+				account.getCreated(),
+				account.getCreator());
 		this.enableUserMappings = account.getEnableUserMappings();
-		this.lastUsed = account.getLastUsed();
+		this.lastUsedAt = account.getLastUsed();
 		this.callerType = account.getCallerType();
-		this.referrer = account.getReferrer();
+		this.referer = account.getReferrer();
 	}
 
 	public static class DatarouterAccountFielder extends BaseDatabeanFielder<DatarouterAccountKey,DatarouterAccount>{
@@ -91,16 +97,15 @@ public class DatarouterAccount extends BaseDatabean<DatarouterAccountKey,Datarou
 			super(DatarouterAccountKey::new);
 		}
 
-		@SuppressWarnings("deprecation")
 		@Override
 		public List<Field<?>> getNonKeyFields(DatarouterAccount account){
 			return List.of(
-					new DateField(FieldKeys.created, account.created),
+					new LongEncodedField<>(FieldKeys.createdAt, account.createdAt),
 					new StringField(FieldKeys.creator, account.creator),
-					new DateField(FieldKeys.lastUsed, account.lastUsed),
+					new LongEncodedField<>(FieldKeys.lastUsedAt, account.lastUsedAt),
 					new BooleanField(FieldKeys.enableUserMappings, account.enableUserMappings),
 					new StringField(FieldKeys.callerType, account.callerType),
-					new StringField(FieldKeys.referrer, account.referrer));
+					new StringField(FieldKeys.referer, account.referer));
 		}
 
 	}
@@ -111,36 +116,36 @@ public class DatarouterAccount extends BaseDatabean<DatarouterAccountKey,Datarou
 	}
 
 	public String getCreatedDate(ZoneId zoneId){
-		if(created == null){
+		if(createdAt == null){
 			return "";
 		}
-		return ZonedDateFormatterTool.formatDateWithZone(created, zoneId);
+		return createdAt.format(zoneId);
 	}
 
 	public String getCreator(){
 		return creator;
 	}
 
-	public void setLastUsed(Date lastUsed){
-		this.lastUsed = lastUsed;
+	public void setLastUsed(MilliTime lastUsedAt){
+		this.lastUsedAt = lastUsedAt;
 	}
 
 	public String getLastUsedDate(ZoneId zoneId){
-		if(lastUsed == null){
+		if(lastUsedAt == null){
 			return "";
 		}
-		return ZonedDateFormatterTool.formatDateWithZone(lastUsed, zoneId);
+		return lastUsedAt.format(zoneId);
 	}
 
-	public Date getLastUsed(){
-		return lastUsed;
+	public MilliTime getLastUsed(){
+		return lastUsedAt;
 	}
 
 	public Instant getLastUsedInstant(){
-		if(lastUsed == null){
+		if(lastUsedAt == null){
 			return Instant.MIN;
 		}
-		return lastUsed.toInstant();
+		return lastUsedAt.toInstant();
 	}
 
 	public void toggleUserMappings(){
@@ -162,8 +167,8 @@ public class DatarouterAccount extends BaseDatabean<DatarouterAccountKey,Datarou
 		this.enableUserMappings = enableUserMappings;
 	}
 
-	public Date getCreated(){
-		return created;
+	public MilliTime getCreated(){
+		return createdAt;
 	}
 
 	public void setCallerType(String callerType){
@@ -175,11 +180,11 @@ public class DatarouterAccount extends BaseDatabean<DatarouterAccountKey,Datarou
 	}
 
 	public String getReferrer(){
-		return referrer;
+		return referer;
 	}
 
 	public void setReferrer(String referrer){
-		this.referrer = StringTool.isEmptyOrWhitespace(referrer) ? null : referrer.trim();
+		this.referer = StringTool.isEmptyOrWhitespace(referrer) ? null : referrer.trim();
 	}
 
 }

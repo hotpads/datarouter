@@ -62,28 +62,9 @@ public class ClientTableNodeNames{
 			return false;
 		}
 		ClientTableNodeNames other = (ClientTableNodeNames)obj;
-		if(clientId == null){
-			if(other.clientId != null){
-				return false;
-			}
-		}else if(!clientId.equals(other.clientId)){
-			return false;
-		}
-		if(nodeName == null){
-			if(other.nodeName != null){
-				return false;
-			}
-		}else if(!nodeName.equals(other.nodeName)){
-			return false;
-		}
-		if(tableName == null){
-			if(other.tableName != null){
-				return false;
-			}
-		}else if(!tableName.equals(other.tableName)){
-			return false;
-		}
-		return true;
+		return Objects.equals(clientId, other.clientId)
+				&& Objects.equals(nodeName, other.nodeName)
+				&& Objects.equals(tableName, other.tableName);
 	}
 
 

@@ -53,14 +53,14 @@ implements JsonSerializer<T>, JsonDeserializer<T>{
 	/**
 	 * When deserializing, throw an exception if the value is not found.
 	 */
-	public static final <T extends Enum<T>> IntegerMappedEnumSerializer<T> required(MappedEnum<T,Integer> mappedEnum){
+	public static <T extends Enum<T>> IntegerMappedEnumSerializer<T> required(MappedEnum<T,Integer> mappedEnum){
 		return new IntegerMappedEnumSerializer<>(mappedEnum, false, null, false);
 	}
 
 	/**
 	 * When deserializing, return the replacement if the value is not found.
 	 */
-	public static final <T extends Enum<T>> IntegerMappedEnumSerializer<T> optional(
+	public static <T extends Enum<T>> IntegerMappedEnumSerializer<T> optional(
 			MappedEnum<T,Integer> mappedEnum,
 			T replacement){
 		return new IntegerMappedEnumSerializer<>(mappedEnum, true, replacement, false);
@@ -69,7 +69,7 @@ implements JsonSerializer<T>, JsonDeserializer<T>{
 	/**
 	 * When deserializing, return the replacement if the value is not found.  Log the replacement.
 	 */
-	public static final <T extends Enum<T>> IntegerMappedEnumSerializer<T> optionalWithLogging(
+	public static <T extends Enum<T>> IntegerMappedEnumSerializer<T> optionalWithLogging(
 			MappedEnum<T,Integer> mappedEnum,
 			T replacement){
 		return new IntegerMappedEnumSerializer<>(mappedEnum, true, replacement, true);

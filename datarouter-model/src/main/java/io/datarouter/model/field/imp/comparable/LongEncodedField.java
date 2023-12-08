@@ -31,6 +31,11 @@ public class LongEncodedField<T> extends BaseField<T>{
 
 	private final LongEncodedFieldKey<T> key;
 
+	public LongEncodedField(String prefix, LongEncodedFieldKey<T> key, T value){
+		super(prefix, value);
+		this.key = key;
+	}
+
 	public LongEncodedField(LongEncodedFieldKey<T> key, T value){
 		super(null, value);
 		this.key = key;

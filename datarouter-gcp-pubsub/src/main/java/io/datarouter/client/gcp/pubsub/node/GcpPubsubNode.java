@@ -20,6 +20,7 @@ import java.util.List;
 
 import io.datarouter.client.gcp.pubsub.GcpPubsubClientType;
 import io.datarouter.client.gcp.pubsub.client.GcpPubsubClientManager;
+import io.datarouter.client.gcp.pubsub.config.DatarouterGcpPubsubSettingsRoot;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
@@ -48,15 +49,18 @@ implements PhysicalQueueStorageNode<PK,D,F>{
 			NodeParams<PK,D,F> params,
 			GcpPubsubClientType gcpPubSubClientType,
 			GcpPubsubClientManager gcpPubSubClientManager,
+			DatarouterGcpPubsubSettingsRoot settingRoot,
 			ClientId clientId){
-		super(environmentName, serviceName, params, gcpPubSubClientType, gcpPubSubClientManager, clientId);
+		super(environmentName, serviceName, params, gcpPubSubClientType, gcpPubSubClientManager, settingRoot, clientId);
 	}
 
 	/*------------- reader ------------*/
 
 	@Override
 	public QueueMessage<PK,D> peek(Config config){
-		return gcpPubSubOpFactory.makePeekMultiOp(config.setLimit(1)).call().stream()
+		return gcpPubSubOpFactory.makePeekMultiOp(config.setLimit(1))
+				.call()
+				.stream()
 				.findFirst()
 				.orElse(null);
 	}

@@ -23,30 +23,26 @@ import static j2html.TagCreator.th;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
-import java.util.function.Function;
 
 import io.datarouter.bytes.ByteLength;
 import io.datarouter.nodewatch.config.DatarouterNodewatchPaths;
 import io.datarouter.nodewatch.config.DatarouterNodewatchPlugin;
 import io.datarouter.nodewatch.service.TableSamplerService;
-import io.datarouter.nodewatch.service.TableStorageSummarizer;
-import io.datarouter.nodewatch.service.TableStorageSummarizerDtos.ColumnSize;
-import io.datarouter.nodewatch.service.TableStorageSummarizerDtos.ColumnSummary;
-import io.datarouter.nodewatch.service.TableStorageSummarizerDtos.TableSummary;
-import io.datarouter.nodewatch.storage.tablecount.DatarouterTableCountDao;
+import io.datarouter.nodewatch.storage.binarydto.storagestats.table.TableStorageStatsBinaryDao;
+import io.datarouter.nodewatch.storage.binarydto.storagestats.table.TableStorageStatsBinaryDto;
+import io.datarouter.nodewatch.storage.binarydto.storagestats.table.TableStorageStatsBinaryDto.ColumnStorageStatsBinaryDto;
 import io.datarouter.nodewatch.storage.tablecount.TableCount;
 import io.datarouter.nodewatch.util.NodewatchDatabaseType;
 import io.datarouter.nodewatch.util.PhysicalSortedNodeWrapper;
+import io.datarouter.nodewatch.util.TableStorageSizeTool;
+import io.datarouter.nodewatch.util.TableStorageSizeTool.IndexSize;
 import io.datarouter.nodewatch.web.NodewatchHtml;
-import io.datarouter.nodewatch.web.NodewatchLinks;
 import io.datarouter.nodewatch.web.NodewatchNavService;
+import io.datarouter.scanner.ObjectScanner;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.storage.client.ClientAndTableNames;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.node.type.index.ManagedNode;
@@ -72,33 +68,20 @@ public class NodewatchTableStorageHandler extends BaseHandler{
 	@Inject
 	private DatarouterNodewatchPaths paths;
 	@Inject
-	private NodewatchLinks links;
-	@Inject
 	private NodewatchNavService navService;
 	@Inject
 	private TableSamplerService tableSamplerService;
 	@Inject
-	private DatarouterTableCountDao tableCountDao;
-	@Inject
 	private DatarouterNodes datarouterNodes;
 	@Inject
 	private ManagedNodesHolder managedNodesHolder;
+	@Inject
+	private TableStorageStatsBinaryDao statsDao;
 
 	@Handler
 	private Mav storage(String clientName, String tableName){
 		var nodeWrapper = new PhysicalSortedNodeWrapper<>(datarouterNodes, clientName, tableName);
-		TableSummary tableSummary = new TableStorageSummarizer<>(
-				() -> false,
-				tableSamplerService,
-				datarouterNodes,
-				new ClientAndTableNames(clientName, tableName),
-				200_000)
-				.summarizeTable();
-		TableCount tableCount = tableSamplerService.getCurrentTableCountFromSamples(clientName, tableName);
-		ClientType<?,?> clientType = nodeWrapper.node.getClientType();
-		Optional<NodewatchDatabaseType> optDatabaseType = NodewatchDatabaseType.findPrice(clientType);
-		boolean includeColumnNames = optDatabaseType.map(databaseType -> databaseType.storesColumnNames).orElse(false);
-		long extrapolatedRowCount = Math.max(tableCount.getNumRows(), tableSummary.numRowsIncluded());
+		Optional<TableStorageStatsBinaryDto> optStats = statsDao.find(nodeWrapper.node);
 		var content = div(
 				NodewatchHtml.makeHeader(
 						"Storage Estimate",
@@ -107,22 +90,37 @@ public class NodewatchTableStorageHandler extends BaseHandler{
 						.addTableStorageTab(clientName, tableName)
 						.render(),
 				br(),
-				NodewatchHtml.makeTableInfoDiv(clientName, tableName),
-				br(),
-				makeTableSummaryDiv(
-						nodeWrapper,
-						tableSummary,
-						tableCount,
-						includeColumnNames,
-						extrapolatedRowCount,
-						clientType),
-				br(),
-				makeIndexSummaryDiv(nodeWrapper, tableSummary, extrapolatedRowCount),
-				br(),
-				makePrimaryTableDetailsDiv(tableSummary, includeColumnNames, extrapolatedRowCount),
-				makeIndexesDiv(nodeWrapper, tableSummary, includeColumnNames, extrapolatedRowCount),
-				br())
+				NodewatchHtml.makeTableInfoDiv(clientName, tableName))
 				.withClass("container");
+		if(optStats.isEmpty()){
+			var notFoundDiv = div("Stats not found.  They are computed daily in the background.");
+			content.with(notFoundDiv);
+		}else{
+			TableStorageStatsBinaryDto stats = optStats.orElseThrow();
+			TableCount tableCount = tableSamplerService.getCurrentTableCountFromSamples(clientName, tableName);
+			ClientType<?,?> clientType = nodeWrapper.node.getClientType();
+			Optional<NodewatchDatabaseType> optDatabaseType = NodewatchDatabaseType.findPrice(clientType);
+			boolean includeColumnNames = optDatabaseType
+					.map(databaseType -> databaseType.storesColumnNames)
+					.orElse(false);
+			long totalRows = tableCount.getNumRows();
+			var statsDiv = div(
+					br(),
+					makeTableSummaryDiv(
+							nodeWrapper,
+							stats,
+							tableCount,
+							includeColumnNames,
+							totalRows,
+							clientType),
+					br(),
+					makeIndexSummaryDiv(nodeWrapper, stats, totalRows, includeColumnNames),
+					br(),
+					makePrimaryTableDetailsDiv(stats, includeColumnNames, totalRows),
+					makeIndexesDiv(nodeWrapper, stats, includeColumnNames, totalRows),
+					br());
+			content.with(statsDiv);
+		}
 		return pageFactory.startBuilder(request)
 				.withTitle(DatarouterNodewatchPlugin.NAME + " - Storage Estimate")
 				.withRequires(DatarouterWebRequireJsV2.SORTTABLE)
@@ -134,36 +132,56 @@ public class NodewatchTableStorageHandler extends BaseHandler{
 
 	private DivTag makeTableSummaryDiv(
 			PhysicalSortedNodeWrapper<?,?,?> nodeWrapper,
-			TableSummary tableSummary,
+			TableStorageStatsBinaryDto stats,
 			TableCount tableCount,
 			boolean includeColumnNames,
-			long extrapolatedRowCount,
+			long totalRows,
 			ClientType<?,?> clientType){
 		List<? extends ManagedNode<?,?,?,?,?>> managedNodes = managedNodesHolder.getManagedNodes(nodeWrapper.node);
 		Optional<NodewatchDatabaseType> optDatabaseType = NodewatchDatabaseType.findPrice(clientType);
 		double storageMultiplier = optDatabaseType.map(type -> type.storageMultiplier).orElse(1.0);
 
-		// bytes
-		ByteLength extrapolatedNameBytes = tableSummary.extrapolateNameSize(extrapolatedRowCount);
-		ByteLength extrapolatedValueBytes = tableSummary.extrapolateValueSize(extrapolatedRowCount);
-		ByteLength extrapolatedPrimaryTableBytes = includeColumnNames
-				? ByteLength.sum(extrapolatedNameBytes, extrapolatedValueBytes)
-				: extrapolatedValueBytes;
-		ByteLength extrapolatedIndexBytes = calcTotalIndexSize(tableSummary, managedNodes, extrapolatedRowCount);
-		ByteLength extrapolatedTotalBytes = ByteLength.sum(extrapolatedPrimaryTableBytes, extrapolatedIndexBytes);
-		ByteLength adjustedBytes = ByteLength.ofBytes(
-				(long)(extrapolatedTotalBytes.toBytes() * storageMultiplier));
+		// byte calculations
+		long avgNameBytesPerRow = stats.columns.stream()
+				.mapToLong(col -> col.avgNameBytes)
+				.sum();
+		long totalNameBytes = avgNameBytesPerRow * totalRows;
+		long avgValueBytesPerRow = stats.columns.stream()
+				.mapToLong(col -> col.avgValueBytes)
+				.sum();
+		long totalValueBytes = avgValueBytesPerRow * totalRows;
+		long avgRowBytes = includeColumnNames ? avgNameBytesPerRow + avgValueBytesPerRow : avgValueBytesPerRow;
+		long totalPrimaryTableBytes = avgRowBytes * totalRows;
+		long totalIndexBytes = TableStorageSizeTool.calcTotalIndexSize(stats, managedNodes, totalRows).toBytes();
+		long totalBytes = totalPrimaryTableBytes + totalIndexBytes;
+		long adjustedTotalBytes = (long)(storageMultiplier * totalBytes);
 
-		// dollars
-		Optional<Double> optYearlyStorageCost = optDatabaseType
-				.map(price -> price.dollarsPerTiBPerYear() * adjustedBytes.toTiBDouble());
-		Optional<Double> optYearlyNodeCost = optDatabaseType
-				.flatMap(price -> price.findYearlyNodeCost(adjustedBytes));
-		Function<Optional<Double>,String> toDollarString = optDouble -> optDouble
-				.map(yearlyCost -> NumberFormatter.format(yearlyCost, 2))
-				.map(formattedDollars -> "$" + formattedDollars)
-				.orElse("?");
-		double yearlyTotalCost = optYearlyStorageCost.orElse(0d) + optYearlyNodeCost.orElse(0d);
+		// dollar calculations
+		String yearlyStorageCostString = "?";
+		boolean shouldDisplayNodeCost = false;
+		String yearlyNodeCostString = "?";
+		String yearlyTotalCostString = "?";
+		if(optDatabaseType.isPresent()){
+			NodewatchDatabaseType databaseType = optDatabaseType.get();
+			double yearlyTotalCost = 0;
+
+			// storage
+			double yearlyStorageCost = databaseType.dollarsPerTiBPerYear()
+					* ByteLength.ofBytes(adjustedTotalBytes).toTiBDouble();
+			yearlyStorageCostString = "$" + NumberFormatter.format(yearlyStorageCost, 2);
+			yearlyTotalCost += yearlyStorageCost;
+
+			// nodes
+			Optional<Double> optYearlyNodeCost = databaseType.findYearlyNodeCost(
+					ByteLength.ofBytes(adjustedTotalBytes));
+			if(optYearlyNodeCost.isPresent()){
+				shouldDisplayNodeCost = true;
+				double yearlyNodeCost = optYearlyNodeCost.orElseThrow();
+				yearlyNodeCostString = "$" + NumberFormatter.format(yearlyNodeCost, 2);
+				yearlyTotalCost += yearlyNodeCost;
+			}
+			yearlyTotalCostString = "$" + NumberFormatter.format(yearlyTotalCost, 2);
+		}
 
 		// table
 		record Row(
@@ -172,28 +190,25 @@ public class NodewatchTableStorageHandler extends BaseHandler{
 		}
 		List<Row> rows = new ArrayList<>();
 		rows.add(new Row("Nodewatch Rows", NumberFormatter.addCommas(tableCount.getNumRows())));
-		rows.add(new Row("Rows Sampled", NumberFormatter.addCommas(tableSummary.numRowsIncluded())));
-		rows.add(new Row("Bytes Sampled", tableSummary.totalValueBytes().toDisplay()));
+		rows.add(new Row("Rows Sampled", NumberFormatter.addCommas(stats.numRowsIncluded)));
 		if(includeColumnNames){
-			rows.add(new Row("Avg Name Bytes", tableSummary.avgNameBytes().toDisplay()));
-			rows.add(new Row("Avg Value Bytes", tableSummary.avgValueBytes().toDisplay()));
-			rows.add(new Row("Avg Row Bytes", tableSummary.avgTotalBytes().toDisplay()));
-		}else{
-			rows.add(new Row("Avg Row Bytes", tableSummary.avgValueBytes().toDisplay()));
+			rows.add(new Row("Avg Name Bytes", ByteLength.ofBytes(avgNameBytesPerRow).toDisplay()));
+			rows.add(new Row("Avg Value Bytes", ByteLength.ofBytes(avgValueBytesPerRow).toDisplay()));
 		}
+		rows.add(new Row("Avg Row Bytes", ByteLength.ofBytes(avgRowBytes).toDisplay()));
 		if(includeColumnNames){
-			rows.add(new Row("Est Name Bytes", extrapolatedNameBytes.toDisplay()));
-			rows.add(new Row("Est Value Bytes", extrapolatedValueBytes.toDisplay()));
+			rows.add(new Row("Est Name Bytes", ByteLength.ofBytes(totalNameBytes).toDisplay()));
+			rows.add(new Row("Est Value Bytes", ByteLength.ofBytes(totalValueBytes).toDisplay()));
 		}
-		rows.add(new Row("Est Primary Data Size", extrapolatedPrimaryTableBytes.toDisplay()));
-		rows.add(new Row("Est Index Data Size", extrapolatedIndexBytes.toDisplay()));
-		rows.add(new Row("Est Total Data Size", extrapolatedTotalBytes.toDisplay()));
+		rows.add(new Row("Est Primary Data Size", ByteLength.ofBytes(totalPrimaryTableBytes).toDisplay()));
+		rows.add(new Row("Est Index Data Size", ByteLength.ofBytes(totalIndexBytes).toDisplay()));
+		rows.add(new Row("Est Total Data Size", ByteLength.ofBytes(totalBytes).toDisplay()));
 		rows.add(new Row("Database Multiplier", Double.toString(storageMultiplier)));
-		rows.add(new Row("Est Storage Size", adjustedBytes.toDisplay()));
-		rows.add(new Row("Est Yearly Storage Cost", toDollarString.apply(optYearlyStorageCost)));
-		if(optYearlyNodeCost.isPresent()){
-			rows.add(new Row("Min Yearly Node Cost", toDollarString.apply(optYearlyNodeCost)));
-			rows.add(new Row("Min Yearly Total Cost", toDollarString.apply(Optional.of(yearlyTotalCost))));
+		rows.add(new Row("Est Storage Size", ByteLength.ofBytes(adjustedTotalBytes).toDisplay()));
+		rows.add(new Row("Est Yearly Storage Cost", yearlyStorageCostString));
+		if(shouldDisplayNodeCost){
+			rows.add(new Row("Min Yearly Node Cost", yearlyNodeCostString));
+			rows.add(new Row("Min Yearly Total Cost", yearlyTotalCostString));
 		}
 		var table = new J2HtmlTable<Row>()
 				.withClasses("table table-sm table-striped my-2 border")
@@ -208,33 +223,37 @@ public class NodewatchTableStorageHandler extends BaseHandler{
 				wrapper);
 	}
 
-	private ByteLength calcTotalIndexSize(
-			TableSummary tableSummary,
-			List<? extends ManagedNode<?,?,?,?,?>> managedNodes,
-			long extrapolatedRowCount){
-		return Scanner.of(managedNodes)
-				.map(managedNode -> calcIndexSize(tableSummary, managedNode, extrapolatedRowCount))
-				.map(IndexSize::totalSize)
-				.listTo(ByteLength::sum);
+	private List<IndexSize> getAllIndexSizes(
+			PhysicalSortedNodeWrapper<?,?,?> nodeWrapper,
+			TableStorageStatsBinaryDto stats,
+			long totalRows,
+			boolean includeNameBytes){
+		long primaryBytes = totalRows * stats.avgValueBytesPerRow();
+		if(includeNameBytes){
+			primaryBytes += totalRows * stats.avgNameBytesPerRow();
+		}
+		IndexSize primaryIndexSize = new IndexSize(
+				"Primary",
+				ByteLength.ofBytes(primaryBytes),
+				ByteLength.ofBytes(stats.avgValueBytesPerRow()));
+		List<? extends ManagedNode<?,?,?,?,?>> managedNodes = managedNodesHolder.getManagedNodes(nodeWrapper.node);
+		List<IndexSize> secondaryIndexSizes = Scanner.of(managedNodes)
+				.map(managedNode -> TableStorageSizeTool.calcIndexSize(stats, managedNode, totalRows))
+				.sort(Comparator.comparing(IndexSize::indexName))
+				.list();
+		return ObjectScanner.of(primaryIndexSize)
+				.append(secondaryIndexSizes)
+				.list();
 	}
 
 	/*--------- index summary html ----------*/
 
-	private record IndexSize(
-			String indexName,
-			ByteLength totalSize,
-			ByteLength avgRowSize){
-	}
-
 	private DivTag makeIndexSummaryDiv(
 			PhysicalSortedNodeWrapper<?,?,?> nodeWrapper,
-			TableSummary tableSummary,
-			long extrapolatedRowCount){
-		List<? extends ManagedNode<?,?,?,?,?>> managedNodes = managedNodesHolder.getManagedNodes(nodeWrapper.node);
-		List<IndexSize> indexSizes = Scanner.of(managedNodes)
-				.map(managedNode -> calcIndexSize(tableSummary, managedNode, extrapolatedRowCount))
-				.sort(Comparator.comparing(IndexSize::indexName))
-				.list();
+			TableStorageStatsBinaryDto stats,
+			long totalRows,
+			boolean includeColumnNames){
+		List<IndexSize> indexSizes = getAllIndexSizes(nodeWrapper, stats, totalRows, includeColumnNames);
 		var indexTable = new J2HtmlTable<IndexSize>()
 				.withClasses("sortable table table-sm table-striped border")
 				.withHtmlColumn(
@@ -248,34 +267,20 @@ public class NodewatchTableStorageHandler extends BaseHandler{
 						indexSize -> td(NumberFormatter.addCommas(indexSize.avgRowSize().toBytes())))
 				.build(indexSizes);
 		return div(
-				h5(String.format("Indexes (%s)", managedNodes.size())),
+				h5(String.format("Indexes (%s)", indexSizes.size())),
 				indexTable);
-	}
-
-	private IndexSize calcIndexSize(
-			TableSummary tableSummary,
-			ManagedNode<?,?,?,?,?> managedNode,
-			long extrapolatedRowCount){
-		Set<String> columnNames = new HashSet<>(managedNode.getIndexEntryFieldInfo().getFieldColumnNames());
-		ColumnSize combinedColumnSize = Scanner.of(tableSummary.subset(columnNames))
-				.map(ColumnSummary::size)
-				.reduce(ColumnSize.EMPTY, (a, b) -> ColumnSize.combine(tableSummary.numRowsIncluded(), a, b));
-		return new IndexSize(
-				managedNode.getName(),
-				combinedColumnSize.extrapolateTotalValueBytes(extrapolatedRowCount),
-				combinedColumnSize.avgValueBytes());
 	}
 
 	/*-------- primary table details ----------*/
 
 	private DivTag makePrimaryTableDetailsDiv(
-			TableSummary tableSummary,
+			TableStorageStatsBinaryDto stats,
 			boolean includeColumnNames,
-			long extrapolatedRowCount){
-		List<ColumnSummary> rows = Scanner.of(tableSummary.columnSummaries())
-				.sort(Comparator.comparing(ColumnSummary::name))
+			long totalRows){
+		List<ColumnStorageStatsBinaryDto> rows = Scanner.of(stats.columns)
+				.sort(Comparator.comparing(columnStats -> columnStats.name))
 				.list();
-		var table = makeColumnSummaryTableBuilder(includeColumnNames, extrapolatedRowCount).build(rows);
+		var table = makeColumnStatsTableBuilder(includeColumnNames, totalRows).build(rows);
 		return div(
 				h5(String.format("Primary Table Columns (%s)", rows.size())),
 				table);
@@ -285,35 +290,35 @@ public class NodewatchTableStorageHandler extends BaseHandler{
 
 	private DivTag makeIndexesDiv(
 			PhysicalSortedNodeWrapper<?,?,?> nodeWrapper,
-			TableSummary tableSummary,
+			TableStorageStatsBinaryDto stats,
 			boolean includeColumnNames,
-			long extrapolatedRowCount){
+			long totalRows){
 		List<? extends ManagedNode<?,?,?,?,?>> managedNodes = managedNodesHolder.getManagedNodes(nodeWrapper.node);
 		var result = div();
 		Scanner.of(managedNodes)
 				.sort(Comparator.comparing(ManagedNode::getName))
 				.map(managedNode -> makeIndexDetailsDiv(
 						managedNode,
-						tableSummary,
+						stats,
 						includeColumnNames,
-						extrapolatedRowCount))
+						totalRows))
 				.forEach(indexDiv -> result.with(div(br(), indexDiv)));
 		return result;
 	}
 
 	private DivTag makeIndexDetailsDiv(
 			ManagedNode<?,?,?,?,?> managedNode,
-			TableSummary tableSummary,
+			TableStorageStatsBinaryDto stats,
 			boolean includeColumnNames,
-			long extrapolatedRowCount){
-		Map<String,ColumnSummary> columnSummaryByName = Scanner.of(tableSummary.columnSummaries())
-				.toMap(ColumnSummary::name);
+			long totalRows){
+		Map<String,ColumnStorageStatsBinaryDto> columnSummaryByName = Scanner.of(stats.columns)
+				.toMap(columnStats -> columnStats.name);
 		List<String> columnNames = managedNode.getIndexEntryFieldInfo().getFieldColumnNames();
-		List<ColumnSummary> rows = Scanner.of(columnNames)
+		List<ColumnStorageStatsBinaryDto> rows = Scanner.of(columnNames)
 				.map(columnSummaryByName::get)
-				.sort(Comparator.comparing(ColumnSummary::name))
+				.sort(Comparator.comparing(columnStats -> columnStats.name))
 				.list();
-		var table = makeColumnSummaryTableBuilder(includeColumnNames, extrapolatedRowCount).build(rows);
+		var table = makeColumnStatsTableBuilder(includeColumnNames, totalRows).build(rows);
 		return div(
 				h5(String.format("Index: %s (%s)", managedNode.getName(), rows.size())),
 				table);
@@ -321,48 +326,38 @@ public class NodewatchTableStorageHandler extends BaseHandler{
 
 	/*---------- per-column table builder ----------*/
 
-	private J2HtmlTable<ColumnSummary> makeColumnSummaryTableBuilder(
+	private J2HtmlTable<ColumnStorageStatsBinaryDto> makeColumnStatsTableBuilder(
 			boolean includeColumnNames,
-			long extrapolatedRowCount){
-		var tableBuilder = new J2HtmlTable<ColumnSummary>()
+			long totalRows){
+		var tableBuilder = new J2HtmlTable<ColumnStorageStatsBinaryDto>()
 			.withClasses("sortable table table-sm table-striped border")
 			.withHtmlColumn(
 					makeThFixedWidth("Column", 200),
-					col -> td(col.name()))
+					columnStats -> td(columnStats.name))
 			.withHtmlColumn(
 					makeThFixedWidth(
 							includeColumnNames ? "Total Value Bytes" : "Total Bytes",
 							100),
-					columnSummary -> {
-						long totalValueBytes = columnSummary.size()
-								.extrapolateTotalValueBytes(extrapolatedRowCount)
-								.toBytes();
+					columnStats -> {
+						long totalValueBytes = columnStats.avgValueBytes * totalRows;
 						return td(NumberFormatter.addCommas(totalValueBytes));
 					})
 			.withHtmlColumn(
 					makeThFixedWidth(
 							includeColumnNames ? "Avg Value Bytes" : "Avg Bytes",
 							100),
-					columnSummary -> {
-						long avgValueBytes = columnSummary.size().avgValueBytes().toBytes();
-						return td(NumberFormatter.addCommas(avgValueBytes));
-					});
+					columnStats -> td(NumberFormatter.addCommas(columnStats.avgValueBytes)));
 		if(includeColumnNames){
 			tableBuilder
 				.withHtmlColumn(
 						makeThFixedWidth("Total Name Bytes", 100),
-						columnSummary -> {
-							long totalNameBytes = columnSummary.size()
-									.extrapolateTotalNameBytes(extrapolatedRowCount)
-									.toBytes();
+						columnStats -> {
+							long totalNameBytes = columnStats.avgNameBytes * totalRows;
 							return td(NumberFormatter.addCommas(totalNameBytes));
 						})
 				.withHtmlColumn(
 						makeThFixedWidth("Avg Name Bytes", 100),
-						columnSummary -> {
-							long avgNameBytes = columnSummary.size().avgNameBytes().toBytes();
-							return td(NumberFormatter.addCommas(avgNameBytes));
-						});
+						columnStats -> td(NumberFormatter.addCommas(columnStats.avgNameBytes)));
 		}
 		return tableBuilder;
 	}

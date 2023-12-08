@@ -26,9 +26,9 @@ import io.datarouter.bytes.blockfile.BlockfileBuilder;
 import io.datarouter.bytes.blockfile.storage.BlockfileLocalStorage;
 import io.datarouter.bytes.blockfile.storage.BlockfileStorage;
 import io.datarouter.bytes.codec.stringcodec.StringCodec;
-import io.datarouter.bytes.kvfile.codec.KvFileBlockCodec;
+import io.datarouter.bytes.kvfile.block.KvFileBlockCodec;
+import io.datarouter.bytes.kvfile.blockformat.KvFileStandardBlockFormats;
 import io.datarouter.bytes.kvfile.io.KvFileBuilder;
-import io.datarouter.bytes.kvfile.io.header.KvFileHeader;
 import io.datarouter.bytes.kvfile.kv.KvFileEntry;
 import io.datarouter.bytes.kvfile.kv.KvFileOp;
 import io.datarouter.scanner.Scanner;
@@ -75,14 +75,21 @@ public class KvFileTests{
 	// The test does the encoding to KvFileEntry.  Not sure it's needed.
 	@Test
 	private void testViaBlockfileRaw(){
+		KvFileBlockCodec<KvFileEntry> blockCodec = KvFileStandardBlockFormats.SEQUENTIAL.newBlockCodec();
 		var blockfile = new BlockfileBuilder<List<KvFileEntry>>(STORAGE).build();
-		var writer = blockfile.newWriterBuilder(BLOCK_RAW_FILENAME, KvFileBlockCodec.identity()::encode).build();
+		var writer = blockfile.newWriterBuilder(
+				BLOCK_RAW_FILENAME,
+				blockCodec::encodeAll)
+				.build();
 		Scanner.of(DTOS)
 				.map(TestDto.KV_CODEC::encode)
 				.batch(BLOCK_SIZE)
 				.apply(writer::write);
 		var metadataReader = blockfile.newMetadataReaderBuilder(BLOCK_RAW_FILENAME).build();
-		var reader = blockfile.newReaderBuilder(metadataReader, KvFileBlockCodec.identity()::decode).build();
+		var reader = blockfile.newReaderBuilder(
+				metadataReader,
+				$ -> blockCodec::decodeAll)
+				.build();
 		List<TestDto> decoded = reader.scanDecodedValues()
 				.concat(Scanner::of)
 				.map(TestDto.KV_CODEC::decode)
@@ -93,14 +100,14 @@ public class KvFileTests{
 	// Configures the KvFile via the underlying Blockfile
 	@Test
 	private void testViaBlockfile(){
-		var blockCodec = new KvFileBlockCodec<>(TestDto.KV_CODEC);
+		KvFileBlockCodec<TestDto> blockCodec = KvFileStandardBlockFormats.SEQUENTIAL.newBlockCodec(TestDto.KV_CODEC);
 		var blockfile = new BlockfileBuilder<List<TestDto>>(STORAGE).build();
-		var writer = blockfile.newWriterBuilder(BLOCK_FILENAME, blockCodec::encode).build();
+		var writer = blockfile.newWriterBuilder(BLOCK_FILENAME, blockCodec::encodeAll).build();
 		Scanner.of(DTOS)
 				.batch(BLOCK_SIZE)
 				.apply(writer::write);
 		var metadataReader = blockfile.newMetadataReaderBuilder(BLOCK_FILENAME).build();
-		var reader = blockfile.newReaderBuilder(metadataReader, blockCodec::decode).build();
+		var reader = blockfile.newReaderBuilder(metadataReader, $ -> blockCodec::decodeAll).build();
 		List<TestDto> decoded = reader.scanDecodedValues()
 				.concat(Scanner::of)
 				.list();
@@ -112,18 +119,21 @@ public class KvFileTests{
 	@Test
 	private void testViaKvFile(){
 		var kvFile = new KvFileBuilder<TestDto>(STORAGE).build();
-		var writer = kvFile.newWriterBuilder(KV_FILENAME, TestDto.KV_CODEC::encode)
+		var writer = kvFile.newWriterBuilder(
+				KV_FILENAME,
+				TestDto.KV_CODEC,
+				KvFileStandardBlockFormats.SEQUENTIAL)
 				.setHeaderDictionary(new BinaryDictionary().put("hk", "hv"))
 				.setFooterDictionarySupplier(() -> new BinaryDictionary().put("fk", "fv"))
 				.build();
 		Scanner.of(DTOS)
 				.batch(BLOCK_SIZE)
 				.apply(writer::write);
-		var reader = kvFile.newReaderBuilder(KV_FILENAME, TestDto.KV_CODEC::decode).build();
+		var reader = kvFile.newReaderBuilder(KV_FILENAME, TestDto.KV_CODEC).build();
 		List<TestDto> decoded = reader.scan()
 				.list();
 		Assert.assertEquals(decoded, DTOS);
-		Assert.assertEquals(reader.header().blockFormat(), KvFileHeader.BLOCK_FORMAT_PLACEHOLDER);
+		Assert.assertEquals(reader.header().blockFormat(), KvFileStandardBlockFormats.SEQUENTIAL);
 		Assert.assertEquals(reader.blockfileFooter().blockCount(), NUM_BLOCKS);
 		Assert.assertEquals(reader.footer().kvCount(), DTOS.size());
 		Assert.assertEquals(reader.header().userDictionary().findStringValue("hk").orElseThrow(), "hv");

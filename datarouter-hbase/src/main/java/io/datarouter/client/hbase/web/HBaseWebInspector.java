@@ -15,27 +15,15 @@
  */
 package io.datarouter.client.hbase.web;
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.hadoop.hbase.HColumnDescriptor;
-import org.apache.hadoop.hbase.HConstants;
-import org.apache.hadoop.hbase.HTableDescriptor;
-import org.apache.hadoop.hbase.util.Bytes;
-
-import io.datarouter.client.hbase.HBaseClientManager;
 import io.datarouter.client.hbase.config.DatarouterHBaseFiles;
 import io.datarouter.client.hbase.config.DatarouterHBasePaths;
 import io.datarouter.pathnode.PathNode;
 import io.datarouter.storage.client.ClientOptions;
 import io.datarouter.storage.client.ClientType;
-import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.web.browse.DatarouterClientWebInspector;
 import io.datarouter.web.browse.dto.DatarouterWebRequestParamsFactory;
 import io.datarouter.web.handler.mav.Mav;
@@ -54,11 +42,7 @@ public class HBaseWebInspector implements DatarouterClientWebInspector{
 	@Inject
 	private DatarouterHBasePaths datarouterHBasePaths;
 	@Inject
-	private DatarouterNodes datarouterNodes;
-	@Inject
 	private DatarouterWebRequestParamsFactory paramsFactory;
-	@Inject
-	private HBaseClientManager hBaseClientManager;
 
 	@Override
 	public Mav inspectClient(Params params, HttpServletRequest request){
@@ -73,58 +57,16 @@ public class HBaseWebInspector implements DatarouterClientWebInspector{
 		var clientPageHeader = buildClientPageHeader(clientName);
 		var clientOptionsTable = buildClientOptionsTable(allClientOptions);
 
+		//TODO return j2html page instead of jsp
 		Mav mav = new Mav();
 		mav.setViewName(files.jsp.admin.datarouter.hbase.hbaseClientSummaryJsp);
 		mav.put("clientPageHeader", clientPageHeader.render());
 		mav.put("clientOptionsTable", clientOptionsTable.render());
-		mav.put("address", hBaseClientManager.getConnection(clientId).getConfiguration().get(
-				HConstants.ZOOKEEPER_QUORUM));
-		List<HTableDescriptor> tables;
-		try{
-			tables = List.of(hBaseClientManager.getAdmin(clientId).listTables());
-		}catch(IOException e){
-			throw new RuntimeException(e);
-		}
-		Map<String,Map<String,String>> tableSummaryByName = new TreeMap<>();
-		Map<String,Map<String,Map<String,String>>> familySummaryByTableName = new TreeMap<>();
-		List<String> tableNamesForClient = datarouterNodes.getTableNamesForClient(clientName);
-		for(HTableDescriptor table : tables){
-			String tableName = table.getNameAsString();
-			if(!tableNamesForClient.contains(tableName)){
-				continue;
-			}
-			Map<String,String> tableAttributeByName = new TreeMap<>();
-			tableAttributeByName.put("maxFileSize", table.getMaxFileSize() + "");
-			tableAttributeByName.put("memStoreFlushSize", table.getMemStoreFlushSize() + "");
-			tableAttributeByName.put("readOnly", table.isReadOnly() + "");
-			tableSummaryByName.put(tableName, tableAttributeByName);
-			Map<String,Map<String,String>> familyAttributeByNameByFamilyName = parseTableAttributeMap(table
-					.getFamilies());
-			familySummaryByTableName.put(table.getNameAsString(), familyAttributeByNameByFamilyName);
-		}
-		mav.put("tableSummaryByName", tableSummaryByName);
-		mav.put("familySummaryByTableName", familySummaryByTableName);
-		mav.put("clientType", clientParams.getClientType().getName());
-		mav.put("hbaseHandlerPath", getHandlerPath().toSlashedString());
 		return mav;
 	}
 
 	protected PathNode getHandlerPath(){
 		return datarouterHBasePaths.datarouter.clients.hbase;
-	}
-
-	private static Map<String,Map<String,String>> parseTableAttributeMap(Collection<HColumnDescriptor> families){
-		Map<String,Map<String,String>> familyAttributeByNameByFamilyName = new TreeMap<>();
-		for(HColumnDescriptor family : families){
-			Map<String,String> familyAttributeByName = new TreeMap<>();
-			familyAttributeByNameByFamilyName.put(family.getNameAsString(), familyAttributeByName);
-			for(Entry<Bytes,Bytes> e : family.getValues().entrySet()){
-				String key = Bytes.toString(e.getKey().get());
-				String value = Bytes.toString(e.getValue().get());
-				familyAttributeByName.put(key, value);
-			}
-		}
-		return familyAttributeByNameByFamilyName;
 	}
 
 }

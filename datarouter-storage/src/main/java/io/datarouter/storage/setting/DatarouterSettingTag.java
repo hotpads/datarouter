@@ -46,14 +46,7 @@ public class DatarouterSettingTag{
 			return false;
 		}
 		DatarouterSettingTag other = (DatarouterSettingTag)obj;
-		if(persistentString == null){
-			if(other.persistentString != null){
-				return false;
-			}
-		}else if(!persistentString.equals(other.persistentString)){
-			return false;
-		}
-		return true;
+		return Objects.equals(persistentString, other.persistentString);
 	}
 
 	@Override

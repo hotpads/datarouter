@@ -29,8 +29,7 @@ public class FieldAttributeDto{
 
 	@Override
 	public boolean equals(Object obj){
-		if(obj instanceof FieldAttributeDto){
-			FieldAttributeDto that = (FieldAttributeDto)obj;
+		if(obj instanceof FieldAttributeDto that){
 			return this.name.equals(that.name) && this.value.equals(that.value);
 		}else{
 			return false;

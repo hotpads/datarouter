@@ -15,8 +15,6 @@
  */
 package io.datarouter.web.user.authenticate.authenticator.impl;
 
-import java.util.Date;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -27,6 +25,7 @@ import io.datarouter.auth.authenticate.authenticator.DatarouterAuthenticator;
 import io.datarouter.auth.storage.user.session.BaseDatarouterSessionDao;
 import io.datarouter.auth.storage.user.session.DatarouterSession;
 import io.datarouter.auth.storage.user.session.DatarouterSessionKey;
+import io.datarouter.types.MilliTime;
 import io.datarouter.util.lang.ObjectTool;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
@@ -68,7 +67,7 @@ public class DatarouterSessionAuthenticator implements DatarouterAuthenticator{
 			return null;
 		}
 
-		session.setUpdated(new Date());
+		session.setUpdated(MilliTime.now().toDate());
 		return session;
 	}
 

@@ -17,14 +17,12 @@ package io.datarouter.auth.web.web;
 
 import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,9 +53,11 @@ import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDtoBuilder;
 import io.datarouter.instrumentation.metric.MetricLinkBuilder;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.secretweb.service.WebSecretOpReason;
 import io.datarouter.storage.config.properties.DatarouterServerTypeSupplier;
 import io.datarouter.storage.servertype.ServerType;
+import io.datarouter.types.MilliTime;
 import io.datarouter.util.Require;
 import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.util.string.StringTool;
@@ -187,7 +187,7 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 	public DatarouterAccountDetailsDto add(String accountName, String callerType){
 		Require.isFalse(accountName.isEmpty());
 		String creator = getSessionInfo().getRequiredSession().getUsername();
-		var account = new DatarouterAccount(accountName, new Date(), creator);
+		var account = new DatarouterAccount(accountName, MilliTime.now(), creator);
 		account.setCallerType(callerType);
 		datarouterAccountDao.put(account);
 		logAndRecordAction(accountName, "add");
@@ -200,7 +200,7 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 				.map(ReflectionTool::create)
 				.map(CallerType::getName)
 				.sorted()
-				.collect(Collectors.toList());
+				.collect(WarnOnModifyList.deprecatedCollector());
 	}
 
 	@Handler
@@ -445,7 +445,7 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 					account.getCallerType(),
 					account.getReferrer(),
 					Optional.ofNullable(account.getLastUsed())
-							.map(Date::getTime)
+							.map(MilliTime::toEpochMilli)
 							.orElse(0L));
 		}
 

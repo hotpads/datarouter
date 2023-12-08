@@ -23,7 +23,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import io.datarouter.exception.utils.nameparser.ExceptionSnapshot.ExceptionCauseSnapshot;
-import io.datarouter.scanner.OptionalScanner;
 import io.datarouter.scanner.Scanner;
 
 public abstract class ExceptionNameParser{
@@ -50,8 +49,7 @@ public abstract class ExceptionNameParser{
 
 	public Optional<String> parseExceptionName(List<ExceptionCauseSnapshot> causes){
 		return Scanner.of(causes)
-				.map(this::parse)
-				.concat(OptionalScanner::of)
+				.concatOpt(this::parse)
 				.findFirst();
 	}
 
@@ -84,7 +82,7 @@ public abstract class ExceptionNameParser{
 		String matchedClassAndMethodInStackTrace = stackTraceByTypeName.get(matchedCause.get().typeName);
 		return Scanner.of(matchedCause.get().stackTraces)
 				.map(stackTrace -> stackTrace.declaringClass + "." + stackTrace.methodName)
-				.include(classAndMethod -> matchedClassAndMethodInStackTrace.equals(classAndMethod))
+				.include(matchedClassAndMethodInStackTrace::equals)
 				.hasAny();
 	}
 

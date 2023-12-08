@@ -54,8 +54,7 @@ public class FieldDto{
 
 	@Override
 	public boolean equals(Object obj){
-		if(obj instanceof FieldDto){
-			FieldDto that = (FieldDto)obj;
+		if(obj instanceof FieldDto that){
 			return this.name.equals(that.name)
 					&& this.type.equals(that.type)
 					&& this.isKey == that.isKey

@@ -48,25 +48,11 @@ public class CallsiteStatKey{
 		if(obj == null){
 			return false;
 		}
-		if(!(obj instanceof CallsiteStatKey)){
+		if(!(obj instanceof CallsiteStatKey other)){
 			return false;
 		}
-		CallsiteStatKey other = (CallsiteStatKey)obj;
-		if(callsite == null){
-			if(other.callsite != null){
-				return false;
-			}
-		}else if(!callsite.equals(other.callsite)){
-			return false;
-		}
-		if(nodeName == null){
-			if(other.nodeName != null){
-				return false;
-			}
-		}else if(!nodeName.equals(other.nodeName)){
-			return false;
-		}
-		return true;
+		return Objects.equals(callsite, other.callsite)
+				&& Objects.equals(nodeName, other.nodeName);
 	}
 
 }

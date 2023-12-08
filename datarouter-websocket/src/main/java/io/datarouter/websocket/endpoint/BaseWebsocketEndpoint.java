@@ -16,7 +16,6 @@
 package io.datarouter.websocket.endpoint;
 
 import java.io.EOFException;
-import java.util.Date;
 
 import javax.websocket.CloseReason;
 import javax.websocket.Endpoint;
@@ -26,6 +25,7 @@ import javax.websocket.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.types.MilliTime;
 import io.datarouter.web.exception.ExceptionRecorder;
 import io.datarouter.websocket.WebSocketCounters;
 import io.datarouter.websocket.WebsocketExceptionCategory;
@@ -57,7 +57,7 @@ public abstract class BaseWebsocketEndpoint extends Endpoint{
 		String userToken = (String)endpointConfig.getUserProperties().get(
 				WebSocketAuthenticationFilter.WEB_SOCKET_TOKEN);
 		String serverAddress = serverAddressProvider.get();
-		webSocketSession = new WebSocketSession(userToken, null, new Date(), serverAddress);
+		webSocketSession = new WebSocketSession(userToken, null, MilliTime.now(), serverAddress);
 		pushService.register(webSocketSession);
 		logger.info("Opening websocket session={}", webSocketSession);
 		webSocketConnectionStore.put(webSocketSession, session);

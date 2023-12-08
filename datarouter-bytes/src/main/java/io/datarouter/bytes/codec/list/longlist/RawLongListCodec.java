@@ -31,7 +31,7 @@ public class RawLongListCodec implements Codec<List<Long>,byte[]>{
 
 	@Override
 	public byte[] encode(List<Long> values){
-		if(values.size() == 0){
+		if(values.isEmpty()){
 			return EmptyArray.BYTE;
 		}
 		var bytes = new byte[ITEM_LENGTH * values.size()];

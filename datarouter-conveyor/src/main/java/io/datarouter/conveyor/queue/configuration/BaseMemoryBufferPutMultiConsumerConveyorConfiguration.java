@@ -55,8 +55,9 @@ implements ConveyorConfiguration{
 			Instant beforeProcessBuffer = Instant.now();
 			getPutMultiConsumer().accept(databeans);
 			Instant afterProcessBuffer = Instant.now();
-			gaugeRecorder.saveProcessBufferDurationMs(conveyor, Duration.between(beforeProcessBuffer,
-					afterProcessBuffer).toMillis());
+			gaugeRecorder.saveProcessBufferDurationMs(
+					conveyor,
+					Duration.between(beforeProcessBuffer, afterProcessBuffer).toMillis());
 			ConveyorCounters.incPutMultiOpAndDatabeans(conveyor, databeans.size());
 			return new ProcessResult(true);
 		}catch(RuntimeException putMultiException){

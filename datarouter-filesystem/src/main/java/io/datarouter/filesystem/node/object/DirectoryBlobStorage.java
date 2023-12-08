@@ -48,11 +48,11 @@ public class DirectoryBlobStorage{
 		return directoryManager.length(key.getPathAndFile());
 	}
 
-	public byte[] read(PathbeanKey key){
+	public Optional<byte[]> read(PathbeanKey key){
 		return directoryManager.read(key.getPathAndFile());
 	}
 
-	public byte[] read(PathbeanKey key, long offset, int length){
+	public Optional<byte[]> read(PathbeanKey key, long offset, int length){
 		return directoryManager.read(key.getPathAndFile(), offset, length);
 	}
 

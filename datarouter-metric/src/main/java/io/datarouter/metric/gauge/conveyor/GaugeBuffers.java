@@ -15,21 +15,23 @@
  */
 package io.datarouter.metric.gauge.conveyor;
 
-import io.datarouter.instrumentation.gauge.GaugeDto;
+import java.util.Map;
+
+import io.datarouter.metric.service.AggregatedGaugesPublisher.MetricCollectorStats;
 import io.datarouter.util.buffer.MemoryBuffer;
 import jakarta.inject.Singleton;
 
 @Singleton
 public class GaugeBuffers{
 
-	public final MemoryBuffer<GaugeDto> gaugeBuffer;
+	public final MemoryBuffer<Map<Long,Map<String,MetricCollectorStats>>> buffer;
 
 	public GaugeBuffers(){
-		this.gaugeBuffer = new MemoryBuffer<>("gaugeBuffer", 100_000);
+		this.buffer = new MemoryBuffer<>("gaugeBuffer", 100);
 	}
 
-	public void offer(GaugeDto metricDto){
-		gaugeBuffer.offer(metricDto);
+	public void offerGaugeStats(Map<Long,Map<String,MetricCollectorStats>> metricDto){
+		buffer.offer(metricDto);
 	}
 
 }

@@ -59,11 +59,6 @@ public class AwsElbStatusDailyDigest implements DailyDigest{
 	private DatarouterAwsElbSettingRoot settings;
 
 	@Override
-	public Optional<DivTag> getPageContent(ZoneId zoneId){
-		return checkAlbSchemeForEc2Instance();
-	}
-
-	@Override
 	public Optional<DivTag> getEmailContent(ZoneId zoneId){
 		return checkAlbSchemeForEc2Instance();
 	}

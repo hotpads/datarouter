@@ -42,11 +42,11 @@ public class PublishingResponseDto{
 		}
 	}
 
-	public static final PublishingResponseDto error(String errorMessage){
+	public static PublishingResponseDto error(String errorMessage){
 		return new PublishingResponseDto(false, errorMessage);
 	}
 
-	public static final PublishingResponseDto error(Exception exception){
+	public static PublishingResponseDto error(Exception exception){
 		return error(exception.getMessage());
 	}
 

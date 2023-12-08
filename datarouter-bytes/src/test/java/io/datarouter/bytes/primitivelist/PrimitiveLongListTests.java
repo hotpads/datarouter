@@ -35,8 +35,8 @@ public class PrimitiveLongListTests{
 		var second = new PrimitiveLongList(new long[]{});
 		Assert.assertEquals(first, second);
 		Assert.assertEquals(second, first);
-		Assert.assertTrue(first.equals(second));
-		Assert.assertTrue(second.equals(first));
+		Assert.assertEquals(second, first);
+		Assert.assertEquals(first, second);
 	}
 
 	@Test

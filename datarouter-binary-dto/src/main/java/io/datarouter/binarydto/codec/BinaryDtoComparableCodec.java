@@ -96,11 +96,11 @@ implements Codec<T,byte[]>{
 
 	@Override
 	public T decode(byte[] bytes){
-		return decodeWithLength(bytes, 0).value;
+		return decodeWithLength(bytes, 0).value();
 	}
 
 	public T decode(byte[] bytes, int offset){
-		return decodeWithLength(bytes, offset).value;
+		return decodeWithLength(bytes, offset).value();
 	}
 
 	public LengthAndValue<T> decodeWithLength(byte[] bytes, int offset){

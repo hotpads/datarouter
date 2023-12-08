@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright © 2009 HotPads (admin@hotpads.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -65,7 +65,7 @@ implements PhysicalGroupQueueStorageNode<PK,D,F>{
 
 	@Override
 	public GroupQueueMessage<PK,D> peek(Config config){
-		long visibilityTimeoutMs = config.getVisibilityTimeoutMsOrUse(DEFAULT_VISIBILITY_TIMEOUT_MS);
+		long visibilityTimeoutMs = config.findVisibilityTimeoutMs().orElse(DEFAULT_VISIBILITY_TIMEOUT_MS);
 		return Scanner.of(storage.peek(1, visibilityTimeoutMs))
 				.map(codec::memoryMessageToGroupQueueMessage)
 				.findFirst()
@@ -74,7 +74,7 @@ implements PhysicalGroupQueueStorageNode<PK,D,F>{
 
 	@Override
 	public List<GroupQueueMessage<PK,D>> peekMulti(Config config){
-		long visibilityTimeoutMs = config.getVisibilityTimeoutMsOrUse(DEFAULT_VISIBILITY_TIMEOUT_MS);
+		long visibilityTimeoutMs = config.findVisibilityTimeoutMs().orElse(DEFAULT_VISIBILITY_TIMEOUT_MS);
 		var remainingLimit = new AtomicInteger(config.findLimit().orElseThrow());
 		return Scanner.generate(() -> storage.peek(
 						Math.min(remainingLimit.get(), MAX_MESSAGES_PER_PEEK),
@@ -88,7 +88,7 @@ implements PhysicalGroupQueueStorageNode<PK,D,F>{
 
 	@Override
 	public Scanner<GroupQueueMessage<PK,D>> peekUntilEmpty(Config config){
-		long visibilityTimeoutMs = config.getVisibilityTimeoutMsOrUse(DEFAULT_VISIBILITY_TIMEOUT_MS);
+		long visibilityTimeoutMs = config.findVisibilityTimeoutMs().orElse(DEFAULT_VISIBILITY_TIMEOUT_MS);
 		return Scanner.generate(() -> storage.peek(MAX_MESSAGES_PER_PEEK, visibilityTimeoutMs))
 				.advanceUntil(List::isEmpty)
 				.concat(Scanner::of)

@@ -48,26 +48,24 @@ public class TriggerLockConfig{
 		this.warnOnReachingMaxDuration = warnOnReachingMaxDuration;
 	}
 
-	public Instant getSoftDeadline(Date triggerTime){
-		return safePlus(triggerTime.toInstant(), getSoftMaxDuration(triggerTime));
+	public Instant getSoftDeadline(Instant triggerTime){
+		return safePlus(triggerTime, getSoftMaxDuration(triggerTime));
 	}
 
-	public Instant getHardDeadline(Date triggerTime){
-		return safePlus(triggerTime.toInstant(), getHardMaxDuration(triggerTime));
+	public Instant getHardDeadline(Instant triggerTime){
+		return safePlus(triggerTime, getHardMaxDuration(triggerTime));
 	}
 
-	private Duration getSoftMaxDuration(Date triggerTime){
+	private Duration getSoftMaxDuration(Instant triggerTime){
 		return getHardMaxDuration(triggerTime).minus(GRACEFUL_STOP_WINDOW);
 	}
 
-	private Duration getHardMaxDuration(Date triggerTime){
-		if(customMaxDuration.isPresent()){
-			return customMaxDuration.get();
-		}
-		return cronExpression.map(exp -> exp.getNextValidTimeAfter(triggerTime))
-				.map(Date::toInstant)
-				.map(instant -> Duration.between(triggerTime.toInstant(), instant))
-				.orElse(MAX_DURATION);
+	private Duration getHardMaxDuration(Instant triggerTime){
+		return customMaxDuration.orElseGet(
+				() -> cronExpression.map(exp -> exp.getNextValidTimeAfter(Date.from(triggerTime)))
+						.map(Date::toInstant)
+						.map(instant -> Duration.between(triggerTime, instant))
+						.orElse(MAX_DURATION));
 	}
 
 	//this prevents overflows of MAX_DATE_INSTANT

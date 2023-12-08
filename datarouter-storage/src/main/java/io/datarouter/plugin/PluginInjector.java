@@ -36,11 +36,9 @@ public class PluginInjector{
 			return pluginConfiguration.findInstanceSingle(key).orElse(null);
 		}
 		if(key.type == PluginConfigType.CLASS_SINGLE){
-			Optional<Class<T>> clazz = pluginConfiguration.findClassSingle(key);
-			if(clazz.isEmpty()){
-				return null;
-			}
-			return datarouterInjector.getInstance(clazz.get());
+			Optional<Class<T>> clazzOpt = pluginConfiguration.findClassSingle(key);
+			return clazzOpt.map(clazz -> datarouterInjector.getInstance(clazz))
+					.orElse(null);
 		}
 		return null;
 	}
@@ -48,10 +46,7 @@ public class PluginInjector{
 	public <T extends PluginConfigValue<T>> List<T> getInstances(PluginConfigKey<T> key){
 		if(key.type == PluginConfigType.INSTANCE_LIST){
 			Optional<List<T>> list = pluginConfiguration.findInstanceList(key);
-			if(list.isEmpty()){
-				return List.of();
-			}
-			return list.get();
+			return list.orElseGet(List::of);
 		}
 		if(key.type == PluginConfigType.CLASS_LIST){
 			Optional<List<Class<T>>> list = pluginConfiguration.findClassList(key);

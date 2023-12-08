@@ -116,11 +116,10 @@ public class ClusterSettingOverrideForms{
 				.withValue(
 						value.orElse(""),
 						validate,
-						valueToValidate -> optSettingName
-								.map(settingName -> validationService.findErrorForSettingValue(
+						valueToValidate -> optSettingName.flatMap(
+								settingName -> validationService.findErrorForSettingValue(
 										settingName,
-										valueToValidate))
-								.orElse(Optional.empty()));
+										valueToValidate)));
 	}
 
 	public HtmlFormSubmitWithoutSubmitActionButton makeSubmitButton(String fieldName, String display){

@@ -18,7 +18,6 @@ package io.datarouter.client.redis.client;
 import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import io.datarouter.enums.StringMappedEnum;
@@ -57,7 +56,7 @@ public class RedisOptions{
 				.map(RedisOptions::makeRedisKey)
 				.map(propertyKey -> clientOptions.optInetSocketAddress(clientName, propertyKey))
 				.map(Optional::get)
-				.collect(Collectors.toList());
+				.toList();
 	}
 
 	private Integer getNumNodes(String clientName){

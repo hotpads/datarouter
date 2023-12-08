@@ -38,7 +38,7 @@ public class DatarouterRuntimeTool{
 		Process process;
 		if(command.length == 1){
 			try{
-				process = runtime.exec(command[0]);
+				process = runtime.exec(command[0], null, null);
 			}catch(IOException e){
 				throw new RuntimeException("command=" + Arrays.toString(command), e);
 			}
@@ -91,7 +91,7 @@ public class DatarouterRuntimeTool{
 			throw new RuntimeException("exitStatus=" + exitValue + " stderr=" + stderr + " stdout=" + stdout
 					+ " command=" + Arrays.toString(command));
 		}
-		return new RunNativeDto(stdout.toString(), stderr.toString(), exitValue);
+		return new RunNativeDto(exitValue, stdout.toString(), stderr.toString());
 	}
 
 }

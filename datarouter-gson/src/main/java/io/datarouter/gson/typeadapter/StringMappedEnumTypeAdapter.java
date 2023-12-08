@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 
 import io.datarouter.enums.MappedEnum;
@@ -32,40 +33,40 @@ extends TypeAdapter<T>{
 
 	private final MappedEnum<T,String> mappedEnum;
 	private final boolean optional;
-	private final T replacement;
+	private final T defaultValue;
 	private final boolean logMissingValues;
 
 	private StringMappedEnumTypeAdapter(
 			MappedEnum<T,String> mappedEnum,
 			boolean optional,
-			T replacement,
+			T defaultValue,
 			boolean logMissingValues){
 		this.mappedEnum = mappedEnum;
 		this.optional = optional;
-		this.replacement = replacement;
+		this.defaultValue = defaultValue;
 		this.logMissingValues = logMissingValues;
 	}
 
 	/**
 	 * When deserializing, throw an exception if the value is not found.
 	 */
-	public static final <T extends Enum<T>> StringMappedEnumTypeAdapter<T> required(MappedEnum<T,String> mappedEnum){
+	public static <T extends Enum<T>> StringMappedEnumTypeAdapter<T> required(MappedEnum<T,String> mappedEnum){
 		return new StringMappedEnumTypeAdapter<>(mappedEnum, false, null, false);
 	}
 
 	/**
 	 * When deserializing, return the replacement if the value is not found.
 	 */
-	public static final <T extends Enum<T>> StringMappedEnumTypeAdapter<T> optional(
+	public static <T extends Enum<T>> StringMappedEnumTypeAdapter<T> optional(
 			MappedEnum<T,String> mappedEnum,
-			T replacement){
-		return new StringMappedEnumTypeAdapter<>(mappedEnum, true, replacement, false);
+			T defaultValue){
+		return new StringMappedEnumTypeAdapter<>(mappedEnum, true, defaultValue, false);
 	}
 
 	/**
 	 * When deserializing, return the replacement if the value is not found.  Log the replacement.
 	 */
-	public static final <T extends Enum<T>> StringMappedEnumTypeAdapter<T> optionalWithLogging(
+	public static <T extends Enum<T>> StringMappedEnumTypeAdapter<T> optionalWithLogging(
 			MappedEnum<T,String> mappedEnum,
 			T replacement){
 		return new StringMappedEnumTypeAdapter<>(mappedEnum, true, replacement, true);
@@ -79,24 +80,26 @@ extends TypeAdapter<T>{
 
 	@Override
 	public T read(JsonReader in) throws IOException{
+		if(in.peek() == JsonToken.NULL){
+			in.nextNull();
+			return null;
+		}
 		String stringValue = in.nextString();
-		if(optional){
-			T value = mappedEnum.fromOrNull(stringValue);
-			if(value != null){
-				return value;
-			}else{
-				if(logMissingValues){
-					logger.warn("Unknown enum value.  Consider adding it to the enum or throwing an exception by"
-							+ " registering this class using the required(..) method.  input={}[{}], returning={}",
-							mappedEnum.getEnumClass().getCanonicalName(),
-							stringValue,
-							replacement);
-				}
-				return replacement;
-			}
-		}else{
+		if(!optional){
 			return mappedEnum.fromOrThrow(stringValue);
 		}
+		T value = mappedEnum.fromOrNull(stringValue);
+		if(value != null){
+			return value;
+		}
+		if(logMissingValues){
+			logger.warn("Unknown enum value.  Consider adding it to the enum or throwing an exception by"
+					+ " registering this class using the required(..) method.  input={}[{}], returning={}",
+					mappedEnum.getEnumClass().getCanonicalName(),
+					stringValue,
+					defaultValue);
+		}
+		return defaultValue;
 	}
 
 }

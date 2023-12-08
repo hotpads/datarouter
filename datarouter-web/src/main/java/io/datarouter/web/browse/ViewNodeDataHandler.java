@@ -19,6 +19,8 @@ import java.time.Duration;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,11 +40,11 @@ import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.storage.op.scan.stride.StrideScanner.StrideScannerBuilder;
 import io.datarouter.storage.util.PrimaryKeyPercentCodecTool;
 import io.datarouter.types.MilliTime;
-import io.datarouter.util.ComparableTool;
 import io.datarouter.util.duration.DatarouterDuration;
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.util.tuple.Range;
+import io.datarouter.web.DatarouterWebExecutors.CountKeysExecutor;
 import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
 import io.datarouter.web.email.StandardDatarouterEmailHeaderService;
@@ -71,6 +73,8 @@ public class ViewNodeDataHandler extends InspectNodeDataHandler{
 	private StandardDatarouterEmailHeaderService standardDatarouterEmailHeaderService;
 	@Inject
 	private CountKeysEmailType countKeysEmailType;
+	@Inject
+	private CountKeysExecutor countKeysExec;
 
 	@Override
 	protected PathNode getFormPath(){
@@ -139,57 +143,53 @@ public class ViewNodeDataHandler extends InspectNodeDataHandler{
 		boolean actualUseOffsetting = useOffsetting.orElse(physicalNode.getClientType().supportsOffsetSampling());
 		@SuppressWarnings("unchecked")
 		SortedStorageReader<PK,D> sortedNode = (SortedStorageReader<PK,D>)node;
-		long count = 0;
+		var count = new AtomicLong();
 		MilliTime startMs = MilliTime.now().minus(Duration.ofMillis(1));
-		PK last = null;
+		var lastKeyRef = new AtomicReference<PK>();
 		if(actualUseOffsetting){
 			var countingToolBuilder = new StrideScannerBuilder<>(sortedNode)
 					.withLog(true);
 			stride.ifPresent(countingToolBuilder::withStride);
 			batchSize.ifPresent(countingToolBuilder::withBatchSize);
-			count = countingToolBuilder.build()
+			long offsettingCount = countingToolBuilder.build()
 					.findLast()
 					.map(sample -> sample.totalCount)
 					.orElse(0L);
+			count.set(offsettingCount);
 		}else{
-			Config config = new Config()
-					.setResponseBatchSize(batchSize.orElse(1_000))
-					.setScannerCaching(false) //disabled due to BigTable bug?
-					.setTimeout(Duration.ofMinutes(1))
-					.anyDelay()
-					.setNumAttempts(1);
+			int responseBatchSize = batchSize.orElse(10_000);
+			var config = new Config()
+					.setResponseBatchSize(responseBatchSize);
 			limit.ifPresent(config::setLimit);
 			int printBatchSize = logBatchSize.orElse(100_000);
-			long batchStartMs = System.currentTimeMillis() - 1;
-			for(PK pk : sortedNode.scanKeys(config).iterable()){
-				if(ComparableTool.lt(pk, last)){
-					logger.warn("{} was < {}", pk, last);// shouldn't happen, but seems to once in 10mm times
-				}
-				++count;
-				if(count % printBatchSize == 0){
-					long batchMs = System.currentTimeMillis() - batchStartMs;
-					double batchAvgRps = printBatchSize * 1000 / Math.max(1, batchMs);
-					logger.warn("{} {} {} @{}rps",
-							NumberFormatter.addCommas(count),
-							node.getName(),
-							pk.toString(),
-							NumberFormatter.addCommas(batchAvgRps));
-					batchStartMs = System.currentTimeMillis();
-				}
-				last = pk;
-			}
+			var batchStartMs = new AtomicLong(System.currentTimeMillis() - 1);
+			sortedNode.scanKeys(config)
+					.prefetch(countKeysExec, responseBatchSize)
+					.each($ -> count.incrementAndGet())
+					.periodic(printBatchSize, pk -> {
+						long batchMs = System.currentTimeMillis() - batchStartMs.get();
+						double batchAvgRps = printBatchSize * 1000 / Math.max(1, batchMs);
+						logger.warn(
+								"{} {} {} @{}rps",
+								NumberFormatter.addCommas(count),
+								node.getName(),
+								pk.toString(),
+								NumberFormatter.addCommas(batchAvgRps));
+						batchStartMs.set(System.currentTimeMillis());
+					})
+					.forEach(lastKeyRef::set);
 		}
-		if(count < 1){
+		if(count.get() < 1){
 			return pageFactory.message(request, "no rows found");
 		}
 		MilliTime endMs = MilliTime.now();
 		Duration duration = Duration.ofMillis(endMs.minus(startMs).toEpochMilli());
-		DatarouterDuration datarouterDuration = new DatarouterDuration(duration);
-		double avgRps = count * 1_000 / duration.toMillis();
+		var datarouterDuration = new DatarouterDuration(duration);
+		double avgRps = count.get() * 1_000 / duration.toMillis();
 		String message = String.format("finished counting %s at %s %s @%srps totalDuration=%s",
 				node.getName(),
 				NumberFormatter.addCommas(count),
-				last == null ? "?" : last.toString(),
+				lastKeyRef.get() == null ? "?" : lastKeyRef.get().toString(),
 				NumberFormatter.addCommas(avgRps),
 				datarouterDuration);
 		logger.warn(message);
@@ -198,7 +198,7 @@ public class ViewNodeDataHandler extends InspectNodeDataHandler{
 				new EmailHeaderRow("useOffsetting", actualUseOffsetting + ""),
 				new EmailHeaderRow("stride", stride.map(Object::toString).orElse("default")),
 				new EmailHeaderRow("totalCount", NumberFormatter.addCommas(count)),
-				new EmailHeaderRow("lastKey", last == null ? "?" : last.toString()),
+				new EmailHeaderRow("lastKey", lastKeyRef.get() == null ? "?" : lastKeyRef.get().toString()),
 				new EmailHeaderRow("averageRps", NumberFormatter.addCommas(avgRps)),
 				new EmailHeaderRow("start", startMs.format(ZoneId.systemDefault())),
 				new EmailHeaderRow("end", endMs.format(ZoneId.systemDefault())),

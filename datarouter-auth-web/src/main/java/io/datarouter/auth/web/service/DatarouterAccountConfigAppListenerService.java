@@ -15,8 +15,6 @@
  */
 package io.datarouter.auth.web.service;
 
-import java.util.Date;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +30,7 @@ import io.datarouter.auth.storage.account.permission.DatarouterAccountPermission
 import io.datarouter.auth.storage.user.useraccountmap.BaseDatarouterUserAccountMapDao;
 import io.datarouter.auth.storage.user.useraccountmap.DatarouterUserAccountMap;
 import io.datarouter.storage.servertype.ServerTypeDetector;
+import io.datarouter.types.MilliTime;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
@@ -74,7 +73,7 @@ public class DatarouterAccountConfigAppListenerService{
 		boolean accountExists = defaultAccount != null && defaultAccount.getEnableUserMappings();
 		if(!accountExists){
 			if(defaultAccount == null){
-				defaultAccount = new DatarouterAccount(DEFAULT_ACCOUNT_NAME, new Date(), DEFAULT_ACCOUNT_CREATOR);
+				defaultAccount = new DatarouterAccount(DEFAULT_ACCOUNT_NAME, MilliTime.now(), DEFAULT_ACCOUNT_CREATOR);
 			}
 			defaultAccount.setEnableUserMappings(true);
 			datarouterAccountDao.put(defaultAccount);

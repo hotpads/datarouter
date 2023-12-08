@@ -39,9 +39,7 @@ public interface IJsClientTemplate{
 					.sort(Comparator.comparing(a -> a.getKey().toLowerCase()))
 					.forEach(entry -> {
 						builder.append("interface " + entry.getKey() + " {\n");
-						entry.getValue().forEach((key, value) -> {
-							builder.append("  " + key + ": " + value + ",\n");
-						});
+						entry.getValue().forEach((key, value) -> builder.append("  " + key + ": " + value + ",\n"));
 						builder.append("}\n");
 					});
 			builder.append("\n");

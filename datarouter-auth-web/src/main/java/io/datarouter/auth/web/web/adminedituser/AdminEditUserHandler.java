@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -37,6 +36,7 @@ import io.datarouter.auth.detail.DatarouterUserExternalDetailService;
 import io.datarouter.auth.detail.DatarouterUserExternalDetails;
 import io.datarouter.auth.detail.DatarouterUserProfileLink;
 import io.datarouter.auth.model.dto.DeprovisionedUserDto;
+import io.datarouter.auth.model.dto.PermissionRequestDto;
 import io.datarouter.auth.model.dto.UserDeprovisioningStatusDto;
 import io.datarouter.auth.model.dto.UserRoleMetadata;
 import io.datarouter.auth.model.dto.UserRoleUpdateDto;
@@ -55,18 +55,16 @@ import io.datarouter.auth.storage.user.datarouteruser.DatarouterUserDao;
 import io.datarouter.auth.storage.user.deprovisioneduser.DeprovisionedUser;
 import io.datarouter.auth.storage.user.deprovisioneduser.DeprovisionedUserDao;
 import io.datarouter.auth.storage.user.deprovisioneduser.DeprovisionedUserKey;
-import io.datarouter.auth.storage.user.permissionrequest.DatarouterPermissionRequest;
 import io.datarouter.auth.storage.user.permissionrequest.DatarouterPermissionRequestDao;
-import io.datarouter.auth.storage.user.userhistory.DatarouterUserHistory;
+import io.datarouter.auth.storage.user.userhistory.DatarouterUserHistoryLog;
 import io.datarouter.auth.web.config.DatarouterAuthFiles;
 import io.datarouter.auth.web.config.DatarouterAuthPaths;
 import io.datarouter.auth.web.service.CopyUserListener;
 import io.datarouter.auth.web.service.DatarouterUserCreationService;
 import io.datarouter.auth.web.service.DatarouterUserEditService;
 import io.datarouter.auth.web.service.DatarouterUserHistoryService;
-import io.datarouter.auth.web.service.DatarouterUserHistoryService.HistoryChange;
+import io.datarouter.auth.web.service.PermissionRequestService;
 import io.datarouter.auth.web.web.CreateUserFormHtml;
-import io.datarouter.auth.web.web.DatarouterPermissionRequestHandler.PermissionRequestDto;
 import io.datarouter.auth.web.web.adminedituser.dto.DatarouterUserHistoryDto;
 import io.datarouter.auth.web.web.adminedituser.dto.DatarouterUserListEntryDto;
 import io.datarouter.auth.web.web.adminedituser.dto.EditAccountsRequestDto;
@@ -83,6 +81,7 @@ import io.datarouter.httpclient.response.ApiResponseDto;
 import io.datarouter.httpclient.response.ApiResponseErrorDto;
 import io.datarouter.pathnode.PathNode;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.util.Require;
 import io.datarouter.util.string.StringTool;
@@ -96,6 +95,7 @@ import io.datarouter.web.html.react.bootstrap4.Bootstrap4ReactPageFactory;
 import io.datarouter.web.js.DatarouterWebJsTool;
 import io.datarouter.web.requirejs.DatarouterWebRequireJsV2;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
+import io.datarouter.web.user.authenticate.saml.DatarouterSamlSettings;
 import io.datarouter.web.util.http.ResponseTool;
 import jakarta.inject.Inject;
 
@@ -140,6 +140,10 @@ public class AdminEditUserHandler extends BaseHandler{
 	private DatarouterUserExternalDetailService detailsService;
 	@Inject
 	private DatarouterWebFiles datarouterWebFiles;
+	@Inject
+	private DatarouterSamlSettings samlSettings;
+	@Inject
+	private PermissionRequestService permissionRequestService;
 
 	@Handler
 	private Mav viewUsers(){
@@ -233,6 +237,13 @@ public class AdminEditUserHandler extends BaseHandler{
 				.orElse(currentUser);
 
 		return getReactMav("Datarouter - Edit User " + userToEdit.getUsername(), Optional.of(userToEdit.getUsername()));
+	}
+
+	public record IsSamlEnabledResponse(boolean isSamlEnabled){}
+
+	@Handler
+	public ApiResponseDto<IsSamlEnabledResponse> getIsSamlEnabled(){
+		return ApiResponseDto.success(new IsSamlEnabledResponse(samlSettings.getShouldProcess()));
 	}
 
 	@Handler
@@ -430,7 +441,7 @@ public class AdminEditUserHandler extends BaseHandler{
 		return roles.stream()
 				.map(Role::getPersistentString)
 				.sorted(String.CASE_INSENSITIVE_ORDER)
-				.collect(Collectors.toList());
+				.collect(WarnOnModifyList.deprecatedCollector());
 	}
 
 	private boolean checkEditPermission(
@@ -462,15 +473,12 @@ public class AdminEditUserHandler extends BaseHandler{
 		DatarouterUser user = datarouterUserService.getUserByUsername(username, false);
 		Set<Role> roles = new HashSet<>(user.getRolesIgnoreSaml());
 
-		List<PermissionRequestDto> permissionRequests = datarouterPermissionRequestDao
-				.scanPermissionRequestsForUser(user.getId())
-				.listTo(requests -> Scanner.of(datarouterUserHistoryService.getResolvedRequestToHistoryChangesMap(
-						requests).entrySet()))
-				.sort(Entry.comparingByKey(DatarouterPermissionRequest.REVERSE_CHRONOLOGICAL_COMPARATOR))
-				.map(this::buildPermissionRequestDto)
-				.list();
+		List<PermissionRequestDto> permissionRequests =
+				permissionRequestService.getReverseChronologicalPermissionRequestDtos(
+						user,
+						currentUserSessionInfoService.getZoneId(getRequest()));
 
-		List<DatarouterUserHistory> userHistory = datarouterUserHistoryService.getHistoryForUser(user.getId());
+		List<DatarouterUserHistoryLog> userHistory = datarouterUserHistoryService.getHistoryForUser(user.getId());
 		List<DatarouterUserHistoryDto> history = Scanner.of(userHistory)
 				.map(historyRecord -> {
 					String currUsername = Optional.ofNullable(historyRecord.getEditor())
@@ -534,25 +542,6 @@ public class AdminEditUserHandler extends BaseHandler{
 				"");
 	}
 
-	//TODO DATAROUTER-2789
-	private PermissionRequestDto buildPermissionRequestDto(Entry<DatarouterPermissionRequest,
-			Optional<HistoryChange>> entry){
-		ZoneId zoneId = currentUserSessionInfoService.getZoneId(getRequest());
-		DatarouterPermissionRequest request = entry.getKey();
-		return new PermissionRequestDto(
-				request.getKey().getRequestTime(),
-				request.getRequestText(),
-				request.getResolutionTime(),
-				entry.getValue()
-						.map(HistoryChange::changes)
-						.orElse(null),
-				zoneId,
-				entry.getValue()
-						.flatMap(HistoryChange::editor)
-						.map(DatarouterUser::getUsername)
-						.orElse(null));
-	}
-
 	private static DeprovisionedUserDto buildDeprovisionedUserDto(SessionBasedUser user, Set<Role> roles){
 		return new DeprovisionedUserDto(
 				user.getUsername(),
@@ -578,6 +567,7 @@ public class AdminEditUserHandler extends BaseHandler{
 		allPaths.put("editAccounts", getPath(contextPath, paths.admin.editAccounts));
 		allPaths.put("updateTimeZone", getPath(contextPath, paths.admin.updateTimeZone));
 		allPaths.put("getAllRoles", getPath(contextPath, paths.admin.getAllRoles));
+		allPaths.put("getIsSamlEnabled", getPath(contextPath, paths.admin.getIsSamlEnabled));
 		return allPaths;
 	}
 

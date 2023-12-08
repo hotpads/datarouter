@@ -35,7 +35,7 @@ public class ByteArraysCodec implements Codec<ByteArrays,byte[]>{
 
 	@Override
 	public ByteArrays decode(byte[] bytes){
-		return decode(bytes, 0).value;
+		return decode(bytes, 0).value();
 	}
 
 	public LengthAndValue<ByteArrays> decode(byte[] bytes, int offset){

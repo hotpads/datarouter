@@ -25,7 +25,8 @@ public class Conveyor implements ConveyorRunnable{
 	private final String name;
 	private final Supplier<Boolean> shouldRun;
 
-	public Conveyor(ConveyorService conveyorService,
+	public Conveyor(
+			ConveyorService conveyorService,
 			ConveyorConfiguration conveyorConfiguration,
 			String name,
 			Supplier<Boolean> shouldRun){

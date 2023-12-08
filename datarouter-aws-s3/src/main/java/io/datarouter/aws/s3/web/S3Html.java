@@ -25,9 +25,7 @@ import j2html.tags.specialized.DivTag;
 public class S3Html{
 
 	public static DivTag makeHeader(String title, String subtitle){
-		var header = div(
-				makeTitle(title, subtitle));
-		return header;
+		return div(makeTitle(title, subtitle));
 	}
 
 	public static DivTag makeTitle(String title, String subtitle){

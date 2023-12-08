@@ -22,7 +22,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +36,7 @@ import io.datarouter.job.scheduler.JobPackage;
 import io.datarouter.job.scheduler.JobScheduler;
 import io.datarouter.job.service.JobStopperService;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.tasktracker.service.LongRunningTaskService;
 import io.datarouter.tasktracker.service.LongRunningTaskService.LongRunningTaskSummaryDto;
@@ -51,6 +51,7 @@ import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.InContextRedirectMav;
 import io.datarouter.web.handler.mav.imp.MessageMav;
 import io.datarouter.web.handler.mav.imp.StringMav;
+import io.datarouter.web.handler.types.Param;
 import jakarta.inject.Inject;
 
 public class JobHandler extends BaseHandler{
@@ -82,16 +83,14 @@ public class JobHandler extends BaseHandler{
 
 	@Handler
 	Mav list(
-			Optional<String> category,
+			@Param("category")
+			Optional<String> jobCategoryName,
 			Optional<String> keyword,
 			Optional<Boolean> enabled,
 			Optional<Boolean> disabled){
-		Optional<String> message = params.optional("jobTriggerResponseMessage");
+		Optional<String> messageOpt = params.optional("jobTriggerResponseMessage");
 		Mav mav = new Mav(files.jsp.admin.datarouter.job.triggersJsp);
-		if(message.isPresent()){
-			mav.put("message", message.get());
-		}
-		Optional<String> jobCategoryName = category;
+		messageOpt.ifPresent(message -> mav.put("message", message));
 		boolean hideEnabled = enabled.orElse(false);
 		boolean hideDisabled = disabled.orElse(false);
 		mav.put("serverName", serverName.get());
@@ -105,7 +104,7 @@ public class JobHandler extends BaseHandler{
 				hideEnabled,
 				hideDisabled)
 				.map(jobClass -> jobToTriggerJspDto(rowId.incrementAndGet(), jobClass, longRunningTaskSummary))
-				.collect(Collectors.toList());
+				.collect(WarnOnModifyList.deprecatedCollector());
 		mav.put("triggerRows", triggerRows);
 		mav.put("legend", LongRunningTasksHandler.legend().renderFormatted());
 		return mav;
@@ -152,7 +151,7 @@ public class JobHandler extends BaseHandler{
 	private List<JobCategoryJspDto> getJobCategoryDtos(Optional<String> selectedJobCategory){
 		return jobCategoryTracker.getJobCategoryNames().stream()
 				.map(category -> new JobCategoryJspDto(category, isJobCategorySelected(category, selectedJobCategory)))
-				.collect(Collectors.toList());
+				.collect(WarnOnModifyList.deprecatedCollector());
 	}
 
 	private static boolean isJobCategorySelected(String category, Optional<String> selectedCategory){
@@ -182,8 +181,8 @@ public class JobHandler extends BaseHandler{
 				jobPackage.usesLocking() ? "locked" : "parallel",
 				jobPackage.getCronExpressionString().orElse(""),
 				jobPackage.jobCategoryName,
-				lastFinishedTask == null ? null : lastFinishedTask.getFinishTimeString(),
-				lastFinishedTask == null ? -1 : lastFinishedTask.getFinishTime().getTime(),
+				lastFinishedTask == null ? null : lastFinishedTask.getFinishTimeString(getUserZoneId()),
+				lastFinishedTask == null ? -1 : lastFinishedTask.getFinish().toEpochMilli(),
 				serversCsv);
 	}
 

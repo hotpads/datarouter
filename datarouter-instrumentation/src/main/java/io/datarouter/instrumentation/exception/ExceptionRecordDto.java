@@ -20,6 +20,7 @@ import java.util.List;
 
 public record ExceptionRecordDto(
 		String id,
+		// TODO refactor to long
 		Date created,
 		String serviceName,
 		String serverName,

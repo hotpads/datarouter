@@ -30,17 +30,23 @@ import io.datarouter.nodewatch.service.TableStorageSummarizer;
 import io.datarouter.nodewatch.service.TableStorageSummarizerDtos.TableSummary;
 import io.datarouter.nodewatch.storage.binarydto.storagestats.clienttype.ClientTypeStorageStatsBinaryDao;
 import io.datarouter.nodewatch.storage.binarydto.storagestats.clienttype.ClientTypeStorageStatsBinaryDto;
+import io.datarouter.nodewatch.storage.binarydto.storagestats.service.ServiceStorageStatsBinaryDao;
+import io.datarouter.nodewatch.storage.binarydto.storagestats.service.ServiceStorageStatsBinaryDto;
 import io.datarouter.nodewatch.storage.binarydto.storagestats.table.TableStorageStatsBinaryDao;
 import io.datarouter.nodewatch.storage.binarydto.storagestats.table.TableStorageStatsBinaryDto;
 import io.datarouter.nodewatch.storage.binarydto.storagestats.table.TableStorageStatsBinaryDto.ColumnStorageStatsBinaryDto;
 import io.datarouter.nodewatch.storage.tablecount.TableCount;
 import io.datarouter.nodewatch.util.NodewatchDatabaseType;
+import io.datarouter.nodewatch.util.TableStorageSizeTool;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientAndTableNames;
 import io.datarouter.storage.client.ClientType;
+import io.datarouter.storage.config.properties.ServiceName;
 import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.node.Node;
 import io.datarouter.storage.node.op.raw.read.SortedStorageReader.PhysicalSortedStorageReaderNode;
+import io.datarouter.storage.node.type.index.ManagedNode;
+import io.datarouter.storage.node.type.index.ManagedNodesHolder;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import jakarta.inject.Inject;
 
@@ -49,21 +55,30 @@ public class TableStorageSummaryJob extends BaseJob{
 
 	private static final long LIMIT_PER_TABLE = 4_000_000;
 
+	private final ServiceName serviceNameSupplier;
 	private final TableSamplerService tableSamplerService;
 	private final DatarouterNodes datarouterNodes;
+	private final ManagedNodesHolder managedNodesHolder;
 	private final TableStorageStatsBinaryDao tableStorageStatsDao;
+	private final ServiceStorageStatsBinaryDao serviceStorageStatsDao;
 	private final ClientTypeStorageStatsBinaryDao clientTypeStatsDao;
 	private final List<PhysicalSortedStorageReaderNode<?,?,?>> nodes;
 	private final Map<ClientType<?,?>,List<PhysicalSortedStorageReaderNode<?,?,?>>> nodesByClientType;
 
 	@Inject
 	public TableStorageSummaryJob(
+			ServiceName serviceNameSupplier,
 			TableSamplerService tableSamplerService,
 			DatarouterNodes datarouterNodes,
+			ManagedNodesHolder managedNodesHolder,
 			TableStorageStatsBinaryDao tableStatsDao,
+			ServiceStorageStatsBinaryDao serviceStorageStatsDao,
 			ClientTypeStorageStatsBinaryDao clientTypeStatsDao){
+		this.serviceNameSupplier = serviceNameSupplier;
 		this.tableSamplerService = tableSamplerService;
+		this.serviceStorageStatsDao = serviceStorageStatsDao;
 		this.datarouterNodes = datarouterNodes;
+		this.managedNodesHolder = managedNodesHolder;
 		this.tableStorageStatsDao = tableStatsDao;
 		this.clientTypeStatsDao = clientTypeStatsDao;
 		nodes = tableSamplerService.scanCountableNodes()
@@ -75,16 +90,22 @@ public class TableStorageSummaryJob extends BaseJob{
 	@Override
 	public void run(TaskTracker tracker){
 		// Save a summary for each table
-		Scanner.of(nodes)
+		List<TableStorageStatsBinaryDto> tableDtos = Scanner.of(nodes)
 				.sort(Comparator.comparing(Node::getName))
 				.advanceUntil($ -> tracker.increment().shouldStop())
-				.forEach(node -> processTable(tracker, node));
+				.map(node -> processTable(tracker, node))
+				.list();
+		// Save a service-level summary
+		var serviceDto = new ServiceStorageStatsBinaryDto(serviceNameSupplier.get(), tableDtos);
+		serviceStorageStatsDao.write(serviceDto);
 		// Save a summary for each ClientType
 		nodesByClientType
 				.forEach(this::processClientType);
 	}
 
-	private void processTable(TaskTracker tracker, PhysicalSortedStorageReaderNode<?,?,?> node){
+	private TableStorageStatsBinaryDto processTable(
+			TaskTracker tracker,
+			PhysicalSortedStorageReaderNode<?,?,?> node){
 		ClientAndTableNames clientAndTableNames = node.clientAndTableNames();
 		TableSummary tableSummary = new TableStorageSummarizer<>(
 				tracker::shouldStop,
@@ -106,6 +127,7 @@ public class TableStorageSummaryJob extends BaseJob{
 				columnStats);
 		tableStorageStatsDao.saveTableDto(node, dto);
 		logger.warn("saved table={}", dto);
+		return dto;
 	}
 
 	private void processClientType(
@@ -117,11 +139,19 @@ public class TableStorageSummaryJob extends BaseJob{
 		}
 		var totalNameBytes = new AtomicLong();
 		var totalValueBytes = new AtomicLong();
-		tableStorageStatsDao.scanTableSummaryDtos(clientType, nodes).forEach(dto -> {
-			TableCount tableCount = tableSamplerService.getCurrentTableCountFromSamples(dto.clientAndTableNames());
-			long numRows = tableCount.getNumRows();
-			totalNameBytes.addAndGet(numRows * dto.avgNameBytesPerRow());
-			totalValueBytes.addAndGet(numRows * dto.avgValueBytesPerRow());
+		tableStorageStatsDao.scanTableSummaryDtos(clientType, nodes).forEach(stats -> {
+			TableCount tableCount = tableSamplerService.getCurrentTableCountFromSamples(stats.clientAndTableNames());
+			long totalRows = tableCount.getNumRows();
+			// primary table bytes
+			totalNameBytes.addAndGet(totalRows * stats.avgNameBytesPerRow());
+			totalValueBytes.addAndGet(totalRows * stats.avgValueBytesPerRow());
+			// secondary index bytes
+			PhysicalNode<?,?,?> physicalNode = datarouterNodes.getPhysicalNodeForClientAndTable(
+					stats.clientName,
+					stats.tableName);
+			List<? extends ManagedNode<?,?,?,?,?>> managedNodes = managedNodesHolder.getManagedNodes(physicalNode);
+			long totalIndexBytes = TableStorageSizeTool.calcTotalIndexSize(stats, managedNodes, totalRows).toBytes();
+			totalValueBytes.addAndGet(totalIndexBytes);
 		});
 		var dto = new ClientTypeStorageStatsBinaryDto(
 				clientType.getName(),

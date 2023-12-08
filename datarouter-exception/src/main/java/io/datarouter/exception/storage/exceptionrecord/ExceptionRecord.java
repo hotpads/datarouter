@@ -15,7 +15,6 @@
  */
 package io.datarouter.exception.storage.exceptionrecord;
 
-import java.util.Date;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -23,20 +22,22 @@ import io.datarouter.exception.storage.httprecord.FieldTrimTool;
 import io.datarouter.instrumentation.exception.ExceptionRecordDto;
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
-import io.datarouter.model.field.imp.DateField;
-import io.datarouter.model.field.imp.DateFieldKey;
+import io.datarouter.model.field.codec.MilliTimeFieldCodec;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
 import io.datarouter.model.field.imp.comparable.IntegerField;
 import io.datarouter.model.field.imp.comparable.IntegerFieldKey;
+import io.datarouter.model.field.imp.comparable.LongEncodedField;
+import io.datarouter.model.field.imp.comparable.LongEncodedFieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 import io.datarouter.model.util.CommonFieldSizes;
+import io.datarouter.types.MilliTime;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.service.DatarouterServiceFieldKeys;
 
 public class ExceptionRecord extends BaseDatabean<ExceptionRecordKey,ExceptionRecord>{
 
-	private Date created;
+	private MilliTime createdAt;
 	private String serviceName;
 	private String serverName;
 	// exception category, e.g. job, joblet, web(http request or node), conveyor and etc.
@@ -55,10 +56,9 @@ public class ExceptionRecord extends BaseDatabean<ExceptionRecordKey,ExceptionRe
 	private String callOrigin;
 	private List<String> additionalAlertRecipients; // not persisted
 
-
 	public static class FieldKeys{
-		@SuppressWarnings("deprecation")
-		public static final DateFieldKey created = new DateFieldKey("created");
+		public static final LongEncodedFieldKey<MilliTime> createdAt = new LongEncodedFieldKey<>("createdAt",
+				new MilliTimeFieldCodec());
 		public static final StringFieldKey serverName = new StringFieldKey("serverName");
 		public static final StringFieldKey category = new StringFieldKey("category");
 		public static final StringFieldKey name = new StringFieldKey("name");
@@ -81,18 +81,18 @@ public class ExceptionRecord extends BaseDatabean<ExceptionRecordKey,ExceptionRe
 		@Override
 		public List<Field<?>> getNonKeyFields(ExceptionRecord databean){
 			return List.of(
-					new DateField(FieldKeys.created, databean.getCreated()),
-					new StringField(DatarouterServiceFieldKeys.serviceName, databean.getServiceName()),
-					new StringField(FieldKeys.serverName, databean.getServerName()),
-					new StringField(FieldKeys.category, databean.getCategory()),
-					new StringField(FieldKeys.name, databean.getName()),
-					new StringField(FieldKeys.stackTrace, databean.getStackTrace()),
-					new StringField(FieldKeys.type, databean.getType()),
-					new StringField(FieldKeys.appVersion, databean.getAppVersion()),
-					new StringField(FieldKeys.exceptionLocation, databean.getExceptionLocation()),
-					new StringField(FieldKeys.methodName, databean.getMethodName()),
-					new IntegerField(FieldKeys.lineNumber, databean.getLineNumber()),
-					new StringField(FieldKeys.callOrigin, databean.getCallOrigin()));
+					new LongEncodedField<>(FieldKeys.createdAt, databean.createdAt),
+					new StringField(DatarouterServiceFieldKeys.serviceName, databean.serviceName),
+					new StringField(FieldKeys.serverName, databean.serverName),
+					new StringField(FieldKeys.category, databean.category),
+					new StringField(FieldKeys.name, databean.name),
+					new StringField(FieldKeys.stackTrace, databean.stackTrace),
+					new StringField(FieldKeys.type, databean.type),
+					new StringField(FieldKeys.appVersion, databean.appVersion),
+					new StringField(FieldKeys.exceptionLocation, databean.exceptionLocation),
+					new StringField(FieldKeys.methodName, databean.methodName),
+					new IntegerField(FieldKeys.lineNumber, databean.lineNumber),
+					new StringField(FieldKeys.callOrigin, databean.callOrigin));
 			}
 
 	}
@@ -117,7 +117,7 @@ public class ExceptionRecord extends BaseDatabean<ExceptionRecordKey,ExceptionRe
 			String callOrigin,
 			List<String> additionalAlertRecipients){
 		super(key);
-		this.created = new Date(dateMs);
+		this.createdAt = MilliTime.ofEpochMilli(dateMs);
 		this.serviceName = serviceName;
 		this.serverName = serverName;
 		this.category = category;
@@ -157,7 +157,7 @@ public class ExceptionRecord extends BaseDatabean<ExceptionRecordKey,ExceptionRe
 	public ExceptionRecordDto toDto(){
 		return new ExceptionRecordDto(
 				getKey().getId(),
-				created,
+				createdAt.toDate(),
 				serviceName,
 				serverName,
 				category,
@@ -172,8 +172,8 @@ public class ExceptionRecord extends BaseDatabean<ExceptionRecordKey,ExceptionRe
 				additionalAlertRecipients);
 	}
 
-	public Date getCreated(){
-		return created;
+	public MilliTime getCreated(){
+		return createdAt;
 	}
 
 	public String getServiceName(){

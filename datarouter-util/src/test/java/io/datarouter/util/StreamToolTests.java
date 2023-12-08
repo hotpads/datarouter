@@ -16,7 +16,6 @@
 package io.datarouter.util;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -28,7 +27,7 @@ public class StreamToolTests{
 		List<CharSequence> charSequences = List.of(new StringBuilder("a"), "b", "c", new StringBuilder("d"));
 		List<String> strings = charSequences.stream()
 				.flatMap(StreamTool.instancesOf(String.class))
-				.collect(Collectors.toList());
+				.toList();
 		List<String> expected = List.of("b", "c");
 		Assert.assertEquals(strings, expected);
 	}

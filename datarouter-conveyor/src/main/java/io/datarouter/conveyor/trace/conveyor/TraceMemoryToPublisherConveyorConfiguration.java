@@ -30,8 +30,8 @@ import io.datarouter.conveyor.ConveyorGauges;
 import io.datarouter.conveyor.ConveyorRunnable;
 import io.datarouter.instrumentation.exception.DatarouterExceptionPublisher;
 import io.datarouter.instrumentation.exception.HttpRequestRecordBatchDto;
-import io.datarouter.instrumentation.trace.Trace2BatchedBundleDto;
-import io.datarouter.instrumentation.trace.Trace2BundleAndHttpRequestRecordDto;
+import io.datarouter.instrumentation.trace.TraceBatchedBundleDto;
+import io.datarouter.instrumentation.trace.TraceBundleAndHttpRequestRecordDto;
 import io.datarouter.instrumentation.trace.TracePublisher;
 import io.datarouter.instrumentation.trace.Traceparent;
 import io.datarouter.instrumentation.trace.TracerTool;
@@ -43,6 +43,7 @@ import jakarta.inject.Singleton;
 @Singleton
 public class TraceMemoryToPublisherConveyorConfiguration implements ConveyorConfiguration{
 	private static final Logger logger = LoggerFactory.getLogger(TraceMemoryToPublisherConveyorConfiguration.class);
+
 	private static final int BATCH_SIZE = 500;
 
 	@Inject
@@ -54,20 +55,10 @@ public class TraceMemoryToPublisherConveyorConfiguration implements ConveyorConf
 	@Inject
 	private ConveyorGauges gaugeRecorder;
 
-	public void processTraceEntityDtos(List<Trace2BundleAndHttpRequestRecordDto> traceAndRequestDtos){
-		Scanner.of(traceAndRequestDtos)
-				.map(dto -> dto.traceBundleDto)
-				.flush(dtos -> tracePublisher.addBatch(new Trace2BatchedBundleDto(dtos)));
-		Scanner.of(traceAndRequestDtos)
-				.map(dto -> dto.httpRequestRecord)
-				.include(Objects::nonNull)
-				.flush(dtos -> exceptionPublisher.addHttpRequestRecord(new HttpRequestRecordBatchDto(dtos)));
-	}
-
 	@Override
 	public ProcessResult process(ConveyorRunnable conveyor){
 		Instant beforePeek = Instant.now();
-		List<Trace2BundleAndHttpRequestRecordDto> dtos = traceBuffers.buffer.pollMultiWithLimit(BATCH_SIZE);
+		List<TraceBundleAndHttpRequestRecordDto> dtos = traceBuffers.buffer.pollMultiWithLimit(BATCH_SIZE);
 		Instant afterPeek = Instant.now();
 		gaugeRecorder.savePeekDurationMs(conveyor, Duration.between(beforePeek, afterPeek).toMillis());
 		TracerTool.setAlternativeStartTime();
@@ -80,13 +71,23 @@ public class TraceMemoryToPublisherConveyorConfiguration implements ConveyorConf
 			return new ProcessResult(dtos.size() == BATCH_SIZE);
 		}catch(RuntimeException putMultiException){
 			List<Traceparent> ids = Scanner.of(dtos)
-					.map(Trace2BundleAndHttpRequestRecordDto::getTraceparent)
+					.map(TraceBundleAndHttpRequestRecordDto::getTraceparent)
 					.list();
 			logger.warn("exception sending trace to sqs ids={}", ids, putMultiException);
 			ConveyorCounters.inc(conveyor, "putMulti exception", 1);
 			// try it again
 			return new ProcessResult(true);
 		}
+	}
+
+	private void processTraceEntityDtos(List<TraceBundleAndHttpRequestRecordDto> traceAndRequestDtos){
+		Scanner.of(traceAndRequestDtos)
+				.map(dto -> dto.traceBundleDto)
+				.flush(dtos -> tracePublisher.addBatch(new TraceBatchedBundleDto(dtos)));
+		Scanner.of(traceAndRequestDtos)
+				.map(dto -> dto.httpRequestRecord)
+				.include(Objects::nonNull)
+				.flush(dtos -> exceptionPublisher.addHttpRequestRecord(new HttpRequestRecordBatchDto(dtos)));
 	}
 
 	@Override

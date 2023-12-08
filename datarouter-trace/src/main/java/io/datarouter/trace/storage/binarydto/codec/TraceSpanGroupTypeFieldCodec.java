@@ -24,11 +24,11 @@ public class TraceSpanGroupTypeFieldCodec
 extends BinaryDtoConvertingFieldCodec<TraceSpanGroupType,String>{
 
 	public static final StringMappedEnum<TraceSpanGroupType> BY_TYPE_STRING
-			= new StringMappedEnum<>(TraceSpanGroupType.values(), value -> value.type);
+			= new StringMappedEnum<>(TraceSpanGroupType.values(), value -> value.persistentString);
 
 	public TraceSpanGroupTypeFieldCodec(){
 		super(
-				type -> type.type,
+				type -> type.persistentString,
 				BY_TYPE_STRING::fromOrThrow,
 				new Utf8BinaryDtoFieldCodec(),
 				true);

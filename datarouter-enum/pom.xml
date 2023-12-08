@@ -22,7 +22,7 @@
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-parent</artifactId>
-		<version>0.0.122</version>
+		<version>0.0.123</version>
 		<relativePath>../datarouter-parent</relativePath>
 	</parent>
 
@@ -32,6 +32,19 @@
 	<description>datarouter-enum</description>
 
 	<dependencies>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>${slf4j-version}</version>
+		</dependency>
+
+
+		<dependency>
+			<groupId>io.datarouter</groupId>
+			<artifactId>datarouter-logging</artifactId>
+			<version>${datarouter-version}</version>
+			<scope>test</scope>
+		</dependency>
 		<dependency>
 			<groupId>org.testng</groupId>
 			<artifactId>testng</artifactId>

@@ -37,7 +37,6 @@ import io.datarouter.secret.op.client.SecretClientOp;
 import io.datarouter.secret.op.client.SecretClientOps;
 import io.datarouter.secret.service.SecretJsonSerializer;
 import io.datarouter.secret.service.SecretNamespacer;
-import io.datarouter.secret.service.SecretOpRecorderSupplier;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
@@ -55,8 +54,6 @@ public class SecretOpFactory{
 	private SecretJsonSerializer jsonSerializer;
 	@Inject
 	private SecretNamespacer secretNamespacer;
-	@Inject
-	private SecretOpRecorderSupplier secretOpRecorderSupplier;
 
 	public <T> SecretOp<TypedSecret<T>,Secret,Void,Void> buildCreateOp(String name, T value,
 			SecretOpConfig config){
@@ -139,8 +136,7 @@ public class SecretOpFactory{
 				secretClientSupplierConfigHolder,
 				secretClientOp,
 				inputAdapter,
-				outputAdapter,
-				secretOpRecorderSupplier);
+				outputAdapter);
 	}
 
 }

@@ -34,12 +34,8 @@ public class TestConfigurationTest{
 
 	@Test
 	public void testInternalConfigDirectory(){
-		System.getProperties().forEach((key,value) -> {
-			logger.warn("property_" + key + "=" + value);
-		});
-		System.getenv().forEach((key,value) -> {
-			logger.warn("env_" + key + "=" + value);
-		});
+		System.getProperties().forEach((key,value) -> logger.warn("property_" + key + "=" + value));
+		System.getenv().forEach((key,value) -> logger.warn("env_" + key + "=" + value));
 		logger.warn("internalConfigDirectory={}", internalConfigDirectory.get());
 		Assert.assertNotEquals("production", internalConfigDirectory.get());
 	}

@@ -28,11 +28,11 @@ public class CacheControl{
 	private static final String MAX_AGE = "max-age";
 	private static final String S_MAX_AGE = "s-maxage";
 
-	public static final String maxAge(int numSeconds){
+	public static String maxAge(int numSeconds){
 		return MAX_AGE + "=" + numSeconds;
 	}
 
-	public static final String sMaxAge(int numSeconds){
+	public static String sMaxAge(int numSeconds){
 		return S_MAX_AGE + "=" + numSeconds;
 	}
 

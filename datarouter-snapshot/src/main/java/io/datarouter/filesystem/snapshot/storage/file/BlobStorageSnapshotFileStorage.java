@@ -75,7 +75,7 @@ public class BlobStorageSnapshotFileStorage implements SnapshotFileStorage{
 
 	@Override
 	public byte[] getRootBlock(){
-		return directory.read(PathbeanKey.of(SnapshotPaths.rootFile()));
+		return directory.read(PathbeanKey.of(SnapshotPaths.rootFile())).orElseThrow();
 	}
 
 	@Override
@@ -94,7 +94,7 @@ public class BlobStorageSnapshotFileStorage implements SnapshotFileStorage{
 	}
 
 	private byte[] getBlock(String path, int offset, int length){
-		return directory.readPartial(PathbeanKey.of(path), offset, length);
+		return directory.readPartial(PathbeanKey.of(path), offset, length).orElseThrow();
 	}
 
 	/*-------------- delete ---------------*/

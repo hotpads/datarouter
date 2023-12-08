@@ -89,8 +89,8 @@ public class DatarouterClients{
 		loadClientOptions(testPropertiesFile.getFileLocation(), internalConfigDirectory.get());
 	}
 
-	private void loadClientOptions(String configFilePath, String internalConfigDirectoryType){
-		Properties properties = clientOptionsFactory.getInternalConfigDirectoryTypeOptions(internalConfigDirectoryType);
+	private void loadClientOptions(String configFilePath, String internalConfigDirectory){
+		Properties properties = clientOptionsFactory.getInternalConfigDirectoryTypeOptions(internalConfigDirectory);
 		boolean useClientOptionsFactory = configFilePath.isEmpty() || !properties.isEmpty();
 		if(useClientOptionsFactory){
 			logger.warn("Got client properties from class {}", clientOptionsFactory.getClass().getCanonicalName());
@@ -101,6 +101,9 @@ public class DatarouterClients{
 			PropertiesAndUrl propertiesAndLocation = PropertiesTool.parseAndGetLocation(configFilePath);
 			logger.warn("Got client properties from file {}", propertiesAndLocation.url());
 			clientOptions.addProperties(propertiesAndLocation.properties());
+		}else{
+			logger.warn("No client properties found configFilePath={} internalConfigDirectory={}", configFilePath,
+					internalConfigDirectory);
 		}
 		Scanner.of(requiredClientIds.getRequiredClientIds())
 				.exclude(clientOptions::isClientTypePresent)

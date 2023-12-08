@@ -21,7 +21,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import io.datarouter.model.databean.Databean;
@@ -31,6 +30,7 @@ import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.pathnode.PathNode;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.node.Node;
 import io.datarouter.storage.util.PrimaryKeyPercentCodecTool;
@@ -180,7 +180,7 @@ public abstract class InspectNodeDataHandler extends BaseHandler{
 				.map(name -> FIELD_PREFIX + name)
 				.map(params::required)
 				.map(StringTool::nullSafe)
-				.collect(Collectors.toList());
+				.collect(WarnOnModifyList.deprecatedCollector());
 	}
 
 }

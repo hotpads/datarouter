@@ -36,8 +36,7 @@ extends MapStorage<PK,D>, MapStorageReaderCounterAdapterMixin<PK,D,F,N>{
 
 	@Override
 	public default void put(D databean, Config config){
-		String opName = MapStorageWriter.OP_put;
-		getCounter().count(opName);
+		getCounter().count(MapStorageWriter.OP_put);
 		getBackingNode().put(databean, config);
 	}
 
@@ -54,8 +53,7 @@ extends MapStorage<PK,D>, MapStorageReaderCounterAdapterMixin<PK,D,F,N>{
 
 	@Override
 	public default void delete(PK key, Config config){
-		String opName = MapStorageWriter.OP_delete;
-		getCounter().count(opName);
+		getCounter().count(MapStorageWriter.OP_delete);
 		getBackingNode().delete(key, config);
 	}
 
@@ -72,8 +70,7 @@ extends MapStorage<PK,D>, MapStorageReaderCounterAdapterMixin<PK,D,F,N>{
 
 	@Override
 	public default void deleteAll(Config config){
-		String opName = MapStorageWriter.OP_deleteAll;
-		getCounter().count(opName);
+		getCounter().count(MapStorageWriter.OP_deleteAll);
 		getBackingNode().deleteAll(config);
 	}
 

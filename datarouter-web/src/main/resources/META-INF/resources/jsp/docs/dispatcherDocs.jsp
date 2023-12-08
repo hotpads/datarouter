@@ -273,6 +273,7 @@
 						<div class="card-body">
 							<b>Handler:</b> ${endpoint.implementation}
 							<b>CallerType:</b> ${endpoint.callerType}
+							<b>RequestType:</b> ${endpoint.requestType}
 							<c:choose>
 								<c:when test="${endpoint.isDeprecated}">
 									<span class="badge badge-warning">Deprecated</span>

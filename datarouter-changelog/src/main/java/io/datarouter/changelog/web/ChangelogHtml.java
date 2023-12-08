@@ -31,10 +31,9 @@ public class ChangelogHtml{
 	private static final ChangelogPaths PATHS = new DatarouterChangelogPaths().datarouter.changelog;
 
 	public static DivTag makeHeader(PathNode currentPath){
-		var header = div(
+		return div(
 				makeTitle(),
 				makeNavTabs(currentPath));
-		return header;
 	}
 
 	public static DivTag makeTitle(){

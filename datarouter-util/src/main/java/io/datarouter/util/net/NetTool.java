@@ -18,7 +18,7 @@ package io.datarouter.util.net;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.HttpURLConnection;
-import java.net.URL;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
@@ -32,7 +32,7 @@ public class NetTool{
 
 	public static Optional<String> curl(String method, String location, boolean logError, Header header){
 		try{
-			HttpURLConnection connection = (HttpURLConnection)new URL(location).openConnection();
+			HttpURLConnection connection = (HttpURLConnection)new URI(location).toURL().openConnection();
 			connection.setRequestMethod(method);
 			if(header != null){
 				connection.setRequestProperty(header.key(), header.value());

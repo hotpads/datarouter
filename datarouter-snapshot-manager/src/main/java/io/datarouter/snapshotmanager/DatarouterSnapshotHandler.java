@@ -15,7 +15,7 @@
  */
 package io.datarouter.snapshotmanager;
 
-import java.util.Map;
+import java.util.Map.Entry;
 
 import io.datarouter.filesystem.snapshot.block.BlockKey;
 import io.datarouter.filesystem.snapshot.block.root.RootBlock;
@@ -54,12 +54,11 @@ public class DatarouterSnapshotHandler extends BaseHandler{
 	}
 
 	private TableTag buildSummary(RootBlock rootBlock){
-		var table = new J2HtmlTable<Map.Entry<String,String>>()
+		return new J2HtmlTable<Entry<String,String>>()
 				.withClasses("sortable table table-sm table-striped my-4 border")
-				.withColumn("Key", row -> row.getKey())
-				.withColumn("Value", row -> row.getValue())
+				.withColumn("Key", Entry::getKey)
+				.withColumn("Value", Entry::getValue)
 				.build(rootBlock.toKeyValueStrings().entrySet());
-		return table;
 	}
 
 }

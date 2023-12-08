@@ -242,6 +242,12 @@
 			<property name="illegalPattern" value="true"/>
 			<property name="message" value="Line break before ':' in a ternary expression"/>
 		</module>
+		<module name="Regexp">
+			<property name="format" value="Collectors.toList()"/>
+			<property name="illegalPattern" value="true"/>
+			<property name="message" value="Prefer immutable list collections"/>
+			<property name="severity" value="error"/>
+		</module>
 		<module name="WhitespaceAround">
 			<property name="tokens" value="ASSIGN, BAND, BAND_ASSIGN, BOR, BOR_ASSIGN, BSR, BSR_ASSIGN, BXOR, BXOR_ASSIGN, COLON, DIV, DIV_ASSIGN, EQUAL, GE, GT, LAMBDA, LAND, LE, LOR, LT, MINUS, MINUS_ASSIGN, MOD, MOD_ASSIGN, NOT_EQUAL, PLUS, PLUS_ASSIGN, SL, SL_ASSIGN, SR, SR_ASSIGN, STAR, STAR_ASSIGN"/>
 			<property name="ignoreEnhancedForColon" value="false" />

@@ -23,7 +23,7 @@ public class TraceparentFieldCodec extends BinaryDtoConvertingFieldCodec<Tracepa
 
 	public TraceparentFieldCodec(){
 		super(Traceparent::toString,
-				str -> Traceparent.parse(str).get(),
+				str -> Traceparent.parseIfValid(str).get(),
 				new Utf8BinaryDtoFieldCodec(),
 				true);
 	}

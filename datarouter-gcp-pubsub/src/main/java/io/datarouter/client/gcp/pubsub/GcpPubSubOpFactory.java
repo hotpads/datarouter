@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.List;
 
 import io.datarouter.client.gcp.pubsub.client.GcpPubsubClientManager;
+import io.datarouter.client.gcp.pubsub.config.DatarouterGcpPubsubSettingsRoot;
 import io.datarouter.client.gcp.pubsub.node.BaseGcpPubsubNode;
 import io.datarouter.client.gcp.pubsub.op.GcpPubsubAckMultiOp;
 import io.datarouter.client.gcp.pubsub.op.GcpPubsubGroupPeekMultiOp;
@@ -43,39 +44,43 @@ public class GcpPubSubOpFactory<
 
 	private final BaseGcpPubsubNode<PK,D,F> baseGcpPubsubNode;
 	private final GcpPubsubClientManager clientManager;
+	private final DatarouterGcpPubsubSettingsRoot settingRoot;
 	private final ClientId clientId;
 
 	public GcpPubSubOpFactory(
 			BaseGcpPubsubNode<PK,D,F> baseGcpPubSubNode,
 			GcpPubsubClientManager clientManager,
+			DatarouterGcpPubsubSettingsRoot settingRoot,
 			ClientId clientId){
 		this.baseGcpPubsubNode = baseGcpPubSubNode;
 		this.clientManager = clientManager;
+		this.settingRoot = settingRoot;
 		this.clientId = clientId;
 	}
 
 	public GcpPubsubOp<PK,D,F,List<QueueMessage<PK,D>>> makePeekMultiOp(Config config){
-		return new GcpPubsubPeekMultiOp<>(config, baseGcpPubsubNode, clientManager, clientId);
+		return new GcpPubsubPeekMultiOp<>(config, baseGcpPubsubNode, clientManager, settingRoot, clientId);
 	}
 
 	public GcpPubsubOp<PK,D,F,Void> makeAckMultiOp(Collection<QueueMessageKey> keys, Config config){
-		return new GcpPubsubAckMultiOp<>(keys, config, baseGcpPubsubNode, clientManager, clientId);
+		return new GcpPubsubAckMultiOp<>(keys, config, baseGcpPubsubNode, clientManager, settingRoot, clientId);
 	}
 
 	public GcpPubsubOp<PK,D,F,Void> makePutMultiOp(Collection<D> databeans, Config config){
-		return new GcpPubsubPutMultiOp<>(databeans, config, baseGcpPubsubNode, clientManager, clientId);
+		return new GcpPubsubPutMultiOp<>(databeans, config, baseGcpPubsubNode, clientManager, settingRoot, clientId);
 	}
 
 	public GcpPubsubOp<PK,D,F,Void> makePutOp(D databean, Config config){
-		return new GcpPubsubPutOp<>(databean, config, baseGcpPubsubNode, clientManager, clientId);
+		return new GcpPubsubPutOp<>(databean, config, baseGcpPubsubNode, clientManager, settingRoot, clientId);
 	}
 
 	public GcpPubsubOp<PK,D,F,Void> makeGroupPutMultiOp(Collection<D> databeans, Config config){
-		return new GcpPubsubGroupPutMultiOp<>(databeans, config, baseGcpPubsubNode, clientManager, clientId);
+		return new GcpPubsubGroupPutMultiOp<>(databeans, config, baseGcpPubsubNode, clientManager, settingRoot,
+				clientId);
 	}
 
 	public GcpPubsubOp<PK,D,F,List<GroupQueueMessage<PK,D>>> makeGroupPeekMultiOp(Config config){
-		return new GcpPubsubGroupPeekMultiOp<>(config, baseGcpPubsubNode, clientManager, clientId);
+		return new GcpPubsubGroupPeekMultiOp<>(config, baseGcpPubsubNode, clientManager, settingRoot, clientId);
 	}
 
 }

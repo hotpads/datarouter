@@ -57,6 +57,9 @@ import io.datarouter.client.gcp.pubsub.GcpPubsubExecutors.GcpPubsubPublisherExec
 import io.datarouter.client.gcp.pubsub.GcpPubsubExecutors.GcpPubsubSubscriberStubExecutor;
 import io.datarouter.client.gcp.pubsub.GcpPubsubExecutors.GcpPubsubWatchdogExecutor;
 import io.datarouter.client.gcp.pubsub.TopicAndSubscriptionName;
+import io.datarouter.client.gcp.pubsub.config.DatarouterGcpPubsubSettingsRoot;
+import io.datarouter.instrumentation.trace.TraceSpanGroupType;
+import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.storage.client.BaseClientManager;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.util.string.StringTool;
@@ -73,6 +76,8 @@ public class GcpPubsubClientManager extends BaseClientManager{
 	private GcpPubsubClientHolder holder;
 	@Inject
 	private GcpPubsubOptions gcpPubsubOptions;
+	@Inject
+	private DatarouterGcpPubsubSettingsRoot settingRoot;
 	@Inject
 	private GcpPubsubSubscriberStubExecutor subscriberStubExecutor;
 	@Inject
@@ -153,6 +158,7 @@ public class GcpPubsubClientManager extends BaseClientManager{
 		PullRequest pullRequest = PullRequest.newBuilder()
 				.setMaxMessages(1)
 				.setSubscription(subscription.getName())
+				.setReturnImmediately(settingRoot.returnImmediately.get())
 				.build();
 		Executors.newSingleThreadExecutor().submit(() -> subscriberStub.pullCallable().call(pullRequest));
 	}
@@ -265,9 +271,9 @@ public class GcpPubsubClientManager extends BaseClientManager{
 				.setEndTime(Timestamps.fromMillis(System.currentTimeMillis())).build();
 		MetricServiceClient metricServiceClient = holder.getMetricServiceClient(clientId);
 		ListTimeSeriesResponse numUndeliveredMessageResponse = getListTimeSeriesResponse(name, subscriptionName,
-				interval, "num_undelivered_messages\"", metricServiceClient);
+				interval, "num_undelivered_messages", metricServiceClient);
 		ListTimeSeriesResponse unackedMessageAgeResponse = getListTimeSeriesResponse(name, subscriptionName, interval,
-				"oldest_unacked_message_age\"", metricServiceClient);
+				"oldest_unacked_message_age", metricServiceClient);
 		List<TimeSeries> numUndeliveredMessageTimeSeriesList = numUndeliveredMessageResponse.getTimeSeriesList();
 		List<TimeSeries> unackedMessageAgeinSecondsTimeSeriesList = unackedMessageAgeResponse.getTimeSeriesList();
 		Optional<Long> numUndeliveredMessage = Optional.empty();
@@ -307,20 +313,22 @@ public class GcpPubsubClientManager extends BaseClientManager{
 			MetricServiceClient metricServiceClient){
 		ListTimeSeriesRequest request = ListTimeSeriesRequest.newBuilder()
 				.setName(name.toString())
-				.setFilter("metric.type=\"pubsub.googleapis.com/subscription/" + metricTypeName
+				.setFilter("metric.type=\"pubsub.googleapis.com/subscription/" + metricTypeName + "\""
 						+ " AND resource.label.subscription_id=" + subscriptionName
 						+ " AND resource.type=\"pubsub_subscription\"")
 				.setInterval(interval)
 				.build();
-		return metricServiceClient.listTimeSeries(request)
-				.getPage()
-				.getResponse();
+		try(var $ = TracerTool.startSpan("gcp metric client " + metricTypeName, TraceSpanGroupType.HTTP)){
+			return metricServiceClient.listTimeSeries(request)
+					.getPage()
+					.getResponse();
+		}
 	}
 
 	public record GcpPubsubMetricDto(
-				String queueName,
-				Optional<Long> numUndeliveredMessages,
-				Optional<Long> oldestUnackedMessageAgeS){
+			String queueName,
+			Optional<Long> numUndeliveredMessages,
+			Optional<Long> oldestUnackedMessageAgeS){
 	}
 
 }

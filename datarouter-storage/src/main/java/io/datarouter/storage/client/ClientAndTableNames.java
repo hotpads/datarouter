@@ -15,7 +15,17 @@
  */
 package io.datarouter.storage.client;
 
+import java.util.Comparator;
+
 public record ClientAndTableNames(
 		String client,
 		String table){
+
+	public static final Comparator<ClientAndTableNames> COMPARE_CLIENT
+			= Comparator.comparing(ClientAndTableNames::client);
+	public static final Comparator<ClientAndTableNames> COMPARE_TABLE
+			= Comparator.comparing(ClientAndTableNames::table);
+	public static final Comparator<ClientAndTableNames> COMPARE_CLIENT_TABLE
+			= COMPARE_CLIENT.thenComparing(COMPARE_TABLE);
+
 }

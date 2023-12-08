@@ -23,6 +23,7 @@ import com.google.pubsub.v1.ReceivedMessage;
 import io.datarouter.bytes.codec.stringcodec.StringCodec;
 import io.datarouter.client.gcp.pubsub.PubsubCostCounters;
 import io.datarouter.client.gcp.pubsub.client.GcpPubsubClientManager;
+import io.datarouter.client.gcp.pubsub.config.DatarouterGcpPubsubSettingsRoot;
 import io.datarouter.client.gcp.pubsub.node.GcpPubsubBlobNode;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.queue.RawBlobQueueMessage;
@@ -32,8 +33,9 @@ public class GcpPubSubBlobPeekOp extends GcpPubsubBlobOp<RawBlobQueueMessage>{
 	public GcpPubSubBlobPeekOp(
 			GcpPubsubBlobNode<?> node,
 			GcpPubsubClientManager clientManager,
+			DatarouterGcpPubsubSettingsRoot settingRoot,
 			ClientId clientId){
-		super(node, clientManager, clientId);
+		super(node, clientManager, settingRoot, clientId);
 	}
 
 	@Override
@@ -42,6 +44,7 @@ public class GcpPubSubBlobPeekOp extends GcpPubsubBlobOp<RawBlobQueueMessage>{
 		PullRequest pullRequest = PullRequest.newBuilder()
 				.setMaxMessages(1)
 				.setSubscription(subscriberId)
+				.setReturnImmediately(settingRoot.returnImmediately.get())
 				.build();
 		PullResponse pullResponse = subscriberStub.pullCallable().call(pullRequest);
 		if(pullResponse.getReceivedMessagesCount() == 0){

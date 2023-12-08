@@ -37,6 +37,7 @@ import io.datarouter.gson.serializer.ReverseUlidTypeAdapter;
 import io.datarouter.gson.serializer.UlidSerializer;
 import io.datarouter.gson.serializer.ZoneIdLegacySerializer;
 import io.datarouter.gson.typeadapter.QuadTypeAdapter;
+import io.datarouter.gson.typeadapterfactory.DateTypeAdapterFactory;
 import io.datarouter.gson.typeadapterfactory.EnumTypeAdapterFactory;
 import io.datarouter.gson.typeadapterfactory.EnumTypeAdapterFactory.AnonymousAllowUnregisteredEnumTypeAdapterFactory;
 import io.datarouter.gson.typeadapterfactory.EnumTypeAdapterFactory.RejectAllEnumTypeAdapterFactory;
@@ -63,6 +64,7 @@ public class GsonTool{
 			.registerTypeAdapter(ReverseUlid.class, new ReverseUlidTypeAdapter())
 			.registerTypeAdapter(MilliTime.class, new MilliTimeTypeAdapter())
 			.registerTypeAdapter(MilliTimeReversed.class, new MilliTimeReversedTypeAdapter())
+			.registerTypeAdapterFactory(new DateTypeAdapterFactory())
 			.create();
 
 	public static GsonBuilder builder(EnumTypeAdapterFactory enumTypeAdapterFactory){
@@ -119,14 +121,14 @@ public class GsonTool{
 	 * Quick solution for pretty-printing a value that is not parsed by another system.  Lacks things like enum
 	 * validation.
 	 */
-	public static final Gson forLogsPretty(){
+	public static Gson forLogsPretty(){
 		return GSON_PRETTY_PRINT;
 	}
 
 	/**
 	 * Quick solution for printing a value that is not parsed by another system.  Lacks things like enum validation.
 	 */
-	public static final Gson forLogs(){
+	public static Gson forLogs(){
 		return GSON;
 	}
 

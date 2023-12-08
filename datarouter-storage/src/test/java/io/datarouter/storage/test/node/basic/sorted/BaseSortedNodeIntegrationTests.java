@@ -19,7 +19,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.slf4j.Logger;
@@ -30,6 +29,7 @@ import org.testng.annotations.Test;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.field.Field;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.op.scan.stride.StrideScanner.StrideScannerBuilder;
 import io.datarouter.storage.test.node.basic.sorted.SortedBean.SortedBeanFielder;
@@ -112,8 +112,7 @@ public abstract class BaseSortedNodeIntegrationTests extends BaseSortedBeanInteg
 		var startKey = new SortedBeanKey(SortedBeans.S_pelican, SortedBeans.S_pelican, 7, SortedBeans.S_emu);
 		var range = new Range<>(startKey, true, null, true);
 		List<SortedBean> result = dao.scan(range).list();
-		var expectedFirst = startKey;
-		Assert.assertEquals(result.get(0).getKey(), expectedFirst);
+		Assert.assertEquals(result.get(0).getKey(), startKey);
 		Assert.assertEquals(result.size(), 4);
 	}
 
@@ -198,7 +197,7 @@ public abstract class BaseSortedNodeIntegrationTests extends BaseSortedBeanInteg
 		List<Range<SortedBeanKey>> ranges = Stream.of(SortedBeans.PREFIX_a, SortedBeans.PREFIX_ch)
 				.map(prefix -> KeyRangeTool.forPrefixWithWildcard(prefix, suffix -> new SortedBeanKey(
 						SortedBeans.STRINGS.first(), suffix, null, null)))
-				.collect(Collectors.toList());
+				.collect(WarnOnModifyList.deprecatedCollector());
 		List<SortedBean> result = dao.scanRanges(ranges).list();
 		int expectedSizeA = SortedBeans.NUM_PREFIX_a * SortedBeans.NUM_ELEMENTS * SortedBeans.NUM_ELEMENTS;
 		int expectedSizeCh = SortedBeans.NUM_PREFIX_ch * SortedBeans.NUM_ELEMENTS * SortedBeans.NUM_ELEMENTS;
@@ -474,7 +473,7 @@ public abstract class BaseSortedNodeIntegrationTests extends BaseSortedBeanInteg
 		Set<SortedBean> expected = Scanner.of(range1, range2)
 				.concat(dao::scan)
 				.collect(HashSet::new);
-		Assert.assertTrue(expected.size() > 0);
+		Assert.assertFalse(expected.isEmpty());
 		Assert.assertEquals(beans, expected);
 	}
 

@@ -22,9 +22,9 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.TreeMap;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import io.datarouter.scanner.Scanner;
+import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.web.config.DatarouterWebFiles;
 import io.datarouter.web.navigation.NavBarCategory.NavBarItemType;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
@@ -67,7 +67,7 @@ public class DatarouterNavBar extends NavBar{
 					item.dispatchRule.ifPresent(menuItem::setDispatchRule);
 					return menuItem;
 				})
-				.collect(Collectors.toList());
+				.collect(WarnOnModifyList.deprecatedCollector());
 		return new NavBarMenuItem(entry.getKey().display(), menuItems);
 	}
 

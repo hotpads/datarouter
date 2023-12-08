@@ -32,11 +32,10 @@ public class WebappInstanceHtml{
 	private static final WebappInstancePaths PATHS = new DatarouterWebappInstancePaths().datarouter.webappInstances;
 
 	public static DivTag makeHeader(PathNode currentPath){
-		var header = div(
+		return div(
 				makeTitle(),
 				makeNavTabs(currentPath),
 				br());
-		return header;
 	}
 
 	public static DivTag makeTitle(){

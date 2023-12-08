@@ -15,16 +15,8 @@
  */
 package io.datarouter.util;
 
-public class RunNativeDto{
-
-	public final String stdout;
-	public final String stderr;
-	public final int exitVal;
-
-	public RunNativeDto(String stdout, String stderr, int exitVal){
-		this.stdout = stdout;
-		this.stderr = stderr;
-		this.exitVal = exitVal;
-	}
-
+public record RunNativeDto(
+		int exitVal,
+		String stdout,
+		String stderr){
 }

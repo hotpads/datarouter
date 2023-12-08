@@ -44,6 +44,7 @@ extends SortedStorage<PK,D>, SanitizationAdapter<PK,D,F,N>{
 			return Scanner.empty();
 		}
 		ScanSanitizer.rejectUnexpectedFullScan(range);
+		ScanSanitizer.logInvalidRange(range);
 		return getBackingNode().scanKeys(range, config);
 	}
 
@@ -56,6 +57,7 @@ extends SortedStorage<PK,D>, SanitizationAdapter<PK,D,F,N>{
 			return Scanner.empty();
 		}
 		ranges.forEach(ScanSanitizer::rejectUnexpectedFullScan);
+		ranges.forEach(ScanSanitizer::logInvalidRange);
 		return getBackingNode().scanRangesKeys(ranges, config);
 	}
 
@@ -67,6 +69,7 @@ extends SortedStorage<PK,D>, SanitizationAdapter<PK,D,F,N>{
 			return Scanner.empty();
 		}
 		ScanSanitizer.rejectUnexpectedFullScan(range);
+		ScanSanitizer.logInvalidRange(range);
 		return getBackingNode().scan(range, config);
 	}
 
@@ -79,6 +82,7 @@ extends SortedStorage<PK,D>, SanitizationAdapter<PK,D,F,N>{
 			return Scanner.empty();
 		}
 		ranges.forEach(ScanSanitizer::rejectUnexpectedFullScan);
+		ranges.forEach(ScanSanitizer::logInvalidRange);
 		return getBackingNode().scanRanges(ranges, config);
 	}
 

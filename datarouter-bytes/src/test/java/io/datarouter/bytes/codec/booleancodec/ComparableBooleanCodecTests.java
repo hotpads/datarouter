@@ -32,9 +32,9 @@ public class ComparableBooleanCodecTests{
 
 	@Test
 	public void testDecode(){
-		Assert.assertEquals(CODEC.decode(new byte[]{0}, 0), false);
-		Assert.assertEquals(CODEC.decode(new byte[]{1, 0}, 0), true);
-		Assert.assertEquals(CODEC.decode(new byte[]{1, 0}, 1), false);
+		Assert.assertFalse(CODEC.decode(new byte[]{0}, 0));
+		Assert.assertTrue(CODEC.decode(new byte[]{1, 0}, 0));
+		Assert.assertFalse(CODEC.decode(new byte[]{1, 0}, 1));
 	}
 
 	@Test(expectedExceptions = { IllegalArgumentException.class })

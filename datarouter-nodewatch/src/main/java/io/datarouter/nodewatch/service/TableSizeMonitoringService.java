@@ -77,9 +77,9 @@ public class TableSizeMonitoringService{
 		List<ThresholdCountStat> aboveThresholdList = dto.aboveThreshold();
 		List<PercentageCountStat> abovePercentageList = dto.abovePercentage();
 		List<LatestTableCount> staleList = getStaleTableEntries();
-		if(aboveThresholdList.size() > 0
-				|| abovePercentageList.size() > 0
-				|| staleList.size() > 0){
+		if(!aboveThresholdList.isEmpty()
+				|| !abovePercentageList.isEmpty()
+				|| !staleList.isEmpty()){
 			sendEmail(aboveThresholdList, abovePercentageList, staleList);
 		}
 	}

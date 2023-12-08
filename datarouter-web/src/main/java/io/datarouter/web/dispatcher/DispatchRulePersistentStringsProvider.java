@@ -18,7 +18,6 @@ package io.datarouter.web.dispatcher;
 import java.util.List;
 
 import io.datarouter.inject.DatarouterInjector;
-import io.datarouter.scanner.OptionalScanner;
 import io.datarouter.scanner.Scanner;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -41,9 +40,10 @@ public class DispatchRulePersistentStringsProvider{
 			Class<? extends ApiKeyPredicate> predicateClass){
 		return Scanner.of(routeSet.getDispatchRules())
 				.include(DispatchRule::hasApiKey)
-				.include(rule -> predicateClass.isAssignableFrom(rule.getApiKeyPredicate().getClass()))
-				.map(DispatchRule::getPersistentString)
-				.concat(OptionalScanner::of);
+				.include(rule -> Scanner.of(rule.getApiKeyPredicates())
+						.map(ApiKeyPredicate::getClass)
+						.anyMatch(predClass -> predicateClass.isAssignableFrom(predClass)))
+				.concatOpt(DispatchRule::getPersistentString);
 	}
 
 }

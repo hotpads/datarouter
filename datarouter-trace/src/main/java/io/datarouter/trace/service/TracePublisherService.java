@@ -19,7 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.instrumentation.response.PublishingResponseDto;
-import io.datarouter.instrumentation.trace.Trace2BatchedBundleDto;
+import io.datarouter.instrumentation.trace.TraceBatchedBundleDto;
 import io.datarouter.instrumentation.trace.TracePublisher;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.trace.storage.TraceQueueDao;
@@ -40,7 +40,7 @@ public class TracePublisherService implements TracePublisher{
 	}
 
 	@Override
-	public PublishingResponseDto addBatch(Trace2BatchedBundleDto traceBatchedDto){
+	public PublishingResponseDto addBatch(TraceBatchedBundleDto traceBatchedDto){
 		logger.info("writing size={} traces to {}", traceBatchedDto.batch.size(), "queue");
 		var traces = Scanner.of(traceBatchedDto.batch).map(TraceQueueBinaryDto::new);
 		traceQueueDao.combineAndPut(traces);

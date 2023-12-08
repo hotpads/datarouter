@@ -43,12 +43,18 @@ public class DatarouterHttpRetryHandler implements HttpRequestRetryHandler{
 		String traceparent = (String)context.getAttribute(DatarouterHttpClientIoExceptionCircuitBreaker.TRACEPARENT);
 		String url = clientContext.getTargetHost() + clientContext.getRequest().getRequestLine().getUri();
 		if(willRetry){
-			logger.warn("failure target={} traceparent={} failureCount={}", url, traceparent, executionCount,
+			logger.warn("failure target={} traceparent={} failureCount={}",
+					url,
+					traceparent,
+					executionCount,
 					exception);
 			TracerTool.appendToSpanInfo("willRetry", exception.getMessage());
 		}else{
 			// don't log everything, caller will get details in an Exception
-			logger.warn("failure target={} traceparent={} failureCount={} (final) {}", url, traceparent, executionCount,
+			logger.warn("failure target={} traceparent={} failureCount={} (final) {}",
+					url,
+					traceparent,
+					executionCount,
 					exception);
 		}
 		return willRetry;

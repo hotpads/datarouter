@@ -156,7 +156,8 @@ public abstract class BaseSchemaUpdateService{
 					+ " - schema update";
 			StringBuilder allStatements = new StringBuilder();
 			ddlList.forEach(ddl -> allStatements.append(ddl).append("\n\n"));
-			logger.warn("Sending schema update email for client={}", clientId.getName());
+			logger.warn("Sending schema update email for client={}, schemaupdate={}", clientId.getName(),
+					allStatements.toString());
 			sendEmail(subject, allStatements.toString());
 		});
 	}
@@ -189,8 +190,10 @@ public abstract class BaseSchemaUpdateService{
 				serverName.get(),
 				now);
 		try{
+
 			schemaUpdateLockDao.get().putAndAcquire(lock);
-			logger.warn("Acquired schema update lock for hash={}", lock.getKey().getStatementHash());
+			logger.warn("Acquired schema update lock for hash={}, build={}, statement={}",
+					lock.getKey().getStatementHash(), lock.getKey().getBuildId(), lock.getStatement());
 			return true;
 		}catch(Exception ex){
 			logger.warn("Didn't acquire schema update lock for hash={}", lock.getKey().getStatementHash());

@@ -21,6 +21,7 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.join;
 import static j2html.TagCreator.p;
+import static j2html.TagCreator.pre;
 import static j2html.TagCreator.script;
 import static j2html.TagCreator.table;
 import static j2html.TagCreator.tbody;
@@ -28,12 +29,12 @@ import static j2html.TagCreator.td;
 import static j2html.TagCreator.text;
 import static j2html.TagCreator.tr;
 
-import java.time.Instant;
 import java.time.ZoneId;
+import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -45,10 +46,12 @@ import io.datarouter.auth.role.RoleManager;
 import io.datarouter.auth.service.DatarouterUserService;
 import io.datarouter.auth.storage.user.datarouteruser.DatarouterUser;
 import io.datarouter.auth.storage.user.datarouteruser.DatarouterUserDao;
-import io.datarouter.auth.storage.user.permissionrequest.DatarouterPermissionRequest;
 import io.datarouter.auth.storage.user.permissionrequest.DatarouterPermissionRequestDao;
+import io.datarouter.auth.storage.user.permissionrequest.PermissionRequest;
 import io.datarouter.auth.web.config.DatarouterAuthPaths;
 import io.datarouter.auth.web.service.DatarouterUserEditService;
+import io.datarouter.auth.web.service.PermissionRequestService;
+import io.datarouter.auth.web.service.PermissionRequestService.DeclinePermissionRequestDto;
 import io.datarouter.auth.web.service.PermissionRequestUserInfo.PermissionRequestUserInfoSupplier;
 import io.datarouter.email.type.DatarouterEmailTypes.PermissionRequestEmailType;
 import io.datarouter.scanner.Scanner;
@@ -56,8 +59,8 @@ import io.datarouter.storage.config.properties.AdminEmail;
 import io.datarouter.storage.config.properties.ServiceName;
 import io.datarouter.storage.config.setting.DatarouterEmailSubscriberSettings;
 import io.datarouter.storage.servertype.ServerTypeDetector;
+import io.datarouter.types.MilliTime;
 import io.datarouter.util.string.StringTool;
-import io.datarouter.util.time.ZonedDateFormatterTool;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
@@ -87,6 +90,7 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 	private static final String P_DENIED_URL = "deniedUrl";
 	private static final String P_ALLOWED_ROLES = "allowedRoles";
 	private static final String P_SPECIFICS = "specifics";
+	private static final String P_VALIDATION_ERROR = "validationError";
 	private static final String EMAIL_TITLE = "Permission Request";
 	private static final String FORM_ID = "permissionRequestForm";
 	private static final String ROLE_TABLE_ID = "roleTable";
@@ -121,23 +125,24 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 	private DatarouterUserDao datarouterUserDao;
 	@Inject
 	private RoleManager roleManager;
+	@Inject
+	private PermissionRequestService permissionRequestService;
 
 	@Handler(defaultHandler = true)
-	public Mav showForm(Optional<String> deniedUrl, Optional<String> allowedRoles, Optional<String> validationError){
+	public Mav showForm(
+			Optional<String> deniedUrl,
+			Optional<String> allowedRoles,
+			@Param(P_VALIDATION_ERROR)
+			Optional<String> validationError){
 		if(!authenticationConfig.useDatarouterAuthentication()){
 			return new MessageMav(noDatarouterAuthentication());
 		}
 
 		DatarouterUser user = getCurrentUser();
-		DatarouterPermissionRequest currentRequest = datarouterPermissionRequestDao
+		PermissionRequest currentRequest = datarouterPermissionRequestDao
 				.scanOpenPermissionRequestsForUser(user.getId())
 				.findMax(Comparator.comparing(request -> request.getKey().getRequestTime()))
 				.orElse(null);
-
-		Optional<String> defaultSpecifics = deniedUrl
-				.map(url -> "Attempted request to: " + url + "." + allowedRoles
-						.map(" These are its allowed roles at the time of this request: "::concat)
-						.orElse(""));
 
 		String declinePath = paths.permissionRequest.declineAll.join("/");
 
@@ -147,14 +152,16 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 					p("You already have an open permission request for " + serviceName.get()
 						+ ". You may submit another request to replace it."),
 					p("Time Requested: " + currentRequest.getKey().getRequestTime()),
-					p("Request Text: " + currentRequest.getRequestText()),
+					p(b("Request Text:\n")),
+					// pre-wrap doesn't work with j2html.ContainerTag.renderFormatted, so use pre tag instead
+					pre(currentRequest.getRequestText()).withStyle("margin-left: 2em;"),
 					p(join("Click ", a("here").withHref(declinePath), " to decline it.")));
 		}
 		DivTag insufficientPermissionAction = new DivTag();
 		if(deniedUrl.isPresent() && allowedRoles.isPresent()){
-			insufficientPermissionAction = div(
-					p("You made a request to: %s. This action requires one of these roles: %s."
-							.formatted(deniedUrl.get(), allowedRoles.get())));
+			insufficientPermissionAction = div(p(join(
+					"You made a request to: %s. This action requires one of these roles: ".formatted(deniedUrl.get()),
+					b(allowedRoles.get() + "."))));
 		}
 
 		DivTag introContent = div()
@@ -190,10 +197,10 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 									userHasRole,
 									userHasRole);
 						})
+						.sort(Comparator.comparing(Row::name))
 						.list())
 				.required();
 		form.addHiddenField(P_REQUESTED_ROLES, "");
-		form.addHiddenField(P_SPECIFICS, defaultSpecifics.orElse(null));
 		form.addHiddenField(P_DENIED_URL, deniedUrl.orElse(null));
 		form.addHiddenField(P_ALLOWED_ROLES, allowedRoles.orElse(null));
 		form.addHiddenField(HtmlFormTimezoneSelect.TIMEZONE_FIELD_NAME, userTimezone);
@@ -242,28 +249,27 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 			@Param(P_REQUESTED_ROLES) String requestedRoleString,
 			@Param(P_DENIED_URL) Optional<String> deniedUrl,
 			@Param(P_ALLOWED_ROLES) Optional<String> allowedRoles,
-			@Param(HtmlFormTimezoneSelect.TIMEZONE_FIELD_NAME) Optional<String> timezone,
-			@Param(P_SPECIFICS) Optional<String> specifics){
+			@Param(HtmlFormTimezoneSelect.TIMEZONE_FIELD_NAME) Optional<String> timezone){
 		if(!authenticationConfig.useDatarouterAuthentication()){
 			return new MessageMav(noDatarouterAuthentication());
 		}
 
-		if(StringTool.isEmpty(reason)){
-			return showForm(
-					deniedUrl,
-					allowedRoles,
-					Optional.of("Reason is required."));
+		if(StringTool.isEmptyOrWhitespace(reason)){
+			return new InContextRedirectMav(
+					request,
+					paths.permissionRequest,
+					Map.of(P_VALIDATION_ERROR, "Reason is required."));
 		}
+		reason = reason.trim();
 		if(StringTool.isEmpty(requestedRoleString)){
-			return showForm(
-					deniedUrl,
-					allowedRoles,
-					Optional.of("At least one requested role is required."));
+		return new InContextRedirectMav(
+				request,
+				paths.permissionRequest,
+				Map.of(P_VALIDATION_ERROR, "At least one requested role is required."));
 		}
-		String specificString = specifics
-				.map(str -> str + " ")
-				.orElse("")
-				.concat("Requested Roles: " + requestedRoleString);
+		String specifics = "Request Reason: \"%s\"\nRequested Roles: %s.".formatted(reason, requestedRoleString)
+				+ deniedUrl.map(url -> "\nAttempted request to: " + url + ".").orElse("")
+				+ allowedRoles.map(roles -> "\nAllowed Roles: " + roles + ".").orElse("");
 		DatarouterUser user = getCurrentUser();
 
 		timezone.map(ZoneId::of)
@@ -272,8 +278,12 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 					datarouterUserDao.put(user);
 				});
 
-		datarouterPermissionRequestDao.createPermissionRequest(new DatarouterPermissionRequest(user.getId(), new Date(),
-				"reason: " + reason + ", specifics: " + specificString, null, null));
+		datarouterPermissionRequestDao.createPermissionRequest(new PermissionRequest(
+				user.getId(),
+				MilliTime.now(),
+				specifics,
+				null,
+				null));
 		Set<Role> requestedRoles = new HashSet<>(Scanner.of(requestedRoleString.split(","))
 				.map(roleManager::findRoleFromPersistentString)
 				.map(optionalRole -> optionalRole.orElseThrow(
@@ -282,40 +292,63 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 				.list());
 		Set<String> additionalRecipients = roleManager.getAdditionalPermissionRequestEmailRecipients(user,
 				requestedRoles);
-		sendRequestEmail(user, reason, specificString, additionalRecipients);
+		sendRequestEmail(user, reason, specifics, additionalRecipients);
 
 		//not just requestor, so send them to the home page after they make their request
 		if(datarouterUserService.getUserRolesWithSamlGroups(user).size() > 1){
 			return new InContextRedirectMav(request, paths.home);
 		}
 
-		return showForm(Optional.empty(), Optional.empty(), Optional.empty());
+		return new InContextRedirectMav(request, paths.permissionRequest);
+	}
+
+	@Handler
+	private Mav createCustomPermissionRequest(
+			@Param(P_REASON) String reason,
+			@Param(P_SPECIFICS) String specifics){
+		if(StringTool.isEmptyOrWhitespace(reason)){
+			return new InContextRedirectMav(
+					request,
+					paths.permissionRequest,
+					Map.of(P_VALIDATION_ERROR, "Reason is required."));
+		}
+		if(StringTool.isEmptyOrWhitespace(specifics)){
+			return new InContextRedirectMav(
+					request,
+					paths.permissionRequest,
+					Map.of(P_VALIDATION_ERROR, "Specifics are required."));
+		}
+		reason = reason.trim();
+		specifics = specifics.trim();
+		DatarouterUser user = getCurrentUser();
+		datarouterPermissionRequestDao.createPermissionRequest(new PermissionRequest(
+				user.getId(),
+				MilliTime.now(),
+				specifics,
+				null,
+				null));
+		sendRequestEmail(user, reason, specifics, Collections.emptySet());
+
+		//not just requestor, so send them to the home page after they make their request
+		if(datarouterUserService.getUserRolesWithSamlGroups(user).size() > 1){
+			return new InContextRedirectMav(request, paths.home);
+		}
+
+		return new InContextRedirectMav(request, paths.permissionRequest);
 	}
 
 	@Handler
 	private Mav declineAll(Optional<Long> userId, Optional<String> redirectPath){
-		if(!authenticationConfig.useDatarouterAuthentication()){
-			return new MessageMav(noDatarouterAuthentication());
+		DeclinePermissionRequestDto dto = declinePermissionRequests(userId.orElse(getCurrentUser().getId()).toString());
+		if(!dto.success()){
+			return new MessageMav(dto.message());
 		}
-		DatarouterUser currentUser = getCurrentUser();
-		//only allow DATAROUTER_ADMIN and self to decline requests
-		if(!userId.orElse(currentUser.getId()).equals(currentUser.getId())
-				&& !datarouterUserService.isDatarouterAdmin(currentUser)){
-			return new MessageMav("You do not have permission to decline this request.");
-		}
-		datarouterPermissionRequestDao.declineAll(userId.orElse(currentUser.getId()));
-
-		DatarouterUser editedUser = currentUser;
-		if(!userId.orElse(currentUser.getId()).equals(getCurrentUser().getId())){
-			editedUser = datarouterUserService.findUserById(userId.get(), true).get();
-		}
-		sendDeclineEmail(editedUser, currentUser);
 
 		if(redirectPath.isEmpty()){
-			if(datarouterUserService.getUserRolesWithSamlGroups(currentUser).size() > 1){
+			if(datarouterUserService.getUserRolesWithSamlGroups(getCurrentUser()).size() > 1){
 				return new InContextRedirectMav(request, paths.home);
 			}
-			return showForm(Optional.empty(), Optional.empty(), Optional.empty());
+			return new InContextRedirectMav(request, paths.permissionRequest);
 		}
 		return new GlobalRedirectMav(redirectPath.get());
 	}
@@ -327,19 +360,10 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 		if(!authenticationConfig.useDatarouterAuthentication()){
 			return new DeclinePermissionRequestDto(false, noDatarouterAuthentication());
 		}
-		DatarouterUser currentUser = getCurrentUser();
-		//only allow DATAROUTER_ADMIN and self to decline requests
-		if(userIdLong != currentUser.getId() && !datarouterUserService.isDatarouterAdmin(currentUser)){
-			return new DeclinePermissionRequestDto(false, "You do not have permission to decline this request.");
-		}
-		datarouterPermissionRequestDao.declineAll(userIdLong);
-
-		DatarouterUser editedUser = currentUser;
-		if(userIdLong != getCurrentUser().getId()){
-			editedUser = datarouterUserService.getUserById(userIdLong, true);
-		}
-		sendDeclineEmail(editedUser, currentUser);
-		return new DeclinePermissionRequestDto(true, null);
+		DatarouterUser editor = getCurrentUser();
+		DatarouterUser editedUser = userIdLong == editor.getId() ? editor
+				: datarouterUserService.getUserById(userIdLong, true);
+		return permissionRequestService.declinePermissionRequests(editedUser, editor);
 	}
 
 	private DatarouterUser getCurrentUser(){
@@ -361,7 +385,7 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 				.with(userInfoSupplier.get().getUserInformation(user)))
 				.with(createLabelValueTr("Reason", text(reason)))
 				.condWith(StringTool.notEmpty(specifics), createLabelValueTr("Specifics", text(specifics))))
-				.withStyle("border-spacing: 0");
+				.withStyle("border-spacing: 0; white-space: pre-wrap;");
 		var content = div(table, p(a("Edit user profile").withHref(primaryHref)));
 		var emailBuilder = htmlEmailService.startEmailBuilder()
 				.withSubject(userEditService.getPermissionRequestEmailSubject(user))
@@ -379,28 +403,6 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 		htmlEmailService.trySendJ2Html(emailBuilder);
 	}
 
-	private void sendDeclineEmail(DatarouterUser editedUser, DatarouterUser currentUser){
-		String titleHref = htmlEmailService.startLinkBuilder()
-				.withLocalPath(paths.admin.editUser.toSlashedString())
-				.withParam("userId", editedUser.getId() + "")
-				.build();
-		String message = String.format("Permission requests declined for user %s by user %s",
-				editedUser.getUsername(),
-				currentUser.getUsername());
-		var content = p(message);
-		var emailBuilder = htmlEmailService.startEmailBuilder()
-				.withSubject(userEditService.getPermissionRequestEmailSubject(editedUser))
-				.withTitle(EMAIL_TITLE)
-				.withTitleHref(titleHref)
-				.withContent(content)
-				.from(editedUser.getUsername())
-				.to(editedUser.getUsername())
-				.to(permissionRequestEmailType, serverTypeDetector.mightBeProduction())
-				.toSubscribers(serverTypeDetector.mightBeProduction())
-				.toAdmin(serverTypeDetector.mightBeDevelopment());
-		htmlEmailService.trySendJ2Html(emailBuilder);
-	}
-
 	public static TrTag createLabelValueTr(String label, DomContent...values){
 		return tr(td(b(label + ' ')).withStyle("text-align: right"), td().with(values).withStyle("padding-left: 8px"))
 				.withStyle("vertical-align: top");
@@ -410,38 +412,6 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 		logger.warn("{} went to non-DR permission request page.", getSessionInfo().getRequiredSession().getUsername());
 		return "This is only available when using datarouter authentication. Please email " + adminEmail.get()
 				+ " for assistance.";
-	}
-
-	public static class PermissionRequestDto{
-		public final String requestTime;
-		public final Long requestTimeMs;
-		public final String requestText;
-		public final String resolutionTime;
-		public final Long resolutionTimeMs;
-		public final String resolution;
-		public final String editor;
-
-		public PermissionRequestDto(Instant requestTime, String requestText, Optional<Instant> resolutionTime,
-				String resolution, ZoneId zoneId, String editor){
-			this.requestTime = ZonedDateFormatterTool.formatInstantWithZone(requestTime, zoneId);
-			this.requestTimeMs = requestTime.toEpochMilli();
-			this.requestText = requestText;
-			this.resolutionTime = resolutionTime
-					.map(instant -> ZonedDateFormatterTool.formatInstantWithZone(instant, zoneId))
-					.orElse(null);
-			this.resolutionTimeMs = resolutionTime
-					.map(Instant::toEpochMilli)
-					.orElse(null);
-			this.resolution = resolution;
-			this.editor = editor;
-		}
-
-	}
-
-	//TODO DATAROUTER-2788 refactor/remove this class
-	protected record DeclinePermissionRequestDto(
-			boolean success,
-			String message){
 	}
 
 }

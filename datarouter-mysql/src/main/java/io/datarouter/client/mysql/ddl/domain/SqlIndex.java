@@ -46,10 +46,9 @@ public class SqlIndex{
 		if(this == obj){
 			return true;
 		}
-		if(!(obj instanceof SqlIndex)){
+		if(!(obj instanceof SqlIndex other)){
 			return false;
 		}
-		SqlIndex other = (SqlIndex)obj;
 		return Objects.equals(name, other.name)
 				&& Objects.equals(columnNames, other.columnNames);
 	}

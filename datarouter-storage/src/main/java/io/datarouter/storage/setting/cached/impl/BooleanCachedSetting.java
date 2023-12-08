@@ -19,17 +19,12 @@ import io.datarouter.storage.setting.DefaultSettingValue;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.cached.CachedSetting;
 import io.datarouter.storage.setting.type.BooleanSetting;
-import io.datarouter.util.BooleanTool;
+import io.datarouter.storage.setting.validator.BooleanSettingValidator;
 
 public class BooleanCachedSetting extends CachedSetting<Boolean> implements BooleanSetting{
 
 	public BooleanCachedSetting(SettingFinder finder, String name, DefaultSettingValue<Boolean> defaultValue){
-		super(finder, name, defaultValue);
-	}
-
-	@Override
-	public boolean isValid(String value){
-		return BooleanTool.isBoolean(value);
+		super(finder, name, defaultValue, new BooleanSettingValidator());
 	}
 
 }

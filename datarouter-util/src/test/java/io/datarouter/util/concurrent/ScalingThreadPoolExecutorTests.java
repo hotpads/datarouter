@@ -65,7 +65,11 @@ public class ScalingThreadPoolExecutorTests{
 
 		// future.get() may return before the completed task count is increment, so this can be flaky.
 		RetryableTool.tryNTimesWithBackoffUnchecked(() -> {
-			Assert.assertEquals(executor.getCompletedTaskCount(), MAX_THREADS + 2);
+			try{
+				Assert.assertEquals(executor.getCompletedTaskCount(), MAX_THREADS + 2);
+			}catch(AssertionError e){
+				throw new RuntimeException(e);
+			}
 			return null;
 		}, 6, 1, false);
 
@@ -74,13 +78,7 @@ public class ScalingThreadPoolExecutorTests{
 		executor.shutdownNow();
 	}
 
-	private class WaitRunnable implements Runnable{
-
-		private Phaser phaser;
-
-		public WaitRunnable(Phaser phaser){
-			this.phaser = phaser;
-		}
+	private record WaitRunnable(Phaser phaser) implements Runnable{
 
 		@Override
 		public void run(){
@@ -91,6 +89,7 @@ public class ScalingThreadPoolExecutorTests{
 				phaser.awaitAdvance(phaser.getPhase());
 			}
 		}
+
 	}
 
 }

@@ -178,9 +178,7 @@ public class ClusterSettingLogHandler extends BaseHandler{
 
 		@Inject
 		public ClusterSettingLogNamedScannerPager(DatarouterClusterSettingLogDao clusterSettingLogDao){
-			addWithTotal(
-					"Most Recent",
-					beforeTime -> clusterSettingLogDao.scanBeforeDesc(beforeTime));
+			addWithTotal("Most Recent", clusterSettingLogDao::scanBeforeDesc);
 		}
 
 	}

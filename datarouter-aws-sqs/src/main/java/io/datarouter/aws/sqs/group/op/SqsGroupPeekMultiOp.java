@@ -16,7 +16,6 @@
 package io.datarouter.aws.sqs.group.op;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import com.amazonaws.services.sqs.model.Message;
 
@@ -27,6 +26,7 @@ import io.datarouter.bytes.codec.stringcodec.StringCodec;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.queue.GroupQueueMessage;
@@ -53,7 +53,7 @@ extends BaseSqsPeekMultiOp<PK,D,F,GroupQueueMessage<PK,D>>{
 					byte[] receiptHandle = StringCodec.UTF_8.encode(message.getReceiptHandle());
 					return new GroupQueueMessage<>(receiptHandle, databeans);
 				})
-				.collect(Collectors.toList());
+				.collect(WarnOnModifyList.deprecatedCollector());
 	}
 
 }

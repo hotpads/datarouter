@@ -84,21 +84,18 @@ public class SecretOpConfigUnitTests{
 	@Test
 	public void testBooleans(){
 		var defaultConfig = getBuilder().build();
-		Assert.assertEquals(defaultConfig.shouldRecord, true);
-		Assert.assertEquals(defaultConfig.shouldLog, true);
-		Assert.assertEquals(defaultConfig.shouldSkipSerialization, false);
-		Assert.assertEquals(defaultConfig.shouldApplyToAllClients, false);
+		Assert.assertTrue(defaultConfig.shouldLog);
+		Assert.assertFalse(defaultConfig.shouldSkipSerialization);
+		Assert.assertFalse(defaultConfig.shouldApplyToAllClients);
 
 		var setConfig = getBuilder()
-				.disableRecording()
 				.disableLogging()
 				.disableSerialization()
 				.applyToAllSuppliers()
 				.build();
-		Assert.assertEquals(setConfig.shouldRecord, false);
-		Assert.assertEquals(setConfig.shouldLog, false);
-		Assert.assertEquals(setConfig.shouldSkipSerialization, true);
-		Assert.assertEquals(setConfig.shouldApplyToAllClients, true);
+		Assert.assertFalse(setConfig.shouldLog);
+		Assert.assertTrue(setConfig.shouldSkipSerialization);
+		Assert.assertTrue(setConfig.shouldApplyToAllClients);
 	}
 
 	@Test

@@ -22,6 +22,7 @@ import io.datarouter.model.field.Field;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
 import io.datarouter.model.key.primary.base.BaseRegularPrimaryKey;
+import io.datarouter.storage.client.ClientAndTableNames;
 
 public class LatestTableCountKey extends BaseRegularPrimaryKey<LatestTableCountKey>{
 
@@ -59,6 +60,10 @@ public class LatestTableCountKey extends BaseRegularPrimaryKey<LatestTableCountK
 
 	public String getTableName(){
 		return tableName;
+	}
+
+	public ClientAndTableNames getClientAndTableNames(){
+		return new ClientAndTableNames(clientName, tableName);
 	}
 
 }

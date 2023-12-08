@@ -72,8 +72,8 @@ public abstract class BaseClientManager implements ClientManager{
 				throw new RuntimeException("preventing test againt production");
 			}
 			safeInitClient(clientId);
-			clientInitializationTracker.setInitialized(clientId);
 			doSchemaUpdate(datarouterNodes.getPhysicalNodesForClient(clientId.getName()));
+			clientInitializationTracker.setInitialized(clientId);
 		}
 	}
 

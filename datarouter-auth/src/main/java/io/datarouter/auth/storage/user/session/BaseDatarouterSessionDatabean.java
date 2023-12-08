@@ -17,53 +17,61 @@ package io.datarouter.auth.storage.user.session;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
-import io.datarouter.model.field.imp.DateField;
-import io.datarouter.model.field.imp.DateFieldKey;
+import io.datarouter.model.field.codec.MilliTimeFieldCodec;
+import io.datarouter.model.field.imp.comparable.LongEncodedField;
+import io.datarouter.model.field.imp.comparable.LongEncodedFieldKey;
+import io.datarouter.types.MilliTime;
 
 public abstract class BaseDatarouterSessionDatabean<
 		PK extends BaseDatarouterSessionDatabeanKey<PK>,
 		D extends BaseDatarouterSessionDatabean<PK,D>>
 extends BaseDatabean<PK,D>{
 
-	private Date created;//track how old the session is
-	private Date updated;//last heartbeat time
+	private MilliTime createdAt;//track how old the session is
+	private MilliTime updatedAt;//last heartbeat time
 
 	public static class FieldKeys{
-		@SuppressWarnings("deprecation")
-		public static final DateFieldKey created = new DateFieldKey("created");
-		@SuppressWarnings("deprecation")
-		public static final DateFieldKey updated = new DateFieldKey("updated");
+		public static final LongEncodedFieldKey<MilliTime> createdAt = new LongEncodedFieldKey<>(
+				"createdAt",
+				new MilliTimeFieldCodec());
+		public static final LongEncodedFieldKey<MilliTime> updatedAt = new LongEncodedFieldKey<>(
+				"updatedAt",
+				new MilliTimeFieldCodec());
 	}
 
-	@SuppressWarnings("deprecation")
 	public List<Field<?>> getNonKeyFields(){
 		return List.of(
-				new DateField(FieldKeys.created, created),
-				new DateField(FieldKeys.updated, updated));
+				new LongEncodedField<>(FieldKeys.createdAt, createdAt),
+				new LongEncodedField<>(FieldKeys.updatedAt, updatedAt));
 	}
 
 	protected BaseDatarouterSessionDatabean(PK key){
 		super(key);
-		this.updated = new Date();
+		this.updatedAt = MilliTime.now();
 	}
 
 	public Date getUpdated(){
-		return updated;
+		return Optional.ofNullable(updatedAt)
+				.map(MilliTime::toDate)
+				.orElse(null);
 	}
 
 	public void setUpdated(Date updated){
-		this.updated = updated;
+		this.updatedAt = MilliTime.of(updated);
 	}
 
 	public Date getCreated(){
-		return created;
+		return Optional.ofNullable(createdAt)
+				.map(MilliTime::toDate)
+				.orElse(null);
 	}
 
 	public void setCreated(Date created){
-		this.created = created;
+		this.createdAt = MilliTime.of(created);
 	}
 
 }

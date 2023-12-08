@@ -92,9 +92,7 @@ public class ManualChangelogHandler extends BaseHandler{
 		DatarouterChangelogDtoBuilder dto = new DatarouterChangelogDtoBuilder("ManualEntry", name.get(), action.get(),
 				username);
 		note.ifPresent(dto::withNote);
-		if(toEmail.isPresent()){
-			Scanner.of(toEmail.get().split(",")).forEach(dto::additionalSendTos);
-		}
+		toEmail.ifPresent(email -> Scanner.of(email.split(",")).forEach(dto::additionalSendTos));
 		dto.sendEmail();
 		changelogRecorder.record(dto.build());
 		return pageFactory.preformattedMessage(request, "Recorded changelog entry.");

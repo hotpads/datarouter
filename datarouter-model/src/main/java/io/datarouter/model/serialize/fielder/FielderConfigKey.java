@@ -32,10 +32,9 @@ public class FielderConfigKey<T extends FielderConfigValue<T>>{
 
 	@Override
 	public boolean equals(Object obj){
-		if(!(obj instanceof FielderConfigKey)){
+		if(!(obj instanceof FielderConfigKey<?> other)){
 			return false;
 		}
-		FielderConfigKey<?> other = (FielderConfigKey<?>)obj;
 		return Objects.equals(persistentString, other.persistentString);
 	}
 

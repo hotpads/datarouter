@@ -17,7 +17,6 @@ package io.datarouter.aws.sqs.test;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.testng.Assert;
@@ -26,6 +25,7 @@ import org.testng.annotations.Test;
 import io.datarouter.bytes.codec.stringcodec.StringCodec;
 import io.datarouter.model.serialize.StringDatabeanCodec;
 import io.datarouter.model.serialize.codec.JsonDatabeanCodec;
+import io.datarouter.scanner.WarnOnModifyList;
 
 public class SqsGroupPutMultiOpTests{
 
@@ -36,7 +36,7 @@ public class SqsGroupPutMultiOpTests{
 	public void testConcatGroups(){
 		List<byte[]> group = Stream.of("foo", "bar", "baz")
 				.map(StringCodec.UTF_8::encode)
-				.collect(Collectors.toList());
+				.collect(WarnOnModifyList.deprecatedCollector());
 		Assert.assertEquals(StringCodec.UTF_8.decode(CODEC.concatGroup(group)), "[foo,bar,baz]");
 		Assert.assertEquals(StringCodec.UTF_8.decode(CODEC.concatGroup(List.of("foo".getBytes()))), "[foo]");
 	}

@@ -21,7 +21,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import io.datarouter.auth.role.DatarouterUserRole;
 import io.datarouter.auth.role.Role;
@@ -168,8 +167,8 @@ public class DatarouterWebBoostrapIntegrationService implements TestableService{
 				.distinct()
 				.sort()
 				.list();
-		Require.isTrue(handlersWithPrivateMethods.size() == 0, "The following methods need to be public: \n"
-				+ handlersWithPrivateMethods.stream().collect(Collectors.joining("\n")));
+		Require.isTrue(handlersWithPrivateMethods.isEmpty(), "The following methods need to be public: \n"
+				+ String.join("\n", handlersWithPrivateMethods));
 	}
 
 	private void testHandlerMethodNameAndPathMatching(){
@@ -191,7 +190,7 @@ public class DatarouterWebBoostrapIntegrationService implements TestableService{
 						exceptions.add(ex.getMessage());
 					}
 				});
-		if(exceptions.size() != 0){
+		if(!exceptions.isEmpty()){
 			throw new IllegalArgumentException(String.join("\n", exceptions));
 		}
 	}

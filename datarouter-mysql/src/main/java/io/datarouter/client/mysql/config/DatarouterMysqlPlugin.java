@@ -19,6 +19,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import io.datarouter.client.mysql.config.MysqlSchemaProvider.GenericMysqlSchemaProvider;
+import io.datarouter.client.mysql.ddl.generate.DatabaseHostnameUrlSupplier;
+import io.datarouter.client.mysql.ddl.generate.DatabaseHostnameUrlSupplier.NoOpDatabaseHostnameUrlSupplier;
 import io.datarouter.client.mysql.field.MysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.factory.MysqlFieldCodecFactory;
 import io.datarouter.client.mysql.field.codec.factory.StandardMysqlFieldCodecFactory;
@@ -33,17 +35,20 @@ public class DatarouterMysqlPlugin extends BaseWebPlugin{
 			Class<? extends Field<?>>,
 			MysqlFieldCodec<?,?>> additionalCodecByField;
 	private final boolean isPrimarySchema;
+	private final Class<? extends DatabaseHostnameUrlSupplier> databaseHostnameUrlSupplier;
 
 	private DatarouterMysqlPlugin(Map<
 			Class<? extends Field<?>>,
 			MysqlFieldCodec<?,?>> additionalCodecClassByField,
-			boolean isPrimarySchema){
+			boolean isPrimarySchema,
+			Class<? extends DatabaseHostnameUrlSupplier> databaseHostnameUrlSupplier){
 		this.additionalCodecByField = additionalCodecClassByField;
 		this.isPrimarySchema = isPrimarySchema;
 		addAppListener(MysqlAppListener.class);
 		addSettingRoot(DatarouterMysqlSettingRoot.class);
 		addPluginEntry(BaseTriggerGroup.KEY, DatarouterMysqlTriggerGroup.class);
 		addDatarouterGithubDocLink("datarouter-mysql");
+		this.databaseHostnameUrlSupplier = databaseHostnameUrlSupplier;
 	}
 
 	@Override
@@ -51,6 +56,7 @@ public class DatarouterMysqlPlugin extends BaseWebPlugin{
 		bindDefaultInstance(MysqlFieldCodecFactory.class, new StandardMysqlFieldCodecFactory(
 				additionalCodecByField));
 		bind(MysqlSchemaProvider.class).toInstance(new GenericMysqlSchemaProvider(isPrimarySchema));
+		bind(DatabaseHostnameUrlSupplier.class).to(databaseHostnameUrlSupplier);
 	}
 
 	public static class DatarouterMysqlPluginBuilder{
@@ -59,6 +65,8 @@ public class DatarouterMysqlPlugin extends BaseWebPlugin{
 				Class<? extends Field<?>>,
 				MysqlFieldCodec<?,?>> codecsByField = new HashMap<>();
 		private boolean isPrimarySchema = true;
+		private Class<? extends DatabaseHostnameUrlSupplier> databaseHostnameUrlSupplier
+				= NoOpDatabaseHostnameUrlSupplier.class;
 
 		public <F extends Field<?>,C extends MysqlFieldCodec<?,?>> DatarouterMysqlPluginBuilder addCodec(
 				Class<F> fieldClass,
@@ -72,8 +80,17 @@ public class DatarouterMysqlPlugin extends BaseWebPlugin{
 			return this;
 		}
 
+		public DatarouterMysqlPluginBuilder setDatabaseHostnameUrlSupplier(
+				Class<? extends DatabaseHostnameUrlSupplier> databaseHostnameUrlSupplier){
+			this.databaseHostnameUrlSupplier = databaseHostnameUrlSupplier;
+			return this;
+		}
+
 		public DatarouterMysqlPlugin build(){
-			return new DatarouterMysqlPlugin(codecsByField, isPrimarySchema);
+			return new DatarouterMysqlPlugin(
+					codecsByField,
+					isPrimarySchema,
+					databaseHostnameUrlSupplier);
 		}
 
 	}

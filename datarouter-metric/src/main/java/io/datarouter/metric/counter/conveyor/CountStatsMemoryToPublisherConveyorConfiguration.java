@@ -30,7 +30,7 @@ import io.datarouter.conveyor.ConveyorGauges;
 import io.datarouter.conveyor.ConveyorRunnable;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.metric.counter.collection.CountPublisher;
-import io.datarouter.metric.counter.collection.DatarouterCountCollector.CountCollectorStats;
+import io.datarouter.metric.service.AggregatedGaugesPublisher.MetricCollectorStats;
 import io.datarouter.scanner.Scanner;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -52,7 +52,7 @@ public class CountStatsMemoryToPublisherConveyorConfiguration implements Conveyo
 	public ProcessResult process(ConveyorRunnable conveyor){
 		//this normally runs more frequently than the publisher, but polling > 1 allows catching up just in case
 		Instant beforePeek = Instant.now();
-		List<Map<Long,Map<String,CountCollectorStats>>> dtos = buffers.countStatsBuffer.pollMultiWithLimit(POLL_LIMIT);
+		List<Map<Long,Map<String,MetricCollectorStats>>> dtos = buffers.countStatsBuffer.pollMultiWithLimit(POLL_LIMIT);
 		Instant afterPeek = Instant.now();
 		gaugeRecorder.savePeekDurationMs(conveyor, Duration.between(beforePeek, afterPeek).toMillis());
 		TracerTool.setAlternativeStartTime();
@@ -64,7 +64,7 @@ public class CountStatsMemoryToPublisherConveyorConfiguration implements Conveyo
 		return new ProcessResult(dtos.size() == POLL_LIMIT);
 	}
 
-	private void publishCounts(Map<Long,Map<String,CountCollectorStats>> countStats, ConveyorRunnable conveyor){
+	private void publishCounts(Map<Long,Map<String,MetricCollectorStats>> countStats, ConveyorRunnable conveyor){
 		try{
 			int numCounts = Scanner.of(countStats.values())
 					.map(Map::size)

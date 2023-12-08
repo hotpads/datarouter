@@ -103,25 +103,31 @@ public class DatarouterS3ObjectRequests{
 		return getResponseInputStream(location);
 	}
 
-	public byte[] getObjectAsBytes(BucketAndKey location){
+	public Optional<byte[]> findObject(BucketAndKey location){
 		S3Client s3Client = clientManager.getS3ClientForBucket(location.bucket());
 		GetObjectRequest request = GetObjectRequest.builder()
 				.bucket(location.bucket())
 				.key(location.key())
 				.build();
-		ResponseBytes<GetObjectResponse> response;
-		try(var $ = TracerTool.startSpan("S3 getObjectAsBytes", TraceSpanGroupType.CLOUD_STORAGE)){
-			response = s3Client.getObjectAsBytes(request);
-			TracerTool.appendToSpanInfo("Content-Length", response.response().contentLength());
-		}
-		byte[] bytes = response.asByteArray();
 		DatarouterS3Counters.inc(location.bucket(), S3CounterSuffix.READ_OBJECT_REQUESTS, 1);
-		DatarouterS3Counters.inc(location.bucket(), S3CounterSuffix.READ_OBJECT_BYTES, bytes.length);
 		S3CostCounters.read();
-		return bytes;
+		ResponseBytes<GetObjectResponse> response;
+		try{
+			try(var $ = TracerTool.startSpan("S3 getObjectAsBytes", TraceSpanGroupType.CLOUD_STORAGE)){
+				response = s3Client.getObjectAsBytes(request);
+				TracerTool.appendToSpanInfo("Content-Length", response.response().contentLength());
+			}
+			byte[] bytes = response.asByteArray();
+			DatarouterS3Counters.inc(location.bucket(), S3CounterSuffix.READ_OBJECT_HIT, 1);
+			DatarouterS3Counters.inc(location.bucket(), S3CounterSuffix.READ_OBJECT_BYTES, bytes.length);
+			return Optional.of(bytes);
+		}catch(NoSuchKeyException e){
+			DatarouterS3Counters.inc(location.bucket(), S3CounterSuffix.READ_OBJECT_MISS, 1);
+			return Optional.empty();
+		}
 	}
 
-	public byte[] getPartialObject(BucketAndKey location, long offset, int length){
+	public Optional<byte[]> findPartialObject(BucketAndKey location, long offset, int length){
 		S3Client s3Client = clientManager.getS3ClientForBucket(location.bucket());
 		String rangeParam = S3Tool.makeGetPartialObjectRangeParam(offset, length);
 		GetObjectRequest request = GetObjectRequest.builder()
@@ -129,17 +135,23 @@ public class DatarouterS3ObjectRequests{
 				.key(location.key())
 				.range(rangeParam)
 				.build();
-		ResponseBytes<GetObjectResponse> response;
-		try(var $ = TracerTool.startSpan("S3 getPartialObject", TraceSpanGroupType.CLOUD_STORAGE)){
-			response = s3Client.getObjectAsBytes(request);
-			TracerTool.appendToSpanInfo("offset", offset);
-			TracerTool.appendToSpanInfo("Content-Length", response.response().contentLength());
-		}
-		byte[] bytes = response.asByteArray();
 		DatarouterS3Counters.inc(location.bucket(), S3CounterSuffix.READ_PARTIAL_REQUESTS, 1);
-		DatarouterS3Counters.inc(location.bucket(), S3CounterSuffix.READ_PARTIAL_BYTES, bytes.length);
 		S3CostCounters.read();
-		return bytes;
+		ResponseBytes<GetObjectResponse> response;
+		try{
+			try(var $ = TracerTool.startSpan("S3 getPartialObject", TraceSpanGroupType.CLOUD_STORAGE)){
+				response = s3Client.getObjectAsBytes(request);
+				TracerTool.appendToSpanInfo("offset", offset);
+				TracerTool.appendToSpanInfo("Content-Length", response.response().contentLength());
+			}
+			byte[] bytes = response.asByteArray();
+			DatarouterS3Counters.inc(location.bucket(), S3CounterSuffix.READ_PARTIAL_HIT, 1);
+			DatarouterS3Counters.inc(location.bucket(), S3CounterSuffix.READ_PARTIAL_BYTES, bytes.length);
+			return Optional.of(bytes);
+		}catch(NoSuchKeyException e){
+			DatarouterS3Counters.inc(location.bucket(), S3CounterSuffix.READ_PARTIAL_MISS, 1);
+			return Optional.empty();
+		}
 	}
 
 	/*---------- write bytes ---------*/

@@ -20,9 +20,11 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.lang.reflect.RecordComponent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -94,8 +96,7 @@ public class ReflectionTool{
 			// use getDeclaredConstructor to access non-public constructors
 			Constructor<T> constructor = cls.getDeclaredConstructor();
 			constructor.setAccessible(true);
-			T databeanInstance = constructor.newInstance();
-			return databeanInstance;
+			return constructor.newInstance();
 		}catch(Exception e){
 			if(exceptionMessage == null){
 				throw new RuntimeException(e);
@@ -214,9 +215,7 @@ public class ReflectionTool{
 	public static List<Field> getDeclaredFieldsFromAncestors(Class<?> clazz){
 		List<Field> fields = new ArrayList<>();
 		for(Class<?> cls : getAllSuperClassesAndInterfaces(clazz)){
-			for(Field field : cls.getDeclaredFields()){
-				fields.add(field);
-			}
+			Collections.addAll(fields, cls.getDeclaredFields());
 		}
 		return fields;
 	}
@@ -308,6 +307,14 @@ public class ReflectionTool{
 		return true;
 	}
 
+	public static Constructor<?> getCanonicalRecordConstructor(Class<?> recordClazz)
+	throws NoSuchMethodException, SecurityException{
+		Class<?>[] recordComponents = Arrays.stream(recordClazz.getRecordComponents())
+				.map(RecordComponent::getType)
+				.toArray(Class<?>[]::new);
+		return recordClazz.getDeclaredConstructor(recordComponents);
+	}
+
 	/*------------------------- get Value -----------------------------------*/
 
 	public static Object getObjectValueUsingGetterMethod(Object instance, Method method){
@@ -394,7 +401,7 @@ public class ReflectionTool{
 	/*------------- toString --------------------*/
 
 	// matching Eclipse auto-generated format
-	public static final <T> String toString(T obj){
+	public static <T> String toString(T obj){
 		List<Field> fields = getDeclaredFieldsIncludingAncestors(obj.getClass());
 		return Scanner.of(fields)
 				.map(field -> {

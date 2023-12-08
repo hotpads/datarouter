@@ -93,11 +93,10 @@ public class SqsClientManager extends BaseClientManager{
 				.period(60)
 				.metric(metric)
 				.build();
-		MetricDataQuery metricDataQuery = MetricDataQuery.builder()
+		return MetricDataQuery.builder()
 				.id(queueName.replace("-", "").replace(":", ""))
 				.metricStat(metricStat)
 				.build();
-		return metricDataQuery;
 	}
 
 	public Map<String,Long> getApproximateAgeOfOldestUnackedMessageSecondsGroup(ClientId clientId,

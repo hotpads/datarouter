@@ -23,6 +23,7 @@ import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.node.BaseNode;
 import io.datarouter.storage.node.Node;
@@ -66,14 +67,14 @@ implements RedundantNode<PK,D,F,N>{
 	public List<PhysicalNode<PK,D,F>> getPhysicalNodes(){
 		return Scanner.of(writeNodes)
 				.concatIter(N::getPhysicalNodes)
-				.collect(Collectors.toList());
+				.collect(WarnOnModifyList.deprecatedCollector());
 	}
 
 	@Override
 	public List<PhysicalNode<PK,D,F>> getPhysicalNodesForClient(String clientName){
 		return Scanner.of(writeNodes)
 				.concatIter(backingNode -> backingNode.getPhysicalNodesForClient(clientName))
-				.collect(Collectors.toList());
+				.collect(WarnOnModifyList.deprecatedCollector());
 	}
 
 	@Override
@@ -81,7 +82,7 @@ implements RedundantNode<PK,D,F,N>{
 		return Scanner.of(writeNodes)
 				.concatIter(N::getClientIds)
 				.distinct()
-				.collect(Collectors.toList());
+				.collect(WarnOnModifyList.deprecatedCollector());
 	}
 
 	@Override

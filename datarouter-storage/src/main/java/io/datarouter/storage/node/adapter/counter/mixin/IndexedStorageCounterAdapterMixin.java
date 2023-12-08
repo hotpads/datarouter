@@ -156,8 +156,7 @@ extends IndexedStorage<PK,D>, CounterAdapter<PK,D,F,N>{
 
 	@Override
 	default void deleteUnique(UniqueKey<PK> uniqueKey, Config config){
-		String opName = IndexedStorageWriter.OP_deleteUnique;
-		getCounter().count(opName);
+		getCounter().count(IndexedStorageWriter.OP_deleteUnique);
 		getBackingNode().deleteUnique(uniqueKey, config);
 	}
 

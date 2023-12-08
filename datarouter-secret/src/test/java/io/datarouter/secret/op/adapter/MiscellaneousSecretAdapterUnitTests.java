@@ -28,7 +28,7 @@ public class MiscellaneousSecretAdapterUnitTests{
 		String test = "test";
 		String adapted = adapter.adapt(test);
 		Assert.assertEquals(adapted, test);
-		Assert.assertTrue(test == adapted);
+		Assert.assertSame(test, adapted);
 	}
 
 	@Test

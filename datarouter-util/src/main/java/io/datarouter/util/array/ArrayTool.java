@@ -49,23 +49,11 @@ public class ArrayTool{
 	}
 
 	public static boolean isEmpty(byte[] array){
-		if(array == null){
-			return true;
-		}
-		if(array.length == 0){
-			return true;
-		}
-		return false;
+		return array == null || array.length == 0;
 	}
 
 	public static boolean isEmpty(Object[] array){
-		if(array == null){
-			return true;
-		}
-		if(array.length == 0){
-			return true;
-		}
-		return false;
+		return array == null || array.length == 0;
 	}
 
 	public static boolean notEmpty(Object[] array){

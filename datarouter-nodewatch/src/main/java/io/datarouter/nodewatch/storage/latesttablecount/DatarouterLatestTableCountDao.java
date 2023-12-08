@@ -16,13 +16,13 @@
 package io.datarouter.nodewatch.storage.latesttablecount;
 
 import java.util.List;
+import java.util.Optional;
 
 import io.datarouter.nodewatch.storage.latesttablecount.LatestTableCount.LatestTableCountFielder;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.BaseDao;
-import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import io.datarouter.storage.tag.Tag;
@@ -33,12 +33,7 @@ import jakarta.inject.Singleton;
 @Singleton
 public class DatarouterLatestTableCountDao extends BaseDao{
 
-	public static class DatarouterLatestTableCountDaoParams extends BaseRedundantDaoParams{
-
-		public DatarouterLatestTableCountDaoParams(List<ClientId> clientIds){
-			super(clientIds);
-		}
-
+	public record DatarouterLatestTableCountDaoParams(List<ClientId> clientIds){
 	}
 
 	private final SortedMapStorageNode<LatestTableCountKey,LatestTableCount,LatestTableCountFielder> node;
@@ -65,6 +60,10 @@ public class DatarouterLatestTableCountDao extends BaseDao{
 
 	public void put(LatestTableCount databean){
 		node.put(databean);
+	}
+
+	public Optional<LatestTableCount> find(LatestTableCountKey key){
+		return node.find(key);
 	}
 
 	public Scanner<LatestTableCountKey> scanKeys(){

@@ -178,8 +178,7 @@ public class ApiResponseDto<T> implements DocumentedGenericHolder{
 			T response,
 			int httpStatus){
 		ApiResponseErrorDto<T> error = new ApiResponseErrorDto<>(message, code, response);
-		ApiResponseDto<T> dto = new ApiResponseDto<>(null, false, error, httpStatus);
-		return dto;
+		return new ApiResponseDto<>(null, false, error, httpStatus);
 	}
 
 	public static <T> ApiResponseDto<T> error(String message, T response, int httpStatus){

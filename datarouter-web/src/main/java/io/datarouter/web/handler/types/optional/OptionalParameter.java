@@ -121,8 +121,7 @@ public abstract class OptionalParameter<T>{
 		if(obj instanceof Optional){
 			return Objects.equals(opt, obj);
 		}
-		if(obj instanceof OptionalParameter){
-			OptionalParameter<?> other = (OptionalParameter<?>)obj;
+		if(obj instanceof OptionalParameter<?> other){
 			return Objects.equals(opt, other.opt);
 		}
 		return false;

@@ -49,6 +49,8 @@ extends SortedStorage<PK,D>, CounterAdapter<PK,D,F,N>{
 	final String NAME_scan_ranges = "scan ranges";
 	final String NAME_scan_batches = "scan batches";
 	final String NAME_scan_rows = "scan rows";
+	//count
+	final String NAME_count_rows = "count rows";
 
 	// TODO To avoid batching/unbatching:
 	//   Modify the SortedStorageReader interface to allow implementations to return batches.

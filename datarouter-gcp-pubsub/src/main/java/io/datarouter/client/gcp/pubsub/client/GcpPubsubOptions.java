@@ -101,7 +101,6 @@ public class GcpPubsubOptions{
 					SecretOpConfig config = SecretOpConfig.builder(
 							SecretOpReason.automatedOp(getClass().getSimpleName()))
 							.useSharedNamespace()
-							.disableRecording()
 							.disableSerialization()
 							.build();
 					return secretService.read(location, String.class, config);

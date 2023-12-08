@@ -61,8 +61,7 @@ public class DateMysqlFieldCodec extends BaseMysqlFieldCodec<Date,DateField>{
 			if(rs.wasNull()){
 				return null;
 			}
-			Date timeStampDate = new Date(timeStamp.getTime());
-			return timeStampDate;
+			return new Date(timeStamp.getTime());
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}

@@ -25,7 +25,6 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import io.datarouter.scanner.Scanner;
@@ -36,7 +35,7 @@ public final class FileTool{
 	private static final List<String> STATIC_FILE_EXTENSIONS = Stream.of("ttf", "css", "js", "html", "pdf", "png",
 			"jpg", "jpeg", "swf", "woff", "woff2", "map", "jsx")
 			.map("."::concat)
-			.collect(Collectors.toList());
+			.toList();
 
 	public static boolean createFileParents(String path){
 		return createFileParents(new File(path));
@@ -100,7 +99,7 @@ public final class FileTool{
 
 	public static boolean hasAStaticFileExtension(String path){
 		return STATIC_FILE_EXTENSIONS.stream()
-				.anyMatch(extension -> path.endsWith(extension));
+				.anyMatch(path::endsWith);
 	}
 
 	public static String readFile(File file){

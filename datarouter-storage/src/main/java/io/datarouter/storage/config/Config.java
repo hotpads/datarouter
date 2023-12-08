@@ -32,19 +32,16 @@ public class Config implements Cloneable{
 
 	//trying to move away from setting any values here, so please don't add anything to the defaults
 
-	private Boolean useSession = true;
-
 	//staleness
 	private Boolean anyDelay = false;
 
 	//put options
 	private PutMethod putMethod = PutMethod.DEFAULT_PUT_METHOD;
-	private Boolean persistentPut = true;
+
+	//directory scans
+	private Boolean allowUnsortedScan;
 
 	//table scans
-	private Boolean scannerPrefetching;
-	private Boolean scannerCaching;
-	private Boolean allowUnsortedScan;
 	private Integer requestBatchSize;
 	private Integer responseBatchSize;
 
@@ -92,17 +89,14 @@ public class Config implements Cloneable{
 		return getDeepCopy();
 	}
 
-	public Config getDeepCopy(){//get rid of the checked exception in the clone method
+	//get rid of the checked exception in the clone method
+	public Config getDeepCopy(){
 		Config clone = new Config();
 		clone
-			.setUseSession(useSession)
-
 			.setAnyDelay(anyDelay)
 
 			.setPutMethod(putMethod)
-			.setPersistentPut(persistentPut)
 
-			.setScannerCaching(scannerCaching)
 			.setAllowUnsortedScan(allowUnsortedScan)
 			.setRequestBatchSize(requestBatchSize)
 			.setResponseBatchSize(responseBatchSize)
@@ -127,6 +121,10 @@ public class Config implements Cloneable{
 
 	/*-------------------------------- limit --------------------------------*/
 
+	/**
+	 * @deprecated  use findLimit()
+	 */
+	@Deprecated
 	public Integer getLimit(){
 		return limit;
 	}
@@ -142,6 +140,10 @@ public class Config implements Cloneable{
 
 	/*-------------------------------- offset -------------------------------*/
 
+	/**
+	 * @deprecated  use findOffset()
+	 */
+	@Deprecated
 	public Integer getOffset(){
 		return offset;
 	}
@@ -179,8 +181,16 @@ public class Config implements Cloneable{
 
 	/*---------------------------- staleness ---------------------------------*/
 
+	/**
+	 * @deprecated  use findAnyDelay()
+	 */
+	@Deprecated
 	public Boolean getAnyDelay(){
 		return anyDelay;
+	}
+
+	public Optional<Boolean> findAnyDelay(){
+		return Optional.ofNullable(anyDelay);
 	}
 
 	public Config setAnyDelay(boolean anyDelay){
@@ -192,28 +202,21 @@ public class Config implements Cloneable{
 		return setAnyDelay(true);
 	}
 
-	/*---------------------------- use session ------------------------------*/
-
-	public Boolean getUseSession(){
-		return useSession;
-	}
-
-	public Config setUseSession(Boolean useSession){
-		this.useSession = useSession;
-		return this;
-	}
-
 	/*------------------------- include start id ----------------------------*/
 
-	public Integer getNumAttempts(){
-		return numAttempts;
-	}
-
-	public Integer getNumAttemptsOrUse(int alternative){
+	/**
+	 * @deprecated  use findNumAttempts()
+	 */
+	@Deprecated
+	public int getNumAttemptsOrUse(int alternative){
 		if(numAttempts != null){
 			return numAttempts;
 		}
 		return alternative;
+	}
+
+	public Optional<Integer> findNumAttempts(){
+		return Optional.ofNullable(numAttempts);
 	}
 
 	public Config setNumAttempts(Integer numAttempts){
@@ -248,28 +251,6 @@ public class Config implements Cloneable{
 		return this;
 	}
 
-	/*------------------------- scanner prefetching -----------------------------*/
-
-	public Optional<Boolean> findScannerPrefetching(){
-		return Optional.ofNullable(scannerPrefetching);
-	}
-
-	public Config setScannerPrefetching(Boolean scannerPrefetching){
-		this.scannerPrefetching = scannerPrefetching;
-		return this;
-	}
-
-	/*------------------------- scanner caching -----------------------------*/
-
-	public Optional<Boolean> findScannerCaching(){
-		return Optional.ofNullable(scannerCaching);
-	}
-
-	public Config setScannerCaching(Boolean scannerCaching){
-		this.scannerCaching = scannerCaching;
-		return this;
-	}
-
 	/*------------------------- unsorted scan -----------------------------*/
 
 	public Optional<Boolean> findAllowUnsortedScan(){
@@ -278,17 +259,6 @@ public class Config implements Cloneable{
 
 	public Config setAllowUnsortedScan(Boolean allowUnsortedScan){
 		this.allowUnsortedScan = allowUnsortedScan;
-		return this;
-	}
-
-	/*---------------------------- persistent put ---------------------------*/
-
-	public Boolean getPersistentPut(){
-		return persistentPut;
-	}
-
-	public Config setPersistentPut(Boolean persistentPut){
-		this.persistentPut = persistentPut;
 		return this;
 	}
 
@@ -305,15 +275,16 @@ public class Config implements Cloneable{
 
 	/*---------------------------- messaging --------------------------------*/
 
+	/**
+	 * @deprecated  use findVisibilityTimeoutMs()
+	 */
+	@Deprecated
 	public long getVisibilityTimeoutMsOrUse(long alternative){
-		if(visibilityTimeoutMs != null){
-			return visibilityTimeoutMs;
-		}
-		return alternative;
+		return findVisibilityTimeoutMs().orElse(alternative);
 	}
 
-	public Long getVisibilityTimeoutMs(){
-		return visibilityTimeoutMs;
+	public Optional<Long> findVisibilityTimeoutMs(){
+		return Optional.ofNullable(visibilityTimeoutMs);
 	}
 
 	public Config setVisibilityTimeoutMs(Long visibilityTimeoutMs){

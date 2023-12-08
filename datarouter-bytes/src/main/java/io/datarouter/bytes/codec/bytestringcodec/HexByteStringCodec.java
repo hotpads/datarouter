@@ -71,7 +71,7 @@ public class HexByteStringCodec implements ByteStringCodec{
 		return bytes;
 	}
 
-	private static final void validateChar(char ch){
+	private static void validateChar(char ch){
 		boolean validDigit = ch >= '0' && ch <= '9';
 		boolean validChar = ch >= 'a' && ch <= 'f';
 		if(!(validDigit || validChar)){

@@ -20,26 +20,32 @@ import java.util.Set;
 import io.datarouter.enums.StringMappedEnum;
 
 public enum DatarouterUserRole implements RoleEnum<DatarouterUserRole>{
-	ADMIN("admin", "Legacy admin role. You probably want datarouterAdmin"),
-	DATAROUTER_ACCOUNTS("datarouterAccounts", "Permission to view and edit accounts"),
+	ADMIN("admin", "Legacy admin role. You probably want datarouterAdmin", RoleRiskFactor.HIGH),
+	DATAROUTER_ACCOUNTS("datarouterAccounts", "Permission to view and edit accounts", RoleRiskFactor.HIGH),
 	DATAROUTER_ADMIN("datarouterAdmin", "The highest level of permission in Datarouter, which includes at minimum all"
-			+ " other base Datarouter role permissions"),
-	DATAROUTER_JOB("datarouterJob", "Permission to view and manage jobs & conveyors"),
-	DATAROUTER_MONITORING("datarouterMonitoring", "Permission to view monitoring pages (e.g. stack traces, server "
-			+ "status, etc). Can also set monitoring thresholds."),
-	DATAROUTER_SETTINGS("datarouterSettings", "Permission to view & edit cluster settings."),
-	DATAROUTER_TOOLS("datarouterTools", "Permission to use miscellaneous admin tools."),
-	DOC_USER("docUser", "Permission to view API and other service documentation pages."),
-	REQUESTOR("requestor", "Most basic permission. Only grants the ability to request other roles."),
-	USER("user", "General role one step up from requestor. Provides various low-risk permissions.");
+			+ " other base Datarouter role permissions", RoleRiskFactor.CRITICAL),
+	DATAROUTER_JOB("datarouterJob", "Permission to view and manage jobs & conveyors", RoleRiskFactor.HIGH),
+	DATAROUTER_MONITORING(
+			"datarouterMonitoring",
+			"Permission to view monitoring pages (e.g. stack traces, server status, etc)."
+					+ " Can also set monitoring thresholds.",
+			RoleRiskFactor.MEDIUM),
+	DATAROUTER_SETTINGS("datarouterSettings", "Permission to view & edit cluster settings.", RoleRiskFactor.HIGH),
+	DATAROUTER_TOOLS("datarouterTools", "Permission to use miscellaneous admin tools.", RoleRiskFactor.HIGH),
+	DOC_USER("docUser", "Permission to view API and other service documentation pages.", RoleRiskFactor.LOW),
+	REQUESTOR(
+			"requestor",
+			"Most basic permission. Only grants the ability to request other roles.",
+			RoleRiskFactor.LOW),
+	USER("user", "General role one step up from requestor. Provides various low-risk permissions.", RoleRiskFactor.LOW);
 
 	public static final StringMappedEnum<DatarouterUserRole> BY_PERSISTENT_STRING
 			= new StringMappedEnum<>(values(), value -> value.role.persistentString);
 
 	private final Role role;
 
-	DatarouterUserRole(String persistentString, String description){
-		this.role = new Role(persistentString, description);
+	DatarouterUserRole(String persistentString, String description, RoleRiskFactor riskFactor){
+		this.role = new Role(persistentString, description, riskFactor);
 	}
 
 	@Override

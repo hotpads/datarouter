@@ -58,9 +58,7 @@ public class EndpointTool{
 				endpoint.shouldSkipLogs);
 		request.setRetrySafe(endpoint.getRetrySafe());
 		endpoint.timeout.ifPresent(request::setTimeout);
-		endpoint.headers.forEach((key,values) -> {
-			values.forEach(value -> request.addHeader(key, value));
-		});
+		endpoint.headers.forEach((key,values) -> values.forEach(value -> request.addHeader(key, value)));
 		ParamsMap paramsMap = EndpointTool.getParamFields(endpoint, serializer);
 		request.addGetParams(paramsMap.getParams);
 		request.addPostParams(paramsMap.postParams);

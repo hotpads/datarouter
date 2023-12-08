@@ -232,10 +232,6 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 				DatarouterNavBarCategory.MONITORING,
 				PATHS.datarouter.memory.view,
 				"Server Status");
-		addDatarouterNavBarItem(
-				DatarouterNavBarCategory.MONITORING,
-				PATHS.datarouter.dailyDigest.viewActionable,
-				"Daily Digest");
 
 		addDatarouterNavBarItem(
 				DatarouterNavBarCategory.MONITORING,

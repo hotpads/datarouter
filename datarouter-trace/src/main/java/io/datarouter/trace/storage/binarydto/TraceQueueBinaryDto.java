@@ -20,12 +20,12 @@ import java.util.List;
 import io.datarouter.binarydto.codec.BinaryDtoIndexedCodec;
 import io.datarouter.binarydto.dto.BinaryDto;
 import io.datarouter.binarydto.dto.BinaryDtoField;
-import io.datarouter.instrumentation.trace.Trace2BundleDto;
-import io.datarouter.instrumentation.trace.Trace2Dto;
-import io.datarouter.instrumentation.trace.Trace2SpanDto;
-import io.datarouter.instrumentation.trace.Trace2ThreadDto;
+import io.datarouter.instrumentation.trace.TraceBundleDto;
 import io.datarouter.instrumentation.trace.TraceCategory;
+import io.datarouter.instrumentation.trace.TraceDto;
 import io.datarouter.instrumentation.trace.TraceSaveReasonType;
+import io.datarouter.instrumentation.trace.TraceSpanDto;
+import io.datarouter.instrumentation.trace.TraceThreadDto;
 import io.datarouter.instrumentation.trace.Traceparent;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.trace.storage.binarydto.codec.TraceCategoryFieldCodec;
@@ -73,7 +73,7 @@ public class TraceQueueBinaryDto extends BinaryDto<TraceQueueBinaryDto>{
 	@BinaryDtoField(index = 17, codec = TraceCategoryFieldCodec.class)
 	public final TraceCategory category;
 
-	public TraceQueueBinaryDto(Trace2BundleDto dto){
+	public TraceQueueBinaryDto(TraceBundleDto dto){
 		this(
 				dto.traceDto.traceparent,
 				dto.traceDto.initialParentId,
@@ -143,8 +143,8 @@ public class TraceQueueBinaryDto extends BinaryDto<TraceQueueBinaryDto>{
 		this.spans = spans;
 	}
 
-	public Trace2BundleDto toTrace2BundleDto(){
-		var traceDto = new Trace2Dto(
+	public TraceBundleDto toTraceBundleDto(){
+		var traceDto = new TraceDto(
 				traceparent,
 				initialParentId,
 				context,
@@ -161,19 +161,19 @@ public class TraceQueueBinaryDto extends BinaryDto<TraceQueueBinaryDto>{
 				memoryAllocatedBytesEnded,
 				saveReasons,
 				category);
-		List<Trace2ThreadDto> threadDtos = null;
+		List<TraceThreadDto> threadDtos = null;
 		if(threads != null){
 			threadDtos = Scanner.of(threads)
-					.map(TraceThreadQueueBinaryDto::toTrace2ThreadDto)
+					.map(TraceThreadQueueBinaryDto::toTraceThreadDto)
 					.list();
 		}
-		List<Trace2SpanDto> spanDtos = null;
+		List<TraceSpanDto> spanDtos = null;
 		if(spans != null){
 			spanDtos = Scanner.of(spans)
-					.map(TraceSpanQueueBinaryDto::toTrace2SpanDto)
+					.map(TraceSpanQueueBinaryDto::toTraceSpanDto)
 					.list();
 		}
-		return new Trace2BundleDto(traceDto, threadDtos, spanDtos);
+		return new TraceBundleDto(traceDto, threadDtos, spanDtos);
 	}
 
 	public static TraceQueueBinaryDto decode(byte[] bytes){

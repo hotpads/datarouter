@@ -24,11 +24,11 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import io.datarouter.joblet.enums.JobletStatus;
 import io.datarouter.joblet.storage.jobletrequest.JobletRequest;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.util.ComparableTool;
 import io.datarouter.util.DateTool;
 import io.datarouter.util.lang.ClassTool;
@@ -72,7 +72,7 @@ public class JobletSummary{
 				.sorted(Comparator.comparing(JobletSummary::getType)
 						.thenComparing(JobletSummary::getExecutionOrder)
 						.thenComparing(JobletSummary::getStatus))
-				.collect(Collectors.toList());
+				.collect(WarnOnModifyList.deprecatedCollector());
 	}
 
 	public static Map<QueueStatusKey,JobletSummary> summarizeByQueueStatus(Scanner<JobletRequest> requests){

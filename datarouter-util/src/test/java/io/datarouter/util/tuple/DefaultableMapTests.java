@@ -38,9 +38,9 @@ public class DefaultableMapTests{
 	public void test(){
 		Assert.assertTrue(map.getBoolean("bool", false));
 		Assert.assertTrue(map.getBoolean("boola", true));
-		Assert.assertTrue(map.getDouble("double", 0.1).equals(1.234));
-		Assert.assertTrue(map.getInteger("int", 1).equals(6));
-		Assert.assertTrue(map.getInteger("inta", 1).equals(1));
+		Assert.assertEquals(map.getDouble("double", 0.1), 1.234);
+		Assert.assertEquals((int)map.getInteger("int", 1), 6);
+		Assert.assertEquals((int)map.getInteger("inta", 1), 1);
 	}
 
 }

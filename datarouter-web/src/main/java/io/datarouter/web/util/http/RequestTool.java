@@ -36,7 +36,6 @@ import java.util.NavigableMap;
 import java.util.Optional;
 import java.util.TreeMap;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
@@ -50,6 +49,7 @@ import io.datarouter.httpclient.security.UrlConstants;
 import io.datarouter.instrumentation.trace.TraceSpanGroupType;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.util.BooleanTool;
 import io.datarouter.util.net.IpTool;
 import io.datarouter.util.number.NumberTool;
@@ -303,7 +303,7 @@ public class RequestTool{
 	public static Map<String,String> getMapOfUrlStyleVars(String allVars){
 		Map<String,String> map = new HashMap<>();
 		for(String pair : allVars.split("&")){
-			if(pair.length() != 0){
+			if(!pair.isEmpty()){
 				int equalsIndex = pair.indexOf('=');
 				String key = equalsIndex != -1 ? pair.substring(0, equalsIndex) : pair;
 				String val = equalsIndex != -1 ? pair.substring(equalsIndex + 1) : Boolean.TRUE.toString();
@@ -449,7 +449,7 @@ public class RequestTool{
 		return Collections.list(request.getHeaders(headerName)).stream()
 				.map(str -> str.split(HEADER_VALUE_DELIMITER))
 				.flatMap(Arrays::stream)
-				.collect(Collectors.toList());
+				.collect(WarnOnModifyList.deprecatedCollector());
 	}
 
 	public static String getIpAddress(HttpServletRequest request){
@@ -499,8 +499,8 @@ public class RequestTool{
 	}
 
 	private static Optional<String> getLastNonInternalIp(List<String> headerValues){
-		Collections.reverse(headerValues);
 		return Scanner.of(headerValues)
+				.reverse()
 				.include(RequestTool::isAValidIpV4)
 				.include(RequestTool::isPublicNet)
 				.findFirst();

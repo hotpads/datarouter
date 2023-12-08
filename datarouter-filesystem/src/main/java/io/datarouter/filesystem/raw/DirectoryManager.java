@@ -150,18 +150,20 @@ public class DirectoryManager{
 
 	/*------------ read -----------*/
 
-	public byte[] read(String relativePathString){
+	public Optional<byte[]> read(String relativePathString){
 		if(ALLOW_LOGGING){
 			var timer = new PhaseTimer(relativePathString);
-			byte[] bytes = binaryFileService.readBytes(resolveString(relativePathString));
-			timer.add("read " + bytes.length);
-			logger.warn("{}", timer);
-			return bytes;
+			Optional<byte[]> optBytes = binaryFileService.readBytes(resolveString(relativePathString));
+			optBytes.ifPresent(bytes -> {
+				timer.add("read " + bytes.length);
+				logger.warn("{}", timer);
+			});
+			return optBytes;
 		}
 		return binaryFileService.readBytes(resolveString(relativePathString));
 	}
 
-	public byte[] read(String relativePathString, long offset, int length){
+	public Optional<byte[]> read(String relativePathString, long offset, int length){
 		return binaryFileService.readBytes(resolveString(relativePathString), offset, length);
 	}
 

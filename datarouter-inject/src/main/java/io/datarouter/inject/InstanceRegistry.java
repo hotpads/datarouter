@@ -20,8 +20,9 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
+import io.datarouter.scanner.Scanner;
+import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.util.StreamTool;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -45,14 +46,13 @@ public class InstanceRegistry{
 	private <T> Collection<T> getRegisteredInstancesOfType(Class<T> type){
 		return set.stream()
 				.flatMap(StreamTool.instancesOf(type))
-				.collect(Collectors.toList());
+				.collect(WarnOnModifyList.deprecatedCollector());
 	}
 
 	public <T> Collection<T> getAllInstancesOfType(Class<T> type){
 		Map<String,T> boundInstances = datarouterInjector.getInstancesOfType(type);
 		Collection<T> manualInstances = getRegisteredInstancesOfType(type);
-		manualInstances.addAll(boundInstances.values());
-		return manualInstances;
+		return Scanner.concat(manualInstances, boundInstances.values()).list();
 	}
 
 }

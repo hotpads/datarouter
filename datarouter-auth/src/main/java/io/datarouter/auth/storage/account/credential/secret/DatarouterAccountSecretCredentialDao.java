@@ -26,7 +26,6 @@ import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.config.PutMethod;
 import io.datarouter.storage.dao.BaseDao;
-import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import io.datarouter.storage.tag.Tag;
@@ -39,17 +38,18 @@ import jakarta.inject.Singleton;
 @Singleton
 public class DatarouterAccountSecretCredentialDao extends BaseDao implements BaseDatarouterAccountSecretCredentialDao{
 
-	public static class DatarouterAccountSecretCredentialDaoParams extends BaseRedundantDaoParams{
+	public static class DatarouterAccountSecretCredentialDaoParams{
 
+		public final List<ClientId> clientIds;
 		public final Optional<String> tableName;
 
 		public DatarouterAccountSecretCredentialDaoParams(List<ClientId> clientIds){
-			super(clientIds);
+			this.clientIds = clientIds;
 			tableName = Optional.empty();
 		}
 
 		public DatarouterAccountSecretCredentialDaoParams(List<ClientId> clientIds, String tableName){
-			super(clientIds);
+			this.clientIds = clientIds;
 			Require.isTrue(StringTool.notNullNorEmpty(tableName));
 			this.tableName = Optional.of(tableName);
 		}

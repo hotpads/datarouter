@@ -15,13 +15,18 @@
  */
 package io.datarouter.nodewatch.job;
 
+import java.time.Instant;
+
 import io.datarouter.instrumentation.tablecount.TableCountBatchDto;
 import io.datarouter.instrumentation.tablecount.TableCountDto;
 import io.datarouter.instrumentation.tablecount.TableCountPublisher;
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
-import io.datarouter.nodewatch.storage.latesttablecount.DatarouterLatestTableCountDao;
-import io.datarouter.nodewatch.storage.latesttablecount.LatestTableCount;
+import io.datarouter.nodewatch.service.NodewatchTableStatsService;
+import io.datarouter.nodewatch.service.NodewatchTableStatsService.PhysicalNodeStats;
+import io.datarouter.nodewatch.service.NodewatchTableStatsService.SamplerStats;
+import io.datarouter.nodewatch.service.NodewatchTableStatsService.StorageStats;
+import io.datarouter.nodewatch.service.NodewatchTableStatsService.TableStats;
 import io.datarouter.storage.config.properties.ServiceName;
 import jakarta.inject.Inject;
 
@@ -30,29 +35,47 @@ public class LatestTableCountPublisherJob extends BaseJob{
 	@Inject
 	private TableCountPublisher publisher;
 	@Inject
-	private DatarouterLatestTableCountDao dao;
-	@Inject
 	private ServiceName serviceName;
+	@Inject
+	private NodewatchTableStatsService tableStatsService;
 
 	@Override
 	public void run(TaskTracker tracker){
-		dao.scan()
+		tableStatsService.scanStats()
+				.include(tableStats -> tableStats.optPhysicalNodeStats().isPresent())
+				.include(tableStats -> tableStats.optSamplerStats().isPresent())
 				.map(this::toDto)
 				.batch(50)
 				.map(TableCountBatchDto::new)
 				.forEach(publisher::add);
 	}
 
-	private TableCountDto toDto(LatestTableCount count){
+	private TableCountDto toDto(TableStats stats){
+		PhysicalNodeStats physicalNodeStats = stats.optPhysicalNodeStats().orElseThrow();
+		SamplerStats samplerStats = stats.optSamplerStats().orElseThrow();
+		Long numBytes = stats.optStorageStats()
+				.map(StorageStats::numBytes)
+				.orElse(null);
+		Double dollarsPerYear = stats.optStorageStats()
+				.flatMap(StorageStats::optYearlyTotalCostDollars)
+				.orElse(null);
+		Instant dateUpdated = stats.optSamplerStats()
+				.map(SamplerStats::updatedAgo)
+				.map(updatedAgo -> Instant.now().minus(updatedAgo))
+				.orElse(null);
 		return new TableCountDto(
 				serviceName.get(),
-				count.getKey().getClientName(),
-				count.getKey().getTableName(),
-				count.getNumRows(),
-				count.getDateUpdated(),
-				count.getCountTimeMs(),
-				count.getNumSpans(),
-				count.getNumSlowSpans());
+				stats.clientName(),
+				stats.tableName(),
+				physicalNodeStats.clientTypeString(),
+				physicalNodeStats.tagString(),
+				samplerStats.numRows(),
+				samplerStats.numSpans(),
+				samplerStats.numSlowSpans(),
+				samplerStats.countTime().toMillis(),
+				dateUpdated,
+				numBytes,
+				dollarsPerYear);
 	}
 
 }

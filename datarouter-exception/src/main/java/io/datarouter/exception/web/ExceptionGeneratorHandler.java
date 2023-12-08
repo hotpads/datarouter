@@ -20,7 +20,7 @@ import io.datarouter.web.handler.BaseHandler;
 public class ExceptionGeneratorHandler extends BaseHandler{
 
 	@Handler(defaultHandler = true)
-	public void generate() throws Exception{
+	public void generate(){
 		throw new RuntimeException("Example Exception");
 	}
 

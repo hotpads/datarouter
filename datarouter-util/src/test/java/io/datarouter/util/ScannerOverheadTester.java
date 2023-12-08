@@ -17,7 +17,6 @@ package io.datarouter.util;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,7 +75,9 @@ public class ScannerOverheadTester{
 
 	private static void stream(){
 		for(int i = 0; i < INNER_ITERATIONS; ++i){
-			INTS.stream().map(j -> j * 2).collect(Collectors.toList());
+			INTS.stream()
+					.map(j -> j * 2)
+					.toList();
 		}
 	}
 

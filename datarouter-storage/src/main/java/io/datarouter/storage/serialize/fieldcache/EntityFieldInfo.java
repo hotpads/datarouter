@@ -21,7 +21,6 @@ import java.util.function.Supplier;
 import io.datarouter.model.entity.Entity;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.key.entity.EntityKey;
-import io.datarouter.model.key.entity.EntityPartitioner;
 import io.datarouter.storage.node.entity.EntityNodeParams;
 
 public class EntityFieldInfo<
@@ -33,7 +32,6 @@ public class EntityFieldInfo<
 	private final String entityTableName;
 	private final Supplier<EK> entityKeySupplier;
 	private final EK sampleEntityKey;
-	private final EntityPartitioner<EK> entityPartitioner;
 	private final Supplier<E> entitySupplier;
 	private final List<Field<?>> entityKeyFields;
 
@@ -41,7 +39,6 @@ public class EntityFieldInfo<
 		this.entityTableName = params.getEntityTableName();
 		this.entityKeySupplier = params.getEntityKeySupplier();
 		this.sampleEntityKey = entityKeySupplier.get();
-		this.entityPartitioner = params.getEntityPartitionerSupplier().get();
 		this.entitySupplier = params.getEntitySupplier();
 		this.entityKeyFields = entityKeySupplier.get().getFields();
 	}
@@ -60,10 +57,6 @@ public class EntityFieldInfo<
 
 	public EK getSampleEntityKey(){
 		return sampleEntityKey;
-	}
-
-	public EntityPartitioner<EK> getEntityPartitioner(){
-		return entityPartitioner;
 	}
 
 	public Supplier<E> getEntitySupplier(){

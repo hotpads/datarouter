@@ -28,7 +28,6 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.BaseDao;
-import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.SettinglessDatabeanNodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import io.datarouter.storage.tag.Tag;
@@ -41,12 +40,7 @@ import jakarta.inject.Singleton;
 @Singleton
 public class DatarouterClusterSettingDao extends BaseDao{
 
-	public static class DatarouterClusterSettingDaoParams extends BaseRedundantDaoParams{
-
-	public DatarouterClusterSettingDaoParams(List<ClientId> clientIds){
-			super(clientIds);
-		}
-
+	public record DatarouterClusterSettingDaoParams(List<ClientId> clientIds){
 	}
 
 	private final SortedMapStorageNode<ClusterSettingKey,ClusterSetting,ClusterSettingFielder> node;

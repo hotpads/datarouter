@@ -78,43 +78,47 @@ public class SimpleRateLimiterTests{
 		// a count as they are granted permission. Count should match
 		// interval/limit
 
-		ThreadPoolExecutor executor = new ThreadPoolExecutor(numThreads, numThreads, 0L, TimeUnit.MILLISECONDS,
-				new LinkedBlockingQueue<>());
+		try(var executor = new ThreadPoolExecutor(
+				numThreads,
+				numThreads,
+				0L,
+				TimeUnit.MILLISECONDS,
+				new LinkedBlockingQueue<>())){
+			List<Callable<Integer>> counterCallables = new LinkedList<>();
 
-		List<Callable<Integer>> counterCallables = new LinkedList<>();
+			var rateLimiter = new SimpleRateLimiter(limit);
+			long endTime = System.currentTimeMillis() + (limit * numTimeIntervals);
 
-		final SimpleRateLimiter rateLimiter = new SimpleRateLimiter(limit);
-		final long endTime = System.currentTimeMillis() + (limit * numTimeIntervals);
+			for(int i = 0; i < numThreads; i++){
+				counterCallables.add(new Callable<>(){
+					private int integer = 0;
 
-		for(int i = 0; i < numThreads; i++){
-			counterCallables.add(new Callable<>(){
-				private int integer = 0;
-
-				@Override
-				public Integer call(){
-					while(endTime > System.currentTimeMillis()){
-						rateLimiter.waitForPermission(false, true);
-						if(endTime <= System.currentTimeMillis()){
-							break;
+					@Override
+					public Integer call(){
+						while(endTime > System.currentTimeMillis()){
+							rateLimiter.waitForPermission(false, true);
+							if(endTime <= System.currentTimeMillis()){
+								break;
+							}
+							integer++;
 						}
-						integer++;
+						return integer;
 					}
-					return integer;
-				}
-			});
-		}
+				});
+			}
 
-		int total = 0;
-		for(Future<Integer> f : executor.invokeAll(counterCallables)){
-			total += f.get();
-		}
+			int total = 0;
+			for(Future<Integer> f : executor.invokeAll(counterCallables)){
+				total += f.get();
+			}
 
-		/* The expected result if instructions were always instantaneous is one increment per time interval regardless
-		 * of number of threads. Increasing the limit will make total==numTimeIntervals, but also make the test run more
-		 * slowly. If the rate limiter were allowing multiple threads to activate and increment incorrectly, total would
-		 * be much larger than numTimeIntervals. */
-		Assert.assertTrue(numTimeIntervals >= total, "total was " + total);
-		executor.shutdownNow();
+			/* The expected result if instructions were always instantaneous is one increment per time interval
+			 * regardless of number of threads. Increasing the limit will make total==numTimeIntervals, but also make
+			 * the test run more slowly. If the rate limiter were allowing multiple threads to activate and increment
+			 * incorrectly, total would be much larger than numTimeIntervals. */
+			Assert.assertTrue(numTimeIntervals >= total, "total was " + total);
+			executor.shutdownNow();
+		}
 	}
 
 }

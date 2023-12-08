@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.instrumentation.response.PublishingResponseDto;
 import io.datarouter.metric.counter.collection.CountPublisher;
-import io.datarouter.metric.counter.collection.DatarouterCountCollector.CountCollectorStats;
+import io.datarouter.metric.service.AggregatedGaugesPublisher.MetricCollectorStats;
 import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.storage.config.properties.ServiceName;
 import io.datarouter.types.Ulid;
@@ -45,7 +45,7 @@ public class CountPublisherService implements CountPublisher{
 	}
 
 	@Override
-	public PublishingResponseDto publishStats(Map<Long,Map<String,CountCollectorStats>> counts){
+	public PublishingResponseDto publishStats(Map<Long,Map<String,MetricCollectorStats>> counts){
 		String ulid = new Ulid().value();
 		var dtos = CountBinaryDto.createSizedCountBinaryDtos(
 				ulid,

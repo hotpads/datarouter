@@ -28,6 +28,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.http.HttpStatus;
 
 import io.datarouter.httpclient.HttpHeaders;
+import io.datarouter.instrumentation.count.Counters;
 import io.datarouter.web.config.settings.DatarouterLocalhostCorsFilterSettings;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -50,12 +51,18 @@ public class CorsFilter implements Filter{
 			addCorsHeaders(response, origin);
 			// preflight request
 			if(request.getMethod().equals("OPTIONS")){
+				count("preflight");
 				response.setStatus(HttpStatus.SC_OK);
 				return;
 			}
+			count("normal");
 		}
 
 		chain.doFilter(req, res);
+	}
+
+	private void count(String key){
+		Counters.inc("CorsFilter " + key);
 	}
 
 	protected boolean matchOrigin(String origin){

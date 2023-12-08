@@ -17,7 +17,6 @@ package io.datarouter.tasktracker.service;
 
 import java.time.Instant;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -33,6 +32,7 @@ import io.datarouter.tasktracker.scheduler.LongRunningTaskStatus;
 import io.datarouter.tasktracker.storage.LongRunningTask;
 import io.datarouter.tasktracker.storage.LongRunningTaskDao;
 import io.datarouter.tasktracker.storage.LongRunningTaskKey;
+import io.datarouter.types.MilliTime;
 import io.datarouter.util.tuple.Range;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -46,34 +46,28 @@ public class LongRunningTaskService{
 
 	public Optional<LongRunningTask> getLastRun(TaskTracker tracker){
 		String name = tracker.getName();
-		LongRunningTaskKey firstPrefix = new LongRunningTaskKey(name, null, null);
-		LongRunningTaskKey lastPrefix = new LongRunningTaskKey(name, Date.from(tracker.getScheduledTime()),
+		var firstPrefix = new LongRunningTaskKey(name, null, null);
+		var lastPrefix = new LongRunningTaskKey(
+				name,
+				MilliTime.of(tracker.getScheduledTime()),
 				tracker.getServerName());
 		Range<LongRunningTaskKey> range = new Range<>(firstPrefix, true, lastPrefix, false);
 		return dao.scan(range)
 				.reduce((firstRun, secondRun) -> secondRun);
 	}
 
-	@Deprecated // use instants
-	public Optional<Date> findLastSuccessDate(String name){
-		LongRunningTaskKey key = new LongRunningTaskKey(name, null, null);
+	public Optional<Instant> findLastSuccess(String name){
+		var key = new LongRunningTaskKey(name, null, null);
 		return dao.scanWithPrefix(key)
 				.include(task -> task.getJobExecutionStatus() == LongRunningTaskStatus.SUCCESS)
-				.map(LongRunningTask::getFinishTime)
-				.findMax(Date::compareTo);
-	}
-
-	public Optional<Instant> findLastSuccessInstant(String name){
-		LongRunningTaskKey key = new LongRunningTaskKey(name, null, null);
-		return dao.scanWithPrefix(key)
-				.include(task -> task.getJobExecutionStatus() == LongRunningTaskStatus.SUCCESS)
-				.map(LongRunningTask::getFinishTimeInstant)
+				.map(LongRunningTask::getFinish)
 				.exclude(Objects::isNull)
+				.map(MilliTime::toInstant)
 				.findMax(Instant::compareTo);
 	}
 
 	public boolean isRunning(String name){
-		LongRunningTaskKey key = new LongRunningTaskKey(name, null, null);
+		var key = new LongRunningTaskKey(name, null, null);
 		return dao.scanWithPrefix(key)
 				.findLast()
 				.map(LongRunningTask::isRunning)
@@ -81,18 +75,18 @@ public class LongRunningTaskService{
 	}
 
 	public Optional<LongRunningTask> findLastNonRunningStatusTask(String name){
-		LongRunningTaskKey key = new LongRunningTaskKey(name, null, null);
+		var key = new LongRunningTaskKey(name, null, null);
 		return dao.scanWithPrefix(key)
 				.exclude(task -> task.getJobExecutionStatus() == LongRunningTaskStatus.RUNNING)
 				.exclude(task -> {
-					if(task.getFinishTimeInstant() == null){
+					if(task.getFinish() == null){
 						logger.warn("LongRunningTask={} with status={} has null finishedTime.", task, task
 								.getJobExecutionStatus());
 						return true;
 					}
 					return false;
 				})
-				.sort(Comparator.comparing(LongRunningTask::getFinishTimeInstant))
+				.sort(Comparator.comparing(LongRunningTask::getFinish))
 				.findLast();
 	}
 
@@ -105,7 +99,7 @@ public class LongRunningTaskService{
 			if(task.isRunning()){
 				// currentlyRunningTasks
 				LongRunningTask current = currentlyRunningTasks.get(name);
-				if(current == null || task.getStartTime().after(current.getStartTime())){
+				if(current == null || task.getStart().isAfter(current.getStart())){
 					currentlyRunningTasks.put(name, task);
 				}
 				// runningOnServers
@@ -115,7 +109,7 @@ public class LongRunningTaskService{
 			// lastCompletions
 			if(task.isSuccess()){
 				LongRunningTask current = lastCompletions.get(name);
-				if(current == null || task.getFinishTimeInstant().isAfter(current.getFinishTimeInstant())){
+				if(current == null || task.getFinish().isAfter(current.getFinish())){
 					lastCompletions.put(name, task);
 				}
 			}

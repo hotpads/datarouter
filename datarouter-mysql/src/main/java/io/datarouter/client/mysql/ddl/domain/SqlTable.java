@@ -55,15 +55,14 @@ public class SqlTable{
 	}
 
 	public boolean hasPrimaryKey(){
-		return getPrimaryKey() != null && getPrimaryKey().getColumnNames().size() > 0;
+		return getPrimaryKey() != null && !getPrimaryKey().getColumnNames().isEmpty();
 	}
 
 	@Override
 	public boolean equals(Object otherObject){
-		if(!(otherObject instanceof SqlTable)){
+		if(!(otherObject instanceof SqlTable other)){
 			return false;
 		}
-		SqlTable other = (SqlTable)otherObject;
 		return !new SqlTableDiffGenerator(this, other).isTableModified();
 	}
 

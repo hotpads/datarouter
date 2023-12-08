@@ -19,7 +19,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+
+import io.datarouter.scanner.WarnOnModifyList;
 
 public class ExceptionSnapshot{
 
@@ -67,7 +68,7 @@ public class ExceptionSnapshot{
 				exception.getMessage(),
 				Arrays.stream(exception.getStackTrace())
 						.map(StackTraceElementSnapshot::new)
-						.collect(Collectors.toList()));
+						.collect(WarnOnModifyList.deprecatedCollector()));
 		}
 
 	}

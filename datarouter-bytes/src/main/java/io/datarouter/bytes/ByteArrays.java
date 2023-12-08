@@ -115,8 +115,7 @@ implements RandomAccess{
 
 	@Override
 	public boolean contains(Object other){
-		if(other instanceof byte[]){
-			byte[] target = (byte[])other;
+		if(other instanceof byte[] target){
 			int size = size();
 			for(int i = 0; i < size; ++i){
 				if(equalsItem(i, target)){

@@ -74,7 +74,7 @@ public class ScannerToMapTests{
 		Map<String,String> map = Scanner.of("a1", "b", "b2")
 				.toMapSupplied(FIRST, AFTER_FIRST, Replace.NULL_KEYS, HashMap::new);
 		Assert.assertEquals(map.get("a"), "1");
-		Assert.assertEquals(map.get("b"), null);
+		Assert.assertNull(map.get("b"));
 	}
 
 	@Test(expectedExceptions = IllegalStateException.class)

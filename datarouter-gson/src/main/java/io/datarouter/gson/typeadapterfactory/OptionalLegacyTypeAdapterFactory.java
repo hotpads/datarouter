@@ -71,7 +71,7 @@ implements TypeAdapterFactory{
 		public Optional<E> read(JsonReader in) throws IOException{
 			if(in.peek() == JsonToken.NULL){
 				in.nextNull();
-				return null;
+				return null; // intentionally null
 			}
 			in.beginObject();
 			E element = null;

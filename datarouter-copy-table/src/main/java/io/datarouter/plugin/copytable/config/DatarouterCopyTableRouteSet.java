@@ -29,6 +29,7 @@ import jakarta.inject.Singleton;
 @Singleton
 public class DatarouterCopyTableRouteSet extends BaseRouteSet{
 
+	@SuppressWarnings("deprecation")
 	@Inject
 	public DatarouterCopyTableRouteSet(DatarouterCopyTablePaths paths){
 		handleDir(paths.datarouter.copyTable.joblets).withHandler(JobletCopyTableHandler.class);

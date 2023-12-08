@@ -16,7 +16,6 @@
 package io.datarouter.gcp.bigtable.config;
 
 import io.datarouter.gcp.bigtable.config.BigtableProjectIdAndInstanceIdSupplier.NoOpBigtableProjectIdAndInstanceIdSupplier;
-import io.datarouter.gcp.bigtable.web.DatarouterBigTableRouteSet;
 import io.datarouter.web.config.BaseWebPlugin;
 
 public class DatarouterBigTablePlugin extends BaseWebPlugin{
@@ -26,7 +25,6 @@ public class DatarouterBigTablePlugin extends BaseWebPlugin{
 	private DatarouterBigTablePlugin(
 			Class<? extends BigtableProjectIdAndInstanceIdSupplier> projectIdAndInstanceIdSupplier){
 		this.projectIdAndInstanceIdSupplier = projectIdAndInstanceIdSupplier;
-		addRouteSet(DatarouterBigTableRouteSet.class);
 		addDatarouterGithubDocLink("datarouter-gcp-bigtable");
 		addDynamicNavBarItem(GcpBigTableNavBarItem.class);
 	}

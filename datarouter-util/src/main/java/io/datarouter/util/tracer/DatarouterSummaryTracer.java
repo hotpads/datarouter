@@ -27,10 +27,10 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.stream.Collectors;
 
-import io.datarouter.instrumentation.trace.Trace2Dto;
-import io.datarouter.instrumentation.trace.Trace2SpanDto;
-import io.datarouter.instrumentation.trace.Trace2ThreadDto;
+import io.datarouter.instrumentation.trace.TraceSpanDto;
 import io.datarouter.instrumentation.trace.TraceSpanGroupType;
+import io.datarouter.instrumentation.trace.TraceThreadDto;
+import io.datarouter.instrumentation.trace.TraceTimeTool;
 import io.datarouter.instrumentation.trace.Tracer;
 import io.datarouter.instrumentation.trace.W3TraceContext;
 import io.datarouter.scanner.Scanner;
@@ -54,7 +54,7 @@ public class DatarouterSummaryTracer implements Tracer{
 	private boolean truncated = false;
 
 	public DatarouterSummaryTracer(){
-		this(new Ulid().value(), null, new W3TraceContext(Trace2Dto.getCurrentTimeInNs()));
+		this(new Ulid().value(), null, new W3TraceContext(TraceTimeTool.epochNano()));
 	}
 
 	private DatarouterSummaryTracer(String traceId, String keyPrefix, W3TraceContext w3TraceContext){
@@ -106,7 +106,7 @@ public class DatarouterSummaryTracer implements Tracer{
 	}
 
 	@Override
-	public void addThread(Trace2ThreadDto thread){
+	public void addThread(TraceThreadDto thread){
 		return;
 	}
 
@@ -126,7 +126,7 @@ public class DatarouterSummaryTracer implements Tracer{
 	}
 
 	@Override
-	public BlockingQueue<Trace2ThreadDto> getThreadQueue(){
+	public BlockingQueue<TraceThreadDto> getThreadQueue(){
 		return new ArrayBlockingQueue<>(1);//capacity must be >0
 	}
 
@@ -147,11 +147,11 @@ public class DatarouterSummaryTracer implements Tracer{
 		String summaryKey = getSpanRecordsPrefix();
 		SpanRecord currentSpan = spans.pop();
 		addSummary(summaryKey, currentSpan.startMs, false);
-		startSpan(INTERSPAN, TraceSpanGroupType.NONE, Trace2Dto.getCurrentTimeInNs());
+		startSpan(INTERSPAN, TraceSpanGroupType.NONE, TraceTimeTool.epochNano());
 	}
 
 	@Override
-	public void addSpan(Trace2SpanDto span){
+	public void addSpan(TraceSpanDto span){
 		return;
 	}
 
@@ -171,12 +171,12 @@ public class DatarouterSummaryTracer implements Tracer{
 	}
 
 	@Override
-	public BlockingQueue<Trace2SpanDto> getSpanQueue(){
+	public BlockingQueue<TraceSpanDto> getSpanQueue(){
 		return new ArrayBlockingQueue<>(1);//capacity must be >0
 	}
 
 	@Override
-	public Trace2SpanDto getCurrentSpan(){
+	public TraceSpanDto getCurrentSpan(){
 		return null;
 	}
 

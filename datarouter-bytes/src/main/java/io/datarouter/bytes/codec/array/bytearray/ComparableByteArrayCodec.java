@@ -55,10 +55,9 @@ public class ComparableByteArrayCodec{
 		if(bytesLength == 0){
 			return EmptyArray.BYTE;
 		}
-		int resultLength = bytesLength;
-		var result = new byte[resultLength];
+		var result = new byte[bytesLength];
 		int cursor = offset;
-		for(int i = 0; i < resultLength; ++i){
+		for(int i = 0; i < bytesLength; ++i){
 			result[i] = COMPARABLE_BYTE_CODEC.decode(bytes, cursor);
 			++cursor;
 		}

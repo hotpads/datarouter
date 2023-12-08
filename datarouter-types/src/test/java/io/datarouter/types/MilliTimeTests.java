@@ -130,4 +130,11 @@ public class MilliTimeTests{
 		Assert.assertTrue(time2.isBefore(time1));
 	}
 
+	@Test
+	public void testIsOlderThan(){
+		MilliTime time = MilliTime.now().minus(Duration.ofSeconds(5));
+		Assert.assertTrue(time.isOlderThan(Duration.ofSeconds(1)));
+		Assert.assertFalse(time.isOlderThan(Duration.ofSeconds(10)));
+	}
+
 }

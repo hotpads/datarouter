@@ -16,28 +16,25 @@
 package io.datarouter.instrumentation.trace;
 
 import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Random;
 import java.util.regex.Pattern;
 
 public class Traceparent{
 
+	//TODO this pattern allows "b572a678d6c9194e", but then this fails: Long.parseLong("b572a678d6c9194e", 16)
 	private static final Pattern TRACEPARENT_PATTERN = Pattern.compile(
 			"^[0-9a-f]{2}-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$");
 	private static final String TRACEPARENT_DELIMITER = "-";
 	private static final Integer MIN_CHARS_TRACEPARENT = 55;
-	private static final Instant RELEASE_INSTANT = LocalDate.of(2020, 1, 1).atStartOfDay(ZoneId.of("UTC")).toInstant();
 	private static final String CURRENT_VERSION = "00";
-	public static final int TRACE_ID_HEX_SIZE = 32;
-	public static final int PARENT_ID_HEX_SIZE = 16;
 
 	public final String version = CURRENT_VERSION;
 	public final String traceId;
 	public final String parentId;
 	private String traceFlags;
+
+	/*-------- construct -------*/
 
 	public Traceparent(String traceId, String parentId, String traceFlags){
 		this.traceId = traceId;
@@ -46,58 +43,51 @@ public class Traceparent{
 	}
 
 	public Traceparent(String traceId){
-		this(traceId, createNewParentId());
+		this(traceId, TraceIdTool.newParentId());
 	}
 
 	public Traceparent(String traceId, String parentId){
 		this(traceId, parentId, createDefaultTraceFlag());
 	}
 
-	public static Traceparent generateNew(long createdTimestamp){
+	public static Traceparent generateNew(long createdTimestampNs){
 		return new Traceparent(
-				createNewTraceId(createdTimestamp),
-				createNewParentId(),
+				TraceIdTool.newTraceId(createdTimestampNs),
+				TraceIdTool.newParentId(),
 				createDefaultTraceFlag());
 	}
 
 	public static Traceparent generateNewWithCurrentTimeInNs(){
 		return new Traceparent(
-				createNewTraceId(Trace2Dto.getCurrentTimeInNs()),
-				createNewParentId(),
+				TraceIdTool.newTraceId(TraceTimeTool.epochNano()),
+				TraceIdTool.newParentId(),
 				createDefaultTraceFlag());
 	}
 
-	public Traceparent updateParentId(){
-		return new Traceparent(traceId, createNewParentId(), traceFlags);
+	public Traceparent copyWithNewParentId(){
+		return new Traceparent(traceId, TraceIdTool.newParentId(), traceFlags);
 	}
 
-	/*
-	 * TraceId is a 32 hex digit String. We convert the root request created unix time into lowercase base16
-	 * and append it with a randomly generated long lowercase base16 representation.
-	 * */
-	private static String createNewTraceId(long createdNs){
-		return String.format("%016x", createdNs) + String.format("%016x", new Random().nextLong());
+	/*--------- methods --------*/
+
+	public Instant getInstantTruncatedToMillis(){
+		return TraceIdTool.toInstantTruncatedToMillis(traceId);
 	}
 
-	/*
-	 * ParentId is a 16 hex digit String. We use a randomly generated long and convert it into lowercase base16
-	 * representation.
-	 * */
-	public static String createNewParentId(){
-		return String.format("%016x", new Random().nextLong());
-	}
-
-	private long getTimestampNs(){
-		return Long.parseLong(traceId.substring(0, 16), 16);
-	}
-
-	public Optional<Instant> getInstant(){
-		try{
-			Instant instantFromTraceId = Instant.ofEpochMilli(getTimestampNs() / 1_000_000L);
-			if(instantFromTraceId.isAfter(RELEASE_INSTANT)){
-				return Optional.of(instantFromTraceId);
-			}
+	public static Optional<Traceparent> parseIfValid(String traceparentStr){
+		if(traceparentStr == null || traceparentStr.isEmpty()){
 			return Optional.empty();
+		}else if(traceparentStr.length() < MIN_CHARS_TRACEPARENT){
+			return Optional.empty();
+		}else if(!TRACEPARENT_PATTERN.matcher(traceparentStr).matches()){
+			return Optional.empty();
+		}
+		String[] tokens = traceparentStr.split(Traceparent.TRACEPARENT_DELIMITER);
+		if(!Traceparent.CURRENT_VERSION.equals(tokens[0])){
+			return Optional.empty();
+		}
+		try{// try/catch because invalid ids are passing the TRACEPARENT_PATTERN above
+			return Optional.of(new Traceparent(tokens[1], tokens[2], tokens[3]));
 		}catch(NumberFormatException e){
 			return Optional.empty();
 		}
@@ -125,17 +115,13 @@ public class Traceparent{
 		return TraceContextFlagMask.isLogEnabled(traceFlags);
 	}
 
-	@Override
-	public String toString(){
-		return String.join(TRACEPARENT_DELIMITER, version, traceId, parentId, traceFlags);
-	}
+	/*---------- Object --------*/
 
 	@Override
 	public boolean equals(Object obj){
-		if(!(obj instanceof Traceparent)){
+		if(!(obj instanceof Traceparent other)){
 			return false;
 		}
-		Traceparent other = (Traceparent)obj;
 		return Objects.equals(version, other.version)
 				&& Objects.equals(traceId, other.traceId)
 				&& Objects.equals(parentId, other.parentId)
@@ -147,19 +133,13 @@ public class Traceparent{
 		return Objects.hash(version, traceId, parentId, traceFlags);
 	}
 
-	public static Optional<Traceparent> parse(String traceparentStr){
-		if(traceparentStr == null || traceparentStr.isEmpty()){
-			return Optional.empty();
-		}else if(traceparentStr.length() < MIN_CHARS_TRACEPARENT){
-			return Optional.empty();
-		}else if(!TRACEPARENT_PATTERN.matcher(traceparentStr).matches()){
-			return Optional.empty();
-		}
-		String[] tokens = traceparentStr.split(Traceparent.TRACEPARENT_DELIMITER);
-		if(!Traceparent.CURRENT_VERSION.equals(tokens[0])){
-			return Optional.empty();
-		}
-		return Optional.of(new Traceparent(tokens[1], tokens[2], tokens[3]));
+	@Override
+	public String toString(){
+		return toDelimitedString();
+	}
+
+	public String toDelimitedString(){
+		return String.join(TRACEPARENT_DELIMITER, version, traceId, parentId, traceFlags);
 	}
 
 }

@@ -49,7 +49,7 @@ public class JobletCounterJob extends BaseJob{
 				.peek(JobletCounterJob::saveQueueStatsByStatusAndType)
 				//aggregate by (status)
 				.collect(Collectors.toMap(JobletSummary::getStatus, Function.identity(), JobletSummary::absorbStats))
-				.values().stream()
+				.values()
 				.forEach(JobletCounterJob::saveQueueStatsByStatus);
 	}
 

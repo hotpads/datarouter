@@ -24,11 +24,14 @@ import jakarta.inject.Singleton;
 public class GaugesAppListener implements DatarouterAppListener{
 
 	@Inject
-	private DatarouterGaugeCollector collector;
+	private DatarouterRawGaugeCollector rawCollector;
+	@Inject
+	private DatarouterGaugeCollector aggregatedCollector;
 
 	@Override
 	public void onStartUp(){
-		Gauges.addCollector(collector);
+		Gauges.addRawCollector(rawCollector);
+		Gauges.addCollector(aggregatedCollector);
 	}
 
 	@Override

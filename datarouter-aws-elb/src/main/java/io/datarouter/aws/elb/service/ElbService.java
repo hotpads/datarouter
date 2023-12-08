@@ -18,7 +18,6 @@ package io.datarouter.aws.elb.service;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
@@ -35,6 +34,7 @@ import com.amazonaws.services.elasticloadbalancingv2.model.TargetDescription;
 import com.amazonaws.services.elasticloadbalancingv2.model.TargetHealthDescription;
 
 import io.datarouter.aws.elb.config.DatarouterAwsElbMonitoringSettings;
+import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.util.number.RandomTool;
 import io.datarouter.util.retry.RetryableTool;
 import io.datarouter.util.singletonsupplier.SingletonSupplier;
@@ -72,7 +72,7 @@ public class ElbService{
 						.map(Action::getTargetGroupArn)
 						.filter(Objects::nonNull) // remove action that have no tg (like redirect)
 						.distinct()
-						.collect(Collectors.toList()),
+						.collect(WarnOnModifyList.deprecatedCollector()),
 				NUM_ATTEMPTS,
 				randomSleepMs,
 				true);
@@ -86,7 +86,7 @@ public class ElbService{
 						.stream()
 						.map(TargetHealthDescription::getTarget)
 						.map(TargetDescription::getId)
-						.collect(Collectors.toList()),
+						.collect(WarnOnModifyList.deprecatedCollector()),
 				NUM_ATTEMPTS,
 				randomSleepMs,
 				true);

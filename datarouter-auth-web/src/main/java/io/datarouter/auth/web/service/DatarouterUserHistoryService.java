@@ -20,22 +20,22 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.text;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 
+import io.datarouter.auth.model.dto.HistoryChange;
 import io.datarouter.auth.service.DatarouterUserService;
 import io.datarouter.auth.storage.user.datarouteruser.DatarouterUser;
 import io.datarouter.auth.storage.user.datarouteruser.DatarouterUserDao;
-import io.datarouter.auth.storage.user.permissionrequest.DatarouterPermissionRequest;
 import io.datarouter.auth.storage.user.permissionrequest.DatarouterPermissionRequestDao;
-import io.datarouter.auth.storage.user.userhistory.DatarouterUserHistory;
-import io.datarouter.auth.storage.user.userhistory.DatarouterUserHistory.DatarouterUserChangeType;
+import io.datarouter.auth.storage.user.permissionrequest.PermissionRequest;
 import io.datarouter.auth.storage.user.userhistory.DatarouterUserHistoryDao;
-import io.datarouter.auth.storage.user.userhistory.DatarouterUserHistoryKey;
+import io.datarouter.auth.storage.user.userhistory.DatarouterUserHistoryLog;
+import io.datarouter.auth.storage.user.userhistory.DatarouterUserHistoryLog.DatarouterUserChangeType;
+import io.datarouter.auth.storage.user.userhistory.DatarouterUserHistoryLogKey;
 import io.datarouter.email.type.DatarouterEmailTypes.PermissionRequestEmailType;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDto;
@@ -43,6 +43,7 @@ import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChang
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.properties.AdminEmail;
 import io.datarouter.storage.servertype.ServerTypeDetector;
+import io.datarouter.types.MilliTime;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
 import j2html.tags.specialized.PTag;
 import jakarta.inject.Inject;
@@ -74,16 +75,18 @@ public class DatarouterUserHistoryService{
 	@Inject
 	private ServerTypeDetector serverTypeDetector;
 
-	public Map<DatarouterPermissionRequest,Optional<HistoryChange>> getResolvedRequestToHistoryChangesMap(
-			List<DatarouterPermissionRequest> requests){
-		Map<DatarouterUserHistoryKey,HistoryChange> historyMap = Scanner.of(requests)
-				.map(DatarouterPermissionRequest::toUserHistoryKey)
+	public Map<PermissionRequest,Optional<HistoryChange>> getResolvedRequestToHistoryChangesMap(
+			List<PermissionRequest> requests){
+		// The DatarouterUserHistory which resolved a permission request will match
+		// DatarouterUserHistoryLogKey.time == PermissionRequest.resolutionTime
+		Map<DatarouterUserHistoryLogKey,HistoryChange> historyMap = Scanner.of(requests)
+				.map(PermissionRequest::toUserHistoryKey)
 				.map(key -> key.orElse(null))
 				.include(Objects::nonNull)
 				.batch(100)
 				.map(baseDatarouterUserHistoryDao::getMulti)
 				.concat(Scanner::of)
-				.toMap(DatarouterUserHistory::getKey, history -> new HistoryChange(
+				.toMap(DatarouterUserHistoryLog::getKey, history -> new HistoryChange(
 						history.getChanges(),
 						datarouterUserService.findUserById(history.getEditor(), false)));
 
@@ -95,16 +98,11 @@ public class DatarouterUserHistoryService{
 								new HistoryChange(request.getResolution().persistentString, Optional.empty()))));
 	}
 
-	public record HistoryChange(
-			String changes,
-			Optional<DatarouterUser> editor){
-	}
-
 	public void putAndRecordCreate(DatarouterUser user, Long editorId, String editorUsername, String description){
 		baseDatarouterUserDao.put(user);
-		baseDatarouterUserHistoryDao.put(new DatarouterUserHistory(
+		baseDatarouterUserHistoryDao.put(new DatarouterUserHistoryLog(
 				user.getId(),
-				user.getCreatedInstant(),
+				user.getCreated(),
 				editorId,
 				DatarouterUserChangeType.CREATE,
 				description));
@@ -119,13 +117,13 @@ public class DatarouterUserHistoryService{
 	}
 
 	public void putAndRecordPasswordChange(DatarouterUser user, DatarouterUser editor, String signinUrl){
-		var history = new DatarouterUserHistory(
+		var history = new DatarouterUserHistoryLog(
 				user.getId(),
-				Instant.now(),
+				MilliTime.now(),
 				editor.getId(),
 				DatarouterUserChangeType.RESET,
 				"password");
-		doPutAndRecordEdit(user, history);
+		doPutAndRecordEdit(user, history, false);
 		sendPasswordChangeEmail(user, history, signinUrl);
 		DatarouterChangelogDto dto = new DatarouterChangelogDtoBuilder(
 				CHANGELOG_TYPE,
@@ -136,15 +134,19 @@ public class DatarouterUserHistoryService{
 		changelogRecorder.record(dto);
 	}
 
-	public void putAndRecordEdit(DatarouterUser user, DatarouterUser editor, String changes, String signinUrl){
-		var history = new DatarouterUserHistory(
+	public void putAndRecordTimezoneUpdate(
+			DatarouterUser user,
+			DatarouterUser editor,
+			String changes,
+			String signinUrl){
+		var history = new DatarouterUserHistoryLog(
 				user.getId(),
-				Instant.now(),
+				MilliTime.now(),
 				editor.getId(),
 				DatarouterUserChangeType.EDIT,
 				changes);
-		doPutAndRecordEdit(user, history);
-		sendRoleEditEmail(user, history, signinUrl);
+		doPutAndRecordEdit(user, history, false);
+		sendTimezoneUpdateEmail(user, history, signinUrl);
 		DatarouterChangelogDto dto = new DatarouterChangelogDtoBuilder(
 				CHANGELOG_TYPE,
 				user.getUsername(),
@@ -155,10 +157,55 @@ public class DatarouterUserHistoryService{
 		changelogRecorder.record(dto);
 	}
 
-	public void recordSamlSignOnChanges(DatarouterUser user, String changes){
-		var history = new DatarouterUserHistory(
+	public void putAndRecordPermissionChange(
+			DatarouterUser user,
+			DatarouterUser editor,
+			String changes,
+			String signinUrl){
+		var history = new DatarouterUserHistoryLog(
 				user.getId(),
-				Instant.now(),
+				MilliTime.now(),
+				editor.getId(),
+				DatarouterUserChangeType.EDIT,
+				changes);
+		doPutAndRecordEdit(user, history, true);
+		sendPermissionChangeEmail(user, history, signinUrl);
+		DatarouterChangelogDto dto = new DatarouterChangelogDtoBuilder(
+				CHANGELOG_TYPE,
+				user.getUsername(),
+				DatarouterUserChangeType.EDIT.persistentString,
+				editor.getUsername())
+				.withComment(changes)
+				.build();
+		changelogRecorder.record(dto);
+	}
+
+	public void recordPermissionRequestDecline(
+			DatarouterUser user,
+			DatarouterUser editor,
+			String changes,
+			MilliTime declineTime){
+		var history = new DatarouterUserHistoryLog(
+				user.getId(),
+				declineTime,
+				editor.getId(),
+				DatarouterUserChangeType.INFO,
+				changes);
+		baseDatarouterUserHistoryDao.put(history);
+		DatarouterChangelogDto dto = new DatarouterChangelogDtoBuilder(
+				CHANGELOG_TYPE,
+				user.getUsername(),
+				DatarouterUserChangeType.INFO.persistentString,
+				editor.getUsername())
+				.withComment(changes)
+				.build();
+		changelogRecorder.record(dto);
+	}
+
+	public void recordSamlSignOnChanges(DatarouterUser user, String changes){
+		var history = new DatarouterUserHistoryLog(
+				user.getId(),
+				MilliTime.now(),
 				DatarouterUserCreationService.ADMIN_ID,
 				DatarouterUserChangeType.EDIT,
 				changes);
@@ -174,20 +221,20 @@ public class DatarouterUserHistoryService{
 	}
 
 	public void recordMessage(DatarouterUser user, DatarouterUser editor, String message){
-		baseDatarouterUserHistoryDao.put(new DatarouterUserHistory(
+		baseDatarouterUserHistoryDao.put(new DatarouterUserHistoryLog(
 				user.getId(),
-				Instant.now(),
+				MilliTime.now(),
 				editor.getId(),
 				DatarouterUserChangeType.INFO,
 				message));
 	}
 
 	public void recordDeprovisions(List<DatarouterUser> users, Optional<DatarouterUser> editor){
-		Instant time = Instant.now();
+		MilliTime time = MilliTime.now();
 		Long editorId = editor.map(DatarouterUser::getId)
 				.orElse(DatarouterUserCreationService.ADMIN_ID);
-		Map<Long, DatarouterUserHistory> histories = Scanner.of(users)
-				.map(user -> new DatarouterUserHistory(
+		Map<Long,DatarouterUserHistoryLog> histories = Scanner.of(users)
+				.map(user -> new DatarouterUserHistoryLog(
 						user.getId(),
 						time,
 						editorId,
@@ -198,7 +245,7 @@ public class DatarouterUserHistoryService{
 		Scanner.of(users)
 				.map(DatarouterUser::getId)
 				.listTo(permissionRequestDao::scanOpenPermissionRequestsForUsers)
-				.map(request -> request.decline(time))
+				.map(request -> request.decline(time.toInstant()))
 				.flush(permissionRequestDao::putMulti);
 		editor.ifPresent(editorUser -> {
 			users.forEach(user -> sendDeprovisioningEmail(user, histories.get(user.getId()), editorUser));
@@ -207,11 +254,11 @@ public class DatarouterUserHistoryService{
 	}
 
 	public void recordRestores(List<DatarouterUser> users, Optional<DatarouterUser> editor){
-		Instant time = Instant.now();
+		MilliTime time = MilliTime.now();
 		Long editorId = editor.map(DatarouterUser::getId)
 				.orElse(null);
 		Scanner.of(users)
-				.map(user -> new DatarouterUserHistory(
+				.map(user -> new DatarouterUserHistoryLog(
 						user.getId(),
 						time,
 						editorId,
@@ -221,8 +268,8 @@ public class DatarouterUserHistoryService{
 		recordProvisioningChangelogs(users, editor, DatarouterUserChangeType.RESTORE);
 	}
 
-	public List<DatarouterUserHistory> getHistoryForUser(Long userId){
-		return baseDatarouterUserHistoryDao.scanWithPrefix(new DatarouterUserHistoryKey(userId, null))
+	public List<DatarouterUserHistoryLog> getHistoryForUser(Long userId){
+		return baseDatarouterUserHistoryDao.scanWithPrefix(new DatarouterUserHistoryLogKey(userId, null))
 				.list();
 	}
 
@@ -241,15 +288,17 @@ public class DatarouterUserHistoryService{
 				.forEach(changelogRecorder::record);
 	}
 
-	private void doPutAndRecordEdit(DatarouterUser user, DatarouterUserHistory history){
+	private void doPutAndRecordEdit(DatarouterUser user, DatarouterUserHistoryLog history, boolean permissionsChanged){
 		baseDatarouterUserDao.put(user);
 		baseDatarouterUserHistoryDao.put(history);
-		permissionRequestDao.scanOpenPermissionRequestsForUser(history.getKey().getUserId())
-				.map(history::resolvePermissionRequest)
-				.flush(permissionRequestDao::putMulti);
+		if(permissionsChanged){
+			permissionRequestDao.scanOpenPermissionRequestsForUser(history.getKey().getUserId())
+					.map(history::resolvePermissionRequest)
+					.flush(permissionRequestDao::putMulti);
+		}
 	}
 
-	private void sendPasswordChangeEmail(DatarouterUser user, DatarouterUserHistory history, String signInUrl){
+	private void sendPasswordChangeEmail(DatarouterUser user, DatarouterUserHistoryLog history, String signInUrl){
 		DatarouterUser editor = datarouterUserService.getUserById(history.getEditor(), false);
 		var p1 = p(String.format("Your user (%s) password has been changed by user %s (%s).",
 				user.getUsername(),
@@ -258,7 +307,7 @@ public class DatarouterUserHistoryService{
 		var p2 = p("Changes: " + history.getChanges());
 		var content = div(p1, p2, makeSignInParagraph(signInUrl));
 		var emailBuilder = htmlEmailService.startEmailBuilder()
-				.withSubject(userEditService.getPermissionRequestEmailSubject(user))
+				.withSubject(userEditService.getPasswordChangedEmailSubject(user))
 				.withTitle("Password Changed")
 				.withTitleHref(signInUrl)
 				.withContent(content)
@@ -267,7 +316,24 @@ public class DatarouterUserHistoryService{
 		htmlEmailService.trySendJ2Html(emailBuilder);
 	}
 
-	private void sendRoleEditEmail(DatarouterUser user, DatarouterUserHistory history, String signInUrl){
+	private void sendTimezoneUpdateEmail(DatarouterUser user, DatarouterUserHistoryLog history, String signInUrl){
+		DatarouterUser editor = datarouterUserService.getUserById(history.getEditor(), false);
+		var p1 = p(String.format("Your user (%s) timezone has been updated by %s", user.getUsername(),
+				editor.getUsername()));
+		var p2 = p("Changes: " + history.getChanges());
+		var content = div(p1, p2, makeSignInParagraph(signInUrl));
+		var emailBuilder = htmlEmailService.startEmailBuilder()
+				.withSubject(userEditService.getTimezoneChangedEmailSubject(user))
+				.withTitle("Timezone Changed")
+				.withTitleHref(signInUrl)
+				.withContent(content)
+				.from(user.getUsername())
+				.to(user.getUsername())
+				.to(editor.getUsername());
+		htmlEmailService.trySendJ2Html(emailBuilder);
+	}
+
+	private void sendPermissionChangeEmail(DatarouterUser user, DatarouterUserHistoryLog history, String signInUrl){
 		DatarouterUser editor = datarouterUserService.getUserById(history.getEditor(), false);
 		var p1 = p(String.format("%s permissions have been edited by %s", user.getUsername(), editor.getUsername()));
 		var p2 = p("Changes: " + history.getChanges()).withStyle("white-space: pre-wrap");
@@ -286,7 +352,7 @@ public class DatarouterUserHistoryService{
 		htmlEmailService.trySendJ2Html(emailBuilder);
 	}
 
-	private void sendDeprovisioningEmail(DatarouterUser user, DatarouterUserHistory history, DatarouterUser editor){
+	private void sendDeprovisioningEmail(DatarouterUser user, DatarouterUserHistoryLog history, DatarouterUser editor){
 		var content = div(p(String.format("Your user (%s) has been %s by user %s (%s).",
 				user.getUsername(),
 				history.getChanges(),

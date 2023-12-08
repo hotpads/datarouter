@@ -37,12 +37,12 @@ public class TraceContextTestTracer implements Tracer{
 	}
 
 	@Override
-	public BlockingQueue<Trace2ThreadDto> getThreadQueue(){
+	public BlockingQueue<TraceThreadDto> getThreadQueue(){
 		return null;
 	}
 
 	@Override
-	public BlockingQueue<Trace2SpanDto> getSpanQueue(){
+	public BlockingQueue<TraceSpanDto> getSpanQueue(){
 		return null;
 	}
 
@@ -71,7 +71,7 @@ public class TraceContextTestTracer implements Tracer{
 	}
 
 	@Override
-	public void addThread(Trace2ThreadDto thread){
+	public void addThread(TraceThreadDto thread){
 	}
 
 	@Override
@@ -92,7 +92,7 @@ public class TraceContextTestTracer implements Tracer{
 	}
 
 	@Override
-	public void addSpan(Trace2SpanDto span){
+	public void addSpan(TraceSpanDto span){
 	}
 
 	@Override
@@ -108,7 +108,7 @@ public class TraceContextTestTracer implements Tracer{
 	}
 
 	@Override
-	public Trace2SpanDto getCurrentSpan(){
+	public TraceSpanDto getCurrentSpan(){
 		return null;
 	}
 

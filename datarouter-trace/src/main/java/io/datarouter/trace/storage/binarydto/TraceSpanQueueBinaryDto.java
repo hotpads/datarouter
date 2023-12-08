@@ -18,7 +18,7 @@ package io.datarouter.trace.storage.binarydto;
 import io.datarouter.binarydto.codec.BinaryDtoIndexedCodec;
 import io.datarouter.binarydto.dto.BinaryDto;
 import io.datarouter.binarydto.dto.BinaryDtoField;
-import io.datarouter.instrumentation.trace.Trace2SpanDto;
+import io.datarouter.instrumentation.trace.TraceSpanDto;
 import io.datarouter.instrumentation.trace.TraceSpanGroupType;
 import io.datarouter.instrumentation.trace.Traceparent;
 import io.datarouter.trace.storage.binarydto.codec.TraceSpanGroupTypeFieldCodec;
@@ -82,7 +82,7 @@ public class TraceSpanQueueBinaryDto extends BinaryDto<TraceSpanQueueBinaryDto>{
 		this.memoryAllocatedBytesEnded = memoryAllocatedBytesEnded;
 	}
 
-	public TraceSpanQueueBinaryDto(Trace2SpanDto dto){
+	public TraceSpanQueueBinaryDto(TraceSpanDto dto){
 		this(
 				dto.traceparent,
 				dto.parentThreadId,
@@ -99,8 +99,8 @@ public class TraceSpanQueueBinaryDto extends BinaryDto<TraceSpanQueueBinaryDto>{
 				dto.getMemoryAllocatedBytesEnded());
 	}
 
-	public Trace2SpanDto toTrace2SpanDto(){
-		var dto = new Trace2SpanDto(
+	public TraceSpanDto toTraceSpanDto(){
+		var dto = new TraceSpanDto(
 				traceparent,
 				parentThreadId,
 				sequence,

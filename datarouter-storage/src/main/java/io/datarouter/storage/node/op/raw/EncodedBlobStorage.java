@@ -48,12 +48,9 @@ public class EncodedBlobStorage<T>{
 
 	/*-------- read ----------*/
 
-	public T read(PathbeanKey key){
-		return read(key, new Config());
-	}
-
+	@Deprecated// use find
 	public T read(PathbeanKey key, Config config){
-		return codec.decode(blobStorage.read(key, config));
+		return codec.decode(blobStorage.read(key, config).orElse(null));
 	}
 
 	public Optional<T> find(PathbeanKey key){

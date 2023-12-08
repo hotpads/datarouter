@@ -35,7 +35,7 @@ public class ApacheCookieToolTests{
 		cookies.add(sandwichCookie);
 
 		Cookie cookie = ApacheCookieTool.getCookie(cookies, shortBreadCookie.getName());
-		Assert.assertTrue(shortBreadCookie.getName().equals(cookie.getName()));
+		Assert.assertEquals(cookie.getName(), shortBreadCookie.getName());
 	}
 
 	@Test
@@ -44,7 +44,7 @@ public class ApacheCookieToolTests{
 		cookies.add(shortBreadCookie);
 
 		String cookieValue = ApacheCookieTool.getCookieValue(cookies, shortBreadCookie.getName());
-		Assert.assertTrue(shortBreadCookie.getValue().equals(cookieValue));
+		Assert.assertEquals(cookieValue, shortBreadCookie.getValue());
 	}
 
 }

@@ -91,8 +91,7 @@ public class TableStorageSummarizer<
 				.add("overallLimit", limit, NumberFormatter::addCommas)
 				.add("ranges", ranges.size(), NumberFormatter::addCommas)
 				.add("perRangeLimit", rangeLimit, NumberFormatter::addCommas)
-				.add("scanned", tableSummary.numRowsIncluded(), NumberFormatter::addCommas)
-				.add("avgValuesSize", tableSummary.avgValueBytes(), ByteLength::toString));
+				.add("scanned", tableSummary.numRowsIncluded(), NumberFormatter::addCommas));
 		return tableSummary;
 	}
 

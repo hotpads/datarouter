@@ -19,9 +19,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import io.datarouter.scanner.Scanner;
+import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.web.navigation.NavBarCategory.NavBarItemType;
 import io.datarouter.web.navigation.NavBarCategory.SimpleNavBarCategory;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
@@ -75,7 +75,7 @@ public class AppNavBar extends NavBar{
 					item.dispatchRule.ifPresent(menuItem::setDispatchRule);
 					return menuItem;
 				})
-				.collect(Collectors.toList());
+				.collect(WarnOnModifyList.deprecatedCollector());
 		var item = new NavBarMenuItem(entry.getKey().display(), menuItems);
 		return new NavBarMenuItemWrapper(item, entry.getKey().grouping().group);
 	}

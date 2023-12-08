@@ -22,7 +22,6 @@ import io.datarouter.nodewatch.util.PhysicalSortedNodeWrapper;
 import io.datarouter.plugin.dataexport.config.DatarouterDataExportPaths;
 import io.datarouter.plugin.dataexport.service.DatabeanExportChangelogService;
 import io.datarouter.plugin.dataexport.service.DatabeanExportEmailService;
-import io.datarouter.scanner.OptionalScanner;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.DatarouterNodes;
@@ -346,8 +345,7 @@ public class DatabeanExportHandler extends BaseHandler{
 
 	private Optional<String> validateNodeNames(String nodeNames){
 		return Scanner.of(nodeNamesToList(nodeNames))
-				.map(this::validateNodeName)
-				.concat(OptionalScanner::of)
+				.concatOpt(this::validateNodeName)
 				.findFirst();
 	}
 

@@ -44,8 +44,7 @@ public abstract class BaseMysqlOp<T>{
 
 	public Connection getConnection(){
 		ClientManager clientManager = datarouterClients.getClientManager(clientId);
-		if(clientManager instanceof MysqlConnectionClientManager){
-			MysqlConnectionClientManager mysqlConnectionClientManager = (MysqlConnectionClientManager)clientManager;
+		if(clientManager instanceof MysqlConnectionClientManager mysqlConnectionClientManager){
 			return mysqlConnectionClientManager.getExistingConnection(clientId);
 		}
 		return null;

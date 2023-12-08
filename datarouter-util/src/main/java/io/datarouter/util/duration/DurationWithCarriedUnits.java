@@ -57,7 +57,7 @@ public class DurationWithCarriedUnits{
 
 	public String toStringByMaxUnitsMaxPrecision(DurationUnit maxPrecision, int maxUnits, String delimiter){
 		List<String> units = getNonZeroUnitStrings(maxPrecision, maxUnits);
-		if(units.size() > 0){
+		if(!units.isEmpty()){
 			StringBuilder sb = new StringBuilder();
 			int appended = 0;
 			for(String unit : units){
@@ -93,7 +93,7 @@ public class DurationWithCarriedUnits{
 				unitStrings.add(val + " " + ((val > 1) ? du.getDisplayPlural() : du.getDisplay()));
 			}
 
-			if(unitStrings.size() > 0){
+			if(!unitStrings.isEmpty()){
 				unitsSinceLargestNonzero++;
 			}
 		}

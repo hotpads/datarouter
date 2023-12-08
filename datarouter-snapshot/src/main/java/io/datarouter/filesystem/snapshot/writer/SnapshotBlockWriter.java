@@ -369,9 +369,10 @@ public class SnapshotBlockWriter{
 
 	public void complete(){
 		//values
-		Scanner.of(valueFutureByBlockIdByColumn.keySet()).sort().forEach(column -> {
-			drainFutures(valueFutureByBlockIdByColumn.get(column).values(), "value column " + column);
-		});
+		Scanner.of(valueFutureByBlockIdByColumn.keySet())
+				.sort()
+				.forEach(column ->
+						drainFutures(valueFutureByBlockIdByColumn.get(column).values(), "value column " + column));
 		fileWriter.completeValues();
 
 		//leaves

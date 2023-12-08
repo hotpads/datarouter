@@ -21,7 +21,6 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.h5;
 import static j2html.TagCreator.td;
 
-import java.time.ZoneId;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -36,7 +35,6 @@ import io.datarouter.nodewatch.web.NodewatchNavService;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.duration.DatarouterDuration;
 import io.datarouter.util.number.NumberFormatter;
-import io.datarouter.util.time.ZonedDateFormatterTool;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.html.j2html.J2HtmlTable;
@@ -93,7 +91,6 @@ public class NodewatchSlowSpansHandler extends BaseHandler{
 	}
 
 	private J2HtmlTable<LatestTableCount> makeTableBuilder(){
-		ZoneId userZoneId = getUserZoneId();
 		return new J2HtmlTable<LatestTableCount>()
 				.withClasses("sortable table table-sm table-striped my-2 border")
 				.withColumn(
@@ -124,11 +121,11 @@ public class NodewatchSlowSpansHandler extends BaseHandler{
 				.withColumn(
 						"Count Time",
 						LatestTableCount::getCountTimeMs,
-						ms -> new DatarouterDuration(ms, TimeUnit.MILLISECONDS).toString())
+						ms -> new DatarouterDuration(ms, TimeUnit.MILLISECONDS).toString(TimeUnit.SECONDS))
 				.withColumn(
 						"Updated",
 						LatestTableCount::getDateUpdated,
-						instant -> ZonedDateFormatterTool.formatInstantWithZone(instant, userZoneId));
+						instant -> DatarouterDuration.age(instant).toString(TimeUnit.MINUTES));
 	}
 
 }

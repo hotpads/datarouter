@@ -30,7 +30,7 @@ public class RandomAccessScanner<T> implements Scanner<T>{
 	}
 
 	public static <T> Scanner<T> of(List<T> list){
-		return list.size() == 0 ? EmptyScanner.singleton() : new RandomAccessScanner<>(list);
+		return list.isEmpty() ? EmptyScanner.singleton() : new RandomAccessScanner<>(list);
 	}
 
 	@Override

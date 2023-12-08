@@ -16,6 +16,7 @@
 package io.datarouter.filesystem.snapshot;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
@@ -53,7 +54,8 @@ public class WordTests{
 		Ref<ValueBlockV1Encoder> encoder = new Ref<>(encoderSupplier.get());
 		int blockSize = 4096;
 		List<String> inputs = WordDataset.scanWords(getClass().getSimpleName() + "-testValueBlockV1").list();
-		List<byte[]> blocks = Scanner.of(inputs)
+		List<byte[]> blocks = new ArrayList<>();
+		Scanner.of(inputs)
 				.map(str -> str.getBytes(StandardCharsets.UTF_8))
 				.map(value -> new SnapshotEntry(EmptyArray.BYTE, EmptyArray.BYTE, new byte[][]{value}))
 				.concat(value -> {
@@ -65,7 +67,7 @@ public class WordTests{
 					}
 					return Scanner.empty();
 				})
-				.list();
+				.forEach(blocks::add);
 		if(encoder.get().numRecords() > 0){
 			blocks.add(encoder.get().encode().concat());
 		}
@@ -102,7 +104,8 @@ public class WordTests{
 				})
 				.list();
 		var keyId = new AtomicLong();
-		List<byte[]> blocks = Scanner.of(inputs)
+		List<byte[]> blocks = new ArrayList<>();
+		Scanner.of(inputs)
 				.concat(entry -> {
 					//TODO use real value block references
 					encoder.get().add(0, keyId.getAndIncrement(), entry, new int[]{0}, new int[]{0});
@@ -116,7 +119,7 @@ public class WordTests{
 					}
 					return Scanner.empty();
 				})
-				.list();
+				.forEach(blocks::add);
 		if(encoder.get().numRecords() > 0){
 			var fileIdsAndEndings = new FileIdsAndEndings[]{
 					new FileIdsAndEndings(new int[]{0}, new int[]{0})

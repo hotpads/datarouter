@@ -28,7 +28,7 @@ import org.testng.annotations.Test;
 import io.datarouter.binarydto.codec.BinaryDtoIndexedCodec;
 import io.datarouter.bytes.HexBlockTool;
 import io.datarouter.metric.counter.CountBinaryDto.SingleCountBinaryDto;
-import io.datarouter.metric.counter.collection.DatarouterCountCollector.CountCollectorStats;
+import io.datarouter.metric.service.AggregatedGaugesPublisher.MetricCollectorStats;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.types.Ulid;
 
@@ -41,7 +41,7 @@ public class CountBinaryDtoTests{
 			SERVER = "server";
 	private static final long PERIOD = Instant.now().toEpochMilli();
 
-	private static final CountBinaryDto OK_DTO = makeDto(SERVICE, SERVER, NAME, ULID, new CountCollectorStats(1L, 1L,
+	private static final CountBinaryDto OK_DTO = makeDto(SERVICE, SERVER, NAME, ULID, new MetricCollectorStats(1L, 1L,
 			1L, 1L), PERIOD);
 	private static final BinaryDtoIndexedCodec<CountBinaryDto> CODEC = BinaryDtoIndexedCodec.of(CountBinaryDto.class);
 
@@ -52,7 +52,7 @@ public class CountBinaryDtoTests{
 				"myService",
 				"myServer",
 				1675471661756L,
-				List.of(new SingleCountBinaryDto(NAME, 1L, 2L, 3L, 4L)));
+				List.of(new SingleCountBinaryDto(NAME, 1L)));
 //		HexBlockTool.print(expected.encodeIndexed());
 		String hex = """
 				001a303147524358534d5a42464e57354454545746464239534a335801096d795365727669636502
@@ -65,60 +65,60 @@ public class CountBinaryDtoTests{
 
 	@Test
 	public void testConstructorValidation(){
-		var dto = makeDto(SERVICE, SERVER, NAME, ULID, new CountCollectorStats(1L, 1L, 1L, 1L), PERIOD);
+		var dto = makeDto(SERVICE, SERVER, NAME, ULID, new MetricCollectorStats(1L, 1L, 1L, 1L), PERIOD);
 		verifyOkDto(dto);
 
 		Assert.assertThrows(
 				IllegalArgumentException.class,
-				() -> makeDto("", SERVER, NAME, ULID, new CountCollectorStats(1L, 1L, 1L, 1L), PERIOD));
+				() -> makeDto("", SERVER, NAME, ULID, new MetricCollectorStats(1L, 1L, 1L, 1L), PERIOD));
 		Assert.assertThrows(
 				IllegalArgumentException.class,
-				() -> makeDto(null, SERVER, NAME, ULID, new CountCollectorStats(1L, 1L, 1L, 1L), PERIOD));
+				() -> makeDto(null, SERVER, NAME, ULID, new MetricCollectorStats(1L, 1L, 1L, 1L), PERIOD));
 
 		Assert.assertThrows(
 				IllegalArgumentException.class,
-				() -> makeDto(SERVICE, "", NAME, ULID, new CountCollectorStats(1L, 1L, 1L, 1L), PERIOD));
+				() -> makeDto(SERVICE, "", NAME, ULID, new MetricCollectorStats(1L, 1L, 1L, 1L), PERIOD));
 		Assert.assertThrows(
 				IllegalArgumentException.class,
-				() -> makeDto(SERVICE, null, NAME, ULID, new CountCollectorStats(1L, 1L, 1L, 1L), PERIOD));
+				() -> makeDto(SERVICE, null, NAME, ULID, new MetricCollectorStats(1L, 1L, 1L, 1L), PERIOD));
 
 		Assert.assertThrows(
 				IllegalArgumentException.class,
-				() -> makeDto(SERVICE, SERVER, null, ULID, new CountCollectorStats(1L, 1L, 1L, 1L), PERIOD));
+				() -> makeDto(SERVICE, SERVER, null, ULID, new MetricCollectorStats(1L, 1L, 1L, 1L), PERIOD));
 
 		Assert.assertThrows(
 				IllegalArgumentException.class,
-				() -> makeDto(SERVICE, SERVER, NAME, "", new CountCollectorStats(1L, 1L, 1L, 1L), PERIOD));
+				() -> makeDto(SERVICE, SERVER, NAME, "", new MetricCollectorStats(1L, 1L, 1L, 1L), PERIOD));
 		Assert.assertThrows(
 				IllegalArgumentException.class,
-				() -> makeDto(SERVICE, SERVER, NAME, null, new CountCollectorStats(1L, 1L, 1L, 1L), PERIOD));
+				() -> makeDto(SERVICE, SERVER, NAME, null, new MetricCollectorStats(1L, 1L, 1L, 1L), PERIOD));
 
 		Assert.assertThrows(
 				IllegalArgumentException.class,
 				() -> makeDto(SERVICE, SERVER, NAME, ULID, null, PERIOD));
 		Assert.assertThrows(
 				IllegalArgumentException.class,
-				() -> makeDto(SERVICE, SERVER, NAME, ULID, new CountCollectorStats(0L, 0L, 0L, 0L), PERIOD));
+				() -> makeDto(SERVICE, SERVER, NAME, ULID, new MetricCollectorStats(0L, 0L, 0L, 0L), PERIOD));
 
 		Assert.assertThrows(
 				IllegalArgumentException.class,
-				() -> makeDto(SERVICE, SERVER, NAME, ULID, new CountCollectorStats(1L, 1L, 1L, 1L), null));
+				() -> makeDto(SERVICE, SERVER, NAME, ULID, new MetricCollectorStats(1L, 1L, 1L, 1L), null));
 	}
 
 	@Test
 	public void testSingleRoundTrip(){
-		var dto = makeDto(SERVICE, SERVER, NAME, ULID, new CountCollectorStats(1L, 1L, 1L, 1L), PERIOD);
+		var dto = makeDto(SERVICE, SERVER, NAME, ULID, new MetricCollectorStats(1L, 1L, 1L, 1L), PERIOD);
 		verifyOkDto(CODEC.decode(CODEC.encode(dto)));
 	}
 
 	@Test
 	public void testCreateSizeDtosAll(){
 		int numCounts = 50;
-		Map<String,CountCollectorStats> countValues = new HashMap<>();
+		Map<String,MetricCollectorStats> countValues = new HashMap<>();
 		for(int i = 0; i < numCounts; i++){
-			countValues.put("counter " + i, new CountCollectorStats(1L, 1L, 1L, 1L));
+			countValues.put("counter " + i, new MetricCollectorStats(1L, 1L, 1L, 1L));
 		}
-		Map<Long,Map<String,CountCollectorStats>> counts = new HashMap<>();
+		Map<Long,Map<String,MetricCollectorStats>> counts = new HashMap<>();
 		counts.put(PERIOD, countValues);
 
 		//test without breaking up
@@ -135,7 +135,7 @@ public class CountBinaryDtoTests{
 				numCounts);
 
 		//test multiple periods
-		Map<Long,Map<String,CountCollectorStats>> multiPeriodCounts = new HashMap<>();
+		Map<Long,Map<String,MetricCollectorStats>> multiPeriodCounts = new HashMap<>();
 		multiPeriodCounts.put(PERIOD, countValues);
 		multiPeriodCounts.put(PERIOD + 1, countValues);
 		var multiPeriods = CountBinaryDto.createSizedCountBinaryDtos(ULID, SERVICE, SERVER, multiPeriodCounts,
@@ -149,7 +149,7 @@ public class CountBinaryDtoTests{
 				.get(0).counts.size(), numCounts);
 
 		var copy = Map.copyOf(countValues);
-		countValues.put("another", new CountCollectorStats(5L, 2L, 1L, 4L));
+		countValues.put("another", new MetricCollectorStats(5L, 2L, 1L, 4L));
 		counts.put(PERIOD + 1, copy);
 		Assert.assertEquals(counts.get(PERIOD).size(), numCounts + 1);
 		Assert.assertEquals(counts.get(PERIOD + 1).size(), numCounts);
@@ -175,11 +175,11 @@ public class CountBinaryDtoTests{
 			String server,
 			String name,
 			String ulid,
-			CountCollectorStats value,
+			MetricCollectorStats value,
 			Long period){
-		Map<String,CountCollectorStats> countValues = new HashMap<>();
+		Map<String,MetricCollectorStats> countValues = new HashMap<>();
 		countValues.put(name, value);
-		Map<Long,Map<String,CountCollectorStats>> counts = new HashMap<>();
+		Map<Long,Map<String,MetricCollectorStats>> counts = new HashMap<>();
 		counts.put(period, countValues);
 		return CountBinaryDto.createSizedCountBinaryDtos(ulid, service, server, counts, 1).get(0);
 	}

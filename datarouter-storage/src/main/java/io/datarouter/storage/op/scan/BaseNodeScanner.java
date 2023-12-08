@@ -115,7 +115,7 @@ extends BaseScanner<List<T>>{
 		}
 		batchConfig.setOffset(0);
 		resultCount += current.size();
-		if(ranges.size() == 0 && current.size() < batchConfig.getLimit()
+		if(ranges.isEmpty() && current.size() < batchConfig.getLimit()
 				|| config.getLimit() != null && resultCount >= config.getLimit()){
 			foundLastBatch = true;//tell the advance() method not to call this method again
 		}

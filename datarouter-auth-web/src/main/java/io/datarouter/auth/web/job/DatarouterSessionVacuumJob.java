@@ -20,8 +20,8 @@ import io.datarouter.auth.storage.user.session.DatarouterSession;
 import io.datarouter.auth.storage.user.session.DatarouterSessionKey;
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
-import io.datarouter.storage.util.DatabeanVacuum;
-import io.datarouter.storage.util.DatabeanVacuum.DatabeanVacuumBuilder;
+import io.datarouter.storage.vacuum.DatabeanVacuum;
+import io.datarouter.storage.vacuum.DatabeanVacuum.DatabeanVacuumBuilder;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
 import jakarta.inject.Inject;
 

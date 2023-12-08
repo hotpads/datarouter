@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HConstants;
@@ -31,18 +30,15 @@ import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.TableExistsException;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Admin;
-import org.apache.hadoop.hbase.io.compress.Compression.Algorithm;
-import org.apache.hadoop.hbase.io.encoding.DataBlockEncoding;
-import org.apache.hadoop.hbase.regionserver.BloomType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.client.hbase.client.HBaseConnectionHolder;
-import io.datarouter.client.hbase.util.HBaseClientTool;
 import io.datarouter.email.type.DatarouterEmailTypes.SchemaUpdatesEmailType;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.model.serialize.fielder.TtlFielderConfig;
+import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.executor.DatarouterStorageExecutors.DatarouterSchemaUpdateScheduler;
 import io.datarouter.storage.config.properties.AdminEmail;
@@ -55,7 +51,6 @@ import io.datarouter.storage.config.storage.clusterschemaupdatelock.DatarouterCl
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.storage.serialize.fieldcache.DatabeanFieldInfo;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
-import io.datarouter.util.array.ArrayTool;
 import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.config.settings.DatarouterSchemaUpdateEmailSettings;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
@@ -66,14 +61,12 @@ import jakarta.inject.Inject;
 import jakarta.inject.Provider;
 import jakarta.inject.Singleton;
 
+@SuppressWarnings("deprecation")
 @Singleton
 public class HBaseSchemaUpdateService extends EmailingSchemaUpdateService{
 	private static final Logger logger = LoggerFactory.getLogger(HBaseSchemaUpdateService.class);
 
-	// default table configuration settings for new tables
-	// cast to long before overflowing int
-	private static final long DEFAULT_MAX_FILE_SIZE_BYTES = 1L * 4 * 1024 * 1024 * 1024;
-	private static final long DEFAULT_MEMSTORE_FLUSH_SIZE_BYTES = 1L * 256 * 1024 * 1024;
+	// datarouter-hbase isn't attempting to utilize HBase's multi-versioning feature
 	private static final int MAX_VERSIONS = 1;
 
 	private final HBaseConnectionHolder hBaseConnectionHolder;
@@ -131,7 +124,7 @@ public class HBaseSchemaUpdateService extends EmailingSchemaUpdateService{
 		}
 		return Arrays.stream(tableNames)
 				.map(TableName::getNameAsString)
-				.collect(Collectors.toList());
+				.collect(WarnOnModifyList.deprecatedCollector());
 	}
 
 	private Optional<SchemaUpdateResult> generateSchemaUpdate(
@@ -197,15 +190,10 @@ public class HBaseSchemaUpdateService extends EmailingSchemaUpdateService{
 			logger.warn("table " + tableName + " not found, creating it");
 			try{
 				HTableDescriptor htable = new HTableDescriptor(TableName.valueOf(tableName));
-				htable.setMaxFileSize(DEFAULT_MAX_FILE_SIZE_BYTES);
-				htable.setMemStoreFlushSize(DEFAULT_MEMSTORE_FLUSH_SIZE_BYTES);
 				HColumnDescriptor family = new HColumnDescriptor(HBaseClientManager.DEFAULT_FAMILY_QUALIFIER);
 				DatabeanFieldInfo<?,?,?> fieldInfo = node.getFieldInfo();
 				DatabeanFielder<?,?> fielder = fieldInfo.getSampleFielder();
 				family.setMaxVersions(MAX_VERSIONS);
-				family.setBloomFilterType(BloomType.NONE);
-				family.setDataBlockEncoding(DataBlockEncoding.FAST_DIFF);
-				family.setCompressionType(Algorithm.GZ);
 				int ttlSeconds = fielder.getOption(TtlFielderConfig.KEY)
 						.map(TtlFielderConfig::getTtl)
 						.map(Duration::getSeconds)
@@ -213,15 +201,8 @@ public class HBaseSchemaUpdateService extends EmailingSchemaUpdateService{
 						.orElse(HConstants.FOREVER);
 				family.setTimeToLive(ttlSeconds);
 				htable.addFamily(family);
-				byte[][] splitPoints = HBaseClientTool.getSplitPoints(node);
 				Admin admin = hBaseConnectionHolder.getConnection(clientId).getAdmin();
-				if(ArrayTool.isEmpty(splitPoints) || ArrayTool.isEmpty(splitPoints[0])){// a single empty byte array
-					admin.createTable(htable);
-				}else{
-					// careful, as throwing strange split points in here can crash master
-					// and corrupt meta table
-					admin.createTable(htable, splitPoints);
-				}
+				admin.createTable(htable);
 				logger.warn("created table " + tableName);
 			}catch(TableExistsException e){
 				logger.warn("table " + tableName + " already created by another process");

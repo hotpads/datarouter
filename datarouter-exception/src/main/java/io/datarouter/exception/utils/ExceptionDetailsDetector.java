@@ -25,7 +25,6 @@ import io.datarouter.exception.utils.nameparser.ExceptionSnapshot;
 import io.datarouter.exception.utils.nameparser.ExceptionSnapshot.ExceptionCauseSnapshot;
 import io.datarouter.exception.utils.nameparser.ExceptionSnapshot.StackTraceElementSnapshot;
 import io.datarouter.inject.DatarouterInjector;
-import io.datarouter.scanner.OptionalScanner;
 import io.datarouter.scanner.Scanner;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -49,9 +48,8 @@ public class ExceptionDetailsDetector{
 				.getNameParserClasses())
 				.map(injector::getInstance)
 				.map(ExceptionNameParser.class::cast)
-				.map(parser -> parser.getCausesFromType(snapshot)
+				.concatOpt(parser -> parser.getCausesFromType(snapshot)
 						.map(cause -> new ExceptionParserAndOutput(parser, cause)))
-				.concat(OptionalScanner::of)
 				.findFirst();
 		if(parserAndCauseOpt.isPresent()){
 			var parserAndCause = parserAndCauseOpt.get();
@@ -73,7 +71,7 @@ public class ExceptionDetailsDetector{
 			Set<String> highlights){
 		return Scanner.of(cause.stackTraces)
 			.include(element -> Scanner.of(highlights)
-					.anyMatch(highlight -> element.declaringClass.contains(highlight)))
+					.anyMatch(element.declaringClass::contains))
 			.findFirst();
 	}
 

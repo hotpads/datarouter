@@ -20,6 +20,7 @@ import com.google.pubsub.v1.AcknowledgeRequest;
 
 import io.datarouter.bytes.codec.stringcodec.StringCodec;
 import io.datarouter.client.gcp.pubsub.client.GcpPubsubClientManager;
+import io.datarouter.client.gcp.pubsub.config.DatarouterGcpPubsubSettingsRoot;
 import io.datarouter.client.gcp.pubsub.node.GcpPubsubBlobNode;
 import io.datarouter.storage.client.ClientId;
 
@@ -31,8 +32,9 @@ public class GcpPubsubBlobAckOp extends GcpPubsubBlobOp<Void>{
 			byte[] handle,
 			GcpPubsubBlobNode<?> node,
 			GcpPubsubClientManager clientManager,
+			DatarouterGcpPubsubSettingsRoot settingRoot,
 			ClientId clientId){
-		super(node, clientManager, clientId);
+		super(node, clientManager, settingRoot, clientId);
 		this.handle = handle;
 	}
 

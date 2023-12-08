@@ -15,27 +15,27 @@
  */
 package io.datarouter.websocket.storage.session;
 
-import java.util.Date;
 import java.util.List;
 import java.util.function.Supplier;
 
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
-import io.datarouter.model.field.codec.DateToLongFieldCodec;
+import io.datarouter.model.field.codec.MilliTimeFieldCodec;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
 import io.datarouter.model.field.imp.comparable.LongEncodedField;
 import io.datarouter.model.field.imp.comparable.LongEncodedFieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
+import io.datarouter.types.MilliTime;
 
 public class WebSocketSession extends BaseDatabean<WebSocketSessionKey,WebSocketSession>{
 
-	private Date openingDate;
+	private MilliTime openingDate;
 	private String serverName;
 
 	public static class FieldKeys{
-		public static final LongEncodedFieldKey<Date> openingDate = new LongEncodedFieldKey<>(
-				"openingDate", new DateToLongFieldCodec());
+		public static final LongEncodedFieldKey<MilliTime> openingDate = new LongEncodedFieldKey<>(
+				"openingDate", new MilliTimeFieldCodec());
 		public static final StringFieldKey serverName = new StringFieldKey("serverName");
 	}
 
@@ -59,7 +59,7 @@ public class WebSocketSession extends BaseDatabean<WebSocketSessionKey,WebSocket
 		this(null, null, null, null);
 	}
 
-	public WebSocketSession(String userToken, Long id, Date openingDate, String serverName){
+	public WebSocketSession(String userToken, Long id, MilliTime openingDate, String serverName){
 		super(new WebSocketSessionKey(userToken, id));
 		this.openingDate = openingDate;
 		this.serverName = serverName;
@@ -70,7 +70,7 @@ public class WebSocketSession extends BaseDatabean<WebSocketSessionKey,WebSocket
 		return WebSocketSessionKey::new;
 	}
 
-	public Date getOpeningDate(){
+	public MilliTime getOpeningDate(){
 		return openingDate;
 	}
 

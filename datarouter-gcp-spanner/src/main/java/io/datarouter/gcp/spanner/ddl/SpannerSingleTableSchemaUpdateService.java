@@ -97,8 +97,7 @@ public class SpannerSingleTableSchemaUpdateService{
 				.list();
 		var statements = new SpannerUpdateStatements();
 		String entityTableName = null;
-		if(physicalNode instanceof IndexedStorage){
-			IndexedStorage<?,?> indexedStorage = (IndexedStorage<?,?>)physicalNode;
+		if(physicalNode instanceof IndexedStorage<?,?> indexedStorage){
 			indexes = Scanner.of(indexedStorage.getManagedNodes())
 					.map(node -> new SpannerIndex(
 							tableName,

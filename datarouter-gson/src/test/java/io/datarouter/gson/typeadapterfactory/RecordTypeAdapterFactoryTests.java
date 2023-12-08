@@ -128,7 +128,7 @@ public class RecordTypeAdapterFactoryTests{
 		Assert.assertEquals(dto.person.nickname.get(), "Bobby");
 		Assert.assertEquals(dto.ageBoxed, 5);
 		Assert.assertEquals(dto.list, List.of("a", "b", "c"));
-		Assert.assertEquals(dto.bool, false);
+		Assert.assertFalse(dto.bool);
 		Assert.assertEquals(dto.instant, Instant.MIN);
 		Assert.assertEquals(dto.duration, Duration.ofHours(2));
 		Assert.assertNull(dto.nullCheck);

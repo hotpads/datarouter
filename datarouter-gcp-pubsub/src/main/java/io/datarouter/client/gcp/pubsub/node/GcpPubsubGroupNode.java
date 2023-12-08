@@ -21,6 +21,7 @@ import java.util.List;
 
 import io.datarouter.client.gcp.pubsub.GcpPubsubClientType;
 import io.datarouter.client.gcp.pubsub.client.GcpPubsubClientManager;
+import io.datarouter.client.gcp.pubsub.config.DatarouterGcpPubsubSettingsRoot;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
@@ -48,8 +49,9 @@ implements PhysicalGroupQueueStorageNode<PK,D,F>{
 			NodeParams<PK,D,F> params,
 			GcpPubsubClientType clientType,
 			GcpPubsubClientManager clientManager,
+			DatarouterGcpPubsubSettingsRoot settingRoot,
 			ClientId clientId){
-		super(environmentName, serviceName, params, clientType, clientManager, clientId);
+		super(environmentName, serviceName, params, clientType, clientManager, settingRoot, clientId);
 	}
 
 	@Override

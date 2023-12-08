@@ -35,7 +35,6 @@ public class DatarouterWebPaths extends PathNode implements PathsRoot{
 
 	public static class DatarouterPaths extends PathNode{
 		public final ClientPaths client = branch(ClientPaths::new, "client");
-		public final DailyDigestPaths dailyDigest = branch(DailyDigestPaths::new, "dailyDigest");
 		public final InfoPaths info = branch(InfoPaths::new, "info");
 		public final ExecutorPaths executors = branch(ExecutorPaths::new, "executors");
 		public final NodesPaths nodes = branch(NodesPaths::new, "nodes");
@@ -89,7 +88,6 @@ public class DatarouterWebPaths extends PathNode implements PathsRoot{
 		public final PathNode countKeys = leaf("countKeys");
 	}
 
-
 	public static class InfoPaths extends PathNode{
 		public final PathNode clients = leaf("clients");
 		public final PathNode listeners = leaf("listeners");
@@ -101,6 +99,7 @@ public class DatarouterWebPaths extends PathNode implements PathsRoot{
 	}
 
 	public static class PermissionRequestPaths extends PathNode{
+		public final PathNode createCustomPermissionRequest = leaf("createCustomPermissionRequest");
 		public final PathNode declineAll = leaf("declineAll");
 		public final PathNode declinePermissionRequests = leaf("declinePermissionRequests");
 		public final PathNode showForm = leaf("showForm");
@@ -135,11 +134,6 @@ public class DatarouterWebPaths extends PathNode implements PathsRoot{
 		public final PathNode printPrimitiveIntArrayNoParamName = leaf("printPrimitiveIntArrayNoParamName");
 		public final PathNode printComplicatedArrayParams = leaf("printComplicatedArrayParams");
 		public final PathNode timeContains = leaf("timeContains");
-	}
-
-	public static class DailyDigestPaths extends PathNode{
-		public final PathNode viewSummary = leaf("viewSummary");
-		public final PathNode viewActionable = leaf("viewActionable");
 	}
 
 }

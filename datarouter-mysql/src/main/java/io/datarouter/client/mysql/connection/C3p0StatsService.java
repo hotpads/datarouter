@@ -18,11 +18,11 @@ package io.datarouter.client.mysql.connection;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
+import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.util.JmxTool;
 import io.datarouter.util.string.StringTool;
 import jakarta.inject.Singleton;
@@ -49,7 +49,7 @@ public class C3p0StatsService{
 					return Optional.of(new C3p0StatsDto(clientName.get(), total, busy));
 				})
 				.flatMap(Optional::stream)
-				.collect(Collectors.toList());
+				.collect(WarnOnModifyList.deprecatedCollector());
 	}
 
 	protected static Optional<String> extractClientName(String jdbcUrl){

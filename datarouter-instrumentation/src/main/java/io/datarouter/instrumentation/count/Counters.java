@@ -18,6 +18,8 @@ package io.datarouter.instrumentation.count;
 import java.time.Duration;
 import java.util.ArrayList;
 
+import io.datarouter.instrumentation.gauge.MetricCollector;
+
 /**
  * Static class for incrementing counts throughout an application.  Register with this class to receive counts.
  */
@@ -44,16 +46,16 @@ public class Counters{
 		throw new IllegalArgumentException("unknown duration:" + periodMs);
 	}
 
-	private static final ArrayList<CountCollector> COLLECTORS = new ArrayList<>();
+	private static final ArrayList<MetricCollector> COLLECTORS = new ArrayList<>();
 
 	/*---------- admin -------------*/
 
-	public static void addCollector(CountCollector collector){
+	public static void addCollector(MetricCollector collector){
 		COLLECTORS.add(collector);
 	}
 
 	public static void stopAndFlushAll(){
-		for(CountCollector collector : COLLECTORS){
+		for(MetricCollector collector : COLLECTORS){
 			collector.stopAndFlushAll();
 		}
 	}
@@ -65,8 +67,8 @@ public class Counters{
 	}
 
 	public static void inc(String key, long delta){
-		for(CountCollector collector : COLLECTORS){
-			collector.increment(key, delta);
+		for(MetricCollector collector : COLLECTORS){
+			collector.save(key, delta);
 		}
 	}
 

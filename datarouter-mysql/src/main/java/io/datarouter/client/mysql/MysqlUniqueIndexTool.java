@@ -19,7 +19,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.key.unique.UniqueKey;
+import io.datarouter.scanner.WarnOnModifyList;
 
 public class MysqlUniqueIndexTool{
 	private static final Logger logger = LoggerFactory.getLogger(MysqlUniqueIndexTool.class);
@@ -41,11 +41,11 @@ public class MysqlUniqueIndexTool{
 		UniqueKey<PK> first = keys.iterator().next();
 		List<?> dataFieldKeys = first.getFields().stream()
 				.map(Field::getKey)
-				.collect(Collectors.toList());
+				.collect(WarnOnModifyList.deprecatedCollector());
 		for(Entry<String,List<Field<?>>> uniqueIndex : uniqueIndexes.entrySet()){
 			List<?> defFieldKeys = uniqueIndex.getValue().stream()
 					.map(Field::getKey)
-					.collect(Collectors.toList());
+					.collect(WarnOnModifyList.deprecatedCollector());
 			if(defFieldKeys.equals(dataFieldKeys)){
 				return uniqueIndex.getKey();
 			}

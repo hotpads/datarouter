@@ -53,6 +53,8 @@ public record UserRoleMetadata(
 		return new UserRoleMetadataJsDto(
 				role.persistentString,
 				role.description,
+				role.riskFactor.name(),
+				role.riskFactor.description,
 				hasRole,
 				Scanner.of(requirementStatusByApprovalType.keySet())
 						.toMap(RoleApprovalType::persistentString, requirementStatusByApprovalType::get),
@@ -65,6 +67,8 @@ public record UserRoleMetadata(
 	public record UserRoleMetadataJsDto(
 			String roleName,
 			String roleDescription,
+			String roleRiskFactor,
+			String roleRiskFactorDescription,
 			boolean hasRole,
 			Map<String,RoleApprovalRequirementStatus> requirementStatusByApprovalType,
 			String editorPrioritizedApprovalType,

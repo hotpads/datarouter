@@ -19,6 +19,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
+import io.datarouter.client.mysql.ddl.generate.DatabaseHostnameUrlSupplier;
+import io.datarouter.client.mysql.ddl.generate.DatabaseHostnameUrlSupplier.NoOpDatabaseHostnameUrlSupplier;
 import io.datarouter.client.mysql.field.codec.factory.MysqlFieldCodecFactory;
 import io.datarouter.client.mysql.field.codec.factory.StandardMysqlFieldCodecFactory;
 import io.datarouter.client.mysql.test.DatarouterMysqlTestClientids;
@@ -55,6 +57,7 @@ public class DatarouterMysqlTestNgModuleFactory extends TestNgModuleFactory{
 					.toInstance(new DatarouterClusterSchemaUpdateLockDaoParams(
 							List.of(DatarouterMysqlTestClientids.MYSQL)));
 			bind(SchemaUpdatesEmailType.class).toInstance(new SchemaUpdatesEmailType(List.of()));
+			bind(DatabaseHostnameUrlSupplier.class).to(NoOpDatabaseHostnameUrlSupplier.class);
 		}
 
 	}

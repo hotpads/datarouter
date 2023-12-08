@@ -157,10 +157,9 @@ implements FieldKey<T>{
 
 	@Override
 	public boolean equals(Object obj){
-		if(!(obj instanceof BaseFieldKey)){
+		if(!(obj instanceof BaseFieldKey<?,?> otherKey)){
 			return false;
 		}
-		BaseFieldKey<?,?> otherKey = (BaseFieldKey<?,?>)obj;
 		return Objects.equals(name, otherKey.name)
 				&& Objects.equals(columnName, otherKey.columnName)
 				&& Objects.equals(nullable, otherKey.nullable)

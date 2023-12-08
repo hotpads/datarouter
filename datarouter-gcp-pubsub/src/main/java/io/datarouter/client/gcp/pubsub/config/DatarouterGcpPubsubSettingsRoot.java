@@ -29,11 +29,20 @@ public class DatarouterGcpPubsubSettingsRoot extends SettingRoot{
 
 	public final CachedSetting<Boolean> runGcpPubsubQueueMetricMonitoringJob;
 
+	/*
+	 * This allows pubsub to act more like SQS where a read of an empty queue will not block.
+	 * If false, pubsub will block for tens of seconds waiting to see if a new message arrives in an empty queue.
+	 * It's not clear why it's deprecated.
+	 * Some datarouter code like joblets was written for SQS first, so we can use this to mimic SQS behavior.
+	 */
+	public final CachedSetting<Boolean> returnImmediately;
+
 	@Inject
 	public DatarouterGcpPubsubSettingsRoot(SettingFinder finder, ServerTypes serverTypes){
 		super(finder, DatarouterSettingCategory.DATAROUTER, "gcpPubsub.");
 		runGcpPubsubQueueMetricMonitoringJob = registerBooleans("runGcpPubsubQueueMetricMonitoringJob", defaultTo(false)
 				.withServerType(EnvironmentType.PRODUCTION, serverTypes.getJobServerType(), true));
+		returnImmediately = registerBooleans("returnImmediately", defaultTo(true));
 	}
 
 }

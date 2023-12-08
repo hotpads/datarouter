@@ -64,10 +64,9 @@ public class CharSequenceSqlColumn extends SqlColumn{
 		if(otherObject == this){
 			return true;
 		}
-		if(!(otherObject instanceof CharSequenceSqlColumn)){
+		if(!(otherObject instanceof CharSequenceSqlColumn other)){
 			return false;
 		}
-		CharSequenceSqlColumn other = (CharSequenceSqlColumn)otherObject;
 		return super.equals(other)
 				&& Objects.equals(characterSet, other.characterSet)
 				&& Objects.equals(collation, other.collation);

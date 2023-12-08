@@ -35,9 +35,7 @@ public interface AuroraClientIdProvider{
 
 		public GenericAuroraClientIdProvider(List<AuroraClientDto> auroraClientDtos){
 			this.auroraClientDtos = auroraClientDtos;
-			Scanner.of(auroraClientDtos).forEach(dto -> {
-				this.auroraClientDtoMap.put(dto.writerClientId.getName(), dto);
-			});
+			Scanner.of(auroraClientDtos).forEach(dto -> this.auroraClientDtoMap.put(dto.writerClientId.getName(), dto));
 		}
 
 		@Override

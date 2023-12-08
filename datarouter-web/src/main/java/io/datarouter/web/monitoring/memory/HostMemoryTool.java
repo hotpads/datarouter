@@ -53,7 +53,7 @@ public class HostMemoryTool{
 
 	private static HashMap<String,Map<String,Long>> getHostMemoryStatsInternal(){
 		RunNativeDto output = DatarouterRuntimeTool.runNative("free");
-		String[] lines = output.stdout.split("\n");
+		String[] lines = output.stdout().split("\n");
 		List<String> headers = null;
 		var result = new HashMap<String,Map<String,Long>>();
 		for(String line : lines){
@@ -148,7 +148,7 @@ public class HostMemoryTool{
 			logger.error("Unable to get VM native memory stats", e);
 			return Optional.empty();
 		}
-		String[] lines = output.stdout.split("\n");
+		String[] lines = output.stdout().split("\n");
 		boolean notEnabled = Scanner.of(lines)
 				.anyMatch(line -> line.contains("Native memory tracking is not enabled"));
 		if(notEnabled){

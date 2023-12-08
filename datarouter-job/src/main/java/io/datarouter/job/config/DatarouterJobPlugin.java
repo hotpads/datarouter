@@ -23,12 +23,12 @@ import io.datarouter.job.detached.DetachedJobExecutor;
 import io.datarouter.job.metriclink.AppJobsMetricLinkPage;
 import io.datarouter.job.metriclink.DatarouterJobsMetricLinkPage;
 import io.datarouter.job.scheduler.JobSchedulerAppListener;
-import io.datarouter.job.storage.clusterjoblock.DatarouterClusterJobLockDao;
-import io.datarouter.job.storage.clusterjoblock.DatarouterClusterJobLockDao.DatarouterClusterJobLockDaoParams;
-import io.datarouter.job.storage.clustertriggerlock.DatarouterClusterTriggerLockDao;
-import io.datarouter.job.storage.clustertriggerlock.DatarouterClusterTriggerLockDao.DatarouterClusterTriggerLockDaoParams;
+import io.datarouter.job.storage.joblock.DatarouterJobLockDao;
+import io.datarouter.job.storage.joblock.DatarouterJobLockDao.DatarouterJobLockDaoParams;
 import io.datarouter.job.storage.stopjobrequest.StopJobRequestDao;
 import io.datarouter.job.storage.stopjobrequest.StopJobRequestDao.StopJobRequestDaoParams;
+import io.datarouter.job.storage.triggerlock.DatarouterTriggerLockDao;
+import io.datarouter.job.storage.triggerlock.DatarouterTriggerLockDao.DatarouterTriggerLockDaoParams;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.dao.DaosModuleBuilder;
@@ -76,17 +76,17 @@ public class DatarouterJobPlugin extends BaseWebPlugin{
 		@Override
 		public List<Class<? extends Dao>> getDaoClasses(){
 			return List.of(
-					DatarouterClusterJobLockDao.class,
-					DatarouterClusterTriggerLockDao.class,
+					DatarouterJobLockDao.class,
+					DatarouterTriggerLockDao.class,
 					StopJobRequestDao.class);
 		}
 
 		@Override
 		public void configure(){
-			bind(DatarouterClusterTriggerLockDaoParams.class)
-					.toInstance(new DatarouterClusterTriggerLockDaoParams(datarouterClusterTriggerLockClientIds));
-			bind(DatarouterClusterJobLockDaoParams.class)
-					.toInstance(new DatarouterClusterJobLockDaoParams(datarouterClusterJobLockClientIds));
+			bind(DatarouterTriggerLockDaoParams.class)
+					.toInstance(new DatarouterTriggerLockDaoParams(datarouterClusterTriggerLockClientIds));
+			bind(DatarouterJobLockDaoParams.class)
+					.toInstance(new DatarouterJobLockDaoParams(datarouterClusterJobLockClientIds));
 			bind(StopJobRequestDaoParams.class)
 					.toInstance(new StopJobRequestDaoParams(stopJobRequestClientIds));
 		}

@@ -25,9 +25,9 @@ public class DatarouterRuntimeToolTester{
 	@Test
 	public void testPwd(){
 		RunNativeDto result = DatarouterRuntimeTool.runNative("pwd");
-		Assert.assertEquals(result.exitVal, 0);
-		Assert.assertFalse(result.stdout.isEmpty());
-		Assert.assertTrue(result.stderr.isEmpty());
+		Assert.assertEquals(result.exitVal(), 0);
+		Assert.assertFalse(result.stdout().isEmpty());
+		Assert.assertTrue(result.stderr().isEmpty());
 	}
 
 	@Test(expectedExceptions = RuntimeException.class,

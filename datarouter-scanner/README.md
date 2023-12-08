@@ -11,7 +11,7 @@ A Scanner can be converted to a single-use Iterable with `.iterable()` or to a S
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-scanner</artifactId>
-	<version>0.0.122</version>
+	<version>0.0.123</version>
 </dependency>
 ```
 
@@ -57,7 +57,7 @@ These methods share behavior with those in Stream but are implemented independen
 - `collect` - uses the `Supplier<Collection>` to create a collection, then `add`s each item to it
   - equivalent to `stream.collect(Collectors.toCollection(TreeSet::new))`
 - `list` - collect all items to a `List`
-  - equivalent to `stream.collect(Collectors.toList())`
+  - equivalent to `stream.toList()`
 - `listTo` - collect all items to a `List` and pass it to a `Function`
   - equivalent to `stream.collect(Collectors.collectingAndThen(Collectors.toList(), function))`
 - `toMap` - collect all items to a `Map`.  By default existing values will be overwritten

@@ -222,12 +222,12 @@ public class TestDatarouterS3Client implements DatarouterS3Client{
 	}
 
 	@Override
-	public byte[] getObjectAsBytes(BucketAndKey location){
+	public Optional<byte[]> findObject(BucketAndKey location){
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public byte[] getPartialObject(BucketAndKey location, long offset, int length){
+	public Optional<byte[]> findPartialObject(BucketAndKey location, long offset, int length){
 		throw new UnsupportedOperationException();
 	}
 

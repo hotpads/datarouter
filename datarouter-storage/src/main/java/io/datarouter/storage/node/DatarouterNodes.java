@@ -22,6 +22,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeMap;
@@ -34,6 +35,7 @@ import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.storage.client.ClientAndTableNames;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
@@ -66,8 +68,7 @@ public class DatarouterNodes{
 				throw new RuntimeException(nodeOrDescendant.getName() + " is already registered");
 			}
 			nodeByName.put(nodeOrDescendant.getName(), nodeOrDescendant);
-			if(nodeOrDescendant instanceof PhysicalNode<?,?,?>){
-				PhysicalNode<?,?,?> physicalNode = (PhysicalNode<?,?,?>)nodeOrDescendant;
+			if(nodeOrDescendant instanceof PhysicalNode<?,?,?> physicalNode){
 				String clientName = physicalNode.getFieldInfo().getClientId().getName();
 				String tableName = physicalNode.getFieldInfo().getTableName();
 				physicalNodeByTableNameByClientName.computeIfAbsent(
@@ -104,11 +105,17 @@ public class DatarouterNodes{
 				.collect(Collectors.toSet());
 	}
 
+	public List<PhysicalNode<?,?,?>> getPhysicalNodes(){
+		return Scanner.of(physicalNodeByTableNameByClientName.keySet())
+				.concatIter(this::getPhysicalNodesForClient)
+				.list();
+	}
+
 	public Collection<PhysicalNode<?,?,?>> getPhysicalNodesForClient(String clientName){
 		return topLevelNodes.stream()
 				.map(node -> node.getPhysicalNodesForClient(clientName))
 				.flatMap(List::stream)
-				.collect(Collectors.toList());
+				.collect(WarnOnModifyList.deprecatedCollector());
 	}
 
 	public List<String> getTableNamesForClient(String clientName){
@@ -116,7 +123,11 @@ public class DatarouterNodes{
 				.map(PhysicalNode::getFieldInfo)
 				.map(PhysicalDatabeanFieldInfo::getTableName)
 				.distinct()
-				.collect(Collectors.toList());
+				.collect(WarnOnModifyList.deprecatedCollector());
+	}
+
+	public Optional<PhysicalNode<?,?,?>> findPhysicalNode(ClientAndTableNames clientAndTableNames){
+		return Optional.ofNullable(getPhysicalNode(clientAndTableNames));
 	}
 
 	public PhysicalNode<?,?,?> getPhysicalNode(ClientAndTableNames clientAndTableNames){

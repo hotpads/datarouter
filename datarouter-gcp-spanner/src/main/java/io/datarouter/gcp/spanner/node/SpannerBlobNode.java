@@ -140,19 +140,21 @@ implements PhysicalBlobStorageNode{
 	}
 
 	@Override
-	public byte[] read(PathbeanKey key, Config config){
+	public Optional<byte[]> read(PathbeanKey key, Config config){
 		var op = new SpannerGetBlobOp<>(
 				clientManager.getDatabaseClient(getClientId()),
 				getFieldInfo(),
 				List.of(key),
 				config,
-				this.getFieldInfo().getFieldColumnNames());
+				getFieldInfo().getFieldColumnNames());
 		List<DatabaseBlob> blobs = op.wrappedCall();
-		return blobs.isEmpty() ? null : blobs.get(0).getData();
+		return blobs.isEmpty()
+				? Optional.empty()
+				: Optional.of(blobs.get(0).getData());
 	}
 
 	@Override
-	public byte[] readPartial(PathbeanKey key, long offset, int length, Config config){
+	public Optional<byte[]> readPartial(PathbeanKey key, long offset, int length, Config config){
 		var op = new SpannerGetBlobOp<>(
 				clientManager.getDatabaseClient(getClientId()),
 				getFieldInfo(),
@@ -162,7 +164,9 @@ implements PhysicalBlobStorageNode{
 		int from = (int)offset;
 		int to = from + length;
 		List<DatabaseBlob> blobs = op.wrappedCall();
-		return blobs.isEmpty() ? null : Arrays.copyOfRange(blobs.get(0).getData(), from, to);
+		return blobs.isEmpty()
+				? Optional.empty()
+				: Optional.of(Arrays.copyOfRange(blobs.get(0).getData(), from, to));
 	}
 
 	@Override

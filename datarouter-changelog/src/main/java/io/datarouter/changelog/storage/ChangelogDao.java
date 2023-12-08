@@ -23,7 +23,6 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.BaseDao;
-import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import io.datarouter.storage.tag.Tag;
@@ -35,12 +34,7 @@ import jakarta.inject.Singleton;
 @Singleton
 public class ChangelogDao extends BaseDao{
 
-	public static class ChangelogDaoParams extends BaseRedundantDaoParams{
-
-		public ChangelogDaoParams(List<ClientId> clientIds){
-			super(clientIds);
-		}
-
+	public record ChangelogDaoParams(List<ClientId> clientIds){
 	}
 
 	private final SortedMapStorageNode<ChangelogKey,Changelog,ChangelogFielder> node;
@@ -49,13 +43,9 @@ public class ChangelogDao extends BaseDao{
 	public ChangelogDao(Datarouter datarouter, ChangelogDaoParams params, NodeFactory nodeFactory){
 		super(datarouter);
 		node = Scanner.of(params.clientIds)
-				.map(clientId -> {
-					SortedMapStorageNode<ChangelogKey,Changelog,ChangelogFielder> node =
-							nodeFactory.create(clientId, Changelog::new, ChangelogFielder::new)
+				.map(clientId -> nodeFactory.create(clientId, Changelog::new, ChangelogFielder::new)
 						.withTag(Tag.DATAROUTER)
-						.build();
-					return node;
-				})
+						.<SortedMapStorageNode<ChangelogKey,Changelog,ChangelogFielder>>build())
 				.listTo(RedundantSortedMapStorageNode::makeIfMulti);
 		datarouter.register(node);
 	}

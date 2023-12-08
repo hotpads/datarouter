@@ -24,6 +24,7 @@ import com.google.pubsub.v1.ReceivedMessage;
 
 import io.datarouter.client.gcp.pubsub.PubsubCostCounters;
 import io.datarouter.client.gcp.pubsub.client.GcpPubsubClientManager;
+import io.datarouter.client.gcp.pubsub.config.DatarouterGcpPubsubSettingsRoot;
 import io.datarouter.client.gcp.pubsub.node.BaseGcpPubsubNode;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
@@ -42,8 +43,9 @@ extends GcpPubsubOp<PK,D,F,List<T>>{
 			Config config,
 			BaseGcpPubsubNode<PK,D,F> basePubSubNode,
 			GcpPubsubClientManager clientManager,
+			DatarouterGcpPubsubSettingsRoot settingRoot,
 			ClientId clientId){
-		super(config, basePubSubNode, clientManager, clientId);
+		super(config, basePubSubNode, clientManager, settingRoot, clientId);
 	}
 
 	@Override
@@ -52,6 +54,7 @@ extends GcpPubsubOp<PK,D,F,List<T>>{
 		PullRequest pullRequest = PullRequest.newBuilder()
 				.setMaxMessages(config.findLimit().orElse(BaseGcpPubsubNode.MAX_MESSAGES_PER_BATCH))
 				.setSubscription(subscriberId)
+				.setReturnImmediately(settingRoot.returnImmediately.get())
 				.build();
 		try{
 			PullResponse pullResponse = subscriberStub.pullCallable().call(pullRequest);

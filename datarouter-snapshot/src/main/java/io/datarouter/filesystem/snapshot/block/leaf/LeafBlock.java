@@ -251,11 +251,10 @@ public interface LeafBlock extends Block{
 	 * @return  The index of the value in the value block (not the byte offset)
 	 */
 	default int valueIndex(int column, int valueBlockOffsetForKey, int index){
-		int valueBlockOffset = valueBlockOffsetForKey;
-		if(valueBlockOffset == 0){
+		if(valueBlockOffsetForKey == 0){
 			return firstValueIndex(column) + index;
 		}
-		int previousValueBlockOffset = valueBlockOffset(column, valueBlockOffset);
+		int previousValueBlockOffset = valueBlockOffset(column, valueBlockOffsetForKey);
 		return index - previousValueBlockOffset;
 	}
 

@@ -15,6 +15,8 @@
  */
 package io.datarouter.enums;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.function.Function;
 
 /**
@@ -25,8 +27,30 @@ import java.util.function.Function;
 public class CaseInsensitiveStringMappedEnum<E>
 extends MappedEnum<E,String>{
 
+	private final int maxLength;
+
 	public CaseInsensitiveStringMappedEnum(E[] values, Function<E,String> keyExtractor){
+		this(values, keyExtractor, Integer.MAX_VALUE);
+	}
+
+	public CaseInsensitiveStringMappedEnum(E[] values, Function<E,String> keyExtractor, int maxLength){
 		super(values, keyExtractor, String::toLowerCase);
+		this.maxLength = maxLength;
+		validateLengths(getValueByKey().keySet(), maxLength);
+	}
+
+	public int maxLength(){
+		return maxLength;
+	}
+
+	private static void validateLengths(Collection<String> strings, int maxLength){
+		List<String> tooLong = strings.stream()
+				.filter(str -> str.length() > maxLength)
+				.toList();
+		if(!tooLong.isEmpty()){
+			String message = String.format("Some entries (%s) exceed the max length=%s", tooLong, maxLength);
+			throw new IllegalArgumentException(message);
+		}
 	}
 
 }

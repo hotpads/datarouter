@@ -21,7 +21,6 @@ import java.util.Objects;
 import io.datarouter.bytes.EmptyArray;
 import io.datarouter.bytes.codec.bytestringcodec.HexByteStringCodec;
 import io.datarouter.bytes.codec.longcodec.ComparableLongCodec;
-import io.datarouter.bytes.kvfile.codec.KvFileEntrySerializer;
 
 /**
  * A generic KeyValue, plus a version represented as bytes.  Entries are compared by key+version.
@@ -97,9 +96,9 @@ public class KvFileEntry{
 	}
 
 	public static KvFileEntry create(byte[] key, byte[] version, KvFileOp op, byte[] value){
-		byte[] bytes = KvFileEntrySerializer.toBytes(key, version, op, value);
+		byte[] bytes = KvFileEntryCodec.toBytes(key, version, op, value);
 		//TODO perhaps that should build the entry directly rather than parsing the bytes
-		return KvFileEntrySerializer.fromBytes(bytes);
+		return KvFileEntryCodec.fromBytes(bytes);
 	}
 
 	/*--------- convenience -------*/
@@ -129,12 +128,11 @@ public class KvFileEntry{
 
 	public static boolean equalsKeyOptimized(KvFileEntry left, KvFileEntry right){
 		//Skip null checks - nulls are rejected by the constructor
-		//Skip == checks - they may sharing a common backing array at some point
+		//Skip == checks - they may share a common backing array at some point
 		if(left.keyLength != right.keyLength){
 			return false;
 		}
-		int length = left.keyLength;
-		if(length == 0){
+		if(left.keyLength == 0){
 			return true;
 		}
 

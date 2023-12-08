@@ -26,6 +26,7 @@ import org.apache.logging.log4j.core.util.CronExpression;
 import io.datarouter.job.BaseJob;
 import io.datarouter.job.detached.DetachedJobResource;
 import io.datarouter.job.lock.TriggerLockConfig;
+import io.datarouter.types.MilliTime;
 
 //TODO Job system currently limited to one class simpleName
 public class JobPackage implements Comparable<JobPackage>{
@@ -63,18 +64,33 @@ public class JobPackage implements Comparable<JobPackage>{
 			Class<? extends BaseJob> jobClass,
 			TriggerLockConfig triggerLockConfig,
 			DetachedJobResource detachedJobResource){
-		return new JobPackage(jobCategoryName, cronExpression, shouldRunSupplier, jobClass, triggerLockConfig,
-				true, detachedJobResource);
+		return new JobPackage(
+				jobCategoryName,
+				cronExpression,
+				shouldRunSupplier,
+				jobClass,
+				triggerLockConfig,
+				true,
+				detachedJobResource);
 	}
 
 	public static JobPackage createManualFromScheduledPackage(JobPackage scheduled){
 		//if the job normally requires locking, then the manual trigger will respect that, but there is no deadline
 		TriggerLockConfig manualTriggerLockConfig = scheduled.triggerLockConfig != null
 				? new TriggerLockConfig(
-						scheduled.triggerLockConfig.jobName, null, Duration.ofSeconds(Long.MAX_VALUE), false)
+						scheduled.triggerLockConfig.jobName,
+						null,
+						Duration.ofSeconds(Long.MAX_VALUE),
+						false)
 				: null;
-		return new JobPackage(scheduled.jobCategoryName, null, () -> true, scheduled.jobClass, manualTriggerLockConfig,
-				scheduled.shouldRunDetached, scheduled.detachedJobResource);
+		return new JobPackage(
+				scheduled.jobCategoryName,
+				null,
+				() -> true,
+				scheduled.jobClass,
+				manualTriggerLockConfig,
+				scheduled.shouldRunDetached,
+				scheduled.detachedJobResource);
 	}
 
 	private JobPackage(
@@ -120,10 +136,10 @@ public class JobPackage implements Comparable<JobPackage>{
 				.map(cronExpression -> cronExpression.getNextValidTimeAfter(date));
 	}
 
-	public Optional<Instant> getNextValidTimeAfter(Instant instant){
+	public Optional<MilliTime> getNextValidTimeAfter(MilliTime milliTime){
 		return Optional.ofNullable(cronExpression)
-				.map(cronExpression -> cronExpression.getNextValidTimeAfter(Date.from(instant)))
-				.map(Date::toInstant);
+				.map(cronExpression -> cronExpression.getNextValidTimeAfter(milliTime.toDate()))
+				.map(MilliTime::of);
 	}
 
 	public boolean usesLocking(){
@@ -131,15 +147,18 @@ public class JobPackage implements Comparable<JobPackage>{
 	}
 
 	public Optional<Instant> getSoftDeadline(Instant triggerTime){
-		return Optional.ofNullable(triggerLockConfig).map(config -> config.getSoftDeadline(Date.from(triggerTime)));
+		return Optional.ofNullable(triggerLockConfig)
+				.map(config -> config.getSoftDeadline(triggerTime));
 	}
 
 	public Optional<Instant> getHardDeadline(Instant triggerTime){
-		return Optional.ofNullable(triggerLockConfig).map(config -> config.getHardDeadline(Date.from(triggerTime)));
+		return Optional.ofNullable(triggerLockConfig)
+				.map(config -> config.getHardDeadline(triggerTime));
 	}
 
 	public Optional<Boolean> getWarnOnReachingDuration(){
-		return Optional.ofNullable(triggerLockConfig).map(config -> config.warnOnReachingMaxDuration);
+		return Optional.ofNullable(triggerLockConfig)
+				.map(config -> config.warnOnReachingMaxDuration);
 	}
 
 	@Override

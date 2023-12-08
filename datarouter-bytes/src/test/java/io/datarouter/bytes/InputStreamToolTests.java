@@ -16,7 +16,6 @@
 package io.datarouter.bytes;
 
 import java.io.ByteArrayInputStream;
-import java.util.List;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -32,15 +31,6 @@ public class InputStreamToolTests{
 		Assert.assertEquals(InputStreamTool.readNBytes(inputStream, 4), new byte[]{0, 1, 2, 3});
 		Assert.assertEquals(InputStreamTool.readNBytes(inputStream, 4), new byte[]{4, 5});
 		Assert.assertEquals(InputStreamTool.readNBytes(inputStream, 4), new byte[]{});
-	}
-
-	@Test
-	public void testScanChunks(){
-		byte[] input = {0, 1, 2, 3, 4, 5};
-		var inputStream = new ByteArrayInputStream(input);
-		List<byte[]> chunks = InputStreamTool.scanChunks(inputStream, 4).list();
-		Assert.assertEquals(chunks.get(0), new byte[]{0, 1, 2, 3});
-		Assert.assertEquals(chunks.get(1), new byte[]{4, 5});
 	}
 
 	@Test

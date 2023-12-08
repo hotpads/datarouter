@@ -20,12 +20,12 @@ import static j2html.TagCreator.h4;
 import static j2html.TagCreator.p;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import io.datarouter.joblet.JobletPageFactory;
 import io.datarouter.joblet.service.JobletService;
 import io.datarouter.joblet.service.JobletService.JobletServiceThreadCountResponse;
 import io.datarouter.joblet.type.JobletTypeFactory;
+import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.util.BooleanTool;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
@@ -53,7 +53,7 @@ public class JobletThreadCountHandler extends BaseHandler{
 		List<String> serverNames = cachedWebAppInstancesOfThisServerType.getSortedServerNamesForThisWebApp();
 		List<JobletServiceThreadCountResponse> threadCountResponses = jobletTypeFactory.getAllTypes().stream()
 				.map(jobletService::getThreadCountInfoForThisInstance)
-				.collect(Collectors.toList());
+				.collect(WarnOnModifyList.deprecatedCollector());
 		var content = makeContent(
 				serverNames,
 				threadCountResponses);

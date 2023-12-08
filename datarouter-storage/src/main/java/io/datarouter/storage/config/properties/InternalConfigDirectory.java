@@ -20,6 +20,9 @@ import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.function.Supplier;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.datarouter.storage.config.ComputedPropertiesFinder;
 import io.datarouter.storage.config.ConfigDirectoryConstants;
 import jakarta.inject.Inject;
@@ -27,6 +30,7 @@ import jakarta.inject.Singleton;
 
 @Singleton
 public class InternalConfigDirectory implements Supplier<String>{
+	private static final Logger logger = LoggerFactory.getLogger(InternalConfigDirectory.class);
 
 	public static final String INTERNAL_CONFIG_DIRECTORY = "internalConfigDirectory";
 
@@ -35,6 +39,7 @@ public class InternalConfigDirectory implements Supplier<String>{
 	@Inject
 	public InternalConfigDirectory(ComputedPropertiesFinder finder){
 		this.internalConfigDirectory = finder.findProperty(INTERNAL_CONFIG_DIRECTORY);
+		logger.warn("{} set to {}", INTERNAL_CONFIG_DIRECTORY, internalConfigDirectory);
 	}
 
 	@Override

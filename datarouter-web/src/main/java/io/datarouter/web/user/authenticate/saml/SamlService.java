@@ -125,34 +125,34 @@ public class SamlService{
 	}
 
 	public void redirectToIdentityProvider(HttpServletRequest request, HttpServletResponse response){
-		if(samlSettings.getShouldProcess()){
-			SamlTool.throwUnlessHttps(request);
-			exceptionRecorder.recordHttpRequest(request);
-			if(request.getMethod().equals("OPTIONS")){
-				logger.warn("received OPTIONS request URL={}", request.getRequestURL());
-			}
-			try{
-				samlRegistrar.ifPresent(SamlRegistrar::register);
-			}catch(RuntimeException e){
-				if(samlSettings.ignoreServiceProviderRegistrationFailures.get()){
-					logger.warn("Ignoring failure to register with IdP.", e);
-				}else{
-					throw e;
-				}
-			}
-			AuthnRequestMessageConfig config = new AuthnRequestMessageConfig(
-					samlSettings.entityId.get(),
-					SamlTool.getUrlInRequestContext(request, samlSettings.assertionConsumerServicePath.get()),
-					samlSettings.idpSamlUrl.get(),
-					"",
-					Optional.empty(),
-					Optional.of(signingKeyPair));
-			MessageContext authnRequestContext = SamlTool.buildAuthnRequestAndContext(config);
-			persistAuthnRequestIdRedirectUrl(authnRequestContext, request);
-			SamlTool.redirectWithAuthnRequestContext(response, authnRequestContext);
-		}else{
+		if(!samlSettings.getShouldProcess()){
 			throw new RuntimeException("SAML Configuration error");
 		}
+
+		SamlTool.throwUnlessHttps(request);
+		exceptionRecorder.recordHttpRequest(request);
+		if(request.getMethod().equals("OPTIONS")){
+			logger.warn("received OPTIONS request URL={}", request.getRequestURL());
+		}
+		try{
+			samlRegistrar.ifPresent(SamlRegistrar::register);
+		}catch(RuntimeException e){
+			if(samlSettings.ignoreServiceProviderRegistrationFailures.get()){
+				logger.warn("Ignoring failure to register with IdP.", e);
+			}else{
+				throw e;
+			}
+		}
+		AuthnRequestMessageConfig config = new AuthnRequestMessageConfig(
+				samlSettings.entityId.get(),
+				SamlTool.getUrlInRequestContext(request, samlSettings.assertionConsumerServicePath.get()),
+				samlSettings.idpSamlUrl.get(),
+				"",
+				Optional.empty(),
+				Optional.of(signingKeyPair));
+		MessageContext authnRequestContext = SamlTool.buildAuthnRequestAndContext(config);
+		persistAuthnRequestIdRedirectUrl(authnRequestContext, request);
+		SamlTool.redirectWithAuthnRequestContext(response, authnRequestContext);
 	}
 
 	private void persistAuthnRequestIdRedirectUrl(MessageContext authnRequest, HttpServletRequest request){

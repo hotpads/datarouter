@@ -96,9 +96,10 @@ public class ConveyorProcessor{
 				Future<?> completedTask = completionService.poll(conveyorSetting.pollTimeout.get().toMillis(),
 						TimeUnit.MILLISECONDS);
 				if(completedTask != null){
-					// a task has finished, try submit another tasks or remove some if necessary
-					logger.debug("One task finished, numRunningTasks={}, numAllowedThread={}", conveyorFutures.size(),
-							numMaxThreads.get(), numMaxThreads.get());
+					// a task has finished, try submitting additional tasks or remove some if necessary
+					logger.debug("One task finished, numRunningTasks={}, numAllowedThread={}",
+							conveyorFutures.size(),
+							numMaxThreads.get());
 					conveyorFutures.remove(completedTask);
 					sleepABit(conveyorSetting.sleepOnTaskCompletion.get().toJavaDuration());
 				}

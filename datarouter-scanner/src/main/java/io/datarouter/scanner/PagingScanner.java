@@ -49,10 +49,7 @@ public abstract class PagingScanner<K,T> extends BaseScanner<List<T>>{
 	}
 
 	private static <T> boolean notEmpty(Collection<T> collection){
-		if(collection == null || collection.isEmpty()){
-			return false;
-		}
-		return true;
+		return collection != null && !collection.isEmpty();
 	}
 
 	private static <T> T getLast(List<T> list){

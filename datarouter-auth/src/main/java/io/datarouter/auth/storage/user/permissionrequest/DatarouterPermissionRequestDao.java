@@ -21,15 +21,15 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-import io.datarouter.auth.storage.user.permissionrequest.DatarouterPermissionRequest.DatarouterPermissionRequestFielder;
+import io.datarouter.auth.storage.user.permissionrequest.PermissionRequest.PermissionRequestFielder;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.BaseDao;
-import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import io.datarouter.storage.tag.Tag;
+import io.datarouter.types.MilliTime;
 import io.datarouter.virtualnode.redundant.RedundantSortedMapStorageNode;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -37,16 +37,10 @@ import jakarta.inject.Singleton;
 @Singleton
 public class DatarouterPermissionRequestDao extends BaseDao{
 
-	public static class DatarouterPermissionRequestDaoParams extends BaseRedundantDaoParams{
-
-		public DatarouterPermissionRequestDaoParams(List<ClientId> clientIds){
-			super(clientIds);
-		}
-
+	public record DatarouterPermissionRequestDaoParams(List<ClientId> clientIds){
 	}
 
-	private final SortedMapStorageNode<DatarouterPermissionRequestKey,DatarouterPermissionRequest,
-			DatarouterPermissionRequestFielder> node;
+	private final SortedMapStorageNode<PermissionRequestKey,PermissionRequest,PermissionRequestFielder> node;
 
 	@Inject
 	public DatarouterPermissionRequestDao(
@@ -57,12 +51,12 @@ public class DatarouterPermissionRequestDao extends BaseDao{
 		node = Scanner.of(params.clientIds)
 				.map(clientId -> {
 					SortedMapStorageNode<
-							DatarouterPermissionRequestKey,
-							DatarouterPermissionRequest,
-							DatarouterPermissionRequestFielder> node = nodeFactory.create(
+							PermissionRequestKey,
+							PermissionRequest,
+							PermissionRequestFielder> node = nodeFactory.create(
 									clientId,
-									DatarouterPermissionRequest::new,
-									DatarouterPermissionRequestFielder::new)
+									PermissionRequest::new,
+									PermissionRequestFielder::new)
 							.withTag(Tag.DATAROUTER)
 							.build();
 					return node;
@@ -71,57 +65,63 @@ public class DatarouterPermissionRequestDao extends BaseDao{
 		datarouter.register(node);
 	}
 
-	public void putMulti(Collection<DatarouterPermissionRequest> databeans){
+	public void putMulti(Collection<PermissionRequest> databeans){
 		node.putMulti(databeans);
 	}
 
-	public Scanner<DatarouterPermissionRequest> scan(){
+	public Scanner<PermissionRequest> scan(){
 		return node.scan();
 	}
 
-	public Scanner<DatarouterPermissionRequest> scanWithPrefix(DatarouterPermissionRequestKey prefix){
+	public Scanner<PermissionRequest> scanWithPrefix(PermissionRequestKey prefix){
 		return node.scanWithPrefix(prefix);
 	}
 
-	public Scanner<DatarouterPermissionRequest> scanOpenPermissionRequests(){
+	public Scanner<PermissionRequest> scanOpenPermissionRequests(){
 		return scan()
 				.include(request -> request.getResolution() == null);
 	}
 
-	public Scanner<DatarouterPermissionRequest> scanOpenPermissionRequestsForUser(Long userId){
+	public Scanner<PermissionRequest> scanOpenPermissionRequestsForUser(Long userId){
 		Objects.requireNonNull(userId);
 		return scanOpenPermissionRequestsForUsers(List.of(userId));
 	}
 
-	public Scanner<DatarouterPermissionRequest> scanOpenPermissionRequestsForUsers(List<Long> userIds){
+	public Scanner<PermissionRequest> scanOpenPermissionRequestsForUsers(List<Long> userIds){
 		return Scanner.of(userIds)
-				.map(userId -> new DatarouterPermissionRequestKey(userId, null))
+				.map(userId -> new PermissionRequestKey(userId, null))
 				.listTo(node::scanWithPrefixes)
 				.include(request -> request.getResolution() == null);
 	}
 
-	public Scanner<DatarouterPermissionRequest> scanPermissionRequestsForUser(Long userId){
-		return scanWithPrefix(new DatarouterPermissionRequestKey(userId, null));
+	public Scanner<PermissionRequest> scanPermissionRequestsForUser(Long userId){
+		return scanWithPrefix(new PermissionRequestKey(userId, null));
 	}
 
-	public void createPermissionRequest(DatarouterPermissionRequest request){
+	public void createPermissionRequest(PermissionRequest request){
 		//supercede existing requests to leave only the new request unresolved
 		scanOpenPermissionRequestsForUser(request.getKey().getUserId())
-				.map(DatarouterPermissionRequest::supercede)
+				.map(PermissionRequest::supercede)
 				.append(request)
 				.flush(this::putMulti);
 	}
 
-	public void declineAll(Long userId){
+	public void expireAll(Long userId){
 		scanOpenPermissionRequestsForUser(userId)
-				.map(DatarouterPermissionRequest::decline)
+				.map(PermissionRequest::expire)
+				.flush(this::putMulti);
+	}
+
+	public void declineAll(Long userId, MilliTime declineTime){
+		scanOpenPermissionRequestsForUser(userId)
+				.map(request -> request.decline(declineTime.toInstant()))
 				.flush(this::putMulti);
 	}
 
 	public Set<Long> getUserIdsWithPermissionRequests(){
 		return scanOpenPermissionRequests()
-				.map(DatarouterPermissionRequest::getKey)
-				.map(DatarouterPermissionRequestKey::getUserId)
+				.map(PermissionRequest::getKey)
+				.map(PermissionRequestKey::getUserId)
 				.collect(HashSet::new);
 	}
 

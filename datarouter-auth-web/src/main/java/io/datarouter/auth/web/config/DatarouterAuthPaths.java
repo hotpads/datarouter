@@ -58,18 +58,19 @@ public class DatarouterAuthPaths extends PathNode implements PathsRoot{
 	}
 
 	public static class AdminPaths extends PathNode{
+		public final PathNode copyUser = leaf("copyUser");
 		public final PathNode createUser = leaf("createUser");
 		public final PathNode createUserSubmit = leaf("createUserSubmit");
+		public final PathNode editAccounts = leaf("editAccounts");
+		public final PathNode editRoles = leaf("editRoles");
 		public final PathNode editUser = leaf("editUser");
+		public final PathNode getAllRoles = leaf("getAllRoles");
+		public final PathNode getIsSamlEnabled = leaf("getIsSamlEnabled");
 		public final PathNode getUserDetails = leaf("getUserDetails");
 		public final PathNode getUserProfileImage = leaf("getUserProfileImage");
 		public final PathNode listUsers = leaf("listUsers");
-		public final PathNode getAllRoles = leaf("getAllRoles");
-		public final PathNode editRoles = leaf("editRoles");
-		public final PathNode editAccounts = leaf("editAccounts");
-		public final PathNode updateTimeZone = leaf("updateTimeZone");
 		public final PathNode updatePassword = leaf("updatePassword");
-		public final PathNode copyUser = leaf("copyUser");
+		public final PathNode updateTimeZone = leaf("updateTimeZone");
 		public final PathNode viewUsers = leaf("viewUsers");
 	}
 

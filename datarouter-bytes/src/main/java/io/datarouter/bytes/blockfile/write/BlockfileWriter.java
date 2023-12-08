@@ -26,11 +26,12 @@ import io.datarouter.bytes.BinaryDictionary;
 import io.datarouter.bytes.ByteLength;
 import io.datarouter.bytes.ByteTool;
 import io.datarouter.bytes.Codec;
-import io.datarouter.bytes.EmptyArray;
 import io.datarouter.bytes.blockfile.checksum.BlockfileChecksummer;
 import io.datarouter.bytes.blockfile.compress.BlockfileCompressor;
 import io.datarouter.bytes.blockfile.dto.BlockfileTokens;
-import io.datarouter.bytes.blockfile.enums.BlockfileSection;
+import io.datarouter.bytes.blockfile.dto.tokens.BlockfileBlockTokens;
+import io.datarouter.bytes.blockfile.dto.tokens.BlockfileFooterTokens;
+import io.datarouter.bytes.blockfile.dto.tokens.BlockfileHeaderTokens;
 import io.datarouter.bytes.blockfile.section.BlockfileFooter;
 import io.datarouter.bytes.blockfile.section.BlockfileHeader;
 import io.datarouter.bytes.blockfile.section.BlockfileHeader.BlockfileHeaderCodec;
@@ -124,10 +125,8 @@ public class BlockfileWriter<T>{
 				config.checksummer());
 		byte[] headerValueBytes = config.headerCodec().encode(header);
 		int headerBlockLength = NUM_HEADER_METADATA_BYTES + headerValueBytes.length;
-		return new BlockfileTokens(
-				BlockfileSection.HEADER,
+		return new BlockfileHeaderTokens(
 				RawIntCodec.INSTANCE.encode(headerBlockLength),
-				EmptyArray.BYTE,
 				headerValueBytes);
 	}
 
@@ -137,7 +136,8 @@ public class BlockfileWriter<T>{
 				.parallelOrdered(config.encodeThreads())
 				.map(this::encodeBlocks)
 				.each(blockBatch -> dataBlockCounter.addAndGet(blockBatch.size()))
-				.concat(Scanner::of);
+				.concat(Scanner::of)
+				.map(BlockfileTokens.class::cast);
 	}
 
 	private Scanner<BlockfileTokens> makeFooterScanner(){
@@ -174,21 +174,21 @@ public class BlockfileWriter<T>{
 				+ NUM_SECTION_BYTES;
 	}
 
-	public List<BlockfileTokens> encodeBlocks(List<T> blocks){
+	public List<BlockfileBlockTokens<T>> encodeBlocks(List<T> blocks){
 		Codec<byte[],byte[]> compressorCodec = config.compressor().codecSupplier().get();
 		return Scanner.of(blocks)
 				.map(block -> encodeBlock(compressorCodec, block))
 				.collect(() -> new ArrayList<>(blocks.size()));
 	}
 
-	public BlockfileTokens encodeBlock(Codec<byte[],byte[]> compressorCodec, T item){
+	public BlockfileBlockTokens<T> encodeBlock(Codec<byte[],byte[]> compressorCodec, T item){
 		byte[] encodedBytes = config.encoder().apply(item);
 		byte[] compressedBytes = compressorCodec.encode(encodedBytes);
 		int blockLength = numBlockMetadataBytes() + compressedBytes.length;
 		byte[] blockLengthBytes = RawIntCodec.INSTANCE.encode(blockLength);
 		byte[] checksumBytes = config.checksummer().encoder().apply(compressedBytes);
-		return new BlockfileTokens(
-				BlockfileSection.BLOCK,
+		return new BlockfileBlockTokens<>(
+				item,
 				blockLengthBytes,
 				checksumBytes,
 				compressedBytes);
@@ -196,10 +196,8 @@ public class BlockfileWriter<T>{
 
 	public static BlockfileTokens encodeFooter(byte[] footerValueBytes){
 		int footerBlockLength = NUM_FOOTER_METADATA_BYTES + footerValueBytes.length;
-		return new BlockfileTokens(
-				BlockfileSection.FOOTER,
+		return new BlockfileFooterTokens(
 				RawIntCodec.INSTANCE.encode(footerBlockLength),
-				EmptyArray.BYTE,
 				footerValueBytes);
 	}
 

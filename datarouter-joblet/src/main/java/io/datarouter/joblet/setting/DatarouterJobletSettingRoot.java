@@ -74,11 +74,11 @@ public class DatarouterJobletSettingRoot extends SettingRoot{
 
 
 	public CachedSetting<Integer> getCachedSettingClusterThreadCountForJobletType(JobletType<?> jobletType){
-		return Optional.ofNullable(getClusterThreadCountSettings().getSettingForJobletType(jobletType)).orElse(null);
+		return getClusterThreadCountSettings().getSettingForJobletType(jobletType);
 	}
 
 	public CachedSetting<Integer> getCachedSettingThreadCountForJobletType(JobletType<?> jobletType){
-		return Optional.ofNullable(getThreadCountSettings().getSettingForJobletType(jobletType)).orElse(null);
+		return getThreadCountSettings().getSettingForJobletType(jobletType);
 	}
 
 	/*------------------ node getters ------------------*/

@@ -18,7 +18,6 @@ package io.datarouter.scanner;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.testng.Assert;
@@ -29,8 +28,8 @@ public class PrefetchingScannerTests{
 	@Test
 	public void test(){
 		List<Integer> integers = IntStream.range(0, 20)
-				.mapToObj(Integer::valueOf)
-				.collect(Collectors.toList());
+				.boxed()
+				.collect(WarnOnModifyList.deprecatedCollector());
 		ExecutorService exec = Executors.newFixedThreadPool(3);
 		Assert.assertEquals(Scanner.of(integers).prefetch(exec, 3).list(), integers);
 		exec.shutdown();

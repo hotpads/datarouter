@@ -17,18 +17,19 @@ package io.datarouter.nodewatch.storage.tablecount;
 
 import java.time.Instant;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 import java.util.function.Supplier;
 
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.field.Field;
-import io.datarouter.model.field.imp.DateField;
-import io.datarouter.model.field.imp.DateFieldKey;
+import io.datarouter.model.field.codec.MilliTimeFieldCodec;
+import io.datarouter.model.field.imp.comparable.LongEncodedField;
+import io.datarouter.model.field.imp.comparable.LongEncodedFieldKey;
 import io.datarouter.model.field.imp.comparable.LongField;
 import io.datarouter.model.field.imp.comparable.LongFieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
+import io.datarouter.types.MilliTime;
 import io.datarouter.util.number.NumberFormatter;
 
 public class TableCount extends BaseDatabean<TableCountKey,TableCount>{
@@ -40,15 +41,15 @@ public class TableCount extends BaseDatabean<TableCountKey,TableCount>{
 			TableCount::getCountTimeMs);
 
 	private Long numRows;
-	private Date dateUpdated = new Date();
+	private MilliTime updated;
 	private Long countTimeMs;
 	private Long numSpans;
 	private Long numSlowSpans;
 
 	public static class FieldKeys{
 		public static final LongFieldKey numRows = new LongFieldKey("numRows");
-		@SuppressWarnings("deprecation")
-		public static final DateFieldKey dateUpdated = new DateFieldKey("dateUpdated");
+		public static final LongEncodedFieldKey<MilliTime> updated = new LongEncodedFieldKey<>("updated",
+				new MilliTimeFieldCodec());
 		public static final LongFieldKey countTimeMs = new LongFieldKey("countTimeMs");
 		public static final LongFieldKey numSpans = new LongFieldKey("numSpans");
 		public static final LongFieldKey numSlowSpans = new LongFieldKey("numSlowSpans");
@@ -60,12 +61,11 @@ public class TableCount extends BaseDatabean<TableCountKey,TableCount>{
 			super(TableCountKey::new);
 		}
 
-		@SuppressWarnings("deprecation")
 		@Override
 		public List<Field<?>> getNonKeyFields(TableCount databean){
 			return List.of(
 					new LongField(FieldKeys.numRows, databean.numRows),
-					new DateField(FieldKeys.dateUpdated, databean.dateUpdated),
+					new LongEncodedField<>(FieldKeys.updated, databean.updated),
 					new LongField(FieldKeys.countTimeMs, databean.countTimeMs),
 					new LongField(FieldKeys.numSpans, databean.numSpans),
 					new LongField(FieldKeys.numSlowSpans, databean.numSlowSpans));
@@ -85,14 +85,14 @@ public class TableCount extends BaseDatabean<TableCountKey,TableCount>{
 	public TableCount(
 			String clientName,
 			String tableName,
-			Long createdMs,
+			MilliTime createdMs,
 			Long numRows,
 			Long countTimeMs,
 			Long numSpans,
 			Long numSlowSpans){
 		super(new TableCountKey(clientName, tableName, createdMs));
 		this.numRows = numRows;
-		this.dateUpdated = new Date(createdMs);
+		this.updated = createdMs;
 		this.countTimeMs = countTimeMs;
 		this.numSpans = numSpans;
 		this.numSlowSpans = numSlowSpans;
@@ -137,7 +137,7 @@ public class TableCount extends BaseDatabean<TableCountKey,TableCount>{
 	}
 
 	public Instant getDateUpdated(){
-		return dateUpdated.toInstant();
+		return updated.toInstant();
 	}
 
 	public Long getNumSpans(){

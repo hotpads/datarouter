@@ -17,7 +17,6 @@ package io.datarouter.ratelimiter.storage;
 
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
-import io.datarouter.storage.dao.BaseDaoParams;
 import io.datarouter.storage.node.factory.TallyNodeFactory;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -25,14 +24,9 @@ import jakarta.inject.Singleton;
 @Singleton
 public class DatarouterRateLimiterDao extends BaseTallyDao{
 
-	public static class DatarouterRateLimiterDaoParams extends BaseDaoParams{
-
-		public final String version;
-
-		public DatarouterRateLimiterDaoParams(ClientId clientId, String version){
-			super(clientId);
-			this.version = version;
-		}
+	public record DatarouterRateLimiterDaoParams(
+			ClientId clientId,
+			String version){
 	}
 
 	@Inject

@@ -24,7 +24,6 @@ import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.dao.BaseDao;
-import io.datarouter.storage.dao.BaseDaoParams;
 import io.datarouter.storage.node.Node;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
@@ -39,12 +38,7 @@ import jakarta.inject.Singleton;
 @Singleton
 public class DatarouterLoadTestDao extends BaseDao implements LoadTestGetDao, LoadTestInsertDao, LoadTestScanDao{
 
-	public static class LoadTestDaoParams extends BaseDaoParams{
-
-		public LoadTestDaoParams(ClientId clientId){
-			super(clientId);
-		}
-
+	public record LoadTestDaoParams(ClientId clientId){
 	}
 
 	private final Node<RandomValueKey,RandomValue,RandomValueFielder> node;

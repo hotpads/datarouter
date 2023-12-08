@@ -16,8 +16,8 @@
 package io.datarouter.web.monitoring;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
+import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.util.JmxTool;
 import io.datarouter.web.port.CompoundPortIdentifier;
 import jakarta.inject.Singleton;
@@ -35,7 +35,7 @@ public class TomcatThreadMetrics{
 					String poolName = poolMxBeanName.substring(1, poolMxBeanName.length() - 1);
 					return new TomcatThreadsJspDto(poolName, currentThreadCount, currentThreadsBusy);
 				})
-				.collect(Collectors.toList());
+				.collect(WarnOnModifyList.deprecatedCollector());
 	}
 
 }

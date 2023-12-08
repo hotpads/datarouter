@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
-import io.datarouter.scanner.OptionalScanner;
 import io.datarouter.scanner.Scanner;
 
 public abstract class BaseHtmlFormTextField<T> extends BaseHtmlLabeledFormField<T>{
@@ -90,8 +89,7 @@ public abstract class BaseHtmlFormTextField<T> extends BaseHtmlLabeledFormField<
 			List<Function<String,Optional<String>>> errorFinders){
 		if(shouldValidate){
 			Scanner.of(errorFinders)
-					.map(fn -> fn.apply(value))
-					.concat(OptionalScanner::of)
+					.concatOpt(fn -> fn.apply(value))
 					.findFirst()
 					.ifPresent(this::withError);
 		}

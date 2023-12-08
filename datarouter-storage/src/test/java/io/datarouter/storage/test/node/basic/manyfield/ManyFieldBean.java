@@ -20,16 +20,17 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Supplier;
 
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
-import io.datarouter.model.field.codec.DateToLongFieldCodec;
 import io.datarouter.model.field.codec.IntListFieldCodec;
 import io.datarouter.model.field.codec.IntegerMappedEnumFieldCodec;
 import io.datarouter.model.field.codec.LocalTimeToLongFieldCodec;
+import io.datarouter.model.field.codec.MilliTimeFieldCodec;
 import io.datarouter.model.field.codec.StringListToBinaryCsvFieldCodec;
 import io.datarouter.model.field.codec.StringListToCsvFieldCodec;
 import io.datarouter.model.field.codec.StringMappedEnumFieldCodec;
@@ -65,13 +66,12 @@ import io.datarouter.model.field.imp.custom.LocalDateTimeField;
 import io.datarouter.model.field.imp.custom.LocalDateTimeFieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 import io.datarouter.model.util.CommonFieldSizes;
-import io.datarouter.util.lang.ObjectTool;
+import io.datarouter.types.MilliTime;
 
+@SuppressWarnings("deprecation")
 public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 
 	public static final int DEFAULT_STRING_LENGTH = CommonFieldSizes.DEFAULT_LENGTH_VARCHAR;
-
-	private static final int LEN_STRING_ENUM_FIELD = 20;
 
 	private Boolean booleanField;
 	private Short shortField;
@@ -80,7 +80,7 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 	private Long longField;
 	private Float floatField;
 	private Double doubleField;
-	private Date dateToLongField;//for testing LongEncodedField
+	private MilliTime milliTimeToLongField;//for testing LongEncodedField
 	private LocalTime localTimeField;
 	private LocalDate localDateField;
 	private LocalDateTime localDateTimeField;
@@ -108,9 +108,9 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 		public static final LongFieldKey longField = new LongFieldKey("longField");
 		public static final FloatFieldKey floatField = new FloatFieldKey("floatField");
 		public static final DoubleFieldKey doubleField = new DoubleFieldKey("doubleField");
-		public static final LongEncodedFieldKey<Date> dateToLongField = new LongEncodedFieldKey<>(
-				"dateToLongField",
-				new DateToLongFieldCodec());
+		public static final LongEncodedFieldKey<MilliTime> milliTimeToLongField = new LongEncodedFieldKey<>(
+				"milliTimeToLongField",
+				new MilliTimeFieldCodec());
 		public static final LongEncodedFieldKey<LocalTime> localTimeField = new LongEncodedFieldKey<>(
 				"localTimeField", new LocalTimeToLongFieldCodec());
 		public static final LocalDateFieldKey localDateField = new LocalDateFieldKey("localDateField");
@@ -139,73 +139,28 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 	}
 
 	public boolean equalsAllPersistentFields(ManyFieldBean that){
-		if(ObjectTool.notEquals(getKey(), that.getKey())){
-			return false;
-		}
-		if(ObjectTool.notEquals(booleanField, that.booleanField)){
-			return false;
-		}
-		if(ObjectTool.notEquals(shortField, that.shortField)){
-			return false;
-		}
-		if(ObjectTool.notEquals(integerField, that.integerField)){
-			return false;
-		}
-		if(ObjectTool.notEquals(enumToIntegerField, that.enumToIntegerField)){
-			return false;
-		}
-		if(ObjectTool.notEquals(longField, that.longField)){
-			return false;
-		}
-		if(ObjectTool.notEquals(floatField, that.floatField)){
-			return false;
-		}
-		if(ObjectTool.notEquals(doubleField, that.doubleField)){
-			return false;
-		}
-		if(ObjectTool.notEquals(dateToLongField, that.dateToLongField)){
-			return false;
-		}
-		if(ObjectTool.notEquals(localTimeField, that.localTimeField)){
-			return false;
-		}
-		if(ObjectTool.notEquals(localDateField, that.localDateField)){
-			return false;
-		}
-		if(ObjectTool.notEquals(localDateTimeField, that.localDateTimeField)){
-			return false;
-		}
-		if(ObjectTool.notEquals(instantField, that.instantField)){
-			return false;
-		}
-		if(ObjectTool.notEquals(stringField, that.stringField)){
-			return false;
-		}
-		if(ObjectTool.notEquals(stringByteField, that.stringByteField)){
-			return false;
-		}
-		if(ObjectTool.notEquals(enumToStringField, that.enumToStringField)){
-			return false;
-		}
-		if(ObjectTool.notEquals(data, that.data)){
-			return false;
-		}
-		if(ObjectTool.notEquals(byteArrayField, that.byteArrayField)){
-			return false;
-		}
-		if(ObjectTool.notEquals(intListToByteArrayField, that.intListToByteArrayField)){
-			return false;
-		}
-		if(ObjectTool.notEquals(csvField, that.csvField)){
-			return false;
-		}
-		if(ObjectTool.notEquals(csvBytesField, that.csvBytesField)){
-			return false;
-		}
-		if(ObjectTool.notEquals(testSchemaUpdateField, that.testSchemaUpdateField)){
-			return false;
-		}
-		return true;
+		return Objects.equals(getKey(), that.getKey())
+				&& Objects.equals(booleanField, that.booleanField)
+				&& Objects.equals(shortField, that.shortField)
+				&& Objects.equals(integerField, that.integerField)
+				&& Objects.equals(enumToIntegerField, that.enumToIntegerField)
+				&& Objects.equals(longField, that.longField)
+				&& Objects.equals(floatField, that.floatField)
+				&& Objects.equals(doubleField, that.doubleField)
+				&& Objects.equals(milliTimeToLongField, that.milliTimeToLongField)
+				&& Objects.equals(localTimeField, that.localTimeField)
+				&& Objects.equals(localDateField, that.localDateField)
+				&& Objects.equals(localDateTimeField, that.localDateTimeField)
+				&& Objects.equals(instantField, that.instantField)
+				&& Objects.equals(stringField, that.stringField)
+				&& Arrays.equals(stringByteField, that.stringByteField)
+				&& Objects.equals(enumToStringField, that.enumToStringField)
+				&& Arrays.equals(data, that.data)
+				&& Arrays.equals(byteArrayField, that.byteArrayField)
+				&& Objects.equals(intListToByteArrayField, that.intListToByteArrayField)
+				&& Objects.equals(csvField, that.csvField)
+				&& Objects.equals(csvBytesField, that.csvBytesField)
+				&& Objects.equals(testSchemaUpdateField, that.testSchemaUpdateField);
 	}
 
 	public static class ManyFieldTypeBeanFielder extends BaseDatabeanFielder<ManyFieldBeanKey,ManyFieldBean>{
@@ -224,7 +179,7 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 					new LongField(FieldKeys.longField, databean.longField),
 					new FloatField(FieldKeys.floatField, databean.floatField),
 					new DoubleField(FieldKeys.doubleField, databean.doubleField),
-					new LongEncodedField<>(FieldKeys.dateToLongField, databean.dateToLongField),
+					new LongEncodedField<>(FieldKeys.milliTimeToLongField, databean.milliTimeToLongField),
 					new LongEncodedField<>(FieldKeys.localTimeField, databean.localTimeField),
 					new LocalDateField(FieldKeys.localDateField, databean.localDateField),
 					new LocalDateTimeField(FieldKeys.localDateTimeField, databean.localDateTimeField),
@@ -367,12 +322,12 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 		this.intListToByteArrayField = intListToByteArrayField;
 	}
 
-	public Date getDateToLongField(){
-		return dateToLongField;
+	public MilliTime getMilliTimeToLongField(){
+		return milliTimeToLongField;
 	}
 
-	public void setDateToLongField(Date dateToLongField){
-		this.dateToLongField = dateToLongField;
+	public void setMilliTimeToLongField(MilliTime milliTimeToLongField){
+		this.milliTimeToLongField = milliTimeToLongField;
 	}
 
 	public LocalTime getLocalTimeField(){

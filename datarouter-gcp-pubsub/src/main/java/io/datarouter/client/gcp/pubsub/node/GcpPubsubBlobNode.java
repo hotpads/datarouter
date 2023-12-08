@@ -32,6 +32,7 @@ import io.datarouter.client.gcp.pubsub.GcpPubSubBlobOpFactory;
 import io.datarouter.client.gcp.pubsub.GcpPubsubClientType;
 import io.datarouter.client.gcp.pubsub.TopicAndSubscriptionName;
 import io.datarouter.client.gcp.pubsub.client.GcpPubsubClientManager;
+import io.datarouter.client.gcp.pubsub.config.DatarouterGcpPubsubSettingsRoot;
 import io.datarouter.model.databean.EmptyDatabean;
 import io.datarouter.model.databean.EmptyDatabean.EmptyDatabeanFielder;
 import io.datarouter.model.key.EmptyDatabeanKey;
@@ -73,6 +74,7 @@ implements PhysicalBlobQueueStorageNode<T>, GcpPubsubPhysicalNode<EmptyDatabeanK
 			Codec<T,byte[]> codec,
 			GcpPubsubClientType clientType,
 			GcpPubsubClientManager clientManager,
+			DatarouterGcpPubsubSettingsRoot settingRoot,
 			EnvironmentName environmentName,
 			ServiceName serviceName){
 		super(params, clientType);
@@ -83,7 +85,7 @@ implements PhysicalBlobQueueStorageNode<T>, GcpPubsubPhysicalNode<EmptyDatabeanK
 		this.serviceName = serviceName;
 		this.clientId = params.getClientId();
 		this.topicAndSubscription = SingletonSupplier.of(this::getOrCreateTopic);
-		this.opFactory = new GcpPubSubBlobOpFactory(this, clientManager, clientId);
+		this.opFactory = new GcpPubSubBlobOpFactory(this, clientManager, settingRoot, clientId);
 	}
 
 	private TopicAndSubscriptionName getOrCreateTopic(){

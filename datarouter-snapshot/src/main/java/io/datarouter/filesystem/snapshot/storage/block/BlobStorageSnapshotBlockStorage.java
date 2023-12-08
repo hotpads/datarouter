@@ -79,7 +79,7 @@ public class BlobStorageSnapshotBlockStorage implements SnapshotBlockStorage{
 	}
 
 	private byte[] getBlock(String path){
-		return blobStorage.read(PathbeanKey.of(path));
+		return blobStorage.read(PathbeanKey.of(path)).orElse(null);
 	}
 
 	/*-------------- delete ---------------*/

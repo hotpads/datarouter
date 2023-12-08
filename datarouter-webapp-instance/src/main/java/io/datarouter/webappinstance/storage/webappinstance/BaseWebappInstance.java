@@ -213,6 +213,10 @@ extends BaseDatabean<PK,D>{
 		return buildId;
 	}
 
+	public String getBuildIdOrEmpty(){
+		return buildId != null ? buildId : "";
+	}
+
 	public String getCommitId(){
 		return commitId;
 	}

@@ -19,9 +19,13 @@ import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.datarouter.util.Require;
 
 public class MethodParameterExtractionTool{
+	private static final Logger logger = LoggerFactory.getLogger(MethodParameterExtractionTool.class);
 
 	public static Class<?> extractParameterizedTypeFromOptionalParameter(Parameter parameter){
 		Require.isTrue(Optional.class.isAssignableFrom(parameter.getType()));
@@ -39,7 +43,10 @@ public class MethodParameterExtractionTool{
 		try{
 			clazz = Class.forName(parameterizedType);
 		}catch(ClassNotFoundException e){
-			// ignore
+			logger.error("Exception getting class for parameter={} parameterizedType={} ",
+					parameter.getName(),
+					typeName,
+					e);
 		}
 		return clazz;
 	}

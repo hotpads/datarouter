@@ -101,7 +101,6 @@ public class BigTableOptions extends HBaseOptions{
 				.map(key -> {
 					var config = SecretOpConfig.builder(SecretOpReason.automatedOp(this.getClass().getSimpleName()))
 							.useSharedNamespace()
-							.disableRecording()
 							.disableSerialization()
 							.build();
 					return secretService.read(key, String.class, config);

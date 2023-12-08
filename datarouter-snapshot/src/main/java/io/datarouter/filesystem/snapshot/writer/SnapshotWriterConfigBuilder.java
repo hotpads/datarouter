@@ -107,10 +107,10 @@ public class SnapshotWriterConfigBuilder{
 		leafBlocksPerFile = DEFAULT_BLOCKS_PER_FILE;
 		valueBlocksPerFile = DEFAULT_BLOCKS_PER_FILE;
 
-		rootBlockEncoderSupplier = () -> new RootBlockV1Encoder();
-		branchBlockEncoderFactory = level -> new BranchBlockV1Encoder(level);
+		rootBlockEncoderSupplier = RootBlockV1Encoder::new;
+		branchBlockEncoderFactory = BranchBlockV1Encoder::new;
 		leafBlockEncoderSupplier = () -> new LeafBlockV1Encoder(leafEncoderChunkSize);
-		valueBlockEncoderSupplier = () -> new ValueBlockV1Encoder();
+		valueBlockEncoderSupplier = ValueBlockV1Encoder::new;
 
 		branchBlockCompressor = new PassthroughBlockCompressor();
 		leafBlockCompressor = new PassthroughBlockCompressor();

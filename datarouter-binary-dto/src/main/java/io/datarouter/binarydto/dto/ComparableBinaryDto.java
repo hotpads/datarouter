@@ -28,7 +28,7 @@ implements Comparable<T>{
 
 	/*-------------- codec ---------------*/
 
-	private final BinaryDtoComparableCodec<T> comparableCodec(){
+	private BinaryDtoComparableCodec<T> comparableCodec(){
 		return BinaryDtoComparableCodec.of(getClass());
 	}
 

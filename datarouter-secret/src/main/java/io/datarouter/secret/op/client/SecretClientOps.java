@@ -37,8 +37,8 @@ public class SecretClientOps{
 			super(
 					"validateSecret",
 					"create",
-					(client, input) -> client.validateSecret(input),
-					SecretClientOp.wrapVoid((client, input) -> client.create(input)),
+					SecretClient::validateSecret,
+					SecretClientOp.wrapVoid(SecretClient::create),
 					SecretClientOpType.CREATE);
 		}
 
@@ -50,8 +50,8 @@ public class SecretClientOps{
 			super(
 					"validateName",
 					"read",
-					(client, input) -> client.validateName(input),
-					(client, input) -> client.read(input),
+					SecretClient::validateName,
+					SecretClient::read,
 					SecretClientOpType.READ);
 		}
 
@@ -63,8 +63,8 @@ public class SecretClientOps{
 			super(
 					"validateSecret",
 					"update",
-					(client, input) -> client.validateSecret(input),
-					SecretClientOp.wrapVoid((client, input) -> client.update(input)),
+					SecretClient::validateSecret,
+					SecretClientOp.wrapVoid(SecretClient::update),
 					SecretClientOpType.UPDATE);
 		}
 
@@ -76,8 +76,8 @@ public class SecretClientOps{
 			super(
 					"validateName",
 					"delete",
-					(client, input) -> client.validateName(input),
-					SecretClientOp.wrapVoid((client, input) -> client.delete(input)),
+					SecretClient::validateName,
+					SecretClientOp.wrapVoid(SecretClient::delete),
 					SecretClientOpType.DELETE);
 		}
 
@@ -88,7 +88,7 @@ public class SecretClientOps{
 		private ListNamesOp(){
 			super(
 					"list",
-					(client, input) -> client.listNames(input),
+					SecretClient::listNames,
 					SecretClientOpType.LIST);
 		}
 
@@ -100,7 +100,7 @@ public class SecretClientOps{
 			super(
 					"validateSecret",
 					"create",
-					(client, input) -> client.validateSecret(input),
+					SecretClient::validateSecret,
 					getPutFunction(),
 					SecretClientOpType.PUT);
 		}

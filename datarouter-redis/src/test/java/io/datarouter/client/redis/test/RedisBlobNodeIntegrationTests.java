@@ -71,7 +71,7 @@ public class RedisBlobNodeIntegrationTests{
 	public void testDelete(){
 		redisDao.write(DELETE_KEY, CONTENT);
 		redisDao.delete(DELETE_KEY);
-		Assert.assertEquals(false, redisDao.exists(DELETE_KEY));
+		Assert.assertFalse(redisDao.exists(DELETE_KEY));
 	}
 
 }

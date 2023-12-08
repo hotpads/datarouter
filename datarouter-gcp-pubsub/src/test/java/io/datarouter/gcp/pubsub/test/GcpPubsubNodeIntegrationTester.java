@@ -65,9 +65,7 @@ public class GcpPubsubNodeIntegrationTester{
 	}
 
 	private void drainQueue(){
-		dao.pollUntilEmpty().forEach(testDatabean -> {
-			logger.debug(testDatabean.toString());
-		});
+		dao.pollUntilEmpty().forEach(testDatabean -> logger.debug(testDatabean.toString()));
 	}
 
 	@Test
@@ -124,7 +122,7 @@ public class GcpPubsubNodeIntegrationTester{
 				Assert.assertTrue(id >= 0);
 				ids.add(id);
 			}
-		}while(retrievedDatabeans.size() > 0 || ids.size() < DATABEAN_COUNT);
+		}while(!retrievedDatabeans.isEmpty() || ids.size() < DATABEAN_COUNT);
 	}
 
 	private void putRandomDatabeans(){

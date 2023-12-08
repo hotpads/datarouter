@@ -17,20 +17,20 @@ package io.datarouter.auth.storage.account.credential;
 
 import java.time.Instant;
 import java.time.ZoneId;
-import java.util.Date;
 import java.util.List;
 import java.util.function.Supplier;
 
+import io.datarouter.auth.storage.account.DatarouterAccount;
 import io.datarouter.auth.util.PasswordTool;
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
-import io.datarouter.model.field.imp.DateField;
-import io.datarouter.model.field.imp.DateFieldKey;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
 import io.datarouter.model.field.imp.comparable.BooleanField;
 import io.datarouter.model.field.imp.comparable.BooleanFieldKey;
+import io.datarouter.model.field.imp.comparable.LongEncodedField;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
+import io.datarouter.types.MilliTime;
 import io.datarouter.util.time.ZonedDateFormatterTool;
 
 public class DatarouterAccountCredential
@@ -38,19 +38,15 @@ extends BaseDatabean<DatarouterAccountCredentialKey,DatarouterAccountCredential>
 
 	private String accountName;
 	private String secretKey;
-	private Date created;
+	private MilliTime createdAt;
 	private String creatorUsername;
-	private Date lastUsed;
+	private MilliTime lastUsedAt;
 	private Boolean active;
 
 	public static class FieldKeys{
 		public static final StringFieldKey accountName = new StringFieldKey("accountName");
 		private static final StringFieldKey secretKey = new StringFieldKey("secretKey");
-		@SuppressWarnings("deprecation")
-		private static final DateFieldKey created = new DateFieldKey("created");
 		private static final StringFieldKey creatorUsername = new StringFieldKey("creatorUsername");
-		@SuppressWarnings("deprecation")
-		private static final DateFieldKey lastUsed = new DateFieldKey("lastUsed");
 		private static final BooleanFieldKey active = new BooleanFieldKey("active");
 	}
 
@@ -62,7 +58,7 @@ extends BaseDatabean<DatarouterAccountCredentialKey,DatarouterAccountCredential>
 		super(new DatarouterAccountCredentialKey(apiKey));
 		this.secretKey = secretKey;
 		this.accountName = accountName;
-		this.created = new Date();
+		this.createdAt = MilliTime.now();
 		this.creatorUsername = creatorUsername;
 		this.active = true;
 	}
@@ -79,15 +75,14 @@ extends BaseDatabean<DatarouterAccountCredentialKey,DatarouterAccountCredential>
 			super(DatarouterAccountCredentialKey::new);
 		}
 
-		@SuppressWarnings("deprecation")
 		@Override
 		public List<Field<?>> getNonKeyFields(DatarouterAccountCredential credential){
 			return List.of(
 					new StringField(FieldKeys.accountName, credential.accountName),
 					new StringField(FieldKeys.secretKey, credential.secretKey),
-					new DateField(FieldKeys.created, credential.created),
+					new LongEncodedField<>(DatarouterAccount.FieldKeys.createdAt, credential.createdAt),
 					new StringField(FieldKeys.creatorUsername, credential.creatorUsername),
-					new DateField(FieldKeys.lastUsed, credential.lastUsed),
+					new LongEncodedField<>(DatarouterAccount.FieldKeys.lastUsedAt, credential.lastUsedAt),
 					new BooleanField(FieldKeys.active, credential.active));
 		}
 
@@ -115,18 +110,18 @@ extends BaseDatabean<DatarouterAccountCredentialKey,DatarouterAccountCredential>
 	}
 
 	public Instant getCreatedInstant(){
-		if(created == null){
+		if(createdAt == null){
 			return Instant.EPOCH;
 		}
-		return created.toInstant();
+		return createdAt.toInstant();
 	}
 
 	public String getCreatorUsername(){
 		return creatorUsername;
 	}
 
-	public void setLastUsed(Date lastUsed){
-		this.lastUsed = lastUsed;
+	public void setLastUsed(MilliTime lastUsedAt){
+		this.lastUsedAt = lastUsedAt;
 	}
 
 	public String getLastUsedDate(ZoneId zoneId){
@@ -134,10 +129,10 @@ extends BaseDatabean<DatarouterAccountCredentialKey,DatarouterAccountCredential>
 	}
 
 	public Instant getLastUsedInstant(){
-		if(lastUsed == null){
+		if(lastUsedAt == null){
 			return Instant.EPOCH;
 		}
-		return lastUsed.toInstant();
+		return lastUsedAt.toInstant();
 	}
 
 	public Boolean getActive(){

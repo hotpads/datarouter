@@ -184,7 +184,7 @@ public class PutOpIntegrationTests{
 		Assert.assertThrows(IllegalArgumentException.class, () -> dao.put(bean, new Config()));
 	}
 
-	private static final String randomString(){
+	private static String randomString(){
 		return UUID.randomUUID().toString();
 	}
 

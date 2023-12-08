@@ -135,7 +135,7 @@ public class MavTests{
 		//combination
 		{
 			Mav mav = new Mav(VIEW_NAME);
-			Assert.assertEquals(mav.getRedirectUrl(), null);
+			Assert.assertNull(mav.getRedirectUrl());
 			mav.setGlobalRedirectUrl(URL, false);
 			mav.put("key", "value");
 			Assert.assertEquals(mav.getRedirectUrl(), URL);
@@ -143,7 +143,7 @@ public class MavTests{
 
 		{
 			Mav mav = new Mav(VIEW_NAME);
-			Assert.assertEquals(mav.getRedirectUrl(), null);
+			Assert.assertNull(mav.getRedirectUrl());
 			mav.setGlobalRedirectUrl(URL, true);
 			mav.put("key", "value");
 			Assert.assertEquals(mav.getRedirectUrl(), URL + "?key=value");

@@ -23,7 +23,6 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.BaseDao;
-import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import io.datarouter.storage.node.tableconfig.ClientTableEntityPrefixNameWrapper;
@@ -36,12 +35,7 @@ import jakarta.inject.Singleton;
 @Singleton
 public class DatarouterTableSampleDao extends BaseDao{
 
-	public static class DatarouterTableSampleDaoParams extends BaseRedundantDaoParams{
-
-		public DatarouterTableSampleDaoParams(List<ClientId> clientIds){
-			super(clientIds);
-		}
-
+	public record DatarouterTableSampleDaoParams(List<ClientId> clientIds){
 	}
 
 	private final SortedMapStorageNode<TableSampleKey,TableSample,TableSampleFielder> node;
@@ -68,14 +62,6 @@ public class DatarouterTableSampleDao extends BaseDao{
 		var prefix = TableSampleKey.createSubEntityPrefix(nodeNames);
 		var range = new Range<>(prefix, true, prefix, true);
 		return node.scan(range);
-	}
-
-	public void resetSchedules(){
-		node.scan()
-				.include(TableSample::isScheduledForRecount)
-				.each(TableSample::clearScheduleFields)
-				.batch(100)
-				.forEach(node::putMulti);
 	}
 
 	public void deleteWithPrefix(TableSampleKey prefix){

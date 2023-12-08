@@ -99,10 +99,7 @@ public class ByteLength{
 			return false;
 		}
 		ByteLength other = (ByteLength)obj;
-		if(length != other.length){
-			return false;
-		}
-		return true;
+		return length == other.length;
 	}
 
 	@Override

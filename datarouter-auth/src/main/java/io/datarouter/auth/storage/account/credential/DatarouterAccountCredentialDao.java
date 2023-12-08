@@ -27,7 +27,6 @@ import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.config.PutMethod;
 import io.datarouter.storage.dao.BaseDao;
-import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.IndexingNodeFactory;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
@@ -42,28 +41,36 @@ import jakarta.inject.Singleton;
 @Singleton
 public class DatarouterAccountCredentialDao extends BaseDao implements BaseDatarouterAccountCredentialDao{
 
-	public static class DatarouterAccountCredentialDaoParams extends BaseRedundantDaoParams{
+	public static class DatarouterAccountCredentialDaoParams{
 
+		public final List<ClientId> clientIds;
 		public final Optional<String> tableName;
 
 		public DatarouterAccountCredentialDaoParams(List<ClientId> clientIds){
-			super(clientIds);
+			this.clientIds = clientIds;
 			tableName = Optional.empty();
 		}
 
 		public DatarouterAccountCredentialDaoParams(List<ClientId> clientIds, String tableName){
-			super(clientIds);
+			this.clientIds = clientIds;
 			Require.isTrue(StringTool.notNullNorEmpty(tableName));
 			this.tableName = Optional.of(tableName);
 		}
 
 	}
 
-	private final IndexedSortedMapStorageNode<DatarouterAccountCredentialKey,DatarouterAccountCredential,
+	private final IndexedSortedMapStorageNode<
+			DatarouterAccountCredentialKey,
+			DatarouterAccountCredential,
 			DatarouterAccountCredentialFielder> node;
-	private final UniqueIndexReader<DatarouterAccountCredentialKey,DatarouterAccountCredential,
-			DatarouterAccountCredentialByAccountNameKey, FieldlessIndexEntry<
-			DatarouterAccountCredentialByAccountNameKey,DatarouterAccountCredentialKey, DatarouterAccountCredential>>
+	private final UniqueIndexReader<
+			DatarouterAccountCredentialKey,
+			DatarouterAccountCredential,
+			DatarouterAccountCredentialByAccountNameKey,
+			FieldlessIndexEntry<
+					DatarouterAccountCredentialByAccountNameKey,
+					DatarouterAccountCredentialKey,
+					DatarouterAccountCredential>>
 			byAccountName;
 
 	@Inject

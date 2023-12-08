@@ -23,7 +23,7 @@ public class PrimitiveListTool{
 			throw new IllegalArgumentException(message);
 		}
 		if(index >= size){
-			String message = String.format("index=%s must be < size=%", index, size);
+			String message = String.format("index=%s must be < size=%s", index, size);
 			throw new IllegalArgumentException(message);
 		}
 	}

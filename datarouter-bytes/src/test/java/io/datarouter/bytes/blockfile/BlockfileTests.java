@@ -120,7 +120,7 @@ public class BlockfileTests{
 				.build();
 		var metadataReader = blockfile.newMetadataReaderBuilder(FILENAME)
 				.build();
-		var reader = blockfile.newReaderBuilder(metadataReader, StringCodec.UTF_8::decode)
+		var reader = blockfile.newReaderBuilder(metadataReader, $ -> StringCodec.UTF_8::decode)
 				.setReadThreads(READ_THREADS)
 				.setReadChunkSize(ByteLength.ofKiB(4))
 				.setDecodeBatchSize(2)

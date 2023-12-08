@@ -33,6 +33,7 @@ import io.datarouter.client.mysql.field.codec.factory.MysqlFieldCodecFactory;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.FieldKey;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.scanner.WarnOnModifyList;
 import jakarta.inject.Inject;
 
 public class FieldSqlTableGenerator{
@@ -52,8 +53,8 @@ public class FieldSqlTableGenerator{
 
 		List<SqlColumn> primaryKeyColumns = makeSqlColumns(primaryKeyFields, false);
 		List<String> primaryKeyColumnNames = Scanner.of(primaryKeyColumns).map(SqlColumn::getName).list();
-		List<SqlColumn> columns = makeSqlColumns(nonKeyFields, true);
-		columns.addAll(primaryKeyColumns);
+		List<SqlColumn> nonKeyColumns = makeSqlColumns(nonKeyFields, true);
+		List<SqlColumn> columns = Scanner.concat(primaryKeyColumns, nonKeyColumns).list();
 
 		SqlIndex primaryKey = SqlIndex.createPrimaryKey(primaryKeyColumnNames);
 
@@ -62,7 +63,7 @@ public class FieldSqlTableGenerator{
 
 		//TODO set charset and collation elsewhere
 		columns.stream()
-				.filter(column -> column instanceof CharSequenceSqlColumn)
+				.filter(CharSequenceSqlColumn.class::isInstance)
 				.map(CharSequenceSqlColumn.class::cast)
 				.forEach(column -> {
 					column.setCharacterSet(characterSet);
@@ -84,7 +85,7 @@ public class FieldSqlTableGenerator{
 	private List<SqlColumn> makeSqlColumns(List<Field<?>> fields, boolean allowNullable){
 		return fields.stream()
 				.map(field -> getSqlColumnDefinition(allowNullable, field))
-				.collect(Collectors.toList());
+				.collect(WarnOnModifyList.deprecatedCollector());
 	}
 
 	private <T,F extends Field<T>> SqlColumn getSqlColumnDefinition(boolean allowNullable, F field){
@@ -96,7 +97,7 @@ public class FieldSqlTableGenerator{
 		return fields.stream()
 				.map(Field::getKey)
 				.map(FieldKey::getColumnName)
-				.collect(Collectors.toList());
+				.collect(WarnOnModifyList.deprecatedCollector());
 	}
 
 	private Set<SqlIndex> makeSqlIndexes(Map<String,List<Field<?>>> indexes){

@@ -17,7 +17,6 @@ package io.datarouter.nodewatch.service;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import io.datarouter.bytes.ByteLength;
 import io.datarouter.scanner.Scanner;
@@ -29,52 +28,6 @@ public class TableStorageSummarizerDtos{
 			long numRowsIncluded){
 
 		public static final TableSummary EMPTY = new TableSummary(List.of(), 0);
-
-		public ByteLength totalNameBytes(){
-			return Scanner.of(columnSummaries)
-					.map(ColumnSummary::size)
-					.map(ColumnSize::nameBytes)
-					.listTo(ByteLength::sum);
-		}
-
-		public ByteLength totalValueBytes(){
-			return Scanner.of(columnSummaries)
-					.map(ColumnSummary::size)
-					.map(ColumnSize::valueBytes)
-					.listTo(ByteLength::sum);
-		}
-
-		public ByteLength extrapolateNameSize(long totalTableRows){
-			double multiplier = (double)totalTableRows / (double) numRowsIncluded;
-			long estTotalBytes = (long)(totalNameBytes().toBytes() * multiplier);
-			return ByteLength.ofBytes(estTotalBytes);
-		}
-
-		public ByteLength extrapolateValueSize(long totalTableRows){
-			double multiplier = (double)totalTableRows / (double) numRowsIncluded;
-			long estTotalBytes = (long)(totalValueBytes().toBytes() * multiplier);
-			return ByteLength.ofBytes(estTotalBytes);
-		}
-
-		public ByteLength avgNameBytes(){
-			double avg = (double)totalNameBytes().toBytes() / numRowsIncluded;
-			return ByteLength.ofBytes((long)avg);
-		}
-
-		public ByteLength avgValueBytes(){
-			double avg = (double)totalValueBytes().toBytes() / numRowsIncluded;
-			return ByteLength.ofBytes((long)avg);
-		}
-
-		public ByteLength avgTotalBytes(){
-			return ByteLength.sum(avgNameBytes(), avgValueBytes());
-		}
-
-		public List<ColumnSummary> subset(Set<String> columnNames){
-			return Scanner.of(columnSummaries)
-					.include(columnSummary -> columnNames.contains(columnSummary.name()))
-					.list();
-		}
 
 		public static TableSummary combine(TableSummary first, TableSummary second){
 			if(first.columnSummaries.isEmpty()){
@@ -106,10 +59,6 @@ public class TableStorageSummarizerDtos{
 
 		public static final ColumnSize EMPTY = new ColumnSize(ByteLength.MIN, ByteLength.MIN, 0);
 
-		public ByteLength totalBytes(){
-			return ByteLength.sum(nameBytes, valueBytes);
-		}
-
 		public ByteLength avgNameBytes(){
 			double avg = (double)nameBytes.toBytes() / (double) numRowsIncluded;
 			return ByteLength.ofBytes((long)avg);
@@ -118,18 +67,6 @@ public class TableStorageSummarizerDtos{
 		public ByteLength avgValueBytes(){
 			double avg = (double)valueBytes.toBytes() / (double) numRowsIncluded;
 			return ByteLength.ofBytes((long)avg);
-		}
-
-		public ByteLength extrapolateTotalNameBytes(long totalTableRows){
-			double multiplier = (double)totalTableRows / (double) numRowsIncluded;
-			long estTotalBytes = (long)(nameBytes().toBytes() * multiplier);
-			return ByteLength.ofBytes(estTotalBytes);
-		}
-
-		public ByteLength extrapolateTotalValueBytes(long totalTableRows){
-			double multiplier = (double)totalTableRows / (double) numRowsIncluded;
-			long estTotalBytes = (long)(valueBytes().toBytes() * multiplier);
-			return ByteLength.ofBytes(estTotalBytes);
 		}
 
 		public static ColumnSize combine(long numRowsIncluded, ColumnSize first, ColumnSize second){

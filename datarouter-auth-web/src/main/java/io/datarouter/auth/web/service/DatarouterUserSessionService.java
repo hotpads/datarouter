@@ -15,7 +15,6 @@
  */
 package io.datarouter.auth.web.service;
 
-import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -44,6 +43,7 @@ import io.datarouter.auth.storage.user.session.BaseDatarouterSessionDao;
 import io.datarouter.auth.storage.user.session.DatarouterSession;
 import io.datarouter.auth.storage.user.session.DatarouterSessionKey;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.types.MilliTime;
 import io.datarouter.util.BooleanTool;
 import io.datarouter.web.user.session.DatarouterSessionManager;
 import jakarta.inject.Inject;
@@ -89,7 +89,7 @@ public class DatarouterUserSessionService implements UserSessionService{
 			throw new InvalidCredentialsException("user not enabled (" + username + ")");
 		}
 
-		user.get().setLastLoggedIn(Instant.now());
+		user.get().setLastLoggedIn(MilliTime.now());
 		userDao.put(user.get());
 
 		DatarouterSession session = DatarouterSession.createFromUser(user.get());
@@ -109,7 +109,7 @@ public class DatarouterUserSessionService implements UserSessionService{
 			throw new InvalidCredentialsException("user not enabled (" + interpretedSamlAssertion.username() + ")");
 		}
 
-		user.setLastLoggedIn(Instant.now());
+		user.setLastLoggedIn(MilliTime.now());
 		DatarouterSession session = DatarouterSession.createFromUser(user);
 
 		Optional<SamlChanges> changes = getSamlSignOnChanges(user, interpretedSamlAssertion);

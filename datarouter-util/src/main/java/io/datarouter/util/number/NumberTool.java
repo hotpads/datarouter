@@ -46,14 +46,8 @@ public class NumberTool{
 		return Math.max(n1, n2);
 	}
 
-	public static final boolean isPositive(Integer in){
-		if(in == null){
-			return false;
-		}
-		if(in <= 0){
-			return false;
-		}
-		return true;
+	public static boolean isPositive(Integer in){
+		return in != null && in > 0;
 	}
 
 	/*------------------------- numeric null safe ---------------------------*/

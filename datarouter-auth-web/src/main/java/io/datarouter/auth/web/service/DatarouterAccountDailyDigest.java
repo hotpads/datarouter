@@ -31,7 +31,6 @@ import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
 import io.datarouter.web.digest.DailyDigestService;
-import io.datarouter.web.html.j2html.J2HtmlTable;
 import j2html.TagCreator;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.SmallTag;
@@ -62,20 +61,6 @@ public class DatarouterAccountDailyDigest implements DailyDigest{
 	}
 
 	@Override
-	public Optional<DivTag> getPageContent(ZoneId zoneId){
-		if(!settings.enableAccountDailyDigest.get()){
-			return Optional.empty();
-		}
-		List<DatarouterAccount> accounts = getAccounts();
-		if(accounts.isEmpty()){
-			return Optional.empty();
-		}
-		var header = digestService.makeHeader("Accounts", paths.datarouter.accountManager);
-		var table = buildTable(accounts, zoneId);
-		return Optional.of(div(header, CAPTION, table));
-	}
-
-	@Override
 	public Optional<DivTag> getEmailContent(ZoneId zoneId){
 		if(!settings.enableAccountDailyDigest.get()){
 			return Optional.empty();
@@ -102,17 +87,6 @@ public class DatarouterAccountDailyDigest implements DailyDigest{
 	@Override
 	public DailyDigestType getType(){
 		return DailyDigestType.ACTIONABLE;
-	}
-
-	private static TableTag buildTable(List<DatarouterAccount> rows, ZoneId zoneId){
-		return new J2HtmlTable<DatarouterAccount>()
-				.withClasses("sortable table table-sm table-striped my-4 border")
-				.withColumn("Account", row -> row.getKey().getAccountName())
-				.withColumn("Creator", DatarouterAccount::getCreator)
-				.withColumn("Created", row -> row.getCreatedDate(zoneId))
-				.withColumn("Last Used", row -> row.getLastUsedDate(zoneId))
-				.withColumn("Caller Type", DatarouterAccount::getCallerType)
-				.build(rows);
 	}
 
 	private static TableTag buildEmailTable(List<DatarouterAccount> rows, ZoneId zoneId){

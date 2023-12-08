@@ -17,6 +17,7 @@ package io.datarouter.binarydto.internal;
 
 import java.lang.reflect.Field;
 import java.time.Instant;
+import java.util.BitSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -31,6 +32,7 @@ import io.datarouter.binarydto.fieldcodec.array.FloatArrayBinaryDtoFieldCodec;
 import io.datarouter.binarydto.fieldcodec.array.IntArrayBinaryDtoFieldCodec;
 import io.datarouter.binarydto.fieldcodec.array.LongArrayBinaryDtoFieldCodec;
 import io.datarouter.binarydto.fieldcodec.array.ShortArrayBinaryDtoFieldCodec;
+import io.datarouter.binarydto.fieldcodec.other.BitSetBinaryDtoFieldCodec;
 import io.datarouter.binarydto.fieldcodec.other.EnumBinaryDtoFieldCodec;
 import io.datarouter.binarydto.fieldcodec.other.ListBinaryDtoFieldCodec;
 import io.datarouter.binarydto.fieldcodec.other.NestedBinaryDtoFieldCodec;
@@ -82,6 +84,8 @@ public class BinaryDtoFieldCodecs{
 		LEAF_CODEC_BY_CLASS.put(String.class, new Utf8BinaryDtoFieldCodec());
 		//time
 		LEAF_CODEC_BY_CLASS.put(Instant.class, new InstantBinaryDtoFieldCodec());
+		//other
+		LEAF_CODEC_BY_CLASS.put(BitSet.class, new BitSetBinaryDtoFieldCodec());
 	}
 
 	public static BinaryDtoBaseFieldCodec<?> getCodecForField(Field field){

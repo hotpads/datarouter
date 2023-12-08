@@ -18,13 +18,12 @@ package io.datarouter.clustersetting.service;
 import static j2html.TagCreator.b;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.small;
-import static j2html.TagCreator.td;
-import static j2html.TagCreator.th;
 
 import java.time.ZoneId;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 
 import io.datarouter.clustersetting.config.DatarouterClusterSettingPaths;
 import io.datarouter.clustersetting.enums.ClusterSettingValidity;
@@ -32,12 +31,10 @@ import io.datarouter.clustersetting.storage.clustersetting.ClusterSetting;
 import io.datarouter.clustersetting.web.ClusterSettingHtml;
 import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
-import io.datarouter.scanner.OptionalScanner;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
 import io.datarouter.web.digest.DailyDigestService;
-import io.datarouter.web.html.j2html.J2HtmlTable;
 import j2html.TagCreator;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.TableTag;
@@ -64,13 +61,6 @@ public class ClusterSettingDailyDigest implements DailyDigest{
 	@Override
 	public DailyDigestGrouping getGrouping(){
 		return DailyDigestGrouping.MEDIUM;
-	}
-
-	@Override
-	public Optional<DivTag> getPageContent(ZoneId zoneId){
-		return makeContent(
-				new ClusterSettingDailyDigestPageFormatter(pageFormatter),
-				new ClusterSettingDailyDigestPageFormatter(pageFormatter));
 	}
 
 	@Override
@@ -113,11 +103,11 @@ public class ClusterSettingDailyDigest implements DailyDigest{
 				.listTo(settings -> prefixFormatter.build(settings, "Unknown", Optional.empty()));
 
 		List<DivTag> tables = Scanner.of(redundantTable, unreferencedTable, oldTable, unknownTable)
-				.concat(OptionalScanner::of)
+				.concatOpt(Function.identity())
 				.sort(Comparator.comparing(HeaderAndContent::header))
 				.map(HeaderAndContent::content)
 				.list();
-		if(tables.size() == 0){
+		if(tables.isEmpty()){
 			return Optional.empty();
 		}
 		var header = digestService.makeHeader("Settings", paths.datarouter.settings.overrides.view);
@@ -171,14 +161,6 @@ public class ClusterSettingDailyDigest implements DailyDigest{
 					.withColumn(new J2HtmlEmailTableColumn<>("Name",
 							row -> clusterSettingHtml.makeOverridePrefixSettingLink(row.getName())))
 					// don't send values in an email
-					.build(settings);
-
-	private final ClusterSettingDailyDigestTableFormatter pageFormatter = settings ->
-			new J2HtmlTable<ClusterSetting>()
-					.withClasses("sortable table table-sm table-striped my-4 border")
-					.withHtmlColumn(th("Name").withClass("w-50"),
-							row -> td(clusterSettingHtml.makeBrowseSettingLink(row.getName())))
-					.withHtmlColumn(th("Value").withClass("w-50"), row -> td(row.getValue()))
 					.build(settings);
 
 }

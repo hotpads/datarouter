@@ -19,7 +19,6 @@ import java.time.Duration;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import io.datarouter.auth.service.CurrentUserSessionInfoService;
 import io.datarouter.tasktracker.config.DatarouterTaskTrackerFiles;
@@ -44,14 +43,14 @@ public class JobsHealthHandler extends BaseHandler{
 	Mav uniqueTasks(){
 		Mav mav = new Mav(files.jsp.admin.datarouter.tasktracker.jobsHealthJsp);
 		List<LongRunningTask> allTasks = longRunningTaskDao.scan()
-				.include(task -> task.getStartTime() == null
-						|| task.getStartTime().getTime() > System.currentTimeMillis() - Duration.ofDays(1).toMillis())
+				.include(task -> task.getStart() == null
+						|| task.getStart().toEpochMilli() > System.currentTimeMillis() - Duration.ofDays(1).toMillis())
 				.list();
 		List<String> uniqueJobs = allTasks.stream()
 				.map(LongRunningTask::getKey)
 				.map(LongRunningTaskKey::getName)
 				.distinct()
-				.collect(Collectors.toList());
+				.toList();
 		Integer numRunningJobs = 0;
 		ZoneId zoneId = currentUserSessionInfoService.getZoneId(request);
 		List<LongRunningTaskJspDto> allBadTasks = new ArrayList<>();

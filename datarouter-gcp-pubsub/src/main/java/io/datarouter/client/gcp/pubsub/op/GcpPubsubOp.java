@@ -23,6 +23,7 @@ import com.google.protobuf.ByteString;
 import com.google.pubsub.v1.TopicName;
 
 import io.datarouter.client.gcp.pubsub.client.GcpPubsubClientManager;
+import io.datarouter.client.gcp.pubsub.config.DatarouterGcpPubsubSettingsRoot;
 import io.datarouter.client.gcp.pubsub.node.BaseGcpPubsubNode;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
@@ -47,12 +48,14 @@ implements Callable<V>{
 	protected final StringDatabeanCodec codec;
 	protected final PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo;
 	protected final GcpPubsubClientManager clientManager;
+	protected final DatarouterGcpPubsubSettingsRoot settingRoot;
 	protected final ClientId clientId;
 
 	public GcpPubsubOp(
 			Config config,
 			BaseGcpPubsubNode<PK,D,F> basePubSubNode,
 			GcpPubsubClientManager gcpPubsubClientManager,
+			DatarouterGcpPubsubSettingsRoot settingRoot,
 			ClientId clientId){
 		this.config = config;
 		this.subscriberId = basePubSubNode.getTopicAndSubscriptionName().get().subscription();
@@ -62,6 +65,7 @@ implements Callable<V>{
 		this.codec = fielder.getStringDatabeanCodec();
 		this.fieldInfo = basePubSubNode.getFieldInfo();
 		this.clientManager = gcpPubsubClientManager;
+		this.settingRoot = settingRoot;
 		this.clientId = clientId;
 	}
 

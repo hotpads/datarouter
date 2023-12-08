@@ -43,11 +43,11 @@ public enum KvFileOp{
 		persistentValueArray = new byte[]{persistentValue};
 	}
 
-	public static final KvFileOp fromByte(byte value){
+	public static KvFileOp fromByte(byte value){
 		return PERSISTENT_VALUE_LOOKUP_TABLE[value];
 	}
 
-	public static final KvFileOp fromInputStream(InputStream inputStream){
+	public static KvFileOp fromInputStream(InputStream inputStream){
 		byte value = InputStreamTool.readRequiredByte(inputStream);
 		return PERSISTENT_VALUE_LOOKUP_TABLE[value];
 	}

@@ -46,6 +46,8 @@ extends NodeOps<PathbeanKey,Pathbean>{
 		return new BucketAndPrefix(getBucket(), getRootPath());
 	}
 
+	/*------------ head requests ------------*/
+
 	boolean exists(PathbeanKey key, Config config);
 
 	default boolean exists(PathbeanKey key){
@@ -58,35 +60,76 @@ extends NodeOps<PathbeanKey,Pathbean>{
 		return length(key, new Config());
 	}
 
-	byte[] read(PathbeanKey key, Config config);
+	/*------------ point reads ----------*/
 
-	default byte[] read(PathbeanKey key){
+	Optional<byte[]> read(PathbeanKey key, Config config);
+
+	default Optional<byte[]> read(PathbeanKey key){
 		return read(key, new Config());
 	}
 
-	byte[] readPartial(PathbeanKey key, long offset, int length, Config config);
+	Optional<byte[]> readPartial(PathbeanKey key, long offset, int length, Config config);
 
-	default byte[] readPartial(PathbeanKey key, long offset, int length){
+	default Optional<byte[]> readPartial(PathbeanKey key, long offset, int length){
 		return readPartial(key, offset, length, new Config());
 	}
 
-	Map<PathbeanKey,byte[]> readMulti(List<PathbeanKey> keys, Config config);
+	// Override in subclasses that support fetching multiple objects per RPC
+	default Map<PathbeanKey,byte[]> readMulti(List<PathbeanKey> keys, Config config){
+		record KeyAndValue(
+				PathbeanKey key,
+				Optional<byte[]> value){
+		}
+		return Scanner.of(keys)
+				.map(key -> new KeyAndValue(key, read(key, config)))
+				.include(keyAndValue -> keyAndValue.value().isPresent())
+				.toMap(KeyAndValue::key, keyAndValue -> keyAndValue.value().orElseThrow());
+	}
 
 	default Map<PathbeanKey,byte[]> readMulti(List<PathbeanKey> keys){
 		return readMulti(keys, new Config());
 	}
 
-	//TODO implement in all subclasses rather than defaulting to scanChunks
+	/*----------- scan chunks via readPartial -----------*/
+
+	default Scanner<byte[]> scanChunks(
+			PathbeanKey key,
+			Range<Long> range,
+			Threads threads,
+			ByteLength chunkSize){
+		long fromInclusive = range.hasStart() ? range.getStart() : 0;
+		long toExclusive = range.hasEnd()
+				? range.getEnd()
+				: length(key).orElseThrow();// extra operation
+		return ChunkScannerTool.scanChunks(fromInclusive, toExclusive, chunkSize.toBytesInt())
+				.parallelOrdered(threads)
+				.map(chunkRange -> readPartial(key, chunkRange.start, chunkRange.length).orElseThrow());
+	}
+
+	default InputStream scanChunksAsInputStream(
+			PathbeanKey key,
+			Range<Long> range,
+			Threads threads,
+			ByteLength chunkSize){
+		return scanChunks(key, range, threads, chunkSize)
+				.apply(MultiByteArrayInputStream::new);
+	}
+
+	/*------------ streaming reads ----------*/
+
+	// Override in subclasses that support InputStream reads on large files.
 	default InputStream readInputStream(
 			PathbeanKey key,
 			@SuppressWarnings("unused") Config config){
-		return scanChunks(key, Range.everything(), ByteLength.ofMiB(4))
+		return scanChunks(key, Range.everything(), Threads.none(), ByteLength.ofMiB(4))
 				.apply(MultiByteArrayInputStream::new);
 	}
 
 	default InputStream readInputStream(PathbeanKey key){
 		return readInputStream(key, new Config());
 	}
+
+	/*------------ scan metadata -----------*/
 
 	Scanner<List<PathbeanKey>> scanKeysPaged(Subpath subpath, Config config);
 
@@ -114,33 +157,7 @@ extends NodeOps<PathbeanKey,Pathbean>{
 				.concat(Scanner::of);
 	}
 
-	/*---------- scanChunks -------------*/
-
-	default Scanner<byte[]> scanChunks(
-			PathbeanKey key,
-			Range<Long> range,
-			ByteLength chunkSize){
-		long fromInclusive = range.hasStart() ? range.getStart() : 0;
-		long toExclusive = range.hasEnd()
-				? range.getEnd()
-				: length(key).orElseThrow();// extra operation
-		return ChunkScannerTool.scanChunks(fromInclusive, toExclusive, chunkSize.toBytesInt())
-				.map(chunkRange -> readPartial(key, chunkRange.start, chunkRange.length));
-	}
-
-	default Scanner<byte[]> scanChunks(
-			PathbeanKey key,
-			Range<Long> range,
-			Threads threads,
-			ByteLength chunkSize){
-		long fromInclusive = range.hasStart() ? range.getStart() : 0;
-		long toExclusive = range.hasEnd()
-				? range.getEnd()
-				: length(key).orElseThrow();// extra operation
-		return ChunkScannerTool.scanChunks(fromInclusive, toExclusive, chunkSize.toBytesInt())
-				.parallelOrdered(threads)
-				.map(chunkRange -> readPartial(key, chunkRange.start, chunkRange.length));
-	}
+	/*---------- files vs directories -------------*/
 
 	default Scanner<DirectoryDto> scanDirectories(BucketAndPrefix locationPrefix, String startAfter, int pageSize){
 		throw new UnsupportedOperationException("Not yet implemented");

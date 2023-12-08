@@ -22,6 +22,7 @@ import java.util.function.Supplier;
 import io.datarouter.bytes.BinaryDictionary;
 import io.datarouter.bytes.blockfile.write.BlockfileWriter.BlockfileWriteResult;
 import io.datarouter.bytes.blockfile.write.BlockfileWriterBuilder;
+import io.datarouter.bytes.kvfile.blockformat.KvFileBlockFormat;
 import io.datarouter.bytes.kvfile.io.footer.KvFileFooter;
 import io.datarouter.bytes.kvfile.io.header.KvFileHeader;
 import io.datarouter.scanner.Scanner;
@@ -30,6 +31,7 @@ public class KvFileWriter<T>{
 
 	public record KvFileWriterConfig<T>(
 			BlockfileWriterBuilder<List<T>> blockfileWriterBuilder,
+			KvFileBlockFormat blockFormat,
 			BinaryDictionary headerUserDictionary,
 			Supplier<BinaryDictionary> footerUserDictionarySupplier){
 	}
@@ -63,7 +65,7 @@ public class KvFileWriter<T>{
 	private BinaryDictionary makeHeaderDictionary(){
 		var header = new KvFileHeader(
 				params.headerUserDictionary(),
-				KvFileHeader.BLOCK_FORMAT_PLACEHOLDER);
+				params.blockFormat());
 		return header.toBinaryDictionary();
 	}
 

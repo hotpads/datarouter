@@ -28,7 +28,6 @@ import java.util.function.Function;
 
 import io.datarouter.auth.role.RoleApprovalType.RoleApprovalTypePriorityComparator;
 import io.datarouter.auth.storage.user.datarouteruser.DatarouterUser;
-import io.datarouter.scanner.OptionalScanner;
 import io.datarouter.scanner.Scanner;
 
 public interface RoleManager{
@@ -52,7 +51,7 @@ public interface RoleManager{
 	Set<Role> getSuperAdminRoles();
 	Set<Role> getDefaultRoles();
 
-	default Map<RoleApprovalType, Integer> getRoleApprovalRequirements(Role role){
+	default Map<RoleApprovalType, Integer> getRoleApprovalRequirements(@SuppressWarnings("unused") Role role){
 		return Map.of(DatarouterRoleApprovalType.ADMIN.getRoleApprovalType(), 1);
 	}
 
@@ -82,8 +81,7 @@ public interface RoleManager{
 				})
 				// For RoleManagers extending others and overriding the approval type's priority
 				.map(RoleApprovalType::persistentString)
-				.map(this::findRoleApprovalTypeFromPersistentString)
-				.concat(OptionalScanner::of)
+				.concatOpt(this::findRoleApprovalTypeFromPersistentString)
 				.sort(new RoleApprovalTypePriorityComparator())
 				.list();
 	}
@@ -94,7 +92,9 @@ public interface RoleManager{
 	}
 
 	default Set<String> getAdditionalPermissionRequestEmailRecipients(
+			@SuppressWarnings("unused")
 			DatarouterUser requestor,
+			@SuppressWarnings("unused")
 			Set<Role> requestedRoles){
 		return Set.of();
 	}

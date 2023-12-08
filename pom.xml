@@ -21,7 +21,7 @@
 
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-modules</artifactId>
-	<version>0.0.122</version>
+	<version>0.0.123</version>
 	<packaging>pom</packaging>
 
 	<modules>
@@ -54,7 +54,6 @@
 		<module>datarouter-http-client</module>
 		<module>datarouter-inject</module>
 		<module>datarouter-instrumentation</module>
-		<module>datarouter-java17-parent</module>
 		<module>datarouter-job</module>
 		<module>datarouter-joblet</module>
 		<module>datarouter-joblet-mysql</module>

@@ -173,11 +173,6 @@ implements BaseMilliTime<MilliTime>, Comparable<MilliTime>{
 		return ofEpochMilli(toEpochMilli() - duration.toMillis());
 	}
 
-	public static Duration age(MilliTime milliTime){
-		long timeMs = System.currentTimeMillis() - milliTime.toEpochMilli();
-		return Duration.ofMillis(timeMs);
-	}
-
 	public static MilliTime parse(CharSequence text){
 		Instant instant = DateTimeFormatter.ISO_INSTANT.parse(text, Instant::from);
 		return MilliTime.of(instant);

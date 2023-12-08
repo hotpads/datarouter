@@ -91,7 +91,12 @@ public abstract class BaseTriggerGroup implements PluginConfigValue<BaseTriggerG
 			boolean warnOnReachingDuration){
 		CronExpression cronExpression = CronExpressionTool.parse(cronString, zoneId);
 		Duration lockDuration = CronExpressionTool.durationBetweenNextTwoTriggers(cronExpression);
-		registerLockedWithName(cronString, shouldRunSupplier, jobClass, lockName(jobClass), lockDuration,
+		registerLockedWithName(
+				cronString,
+				shouldRunSupplier,
+				jobClass,
+				lockName(jobClass),
+				lockDuration,
 				warnOnReachingDuration);
 	}
 
@@ -104,9 +109,16 @@ public abstract class BaseTriggerGroup implements PluginConfigValue<BaseTriggerG
 			boolean warnOnReachingDuration){
 		CronExpression cronExpression = CronExpressionTool.parse(cronString, zoneId);
 		validateLockedTriggerCron(jobClass, cronExpression);
-		TriggerLockConfig triggerLockConfig = new TriggerLockConfig(lockName, cronExpression, lockDuration,
+		var triggerLockConfig = new TriggerLockConfig(
+				lockName,
+				cronExpression,
+				lockDuration,
 				warnOnReachingDuration);
-		jobPackages.add(JobPackage.createWithLock(categoryName, cronExpression, shouldRunSupplier, jobClass,
+		jobPackages.add(JobPackage.createWithLock(
+				categoryName,
+				cronExpression,
+				shouldRunSupplier,
+				jobClass,
 				triggerLockConfig));
 	}
 
@@ -127,13 +139,23 @@ public abstract class BaseTriggerGroup implements PluginConfigValue<BaseTriggerG
 		CronExpression cronExpression = CronExpressionTool.parse(cronString, zoneId);
 		validateLockedTriggerCron(jobClass, cronExpression);
 		Duration lockDuration = CronExpressionTool.durationBetweenNextTwoTriggers(cronExpression);
-		TriggerLockConfig triggerLockConfig = new TriggerLockConfig(lockName(jobClass), cronExpression, lockDuration,
+		var triggerLockConfig = new TriggerLockConfig(
+				lockName(jobClass),
+				cronExpression,
+				lockDuration,
 				warnOnReachingDuration);
-		jobPackages.add(JobPackage.createDetached(categoryName, cronExpression, shouldRunSupplier, jobClass,
-				triggerLockConfig, detachedJobResource));
+		jobPackages.add(JobPackage.createDetached(
+				categoryName,
+				cronExpression,
+				shouldRunSupplier,
+				jobClass,
+				triggerLockConfig,
+				detachedJobResource));
 	}
 
-	protected void registerRequestTriggered(String persistentString, Class<? extends BaseJob> jobClass){
+	protected void registerRequestTriggered(
+			String persistentString,
+			Class<? extends BaseJob> jobClass){
 		requestTriggeredJobs.put(persistentString, jobClass);
 	}
 
@@ -158,26 +180,37 @@ public abstract class BaseTriggerGroup implements PluginConfigValue<BaseTriggerG
 
 	/*------------------ validate -----------------*/
 
-	private void validateParallelTriggerCron(Class<? extends BaseJob> jobClass, CronExpression cronExpression){
+	private void validateParallelTriggerCron(
+			Class<? extends BaseJob> jobClass,
+			CronExpression cronExpression){
 		validateNoRepeatAfterWildcard(jobClass, cronExpression.getCronExpression());
 		validateRepeatInterval(jobClass, cronExpression.getCronExpression());
 	}
 
-	private void validateLockedTriggerCron(Class<? extends BaseJob> jobClass, CronExpression cronExpression){
+	private void validateLockedTriggerCron(
+			Class<? extends BaseJob> jobClass,
+			CronExpression cronExpression){
 		validateNoRepeatAfterWildcard(jobClass, cronExpression.getCronExpression());
 		validateRepeatInterval(jobClass, cronExpression.getCronExpression());
 		validateMinTimeBetweenLockedTriggers(jobClass, cronExpression);
 	}
 
-	private void validateNoRepeatAfterWildcard(Class<? extends BaseJob> jobClass, String cronString){
+	private void validateNoRepeatAfterWildcard(
+			Class<? extends BaseJob> jobClass,
+			String cronString){
 		if(cronString.contains("/") && StringTool.getStringBeforeFirstOccurrence('/', cronString).contains("*")){
-			String message = String.format("cron %s for %s in %s contains a * before a /.  Please use exact times.",
-					cronString, jobClass.getSimpleName(), getClass().getSimpleName());
+			String message = String.format(
+					"cron %s for %s in %s contains a * before a /.  Please use exact times.",
+					cronString,
+					jobClass.getSimpleName(),
+					getClass().getSimpleName());
 			throw new IllegalArgumentException(message);
 		}
 	}
 
-	private void validateRepeatInterval(Class<? extends BaseJob> jobClass, String cronString){
+	private void validateRepeatInterval(
+			Class<? extends BaseJob> jobClass,
+			String cronString){
 		String[] tokens = cronString.split(" ");
 		String problem = null;
 		if(CronExpressionTool.hasUnevenInterval(60, tokens[0])){
@@ -192,8 +225,12 @@ public abstract class BaseTriggerGroup implements PluginConfigValue<BaseTriggerG
 		if(problem == null){
 			return;
 		}
-		String message = String.format("cron %s for %s in %s %s.", cronString, jobClass.getSimpleName(), getClass()
-				.getSimpleName(), problem);
+		String message = String.format(
+				"cron %s for %s in %s %s.",
+				cronString,
+				jobClass.getSimpleName(),
+				getClass().getSimpleName(),
+				problem);
 		throw new IllegalArgumentException(message);
 	}
 
@@ -202,8 +239,9 @@ public abstract class BaseTriggerGroup implements PluginConfigValue<BaseTriggerG
 			CronExpression cronExpression){
 		Duration timeBetween = CronExpressionTool.durationBetweenNextTwoTriggers(cronExpression);
 		if(ComparableTool.lt(timeBetween, TriggerLockConfig.MIN_PERIOD_BETWEEN_LOCKED_TRIGGERS)){
-			String message = String.format("cron %s for %s in %s is too frequent with %ss between triggers.  Please "
-					+ "reschedule locked triggers at least %s seconds apart",
+			String message = String.format(
+					"cron %s for %s in %s is too frequent with %ss between triggers.  Please "
+							+ "reschedule locked triggers at least %s seconds apart",
 					cronExpression.getCronExpression(),
 					jobClass.getSimpleName(),
 					getClass().getSimpleName(),

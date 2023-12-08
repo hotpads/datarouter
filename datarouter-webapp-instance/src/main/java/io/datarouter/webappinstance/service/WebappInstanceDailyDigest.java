@@ -17,7 +17,6 @@ package io.datarouter.webappinstance.service;
 
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
-import static j2html.TagCreator.td;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -37,7 +36,6 @@ import io.datarouter.util.tuple.Range;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
 import io.datarouter.web.digest.DailyDigestService;
-import io.datarouter.web.html.j2html.J2HtmlTable;
 import io.datarouter.webappinstance.config.DatarouterWebappInstancePaths;
 import io.datarouter.webappinstance.storage.webappinstancelog.DatarouterWebappInstanceLogDao;
 import io.datarouter.webappinstance.storage.webappinstancelog.WebappInstanceLog;
@@ -63,17 +61,6 @@ public class WebappInstanceDailyDigest implements DailyDigest{
 	private DailyDigestService digestService;
 	@Inject
 	private StandardDeploymentCount standardDeploymentCount;
-
-	@Override
-	public Optional<DivTag> getPageContent(ZoneId zoneId){
-		var logs = getLogs();
-		if(logs.isEmpty()){
-			return Optional.empty();
-		}
-		var header = digestService.makeHeader("Deployments", paths.datarouter.webappInstances.running);
-		var table = buildPageTable(logs, zoneId);
-		return Optional.of(div(header, table));
-	}
 
 	@Override
 	public Optional<DivTag> getEmailContent(ZoneId zoneId){
@@ -114,22 +101,6 @@ public class WebappInstanceDailyDigest implements DailyDigest{
 				.map(entry -> new WebappInstanceLogDto(entry.getKey(), entry.getValue()))
 				.sort(Comparator.comparing((WebappInstanceLogDto dto) -> dto.key.build))
 				.list();
-	}
-
-	private TableTag buildPageTable(List<WebappInstanceLogDto> rows, ZoneId zoneId){
-		return new J2HtmlTable<WebappInstanceLogDto>()
-				.withClasses("sortable table table-sm table-striped my-4 border")
-				.withColumn("Build Date", row -> ZonedDateFormatterTool.formatInstantWithZone(row.key.build, zoneId))
-				.withColumn("Startup Range", row -> row.getStartupRangeStart(zoneId)
-						+ " - "
-						+ row.getStartupRangeEnd(zoneId))
-				.withHtmlColumn("BuildId", row -> td(a(Optional.ofNullable(row.key.buildId).orElse(""))
-						.withTarget("_blank")
-						.withHref(buildIdLink.getLink(Optional.ofNullable(row.key.buildId).orElse("")))))
-				.withHtmlColumn("CommitId", row -> td(a(row.key.commitId)
-						.withTarget("_blank")
-						.withHref(commitIdLink.getLink(row.key.commitId))))
-				.build(rows);
 	}
 
 	private TableTag buildEmailTable(List<WebappInstanceLogDto> rows, ZoneId zoneId){

@@ -179,18 +179,15 @@ public abstract class BaseHttpClient implements HttpConfig{
 	}
 
 	private Supplier<String> chooseApiKeySupplier(){
-		return refreshableApiKeySupplier != null ? refreshableApiKeySupplier : apiKeySupplier != null ? apiKeySupplier
-				: null;
+		return refreshableApiKeySupplier != null ? refreshableApiKeySupplier : apiKeySupplier;
 	}
 
 	private SignatureGenerator chooseSignatureGenerator(){
-		return refreshableSignatureGenerator != null ? refreshableSignatureGenerator : signatureGenerator != null
-				? signatureGenerator : null;
+		return refreshableSignatureGenerator != null ? refreshableSignatureGenerator : signatureGenerator;
 	}
 
 	private CsrfGenerator chooseCsrfGenerator(){
-		return refreshableCsrfGenerator != null ? refreshableCsrfGenerator : csrfGenerator != null
-				? csrfGenerator : null;
+		return refreshableCsrfGenerator != null ? refreshableCsrfGenerator : csrfGenerator;
 	}
 
 	protected boolean shouldRerun40x(Instant previous, int statusCode, boolean shouldSkipSecurity){

@@ -22,11 +22,16 @@ public class DatarouterWebExecutors{
 
 	@Singleton
 	public static class WebAppLifecycleExecutor extends ScalingThreadPoolExecutor{
-
 		public WebAppLifecycleExecutor(){
 			super("webAppLifecycleExecutor", 16);
 		}
+	}
 
+	@Singleton
+	public static class CountKeysExecutor extends ScalingThreadPoolExecutor{
+		public CountKeysExecutor(){
+			super("countKeys", 100);
+		}
 	}
 
 }

@@ -64,12 +64,12 @@ public class BlockfileDirectoryStorage implements BlockfileStorage{
 
 	@Override
 	public byte[] read(String name){
-		return directory.read(PathbeanKey.of(name));
+		return directory.read(PathbeanKey.of(name)).orElseThrow();
 	}
 
 	@Override
 	public byte[] readPartial(String name, long offset, int length){
-		return directory.readPartial(PathbeanKey.of(name), offset, length);
+		return directory.readPartial(PathbeanKey.of(name), offset, length).orElseThrow();
 	}
 
 	@Override

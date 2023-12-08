@@ -15,19 +15,19 @@
  */
 package io.datarouter.bytes.kvfile.io;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import io.datarouter.bytes.blockfile.BlockfileBuilder;
 import io.datarouter.bytes.blockfile.checksum.BlockfileChecksummer;
 import io.datarouter.bytes.blockfile.compress.BlockfileCompressor;
 import io.datarouter.bytes.blockfile.storage.BlockfileStorage;
+import io.datarouter.bytes.kvfile.blockformat.KvFileBlockFormat;
+import io.datarouter.bytes.kvfile.blockformat.KvFileBlockFormats;
 
 public class KvFileBuilder<T>{
 
 	private final BlockfileBuilder<List<T>> blockfileBuilder;
-	//TODO init with built-in formats
-	private final List<String> kvBlockFormats = new ArrayList<>();
+	private final KvFileBlockFormats kvBlockFormats = new KvFileBlockFormats();
 
 	public KvFileBuilder(BlockfileStorage blockfileStorage){
 		blockfileBuilder = new BlockfileBuilder<>(blockfileStorage);
@@ -47,7 +47,7 @@ public class KvFileBuilder<T>{
 
 	/*--------- KvFileBuilder options --------*/
 
-	public KvFileBuilder<T> registerKvBlockFormat(String kvBlockFormat){
+	public KvFileBuilder<T> registerKvBlockFormat(KvFileBlockFormat kvBlockFormat){
 		kvBlockFormats.add(kvBlockFormat);
 		return this;
 	}

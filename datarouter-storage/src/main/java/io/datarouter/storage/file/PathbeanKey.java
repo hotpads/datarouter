@@ -111,7 +111,7 @@ public class PathbeanKey extends BaseRegularPrimaryKey<PathbeanKey>{
 		return new PathbeanKey(subpath.toString(), file);
 	}
 
-	public static final boolean isValidPath(String path){
+	public static boolean isValidPath(String path){
 		if(path.isEmpty()){
 			return true;//empty is ok
 		}
@@ -121,17 +121,14 @@ public class PathbeanKey extends BaseRegularPrimaryKey<PathbeanKey>{
 		if(path.contains("//")){
 			return false;
 		}
-		if(!path.endsWith("/")){
-			return false;
-		}
-		return true;
+		return path.endsWith("/");
 	}
 
-	public static final boolean isValidFile(String file, boolean allowEmptyFile){
+	public static boolean isValidFile(String file, boolean allowEmptyFile){
 		if(file.contains("/")){
 			return false;
 		}
-		if(file.length() == 0){
+		if(file.isEmpty()){
 			return allowEmptyFile;
 		}
 		return true;

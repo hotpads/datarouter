@@ -29,6 +29,7 @@ import io.datarouter.storage.setting.DefaultSettingValueWinner;
 import io.datarouter.storage.setting.DefaultSettingValueWinner.DefaultSettingValueWinnerType;
 import io.datarouter.storage.setting.Setting;
 import io.datarouter.storage.setting.SettingFinder;
+import io.datarouter.storage.setting.SettingValidator;
 import io.datarouter.util.cached.Cached;
 
 //object hierarchy is weird here.  consider using composition
@@ -41,12 +42,20 @@ implements Setting<T>{
 	protected final DefaultSettingValue<T> defaultSettingValue;
 	protected boolean hasCustomValues; // TODO delete?
 	protected boolean hasRedundantCustomValues;
+	protected SettingValidator validator;
 
-	public CachedSetting(SettingFinder finder, String name, DefaultSettingValue<T> defaultValue){
+	public CachedSetting(SettingFinder finder, String name, DefaultSettingValue<T> defaultValue,
+			SettingValidator validator){
 		super(5, TimeUnit.SECONDS);
 		this.finder = finder;
 		this.name = name;
 		this.defaultSettingValue = defaultValue;
+		this.validator = validator;
+	}
+
+	@Override
+	public boolean isValid(String value){
+		return validator.isValid(value);
 	}
 
 	/*----------- Object --------------*/

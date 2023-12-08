@@ -16,7 +16,7 @@
 package io.datarouter.nodewatch.storage.binarydto.storagestats.table;
 
 import java.util.List;
-import java.util.Objects;
+import java.util.Optional;
 
 import io.datarouter.nodewatch.config.DatarouterNodewatchDirectorySupplier;
 import io.datarouter.scanner.Scanner;
@@ -39,27 +39,36 @@ public class TableStorageStatsBinaryDao{
 		directory = nodewatchDirectorySupplier.getStorageStatsTableDirectory();
 	}
 
-	public void saveTableDto(
-			PhysicalSortedStorageReaderNode<?,?,?> node,
-			TableStorageStatsBinaryDto dto){
+	public PathbeanKey makeKey(PhysicalSortedStorageReaderNode<?,?,?> node){
 		String clientTypeName = node.getClientType().getName();
 		String clientName = node.clientAndTableNames().client();
 		String tableName = node.clientAndTableNames().table();
 		//TODO clientType is probably not needed in the path
 		var subpath = new Subpath(clientTypeName).append(clientName);
-		var key = PathbeanKey.of(subpath, tableName);
-		directory.write(key, dto.encodeIndexed());
+		return PathbeanKey.of(subpath, tableName);
+	}
+
+	public void saveTableDto(
+			PhysicalSortedStorageReaderNode<?,?,?> node,
+			TableStorageStatsBinaryDto dto){
+		directory.write(makeKey(node), dto.encodeIndexed());
+	}
+
+	public Optional<TableStorageStatsBinaryDto> find(
+			PhysicalSortedStorageReaderNode<?,?,?> node){
+		return directory.read(makeKey(node))
+				.map(TableStorageStatsBinaryDto::decode);
+
 	}
 
 	public Scanner<TableStorageStatsBinaryDto> scanTableSummaryDtos(
 			ClientType<?,?> clientType,
 			List<PhysicalSortedStorageReaderNode<?,?,?>> nodes){
 		return Scanner.of(nodes)
-				.map(node -> directory.read(PathbeanKey.of(
+				.concatOpt(node -> directory.read(PathbeanKey.of(
 						new Subpath(clientType.getName())
 								.append(node.clientAndTableNames().client()),
 						node.clientAndTableNames().table())))
-				.exclude(Objects::isNull)
 				.map(TableStorageStatsBinaryDto::decode);
 	}
 

@@ -24,12 +24,10 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.auth.storage.user.datarouteruser.DatarouterUser;
 import io.datarouter.auth.storage.user.roleapprovals.DatarouterUserRoleApproval.DatarouterUserRoleApprovalFielder;
-import io.datarouter.auth.storage.user.userhistory.DatarouterUserHistoryDao.DatarouterUserHistoryDaoParams;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.BaseDao;
-import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import io.datarouter.storage.tag.Tag;
@@ -41,12 +39,7 @@ import jakarta.inject.Singleton;
 public class DatarouterUserRoleApprovalDao extends BaseDao{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterUserRoleApprovalDao.class);
 
-	public static class DatarouterUserRoleApprovalDaoParams extends BaseRedundantDaoParams{
-
-		public DatarouterUserRoleApprovalDaoParams(List<ClientId> clientIds){
-			super(clientIds);
-		}
-
+	public record DatarouterUserRoleApprovalDaoParams(List<ClientId> clientIds){
 	}
 
 	private final SortedMapStorageNode<
@@ -58,7 +51,7 @@ public class DatarouterUserRoleApprovalDao extends BaseDao{
 	public DatarouterUserRoleApprovalDao(
 			Datarouter datarouter,
 			NodeFactory nodeFactory,
-			DatarouterUserHistoryDaoParams params){
+			DatarouterUserRoleApprovalDaoParams params){
 		super(datarouter);
 		node = Scanner.of(params.clientIds)
 				.map(clientId -> {

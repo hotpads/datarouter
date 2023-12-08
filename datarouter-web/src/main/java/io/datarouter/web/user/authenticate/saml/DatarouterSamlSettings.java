@@ -47,17 +47,17 @@ public class DatarouterSamlSettings extends SettingNode{
 	public final CachedSetting<String> attributesToRoleGroupIds;
 	public final CachedSetting<String> encodedIdpPublicKey;
 	public final CachedSetting<String> encodedIdpX509Certificate;
+	private final boolean mightBeProduction;
 
 	private MemoizedComputation<String, Credential> idpPublicKey;
 	private MemoizedComputation<String, Credential> idpX509CertificatePublicKey;
-	private final Boolean isLive;
 
 	@Inject
 	public DatarouterSamlSettings(
 			SettingFinder finder,
-			EnvironmentName environmentName,
 			DatarouterWebPaths paths,
-			ServerName serverName){
+			ServerName serverName,
+			EnvironmentName environmentName){
 		super(finder, "datarouterWeb.saml.");
 		entityId = registerString("entityId", "https://" + serverName.get());
 		assertionConsumerServicePath = registerString("assertionConsumerServletPath", paths.consumer.toSlashedString());
@@ -73,12 +73,12 @@ public class DatarouterSamlSettings extends SettingNode{
 		idpX509CertificatePublicKey = new MemoizedComputation<>(SamlTool
 				::getCredentialFromEncodedX509Certificate);
 
-		// use serverTypeDetectror?
-		isLive = !EnvironmentType.DEVELOPMENT.get().getPersistentString().equals(environmentName.get());
+		// TODO IN-10902
+		mightBeProduction = !EnvironmentType.DEVELOPMENT.get().getPersistentString().equals(environmentName.get());
 	}
 
 	public Boolean getShouldProcess(){
-		return isLive && shouldUseSaml.get();
+		return mightBeProduction && shouldUseSaml.get();
 	}
 
 	public Map<String,String> getAttributeToRoleGroupIdMap(){

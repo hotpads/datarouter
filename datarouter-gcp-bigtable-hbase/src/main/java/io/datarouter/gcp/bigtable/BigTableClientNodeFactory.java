@@ -16,8 +16,6 @@
 package io.datarouter.gcp.bigtable;
 
 import io.datarouter.client.hbase.BaseHBaseClientNodeFactory;
-import io.datarouter.client.hbase.callback.CountingBatchCallbackFactory;
-import io.datarouter.client.hbase.config.DatarouterHBaseExecutors.DatarouterHbaseClientExecutor;
 import io.datarouter.gcp.bigtable.client.BigTableClientManager;
 import io.datarouter.storage.node.adapter.NodeAdapters;
 import jakarta.inject.Inject;
@@ -29,14 +27,10 @@ public class BigTableClientNodeFactory extends BaseHBaseClientNodeFactory{
 	@Inject
 	public BigTableClientNodeFactory(
 			BigTableClientType clientType,
-			CountingBatchCallbackFactory countingBatchCallbackFactory,
 			BigTableClientManager bigTableClientManager,
-			DatarouterHbaseClientExecutor datarouterHbaseClientExecutor,
 			NodeAdapters nodeAdapters){
 		super(clientType,
-				countingBatchCallbackFactory,
 				bigTableClientManager,
-				datarouterHbaseClientExecutor,
 				nodeAdapters);
 	}
 

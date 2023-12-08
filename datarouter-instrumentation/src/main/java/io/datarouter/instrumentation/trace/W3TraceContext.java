@@ -15,7 +15,6 @@
  */
 package io.datarouter.instrumentation.trace;
 
-import java.time.Instant;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -33,28 +32,29 @@ public class W3TraceContext{
 	/**
 	 * @param traceparentStr the traceparent passed in the request header
 	 * @param tracestateStr the tracestate passed in the request header
-	 * @param createdTimestamp the timestamp used when existing traceparent is invalid or missing to create a parentId
+	 * @param createdTimestampEpochNanos the timestamp used when existing traceparent is invalid or missing to create
+	 * 			a parentId
 	 */
-	public W3TraceContext(String traceparentStr, String tracestateStr, long createdTimestamp){
+	public W3TraceContext(String traceparentStr, String tracestateStr, long createdTimestampEpochNanos){
 		// If either trace-id, parent-id or trace-flags are invalid, we create a new traceparent and tracestate headers
 		if(!validateAndSetTraceparent(traceparentStr)){
-			traceparent = Traceparent.generateNew(createdTimestamp);
+			traceparent = Traceparent.generateNew(createdTimestampEpochNanos);
 			tracestate = Tracestate.generateNew(traceparent.parentId);
 		}
 		parseOrCreateNewTracestate(tracestateStr);
-		this.createdTimestamp = createdTimestamp;
+		this.createdTimestamp = createdTimestampEpochNanos;
 	}
 
-	public W3TraceContext(Traceparent traceparent, Tracestate tracestate, long createdTimestamp){
+	public W3TraceContext(Traceparent traceparent, Tracestate tracestate, long createdTimestampEpochNanos){
 		this.traceparent = traceparent;
 		this.tracestate = tracestate;
-		this.createdTimestamp = createdTimestamp;
+		this.createdTimestamp = createdTimestampEpochNanos;
 	}
 
-	public W3TraceContext(long createdTimestamp){
-		this.traceparent = Traceparent.generateNew(createdTimestamp);
+	public W3TraceContext(long createdTimestampEpochNanos){
+		this.traceparent = Traceparent.generateNew(createdTimestampEpochNanos);
 		this.tracestate = Tracestate.generateNew(traceparent.parentId);
-		this.createdTimestamp = createdTimestamp;
+		this.createdTimestamp = createdTimestampEpochNanos;
 	}
 
 	public W3TraceContext copy(){
@@ -78,20 +78,18 @@ public class W3TraceContext{
 	}
 
 	public void updateParentIdAndAddTracestateMember(){
-		traceparent = traceparent.updateParentId();
+		traceparent = traceparent.copyWithNewParentId();
 		tracestate.addDatarouterListMember(traceparent.parentId);
 	}
 
-	public Optional<Long> getTimestampMs(){
-		return traceparent.getInstant().map(Instant::toEpochMilli);
+	public long getTimestampMs(){
+		return traceparent.getInstantTruncatedToMillis().toEpochMilli();
 	}
 
 	private boolean validateAndSetTraceparent(String traceparentStr){
-		Optional<Traceparent> parsedTraceparent = Traceparent.parse(traceparentStr);
-		if(parsedTraceparent.isPresent()){
-			traceparent = parsedTraceparent.get();
-		}
-		return hasValidTraceparent = parsedTraceparent.isPresent();
+		Optional<Traceparent> parsedTraceparentOpt = Traceparent.parseIfValid(traceparentStr);
+		parsedTraceparentOpt.ifPresent(traceparent -> this.traceparent = traceparent);
+		return hasValidTraceparent = parsedTraceparentOpt.isPresent();
 	}
 
 	private void parseOrCreateNewTracestate(String tracestateStr){

@@ -35,7 +35,6 @@ import io.datarouter.nodewatch.web.NodewatchTableHistoryGraph;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.duration.DatarouterDuration;
 import io.datarouter.util.number.NumberFormatter;
-import io.datarouter.util.time.ZonedDateFormatterTool;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.html.indexpager.BaseNamedScannerPager;
@@ -112,7 +111,7 @@ public class NodewatchTableHandler extends BaseHandler{
 
 	private DivTag makeActionsDiv(String clientName, String tableName){
 		var estimateSizeButton = NodewatchHtml.makeInfoButton(
-				"Estimate Storage Size",
+				"Storage Details",
 				links.tableStorage(clientName, tableName));
 		var resampleButton = NodewatchHtml.makeWarningButton(
 				"Re-sample",
@@ -176,8 +175,8 @@ public class NodewatchTableHandler extends BaseHandler{
 					ms -> new DatarouterDuration(ms, TimeUnit.MILLISECONDS).toString())
 			.withColumn(
 					"Date",
-					row -> row.getKey().getCreated(),
-					instant -> ZonedDateFormatterTool.formatInstantWithZone(instant, userZoneId));
+					row -> row.getKey().getCreatedMs(),
+					time -> time.format(userZoneId));
 	}
 
 	private static class NodewatchTableDetailsNamedScannerPager

@@ -95,18 +95,14 @@ public class ConcatenatingScannerTests{
 	@Test
 	public void testStreamLazyness(){
 		AtomicBoolean seenOne = new AtomicBoolean();
-		try{
-			Stream.of(1, 2)
-					.flatMap(foo -> Stream.of(foo, foo)
-							.peek($ -> {
-								if(seenOne.getAndSet(true)){
-									throw EXCEPTION.get();
-								}
-							}))
-					.findFirst();
-		}catch(RuntimeException e){
-			throw e;
-		}
+		Stream.of(1, 2)
+				.flatMap(foo -> Stream.of(foo, foo)
+						.peek($ -> {
+							if(seenOne.getAndSet(true)){
+								throw EXCEPTION.get();
+							}
+						}))
+				.findFirst();
 
 		try{
 			seenOne.set(false);

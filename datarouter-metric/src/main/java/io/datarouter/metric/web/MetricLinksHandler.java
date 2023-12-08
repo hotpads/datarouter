@@ -17,7 +17,6 @@ package io.datarouter.metric.web;
 
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
-import static j2html.TagCreator.each;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.i;
 import static j2html.TagCreator.join;
@@ -26,7 +25,6 @@ import static j2html.TagCreator.th;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import io.datarouter.instrumentation.metric.MetricLinkBuilder;
 import io.datarouter.plugin.PluginInjector;
@@ -37,9 +35,7 @@ import io.datarouter.web.html.j2html.J2HtmlTable;
 import io.datarouter.web.metriclinks.MetricLinkDto;
 import io.datarouter.web.metriclinks.MetricLinkPage;
 import io.datarouter.web.requirejs.DatarouterWebRequireJsV2;
-import j2html.TagCreator;
 import j2html.attributes.Attr;
-import j2html.tags.ContainerTag;
 import j2html.tags.specialized.DivTag;
 import jakarta.inject.Inject;
 
@@ -54,12 +50,13 @@ public class MetricLinksHandler extends BaseHandler{
 
 	@Handler
 	public Mav view(){
-		List<ContainerTag<DivTag>> tags = pluginInjector.scanInstances(MetricLinkPage.KEY)
+		List<DivTag> tags = pluginInjector.scanInstances(MetricLinkPage.KEY)
 				.sort(Comparator.comparing(MetricLinkPage::getHtmlName))
 				.exclude(page -> page.getMetricLinks().isEmpty())
 				.map(this::makeContent)
-				.collect(Collectors.toList());
-		DivTag content = div(each(tags, item -> TagCreator.div(item)));
+				.list();
+		DivTag content = div();
+		tags.forEach(tag -> content.with(div(tag)));
 		return pageFactory.startBuilder(request)
 				.withTitle("Metric Links")
 				.withContent(content)

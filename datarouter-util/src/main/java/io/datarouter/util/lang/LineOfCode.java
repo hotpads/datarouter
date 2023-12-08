@@ -67,35 +67,10 @@ public class LineOfCode implements Comparable<LineOfCode>{
 			return false;
 		}
 		LineOfCode other = (LineOfCode) obj;
-		if(className == null){
-			if(other.className != null){
-				return false;
-			}
-		}else if(!className.equals(other.className)){
-			return false;
-		}
-		if(lineNumber == null){
-			if(other.lineNumber != null){
-				return false;
-			}
-		}else if(!lineNumber.equals(other.lineNumber)){
-			return false;
-		}
-		if(methodName == null){
-			if(other.methodName != null){
-				return false;
-			}
-		}else if(!methodName.equals(other.methodName)){
-			return false;
-		}
-		if(packageName == null){
-			if(other.packageName != null){
-				return false;
-			}
-		}else if(!packageName.equals(other.packageName)){
-			return false;
-		}
-		return true;
+		return Objects.equals(className, other.className)
+				&& Objects.equals(lineNumber, other.lineNumber)
+				&& Objects.equals(methodName, other.methodName)
+				&& Objects.equals(packageName, other.packageName);
 	}
 
 	@Override

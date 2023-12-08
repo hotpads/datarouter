@@ -15,7 +15,6 @@
  */
 package io.datarouter.auth.web.service;
 
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -27,6 +26,7 @@ import io.datarouter.auth.storage.account.credential.DatarouterAccountCredential
 import io.datarouter.auth.storage.account.credential.DatarouterAccountCredentialKey;
 import io.datarouter.auth.storage.account.credential.secret.BaseDatarouterAccountSecretCredentialDao;
 import io.datarouter.auth.storage.account.credential.secret.DatarouterAccountSecretCredentialKey;
+import io.datarouter.types.MilliTime;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
@@ -36,9 +36,9 @@ public class DatarouterAccountLastUsedDateService{
 	private final BaseDatarouterAccountDao accountDao;
 	private final BaseDatarouterAccountCredentialDao credentialDao;
 	private final BaseDatarouterAccountSecretCredentialDao secretCredentialDao;
-	private final Map<DatarouterAccountKey,Date> lastUsedByAccount;
-	private final Map<DatarouterAccountCredentialKey,Date> lastUsedByCredential;
-	private final Map<DatarouterAccountSecretCredentialKey,Date> lastUsedBySecretCredential;
+	private final Map<DatarouterAccountKey,MilliTime> lastUsedByAccount;
+	private final Map<DatarouterAccountCredentialKey,MilliTime> lastUsedByCredential;
+	private final Map<DatarouterAccountSecretCredentialKey,MilliTime> lastUsedBySecretCredential;
 
 	@Inject
 	public DatarouterAccountLastUsedDateService(BaseDatarouterAccountDao accountDao,
@@ -53,18 +53,18 @@ public class DatarouterAccountLastUsedDateService{
 	}
 
 	public void updateLastUsedDateForCredential(DatarouterAccountCredential credential){
-		lastUsedByCredential.put(credential.getKey(), new Date());
-		lastUsedByAccount.put(new DatarouterAccountKey(credential.getAccountName()), new Date());
+		lastUsedByCredential.put(credential.getKey(), MilliTime.now());
+		lastUsedByAccount.put(new DatarouterAccountKey(credential.getAccountName()), MilliTime.now());
 	}
 
 	public void updateLastUsedDateForCredential(DatarouterAccountCredentialKey key, String accountName){
-		lastUsedByCredential.put(key, new Date());
-		lastUsedByAccount.put(new DatarouterAccountKey(accountName), new Date());
+		lastUsedByCredential.put(key, MilliTime.now());
+		lastUsedByAccount.put(new DatarouterAccountKey(accountName), MilliTime.now());
 	}
 
 	public void updateLastUsedDateForSecretCredential(DatarouterAccountSecretCredentialKey key, String accountName){
-		lastUsedBySecretCredential.put(key, new Date());
-		lastUsedByAccount.put(new DatarouterAccountKey(accountName), new Date());
+		lastUsedBySecretCredential.put(key, MilliTime.now());
+		lastUsedByAccount.put(new DatarouterAccountKey(accountName), MilliTime.now());
 	}
 
 	public void flush(){

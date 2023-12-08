@@ -17,20 +17,20 @@ package io.datarouter.metric.counter.conveyor;
 
 import java.util.Map;
 
-import io.datarouter.metric.counter.collection.DatarouterCountCollector.CountCollectorStats;
+import io.datarouter.metric.service.AggregatedGaugesPublisher.MetricCollectorStats;
 import io.datarouter.util.buffer.MemoryBuffer;
 import jakarta.inject.Singleton;
 
 @Singleton
 public class CountBuffers{
 
-	public final MemoryBuffer<Map<Long,Map<String,CountCollectorStats>>> countStatsBuffer;
+	public final MemoryBuffer<Map<Long,Map<String,MetricCollectorStats>>> countStatsBuffer;
 
 	public CountBuffers(){
 		this.countStatsBuffer = new MemoryBuffer<>("countStatsBuffer", 100);
 	}
 
-	public void offerCountStats(Map<Long,Map<String,CountCollectorStats>> metricDto){
+	public void offerCountStats(Map<Long,Map<String,MetricCollectorStats>> metricDto){
 		countStatsBuffer.offer(metricDto);
 	}
 

@@ -29,7 +29,7 @@ public class IntListCodec{
 	private static final int ITEM_LENGTH = COMPARABLE_INT_CODEC.length();
 
 	public byte[] encode(List<Integer> values){
-		if(values.size() == 0){
+		if(values.isEmpty()){
 			return EmptyArray.BYTE;
 		}
 		var bytes = new byte[ITEM_LENGTH * values.size()];

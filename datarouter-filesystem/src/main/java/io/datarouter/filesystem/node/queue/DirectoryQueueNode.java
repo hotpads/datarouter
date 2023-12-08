@@ -18,6 +18,7 @@ package io.datarouter.filesystem.node.queue;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Supplier;
 
 import io.datarouter.filesystem.raw.queue.DirectoryQueue;
@@ -74,7 +75,7 @@ implements PhysicalQueueStorageNode<PK,D,F>{
 	@Override
 	public Scanner<QueueMessage<PK, D>> peekUntilEmpty(Config config){
 		return Scanner.generate(() -> peek(config))
-				.advanceUntil(message -> message == null);
+				.advanceUntil(Objects::isNull);
 	}
 
 	/*------------- writer ------------*/

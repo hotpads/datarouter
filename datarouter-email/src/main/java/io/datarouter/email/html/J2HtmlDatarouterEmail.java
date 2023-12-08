@@ -106,7 +106,7 @@ public class J2HtmlDatarouterEmail{
 
 	/*---------- non-static-final styles for hot code swap -----------*/
 
-	private static final List<String> makeBodyStyles(){
+	private static List<String> makeBodyStyles(){
 		return List.of(
 				"font-family:Arial;");
 	}
@@ -117,7 +117,7 @@ public class J2HtmlDatarouterEmail{
 				"height:40px;");
 	}
 
-	private static final List<String> makeTitleStyles(){
+	private static List<String> makeTitleStyles(){
 		return List.of(
 				"text-decoration:none;",
 				"color:black;",

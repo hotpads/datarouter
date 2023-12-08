@@ -21,7 +21,6 @@ import io.datarouter.bytes.Codec;
 import io.datarouter.model.databean.EmptyDatabean;
 import io.datarouter.model.databean.EmptyDatabean.EmptyDatabeanFielder;
 import io.datarouter.model.key.EmptyDatabeanKey;
-import io.datarouter.scanner.OptionalScanner;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.op.raw.BlobQueueStorage;
@@ -51,8 +50,7 @@ extends BlobQueueStorage<T>,
 	@Override
 	default Optional<BlobQueueMessage<T>> peek(Config config){
 		return Scanner.of(getReadNodes())
-				.map(BlobQueueStorageNode::peek)
-				.concat(OptionalScanner::of)
+				.concatOpt(BlobQueueStorageNode::peek)
 				.findFirst();
 	}
 
@@ -64,8 +62,7 @@ extends BlobQueueStorage<T>,
 	@Override
 	default Optional<BlobQueueMessage<T>> poll(Config config){
 		return Scanner.of(getReadNodes())
-				.map(BlobQueueStorageNode::poll)
-				.concat(OptionalScanner::of)
+				.concatOpt(BlobQueueStorageNode::poll)
 				.findFirst();
 	}
 

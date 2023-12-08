@@ -43,7 +43,9 @@ public class ConveyorCounters{
 		inc(conveyor, "consumed databeans", numDatabeans);
 	}
 
-	public static void incConsumedOpAndDatabeansWithPriority(ConveyorRunnable conveyor, long numDatabeans,
+	public static void incConsumedOpAndDatabeansWithPriority(
+			ConveyorRunnable conveyor,
+			long numDatabeans,
 			String priority){
 		incConsumedOpAndDatabeans(conveyor, numDatabeans);
 		inc(conveyor, priority + " consumed ops", 1);

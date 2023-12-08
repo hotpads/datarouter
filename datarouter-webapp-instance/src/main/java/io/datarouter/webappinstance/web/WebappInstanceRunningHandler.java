@@ -23,6 +23,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import io.datarouter.auth.service.CurrentUserSessionInfoService;
+import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.webappinstance.WebappInstanceTableService;
@@ -60,7 +61,7 @@ public class WebappInstanceRunningHandler extends BaseHandler{
 
 		Map<String,String> mostCommonCommitByWebapp = webappInstances.stream()
 				.collect(Collectors.groupingBy(instance -> instance.getKey().getWebappName(),
-						Collectors.collectingAndThen(Collectors.toList(),
+						Collectors.collectingAndThen(WarnOnModifyList.deprecatedCollector(),
 								instances -> WebappInstanceTableService.getMostCommonValue(instances,
 										WebappInstance::getCommitId))));
 

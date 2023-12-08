@@ -30,7 +30,7 @@ public class ByteToolTests{
 	public void testUnsignedIncrement(){
 		byte[] bytesA = RAW_INT_CODEC.encode(0);
 		int a2 = RAW_INT_CODEC.decode(ByteTool.unsignedIncrement(bytesA), 0);
-		Assert.assertTrue(a2 == 1);
+		Assert.assertEquals(a2, 1);
 
 		byte[] bytesB = RAW_INT_CODEC.encode(-1);
 		byte[] actuals = ByteTool.unsignedIncrement(bytesB);
@@ -39,22 +39,22 @@ public class ByteToolTests{
 
 		byte[] bytesC = RAW_INT_CODEC.encode(255);// should wrap to the next significant byte
 		int c2 = RAW_INT_CODEC.decode(ByteTool.unsignedIncrement(bytesC), 0);
-		Assert.assertTrue(c2 == 256);
+		Assert.assertEquals(c2, 256);
 	}
 
 	@Test
 	public void testUnsignedIncrementOverflowToNull(){
 		byte[] bytesA = RAW_INT_CODEC.encode(0);
 		int a2 = RAW_INT_CODEC.decode(ByteTool.unsignedIncrementOverflowToNull(bytesA), 0);
-		Assert.assertTrue(a2 == 1);
+		Assert.assertEquals(a2, 1);
 
 		byte[] bytesB = RAW_INT_CODEC.encode(-1);
 		byte[] b2 = ByteTool.unsignedIncrementOverflowToNull(bytesB);
-		Assert.assertTrue(b2 == null);
+		Assert.assertNull(b2);
 
 		byte[] bytesC = RAW_INT_CODEC.encode(255);// should wrap to the next significant byte
 		int c2 = RAW_INT_CODEC.decode(ByteTool.unsignedIncrementOverflowToNull(bytesC), 0);
-		Assert.assertTrue(c2 == 256);
+		Assert.assertEquals(c2, 256);
 	}
 
 	@Test

@@ -22,7 +22,7 @@ import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.util.Arrays;
 
-import io.datarouter.scanner.Scanner;
+import io.datarouter.scanner.InputStreamScanner;
 
 public class InputStreamTool{
 
@@ -125,11 +125,6 @@ public class InputStreamTool{
 		}
 	}
 
-	public static Scanner<byte[]> scanChunks(InputStream inputStream, int chunkSize){
-		return Scanner.generate(() -> InputStreamTool.readNBytes(inputStream, chunkSize))
-				.advanceWhile(chunk -> chunk.length > 0);
-	}
-
 	public static byte[] toArray(InputStream inputStream){
 		return toArray(inputStream, new ByteArrayOutputStream());
 	}
@@ -154,6 +149,17 @@ public class InputStreamTool{
 		}catch(IOException e){
 			throw new UncheckedIOException(e);
 		}
+	}
+
+	/**
+	 * For cases where it's difficult to use try-with-resources.
+	 * This should close the InputStream when it's been consumed.
+	 * But it won't close if not fully consumed.
+	 * It adds memory allocation overhead to a normal InputStream, but removes the need for BufferedInputStream.
+	 */
+	public static InputStream closeAtEnd(InputStream inputStream){
+		return InputStreamScanner.of(inputStream)
+				.apply(MultiByteArrayInputStream::new);
 	}
 
 }

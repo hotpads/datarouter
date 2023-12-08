@@ -17,7 +17,6 @@ package io.datarouter.aws.rds.service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
@@ -39,6 +38,7 @@ import com.amazonaws.services.rds.model.Tag;
 import io.datarouter.aws.rds.config.DatarouterAwsRdsConfigSettings;
 import io.datarouter.aws.rds.config.DatarouterAwsRdsConfigSettings.RdsCredentialsDto;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.util.number.RandomTool;
 import io.datarouter.util.retry.RetryableTool;
 import jakarta.inject.Inject;
@@ -57,7 +57,7 @@ public class RdsService{
 		return getCluster(clusterName, region).getDBClusterMembers().stream()
 				.filter(m -> !m.isClusterWriter())
 				.map(DBClusterMember::getDBInstanceIdentifier)
-				.collect(Collectors.toList());
+				.collect(WarnOnModifyList.deprecatedCollector());
 	}
 
 	public boolean isReaderInstance(String instanceName, String clusterName, String region){

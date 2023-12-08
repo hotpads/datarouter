@@ -34,7 +34,8 @@ public class DatarouterConveyorThreadCountSettings extends SettingNode{
 	private final Map<String,CachedSetting<Integer>> settingByConveyorName = new HashMap<>();
 
 	@Inject
-	public DatarouterConveyorThreadCountSettings(SettingFinder finder,
+	public DatarouterConveyorThreadCountSettings(
+			SettingFinder finder,
 			ConveyorConfigurationGroupService conveyorConfigurationGroupService){
 		super(finder, DatarouterConveyorSettingRoot.SETTING_NAME_PREFIX + SETTING_NAME_PREFIX);
 		conveyorConfigurationGroupService.getAllPackages()

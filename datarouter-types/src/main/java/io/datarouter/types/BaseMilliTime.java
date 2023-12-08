@@ -65,4 +65,9 @@ public interface BaseMilliTime<T extends BaseMilliTime<T>>{
 		return Duration.ofMillis(ageMs);
 	}
 
+	default boolean isOlderThan(Duration duration){
+		long cutoff = System.currentTimeMillis() - duration.toMillis();
+		return toEpochMilli() < cutoff;
+	}
+
 }

@@ -29,6 +29,7 @@ public class DocumentedEndpointJspDto{
 	private final List<DocumentedErrorJspDto> errors;
 	private final String paramsEnumValuesDisplay;
 	private final String callerType;
+	private final String requestType;
 
 	public DocumentedEndpointJspDto(
 			String url,
@@ -40,7 +41,8 @@ public class DocumentedEndpointJspDto{
 			boolean isDeprecated,
 			List<DocumentedErrorJspDto> errors,
 			String paramsEnumValuesDisplay,
-			String callerType){
+			String callerType,
+			String requestType){
 		this.url = url;
 		this.implementation = implementation;
 		this.parameters = parameters;
@@ -51,6 +53,7 @@ public class DocumentedEndpointJspDto{
 		this.errors = errors;
 		this.paramsEnumValuesDisplay = paramsEnumValuesDisplay;
 		this.callerType = callerType;
+		this.requestType = requestType;
 	}
 
 	public String getUrl(){
@@ -91,6 +94,10 @@ public class DocumentedEndpointJspDto{
 
 	public String getCallerType(){
 		return callerType;
+	}
+
+	public String getRequestType(){
+		return requestType;
 	}
 
 }

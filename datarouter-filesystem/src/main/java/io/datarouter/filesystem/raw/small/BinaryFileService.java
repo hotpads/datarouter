@@ -66,7 +66,7 @@ public class BinaryFileService{
 		}
 	}
 
-	public byte[] readBytes(Path fullPath){
+	public Optional<byte[]> readBytes(Path fullPath){
 		try{
 			return checkedService.readBytes(fullPath);
 		}catch(IOException e){
@@ -74,7 +74,7 @@ public class BinaryFileService{
 		}
 	}
 
-	public byte[] readBytes(Path fullPath, long offset, int length){
+	public Optional<byte[]> readBytes(Path fullPath, long offset, int length){
 		try{
 			return checkedService.readBytes(fullPath, offset, length);
 		}catch(IOException e){
@@ -102,7 +102,7 @@ public class BinaryFileService{
 				: length(fullPath).orElseThrow();// extra operation
 		return ChunkScannerTool.scanChunks(fromInclusive, toExclusive, chunkSize)
 				.parallelOrdered(new Threads(exec, numThreads))
-				.map(chunkRange -> readBytes(fullPath, chunkRange.start, chunkRange.length));
+				.map(chunkRange -> readBytes(fullPath, chunkRange.start, chunkRange.length).orElseThrow());
 	}
 
 	@Singleton
@@ -132,19 +132,26 @@ public class BinaryFileService{
 			}
 		}
 
-		public byte[] readBytes(Path fullPath)
+		public Optional<byte[]> readBytes(Path fullPath)
 		throws IOException{
-			return Files.readAllBytes(fullPath);
+			try{
+				return Optional.of(Files.readAllBytes(fullPath));
+			}catch(NoSuchFileException nsfe){
+				return Optional.empty();
+			}
 		}
 
-		public byte[] readBytes(Path fullPath, long offset, int length)
+		//TODO return Optional
+		public Optional<byte[]> readBytes(Path fullPath, long offset, int length)
 		throws IOException{
 			ByteBuffer buffer = ByteBuffer.allocate(length);
 			try(SeekableByteChannel channel = Files.newByteChannel(fullPath, StandardOpenOption.READ)){
 				channel.position(offset);
 				channel.read(buffer);
+				return Optional.of(buffer.array());
+			}catch(NoSuchFileException nsfe){
+				return Optional.empty();
 			}
-			return buffer.array();
 		}
 
 		public InputStream readInputStream(Path fullPath)

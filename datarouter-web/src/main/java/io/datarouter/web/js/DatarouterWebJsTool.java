@@ -34,10 +34,9 @@ public class DatarouterWebJsTool{
 	}
 
 	public static String buildRawJsObject(Map<String,String> map){
-		String result = Scanner.of(map.entrySet())
+		return Scanner.of(map.entrySet())
 				.map(entry -> entry.getKey() + ": '" + entry.getValue() + "'")
 				.collect(Collectors.joining(",\n", "{", "}"));
-		return result;
 	}
 
 	/**

@@ -16,6 +16,7 @@
 package io.datarouter.nodewatch.service;
 
 import java.time.Duration;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,10 +33,13 @@ import io.datarouter.nodewatch.storage.tablesample.TableSample;
 import io.datarouter.nodewatch.storage.tablesample.TableSampleKey;
 import io.datarouter.nodewatch.util.TableSamplerTool;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.scanner.Threads;
 import io.datarouter.storage.client.ClientAndTableNames;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.DatarouterClients;
+import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.DatarouterNodes;
+import io.datarouter.storage.node.op.raw.SortedStorage.PhysicalSortedStorageNode;
 import io.datarouter.storage.node.op.raw.read.SortedStorageReader;
 import io.datarouter.storage.node.op.raw.read.SortedStorageReader.PhysicalSortedStorageReaderNode;
 import io.datarouter.storage.node.op.raw.write.SortedStorageWriter;
@@ -44,6 +48,7 @@ import io.datarouter.storage.node.tableconfig.NodewatchConfiguration;
 import io.datarouter.storage.node.tableconfig.NodewatchConfigurationBuilder;
 import io.datarouter.storage.node.tableconfig.TableConfigurationService;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
+import io.datarouter.types.MilliTime;
 import io.datarouter.util.tuple.Range;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -164,7 +169,7 @@ public class TableSamplerService{
 		return new TableCount(
 				clientName,
 				tableName,
-				System.currentTimeMillis(),
+				MilliTime.now(),
 				totalRows,
 				totalCountTimeMs,
 				numSpans,
@@ -178,6 +183,30 @@ public class TableSamplerService{
 		return Scanner.concat(scanPksForNode(node), Scanner.of((PK)null))
 				.retain(1)
 				.map(group -> new Range<>(group.previous(), group.current()));
+	}
+
+	public <PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>>
+	Scanner<List<PK>> scanKeyBatchesParallelUnordered(
+			Threads threads,
+			PhysicalSortedStorageNode<PK,D,F> node,
+			int batchSize){
+		var config = new Config().setResponseBatchSize(batchSize);
+		return scanTableRangesUsingTableSamples(node)
+				.merge(threads, range -> node.scanKeys(range, config).batch(batchSize));
+	}
+
+	public <PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>>
+	Scanner<List<D>> scanBatchesParallelUnordered(
+			Threads threads,
+			PhysicalSortedStorageNode<PK,D,F> node,
+			int batchSize){
+		var config = new Config().setResponseBatchSize(batchSize);
+		return scanTableRangesUsingTableSamples(node)
+				.merge(threads, range -> node.scan(range, config).batch(batchSize));
 	}
 
 }

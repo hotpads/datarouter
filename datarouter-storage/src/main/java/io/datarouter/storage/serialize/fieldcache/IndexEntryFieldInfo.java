@@ -17,13 +17,13 @@ package io.datarouter.storage.serialize.fieldcache;
 
 import java.util.List;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.FieldKey;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.scanner.WarnOnModifyList;
 
 public class IndexEntryFieldInfo<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>{
 
@@ -55,7 +55,7 @@ public class IndexEntryFieldInfo<PK extends PrimaryKey<PK>,D extends Databean<PK
 		return fields.stream()
 				.map(Field::getKey)
 				.map(FieldKey::getColumnName)
-				.collect(Collectors.toList());
+				.collect(WarnOnModifyList.deprecatedCollector());
 	}
 
 	public String getIndexName(){

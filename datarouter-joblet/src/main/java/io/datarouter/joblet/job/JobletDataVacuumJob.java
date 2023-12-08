@@ -19,7 +19,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +28,7 @@ import io.datarouter.job.BaseJob;
 import io.datarouter.joblet.storage.jobletdata.DatarouterJobletDataDao;
 import io.datarouter.joblet.storage.jobletrequest.DatarouterJobletRequestDao;
 import io.datarouter.model.databean.Databean;
+import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.util.number.NumberFormatter;
 import jakarta.inject.Inject;
 
@@ -56,13 +56,10 @@ public class JobletDataVacuumJob extends BaseJob{
 				.advanceUntil($ -> tracker.shouldStop())
 				.batch(1_000)
 				.each(batch -> tracker.increment(batch.size()))
-				.map(batch -> {
-					return batch.stream()
-							.filter(data -> data.getCreated() == null
-									|| data.getCreated() < earliestCreated.longValue())
-							.map(Databean::getKey)
-							.collect(Collectors.toList());
-				})
+				.map(batch -> batch.stream()
+						.filter(data -> data.getCreated() == null || data.getCreated() < earliestCreated.longValue())
+						.map(Databean::getKey)
+						.collect(WarnOnModifyList.deprecatedCollector()))
 				.each(jobletDataDao::deleteMulti)
 				.map(List::size)
 				.each(jobletDeletionCount::getAndAdd)

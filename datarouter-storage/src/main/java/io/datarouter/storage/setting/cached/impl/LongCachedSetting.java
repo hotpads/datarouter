@@ -19,22 +19,12 @@ import io.datarouter.storage.setting.DefaultSettingValue;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.cached.CachedSetting;
 import io.datarouter.storage.setting.type.LongSetting;
+import io.datarouter.storage.setting.validator.LongSettingValidator;
 
 public class LongCachedSetting extends CachedSetting<Long> implements LongSetting{
 
 	public LongCachedSetting(SettingFinder finder, String name, DefaultSettingValue<Long> defaultValue){
-		super(finder, name, defaultValue);
-	}
-
-	@Override
-	public boolean isValid(String value){
-		//Is there a better way to know if a string is parsable to Long?
-		try{
-			Long.parseLong(value);
-			return true;
-		}catch(NumberFormatException e){
-			return false;
-		}
+		super(finder, name, defaultValue, new LongSettingValidator());
 	}
 
 }

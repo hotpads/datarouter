@@ -15,6 +15,8 @@
  */
 package io.datarouter.storage.serialize.fieldcache;
 
+import java.util.Optional;
+
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
@@ -87,6 +89,10 @@ extends DatabeanFieldInfo<PK,D,F>{
 
 	public Tag getTag(){
 		return tag;
+	}
+
+	public Optional<Tag> findTag(){
+		return Optional.ofNullable(tag);
 	}
 
 	public boolean getDisableIntroducer(){

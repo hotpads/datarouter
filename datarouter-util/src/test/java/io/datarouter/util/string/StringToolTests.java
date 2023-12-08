@@ -16,7 +16,6 @@
 package io.datarouter.util.string;
 
 import java.util.List;
-import java.util.Objects;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -72,7 +71,7 @@ public class StringToolTests{
 		String bb = "dawGy";
 		String cc = "dawGy";
 		Assert.assertTrue(StringTool.equalsCaseInsensitive(aa, bb));
-		Assert.assertFalse(Objects.equals(aa, bb));
+		Assert.assertNotEquals(bb, aa);
 		Assert.assertTrue(StringTool.equalsCaseInsensitiveButNotCaseSensitive(aa, bb));
 		Assert.assertFalse(StringTool.equalsCaseInsensitiveButNotCaseSensitive(bb, cc));
 	}
@@ -127,6 +126,14 @@ public class StringToolTests{
 	}
 
 	@Test
+	public void testGetStringAfterFirstOccurrence(){
+		Assert.assertEquals(StringTool.getStringAfterFirstOccurrence('/', "abcdefxyz"), "");
+		Assert.assertEquals(StringTool.getStringAfterFirstOccurrence('/', "abc/def/xyz"), "def/xyz");
+		Assert.assertEquals(StringTool.getStringAfterFirstOccurrence("/d", "abc/def/xyz"), "ef/xyz");
+		Assert.assertEquals(StringTool.getStringAfterFirstOccurrence("/z", "abc/def/xyz"), "");
+	}
+
+	@Test
 	public void testGetStringAfterLastOccurrence(){
 		Assert.assertEquals(StringTool.getStringAfterLastOccurrence('/', "abcdefxyz"), "");
 		Assert.assertEquals(StringTool.getStringAfterLastOccurrence('/', "abc/def/xyz"), "xyz");
@@ -138,7 +145,7 @@ public class StringToolTests{
 	public void testGetStringBeforeLastOccurrence(){
 		Assert.assertEquals(StringTool.getStringBeforeLastOccurrence('.', "abc/def.xyz.xml"), "abc/def.xyz");
 		Assert.assertEquals(StringTool.getStringBeforeLastOccurrence("/d", "abc/def/xyz"), "abc");
-		Assert.assertEquals(StringTool.getStringBeforeLastOccurrence("", null), null);
+		Assert.assertNull(StringTool.getStringBeforeLastOccurrence("", null));
 		Assert.assertEquals(StringTool.getStringBeforeLastOccurrence(".", "no_dot"), "");
 	}
 
@@ -185,7 +192,7 @@ public class StringToolTests{
 
 	@Test
 	public void testTrimToSizeAndLog(){
-		Assert.assertEquals(StringTool.trimToSizeAndLog(null, 2, "..."), null);
+		Assert.assertNull(StringTool.trimToSizeAndLog(null, 2, "..."));
 		Assert.assertEquals(StringTool.trimToSizeAndLog("abcd", 2, "..."), "ab");
 		Assert.assertEquals(StringTool.trimToSizeAndLog("abcde", 5, "..."), "abcde");
 		Assert.assertEquals(StringTool.trimToSizeAndLog("abcdefg", 5, "..."), "ab...");

@@ -18,7 +18,6 @@ package io.datarouter.client.hbase.util;
 import java.util.Optional;
 
 import org.apache.hadoop.hbase.client.Scan;
-import org.apache.hadoop.hbase.filter.ColumnPrefixFilter;
 import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.hadoop.hbase.filter.FirstKeyOnlyFilter;
@@ -27,41 +26,23 @@ import org.apache.hadoop.hbase.filter.PageFilter;
 
 import io.datarouter.bytes.ByteTool;
 import io.datarouter.bytes.Bytes;
-import io.datarouter.bytes.EmptyArray;
-import io.datarouter.bytes.codec.stringcodec.StringCodec;
 import io.datarouter.util.tuple.Range;
 
 public class HBaseScanBuilder{
 
-	private static final byte[] EMPTY_PREFIX = EmptyArray.BYTE;
+	// Docs say this returns the first KV (cell) which is strange.
+	// Should therefore add the KEY_ONLY_FILTER to be safe.
+	private static final FirstKeyOnlyFilter FIRST_CELL_ONLY_FILTER = new FirstKeyOnlyFilter();
 	private static final KeyOnlyFilter KEY_ONLY_FILTER = new KeyOnlyFilter();
-	private static final FirstKeyOnlyFilter FIRST_KEY_ONLY_FILTER = new FirstKeyOnlyFilter();
 
-	private byte[] prefix = EMPTY_PREFIX;
-	private byte[] nextPrefix = EMPTY_PREFIX;
-	private boolean hasNextPrefix = false;
 	private Range<Bytes> range = Range.everything();
-	private Filter columnPrefixFilter;
 	private Integer limit;
-	private FirstKeyOnlyFilter firstKeyFilter;
-	private KeyOnlyFilter keyFilter;
-	private boolean cacheBlocks = true;
+	private FirstKeyOnlyFilter firstCellOnlyFilter;
+	private KeyOnlyFilter keyOnlyFilter;
 	private boolean startIsFullKey;
-
-	public HBaseScanBuilder withPrefix(byte[] prefix){
-		this.prefix = prefix;
-		this.nextPrefix = getNextPrefix();
-		this.hasNextPrefix = nextPrefix != null && anyNonZero(nextPrefix);
-		return this;
-	}
 
 	public HBaseScanBuilder withRange(Range<Bytes> range){
 		this.range = range;
-		return this;
-	}
-
-	public HBaseScanBuilder withColumnPrefix(String columnPrefix){
-		this.columnPrefixFilter = new ColumnPrefixFilter(StringCodec.UTF_8.encode(columnPrefix));
 		return this;
 	}
 
@@ -70,23 +51,11 @@ public class HBaseScanBuilder{
 		return this;
 	}
 
-	public HBaseScanBuilder withKeyOnly(boolean keyOnly){
-		if(keyOnly){
-			this.keyFilter = KEY_ONLY_FILTER;
-		}
-		return this;
-	}
-
 	public HBaseScanBuilder withFirstKeyOnly(boolean firstKeyOnly){
 		if(firstKeyOnly){
-			this.firstKeyFilter = FIRST_KEY_ONLY_FILTER;
-			this.keyFilter = KEY_ONLY_FILTER;
+			this.firstCellOnlyFilter = FIRST_CELL_ONLY_FILTER;
+			this.keyOnlyFilter = KEY_ONLY_FILTER;
 		}
-		return this;
-	}
-
-	public HBaseScanBuilder withCacheBlocks(boolean cacheBlocks){
-		this.cacheBlocks = cacheBlocks;
 		return this;
 	}
 
@@ -98,7 +67,6 @@ public class HBaseScanBuilder{
 	public Scan build(){
 		Scan scan = getScanForRange();
 		//note that bigtable ignores setMaxResultsPerColumnFamily, setBatch, and setCaching
-		scan.setCacheBlocks(cacheBlocks);
 		if(limit != null){
 			scan.setLimit(limit);
 		}
@@ -107,34 +75,27 @@ public class HBaseScanBuilder{
 	}
 
 	private Scan getScanForRange(){
-		byte[] startWithPrefix = ByteTool.concat(prefix, getStart());
-		byte[] endExclusiveWithoutPrefix = getEndExclusive();
+		byte[] start = getStart();
+		byte[] endExclusive = getEndExclusive();
 		Scan scan = new Scan();
 		if(startIsFullKey || range.getStart() == null || range.getStartInclusive()){
-			scan.withStartRow(startWithPrefix, range.getStartInclusive());
+			scan.withStartRow(start, range.getStartInclusive());
 		}else{
-			scan.withStartRow(ByteTool.unsignedIncrement(startWithPrefix), true);
+			scan.withStartRow(ByteTool.unsignedIncrement(start), true);
 		}
-		if(endExclusiveWithoutPrefix.length == 0){
-			if(hasNextPrefix){
-				scan.withStopRow(nextPrefix, false);
-			}
-		}else{
-			scan.withStopRow(ByteTool.concat(prefix, endExclusiveWithoutPrefix), false);
+		if(endExclusive.length > 0){
+			scan.withStopRow(endExclusive, false);
 		}
 		return scan;
 	}
 
 	private Optional<Filter> makeFilter(){
 		FilterList filterList = new FilterList();
-		if(columnPrefixFilter != null){
-			filterList.addFilter(columnPrefixFilter);
+		if(firstCellOnlyFilter != null){
+			filterList.addFilter(firstCellOnlyFilter);
 		}
-		if(firstKeyFilter != null){
-			filterList.addFilter(firstKeyFilter);
-		}
-		if(keyFilter != null){
-			filterList.addFilter(keyFilter);
+		if(keyOnlyFilter != null){
+			filterList.addFilter(keyOnlyFilter);
 		}
 		if(limit != null){
 			filterList.addFilter(new PageFilter(limit));
@@ -163,19 +124,6 @@ public class HBaseScanBuilder{
 			return ByteTool.unsignedIncrement(range.getEnd().toArray());
 		}
 		return range.getEnd().toArray();
-	}
-
-	private byte[] getNextPrefix(){
-		return ByteTool.unsignedIncrementOverflowToNull(prefix);
-	}
-
-	private boolean anyNonZero(byte[] bytes){
-		for(int i = 0; i < bytes.length; ++i){
-			if(bytes[i] != 0){
-				return true;
-			}
-		}
-		return false;
 	}
 
 }

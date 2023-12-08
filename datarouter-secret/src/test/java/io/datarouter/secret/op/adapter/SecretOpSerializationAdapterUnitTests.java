@@ -78,7 +78,7 @@ public class SecretOpSerializationAdapterUnitTests{
 				serializeConfig);
 		TypedSecret<SerializationDto> roundTrippedDto = dtoDeserializer.adapt(dtoSerializer.adapt(dtoSecret));
 		Assert.assertEquals(roundTrippedDto.getValue(), dtoSecret.getValue());
-		Assert.assertFalse(roundTrippedDto.getValue() == dtoSecret.getValue());
+		Assert.assertNotSame(roundTrippedDto.getValue(), dtoSecret.getValue());
 	}
 
 	@Test
@@ -89,7 +89,7 @@ public class SecretOpSerializationAdapterUnitTests{
 		var stringDeserializer = new DeserializingAdapter<>(jsonSerializer, String.class, skipConfig);
 		TypedSecret<String> roundTrippedString = stringDeserializer.adapt(stringSerializer.adapt(originalStringSecret));
 		Assert.assertEquals(roundTrippedString.getValue(), originalStringSecret.getValue());
-		Assert.assertTrue(roundTrippedString.getValue() == original);
+		Assert.assertSame(roundTrippedString.getValue(), original);
 	}
 
 }

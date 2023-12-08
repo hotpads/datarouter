@@ -66,9 +66,7 @@ public class SqsNodeIntegrationTester{
 	}
 
 	private void drainQueue(Duration duration){
-		dao.pollUntilEmpty(duration).forEach(testDatabean -> {
-			logger.debug(duration.toSeconds() + "\t" + testDatabean);
-		});
+		dao.pollUntilEmpty(duration).forEach(testDatabean -> logger.debug(duration.toSeconds() + "\t" + testDatabean));
 	}
 
 	@Test
@@ -124,7 +122,7 @@ public class SqsNodeIntegrationTester{
 				Assert.assertTrue(id >= 0);
 				ids.add(id);
 			}
-		}while(retrievedDatabeans.size() > 0 || ids.size() < DATABEAN_COUNT);
+		}while(!retrievedDatabeans.isEmpty() || ids.size() < DATABEAN_COUNT);
 	}
 
 	private void putRandomDatabeans(){

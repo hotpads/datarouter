@@ -61,7 +61,7 @@ public class KvFileCompactor{
 	}
 
 	public void compact(){
-		Scanner.generate(() -> fileCache.findNextMergePlan())
+		Scanner.generate(fileCache::findNextMergePlan)
 				.advanceWhile(Optional::isPresent)
 				.map(Optional::orElseThrow)
 				.forEach(this::merge);

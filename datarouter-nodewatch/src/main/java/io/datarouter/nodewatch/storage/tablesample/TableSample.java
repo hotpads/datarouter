@@ -17,7 +17,6 @@ package io.datarouter.nodewatch.storage.tablesample;
 
 import java.time.Duration;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -25,23 +24,24 @@ import java.util.function.Supplier;
 import io.datarouter.client.mysql.ddl.domain.MysqlRowFormat;
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
-import io.datarouter.model.field.imp.DateField;
-import io.datarouter.model.field.imp.DateFieldKey;
+import io.datarouter.model.field.codec.MilliTimeFieldCodec;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
 import io.datarouter.model.field.imp.comparable.BooleanField;
 import io.datarouter.model.field.imp.comparable.BooleanFieldKey;
 import io.datarouter.model.field.imp.comparable.IntegerField;
 import io.datarouter.model.field.imp.comparable.IntegerFieldKey;
+import io.datarouter.model.field.imp.comparable.LongEncodedField;
+import io.datarouter.model.field.imp.comparable.LongEncodedFieldKey;
 import io.datarouter.model.field.imp.comparable.LongField;
 import io.datarouter.model.field.imp.comparable.LongFieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 import io.datarouter.model.util.CommonFieldSizes;
 import io.datarouter.model.util.PercentFieldCodec;
 import io.datarouter.storage.node.tableconfig.ClientTableEntityPrefixNameWrapper;
+import io.datarouter.types.MilliTime;
 import io.datarouter.util.ComparableTool;
 import io.datarouter.util.number.NumberFormatter;
-import io.datarouter.util.time.DurationTool;
 
 /*
  * A record storing approximately every 1/Nth PK of a table.
@@ -101,25 +101,25 @@ public class TableSample extends BaseDatabean<TableSampleKey,TableSample>{
 	public static final Duration MAX_TIME_IN_QUEUE = Duration.ofDays(1);
 
 	private Long numRows;
-	private Date dateCreated;
-	private Date dateUpdated;
+	private MilliTime created;
+	private MilliTime updated;
 	private String stringKey;
 	private Long countTimeMs;
 	private Boolean interrupted;
 	private Boolean isLastSpan;
 	private Integer numStableCounts;
 	private Long samplerId;//null if not scheduled
-	private Date dateScheduled;//null if not scheduled
+	private MilliTime scheduled; //null if not scheduled
 
 	private static class FieldKeys{
 		private static final LongFieldKey numRows = new LongFieldKey("numRows");
-		@SuppressWarnings("deprecation")
-		private static final DateFieldKey dateCreated = new DateFieldKey("dateCreated");
-		@SuppressWarnings("deprecation")
-		private static final DateFieldKey dateUpdated = new DateFieldKey("dateUpdated");
+		public static final LongEncodedFieldKey<MilliTime> created = new LongEncodedFieldKey<>("created",
+				new MilliTimeFieldCodec());
+		public static final LongEncodedFieldKey<MilliTime> updated = new LongEncodedFieldKey<>("updated",
+				new MilliTimeFieldCodec());
 		private static final LongFieldKey samplerId = new LongFieldKey("samplerId");
-		@SuppressWarnings("deprecation")
-		private static final DateFieldKey dateScheduled = new DateFieldKey("dateScheduled");
+		public static final LongEncodedFieldKey<MilliTime> scheduled = new LongEncodedFieldKey<>("scheduled",
+				new MilliTimeFieldCodec());
 		private static final StringFieldKey stringKey = new StringFieldKey("stringKey")
 				.withSize(CommonFieldSizes.INT_LENGTH_LONGTEXT);
 		private static final LongFieldKey countTimeMs = new LongFieldKey("countTimeMs");
@@ -134,20 +134,19 @@ public class TableSample extends BaseDatabean<TableSampleKey,TableSample>{
 			super(TableSampleKey::new);
 		}
 
-		@SuppressWarnings("deprecation")
 		@Override
 		public List<Field<?>> getNonKeyFields(TableSample databean){
 			return List.of(
 					new LongField(FieldKeys.numRows, databean.numRows),
-					new DateField(FieldKeys.dateCreated, databean.dateCreated),
-					new DateField(FieldKeys.dateUpdated, databean.dateUpdated),
+					new LongEncodedField<>(FieldKeys.created, databean.created),
+					new LongEncodedField<>(FieldKeys.updated, databean.updated),
 					new StringField(FieldKeys.stringKey, databean.stringKey),
 					new LongField(FieldKeys.countTimeMs, databean.countTimeMs),
 					new BooleanField(FieldKeys.interrupted, databean.interrupted),
 					new BooleanField(FieldKeys.isLastSpan, databean.isLastSpan),
 					new IntegerField(FieldKeys.numStableCounts, databean.numStableCounts),
 					new LongField(FieldKeys.samplerId, databean.samplerId),
-					new DateField(FieldKeys.dateScheduled, databean.dateScheduled));
+					new LongEncodedField<>(FieldKeys.scheduled, databean.scheduled));
 		}
 
 		@Override
@@ -166,14 +165,14 @@ public class TableSample extends BaseDatabean<TableSampleKey,TableSample>{
 			ClientTableEntityPrefixNameWrapper nodeNames,
 			List<Field<?>> rowKey,
 			Long numRows,
-			Date dateCreated,
+			MilliTime dateCreated,
 			Long countTimeMs,
 			boolean interrupted,
 			boolean isLast){
 		super(new TableSampleKey(nodeNames, rowKey));
 		this.numRows = numRows;
-		this.dateCreated = dateCreated;
-		this.dateUpdated = new Date();
+		this.created = dateCreated;
+		this.updated = MilliTime.now();
 		this.stringKey = PercentFieldCodec.encodeFields(rowKey);
 		this.countTimeMs = countTimeMs;
 		this.interrupted = interrupted;
@@ -211,8 +210,8 @@ public class TableSample extends BaseDatabean<TableSampleKey,TableSample>{
 	}
 
 	public Optional<Duration> getTimeInQueue(){
-		return Optional.ofNullable(dateScheduled)
-				.map(DurationTool::sinceDate);
+		return Optional.ofNullable(scheduled)
+				.map(MilliTime::age);
 	}
 
 	public boolean hasExceededMaxTimeInQueue(){
@@ -226,17 +225,17 @@ public class TableSample extends BaseDatabean<TableSampleKey,TableSample>{
 	}
 
 	public boolean isScheduledForRecount(){
-		return dateScheduled != null;
+		return scheduled != null;
 	}
 
 	public void clearScheduleFields(){
-		dateScheduled = null;
+		scheduled = null;
 		samplerId = null;
 	}
 
-	public void setScheduleFields(Long samplerId, Date dateScheduled){
+	public void setScheduleFields(Long samplerId, MilliTime dateScheduled){
 		this.samplerId = samplerId;
-		this.dateScheduled = dateScheduled;
+		this.scheduled = dateScheduled;
 	}
 
 	public void incrementStableCounts(){
@@ -249,12 +248,12 @@ public class TableSample extends BaseDatabean<TableSampleKey,TableSample>{
 		return numRows;
 	}
 
-	public Date getDateCreated(){
-		return dateCreated;
+	public MilliTime getDateCreated(){
+		return created;
 	}
 
-	public Date getDateUpdated(){
-		return dateUpdated;
+	public MilliTime getDateUpdated(){
+		return updated;
 	}
 
 	public String getStringKey(){

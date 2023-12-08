@@ -21,6 +21,7 @@ import org.testng.annotations.Test;
 import io.datarouter.enums.DisplayablePersistentString;
 import io.datarouter.enums.StringEnum;
 
+@SuppressWarnings("deprecation")
 public class EnumToolTests{
 
 	private enum Fruit implements DisplayablePersistentString, StringEnum<Fruit>{

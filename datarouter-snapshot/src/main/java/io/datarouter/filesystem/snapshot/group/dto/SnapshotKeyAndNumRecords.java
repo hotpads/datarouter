@@ -31,7 +31,7 @@ public record SnapshotKeyAndNumRecords(
 		this(from.key(), from.root().numItems());
 	}
 
-	public static final long totalRecords(List<SnapshotKeyAndNumRecords> inputs){
+	public static long totalRecords(List<SnapshotKeyAndNumRecords> inputs){
 		return inputs.stream()
 				.mapToLong(input -> input.numRecords)
 				.sum();

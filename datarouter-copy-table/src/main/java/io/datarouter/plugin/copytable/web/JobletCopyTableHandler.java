@@ -206,7 +206,7 @@ public class JobletCopyTableHandler extends BaseHandler{
 			long jobletId,
 			long numJoblets,
 			boolean skipInvalidDatabeans){
-		CopyTableJobletParams jobletParams = new CopyTableJobletParams(
+		var jobletParams = new CopyTableJobletParams(
 				sourceNodeName,
 				targetNodeName,
 				fromKeyExclusive == null ? null : PrimaryKeyPercentCodecTool.encode(fromKeyExclusive),
@@ -220,7 +220,7 @@ public class JobletCopyTableHandler extends BaseHandler{
 		return JobletPackage.create(
 				CopyTableJoblet.JOBLET_TYPE,
 				JobletPriority.DEFAULT,
-				true,
+				false,
 				tableName,
 				sourceNodeName,
 				jobletParams);

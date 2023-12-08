@@ -109,10 +109,9 @@ public class HttpTestHandler extends BaseHandler{
 			response = httpTesterWithoutRedirectClient.tryExecute(request);
 		}
 		Long elapsedMs = System.currentTimeMillis() - start;
-		if(response.isFailure() && response.getException() instanceof DatarouterHttpResponseException){
+		if(response.isFailure()
+				&& response.getException() instanceof DatarouterHttpResponseException responseException){
 			logger.warn("", response.getException());
-			DatarouterHttpResponseException responseException = (DatarouterHttpResponseException)response
-					.getException();
 			addResponseToMavModel(mav, url.get(), elapsedMs, Optional.of(responseException.getResponse()));
 		}else if(response.isFailure()){
 			mav.put("stackTrace", ExceptionTool.getStackTraceAsString(response.getException()));
@@ -151,10 +150,10 @@ public class HttpTestHandler extends BaseHandler{
 		startNs = System.nanoTime();
 		RunNativeDto digResult = DigRunner.lookup(hostname.get());
 		mav.put("digDuration", DatarouterDuration.ageNs(startNs).toString(TimeUnit.MICROSECONDS));
-		mav.put("digExitVal", digResult.exitVal);
-		mav.put("digResultStdout", digResult.stdout);
-		mav.put("digResultStderr", digResult.stderr);
-		List<DnsAnswer> parsedAnswers = DigRunner.parse(digResult.stdout);
+		mav.put("digExitVal", digResult.exitVal());
+		mav.put("digResultStdout", digResult.stdout());
+		mav.put("digResultStderr", digResult.stderr());
+		List<DnsAnswer> parsedAnswers = DigRunner.parse(digResult.stdout());
 		mav.put("parsedDig", parsedAnswers.stream().map(DnsAnswer::toString).collect(Collectors.joining("\n")));
 
 		return mav;
@@ -196,6 +195,5 @@ public class HttpTestHandler extends BaseHandler{
 		}
 
 	}
-
 
 }

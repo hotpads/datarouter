@@ -29,7 +29,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.HttpEntity;
@@ -49,6 +48,7 @@ import org.apache.http.util.Args;
 import org.apache.http.util.EntityUtils;
 
 import io.datarouter.httpclient.client.DatarouterHttpClientConfig;
+import io.datarouter.scanner.WarnOnModifyList;
 
 public class DatarouterHttpRequest{
 
@@ -389,7 +389,7 @@ public class DatarouterHttpRequest{
 		}
 		return data.entrySet().stream()
 				.map(entry -> new BasicNameValuePair(entry.getKey(), entry.getValue()))
-				.collect(Collectors.toList());
+				.collect(WarnOnModifyList.deprecatedCollector());
 	}
 
 	public DatarouterHttpClientConfig getRequestConfig(DatarouterHttpClientConfig clientConfig){

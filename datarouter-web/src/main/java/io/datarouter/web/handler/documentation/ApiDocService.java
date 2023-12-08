@@ -18,6 +18,7 @@ package io.datarouter.web.handler.documentation;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
@@ -33,11 +34,11 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -66,7 +67,6 @@ import io.datarouter.httpclient.endpoint.param.RequestBody;
 import io.datarouter.httpclient.endpoint.web.BaseWebApi;
 import io.datarouter.httpclient.security.SecurityParameters;
 import io.datarouter.inject.DatarouterInjector;
-import io.datarouter.scanner.OptionalScanner;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.types.Ulid;
 import io.datarouter.util.lang.MethodParameterExtractionTool;
@@ -95,6 +95,7 @@ public class ApiDocService{
 			SecurityParameters.CSRF_IV,
 			SecurityParameters.CSRF_TOKEN,
 			SecurityParameters.SIGNATURE);
+	private static final String UNDEFINED_REQUEST_TYPE = "unknown";
 
 	@Inject
 	private DatarouterInjector injector;
@@ -197,6 +198,7 @@ public class ApiDocService{
 				boolean isDeprecated = method.isAnnotationPresent(Deprecated.class)
 						|| handler.isAnnotationPresent(Deprecated.class);
 				String callerType = ReflectionTool.create(handlerAnnotation.callerType()).getName();
+				String requestType = getRequestType(method);
 				List<DocumentedErrorJspDto> errors = buildError(method);
 				Set<DocumentedExampleEnumDto> requestParamExampleEnumDtos = Scanner.of(parameters)
 						.concatIter(parameter -> parameter.exampleEnumDtos)
@@ -211,7 +213,8 @@ public class ApiDocService{
 						isDeprecated,
 						errors,
 						buildEnumValuesString(requestParamExampleEnumDtos),
-						callerType);
+						callerType,
+						requestType);
 				endpoints.add(endpoint);
 			}
 			handler = handler.getSuperclass().asSubclass(BaseHandler.class);
@@ -219,10 +222,36 @@ public class ApiDocService{
 		return endpoints;
 	}
 
+	private String getRequestType(Method method){
+		Parameter[] endpointParameters = method.getParameters();
+		if(EndpointTool.paramIsEndpointObject(method)){
+			return getRequestTypeFromEndpointObject(endpointParameters[0].getType());
+		}
+
+		if(EndpointTool.paramIsWebApiObject(method)){
+			return getRequestTypeFromWebApiObject(endpointParameters[0].getType());
+		}
+
+		return UNDEFINED_REQUEST_TYPE;
+	}
+
+	private String getRequestTypeFromEndpointObject(Class<?> endpointType){
+		@SuppressWarnings("unchecked")
+		BaseEndpoint<?,?> baseEndpoint = ReflectionTool.createWithoutNoArgs(
+				(Class<? extends BaseEndpoint<?,?>>)endpointType);
+		return baseEndpoint.method.persistentString;
+	}
+
+	private String getRequestTypeFromWebApiObject(Class<?> endpointType){
+		@SuppressWarnings("unchecked")
+		BaseWebApi<?,?> baseWebApi = ReflectionTool.createWithoutNoArgs(
+				(Class<? extends BaseWebApi<?,?>>)endpointType);
+		return baseWebApi.method.persistentString;
+	}
+
 	private List<DocumentedErrorJspDto> buildError(Method method){
 		return Scanner.of(method.getExceptionTypes())
-				.map(HttpDocumentedExceptionTool::findDocumentation)
-				.concat(OptionalScanner::of)
+				.concatOpt(HttpDocumentedExceptionTool::findDocumentation)
 				.map(exception -> new DocumentedErrorJspDto(exception.getStatusCode(), exception.getErrorMessage()))
 				.list();
 	}
@@ -232,10 +261,10 @@ public class ApiDocService{
 			return ((Class<?>)type).getSimpleName();
 		}else if(type instanceof ParameterizedType parameterizedType){
 			String responseTypeString = ((Class<?>)parameterizedType.getRawType()).getSimpleName();
-			String paramterizedType = Scanner.of(parameterizedType.getActualTypeArguments())
+			String parameterizedTypeString = Scanner.of(parameterizedType.getActualTypeArguments())
 					.map(ApiDocService::buildTypeString)
 					.collect(Collectors.joining(",", "<", ">"));
-			return responseTypeString + paramterizedType;
+			return responseTypeString + parameterizedTypeString;
 		}else{
 			return type.toString();
 		}
@@ -308,7 +337,7 @@ public class ApiDocService{
 		}
 		String apiKeyFieldName = null;
 		if(rule.hasApiKey()){
-			apiKeyFieldName = rule.getApiKeyPredicate().getApiKeyFieldName();
+			apiKeyFieldName = rule.getApiKeyPredicates().get(0).getApiKeyFieldName();
 			applicableSecurityParameterNames.add(apiKeyFieldName);
 		}
 		if(rule.hasCsrfToken()){
@@ -443,9 +472,9 @@ public class ApiDocService{
 	}
 
 	private boolean includeType(Optional<Class<?>> type){
-		return !type.map(cls -> Number.class.isAssignableFrom(cls)).orElse(false)
-				&& !type.map(cls -> String.class.isAssignableFrom(cls)).orElse(false)
-				&& !type.map(cls -> Boolean.class.isAssignableFrom(cls)).orElse(false)
+		return !type.map(Number.class::isAssignableFrom).orElse(false)
+				&& !type.map(String.class::isAssignableFrom).orElse(false)
+				&& !type.map(Boolean.class::isAssignableFrom).orElse(false)
 				&& !type.map(Class::isPrimitive).orElse(false);
 	}
 
@@ -598,6 +627,11 @@ public class ApiDocService{
 		return new DocumentedExampleDto(example, exampleEnumDtos);
 	}
 
+	private record ExampleRecordComponent(
+			RecordComponent recordComponent,
+			Object exampleValue){
+	}
+
 	private static DocumentedExampleDto handleParameterizedTypes(
 			JsonAwareHandlerCodec jsonDecoder,
 			ParameterizedType parameterizedType,
@@ -643,6 +677,7 @@ public class ApiDocService{
 					.map(paramType -> createBestExample(jsonDecoder, paramType, parentsWithType))
 					.list();
 			List<String> fieldNames = autoBuildable.getGenericFieldNames();
+			Map<String,Object> genericFields = new HashMap<>();
 			for(int i = 0; i < innerObjects.size(); i++){
 				String fieldName = fieldNames.get(i);
 				Field field;
@@ -654,7 +689,47 @@ public class ApiDocService{
 				}
 				field.setAccessible(true);
 				Object value = innerObjects.get(i).exampleObject;
-				ReflectionTool.set(field, autoBuildable, value);
+				if(rawType.isRecord()){
+					genericFields.put(field.getName(), value);
+				}else{
+					ReflectionTool.set(field, autoBuildable, value);
+				}
+			}
+			if(rawType.isRecord()){
+				Object exampleRecord = Scanner.of(rawType.getRecordComponents())
+						.map(recordComponent -> {
+							try{
+								return new ExampleRecordComponent(recordComponent,
+										recordComponent.getAccessor().invoke(exampleDto.exampleObject));
+							}catch(IllegalAccessException | InvocationTargetException e){
+								logger.error("Error invoking accessor for recordComponentName={} on rawType={}",
+										recordComponent.getName(),
+										rawType,
+										e);
+								throw new RuntimeException(e);
+							}
+						})
+						.map(exampleRecordComponent -> {
+							if(genericFields.containsKey(exampleRecordComponent.recordComponent.getName())){
+								return new ExampleRecordComponent(exampleRecordComponent.recordComponent,
+										genericFields.get(exampleRecordComponent.recordComponent.getName()));
+							}
+							return exampleRecordComponent;
+						})
+						.map(ExampleRecordComponent::exampleValue)
+						.listTo(values -> {
+							try{
+								return ReflectionTool.getCanonicalRecordConstructor(rawType)
+										.newInstance(values.toArray());
+							}catch(Exception e){
+								logger.error("Error invoking canonical constructor for rawType={} with values={}",
+										rawType,
+										values,
+										e);
+								throw new RuntimeException(e);
+							}
+						});
+				autoBuildable = (DocumentedGenericHolder) exampleRecord;
 			}
 			Set<DocumentedExampleEnumDto> enums = Scanner.of(innerObjects)
 					.concatIter(dto -> dto.exampleEnumDtos)
@@ -686,21 +761,13 @@ public class ApiDocService{
 						exampleEnumDtos.addAll(exampleDto.exampleEnumDtos);
 						constructorParams.add(exampleDto.exampleObject);
 					});
-			Constructor<?> constructor = getCanonicalConstructor(recordClazz);
+			Constructor<?> constructor = ReflectionTool.getCanonicalRecordConstructor(recordClazz);
 			constructor.setAccessible(true);
 			newRecord = constructor.newInstance(constructorParams.toArray());
 		}catch(Exception e){
 			logger.warn("error creating {}", type, e);
 		}
 		return new DocumentedExampleDto(newRecord, exampleEnumDtos);
-	}
-
-	private static Constructor<?> getCanonicalConstructor(Class<?> recordClazz)
-			throws NoSuchMethodException, SecurityException{
-		Class<?>[] recordComponents = Arrays.stream(recordClazz.getRecordComponents())
-				.map(RecordComponent::getType)
-				.toArray(Class<?>[]::new);
-		return recordClazz.getDeclaredConstructor(recordComponents);
 	}
 
 	private static String buildEnumValuesString(Collection<DocumentedExampleEnumDto> exampleEnumDtos){

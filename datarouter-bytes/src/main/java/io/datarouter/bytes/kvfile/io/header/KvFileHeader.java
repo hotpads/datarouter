@@ -15,29 +15,28 @@
  */
 package io.datarouter.bytes.kvfile.io.header;
 
-import java.util.List;
-
 import io.datarouter.bytes.BinaryDictionary;
 import io.datarouter.bytes.Codec;
 import io.datarouter.bytes.codec.stringcodec.StringCodec;
+import io.datarouter.bytes.kvfile.blockformat.KvFileBlockFormat;
+import io.datarouter.bytes.kvfile.blockformat.KvFileBlockFormats;
 
 public record KvFileHeader(
 		BinaryDictionary userDictionary,
-		String blockFormat){//TODO more formal type
-
-	public static final String BLOCK_FORMAT_PLACEHOLDER = "SEQUENTIAL";
+		KvFileBlockFormat blockFormat){
 
 	public BinaryDictionary toBinaryDictionary(){
 		return new BinaryDictionary()
 				.put(KvFileHeaderKey.USER_DICTIONARY.bytes, userDictionary.encode())
-				.put(KvFileHeaderKey.KV_BLOCK_FORMAT.bytes, StringCodec.UTF_8.encode(blockFormat));
+				.put(KvFileHeaderKey.KV_BLOCK_FORMAT.bytes,
+						StringCodec.UTF_8.encode(blockFormat.encodedName()));
 	}
 
 	public static class KvFileHeaderCodec implements Codec<KvFileHeader,BinaryDictionary>{
-		private final List<String> registeredBlockFormats;//TODO more formal type
+		private final KvFileBlockFormats registeredBlockFormats;
 
 		public KvFileHeaderCodec(
-				List<String> registeredBlockFormats){
+				KvFileBlockFormats registeredBlockFormats){
 			this.registeredBlockFormats = registeredBlockFormats;
 		}
 
@@ -58,9 +57,10 @@ public record KvFileHeader(
 			return BinaryDictionary.decode(userDictionaryBytes);
 		}
 
-		private String parseBlockFormat(BinaryDictionary dictionary){
+		private KvFileBlockFormat parseBlockFormat(BinaryDictionary dictionary){
 			byte[] blockFormatBytes = dictionary.get(KvFileHeaderKey.KV_BLOCK_FORMAT.bytes);
-			return StringCodec.UTF_8.decode(blockFormatBytes);
+			String blockFormatString = StringCodec.UTF_8.decode(blockFormatBytes);
+			return registeredBlockFormats.getForEncodedName(blockFormatString);
 		}
 
 	}

@@ -79,7 +79,7 @@ public class JobletCallable implements Callable<Void>{
 	@Override
 	public Void call(){
 		try{
-			PhaseTimer timer = new PhaseTimer(jobletType.getPersistentString() + "-" + id);
+			var timer = new PhaseTimer(jobletType.getPersistentString() + "-" + id);
 			jobletPackage = dequeueJobletPackage(timer);
 			if(jobletPackage.isEmpty()){
 				return null;
@@ -95,12 +95,14 @@ public class JobletCallable implements Callable<Void>{
 						+ GsonTool.withUnregisteredEnums().toJson(jobletPackage.get()), e);
 				logger.error("joblet failed", wrappingException);
 				if(isInterrupted){
+					JobletCounters.incInterrupted(jobletType);
 					try{
 						jobletService.handleJobletInterruption(timer, jobletRequest);
 					}catch(Exception e1){
 						logger.error("", e1);
 					}
 				}else{
+					JobletCounters.incErrored(jobletType);
 					try{
 						jobletService.handleJobletError(timer, jobletRequest, wrappingException, jobletRequest.getKey()
 								.getType());
@@ -120,7 +122,7 @@ public class JobletCallable implements Callable<Void>{
 		}
 	}
 
-	private final Optional<JobletPackage> dequeueJobletPackage(PhaseTimer timer){
+	private Optional<JobletPackage> dequeueJobletPackage(PhaseTimer timer){
 		String reservedBy = getReservedByString();
 		Optional<JobletRequest> optJobletRequest = jobletService.getJobletRequestForProcessing(timer, jobletType,
 				reservedBy);

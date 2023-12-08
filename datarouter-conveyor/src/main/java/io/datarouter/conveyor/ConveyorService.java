@@ -31,12 +31,13 @@ import io.datarouter.conveyor.trace.ConveyorTraceBuffer;
 import io.datarouter.instrumentation.exception.ExceptionRecordDto;
 import io.datarouter.instrumentation.exception.TaskExecutorRecordDto;
 import io.datarouter.instrumentation.trace.ConveyorTraceAndTaskExecutorBundleDto;
-import io.datarouter.instrumentation.trace.Trace2BundleDto;
-import io.datarouter.instrumentation.trace.Trace2Dto;
-import io.datarouter.instrumentation.trace.Trace2SpanDto;
-import io.datarouter.instrumentation.trace.Trace2ThreadDto;
+import io.datarouter.instrumentation.trace.TraceBundleDto;
 import io.datarouter.instrumentation.trace.TraceCategory;
+import io.datarouter.instrumentation.trace.TraceDto;
 import io.datarouter.instrumentation.trace.TraceSaveReasonType;
+import io.datarouter.instrumentation.trace.TraceSpanDto;
+import io.datarouter.instrumentation.trace.TraceThreadDto;
+import io.datarouter.instrumentation.trace.TraceTimeTool;
 import io.datarouter.instrumentation.trace.Traceparent;
 import io.datarouter.instrumentation.trace.Tracer;
 import io.datarouter.instrumentation.trace.TracerThreadLocal;
@@ -77,19 +78,22 @@ public class ConveyorService{
 		try{
 			while(shouldRun(conveyor)){
 				iteration++;
-				Long traceCreated = Trace2Dto.getCurrentTimeInNs();
-				var traceContext = new W3TraceContext(Trace2Dto.getCurrentTimeInNs());
-				Tracer tracer = new DatarouterTracer(serverName.get(), null, traceContext,
+				Long traceCreated = TraceTimeTool.epochNano();
+				var traceContext = new W3TraceContext(TraceTimeTool.epochNano());
+				Tracer tracer = new DatarouterTracer(
+						serverName.get(),
+						null,
+						traceContext,
 						traceSettings.maxSpansPerTrace.get());
 				boolean saveCpuTime = traceSettings.saveTraceCpuTime.get();
 				tracer.setSaveThreadCpuTime(saveCpuTime);
 				TracerThreadLocal.bindToThread(tracer);
-				tracer.createAndStartThread(conveyor.getName() + " conveyor process", Trace2Dto.getCurrentTimeInNs());
+				tracer.createAndStartThread(conveyor.getName() + " conveyor process", TraceTimeTool.epochNano());
 				Long mainThreadCpuTimeBegin = saveCpuTime ? PlatformMxBeans.THREAD.getCurrentThreadCpuTime() : null;
 
 				boolean finishedOneProcess = false;
-				AtomicBoolean errored = new AtomicBoolean(false);
-				AtomicBoolean interrupted = new AtomicBoolean(false);
+				var errored = new AtomicBoolean(false);
+				var interrupted = new AtomicBoolean(false);
 				try{
 					ProcessResult result = configuration.process(conveyor);
 					ConveyorCounters.incProcessBatch(conveyor);
@@ -111,17 +115,22 @@ public class ConveyorService{
 						ConveyorCounters.incException(conveyor);
 					}
 					if(!interrupted.get()){
-						exceptionRecord = exceptionRecorder.tryRecordException(e, conveyor.getName(),
+						exceptionRecord = exceptionRecorder.tryRecordException(
+								e,
+								conveyor.getName(),
 								ConveyorExceptionCategory.CONVEYOR);
 					}
 					logger.warn("swallowing exception so ScheduledExecutorService restarts this Runnable "
-							+ "interrupted={}, exceptionId={}" + (configuration.compactExceptionLogging().get() ? " {}"
-									: ""), interrupted, exceptionRecord.map(ExceptionRecordDto::id).orElse(null), e);
+							+ "interrupted={}, exceptionId={}"
+							+ (configuration.compactExceptionLogging().get() ? " {}" : ""),
+							interrupted,
+							exceptionRecord.map(ExceptionRecordDto::id).orElse(null),
+							e);
 				}finally{
-					long traceEnded = Trace2Dto.getCurrentTimeInNs();
+					long traceEnded = TraceTimeTool.epochNano();
 					Long mainThreadCpuTimeEnded = saveCpuTime ? PlatformMxBeans.THREAD.getCurrentThreadCpuTime() : null;
 					Traceparent traceparent = tracer.getTraceContext().get().getTraceparent();
-					Trace2ThreadDto rootThread = null;
+					TraceThreadDto rootThread = null;
 					if(tracer.getCurrentThreadId() != null){
 						rootThread = ((DatarouterTracer)tracer).getCurrentThread();
 						rootThread.setCpuTimeEndedNs(mainThreadCpuTimeEnded);
@@ -142,7 +151,7 @@ public class ConveyorService{
 					totalCpuTimeMs.ifPresent(totalTimeMs -> ConveyorCounters.incTotalCpuTime(conveyor, totalTimeMs));
 
 					List<TraceSaveReasonType> saveReasons = new ArrayList<>();
-					Trace2Dto trace2 = new Trace2Dto(
+					var traceDto = new TraceDto(
 							traceparent,
 							null,
 							serviceName.get(),
@@ -162,7 +171,7 @@ public class ConveyorService{
 					Long traceDurationMs = tracer.getAlternativeStartTimeNs()
 							.map(time -> traceEnded - time)
 							.map(TimeUnit.NANOSECONDS::toMillis)
-							.orElse(trace2.getDurationInMs());
+							.orElse(traceDto.getDurationInMs());
 					if(traceSettings.saveTraces.get()){
 						if(finishedOneProcess && traceDurationMs > traceSettings.saveTracesOverMs.get().toMillis()){
 							saveReasons.add(TraceSaveReasonType.DURATION);
@@ -177,8 +186,8 @@ public class ConveyorService{
 					}
 
 					if(!saveReasons.isEmpty()){
-						List<Trace2ThreadDto> threads = new ArrayList<>(tracer.getThreadQueue());
-						List<Trace2SpanDto> spans = new ArrayList<>(tracer.getSpanQueue());
+						List<TraceThreadDto> threads = new ArrayList<>(tracer.getThreadQueue());
+						List<TraceSpanDto> spans = new ArrayList<>(tracer.getSpanQueue());
 						if(rootThread != null){
 							rootThread.setTotalSpanCount(spans.size());
 							threads.add(rootThread); // force to save the rootThread even though the queue could be full
@@ -190,8 +199,9 @@ public class ConveyorService{
 										traceparent.traceId,
 										traceparent.parentId,
 										id));
-						var bundle = new ConveyorTraceAndTaskExecutorBundleDto(new Trace2BundleDto(trace2, threads,
-								spans), executorRecord);
+						var bundle = new ConveyorTraceAndTaskExecutorBundleDto(
+								new TraceBundleDto(traceDto, threads, spans),
+								executorRecord);
 						traceBuffer.offer(bundle)
 								.map(name -> "saved to " + name)
 								.ifPresent(destination -> logger.warn("Trace {} for name={}."
@@ -219,7 +229,10 @@ public class ConveyorService{
 			}
 			long duration = System.currentTimeMillis() - start;
 			ConveyorCounters.incFinishDrain(conveyor);
-			logger.info("drain finished for conveyor={} duration={} iterations={} ", conveyor.getName(), duration,
+			logger.info(
+					"drain finished for conveyor={} duration={} iterations={} ",
+					conveyor.getName(),
+					duration,
 					iteration);
 		}finally{
 			TracerThreadLocal.clearFromThread();

@@ -24,7 +24,6 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.BaseDao;
-import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import io.datarouter.storage.tag.Tag;
@@ -35,12 +34,7 @@ import jakarta.inject.Singleton;
 @Singleton
 public class DatarouterConsoleAppenderDao extends BaseDao{
 
-	public static class DatarouterConsoleAppenderDaoParams extends BaseRedundantDaoParams{
-
-		public DatarouterConsoleAppenderDaoParams(List<ClientId> clientIds){
-			super(clientIds);
-		}
-
+	public record DatarouterConsoleAppenderDaoParams(List<ClientId> clientIds){
 	}
 
 	private final SortedMapStorageNode<ConsoleAppenderKey,ConsoleAppender,ConsoleAppenderFielder> node;

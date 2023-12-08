@@ -89,7 +89,7 @@ extends BaseMysqlOp<List<DatabaseBlob>>{
 				.map(DatabaseBlobKey::new)
 				.list();
 		Scanner<Field<?>> fieldsForQuery = Scanner.of(fields)
-				.map(field -> fieldInfo.getFieldForColumnName(field));
+				.map(fieldInfo::getFieldForColumnName);
 		List<Field<?>> fieldsForQueryList = fieldsForQuery.list();
 		var selectSql = mysqlSqlFactory
 				.createSql(getClientId(), fieldInfo.getTableName(), fieldInfo.getDisableIntroducer())

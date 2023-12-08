@@ -20,8 +20,7 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.span;
 
-import java.util.stream.Collectors;
-
+import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import io.datarouter.web.html.pager.MemoryPager.Page;
@@ -42,7 +41,7 @@ public class Bootstrap4PagerHtml{
 				.withClass("mt-2 ml-2");
 		var links = page.getLinks().stream()
 				.map(pageLink -> a(pageLink.text).withHref(pageLink.href))
-				.collect(Collectors.toList());
+				.collect(WarnOnModifyList.deprecatedCollector());
 		var linkSpans = span(each(links, link -> span(link).withClass("ml-2")))
 				.withClass("ml-2");
 		return div(summary, linkSpans);

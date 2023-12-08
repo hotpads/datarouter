@@ -19,7 +19,6 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 
 public class ZonedDateFormatterTool{
 
@@ -28,23 +27,9 @@ public class ZonedDateFormatterTool{
 	public static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss zzz yyyy");
 	public static final DateTimeFormatter FORMATTER_DESC = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss zzz");
 
-	/**
-	 * @deprecated don't use Date
-	 */
-	@Deprecated
-	public static String formatDateWithZone(Date date, ZoneId zoneId){
-		ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(date.toInstant(), zoneId);
-		return FORMATTER.format(zonedDateTime);
-	}
-
 	public static String formatInstantWithZone(Instant instant, ZoneId zoneId){
 		ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(instant, zoneId);
 		return FORMATTER.format(zonedDateTime);
-	}
-
-	public static String formatInstantWithZoneDesc(Instant instant, ZoneId zoneId){
-		ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(instant, zoneId);
-		return FORMATTER_DESC.format(zonedDateTime);
 	}
 
 }

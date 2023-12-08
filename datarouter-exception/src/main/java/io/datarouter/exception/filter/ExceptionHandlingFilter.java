@@ -15,13 +15,9 @@
  */
 package io.datarouter.exception.filter;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Date;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 
@@ -103,20 +99,6 @@ public abstract class ExceptionHandlingFilter implements Filter, InjectorRetriev
 		}
 	}
 
-	@SuppressWarnings("unused")
-	private static void dumpAllStackTraces() throws IOException{
-		long timeMillis = System.currentTimeMillis();
-		try(var out = new BufferedWriter(new FileWriter("/tmp/StackTrace" + timeMillis + ".log"))){
-			Map<Thread,StackTraceElement[]> liveThreads = Thread.getAllStackTraces();
-			for(Entry<Thread,StackTraceElement[]> thread : liveThreads.entrySet()){
-				out.append("Thread " + thread.getKey().getName() + "\n");
-				for(StackTraceElement element : thread.getValue()){
-					out.append("\tat " + element + "\n");
-				}
-			}
-		}
-	}
-
 	private Optional<ExceptionRecordKey> tryRecordExceptionAndRequestNotification(
 			HttpServletRequest request,
 			Throwable exception){
@@ -131,6 +113,7 @@ public abstract class ExceptionHandlingFilter implements Filter, InjectorRetriev
 				callOrigin = null;
 			}
 
+			HttpServerCounters.count("error " + callOrigin);
 			String methodName = null;
 			String name = null;
 			String type = null;
@@ -220,9 +203,9 @@ public abstract class ExceptionHandlingFilter implements Filter, InjectorRetriev
 		int index = string.indexOf(key);
 		if(index > -1){
 			String jspName = string.substring(index);
-			jspName = jspName.replaceAll("\\.", "/");
-			jspName = jspName.replaceAll("_002d", "-");
-			jspName = jspName.replaceAll("_", ".");
+			jspName = jspName.replace('.', '/');
+			jspName = jspName.replace("_002d", "-");
+			jspName = jspName.replace('_', '.');
 			return "/" + jspName;
 		}
 		return null;

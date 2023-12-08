@@ -21,7 +21,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -34,6 +33,7 @@ import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.test.node.basic.manyfield.ManyFieldBean.ManyFieldTypeBeanFielder;
+import io.datarouter.types.MilliTime;
 import jakarta.inject.Inject;
 
 public abstract class BaseManyFieldIntegrationTests{
@@ -147,7 +147,7 @@ public abstract class BaseManyFieldIntegrationTests{
 
 		ManyFieldBean roundTripped = putAndGet(bean);
 		Assert.assertEquals(roundTripped.getLongField(), bean.getLongField());
-		Assert.assertTrue(negative6Billion == roundTripped.getLongField());
+		Assert.assertEquals((long)roundTripped.getLongField(), negative6Billion);
 	}
 
 	@Test
@@ -159,7 +159,7 @@ public abstract class BaseManyFieldIntegrationTests{
 		ManyFieldBean roundTripped = putAndGet(bean);
 		Assert.assertNotNull(roundTripped);
 		Assert.assertEquals(roundTripped.getFloatField(), bean.getFloatField());
-		Assert.assertTrue(val == roundTripped.getFloatField());
+		Assert.assertEquals(roundTripped.getFloatField(), val);
 	}
 
 	@Test
@@ -181,18 +181,18 @@ public abstract class BaseManyFieldIntegrationTests{
 
 		ManyFieldBean roundTripped = putAndGet(bean);
 		Assert.assertEquals(roundTripped.getDoubleField(), bean.getDoubleField());
-		Assert.assertTrue(val == roundTripped.getDoubleField());
+		Assert.assertEquals(roundTripped.getDoubleField(), val);
 	}
 
 	@Test
-	public void testDateToLong(){
+	public void testMilliTimeToLong(){
 		var bean = new ManyFieldBean();
-		Date val = new Date();
-		bean.setDateToLongField(val);
+		MilliTime val = MilliTime.now();
+		bean.setMilliTimeToLongField(val);
 
 		ManyFieldBean roundTripped = putAndGet(bean);
-		Assert.assertEquals(roundTripped.getDateToLongField(), bean.getDateToLongField());
-		Assert.assertEquals(val, roundTripped.getDateToLongField());
+		Assert.assertEquals(roundTripped.getMilliTimeToLongField(), bean.getMilliTimeToLongField());
+		Assert.assertEquals(val, roundTripped.getMilliTimeToLongField());
 	}
 
 	@Test
@@ -203,7 +203,7 @@ public abstract class BaseManyFieldIntegrationTests{
 
 		ManyFieldBean roundTripped = putAndGet(bean);
 		Assert.assertEquals(roundTripped.getLocalTimeField(), bean.getLocalTimeField());
-		Assert.assertTrue(val.equals(roundTripped.getLocalTimeField()));
+		Assert.assertEquals(roundTripped.getLocalTimeField(), val);
 	}
 
 	@Test
@@ -214,7 +214,7 @@ public abstract class BaseManyFieldIntegrationTests{
 
 		ManyFieldBean roundTripped = putAndGet(bean);
 		Assert.assertEquals(roundTripped.getLocalDateField(), bean.getLocalDateField());
-		Assert.assertTrue(val.equals(roundTripped.getLocalDateField()));
+		Assert.assertEquals(roundTripped.getLocalDateField(), val);
 	}
 
 	@Test

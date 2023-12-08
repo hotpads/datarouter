@@ -15,24 +15,25 @@
  */
 package io.datarouter.auth.storage.user.saml;
 
-import java.util.Date;
 import java.util.List;
 import java.util.function.Supplier;
 
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
-import io.datarouter.model.field.imp.DateField;
-import io.datarouter.model.field.imp.DateFieldKey;
+import io.datarouter.model.field.codec.MilliTimeFieldCodec;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
+import io.datarouter.model.field.imp.comparable.LongEncodedField;
+import io.datarouter.model.field.imp.comparable.LongEncodedFieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 import io.datarouter.model.util.CommonFieldSizes;
+import io.datarouter.types.MilliTime;
 
 public class SamlAuthnRequestRedirectUrl
 extends BaseDatabean<SamlAuthnRequestRedirectUrlKey,SamlAuthnRequestRedirectUrl>{
 
 	private String redirectUrl;
-	private Date created;
+	private MilliTime createdAt;
 
 	public SamlAuthnRequestRedirectUrl(){
 		super(new SamlAuthnRequestRedirectUrlKey());
@@ -41,14 +42,14 @@ extends BaseDatabean<SamlAuthnRequestRedirectUrlKey,SamlAuthnRequestRedirectUrl>
 	public SamlAuthnRequestRedirectUrl(String authnRequestId, String redirectUrl){
 		super(new SamlAuthnRequestRedirectUrlKey(authnRequestId));
 		this.redirectUrl = redirectUrl;
-		this.created = new Date();
+		this.createdAt = MilliTime.now();
 	}
 
 	public static class FieldKeys{
 		public static final StringFieldKey redirectUrl = new StringFieldKey("redirectUrl")
 				.withSize(CommonFieldSizes.MAX_LENGTH_TEXT);
-		@SuppressWarnings("deprecation")
-		public static final DateFieldKey created = new DateFieldKey("created");
+		public static final LongEncodedFieldKey<MilliTime> createdAt = new LongEncodedFieldKey<>("createdAt",
+				new MilliTimeFieldCodec());
 	}
 
 	public static class SamlAuthnRequestRedirectUrlFielder
@@ -58,12 +59,11 @@ extends BaseDatabean<SamlAuthnRequestRedirectUrlKey,SamlAuthnRequestRedirectUrl>
 			super(SamlAuthnRequestRedirectUrlKey::new);
 		}
 
-		@SuppressWarnings("deprecation")
 		@Override
 		public List<Field<?>> getNonKeyFields(SamlAuthnRequestRedirectUrl databean){
 			return List.of(
 					new StringField(FieldKeys.redirectUrl, databean.redirectUrl),
-					new DateField(FieldKeys.created, databean.created));
+					new LongEncodedField<>(FieldKeys.createdAt, databean.createdAt));
 		}
 
 	}
@@ -77,8 +77,8 @@ extends BaseDatabean<SamlAuthnRequestRedirectUrlKey,SamlAuthnRequestRedirectUrl>
 		return redirectUrl;
 	}
 
-	public Date getCreated(){
-		return created;
+	public MilliTime getCreated(){
+		return createdAt;
 	}
 
 }

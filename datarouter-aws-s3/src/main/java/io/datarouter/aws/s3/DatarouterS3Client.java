@@ -191,9 +191,25 @@ public interface DatarouterS3Client{
 
 	InputStream getInputStream(BucketAndKey location);
 
-	byte[] getObjectAsBytes(BucketAndKey location);
+	Optional<byte[]> findObject(BucketAndKey location);
 
-	byte[] getPartialObject(BucketAndKey location, long offset, int length);
+	/**
+	 * @deprecated  Use findObject
+	 */
+	@Deprecated
+	default byte[] getObjectAsBytes(BucketAndKey location){
+		return findObject(location).orElse(null);
+	}
+
+	Optional<byte[]> findPartialObject(BucketAndKey location, long offset, int length);
+
+	/**
+	 * @deprecated  Use findPartialObject
+	 */
+	@Deprecated
+	default byte[] getPartialObject(BucketAndKey location, long offset, int length){
+		return findPartialObject(location, offset, length).orElse(null);
+	}
 
 	default Scanner<byte[]> scanObjectChunks(
 			BucketAndKey location,

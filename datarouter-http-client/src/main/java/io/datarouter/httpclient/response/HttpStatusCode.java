@@ -15,6 +15,8 @@
  */
 package io.datarouter.httpclient.response;
 
+import java.util.stream.Stream;
+
 public enum HttpStatusCode{
 	SC_200_OK(200, "Ok"),
 	SC_201_CREATED(201, "Created"),
@@ -54,6 +56,13 @@ public enum HttpStatusCode{
 
 	public String getMessage(){
 		return message;
+	}
+
+	public static HttpStatusCode fromInt(int requestedStatusCode){
+		return Stream.of(values())
+				.filter(httpStatusCode -> httpStatusCode.getStatusCode() == requestedStatusCode)
+				.findFirst()
+				.orElseThrow(() -> new IllegalArgumentException("No HttpStatusCode found " + requestedStatusCode));
 	}
 
 }

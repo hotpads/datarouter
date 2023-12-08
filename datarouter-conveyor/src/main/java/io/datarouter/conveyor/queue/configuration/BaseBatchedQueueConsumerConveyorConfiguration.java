@@ -90,20 +90,24 @@ implements ConveyorConfiguration{
 		return new ProcessResult(true);
 	}
 
-	private void flushBuffer(List<MessageAndTime<PK,D>> currentBuffer, Optional<Instant> afterPeek,
+	private void flushBuffer(
+			List<MessageAndTime<PK,D>> currentBuffer,
+			Optional<Instant> afterPeek,
 			ConveyorRunnable conveyor){
 		if(currentBuffer.isEmpty()){
 			return;
 		}
 		Instant beforeProcessBuffer = Instant.now();
-		afterPeek.ifPresent(time -> gaugeRecorder.savePeekToProcessBufferDurationMs(conveyor, Duration.between(time,
-				beforeProcessBuffer).toMillis()));
+		afterPeek.ifPresent(time -> gaugeRecorder.savePeekToProcessBufferDurationMs(
+				conveyor,
+				Duration.between(time, beforeProcessBuffer).toMillis()));
 		Scanner.of(currentBuffer)
 				.map(mat -> mat.message)
 				.flush(this::processBuffer);
 		Instant afterProcessBuffer = Instant.now();
-		gaugeRecorder.saveProcessBufferDurationMs(conveyor, Duration.between(beforeProcessBuffer, afterProcessBuffer)
-				.toMillis());
+		gaugeRecorder.saveProcessBufferDurationMs(
+				conveyor,
+				Duration.between(beforeProcessBuffer, afterProcessBuffer).toMillis());
 		ConveyorCounters.incFlushBuffer(conveyor, currentBuffer.size());
 		logger.info("consumed conveyor={} messageCount={}", conveyor.getName(), currentBuffer.size());
 		ConveyorCounters.incConsumedOpAndDatabeans(conveyor, currentBuffer.size());

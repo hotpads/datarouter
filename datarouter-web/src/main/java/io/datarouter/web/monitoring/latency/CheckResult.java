@@ -79,12 +79,11 @@ public class CheckResult{
 
 	@Override
 	public String toString(){
-		if(failureMessage.isPresent()){
-			return "Failure " + new DatarouterDuration(System.currentTimeMillis() - dateMs, TimeUnit.MILLISECONDS)
-					+ " ago: " + failureMessage.get();
-		}
-		return getLatencyString() + " (" + new DatarouterDuration(System.currentTimeMillis() - dateMs,
-				TimeUnit.MILLISECONDS) + " ago)";
+		return failureMessage.map(message ->
+						"Failure " + new DatarouterDuration(System.currentTimeMillis() - dateMs, TimeUnit.MILLISECONDS)
+								+ " ago: " + message)
+				.orElseGet(() -> getLatencyString() + " ("
+						+ new DatarouterDuration(System.currentTimeMillis() - dateMs, TimeUnit.MILLISECONDS) + " ago)");
 	}
 
 	public static class CheckResultJspDto{

@@ -203,7 +203,6 @@ These libraries can be used individually without importing the whole framework.
 ## Parent modules
 - [metadata-parent](datarouter-metadata-parent/README.md)
 - [parent](datarouter-parent/README.md)
-- [java17-parent](datarouter-java17-parent/README.md)
 - [full-build](datarouter-full-build/README.md)
 
 ## Example webapp

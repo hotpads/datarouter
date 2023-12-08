@@ -63,25 +63,13 @@ public class ExceptionRecordAggregationDailyDigest implements DailyDigest{
 	private ServiceName serviceName;
 
 	@Override
-	public Optional<DivTag> getPageContent(ZoneId zoneId){
-		var header = digestService.makeHeader("Exceptions", recordSummaryCollector.getBrowsePageLink(serviceName
-				.get()).orElse(""));
-		var description = small("Aggregated for the current day (over " + EXCEPTIONS_THRESHOLD + ")");
-		List<ExceptionRecordSummaryDto> summaries = getExceptionSummaries(zoneId);
-		if(summaries.size() == 0){
-			return Optional.empty();
-		}
-		return Optional.of(div(header, description, makePageTableV2(summaries)));
-	}
-
-	@Override
 	public Optional<DivTag> getEmailContent(ZoneId zoneId){
 		var header = digestService.makeHeader("Exceptions", recordSummaryCollector.getBrowsePageLink(serviceName
 				.get()).orElse(""));
 		var description = small("Aggregated for the current day (over " + EXCEPTIONS_THRESHOLD + ")");
 
 		List<ExceptionRecordSummaryDto> summaries = getExceptionSummaries(zoneId);
-		if(summaries.size() == 0){
+		if(summaries.isEmpty()){
 			return Optional.empty();
 		}
 		return Optional.of(div(header, description, makeEmailTableV2(summaries)));

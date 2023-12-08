@@ -52,8 +52,7 @@ implements CallsiteAdapter{
 		if(recordCallsites == null || BooleanTool.isFalseOrNull(recordCallsites.get())){
 			return null;
 		}
-		LineOfCode callsite = new LineOfCode(2);//adjust for this method and adapter method
-		return callsite;
+		return new LineOfCode(2); //adjust for this method and adapter method
 	}
 
 	@Override

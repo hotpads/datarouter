@@ -18,13 +18,13 @@ package io.datarouter.web.navigation;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import io.datarouter.pathnode.PathNode;
 import io.datarouter.plugin.PluginConfigKey;
 import io.datarouter.plugin.PluginConfigType;
 import io.datarouter.plugin.PluginConfigValue;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.web.dispatcher.DispatchRule;
 
 public class NavBarItem implements PluginConfigValue<NavBarItem>{
@@ -117,7 +117,7 @@ public class NavBarItem implements PluginConfigValue<NavBarItem>{
 					.stream()
 					.map(group -> new NavBarItemGroup(group.getKey(), group.getValue()))
 					.sorted(Comparator.comparing(NavBarItemGroup::getCategoryDisplay))
-					.collect(Collectors.toList());
+					.collect(WarnOnModifyList.deprecatedCollector());
 		}
 
 		private String getCategoryDisplay(){

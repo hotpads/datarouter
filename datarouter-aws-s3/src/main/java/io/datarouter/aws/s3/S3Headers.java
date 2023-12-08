@@ -42,7 +42,7 @@ public class S3Headers{
 		return "max-age=" + seconds + ", public";
 	}
 
-	public static final String getExtensionForContentType(String contentType){
+	public static String getExtensionForContentType(String contentType){
 		ContentType type = ContentType.BY_MIME_TYPE.fromOrNull(contentType);
 		if(type == null){
 			return null;
