@@ -15,7 +15,7 @@
  */
 package io.datarouter.aws.s3;
 
-import io.datarouter.instrumentation.count.Counters;
+import io.datarouter.instrumentation.metric.Metrics;
 
 public class DatarouterS3Counters{
 
@@ -30,12 +30,12 @@ public class DatarouterS3Counters{
 
 	public static void incNoBucket(S3CounterSuffix suffix, long by){
 		String name = String.join(" ", PREFIX, KEYWORD_ALL, suffix.suffix);
-		Counters.inc(name, by);
+		Metrics.count(name, by);
 	}
 
 	private static void incBucket(String bucket, S3CounterSuffix suffix, long by){
 		String name = String.join(" ", PREFIX, KEYWORD_BUCKET, bucket, suffix.suffix);
-		Counters.inc(name, by);
+		Metrics.count(name, by);
 	}
 
 	public enum S3CounterSuffix{

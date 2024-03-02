@@ -163,7 +163,6 @@ public class WebappInstanceDailyDigest implements DailyDigest{
 			return ListTool.findLast(startupInstants)
 						.map(date -> ZonedDateFormatterTool.formatInstantWithZone(date, zoneId))
 						.get();
-
 		}
 
 	}

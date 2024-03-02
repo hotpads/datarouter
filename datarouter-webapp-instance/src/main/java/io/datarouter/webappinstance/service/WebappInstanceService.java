@@ -19,13 +19,14 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.List;
 
-import io.datarouter.instrumentation.count.Counters;
+import io.datarouter.instrumentation.metric.Metrics;
 import io.datarouter.instrumentation.webappinstance.WebappInstanceDto;
 import io.datarouter.instrumentation.webappinstance.WebappInstancePublisher;
 import io.datarouter.storage.config.properties.DatarouterServerTypeSupplier;
 import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.storage.config.properties.ServerPrivateIp;
 import io.datarouter.storage.config.properties.ServerPublicIp;
+import io.datarouter.storage.config.properties.ServiceName;
 import io.datarouter.util.PlatformMxBeans;
 import io.datarouter.util.SystemTool;
 import io.datarouter.web.app.WebappName;
@@ -69,6 +70,7 @@ public class WebappInstanceService{
 	private final ServerPublicIp serverPublicIp;
 	private final ServerPrivateIp serverPrivateIp;
 	private final DatarouterServerTypeSupplier serverType;
+	private final ServiceName serviceName;
 
 	private final Instant startup;
 
@@ -86,7 +88,8 @@ public class WebappInstanceService{
 			ServerName serverName,
 			ServerPublicIp serverPublicIp,
 			ServerPrivateIp serverPrivateIp,
-			DatarouterServerTypeSupplier serverType){
+			DatarouterServerTypeSupplier serverType,
+			ServiceName serviceName){
 		this.webappInstanceDao = webappInstanceDao;
 		this.webappInstanceLogDao = webappInstanceLogDao;
 		this.webappName = webappName;
@@ -100,6 +103,7 @@ public class WebappInstanceService{
 		this.serverPublicIp = serverPublicIp;
 		this.serverPrivateIp = serverPrivateIp;
 		this.serverType = serverType;
+		this.serviceName = serviceName;
 
 		this.startup = Instant.ofEpochMilli(PlatformMxBeans.RUNTIME.getStartTime());
 	}
@@ -111,11 +115,12 @@ public class WebappInstanceService{
 	public WebappInstance updateWebappInstanceTable(){
 		String buildId = buildProperties.getBuildId();
 		String commitId = gitProperties.getIdAbbrev().orElse(GitProperties.UNKNOWN_STRING);
-		Counters.inc("App heartbeat " + serverType.getServerTypeString());
-		Counters.inc("App heartbeat type-build " + serverType.getServerTypeString() + " " + buildId);
-		Counters.inc("App heartbeat type-commit " + serverType.getServerTypeString() + " " + commitId);
-		Counters.inc("App heartbeat build " + buildId);
-		Counters.inc("App heartbeat commit " + commitId);
+		String serverTypeStr = serverType.getServerTypeString();
+		Metrics.count("App heartbeat " + serverTypeStr);
+		Metrics.count("App heartbeat type-build " + serverTypeStr + " " + buildId);
+		Metrics.count("App heartbeat type-commit " + serverTypeStr + " " + commitId);
+		Metrics.count("App heartbeat build " + buildId);
+		Metrics.count("App heartbeat commit " + commitId);
 		WebappInstance webappInstance = buildCurrentWebappInstance();
 		webappInstanceDao.put(webappInstance);
 		webappInstanceLogDao.put(new WebappInstanceLog(webappInstance));
@@ -131,6 +136,7 @@ public class WebappInstanceService{
 				webappName.getName(),
 				serverName.get(),
 				serverType.getServerTypeString(),
+				serviceName.get(),
 				servletContext.get().getContextPath(),
 				serverPublicIp.get(),
 				serverPrivateIp.get(),

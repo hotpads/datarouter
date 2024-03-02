@@ -25,8 +25,6 @@ public class DatarouterWebPaths extends PathNode implements PathsRoot{
 	public static final String DATAROUTER = "datarouter";
 
 	public final DatarouterPaths datarouter = branch(DatarouterPaths::new, DATAROUTER);
-	public final PermissionRequestPaths permissionRequest = branch(PermissionRequestPaths::new, "permissionRequest");
-	public final SigninPaths signin = branch(SigninPaths::new, "signin");
 	public final DocumentationPaths documentation = branch(DocumentationPaths::new, "documentation");
 
 	public final PathNode consumer = leaf("consumer");
@@ -96,18 +94,6 @@ public class DatarouterWebPaths extends PathNode implements PathsRoot{
 		public final PathNode nodes = leaf("nodes");
 		public final PathNode plugins = leaf("plugins");
 		public final PathNode properties = leaf("properties");
-	}
-
-	public static class PermissionRequestPaths extends PathNode{
-		public final PathNode createCustomPermissionRequest = leaf("createCustomPermissionRequest");
-		public final PathNode declineAll = leaf("declineAll");
-		public final PathNode declinePermissionRequests = leaf("declinePermissionRequests");
-		public final PathNode showForm = leaf("showForm");
-		public final PathNode submit = leaf("submit");
-	}
-
-	public static class SigninPaths extends PathNode{
-		public final PathNode submit = leaf("submit");
 	}
 
 	public static class DocumentationPaths extends PathNode{

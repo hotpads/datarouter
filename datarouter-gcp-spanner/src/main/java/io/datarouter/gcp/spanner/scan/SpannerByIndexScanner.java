@@ -63,7 +63,7 @@ extends BaseNodeScanner<IK,D>{
 
 	@Override
 	protected IK getPrimaryKey(D fieldSet){
-		return indexEntryFieldInfo.getSampleDatabean().createFromDatabean(fieldSet).iterator().next().getKey();
+		return indexEntryFieldInfo.getSampleDatabean().createFromDatabean(fieldSet).getFirst().getKey();
 	}
 
 	@Override

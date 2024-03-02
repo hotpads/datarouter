@@ -24,6 +24,7 @@ import java.util.function.Supplier;
 
 import io.datarouter.client.mysql.connection.MysqlConnectionPoolHolder;
 import io.datarouter.client.mysql.util.MysqlTool;
+import io.datarouter.email.email.DatarouterHtmlEmailService;
 import io.datarouter.email.type.DatarouterEmailTypes.SchemaUpdatesEmailType;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.storage.client.ClientId;
@@ -36,7 +37,6 @@ import io.datarouter.storage.config.storage.clusterschemaupdatelock.DatarouterCl
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.config.settings.DatarouterSchemaUpdateEmailSettings;
-import io.datarouter.web.email.DatarouterHtmlEmailService;
 import io.datarouter.web.email.StandardDatarouterEmailHeaderService;
 import io.datarouter.web.handler.EmailingSchemaUpdateService;
 import io.datarouter.web.monitoring.BuildProperties;

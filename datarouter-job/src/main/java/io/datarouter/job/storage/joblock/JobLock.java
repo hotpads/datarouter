@@ -25,7 +25,6 @@ import io.datarouter.model.field.Field;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.comparable.LongEncodedField;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
-import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.types.MilliTime;
 
 public class JobLock extends BaseDatabean<JobLockKey,JobLock>{
@@ -69,7 +68,7 @@ public class JobLock extends BaseDatabean<JobLockKey,JobLock>{
 	public static List<JobLock> getBefore(List<JobLock> keys, MilliTime before){
 		return keys.stream()
 				.filter(triggerLockKey -> triggerLockKey.getTriggerTime().isBefore(before))
-				.collect(WarnOnModifyList.deprecatedCollector());
+				.toList();
 	}
 
 	public String getServerName(){

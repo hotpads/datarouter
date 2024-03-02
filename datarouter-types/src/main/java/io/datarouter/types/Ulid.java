@@ -75,6 +75,10 @@ implements Comparable<Ulid>{
 		return new Ulid(new String(buffer));
 	}
 
+	public static Ulid createRandomUlidForTimestamp(long timestamp){
+		return new Ulid(ULID_INSTANCE.nextULID(timestamp));
+	}
+
 	@Override
 	public String toString(){
 		return value;

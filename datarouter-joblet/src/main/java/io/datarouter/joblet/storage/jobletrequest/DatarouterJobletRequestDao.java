@@ -80,7 +80,7 @@ public class DatarouterJobletRequestDao extends BaseDao{
 					return node;
 				})
 				.list();
-		physicalNode = NodeTool.extractSinglePhysicalNode(allNodes.get(0));
+		physicalNode = NodeTool.extractSinglePhysicalNode(allNodes.getFirst());
 		node = RedundantIndexedSortedMapStorageNode.makeIfMulti(allNodes);
 		byTypeAndDataSignature = indexingNodeFactory.createKeyOnlyManagedIndex(
 				JobletRequestByTypeAndDataSignatureKey::new,
@@ -276,7 +276,7 @@ public class DatarouterJobletRequestDao extends BaseDao{
 	/*-------------- private --------------*/
 
 	private static String assertSameType(List<JobletRequest> jobletRequests){
-		String firstType = jobletRequests.get(0).getKey().getType();
+		String firstType = jobletRequests.getFirst().getKey().getType();
 		for(JobletRequest jobletRequest : jobletRequests){
 			String type = jobletRequest.getKey().getType();
 			if(!type.equals(firstType)){

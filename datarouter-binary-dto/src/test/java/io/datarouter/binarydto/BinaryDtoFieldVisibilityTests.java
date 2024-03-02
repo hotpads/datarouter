@@ -24,13 +24,13 @@ import io.datarouter.binarydto.dto.ComparableBinaryDto;
 
 public class BinaryDtoFieldVisibilityTests{
 
+	@SuppressWarnings("unused")
 	private static class TestDto extends ComparableBinaryDto<TestDto>{
 
 		//Ensure the static field is ignored
 		public static final int STATIC_FIELD = 0;
 
 		final Integer fPackage;
-		@SuppressWarnings("unused")
 		private final Integer fPrivate;
 		protected final Integer fProtected;
 		public final Integer fPublic;

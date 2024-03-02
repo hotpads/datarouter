@@ -20,8 +20,7 @@ import java.util.function.Supplier;
 import io.datarouter.scanner.Scanner;
 
 public enum DatarouterSettingTagType implements Supplier<DatarouterSettingTag>{
-	COUNT_PIPELINE("countPipeline"),
-	GAUGE_PIPELINE("gaugePipeline"),
+	METRIC_PIPELINE("metricPipeline"),
 	TRACE2_PIPELINE("trace2Pipeline"),
 	CONVEYOR_TRACE_PIPELINE("conveyorTracePipeline"),
 	EXCEPTION_PIPELINE("exceptionPipeline"),

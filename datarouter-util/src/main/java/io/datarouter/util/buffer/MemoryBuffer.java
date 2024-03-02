@@ -18,10 +18,11 @@ package io.datarouter.util.buffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
-import io.datarouter.instrumentation.count.Counters;
+import io.datarouter.instrumentation.metric.Metrics;
 import io.datarouter.util.concurrent.BlockingQueueTool;
 
 public class MemoryBuffer<T> implements Buffer{
@@ -52,7 +53,7 @@ public class MemoryBuffer<T> implements Buffer{
 	public boolean offer(T obj){
 		boolean accepted = queue.offer(obj);
 		if(!accepted){
-			Counters.inc("MemoryBuffer rejection " + name);
+			Metrics.count("MemoryBuffer rejection " + name);
 		}
 		return accepted;
 	}
@@ -64,6 +65,10 @@ public class MemoryBuffer<T> implements Buffer{
 			}
 		}
 		return true;
+	}
+
+	public Optional<T> poll(){
+		return Optional.ofNullable(queue.poll());
 	}
 
 	public List<T> pollMultiWithLimit(int limit){

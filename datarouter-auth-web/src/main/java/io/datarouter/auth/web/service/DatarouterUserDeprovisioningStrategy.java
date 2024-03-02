@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 
 import io.datarouter.auth.role.Role;
 import io.datarouter.auth.role.RoleManager;
+import io.datarouter.auth.service.DatarouterUserHistoryService;
 import io.datarouter.auth.service.deprovisioning.UserDeprovisioningStrategy;
 import io.datarouter.auth.session.UserSessionService;
 import io.datarouter.auth.storage.user.datarouteruser.DatarouterUser;
@@ -36,7 +37,6 @@ import io.datarouter.auth.storage.user.deprovisioneduser.DeprovisionedUser.UserD
 import io.datarouter.auth.storage.user.deprovisioneduser.DeprovisionedUserDao;
 import io.datarouter.auth.storage.user.deprovisioneduser.DeprovisionedUserKey;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.scanner.WarnOnModifyList;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
@@ -110,7 +110,7 @@ public class DatarouterUserDeprovisioningStrategy implements UserDeprovisioningS
 				.map(username -> {
 					var rolesToRestore = deprovisionedRolesByUsername.get(username).stream()
 							.filter(validRoles::contains)
-							.collect(WarnOnModifyList.deprecatedCollector());
+							.toList();
 					var datarouterUser = datarouterUserByUsername.get(username);
 					datarouterUser.setRoles(rolesToRestore);
 					datarouterUser.setEnabled(true);

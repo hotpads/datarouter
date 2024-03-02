@@ -25,6 +25,7 @@ import io.datarouter.bytes.HexBlockTool;
 
 public class BinaryDtoLongArrayTests{
 
+	@SuppressWarnings("unused")
 	private static class TestDto extends ComparableBinaryDto<TestDto>{
 		public final long[] f1;
 		public final long[] f2;

@@ -15,6 +15,8 @@
  */
 package io.datarouter.client.redis.test;
 
+import java.util.Optional;
+
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Guice;
 
@@ -27,7 +29,7 @@ public class RedisMapStorageIntegrationTests extends BaseMapStorageIntegrationTe
 
 	@BeforeClass
 	public void beforeClass(){
-		setup(RedisTestClientIds.REDIS);
+		setup(RedisTestClientIds.REDIS, Optional.empty());
 	}
 
 }

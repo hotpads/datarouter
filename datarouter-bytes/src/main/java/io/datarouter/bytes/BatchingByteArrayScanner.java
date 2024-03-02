@@ -51,7 +51,7 @@ public class BatchingByteArrayScanner extends BaseLinkedScanner<byte[],List<byte
 			if(bytesList.isEmpty()){
 				break;//no more inputs
 			}
-			var bytes = bytesList.get(0);
+			var bytes = bytesList.getFirst();
 			if(bytes.length > maxOutputBytes){//this won't fit
 				throw new IllegalArgumentException(
 						"encountered oversized input with size=" + size + " and maxOutputBytes=" + maxOutputBytes);

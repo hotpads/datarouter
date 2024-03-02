@@ -9,7 +9,7 @@ Datarouter-load-test provides tools to stress test different datarouter-clients 
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-load-test</artifactId>
-	<version>0.0.123</version>
+	<version>0.0.124</version>
 </dependency>
 ```
 

@@ -22,6 +22,7 @@ import java.util.Objects;
 import javax.servlet.http.HttpServletRequest;
 
 import io.datarouter.auth.authenticate.authenticator.DatarouterAuthenticator;
+import io.datarouter.auth.config.DatarouterAuthenticationConfig;
 import io.datarouter.auth.config.DatarouterAuthenticationSettings;
 import io.datarouter.auth.model.enums.DatarouterCookieKeys;
 import io.datarouter.util.string.StringTool;

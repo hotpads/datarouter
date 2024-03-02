@@ -28,6 +28,7 @@ import io.datarouter.scanner.Scanner;
 
 public class BinaryDtoByteArrayTests{
 
+	@SuppressWarnings("unused")
 	private static class TestDto extends ComparableBinaryDto<TestDto>{
 		public final byte[] f1;
 		public final byte[] f2;
@@ -79,6 +80,7 @@ public class BinaryDtoByteArrayTests{
 
 
 	private static class CompareTestDto extends ComparableBinaryDto<TestDto>{
+		@SuppressWarnings("unused")
 		public final byte[] f1;
 
 		public CompareTestDto(byte[] f1){

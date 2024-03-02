@@ -47,7 +47,6 @@ public class NumberToolTests{
 		Assert.assertNull(NumberTool.parseIntegerFromNumberString(null, null));
 		Assert.assertNull(NumberTool.parseIntegerFromNumberString("banana", null));
 		Assert.assertEquals(NumberTool.parseIntegerFromNumberString("banana", 2), Integer.valueOf(2));
-		Assert.assertEquals(NumberTool.parseIntegerFromNumberString("banana", 2), Integer.valueOf(2));
 		Assert.assertEquals(NumberTool.parseIntegerFromNumberString("2", 3), Integer.valueOf(2));
 		Assert.assertEquals(NumberTool.parseIntegerFromNumberString(Integer.MAX_VALUE + "", null),
 				Integer.valueOf(Integer.MAX_VALUE));
@@ -94,6 +93,15 @@ public class NumberToolTests{
 		Assert.assertEquals(NumberTool.limitLongToIntRange(minIntValue), Integer.MIN_VALUE);
 		Assert.assertEquals(NumberTool.limitLongToIntRange(minIntValueMinusOne), Integer.MIN_VALUE);
 		Assert.assertEquals(NumberTool.limitLongToIntRange(minIntValuePlusOne), Integer.MIN_VALUE + 1);
+	}
+
+	@Test
+	public void testParseInteger(){
+		Assert.assertTrue(NumberTool.parseInteger(null).isEmpty());
+		Assert.assertTrue(NumberTool.parseInteger("text").isEmpty());
+		Assert.assertEquals(NumberTool.parseInteger("-1").get(), -1);
+		Assert.assertEquals(NumberTool.parseInteger("0").get(), 0);
+		Assert.assertEquals(NumberTool.parseInteger("1.45").get(), 1);
 	}
 
 }

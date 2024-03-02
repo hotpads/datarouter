@@ -20,6 +20,8 @@ import java.util.Set;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import io.datarouter.auth.service.DatarouterUserEditService;
+
 public class DatarouterUserEditServiceTests{
 
 	@Test

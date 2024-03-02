@@ -48,7 +48,7 @@ public class SpannerRandomGeneratedFieldTests{
 		List<SpannerRandomGeneratedFieldBean> beans = dao.scan().list();
 		Assert.assertEquals(beans.size(), 3);
 		beans.forEach(bean -> Assert.assertNotNull(bean.getKey().getId()));
-		Assert.assertEquals(beans.get(0).getKey().getId(), Long.valueOf(0L));
+		Assert.assertEquals(beans.getFirst().getKey().getId(), Long.valueOf(0L));
 	}
 
 }

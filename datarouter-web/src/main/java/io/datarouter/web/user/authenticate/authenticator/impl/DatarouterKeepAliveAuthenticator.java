@@ -19,8 +19,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import io.datarouter.auth.authenticate.authenticator.DatarouterAuthenticator;
+import io.datarouter.auth.config.DatarouterAuthenticationConfig;
 import io.datarouter.auth.storage.user.session.DatarouterSession;
-import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 

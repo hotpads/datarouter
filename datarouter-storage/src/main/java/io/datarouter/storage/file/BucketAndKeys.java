@@ -36,7 +36,7 @@ public record BucketAndKeys(
 		Require.isFalse(multipleBuckets, "All objects must be in the same bucket");
 		return Scanner.of(inputs)
 				.map(BucketAndKey::key)
-				.listTo(keys -> new BucketAndKeys(inputs.get(0).bucket(), keys));
+				.listTo(keys -> new BucketAndKeys(inputs.getFirst().bucket(), keys));
 	}
 
 	public List<BucketAndKey> toIndividualKeys(){

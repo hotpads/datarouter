@@ -53,7 +53,7 @@ public class HbaseRangeIntegrationTests{
 		var list = testDatabeanDao.scanKeys(new Range<>(new TestDatabeanKey("12"), false, null, false))
 				.list();
 		Assert.assertFalse(list.isEmpty());
-		Assert.assertEquals(list.get(0), new TestDatabeanKey("120"));
+		Assert.assertEquals(list.getFirst(), new TestDatabeanKey("120"));
 	}
 
 }

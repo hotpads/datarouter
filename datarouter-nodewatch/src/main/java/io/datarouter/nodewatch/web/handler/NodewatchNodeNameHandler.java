@@ -35,7 +35,7 @@ public class NodewatchNodeNameHandler extends BaseHandler{
 
 	@Handler
 	private Mav nodeName(String nodeName){
-		PhysicalNode<?,?,?> physicalNode = datarouterNodes.getNode(nodeName).getPhysicalNodes().iterator().next();
+		PhysicalNode<?,?,?> physicalNode = datarouterNodes.getNode(nodeName).getPhysicalNodes().getFirst();
 		String clientName = physicalNode.getClientId().getName();
 		String tableName = physicalNode.getFieldInfo().getTableName();
 		return new GlobalRedirectMav(links.table(clientName, tableName));

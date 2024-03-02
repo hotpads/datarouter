@@ -47,7 +47,7 @@ public class ScanSanitizer{
 
 	// TODO: what if there are gaps after the first field?
 	private static boolean isMissingFirstField(FieldSet<?> key){
-		return key.getFields().iterator().next().getValue() == null;
+		return key.getFields().getFirst().getValue() == null;
 	}
 
 	public static <PK extends PrimaryKey<PK>> void logInvalidRange(Range<PK> range){

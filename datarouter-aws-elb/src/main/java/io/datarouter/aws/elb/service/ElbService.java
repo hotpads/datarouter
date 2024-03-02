@@ -34,7 +34,6 @@ import com.amazonaws.services.elasticloadbalancingv2.model.TargetDescription;
 import com.amazonaws.services.elasticloadbalancingv2.model.TargetHealthDescription;
 
 import io.datarouter.aws.elb.config.DatarouterAwsElbMonitoringSettings;
-import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.util.number.RandomTool;
 import io.datarouter.util.retry.RetryableTool;
 import io.datarouter.util.singletonsupplier.SingletonSupplier;
@@ -72,7 +71,7 @@ public class ElbService{
 						.map(Action::getTargetGroupArn)
 						.filter(Objects::nonNull) // remove action that have no tg (like redirect)
 						.distinct()
-						.collect(WarnOnModifyList.deprecatedCollector()),
+						.toList(),
 				NUM_ATTEMPTS,
 				randomSleepMs,
 				true);
@@ -86,7 +85,7 @@ public class ElbService{
 						.stream()
 						.map(TargetHealthDescription::getTarget)
 						.map(TargetDescription::getId)
-						.collect(WarnOnModifyList.deprecatedCollector()),
+						.toList(),
 				NUM_ATTEMPTS,
 				randomSleepMs,
 				true);

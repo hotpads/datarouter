@@ -18,7 +18,7 @@ package io.datarouter.httpclient.circuitbreaker;
 import java.time.Clock;
 import java.time.Duration;
 
-import io.datarouter.instrumentation.count.Counters;
+import io.datarouter.instrumentation.metric.Metrics;
 
 public abstract class ExceptionCircuitBreaker{
 
@@ -63,7 +63,7 @@ public abstract class ExceptionCircuitBreaker{
 	}
 
 	protected void incrementCounterOnStateChange(String state){
-		Counters.inc(String.format("CircuitBreaker %s %s", name, state));
+		Metrics.count(String.format("CircuitBreaker %s %s", name, state));
 	}
 
 	protected void setClock(Clock clock){

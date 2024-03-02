@@ -79,7 +79,7 @@ extends BaseMysqlOp<List<Tally>>{
 		List<TallyKey> tallyKeys = Scanner.of(keys)
 				.map(TallyKey::new)
 				.list();
-		Tally databean = new Tally(tallyKeys.get(0), null, null);
+		Tally databean = new Tally(tallyKeys.getFirst(), null, null);
 		List<Field<?>> fields = fieldInfo.getFieldsWithValues(databean);
 		var selectSql = mysqlSqlFactory
 				.createSql(getClientId(), fieldInfo.getTableName(), fieldInfo.getDisableIntroducer())

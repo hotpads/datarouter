@@ -35,8 +35,6 @@ import jakarta.inject.Singleton;
 public class SpannerTableAlterSchemaService{
 
 	@Inject
-	private SpannerTableOperationsGenerator tableOperationsGenerator;
-	@Inject
 	private SchemaUpdateOptions updateOptions;
 
 	public void generateUpdateStatementColumns(
@@ -56,19 +54,19 @@ public class SpannerTableAlterSchemaService{
 		List<SpannerColumn> colToAlter = columnsToAlter(currentColumns, columns);
 		if(!colToAdd.isEmpty()){
 			colToAdd.forEach(col -> statements.updateFunction(
-					tableOperationsGenerator.addColumns(tableName, col),
+					SpannerTableOperationsTool.addColumns(tableName, col),
 					updateOptions::getAddColumns,
 					true));
 		}
 		if(!colToRemove.isEmpty()){
 			colToRemove.forEach(col -> statements.updateFunction(
-					tableOperationsGenerator.dropColumns(tableName, col),
+					SpannerTableOperationsTool.dropColumns(tableName, col),
 					updateOptions::getDeleteColumns,
 					false));
 		}
 		if(!colToAlter.isEmpty()){
 			colToAlter.forEach(col -> statements.updateFunction(
-					tableOperationsGenerator.alterColumns(tableName, col),
+					SpannerTableOperationsTool.alterColumns(tableName, col),
 					updateOptions::getModifyColumns,
 					false));
 		}
@@ -100,10 +98,8 @@ public class SpannerTableAlterSchemaService{
 				if(!nonKeyColumns.contains(columnName)){
 					return false;
 				}
-			}else{
-				if(!indexKeyColumns.contains(columnName)){
-					return false;
-				}
+			}else if(!indexKeyColumns.contains(columnName)){
+				return false;
 			}
 		}
 		return runOnce;

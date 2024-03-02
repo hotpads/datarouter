@@ -25,7 +25,7 @@ import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
 import io.datarouter.client.memory.test.DatarouterMemoryTestClientIds;
-import io.datarouter.plugin.dataexport.service.blockfile.DatabeanExportKvFileStorageService;
+import io.datarouter.plugin.dataexport.service.blockfile.DatabeanExportBlockfileStorageService;
 import io.datarouter.plugin.dataexport.service.exporting.DatabeanExportService;
 import io.datarouter.plugin.dataexport.service.importing.DatabeanImportService;
 import io.datarouter.plugin.dataexport.test.storage.BackupBean;
@@ -46,7 +46,7 @@ import jakarta.inject.Inject;
 public class DatabeanExportIntegrationTests{
 	private static final Logger logger = LoggerFactory.getLogger(DatabeanExportIntegrationTests.class);
 
-	private final DatabeanExportKvFileStorageService kvFileStorageService;
+	private final DatabeanExportBlockfileStorageService kvFileStorageService;
 	private final DatabeanExportService databeanExportService;
 	private final DatabeanImportService databeanImportService;
 	private final BackupBeanDao dao;
@@ -55,7 +55,7 @@ public class DatabeanExportIntegrationTests{
 	public DatabeanExportIntegrationTests(
 			Datarouter datarouter,
 			NodeFactory nodeFactory,
-			DatabeanExportKvFileStorageService kvFileStorageService,
+			DatabeanExportBlockfileStorageService kvFileStorageService,
 			DatabeanExportService databeanExportService,
 			DatabeanImportService databeanImportService){
 		this.kvFileStorageService = kvFileStorageService;
@@ -95,12 +95,12 @@ public class DatabeanExportIntegrationTests{
 				.map(PathbeanKey::getFile)
 				.list();
 		Assert.assertEquals(metaFilenames.size(), 1);
-		Assert.assertEquals(metaFilenames.get(0), DatabeanExportFilenameTool.makeClientAndTableName(dao.getNode()));
+		Assert.assertEquals(metaFilenames.getFirst(), DatabeanExportFilenameTool.makeClientAndTableName(dao.getNode()));
 		List<String> dataFilenames = tableDataDirectory.scanKeys(Subpath.empty())
 				.map(PathbeanKey::getFile)
 				.list();
 		Assert.assertEquals(dataFilenames.size(), 1);
-		Assert.assertEquals(dataFilenames.get(0), DatabeanExportFilenameTool.makePartFilename(0));
+		Assert.assertEquals(dataFilenames.getFirst(), DatabeanExportFilenameTool.makePartFilename(0));
 
 		// clear table
 		dao.deleteAll();

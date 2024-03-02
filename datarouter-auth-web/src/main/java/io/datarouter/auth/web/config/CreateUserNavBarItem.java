@@ -15,6 +15,7 @@
  */
 package io.datarouter.auth.web.config;
 
+import io.datarouter.auth.config.DatarouterAuthPaths;
 import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.web.navigation.AppNavBarCategory;
 import io.datarouter.web.navigation.DynamicNavBarItem;

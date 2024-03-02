@@ -23,6 +23,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.List;
 
+import io.datarouter.email.email.DatarouterHtmlEmailService;
 import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
 import io.datarouter.email.type.DatarouterEmailTypes.WebappInstanceAlertEmailType;
@@ -32,7 +33,6 @@ import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.util.duration.DatarouterDuration;
 import io.datarouter.util.time.ZonedDateFormatterTool;
 import io.datarouter.web.config.properties.DefaultEmailDistributionListZoneId;
-import io.datarouter.web.email.DatarouterHtmlEmailService;
 import io.datarouter.web.email.StandardDatarouterEmailHeaderService;
 import io.datarouter.webappinstance.config.DatarouterWebappInstancePaths;
 import io.datarouter.webappinstance.config.DatarouterWebappInstanceSettingRoot;

@@ -33,6 +33,7 @@ public class BinaryDtoEnumTests{
 		AA, BB, CC
 	}
 
+	@SuppressWarnings("unused")
 	private static class TestDto extends ComparableBinaryDto<TestDto>{
 		public final TestEnum f1;
 		public final TestEnum f2;

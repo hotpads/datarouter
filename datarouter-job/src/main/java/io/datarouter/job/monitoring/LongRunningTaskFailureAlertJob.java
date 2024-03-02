@@ -25,6 +25,7 @@ import static j2html.TagCreator.span;
 import java.time.Duration;
 import java.util.List;
 
+import io.datarouter.email.email.DatarouterHtmlEmailService;
 import io.datarouter.email.html.J2HtmlDatarouterEmailBuilder;
 import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
@@ -39,7 +40,6 @@ import io.datarouter.tasktracker.storage.LongRunningTask;
 import io.datarouter.tasktracker.storage.LongRunningTaskDao;
 import io.datarouter.tasktracker.web.TaskTrackerExceptionLink;
 import io.datarouter.web.config.properties.DefaultEmailDistributionListZoneId;
-import io.datarouter.web.email.DatarouterHtmlEmailService;
 import io.datarouter.web.email.StandardDatarouterEmailHeaderService;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.BodyTag;

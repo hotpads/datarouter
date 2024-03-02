@@ -15,6 +15,8 @@
  */
 package io.datarouter.client.redis.test;
 
+import java.util.Optional;
+
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Guice;
 
@@ -28,7 +30,7 @@ public class RedisManyFieldIntegrationTests extends BaseManyFieldIntegrationTest
 
 	@BeforeClass
 	public void beforeClass(){
-		setup(RedisTestClientIds.REDIS, ManyFieldTypeBeanFielder::new);
+		setup(RedisTestClientIds.REDIS, ManyFieldTypeBeanFielder::new, Optional.empty());
 	}
 
 }

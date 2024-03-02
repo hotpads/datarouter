@@ -22,7 +22,6 @@ import org.apache.logging.log4j.core.appender.ConsoleAppender.Target;
 import io.datarouter.gcp.spanner.ddl.SpannerDatabaseCreator;
 import io.datarouter.gcp.spanner.ddl.SpannerSingleTableSchemaUpdateService;
 import io.datarouter.logging.BaseLog4j2Configuration;
-import io.datarouter.logging.DatarouterLog4j2Configuration;
 import io.datarouter.logging.Log4j2Configurator;
 import io.datarouter.util.Require;
 
@@ -31,8 +30,6 @@ public class DatarouterSpannerLog4j2Configuration extends BaseLog4j2Configuratio
 	private static boolean hasRun = false;
 
 	public DatarouterSpannerLog4j2Configuration(){
-		registerParent(DatarouterLog4j2Configuration.class);
-
 		Appender schemaUpdateAppender = Log4j2Configurator.createConsoleAppender(
 				"SpannerSchemaUpdate",
 				Target.SYSTEM_OUT,

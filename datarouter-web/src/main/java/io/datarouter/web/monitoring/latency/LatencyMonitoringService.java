@@ -31,8 +31,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.instrumentation.count.Counters;
-import io.datarouter.instrumentation.gauge.Gauges;
+import io.datarouter.instrumentation.metric.Metrics;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.scanner.OptionalScanner;
 import io.datarouter.scanner.Scanner;
@@ -86,7 +85,7 @@ public class LatencyMonitoringService{
 
 	public void recordFailure(LatencyCheck check, DatarouterDuration duration, Exception exception){
 		saveGauge(check.name + " failure durationUs", duration);
-		Counters.inc(GAUGE_PREFIX + check.name + " failure");
+		Metrics.count(GAUGE_PREFIX + check.name + " failure");
 		addCheckResult(check, CheckResult.newFailure(System.currentTimeMillis(), exception.getMessage()));
 		logger.warn("latency check failure name={} durationUs={}", check.name, duration.to(TimeUnit.MICROSECONDS),
 				exception);
@@ -94,7 +93,7 @@ public class LatencyMonitoringService{
 
 	private void saveGauge(String name, DatarouterDuration duration){
 		if(datarouterWebSettingRoot.saveLatencyGauges.get()){
-			Gauges.save(GAUGE_PREFIX + name, duration.to(TimeUnit.MICROSECONDS));
+			Metrics.measure(GAUGE_PREFIX + name, duration.to(TimeUnit.MICROSECONDS));
 		}
 	}
 

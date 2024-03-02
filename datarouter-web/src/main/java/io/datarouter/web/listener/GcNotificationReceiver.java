@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
 import com.sun.management.GarbageCollectionNotificationInfo;
 import com.sun.management.GcInfo;
 
-import io.datarouter.instrumentation.count.Counters;
+import io.datarouter.instrumentation.metric.Metrics;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.PlatformMxBeans;
 import jakarta.inject.Singleton;
@@ -60,7 +60,7 @@ public class GcNotificationReceiver implements DatarouterAppListener{
 						.include(entry -> entry.getKey().startsWith("G1"))
 						.streamLongs(Entry::getValue)
 						.sum();
-				Counters.inc("estimatedAllocatedByte", estimatedAllocatedByte);
+				Metrics.count("estimatedAllocatedByte", estimatedAllocatedByte);
 				logger.info("gcName=\"{}\""
 						+ " gcCount={}"
 						+ " notifId={}"

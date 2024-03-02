@@ -15,6 +15,8 @@
  */
 package io.datarouter.client.memory.test;
 
+import java.util.Optional;
+
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Guice;
 
@@ -25,7 +27,7 @@ public class MemoryMapStorageIntegrationTests extends BaseMapStorageIntegrationT
 
 	@BeforeClass
 	public void beforeClass(){
-		setup(DatarouterMemoryTestClientIds.MEMORY);
+		setup(DatarouterMemoryTestClientIds.MEMORY, Optional.empty());
 	}
 
 }

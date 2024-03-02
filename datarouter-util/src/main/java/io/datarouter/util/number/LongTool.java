@@ -25,4 +25,8 @@ public class LongTool{
 		return StringTool.pad(Long.toString(epochMilli), '0', MAX_POSITIVE_LONG_NUM_DIGITS);
 	}
 
+	public static Long fromPaddedEpocMilli(String paddedEpocMilli){
+		return Long.parseLong(paddedEpocMilli);
+	}
+
 }

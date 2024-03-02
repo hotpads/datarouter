@@ -53,7 +53,7 @@ public class ExceptionDetailsDetector{
 				.findFirst();
 		if(parserAndCauseOpt.isPresent()){
 			var parserAndCause = parserAndCauseOpt.get();
-			rootCause = Optional.of(parserAndCause.output().get(0));
+			rootCause = Optional.of(parserAndCause.output().getFirst());
 			ExceptionNameParser exceptionWithParser = parserAndCause.parser();
 			parsedName = exceptionWithParser.parseExceptionName(parserAndCause.output());
 		}

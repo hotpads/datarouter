@@ -20,6 +20,8 @@ import io.datarouter.util.number.NumberFormatter;
 
 public class S3Costs{
 
+	/*--------- monthly -----------*/
+
 	// As of 2023-04-05: $0.023/GB (but assuming they mean GiB)
 	public static final double MONTHLY_DOLLARS_PER_GiB = .023;
 
@@ -40,6 +42,18 @@ public class S3Costs{
 	public static String monthlyStorageCostString(ByteLength bytes){
 		return dollarsAndCentsDisplayString(monthlyStorageDollars(bytes));
 	}
+
+	/*--------- yearly -----------*/
+
+	public static double yearlyStorageDollars(ByteLength bytes){
+		return 12 * monthlyStorageDollars(bytes);
+	}
+
+	public static String yearlyStorageCostString(ByteLength bytes){
+		return dollarsAndCentsDisplayString(yearlyStorageDollars(bytes));
+	}
+
+	/*--------- format -----------*/
 
 	public static String dollarsAndCentsDisplayString(double value){
 		return "$" + NumberFormatter.format(value, 2);

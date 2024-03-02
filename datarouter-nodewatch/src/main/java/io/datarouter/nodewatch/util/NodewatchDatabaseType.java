@@ -34,6 +34,11 @@ public enum NodewatchDatabaseType{
 			true,
 			170,
 			.4),
+	BIGTABLE_HBASE_SSD(
+			"bigtableHbase",
+			true,
+			170,
+			.4),
 	SPANNER(
 			"spanner",
 			false,
@@ -63,7 +68,7 @@ public enum NodewatchDatabaseType{
 	}
 
 	public Optional<Double> findYearlyNodeCost(ByteLength storage){
-		if(this == BIGTABLE_SSD){
+		if(this == BIGTABLE_SSD || this == BIGTABLE_HBASE_SSD){
 			return Optional.of(BigtableNodeCost.yearlyNodeCostForStorage(storage));
 		}
 		if(this == SPANNER){
@@ -83,12 +88,12 @@ public enum NodewatchDatabaseType{
 
 	public class BigtableNodeCost{
 		private static final ByteLength STORAGE_PER_NODE = ByteLength.ofTiB(5);
-		private static final double MAX_NODE_CPU_UTILIZATION = .8;
+		private static final double MAX_NODE_DISK_UTILIZATION = .95;
 		private static final double MONTHLY_NODE_COST = 476;
 
 		public static double monthlyNodeCostForStorage(ByteLength storage){
 			double minNumNodes = storage.toBytesDouble() / STORAGE_PER_NODE.toBytesDouble();
-			double actualNumNodes = minNumNodes / MAX_NODE_CPU_UTILIZATION;
+			double actualNumNodes = minNumNodes / MAX_NODE_DISK_UTILIZATION;
 			return actualNumNodes * MONTHLY_NODE_COST;
 		}
 
@@ -98,13 +103,13 @@ public enum NodewatchDatabaseType{
 	}
 
 	public class SpannerNodeCost{
-		private static final ByteLength STORAGE_PER_NODE = ByteLength.ofTiB(4);
-		private static final double MAX_NODE_CPU_UTILIZATION = .8;
+		private static final ByteLength STORAGE_PER_NODE = ByteLength.ofTiB(10);
+		private static final double MAX_NODE_DISK_UTILIZATION = .95;
 		private static final double MONTHLY_NODE_COST = 658;
 
 		public static double monthlyNodeCostForStorage(ByteLength storage){
 			double minNumNodes = storage.toBytesDouble() / STORAGE_PER_NODE.toBytesDouble();
-			double actualNumNodes = minNumNodes / MAX_NODE_CPU_UTILIZATION;
+			double actualNumNodes = minNumNodes / MAX_NODE_DISK_UTILIZATION;
 			return actualNumNodes * MONTHLY_NODE_COST;
 		}
 

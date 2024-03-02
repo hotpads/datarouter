@@ -47,6 +47,10 @@ public class Log4j2Configurator{
 
 	public static ConsoleAppender createConsoleAppender(String name, Target target, String pattern){
 		PatternLayout layout = createLayout(pattern);
+		return createConsoleAppender(name, target, layout);
+	}
+
+	public static ConsoleAppender createConsoleAppender(String name, Target target, PatternLayout layout){
 		return ConsoleAppender.newBuilder()
 				.setLayout(layout)
 				.setTarget(target)

@@ -17,6 +17,7 @@ package io.datarouter.storage.test.node.basic.sorted;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import io.datarouter.scanner.Scanner;
@@ -39,10 +40,11 @@ public class DatarouterSortedNodeTestDao extends BaseDao implements TestDao{
 	public DatarouterSortedNodeTestDao(
 			Datarouter datarouter,
 			NodeFactory nodeFactory,
-			ClientId clientId){
+			ClientId clientId,
+			Optional<String> tableName){
 		super(datarouter);
 		node = nodeFactory.create(clientId, SortedBeanEntityKey::new, SortedBean::new, SortedBeanFielder::new)
-				.withTableName("SortedBean")
+				.withTableName(tableName.orElse("SortedBean"))
 				.buildAndRegister();
 	}
 

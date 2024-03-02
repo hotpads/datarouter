@@ -30,22 +30,22 @@ public class DefaultDecoderDecodingTests{
 
 	@Test
 	public void testDecodingString(){
-		Assert.assertEquals(defaultDecoder.decodeType("", String.class), "");
-		Assert.assertEquals(defaultDecoder.decodeType(" ", String.class), "");
-		Assert.assertEquals(defaultDecoder.decodeType("\"\"", String.class), "");
-		Assert.assertEquals(defaultDecoder.decodeType("\"", String.class), "\"");
-		Assert.assertEquals(defaultDecoder.decodeType("\" ", String.class), "\" ");
-		Assert.assertEquals(defaultDecoder.decodeType("\" \"", String.class), " ");
-		Assert.assertEquals(defaultDecoder.decodeType("nulls", String.class), "nulls");
-		Assert.assertEquals(defaultDecoder.decodeType("\"correct json\"", String.class), "correct json");
+		Assert.assertEquals(defaultDecoder.decodeType("testField", "", String.class), "");
+		Assert.assertEquals(defaultDecoder.decodeType("testField", " ", String.class), "");
+		Assert.assertEquals(defaultDecoder.decodeType("testField", "\"\"", String.class), "");
+		Assert.assertEquals(defaultDecoder.decodeType("testField", "\"", String.class), "\"");
+		Assert.assertEquals(defaultDecoder.decodeType("testField", "\" ", String.class), "\" ");
+		Assert.assertEquals(defaultDecoder.decodeType("testField", "\" \"", String.class), " ");
+		Assert.assertEquals(defaultDecoder.decodeType("testField", "nulls", String.class), "nulls");
+		Assert.assertEquals(defaultDecoder.decodeType("testField", "\"correct json\"", String.class), "correct json");
 	}
 
 	@Test
 	public void preventNullDecoding(){
-		assertFail(() -> defaultDecoder.decodeType("null", String.class));
-		assertFail(() -> defaultDecoder.decodeType(null, String.class));
-		assertFail(() -> defaultDecoder.decodeType("", Integer.class));
-		assertFail(() -> defaultDecoder.decodeType(" ", Integer.class));
+		assertFail(() -> defaultDecoder.decodeType("testField", "null", String.class));
+		assertFail(() -> defaultDecoder.decodeType("testField", null, String.class));
+		assertFail(() -> defaultDecoder.decodeType("testField", "", Integer.class));
+		assertFail(() -> defaultDecoder.decodeType("testField", " ", Integer.class));
 	}
 
 	private void assertFail(Runnable runnable){

@@ -15,7 +15,7 @@
  */
 package io.datarouter.instrumentation.cost;
 
-import io.datarouter.instrumentation.count.Counters;
+import io.datarouter.instrumentation.metric.Metrics;
 
 /**
  * For counting the cost of cloud services.
@@ -65,7 +65,7 @@ public class CostCounters{
 	/*-------- cost ----------*/
 
 	private static void incCost(String suffix, long nanos){
-		Counters.inc(join(ROOT, suffix), nanos);
+		Metrics.count(join(ROOT, suffix), nanos);
 	}
 
 	/*------- join ---------*/

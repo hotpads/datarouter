@@ -21,11 +21,9 @@ import java.util.function.Supplier;
 public class WebappInstance extends BaseWebappInstance<WebappInstanceKey,WebappInstance>{
 
 	public static class WebappInstanceFielder extends BaseWebappInstanceFielder<WebappInstanceKey,WebappInstance>{
-
 		public WebappInstanceFielder(){
 			super(WebappInstanceKey::new);
 		}
-
 	}
 
 	public WebappInstance(){
@@ -46,6 +44,7 @@ public class WebappInstance extends BaseWebappInstance<WebappInstanceKey,WebappI
 				null,
 				null,
 				null,
+				null,
 				null);
 	}
 
@@ -54,6 +53,7 @@ public class WebappInstance extends BaseWebappInstance<WebappInstanceKey,WebappI
 			String webappName,
 			String serverName,
 			String serverType,
+			String serviceName,
 			String servletContextPath,
 			String publicIp,
 			String privateIp,
@@ -67,6 +67,7 @@ public class WebappInstance extends BaseWebappInstance<WebappInstanceKey,WebappI
 			Integer httpsPort){
 		super(new WebappInstanceKey(webappName, serverName),
 				serverType,
+				serviceName,
 				servletContextPath,
 				publicIp,
 				privateIp,

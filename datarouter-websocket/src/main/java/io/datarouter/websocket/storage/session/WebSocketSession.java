@@ -30,10 +30,12 @@ import io.datarouter.types.MilliTime;
 
 public class WebSocketSession extends BaseDatabean<WebSocketSessionKey,WebSocketSession>{
 
+	private String mode;
 	private MilliTime openingDate;
 	private String serverName;
 
 	public static class FieldKeys{
+		public static final StringFieldKey mode = new StringFieldKey("mode");
 		public static final LongEncodedFieldKey<MilliTime> openingDate = new LongEncodedFieldKey<>(
 				"openingDate", new MilliTimeFieldCodec());
 		public static final StringFieldKey serverName = new StringFieldKey("serverName");
@@ -49,18 +51,20 @@ public class WebSocketSession extends BaseDatabean<WebSocketSessionKey,WebSocket
 		@Override
 		public List<Field<?>> getNonKeyFields(WebSocketSession webSocketSession){
 			return List.of(
-				new LongEncodedField<>(FieldKeys.openingDate, webSocketSession.openingDate),
-				new StringField(FieldKeys.serverName, webSocketSession.serverName));
+					new StringField(FieldKeys.mode, webSocketSession.mode),
+					new LongEncodedField<>(FieldKeys.openingDate, webSocketSession.openingDate),
+					new StringField(FieldKeys.serverName, webSocketSession.serverName));
 		}
 
 	}
 
 	public WebSocketSession(){
-		this(null, null, null, null);
+		super(new WebSocketSessionKey());
 	}
 
-	public WebSocketSession(String userToken, Long id, MilliTime openingDate, String serverName){
-		super(new WebSocketSessionKey(userToken, id));
+	public WebSocketSession(WebSocketSessionKey key, String mode, MilliTime openingDate, String serverName){
+		super(key);
+		this.mode = mode;
 		this.openingDate = openingDate;
 		this.serverName = serverName;
 	}
@@ -68,6 +72,14 @@ public class WebSocketSession extends BaseDatabean<WebSocketSessionKey,WebSocket
 	@Override
 	public Supplier<WebSocketSessionKey> getKeySupplier(){
 		return WebSocketSessionKey::new;
+	}
+
+	public String getMode(){
+		return mode;
+	}
+
+	public void setMode(String mode){
+		this.mode = mode;
 	}
 
 	public MilliTime getOpeningDate(){

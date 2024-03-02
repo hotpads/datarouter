@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import io.datarouter.auth.config.DatarouterAuthPaths;
 import io.datarouter.auth.service.DatarouterUserService;
 import io.datarouter.auth.service.UserInfo;
 import io.datarouter.auth.service.deprovisioning.UserDeprovisioningStrategy;

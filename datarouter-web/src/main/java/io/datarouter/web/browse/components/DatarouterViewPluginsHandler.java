@@ -20,7 +20,6 @@ import static j2html.TagCreator.div;
 import java.util.List;
 
 import io.datarouter.pathnode.PathNode;
-import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
@@ -43,7 +42,7 @@ public class DatarouterViewPluginsHandler extends BaseHandler{
 	public Mav view(){
 		List<String> plugins = pluginRegistry.get().stream()
 				.sorted()
-				.collect(WarnOnModifyList.deprecatedCollector());
+				.toList();
 		var content = makeContent(paths.datarouter.info.plugins, plugins);
 		return pageFactory.startBuilder(request)
 				.withTitle("Registered Plugins")

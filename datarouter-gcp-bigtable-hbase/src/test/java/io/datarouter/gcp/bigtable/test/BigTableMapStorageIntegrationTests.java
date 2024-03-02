@@ -15,6 +15,8 @@
  */
 package io.datarouter.gcp.bigtable.test;
 
+import java.util.Optional;
+
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Guice;
 
@@ -26,7 +28,7 @@ public class BigTableMapStorageIntegrationTests extends BaseMapStorageIntegratio
 
 	@BeforeClass
 	public void beforeClass(){
-		setup(DatarouterBigTableTestClientIds.BIG_TABLE);
+		setup(DatarouterBigTableTestClientIds.BIG_TABLE, Optional.empty());
 	}
 
 }

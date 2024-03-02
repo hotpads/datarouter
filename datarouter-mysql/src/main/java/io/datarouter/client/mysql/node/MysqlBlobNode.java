@@ -111,7 +111,7 @@ implements PhysicalBlobStorageNode{
 				List.of(key),
 				fields,
 				config);
-		return beans.isEmpty() ? Optional.empty() : Optional.ofNullable(beans.get(0).getSize());
+		return beans.isEmpty() ? Optional.empty() : Optional.ofNullable(beans.getFirst().getSize());
 	}
 
 	@Override
@@ -123,7 +123,7 @@ implements PhysicalBlobStorageNode{
 				config);
 		return beans.isEmpty()
 				? Optional.empty()
-				: Optional.of(beans.get(0).getData());
+				: Optional.of(beans.getFirst().getData());
 	}
 
 	@Override
@@ -137,7 +137,7 @@ implements PhysicalBlobStorageNode{
 		int to = from + length;
 		return beans.isEmpty()
 				? Optional.empty()
-				: Optional.of(Arrays.copyOfRange(beans.get(0).getData(), from, to));
+				: Optional.of(Arrays.copyOfRange(beans.getFirst().getData(), from, to));
 	}
 
 	@Override

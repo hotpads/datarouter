@@ -24,7 +24,7 @@ import org.apache.http.protocol.HttpContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.instrumentation.count.Counters;
+import io.datarouter.instrumentation.metric.Metrics;
 
 public class DatarouterLayeredConnectionSocketFactory
 extends DatarouterConnectionSocketFactory
@@ -43,9 +43,9 @@ implements LayeredConnectionSocketFactory{
 			UnknownHostException{
 		String host = target + ":" + port;
 		logger.debug("connecting through layer httpClientName={} host={}", httpClientName, host);
-		Counters.inc("HttpClientLayeredConnection global");
-		Counters.inc("HttpClientLayeredConnection host " + host);
-		Counters.inc("HttpClientLayeredConnection client-host " + httpClientName + " " + host);
+		Metrics.count("HttpClientLayeredConnection global");
+		Metrics.count("HttpClientLayeredConnection host " + host);
+		Metrics.count("HttpClientLayeredConnection client-host " + httpClientName + " " + host);
 		return delegate.createLayeredSocket(socket, target, port, context);
 	}
 

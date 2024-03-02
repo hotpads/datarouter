@@ -17,9 +17,9 @@ package io.datarouter.web.handler;
 
 import java.util.Optional;
 
+import io.datarouter.scanner.Scanner;
 import io.datarouter.web.dispatcher.DefaultDispatcherServlet;
 import io.datarouter.web.dispatcher.Dispatcher;
-import io.datarouter.web.dispatcher.Dispatcher.HandlerDto;
 import io.datarouter.web.dispatcher.RouteSet;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
@@ -84,13 +84,11 @@ public class PathLookupHandler extends BaseHandler{
 	}
 
 	private String estimateHandlerByPath(String path){
-		for(RouteSet routeSet : dispatcherServlet.getRouteSets()){
-			Optional<HandlerDto> dto = dispatcher.estimateHandlerForPath(path, routeSet);
-			if(dto.isPresent()){
-				return dto.get().className() + "." + dto.get().methodName();
-			}
-		}
-
-		return "No Handler Found";
+		return Scanner.of(dispatcherServlet.getRouteSets())
+				.concatIter(RouteSet::getDispatchRules)
+				.concatOpt(rule -> dispatcher.estimateHandlerForPath(path, rule))
+				.findFirst()
+				.map(handler -> handler.getClass().getName() + "." + handler.estimateHandlerMethod())
+				.orElse("No Handler Found");
 	}
 }

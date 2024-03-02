@@ -43,6 +43,9 @@ public class DatarouterWebSettingRoot extends SettingRoot{
 	public final Setting<DatarouterDuration> keepAliveTimeout;
 	public final CachedSetting<Boolean> httpWarmup;
 	public final Setting<Integer> httpWarmupIteration;
+	public final Setting<Boolean> enablePayloadSampling;
+	public final Setting<Boolean> validateCompatibilityFromSampledPayloads;
+	public final Setting<Boolean> shouldThrowExceptionForBackwardIncompatibility;
 
 	@Inject
 	public DatarouterWebSettingRoot(
@@ -65,6 +68,10 @@ public class DatarouterWebSettingRoot extends SettingRoot{
 		keepAliveTimeout = registerDuration("keepAliveTimeout", new DatarouterDuration(0, TimeUnit.MINUTES));
 		httpWarmup = registerBoolean("httpWarmup", false);
 		httpWarmupIteration = registerInteger("httpWarmupIteration", 5_000);
+		enablePayloadSampling = registerBoolean("enablePayloadSampling", false);
+		validateCompatibilityFromSampledPayloads = registerBoolean("validateCompatibilityFromSampledPayloads", false);
+		shouldThrowExceptionForBackwardIncompatibility = registerBoolean(
+				"shouldThrowExceptionForBackwardIncompatibility", false);
 	}
 
 }

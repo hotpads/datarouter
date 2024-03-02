@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.instrumentation.count.Counters;
+import io.datarouter.instrumentation.metric.Metrics;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.plugin.copytable.tableprocessor.TableProcessor.DatabeanTableProcessor;
@@ -72,7 +72,7 @@ public class TableProcessorService{
 				@SuppressWarnings("unchecked")
 				DatabeanTableProcessor<PK,D> processor = (DatabeanTableProcessor<PK,D>) tableProcessor;
 				node.scan(range, new Config().setResponseBatchSize(scanBatchSize))
-						.each($ -> Counters.inc("tableProcessor " + nodeName + " scanned"))
+						.each($ -> Metrics.count("tableProcessor " + nodeName + " scanned"))
 						.each($ -> numScanned.incrementAndGet())
 						.each(databean -> lastKey.set(databean.getKey()))
 						.periodic(Duration.ofSeconds(5), $ -> logProgress(
@@ -88,7 +88,7 @@ public class TableProcessorService{
 				@SuppressWarnings("unchecked")
 				PrimaryKeyTableProcessor<PK> processor = (PrimaryKeyTableProcessor<PK>) tableProcessor;
 				node.scanKeys(range, new Config().setResponseBatchSize(scanBatchSize))
-						.each($ -> Counters.inc("tableProcessor " + nodeName + " scanned"))
+						.each($ -> Metrics.count("tableProcessor " + nodeName + " scanned"))
 						.each($ -> numScanned.incrementAndGet())
 						.each(lastKey::set)
 						.periodic(Duration.ofSeconds(5), $ -> logProgress(

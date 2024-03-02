@@ -151,7 +151,7 @@ public class SecretOp<I,CI,CO,O>{
 		if(!attemptedOps.isEmpty()){
 			attemptedOps.forEach(this::logError);
 			//throw the most recent failed op exception
-			throw attemptedOps.get(attemptedOps.size() - 1).getException();
+			throw attemptedOps.getLast().getException();
 		}
 		//nothing attempted because no suppliers are configured to handle this op
 		throw new NoConfiguredSecretClientSupplierException(this);
@@ -161,7 +161,7 @@ public class SecretOp<I,CI,CO,O>{
 		if(!wasExecuted){
 			execute();
 		}
-		return clientOutputAdapter.adapt(attemptedOps.get(attemptedOps.size() - 1).getResult());
+		return clientOutputAdapter.adapt(attemptedOps.getLast().getResult());
 	}
 
 	public Map<String,O> getAllOutputs(){

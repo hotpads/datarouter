@@ -22,12 +22,12 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.clustersetting.config.DatarouterClusterSettingRoot;
 import io.datarouter.clustersetting.service.ClusterSettingDailyDigest;
+import io.datarouter.email.email.DatarouterHtmlEmailService;
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
 import io.datarouter.storage.config.properties.EnvironmentName;
 import io.datarouter.storage.config.properties.ServiceName;
 import io.datarouter.util.time.ZoneIds;
-import io.datarouter.web.email.DatarouterHtmlEmailService;
 import j2html.tags.specialized.DivTag;
 import jakarta.inject.Inject;
 

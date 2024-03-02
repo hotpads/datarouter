@@ -29,7 +29,7 @@ public class PrefetchingScannerTests{
 	public void test(){
 		List<Integer> integers = IntStream.range(0, 20)
 				.boxed()
-				.collect(WarnOnModifyList.deprecatedCollector());
+				.toList();
 		ExecutorService exec = Executors.newFixedThreadPool(3);
 		Assert.assertEquals(Scanner.of(integers).prefetch(exec, 3).list(), integers);
 		exec.shutdown();

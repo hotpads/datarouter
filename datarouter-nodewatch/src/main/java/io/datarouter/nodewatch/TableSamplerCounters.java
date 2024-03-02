@@ -15,7 +15,7 @@
  */
 package io.datarouter.nodewatch;
 
-import io.datarouter.instrumentation.count.Counters;
+import io.datarouter.instrumentation.metric.Metrics;
 import io.datarouter.storage.node.tableconfig.ClientTableEntityPrefixNameWrapper;
 
 public class TableSamplerCounters{
@@ -55,7 +55,7 @@ public class TableSamplerCounters{
 	}
 
 	private void inc(String name, long by){
-		Counters.inc("TableSampler" + name, by);
+		Metrics.count("TableSampler" + name, by);
 	}
 
 }

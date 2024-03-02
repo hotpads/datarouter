@@ -15,7 +15,7 @@
  */
 package io.datarouter.conveyor;
 
-import io.datarouter.instrumentation.gauge.Gauges;
+import io.datarouter.instrumentation.metric.Metrics;
 import jakarta.inject.Singleton;
 
 @Singleton
@@ -25,26 +25,26 @@ public class ConveyorGauges implements ConveyorGaugeRecorder{
 
 	@Override
 	public void savePeekDurationMs(ConveyorRunnable conveyor, long value){
-		Gauges.save(PREFIX + " peek duration ms", value);
-		Gauges.save(PREFIX + " " + conveyor.getName() + " peek duration ms", value);
+		Metrics.measure(PREFIX + " peek duration ms", value);
+		Metrics.measure(PREFIX + " " + conveyor.getName() + " peek duration ms", value);
 	}
 
 	@Override
 	public void saveAckDurationMs(ConveyorRunnable conveyor, long value){
-		Gauges.save(PREFIX + " ack duration ms", value);
-		Gauges.save(PREFIX + " " + conveyor.getName() + " ack duration ms", value);
+		Metrics.measure(PREFIX + " ack duration ms", value);
+		Metrics.measure(PREFIX + " " + conveyor.getName() + " ack duration ms", value);
 	}
 
 	@Override
 	public void savePeekToProcessBufferDurationMs(ConveyorRunnable conveyor, long value){
-		Gauges.save(PREFIX + " peek to process buffer duration ms", value);
-		Gauges.save(PREFIX + " " + conveyor.getName() + " peek to process buffer duration ms", value);
+		Metrics.measure(PREFIX + " peek to process buffer duration ms", value);
+		Metrics.measure(PREFIX + " " + conveyor.getName() + " peek to process buffer duration ms", value);
 	}
 
 	@Override
 	public void saveProcessBufferDurationMs(ConveyorRunnable conveyor, long value){
-		Gauges.save(PREFIX + " process buffer duration ms", value);
-		Gauges.save(PREFIX + " " + conveyor.getName() + " process buffer duration ms", value);
+		Metrics.measure(PREFIX + " process buffer duration ms", value);
+		Metrics.measure(PREFIX + " " + conveyor.getName() + " process buffer duration ms", value);
 	}
 
 }

@@ -21,10 +21,11 @@ import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 
+import io.datarouter.auth.config.DatarouterAuthPaths;
+import io.datarouter.auth.service.DatarouterUserCreationService;
 import io.datarouter.auth.storage.user.datarouteruser.DatarouterUser;
 import io.datarouter.auth.storage.user.datarouteruser.DatarouterUserDao;
 import io.datarouter.auth.storage.user.datarouteruser.DatarouterUserKey;
-import io.datarouter.auth.web.config.DatarouterAuthPaths;
 import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.web.digest.DailyDigest;

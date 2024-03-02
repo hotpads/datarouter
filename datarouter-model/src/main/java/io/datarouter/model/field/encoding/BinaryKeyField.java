@@ -16,7 +16,7 @@
 package io.datarouter.model.field.encoding;
 
 /**
- * Encodes fields as bytes for storage in the PK of a dataebean.
+ * Encodes fields as bytes for storage in the PK of a databean.
  * - Bytes must compare equivalently to the java fields when using Arrays::compareUnsigned.
  * - Bytes must be embeddable in a multi-field PK, either with a fixed length or a terminating byte (usually 0).
  */
@@ -24,6 +24,8 @@ public interface BinaryKeyField<T>{
 
 	int numKeyBytesWithSeparator(byte[] bytes, int byteOffset);
 	byte[] getKeyBytesWithSeparator();
+	byte[] getTerminatedKeyBytes();
+	T fromEscapedAndTerminatedKeyBytes(byte[] bytes, int byteOffset);
 	T fromKeyBytesWithSeparatorButDoNotSet(byte[] bytes, int byteOffset);
 
 }

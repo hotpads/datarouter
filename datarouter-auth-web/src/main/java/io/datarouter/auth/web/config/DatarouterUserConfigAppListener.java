@@ -15,8 +15,8 @@
  */
 package io.datarouter.auth.web.config;
 
+import io.datarouter.auth.service.DatarouterUserCreationService;
 import io.datarouter.auth.storage.user.datarouteruser.DatarouterUserDao;
-import io.datarouter.auth.web.service.DatarouterUserCreationService;
 import io.datarouter.auth.web.service.DefaultDatarouterUserPasswordSupplier;
 import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.web.listener.DatarouterAppListener;

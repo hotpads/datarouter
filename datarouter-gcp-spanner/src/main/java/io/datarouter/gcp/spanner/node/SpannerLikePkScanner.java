@@ -57,7 +57,7 @@ public class SpannerLikePkScanner extends BaseScanner<List<DatabaseBlobKey>>{
 		if(this.current.isEmpty()){
 			return false;
 		}
-		this.startKey = this.current.get(this.current.size() - 1).getPathAndFile();
+		this.startKey = this.current.getLast().getPathAndFile();
 		return true;
 	}
 

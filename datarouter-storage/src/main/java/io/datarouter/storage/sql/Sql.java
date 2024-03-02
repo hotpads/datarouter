@@ -112,7 +112,7 @@ public abstract class Sql<C,P,Q extends Sql<C,P,Q>>{
 		append(" into ");
 		append(tableName);
 		append(" (");
-		appendCsvColumnNames(sqlBuilder, databeans.get(0));
+		appendCsvColumnNames(sqlBuilder, databeans.getFirst());
 		append(") values ");
 		boolean didOneDatabean = false;
 		for(List<Field<?>> databeanFields : databeans){

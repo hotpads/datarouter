@@ -46,8 +46,8 @@ implements FieldlessIndexEntryPrimaryKey<
 	@Override
 	public List<Field<?>> getFields(){
 		return List.of(
-				new StringField(BaseHttpRequestRecord.FieldKeys.exceptionRecordId, exceptionRecordId),
-				new StringEncodedField<>(BaseHttpRequestRecordKey.FieldKeys.id, id));
+				new StringField(HttpRequestRecord.FieldKeys.exceptionRecordId, exceptionRecordId),
+				new StringEncodedField<>(HttpRequestRecordKey.FieldKeys.id, id));
 
 	}
 

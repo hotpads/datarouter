@@ -31,7 +31,6 @@ public class SpannerColumn{
 
 	public String generateColumnDef(boolean specifyLength){
 		var sb = new StringBuilder();
-		sb.append(" ");
 		sb.append(name);
 		sb.append(" ");
 		String columnDef = type.getSpannerType().getCode().name();

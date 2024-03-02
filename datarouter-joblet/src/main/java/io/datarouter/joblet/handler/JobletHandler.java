@@ -111,7 +111,9 @@ public class JobletHandler extends BaseHandler{
 		var table = new J2HtmlTable<JobletSummary>()
 				.withClasses("sortable table table-sm table-striped table-bordered table-hover")
 				.withHtmlColumn("Type", row -> {
-					String metricNamePrefix = JobletCounters.makeQueueLengthJobletsCreatedPrefix(row.getType());
+					String metricNamePrefix = JobletCounters.makeQueueLengthJobletsStatusPrefix(
+							row.getType(),
+							row.getStatus());
 					String text = row.getType();
 					return externalLinkBuilder.get().counters(metricNamePrefix)
 							.map(href -> td(a(text).withHref(href)))

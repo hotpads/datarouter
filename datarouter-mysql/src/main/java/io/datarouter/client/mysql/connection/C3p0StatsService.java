@@ -22,7 +22,6 @@ import java.util.Optional;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
-import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.util.JmxTool;
 import io.datarouter.util.string.StringTool;
 import jakarta.inject.Singleton;
@@ -49,7 +48,7 @@ public class C3p0StatsService{
 					return Optional.of(new C3p0StatsDto(clientName.get(), total, busy));
 				})
 				.flatMap(Optional::stream)
-				.collect(WarnOnModifyList.deprecatedCollector());
+				.toList();
 	}
 
 	protected static Optional<String> extractClientName(String jdbcUrl){

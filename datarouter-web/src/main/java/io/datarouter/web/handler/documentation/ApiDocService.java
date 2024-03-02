@@ -337,7 +337,7 @@ public class ApiDocService{
 		}
 		String apiKeyFieldName = null;
 		if(rule.hasApiKey()){
-			apiKeyFieldName = rule.getApiKeyPredicates().get(0).getApiKeyFieldName();
+			apiKeyFieldName = rule.getApiKeyPredicates().getFirst().getApiKeyFieldName();
 			applicableSecurityParameterNames.add(apiKeyFieldName);
 		}
 		if(rule.hasCsrfToken()){

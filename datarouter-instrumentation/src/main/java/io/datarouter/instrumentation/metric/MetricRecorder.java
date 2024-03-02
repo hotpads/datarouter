@@ -15,8 +15,6 @@
  */
 package io.datarouter.instrumentation.metric;
 
-import io.datarouter.instrumentation.count.Counters;
-import io.datarouter.instrumentation.gauge.Gauges;
 import io.datarouter.instrumentation.metric.collector.MetricTemplateDto;
 import io.datarouter.instrumentation.metric.collector.MetricTemplates;
 
@@ -38,7 +36,7 @@ public abstract class MetricRecorder{
 	}
 
 	public final void count(long delta, String description){
-		Counters.inc(toMetricName(), delta);
+		Metrics.count(toMetricName(), delta);
 		MetricTemplates.add(makePatternDto(description));
 	}
 
@@ -47,7 +45,7 @@ public abstract class MetricRecorder{
 	}
 
 	public final void gauge(long value, String description){
-		Gauges.save(toMetricName(), value);
+		Metrics.measure(toMetricName(), value);
 		MetricTemplates.add(makePatternDto(description));
 	}
 

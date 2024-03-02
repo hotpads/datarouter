@@ -16,17 +16,41 @@
 package io.datarouter.exception.storage.httprecord;
 
 import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.datarouter.exception.storage.exceptionrecord.ExceptionRecordKey;
 import io.datarouter.gson.GsonTool;
+import io.datarouter.httpclient.HttpHeaders;
 import io.datarouter.instrumentation.exception.HttpRequestRecordDto;
+import io.datarouter.instrumentation.trace.TraceIdTool;
 import io.datarouter.instrumentation.trace.W3TraceContext;
+import io.datarouter.model.databean.BaseDatabean;
+import io.datarouter.model.field.Field;
+import io.datarouter.model.field.codec.MilliTimeFieldCodec;
+import io.datarouter.model.field.imp.StringField;
+import io.datarouter.model.field.imp.StringFieldKey;
+import io.datarouter.model.field.imp.array.ByteArrayField;
+import io.datarouter.model.field.imp.array.ByteArrayFieldKey;
+import io.datarouter.model.field.imp.comparable.IntegerField;
+import io.datarouter.model.field.imp.comparable.IntegerFieldKey;
+import io.datarouter.model.field.imp.comparable.LongEncodedField;
+import io.datarouter.model.field.imp.comparable.LongEncodedFieldKey;
+import io.datarouter.model.field.imp.comparable.LongField;
+import io.datarouter.model.field.imp.comparable.LongFieldKey;
+import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
+import io.datarouter.model.util.CommonFieldSizes;
 import io.datarouter.types.MilliTime;
 import io.datarouter.types.Ulid;
+import io.datarouter.util.array.ArrayTool;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.monitoring.exception.ExceptionAndHttpRequestDto;
@@ -34,13 +58,165 @@ import io.datarouter.web.util.RequestAttributeTool;
 import io.datarouter.web.util.http.RecordedHttpHeaders;
 import io.datarouter.web.util.http.RequestTool;
 
-public class HttpRequestRecord extends BaseHttpRequestRecord<HttpRequestRecordKey,HttpRequestRecord>{
+public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey,HttpRequestRecord>{
+	private static final Logger logger = LoggerFactory.getLogger(HttpRequestRecord.class);
 
+	private MilliTime createdAt;
+	private MilliTime receivedAt;
+	private Long duration;
+
+	private String exceptionRecordId;
+	private String traceId;
+	private String parentId;
+
+	private String httpMethod;
+	private String httpParams;
+
+	private String protocol;
+	private String hostname;
+	private int port;
+	private String contextPath;
+	private String path;
+	private String queryString;
+	private byte[] binaryBody;
+
+	private String ip;
+	private String userRoles;
+	private String userToken;
+
+	private String acceptCharset;
+	private String acceptEncoding;
+	private String acceptLanguage;
+	private String accept;
+	private String cacheControl;
+	private String connection;
+	private String contentEncoding;
+	private String contentLanguage;
+	private String contentLength;
+	private String contentType;
+	private String cookie;
+	private String dnt;
+	private String host;
+	private String ifModifiedSince;
+	private String origin;
+	private String pragma;
+	private String referer;
+	private String userAgent;
+	private String xForwardedFor;
+	private String xRequestedWith;
+	private String otherHeaders;
+
+	public static class FieldKeys{
+		public static final LongEncodedFieldKey<MilliTime> createdAt = new LongEncodedFieldKey<>(
+				"createdAt",
+				new MilliTimeFieldCodec());
+		public static final LongEncodedFieldKey<MilliTime> receivedAt = new LongEncodedFieldKey<>(
+				"receivedAt",
+				new MilliTimeFieldCodec());
+		public static final LongFieldKey duration = new LongFieldKey("duration");
+		public static final StringFieldKey exceptionRecordId = new StringFieldKey("exceptionRecordId");
+		public static final StringFieldKey traceId = new StringFieldKey("traceId")
+				.withSize(TraceIdTool.TRACE_ID_HEX_LENGTH);
+		public static final StringFieldKey parentId = new StringFieldKey("parentId")
+				.withSize(TraceIdTool.PARENT_ID_HEX_LENGTH);
+		public static final StringFieldKey httpMethod = new StringFieldKey("httpMethod").withSize(16);
+		public static final StringFieldKey httpParams = new StringFieldKey("httpParams")
+				.withSize(CommonFieldSizes.MAX_CHARACTERS_SPANNER);
+		public static final StringFieldKey protocol = new StringFieldKey("protocol").withSize(5);
+		public static final StringFieldKey hostname = new StringFieldKey("hostname");
+		public static final IntegerFieldKey port = new IntegerFieldKey("port");
+		public static final StringFieldKey contextPath = new StringFieldKey("contextPath");
+		public static final StringFieldKey path = new StringFieldKey("path");
+		public static final StringFieldKey queryString = new StringFieldKey("queryString")
+				.withSize(CommonFieldSizes.INT_LENGTH_LONGTEXT);
+		public static final ByteArrayFieldKey binaryBody = new ByteArrayFieldKey("binaryBody")
+				.withSize(CommonFieldSizes.MAX_LENGTH_LONGBLOB);
+		public static final StringFieldKey ip = new StringFieldKey("ip").withSize(39);
+		public static final StringFieldKey userRoles = new StringFieldKey("userRoles")
+				.withSize(CommonFieldSizes.INT_LENGTH_LONGTEXT);
+		public static final StringFieldKey userToken = new StringFieldKey("userToken");
+		public static final StringFieldKey acceptCharset = new StringFieldKey("acceptCharset");
+		public static final StringFieldKey acceptEncoding = new StringFieldKey("acceptEncoding");
+		public static final StringFieldKey acceptLanguage = new StringFieldKey("acceptLanguage")
+				.withSize(CommonFieldSizes.MAX_CHARACTERS_SPANNER);
+		public static final StringFieldKey accept = new StringFieldKey("accept");
+		public static final StringFieldKey cacheControl = new StringFieldKey("cacheControl");
+		public static final StringFieldKey connection = new StringFieldKey("connection");
+		public static final StringFieldKey contentEncoding = new StringFieldKey("contentEncoding");
+		public static final StringFieldKey contentLanguage = new StringFieldKey("contentLanguage");
+		public static final StringFieldKey contentLength = new StringFieldKey("contentLength");
+		public static final StringFieldKey contentType = new StringFieldKey("contentType");
+		public static final StringFieldKey cookie = new StringFieldKey("cookie")
+				.withSize(CommonFieldSizes.INT_LENGTH_LONGTEXT);
+		public static final StringFieldKey dnt = new StringFieldKey("dnt");
+		public static final StringFieldKey host = new StringFieldKey("host");
+		public static final StringFieldKey ifModifiedSince = new StringFieldKey("ifModifiedSince");
+		public static final StringFieldKey origin = new StringFieldKey("origin");
+		public static final StringFieldKey pragma = new StringFieldKey("pragma");
+		public static final StringFieldKey referer = new StringFieldKey("referer")
+				.withSize(CommonFieldSizes.INT_LENGTH_LONGTEXT);
+		public static final StringFieldKey userAgent = new StringFieldKey("userAgent")
+				.withSize(CommonFieldSizes.INT_LENGTH_LONGTEXT);
+		public static final StringFieldKey xForwardedFor = new StringFieldKey("xForwardedFor");
+		public static final StringFieldKey xRequestedWith = new StringFieldKey("xRequestedWith");
+		public static final StringFieldKey otherHeaders = new StringFieldKey("otherHeaders")
+				.withSize(CommonFieldSizes.INT_LENGTH_LONGTEXT);
+	}
 	public static class HttpRequestRecordFielder
-	extends BaseHttpRequestRecordFielder<HttpRequestRecordKey,HttpRequestRecord>{
+	extends BaseDatabeanFielder<HttpRequestRecordKey,HttpRequestRecord>{
 
 		public HttpRequestRecordFielder(){
 			super(HttpRequestRecordKey::new);
+		}
+
+		@Override
+		public List<Field<?>> getNonKeyFields(HttpRequestRecord record){
+			return List.of(
+					new LongEncodedField<>(FieldKeys.createdAt, record.getCreatedAt()),
+					new LongEncodedField<>(FieldKeys.receivedAt, record.getReceivedAt()),
+					new LongField(FieldKeys.duration, record.getDuration()),
+
+					new StringField(FieldKeys.exceptionRecordId, record.getExceptionRecordId()),
+					new StringField(FieldKeys.traceId, record.getTraceId()),
+					new StringField(FieldKeys.parentId, record.getParentId()),
+
+					new StringField(FieldKeys.httpMethod, record.getHttpMethod()),
+					new StringField(FieldKeys.httpParams, record.getHttpParams()),
+
+					new StringField(FieldKeys.protocol, record.getProtocol()),
+					new StringField(FieldKeys.hostname, record.getHostname()),
+					new IntegerField(FieldKeys.port, record.getPort()),
+					new StringField(FieldKeys.contextPath, record.getContextPath()),
+					new StringField(FieldKeys.path, record.getPath()),
+					new StringField(FieldKeys.queryString, record.getQueryString()),
+					new ByteArrayField(FieldKeys.binaryBody, record.getBinaryBody()),
+
+					new StringField(FieldKeys.ip, record.getIp()),
+					new StringField(FieldKeys.userRoles, record.getUserRoles()),
+					new StringField(FieldKeys.userToken, record.getUserToken()),
+
+					new StringField(FieldKeys.acceptCharset, record.getAcceptCharset()),
+					new StringField(FieldKeys.acceptEncoding, record.getAcceptEncoding()),
+					new StringField(FieldKeys.acceptLanguage, record.getAcceptLanguage()),
+					new StringField(FieldKeys.accept, record.getAccept()),
+					new StringField(FieldKeys.cacheControl, record.getCacheControl()),
+					new StringField(FieldKeys.connection, record.getConnection()),
+					new StringField(FieldKeys.contentEncoding, record.getContentEncoding()),
+					new StringField(FieldKeys.contentLanguage, record.getContentLanguage()),
+					new StringField(FieldKeys.contentLength, record.getContentLength()),
+					new StringField(FieldKeys.contentType, record.getContentType()),
+					new StringField(FieldKeys.cookie, record.getCookie()),
+					new StringField(FieldKeys.dnt, record.getDnt()),
+					new StringField(FieldKeys.host, record.getHost()),
+					new StringField(FieldKeys.ifModifiedSince, record.getIfModifiedSince()),
+					new StringField(FieldKeys.origin, record.getOrigin()),
+					new StringField(FieldKeys.pragma, record.getPragma()),
+					new StringField(FieldKeys.referer, record.getReferer()),
+					new StringField(FieldKeys.userAgent, record.getUserAgent()),
+					new StringField(FieldKeys.xForwardedFor, record.getxForwardedFor()),
+					new StringField(FieldKeys.xRequestedWith, record.getxRequestedWith()),
+
+					new StringField(FieldKeys.otherHeaders, record.getOtherHeaders()));
 		}
 
 	}
@@ -48,6 +224,7 @@ public class HttpRequestRecord extends BaseHttpRequestRecord<HttpRequestRecordKe
 	public HttpRequestRecord(){
 		super(new HttpRequestRecordKey());
 	}
+
 
 	@SuppressWarnings("deprecation")
 	public HttpRequestRecord(
@@ -103,7 +280,7 @@ public class HttpRequestRecord extends BaseHttpRequestRecord<HttpRequestRecordKe
 			String sessionRoles,
 			String userToken,
 			RecordedHttpHeaders headersWrapper){
-		super(new HttpRequestRecordKey(
+		this(new HttpRequestRecordKey(
 				new Ulid()),
 				MilliTime.of(receivedAt),
 				exceptionRecordId,
@@ -125,7 +302,7 @@ public class HttpRequestRecord extends BaseHttpRequestRecord<HttpRequestRecordKe
 	}
 
 	public HttpRequestRecord(ExceptionAndHttpRequestDto exceptionDto, String exceptionRecordId){
-		super(new HttpRequestRecordKey(new Ulid()), exceptionDto, exceptionRecordId);
+		this(new HttpRequestRecordKey(new Ulid()), exceptionDto, exceptionRecordId);
 	}
 
 	public HttpRequestRecordDto toDto(){
@@ -189,6 +366,419 @@ public class HttpRequestRecord extends BaseHttpRequestRecord<HttpRequestRecordKe
 
 	public ExceptionRecordKey getExceptionRecordKey(){
 		return new ExceptionRecordKey(getExceptionRecordId());
+	}
+
+	public HttpRequestRecord(
+			HttpRequestRecordKey key,
+			MilliTime receivedAt,
+			String exceptionRecordId,
+			String traceId,
+			String parentId,
+			String httpMethod,
+			String httpParams,
+			String protocol,
+			String hostname,
+			int port,
+			String contextPath,
+			String path,
+			String queryString,
+			byte[] binaryBody,
+			String ip,
+			String sessionRoles,
+			String userToken,
+			RecordedHttpHeaders headersWrapper){
+		super(key);
+		this.createdAt = MilliTime.now();
+		this.receivedAt = receivedAt;
+		if(receivedAt != null){
+			this.duration = createdAt.minus(receivedAt).toEpochMilli();
+		}
+
+		this.exceptionRecordId = exceptionRecordId;
+		this.traceId = traceId;
+		this.parentId = parentId;
+
+		this.httpMethod = httpMethod;
+		this.httpParams = httpParams;
+
+		this.protocol = protocol;
+		this.hostname = hostname;
+		this.port = port;
+		this.contextPath = contextPath;
+		this.path = path;
+		this.queryString = queryString;
+		this.binaryBody = binaryBody;
+
+		this.ip = ip;
+		this.userRoles = sessionRoles;
+		this.userToken = userToken;
+
+		this.acceptCharset = headersWrapper.getAcceptCharset();
+		this.acceptEncoding = headersWrapper.getAcceptEncoding();
+		this.acceptLanguage = headersWrapper.getAcceptLanguage();
+		this.accept = headersWrapper.getAccept();
+		this.cacheControl = headersWrapper.getCacheControl();
+		this.connection = headersWrapper.getConnection();
+		this.contentEncoding = headersWrapper.getContentEncoding();
+		this.contentLanguage = headersWrapper.getContentLanguage();
+		this.contentLength = headersWrapper.getContentLength();
+		this.contentType = headersWrapper.getContentType();
+		this.cookie = headersWrapper.getCookie();
+		this.dnt = headersWrapper.getDnt();
+		this.host = headersWrapper.getHost();
+		this.ifModifiedSince = headersWrapper.getIfModifiedSince();
+		this.origin = headersWrapper.getOrigin();
+		this.pragma = headersWrapper.getPragma();
+		this.referer = headersWrapper.getReferer();
+		this.userAgent = headersWrapper.getUserAgent();
+		this.xForwardedFor = headersWrapper.getXForwardedFor();
+		this.xRequestedWith = headersWrapper.getXRequestedWith();
+
+		this.otherHeaders = headersWrapper.getOthers();
+	}
+
+	public HttpRequestRecord(HttpRequestRecordKey key, HttpRequestRecordDto dto){
+		super(key);
+		this.createdAt = MilliTime.of(dto.created());
+		this.receivedAt = MilliTime.of(dto.receivedAt());
+		this.duration = dto.duration();
+		this.exceptionRecordId = dto.exceptionRecordId();
+		this.traceId = dto.traceId();
+		this.parentId = dto.parentId();
+		this.httpMethod = dto.httpMethod();
+		this.httpParams = dto.httpParams();
+		this.protocol = dto.protocol();
+		this.hostname = dto.hostname();
+		this.port = dto.port();
+		this.contextPath = dto.contextPath();
+		this.path = dto.path();
+		this.queryString = dto.queryString();
+		this.binaryBody = dto.binaryBody();
+		this.ip = dto.ip();
+		this.userRoles = dto.userRoles();
+		this.userToken = dto.userToken();
+		this.acceptCharset = dto.acceptCharset();
+		this.acceptEncoding = dto.acceptEncoding();
+		this.acceptLanguage = dto.acceptLanguage();
+		this.accept = dto.accept();
+		this.cacheControl = dto.cacheControl();
+		this.connection = dto.connection();
+		this.contentEncoding = dto.contentEncoding();
+		this.contentLanguage = dto.contentLanguage();
+		this.contentLength = dto.contentLength();
+		this.contentType = dto.contentType();
+		this.cookie = dto.cookie();
+		this.dnt = dto.dnt();
+		this.host = dto.host();
+		this.ifModifiedSince = dto.ifModifiedSince();
+		this.origin = dto.origin();
+		this.pragma = dto.pragma();
+		this.referer = dto.referer();
+		this.userAgent = dto.userAgent();
+		this.xForwardedFor = dto.xForwardedFor();
+		this.xRequestedWith = dto.xRequestedWith();
+		this.otherHeaders = dto.otherHeaders();
+	}
+
+	public HttpRequestRecord(HttpRequestRecordKey key, ExceptionAndHttpRequestDto dto, String exceptionRecordId){
+		super(key);
+		this.createdAt = MilliTime.ofEpochMilli(dto.dateMs);
+		if(dto.receivedAtMs != null){
+			this.receivedAt = MilliTime.ofEpochMilli(dto.receivedAtMs);
+			this.duration = dto.dateMs - dto.receivedAtMs;
+		}
+		this.exceptionRecordId = exceptionRecordId;
+		this.httpMethod = dto.httpMethod;
+		this.httpParams = GsonTool.withUnregisteredEnums().toJson(dto.httpParams);
+		this.protocol = dto.protocol;
+		this.hostname = dto.hostname;
+		this.port = dto.port;
+		this.path = dto.path;
+		this.queryString = dto.queryString;
+		this.binaryBody = dto.body == null ? null : dto.body.getBytes();
+		this.ip = dto.ip;
+		this.userRoles = dto.userRoles;
+		this.userToken = dto.userToken;
+
+		this.acceptCharset = dto.acceptCharset;
+		this.acceptEncoding = dto.acceptEncoding;
+		this.acceptLanguage = dto.acceptLanguage;
+		this.accept = dto.accept;
+		this.cacheControl = dto.cacheControl;
+		this.connection = dto.connection;
+		this.contentEncoding = dto.contentEncoding;
+		this.contentLanguage = dto.contentLanguage;
+		this.contentLength = dto.contentLength;
+		this.contentType = dto.contentType;
+		this.cookie = dto.cookie;
+		this.dnt = dto.dnt;
+		this.host = dto.host;
+		this.ifModifiedSince = dto.ifModifiedSince;
+		this.origin = dto.origin;
+		this.pragma = dto.pragma;
+		this.referer = dto.referer;
+		this.userAgent = dto.userAgent;
+		this.xForwardedFor = dto.forwardedFor;
+		this.xRequestedWith = dto.requestedWith;
+
+		this.otherHeaders = GsonTool.withUnregisteredEnums().toJson(dto.others);
+	}
+
+	public Map<String,String> getHeaders(){
+		Map<String,String> map = new LinkedHashMap<>();
+		map.put(HttpHeaders.ACCEPT_CHARSET, acceptCharset);
+		map.put(HttpHeaders.ACCEPT_ENCODING, acceptEncoding);
+		map.put(HttpHeaders.ACCEPT_LANGUAGE, acceptLanguage);
+		map.put(HttpHeaders.ACCEPT, accept);
+		map.put(HttpHeaders.CACHE_CONTROL, cacheControl);
+		map.put(HttpHeaders.CONNECTION, connection);
+		map.put(HttpHeaders.CONTENT_ENCODING, contentEncoding);
+		map.put(HttpHeaders.CONTENT_LANGUAGE, contentLanguage);
+		map.put(HttpHeaders.CONTENT_LENGTH, contentLength);
+		map.put(HttpHeaders.CONTENT_TYPE, contentType);
+		map.put(HttpHeaders.COOKIE, cookie);
+		map.put(HttpHeaders.DNT, dnt);
+		map.put(HttpHeaders.HOST, host);
+		map.put(HttpHeaders.IF_MODIFIED_SINCE, ifModifiedSince);
+		map.put(HttpHeaders.ORIGIN, origin);
+		map.put(HttpHeaders.PRAGMA, pragma);
+		map.put(HttpHeaders.REFERER, referer);
+		map.put(HttpHeaders.USER_AGENT, userAgent);
+		map.put(HttpHeaders.X_FORWARDED_FOR, xForwardedFor);
+		map.put(HttpHeaders.X_REQUESTED_WITH, xRequestedWith);
+		return map;
+	}
+
+	public MilliTime getCreatedAt(){
+		return createdAt;
+	}
+
+	public String getExceptionRecordId(){
+		return exceptionRecordId;
+	}
+
+	public String getTraceId(){
+		return traceId;
+	}
+
+	public String getParentId(){
+		return parentId;
+	}
+
+	public String getHttpMethod(){
+		return httpMethod;
+	}
+
+	public String getHttpParams(){
+		return httpParams;
+	}
+
+	public String getProtocol(){
+		return protocol;
+	}
+
+	public String getHostname(){
+		return hostname;
+	}
+
+	public int getPort(){
+		return port;
+	}
+
+	public String getContextPath(){
+		return contextPath;
+	}
+
+	public String getPath(){
+		return path;
+	}
+
+	public String getQueryString(){
+		return queryString;
+	}
+
+	public String getStringBody(){
+		if(binaryBody != null){
+			return new String(binaryBody);
+		}
+		return null;
+	}
+
+	public String getIp(){
+		return ip;
+	}
+
+	public String getUserRoles(){
+		return userRoles;
+	}
+
+	public String getShorterRoles(){
+		return userRoles.substring(1, userRoles.length() - 1);
+	}
+
+	public String getUserToken(){
+		return userToken;
+	}
+
+	public String getAcceptCharset(){
+		return acceptCharset;
+	}
+
+	public String getAcceptEncoding(){
+		return acceptEncoding;
+	}
+
+	public String getAcceptLanguage(){
+		return acceptLanguage;
+	}
+
+	public String getAccept(){
+		return accept;
+	}
+
+	public String getCacheControl(){
+		return cacheControl;
+	}
+
+	public String getConnection(){
+		return connection;
+	}
+
+	public String getContentEncoding(){
+		return contentEncoding;
+	}
+
+	public String getContentLanguage(){
+		return contentLanguage;
+	}
+
+	public String getContentLength(){
+		return contentLength;
+	}
+
+	public String getContentType(){
+		return contentType;
+	}
+
+	public String getCookie(){
+		return cookie;
+	}
+
+	public String getDnt(){
+		return dnt;
+	}
+
+	public String getHost(){
+		return host;
+	}
+
+	public String getIfModifiedSince(){
+		return ifModifiedSince;
+	}
+
+	public String getOrigin(){
+		return origin;
+	}
+
+	public String getPragma(){
+		return pragma;
+	}
+
+	public String getReferer(){
+		return referer;
+	}
+
+	public String getUserAgent(){
+		return userAgent;
+	}
+
+	public String getxForwardedFor(){
+		return xForwardedFor;
+	}
+
+	public String getxRequestedWith(){
+		return xRequestedWith;
+	}
+
+	public String getOtherHeaders(){
+		return otherHeaders;
+	}
+
+	public Long getDuration(){
+		return duration;
+	}
+
+	public MilliTime getReceivedAt(){
+		return receivedAt;
+	}
+
+	public byte[] getBinaryBody(){
+		return binaryBody;
+	}
+
+	/*------------ field trimming ----------*/
+
+	//TODO leverage the trimming done in HttpRequestRecordDto
+
+	public void trimFields(){
+		trimContentType();
+		trimAcceptCharset();
+		trimXForwardedFor();
+		trimPath();
+		trimAcceptLanguage();
+		trimOrigin();
+		trimPragma();
+		trimAccept();
+		trimHttpParams();
+	}
+
+	public void trimBinaryBody(int size){
+		int originalLength = binaryBody.length;
+		if(originalLength > size){
+			binaryBody = ArrayTool.trimToSize(binaryBody, size);
+			logger.warn("Trimmed binary body to {} from {} for sqs, exceptionRecordId={}", size, originalLength,
+					exceptionRecordId);
+		}
+	}
+
+	public void trimContentType(){
+		contentType = trimField(FieldKeys.contentType, contentType);
+	}
+
+	public void trimAcceptCharset(){
+		acceptCharset = trimField(FieldKeys.acceptCharset, acceptCharset);
+	}
+
+	public void trimXForwardedFor(){
+		xForwardedFor = trimField(FieldKeys.xForwardedFor, xForwardedFor);
+	}
+
+	public void trimPath(){
+		path = trimField(FieldKeys.path, path);
+	}
+
+	public void trimAcceptLanguage(){
+		acceptLanguage = trimField(FieldKeys.acceptLanguage, acceptLanguage);
+	}
+
+	public void trimOrigin(){
+		origin = trimField(FieldKeys.origin, origin);
+	}
+
+	public void trimPragma(){
+		pragma = trimField(FieldKeys.pragma, pragma);
+	}
+
+	public void trimAccept(){
+		accept = trimField(FieldKeys.accept, accept);
+	}
+
+	public void trimHttpParams(){
+		httpParams = trimField(FieldKeys.httpParams, httpParams);
+	}
+
+	private String trimField(StringFieldKey fieldKey, String field){
+		return FieldTrimTool.trimField(fieldKey, field, "exceptionRecordId=" + exceptionRecordId);
 	}
 
 }

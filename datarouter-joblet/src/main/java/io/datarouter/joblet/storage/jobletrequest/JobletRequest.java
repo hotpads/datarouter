@@ -39,7 +39,6 @@ import io.datarouter.model.field.imp.comparable.IntegerFieldKey;
 import io.datarouter.model.field.imp.comparable.LongField;
 import io.datarouter.model.field.imp.comparable.LongFieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
-import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.storage.queue.QueueMessageKey;
 import io.datarouter.util.DateTool;
 import io.datarouter.util.lang.ObjectTool;
@@ -121,8 +120,13 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 		super(new JobletRequestKey((String) null, null, null, null));
 	}
 
-	public JobletRequest(JobletType<?> type, JobletPriority priority, Instant createdDate, Integer batchSequence,
-			boolean restartable, Long dataSignature){
+	public JobletRequest(
+			JobletType<?> type,
+			JobletPriority priority,
+			Instant createdDate,
+			Integer batchSequence,
+			boolean restartable,
+			Long dataSignature){
 		super(JobletRequestKey.create(type, priority.getExecutionOrder(), createdDate, batchSequence));
 		this.restartable = restartable;
 		this.dataSignature = dataSignature;
@@ -133,8 +137,11 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 		return JobletRequestKey::new;
 	}
 
-	public static ArrayList<JobletRequest> filterByTypeStatusReservedByPrefix(Iterable<JobletRequest> ins,
-			JobletType<?> type, JobletStatus status, String reservedByPrefix){
+	public static ArrayList<JobletRequest> filterByTypeStatusReservedByPrefix(
+			Iterable<JobletRequest> ins,
+			JobletType<?> type,
+			JobletStatus status,
+			String reservedByPrefix){
 		ArrayList<JobletRequest> outs = new ArrayList<>();
 		for(JobletRequest in : ins){
 			if(ObjectTool.notEquals(type.getPersistentString(), in.getKey().getType())){
@@ -155,7 +162,7 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 	public static List<JobletDataKey> getJobletDataKeys(List<JobletRequest> jobletRequests){
 		return jobletRequests.stream()
 				.map(JobletRequest::getJobletDataKey)
-				.collect(WarnOnModifyList.deprecatedCollector());
+				.toList();
 	}
 
 	public JobletDataKey getJobletDataKey(){

@@ -114,7 +114,7 @@ public class DefaultDecoder implements JsonAwareHandlerDecoder{
 				}
 			}
 			if(parameter.isAnnotationPresent(RequestBody.class)){
-				args[i] = decodeType(body, parameterType);
+				args[i] = decodeType(parameterName, body, parameterType);
 			}else if(parameter.isAnnotationPresent(RequestBodyString.class)){
 				args[i] = body;
 			}else{
@@ -141,7 +141,7 @@ public class DefaultDecoder implements JsonAwareHandlerDecoder{
 					Class<?> componentClass = ((Class<?>)parameterType).getComponentType();
 					Object typedArray = Array.newInstance(componentClass, queryParam.length);
 					for(int index = 0; index < queryParam.length; index++){
-						Array.set(typedArray, index, decodeType(queryParam[index], componentClass));
+						Array.set(typedArray, index, decodeType(parameterName, queryParam[index], componentClass));
 					}
 					args[i] = typedArray;
 					continue;
@@ -158,12 +158,12 @@ public class DefaultDecoder implements JsonAwareHandlerDecoder{
 						if(parameterValue == null || parameterValue.isEmpty()){
 							args[i] = Optional.empty();
 						}else{
-							Object value = decodeType(parameterValue, innerType);
+							Object value = decodeType(parameterName, parameterValue, innerType);
 							args[i] = Optional.ofNullable(value);
 						}
 					}
 				}else{
-					args[i] = decodeType(parameterValue, parameterType);
+					args[i] = decodeType(parameterName, parameterValue, parameterType);
 				}
 			}
 		}
@@ -232,7 +232,7 @@ public class DefaultDecoder implements JsonAwareHandlerDecoder{
 			String[] queryParam = queryParams.get(parameterName);
 
 			if(field.isAnnotationPresent(RequestBody.class)){
-				Object requestBody = decodeType(body, field.getGenericType());
+				Object requestBody = decodeType(parameterName, body, field.getGenericType());
 				field.set(baseEndpoint, requestBody);
 				if(requestBody instanceof Collection<?> requestBodyCollection){
 					// Datarouter handler method batch <Handler.class.simpleName> <methodName>
@@ -268,7 +268,7 @@ public class DefaultDecoder implements JsonAwareHandlerDecoder{
 				Class<?> componentClass = ((Class<?>)parameterType).getComponentType();
 				Object typedArray = Array.newInstance(componentClass, queryParam.length);
 				for(int index = 0; index < queryParam.length; index++){
-					Array.set(typedArray, index, decodeType(queryParam[index], componentClass));
+					Array.set(typedArray, index, decodeType(parameterName, queryParam[index], componentClass));
 				}
 				field.set(baseEndpoint, typedArray);
 				continue;
@@ -285,11 +285,11 @@ public class DefaultDecoder implements JsonAwareHandlerDecoder{
 					field.set(baseEndpoint, Optional.empty());
 				}else{
 					Type type = EndpointTool.extractParameterizedType(field);
-					var optionalValue = decodeType(parameterValue, type);
+					var optionalValue = decodeType(parameterName, parameterValue, type);
 					field.set(baseEndpoint, Optional.of(optionalValue));
 				}
 			}else{
-				field.set(baseEndpoint, decodeType(parameterValue, parameterType));
+				field.set(baseEndpoint, decodeType(parameterName, parameterValue, parameterType));
 			}
 		}
 
@@ -363,7 +363,7 @@ public class DefaultDecoder implements JsonAwareHandlerDecoder{
 			}
 
 			if(field.isAnnotationPresent(RequestBody.class)){
-				Object requestBody = decodeType(body, field.getGenericType());
+				Object requestBody = decodeType(parameterName, body, field.getGenericType());
 				field.set(baseWebApi, requestBody);
 				if(requestBody instanceof Collection<?> requestBodyCollection){
 					// Datarouter handler method batch <Handler.class.simpleName> <methodName>
@@ -416,12 +416,13 @@ public class DefaultDecoder implements JsonAwareHandlerDecoder{
 					Class<?> componentClass = ((Class<?>)parameterType).getComponentType();
 					iterable = Array.newInstance(componentClass, queryParam.length);
 					for(int index = 0; index < queryParam.length; index++){
-						Array.set(iterable, index, decodeType(queryParam[index], componentClass));
+						Array.set(iterable, index, decodeType(parameterName, queryParam[index], componentClass));
 					}
 				}else if(isList){
 					List<Object> list = new ArrayList<>(queryParam.length);
 					for(String queryParamValue : queryParam){
 						list.add(decodeType(
+								parameterName,
 								queryParamValue,
 								((ParameterizedType)parameterType).getActualTypeArguments()[0]));
 					}
@@ -444,11 +445,11 @@ public class DefaultDecoder implements JsonAwareHandlerDecoder{
 					field.set(baseWebApi, Optional.empty());
 				}else{
 					Type type = EndpointTool.extractParameterizedType(field);
-					var optionalValue = decodeType(parameterValue, type);
+					var optionalValue = decodeType(parameterName, parameterValue, type);
 					field.set(baseWebApi, Optional.of(optionalValue));
 				}
 			}else{
-				field.set(baseWebApi, decodeType(parameterValue, parameterType));
+				field.set(baseWebApi, decodeType(parameterName, parameterValue, parameterType));
 			}
 		}
 
@@ -507,7 +508,7 @@ public class DefaultDecoder implements JsonAwareHandlerDecoder{
 			String[] queryParam = queryParams.get(parameterName);
 
 			if(field.isAnnotationPresent(RequestBody.class)){
-				Object requestBody = decodeType(body, field.getGenericType());
+				Object requestBody = decodeType(parameterName, body, field.getGenericType());
 				field.set(baseLink, requestBody);
 				if(requestBody instanceof Collection<?> requestBodyCollection){
 					// Datarouter handler method batch <Handler.class.simpleName> <methodName>
@@ -543,7 +544,7 @@ public class DefaultDecoder implements JsonAwareHandlerDecoder{
 				Class<?> componentClass = ((Class<?>)parameterType).getComponentType();
 				Object typedArray = Array.newInstance(componentClass, queryParam.length);
 				for(int index = 0; index < queryParam.length; index++){
-					Array.set(typedArray, index, decodeType(queryParam[index], componentClass));
+					Array.set(typedArray, index, decodeType(parameterName, queryParam[index], componentClass));
 				}
 				field.set(baseLink, typedArray);
 				continue;
@@ -560,11 +561,11 @@ public class DefaultDecoder implements JsonAwareHandlerDecoder{
 					field.set(baseLink, Optional.empty());
 				}else{
 					Type type = EndpointTool.extractParameterizedType(field);
-					var optionalValue = decodeType(parameterValue, type);
+					var optionalValue = decodeType(parameterName, parameterValue, type);
 					field.set(baseLink, Optional.of(optionalValue));
 				}
 			}else{
-				field.set(baseLink, decodeType(parameterValue, parameterType));
+				field.set(baseLink, decodeType(parameterName, parameterValue, parameterType));
 			}
 		}
 

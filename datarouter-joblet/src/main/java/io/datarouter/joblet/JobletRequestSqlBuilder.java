@@ -33,9 +33,11 @@ import jakarta.inject.Singleton;
 public class JobletRequestSqlBuilder{
 
 	private static final StringEncodedField<JobletStatus> STATUS_CREATED_FIELD = new StringEncodedField<>(
-			JobletRequest.FieldKeys.status, JobletStatus.CREATED);
+			JobletRequest.FieldKeys.status,
+			JobletStatus.CREATED);
 	private static final StringEncodedField<JobletStatus> STATUS_RUNNING_FIELD = new StringEncodedField<>(
-			JobletRequest.FieldKeys.status, JobletStatus.RUNNING);
+			JobletRequest.FieldKeys.status,
+			JobletStatus.RUNNING);
 	private static final BooleanField RESTARTABLE_FIELD = new BooleanField(JobletRequest.FieldKeys.restartable, true);
 
 	private final DatarouterJobletSettingRoot datarouterJobletSettingRoot;

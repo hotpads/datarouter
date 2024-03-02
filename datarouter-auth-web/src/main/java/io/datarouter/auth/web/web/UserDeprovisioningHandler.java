@@ -19,13 +19,13 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import io.datarouter.auth.config.DatarouterAuthPaths;
 import io.datarouter.auth.model.dto.DeprovisionedUserDto;
 import io.datarouter.auth.service.deprovisioning.UserDeprovisioningService;
 import io.datarouter.auth.session.Session;
 import io.datarouter.auth.storage.user.deprovisioneduser.DeprovisionedUser;
 import io.datarouter.auth.storage.user.deprovisioneduser.DeprovisionedUserDao;
 import io.datarouter.auth.web.config.DatarouterAuthFiles;
-import io.datarouter.auth.web.config.DatarouterAuthPaths;
 import io.datarouter.httpclient.endpoint.param.RequestBody;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.web.handler.BaseHandler;

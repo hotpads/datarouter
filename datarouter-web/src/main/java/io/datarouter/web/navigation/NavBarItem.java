@@ -24,7 +24,6 @@ import io.datarouter.plugin.PluginConfigKey;
 import io.datarouter.plugin.PluginConfigType;
 import io.datarouter.plugin.PluginConfigValue;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.web.dispatcher.DispatchRule;
 
 public class NavBarItem implements PluginConfigValue<NavBarItem>{
@@ -117,7 +116,7 @@ public class NavBarItem implements PluginConfigValue<NavBarItem>{
 					.stream()
 					.map(group -> new NavBarItemGroup(group.getKey(), group.getValue()))
 					.sorted(Comparator.comparing(NavBarItemGroup::getCategoryDisplay))
-					.collect(WarnOnModifyList.deprecatedCollector());
+					.toList();
 		}
 
 		private String getCategoryDisplay(){

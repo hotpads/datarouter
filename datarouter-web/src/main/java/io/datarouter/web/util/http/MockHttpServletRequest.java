@@ -57,9 +57,10 @@ public class MockHttpServletRequest implements HttpServletRequest{
 	private final String method;
 	private String pathInfo;
 	private String servletPath;
+	private String requestUri;
 
 	public MockHttpServletRequest(Map<String, String[]> parameterMap, Reader reader, Map<String, Set<String>> headers,
-			Map<String, Object> attributes, List<Cookie> cookies, String serverName, String method){
+			Map<String, Object> attributes, List<Cookie> cookies, String serverName, String method, String requestUri){
 		this.parameterMap = parameterMap;
 		this.reader = reader;
 		this.headers = headers;
@@ -67,6 +68,7 @@ public class MockHttpServletRequest implements HttpServletRequest{
 		this.cookies = cookies.toArray(new Cookie[0]);
 		this.serverName = serverName;
 		this.method = method;
+		this.requestUri = requestUri;
 	}
 
 	@Override
@@ -358,6 +360,9 @@ public class MockHttpServletRequest implements HttpServletRequest{
 
 	@Override
 	public String getRequestURI(){
+		if(requestUri != null){
+			return requestUri;
+		}
 		throw new UnsupportedOperationException();
 	}
 

@@ -97,7 +97,8 @@ public abstract class BaseDatarouterServletContextListener implements ServletCon
 				.splitBy(DatarouterAppListener::safeToExecuteInParallel)
 				.map(scanner -> scanner.collect(ArrayList::new))
 				.map(listeners -> new ExecutionModeAndListeners(
-						listeners.get(0).safeToExecuteInParallel() ? ExecutionMode.PARALLEL : ExecutionMode.SYNCHRONOUS,
+						listeners.getFirst().safeToExecuteInParallel()
+								? ExecutionMode.PARALLEL : ExecutionMode.SYNCHRONOUS,
 						listeners))
 				.forEach(listenersByExecutionMode::add);
 	}

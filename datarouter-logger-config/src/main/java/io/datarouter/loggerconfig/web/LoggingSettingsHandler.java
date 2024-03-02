@@ -42,6 +42,7 @@ import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.email.email.DatarouterHtmlEmailService;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDtoBuilder;
 import io.datarouter.loggerconfig.LoggerLinkBuilder;
@@ -61,7 +62,6 @@ import io.datarouter.types.MilliTime;
 import io.datarouter.util.Require;
 import io.datarouter.util.duration.DatarouterDuration;
 import io.datarouter.util.string.StringTool;
-import io.datarouter.web.email.DatarouterHtmlEmailService;
 import io.datarouter.web.email.StandardDatarouterEmailHeaderService;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
@@ -250,7 +250,7 @@ public class LoggingSettingsHandler extends BaseHandler{
 
 	@Handler
 	private Mav editConsoleAppender(){
-		String action = params.optional("action").orElse(null);
+		String action = params.optional("action").orElse("edit");
 		String name = params.optional("name").orElse(null);
 		if("Create".equals(action)){
 			String pattern = params.required("layout");
@@ -276,7 +276,7 @@ public class LoggingSettingsHandler extends BaseHandler{
 
 	@Handler
 	private Mav editFileAppender(){
-		String action = params.optional("action").orElse(null);
+		String action = params.optional("action").orElse("edit");
 		String name = params.optional("name").orElse(null);
 		if("Create".equals(action)){
 			String pattern = params.required("layout");
@@ -365,6 +365,7 @@ public class LoggingSettingsHandler extends BaseHandler{
 		private String lastUpdated;
 		private final boolean canDelete;
 		private final String ttl;
+		private final String expiresAt;
 
 		LoggerConfigMetadata(
 				LoggerConfig config,
@@ -385,6 +386,9 @@ public class LoggingSettingsHandler extends BaseHandler{
 			}
 			this.canDelete = canDelete;
 			this.ttl = ttl == null ? null : ttl.toString();
+			this.expiresAt = ttl == null || lastUpdated == null
+					? null
+					: lastUpdated.plus(ttl.toJavaDuration()).format(DATE_FORMAT, zoneId);
 		}
 
 		public String getName(){
@@ -421,6 +425,10 @@ public class LoggingSettingsHandler extends BaseHandler{
 
 		public String getTtl(){
 			return ttl;
+		}
+
+		public String getExpiresAt(){
+			return expiresAt;
 		}
 
 	}

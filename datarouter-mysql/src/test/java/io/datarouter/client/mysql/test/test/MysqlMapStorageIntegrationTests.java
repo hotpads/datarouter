@@ -15,6 +15,8 @@
  */
 package io.datarouter.client.mysql.test.test;
 
+import java.util.Optional;
+
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Guice;
 
@@ -27,7 +29,7 @@ public class MysqlMapStorageIntegrationTests extends BaseMapStorageIntegrationTe
 
 	@BeforeClass
 	public void beforeClass(){
-		setup(DatarouterMysqlTestClientids.MYSQL);
+		setup(DatarouterMysqlTestClientids.MYSQL, Optional.empty());
 	}
 
 }

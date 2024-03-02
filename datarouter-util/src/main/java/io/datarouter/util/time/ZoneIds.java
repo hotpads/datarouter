@@ -28,10 +28,14 @@ public class ZoneIds{
 	public static final ZoneId AMERICA_NEW_YORK = ZoneId.of("America/New_York");
 	public static final ZoneId AMERICA_PHOENIX = ZoneId.of("America/Phoenix");
 	public static final ZoneId ASIA_KOLKATA = ZoneId.of("Asia/Kolkata");
+	public static final ZoneId ASIA_TEHRAN = ZoneId.of("Asia/Tehran");
 
 	public static final ZoneId EUROPE_PARIS = ZoneId.of("Europe/Paris");
 
 	public static final ZoneId PACIFIC_HONOLULU = ZoneId.of("Pacific/Honolulu");
+
+	public static final ZoneId US_HAWAII = ZoneId.of("US/Hawaii");
+	public static final ZoneId US_EASTERN = ZoneId.of("US/Eastern");
 
 	public static final ZoneId UTC = ZoneId.of("UTC");
 
@@ -43,9 +47,12 @@ public class ZoneIds{
 			AMERICA_NEW_YORK,
 			AMERICA_PHOENIX,
 			ASIA_KOLKATA,
+			ASIA_TEHRAN,
 			EUROPE_PARIS,
 			PACIFIC_HONOLULU,
-			UTC);
+			UTC,
+			US_EASTERN,
+			US_HAWAII);
 
 	public static final ZoneOffset EDT_OFFSET = ZoneOffset.ofHours(-4);
 

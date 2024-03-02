@@ -35,7 +35,6 @@ import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.storage.client.ClientAndTableNames;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
@@ -115,7 +114,7 @@ public class DatarouterNodes{
 		return topLevelNodes.stream()
 				.map(node -> node.getPhysicalNodesForClient(clientName))
 				.flatMap(List::stream)
-				.collect(WarnOnModifyList.deprecatedCollector());
+				.collect(Collectors.toUnmodifiableList());
 	}
 
 	public List<String> getTableNamesForClient(String clientName){
@@ -123,7 +122,7 @@ public class DatarouterNodes{
 				.map(PhysicalNode::getFieldInfo)
 				.map(PhysicalDatabeanFieldInfo::getTableName)
 				.distinct()
-				.collect(WarnOnModifyList.deprecatedCollector());
+				.toList();
 	}
 
 	public Optional<PhysicalNode<?,?,?>> findPhysicalNode(ClientAndTableNames clientAndTableNames){

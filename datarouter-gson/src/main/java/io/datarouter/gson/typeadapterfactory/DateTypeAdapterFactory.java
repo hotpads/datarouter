@@ -34,7 +34,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 
-import io.datarouter.instrumentation.count.Counters;
+import io.datarouter.instrumentation.metric.Metrics;
 
 public class DateTypeAdapterFactory implements TypeAdapterFactory{
 
@@ -120,7 +120,7 @@ public class DateTypeAdapterFactory implements TypeAdapterFactory{
 		}
 
 		private static void inc(String key){
-			Counters.inc("CompatibleDateTypeAdapter " + key);
+			Metrics.count("CompatibleDateTypeAdapter " + key);
 		}
 
 		private record Formatter(

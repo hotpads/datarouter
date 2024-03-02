@@ -27,6 +27,7 @@ import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.auth.config.DatarouterAuthPaths;
 import io.datarouter.auth.service.CurrentUserSessionInfoService;
 import io.datarouter.auth.session.Session;
 import io.datarouter.auth.storage.account.BaseDatarouterAccountDao;
@@ -37,7 +38,6 @@ import io.datarouter.auth.storage.account.permission.BaseDatarouterAccountPermis
 import io.datarouter.auth.storage.account.permission.DatarouterAccountPermission;
 import io.datarouter.auth.storage.account.permission.DatarouterAccountPermissionKey;
 import io.datarouter.auth.web.config.DatarouterAuthFiles;
-import io.datarouter.auth.web.config.DatarouterAuthPaths;
 import io.datarouter.auth.web.config.metrics.DatarouterAccountMetrics;
 import io.datarouter.auth.web.service.AccountCallerTypeRegistry2;
 import io.datarouter.auth.web.service.DatarouterAccountAvailableEndpointsProvider;
@@ -53,7 +53,6 @@ import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDtoBuilder;
 import io.datarouter.instrumentation.metric.MetricLinkBuilder;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.secretweb.service.WebSecretOpReason;
 import io.datarouter.storage.config.properties.DatarouterServerTypeSupplier;
 import io.datarouter.storage.servertype.ServerType;
@@ -191,7 +190,7 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 		account.setCallerType(callerType);
 		datarouterAccountDao.put(account);
 		logAndRecordAction(accountName, "add");
-		return getDetailsForAccounts(List.of(account)).get(0);
+		return getDetailsForAccounts(List.of(account)).getFirst();
 	}
 
 	@Handler
@@ -200,7 +199,7 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 				.map(ReflectionTool::create)
 				.map(CallerType::getName)
 				.sorted()
-				.collect(WarnOnModifyList.deprecatedCollector());
+				.toList();
 	}
 
 	@Handler
@@ -366,7 +365,7 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 
 	public DatarouterAccountDetailsDto getDetailsForAccountName(String accountName){
 		DatarouterAccount account = datarouterAccountDao.get(new DatarouterAccountKey(accountName));
-		return getDetailsForAccounts(List.of(account)).get(0);
+		return getDetailsForAccounts(List.of(account)).getFirst();
 	}
 
 	private void logAndRecordAction(String account, String action){

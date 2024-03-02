@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.key.unique.UniqueKey;
-import io.datarouter.scanner.WarnOnModifyList;
 
 public class MysqlUniqueIndexTool{
 	private static final Logger logger = LoggerFactory.getLogger(MysqlUniqueIndexTool.class);
@@ -41,11 +40,11 @@ public class MysqlUniqueIndexTool{
 		UniqueKey<PK> first = keys.iterator().next();
 		List<?> dataFieldKeys = first.getFields().stream()
 				.map(Field::getKey)
-				.collect(WarnOnModifyList.deprecatedCollector());
+				.toList();
 		for(Entry<String,List<Field<?>>> uniqueIndex : uniqueIndexes.entrySet()){
 			List<?> defFieldKeys = uniqueIndex.getValue().stream()
 					.map(Field::getKey)
-					.collect(WarnOnModifyList.deprecatedCollector());
+					.toList();
 			if(defFieldKeys.equals(dataFieldKeys)){
 				return uniqueIndex.getKey();
 			}

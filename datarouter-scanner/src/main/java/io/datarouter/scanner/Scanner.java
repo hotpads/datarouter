@@ -313,7 +313,7 @@ public interface Scanner<T> extends Closeable{
 	default <R> Scanner<R> collate(Function<? super T,Scanner<R>> toScannerFn, Comparator<? super R> comparator){
 		List<Scanner<R>> scanners = map(toScannerFn).list();
 		if(scanners.size() == 1){
-			return scanners.get(0);
+			return scanners.getFirst();
 		}
 		return new CollatingScanner<>(scanners, comparator);
 	}
@@ -325,21 +325,9 @@ public interface Scanner<T> extends Closeable{
 	default <R> Scanner<R> collateV2(Function<? super T,Scanner<R>> toScannerFn, Comparator<? super R> comparator){
 		List<Scanner<R>> scanners = map(toScannerFn).list();
 		if(scanners.size() == 1){
-			return scanners.get(0);
+			return scanners.getFirst();
 		}
 		return new CollatingScannerV2<>(scanners, comparator);
-	}
-
-	/*--------------------------- Merge ----------------------------*/
-
-	/**
-	 * Convert input items to Scanners.
-	 * Take the first available item from any of the input Scanners.
-	 * Pulls from the first N Scanners at a time, avoiding initializing potentially many of them.
-	 */
-	default <R> Scanner<R> merge(Threads threads, Function<? super T,Scanner<R>> toScannerFn){
-		Scanner<Scanner<R>> scanners = map(toScannerFn);
-		return new MergingScanner<>(threads, scanners);
 	}
 
 	/*--------------------------- Chain ----------------------------*/
@@ -381,6 +369,16 @@ public interface Scanner<T> extends Closeable{
 
 	default ParallelScanner<T> parallelUnordered(Threads threads){
 		return new ParallelScanner<>(this, threads, true);
+	}
+
+	/**
+	 * Convert input items to Scanners.
+	 * Take the first available item from any of the input Scanners.
+	 * Pulls from the first N Scanners at a time, avoiding initializing potentially many of them.
+	 */
+	default <R> Scanner<R> merge(Threads threads, Function<? super T,Scanner<R>> toScannerFn){
+		Scanner<Scanner<R>> scanners = map(toScannerFn);
+		return new MergingScanner<>(threads, scanners);
 	}
 
 	@SuppressWarnings("resource")

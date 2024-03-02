@@ -24,6 +24,7 @@ import io.datarouter.bytes.HexBlockTool;
 
 public class BinaryDtoStringArrayTests{
 
+	@SuppressWarnings("unused")
 	private static class TestDto extends BinaryDto<TestDto>{
 		public final String[] f1;
 		public final String[] f2;
@@ -49,6 +50,7 @@ public class BinaryDtoStringArrayTests{
 		Assert.assertEquals(BinaryDtoIndexedCodec.of(TestDto.class).decode(bytes), dto);
 	}
 
+	@SuppressWarnings("unused")
 	private static class Test2Dto extends BinaryDto<Test2Dto>{
 		public final String[] f1;
 

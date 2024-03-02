@@ -30,6 +30,7 @@ import io.datarouter.model.field.encoding.FieldGeneratorType;
 public class LongMysqlFieldCodec
 extends BasePrimitiveMysqlFieldCodec<Long,Field<Long>>{
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public SqlColumn getSqlColumnDefinition(boolean allowNullable, Field<Long> field){
 		return new SqlColumn(

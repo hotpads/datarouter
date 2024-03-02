@@ -54,7 +54,7 @@ public abstract class PagingScanner<K,T> extends BaseScanner<List<T>>{
 
 	private static <T> T getLast(List<T> list){
 		if(notEmpty(list)){
-			return list.get(list.size() - 1);
+			return list.getLast();
 		}
 		return null;
 	}

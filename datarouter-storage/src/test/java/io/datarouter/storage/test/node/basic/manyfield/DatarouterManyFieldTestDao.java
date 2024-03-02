@@ -15,6 +15,7 @@
  */
 package io.datarouter.storage.test.node.basic.manyfield;
 
+import java.util.Optional;
 import java.util.Random;
 import java.util.function.Supplier;
 
@@ -37,11 +38,12 @@ public class DatarouterManyFieldTestDao extends BaseDao implements TestDao{
 
 	@Inject
 	public DatarouterManyFieldTestDao(Datarouter datarouter, NodeFactory nodeFactory, ClientId clientId,
-			Supplier<ManyFieldTypeBeanFielder> fielderSupplier){
+			Supplier<ManyFieldTypeBeanFielder> fielderSupplier, Optional<String> tableName){
 		super(datarouter);
 
 		node = nodeFactory.create(clientId, ManyFieldBean::new, fielderSupplier)
 				.withSchemaVersion(Integer.toString(new Random().nextInt()))
+				.withTableName(tableName)
 				.buildAndRegister();
 	}
 

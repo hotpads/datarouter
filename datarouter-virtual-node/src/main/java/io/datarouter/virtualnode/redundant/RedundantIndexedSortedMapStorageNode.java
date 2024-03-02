@@ -38,7 +38,7 @@ implements IndexedSortedMapStorageNode<PK,D,F>,
 		RedundantIndexedStorageMixin<PK,D,F,N>{
 
 	private RedundantIndexedSortedMapStorageNode(List<N> nodes){
-		super(nodes, nodes.get(0));
+		super(nodes, nodes.getFirst());
 	}
 
 	public static <
@@ -48,7 +48,7 @@ implements IndexedSortedMapStorageNode<PK,D,F>,
 			N extends IndexedSortedMapStorageNode<PK,D,F>>
 	IndexedSortedMapStorageNode<PK,D,F> makeIfMulti(List<N> nodes){
 		if(nodes.size() == 1){
-			return nodes.get(0);
+			return nodes.getFirst();
 		}
 		return new RedundantIndexedSortedMapStorageNode<>(nodes);
 	}

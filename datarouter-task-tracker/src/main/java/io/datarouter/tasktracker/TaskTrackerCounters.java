@@ -15,7 +15,7 @@
  */
 package io.datarouter.tasktracker;
 
-import io.datarouter.instrumentation.count.Counters;
+import io.datarouter.instrumentation.metric.Metrics;
 import io.datarouter.storage.util.DatarouterCounters;
 import jakarta.inject.Singleton;
 
@@ -37,8 +37,8 @@ public class TaskTrackerCounters{
 	}
 
 	private void count(String jobName, String name, long delta){
-		Counters.inc(DatarouterCounters.PREFIX + " " + COUNTER_PREFIX + " " + name, delta);
-		Counters.inc(DatarouterCounters.PREFIX + " " + COUNTER_PREFIX + " " + jobName + " " + name, delta);
+		Metrics.count(DatarouterCounters.PREFIX + " " + COUNTER_PREFIX + " " + name, delta);
+		Metrics.count(DatarouterCounters.PREFIX + " " + COUNTER_PREFIX + " " + jobName + " " + name, delta);
 	}
 
 }

@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import io.datarouter.instrumentation.exception.ExceptionRecordDto;
 import io.datarouter.joblet.JobletCounters;
 import io.datarouter.joblet.JobletExceptionCategory;
+import io.datarouter.joblet.enums.JobletPriority;
 import io.datarouter.joblet.enums.JobletQueueMechanism;
 import io.datarouter.joblet.enums.JobletStatus;
 import io.datarouter.joblet.model.JobletPackage;
@@ -51,7 +52,6 @@ import io.datarouter.joblet.type.JobletType;
 import io.datarouter.joblet.type.JobletTypeFactory;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.config.PutMethod;
 import io.datarouter.storage.config.properties.ServerName;
@@ -104,7 +104,7 @@ public class JobletService{
 				.map(jobletTypeFactory::fromJobletPackage)
 				.list();
 		JobletType.assertAllSameShortQueueName(jobletTypes);
-		JobletType<?> jobletType = jobletTypes.iterator().next();
+		JobletType<?> jobletType = jobletTypes.getFirst();
 		for(List<JobletPackage> batch : Scanner.of(jobletPackages).batch(100).iterable()){
 			var timer = new PhaseTimer("insert " + batch.size() + " " + jobletType);
 			jobletDataDao.putMultiOrBust(JobletPackage.getJobletDatas(batch));
@@ -114,6 +114,9 @@ public class JobletService{
 			jobletRequestDao.putMultiOrBust(jobletRequests);
 			JobletCounters.incNumJobletsInserted(jobletRequests.size());
 			JobletCounters.incNumJobletsInserted(jobletType, jobletRequests.size());
+			Map<JobletPriority,List<JobletRequest>> requestsByPriority = Scanner.of(jobletRequests)
+					.groupBy(request -> request.getKey().getPriority());
+			requestsByPriority.forEach((key, val) -> JobletCounters.incNumJobletsInserted(jobletType, key, val.size()));
 			jobletRequests.stream()
 					.map(JobletRequest::getQueueId)
 					.forEach(queueId -> JobletCounters.incNumJobletsInserted(jobletType, queueId));
@@ -174,7 +177,7 @@ public class JobletService{
 					JobletData jobletData = dataKeyToJobletData.get(dataKey);
 					return new JobletPackage(jobletRequest, jobletData);
 				})
-				.collect(WarnOnModifyList.deprecatedCollector());
+				.toList();
 	}
 
 	/*------------ queue -------------------*/
@@ -222,8 +225,9 @@ public class JobletService{
 				.iterable(), jobletType, JobletStatus.RUNNING, serverNamePrefix);
 		logger.warn("found " + jobletRequestsToReset.size() + " jobletRequests to reset");
 		for(JobletRequest jobletRequest : jobletRequestsToReset){
-			handleJobletInterruption(new PhaseTimer("setJobletRequestsRunningOnServerToCreated " + jobletRequest
-					.toString()), jobletRequest);
+			handleJobletInterruption(
+					new PhaseTimer("setJobletRequestsRunningOnServerToCreated " + jobletRequest.toString()),
+					jobletRequest);
 		}
 	}
 
@@ -235,8 +239,9 @@ public class JobletService{
 					request.setStatus(JobletStatus.CREATED);
 					request.setNumFailures(0);
 					jobletRequestDao.put(request);
-					if(Objects.equals(jobletSettings.queueMechanism.get(), JobletQueueMechanism.QUEUE
-							.getPersistentString())){
+					if(Objects.equals(
+							jobletSettings.queueMechanism.get(),
+							JobletQueueMechanism.QUEUE.getPersistentString())){
 						JobletRequestQueueKey queueKey = jobletRequestQueueManager.getQueueKey(request);
 						jobletQueueDao.getQueue(queueKey).put(request);
 					}
@@ -288,7 +293,9 @@ public class JobletService{
 		if(jobletRequest.getRestartable()){
 			requeueJobletRequest(timer, jobletRequest);
 		}
-		logger.warn("interrupted {} set status={}, reservedBy=null, reservedAt=null", jobletRequest.getKey(),
+		logger.warn(
+				"interrupted {} set status={}, reservedBy=null, reservedAt=null",
+				jobletRequest.getKey(),
 				setStatusTo);
 	}
 
@@ -306,9 +313,17 @@ public class JobletService{
 		timer.add("update JobletRequest");
 		if(willRetry){
 			requeueJobletRequest(timer, jobletRequest);
+		}else{
+			if(jobletRequest.getQueueMessageKey() != null){
+				ack(jobletRequest);
+				timer.add("ack");
+			}
 		}
-		logger.warn("errored {} set status={}, reservedBy=null, reservedAt=null numFailure={}", jobletRequest.getKey(),
-				setStatusTo, jobletRequest.getNumFailures());
+		logger.warn(
+				"errored {} set status={}, reservedBy=null, reservedAt=null numFailure={}",
+				jobletRequest.getKey(),
+				setStatusTo,
+				jobletRequest.getNumFailures());
 	}
 
 	/*

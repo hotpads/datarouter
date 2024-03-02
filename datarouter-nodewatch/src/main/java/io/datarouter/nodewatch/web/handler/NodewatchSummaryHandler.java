@@ -176,7 +176,7 @@ public class NodewatchSummaryHandler extends BaseHandler{
 				clientSummary -> clientSummary.summary().rows());
 
 		ClientSummary(List<LatestTableCount> latestTableCounts){
-			this(latestTableCounts.get(0).getKey().getClientName(), new Summary(latestTableCounts));
+			this(latestTableCounts.getFirst().getKey().getClientName(), new Summary(latestTableCounts));
 
 		}
 	}

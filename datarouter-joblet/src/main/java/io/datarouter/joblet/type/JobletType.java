@@ -54,9 +54,10 @@ public class JobletType<P> implements Comparable<JobletType<?>>, PluginConfigVal
 			Tag tag,
 			Duration customMessageAgeThreshold){
 		this.persistentString = persistentString;
-		Require.isTrue(shortQueueName.length() <= DatarouterJobletConstants.MAX_LENGTH_SHORT_QUEUE_NAME,
-				"shortQueueName length must be <= " + DatarouterJobletConstants.MAX_LENGTH_SHORT_QUEUE_NAME
-				+ ": " + shortQueueName);
+		Require.isTrue(
+				shortQueueName.length() <= DatarouterJobletConstants.MAX_LENGTH_SHORT_QUEUE_NAME,
+				"shortQueueName length must be <= " + DatarouterJobletConstants.MAX_LENGTH_SHORT_QUEUE_NAME + ": "
+						+ shortQueueName);
 		this.shortQueueName = shortQueueName;
 		this.codecSupplier = codecSupplier;
 		this.clazz = clazz;

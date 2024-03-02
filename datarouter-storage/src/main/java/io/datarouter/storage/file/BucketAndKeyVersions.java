@@ -18,9 +18,7 @@ package io.datarouter.storage.file;
 import java.util.List;
 
 import io.datarouter.scanner.Scanner;
-import io.datarouter.storage.file.BucketAndKeyVersions.NestedRecords.KeyVersion;
 import io.datarouter.util.Require;
-import io.datarouter.util.todo.NestedRecordImportWorkaround;
 
 public record BucketAndKeyVersions(
 		String bucket,
@@ -36,7 +34,7 @@ public record BucketAndKeyVersions(
 		Require.isFalse(multipleBuckets, "All objects must be in the same bucket");
 		return Scanner.of(inputs)
 				.map(input -> new KeyVersion(input.key(), input.version()))
-				.listTo(keyVersions -> new BucketAndKeyVersions(inputs.get(0).bucket(), keyVersions));
+				.listTo(keyVersions -> new BucketAndKeyVersions(inputs.getFirst().bucket(), keyVersions));
 	}
 
 	public List<BucketAndKeyVersion> toIndividualKeyVersions(){
@@ -45,14 +43,9 @@ public record BucketAndKeyVersions(
 				.list();
 	}
 
-	@NestedRecordImportWorkaround
-	public static class NestedRecords{
-
-		public record KeyVersion(
-				String key,
-				String version){
-		}
-
+	public record KeyVersion(
+			String key,
+			String version){
 	}
 
 }

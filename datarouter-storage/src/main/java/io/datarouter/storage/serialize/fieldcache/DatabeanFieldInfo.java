@@ -30,7 +30,6 @@ import io.datarouter.model.field.encoding.FieldGeneratorType;
 import io.datarouter.model.key.primary.EntityPrimaryKey;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
-import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.util.string.StringTool;
@@ -132,7 +131,7 @@ public class DatabeanFieldInfo<
 		return fields.stream()
 				.map(Field::getKey)
 				.map(FieldKey::getColumnName)
-				.collect(WarnOnModifyList.deprecatedCollector());
+				.toList();
 	}
 
 	private void addNonKeyFieldsToCollections(){

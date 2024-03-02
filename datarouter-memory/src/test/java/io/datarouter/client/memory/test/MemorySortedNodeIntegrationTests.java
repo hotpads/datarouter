@@ -15,6 +15,8 @@
  */
 package io.datarouter.client.memory.test;
 
+import java.util.Optional;
+
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Guice;
@@ -26,7 +28,7 @@ public class MemorySortedNodeIntegrationTests extends BaseSortedNodeIntegrationT
 
 	@BeforeClass
 	public void beforeClass(){
-		setup(DatarouterMemoryTestClientIds.MEMORY);
+		setup(DatarouterMemoryTestClientIds.MEMORY, Optional.empty());
 	}
 
 	@Override

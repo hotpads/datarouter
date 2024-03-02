@@ -45,7 +45,7 @@ public class StringListToDelimitedStringFieldCodec extends FieldCodec<List<Strin
 	}
 
 	public static String encode(List<String> strings, String delimiter){
-		if(strings.size() == 1 && EMPTY_STRING.equals(strings.get(0))){
+		if(strings.size() == 1 && EMPTY_STRING.equals(strings.getFirst())){
 			throw new IllegalArgumentException("Encoding is ambiguous for a single empty string.");
 		}
 		strings.forEach(string -> {

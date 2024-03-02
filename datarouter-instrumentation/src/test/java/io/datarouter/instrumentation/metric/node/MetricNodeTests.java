@@ -18,8 +18,8 @@ package io.datarouter.instrumentation.metric.node;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.instrumentation.count.Counters;
-import io.datarouter.instrumentation.gauge.MetricCollector;
+import io.datarouter.instrumentation.metric.MetricCollector;
+import io.datarouter.instrumentation.metric.Metrics;
 import io.datarouter.instrumentation.metric.node.MetricNodeTests.MetricNodeExample.VariableOne;
 import io.datarouter.instrumentation.metric.node.MetricNodeTests.MetricNodeExample.VariableTwo;
 
@@ -47,13 +47,13 @@ public class MetricNodeTests{
 			public long count = 0;
 
 			@Override
-			public void save(String key, long value){
+			public void count(String key, long value){
 				count += value;
 			}
 
 		};
 
-		Counters.addCollector(testCountCollector);
+		Metrics.registerCollector(testCountCollector);
 		METRICS.literalOne.count();
 		Assert.assertEquals(testCountCollector.count, 1);
 		METRICS.literalOne.count(3);

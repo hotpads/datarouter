@@ -15,6 +15,8 @@
  */
 package io.datarouter.aws.memcached.test;
 
+import java.util.Optional;
+
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Guice;
 
@@ -25,7 +27,7 @@ public class AwsMemcachedMapStorageIntegrationTests extends BaseMapStorageIntegr
 
 	@BeforeClass
 	protected void beforeClass(){
-		setup(DatarouterAwsMemcachedTestClientIds.AWS_MEMCACHED);
+		setup(DatarouterAwsMemcachedTestClientIds.AWS_MEMCACHED, Optional.empty());
 	}
 
 }

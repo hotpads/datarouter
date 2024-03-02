@@ -15,7 +15,7 @@
  */
 package io.datarouter.conveyor;
 
-import io.datarouter.instrumentation.count.Counters;
+import io.datarouter.instrumentation.metric.Metrics;
 import io.datarouter.instrumentation.trace.TraceSaveReasonType;
 import io.datarouter.util.buffer.Buffer;
 
@@ -24,13 +24,13 @@ public class ConveyorCounters{
 	public static final String PREFIX = "Conveyor";
 
 	public static void inc(ConveyorRunnable conveyor, String action, long by){
-		Counters.inc(PREFIX + " " + action, by);
-		Counters.inc(PREFIX + " " + conveyor.getName() + " " + action, by);
+		Metrics.count(PREFIX + " " + action, by);
+		Metrics.count(PREFIX + " " + conveyor.getName() + " " + action, by);
 	}
 
 	public static void inc(Buffer buffer, String action, long by){
-		Counters.inc(PREFIX + " buffer " + action, by);
-		Counters.inc(PREFIX + " buffer " + buffer.getName() + " " + action, by);
+		Metrics.count(PREFIX + " buffer " + action, by);
+		Metrics.count(PREFIX + " buffer " + buffer.getName() + " " + action, by);
 	}
 
 	public static void incPutMultiOpAndDatabeans(ConveyorRunnable conveyor, long numDatabeans){

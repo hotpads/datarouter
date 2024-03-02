@@ -17,6 +17,7 @@ package io.datarouter.client.mysql.sql;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.util.Optional;
 
 import io.datarouter.client.mysql.ddl.domain.MysqlLiveTableOptions;
 import io.datarouter.client.mysql.field.MysqlFieldCodec;
@@ -89,12 +90,14 @@ public class MysqlSql extends Sql<Connection,PreparedStatement,MysqlSql>{
 
 	@Override
 	public MysqlSql addLimitOffsetClause(Config config){
-		if(config.getLimit() != null && config.getOffset() != null){
-			append(" limit " + config.getOffset() + ", " + config.getLimit());
-		}else if(config.getLimit() != null){
-			append(" limit " + config.getLimit());
-		}else if(config.getOffset() != null){
-			append(" limit " + config.getOffset() + ", " + Integer.MAX_VALUE);// stupid mysql syntax
+		Optional<Integer> limit = config.findLimit();
+		Optional<Integer> offset = config.findOffset();
+		if(limit.isPresent() && offset.isPresent()){
+			append(" limit " + offset.get() + ", " + limit.get());
+		}else if(limit.isPresent()){
+			append(" limit " + limit.get());
+		}else if(offset.isPresent()){
+			append(" limit " + offset.get() + ", " + Integer.MAX_VALUE);// stupid mysql syntax
 		}
 		return this;
 	}

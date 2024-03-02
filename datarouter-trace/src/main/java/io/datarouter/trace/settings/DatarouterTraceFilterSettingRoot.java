@@ -15,9 +15,6 @@
  */
 package io.datarouter.trace.settings;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import io.datarouter.storage.setting.DatarouterSettingCategory;
 import io.datarouter.storage.setting.DatarouterSettingTagType;
 import io.datarouter.storage.setting.Setting;
@@ -37,7 +34,6 @@ public class DatarouterTraceFilterSettingRoot extends SettingRoot{
 	public final CachedSetting<Integer> saveTracesCpuOverMs;
 	public final Setting<Boolean> addTraceparentHeader;
 	public final CachedSetting<String> traceDomain;
-	public final Setting<Set<String>> latencyRecordedHandlers;
 	public final Setting<Boolean> recordAllLatency;
 	public final CachedSetting<Boolean> saveTraceCpuTime;
 	public final CachedSetting<Boolean> saveTraceAllocatedBytes;
@@ -62,7 +58,6 @@ public class DatarouterTraceFilterSettingRoot extends SettingRoot{
 		saveTracesCpuOverMs = registerIntegers("saveTracesCpuOverMs", defaultTo(500));
 		addTraceparentHeader = registerBoolean("addTraceparentHeader", true);
 		traceDomain = registerString("traceDomain", "localhost:8443");
-		latencyRecordedHandlers = registerCommaSeparatedStrings("latencyRecordedHandlers", defaultTo(new HashSet<>()));
 		saveTraceCpuTime = registerBoolean("saveTraceCpuTime", true);
 		recordAllLatency = registerBoolean("recordAllLatency", true);
 		saveTraceAllocatedBytes = registerBoolean("saveTraceAllocatedBytes", true);

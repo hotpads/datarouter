@@ -25,11 +25,11 @@ import java.util.Optional;
 
 import io.datarouter.joblet.JobletPageFactory;
 import io.datarouter.joblet.enums.JobletStatus;
-import io.datarouter.joblet.nav.JobletExternalLinkBuilder.JobletExternalLinkBuilderSupplier;
 import io.datarouter.joblet.storage.jobletrequest.DatarouterJobletRequestDao;
 import io.datarouter.joblet.storage.jobletrequest.JobletRequest;
 import io.datarouter.joblet.type.JobletTypeFactory;
 import io.datarouter.util.BooleanTool;
+import io.datarouter.web.exception.ExceptionLinkBuilder;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.types.Param;
@@ -50,7 +50,7 @@ public class JobletExceptionHandler extends BaseHandler{
 	@Inject
 	private JobletPageFactory pageFactory;
 	@Inject
-	private JobletExternalLinkBuilderSupplier externalLinkBuilder;
+	private ExceptionLinkBuilder exceptionLinkBuilder;
 
 	@Handler
 	private Mav exceptions(@Param(P_typeString) Optional<String> typeString){
@@ -74,7 +74,7 @@ public class JobletExceptionHandler extends BaseHandler{
 				.withClasses("sortable table table-sm table-striped border")
 				.withHtmlColumn("Exception ID", row -> {
 					String id = row.getExceptionRecordId();
-					return externalLinkBuilder.get().exception(request.getContextPath(), id)
+					return exceptionLinkBuilder.exception(id)
 							.map(href -> td(a(id).withHref(href)))
 							.orElse(td(id));
 				})

@@ -27,6 +27,7 @@ public class HttpHeaders{
 	public static final String CONTENT_DISPOSITION = "content-disposition";
 	public static final String CONTENT_LANGUAGE = "content-language";
 	public static final String CONTENT_LENGTH = "content-length";
+	public static final String CONTENT_SECURITY_POLICY = "content-security-policy";
 	public static final String CONTENT_TYPE = "content-type";
 	public static final String COOKIE = "cookie";
 	public static final String DNT = "dnt";
@@ -39,6 +40,7 @@ public class HttpHeaders{
 	public static final String USER_AGENT = "user-agent";
 	public static final String SEC_WEBSOCKET_VERSION = "sec-websocket-version";
 	public static final String X_FORWARDED_FOR = "x-forwarded-for";
+	public static final String X_FRAME_OPTIONS = "x-frame-options";
 	public static final String X_REQUESTED_WITH = "x-requested-with";
 
 	// specific ones

@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.instrumentation.count.Counters;
+import io.datarouter.instrumentation.metric.Metrics;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.key.primary.PrimaryKey;
@@ -85,7 +85,7 @@ public class CopyTableService{
 		try{
 			sourceNode.scan(range, scanConfig)
 					.each($ -> numScanned.incrementAndGet())
-					.each($ -> Counters.inc("copyTable " + sourceNodeName + " read"))
+					.each($ -> Metrics.count("copyTable " + sourceNodeName + " read"))
 					.include(databean -> {
 						if(!skipInvalidDatabeans){
 							return true;
@@ -112,9 +112,9 @@ public class CopyTableService{
 							batch.forEach(targetNode::put);
 						}
 					})
-					.each($ -> Counters.inc("copyTable " + sourceNodeName + " write"))
+					.each($ -> Metrics.count("copyTable " + sourceNodeName + " write"))
 					.each(batch -> numCopied.addAndGet(batch.size()))
-					.each(batch -> lastKey.set(ListTool.getLast(batch).getKey()))
+					.each(batch -> lastKey.set(ListTool.getLastOrNull(batch).getKey()))
 					.periodic(LOG_PERIOD, $ -> logProgress(
 							false,
 							numSkipped.get(),

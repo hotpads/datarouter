@@ -21,12 +21,12 @@ import static j2html.TagCreator.span;
 import java.util.List;
 
 import io.datarouter.changelog.config.DatarouterChangelogPaths;
+import io.datarouter.email.email.DatarouterHtmlEmailService;
 import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDto;
 import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.storage.config.properties.ServiceName;
-import io.datarouter.web.email.DatarouterHtmlEmailService;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.TableTag;
 import jakarta.inject.Inject;

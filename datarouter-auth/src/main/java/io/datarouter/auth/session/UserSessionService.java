@@ -31,9 +31,6 @@ public interface UserSessionService{
 
 	SessionBasedUser createAuthorizedUser(String username, String description);
 
-	//signs in a user with their existing roles
-	Optional<Session> signInUser(HttpServletRequest request, String username);
-
 	Session signInUserFromSamlResponse(HttpServletRequest request, InterpretedSamlAssertion interpretedSamlAssertion);
 
 	//deletes the Session of the current request
@@ -57,11 +54,6 @@ public interface UserSessionService{
 		@Override
 		public SessionBasedUser createAuthorizedUser(String username, String description){
 			return null;
-		}
-
-		@Override
-		public Optional<Session> signInUser(HttpServletRequest request, String username){
-			return Optional.empty();
 		}
 
 		@Override

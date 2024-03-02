@@ -36,6 +36,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.logging.log4j.ThreadContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,8 +46,8 @@ import io.datarouter.bytes.KvString;
 import io.datarouter.gson.GsonTool;
 import io.datarouter.httpclient.circuitbreaker.DatarouterHttpClientIoExceptionCircuitBreaker;
 import io.datarouter.inject.DatarouterInjector;
-import io.datarouter.instrumentation.count.Counters;
 import io.datarouter.instrumentation.exception.HttpRequestRecordDto;
+import io.datarouter.instrumentation.metric.Metrics;
 import io.datarouter.instrumentation.trace.TraceBundleAndHttpRequestRecordDto;
 import io.datarouter.instrumentation.trace.TraceBundleDto;
 import io.datarouter.instrumentation.trace.TraceCategory;
@@ -121,7 +122,7 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 			var traceContext = new W3TraceContext(traceparentStr, tracestateStr, traceCreatedEpochNanos);
 			if(isTraceIdTimestampOutsideCutoffTimes(traceContext.getTraceparent())){
 				traceContext = new W3TraceContext(traceCreatedEpochNanos);
-				Counters.inc("trace discarding original traceContext");
+				Metrics.count("trace discarding original traceContext");
 			}
 			String initialParentId = traceContext.getTraceparent().parentId;
 			traceContext.updateParentIdAndAddTracestateMember();
@@ -158,7 +159,11 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 			String requestThreadName = (request.getContextPath() + " request").trim();
 			tracer.createAndStartThread(requestThreadName, TraceTimeTool.epochNano());
 
-			Long threadId = Thread.currentThread().getId();
+			// This is read from the ThreadContext by the log4j2 pattern in DatarouterTraceIdLog4j2Configuration
+			// https://logging.apache.org/log4j/2.x/manual/layouts.html#pattern-layout.
+			ThreadContext.put("traceId", traceContext.getTraceparent().traceId);
+
+			long threadId = Thread.currentThread().threadId();
 			boolean saveCpuTime = traceSettings.saveTraceCpuTime.get();
 			Long cpuTimeBegin = saveCpuTime ? PlatformMxBeans.THREAD.getCurrentThreadCpuTime() : null;
 			boolean saveAllocatedBytes = traceSettings.saveTraceAllocatedBytes.get();
@@ -240,7 +245,7 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 					if(shouldBeRandomlySampled){
 						saveReasons.add(TraceSaveReasonType.RANDOM_SAMPLING);
 					}
-					saveReasons.forEach(reason -> Counters.inc(traceCounterPrefix + reason.type));
+					saveReasons.forEach(reason -> Metrics.count(traceCounterPrefix + reason.type));
 				}
 				if(!saveReasons.isEmpty()){
 					List<TraceThreadDto> threads = new ArrayList<>(tracer.getThreadQueue());
@@ -263,8 +268,8 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 							new TraceBundleDto(trace, threads, spans),
 							httpRequestRecord);
 					if(destination.isEmpty()){
-						Counters.inc("traceSavedNotAllowed");
-						Counters.inc("traceSavedNotAllowed " + trace.type);
+						Metrics.count("traceSavedNotAllowed");
+						Metrics.count("traceSavedNotAllowed " + trace.type);
 					}
 					String logAction = destination.isPresent() ? "saved" : "not allowed to save";
 					var logAttributes = new KvString()
@@ -307,8 +312,7 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 				Optional<Method> handlerMethodOpt = RequestAttributeTool.get(request, BaseHandler.HANDLER_METHOD);
 				if(handlerClassOpt.isPresent() && handlerMethodOpt.isPresent()){
 					Class<? extends BaseHandler> handlerClass = handlerClassOpt.get();
-					if(traceSettings.recordAllLatency.get()
-							|| traceSettings.latencyRecordedHandlers.get().contains(handlerClass.getName())){
+					if(traceSettings.recordAllLatency.get()){
 						HandlerMetrics.saveMethodLatency(handlerClass, handlerMethodOpt.get(), traceDurationMs);
 					}
 					HandlerMetrics.incDuration(handlerClass, handlerMethodOpt.get(), traceDurationMs);
@@ -335,7 +339,7 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 		receivedAt = TimeUnit.NANOSECONDS.toMillis(receivedAt);
 		long created = TimeUnit.NANOSECONDS.toMillis(TraceTimeTool.epochNano());
 		RecordedHttpHeaders headersWrapper = new RecordedHttpHeaders(request);
-		return new HttpRequestRecordDto(
+		var untrimmedRecord = new HttpRequestRecordDto(
 				new Ulid().value(),
 				new Date(created),
 				new Date(receivedAt),
@@ -378,6 +382,7 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 				headersWrapper.getXForwardedFor(),
 				headersWrapper.getXRequestedWith(),
 				headersWrapper.getOthers());
+		return untrimmedRecord.trimmed();
 	}
 
 	private static String getRequestPath(HttpServletRequest request){
@@ -446,7 +451,7 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 	}
 
 	private static void countDiscarding(String string){
-		Counters.inc("trace discarding " + string);
+		Metrics.count("trace discarding " + string);
 	}
 
 }

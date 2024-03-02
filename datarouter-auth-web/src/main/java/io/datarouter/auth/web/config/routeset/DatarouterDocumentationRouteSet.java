@@ -15,8 +15,8 @@
  */
 package io.datarouter.auth.web.config.routeset;
 
+import io.datarouter.auth.config.DatarouterAuthPaths;
 import io.datarouter.auth.role.DatarouterUserRole;
-import io.datarouter.auth.web.config.DatarouterAuthPaths;
 import io.datarouter.auth.web.web.DatarouterDocumentationHandler;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.BaseRouteSet;

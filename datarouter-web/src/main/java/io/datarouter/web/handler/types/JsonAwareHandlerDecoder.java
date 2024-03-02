@@ -25,7 +25,7 @@ import io.datarouter.web.handler.encoder.JsonAwareHandlerCodec;
 
 public interface JsonAwareHandlerDecoder extends HandlerDecoder, JsonAwareHandlerCodec{
 
-	default Object decodeType(String string, Type type){
+	default Object decodeType(String fieldName, String string, Type type){
 		try(var $ = TracerTool.startSpan(getClass().getSimpleName() + " deserialize",
 				TraceSpanGroupType.SERIALIZATION)){
 			TracerTool.appendToSpanInfo("characters", string.length());
@@ -38,14 +38,16 @@ public interface JsonAwareHandlerDecoder extends HandlerDecoder, JsonAwareHandle
 				if(type.equals(String.class)){
 					return string;
 				}
-				throw new RuntimeException("failed to decode " + string + " to a " + type, e);
+				throw new RuntimeException("failed to decode field=" + fieldName + " value=" + string + " to a "
+						+ type, e);
 			}
 			// deserialized successfully as null, but we want empty string instead of null for consistency with Params
 			if(obj == null && type.equals(String.class) && !"null".equals(string)){
 				return "";
 			}
 			if(obj == null){
-				throw new RuntimeException("could not decode " + string + " to a non null " + type);
+				throw new RuntimeException("could not decode field=" + fieldName + " value=" + string
+						+ " to a non null " + type);
 			}
 			return obj;
 		}

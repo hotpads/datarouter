@@ -31,7 +31,6 @@ public interface JobletExternalLinkBuilder extends PluginConfigValue<JobletExter
 			"jobletExternalLinkBuilder",
 			PluginConfigType.CLASS_SINGLE);
 
-	Optional<String> exception(String contextPath, String exceptionId);
 	Optional<String> counters(String counterNamePrefix);
 
 	@Override
@@ -53,11 +52,6 @@ public interface JobletExternalLinkBuilder extends PluginConfigValue<JobletExter
 	}
 
 	class NoOpJobletExternalLinkBuilder implements JobletExternalLinkBuilder{
-
-		@Override
-		public Optional<String> exception(String contextPath, String exceptionId){
-			return Optional.empty();
-		}
 
 		@Override
 		public Optional<String> counters(String counterNamePrefix){

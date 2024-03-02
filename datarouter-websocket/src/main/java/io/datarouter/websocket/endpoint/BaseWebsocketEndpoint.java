@@ -34,6 +34,7 @@ import io.datarouter.websocket.service.ServerAddressProvider;
 import io.datarouter.websocket.service.WebSocketConnectionStore;
 import io.datarouter.websocket.session.PushService;
 import io.datarouter.websocket.storage.session.WebSocketSession;
+import io.datarouter.websocket.storage.session.WebSocketSessionKey;
 import jakarta.inject.Inject;
 
 public abstract class BaseWebsocketEndpoint extends Endpoint{
@@ -57,7 +58,8 @@ public abstract class BaseWebsocketEndpoint extends Endpoint{
 		String userToken = (String)endpointConfig.getUserProperties().get(
 				WebSocketAuthenticationFilter.WEB_SOCKET_TOKEN);
 		String serverAddress = serverAddressProvider.get();
-		webSocketSession = new WebSocketSession(userToken, null, MilliTime.now(), serverAddress);
+		var key = new WebSocketSessionKey(userToken, null);
+		webSocketSession = new WebSocketSession(key, null, MilliTime.now(), serverAddress);
 		pushService.register(webSocketSession);
 		logger.info("Opening websocket session={}", webSocketSession);
 		webSocketConnectionStore.put(webSocketSession, session);

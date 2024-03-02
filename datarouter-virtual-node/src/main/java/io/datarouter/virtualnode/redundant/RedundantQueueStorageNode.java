@@ -33,7 +33,7 @@ extends BaseRedundantQueueNode<PK,D,F,N>
 implements QueueStorageNode<PK,D,F>, RedundantQueueStorageMixin<PK,D,F,N>{
 
 	private RedundantQueueStorageNode(List<N> nodes){
-		super(nodes.get(0), nodes);
+		super(nodes.getFirst(), nodes);
 	}
 
 	public static <PK extends PrimaryKey<PK>,
@@ -43,7 +43,7 @@ implements QueueStorageNode<PK,D,F>, RedundantQueueStorageMixin<PK,D,F,N>{
 			QueueStorageNode<PK,D,F> makeIfMulti(
 					List<N> nodes){
 		if(nodes.size() == 1){
-			return nodes.get(0);
+			return nodes.getFirst();
 		}
 		return new RedundantQueueStorageNode<>(nodes);
 	}

@@ -29,7 +29,6 @@ import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.queue.QueueMessage;
@@ -59,7 +58,7 @@ extends BaseSqsPeekMultiOp<PK,D,F,QueueMessage<PK,D>>{
 									entry.getValue().getStringValue());
 					return new QueueMessage<>(receiptHandle, databean, attributes);
 				})
-				.collect(WarnOnModifyList.deprecatedCollector());
+				.toList();
 	}
 
 }

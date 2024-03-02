@@ -29,7 +29,6 @@ import org.testng.annotations.Test;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.field.Field;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.op.scan.stride.StrideScanner.StrideScannerBuilder;
 import io.datarouter.storage.test.node.basic.sorted.SortedBean.SortedBeanFielder;
@@ -112,7 +111,7 @@ public abstract class BaseSortedNodeIntegrationTests extends BaseSortedBeanInteg
 		var startKey = new SortedBeanKey(SortedBeans.S_pelican, SortedBeans.S_pelican, 7, SortedBeans.S_emu);
 		var range = new Range<>(startKey, true, null, true);
 		List<SortedBean> result = dao.scan(range).list();
-		Assert.assertEquals(result.get(0).getKey(), startKey);
+		Assert.assertEquals(result.getFirst().getKey(), startKey);
 		Assert.assertEquals(result.size(), 4);
 	}
 
@@ -122,7 +121,7 @@ public abstract class BaseSortedNodeIntegrationTests extends BaseSortedBeanInteg
 		var range = new Range<>(startKey, false, null, true);
 		List<SortedBean> result = dao.scan(range).list();
 		var expectedFirst = new SortedBeanKey(SortedBeans.S_pelican, SortedBeans.S_pelican, 7, SortedBeans.S_gopher);
-		Assert.assertEquals(result.get(0).getKey(), expectedFirst);
+		Assert.assertEquals(result.getFirst().getKey(), expectedFirst);
 		Assert.assertEquals(result.size(), 3);
 	}
 
@@ -133,7 +132,7 @@ public abstract class BaseSortedNodeIntegrationTests extends BaseSortedBeanInteg
 		List<SortedBean> result = dao.scan(range).list();
 		var expectedLast = new SortedBeanKey(SortedBeans.S_aardvark, SortedBeans.S_aardvark, 0,
 				SortedBeans.S_chinchilla);
-		Assert.assertEquals(ListTool.getLast(result).getKey(), expectedLast);
+		Assert.assertEquals(ListTool.getLastOrNull(result).getKey(), expectedLast);
 		Assert.assertEquals(result.size(), 4);
 	}
 
@@ -143,7 +142,7 @@ public abstract class BaseSortedNodeIntegrationTests extends BaseSortedBeanInteg
 		var range = new Range<>(null, false, endKey, true);
 		List<SortedBean> result = dao.scan(range).list();
 		var expectedLast = endKey;
-		Assert.assertEquals(ListTool.getLast(result).getKey(), expectedLast);
+		Assert.assertEquals(ListTool.getLastOrNull(result).getKey(), expectedLast);
 		Assert.assertEquals(result.size(), 5);
 	}
 
@@ -197,7 +196,7 @@ public abstract class BaseSortedNodeIntegrationTests extends BaseSortedBeanInteg
 		List<Range<SortedBeanKey>> ranges = Stream.of(SortedBeans.PREFIX_a, SortedBeans.PREFIX_ch)
 				.map(prefix -> KeyRangeTool.forPrefixWithWildcard(prefix, suffix -> new SortedBeanKey(
 						SortedBeans.STRINGS.first(), suffix, null, null)))
-				.collect(WarnOnModifyList.deprecatedCollector());
+				.toList();
 		List<SortedBean> result = dao.scanRanges(ranges).list();
 		int expectedSizeA = SortedBeans.NUM_PREFIX_a * SortedBeans.NUM_ELEMENTS * SortedBeans.NUM_ELEMENTS;
 		int expectedSizeCh = SortedBeans.NUM_PREFIX_ch * SortedBeans.NUM_ELEMENTS * SortedBeans.NUM_ELEMENTS;
@@ -454,8 +453,8 @@ public abstract class BaseSortedNodeIntegrationTests extends BaseSortedBeanInteg
 		var startKey = new SortedBeanKey(SortedBeans.S_alpaca, SortedBeans.S_ostrich, 7, SortedBeans.S_emu);
 		var endKey = new SortedBeanKey(SortedBeans.S_alpaca, SortedBeans.S_ostrich, null, null);
 		List<SortedBean> result = dao.scan(new Range<>(startKey, false, endKey, true)).list();
-		Assert.assertEquals(result.get(0).getKey(), new SortedBeanKey(SortedBeans.S_alpaca, SortedBeans.S_ostrich, 7,
-				SortedBeans.S_gopher));
+		Assert.assertEquals(result.getFirst().getKey(),
+				new SortedBeanKey(SortedBeans.S_alpaca, SortedBeans.S_ostrich, 7, SortedBeans.S_gopher));
 		Assert.assertEquals(result.size(), 3); // because 7 is the last and gopher+strich+pelican
 		// TODO multiple entity case DATAROUTER-259
 	}

@@ -28,10 +28,11 @@ import com.google.cloud.spanner.DatabaseClient;
 import com.google.cloud.spanner.ResultSet;
 import com.google.cloud.spanner.Statement;
 
+import io.datarouter.email.email.DatarouterHtmlEmailService;
 import io.datarouter.email.type.DatarouterEmailTypes.SchemaUpdatesEmailType;
 import io.datarouter.gcp.spanner.connection.SpannerDatabaseClientsHolder;
 import io.datarouter.gcp.spanner.ddl.SpannerSingleTableSchemaUpdateService;
-import io.datarouter.gcp.spanner.ddl.SpannerTableOperationsGenerator;
+import io.datarouter.gcp.spanner.ddl.SpannerTableOperationsTool;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.executor.DatarouterStorageExecutors.DatarouterSchemaUpdateScheduler;
@@ -43,7 +44,6 @@ import io.datarouter.storage.config.storage.clusterschemaupdatelock.DatarouterCl
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.config.settings.DatarouterSchemaUpdateEmailSettings;
-import io.datarouter.web.email.DatarouterHtmlEmailService;
 import io.datarouter.web.email.StandardDatarouterEmailHeaderService;
 import io.datarouter.web.handler.EmailingSchemaUpdateService;
 import io.datarouter.web.monitoring.BuildProperties;
@@ -56,7 +56,6 @@ public class SpannerSchemaUpdateService extends EmailingSchemaUpdateService{
 	private static final Logger logger = LoggerFactory.getLogger(SpannerSchemaUpdateService.class);
 
 	private final SpannerSingleTableSchemaUpdateService singleTableSchemaUpdateFactory;
-	private final SpannerTableOperationsGenerator tableOperationsGenerator;
 	private final SpannerDatabaseClientsHolder clientPoolHolder;
 
 	@Inject
@@ -65,7 +64,6 @@ public class SpannerSchemaUpdateService extends EmailingSchemaUpdateService{
 			EnvironmentName environmentName,
 			AdminEmail adminEmail,
 			SpannerSingleTableSchemaUpdateService singleTableSchemaUpdateFactory,
-			SpannerTableOperationsGenerator tableOperationsGenerator,
 			DatarouterSchemaUpdateScheduler executor,
 			SpannerDatabaseClientsHolder clientPoolHolder,
 			DatarouterHtmlEmailService htmlEmailService,
@@ -90,7 +88,6 @@ public class SpannerSchemaUpdateService extends EmailingSchemaUpdateService{
 				schemaUpdatesEmailType,
 				schemaUpdateEmailSettings);
 		this.singleTableSchemaUpdateFactory = singleTableSchemaUpdateFactory;
-		this.tableOperationsGenerator = tableOperationsGenerator;
 		this.clientPoolHolder = clientPoolHolder;
 	}
 
@@ -106,7 +103,7 @@ public class SpannerSchemaUpdateService extends EmailingSchemaUpdateService{
 	protected List<String> fetchExistingTables(ClientId clientId){
 		List<String> existingTableNames = new ArrayList<>();
 		DatabaseClient dbClient = clientPoolHolder.getDatabaseClient(clientId);
-		ResultSet resultSet = dbClient.singleUse().executeQuery(Statement.of(tableOperationsGenerator
+		ResultSet resultSet = dbClient.singleUse().executeQuery(Statement.of(SpannerTableOperationsTool
 				.getListOfTables()));
 		while(resultSet.next()){
 			existingTableNames.add(resultSet.getString("table_name"));

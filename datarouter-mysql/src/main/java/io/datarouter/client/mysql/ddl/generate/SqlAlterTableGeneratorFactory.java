@@ -27,7 +27,6 @@ import java.util.stream.Stream;
 import io.datarouter.client.mysql.ddl.domain.SqlColumn;
 import io.datarouter.client.mysql.ddl.domain.SqlIndex;
 import io.datarouter.client.mysql.ddl.domain.SqlTable;
-import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.storage.config.schema.SchemaUpdateOptions;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -280,20 +279,20 @@ public class SqlAlterTableGeneratorFactory{
 		private List<CharSequence> getAlterTableForAddingColumns(List<SqlColumn> colsToAdd){
 			return colsToAdd.stream()
 					.map(this::makeAddColumnDefinition)
-					.collect(WarnOnModifyList.deprecatedCollector());
+					.collect(Collectors.toUnmodifiableList());
 		}
 
 		private List<CharSequence> getAlterTableForRemovingColumns(List<SqlColumn> colsToRemove){
 			return colsToRemove.stream()
 					.map(SqlColumn::getName)
 					.map("drop column "::concat)
-					.collect(WarnOnModifyList.deprecatedCollector());
+					.collect(Collectors.toUnmodifiableList());
 		}
 
 		private List<CharSequence> getAlterTableForModifyingColumns(List<SqlColumn> columnsToModify){
 			return columnsToModify.stream()
 					.map(this::makeModifyColumnDefinition)
-					.collect(WarnOnModifyList.deprecatedCollector());
+					.collect(Collectors.toUnmodifiableList());
 		}
 
 		private StringBuilder makeModifyColumnDefinition(SqlColumn column){
@@ -308,7 +307,7 @@ public class SqlAlterTableGeneratorFactory{
 			return indexesToDrop.stream()
 					.map(SqlIndex::getName)
 					.map("drop index "::concat)
-					.collect(WarnOnModifyList.deprecatedCollector());
+					.collect(Collectors.toUnmodifiableList());
 		}
 
 		private List<CharSequence> getAlterTableForAddingIndexes(
@@ -324,7 +323,7 @@ public class SqlAlterTableGeneratorFactory{
 						}
 						return sb.append("index ").append(index.getName()).append(csvColumns);
 					})
-					.collect(WarnOnModifyList.deprecatedCollector());
+					.collect(Collectors.toUnmodifiableList());
 		}
 
 	}

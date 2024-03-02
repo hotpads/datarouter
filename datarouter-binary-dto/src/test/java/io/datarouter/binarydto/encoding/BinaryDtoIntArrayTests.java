@@ -23,6 +23,7 @@ import io.datarouter.bytes.codec.bytestringcodec.CsvIntByteStringCodec;
 
 public class BinaryDtoIntArrayTests{
 
+	@SuppressWarnings("unused")
 	private static class TestDto extends ComparableBinaryDto<TestDto>{
 		public final int[] f1;
 		public final int[] f2;

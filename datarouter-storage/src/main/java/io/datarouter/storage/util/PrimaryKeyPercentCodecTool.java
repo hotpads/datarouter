@@ -23,7 +23,6 @@ import java.util.stream.Collectors;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.util.PercentFieldCodec;
-import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.util.Require;
 import io.datarouter.util.string.StringTool;
 
@@ -66,7 +65,7 @@ public class PrimaryKeyPercentCodecTool{
 		List<String> eachEncodedPk = StringTool.splitOnCharNoRegex(encodedPks, delimiter, false);
 		return eachEncodedPk.stream()
 				.map(encodedPk -> decode(pkSupplier, encodedPk))
-				.collect(WarnOnModifyList.deprecatedCollector());
+				.toList();
 	}
 
 }

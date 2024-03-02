@@ -27,6 +27,7 @@ import io.datarouter.bytes.HexBlockTool;
 
 public class BinaryDtoIntListTests{
 
+	@SuppressWarnings("unused")
 	private static class TestDto extends BinaryDto<TestDto>{
 		public final List<Integer> f1;
 		public final List<Integer> f2;

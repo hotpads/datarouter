@@ -59,6 +59,9 @@ public class JsonEncoder implements HandlerEncoder, JsonAwareHandlerCodec{
 			HttpServletResponse response,
 			HttpServletRequest request)
 	throws IOException{
+		if(result == null){
+			return;
+		}
 		sendRequestJson(response, request, serialize(result));
 	}
 

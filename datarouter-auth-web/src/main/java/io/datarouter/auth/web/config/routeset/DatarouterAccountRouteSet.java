@@ -15,8 +15,8 @@
  */
 package io.datarouter.auth.web.config.routeset;
 
+import io.datarouter.auth.config.DatarouterAuthPaths;
 import io.datarouter.auth.role.DatarouterUserRole;
-import io.datarouter.auth.web.config.DatarouterAuthPaths;
 import io.datarouter.auth.web.web.DatarouterAccountCallerTypeHandler;
 import io.datarouter.auth.web.web.DatarouterAccountManagerHandler;
 import io.datarouter.auth.web.web.DatarouterAccountRenameHandler;

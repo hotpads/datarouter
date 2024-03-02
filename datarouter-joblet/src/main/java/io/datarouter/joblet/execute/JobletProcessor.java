@@ -38,7 +38,6 @@ import io.datarouter.joblet.queue.JobletRequestQueueManager;
 import io.datarouter.joblet.service.JobletService;
 import io.datarouter.joblet.setting.DatarouterJobletSettingRoot;
 import io.datarouter.joblet.type.JobletType;
-import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.util.concurrent.ExecutorServiceTool;
 import io.datarouter.util.concurrent.NamedThreadFactory;
 import io.datarouter.util.mutable.MutableBoolean;
@@ -91,8 +90,10 @@ public class JobletProcessor{
 				threadFactory);
 		this.jobletCallableById = new ConcurrentHashMap<>();
 		this.jobletFutureById = new ConcurrentHashMap<>();
-		this.driverThread = new Thread(null, this::run, jobletType.getPersistentString()
-				+ " JobletProcessor worker thread");
+		this.driverThread = new Thread(
+				null,
+				this::run,
+				jobletType.getPersistentString() + " JobletProcessor worker thread");
 		driverThread.start();
 	}
 
@@ -189,7 +190,7 @@ public class JobletProcessor{
 		return jobletCallableById.values().stream()
 				.map(JobletCallable::getRunningJoblet)
 				.filter(RunningJoblet::hasPayload)
-				.collect(WarnOnModifyList.deprecatedCollector());
+				.toList();
 	}
 
 	public int getNumRunningJoblets(){

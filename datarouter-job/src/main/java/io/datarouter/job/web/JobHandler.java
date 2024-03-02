@@ -36,7 +36,6 @@ import io.datarouter.job.scheduler.JobPackage;
 import io.datarouter.job.scheduler.JobScheduler;
 import io.datarouter.job.service.JobStopperService;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.tasktracker.service.LongRunningTaskService;
 import io.datarouter.tasktracker.service.LongRunningTaskService.LongRunningTaskSummaryDto;
@@ -104,7 +103,7 @@ public class JobHandler extends BaseHandler{
 				hideEnabled,
 				hideDisabled)
 				.map(jobClass -> jobToTriggerJspDto(rowId.incrementAndGet(), jobClass, longRunningTaskSummary))
-				.collect(WarnOnModifyList.deprecatedCollector());
+				.toList();
 		mav.put("triggerRows", triggerRows);
 		mav.put("legend", LongRunningTasksHandler.legend().renderFormatted());
 		return mav;
@@ -151,7 +150,7 @@ public class JobHandler extends BaseHandler{
 	private List<JobCategoryJspDto> getJobCategoryDtos(Optional<String> selectedJobCategory){
 		return jobCategoryTracker.getJobCategoryNames().stream()
 				.map(category -> new JobCategoryJspDto(category, isJobCategorySelected(category, selectedJobCategory)))
-				.collect(WarnOnModifyList.deprecatedCollector());
+				.toList();
 	}
 
 	private static boolean isJobCategorySelected(String category, Optional<String> selectedCategory){

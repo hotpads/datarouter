@@ -71,7 +71,7 @@ implements PhysicalBlobQueueStorageNode<T>{
 		if(messages.isEmpty()){
 			return Optional.empty();
 		}
-		return memoryQueueMessageToOptionalBlobQueueMessageDto(messages.get(0));
+		return memoryQueueMessageToOptionalBlobQueueMessageDto(messages.getFirst());
 	}
 
 	@Override

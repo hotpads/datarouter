@@ -136,7 +136,7 @@ implements PhysicalBlobStorageNode{
 				config,
 				fields);
 		List<DatabaseBlob> blobs = op.wrappedCall();
-		return blobs.isEmpty() ? Optional.empty() : Optional.of(blobs.get(0).getSize());
+		return blobs.isEmpty() ? Optional.empty() : Optional.of(blobs.getFirst().getSize());
 	}
 
 	@Override
@@ -150,7 +150,7 @@ implements PhysicalBlobStorageNode{
 		List<DatabaseBlob> blobs = op.wrappedCall();
 		return blobs.isEmpty()
 				? Optional.empty()
-				: Optional.of(blobs.get(0).getData());
+				: Optional.of(blobs.getFirst().getData());
 	}
 
 	@Override
@@ -166,7 +166,7 @@ implements PhysicalBlobStorageNode{
 		List<DatabaseBlob> blobs = op.wrappedCall();
 		return blobs.isEmpty()
 				? Optional.empty()
-				: Optional.of(Arrays.copyOfRange(blobs.get(0).getData(), from, to));
+				: Optional.of(Arrays.copyOfRange(blobs.getFirst().getData(), from, to));
 	}
 
 	@Override

@@ -17,7 +17,6 @@ package io.datarouter.web.dispatcher;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -29,8 +28,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.fileupload.FileUploadException;
 
+import io.datarouter.auth.config.DatarouterAuthenticationConfig;
 import io.datarouter.auth.role.DatarouterUserRole;
 import io.datarouter.auth.role.Role;
+import io.datarouter.auth.session.DatarouterSessionManager;
 import io.datarouter.auth.storage.user.session.DatarouterSession;
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.util.net.UrlTool;
@@ -40,13 +41,12 @@ import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.params.MultipartParams;
 import io.datarouter.web.handler.params.Params;
 import io.datarouter.web.security.SecurityValidationResult;
-import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
 import io.datarouter.web.user.authenticate.saml.DatarouterSamlSettings;
 import io.datarouter.web.user.authenticate.saml.SamlService;
-import io.datarouter.web.user.session.DatarouterSessionManager;
 import io.datarouter.web.util.RequestAttributeKey;
 import io.datarouter.web.util.RequestAttributeTool;
 import io.datarouter.web.util.http.MockHttpServletRequest;
+import io.datarouter.web.util.http.MockHttpServletRequestBuilder;
 import io.datarouter.web.util.http.RequestTool;
 import io.datarouter.web.util.http.ResponseTool;
 import jakarta.inject.Inject;
@@ -132,12 +132,8 @@ public class Dispatcher{
 			break; // only one rule can match
 		}
 
-		Class<? extends BaseHandler> defaultHandlerClass = routeSet.getDefaultHandlerClass();
 		if(handler == null){
-			if(defaultHandlerClass == null){
-				return RoutingResult.NOT_FOUND;
-			}
-			handler = injector.getInstance(defaultHandlerClass);
+			return RoutingResult.NOT_FOUND;
 		}
 
 		handler.setRequest(request);
@@ -151,18 +147,23 @@ public class Dispatcher{
 
 	// This method is an "estimate" because it doesn't come from a real HttpServletRequest and doesn't require the
 	// correct params
-	public Optional<HandlerDto> estimateHandlerForPath(String path, RouteSet routeSet){
-		BaseHandler handler = null;
+	public Optional<BaseHandler> estimateHandlerForPathAndParams(String path, DispatchRule dispatchRule,
+			Map<String,String[]> params, String body){
 		String afterContextPath = path.substring(servletContext.get().getContextPath().length());
+		if(!dispatchRule.getPattern().matcher(afterContextPath).matches()){
+			return Optional.empty();
+		}
+		MockHttpServletRequestBuilder requestBuilder = new MockHttpServletRequestBuilder()
+				.withParameters(params)
+				.withServerName("example.hotpads.com")
+				.withMethod("GET")
+				.withRequestUri(path);
 
-		MockHttpServletRequest request = new MockHttpServletRequest(
-				Map.of(),
-				null,
-				Map.of(),
-				Map.of(),
-				List.of(),
-				"example.hotpads.com",
-				"GET");
+		if(body != null){
+			requestBuilder.withBody(body);
+		}
+
+		MockHttpServletRequest request = requestBuilder.build();
 
 		String servletPath = afterContextPath.substring(0, afterContextPath.lastIndexOf("/") == -1
 				? afterContextPath.length() : afterContextPath.lastIndexOf("/"));
@@ -170,37 +171,17 @@ public class Dispatcher{
 				? afterContextPath : afterContextPath.substring(afterContextPath.lastIndexOf("/"));
 		request.setServletPath(servletPath);
 		request.setPathInfo(pathInfo);
-
-		for(DispatchRule rule : routeSet.getDispatchRulesNoRedirects()){
-			if(rule.getPattern().matcher(afterContextPath).matches()){
-				handler = injector.getInstance(rule.getHandlerClass());
-				handler.setDefaultHandlerEncoder(rule.getDefaultHandlerEncoder());
-				handler.setDefaultHandlerDecoder(rule.getDefaultHandlerDecoder());
-				break;
-			}
-		}
-
-		Class<? extends BaseHandler> defaultHandlerClass = routeSet.getDefaultHandlerClass();
-		if(handler == null){
-			if(defaultHandlerClass == null){
-				return Optional.empty();
-			}
-			handler = injector.getInstance(defaultHandlerClass);
-		}
-
+		BaseHandler handler = injector.getInstance(dispatchRule.getHandlerClass());
+		handler.setDefaultHandlerEncoder(dispatchRule.getDefaultHandlerEncoder());
+		handler.setDefaultHandlerDecoder(dispatchRule.getDefaultHandlerDecoder());
 		handler.setParams(new Params(request));
 		handler.setRequest(request);
 		handler.setServletContext(servletContext.get());
-
-		String className = handler.getClass().getName();
-		String methodName = handler.estimateHandlerMethod();
-
-		return Optional.of(new HandlerDto(className, methodName));
+		return Optional.of(handler);
 	}
 
-	public record HandlerDto(
-			String className,
-			String methodName){
+	public Optional<BaseHandler> estimateHandlerForPath(String path, DispatchRule dispatchRule){
+		return estimateHandlerForPathAndParams(path, dispatchRule, Map.of(), null);
 	}
 
 	private Params parseParams(HttpServletRequest request, Charset defaultCharset) throws ServletException{

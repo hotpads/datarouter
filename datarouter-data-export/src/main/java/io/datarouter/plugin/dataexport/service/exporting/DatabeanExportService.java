@@ -26,8 +26,8 @@ import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.nodewatch.service.TableSamplerService;
 import io.datarouter.plugin.dataexport.config.DatarouterDataExportExecutors.DatabeanExportParallelPartsExecutor;
 import io.datarouter.plugin.dataexport.config.DatarouterDataExportExecutors.DatabeanExportPrefetchExecutor;
-import io.datarouter.plugin.dataexport.service.blockfile.DatabeanExportKvFileService;
-import io.datarouter.plugin.dataexport.service.blockfile.DatabeanExportKvFileStorageService;
+import io.datarouter.plugin.dataexport.service.blockfile.DatabeanExportBlockfileService;
+import io.datarouter.plugin.dataexport.service.blockfile.DatabeanExportBlockfileStorageService;
 import io.datarouter.plugin.dataexport.util.DatabeanExportFilenameTool;
 import io.datarouter.scanner.Threads;
 import io.datarouter.storage.file.Directory;
@@ -49,16 +49,16 @@ public class DatabeanExportService{
 	@Inject
 	private DatabeanExportPrefetchExecutor databeanExportPrefetchExec;
 	@Inject
-	private DatabeanExportKvFileStorageService kvFileStorageService;
+	private DatabeanExportBlockfileStorageService blockfileStorageService;
 	@Inject
-	private DatabeanExportKvFileService kvFileService;
+	private DatabeanExportBlockfileService blockfileService;
 
 	public record DatabeanExportRequest<
 			PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>(
 		Directory tableDirectory,
-		DatabeanExportKvFileService kvFileService,
+		DatabeanExportBlockfileService blockfileService,
 		Ulid exportId,
 		PhysicalSortedStorageReaderNode<PK,D,F> node,
 		TableSamplerService tableSamplerService,
@@ -89,10 +89,10 @@ public class DatabeanExportService{
 			int tableSamplesPerPart,
 			int numThreads,
 			boolean parallel){
-		Directory tableDataDirectory = kvFileStorageService.makeTableDataDirectory(exportId, node);
+		Directory tableDataDirectory = blockfileStorageService.makeTableDataDirectory(exportId, node);
 		var exportRequest = new DatabeanExportRequest<>(
 				tableDataDirectory,
-				kvFileService,
+				blockfileService,
 				exportId,
 				node,
 				tableSamplerService,
@@ -121,7 +121,7 @@ public class DatabeanExportService{
 		var value = new BinaryDictionary();
 		value.put(StringCodec.UTF_8.encode("NUM_PARTS"), VarIntTool.encode(exportResponse.numParts()));
 		value.put(StringCodec.UTF_8.encode("NUM_DATABEANS"), VarIntTool.encode(exportResponse.numDatabeans()));
-		kvFileStorageService.makeMetaDictionaryStorage(exportId).write(key, value);
+		blockfileStorageService.makeMetaDictionaryStorage(exportId).write(key, value);
 	}
 
 }

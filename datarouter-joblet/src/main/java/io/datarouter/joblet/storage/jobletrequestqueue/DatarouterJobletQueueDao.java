@@ -54,7 +54,7 @@ public class DatarouterJobletQueueDao extends BaseDao{
 						queueKey -> {
 							String nodeName = DatarouterJobletConstants.QUEUE_PREFIX + queueKey.getQueueName();
 							return queueNodeFactory.createSingleQueue(
-									params.clientIds.get(0),
+									params.clientIds.getFirst(),
 									JobletRequest::new,
 									JobletRequestFielder::new)
 									.withQueueName(nodeName)

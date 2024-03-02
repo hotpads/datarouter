@@ -52,7 +52,7 @@ public class GcpPubsubGroupTestDao extends BaseDao implements TestDao, GcpPubsub
 				.withQueueName("GroupTestDatabean")
 				.buildAndRegister();
 
-		BaseGcpPubsubNode<?,?,?> baseNode = (BaseGcpPubsubNode<?,?,?>)node.getPhysicalNodes().get(0);
+		BaseGcpPubsubNode<?,?,?> baseNode = (BaseGcpPubsubNode<?,?,?>)node.getPhysicalNodes().getFirst();
 		topicLength = baseNode.getTopicAndSubscriptionName().get()
 				.topic()
 				.toString()

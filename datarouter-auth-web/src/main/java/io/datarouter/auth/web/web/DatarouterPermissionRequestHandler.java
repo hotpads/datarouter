@@ -41,18 +41,20 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.auth.config.DatarouterAuthPaths;
+import io.datarouter.auth.config.DatarouterAuthenticationConfig;
 import io.datarouter.auth.role.Role;
 import io.datarouter.auth.role.RoleManager;
+import io.datarouter.auth.service.DatarouterUserHistoryService;
 import io.datarouter.auth.service.DatarouterUserService;
 import io.datarouter.auth.storage.user.datarouteruser.DatarouterUser;
 import io.datarouter.auth.storage.user.datarouteruser.DatarouterUserDao;
 import io.datarouter.auth.storage.user.permissionrequest.DatarouterPermissionRequestDao;
 import io.datarouter.auth.storage.user.permissionrequest.PermissionRequest;
-import io.datarouter.auth.web.config.DatarouterAuthPaths;
-import io.datarouter.auth.web.service.DatarouterUserEditService;
 import io.datarouter.auth.web.service.PermissionRequestService;
 import io.datarouter.auth.web.service.PermissionRequestService.DeclinePermissionRequestDto;
 import io.datarouter.auth.web.service.PermissionRequestUserInfo.PermissionRequestUserInfoSupplier;
+import io.datarouter.email.email.DatarouterHtmlEmailService;
 import io.datarouter.email.type.DatarouterEmailTypes.PermissionRequestEmailType;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.properties.AdminEmail;
@@ -61,7 +63,6 @@ import io.datarouter.storage.config.setting.DatarouterEmailSubscriberSettings;
 import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.types.MilliTime;
 import io.datarouter.util.string.StringTool;
-import io.datarouter.web.email.DatarouterHtmlEmailService;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.GlobalRedirectMav;
@@ -76,7 +77,6 @@ import io.datarouter.web.html.form.HtmlFormCheckboxTable.Row;
 import io.datarouter.web.html.form.HtmlFormTimezoneSelect;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
-import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.TrTag;
@@ -108,7 +108,7 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 	@Inject
 	private DatarouterAuthPaths paths;
 	@Inject
-	private DatarouterUserEditService userEditService;
+	private DatarouterUserHistoryService userHistoryService;
 	@Inject
 	private PermissionRequestEmailType permissionRequestEmailType;
 	@Inject
@@ -388,7 +388,7 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 				.withStyle("border-spacing: 0; white-space: pre-wrap;");
 		var content = div(table, p(a("Edit user profile").withHref(primaryHref)));
 		var emailBuilder = htmlEmailService.startEmailBuilder()
-				.withSubject(userEditService.getPermissionRequestEmailSubject(user))
+				.withSubject(userHistoryService.getPermissionRequestEmailSubject(user))
 				.withTitle(EMAIL_TITLE)
 				.withTitleHref(primaryHref)
 				.withContent(content)

@@ -77,6 +77,10 @@ public class PathbeanKey extends BaseRegularPrimaryKey<PathbeanKey>{
 		return of(pathAndFile, true);
 	}
 
+	public static PathbeanKey ofAllowEmptyFile(String path, String file){
+		return new PathbeanKey(path, file, true);
+	}
+
 	public static PathbeanKey of(String pathAndFile){
 		return of(pathAndFile, false);
 	}

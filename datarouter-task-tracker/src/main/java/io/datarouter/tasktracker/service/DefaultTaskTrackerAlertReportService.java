@@ -15,8 +15,8 @@
  */
 package io.datarouter.tasktracker.service;
 
+import io.datarouter.email.email.DatarouterHtmlEmailService;
 import io.datarouter.email.html.J2HtmlDatarouterEmailBuilder;
-import io.datarouter.web.email.DatarouterHtmlEmailService;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 

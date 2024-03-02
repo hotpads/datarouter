@@ -73,7 +73,7 @@ implements PhysicalTallyStorageNode{
 				List.of(key),
 				config);
 		List<Tally> result = findOp.wrappedCall();
-		return result.isEmpty() ? Optional.empty() : Optional.ofNullable(result.get(0).getTally());
+		return result.isEmpty() ? Optional.empty() : Optional.ofNullable(result.getFirst().getTally());
 	}
 
 	@Override

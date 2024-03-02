@@ -25,7 +25,7 @@ import jakarta.inject.Singleton;
 public class HBaseClientType implements ClientType<HBaseClientNodeFactory,HBaseClientManager>{
 
 	public static final String NAME = "hbase";
-	public static final String NAME_BIG_TABLE = "bigtable";
+	public static final String NAME_BIG_TABLE = "bigtableHbase";
 
 	@Inject
 	public HBaseClientType(DatarouterClientWebInspectorRegistry datarouterClientWebInspectorRegistry){
@@ -45,10 +45,6 @@ public class HBaseClientType implements ClientType<HBaseClientNodeFactory,HBaseC
 	@Override
 	public Class<HBaseClientManager> getClientManagerClass(){
 		return HBaseClientManager.class;
-	}
-
-	public static boolean isBigTable(ClientType<?,?> clientType){
-		return NAME_BIG_TABLE.equals(clientType.getName());
 	}
 
 }

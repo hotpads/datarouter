@@ -21,7 +21,6 @@ import java.util.TreeMap;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.exception.storage.httprecord.BaseHttpRequestRecord.FieldKeys;
 import io.datarouter.exception.storage.httprecord.HttpRequestRecord;
 import io.datarouter.web.util.http.RecordedHttpHeaders;
 
@@ -30,7 +29,7 @@ public class TrimTests{
 	@Test
 	public void trimTest(){
 		var path = new StringBuilder();
-		for(int i = 0; i < FieldKeys.path.getSize(); i++){
+		for(int i = 0; i < HttpRequestRecord.FieldKeys.path.getSize(); i++){
 			path.append(" ");
 		}
 		path.append(" "); // one too many
@@ -39,7 +38,7 @@ public class TrimTests{
 				null, "ip", "sessionRoles", "userToken", new RecordedHttpHeaders(new TreeMap<>()));
 		httpRequestRecord.trimPath();
 		String sanitizedPath = httpRequestRecord.getPath();
-		Assert.assertEquals(sanitizedPath.length(), FieldKeys.path.getSize());
+		Assert.assertEquals(sanitizedPath.length(), HttpRequestRecord.FieldKeys.path.getSize());
 		String end = sanitizedPath.substring(sanitizedPath.length() - 8, sanitizedPath.length());
 		Assert.assertEquals(end, " trimmed");
 	}

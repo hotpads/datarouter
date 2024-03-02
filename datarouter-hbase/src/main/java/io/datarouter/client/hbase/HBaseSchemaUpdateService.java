@@ -34,11 +34,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.client.hbase.client.HBaseConnectionHolder;
+import io.datarouter.email.email.DatarouterHtmlEmailService;
 import io.datarouter.email.type.DatarouterEmailTypes.SchemaUpdatesEmailType;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.model.serialize.fielder.TtlFielderConfig;
-import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.executor.DatarouterStorageExecutors.DatarouterSchemaUpdateScheduler;
 import io.datarouter.storage.config.properties.AdminEmail;
@@ -53,7 +53,6 @@ import io.datarouter.storage.serialize.fieldcache.DatabeanFieldInfo;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
 import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.config.settings.DatarouterSchemaUpdateEmailSettings;
-import io.datarouter.web.email.DatarouterHtmlEmailService;
 import io.datarouter.web.email.StandardDatarouterEmailHeaderService;
 import io.datarouter.web.handler.EmailingSchemaUpdateService;
 import io.datarouter.web.monitoring.BuildProperties;
@@ -124,7 +123,7 @@ public class HBaseSchemaUpdateService extends EmailingSchemaUpdateService{
 		}
 		return Arrays.stream(tableNames)
 				.map(TableName::getNameAsString)
-				.collect(WarnOnModifyList.deprecatedCollector());
+				.toList();
 	}
 
 	private Optional<SchemaUpdateResult> generateSchemaUpdate(

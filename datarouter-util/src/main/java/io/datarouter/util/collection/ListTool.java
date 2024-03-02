@@ -23,12 +23,16 @@ import io.datarouter.util.ComparableTool;
 
 public class ListTool{
 
-	public static <T> T getLast(List<T> list){
-		return list.size() < 1 ? null : list.get(list.size() - 1);
+	/**
+	 * @deprecated  Use List.getLast() or ListTool.findLast(list).orElse(null)
+	 */
+	@Deprecated
+	public static <T> T getLastOrNull(List<T> list){
+		return list.isEmpty() ? null : list.getLast();
 	}
 
 	public static <T> Optional<T> findLast(List<T> list){
-		return Optional.ofNullable(getLast(list));
+		return list.isEmpty() ? Optional.empty() : Optional.of(list.getLast());
 	}
 
 	public static <T extends Comparable<T>> int compare(List<T> as, List<T> bs){

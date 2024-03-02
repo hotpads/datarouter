@@ -20,7 +20,6 @@ import java.util.Objects;
 import java.util.function.Supplier;
 
 import io.datarouter.plugin.PluginInjector;
-import io.datarouter.scanner.WarnOnModifyList;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
@@ -34,7 +33,7 @@ public class SettingRootsSupplier implements Supplier<List<SettingRoot>>{
 	public List<SettingRoot> get(){
 		return pluginInjector.getInstances(SettingRoot.KEY).stream()
 				.filter(Objects::nonNull) // TODO remove null filtering
-				.collect(WarnOnModifyList.deprecatedCollector());
+				.toList();
 	}
 
 }

@@ -15,8 +15,8 @@
  */
 package io.datarouter.auth.web.config.routeset;
 
+import io.datarouter.auth.config.DatarouterAuthPaths;
 import io.datarouter.auth.role.DatarouterUserRole;
-import io.datarouter.auth.web.config.DatarouterAuthPaths;
 import io.datarouter.auth.web.web.DatarouterPermissionRequestHandler;
 import io.datarouter.auth.web.web.DatarouterSigninHandler;
 import io.datarouter.auth.web.web.DatarouterSignoutHandler;
@@ -46,15 +46,19 @@ public class DatarouterAuthRouteSet extends BaseRouteSet{
 		handle(paths.admin.editAccounts).withHandler(AdminEditUserHandler.class);
 		handle(paths.admin.editRoles).withHandler(AdminEditUserHandler.class).allowRoles(DatarouterUserRole.REQUESTOR);
 		handle(paths.admin.editUser).withHandler(AdminEditUserHandler.class).allowRoles(DatarouterUserRole.REQUESTOR);
-		handle(paths.admin.getAllRoles).withHandler(AdminEditUserHandler.class);
+		handle(paths.admin.getAllRoles).withHandler(AdminEditUserHandler.class)
+				.allowRoles(DatarouterUserRole.USER);
 		handle(paths.admin.getIsSamlEnabled).withHandler(AdminEditUserHandler.class);
 		handle(paths.admin.getUserDetails).withHandler(AdminEditUserHandler.class)
 				.allowRoles(DatarouterUserRole.REQUESTOR);
-		handle(paths.admin.getUserProfileImage).withHandler(AdminEditUserHandler.class);
-		handle(paths.admin.listUsers).withHandler(AdminEditUserHandler.class);
+		handle(paths.admin.getUserProfileImage).withHandler(AdminEditUserHandler.class)
+				.allowRoles(DatarouterUserRole.REQUESTOR);
+		handle(paths.admin.listUsers).withHandler(AdminEditUserHandler.class)
+				.allowRoles(DatarouterUserRole.USER);
 		handle(paths.admin.updatePassword).withHandler(AdminEditUserHandler.class);
 		handle(paths.admin.updateTimeZone).withHandler(AdminEditUserHandler.class);
-		handle(paths.admin.viewUsers).withHandler(AdminEditUserHandler.class);
+		handle(paths.admin.viewUsers).withHandler(AdminEditUserHandler.class)
+				.allowRoles(DatarouterUserRole.USER);
 
 		handleDir(paths.permissionRequest)
 				.withHandler(DatarouterPermissionRequestHandler.class)

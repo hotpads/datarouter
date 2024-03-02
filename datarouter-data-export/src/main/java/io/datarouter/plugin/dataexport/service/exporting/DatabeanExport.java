@@ -17,14 +17,16 @@ package io.datarouter.plugin.dataexport.service.exporting;
 
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Function;
 
-import io.datarouter.bytes.kvfile.io.write.KvFileWriter;
+import io.datarouter.bytes.blockfile.io.write.BlockfileWriter;
+import io.datarouter.bytes.blockfile.row.BlockfileRow;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.plugin.dataexport.service.exporting.DatabeanExportService.DatabeanExportRequest;
 import io.datarouter.plugin.dataexport.service.exporting.DatabeanExportService.DatabeanExportResponse;
-import io.datarouter.plugin.dataexport.service.exporting.DatabeanExportTracker.Nested.DatabeanExportTrackerType;
+import io.datarouter.plugin.dataexport.service.exporting.DatabeanExportTracker.DatabeanExportTrackerType;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.util.BlockfileDirectoryStorage;
@@ -79,16 +81,18 @@ public class DatabeanExport<
 	public void exportPart(int partId, Scanner<D> scanner){
 		tableTracker.activePartIds().add(partId);
 		var blockfileStorage = new BlockfileDirectoryStorage(request.tableDirectory());
-		KvFileWriter<D> kvFileWriter = request.kvFileService().makeKvFileWriter(
+		Function<D,BlockfileRow> rowEncoder = request.blockfileService().makeBlockfileRowCodec(request.node())::encode;
+		BlockfileWriter<D> kvFileWriter = request.blockfileService().makeBlockfileWriter(
 				blockfileStorage,
 				request.node(),
 				partId);
 		scanner
+				.map(rowEncoder)
 				.batch(DATABEANS_PER_BLOCK)
 				.each(tableTracker.databeanCount()::incrementBySize)
 				.each(tableTracker.rateTracker()::incrementBySize)
 				.periodic(LOG_PERIOD, $ -> tableTracker.logProgress())
-				.apply(kvFileWriter::write);
+				.apply(kvFileWriter::writeBlocks);
 		tableTracker.activePartIds().remove(partId);
 	}
 

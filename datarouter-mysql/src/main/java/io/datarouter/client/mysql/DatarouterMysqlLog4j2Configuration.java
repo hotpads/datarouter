@@ -25,7 +25,7 @@ import io.datarouter.logging.BaseLog4j2Configuration;
 import io.datarouter.logging.DatarouterLog4j2Configuration;
 import io.datarouter.logging.Log4j2Configurator;
 
-public class DatarouterMysqlLog4j2Configuration extends BaseLog4j2Configuration{
+public final class DatarouterMysqlLog4j2Configuration extends BaseLog4j2Configuration{
 
 	public DatarouterMysqlLog4j2Configuration(){
 		registerParent(DatarouterLog4j2Configuration.class);

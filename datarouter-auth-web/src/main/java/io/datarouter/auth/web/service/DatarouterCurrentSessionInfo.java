@@ -23,10 +23,10 @@ import javax.servlet.ServletRequest;
 
 import io.datarouter.auth.role.Role;
 import io.datarouter.auth.session.CurrentSessionInfo;
+import io.datarouter.auth.session.DatarouterSessionManager;
 import io.datarouter.auth.session.Session;
 import io.datarouter.auth.storage.user.session.DatarouterSession;
 import io.datarouter.web.user.authenticate.DatarouterAuthenticationFilter;
-import io.datarouter.web.user.session.DatarouterSessionManager;
 import jakarta.inject.Singleton;
 
 /**

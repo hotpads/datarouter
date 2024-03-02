@@ -45,7 +45,6 @@ import io.datarouter.model.field.encoding.FieldGeneratorType;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.storage.client.DatarouterClients;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.config.PutMethod;
@@ -213,7 +212,7 @@ extends BaseMysqlOp<Void>{
 	private void mysqlInsertOnDuplicateKeyUpdate(Connection connection, Collection<D> databeans){
 		List<List<Field<?>>> databeansFields = databeans.stream()
 				.map(fieldInfo::getFieldsWithValues)
-				.collect(WarnOnModifyList.deprecatedCollector());
+				.toList();
 		var sql = mysqlSqlFactory
 				.createSql(getClientId(), fieldInfo.getTableName(), fieldInfo.getDisableIntroducer())
 				.insert(fieldInfo.getTableName(), databeansFields, false)

@@ -111,12 +111,6 @@ public interface DatarouterS3Client{
 	 */
 	Scanner<String> scanPrefixes(BucketAndPrefix locationPrefix, String startAfter, String delimiter);
 
-	/**
-	 * Returns quickly when there are no subdirectories.
-	 */
-	boolean hasCommonPrefixes(BucketAndPrefix locationPrefix, String delimiter);
-
-	List<String> getCommonPrefixes(BucketAndPrefix locationPrefix, String delimiter);
 
 	default boolean existsPrefix(BucketAndPrefix locationPrefix){
 		return scan(locationPrefix).hasAny();
@@ -127,6 +121,24 @@ public interface DatarouterS3Client{
 				.findMax(Comparator.comparing(S3Object::lastModified));
 	}
 
+	/*--------- common prefixes ----------*/
+
+	/**
+	 * @deprecated  Performance is unpredictable.  Use scanPrefixes(prefix) with client-side logic.
+	 */
+	@Deprecated
+	boolean hasCommonPrefixes(BucketAndPrefix locationPrefix, String delimiter);
+
+	/**
+	 * @deprecated  Performance is unpredictable.  Use scanPrefixes(prefix) with client-side logic.
+	 */
+	@Deprecated
+	List<String> getCommonPrefixes(BucketAndPrefix locationPrefix, String delimiter);
+
+	/**
+	 * @deprecated  Performance is unpredictable.  Use scanPrefixes(prefix) with client-side logic.
+	 */
+	@Deprecated
 	Scanner<DirectoryDto> scanSubdirectories(
 			BucketAndPrefix locationPrefix,
 			String startAfter,
@@ -134,12 +146,20 @@ public interface DatarouterS3Client{
 			int pageSize,
 			boolean currentDirectory);
 
+	/**
+	 * @deprecated  Performance is unpredictable.  Use scanPrefixes(prefix) with client-side logic.
+	 */
+	@Deprecated
 	Scanner<DirectoryDto> scanFilesOnly(
 			BucketAndPrefix locationPrefix,
 			String startAfter,
 			String delimiter,
 			int pageSize);
 
+	/**
+	 * @deprecated  Performance is unpredictable.  Use scanPrefixes(prefix) with client-side logic.
+	 */
+	@Deprecated
 	Scanner<DirectoryDto> scanSubdirectoriesOnly(
 			BucketAndPrefix locationPrefix,
 			String startAfter,

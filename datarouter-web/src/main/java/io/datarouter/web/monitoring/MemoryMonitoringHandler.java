@@ -52,7 +52,6 @@ import io.datarouter.web.dispatcher.NonEagerInitHandler;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.monitoring.OutgoingIpFinderService.OutGoingIpWrapper;
-import io.datarouter.web.monitoring.memory.CgroupMemoryStatsDto;
 import io.datarouter.web.monitoring.memory.HostMemoryTool;
 import io.datarouter.web.monitoring.memory.VmNativeMemoryStatsDto;
 import j2html.attributes.Attr;
@@ -194,17 +193,17 @@ public class MemoryMonitoringHandler extends BaseHandler implements NonEagerInit
 	}
 
 	private String buildCgroupMemoryStatsTable(){
-		List<CgroupMemoryStatsDto> memoryStats = HostMemoryTool.extractCgroupMemoryStats()
-				.orElseGet($ -> new ArrayList<>());
+		Map<String, Long> memoryStats = HostMemoryTool.extractCgroupMemoryStats()
+				.orElseGet($ -> new HashMap<>());
 		if(memoryStats.isEmpty()){
 			return div().attr(Attr.STYLE, "display: none;").render();
 		}
 		var tbody = tbody()
 				.with(thead(tr(th("Category"), th("Memory value"))));
-		Scanner.of(memoryStats)
+		Scanner.of(memoryStats.entrySet())
 				.map(stat -> tr(
-						td(stat.category.getDisplay()),
-						td(ByteLength.ofBytes(stat.memoryBytes).toDisplay()).attr(Attr.ALIGN, "right")))
+						td(stat.getKey()),
+						td(ByteLength.ofBytes(stat.getValue()).toDisplay()).attr(Attr.ALIGN, "right")))
 				.forEach(tbody::with);
 		var table = table(tbody)
 				.withClass("table table-striped table-bordered table-sm");

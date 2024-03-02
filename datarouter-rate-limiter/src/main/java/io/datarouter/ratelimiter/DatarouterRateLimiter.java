@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.servlet.http.HttpServletRequest;
 
-import io.datarouter.instrumentation.count.Counters;
+import io.datarouter.instrumentation.metric.Metrics;
 import io.datarouter.ratelimiter.storage.BaseTallyDao;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.time.ZoneIds;
@@ -61,9 +61,9 @@ public class DatarouterRateLimiter{
 	public boolean allowed(String dynamicKey){
 		boolean allowed = internalAllow(makeKey(dynamicKey), true);
 		if(allowed){
-			Counters.inc(COUNTER_PREFIX + config.name + " allowed");
+			Metrics.count(COUNTER_PREFIX + config.name + " allowed");
 		}else{
-			Counters.inc(COUNTER_PREFIX + config.name + " limit reached");
+			Metrics.count(COUNTER_PREFIX + config.name + " limit reached");
 		}
 		return allowed;
 	}
@@ -76,9 +76,9 @@ public class DatarouterRateLimiter{
 		String ip = RequestTool.getIpAddress(request);
 		boolean allowed = internalAllow(makeKey(dynamicKey,ip), true);
 		if(allowed){
-			Counters.inc(COUNTER_PREFIX + "ip " + config.name + " allowed");
+			Metrics.count(COUNTER_PREFIX + "ip " + config.name + " allowed");
 		}else{
-			Counters.inc(COUNTER_PREFIX + "ip " + config.name + " limit reached");
+			Metrics.count(COUNTER_PREFIX + "ip " + config.name + " limit reached");
 		}
 		return allowed;
 	}
@@ -106,7 +106,7 @@ public class DatarouterRateLimiter{
 
 			// exceeded maxSpikeRequests
 			if(numRequests > config.maxSpikeRequests){
-				Counters.inc(HIT_COUNTER_NAME);
+				Metrics.count(HIT_COUNTER_NAME);
 				return false;
 			}
 			total += numRequests;
@@ -128,8 +128,8 @@ public class DatarouterRateLimiter{
 			Objects.requireNonNull(lastTime);
 
 			// add to get next available time
-			Counters.inc(HIT_COUNTER_NAME);
-			Counters.inc(EXCEEDED_AVG);
+			Metrics.count(HIT_COUNTER_NAME);
+			Metrics.count(EXCEEDED_AVG);
 			return false;
 		}
 		if(increment){

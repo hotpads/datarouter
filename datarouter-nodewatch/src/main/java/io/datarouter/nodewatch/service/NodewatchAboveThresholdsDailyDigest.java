@@ -30,7 +30,6 @@ import io.datarouter.nodewatch.service.TableSizeMonitoringService.PercentageCoun
 import io.datarouter.nodewatch.service.TableSizeMonitoringService.ThresholdCountStat;
 import io.datarouter.nodewatch.util.TableSizeMonitoringEmailBuilder;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
 import io.datarouter.web.digest.DailyDigestService;
@@ -66,7 +65,7 @@ public class NodewatchAboveThresholdsDailyDigest implements DailyDigest{
 				.map(Optional::get)
 				.sorted(Comparator.comparing(TableRow::header))
 				.map(TableRow::content)
-				.collect(WarnOnModifyList.deprecatedCollector());
+				.toList();
 		if(tables.isEmpty()){
 			return Optional.empty();
 		}

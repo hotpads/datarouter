@@ -28,6 +28,7 @@ import io.datarouter.bytes.HexBlockTool;
 /**
  * Try to break the codecs in every way.
  */
+@SuppressWarnings("unused")
 public class BinaryDtoComplexTests{
 
 	private static class ByteDto extends BinaryDto<ByteDto>{

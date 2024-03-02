@@ -34,7 +34,6 @@ import io.datarouter.pathnode.FilesRoot;
 import io.datarouter.pathnode.FilesRoot.NoOpFilesRoot;
 import io.datarouter.pathnode.PathNode;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.util.Require;
 import io.datarouter.util.io.FileTool;
 import io.datarouter.util.lang.ClassTool;
@@ -102,7 +101,7 @@ public abstract class BaseFilesTests implements TestableService{
 				.map(getRootDirectory()::concat)
 				.map(Paths::get)
 				.map(Path::toFile)
-				.collect(WarnOnModifyList.deprecatedCollector());
+				.toList();
 	}
 
 	private Set<String> getFilesToOmit(){

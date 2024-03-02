@@ -25,7 +25,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import io.datarouter.model.field.Field;
-import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.util.net.UrlTool;
 import io.datarouter.util.string.StringTool;
 
@@ -92,7 +91,7 @@ public class PercentFieldCodec{
 		List<String> eachEncoded = StringTool.splitOnCharNoRegex(encoded, CHAR_INTERNAL_SEPARATOR);
 		return eachEncoded.stream()
 				.map(UrlTool::decode)
-				.collect(WarnOnModifyList.deprecatedCollector());
+				.toList();
 
 	}
 

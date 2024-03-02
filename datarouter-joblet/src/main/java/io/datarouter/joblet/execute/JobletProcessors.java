@@ -26,7 +26,6 @@ import java.util.stream.Collectors;
 import io.datarouter.joblet.dto.RunningJoblet;
 import io.datarouter.joblet.type.JobletType;
 import io.datarouter.joblet.type.JobletTypeFactory;
-import io.datarouter.scanner.WarnOnModifyList;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
@@ -61,7 +60,7 @@ public class JobletProcessors{
 		return processorByType.values().stream()
 				.map(JobletProcessor::getRunningJoblets)
 				.flatMap(List::stream)
-				.collect(WarnOnModifyList.deprecatedCollector());
+				.toList();
 	}
 
 	public Optional<String> killThread(long threadId){

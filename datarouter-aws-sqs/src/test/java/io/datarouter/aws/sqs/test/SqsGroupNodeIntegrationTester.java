@@ -85,7 +85,7 @@ public class SqsGroupNodeIntegrationTester{
 		dao.put(databean);
 		GroupQueueMessage<TestDatabeanKey,TestDatabean> message = dao.peek(Duration.ofSeconds(5));
 		Assert.assertEquals(message.getDatabeans().size(), 1);
-		Assert.assertEquals(databean, message.getDatabeans().iterator().next());
+		Assert.assertEquals(databean, message.getDatabeans().getFirst());
 		Assert.assertNull(dao.peek());
 	}
 

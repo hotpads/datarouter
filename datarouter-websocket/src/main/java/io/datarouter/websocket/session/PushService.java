@@ -15,6 +15,7 @@
  */
 package io.datarouter.websocket.session;
 
+import java.util.Objects;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -60,15 +61,18 @@ public class PushService{
 		webSocketDao.delete(webSocketSessionKey);
 	}
 
+	public void setMode(WebSocketSession webSocketSession, String mode){
+		webSocketSession.setMode(mode);
+		webSocketDao.put(webSocketSession);
+	}
+
 	public long getNumberOfSession(String userToken){
 		WebSocketSessionKey prefix = new WebSocketSessionKey(userToken, null);
 		return webSocketDao.count(KeyRangeTool.forPrefix(prefix));
 	}
 
 	public void forwardToAll(String userToken, String message){
-		WebSocketSessionKey prefix = new WebSocketSessionKey(userToken, null);
-		webSocketDao.scanWithPrefix(prefix)
-				.forEach(session -> forward(session, message));
+		forward(userToken, null, null, message);
 	}
 
 	public void forwardToTopic(String topic, String message){
@@ -93,11 +97,18 @@ public class PushService{
 		boolean success = Boolean.parseBoolean(response.getEntity());
 		if(!success){
 			logger.error("Forwarding to {} failed: deleting the session", webSocketSession);
-			unregister(webSocketSession.getKey());
-			webSocketServices.listSampleInstances().forEach(service -> service.onSessionVacuum(webSocketSession
-					.getKey()));
+			WebSocketSessionKey key = webSocketSession.getKey();
+			unregister(key);
+			webSocketServices.listSampleInstances().forEach(service -> service.onSessionVacuum(key));
 		}
 		return success;
+	}
+
+	public boolean forward(String userToken, String mode, Long webSocketSessionId, String message){
+		WebSocketSessionKey prefix = new WebSocketSessionKey(userToken, webSocketSessionId);
+		return webSocketDao.scanWithPrefix(prefix)
+				.include(session -> Objects.equals(session.getMode(), mode))
+				.allMatch(session -> forward(session, message));
 	}
 
 	public boolean isAlive(WebSocketSession webSocketSession){

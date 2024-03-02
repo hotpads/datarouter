@@ -29,13 +29,11 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.bytes.KvString;
 import io.datarouter.model.key.primary.PrimaryKey;
-import io.datarouter.plugin.dataexport.service.exporting.DatabeanExportTracker.Nested.DatabeanExportTrackerType;
 import io.datarouter.plugin.dataexport.util.RateTracker;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.types.Ulid;
 import io.datarouter.util.Count;
 import io.datarouter.util.number.NumberFormatter;
-import io.datarouter.util.todo.NestedRecordImportWorkaround;
 
 public record DatabeanExportTracker(
 		DatabeanExportTrackerType type,
@@ -55,12 +53,9 @@ public record DatabeanExportTracker(
 		Duration logDelay){
 	private static final Logger logger = LoggerFactory.getLogger(DatabeanExportTracker.class);
 
-	@NestedRecordImportWorkaround
-	public static class Nested{
-		public enum DatabeanExportTrackerType{
-			TABLE,
-			PART;
-		}
+	public enum DatabeanExportTrackerType{
+		TABLE,
+		PART;
 	}
 
 	public DatabeanExportTracker(

@@ -18,7 +18,6 @@ package io.datarouter.web.dispatcher;
 import java.util.List;
 
 import io.datarouter.scanner.Scanner;
-import io.datarouter.web.handler.BaseHandler;
 
 public interface RouteSet{
 
@@ -29,7 +28,5 @@ public interface RouteSet{
 				.exclude(dispatchRule -> dispatchRule.getRedirectUrl().isPresent())
 				.list();
 	}
-
-	Class<? extends BaseHandler> getDefaultHandlerClass();
 
 }

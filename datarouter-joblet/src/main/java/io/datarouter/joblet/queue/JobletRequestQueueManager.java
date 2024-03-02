@@ -28,7 +28,6 @@ import io.datarouter.joblet.storage.jobletrequestqueue.JobletRequestQueueKey;
 import io.datarouter.joblet.type.JobletType;
 import io.datarouter.joblet.type.JobletTypeFactory;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.scanner.WarnOnModifyList;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
@@ -46,7 +45,7 @@ public class JobletRequestQueueManager{
 		queueKeys = Scanner.of(jobletTypeFactory.getAllTypes())
 				.concat(type -> Scanner.of(JobletPriority.values())
 						.map(priority -> new JobletRequestQueueKey(type, priority)))
-				.collect(WarnOnModifyList.deprecatedCollector());
+				.list();
 		queueKeys.forEach(key -> lastMissByQueue.put(key, 0L));
 	}
 

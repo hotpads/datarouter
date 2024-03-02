@@ -28,10 +28,10 @@ public class WarnOnModifyListTests{
 	public void testLogs(){
 		List<Integer> backingList = new ArrayList<>(List.of(0, 1));
 		List<Integer> warnList = new WarnOnModifyList<>(backingList);
-		Assert.assertEquals(0, warnList.get(0));
+		Assert.assertEquals(0, warnList.getFirst());
 		warnList.add(2);// logs
 		Assert.assertEquals(backingList, List.of(0, 1, 2));
-		warnList.add(0, 3);// logs
+		warnList.addFirst(3);// logs
 		Assert.assertEquals(backingList, List.of(3, 0, 1, 2));
 		warnList.remove(2);// logs
 		Assert.assertEquals(backingList, List.of(3, 0, 2));

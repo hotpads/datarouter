@@ -29,7 +29,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import io.datarouter.inject.DatarouterInjector;
-import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.util.lang.ClassTool;
 import io.datarouter.util.singletonsupplier.SingletonSupplier;
 import jakarta.inject.Inject;
@@ -70,7 +69,7 @@ public class ClientTypeRegistry{
 
 	private static List<String> listLines(URL url){
 		try(BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()))){
-			return reader.lines().collect(WarnOnModifyList.deprecatedCollector());
+			return reader.lines().toList();
 		}catch(IOException e){
 			throw new UncheckedIOException(e);
 		}

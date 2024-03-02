@@ -21,6 +21,7 @@ import com.google.gson.Gson;
 import com.google.inject.name.Names;
 
 import io.datarouter.auth.authenticate.saml.SamlRegistrar;
+import io.datarouter.auth.config.DatarouterAuthenticationConfig;
 import io.datarouter.auth.role.DatarouterRoleManager;
 import io.datarouter.auth.role.RoleManager;
 import io.datarouter.auth.session.CurrentSessionInfo;
@@ -35,6 +36,7 @@ import io.datarouter.gson.GsonJsonSerializer;
 import io.datarouter.gson.GsonTool;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder.NoOpChangelogRecorder;
+import io.datarouter.instrumentation.web.ContextName;
 import io.datarouter.json.JsonSerializer;
 import io.datarouter.secret.config.DatarouterSecretPlugin.DatarouterSecretPluginBuilder.DatarouterSecretPluginBuilderImpl;
 import io.datarouter.storage.config.guice.DatarouterStorageGuiceModule;
@@ -42,9 +44,10 @@ import io.datarouter.storage.config.properties.ServiceName;
 import io.datarouter.storage.setting.MemorySettingFinder;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.web.config.properties.DefaultEmailDistributionListZoneId;
-import io.datarouter.web.config.service.ContextName;
 import io.datarouter.web.config.service.PrivateDomain;
 import io.datarouter.web.config.service.PublicDomain;
+import io.datarouter.web.exception.ExceptionLinkBuilder;
+import io.datarouter.web.exception.ExceptionLinkBuilder.NoOpExceptionLinkBuilder;
 import io.datarouter.web.exception.ExceptionRecorder;
 import io.datarouter.web.exception.ExceptionRecorder.NoOpExceptionRecorder;
 import io.datarouter.web.handler.UserAgentTypeConfig;
@@ -59,7 +62,6 @@ import io.datarouter.web.navigation.AppNavBar;
 import io.datarouter.web.navigation.AppNavBarRegistrySupplier;
 import io.datarouter.web.navigation.AppNavBarRegistrySupplier.NoOpAppNavBarRegistry;
 import io.datarouter.web.user.authenticate.config.BaseDatarouterAuthenticationConfig;
-import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
 
 public class DatarouterWebGuiceModule extends BaseGuiceServletModule{
 
@@ -84,6 +86,7 @@ public class DatarouterWebGuiceModule extends BaseGuiceServletModule{
 		bindDefault(BaseDatarouterSamlDao.class, NoOpDatarouterSamlDao.class);
 
 		bindDefault(ExceptionRecorder.class, NoOpExceptionRecorder.class);
+		bindDefault(ExceptionLinkBuilder.class, NoOpExceptionLinkBuilder.class);
 
 		optionalBinder(AppNavBar.class);
 		bindDefault(RoleManager.class, DatarouterRoleManager.class);

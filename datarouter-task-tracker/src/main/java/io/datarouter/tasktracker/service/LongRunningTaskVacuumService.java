@@ -46,7 +46,7 @@ public class LongRunningTaskVacuumService{
 				.forEach(task -> {
 					String name = task.getKey().getName();
 					if(!relatedTasks.isEmpty()){
-						String previousName = ListTool.getLast(relatedTasks).getKey().getName();
+						String previousName = ListTool.getLastOrNull(relatedTasks).getKey().getName();
 						if(ObjectTool.notEquals(previousName, name)){
 							vacuumRelatedTasks(new ArrayList<>(relatedTasks));
 							relatedTasks.clear();

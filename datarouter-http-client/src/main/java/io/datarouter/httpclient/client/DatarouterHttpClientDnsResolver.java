@@ -22,7 +22,7 @@ import org.apache.http.impl.conn.SystemDefaultDnsResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.instrumentation.count.Counters;
+import io.datarouter.instrumentation.metric.Metrics;
 
 public class DatarouterHttpClientDnsResolver extends SystemDefaultDnsResolver{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterHttpClientDnsResolver.class);
@@ -36,9 +36,9 @@ public class DatarouterHttpClientDnsResolver extends SystemDefaultDnsResolver{
 	@Override
 	public InetAddress[] resolve(String host) throws UnknownHostException{
 		logger.debug("resolving httpClientName={} host={}", httpClientName, host);
-		Counters.inc("HttpClientDnsResolver global");
-		Counters.inc("HttpClientDnsResolver host " + host);
-		Counters.inc("HttpClientDnsResolver client-host " + httpClientName + " " + host);
+		Metrics.count("HttpClientDnsResolver global");
+		Metrics.count("HttpClientDnsResolver host " + host);
+		Metrics.count("HttpClientDnsResolver client-host " + httpClientName + " " + host);
 		return super.resolve(host);
 	}
 

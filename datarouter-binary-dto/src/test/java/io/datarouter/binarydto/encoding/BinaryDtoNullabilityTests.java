@@ -24,6 +24,7 @@ import io.datarouter.binarydto.dto.BinaryDtoField;
 
 public class BinaryDtoNullabilityTests{
 
+	@SuppressWarnings("unused")
 	private static class TestDto extends BinaryDto<TestDto>{
 		public final int f1;
 		@BinaryDtoField(nullable = true)

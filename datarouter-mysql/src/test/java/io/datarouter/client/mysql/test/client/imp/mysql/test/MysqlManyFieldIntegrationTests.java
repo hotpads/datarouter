@@ -15,6 +15,8 @@
  */
 package io.datarouter.client.mysql.test.client.imp.mysql.test;
 
+import java.util.Optional;
+
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Guice;
@@ -32,7 +34,7 @@ public class MysqlManyFieldIntegrationTests extends BaseManyFieldIntegrationTest
 
 	@BeforeClass
 	public void beforeClass(){
-		setup(DatarouterMysqlTestClientids.MYSQL, MysqlManyFieldTypeBeanFielder::new);
+		setup(DatarouterMysqlTestClientids.MYSQL, MysqlManyFieldTypeBeanFielder::new, Optional.empty());
 	}
 
 	@Test

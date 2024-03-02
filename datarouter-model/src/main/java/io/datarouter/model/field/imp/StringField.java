@@ -21,7 +21,9 @@ import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.bytes.TerminatedByteArrayTool;
 import io.datarouter.bytes.codec.stringcodec.StringCodec;
+import io.datarouter.bytes.codec.stringcodec.TerminatedStringCodec;
 import io.datarouter.model.field.BaseField;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.FieldKey;
@@ -163,6 +165,16 @@ public class StringField extends BaseField<String>{
 		int trimmedLength = Math.min(input.length(), 1_000);
 		String trimmedValue = input.substring(0, trimmedLength);
 		return StringTool.removeNonStandardCharacters(trimmedValue);
+	}
+
+	@Override
+	public byte[] getTerminatedKeyBytes(){
+		return value == null ? null : TerminatedByteArrayTool.escapeAndTerminate(getValueBytes());
+	}
+
+	@Override
+	public String fromEscapedAndTerminatedKeyBytes(byte[] bytes, int byteOffset){
+		return TerminatedStringCodec.UTF_8.decode(bytes, byteOffset).value();
 	}
 
 }

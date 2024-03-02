@@ -37,8 +37,8 @@ import io.datarouter.exception.utils.ExceptionDetailsDetector;
 import io.datarouter.exception.utils.ExceptionDetailsDetector.ExceptionRecorderDetails;
 import io.datarouter.httpclient.HttpHeaders;
 import io.datarouter.inject.DatarouterInjector;
-import io.datarouter.instrumentation.count.Counters;
 import io.datarouter.instrumentation.exception.ExceptionRecordDto;
+import io.datarouter.instrumentation.metric.Metrics;
 import io.datarouter.web.app.WebappName;
 import io.datarouter.web.config.DatarouterWebSettingRoot;
 import io.datarouter.web.exception.ExceptionRecorder;
@@ -91,8 +91,8 @@ public abstract class ExceptionHandlingFilter implements Filter, InjectorRetriev
 			exceptionId.ifPresent(id -> response.setHeader(HttpHeaders.X_EXCEPTION_ID, id));
 			writeExceptionToResponseWriter(response, e, request, exceptionId);
 		}
-		Counters.inc(webappName + " response " + response.getStatus());
-		Counters.inc("response " + response.getStatus());
+		Metrics.count(webappName + " response " + response.getStatus());
+		Metrics.count("response " + response.getStatus());
 		if(statusToLog.contains(response.getStatus())){
 			logger.warn("{} on {} ip={} userAgent={}", response.getStatus(), RequestTool.getRequestUriWithQueryString(
 					request), RequestTool.getIpAddress(request), RequestTool.getUserAgent(request));

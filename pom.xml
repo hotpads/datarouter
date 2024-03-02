@@ -21,7 +21,7 @@
 
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-modules</artifactId>
-	<version>0.0.123</version>
+	<version>0.0.124</version>
 	<packaging>pom</packaging>
 
 	<modules>
@@ -46,6 +46,7 @@
 		<module>datarouter-enum</module>
 		<module>datarouter-exception</module>
 		<module>datarouter-filesystem</module>
+		<module>datarouter-gcp-bigtable</module>
 		<module>datarouter-gcp-bigtable-hbase</module>
 		<module>datarouter-gcp-pubsub</module>
 		<module>datarouter-gcp-spanner</module>

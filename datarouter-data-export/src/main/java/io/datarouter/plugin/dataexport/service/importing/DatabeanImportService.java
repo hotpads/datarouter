@@ -24,15 +24,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.bytes.KvString;
-import io.datarouter.bytes.blockfile.storage.BlockfileStorage;
-import io.datarouter.bytes.kvfile.io.read.KvFileReader;
+import io.datarouter.bytes.blockfile.io.read.BlockfileReader;
+import io.datarouter.bytes.blockfile.io.storage.BlockfileStorage;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.nodewatch.util.PhysicalSortedNodeWrapper;
 import io.datarouter.plugin.dataexport.config.DatarouterDataExportExecutors.DatabeanImportPutMultiExecutor;
-import io.datarouter.plugin.dataexport.service.blockfile.DatabeanExportKvFileService;
-import io.datarouter.plugin.dataexport.service.blockfile.DatabeanExportKvFileStorageService;
+import io.datarouter.plugin.dataexport.service.blockfile.DatabeanExportBlockfileService;
+import io.datarouter.plugin.dataexport.service.blockfile.DatabeanExportBlockfileStorageService;
 import io.datarouter.plugin.dataexport.util.DatabeanExportFilenameTool;
 import io.datarouter.plugin.dataexport.util.RateTracker;
 import io.datarouter.scanner.Threads;
@@ -61,9 +61,9 @@ public class DatabeanImportService{
 	@Inject
 	private DatarouterNodes datarouterNodes;
 	@Inject
-	private DatabeanExportKvFileStorageService kvFileStorageService;
+	private DatabeanExportBlockfileStorageService blockfileStorageService;
 	@Inject
-	private DatabeanExportKvFileService kvFileService;
+	private DatabeanExportBlockfileService blockfileService;
 	@Inject
 	private DatabeanImportPutMultiExecutor putMultiExec;
 
@@ -74,7 +74,7 @@ public class DatabeanImportService{
 
 	public DatabeanImportResponse importAllTables(Ulid exportId){
 		var totalDatabeans = new AtomicLong(0);
-		Directory metaDirectory = kvFileStorageService.makeExportMetaDirectory(exportId);
+		Directory metaDirectory = blockfileStorageService.makeExportMetaDirectory(exportId);
 		List<String> nodeNames = metaDirectory.scanKeys(Subpath.empty())
 				.map(PathbeanKey::getFile)
 				.map(DatabeanExportFilenameTool::parseClientAndTableName)
@@ -98,7 +98,7 @@ public class DatabeanImportService{
 			Ulid exportId,
 			String nodeName){
 		var nodeWrapper = new PhysicalSortedNodeWrapper<PK,D,F>(datarouterNodes, nodeName);
-		Directory tableDataDirectory = kvFileStorageService.makeTableDataDirectory(exportId, nodeWrapper.node);
+		Directory tableDataDirectory = blockfileStorageService.makeTableDataDirectory(exportId, nodeWrapper.node);
 		return tableDataDirectory.scanKeys(Subpath.empty())
 				.map(DatabeanExportFilenameTool::partId)
 				.map(partId -> importPart(exportId, nodeName, partId))
@@ -114,15 +114,15 @@ public class DatabeanImportService{
 			String nodeName,
 			int partId){
 		var nodeWrapper = new PhysicalSortedNodeWrapper<PK,D,F>(datarouterNodes, nodeName);
-		BlockfileStorage blockfileTableStorage = kvFileStorageService.makeTableDataStorage(
+		BlockfileStorage blockfileTableStorage = blockfileStorageService.makeTableDataStorage(
 				exportId,
 				nodeWrapper.node);
-		var kvFileReaderReader = kvFileService.makeKvFileReader(
+		var blockfileReader = blockfileService.makeBlockfileReader(
 				blockfileTableStorage,
 				nodeWrapper.node,
 				partId);
 		return importFromBlockfile(
-				kvFileReaderReader,
+				blockfileReader,
 				exportId,
 				nodeWrapper.node,
 				PUT_BATCH_SIZE);
@@ -133,22 +133,22 @@ public class DatabeanImportService{
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
 	long importFromBlockfile(
-			KvFileReader<?> untypedKvFileReader,
+			BlockfileReader<?> untypedBlockfileReader,
 			Ulid exportId,
 			PhysicalSortedMapStorageNode<PK,D,F> node,
 			int putBatchSize){
 		logger.warn("importing {}", node.getName());
 		@SuppressWarnings("unchecked")
-		var blockfileReader = (KvFileReader<D>)untypedKvFileReader;
+		var blockfileReader = (BlockfileReader<D>)untypedBlockfileReader;
 		var counts = new Counts();
 		var numDatabeans = counts.add("numDatabeans");
 		var lastKey = new AtomicReference<PK>();
 		var rateTracker = new RateTracker();
-		blockfileReader.scan()
+		blockfileReader.sequential().scan()
 				.batch(putBatchSize)
 				.parallelUnordered(new Threads(putMultiExec, PUT_MULTI_THREADS))
 				.each(node::putMulti)
-				.each(batch -> lastKey.set(ListTool.getLast(batch).getKey()))
+				.each(batch -> lastKey.set(ListTool.getLastOrNull(batch).getKey()))
 				.each(numDatabeans::incrementBySize)
 				.each(rateTracker::incrementBySize)
 				.periodic(LOG_PERIOD, batch -> logProgress(

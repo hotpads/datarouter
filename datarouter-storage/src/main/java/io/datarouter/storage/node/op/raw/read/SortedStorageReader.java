@@ -23,7 +23,6 @@ import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.Node;
 import io.datarouter.storage.node.op.NodeOps;
@@ -174,7 +173,7 @@ extends NodeOps<PK,D>{
 	static <PK extends PrimaryKey<PK>> List<Range<PK>> getRangesFromPrefixes(Collection<PK> prefixes){
 		return prefixes.stream()
 				.map(KeyRangeTool::forPrefix)
-				.collect(WarnOnModifyList.deprecatedCollector());
+				.toList();
 	}
 
 	/*---------------------------- sub-interfaces ---------------------------*/

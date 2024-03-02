@@ -180,7 +180,7 @@ public class DatarouterTracer implements Tracer{
 		Integer parentSequence = null;
 		List<TraceSpanDto> spanStack = getSpanStack();
 		if(spanStack != null && !spanStack.isEmpty()){
-			TraceSpanDto parent = getSpanStack().get(getSpanStack().size() - 1);
+			TraceSpanDto parent = getSpanStack().getLast();
 			parentSequence = parent.getSequence();
 		}
 		var span = new TraceSpanDto(
@@ -246,14 +246,14 @@ public class DatarouterTracer implements Tracer{
 		if(spanStack == null || spanStack.isEmpty()){
 			return null;
 		}
-		return spanStack.get(spanStack.size() - 1);
+		return spanStack.getLast();
 	}
 
 	private TraceSpanDto popSpanFromStack(){
 		if(spanStack == null || spanStack.isEmpty()){
 			return null;
 		}
-		return spanStack.remove(spanStack.size() - 1);
+		return spanStack.removeLast();
 	}
 
 	/*---------------------------- object -----------------------------------*/

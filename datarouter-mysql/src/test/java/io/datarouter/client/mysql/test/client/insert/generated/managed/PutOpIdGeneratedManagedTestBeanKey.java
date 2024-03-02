@@ -31,6 +31,7 @@ implements PutOpGeneratedTestBeanKey<PutOpIdGeneratedManagedTestBeanKey>{
 	private Long id;
 
 	public static class FieldKeys{
+		@SuppressWarnings("deprecation")
 		public static final LongFieldKey id = new LongFieldKey("id")
 				.withFieldGeneratorType(FieldGeneratorType.MANAGED);
 	}

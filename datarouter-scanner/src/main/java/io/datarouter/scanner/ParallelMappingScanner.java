@@ -102,7 +102,7 @@ public class ParallelMappingScanner<T,R> extends BaseScanner<R>{
 	private Future<R> nextFuture() throws InterruptedException{
 		return allowUnorderedResults
 				? completionService.take()
-				: runningFutures.iterator().next();
+				: runningFutures.getFirst();
 	}
 
 }

@@ -43,8 +43,6 @@ public class SpannerDatabaseCreator{
 	private static final Logger logger = LoggerFactory.getLogger(SpannerDatabaseCreator.class);
 
 	@Inject
-	private SpannerTableOperationsGenerator tableOperationsGenerator;
-	@Inject
 	private SchemaUpdateOptions schemaUpdateOptions;
 
 	public void createIfMissing(Spanner spanner, DatabaseId databaseId, PhaseTimer timer){
@@ -77,7 +75,7 @@ public class SpannerDatabaseCreator{
 	private boolean hasTables(Spanner spanner, DatabaseId databaseId){
 		//use a throw-away client as it won't be able to see the database after it's created
 		DatabaseClient databaseClient = spanner.getDatabaseClient(databaseId);
-		Statement anyOperation = Statement.of(tableOperationsGenerator.getListOfTables());
+		Statement anyOperation = Statement.of(SpannerTableOperationsTool.getListOfTables());
 		try{
 			//this sometimes throws DatabaseNotFoundException, but it seems not always, so check if there's a table
 			ReadOnlyTransaction txn = databaseClient.singleUseReadOnlyTransaction();

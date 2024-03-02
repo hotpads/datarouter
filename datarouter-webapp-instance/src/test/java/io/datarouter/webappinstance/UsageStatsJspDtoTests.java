@@ -39,7 +39,7 @@ public class UsageStatsJspDtoTests{
 		Assert.assertEquals(leftUsage.mostCommon, "a");
 		Assert.assertEquals(leftUsage.uniqueCount, 1);
 		Assert.assertEquals(leftUsage.usage.size(), 1);
-		Assert.assertEquals(leftUsage.usage.get(0).getUsagePercentagePrintable(), "100.0");
+		Assert.assertEquals(leftUsage.usage.getFirst().getUsagePercentagePrintable(), "100.0");
 	}
 
 	@Test

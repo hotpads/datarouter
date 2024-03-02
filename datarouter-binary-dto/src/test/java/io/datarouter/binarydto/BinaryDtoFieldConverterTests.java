@@ -78,6 +78,7 @@ public class BinaryDtoFieldConverterTests{
 
 	}
 
+	@SuppressWarnings("unused")
 	private static class TestDto extends BinaryDto<TestDto>{
 
 		//convert to default (comparable 4 byte) int

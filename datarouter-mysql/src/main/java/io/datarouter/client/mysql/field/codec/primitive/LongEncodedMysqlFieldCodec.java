@@ -30,6 +30,7 @@ import io.datarouter.model.field.imp.comparable.LongEncodedField;
 public class LongEncodedMysqlFieldCodec<T>
 extends BaseMysqlFieldCodec<T,LongEncodedField<T>>{
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public SqlColumn getSqlColumnDefinition(boolean allowNullable, LongEncodedField<T> field){
 		return new SqlColumn(

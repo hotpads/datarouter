@@ -78,7 +78,7 @@ extends BaseScanner<List<DatabaseBlobKey>>{
 		if(this.current.isEmpty()){
 			return false;
 		}else{
-			this.startKey = this.current.get(this.current.size() - 1).getPathAndFile();
+			this.startKey = this.current.getLast().getPathAndFile();
 		}
 		return true;
 	}

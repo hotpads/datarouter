@@ -114,7 +114,7 @@ public class LeafBlockV1Encoder implements LeafBlockEncoder{
 
 	@Override
 	public byte[] firstKey(){
-		return entries.get(0).key();
+		return entries.getFirst().key();
 	}
 
 	//TODO move to encoding stage?

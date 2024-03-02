@@ -32,6 +32,8 @@ import java.util.stream.Collectors;
 
 import org.apache.http.HttpStatus;
 
+import io.datarouter.auth.config.DatarouterAuthPaths;
+import io.datarouter.auth.config.DatarouterAuthenticationConfig;
 import io.datarouter.auth.detail.DatarouterUserExternalDetailService;
 import io.datarouter.auth.detail.DatarouterUserExternalDetails;
 import io.datarouter.auth.detail.DatarouterUserProfileLink;
@@ -46,6 +48,9 @@ import io.datarouter.auth.role.Role;
 import io.datarouter.auth.role.RoleManager;
 import io.datarouter.auth.service.CurrentUserSessionInfoService;
 import io.datarouter.auth.service.DatarouterAccountUserService;
+import io.datarouter.auth.service.DatarouterUserCreationService;
+import io.datarouter.auth.service.DatarouterUserEditService;
+import io.datarouter.auth.service.DatarouterUserHistoryService;
 import io.datarouter.auth.service.DatarouterUserService;
 import io.datarouter.auth.session.SessionBasedUser;
 import io.datarouter.auth.storage.account.DatarouterAccountKey;
@@ -58,11 +63,7 @@ import io.datarouter.auth.storage.user.deprovisioneduser.DeprovisionedUserKey;
 import io.datarouter.auth.storage.user.permissionrequest.DatarouterPermissionRequestDao;
 import io.datarouter.auth.storage.user.userhistory.DatarouterUserHistoryLog;
 import io.datarouter.auth.web.config.DatarouterAuthFiles;
-import io.datarouter.auth.web.config.DatarouterAuthPaths;
 import io.datarouter.auth.web.service.CopyUserListener;
-import io.datarouter.auth.web.service.DatarouterUserCreationService;
-import io.datarouter.auth.web.service.DatarouterUserEditService;
-import io.datarouter.auth.web.service.DatarouterUserHistoryService;
 import io.datarouter.auth.web.service.PermissionRequestService;
 import io.datarouter.auth.web.web.CreateUserFormHtml;
 import io.datarouter.auth.web.web.adminedituser.dto.DatarouterUserHistoryDto;
@@ -71,7 +72,7 @@ import io.datarouter.auth.web.web.adminedituser.dto.EditAccountsRequestDto;
 import io.datarouter.auth.web.web.adminedituser.dto.EditRolesRequestDto;
 import io.datarouter.auth.web.web.adminedituser.dto.EditUserDetailDto;
 import io.datarouter.auth.web.web.adminedituser.dto.EditUserDetailsDto;
-import io.datarouter.auth.web.web.adminedituser.dto.EditUserDetailsDto.Nested.PagePermissionType;
+import io.datarouter.auth.web.web.adminedituser.dto.EditUserDetailsDto.PagePermissionType;
 import io.datarouter.auth.web.web.adminedituser.dto.GetAllRolesResponseDto;
 import io.datarouter.auth.web.web.adminedituser.dto.UpdatePasswordRequestDto;
 import io.datarouter.auth.web.web.adminedituser.dto.UpdateTimeZoneRequestDto;
@@ -81,7 +82,7 @@ import io.datarouter.httpclient.response.ApiResponseDto;
 import io.datarouter.httpclient.response.ApiResponseErrorDto;
 import io.datarouter.pathnode.PathNode;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.scanner.WarnOnModifyList;
+import io.datarouter.storage.config.properties.AdminEmail;
 import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.util.Require;
 import io.datarouter.util.string.StringTool;
@@ -94,7 +95,6 @@ import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import io.datarouter.web.html.react.bootstrap4.Bootstrap4ReactPageFactory;
 import io.datarouter.web.js.DatarouterWebJsTool;
 import io.datarouter.web.requirejs.DatarouterWebRequireJsV2;
-import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
 import io.datarouter.web.user.authenticate.saml.DatarouterSamlSettings;
 import io.datarouter.web.util.http.ResponseTool;
 import jakarta.inject.Inject;
@@ -144,6 +144,8 @@ public class AdminEditUserHandler extends BaseHandler{
 	private DatarouterSamlSettings samlSettings;
 	@Inject
 	private PermissionRequestService permissionRequestService;
+	@Inject
+	private AdminEmail adminEmail;
 
 	@Handler
 	private Mav viewUsers(){
@@ -441,7 +443,7 @@ public class AdminEditUserHandler extends BaseHandler{
 		return roles.stream()
 				.map(Role::getPersistentString)
 				.sorted(String.CASE_INSENSITIVE_ORDER)
-				.collect(WarnOnModifyList.deprecatedCollector());
+				.toList();
 	}
 
 	private boolean checkEditPermission(
@@ -481,13 +483,16 @@ public class AdminEditUserHandler extends BaseHandler{
 		List<DatarouterUserHistoryLog> userHistory = datarouterUserHistoryService.getHistoryForUser(user.getId());
 		List<DatarouterUserHistoryDto> history = Scanner.of(userHistory)
 				.map(historyRecord -> {
-					String currUsername = Optional.ofNullable(historyRecord.getEditor())
+					String editorUsername = Optional.ofNullable(historyRecord.getEditor())
 							.flatMap(id -> datarouterUserService.findUserById(id, false))
 							.map(DatarouterUser::getUsername)
-							.orElse(String.valueOf(historyRecord.getEditor()));
+							.orElseGet(() -> historyRecord.getEditor() != null
+									&& historyRecord.getEditor().equals(DatarouterUserCreationService.ADMIN_ID)
+									? adminEmail.get()
+									: String.valueOf(historyRecord.getEditor()));
 					return new DatarouterUserHistoryDto(
 							historyRecord.getKey().getTime().toEpochMilli(),
-							currUsername,
+							editorUsername,
 							historyRecord.getChangeType().persistentString,
 							historyRecord.getChanges());
 				})

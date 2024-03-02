@@ -22,17 +22,18 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Objects;
 
+import io.datarouter.auth.config.DatarouterAuthPaths;
 import io.datarouter.auth.model.dto.PermissionRequestDto;
+import io.datarouter.auth.service.DatarouterUserHistoryService;
 import io.datarouter.auth.service.DatarouterUserService;
 import io.datarouter.auth.storage.user.datarouteruser.DatarouterUser;
 import io.datarouter.auth.storage.user.permissionrequest.DatarouterPermissionRequestDao;
 import io.datarouter.auth.storage.user.permissionrequest.PermissionRequest;
-import io.datarouter.auth.web.config.DatarouterAuthPaths;
+import io.datarouter.email.email.DatarouterHtmlEmailService;
 import io.datarouter.email.type.DatarouterEmailTypes.PermissionRequestEmailType;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.types.MilliTime;
-import io.datarouter.web.email.DatarouterHtmlEmailService;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
@@ -52,12 +53,9 @@ public class PermissionRequestService{
 	@Inject
 	private DatarouterAuthPaths paths;
 	@Inject
-	private DatarouterUserEditService userEditService;
-	@Inject
 	private PermissionRequestEmailType permissionRequestEmailType;
 	@Inject
 	private ServerTypeDetector serverTypeDetector;
-
 
 	public List<PermissionRequestDto> getReverseChronologicalPermissionRequestDtos(
 			DatarouterUser user,
@@ -103,7 +101,7 @@ public class PermissionRequestService{
 				.build();
 		var content = p(message);
 		var emailBuilder = htmlEmailService.startEmailBuilder()
-				.withSubject(userEditService.getPermissionRequestEmailSubject(editedUser))
+				.withSubject(datarouterUserHistoryService.getPermissionRequestEmailSubject(editedUser))
 				.withTitle(EMAIL_TITLE)
 				.withTitleHref(titleHref)
 				.withContent(content)

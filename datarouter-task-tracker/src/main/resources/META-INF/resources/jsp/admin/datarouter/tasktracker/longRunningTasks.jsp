@@ -97,7 +97,9 @@
 							</c:if>>${task.status}</td>
 							<td>${task.triggeredBy}</td>
 							<td>
-								<a href="${task.hrefForException}">${task.exceptionRecordId}</a>
+								<c:if test="${not empty task.exceptionRecordId}">
+									<a href="${task.hrefForException}">${task.exceptionRecordId}</a>
+								</c:if>
 							</td>
 						</tr>
 					</c:forEach>

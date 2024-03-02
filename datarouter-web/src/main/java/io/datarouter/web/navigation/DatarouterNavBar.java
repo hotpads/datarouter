@@ -23,11 +23,10 @@ import java.util.Optional;
 import java.util.TreeMap;
 import java.util.function.Function;
 
+import io.datarouter.auth.config.DatarouterAuthenticationConfig;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.web.config.DatarouterWebFiles;
 import io.datarouter.web.navigation.NavBarCategory.NavBarItemType;
-import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
@@ -67,7 +66,7 @@ public class DatarouterNavBar extends NavBar{
 					item.dispatchRule.ifPresent(menuItem::setDispatchRule);
 					return menuItem;
 				})
-				.collect(WarnOnModifyList.deprecatedCollector());
+				.toList();
 		return new NavBarMenuItem(entry.getKey().display(), menuItems);
 	}
 

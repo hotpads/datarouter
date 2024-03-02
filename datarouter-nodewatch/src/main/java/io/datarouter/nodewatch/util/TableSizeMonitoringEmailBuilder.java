@@ -26,6 +26,7 @@ import java.time.ZoneId;
 import java.util.List;
 import java.util.function.Function;
 
+import io.datarouter.email.email.DatarouterHtmlEmailService;
 import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
 import io.datarouter.nodewatch.config.DatarouterNodewatchPaths;
@@ -38,7 +39,6 @@ import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.time.ZonedDateFormatterTool;
 import io.datarouter.web.config.properties.DefaultEmailDistributionListZoneId;
 import io.datarouter.web.digest.DailyDigestEmailZoneId;
-import io.datarouter.web.email.DatarouterHtmlEmailService;
 import io.datarouter.web.email.StandardDatarouterEmailHeaderService;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.BodyTag;

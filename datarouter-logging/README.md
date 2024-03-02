@@ -8,7 +8,7 @@ datarouter-logging extends log4j2 to provide logging configuration using type-sa
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-logging</artifactId>
-	<version>0.0.123</version>
+	<version>0.0.124</version>
 </dependency>
 ```
 
@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 
 public class Main{
 	private static final Logger logger = LoggerFactory.getLogger(Main.class);
-	
+
 	public static void main(String[] args){
 		logger.warn("sent to stdout");
 		logger.info("not sent to stdout");

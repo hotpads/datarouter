@@ -43,7 +43,6 @@ import io.datarouter.auth.storage.user.datarouteruser.cache.DatarouterUserByUser
 import io.datarouter.auth.storage.user.roleapprovals.DatarouterUserRoleApprovalDao;
 import io.datarouter.auth.util.PasswordTool;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.util.Require;
 import io.datarouter.util.string.StringTool;
 import jakarta.inject.Inject;
@@ -277,7 +276,7 @@ public class DatarouterUserService implements UserInfo{
 							Optional.of(canRevoke),
 							groupsHasByRole.get(availableRole));
 				})
-				.collect(WarnOnModifyList.deprecatedCollector());
+				.list();
 	}
 
 }

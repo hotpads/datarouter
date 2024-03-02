@@ -25,6 +25,7 @@ import io.datarouter.bytes.HexBlockTool;
 
 public class BinaryDtoStringTests{
 
+	@SuppressWarnings("unused")
 	private static class TestDto extends ComparableBinaryDto<TestDto>{
 
 		public final String s1;

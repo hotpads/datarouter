@@ -17,9 +17,7 @@ package io.datarouter.client.hbase.node;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Put;
@@ -71,32 +69,24 @@ implements PhysicalSortedMapStorageNode<PK,D,F>{
 
 	@Override
 	public void put(D databean, Config config){
-		putMulti(Collections.singletonList(databean), config);
+		putMulti(List.of(databean), config);
 	}
 
 	@Override
 	public void putMulti(Collection<D> databeans, Config config){
-		if(databeans == null || databeans.isEmpty()){
-			return;
-		}
-		int batchSize = config.findRequestBatchSize().orElse(100);
-		Scanner.of(databeans)
-				.include(Objects::nonNull)
+		ActionBatch batch = Scanner.of(databeans)
 				.map(databean -> makePutAndDelete(databean))
-				.batch(batchSize)
-				.map(ActionBatch::new)
-				.forEach(batch -> {
-					try(var $ = TracerTool.startSpan("Table batchCallback", TraceSpanGroupType.DATABASE)){
-						traceAndCount(
-								batch.actions.size(),
-								batch.numCellsPut,
-								batch.numCellsDeleted,
-								batch.putBytes,
-								batch.putValueBytes,
-								batch.deleteBytes);
-						execute(batch.actions);
-					}
-				});
+				.listTo(ActionBatch::new);
+		try(var $ = TracerTool.startSpan("HBase putMulti", TraceSpanGroupType.DATABASE)){
+			traceAndCount(
+					batch.actions.size(),
+					batch.numCellsPut,
+					batch.numCellsDeleted,
+					batch.putBytes,
+					batch.putValueBytes,
+					batch.deleteBytes);
+			execute(batch.actions);
+		}
 	}
 
 	private PutAndDelete makePutAndDelete(D databean){
@@ -182,6 +172,7 @@ implements PhysicalSortedMapStorageNode<PK,D,F>{
 				.add("putValueBytes", putValueBytes)
 				.add("deleteBytes", deleteBytes));
 		String clientName = clientTableNodeNames.getClientName();
+		DatarouterCounters.incClientNodeCustom(clientType, "put rpc", clientName, getName(), 1);
 		DatarouterCounters.incClientNodeCustom(clientType, "cells put", clientName, getName(), numCellsPut);
 		DatarouterCounters.incClientNodeCustom(clientType, "cells delete", clientName, getName(), numCellsDeleted);
 	}
@@ -199,19 +190,19 @@ implements PhysicalSortedMapStorageNode<PK,D,F>{
 
 	@Override
 	public void delete(PK key, Config config){
-		deleteMulti(Collections.singletonList(key), config);
+		deleteMulti(List.of(key), config);
 	}
 
 	@Override
 	public void deleteMulti(Collection<PK> keys, Config config){
-		Scanner.of(keys)
+		List<Delete> deletes = Scanner.of(keys)
 				.map(queryBuilder::getPkBytes)
 				.map(Delete::new)
-				.batch(config.findRequestBatchSize().orElse(100))
-				.forEach(deletes -> {
-					TracerTool.appendToSpanInfo("databeans", deletes.size());
-					execute(deletes);
-				});
+				.list();
+		try(var $ = TracerTool.startSpan("HBase deleteMulti", TraceSpanGroupType.DATABASE)){
+			TracerTool.appendToSpanInfo("keys", deletes.size());
+			execute(deletes);
+		}
 	}
 
 	/*------------------ private --------------------*/

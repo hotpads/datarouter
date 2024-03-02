@@ -15,6 +15,7 @@
  */
 package io.datarouter.auth.web.job;
 
+import io.datarouter.auth.config.DatarouterAuthenticationConfig;
 import io.datarouter.auth.storage.user.session.BaseDatarouterSessionDao;
 import io.datarouter.auth.storage.user.session.DatarouterSession;
 import io.datarouter.auth.storage.user.session.DatarouterSessionKey;
@@ -22,7 +23,6 @@ import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
 import io.datarouter.storage.vacuum.DatabeanVacuum;
 import io.datarouter.storage.vacuum.DatabeanVacuum.DatabeanVacuumBuilder;
-import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
 import jakarta.inject.Inject;
 
 public class DatarouterSessionVacuumJob extends BaseJob{

@@ -18,6 +18,9 @@ package io.datarouter.aws.rds.service;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
@@ -38,7 +41,6 @@ import com.amazonaws.services.rds.model.Tag;
 import io.datarouter.aws.rds.config.DatarouterAwsRdsConfigSettings;
 import io.datarouter.aws.rds.config.DatarouterAwsRdsConfigSettings.RdsCredentialsDto;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.util.number.RandomTool;
 import io.datarouter.util.retry.RetryableTool;
 import jakarta.inject.Inject;
@@ -46,6 +48,7 @@ import jakarta.inject.Singleton;
 
 @Singleton
 public class RdsService{
+	private static final Logger logger = LoggerFactory.getLogger(RdsService.class);
 
 	private static final int NUM_ATTEMPTS = 5;
 	private static final String AVAILABLE_STATUS = "available";
@@ -57,7 +60,7 @@ public class RdsService{
 		return getCluster(clusterName, region).getDBClusterMembers().stream()
 				.filter(m -> !m.isClusterWriter())
 				.map(DBClusterMember::getDBInstanceIdentifier)
-				.collect(WarnOnModifyList.deprecatedCollector());
+				.toList();
 	}
 
 	public boolean isReaderInstance(String instanceName, String clusterName, String region){
@@ -75,7 +78,7 @@ public class RdsService{
 		var request = new DescribeDBInstancesRequest().withDBInstanceIdentifier(instanceName);
 		int randomSleepMs = RandomTool.getRandomIntBetweenTwoNumbers(0, 3_000);
 		return RetryableTool.tryNTimesWithBackoffAndRandomInitialDelayUnchecked(
-				() -> getAmazonRdsReadOnlyClient(region).describeDBInstances(request).getDBInstances().get(0),
+				() -> getAmazonRdsReadOnlyClient(region).describeDBInstances(request).getDBInstances().getFirst(),
 				numRetryAttempts,
 				randomSleepMs,
 				true);
@@ -91,6 +94,7 @@ public class RdsService{
 
 	public void createOtherInstance(String clusterName, String region){
 		String otherInstanceName = clusterName + rdsSettings.dbOtherInstanceSuffix.get();
+		logger.warn("Request to create other instance={} for cluster={}", otherInstanceName, clusterName);
 		if(!getReaderInstanceIds(clusterName, region).contains(otherInstanceName)){
 			String availabilityZone = getWriterInstance(clusterName, region).getAvailabilityZone();
 			createDbInstance(otherInstanceName, clusterName, region, availabilityZone);
@@ -100,7 +104,7 @@ public class RdsService{
 	public void deleteOtherInstance(String instanceName, String region){
 		var describeRequest = new DescribeDBInstancesRequest().withDBInstanceIdentifier(instanceName);
 		String instanceStatus = getAmazonRdsCreateOtherClient(region).describeDBInstances(describeRequest)
-				.getDBInstances().get(0)
+				.getDBInstances().getFirst()
 				.getDBInstanceStatus();
 		if(instanceStatus.equals(AVAILABLE_STATUS) && instanceName.endsWith(
 				rdsSettings.dbOtherInstanceSuffix.get())){
@@ -143,7 +147,7 @@ public class RdsService{
 		if(result.size() > 1){
 			throw new RuntimeException(result.size() + " clusters found for " + clusterName);
 		}
-		return result.get(0);
+		return result.getFirst();
 	}
 
 	public ListTagsForResourceResult getTags(String instance, String region){

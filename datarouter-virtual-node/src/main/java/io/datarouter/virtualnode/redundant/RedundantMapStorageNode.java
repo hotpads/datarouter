@@ -34,7 +34,7 @@ implements MapStorageNode<PK,D,F>,
 		RedundantMapStorageMixin<PK,D,F,N>{
 
 	private RedundantMapStorageNode(List<N> nodes){
-		super(nodes, nodes.get(0));
+		super(nodes, nodes.getFirst());
 	}
 
 	public static <PK extends PrimaryKey<PK>,
@@ -43,7 +43,7 @@ implements MapStorageNode<PK,D,F>,
 			N extends MapStorageNode<PK,D,F>>
 	MapStorageNode<PK,D,F> makeIfMulti(List<N> nodes){
 		if(nodes.size() == 1){
-			return nodes.get(0);
+			return nodes.getFirst();
 		}
 		return new RedundantMapStorageNode<>(nodes);
 	}

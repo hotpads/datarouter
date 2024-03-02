@@ -62,8 +62,6 @@ public class SpannerSingleTableSchemaUpdateService{
 	@Inject
 	private SpannerDatabaseClientsHolder clientsHolder;
 	@Inject
-	private SpannerTableOperationsGenerator tableOperationsGenerator;
-	@Inject
 	private SpannerFieldCodecs fieldCodecs;
 	@Inject
 	private SpannerTableAlterSchemaService tableAlterSchemaService;
@@ -117,7 +115,8 @@ public class SpannerSingleTableSchemaUpdateService{
 				.list();
 		if(!existingTableNames.get().contains(tableName)){
 			statements.updateFunction(
-					tableOperationsGenerator.createTable(tableName, primaryKeyColumns, nonKeyColumns, entityTableName),
+					SpannerTableOperationsTool.createTable(tableName, primaryKeyColumns, nonKeyColumns,
+							entityTableName),
 					updateOptions::getCreateTables,
 					true);
 			Scanner.of(indexes, uniqueIndexes)
@@ -131,26 +130,26 @@ public class SpannerSingleTableSchemaUpdateService{
 			DatabaseClient databaseClient = clientsHolder.getDatabaseClient(clientId);
 			List<SpannerColumn> allColumns = Scanner.concat(primaryKeyColumns, nonKeyColumns)
 					.list();
-			var columnStatement = Statement.of(tableOperationsGenerator.getTableSchema(tableName));
+			var columnStatement = Statement.of(SpannerTableOperationsTool.getTableSchema(tableName));
 			ResultSet columnRs = databaseClient.singleUse().executeQuery(columnStatement);
-			var primaryKeyStatement = Statement.of(tableOperationsGenerator.getTableIndexColumnsSchema(tableName,
+			var primaryKeyStatement = Statement.of(SpannerTableOperationsTool.getTableIndexColumnsSchema(tableName,
 					"PRIMARY_KEY"));
 			ResultSet primaryKeyRs = databaseClient.singleUse().executeQuery(primaryKeyStatement);
 			tableAlterSchemaService.generateUpdateStatementColumns(tableName, allColumns, primaryKeyColumns,
 					columnRs, primaryKeyRs, statements);
-			var indexesStatement = Statement.of(tableOperationsGenerator.getTableIndexSchema(tableName));
+			var indexesStatement = Statement.of(SpannerTableOperationsTool.getTableIndexSchema(tableName));
 			ResultSet indexesRs = databaseClient.singleUse().executeQuery(indexesStatement);
 			Set<String> currentIndexes = tableAlterSchemaService.getIndexes(indexesRs);
 
 			Scanner.concat(indexes, uniqueIndexes)
 					.forEach(index -> {
-						Statement tableIndexColumnsSchema = Statement.of(tableOperationsGenerator
+						Statement tableIndexColumnsSchema = Statement.of(SpannerTableOperationsTool
 								.getTableIndexColumnsSchema(tableName, index.getIndexName()));
 						ResultSet indexRs = databaseClient.singleUse().executeQuery(tableIndexColumnsSchema);
 						if(!tableAlterSchemaService.indexEqual(index, indexRs)){
 							if(currentIndexes.contains(index.getIndexName())){
 								statements.updateFunction(
-										tableOperationsGenerator.dropIndex(index.getIndexName()),
+										SpannerTableOperationsTool.dropIndex(index.getIndexName()),
 										updateOptions::getDropIndexes,
 										false);
 							}
@@ -163,7 +162,7 @@ public class SpannerSingleTableSchemaUpdateService{
 					});
 
 			currentIndexes.forEach(name -> statements.updateFunction(
-					tableOperationsGenerator.dropIndex(name),
+					SpannerTableOperationsTool.dropIndex(name),
 					updateOptions::getDropIndexes,
 					false));
 		}
@@ -216,7 +215,7 @@ public class SpannerSingleTableSchemaUpdateService{
 				.map(codec -> codec.getSpannerColumn(false))
 				.list();
 		if(index.getNonKeyFields().isEmpty()){
-			return tableOperationsGenerator.createIndex(
+			return SpannerTableOperationsTool.createIndex(
 					index.getTableName(),
 					index.getIndexName(),
 					keyColumns,
@@ -232,7 +231,7 @@ public class SpannerSingleTableSchemaUpdateService{
 				.map(codec -> codec.getSpannerColumn(false))
 				.exclude(col -> primaryKeySet.contains(col.getName()))
 				.list();
-		return tableOperationsGenerator.createIndex(
+		return SpannerTableOperationsTool.createIndex(
 				index.getTableName(),
 				index.getIndexName(),
 				keyColumns,

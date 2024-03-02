@@ -121,15 +121,15 @@ public class BlobQueueStorageCombineAndPutIntegrationTests{
 	public void testDaoMultiDefaultMethodsSmall(){
 		List<byte[]> data = List.of(makeRandomBytes(), makeRandomBytes(), makeRandomBytes());
 
-		var tooSmallWithLength = getByteArrayStorage(data.get(0).length);
-		tooSmallWithLength.putRaw(data.get(0));//this works for raw
-		assertEqualByteArrayLists(tooSmallWithLength.data, List.of(data.get(0)));
+		var tooSmallWithLength = getByteArrayStorage(data.getFirst().length);
+		tooSmallWithLength.putRaw(data.getFirst());//this works for raw
+		assertEqualByteArrayLists(tooSmallWithLength.data, List.of(data.getFirst()));
 		//but not when length is added
 		Assert.expectThrows(
 				DataTooLargeException.class,
 				() -> tooSmallWithLength.combineAndPut(Scanner.of(data)));
 
-		var storage = getByteArrayStorage(data.get(0).length + 1);//item + length will just fit in a message
+		var storage = getByteArrayStorage(data.getFirst().length + 1);//item + length will just fit in a message
 		storage.combineAndPut(Scanner.of(data));
 
 		var withAndWithoutLengthLists = Scanner.of(storage.data)
@@ -139,7 +139,7 @@ public class BlobQueueStorageCombineAndPutIntegrationTests{
 		//test with length
 		for(int i = 0; i < data.size(); i++){
 			assertEqualByteArrayLists(
-					withAndWithoutLengthLists.get(0).get(i).scanSplitDecodedData().list(),
+					withAndWithoutLengthLists.getFirst().get(i).scanSplitDecodedData().list(),
 					List.of(data.get(i)));
 		}
 	}

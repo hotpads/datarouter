@@ -38,7 +38,7 @@ public class ShufflingScannerTests{
 		int numItems = 100;
 		List<Integer> input = Stream.iterate(0, i -> i + 1)
 				.limit(numItems)
-				.collect(WarnOnModifyList.deprecatedCollector());
+				.toList();
 		List<Integer> output = Scanner.of(input)
 				.shuffle()
 				.list();

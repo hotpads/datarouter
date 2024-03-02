@@ -77,7 +77,7 @@ public class PathService{
 				.splitBy(Files::isDirectory)
 				.map(Scanner::list)
 				.concat(directoriesOrFiles -> {
-					boolean isDirectories = Files.isDirectory(directoriesOrFiles.get(0));
+					boolean isDirectories = Files.isDirectory(directoriesOrFiles.getFirst());
 					if(isDirectories){
 						List<Path> directories = directoriesOrFiles;
 						if(includeDirectories){

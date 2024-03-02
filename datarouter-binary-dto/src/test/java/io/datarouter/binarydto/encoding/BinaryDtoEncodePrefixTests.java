@@ -26,6 +26,7 @@ public class BinaryDtoEncodePrefixTests{
 
 	private static class TestDto extends ComparableBinaryDto<TestDto>{
 
+		@SuppressWarnings("unused")
 		public final int f1;
 		@BinaryDtoField(nullable = false)
 		public final String f2;

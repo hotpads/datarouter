@@ -18,32 +18,32 @@ package io.datarouter.instrumentation.webappinstance;
 import java.time.Instant;
 import java.util.Date;
 
-public class WebappInstanceDto{
-
-	public final String webappName;
-	public final String serverName;
-	public final String serverType;
-	public final String servletContextPath;
-	public final String serverPublicIp;
-	public final String serverPrivateIp;
-	private final Instant refreshedLastInstant;
-	private final Instant startup;
-	private final Instant build;
-	public final String buildId;
-	public final String commitId;
-	public final String javaVersion;
-	public final String servletContainerVersion;
-	public final String gitBranch;
-	public final Integer httpsPort;
-
-	private Date refreshedLast;
-	private Date startupDate;
-	private Date buildDate;
+public record WebappInstanceDto(
+		String webappName,
+		String serverName,
+		String serverType,
+		String serviceName,
+		String servletContextPath,
+		String serverPublicIp,
+		String serverPrivateIp,
+		Instant refreshedLastInstant,
+		Instant startup,
+		Instant build,
+		String buildId,
+		String commitId,
+		String javaVersion,
+		String servletContainerVersion,
+		String gitBranch,
+		Integer httpsPort,
+		@Deprecated Date startupDate,
+		@Deprecated Date buildDate,
+		@Deprecated Date refreshedLast){
 
 	public WebappInstanceDto(
 			String webappName,
 			String serverName,
 			String serverType,
+			String serviceName,
 			String servletContextPath,
 			String serverPublicIp,
 			String serverPrivateIp,
@@ -56,42 +56,37 @@ public class WebappInstanceDto{
 			String servletContainerVersion,
 			String gitBranch,
 			Integer httpsPort){
-		this.webappName = webappName;
-		this.serverName = serverName;
-		this.serverType = serverType;
-		this.servletContextPath = servletContextPath;
-		this.serverPublicIp = serverPublicIp;
-		this.serverPrivateIp = serverPrivateIp;
-		this.refreshedLastInstant = refreshedLastInstant;
-		this.startup = startup;
-		this.build = build;
-		this.buildId = buildId;
-		this.commitId = commitId;
-		this.javaVersion = javaVersion;
-		this.servletContainerVersion = servletContainerVersion;
-		this.gitBranch = gitBranch;
-		this.httpsPort = httpsPort;
+		this(webappName,
+				serverName,
+				serverType,
+				serviceName,
+				servletContextPath,
+				serverPublicIp,
+				serverPrivateIp,
+				refreshedLastInstant,
+				startup,
+				build,
+				buildId,
+				commitId,
+				javaVersion,
+				servletContainerVersion,
+				gitBranch,
+				httpsPort,
+				null,
+				null,
+				null);
 	}
 
-	public Instant getRefreshedLast(){
-		if(refreshedLastInstant != null){
-			return refreshedLastInstant;
-		}
-		return refreshedLast.toInstant();
+	public Instant refreshedLastInstant(){
+		return refreshedLastInstant != null ? refreshedLastInstant : refreshedLast.toInstant();
 	}
 
-	public Instant getStartup(){
-		if(startup != null){
-			return startup;
-		}
-		return startupDate.toInstant();
+	public Instant startup(){
+		return startup != null ? startup : startupDate.toInstant();
 	}
 
-	public Instant getBuild(){
-		if(build != null){
-			return build;
-		}
-		return buildDate.toInstant();
+	public Instant build(){
+		return build != null ? build : buildDate.toInstant();
 	}
 
 }

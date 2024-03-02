@@ -23,7 +23,6 @@ import io.datarouter.model.field.Field;
 import io.datarouter.model.field.FieldKey;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
-import io.datarouter.scanner.WarnOnModifyList;
 
 public class IndexEntryFieldInfo<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>{
 
@@ -55,7 +54,7 @@ public class IndexEntryFieldInfo<PK extends PrimaryKey<PK>,D extends Databean<PK
 		return fields.stream()
 				.map(Field::getKey)
 				.map(FieldKey::getColumnName)
-				.collect(WarnOnModifyList.deprecatedCollector());
+				.toList();
 	}
 
 	public String getIndexName(){

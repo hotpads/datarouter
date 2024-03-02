@@ -21,9 +21,9 @@ import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 
+import io.datarouter.auth.config.DatarouterAuthPaths;
 import io.datarouter.auth.storage.account.credential.BaseDatarouterAccountCredentialDao;
 import io.datarouter.auth.storage.account.credential.DatarouterAccountCredential;
-import io.datarouter.auth.web.config.DatarouterAuthPaths;
 import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.digest.DailyDigest;

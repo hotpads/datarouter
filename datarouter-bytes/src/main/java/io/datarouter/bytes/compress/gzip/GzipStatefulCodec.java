@@ -59,7 +59,7 @@ public class GzipStatefulCodec implements Codec<byte[],byte[]>{
 
 	}
 
-	public class GzipStatefulDecoder{
+	public static class GzipStatefulDecoder{
 
 		private ByteArrayOutputStream buffer;
 

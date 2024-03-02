@@ -189,7 +189,7 @@ public class ReflectionTool{
 
 	public static Field getNestedField(Object object, List<String> fieldNames){
 		try{
-			String fieldName = fieldNames.get(0);
+			String fieldName = fieldNames.getFirst();
 			Field field = getDeclaredFieldFromAncestors(object.getClass(), fieldName);
 			field.setAccessible(true);
 			if(fieldNames != null && fieldNames.size() == 1){

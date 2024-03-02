@@ -15,6 +15,8 @@
  */
 package io.datarouter.gcp.spanner.test;
 
+import java.util.Optional;
+
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Guice;
 
@@ -27,7 +29,7 @@ public class SpannerManyFieldsIntegrationTests extends BaseManyFieldIntegrationT
 
 	@BeforeClass
 	public void beforeClass(){
-		setup(SpannerTestCliendIds.SPANNER, ManyFieldTypeBeanFielder::new);
+		setup(SpannerTestCliendIds.SPANNER, ManyFieldTypeBeanFielder::new, Optional.empty());
 	}
 
 }

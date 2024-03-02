@@ -15,6 +15,8 @@
  */
 package io.datarouter.client.mysql.test.client.imp.mysql.test;
 
+import java.util.Optional;
+
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Guice;
@@ -28,7 +30,7 @@ public class MysqlSortedNodeIntegrationTests extends BaseSortedNodeIntegrationTe
 
 	@BeforeClass
 	public void beforeClass(){
-		setup(DatarouterMysqlTestClientids.MYSQL);
+		setup(DatarouterMysqlTestClientids.MYSQL, Optional.empty());
 	}
 
 	@Override

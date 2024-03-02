@@ -27,7 +27,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.scanner.Scanner;
-import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.util.singletonsupplier.SingletonSupplier;
 import io.datarouter.web.dispatcher.DispatchRule;
 
@@ -49,7 +48,7 @@ public class NavBarMenuItem{
 		this.text = text;
 		this.subItems = subItems.stream()
 				.filter(Objects::nonNull)
-				.collect(WarnOnModifyList.deprecatedCollector());
+				.toList();
 		this.dispatchRule = SingletonSupplier.of(Optional::empty);
 		this.openInNewTab = false;
 	}

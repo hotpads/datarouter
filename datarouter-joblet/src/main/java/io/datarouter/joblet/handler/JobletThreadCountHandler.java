@@ -25,7 +25,6 @@ import io.datarouter.joblet.JobletPageFactory;
 import io.datarouter.joblet.service.JobletService;
 import io.datarouter.joblet.service.JobletService.JobletServiceThreadCountResponse;
 import io.datarouter.joblet.type.JobletTypeFactory;
-import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.util.BooleanTool;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
@@ -53,7 +52,7 @@ public class JobletThreadCountHandler extends BaseHandler{
 		List<String> serverNames = cachedWebAppInstancesOfThisServerType.getSortedServerNamesForThisWebApp();
 		List<JobletServiceThreadCountResponse> threadCountResponses = jobletTypeFactory.getAllTypes().stream()
 				.map(jobletService::getThreadCountInfoForThisInstance)
-				.collect(WarnOnModifyList.deprecatedCollector());
+				.toList();
 		var content = makeContent(
 				serverNames,
 				threadCountResponses);

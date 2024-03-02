@@ -20,11 +20,10 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Optional;
 
+import io.datarouter.auth.config.DatarouterAuthenticationConfig;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.web.navigation.NavBarCategory.NavBarItemType;
 import io.datarouter.web.navigation.NavBarCategory.SimpleNavBarCategory;
-import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
 
 public class AppNavBar extends NavBar{
 
@@ -61,11 +60,11 @@ public class AppNavBar extends NavBar{
 	private NavBarMenuItemWrapper createMenuItem(Entry<SimpleNavBarCategory,List<NavBarItem>> entry){
 		if(entry.getValue().size() == 1 && entry.getKey().allowSingleItemMenu()){
 			var item = new NavBarMenuItem(
-					entry.getValue().get(0).path,
+					entry.getValue().getFirst().path,
 					entry.getKey().display(),
-					entry.getValue().get(0).openInNewTab,
+					entry.getValue().getFirst().openInNewTab,
 					this);
-			entry.getValue().get(0).dispatchRule.ifPresent(item::setDispatchRule);
+			entry.getValue().getFirst().dispatchRule.ifPresent(item::setDispatchRule);
 			return new NavBarMenuItemWrapper(item, entry.getKey().grouping().group);
 		}
 		List<NavBarMenuItem> menuItems = entry.getValue().stream()
@@ -75,7 +74,7 @@ public class AppNavBar extends NavBar{
 					item.dispatchRule.ifPresent(menuItem::setDispatchRule);
 					return menuItem;
 				})
-				.collect(WarnOnModifyList.deprecatedCollector());
+				.toList();
 		var item = new NavBarMenuItem(entry.getKey().display(), menuItems);
 		return new NavBarMenuItemWrapper(item, entry.getKey().grouping().group);
 	}

@@ -26,6 +26,7 @@ import io.datarouter.tasktracker.storage.LongRunningTask;
 import io.datarouter.tasktracker.storage.LongRunningTaskDao;
 import io.datarouter.tasktracker.storage.LongRunningTaskKey;
 import io.datarouter.tasktracker.web.LongRunningTasksHandler.LongRunningTaskJspDto;
+import io.datarouter.web.exception.ExceptionLinkBuilder;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import jakarta.inject.Inject;
@@ -38,6 +39,8 @@ public class JobsHealthHandler extends BaseHandler{
 	private DatarouterTaskTrackerFiles files;
 	@Inject
 	private CurrentUserSessionInfoService currentUserSessionInfoService;
+	@Inject
+	private ExceptionLinkBuilder exceptionLinkBuilder;
 
 	@Handler(defaultHandler = true)
 	Mav uniqueTasks(){
@@ -56,7 +59,10 @@ public class JobsHealthHandler extends BaseHandler{
 		List<LongRunningTaskJspDto> allBadTasks = new ArrayList<>();
 		for(LongRunningTask task : allTasks){
 			if(task.isBadState()){
-				allBadTasks.add(new LongRunningTaskJspDto(task, zoneId));
+				allBadTasks.add(new LongRunningTaskJspDto(
+						task,
+						zoneId,
+						exceptionLinkBuilder));
 			}else if(task.isRunning()){
 				numRunningJobs++;
 			}

@@ -172,12 +172,15 @@ public class CodeOverridesTool{
 					}));
 
 		// environmentCategory overrides
+		String winnerEnvironmentCategoryName = defaultValueWinner.environmentCategoryName != null
+				? defaultValueWinner.environmentCategoryName
+				: "";
 		defaults.getValueByEnvironmentCategoryNameByEnvironmentType()
 				.forEach((environmentType, defaultByEnvironmentCategory) ->
 					defaultByEnvironmentCategory.forEach((environmentCategory, value) -> {
 					boolean isActive = !isGlobalDefault
 							&& winnerEnvironmentType.equals(environmentType.getPersistentString())
-							&& winnerEnvironmentName.equals(environmentCategory);
+							&& winnerEnvironmentCategoryName.equals(environmentCategory);
 					boolean isWinner = !hasDatabaseOverride
 							&& isActive
 							&& defaultValueWinner.type == DefaultSettingValueWinnerType.ENVIRONMENT_CATEGORY;

@@ -32,8 +32,7 @@ public class WebSocketSessionKey extends BaseRegularPrimaryKey<WebSocketSessionK
 
 	public static class FieldKeys{
 		public static final StringFieldKey userToken = new StringFieldKey("userToken");
-		public static final LongFieldKey id = new LongFieldKey("id")
-				.withFieldGeneratorType(FieldGeneratorType.RANDOM);
+		public static final LongFieldKey id = new LongFieldKey("id").withFieldGeneratorType(FieldGeneratorType.RANDOM);
 	}
 
 	@Override
@@ -44,7 +43,6 @@ public class WebSocketSessionKey extends BaseRegularPrimaryKey<WebSocketSessionK
 	}
 
 	public WebSocketSessionKey(){
-		this(null, null);
 	}
 
 	public WebSocketSessionKey(String userToken, Long id){

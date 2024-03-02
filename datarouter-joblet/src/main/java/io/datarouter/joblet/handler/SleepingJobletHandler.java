@@ -118,8 +118,15 @@ public class SleepingJobletHandler extends BaseHandler{
 			SleepingJobletParams params = new SleepingJobletParams(String.valueOf(i), sleepMs.get(),
 					numFailuresForThisJoblet);
 			int batchSequence = i;//specify this so joblets execute in precise order
-			JobletPackage jobletPackage = JobletPackage.createDetailed(SleepingJoblet.JOBLET_TYPE, priority, Instant
-					.now(), batchSequence, true, null, null, params);
+			JobletPackage jobletPackage = JobletPackage.createDetailed(
+					SleepingJoblet.JOBLET_TYPE,
+					priority,
+					Instant.now(),
+					batchSequence,
+					true,
+					null,
+					null,
+					params);
 			jobletPackages.add(jobletPackage);
 		}
 		jobletService.submitJobletPackages(jobletPackages);

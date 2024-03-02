@@ -111,7 +111,7 @@ public class LruTtlCache<K,V>{
 			map.remove(key);
 			return null;
 		}
-		return object.value;
+		return object.value();
 	}
 
 	// only used for tests

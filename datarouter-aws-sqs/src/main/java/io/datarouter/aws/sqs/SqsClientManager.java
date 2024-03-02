@@ -30,7 +30,7 @@ import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.model.QueueAttributeName;
 
 import io.datarouter.aws.sqs.config.DatarouterSqsSettingsRoot;
-import io.datarouter.instrumentation.count.Counters;
+import io.datarouter.instrumentation.metric.Metrics;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.BaseClientManager;
 import io.datarouter.storage.client.ClientId;
@@ -145,7 +145,7 @@ public class SqsClientManager extends BaseClientManager{
 					}else{
 						count("queueWithData", 1);
 						// most recent value is first
-						queueNamesAndApproximateAgeOfOldestMessage.put(queueName, res.values().get(0).longValue());
+						queueNamesAndApproximateAgeOfOldestMessage.put(queueName, res.values().getFirst().longValue());
 					}
 				});
 			}while(nextToken != null);
@@ -160,7 +160,7 @@ public class SqsClientManager extends BaseClientManager{
 	}
 
 	private void count(String string, long delta){
-		Counters.inc("GetMetricData ApproximateAgeOfOldestMessage " + string, delta);
+		Metrics.count("GetMetricData ApproximateAgeOfOldestMessage " + string, delta);
 	}
 
 	public Map<String,String> getQueueAttributes(ClientId clientId, String queueUrl, List<String> attributes){

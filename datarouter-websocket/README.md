@@ -10,7 +10,7 @@ Datarouter-websocket helps setting up websocket in a tomcat environment, managin
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-websocket</artifactId>
-	<version>0.0.123</version>
+	<version>0.0.124</version>
 </dependency>
 ```
 

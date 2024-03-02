@@ -285,7 +285,7 @@ public class JobWrapper implements Callable<Void>{
 				+ jobClass.getSimpleName() + " durationMs=" + elapsedTime.toMillis();
 		if(startDelayMs > 1000){
 			JobCounters.startedAfterLongDelay(jobClass);
-			jobCompletionLog += " startDelayMs= " + startDelayMs;
+			jobCompletionLog += " startDelayMs=" + startDelayMs;
 		}
 		if(nextJobTriggerTime.isPresent() && Instant.now().isAfter(nextJobTriggerTime.get())){
 			JobCounters.missedNextTrigger(jobClass);

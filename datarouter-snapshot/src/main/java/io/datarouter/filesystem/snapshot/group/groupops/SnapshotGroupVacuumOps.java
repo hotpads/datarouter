@@ -99,7 +99,7 @@ public class SnapshotGroupVacuumOps{
 	}
 
 	private SnapshotKey getSnapshotKeyForFile(PathbeanKey pathbeanKey){
-		return new SnapshotKey(groupId, pathbeanKey.getPathSegments().get(0));
+		return new SnapshotKey(groupId, pathbeanKey.getPathSegments().getFirst());
 	}
 
 }

@@ -23,7 +23,7 @@ public class ConveyorTraceConveyorConfigurationGroup extends ConveyorConfigurati
 
 	public ConveyorTraceConveyorConfigurationGroup(){
 		registerConveyor(
-				"conveyorTraceMemoryToPublisher",
+				"datarouterConveyorTracePublisher",
 				ConveyorTraceMemoryToPublisherConveyorConfiguration.class);
 	}
 

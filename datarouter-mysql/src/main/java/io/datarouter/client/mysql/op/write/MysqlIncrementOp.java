@@ -100,7 +100,7 @@ extends BaseMysqlOp<Long>{
 					fieldInfo.getDatabeanSupplier(),
 					fieldInfo.getFields(),
 					selectStatement);
-			return tallies.isEmpty() ? null : tallies.get(0).getTally();
+			return tallies.isEmpty() ? null : tallies.getFirst().getTally();
 		}catch(SQLException e){
 			try{
 				connection.rollback();

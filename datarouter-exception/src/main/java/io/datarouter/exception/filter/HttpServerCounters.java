@@ -15,12 +15,12 @@
  */
 package io.datarouter.exception.filter;
 
-import io.datarouter.instrumentation.count.Counters;
+import io.datarouter.instrumentation.metric.Metrics;
 
 public class HttpServerCounters{
 
 	public static void count(String string){
-		Counters.inc("HttpServer " + string);
+		Metrics.count("HttpServer " + string);
 	}
 
 }

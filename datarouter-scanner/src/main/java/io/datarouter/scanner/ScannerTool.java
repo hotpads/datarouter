@@ -233,8 +233,8 @@ public class ScannerTool{
 		if(item.isEmpty()){
 			return new EmptyScanner<>();
 		}
-		action.accept(item.get(0));
-		return ObjectScanner.of(item.get(0)).append(scanner);
+		action.accept(item.getFirst());
+		return ObjectScanner.of(item.getFirst()).append(scanner);
 	}
 
 	public static <T> Optional<T> reduce(Scanner<T> scanner, BinaryOperator<T> reducer){

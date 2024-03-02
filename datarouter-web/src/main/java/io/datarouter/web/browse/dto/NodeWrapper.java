@@ -20,7 +20,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
-import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.storage.node.Node;
 import io.datarouter.storage.node.op.raw.SortedStorage;
 import io.datarouter.util.net.UrlTool;
@@ -62,7 +61,7 @@ public class NodeWrapper{
 	public static List<NodeWrapper> getNodeWrappers(Collection<Node<?,?,?>> nodes){
 		return nodes.stream()
 				.flatMap(node -> addNodeAndChildren(node, 0))
-				.collect(WarnOnModifyList.deprecatedCollector());
+				.toList();
 	}
 
 	public static Stream<NodeWrapper> addNodeAndChildren(Node<?,?,?> node, int indent){

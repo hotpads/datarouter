@@ -21,13 +21,13 @@ import java.util.Set;
 
 import io.datarouter.auth.role.Role;
 import io.datarouter.auth.role.RoleManager;
+import io.datarouter.auth.service.DatarouterUserCreationService;
+import io.datarouter.auth.service.DatarouterUserHistoryService;
 import io.datarouter.auth.storage.user.datarouteruser.DatarouterUser;
 import io.datarouter.auth.storage.user.datarouteruser.DatarouterUserDao;
 import io.datarouter.auth.storage.user.userhistory.DatarouterUserHistoryDao;
 import io.datarouter.auth.storage.user.userhistory.DatarouterUserHistoryLog;
 import io.datarouter.auth.storage.user.userhistory.DatarouterUserHistoryLog.DatarouterUserChangeType;
-import io.datarouter.auth.web.service.DatarouterUserCreationService;
-import io.datarouter.auth.web.service.DatarouterUserHistoryService;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDto;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDtoBuilder;

@@ -22,6 +22,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import org.testng.Assert;
@@ -45,8 +46,9 @@ public abstract class BaseManyFieldIntegrationTests{
 
 	protected DatarouterManyFieldTestDao dao;
 
-	public void setup(ClientId clientId, Supplier<ManyFieldTypeBeanFielder> fielderSupplier){
-		this.dao = new DatarouterManyFieldTestDao(datarouter, nodeFactory, clientId, fielderSupplier);
+	public void setup(ClientId clientId, Supplier<ManyFieldTypeBeanFielder> fielderSupplier,
+			Optional<String> tableName){
+		this.dao = new DatarouterManyFieldTestDao(datarouter, nodeFactory, clientId, fielderSupplier, tableName);
 		resetTable();
 	}
 

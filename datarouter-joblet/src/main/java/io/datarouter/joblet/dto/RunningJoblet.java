@@ -21,26 +21,40 @@ import java.util.Optional;
 import io.datarouter.joblet.model.JobletPackage;
 import io.datarouter.joblet.type.JobletType;
 import io.datarouter.util.DateTool;
+import io.datarouter.util.todo.ConvertToRecord;
 
+@ConvertToRecord
 public class RunningJoblet{
 
-	private String name;
-	private String id;
-	private Instant startedAt;
-	private String queueId;
-	private String jobletData;
+	private final String name;
+	private final String id;
+	private final Instant startedAt;
+	private final String queueId;
+	private final String jobletData;
 
-	public RunningJoblet(JobletType<?> jobletType, long id, Instant startedAt, Optional<JobletPackage> jobletPackage){
+	public RunningJoblet(
+			JobletType<?> jobletType,
+			long id,
+			Instant startedAt,
+			Optional<JobletPackage> jobletPackage){
 		this.name = jobletType.getPersistentString();
 		this.id = Long.toString(id);
 		this.startedAt = startedAt;
 		if(jobletPackage.isPresent()){
 			this.queueId = jobletPackage.get().getJobletRequest().getQueueId();
 			this.jobletData = jobletPackage.get().getJobletData().getData();
+		}else{
+			this.queueId = null;
+			this.jobletData = null;
 		}
 	}
 
-	private RunningJoblet(String name, String id, Instant startedAt, String queueId, String jobletData){
+	private RunningJoblet(
+			String name,
+			String id,
+			Instant startedAt,
+			String queueId,
+			String jobletData){
 		this.name = name;
 		this.id = id;
 		this.startedAt = startedAt;

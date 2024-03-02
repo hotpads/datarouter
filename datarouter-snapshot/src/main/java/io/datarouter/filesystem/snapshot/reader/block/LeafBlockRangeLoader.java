@@ -50,8 +50,8 @@ public class LeafBlockRangeLoader{
 
 		public LeafBlockRange(List<BlockKey> blockKeys){
 			this.blockKeys = blockKeys;
-			firstBlockKey = blockKeys.get(0);
-			lastBlockKey = ListTool.getLast(blockKeys);
+			firstBlockKey = blockKeys.getFirst();
+			lastBlockKey = ListTool.getLastOrNull(blockKeys);
 			snapshotKey = firstBlockKey.snapshotKey();
 			fileId = firstBlockKey.fileId();
 			Require.equals(firstBlockKey.fileId(), lastBlockKey.fileId());

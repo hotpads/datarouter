@@ -92,11 +92,11 @@ public class DatarouterViewNodesHandler extends BaseHandler{
 	}
 
 	private String getClientName(Node<?,?,?> node){
-		return node.getClientIds().get(0).getName();
+		return node.getClientIds().getFirst().getName();
 	}
 
 	private String getClientTypeName(Node<?,?,?> node){
-		return datarouterClients.getClientTypeInstance(node.getClientIds().get(0)).getName();
+		return datarouterClients.getClientTypeInstance(node.getClientIds().getFirst()).getName();
 	}
 
 }

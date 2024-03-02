@@ -15,6 +15,7 @@
  */
 package io.datarouter.exception.config;
 
+import io.datarouter.storage.config.environment.EnvironmentType;
 import io.datarouter.storage.setting.DatarouterSettingCategory;
 import io.datarouter.storage.setting.DatarouterSettingTagType;
 import io.datarouter.storage.setting.Setting;
@@ -38,6 +39,7 @@ public class DatarouterExceptionSettingRoot extends SettingRoot{
 	public final CachedSetting<Boolean> runExceptionRecordVacuum;
 	public final CachedSetting<Boolean> runHttpRequestRecordVacuumJob;
 
+	public final CachedSetting<Boolean> saveRecordsLocally;
 	public final CachedSetting<Boolean> publishRecords;
 
 	public final CachedSetting<Boolean> compactExceptionLoggingForConveyors;
@@ -61,6 +63,8 @@ public class DatarouterExceptionSettingRoot extends SettingRoot{
 		runExceptionRecordVacuum = registerBoolean("runExceptionRecordVacuum", false);
 		runHttpRequestRecordVacuumJob = registerBoolean("runHttpRequestRecordVacuumJob", false);
 
+		saveRecordsLocally = registerBooleans("saveRecordsLocally", defaultTo(true)
+				.withEnvironmentType(EnvironmentType.PRODUCTION, false));
 		publishRecords = registerBooleans("publishRecords", defaultTo(false)
 				.withTag(DatarouterSettingTagType.EXCEPTION_PIPELINE, () -> true));
 

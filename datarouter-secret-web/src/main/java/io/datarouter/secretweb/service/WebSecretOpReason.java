@@ -17,7 +17,7 @@ package io.datarouter.secretweb.service;
 
 import io.datarouter.auth.session.Session;
 import io.datarouter.secret.op.SecretOpReason;
-import io.datarouter.secret.op.SecretOpReason.Nested.SecretOpReasonType;
+import io.datarouter.secret.op.SecretOpReason.SecretOpReasonType;
 import io.datarouter.util.Require;
 import io.datarouter.util.string.StringTool;
 

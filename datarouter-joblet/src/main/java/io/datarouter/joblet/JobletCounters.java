@@ -17,8 +17,8 @@ package io.datarouter.joblet;
 
 import java.util.List;
 
-import io.datarouter.instrumentation.count.Counters;
-import io.datarouter.instrumentation.gauge.Gauges;
+import io.datarouter.instrumentation.metric.Metrics;
+import io.datarouter.joblet.enums.JobletPriority;
 import io.datarouter.joblet.enums.JobletStatus;
 import io.datarouter.joblet.type.JobletType;
 
@@ -40,129 +40,152 @@ public class JobletCounters{
 			new JobletUiLinkNamesAndPrefix("Target Servers", "Joblet target servers "),
 			new JobletUiLinkNamesAndPrefix("Actual Servers", "Joblet num servers "));
 
-	public static String makeQueueLengthJobletsCreatedPrefix(String jobletType){
-		return String.format("Joblet queue length joblets created %s", jobletType);
+	public static String makeQueueLengthJobletsStatusPrefix(String jobletType, JobletStatus jobletStatus){
+		return String.format("Joblet queue length joblets %s %s", jobletStatus.persistentString, jobletType);
 	}
 
 	public static void saveQueueLengthJoblets(JobletStatus jobletStatus, String jobletType, long queueLength){
-		Gauges.save(PREFIX + QUEUE_LENGTH_JOBLETS + jobletStatus.persistentString + " " + jobletType, queueLength);
+		Metrics.measure(PREFIX + QUEUE_LENGTH_JOBLETS + jobletStatus.persistentString + " " + jobletType, queueLength);
 	}
 
-	public static void saveQueueLengthJobletsForQueueId(JobletStatus jobletStatus, String jobletType, String queueId,
+	public static void saveQueueLengthJobletsForQueueId(
+			JobletStatus jobletStatus,
+			String jobletType,
+			String queueId,
 			long queueLength){
-		Gauges.save(PREFIX + QUEUE_LENGTH_JOBLETS + jobletStatus.persistentString + " " + jobletType + " " + queueId,
+		Metrics.measure(
+				PREFIX + QUEUE_LENGTH_JOBLETS + jobletStatus.persistentString + " " + jobletType + " " + queueId,
 				queueLength);
 	}
 
 	public static void saveGlobalQueueLengthJoblets(JobletStatus jobletStatus, long queueLength){
-		Gauges.save(PREFIX + QUEUE_LENGTH_JOBLETS + jobletStatus.persistentString, queueLength);
+		Metrics.measure(PREFIX + QUEUE_LENGTH_JOBLETS + jobletStatus.persistentString, queueLength);
 	}
 
 	public static void saveQueueLengthItems(JobletStatus jobletStatus, String jobletType, long queueLength){
-		Gauges.save(PREFIX + QUEUE_LENGTH_ITEMS + jobletStatus.persistentString + " " + jobletType, queueLength);
+		Metrics.measure(PREFIX + QUEUE_LENGTH_ITEMS + jobletStatus.persistentString + " " + jobletType, queueLength);
 	}
 
-	public static void saveQueueLengthItemsForQueueId(JobletStatus jobletStatus, String jobletType, String queueId,
+	public static void saveQueueLengthItemsForQueueId(
+			JobletStatus jobletStatus,
+			String jobletType,
+			String queueId,
 			long queueLength){
-		Gauges.save(PREFIX + QUEUE_LENGTH_ITEMS + jobletStatus.persistentString + " " + jobletType + " " + queueId,
+		Metrics.measure(
+				PREFIX + QUEUE_LENGTH_ITEMS + jobletStatus.persistentString + " " + jobletType + " " + queueId,
 				queueLength);
 	}
 
 	public static void saveGlobalQueueLengthItems(JobletStatus jobletStatus, long queueLength){
-		Gauges.save(PREFIX + QUEUE_LENGTH_ITEMS + jobletStatus.persistentString, queueLength);
+		Metrics.measure(PREFIX + QUEUE_LENGTH_ITEMS + jobletStatus.persistentString, queueLength);
 	}
 
 	public static void saveFirst(JobletStatus jobletStatus, String jobletType, long firstCreated){
-		Gauges.save(PREFIX + FIRST + jobletStatus.persistentString + " " + jobletType, firstCreated);
+		Metrics.measure(PREFIX + FIRST + jobletStatus.persistentString + " " + jobletType, firstCreated);
 	}
 
-	public static void saveFirstForQueueId(JobletStatus jobletStatus, String jobletType, String queueId,
+	public static void saveFirstForQueueId(
+			JobletStatus jobletStatus,
+			String jobletType,
+			String queueId,
 			long firstCreated){
-		Gauges.save(PREFIX + FIRST + jobletStatus.persistentString + " " + jobletType + " " + queueId, firstCreated);
+		Metrics.measure(
+				PREFIX + FIRST + jobletStatus.persistentString + " " + jobletType + " " + queueId,
+				firstCreated);
 	}
 
 	public static void saveGlobalFirst(JobletStatus jobletStatus, long firstCreated){
-		Gauges.save(PREFIX + FIRST + jobletStatus.persistentString, firstCreated);
+		Metrics.measure(PREFIX + FIRST + jobletStatus.persistentString, firstCreated);
 	}
 
 	public static void saveNumServers(long numServers){
-		Gauges.save(PREFIX + "num servers", numServers);
+		Metrics.measure(PREFIX + "num servers", numServers);
 	}
 
 	public static void saveTargetServers(long numTargetServers){
-		Gauges.save(PREFIX + "target servers", numTargetServers);
+		Metrics.measure(PREFIX + "target servers", numTargetServers);
 	}
 
 	public static void recordDuration(JobletType<?> jobletType, long durationMs, int numItems){
-		Gauges.save(PREFIX + "durationMs " + jobletType, durationMs);
-		Gauges.save(PREFIX + "item durationMs " + jobletType, durationMs / numItems);
+		Metrics.measure(PREFIX + "durationMs " + jobletType, durationMs);
+		Metrics.measure(PREFIX + "item durationMs " + jobletType, durationMs / numItems);
 //		so hack it with counter: avg(duration) = sum(duration) / numProssed
-		Counters.inc(PREFIX + "cumulated duration", durationMs);
-		Counters.inc(PREFIX + "cumulated duration " + jobletType.getPersistentString(), durationMs);
+		Metrics.count(PREFIX + "cumulated duration", durationMs);
+		Metrics.count(PREFIX + "cumulated duration " + jobletType.getPersistentString(), durationMs);
 	}
 
 	public static void incNumJobletsInserted(long by){
-		Counters.inc(PREFIX + "inserted", by);
+		Metrics.count(PREFIX + "inserted", by);
 	}
 
 	public static void incNumJobletsInserted(JobletType<?> jobletType, long by){
-		Counters.inc(PREFIX + "inserted " + jobletType.getPersistentString(), by);
+		Metrics.count(PREFIX + "inserted " + jobletType.getPersistentString(), by);
+	}
+
+	public static void incNumJobletsInserted(JobletType<?> jobletType, JobletPriority jobletPriority, long by){
+		Metrics.count(
+				PREFIX + "inserted-priority " + jobletType.getPersistentString() + " " + jobletPriority.display,
+				by);
 	}
 
 	public static void incNumJobletsInserted(JobletType<?> jobletType, String queueId){
-		Counters.inc(PREFIX + "inserted " + jobletType.getPersistentString() + " " + queueId, 1);
+		Metrics.count(PREFIX + "inserted " + jobletType.getPersistentString() + " " + queueId, 1);
 	}
 
 	public static void incNumJobletsExpired(long by){
-		Counters.inc(PREFIX + "expired", by);
+		Metrics.count(PREFIX + "expired", by);
 	}
 
 	public static void incNumJobletsExpired(JobletType<?> jobletType, long by){
-		Counters.inc(PREFIX + "expired " + jobletType.getPersistentString(), by);
+		Metrics.count(PREFIX + "expired " + jobletType.getPersistentString(), by);
 	}
 
 	public static void incNumJobletsProcessed(){
-		Counters.inc(PREFIX + "processed");
+		Metrics.count(PREFIX + "processed");
 	}
 
 	public static void incNumJobletsProcessed(JobletType<?> jobletType){
-		Counters.inc(PREFIX + "processed " + jobletType.getPersistentString());
+		Metrics.count(PREFIX + "processed " + jobletType.getPersistentString());
+	}
+
+	public static void incNumJobletsProcessed(JobletType<?> jobletType, JobletPriority priority){
+		Metrics.count(PREFIX + "processed-priority " + jobletType.getPersistentString() + " " + priority.display);
 	}
 
 	public static void incItemsProcessed(JobletType<?> jobletType, long delta){
-		Counters.inc(PREFIX + "items processed " + jobletType.getPersistentString(), delta);
+		Metrics.count(PREFIX + "items processed " + jobletType.getPersistentString(), delta);
 	}
 
 	public static void incQueueSkip(String key){
-		Counters.inc(PREFIX + "queue " + key + " skip");
+		Metrics.count(PREFIX + "queue " + key + " skip");
 	}
 
 	public static void incQueueHit(String key){
-		Counters.inc(PREFIX + "queue " + key + " hit");
+		Metrics.count(PREFIX + "queue " + key + " hit");
 	}
 
 	public static void incQueueMiss(String key){
-		Counters.inc(PREFIX + "queue " + key + " miss");
+		Metrics.count(PREFIX + "queue " + key + " miss");
 	}
 
 	public static void rejectedCallable(JobletType<?> jobletType){
-		Counters.inc(PREFIX + "rejected callable " + jobletType.getPersistentString());
+		Metrics.count(PREFIX + "rejected callable " + jobletType.getPersistentString());
 	}
 
 	public static void ignoredRequestMissingFromDb(JobletType<?> jobletType){
-		Counters.inc(PREFIX + "ignored request missing from db " + jobletType.getPersistentString());
+		Metrics.count(PREFIX + "ignored request missing from db " + jobletType.getPersistentString());
 	}
 
 	public static void ignoredDataMissingFromDb(JobletType<?> jobletType){
-		Counters.inc(PREFIX + "ignored data missing from db " + jobletType.getPersistentString());
+		Metrics.count(PREFIX + "ignored data missing from db " + jobletType.getPersistentString());
 	}
 
 	public static void incInterrupted(JobletType<?> jobletType){
-		Counters.inc(PREFIX + "interrupted " + jobletType.getPersistentString());
+		Metrics.count(PREFIX + "interrupted " + jobletType.getPersistentString());
 	}
 
 	public static void incErrored(JobletType<?> jobletType){
-		Counters.inc(PREFIX + "errored " + jobletType.getPersistentString());
+		Metrics.count(PREFIX + "errored " + jobletType.getPersistentString());
 	}
 
 	public record JobletUiLinkNamesAndPrefix(

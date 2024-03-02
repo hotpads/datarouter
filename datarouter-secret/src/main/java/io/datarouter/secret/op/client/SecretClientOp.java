@@ -20,7 +20,7 @@ import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 
-import io.datarouter.instrumentation.count.Counters;
+import io.datarouter.instrumentation.metric.Metrics;
 import io.datarouter.secret.client.SecretClient;
 import io.datarouter.secret.exception.SecretClientException;
 import io.datarouter.secret.exception.SecretValidationException;
@@ -114,7 +114,7 @@ public abstract class SecretClientOp<I,O>{
 		String prefix = "Datarouter secret " + this.getClass().getSimpleName() + " ";
 		suffixes.stream()
 				.map(prefix::concat)
-				.forEach(Counters::inc);
+				.forEach(Metrics::count);
 	}
 
 	static <I> BiFunction<SecretClient,I,Void> wrapVoid(BiConsumer<SecretClient,I> function){

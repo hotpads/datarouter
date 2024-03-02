@@ -570,7 +570,7 @@ public class MysqlNodeManager{
 				List.of(key),
 				config);
 		List<Tally> response = sessionExecutor.runWithoutRetries(op);
-		return response.isEmpty() ? Optional.empty() : Optional.of(response.get(0).getTally());
+		return response.isEmpty() ? Optional.empty() : Optional.of(response.getFirst().getTally());
 	}
 
 	public List<Tally> findTallyMulti(

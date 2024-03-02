@@ -20,9 +20,9 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -33,7 +33,6 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.util.DatarouterRuntimeTool;
 import io.datarouter.util.RunNativeDto;
 import io.datarouter.util.string.StringTool;
-import io.datarouter.web.monitoring.memory.CgroupMemoryStatsDto.CgroupMemoryStatsCategory;
 import io.datarouter.web.monitoring.memory.VmNativeMemoryStatsDto.VmNativeMemoryStatsCategory;
 
 public class HostMemoryTool{
@@ -140,7 +139,7 @@ public class HostMemoryTool{
 		RunNativeDto output;
 		try{
 			output = DatarouterRuntimeTool.runNative(
-					"jcmd",
+					"/usr/local/datarouter/jdk-latest/bin/jcmd",
 					javaProcessId,
 					"VM.native_memory",
 					"summary");
@@ -157,59 +156,55 @@ public class HostMemoryTool{
 		return Optional.of(lines);
 	}
 
-	public static Conditional<List<CgroupMemoryStatsDto>> extractCgroupMemoryStats(){
-		List<String> lines;
-		long totalUsage;
-		long totalLimit;
-		long kernelMemUsage;
+	public static Conditional<Map<String,Long>> extractCgroupMemoryStats(){
+		List<String> details;
+		long limit;
+		Long rss = null;
 		try{
-			lines = Files.readAllLines(Paths.get("/sys/fs/cgroup/memory/memory.stat"));
-			totalUsage = readFileToLong("/sys/fs/cgroup/memory/memory.usage_in_bytes");
-			totalLimit = readFileToLong("/sys/fs/cgroup/memory/memory.limit_in_bytes");
-			kernelMemUsage = readFileToLong("/sys/fs/cgroup/memory/memory.kmem.usage_in_bytes");
-		}catch(Exception e){
-			return Conditional.failure(e);
+			// cgroupv1
+			details = Files.readAllLines(Paths.get("/sys/fs/cgroup/memory/memory.stat"));
+			limit = readFileToLong("/sys/fs/cgroup/memory/memory.limit_in_bytes");
+		}catch(Exception e1){
+			logger.warn("", e1);
+			// cgroupv2
+			try{
+				details = Files.readAllLines(Paths.get("/sys/fs/cgroup/memory.stat"));
+				limit = readFileToLong("/sys/fs/cgroup/memory.max");
+				rss = readFileToLong("/sys/fs/cgroup/memory.current");
+			}catch(Exception e2){
+				logger.warn("", e2);
+				return Conditional.failure(e2);
+			}
 		}
 
-		List<CgroupMemoryStatsDto> stats = Scanner.of(lines)
-				.include(line -> line.contains("total_"))
+		var res = new LinkedHashMap<String,Long>();
+
+		res.put("limit", limit);
+
+		Scanner.of(details)
 				.map(line -> line.split(" "))
-				.map(lineParts -> {
-					String categoryString = StringTool.capitalizeFirstLetter(lineParts[0]).replace("_", " ");
-					CgroupMemoryStatsCategory category = CgroupMemoryStatsCategory.fromDisplay(categoryString);
-					return category == null ? null : new CgroupMemoryStatsDto(category, Long.parseLong(lineParts[1]));
-				})
-				.exclude(Objects::isNull)
-				.list();
+				.forEach(parts -> res.put(parts[0], Long.parseLong(parts[1])));
 
-		// https://github.com/google/cadvisor/blob/master/container/libcontainer/handler.go#L827-L835
-		long workingSet = Scanner.of(stats)
-				.include(stat -> stat.category == CgroupMemoryStatsCategory.INACTIVE_FILE)
-				.findFirst()
-				.map(stat -> totalUsage - stat.memoryBytes)
-				.orElse(totalUsage);
-
-		List<CgroupMemoryStatsDto> finalStats = new ArrayList<>();
-		finalStats.add(new CgroupMemoryStatsDto(CgroupMemoryStatsCategory.LIMIT, totalLimit));
-		finalStats.add(new CgroupMemoryStatsDto(CgroupMemoryStatsCategory.USAGE, totalUsage));
-		finalStats.add(new CgroupMemoryStatsDto(CgroupMemoryStatsCategory.WORKING_SET, workingSet));
-		finalStats.add(new CgroupMemoryStatsDto(CgroupMemoryStatsCategory.KERNEL_USAGE, kernelMemUsage));
-		finalStats.addAll(stats);
-		return Conditional.success(finalStats);
+		// override an previous rss entry in the map
+		if(rss == null){ // cgroupv1
+			res.put("rss", res.get("total_rss"));
+		}else{ // cgroupv2
+			res.put("rss", rss);
+		}
+		return Conditional.success(res);
 	}
 
 	private static long readFileToLong(String path){
 		try{
-			return Long.parseLong(Files.readAllLines(Paths.get(path)).get(0));
+			return Long.parseLong(Files.readAllLines(Paths.get(path)).getFirst());
 		}catch(IOException e){
 			throw new RuntimeException("failure path=" + path, e);
 		}
 	}
 
 	public static void main(String[] args){
-		logger.warn(getHostMemoryStats().toString());
-		List<CgroupMemoryStatsDto> cgroupMemoryStats = extractCgroupMemoryStats().orElseThrow();
-		cgroupMemoryStats.forEach(stat -> logger.warn(stat.category.getPersistentString() + " - " + stat.memoryBytes));
+		Map<String,Long> cgroupMemoryStats = extractCgroupMemoryStats().orElseThrow();
+		cgroupMemoryStats.entrySet().forEach(stat -> logger.error(stat.getKey() + " - " + stat.getValue()));
 	}
 
 }

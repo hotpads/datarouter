@@ -28,6 +28,7 @@ import io.datarouter.client.mysql.field.codec.base.BaseMysqlFieldCodec;
 import io.datarouter.model.exception.DataAccessException;
 import io.datarouter.model.field.imp.DateField;
 
+@SuppressWarnings("deprecation")
 public class DateMysqlFieldCodec extends BaseMysqlFieldCodec<Date,DateField>{
 
 	@Override

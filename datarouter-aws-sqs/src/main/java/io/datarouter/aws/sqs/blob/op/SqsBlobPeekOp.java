@@ -54,7 +54,7 @@ public class SqsBlobPeekOp extends SqsBlobOp<RawBlobQueueMessage>{
 			return null;
 		}
 
-		Message message = messages.get(0);
+		Message message = messages.getFirst();
 		byte[] data = SqsBlobOp.SQS_BLOB_BASE_64_CODEC.decode(message.getBody());
 		byte[] receiptHandle = StringCodec.UTF_8.encode(message.getReceiptHandle());
 		var attributes = Scanner.of(message.getMessageAttributes().entrySet())

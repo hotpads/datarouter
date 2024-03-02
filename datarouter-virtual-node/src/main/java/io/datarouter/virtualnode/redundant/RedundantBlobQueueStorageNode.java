@@ -29,12 +29,12 @@ extends BaseRedundantQueueNode<EmptyDatabeanKey,EmptyDatabean,EmptyDatabeanField
 implements BlobQueueStorageNode<T>, RedundantBlobQueueStorageMixin<T>{
 
 	private RedundantBlobQueueStorageNode(List<BlobQueueStorageNode<T>> nodes){
-		super(nodes.get(0), nodes);
+		super(nodes.getFirst(), nodes);
 	}
 
 	public static <T> BlobQueueStorageNode<T> makeIfMulti(List<BlobQueueStorageNode<T>> nodes){
 		if(nodes.size() == 1){
-			return nodes.get(0);
+			return nodes.getFirst();
 		}
 		return new RedundantBlobQueueStorageNode<>(nodes);
 	}

@@ -28,6 +28,7 @@ public record JsApiMethod(
 		Method method,
 		Set<Class<? extends JsClientType>> clientTypes,
 		EndpointAccessType endpointAccessType,
-		HttpRequestMethod httpRequestMethod){
+		HttpRequestMethod httpRequestMethod,
+		String contextPath){
 
 }

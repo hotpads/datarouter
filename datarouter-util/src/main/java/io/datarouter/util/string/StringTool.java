@@ -63,7 +63,7 @@ public class StringTool{
 	}
 
 	public static boolean isNullOrEmpty(String input){
-		return input == null || input.length() <= 0 || "null".equalsIgnoreCase(input);
+		return input == null || input.isEmpty() || "null".equalsIgnoreCase(input);
 	}
 
 	public static boolean notEmptyNorWhitespace(String input){
@@ -80,7 +80,6 @@ public class StringTool{
 		}
 		return isNullOrEmpty(input.trim());
 	}
-
 
 	public static boolean notNullNorEmptyNorWhitespace(String input){
 		return !isNullOrEmptyOrWhitespace(input);
@@ -120,7 +119,7 @@ public class StringTool{
 		if(ObjectTool.isOneNullButNotTheOther(left, right)){
 			return false;
 		}
-		return left.toLowerCase().equals(right.toLowerCase());
+		return left.equalsIgnoreCase(right);
 	}
 
 	public static boolean equalsCaseInsensitiveButNotCaseSensitive(String left, String right){
@@ -359,7 +358,7 @@ public class StringTool{
 						+ number.substring(secondDot);
 			}
 			if(number.length() > 1){
-				number = number.substring(0, 1) + MINUS_PATTERN.matcher(number.substring(1)).replaceAll("");
+				number = number.charAt(0) + MINUS_PATTERN.matcher(number.substring(1)).replaceAll("");
 			}
 			if("-".equals(number)){
 				return "";
@@ -382,7 +381,7 @@ public class StringTool{
 			char chr = chrs[i];
 			if(chr > 126){
 				chrs[i] = ' ';
-			}else if(0 <= chr && chr <= 8){
+			}else if(chr <= 8){
 				chrs[i] = ' ';
 			}else if(11 <= chr && chr <= 13){
 				chrs[i] = '\n';

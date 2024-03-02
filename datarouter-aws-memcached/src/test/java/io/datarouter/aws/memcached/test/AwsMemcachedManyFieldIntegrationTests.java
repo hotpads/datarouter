@@ -15,6 +15,8 @@
  */
 package io.datarouter.aws.memcached.test;
 
+import java.util.Optional;
+
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Guice;
 
@@ -26,7 +28,7 @@ public class AwsMemcachedManyFieldIntegrationTests extends BaseManyFieldIntegrat
 
 	@BeforeClass
 	public void beforeClass(){
-		setup(DatarouterAwsMemcachedTestClientIds.AWS_MEMCACHED, ManyFieldTypeBeanFielder::new);
+		setup(DatarouterAwsMemcachedTestClientIds.AWS_MEMCACHED, ManyFieldTypeBeanFielder::new, Optional.empty());
 	}
 
 }

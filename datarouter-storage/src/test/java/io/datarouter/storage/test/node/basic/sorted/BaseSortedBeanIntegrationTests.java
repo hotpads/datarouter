@@ -16,6 +16,7 @@
 package io.datarouter.storage.test.node.basic.sorted;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -38,11 +39,12 @@ public abstract class BaseSortedBeanIntegrationTests{
 	protected DatarouterSortedNodeTestDao dao;
 	protected List<SortedBean> allBeans = SortedBeans.generatedSortedBeans();
 
-	protected void setup(ClientId clientId){
+	protected void setup(ClientId clientId, Optional<String> tableName){
 		dao = new DatarouterSortedNodeTestDao(
 				datarouter,
 				nodeFactory,
-				clientId);
+				clientId,
+				tableName);
 		resetTable(true);
 	}
 

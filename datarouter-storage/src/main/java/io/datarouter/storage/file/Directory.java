@@ -24,7 +24,7 @@ import java.util.Optional;
 import io.datarouter.bytes.ByteLength;
 import io.datarouter.bytes.ByteTool;
 import io.datarouter.bytes.io.CountingInputStream;
-import io.datarouter.instrumentation.count.Counters;
+import io.datarouter.instrumentation.metric.Metrics;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.scanner.Threads;
 import io.datarouter.storage.config.Config;
@@ -249,7 +249,7 @@ implements BlobStorage{
 		String storagePath = storageKey.getPath();
 		Require.isTrue(storagePath.startsWith(subpathInParent.toString()));
 		String directoryPath = storagePath.substring(subpathInParent.toString().length());
-		return new PathbeanKey(directoryPath, storageKey.getFile());
+		return PathbeanKey.ofAllowEmptyFile(directoryPath, storageKey.getFile());
 	}
 
 	/*------------- counts --------------*/
@@ -257,7 +257,7 @@ implements BlobStorage{
 	private void count(CounterSuffix suffix, long by){
 		optCounterName.ifPresent(counterName -> {
 			String name = String.format("Directory %s %s", counterName, suffix.suffix);
-			Counters.inc(name, by);
+			Metrics.count(name, by);
 		});
 	}
 

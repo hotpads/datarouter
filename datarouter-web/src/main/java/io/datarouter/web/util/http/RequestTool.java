@@ -49,7 +49,6 @@ import io.datarouter.httpclient.security.UrlConstants;
 import io.datarouter.instrumentation.trace.TraceSpanGroupType;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.util.BooleanTool;
 import io.datarouter.util.net.IpTool;
 import io.datarouter.util.number.NumberTool;
@@ -449,7 +448,7 @@ public class RequestTool{
 		return Collections.list(request.getHeaders(headerName)).stream()
 				.map(str -> str.split(HEADER_VALUE_DELIMITER))
 				.flatMap(Arrays::stream)
-				.collect(WarnOnModifyList.deprecatedCollector());
+				.toList();
 	}
 
 	public static String getIpAddress(HttpServletRequest request){

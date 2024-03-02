@@ -28,7 +28,6 @@ import io.datarouter.job.BaseJob;
 import io.datarouter.joblet.storage.jobletdata.DatarouterJobletDataDao;
 import io.datarouter.joblet.storage.jobletrequest.DatarouterJobletRequestDao;
 import io.datarouter.model.databean.Databean;
-import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.util.number.NumberFormatter;
 import jakarta.inject.Inject;
 
@@ -59,12 +58,13 @@ public class JobletDataVacuumJob extends BaseJob{
 				.map(batch -> batch.stream()
 						.filter(data -> data.getCreated() == null || data.getCreated() < earliestCreated.longValue())
 						.map(Databean::getKey)
-						.collect(WarnOnModifyList.deprecatedCollector()))
+						.toList())
 				.each(jobletDataDao::deleteMulti)
 				.map(List::size)
 				.each(jobletDeletionCount::getAndAdd)
-				.forEach($ -> logger.warn("JobletDataVacuumJob deleted {} JobletDatas",
-							NumberFormatter.addCommas(jobletDeletionCount)));
+				.forEach($ -> logger.warn(
+						"JobletDataVacuumJob deleted {} JobletDatas",
+						NumberFormatter.addCommas(jobletDeletionCount)));
 		logger.warn("Completed JobletDataVacuumJob deleted {} total JobletDatas",
 				NumberFormatter.addCommas(jobletDeletionCount));
 	}

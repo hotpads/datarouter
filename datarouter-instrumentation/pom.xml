@@ -22,7 +22,7 @@
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-parent</artifactId>
-		<version>0.0.123</version>
+		<version>0.0.124</version>
 		<relativePath>../datarouter-parent</relativePath>
 	</parent>
 
@@ -32,6 +32,11 @@
 	<description>datarouter-instrumentation</description>
 
 	<dependencies>
+		<dependency>
+			<groupId>jakarta.inject</groupId>
+			<artifactId>jakarta.inject-api</artifactId>
+			<version>${jakarta-inject-version}</version>
+		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>

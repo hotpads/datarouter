@@ -24,7 +24,6 @@ import java.util.stream.Stream;
 import org.apache.http.client.utils.URIBuilder;
 
 import io.datarouter.scanner.Scanner;
-import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.web.handler.params.Params;
 import io.datarouter.web.html.form.BaseHtmlFormField;
 import io.datarouter.web.html.form.HtmlForm;
@@ -97,7 +96,7 @@ public class MemoryPager<T>{
 		List<T> pageRows = allRows.stream()
 				.skip(offset)
 				.limit(pageSize)
-				.collect(WarnOnModifyList.deprecatedCollector());
+				.toList();
 		return new Page<>(this, filterFields, path, pageRows, allRows.size());
 	}
 
@@ -196,7 +195,7 @@ public class MemoryPager<T>{
 			return Stream.of(first, previous, next, last)
 					.filter(Optional::isPresent)
 					.map(Optional::get)
-					.collect(WarnOnModifyList.deprecatedCollector());
+					.toList();
 		}
 
 	}

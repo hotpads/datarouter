@@ -56,6 +56,11 @@ public abstract class BaseField<T> implements Field<T>{
 	/*----------------------------- ByteField -------------------------------*/
 
 	@Override
+	public byte[] getTerminatedKeyBytes(){
+		return getKeyBytesWithSeparator();
+	}
+
+	@Override
 	public byte[] getKeyBytesWithSeparator(){
 		return getValueBytes();
 	}
@@ -63,6 +68,11 @@ public abstract class BaseField<T> implements Field<T>{
 	@Override
 	public T fromKeyBytesWithSeparatorButDoNotSet(byte[] bytes, int byteOffset){
 		return fromValueBytesButDoNotSet(bytes, byteOffset);
+	}
+
+	@Override
+	public T fromEscapedAndTerminatedKeyBytes(byte[] bytes, int byteOffset){
+		return fromKeyBytesWithSeparatorButDoNotSet(bytes, byteOffset);
 	}
 
 	/*------------------------- reflective setters --------------------------*/

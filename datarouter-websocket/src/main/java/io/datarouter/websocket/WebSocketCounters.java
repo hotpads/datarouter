@@ -15,17 +15,16 @@
  */
 package io.datarouter.websocket;
 
-import io.datarouter.instrumentation.count.Counters;
-import io.datarouter.instrumentation.gauge.Gauges;
+import io.datarouter.instrumentation.metric.Metrics;
 
 public class WebSocketCounters{
 
 	public static void inc(String key){
-		Counters.inc("websocket " + key);
+		Metrics.count("websocket " + key);
 	}
 
 	public static void saveCount(String key, long value){
-		Gauges.save("websocketCount " + key, value);
+		Metrics.measure("websocketCount " + key, value);
 	}
 
 }

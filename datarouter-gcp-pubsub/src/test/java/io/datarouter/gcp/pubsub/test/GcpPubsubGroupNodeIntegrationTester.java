@@ -82,7 +82,7 @@ public class GcpPubsubGroupNodeIntegrationTester{
 		dao.put(databean);
 		GroupQueueMessage<TestDatabeanKey,TestDatabean> message = dao.peek();
 		Assert.assertEquals(message.getDatabeans().size(), 1);
-		Assert.assertEquals(databean, message.getDatabeans().iterator().next());
+		Assert.assertEquals(databean, message.getDatabeans().getFirst());
 		Assert.assertNull(dao.peek());
 	}
 

@@ -37,9 +37,18 @@ public class MockHttpServletRequestBuilder{
 	private final List<Cookie> cookies = new ArrayList<>();
 	private String serverName;
 	private String method;
+	private String requestUri;
 
 	public MockHttpServletRequest build(){
-		return new MockHttpServletRequest(parameterMap, reader, headers, attributes, cookies, serverName, method);
+		return new MockHttpServletRequest(
+				parameterMap,
+				reader,
+				headers,
+				attributes,
+				cookies,
+				serverName,
+				method,
+				requestUri);
 	}
 
 	public MockHttpServletRequestBuilder withParameters(Map<String,String[]> parameters){
@@ -84,6 +93,11 @@ public class MockHttpServletRequestBuilder{
 
 	public MockHttpServletRequestBuilder withMethod(String method){
 		this.method = method;
+		return this;
+	}
+
+	public MockHttpServletRequestBuilder withRequestUri(String requestUri){
+		this.requestUri = requestUri;
 		return this;
 	}
 }

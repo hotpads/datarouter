@@ -104,7 +104,7 @@ public class ByteWriter{
 	}
 
 	private byte[] lastPage(){
-		return pages.get(pages.size() - 1);
+		return pages.getLast();
 	}
 
 	private int lastPageFreeSpace(){

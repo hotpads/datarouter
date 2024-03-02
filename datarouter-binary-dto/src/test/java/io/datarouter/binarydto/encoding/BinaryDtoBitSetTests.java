@@ -28,6 +28,7 @@ import io.datarouter.bytes.HexBlockTool;
 public class BinaryDtoBitSetTests{
 
 	private static class TestDto extends ComparableBinaryDto<TestDto>{
+		@SuppressWarnings("unused")
 		final BitSet s1;
 
 		public TestDto(BitSet s1){

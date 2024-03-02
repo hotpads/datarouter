@@ -17,8 +17,7 @@ package io.datarouter.job;
 
 import java.time.Duration;
 
-import io.datarouter.instrumentation.count.Counters;
-import io.datarouter.instrumentation.gauge.Gauges;
+import io.datarouter.instrumentation.metric.Metrics;
 import io.datarouter.storage.util.DatarouterCounters;
 
 public class JobCounters{
@@ -65,8 +64,8 @@ public class JobCounters{
 		String name = "durationMs";
 		long value = elapsedTime.toMillis();
 		String jobName = jobClass.getSimpleName();
-		Gauges.save(DatarouterCounters.PREFIX + " " + PREFIX + " " + name, value);
-		Gauges.save(DatarouterCounters.PREFIX + " " + PREFIX + " " + jobName + " " + name, value);
+		Metrics.measure(DatarouterCounters.PREFIX + " " + PREFIX + " " + name, value);
+		Metrics.measure(DatarouterCounters.PREFIX + " " + PREFIX + " " + jobName + " " + name, value);
 	}
 
 	/*---------------- private -----------------*/
@@ -76,8 +75,8 @@ public class JobCounters{
 	}
 
 	private static void count(String jobName, String name){
-		Counters.inc(DatarouterCounters.PREFIX + " " + PREFIX + " " + name);
-		Counters.inc(DatarouterCounters.PREFIX + " " + PREFIX + " " + jobName + " " + name);
+		Metrics.count(DatarouterCounters.PREFIX + " " + PREFIX + " " + name);
+		Metrics.count(DatarouterCounters.PREFIX + " " + PREFIX + " " + jobName + " " + name);
 	}
 
 }

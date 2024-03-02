@@ -34,6 +34,7 @@ import io.datarouter.tasktracker.storage.LongRunningTaskDao;
 import io.datarouter.types.MilliTime;
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.string.StringTool;
+import io.datarouter.web.exception.ExceptionLinkBuilder;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.html.j2html.J2HtmlLegendTable;
@@ -52,6 +53,8 @@ public class LongRunningTasksHandler extends BaseHandler{
 	private DatarouterTaskTrackerFiles files;
 	@Inject
 	private CurrentUserSessionInfoService currentUserSessionInfoService;
+	@Inject
+	private ExceptionLinkBuilder exceptionLinkBuilder;
 
 	@Handler(defaultHandler = true)
 	Mav longRunningTasks(Optional<String> name, Optional<String> status){
@@ -75,7 +78,7 @@ public class LongRunningTasksHandler extends BaseHandler{
 		List<LongRunningTaskJspDto> longRunningTasks = longRunningTaskDao.scan()
 				.include(task -> task.getKey().getName().toLowerCase().contains(lowercaseNameSearch))
 				.include(task -> showAllStatuses || task.getJobExecutionStatus() == filteredStatus)
-				.map(task -> new LongRunningTaskJspDto(task, zoneId))
+				.map(task -> new LongRunningTaskJspDto(task, zoneId, exceptionLinkBuilder))
 				.list();
 		Set<TaskStatus> statuses = Scanner.of(LongRunningTaskStatus.values())
 				.map(taskStatus -> new TaskStatus(taskStatus.name(), taskStatus.persistentString))
@@ -139,8 +142,12 @@ public class LongRunningTasksHandler extends BaseHandler{
 		private final String triggeredBy;
 		private final String exceptionRecordId;
 		private final ZoneId zoneId;
+		private final ExceptionLinkBuilder exceptionLinkBuilder;
 
-		public LongRunningTaskJspDto(LongRunningTask task, ZoneId zoneId){
+		public LongRunningTaskJspDto(
+				LongRunningTask task,
+				ZoneId zoneId,
+				ExceptionLinkBuilder exceptionLinkBuilder){
 			this.status = task.getJobExecutionStatus().persistentString;
 			this.heartbeatStatus = task.getHeartbeatStatus() == null
 					? null
@@ -160,6 +167,7 @@ public class LongRunningTasksHandler extends BaseHandler{
 			this.triggeredBy = task.getTriggeredBy();
 			this.exceptionRecordId = task.getExceptionRecordId();
 			this.zoneId = zoneId;
+			this.exceptionLinkBuilder = exceptionLinkBuilder;
 		}
 
 		public String getStatus(){
@@ -261,7 +269,7 @@ public class LongRunningTasksHandler extends BaseHandler{
 		}
 
 		public String getHrefForException(){
-			return "exception/details?exceptionRecord=" + exceptionRecordId;
+			return exceptionLinkBuilder.exception(exceptionRecordId).orElseThrow();
 		}
 
 	}

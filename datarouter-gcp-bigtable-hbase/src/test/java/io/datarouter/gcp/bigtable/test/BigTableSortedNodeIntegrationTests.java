@@ -15,6 +15,8 @@
  */
 package io.datarouter.gcp.bigtable.test;
 
+import java.util.Optional;
+
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -31,7 +33,7 @@ public class BigTableSortedNodeIntegrationTests extends BaseSortedNodeIntegratio
 
 	@BeforeClass
 	public void beforeClass(){
-		setup(DatarouterBigTableTestClientIds.BIG_TABLE);
+		setup(DatarouterBigTableTestClientIds.BIG_TABLE, Optional.empty());
 	}
 
 	@Override

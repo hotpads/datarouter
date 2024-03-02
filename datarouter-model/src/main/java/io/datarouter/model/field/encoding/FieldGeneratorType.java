@@ -15,8 +15,15 @@
  */
 package io.datarouter.model.field.encoding;
 
+
 public enum FieldGeneratorType{
 	NONE(false),
+	/**
+	 * @deprecated prefer RANDOM. Managed will front load tables and create hot spots. A managed index might also make
+	 * migrating to a different datastore harder. RANDOM can be directly replaced as long as the business
+	 * logic does not rely on a sequential PK, in which case the logic should be refactored.
+	 */
+	@Deprecated
 	MANAGED(true),
 	RANDOM(true),
 	;

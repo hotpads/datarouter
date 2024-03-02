@@ -17,19 +17,22 @@ package io.datarouter.plugin.dataexport.service.exporting;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.bytes.kvfile.io.write.KvFileWriter;
+import io.datarouter.bytes.blockfile.io.write.BlockfileWriter;
+import io.datarouter.bytes.blockfile.row.BlockfileRow;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.plugin.dataexport.service.exporting.DatabeanExportService.DatabeanExportRequest;
 import io.datarouter.plugin.dataexport.service.exporting.DatabeanExportService.DatabeanExportResponse;
-import io.datarouter.plugin.dataexport.service.exporting.DatabeanExportTracker.Nested.DatabeanExportTrackerType;
+import io.datarouter.plugin.dataexport.service.exporting.DatabeanExportTracker.DatabeanExportTrackerType;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.util.BlockfileDirectoryStorage;
@@ -115,8 +118,8 @@ public class ParallelDatabeanExport<
 		}
 		// Rebuild the list, starting with the last span, then the first span, then the middle spans shuffled.
 		List<PartIdAndRanges<PK,D,F>> reorderedParts = new ArrayList<>();
-		reorderedParts.add(ListTool.getLast(parts)); //last range
-		reorderedParts.add(parts.get(0));// first range
+		reorderedParts.add(ListTool.getLastOrNull(parts)); //last range
+		reorderedParts.add(parts.getFirst());// first range
 		Scanner.of(parts)
 				.skip(1)
 				.limit(parts.size() - 2)// without first/last
@@ -136,7 +139,8 @@ public class ParallelDatabeanExport<
 		partTracker.activePartIds().add(partId);
 		tableTracker.activePartIds().add(partId);
 		var blockfileStorage = new BlockfileDirectoryStorage(request.tableDirectory());
-		KvFileWriter<D> kvFileWriter = request.kvFileService().makeKvFileWriter(
+		Function<D,BlockfileRow> rowEncoder = request.blockfileService().makeBlockfileRowCodec(request.node())::encode;
+		BlockfileWriter<D> kvFileWriter = request.blockfileService().makeBlockfileWriter(
 				blockfileStorage,
 				request.node(),
 				partId);
@@ -148,13 +152,20 @@ public class ParallelDatabeanExport<
 					tableTracker.rateTracker().incrementBySize(batch);
 					partTracker.databeanCount().incrementBySize(batch);
 					partTracker.rateTracker().incrementBySize(batch);
-					partTracker.lastKey().set(ListTool.getLast(batch).getKey());
+					partTracker.lastKey().set(batch.getLast().getKey());
 				})
+				.map(batch -> mapMulti(rowEncoder, batch))
 				.periodic(PART_LOG_PERIOD, $ -> partTracker.logProgress())
-				.apply(kvFileWriter::write);
+				.apply(kvFileWriter::writeBlocks);
 		partTracker.logProgress();
 		tableTracker.activePartIds().remove(partId);
 		tableTracker.completedPartCount().incrementAndGet();
+	}
+
+	private static <T,R> List<R> mapMulti(Function<T,R> mapper, Collection<T> input){
+		return Scanner.of(input)
+				.map(mapper)
+				.collect(() -> new ArrayList<>(input.size()));
 	}
 
 }

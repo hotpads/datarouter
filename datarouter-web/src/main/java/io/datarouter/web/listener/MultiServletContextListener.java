@@ -25,7 +25,7 @@ import javax.servlet.ServletContextListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.instrumentation.count.Counters;
+import io.datarouter.instrumentation.metric.Metrics;
 import io.datarouter.util.timer.PhaseTimer;
 
 /**
@@ -42,21 +42,21 @@ public abstract class MultiServletContextListener implements ServletContextListe
 
 	@Override
 	public void contextInitialized(ServletContextEvent sce){
-		Counters.inc("bootstrap");
-		Counters.inc("bootstrap start");
+		Metrics.count("bootstrap");
+		Metrics.count("bootstrap start");
 		PhaseTimer timer = new PhaseTimer();
 		listeners.forEach(listener -> {
 			listener.contextInitialized(sce);
 			timer.add(listener.getClass().getSimpleName());
 		});
 		logger.warn("startUp {}", timer);
-		Counters.inc("bootstrap end");
+		Metrics.count("bootstrap end");
 	}
 
 	@Override
 	public void contextDestroyed(ServletContextEvent sce){
-		Counters.inc("shutdown");
-		Counters.inc("shutdown start");
+		Metrics.count("shutdown");
+		Metrics.count("shutdown start");
 		Collections.reverse(listeners);
 		PhaseTimer timer = new PhaseTimer();
 		listeners.forEach(listener -> {
@@ -66,7 +66,7 @@ public abstract class MultiServletContextListener implements ServletContextListe
 		});
 		// logging framework will probably be off at this point, so using the container logging
 		sce.getServletContext().log("shutDown " + timer);
-		Counters.inc("shutdown end");
+		Metrics.count("shutdown end");
 	}
 
 }

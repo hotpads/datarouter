@@ -20,6 +20,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import io.datarouter.bytes.codec.bytestringcodec.HexByteStringCodec;
 import io.datarouter.bytes.codec.stringcodec.StringCodec;
@@ -180,6 +181,17 @@ public class BinaryDictionary{
 			blockfileDictionary.put(key, value);
 		}
 		return blockfileDictionary;
+	}
+
+	/*---------- to string -----------*/
+
+	public String toStringStringKeysAndHexValues(){
+		return Scanner.of(dictionary.entrySet())
+				.map(entry -> String.format(
+						"%s=%s",
+						StringCodec.UTF_8.decode(entry.getKey()),
+						HexByteStringCodec.INSTANCE.encode(entry.getValue())))
+				.collect(Collectors.joining(", "));
 	}
 
 }

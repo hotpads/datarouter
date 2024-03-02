@@ -81,7 +81,7 @@
 					<div class="input-group w-100">
 						<input class="logger-name form-control" id="createLoggerName" type="text" name="name" placeholder="Name" required>
 						<div class="input-group-append">
-							<input class="logger-ttl form-control input-group-append" id="ttl" name="ttl" placeholder="TTL (1d1h1m1s1ms)">
+							<input class="logger-ttl form-control input-group-append" id="ttl" name="ttl" placeholder="TTL (1d1h1m1s1ms)" required>
 							<select name="level" class="form-control input-group-append rounded-0" required>
 								<option disabled selected>Level</option>
 								<c:forEach items="${levels}" var="level">
@@ -110,6 +110,7 @@
 							<th>Appenders</th>
 							<th>User</th>
 							<th>Updated</th>
+							<th>Expires</th>
 							<th class="sorttable_nosort">Action</th>
 						</tr>
 					</thead>
@@ -169,7 +170,12 @@
 										<span class="separated">${config.value.lastUpdated}</span>
 									</c:if>
 								</td>
-								<td class="align-middle 
+								<td class="align-middle">
+									<c:if test="${config.value.expiresAt != null}">
+										<span class="separated">${config.value.expiresAt}</span>
+									</c:if>
+								</td>
+								<td class="align-middle
 										<c:if test="${!config.value.canDelete || config.value.name.equals(rootLogger.name)}">
 											logger-root-action
 										</c:if>
@@ -177,7 +183,7 @@
 									<div class="logger-action-buttons">
 										<input type="submit" class="btn btn-warning separated" value="Update">
 										<c:if test="${config.value.canDelete && !config.value.name.equals(rootLogger.name)}">
-											<a class="btn btn-danger table-delete-config" data-configkey="${config.key}" 
+											<a class="btn btn-danger table-delete-config" data-configkey="${config.key}"
 												data-configname="${config.value.name}" data-contextpath="${contextPath}">
 												Delete
 											</a>

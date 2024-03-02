@@ -28,6 +28,7 @@ import io.datarouter.scanner.Scanner;
 public class BinaryDtoSortingTests{
 
 	private static class TestDto extends ComparableBinaryDto<TestDto>{
+		@SuppressWarnings("unused")
 		public final int f1;
 
 		public TestDto(int f1){
@@ -60,6 +61,7 @@ public class BinaryDtoSortingTests{
 	}
 
 	private static class TestArrayDto extends ComparableBinaryDto<TestArrayDto>{
+		@SuppressWarnings("unused")
 		public final int[] f1;
 
 		public TestArrayDto(int[] f1){

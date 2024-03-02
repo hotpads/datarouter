@@ -27,12 +27,12 @@ import jakarta.inject.Inject;
 public class GcpBigTableNavBarItem implements DynamicNavBarItem{
 
 	@Inject
-	private BigtableProjectIdAndInstanceIdSupplier supplier;
+	private BigtableHbaseProjectIdAndInstanceIdSupplier supplier;
 
 	@Override
 	public NavBarItem getNavBarItem(){
-		String projectId = supplier.getBigtableProjectIdAndInstanceId().projectId;
-		String instanceId = supplier.getBigtableProjectIdAndInstanceId().instanceId;
+		String projectId = supplier.getBigtableHbaseProjectIdAndInstanceId().projectId;
+		String instanceId = supplier.getBigtableHbaseProjectIdAndInstanceId().instanceId;
 		String link = "https://console.cloud.google.com/bigtable/instances/" + instanceId + "/overview?project="
 				+ projectId;
 		return new NavBarItemBuilder(DatarouterNavBarCategory.EXTERNAL, link, "GCP Bigtable")
@@ -43,8 +43,8 @@ public class GcpBigTableNavBarItem implements DynamicNavBarItem{
 
 	@Override
 	public Boolean shouldDisplay(){
-		String projectId = supplier.getBigtableProjectIdAndInstanceId().projectId;
-		String instanceId = supplier.getBigtableProjectIdAndInstanceId().instanceId;
+		String projectId = supplier.getBigtableHbaseProjectIdAndInstanceId().projectId;
+		String instanceId = supplier.getBigtableHbaseProjectIdAndInstanceId().instanceId;
 		return !projectId.isEmpty() && !instanceId.isEmpty();
 	}
 

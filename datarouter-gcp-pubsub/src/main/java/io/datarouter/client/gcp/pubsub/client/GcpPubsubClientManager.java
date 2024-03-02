@@ -285,7 +285,7 @@ public class GcpPubsubClientManager extends BaseClientManager{
 					numUndeliveredMessageResponse.getExecutionErrorsList());
 		}else{
 			numUndeliveredMessage = Optional.of(numUndeliveredMessageTimeSeriesList
-					.get(0)
+					.getFirst()
 					.getPoints(0)
 					.getValue()
 					.getInt64Value());
@@ -297,7 +297,7 @@ public class GcpPubsubClientManager extends BaseClientManager{
 					unackedMessageAgeResponse.getExecutionErrorsList());
 		}else{
 			unackedMessageAgeS = Optional.of(unackedMessageAgeinSecondsTimeSeriesList
-					.get(0)
+					.getFirst()
 					.getPoints(0)
 					.getValue()
 					.getInt64Value());

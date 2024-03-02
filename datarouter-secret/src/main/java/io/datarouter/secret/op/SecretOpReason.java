@@ -16,10 +16,8 @@
 package io.datarouter.secret.op;
 
 import io.datarouter.enums.StringMappedEnum;
-import io.datarouter.secret.op.SecretOpReason.Nested.SecretOpReasonType;
 import io.datarouter.util.Require;
 import io.datarouter.util.string.StringTool;
-import io.datarouter.util.todo.NestedRecordImportWorkaround;
 
 public record SecretOpReason(
 		SecretOpReasonType type,
@@ -43,23 +41,18 @@ public record SecretOpReason(
 		};
 	}
 
-	@NestedRecordImportWorkaround
-	public static class Nested{
+	public enum SecretOpReasonType{
+		API("API"),
+		AUTOMATED("AUTOMATED"),
+		MANUAL("MANUAL");
 
-		public enum SecretOpReasonType{
-			API("API"),
-			AUTOMATED("AUTOMATED"),
-			MANUAL("MANUAL");
+		public static final StringMappedEnum<SecretOpReasonType> BY_PERSISTENT_STRING
+				= new StringMappedEnum<>(values(), value -> value.persistentString);
 
-			public static final StringMappedEnum<SecretOpReasonType> BY_PERSISTENT_STRING
-					= new StringMappedEnum<>(values(), value -> value.persistentString);
+		public final String persistentString;
 
-			public final String persistentString;
-
-			SecretOpReasonType(String persistentString){
-				this.persistentString = persistentString;
-			}
-
+		SecretOpReasonType(String persistentString){
+			this.persistentString = persistentString;
 		}
 
 	}

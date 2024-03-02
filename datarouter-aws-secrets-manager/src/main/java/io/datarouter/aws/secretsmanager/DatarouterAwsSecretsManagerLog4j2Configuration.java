@@ -21,7 +21,7 @@ import org.apache.logging.log4j.core.Appender;
 import io.datarouter.logging.BaseLog4j2Configuration;
 import io.datarouter.logging.DatarouterLog4j2Configuration;
 
-public class DatarouterAwsSecretsManagerLog4j2Configuration extends BaseLog4j2Configuration{
+public final class DatarouterAwsSecretsManagerLog4j2Configuration extends BaseLog4j2Configuration{
 
 	public DatarouterAwsSecretsManagerLog4j2Configuration(){
 		registerParent(DatarouterLog4j2Configuration.class);

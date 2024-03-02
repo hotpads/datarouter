@@ -35,13 +35,15 @@ public class GroceryOrderExample{
 				items);
 
 		// Encode one item
-		byte[] item0Bytes = items.get(0).encodeIndexed();
+		byte[] item0Bytes = items.getFirst().encodeIndexed();
 		HexBlockTool.print(item0Bytes);
+		@SuppressWarnings("unused")
 		GroceryOrderItem item0Decoded = GroceryOrderItem.decode(item0Bytes);
 
 		// Encode the order
 		byte[] orderBytes = order.encodeIndexed();
 		HexBlockTool.print(orderBytes);
+		@SuppressWarnings("unused")
 		GroceryOrder orderDecoded = GroceryOrder.decode(orderBytes);
 
 		// validate decoding

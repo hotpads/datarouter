@@ -28,12 +28,12 @@ import java.util.function.Function;
 import io.datarouter.joblet.enums.JobletStatus;
 import io.datarouter.joblet.storage.jobletrequest.JobletRequest;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.util.ComparableTool;
 import io.datarouter.util.DateTool;
 import io.datarouter.util.lang.ClassTool;
 import io.datarouter.util.number.NumberTool;
 import io.datarouter.util.string.StringTool;
+import io.datarouter.util.todo.ConvertToRecord;
 
 public class JobletSummary{
 
@@ -72,7 +72,7 @@ public class JobletSummary{
 				.sorted(Comparator.comparing(JobletSummary::getType)
 						.thenComparing(JobletSummary::getExecutionOrder)
 						.thenComparing(JobletSummary::getStatus))
-				.collect(WarnOnModifyList.deprecatedCollector());
+				.toList();
 	}
 
 	public static Map<QueueStatusKey,JobletSummary> summarizeByQueueStatus(Scanner<JobletRequest> requests){
@@ -164,14 +164,21 @@ public class JobletSummary{
 
 	@Override
 	public String toString(){
-		return "JobletSummary [executionOrder=" + executionOrder + ", status=" + status + ", type=" + type
-				+ ", queueId=" + queueId + ", queueIds=" + queueIds + ", numFailures=" + numFailures + ", numType="
-				+ numType + ", sumItems=" + sumItems + ", firstCreated=" + firstCreated
+		return "JobletSummary [executionOrder=" + executionOrder
+				+ ", status=" + status
+				+ ", type=" + type
+				+ ", queueId=" + queueId
+				+ ", queueIds=" + queueIds
+				+ ", numFailures=" + numFailures
+				+ ", numType=" + numType
+				+ ", sumItems=" + sumItems
+				+ ", firstCreated=" + firstCreated
 				+ ", firstReserved=" + firstReserved + "]";
 	}
 
 	/*------------------ keys -----------------------*/
 
+	@ConvertToRecord
 	private static class TypeExecutionOrderStatusKey implements Comparable<TypeExecutionOrderStatusKey>{
 		private final String type;
 		private final Integer executionOrder;
@@ -213,6 +220,7 @@ public class JobletSummary{
 		}
 	}
 
+	@ConvertToRecord
 	private static class QueueStatusKey implements Comparable<QueueStatusKey>{
 		private final String queueId;
 		private final JobletStatus status;

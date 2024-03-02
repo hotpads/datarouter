@@ -65,7 +65,6 @@ import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.instrumentation.exception.ExceptionRecordDto;
 import io.datarouter.instrumentation.trace.W3TraceContext;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.util.singletonsupplier.SingletonSupplier;
 import io.datarouter.web.endpoint.EndpointValidator;
@@ -484,11 +483,11 @@ public abstract class BaseHandler{
 		}
 	}
 
-	private HandlerMethodAndArgs getHandlerMethodAndArgs(){
+	public HandlerMethodAndArgs getHandlerMethodAndArgs(){
 		String methodName = handlerMethodName();
 		List<Method> possibleMethods = ReflectionTool.getDeclaredMethodsWithName(getClass(), methodName).stream()
 				.filter(possibleMethod -> possibleMethod.isAnnotationPresent(Handler.class))
-				.collect(WarnOnModifyList.deprecatedCollector());
+				.toList();
 
 		HandlerMethodAndArgs pair = handlerTypingHelper.findMethodByName(
 				possibleMethods,
@@ -508,7 +507,8 @@ public abstract class BaseHandler{
 		}
 		if(method == null){
 			if(!possibleMethods.isEmpty() || defaultHandlerMethod.isPresent()){
-				Method desiredMethod = possibleMethods.isEmpty() ? defaultHandlerMethod.get() : possibleMethods.get(0);
+				Method desiredMethod = possibleMethods.isEmpty()
+						? defaultHandlerMethod.get() : possibleMethods.getFirst();
 				List<String> missingParameters;
 				if(EndpointTool.paramIsEndpointObject(desiredMethod)){
 					missingParameters = getMissingParameterNamesIfEndpoint(desiredMethod);
@@ -537,12 +537,12 @@ public abstract class BaseHandler{
 		String methodName = handlerMethodName();
 		List<Method> possibleMethods = ReflectionTool.getDeclaredMethodsWithName(getClass(), methodName).stream()
 				.filter(possibleMethod -> possibleMethod.isAnnotationPresent(Handler.class))
-				.collect(WarnOnModifyList.deprecatedCollector());
+				.toList();
 
 		Optional<Method> defaultHandlerMethod = getDefaultHandlerMethod();
 		Method method;
 		if(!possibleMethods.isEmpty() || defaultHandlerMethod.isPresent()){
-			method = possibleMethods.isEmpty() ? defaultHandlerMethod.get() : possibleMethods.get(0);
+			method = possibleMethods.isEmpty() ? defaultHandlerMethod.get() : possibleMethods.getFirst();
 		}else{
 			method = DEFAULT_HANDLER_METHOD;
 		}
@@ -558,6 +558,17 @@ public abstract class BaseHandler{
 			}
 		}
 		return injector.getInstance(encoderClass);
+	}
+
+	public HandlerDecoder getHandlerDecoder(Method method){
+		Class<? extends HandlerDecoder> decoderClass = defaultHandlerDecoder;
+		if(method.isAnnotationPresent(Handler.class)){
+			Class<? extends HandlerDecoder> methodDecoder = method.getAnnotation(Handler.class).decoder();
+			if(!methodDecoder.equals(NoOpHandlerDecoder.class)){
+				decoderClass = methodDecoder;
+			}
+		}
+		return injector.getInstance(decoderClass);
 	}
 
 	public void invokeHandlerMethod(Method method, Object[] args, HandlerEncoder encoder)

@@ -29,12 +29,17 @@ public class BaseDatarouterJobletThreadCountSettings extends SettingNode{
 
 	private final Map<JobletType<?>,CachedSetting<Integer>> settingByJobletType = new HashMap<>();
 
-	public BaseDatarouterJobletThreadCountSettings(SettingFinder finder, JobletTypeFactory jobletTypeFactory,
-			String nodeName, int defaultNumThreads){
+	public BaseDatarouterJobletThreadCountSettings(
+			SettingFinder finder,
+			JobletTypeFactory jobletTypeFactory,
+			String nodeName,
+			int defaultNumThreads){
 		super(finder, "datarouterJoblet." + nodeName + ".");
 
 		for(JobletType<?> jobletType : jobletTypeFactory.getAllTypes()){
-			CachedSetting<Integer> setting = registerSetting(jobletType, jobletType.getPersistentString(),
+			CachedSetting<Integer> setting = registerSetting(
+					jobletType,
+					jobletType.getPersistentString(),
 					defaultNumThreads);
 			settingByJobletType.put(jobletType, setting);
 		}

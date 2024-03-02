@@ -15,6 +15,8 @@
  */
 package io.datarouter.client.memcached.test;
 
+import java.util.Optional;
+
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Guice;
 
@@ -27,7 +29,7 @@ public class MemcachedManyFieldIntegrationTests extends BaseManyFieldIntegration
 
 	@BeforeClass
 	public void beforeClass(){
-		setup(DatarouterMemcachedTestClientIds.MEMCACHED, ManyFieldTypeBeanFielder::new);
+		setup(DatarouterMemcachedTestClientIds.MEMCACHED, ManyFieldTypeBeanFielder::new, Optional.empty());
 	}
 
 }

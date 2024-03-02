@@ -25,7 +25,7 @@ import org.apache.http.protocol.HttpContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.instrumentation.count.Counters;
+import io.datarouter.instrumentation.metric.Metrics;
 
 public class DatarouterConnectionSocketFactory implements ConnectionSocketFactory{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterConnectionSocketFactory.class);
@@ -50,9 +50,9 @@ public class DatarouterConnectionSocketFactory implements ConnectionSocketFactor
 			InetSocketAddress localAddress, HttpContext context) throws IOException{
 		logger.debug("connecting httpClientName={} remoteAddress={}", httpClientName, remoteAddress);
 		String hostString = remoteAddress.getHostString();
-		Counters.inc("HttpClientConnection global");
-		Counters.inc("HttpClientConnection host " + hostString);
-		Counters.inc("HttpClientConnection client-host " + httpClientName + " " + hostString);
+		Metrics.count("HttpClientConnection global");
+		Metrics.count("HttpClientConnection host " + hostString);
+		Metrics.count("HttpClientConnection client-host " + httpClientName + " " + hostString);
 		context.setAttribute(REMOTE_ADDRESS, remoteAddress);
 		return delegate.connectSocket(connectTimeout, sock, host, remoteAddress, localAddress, context);
 	}

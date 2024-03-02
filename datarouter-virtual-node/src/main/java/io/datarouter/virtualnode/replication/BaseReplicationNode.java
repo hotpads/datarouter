@@ -25,7 +25,6 @@ import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.BaseNode;
@@ -81,21 +80,21 @@ implements ReplicationNode<PK,D,F,N>{
 	public List<PhysicalNode<PK,D,F>> getPhysicalNodes(){
 		return Scanner.of(primaryAndReplicas)
 				.concatIter(N::getPhysicalNodes)
-				.collect(WarnOnModifyList.deprecatedCollector());
+				.collect(Collectors.toUnmodifiableList());
 	}
 
 	@Override
 	public List<PhysicalNode<PK,D,F>> getPhysicalNodesForClient(String clientName){
 		return Scanner.of(primaryAndReplicas)
 				.concatIter(node -> node.getPhysicalNodesForClient(clientName))
-				.collect(WarnOnModifyList.deprecatedCollector());
+				.collect(Collectors.toUnmodifiableList());
 	}
 
 	@Override
 	public List<ClientId> getClientIds(){
 		return Scanner.of(primaryAndReplicas)
 				.concatIter(N::getClientIds)
-				.collect(WarnOnModifyList.deprecatedCollector());
+				.list();
 	}
 
 	@Override

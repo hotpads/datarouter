@@ -32,6 +32,7 @@ import java.util.List;
 
 import org.apache.logging.log4j.Level;
 
+import io.datarouter.email.email.DatarouterHtmlEmailService;
 import io.datarouter.email.type.DatarouterEmailTypes.LoggerConfigCleanupEmailType;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDtoBuilder;
@@ -48,7 +49,6 @@ import io.datarouter.storage.config.setting.DatarouterEmailSubscriberSettings;
 import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.types.MilliTime;
 import io.datarouter.web.config.properties.DefaultEmailDistributionListZoneId;
-import io.datarouter.web.email.DatarouterHtmlEmailService;
 import io.datarouter.web.email.StandardDatarouterEmailHeaderService;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.PTag;

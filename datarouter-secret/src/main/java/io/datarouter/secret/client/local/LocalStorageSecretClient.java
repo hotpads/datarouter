@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 
-import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.secret.client.Secret;
 import io.datarouter.secret.client.SecretClient;
 import io.datarouter.secret.exception.SecretExistsException;
@@ -85,7 +84,7 @@ public class LocalStorageSecretClient implements SecretClient{
 				.map(obj -> (String)obj)
 				.filter(name -> prefix.map(current -> current.length() < name.length() && name.startsWith(current))
 						.orElse(true))
-				.collect(WarnOnModifyList.deprecatedCollector());
+				.toList();
 	}
 
 	@Override

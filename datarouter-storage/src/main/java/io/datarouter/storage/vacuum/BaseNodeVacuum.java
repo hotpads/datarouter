@@ -16,7 +16,6 @@
 package io.datarouter.storage.vacuum;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
@@ -60,7 +59,7 @@ public abstract class BaseNodeVacuum<PK extends PrimaryKey<PK>,T>{
 
 	public void run(TaskTracker tracker){
 		var numDeleted = new AtomicLong();
-		Scanner<List<PK>> deletionScanner = scanner
+		scanner
 				.advanceUntil($ -> tracker.shouldStop())
 				.each($ -> tracker.increment())
 				.each(item -> tracker.setLastItemProcessed(item.toString()))
@@ -71,15 +70,9 @@ public abstract class BaseNodeVacuum<PK extends PrimaryKey<PK>,T>{
 				})
 				.include(shouldDelete)
 				.map(this::getKey)
-				.batch(deleteBatchSize);
-		if(threads != null){
-			deletionScanner = deletionScanner
-					.parallelUnordered(threads)
-					.each(deleteConsumer::accept);
-		}else{
-			deletionScanner = deletionScanner.each(deleteConsumer::accept);
-		}
-		deletionScanner
+				.batch(deleteBatchSize)
+				.parallelUnordered(threads)
+				.each(deleteConsumer::accept)
 				.map(Collection::size)
 				.forEach(numDeleted::addAndGet);
 		logProgress(numDeleted.get(), tracker.getCount(), tracker.getLastItem());
@@ -113,6 +106,7 @@ public abstract class BaseNodeVacuum<PK extends PrimaryKey<PK>,T>{
 			this.deleteConsumer = deleteConsumer;
 			this.deleteBatchSize = 100;
 			this.logBatchSize = Optional.empty();
+			this.threads = Threads.none();
 		}
 
 		protected abstract C self();

@@ -33,7 +33,6 @@ import io.datarouter.client.mysql.field.codec.factory.MysqlFieldCodecFactory;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.FieldKey;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.scanner.WarnOnModifyList;
 import jakarta.inject.Inject;
 
 public class FieldSqlTableGenerator{
@@ -85,7 +84,7 @@ public class FieldSqlTableGenerator{
 	private List<SqlColumn> makeSqlColumns(List<Field<?>> fields, boolean allowNullable){
 		return fields.stream()
 				.map(field -> getSqlColumnDefinition(allowNullable, field))
-				.collect(WarnOnModifyList.deprecatedCollector());
+				.toList();
 	}
 
 	private <T,F extends Field<T>> SqlColumn getSqlColumnDefinition(boolean allowNullable, F field){
@@ -97,7 +96,7 @@ public class FieldSqlTableGenerator{
 		return fields.stream()
 				.map(Field::getKey)
 				.map(FieldKey::getColumnName)
-				.collect(WarnOnModifyList.deprecatedCollector());
+				.toList();
 	}
 
 	private Set<SqlIndex> makeSqlIndexes(Map<String,List<Field<?>>> indexes){

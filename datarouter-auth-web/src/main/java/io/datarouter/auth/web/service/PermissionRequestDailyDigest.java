@@ -24,6 +24,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
+import io.datarouter.auth.config.DatarouterAuthPaths;
 import io.datarouter.auth.detail.DatarouterUserExternalDetailService;
 import io.datarouter.auth.detail.DatarouterUserProfileLink;
 import io.datarouter.auth.service.UserInfo.UserInfoSupplier;
@@ -31,7 +32,6 @@ import io.datarouter.auth.session.SessionBasedUser;
 import io.datarouter.auth.storage.user.permissionrequest.DatarouterPermissionRequestDao;
 import io.datarouter.auth.storage.user.permissionrequest.PermissionRequest;
 import io.datarouter.auth.storage.user.permissionrequest.PermissionRequestKey;
-import io.datarouter.auth.web.config.DatarouterAuthPaths;
 import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
 import io.datarouter.types.MilliTime;

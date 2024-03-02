@@ -17,7 +17,7 @@ package io.datarouter.web.navigation;
 
 import java.util.Optional;
 
-import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
+import io.datarouter.auth.config.DatarouterAuthenticationConfig;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 

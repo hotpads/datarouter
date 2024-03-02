@@ -32,13 +32,13 @@ public class BlockQueueTests{
 		Assert.assertTrue(optResult0.isEmpty());
 
 		var optResult1 = queue.submit(nextBlockId++, new CompressedBlock(new byte[10]));
-		var result1 = optResult1.get(0);
+		var result1 = optResult1.getFirst();
 		Assert.assertEquals(result1.id, 0);
 		Assert.assertEquals(result1.compressedBlocks.count, 2);
 		Assert.assertEquals(result1.concat().length, 20);
 
 		var optResult2 = queue.submit(nextBlockId++, new CompressedBlock(new byte[30]));
-		var result2 = optResult2.get(0);
+		var result2 = optResult2.getFirst();
 		Assert.assertEquals(result2.id, 1);
 		Assert.assertEquals(result2.compressedBlocks.count, 1);
 		Assert.assertEquals(result2.concat().length, 30);
@@ -47,7 +47,7 @@ public class BlockQueueTests{
 		Assert.assertTrue(optResult4.isEmpty());
 
 		var optResult5 = queue.takeLastFiles();
-		var result5 = optResult5.get(0);
+		var result5 = optResult5.getFirst();
 		Assert.assertEquals(result5.id, 2);
 		Assert.assertEquals(result5.compressedBlocks.count, 1);
 		Assert.assertEquals(result5.concat().length, 3);

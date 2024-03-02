@@ -20,8 +20,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import io.datarouter.auth.authenticate.DatarouterTokenGenerator;
 import io.datarouter.auth.authenticate.authenticator.DatarouterAuthenticator;
+import io.datarouter.auth.session.DatarouterSessionManager;
 import io.datarouter.auth.storage.user.session.DatarouterSession;
-import io.datarouter.web.user.session.DatarouterSessionManager;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 

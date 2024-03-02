@@ -15,7 +15,7 @@
  */
 package io.datarouter.storage.util;
 
-import io.datarouter.instrumentation.gauge.Gauges;
+import io.datarouter.instrumentation.metric.Metrics;
 
 public class DatarouterQueueMetrics{
 
@@ -36,11 +36,11 @@ public class DatarouterQueueMetrics{
 	}
 
 	public static void saveQueueLength(String key, long queueLength, String clientTypeName){
-		Gauges.save(makeNameForQueueLength(clientTypeName, key), queueLength);
+		Metrics.measure(makeNameForQueueLength(clientTypeName, key), queueLength);
 	}
 
 	public static void saveOldestAckMessageAge(String key, long oldestUnackedMessageAgeS, String clientTypeName){
-		Gauges.save(makeNameForOldestMessageAgeS(clientTypeName, key), oldestUnackedMessageAgeS);
+		Metrics.measure(makeNameForOldestMessageAgeS(clientTypeName, key), oldestUnackedMessageAgeS);
 	}
 
 }

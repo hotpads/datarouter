@@ -33,6 +33,7 @@ import jakarta.inject.Inject;
 @Guice(moduleFactory = DatarouterMysqlTestNgModuleFactory.class)
 public class PhysicalNodeNameTests{
 
+	@SuppressWarnings("unused") // for tests
 	@Inject
 	private Datarouter datarouter;
 	@Inject

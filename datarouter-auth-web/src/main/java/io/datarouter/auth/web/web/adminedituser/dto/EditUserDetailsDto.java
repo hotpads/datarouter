@@ -21,8 +21,6 @@ import java.util.Map;
 import io.datarouter.auth.model.dto.DeprovisionedUserDto;
 import io.datarouter.auth.model.dto.PermissionRequestDto;
 import io.datarouter.auth.model.dto.UserRoleMetadata.UserRoleMetadataJsDto;
-import io.datarouter.auth.web.web.adminedituser.dto.EditUserDetailsDto.Nested.PagePermissionType;
-import io.datarouter.util.todo.NestedRecordImportWorkaround;
 
 //TODO DATAROUTER-2788
 public record EditUserDetailsDto(
@@ -69,13 +67,10 @@ public record EditUserDetailsDto(
 				error);
 	}
 
-	@NestedRecordImportWorkaround
-	public static class Nested{
-		public enum PagePermissionType{
-			ADMIN,
-			ROLES_ONLY,
-			NONE
-		}
+	public enum PagePermissionType{
+		ADMIN,
+		ROLES_ONLY,
+		NONE
 	}
 
 }

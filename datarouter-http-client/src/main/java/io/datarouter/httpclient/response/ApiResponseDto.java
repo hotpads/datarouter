@@ -16,6 +16,7 @@
 package io.datarouter.httpclient.response;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.http.HttpStatus;
 
@@ -195,6 +196,13 @@ public class ApiResponseDto<T> implements DocumentedGenericHolder{
 	@Deprecated
 	public final ApiResponseErrorDto<T> error(){
 		return getError();
+	}
+
+	public ApiResponseDtoV2<T> toV2(){
+		var errorDtoV2 = Optional.ofNullable(error)
+				.map(err -> new ApiResponseErrorDtoV2(err.message, err.code))
+				.orElse(null);
+		return new ApiResponseDtoV2<>(response, success, errorDtoV2, httpStatus);
 	}
 
 	public final T getResponse(){

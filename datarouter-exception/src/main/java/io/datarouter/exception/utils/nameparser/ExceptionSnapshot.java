@@ -20,8 +20,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import io.datarouter.scanner.WarnOnModifyList;
-
 public class ExceptionSnapshot{
 
 	public final List<ExceptionCauseSnapshot> causes;
@@ -40,7 +38,7 @@ public class ExceptionSnapshot{
 	}
 
 	public Optional<ExceptionCauseSnapshot> getRootCause(){
-		return causes.isEmpty() ? Optional.empty() : Optional.of(causes.get(causes.size() - 1));
+		return causes.isEmpty() ? Optional.empty() : Optional.of(causes.getLast());
 	}
 
 	public static class ExceptionCauseSnapshot{
@@ -68,7 +66,7 @@ public class ExceptionSnapshot{
 				exception.getMessage(),
 				Arrays.stream(exception.getStackTrace())
 						.map(StackTraceElementSnapshot::new)
-						.collect(WarnOnModifyList.deprecatedCollector()));
+						.toList());
 		}
 
 	}

@@ -33,7 +33,7 @@ extends BaseRedundantQueueNode<PK,D,F,N>
 implements GroupQueueStorageNode<PK,D,F>, RedundantGroupQueueStorageMixin<PK,D,F,N>{
 
 	private RedundantGroupQueueStorageNode(List<N> nodes){
-		super(nodes.get(0), nodes);
+		super(nodes.getFirst(), nodes);
 	}
 
 	public static <PK extends PrimaryKey<PK>,
@@ -42,7 +42,7 @@ implements GroupQueueStorageNode<PK,D,F>, RedundantGroupQueueStorageMixin<PK,D,F
 			N extends GroupQueueStorageNode<PK,D,F>>
 			GroupQueueStorageNode<PK,D,F> makeIfMulti(List<N> nodes){
 		if(nodes.size() == 1){
-			return nodes.get(0);
+			return nodes.getFirst();
 		}
 		return new RedundantGroupQueueStorageNode<>(nodes);
 	}

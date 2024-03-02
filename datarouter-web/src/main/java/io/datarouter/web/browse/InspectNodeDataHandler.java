@@ -30,7 +30,6 @@ import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.pathnode.PathNode;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.node.Node;
 import io.datarouter.storage.util.PrimaryKeyPercentCodecTool;
@@ -82,7 +81,7 @@ public abstract class InspectNodeDataHandler extends BaseHandler{
 			return new MessageMav("Cannot find node " + nodeName);
 		}
 		mav.put("node", node);
-		mav.put("tableName", node.getPhysicalNodes().get(0).getFieldInfo().getTableName());
+		mav.put("tableName", node.getPhysicalNodes().getFirst().getFieldInfo().getTableName());
 		List<Field<?>> fields = getFields();
 		mav.put("fields", fields);
 		mav.put("keyFields", getKeyFields());
@@ -125,7 +124,7 @@ public abstract class InspectNodeDataHandler extends BaseHandler{
 		}
 		mav.put("abbreviatedFieldNameByFieldName", getFieldAbbreviationByFieldName(fielder, databeans));
 		if(databeans.size() >= limit){
-			mav.put(PARAM_nextKey, PrimaryKeyPercentCodecTool.encode(ListTool.getLast(databeans).getKey()));
+			mav.put(PARAM_nextKey, PrimaryKeyPercentCodecTool.encode(ListTool.getLastOrNull(databeans).getKey()));
 		}
 	}
 
@@ -180,7 +179,7 @@ public abstract class InspectNodeDataHandler extends BaseHandler{
 				.map(name -> FIELD_PREFIX + name)
 				.map(params::required)
 				.map(StringTool::nullSafe)
-				.collect(WarnOnModifyList.deprecatedCollector());
+				.toList();
 	}
 
 }

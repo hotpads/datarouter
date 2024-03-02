@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.HttpEntity;
@@ -48,7 +49,6 @@ import org.apache.http.util.Args;
 import org.apache.http.util.EntityUtils;
 
 import io.datarouter.httpclient.client.DatarouterHttpClientConfig;
-import io.datarouter.scanner.WarnOnModifyList;
 
 public class DatarouterHttpRequest{
 
@@ -61,7 +61,7 @@ public class DatarouterHttpRequest{
 	private Boolean retrySafe;
 	private Duration timeout;
 	private HttpEntity entity;
-	private String fragment;
+	private final String fragment;
 	private Map<String,List<String>> headers;
 	private Map<String,List<String>> queryParams;
 	private Map<String,List<String>> postParams;
@@ -69,6 +69,7 @@ public class DatarouterHttpRequest{
 	private HttpHost proxy;
 	private Boolean shouldSkipSecurity;
 	private Boolean shouldSkipLogs;
+	private boolean disableFollowRedirects;
 	private Duration logSlowRequestThreshold;
 
 	/**
@@ -144,7 +145,7 @@ public class DatarouterHttpRequest{
 		if(entity != null && canHaveEntity()){
 			((HttpEntityEnclosingRequest) request).setEntity(entity);
 		}
-		if(timeout != null || proxy != null){
+		if(timeout != null || proxy != null || disableFollowRedirects){
 			Builder builder = RequestConfig.custom();
 			builder.setCookieSpec(CookieSpecs.STANDARD);
 			if(timeout != null){
@@ -156,6 +157,9 @@ public class DatarouterHttpRequest{
 			}
 			if(proxy != null){
 				builder.setProxy(proxy);
+			}
+			if(disableFollowRedirects){
+				builder.setRedirectsEnabled(false);
 			}
 
 			RequestConfig requestConfig = builder.build();
@@ -389,7 +393,7 @@ public class DatarouterHttpRequest{
 		}
 		return data.entrySet().stream()
 				.map(entry -> new BasicNameValuePair(entry.getKey(), entry.getValue()))
-				.collect(WarnOnModifyList.deprecatedCollector());
+				.collect(Collectors.toUnmodifiableList());
 	}
 
 	public DatarouterHttpClientConfig getRequestConfig(DatarouterHttpClientConfig clientConfig){
@@ -432,7 +436,7 @@ public class DatarouterHttpRequest{
 		return mapOfLists.entrySet().stream()
 				.collect(HashMap::new,
 						(map, entry) -> map.put(entry.getKey(),
-						entry.getValue().get(0)),
+						entry.getValue().getFirst()),
 						HashMap::putAll);// don't use Collectors.toMap because values can be null
 	}
 
@@ -463,6 +467,11 @@ public class DatarouterHttpRequest{
 
 	public DatarouterHttpRequest setProxy(HttpHost proxy){
 		this.proxy = proxy;
+		return this;
+	}
+
+	public DatarouterHttpRequest disableFollowRedirects(){
+		disableFollowRedirects = true;
 		return this;
 	}
 

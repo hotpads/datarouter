@@ -18,14 +18,12 @@ package io.datarouter.util.cache;
 import java.time.Clock;
 import java.time.Duration;
 
-public class CachedObject<V>{
-
-	public final V value;
-	public final long timeOfExpirationMs;
+public record CachedObject<V>(
+		V value,
+		long timeOfExpirationMs){
 
 	public CachedObject(V value, Clock clock, Duration ttl){
-		this.value = value;
-		this.timeOfExpirationMs = Clock.offset(clock, ttl).millis();
+		this(value, Clock.offset(clock, ttl).millis());
 	}
 
 	public boolean isExpired(Clock currentTime){

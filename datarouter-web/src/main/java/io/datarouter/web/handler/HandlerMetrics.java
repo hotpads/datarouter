@@ -17,8 +17,7 @@ package io.datarouter.web.handler;
 
 import java.lang.reflect.Method;
 
-import io.datarouter.instrumentation.count.Counters;
-import io.datarouter.instrumentation.gauge.Gauges;
+import io.datarouter.instrumentation.metric.Metrics;
 import io.datarouter.storage.util.DatarouterCounters;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -84,32 +83,32 @@ public class HandlerMetrics{
 	}
 
 	private static void incInternal(String format){
-		Counters.inc(PREFIX + " " + HANDLER + " " + format);
+		Metrics.count(PREFIX + " " + HANDLER + " " + format);
 	}
 
 	private static void incInternal(String format, String suffix){
-		Counters.inc(PREFIX + " " + HANDLER + " " + format + " " + suffix);
+		Metrics.count(PREFIX + " " + HANDLER + " " + format + " " + suffix);
 	}
 
 	public static void saveMethodLatency(Class<? extends BaseHandler> handlerClass, Method method, long durationMs){
-		Gauges.saveWithPercentiles(PREFIX + " " + HANDLER + " " + METHOD + " " + LATENCY_MS + " " + handlerClass
+		Metrics.measureWithPercentiles(PREFIX + " " + HANDLER + " " + METHOD + " " + LATENCY_MS + " " + handlerClass
 				.getSimpleName() + " " + method.getName(), durationMs);
 	}
 
 	public static void incDuration(Class<? extends BaseHandler> handlerClass, Method method, long durationMs){
-		Counters.inc(PREFIX + " " + HANDLER + " " + METHOD + " " + CUMULATED_DURATION_MS + " " + handlerClass
+		Metrics.count(PREFIX + " " + HANDLER + " " + METHOD + " " + CUMULATED_DURATION_MS + " " + handlerClass
 				.getSimpleName() + " " + method.getName(), durationMs);
 	}
 
 	public static void incTotalCpuTime(Class<? extends BaseHandler> handlerClass, Method method, long totalCpuTimeMs){
-		Counters.inc(PREFIX + " " + HANDLER + " " + METHOD + " " + CUMULATED_CPU_MS + " " + handlerClass.getSimpleName()
-				+ " " + method.getName(), totalCpuTimeMs);
-		Counters.inc(PREFIX + " " + HANDLER + " " + CUMULATED_CPU_MS, totalCpuTimeMs);
+		Metrics.count(PREFIX + " " + HANDLER + " " + METHOD + " " + CUMULATED_CPU_MS + " "
+				+ handlerClass.getSimpleName() + " " + method.getName(), totalCpuTimeMs);
+		Metrics.count(PREFIX + " " + HANDLER + " " + CUMULATED_CPU_MS, totalCpuTimeMs);
 	}
 
 	public static void incRequestBodyCollectionSize(Class<? extends BaseHandler> handlerClass, Method method,
 			int batchSize){
-		Counters.inc(PREFIX + " " + HANDLER + " " + METHOD + " " + BATCH + " " + handlerClass.getSimpleName() + " "
+		Metrics.count(PREFIX + " " + HANDLER + " " + METHOD + " " + BATCH + " " + handlerClass.getSimpleName() + " "
 				+ method.getName(), batchSize);
 	}
 

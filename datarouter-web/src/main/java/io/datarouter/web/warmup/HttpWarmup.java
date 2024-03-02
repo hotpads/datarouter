@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 import io.datarouter.httpclient.DatarouterServicePaths;
 import io.datarouter.httpclient.request.DatarouterHttpRequest;
 import io.datarouter.httpclient.request.HttpRequestMethod;
-import io.datarouter.instrumentation.count.Counters;
+import io.datarouter.instrumentation.metric.Metrics;
 import io.datarouter.web.config.DatarouterWebSettingRoot;
 import io.datarouter.web.config.ServletContextSupplier;
 import io.datarouter.web.port.CompoundPortIdentifier;
@@ -63,7 +63,7 @@ public class HttpWarmup{
 	}
 
 	private void count(String string){
-		Counters.inc("Warmup " + string);
+		Metrics.count("Warmup " + string);
 	}
 
 }

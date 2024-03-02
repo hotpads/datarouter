@@ -20,11 +20,11 @@ import java.util.Collections;
 import javax.servlet.http.HttpServletRequest;
 
 import io.datarouter.auth.role.DatarouterUserRole;
+import io.datarouter.auth.session.DatarouterSessionManager;
 import io.datarouter.auth.storage.user.session.DatarouterSession;
 import io.datarouter.exception.config.DatarouterExceptionSettingRoot;
 import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.web.exception.ExceptionHandlingConfig;
-import io.datarouter.web.user.session.DatarouterSessionManager;
 import jakarta.inject.Inject;
 
 public class DefaultExceptionHandlingConfig implements ExceptionHandlingConfig{

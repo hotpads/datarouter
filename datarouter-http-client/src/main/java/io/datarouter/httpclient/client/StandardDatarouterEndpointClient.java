@@ -39,7 +39,7 @@ import io.datarouter.httpclient.response.Conditional;
 import io.datarouter.httpclient.response.DatarouterHttpResponse;
 import io.datarouter.httpclient.response.exception.DatarouterHttpException;
 import io.datarouter.httpclient.response.exception.DatarouterHttpResponseException;
-import io.datarouter.instrumentation.count.Counters;
+import io.datarouter.instrumentation.metric.Metrics;
 import io.datarouter.pathnode.PathNode;
 import jakarta.inject.Singleton;
 
@@ -112,12 +112,12 @@ implements DatarouterEndpointClient<ET>{
 			throw e;
 		}finally{
 			String counter = String.format("endpointHttpClient %s %s", name, pathNode.toSlashedString());
-			Counters.inc(counter);
+			Metrics.count(counter);
 
 			int statusCode = response == null ? 0 : response.getStatusCode();
 			String counterWithStatus = String.format("endpointHttpClient %s %s %d", name, pathNode.toSlashedString(),
 					statusCode);
-			Counters.inc(counterWithStatus);
+			Metrics.count(counterWithStatus);
 		}
 	}
 

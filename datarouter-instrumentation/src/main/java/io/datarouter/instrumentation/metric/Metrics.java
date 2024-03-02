@@ -15,25 +15,31 @@
  */
 package io.datarouter.instrumentation.metric;
 
-import io.datarouter.instrumentation.count.Counters;
-import io.datarouter.instrumentation.gauge.Gauges;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Metrics{
+
+	private static final List<MetricCollector> COLLECTORS = new ArrayList<>();
+
+	public static synchronized void registerCollector(MetricCollector collector){
+		COLLECTORS.add(collector);
+	}
 
 	public static void count(String key){
 		count(key, 1);
 	}
 
 	public static void count(String key, long value){
-		Counters.inc(key, value);
+		COLLECTORS.forEach(collector -> collector.count(key, value));
 	}
 
 	public static void measure(String key, long value){
-		Gauges.save(key, value);
+		COLLECTORS.forEach(collector -> collector.measure(key, value, false));
 	}
 
 	public static void measureWithPercentiles(String key, long value){
-		Gauges.saveWithPercentiles(key, value);
+		COLLECTORS.forEach(collector -> collector.measure(key, value, true));
 	}
 
 }

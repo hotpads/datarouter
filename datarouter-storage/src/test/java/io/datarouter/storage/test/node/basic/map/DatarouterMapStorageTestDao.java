@@ -17,6 +17,7 @@ package io.datarouter.storage.test.node.basic.map;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
@@ -36,11 +37,12 @@ public class DatarouterMapStorageTestDao extends BaseDao implements TestDao{
 	private final MapStorage<MapStorageBeanKey,MapStorageBean> node;
 
 	public DatarouterMapStorageTestDao(Datarouter datarouter, NodeFactory nodeFactory,
-			ClientId clientId){
+			ClientId clientId, Optional<String> tableName){
 		super(datarouter);
 		node = nodeFactory.create(clientId, MapStorageBeanEntityKey::new, MapStorageBean::new,
 				MapStorageBeanFielder::new)
 				.withSchemaVersion("1")
+				.withTableName(tableName)
 				.buildAndRegister();
 	}
 

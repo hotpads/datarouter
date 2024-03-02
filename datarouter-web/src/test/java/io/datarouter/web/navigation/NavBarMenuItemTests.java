@@ -70,7 +70,7 @@ public class NavBarMenuItemTests{
 		Assert.assertFalse(parent.dispatchRule.get().isPresent());
 		Assert.assertTrue(parent.isDropdown());
 
-		NavBarMenuItem child = parent.subItems.get(0);
+		NavBarMenuItem child = parent.subItems.getFirst();
 		Assert.assertEquals(child.getHref().toString(), SINGLE_HREF);
 		Assert.assertEquals(child.getText(), SINGLE_TEXT);
 		Assert.assertNull(child.subItems);

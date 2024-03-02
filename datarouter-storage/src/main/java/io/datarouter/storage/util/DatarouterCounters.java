@@ -15,7 +15,7 @@
  */
 package io.datarouter.storage.util;
 
-import io.datarouter.instrumentation.count.Counters;
+import io.datarouter.instrumentation.metric.Metrics;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 
@@ -102,7 +102,7 @@ public class DatarouterCounters{
 			String clientTypeString,
 			String key,
 			long delta){
-		Counters.inc(PREFIX + " " + aggregationLevel + " " + clientTypeString + " " + key, delta);
+		Metrics.count(PREFIX + " " + aggregationLevel + " " + clientTypeString + " " + key, delta);
 	}
 
 }

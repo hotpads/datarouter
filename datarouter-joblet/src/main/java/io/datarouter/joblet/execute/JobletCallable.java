@@ -104,8 +104,11 @@ public class JobletCallable implements Callable<Void>{
 				}else{
 					JobletCounters.incErrored(jobletType);
 					try{
-						jobletService.handleJobletError(timer, jobletRequest, wrappingException, jobletRequest.getKey()
-								.getType());
+						jobletService.handleJobletError(
+								timer,
+								jobletRequest,
+								wrappingException,
+								jobletRequest.getKey().getType());
 					}catch(Exception lastResort){
 						logger.error("", lastResort);
 						timer.add("couldn't mark failed");
@@ -159,6 +162,7 @@ public class JobletCallable implements Callable<Void>{
 		// counters
 		JobletCounters.incNumJobletsProcessed();
 		JobletCounters.incNumJobletsProcessed(jobletType);
+		JobletCounters.incNumJobletsProcessed(jobletType, jobletRequest.getKey().getPriority());
 		int numItemsProcessed = Math.max(1, jobletRequest.getNumItems());
 		JobletCounters.incItemsProcessed(jobletType, numItemsProcessed);
 		timer.add("processed " + numItemsProcessed + " items");

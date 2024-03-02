@@ -41,6 +41,7 @@ public abstract class BaseWebappInstance<
 extends BaseDatabean<PK,D>{
 
 	private String serverType;
+	private String serviceName;
 	private String servletContextPath;
 	private String serverPublicIp;
 	private String serverPrivateIp;
@@ -56,6 +57,7 @@ extends BaseDatabean<PK,D>{
 
 	public static class FieldKeys{
 		public static final StringFieldKey serverType = new StringFieldKey("serverType");
+		public static final StringFieldKey serviceName = new StringFieldKey("serviceName");
 		public static final StringFieldKey servletContextPath = new StringFieldKey("servletContextPath");
 		public static final StringFieldKey serverPublicIp = new StringFieldKey("serverPublicIp");
 		public static final StringFieldKey serverPrivateIp = new StringFieldKey("serverPrivateIp");
@@ -83,6 +85,7 @@ extends BaseDatabean<PK,D>{
 		public List<Field<?>> getNonKeyFields(D databean){
 			return List.of(
 					new StringField(FieldKeys.serverType, databean.getServerType()),
+					new StringField(FieldKeys.serviceName, databean.getServiceName()),
 					new StringField(FieldKeys.servletContextPath, databean.getServletContextPath()),
 					new StringField(FieldKeys.serverPublicIp, databean.getServerPublicIp()),
 					new StringField(FieldKeys.serverPrivateIp, databean.getServerPrivateIp()),
@@ -104,6 +107,7 @@ extends BaseDatabean<PK,D>{
 	public BaseWebappInstance(
 			PK key,
 			String serverType,
+			String serviceName,
 			String servletContextPath,
 			String serverPublicIp,
 			String serverPrivateIp,
@@ -118,6 +122,7 @@ extends BaseDatabean<PK,D>{
 			Integer httpsPort){
 		super(key);
 		this.serverType = serverType;
+		this.serviceName = serviceName;
 		this.servletContextPath = servletContextPath;
 		this.serverPublicIp = serverPublicIp;
 		this.serverPrivateIp = serverPrivateIp;
@@ -134,19 +139,20 @@ extends BaseDatabean<PK,D>{
 
 	public BaseWebappInstance(PK key, WebappInstanceDto dto){
 		this(key,
-				dto.serverType,
-				dto.servletContextPath,
-				dto.serverPublicIp,
-				dto.serverPrivateIp,
-				dto.getRefreshedLast(),
-				dto.getStartup(),
-				dto.getBuild(),
-				dto.buildId,
-				dto.commitId,
-				dto.javaVersion,
-				dto.servletContainerVersion,
-				dto.gitBranch,
-				dto.httpsPort);
+				dto.serverType(),
+				dto.serviceName(),
+				dto.servletContextPath(),
+				dto.serverPublicIp(),
+				dto.serverPrivateIp(),
+				dto.refreshedLastInstant(),
+				dto.startup(),
+				dto.build(),
+				dto.buildId(),
+				dto.commitId(),
+				dto.javaVersion(),
+				dto.servletContainerVersion(),
+				dto.gitBranch(),
+				dto.httpsPort());
 	}
 
 	public WebappInstanceDto toDto(){
@@ -154,6 +160,7 @@ extends BaseDatabean<PK,D>{
 				getKey().getWebappName(),
 				getKey().getServerName(),
 				getServerType(),
+				getServiceName(),
 				getServletContextPath(),
 				getServerPublicIp(),
 				getServerPrivateIp(),
@@ -183,6 +190,10 @@ extends BaseDatabean<PK,D>{
 
 	public String getServerType(){
 		return serverType;
+	}
+
+	public String getServiceName(){
+		return serviceName;
 	}
 
 	public String getServletContextPath(){

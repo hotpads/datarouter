@@ -54,7 +54,7 @@ public class RetainingScannerTests{
 		Scanner<RetainingGroup<Integer>> retainingScanner = Scanner.of(1, 2).retain(2);
 		List<RetainingGroup<Integer>> groups = retainingScanner.list();
 		Assert.assertEquals(groups.size(), 2);
-		Assert.assertEquals(groups.get(0).current().intValue(), 1);
+		Assert.assertEquals(groups.getFirst().current().intValue(), 1);
 		Assert.assertNull(groups.get(0).peekBack(1));
 		Assert.assertNull(groups.get(0).peekBack(2));
 		Assert.assertEquals(groups.get(1).current().intValue(), 2);

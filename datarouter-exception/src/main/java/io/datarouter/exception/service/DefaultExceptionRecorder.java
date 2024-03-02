@@ -170,7 +170,7 @@ public class DefaultExceptionRecorder implements ExceptionRecorder{
 		ExceptionCounters.inc(callOrigin);
 		ExceptionCounters.inc(category.name() + " origin " + callOrigin);
 		ExceptionCounters.inc(type + " " + callOrigin);
-		ExceptionRecord exceptionRecord = new ExceptionRecord(
+		var exceptionRecord = new ExceptionRecord(
 				ExceptionRecordKey.generate(),
 				System.currentTimeMillis(),
 				serviceName.get(),
@@ -186,11 +186,16 @@ public class DefaultExceptionRecorder implements ExceptionRecorder{
 				callOrigin,
 				additionalEmailRecipients);
 		exceptionRecord.trimFields();
-		exceptionBuffers.exceptionRecordBuffer.offer(exceptionRecord);
-		logger.warn("Exception recorded ({})", exceptionRecordService.buildExceptionLinkForCurrentServer(
-				exceptionRecord));
+		if(settings.saveRecordsLocally.get()){
+			exceptionBuffers.exceptionRecordBuffer.offer(exceptionRecord);
+			logger.warn("Exception recorded ({})", exceptionRecordService.buildExceptionLinkForCurrentServer(
+					exceptionRecord));
+		}
 		if(settings.publishRecords.get()){
 			exceptionBuffers.exceptionRecordPublishingBuffer.offer(exceptionRecord);
+			if(!settings.saveRecordsLocally.get()){
+				logger.warn("Exception recorded with id {}", exceptionRecord.getKey().getId());
+			}
 		}
 		return exceptionRecord.toDto();
 	}
@@ -291,7 +296,9 @@ public class DefaultExceptionRecorder implements ExceptionRecorder{
 
 	private void saveAndPublishHttpRequest(HttpRequestRecord httpRequestRecord, boolean publish){
 		httpRequestRecord.trimFields();
-		exceptionBuffers.httpRequestRecordBuffer.offer(httpRequestRecord);
+		if(settings.saveRecordsLocally.get()){
+			exceptionBuffers.httpRequestRecordBuffer.offer(httpRequestRecord);
+		}
 		httpRequestRecord.trimBinaryBody(HttpRequestRecordDto.BINARY_BODY_MAX_SIZE);
 		if(publish && settings.publishRecords.get()){
 			exceptionBuffers.httpRequestRecordPublishingBuffer.offer(httpRequestRecord);

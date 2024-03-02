@@ -15,6 +15,8 @@
  */
 package io.datarouter.gcp.spanner.test;
 
+import java.util.Optional;
+
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Guice;
 
@@ -26,7 +28,7 @@ public class SpannerMapStorageIntegrationTests extends BaseMapStorageIntegration
 
 	@BeforeClass
 	public void beforeClass(){
-		setup(SpannerTestCliendIds.SPANNER);
+		setup(SpannerTestCliendIds.SPANNER, Optional.empty());
 	}
 
 }

@@ -22,7 +22,6 @@ import java.util.function.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.instrumentation.gauge.Gauges;
 import io.datarouter.plugin.PluginInjector;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.web.listener.DatarouterAppListener;
@@ -97,7 +96,7 @@ public class OpencencusMetricsAppListener implements DatarouterAppListener{
 					if(points.size() > 1){
 						logger.warn("too many points metric={}", metric);
 					}
-					Long value = points.get(0).getValue().match(
+					Long value = points.getFirst().getValue().match(
 							doubleValue -> null,
 							longValue -> longValue,
 							distributionValue -> null,
@@ -123,7 +122,7 @@ public class OpencencusMetricsAppListener implements DatarouterAppListener{
 					continue;
 				}
 				switch(type){
-				case GAUGE_INT64 -> Gauges.save(datarouterMetricName, value);
+				case GAUGE_INT64 -> io.datarouter.instrumentation.metric.Metrics.measure(datarouterMetricName, value);
 				case CUMULATIVE_INT64 -> differencingCounterService.add(datarouterMetricName, value);
 				default -> throw new IllegalArgumentException("Unexpected value=" + type);
 				}

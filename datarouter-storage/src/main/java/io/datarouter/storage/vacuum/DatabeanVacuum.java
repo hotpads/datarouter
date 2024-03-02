@@ -59,7 +59,13 @@ extends BaseNodeVacuum<PK,D>{
 		}
 
 		public DatabeanVacuum<PK,D> build(){
-			return new DatabeanVacuum<>(scanner, deleteConsumer, deleteBatchSize, shouldDelete, logBatchSize, threads);
+			return new DatabeanVacuum<>(
+					scanner,
+					deleteConsumer,
+					deleteBatchSize,
+					shouldDelete,
+					logBatchSize,
+					threads);
 		}
 
 	}

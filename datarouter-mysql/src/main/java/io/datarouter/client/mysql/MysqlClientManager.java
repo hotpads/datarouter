@@ -119,7 +119,7 @@ public class MysqlClientManager extends BaseClientManager implements MysqlConnec
 	@Override
 	public ConnectionHandle getExistingHandle(ClientId clientId){
 		Thread currentThread = Thread.currentThread();
-		return handleByThread(clientId).get(currentThread.getId());
+		return handleByThread(clientId).get(currentThread.threadId());
 	}
 
 	@Override
@@ -140,7 +140,7 @@ public class MysqlClientManager extends BaseClientManager implements MysqlConnec
 			Connection newConnection = mysqlConnectionPoolHolder.getConnectionPool(clientId).checkOut();
 			logIfSlowReserveConnection(clientId, requestTimeNs);
 
-			long threadId = Thread.currentThread().getId();
+			long threadId = Thread.currentThread().threadId();
 			long connNumber = connectionCounter(clientId).incrementAndGet();
 			var handle = new ConnectionHandle(
 					Thread.currentThread(),
@@ -202,7 +202,7 @@ public class MysqlClientManager extends BaseClientManager implements MysqlConnec
 			// on close, there will be another network round trip if autocommit needs to be disabled
 
 			connectionByHandle(clientId).remove(handle);
-			handleByThread(clientId).remove(currentThread.getId());
+			handleByThread(clientId).remove(currentThread.threadId());
 			DatarouterCounters.incClient(clientType, "releaseConnection", clientId.getName(), 1L);
 		}catch(SQLException e){
 			throw new DataAccessException(e);

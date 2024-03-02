@@ -78,7 +78,7 @@ implements DocumentedGenericHolder{
 	public <U> ApiResponseDtoV2<U> map(
 			Function<? super T,? extends U> successMapper){
 		if(success){
-			return ApiResponseDtoV2.successResponse(successMapper.apply(response));
+			return new ApiResponseDtoV2<>(successMapper.apply(response), true, error, httpStatus);
 		}
 		return new ApiResponseDtoV2<>(null, false, error, httpStatus);
 	}

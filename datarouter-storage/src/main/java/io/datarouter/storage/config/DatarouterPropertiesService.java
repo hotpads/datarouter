@@ -24,6 +24,7 @@ import io.datarouter.storage.config.properties.AdminEmail;
 import io.datarouter.storage.config.properties.ConfigDirectory;
 import io.datarouter.storage.config.properties.DatarouterEnvironmentTypeSupplier;
 import io.datarouter.storage.config.properties.DatarouterServerTypeSupplier;
+import io.datarouter.storage.config.properties.EnvironmentCategoryName;
 import io.datarouter.storage.config.properties.EnvironmentDomain;
 import io.datarouter.storage.config.properties.EnvironmentName;
 import io.datarouter.storage.config.properties.InternalConfigDirectory;
@@ -43,6 +44,8 @@ public class DatarouterPropertiesService{
 	private AdminEmail adminEmail;
 	@Inject
 	private EnvironmentName environmentName;
+	@Inject
+	EnvironmentCategoryName environmentCategoryName;
 	@Inject
 	private EnvironmentDomain environmentDomain;
 	@Inject
@@ -70,6 +73,7 @@ public class DatarouterPropertiesService{
 		return Scanner.of(
 				new DatarouterProperty(AdminEmail.ADMINISTRATOR_EMAIL, adminEmail.get()),
 				new DatarouterProperty(EnvironmentName.ENVIRONMENT, environmentName.get()),
+				new DatarouterProperty(EnvironmentCategoryName.ENVIRONMENT_CATEGORY, environmentCategoryName.get()),
 				new DatarouterProperty(EnvironmentDomain.ENVIRONMENT_DOMAIN, environmentDomain.get()),
 				new DatarouterProperty(DatarouterEnvironmentTypeSupplier.ENVIRONMENT_TYPE, environmentType.get()),
 				new DatarouterProperty(ServiceName.ENV_VARIABLE, serviceName.get()),

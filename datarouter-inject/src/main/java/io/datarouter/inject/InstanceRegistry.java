@@ -22,7 +22,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import io.datarouter.scanner.Scanner;
-import io.datarouter.scanner.WarnOnModifyList;
 import io.datarouter.util.StreamTool;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -46,7 +45,7 @@ public class InstanceRegistry{
 	private <T> Collection<T> getRegisteredInstancesOfType(Class<T> type){
 		return set.stream()
 				.flatMap(StreamTool.instancesOf(type))
-				.collect(WarnOnModifyList.deprecatedCollector());
+				.toList();
 	}
 
 	public <T> Collection<T> getAllInstancesOfType(Class<T> type){

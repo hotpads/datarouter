@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.instrumentation.count.Counters;
+import io.datarouter.instrumentation.metric.Metrics;
 import io.datarouter.util.duration.DatarouterDuration;
 import jakarta.inject.Singleton;
 
@@ -43,7 +43,7 @@ public class DifferencingCounterService{
 		logger.info("key={} valueDifference={} dateDifference={}", key, valueDifference, new DatarouterDuration(
 				dateDifferenceMs, TimeUnit.MILLISECONDS));
 		if(valueDifference >= 0){
-			Counters.inc(key, valueDifference);
+			Metrics.count(key, valueDifference);
 		}
 	}
 

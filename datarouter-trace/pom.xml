@@ -22,7 +22,7 @@
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-parent</artifactId>
-		<version>0.0.123</version>
+		<version>0.0.124</version>
 		<relativePath>../datarouter-parent</relativePath>
 	</parent>
 
@@ -45,18 +45,17 @@
 		</dependency>
 		<dependency>
 			<groupId>io.datarouter</groupId>
+			<artifactId>datarouter-logging</artifactId>
+			<version>${datarouter-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.datarouter</groupId>
 			<artifactId>datarouter-web</artifactId>
 			<version>${datarouter-version}</version>
 		</dependency>
 		<dependency>
 			<groupId>io.datarouter</groupId>
 			<artifactId>datarouter-testng</artifactId>
-			<version>${datarouter-version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>io.datarouter</groupId>
-			<artifactId>datarouter-logging</artifactId>
 			<version>${datarouter-version}</version>
 			<scope>test</scope>
 		</dependency>

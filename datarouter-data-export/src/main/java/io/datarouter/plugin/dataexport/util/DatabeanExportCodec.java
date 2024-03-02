@@ -25,8 +25,8 @@ import io.datarouter.bytes.BinaryDictionary;
 import io.datarouter.bytes.ByteReader;
 import io.datarouter.bytes.ByteWriter;
 import io.datarouter.bytes.Codec;
+import io.datarouter.bytes.blockfile.row.BlockfileRow;
 import io.datarouter.bytes.codec.stringcodec.StringCodec;
-import io.datarouter.bytes.kvfile.kv.KvFileEntry;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.FieldTool;
@@ -40,7 +40,7 @@ public class DatabeanExportCodec<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>>
-implements Codec<D,KvFileEntry>{
+implements Codec<D,BlockfileRow>{
 
 	private final Supplier<PK> primaryKeySupplier;
 	private final List<Field<?>> primaryKeyFields;
@@ -61,7 +61,7 @@ implements Codec<D,KvFileEntry>{
 	}
 
 	@Override
-	public KvFileEntry encode(D databean){
+	public BlockfileRow encode(D databean){
 		// key
 		byte[] keyBytes = FieldTool.getConcatenatedValueBytes(databean.getKey().getFields());
 		// version
@@ -76,16 +76,16 @@ implements Codec<D,KvFileEntry>{
 					writer.varBytes(field.getValueBytes());
 				});
 		byte[] valueBytes = writer.concat();
-		return KvFileEntry.putWithLongVersion(
+		return BlockfileRow.putWithLongVersion(
 				keyBytes,
 				version,
 				valueBytes);
 	}
 
 	@Override
-	public D decode(KvFileEntry kvFileEntry){
+	public D decode(BlockfileRow blockfileRow){
 		// pk
-		byte[] pkBytes = kvFileEntry.copyOfKey();
+		byte[] pkBytes = blockfileRow.copyOfKey();
 		PK pk = primaryKeySupplier.get();
 		int cursor = 0;
 		for(Field<?> field : primaryKeyFields){
@@ -97,7 +97,7 @@ implements Codec<D,KvFileEntry>{
 		// databean
 		D databean = databeanSupplier.get();
 		ReflectionTool.set(primaryKeyJavaField, databean, pk);
-		var reader = new ByteReader(kvFileEntry.copyOfValue());
+		var reader = new ByteReader(blockfileRow.copyOfValue());
 		while(reader.hasMore()){
 			int columnId = reader.varInt();
 			String columnName = columnNameCodec.decode(columnId);

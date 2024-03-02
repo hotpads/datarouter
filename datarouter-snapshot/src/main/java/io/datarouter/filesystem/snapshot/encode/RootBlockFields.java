@@ -15,17 +15,7 @@
  */
 package io.datarouter.filesystem.snapshot.encode;
 
-import io.datarouter.filesystem.snapshot.encode.RootBlockFields.NestedRecords.RootBlockEncoderBlockCounts;
-import io.datarouter.filesystem.snapshot.encode.RootBlockFields.NestedRecords.RootBlockEncoderBlockEndings;
-import io.datarouter.filesystem.snapshot.encode.RootBlockFields.NestedRecords.RootBlockEncoderBlocksPerFile;
-import io.datarouter.filesystem.snapshot.encode.RootBlockFields.NestedRecords.RootBlockEncoderByteCountsCompressed;
-import io.datarouter.filesystem.snapshot.encode.RootBlockFields.NestedRecords.RootBlockEncoderByteCountsEncoded;
-import io.datarouter.filesystem.snapshot.encode.RootBlockFields.NestedRecords.RootBlockEncoderBytesPerFile;
-import io.datarouter.filesystem.snapshot.encode.RootBlockFields.NestedRecords.RootBlockEncoderCompressors;
-import io.datarouter.filesystem.snapshot.encode.RootBlockFields.NestedRecords.RootBlockEncoderFormats;
-import io.datarouter.filesystem.snapshot.encode.RootBlockFields.NestedRecords.RootBlockEncoderTimings;
 import io.datarouter.filesystem.snapshot.path.SnapshotPaths;
-import io.datarouter.util.todo.NestedRecordImportWorkaround;
 
 public record RootBlockFields(
 		boolean sorted,
@@ -42,60 +32,55 @@ public record RootBlockFields(
 		RootBlockEncoderBlockEndings blockEndings,
 		RootBlockEncoderTimings timings){
 
-	@NestedRecordImportWorkaround
-	public static class NestedRecords{
+	public record RootBlockEncoderFormats(
+			String branchBlockFormat,
+			String leafBlockFormat,
+			String valueBlockFormat){
+	}
 
-		public record RootBlockEncoderFormats(
-				String branchBlockFormat,
-				String leafBlockFormat,
-				String valueBlockFormat){
-		}
+	public record RootBlockEncoderCompressors(
+			String branchBlockCompressor,
+			String leafBlockCompressor,
+			String valueBlockCompressor){
+	}
 
-		public record RootBlockEncoderCompressors(
-				String branchBlockCompressor,
-				String leafBlockCompressor,
-				String valueBlockCompressor){
-		}
+	public record RootBlockEncoderBytesPerFile(
+			int branchBytesPerFile,
+			int leafBytesPerFile,
+			int valueBytesPerFile){
+	}
 
-		public record RootBlockEncoderBytesPerFile(
-				int branchBytesPerFile,
-				int leafBytesPerFile,
-				int valueBytesPerFile){
-		}
+	public record RootBlockEncoderBlocksPerFile(
+			int branchBlocksPerFile,
+			int leafBlocksPerFile,
+			int valueBlocksPerFile){
+	}
 
-		public record RootBlockEncoderBlocksPerFile(
-				int branchBlocksPerFile,
-				int leafBlocksPerFile,
-				int valueBlocksPerFile){
-		}
+	public record RootBlockEncoderBlockCounts(
+			int[] numBranchBlocksByLevel,
+			int numLeafBlocks,
+			int[] numValueBlocksByColumn){
+	}
 
-		public record RootBlockEncoderBlockCounts(
-				int[] numBranchBlocksByLevel,
-				int numLeafBlocks,
-				int[] numValueBlocksByColumn){
-		}
+	public record RootBlockEncoderByteCountsEncoded(
+			long numBranchBytesEncoded,
+			long numLeafBytesEncoded,
+			long numValueBytesEncoded){
+	}
 
-		public record RootBlockEncoderByteCountsEncoded(
-				long numBranchBytesEncoded,
-				long numLeafBytesEncoded,
-				long numValueBytesEncoded){
-		}
+	public record RootBlockEncoderByteCountsCompressed(
+			long numBranchBytesCompressed,
+			long numLeafBytesCompressed,
+			long numValueBytesCompressed){
+	}
 
-		public record RootBlockEncoderByteCountsCompressed(
-				long numBranchBytesCompressed,
-				long numLeafBytesCompressed,
-				long numValueBytesCompressed){
-		}
+	public record RootBlockEncoderBlockEndings(
+			int rootBranchBlockLength){
+	}
 
-		public record RootBlockEncoderBlockEndings(
-				int rootBranchBlockLength){
-		}
-
-		public record RootBlockEncoderTimings(
-				long writeStartTimeMs,
-				long writeDurationMs){
-		}
-
+	public record RootBlockEncoderTimings(
+			long writeStartTimeMs,
+			long writeDurationMs){
 	}
 
 }

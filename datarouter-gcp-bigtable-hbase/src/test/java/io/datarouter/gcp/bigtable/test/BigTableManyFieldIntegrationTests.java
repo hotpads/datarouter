@@ -15,6 +15,8 @@
  */
 package io.datarouter.gcp.bigtable.test;
 
+import java.util.Optional;
+
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Guice;
 
@@ -27,7 +29,7 @@ public class BigTableManyFieldIntegrationTests extends BaseManyFieldIntegrationT
 
 	@BeforeClass
 	public void beforeClass(){
-		setup(DatarouterBigTableTestClientIds.BIG_TABLE, ManyFieldTypeBeanFielder::new);
+		setup(DatarouterBigTableTestClientIds.BIG_TABLE, ManyFieldTypeBeanFielder::new, Optional.empty());
 	}
 
 }

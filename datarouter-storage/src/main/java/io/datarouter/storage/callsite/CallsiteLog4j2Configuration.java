@@ -19,14 +19,11 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.Appender;
 
 import io.datarouter.logging.BaseLog4j2Configuration;
-import io.datarouter.logging.DatarouterLog4j2Configuration;
 import io.datarouter.logging.Log4j2Configurator;
 
-public class CallsiteLog4j2Configuration extends BaseLog4j2Configuration{
+public final class CallsiteLog4j2Configuration extends BaseLog4j2Configuration{
 
 	public CallsiteLog4j2Configuration(){
-		registerParent(DatarouterLog4j2Configuration.class);
-
 		String callsiteLogFile = CATALINA_OUT_DIR + "/callsite.log";
 		Appender callsiteAppender = Log4j2Configurator.createFileAppender(
 				"callsite",

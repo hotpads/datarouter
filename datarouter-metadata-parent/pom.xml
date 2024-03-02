@@ -21,7 +21,7 @@
 
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-metadata-parent</artifactId>
-	<version>0.0.123</version>
+	<version>0.0.124</version>
 	<packaging>pom</packaging>
 
 	<name>datarouter-metadata-parent</name>
@@ -38,7 +38,6 @@
 	<developers>
 		<developer>
 			<name>Andrea Martin</name>
-			<email>andreama@hotpads.com</email>
 			<organization>HotPads</organization>
 			<organizationUrl>https://hotpads.com</organizationUrl>
 		</developer>
@@ -62,7 +61,6 @@
 		</developer>
 		<developer>
 			<name>Calixte Bonsart</name>
-			<email>cbonsart@hotpads.com</email>
 			<organization>HotPads</organization>
 			<organizationUrl>https://hotpads.com</organizationUrl>
 		</developer>
@@ -75,6 +73,11 @@
 		<developer>
 			<name>Clément Guillaume</name>
 			<email>cguillaume@hotpads.com</email>
+			<organization>HotPads</organization>
+			<organizationUrl>https://hotpads.com</organizationUrl>
+		</developer>
+		<developer>
+			<name>David Brown</name>
 			<organization>HotPads</organization>
 			<organizationUrl>https://hotpads.com</organizationUrl>
 		</developer>
@@ -104,7 +107,6 @@
 		</developer>
 		<developer>
 			<name>Kevin Manuel</name>
-			<email>kevinman@hotpads.com</email>
 			<organization>HotPads</organization>
 			<organizationUrl>https://hotpads.com</organizationUrl>
 		</developer>
@@ -123,6 +125,11 @@
 		<developer>
 			<name>Rakesh Konda</name>
 			<email>rakeshk@hotpads.com</email>
+			<organization>HotPads</organization>
+			<organizationUrl>https://hotpads.com</organizationUrl>
+		</developer>
+		<developer>
+			<name>Rodrigo Araya</name>
 			<organization>HotPads</organization>
 			<organizationUrl>https://hotpads.com</organizationUrl>
 		</developer>

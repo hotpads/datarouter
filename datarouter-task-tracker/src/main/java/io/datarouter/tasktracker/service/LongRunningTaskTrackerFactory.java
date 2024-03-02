@@ -17,6 +17,7 @@ package io.datarouter.tasktracker.service;
 
 import java.time.Instant;
 
+import io.datarouter.email.email.DatarouterHtmlEmailService;
 import io.datarouter.email.type.DatarouterEmailTypes.LongRunningTaskTrackerEmailType;
 import io.datarouter.storage.config.properties.EnvironmentName;
 import io.datarouter.storage.config.properties.ServerName;
@@ -28,7 +29,6 @@ import io.datarouter.tasktracker.config.DatarouterTaskTrackerSettingRoot;
 import io.datarouter.tasktracker.scheduler.LongRunningTaskType;
 import io.datarouter.tasktracker.storage.LongRunningTaskDao;
 import io.datarouter.tasktracker.web.LongRunningTaskGraphLink;
-import io.datarouter.web.email.DatarouterHtmlEmailService;
 import io.datarouter.web.email.StandardDatarouterEmailHeaderService;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;

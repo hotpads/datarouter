@@ -120,7 +120,6 @@ public class ClusterSettingService{
 		WebappInstance currentWebappInstance = webappInstanceDao.get(webappInstanceService
 				.buildCurrentWebappInstanceKey());
 		return clusterSettingDao.scan()
-				.exclude(setting -> setting.getName().startsWith("datarouter"))
 				.include(setting -> getValidityForWebappInstance(setting, currentWebappInstance) == validity);
 	}
 

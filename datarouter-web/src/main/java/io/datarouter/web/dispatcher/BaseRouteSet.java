@@ -40,8 +40,6 @@ public abstract class BaseRouteSet implements RouteSet{
 
 	private final List<DispatchRule> dispatchRules;
 
-	private Class<? extends BaseHandler> defaultHandlerClass;
-
 	public BaseRouteSet(){
 		this.dispatchRules = new ArrayList<>();
 	}
@@ -170,11 +168,6 @@ public abstract class BaseRouteSet implements RouteSet{
 	@Override
 	public List<DispatchRule> getDispatchRules(){
 		return this.dispatchRules;
-	}
-
-	@Override
-	public Class<? extends BaseHandler> getDefaultHandlerClass(){
-		return defaultHandlerClass;
 	}
 
 }

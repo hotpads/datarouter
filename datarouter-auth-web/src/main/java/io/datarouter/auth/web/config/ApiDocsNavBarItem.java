@@ -15,6 +15,7 @@
  */
 package io.datarouter.auth.web.config;
 
+import io.datarouter.auth.config.DatarouterAuthPaths;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.web.config.RouteSetRegistry;
 import io.datarouter.web.handler.documentation.DocumentationRouteSet;

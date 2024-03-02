@@ -21,7 +21,6 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import io.datarouter.scanner.Scanner;
-import io.datarouter.scanner.WarnOnModifyList;
 
 public class SortedBeans{
 
@@ -103,7 +102,7 @@ public class SortedBeans{
 				.map(SortedBeanKey::getEntityKey)
 				.distinct()
 				.sorted()
-				.collect(WarnOnModifyList.deprecatedCollector());
+				.toList();
 	}
 
 }

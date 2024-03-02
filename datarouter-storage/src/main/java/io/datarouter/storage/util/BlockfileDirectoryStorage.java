@@ -19,8 +19,9 @@ import java.io.InputStream;
 import java.util.List;
 
 import io.datarouter.bytes.ByteLength;
-import io.datarouter.bytes.blockfile.dto.BlockfileNameAndSize;
-import io.datarouter.bytes.blockfile.storage.BlockfileStorage;
+import io.datarouter.bytes.blockfile.io.storage.BlockfileLocation;
+import io.datarouter.bytes.blockfile.io.storage.BlockfileNameAndSize;
+import io.datarouter.bytes.blockfile.io.storage.BlockfileStorage;
 import io.datarouter.bytes.io.MultiByteArrayInputStream;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.scanner.Threads;
@@ -68,8 +69,12 @@ public class BlockfileDirectoryStorage implements BlockfileStorage{
 	}
 
 	@Override
-	public byte[] readPartial(String name, long offset, int length){
-		return directory.readPartial(PathbeanKey.of(name), offset, length).orElseThrow();
+	public byte[] readPartial(String name, BlockfileLocation location){
+		return directory.readPartial(
+				PathbeanKey.of(name),
+				location.from(),
+				location.length())
+				.orElseThrow();
 	}
 
 	@Override

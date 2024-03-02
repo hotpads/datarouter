@@ -23,11 +23,11 @@ import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
 
+import io.datarouter.auth.config.DatarouterAuthenticationConfig;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.web.dispatcher.DispatchRule;
 import io.datarouter.web.dispatcher.DispatcherServlet;
 import io.datarouter.web.dispatcher.DispatcherServletListener;
-import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
 
 public abstract class NavBar implements DispatcherServletListener{
 

@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.auth.role.Role;
 import io.datarouter.auth.role.RoleEnum;
+import io.datarouter.auth.session.DatarouterSessionManager;
 import io.datarouter.auth.storage.user.session.DatarouterSession;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.tag.Tag;
@@ -46,7 +47,6 @@ import io.datarouter.web.security.CsrfValidator;
 import io.datarouter.web.security.SecurityValidationResult;
 import io.datarouter.web.security.SecurityValidator;
 import io.datarouter.web.security.SignatureValidator;
-import io.datarouter.web.user.session.DatarouterSessionManager;
 import io.datarouter.web.util.http.RequestTool;
 
 public class DispatchRule{
@@ -71,6 +71,7 @@ public class DispatchRule{
 	private Tag tag = Tag.APP;
 	private DispatchType dispatchType = DispatchType.DEFAULT;
 	private String redirectUrl; // can be full URL or partial path
+	private boolean skipBackwardCompatibilityChecking;
 
 	public DispatchRule(){
 		this(null, "");
@@ -174,6 +175,11 @@ public class DispatchRule{
 		return this;
 	}
 
+	public DispatchRule skipBackwardCompatibilityChecking(boolean skipBackwardCompatibilityChecking){
+		this.skipBackwardCompatibilityChecking = skipBackwardCompatibilityChecking;
+		return this;
+	}
+
 	/*------------------------------ getters --------------------------------*/
 
 	public BaseRouteSet getRouteSet(){
@@ -249,6 +255,10 @@ public class DispatchRule{
 
 	public Optional<String> getRedirectUrl(){
 		return Optional.ofNullable(redirectUrl);
+	}
+
+	public boolean getSkipBackwardCompatibilityChecking(){
+		return skipBackwardCompatibilityChecking;
 	}
 
 	private SecurityValidationResult checkApiKey(HttpServletRequest request){

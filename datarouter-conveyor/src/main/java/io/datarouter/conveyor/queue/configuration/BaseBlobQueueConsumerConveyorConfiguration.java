@@ -17,6 +17,7 @@ package io.datarouter.conveyor.queue.configuration;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +29,7 @@ import io.datarouter.conveyor.ConveyorGauges;
 import io.datarouter.conveyor.ConveyorRunnable;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.storage.queue.BlobQueueMessage;
 import io.datarouter.storage.queue.consumer.BlobQueueConsumer;
 import jakarta.inject.Inject;
 
@@ -42,51 +44,66 @@ implements ConveyorConfiguration{
 	protected abstract void processOne(Scanner<T> data);
 
 	@Override
-	public ProcessResult process(ConveyorRunnable conveyor){
-		Instant beforePeek = Instant.now();
-		var optionalMessage = getQueueConsumer().peek(DEFAULT_PEEK_TIMEOUT, DEFAULT_VISIBILITY_TIMEOUT);
-		Instant afterPeek = Instant.now();
-		gaugeRecorder.savePeekDurationMs(conveyor, Duration.between(beforePeek, afterPeek).toMillis());
+	public ProcessResult process(ConveyorRunnable conveyorRunnable){
+		Optional<BlobQueueMessage<T>> optMessage = peek(conveyorRunnable);
 		TracerTool.setAlternativeStartTime();
-		if(optionalMessage.isEmpty()){
-			logger.info("peeked conveyor={} nullMessage", conveyor.getName());
+		if(optMessage.isEmpty()){
+			logger.info("peeked conveyor={} nullMessage", conveyorRunnable.getName());
 			return new ProcessResult(false);
 		}
-		var messageDto = optionalMessage.get();
-		logger.info("peeked conveyor={} messageCount={}", conveyor.getName(), 1);
+		BlobQueueMessage<T> message = optMessage.get();
+		logger.info("peeked conveyor={} messageCount={}", conveyorRunnable.getName(), 1);
 		Instant beforeProcessBuffer = Instant.now();
 		try{
-			processOne(messageDto.scanSplitDecodedData());
+			processOne(message.scanSplitDecodedData());
 			if(!shouldAck()){
 				return new ProcessResult(true);
 			}
 		}catch(Exception e){
 			throw new RuntimeException("failed to process message", e);
 		}
-		Instant afterProcessBuffer = Instant.now();
-		gaugeRecorder.saveProcessBufferDurationMs(
-				conveyor,
-				Duration.between(beforeProcessBuffer, afterProcessBuffer).toMillis());
-		if(Duration.between(beforeProcessBuffer, afterProcessBuffer).toMillis()
-				> DEFAULT_VISIBILITY_TIMEOUT.toMillis()){
-			logger.warn(
-					"slow conveyor conveyor={} durationMs={}",
-					conveyor.getName(),
-					Duration.between(beforeProcessBuffer, afterProcessBuffer).toMillis());
-		}
-		logger.info("consumed conveyor={} messageCount={}", conveyor.getName(), 1);
-		ConveyorCounters.incConsumedOpAndDatabeans(conveyor, 1);
-		Instant beforeAck = Instant.now();
-		getQueueConsumer().ack(messageDto);
-		Instant afterAck = Instant.now();
-		gaugeRecorder.saveAckDurationMs(conveyor, Duration.between(beforeAck, afterAck).toMillis());
-		logger.info("acked conveyor={} messageCount={}", conveyor.getName(), 1);
-		ConveyorCounters.incAck(conveyor);
+		Duration processDuration = Duration.between(beforeProcessBuffer, Instant.now());
+		trackProcess(conveyorRunnable, processDuration);
+		ack(conveyorRunnable, message);
 		return new ProcessResult(true);
 	}
 
 	protected boolean shouldAck(){
 		return true;
+	}
+
+	private Optional<BlobQueueMessage<T>> peek(ConveyorRunnable conveyorRunnable){
+		Instant beforePeek = Instant.now();
+		Optional<BlobQueueMessage<T>> optMessage = getQueueConsumer().peek(
+				DEFAULT_PEEK_TIMEOUT,
+				DEFAULT_VISIBILITY_TIMEOUT);
+		Duration peekDuration = Duration.between(beforePeek, Instant.now());
+		gaugeRecorder.savePeekDurationMs(conveyorRunnable, peekDuration.toMillis());
+		return optMessage;
+	}
+
+	private void trackProcess(ConveyorRunnable conveyorRunnable, Duration processDuration){
+		gaugeRecorder.saveProcessBufferDurationMs(
+				conveyorRunnable,
+				processDuration.toMillis());
+		if(processDuration.toMillis()
+				> DEFAULT_VISIBILITY_TIMEOUT.toMillis()){
+			logger.warn(
+					"slow conveyor conveyor={} durationMs={}",
+					conveyorRunnable.getName(),
+					processDuration.toMillis());
+		}
+		logger.info("consumed conveyor={} messageCount={}", conveyorRunnable.getName(), 1);
+		ConveyorCounters.incConsumedOpAndDatabeans(conveyorRunnable, 1);
+	}
+
+	private void ack(ConveyorRunnable conveyorRunnable, BlobQueueMessage<T> message){
+		Instant beforeAck = Instant.now();
+		getQueueConsumer().ack(message);
+		Instant afterAck = Instant.now();
+		gaugeRecorder.saveAckDurationMs(conveyorRunnable, Duration.between(beforeAck, afterAck).toMillis());
+		logger.info("acked conveyor={} messageCount={}", conveyorRunnable.getName(), 1);
+		ConveyorCounters.incAck(conveyorRunnable);
 	}
 
 }

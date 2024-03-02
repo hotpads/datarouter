@@ -167,7 +167,7 @@ public abstract class BaseSnapshotTests{
 				.map(BaseSnapshotTests::makeEntry)
 				.map(entry -> new Input(wordId.getAndIncrement(), entry))
 				.list();
-		Require.equals(sortedInputs.get(0).entry.columnValues.length, NUM_COLUMNS);
+		Require.equals(sortedInputs.getFirst().entry.columnValues.length, NUM_COLUMNS);
 		randomInputs = Scanner.of(sortedInputs)
 				.shuffle()
 				.list();
@@ -724,7 +724,7 @@ public abstract class BaseSnapshotTests{
 							operation.toString().toLowerCase(),
 							NumberFormatter.addCommas(count.get()),
 							NumberFormatter.addCommas(searchKeys.size()),
-							utf8(ListTool.getLast(batch).entry.key()));
+							utf8(ListTool.getLastOrNull(batch).entry.key()));
 				});
 	}
 

@@ -50,7 +50,7 @@ public class GcpPubsubTestDao extends BaseDao implements TestDao, GcpPubsubTestH
 				TestDatabeanFielder::new)
 				.buildAndRegister();
 
-		BaseGcpPubsubNode<?,?,?> baseNode = (BaseGcpPubsubNode<?,?,?>)node.getPhysicalNodes().get(0);
+		BaseGcpPubsubNode<?,?,?> baseNode = (BaseGcpPubsubNode<?,?,?>)node.getPhysicalNodes().getFirst();
 		topicLength = baseNode.getTopicAndSubscriptionName().get()
 				.topic()
 				.toString()

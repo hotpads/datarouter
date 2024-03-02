@@ -29,6 +29,7 @@ import javax.servlet.http.HttpServlet;
 
 import com.google.inject.Module;
 
+import io.datarouter.auth.config.DatarouterAuthenticationConfig;
 import io.datarouter.auth.detail.DatarouterUserExternalDetailService;
 import io.datarouter.auth.role.DatarouterRoleManager;
 import io.datarouter.auth.role.RoleManager;
@@ -72,6 +73,7 @@ import io.datarouter.web.dispatcher.FilterParamGrouping;
 import io.datarouter.web.dispatcher.FilterParams;
 import io.datarouter.web.dispatcher.RouteSet;
 import io.datarouter.web.dispatcher.ServletParams;
+import io.datarouter.web.exception.ExceptionLinkBuilder;
 import io.datarouter.web.filter.https.HttpsOnlyHttpsConfiguration;
 import io.datarouter.web.handler.UserAgentTypeConfig;
 import io.datarouter.web.handler.UserAgentTypeConfig.NoOpUserAgentTypeConfig;
@@ -92,7 +94,6 @@ import io.datarouter.web.service.DocumentationNamesAndLinksSupplier.DocDto;
 import io.datarouter.web.service.DocumentationNamesAndLinksSupplier.DocType;
 import io.datarouter.web.service.ServiceDescriptionSupplier;
 import io.datarouter.web.user.authenticate.DatarouterAuthenticationFilter;
-import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
 
 public abstract class DatarouterWebWebappConfigBuilder<T extends DatarouterWebWebappConfigBuilder<T>>
 implements WebappBuilder{
@@ -145,6 +146,7 @@ implements WebappBuilder{
 	private ZoneId defaultEmailDistributionListZoneId;
 	private ZoneId dailyDigestEmailZoneId;
 	private Class<? extends HandlerAccountCallerValidator> handlerAccountCallerValidator;
+	private Class<? extends ExceptionLinkBuilder> exceptionLinkBuilderClass;
 
 	// datarouter-web servlet
 	private final List<Ordered<FilterParams>> filterParamsOrdered;
@@ -310,6 +312,7 @@ implements WebappBuilder{
 				.setDefaultEmailDistributionListZoneId(defaultEmailDistributionListZoneId)
 				.setDailyDigestEmailZoneId(dailyDigestEmailZoneId)
 				.setHandlerAccountCallerValidator(handlerAccountCallerValidator)
+				.setExceptionLinkBuilderClass(exceptionLinkBuilderClass)
 				.build();
 		webPlugin.getStoragePlugins().forEach(this::addStoragePluginWithoutInstalling);
 		webPlugin.getWebPlugins().forEach(this::addWebPluginWithoutInstalling);
@@ -656,6 +659,11 @@ implements WebappBuilder{
 
 	public T setDailyDigestEmailZoneId(ZoneId zoneId){
 		this.dailyDigestEmailZoneId = zoneId;
+		return getSelf();
+	}
+
+	public T setExceptionLinkBuilderClass(Class<? extends ExceptionLinkBuilder> exceptionLinkBuilderClass){
+		this.exceptionLinkBuilderClass = exceptionLinkBuilderClass;
 		return getSelf();
 	}
 

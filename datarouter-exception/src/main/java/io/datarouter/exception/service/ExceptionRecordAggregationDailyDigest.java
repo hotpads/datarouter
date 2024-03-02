@@ -28,8 +28,6 @@ import java.util.Optional;
 
 import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
-import io.datarouter.exception.config.DatarouterExceptionPaths;
-import io.datarouter.exception.web.ExceptionAnalysisHandler;
 import io.datarouter.instrumentation.exception.ExceptionRecordSummaryCollector;
 import io.datarouter.instrumentation.exception.ExceptionRecordSummaryDto;
 import io.datarouter.storage.config.properties.ServiceName;
@@ -39,6 +37,7 @@ import io.datarouter.web.config.ServletContextSupplier;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
 import io.datarouter.web.digest.DailyDigestService;
+import io.datarouter.web.exception.ExceptionLinkBuilder;
 import io.datarouter.web.html.j2html.J2HtmlTable;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.TableTag;
@@ -52,8 +51,6 @@ public class ExceptionRecordAggregationDailyDigest implements DailyDigest{
 	private static final int EXCEPTIONS_THRESHOLD = 100;
 
 	@Inject
-	private DatarouterExceptionPaths paths;
-	@Inject
 	private ServletContextSupplier contextSupplier;
 	@Inject
 	private DailyDigestService digestService;
@@ -61,6 +58,8 @@ public class ExceptionRecordAggregationDailyDigest implements DailyDigest{
 	private ExceptionRecordSummaryCollector recordSummaryCollector;
 	@Inject
 	private ServiceName serviceName;
+	@Inject
+	private ExceptionLinkBuilder exceptionLinkBuilder;
 
 	@Override
 	public Optional<DivTag> getEmailContent(ZoneId zoneId){
@@ -128,8 +127,7 @@ public class ExceptionRecordAggregationDailyDigest implements DailyDigest{
 	}
 
 	private String makeExceptionRecordPathV2(ExceptionRecordSummaryDto dto){
-		return paths.datarouter.exception.details.toSlashedString()
-				+ "?" + ExceptionAnalysisHandler.P_exceptionRecord + "=" + dto.sampleExceptionRecordId();
+		return exceptionLinkBuilder.exception(dto.sampleExceptionRecordId()).orElseThrow();
 	}
 
 }

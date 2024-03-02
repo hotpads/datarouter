@@ -16,6 +16,7 @@
 package io.datarouter.storage.test.node.basic.map;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.IntStream;
 
 import org.testng.Assert;
@@ -42,8 +43,8 @@ public abstract class BaseMapStorageIntegrationTests{
 
 	private DatarouterMapStorageTestDao dao;
 
-	protected void setup(ClientId clientId){
-		this.dao = new DatarouterMapStorageTestDao(datarouter, nodeFactory, clientId);
+	protected void setup(ClientId clientId, Optional<String> tableName){
+		this.dao = new DatarouterMapStorageTestDao(datarouter, nodeFactory, clientId, tableName);
 	}
 
 	@AfterClass

@@ -15,7 +15,7 @@
  */
 package io.datarouter.web.exception;
 
-import io.datarouter.instrumentation.count.Counters;
+import io.datarouter.instrumentation.metric.Metrics;
 
 public class ExceptionCounters{
 
@@ -26,7 +26,7 @@ public class ExceptionCounters{
 	}
 
 	public static void inc(String key, long delta){
-		Counters.inc(PREFIX + " " + key, delta);
+		Metrics.count(PREFIX + " " + key, delta);
 	}
 
 }

@@ -49,6 +49,8 @@ extends BaseScanner<List<T>>{
 	private Config batchConfig;
 	private boolean foundLastBatch;//optimization to track if the previous fetch didn't get a full batch
 	private PK lastRowOfPreviousBatch;
+	private PK lastRowOfBatchBeforeLast;
+
 
 	public BaseNodeScanner(Collection<Range<PK>> ranges, Config config, boolean caseInsensitive){
 		warnIfCaseInsensitive(ranges, caseInsensitive);
@@ -75,6 +77,12 @@ extends BaseScanner<List<T>>{
 		if(currentRanges.isEmpty()){
 			return false;
 		}
+		if(lastRowOfPreviousBatch != null && lastRowOfPreviousBatch.equals(lastRowOfBatchBeforeLast)){
+			logger.warn("PrimaryKey={} unchanged between batches, indicating a possible infinite loop. "
+							+ "CurrentRanges={}",
+					lastRowOfPreviousBatch,
+					currentRanges);
+		}
 		if(current != null){
 			Range<PK> previousRange = null;
 			SortedSet<Range<PK>> remainingRanges = new TreeSet<>(currentRanges);
@@ -94,10 +102,9 @@ extends BaseScanner<List<T>>{
 			if(currentRanges.isEmpty()){
 				return false;
 			}
-			Range<PK> firstRange = currentRanges.first().clone();
+			Range<PK> firstRange = currentRanges.removeFirst().clone();
 			firstRange.setStart(lastRowOfPreviousBatch);
 			firstRange.setStartInclusive(false);
-			currentRanges.remove(currentRanges.first());
 			if(!firstRange.isEmpty()){
 				currentRanges.add(firstRange);
 			}else if(!ranges.isEmpty()){
@@ -119,6 +126,7 @@ extends BaseScanner<List<T>>{
 				|| config.getLimit() != null && resultCount >= config.getLimit()){
 			foundLastBatch = true;//tell the advance() method not to call this method again
 		}
+		lastRowOfBatchBeforeLast = lastRowOfPreviousBatch;
 		lastRowOfPreviousBatch = ListTool.findLast(current)
 				.map(this::getPrimaryKey)
 				.map(FieldSetTool::clone)

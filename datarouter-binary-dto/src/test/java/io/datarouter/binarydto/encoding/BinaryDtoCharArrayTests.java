@@ -24,6 +24,7 @@ import io.datarouter.bytes.HexBlockTool;
 
 public class BinaryDtoCharArrayTests{
 
+	@SuppressWarnings("unused")
 	private static class TestDto extends BinaryDto<TestDto>{
 		public final char[] f1;
 		public final char[] f2;

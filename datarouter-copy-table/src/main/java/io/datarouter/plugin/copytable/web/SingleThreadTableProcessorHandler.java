@@ -21,6 +21,7 @@ import static j2html.TagCreator.p;
 import java.util.List;
 import java.util.Optional;
 
+import io.datarouter.email.email.DatarouterHtmlEmailService;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.nodewatch.service.TableSamplerService;
@@ -32,7 +33,6 @@ import io.datarouter.plugin.copytable.tableprocessor.TableProcessorService.Table
 import io.datarouter.storage.config.Config;
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.string.StringTool;
-import io.datarouter.web.email.DatarouterHtmlEmailService;
 import io.datarouter.web.email.StandardDatarouterEmailHeaderService;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;

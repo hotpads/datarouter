@@ -15,7 +15,6 @@
  */
 package io.datarouter.util;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
@@ -55,9 +54,10 @@ public class Require{
 	}
 
 	public static void noNulls(Optional<String> message, Object... objects){
-		String messageStr = message.orElse(null);
-		Arrays.stream(objects)
-				.forEach(object -> notNull(object, messageStr));
+		String messageStr = message.map(str -> ": " + str).orElse("");
+		for(int i = 0; i < objects.length; i++){
+			notNull(objects[i], "null at index " + i + messageStr);
+		}
 	}
 
 	public static <T> void equals(T first, T second){

@@ -35,7 +35,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.auth.authenticate.authenticator.DatarouterAuthenticator;
+import io.datarouter.auth.config.DatarouterAuthenticationConfig;
 import io.datarouter.auth.exception.InvalidCredentialsException;
+import io.datarouter.auth.session.DatarouterSessionManager;
 import io.datarouter.auth.storage.user.session.BaseDatarouterSessionDao;
 import io.datarouter.auth.storage.user.session.DatarouterSession;
 import io.datarouter.util.BooleanTool;
@@ -44,8 +46,6 @@ import io.datarouter.web.WebAppLifecycle;
 import io.datarouter.web.WebAppLifecycleState;
 import io.datarouter.web.exception.InvalidApiCallException;
 import io.datarouter.web.shutdown.ShutdownService;
-import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
-import io.datarouter.web.user.session.DatarouterSessionManager;
 import io.datarouter.web.util.http.RequestTool;
 import io.datarouter.web.util.http.ResponseTool;
 import jakarta.inject.Inject;
@@ -120,7 +120,7 @@ public class DatarouterAuthenticationFilter implements Filter{
 			return new URL(referrerString);
 		}catch(MalformedURLException e){
 			// some referrers (like android-app://com.google.android.gm) are not valid URL: don't fail, just log
-			logger.warn("invalid referer: {}", referrerString, e);
+			logger.warn("invalid referer: {}", referrerString);
 			return null;
 		}
 	}

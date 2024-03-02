@@ -17,7 +17,9 @@ package io.datarouter.joblet.dto;
 
 import io.datarouter.joblet.execute.JobletProcessor;
 import io.datarouter.joblet.type.JobletType;
+import io.datarouter.util.todo.ConvertToRecord;
 
+@ConvertToRecord
 public class JobletTypeSummary{
 
 	private final JobletType<?> jobletTypeEnum;

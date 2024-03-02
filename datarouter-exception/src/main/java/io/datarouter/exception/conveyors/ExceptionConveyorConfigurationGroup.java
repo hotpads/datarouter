@@ -23,16 +23,16 @@ public class ExceptionConveyorConfigurationGroup extends ConveyorConfigurationGr
 
 	public ExceptionConveyorConfigurationGroup(){
 		registerConveyor(
-				"exceptionRecordMemoryToPublisher",
+				"datarouterExceptionRecordPublisher",
 				ExceptionRecordMemoryToPublisherConveyorConfiguration.class);
 		registerConveyor(
-				"httpRequestRecordMemoryToPublisher",
+				"datarouterHttpRequestRecordPublisher",
 				HttpRequestRecordMemoryToPublisherConveyorConfiguration.class);
 		registerConveyor(
-				"exceptionRecordMemoryToDatabase",
+				"datarouterExceptionRecordPersister",
 				ExceptionRecordMemoryToDatabaseConveyorConfiguration.class);
 		registerConveyor(
-				"httpRequestRecordMemoryToDatabase",
+				"datarouterHttpRequestRecordPersister",
 				HttpRequestRecordMemoryToDatabaseConveyorConfiguration.class);
 	}
 }

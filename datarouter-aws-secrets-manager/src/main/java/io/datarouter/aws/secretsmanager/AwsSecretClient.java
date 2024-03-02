@@ -35,6 +35,7 @@ import com.amazonaws.services.secretsmanager.model.ResourceNotFoundException;
 import com.amazonaws.services.secretsmanager.model.SecretListEntry;
 import com.amazonaws.services.secretsmanager.model.UpdateSecretRequest;
 
+import io.datarouter.instrumentation.metric.Metrics;
 import io.datarouter.instrumentation.trace.TraceSpanGroupType;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.secret.client.Secret;
@@ -73,6 +74,7 @@ public class AwsSecretClient implements SecretClient{
 				.withName(secret.getName())
 				.withSecretString(secret.getValue());
 		try{
+			count("create");
 			try(var $ = TracerTool.startSpan("AWSSecretsManager createSecret", TraceSpanGroupType.CLOUD_STORAGE)){
 				TracerTool.appendToSpanInfo(secret.getName());
 				client.createSecret(request);
@@ -92,6 +94,7 @@ public class AwsSecretClient implements SecretClient{
 				// .withVersionStage("")// related to AWS rotation
 		try{
 			GetSecretValueResult result;
+			count("get");
 			try(var $ = TracerTool.startSpan("AWSSecretsManager getSecretValue", TraceSpanGroupType.CLOUD_STORAGE)){
 				TracerTool.appendToSpanInfo(name);
 				result = client.getSecretValue(request);
@@ -111,6 +114,7 @@ public class AwsSecretClient implements SecretClient{
 					.withMaxResults(100)
 					.withNextToken(nextToken);
 			ListSecretsResult result;
+			count("list");
 			try(var $ = TracerTool.startSpan("AWSSecretsManager listSecrets", TraceSpanGroupType.CLOUD_STORAGE)){
 				TracerTool.appendToSpanInfo(prefix.orElse(""));
 				result = client.listSecrets(request);
@@ -135,6 +139,7 @@ public class AwsSecretClient implements SecretClient{
 				.withSecretId(secret.getName())
 				.withSecretString(secret.getValue());
 		try{
+			count("update");
 			try(var $ = TracerTool.startSpan("AWSSecretsManager updateSecret", TraceSpanGroupType.CLOUD_STORAGE)){
 				TracerTool.appendToSpanInfo(secret.getName());
 				client.updateSecret(request);
@@ -154,6 +159,7 @@ public class AwsSecretClient implements SecretClient{
 				// .withForceDeleteWithoutRecovery(true)//might be useful at some point?
 				// .withRecoveryWindowInDays(0L);//7-30 days to undelete. default 30
 		try{
+			count("delete");
 			try(var $ = TracerTool.startSpan("AWSSecretsManager deleteSecret", TraceSpanGroupType.CLOUD_STORAGE)){
 				TracerTool.appendToSpanInfo(name);
 				client.deleteSecret(request);
@@ -198,6 +204,10 @@ public class AwsSecretClient implements SecretClient{
 		if(!allCharactersAllowed || name.length() > 6 && name.charAt(name.length() - 7) == '-'){
 			throw new RuntimeException("validation failed name=" + name);
 		}
+	}
+
+	private static void count(String key){
+		Metrics.count("AwsSecretClient " + key);
 	}
 
 }

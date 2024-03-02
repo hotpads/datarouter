@@ -41,7 +41,10 @@ public class JobletFactory{
 		return create(jobletType, jobletPackage.getJobletRequest(), jobletParams, shutdownRequested);
 	}
 
-	private <P> Joblet<P> create(JobletType<P> jobletType, JobletRequest jobletRequest, P jobletParams,
+	private <P> Joblet<P> create(
+			JobletType<P> jobletType,
+			JobletRequest jobletRequest,
+			P jobletParams,
 			MutableBoolean shutdownRequested){
 		Joblet<P> joblet = injector.getInstance(jobletType.getAssociatedClass());
 		joblet.setJobletRequest(jobletRequest);

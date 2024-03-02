@@ -32,7 +32,7 @@ public class OrderedTool{
 		List<Ordered<T>> extraPassObjects = new ArrayList<>();
 		for(Ordered<T> object : objects){
 			if(object.after == null){
-				sorted.add(0, object.item);
+				sorted.addFirst(object.item);
 				continue;
 			}
 			int index = sorted.indexOf(object.after);

@@ -26,7 +26,7 @@ public interface SecretJsonSerializer{
 	<T> T deserialize(String toDeserialize, Type classOfT);
 
 	@Singleton
-	public static class GsonToolJsonSerializer implements SecretJsonSerializer{
+	class GsonToolJsonSerializer implements SecretJsonSerializer{
 
 		@Override
 		public <T> String serialize(T toSerialize){

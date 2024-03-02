@@ -104,7 +104,7 @@ public class HBaseScanBuilder{
 			return Optional.empty();
 		}
 		if(filterList.getFilters().size() == 1){
-			return Optional.of(filterList.getFilters().get(0));
+			return Optional.of(filterList.getFilters().getFirst());
 		}
 		return Optional.of(filterList);
 	}
