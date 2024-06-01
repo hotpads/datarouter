@@ -134,7 +134,7 @@ implements Callable<List<TableSample>>{
 	@Override
 	public List<TableSample> call(){
 		startedAt = Instant.now();
-		logger.warn("starting " + this);
+		logger.warn("starting {}", this);
 		scanThroughRange();
 		if(totalRows == 0){
 			handleNoRowsScanned();
@@ -347,7 +347,7 @@ implements Callable<List<TableSample>>{
 		boolean sameNumRows = Objects.equals(endSample.getNumRows(), totalRows);
 		if(sameKey && sameNumRows){
 			newEndSample.incrementStableCounts();
-			logger.warn("incremented numStableCounts: " + newEndSample);
+			logger.warn("incremented numStableCounts: {}", newEndSample);
 		}
 	}
 

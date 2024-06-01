@@ -123,6 +123,30 @@ public class ExceptionAnalysisHandler extends BaseHandler{
 				currentUserSessionInfoService.getZoneId(request));
 	}
 
+	private HttpRequestRecordJspDto toJspDto(HttpRequestRecord httpRequestRecord){
+		return new HttpRequestRecordJspDto(
+				httpRequestRecord.getCreatedAt().toDate(),
+				httpRequestRecord.getReceivedAt().toDate(),
+				httpRequestRecord.getDuration(),
+				httpRequestRecord.getExceptionRecordId(),
+				httpRequestRecord.getHttpMethod(),
+				httpRequestRecord.getHttpParams(),
+				httpRequestRecord.getProtocol(),
+				httpRequestRecord.getHostname(),
+				httpRequestRecord.getPort(),
+				httpRequestRecord.getContextPath(),
+				httpRequestRecord.getPath(),
+				httpRequestRecord.getQueryString(),
+				httpRequestRecord.getBinaryBody(),
+				httpRequestRecord.getIp(),
+				httpRequestRecord.getUserRoles(),
+				httpRequestRecord.getUserToken(),
+				httpRequestRecord.getTraceId(),
+				httpRequestRecord.getParentId(),
+				httpRequestRecord.getHeaders(),
+				httpRequestRecord.getOtherHeaders());
+	}
+
 	public static class ExceptionRecordJspDto{
 
 		private final String id;
@@ -202,30 +226,6 @@ public class ExceptionAnalysisHandler extends BaseHandler{
 			return exactMetricLink;
 		}
 
-	}
-
-	private HttpRequestRecordJspDto toJspDto(HttpRequestRecord httpRequestRecord){
-		return new HttpRequestRecordJspDto(
-				httpRequestRecord.getCreatedAt().toDate(),
-				httpRequestRecord.getReceivedAt().toDate(),
-				httpRequestRecord.getDuration(),
-				httpRequestRecord.getExceptionRecordId(),
-				httpRequestRecord.getHttpMethod(),
-				httpRequestRecord.getHttpParams(),
-				httpRequestRecord.getProtocol(),
-				httpRequestRecord.getHostname(),
-				httpRequestRecord.getPort(),
-				httpRequestRecord.getContextPath(),
-				httpRequestRecord.getPath(),
-				httpRequestRecord.getQueryString(),
-				httpRequestRecord.getBinaryBody(),
-				httpRequestRecord.getIp(),
-				httpRequestRecord.getUserRoles(),
-				httpRequestRecord.getUserToken(),
-				httpRequestRecord.getTraceId(),
-				httpRequestRecord.getParentId(),
-				httpRequestRecord.getHeaders(),
-				httpRequestRecord.getOtherHeaders());
 	}
 
 	public static class HttpRequestRecordJspDto{

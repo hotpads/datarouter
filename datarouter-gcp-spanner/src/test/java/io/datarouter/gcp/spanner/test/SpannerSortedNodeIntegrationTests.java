@@ -15,20 +15,34 @@
  */
 package io.datarouter.gcp.spanner.test;
 
-import java.util.Optional;
-
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Guice;
 
 import io.datarouter.gcp.spanner.SpannerTestNgModuleFactory;
-import io.datarouter.storage.test.node.basic.sorted.BaseSortedNodeIntegrationTests;
+import io.datarouter.storage.node.factory.NodeFactory;
+import io.datarouter.storage.node.op.combo.SortedMapStorage;
+import io.datarouter.storage.test.node.basic.sorted.BaseSortedNodeWriterIntegrationTests;
+import io.datarouter.storage.test.node.basic.sorted.SortedBean;
+import io.datarouter.storage.test.node.basic.sorted.SortedBean.SortedBeanFielder;
+import io.datarouter.storage.test.node.basic.sorted.SortedBeanEntityKey;
+import io.datarouter.storage.test.node.basic.sorted.SortedBeanKey;
+import jakarta.inject.Inject;
 
 @Guice(moduleFactory = SpannerTestNgModuleFactory.class)
-public class SpannerSortedNodeIntegrationTests extends BaseSortedNodeIntegrationTests{
+public class SpannerSortedNodeIntegrationTests extends BaseSortedNodeWriterIntegrationTests{
 
-	@BeforeClass
-	public void beforeClass(){
-		setup(SpannerTestCliendIds.SPANNER, Optional.empty());
+	@Inject
+	public SpannerSortedNodeIntegrationTests(NodeFactory nodeFactory){
+		super(makeNode(nodeFactory));
+		resetTable();
+	}
+
+	private static SortedMapStorage<SortedBeanKey,SortedBean> makeNode(NodeFactory nodeFactory){
+		return nodeFactory.create(
+				SpannerTestCliendIds.SPANNER,
+				SortedBeanEntityKey::new,
+				SortedBean::new,
+				SortedBeanFielder::new)
+				.buildAndRegister();
 	}
 
 }

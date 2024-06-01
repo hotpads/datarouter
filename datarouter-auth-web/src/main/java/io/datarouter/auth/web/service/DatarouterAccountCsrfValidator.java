@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.httpclient.security.DefaultCsrfGenerator;
 import io.datarouter.httpclient.security.SecurityParameters;
+import io.datarouter.web.security.CsrfValidationResult;
 import io.datarouter.web.security.CsrfValidator;
 import io.datarouter.web.security.DefaultCsrfValidator;
 import io.datarouter.web.util.http.RequestTool;
@@ -35,7 +36,7 @@ import jakarta.inject.Singleton;
 public class DatarouterAccountCsrfValidator implements CsrfValidator{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterAccountCsrfValidator.class);
 
-	private final Long requestTimeoutMs;
+	private final Duration requestTimeout;
 	private final String apiKeyFieldName;
 	private final DatarouterAccountCredentialService datarouterAccountCredentialService;
 
@@ -50,40 +51,33 @@ public class DatarouterAccountCsrfValidator implements CsrfValidator{
 		 */
 		@Deprecated
 		public DatarouterAccountCsrfValidator create(Long requestTimeoutMs){
-			return create(requestTimeoutMs, SecurityParameters.API_KEY);
+			return create(Duration.ofMillis(requestTimeoutMs), SecurityParameters.API_KEY);
 		}
 
 		public DatarouterAccountCsrfValidator create(Duration requestTimeout){
-			return create(requestTimeout.toMillis(), SecurityParameters.API_KEY);
+			return create(requestTimeout, SecurityParameters.API_KEY);
 		}
 
-		public DatarouterAccountCsrfValidator create(Long requestTimeoutMs, String apiKeyFieldName){
+		public DatarouterAccountCsrfValidator create(Duration requestTimeoutMs, String apiKeyFieldName){
 			return new DatarouterAccountCsrfValidator(requestTimeoutMs, apiKeyFieldName,
 					datarouterAccountCredentialService);
 		}
 
 	}
 
-	private DatarouterAccountCsrfValidator(Long requestTimeoutMs,
+	private DatarouterAccountCsrfValidator(Duration requestTimeout,
 			String apiKeyFieldName,
 			DatarouterAccountCredentialService datarouterAccountApiKeyService){
-		this.requestTimeoutMs = requestTimeoutMs;
+		this.requestTimeout = requestTimeout;
 		this.apiKeyFieldName = apiKeyFieldName;
 		this.datarouterAccountCredentialService = datarouterAccountApiKeyService;
 	}
 
 	@Override
-	public boolean check(HttpServletRequest request){
+	public CsrfValidationResult check(HttpServletRequest request){
 		return getCsrfValidatorForAccountWithApiKey(request)
 				.map(csrfValidator -> csrfValidator.check(request))
-				.orElse(false);
-	}
-
-	@Override
-	public Long getRequestTimeMs(HttpServletRequest request){
-		return getCsrfValidatorForAccountWithApiKey(request)
-				.map(csrfValidator -> csrfValidator.getRequestTimeMs(request))
-				.orElse(null);
+				.orElse(new CsrfValidationResult(false, "no account found for the given apiKey"));
 	}
 
 	private Optional<DefaultCsrfValidator> getCsrfValidatorForAccountWithApiKey(HttpServletRequest request){
@@ -94,7 +88,7 @@ public class DatarouterAccountCsrfValidator implements CsrfValidator{
 		}
 		return optionalSecretKey
 				.map(secretKey -> (Supplier<String>)() -> secretKey)
-				.map(secretKey -> new DefaultCsrfValidator(new DefaultCsrfGenerator(secretKey), requestTimeoutMs));
+				.map(secretKey -> new DefaultCsrfValidator(new DefaultCsrfGenerator(secretKey), requestTimeout));
 	}
 
 }

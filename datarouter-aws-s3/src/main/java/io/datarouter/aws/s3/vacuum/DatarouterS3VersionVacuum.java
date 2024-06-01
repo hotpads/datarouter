@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import io.datarouter.aws.s3.DatarouterS3Client;
 import io.datarouter.aws.s3.S3Limits;
 import io.datarouter.bytes.ByteLength;
+import io.datarouter.storage.blob.DatarouterBlobVacuumResult;
 import io.datarouter.storage.file.BucketAndKeyVersion;
 import io.datarouter.storage.file.BucketAndKeyVersions;
 import io.datarouter.storage.file.BucketAndPrefix;
@@ -48,7 +49,7 @@ public class DatarouterS3VersionVacuum{
 		this.logEachVersion = logEachVersion;
 	}
 
-	public DatarouterS3VacuumResult vacuum(){
+	public DatarouterBlobVacuumResult vacuum(){
 		var numObjectsConsidered = new AtomicLong();
 		var numObjectsDeleted = new AtomicLong();
 		var numBytesConsidered = new AtomicLong();
@@ -78,7 +79,7 @@ public class DatarouterS3VersionVacuum{
 				.batch(S3Limits.MAX_DELETE_MULTI_KEYS)
 				.map(BucketAndKeyVersions::fromIndividualKeyVersions)
 				.forEach(s3Client::deleteVersions);
-		return new DatarouterS3VacuumResult(
+		return new DatarouterBlobVacuumResult(
 				bucketAndPrefix,
 				cutOffTime,
 				numObjectsConsidered.get(),

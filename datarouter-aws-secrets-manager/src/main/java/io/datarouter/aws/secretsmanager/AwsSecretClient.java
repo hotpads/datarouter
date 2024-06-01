@@ -28,6 +28,7 @@ import com.amazonaws.services.secretsmanager.model.CreateSecretRequest;
 import com.amazonaws.services.secretsmanager.model.DeleteSecretRequest;
 import com.amazonaws.services.secretsmanager.model.GetSecretValueRequest;
 import com.amazonaws.services.secretsmanager.model.GetSecretValueResult;
+import com.amazonaws.services.secretsmanager.model.InvalidRequestException;
 import com.amazonaws.services.secretsmanager.model.ListSecretsRequest;
 import com.amazonaws.services.secretsmanager.model.ListSecretsResult;
 import com.amazonaws.services.secretsmanager.model.ResourceExistsException;
@@ -100,6 +101,8 @@ public class AwsSecretClient implements SecretClient{
 				result = client.getSecretValue(request);
 			}
 			return new Secret(name, result.getSecretString());
+		}catch(InvalidRequestException e){
+			throw new RuntimeException("InvalidRequest secretName=" + name, e);
 		}catch(ResourceNotFoundException e){
 			throw new SecretNotFoundException(name, e);
 		}

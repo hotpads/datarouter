@@ -89,6 +89,14 @@ public class DateTool{
 		return msDif / (double)periodLengthMs;
 	}
 
+	private static final ConcurrentHashMap<Integer,DateTimeFormatter> DATE_TIME_MS_FORMATS = new ConcurrentHashMap<>();
+
+	public static String getInternetDate(Date date, int msCount){
+		DateTimeFormatter dateTimeFormat = DATE_TIME_MS_FORMATS.computeIfAbsent(msCount,
+				DateTool::makeDateTimeFormatter);
+		return dateTimeFormat.format(date.toInstant());
+	}
+
 	public static String getInternetDate(TemporalAccessor temporalValue){
 		return DateTimeFormatter.ISO_INSTANT.format(temporalValue);
 	}
@@ -96,14 +104,6 @@ public class DateTool{
 	/* as specified in RFC 3339 / ISO 8601 with second precision only*/
 	public static String getInternetDate(Date date){
 		return getInternetDate(date, 0);
-	}
-
-	private static final ConcurrentHashMap<Integer,DateTimeFormatter> DATE_TIME_MS_FORMATS = new ConcurrentHashMap<>();
-
-	public static String getInternetDate(Date date, int msCount){
-		DateTimeFormatter dateTimeFormat = DATE_TIME_MS_FORMATS.computeIfAbsent(msCount,
-				DateTool::makeDateTimeFormatter);
-		return dateTimeFormat.format(date.toInstant());
 	}
 
 	private static DateTimeFormatter makeDateTimeFormatter(int msCount){

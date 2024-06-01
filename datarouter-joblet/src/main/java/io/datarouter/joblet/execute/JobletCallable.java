@@ -181,7 +181,7 @@ public class JobletCallable implements Callable<Void>{
 				+ " duration=" + new DatarouterDuration(durationMs, TimeUnit.MILLISECONDS)
 				+ " itemsPerSecond=" + itemsPerSecond;
 		if(durationMs > JobletProcessor.RUNNING_JOBLET_TIMEOUT_MS){
-			logger.warn("finally " + message);
+			logger.warn("finally {}", message);
 		}else if(durationMs > LOG_JOBLETS_SLOWER_THAN.toMillis()){
 			logger.warn(message);
 		}else{

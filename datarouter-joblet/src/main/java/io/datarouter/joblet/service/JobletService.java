@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -223,7 +224,7 @@ public class JobletService{
 		String serverNamePrefix = serverName + "_";//don't want joblet1 to include joblet10
 		List<JobletRequest> jobletRequestsToReset = JobletRequest.filterByTypeStatusReservedByPrefix(jobletRequests
 				.iterable(), jobletType, JobletStatus.RUNNING, serverNamePrefix);
-		logger.warn("found " + jobletRequestsToReset.size() + " jobletRequests to reset");
+		logger.warn("found {} jobletRequests to reset", jobletRequestsToReset.size());
 		for(JobletRequest jobletRequest : jobletRequestsToReset){
 			handleJobletInterruption(
 					new PhaseTimer("setJobletRequestsRunningOnServerToCreated " + jobletRequest.toString()),
@@ -231,22 +232,33 @@ public class JobletService{
 		}
 	}
 
-	public long restartJoblets(JobletType<?> jobletType, JobletStatus jobletStatus){
-		var numRestarted = new AtomicLong();
-		jobletRequestDao.scanType(jobletType, false)
+	public long restartJobletsByJobletDataIds(
+			JobletStatus jobletStatus,
+			Set<Long> failedJobletDatatIds){
+		return restartJoblets(jobletRequestDao.scan()
 				.include(request -> request.getStatus() == jobletStatus)
-				.forEach(request -> {
-					request.setStatus(JobletStatus.CREATED);
-					request.setNumFailures(0);
-					jobletRequestDao.put(request);
-					if(Objects.equals(
-							jobletSettings.queueMechanism.get(),
-							JobletQueueMechanism.QUEUE.getPersistentString())){
-						JobletRequestQueueKey queueKey = jobletRequestQueueManager.getQueueKey(request);
-						jobletQueueDao.getQueue(queueKey).put(request);
-					}
-					numRestarted.incrementAndGet();
-					logger.warn("restarted {}", numRestarted.get());
+				.include(request -> failedJobletDatatIds.contains(request.getJobletDataId())));
+	}
+
+	public long restartJoblets(JobletType<?> jobletType, JobletStatus jobletStatus){
+		return restartJoblets(jobletRequestDao.scanType(jobletType, false)
+				.include(request -> request.getStatus() == jobletStatus));
+	}
+
+	private long restartJoblets(Scanner<JobletRequest> jobletRequestScanner){
+		var numRestarted = new AtomicLong();
+		jobletRequestScanner.forEach(request -> {
+			request.setStatus(JobletStatus.CREATED);
+			request.setNumFailures(0);
+			jobletRequestDao.put(request);
+			if(Objects.equals(
+					jobletSettings.queueMechanism.get(),
+					JobletQueueMechanism.QUEUE.getPersistentString())){
+				JobletRequestQueueKey queueKey = jobletRequestQueueManager.getQueueKey(request);
+				jobletQueueDao.getQueue(queueKey).put(request);
+			}
+			numRestarted.incrementAndGet();
+			logger.warn("restarted {}", numRestarted.get());
 		});
 		return numRestarted.get();
 	}

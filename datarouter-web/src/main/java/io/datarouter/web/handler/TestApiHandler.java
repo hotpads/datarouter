@@ -77,18 +77,18 @@ public class TestApiHandler extends BaseHandler{
 		return new MessageMav(greeting + " " + firstname + " " + lastname + "!");
 	}
 
+	// deserialize an enum
+	@Handler
+	public Mav hi(Honorific honorific, String name){
+		return new MessageMav("Degemer mat " + honorific + " " + name + "!");
+	}
+
 	private enum Honorific{
 		Mr,
 		Miss,
 		Mrs,
 		Ms,
 		;
-	}
-
-	// deserialize an enum
-	@Handler
-	public Mav hi(Honorific honorific, String name){
-		return new MessageMav("Degemer mat " + honorific + " " + name + "!");
 	}
 
 	/*

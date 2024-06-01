@@ -243,11 +243,6 @@ public class DatarouterS3MultipartRequests{
 
 	/*---------- data write bytes multipart Scanner ---------*/
 
-	private record MultithreadUploadPartNumberAndData(
-			int number,
-			InputStreamAndLength data){
-	}
-
 	/**
 	 * Allows the caller to provide full parts, avoiding a memory copy.  Not usually needed for normal usage.
 	 */
@@ -271,6 +266,11 @@ public class DatarouterS3MultipartRequests{
 			String message = String.format("Error on %s", location);
 			throw new RuntimeException(message, e);
 		}
+	}
+
+	private record MultithreadUploadPartNumberAndData(
+			int number,
+			InputStreamAndLength data){
 	}
 
 	/*----------- data write bytes multipart sub-ops ----------*/

@@ -22,7 +22,7 @@
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-parent</artifactId>
-		<version>0.0.124</version>
+		<version>0.0.125</version>
 		<relativePath>../datarouter-parent</relativePath>
 	</parent>
 
@@ -64,6 +64,13 @@
 			<artifactId>datarouter-testng</artifactId>
 			<version>${datarouter-version}</version>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.datarouter</groupId>
+			<artifactId>datarouter-storage</artifactId>
+			<version>${datarouter-version}</version>
+			<scope>test</scope>
+			<classifier>tests</classifier>
 		</dependency>
 	</dependencies>
 

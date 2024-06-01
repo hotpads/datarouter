@@ -17,22 +17,22 @@ package io.datarouter.web.plugins.opencencus.metrics;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.instrumentation.metric.Metrics;
-import io.datarouter.util.duration.DatarouterDuration;
 import jakarta.inject.Singleton;
 
 @Singleton
 public class DifferencingCounterService{
 	private static final Logger logger = LoggerFactory.getLogger(DifferencingCounterService.class);
 
+	private static final int GRACE_PERIOD_MS = 1_000;
+
 	private final Map<String,DifferencingCounter> previousGauge = new ConcurrentHashMap<>();
 
-	public void add(String key, long value){
+	public void add(String key, long value, int expectedFrequencyMs){
 		DifferencingCounter newDto = new DifferencingCounter(value, System.currentTimeMillis());
 		DifferencingCounter previousDto = previousGauge.put(key, newDto);
 		if(previousDto == null){
@@ -40,8 +40,16 @@ public class DifferencingCounterService{
 		}
 		long valueDifference = newDto.value - previousDto.value;
 		long dateDifferenceMs = newDto.dateMs - previousDto.dateMs;
-		logger.info("key={} valueDifference={} dateDifference={}", key, valueDifference, new DatarouterDuration(
-				dateDifferenceMs, TimeUnit.MILLISECONDS));
+		if(dateDifferenceMs > expectedFrequencyMs + GRACE_PERIOD_MS){
+			logger.warn("late value, discarding, dateDifferenceMs={} valueDifference={} key={}",
+					dateDifferenceMs,
+					valueDifference,
+					key);
+			return;
+		}
+		logger.info("dateDifferenceMs={} key={}",
+				dateDifferenceMs,
+				key);
 		if(valueDifference >= 0){
 			Metrics.count(key, valueDifference);
 		}

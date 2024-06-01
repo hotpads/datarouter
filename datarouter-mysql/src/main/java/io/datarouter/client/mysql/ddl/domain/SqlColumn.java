@@ -141,17 +141,8 @@ public class SqlColumn{
 		return sb;
 	}
 
-	public static class SqlColumnByName{
-
-		private final SqlColumn sqlColumn;
-
-		public SqlColumnByName(SqlColumn sqlColumn){
-			this.sqlColumn = sqlColumn;
-		}
-
-		public SqlColumn getSqlColumn(){
-			return sqlColumn;
-		}
+	public record SqlColumnByName(
+			SqlColumn sqlColumn){
 
 		@Override
 		public boolean equals(Object obj){

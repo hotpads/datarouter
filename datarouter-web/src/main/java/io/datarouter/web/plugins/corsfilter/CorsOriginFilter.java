@@ -17,13 +17,11 @@ package io.datarouter.web.plugins.corsfilter;
 
 import java.util.List;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 
-public record CorsOriginFilter(List<Predicate<String>> filters) implements Supplier<List<Predicate<String>>>{
+public record CorsOriginFilter(List<Predicate<String>> filters){
 
-	@Override
-	public List<Predicate<String>> get(){
-		return filters;
+	public boolean matchOrigin(String origin){
+		return origin != null && filters.stream().anyMatch(filter -> filter.test(origin));
 	}
 
 }

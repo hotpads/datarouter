@@ -17,16 +17,8 @@ package io.datarouter.client.mysql.ddl.generate;
 
 import java.util.Optional;
 
-public class Ddl{
-
-	public final Optional<String> executeStatement;
-	public final Optional<String> printStatement;
-	public final boolean preventStartUp;
-
-	public Ddl(Optional<String> executeStatement, Optional<String> printStatement, boolean preventStartUp){
-		this.executeStatement = executeStatement;
-		this.printStatement = printStatement;
-		this.preventStartUp = preventStartUp;
-	}
-
+public record Ddl(
+		Optional<String> executeStatement,
+		Optional<String> printStatement,
+		boolean preventStartUp){
 }

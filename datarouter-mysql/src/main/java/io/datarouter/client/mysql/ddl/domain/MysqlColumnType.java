@@ -15,7 +15,6 @@
  */
 package io.datarouter.client.mysql.ddl.domain;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import io.datarouter.util.string.StringTool;
@@ -28,11 +27,11 @@ public enum MysqlColumnType{
 	TINYINT(true, true, false),
 	BOOL(true, false, false),
 	BOOLEAN(true, true, false),
-	SMALLINT(true, false, false),
+	SMALLINT(true, false, false), //once upgraded to MySQL8, change specifyLength to false
 	MEDIUMINT(false, false, false),
-	INT(true, false, false),
+	INT(true, false, false), //once upgraded to MySQL8, change specifyLength to false
 	INTEGER(true, false, false),
-	BIGINT(true, false, false),
+	BIGINT(true, false, false), //once upgraded to MySQL8, change specifyLength to false
 	DECIMAL(true, false, false),
 	DEC(true, false, false) /* SIMILAR TO DECIMAL, HAS 'FIXED' FOR COMPATIBILITY */,
 	FLOAT(false, false, false),
@@ -62,11 +61,9 @@ public enum MysqlColumnType{
 	SET(true, false, true),
 	GEOMETRY(false, false, false);
 
-	private static Map<String,MysqlColumnType> OTHER_NAME_TO_TYPE = new HashMap<>();
-	static{
-		OTHER_NAME_TO_TYPE.put("INT UNSIGNED", BIGINT);
-		OTHER_NAME_TO_TYPE.put("BIGINT UNSIGNED", BIGINT);
-	}
+	private static final Map<String,MysqlColumnType> OTHER_NAME_TO_TYPE = Map.of(
+			"INT UNSIGNED", BIGINT,
+			"BIGINT UNSIGNED", BIGINT);
 
 	private final boolean specifyLength;
 	private final boolean supportsDefaultValue;

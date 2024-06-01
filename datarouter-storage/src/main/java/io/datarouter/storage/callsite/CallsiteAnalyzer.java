@@ -74,7 +74,7 @@ public class CallsiteAnalyzer implements Callable<String>{
 			}
 			aggregateStatByKey.get(stat.getKey()).addMetrics(stat);
 			if(numLines % 100000 == 0){
-				logger.warn("scanned " + NumberFormatter.addCommas(numLines) + " in " + logPath);
+				logger.warn("scanned {} in {}", NumberFormatter.addCommas(numLines), logPath);
 			}
 		}
 

@@ -25,6 +25,7 @@ import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.NodeParams.NodeParamsBuilder;
+import io.datarouter.storage.node.blockfile.BlockfileNodeParams;
 import io.datarouter.storage.node.entity.DefaultEntity;
 import io.datarouter.storage.node.entity.EntityNodeParams;
 import io.datarouter.storage.node.factory.BaseDatabeanNodeFactory;
@@ -52,6 +53,7 @@ public class NodeBuilder<
 	private boolean disableForcePrimary;
 	private Tag tag = Tag.APP;
 	private boolean disableIntroducer = false;
+	private BlockfileNodeParams<PK,D,F> blockfileNodeParams;
 
 	public NodeBuilder(
 			BaseDatabeanNodeFactory nodeFactory,
@@ -95,6 +97,11 @@ public class NodeBuilder<
 
 	public NodeBuilder<EK,PK,D,F> disableIntroducer(){
 		this.disableIntroducer = true;
+		return this;
+	}
+
+	public NodeBuilder<EK,PK,D,F> withBlockfileNodeParams(BlockfileNodeParams<PK,D,F> blockfileNodeParams){
+		this.blockfileNodeParams = blockfileNodeParams;
 		return this;
 	}
 
@@ -177,6 +184,7 @@ public class NodeBuilder<
 				.withDisableForcePrimary(disableForcePrimary)
 				.withTag(tag)
 				.withDisableIntroducer(disableIntroducer)
+				.withBlockfileNodeParams(blockfileNodeParams)
 				.build();
 		EntityNodeParams<EK,DefaultEntity<EK>> entityNodeParams = new EntityNodeParams<>(
 				clientId.getName() + "." + entityName,

@@ -34,11 +34,6 @@ public enum NodewatchDatabaseType{
 			true,
 			170,
 			.4),
-	BIGTABLE_HBASE_SSD(
-			"bigtableHbase",
-			true,
-			170,
-			.4),
 	SPANNER(
 			"spanner",
 			false,
@@ -68,7 +63,7 @@ public enum NodewatchDatabaseType{
 	}
 
 	public Optional<Double> findYearlyNodeCost(ByteLength storage){
-		if(this == BIGTABLE_SSD || this == BIGTABLE_HBASE_SSD){
+		if(this == BIGTABLE_SSD){
 			return Optional.of(BigtableNodeCost.yearlyNodeCostForStorage(storage));
 		}
 		if(this == SPANNER){

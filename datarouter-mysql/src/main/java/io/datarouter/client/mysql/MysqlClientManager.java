@@ -246,10 +246,10 @@ public class MysqlClientManager extends BaseClientManager implements MysqlConnec
 			if(connection != null){
 				if(!connection.getAutoCommit()){
 					connection.commit();
-					logger.debug("committed txn on:" + getExistingHandle(clientId));
+					logger.debug("committed txn on:{}", getExistingHandle(clientId));
 				}
 			}else{
-				logger.warn("couldn't commit txn because connection was null.  handle=" + getExistingHandle(clientId));
+				logger.warn("couldn't commit txn because connection was null.  handle={}", getExistingHandle(clientId));
 			}
 			DatarouterCounters.incClient(clientType, "commitTxn", clientId.getName(), 1L);
 		}catch(SQLException e){
@@ -267,7 +267,7 @@ public class MysqlClientManager extends BaseClientManager implements MysqlConnec
 						getExistingHandle(clientId),
 						new Exception());
 			}else if(!connection.getAutoCommit()){
-				logger.warn("ROLLING BACK TXN " + getExistingHandle(clientId));
+				logger.warn("ROLLING BACK TXN {}", getExistingHandle(clientId));
 				connection.rollback();
 			}
 			DatarouterCounters.incClient(clientType, "rollbackTxn", clientId.getName(), 1L);

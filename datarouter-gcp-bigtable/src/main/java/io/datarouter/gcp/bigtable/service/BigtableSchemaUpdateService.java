@@ -42,7 +42,6 @@ import io.datarouter.gcp.bigtable.config.BigtableClientsHolder;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.model.serialize.fielder.TtlFielderConfig;
-import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.executor.DatarouterStorageExecutors.DatarouterSchemaUpdateScheduler;
 import io.datarouter.storage.config.properties.AdminEmail;
@@ -54,6 +53,7 @@ import io.datarouter.storage.config.schema.SchemaUpdateTool;
 import io.datarouter.storage.config.storage.clusterschemaupdatelock.DatarouterClusterSchemaUpdateLockDao;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
+import io.datarouter.util.retry.RetryableTool;
 import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.config.settings.DatarouterSchemaUpdateEmailSettings;
 import io.datarouter.web.email.StandardDatarouterEmailHeaderService;
@@ -126,18 +126,23 @@ public class BigtableSchemaUpdateService extends EmailingSchemaUpdateService{
 			createTable(clientId, node);
 			return Optional.empty();
 		}
+		// retry in case table is still being initialized by another thread
+		Table table = RetryableTool.tryNTimesWithBackoffUnchecked(
+				() -> holder.getTableAdminClient(clientId).getTable(tableName),
+				3,
+				500,
+				true);
 		Long requestedTtlSeconds = fieldInfo.getSampleFielder().getOption(TtlFielderConfig.KEY)
 				.map(TtlFielderConfig::getTtl)
 				.map(Duration::getSeconds)
 				.orElse(null);
 		List<String> ddls = new ArrayList<>();
-		Table table = holder.getTableAdminClient(clientId).getTable(tableName);
 		for(ColumnFamily family : table.getColumnFamilies()){
+			String familyId = family.getId();
 			GcRule gcRule = family.getGCRule().toProto();
 			BigtableGcRules ruleSet = buildSetOfRules(gcRule);
 			if(requestedTtlSeconds != null && !requestedTtlSeconds.equals(ruleSet.ttlSeconds)){
-				String ddl = "alter '" + fieldInfo.getTableName() + "', NAME => '" + family.getId() + "', TTL => "
-						+ requestedTtlSeconds;
+				String ddl = "alter '" + tableName + "', NAME => '" + familyId + "', TTL => " + requestedTtlSeconds;
 				if(schemaUpdateOptions.getModifyTtl(false)){
 					logger.warn(SchemaUpdateTool.generateFullWidthMessage("Executing SchemaUpdate"));
 					logger.warn(ddl);
@@ -150,14 +155,13 @@ public class BigtableSchemaUpdateService extends EmailingSchemaUpdateService{
 					ddls.add(ddl);
 				}
 			}else if(ruleSet.maxVersions == null || MAX_VERSIONS != ruleSet.maxVersions){
-				String ddl = "alter '" + fieldInfo.getTableName() + "', NAME => '" + family.getId() + "', VERSIONS => "
-						+ MAX_VERSIONS;
+				String ddl = "alter '" + tableName + "', NAME => '" + familyId + "', VERSIONS => " + MAX_VERSIONS;
 				if(schemaUpdateOptions.getModifyMaxVersions(false)){
 					logger.warn(SchemaUpdateTool.generateFullWidthMessage("Executing SchemaUpdate"));
 					logger.warn(ddl);
 					UnionRule rule = buildGcRule(requestedTtlSeconds);
 					ModifyColumnFamiliesRequest request = ModifyColumnFamiliesRequest.of(table.getId())
-							.updateFamily(family.getId(), rule);
+							.updateFamily(familyId, rule);
 					holder.getTableAdminClient(clientId).modifyFamilies(request);
 				}else if(schemaUpdateOptions.getModifyMaxVersions(true)){
 					SchemaUpdateTool.printSchemaUpdate(logger, ddl);
@@ -175,7 +179,7 @@ public class BigtableSchemaUpdateService extends EmailingSchemaUpdateService{
 		String tableName = node.getFieldInfo().getTableName();
 		DatabeanFielder<?,?> fielder = node.getFieldInfo().getSampleFielder();
 		if(schemaUpdateOptions.getCreateTables(false)){
-			logger.warn("table " + tableName + " not found, creating it");
+			logger.warn("table {} not found, creating it", tableName);
 			try{
 				Long requestedTtlSeconds = fielder.getOption(TtlFielderConfig.KEY)
 						.map(TtlFielderConfig::getTtl)
@@ -185,12 +189,12 @@ public class BigtableSchemaUpdateService extends EmailingSchemaUpdateService{
 				CreateTableRequest request = CreateTableRequest.of(tableName)
 						.addFamily(DEFAULT_FAMILY_QUALIFIER, rule);
 				holder.getTableAdminClient(clientId).createTable(request);
-				logger.warn("created table " + tableName);
+				logger.warn("created table {}", tableName);
 			}catch(Exception e){
-				logger.warn("unable to create table {} , {} " + tableName, e);
+				logger.warn("unable to create table {}", tableName, e);
 			}
 		}else if(schemaUpdateOptions.getCreateTables(true)){
-			logger.warn("table " + tableName + " not found");
+			logger.warn("table {} not found", tableName);
 		}
 	}
 
@@ -206,17 +210,15 @@ public class BigtableSchemaUpdateService extends EmailingSchemaUpdateService{
 	}
 
 	private static BigtableGcRules buildSetOfRules(GcRule gcRule){
-		List<GcRule> rulesInUnion = gcRule.getUnion().getRulesList();
 		var builder = new BigtableGcRulesBuilder();
-		Scanner.of(rulesInUnion)
-				.forEach(item -> {
-					if(item.hasMaxAge()){
-						builder.withTtlSeconds(item.getMaxAge().getSeconds());
-					}
-					if(item.hasMaxNumVersions()){
-						builder.withMaxVersion(item.getMaxNumVersions());
-					}
-				});
+		gcRule.getUnion().getRulesList().forEach(item -> {
+			if(item.hasMaxAge()){
+				builder.withTtlSeconds(item.getMaxAge().getSeconds());
+			}
+			if(item.hasMaxNumVersions()){
+				builder.withMaxVersion(item.getMaxNumVersions());
+			}
+		});
 		return builder.build();
 	}
 
@@ -229,17 +231,17 @@ public class BigtableSchemaUpdateService extends EmailingSchemaUpdateService{
 		private Long ttlSeconds;
 		private Integer maxVersions;
 
-		BigtableGcRulesBuilder withTtlSeconds(Long ttlSeconds){
+		private BigtableGcRulesBuilder withTtlSeconds(Long ttlSeconds){
 			this.ttlSeconds = ttlSeconds;
 			return this;
 		}
 
-		BigtableGcRulesBuilder withMaxVersion(Integer maxVersions){
+		private BigtableGcRulesBuilder withMaxVersion(Integer maxVersions){
 			this.maxVersions = maxVersions;
 			return this;
 		}
 
-		public BigtableGcRules build(){
+		private BigtableGcRules build(){
 			return new BigtableGcRules(ttlSeconds, maxVersions);
 		}
 

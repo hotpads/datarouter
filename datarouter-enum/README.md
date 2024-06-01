@@ -8,7 +8,7 @@ utility classes for working with enums
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-enum</artifactId>
-	<version>0.0.124</version>
+	<version>0.0.125</version>
 </dependency>
 ```
 

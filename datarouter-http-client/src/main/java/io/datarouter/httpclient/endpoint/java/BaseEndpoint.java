@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.apache.http.impl.cookie.BasicClientCookie;
+
 import io.datarouter.httpclient.endpoint.caller.CallerType;
 import io.datarouter.httpclient.endpoint.param.IgnoredField;
 import io.datarouter.httpclient.request.HttpRequestMethod;
@@ -47,6 +49,8 @@ public abstract class BaseEndpoint<R,ET extends EndpointType>{
 	public final Class<? extends CallerType> callerType;
 	@IgnoredField
 	public final Map<String,List<String>> headers;
+	@IgnoredField
+	public final List<BasicClientCookie> cookies;
 
 	// initialized by the client
 	@IgnoredField
@@ -65,6 +69,7 @@ public abstract class BaseEndpoint<R,ET extends EndpointType>{
 		this.method = method;
 		this.pathNode = pathNode;
 		this.headers = new HashMap<>();
+		this.cookies = new ArrayList<>();
 		this.callerType = callerType;
 
 		this.urlPrefix = null;
@@ -86,6 +91,11 @@ public abstract class BaseEndpoint<R,ET extends EndpointType>{
 
 	public final BaseEndpoint<R,ET> addHeader(String name, String value){
 		headers.computeIfAbsent(name, $ -> new ArrayList<>()).add(value);
+		return this;
+	}
+
+	public final BaseEndpoint<R,ET> addCookie(BasicClientCookie cookie){
+		cookies.add(cookie);
 		return this;
 	}
 

@@ -42,6 +42,8 @@ import jakarta.inject.Singleton;
 public class OpencencusMetricsAppListener implements DatarouterAppListener{
 	private static final Logger logger = LoggerFactory.getLogger(OpencencusMetricsAppListener.class);
 
+	private static final Duration EXPORT_INTERVAL = Duration.create(5, 0);
+
 	@Inject
 	private PluginInjector pluginInjector;
 	@Inject
@@ -58,7 +60,7 @@ public class OpencencusMetricsAppListener implements DatarouterAppListener{
 		var exporter = new DatarouterMetricExporter();
 
 		IntervalMetricReader.Options options = IntervalMetricReader.Options.builder()
-				.setExportInterval(Duration.create(5, 0))
+				.setExportInterval(EXPORT_INTERVAL)
 				.build();
 		metricReader = IntervalMetricReader.create(exporter, reader, options);
 	}
@@ -123,7 +125,10 @@ public class OpencencusMetricsAppListener implements DatarouterAppListener{
 				}
 				switch(type){
 				case GAUGE_INT64 -> io.datarouter.instrumentation.metric.Metrics.measure(datarouterMetricName, value);
-				case CUMULATIVE_INT64 -> differencingCounterService.add(datarouterMetricName, value);
+				case CUMULATIVE_INT64 -> differencingCounterService.add(
+						datarouterMetricName,
+						value,
+						(int)EXPORT_INTERVAL.toMillis());
 				default -> throw new IllegalArgumentException("Unexpected value=" + type);
 				}
 				return;

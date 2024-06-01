@@ -152,8 +152,11 @@ public class MysqlTool{
 			ResultSet rs = ps.getResultSet();
 			List<D> databeans = new ArrayList<>();
 			while(rs.next()){
-				D databean = fieldSetFromMysqlResultSetUsingReflection(fieldCodecFactory, databeanSupplier, fields, rs);
-				databeans.add(databean);
+				databeans.add(fieldSetFromMysqlResultSetUsingReflection(
+						fieldCodecFactory,
+						databeanSupplier,
+						fields,
+						rs));
 			}
 			return databeans;
 		}catch(Exception e){

@@ -221,6 +221,17 @@ public class DatarouterJobletRequestDao extends BaseDao{
 			.hasAny();
 	}
 
+	public boolean anyCreatedWithSameDataSignature(JobletRequest jobletRequest){
+		var prefix = new JobletRequestByTypeAndDataSignatureKey(
+				jobletRequest.getKey().getType(),
+				jobletRequest.getDataSignature(),
+				null,
+				null,
+				null);
+		return byTypeAndDataSignature.scanDatabeansWithPrefix(prefix)
+				.anyMatch(request -> request.getStatus() == JobletStatus.CREATED);
+	}
+
 	public List<JobletRequest> excludeDataAlreadyInQueue(List<JobletRequest> jobletRequests){
 		String type = assertSameType(jobletRequests);
 		Collection<Long> alreadyInQueue = Scanner.of(jobletRequests)

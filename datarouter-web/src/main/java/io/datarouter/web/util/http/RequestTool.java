@@ -471,10 +471,8 @@ public class RequestTool{
 		}
 
 		if(!clientIp.isEmpty() || !forwardedFor.isEmpty()){
-			logger.debug("Unusable IPs included, falling back to remoteAddr."
-					+ " " + HttpHeaders.X_CLIENT_IP + "=" + clientIp
-					+ " " + HttpHeaders.X_FORWARDED_FOR + "=" + forwardedFor
-					+ " path=" + getPath(request));
+			logger.debug("Unusable IPs included, falling back to remoteAddr. " + HttpHeaders.X_CLIENT_IP + "={} "
+					+ HttpHeaders.X_FORWARDED_FOR + "={} path={}", clientIp, forwardedFor, getPath(request));
 			logger.debug("", new Exception());
 		}
 		return request.getRemoteAddr();

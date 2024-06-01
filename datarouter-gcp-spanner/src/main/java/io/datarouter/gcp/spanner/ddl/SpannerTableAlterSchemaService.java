@@ -20,10 +20,12 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import com.google.cloud.spanner.ResultSet;
 
+import io.datarouter.bytes.KvString;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.FieldKey;
 import io.datarouter.scanner.Scanner;
@@ -49,27 +51,33 @@ public class SpannerTableAlterSchemaService{
 			throw new RuntimeException("Cannot modify primary key columns in spanner tableName=" + tableName);
 		}
 		List<SpannerColumn> columns = extractColumns(columnResult);
+		Map<SpannerColumn,SpannerColumn> columnsToCompareTypes = columnNameIntersection(currentColumns, columns);
+		columnsToCompareTypes.forEach((currCol, newCol) -> {
+			if(!currCol.getType().equals(newCol.getType())){
+				throw new RuntimeException("Do not change the type of a Spanner column, instead add a new column and "
+						+ "migrate the data."
+						+ new KvString()
+						.add("TableName", tableName)
+						.add("ColumnName", currCol.getName())
+						.add("CurrentColumnType", currCol.getType().toString())
+						.add("NewColumnType", newCol.getType().toString()));
+			}
+		});
 		List<SpannerColumn> colToAdd = columnNameDifferences(currentColumns, columns);
 		List<SpannerColumn> colToRemove = columnNameDifferences(columns, currentColumns);
 		List<SpannerColumn> colToAlter = columnsToAlter(currentColumns, columns);
-		if(!colToAdd.isEmpty()){
-			colToAdd.forEach(col -> statements.updateFunction(
-					SpannerTableOperationsTool.addColumns(tableName, col),
-					updateOptions::getAddColumns,
-					true));
-		}
-		if(!colToRemove.isEmpty()){
-			colToRemove.forEach(col -> statements.updateFunction(
-					SpannerTableOperationsTool.dropColumns(tableName, col),
-					updateOptions::getDeleteColumns,
-					false));
-		}
-		if(!colToAlter.isEmpty()){
-			colToAlter.forEach(col -> statements.updateFunction(
-					SpannerTableOperationsTool.alterColumns(tableName, col),
-					updateOptions::getModifyColumns,
-					false));
-		}
+		colToAdd.forEach(col -> statements.updateFunction(
+				SpannerTableOperationsTool.addColumns(tableName, col),
+				updateOptions::getAddColumns,
+				true));
+		colToRemove.forEach(col -> statements.updateFunction(
+				SpannerTableOperationsTool.dropColumns(tableName, col),
+				updateOptions::getDeleteColumns,
+				false));
+		colToAlter.forEach(col -> statements.updateFunction(
+				SpannerTableOperationsTool.alterColumns(tableName, col),
+				updateOptions::getModifyColumns,
+				false));
 	}
 
 	public Set<String> getIndexes(ResultSet rs){
@@ -121,6 +129,17 @@ public class SpannerTableAlterSchemaService{
 				.toMapSupplied(SpannerColumn::getName, LinkedHashMap::new);
 		columns2.forEach(col -> col1Map.remove(col.getName()));
 		return new ArrayList<>(col1Map.values());
+	}
+
+	private Map<SpannerColumn,SpannerColumn> columnNameIntersection(
+			List<SpannerColumn> columns1,
+			List<SpannerColumn> columns2){
+		Map<String,SpannerColumn> nameToColumns2 = Scanner.of(columns2)
+				.toMapSupplied(SpannerColumn::getName, LinkedHashMap::new);
+		Map<SpannerColumn,SpannerColumn> intersectionMap = Scanner.of(columns1)
+				.toMap(col1 -> col1, col1 -> nameToColumns2.get(col1.getName()));
+		intersectionMap.values().removeIf(Objects::isNull);
+		return intersectionMap;
 	}
 
 	private List<SpannerColumn> columnsToAlter(List<SpannerColumn> currentColumns, List<SpannerColumn> existingColumns){

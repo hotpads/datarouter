@@ -17,9 +17,13 @@ package io.datarouter.client.mysql.ddl.generate;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
+import io.datarouter.bytes.KvString;
 import io.datarouter.client.mysql.ddl.domain.SqlColumn;
 import io.datarouter.client.mysql.ddl.domain.SqlColumn.SqlColumnByName;
 import io.datarouter.client.mysql.ddl.domain.SqlIndex;
@@ -47,7 +51,18 @@ public class SqlTableDiffGenerator{
 	private static List<SqlColumn> findDifferentColumnsByName(SqlTable first, SqlTable second){
 		Set<SqlColumnByName> differentColumns = SqlColumnByName.wrap(first.getColumns());
 		differentColumns.removeAll(SqlColumnByName.wrap(second.getColumns()));
-		return Scanner.of(differentColumns).map(SqlColumnByName::getSqlColumn).list();
+		return Scanner.of(differentColumns)
+				.map(SqlColumnByName::sqlColumn)
+				.list();
+	}
+
+	private static Map<SqlColumn,SqlColumn> findSameColumnsByName(List<SqlColumn> columns1, List<SqlColumn> columns2){
+		Map<String,SqlColumn> nameToColumns2 = Scanner.of(columns2)
+				.toMapSupplied(SqlColumn::getName, LinkedHashMap::new);
+		Map<SqlColumn,SqlColumn> intersectionMap = Scanner.of(columns1)
+				.toMap(col1 -> col1, col1 -> nameToColumns2.get(col1.getName()));
+		intersectionMap.values().removeIf(Objects::isNull);
+		return intersectionMap;
 	}
 
 	public List<SqlColumn> getColumnsToModify(){
@@ -98,6 +113,23 @@ public class SqlTableDiffGenerator{
 
 	private boolean areColumnsModified(){
 		return !new HashSet<>(current.getColumns()).equals(new HashSet<>(requested.getColumns()));
+	}
+
+	public void throwIfColumnTypesModified(){
+		Map<SqlColumn,SqlColumn> columnsToCompareTypes = findSameColumnsByName(
+				current.getColumns(),
+				requested.getColumns());
+		columnsToCompareTypes.forEach((currCol, newCol) -> {
+			if(!currCol.getType().equals(newCol.getType())){
+				throw new RuntimeException("Do not change the type of a MySQL column, instead add a new column and "
+						+ "migrate the data. "
+						+ new KvString()
+						.add("TableName", current.getName())
+						.add("ColumnName", currCol.getName())
+						.add("CurrentColumnType", currCol.getType().toString())
+						.add("NewColumnType", newCol.getType().toString()));
+			}
+		});
 	}
 
 	public boolean isIndexesModified(){

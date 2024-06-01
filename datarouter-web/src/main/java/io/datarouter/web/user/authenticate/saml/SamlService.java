@@ -228,7 +228,7 @@ public class SamlService{
 	private void redirectAfterAuthentication(HttpServletRequest request, HttpServletResponse response,
 			MessageContext responseMessageContext){
 		String url = getRedirectUrl(request, responseMessageContext);
-		logger.debug("Redirecting to requested URL: " + url);
+		logger.debug("Redirecting to requested URL: {}", url);
 		try{
 			response.sendRedirect(url);
 		}catch(IOException e){

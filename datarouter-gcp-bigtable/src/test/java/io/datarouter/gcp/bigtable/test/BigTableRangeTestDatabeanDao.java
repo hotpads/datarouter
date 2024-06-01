@@ -31,15 +31,15 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
 @Singleton
-public class BigTableRangeTestDatabeanDao extends BaseDao implements TestDao{
+public class BigtableRangeTestDatabeanDao extends BaseDao implements TestDao{
 
 	private final SortedMapStorage<TestDatabeanKey,TestDatabean> node;
 
 	@Inject
-	public BigTableRangeTestDatabeanDao(Datarouter datarouter, NodeFactory nodeFactory){
+	public BigtableRangeTestDatabeanDao(Datarouter datarouter, NodeFactory nodeFactory){
 		super(datarouter);
 		node = nodeFactory.create(
-				DatarouterBigTableTestClientIds.BIG_TABLE,
+				DatarouterBigtableTestClientIds.BIG_TABLE,
 				TestDatabean::new,
 				TestDatabeanFielder::new)
 				.withTableName("BigtableRangeIntegrationTestsNative")

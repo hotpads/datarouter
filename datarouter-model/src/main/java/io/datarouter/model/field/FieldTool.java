@@ -63,6 +63,18 @@ public class FieldTool{
 		return ByteTool.concat(tokens);
 	}
 
+	public static byte[] getConcatenatedValueBytesTerminated(List<Field<?>> fields){
+		int numTokens = FieldTool.countNonNullLeadingFields(fields);
+		if(numTokens == 0){
+			return EmptyArray.BYTE;
+		}
+		byte[][] tokens = new byte[numTokens][];
+		for(int i = 0; i < numTokens; ++i){
+			tokens[i] = fields.get(i).getTerminatedKeyBytes();
+		}
+		return ByteTool.concat(tokens);
+	}
+
 	/**
 	 * @param includePrefix usually refers to the "key." prefix before a PK
 	 * @param skipNullValues important to include nulls in PK's, but usually skip them in normal fields

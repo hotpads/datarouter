@@ -96,7 +96,7 @@ public class SqsPerformanceTester{
 			logger.info("put through {}", ListTool.getLastOrNull(batch));
 		}
 		timer.add("loaded");
-		logger.info(timer.toString() + "@" + timer.getItemsPerSecond(numDatabeans));
+		logger.info("{}@{}", timer.toString(), timer.getItemsPerSecond(numDatabeans));
 	}
 
 	private List<TestDatabean> makeDatabeans(int numDatabeans){
@@ -126,7 +126,7 @@ public class SqsPerformanceTester{
 		}
 		ExecutorServiceTool.shutdown(exec, Duration.ofDays(1));
 		timer.add("drained " + numDrained.intValue());
-		logger.info(timer.toString() + "@" + timer.getItemsPerSecond(numDrained.intValue()));
+		logger.info("{}@{}", timer.toString(), timer.getItemsPerSecond(numDrained.intValue()));
 	}
 
 	// timeout is needed, otherwise it will poll forever
@@ -153,7 +153,7 @@ public class SqsPerformanceTester{
 		ExecutorServiceTool.shutdown(exec, Duration.ofDays(1));
 		timer.add("drained " + numMessagesDrained.intValue() + " messages with " + numDatabeansDrained.intValue()
 				+ " databeans");
-		logger.info(timer.toString() + "@" + timer.getItemsPerSecond(numDatabeansDrained.intValue()));
+		logger.info("{}@{}", timer.toString(), timer.getItemsPerSecond(numDatabeansDrained.intValue()));
 	}
 
 	// timeout, otherwise it will poll forever
@@ -180,7 +180,7 @@ public class SqsPerformanceTester{
 		ExecutorServiceTool.shutdown(exec, Duration.ofDays(1));
 		timer.add("drained " + numMessagesDrained.intValue() + " messages with " + numDatabeansDrained.intValue()
 				+ " databeans");
-		logger.info(timer.toString() + "@" + timer.getItemsPerSecond(numDatabeansDrained.intValue()));
+		logger.info("{}@{}", timer.toString(), timer.getItemsPerSecond(numDatabeansDrained.intValue()));
 	}
 
 }

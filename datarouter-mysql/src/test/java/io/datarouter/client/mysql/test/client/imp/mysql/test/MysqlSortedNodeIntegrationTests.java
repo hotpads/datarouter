@@ -15,25 +15,38 @@
  */
 package io.datarouter.client.mysql.test.client.imp.mysql.test;
 
-import java.util.Optional;
-
 import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Guice;
 
 import io.datarouter.client.mysql.DatarouterMysqlTestNgModuleFactory;
 import io.datarouter.client.mysql.test.DatarouterMysqlTestClientids;
-import io.datarouter.storage.test.node.basic.sorted.BaseSortedNodeIntegrationTests;
+import io.datarouter.storage.node.factory.NodeFactory;
+import io.datarouter.storage.node.op.combo.SortedMapStorage;
+import io.datarouter.storage.test.node.basic.sorted.BaseSortedNodeWriterIntegrationTests;
+import io.datarouter.storage.test.node.basic.sorted.SortedBean;
+import io.datarouter.storage.test.node.basic.sorted.SortedBean.SortedBeanFielder;
+import io.datarouter.storage.test.node.basic.sorted.SortedBeanEntityKey;
+import io.datarouter.storage.test.node.basic.sorted.SortedBeanKey;
+import jakarta.inject.Inject;
 
 @Guice(moduleFactory = DatarouterMysqlTestNgModuleFactory.class)
-public class MysqlSortedNodeIntegrationTests extends BaseSortedNodeIntegrationTests{
+public class MysqlSortedNodeIntegrationTests extends BaseSortedNodeWriterIntegrationTests{
 
-	@BeforeClass
-	public void beforeClass(){
-		setup(DatarouterMysqlTestClientids.MYSQL, Optional.empty());
+	@Inject
+	public MysqlSortedNodeIntegrationTests(NodeFactory nodeFactory){
+		super(makeNode(nodeFactory));
+		resetTable();
 	}
 
-	@Override
+	private static SortedMapStorage<SortedBeanKey,SortedBean> makeNode(NodeFactory nodeFactory){
+		return nodeFactory.create(
+				DatarouterMysqlTestClientids.MYSQL,
+				SortedBeanEntityKey::new,
+				SortedBean::new,
+				SortedBeanFielder::new)
+				.buildAndRegister();
+	}
+
 	@AfterClass
 	public void afterClass(){
 		postTestTests();

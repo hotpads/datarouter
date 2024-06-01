@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Properties;
 
 import io.datarouter.email.type.DatarouterEmailTypes.SchemaUpdatesEmailType;
-import io.datarouter.gcp.bigtable.test.DatarouterBigTableTestClientIds;
+import io.datarouter.gcp.bigtable.test.DatarouterBigtableTestClientIds;
 import io.datarouter.inject.guice.BaseGuiceModule;
 import io.datarouter.storage.config.properties.DatarouterTestPropertiesFile;
 import io.datarouter.storage.config.schema.SchemaUpdateOptionsBuilder;
@@ -28,30 +28,30 @@ import io.datarouter.storage.config.storage.clusterschemaupdatelock.DatarouterCl
 import io.datarouter.testng.TestNgModuleFactory;
 import io.datarouter.web.config.DatarouterWebGuiceModule;
 
-public class DatarouterBigTableTestNgModuleFactory extends TestNgModuleFactory{
+public class DatarouterBigtableTestNgModuleFactory extends TestNgModuleFactory{
 
-	public DatarouterBigTableTestNgModuleFactory(){
+	public DatarouterBigtableTestNgModuleFactory(){
 		super(List.of(
 				new DatarouterWebGuiceModule(),
-				new BigTableTestGuiceModule()));
+				new BigtableTestGuiceModule()));
 	}
 
-	public static class BigTableTestGuiceModule extends BaseGuiceModule{
+	public static class BigtableTestGuiceModule extends BaseGuiceModule{
 
 		@Override
 		protected void configure(){
 			bindActualInstance(DatarouterTestPropertiesFile.class,
-					new DatarouterTestPropertiesFile("bigtable2.properties"));
-			bindActual(SchemaUpdateOptionsFactory.class, DatarouterBigTableSchemaUpdateOptionsFactory.class);
+					new DatarouterTestPropertiesFile("bigtable.properties"));
+			bindActual(SchemaUpdateOptionsFactory.class, DatarouterBigtableSchemaUpdateOptionsFactory.class);
 			bind(DatarouterClusterSchemaUpdateLockDaoParams.class)
 					.toInstance(new DatarouterClusterSchemaUpdateLockDaoParams(
-							List.of(DatarouterBigTableTestClientIds.BIG_TABLE)));
+							List.of(DatarouterBigtableTestClientIds.BIG_TABLE)));
 			bind(SchemaUpdatesEmailType.class).toInstance(new SchemaUpdatesEmailType(List.of()));
 		}
 
 	}
 
-	public static class DatarouterBigTableSchemaUpdateOptionsFactory implements SchemaUpdateOptionsFactory{
+	public static class DatarouterBigtableSchemaUpdateOptionsFactory implements SchemaUpdateOptionsFactory{
 
 		@Override
 		public Properties getInternalConfigDirectoryTypeSchemaUpdateOptions(String internalConfigDirectoryTypeName){

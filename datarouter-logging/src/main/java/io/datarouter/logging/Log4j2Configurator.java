@@ -113,7 +113,7 @@ public class Log4j2Configurator{
 			if(appender != null){
 				loggerConfig.addAppender(appender, null, null);
 			}else{
-				logger.error("Appender \"" + appenderRef + "\" not found");
+				logger.error("Appender \"{}\" not found", appenderRef);
 			}
 		}
 	}

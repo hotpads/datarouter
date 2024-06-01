@@ -152,7 +152,7 @@ public class DatarouterClients{
 				logger.warn("finished shutting down client={} duration={}", clientId.getName(), DatarouterDuration
 						.ageMs(start));
 			}catch(Exception e){
-				logger.warn("swallowing exception while shutting down client=" + clientId, e);
+				logger.warn("swallowing exception while shutting down client={}", clientId, e);
 			}
 		}
 	}

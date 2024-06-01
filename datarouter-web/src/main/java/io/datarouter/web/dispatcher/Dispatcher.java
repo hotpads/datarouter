@@ -148,7 +148,7 @@ public class Dispatcher{
 	// This method is an "estimate" because it doesn't come from a real HttpServletRequest and doesn't require the
 	// correct params
 	public Optional<BaseHandler> estimateHandlerForPathAndParams(String path, DispatchRule dispatchRule,
-			Map<String,String[]> params, String body){
+			Optional<String> method, Map<String,String[]> params, String body){
 		String afterContextPath = path.substring(servletContext.get().getContextPath().length());
 		if(!dispatchRule.getPattern().matcher(afterContextPath).matches()){
 			return Optional.empty();
@@ -156,7 +156,7 @@ public class Dispatcher{
 		MockHttpServletRequestBuilder requestBuilder = new MockHttpServletRequestBuilder()
 				.withParameters(params)
 				.withServerName("example.hotpads.com")
-				.withMethod("GET")
+				.withMethod(method.orElse("GET"))
 				.withRequestUri(path);
 
 		if(body != null){
@@ -181,7 +181,7 @@ public class Dispatcher{
 	}
 
 	public Optional<BaseHandler> estimateHandlerForPath(String path, DispatchRule dispatchRule){
-		return estimateHandlerForPathAndParams(path, dispatchRule, Map.of(), null);
+		return estimateHandlerForPathAndParams(path, dispatchRule, Optional.empty(), Map.of(), null);
 	}
 
 	private Params parseParams(HttpServletRequest request, Charset defaultCharset) throws ServletException{

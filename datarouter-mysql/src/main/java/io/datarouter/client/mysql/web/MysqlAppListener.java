@@ -44,9 +44,9 @@ public class MysqlAppListener implements DatarouterAppListener{
 			Driver driver = drivers.nextElement();
 			try{
 				DriverManager.deregisterDriver(driver);
-				logger.info("Driver unregistered : " + driver);
+				logger.info("Driver unregistered : {}", driver);
 			}catch(SQLException e){
-				logger.error("Error while unregistering driver " + driver, e);
+				logger.error("Error while unregistering driver {}", driver, e);
 			}
 		}
 	}

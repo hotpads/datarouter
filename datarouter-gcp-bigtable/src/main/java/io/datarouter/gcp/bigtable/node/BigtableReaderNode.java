@@ -19,7 +19,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 import com.google.api.gax.rpc.ServerStream;
@@ -184,7 +183,7 @@ implements MapStorageReader<PK,D>, SortedStorageReader<PK,D>{
 	}
 
 	protected Scanner<Row> scanResults(Range<PK> range, Config config, boolean keysOnly){
-		if(isSingleRowRange(range)){
+		if(BigtableQueryBuilder.isSingleRowRange(range)){
 			return getResults(Collections.singleton(range.getStart()), config, keysOnly);
 		}
 		Range<Bytes> byteRange = range.map(queryBuilder::getPkByteRange);
@@ -219,18 +218,6 @@ implements MapStorageReader<PK,D>, SortedStorageReader<PK,D>{
 		var pagingScanner = new ResultPagingScanner(pageSize, range, limit, keysOnly, startIsFullKey);
 		return pagingScanner
 				.concat(Scanner::of);
-	}
-
-	private static <
-			EK extends EntityKey<EK>,
-			PK extends EntityPrimaryKey<EK,PK>>
-	boolean isSingleRowRange(Range<PK> range){
-		return range.hasStart()
-				&& range.equalsStartEnd()
-				&& range.getStartInclusive()
-				&& range.getEndInclusive()
-				&& Scanner.of(range.getStart().getFieldValues())
-						.noneMatch(Objects::isNull);
 	}
 
 	private class ResultPagingScanner extends PagingScanner<Bytes,Row>{

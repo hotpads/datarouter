@@ -327,7 +327,7 @@ public class ReflectionTool{
 		}catch(IllegalAccessException | InvocationTargetException e){
 			logger.error("", e);
 		}catch(IllegalArgumentException e){
-			logger.error("the method " + method + " or " + instance + " are not a suitable argument ", e);
+			logger.error("the method {} or {} are not a suitable argument ", method, instance, e);
 		}
 		return null;
 	}

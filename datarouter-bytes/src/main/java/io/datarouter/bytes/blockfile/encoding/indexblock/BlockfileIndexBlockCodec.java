@@ -98,10 +98,11 @@ public interface BlockfileIndexBlockCodec{
 	default int rangeStartIndex(
 			BlockfileIndexBlock block,
 			byte[] key){
-		return BlockfileRangeSearchTool.startIndex(
+		int index = BlockfileRangeSearchTool.startIndex(
 				block.numChildren(),
 				childIndex -> decodeChild(block, childIndex),
 				indexEntry -> indexEntry.rowRange().compareToKey(key));
+		return Math.max(0, index);
 	}
 
 	default int rangeEndIndex(

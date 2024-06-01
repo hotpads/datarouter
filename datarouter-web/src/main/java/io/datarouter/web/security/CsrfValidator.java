@@ -19,7 +19,6 @@ import javax.servlet.http.HttpServletRequest;
 
 public interface CsrfValidator{
 
-	boolean check(HttpServletRequest request);
-	Long getRequestTimeMs(HttpServletRequest request);
+	CsrfValidationResult check(HttpServletRequest request);
 
 }

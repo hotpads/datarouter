@@ -15,23 +15,36 @@
  */
 package io.datarouter.client.memory.test;
 
-import java.util.Optional;
-
 import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Guice;
 
-import io.datarouter.storage.test.node.basic.sorted.BaseSortedNodeIntegrationTests;
+import io.datarouter.storage.node.factory.NodeFactory;
+import io.datarouter.storage.node.op.combo.SortedMapStorage;
+import io.datarouter.storage.test.node.basic.sorted.BaseSortedNodeWriterIntegrationTests;
+import io.datarouter.storage.test.node.basic.sorted.SortedBean;
+import io.datarouter.storage.test.node.basic.sorted.SortedBean.SortedBeanFielder;
+import io.datarouter.storage.test.node.basic.sorted.SortedBeanEntityKey;
+import io.datarouter.storage.test.node.basic.sorted.SortedBeanKey;
+import jakarta.inject.Inject;
 
 @Guice(moduleFactory = DatarouterMemoryTestNgModuleFactory.class)
-public class MemorySortedNodeIntegrationTests extends BaseSortedNodeIntegrationTests{
+public class MemorySortedNodeIntegrationTests extends BaseSortedNodeWriterIntegrationTests{
 
-	@BeforeClass
-	public void beforeClass(){
-		setup(DatarouterMemoryTestClientIds.MEMORY, Optional.empty());
+	@Inject
+	public MemorySortedNodeIntegrationTests(NodeFactory nodeFactory){
+		super(makeNode(nodeFactory));
+		resetTable();
 	}
 
-	@Override
+	private static SortedMapStorage<SortedBeanKey,SortedBean> makeNode(NodeFactory nodeFactory){
+		return nodeFactory.create(
+				DatarouterMemoryTestClientIds.MEMORY,
+				SortedBeanEntityKey::new,
+				SortedBean::new,
+				SortedBeanFielder::new)
+				.buildAndRegister();
+	}
+
 	@AfterClass
 	public void afterClass(){
 		postTestTests();

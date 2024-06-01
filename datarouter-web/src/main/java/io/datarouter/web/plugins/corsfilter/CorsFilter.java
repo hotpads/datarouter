@@ -39,7 +39,7 @@ public class CorsFilter implements Filter{
 	@Inject
 	private DatarouterLocalhostCorsFilterSettings settings;
 	@Inject
-	private CorsOriginFilter filterParams;
+	private CorsOriginFilter originFilter;
 
 	@Override
 	public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException,
@@ -47,7 +47,7 @@ public class CorsFilter implements Filter{
 		HttpServletRequest request = (HttpServletRequest)req;
 		HttpServletResponse response = (HttpServletResponse)res;
 		String origin = request.getHeader(HttpHeaders.ORIGIN);
-		if(matchOrigin(origin) && settings.allowed.get()){
+		if(originFilter.matchOrigin(origin) && settings.allowed.get()){
 			addCorsHeaders(response, origin);
 			// preflight request
 			if(request.getMethod().equals("OPTIONS")){
@@ -65,16 +65,11 @@ public class CorsFilter implements Filter{
 		Metrics.count("CorsFilter " + key);
 	}
 
-	protected boolean matchOrigin(String origin){
-		return origin != null && filterParams.get().stream()
-				.anyMatch(filter -> filter.test(origin));
-	}
-
 	private void addCorsHeaders(HttpServletResponse response, String origin){
-		response.addHeader("Access-Control-Allow-Origin", origin);
-		response.addHeader("Access-Control-Allow-Methods", String.join(", ", settings.methods.get()));
-		response.addHeader("Access-Control-Allow-Credentials", Boolean.TRUE.toString());
-		response.addHeader("Access-Control-Allow-Headers", String.join(", ", settings.headers.get()));
+		response.addHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, origin);
+		response.addHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS, String.join(", ", settings.methods.get()));
+		response.addHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS, Boolean.TRUE.toString());
+		response.addHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS, String.join(", ", settings.headers.get()));
 	}
 
 }

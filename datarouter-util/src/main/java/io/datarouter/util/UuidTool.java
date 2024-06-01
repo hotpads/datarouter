@@ -20,11 +20,15 @@ import java.time.ZonedDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.uuid.EthernetAddress;
 import com.fasterxml.uuid.Generators;
 import com.fasterxml.uuid.impl.TimeBasedGenerator;
 
 public class UuidTool{
+	private static final Logger logger = LoggerFactory.getLogger(UuidTool.class);
 
 	private static final long GREGORIAN_CALENDAR_BEGINNING = ZonedDateTime.of(1582, 10, 15, 0, 0, 0, 0, ZoneOffset.UTC)
 			.toInstant()
@@ -43,6 +47,7 @@ public class UuidTool{
 			UUID uuid = UUID.fromString(v1Uuid);
 			timestamp = uuid.timestamp();
 		}catch(Exception e){
+			logger.info("Failed to parse uuid: {}", v1Uuid, e);
 			return Optional.empty();
 		}
 		long ms = timestamp / 10_000;

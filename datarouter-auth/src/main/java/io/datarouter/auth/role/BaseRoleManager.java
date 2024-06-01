@@ -75,8 +75,8 @@ public abstract class BaseRoleManager implements RoleManager{
 	private void checkAndWarnOverride(String key, Map<String,Set<Role>> configurableRoleGroups){
 		Objects.requireNonNull(key, "Super and default role group IDs must be defined.");
 		if(configurableRoleGroups.containsKey(key)){
-			logger.warn("ConfigurableRoleGroups uses a reserved role group ID, which will be ignored. Override "
-					+ "getSuperUserGroupId or getDefaultUserGroupId to use this role group ID: " + key);
+			logger.warn("ConfigurableRoleGroups uses a reserved role group ID, which will be ignored. Override"
+							+ " getSuperUserGroupId or getDefaultUserGroupId to use this role group ID: {}", key);
 		}
 	}
 

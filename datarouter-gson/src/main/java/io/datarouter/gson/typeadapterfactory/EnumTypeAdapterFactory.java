@@ -78,12 +78,19 @@ implements TypeAdapterFactory{
 
 	/*----------- String MappedEnum convenience methods ------------*/
 
+	/**
+	 * An exception will be thrown if the value can't be mapped to a valid enum entry.
+	 */
 	protected <T extends Enum<T>> EnumTypeAdapterFactory registerStringMappedEnumRequired(
 			MappedEnum<T,String> mappedEnum){
 		adapterByType.put(mappedEnum.getEnumClass(), StringMappedEnumTypeAdapter.required(mappedEnum));
 		return this;
 	}
 
+	/**
+	 * Not recommended.
+	 * Values not defined in the enum will be silently ignored.
+	 */
 	protected <T extends Enum<T>> EnumTypeAdapterFactory registerStringMappedEnumOptional(
 			MappedEnum<T,String> mappedEnum,
 			T defaultValue){
@@ -92,6 +99,10 @@ implements TypeAdapterFactory{
 		return this;
 	}
 
+	/**
+	 * Values not defined in the enum will be logged.
+	 * This allows you to fix the incoming value or to add the missing value to the enum.
+	 */
 	protected <T extends Enum<T>> EnumTypeAdapterFactory registerStringMappedEnumOptionalWithLogging(
 			MappedEnum<T,String> mappedEnum,
 			T replacement){

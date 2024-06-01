@@ -341,7 +341,7 @@ public class SamlTool{
 
 	public static void logSamlObject(String callsite, SAMLObject object){
 		if(object == null){
-			logger.debug(callsite + " - SAMLObject is null");
+			logger.debug("{} - SAMLObject is null", callsite);
 			return;
 		}
 
@@ -352,7 +352,7 @@ public class SamlTool{
 				out.marshall(object);
 				element = object.getDOM();
 			}catch(MarshallingException e){
-				logger.error(callsite + " - Failed to marshall SAMLObject", e);
+				logger.error("{} - Failed to marshall SAMLObject", callsite, e);
 				return;
 			}
 		}
@@ -363,9 +363,9 @@ public class SamlTool{
 			DOMSource source = new DOMSource(element);
 			transformer.transform(source, result);
 			String xmlString = result.getWriter().toString();
-			logger.debug(callsite + " - " + xmlString);
+			logger.debug("{} - {}", callsite, xmlString);
 		}catch(TransformerException e){
-			logger.error(callsite + " - Failed to log SAML object.", e);
+			logger.error("{} - Failed to log SAML object.", callsite, e);
 		}
 	}
 

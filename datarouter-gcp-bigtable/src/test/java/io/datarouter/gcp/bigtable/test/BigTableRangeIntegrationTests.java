@@ -22,14 +22,14 @@ import org.testng.Assert;
 import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
-import io.datarouter.gcp.bigtable.config.DatarouterBigTableTestNgModuleFactory;
+import io.datarouter.gcp.bigtable.config.DatarouterBigtableTestNgModuleFactory;
 import io.datarouter.storage.test.TestDatabean;
 import io.datarouter.storage.test.TestDatabeanKey;
 import io.datarouter.util.tuple.Range;
 import jakarta.inject.Inject;
 
-@Guice(moduleFactory = DatarouterBigTableTestNgModuleFactory.class)
-public class BigTableRangeIntegrationTests{
+@Guice(moduleFactory = DatarouterBigtableTestNgModuleFactory.class)
+public class BigtableRangeIntegrationTests{
 
 	private static final Collection<TestDatabean> DATABEANS = List.of(
 			new TestDatabean("10", null, null),
@@ -44,7 +44,7 @@ public class BigTableRangeIntegrationTests{
 			new TestDatabean("15", null, null));
 
 	@Inject
-	private BigTableRangeTestDatabeanDao testDatabeanDao;
+	private BigtableRangeTestDatabeanDao testDatabeanDao;
 
 	@Test
 	public void testRange(){

@@ -66,7 +66,8 @@ public class SqsNodeIntegrationTester{
 	}
 
 	private void drainQueue(Duration duration){
-		dao.pollUntilEmpty(duration).forEach(testDatabean -> logger.debug(duration.toSeconds() + "\t" + testDatabean));
+		dao.pollUntilEmpty(duration)
+				.forEach(testDatabean -> logger.debug("{}\t{}", duration.toSeconds(), testDatabean));
 	}
 
 	@Test

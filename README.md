@@ -153,9 +153,7 @@ These libraries can be used individually without importing the whole framework.
   - Map, Sorted, Indexed, Blob, Tally storage
 - [gcp-spanner](datarouter-spanner/README.md)
   - Map, Sorted, Indexed, Blob, Tally storage
-- [hbase](datarouter-hbase/README.md)
-  - Map, Sorted storage
-- [gcp-bigtable-hbase](datarouter-gcp-bigtable-hbase/README.md)
+- [gcp-bigtable](datarouter-gcp-bigtable/README.md)
   - Map, Sorted storage
 #### Caches
 - [memcached](datarouter-memcached/README.md)

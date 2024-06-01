@@ -21,7 +21,7 @@
 
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-metadata-parent</artifactId>
-	<version>0.0.124</version>
+	<version>0.0.125</version>
 	<packaging>pom</packaging>
 
 	<name>datarouter-metadata-parent</name>
@@ -65,7 +65,7 @@
 			<organizationUrl>https://hotpads.com</organizationUrl>
 		</developer>
 		<developer>
-			<name>Cameron Palk</name>
+			<name>Cameron Aufderheide-Palk</name>
 			<email>cameronp@hotpads.com</email>
 			<organization>HotPads</organization>
 			<organizationUrl>https://hotpads.com</organizationUrl>

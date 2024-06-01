@@ -72,7 +72,7 @@ public class SqsMonitoringJob extends BaseJob{
 						try{
 							getQueueLengthAndSaveAsMetric(queueUrlAndName, clientId);
 						}catch(RuntimeException e){
-							logger.warn("failed to get attribute for queue=" + queueUrlAndName.queueName(), e);
+							logger.warn("failed to get attribute for queue={}", queueUrlAndName.queueName(), e);
 						}
 					});
 

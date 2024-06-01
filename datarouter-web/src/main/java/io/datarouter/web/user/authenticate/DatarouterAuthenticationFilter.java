@@ -120,7 +120,7 @@ public class DatarouterAuthenticationFilter implements Filter{
 			return new URL(referrerString);
 		}catch(MalformedURLException e){
 			// some referrers (like android-app://com.google.android.gm) are not valid URL: don't fail, just log
-			logger.warn("invalid referer: {}", referrerString);
+			logger.info("invalid referer: {}", referrerString);
 			return null;
 		}
 	}
@@ -131,7 +131,7 @@ public class DatarouterAuthenticationFilter implements Filter{
 			return null;
 		}
 		if(Objects.equals(signinFormPath, targetUrl.getPath())){
-			logger.warn("ignoring targetUrl " + targetUrl.getPath());
+			logger.warn("ignoring targetUrl {}", targetUrl.getPath());
 			return null;
 		}
 		return targetUrl;

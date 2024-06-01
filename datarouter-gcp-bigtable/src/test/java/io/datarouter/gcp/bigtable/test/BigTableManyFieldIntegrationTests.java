@@ -20,17 +20,17 @@ import java.util.Optional;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Guice;
 
-import io.datarouter.gcp.bigtable.config.DatarouterBigTableTestNgModuleFactory;
+import io.datarouter.gcp.bigtable.config.DatarouterBigtableTestNgModuleFactory;
 import io.datarouter.storage.test.node.basic.manyfield.BaseManyFieldIntegrationTests;
 import io.datarouter.storage.test.node.basic.manyfield.ManyFieldBean.ManyFieldTypeBeanFielder;
 
-@Guice(moduleFactory = DatarouterBigTableTestNgModuleFactory.class)
-public class BigTableManyFieldIntegrationTests extends BaseManyFieldIntegrationTests{
+@Guice(moduleFactory = DatarouterBigtableTestNgModuleFactory.class)
+public class BigtableManyFieldIntegrationTests extends BaseManyFieldIntegrationTests{
 
 	@BeforeClass
 	public void beforeClass(){
 		setup(
-				DatarouterBigTableTestClientIds.BIG_TABLE,
+				DatarouterBigtableTestClientIds.BIG_TABLE,
 				ManyFieldTypeBeanFielder::new,
 				Optional.of("ManyFieldTestBigtableNative"));
 	}

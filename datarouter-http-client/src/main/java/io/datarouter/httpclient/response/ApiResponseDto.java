@@ -165,6 +165,10 @@ public class ApiResponseDto<T> implements DocumentedGenericHolder{
 		return error(message, null, HttpStatus.SC_NOT_FOUND);
 	}
 
+	public static <T> ApiResponseDto<T> methodNotAllowedError(String message){
+		return error(message, null, HttpStatus.SC_METHOD_NOT_ALLOWED);
+	}
+
 	public static <T> ApiResponseDto<T> forbidden(String message){
 		return error(message, null, HttpStatus.SC_FORBIDDEN);
 	}

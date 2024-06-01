@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import io.datarouter.aws.s3.DatarouterS3Client;
 import io.datarouter.aws.s3.S3Limits;
 import io.datarouter.bytes.ByteLength;
+import io.datarouter.storage.blob.DatarouterBlobVacuumResult;
 import io.datarouter.storage.file.BucketAndKey;
 import io.datarouter.storage.file.BucketAndKeys;
 import io.datarouter.storage.file.BucketAndPrefix;
@@ -48,7 +49,7 @@ public class DatarouterS3Vacuum{
 		this.logEachObject = logEachObject;
 	}
 
-	public DatarouterS3VacuumResult vacuum(){
+	public DatarouterBlobVacuumResult vacuum(){
 		var numObjectsConsidered = new AtomicLong();
 		var numObjectsDeleted = new AtomicLong();
 		var numBytesConsidered = new AtomicLong();
@@ -73,11 +74,13 @@ public class DatarouterS3Vacuum{
 					numObjectsDeleted.incrementAndGet();
 					numBytesDeleted.addAndGet(s3Object.size());
 				})
-				.map(s3Object -> new BucketAndKey(bucketAndPrefix.bucket(), s3Object.key()))
+				.map(s3Object -> BucketAndKey.withoutBlobStorageCompatibilityValidation(
+						bucketAndPrefix.bucket(),
+						s3Object.key()))
 				.batch(S3Limits.MAX_DELETE_MULTI_KEYS)
 				.map(BucketAndKeys::fromIndividualKeys)
 				.forEach(s3Client::deleteMulti);
-		return new DatarouterS3VacuumResult(
+		return new DatarouterBlobVacuumResult(
 				bucketAndPrefix,
 				cutOffTime,
 				numObjectsConsidered.get(),

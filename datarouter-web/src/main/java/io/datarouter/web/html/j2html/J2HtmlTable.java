@@ -118,6 +118,7 @@ public class J2HtmlTable<T>{
 		private final T value;
 		private final List<String> styles;
 		private final List<String> classes;
+		private Function<TrTag,DomContent> trModifier = tr -> tr;
 
 		public J2HtmlTableRow(T value){
 			this.value = value;
@@ -132,6 +133,11 @@ public class J2HtmlTable<T>{
 
 		public J2HtmlTableRow<T> withClasses(String... classes){
 			this.classes.addAll(Arrays.asList(classes));
+			return this;
+		}
+
+		public J2HtmlTableRow<T> withTrModifier(Function<TrTag,DomContent> trModifier){
+			this.trModifier = trModifier;
 			return this;
 		}
 
@@ -160,10 +166,10 @@ public class J2HtmlTable<T>{
 				.with(tbody);
 	}
 
-	private TrTag makeTr(J2HtmlTableRow<T> row){
-		return tr(makeTds(row.value))
+	private DomContent makeTr(J2HtmlTableRow<T> row){
+		return row.trModifier.apply(tr(makeTds(row.value))
 				.withCondStyle(!row.styles.isEmpty(), String.join(";", row.styles))
-				.withCondClass(!row.classes.isEmpty(), String.join(" ", row.classes));
+				.withCondClass(!row.classes.isEmpty(), String.join(" ", row.classes)));
 	}
 
 	private DomContent makeTds(T value){

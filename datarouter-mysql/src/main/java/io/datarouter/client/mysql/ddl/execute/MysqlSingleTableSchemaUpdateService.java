@@ -105,8 +105,15 @@ public class MysqlSingleTableSchemaUpdateService{
 							managedNode -> managedNode.getIndexEntryFieldInfo().getFields()));
 		}
 
-		SqlTable requested = fieldSqlTableGenerator.generate(tableName, primaryKeyFields,
-				nonKeyFields, collation, characterSet, rowFormat, indexes, uniqueIndexes);
+		SqlTable requested = fieldSqlTableGenerator.generate(
+				tableName,
+				primaryKeyFields,
+				nonKeyFields,
+				collation,
+				characterSet,
+				rowFormat,
+				indexes,
+				uniqueIndexes);
 		boolean exists = existingTableNames.get().contains(tableName);
 		if(!exists){
 			String createDdl = sqlCreateTableGenerator.generateDdl(requested, schemaName);
@@ -138,27 +145,27 @@ public class MysqlSingleTableSchemaUpdateService{
 				.new SqlAlterTableGenerator(executeCurrent, requested, mysqlOptions.hostname(clientId), schemaName);
 		//execute the alter table
 		Ddl ddl = executeAlterTableGenerator.generateDdl();
-		if(ddl.executeStatement.isPresent()){
+		if(ddl.executeStatement().isPresent()){
 			PhaseTimer alterTableTimer = new PhaseTimer();
 			logger.info(SchemaUpdateTool.generateFullWidthMessage("Executing " + getClass().getSimpleName()
 					+ " SchemaUpdate"));
-			logger.info(ddl.executeStatement.get());
-			MysqlTool.execute(connectionPool, ddl.executeStatement.get());
+			logger.info(ddl.executeStatement().get());
+			MysqlTool.execute(connectionPool, ddl.executeStatement().get());
 			alterTableTimer.add("Completed SchemaUpdate for " + tableName);
 			logger.info(SchemaUpdateTool.generateFullWidthMessage(alterTableTimer.getElapsedString()));
 		}
 
 
-		if(ddl.printStatement.isEmpty()){
+		if(ddl.printStatement().isEmpty()){
 			return Optional.empty();
 		}
-		SchemaUpdateTool.printSchemaUpdate(logger, ddl.printStatement.get());
+		SchemaUpdateTool.printSchemaUpdate(logger, ddl.printStatement().get());
 
 		String errorMessage = null;
-		if(ddl.preventStartUp){
+		if(ddl.preventStartUp()){
 			errorMessage = "an alter on " + tableName + " is required";
 		}
-		return Optional.of(new SchemaUpdateResult(ddl.printStatement.get(), errorMessage, clientId));
+		return Optional.of(new SchemaUpdateResult(ddl.printStatement().get(), errorMessage, clientId));
 	}
 
 }

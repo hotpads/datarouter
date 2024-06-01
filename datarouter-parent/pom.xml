@@ -22,7 +22,7 @@
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-metadata-parent</artifactId>
-		<version>0.0.124</version>
+		<version>0.0.125</version>
 		<relativePath>../datarouter-metadata-parent</relativePath>
 	</parent>
 
@@ -34,20 +34,21 @@
 
 	<properties>
 		<!-- libraries -->
-		<aws-sdk-version>1.12.667</aws-sdk-version>
+		<aws-sdk-version>1.12.731</aws-sdk-version>
 		<ben-manes-caffeine-version>3.1.8</ben-manes-caffeine-version>
-		<codehaus-plexus-version>2.13.0</codehaus-plexus-version>
+		<codehaus-plexus-version>2.15.0</codehaus-plexus-version>
 		<commons-codec-version>1.15</commons-codec-version>
 		<commons-io-version>2.15.1</commons-io-version>
-		<datarouter-version>0.0.124</datarouter-version>
+		<datarouter-version>0.0.125</datarouter-version>
 		<guice-version>6.0.0</guice-version>
 		<guava-version>31.1-jre</guava-version>
 		<httpclient-version>4.5.14</httpclient-version>
 		<jakarta-inject-version>2.0.1</jakarta-inject-version>
-		<log4j-version>2.17.1</log4j-version>
+		<log4j-version>2.23.1</log4j-version>
 		<mockito-core-version>5.10.0</mockito-core-version>
-		<slf4j-version>1.7.33</slf4j-version>
-		<testng-version>7.9.0</testng-version>
+		<mockito-testng-version>0.5.2</mockito-testng-version>
+		<slf4j-version>1.7.36</slf4j-version>
+		<testng-version>7.10.2</testng-version>
 
 		<!-- plugins -->
 		<maven-jar-plugin-version>3.3.0</maven-jar-plugin-version>
@@ -57,14 +58,14 @@
 
 		<!-- other -->
 		<!-- upgrade scripts when bumping this version -->
-		<eclipse-compiler-version>3.36.0</eclipse-compiler-version>
-		
+		<eclipse-compiler-version>3.37.0</eclipse-compiler-version>
+
 		<!--
 		set to false to skip packing and installing app (like wars and uber jars)
 		it doesn't affect the packaging/installing of libraries
-		
+
 		this is implemented through a antrun execution and the skipPackaging property
-		
+
 		as a maven property, it can be set though command line (-DpackageApps=false) or profiles
 		-->
 		<packageApps>true</packageApps>
@@ -75,14 +76,14 @@
 			<dependency>
 				<groupId>com.google.cloud</groupId>
 				<artifactId>libraries-bom</artifactId>
-				<version>26.27.0</version>
+				<version>26.39.0</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
 			<dependency>
 				<groupId>software.amazon.awssdk</groupId>
 				<artifactId>bom</artifactId>
-				<version>2.24.11</version>
+				<version>2.25.61</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -194,7 +195,7 @@
 					<dependency>
 						<groupId>com.puppycrawl.tools</groupId>
 						<artifactId>checkstyle</artifactId>
-						<version>10.13.0</version>
+						<version>10.17.0</version>
 					</dependency>
 					<dependency>
 						<groupId>io.datarouter</groupId>
@@ -219,7 +220,7 @@
 							<configuration>
 								<rules>
 									<requireMavenVersion>
-										<version>3.6.0</version>
+										<version>3.9.6</version>
 									</requireMavenVersion>
 								</rules>
 							</configuration>

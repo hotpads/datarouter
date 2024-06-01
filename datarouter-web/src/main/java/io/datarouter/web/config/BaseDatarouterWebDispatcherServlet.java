@@ -46,7 +46,9 @@ public class BaseDatarouterWebDispatcherServlet extends DispatcherServlet{
 
 	@Override
 	public void registerRouteSets(){
-		Scanner.of(routeSetClasses).map(injector::getInstance).forEach(this::register);
+		Scanner.of(routeSetClasses)
+				.map(injector::getInstance)
+				.forEach(this::register);
 		routeSets.forEach(this::register);
 	}
 

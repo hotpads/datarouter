@@ -47,7 +47,7 @@ public class DatarouterHttpClientMetrics extends BaseMetricRoot{
 	}
 
 	public static void durationMs(String name, long durationMs){
-		ROOT.name(name).durationMs.gauge(durationMs);
+		ROOT.name(name).durationMs.measureWithPercentiles(durationMs);
 	}
 
 	public static DatarouterHttpNamedClientMetrics clientName(String clientName){

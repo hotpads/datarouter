@@ -98,7 +98,7 @@ public class GcpPubsubQueueMetricMonitoringJob extends BaseJob{
 			saveOldestAckMessageAge(metricDto);
 			timer.add("saveGaugeOldestUnackMessageAge");
 		}
-		logger.info("{}", timer);
+		logger.warn("{}", timer);
 	}
 
 	private void saveOldestAckMessageAge(GcpPubsubMetricDto metricDto){

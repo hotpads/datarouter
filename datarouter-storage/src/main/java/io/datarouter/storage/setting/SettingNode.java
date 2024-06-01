@@ -58,7 +58,7 @@ public abstract class SettingNode{
 
 	// "a.b.c." -> "a.b."
 	public static String findParentName(String name){
-		Require.isTrue(name.endsWith("."), "invalid name " + name);
+		Require.isTrue(name.endsWith("."), "setting invalid name '" + name + "', requires end with '.'");
 		name = name.substring(0, name.lastIndexOf("."));
 		if(!name.contains(".")){
 			return "";

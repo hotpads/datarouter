@@ -33,6 +33,9 @@ import jakarta.inject.Inject;
 @Guice(moduleFactory = DatarouterMysqlTestNgModuleFactory.class)
 public class PhysicalNodeNameTests{
 
+	private static final String NAME = DatarouterMysqlTestClientids.MYSQL.getName()
+			+ "." + MapStorageBean.class.getSimpleName();
+
 	@SuppressWarnings("unused") // for tests
 	@Inject
 	private Datarouter datarouter;
@@ -40,7 +43,7 @@ public class PhysicalNodeNameTests{
 	private NodeFactory nodeFactory;
 
 	/**
-	 * Datarouter's nodeName wasn't orignally meant to be persisted.
+	 * Datarouter's nodeName wasn't originally meant to be persisted.
 	 * But now many things use it for building links or even persist it in a database.
 	 * This test is meant to catch a change in the nodeName logic for PhysicalNode.
 	 * Other node types like virtual nodes have more complicated name-building logic, but they're not covered here.
@@ -54,7 +57,7 @@ public class PhysicalNodeNameTests{
 				MapStorageBean::new,
 				MapStorageBeanFielder::new)
 				.buildAndRegister();
-		Assert.assertEquals(node.getName(), "drTestMysql0.MapStorageBean");
+		Assert.assertEquals(node.getName(), NAME);
 	}
 
 }

@@ -40,6 +40,8 @@ public class DatarouterJobletPaths extends PathNode implements PathsRoot{
 		public final PathNode running = leaf("running");
 		public final PathNode threadCounts = leaf("threadCounts");
 		public final PathNode timeoutStuckRunning = leaf("timeoutStuckRunning");
+		public final PathNode deleteFailedJobletsByIds = leaf("deleteFailedJobletsByIds");
+		public final PathNode restartFailedJobletsByIds = leaf("restartFailedJobletsByIds");
 	}
 
 }

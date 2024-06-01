@@ -136,7 +136,7 @@ extends BaseScanner<List<T>>{
 
 	private void warnIfCaseInsensitive(Collection<Range<PK>> ranges, boolean caseInsensitive){
 		if(ranges.size() > 1 && caseInsensitive){
-			logger.warn("scan multi on case insensitive table " + ranges.stream()
+			logger.warn("scan multi on case insensitive table {}", ranges.stream()
 					.filter(Range::hasStart)
 					.map(Range::getStart)
 					.map(PK::getClass)

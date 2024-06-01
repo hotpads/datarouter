@@ -20,6 +20,7 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.bytes.ByteTool;
 import io.datarouter.bytes.blockfile.block.decoded.BlockfileIndexBlock;
 import io.datarouter.bytes.blockfile.block.parsed.BlockfileDecodedBlock;
 import io.datarouter.bytes.blockfile.block.parsed.BlockfileDecodedBlockBatch;
@@ -63,6 +64,14 @@ public class BlockfileRowKeyRangeReader<T>{
 			return from.isEmpty() && to.isEmpty();
 		}
 
+		public BlockfileKeyRange toInclusiveExclusive(){
+			return new BlockfileKeyRange(
+					from.map(fromBytes -> fromInclusive ? fromBytes : ByteTool.unsignedIncrement(fromBytes)),
+					true,
+					to.map(toBytes -> toInclusive ? ByteTool.unsignedIncrement(toBytes) : toBytes),
+					false);
+		}
+
 		public boolean contains(BlockfileRow row){
 			boolean firstMatch = from.isEmpty();
 			if(from.isPresent()){
@@ -86,13 +95,19 @@ public class BlockfileRowKeyRangeReader<T>{
 		BlockfileIndexEntry firstIndexEntry = null;
 		BlockfileIndexEntry lastIndexEntry = null;
 		while(true){
-			int firstIndexEntryIndex = range.from().isEmpty()
-					? 0
-					: indexBlockCodec.rangeStartIndex(firstIndexBlock, range.from().orElseThrow());
+			int firstIndexEntryIndex = 0;
+			if(range.from().isPresent()){
+				firstIndexEntryIndex = indexBlockCodec.rangeStartIndex(
+						firstIndexBlock,
+						range.from().orElseThrow());
+			}
 			firstIndexEntry = indexBlockCodec.decodeChild(lastIndexBlock, firstIndexEntryIndex);
-			int lastIndexEntryIndex = range.to().isEmpty()
-					? lastIndexBlock.numChildren() - 1
-					: indexBlockCodec.rangeEndIndex(lastIndexBlock, range.to().orElseThrow());
+			int lastIndexEntryIndex = lastIndexBlock.numChildren() - 1;
+			if(range.to().isPresent()){
+				lastIndexEntryIndex = indexBlockCodec.rangeEndIndex(
+						lastIndexBlock,
+						range.to().orElseThrow());
+			}
 			lastIndexEntry = indexBlockCodec.decodeChild(lastIndexBlock, lastIndexEntryIndex);
 			if(level == 0){
 				break;
@@ -109,11 +124,12 @@ public class BlockfileRowKeyRangeReader<T>{
 	}
 
 	public Scanner<T> scanRange(BlockfileKeyRange keyRange){
-		BlockfileIndexEntryRange indexEntryRange = indexEntryRange(keyRange);
-		return sequentialReader.scanParsedValueBlocks(indexEntryRange, keyRange)
+		BlockfileKeyRange inclusiveExclusiveRange = keyRange.toInclusiveExclusive();
+		BlockfileIndexEntryRange indexEntryRange = indexEntryRange(inclusiveExclusiveRange);
+		return sequentialReader.scanParsedValueBlocks(indexEntryRange, inclusiveExclusiveRange)
 				.batch(reader.config().decodeBatchSize())
 				.parallelOrdered(reader.config().decodeThreads())
-				.map(block -> reader.valueBlockDecoder().decompressAndDecodeValueBlocks(block, keyRange))
+				.map(block -> reader.valueBlockDecoder().decompressAndDecodeValueBlocks(block, inclusiveExclusiveRange))
 				.concatIter(BlockfileDecodedBlockBatch::blocks)
 				.concatIter(BlockfileDecodedBlock::items);
 	}

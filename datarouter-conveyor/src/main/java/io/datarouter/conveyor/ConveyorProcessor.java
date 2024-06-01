@@ -85,7 +85,7 @@ public class ConveyorProcessor{
 		while(true){
 			try{
 				if(Thread.interrupted()){
-					logger.warn("conveyor thread shutting down for name=" + conveyorPackage.name());
+					logger.warn("conveyor thread shutting down for name={}", conveyorPackage.name());
 					return;
 				}
 				Supplier<Boolean> shouldRun = shouldRunSettings.getSettingForConveyorPackage(conveyorPackage);

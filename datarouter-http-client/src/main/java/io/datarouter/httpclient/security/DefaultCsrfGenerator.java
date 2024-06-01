@@ -54,10 +54,13 @@ public class DefaultCsrfGenerator implements CsrfGenerator{
 
 	@Override
 	public String generateCsrfToken(String cipherIv){
+		return generateCsrfToken(cipherIv, System.currentTimeMillis());
+	}
+
+	public String generateCsrfToken(String cipherIv, long timeMs){
 		try{
 			Cipher aes = getCipher(Cipher.ENCRYPT_MODE, cipherIv);
-			return Base64.getEncoder().encodeToString(aes.doFinal(String.valueOf(System.currentTimeMillis())
-					.getBytes()));
+			return Base64.getEncoder().encodeToString(aes.doFinal(String.valueOf(timeMs).getBytes()));
 		}catch(Exception e){
 			throw new RuntimeException(e);
 		}

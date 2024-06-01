@@ -59,8 +59,8 @@ public class DatarouterSessionAuthenticator implements DatarouterAuthenticator{
 		//verify session's userToken matches cookie userToken.  if not, delete session to be safe
 		String cookieUserToken = sessionManager.getUserTokenFromCookie(request);
 		if(ObjectTool.notEquals(cookieUserToken, session.getUserToken())){
-			logger.warn("session userToken " + session.getUserToken() + " != cookie userToken " + cookieUserToken
-					+ ", deleting session");
+			logger.warn("session userToken {} != cookie userToken {}, deleting session", session.getUserToken(),
+					cookieUserToken);
 			datarouterSessionDao.delete(session.getKey());
 			sessionManager.clearSessionTokenCookie(response);
 			sessionManager.clearUserTokenCookie(response);

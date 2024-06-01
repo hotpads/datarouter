@@ -70,7 +70,7 @@ public class DatarouterOpencensusTraceExporter extends Handler{
 					SpanData bindingSpan = bindingSpans.get(findBindingSpan(spanData.getContext().getSpanId(),
 							parents));
 					if(bindingSpan == null){
-						logger.info("No binding span for: " + spanData);
+						logger.info("No binding span for: {}", spanData);
 						return null;
 					}
 					Map<String,AttributeValue> attributes = bindingSpan.getAttributes().getAttributeMap();

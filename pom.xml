@@ -21,7 +21,7 @@
 
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-modules</artifactId>
-	<version>0.0.124</version>
+	<version>0.0.125</version>
 	<packaging>pom</packaging>
 
 	<modules>
@@ -47,11 +47,13 @@
 		<module>datarouter-exception</module>
 		<module>datarouter-filesystem</module>
 		<module>datarouter-gcp-bigtable</module>
-		<module>datarouter-gcp-bigtable-hbase</module>
+		<module>datarouter-gcp-gcs</module>
 		<module>datarouter-gcp-pubsub</module>
 		<module>datarouter-gcp-spanner</module>
+		<module>datarouter-git</module>
+		<module>datarouter-graphql-client-util</module>
+		<module>datarouter-graphql</module>
 		<module>datarouter-gson</module>
-		<module>datarouter-hbase</module>
 		<module>datarouter-http-client</module>
 		<module>datarouter-inject</module>
 		<module>datarouter-instrumentation</module>
@@ -80,6 +82,7 @@
 		<module>datarouter-service-config</module>
 		<module>datarouter-snapshot</module>
 		<module>datarouter-snapshot-manager</module>
+		<module>datarouter-ssh</module>
 		<module>datarouter-storage</module>
 		<module>datarouter-task-tracker</module>
 		<module>datarouter-testng</module>

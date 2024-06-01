@@ -15,28 +15,40 @@
  */
 package io.datarouter.gcp.bigtable.test;
 
-import java.util.Optional;
-
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
-import io.datarouter.gcp.bigtable.config.DatarouterBigTableTestNgModuleFactory;
-import io.datarouter.storage.test.node.basic.sorted.BaseSortedNodeIntegrationTests;
+import io.datarouter.gcp.bigtable.config.DatarouterBigtableTestNgModuleFactory;
+import io.datarouter.storage.node.factory.NodeFactory;
+import io.datarouter.storage.node.op.combo.SortedMapStorage;
+import io.datarouter.storage.test.node.basic.sorted.BaseSortedNodeWriterIntegrationTests;
 import io.datarouter.storage.test.node.basic.sorted.SortedBean;
+import io.datarouter.storage.test.node.basic.sorted.SortedBean.SortedBeanFielder;
+import io.datarouter.storage.test.node.basic.sorted.SortedBeanEntityKey;
 import io.datarouter.storage.test.node.basic.sorted.SortedBeanKey;
+import jakarta.inject.Inject;
 
-@Guice(moduleFactory = DatarouterBigTableTestNgModuleFactory.class)
-public class BigTableSortedNodeIntegrationTests extends BaseSortedNodeIntegrationTests{
+@Guice(moduleFactory = DatarouterBigtableTestNgModuleFactory.class)
+public class BigtableSortedNodeIntegrationTests extends BaseSortedNodeWriterIntegrationTests{
 
-	@BeforeClass
-	public void beforeClass(){
-		setup(DatarouterBigTableTestClientIds.BIG_TABLE, Optional.of("SortedBeanBigtableNative"));
+	@Inject
+	public BigtableSortedNodeIntegrationTests(NodeFactory nodeFactory){
+		super(makeNode(nodeFactory));
+		resetTable();
 	}
 
-	@Override
+	private static SortedMapStorage<SortedBeanKey,SortedBean> makeNode(NodeFactory nodeFactory){
+		return nodeFactory.create(
+				DatarouterBigtableTestClientIds.BIG_TABLE,
+				SortedBeanEntityKey::new,
+				SortedBean::new,
+				SortedBeanFielder::new)
+				.withTableName("SortedBeanBigtableNative")
+				.buildAndRegister();
+	}
+
 	@AfterClass
 	public void afterClass(){
 		postTestTests();
@@ -56,10 +68,10 @@ public class BigTableSortedNodeIntegrationTests extends BaseSortedNodeIntegratio
 		String endField = new String(endBytes);
 		SortedBeanKey pk = new SortedBeanKey(firstField, "bar", 3, endField);
 		SortedBean input = new SortedBean(pk, "f1", 2L, "f3", 4D);
-		dao.put(input);
-		SortedBean getOutput = dao.get(pk);
+		node.put(input);
+		SortedBean getOutput = readerNode.get(pk);
 		Assert.assertEquals(getOutput, input);
-		dao.delete(pk);
+		node.delete(pk);
 	}
 
 	@Test
@@ -68,10 +80,10 @@ public class BigTableSortedNodeIntegrationTests extends BaseSortedNodeIntegratio
 		String trailingString = "";
 		SortedBeanKey pk = new SortedBeanKey(firstField, "bar", 3, trailingString);
 		SortedBean input = new SortedBean(pk, "f1", 2L, "f3", 4D);
-		dao.put(input);
-		SortedBean getOutput = dao.get(pk);
+		node.put(input);
+		SortedBean getOutput = readerNode.get(pk);
 		Assert.assertEquals(getOutput, input);
-		dao.delete(pk);
+		node.delete(pk);
 	}
 
 }

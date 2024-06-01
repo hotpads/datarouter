@@ -9,7 +9,7 @@ A library to hold different types
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-types</artifactId>
-	<version>0.0.124</version>
+	<version>0.0.125</version>
 </dependency>
 ```
 

@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,6 +52,7 @@ public class JobletUpdateHandler extends BaseHandler{
 	private static final Logger logger = LoggerFactory.getLogger(JobletUpdateHandler.class);
 
 	public static final String PARAM_jobletType = "jobletType";
+	public static final String PARAM_jobletDataIds = "jobletDataIds";
 	public static final String PARAM_executionOrder = "executionOrder";
 	public static final String PARAM_status = "status";
 
@@ -68,6 +70,27 @@ public class JobletUpdateHandler extends BaseHandler{
 	private ChangelogRecorder changelogRecorder;
 	@Inject
 	private DatarouterJobletPaths paths;
+
+	@Handler
+	private Mav deleteFailedJobletsByIds(@Param(PARAM_jobletDataIds) Set<Long> jobletDataIds){
+		if(!jobletDataIds.isEmpty()){
+			List<JobletRequest> jobletRequests = jobletRequestDao.scanFailedJoblets()
+					.include(jobletRequest -> jobletDataIds.contains(jobletRequest.getJobletDataId())).list();
+			List<JobletRequestKey> jobletRequestKeys = jobletRequests.stream()
+					.map(JobletRequest::getKey)
+					.toList();
+				jobletRequestDao.deleteMulti(jobletRequestKeys);
+		}
+		return redirectToListWithMessage("");
+	}
+
+	@Handler
+	private Mav restartFailedJobletsByIds(@Param(PARAM_jobletDataIds) Set<Long> jobletDataIds){
+		if(!jobletDataIds.isEmpty()){
+			jobletService.restartJobletsByJobletDataIds(JobletStatus.FAILED, jobletDataIds);
+		}
+		return redirectToListWithMessage("");
+	}
 
 	@Handler
 	private Mav deleteGroup(

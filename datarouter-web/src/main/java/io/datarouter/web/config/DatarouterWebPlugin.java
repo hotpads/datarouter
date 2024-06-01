@@ -43,6 +43,8 @@ import io.datarouter.web.config.properties.DefaultEmailDistributionListZoneId;
 import io.datarouter.web.config.service.PrivateDomain;
 import io.datarouter.web.config.service.PublicDomain;
 import io.datarouter.web.digest.DailyDigestEmailZoneId;
+import io.datarouter.web.dispatcher.BackwardsCompatiblePayloadChecker;
+import io.datarouter.web.dispatcher.BackwardsCompatiblePayloadChecker.NoOpBackwardsCompatiblePayloadChecker;
 import io.datarouter.web.dispatcher.DatarouterWebDocsRouteSet;
 import io.datarouter.web.dispatcher.DatarouterWebRouteSet;
 import io.datarouter.web.dispatcher.FilterParamGrouping;
@@ -53,7 +55,6 @@ import io.datarouter.web.exception.ExceptionLinkBuilder;
 import io.datarouter.web.exception.ExceptionRecorder;
 import io.datarouter.web.filter.GuiceStaticFileFilter;
 import io.datarouter.web.filter.https.HttpsFilter;
-import io.datarouter.web.filter.payloadsampling.GuicePayloadSamplingFilter;
 import io.datarouter.web.filter.requestcaching.GuiceRequestCachingFilter;
 import io.datarouter.web.handler.UserAgentTypeConfig;
 import io.datarouter.web.handler.UserAgentTypeConfig.NoOpUserAgentTypeConfig;
@@ -86,9 +87,6 @@ import io.datarouter.web.navigation.ReadmeDocsNavBarItem;
 import io.datarouter.web.navigation.SystemDocsNavBarItem;
 import io.datarouter.web.plugin.PluginRegistrySupplier;
 import io.datarouter.web.plugin.PluginRegistrySupplier.PluginRegistry;
-import io.datarouter.web.storage.payloadsampling.request.RequestPayloadSampleDao;
-import io.datarouter.web.storage.payloadsampling.request.RequestPayloadSampleDao.PayloadSamplingDaoParams;
-import io.datarouter.web.storage.payloadsampling.response.ResponsePayloadSampleDao;
 
 public class DatarouterWebPlugin extends BaseWebPlugin{
 
@@ -102,12 +100,6 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			false,
 			DatarouterServletGuiceModule.ROOT_PATH,
 			GuiceRequestCachingFilter.class,
-			FilterParamGrouping.DATAROUTER);
-
-	public static final FilterParams PAYLOAD_SAMPLING_FILTER_PARAMS = new FilterParams(
-			false,
-			DatarouterServletGuiceModule.ROOT_PATH,
-			GuicePayloadSamplingFilter.class,
 			FilterParamGrouping.DATAROUTER);
 
 	private static final DatarouterWebPaths PATHS = new DatarouterWebPaths();
@@ -235,7 +227,6 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 
 		addFilterParamsOrdered(staticFileFilterParams, null);
 		addFilterParamsOrdered(REQUEST_CACHING_FILTER_PARAMS, staticFileFilterParams);
-		addFilterParams(PAYLOAD_SAMPLING_FILTER_PARAMS);
 		addFilterParams(new FilterParams(false, BaseGuiceServletModule.ROOT_PATH, HttpsFilter.class,
 				FilterParamGrouping.DATAROUTER));
 
@@ -330,6 +321,9 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		bindActualInstance(PublicDomain.class, new PublicDomain(publicDomain));
 		bindActualInstance(PrivateDomain.class, new PrivateDomain(privateDomain));
 		bindActualInstance(ContextName.class, new ContextName(contextName));
+
+		// duplicate binding?
+		bindActual(BackwardsCompatiblePayloadChecker.class, NoOpBackwardsCompatiblePayloadChecker.class);
 	}
 
 	public List<Class<? extends DatarouterAppListener>> getFinalAppListeners(){
@@ -349,27 +343,20 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 	public static class DatarouterWebDaoModule extends DaosModuleBuilder{
 
 		private final List<ClientId> datarouterSessionClientId;
-		private final List<ClientId> payloadSamplingCliendId;
 
-		public DatarouterWebDaoModule(List<ClientId> datarouterSessionClientId,
-				List<ClientId> payloadSamplingCliendId){
+		public DatarouterWebDaoModule(List<ClientId> datarouterSessionClientId){
 			this.datarouterSessionClientId = datarouterSessionClientId;
-			this.payloadSamplingCliendId = payloadSamplingCliendId;
 		}
 
 		@Override
 		public List<Class<? extends Dao>> getDaoClasses(){
-			return List.of(DatarouterSessionDao.class,
-					RequestPayloadSampleDao.class,
-					ResponsePayloadSampleDao.class);
+			return List.of(DatarouterSessionDao.class);
 		}
 
 		@Override
 		public void configure(){
 			bind(DatarouterSessionDaoParams.class)
 					.toInstance(new DatarouterSessionDaoParams(datarouterSessionClientId));
-			bind(PayloadSamplingDaoParams.class)
-					.toInstance(new PayloadSamplingDaoParams(payloadSamplingCliendId));
 		}
 
 	}
@@ -542,7 +529,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 
 		public DatarouterWebPlugin getSimplePluginData(){
 			return new DatarouterWebPlugin(
-					new DatarouterWebDaoModule(defaultClientIds, defaultClientIds),
+					new DatarouterWebDaoModule(defaultClientIds),
 					homepageRouteSet,
 					customStaticFileFilterRegex);
 		}
@@ -550,7 +537,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		public DatarouterWebPlugin build(){
 
 			return new DatarouterWebPlugin(
-					new DatarouterWebDaoModule(defaultClientIds, defaultClientIds),
+					new DatarouterWebDaoModule(defaultClientIds),
 					homepageRouteSet,
 					customStaticFileFilterRegex,
 

@@ -30,6 +30,29 @@ public class DatarouterRateLimiterConfig{
 	public final Duration expiration;
 
 	/**
+	 * Ratelimiters track counts starting the top of the day and time interval.
+	 * If we have 3 rate limiters with configurations:
+	 * <ul>
+	 * <li>timeUnit = seconds and bucketInterval = 10</li>
+	 * <li>timeUnit = hours   and bucketInterval = 6</li>
+	 * <li>timeUnit = minutes and bucketInterval = 4</li>
+	 * </ul>
+	 * And we check for an allow at instant 2009-06-06 11:11:11.123 they will be distributed to the following buckets:
+	 * <ul>
+	 * <li>=> 2009-06-06T11:11:10Z when timeUnit = seconds and bucketInterval = 10</li>
+	 * <li>=> 2009-06-06T06:00:00Z when timeUnit = hours   and bucketInterval = 6</li>
+	 * <li>=> 2009-06-06T11:08:00Z when timeUnit = minutes and bucketInterval = 4</li>
+	 * </ul>
+	 * <p>
+	 * The fist limit that is checked is <b>maxSpikeRequests</b> for the current bucket.
+	 * The second limit that is check is <b>maxAverageRequests</b> which is the average counts across
+	 * <b>numIntervals</b>. For the case where <b>numIntervals</b> == 1, the minimum values between
+	 *  <b>maxSpikeRequests</b> and <b>maxAverageRequests</b> will trigger the limit.
+	 *</p>
+	 *<p>
+	 *  For <b>numIntervals</b> == 1 it is recommended that <b>maxSpikeRequests</b> and <b>maxAverageRequests</b>
+	 *   have the same value.
+	 * </p>
 	 * @param name name of the ratelimiter
 	 * @param maxAverageRequests threshold average number of requests
 	 * @param maxSpikeRequests threshold max number of requests

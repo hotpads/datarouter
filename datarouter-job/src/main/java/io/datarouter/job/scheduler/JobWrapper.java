@@ -292,7 +292,7 @@ public class JobWrapper implements Callable<Void>{
 			jobCompletionLog += " missed next trigger";
 		}
 		if(ComparableTool.gt(elapsedTime, Duration.ofHours(3))){
-			logger.warn("long-running job " + jobCompletionLog);
+			logger.warn("long-running job {}", jobCompletionLog);
 		}else if(ComparableTool.gt(elapsedTime, Duration.ofMillis(500))){
 			logger.warn(jobCompletionLog);
 		}else{

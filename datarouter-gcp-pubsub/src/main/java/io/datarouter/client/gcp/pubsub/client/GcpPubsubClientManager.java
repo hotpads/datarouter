@@ -182,7 +182,7 @@ public class GcpPubsubClientManager extends BaseClientManager{
 		}catch(ApiException e){
 			if(e.getStatusCode().getCode() == StatusCode.Code.NOT_FOUND){
 				topicAdminClient.createTopic(topicName);
-				logger.warn("Created topic=" + topicName.toString());
+				logger.warn("Created topic={}", topicName.toString());
 			}else{
 				throw e;
 			}
@@ -206,7 +206,7 @@ public class GcpPubsubClientManager extends BaseClientManager{
 						topicName,
 						PushConfig.getDefaultInstance(),
 						Math.toIntExact(ACKNOWLEDGEMENT_DEADLINE.toSeconds()));
-				logger.warn("Created subscription=" + subscription.getName());
+				logger.warn("Created subscription={}", subscription.getName());
 			}else{
 				throw e;
 			}

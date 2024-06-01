@@ -87,6 +87,18 @@ public class JobletLocalLinkBuilder{
 				.toString();
 	}
 
+	public String deleteFailedJobletsByIds(String contextPath){
+		return new URIBuilder()
+				.setPath(contextPath + paths.datarouter.joblets.deleteFailedJobletsByIds.toSlashedString())
+				.toString();
+	}
+
+	public String restartFailedJobletsByIds(String contextPath){
+		return new URIBuilder()
+				.setPath(contextPath + paths.datarouter.joblets.restartFailedJobletsByIds.toSlashedString())
+				.toString();
+	}
+
 	public String kill(String contextPath, String id){
 		return new URIBuilder()
 				.setPath(contextPath + paths.datarouter.joblets.kill.toSlashedString())

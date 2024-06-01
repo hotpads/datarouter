@@ -30,12 +30,10 @@ import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
 import io.datarouter.tasktracker.config.DatarouterTaskTrackerPaths;
 import io.datarouter.tasktracker.storage.LongRunningTask;
 import io.datarouter.tasktracker.storage.LongRunningTaskDao;
-import io.datarouter.tasktracker.web.TaskTrackerExceptionLink;
-import io.datarouter.web.config.ServletContextSupplier;
-import io.datarouter.web.config.service.DomainFinder;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
 import io.datarouter.web.digest.DailyDigestService;
+import io.datarouter.web.exception.ExceptionLinkBuilder;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.TableTag;
@@ -48,17 +46,13 @@ public class LongRunningTaskDailyDigest implements DailyDigest{
 	@Inject
 	private LongRunningTaskDao longRunningTaskDao;
 	@Inject
-	private TaskTrackerExceptionLink exceptionLink;
-	@Inject
 	private DatarouterHtmlEmailService emailService;
 	@Inject
 	private DatarouterTaskTrackerPaths paths;
 	@Inject
-	private ServletContextSupplier contextSupplier;
-	@Inject
 	private DailyDigestService digestService;
 	@Inject
-	private DomainFinder domainFinder;
+	private ExceptionLinkBuilder exceptionLinkBuilder;
 
 	@Override
 	public Optional<DivTag> getEmailContent(ZoneId zoneId){
@@ -114,8 +108,7 @@ public class LongRunningTaskDailyDigest implements DailyDigest{
 	}
 
 	private ATag makeExceptionLink(String exceptionRecordId){
-		String href = "https://" + domainFinder.getDomainPreferPublic() + contextSupplier.get().getContextPath()
-				+ exceptionLink.buildExceptionDetailLink(exceptionRecordId);
+		String href = exceptionLinkBuilder.exception(exceptionRecordId).orElseThrow();
 		return a(exceptionRecordId)
 				.withHref(href);
 	}

@@ -46,6 +46,8 @@ import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.web.config.properties.DefaultEmailDistributionListZoneId;
 import io.datarouter.web.config.service.PrivateDomain;
 import io.datarouter.web.config.service.PublicDomain;
+import io.datarouter.web.dispatcher.BackwardsCompatiblePayloadChecker;
+import io.datarouter.web.dispatcher.BackwardsCompatiblePayloadChecker.NoOpBackwardsCompatiblePayloadChecker;
 import io.datarouter.web.exception.ExceptionLinkBuilder;
 import io.datarouter.web.exception.ExceptionLinkBuilder.NoOpExceptionLinkBuilder;
 import io.datarouter.web.exception.ExceptionRecorder;
@@ -108,6 +110,8 @@ public class DatarouterWebGuiceModule extends BaseGuiceServletModule{
 				new DefaultEmailDistributionListZoneId(ZoneId.systemDefault()));
 
 		bindDefault(HandlerAccountCallerValidator.class, NoOpHandlerAccountCallerValidator.class);
+
+		bindDefault(BackwardsCompatiblePayloadChecker.class, NoOpBackwardsCompatiblePayloadChecker.class);
 	}
 
 	// allows this module to be installed multiple times

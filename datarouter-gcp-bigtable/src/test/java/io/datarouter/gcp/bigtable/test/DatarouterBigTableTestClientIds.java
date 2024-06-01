@@ -17,7 +17,7 @@ package io.datarouter.gcp.bigtable.test;
 
 import io.datarouter.storage.client.ClientId;
 
-public class DatarouterBigTableTestClientIds{
+public class DatarouterBigtableTestClientIds{
 
 	public static final ClientId BIG_TABLE = ClientId.writer("drTestBigtable", true);
 

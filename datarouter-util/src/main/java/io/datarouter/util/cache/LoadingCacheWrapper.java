@@ -41,4 +41,7 @@ public abstract class LoadingCacheWrapper<K,V>{
 		return cache.contains(key);
 	}
 
+	public void invalidate(){
+		cache.invalidate();
+	}
 }

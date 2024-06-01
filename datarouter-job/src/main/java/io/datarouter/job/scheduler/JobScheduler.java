@@ -130,7 +130,7 @@ public class JobScheduler{
 		Instant now = Instant.now();
 		Optional<Date> nextValidTimeAfter = jobPackage.getNextValidTimeAfter(Date.from(now));
 		if(nextValidTimeAfter.isEmpty()){
-			logger.warn("couldn't schedule " + getClass() + " because no trigger defined");
+			logger.warn("couldn't schedule {} because no trigger defined", getClass());
 			return;
 		}
 		Instant nextTriggerTime = nextValidTimeAfter.get().toInstant();

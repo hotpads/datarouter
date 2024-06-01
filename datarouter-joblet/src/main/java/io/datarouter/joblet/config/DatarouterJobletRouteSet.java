@@ -45,6 +45,8 @@ public class DatarouterJobletRouteSet extends BaseRouteSet{
 		handle(paths.datarouter.joblets.running).withHandler(RunningJobletsHandler.class);
 		handle(paths.datarouter.joblets.threadCounts).withHandler(JobletThreadCountHandler.class);
 		handle(paths.datarouter.joblets.timeoutStuckRunning).withHandler(JobletUpdateHandler.class);
+		handle(paths.datarouter.joblets.deleteFailedJobletsByIds).withHandler(JobletUpdateHandler.class);
+		handle(paths.datarouter.joblets.restartFailedJobletsByIds).withHandler(JobletUpdateHandler.class);
 	}
 
 	@Override

@@ -148,6 +148,10 @@ public class LoadingCache<K,V>{
 		return containsSynchronized(key);
 	}
 
+	public synchronized void invalidate(){
+		map.clear();
+	}
+
 	private synchronized boolean containsSynchronized(K key){
 		Objects.requireNonNull(key, "Key may not be null in LoadingCache");
 		return getIfNotExpired(key) != null;

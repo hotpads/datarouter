@@ -137,8 +137,8 @@ public class SecretOp<I,CI,CO,O>{
 						.map(opAttempt -> opAttempt.secretClientConfig)
 						.map(SecretClientSupplierConfig::getConfigName)
 						.collect(Collectors.joining(","));
-				logger.warn("Secret op succeeded after multiple attempts. attemptedSecretClientConfigs="
-						+ attemptedSecretClientConfigs);
+				logger.warn("Secret op succeeded after multiple attempts. attemptedSecretClientConfigs={}",
+						attemptedSecretClientConfigs);
 			}
 			return this;
 		}
@@ -209,7 +209,7 @@ public class SecretOp<I,CI,CO,O>{
 		if(opAttempt.isSuccess() || !config.shouldLog){
 			return;
 		}
-		logger.error(opAttempt.secretClientConfig.getConfigName() + " failed op", opAttempt.getException());
+		logger.error("{} failed op", opAttempt.secretClientConfig.getConfigName(), opAttempt.getException());
 	}
 
 	public static class SecretClientOpAttempt<T>{

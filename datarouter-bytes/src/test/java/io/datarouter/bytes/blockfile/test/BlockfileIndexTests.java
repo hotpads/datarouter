@@ -184,10 +184,9 @@ public class BlockfileIndexTests{
 	}
 
 	@Test
-	private void testSearchRowKeyRange(){
+	private void testSearchRowKeyRangeFirstBlock(){
 		BlockfileRowKeyRangeReader<TestDto> rangeReader = reader.rowKeyRange();
 
-		// Single block
 		BlockfileIndexEntryRange indexEntryRange0 = rangeReader.indexEntryRange(makeKeyRange(1, true, 3, true));
 		Assert.assertEquals(indexEntryRange0.first().childGlobalBlockId(), 1);
 		Assert.assertEquals(indexEntryRange0.first().childIndexOrValueBlockId(), 0);
@@ -202,8 +201,12 @@ public class BlockfileIndexTests{
 		Assert.assertEquals(
 				rangeReader.scanRange(makeKeyRange(1, true, 4, true)).list(),
 				List.of(makeDto(2), makeDto(4)));
+	}
 
-		// Multi block
+	@Test
+	private void testSearchRowKeyRangeMultiBlock(){
+		BlockfileRowKeyRangeReader<TestDto> rangeReader = reader.rowKeyRange();
+
 		BlockfileIndexEntryRange indexEntryRange1 = rangeReader.indexEntryRange(makeKeyRange(17, true, 22, true));
 		Assert.assertEquals(indexEntryRange1.first().childGlobalBlockId(), 1);
 		Assert.assertEquals(indexEntryRange1.first().childIndexOrValueBlockId(), 0);
@@ -211,8 +214,12 @@ public class BlockfileIndexTests{
 		Assert.assertEquals(
 				rangeReader.scanRange(makeKeyRange(17, true, 22, true)).list(),
 				List.of(makeDto(18), makeDto(20), makeDto(22)));
+	}
 
-		// Block boundary
+	@Test
+	private void testSearchRowKeyRangeBlockBoundary(){
+		BlockfileRowKeyRangeReader<TestDto> rangeReader = reader.rowKeyRange();
+
 		Assert.assertEquals(
 				rangeReader.scanRange(makeKeyRange(18, false, 20, true)).list(),
 				List.of(makeDto(20)));
@@ -222,8 +229,12 @@ public class BlockfileIndexTests{
 		Assert.assertEquals(
 				rangeReader.scanRange(makeKeyRange(20, true, 22, true)).list(),
 				List.of(makeDto(20), makeDto(22)));
+	}
 
-		// Open start
+	@Test
+	private void testSearchRowKeyRangeOpenStart(){
+		BlockfileRowKeyRangeReader<TestDto> rangeReader = reader.rowKeyRange();
+
 		Assert.assertEquals(
 				rangeReader.scanRange(new BlockfileKeyRange(
 						Optional.empty(),
@@ -232,8 +243,12 @@ public class BlockfileIndexTests{
 						true))
 						.list(),
 				List.of(makeDto(0), makeDto(2), makeDto(4)));
+	}
 
-		// Open end
+	@Test
+	private void testSearchRowKeyRangeOpenEnd(){
+		BlockfileRowKeyRangeReader<TestDto> rangeReader = reader.rowKeyRange();
+
 		Assert.assertEquals(
 				rangeReader.scanRange(new BlockfileKeyRange(
 						Optional.of(makeRow(19_994).copyOfKey()),

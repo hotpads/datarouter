@@ -43,6 +43,7 @@ import io.datarouter.web.handler.encoder.DefaultEncoder;
 import io.datarouter.web.handler.encoder.HandlerEncoder;
 import io.datarouter.web.handler.types.DefaultDecoder;
 import io.datarouter.web.handler.types.HandlerDecoder;
+import io.datarouter.web.security.CsrfValidationResult;
 import io.datarouter.web.security.CsrfValidator;
 import io.datarouter.web.security.SecurityValidationResult;
 import io.datarouter.web.security.SecurityValidator;
@@ -282,22 +283,14 @@ public class DispatchRule{
 	}
 
 	private SecurityValidationResult checkCsrfToken(HttpServletRequest request){
-		boolean result = csrfValidator == null || csrfValidator.check(request);
-		if(!result){
-			try{
-				Long requestTimeMs = csrfValidator.getRequestTimeMs(request);
-				Long differenceMs = null;
-				if(requestTimeMs != null){
-					differenceMs = System.currentTimeMillis() - requestTimeMs;
-				}
-
-				logFailure("CSRF token check failed, request time:" + requestTimeMs + " is " + differenceMs
-						+ "ms > current time", request);
-			}catch(Exception e){
-				logFailure("CSRF token time could not be extracted", request);
-			}
+		if(csrfValidator == null){
+			return SecurityValidationResult.success(request);
 		}
-		return new SecurityValidationResult(request, result, "CSRF token check failed");
+		CsrfValidationResult result = csrfValidator.check(request);
+		return new SecurityValidationResult(
+				request,
+				result.success(),
+				"CSRF token check failed: " + result.errorMessage());
 	}
 
 	private SecurityValidationResult checkSignature(HttpServletRequest request){
@@ -324,7 +317,7 @@ public class DispatchRule{
 	}
 
 	private void logFailure(String message, HttpServletRequest request){
-		logger.warn(message + ". IP={} URI={} userAgent={}", RequestTool.getIpAddress(request),
+		logger.warn("{}. IP={} URI={} userAgent={}", message, RequestTool.getIpAddress(request),
 				request.getRequestURI(), RequestTool.getUserAgent(request));
 	}
 

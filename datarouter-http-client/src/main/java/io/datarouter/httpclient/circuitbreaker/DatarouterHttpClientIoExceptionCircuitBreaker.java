@@ -17,6 +17,7 @@ package io.datarouter.httpclient.circuitbreaker;
 
 import java.io.IOException;
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.TimeUnit;
@@ -138,6 +139,11 @@ public class DatarouterHttpClientIoExceptionCircuitBreaker extends ExceptionCirc
 				DatarouterHttpClientMetrics.incSlowRequest(name);
 				logger.warn("Slow request target={} durationMs={} remoteTraceparent={}", request.getPath(),
 						duration.toMillis(), remoteTraceparent.orElse(null));
+			}
+			if(debugLog.get()){
+				logger.warn("request url={} response cookies={}",
+						internalHttpRequest.getURI(),
+						Arrays.toString(httpResponse.getHeaders("Set-Cookie")));
 			}
 			DatarouterHttpResponse response = new DatarouterHttpResponse(httpResponse, context, statusCode, entity);
 			if(isBadStatusCode){

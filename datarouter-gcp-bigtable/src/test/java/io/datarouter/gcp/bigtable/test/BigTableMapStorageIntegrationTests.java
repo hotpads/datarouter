@@ -20,15 +20,15 @@ import java.util.Optional;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Guice;
 
-import io.datarouter.gcp.bigtable.config.DatarouterBigTableTestNgModuleFactory;
+import io.datarouter.gcp.bigtable.config.DatarouterBigtableTestNgModuleFactory;
 import io.datarouter.storage.test.node.basic.map.BaseMapStorageIntegrationTests;
 
-@Guice(moduleFactory = DatarouterBigTableTestNgModuleFactory.class)
-public class BigTableMapStorageIntegrationTests extends BaseMapStorageIntegrationTests{
+@Guice(moduleFactory = DatarouterBigtableTestNgModuleFactory.class)
+public class BigtableMapStorageIntegrationTests extends BaseMapStorageIntegrationTests{
 
 	@BeforeClass
 	public void beforeClass(){
-		setup(DatarouterBigTableTestClientIds.BIG_TABLE, Optional.of("MapStorageBigtableNative"));
+		setup(DatarouterBigtableTestClientIds.BIG_TABLE, Optional.of("MapStorageBigtableNative"));
 	}
 
 }

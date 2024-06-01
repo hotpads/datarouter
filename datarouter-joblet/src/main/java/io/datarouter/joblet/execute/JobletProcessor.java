@@ -124,7 +124,7 @@ public class JobletProcessor{
 		while(true){
 			try{
 				if(Thread.interrupted()){
-					logger.warn("joblet thread shutting down for type=" + jobletType);
+					logger.warn("joblet thread shutting down for type={}", jobletType);
 					return;
 				}
 				int numThreads = getThreadCount();

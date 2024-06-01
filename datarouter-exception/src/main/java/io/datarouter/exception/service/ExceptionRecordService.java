@@ -15,10 +15,8 @@
  */
 package io.datarouter.exception.service;
 
-import io.datarouter.exception.config.DatarouterExceptionPaths;
-import io.datarouter.exception.config.DatarouterExceptionSettingRoot;
 import io.datarouter.exception.storage.exceptionrecord.ExceptionRecord;
-import io.datarouter.web.config.ServletContextSupplier;
+import io.datarouter.web.exception.ExceptionLinkBuilder;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
@@ -26,32 +24,18 @@ import jakarta.inject.Singleton;
 public class ExceptionRecordService{
 
 	@Inject
-	private DatarouterExceptionPaths paths;
-	@Inject
-	private DatarouterExceptionSettingRoot settings;
-	@Inject
-	private ServletContextSupplier servletContext;
+	private ExceptionLinkBuilder linkBuilder;
 
 	public String buildExceptionLinkForCurrentServer(String exceptionRecordId){
-		String domainAndContext = buildDomainAndContext();
-		return buildExceptionLink(domainAndContext, exceptionRecordId);
+		return buildExceptionLink(exceptionRecordId);
 	}
 
 	public String buildExceptionLinkForCurrentServer(ExceptionRecord exceptionRecord){
 		return buildExceptionLinkForCurrentServer(exceptionRecord.getKey().getId());
 	}
 
-	public String buildDomainAndContext(){
-		return settings.exceptionRecorderDomainName.get() + servletContext.get().getContextPath();
-	}
-
-	public String buildExceptionLink(String domainAndContext, String exceptionRecordId){
-		return "https://" + domainAndContext + paths.datarouter.exception.details.toSlashedString()
-				+ "?exceptionRecord=" + exceptionRecordId;
-	}
-
-	public String buildExceptionFormAction(String domainAndContext){
-		return "https://" + domainAndContext + paths.datarouter.exception.details.toSlashedString();
+	public String buildExceptionLink(String exceptionRecordId){
+		return linkBuilder.exception(exceptionRecordId).orElse("");
 	}
 
 }

@@ -23,6 +23,7 @@ import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.client.ClientId;
+import io.datarouter.storage.node.blockfile.BlockfileNodeParams;
 import io.datarouter.storage.node.tableconfig.NodewatchConfiguration;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.storage.util.Subpath;
@@ -76,7 +77,9 @@ public class NodeParams<
 	//for queue metric Alert
 	private final boolean enableAgeMonitoring = true;
 
-	private Duration customMessageAgeThreshold;
+	private final Duration customMessageAgeThreshold;
+
+	private final BlockfileNodeParams<PK,D,F> blockfileNodeParams;
 
 	private NodeParams(
 			ClientId clientId,
@@ -98,7 +101,8 @@ public class NodeParams<
 			Tag tag,
 			boolean disableIntroducer,
 			boolean enableAgeMonitoring,
-			Duration customMessageAgeThreshold){
+			Duration customMessageAgeThreshold,
+			BlockfileNodeParams<PK,D,F> blockfileNodeParams){
 		this.clientId = clientId;
 		this.parentName = parentName;
 		this.databeanSupplier = databeanSupplier;
@@ -119,6 +123,7 @@ public class NodeParams<
 		this.tag = tag;
 		this.disableIntroducer = disableIntroducer;
 		this.customMessageAgeThreshold = customMessageAgeThreshold;
+		this.blockfileNodeParams = blockfileNodeParams;
 	}
 
 	/*----------------------------- builder ---------------------------------*/
@@ -148,6 +153,7 @@ public class NodeParams<
 		private boolean disableIntroducer;
 		private boolean enableAgeMonitoring;
 		private Duration customMessageAgeThreshold = Duration.ofDays(2);
+		private BlockfileNodeParams<PK,D,F> blockfileNodeParams;
 
 		/*--------------------------- construct -----------------------------*/
 
@@ -267,6 +273,11 @@ public class NodeParams<
 			return this;
 		}
 
+		public NodeParamsBuilder<PK,D,F> withBlockfileNodeParams(BlockfileNodeParams<PK,D,F> blockfileNodeParams){
+			this.blockfileNodeParams = blockfileNodeParams;
+			return this;
+		}
+
 		/*----------------------------- build -------------------------------*/
 
 		public NodeParams<PK,D,F> build(){
@@ -290,7 +301,8 @@ public class NodeParams<
 					tag,
 					disableIntroducer,
 					enableAgeMonitoring,
-					customMessageAgeThreshold);
+					customMessageAgeThreshold,
+					blockfileNodeParams);
 		}
 
 	}
@@ -391,6 +403,10 @@ public class NodeParams<
 
 	public Duration getCustomMessageAgeThreshold(){
 		return customMessageAgeThreshold;
+	}
+
+	public BlockfileNodeParams<PK,D,F> getBlockfileNodeParams(){
+		return blockfileNodeParams;
 	}
 
 }

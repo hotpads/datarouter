@@ -98,20 +98,6 @@ public class DatarouterAccountCallerTypeHandler extends BaseHandler{
 		+ callerType.get());
 	}
 
-	private static class Html{
-
-		public static DivTag makeContent(HtmlForm htmlForm){
-			var form = Bootstrap4FormHtml.render(htmlForm)
-					.withClass("card card-body bg-light");
-			return div(
-					h2("Datarouter Account Caller Type Updater"),
-					form,
-					br())
-					.withClass("container mt-3");
-		}
-
-	}
-
 	private void updateCallerType(String accountName, String callerType){
 		DatarouterAccount account = accountDao.get(new DatarouterAccountKey(accountName));
 		String perviousCallerType = Optional.ofNullable(account.getCallerType())
@@ -127,6 +113,20 @@ public class DatarouterAccountCallerTypeHandler extends BaseHandler{
 				.withComment(perviousCallerType + "->" + callerType)
 				.build();
 		changelogRecorder.record(dto);
+	}
+
+	private static class Html{
+
+		public static DivTag makeContent(HtmlForm htmlForm){
+			var form = Bootstrap4FormHtml.render(htmlForm)
+					.withClass("card card-body bg-light");
+			return div(
+					h2("Datarouter Account Caller Type Updater"),
+					form,
+					br())
+					.withClass("container mt-3");
+		}
+
 	}
 
 }

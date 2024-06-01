@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.servlet.AsyncContext;
@@ -128,7 +129,7 @@ public class MockHttpServletRequest implements HttpServletRequest{
 
 	@Override
 	public String getParameter(String name){
-		return getParameterMap().get(name)[0];
+		return Optional.ofNullable(getParameterMap().get(name)).map(p -> p[0]).orElse(null);
 	}
 
 	@Override

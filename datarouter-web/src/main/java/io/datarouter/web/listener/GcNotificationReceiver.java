@@ -51,13 +51,11 @@ public class GcNotificationReceiver implements DatarouterAppListener{
 						.toMap(Entry::getKey, entry ->
 								emoryUsageAfterGc.get(entry.getKey()).getUsed() - entry.getValue().getUsed());
 				String memoryPoolChange = Scanner.of(byteChangeByPool.entrySet())
-						.include(entry -> entry.getKey().startsWith("G1") || entry.getKey().startsWith("PS"))
 						.map(entry -> entry.getKey().replace(' ', '_') + "_change="
 								+ entry.getValue() / 1024 / 1024 + "M")
 						.collect(Collectors.joining(" "));
 				// minus sign because we estimate the allocation to be the opposite of the reclamation
 				long estimatedAllocatedByte = -Scanner.of(byteChangeByPool.entrySet())
-						.include(entry -> entry.getKey().startsWith("G1"))
 						.streamLongs(Entry::getValue)
 						.sum();
 				Metrics.count("estimatedAllocatedByte", estimatedAllocatedByte);

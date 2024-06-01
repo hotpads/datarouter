@@ -32,6 +32,8 @@ import io.datarouter.binarydto.fieldcodec.array.FloatArrayBinaryDtoFieldCodec;
 import io.datarouter.binarydto.fieldcodec.array.IntArrayBinaryDtoFieldCodec;
 import io.datarouter.binarydto.fieldcodec.array.LongArrayBinaryDtoFieldCodec;
 import io.datarouter.binarydto.fieldcodec.array.ShortArrayBinaryDtoFieldCodec;
+import io.datarouter.binarydto.fieldcodec.dataroutertypes.ByteLengthToLongBinaryDtoFieldConverter;
+import io.datarouter.binarydto.fieldcodec.dataroutertypes.MilliTimeToLongBinaryDtoFieldConverter;
 import io.datarouter.binarydto.fieldcodec.other.BitSetBinaryDtoFieldCodec;
 import io.datarouter.binarydto.fieldcodec.other.EnumBinaryDtoFieldCodec;
 import io.datarouter.binarydto.fieldcodec.other.ListBinaryDtoFieldCodec;
@@ -47,6 +49,8 @@ import io.datarouter.binarydto.fieldcodec.primitive.LongBinaryDtoFieldCodec;
 import io.datarouter.binarydto.fieldcodec.primitive.ShortBinaryDtoFieldCodec;
 import io.datarouter.binarydto.fieldcodec.string.Utf8BinaryDtoFieldCodec;
 import io.datarouter.binarydto.fieldcodec.time.InstantBinaryDtoFieldCodec;
+import io.datarouter.bytes.ByteLength;
+import io.datarouter.types.MilliTime;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class BinaryDtoFieldCodecs{
@@ -86,6 +90,9 @@ public class BinaryDtoFieldCodecs{
 		LEAF_CODEC_BY_CLASS.put(Instant.class, new InstantBinaryDtoFieldCodec());
 		//other
 		LEAF_CODEC_BY_CLASS.put(BitSet.class, new BitSetBinaryDtoFieldCodec());
+		//datarouter-types
+		LEAF_CODEC_BY_CLASS.put(ByteLength.class, new ByteLengthToLongBinaryDtoFieldConverter());
+		LEAF_CODEC_BY_CLASS.put(MilliTime.class, new MilliTimeToLongBinaryDtoFieldConverter());
 	}
 
 	public static BinaryDtoBaseFieldCodec<?> getCodecForField(Field field){

@@ -171,7 +171,7 @@ public class DatarouterMemcachedClient{
 			delete(nodeName, key, timeout);
 		}catch(Exception exception){
 			if(ignoreException){
-				logger.error("memcached error on " + key, exception);
+				logger.error("memcached error on {}", key, exception);
 			}else{
 				throw exception;
 			}

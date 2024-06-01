@@ -21,6 +21,10 @@ public class HttpHeaders{
 	public static final String ACCEPT_ENCODING = "accept-encoding";
 	public static final String ACCEPT_LANGUAGE = "accept-language";
 	public static final String ACCEPT = "accept";
+	public static final String ACCESS_CONTROL_ALLOW_CREDENTIALS = "access-control-allow-credentials";
+	public static final String ACCESS_CONTROL_ALLOW_HEADERS = "access-control-allow-headers";
+	public static final String ACCESS_CONTROL_ALLOW_METHODS = "access-control-allow-methods";
+	public static final String ACCESS_CONTROL_ALLOW_ORIGIN = "access-control-allow-origin";
 	public static final String CACHE_CONTROL = "cache-control";
 	public static final String CONNECTION = "connection";
 	public static final String CONTENT_ENCODING = "content-encoding";

@@ -15,7 +15,6 @@
  */
 package io.datarouter.web.security;
 
-import java.security.GeneralSecurityException;
 import java.time.Duration;
 import java.util.Base64;
 
@@ -27,49 +26,53 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.httpclient.security.DefaultCsrfGenerator;
 import io.datarouter.httpclient.security.SecurityParameters;
+import io.datarouter.util.duration.DatarouterDuration;
 
 public class DefaultCsrfValidator implements CsrfValidator{
 	private static final Logger logger = LoggerFactory.getLogger(DefaultCsrfValidator.class);
 
-	private static final Long DEFAULT_REQUEST_TIMEOUT_IN_MS = Duration.ofSeconds(10).toMillis();
+	private static final Duration DEFAULT_REQUEST_TIMEOUT = Duration.ofSeconds(10);
 
 	private final DefaultCsrfGenerator generator;
-	private final long requestTimeoutMs;
+	private final DatarouterDuration requestTimeout;
 
 	public DefaultCsrfValidator(DefaultCsrfGenerator generator){
-		this(generator, DEFAULT_REQUEST_TIMEOUT_IN_MS);
+		this(generator, DEFAULT_REQUEST_TIMEOUT);
 	}
 
-	public DefaultCsrfValidator(DefaultCsrfGenerator generator, Long requestTimeoutMs){
+	public DefaultCsrfValidator(DefaultCsrfGenerator generator, Duration requestTimeout){
 		this.generator = generator;
-		this.requestTimeoutMs = requestTimeoutMs;
+		this.requestTimeout = new DatarouterDuration(requestTimeout);
 	}
 
 	@Override
-	public boolean check(HttpServletRequest request){
-		Long requestTime = null;
-		try{
-			requestTime = getRequestTimeMs(request);
-		}catch(Exception e){
-			logger.warn("DefaultCsrfValidator failed check. Bad key?", e);
-		}
-		if(requestTime == null){
-			return false;
-		}
-		return System.currentTimeMillis() < requestTime + requestTimeoutMs;
-	}
-
-	@Override
-	public Long getRequestTimeMs(HttpServletRequest request){
+	public CsrfValidationResult check(HttpServletRequest request){
 		String csrfToken = getParameterOrHeader(request, SecurityParameters.CSRF_TOKEN);
-		String cipherIv = getParameterOrHeader(request, SecurityParameters.CSRF_IV);
-		try{
-			Cipher aes = generator.getCipher(Cipher.DECRYPT_MODE, cipherIv);
-			return Long.parseLong(new String(aes.doFinal(Base64.getDecoder().decode(csrfToken))));
-		}catch(GeneralSecurityException e){
-			throw new RuntimeException(e);
+		if(csrfToken == null){
+			return new CsrfValidationResult(false, "csrfToken not found in http request");
 		}
+		byte[] csrfTokenbytes = Base64.getDecoder().decode(csrfToken);
+		String cipherIv = getParameterOrHeader(request, SecurityParameters.CSRF_IV);
+		if(cipherIv == null){
+			return new CsrfValidationResult(false, "csrfIv not found in http request");
+		}
+		long requestTimeMs;
+		try{
+			Cipher cipher = generator.getCipher(Cipher.DECRYPT_MODE, cipherIv);
+			requestTimeMs = Long.parseLong(new String(cipher.doFinal(csrfTokenbytes)));
+		}catch(Exception e){
+			logger.error("could not decrypt csrf token", e);
+			return new CsrfValidationResult(false, "Bad key?");
+		}
+		DatarouterDuration age = DatarouterDuration.ageMs(requestTimeMs);
+		boolean success = age.isShorterThan(requestTimeout);
+		String errorMessages = null;
+		if(!success){
+			errorMessages = "CSRF token age too old: " + age + " (" + requestTimeMs + ")";
+		}
+		return new CsrfValidationResult(success, errorMessages);
 	}
+
 
 	private static String getParameterOrHeader(HttpServletRequest request, String key){
 		String value = request.getParameter(key);

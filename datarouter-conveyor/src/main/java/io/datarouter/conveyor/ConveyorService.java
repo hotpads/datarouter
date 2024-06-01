@@ -120,11 +120,11 @@ public class ConveyorService{
 								conveyor.getName(),
 								ConveyorExceptionCategory.CONVEYOR);
 					}
-					logger.warn("swallowing exception so ScheduledExecutorService restarts this Runnable "
-							+ "interrupted={}, exceptionId={}"
-							+ (configuration.compactExceptionLogging().get() ? " {}" : ""),
+					logger.warn("swallowing exception so ScheduledExecutorService restarts this Runnable"
+									+ " interrupted={}, exceptionId={}{}",
 							interrupted,
 							exceptionRecord.map(ExceptionRecordDto::id).orElse(null),
+							configuration.compactExceptionLogging().get() ? " {}" : "",
 							e);
 				}finally{
 					long traceEnded = TraceTimeTool.epochNano();

@@ -18,6 +18,9 @@ package io.datarouter.metric.publisher;
 import java.util.List;
 
 import io.datarouter.binarydto.codec.BinaryDtoIndexedCodec;
+import io.datarouter.model.databean.EmptyDatabean;
+import io.datarouter.model.databean.EmptyDatabean.EmptyDatabeanFielder;
+import io.datarouter.model.key.EmptyDatabeanKey;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
@@ -25,6 +28,7 @@ import io.datarouter.storage.config.properties.EnvironmentName;
 import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.node.factory.QueueNodeFactory;
 import io.datarouter.storage.node.op.raw.BlobQueueStorage.BlobQueueStorageNode;
+import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.storage.queue.consumer.BlobQueueConsumer;
 import io.datarouter.storage.tag.Tag;
 import jakarta.inject.Inject;
@@ -56,6 +60,10 @@ public class MetricQueueDao extends BaseDao{
 				.withTag(Tag.DATAROUTER)
 				.withAgeMonitoring(false)
 				.buildAndRegister();
+	}
+
+	public PhysicalNode<EmptyDatabeanKey,EmptyDatabean,EmptyDatabeanFielder> getPhysicalNode(){
+		return node.getPhysicalNodes().get(0);
 	}
 
 	public void combineAndPut(List<DatarouterMetricGroupBinaryDto> dtos){

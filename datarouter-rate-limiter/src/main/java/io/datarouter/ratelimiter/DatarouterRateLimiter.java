@@ -27,11 +27,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
 import io.datarouter.instrumentation.metric.Metrics;
 import io.datarouter.ratelimiter.storage.BaseTallyDao;
+import io.datarouter.scanner.ObjectScanner;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.time.ZoneIds;
 import io.datarouter.web.util.http.RequestTool;
@@ -40,6 +42,7 @@ public class DatarouterRateLimiter{
 
 	private static final String HIT_COUNTER_NAME = "rate limit hit";
 	private static final String EXCEEDED_AVG = "rate limit exceeded avg";
+	private static final String EXCEEDED_PEAK = "rate limit exceeded peak";
 	private static final String COUNTER_PREFIX = "RateLimiter ";
 
 	private final BaseTallyDao tallyDao;
@@ -74,7 +77,7 @@ public class DatarouterRateLimiter{
 
 	public boolean allowedForIp(String dynamicKey, HttpServletRequest request){
 		String ip = RequestTool.getIpAddress(request);
-		boolean allowed = internalAllow(makeKey(dynamicKey,ip), true);
+		boolean allowed = internalAllow(makeKey(dynamicKey, ip), true);
 		if(allowed){
 			Metrics.count(COUNTER_PREFIX + "ip " + config.name + " allowed");
 		}else{
@@ -107,6 +110,8 @@ public class DatarouterRateLimiter{
 			// exceeded maxSpikeRequests
 			if(numRequests > config.maxSpikeRequests){
 				Metrics.count(HIT_COUNTER_NAME);
+				Metrics.count(EXCEEDED_PEAK);
+				Metrics.count(COUNTER_PREFIX + config.name + " " + EXCEEDED_PEAK);
 				return false;
 			}
 			total += numRequests;
@@ -130,6 +135,7 @@ public class DatarouterRateLimiter{
 			// add to get next available time
 			Metrics.count(HIT_COUNTER_NAME);
 			Metrics.count(EXCEEDED_AVG);
+			Metrics.count(COUNTER_PREFIX + config.name + " " + EXCEEDED_AVG);
 			return false;
 		}
 		if(increment){
@@ -153,7 +159,7 @@ public class DatarouterRateLimiter{
 		case SECONDS -> ChronoField.SECOND_OF_MINUTE;
 		default -> ChronoField.MILLI_OF_SECOND;
 		};
-		Instant truncatedInstant = setCalendarFieldForBucket(instant,config.unit, chornoField,
+		Instant truncatedInstant = setCalendarFieldForBucket(instant, config.unit, chornoField,
 				config.bucketTimeInterval);
 		return DateTimeFormatter.ISO_INSTANT.format(truncatedInstant);
 	}
@@ -217,8 +223,11 @@ public class DatarouterRateLimiter{
 				.toInstant();
 	}
 
-	private static String makeKey(String... keyFields){
-		return String.join("_", keyFields);
+	private String makeKey(String... keyFields){
+		return ObjectScanner.of(config.name)
+				.append(keyFields)
+				.exclude(String::isBlank)
+				.collect(Collectors.joining("_"));
 	}
 
 }

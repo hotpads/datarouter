@@ -20,6 +20,7 @@ import java.util.Optional;
 import org.apache.http.HttpHost;
 
 import io.datarouter.httpclient.request.DatarouterHttpRequest;
+import io.datarouter.instrumentation.metric.Metrics;
 
 public interface RequestProxySetter{
 
@@ -31,7 +32,10 @@ public interface RequestProxySetter{
 		Optional.ofNullable(getHost())
 				.filter(proxyHost -> !proxyHost.isEmpty())
 				.map(proxyHost -> new HttpHost(proxyHost, getPort(), getScheme()))
-				.ifPresent(request::setProxy);
+				.ifPresent(proxy -> {
+					Metrics.count("RequestProxySetter usingProxy");
+					request.setProxy(proxy);
+				});
 	}
 
 }

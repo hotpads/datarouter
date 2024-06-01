@@ -165,14 +165,14 @@ public class HostMemoryTool{
 			details = Files.readAllLines(Paths.get("/sys/fs/cgroup/memory/memory.stat"));
 			limit = readFileToLong("/sys/fs/cgroup/memory/memory.limit_in_bytes");
 		}catch(Exception e1){
-			logger.warn("", e1);
+			logger.info("", e1);
 			// cgroupv2
 			try{
 				details = Files.readAllLines(Paths.get("/sys/fs/cgroup/memory.stat"));
 				limit = readFileToLong("/sys/fs/cgroup/memory.max");
 				rss = readFileToLong("/sys/fs/cgroup/memory.current");
 			}catch(Exception e2){
-				logger.warn("", e2);
+				logger.info("", e2);
 				return Conditional.failure(e2);
 			}
 		}
@@ -204,7 +204,7 @@ public class HostMemoryTool{
 
 	public static void main(String[] args){
 		Map<String,Long> cgroupMemoryStats = extractCgroupMemoryStats().orElseThrow();
-		cgroupMemoryStats.entrySet().forEach(stat -> logger.error(stat.getKey() + " - " + stat.getValue()));
+		cgroupMemoryStats.entrySet().forEach(stat -> logger.error("{} - {}", stat.getKey(), stat.getValue()));
 	}
 
 }

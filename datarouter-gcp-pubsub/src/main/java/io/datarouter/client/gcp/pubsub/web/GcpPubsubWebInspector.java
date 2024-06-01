@@ -44,6 +44,7 @@ import io.datarouter.storage.client.ClientOptions;
 import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.node.NodeTool;
 import io.datarouter.util.duration.DatarouterDuration;
+import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.web.browse.DatarouterClientWebInspector;
 import io.datarouter.web.browse.dto.DatarouterWebRequestParamsFactory;
 import io.datarouter.web.handler.mav.Mav;
@@ -99,30 +100,37 @@ public class GcpPubsubWebInspector implements DatarouterClientWebInspector{
 				.map(NodeTool::extractSinglePhysicalNode)
 				.map(physicalNode -> (GcpPubsubPhysicalNode<?,?,?>)physicalNode)
 				.map(baseGcpPubsubNode -> clientManager.getGcpMetricDto(
-						baseGcpPubsubNode.getTopicAndSubscriptionName().get(), clientId))
+						baseGcpPubsubNode.getTopicAndSubscriptionName().get(),
+						clientId))
 				.sort(Comparator.comparing(GcpPubsubMetricDto::queueName))
 				.list();
 
 		var table = new J2HtmlTable<GcpPubsubMetricDto>()
 				.withClasses("sortable table table-sm table-striped my-4 border")
 				.withColumn("Queue Name", GcpPubsubMetricDto::queueName)
-				.withColumn("Number of Undelivered Messages", row -> row.numUndeliveredMessages()
-						.map(Object::toString)
-						.orElse("error"))
-				.withColumn("Age of Oldest Unacknowledged Message", row -> row.oldestUnackedMessageAgeS()
-						.map(age -> new DatarouterDuration(age, TimeUnit.SECONDS))
-						.map(Object::toString)
-						.orElse("error"))
-				.withHtmlColumn(th("Purge Queue").withClass("col-xs-1"), row -> {
-					String href = buildActionPath(request, clientId, row.queueName());
-					ATag purgeIcon = a(i().withClass("fas fa-skull-crossbones fa-lg"))
-							.withHref(href)
-							.attr("data-toggle", "tooltip")
-							.attr("title", "Purge queue " + row.queueName())
-							.attr("onclick", "return confirm('Are you sure you want to purge this queue "
-							+ row.queueName() + "?');");
-					return td(purgeIcon).withStyle("text-align:center");
-				})
+				.withColumn(
+						"Number of Undelivered Messages",
+						row -> row.numUndeliveredMessages()
+								.map(NumberFormatter::addCommas)
+								.orElse("error"))
+				.withColumn(
+						"Age of Oldest Unacknowledged Message",
+						row -> row.oldestUnackedMessageAgeS()
+								.map(age -> new DatarouterDuration(age, TimeUnit.SECONDS))
+								.map(Object::toString)
+								.orElse("error"))
+				.withHtmlColumn(
+						th("Purge Queue").withClass("col-xs-1"),
+						row -> {
+							String href = buildActionPath(request, clientId, row.queueName());
+							ATag purgeIcon = a(i().withClass("fas fa-skull-crossbones fa-lg"))
+									.withHref(href)
+									.attr("data-toggle", "tooltip")
+									.attr("title", "Purge queue " + row.queueName())
+									.attr("onclick", "return confirm('Are you sure you want to purge this queue "
+									+ row.queueName() + "?');");
+							return td(purgeIcon).withStyle("text-align:center");
+						})
 				.build(queueStatsRows);
 		H4Tag header = h4("Queues");
 		return div(header, table)
@@ -149,11 +157,13 @@ public class GcpPubsubWebInspector implements DatarouterClientWebInspector{
 		return new J2HtmlLegendTable()
 				.withHeader("Legend")
 				.withClass("sortable table table-sm my-4 border")
-				.withEntry("Number of Undelivered Messages",
+				.withEntry(
+						"Number of Undelivered Messages",
 						"Number of unacknowledged messages (a.k.a. backlog messages) in a subscription")
-				.withEntry("Age of Oldest Unacknowledged Message",
+				.withEntry(
+						"Age of Oldest Unacknowledged Message",
 						"The Age (in seconds) of the oldest unacknowledged message (a.k.a. backlog message) in a "
-						+ "subscription")
+								+ "subscription")
 				.build();
 	}
 

@@ -83,7 +83,7 @@ implements PhysicalBlobQueueStorageNode<T>, SqsPhysicalNode<EmptyDatabeanKey,Emp
 			queueUrl = createQueueAndGetUrl(queueName);
 			sqsClientManager.updateAttr(clientId, queueUrl, QueueAttributeName.MessageRetentionPeriod,
 					BaseSqsNode.RETENTION_S);
-			logger.warn("retention updated queueName=" + queueName);
+			logger.warn("retention updated queueName={}", queueName);
 		}else{
 			queueUrl = params.getQueueUrl();
 		}

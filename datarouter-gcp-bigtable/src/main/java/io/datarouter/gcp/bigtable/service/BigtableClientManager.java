@@ -23,7 +23,9 @@ import java.util.concurrent.Future;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.api.gax.core.CredentialsProvider;
 import com.google.api.gax.core.FixedCredentialsProvider;
+import com.google.auth.Credentials;
 import com.google.cloud.bigtable.admin.v2.BigtableInstanceAdminClient;
 import com.google.cloud.bigtable.admin.v2.BigtableInstanceAdminSettings;
 import com.google.cloud.bigtable.admin.v2.BigtableTableAdminClient;
@@ -71,27 +73,28 @@ public class BigtableClientManager extends BaseClientManager{
 	@Override
 	protected void safeInitClient(ClientId clientId){
 		try{
-			BigtableDataSettings settings = BigtableDataSettings.newBuilder()
-					.setProjectId(bigTableClientOptions.projectId(clientId.getName()))
-					.setInstanceId(bigTableClientOptions.instanceId(clientId.getName()))
-					.setCredentialsProvider(FixedCredentialsProvider.create(bigTableClientOptions.credentials(clientId
-							.getName())))
+			String projectId = bigTableClientOptions.projectId(clientId.getName());
+			String instanceId = bigTableClientOptions.instanceId(clientId.getName());
+			Credentials credentials = bigTableClientOptions.credentials(clientId.getName());
+			CredentialsProvider credentialsProvider = FixedCredentialsProvider.create(credentials);
+			BigtableDataSettings dataSettings = BigtableDataSettings.newBuilder()
+					.setProjectId(projectId)
+					.setInstanceId(instanceId)
+					.setCredentialsProvider(credentialsProvider)
 					.build();
-			BigtableInstanceAdminSettings adminSettings = BigtableInstanceAdminSettings.newBuilder()
-					.setProjectId(bigTableClientOptions.projectId(clientId.getName()))
-					.setCredentialsProvider(FixedCredentialsProvider.create(bigTableClientOptions.credentials(clientId
-							.getName())))
+			BigtableInstanceAdminSettings instanceAdminSettings = BigtableInstanceAdminSettings.newBuilder()
+					.setProjectId(projectId)
+					.setCredentialsProvider(credentialsProvider)
 					.build();
-			BigtableTableAdminSettings tableSettings = BigtableTableAdminSettings.newBuilder()
-					.setProjectId(bigTableClientOptions.projectId(clientId.getName()))
-					.setInstanceId(bigTableClientOptions.instanceId(clientId.getName()))
-					.setCredentialsProvider(FixedCredentialsProvider.create(bigTableClientOptions.credentials(clientId
-							.getName())))
+			BigtableTableAdminSettings tableAdminSettings = BigtableTableAdminSettings.newBuilder()
+					.setProjectId(projectId)
+					.setInstanceId(instanceId)
+					.setCredentialsProvider(credentialsProvider)
 					.build();
 
-			var client = BigtableDataClient.create(settings);
-			var adminClient = BigtableInstanceAdminClient.create(adminSettings);
-			var tableClient = BigtableTableAdminClient.create(tableSettings);
+			var client = BigtableDataClient.create(dataSettings);
+			var adminClient = BigtableInstanceAdminClient.create(instanceAdminSettings);
+			var tableClient = BigtableTableAdminClient.create(tableAdminSettings);
 			holder.register(clientId, tableClient, adminClient, client);
 		}catch(IOException e){
 			logger.error("unable to create bigtable client", e);

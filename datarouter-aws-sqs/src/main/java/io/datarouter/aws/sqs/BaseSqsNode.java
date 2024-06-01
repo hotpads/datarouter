@@ -82,7 +82,7 @@ implements QueueStorageWriter<PK,D>, SqsPhysicalNode<PK,D,F>{
 		if(owned){
 			queueUrl = createQueueAndGetUrl(queueName);
 			sqsClientManager.updateAttr(clientId, queueUrl, QueueAttributeName.MessageRetentionPeriod, RETENTION_S);
-			logger.warn("retention updated queueName=" + queueName);
+			logger.warn("retention updated queueName={}", queueName);
 		}else{
 			queueUrl = params.getQueueUrl();
 		}

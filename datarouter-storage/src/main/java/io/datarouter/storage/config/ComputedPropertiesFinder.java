@@ -95,7 +95,7 @@ public class ComputedPropertiesFinder{
 		}else{
 			configFileLocation = configDirectory + "/" + filename;
 			if(Files.notExists(Paths.get(configFileLocation))){
-				logger.error("couldn't find config file {}", configFileLocation);
+				logger.warn("couldn't find config file {}", configFileLocation);
 			}else{
 				logger.warn("found config file {}", configFileLocation);
 				try{
@@ -151,9 +151,9 @@ public class ComputedPropertiesFinder{
 				logger.info("found {} with empty value from {}", propertyName, propertyValueBySource.get().source());
 			}
 		}else if(SHOW_LOGGER){//both name and value are unknown
-			logger.warn("couldn't find " + propertyName + ", no default provided");
+			logger.warn("couldn't find {}, no default provided", propertyName);
 		}else{
-			logger.info("couldn't find " + propertyName + ", no default provided");
+			logger.info("couldn't find {}, no default provided", propertyName);
 		}
 		return null;
 	}

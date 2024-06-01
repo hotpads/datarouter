@@ -20,12 +20,12 @@ import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
 import io.datarouter.gcp.bigtable.config.BigtableClientType;
-import io.datarouter.gcp.bigtable.config.DatarouterBigTableTestNgModuleFactory;
+import io.datarouter.gcp.bigtable.config.DatarouterBigtableTestNgModuleFactory;
 import io.datarouter.storage.client.ClientTypeRegistry;
 import jakarta.inject.Inject;
 
-@Guice(moduleFactory = DatarouterBigTableTestNgModuleFactory.class)
-public class BigTableClientTypeTests{
+@Guice(moduleFactory = DatarouterBigtableTestNgModuleFactory.class)
+public class BigtableClientTypeTests{
 
 	@Inject
 	private ClientTypeRegistry clientTypeRegistry;

@@ -49,4 +49,13 @@ public abstract class MetricRecorder{
 		MetricTemplates.add(makePatternDto(description));
 	}
 
+	public final void measureWithPercentiles(long value){
+		measureWithPercentiles(value, null);
+	}
+
+	public final void measureWithPercentiles(long value, String description){
+		Metrics.measureWithPercentiles(toMetricName(), value);
+		MetricTemplates.add(makePatternDto(description));
+	}
+
 }

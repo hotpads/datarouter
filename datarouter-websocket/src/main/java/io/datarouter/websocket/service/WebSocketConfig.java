@@ -44,7 +44,7 @@ public abstract class WebSocketConfig implements ServerApplicationConfig{
 
 	@Override
 	public Set<ServerEndpointConfig> getEndpointConfigs(Set<Class<? extends Endpoint>> endpointClasses){
-		logger.warn("Initializing websocket endpoint with " + getClass().getSimpleName());
+		logger.warn("Initializing websocket endpoint with {}", getClass().getSimpleName());
 		DatarouterWebSocketPaths datarouterWebSocketPaths = new DatarouterWebSocketPaths();
 		ServerEndpointConfig echoEndpointConfig = Builder
 				.create(SwedishEchoEndpoint.class, datarouterWebSocketPaths.ws.echo.toSlashedString())

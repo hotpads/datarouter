@@ -17,6 +17,7 @@ package io.datarouter.util.tuple;
 
 import java.util.Comparator;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 
 import io.datarouter.util.lang.ObjectTool;
@@ -227,6 +228,10 @@ implements Comparable<Range<T>>{
 		return start;
 	}
 
+	public Optional<T> findStart(){
+		return Optional.ofNullable(start);
+	}
+
 	public Range<T> setStart(T start){
 		this.start = start;
 		return this;
@@ -243,6 +248,10 @@ implements Comparable<Range<T>>{
 
 	public T getEnd(){
 		return end;
+	}
+
+	public Optional<T> findEnd(){
+		return Optional.ofNullable(end);
 	}
 
 	public Range<T> setEnd(T end){

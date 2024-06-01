@@ -145,7 +145,7 @@ public class AuroraInstancesHandler extends BaseHandler{
 				.withColumn("Hostname", DnsHostEntryDto::getHostname)
 				.withColumn("Cluster hostname", DnsHostEntryDto::getClusterHostname)
 				.withColumn("Cluster name", DnsHostEntryDto::getClusterName)
-				.withColumn("Replcation role", DnsHostEntryDto::getReplicationRole)
+				.withColumn("Replication role", DnsHostEntryDto::getReplicationRole)
 				.withColumn("Instance hostname", DnsHostEntryDto::getInstanceHostname)
 				.withColumn("IP", DnsHostEntryDto::getIp)
 				.withHtmlColumn("X", row -> {

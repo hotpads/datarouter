@@ -166,6 +166,7 @@ public class SqlAlterTableGeneratorFactory{
 			if(!diff.isTableModified()){
 				return new Ddl(Optional.empty(), Optional.empty(), false);
 			}
+			diff.throwIfColumnTypesModified();
 			DdlBuilder ddlBuilder = generate(diff);
 			String hostnameUrl = databaseDnsSupplier.getHostnameUrl(databaseName)
 					.orElse(hostname);
