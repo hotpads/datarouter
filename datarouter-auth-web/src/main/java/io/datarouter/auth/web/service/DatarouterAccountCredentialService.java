@@ -35,13 +35,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.auth.session.Session;
-import io.datarouter.auth.storage.account.BaseDatarouterAccountDao;
+import io.datarouter.auth.storage.account.DatarouterAccountDao;
 import io.datarouter.auth.storage.account.DatarouterAccountKey;
-import io.datarouter.auth.storage.account.credential.BaseDatarouterAccountCredentialDao;
 import io.datarouter.auth.storage.account.credential.DatarouterAccountCredential;
+import io.datarouter.auth.storage.account.credential.DatarouterAccountCredentialDao;
 import io.datarouter.auth.storage.account.credential.DatarouterAccountCredentialKey;
-import io.datarouter.auth.storage.account.credential.secret.BaseDatarouterAccountSecretCredentialDao;
 import io.datarouter.auth.storage.account.credential.secret.DatarouterAccountSecretCredential;
+import io.datarouter.auth.storage.account.credential.secret.DatarouterAccountSecretCredentialDao;
 import io.datarouter.auth.storage.account.credential.secret.DatarouterAccountSecretCredentialKey;
 import io.datarouter.auth.storage.account.permission.DatarouterAccountPermissionKey;
 import io.datarouter.auth.util.PasswordTool;
@@ -71,9 +71,9 @@ public class DatarouterAccountCredentialService{
 	private static final Pattern OBFUSCATED_API_KEY_PATTERN = Pattern
 			.compile("([a-zA-Z0-9\\-_]+)\\*([a-zA-Z0-9\\-_]+)");
 
-	private final BaseDatarouterAccountDao datarouterAccountDao;
-	private final BaseDatarouterAccountCredentialDao datarouterAccountCredentialDao;
-	private final BaseDatarouterAccountSecretCredentialDao datarouterAccountSecretCredentialDao;
+	private final DatarouterAccountDao datarouterAccountDao;
+	private final DatarouterAccountCredentialDao datarouterAccountCredentialDao;
+	private final DatarouterAccountSecretCredentialDao datarouterAccountSecretCredentialDao;
 	private final DatarouterAccountPermissionKeysByPrefixCache datarouterAccountPermissionKeysByPrefixCache;
 	private final DatarouterAccountLastUsedDateService datarouterAccountLastUsedDateService;
 	private final SecretService secretService;
@@ -86,9 +86,9 @@ public class DatarouterAccountCredentialService{
 
 	@Inject
 	public DatarouterAccountCredentialService(
-			BaseDatarouterAccountDao datarouterAccountDao,
-			BaseDatarouterAccountCredentialDao datarouterAccountCredentialDao,
-			BaseDatarouterAccountSecretCredentialDao datarouterAccountSecretCredentialDao,
+			DatarouterAccountDao datarouterAccountDao,
+			DatarouterAccountCredentialDao datarouterAccountCredentialDao,
+			DatarouterAccountSecretCredentialDao datarouterAccountSecretCredentialDao,
 			DatarouterAccountPermissionKeysByPrefixCache datarouterAccountPermissionKeysByPrefixCache,
 			DatarouterAccountLastUsedDateService datarouterAccountLastUsedDateService,
 			DatarouterAccountCredentialCacheExecutor executor,

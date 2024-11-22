@@ -110,6 +110,8 @@ implements TaskExecutionRecordBinaryDto<HttpRequestRecordDto>{
 	public final String xRequestedWith;
 	@BinaryDtoField(index = 40)
 	public final String otherHeaders;
+	@BinaryDtoField(index = 41)
+	public final String environment;
 
 	public HttpRequestRecordBinaryDto(
 			String serviceName,
@@ -152,7 +154,8 @@ implements TaskExecutionRecordBinaryDto<HttpRequestRecordDto>{
 			String userAgent,
 			String xForwardedFor,
 			String xRequestedWith,
-			String otherHeaders){
+			String otherHeaders,
+			String environment){
 		this.serviceName = serviceName;
 		this.id = id;
 		this.created = created == null ? null : created.toInstant();
@@ -194,6 +197,7 @@ implements TaskExecutionRecordBinaryDto<HttpRequestRecordDto>{
 		this.xForwardedFor = xForwardedFor;
 		this.xRequestedWith = xRequestedWith;
 		this.otherHeaders = otherHeaders;
+		this.environment = environment;
 	}
 
 	public HttpRequestRecordBinaryDto(HttpRequestRecordDto record, String serviceName){
@@ -238,7 +242,8 @@ implements TaskExecutionRecordBinaryDto<HttpRequestRecordDto>{
 				record.userAgent(),
 				record.xForwardedFor(),
 				record.xRequestedWith(),
-				record.otherHeaders());
+				record.otherHeaders(),
+				record.environment());
 	}
 
 	@Override
@@ -283,7 +288,8 @@ implements TaskExecutionRecordBinaryDto<HttpRequestRecordDto>{
 				userAgent,
 				xForwardedFor,
 				xRequestedWith,
-				otherHeaders);
+				otherHeaders,
+				environment);
 	}
 
 	public static HttpRequestRecordBinaryDto decode(byte[] bytes){

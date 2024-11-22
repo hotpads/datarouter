@@ -21,6 +21,8 @@ import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 
+import io.datarouter.instrumentation.relay.rml.Rml;
+import io.datarouter.instrumentation.relay.rml.RmlBlock;
 import io.datarouter.nodewatch.config.DatarouterNodewatchPaths;
 import io.datarouter.nodewatch.storage.latesttablecount.LatestTableCount;
 import io.datarouter.nodewatch.util.TableSizeMonitoringEmailBuilder;
@@ -44,6 +46,21 @@ public class StaleTablesDailyDigest implements DailyDigest{
 	private DailyDigestService digestService;
 
 	@Override
+	public String getTitle(){
+		return "Stale Tables";
+	}
+
+	@Override
+	public DailyDigestType getType(){
+		return DailyDigestType.STALE_TABLES;
+	}
+
+	@Override
+	public DailyDigestGrouping getGrouping(){
+		return DailyDigestGrouping.LOW;
+	}
+
+	@Override
 	public Optional<DivTag> getEmailContent(ZoneId zoneId){
 		List<LatestTableCount> staleTables = monitoringService.getStaleTableEntries();
 		if(staleTables.isEmpty()){
@@ -55,18 +72,14 @@ public class StaleTablesDailyDigest implements DailyDigest{
 	}
 
 	@Override
-	public String getTitle(){
-		return "Stale Tables";
-	}
-
-	@Override
-	public DailyDigestGrouping getGrouping(){
-		return DailyDigestGrouping.LOW;
-	}
-
-	@Override
-	public DailyDigestType getType(){
-		return DailyDigestType.ACTIONABLE;
+	public Optional<RmlBlock> getRelayContent(ZoneId zoneId){
+		List<LatestTableCount> staleTables = monitoringService.getStaleTableEntries();
+		if(staleTables.isEmpty()){
+			return Optional.empty();
+		}
+		return Optional.of(Rml.paragraph(
+				digestService.makeHeading("Stale Tables", paths.datarouter.nodewatch.tables),
+				emailBuilder.makeRelayStaleTable(staleTables, zoneId)));
 	}
 
 }

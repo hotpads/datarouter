@@ -170,6 +170,24 @@ implements PhysicalBlobStorageNode{
 	}
 
 	@Override
+	public Optional<byte[]> readEnding(PathbeanKey key, int length, Config config){
+		var op = new SpannerGetBlobOp<>(
+				clientManager.getDatabaseClient(getClientId()),
+				getFieldInfo(),
+				List.of(key),
+				config,
+				getFieldInfo().getFieldColumnNames());
+		List<DatabaseBlob> blobs = op.wrappedCall();
+		if(blobs.isEmpty()){
+			return Optional.empty();
+		}
+		byte[] fullBytes = blobs.getFirst().getData();
+		int offset = Math.max(0, fullBytes.length - length);
+		byte[] lastBytes = Arrays.copyOfRange(fullBytes, offset, fullBytes.length);
+		return Optional.of(lastBytes);
+	}
+
+	@Override
 	public Map<PathbeanKey,byte[]> readMulti(List<PathbeanKey> keys, Config config){
 		var op = new SpannerGetBlobOp<>(
 				clientManager.getDatabaseClient(getClientId()),

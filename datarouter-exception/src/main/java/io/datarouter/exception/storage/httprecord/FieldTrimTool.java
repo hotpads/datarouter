@@ -23,11 +23,19 @@ public class FieldTrimTool{
 	public static final String TRIMMING_REPLACEMENT = "trimmed";
 
 	public static String trimField(StringFieldKey fieldKey, String field, String databeanId){
+		return trimField(
+				fieldKey.getSize(),
+				fieldKey.getName(),
+				field,
+				databeanId);
+	}
+
+	public static String trimField(int size, String name, String field, String databeanId){
 		return StringTool.trimToSizeAndLog(
 				field,
-				fieldKey.getSize(),
+				size,
 				TRIMMING_REPLACEMENT,
-				"field=" + fieldKey.getName(),
+				"field=" + name,
 				databeanId);
 	}
 

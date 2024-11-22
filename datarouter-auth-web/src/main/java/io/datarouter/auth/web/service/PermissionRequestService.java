@@ -60,8 +60,7 @@ public class PermissionRequestService{
 	public List<PermissionRequestDto> getReverseChronologicalPermissionRequestDtos(
 			DatarouterUser user,
 			ZoneId timezoneForRequestTimeFormat){
-		return datarouterPermissionRequestDao
-				.scanPermissionRequestsForUser(user.getId())
+		return datarouterPermissionRequestDao.scanPermissionRequestsForUser(user.getId())
 				.listTo(requests -> Scanner.of(datarouterUserHistoryService.getResolvedRequestToHistoryChangesMap(
 						requests).entrySet()))
 				.sort(Entry.comparingByKey(PermissionRequest.REVERSE_CHRONOLOGICAL_COMPARATOR))

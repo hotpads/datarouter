@@ -29,6 +29,8 @@ import io.datarouter.changelog.storage.ChangelogKey;
 import io.datarouter.changelog.web.ViewExactChangelogHandler;
 import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
+import io.datarouter.instrumentation.relay.rml.Rml;
+import io.datarouter.instrumentation.relay.rml.RmlBlock;
 import io.datarouter.types.MilliTime;
 import io.datarouter.util.tuple.Range;
 import io.datarouter.web.digest.DailyDigest;
@@ -50,8 +52,23 @@ public class ChangelogDailyDigest implements DailyDigest{
 	private DatarouterChangelogPaths paths;
 
 	@Override
+	public String getTitle(){
+		return "Changelog";
+	}
+
+	@Override
+	public DailyDigestType getType(){
+		return DailyDigestType.SUMMARY;
+	}
+
+	@Override
+	public DailyDigestGrouping getGrouping(){
+		return DailyDigestGrouping.LOW;
+	}
+
+	@Override
 	public Optional<DivTag> getEmailContent(ZoneId zoneId){
-		var list = getChangelogs(zoneId);
+		List<Changelog> list = getChangelogs(zoneId);
 		if(list.isEmpty()){
 			return Optional.empty();
 		}
@@ -62,18 +79,32 @@ public class ChangelogDailyDigest implements DailyDigest{
 	}
 
 	@Override
-	public String getTitle(){
-		return "Changelog";
-	}
-
-	@Override
-	public DailyDigestGrouping getGrouping(){
-		return DailyDigestGrouping.LOW;
-	}
-
-	@Override
-	public DailyDigestType getType(){
-		return DailyDigestType.SUMMARY;
+	public Optional<RmlBlock> getRelayContent(ZoneId zoneId){
+		List<Changelog> list = getChangelogs(zoneId);
+		if(list.isEmpty()){
+			return Optional.empty();
+		}
+		return Optional.of(Rml.paragraph(
+				digestService.makeHeading("Changelog", paths.datarouter.changelog.viewAll),
+				Rml.text("For the current day").italic(),
+				Rml.table(
+						Rml.tableRow(
+								Rml.tableHeader(Rml.text("")),
+								Rml.tableHeader(Rml.text("Date")),
+								Rml.tableHeader(Rml.text("Type")),
+								Rml.tableHeader(Rml.text("Name")),
+								Rml.tableHeader(Rml.text("Action")),
+								Rml.tableHeader(Rml.text("User"))))
+						.with(list.stream()
+								.map(log -> Rml.tableRow(
+										Rml.tableCell(Rml.text("#").link(changelogLink(log))),
+										Rml.tableCell(Rml.timestamp(
+												log.getKey().getMilliTimeReversed().format(zoneId),
+												log.getKey().getMilliTimeReversed().toEpochMilli())),
+										Rml.tableCell(Rml.text(log.getKey().getChangelogType())),
+										Rml.tableCell(Rml.text(log.getKey().getName())),
+										Rml.tableCell(Rml.text(log.getAction())),
+										Rml.tableCell(Rml.text(log.getUsername())))))));
 	}
 
 	private List<Changelog> getChangelogs(ZoneId zoneId){
@@ -87,20 +118,24 @@ public class ChangelogDailyDigest implements DailyDigest{
 
 	private TableTag buildEmailTable(List<Changelog> rows, ZoneId zoneId){
 		return new J2HtmlEmailTable<Changelog>()
-				.withColumn(new J2HtmlEmailTableColumn<>("", row -> {
-					String href = paths.datarouter.changelog.viewExact.toSlashedString()
-							+ "?" + ViewExactChangelogHandler.P_reversedDateMs + "="
-									+ row.getKey().getMilliTimeReversed()
-							+ "&" + ViewExactChangelogHandler.P_changelogType + "=" + row.getKey().getChangelogType()
-							+ "&" + ViewExactChangelogHandler.P_name + "=" + row.getKey().getName();
-					return digestService.makeATagLink("#", href);
-				}))
+				.withColumn(new J2HtmlEmailTableColumn<>(
+						"",
+						row -> digestService.makeATagLink("#", changelogLink(row))))
 				.withColumn("Date", row -> row.getKey().getMilliTimeReversed().format(zoneId))
 				.withColumn("Type", row -> row.getKey().getChangelogType())
 				.withColumn("Name", row -> row.getKey().getName())
 				.withColumn("Action", Changelog::getAction)
 				.withColumn("User", Changelog::getUsername)
 				.build(rows);
+	}
+
+	private String changelogLink(Changelog log){
+		ChangelogKey key = log.getKey();
+
+		return paths.datarouter.changelog.viewExact.toSlashedString()
+				+ "?" + ViewExactChangelogHandler.P_reversedDateMs + "=" + key.getMilliTimeReversed()
+				+ "&" + ViewExactChangelogHandler.P_changelogType + "=" + key.getChangelogType()
+				+ "&" + ViewExactChangelogHandler.P_name + "=" + key.getName();
 	}
 
 }

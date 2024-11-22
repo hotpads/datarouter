@@ -36,14 +36,6 @@ public class S3Tool{
 		return S3_KEY_NON_SAFE_CHARACTERS.matcher(input).replaceAll(defaultReplacement);
 	}
 
-	public static String makeGetPartialObjectRangeParam(long offset, int length){
-		long startInclusive = offset;
-		long endInclusive = offset + length - 1;
-		// https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.35
-		// https://github.com/aws/aws-sdk-java-v2/issues/1472
-		return "bytes=" + startInclusive + "-" + endInclusive;
-	}
-
 	public static void prepareLocalFileDestination(Path path){
 		try{
 			Files.createDirectories(path.getParent());
@@ -51,6 +43,19 @@ public class S3Tool{
 		}catch(IOException e){
 			throw new RuntimeException(e);
 		}
+	}
+
+	/*---------- range queries -----------*/
+	// see https://www.rfc-editor.org/rfc/rfc9110.html#name-byte-ranges
+
+	public static String makeGetPartialObjectRangeParam(long offset, int length){
+		long startInclusive = offset;
+		long endInclusive = offset + length - 1;
+		return "bytes=" + startInclusive + "-" + endInclusive;
+	}
+
+	public static String makeGetObjectEndingRangeParam(int lastNBytes){
+		return "bytes=-" + lastNBytes;
 	}
 
 }

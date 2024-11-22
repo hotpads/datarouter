@@ -16,7 +16,6 @@
 package io.datarouter.storage.node;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
@@ -132,12 +131,12 @@ public class DatarouterNodes{
 	public PhysicalNode<?,?,?> getPhysicalNode(ClientAndTableNames clientAndTableNames){
 		return physicalNodeByTableNameByClientName.getOrDefault(
 				clientAndTableNames.client(),
-				Collections.emptyMap())
+				Map.of())
 				.get(clientAndTableNames.table());
 	}
 
 	public PhysicalNode<?,?,?> getPhysicalNodeForClientAndTable(String clientName, String tableName){
-		return physicalNodeByTableNameByClientName.getOrDefault(clientName, Collections.emptyMap()).get(tableName);
+		return physicalNodeByTableNameByClientName.getOrDefault(clientName, Map.of()).get(tableName);
 	}
 
 	public Map<String,Map<String,PhysicalNode<?,?,?>>> getPhysicalNodeByTableNameByClientName(){

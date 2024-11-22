@@ -25,6 +25,7 @@ public interface ExceptionRecordSummaryCollector{
 			long periodEndMs,
 			String serviceName,
 			Optional<Integer> minThreshold);
+
 	Optional<String> getBrowsePageLink(String serviceName);
 
 	class NoOpExceptionRecordSummaryCollector implements ExceptionRecordSummaryCollector{

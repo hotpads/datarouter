@@ -17,7 +17,7 @@ package io.datarouter.web.handler.mav;
 
 import javax.servlet.http.HttpServletRequest;
 
-import io.datarouter.auth.role.DatarouterUserRole;
+import io.datarouter.auth.role.DatarouterUserRoleRegistry;
 import io.datarouter.auth.session.CurrentSessionInfo;
 import io.datarouter.storage.servertype.ServerTypeDetector;
 import jakarta.inject.Inject;
@@ -45,7 +45,7 @@ public class DatarouterMavPropertiesFactoryConfig{
 
 	public boolean hasAnyDatarouterPrivileges(HttpServletRequest request){
 		return currentSessionInfo.getRoles(request).stream()
-				.anyMatch(DatarouterUserRole.getDatarouterPrivilegedRoles()::contains);
+				.anyMatch(DatarouterUserRoleRegistry.PRIVILEGED_ROLES::contains);
 	}
 
 }

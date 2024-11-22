@@ -56,6 +56,10 @@ public class DirectoryBlobStorage{
 		return directoryManager.read(key.getPathAndFile(), offset, length);
 	}
 
+	public Optional<byte[]> readEnding(PathbeanKey key, int length){
+		return directoryManager.readEnding(key.getPathAndFile(), length);
+	}
+
 	public InputStream readInputStream(PathbeanKey key){
 		return directoryManager.readInputStream(key.getPathAndFile());
 	}

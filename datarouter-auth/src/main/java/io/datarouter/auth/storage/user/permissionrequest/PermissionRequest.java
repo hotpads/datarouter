@@ -26,7 +26,7 @@ import io.datarouter.auth.storage.user.userhistory.DatarouterUserHistoryLogKey;
 import io.datarouter.enums.StringMappedEnum;
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
-import io.datarouter.model.field.codec.MilliTimeFieldCodec;
+import io.datarouter.model.field.codec.MilliTimeToLongFieldCodec;
 import io.datarouter.model.field.codec.StringMappedEnumFieldCodec;
 import io.datarouter.model.field.imp.StringEncodedField;
 import io.datarouter.model.field.imp.StringEncodedFieldKey;
@@ -71,7 +71,7 @@ public class PermissionRequest extends BaseDatabean<PermissionRequestKey,Permiss
 				"resolution",
 				new StringMappedEnumFieldCodec<>(DatarouterPermissionRequestResolution.BY_PERSISTENT_STRING));
 		public static final LongEncodedFieldKey<MilliTime> resolutionTime = new LongEncodedFieldKey<>("resolutionTime",
-				new MilliTimeFieldCodec());
+				new MilliTimeToLongFieldCodec());
 	}
 
 	public static class PermissionRequestFielder

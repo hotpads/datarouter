@@ -50,6 +50,11 @@ public class BooleanField extends BasePrimitiveField<Boolean,BooleanFieldKey>{
 	}
 
 	@Override
+	public int getApproximateValueBytesLength(){
+		return value == null ? 0 : RAW_BOOLEAN_CODEC.length();
+	}
+
+	@Override
 	public int numKeyBytesWithSeparator(byte[] bytes, int offset){
 		return 1;
 	}

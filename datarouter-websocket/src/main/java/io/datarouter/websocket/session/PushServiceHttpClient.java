@@ -30,7 +30,7 @@ public class PushServiceHttpClient extends BaseDatarouterHttpClientWrapper{
 
 	@Inject
 	public PushServiceHttpClient(PushServiceSettingsSupplier settings){
-		super(new DatarouterHttpClientBuilder(GsonJsonSerializer.DEFAULT)
+		super(new DatarouterHttpClientBuilder("push-service", GsonJsonSerializer.DEFAULT)
 				.setSignatureGenerator(new DefaultSignatureGenerator(settings::getSalt))
 				.setCsrfGenerator(new DefaultCsrfGenerator(settings::getCipherKey))
 				.setApiKeySupplier(settings::getApiKey)

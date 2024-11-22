@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 
 import io.datarouter.auth.model.dto.RoleApprovalRequirementStatus;
 import io.datarouter.auth.model.dto.UserRoleMetadata;
-import io.datarouter.auth.role.DatarouterUserRole;
+import io.datarouter.auth.role.DatarouterUserRoleRegistry;
 import io.datarouter.auth.role.Role;
 import io.datarouter.auth.role.RoleApprovalType;
 import io.datarouter.auth.role.RoleManager;
@@ -184,7 +184,7 @@ public class DatarouterUserService implements UserInfo{
 	}
 
 	public boolean isDatarouterAdmin(DatarouterUser user){
-		return getUserRolesWithSamlGroups(user).contains(DatarouterUserRole.DATAROUTER_ADMIN.getRole());
+		return getUserRolesWithSamlGroups(user).contains(DatarouterUserRoleRegistry.DATAROUTER_ADMIN);
 	}
 
 	public Map<Role,Map<RoleApprovalType,Set<String>>> getCurrentRoleApprovals(DatarouterUser user){
@@ -239,7 +239,7 @@ public class DatarouterUserService implements UserInfo{
 						if(currentApprovalsForRole.get(approvalType).contains(editor.getUsername())){
 							if(!requirementStatusByApprovalType.containsKey(approvalType)){
 								roleApprovalDao.deleteOutstandingApprovalsOfApprovalTypeForRole(
-										availableRole.persistentString,
+										availableRole.persistentString(),
 										approvalType.persistentString());
 								continue;
 							}
@@ -264,8 +264,7 @@ public class DatarouterUserService implements UserInfo{
 								.filter(requirementStatusByApprovalType::containsKey)
 								.findFirst();
 					}
-					boolean canRevoke = !DatarouterUserRole.DATAROUTER_ADMIN.getPersistentString().equals(
-							availableRole.getPersistentString())
+					boolean canRevoke = !DatarouterUserRoleRegistry.DATAROUTER_ADMIN.equals(availableRole)
 							&& isDatarouterAdmin(editor)
 							|| user.equals(editor);
 					return new UserRoleMetadata(

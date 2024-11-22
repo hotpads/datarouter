@@ -185,7 +185,7 @@ public class ScannerTool{
 	private static <T> List<T> maxNAsc(Scanner<T> scanner, Comparator<? super T> comparator, int num){
 		try(Scanner<T> $ = scanner){
 			if(num == 0){
-				return Collections.emptyList();
+				return List.of();
 			}
 			if(num == 1){
 				return max(scanner, comparator)

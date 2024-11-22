@@ -18,6 +18,7 @@ package io.datarouter.conveyor;
 import java.util.Objects;
 
 import io.datarouter.conveyor.ConveyorConfigurationGroup.ConveyorPackage;
+import io.datarouter.conveyor.config.DatarouterConveyorClusterThreadCountSettings;
 import io.datarouter.conveyor.config.DatarouterConveyorShouldRunSettings;
 import io.datarouter.conveyor.config.DatarouterConveyorThreadCountSettings;
 import io.datarouter.scanner.Scanner;
@@ -34,6 +35,8 @@ public class ConveyorConfigurationGroupService{
 	private DatarouterConveyorShouldRunSettings conveyorShouldRunSettings;
 	@Inject
 	private DatarouterConveyorThreadCountSettings conveyorThreadCountSettings;
+	@Inject
+	private DatarouterConveyorClusterThreadCountSettings conveyorClusterThreadCountSettings;
 
 	public Scanner<ConveyorPackage> getAllPackages(){
 		return configurationGroupSupplier.get()
@@ -59,6 +62,11 @@ public class ConveyorConfigurationGroupService{
 
 	public CachedSetting<Integer> getThreadCountSetting(Class<? extends ConveyorConfiguration> configurationClass){
 		return conveyorThreadCountSettings.getSettingForConveyorPackage(getConveyorPackage(configurationClass));
+	}
+
+	public CachedSetting<Integer> getClusterThreadCountSetting(
+			Class<? extends ConveyorConfiguration> configurationClass){
+		return conveyorClusterThreadCountSettings.getSettingForConveyorPackage(getConveyorPackage(configurationClass));
 	}
 
 	public String getConveyorName(Class<? extends ConveyorConfiguration> configurationClass){

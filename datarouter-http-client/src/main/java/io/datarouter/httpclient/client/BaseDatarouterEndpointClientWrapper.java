@@ -18,14 +18,14 @@ package io.datarouter.httpclient.client;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.pool.PoolStats;
 
-import io.datarouter.httpclient.endpoint.java.BaseEndpoint;
-import io.datarouter.httpclient.endpoint.java.EndpointType;
+import io.datarouter.httpclient.endpoint.java.BaseJavaEndpoint;
+import io.datarouter.httpclient.endpoint.java.JavaEndpointType;
 import io.datarouter.httpclient.response.Conditional;
 import io.datarouter.httpclient.response.exception.DatarouterHttpException;
 import io.datarouter.json.JsonSerializer;
 
 public abstract class BaseDatarouterEndpointClientWrapper<
-		ET extends EndpointType>
+		ET extends JavaEndpointType>
 implements DatarouterServiceEndpointClient<ET>{
 
 	private final DatarouterEndpointClient<ET> client;
@@ -35,22 +35,22 @@ implements DatarouterServiceEndpointClient<ET>{
 	}
 
 	@Override
-	public <R> Conditional<R> call(BaseEndpoint<R,ET> baseEndpoint){
-		return client.call(baseEndpoint);
+	public <R> Conditional<R> call(BaseJavaEndpoint<R,ET> baseJavaEndpoint){
+		return client.call(baseJavaEndpoint);
 	}
 
 	@Override
-	public <R> Conditional<R> callAnyType(BaseEndpoint<R,?> baseEndpoint){
-		return client.callAnyType(baseEndpoint);
+	public <R> Conditional<R> callAnyType(BaseJavaEndpoint<R,?> baseJavaEndpoint){
+		return client.callAnyType(baseJavaEndpoint);
 	}
 
 	@Override
-	public <R> R callChecked(BaseEndpoint<R,ET> endpoint) throws DatarouterHttpException{
+	public <R> R callChecked(BaseJavaEndpoint<R,ET> endpoint) throws DatarouterHttpException{
 		return client.callChecked(endpoint);
 	}
 
 	@Override
-	public String toUrl(BaseEndpoint<?,ET> endpoint){
+	public String toUrl(BaseJavaEndpoint<?,ET> endpoint){
 		return client.toUrl(endpoint);
 	}
 

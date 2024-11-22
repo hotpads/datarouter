@@ -249,175 +249,187 @@
 	<div class="container my-5">
 		<h2>${apiName} API Documentation</h2>
 		<div id="accordion">
-			<c:forEach var="endpoint" items="${endpoints}" varStatus="loop">
-				<c:set var="collapseId" value="collapse${loop.index}"></c:set>
-				<c:set var="panelId" value="panel${loop.index}"></c:set>
-				<c:set var="responseDivId" value="responseDiv${loop.index}"></c:set>
-				<c:set var="requestUrlId" value="requestUrl${loop.index}"></c:set>
-				<c:set var="requestBodyId" value="requestBody${loop.index}"></c:set>
-				<c:set var="jsonResponseId" value="jsonResponse${loop.index}"></c:set>
-				<c:set var="responseCodeId" value="responseCode${loop.index}"></c:set>
-				<c:set var="responseHeaderId" value="responseHeader${loop.index}"></c:set>
-				<c:set var="rowClass" value="rowClass${loop.index}"></c:set>
-				<div class="card" id="${endpoint.url}" data-apiKeyFieldName="${endpoint.apiKeyFieldName}">
-					<div class="card-header">
-						<a tabindex="0" data-toggle="collapse" data-target="#${collapseId}" data-url="${endpoint.url}">
-						<c:choose>
-							<c:when test="${endpoint.isDeprecated}"><strike>${endpoint.url}</strike></c:when>
-							<c:otherwise>${endpoint.url}</c:otherwise>
-						</c:choose>
-						</a>
-						<span class="float-right text-muted">${endpoint.description}</span>
-					</div>
-					<div id="${collapseId}" class="collapse" data-parent="#accordion">
-						<div class="card-body">
-							<b>Handler:</b> ${endpoint.implementation}
-							<b>CallerType:</b> ${endpoint.callerType}
-							<b>RequestType:</b> ${endpoint.requestType}
+			<c:forEach var="endpointsByDispatchTypeEntry" items="${endpointsByDispatchType.entrySet()}"
+					   varStatus="outerloop">
+				<div>
+					<br><h4>${endpointsByDispatchTypeEntry.key}s</h4>
+				</div>
+				<c:forEach var="endpoint" items="${endpointsByDispatchTypeEntry.value}" varStatus="loop">
+					<c:set var="idSuffix" value="${loop.index}${outerloop.index}"></c:set>
+					<c:set var="collapseId" value="collapse${idSuffix}"></c:set>
+					<c:set var="panelId" value="panel${idSuffix}"></c:set>
+					<c:set var="responseDivId" value="responseDiv${idSuffix}"></c:set>
+					<c:set var="requestUrlId" value="requestUrl${idSuffix}"></c:set>
+					<c:set var="requestBodyId" value="requestBody${idSuffix}"></c:set>
+					<c:set var="jsonResponseId" value="jsonResponse${idSuffix}"></c:set>
+					<c:set var="responseCodeId" value="responseCode${idSuffix}"></c:set>
+					<c:set var="responseHeaderId" value="responseHeader${idSuffix}"></c:set>
+					<c:set var="rowClass" value="rowClass${idSuffix}"></c:set>
+					<div class="card" id="${endpoint.url}" data-apiKeyFieldName="${endpoint.apiKeyFieldName}">
+						<div class="card-header">
+							<a tabindex="0" data-toggle="collapse" data-target="#${collapseId}" data-url="${endpoint.url}">
 							<c:choose>
-								<c:when test="${endpoint.isDeprecated}">
-									<span class="badge badge-warning">Deprecated</span>
-								</c:when>
+								<c:when test="${endpoint.isDeprecated || endpoint.deprecatedOn != \"\"}"><strike>${endpoint.url}</strike></c:when>
+								<c:otherwise>${endpoint.url}</c:otherwise>
 							</c:choose>
-							<h3>Parameters</h3>
-							<form id="parameterForm" method="POST">
-							<c:choose>
-								<c:when test="${not empty endpoint.parameters}">
-									<table class="table">
-										<tr>
-											<th>Name</th>
-											<th>Value</th>
-											<th>Type</th>
-										</tr>
-										<c:forEach var="parameter" items="${endpoint.parameters}">
-											<c:choose>
-												<c:when test="${hideAuth && parameter.hidden}">
-													<c:set var="note" value="(Automatically Configured)"></c:set>
-												</c:when>
-												<c:when test="${parameter.required}">
-													<c:set var="note" value="(required)"></c:set>
-												</c:when>
-												<c:otherwise>
-													<c:set var="note" value="(optional)"></c:set>
-												</c:otherwise>
-											</c:choose>
-											<tr class="${rowClass}">
-												<td class="paramName" data-name="${parameter.name}">
-													<c:choose>
-														<c:when test="${parameter.requestBody}">
-															Request body
-															<c:set var="paramName" value="requestBody"></c:set>
-														</c:when>
-														<c:otherwise>
-															<c:choose>
-																<c:when test="${parameter.isDeprecated}"><strike>${parameter.name}</strike>
-																	<span class="badge badge-warning">Deprecated</span>
-																</c:when>
-																<c:otherwise>${parameter.name}</c:otherwise>
-															</c:choose>
-															<c:set var="paramName" value="${parameter.name}"></c:set>
-														</c:otherwise>
-													</c:choose>
-												</td>
+							</a>
+							<span class="float-right text-muted">${endpoint.description}</span>
+						</div>
+						<div id="${collapseId}" class="collapse" data-parent="#accordion">
+							<div class="card-body">
+								<b>Handler:</b> ${endpoint.implementation}
+								<b>RequestType:</b> ${endpoint.requestType}
+								<c:if test="${endpoint.isDeprecated || endpoint.deprecatedOn != \"\"}">
+									<span class="badge badge-warning">Deprecated</span>
+								</c:if>
+								<c:if test="${endpoint.deprecatedOn != \"\"}">
+									<span class="badge badge-warning">Deprecated on: ${endpoint.deprecatedOn}</span>
+								</c:if>
+								<c:if test="${endpoint.deprecationLink != \"\"}">
+									<span
+											class="badge badge-warning"><a href="${endpoint.deprecationLink}">More
+										Information</a></span>
+								</c:if>
+								<h3>Parameters</h3>
+								<form id="parameterForm" method="POST">
+								<c:choose>
+									<c:when test="${not empty endpoint.parameters}">
+										<table class="table">
+											<tr>
+												<th>Name</th>
+												<th>Value</th>
+												<th>Type</th>
+											</tr>
+											<c:forEach var="parameter" items="${endpoint.parameters}">
 												<c:choose>
-													<c:when test="${apiKey != null && parameter.name.equals(apiKeyParameterName)}">
-														<c:set var="predefinedValue" value="${apiKey}"></c:set>
+													<c:when test="${hideAuth && parameter.hidden}">
+														<c:set var="note" value="(Automatically Configured)"></c:set>
+													</c:when>
+													<c:when test="${parameter.required}">
+														<c:set var="note" value="(required)"></c:set>
 													</c:when>
 													<c:otherwise>
-														<c:set var="predefinedValue" value=""></c:set>
+														<c:set var="note" value="(optional)"></c:set>
 													</c:otherwise>
 												</c:choose>
-												<td>
+												<tr class="${rowClass}">
+													<td class="paramName" data-name="${parameter.name}">
+														<c:choose>
+															<c:when test="${parameter.requestBody}">
+																Request body
+																<c:set var="paramName" value="requestBody"></c:set>
+															</c:when>
+															<c:otherwise>
+																<c:choose>
+																	<c:when test="${parameter.isDeprecated}"><strike>${parameter.name}</strike>
+																		<span class="badge badge-warning">Deprecated</span>
+																	</c:when>
+																	<c:otherwise>${parameter.name}</c:otherwise>
+																</c:choose>
+																<c:set var="paramName" value="${parameter.name}"></c:set>
+															</c:otherwise>
+														</c:choose>
+													</td>
 													<c:choose>
-														<c:when test="${parameter.requestBody}">
-															<textarea class="form-control paramValue" style="display:table-cell; width:100%" rows="10" id="${loop.index}-${paramName}" name="requestBody">${predefinedValue}</textarea>
+														<c:when test="${apiKey != null && parameter.name.equals(apiKeyParameterName)}">
+															<c:set var="predefinedValue" value="${apiKey}"></c:set>
 														</c:when>
 														<c:otherwise>
-															<input class="form-control paramValue" style="display:table-cell; width:100%" type="text" id="${loop.index}-${paramName}" name="${parameter.name}"  placeholder="${note}" value="${predefinedValue}"/>
+															<c:set var="predefinedValue" value=""></c:set>
 														</c:otherwise>
 													</c:choose>
-												</td>
-												<td>
-													<c:out value="${parameter.type}" escapeXml="true"/>
-													<c:if test="${not empty parameter.description}">
-														; ${parameter.description}
-													</c:if>
-													<c:if test="${not empty parameter.example}">
-														<pre
-															class="bg-light border p-2 json copyable"
-															data-copydest="${loop.index}-${paramName}"
-															>${parameter.example}</pre>
-													</c:if>
-												</td>
+													<td>
+														<c:choose>
+															<c:when test="${parameter.requestBody}">
+																<textarea class="form-control paramValue" style="display:table-cell; width:100%" rows="10" id="${idSuffix}-${paramName}" name="requestBody">${predefinedValue}</textarea>
+															</c:when>
+															<c:otherwise>
+																<input class="form-control paramValue" style="display:table-cell; width:100%" type="text" id="${idSuffix}-${paramName}" name="${parameter.name}"  placeholder="${note}" value="${predefinedValue}"/>
+															</c:otherwise>
+														</c:choose>
+													</td>
+													<td>
+														<c:out value="${parameter.type}" escapeXml="true"/>
+														<c:if test="${not empty parameter.description}">
+															; ${parameter.description}
+														</c:if>
+														<c:if test="${not empty parameter.example}">
+															<pre
+																class="bg-light border p-2 json copyable"
+																data-copydest="${idSuffix}-${paramName}"
+																>${parameter.example}</pre>
+														</c:if>
+													</td>
+												</tr>
+											</c:forEach>
+										</table>
+										<c:if test="${not empty endpoint.paramsEnumValuesDisplay}">
+											<h5>Parameter Enum Values</h5>
+											<pre class="bg-light border p-2 json">${endpoint.paramsEnumValuesDisplay}</pre>
+										</c:if>
+									</c:when>
+									<c:otherwise>None</c:otherwise>
+								</c:choose>
+								<h3>Response</h3>
+								<c:out value="${endpoint.response.type}" escapeXml="true"/>
+								<c:if test="${empty endpoint.response}">
+									Nothing
+								</c:if>
+								<c:if test="${not empty endpoint.response.example}">
+									<pre class="bg-light border p-2 json">${endpoint.response.example}</pre>
+								</c:if>
+								<c:if test="${not empty endpoint.response.enumValuesDisplay}">
+									<h5>Response Enum Values</h5>
+									<pre class="bg-light border p-2 json">${endpoint.response.enumValuesDisplay}</pre>
+								</c:if>
+								<c:if test="${not empty endpoint.errors}">
+									<h3>Errors</h3>
+									<table class="table">
+										<tr>
+											<th>Message</th>
+											<th>Status code</th>
+										</tr>
+										<c:forEach var="error" items="${endpoint.errors}">
+											<tr>
+												<td>${error.message}</td>
+												<td>${error.statusCode}</td>
 											</tr>
 										</c:forEach>
 									</table>
-									<c:if test="${not empty endpoint.paramsEnumValuesDisplay}">
-										<h5>Parameter Enum Values</h5>
-										<pre class="bg-light border p-2 json">${endpoint.paramsEnumValuesDisplay}</pre>
-									</c:if>
-								</c:when>
-								<c:otherwise>None</c:otherwise>
-							</c:choose>
-							<h3>Response</h3>
-							<c:out value="${endpoint.response.type}" escapeXml="true"/>
-							<c:if test="${empty endpoint.response}">
-								Nothing
-							</c:if>
-							<c:if test="${not empty endpoint.response.example}">
-								<pre class="bg-light border p-2 json">${endpoint.response.example}</pre>
-							</c:if>
-							<c:if test="${not empty endpoint.response.enumValuesDisplay}">
-								<h5>Response Enum Values</h5>
-								<pre class="bg-light border p-2 json">${endpoint.response.enumValuesDisplay}</pre>
-							</c:if>
-							<c:if test="${not empty endpoint.errors}">
-								<h3>Errors</h3>
-								<table class="table">
-									<tr>
-										<th>Message</th>
-										<th>Status code</th>
-									</tr>
-									<c:forEach var="error" items="${endpoint.errors}">
-										<tr>
-											<td>${error.message}</td>
-											<td>${error.statusCode}</td>
-										</tr>
-									</c:forEach>
-								</table>
-							</c:if>
-							<div>
-								<button id="sendRequest" type="button" class="btn btn-primary"
-										onclick="callApi('${rowClass}','${loop.index}','${endpoint.url}',
-												'${hideAuth}')">Try It Out</button>
+								</c:if>
+								<div>
+									<button id="sendRequest" type="button" class="btn btn-primary"
+											onclick="callApi('${rowClass}','${idSuffix}','${endpoint.url}',
+													'${hideAuth}')">Try It Out</button>
+								</div>
+								<div id="${responseDivId}" class="mt-3" style="display:none;">
+									<h3>Response</h3>
+									<div>
+										<h4>Request URL</h4>
+										<pre id="${requestUrlId}" class="bg-light border p-2">
+									</div>
+									<div>
+										<h4>Request Body</h4>
+										<pre id="${requestBodyId}" class="bg-light border p-2">
+									</div>
+									<div>
+										<h4>Response Body</h4>
+										<pre id="${jsonResponseId}" class="bg-light border p-2">
+									</div>
+									<div>
+										<h4>Response Code</h4>
+										<pre id="${responseCodeId}" class="bg-light border p-2">
+									</div>
+									<div>
+										<h4>Response Header</h4>
+										<pre id="${responseHeaderId}" class="bg-light border p-2">
+									</div>
+								</div>
+								</pre>
 							</div>
-							<div id="${responseDivId}" class="mt-3" style="display:none;">
-								<h3>Response</h3>
-								<div>
-									<h4>Request URL</h4>
-									<pre id="${requestUrlId}" class="bg-light border p-2">
-								</div>
-								<div>
-									<h4>Request Body</h4>
-									<pre id="${requestBodyId}" class="bg-light border p-2">
-								</div>
-								<div>
-									<h4>Response Body</h4>
-									<pre id="${jsonResponseId}" class="bg-light border p-2">
-								</div>
-								<div>
-									<h4>Response Code</h4>
-									<pre id="${responseCodeId}" class="bg-light border p-2">
-								</div>
-								<div>
-									<h4>Response Header</h4>
-									<pre id="${responseHeaderId}" class="bg-light border p-2">
-								</div>
-							</div>
-							</pre>
 						</div>
 					</div>
-				</div>
+				</c:forEach>
 			</c:forEach>
 		</div>
 	</div>

@@ -55,40 +55,28 @@ public class TableStorageSummaryJob extends BaseJob{
 
 	private static final long LIMIT_PER_TABLE = 4_000_000;
 
-	private final ServiceName serviceNameSupplier;
-	private final TableSamplerService tableSamplerService;
-	private final DatarouterNodes datarouterNodes;
-	private final ManagedNodesHolder managedNodesHolder;
-	private final TableStorageStatsBinaryDao tableStorageStatsDao;
-	private final ServiceStorageStatsBinaryDao serviceStorageStatsDao;
-	private final ClientTypeStorageStatsBinaryDao clientTypeStatsDao;
-	private final List<PhysicalSortedStorageReaderNode<?,?,?>> nodes;
-	private final Map<ClientType<?,?>,List<PhysicalSortedStorageReaderNode<?,?,?>>> nodesByClientType;
-
 	@Inject
-	public TableStorageSummaryJob(
-			ServiceName serviceNameSupplier,
-			TableSamplerService tableSamplerService,
-			DatarouterNodes datarouterNodes,
-			ManagedNodesHolder managedNodesHolder,
-			TableStorageStatsBinaryDao tableStatsDao,
-			ServiceStorageStatsBinaryDao serviceStorageStatsDao,
-			ClientTypeStorageStatsBinaryDao clientTypeStatsDao){
-		this.serviceNameSupplier = serviceNameSupplier;
-		this.tableSamplerService = tableSamplerService;
-		this.serviceStorageStatsDao = serviceStorageStatsDao;
-		this.datarouterNodes = datarouterNodes;
-		this.managedNodesHolder = managedNodesHolder;
-		this.tableStorageStatsDao = tableStatsDao;
-		this.clientTypeStatsDao = clientTypeStatsDao;
-		nodes = tableSamplerService.scanCountableNodes()
-				.list();
-		nodesByClientType = Scanner.of(nodes)
-				.groupBy(PhysicalNode::getClientType);
-	}
+	private ServiceName serviceNameSupplier;
+	@Inject
+	private TableSamplerService tableSamplerService;
+	@Inject
+	private DatarouterNodes datarouterNodes;
+	@Inject
+	private ManagedNodesHolder managedNodesHolder;
+	@Inject
+	private TableStorageStatsBinaryDao tableStorageStatsDao;
+	@Inject
+	private ServiceStorageStatsBinaryDao serviceStorageStatsDao;
+	@Inject
+	private ClientTypeStorageStatsBinaryDao clientTypeStatsDao;
 
 	@Override
 	public void run(TaskTracker tracker){
+		List<PhysicalSortedStorageReaderNode<?,?,?>> nodes = tableSamplerService.scanCountableNodes()
+				.list();
+		Map<ClientType<?,?>,List<PhysicalSortedStorageReaderNode<?,?,?>>> nodesByClientType = Scanner.of(nodes)
+				.groupBy(PhysicalNode::getClientType);
+
 		// Save a summary for each table
 		List<TableStorageStatsBinaryDto> tableDtos = Scanner.of(nodes)
 				.sort(Comparator.comparing(Node::getName))

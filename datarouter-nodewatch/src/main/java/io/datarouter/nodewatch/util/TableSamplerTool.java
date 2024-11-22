@@ -36,4 +36,15 @@ public class TableSamplerTool{
 				.orElse(null);
 	}
 
+	public static <PK extends PrimaryKey<PK>> boolean checkIsParseableSampleKey(
+			Node<PK,?,?> node,
+			TableSampleKey sampleKey){
+		try{
+			extractPrimaryKeyFromSampleKey(node, sampleKey);
+			return true;
+		}catch(RuntimeException e){
+			return false;
+		}
+	}
+
 }

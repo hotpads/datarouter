@@ -28,7 +28,7 @@ import io.datarouter.joblet.codec.BaseGsonJobletCodec;
 import io.datarouter.joblet.model.BaseJoblet;
 import io.datarouter.joblet.type.JobletType;
 import io.datarouter.joblet.type.JobletType.JobletTypeBuilder;
-import io.datarouter.nodewatch.config.DatarouterNodewatchSettingRoot;
+import io.datarouter.nodewatch.config.setting.DatarouterNodewatchSettingRoot;
 import io.datarouter.nodewatch.joblet.TableSpanSamplerJoblet.TableSpanSamplerJobletParams;
 import io.datarouter.nodewatch.storage.tablesample.DatarouterTableSampleDao;
 import io.datarouter.nodewatch.storage.tablesample.TableSample;

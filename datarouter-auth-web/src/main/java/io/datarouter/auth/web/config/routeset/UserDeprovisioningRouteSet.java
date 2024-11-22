@@ -16,7 +16,7 @@
 package io.datarouter.auth.web.config.routeset;
 
 import io.datarouter.auth.config.DatarouterAuthPaths;
-import io.datarouter.auth.role.DatarouterUserRole;
+import io.datarouter.auth.role.DatarouterUserRoleRegistry;
 import io.datarouter.auth.web.web.UserDeprovisioningHandler;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.BaseRouteSet;
@@ -34,7 +34,7 @@ public class UserDeprovisioningRouteSet extends BaseRouteSet{
 
 	@Override
 	protected DispatchRule applyDefault(DispatchRule rule){
-		return rule.allowRoles(DatarouterUserRole.ADMIN, DatarouterUserRole.DATAROUTER_ADMIN)
+		return rule.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_ADMIN)
 				.withTag(Tag.DATAROUTER);
 	}
 

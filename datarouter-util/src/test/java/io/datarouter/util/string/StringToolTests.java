@@ -38,7 +38,6 @@ public class StringToolTests{
 	public void testPad(){
 		Assert.assertEquals(StringTool.pad("asdf", ' ', 8), "    asdf");
 		Assert.assertEquals(StringTool.padEnd("fdsa", '_', 7), "fdsa___");
-		Assert.assertEquals(StringTool.repeat('f', 10), "ffffffffff");
 	}
 
 	@Test

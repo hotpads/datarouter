@@ -81,7 +81,7 @@ extends SpannerBaseOp<List<PK>>{
 						fieldInfo.getPrimaryKeyFields(),
 						ranges,
 						fieldInfo.getPrimaryKeyFields(),
-						null)
+						SpannerSql.PRIMARY_KEY_INDEX_NAME)
 				.prepare(null)
 				.build();
 		ResultSet resultSet = client.singleUseReadOnlyTransaction().executeQuery(statement);

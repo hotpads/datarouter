@@ -21,6 +21,8 @@ package io.datarouter.model.field.encoding;
 public interface BinaryValueField<T>{
 
 	byte[] getValueBytes();
+	int getApproximateValueBytesLength();
+
 	T fromValueBytesButDoNotSet(byte[] bytes, int byteOffset);
 
 }

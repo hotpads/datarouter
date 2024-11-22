@@ -28,10 +28,9 @@ import org.testng.annotations.Test;
 import com.google.gson.Gson;
 
 import io.datarouter.enums.StringMappedEnum;
+import io.datarouter.gson.DatarouterGsons;
 import io.datarouter.gson.GsonJsonSerializer;
-import io.datarouter.gson.GsonTool;
 import io.datarouter.gson.typeadapterfactory.EnumTypeAdapterFactory;
-import io.datarouter.httpclient.endpoint.java.EndpointTool;
 import io.datarouter.json.JsonSerializer;
 import io.datarouter.pathnode.PathNode;
 
@@ -80,16 +79,15 @@ public class EndpointGsonSerializationTests{
 
 		public TestEnumTypeAdapterFactory(){
 			allowUnregistered();
-			registerStringMappedEnumRequired(TestEnum1.BY_PERSISTENT_STRING);
-			registerStringMappedEnumRequired(TestEnum2.BY_NAME);
+			requiredValues(TestEnum1.BY_PERSISTENT_STRING);
+			requiredValues(TestEnum2.BY_NAME);
 		}
 
 	}
 
 	private static class TestSerializer extends GsonJsonSerializer{
 
-		public static final Gson GSON = GsonTool.builder(new TestEnumTypeAdapterFactory())
-				.create();
+		public static final Gson GSON = DatarouterGsons.withEnums(new TestEnumTypeAdapterFactory());
 
 		public TestSerializer(){
 			super(GSON);
@@ -261,7 +259,7 @@ public class EndpointGsonSerializationTests{
 				Map.entry("optDuration", "{\"seconds\":0,\"nanos\":1000000}"),
 				Map.entry("optInstant", "{\"seconds\":-31557014167219200,\"nanos\":0}"));
 
-		Map<String,String> actual = EndpointTool.getParamFields(endpoint, SERIALIZER).getParams;
+		Map<String,String> actual = JavaEndpointTool.getParamFields(endpoint, SERIALIZER).getParams;
 		actual.forEach((key, actualValue) -> {
 			String expectedValue = expected.get(key);
 			Assert.assertEquals(actualValue, expectedValue, key);

@@ -57,7 +57,7 @@ extends TypeAdapter<T>{
 	/**
 	 * When deserializing, return the replacement if the value is not found.
 	 */
-	public static <T extends Enum<T>> StringMappedEnumTypeAdapter<T> optional(
+	public static <T extends Enum<T>> StringMappedEnumTypeAdapter<T> optionalWithoutLogging(
 			MappedEnum<T,String> mappedEnum,
 			T defaultValue){
 		return new StringMappedEnumTypeAdapter<>(mappedEnum, true, defaultValue, false);

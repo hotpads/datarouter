@@ -35,7 +35,7 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
 @Singleton
-public class DatarouterAccountPermissionDao extends BaseDao implements BaseDatarouterAccountPermissionDao{
+public class DatarouterAccountPermissionDao extends BaseDao{
 
 	public static class DatarouterAccountPermissionDaoParams{
 
@@ -85,7 +85,6 @@ public class DatarouterAccountPermissionDao extends BaseDao implements BaseDatar
 		datarouter.register(node);
 	}
 
-	@Override
 	public void put(DatarouterAccountPermission databean){
 		node.put(databean);
 	}
@@ -94,12 +93,10 @@ public class DatarouterAccountPermissionDao extends BaseDao implements BaseDatar
 		node.putMulti(databeans);
 	}
 
-	@Override
 	public void deleteWithPrefix(DatarouterAccountPermissionKey prefix){
 		node.deleteWithPrefix(prefix);
 	}
 
-	@Override
 	public void delete(DatarouterAccountPermissionKey key){
 		node.delete(key);
 	}
@@ -108,12 +105,10 @@ public class DatarouterAccountPermissionDao extends BaseDao implements BaseDatar
 		node.deleteMulti(keys);
 	}
 
-	@Override
 	public Scanner<DatarouterAccountPermissionKey> scanKeys(){
 		return node.scanKeys();
 	}
 
-	@Override
 	public Scanner<DatarouterAccountPermissionKey> scanKeysWithPrefixes(
 			Collection<DatarouterAccountPermissionKey> prefixes){
 		return node.scanKeysWithPrefixes(prefixes);

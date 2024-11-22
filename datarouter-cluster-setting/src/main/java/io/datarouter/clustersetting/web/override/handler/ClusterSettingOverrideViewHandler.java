@@ -29,6 +29,7 @@ import io.datarouter.clustersetting.web.override.ClusterSettingEditSource;
 import io.datarouter.clustersetting.web.override.ClusterSettingOverrideHtml;
 import io.datarouter.clustersetting.web.override.ClusterSettingOverrideTableHtml;
 import io.datarouter.clustersetting.web.override.handler.ClusterSettingOverrideCreateHandler.ClusterSettingOverrideCreateLinks;
+import io.datarouter.email.email.DatarouterHtmlEmailService;
 import io.datarouter.web.config.ServletContextSupplier;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
@@ -121,12 +122,21 @@ public class ClusterSettingOverrideViewHandler extends BaseHandler{
 			return uriBuilder.toString();
 		}
 
+	}
+
+	@Singleton
+	public static class ClusterSettingOverrideEmailLinks{
+
+		@Inject
+		private DatarouterHtmlEmailService emailService;
+		@Inject
+		private DatarouterClusterSettingPaths paths;
+
 		public String view(String partialName){
-			var uriBuilder = new URIBuilder()
-					.setPath(contextSupplier.getContextPath()
-							+ paths.datarouter.settings.overrides.view.toSlashedString());
-			uriBuilder.addParameter(P_partialName, partialName);
-			return uriBuilder.toString();
+			return emailService.startLinkBuilder()
+					.withLocalPath(paths.datarouter.settings.overrides.view)
+					.withParam(P_partialName, partialName)
+					.build();
 		}
 
 	}

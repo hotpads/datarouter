@@ -23,17 +23,23 @@ import io.datarouter.model.field.Field;
 import io.datarouter.model.field.FieldKey;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.util.lang.ReflectionTool;
 
-public class IndexEntryFieldInfo<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>{
+public class IndexEntryFieldInfo<
+		PK extends PrimaryKey<PK>,
+		D extends Databean<PK,D>,
+		F extends DatabeanFielder<PK,D>>{
 
 	private final String indexName;
 	private final Supplier<D> databeanSupplier;
 	private final Supplier<F> fielderSupplier;
 	private final D sampleDatabean;
+	private final java.lang.reflect.Field keyJavaField;
 	private final F sampleFielder;
 	private final Supplier<PK> primaryKeySupplier;
 	private final List<Field<?>> fields;
 	private final List<Field<?>> primaryKeyFields;
+	private final List<Field<?>> nonKeyFields;
 	private final List<String> primaryKeyFieldColumnNames;
 	private final List<String> fieldColumnNames;
 
@@ -42,10 +48,14 @@ public class IndexEntryFieldInfo<PK extends PrimaryKey<PK>,D extends Databean<PK
 		this.databeanSupplier = databeanSupplier;
 		this.fielderSupplier = fielderSupplier;
 		this.sampleDatabean = databeanSupplier.get();
+		this.keyJavaField = ReflectionTool.getDeclaredFieldFromAncestors(
+				sampleDatabean.getClass(),
+				sampleDatabean.getKeyFieldName());
 		this.sampleFielder = fielderSupplier.get();
 		this.primaryKeySupplier = sampleDatabean.getKeySupplier();
 		this.fields = sampleFielder.getFields(sampleDatabean);
 		this.primaryKeyFields = primaryKeySupplier.get().getFields();
+		this.nonKeyFields = sampleFielder.getNonKeyFields(sampleDatabean);
 		this.primaryKeyFieldColumnNames = createFieldColumnNames(this.primaryKeyFields);
 		this.fieldColumnNames = createFieldColumnNames(this.fields);
 	}
@@ -73,6 +83,10 @@ public class IndexEntryFieldInfo<PK extends PrimaryKey<PK>,D extends Databean<PK
 		return sampleDatabean;
 	}
 
+	public java.lang.reflect.Field getKeyJavaField(){
+		return keyJavaField;
+	}
+
 	public F getSampleFielder(){
 		return sampleFielder;
 	}
@@ -89,6 +103,10 @@ public class IndexEntryFieldInfo<PK extends PrimaryKey<PK>,D extends Databean<PK
 		return primaryKeyFields;
 	}
 
+	public List<Field<?>> getNonKeyFields(){
+		return nonKeyFields;
+	}
+
 	public List<String> getPrimaryKeyFieldColumnNames(){
 		return primaryKeyFieldColumnNames;
 	}
@@ -96,6 +114,5 @@ public class IndexEntryFieldInfo<PK extends PrimaryKey<PK>,D extends Databean<PK
 	public List<String> getFieldColumnNames(){
 		return fieldColumnNames;
 	}
-
 
 }

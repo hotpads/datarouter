@@ -101,5 +101,4 @@ public class DatarouterHttpResponse{
 			logger.warn("failed to close", e);
 		}
 	}
-
 }

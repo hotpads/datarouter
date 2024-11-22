@@ -37,7 +37,7 @@ import io.datarouter.job.lock.LocalTriggerLockService;
 import io.datarouter.job.lock.TriggerLockConfig;
 import io.datarouter.job.lock.TriggerLockService;
 import io.datarouter.job.scheduler.JobWrapper.JobWrapperFactory;
-import io.datarouter.job.util.Outcome;
+import io.datarouter.job.util.DatarouterJobOutcome;
 import io.datarouter.types.MilliTime;
 import io.datarouter.util.concurrent.ThreadTool;
 import io.datarouter.util.number.RandomTool;
@@ -96,20 +96,27 @@ public class JobScheduler{
 		triggerGroup.getJobPackages().forEach(this::register);
 	}
 
-	public Outcome triggerManualJob(Class<? extends BaseJob> jobClass, String triggeredBy){
+	public DatarouterJobOutcome triggerManualJob(
+			Class<? extends BaseJob> jobClass,
+			String triggeredBy){
 		JobPackage jobPackage = JobPackage.createManualFromScheduledPackage(jobPackageTracker.getForClass(jobClass));
 		return triggerManualJob(jobClass, jobPackage, triggeredBy, jobPackage.shouldRunDetached);
 	}
 
-	public Outcome triggerManualJob(Class<? extends BaseJob> jobClass, String triggeredBy, boolean runDetached){
+	public DatarouterJobOutcome triggerManualJob(
+			Class<? extends BaseJob> jobClass,
+			String triggeredBy,
+			boolean runDetached){
 		JobPackage jobPackage = JobPackage.createManualFromScheduledPackage(jobPackageTracker.getForClass(jobClass));
 		return triggerManualJob(jobClass, jobPackage, triggeredBy, runDetached);
 	}
 
-	private Outcome triggerManualJob(Class<? extends BaseJob> jobClass, JobPackage jobPackage, String triggeredBy,
+	private DatarouterJobOutcome triggerManualJob(
+			Class<? extends BaseJob> jobClass,
+			JobPackage jobPackage,
+			String triggeredBy,
 			boolean runDetached){
-		BaseJob job = injector.getInstance(jobClass);
-		JobWrapper jobWrapper = jobWrapperFactory.createManual(jobPackage, job, triggeredBy);
+		JobWrapper jobWrapper = jobWrapperFactory.createManual(jobPackage, jobClass, triggeredBy);
 		return triggerManual(jobWrapper, runDetached);
 	}
 
@@ -135,9 +142,12 @@ public class JobScheduler{
 		}
 		Instant nextTriggerTime = nextValidTimeAfter.get().toInstant();
 		Duration durationUntilNextTrigger = Duration.between(now, nextTriggerTime);
-		BaseJob nextJobInstance = injector.getInstance(jobPackage.jobClass);
-		JobWrapper jobWrapper = jobWrapperFactory.createScheduled(jobPackage, nextJobInstance, nextTriggerTime,
-				nextTriggerTime, getClass().getSimpleName());
+		JobWrapper jobWrapper = jobWrapperFactory.createScheduled(
+				jobPackage,
+				jobPackage.jobClass,
+				nextTriggerTime,
+				nextTriggerTime,
+				getClass().getSimpleName());
 		schedule(jobWrapper, durationUntilNextTrigger.toMillis(), false, false);
 	}
 
@@ -146,13 +156,13 @@ public class JobScheduler{
 	}
 
 	public void scheduleRetriggeredJob(JobPackage jobPackage, Instant officialTriggerTime){
-		logger.warn("retriggering {} with official triggerTime {} to run immediately",
+		logger.warn(
+				"retriggering {} with official triggerTime {} to run immediately",
 				jobPackage.jobClass.getSimpleName(),
 				TriggerLockService.formatTime(officialTriggerTime));
-		BaseJob nextJobInstance = injector.getInstance(jobPackage.jobClass);
 		JobWrapper jobWrapper = jobWrapperFactory.createRetriggered(
 				jobPackage,
-				nextJobInstance,
+				jobPackage.jobClass,
 				officialTriggerTime,
 				Instant.now(),
 				getClass().getSimpleName() + " JobRetriggeringJob");
@@ -164,7 +174,9 @@ public class JobScheduler{
 			logger.warn("Job scheduler is shutdown, not scheduling {}", jobWrapper.jobClass.getSimpleName());
 			return;
 		}
-		triggerExecutor.schedule(() -> triggerScheduled(jobWrapper, logIfRan, logIfDidNotRun), delayMs,
+		triggerExecutor.schedule(
+				() -> triggerScheduled(jobWrapper, logIfRan, logIfDidNotRun),
+				delayMs,
 				TimeUnit.MILLISECONDS);
 	}
 
@@ -175,13 +187,13 @@ public class JobScheduler{
 			logger.warn("Job scheduler is shutdown, not running {}", jobWrapper.jobClass.getSimpleName());
 			return;
 		}
-		Class<? extends BaseJob> jobClass = jobWrapper.job.getClass();
+		Class<? extends BaseJob> jobClass = jobWrapper.jobClass;
 		JobPackage jobPackage = jobWrapper.jobPackage;
 		try{
 			if(!configuredToRun(jobPackage)){
 				return;
 			}
-			Outcome didRun;
+			DatarouterJobOutcome didRun;
 			if(jobPackage.shouldRunDetached && jobSettings.enableDetachedJobs.get()){
 				didRun = runDetached(jobWrapper);
 			}else if(jobPackage.usesLocking()){
@@ -190,7 +202,7 @@ public class JobScheduler{
 			}else{
 				didRun = tryAcquireLocalLockAndRun(jobWrapper);
 			}
-			if(logIfRan && didRun.succeeded()){
+			if(logIfRan && didRun.success()){
 				logger.warn("{} did run", jobClass.getName());
 			}
 			if(logIfDidNotRun && didRun.failed()){
@@ -210,7 +222,7 @@ public class JobScheduler{
 		}
 	}
 
-	private Outcome triggerManual(JobWrapper jobWrapper, boolean runDetached){
+	private DatarouterJobOutcome triggerManual(JobWrapper jobWrapper, boolean runDetached){
 		if(runDetached){
 			return runDetached(jobWrapper);
 		}
@@ -230,12 +242,14 @@ public class JobScheduler{
 		return Duration.ofMillis(totalDelayMs);
 	}
 
-	private Outcome tryAcquireClusterLockAndRun(
+	private DatarouterJobOutcome tryAcquireClusterLockAndRun(
 			JobWrapper jobWrapper,
 			TriggerLockConfig triggerLockConfig,
 			Duration delay){
-		var jobAndTriggerLocksAcquired =
-				triggerLockService.acquireJobAndTriggerLocks(triggerLockConfig, jobWrapper.triggerTime, delay);
+		var jobAndTriggerLocksAcquired = triggerLockService.acquireJobAndTriggerLocks(
+				triggerLockConfig,
+				jobWrapper.triggerTime,
+				delay);
 		if(jobAndTriggerLocksAcquired.failed()){
 			return jobAndTriggerLocksAcquired;
 		}
@@ -255,11 +269,11 @@ public class JobScheduler{
 		}catch(Exception e){
 			logger.warn("failed to release jobLock for {}", triggerLockConfig.jobName, e);
 		}
-		return Outcome.success();
+		return DatarouterJobOutcome.makeSuccess();
 	}
 
-	private Outcome tryAcquireLocalLockAndRun(JobWrapper jobWrapper){
-		Outcome localLockAcquired = localTriggerLockService.acquire(jobWrapper);
+	private DatarouterJobOutcome tryAcquireLocalLockAndRun(JobWrapper jobWrapper){
+		DatarouterJobOutcome localLockAcquired = localTriggerLockService.acquire(jobWrapper);
 		if(localLockAcquired.failed()){
 			return localLockAcquired;
 		}
@@ -270,10 +284,12 @@ public class JobScheduler{
 		}
 	}
 
-	private Outcome runDetached(JobWrapper jobWrapper){
+	private DatarouterJobOutcome runDetached(JobWrapper jobWrapper){
 		JobPackage jobPackage = jobWrapper.jobPackage;
-		Outcome jobAndTriggerLocksAcquired = triggerLockService
-				.acquireJobAndTriggerLocks(jobPackage.triggerLockConfig, jobWrapper.triggerTime, Duration.ZERO);
+		DatarouterJobOutcome jobAndTriggerLocksAcquired = triggerLockService.acquireJobAndTriggerLocks(
+				jobPackage.triggerLockConfig,
+				jobWrapper.triggerTime,
+				Duration.ZERO);
 		if(jobAndTriggerLocksAcquired.failed()){
 			return jobAndTriggerLocksAcquired;
 		}
@@ -281,11 +297,12 @@ public class JobScheduler{
 			detachedJobExecutor.get().submit(jobWrapper);
 			// Not releasing the JobLock here, 'ownership' transferred to the detached job
 		}catch(Exception e){
-			triggerLockService
-					.tryReleasingJobAndTriggerLocks(jobWrapper.jobPackage.triggerLockConfig, jobWrapper.triggerTime);
+			triggerLockService.tryReleasingJobAndTriggerLocks(
+					jobWrapper.jobPackage.triggerLockConfig,
+					jobWrapper.triggerTime);
 			throw e;
 		}
-		return Outcome.success();
+		return DatarouterJobOutcome.makeSuccess();
 	}
 
 	/*---------------- helpers -------------------*/

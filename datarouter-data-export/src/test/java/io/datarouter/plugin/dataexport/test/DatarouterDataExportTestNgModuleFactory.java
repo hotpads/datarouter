@@ -19,8 +19,8 @@ import java.util.List;
 
 import io.datarouter.client.memory.test.DatarouterMemoryTestClientIds;
 import io.datarouter.inject.guice.BaseGuiceModule;
-import io.datarouter.nodewatch.config.DatarouterNodewatchDirectorySupplier.NoOpNodewatchDirectorySupplier;
 import io.datarouter.nodewatch.config.DatarouterNodewatchPlugin.DatarouterNodewatchPluginBuilder;
+import io.datarouter.nodewatch.config.DatarouterStorageStatsDirectorySupplier.NoOpStorageStatsDirectorySupplier;
 import io.datarouter.plugin.dataexport.config.DatarouterDataExportDirectorySupplier;
 import io.datarouter.storage.config.properties.DatarouterTestPropertiesFile;
 import io.datarouter.storage.config.properties.ServiceName;
@@ -55,7 +55,7 @@ public class DatarouterDataExportTestNgModuleFactory extends TestNgModuleFactory
 		private void installNodewatch(){
 			var nodewatchPlugin = new DatarouterNodewatchPluginBuilder(
 					List.of(DatarouterMemoryTestClientIds.MEMORY),
-					NoOpNodewatchDirectorySupplier.class)
+					NoOpStorageStatsDirectorySupplier.class)
 					.build();
 			install(nodewatchPlugin);
 

@@ -21,6 +21,7 @@ import com.google.cloud.spanner.Value;
 
 import io.datarouter.gcp.spanner.ddl.SpannerColumnType;
 import io.datarouter.gcp.spanner.field.SpannerBaseFieldCodec;
+import io.datarouter.gcp.spanner.field.SpannerValueTool;
 import io.datarouter.model.field.imp.comparable.FloatField;
 
 public class SpannerFloatFieldCodec extends SpannerBaseFieldCodec<Float,FloatField>{
@@ -36,7 +37,7 @@ public class SpannerFloatFieldCodec extends SpannerBaseFieldCodec<Float,FloatFie
 
 	@Override
 	public Value getSpannerValue(){
-		return Value.float64(field.getValue());
+		return SpannerValueTool.ofFloat(field.getValue());
 	}
 
 	@Override

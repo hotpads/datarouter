@@ -16,7 +16,7 @@
 package io.datarouter.auth.web.config.routeset;
 
 import io.datarouter.auth.config.DatarouterAuthPaths;
-import io.datarouter.auth.role.DatarouterUserRole;
+import io.datarouter.auth.role.DatarouterUserRoleRegistry;
 import io.datarouter.auth.web.web.DatarouterAccountCallerTypeHandler;
 import io.datarouter.auth.web.web.DatarouterAccountManagerHandler;
 import io.datarouter.auth.web.web.DatarouterAccountRenameHandler;
@@ -39,7 +39,7 @@ public class DatarouterAccountRouteSet extends BaseRouteSet{
 	@Override
 	protected DispatchRule applyDefault(DispatchRule rule){
 		return rule
-				.allowRoles(DatarouterUserRole.DATAROUTER_ACCOUNTS, DatarouterUserRole.DATAROUTER_ADMIN)
+				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_ACCOUNTS, DatarouterUserRoleRegistry.DATAROUTER_ADMIN)
 				.withTag(Tag.DATAROUTER);
 	}
 

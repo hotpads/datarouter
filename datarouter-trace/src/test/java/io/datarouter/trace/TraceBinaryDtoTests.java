@@ -75,7 +75,8 @@ public class TraceBinaryDtoTests{
 				7L,
 				8L,
 				List.of(TraceSaveReasonType.CPU, TraceSaveReasonType.QUERY_PARAM),
-				TraceCategory.HTTP_REQUEST);
+				TraceCategory.HTTP_REQUEST,
+				"test");
 		var thread = new TraceThreadDto(traceparent, 9L, 10L, "thread", "server", "host", 11L);
 		thread.setInfo("info1");
 		thread.setQueuedEnded(12L);

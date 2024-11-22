@@ -15,7 +15,7 @@
  */
 package io.datarouter.webappinstance.config;
 
-import io.datarouter.auth.role.DatarouterUserRole;
+import io.datarouter.auth.role.DatarouterUserRoleRegistry;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
@@ -36,7 +36,9 @@ public class DatarouterWebappInstanceRouteSet extends BaseRouteSet{
 	@Override
 	protected DispatchRule applyDefault(DispatchRule rule){
 		return rule
-				.allowRoles(DatarouterUserRole.DATAROUTER_ADMIN, DatarouterUserRole.DATAROUTER_MONITORING)
+				.allowRoles(
+						DatarouterUserRoleRegistry.DATAROUTER_ADMIN,
+						DatarouterUserRoleRegistry.DATAROUTER_MONITORING)
 				.withTag(Tag.DATAROUTER);
 	}
 

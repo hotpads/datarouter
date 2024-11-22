@@ -16,6 +16,7 @@
 package io.datarouter.aws.s3;
 
 import java.time.Duration;
+import java.util.Optional;
 
 import io.datarouter.enums.StringMappedEnum;
 
@@ -75,6 +76,7 @@ public class S3Headers{
 		TEXT_XML("text/xml","xml"),
 		TEXT_SHELLSCRIPT("text/x-shellscript", "sh"),
 		TEXT_HTML("text/html","html"),
+		WAV("audio/wav","wav"),
 		ZIP("application/zip","zip"),
 		;
 
@@ -94,14 +96,14 @@ public class S3Headers{
 			return mimeType;
 		}
 
-		public static ContentType fromExtension(String ext){
+		public static Optional<ContentType> fromExtension(String ext){
 			ext = ext.toLowerCase();
 			for(ContentType type : values()){
 				if(ext.equals(type.extension)){
-					return type;
+					return Optional.of(type);
 				}
 			}
-			return APPLICATION_XML;
+			return Optional.empty();
 		}
 
 	}

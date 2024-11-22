@@ -19,7 +19,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import org.testng.Assert;
@@ -122,7 +121,7 @@ public class BinaryDtoNestedTests{
 				null,
 				new InnerTestDto[]{inner0, inner1, null},
 				Arrays.asList(inner2, null, inner3),
-				Collections.emptyList(),
+				List.of(),
 				null);
 
 		Assert.assertEquals(outerDto.cloneIndexed(), outerDto);

@@ -65,7 +65,7 @@ public class DatarouterTracer implements Tracer{
 	public DatarouterTracer(String serverName, Long traceThreadParentId, W3TraceContext w3TraceContext, int maxSpans){
 		this.serverName = serverName;
 		this.traceThreadParentId = traceThreadParentId;
-		this.hostThreadId = Thread.currentThread().getId();
+		this.hostThreadId = Thread.currentThread().threadId();
 		this.hostThreadName = Thread.currentThread().getName();
 		this.w3TraceContext = w3TraceContext;
 		this.maxSpans = maxSpans;

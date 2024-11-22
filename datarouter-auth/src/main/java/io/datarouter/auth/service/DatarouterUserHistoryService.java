@@ -20,6 +20,7 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.text;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -40,6 +41,16 @@ import io.datarouter.email.type.DatarouterEmailTypes.PermissionRequestEmailType;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDto;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDtoBuilder;
+import io.datarouter.instrumentation.relay.dto.RelayAddToThreadRequestDto;
+import io.datarouter.instrumentation.relay.dto.RelayStartThreadRequestDto;
+import io.datarouter.instrumentation.relay.rml.Rml;
+import io.datarouter.instrumentation.relay.rml.RmlBlock;
+import io.datarouter.instrumentation.relay.rml.RmlCollectors;
+import io.datarouter.instrumentation.relay.rml.RmlDoc;
+import io.datarouter.instrumentation.relay.rml.RmlStyle;
+import io.datarouter.relay.DatarouterRelayFinder;
+import io.datarouter.relay.DatarouterRelaySender;
+import io.datarouter.relay.DatarouterRelayTopics;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.properties.AdminEmail;
 import io.datarouter.storage.config.properties.EnvironmentName;
@@ -77,6 +88,12 @@ public class DatarouterUserHistoryService{
 	private ServiceName serviceName;
 	@Inject
 	private EnvironmentName environmentName;
+	@Inject
+	private DatarouterRelayFinder relayFinder;
+	@Inject
+	private DatarouterRelaySender relaySender;
+	@Inject
+	private DatarouterRelayTopics relayTopics;
 
 	public Map<PermissionRequest,Optional<HistoryChange>> getResolvedRequestToHistoryChangesMap(
 			List<PermissionRequest> requests){
@@ -140,8 +157,7 @@ public class DatarouterUserHistoryService{
 	public void putAndRecordTimezoneUpdate(
 			DatarouterUser user,
 			DatarouterUser editor,
-			String changes,
-			String signinUrl){
+			String changes){
 		var history = new DatarouterUserHistoryLog(
 				user.getId(),
 				MilliTime.now(),
@@ -149,8 +165,7 @@ public class DatarouterUserHistoryService{
 				DatarouterUserChangeType.EDIT,
 				changes);
 		doPutAndRecordEdit(user, history, false);
-		sendTimezoneUpdateEmail(user, history, signinUrl);
-		DatarouterChangelogDto dto = new DatarouterChangelogDtoBuilder(
+		var dto = new DatarouterChangelogDtoBuilder(
 				CHANGELOG_TYPE,
 				user.getUsername(),
 				DatarouterUserChangeType.EDIT.persistentString,
@@ -324,30 +339,15 @@ public class DatarouterUserHistoryService{
 		htmlEmailService.trySendJ2Html(emailBuilder);
 	}
 
-	private void sendTimezoneUpdateEmail(DatarouterUser user, DatarouterUserHistoryLog history, String signInUrl){
-		DatarouterUser editor = datarouterUserService.getUserById(history.getEditor(), false);
-		var p1 = p(String.format("Your user (%s) timezone has been updated by %s", user.getUsername(),
-				editor.getUsername()));
-		var p2 = p("Changes: " + history.getChanges());
-		var content = div(p1, p2, makeSignInParagraph(signInUrl));
-		var emailBuilder = htmlEmailService.startEmailBuilder()
-				.withSubject(getTimezoneChangedEmailSubject(user))
-				.withTitle("Timezone Changed")
-				.withTitleHref(signInUrl)
-				.withContent(content)
-				.from(user.getUsername())
-				.to(user.getUsername())
-				.to(editor.getUsername());
-		htmlEmailService.trySendJ2Html(emailBuilder);
-	}
-
 	private void sendPermissionChangeEmail(DatarouterUser user, DatarouterUserHistoryLog history, String signInUrl){
 		DatarouterUser editor = datarouterUserService.getUserById(history.getEditor(), false);
-		var p1 = p(String.format("%s permissions have been edited by %s", user.getUsername(), editor.getUsername()));
+		String p1Text = "%s permissions have been edited by %s".formatted(user.getUsername(), editor.getUsername());
+		var p1 = p(p1Text);
 		var p2 = p("Changes: " + history.getChanges()).withStyle("white-space: pre-wrap");
 		var content = div(p1, p2, makeSignInParagraph(signInUrl));
+		String subject = getPermissionRequestEmailSubject(user);
 		var emailBuilder = htmlEmailService.startEmailBuilder()
-				.withSubject(getPermissionRequestEmailSubject(user))
+				.withSubject(subject)
 				.withTitle("Permissions Changed")
 				.withTitleHref(signInUrl)
 				.withContent(content)
@@ -358,6 +358,21 @@ public class DatarouterUserHistoryService{
 				.toSubscribers(serverTypeDetector.mightBeProduction())
 				.toAdmin(serverTypeDetector.mightBeDevelopment());
 		htmlEmailService.trySendJ2Html(emailBuilder);
+
+		List<String> topics = relayTopics.permissionChanged();
+		RmlDoc doc = Rml.doc(
+				Rml.heading(1, Rml.text("Permissions Changed").link(signInUrl)),
+				Rml.paragraph(Rml.text("Changes: "))
+						.with(history.getChanges().lines()
+								.map(Rml::text)
+								.collect(RmlCollectors.joining(Rml.hardBreak()))),
+				makeSignInParagraphBlock(signInUrl))
+				.withPadding(RmlStyle.padding(1));
+		// We could record the threadId in DB so we don't have to try and look it up
+		relayFinder.findRecentThread(relayTopics.permissionRequest().getFirst(), subject, Duration.ofDays(7))
+				.ifPresentOrElse(
+						threadId -> relaySender.addToThread(new RelayAddToThreadRequestDto(threadId, doc)),
+						() -> relaySender.startThread(new RelayStartThreadRequestDto(topics, subject, doc)));
 	}
 
 	//TODO: Make private post hotpads-api auth migration
@@ -380,10 +395,6 @@ public class DatarouterUserHistoryService{
 		return getEmailSubject("Password Changed", user);
 	}
 
-	private String getTimezoneChangedEmailSubject(DatarouterUser user){
-		return getEmailSubject("Timezone Changed", user);
-	}
-
 	private String getEmailSubject(String prefix, DatarouterUser user){
 		return String.format("%s %s - %s - %s",
 				prefix,
@@ -394,6 +405,12 @@ public class DatarouterUserHistoryService{
 
 	private static PTag makeSignInParagraph(String signInUrl){
 		return p(text("Please sign in again to refresh your session: "), a("sign in").withHref(signInUrl));
+	}
+
+	private static RmlBlock makeSignInParagraphBlock(String signInUrl){
+		return Rml.paragraph(
+				Rml.text("Please sign in again to refresh your session: "),
+				Rml.text("sign in").link(signInUrl));
 	}
 
 }

@@ -24,7 +24,7 @@ import java.util.function.Supplier;
 import io.datarouter.client.mysql.ddl.domain.MysqlRowFormat;
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
-import io.datarouter.model.field.codec.MilliTimeFieldCodec;
+import io.datarouter.model.field.codec.MilliTimeToLongFieldCodec;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
 import io.datarouter.model.field.imp.comparable.BooleanField;
@@ -114,12 +114,12 @@ public class TableSample extends BaseDatabean<TableSampleKey,TableSample>{
 	private static class FieldKeys{
 		private static final LongFieldKey numRows = new LongFieldKey("numRows");
 		public static final LongEncodedFieldKey<MilliTime> created = new LongEncodedFieldKey<>("created",
-				new MilliTimeFieldCodec());
+				new MilliTimeToLongFieldCodec());
 		public static final LongEncodedFieldKey<MilliTime> updated = new LongEncodedFieldKey<>("updated",
-				new MilliTimeFieldCodec());
+				new MilliTimeToLongFieldCodec());
 		private static final LongFieldKey samplerId = new LongFieldKey("samplerId");
 		public static final LongEncodedFieldKey<MilliTime> scheduled = new LongEncodedFieldKey<>("scheduled",
-				new MilliTimeFieldCodec());
+				new MilliTimeToLongFieldCodec());
 		private static final StringFieldKey stringKey = new StringFieldKey("stringKey")
 				.withSize(CommonFieldSizes.INT_LENGTH_LONGTEXT);
 		private static final LongFieldKey countTimeMs = new LongFieldKey("countTimeMs");

@@ -36,8 +36,10 @@ import io.datarouter.bytes.ByteTool;
 import io.datarouter.bytes.Codec;
 import io.datarouter.bytes.EmptyArray;
 import io.datarouter.bytes.HexBlockTool;
+import io.datarouter.bytes.RecordByteArrayField;
 import io.datarouter.bytes.blockfile.BlockfileGroupBuilder;
 import io.datarouter.bytes.blockfile.block.decoded.BlockfileFooterBlock;
+import io.datarouter.bytes.blockfile.block.decoded.BlockfileHeaderBlock;
 import io.datarouter.bytes.blockfile.block.tokens.BlockfileBaseTokens;
 import io.datarouter.bytes.blockfile.index.BlockfileIndexEntry;
 import io.datarouter.bytes.blockfile.io.read.query.BlockfileBlockIdReader.BlockfileBlockIdSearchResult;
@@ -88,6 +90,9 @@ public class BlockfileStringTests{
 					.list())
 			.list();
 	private static final long NUM_VALUE_BLOCKS = BLOCK_VALUES.size();
+	private static final long NUM_ROWS = Scanner.of(BLOCK_VALUES)
+			.concat(Scanner::of)
+			.count();
 
 	private static final int INDEX_FAN_OUT = 3;
 	private static final int NUM_INDEX_BLOCKS = 4;// 3 at level=0, 1 at level=1
@@ -212,12 +217,15 @@ public class BlockfileStringTests{
 				00000001000000000000000300000000000000050000000000000009000000000000001100000000
 				00000231000000ed0000000c000000000000000a0000000000000002000000000000000600000000
 				0000000600000000000000120000000000000014000000000000033e000000550000001805026130
-				0001050263320001050264300001050266320001050267300001050267320001000000b446051548
-				45414445525f424c4f434b5f4c4f434154494f4e03008401104e554d5f494e4445585f424c4f434b
-				530104104e554d5f56414c55455f424c4f434b53010719524f4f545f494e4445585f424c4f434b5f
-				4c4f434154494f4e049307ed010f555345525f44494354494f4e4152593a0107656e64696e677330
-				3133322c3136342c3139362c3232382c3436352c3439372c3532392c3536312c3739382c3833302c
-				3931352c31313532000000b4""";
+				00010502633200010502643000010502663200010502673000010502673200010000013b46060648
+				45414445527f0512434845434b53554d5f414c474f524954484d04544553540a434f4d5052455353
+				4f52045445535412494e4445585f424c4f434b5f464f524d41540256310f555345525f4449435449
+				4f4e4152591101077573726b6579300775737276616c301256414c55455f424c4f434b5f464f524d
+				41540a53455155454e5449414c154845414445525f424c4f434b5f4c4f434154494f4e0300840110
+				4e554d5f494e4445585f424c4f434b530104104e554d5f56414c55455f424c4f434b53010719524f
+				4f545f494e4445585f424c4f434b5f4c4f434154494f4e049307ed010f555345525f44494354494f
+				4e4152593a0107656e64696e6773303133322c3136342c3139362c3232382c3436352c3439372c35
+				32392c3536312c3739382c3833302c3931352c313135320000013b""";
 		Assert.assertEquals(HexByteStringCodec.INSTANCE.encode(actualBytes), HexBlockTool.trim(hex));
 		byte[] hexBytes = HexBlockTool.fromHexBlock(hex);
 		Assert.assertEquals(actualBytes, hexBytes);
@@ -239,14 +247,15 @@ public class BlockfileStringTests{
 		/*------- test read --------*/
 
 		// validate headers
+		BlockfileHeaderBlock header = reader.metadata().header();
 		Assert.assertEquals(
-				reader.metadata().header().checksummer().numBytes(),
+				header.checksummer().numBytes(),
 				writer.config().checksummer().numBytes());
 		Assert.assertEquals(
-				reader.metadata().header().checksummer().encodedName(),
+				header.checksummer().encodedName(),
 				writer.config().checksummer().encodedName());
 		Assert.assertEquals(
-				reader.metadata().header().userDictionary().size(),
+				header.userDictionary().size(),
 				1);
 		Assert.assertEquals(
 				reader.metadata().header().userDictionary().get(HEADER_DICT_KEY_0),
@@ -277,6 +286,7 @@ public class BlockfileStringTests{
 				reader.metadata().footer().headerBlockLocation(),
 				writer.state().headerBlockLocation());
 		var expectedFooter = new BlockfileFooterBlock(
+				new RecordByteArrayField(writer.config().headerCodec().encode(header)),
 				expectedFooterUserDict,
 				writer.state().headerBlockLocation(),
 				writer.state().latestIndexBlockLocation(),
@@ -293,6 +303,7 @@ public class BlockfileStringTests{
 		Assert.assertEquals(reader.metadata().rootIndex().level(), 1);
 		Assert.assertEquals(reader.metadata().rootIndex().numChildren(), 3);
 		Assert.assertEquals(reader.metadata().rootIndex().indexBlockId(), NUM_INDEX_BLOCKS - 1);
+		Assert.assertEquals(reader.index().numRows(), NUM_ROWS);
 
 		// search indexEntries
 		List<BlockfileIndexEntry> leafIndexEntries = reader.index().scanLeafIndexEntries().list();

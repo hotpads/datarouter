@@ -18,7 +18,7 @@ package io.datarouter.nodewatch.storage.binarydto.storagestats.table;
 import java.util.List;
 import java.util.Optional;
 
-import io.datarouter.nodewatch.config.DatarouterNodewatchDirectorySupplier;
+import io.datarouter.nodewatch.config.DatarouterStorageStatsDirectorySupplier;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.file.Directory;
@@ -35,8 +35,8 @@ public class TableStorageStatsBinaryDao{
 
 	@Inject
 	public TableStorageStatsBinaryDao(
-			DatarouterNodewatchDirectorySupplier nodewatchDirectorySupplier){
-		directory = nodewatchDirectorySupplier.getStorageStatsTableDirectory();
+			DatarouterStorageStatsDirectorySupplier directorySupplier){
+		directory = directorySupplier.getStorageStatsTableDirectory();
 	}
 
 	public PathbeanKey makeKey(PhysicalSortedStorageReaderNode<?,?,?> node){

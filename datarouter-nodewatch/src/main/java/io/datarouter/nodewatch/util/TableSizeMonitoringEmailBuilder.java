@@ -29,6 +29,8 @@ import java.util.function.Function;
 import io.datarouter.email.email.DatarouterHtmlEmailService;
 import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
+import io.datarouter.instrumentation.relay.rml.Rml;
+import io.datarouter.instrumentation.relay.rml.RmlTable;
 import io.datarouter.nodewatch.config.DatarouterNodewatchPaths;
 import io.datarouter.nodewatch.service.TableSizeMonitoringService.PercentageCountStat;
 import io.datarouter.nodewatch.service.TableSizeMonitoringService.ThresholdCountStat;
@@ -101,6 +103,27 @@ public class TableSizeMonitoringEmailBuilder{
 				.build(staleRows);
 	}
 
+	public RmlTable makeRelayStaleTable(List<LatestTableCount> staleRows, ZoneId zoneId){
+		return Rml.table(
+				Rml.tableRow(
+						Rml.tableHeader(Rml.text("Client")),
+						Rml.tableHeader(Rml.text("TABLE")),
+						Rml.tableHeader(Rml.text("Latest Count")),
+						Rml.tableHeader(Rml.text("Date Updated")),
+						Rml.tableHeader(Rml.text("Updated Ago"))))
+				.with(staleRows.stream()
+						.map(row -> Rml.tableRow(
+								Rml.tableCell(Rml.text(row.getKey().getClientName())),
+								Rml.tableCell(Rml.text(row.getKey().getTableName())
+										.link(makeTableHref(
+												row.getKey().getTableName(),
+												row.getKey().getClientName()))),
+								Rml.tableCell(Rml.text(NumberFormatter.addCommas(row.getNumRows()))),
+								Rml.tableCell(Rml.text(ZonedDateFormatterTool.formatInstantWithZone(
+										row.getDateUpdated(), zoneId))),
+								Rml.tableCell(Rml.text(DateTool.getAgoString(row.getDateUpdated().toEpochMilli()))))));
+	}
+
 	public TableTag makePercentageCountStatTable(String comparableCount, List<PercentageCountStat> stats){
 		ZoneId zoneId = defaultDistributionListZoneId.get();
 		return new J2HtmlEmailTable<PercentageCountStat>()
@@ -116,6 +139,31 @@ public class TableSizeMonitoringEmailBuilder{
 						+ "%"))
 				.withColumn(alignRight("Count Increase", row -> NumberFormatter.addCommas(row.countDifference)))
 				.build(stats);
+	}
+
+	public RmlTable makeRelayPercentageCountStatTable(String comparableCount, List<PercentageCountStat> stats){
+		return Rml.table(
+				Rml.tableRow(
+						Rml.tableHeader(Rml.text("Client")),
+						Rml.tableHeader(Rml.text("Table")),
+						Rml.tableHeader(Rml.text("Date Updated")),
+						Rml.tableHeader(Rml.text(comparableCount)),
+						Rml.tableHeader(Rml.text("Latest Count")),
+						Rml.tableHeader(Rml.text("% Increase")),
+						Rml.tableHeader(Rml.text("Count Increase"))))
+				.with(stats.stream()
+						.map(row -> Rml.tableRow(
+								Rml.tableCell(Rml.text(row.latestSample.getKey().getClientName())),
+								Rml.tableCell(Rml.text(row.latestSample.getKey().getTableName())
+										.link(makeTableHref(
+												row.latestSample.getKey().getTableName(),
+												row.latestSample.getKey().getClientName()))),
+								Rml.tableCell(Rml.text(ZonedDateFormatterTool.formatInstantWithZone(
+										row.latestSample.getDateUpdated(), defaultDistributionListZoneId.get()))),
+								Rml.tableCell(Rml.text(NumberFormatter.addCommas(row.previousCount))),
+								Rml.tableCell(Rml.text(NumberFormatter.addCommas(row.latestSample.getNumRows()))),
+								Rml.tableCell(Rml.text(NumberFormatter.format(row.percentageIncrease, "", "%", 2))),
+								Rml.tableCell(Rml.text(NumberFormatter.addCommas(row.countDifference))))));
 	}
 
 	public TableTag makeThresholdCountStatTable(String comparableCount, List<ThresholdCountStat> stats){
@@ -134,19 +182,45 @@ public class TableSizeMonitoringEmailBuilder{
 				.build(stats);
 	}
 
+	public RmlTable makeRelayThresholdCountStatTable(String comparableCount, List<ThresholdCountStat> stats){
+		ZoneId zoneId = defaultDistributionListZoneId.get();
+		return Rml.table(
+				Rml.tableRow(
+						Rml.tableHeader(Rml.text("Client")),
+						Rml.tableHeader(Rml.text("Table")),
+						Rml.tableHeader(Rml.text("Date Updated")),
+						Rml.tableHeader(Rml.text(comparableCount)),
+						Rml.tableHeader(Rml.text("Latest Count"))))
+				.with(stats.stream()
+						.map(row -> Rml.tableRow(
+								Rml.tableCell(Rml.text(row.latestSample().getKey().getClientName())),
+								Rml.tableCell(Rml.text(row.latestSample().getKey().getTableName())
+										.link(makeTableHref(
+												row.latestSample().getKey().getTableName(),
+												row.latestSample().getKey().getClientName()))),
+								Rml.tableCell(Rml.text(ZonedDateFormatterTool.formatInstantWithZone(
+										row.latestSample().getDateUpdated(),
+										zoneId))),
+								Rml.tableCell(Rml.text(NumberFormatter.addCommas(row.threshold()))),
+								Rml.tableCell(Rml.text(NumberFormatter.addCommas(row.latestSample().getNumRows()))))));
+	}
+
 	private static <T> J2HtmlEmailTableColumn<T> alignRight(String name, Function<T,Object> valueFunction){
 		return J2HtmlEmailTableColumn.ofText(name, valueFunction)
 				.withStyle("text-align:right");
 	}
 
 	public ATag makeTableLink(String tableName, String clientName){
-		String href = emailService.startLinkBuilder()
+		return a(tableName)
+				.withHref(makeTableHref(tableName, clientName));
+	}
+
+	public String makeTableHref(String tableName, String clientName){
+		return emailService.startLinkBuilder()
 				.withLocalPath(paths.datarouter.nodewatch.table)
 				.withParam(NodewatchTableHandler.P_clientName, clientName)
 				.withParam(NodewatchTableHandler.P_tableName, tableName)
 				.build();
-		return a(tableName)
-				.withHref(href);
 	}
 
 }

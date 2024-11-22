@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
@@ -171,6 +172,10 @@ public class DatarouterClients{
 
 	public ClientId getClientId(String clientName){
 		return clientIdByClientName.get(clientName);
+	}
+
+	public Optional<ClientId> findClientId(String clientName){
+		return Optional.ofNullable(getClientId(clientName));
 	}
 
 	public Collection<ClientId> getClientIds(){

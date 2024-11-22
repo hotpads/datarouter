@@ -15,7 +15,7 @@
  */
 package io.datarouter.clustersetting.config;
 
-import io.datarouter.auth.role.DatarouterUserRole;
+import io.datarouter.auth.role.DatarouterUserRoleRegistry;
 import io.datarouter.clustersetting.web.browse.ClusterSettingBrowseHandler;
 import io.datarouter.clustersetting.web.log.ClusterSettingLogHandler;
 import io.datarouter.clustersetting.web.override.handler.ClusterSettingOverrideCreateHandler;
@@ -56,7 +56,7 @@ public class DatarouterClusterSettingRouteSet extends BaseRouteSet{
 	@Override
 	protected DispatchRule applyDefault(DispatchRule rule){
 		return rule
-				.allowRoles(DatarouterUserRole.DATAROUTER_ADMIN, DatarouterUserRole.DATAROUTER_SETTINGS)
+				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_ADMIN, DatarouterUserRoleRegistry.DATAROUTER_SETTINGS)
 				.withTag(Tag.DATAROUTER);
 	}
 

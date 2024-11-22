@@ -57,6 +57,8 @@ implements TaskExecutionRecordBinaryDto<ExceptionRecordDto>{
 	public final String callOrigin;
 	@BinaryDtoField(index = 13)
 	public final List<String> additionalAlertRecipients;
+	@BinaryDtoField(index = 14)
+	public final String environment;
 
 	public ExceptionRecordBinaryDto(
 			String serviceName,
@@ -72,7 +74,8 @@ implements TaskExecutionRecordBinaryDto<ExceptionRecordDto>{
 			String methodName,
 			Integer lineNumber,
 			String callOrigin,
-			List<String> additionalAlertRecipients){
+			List<String> additionalAlertRecipients,
+			String environment){
 		this.serviceName = Require.notBlank(serviceName);
 		this.serverName = Require.notBlank(serverName);
 		this.appVersion = Require.notBlank(appVersion);
@@ -87,6 +90,7 @@ implements TaskExecutionRecordBinaryDto<ExceptionRecordDto>{
 		this.lineNumber = lineNumber;
 		this.callOrigin = callOrigin;
 		this.additionalAlertRecipients = additionalAlertRecipients;
+		this.environment = environment;
 	}
 
 	public ExceptionRecordBinaryDto(ExceptionRecordDto dto){
@@ -104,7 +108,8 @@ implements TaskExecutionRecordBinaryDto<ExceptionRecordDto>{
 				dto.methodName(),
 				dto.lineNumber(),
 				dto.callOrigin(),
-				dto.additionalAlertRecipients());
+				dto.additionalAlertRecipients(),
+				dto.environment());
 	}
 
 	@Override
@@ -123,7 +128,8 @@ implements TaskExecutionRecordBinaryDto<ExceptionRecordDto>{
 				methodName,
 				lineNumber,
 				callOrigin,
-				additionalAlertRecipients);
+				additionalAlertRecipients,
+				environment);
 	}
 
 	public static ExceptionRecordBinaryDto decode(byte[] bytes){

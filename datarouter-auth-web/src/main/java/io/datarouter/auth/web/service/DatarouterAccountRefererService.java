@@ -45,11 +45,7 @@ public class DatarouterAccountRefererService{
 					if(referer == null){
 						return $ -> new DatarouterAccountRefererCheck(true, false);
 					}
-					return request -> {
-						String reqReferer = request.getHeader(HttpHeaders.REFERER);
-						boolean allowed = reqReferer != null && reqReferer.startsWith(referer);
-						return new DatarouterAccountRefererCheck(allowed, true);
-					};
+					return request -> new DatarouterAccountRefererCheck(refererAllowed(request, referer), true);
 				})
 				.build();
 	}
@@ -61,6 +57,11 @@ public class DatarouterAccountRefererService{
 	public record DatarouterAccountRefererCheck(
 			boolean allowed,
 			boolean hasRefererValidation){
+	}
+
+	private static boolean refererAllowed(HttpServletRequest request, String referer){
+		String reqReferer = request.getHeader(HttpHeaders.REFERER);
+		return reqReferer != null && reqReferer.startsWith(referer);
 	}
 
 	//unnecessary, just to shorten type definition

@@ -24,6 +24,9 @@ public class NodewatchConfiguration{
 	public final boolean isCountable;
 	public final boolean enablePercentageAlert;
 	public final boolean enableThresholdAlert;
+	// Whether to export periodically to Blockfile
+	public final boolean enableShadowTableExport;
+	public final boolean enableShadowTableCompression;
 
 	public NodewatchConfiguration(
 			ClientTableEntityPrefixNameWrapper nodeNameWrapper,
@@ -32,7 +35,9 @@ public class NodewatchConfiguration{
 			int batchSize,
 			boolean isCountable,
 			boolean enablePercentageAlert,
-			boolean enableThresholdAlert){
+			boolean enableThresholdAlert,
+			boolean enableShadowTableExport,
+			boolean enableShadowTableCompression){
 		this.nodeNameWrapper = nodeNameWrapper;
 		this.maxThreshold = maxThreshold;
 		this.sampleSize = sampleSize;
@@ -40,6 +45,8 @@ public class NodewatchConfiguration{
 		this.isCountable = isCountable;
 		this.enablePercentageAlert = enablePercentageAlert;
 		this.enableThresholdAlert = enableThresholdAlert;
+		this.enableShadowTableExport = enableShadowTableExport;
+		this.enableShadowTableCompression = enableShadowTableCompression;
 	}
 
 	public NodewatchConfiguration(
@@ -51,7 +58,9 @@ public class NodewatchConfiguration{
 			int batchSize,
 			boolean isCountable,
 			boolean enablePercentageAlert,
-			boolean enableThresholdAlert){
+			boolean enableThresholdAlert,
+			boolean enableShadowTableExport,
+			boolean enableShadowTableCompression){
 		this(
 				new ClientTableEntityPrefixNameWrapper(clientName, tableName, subEntityPrefix),
 				maxThreshold,
@@ -59,7 +68,9 @@ public class NodewatchConfiguration{
 				batchSize,
 				isCountable,
 				enablePercentageAlert,
-				enableThresholdAlert);
+				enableThresholdAlert,
+				enableShadowTableExport,
+				enableShadowTableCompression);
 	}
 
 }

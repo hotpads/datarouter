@@ -21,6 +21,7 @@ import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Optional;
 
+import io.datarouter.binarydto.dto.BaseBinaryDto;
 import io.datarouter.binarydto.dto.BinaryDtoField;
 import io.datarouter.binarydto.dto.BinaryDtoField.BinaryDtoInvalidCodec;
 import io.datarouter.binarydto.fieldcodec.BinaryDtoBaseFieldCodec;
@@ -106,6 +107,20 @@ public class BinaryDtoFieldMetadataParser<T>{
 
 	public boolean isEnum(){
 		return Enum.class.isAssignableFrom(field.getType());
+	}
+
+	public boolean isItemTypeBinaryDto(){
+		return BaseBinaryDto.class.isAssignableFrom(getItemClass());
+	}
+
+	public Class<?> getItemClass(){
+		if(isObjectArray()){
+			return getObjectArrayItemClass();
+		}else if(isList()){
+			return getListItemClass();
+		}else{
+			return field.getType();
+		}
 	}
 
 	public Class<?> getObjectArrayItemClass(){

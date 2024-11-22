@@ -21,6 +21,8 @@ import java.util.List;
 import io.datarouter.instrumentation.tablecount.TableCountPublisher;
 import io.datarouter.instrumentation.tablecount.TableCountPublisher.NoOpTableCountPublisher;
 import io.datarouter.job.BaseTriggerGroup;
+import io.datarouter.nodewatch.config.setting.DatarouterNodewatchSettingRoot;
+import io.datarouter.nodewatch.config.setting.DatarouterTableCountPublisherSettingRoot;
 import io.datarouter.nodewatch.joblet.TableSpanSamplerJoblet;
 import io.datarouter.nodewatch.metriclink.AppNodewatchMetricLinkPage;
 import io.datarouter.nodewatch.metriclink.DatarouterNodewatchMetricLinkPage;
@@ -51,17 +53,17 @@ public class DatarouterNodewatchPlugin extends BaseWebPlugin{
 
 	private final List<ClientId> nodewatchClientIds;
 	private final Class<? extends TableCountPublisher> tableCountPublisher;
-	private final Class<? extends DatarouterNodewatchDirectorySupplier> directorySupplierClass;
+	private final Class<? extends DatarouterStorageStatsDirectorySupplier> storageStatsDirectorySupplierClass;
 
 	private DatarouterNodewatchPlugin(
 			List<ClientId> nodewatchClientIds,
 			DatarouterNodewatchDaoModule daosModuleBuilder,
 			Class<? extends TableCountPublisher> tableCountPublisher,
 			boolean enablePublishing,
-			Class<? extends DatarouterNodewatchDirectorySupplier> directorySupplierClass){
+			Class<? extends DatarouterStorageStatsDirectorySupplier> storageStatsDirectorySupplierClass){
 		this.nodewatchClientIds = nodewatchClientIds;
 		this.tableCountPublisher = tableCountPublisher;
-		this.directorySupplierClass = directorySupplierClass;
+		this.storageStatsDirectorySupplierClass = storageStatsDirectorySupplierClass;
 
 		addDatarouterNavBarItem(
 				DatarouterNavBarCategory.DATA,
@@ -90,7 +92,7 @@ public class DatarouterNodewatchPlugin extends BaseWebPlugin{
 				NodewatchClientConfiguration.class,
 				new GenericNodewatchClientConfiguration(nodewatchClientIds));
 		bind(TableCountPublisher.class).to(tableCountPublisher);
-		bind(DatarouterNodewatchDirectorySupplier.class).to(directorySupplierClass);
+		bind(DatarouterStorageStatsDirectorySupplier.class).to(storageStatsDirectorySupplierClass);
 	}
 
 	public static class DatarouterNodewatchPluginBuilder{
@@ -100,13 +102,13 @@ public class DatarouterNodewatchPlugin extends BaseWebPlugin{
 
 		private Class<? extends TableCountPublisher> tableCountPublisherClass = NoOpTableCountPublisher.class;
 		private boolean enablePublishing = false;
-		private final Class<? extends DatarouterNodewatchDirectorySupplier> directorySupplierClass;
+		private final Class<? extends DatarouterStorageStatsDirectorySupplier> storageStatsDirectorySupplierClass;
 
 		public DatarouterNodewatchPluginBuilder(
 				List<ClientId> defaultClientId,
-				Class<? extends DatarouterNodewatchDirectorySupplier> directorySupplierClass){
+				Class<? extends DatarouterStorageStatsDirectorySupplier> storageStatsDirectorySupplierClass){
 			this.defaultClientId = defaultClientId;
-			this.directorySupplierClass = directorySupplierClass;
+			this.storageStatsDirectorySupplierClass = storageStatsDirectorySupplierClass;
 			this.nodewatchClientIds = new ArrayList<>();
 		}
 
@@ -132,7 +134,7 @@ public class DatarouterNodewatchPlugin extends BaseWebPlugin{
 							defaultClientId),
 					tableCountPublisherClass,
 					enablePublishing,
-					directorySupplierClass);
+					storageStatsDirectorySupplierClass);
 		}
 
 	}

@@ -156,7 +156,7 @@ public class WebSocketToolHandler extends BaseHandler{
 								.withValue("subscriptions"));
 		return pageFactory.startBuilder(request)
 				.withTitle("WebSocket Subscriptions")
-				.withContent(div(h3("WebSocket Subcriptions"))
+				.withContent(div(h3("WebSocket Subscriptions"))
 						.condWith(sent, div("Send successful").withClasses("alert", "alert-success"))
 						.with(div(Bootstrap4FormHtml.render(form)).withClasses("bg-light", "p-2", "border", "rounded"))
 						.with(div(table).withClasses("mt-3", "table-responsive"))

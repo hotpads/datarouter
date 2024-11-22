@@ -15,18 +15,15 @@
  */
 package io.datarouter.web.util.http;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.httpclient.HttpHeaders;
-
 public class RequestToolTests{
 
-	private static final String PRIVATE_IP = "10.95.188.27";
-	private static final String PUBLIC_IP = "209.63.146.244";
-	private static final String SHARED_ADDRESS_SPACE_IP = "100.68.71.215";
+	// TODO make private
+	public static final String PRIVATE_IP = "10.95.188.27";
+	public static final String PUBLIC_IP = "209.63.146.244";
+	public static final String SHARED_ADDRESS_SPACE_IP = "100.68.71.215";
 
 	@Test
 	public void testCheckDouble(){
@@ -94,38 +91,6 @@ public class RequestToolTests{
 		Assert.assertFalse(RequestTool.isPublicNet(PRIVATE_IP));
 		Assert.assertFalse(RequestTool.isPublicNet(SHARED_ADDRESS_SPACE_IP));
 		Assert.assertTrue(RequestTool.isPublicNet(PUBLIC_IP));
-	}
-
-	@Test
-	public void testGetIpAddress(){
-		// haproxy -> node -> haproxy -> tomcat
-		HttpServletRequest request = new MockHttpServletRequestBuilder()
-				.withHeader(HttpHeaders.X_FORWARDED_FOR, PRIVATE_IP)
-				.withHeader(HttpHeaders.X_CLIENT_IP, PUBLIC_IP)
-				.build();
-		// alb -> haproxy -> node -> haproxy -> tomcat
-		Assert.assertEquals(RequestTool.getIpAddress(request), PUBLIC_IP);
-		request = new MockHttpServletRequestBuilder()
-				.withHeader(HttpHeaders.X_FORWARDED_FOR, PRIVATE_IP)
-				.withHeader(HttpHeaders.X_CLIENT_IP, PUBLIC_IP + RequestTool.HEADER_VALUE_DELIMITER + PRIVATE_IP)
-				.build();
-		Assert.assertEquals(RequestTool.getIpAddress(request), PUBLIC_IP);
-		// haproxy -> tomcat
-		request = new MockHttpServletRequestBuilder()
-				.withHeader(HttpHeaders.X_FORWARDED_FOR, PUBLIC_IP)
-				.build();
-		Assert.assertEquals(RequestTool.getIpAddress(request), PUBLIC_IP);
-		// alb -> haproxy -> tomcat
-		request = new MockHttpServletRequestBuilder()
-				.withHeader(HttpHeaders.X_FORWARDED_FOR, PUBLIC_IP + RequestTool.HEADER_VALUE_DELIMITER + PRIVATE_IP)
-				.build();
-		Assert.assertEquals(RequestTool.getIpAddress(request), PUBLIC_IP);
-		// alb -> haproxy -> tomcat with two separate headers
-		request = new MockHttpServletRequestBuilder()
-				.withHeader(HttpHeaders.X_FORWARDED_FOR, PUBLIC_IP)
-				.withHeader(HttpHeaders.X_FORWARDED_FOR, PRIVATE_IP)
-				.build();
-		Assert.assertEquals(RequestTool.getIpAddress(request), PUBLIC_IP);
 	}
 
 }

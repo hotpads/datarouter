@@ -75,7 +75,7 @@ public class MysqlClientManager extends BaseClientManager implements MysqlConnec
 		timer.add("databaseCreation");
 		mysqlConnectionPoolHolder.createConnectionPool(clientId);
 		timer.add("pool");
-		logger.warn(timer.toString());
+		logger.warn("{}", timer);
 	}
 
 	/**

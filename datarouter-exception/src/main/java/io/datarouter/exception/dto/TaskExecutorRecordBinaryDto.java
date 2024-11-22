@@ -35,6 +35,8 @@ implements TaskExecutionRecordBinaryDto<TaskExecutorRecordDto>{
 	public final String parentId;
 	@BinaryDtoField(index = 4)
 	public final String exceptionRecordId;
+	@BinaryDtoField(index = 5)
+	public final String environment;
 
 	public TaskExecutorRecordBinaryDto(
 			String serviceName,
@@ -44,6 +46,7 @@ implements TaskExecutionRecordBinaryDto<TaskExecutorRecordDto>{
 		this.traceId = record.traceId();
 		this.parentId = record.parentId();
 		this.exceptionRecordId = record.exceptionRecordId();
+		this.environment = record.environment();
 	}
 
 	@Override
@@ -52,7 +55,8 @@ implements TaskExecutionRecordBinaryDto<TaskExecutorRecordDto>{
 				id,
 				traceId,
 				parentId,
-				exceptionRecordId);
+				exceptionRecordId,
+				environment);
 	}
 
 	public static TaskExecutorRecordBinaryDto decode(byte[] bytes){

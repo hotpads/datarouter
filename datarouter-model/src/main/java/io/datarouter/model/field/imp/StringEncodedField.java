@@ -70,6 +70,12 @@ public class StringEncodedField<T> extends BaseField<T>{
 	}
 
 	@Override
+	public int getApproximateValueBytesLength(){
+		byte[] valueBytes = getValueBytes();
+		return valueBytes == null ? 0 : valueBytes.length;
+	}
+
+	@Override
 	public T fromValueBytesButDoNotSet(byte[] bytes, int offset){
 		String stringValue = StringCodec.UTF_8.decode(bytes, offset);
 		return key.getCodec().decode(stringValue);

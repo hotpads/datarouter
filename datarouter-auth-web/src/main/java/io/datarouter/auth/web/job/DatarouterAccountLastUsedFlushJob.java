@@ -22,12 +22,8 @@ import jakarta.inject.Inject;
 
 public class DatarouterAccountLastUsedFlushJob extends BaseJob{
 
-	private final DatarouterAccountLastUsedDateService service;
-
 	@Inject
-	public DatarouterAccountLastUsedFlushJob(DatarouterAccountLastUsedDateService service){
-		this.service = service;
-	}
+	private DatarouterAccountLastUsedDateService service;
 
 	@Override
 	public void run(TaskTracker tracker){

@@ -76,7 +76,7 @@ public class CallsiteStat{
 		String avgItemsString = NumberFormatter.addCommas(numItems / count);
 		String type = isDaoCallsite()
 				? DAO_CALLSITE_INDICATOR
-				: StringTool.repeat(' ', DAO_CALLSITE_INDICATOR_LENGTH);
+				: " ".repeat(DAO_CALLSITE_INDICATOR_LENGTH);
 		return buildReportLine(
 				metadata,
 				countString,

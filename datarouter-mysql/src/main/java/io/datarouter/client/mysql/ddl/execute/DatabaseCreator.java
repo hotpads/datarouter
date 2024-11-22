@@ -66,7 +66,7 @@ public class DatabaseCreator{
 
 	private void generateCreateDatabaseSchema(Connection connection, String databaseName) throws SQLException{
 		logger.info("======================== Creating the database {} ============================", databaseName);
-		String sql = "create database if not exists " + databaseName + " ;";
+		String sql = "create database if not exists `" + databaseName + "` ;";
 		if(schemaUpdateOptions.getCreateDatabases(false)){
 			logger.info("Executing {}", sql);
 			Statement statement = connection.createStatement();

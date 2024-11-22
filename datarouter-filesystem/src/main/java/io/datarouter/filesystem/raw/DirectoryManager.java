@@ -167,6 +167,10 @@ public class DirectoryManager{
 		return binaryFileService.readBytes(resolveString(relativePathString), offset, length);
 	}
 
+	public Optional<byte[]> readEnding(String relativePathString, int length){
+		return binaryFileService.readEnding(resolveString(relativePathString), length);
+	}
+
 	public InputStream readInputStream(String relativePathString){
 		return binaryFileService.readInputStream(resolveString(relativePathString));
 	}

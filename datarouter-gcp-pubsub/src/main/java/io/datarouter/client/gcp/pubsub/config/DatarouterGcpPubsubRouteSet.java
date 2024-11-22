@@ -15,7 +15,7 @@
  */
 package io.datarouter.client.gcp.pubsub.config;
 
-import io.datarouter.auth.role.DatarouterUserRole;
+import io.datarouter.auth.role.DatarouterUserRoleRegistry;
 import io.datarouter.client.gcp.pubsub.web.handler.GcpPubsubUpdateQueueHandler;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.BaseRouteSet;
@@ -34,7 +34,7 @@ public class DatarouterGcpPubsubRouteSet extends BaseRouteSet{
 	@Override
 	protected DispatchRule applyDefault(DispatchRule rule){
 		return rule
-				.allowRoles(DatarouterUserRole.DATAROUTER_ADMIN)
+				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_ADMIN)
 				.withTag(Tag.DATAROUTER);
 	}
 }

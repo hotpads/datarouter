@@ -66,11 +66,29 @@ public class SqlTableDiffGenerator{
 	}
 
 	public List<SqlColumn> getColumnsToModify(){
-		Set<SqlColumn> modifiedColumns = new HashSet<>(requested.getColumns());// start with all requested columns
-		modifiedColumns.removeAll(current.getColumns());// remove current columns that don't need changes
+		Set<SqlColumn> modifiedColumns = new HashSet<>(makeMysql8Compatible(requested.getColumns()));
+		// remove current columns that don't need changes
+		modifiedColumns.removeAll(makeMysql8Compatible(current.getColumns()));
 		modifiedColumns.removeAll(getColumnsToAdd());// remove new columns
 		return new ArrayList<>(modifiedColumns);
 	}
+
+	/*
+	 *  DEVOPS-8567 - Temporary method to stop flooding with ddl changes
+	 *  as width specification for integer data types was deprecated in MySQL 8.0.17
+	 *  Once all environment is upgraded to MySQL8, this temp method usage can be removed.
+	 * */
+	public List<SqlColumn> makeMysql8Compatible(List<SqlColumn> columns){
+		List<SqlColumn> modifiedColumns = new ArrayList<>();
+		for(SqlColumn col : columns){
+			if(col.isIntegerFieldType()){
+				col.setMaxLength(null);
+			}
+			modifiedColumns.add(col);
+		}
+		return modifiedColumns;
+	}
+
 
 	public Set<SqlIndex> getIndexesToAdd(){
 		return findDifferentIndexes(requested.getIndexes(), current.getIndexes());
@@ -111,7 +129,7 @@ public class SqlTableDiffGenerator{
 		return !current.hasPrimaryKey() || !current.getPrimaryKey().equals(requested.getPrimaryKey());
 	}
 
-	private boolean areColumnsModified(){
+	public boolean areColumnsModified(){
 		return !new HashSet<>(current.getColumns()).equals(new HashSet<>(requested.getColumns()));
 	}
 

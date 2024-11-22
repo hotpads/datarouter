@@ -16,7 +16,6 @@
 package io.datarouter.email.email;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -89,7 +88,7 @@ public class EmailService{
 				subject,
 				body,
 				html,
-				Collections.emptyMap(),
+				Map.of(),
 				List.of())
 				.orElse("null");
 		logger.warn("emailId={}, subject={}", emailId, subject);

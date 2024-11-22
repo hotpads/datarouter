@@ -16,6 +16,7 @@
 package io.datarouter.auth.web.service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import io.datarouter.auth.storage.user.datarouteruser.DatarouterUser;
@@ -23,7 +24,6 @@ import io.datarouter.plugin.PluginConfigKey;
 import io.datarouter.plugin.PluginConfigType;
 import io.datarouter.plugin.PluginConfigValue;
 import io.datarouter.plugin.PluginInjector;
-import j2html.tags.DomContent;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
@@ -33,7 +33,7 @@ public interface PermissionRequestUserInfo extends PluginConfigValue<PermissionR
 			"permissionRequestUserInfo",
 			PluginConfigType.CLASS_SINGLE);
 
-	List<DomContent> getUserInformation(DatarouterUser user);
+	List<UserInfo> getUserInformation(DatarouterUser user);
 
 	@Override
 	default PluginConfigKey<PermissionRequestUserInfo> getKey(){
@@ -51,6 +51,13 @@ public interface PermissionRequestUserInfo extends PluginConfigValue<PermissionR
 			return injector.getInstance(KEY);
 		}
 
+	}
+
+	public record UserInfo(
+			String relation,
+			String name,
+			Optional<String> link,
+			Optional<String> title){
 	}
 
 }

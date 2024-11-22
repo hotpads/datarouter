@@ -17,6 +17,7 @@ package io.datarouter.httpclient.response;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.util.function.Consumer;
 
 import org.apache.http.HttpEntity;
@@ -38,6 +39,13 @@ public class HttpEntityInputStreamAccessor implements Consumer<HttpEntity>{
 	public InputStream getInputStream() throws IOException{
 		if(capturedException != null){
 			throw capturedException;
+		}
+		return inputStream;
+	}
+
+	public InputStream getInputStreamUnchecked(){
+		if(capturedException != null){
+			throw new UncheckedIOException(capturedException);
 		}
 		return inputStream;
 	}

@@ -16,8 +16,10 @@
 package io.datarouter.nodewatch.config;
 
 import io.datarouter.job.BaseTriggerGroup;
+import io.datarouter.nodewatch.config.setting.DatarouterNodewatchSettingRoot;
 import io.datarouter.nodewatch.job.NodewatchCostMonitoringJob;
 import io.datarouter.nodewatch.job.TableCountJob;
+import io.datarouter.nodewatch.job.TableSampleValidationJob;
 import io.datarouter.nodewatch.job.TableSamplerJob;
 import io.datarouter.nodewatch.job.TableSamplerJobletVacuumJob;
 import io.datarouter.nodewatch.job.TableSizeMonitoringJob;
@@ -31,7 +33,8 @@ import jakarta.inject.Singleton;
 public class DatarouterNodewatchTriggerGroup extends BaseTriggerGroup{
 
 	@Inject
-	public DatarouterNodewatchTriggerGroup(DatarouterNodewatchSettingRoot settings){
+	public DatarouterNodewatchTriggerGroup(
+			DatarouterNodewatchSettingRoot settings){
 		super("DatarouterNodewatch", Tag.DATAROUTER, ZoneIds.AMERICA_NEW_YORK);
 		registerLocked(
 				"43 0/" + TableSamplerJob.SCHEDULING_INTERVAL.toMinutes() + " * * * ?",
@@ -42,6 +45,11 @@ public class DatarouterNodewatchTriggerGroup extends BaseTriggerGroup{
 				"33 25 3/4 * * ?",
 				settings.tableCountJob,
 				TableCountJob.class,
+				true);
+		registerLocked(
+				"12 14 * * * ?",
+				settings.tableSampleValidationJob,
+				TableSampleValidationJob.class,
 				true);
 		registerLocked(
 				"0 0 14 ? * MON-FRI",
@@ -59,7 +67,7 @@ public class DatarouterNodewatchTriggerGroup extends BaseTriggerGroup{
 				TableStorageSummaryJob.class,
 				true);
 		registerLocked(
-				"35 * * ? * * *",
+				"35 * * ? * * *",//TODO stagger start time across services
 				settings.runNodewatchCostMonitoringJob,
 				NodewatchCostMonitoringJob.class,
 				true);

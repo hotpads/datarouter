@@ -28,14 +28,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.exception.storage.exceptionrecord.ExceptionRecordKey;
-import io.datarouter.gson.GsonTool;
+import io.datarouter.gson.DatarouterGsons;
 import io.datarouter.httpclient.HttpHeaders;
 import io.datarouter.instrumentation.exception.HttpRequestRecordDto;
 import io.datarouter.instrumentation.trace.TraceIdTool;
 import io.datarouter.instrumentation.trace.W3TraceContext;
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
-import io.datarouter.model.field.codec.MilliTimeFieldCodec;
+import io.datarouter.model.field.codec.MilliTimeToLongFieldCodec;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
 import io.datarouter.model.field.imp.array.ByteArrayField;
@@ -109,10 +109,10 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey,HttpReq
 	public static class FieldKeys{
 		public static final LongEncodedFieldKey<MilliTime> createdAt = new LongEncodedFieldKey<>(
 				"createdAt",
-				new MilliTimeFieldCodec());
+				new MilliTimeToLongFieldCodec());
 		public static final LongEncodedFieldKey<MilliTime> receivedAt = new LongEncodedFieldKey<>(
 				"receivedAt",
-				new MilliTimeFieldCodec());
+				new MilliTimeToLongFieldCodec());
 		public static final LongFieldKey duration = new LongFieldKey("duration");
 		public static final StringFieldKey exceptionRecordId = new StringFieldKey("exceptionRecordId");
 		public static final StringFieldKey traceId = new StringFieldKey("traceId")
@@ -233,22 +233,24 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey,HttpReq
 			HttpServletRequest request,
 			String sessionRoles,
 			String userToken,
-			boolean omitPayload){
+			boolean omitPayload,
+			String ip){
 		this(RequestAttributeTool.get(request, BaseHandler.REQUEST_RECEIVED_AT).orElse(new Date()),
 				exceptionRecordId,
 				traceContext.map(W3TraceContext::getTraceId).orElse(null),
 				traceContext.map(W3TraceContext::getParentId).orElse(null),
 				request.getMethod(),
-				GsonTool.withUnregisteredEnums().toJson(request.getParameterMap()),
+				DatarouterGsons.withUnregisteredEnums().toJson(request.getParameterMap()),
 				request.getScheme(),
 				request.getServerName(),
 				request.getServerPort(),
 				request.getContextPath(),
 				getRequestPath(request),
 				request.getQueryString(),
-				omitPayload ? HttpRequestRecordDto.CONFIDENTIALITY_MSG_BYTES
+				omitPayload
+						? HttpRequestRecordDto.CONFIDENTIALITY_MSG_BYTES
 						: RequestTool.tryGetBodyAsByteArray(request),
-				RequestTool.getIpAddress(request),
+				ip,
 				sessionRoles,
 				userToken,
 				new RecordedHttpHeaders(request));
@@ -351,7 +353,8 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey,HttpReq
 				getUserAgent(),
 				getxForwardedFor(),
 				getxRequestedWith(),
-				getOtherHeaders());
+				getOtherHeaders(),
+				null);
 	}
 
 	public static HttpRequestRecord createEmptyForTesting(){
@@ -489,7 +492,7 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey,HttpReq
 		}
 		this.exceptionRecordId = exceptionRecordId;
 		this.httpMethod = dto.httpMethod;
-		this.httpParams = GsonTool.withUnregisteredEnums().toJson(dto.httpParams);
+		this.httpParams = DatarouterGsons.withUnregisteredEnums().toJson(dto.httpParams);
 		this.protocol = dto.protocol;
 		this.hostname = dto.hostname;
 		this.port = dto.port;
@@ -521,7 +524,7 @@ public class HttpRequestRecord extends BaseDatabean<HttpRequestRecordKey,HttpReq
 		this.xForwardedFor = dto.forwardedFor;
 		this.xRequestedWith = dto.requestedWith;
 
-		this.otherHeaders = GsonTool.withUnregisteredEnums().toJson(dto.others);
+		this.otherHeaders = DatarouterGsons.withUnregisteredEnums().toJson(dto.others);
 	}
 
 	public Map<String,String> getHeaders(){

@@ -15,6 +15,7 @@
  */
 package io.datarouter.web.html.j2html.bootstrap4;
 
+import static j2html.TagCreator.br;
 import static j2html.TagCreator.button;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
@@ -113,8 +114,10 @@ public class Bootstrap4FormHtml{
 					+ BaseHtmlFormField.class);
 		}
 		return div(rendered)
-				.condWith(baseField.getError() != null, div(baseField.getError()).withClass("invalid-feedback"))
-				.withClass("mx-3");
+				.condWith(
+						baseField.getError() != null,
+						div(baseField.getError()).withClasses("text-danger", "small"),
+						br());
 	}
 
 	private static DivTag checkboxTableField(HtmlFormCheckboxTable field){

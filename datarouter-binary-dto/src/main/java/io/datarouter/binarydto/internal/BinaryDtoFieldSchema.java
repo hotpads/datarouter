@@ -28,13 +28,24 @@ public class BinaryDtoFieldSchema<F>{
 	private final boolean isNullable;
 	private final BinaryDtoBaseFieldCodec<F> codec;
 
-	@SuppressWarnings("unchecked")
-	public BinaryDtoFieldSchema(Field field){
+	private BinaryDtoFieldSchema(
+			Field field,
+			boolean isNullable,
+			BinaryDtoBaseFieldCodec<F> codec){
 		this.field = field;
-		var fieldMetadataParser = new BinaryDtoFieldMetadataParser<>(field);
-		isNullable = fieldMetadataParser.isNullable();
-		codec = (BinaryDtoBaseFieldCodec<F>)BinaryDtoFieldCodecs.getCodecForField(field);
-		Objects.requireNonNull(codec, "Codec not found for " + field);
+		this.isNullable = isNullable;
+		this.codec = codec;
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <F> BinaryDtoFieldSchema<F> create(
+			BinaryDtoFieldMetadataParser<?> fieldMetadataParser,
+			BinaryDtoBaseFieldCodec<?> untypedFieldCodec){
+		Field field = fieldMetadataParser.getField();
+		boolean isNullable = fieldMetadataParser.isNullable();
+		BinaryDtoBaseFieldCodec<F> typedFieldCodec = (BinaryDtoBaseFieldCodec<F>) untypedFieldCodec;
+		Objects.requireNonNull(typedFieldCodec, "Codec not found for " + field);
+		return new BinaryDtoFieldSchema<>(field, isNullable, typedFieldCodec);
 	}
 
 	public String getName(){

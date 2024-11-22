@@ -29,7 +29,7 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
-import io.datarouter.gson.GsonTool;
+import io.datarouter.gson.DatarouterGsons;
 
 public class DateTypeAdapterFactoryTests{
 
@@ -44,14 +44,14 @@ public class DateTypeAdapterFactoryTests{
 
 	@Test
 	public void testSerialization(){
-		Assert.assertEquals(GsonTool.GSON.toJson(DATE), JAVA__9_JSON);
+		Assert.assertEquals(DatarouterGsons.forTest().toJson(DATE), JAVA_20_JSON);
 	}
 
 	@Test
 	public void testDeserialization(){
-		Assert.assertEquals(GsonTool.GSON.fromJson(JAVA__8_JSON, Date.class), DATE);
-		Assert.assertEquals(GsonTool.GSON.fromJson(JAVA__9_JSON, Date.class), DATE);
-		Assert.assertEquals(GsonTool.GSON.fromJson(JAVA_20_JSON, Date.class), DATE);
+		Assert.assertEquals(DatarouterGsons.forTest().fromJson(JAVA__8_JSON, Date.class), DATE);
+		Assert.assertEquals(DatarouterGsons.forTest().fromJson(JAVA__9_JSON, Date.class), DATE);
+		Assert.assertEquals(DatarouterGsons.forTest().fromJson(JAVA_20_JSON, Date.class), DATE);
 	}
 
 	@Test
@@ -59,7 +59,7 @@ public class DateTypeAdapterFactoryTests{
 		String customDateFormat = "EEE, d MMM yyyy HH:mm:ss z";
 		String expectedFormatted = ZDT.format(DateTimeFormatter.ofPattern(customDateFormat));
 
-		Gson gson = GsonTool.GSON.newBuilder()
+		Gson gson = DatarouterGsons.forTest().newBuilder()
 				.setDateFormat(customDateFormat)
 				.create();
 
@@ -74,7 +74,7 @@ public class DateTypeAdapterFactoryTests{
 	public void testCustomDateAdapter(){
 		var expected = new Date();
 
-		Gson gson = GsonTool.GSON.newBuilder()
+		Gson gson = DatarouterGsons.forTest().newBuilder()
 				.registerTypeAdapter(Date.class, new TypeAdapter<Date>(){
 					@Override
 					public Date read(JsonReader in) throws IOException{
@@ -91,6 +91,25 @@ public class DateTypeAdapterFactoryTests{
 
 		Assert.assertEquals(gson.fromJson("\"anything\"", Date.class), expected);
 		Assert.assertEquals(gson.toJson(expected), "\"custom-value\"");
+	}
+
+	/*
+	 * We are apparently not encoding milliseconds.
+	 * Create a test to confirm it and potentially track a fix.
+	 */
+	@Test
+	public void testMillisecondsBroken(){
+		Gson gson = DatarouterGsons.rootDatarouterGsonInstance();
+		record DateDto(
+				Date date){
+		}
+		// Date with non-zero milliseconds
+		Date date = new Date(1726798977_123L);
+		DateDto expected = new DateDto(date);
+		String json = gson.toJson(expected);
+		DateDto actual = gson.fromJson(json, DateDto.class);
+		// Asserts NOT equals, but ideally they would be
+		Assert.assertNotEquals(actual.date, expected.date);
 	}
 
 }

@@ -73,7 +73,6 @@ public class DefaultCsrfValidator implements CsrfValidator{
 		return new CsrfValidationResult(success, errorMessages);
 	}
 
-
 	private static String getParameterOrHeader(HttpServletRequest request, String key){
 		String value = request.getParameter(key);
 		return value != null ? value : request.getHeader(key);

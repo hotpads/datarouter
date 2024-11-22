@@ -15,11 +15,11 @@
  */
 package io.datarouter.exception.service;
 
-import java.util.Collections;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
-import io.datarouter.auth.role.DatarouterUserRole;
+import io.datarouter.auth.role.DatarouterUserRoleRegistry;
 import io.datarouter.auth.session.DatarouterSessionManager;
 import io.datarouter.auth.storage.user.session.DatarouterSession;
 import io.datarouter.exception.config.DatarouterExceptionSettingRoot;
@@ -44,8 +44,8 @@ public class DefaultExceptionHandlingConfig implements ExceptionHandlingConfig{
 	protected boolean canViewStackTrace(HttpServletRequest request){
 		return isDevServer() || DatarouterSessionManager.getFromRequest(request)
 				.map(DatarouterSession::getRoles)
-				.orElse(Collections.emptySet())
-				.contains(DatarouterUserRole.DATAROUTER_MONITORING.getRole());
+				.orElse(Set.of())
+				.contains(DatarouterUserRoleRegistry.DATAROUTER_MONITORING);
 	}
 
 	@Override

@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.gson.GsonTool;
+import io.datarouter.gson.DatarouterGsons;
 import io.datarouter.joblet.JobletCounters;
 import io.datarouter.joblet.dto.RunningJoblet;
 import io.datarouter.joblet.model.Joblet;
@@ -92,7 +92,7 @@ public class JobletCallable implements Callable<Void>{
 				boolean isInterrupted = ExceptionTool.isInterrupted(e);
 				@SuppressWarnings("deprecation")
 				Exception wrappingException = new Exception("isInterrupted=" + isInterrupted + " jobletPackage="
-						+ GsonTool.withUnregisteredEnums().toJson(jobletPackage.get()), e);
+						+ DatarouterGsons.withUnregisteredEnums().toJson(jobletPackage.get()), e);
 				logger.error("joblet failed", wrappingException);
 				if(isInterrupted){
 					JobletCounters.incInterrupted(jobletType);

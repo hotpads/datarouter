@@ -63,7 +63,7 @@ public abstract class BaseStoragePlugin extends BasePlugin{
 		return daosModule;
 	}
 
-	protected void setDaos(@SuppressWarnings("unchecked") Class<? extends Dao>...daos){
+	protected void setDaos(List<Class<? extends Dao>> daos){
 		var daosModule = new SimpleDaosModule(daos);
 		setDaosModule(daosModule);
 	}

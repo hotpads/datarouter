@@ -63,7 +63,7 @@ public class DatarouterNavbarV2Html{
 				.withClass("collapse navbar-collapse");
 		return nav(button, div)
 				.withId("common-navbar")
-				.withClasses("navbar", collapsibleStyle, "navbar-dark", "bg-dark", productionStyle);
+				.withClasses("navbar", collapsibleStyle, "navbar-dark", "bg-dark", "border-0", productionStyle);
 	}
 
 	private ContainerTag<?>[] makeWebappList(){

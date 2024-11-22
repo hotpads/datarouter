@@ -18,6 +18,8 @@ package io.datarouter.web.digest;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.h3;
 
+import io.datarouter.instrumentation.relay.rml.Rml;
+import io.datarouter.instrumentation.relay.rml.RmlHeading;
 import io.datarouter.pathnode.PathNode;
 import io.datarouter.web.config.ServletContextSupplier;
 import io.datarouter.web.config.service.DomainFinder;
@@ -47,9 +49,29 @@ public class DailyDigestService{
 		return makeHeader(title, link);
 	}
 
-	public H3Tag makeHeader(String title, String url){
+	public static H3Tag makeHeader(String title, String url){
 		return h3(a(title).withHref(url))
 				.withStyle("margin-bottom:5px");
+	}
+
+	public RmlHeading makeHeading(String title, PathNode path){
+		String link = "https://" + domainFinder.getRelativeDomainPreferPublic() + servletContext.get().getContextPath()
+				+ path.join("/", "/", "");
+		return makeHeading(title, link);
+	}
+
+	public RmlHeading makeHeading(String title, PathNode path, String pathSupplement){
+		String link = "https://" + domainFinder.getRelativeDomainPreferPublic() + servletContext.get().getContextPath()
+				+ path.join("/", "/", "") + pathSupplement;
+		return makeHeading(title, link);
+	}
+
+	public static RmlHeading makeHeading(String title){
+		return Rml.heading(3, Rml.text(title));
+	}
+
+	public static RmlHeading makeHeading(String title, String url){
+		return Rml.heading(3, Rml.text(title).link(url));
 	}
 
 	public ATag makeATagLink(String title, PathNode path){
@@ -58,9 +80,9 @@ public class DailyDigestService{
 		return a(title).withHref(link);
 	}
 
-	public ATag makeATagLink(String title, String path){
+	public ATag makeATagLink(String title, String afterContextPath){
 		String link = "https://" + domainFinder.getRelativeDomainPreferPublic() + servletContext.get().getContextPath()
-				+ path;
+				+ afterContextPath;
 		return a(title).withHref(link);
 	}
 

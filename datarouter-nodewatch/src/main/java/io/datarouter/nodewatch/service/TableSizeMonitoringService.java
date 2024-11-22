@@ -49,7 +49,7 @@ public class TableSizeMonitoringService{
 
 	private static final int IGNORE_THRESHOLD = 100;
 	public static final float PERCENTAGE_THRESHOLD = 50;
-	private static final Duration REPORT_AFTER = Duration.ofDays(1);
+	private static final Duration REPORT_AFTER = Duration.ofDays(3);
 
 	@Inject
 	private DatarouterNodes datarouterNodes;

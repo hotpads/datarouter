@@ -24,7 +24,8 @@ import jakarta.inject.Singleton;
 @Singleton
 public class OptionalContainerSerializer extends GsonJsonSerializer{
 
-	private static final Gson READ_GSON = GsonTool.GSON.newBuilder()
+	private static final Gson READ_GSON = DatarouterGsons.rootDatarouterGsonInstance()
+			.newBuilder()
 			.registerTypeAdapterFactory(new OptionalContainerClassTypeAdapterFactory())
 			.registerTypeAdapterFactory(new OptionalTypeAdapterFactory())
 			.serializeNulls()

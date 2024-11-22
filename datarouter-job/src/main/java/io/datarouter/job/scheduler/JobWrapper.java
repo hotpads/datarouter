@@ -25,6 +25,7 @@ import java.util.concurrent.Future;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.instrumentation.trace.Tracer;
 import io.datarouter.instrumentation.trace.TracerThreadLocal;
 import io.datarouter.job.BaseJob;
@@ -49,17 +50,20 @@ public class JobWrapper implements Callable<Void>{
 
 		@Inject
 		private LongRunningTaskTrackerFactory longRunningTaskTrackerFactory;
+		@Inject
+		private DatarouterInjector injector;
 
 		public JobWrapper createScheduled(
 				JobPackage jobPackage,
-				BaseJob job,
+				Class<? extends BaseJob> jobClass,
 				Instant triggerTime,
 				Instant scheduledTime,
 				String triggeredBy){
 			return new JobWrapper(
 					jobPackage,
+					injector,
 					longRunningTaskTrackerFactory,
-					job,
+					jobClass,
 					triggerTime,
 					scheduledTime,
 					true,
@@ -68,79 +72,90 @@ public class JobWrapper implements Callable<Void>{
 
 		public JobWrapper createRetriggered(
 				JobPackage jobPackage,
-				BaseJob job,
+				Class<? extends BaseJob> jobClass,
 				Instant triggerTime,
 				Instant scheduledTime,
 				String triggeredBy){
 			return new JobWrapper(
 					jobPackage,
+					injector,
 					longRunningTaskTrackerFactory,
-					job,
+					jobClass,
 					triggerTime,
 					scheduledTime,
 					false,
 					triggeredBy);
 		}
 
-		public JobWrapper createManual(JobPackage jobPackage, BaseJob job, String triggeredBy){
+		public JobWrapper createManual(
+				JobPackage jobPackage,
+				Class<? extends BaseJob> jobClass,
+				String triggeredBy){
 			Instant now = Instant.now();
 			return new JobWrapper(
 					jobPackage,
+					injector,
 					longRunningTaskTrackerFactory,
-					job,
+					jobClass,
 					now,
 					now,
 					false,
 					triggeredBy);
 		}
 
-		public JobWrapper createManual(JobPackage jobPackage, BaseJob job, Instant triggerTime, String triggeredBy){
+		public JobWrapper createManual(
+				JobPackage jobPackage,
+				Class<? extends BaseJob> jobClass,
+				Instant triggerTime,
+				String triggeredBy){
 			return new JobWrapper(
 					jobPackage,
+					injector,
 					longRunningTaskTrackerFactory,
-					job,
+					jobClass,
 					triggerTime,
 					Instant.now(),
 					false,
 					triggeredBy);
 		}
 
-		public JobWrapper createRequestTriggered(BaseJob job, String triggeredBy){
+		public JobWrapper createRequestTriggered(Class<? extends BaseJob> jobClass, String triggeredBy){
 			Instant now = Instant.now();
-			return new JobWrapper(longRunningTaskTrackerFactory, job, now, now, false, triggeredBy);
+			return new JobWrapper(injector, longRunningTaskTrackerFactory, jobClass, now, now, false, triggeredBy);
 		}
 	}
 
 	//final fields
 	public final JobPackage jobPackage;
-	public final BaseJob job;
+	public final Class<? extends BaseJob> jobClass;
 	public final Instant triggerTime;//time the job should run, used for locking
 	public final Instant scheduledTime;//can be different from triggerTime if a job is scheduled late
 	public final boolean reschedule;//not created by the normal scheduler
 	public final String triggeredBy;
+	private final DatarouterInjector injector;
 	protected final LongRunningTaskTracker tracker;
 	private Future<Void> future;
-	//convenience
-	public final Class<? extends BaseJob> jobClass;
 
 	private JobWrapper(
 			JobPackage jobPackage,
+			DatarouterInjector injector,
 			LongRunningTaskTrackerFactory longRunningTaskTrackerFactory,
-			BaseJob job,
+			Class<? extends BaseJob> jobClass,
 			Instant triggerTime,
 			Instant scheduledTime,
 			boolean reschedule,
 			String triggeredBy){
 		this(
 				jobPackage,
-				job,
+				jobClass,
 				triggerTime,
 				scheduledTime,
 				reschedule,
 				triggeredBy,
+				injector,
 				initTracker(
 						jobPackage,
-						job.getPersistentName(),
+						jobClass.getSimpleName(),
 						triggerTime,
 						scheduledTime,
 						longRunningTaskTrackerFactory,
@@ -148,22 +163,24 @@ public class JobWrapper implements Callable<Void>{
 	}
 
 	protected JobWrapper(
+			DatarouterInjector injector,
 			LongRunningTaskTrackerFactory longRunningTaskTrackerFactory,
-			BaseJob job,
+			Class<? extends BaseJob> jobClass,
 			Instant triggerTime,
 			Instant scheduledTime,
 			boolean reschedule,
 			String triggeredBy){
 		this(
 				null,
-				job,
+				jobClass,
 				triggerTime,
 				scheduledTime,
 				reschedule,
 				triggeredBy,
+				injector,
 				initTracker(
 						null,
-						job.getPersistentName(),
+						jobClass.getSimpleName(),
 						triggerTime,
 						scheduledTime,
 						longRunningTaskTrackerFactory,
@@ -172,19 +189,20 @@ public class JobWrapper implements Callable<Void>{
 
 	protected JobWrapper(
 			JobPackage jobPackage,
-			BaseJob job,
+			Class<? extends BaseJob> jobClass,
 			Instant triggerTime,
 			Instant scheduledTime,
 			boolean reschedule,
 			String triggeredBy,
+			DatarouterInjector injector,
 			LongRunningTaskTracker taskTracker){
 		this.jobPackage = jobPackage;
-		this.job = job;
+		this.jobClass = jobClass;
 		this.triggerTime = triggerTime;
 		this.scheduledTime = scheduledTime;
 		this.reschedule = reschedule;
 		this.triggeredBy = triggeredBy;
-		this.jobClass = job.getClass();
+		this.injector = injector;
 		this.tracker = taskTracker;
 	}
 
@@ -192,7 +210,7 @@ public class JobWrapper implements Callable<Void>{
 	public Void call() throws Exception{
 		startTraceSummary();
 		trackBefore();
-		job.run(tracker);
+		injector.getInstance(jobClass).run(tracker);
 		trackAfter();
 		endTraceSummary();
 		logSuccess();

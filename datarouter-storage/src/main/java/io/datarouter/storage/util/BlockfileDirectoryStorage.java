@@ -78,6 +78,14 @@ public class BlockfileDirectoryStorage implements BlockfileStorage{
 	}
 
 	@Override
+	public byte[] readEnding(String name, int length){
+		return directory.readEnding(
+				PathbeanKey.of(name),
+				length)
+				.orElseThrow();
+	}
+
+	@Override
 	public InputStream readInputStream(String name, Threads threads, ByteLength chunkSize){
 		return directory.scanChunks(
 				PathbeanKey.of(name),

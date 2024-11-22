@@ -20,13 +20,12 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
 import io.datarouter.instrumentation.response.PublishingResponseDto;
+import io.datarouter.metric.config.DatarouterMetricSettingRoot;
 import io.datarouter.metric.publisher.DatarouterMetricGroupBinaryDto.DatarouterCountBinaryDto;
 import io.datarouter.metric.publisher.DatarouterMetricGroupBinaryDto.DatarouterGaugeBinaryDto;
 import io.datarouter.metric.publisher.DatarouterMetricGroupBinaryDto.DatarouterMeasurementBinaryDto;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.storage.config.properties.EnvironmentName;
-import io.datarouter.storage.config.properties.ServerName;
-import io.datarouter.storage.config.properties.ServiceName;
+import io.datarouter.storage.servertype.ServerTypeDetector;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
@@ -41,13 +40,13 @@ public class MetricPublisherService implements MetricPublisher{
 	private static final int MEASUREMENT_BATCHES_PER_FRAGMENT = 100;
 
 	@Inject
-	private EnvironmentName environmentNameSupplier;
-	@Inject
-	private ServiceName serviceNameSupplier;
-	@Inject
-	private ServerName serverNameSupplier;
-	@Inject
 	private MetricQueueDao metricQueueDao;
+	@Inject
+	private MetricNonProdQueueDao metricNonProdQueueDao;
+	@Inject
+	private ServerTypeDetector detector;
+	@Inject
+	private DatarouterMetricSettingRoot settings;
 
 	@Override
 	public PublishingResponseDto publish(PublishedMetricPeriod period){
@@ -59,13 +58,14 @@ public class MetricPublisherService implements MetricPublisher{
 						publishedCount.value()))
 				.batch(COUNTS_PER_FRAGMENT)
 				.map(countBatch -> new DatarouterMetricGroupBinaryDto(
-						environmentNameSupplier.get(),
-						serviceNameSupplier.get(),
-						serverNameSupplier.get(),
+						period.environment(),
+						period.serviceName(),
+						period.serverName(),
 						period.periodStartTimeMs(),
 						countBatch,
 						List.of(),
-						List.of()))
+						List.of(),
+						period.random().orElse(null)))
 				.forEach(metrics::add);
 
 		Scanner.of(period.gauges())
@@ -77,13 +77,14 @@ public class MetricPublisherService implements MetricPublisher{
 						publishedGauge.max()))
 				.batch(GAUGES_PER_FRAGMENT)
 				.map(gaugeBatch -> new DatarouterMetricGroupBinaryDto(
-						environmentNameSupplier.get(),
-						serviceNameSupplier.get(),
-						serverNameSupplier.get(),
+						period.environment(),
+						period.serviceName(),
+						period.serverName(),
 						period.periodStartTimeMs(),
 						List.of(),
 						gaugeBatch,
-						List.of()))
+						List.of(),
+						period.random().orElse(null)))
 				.forEach(metrics::add);
 
 		Scanner.of(period.measurementLists())
@@ -92,16 +93,20 @@ public class MetricPublisherService implements MetricPublisher{
 						measurementList.values()))
 				.batch(MEASUREMENT_BATCHES_PER_FRAGMENT)
 				.map(measurementBatch -> new DatarouterMetricGroupBinaryDto(
-						environmentNameSupplier.get(),
-						serviceNameSupplier.get(),
-						serverNameSupplier.get(),
+						period.environment(),
+						period.serviceName(),
+						period.serverName(),
 						period.periodStartTimeMs(),
 						List.of(),
 						List.of(),
-						measurementBatch))
+						measurementBatch,
+						period.random().orElse(null)))
 				.forEach(metrics::add);
-
-		metricQueueDao.combineAndPut(metrics);
+		if(publishToSharedNonProdQueue()){
+			metricNonProdQueueDao.combineAndPut(metrics);
+		}else{
+			metricQueueDao.combineAndPut(metrics);
+		}
 		return PublishingResponseDto.SUCCESS;
 	}
 
@@ -116,5 +121,9 @@ public class MetricPublisherService implements MetricPublisher{
 						measurementBatchId.getAndIncrement(),
 						metricName,
 						measurementBatch.stream().mapToLong(Long::valueOf).toArray()));
+	}
+
+	private Boolean publishToSharedNonProdQueue(){
+		return !detector.mightBeProduction() && settings.publishNonProdDataToSharedQueue.get();
 	}
 }

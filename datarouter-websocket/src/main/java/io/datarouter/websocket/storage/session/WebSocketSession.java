@@ -20,7 +20,7 @@ import java.util.function.Supplier;
 
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
-import io.datarouter.model.field.codec.MilliTimeFieldCodec;
+import io.datarouter.model.field.codec.MilliTimeToLongFieldCodec;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
 import io.datarouter.model.field.imp.comparable.LongEncodedField;
@@ -37,7 +37,7 @@ public class WebSocketSession extends BaseDatabean<WebSocketSessionKey,WebSocket
 	public static class FieldKeys{
 		public static final StringFieldKey mode = new StringFieldKey("mode");
 		public static final LongEncodedFieldKey<MilliTime> openingDate = new LongEncodedFieldKey<>(
-				"openingDate", new MilliTimeFieldCodec());
+				"openingDate", new MilliTimeToLongFieldCodec());
 		public static final StringFieldKey serverName = new StringFieldKey("serverName");
 	}
 

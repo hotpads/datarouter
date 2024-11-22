@@ -15,7 +15,7 @@
  */
 package io.datarouter.joblet.config;
 
-import io.datarouter.auth.role.DatarouterUserRole;
+import io.datarouter.auth.role.DatarouterUserRoleRegistry;
 import io.datarouter.joblet.handler.JobletExceptionHandler;
 import io.datarouter.joblet.handler.JobletHandler;
 import io.datarouter.joblet.handler.JobletQueuesHandler;
@@ -52,7 +52,7 @@ public class DatarouterJobletRouteSet extends BaseRouteSet{
 	@Override
 	protected DispatchRule applyDefault(DispatchRule rule){
 		return rule
-				.allowRoles(DatarouterUserRole.DATAROUTER_ADMIN, DatarouterUserRole.DATAROUTER_JOB)
+				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_ADMIN, DatarouterUserRoleRegistry.DATAROUTER_JOB)
 				.withTag(Tag.DATAROUTER);
 	}
 

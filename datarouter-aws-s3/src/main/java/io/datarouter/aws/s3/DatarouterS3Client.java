@@ -231,6 +231,8 @@ public interface DatarouterS3Client{
 		return findPartialObject(location, offset, length).orElse(null);
 	}
 
+	Optional<byte[]> findEnding(BucketAndKey location, int length);
+
 	default Scanner<byte[]> scanObjectChunks(
 			BucketAndKey location,
 			Range<Long> range,
@@ -250,7 +252,8 @@ public interface DatarouterS3Client{
 
 	/*---------- data write bytes ---------*/
 
-	void copyObject(String bucket, String sourceKey, String destinationKey, ObjectCannedACL acl);
+	void copyObject(String sourceBucket, String sourceKey, String destinationBucket, String destinationKey,
+			ObjectCannedACL acl);
 
 	void putObject(
 			BucketAndKey location,

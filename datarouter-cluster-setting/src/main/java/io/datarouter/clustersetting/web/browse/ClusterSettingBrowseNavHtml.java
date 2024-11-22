@@ -37,7 +37,6 @@ import io.datarouter.clustersetting.web.browse.ClusterSettingHierarchy.Hierarchy
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.setting.cached.CachedSetting;
 import io.datarouter.util.number.NumberFormatter;
-import io.datarouter.util.string.StringTool;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4NavTabsHtml;
 import io.datarouter.web.html.nav.NavTabs;
 import io.datarouter.web.html.nav.NavTabs.NavTab;
@@ -168,7 +167,7 @@ public record ClusterSettingBrowseNavHtml(
 			HierarchyNode nodeHierarchy,
 			HierarchyNode selectedNode){
 		int indent = nodeHierarchy.level() - 1;
-		var levelSpan = span(StringTool.repeat("-", indent))
+		var levelSpan = span("-".repeat(indent))
 				.withStyle("color:gray;");
 		boolean selected = nodeHierarchy.name().equals(selectedNode.name());
 		var linkText = selected

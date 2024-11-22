@@ -18,7 +18,7 @@ package io.datarouter.storage.util;
 import java.time.Duration;
 import java.util.Optional;
 
-import io.datarouter.gson.GsonTool;
+import io.datarouter.gson.DatarouterGsons;
 import io.datarouter.util.net.NetTool;
 import io.datarouter.util.net.NetTool.Header;
 
@@ -43,7 +43,7 @@ public class Ec2InstanceTool{
 
 	public static Optional<Ec2InstanceDetailsDto> getEc2InstanceDetails(boolean logError){
 		return makeEc2Call(EC2_INSTANCE_IDENTITY_DOCUMENT_URL, logError)
-				.map(json -> GsonTool.withUnregisteredEnums().fromJson(json, Ec2InstanceDetailsDto.class));
+				.map(json -> DatarouterGsons.withUnregisteredEnums().fromJson(json, Ec2InstanceDetailsDto.class));
 	}
 
 	public static String getEc2InstancePublicIp(){

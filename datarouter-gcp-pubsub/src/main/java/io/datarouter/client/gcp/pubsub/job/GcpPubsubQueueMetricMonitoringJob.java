@@ -64,7 +64,7 @@ public class GcpPubsubQueueMetricMonitoringJob extends BaseJob{
 	public void run(TaskTracker tracker){
 		try{
 			//This job is executed across all apps every minute adding delay would likely spread out the GCP requests
-			ThreadTool.sleep(RandomTool.nextPositiveInt(6) * 1000);
+			ThreadTool.sleep(RandomTool.nextPositiveInt(12) * 1000);
 		}catch(InterruptedException e){
 			return;
 		}

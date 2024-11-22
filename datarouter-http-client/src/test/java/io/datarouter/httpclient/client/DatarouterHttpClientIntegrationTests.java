@@ -57,6 +57,7 @@ public class DatarouterHttpClientIntegrationTests{
 	private static final int PORT = 9091;
 	private static final String URL = "http://localhost:" + PORT + "/";
 	private static final Random RANDOM = new Random(115509410414623L);
+	private static final String CLIENT_NAME = "test-client";
 
 	private static SimpleHttpResponseServer server;
 
@@ -125,7 +126,7 @@ public class DatarouterHttpClientIntegrationTests{
 
 	@Test(expectedExceptions = DatarouterHttpRuntimeException.class)
 	public void testUncheckedException(){
-		DatarouterHttpClient client = new DatarouterHttpClientBuilder(GsonJsonSerializer.DEFAULT).build();
+		DatarouterHttpClient client = new DatarouterHttpClientBuilder(CLIENT_NAME, GsonJsonSerializer.DEFAULT).build();
 		DatarouterHttpRequest request = new DatarouterHttpRequest(HttpRequestMethod.GET, "invalidLocation")
 				.setRetrySafe(false);
 		client.execute(request);
@@ -135,7 +136,7 @@ public class DatarouterHttpClientIntegrationTests{
 	public void testRequestTimeoutException() throws DatarouterHttpException{
 		server.setResponseDelay(200);
 		try{
-			DatarouterHttpClient client = new DatarouterHttpClientBuilder(GsonJsonSerializer.DEFAULT)
+			DatarouterHttpClient client = new DatarouterHttpClientBuilder(CLIENT_NAME, GsonJsonSerializer.DEFAULT)
 					.build();
 			DatarouterHttpRequest request = new DatarouterHttpRequest(HttpRequestMethod.GET, URL)
 					.setTimeout(Duration.ofMillis(100))
@@ -148,7 +149,7 @@ public class DatarouterHttpClientIntegrationTests{
 
 	@Test(expectedExceptions = DatarouterHttpConnectionAbortedException.class, timeOut = 1000)
 	public void testInvalidLocation() throws DatarouterHttpException{
-		DatarouterHttpClient client = new DatarouterHttpClientBuilder(GsonJsonSerializer.DEFAULT).build();
+		DatarouterHttpClient client = new DatarouterHttpClientBuilder(CLIENT_NAME, GsonJsonSerializer.DEFAULT).build();
 		DatarouterHttpRequest request = new DatarouterHttpRequest(HttpRequestMethod.GET, "invalidLocation")
 				.setRetrySafe(false);
 		client.executeChecked(request);
@@ -158,7 +159,7 @@ public class DatarouterHttpClientIntegrationTests{
 	public void testInvalidRequestHeader() throws DatarouterHttpException{
 		server.setResponse(HttpStatus.SC_MOVED_PERMANENTLY,
 				"301 status code throws exception when not provided a location header");
-		DatarouterHttpClient client = new DatarouterHttpClientBuilder(GsonJsonSerializer.DEFAULT).build();
+		DatarouterHttpClient client = new DatarouterHttpClientBuilder(CLIENT_NAME, GsonJsonSerializer.DEFAULT).build();
 		DatarouterHttpRequest request = new DatarouterHttpRequest(HttpRequestMethod.GET, URL).setRetrySafe(false);
 		client.executeChecked(request);
 	}
@@ -167,7 +168,7 @@ public class DatarouterHttpClientIntegrationTests{
 	public void testRetryFailure() throws DatarouterHttpException{
 		server.setResponseDelay(200);
 		try{
-			DatarouterHttpClient client = new DatarouterHttpClientBuilder(GsonJsonSerializer.DEFAULT)
+			DatarouterHttpClient client = new DatarouterHttpClientBuilder(CLIENT_NAME, GsonJsonSerializer.DEFAULT)
 					.setRetryCount(() -> 10)
 					.build();
 			DatarouterHttpRequest request = new DatarouterHttpRequest(HttpRequestMethod.GET, URL)
@@ -184,7 +185,7 @@ public class DatarouterHttpClientIntegrationTests{
 		int status = HttpStatus.SC_OK;
 		String expectedResponse = UUID.randomUUID().toString();
 		server.setResponse(status, expectedResponse);
-		DatarouterHttpClient client = new DatarouterHttpClientBuilder(GsonJsonSerializer.DEFAULT).build();
+		DatarouterHttpClient client = new DatarouterHttpClientBuilder(CLIENT_NAME, GsonJsonSerializer.DEFAULT).build();
 		DatarouterHttpRequest request = new DatarouterHttpRequest(HttpRequestMethod.GET, URL)
 				.setRetrySafe(false);
 		DatarouterHttpResponse response = client.execute(request);
@@ -198,7 +199,7 @@ public class DatarouterHttpClientIntegrationTests{
 			int status = HttpStatus.SC_BAD_REQUEST;
 			String expectedResponse = UUID.randomUUID().toString();
 			server.setResponse(status, expectedResponse);
-			DatarouterHttpClient client = new DatarouterHttpClientBuilder(GsonJsonSerializer.DEFAULT)
+			DatarouterHttpClient client = new DatarouterHttpClientBuilder(CLIENT_NAME, GsonJsonSerializer.DEFAULT)
 					.build();
 			DatarouterHttpRequest request = new DatarouterHttpRequest(HttpRequestMethod.GET, URL)
 					.setRetrySafe(false);
@@ -218,7 +219,7 @@ public class DatarouterHttpClientIntegrationTests{
 			int status = HttpStatus.SC_SERVICE_UNAVAILABLE;
 			String expectedResponse = UUID.randomUUID().toString();
 			server.setResponse(status, expectedResponse);
-			DatarouterHttpClient client = new DatarouterHttpClientBuilder(GsonJsonSerializer.DEFAULT)
+			DatarouterHttpClient client = new DatarouterHttpClientBuilder(CLIENT_NAME, GsonJsonSerializer.DEFAULT)
 					.build();
 			DatarouterHttpRequest request = new DatarouterHttpRequest(HttpRequestMethod.GET, URL)
 					.setRetrySafe(false);
@@ -247,7 +248,7 @@ public class DatarouterHttpClientIntegrationTests{
 		DefaultCsrfGenerator csrfGenerator = new DefaultCsrfGenerator(() -> cipherKey);
 		Supplier<String> apiKeySupplier = () -> apiKey;
 
-		client = new DatarouterHttpClientBuilder(GsonJsonSerializer.DEFAULT)
+		client = new DatarouterHttpClientBuilder(CLIENT_NAME, GsonJsonSerializer.DEFAULT)
 				.setSignatureGenerator(signatureGenerator)
 				.setCsrfGenerator(csrfGenerator)
 				.setApiKeySupplier(apiKeySupplier).build();
@@ -273,7 +274,7 @@ public class DatarouterHttpClientIntegrationTests{
 		Assert.assertNull(postParams.get(SecurityParameters.API_KEY));
 		Assert.assertNull(postParams.get(SecurityParameters.SIGNATURE));
 
-		client = new DatarouterHttpClientBuilder(GsonJsonSerializer.DEFAULT)
+		client = new DatarouterHttpClientBuilder(CLIENT_NAME, GsonJsonSerializer.DEFAULT)
 				.setSignatureGenerator(signatureGenerator)
 				.setCsrfGenerator(csrfGenerator)
 				.setApiKeySupplier(apiKeySupplier)
@@ -290,7 +291,7 @@ public class DatarouterHttpClientIntegrationTests{
 		Assert.assertNotNull(postParams.get(SecurityParameters.API_KEY));
 		Assert.assertNotNull(postParams.get(SecurityParameters.SIGNATURE));
 
-		client = new DatarouterHttpClientBuilder(GsonJsonSerializer.DEFAULT)
+		client = new DatarouterHttpClientBuilder(CLIENT_NAME, GsonJsonSerializer.DEFAULT)
 				.setSignatureGenerator(signatureGenerator)
 				.setCsrfGenerator(csrfGenerator)
 				.setApiKeySupplier(apiKeySupplier)
@@ -310,7 +311,7 @@ public class DatarouterHttpClientIntegrationTests{
 		Assert.assertNull(postParams.get(SecurityParameters.API_KEY));
 		Assert.assertNull(postParams.get(SecurityParameters.SIGNATURE));
 
-		client = new DatarouterHttpClientBuilder(GsonJsonSerializer.DEFAULT)
+		client = new DatarouterHttpClientBuilder(CLIENT_NAME, GsonJsonSerializer.DEFAULT)
 				.setSignatureGenerator(signatureGenerator)
 				.setCsrfGenerator(csrfGenerator)
 				.setApiKeySupplier(apiKeySupplier)
@@ -328,7 +329,7 @@ public class DatarouterHttpClientIntegrationTests{
 		Assert.assertNotNull(postParams.get(SecurityParameters.SIGNATURE));
 
 		// test equivalence classes
-		client = new DatarouterHttpClientBuilder(GsonJsonSerializer.DEFAULT)
+		client = new DatarouterHttpClientBuilder(CLIENT_NAME, GsonJsonSerializer.DEFAULT)
 				.setCsrfGenerator(csrfGenerator)
 				.build();
 
@@ -344,7 +345,7 @@ public class DatarouterHttpClientIntegrationTests{
 		Assert.assertNull(postParams.get(SecurityParameters.API_KEY));
 		Assert.assertNull(postParams.get(SecurityParameters.SIGNATURE));
 
-		client = new DatarouterHttpClientBuilder(GsonJsonSerializer.DEFAULT)
+		client = new DatarouterHttpClientBuilder(CLIENT_NAME, GsonJsonSerializer.DEFAULT)
 				.setApiKeySupplier(apiKeySupplier)
 				.build();
 
@@ -376,7 +377,7 @@ public class DatarouterHttpClientIntegrationTests{
 		DefaultCsrfGenerator csrfGenerator = new RefreshableDefaultCsrfGenerator(() -> cipherKey);
 		Supplier<String> apiKeySupplier = new RefreshableStringSupplier(() -> apiKey);
 
-		client = new DatarouterHttpClientBuilder(GsonJsonSerializer.DEFAULT)
+		client = new DatarouterHttpClientBuilder(CLIENT_NAME, GsonJsonSerializer.DEFAULT)
 				.setSignatureGenerator(signatureGenerator)
 				.setCsrfGenerator(csrfGenerator)
 				.setApiKeySupplier(apiKeySupplier).build();
@@ -402,7 +403,7 @@ public class DatarouterHttpClientIntegrationTests{
 		Assert.assertNull(postParams.get(SecurityParameters.API_KEY));
 		Assert.assertNull(postParams.get(SecurityParameters.SIGNATURE));
 
-		client = new DatarouterHttpClientBuilder(GsonJsonSerializer.DEFAULT)
+		client = new DatarouterHttpClientBuilder(CLIENT_NAME, GsonJsonSerializer.DEFAULT)
 				.setSignatureGenerator(signatureGenerator)
 				.setCsrfGenerator(csrfGenerator)
 				.setApiKeySupplier(apiKeySupplier)
@@ -419,7 +420,7 @@ public class DatarouterHttpClientIntegrationTests{
 		Assert.assertNotNull(postParams.get(SecurityParameters.API_KEY));
 		Assert.assertNotNull(postParams.get(SecurityParameters.SIGNATURE));
 
-		client = new DatarouterHttpClientBuilder(GsonJsonSerializer.DEFAULT)
+		client = new DatarouterHttpClientBuilder(CLIENT_NAME, GsonJsonSerializer.DEFAULT)
 				.setSignatureGenerator(signatureGenerator)
 				.setCsrfGenerator(csrfGenerator)
 				.setApiKeySupplier(apiKeySupplier)
@@ -439,7 +440,7 @@ public class DatarouterHttpClientIntegrationTests{
 		Assert.assertNull(postParams.get(SecurityParameters.API_KEY));
 		Assert.assertNull(postParams.get(SecurityParameters.SIGNATURE));
 
-		client = new DatarouterHttpClientBuilder(GsonJsonSerializer.DEFAULT)
+		client = new DatarouterHttpClientBuilder(CLIENT_NAME, GsonJsonSerializer.DEFAULT)
 				.setSignatureGenerator(signatureGenerator)
 				.setCsrfGenerator(csrfGenerator)
 				.setApiKeySupplier(apiKeySupplier)
@@ -457,7 +458,7 @@ public class DatarouterHttpClientIntegrationTests{
 		Assert.assertNotNull(postParams.get(SecurityParameters.SIGNATURE));
 
 		// test equivalence classes
-		client = new DatarouterHttpClientBuilder(GsonJsonSerializer.DEFAULT)
+		client = new DatarouterHttpClientBuilder(CLIENT_NAME, GsonJsonSerializer.DEFAULT)
 				.setCsrfGenerator(csrfGenerator)
 				.build();
 
@@ -473,7 +474,7 @@ public class DatarouterHttpClientIntegrationTests{
 		Assert.assertNull(postParams.get(SecurityParameters.API_KEY));
 		Assert.assertNull(postParams.get(SecurityParameters.SIGNATURE));
 
-		client = new DatarouterHttpClientBuilder(GsonJsonSerializer.DEFAULT)
+		client = new DatarouterHttpClientBuilder(CLIENT_NAME, GsonJsonSerializer.DEFAULT)
 				.setApiKeySupplier(apiKeySupplier)
 				.build();
 

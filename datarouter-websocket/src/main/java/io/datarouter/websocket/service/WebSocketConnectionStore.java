@@ -52,14 +52,10 @@ public class WebSocketConnectionStore{
 		return connections.entrySet();
 	}
 
-	public static class WebSocketConnection{
-		public final Session session;
-		public final Object lock;
-
-		public WebSocketConnection(Session session, Object lock){
-			this.session = session;
-			this.lock = lock;
-		}
+	public record WebSocketConnection(
+			Session session,
+			// do we need a dedicated lock object? Or can we use the session or this wrapper class to lock?
+			Object lock){
 	}
 
 }

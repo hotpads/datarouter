@@ -15,7 +15,7 @@
  */
 package io.datarouter.secretweb.config;
 
-import io.datarouter.auth.role.DatarouterUserRole;
+import io.datarouter.auth.role.DatarouterUserRoleRegistry;
 import io.datarouter.secretweb.web.SecretHandler;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.BaseRouteSet;
@@ -36,7 +36,7 @@ public class DatarouterSecretRouteSet extends BaseRouteSet{
 	@Override
 	protected DispatchRule applyDefault(DispatchRule rule){
 		return rule
-				.allowRoles(DatarouterUserRole.DATAROUTER_ADMIN)
+				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_ADMIN)
 				.withTag(Tag.DATAROUTER);
 	}
 

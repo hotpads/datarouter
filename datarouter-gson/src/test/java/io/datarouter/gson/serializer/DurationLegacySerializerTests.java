@@ -22,14 +22,14 @@ import org.testng.annotations.Test;
 
 import com.google.gson.Gson;
 
-import io.datarouter.gson.GsonTool;
+import io.datarouter.gson.DatarouterGsons;
 
 public class DurationLegacySerializerTests{
 
 	@Test
 	public void testInteroperability(){
 		Duration duration = Duration.ofSeconds(13, 739457283);
-		Gson legacyAdapterGson = GsonTool.withoutEnums();
+		Gson legacyAdapterGson = DatarouterGsons.withoutEnums();
 		String legacyAdapterJson = legacyAdapterGson.toJson(duration);
 		Assert.assertEquals(legacyAdapterGson.fromJson(legacyAdapterJson, Duration.class), duration);
 	}

@@ -24,13 +24,13 @@ import java.util.function.Function;
 
 import io.datarouter.auth.session.Session;
 import io.datarouter.auth.session.SessionBasedUser;
-import io.datarouter.auth.storage.account.BaseDatarouterAccountDao;
 import io.datarouter.auth.storage.account.DatarouterAccount;
+import io.datarouter.auth.storage.account.DatarouterAccountDao;
 import io.datarouter.auth.storage.account.DatarouterAccountKey;
-import io.datarouter.auth.storage.account.credential.BaseDatarouterAccountCredentialDao;
 import io.datarouter.auth.storage.account.credential.DatarouterAccountCredential;
+import io.datarouter.auth.storage.account.credential.DatarouterAccountCredentialDao;
 import io.datarouter.auth.storage.user.datarouteruser.DatarouterUser;
-import io.datarouter.auth.storage.user.useraccountmap.BaseDatarouterUserAccountMapDao;
+import io.datarouter.auth.storage.user.useraccountmap.DatarouterUserAccountMapDao;
 import io.datarouter.auth.storage.user.useraccountmap.DatarouterUserAccountMapKey;
 import io.datarouter.scanner.Scanner;
 import jakarta.inject.Inject;
@@ -39,19 +39,12 @@ import jakarta.inject.Singleton;
 @Singleton
 public class DatarouterAccountUserService{
 
-	private final BaseDatarouterAccountDao datarouterAccountDao;
-	private final BaseDatarouterAccountCredentialDao datarouterAccountCredentialDao;
-	private final BaseDatarouterUserAccountMapDao datarouterUserAccountMapDao;
-
 	@Inject
-	public DatarouterAccountUserService(
-			BaseDatarouterAccountDao datarouterAccountDao,
-			BaseDatarouterAccountCredentialDao datarouterAccountCredentialDao,
-			BaseDatarouterUserAccountMapDao datarouterUserAccountMapDao){
-		this.datarouterAccountDao = datarouterAccountDao;
-		this.datarouterAccountCredentialDao = datarouterAccountCredentialDao;
-		this.datarouterUserAccountMapDao = datarouterUserAccountMapDao;
-	}
+	private DatarouterAccountDao datarouterAccountDao;
+	@Inject
+	private DatarouterAccountCredentialDao datarouterAccountCredentialDao;
+	@Inject
+	private DatarouterUserAccountMapDao datarouterUserAccountMapDao;
 
 	public List<String> getAllAccountNamesWithUserMappingsEnabled(){
 		return datarouterAccountDao.scan()

@@ -32,7 +32,8 @@ import jakarta.inject.Singleton;
 @Singleton
 public class GsonJsonSerializer implements JsonSerializer{
 
-	public static final GsonJsonSerializer DEFAULT = new GsonJsonSerializer(GsonTool.GSON);
+	public static final GsonJsonSerializer DEFAULT = new GsonJsonSerializer(
+			DatarouterGsons.rootDatarouterGsonInstance());
 
 	private final Gson gson;
 

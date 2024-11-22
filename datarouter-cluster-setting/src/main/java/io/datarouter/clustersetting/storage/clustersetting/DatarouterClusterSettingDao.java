@@ -57,8 +57,6 @@ public class DatarouterClusterSettingDao extends BaseDao{
 					SortedMapStorageNode<ClusterSettingKey,ClusterSetting,ClusterSettingFielder> node =
 							settinglessNodeFactory.create(clientId, ClusterSetting::new, ClusterSettingFielder::new)
 							.withTag(Tag.DATAROUTER)
-							// TODO remove?
-							.withDisableForcePrimary(true)
 							.build();
 					return node;
 				})

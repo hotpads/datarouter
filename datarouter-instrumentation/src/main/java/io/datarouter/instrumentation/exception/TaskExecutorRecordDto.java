@@ -19,6 +19,7 @@ public record TaskExecutorRecordDto(
 		String id,
 		String traceId,
 		String parentId,
-		String exceptionRecordId)
+		String exceptionRecordId,
+		String environment)
 implements TaskExecutionRecordDto{
 }

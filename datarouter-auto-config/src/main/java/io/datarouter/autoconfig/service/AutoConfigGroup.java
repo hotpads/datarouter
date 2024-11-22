@@ -55,7 +55,7 @@ public interface AutoConfigGroup extends Callable<String>, PluginConfigValue<Aut
 			sb.append(" - Exception: ").append(e.toString());
 		}
 		sb.append(NEW_LINE);
-		logger.warn(sb.toString());
+		logger.warn("{}", sb);
 		return sb.toString();
 	}
 

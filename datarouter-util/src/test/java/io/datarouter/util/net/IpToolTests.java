@@ -68,12 +68,12 @@ public class IpToolTests{
 
 	@Test(expectedExceptions = IllegalArgumentException.class)
 	public void testIsIpAddressInSubnetsBadSubnet(){
-		IpTool.isIpAddressInSubnets("1.1.1.1", "1.1.1.0/a");
+		IpTool.isIpAddressInSubnets("1.1.1.1", new Subnet("1.1.1.0/a"));
 	}
 
 	@Test
 	public void testIsIpAddressInSubnetsBadIp(){
-		Assert.assertFalse(IpTool.isIpAddressInSubnets(null, "1.1.1.0/24"));
+		Assert.assertFalse(IpTool.isIpAddressInSubnets(null, new Subnet("1.1.1.0/24")));
 	}
 
 	@Test

@@ -25,14 +25,22 @@ import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.dao.DaosModuleBuilder;
 import io.datarouter.web.config.BaseWebPlugin;
+import io.datarouter.web.navigation.DatarouterNavBarCategory;
 
 public class DatarouterRateLimiterPlugin extends BaseWebPlugin{
+
+	private static final DatarouterRateLimiterPaths PATHS = new DatarouterRateLimiterPaths();
 
 	private DatarouterRateLimiterPlugin(DatarouterRateLimiterDaoModule daosModule){
 		setDaosModule(daosModule);
 		addDatarouterGithubDocLink("datarouter-rate-limiter");
+		addRouteSet(DatarouterRateLimiterRouteSet.class);
 		addSettingRoot(DatarouterRateLimiterSettings.class);
 		addPluginEntry(BaseTriggerGroup.KEY, DatarouterRateLimiterTriggerGroup.class);
+		addDatarouterNavBarItem(
+				DatarouterNavBarCategory.MONITORING,
+				PATHS.datarouter.rateLimiters.list,
+				"Rate Limiters");
 	}
 
 	public static class DatarouterRateLimiterPluginBuilder{

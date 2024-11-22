@@ -161,7 +161,6 @@ public class JobletProcessor{
 			jobletCallableById.put(id, jobletCallable);
 			jobletFutureById.put(id, jobletFuture);
 			// Return so we loop back immediately.
-			return;
 		}catch(RejectedExecutionException ree){
 			JobletCounters.rejectedCallable(jobletType);
 			// The executor is maxed out.  Trying to feed it too quickly could be wasteful.
@@ -198,7 +197,7 @@ public class JobletProcessor{
 	}
 
 	public int getThreadCount(){
-		return jobletService.getThreadCountInfoForThisInstance(jobletType).effectiveLimit;
+		return jobletService.getThreadCountInfoForThisInstance(jobletType).effectiveLimit();
 	}
 
 	/*------------ Object methods ----------------*/

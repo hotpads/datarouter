@@ -37,6 +37,10 @@ public class BlockfileMetadataCache<T>{
 		return value;
 	}
 
+	public boolean isSet(){
+		return value != null;
+	}
+
 	public synchronized void set(T value){
 		this.value = value;
 	}

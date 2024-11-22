@@ -19,7 +19,7 @@ import java.util.List;
 
 import io.datarouter.instrumentation.task.TaskTrackerKeyDto;
 import io.datarouter.model.field.Field;
-import io.datarouter.model.field.codec.MilliTimeFieldCodec;
+import io.datarouter.model.field.codec.MilliTimeToLongFieldCodec;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
 import io.datarouter.model.field.imp.comparable.LongEncodedField;
@@ -37,7 +37,7 @@ public class LongRunningTaskKey extends BaseRegularPrimaryKey<LongRunningTaskKey
 		public static final StringFieldKey name = new StringFieldKey("name").withColumnName("jobClass");
 		public static final LongEncodedFieldKey<MilliTime> triggerTime = new LongEncodedFieldKey<>(
 				"triggerTime",
-				new MilliTimeFieldCodec());
+				new MilliTimeToLongFieldCodec());
 		public static final StringFieldKey serverName = new StringFieldKey("serverName");
 	}
 

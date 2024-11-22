@@ -16,14 +16,12 @@
 package io.datarouter.auth.session;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 
 import javax.servlet.ServletRequest;
 
 import io.datarouter.auth.role.Role;
-import io.datarouter.auth.role.RoleEnum;
 import io.datarouter.util.string.StringTool;
 
 /**
@@ -68,12 +66,12 @@ public interface CurrentSessionInfo{
 		return getRoles(request).contains(role);
 	}
 
-	/**
-	 * returns whether the current user/session is associated with the given Role, false if there is no current session
-	 */
-	default boolean hasRole(ServletRequest request, RoleEnum<?> role){
-		return hasRole(request, role.getRole());
-	}
+//	/**
+//	 * returns whether the current user/session is associated with the given Role, false if there is no current session
+//	 */
+//	default boolean hasRole(ServletRequest request, RoleEnum<?> role){
+//		return hasRole(request, role.getRole());
+//	}
 
 	default boolean hasAnyRole(ServletRequest request, Collection<Role> targetRoles){
 		Set<Role> roles = getRoles(request);
@@ -81,12 +79,12 @@ public interface CurrentSessionInfo{
 				.anyMatch(roles::contains);
 	}
 
-	default boolean hasAnyRoleEnum(ServletRequest request, Collection<RoleEnum<?>> targetRoles){
-		Set<Role> roles = getRoles(request);
-		return targetRoles.stream()
-				.map(RoleEnum::getRole)
-				.anyMatch(roles::contains);
-	}
+//	default boolean hasAnyRoleEnum(ServletRequest request, Collection<RoleEnum<?>> targetRoles){
+//		Set<Role> roles = getRoles(request);
+//		return targetRoles.stream()
+//				.map(RoleEnum::getRole)
+//				.anyMatch(roles::contains);
+//	}
 
 	class NoOpCurrentSessionInfo implements CurrentSessionInfo{
 
@@ -97,7 +95,7 @@ public interface CurrentSessionInfo{
 
 		@Override
 		public Set<Role> getRoles(ServletRequest request){
-			return Collections.emptySet();
+			return Set.of();
 		}
 
 	}

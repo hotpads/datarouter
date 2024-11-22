@@ -16,6 +16,7 @@
 package io.datarouter.nodewatch.config;
 
 import io.datarouter.job.BaseTriggerGroup;
+import io.datarouter.nodewatch.config.setting.DatarouterTableCountPublisherSettingRoot;
 import io.datarouter.nodewatch.job.LatestTableCountPublisherJob;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.util.time.ZoneIds;

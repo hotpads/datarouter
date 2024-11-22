@@ -28,7 +28,7 @@ implements AutoCloseable{
 	private final BinaryDtoIndexedCodec<T> codec;
 	private final OutputStream outputStream;
 
-	public BinaryDtoOutputStreamWriter(Class<? extends T> dtoClass, OutputStream outputStream){
+	public BinaryDtoOutputStreamWriter(Class<T> dtoClass, OutputStream outputStream){
 		this.codec = BinaryDtoIndexedCodec.of(dtoClass);
 		this.outputStream = outputStream;
 	}

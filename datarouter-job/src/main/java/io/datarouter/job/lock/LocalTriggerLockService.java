@@ -22,7 +22,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import io.datarouter.job.BaseJob;
 import io.datarouter.job.scheduler.JobWrapper;
-import io.datarouter.job.util.Outcome;
+import io.datarouter.job.util.DatarouterJobOutcome;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
@@ -37,12 +37,12 @@ public class LocalTriggerLockService{
 		this.jobWrapperByJobClass = new ConcurrentHashMap<>();
 	}
 
-	public Outcome acquire(JobWrapper jobWrapper){
-		JobWrapper existingJobWrapper = jobWrapperByJobClass.putIfAbsent(jobWrapper.job.getClass(), jobWrapper);
+	public DatarouterJobOutcome acquire(JobWrapper jobWrapper){
+		JobWrapper existingJobWrapper = jobWrapperByJobClass.putIfAbsent(jobWrapper.jobClass, jobWrapper);
 
 		return existingJobWrapper == null // no previous JobWrapper found, so we got the lock
-				? Outcome.success()
-				: Outcome.failure("Unable to acquire local lock for job " + jobWrapper.job);
+				? DatarouterJobOutcome.makeSuccess()
+				: DatarouterJobOutcome.makeFailure("Unable to acquire local lock for job " + jobWrapper.jobClass);
 	}
 
 	public void release(Class<? extends BaseJob> jobClass){

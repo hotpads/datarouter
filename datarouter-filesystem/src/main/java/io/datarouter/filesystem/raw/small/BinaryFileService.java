@@ -82,6 +82,14 @@ public class BinaryFileService{
 		}
 	}
 
+	public Optional<byte[]> readEnding(Path fullPath, int length){
+		try{
+			return checkedService.readEnding(fullPath, length);
+		}catch(IOException e){
+			throw new UncheckedIOException(e);
+		}
+	}
+
 	public InputStream readInputStream(Path fullPath){
 		try{
 			return checkedService.readInputStream(fullPath);
@@ -141,12 +149,25 @@ public class BinaryFileService{
 			}
 		}
 
-		//TODO return Optional
 		public Optional<byte[]> readBytes(Path fullPath, long offset, int length)
 		throws IOException{
 			ByteBuffer buffer = ByteBuffer.allocate(length);
 			try(SeekableByteChannel channel = Files.newByteChannel(fullPath, StandardOpenOption.READ)){
 				channel.position(offset);
+				channel.read(buffer);
+				return Optional.of(buffer.array());
+			}catch(NoSuchFileException nsfe){
+				return Optional.empty();
+			}
+		}
+
+		public Optional<byte[]> readEnding(Path fullPath, int length)
+		throws IOException{
+			try(SeekableByteChannel channel = Files.newByteChannel(fullPath, StandardOpenOption.READ)){
+				long fileLength = channel.size();
+				int numBytes = Math.toIntExact(Math.min(fileLength, length));
+				ByteBuffer buffer = ByteBuffer.allocate(numBytes);
+				channel.position(fileLength - numBytes);
 				channel.read(buffer);
 				return Optional.of(buffer.array());
 			}catch(NoSuchFileException nsfe){

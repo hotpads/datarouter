@@ -32,11 +32,10 @@ import io.datarouter.scanner.Scanner;
 
 public interface RoleManager{
 
-	RoleEnum<? extends RoleEnum<?>> getRoleEnum();
+	RoleRegistry getRoleRegistry();
 
 	default Optional<Role> findRoleFromPersistentString(String persistentString){
-		return Optional.ofNullable(getRoleEnum().fromPersistentString(persistentString))
-				.map(RoleEnum::getRole);
+		return getRoleRegistry().findRoleFromPersistentString(persistentString);
 	}
 
 	RoleApprovalTypeEnum<? extends RoleApprovalTypeEnum<?>> getRoleApprovalTypeEnum();
@@ -46,18 +45,28 @@ public interface RoleManager{
 				.map(RoleApprovalTypeEnum::getRoleApprovalType);
 	}
 
-	Set<Role> getAllRoles();
+	default Set<Role> getAllRoles(){
+		return getRoleRegistry().getAllRoles();
+	}
+
+	default Set<Role> getRequestableRoles(@SuppressWarnings("unused") DatarouterUser user){
+		return getAllRoles();
+	}
+
 	Set<Role> getRolesForGroup(String groupId);
+	default Map<String,Set<Role>> getRoleGroupMappings(){
+		return Map.of();
+	}
 	Set<Role> getSuperAdminRoles();
 	Set<Role> getDefaultRoles();
 
-	default Map<RoleApprovalType, Integer> getRoleApprovalRequirements(@SuppressWarnings("unused") Role role){
+	default Map<RoleApprovalType,Integer> getRoleApprovalRequirements(@SuppressWarnings("unused") Role role){
 		return Map.of(DatarouterRoleApprovalType.ADMIN.getRoleApprovalType(), 1);
 	}
 
-	default Map<Role, Map<RoleApprovalType, Integer>> getAllRoleApprovalRequirements(){
-		return Scanner.of(getAllRoles()).toMap(Function.identity(), role -> {
-			Map<RoleApprovalType, Integer> roleApprovalRequirements = getRoleApprovalRequirements(role);
+	default Map<Role,Map<RoleApprovalType,Integer>> getAllRoleApprovalRequirements(){
+		return Scanner.of(getAllRoles()).toMap(Function.identity(),role -> {
+			Map<RoleApprovalType,Integer> roleApprovalRequirements = getRoleApprovalRequirements(role);
 			// Each role should at a minimum require a single standard approval
 			if(roleApprovalRequirements == null || roleApprovalRequirements.isEmpty()){
 				return Map.of(DatarouterRoleApprovalType.ADMIN.getRoleApprovalType(), 1);
@@ -106,8 +115,8 @@ public interface RoleManager{
 				.collect(HashSet::new);
 	}
 
-	default Map<Role, List<String>> getGroupsByRole(Collection<String> groups){
-		Map<Role, List<String>> groupsByRoles = new HashMap<>();
+	default Map<Role,List<String>> getGroupsByRole(Collection<String> groups){
+		Map<Role,List<String>> groupsByRoles = new HashMap<>();
 		for(String group : groups){
 			Set<Role> rolesForGroup = getRolesForGroup(group);
 			for(Role role : rolesForGroup){

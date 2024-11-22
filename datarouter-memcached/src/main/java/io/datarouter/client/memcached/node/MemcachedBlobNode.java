@@ -110,6 +110,17 @@ implements PhysicalBlobStorageNode{
 	}
 
 	@Override
+	public Optional<byte[]> readEnding(PathbeanKey key, int length, Config config){
+		return scanMultiInternal(List.of(key))
+				.findFirst()
+				.map(MemcachedPathbeanResult::value)
+				.map(bytes -> Arrays.copyOfRange(
+						bytes,
+						Math.max(0, bytes.length - length),
+						bytes.length));
+	}
+
+	@Override
 	public Map<PathbeanKey,byte[]> readMulti(List<PathbeanKey> keys, Config config){
 		return scanMultiInternal(keys)
 				.toMap(MemcachedPathbeanResult::key, MemcachedPathbeanResult::value);

@@ -105,13 +105,19 @@ public class TableStorageSummarizer<
 				.advanceUntil($ -> shouldStop.get())
 				.forEach(databean -> {
 					numItems.incrementAndGet();
+					// Count value bytes for all fields
 					fielder.getFields(databean).forEach(field -> {
 						byte[] valueBytes = field.getValueBytes();
 						int valueLength = valueBytes == null ? 0 : valueBytes.length;
 						valueBytesPerColumnCounter.increment(
 								field.getKey().getColumnName(),
 								valueLength);
-						// At least for HBase/Bigtable, we don't persist null cells, so don't count their names
+					});
+					// Count columnName bytes for non-key fields.
+					// Key-fields are appended together without columnNames.
+					fielder.getNonKeyFields(databean).forEach(field -> {
+						byte[] valueBytes = field.getValueBytes();
+						// At least for Bigtable, we don't persist null cells, so don't count their names
 						int keyLength = valueBytes == null ? 0 : field.getKey().getColumnNameBytes().length;
 						nameBytesPerColumnCounter.increment(field.getKey().getColumnName(), keyLength);
 					});

@@ -22,7 +22,7 @@
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-metadata-parent</artifactId>
-		<version>0.0.125</version>
+		<version>0.0.126</version>
 		<relativePath>../datarouter-metadata-parent</relativePath>
 	</parent>
 
@@ -38,17 +38,21 @@
 		<ben-manes-caffeine-version>3.1.8</ben-manes-caffeine-version>
 		<codehaus-plexus-version>2.15.0</codehaus-plexus-version>
 		<commons-codec-version>1.15</commons-codec-version>
+		<commons-fileupload-version>1.5</commons-fileupload-version>
 		<commons-io-version>2.15.1</commons-io-version>
-		<datarouter-version>0.0.125</datarouter-version>
+		<datarouter-version>0.0.126</datarouter-version>
 		<guice-version>6.0.0</guice-version>
 		<guava-version>31.1-jre</guava-version>
 		<httpclient-version>4.5.14</httpclient-version>
 		<jakarta-inject-version>2.0.1</jakarta-inject-version>
-		<log4j-version>2.23.1</log4j-version>
-		<mockito-core-version>5.10.0</mockito-core-version>
+		<mockito-core-version>5.13.0</mockito-core-version>
 		<mockito-testng-version>0.5.2</mockito-testng-version>
-		<slf4j-version>1.7.36</slf4j-version>
 		<testng-version>7.10.2</testng-version>
+		<jsch-version>0.2.20</jsch-version>
+
+		<!-- Upgrading these libraries breaks console appenders-->
+		<log4j-version>2.17.1</log4j-version>
+		<slf4j-version>1.7.33</slf4j-version>
 
 		<!-- plugins -->
 		<maven-jar-plugin-version>3.3.0</maven-jar-plugin-version>
@@ -58,7 +62,7 @@
 
 		<!-- other -->
 		<!-- upgrade scripts when bumping this version -->
-		<eclipse-compiler-version>3.37.0</eclipse-compiler-version>
+		<eclipse-compiler-version>3.39.0</eclipse-compiler-version>
 
 		<!--
 		set to false to skip packing and installing app (like wars and uber jars)
@@ -76,7 +80,7 @@
 			<dependency>
 				<groupId>com.google.cloud</groupId>
 				<artifactId>libraries-bom</artifactId>
-				<version>26.39.0</version>
+				<version>26.48.0</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -195,7 +199,7 @@
 					<dependency>
 						<groupId>com.puppycrawl.tools</groupId>
 						<artifactId>checkstyle</artifactId>
-						<version>10.17.0</version>
+						<version>10.18.1</version>
 					</dependency>
 					<dependency>
 						<groupId>io.datarouter</groupId>
@@ -203,6 +207,27 @@
 						<version>${datarouter-version}</version>
 					</dependency>
 				</dependencies>
+			</plugin>
+			<plugin>
+				<groupId>org.owasp</groupId>
+				<artifactId>dependency-check-maven</artifactId>
+				<version>10.0.4</version>
+				<configuration>
+					<nvdApiServerId>nvd</nvdApiServerId>
+					<excludes>
+						<!-- internal libraries to skip -->
+						<exclude>io.datarouter:datarouter-web</exclude>
+					</excludes>
+					<prettyPrint>true</prettyPrint>
+					<skip>true</skip> <!-- -Ddependency-check.skip=false -->
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>check</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 		<pluginManagement>

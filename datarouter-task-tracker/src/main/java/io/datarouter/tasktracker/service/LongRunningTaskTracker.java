@@ -209,6 +209,12 @@ public class LongRunningTaskTracker implements TaskTracker{
 	/*--------------- heartbeat --------------*/
 
 	@Override
+	public TaskTracker setCount(long value){
+		task.numItemsProcessed.set(value);
+		return this;
+	}
+
+	@Override
 	public LongRunningTaskTracker increment(){
 		return increment(1);
 	}
@@ -391,6 +397,14 @@ public class LongRunningTaskTracker implements TaskTracker{
 			}
 		}
 		lastPersisted = Instant.now();
+	}
+
+	/*------------ subclass ------------*/
+
+	public static Optional<LongRunningTaskTracker> findFromTaskTracker(TaskTracker tracker){
+		return tracker instanceof LongRunningTaskTracker
+				? Optional.of((LongRunningTaskTracker)tracker)
+				: Optional.empty();
 	}
 
 }

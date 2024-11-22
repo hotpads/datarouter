@@ -26,6 +26,7 @@ import io.datarouter.client.mysql.field.codec.array.ByteArrayMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.datetime.InstantMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.datetime.LocalDateMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.datetime.LocalDateTimeMysqlFieldCodec;
+import io.datarouter.client.mysql.field.codec.datetime.MilliTimestampMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.primitive.BooleanMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.primitive.DoubleMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.primitive.FloatMysqlFieldCodec;
@@ -48,6 +49,7 @@ import io.datarouter.model.field.imp.comparable.IntegerEncodedField;
 import io.datarouter.model.field.imp.comparable.IntegerField;
 import io.datarouter.model.field.imp.comparable.LongEncodedField;
 import io.datarouter.model.field.imp.comparable.LongField;
+import io.datarouter.model.field.imp.comparable.MilliTimestampEncodedField;
 import io.datarouter.model.field.imp.comparable.ShortField;
 import io.datarouter.model.field.imp.custom.LocalDateTimeField;
 
@@ -81,6 +83,7 @@ public class StandardMysqlFieldCodecFactory implements MysqlFieldCodecFactory{
 		addCodec(LocalDateField.class, new LocalDateMysqlFieldCodec());
 		addCodec(LocalDateTimeField.class, new LocalDateTimeMysqlFieldCodec());
 		addCodec(InstantField.class, new InstantMysqlFieldCodec());
+		addCodec(MilliTimestampEncodedField.class, new MilliTimestampMysqlFieldCodec<>());
 
 		//array
 		addCodec(ByteArrayField.class, new ByteArrayMysqlFieldCodec());

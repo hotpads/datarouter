@@ -16,17 +16,16 @@
 package io.datarouter.httpclient.endpoint;
 
 import io.datarouter.httpclient.DatarouterServicePaths;
-import io.datarouter.httpclient.endpoint.caller.CallerTypeDatarouterService;
-import io.datarouter.httpclient.endpoint.java.BaseEndpoint;
-import io.datarouter.httpclient.endpoint.java.EndpointType.NoOpEndpointType;
+import io.datarouter.httpclient.endpoint.java.BaseJavaEndpoint;
+import io.datarouter.httpclient.endpoint.java.JavaEndpointType.NoOpEndpointType;
 import io.datarouter.pathnode.PathNode;
 
-public class DatarouterServiceHealthcheckEndpoint extends BaseEndpoint<Object,NoOpEndpointType>{
+public class DatarouterServiceHealthcheckEndpoint extends BaseJavaEndpoint<Object,NoOpEndpointType>{
 
 	private static final PathNode PATH = new DatarouterServicePaths().datarouter.healthcheck;
 
 	private DatarouterServiceHealthcheckEndpoint(){
-		super(GET, PATH, CallerTypeDatarouterService.class);
+		super(GET, PATH);
 		setRetrySafe(false);
 		setShouldSkipLogs(true);
 		setShouldSkipSecurity(true);

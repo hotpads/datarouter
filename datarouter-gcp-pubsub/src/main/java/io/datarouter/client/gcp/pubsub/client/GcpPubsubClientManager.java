@@ -182,7 +182,7 @@ public class GcpPubsubClientManager extends BaseClientManager{
 		}catch(ApiException e){
 			if(e.getStatusCode().getCode() == StatusCode.Code.NOT_FOUND){
 				topicAdminClient.createTopic(topicName);
-				logger.warn("Created topic={}", topicName.toString());
+				logger.warn("Created topic={}", topicName);
 			}else{
 				throw e;
 			}

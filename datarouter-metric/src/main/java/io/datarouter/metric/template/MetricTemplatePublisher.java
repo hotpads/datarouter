@@ -22,15 +22,20 @@ import io.datarouter.instrumentation.response.PublishingResponseDto;
 
 public interface MetricTemplatePublisher{
 
-	PublishingResponseDto publishTemplates(Collection<MetricTemplateDto> templates);
+	PublishingResponseDto publishTemplates(Collection<PublishedMetricTemplate> templates);
 
 	public record NoOpMetricTemplatePublisher() implements MetricTemplatePublisher{
 
 		@Override
-		public PublishingResponseDto publishTemplates(Collection<MetricTemplateDto> templates){
+		public PublishingResponseDto publishTemplates(Collection<PublishedMetricTemplate> templates){
 			return PublishingResponseDto.NO_OP;
 		}
 
+	}
+
+	public record PublishedMetricTemplate(
+			String serviceName,
+			MetricTemplateDto template){
 	}
 
 }

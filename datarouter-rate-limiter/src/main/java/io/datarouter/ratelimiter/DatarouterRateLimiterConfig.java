@@ -30,8 +30,8 @@ public class DatarouterRateLimiterConfig{
 	public final Duration expiration;
 
 	/**
-	 * Ratelimiters track counts starting the top of the day and time interval.
-	 * If we have 3 rate limiters with configurations:
+	 * Ratelimiters track counts starting at the top of the day and time interval.
+	 * If we have 3 rate limiters with the following configurations:
 	 * <ul>
 	 * <li>timeUnit = seconds and bucketInterval = 10</li>
 	 * <li>timeUnit = hours   and bucketInterval = 6</li>

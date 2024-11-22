@@ -17,6 +17,8 @@ package io.datarouter.web.dispatcher;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -27,13 +29,16 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.fileupload.FileUploadException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.datarouter.auth.config.DatarouterAuthenticationConfig;
-import io.datarouter.auth.role.DatarouterUserRole;
 import io.datarouter.auth.role.Role;
+import io.datarouter.auth.role.RoleRegistry;
 import io.datarouter.auth.session.DatarouterSessionManager;
 import io.datarouter.auth.storage.user.session.DatarouterSession;
 import io.datarouter.inject.DatarouterInjector;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.util.net.UrlTool;
 import io.datarouter.web.config.ServletContextSupplier;
 import io.datarouter.web.dispatcher.ApiKeyPredicate.ApiKeyPredicateCheck;
@@ -45,6 +50,7 @@ import io.datarouter.web.user.authenticate.saml.DatarouterSamlSettings;
 import io.datarouter.web.user.authenticate.saml.SamlService;
 import io.datarouter.web.util.RequestAttributeKey;
 import io.datarouter.web.util.RequestAttributeTool;
+import io.datarouter.web.util.http.IpAddressService;
 import io.datarouter.web.util.http.MockHttpServletRequest;
 import io.datarouter.web.util.http.MockHttpServletRequestBuilder;
 import io.datarouter.web.util.http.RequestTool;
@@ -54,6 +60,7 @@ import jakarta.inject.Singleton;
 
 @Singleton
 public class Dispatcher{
+	private static final Logger logger = LoggerFactory.getLogger(Dispatcher.class);
 
 	private static final String JSESSIONID_PATH_PARAM = ";jsessionid=";
 
@@ -73,6 +80,8 @@ public class Dispatcher{
 	private SamlService samlService;
 	@Inject
 	private DatarouterSamlSettings samlSettings;
+	@Inject
+	private IpAddressService ipAddressService;
 
 	public RoutingResult handleRequestIfUrlMatch(
 			HttpServletRequest request,
@@ -97,9 +106,13 @@ public class Dispatcher{
 						rule.getRedirectUrl().get());
 				return RoutingResult.ROUTED;
 			}
-			SecurityValidationResult securityCheckResult = rule.applySecurityValidation(request);
+			String ip = ipAddressService.getIpAddress(request);
+			SecurityValidationResult securityCheckResult = rule.applySecurityValidation(request, ip);
 			request = securityCheckResult.getWrappedRequest();
 			if(!securityCheckResult.isSuccess()){
+				logger.info("Security check failed path={} error={}",
+						afterContextPath,
+						securityCheckResult.getFailureMessage());
 				injector.getInstance(rule.getDefaultHandlerEncoder()).sendForbiddenResponse(request, response,
 						securityCheckResult);
 				return RoutingResult.FORBIDDEN;
@@ -184,6 +197,14 @@ public class Dispatcher{
 		return estimateHandlerForPathAndParams(path, dispatchRule, Optional.empty(), Map.of(), null);
 	}
 
+	public Set<Role> getRequiredRoles(String afterContextPath, List<RouteSet> routeSets){
+		return Scanner.of(routeSets)
+				.concatIter(RouteSet::getDispatchRules)
+				.include(rule -> rule.getPattern().matcher(afterContextPath).matches())
+				.concatIter(DispatchRule::getAllowedRoles)
+				.collect(HashSet::new);
+	}
+
 	private Params parseParams(HttpServletRequest request, Charset defaultCharset) throws ServletException{
 		if(isMultipart(request)){
 			try{
@@ -208,9 +229,11 @@ public class Dispatcher{
 			}
 			return;
 		}
-		if(session.map(sessionObj -> sessionObj.hasRole(DatarouterUserRole.REQUESTOR)).orElse(false)){
+		if(session
+				.map(sessionObj -> sessionObj.hasRole(RoleRegistry.REQUESTOR))
+				.orElse(false)){
 			String allowedRolesParam = allowedRoles.stream()
-					.map(Role::getPersistentString)
+					.map(Role::persistentString)
 					.collect(Collectors.joining(","));
 			ResponseTool.sendRedirect(request, response, HttpServletResponse.SC_SEE_OTHER, request.getContextPath()
 					+ authenticationConfig.getPermissionRequestPath() + "?deniedUrl=" + UrlTool.encode(requestUrl)

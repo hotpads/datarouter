@@ -15,7 +15,7 @@
  */
 package io.datarouter.nodewatch.config;
 
-import io.datarouter.auth.role.DatarouterUserRole;
+import io.datarouter.auth.role.DatarouterUserRoleRegistry;
 import io.datarouter.nodewatch.web.handler.NodewatchConfigsHandler;
 import io.datarouter.nodewatch.web.handler.NodewatchMetadataMigrateHandler;
 import io.datarouter.nodewatch.web.handler.NodewatchNodeNameHandler;
@@ -40,60 +40,60 @@ public class DatarouterNodewatchRouteSet extends BaseRouteSet{
 
 		handle(paths.datarouter.nodewatch.tables)
 				.withHandler(NodewatchTablesHandler.class)
-				.allowRoles(DatarouterUserRole.DATAROUTER_MONITORING);
+				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_MONITORING);
 
 		handle(paths.datarouter.nodewatch.summary)
 				.withHandler(NodewatchSummaryHandler.class)
-				.allowRoles(DatarouterUserRole.DATAROUTER_MONITORING);
+				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_MONITORING);
 
 		handle(paths.datarouter.nodewatch.configs)
 				.withHandler(NodewatchConfigsHandler.class)
-				.allowRoles(DatarouterUserRole.DATAROUTER_MONITORING);
+				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_MONITORING);
 
 		handle(paths.datarouter.nodewatch.metadata.migrate)
 				.withHandler(NodewatchMetadataMigrateHandler.class)
-				.allowRoles(DatarouterUserRole.DATAROUTER_ADMIN);
+				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_ADMIN);
 
 		// table
 		handle(paths.datarouter.nodewatch.table)
 				.withHandler(NodewatchTableHandler.class)
-				.allowRoles(DatarouterUserRole.DATAROUTER_MONITORING);
+				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_MONITORING);
 		handle(paths.datarouter.nodewatch.table.storage)
 				.withHandler(NodewatchTableStorageHandler.class)
-				.allowRoles(DatarouterUserRole.DATAROUTER_MONITORING);
+				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_MONITORING);
 		handle(paths.datarouter.nodewatch.table.nodeName)
 				.withHandler(NodewatchNodeNameHandler.class)
-				.allowRoles(DatarouterUserRole.DATAROUTER_MONITORING);
+				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_MONITORING);
 
 		// table actions
 		handle(paths.datarouter.nodewatch.table.resample)
 				.withHandler(NodewatchTableActionsHandler.class)
-				.allowRoles(DatarouterUserRole.DATAROUTER_ADMIN);
+				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_ADMIN);
 		handle(paths.datarouter.nodewatch.table.deleteSamples)
 				.withHandler(NodewatchTableActionsHandler.class)
-				.allowRoles(DatarouterUserRole.DATAROUTER_ADMIN);
+				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_ADMIN);
 		handle(paths.datarouter.nodewatch.table.deleteAllMetadata)
 				.withHandler(NodewatchTableActionsHandler.class)
-				.allowRoles(DatarouterUserRole.DATAROUTER_ADMIN);
+				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_ADMIN);
 
 		// slowSpans
 		handle(paths.datarouter.nodewatch.slowSpans)
 				.withHandler(NodewatchSlowSpansHandler.class)
-				.allowRoles(DatarouterUserRole.DATAROUTER_MONITORING);
+				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_MONITORING);
 
 		// threshold
 		handle(paths.datarouter.nodewatch.threshold.edit)
 				.withHandler(NodewatchThresholdEditHandler.class)
-				.allowRoles(DatarouterUserRole.DATAROUTER_ADMIN);
+				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_ADMIN);
 		handle(paths.datarouter.nodewatch.threshold.delete)
 				.withHandler(NodewatchThresholdEditHandler.class)
-				.allowRoles(DatarouterUserRole.DATAROUTER_ADMIN);
+				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_ADMIN);
 	}
 
 	@Override
 	protected DispatchRule applyDefault(DispatchRule rule){
 		return rule
-				.allowRoles(DatarouterUserRole.DATAROUTER_ADMIN)
+				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_ADMIN)
 				.withTag(Tag.DATAROUTER);
 	}
 

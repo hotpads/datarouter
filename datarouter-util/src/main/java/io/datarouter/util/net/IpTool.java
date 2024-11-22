@@ -23,7 +23,7 @@ import io.datarouter.util.string.StringTool;
 
 public class IpTool{
 
-	private static final String LOOPBACK_RANGE = "127.0.0.0/8";
+	private static final Subnet LOOPBACK_RANGE = new Subnet("127.0.0.0/8");
 
 	/**
 	 * Convert long ip representation into ipv4 octet string.
@@ -69,21 +69,9 @@ public class IpTool{
 	 * @param dottedDecimalIp - formatted like 192.168.1.1
 	 * @param subnet - formatted like 192.168.1.0/28
 	 */
-	private static boolean isIpAddressInSubnet(String dottedDecimalIp, String subnet){
+	private static boolean isIpAddressInSubnet(String dottedDecimalIp, Subnet subnet){
 		long ip = getLongValue(dottedDecimalIp);
-		long baseAddress;
-		long subnetMask;
-		try{
-			String[] components = subnet.split("/");
-			baseAddress = getLongValue(components[0]);
-			int maskIdentifier = Integer.parseInt(components[1]);
-
-			subnetMask = (1 << maskIdentifier) - 1;
-			subnetMask = subnetMask << 32 - maskIdentifier;
-		}catch(Exception e){
-			throw new IllegalArgumentException("invalid subnet");
-		}
-		return (subnetMask & baseAddress) == (subnetMask & ip);
+		return (subnet.subnetMask & subnet.baseAddress) == (subnet.subnetMask & ip);
 	}
 
 	//main use case for this is to allow these methods to work with protocol-prefixed IP addresses
@@ -108,12 +96,16 @@ public class IpTool{
 		return String.join(".", components);
 	}
 
-	public static boolean isIpAddressInSubnets(String dottedDecimalIp, String... subnets){
+	public static boolean isIpAddressInSubnets(String dottedDecimalIp, Subnet... subnets){
+		return isIpAddressInSubnets(dottedDecimalIp, Arrays.asList(subnets));
+	}
+
+	public static boolean isIpAddressInSubnets(String dottedDecimalIp, List<Subnet> subnets){
 		String formattedDottedDecimalIp = formatIp(dottedDecimalIp);
 		if(formattedDottedDecimalIp == null){
 			return false;
 		}
-		return Arrays.stream(subnets)
+		return subnets.stream()
 				.anyMatch(subnet -> isIpAddressInSubnet(formattedDottedDecimalIp, subnet));
 	}
 

@@ -17,20 +17,24 @@ package io.datarouter.storage.config.schema;
 
 import org.slf4j.Logger;
 
-import io.datarouter.gson.GsonTool;
+import io.datarouter.gson.DatarouterGsons;
 
 public class SchemaUpdateTool{
 
+	public static final String SCHEMA_UPDATE_WITH_METADATA_PREFIX = "SchemaUpdateWithMetadata: ";
+
 	private static final int CONSOLE_WIDTH = 80;
-
-	public static final String SINGLE_LINE_SCHEMA_UPDATE_PREFIX = "SchemaUpdate: ";
-
 	private static final String
 			PLEASE_EXECUTE_SCHEMA_UPDATE_MESSAGE = generateFullWidthMessage("Please Execute SchemaUpdate"),
 			THANK_YOU_MESSAGE = generateFullWidthMessage("Thank You");
 
-	public static void printSchemaUpdate(Logger logger, String schemaUpdate){
-		logger.warn(SINGLE_LINE_SCHEMA_UPDATE_PREFIX + "{}", GsonTool.withUnregisteredEnums().toJson(schemaUpdate));
+	public static void printSchemaUpdate(Logger logger, String clientName, String databaseName, String tableName,
+			String schemaUpdate){
+		String singleLineSchemaUpdate = DatarouterGsons.withUnregisteredEnums().toJson(schemaUpdate);
+		logger.warn(SCHEMA_UPDATE_WITH_METADATA_PREFIX + "{}",
+				// This will be parsed by the schema update consuming service
+				DatarouterGsons.withoutEnums().toJson(new SchemaUpdateLogLine(clientName, databaseName, tableName,
+						singleLineSchemaUpdate)));
 		logger.warn(PLEASE_EXECUTE_SCHEMA_UPDATE_MESSAGE);
 		logger.warn(schemaUpdate);
 		logger.warn(THANK_YOU_MESSAGE);

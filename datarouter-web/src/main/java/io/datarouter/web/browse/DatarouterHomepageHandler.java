@@ -24,7 +24,7 @@ import static j2html.TagCreator.tr;
 
 import java.util.Optional;
 
-import io.datarouter.auth.role.DatarouterUserRole;
+import io.datarouter.auth.role.DatarouterUserRoleRegistry;
 import io.datarouter.storage.config.DatarouterPropertiesService;
 import io.datarouter.web.browse.widget.NodeWidgetTableCountLinkSupplier;
 import io.datarouter.web.config.DatarouterWebFiles;
@@ -54,7 +54,7 @@ public class DatarouterHomepageHandler extends BaseHandler{
 		mav.put("serverPropertiesTable", buildDatarouterPropertiesTable());
 
 		//Clients
-		var showStorage = getSessionInfo().hasRole(DatarouterUserRole.DATAROUTER_ADMIN);
+		var showStorage = getSessionInfo().hasRole(DatarouterUserRoleRegistry.DATAROUTER_ADMIN);
 		mav.put("showStorage", showStorage);
 		if(showStorage){
 			mav.put("clientsTable",

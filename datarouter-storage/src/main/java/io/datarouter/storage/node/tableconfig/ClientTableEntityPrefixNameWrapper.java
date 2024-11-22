@@ -23,6 +23,8 @@ import io.datarouter.util.string.StringTool;
 
 public class ClientTableEntityPrefixNameWrapper implements Comparable<ClientTableEntityPrefixNameWrapper>{
 
+	public static final char DELIMITER = '.';
+
 	private final String clientName;
 	private final String tableName;
 	private final String subEntityPrefix;
@@ -41,8 +43,8 @@ public class ClientTableEntityPrefixNameWrapper implements Comparable<ClientTabl
 
 	@Override
 	public String toString(){
-		String clientAndTable = clientName + "." + tableName;
-		return StringTool.isEmpty(subEntityPrefix) ? clientAndTable : clientAndTable + "." + subEntityPrefix;
+		String clientAndTable = clientName + DELIMITER + tableName;
+		return StringTool.isEmpty(subEntityPrefix) ? clientAndTable : clientAndTable + DELIMITER + subEntityPrefix;
 	}
 
 	@Override

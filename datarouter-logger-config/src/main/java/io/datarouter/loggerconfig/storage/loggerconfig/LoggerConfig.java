@@ -20,7 +20,7 @@ import java.util.function.Supplier;
 
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
-import io.datarouter.model.field.codec.MilliTimeFieldCodec;
+import io.datarouter.model.field.codec.MilliTimeToLongFieldCodec;
 import io.datarouter.model.field.codec.StringListToCsvFieldCodec;
 import io.datarouter.model.field.codec.StringMappedEnumFieldCodec;
 import io.datarouter.model.field.imp.StringEncodedField;
@@ -58,7 +58,7 @@ public class LoggerConfig extends BaseDatabean<LoggerConfigKey,LoggerConfig>{
 				.withSize(CommonFieldSizes.MAX_LENGTH_LONGBLOB);
 		private static final StringFieldKey email = new StringFieldKey("email");
 		private static final LongEncodedFieldKey<MilliTime> lastUpdatedMs = new LongEncodedFieldKey<>(
-				"lastUpdatedMs", new MilliTimeFieldCodec());
+				"lastUpdatedMs", new MilliTimeToLongFieldCodec());
 		private static final LongFieldKey ttlMillis = new LongFieldKey("ttlMillis");
 	}
 

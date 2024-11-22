@@ -22,6 +22,10 @@ import io.datarouter.model.serialize.fielder.DatabeanFielder;
 
 public class DatabeanTool{
 
+	/**
+	 * @deprecated  Use a dedicated codec for each use case.
+	 */
+	@Deprecated
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> byte[] getBytes(
 			D databean,
 			DatabeanFielder<PK,D> fielder){

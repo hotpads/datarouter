@@ -21,20 +21,28 @@ import java.util.concurrent.ThreadPoolExecutor;
 
 import io.datarouter.conveyor.ConveyorProcessor;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.webappinstance.service.ClusterThreadCountService.InstanceThreadCounts;
 
 public record ConveyorSummary(
 		String name,
 		ThreadPoolExecutor executor,
 		boolean shouldRun,
-		int maxAllowedThreadCount){
+		int maxInstanceThreads,
+		int maxClusterThreads,
+		int effectiveMaxThreads){
 
 	public static List<ConveyorSummary> summarize(Map<String,ConveyorProcessor> entries){
 		return Scanner.of(entries.entrySet())
-				.map(entry -> new ConveyorSummary(
-						entry.getKey(),
-						entry.getValue().getExecutorService(),
-						entry.getValue().shouldConveyorRun(),
-						entry.getValue().getMaxAllowedThreadCount()))
+				.map(entry -> {
+					InstanceThreadCounts threadCounts = entry.getValue().getThreadCounts();
+					return new ConveyorSummary(
+							entry.getKey(),
+							entry.getValue().getExecutorService(),
+							entry.getValue().shouldConveyorRun(),
+							threadCounts.instanceLimit(),
+							threadCounts.clusterLimit(),
+							threadCounts.effectiveLimit());
+				})
 				.list();
 	}
 

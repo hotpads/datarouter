@@ -17,18 +17,17 @@ package io.datarouter.httpclient.endpoint;
 
 import io.datarouter.httpclient.DatarouterServicePaths;
 import io.datarouter.httpclient.dto.DatarouterAccountCredentialStatusDto;
-import io.datarouter.httpclient.endpoint.caller.CallerTypeDatarouterService;
-import io.datarouter.httpclient.endpoint.java.BaseEndpoint;
-import io.datarouter.httpclient.endpoint.java.EndpointType.NoOpEndpointType;
+import io.datarouter.httpclient.endpoint.java.BaseJavaEndpoint;
+import io.datarouter.httpclient.endpoint.java.JavaEndpointType.NoOpEndpointType;
 import io.datarouter.pathnode.PathNode;
 
 public class DatarouterServiceCheckCredentialEndpoint
-extends BaseEndpoint<DatarouterAccountCredentialStatusDto,NoOpEndpointType>{
+extends BaseJavaEndpoint<DatarouterAccountCredentialStatusDto,NoOpEndpointType>{
 
 	private static final PathNode PATHS = new DatarouterServicePaths().datarouter.api.accounts.checkCredential;
 
 	private DatarouterServiceCheckCredentialEndpoint(){
-		super(GET, PATHS, CallerTypeDatarouterService.class);
+		super(GET, PATHS);
 		setShouldSkipLogs(true);
 	}
 

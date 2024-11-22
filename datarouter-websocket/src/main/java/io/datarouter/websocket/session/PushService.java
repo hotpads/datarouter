@@ -15,6 +15,7 @@
  */
 package io.datarouter.websocket.session;
 
+import java.io.IOException;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -26,6 +27,7 @@ import io.datarouter.httpclient.request.HttpRequestMethod;
 import io.datarouter.httpclient.response.DatarouterHttpResponse;
 import io.datarouter.pathnode.PathNode;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.storage.util.KeyRangeTool;
 import io.datarouter.websocket.WebSocketCounters;
 import io.datarouter.websocket.config.DatarouterWebSocketPaths;
@@ -50,6 +52,10 @@ public class PushService{
 	private DatarouterWebSocketSubscriptionDao webSocketSubscriptionDao;
 	@Inject
 	private WebSocketServices webSocketServices;
+	@Inject
+	private WebSocketApiService webSocketApiService;
+	@Inject
+	private ServerName serverName;
 	@Inject
 	private DatarouterWebSocketPaths paths;
 
@@ -93,8 +99,8 @@ public class PushService{
 	}
 
 	public boolean forward(WebSocketSession webSocketSession, String message){
-		DatarouterHttpResponse response = executeCommand(paths.websocketCommand.push, webSocketSession, message);
-		boolean success = Boolean.parseBoolean(response.getEntity());
+		boolean success = executeCommand(paths.websocketCommand.push, webSocketSession, message,
+				webSocketApiService::push);
 		if(!success){
 			logger.error("Forwarding to {} failed: deleting the session", webSocketSession);
 			WebSocketSessionKey key = webSocketSession.getKey();
@@ -112,18 +118,35 @@ public class PushService{
 	}
 
 	public boolean isAlive(WebSocketSession webSocketSession){
-		DatarouterHttpResponse response = executeCommand(paths.websocketCommand.isAlive, webSocketSession, null);
+		return executeCommand(paths.websocketCommand.isAlive, webSocketSession, null, webSocketApiService::isAlive);
+	}
+
+	private boolean executeCommand(
+			PathNode path,
+			WebSocketSession webSocketSession,
+			String message,
+			LocalWebSocketCall localCall){
+		WebSocketCounters.inc("command " + path.getValue());
+		var webSocketCommand = new WebSocketCommandDto(webSocketSession.getKey(), message);
+
+		if(serverName.get().equals(webSocketSession.getServerName())){
+			// Optimization: don't do the http call if the socket is open on the current server
+			try{
+				return localCall.call(webSocketCommand);
+			}catch(IOException e){
+				throw new RuntimeException(e);
+			}
+		}
+
+		String url = "http://" + webSocketSession.getServerName() + path.toSlashedString();
+		var request = new DatarouterHttpRequest(HttpRequestMethod.POST, url);
+		httpClient.addDtoToPayload(request, webSocketCommand, null);
+		DatarouterHttpResponse response = httpClient.execute(request);
 		return Boolean.parseBoolean(response.getEntity());
 	}
 
-	// TODO Optimization: don't do the http call if the socket is open on the current server
-	private DatarouterHttpResponse executeCommand(PathNode path, WebSocketSession webSocketSession, String message){
-		WebSocketCounters.inc("command " + path.getValue());
-		String url = "http://" + webSocketSession.getServerName() + path.toSlashedString();
-		DatarouterHttpRequest request = new DatarouterHttpRequest(HttpRequestMethod.POST, url);
-		WebSocketCommand webSocketCommand = new WebSocketCommand(webSocketSession.getKey(), message);
-		httpClient.addDtoToPayload(request, webSocketCommand, null);
-		return httpClient.execute(request);
+	private interface LocalWebSocketCall{
+		boolean call(WebSocketCommandDto webSocketCommand) throws IOException;
 	}
 
 }

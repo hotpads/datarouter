@@ -37,7 +37,6 @@ public class DatarouterJobSettingRoot extends SettingRoot{
 	public final CachedSetting<Boolean> enableDetachedJobs;
 	public final CachedSetting<Boolean> runJobRetriggeringJob;
 	public final CachedSetting<Boolean> runJobStopperJob;
-
 	public final CachedSetting<Boolean> runTaskTrackingPublishingJob;
 	public final CachedSetting<Integer> taskTrackerPublisherPutMultiBatchSize;
 
@@ -52,7 +51,7 @@ public class DatarouterJobSettingRoot extends SettingRoot{
 
 		runLongRunningTaskVacuum = registerBoolean("runLongRunningTaskVacuum", false);
 		// this is included with the daily-digest-summary email
-		runTaskFailureAlertJob = registerBooleans("runTaskFailureAlertJob", defaultTo(false));
+		runTaskFailureAlertJob = registerBoolean("runTaskFailureAlertJob", false);
 
 		processJobs = registerBoolean("processJobs", true);
 		enableDetachedJobs = registerBoolean("enableDetachedJobs", true);

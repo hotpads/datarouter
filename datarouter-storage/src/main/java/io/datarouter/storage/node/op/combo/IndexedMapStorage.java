@@ -31,7 +31,7 @@ extends MapStorage<PK,D>,
 		IndexedMapStorageReader<PK,D>,
 		IndexedMapStorageWriter<PK,D>{
 
-	public interface IndexedMapStorageNode<
+	interface IndexedMapStorageNode<
 			PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
@@ -42,7 +42,7 @@ extends MapStorage<PK,D>,
 			IndexedMapStorageWriterNode<PK,D,F>{
 	}
 
-	public interface PhysicalIndexedMapStorageNode<
+	interface PhysicalIndexedMapStorageNode<
 			PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>

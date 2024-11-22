@@ -15,7 +15,7 @@
  */
 package io.datarouter.plugin.dataexport.config;
 
-import io.datarouter.auth.role.DatarouterUserRole;
+import io.datarouter.auth.role.DatarouterUserRoleRegistry;
 import io.datarouter.plugin.dataexport.web.DatabeanExportHandler;
 import io.datarouter.plugin.dataexport.web.DatabeanImportHandler;
 import io.datarouter.storage.tag.Tag;
@@ -42,7 +42,7 @@ public class DatarouterDataExportRouteSet extends BaseRouteSet{
 	@Override
 	protected DispatchRule applyDefault(DispatchRule rule){
 		return rule
-				.allowRoles(DatarouterUserRole.DATAROUTER_ADMIN)
+				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_ADMIN)
 				.withTag(Tag.DATAROUTER);
 	}
 

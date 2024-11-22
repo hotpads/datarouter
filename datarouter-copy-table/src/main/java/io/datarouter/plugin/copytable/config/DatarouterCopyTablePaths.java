@@ -26,17 +26,25 @@ public class DatarouterCopyTablePaths extends PathNode implements PathsRoot{
 
 	public static class DatarouterPaths extends PathNode{
 		public final CopyTablePaths copyTable = branch(CopyTablePaths::new, "copyTable");
+		public final SystemTableCopyPaths systemTableCopier = branch(SystemTableCopyPaths::new, "systemTableCopier");
 		public final TableProcessorPaths tableProcessor = branch(TableProcessorPaths::new, "tableProcessor");
 	}
 
 	public static class CopyTablePaths extends PathNode{
 		public final PathNode joblets = leaf("joblets");
 		public final PathNode singleThread = leaf("singleThread");
+		public final PathNode systemTables = leaf("systemTables");
 	}
 
 	public static class TableProcessorPaths extends PathNode{
 		public final PathNode joblets = leaf("joblets");
 		public final PathNode singleThread = leaf("singleThread");
+	}
+
+	public static class SystemTableCopyPaths extends PathNode{
+		public final PathNode viewTables = leaf("viewTables");
+		public final PathNode listSystemTables = leaf("listSystemTables");
+		public final PathNode migrateSystemTables = leaf("migrateSystemTables");
 	}
 
 }

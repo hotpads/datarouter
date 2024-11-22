@@ -15,8 +15,8 @@
  */
 package io.datarouter.httpclient.example;
 
+import io.datarouter.gson.DatarouterGsons;
 import io.datarouter.gson.GsonJsonSerializer;
-import io.datarouter.gson.GsonTool;
 import io.datarouter.httpclient.client.DatarouterHttpClient;
 import io.datarouter.httpclient.client.DatarouterHttpClientBuilder;
 import io.datarouter.json.JsonSerializer;
@@ -25,11 +25,11 @@ public class ExampleClientConfiguration{
 
 	// By default, datarouter-http-client uses vanilla gson.
 	// You can implement the JsonSerializer interface or create a GsonJsonSerializer.
-	JsonSerializer jsonSerializer = new GsonJsonSerializer(GsonTool.withoutEnums().newBuilder()
+	JsonSerializer jsonSerializer = new GsonJsonSerializer(DatarouterGsons.withoutEnums().newBuilder()
 			.serializeNulls()
 			.create());
 
-	DatarouterHttpClient httpClient = new DatarouterHttpClientBuilder(jsonSerializer)
+	DatarouterHttpClient httpClient = new DatarouterHttpClientBuilder("example-client", jsonSerializer)
 			// Retry the requests twice
 			.setRetryCount(() -> 2)
 			// Add apiKey=SECRET to each request

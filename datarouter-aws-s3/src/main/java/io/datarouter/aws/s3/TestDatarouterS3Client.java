@@ -77,7 +77,8 @@ public class TestDatarouterS3Client implements DatarouterS3Client{
 	}
 
 	@Override
-	public void copyObject(String bucket, String sourceKey, String destinationKey, ObjectCannedACL acl){
+	public void copyObject(String sourceBucket, String sourceKey, String destinationBucket, String destinationKey,
+			ObjectCannedACL acl){
 		throw new UnsupportedOperationException();
 	}
 
@@ -228,6 +229,11 @@ public class TestDatarouterS3Client implements DatarouterS3Client{
 
 	@Override
 	public Optional<byte[]> findPartialObject(BucketAndKey location, long offset, int length){
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Optional<byte[]> findEnding(BucketAndKey location, int length){
 		throw new UnsupportedOperationException();
 	}
 

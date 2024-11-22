@@ -154,13 +154,41 @@ public class DatarouterS3ObjectRequests{
 		}
 	}
 
+	public Optional<byte[]> findEnding(BucketAndKey location, int length){
+		S3Client s3Client = clientManager.getS3ClientForBucket(location.bucket());
+		String rangeParam = S3Tool.makeGetObjectEndingRangeParam(length);
+		GetObjectRequest request = GetObjectRequest.builder()
+				.bucket(location.bucket())
+				.key(location.key())
+				.range(rangeParam)
+				.build();
+		DatarouterS3Counters.inc(location.bucket(), S3CounterSuffix.READ_ENDING_REQUESTS, 1);
+		S3CostCounters.read();
+		ResponseBytes<GetObjectResponse> response;
+		try{
+			try(var $ = TracerTool.startSpan("S3 readEnding", TraceSpanGroupType.CLOUD_STORAGE)){
+				response = s3Client.getObjectAsBytes(request);
+				TracerTool.appendToSpanInfo("length", length);
+				TracerTool.appendToSpanInfo("Content-Length", response.response().contentLength());
+			}
+			byte[] bytes = response.asByteArray();
+			DatarouterS3Counters.inc(location.bucket(), S3CounterSuffix.READ_ENDING_HIT, 1);
+			DatarouterS3Counters.inc(location.bucket(), S3CounterSuffix.READ_ENDING_BYTES, bytes.length);
+			return Optional.of(bytes);
+		}catch(NoSuchKeyException e){
+			DatarouterS3Counters.inc(location.bucket(), S3CounterSuffix.READ_ENDING_MISS, 1);
+			return Optional.empty();
+		}
+	}
+
 	/*---------- write bytes ---------*/
 
-	public void copyObject(String bucket, String sourceKey, String destinationKey, ObjectCannedACL acl){
+	public void copyObject(String bucket, String sourceKey, String destinationBucket,
+			String destinationKey, ObjectCannedACL acl){
 		CopyObjectRequest request = CopyObjectRequest.builder()
 				.sourceBucket(bucket)
 				.sourceKey(sourceKey)
-				.destinationBucket(bucket)
+				.destinationBucket(destinationBucket)
 				.destinationKey(destinationKey)
 				.acl(acl)
 				.build();

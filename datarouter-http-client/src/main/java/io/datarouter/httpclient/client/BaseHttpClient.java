@@ -37,7 +37,6 @@ import org.apache.http.pool.PoolStats;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.httpclient.circuitbreaker.DatarouterHttpClientIoExceptionCircuitBreaker;
 import io.datarouter.httpclient.request.DatarouterHttpRequest;
 import io.datarouter.httpclient.request.HttpRequestMethod;
 import io.datarouter.httpclient.response.DatarouterHttpResponse;
@@ -47,6 +46,7 @@ import io.datarouter.httpclient.security.CsrfGenerator.RefreshableCsrfGenerator;
 import io.datarouter.httpclient.security.SecurityParameters;
 import io.datarouter.httpclient.security.SignatureGenerator;
 import io.datarouter.httpclient.security.SignatureGenerator.RefreshableSignatureGenerator;
+import io.datarouter.instrumentation.metric.Metrics;
 import io.datarouter.instrumentation.refreshable.RefreshableSupplier;
 import io.datarouter.instrumentation.trace.TraceSpanGroupType;
 import io.datarouter.instrumentation.trace.TracerTool;
@@ -55,6 +55,12 @@ import io.datarouter.json.JsonSerializer;
 public abstract class BaseHttpClient implements HttpConfig{
 	private static final Logger logger = LoggerFactory.getLogger(BaseHttpClient.class);
 
+	private static final String METRIC_PREFIX_EXCEPTION = "Exception";
+	private static final String METRIC_SCOPE_ALL = "all";
+	private static final String METRIC_SCOPE_NAME = "name";
+	private static final String EXCEPTION_CATEGORY_CLIENT = "CLIENT";
+
+	protected final String clientName;
 	protected final CloseableHttpClient httpClient;
 	protected final JsonSerializer jsonSerializer;
 	protected final SignatureGenerator signatureGenerator;
@@ -65,15 +71,14 @@ public abstract class BaseHttpClient implements HttpConfig{
 	protected final RefreshableSupplier<String> refreshableApiKeySupplier;
 	protected final DatarouterHttpClientConfig config;
 	protected final PoolingHttpClientConnectionManager connectionManager;
-	protected final DatarouterHttpClientIoExceptionCircuitBreaker circuitWrappedHttpClient;
-	protected final Supplier<Boolean> enableBreakers;
 	protected final Supplier<URI> urlPrefix;
 	protected final Supplier<Boolean> traceInQueryString;
 	protected final Supplier<Boolean> debugLog;
 	protected final String apiKeyFieldName;
-	protected final String name;
+	protected final String simpleClassName;
 
 	BaseHttpClient(
+			String clientName,
 			CloseableHttpClient httpClient,
 			JsonSerializer jsonSerializer,
 			SignatureGenerator signatureGenerator,
@@ -84,12 +89,12 @@ public abstract class BaseHttpClient implements HttpConfig{
 			RefreshableSupplier<String> refreshableApiKeySupplier,
 			DatarouterHttpClientConfig config,
 			PoolingHttpClientConnectionManager connectionManager,
-			String name,
-			Supplier<Boolean> enableBreakers,
+			String simpleClassName,
 			Supplier<URI> urlPrefix,
 			Supplier<Boolean> traceInQueryString,
 			Supplier<Boolean> debugLog,
 			String apiKeyFieldName){
+		this.clientName = clientName;
 		this.httpClient = httpClient;
 		this.jsonSerializer = jsonSerializer;
 		this.signatureGenerator = signatureGenerator;
@@ -100,9 +105,7 @@ public abstract class BaseHttpClient implements HttpConfig{
 		this.refreshableApiKeySupplier = refreshableApiKeySupplier;
 		this.config = config;
 		this.connectionManager = connectionManager;
-		this.circuitWrappedHttpClient = new DatarouterHttpClientIoExceptionCircuitBreaker(name);
-		this.name = name;
-		this.enableBreakers = enableBreakers;
+		this.simpleClassName = simpleClassName;
 		this.urlPrefix = urlPrefix;
 		this.traceInQueryString = traceInQueryString;
 		this.debugLog = debugLog;
@@ -122,12 +125,12 @@ public abstract class BaseHttpClient implements HttpConfig{
 			cookieStore.addCookie(cookie);
 		}
 		context.setCookieStore(cookieStore);
-		return circuitWrappedHttpClient.call(
+		return DatarouterHttpCallTool.call(
+				simpleClassName,
 				httpClient,
 				request,
 				httpEntityConsumer,
 				context,
-				enableBreakers,
 				traceInQueryString,
 				debugLog);
 	}
@@ -237,6 +240,25 @@ public abstract class BaseHttpClient implements HttpConfig{
 			TracerTool.appendToSpanInfo("characters", length);
 			return jsonSerializer.deserialize(entity, deserializeToType);
 		}
+	}
+
+	protected void onException(){
+		logger.warn("error clientName={}", clientName);
+
+		String scopeAll = String.join(
+				" ",
+				METRIC_PREFIX_EXCEPTION,
+				EXCEPTION_CATEGORY_CLIENT,
+				METRIC_SCOPE_ALL);
+		Metrics.count(scopeAll);
+
+		String scopeName = String.join(
+				" ",
+				METRIC_PREFIX_EXCEPTION,
+				EXCEPTION_CATEGORY_CLIENT,
+				METRIC_SCOPE_NAME,
+				clientName);
+		Metrics.count(scopeName);
 	}
 
 }

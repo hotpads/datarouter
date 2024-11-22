@@ -22,12 +22,8 @@ import jakarta.inject.Inject;
 
 public class AccountPermissionCacheRefreshJob extends BaseJob{
 
-	private final DatarouterAccountPermissionKeysByPrefixCache cache;
-
 	@Inject
-	public AccountPermissionCacheRefreshJob(DatarouterAccountPermissionKeysByPrefixCache cache){
-		this.cache = cache;
-	}
+	private DatarouterAccountPermissionKeysByPrefixCache cache;
 
 	@Override
 	public void run(TaskTracker tracker){

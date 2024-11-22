@@ -15,7 +15,7 @@
  */
 package io.datarouter.loggerconfig.config;
 
-import io.datarouter.auth.role.DatarouterUserRole;
+import io.datarouter.auth.role.DatarouterUserRoleRegistry;
 import io.datarouter.loggerconfig.web.LoggingSettingsHandler;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.BaseRouteSet;
@@ -43,9 +43,9 @@ public class DatarouterLoggingConfigRouteSet extends BaseRouteSet{
 	protected DispatchRule applyDefault(DispatchRule rule){
 		return rule
 				.allowRoles(
-						DatarouterUserRole.DATAROUTER_ADMIN,
-						DatarouterUserRole.DATAROUTER_SETTINGS,
-						DatarouterUserRole.DATAROUTER_MONITORING)
+						DatarouterUserRoleRegistry.DATAROUTER_ADMIN,
+						DatarouterUserRoleRegistry.DATAROUTER_SETTINGS,
+						DatarouterUserRoleRegistry.DATAROUTER_MONITORING)
 				.withTag(Tag.DATAROUTER);
 	}
 

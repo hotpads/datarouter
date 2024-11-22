@@ -17,7 +17,7 @@ package io.datarouter.secret.service;
 
 import java.lang.reflect.Type;
 
-import io.datarouter.gson.GsonTool;
+import io.datarouter.gson.DatarouterGsons;
 import jakarta.inject.Singleton;
 
 public interface SecretJsonSerializer{
@@ -30,12 +30,12 @@ public interface SecretJsonSerializer{
 
 		@Override
 		public <T> String serialize(T toSerialize){
-			return GsonTool.withUnregisteredEnums().toJson(toSerialize);
+			return DatarouterGsons.withUnregisteredEnums().toJson(toSerialize);
 		}
 
 		@Override
 		public <T> T deserialize(String toDeserialize, Type classOfT){
-			return GsonTool.withUnregisteredEnums().fromJson(toDeserialize, classOfT);
+			return DatarouterGsons.withUnregisteredEnums().fromJson(toDeserialize, classOfT);
 		}
 
 	}

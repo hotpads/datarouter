@@ -19,7 +19,6 @@ import io.datarouter.enums.StringMappedEnum;
 import io.datarouter.scanner.Scanner;
 
 public enum JobletStatus{
-
 	CREATED("created", false),
 	RUNNING("running", true),
 	COMPLETE("complete", false),

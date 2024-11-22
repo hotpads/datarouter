@@ -20,7 +20,7 @@ import java.util.function.Supplier;
 
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
-import io.datarouter.model.field.codec.MilliTimeFieldCodec;
+import io.datarouter.model.field.codec.MilliTimeToLongFieldCodec;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
 import io.datarouter.model.field.imp.comparable.LongEncodedField;
@@ -49,7 +49,7 @@ extends BaseDatabean<SamlAuthnRequestRedirectUrlKey,SamlAuthnRequestRedirectUrl>
 		public static final StringFieldKey redirectUrl = new StringFieldKey("redirectUrl")
 				.withSize(CommonFieldSizes.MAX_LENGTH_TEXT);
 		public static final LongEncodedFieldKey<MilliTime> createdAt = new LongEncodedFieldKey<>("createdAt",
-				new MilliTimeFieldCodec());
+				new MilliTimeToLongFieldCodec());
 	}
 
 	public static class SamlAuthnRequestRedirectUrlFielder

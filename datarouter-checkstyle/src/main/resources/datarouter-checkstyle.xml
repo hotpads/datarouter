@@ -19,7 +19,7 @@
 <!DOCTYPE module PUBLIC "-//Puppy Crawl//DTD Check Configuration 1.3//EN" "http://www.puppycrawl.com/dtds/configuration_1_3.dtd">
 <module name="Checker">
 	<property name="charset" value="UTF-8"/>
-	<property name="severity" value="warning"/>
+	<property name="severity" value="error"/>
 	<property name="tabWidth" value="4"/>
 	<module name="FileTabCharacter">
 		<property name="eachLine" value="false"/>
@@ -210,6 +210,42 @@
 			<property name="format" value="import java.text.SimpleDateFormat.*"/>
 			<property name="illegalPattern" value="true"/>
 			<property name="message" value="Prefer java.time.format.DateTimeFormatter"/>
+			<property name="severity" value="info"/>
+		</module>
+		<module name="Regexp">
+			<property name="format" value="Collections\.(emptyList\(\)|EMPTY_LIST)"/>
+			<property name="illegalPattern" value="true"/>
+			<property name="message" value="Replace with List.of()"/>
+			<property name="severity" value="error"/>
+		</module>
+		<module name="Regexp">
+			<property name="format" value="Collections\.(emptySet\(\)|EMPTY_SET)"/>
+			<property name="illegalPattern" value="true"/>
+			<property name="message" value="Replace with Set.of()"/>
+			<property name="severity" value="error"/>
+		</module>
+		<module name="Regexp">
+			<property name="format" value="Collections\.(emptyMap\(\)|EMPTY_MAP)"/>
+			<property name="illegalPattern" value="true"/>
+			<property name="message" value="Replace with Map.of()"/>
+			<property name="severity" value="error"/>
+		</module>
+		<module name="Regexp">
+			<property name="format" value="Collections\.singletonList\(.*\)"/>
+			<property name="illegalPattern" value="true"/>
+			<property name="message" value="Replace with List.of()"/>
+			<property name="severity" value="info"/>
+		</module>
+		<module name="Regexp">
+			<property name="format" value="Collections\.singleton\(.*\)"/>
+			<property name="illegalPattern" value="true"/>
+			<property name="message" value="Replace with Set.of()"/>
+			<property name="severity" value="info"/>
+		</module>
+		<module name="Regexp">
+			<property name="format" value="Collections\.singletonMap\(.*\)"/>
+			<property name="illegalPattern" value="true"/>
+			<property name="message" value="Replace with Map.of()"/>
 			<property name="severity" value="info"/>
 		</module>
 		<module name="Regexp">

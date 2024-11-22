@@ -22,14 +22,14 @@ import org.testng.annotations.Test;
 
 import com.google.gson.Gson;
 
-import io.datarouter.gson.GsonTool;
+import io.datarouter.gson.DatarouterGsons;
 
 public class InstantLegacySerializerTests{
 
 	@Test
 	public void testInteroperability(){
 		Instant instant = Instant.ofEpochMilli(1647548719105L);
-		Gson legacyAdapterGson = GsonTool.withoutEnums();
+		Gson legacyAdapterGson = DatarouterGsons.withoutEnums();
 		String legacyAdapterJson = legacyAdapterGson.toJson(instant);
 		Assert.assertEquals(legacyAdapterGson.fromJson(legacyAdapterJson, Instant.class), instant);
 	}

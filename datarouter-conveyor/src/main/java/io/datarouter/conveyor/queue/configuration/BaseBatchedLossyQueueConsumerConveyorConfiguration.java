@@ -18,7 +18,6 @@ package io.datarouter.conveyor.queue.configuration;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -69,7 +68,7 @@ implements ConveyorConfiguration{
 
 	@Override
 	public ProcessResult process(ConveyorRunnable conveyor){
-		List<QueueMessage<PK,D>> currentBuffer = Collections.emptyList();
+		List<QueueMessage<PK,D>> currentBuffer = List.of();
 		Instant beforePeek = Instant.now();
 		List<QueueMessage<PK,D>> messages = getQueueConsumer().peekMulti(
 				getMaxQuerySize(),

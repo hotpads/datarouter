@@ -198,6 +198,17 @@ public abstract class BaseManyFieldIntegrationTests{
 	}
 
 	@Test
+	public void testMilliTimestamp(){
+		var bean = new ManyFieldBean();
+		MilliTime val = MilliTime.now();
+		bean.setMilliDatetimeField(val);
+
+		ManyFieldBean roundTripped = putAndGet(bean);
+		Assert.assertEquals(roundTripped.getMilliDatetimeField(), bean.getMilliDatetimeField());
+		Assert.assertEquals(val, roundTripped.getMilliDatetimeField());
+	}
+
+	@Test
 	public void testLocalTime(){
 		var bean = new ManyFieldBean();
 		LocalTime val = LocalTime.now();
@@ -321,6 +332,36 @@ public abstract class BaseManyFieldIntegrationTests{
 		bean.setIntListToByteArrayField(null);
 		ManyFieldBean rt4 = putAndGet(bean);
 		Assert.assertNull(rt4.getIntListToByteArrayField());
+	}
+
+	@Test
+	public void testIntListToLazyByteArray(){
+		var bean = new ManyFieldBean();
+
+		//check null databean field (don't initialize it)
+		ManyFieldBean rt1 = putAndGet(bean);
+		Assert.assertNull(rt1.getIntListToLazyByteArrayField());
+
+		//check null list
+		bean.setIntListToLazyByteArrayField(null);
+		ManyFieldBean rt2 = putAndGet(bean);
+		Assert.assertNull(rt2.getIntListToLazyByteArrayField());
+
+		//check empty list differs from null
+		bean.setIntListToLazyByteArrayField(List.of());
+		ManyFieldBean rt3 = putAndGet(bean);
+		Assert.assertEquals(rt3.getIntListToLazyByteArrayField(), new ArrayList<>());
+
+		//check normal values
+		List<Integer> values = List.of(-1, 0, 5);
+		bean.setIntListToLazyByteArrayField(values);
+		ManyFieldBean rt4 = putAndGet(bean);
+		Assert.assertEquals(rt4.getIntListToLazyByteArrayField(), values);
+
+		//check return to null
+		bean.setIntListToLazyByteArrayField(null);
+		ManyFieldBean rt5 = putAndGet(bean);
+		Assert.assertNull(rt5.getIntListToLazyByteArrayField());
 	}
 
 	@Test

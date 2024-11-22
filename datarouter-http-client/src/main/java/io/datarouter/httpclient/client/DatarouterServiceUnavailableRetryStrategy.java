@@ -28,7 +28,6 @@ import org.apache.http.protocol.HttpContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.httpclient.circuitbreaker.DatarouterHttpClientIoExceptionCircuitBreaker;
 import io.datarouter.httpclient.response.HttpStatusCode;
 import io.datarouter.instrumentation.trace.TracerTool;
 
@@ -56,7 +55,7 @@ public class DatarouterServiceUnavailableRetryStrategy implements ServiceUnavail
 		}
 		HttpClientContext clientContext = HttpClientContext.adapt(context);
 		boolean willRetry = HttpRetryTool.shouldRetry(context, executionCount, retryCount);
-		String traceparent = (String)context.getAttribute(DatarouterHttpClientIoExceptionCircuitBreaker.TRACEPARENT);
+		String traceparent = (String)context.getAttribute(DatarouterHttpCallTool.TRACEPARENT);
 		String url = clientContext.getTargetHost() + clientContext.getRequest().getRequestLine().getUri();
 		if(willRetry){
 			HttpEntity httpEntity = response.getEntity();

@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.servlet.ServletContextEvent;
@@ -32,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.inject.DatarouterInjector;
+import io.datarouter.instrumentation.metric.Metrics;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.scanner.Threads;
 import io.datarouter.util.concurrent.ExecutorServiceTool;
@@ -106,59 +106,75 @@ public abstract class BaseDatarouterServletContextListener implements ServletCon
 	private void processListeners(OnAction onAction, boolean executeAllListenersSynchronously){
 		ThreadFactory factory = new NamedThreadFactory("datarouterListenerExecutor", false);
 		ExecutorService executor = Executors.newFixedThreadPool(allListeners.size(), factory);
-		var timer = new PhaseTimer();
-		long shutdownStartMillis = System.currentTimeMillis();
 		for(ExecutionModeAndListeners listenersByShutdownMode : listenersByExecutionMode){
 			List<DatarouterAppListener> listeners = listenersByShutdownMode.listeners();
 			ExecutionMode executionMode = executeAllListenersSynchronously
 					? ExecutionMode.SYNCHRONOUS
 					: listenersByShutdownMode.executionMode();
-			logger.warn("{} {}: [{}", onAction.display, executionMode.display, listeners.stream()
-					.map(listener -> listener.getClass().getSimpleName())
-					.collect(Collectors.joining(", ")) + "]");
+			logger.info("{} {}: [{}]",
+					onAction.display,
+					executionMode.display,
+					listeners.stream()
+							.map(DatarouterAppListener::getClass)
+							.map(Class::getSimpleName)
+							.collect(Collectors.joining(", ")));
+			var timer = new PhaseTimer();
+			long startMs = System.currentTimeMillis();
 			if(executionMode == ExecutionMode.SYNCHRONOUS){
 				Scanner.of(listeners)
-						.map(executeOnAction(onAction))
+						.map(listener -> executeOnAction(onAction, listener))
 						.forEach(timer::add);
 			}else if(executionMode == ExecutionMode.PARALLEL){
-				long shutdownParallelStartMillis = System.currentTimeMillis();
 				Scanner.of(listeners)
 						.parallelUnordered(new Threads(executor, listeners.size()))
-						.map(executeOnAction(onAction))
+						.map(listener -> executeOnAction(onAction, listener))
 						.forEach(timer::add);
-				logger.info("Parallel {} total={}", onAction.display,
-						System.currentTimeMillis() - shutdownParallelStartMillis);
 			}
+			long durationMs = System.currentTimeMillis() - startMs;
+			logger.warn("finished {} {}, wallClockDurationMs={} {}",
+					onAction.display,
+					executionMode.display,
+					durationMs,
+					timer);
 		}
-		logger.warn(String.format("%s [total=%d][%s]", onAction, System.currentTimeMillis() - shutdownStartMillis,
-				timer.getPhaseNamesAndTimes().stream()
-						.map(pair -> pair.name() + "=" + pair.time())
-						.collect(Collectors.joining("]["))));
 		ExecutorServiceTool.shutdown(executor, Duration.ofSeconds(2));
 	}
 
-	private Function<DatarouterAppListener,PhaseTimer> executeOnAction(OnAction onAction){
-		return listener -> {
-			String className = listener.getClass().getSimpleName();
-			logger.info("{} listener={}", onAction.display, className);
-			var phaseTimer = new PhaseTimer();
-			if(onAction == OnAction.STARTUP){
-				listener.onStartUp();
-			}else if(onAction == OnAction.SHUTDOWN){
-				listener.onShutDown();
-			}
-			return phaseTimer.add(className);
-		};
+	private PhaseTimer executeOnAction(OnAction onAction, DatarouterAppListener listener){
+		String className = listener.getClass().getSimpleName();
+		logger.info("starting {} listener={}", onAction.display, className);
+		var phaseTimer = new PhaseTimer();
+		var startTimeMs = System.currentTimeMillis();
+		if(onAction == OnAction.STARTUP){
+			listener.onStartUp();
+		}else if(onAction == OnAction.SHUTDOWN){
+			listener.onShutDown();
+		}
+		phaseTimer.add(className);
+		long durationMs = System.currentTimeMillis() - startTimeMs;
+		Log log = logger::info;
+		if(durationMs > 1_000){
+			log = logger::warn;
+		}
+		log.accept("finished {} listener={} durationMs={}", onAction.display, className, durationMs);
+		Metrics.measure("AppListener %s %s durationMs".formatted(onAction.metricName, className), durationMs);
+		return phaseTimer;
+	}
+
+	interface Log{
+		void accept(String string, Object... objects);
 	}
 
 	private enum OnAction{
-		STARTUP("starting"),
-		SHUTDOWN("shutting down");
+		STARTUP("starting", "startup"),
+		SHUTDOWN("shutting down", "shutdown");
 
 		private final String display;
+		private final String metricName;
 
-		OnAction(String display){
+		OnAction(String display, String metricName){
 			this.display = display;
+			this.metricName = metricName;
 		}
 
 	}

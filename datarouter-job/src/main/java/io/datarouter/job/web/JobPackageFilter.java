@@ -40,7 +40,10 @@ public class JobPackageFilter{
 				.filter(jobPackage -> matchesKeyword(jobPackage, keyword));
 	}
 
-	private static boolean matchesEnabled(JobPackage jobPackage, boolean hideEnabled, boolean hideDisabled){
+	private static boolean matchesEnabled(
+			JobPackage jobPackage,
+			boolean hideEnabled,
+			boolean hideDisabled){
 		boolean enabled = jobPackage.shouldRunSupplier.get();
 		if(hideEnabled && enabled){
 			return false;

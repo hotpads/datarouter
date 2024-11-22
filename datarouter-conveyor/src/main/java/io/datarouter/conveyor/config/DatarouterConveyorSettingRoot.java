@@ -37,10 +37,12 @@ public class DatarouterConveyorSettingRoot extends SettingRoot{
 	public DatarouterConveyorSettingRoot(
 			SettingFinder finder,
 			DatarouterConveyorShouldRunSettings conveyorShouldRunSettings,
+			DatarouterConveyorClusterThreadCountSettings conveyorClusterThreadCountSettings,
 			DatarouterConveyorThreadCountSettings conveyorThreadCountSettings,
 			DatarouterConveyorTraceSettings conveyorTraceSettings){
 		super(finder, DatarouterSettingCategory.DATAROUTER, SETTING_NAME_PREFIX);
 		registerChild(conveyorShouldRunSettings);
+		registerChild(conveyorClusterThreadCountSettings);
 		registerChild(conveyorThreadCountSettings);
 		registerChild(conveyorTraceSettings);
 

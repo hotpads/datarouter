@@ -17,6 +17,9 @@ package io.datarouter.inject.guice;
 
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.inject.Injector;
 
 import io.datarouter.inject.DatarouterInjector;
@@ -25,6 +28,7 @@ import jakarta.inject.Singleton;
 
 @Singleton
 public class GuiceInjector implements DatarouterInjector{
+	private static final Logger logger = LoggerFactory.getLogger(GuiceInjector.class);
 
 	private final Injector injector;
 
@@ -35,7 +39,13 @@ public class GuiceInjector implements DatarouterInjector{
 
 	@Override
 	public <T>T getInstance(Class<T> clazz){
-		return injector.getInstance(clazz);
+		long startMs = System.currentTimeMillis();
+		T instance = injector.getInstance(clazz);
+		long durationMs = System.currentTimeMillis() - startMs;
+		if(durationMs > 10_000){
+			logger.warn("Long injection class={} ms={}", clazz.getSimpleName(), durationMs);
+		}
+		return instance;
 	}
 
 	@Override

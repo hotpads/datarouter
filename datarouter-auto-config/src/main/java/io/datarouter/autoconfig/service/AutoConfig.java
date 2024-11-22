@@ -47,7 +47,7 @@ public interface AutoConfig extends Callable<String>, PluginConfigValue<AutoConf
 			sb.append(" - Error: ").append(e.getMessage());
 		}
 		sb.append(NEW_LINE);
-		logger.warn(sb.toString());
+		logger.warn("{}", sb);
 		return sb.toString();
 	}
 

@@ -97,6 +97,11 @@ public class GcsDirectoryManager{
 		return client.getPartialObject(bucket, fullPath, offset, length);
 	}
 
+	public Optional<byte[]> readEnding(String suffix, int length){
+		String fullPath = fullPath(suffix);
+		return client.findEnding(bucket, fullPath, length);
+	}
+
 	public InputStream readInputStream(String suffix){
 		String fullPath = fullPath(suffix);
 		return client.getObject(bucket, fullPath);

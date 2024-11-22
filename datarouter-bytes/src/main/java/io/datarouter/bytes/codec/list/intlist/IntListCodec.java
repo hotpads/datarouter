@@ -18,12 +18,14 @@ package io.datarouter.bytes.codec.list.intlist;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.datarouter.bytes.Codec;
 import io.datarouter.bytes.EmptyArray;
 import io.datarouter.bytes.codec.intcodec.ComparableIntCodec;
 
 public class IntListCodec{
 
 	public static final IntListCodec INSTANCE = new IntListCodec();
+	public static final Codec<List<Integer>,byte[]> CODEC = Codec.of(INSTANCE::encode, INSTANCE::decode);
 
 	private static final ComparableIntCodec COMPARABLE_INT_CODEC = ComparableIntCodec.INSTANCE;
 	private static final int ITEM_LENGTH = COMPARABLE_INT_CODEC.length();

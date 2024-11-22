@@ -24,7 +24,7 @@
 </head>
 <body>
 	<%@ include file="/jsp/menu/common-navbar-b4.jsp"%>
-	<div class="container mt-5">
+	<div class="container-fluid mt-5">
 		<h2 class="pb-3 border-bottom">Job triggers</h2>
 		<div class="card card-body bg-light my-3">
 			<form method="get" action="?">
@@ -52,7 +52,8 @@
 				</div>
 			</form>
 		</div>
-		<table class="table table-sm table-bordered sortable">
+		<div class="table-responsive">
+			<table class="table table-sm table-bordered sortable">
 			<caption class="text-uppercase">Sortable</caption>
 			<thead class="thead-dark">
 				<tr>
@@ -61,10 +62,12 @@
 					<th>Detached</th>
 					<th>Job</th>
 					<th class="sorttable_nosort">CronExpression</th>
+					<th class="sorttable_nosort">Next Execution</th>
 					<th>Category</th>
 					<th style="white-space: nowrap">Locking</th>
 					<th>LastCompletion</th>
 					<th>RunningOn</th>
+					<th>MetricsLink</th>
 					<th class="sorttable_nosort">Interrupt</th>
 				</tr>
 			</thead>
@@ -98,7 +101,14 @@
 						</c:choose>>
 						${row.classSimpleName}
 					</td>
-					<td><code class="text-nowrap">${row.cronExpression}</code></td>
+					<td><div>
+							<code class="text-nowrap">${row.cronExpression}</code>
+						</div>
+					</td>
+					<td><div>
+							<code class="text-nowrap">${row.nextExecution}</code>
+						</div>
+					</td>
 					<td>
 						<a href="?category=${row.categoryName}">
 							${row.categoryName}
@@ -107,6 +117,11 @@
 					<td>${row.jobSchedule}</td>
 					<td sorttable_customkey="${row.lastFinishSortableTime}">${row.lastFinishTime}</td>
 					<td>${row.runningOnServers}</td>
+					<td>
+						<a href="${row.metricsLink}">
+							Link
+						</a>
+					</td>
 					<td>
 						<a class="btn btn-danger text-monospace"
 								href="interrupt?name=${row.className}&servers=${row.runningOnServers}"
@@ -118,6 +133,7 @@
 			</c:forEach>
 			</tbody>
 		</table>
+		</div>
 		<br>
 		<div class="container mt-5">
 		${legend}

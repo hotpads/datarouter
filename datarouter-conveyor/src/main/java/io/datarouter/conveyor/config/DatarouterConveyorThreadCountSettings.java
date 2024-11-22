@@ -39,12 +39,11 @@ public class DatarouterConveyorThreadCountSettings extends SettingNode{
 			ConveyorConfigurationGroupService conveyorConfigurationGroupService){
 		super(finder, DatarouterConveyorSettingRoot.SETTING_NAME_PREFIX + SETTING_NAME_PREFIX);
 		conveyorConfigurationGroupService.getAllPackages()
-				.forEach(this::registerSetting);
+				.forEach(this::registerPackageSetting);
 	}
 
-	private void registerSetting(ConveyorPackage conveyorPackage){
-		CachedSetting<Integer> setting = registerInteger(conveyorPackage.name(), 1);
-		settingByConveyorName.put(conveyorPackage.name(), setting);
+	private void registerPackageSetting(ConveyorPackage conveyorPackage){
+		settingByConveyorName.put(conveyorPackage.name(), registerInteger(conveyorPackage.name(), 1));
 	}
 
 	public CachedSetting<Integer> getSettingForConveyorPackage(ConveyorPackage conveyorPackage){

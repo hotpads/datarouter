@@ -22,14 +22,18 @@ import java.util.function.BiFunction;
 
 import io.datarouter.auth.storage.user.datarouteruser.DatarouterUser;
 import io.datarouter.scanner.Scanner;
+import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterRoleManager extends BaseRoleManager{
 
+	@Inject
+	private DatarouterUserRoleRegistry roleRegistry;
+
 	@Override
-	public RoleEnum<? extends RoleEnum<?>> getRoleEnum(){
-		return DatarouterUserRole.ADMIN;
+	public RoleRegistry getRoleRegistry(){
+		return roleRegistry;
 	}
 
 	@Override
@@ -38,24 +42,17 @@ public class DatarouterRoleManager extends BaseRoleManager{
 	}
 
 	@Override
-	public Set<Role> getAllRoles(){
-		return Scanner.of(DatarouterUserRole.values())
-				.map(RoleEnum::getRole)
-				.collect(HashSet::new);
-	}
-
-	@Override
 	public Map<RoleApprovalType,BiFunction<DatarouterUser,DatarouterUser,Boolean>> getApprovalTypeAuthorityValidators(){
 		return Map.of(
-				DatarouterRoleApprovalType.ADMIN.getRoleApprovalType(),
-				(editor, $) -> calculateRolesWithGroups(editor.getRolesIgnoreSaml(), editor.getSamlGroups())
-						.contains(DatarouterUserRole.DATAROUTER_ADMIN.getRole()));
+				DatarouterRoleApprovalType.ADMIN.getRoleApprovalType(), this::editorIsDatarouterAdmin,
+				DatarouterRoleApprovalType.PROHIBITED.getRoleApprovalType(),
+				($, $2) -> false);
 	}
 
 	@Override
 	public final Set<Role> getSuperAdminRoles(){
-		return Scanner.of(DatarouterUserRole.values())
-				.map(DatarouterUserRole::getRole)
+		// include all Datarouter roles by default
+		return Scanner.of(roleRegistry.getAllRoles())
 				.append(getAdditionalSuperAdminRoles())
 				.collect(HashSet::new);
 	}
@@ -67,12 +64,21 @@ public class DatarouterRoleManager extends BaseRoleManager{
 	@Override
 	public final Set<Role> getDefaultRoles(){
 		return Scanner.of(getAdditionalDefaultRoles())
-				.append(DatarouterUserRole.REQUESTOR.getRole())
+				.append(DatarouterUserRoleRegistry.REQUESTOR)
 				.collect(HashSet::new);
 	}
 
 	protected Set<Role> getAdditionalDefaultRoles(){
 		return new HashSet<>();
+	}
+
+	protected Boolean editorIsDatarouterAdmin(DatarouterUser editor, DatarouterUser user){
+		return isDatarouterAdmin(editor);
+	}
+
+	protected boolean isDatarouterAdmin(DatarouterUser user){
+		return calculateRolesWithGroups(user.getRolesIgnoreSaml(), user.getSamlGroups())
+				.contains(DatarouterUserRoleRegistry.DATAROUTER_ADMIN);
 	}
 
 }

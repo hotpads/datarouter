@@ -45,6 +45,11 @@ public interface TaskTracker{
 	TaskTracker increment();
 	TaskTracker increment(long incrementBy);
 	long getCount();
+	TaskTracker setCount(long value);
+
+	default TaskTracker resetCount(){
+		return setCount(0);
+	}
 
 	TaskTracker setLastItemProcessed(String lastItemProcessed);
 	String getLastItem();

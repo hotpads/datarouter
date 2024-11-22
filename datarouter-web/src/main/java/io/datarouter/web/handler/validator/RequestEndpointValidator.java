@@ -15,7 +15,7 @@
  */
 package io.datarouter.web.handler.validator;
 
-import io.datarouter.httpclient.endpoint.java.BaseEndpoint;
+import io.datarouter.httpclient.endpoint.BaseEndpoint;
 
-public abstract class RequestEndpointValidator<R extends BaseEndpoint<?,?>> extends RequestParamValidator<R>{
+public abstract class RequestEndpointValidator<R extends BaseEndpoint> extends RequestParamValidator<R>{
 }

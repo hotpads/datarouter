@@ -18,6 +18,7 @@ package io.datarouter.webappinstance.config;
 import java.util.concurrent.TimeUnit;
 
 import io.datarouter.storage.setting.DatarouterSettingCategory;
+import io.datarouter.storage.setting.DatarouterSettingTagType;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.SettingRoot;
 import io.datarouter.storage.setting.cached.CachedSetting;
@@ -33,6 +34,7 @@ public class DatarouterWebappInstanceSettingRoot extends SettingRoot{
 
 	public final CachedSetting<Boolean> runWebappInstanceVacuumJob;
 	public final CachedSetting<Boolean> runDeadClusterJobLockVacuumJob;
+	public final CachedSetting<Boolean> runWebappInstanceLogTruncationJob;
 
 	public final CachedSetting<Boolean> webappInstancePublisher;
 
@@ -46,8 +48,10 @@ public class DatarouterWebappInstanceSettingRoot extends SettingRoot{
 
 		runWebappInstanceVacuumJob = registerBoolean("runWebappInstanceVacuumJob", false);
 		runDeadClusterJobLockVacuumJob = registerBoolean("runDeadClusterJobLockVacuumJob", false);
+		runWebappInstanceLogTruncationJob = registerBoolean("runWebappInstanceLogTruncationJob", false);
 
-		webappInstancePublisher = registerBoolean("webappInstancePublisher", false);
+		webappInstancePublisher = registerBoolean("webappInstancePublisher", false)
+				.setTagDefault(DatarouterSettingTagType.WEBAPP_INSTANCE_PIPELINE, () -> true);
 	}
 
 }

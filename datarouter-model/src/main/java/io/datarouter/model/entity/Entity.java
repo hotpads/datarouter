@@ -15,11 +15,7 @@
  */
 package io.datarouter.model.entity;
 
-import java.util.Collection;
-
-import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.entity.EntityKey;
-import io.datarouter.model.key.primary.EntityPrimaryKey;
 
 /**
  * An Entity is a grouping of related databeans that are stored within the same transaction scope.
@@ -35,17 +31,6 @@ import io.datarouter.model.key.primary.EntityPrimaryKey;
  */
 public interface Entity<EK extends EntityKey<EK>>{
 
-	void setKey(EK ek);
 	EK getKey();
-
-	<PK extends EntityPrimaryKey<EK,PK>,D extends Databean<PK,D>>
-	void addDatabeansForQualifierPrefixUnchecked(String subEntityTableName,
-			Collection<? extends Databean<?,?>> databeans);
-
-	long getNumDatabeans();
-
-	default boolean notEmpty(){
-		return getNumDatabeans() > 0;
-	}
 
 }

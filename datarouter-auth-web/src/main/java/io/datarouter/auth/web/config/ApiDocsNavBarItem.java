@@ -34,7 +34,7 @@ public class ApiDocsNavBarItem implements DynamicNavBarItem{
 
 	@Override
 	public NavBarItem getNavBarItem(){
-		return new NavBarItem(AppNavBarCategory.DOCS, paths.docs.join("/", "/", "/"), "Api Docs");
+		return new NavBarItem(AppNavBarCategory.DOCS, paths.docs.toSlashedString(), "Api Docs");
 	}
 
 	@Override

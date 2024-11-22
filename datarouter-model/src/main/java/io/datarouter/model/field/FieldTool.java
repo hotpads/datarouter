@@ -35,22 +35,10 @@ public class FieldTool{
 		return num;
 	}
 
-	public static byte[] getPartitionerInput(List<Field<?>> fields){
-		int numTokens = FieldTool.countNonNullLeadingFields(fields);
-		if(numTokens == 0){
-			throw new IllegalArgumentException("Partitioner needs at least one field");
-		}
-		byte[][] tokens = new byte[numTokens][];
-		for(int i = 0; i < numTokens; ++i){
-			Field<?> field = fields.get(i);
-			boolean finalField = i == numTokens - 1;
-			tokens[i] = finalField
-					? field.getValueBytes()
-					: field.getKeyBytesWithSeparator();
-		}
-		return ByteTool.concat(tokens);
-	}
-
+	/*
+	 * @deprecated  use getConcatenatedValueBytesTerminated which allows '0' bytes in Strings.
+	 */
+	@Deprecated
 	public static byte[] getConcatenatedValueBytes(List<Field<?>> fields){
 		int numTokens = FieldTool.countNonNullLeadingFields(fields);
 		if(numTokens == 0){
@@ -76,9 +64,11 @@ public class FieldTool{
 	}
 
 	/**
+	 * @deprecated  Use a dedicated codec for each use case.
 	 * @param includePrefix usually refers to the "key." prefix before a PK
 	 * @param skipNullValues important to include nulls in PK's, but usually skip them in normal fields
 	 */
+	@Deprecated
 	public static byte[] getSerializedKeyValues(
 			List<Field<?>> fields,
 			boolean includePrefix,

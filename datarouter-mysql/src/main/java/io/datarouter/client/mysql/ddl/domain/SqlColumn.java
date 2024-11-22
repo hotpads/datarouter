@@ -20,15 +20,19 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import io.datarouter.gson.GsonTool;
+import io.datarouter.gson.DatarouterGsons;
 
 public class SqlColumn{
 
 	private static final String NOT_NULL = " not null";
+	private static final Set<MysqlColumnType> INTEGER_FIELD_TYPE_SET = Set.of(
+			MysqlColumnType.BIGINT,
+			MysqlColumnType.INT,
+			MysqlColumnType.SMALLINT);
 
 	private final String name;
 	private final MysqlColumnType type;
-	private final Integer maxLength;
+	private Integer maxLength;
 	private final Boolean nullable;
 	private final Boolean autoIncrement;
 	private final String defaultValue;
@@ -59,7 +63,7 @@ public class SqlColumn{
 
 	@Override
 	public String toString(){
-		return GsonTool.withUnregisteredEnums().toJson(this);
+		return DatarouterGsons.withUnregisteredEnums().toJson(this);
 	}
 
 	@Override
@@ -112,6 +116,10 @@ public class SqlColumn{
 		return autoIncrement;
 	}
 
+	public void setMaxLength(Integer length){
+		this.maxLength = length;
+	}
+
 	public String getDefaultValueStatement(){
 		String toReturn = "";
 		if(!getNullable()){
@@ -139,6 +147,10 @@ public class SqlColumn{
 			sb.append(" auto_increment");
 		}
 		return sb;
+	}
+
+	public boolean isIntegerFieldType(){
+		return INTEGER_FIELD_TYPE_SET.contains(type);
 	}
 
 	public record SqlColumnByName(

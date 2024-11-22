@@ -20,6 +20,7 @@ import io.datarouter.storage.tag.Tag;
 import io.datarouter.util.time.ZoneIds;
 import io.datarouter.webappinstance.job.DeadClusterJobLockVacuumJob;
 import io.datarouter.webappinstance.job.WebappInstanceAlertJob;
+import io.datarouter.webappinstance.job.WebappInstanceLogTruncationJob;
 import io.datarouter.webappinstance.job.WebappInstanceUpdateJob;
 import io.datarouter.webappinstance.job.WebappInstanceVacuumJob;
 import jakarta.inject.Inject;
@@ -48,6 +49,11 @@ public class DatarouterWebappInstanceTriggerGroup extends BaseTriggerGroup{
 				"0 10/20 * * * ?",
 				settings.runDeadClusterJobLockVacuumJob,
 				DeadClusterJobLockVacuumJob.class);
+		registerLocked(
+				"0 0 0 * * ?",
+				settings.runWebappInstanceLogTruncationJob,
+				WebappInstanceLogTruncationJob.class,
+				true);
 	}
 
 }

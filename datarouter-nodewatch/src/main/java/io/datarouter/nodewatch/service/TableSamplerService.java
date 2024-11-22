@@ -17,9 +17,7 @@ package io.datarouter.nodewatch.service;
 
 import java.time.Duration;
 import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.concurrent.atomic.AtomicLong;
 
 import io.datarouter.client.mysql.ddl.domain.MysqlTableOptions;
 import io.datarouter.model.databean.Databean;
@@ -43,11 +41,10 @@ import io.datarouter.storage.node.op.raw.SortedStorage.PhysicalSortedStorageNode
 import io.datarouter.storage.node.op.raw.read.SortedStorageReader;
 import io.datarouter.storage.node.op.raw.read.SortedStorageReader.PhysicalSortedStorageReaderNode;
 import io.datarouter.storage.node.op.raw.write.SortedStorageWriter;
-import io.datarouter.storage.node.tableconfig.ClientTableEntityPrefixNameWrapper;
-import io.datarouter.storage.node.tableconfig.NodewatchConfiguration;
 import io.datarouter.storage.node.tableconfig.NodewatchConfigurationBuilder;
 import io.datarouter.storage.node.tableconfig.TableConfigurationService;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
+import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
 import io.datarouter.types.MilliTime;
 import io.datarouter.util.tuple.Range;
 import jakarta.inject.Inject;
@@ -55,7 +52,6 @@ import jakarta.inject.Singleton;
 
 @Singleton
 public class TableSamplerService{
-	private static final Logger logger = LoggerFactory.getLogger(TableSamplerService.class);
 
 	public static final long COUNT_TIME_MS_SLOW_SPAN_THRESHOLD = Duration.ofMinutes(5).toMillis();
 
@@ -70,13 +66,25 @@ public class TableSamplerService{
 	@Inject
 	private TableConfigurationService tableConfigurationService;
 
+	/*---------- find countable clients ----------*/
+
+	public List<ClientId> listClientIdsWithCountableNodes(){
+		return scanCountableNodes()
+				.map(PhysicalNode::getFieldInfo)
+				.map(PhysicalDatabeanFieldInfo::getClientId)
+				.distinct()
+				.list();
+	}
+
+	/*---------- find countable nodes ----------*/
+
 	public boolean isCountableNode(PhysicalNode<?,?,?> physicalNode){
-		boolean isCountableTable = isCountableTable(new ClientTableEntityPrefixNameWrapper(physicalNode));
+		ClientId clientId = physicalNode.getClientId();
+		boolean isCountableTable = isCountingEnabled(physicalNode);
 		if(!isCountableTable){
 			return false;
 		}
-		boolean isCountableClient = nodewatchClientConfiguration.isCountableClient(physicalNode.getFieldInfo()
-				.getClientId());
+		boolean isCountableClient = nodewatchClientConfiguration.isCountableClient(clientId);
 		if(!isCountableClient){
 			return false;
 		}
@@ -111,40 +119,27 @@ public class TableSamplerService{
 				.map(PhysicalSortedStorageReaderNode.class::cast);
 	}
 
-	public boolean isCountableTable(ClientTableEntityPrefixNameWrapper clientWrapper){
-		if(tableConfigurationService.getTableConfigMap().containsKey(clientWrapper)){
-			return tableConfigurationService.getTableConfigMap().get(clientWrapper).isCountable;
-		}
-		return true;
+	/*--------- node configurations -----------*/
+
+	public boolean isCountingEnabled(PhysicalNode<?,?,?> node){
+		return tableConfigurationService.findConfig(node)
+				.map(nodeConfig -> nodeConfig.isCountable)
+				.orElse(NodewatchConfigurationBuilder.DEFAULT_ENABLED);
 	}
 
-	public Scanner<TableSample> scanSamplesForNode(PhysicalNode<?,?,?> node){
-		String tableName = node.getFieldInfo().getTableName();
-		return node.getClientIds().stream()
-				.map(ClientId::getName)
-				.map(clientName -> new TableSampleKey(clientName, tableName, null, null))
-				.map(tableSampleDao::scanWithPrefix)
-				.findAny()
-				.orElse(Scanner.empty());
+	public int getSampleInterval(PhysicalNode<?,?,?> node){
+		return tableConfigurationService.findConfig(node)
+				.map(nodeConfig -> nodeConfig.sampleSize)
+				.orElse(NodewatchConfigurationBuilder.DEFAULT_SAMPLE_SIZE);
 	}
 
-	public <PK extends PrimaryKey<PK>> Scanner<PK> scanPksForNode(PhysicalNode<PK,?,?> node){
-		return scanSamplesForNode(node)
-				.map(TableSample::getKey)
-				.map(key -> TableSamplerTool.extractPrimaryKeyFromSampleKey(node, key));
+	public int getBatchSize(PhysicalNode<?,?,?> node){
+		return tableConfigurationService.findConfig(node)
+				.map(nodeConfig -> nodeConfig.batchSize)
+				.orElse(NodewatchConfigurationBuilder.DEFAULT_BATCH_SIZE);
 	}
 
-	public int getSampleInterval(PhysicalSortedStorageReaderNode<?,?,?> node){
-		NodewatchConfiguration nodeConfig = tableConfigurationService.getTableConfigMap()
-				.get(new ClientTableEntityPrefixNameWrapper(node));
-		return nodeConfig == null ? NodewatchConfigurationBuilder.DEFAULT_SAMPLE_SIZE : nodeConfig.sampleSize;
-	}
-
-	public int getBatchSize(PhysicalSortedStorageReaderNode<?,?,?> node){
-		NodewatchConfiguration nodeConfig = tableConfigurationService.getTableConfigMap()
-				.get(new ClientTableEntityPrefixNameWrapper(node));
-		return nodeConfig == null ? NodewatchConfigurationBuilder.DEFAULT_BATCH_SIZE : nodeConfig.batchSize;
-	}
+	/*---------- fetch TableCount info -----------*/
 
 	public TableCount getCurrentTableCountFromSamples(ClientAndTableNames clientAndTableNames){
 		return getCurrentTableCountFromSamples(clientAndTableNames.client(), clientAndTableNames.table());
@@ -152,28 +147,49 @@ public class TableSamplerService{
 
 	public TableCount getCurrentTableCountFromSamples(String clientName, String tableName){
 		//not distinguishing sub-entities at the moment
-		var clientTablePrefix = new TableSampleKey(clientName, tableName, null, null);
-		long totalRows = 0;
-		long totalCountTimeMs = 0;
-		long numSpans = 0;
-		long numSlowSpans = 0;
-		for(TableSample sample : tableSampleDao.scanWithPrefix(clientTablePrefix).iterable()){
-			totalRows += sample.getNumRows();
-			totalCountTimeMs += sample.getCountTimeMs();
-			numSpans++;
-			if(sample.getCountTimeMs() > COUNT_TIME_MS_SLOW_SPAN_THRESHOLD){
-				numSlowSpans++;
-			}
-		}
-		logger.info("total of {} rows for {}.{}", totalRows, clientName, tableName);
+		var clientTablePrefix = TableSampleKey.prefix(clientName, tableName);
+		var totalRows = new AtomicLong();
+		var totalCountTimeMs = new AtomicLong();
+		var numSpans = new AtomicLong();
+		var numSlowSpans = new AtomicLong();
+		tableSampleDao.scanWithPrefix(clientTablePrefix)
+				.forEach(sample -> {
+					totalRows.addAndGet(sample.getNumRows());
+					totalCountTimeMs.addAndGet(sample.getCountTimeMs());
+					numSpans.incrementAndGet();
+					if(sample.getCountTimeMs() > COUNT_TIME_MS_SLOW_SPAN_THRESHOLD){
+						numSlowSpans.incrementAndGet();
+					}
+				});
 		return new TableCount(
 				clientName,
 				tableName,
 				MilliTime.now(),
-				totalRows,
-				totalCountTimeMs,
-				numSpans,
-				numSlowSpans);
+				totalRows.get(),
+				totalCountTimeMs.get(),
+				numSpans.get(),
+				numSlowSpans.get());
+	}
+
+	/*-------- scan samples -----------*/
+
+	public Scanner<TableSample> scanSamplesForNode(PhysicalNode<?,?,?> node){
+		var prefix = TableSampleKey.prefix(
+				node.getClientId().getName(),
+				node.getFieldInfo().getTableName());
+		return tableSampleDao.scanWithPrefix(prefix);
+	}
+
+	public <PK extends PrimaryKey<PK>> boolean checkAllSamplesParseable(PhysicalNode<PK,?,?> node){
+		return scanSamplesForNode(node)
+				.map(TableSample::getKey)
+				.allMatch(key -> TableSamplerTool.checkIsParseableSampleKey(node, key));
+	}
+
+	public <PK extends PrimaryKey<PK>> Scanner<PK> scanPksForNode(PhysicalNode<PK,?,?> node){
+		return scanSamplesForNode(node)
+				.map(TableSample::getKey)
+				.map(key -> TableSamplerTool.extractPrimaryKeyFromSampleKey(node, key));
 	}
 
 	public <PK extends PrimaryKey<PK>,
@@ -184,6 +200,8 @@ public class TableSamplerService{
 				.retain(1)
 				.map(group -> new Range<>(group.previous(), group.current()));
 	}
+
+	/*-------- scan data -----------*/
 
 	public <PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,

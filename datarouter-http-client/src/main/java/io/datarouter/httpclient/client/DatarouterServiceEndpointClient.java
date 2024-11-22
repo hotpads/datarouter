@@ -23,8 +23,8 @@ import org.slf4j.LoggerFactory;
 import io.datarouter.httpclient.dto.DatarouterAccountCredentialStatusDto;
 import io.datarouter.httpclient.endpoint.DatarouterServiceCheckCredentialEndpoint;
 import io.datarouter.httpclient.endpoint.DatarouterServiceHealthcheckEndpoint;
-import io.datarouter.httpclient.endpoint.java.BaseEndpoint;
-import io.datarouter.httpclient.endpoint.java.EndpointType;
+import io.datarouter.httpclient.endpoint.java.BaseJavaEndpoint;
+import io.datarouter.httpclient.endpoint.java.JavaEndpointType;
 import io.datarouter.httpclient.response.Conditional;
 
 //currently works as a mixin for existing BaseDatarouterEndpointClientWrappers
@@ -33,7 +33,7 @@ import io.datarouter.httpclient.response.Conditional;
  * for use specifically with servers that are built on datarouter-web
  */
 public interface DatarouterServiceEndpointClient<
-		ET extends EndpointType>
+		ET extends JavaEndpointType>
 extends DatarouterEndpointClient<ET>{
 	Logger logger = LoggerFactory.getLogger(DatarouterServiceEndpointClient.class);
 
@@ -42,7 +42,7 @@ extends DatarouterEndpointClient<ET>{
 	}
 
 	default <R> Conditional<R> callWithHealthcheckV2(
-			BaseEndpoint<R,ET> endpoint,
+			BaseJavaEndpoint<R,ET> endpoint,
 			Supplier<Boolean> shouldCheckHealth,
 			R healthCheckFailureResponse){
 		if(shouldCheckHealth.get()){
@@ -56,7 +56,7 @@ extends DatarouterEndpointClient<ET>{
 	}
 
 	default <R> Conditional<R> callWithHealthcheckV2(
-			BaseEndpoint<R,ET> endpoint,
+			BaseJavaEndpoint<R,ET> endpoint,
 			Supplier<Boolean> shouldCheckHealth){
 		return callWithHealthcheckV2(endpoint, shouldCheckHealth, null);
 	}

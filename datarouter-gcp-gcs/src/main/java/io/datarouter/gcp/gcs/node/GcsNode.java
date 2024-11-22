@@ -85,6 +85,11 @@ implements PhysicalBlobStorageNode{
 	}
 
 	@Override
+	public Optional<byte[]> readEnding(PathbeanKey key, int length, Config config){
+		return gcsDirectoryManager.readEnding(key.getPathAndFile(), length);
+	}
+
+	@Override
 	public InputStream readInputStream(PathbeanKey key, Config config){
 		return gcsDirectoryManager.readInputStream(key.getPathAndFile());
 	}

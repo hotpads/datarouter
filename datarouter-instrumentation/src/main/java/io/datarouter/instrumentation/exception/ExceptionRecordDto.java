@@ -33,7 +33,8 @@ public record ExceptionRecordDto(
 		String methodName,
 		Integer lineNumber,
 		String callOrigin,
-		List<String> additionalAlertRecipients)
+		List<String> additionalAlertRecipients,
+		String environment)
 implements TaskExecutionRecordDto{
 	// lower than the database limit to be able to easily hold a batch in memory
 	public static final int STACK_TRACE_LENGTH_LIMIT = 500_000;

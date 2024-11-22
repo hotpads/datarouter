@@ -19,6 +19,7 @@ import java.time.ZoneId;
 import java.util.Comparator;
 import java.util.Optional;
 
+import io.datarouter.instrumentation.relay.rml.RmlBlock;
 import io.datarouter.plugin.PluginConfigKey;
 import io.datarouter.plugin.PluginConfigType;
 import io.datarouter.plugin.PluginConfigValue;
@@ -31,11 +32,12 @@ public interface DailyDigest extends PluginConfigValue<DailyDigest>{
 	Comparator<DailyDigest> COMPARATOR = Comparator.comparing(DailyDigest::getGrouping)
 			.thenComparing(DailyDigest::getTitle);
 
-	Optional<DivTag> getEmailContent(ZoneId zoneId);
-
-	DailyDigestGrouping getGrouping();
 	String getTitle();
 	DailyDigestType getType();
+	DailyDigestGrouping getGrouping();
+
+	Optional<DivTag> getEmailContent(ZoneId zoneId);
+	Optional<RmlBlock> getRelayContent(ZoneId zoneId);
 
 	default String getId(){
 		return getTitle().replace(" ", "_");
@@ -43,6 +45,7 @@ public interface DailyDigest extends PluginConfigValue<DailyDigest>{
 
 	enum DailyDigestType{
 		ACTIONABLE("Actionable"),
+		STALE_TABLES("Stale Tables"),
 		SUMMARY("Summary"),
 		;
 

@@ -17,6 +17,7 @@ package io.datarouter.metric.template;
 
 import io.datarouter.instrumentation.metric.collector.MetricTemplates;
 import io.datarouter.metric.config.DatarouterMetricTemplateSettingRoot;
+import io.datarouter.storage.config.properties.ServiceName;
 import io.datarouter.web.listener.DatarouterAppListener;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -25,13 +26,15 @@ import jakarta.inject.Singleton;
 public class MetricTemplateAppListener implements DatarouterAppListener{
 
 	@Inject
+	private ServiceName serviceName;
+	@Inject
 	private MetricTemplateBuffer buffer;
 	@Inject
 	private DatarouterMetricTemplateSettingRoot settings;
 
 	@Override
 	public void onStartUp(){
-		var collector = new DatarouterMetricTemplateCollector(buffer, settings.saveToMemory);
+		var collector = new DatarouterMetricTemplateCollector(serviceName.get(), buffer, settings.saveToMemory);
 		MetricTemplates.addCollector(collector);
 	}
 

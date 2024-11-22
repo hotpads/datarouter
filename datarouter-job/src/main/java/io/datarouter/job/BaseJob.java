@@ -21,7 +21,7 @@ public abstract class BaseJob{
 
 	public abstract void run(TaskTracker tracker) throws Exception;
 
-	public String getPersistentName(){
+	public final String getPersistentName(){
 		return getClass().getSimpleName();
 	}
 

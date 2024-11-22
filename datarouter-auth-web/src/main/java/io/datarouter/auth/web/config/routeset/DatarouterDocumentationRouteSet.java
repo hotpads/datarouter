@@ -16,7 +16,7 @@
 package io.datarouter.auth.web.config.routeset;
 
 import io.datarouter.auth.config.DatarouterAuthPaths;
-import io.datarouter.auth.role.DatarouterUserRole;
+import io.datarouter.auth.role.DatarouterUserRoleRegistry;
 import io.datarouter.auth.web.web.DatarouterDocumentationHandler;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.BaseRouteSet;
@@ -27,20 +27,20 @@ import jakarta.inject.Singleton;
 @Singleton
 public class DatarouterDocumentationRouteSet extends BaseRouteSet{
 
-	@SuppressWarnings("deprecation")
 	@Inject
 	public DatarouterDocumentationRouteSet(DatarouterAuthPaths paths){
-		handleDir(paths.docs).withHandler(DatarouterDocumentationHandler.class);
+		handle(paths.docs).withHandler(DatarouterDocumentationHandler.class);
+		handle(paths.docs.getCsrfIv).withHandler(DatarouterDocumentationHandler.class);
+		handle(paths.docs.getSignature).withHandler(DatarouterDocumentationHandler.class);
 	}
 
 	@Override
 	protected DispatchRule applyDefault(DispatchRule rule){
 		return rule
 				.allowRoles(
-						DatarouterUserRole.ADMIN,
-						DatarouterUserRole.DATAROUTER_ADMIN,
-						DatarouterUserRole.DOC_USER,
-						DatarouterUserRole.USER)
+						DatarouterUserRoleRegistry.DATAROUTER_ADMIN,
+						DatarouterUserRoleRegistry.DOC_USER,
+						DatarouterUserRoleRegistry.USER)
 				.withTag(Tag.DATAROUTER);
 	}
 

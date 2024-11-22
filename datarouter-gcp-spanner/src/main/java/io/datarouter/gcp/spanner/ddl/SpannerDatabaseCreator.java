@@ -15,7 +15,7 @@
  */
 package io.datarouter.gcp.spanner.ddl;
 
-import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import org.slf4j.Logger;
@@ -105,7 +105,7 @@ public class SpannerDatabaseCreator{
 			databaseAdminClient.createDatabase(
 					databaseId.getInstanceId().getInstance(),
 					databaseId.getDatabase(),
-					Collections.emptyList())
+					List.of())
 					.get();
 		}catch(InterruptedException e){
 			throw new RuntimeException(e);

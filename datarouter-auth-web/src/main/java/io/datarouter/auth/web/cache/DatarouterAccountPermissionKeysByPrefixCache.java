@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
-import io.datarouter.auth.storage.account.permission.BaseDatarouterAccountPermissionDao;
+import io.datarouter.auth.storage.account.permission.DatarouterAccountPermissionDao;
 import io.datarouter.auth.storage.account.permission.DatarouterAccountPermissionKey;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -27,11 +27,11 @@ import jakarta.inject.Singleton;
 @Singleton
 public class DatarouterAccountPermissionKeysByPrefixCache{
 
-	private final BaseDatarouterAccountPermissionDao dao;
+	private final DatarouterAccountPermissionDao dao;
 	private final AtomicReference<Map<DatarouterAccountPermissionKey,List<DatarouterAccountPermissionKey>>> cache;
 
 	@Inject
-	public DatarouterAccountPermissionKeysByPrefixCache(BaseDatarouterAccountPermissionDao dao){
+	public DatarouterAccountPermissionKeysByPrefixCache(DatarouterAccountPermissionDao dao){
 		this.dao = dao;
 		this.cache = new AtomicReference<>(load());
 	}

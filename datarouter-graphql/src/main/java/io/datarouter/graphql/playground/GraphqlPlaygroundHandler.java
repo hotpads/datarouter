@@ -26,7 +26,7 @@ import io.datarouter.graphql.client.util.type.GraphQlRootType;
 import io.datarouter.graphql.config.DatarouterGraphQlFiles;
 import io.datarouter.graphql.service.GraphQlInstancesContainer;
 import io.datarouter.graphql.web.GraphQlBaseHandler;
-import io.datarouter.gson.GsonTool;
+import io.datarouter.gson.DatarouterGsons;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
@@ -75,9 +75,9 @@ public class GraphqlPlaygroundHandler extends BaseHandler{
 			}
 		}
 		Mav mav = new Mav(files.jsp.graphql.playgroundJsp);
-		mav.put("playgroundJspDtos", GsonTool.withUnregisteredEnums().toJson(playgroundJspDtos));
+		mav.put("playgroundJspDtos", DatarouterGsons.withUnregisteredEnums().toJson(playgroundJspDtos));
 		mav.put("defaultQueryEndpoint", defaultTab.rootQueryUrl);
-		mav.put("defaultTab", GsonTool.withUnregisteredEnums().toJson(defaultTab));
+		mav.put("defaultTab", DatarouterGsons.withUnregisteredEnums().toJson(defaultTab));
 		return mav;
 	}
 

@@ -15,11 +15,12 @@
  */
 package io.datarouter.web.dispatcher;
 
-import io.datarouter.auth.role.DatarouterUserRole;
+import io.datarouter.auth.role.DatarouterUserRoleRegistry;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.browse.DatarouterClientHandler;
 import io.datarouter.web.browse.DatarouterHomepageHandler;
 import io.datarouter.web.browse.DeleteNodeDataHandler;
+import io.datarouter.web.browse.EnvironmentVariablesHandler;
 import io.datarouter.web.browse.GetNodeDataHandler;
 import io.datarouter.web.browse.NodeSearchHandler;
 import io.datarouter.web.browse.ViewClientsHandler;
@@ -51,35 +52,38 @@ public class DatarouterWebRouteSet extends BaseRouteSet{
 	public DatarouterWebRouteSet(DatarouterWebPaths paths){
 		handle(paths.datarouter.join("/", "/", "/") + "?")
 				.withHandler(DatarouterHomepageHandler.class)
-				.allowRoles(DatarouterUserRole.DATAROUTER_ACCOUNTS,
-						DatarouterUserRole.DATAROUTER_JOB,
-						DatarouterUserRole.DATAROUTER_MONITORING,
-						DatarouterUserRole.DATAROUTER_SETTINGS,
-						DatarouterUserRole.DATAROUTER_TOOLS);
+				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_ACCOUNTS,
+						DatarouterUserRoleRegistry.DATAROUTER_JOB,
+						DatarouterUserRoleRegistry.DATAROUTER_MONITORING,
+						DatarouterUserRoleRegistry.DATAROUTER_SETTINGS,
+						DatarouterUserRoleRegistry.DATAROUTER_TOOLS);
 		handle(paths.datarouter.memory.garbageCollector)
 				.withHandler(MemoryMonitoringHandler.class)
-				.allowRoles(DatarouterUserRole.DATAROUTER_MONITORING);
+				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_MONITORING);
 		handle(paths.datarouter.memory.view)
 				.withHandler(MemoryMonitoringHandler.class)
-				.allowRoles(DatarouterUserRole.DATAROUTER_MONITORING);
+				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_MONITORING);
 		handle(paths.datarouter.executors)
 				.withHandler(ExecutorsMonitoringHandler.class)
-				.allowRoles(DatarouterUserRole.DATAROUTER_MONITORING);
+				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_MONITORING);
 		handle(paths.datarouter.executors.getExecutors)
 				.withHandler(ExecutorsMonitoringHandler.class)
-				.allowRoles(DatarouterUserRole.DATAROUTER_MONITORING);
+				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_MONITORING);
+		handle(paths.datarouter.envVars)
+				.withHandler(EnvironmentVariablesHandler.class)
+				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_MONITORING);
 		handle(paths.datarouter.emailTest)
 				.withHandler(EmailTestHandler.class)
-				.allowRoles(DatarouterUserRole.DATAROUTER_TOOLS);
+				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_TOOLS);
 		handle(paths.datarouter.http.dnsLookup)
 				.withHandler(HttpTestHandler.class)
-				.allowRoles(DatarouterUserRole.DATAROUTER_TOOLS);
+				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_TOOLS);
 		handle(paths.datarouter.http.tester)
 				.withHandler(HttpTestHandler.class)
-				.allowRoles(DatarouterUserRole.DATAROUTER_TOOLS);
+				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_TOOLS);
 		handle(paths.datarouter.http.reuseTester)
 				.withHandler(HttpReuseTesterHandler.class)
-				.allowRoles(DatarouterUserRole.DATAROUTER_TOOLS);
+				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_TOOLS);
 
 		handle(paths.datarouter.nodes.browseData).withHandler(ViewNodeDataHandler.class);
 		handle(paths.datarouter.nodes.browseData.browseData).withHandler(ViewNodeDataHandler.class);
@@ -124,13 +128,13 @@ public class DatarouterWebRouteSet extends BaseRouteSet{
 		handle(paths.datarouter.testApi.timeContains).withHandler(TestApiHandler.class);
 
 		handle(paths.datarouter.handler.handlerSearch).withHandler(PathLookupHandler.class)
-				.allowRoles(DatarouterUserRole.DATAROUTER_TOOLS);
+				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_TOOLS);
 	}
 
 	@Override
 	protected DispatchRule applyDefault(DispatchRule rule){
 		return rule
-				.allowRoles(DatarouterUserRole.DATAROUTER_ADMIN)
+				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_ADMIN)
 				.withTag(Tag.DATAROUTER);
 	}
 

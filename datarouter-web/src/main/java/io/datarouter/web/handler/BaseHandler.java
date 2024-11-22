@@ -26,7 +26,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.nio.charset.Charset;
+import java.time.Instant;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -54,21 +56,18 @@ import io.datarouter.auth.service.CurrentUserSessionInfoService;
 import io.datarouter.auth.session.RequestAwareCurrentSessionInfoFactory;
 import io.datarouter.auth.session.RequestAwareCurrentSessionInfoFactory.RequestAwareCurrentSessionInfo;
 import io.datarouter.httpclient.HttpHeaders;
-import io.datarouter.httpclient.endpoint.caller.CallerType;
-import io.datarouter.httpclient.endpoint.caller.CallerTypeUnknown;
-import io.datarouter.httpclient.endpoint.java.BaseEndpoint;
-import io.datarouter.httpclient.endpoint.java.EndpointTool;
+import io.datarouter.httpclient.endpoint.BaseEndpoint;
+import io.datarouter.httpclient.endpoint.java.BaseJavaEndpoint;
 import io.datarouter.httpclient.endpoint.param.IgnoredField;
 import io.datarouter.httpclient.endpoint.param.RequestBody;
-import io.datarouter.httpclient.endpoint.web.BaseWebApi;
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.instrumentation.exception.ExceptionRecordDto;
 import io.datarouter.instrumentation.trace.W3TraceContext;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.util.singletonsupplier.SingletonSupplier;
-import io.datarouter.web.endpoint.EndpointValidator;
-import io.datarouter.web.endpoint.WebApiValidator;
+import io.datarouter.web.api.EndpointTool;
+import io.datarouter.web.api.endpoint.EndpointValidator;
 import io.datarouter.web.exception.ExceptionRecorder;
 import io.datarouter.web.exception.HandledException;
 import io.datarouter.web.handler.encoder.HandlerEncoder;
@@ -176,14 +175,51 @@ public abstract class BaseHandler{
 		throw new RuntimeException(message);
 	}
 
-	/*
-	 * handler methods in sub-classes will need this annotation as a security measure,
-	 * otherwise all methods would be callable
-	 */
+	/**
+	 * Subclass methods annotated with {@code @Handler} will be available to be called as handlers
+	 * for matching paths. This annotation is required as a security measure otherwise all methods
+	 * in the subclass would be callable.
+	 *
+	 * <p>This annotation type has a string-valued element {@code deprecatedOn}.
+	 * The value of this element indicates the date at which it will,
+	 * or has, become unsupported. If the value is non-empty, then it will be parsed
+	 * with {@link DateTimeFormatter#ISO_INSTANT}. If not able to be parsed, the current
+	 * date will be used instead.
+	 *
+	 * <p>The epoch-second timestamp at which the handler will become unsupported will be
+	 * included as a header in responses sent back to the client compliant with
+	 * <a href="https://datatracker.ietf.org/doc/html/draft-ietf-httpapi-deprecation-header">the Proposed Deprecation RFC Standard</a>
+	 *
+	 * <p>This annotation type has an optional string-valued element {@code deprecationLink}.
+	 * The value of this element indicates the URL where more information about the
+	 * deprecation can be found.
+	 *
+	 * <p>The optional element {@code usageType} indicates when the handler is
+	 * used at a different frequency than normal. This is useful for keeping necessary handlers
+	 * out of infrequent-usage reports, reducing noise. If your handler is only temporarily unused,
+	 * use the {@code HandlerUsageType.TEMPORARILY_UNUSED} type to be reminded when your handler starts
+	 * getting called.
+	 *
+	 * <p><b>Note:</b>
+	 * It is strongly recommended that the reason for deprecating a Handler
+	 * be explained in the documentation. The documentation should also suggest and
+	 * link to a recommended replacement API, if applicable. A replacement API often
+	 * has subtly different semantics, so such issues should be discussed as well.
+	 * */
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.METHOD)
 	public @interface Handler{
 		String description() default "";
+		String deprecatedOn() default "";
+		String deprecationLink() default "";
+		HandlerUsageType usageType() default HandlerUsageType.IN_USE;
+
+		enum HandlerUsageType{
+			TEMPORARILY_UNUSED,
+			INFREQUENTLY_USED,
+			IN_USE
+		}
+
 		/**
 		 * @deprecated  Specify the encoder in the RouteSet class
 		 */
@@ -200,13 +236,6 @@ public abstract class BaseHandler{
 		 */
 		@Deprecated
 		boolean defaultHandler() default false;
-
-		/**
-		 * If the handler method is using a BaseEndpoint, this callerType field is ignored.
-		 *
-		 * @return the intended caller for the handler method
-		 */
-		Class<? extends CallerType> callerType() default CallerTypeUnknown.class;
 	}
 
 	private Optional<RequestParamValidatorErrorResponseDto> validateRequestParamValidators(
@@ -249,39 +278,19 @@ public abstract class BaseHandler{
 				.map(RequestParamValidatorErrorResponseDto::fromRequestParamValidatorResponseDto);
 	}
 
-	private Optional<RequestParamValidatorErrorResponseDto> validateRequestParamValidatorsFromWebApi(
+	private Optional<RequestParamValidatorErrorResponseDto> validateApiRequestField(
 			Method method,
 			Object[] args){
-		return Optional.ofNullable(method.getParameters()[0].getAnnotation(WebApiValidator.class))
-				.map(WebApiValidator::validator)
-				.filter(Objects::nonNull)
-				.map(validate("endpoint", args[0]))
-				.filter(responseDto -> !responseDto.success())
-				.map(RequestParamValidatorErrorResponseDto::fromRequestParamValidatorResponseDto);
-	}
-
-	private Optional<RequestParamValidatorErrorResponseDto> validateEndpointRequestField(
-			Method method,
-			Object[] args){
-		if(args.length == 1 && args[0] instanceof BaseEndpoint<?,?> endpoint){
-			return validateRequestFieldValidators(method, endpoint);
-		}
-		return Optional.empty();
-	}
-
-	private Optional<RequestParamValidatorErrorResponseDto> validateWebApiRequestField(
-			Method method,
-			Object[] args){
-		if(args.length == 1 && args[0] instanceof BaseWebApi<?,?> endpoint){
-			return validateRequestFieldValidators(method, endpoint);
+		if(args.length == 1 && args[0] instanceof BaseEndpoint baseEndpoint){
+			return validateRequestFieldValidators(method, baseEndpoint);
 		}
 		return Optional.empty();
 	}
 
 	private Optional<RequestParamValidatorErrorResponseDto> validateRequestFieldValidators(
 			Method method,
-			Object endpoint){
-		List<Field> endpointFields = Scanner.of(endpoint.getClass().getFields())
+			BaseEndpoint baseEndpoint){
+		List<Field> endpointFields = Scanner.of(baseEndpoint.getClass().getFields())
 				.exclude(field -> field.isAnnotationPresent(IgnoredField.class))
 				.list();
 		Set<Field> requestBodyFields = new HashSet<>(endpointFields.size());
@@ -295,9 +304,9 @@ public abstract class BaseHandler{
 					}
 				});
 		Optional<RequestParamValidatorErrorResponseDto> error = Optional.empty();
-		// handle endpoint GET fields validators
+		// validate endpoint's GET fields
 		if(!otherEndpointFields.isEmpty()){
-			error = validateClassFields(otherEndpointFields, method, endpoint);
+			error = validateClassFields(otherEndpointFields, method, baseEndpoint);
 		}
 		if(error.isPresent()){
 			return error;
@@ -310,12 +319,12 @@ public abstract class BaseHandler{
 		Field requestBodyField = requestBodyFieldOptional.get();
 		Object requestBody;
 		try{
-			requestBody = requestBodyField.get(endpoint);
+			requestBody = requestBodyField.get(baseEndpoint);
 		}catch(IllegalAccessException | IllegalArgumentException e){
 			// maybe return a specific error?
 			return error;
 		}
-		// handle validator annotated requestBody
+		// validate annotated requestBody
 		if(requestBodyField.isAnnotationPresent(FieldValidator.class)){
 			return Optional.ofNullable(requestBodyField.getAnnotation(FieldValidator.class))
 					.map(FieldValidator::value)
@@ -324,7 +333,7 @@ public abstract class BaseHandler{
 					.filter(responseDto -> !responseDto.success())
 					.map(RequestParamValidatorErrorResponseDto::fromRequestParamValidatorResponseDto);
 		}
-		// handle record requestBody fields validators
+		// validate record requestBody fields
 		if(requestBodyField.getType().isRecord()){
 			Map<String,Class<? extends RequestParamValidator<?>>> validatorByRequestBodyFieldName = Scanner
 					.of(requestBodyField.getType().getDeclaredFields())
@@ -337,7 +346,7 @@ public abstract class BaseHandler{
 						return DefaultRequestParamValidator.class.isAssignableFrom(validator);
 					})
 					.toMap(Field::getName, field -> field.getAnnotation(FieldValidator.class).value());
-			error = Scanner.of(requestBodyField.getType().getRecordComponents())
+			return Scanner.of(requestBodyField.getType().getRecordComponents())
 					.include(comp -> validatorByRequestBodyFieldName.containsKey(comp.getName()))
 					.map(comp -> {
 						String fieldName = comp.getName();
@@ -366,10 +375,7 @@ public abstract class BaseHandler{
 					.findFirst()
 					.map(RequestParamValidatorErrorResponseDto::fromRequestParamValidatorResponseDto);
 		}
-		if(error.isPresent()){
-			return error;
-		}
-		// validate class entity fields
+		// validate class requestBody fields
 		return validateClassFields(Arrays.asList(requestBodyField.getType().getDeclaredFields()), method, requestBody);
 	}
 
@@ -455,19 +461,12 @@ public abstract class BaseHandler{
 			RequestAttributeTool.set(request, HANDLER_ENCODER_ATTRIBUTE, encoder);
 
 			Optional<RequestParamValidatorErrorResponseDto> errorResponseDtoOptional;
-			if(EndpointTool.paramIsEndpointObject(method)){
+			if(EndpointTool.paramIsBaseEndpointObject(method)){
 				Parameter[] parameters = method.getParameters();
 				if(Optional.ofNullable(parameters[0].getAnnotation(EndpointValidator.class)).isPresent()){
 					errorResponseDtoOptional = validateRequestParamValidatorsFromEndpoint(method, args);
 				}else{
-					errorResponseDtoOptional = validateEndpointRequestField(method, args);
-				}
-			}else if(EndpointTool.paramIsWebApiObject(method)){
-				Parameter[] parameters = method.getParameters();
-				if(Optional.ofNullable(parameters[0].getAnnotation(WebApiValidator.class)).isPresent()){
-					errorResponseDtoOptional = validateRequestParamValidatorsFromWebApi(method, args);
-				}else{
-					errorResponseDtoOptional = validateWebApiRequestField(method, args);
+					errorResponseDtoOptional = validateApiRequestField(method, args);
 				}
 			}else{
 				errorResponseDtoOptional = validateRequestParamValidators(method, args);
@@ -477,6 +476,7 @@ public abstract class BaseHandler{
 				encoder.sendInvalidRequestParamResponse(errorResponseDto, servletContext, response, request);
 				return;
 			}
+			surfaceDeprecationInformation(method);
 			invokeHandlerMethod(method, args, encoder);
 		}catch(IOException | ServletException e){
 			throw new RuntimeException("", e);
@@ -510,10 +510,8 @@ public abstract class BaseHandler{
 				Method desiredMethod = possibleMethods.isEmpty()
 						? defaultHandlerMethod.get() : possibleMethods.getFirst();
 				List<String> missingParameters;
-				if(EndpointTool.paramIsEndpointObject(desiredMethod)){
-					missingParameters = getMissingParameterNamesIfEndpoint(desiredMethod);
-				}else if(EndpointTool.paramIsWebApiObject(desiredMethod)){
-					missingParameters = getMissingParameterNamesIfWebApi(desiredMethod);
+				if(EndpointTool.paramIsBaseEndpointObject(desiredMethod)){
+					missingParameters = getMissingParameterNamesIfApi(desiredMethod);
 				}else{
 					missingParameters = getMissingParameterNames(desiredMethod);
 				}
@@ -579,7 +577,7 @@ public abstract class BaseHandler{
 		}
 
 		if(accountName != null && !accountName.isEmpty()){
-			if(args.length == 1 && args[0] instanceof BaseEndpoint<?,?> endpoint){
+			if(args.length == 1 && args[0] instanceof BaseJavaEndpoint<?,?> endpoint){
 				handlerAccountCallerValidator.validate(accountName, endpoint);
 			}else{
 				handlerAccountCallerValidator.validate(accountName, method);
@@ -697,26 +695,26 @@ public abstract class BaseHandler{
 				.list();
 	}
 
-	private List<String> getMissingParameterNamesIfEndpoint(Method method){
+	private List<String> getMissingParameterNamesIfApi(Method method){
 		Class<?> endpointType = method.getParameters()[0].getType();
 		@SuppressWarnings("unchecked")
-		BaseEndpoint<?,?> baseEndpoint = ReflectionTool.createWithoutNoArgs(
-				(Class<? extends BaseEndpoint<?,?>>)endpointType);
+		BaseEndpoint baseEndpoint = ReflectionTool.createWithoutNoArgs(
+				(Class<? extends BaseEndpoint>)endpointType);
 
 		return Scanner.of(EndpointTool.getRequiredKeys(baseEndpoint).getAllKeys())
 				.exclude(param -> params.toMap().containsKey(param))
 				.list();
 	}
 
-	private List<String> getMissingParameterNamesIfWebApi(Method method){
-		Class<?> endpointType = method.getParameters()[0].getType();
-		@SuppressWarnings("unchecked")
-		BaseWebApi<?,?> webapi = ReflectionTool.createWithoutNoArgs(
-				(Class<? extends BaseWebApi<?,?>>)endpointType);
-
-		return Scanner.of(EndpointTool.getRequiredKeys(webapi).getAllKeys())
-				.exclude(param -> params.toMap().containsKey(param))
-				.list();
+	private void surfaceDeprecationInformation(Method handlerMethod){
+		Handler handlerAnnotation = handlerMethod.getAnnotation(Handler.class);
+		if(handlerAnnotation != null && !handlerAnnotation.deprecatedOn().isEmpty()){
+			Instant deprecatedAt = HandlerTool.parseHandlerDeprecatedOnDate(handlerAnnotation.deprecatedOn());
+			response.setHeader("Deprecation", "@" + deprecatedAt.getEpochSecond());
+			if(!handlerAnnotation.deprecationLink().isEmpty()){
+				response.setHeader("Link", handlerAnnotation.deprecationLink());
+			}
+		}
 	}
 
 	/*---------------- get/set -----------------*/

@@ -100,6 +100,18 @@ implements PhysicalBlobStorageNode{
 	}
 
 	@Override
+	public Optional<byte[]> readEnding(PathbeanKey key, int length, Config config){
+		return Optional.of(key)
+				.map(keyCodec::encode)
+				.flatMap(storage::find)
+				.map(MemoryBlob::getValue)
+				.map(bytes -> Arrays.copyOfRange(
+						bytes,
+						Math.max(0, bytes.length - length),
+						bytes.length));
+	}
+
+	@Override
 	public Map<PathbeanKey,byte[]> readMulti(List<PathbeanKey> keys, Config config){
 		//TODO storage.findMulti inside the same read lock
 		return Scanner.of(keys)

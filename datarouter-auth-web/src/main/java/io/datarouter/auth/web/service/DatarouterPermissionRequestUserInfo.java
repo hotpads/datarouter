@@ -15,17 +15,12 @@
  */
 package io.datarouter.auth.web.service;
 
-import static j2html.TagCreator.a;
-import static j2html.TagCreator.text;
-
 import java.util.List;
 import java.util.Optional;
 
 import io.datarouter.auth.detail.DatarouterUserExternalDetailService;
 import io.datarouter.auth.detail.DatarouterUserProfileLink;
 import io.datarouter.auth.storage.user.datarouteruser.DatarouterUser;
-import io.datarouter.auth.web.web.DatarouterPermissionRequestHandler;
-import j2html.tags.DomContent;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
@@ -36,15 +31,15 @@ public class DatarouterPermissionRequestUserInfo implements PermissionRequestUse
 	private DatarouterUserExternalDetailService userExternalDetailService;
 
 	@Override
-	public List<DomContent> getUserInformation(DatarouterUser user){
-		Optional<DatarouterUserProfileLink> profile = userExternalDetailService.getUserProfileLink(user.getUsername());
-		String userProfileUrl = profile.map(DatarouterUserProfileLink::url).orElse(null);
-		String userProfileDescription = profile.map(DatarouterUserProfileLink::name).orElse("user profile");
-		var userTr = DatarouterPermissionRequestHandler.createLabelValueTr(
+	public List<UserInfo> getUserInformation(DatarouterUser user){
+		String username = user.getUsername();
+		Optional<DatarouterUserProfileLink> profile = userExternalDetailService.getUserProfileLink(username);
+
+		return List.of(new UserInfo(
 				"User",
-				text(user.getUsername() + " - "),
-				userProfileUrl == null ? null : a("view " + userProfileDescription).withHref(userProfileUrl));
-		return List.of(userTr);
+				profile.map(DatarouterUserProfileLink::name).orElse(username),
+				profile.map(DatarouterUserProfileLink::url),
+				Optional.empty()));
 	}
 
 }

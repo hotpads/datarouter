@@ -30,7 +30,7 @@ import io.datarouter.job.storage.joblock.JobLockKey;
 import io.datarouter.job.storage.triggerlock.DatarouterTriggerLockDao;
 import io.datarouter.job.storage.triggerlock.TriggerLock;
 import io.datarouter.job.storage.triggerlock.TriggerLockKey;
-import io.datarouter.job.util.Outcome;
+import io.datarouter.job.util.DatarouterJobOutcome;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.types.MilliTime;
@@ -51,7 +51,10 @@ public class TriggerLockService{
 	@Inject
 	private ServerName serverName;
 
-	public Outcome acquireJobAndTriggerLocks(TriggerLockConfig triggerLockConfig, Instant triggerTime, Duration delay){
+	public DatarouterJobOutcome acquireJobAndTriggerLocks(
+			TriggerLockConfig triggerLockConfig,
+			Instant triggerTime,
+			Duration delay){
 		var jobLockAcquired = acquireJobLock(triggerLockConfig, triggerTime, delay);
 		if(jobLockAcquired.failed()){
 			return jobLockAcquired;
@@ -61,17 +64,22 @@ public class TriggerLockService{
 			releaseJobLock(triggerLockConfig.jobName);//could contend with another server?
 			return triggerLockAcquired;
 		}
-		return Outcome.success();
+		return DatarouterJobOutcome.makeSuccess();
 	}
 
-	private Outcome acquireJobLock(TriggerLockConfig triggerLockConfig, Instant triggerTime, Duration delay){
+	private DatarouterJobOutcome acquireJobLock(
+			TriggerLockConfig triggerLockConfig,
+			Instant triggerTime,
+			Duration delay){
 		logStrangeTriggerTime(triggerLockConfig.jobName, triggerTime);
 		JobLock jobLock = toJobLock(triggerLockConfig, triggerTime);
 		try{
 			jobLockDao.putAndAcquire(jobLock);
-			logAction(triggerLockConfig.jobName, triggerTime, "acquired clusterJobLock, delay=" + delay.toMillis()
-					+ "ms");
-			return Outcome.success();
+			logAction(
+					triggerLockConfig.jobName,
+					triggerTime,
+					"acquired clusterJobLock, delay=" + delay.toMillis() + "ms");
+			return DatarouterJobOutcome.makeSuccess();
 		}catch(Exception e){
 			String reason;
 			try{
@@ -79,17 +87,22 @@ public class TriggerLockService{
 			}catch(Exception ex){
 				reason = "Unable to acquire JobLock.";
 			}
-			return Outcome.failure(reason + " exception=\"" + e + "\"");
+			return DatarouterJobOutcome.makeFailure(reason + " exception=\"" + e + "\"");
 		}
 	}
 
-	private Outcome acquireTriggerLock(TriggerLockConfig triggerLockConfig, Instant triggerTime){
+	private DatarouterJobOutcome acquireTriggerLock(
+			TriggerLockConfig triggerLockConfig,
+			Instant triggerTime){
 		TriggerLock triggerLock = toTriggerLock(triggerLockConfig, triggerTime);
 		try{
 			triggerLockDao.putAndAcquire(triggerLock);
-			return Outcome.success();
+			return DatarouterJobOutcome.makeSuccess();
 		}catch(Exception e){
-			logAction(triggerLockConfig.jobName, triggerTime, "did not acquire clusterTriggerLock");
+			logAction(
+					triggerLockConfig.jobName,
+					triggerTime,
+					"did not acquire clusterTriggerLock");
 			String reason;
 			try{
 				reason = "ClusterTriggerLock already acquired by: " + triggerLockDao
@@ -97,7 +110,7 @@ public class TriggerLockService{
 			}catch(Exception ex){
 				reason = "Unable to acquire ClusterTriggerLock.";
 			}
-			return Outcome.failure(reason + " exception= " + e);
+			return DatarouterJobOutcome.makeFailure(reason + " exception= " + e);
 		}
 	}
 

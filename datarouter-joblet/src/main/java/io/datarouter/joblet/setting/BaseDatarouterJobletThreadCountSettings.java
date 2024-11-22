@@ -37,7 +37,7 @@ public class BaseDatarouterJobletThreadCountSettings extends SettingNode{
 		super(finder, "datarouterJoblet." + nodeName + ".");
 
 		for(JobletType<?> jobletType : jobletTypeFactory.getAllTypes()){
-			CachedSetting<Integer> setting = registerSetting(
+			CachedSetting<Integer> setting = registerJobletSetting(
 					jobletType,
 					jobletType.getPersistentString(),
 					defaultNumThreads);
@@ -45,7 +45,7 @@ public class BaseDatarouterJobletThreadCountSettings extends SettingNode{
 		}
 	}
 
-	public CachedSetting<Integer> registerSetting(JobletType<?> jobletType, String name, Integer defaultValue){
+	public CachedSetting<Integer> registerJobletSetting(JobletType<?> jobletType, String name, Integer defaultValue){
 		CachedSetting<Integer> setting = registerInteger(name, defaultValue);
 		settingByJobletType.put(jobletType, setting);
 		return setting;

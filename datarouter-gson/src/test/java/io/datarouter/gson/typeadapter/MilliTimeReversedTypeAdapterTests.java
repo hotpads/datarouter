@@ -20,12 +20,12 @@ import org.testng.annotations.Test;
 
 import com.google.gson.Gson;
 
-import io.datarouter.gson.GsonTool;
+import io.datarouter.gson.DatarouterGsons;
 import io.datarouter.types.MilliTimeReversed;
 
 public class MilliTimeReversedTypeAdapterTests{
 
-	private static final Gson GSON = GsonTool.withoutEnums();
+	private static final Gson GSON = DatarouterGsons.withoutEnums();
 	private static final MilliTimeReversed TIME = MilliTimeReversed.ofReversedEpochMilli(10L);
 
 	@Test

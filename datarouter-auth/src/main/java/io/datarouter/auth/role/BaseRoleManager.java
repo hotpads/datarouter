@@ -40,7 +40,15 @@ public abstract class BaseRoleManager implements RoleManager{
 		if(roleGroups == null){
 			buildRoleGroups();
 		}
-		return roleGroups.getOrDefault(StringTool.nullSafe(groupId), Collections.emptySet());
+		return roleGroups.getOrDefault(StringTool.nullSafe(groupId), Set.of());
+	}
+
+	@Override
+	public Map<String,Set<Role>> getRoleGroupMappings(){
+		if(roleGroups == null){
+			buildRoleGroups();
+		}
+		return roleGroups;
 	}
 
 	private void buildRoleGroups(){
@@ -61,7 +69,7 @@ public abstract class BaseRoleManager implements RoleManager{
 	}
 
 	protected Map<String,Set<Role>> getConfigurableRoleGroups(){
-		return Collections.emptyMap();
+		return Map.of();
 	}
 
 	protected String getSuperAdminGroupId(){

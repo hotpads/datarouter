@@ -23,9 +23,19 @@ package io.datarouter.model.field.encoding;
 public interface BinaryKeyField<T>{
 
 	int numKeyBytesWithSeparator(byte[] bytes, int byteOffset);
-	byte[] getKeyBytesWithSeparator();
 	byte[] getTerminatedKeyBytes();
 	T fromEscapedAndTerminatedKeyBytes(byte[] bytes, int byteOffset);
+
+	/**
+	 * @deprecated encode with getTerminatedKeyBytes to allow '0' bytes in the value
+	 */
+	@Deprecated
+	byte[] getKeyBytesWithSeparator();
+
+	/**
+	 * @deprecated decode with fromEscapedAndTerminatedKeyBytes when encoded with getTerminatedKeyBytes
+	 */
+	@Deprecated
 	T fromKeyBytesWithSeparatorButDoNotSet(byte[] bytes, int byteOffset);
 
 }

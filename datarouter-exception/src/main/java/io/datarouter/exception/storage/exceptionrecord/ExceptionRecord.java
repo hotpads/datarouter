@@ -22,7 +22,7 @@ import io.datarouter.exception.storage.httprecord.FieldTrimTool;
 import io.datarouter.instrumentation.exception.ExceptionRecordDto;
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
-import io.datarouter.model.field.codec.MilliTimeFieldCodec;
+import io.datarouter.model.field.codec.MilliTimeToLongFieldCodec;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
 import io.datarouter.model.field.imp.comparable.IntegerField;
@@ -55,10 +55,11 @@ public class ExceptionRecord extends BaseDatabean<ExceptionRecordKey,ExceptionRe
 	// the caller that's getting the exception
 	private String callOrigin;
 	private List<String> additionalAlertRecipients; // not persisted
+	private String environment;
 
 	public static class FieldKeys{
 		public static final LongEncodedFieldKey<MilliTime> createdAt = new LongEncodedFieldKey<>("createdAt",
-				new MilliTimeFieldCodec());
+				new MilliTimeToLongFieldCodec());
 		public static final StringFieldKey serverName = new StringFieldKey("serverName");
 		public static final StringFieldKey category = new StringFieldKey("category");
 		public static final StringFieldKey name = new StringFieldKey("name");
@@ -70,6 +71,7 @@ public class ExceptionRecord extends BaseDatabean<ExceptionRecordKey,ExceptionRe
 		public static final StringFieldKey methodName = new StringFieldKey("methodName");
 		public static final IntegerFieldKey lineNumber = new IntegerFieldKey("lineNumber");
 		public static final StringFieldKey callOrigin = new StringFieldKey("callOrigin");
+		public static final StringFieldKey environment = new StringFieldKey("environment");
 	}
 
 	public static class ExceptionRecordFielder extends BaseDatabeanFielder<ExceptionRecordKey,ExceptionRecord>{
@@ -92,7 +94,8 @@ public class ExceptionRecord extends BaseDatabean<ExceptionRecordKey,ExceptionRe
 					new StringField(FieldKeys.exceptionLocation, databean.exceptionLocation),
 					new StringField(FieldKeys.methodName, databean.methodName),
 					new IntegerField(FieldKeys.lineNumber, databean.lineNumber),
-					new StringField(FieldKeys.callOrigin, databean.callOrigin));
+					new StringField(FieldKeys.callOrigin, databean.callOrigin),
+					new StringField(FieldKeys.environment, databean.environment));
 			}
 
 	}
@@ -115,7 +118,8 @@ public class ExceptionRecord extends BaseDatabean<ExceptionRecordKey,ExceptionRe
 			String methodName,
 			Integer lineNumber,
 			String callOrigin,
-			List<String> additionalAlertRecipients){
+			List<String> additionalAlertRecipients,
+			String environment){
 		super(key);
 		this.createdAt = MilliTime.ofEpochMilli(dateMs);
 		this.serviceName = serviceName;
@@ -130,6 +134,7 @@ public class ExceptionRecord extends BaseDatabean<ExceptionRecordKey,ExceptionRe
 		this.lineNumber = lineNumber;
 		this.callOrigin = callOrigin;
 		this.additionalAlertRecipients = additionalAlertRecipients;
+		this.environment = environment;
 	}
 
 	public ExceptionRecord(ExceptionRecordDto dto){
@@ -146,7 +151,8 @@ public class ExceptionRecord extends BaseDatabean<ExceptionRecordKey,ExceptionRe
 				dto.methodName(),
 				dto.lineNumber(),
 				dto.callOrigin(),
-				dto.additionalAlertRecipients());
+				dto.additionalAlertRecipients(),
+				dto.environment());
 	}
 
 	@Override
@@ -169,7 +175,8 @@ public class ExceptionRecord extends BaseDatabean<ExceptionRecordKey,ExceptionRe
 				methodName,
 				lineNumber,
 				callOrigin,
-				additionalAlertRecipients);
+				additionalAlertRecipients,
+				environment);
 	}
 
 	public MilliTime getCreated(){

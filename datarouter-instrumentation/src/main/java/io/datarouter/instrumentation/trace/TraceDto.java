@@ -36,6 +36,7 @@ public class TraceDto{
 	public final Long memoryAllocatedBytesEnded;
 	public final List<TraceSaveReasonType> saveReasons;
 	public final TraceCategory category;
+	public final String environment;
 
 	public TraceDto(
 			Traceparent traceparent,
@@ -53,7 +54,8 @@ public class TraceDto{
 			Long memoryAllocatedBytesBegin,
 			Long memoryAllocatedBytesEnded,
 			List<TraceSaveReasonType> saveReasons,
-			TraceCategory category){
+			TraceCategory category,
+			String environment){
 		this.traceparent = traceparent;
 		this.created = created;
 		this.initialParentId = initialParentId;
@@ -70,6 +72,7 @@ public class TraceDto{
 		this.memoryAllocatedBytesEnded = memoryAllocatedBytesEnded;
 		this.saveReasons = saveReasons;
 		this.category = category;
+		this.environment = environment;
 	}
 
 	public long getDurationInNs(){

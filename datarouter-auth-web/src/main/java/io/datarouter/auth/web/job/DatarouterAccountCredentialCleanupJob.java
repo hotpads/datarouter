@@ -22,12 +22,8 @@ import jakarta.inject.Inject;
 
 public class DatarouterAccountCredentialCleanupJob extends BaseJob{
 
-	private final DatarouterAccountCredentialService service;
-
 	@Inject
-	public DatarouterAccountCredentialCleanupJob(DatarouterAccountCredentialService service){
-		this.service = service;
-	}
+	private DatarouterAccountCredentialService service;
 
 	@Override
 	public void run(TaskTracker tracker){

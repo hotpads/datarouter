@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import io.datarouter.binarydto.dto.BaseBinaryDto;
 import io.datarouter.binarydto.fieldcodec.BinaryDtoBaseFieldCodec;
 import io.datarouter.binarydto.fieldcodec.array.BooleanArrayBinaryDtoFieldCodec;
 import io.datarouter.binarydto.fieldcodec.array.ByteArrayBinaryDtoFieldCodec;
@@ -37,7 +36,6 @@ import io.datarouter.binarydto.fieldcodec.dataroutertypes.MilliTimeToLongBinaryD
 import io.datarouter.binarydto.fieldcodec.other.BitSetBinaryDtoFieldCodec;
 import io.datarouter.binarydto.fieldcodec.other.EnumBinaryDtoFieldCodec;
 import io.datarouter.binarydto.fieldcodec.other.ListBinaryDtoFieldCodec;
-import io.datarouter.binarydto.fieldcodec.other.NestedBinaryDtoFieldCodec;
 import io.datarouter.binarydto.fieldcodec.other.ObjectArrayBinaryDtoFieldCodec;
 import io.datarouter.binarydto.fieldcodec.primitive.BooleanBinaryDtoFieldCodec;
 import io.datarouter.binarydto.fieldcodec.primitive.ByteBinaryDtoFieldCodec;
@@ -52,10 +50,9 @@ import io.datarouter.binarydto.fieldcodec.time.InstantBinaryDtoFieldCodec;
 import io.datarouter.bytes.ByteLength;
 import io.datarouter.types.MilliTime;
 
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class BinaryDtoFieldCodecs{
 
-	private static final Map<Class,BinaryDtoBaseFieldCodec<?>> LEAF_CODEC_BY_CLASS = new HashMap<>();
+	private static final Map<Class<?>,BinaryDtoBaseFieldCodec<?>> LEAF_CODEC_BY_CLASS = new HashMap<>();
 	static{
 		//primitives
 		LEAF_CODEC_BY_CLASS.put(byte.class, new ByteBinaryDtoFieldCodec());
@@ -95,8 +92,11 @@ public class BinaryDtoFieldCodecs{
 		LEAF_CODEC_BY_CLASS.put(MilliTime.class, new MilliTimeToLongBinaryDtoFieldConverter());
 	}
 
-	public static BinaryDtoBaseFieldCodec<?> getCodecForField(Field field){
-		var fieldMetadataParser = new BinaryDtoFieldMetadataParser(field);
+	@SuppressWarnings({"unchecked", "rawtypes"})
+	public static BinaryDtoBaseFieldCodec<?> getCodecForLeafField(
+			BinaryDtoFieldMetadataParser<?> fieldMetadataParser){
+		Class<?> itemClass = fieldMetadataParser.getItemClass();
+		Field field = fieldMetadataParser.getField();
 		Optional<BinaryDtoBaseFieldCodec<?>> optCustomCodec = fieldMetadataParser.optCodec();
 		if(optCustomCodec.isPresent()){
 			if(fieldMetadataParser.isObjectArray()){
@@ -113,38 +113,33 @@ public class BinaryDtoFieldCodecs{
 			}
 		}else{
 			if(fieldMetadataParser.isObjectArray()){
-				Class itemClass = fieldMetadataParser.getObjectArrayItemClass();
-				BinaryDtoBaseFieldCodec<Object> itemCodec = (BinaryDtoBaseFieldCodec)getLeafCodec(itemClass, field);
+				BinaryDtoBaseFieldCodec<?> itemCodec = getLeafCodec(field, itemClass);
 				return new ObjectArrayBinaryDtoFieldCodec(
 						itemClass,
 						itemCodec,
 						fieldMetadataParser.isNullableItems());
 			}else if(fieldMetadataParser.isList()){
-				Class<Object> itemClass = fieldMetadataParser.getListItemClass();
-				BinaryDtoBaseFieldCodec<Object> itemCodec = (BinaryDtoBaseFieldCodec)getLeafCodec(itemClass, field);
+				BinaryDtoBaseFieldCodec<?> itemCodec = getLeafCodec(field, itemClass);
 				return new ListBinaryDtoFieldCodec<>(
 						itemCodec,
 						fieldMetadataParser.isNullableItems());
 			}else if(fieldMetadataParser.isEnum()){
 				return new EnumBinaryDtoFieldCodec(field.getType());
 			}else{
-				return getLeafCodec(field.getType(), field);
+				return getLeafCodec(field, itemClass);
 			}
 		}
 	}
 
-	private static BinaryDtoBaseFieldCodec<?> getLeafCodec(Class<?> clazz, Field field){
-		if(BaseBinaryDto.class.isAssignableFrom(clazz)){
-			return new NestedBinaryDtoFieldCodec(clazz);
-		}
-		var codec = LEAF_CODEC_BY_CLASS.get(clazz);
+	private static BinaryDtoBaseFieldCodec<?> getLeafCodec(Field field, Class<?> itemClass){
+		var codec = LEAF_CODEC_BY_CLASS.get(itemClass);
 		if(codec != null){
 			return codec;
 		}
-		var itemClass = field.getType().getSimpleName().equals(clazz.getSimpleName())
+		String itemClassString = field.getType().getSimpleName().equals(itemClass.getSimpleName())
 				? ""
-				: " (" + clazz.getSimpleName() + ")";
-		throw new NullPointerException("Codec not found for " + field + itemClass);
+				: " (" + itemClass.getSimpleName() + ")";
+		throw new NullPointerException("Codec not found for " + field + itemClassString);
 	}
 
 }

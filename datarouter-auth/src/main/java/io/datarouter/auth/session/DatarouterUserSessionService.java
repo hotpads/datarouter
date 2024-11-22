@@ -171,7 +171,7 @@ public class DatarouterUserSessionService implements UserSessionService{
 				lostRolesString = "No roles lost due to lost SAML groups.";
 			}else{
 				lostRolesString = "Net roles lost: %s.".formatted(
-						String.join(", ", lostRoles.stream().map(Role::getPersistentString).toList()));
+						String.join(", ", lostRoles.stream().map(Role::persistentString).toList()));
 			}
 		}
 
@@ -186,7 +186,7 @@ public class DatarouterUserSessionService implements UserSessionService{
 				gainedRolesString = "No roles provided by new SAML groups.";
 			}else{
 				gainedRolesString = "Net roles gained: %s.".formatted(
-						String.join(", ", gainedRoles.stream().map(Role::getPersistentString).toList()));
+						String.join(", ", gainedRoles.stream().map(Role::persistentString).toList()));
 			}
 		}
 

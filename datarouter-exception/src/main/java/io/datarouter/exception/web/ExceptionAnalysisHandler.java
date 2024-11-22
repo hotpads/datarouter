@@ -32,6 +32,7 @@ import io.datarouter.exception.storage.exceptionrecord.ExceptionRecord;
 import io.datarouter.exception.storage.exceptionrecord.ExceptionRecordKey;
 import io.datarouter.exception.storage.httprecord.DatarouterHttpRequestRecordDao;
 import io.datarouter.exception.storage.httprecord.HttpRequestRecord;
+import io.datarouter.gson.DatarouterGsons;
 import io.datarouter.gson.GsonTool;
 import io.datarouter.httpclient.HttpHeaders;
 import io.datarouter.types.MilliTime;
@@ -301,14 +302,14 @@ public class ExceptionAnalysisHandler extends BaseHandler{
 
 		@SuppressWarnings("deprecation")
 		public Map<String,String[]> getOtherHeadersMap(){
-			return GsonTool.withUnregisteredEnums().fromJson(
+			return DatarouterGsons.withUnregisteredEnums().fromJson(
 					otherHeaders,
 					new TypeToken<Map<String,String[]>>(){}.getType());
 		}
 
 		@SuppressWarnings("deprecation")
 		public Map<String,String[]> getHttpParamsMap(){
-			return GsonTool.withUnregisteredEnums().fromJson(
+			return DatarouterGsons.withUnregisteredEnums().fromJson(
 					httpParams,
 					new TypeToken<Map<String,String[]>>(){}.getType());
 		}

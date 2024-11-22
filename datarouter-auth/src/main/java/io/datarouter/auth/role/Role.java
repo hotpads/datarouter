@@ -17,40 +17,23 @@ package io.datarouter.auth.role;
 
 import java.util.Objects;
 
-public class Role implements Comparable<Role>{
+public record Role(
+		String persistentString,
+		String description,
+		RoleRiskFactor riskFactor)
+implements Comparable<Role>{
 
-	public final String persistentString;
-	public final String description;
-	public final RoleRiskFactor riskFactor;
-
-	public Role(String persistentString, String description, RoleRiskFactor riskFactor){
-		this.persistentString = persistentString;
-		this.description = description;
-		this.riskFactor = riskFactor;
+	public Role{
+		Objects.requireNonNull(persistentString);
 	}
 
 	public Role(String persistentString){
-		this.persistentString = persistentString;
-		this.description = null;
-		this.riskFactor = null;
-	}
-
-	public String getPersistentString(){
-		return persistentString;
-	}
-
-	public String getDescription(){
-		return description;
+		this(persistentString, null, null);
 	}
 
 	@Override
 	public int compareTo(Role other){
-		return persistentString.compareTo(other.getPersistentString());
-	}
-
-	@Override
-	public int hashCode(){
-		return persistentString.hashCode();
+		return persistentString.compareTo(other.persistentString());
 	}
 
 	@Override
@@ -59,18 +42,23 @@ public class Role implements Comparable<Role>{
 	}
 
 	@Override
-	public boolean equals(Object obj){
-		if(!(obj instanceof Role)){
-			return false;
-		}
-		return Role.equals(this, (Role)obj);
+	public int hashCode(){
+		return Objects.hash(persistentString);
 	}
 
-	static boolean equals(Role first, Role second){
-		if(first == null){
-			return second == null;
+	@Override
+	public boolean equals(Object obj){
+		if(this == obj){
+			return true;
 		}
-		return second != null && Objects.equals(first.getPersistentString(), second.getPersistentString());
+		if(obj == null){
+			return false;
+		}
+		if(getClass() != obj.getClass()){
+			return false;
+		}
+		Role other = (Role)obj;
+		return Objects.equals(persistentString, other.persistentString);
 	}
 
 }

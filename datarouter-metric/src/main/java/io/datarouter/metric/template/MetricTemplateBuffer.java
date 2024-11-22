@@ -17,20 +17,20 @@ package io.datarouter.metric.template;
 
 import java.util.Collection;
 
-import io.datarouter.instrumentation.metric.collector.MetricTemplateDto;
+import io.datarouter.metric.template.MetricTemplatePublisher.PublishedMetricTemplate;
 import io.datarouter.util.buffer.MemoryBuffer;
 import jakarta.inject.Singleton;
 
 @Singleton
 public class MetricTemplateBuffer{
 
-	public final MemoryBuffer<MetricTemplateDto> buffer;
+	public final MemoryBuffer<PublishedMetricTemplate> buffer;
 
 	public MetricTemplateBuffer(){
 		this.buffer = new MemoryBuffer<>("metricTemplateBuffer", 10_000);
 	}
 
-	public void offerMulti(Collection<MetricTemplateDto> dtos){
+	public void offerMulti(Collection<PublishedMetricTemplate> dtos){
 		buffer.offerMulti(dtos);
 	}
 

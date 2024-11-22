@@ -27,6 +27,7 @@ import org.testng.annotations.Test;
 
 import io.datarouter.ratelimiter.DatarouterRateLimiterConfig.DatarouterRateLimiterConfigBuilder;
 import io.datarouter.ratelimiter.storage.BaseTallyDao;
+import io.datarouter.ratelimiter.util.DatarouterRateLimiterKeyTool;
 import io.datarouter.util.time.ZoneIds;
 import jakarta.inject.Inject;
 
@@ -45,11 +46,30 @@ public class BaseMapRateLimiterIntegrationTests{
 
 	@Test
 	public void testGetTimeStr(){
-		Assert.assertEquals(makeTestRateLimiter(TimeUnit.DAYS).getTimeStr(getCal()), "2010-02-28T00:00:00Z");
-		Assert.assertEquals(makeTestRateLimiter(TimeUnit.HOURS).getTimeStr(getCal()), "2010-03-04T15:00:00Z");
-		Assert.assertEquals(makeTestRateLimiter(TimeUnit.MINUTES).getTimeStr(getCal()), "2010-03-04T16:30:00Z");
-		Assert.assertEquals(makeTestRateLimiter(TimeUnit.SECONDS).getTimeStr(getCal()), "2010-03-04T16:30:45Z");
-		Assert.assertEquals(makeTestRateLimiter(TimeUnit.MILLISECONDS).getTimeStr(getCal()),
+		Assert.assertEquals(
+				DatarouterRateLimiterKeyTool.getTimeStr(
+						getCal(),
+						makeTestRateLimiter(TimeUnit.DAYS).getConfig()),
+				"2010-02-28T00:00:00Z");
+		Assert.assertEquals(
+				DatarouterRateLimiterKeyTool.getTimeStr(
+						getCal(),
+						makeTestRateLimiter(TimeUnit.HOURS).getConfig()),
+				"2010-03-04T15:00:00Z");
+		Assert.assertEquals(
+				DatarouterRateLimiterKeyTool.getTimeStr(
+						getCal(),
+						makeTestRateLimiter(TimeUnit.MINUTES).getConfig()),
+				"2010-03-04T16:30:00Z");
+		Assert.assertEquals(
+				DatarouterRateLimiterKeyTool.getTimeStr(
+						getCal(),
+						makeTestRateLimiter(TimeUnit.SECONDS).getConfig()),
+				"2010-03-04T16:30:45Z");
+		Assert.assertEquals(
+				DatarouterRateLimiterKeyTool.getTimeStr(
+						getCal(),
+						makeTestRateLimiter(TimeUnit.MILLISECONDS).getConfig()),
 				"2010-03-04T16:30:49.030Z");
 	}
 

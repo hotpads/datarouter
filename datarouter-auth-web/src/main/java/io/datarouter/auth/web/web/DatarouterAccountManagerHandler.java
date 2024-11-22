@@ -17,6 +17,7 @@ package io.datarouter.auth.web.web;
 
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -30,12 +31,12 @@ import org.slf4j.LoggerFactory;
 import io.datarouter.auth.config.DatarouterAuthPaths;
 import io.datarouter.auth.service.CurrentUserSessionInfoService;
 import io.datarouter.auth.session.Session;
-import io.datarouter.auth.storage.account.BaseDatarouterAccountDao;
 import io.datarouter.auth.storage.account.DatarouterAccount;
+import io.datarouter.auth.storage.account.DatarouterAccountDao;
 import io.datarouter.auth.storage.account.DatarouterAccountKey;
 import io.datarouter.auth.storage.account.credential.DatarouterAccountCredential;
-import io.datarouter.auth.storage.account.permission.BaseDatarouterAccountPermissionDao;
 import io.datarouter.auth.storage.account.permission.DatarouterAccountPermission;
+import io.datarouter.auth.storage.account.permission.DatarouterAccountPermissionDao;
 import io.datarouter.auth.storage.account.permission.DatarouterAccountPermissionKey;
 import io.datarouter.auth.web.config.DatarouterAuthFiles;
 import io.datarouter.auth.web.config.metrics.DatarouterAccountMetrics;
@@ -46,7 +47,6 @@ import io.datarouter.auth.web.service.DatarouterAccountCredentialService.Account
 import io.datarouter.auth.web.service.DatarouterAccountCredentialService.DatarouterAccountSecretCredentialKeypairDto;
 import io.datarouter.auth.web.service.DatarouterAccountCredentialService.SecretCredentialDto;
 import io.datarouter.auth.web.service.DatarouterAccountDeleteAction;
-import io.datarouter.auth.web.service.DefaultDatarouterAccountAvailableEndpointsProvider;
 import io.datarouter.httpclient.endpoint.caller.CallerType;
 import io.datarouter.httpclient.endpoint.param.RequestBody;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
@@ -72,90 +72,34 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 
 	public static final String CHANGELOG_TYPE = "DatarouterAccount";
 
-	private final BaseDatarouterAccountDao datarouterAccountDao;
-	private final BaseDatarouterAccountPermissionDao datarouterAccountPermissionDao;
-	private final DatarouterAccountCredentialService acccountCredentialService;
-	private final DatarouterServerTypeSupplier serverType;
-	private final DatarouterAuthFiles files;
-	private final DatarouterAccountAvailableEndpointsProvider datarouterAccountAvailableEndpointsProvider;
-	private final Bootstrap4ReactPageFactory reactPageFactory;
-	private final ChangelogRecorder changelogRecorder;
-	private final MetricLinkBuilder metricLinkBuilder;
-	private final CurrentUserSessionInfoService currentSessionInfoService;
-	private final DatarouterAccountDeleteAction datarouterAccountDeleteAction;
-	private final AccountCallerTypeRegistry2 callerTypeRegistry;
-	private final DatarouterAuthPaths datarouterAuthPaths;
-	private final DatarouterAccountMetrics accountMetrics;
-
-	private final String path;
-
 	@Inject
-	public DatarouterAccountManagerHandler(
-			BaseDatarouterAccountDao datarouterAccountDao,
-			BaseDatarouterAccountPermissionDao datarouterAccountPermissionDao,
-			DatarouterAccountCredentialService acccountCredentialService,
-			DatarouterServerTypeSupplier serverType,
-			DatarouterAuthFiles files,
-			DatarouterAuthPaths paths,
-			DefaultDatarouterAccountAvailableEndpointsProvider defaultDatarouterAccountAvailableEndpointsProvider,
-			Bootstrap4ReactPageFactory reactPageFactory,
-			ChangelogRecorder changelogRecorder,
-			MetricLinkBuilder metricLinkBuilder,
-			CurrentUserSessionInfoService currentSessionInfoService,
-			DatarouterAccountDeleteAction datarouterAccountDeleteAction,
-			AccountCallerTypeRegistry2 callerTypeRegistry,
-			DatarouterAuthPaths datarouterAuthPaths,
-			DatarouterAccountMetrics accountMetrics){
-		this(datarouterAccountDao,
-				datarouterAccountPermissionDao,
-				acccountCredentialService,
-				serverType,
-				files,
-				defaultDatarouterAccountAvailableEndpointsProvider,
-				reactPageFactory,
-				changelogRecorder,
-				metricLinkBuilder,
-				currentSessionInfoService,
-				datarouterAccountDeleteAction,
-				callerTypeRegistry,
-				datarouterAuthPaths,
-				accountMetrics,
-				paths.datarouter.accountManager.toSlashedString());
-	}
-
-	protected DatarouterAccountManagerHandler(
-			BaseDatarouterAccountDao datarouterAccountDao,
-			BaseDatarouterAccountPermissionDao datarouterAccountPermissionDao,
-			DatarouterAccountCredentialService acccountCredentialService,
-			DatarouterServerTypeSupplier serverType,
-			DatarouterAuthFiles files,
-			DatarouterAccountAvailableEndpointsProvider datarouterAccountAvailableEndpointsProvider,
-			Bootstrap4ReactPageFactory reactPageFactory,
-			ChangelogRecorder changelogRecorder,
-			MetricLinkBuilder metricLinkBuilder,
-			CurrentUserSessionInfoService currentSessionInfoService,
-			DatarouterAccountDeleteAction datarouterAccountDeleteAction,
-			AccountCallerTypeRegistry2 callerTypeRegistry,
-			DatarouterAuthPaths datarouterAuthPaths,
-			DatarouterAccountMetrics accountMetrics,
-			String path){
-		this.datarouterAccountDao = datarouterAccountDao;
-		this.datarouterAccountPermissionDao = datarouterAccountPermissionDao;
-		this.acccountCredentialService = acccountCredentialService;
-		this.serverType = serverType;
-		this.files = files;
-		this.datarouterAccountAvailableEndpointsProvider = datarouterAccountAvailableEndpointsProvider;
-		this.reactPageFactory = reactPageFactory;
-		this.changelogRecorder = changelogRecorder;
-		this.metricLinkBuilder = metricLinkBuilder;
-		this.currentSessionInfoService = currentSessionInfoService;
-		this.datarouterAccountDeleteAction = datarouterAccountDeleteAction;
-		this.callerTypeRegistry = callerTypeRegistry;
-		this.datarouterAuthPaths = datarouterAuthPaths;
-		this.accountMetrics = accountMetrics;
-
-		this.path = path;
-	}
+	private DatarouterAccountDao datarouterAccountDao;
+	@Inject
+	private DatarouterAccountPermissionDao datarouterAccountPermissionDao;
+	@Inject
+	private DatarouterAccountCredentialService acccountCredentialService;
+	@Inject
+	private DatarouterServerTypeSupplier serverType;
+	@Inject
+	private DatarouterAuthFiles files;
+	@Inject
+	private DatarouterAccountAvailableEndpointsProvider datarouterAccountAvailableEndpointsProvider;
+	@Inject
+	private Bootstrap4ReactPageFactory reactPageFactory;
+	@Inject
+	private ChangelogRecorder changelogRecorder;
+	@Inject
+	private MetricLinkBuilder metricLinkBuilder;
+	@Inject
+	private CurrentUserSessionInfoService currentSessionInfoService;
+	@Inject
+	private DatarouterAccountDeleteAction datarouterAccountDeleteAction;
+	@Inject
+	private AccountCallerTypeRegistry2 callerTypeRegistry;
+	@Inject
+	private DatarouterAuthPaths datarouterAuthPaths;
+	@Inject
+	private DatarouterAccountMetrics accountMetrics;
 
 	@Handler(defaultHandler = true)
 	public Mav index(){
@@ -163,7 +107,8 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 				.withTitle("Datarouter Account Manager")
 				.withRequires(DatarouterWebRequireJs.SORTTABLE)
 				.withReactScript(files.js.accountManagerJsx)
-				.withJsStringConstant("REACT_BASE_PATH", request.getContextPath() + path + "/")
+				.withJsStringConstant("REACT_BASE_PATH", request.getContextPath()
+						+ datarouterAuthPaths.datarouter.accountManager.toSlashedString() + "/")
 				.withJsStringConstant("RENAMER_PATH", request.getContextPath()
 						+ datarouterAuthPaths.datarouter.accounts.renameAccounts.toSlashedString())
 				.withJsStringConstant("CALLER_TYPE_PATH", request.getContextPath()
@@ -264,7 +209,7 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 
 	@Handler
 	public DatarouterAccountDetailsDto setCredentialActivation(@RequestBody SetCredentialActivationDto dto){
-		Require.notBlank(accountName);
+		Require.notBlank(dto.accountName);
 		Require.notNull(dto.active);
 		String active = dto.active ? "Active" : "Inactive";
 		if(dto.secretName != null && StringTool.notEmptyNorWhitespace(dto.secretName)){
@@ -288,8 +233,9 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 	@Handler
 	public List<String> getAvailableEndpoints(){
 		List<String> availableEndpoints = new ArrayList<>();
-		availableEndpoints.add(DatarouterAccountPermissionKey.ALL_ENDPOINTS);
 		availableEndpoints.addAll(datarouterAccountAvailableEndpointsProvider.getAvailableEndpoints());
+		availableEndpoints.sort(Comparator.naturalOrder());
+		availableEndpoints.addFirst(DatarouterAccountPermissionKey.ALL_ENDPOINTS);
 		return availableEndpoints;
 	}
 

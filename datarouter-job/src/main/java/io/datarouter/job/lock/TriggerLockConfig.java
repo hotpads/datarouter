@@ -21,8 +21,11 @@ import java.util.Date;
 import java.util.Optional;
 
 import org.apache.logging.log4j.core.util.CronExpression;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TriggerLockConfig{
+	private static final Logger logger = LoggerFactory.getLogger(TriggerLockConfig.class);
 
 	// ask the job to stop before the next trigger, otherwise kill it at the next trigger time
 	public static final Duration GRACEFUL_STOP_WINDOW = Duration.ofSeconds(5);
@@ -64,7 +67,13 @@ public class TriggerLockConfig{
 		return customMaxDuration.orElseGet(
 				() -> cronExpression.map(exp -> exp.getNextValidTimeAfter(Date.from(triggerTime)))
 						.map(Date::toInstant)
-						.map(instant -> Duration.between(triggerTime, instant))
+						.map(instant -> {
+							Duration duration = Duration.between(triggerTime, instant);
+							logger.debug("hard max duration nextValidTime={} duration={}",
+									instant,
+									duration);
+							return duration;
+						})
 						.orElse(MAX_DURATION));
 	}
 

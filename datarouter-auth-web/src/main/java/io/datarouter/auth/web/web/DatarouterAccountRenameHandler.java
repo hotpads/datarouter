@@ -107,7 +107,8 @@ public class DatarouterAccountRenameHandler extends BaseHandler{
 		form.addSelectField()
 				.withLabel("Old AccountName")
 				.withName(P_oldAccountName)
-				.withValues(possibleOldAccountNames);
+				.withValues(possibleOldAccountNames)
+				.withSelected(oldAccountName.orElse(null));
 		form.addTextField()
 				.withLabel("New Account name")
 				.withError(errorNewAccountName)
@@ -120,7 +121,7 @@ public class DatarouterAccountRenameHandler extends BaseHandler{
 
 		if(submitAction.isEmpty() || form.hasErrors()){
 			return pageFactory.startBuilder(request)
-					.withTitle("Dataroutetr Account Rename")
+					.withTitle("Datarouter Account Rename")
 					.withContent(makeContent(form))
 					.buildMav();
 		}
@@ -177,7 +178,7 @@ public class DatarouterAccountRenameHandler extends BaseHandler{
 		renameDatarouterUserAccountMaps(oldAccountName, newAccountName);
 		timer.add("userAccountMaps");
 
-		logger.warn("{}", timer.toString());
+		logger.warn("{}", timer);
 	}
 
 	private void renameDatarouterAccount(String oldAccountName, String newAccountName){

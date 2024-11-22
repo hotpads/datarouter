@@ -118,6 +118,19 @@ implements PhysicalBlobStorageNode{
 	}
 
 	@Override
+	public Optional<byte[]> readEnding(PathbeanKey key, int length, Config config){
+		return Optional.of(key)
+				.map(codec::encodeKey)
+				.flatMap(encodedKey -> lazyClient.get().find(
+						encodedKey,
+						RedisRequestConfig.forRead(getName(), config)))
+				.map(bytes -> Arrays.copyOfRange(
+						bytes,
+						Math.max(0, bytes.length - length),
+						bytes.length));
+	}
+
+	@Override
 	public Map<PathbeanKey,byte[]> readMulti(List<PathbeanKey> keys, Config config){
 		return Scanner.of(keys)
 				.map(codec::encodeKey)

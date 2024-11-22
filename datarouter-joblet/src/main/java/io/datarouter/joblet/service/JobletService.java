@@ -25,7 +25,6 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,12 +54,11 @@ import io.datarouter.model.databean.Databean;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.config.PutMethod;
-import io.datarouter.storage.config.properties.ServerName;
-import io.datarouter.util.HashMethods;
 import io.datarouter.util.timer.PhaseTimer;
 import io.datarouter.util.tuple.Range;
 import io.datarouter.web.exception.ExceptionRecorder;
-import io.datarouter.webappinstance.service.CachedWebappInstancesOfThisServerType;
+import io.datarouter.webappinstance.service.ClusterThreadCountService;
+import io.datarouter.webappinstance.service.ClusterThreadCountService.InstanceThreadCounts;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
@@ -70,8 +68,6 @@ public class JobletService{
 
 	public static final int MAX_JOBLET_RETRIES = 10;
 
-	@Inject
-	private ServerName serverName;
 	@Inject
 	private JobletRequestQueueManager jobletRequestQueueManager;
 	@Inject
@@ -87,7 +83,7 @@ public class JobletService{
 	@Inject
 	private JobletTypeFactory jobletTypeFactory;
 	@Inject
-	private CachedWebappInstancesOfThisServerType cachedWebAppInstancesOfThisServerType;
+	private ClusterThreadCountService clusterThreadCountService;
 	@Inject
 	private DatarouterJobletQueueDao jobletQueueDao;
 
@@ -325,11 +321,9 @@ public class JobletService{
 		timer.add("update JobletRequest");
 		if(willRetry){
 			requeueJobletRequest(timer, jobletRequest);
-		}else{
-			if(jobletRequest.getQueueMessageKey() != null){
-				ack(jobletRequest);
-				timer.add("ack");
-			}
+		}else if(jobletRequest.getQueueMessageKey() != null){
+			ack(jobletRequest);
+			timer.add("ack");
 		}
 		logger.warn(
 				"errored {} set status={}, reservedBy=null, reservedAt=null numFailure={}",
@@ -368,70 +362,11 @@ public class JobletService{
 
 	/*------------------------- threads --------------------------------*/
 
-	public JobletServiceThreadCountResponse getThreadCountInfoForThisInstance(JobletType<?> jobletType){
-		//get cached inputs
-		List<String> serverNames = cachedWebAppInstancesOfThisServerType.getSortedServerNamesForThisWebApp();
-		int clusterLimit = jobletSettings.getClusterThreadCountForJobletType(jobletType);
-		int instanceLimit = jobletSettings.getThreadCountForJobletType(jobletType);
-		//calculate intermediate things
-		int numInstances = serverNames.size();
-		if(numInstances == 0){
-			return new JobletServiceThreadCountResponse(jobletType, clusterLimit, instanceLimit, 0, 0, 0, false, 0);
-		}
-		int minThreadsPerInstance = clusterLimit / numInstances;//round down
-		int numExtraThreads = clusterLimit % numInstances;
-		long jobletTypeHash = HashMethods.longDjbHash(jobletType.getPersistentString());
-		double hashFractionOfOne = (double)jobletTypeHash / (double)Long.MAX_VALUE;
-		int firstExtraInstanceIdx = (int)Math.floor(hashFractionOfOne * numInstances);
-		//calculate effective limit
-		int effectiveLimit = minThreadsPerInstance;
-		boolean runExtraThread = false;
-		if(minThreadsPerInstance >= instanceLimit){
-			effectiveLimit = instanceLimit;
-		}else{
-			String thisServerName = serverName.get();
-			runExtraThread = IntStream.range(0, numExtraThreads)
-					.mapToObj(threadIdx -> (firstExtraInstanceIdx + threadIdx) % numInstances)
-					.map(serverNames::get)
-					.anyMatch(thisServerName::equals);
-			if(runExtraThread){
-				++effectiveLimit;
-			}
-		}
-		return new JobletServiceThreadCountResponse(jobletType, clusterLimit, instanceLimit, minThreadsPerInstance,
-				numExtraThreads, firstExtraInstanceIdx, runExtraThread, effectiveLimit);
-	}
-
-	public static class JobletServiceThreadCountResponse{
-
-		public final JobletType<?> jobletType;
-		public final int clusterLimit;
-		public final int instanceLimit;
-		public final int minThreadsPerInstance;
-		public final int numExtraThreads;
-		public final int firstExtraInstanceIdxInclusive;
-		public final boolean runExtraThread;
-		public final int effectiveLimit;
-
-		public JobletServiceThreadCountResponse(
-				JobletType<?> jobletType,
-				int clusterLimit,
-				int instanceLimit,
-				int minThreadsPerInstance,
-				int numExtraThreads,
-				int firstExtraInstanceIdxInclusive,
-				boolean runExtraThread,
-				int effectiveLimit){
-			this.jobletType = jobletType;
-			this.clusterLimit = clusterLimit;
-			this.instanceLimit = instanceLimit;
-			this.minThreadsPerInstance = minThreadsPerInstance;
-			this.numExtraThreads = numExtraThreads;
-			this.firstExtraInstanceIdxInclusive = firstExtraInstanceIdxInclusive;
-			this.runExtraThread = runExtraThread;
-			this.effectiveLimit = effectiveLimit;
-		}
-
+	public InstanceThreadCounts getThreadCountInfoForThisInstance(JobletType<?> jobletType){
+		return clusterThreadCountService.getThreadCountInfoForThisInstance(
+				jobletType.getPersistentString(),
+				jobletSettings.getClusterThreadCountForJobletType(jobletType),
+				jobletSettings.getThreadCountForJobletType(jobletType));
 	}
 
 }

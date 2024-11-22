@@ -32,7 +32,7 @@ import io.datarouter.auth.role.RoleManager;
 import io.datarouter.auth.session.SessionBasedUser;
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
-import io.datarouter.model.field.codec.MilliTimeFieldCodec;
+import io.datarouter.model.field.codec.MilliTimeToLongFieldCodec;
 import io.datarouter.model.field.codec.StringListToBinaryCsvFieldCodec;
 import io.datarouter.model.field.codec.StringListToCsvFieldCodec;
 import io.datarouter.model.field.imp.StringEncodedField;
@@ -78,9 +78,9 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey,DatarouterUse
 				= new StringEncodedFieldKey<>("samlGroups", StringListToCsvFieldCodec.INSTANCE)
 				.withSize(CommonFieldSizes.MAX_LENGTH_LONGBLOB);
 		public static final LongEncodedFieldKey<MilliTime> createdMs =
-				new LongEncodedFieldKey<>("createdMs", new MilliTimeFieldCodec());
+				new LongEncodedFieldKey<>("createdMs", new MilliTimeToLongFieldCodec());
 		public static final LongEncodedFieldKey<MilliTime> lastLoggedInMs =
-				new LongEncodedFieldKey<>("lastLoggedInMs", new MilliTimeFieldCodec());
+				new LongEncodedFieldKey<>("lastLoggedInMs", new MilliTimeToLongFieldCodec());
 		public static final StringFieldKey zoneId = new StringFieldKey("zoneId");
 	}
 
@@ -170,7 +170,7 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey,DatarouterUse
 
 	public void setRoles(Collection<Role> roles){
 		this.roles = Scanner.of(roles)
-				.map(Role::getPersistentString)
+				.map(Role::persistentString)
 				.sort()
 				.distinct()
 				.list();

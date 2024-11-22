@@ -31,7 +31,7 @@ import io.datarouter.graphql.tool.GraphQlTool;
 import io.datarouter.graphql.util.GraphQlCounters;
 import io.datarouter.graphql.util.TypedGraphQlContext;
 import io.datarouter.graphql.web.GraphQlBaseHandler;
-import io.datarouter.gson.GsonTool;
+import io.datarouter.gson.DatarouterGsons;
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.instrumentation.metric.Metrics;
 import io.datarouter.instrumentation.trace.TracerTool;
@@ -86,8 +86,8 @@ implements DataFetcher<T>{
 	protected RequestParamValidatorResponseDto buildAndValidateArgs(){
 		Class<R> classOfR = (Class<R>)GraphQlTool.getArgumentClassFromFetcherClass(this.getClass());
 		if(!EmptyGraphQlArgumentType.class.isAssignableFrom(classOfR)){
-			JsonElement element = GsonTool.withUnregisteredEnums().toJsonTree(environment.getArguments());
-			args = GsonTool.withUnregisteredEnums().fromJson(element, classOfR);
+			JsonElement element = DatarouterGsons.withUnregisteredEnums().toJsonTree(environment.getArguments());
+			args = DatarouterGsons.withUnregisteredEnums().fromJson(element, classOfR);
 			return validateArgs();
 		}
 		return RequestParamValidatorResponseDto.makeSuccessResponse();

@@ -15,6 +15,7 @@
  */
 package io.datarouter.secret.service;
 
+import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
@@ -78,6 +79,11 @@ public class CachedSecretFactory implements DatarouterSharedSecretRetriever{
 			this.nameSupplier = nameSupplier;
 			this.secretClass = secretClass;
 			this.isShared = isShared;
+		}
+
+		public CachedSecret<T> withTtl(Duration ttl){
+			super.setTtl(ttl);
+			return this;
 		}
 
 		@Override

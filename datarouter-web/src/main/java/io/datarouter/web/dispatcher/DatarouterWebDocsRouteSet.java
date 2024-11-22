@@ -15,7 +15,7 @@
  */
 package io.datarouter.web.dispatcher;
 
-import io.datarouter.auth.role.DatarouterUserRole;
+import io.datarouter.auth.role.DatarouterUserRoleRegistry;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.browse.ViewReadmesHandler;
 import io.datarouter.web.browse.ViewSystemDocsHandler;
@@ -36,9 +36,9 @@ public class DatarouterWebDocsRouteSet extends BaseRouteSet{
 	protected DispatchRule applyDefault(DispatchRule rule){
 		return rule
 				.allowRoles(
-						DatarouterUserRole.USER,
-						DatarouterUserRole.DOC_USER,
-						DatarouterUserRole.DATAROUTER_ADMIN)
+						DatarouterUserRoleRegistry.USER,
+						DatarouterUserRoleRegistry.DOC_USER,
+						DatarouterUserRoleRegistry.DATAROUTER_ADMIN)
 				.withTag(Tag.DATAROUTER);
 	}
 

@@ -26,9 +26,10 @@ public class DocumentedEndpointJspDto{
 	private final String description;
 	private final DocumentedResponseJspDto response;
 	private final boolean isDeprecated;
+	private final String deprecatedOn;
+	private final String deprecationLink;
 	private final List<DocumentedErrorJspDto> errors;
 	private final String paramsEnumValuesDisplay;
-	private final String callerType;
 	private final String requestType;
 
 	public DocumentedEndpointJspDto(
@@ -39,9 +40,10 @@ public class DocumentedEndpointJspDto{
 			String description,
 			DocumentedResponseJspDto response,
 			boolean isDeprecated,
+			String deprecatedOn,
+			String deprecationLink,
 			List<DocumentedErrorJspDto> errors,
 			String paramsEnumValuesDisplay,
-			String callerType,
 			String requestType){
 		this.url = url;
 		this.implementation = implementation;
@@ -50,9 +52,10 @@ public class DocumentedEndpointJspDto{
 		this.description = description;
 		this.response = response;
 		this.isDeprecated = isDeprecated;
+		this.deprecatedOn = deprecatedOn;
+		this.deprecationLink = deprecationLink;
 		this.errors = errors;
 		this.paramsEnumValuesDisplay = paramsEnumValuesDisplay;
-		this.callerType = callerType;
 		this.requestType = requestType;
 	}
 
@@ -84,16 +87,20 @@ public class DocumentedEndpointJspDto{
 		return isDeprecated;
 	}
 
+	public String getDeprecatedOn(){
+		return deprecatedOn;
+	}
+
+	public String getDeprecationLink(){
+		return deprecationLink;
+	}
+
 	public List<DocumentedErrorJspDto> getErrors(){
 		return errors;
 	}
 
 	public String getParamsEnumValuesDisplay(){
 		return paramsEnumValuesDisplay;
-	}
-
-	public String getCallerType(){
-		return callerType;
 	}
 
 	public String getRequestType(){

@@ -26,14 +26,14 @@ import org.testng.annotations.Test;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-import io.datarouter.gson.GsonTool;
+import io.datarouter.gson.DatarouterGsons;
 
 public class OptionalLegacyTypeAdapterFactoryTests{
 
 	@Test(dataProvider = "dataProvider")
 	public void testInteroperability(Optional<Instant> instant){
 		Type type = new TypeToken<Optional<Instant>>(){}.getType();
-		Gson legacyAdapterGson = GsonTool.withoutEnums();
+		Gson legacyAdapterGson = DatarouterGsons.withoutEnums();
 		String legacyAdapterJson = legacyAdapterGson.toJson(instant);
 		Assert.assertEquals(legacyAdapterGson.fromJson(legacyAdapterJson, type), instant);
 	}

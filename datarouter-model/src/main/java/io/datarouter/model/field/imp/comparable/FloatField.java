@@ -49,6 +49,11 @@ public class FloatField extends BasePrimitiveField<Float,FloatFieldKey>{
 	}
 
 	@Override
+	public int getApproximateValueBytesLength(){
+		return value == null ? 0 : CODEC.length();
+	}
+
+	@Override
 	public int numKeyBytesWithSeparator(byte[] bytes, int offset){
 		return 4;
 	}

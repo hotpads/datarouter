@@ -106,7 +106,7 @@ public class SqlAlterTableGeneratorFactory{
 				print = Optional.of(scanner
 						.map(clauses -> makeAlter(alterTablePrefix, clauses) + "\n"
 								+ "\n"
-								+ percona(hostname, databaseName, tableName, clauses))
+								+ makePerconaToolkitCommand(hostname, databaseName, tableName, clauses))
 						.collect(Collectors.joining("\n\n")));
 			}
 			return new Ddl(
@@ -115,7 +115,7 @@ public class SqlAlterTableGeneratorFactory{
 					preventStartUp);
 		}
 
-		private static String percona(
+		private static String makePerconaToolkitCommand(
 				String hostname,
 				String databaseName,
 				String tableName,

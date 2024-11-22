@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 
 import io.datarouter.instrumentation.metric.MetricRecorder;
 import io.datarouter.instrumentation.metric.collector.MetricTemplateDto;
-import io.datarouter.instrumentation.metric.collector.MetricTemplateDto.Nested.MetricTemplateNodeDto;
+import io.datarouter.instrumentation.metric.collector.MetricTemplateDto.MetricTemplateNodeDto;
 import io.datarouter.instrumentation.metric.token.MetricToken.MetricLiteral;
 
 public class MetricTokenBuilder extends MetricRecorder{
@@ -44,7 +44,7 @@ public class MetricTokenBuilder extends MetricRecorder{
 	}
 
 	@Override
-	protected MetricTemplateDto makePatternDto(String description){
+	public MetricTemplateDto makePatternDto(String description){
 		List<MetricTemplateNodeDto> nodeDtos = nodes.stream()
 				.map(MetricToken::toDto)
 				.toList();

@@ -20,7 +20,7 @@ import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.auth.role.DatarouterUserRole;
+import io.datarouter.auth.role.DatarouterUserRoleRegistry;
 import io.datarouter.web.dispatcher.BaseRouteSetTests;
 
 public class NavBarMenuItemTests{
@@ -32,15 +32,15 @@ public class NavBarMenuItemTests{
 	// TODO braydonh: uncomment these
 //	private static final HttpServletRequest anonRequest = DatarouterSessionMock.getAnonymousHttpServletRequest();
 //	private static final HttpServletRequest userRequest = DatarouterSession.DatarouterSessionMock
-//			.getHttpServletRequestWithSessionRoles(DatarouterUserRole.USER);
+//			.getHttpServletRequestWithSessionRoles(DatarouterUserRoleRegistry.USER);
 //	private static final HttpServletRequest allDatarouterRolesRequest = DatarouterSessionMock
 //			.getAllDatarouterUserRolesHttpServletRequest();
 
 	// constants
 	private static final String ANON_REQ_HREF = BaseRouteSetTests.ANON_PATH;
-	private static final String USER_REQ_HREF = BaseRouteSetTests.getPathForRole(DatarouterUserRole.USER);
+	private static final String USER_REQ_HREF = BaseRouteSetTests.getPathForRole(DatarouterUserRoleRegistry.USER);
 	private static final String DR_ADMIN_REQ_HREF = BaseRouteSetTests.getPathForRole(
-			DatarouterUserRole.DATAROUTER_ADMIN);
+			DatarouterUserRoleRegistry.DATAROUTER_ADMIN);
 
 	private static final String SINGLE_HREF = "href";
 	private static final String SINGLE_TEXT = "text";

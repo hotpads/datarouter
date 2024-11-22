@@ -23,7 +23,7 @@ import java.util.function.Supplier;
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.field.Field;
-import io.datarouter.model.field.codec.MilliTimeFieldCodec;
+import io.datarouter.model.field.codec.MilliTimeToLongFieldCodec;
 import io.datarouter.model.field.imp.comparable.LongEncodedField;
 import io.datarouter.model.field.imp.comparable.LongEncodedFieldKey;
 import io.datarouter.model.field.imp.comparable.LongField;
@@ -49,7 +49,7 @@ public class TableCount extends BaseDatabean<TableCountKey,TableCount>{
 	public static class FieldKeys{
 		public static final LongFieldKey numRows = new LongFieldKey("numRows");
 		public static final LongEncodedFieldKey<MilliTime> updated = new LongEncodedFieldKey<>("updated",
-				new MilliTimeFieldCodec());
+				new MilliTimeToLongFieldCodec());
 		public static final LongFieldKey countTimeMs = new LongFieldKey("countTimeMs");
 		public static final LongFieldKey numSpans = new LongFieldKey("numSpans");
 		public static final LongFieldKey numSlowSpans = new LongFieldKey("numSlowSpans");

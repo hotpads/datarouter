@@ -23,7 +23,7 @@ public class DatarouterNodewatchExecutors{
 	@Singleton
 	public static class DatarouterTableSamplerExecutor extends ScalingThreadPoolExecutor{
 		public DatarouterTableSamplerExecutor(){
-			super("tableSampler", 3);
+			super("TableSampler", 3);
 		}
 	}
 

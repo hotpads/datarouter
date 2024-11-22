@@ -46,6 +46,7 @@ public class DatarouterWebPaths extends PathNode implements PathsRoot{
 		public final PathNode settings = leaf("settings");
 		public final PathNode shutdown = leaf("shutdown");
 		public final HandlerPaths handler = branch(HandlerPaths::new, "handler");
+		public final PathNode envVars = leaf("envVars");
 	}
 
 	public static class HandlerPaths extends PathNode{

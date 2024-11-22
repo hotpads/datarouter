@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDtoBuilder;
+import io.datarouter.instrumentation.metric.MetricLinkBuilder;
 import io.datarouter.job.BaseJob;
 import io.datarouter.job.config.DatarouterJobFiles;
 import io.datarouter.job.config.DatarouterJobPaths;
@@ -42,6 +43,7 @@ import io.datarouter.tasktracker.service.LongRunningTaskService.LongRunningTaskS
 import io.datarouter.tasktracker.service.LongRunningTaskTrackerFactory;
 import io.datarouter.tasktracker.storage.LongRunningTask;
 import io.datarouter.tasktracker.web.LongRunningTasksHandler;
+import io.datarouter.types.MilliTime;
 import io.datarouter.util.Require;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.util.time.DurationTool;
@@ -51,6 +53,7 @@ import io.datarouter.web.handler.mav.imp.InContextRedirectMav;
 import io.datarouter.web.handler.mav.imp.MessageMav;
 import io.datarouter.web.handler.mav.imp.StringMav;
 import io.datarouter.web.handler.types.Param;
+import io.datarouter.web.metriclinks.MetricLinkDto.LinkDto;
 import jakarta.inject.Inject;
 
 public class JobHandler extends BaseHandler{
@@ -74,6 +77,8 @@ public class JobHandler extends BaseHandler{
 	private ChangelogRecorder changelogRecorder;
 	@Inject
 	private ServerName serverName;
+	@Inject
+	private MetricLinkBuilder linkBuilder;
 
 	@Handler(defaultHandler = true)
 	Mav defaultMethod(){
@@ -170,6 +175,14 @@ public class JobHandler extends BaseHandler{
 		LongRunningTask lastFinishedTask = longRunningTaskSummary.lastCompletions.get(taskName);
 		Set<String> servers = longRunningTaskSummary.runningOnServers.getOrDefault(taskName, new TreeSet<>());
 		String serversCsv = String.join(",", servers);
+
+		String nextTrigger = jobPackage.getCronExpression()
+				.map(cronExpression -> cronExpression.getNextValidTimeAfter(new Date()))
+				.map(MilliTime::of)
+				.map(milliTime -> milliTime.format(getUserZoneId()))
+				.orElse("");
+		LinkDto metricLink = LinkDto.of("Datarouter job " + jobPackage.jobClass.getSimpleName());
+
 		return new TriggerJspDto(
 				rowId,
 				jobPackage.jobClass.getName(),
@@ -179,14 +192,15 @@ public class JobHandler extends BaseHandler{
 				heartbeatStatus,
 				jobPackage.usesLocking() ? "locked" : "parallel",
 				jobPackage.getCronExpressionString().orElse(""),
+				nextTrigger,
 				jobPackage.jobCategoryName,
 				lastFinishedTask == null ? null : lastFinishedTask.getFinishTimeString(getUserZoneId()),
 				lastFinishedTask == null ? -1 : lastFinishedTask.getFinish().toEpochMilli(),
-				serversCsv);
+				serversCsv,
+				linkBuilder.availableMetricsLink(metricLink.metric));
 	}
 
 	public static class JobCategoryJspDto{
-
 		private final String name;
 		private final boolean selected;
 
@@ -205,7 +219,6 @@ public class JobHandler extends BaseHandler{
 	}
 
 	public static class TriggerJspDto{
-
 		public final int rowId;
 		public final String className;
 		public final String classSimpleName;
@@ -214,10 +227,12 @@ public class JobHandler extends BaseHandler{
 		public final String heartbeatStatus;
 		public final String jobSchedule;
 		public final String cronExpression;
+		public final String nextExecution;
 		public final String categoryName;
 		public final String lastFinishTime;
 		public final Long lastFinishSortableTime;
 		public final String runningOnServers;
+		public final String metricsLink;
 
 		public TriggerJspDto(
 				int rowId,
@@ -228,10 +243,12 @@ public class JobHandler extends BaseHandler{
 				String status,
 				String jobSchedule,
 				String cronExpression,
+				String nextExecution,
 				String categoryName,
 				String lastFinishTime,
 				long lastFinishSortableTime,
-				String runningOnServers){
+				String runningOnServers,
+				String metricsLink){
 			this.rowId = rowId;
 			this.className = className;
 			this.classSimpleName = classSimpleName;
@@ -240,10 +257,12 @@ public class JobHandler extends BaseHandler{
 			this.heartbeatStatus = status;
 			this.jobSchedule = jobSchedule;
 			this.cronExpression = cronExpression;
+			this.nextExecution = nextExecution;
 			this.categoryName = categoryName;
 			this.lastFinishTime = lastFinishTime;
 			this.lastFinishSortableTime = lastFinishSortableTime;
 			this.runningOnServers = runningOnServers;
+			this.metricsLink = metricsLink;
 		}
 
 		public int getRowId(){
@@ -278,6 +297,10 @@ public class JobHandler extends BaseHandler{
 			return cronExpression;
 		}
 
+		public String getNextExecution(){
+			return nextExecution;
+		}
+
 		public String getCategoryName(){
 			return categoryName;
 		}
@@ -292,6 +315,10 @@ public class JobHandler extends BaseHandler{
 
 		public String getRunningOnServers(){
 			return runningOnServers;
+		}
+
+		public String getMetricsLink(){
+			return metricsLink;
 		}
 	}
 

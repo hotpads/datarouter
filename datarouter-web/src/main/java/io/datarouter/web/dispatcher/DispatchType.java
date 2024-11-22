@@ -15,12 +15,30 @@
  */
 package io.datarouter.web.dispatcher;
 
+/**
+ * The dispatch type is a field on a {@link DispatchRule} and helps categorize
+ * the rules in a {@link RouteSet}.
+ */
 public enum DispatchType{
 
-	DEFAULT,
-	API_ENDPOINT,
-	WEB_API,// ie: external FE facing endpoints
-	INTERNAL_LINK,
+	/** JAVA_ENDPOINT - Endpoints intended for use by other Datarouter Java services */
+	JAVA_ENDPOINT("Java Endpoint"),
+	/** DEFAULT - Placeholder value before the type is set */
+	DEFAULT("Default"),
+	/** EXTERNAL_ENDPOINT - Endpoints called by third-parties */
+	EXTERNAL_ENDPOINT("External Endpoint"),
+	/** INTERNAL_LINK - For routing internal links */
+	INTERNAL_LINK("Internal Link"),
+	/** MOBILE_ENDPOINT - Endpoints called by mobile applications */
+	MOBILE_ENDPOINT("Mobile Endpoint"),
+	/** WEB_API - Endpoints called by front-end applications */
+	WEB_API("Web API"),
 	;
+
+	public final String value;
+
+	DispatchType(String value){
+		this.value = value;
+	}
 
 }

@@ -36,7 +36,7 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
 @Singleton
-public class DatarouterAccountSecretCredentialDao extends BaseDao implements BaseDatarouterAccountSecretCredentialDao{
+public class DatarouterAccountSecretCredentialDao extends BaseDao{
 
 	public static class DatarouterAccountSecretCredentialDaoParams{
 
@@ -79,37 +79,30 @@ public class DatarouterAccountSecretCredentialDao extends BaseDao implements Bas
 		datarouter.register(node);
 	}
 
-	@Override
 	public void insertOrBust(DatarouterAccountSecretCredential databean){
 		node.put(databean, new Config().setPutMethod(PutMethod.INSERT_OR_BUST));
 	}
 
-	@Override
 	public void updateIgnore(DatarouterAccountSecretCredential databean){
 		node.put(databean, new Config().setPutMethod(PutMethod.UPDATE_IGNORE));
 	}
 
-	@Override
 	public void updateMultiIgnore(Collection<DatarouterAccountSecretCredential> databeans){
 		node.putMulti(databeans, new Config().setPutMethod(PutMethod.UPDATE_IGNORE));
 	}
 
-	@Override
 	public DatarouterAccountSecretCredential get(DatarouterAccountSecretCredentialKey key){
 		return node.get(key);
 	}
 
-	@Override
 	public Scanner<DatarouterAccountSecretCredential> scan(){
 		return node.scan();
 	}
 
-	@Override
 	public Scanner<DatarouterAccountSecretCredential> scanMulti(Collection<DatarouterAccountSecretCredentialKey> keys){
 		return node.scanMulti(keys);
 	}
 
-	@Override
 	public void delete(DatarouterAccountSecretCredentialKey key){
 		node.delete(key);
 	}

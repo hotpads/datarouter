@@ -15,7 +15,7 @@
  */
 package io.datarouter.conveyor.config;
 
-import io.datarouter.auth.role.DatarouterUserRole;
+import io.datarouter.auth.role.DatarouterUserRoleRegistry;
 import io.datarouter.conveyor.web.ConveyorHandler;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.BaseRouteSet;
@@ -35,9 +35,9 @@ public class DatarouterConveyorRouteSet extends BaseRouteSet{
 	protected DispatchRule applyDefault(DispatchRule rule){
 		return rule
 				.allowRoles(
-						DatarouterUserRole.DATAROUTER_ADMIN,
-						DatarouterUserRole.DATAROUTER_JOB,
-						DatarouterUserRole.DATAROUTER_MONITORING)
+						DatarouterUserRoleRegistry.DATAROUTER_ADMIN,
+						DatarouterUserRoleRegistry.DATAROUTER_JOB,
+						DatarouterUserRoleRegistry.DATAROUTER_MONITORING)
 				.withTag(Tag.DATAROUTER);
 	}
 }

@@ -32,6 +32,7 @@ import io.datarouter.clustersetting.web.browse.ClusterSettingBrowseHandler.Clust
 import io.datarouter.clustersetting.web.browse.ClusterSettingBrowseHandler.ClusterSettingBrowseLinks;
 import io.datarouter.conveyor.ConveyorAppListener;
 import io.datarouter.conveyor.ConveyorCounters;
+import io.datarouter.conveyor.config.DatarouterConveyorClusterThreadCountSettings;
 import io.datarouter.conveyor.config.DatarouterConveyorSettingRoot;
 import io.datarouter.conveyor.config.DatarouterConveyorShouldRunSettings;
 import io.datarouter.conveyor.config.DatarouterConveyorThreadCountSettings;
@@ -111,21 +112,33 @@ public class ConveyorHandler extends BaseHandler{
 									.orElse(td(row.name()));
 						})
 				.withHtmlColumn(
-						makeThTagWithFixedWidth("Threads"),
-						row -> td(NumberFormatter.addCommas(row.executor().getActiveCount())))
+						makeRightAlignTh("Active Threads"),
+						row -> td(NumberFormatter.addCommas(row.executor().getActiveCount()))
+								.withStyle("text-align:right"))
 				.withHtmlColumn(
-						makeThTagWithFixedWidth("Pool Size"),
-						row -> td(NumberFormatter.addCommas(row.executor().getPoolSize())))
+						makeRightAlignTh("Pool Size"),
+						row -> td(NumberFormatter.addCommas(row.executor().getPoolSize()))
+								.withStyle("text-align:right"))
 				.withHtmlColumn(
-						makeThTagWithFixedWidth("Max Threads"),
+						makeRightAlignTh("Max Instance Threads"),
 						row -> {
 							var linkParams = new ClusterSettingBrowseHandlerParams()
 									.withLocation(makeMaxThreadCountSettingLocation(row.name()));
 							String href = clusterSettingBrowseLinks.all(linkParams);
-							return td(a(String.valueOf(row.maxAllowedThreadCount())).withHref(href));
+							return td(a(NumberFormatter.addCommas(row.maxInstanceThreads())).withHref(href))
+									.withStyle("text-align:right");
 				})
 				.withHtmlColumn(
-						makeThTagWithFixedWidth("Enabled"),
+						makeRightAlignTh("Max Cluster Threads"),
+						row -> {
+							var linkParams = new ClusterSettingBrowseHandlerParams()
+									.withLocation(makeMaxClusterThreadCountSettingLocation(row.name()));
+							String href = clusterSettingBrowseLinks.all(linkParams);
+							return td(a(NumberFormatter.addCommas(row.maxClusterThreads())).withHref(href))
+									.withStyle("text-align:right");
+				})
+				.withHtmlColumn(
+						"Enabled",
 						row -> {
 							var linkParams = new ClusterSettingBrowseHandlerParams()
 									.withLocation(makeShouldRunSettingLocation(row.name()));
@@ -133,7 +146,7 @@ public class ConveyorHandler extends BaseHandler{
 							return td(a(String.valueOf(row.shouldRun())).withHref(href));
 				})
 				.withHtmlColumn(
-						makeThTagWithFixedWidth("Exceptions"),
+						"Exceptions",
 						row -> {
 							var chartIcon = i().withClass("fas fa-chart-line");
 							return externalLinkBuilder.get().exceptions(row.name())
@@ -142,7 +155,7 @@ public class ConveyorHandler extends BaseHandler{
 
 				})
 				.withHtmlColumn(
-						makeThTagWithFixedWidth("Traces"),
+						"Traces",
 						row -> {
 							var chartIcon = i().withClass("fas fa-chart-line");
 							return externalLinkBuilder.get().traces(row.name())
@@ -151,8 +164,8 @@ public class ConveyorHandler extends BaseHandler{
 						});
 	}
 
-	private ThTag makeThTagWithFixedWidth(String name){
-		return th(name).withStyle("width:100px;");
+	private ThTag makeRightAlignTh(String name){
+		return th(name).withStyle("text-align:right");
 	}
 
 	private String makeShouldRunSettingLocation(String settingName){
@@ -164,6 +177,12 @@ public class ConveyorHandler extends BaseHandler{
 	private String makeMaxThreadCountSettingLocation(String settingName){
 		return DatarouterConveyorSettingRoot.SETTING_NAME_PREFIX
 				+ DatarouterConveyorThreadCountSettings.SETTING_NAME_PREFIX
+				+ settingName;
+	}
+
+	private String makeMaxClusterThreadCountSettingLocation(String settingName){
+		return DatarouterConveyorSettingRoot.SETTING_NAME_PREFIX
+				+ DatarouterConveyorClusterThreadCountSettings.SETTING_NAME_PREFIX
 				+ settingName;
 	}
 

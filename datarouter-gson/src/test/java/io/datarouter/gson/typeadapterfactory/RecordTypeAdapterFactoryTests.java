@@ -29,11 +29,12 @@ import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
 
-import io.datarouter.gson.GsonTool;
+import io.datarouter.gson.DatarouterGsons;
 
 public class RecordTypeAdapterFactoryTests{
 
-	private static final Gson GSON = GsonTool.builderWithoutEnums()
+	private static final Gson GSON = DatarouterGsons.withoutEnums()
+			.newBuilder()
 			.setPrettyPrinting()
 			.create();
 

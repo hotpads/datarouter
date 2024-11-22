@@ -82,7 +82,7 @@ public class RedisClientManager extends BaseClientManager{
 		RedisAsyncCommands<byte[],byte[]> lettuceClient = client
 				.connect(ByteArrayCodec.INSTANCE)
 				.async();
-		logger.warn(timer.add("buildRegularClient").toString());
+		logger.warn("{}", timer.add("buildRegularClient"));
 		return new DatarouterRedisClient(clientType, clientId, lettuceClient);
 	}
 
@@ -115,7 +115,7 @@ public class RedisClientManager extends BaseClientManager{
 		RedisAdvancedClusterAsyncCommands<byte[],byte[]> lettuceClient = redisClusterClient
 				.connect(ByteArrayCodec.INSTANCE)
 				.async();
-		logger.warn(timer.add("buildClusterClient").toString());
+		logger.warn("{}", timer.add("buildClusterClient"));
 		return new DatarouterRedisClient(clientType, clientId, lettuceClient);
 	}
 

@@ -15,7 +15,7 @@
  */
 package io.datarouter.graphql.config;
 
-import io.datarouter.auth.role.DatarouterUserRole;
+import io.datarouter.auth.role.DatarouterUserRoleRegistry;
 import io.datarouter.graphql.example.ExampleGraphQlHandler;
 import io.datarouter.graphql.playground.GraphqlPlaygroundHandler;
 import io.datarouter.graphql.web.GraphQlDecoder;
@@ -42,10 +42,9 @@ public class DatarouterGraphQlRouteSet extends BaseRouteSet{
 	protected DispatchRule applyDefault(DispatchRule rule){
 		return rule
 				.allowRoles(
-						DatarouterUserRole.ADMIN,
-						DatarouterUserRole.DATAROUTER_ADMIN,
-						DatarouterUserRole.DOC_USER,
-						DatarouterUserRole.USER)
+						DatarouterUserRoleRegistry.DATAROUTER_ADMIN,
+						DatarouterUserRoleRegistry.DOC_USER,
+						DatarouterUserRoleRegistry.USER)
 				.withTag(Tag.DATAROUTER);
 	}
 

@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.datarouter.inject.guice.BaseGuiceModule;
-import io.datarouter.scanner.Scanner;
 
 /**
  * Marker interface to find list of Dao classes used in each module
@@ -37,9 +36,12 @@ public abstract class DaosModuleBuilder extends BaseGuiceModule{
 			this.daos = new ArrayList<>();
 		}
 
+		public SimpleDaosModule(List<Class<? extends Dao>> daos){
+			this.daos = daos;
+		}
+
 		public SimpleDaosModule(@SuppressWarnings("unchecked") Class<? extends Dao>...daos){
-			this.daos = Scanner.of(daos)
-					.list();
+			this(List.of(daos));
 		}
 
 		@Override

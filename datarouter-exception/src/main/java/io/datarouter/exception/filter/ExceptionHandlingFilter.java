@@ -48,6 +48,7 @@ import io.datarouter.web.handler.encoder.HandlerEncoder;
 import io.datarouter.web.inject.InjectorRetriever;
 import io.datarouter.web.shutdown.ShutdownService;
 import io.datarouter.web.util.RequestAttributeTool;
+import io.datarouter.web.util.http.IpAddressService;
 import io.datarouter.web.util.http.RequestTool;
 import io.datarouter.web.util.http.exception.HttpExceptionTool;
 
@@ -65,6 +66,7 @@ public abstract class ExceptionHandlingFilter implements Filter, InjectorRetriev
 	private ExceptionRecorder exceptionRecorder;
 	private ExceptionDetailsDetector exceptionDetailsDetector;
 	private DatarouterWebSettingRoot webSettings;
+	private IpAddressService ipAddressService;
 
 	@Override
 	public void init(FilterConfig filterConfig){
@@ -73,6 +75,7 @@ public abstract class ExceptionHandlingFilter implements Filter, InjectorRetriev
 		exceptionRecorder = injector.getInstance(ExceptionRecorder.class);
 		exceptionDetailsDetector = injector.getInstance(ExceptionDetailsDetector.class);
 		webSettings = injector.getInstance(DatarouterWebSettingRoot.class);
+		ipAddressService = injector.getInstance(IpAddressService.class);
 	}
 
 	@SuppressWarnings("unused")
@@ -94,8 +97,11 @@ public abstract class ExceptionHandlingFilter implements Filter, InjectorRetriev
 		Metrics.count(webappName + " response " + response.getStatus());
 		Metrics.count("response " + response.getStatus());
 		if(statusToLog.contains(response.getStatus())){
-			logger.warn("{} on {} ip={} userAgent={}", response.getStatus(), RequestTool.getRequestUriWithQueryString(
-					request), RequestTool.getIpAddress(request), RequestTool.getUserAgent(request));
+			logger.warn("{} on {} ip={} userAgent={}",
+					response.getStatus(),
+					RequestTool.getRequestUriWithQueryString(
+					request), ipAddressService.getIpAddress(request),
+					RequestTool.getUserAgent(request));
 		}
 	}
 

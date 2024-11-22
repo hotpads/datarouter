@@ -15,7 +15,6 @@
  */
 package io.datarouter.auth.model.dto;
 
-
 import io.datarouter.auth.model.enums.RoleUpdateType;
 
 public record UserRoleUpdateDto(

@@ -18,9 +18,15 @@ package io.datarouter.joblet.service;
 import static j2html.TagCreator.div;
 
 import java.time.ZoneId;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
+import io.datarouter.instrumentation.relay.rml.Rml;
+import io.datarouter.instrumentation.relay.rml.RmlBlock;
 import io.datarouter.joblet.config.DatarouterJobletPaths;
+import io.datarouter.joblet.service.JobletDailyDigestService.FailedJobletDto;
+import io.datarouter.joblet.storage.jobletrequest.JobletRequest;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
 import io.datarouter.web.digest.DailyDigestService;
@@ -39,8 +45,23 @@ public class FailedJobletDailyDigest implements DailyDigest{
 	private JobletDailyDigestService jobletDailyDigestService;
 
 	@Override
+	public String getTitle(){
+		return "Failed Joblets";
+	}
+
+	@Override
+	public DailyDigestType getType(){
+		return DailyDigestType.ACTIONABLE;
+	}
+
+	@Override
+	public DailyDigestGrouping getGrouping(){
+		return DailyDigestGrouping.LOW;
+	}
+
+	@Override
 	public Optional<DivTag> getEmailContent(ZoneId zoneId){
-		var rows = jobletDailyDigestService.getFailedJoblets();
+		Map<FailedJobletDto,List<JobletRequest>> rows = jobletDailyDigestService.getFailedJoblets();
 		if(rows.isEmpty()){
 			return Optional.empty();
 		}
@@ -50,18 +71,14 @@ public class FailedJobletDailyDigest implements DailyDigest{
 	}
 
 	@Override
-	public DailyDigestGrouping getGrouping(){
-		return DailyDigestGrouping.LOW;
-	}
-
-	@Override
-	public String getTitle(){
-		return "Failed Joblets";
-	}
-
-	@Override
-	public DailyDigestType getType(){
-		return DailyDigestType.ACTIONABLE;
+	public Optional<RmlBlock> getRelayContent(ZoneId zoneId){
+		Map<FailedJobletDto,List<JobletRequest>> rows = jobletDailyDigestService.getFailedJoblets();
+		if(rows.isEmpty()){
+			return Optional.empty();
+		}
+		return Optional.of(Rml.paragraph(
+				digestService.makeHeading("Failed Joblets", paths.datarouter.joblets.list),
+				jobletDailyDigestService.makeRelayTableForFailedJoblets(rows)));
 	}
 
 }

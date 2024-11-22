@@ -16,19 +16,27 @@
 package io.datarouter.bytes.blockfile.io.read.metadata;
 
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.datarouter.bytes.ByteLength;
+import io.datarouter.bytes.KvString;
 import io.datarouter.bytes.blockfile.block.decoded.BlockfileFooterBlock;
 import io.datarouter.bytes.blockfile.block.decoded.BlockfileHeaderBlock;
 import io.datarouter.bytes.blockfile.block.decoded.BlockfileHeaderBlock.BlockfileHeaderCodec;
 import io.datarouter.bytes.blockfile.block.decoded.BlockfileIndexBlock;
-import io.datarouter.bytes.blockfile.block.tokens.BlockfileBaseTokens;
 import io.datarouter.bytes.blockfile.block.tokens.BlockfileFooterTokens;
 import io.datarouter.bytes.blockfile.block.tokens.BlockfileHeaderTokens;
-import io.datarouter.bytes.blockfile.io.storage.BlockfileLocation;
 import io.datarouter.bytes.blockfile.io.storage.BlockfileStorage;
 
 public class BlockfileMetadataReader<T>{
+	private static final Logger logger = LoggerFactory.getLogger(BlockfileMetadataReader.class);
+
+	// Must be larger than the footer's length bytes.
+	private static final ByteLength INITIAL_ENDING_FETCH_SIZE = ByteLength.ofKiB(16);
 
 	public record BlockfileMetadataReaderConfig<T>(
 			BlockfileStorage storage,
@@ -38,6 +46,7 @@ public class BlockfileMetadataReader<T>{
 
 	private final BlockfileMetadataReaderConfig<T> config;
 	private final String name;
+
 	// cached values
 	private final BlockfileMetadataCache<Integer> cachedHeaderBlockLength
 			= new BlockfileMetadataCache<>(this::loadHeaderBlockLength);
@@ -72,9 +81,8 @@ public class BlockfileMetadataReader<T>{
 	}
 
 	private int loadHeaderBlockLength(){
-		var headerBlockLengthLocation = BlockfileHeaderTokens.lengthLocation();
-		byte[] headerBlockLengthBytes = config.storage().readPartial(name, headerBlockLengthLocation);
-		return BlockfileBaseTokens.decodeLength(headerBlockLengthBytes);
+		loadEndOfFile();
+		return cachedHeaderBlockLength.get();
 	}
 
 	/*---------- header ---------*/
@@ -83,14 +91,12 @@ public class BlockfileMetadataReader<T>{
 		return cachedHeader.get();
 	}
 
-	//TODO Overfetch the first N bytes of the file to get the headerLengh and header in one fetch
 	private BlockfileHeaderBlock loadHeader(){
-		BlockfileLocation valueLocation = BlockfileHeaderTokens.valueLocation(headerBlockLength());
-		byte[] valueBytes = config.storage().readPartial(name, valueLocation);
-		return config.headerCodec().decode(valueBytes);
+		loadEndOfFile();
+		return cachedHeader.get();
 	}
 
-	// For the case where we're scanning the file from the beggining without loading the trailer.
+	// For the case where we're scanning the file from the beginning without loading the footer.
 	public void readAndCacheHeader(InputStream inputStream){
 		int blockLength = BlockfileHeaderTokens.readBlockLength(inputStream);
 		cachedHeaderBlockLength.set(blockLength);
@@ -107,8 +113,8 @@ public class BlockfileMetadataReader<T>{
 	}
 
 	private BlockfileIndexBlock loadRootIndex(){
-		byte[] valueBytes = config.storage().readPartial(name, footer().rootIndexBlockLocation());
-		return header().indexBlockFormat().supplier().get().decode(valueBytes);
+		loadEndOfFile();
+		return cachedRootIndex.get();
 	}
 
 	/*---------- footer ---------*/
@@ -117,14 +123,9 @@ public class BlockfileMetadataReader<T>{
 		return cachedFooter.get();
 	}
 
-	//TODO Overfetch the last N bytes of the file to get the rootIndex and footer in one fetch
 	private BlockfileFooterBlock loadFooter(){
-		BlockfileLocation blockLocation = BlockfileFooterTokens.blockLocation(fileLength(), footerBlockLength());
-		BlockfileLocation valueLocation = BlockfileFooterTokens.valueLocation(blockLocation);
-		byte[] valueBytes = config.storage().readPartial(name, valueLocation);
-		BlockfileFooterBlock block = BlockfileFooterBlock.VALUE_CODEC.decode(valueBytes);
-		cachedHeaderBlockLength.set(block.headerBlockLocation().length());
-		return block;
+		loadEndOfFile();
+		return cachedFooter.get();
 	}
 
 	/*-------- footer block length ----------*/
@@ -134,9 +135,8 @@ public class BlockfileMetadataReader<T>{
 	}
 
 	private int loadFooterBlockLength(){
-		var lengthLocation = BlockfileFooterTokens.lengthLocation(fileLength());
-		byte[] lengthBytes = config.storage().readPartial(name, lengthLocation);
-		return BlockfileBaseTokens.decodeLength(lengthBytes);
+		loadEndOfFile();
+		return cachedFooterBlockLength.get();
 	}
 
 	/*---------- file length ---------*/
@@ -148,6 +148,59 @@ public class BlockfileMetadataReader<T>{
 	private long loadFileLength(){
 		return config.knownFileLength()
 				.orElseGet(() -> config.storage().length(name));
+	}
+
+	/*--------- end of file -----------*/
+
+	private void loadEndOfFile(){
+		int numBytesToFetch = INITIAL_ENDING_FETCH_SIZE.toBytesInt();
+		while(true){
+			byte[] endingBytes = config.storage().readEnding(name, numBytesToFetch);
+			if(tryLoadEndOfFile(endingBytes)){
+				return;
+			}
+			if(endingBytes.length < numBytesToFetch){
+				String message = String.format("Failed to load footer after reading entire file %s", new KvString()
+						.add("name", name)
+						.add("bytesFetched", numBytesToFetch, Number::toString));
+				throw new RuntimeException(message);
+			}
+			logger.warn("incomplete end of file", new KvString()
+					.add("name", name)
+					.add("bytesFetched", numBytesToFetch, Number::toString));
+			numBytesToFetch *= 2;
+		}
+	}
+
+	private boolean tryLoadEndOfFile(byte[] endingBytes){
+		// Obtain footerBlockLength.
+		int footerBlockLength = BlockfileFooterTokens.decodeFooterBlockLengthFromEndOfFileBytes(endingBytes);
+		cachedFooterBlockLength.set(footerBlockLength);
+
+		// Obtain footer.
+		if(footerBlockLength > endingBytes.length){
+			return false;
+		}
+		byte[] footerValueBytes = BlockfileFooterTokens.decodeFooterValueBytesFromEndOfFileBytes(endingBytes);
+		BlockfileFooterBlock footer = BlockfileFooterBlock.VALUE_CODEC.decode(footerValueBytes);
+		cachedFooter.set(footer);
+
+		// Obtain header from footer.
+		cachedHeaderBlockLength.set(footer.headerBlockLocation().length());
+		cachedHeader.set(config.headerCodec().decode(footer.headerBytes().bytes()));
+
+		// Obtain rootIndex.
+		int rootIndexOffsetFromEnd = footerBlockLength + footer.rootIndexBlockLocation().length();
+		if(rootIndexOffsetFromEnd > endingBytes.length){
+			return false;
+		}
+		byte[] rootIndexBytes = Arrays.copyOfRange(
+				endingBytes,
+				endingBytes.length - rootIndexOffsetFromEnd,
+				endingBytes.length - footerBlockLength);
+		BlockfileIndexBlock rootIndex = header().indexBlockFormat().supplier().get().decode(rootIndexBytes);
+		cachedRootIndex.set(rootIndex);
+		return true;
 	}
 
 }

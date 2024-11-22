@@ -31,6 +31,10 @@ public abstract class Cached<T> extends BaseCached<T>{
 		this.cacheForMs = ttl.toMillis();
 	}
 
+	public void setTtl(Duration ttl){
+		this.cacheForMs = ttl.toMillis();
+	}
+
 	@Override
 	protected boolean isExpired(){
 		return System.currentTimeMillis() - cachedAtMs > cacheForMs;

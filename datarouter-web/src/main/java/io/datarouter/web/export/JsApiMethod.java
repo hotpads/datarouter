@@ -18,17 +18,22 @@ package io.datarouter.web.export;
 import java.lang.reflect.Method;
 import java.util.Set;
 
-import io.datarouter.httpclient.endpoint.web.EndpointAccessType;
-import io.datarouter.httpclient.endpoint.web.JsClientType;
 import io.datarouter.httpclient.request.HttpRequestMethod;
+import io.datarouter.web.api.web.JsClientType;
+import io.datarouter.web.api.web.WebApiAccessType;
 
 public record JsApiMethod(
 		String url,
 		String methodName,
 		Method method,
 		Set<Class<? extends JsClientType>> clientTypes,
-		EndpointAccessType endpointAccessType,
+		WebApiAccessType webApiAccessType,
 		HttpRequestMethod httpRequestMethod,
 		String contextPath){
+
+	public boolean isLibraryMethod(){
+		return webApiAccessType == WebApiAccessType.READ_ONLY
+				|| webApiAccessType == WebApiAccessType.WRITE;
+	}
 
 }

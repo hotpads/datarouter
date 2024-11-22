@@ -22,14 +22,14 @@ import org.testng.annotations.Test;
 
 import com.google.gson.Gson;
 
-import io.datarouter.gson.GsonTool;
+import io.datarouter.gson.DatarouterGsons;
 
 public class LocalDateTimeLegacySerializerTests{
 
 	@Test
 	public void testInteroperability(){
 		LocalDateTime localDateTime = LocalDateTime.of(2022, 3, 24, 5, 21, 54, 654634554);
-		Gson legacyAdapterGson = GsonTool.withoutEnums();
+		Gson legacyAdapterGson = DatarouterGsons.withoutEnums();
 		String legacyAdapterJson = legacyAdapterGson.toJson(localDateTime);
 		Assert.assertEquals(legacyAdapterGson.fromJson(legacyAdapterJson, LocalDateTime.class), localDateTime);
 	}

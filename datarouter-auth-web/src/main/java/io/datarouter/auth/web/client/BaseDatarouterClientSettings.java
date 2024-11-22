@@ -36,11 +36,15 @@ implements DatarouterHttpClientSettings{
 	public final RefreshableSupplier<String> refreshableApiKey;
 	public final RefreshableSupplier<String> refreshablePrivateKey;
 
+	// Fixed value that could potentially become a setting, if needed.
+	public final String clientName;
+
 	//This newer constructor doesn't need DatarouterService
 	public BaseDatarouterClientSettings(
 			SettingFinder finder,
 			DefaultDatarouterAccountKeysSupplier defaultDatarouterAccountKeys,
 			String settingNodeName,
+			String clientName,
 			String contextPath,
 			DefaultSettingValue<String> endpointDomainDefaults){
 		super(finder, settingNodeName);
@@ -50,6 +54,7 @@ implements DatarouterHttpClientSettings{
 		privateKey = registerString("privateKey", defaultDatarouterAccountKeys.getDefaultSecretKey());
 		refreshableApiKey = new RefreshableStringCachedSetting(apiKey);
 		refreshablePrivateKey = new RefreshableStringCachedSetting(privateKey);
+		this.clientName = clientName;
 	}
 
 	@Override
@@ -75,6 +80,11 @@ implements DatarouterHttpClientSettings{
 	@Override
 	public RefreshableSupplier<String> getRefreshablePrivateKey(){
 		return refreshablePrivateKey;
+	}
+
+	@Override
+	public String getClientName(){
+		return clientName;
 	}
 
 }

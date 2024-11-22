@@ -72,6 +72,8 @@ public class TraceQueueBinaryDto extends BinaryDto<TraceQueueBinaryDto>{
 
 	@BinaryDtoField(index = 17, codec = TraceCategoryFieldCodec.class)
 	public final TraceCategory category;
+	@BinaryDtoField(index = 18)
+	public final String environment;
 
 	public TraceQueueBinaryDto(TraceBundleDto dto){
 		this(
@@ -100,7 +102,8 @@ public class TraceQueueBinaryDto extends BinaryDto<TraceQueueBinaryDto>{
 						? null
 						: Scanner.of(dto.traceSpanDtos)
 								.map(TraceSpanQueueBinaryDto::new)
-								.list());
+								.list(),
+				dto.traceDto.environment);
 	}
 
 	private TraceQueueBinaryDto(
@@ -121,7 +124,8 @@ public class TraceQueueBinaryDto extends BinaryDto<TraceQueueBinaryDto>{
 			List<TraceSaveReasonType> saveReasons,
 			TraceCategory category,
 			List<TraceThreadQueueBinaryDto> threads,
-			List<TraceSpanQueueBinaryDto> spans){
+			List<TraceSpanQueueBinaryDto> spans,
+			String environment){
 		this.traceparent = traceparent;
 		this.initialParentId = initialParentId;
 		this.context = context;
@@ -141,6 +145,7 @@ public class TraceQueueBinaryDto extends BinaryDto<TraceQueueBinaryDto>{
 
 		this.threads = threads;
 		this.spans = spans;
+		this.environment = environment;
 	}
 
 	public TraceBundleDto toTraceBundleDto(){
@@ -160,7 +165,8 @@ public class TraceQueueBinaryDto extends BinaryDto<TraceQueueBinaryDto>{
 				memoryAllocatedBytesBegin,
 				memoryAllocatedBytesEnded,
 				saveReasons,
-				category);
+				category,
+				environment);
 		List<TraceThreadDto> threadDtos = null;
 		if(threads != null){
 			threadDtos = Scanner.of(threads)

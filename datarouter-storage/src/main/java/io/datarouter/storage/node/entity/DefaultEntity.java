@@ -20,13 +20,15 @@ import java.util.function.Supplier;
 import io.datarouter.model.entity.BaseEntity;
 import io.datarouter.model.key.entity.EntityKey;
 
-public class DefaultEntity<EK extends EntityKey<EK>> extends BaseEntity<EK>{
+public class DefaultEntity<EK extends EntityKey<EK>>
+extends BaseEntity<EK>{
 
 	private DefaultEntity(EK key){
 		super(key);
 	}
 
-	public static <EK extends EntityKey<EK>> Supplier<DefaultEntity<EK>> supplier(Supplier<EK> entityKeySupplier){
+	public static <EK extends EntityKey<EK>>
+	Supplier<DefaultEntity<EK>> supplier(Supplier<EK> entityKeySupplier){
 		return () -> new DefaultEntity<>(entityKeySupplier.get());
 	}
 

@@ -19,14 +19,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.auth.service.DatarouterUserCreationService;
-import io.datarouter.auth.storage.account.BaseDatarouterAccountDao;
 import io.datarouter.auth.storage.account.DatarouterAccount;
+import io.datarouter.auth.storage.account.DatarouterAccountDao;
 import io.datarouter.auth.storage.account.DatarouterAccountKey;
-import io.datarouter.auth.storage.account.credential.BaseDatarouterAccountCredentialDao;
 import io.datarouter.auth.storage.account.credential.DatarouterAccountCredential;
+import io.datarouter.auth.storage.account.credential.DatarouterAccountCredentialDao;
 import io.datarouter.auth.storage.account.credential.DatarouterAccountCredentialKey;
-import io.datarouter.auth.storage.account.permission.BaseDatarouterAccountPermissionDao;
 import io.datarouter.auth.storage.account.permission.DatarouterAccountPermission;
+import io.datarouter.auth.storage.account.permission.DatarouterAccountPermissionDao;
 import io.datarouter.auth.storage.account.permission.DatarouterAccountPermissionKey;
 import io.datarouter.auth.storage.user.useraccountmap.BaseDatarouterUserAccountMapDao;
 import io.datarouter.auth.storage.user.useraccountmap.DatarouterUserAccountMap;
@@ -49,13 +49,13 @@ public class DatarouterAccountConfigAppListenerService{
 			DEFAULT_ENDPOINT_ACCESS = DatarouterAccountPermissionKey.ALL_ENDPOINTS;
 
 	@Inject
-	private BaseDatarouterAccountDao datarouterAccountDao;
+	private DatarouterAccountDao datarouterAccountDao;
 	@Inject
-	private BaseDatarouterAccountCredentialDao datarouterAccountCredentialDao;
+	private DatarouterAccountCredentialDao datarouterAccountCredentialDao;
 	@Inject
 	private BaseDatarouterUserAccountMapDao userAccountMapDao;
 	@Inject
-	private BaseDatarouterAccountPermissionDao accountPermissionDao;
+	private DatarouterAccountPermissionDao accountPermissionDao;
 	@Inject
 	private DefaultDatarouterAccountKeysSupplier defaultDatarouterAccountKeys;
 	@Inject

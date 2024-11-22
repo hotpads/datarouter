@@ -107,7 +107,7 @@ public class DeprovisionedUser extends BaseDatabean<DeprovisionedUserKey,Deprovi
 
 	public void setRoles(Collection<Role> roles){
 		this.roles = Scanner.of(roles)
-				.map(Role::getPersistentString)
+				.map(Role::persistentString)
 				.sort()
 				.distinct()
 				.list();

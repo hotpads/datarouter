@@ -15,45 +15,19 @@
  */
 package io.datarouter.web.handler.documentation;
 
-import java.util.Objects;
 import java.util.Set;
 
-public class DocumentedExampleDto{
+public record DocumentedExampleDto(
+		Object exampleObject,
+		Set<DocumentedExampleEnumDto> exampleEnumDtos){
 
-	public final Object exampleObject;
-	public final Set<DocumentedExampleEnumDto> exampleEnumDtos;
-
-	public DocumentedExampleDto(Object exampleObject, Set<DocumentedExampleEnumDto> enums){
-		this.exampleObject = exampleObject;
-		this.exampleEnumDtos = enums;
+	public DocumentedExampleDto(Object exampleObject){
+		this(exampleObject, Set.of());
 	}
 
-	public static class DocumentedExampleEnumDto{
-
-		public final String enumName;
-		public final String enumValuesDisplay;
-
-		public DocumentedExampleEnumDto(String enumName, String enumValuesDisplay){
-			this.enumName = enumName;
-			this.enumValuesDisplay = enumValuesDisplay;
-		}
-
-		@Override
-		public int hashCode(){
-			return Objects.hash(enumName, enumValuesDisplay);
-		}
-
-		@Override
-		public boolean equals(Object other){
-			if(this == other){
-				return true;
-			}
-			if(!(other instanceof DocumentedExampleEnumDto that)){
-				return false;
-			}
-			return this.enumName.equals(that.enumName) && this.enumValuesDisplay.equals(that.enumValuesDisplay);
-		}
-
+	public record DocumentedExampleEnumDto(
+			String enumName,
+			String enumValuesDisplay){
 	}
 
 }

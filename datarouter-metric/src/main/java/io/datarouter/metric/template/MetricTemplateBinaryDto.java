@@ -21,7 +21,7 @@ import io.datarouter.binarydto.codec.BinaryDtoIndexedCodec;
 import io.datarouter.binarydto.dto.BinaryDto;
 import io.datarouter.binarydto.dto.BinaryDtoField;
 import io.datarouter.instrumentation.metric.collector.MetricTemplateDto;
-import io.datarouter.instrumentation.metric.collector.MetricTemplateDto.Nested.MetricTemplateNodeDto;
+import io.datarouter.instrumentation.metric.collector.MetricTemplateDto.MetricTemplateNodeDto;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.Require;
 

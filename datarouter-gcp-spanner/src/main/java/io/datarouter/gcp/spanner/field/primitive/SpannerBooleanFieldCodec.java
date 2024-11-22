@@ -21,6 +21,7 @@ import com.google.cloud.spanner.Value;
 
 import io.datarouter.gcp.spanner.ddl.SpannerColumnType;
 import io.datarouter.gcp.spanner.field.SpannerBaseFieldCodec;
+import io.datarouter.gcp.spanner.field.SpannerValueTool;
 import io.datarouter.model.field.imp.comparable.BooleanField;
 
 public class SpannerBooleanFieldCodec extends SpannerBaseFieldCodec<Boolean,BooleanField>{
@@ -36,7 +37,7 @@ public class SpannerBooleanFieldCodec extends SpannerBaseFieldCodec<Boolean,Bool
 
 	@Override
 	public Value getSpannerValue(){
-		return Value.bool(field.getValue());
+		return SpannerValueTool.ofBoolean(field.getValue());
 	}
 
 	@Override

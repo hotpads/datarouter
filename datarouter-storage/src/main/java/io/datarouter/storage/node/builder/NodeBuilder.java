@@ -161,6 +161,30 @@ public class NodeBuilder<
 		return this;
 	}
 
+	public NodeBuilder<EK,PK,D,F> disableShadowTableExport(){
+		if(nodewatchConfigurationBuilder == null){
+			nodewatchConfigurationBuilder = new NodewatchConfigurationBuilder();
+		}
+		nodewatchConfigurationBuilder.disableShadowTableExport();
+		return this;
+	}
+
+	public NodeBuilder<EK,PK,D,F> disableShadowTableCompression(){
+		if(nodewatchConfigurationBuilder == null){
+			nodewatchConfigurationBuilder = new NodewatchConfigurationBuilder();
+		}
+		nodewatchConfigurationBuilder.disableShadowTableCompression();
+		return this;
+	}
+
+	public NodeBuilder<EK,PK,D,F> enableShadowTableExport(){
+		if(nodewatchConfigurationBuilder == null){
+			nodewatchConfigurationBuilder = new NodewatchConfigurationBuilder();
+		}
+		nodewatchConfigurationBuilder.enableShadowTableExport();
+		return this;
+	}
+
 	public <N extends NodeOps<PK,D>> N build(){
 		String databeanName = databeanSupplier.get().getDatabeanName();
 		String entityName = databeanName + "Entity";
@@ -187,7 +211,6 @@ public class NodeBuilder<
 				.withBlockfileNodeParams(blockfileNodeParams)
 				.build();
 		EntityNodeParams<EK,DefaultEntity<EK>> entityNodeParams = new EntityNodeParams<>(
-				clientId.getName() + "." + entityName,
 				entityKeySupplier,
 				DefaultEntity.supplier(entityKeySupplier),
 				entityName);

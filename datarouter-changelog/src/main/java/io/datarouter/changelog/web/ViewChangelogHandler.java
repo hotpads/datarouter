@@ -17,8 +17,8 @@ package io.datarouter.changelog.web;
 
 import static j2html.TagCreator.div;
 
-import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 
 import io.datarouter.auth.service.CurrentUserSessionInfoService;
 import io.datarouter.changelog.config.DatarouterChangelogPaths;
@@ -51,7 +51,7 @@ public class ViewChangelogHandler extends BaseHandler{
 	@Handler(defaultHandler = true)
 	public Mav viewAll(){
 		MemoryPager<Changelog> pager = new MemoryPager<>(
-				Collections.emptyList(),
+				List.of(),
 				new MemorySorter<>(),
 				request.getContextPath() + paths.datarouter.changelog.viewAll.toSlashedString(),
 				new HashMap<>(),

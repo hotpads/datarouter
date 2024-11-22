@@ -8,7 +8,7 @@ datarouter-ssh utilizes the jsch library to handle ssh connections.
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-ssh</artifactId>
-	<version>0.0.125</version>
+	<version>0.0.126</version>
 </dependency>
 ```
 

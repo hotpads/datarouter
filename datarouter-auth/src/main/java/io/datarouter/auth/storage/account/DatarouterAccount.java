@@ -22,7 +22,7 @@ import java.util.function.Supplier;
 
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
-import io.datarouter.model.field.codec.MilliTimeFieldCodec;
+import io.datarouter.model.field.codec.MilliTimeToLongFieldCodec;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
 import io.datarouter.model.field.imp.comparable.BooleanField;
@@ -48,11 +48,11 @@ public class DatarouterAccount extends BaseDatabean<DatarouterAccountKey,Datarou
 	public static class FieldKeys{
 		public static final LongEncodedFieldKey<MilliTime> createdAt = new LongEncodedFieldKey<>(
 				"createdAt",
-				new MilliTimeFieldCodec());
+				new MilliTimeToLongFieldCodec());
 		public static final StringFieldKey creator = new StringFieldKey("creator");
 		public static final LongEncodedFieldKey<MilliTime> lastUsedAt = new LongEncodedFieldKey<>(
 				"lastUsedAt",
-				new MilliTimeFieldCodec());
+				new MilliTimeToLongFieldCodec());
 		public static final BooleanFieldKey enableUserMappings = new BooleanFieldKey("enableUserMappings");
 		public static final StringFieldKey callerType = new StringFieldKey("callerType");
 		public static final StringFieldKey referrer = new StringFieldKey("referrer");

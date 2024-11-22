@@ -43,7 +43,7 @@ import io.datarouter.auth.model.dto.UserDeprovisioningStatusDto;
 import io.datarouter.auth.model.dto.UserRoleMetadata;
 import io.datarouter.auth.model.dto.UserRoleUpdateDto;
 import io.datarouter.auth.model.enums.RoleUpdateType;
-import io.datarouter.auth.role.DatarouterUserRole;
+import io.datarouter.auth.role.DatarouterUserRoleRegistry;
 import io.datarouter.auth.role.Role;
 import io.datarouter.auth.role.RoleManager;
 import io.datarouter.auth.service.CurrentUserSessionInfoService;
@@ -169,10 +169,10 @@ public class AdminEditUserHandler extends BaseHandler{
 							profileLink.orElse(""),
 							profileLink.isPresent() ? "" : "hidden",
 							Scanner.of(user.getRolesIgnoreSaml())
-									.map(Role::getPersistentString)
+									.map(Role::persistentString)
 									.list(),
 							Scanner.of(datarouterUserService.getUserRolesWithSamlGroups(user))
-									.map(Role::getPersistentString)
+									.map(Role::persistentString)
 									.list());
 				})
 				.list();
@@ -311,7 +311,7 @@ public class AdminEditUserHandler extends BaseHandler{
 					editor.getUsername(),
 					userToEdit.getUsername()));
 		}
-		datarouterUserEditService.updateTimeZone(editor, userToEdit, request.timeZoneId(), getSigninUrl());
+		datarouterUserEditService.updateTimeZone(editor, userToEdit, request.timeZoneId());
 		return ApiResponseDto.success(getEditUserDetailsDto(userToEdit.getUsername()));
 	}
 
@@ -375,7 +375,7 @@ public class AdminEditUserHandler extends BaseHandler{
 					editor,
 					newUsername,
 					null,
-					new HashSet<>(Set.of(DatarouterUserRole.REQUESTOR.getRole())), // needs to be mutable
+					new HashSet<>(Set.of(DatarouterUserRoleRegistry.REQUESTOR)), // needs to be mutable
 					true,
 					zoneId,
 					description);
@@ -399,7 +399,7 @@ public class AdminEditUserHandler extends BaseHandler{
 		List<UserRoleUpdateDto> requestedRolesUpdates = Scanner.of(requestedRoles)
 				.exclude(newUserRoles::contains)
 				.map(requestedRole ->
-						new UserRoleUpdateDto(requestedRole.getPersistentString(), RoleUpdateType.APPROVE))
+						new UserRoleUpdateDto(requestedRole.persistentString(), RoleUpdateType.APPROVE))
 				.list();
 		Optional<String> errorMessage = datarouterUserEditService.editRoles(getCurrentUser(), newUser,
 				requestedRolesUpdates, getSigninUrl());
@@ -441,7 +441,7 @@ public class AdminEditUserHandler extends BaseHandler{
 
 	private static List<String> roleToStrings(Collection<Role> roles){
 		return roles.stream()
-				.map(Role::getPersistentString)
+				.map(Role::persistentString)
 				.sorted(String.CASE_INSENSITIVE_ORDER)
 				.toList();
 	}
@@ -550,7 +550,10 @@ public class AdminEditUserHandler extends BaseHandler{
 	private static DeprovisionedUserDto buildDeprovisionedUserDto(SessionBasedUser user, Set<Role> roles){
 		return new DeprovisionedUserDto(
 				user.getUsername(),
-				Scanner.of(roles).map(Role::getPersistentString).sort(String.CASE_INSENSITIVE_ORDER).list(),
+				Scanner.of(roles)
+						.map(Role::persistentString)
+						.sort(String.CASE_INSENSITIVE_ORDER)
+						.list(),
 				user.isEnabled() ? UserDeprovisioningStatusDto.PROVISIONED : UserDeprovisioningStatusDto.NO_RECORD);
 	}
 

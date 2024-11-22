@@ -16,7 +16,6 @@
 package io.datarouter.joblet.service;
 
 import static j2html.TagCreator.a;
-import static j2html.TagCreator.td;
 
 import java.time.Duration;
 import java.util.List;
@@ -25,13 +24,15 @@ import java.util.Map.Entry;
 
 import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
+import io.datarouter.instrumentation.relay.rml.Rml;
+import io.datarouter.instrumentation.relay.rml.RmlBlock;
 import io.datarouter.joblet.enums.JobletStatus;
 import io.datarouter.joblet.storage.jobletrequest.DatarouterJobletRequestDao;
 import io.datarouter.joblet.storage.jobletrequest.JobletRequest;
 import io.datarouter.tasktracker.web.TaskTrackerExceptionLink;
+import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.web.config.ServletContextSupplier;
 import io.datarouter.web.config.service.DomainFinder;
-import io.datarouter.web.html.j2html.J2HtmlTable;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.TableTag;
 import jakarta.inject.Inject;
@@ -62,18 +63,6 @@ public class JobletDailyDigestService{
 				.list();
 	}
 
-	public TableTag makePageTableForOldJoblets(Map<OldJobletDto,List<OldJobletDto>> joblets){
-		return new J2HtmlTable<Entry<OldJobletDto,List<OldJobletDto>>>()
-				.withClasses("sortable table table-sm table-striped my-4 border")
-				.withColumn("Type", row -> row.getKey().type)
-				.withColumn("Execution Order", row -> row.getKey().executionOrder, Number::toString)
-				.withColumn("Status", row -> row.getKey().status.persistentString)
-				.withColumn("Num Timeouts", row -> row.getKey().numTimeouts, Number::toString)
-				.withColumn("Num Failures", row -> row.getKey().numFailures, Number::toString)
-				.withColumn("Count", row -> row.getValue().size(), Number::toString)
-				.build(joblets.entrySet());
-	}
-
 	public TableTag makeEmailTableForOldJoblets(Map<OldJobletDto,List<OldJobletDto>> joblets){
 		return new J2HtmlEmailTable<Entry<OldJobletDto,List<OldJobletDto>>>()
 				.withColumn("Type", row -> row.getKey().type)
@@ -85,22 +74,23 @@ public class JobletDailyDigestService{
 				.build(joblets.entrySet());
 	}
 
-	public TableTag makePageTableForFailedJoblets(Map<FailedJobletDto,List<JobletRequest>> map){
-		return new J2HtmlTable<Entry<FailedJobletDto,List<JobletRequest>>>()
-				.withClasses("sortable table table-sm table-striped my-4 border")
-				.withColumn("Type", row -> row.getKey().type)
-				.withColumn("Execution Order", row -> row.getKey().executionOrder, Number::toString)
-				.withColumn("Status", row -> row.getKey().status, JobletStatus::name)
-				.withColumn("Num Timeouts", row -> row.getKey().numTimeouts, Number::toString)
-				.withColumn("Num Failures", row -> row.getKey().numFailures, Number::toString)
-				.withHtmlColumn("Exception", row -> {
-					String exceptionId = row.getValue().stream()
-							.map(JobletRequest::getExceptionRecordId)
-							.findFirst()
-							.orElse("");
-					return td(makeExceptionLink(exceptionId));
-				})
-				.build(map.entrySet());
+	public RmlBlock makeRelayTableForOldJoblets(Map<OldJobletDto,List<OldJobletDto>> joblets){
+		return Rml.table(
+				Rml.tableRow(
+						Rml.tableHeader(Rml.text("Type")),
+						Rml.tableHeader(Rml.text("Execution Order")),
+						Rml.tableHeader(Rml.text("Status")),
+						Rml.tableHeader(Rml.text("Num Timeouts")),
+						Rml.tableHeader(Rml.text("Num Failures")),
+						Rml.tableHeader(Rml.text("Count"))))
+				.with(joblets.entrySet().stream()
+						.map(entry -> Rml.tableRow(
+								Rml.tableCell(Rml.text(entry.getKey().type)),
+								Rml.tableCell(Rml.text(NumberFormatter.addCommas(entry.getKey().executionOrder))),
+								Rml.tableCell(Rml.text(entry.getKey().status.persistentString)),
+								Rml.tableCell(Rml.text(NumberFormatter.addCommas(entry.getKey().numTimeouts))),
+								Rml.tableCell(Rml.text(NumberFormatter.addCommas(entry.getKey().numFailures))),
+								Rml.tableCell(Rml.text(NumberFormatter.addCommas(entry.getValue().size()))))));
 	}
 
 	public TableTag makeEmailTableForFailedJoblets(Map<FailedJobletDto,List<JobletRequest>> map){
@@ -120,6 +110,35 @@ public class JobletDailyDigestService{
 							return makeExceptionLink(exceptionId);
 						}))
 				.build(map.entrySet());
+	}
+
+	public RmlBlock makeRelayTableForFailedJoblets(Map<FailedJobletDto,List<JobletRequest>> map){
+		return Rml.table(
+				Rml.tableRow(
+						Rml.tableHeader(Rml.text("Type")),
+						Rml.tableHeader(Rml.text("Execution Order")),
+						Rml.tableHeader(Rml.text("Status")),
+						Rml.tableHeader(Rml.text("Num Timeouts")),
+						Rml.tableHeader(Rml.text("Num Failures")),
+						Rml.tableHeader(Rml.text("Exception"))))
+				.with(map.entrySet().stream()
+						.map(entry -> {
+							String exceptionRecordId = entry.getValue().stream()
+									.map(JobletRequest::getExceptionRecordId)
+									.findFirst()
+									.orElse("");
+							String exceptionHref = "https://" + domainFinder.getDomainPreferPublic()
+									+ contextSupplier.get().getContextPath()
+									+ exceptionLink.buildExceptionDetailLink(exceptionRecordId);
+
+							return Rml.tableRow(
+									Rml.tableCell(Rml.text(entry.getKey().type)),
+									Rml.tableCell(Rml.text(NumberFormatter.addCommas(entry.getKey().executionOrder))),
+									Rml.tableCell(Rml.text(entry.getKey().status.persistentString)),
+									Rml.tableCell(Rml.text(NumberFormatter.addCommas(entry.getKey().numTimeouts))),
+									Rml.tableCell(Rml.text(NumberFormatter.addCommas(entry.getKey().numFailures))),
+									Rml.tableCell(Rml.text(exceptionRecordId).link(exceptionHref)));
+						}));
 	}
 
 	private ATag makeExceptionLink(String exceptionRecordId){
@@ -146,7 +165,7 @@ public class JobletDailyDigestService{
 		}
 	}
 
-	private record FailedJobletDto(
+	public record FailedJobletDto(
 			String type,
 			int executionOrder,
 			JobletStatus status,

@@ -17,5 +17,8 @@ package io.datarouter.auth.detail;
 
 import java.util.Optional;
 
-public record DatarouterUserExternalDetail(String key, String name, Optional<String> link){
+public record DatarouterUserExternalDetail(
+		String key,
+		String name,
+		Optional<String> link){
 }

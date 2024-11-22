@@ -19,7 +19,6 @@ import static j2html.TagCreator.div;
 
 import java.time.Duration;
 import java.time.ZoneId;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -32,8 +31,8 @@ import io.datarouter.tasktracker.scheduler.LongRunningTaskStatus;
 import io.datarouter.tasktracker.storage.LongRunningTask;
 import io.datarouter.tasktracker.storage.LongRunningTaskDao;
 import io.datarouter.types.MilliTime;
+import io.datarouter.util.duration.DatarouterDuration;
 import io.datarouter.util.number.NumberFormatter;
-import io.datarouter.util.string.StringTool;
 import io.datarouter.web.exception.ExceptionLinkBuilder;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
@@ -138,7 +137,6 @@ public class LongRunningTasksHandler extends BaseHandler{
 		private final String lastItemProcessed;
 		private final Long numItemsProcessed;
 		private final MilliTime finishTime;
-		private final String finishTimeString;
 		private final String triggeredBy;
 		private final String exceptionRecordId;
 		private final ZoneId zoneId;
@@ -163,7 +161,6 @@ public class LongRunningTasksHandler extends BaseHandler{
 			this.lastItemProcessed = task.getLastItemProcessed();
 			this.numItemsProcessed = task.getNumItemsProcessed();
 			this.finishTime = task.getFinish();
-			this.finishTimeString = task.getFinishTimeString(zoneId);
 			this.triggeredBy = task.getTriggeredBy();
 			this.exceptionRecordId = task.getExceptionRecordId();
 			this.zoneId = zoneId;
@@ -217,10 +214,12 @@ public class LongRunningTasksHandler extends BaseHandler{
 			return durationString;
 		}
 
-		public Date getLastHeartbeat(){
+		public String getLastHeartbeat(){
 			return Optional.ofNullable(lastHeartbeat)
-					.map(MilliTime::toDate)
-					.orElse(null);
+					.map(time -> DatarouterDuration.ageMs(time.toEpochMilli()))
+					.map(DatarouterDuration::toString)
+					.map(str -> str + " ago")
+					.orElse("");
 		}
 
 		public Long getSortableLastHeartbeat(){
@@ -244,20 +243,22 @@ public class LongRunningTasksHandler extends BaseHandler{
 		}
 
 		public String getFinishTimeString(){
-			return Optional.ofNullable(finishTimeString)
-					.filter(StringTool::notEmpty)
-					.map("Finished "::concat)
-					.orElse(null);
+			return Optional.ofNullable(finishTime)
+					.map(time -> DatarouterDuration.ageMs(time.toEpochMilli()))
+					.map(DatarouterDuration::toString)
+					.map(str -> str + " ago")
+					.orElse("");
 		}
 
 		public String getStartSubtitle(){
-			var trigger = "Triggered " + triggerTime
-					+ "\nTriggered " + triggerTime.format(zoneId);
-			return Optional.ofNullable(startTime)
-					.map(time -> time.format(zoneId))
-					.map("\nStarted "::concat)
-					.map(trigger::concat)
-					.orElse(trigger);
+			String startTimeAgo = Optional.ofNullable(startTime)
+					.map(time -> DatarouterDuration.ageMs(time.toEpochMilli()))
+					.map(DatarouterDuration::toString)
+					.map(str -> str + " ago\n")
+					.orElse("");
+			return startTimeAgo
+					+ "Trigger " + triggerTime.format(zoneId) + "\n"
+					+ "Trigger " + DatarouterDuration.ageMs(triggerTime.toEpochMilli()) + " ago";
 		}
 
 		public String getTriggeredBy(){

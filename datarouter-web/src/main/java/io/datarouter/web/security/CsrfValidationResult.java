@@ -16,6 +16,6 @@
 package io.datarouter.web.security;
 
 public record CsrfValidationResult(
-	boolean success,
-	String errorMessage){
+		boolean success,
+		String errorMessage){
 }

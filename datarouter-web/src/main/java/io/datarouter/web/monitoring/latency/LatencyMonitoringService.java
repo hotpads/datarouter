@@ -15,7 +15,6 @@
  */
 package io.datarouter.web.monitoring.latency;
 
-import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
 import java.util.Map;
@@ -72,7 +71,7 @@ public class LatencyMonitoringService{
 
 	private final Map<String,Deque<CheckResult>> lastResultsByName = new ConcurrentHashMap<>();
 
-	private List<LatencyFuture> runningChecks = Collections.emptyList();
+	private List<LatencyFuture> runningChecks = List.of();
 
 	public void record(LatencyCheck check, DatarouterDuration duration, String infos){
 		saveGauge(check.name, duration);

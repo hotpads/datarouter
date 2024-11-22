@@ -43,8 +43,8 @@ import org.slf4j.LoggerFactory;
 import io.datarouter.auth.session.CurrentSessionInfo;
 import io.datarouter.auth.session.Session;
 import io.datarouter.bytes.KvString;
-import io.datarouter.gson.GsonTool;
-import io.datarouter.httpclient.circuitbreaker.DatarouterHttpClientIoExceptionCircuitBreaker;
+import io.datarouter.gson.DatarouterGsons;
+import io.datarouter.httpclient.client.DatarouterHttpCallTool;
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.instrumentation.exception.HttpRequestRecordDto;
 import io.datarouter.instrumentation.metric.Metrics;
@@ -61,7 +61,9 @@ import io.datarouter.instrumentation.trace.Tracer;
 import io.datarouter.instrumentation.trace.TracerThreadLocal;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.instrumentation.trace.W3TraceContext;
+import io.datarouter.instrumentation.validation.DatarouterInstrumentationValidationConstants.ExceptionInstrumentationConstants;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.storage.config.properties.EnvironmentName;
 import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.storage.config.properties.ServiceName;
 import io.datarouter.trace.conveyor.TraceBuffers;
@@ -78,6 +80,7 @@ import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.HandlerMetrics;
 import io.datarouter.web.inject.InjectorRetriever;
 import io.datarouter.web.util.RequestAttributeTool;
+import io.datarouter.web.util.http.IpAddressService;
 import io.datarouter.web.util.http.RecordedHttpHeaders;
 import io.datarouter.web.util.http.RequestTool;
 
@@ -89,6 +92,7 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 	// We therefore discard traces that are further into the future or past than this.
 	private static final Duration FUTURE_TIMESTAMP_TOLERANCE = Duration.ofSeconds(5);
 	private static final Duration PAST_TIMESTAMP_TOLERANCE = Duration.ofDays(1);
+	private static final int PAYLOAD_SIZE_METRIC_THRESHOLD_BYTES = 5242880; // 5 MB
 
 	private ServerName serverName;
 	private DatarouterTraceFilterSettingRoot traceSettings;
@@ -96,6 +100,8 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 	private TraceUrlBuilder urlBuilder;
 	private CurrentSessionInfo currentSessionInfo;
 	private ServiceName serviceName;
+	private EnvironmentName environmentName;
+	private IpAddressService ipAddressService;
 
 	@Override
 	public void init(FilterConfig filterConfig){
@@ -106,6 +112,8 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 		urlBuilder = injector.getInstance(TraceUrlBuilder.class);
 		currentSessionInfo = injector.getInstance(CurrentSessionInfo.class);
 		serviceName = injector.getInstance(ServiceName.class);
+		environmentName = injector.getInstance(EnvironmentName.class);
+		ipAddressService = injector.getInstance(IpAddressService.class);
 	}
 
 	@Override
@@ -116,8 +124,8 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 
 			// get or create TraceContext
 			boolean shouldBeRandomlySampled = false;
-			String traceparentStr = request.getHeader(DatarouterHttpClientIoExceptionCircuitBreaker.TRACEPARENT);
-			String tracestateStr = request.getHeader(DatarouterHttpClientIoExceptionCircuitBreaker.TRACESTATE);
+			String traceparentStr = request.getHeader(DatarouterHttpCallTool.TRACEPARENT);
+			String tracestateStr = request.getHeader(DatarouterHttpCallTool.TRACESTATE);
 			long traceCreatedEpochNanos = TraceTimeTool.epochNano();
 			var traceContext = new W3TraceContext(traceparentStr, tracestateStr, traceCreatedEpochNanos);
 			if(isTraceIdTimestampOutsideCutoffTimes(traceContext.getTraceparent())){
@@ -141,7 +149,7 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 			// traceflag might be incorrect because it might have been modified during request processing
 			if(traceSettings.addTraceparentHeader.get()){
 				response.setHeader(
-						DatarouterHttpClientIoExceptionCircuitBreaker.TRACEPARENT,
+						DatarouterHttpCallTool.TRACEPARENT,
 						traceContext.getTraceparent().toString());
 			}
 
@@ -209,7 +217,8 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 						threadAllocatedBytesBegin,
 						threadAllocatedBytesEnded,
 						saveReasons,
-						TraceCategory.HTTP_REQUEST);
+						TraceCategory.HTTP_REQUEST,
+						environmentName.get());
 
 				Long traceDurationMs = trace.getDurationInMs();
 				long mainThreadCpuTimeNs = saveCpuTime ? cpuTimeEnded - cpuTimeBegin : -1;
@@ -319,6 +328,11 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 					if(totalCpuTimeNs != -1){
 						HandlerMetrics.incTotalCpuTime(handlerClass, handlerMethodOpt.get(), totalCpuTimeMs);
 					}
+					if(traceSettings.savePayloadSizeBytes.get()
+							&& request.getContentLengthLong() > PAYLOAD_SIZE_METRIC_THRESHOLD_BYTES){
+						HandlerMetrics.savePayloadSize(handlerClassOpt.get(), handlerMethodOpt.get(),
+								request.getContentLengthLong());
+					}
 				}
 			}
 		}finally{
@@ -358,7 +372,7 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 				getRequestPath(request),
 				request.getQueryString(),
 				getBinaryBody(request),
-				RequestTool.getIpAddress(request),
+				ipAddressService.getIpAddress(request),
 				currentSessionInfo.getRoles(request).toString(),
 				userToken,
 				headersWrapper.getAcceptCharset(),
@@ -381,7 +395,8 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 				headersWrapper.getUserAgent(),
 				headersWrapper.getXForwardedFor(),
 				headersWrapper.getXRequestedWith(),
-				headersWrapper.getOthers());
+				headersWrapper.getOthers(),
+				environmentName.get());
 		return untrimmedRecord.trimmed();
 	}
 
@@ -396,8 +411,8 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 		}
 		byte[] binaryBody = RequestTool.tryGetBodyAsByteArray(request);
 		int originalLength = binaryBody.length;
-		return originalLength > HttpRequestRecordDto.BINARY_BODY_MAX_SIZE
-				? ArrayTool.trimToSize(binaryBody, HttpRequestRecordDto.BINARY_BODY_MAX_SIZE)
+		return originalLength > ExceptionInstrumentationConstants.MAX_SIZE_BINARY_BODY
+				? ArrayTool.trimToSize(binaryBody, ExceptionInstrumentationConstants.MAX_SIZE_BINARY_BODY)
 				: binaryBody;
 	}
 
@@ -409,7 +424,7 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 								.limit(10)
 								.map(str -> StringTool.trimToSize(str, 100))
 								.list());
-		return GsonTool.withUnregisteredEnums().toJson(trimmed);
+		return DatarouterGsons.withUnregisteredEnums().toJson(trimmed);
 	}
 
 	private Optional<String> offerTrace(TraceBundleDto traceBundle, HttpRequestRecordDto httpRequestRecord){

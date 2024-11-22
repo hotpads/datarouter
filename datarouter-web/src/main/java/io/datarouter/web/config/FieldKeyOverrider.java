@@ -29,8 +29,10 @@ public abstract class FieldKeyOverrider{
 	public abstract void override();
 
 	@SuppressWarnings("unchecked")
-	protected <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> void setAttribute(FieldKeyAttribute<?> attribute,
-			DatabeanFielder<PK,D> fielder, D databean){
+	protected <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> void setAttribute(
+			FieldKeyAttribute<?> attribute,
+			DatabeanFielder<PK,D> fielder,
+			D databean){
 		fielder.getFields(databean).stream()
 				.map(Field::getKey)
 				.map(BaseFieldKey.class::cast)

@@ -15,7 +15,7 @@
  */
 package io.datarouter.web.export;
 
-import io.datarouter.httpclient.endpoint.web.JsClientType;
+import io.datarouter.web.api.web.JsClientType;
 
 public class JsClientTypeDatarouterWebApp implements JsClientType{
 }

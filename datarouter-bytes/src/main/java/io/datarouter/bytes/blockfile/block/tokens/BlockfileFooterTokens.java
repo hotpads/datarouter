@@ -15,11 +15,17 @@
  */
 package io.datarouter.bytes.blockfile.block.tokens;
 
+import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.bytes.blockfile.block.BlockfileBlockType;
 import io.datarouter.bytes.blockfile.io.storage.BlockfileLocation;
 
+/**
+ * [prefix] - fixed length
+ * [footerValue] - variable length
+ * [footerLength] - fixed length (considered part of the block)
+ */
 public class BlockfileFooterTokens
 extends BlockfileBaseTokens{
 
@@ -55,13 +61,34 @@ extends BlockfileBaseTokens{
 				footerBlockLength);
 	}
 
+	public static BlockfileLocation valueLocation(long fileLength, int footerBlockLength){
+		BlockfileLocation blockLocation = blockLocation(fileLength, footerBlockLength);
+		return valueLocation(blockLocation);
+	}
+
 	public static BlockfileLocation valueLocation(BlockfileLocation blockLocation){
 		long from = blockLocation.from()
-				+ BlockfileBaseTokens.NUM_PREFIX_BYTES;
+				+ NUM_PREFIX_BYTES;
 		int length = blockLocation.length()
-				- BlockfileBaseTokens.NUM_PREFIX_BYTES
-				- BlockfileBaseTokens.NUM_LENGTH_BYTES;
+				- NUM_PREFIX_BYTES
+				- NUM_LENGTH_BYTES;
 		return new BlockfileLocation(from, length);
+	}
+
+	/*--------- end of file logic -----------*/
+
+	public static int decodeFooterBlockLengthFromEndOfFileBytes(byte[] endOfFileBytes){
+		int from = endOfFileBytes.length - NUM_LENGTH_BYTES;
+		int to = endOfFileBytes.length;
+		byte[] lengthBytes = Arrays.copyOfRange(endOfFileBytes, from, to);
+		return decodeLength(lengthBytes);
+	}
+
+	public static byte[] decodeFooterValueBytesFromEndOfFileBytes(byte[] endOfFileBytes){
+		int footerBlockLength = decodeFooterBlockLengthFromEndOfFileBytes(endOfFileBytes);
+		int from = endOfFileBytes.length - footerBlockLength + NUM_PREFIX_BYTES;
+		int to = endOfFileBytes.length - NUM_LENGTH_BYTES;
+		return Arrays.copyOfRange(endOfFileBytes, from, to);
 	}
 
 }

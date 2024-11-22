@@ -15,7 +15,7 @@
  */
 package io.datarouter.loadtest.config;
 
-import io.datarouter.auth.role.DatarouterUserRole;
+import io.datarouter.auth.role.DatarouterUserRoleRegistry;
 import io.datarouter.loadtest.web.LoadTestGetHandler;
 import io.datarouter.loadtest.web.LoadTestInsertHandler;
 import io.datarouter.loadtest.web.LoadTestScanHandler;
@@ -38,7 +38,7 @@ public class DatarouterLoadTestRouteSet extends BaseRouteSet{
 	@Override
 	protected DispatchRule applyDefault(DispatchRule rule){
 		return rule
-				.allowRoles(DatarouterUserRole.DATAROUTER_ADMIN, DatarouterUserRole.DATAROUTER_TOOLS)
+				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_ADMIN, DatarouterUserRoleRegistry.DATAROUTER_TOOLS)
 				.withTag(Tag.DATAROUTER);
 	}
 

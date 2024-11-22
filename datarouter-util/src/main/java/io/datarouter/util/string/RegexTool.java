@@ -15,6 +15,8 @@
  */
 package io.datarouter.util.string;
 
+import java.util.function.Function;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class RegexTool{
@@ -28,6 +30,16 @@ public class RegexTool{
 			characterClass += "\\u" + StringTool.pad(Integer.toHexString(c), '0', 4);
 		}
 		return (brackets ? "[" : "") + characterClass + (brackets ? "]" : "");
+	}
+
+	public static String buildWithReplacements(Pattern pattern, String input, Function<Matcher,String> toReplacement){
+		var sb = new StringBuilder();
+		var matcher = pattern.matcher(input);
+		while(matcher.find()){
+			matcher.appendReplacement(sb, toReplacement.apply(matcher));
+		}
+		matcher.appendTail(sb);
+		return sb.toString();
 	}
 
 }

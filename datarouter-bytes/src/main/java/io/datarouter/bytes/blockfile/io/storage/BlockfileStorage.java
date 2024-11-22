@@ -38,6 +38,15 @@ public interface BlockfileStorage{
 
 	byte[] readPartial(String name, BlockfileLocation location);
 
+	default BlockfileSegment readSegment(String name, BlockfileLocation location){
+		return new BlockfileSegment(
+				name,
+				location.from(),
+				readPartial(name, location));
+	}
+
+	byte[] readEnding(String name, int length);
+
 	InputStream readInputStream(String name, Threads threads, ByteLength chunkSize);
 
 	default InputStream readInputStream(String name, long from, long to, Threads threads, ByteLength chunkSize){

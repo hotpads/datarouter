@@ -21,6 +21,7 @@ import io.datarouter.instrumentation.refreshable.RefreshableSupplier;
 
 public interface DatarouterHttpClientSettings extends SimpleDatarouterHttpClientSettings{
 
+	String getClientName();
 	URI getEndpointUrl();
 	String getApiKey();
 	String getPrivateKey();

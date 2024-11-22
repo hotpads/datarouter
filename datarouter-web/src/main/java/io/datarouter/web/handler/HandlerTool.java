@@ -19,21 +19,28 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
+import java.time.DateTimeException;
+import java.time.Instant;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import io.datarouter.httpclient.endpoint.java.BaseEndpoint;
-import io.datarouter.httpclient.endpoint.java.EndpointTool;
+import io.datarouter.httpclient.endpoint.BaseEndpoint;
+import io.datarouter.httpclient.endpoint.JavaEndpointTool;
+import io.datarouter.httpclient.endpoint.java.BaseJavaEndpoint;
 import io.datarouter.httpclient.endpoint.link.BaseLink;
 import io.datarouter.httpclient.endpoint.link.LinkTool;
 import io.datarouter.httpclient.endpoint.link.NoOpResponseType;
 import io.datarouter.httpclient.endpoint.param.IgnoredField;
 import io.datarouter.httpclient.endpoint.param.RequestBody;
-import io.datarouter.httpclient.endpoint.web.BaseWebApi;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.lang.ClassTool;
 import io.datarouter.util.lang.ReflectionTool;
+import io.datarouter.util.time.ZoneIds;
+import io.datarouter.web.api.EndpointTool;
+import io.datarouter.web.api.mobile.BaseMobileEndpoint;
+import io.datarouter.web.api.web.BaseWebApi;
 import io.datarouter.web.dispatcher.DispatchRule;
 import io.datarouter.web.handler.BaseHandler.Handler;
 import io.datarouter.web.handler.BaseHandler.NoOpHandlerDecoder;
@@ -69,56 +76,84 @@ public class HandlerTool{
 			}
 			String methodName = method.getName();
 			if(path.equals(methodName)){
-				if(EndpointTool.paramIsEndpointObject(method)){
+				if(EndpointTool.paramIsJavaEndpointObject(method)){
 					Class<?> endpointType = method.getParameters()[0].getType();
 					@SuppressWarnings("unchecked")
-					BaseEndpoint<?,?> apiClass = ReflectionTool.createWithoutNoArgs(
-							(Class<? extends BaseEndpoint<?,?>>)endpointType);
+					BaseJavaEndpoint<?,?> javaEndpoint = ReflectionTool.createWithoutNoArgs(
+							(Class<? extends BaseJavaEndpoint<?,?>>)endpointType);
 
-					validateOptionalFields(apiClass.getClass());
+					validateOptionalFields(javaEndpoint.getClass());
 
-					String endpointPath = Scanner.of(apiClass.pathNode.toSlashedString().split("/"))
+					String endpointPath = Scanner.of(javaEndpoint.pathNode.toSlashedString().split("/"))
 							.findLast()
 							.get();
-					assertNonMismatch(methodName, endpointPath, handlerClass, apiClass.getClass(), path);
+					assertNonMismatch(methodName, endpointPath, handlerClass, javaEndpoint.getClass(), path);
 
 					Type methodReturnType = method.getGenericReturnType();
 					boolean isPrimitive = method.getReturnType().isPrimitive();
 					if(isPrimitive){
 						methodReturnType = ClassTool.getBoxedFromPrimitive(methodReturnType);
 					}
-					Type apiResponseType = EndpointTool.getResponseType(apiClass);
-					if(apiResponseType.equals(NoOpResponseType.class)){
+					Type endpointResponseType = JavaEndpointTool.getResponseType(javaEndpoint);
+					if(endpointResponseType.equals(NoOpResponseType.class)){
 						return;
 					}
-					validateUnknownTypes(apiResponseType, methodReturnType, handlerClass, apiClass.getClass());
-					validateReturnTypes(apiResponseType, methodReturnType, handlerClass, apiClass.getClass());
+					validateUnknownTypes(endpointResponseType, methodReturnType, handlerClass, javaEndpoint.getClass());
+					validateReturnTypes(endpointResponseType, methodReturnType, handlerClass, javaEndpoint.getClass());
 					return;
 				}
 
 				if(EndpointTool.paramIsWebApiObject(method)){
-					Class<?> type = method.getParameters()[0].getType();
+					Class<?> endpointType = method.getParameters()[0].getType();
 					@SuppressWarnings("unchecked")
-					BaseWebApi<?,?> apiClass = ReflectionTool.createWithoutNoArgs(
-							(Class<? extends BaseWebApi<?,?>>)type);
+					BaseWebApi<?,?> webApi = ReflectionTool.createWithoutNoArgs(
+							(Class<? extends BaseWebApi<?,?>>)endpointType);
 
-					validateOptionalFields(apiClass.getClass());
+					validateOptionalFields(webApi.getClass());
 
-					String webApiPath = Scanner.of(apiClass.pathNode.toSlashedString().split("/"))
+					String webApiPath = Scanner.of(webApi.pathNode.toSlashedString().split("/"))
 							.findLast()
 							.get();
-					assertNonMismatch(methodName, webApiPath, handlerClass, apiClass.getClass(), path);
+					assertNonMismatch(methodName, webApiPath, handlerClass, webApi.getClass(), path);
 					Type methodReturnType = method.getGenericReturnType();
 					boolean isPrimitive = method.getReturnType().isPrimitive();
 					if(isPrimitive){
 						methodReturnType = ClassTool.getBoxedFromPrimitive(methodReturnType);
 					}
-					Type apiResponseType = EndpointTool.getResponseType(apiClass.getClass());
+					Type apiResponseType = JavaEndpointTool.getResponseType(webApi.getClass());
 					if(apiResponseType.equals(NoOpResponseType.class)){
 						return;
 					}
-					validateUnknownTypes(apiResponseType, methodReturnType, handlerClass, apiClass.getClass());
-					validateReturnTypes(apiResponseType, methodReturnType, handlerClass, apiClass.getClass());
+					validateUnknownTypes(apiResponseType, methodReturnType, handlerClass, webApi.getClass());
+					validateReturnTypes(apiResponseType, methodReturnType, handlerClass, webApi.getClass());
+					return;
+				}
+
+				if(EndpointTool.paramIsMobileEndpointObject(method)){
+					Class<?> endpointType = method.getParameters()[0].getType();
+					@SuppressWarnings("unchecked")
+					BaseMobileEndpoint<?,?> mobileEndpoint = ReflectionTool.createWithoutNoArgs(
+							(Class<? extends BaseMobileEndpoint<?,?>>)endpointType);
+
+					validateOptionalFields(mobileEndpoint.getClass());
+
+					String mobileApiPath = Scanner.of(mobileEndpoint.pathNode.toSlashedString().split("/"))
+							.findLast()
+							.get();
+					assertNonMismatch(methodName, mobileApiPath, handlerClass, mobileEndpoint.getClass(), path);
+					Type methodReturnType = method.getGenericReturnType();
+					boolean isPrimitive = method.getReturnType().isPrimitive();
+					if(isPrimitive){
+						methodReturnType = ClassTool.getBoxedFromPrimitive(methodReturnType);
+					}
+					Type endpointResponseType = JavaEndpointTool.getResponseType(mobileEndpoint.getClass());
+					if(endpointResponseType.equals(NoOpResponseType.class)){
+						return;
+					}
+					validateUnknownTypes(endpointResponseType, methodReturnType, handlerClass,
+							mobileEndpoint.getClass());
+					validateReturnTypes(endpointResponseType, methodReturnType, handlerClass,
+							mobileEndpoint.getClass());
 					return;
 				}
 				return;
@@ -129,19 +164,19 @@ public class HandlerTool{
 	}
 
 	private static void validateUnknownTypes(
-			Type apiResponseType,
+			Type endpointResponseType,
 			Type methodReturnType,
 			Class<? extends BaseHandler> handlerClass,
-			Class<?> apiClass){
-		if(apiResponseType.toString().contains("?") || methodReturnType.toString().contains("?")){
+			Class<?> endpointClass){
+		if(endpointResponseType.toString().contains("?") || methodReturnType.toString().contains("?")){
 			throw new IllegalArgumentException(String.format(
 					"Unknown types are forbidden. Explicitly declare a return type  handler=%s endpoint=%s "
 							+ "handlerReturnType=%s "
 							+ "endpointResponseType=%s",
 					handlerClass.getSimpleName(),
-					apiClass.getSimpleName(),
+					endpointClass.getSimpleName(),
 					methodReturnType.getTypeName(),
-					apiResponseType.getTypeName()));
+					endpointResponseType.getTypeName()));
 		}
 	}
 
@@ -149,14 +184,14 @@ public class HandlerTool{
 			String methodName,
 			String apiPath,
 			Class<? extends BaseHandler> handlerClass,
-			Class<?> apiClass,
+			Class<?> endpointClass,
 			String path){
 		if(!methodName.equals(apiPath)){
 			throw new IllegalArgumentException(String.format(
 					"Handler Mismatch. handler=%s endpoint=%s, path=%s methodName=%s "
 							+ "dispatchRulePath=%s",
 					handlerClass.getSimpleName(),
-					apiClass.getClass().getSimpleName(),
+					endpointClass.getSimpleName(),
 					apiPath,
 					methodName,
 					path));
@@ -164,18 +199,18 @@ public class HandlerTool{
 	}
 
 	private static void validateReturnTypes(
-			Type apiResponseType,
+			Type endpointResponseType,
 			Type methodReturnType,
 			Class<? extends BaseHandler> handlerClass,
 			Class<?> responseTypeWrapperClass){
-		if(!methodReturnType.equals(apiResponseType)){
+		if(!methodReturnType.equals(endpointResponseType)){
 			throw new IllegalArgumentException(String.format(
 					"Handler Response Type Mismatch. handler=%s endpoint=%s handlerReturnType=%s "
 							+ "endpointResponseType=%s",
 					handlerClass.getSimpleName(),
 					responseTypeWrapperClass.getSimpleName(),
 					methodReturnType.getTypeName(),
-					apiResponseType.getTypeName()));
+					endpointResponseType.getTypeName()));
 		}
 	}
 
@@ -207,10 +242,9 @@ public class HandlerTool{
 		}
 	}
 
-	@SuppressWarnings({"unchecked", "deprecation"})
-	public static List<Class<? extends BaseEndpoint<?,?>>> getEndpointsFromHandler(
+	public static List<Class<? extends BaseEndpoint>> getEndpointsFromHandler(
 			Class<? extends BaseHandler> handler){
-		List<Class<? extends BaseEndpoint<?,?>>> endpoints = new ArrayList<>();
+		List<Class<? extends BaseEndpoint>> endpoints = new ArrayList<>();
 		for(Method method : handler.getDeclaredMethods()){
 			if(Modifier.isStatic(method.getModifiers())){
 				continue;
@@ -222,37 +256,13 @@ public class HandlerTool{
 				// doesn't work when defaultHandler = true
 				continue;
 			}
-			if(!EndpointTool.paramIsEndpointObject(method)){
+			if(!EndpointTool.paramIsBaseEndpointObject(method)){
 				continue;
 			}
 			Class<?> endpointType = method.getParameters()[0].getType();
-			endpoints.add((Class<? extends BaseEndpoint<?,?>>)endpointType);
+			endpoints.add((Class<? extends BaseEndpoint>)endpointType);
 		}
 		return endpoints;
-	}
-
-	@SuppressWarnings({"unchecked", "deprecation"})
-	public static List<Class<? extends BaseWebApi<?,?>>> getWebApisFromHandler(
-			Class<? extends BaseHandler> handler){
-		List<Class<? extends BaseWebApi<?,?>>> clazzes = new ArrayList<>();
-		for(Method method : handler.getDeclaredMethods()){
-			if(Modifier.isStatic(method.getModifiers())){
-				continue;
-			}
-			if(method.getAnnotation(Handler.class) == null){
-				continue;
-			}
-			if(method.getAnnotation(Handler.class).defaultHandler()){
-				// doesn't work when defaultHandler = true
-				continue;
-			}
-			if(!EndpointTool.paramIsWebApiObject(method)){
-				continue;
-			}
-			Class<?> type = method.getParameters()[0].getType();
-			clazzes.add((Class<? extends BaseWebApi<?,?>>)type);
-		}
-		return clazzes;
 	}
 
 	@SuppressWarnings({"unchecked", "deprecation"})
@@ -297,6 +307,31 @@ public class HandlerTool{
 			encoderClass = rule.getDefaultHandlerEncoder();
 		}
 		return encoderClass;
+	}
+
+	public static List<Method> getHandlerAnnotatedMethods(Class<? extends BaseHandler> handler){
+		return Scanner.of(handler.getDeclaredMethods())
+				.include(possibleMethod -> possibleMethod.isAnnotationPresent(Handler.class))
+				.list();
+	}
+
+	public static void validateHandlerMethodDeprecationAnnotation(Method handlerMethod){
+		Handler handlerAnnotation = handlerMethod.getAnnotation(Handler.class);
+		if(handlerAnnotation != null && !handlerAnnotation.deprecatedOn().isEmpty()){
+			try{
+				parseHandlerDeprecatedOnDate(handlerAnnotation.deprecatedOn());
+			}catch(DateTimeException | ArithmeticException e){
+				throw new IllegalArgumentException("Invalid date [" + handlerAnnotation.deprecatedOn()
+						+ "] for @Handler annotation on " + handlerMethod.getDeclaringClass().getSimpleName() + "."
+						+ handlerMethod.getName() + "(): Must be of format YYYY-MM-DD.", e);
+			}
+		}
+	}
+
+	public static Instant parseHandlerDeprecatedOnDate(String deprecatedOn){
+		return LocalDate.parse(deprecatedOn)
+				.atStartOfDay(ZoneIds.UTC)
+				.toInstant();
 	}
 
 }

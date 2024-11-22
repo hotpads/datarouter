@@ -23,9 +23,13 @@ import java.time.ZoneId;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
+import io.datarouter.instrumentation.relay.rml.Rml;
+import io.datarouter.instrumentation.relay.rml.RmlBlock;
 import io.datarouter.nodewatch.config.DatarouterNodewatchPaths;
+import io.datarouter.nodewatch.service.TableSizeMonitoringService.AboveThreshold;
 import io.datarouter.nodewatch.service.TableSizeMonitoringService.PercentageCountStat;
 import io.datarouter.nodewatch.service.TableSizeMonitoringService.ThresholdCountStat;
 import io.datarouter.nodewatch.util.TableSizeMonitoringEmailBuilder;
@@ -52,6 +56,21 @@ public class NodewatchAboveThresholdsDailyDigest implements DailyDigest{
 	private DatarouterNodewatchPaths paths;
 
 	@Override
+	public String getTitle(){
+		return "Table Thresholds";
+	}
+
+	@Override
+	public DailyDigestType getType(){
+		return DailyDigestType.SUMMARY;
+	}
+
+	@Override
+	public DailyDigestGrouping getGrouping(){
+		return DailyDigestGrouping.LOW;
+	}
+
+	@Override
 	public Optional<DivTag> getEmailContent(ZoneId zoneId){
 		Optional<TableRow> aboveThresholdList = Scanner
 				.of(monitoringService.getAboveThresholdLists().aboveThreshold())
@@ -74,8 +93,36 @@ public class NodewatchAboveThresholdsDailyDigest implements DailyDigest{
 	}
 
 	@Override
-	public DailyDigestType getType(){
-		return DailyDigestType.SUMMARY;
+	public Optional<RmlBlock> getRelayContent(ZoneId zoneId){
+		AboveThreshold thresholds = monitoringService.getAboveThresholdLists();
+
+		Optional<Table> aboveThreshold = Optional.of(thresholds.aboveThreshold())
+				.filter(items -> !items.isEmpty())
+				.map(items -> emailBuilder.makeRelayThresholdCountStatTable("Threshold", items))
+				.map(table -> new Table("Tables exceeding threshold", table));
+
+		Optional<Table> abovePercentage = Optional.of(thresholds.abovePercentage())
+				.filter(items -> !items.isEmpty())
+				.map(items -> emailBuilder.makeRelayPercentageCountStatTable("Previous Count", items))
+				.map(table -> new Table(
+						"Tables that grew or shrank by more than " + TableSizeMonitoringService.PERCENTAGE_THRESHOLD
+								+ "%",
+						table));
+		List<Table> tables = Scanner.of(aboveThreshold, abovePercentage)
+				.concatOpt(Function.identity())
+				.sort(Comparator.comparing(Table::header))
+				.list();
+
+		if(tables.isEmpty()){
+			return Optional.empty();
+		}
+
+		return Optional.of(Rml.paragraph(
+				digestService.makeHeading("Table Thresholds", paths.datarouter.nodewatch.tables))
+				.with(tables.stream()
+						.flatMap(table -> Stream.of(
+								Rml.heading(4, Rml.text(table.header())),
+								table.table()))));
 	}
 
 	private Optional<TableRow> makePercentageEmailTable(List<PercentageCountStat> rows, String header){
@@ -99,14 +146,9 @@ public class NodewatchAboveThresholdsDailyDigest implements DailyDigest{
 			DivTag content){
 	}
 
-	@Override
-	public DailyDigestGrouping getGrouping(){
-		return DailyDigestGrouping.LOW;
-	}
-
-	@Override
-	public String getTitle(){
-		return "Table Thresholds";
+	private record Table(
+			String header,
+			RmlBlock table){
 	}
 
 }

@@ -24,6 +24,7 @@ import com.google.cloud.spanner.Value;
 
 import io.datarouter.gcp.spanner.ddl.SpannerColumnType;
 import io.datarouter.gcp.spanner.field.SpannerBaseFieldCodec;
+import io.datarouter.gcp.spanner.field.SpannerValueTool;
 import io.datarouter.model.field.imp.comparable.InstantField;
 
 public class SpannerInstantFieldCodec extends SpannerBaseFieldCodec<Instant,InstantField>{
@@ -39,7 +40,7 @@ public class SpannerInstantFieldCodec extends SpannerBaseFieldCodec<Instant,Inst
 
 	@Override
 	public Value getSpannerValue(){
-		return Value.timestamp(Timestamp.of(java.sql.Timestamp.from(field.getValue())));
+		return SpannerValueTool.ofInstant(field.getValue());
 	}
 
 	@Override

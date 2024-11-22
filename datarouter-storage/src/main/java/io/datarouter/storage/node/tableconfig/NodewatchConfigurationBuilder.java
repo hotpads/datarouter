@@ -17,8 +17,11 @@ package io.datarouter.storage.node.tableconfig;
 
 public class NodewatchConfigurationBuilder{
 
+	public static final boolean DEFAULT_ENABLED = true;
 	public static final int DEFAULT_SAMPLE_SIZE = 1_000_000;
 	public static final int DEFAULT_BATCH_SIZE = 1_000;
+	public static final boolean DEFAULT_ENABLE_SHADOW_TABLE_EXPORT = true;
+	public static final boolean DEFAULT_ENABLE_SHADOW_TABLE_COMPRESSION = true;
 
 	private boolean enabled;
 	private int sampleSize;
@@ -26,13 +29,17 @@ public class NodewatchConfigurationBuilder{
 	private boolean enabledPercentageAlert;
 	private boolean enabledThresholdAlert;
 	private Long threshold;
+	private boolean enableShadowTableExport;
+	private boolean enableShadowTableCompression;
 
 	public NodewatchConfigurationBuilder(){
-		this.enabled = true;
+		this.enabled = DEFAULT_ENABLED;
 		this.sampleSize = DEFAULT_SAMPLE_SIZE;
 		this.batchSize = DEFAULT_BATCH_SIZE;
 		this.enabledPercentageAlert = true;
 		this.enabledThresholdAlert = true;
+		this.enableShadowTableExport = DEFAULT_ENABLE_SHADOW_TABLE_EXPORT;
+		this.enableShadowTableCompression = DEFAULT_ENABLE_SHADOW_TABLE_COMPRESSION;
 	}
 
 	public NodewatchConfigurationBuilder withSampleSize(int sampleSize){
@@ -65,6 +72,21 @@ public class NodewatchConfigurationBuilder{
 		return this;
 	}
 
+	public NodewatchConfigurationBuilder disableShadowTableExport(){
+		this.enableShadowTableExport = false;
+		return this;
+	}
+
+	public NodewatchConfigurationBuilder disableShadowTableCompression(){
+		this.enableShadowTableCompression = false;
+		return this;
+	}
+
+	public NodewatchConfigurationBuilder enableShadowTableExport(){
+		this.enableShadowTableExport = true;
+		return this;
+	}
+
 	public NodewatchConfiguration create(ClientTableEntityPrefixNameWrapper wrapper){
 		return new NodewatchConfiguration(
 				wrapper,
@@ -73,7 +95,9 @@ public class NodewatchConfigurationBuilder{
 				batchSize,
 				enabled,
 				enabledPercentageAlert,
-				enabledThresholdAlert);
+				enabledThresholdAlert,
+				enableShadowTableExport,
+				enableShadowTableCompression);
 	}
 
 }

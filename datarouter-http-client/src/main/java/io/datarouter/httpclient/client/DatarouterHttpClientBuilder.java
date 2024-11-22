@@ -41,7 +41,7 @@ import org.apache.http.impl.client.LaxRedirectStrategy;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.ssl.SSLContextBuilder;
 
-import io.datarouter.httpclient.endpoint.java.EndpointType;
+import io.datarouter.httpclient.endpoint.java.JavaEndpointType;
 import io.datarouter.httpclient.endpoint.link.LinkType;
 import io.datarouter.httpclient.link.DatarouterLinkSettings;
 import io.datarouter.httpclient.security.CsrfGenerator;
@@ -57,6 +57,8 @@ public class DatarouterHttpClientBuilder{
 	public static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(3);
 	public static final int DEFAULT_MAX_TOTAL_CONNECTIONS = 200;
 
+	private final String clientName;
+	private final JsonSerializer jsonSerializer;
 	private int timeoutMs; // must be int due to RequestConfig.set*Timeout() methods
 	private int connectTimeoutMs;
 	private int maxTotalConnections;
@@ -64,7 +66,6 @@ public class DatarouterHttpClientBuilder{
 	private Optional<Integer> validateAfterInactivityMs;
 	private final HttpClientBuilder httpClientBuilder;
 	private Supplier<Integer> retryCount;
-	private final JsonSerializer jsonSerializer;
 	private CloseableHttpClient customHttpClient;
 	private SignatureGenerator signatureGenerator;
 	private CsrfGenerator csrfGenerator;
@@ -75,14 +76,14 @@ public class DatarouterHttpClientBuilder{
 	private DatarouterHttpClientConfig config;
 	private boolean ignoreSsl;
 	private SSLContext customSslContext;
-	private final String name;
-	private Supplier<Boolean> enableBreakers;
+	private final String simpleClassName;
 	private Supplier<URI> urlPrefix;
 	private Supplier<Boolean> traceInQueryString;
 	private Supplier<Boolean> debugLog;
 	private String apiKeyFieldName;
 
-	public DatarouterHttpClientBuilder(JsonSerializer jsonSerializer){
+	public DatarouterHttpClientBuilder(String clientName, JsonSerializer jsonSerializer){
+		this.clientName = clientName;
 		this.jsonSerializer = jsonSerializer;
 		this.timeoutMs = (int)DEFAULT_TIMEOUT.toMillis();
 		this.connectTimeoutMs = (int)Duration.ofSeconds(1).toMillis();
@@ -93,7 +94,7 @@ public class DatarouterHttpClientBuilder{
 				.setRedirectStrategy(LaxRedirectStrategy.INSTANCE);
 		this.retryCount = () -> HttpRetryTool.DEFAULT_RETRY_COUNT;
 		String className = new Throwable().getStackTrace()[1].getClassName();
-		this.name = className.substring(className.lastIndexOf(".") + 1, className.length());
+		this.simpleClassName = className.substring(className.lastIndexOf(".") + 1, className.length());
 		this.traceInQueryString = () -> false;
 		this.debugLog = () -> false;
 		this.apiKeyFieldName = SecurityParameters.API_KEY;
@@ -131,13 +132,15 @@ public class DatarouterHttpClientBuilder{
 		}
 		Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder
 				.<ConnectionSocketFactory>create()
-				.register("http", new DatarouterConnectionSocketFactory(PlainConnectionSocketFactory.INSTANCE, name))
-				.register("https", new DatarouterLayeredConnectionSocketFactory(sslsf, name))
+				.register(
+						"http",
+						new DatarouterConnectionSocketFactory(PlainConnectionSocketFactory.INSTANCE, simpleClassName))
+				.register("https", new DatarouterLayeredConnectionSocketFactory(sslsf, simpleClassName))
 				.build();
 		var connectionManager = new PoolingHttpClientConnectionManager(
 				socketFactoryRegistry,
 				null,
-				new DatarouterHttpClientDnsResolver(name));
+				new DatarouterHttpClientDnsResolver(simpleClassName));
 		connectionManager.setMaxTotal(maxTotalConnections);
 		connectionManager.setDefaultMaxPerRoute(maxConnectionsPerRoute);
 		validateAfterInactivityMs.ifPresent(connectionManager::setValidateAfterInactivity);
@@ -151,10 +154,8 @@ public class DatarouterHttpClientBuilder{
 		if(config == null){
 			config = new DatarouterHttpClientDefaultConfig();
 		}
-		if(enableBreakers == null){
-			enableBreakers = () -> false;
-		}
 		return new StandardDatarouterHttpClient(
+				clientName,
 				builtHttpClient,
 				this.jsonSerializer,
 				this.signatureGenerator,
@@ -165,8 +166,7 @@ public class DatarouterHttpClientBuilder{
 				this.refreshableApiKeySupplier,
 				this.config,
 				connectionManager,
-				name,
-				enableBreakers,
+				simpleClassName,
 				urlPrefix,
 				traceInQueryString,
 				debugLog,
@@ -177,7 +177,7 @@ public class DatarouterHttpClientBuilder{
 		return buildStandardDatarouterHttpClient();
 	}
 
-	public <ET extends EndpointType> DatarouterEndpointClient<ET> buildEndpointClient(){
+	public <ET extends JavaEndpointType> DatarouterEndpointClient<ET> buildEndpointClient(){
 		StandardDatarouterHttpClient client = buildStandardDatarouterHttpClient();
 		return new StandardDatarouterEndpointClient<>(client);
 	}
@@ -283,11 +283,6 @@ public class DatarouterHttpClientBuilder{
 		return this;
 	}
 
-	public DatarouterHttpClientBuilder setEnableBreakers(Supplier<Boolean> enableBreakers){
-		this.enableBreakers = enableBreakers;
-		return this;
-	}
-
 	public DatarouterHttpClientBuilder setUrlPrefix(Supplier<URI> urlPrefix){
 		this.urlPrefix = urlPrefix;
 		return this;
@@ -312,7 +307,6 @@ public class DatarouterHttpClientBuilder{
 		return this
 				.setTimeout(settings.getTimeout())
 				.setRetryCount(settings.getNumRetries())
-				.setEnableBreakers(settings.getEnableBreakers())
 				.setTraceInQueryString(settings.getTraceInQueryString())
 				.setDebugLog(settings.getDebugLog());
 	}

@@ -15,6 +15,7 @@
  */
 package io.datarouter.auth.session;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
@@ -22,7 +23,6 @@ import java.util.Set;
 import javax.servlet.ServletRequest;
 
 import io.datarouter.auth.role.Role;
-import io.datarouter.auth.role.RoleEnum;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
@@ -73,17 +73,21 @@ public class RequestAwareCurrentSessionInfoFactory{
 			return currentSessionInfo.hasRole(request, role);
 		}
 
-		public boolean hasRole(RoleEnum<?> role){
-			return currentSessionInfo.hasRole(request, role);
-		}
+//		public boolean hasRole(RoleEnum<?> role){
+//			return currentSessionInfo.hasRole(request, role);
+//		}
 
 		public boolean hasAnyRole(Collection<Role> targetRoles){
 			return currentSessionInfo.hasAnyRole(request, targetRoles);
 		}
 
-		public boolean hasAnyRoleEnum(Collection<RoleEnum<?>> targetRoles){
-			return currentSessionInfo.hasAnyRoleEnum(request, targetRoles);
+		public boolean hasAnyRole(Role... targetRoles){
+			return hasAnyRole(Arrays.asList(targetRoles));
 		}
+//
+//		public boolean hasAnyRoleEnum(Collection<RoleEnum<?>> targetRoles){
+//			return currentSessionInfo.hasAnyRoleEnum(request, targetRoles);
+//		}
 
 	}
 

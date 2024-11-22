@@ -15,7 +15,7 @@
  */
 package io.datarouter.aws.s3.config;
 
-import io.datarouter.auth.role.DatarouterUserRole;
+import io.datarouter.auth.role.DatarouterUserRoleRegistry;
 import io.datarouter.aws.s3.web.S3BucketHandler;
 import io.datarouter.aws.s3.web.bulkcopy.S3BulkCopyHandler;
 import io.datarouter.aws.s3.web.bulkdelete.S3BulkDeleteHandler;
@@ -45,7 +45,7 @@ public class DatarouterAwsS3RouteSet extends BaseRouteSet{
 	@Override
 	protected DispatchRule applyDefault(DispatchRule rule){
 		return rule
-				.allowRoles(DatarouterUserRole.DATAROUTER_ADMIN)
+				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_ADMIN)
 				.withTag(Tag.DATAROUTER);
 	}
 

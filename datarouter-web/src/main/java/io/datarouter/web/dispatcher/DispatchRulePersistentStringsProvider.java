@@ -42,7 +42,7 @@ public class DispatchRulePersistentStringsProvider{
 				.include(DispatchRule::hasApiKey)
 				.include(rule -> Scanner.of(rule.getApiKeyPredicates())
 						.map(ApiKeyPredicate::getClass)
-						.anyMatch(predClass -> predicateClass.isAssignableFrom(predClass)))
+						.anyMatch(predicateClass::isAssignableFrom))
 				.concatOpt(DispatchRule::getPersistentString);
 	}
 

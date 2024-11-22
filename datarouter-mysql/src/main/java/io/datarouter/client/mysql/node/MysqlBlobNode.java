@@ -141,6 +141,22 @@ implements PhysicalBlobStorageNode{
 	}
 
 	@Override
+	public Optional<byte[]> readEnding(PathbeanKey key, int length, Config config){
+		List<DatabaseBlob> beans = manager.getBlob(
+				getFieldInfo(),
+				List.of(key),
+				getFieldInfo().getFieldColumnNames(),
+				config);
+		if(beans.isEmpty()){
+			return Optional.empty();
+		}
+		byte[] fullBytes = beans.getFirst().getData();
+		int offset = Math.max(0, fullBytes.length - length);
+		byte[] lastBytes = Arrays.copyOfRange(fullBytes, offset, fullBytes.length);
+		return Optional.of(lastBytes);
+	}
+
+	@Override
 	public Map<PathbeanKey,byte[]> readMulti(List<PathbeanKey> keys, Config config){
 		List<DatabaseBlob> beans = manager.getBlob(
 				getFieldInfo(),

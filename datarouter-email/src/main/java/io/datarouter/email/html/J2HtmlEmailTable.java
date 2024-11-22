@@ -29,7 +29,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 
-import io.datarouter.gson.GsonTool;
+import io.datarouter.gson.DatarouterGsons;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.number.NumberFormatter;
 import j2html.TagCreator;
@@ -81,7 +81,7 @@ public class J2HtmlEmailTable<T>{
 					return TagCreator.text(text);
 				}catch(Exception e){
 					throw new RuntimeException("error column=" + name
-							+ " row=" + GsonTool.withoutEnums().toJson(row), e);
+							+ " row=" + DatarouterGsons.withoutEnums().toJson(row), e);
 				}
 			});
 		}

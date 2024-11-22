@@ -27,10 +27,13 @@ import io.datarouter.metric.dashboard.MetricName;
 import io.datarouter.metric.dashboard.MetricNameRegistry;
 import io.datarouter.metric.dashboard.MiscMetricLinksDto;
 import io.datarouter.metric.dashboard.MiscMetricsLinksRegistry;
+import io.datarouter.metric.publisher.MetricNonProdQueueDao;
+import io.datarouter.metric.publisher.MetricNonProdQueueDao.MetricNonProdQueueDaoParams;
 import io.datarouter.metric.publisher.MetricPublisher;
 import io.datarouter.metric.publisher.MetricPublisher.NoOpMetricPublisher;
 import io.datarouter.metric.publisher.MetricQueueDao;
 import io.datarouter.metric.publisher.MetricQueueDao.MetricQueueDaoParams;
+import io.datarouter.metric.service.UnexpectedHandlerUsageDailyDigest;
 import io.datarouter.metric.template.MetricTemplateAppListener;
 import io.datarouter.metric.template.MetricTemplateConveyorConfigurationGroup;
 import io.datarouter.metric.template.MetricTemplatePublisher;
@@ -41,6 +44,8 @@ import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.dao.DaosModuleBuilder;
 import io.datarouter.web.config.BaseWebPlugin;
+import io.datarouter.web.handlerusage.HandlerUsageBuilder;
+import io.datarouter.web.handlerusage.HandlerUsageBuilder.NoOpHandlerUsageBuilder;
 import io.datarouter.web.listener.ComputedPropertiesAppListener;
 
 public class DatarouterMetricsPlugin extends BaseWebPlugin{
@@ -48,6 +53,7 @@ public class DatarouterMetricsPlugin extends BaseWebPlugin{
 	private final Class<? extends MetricPublisher> metricPublisher;
 	private final Class<? extends MetricTemplatePublisher> metricTemplatePublisher;
 	private final Class<? extends MetricLinkBuilder> metricLinkBuilder;
+	private final Class<? extends HandlerUsageBuilder> endpointUsageBuilder;
 	private final List<MetricName> metricNames;
 	private final List<MetricDashboardDto> dashboards;
 	private final List<MiscMetricLinksDto> miscMetricLinks;
@@ -57,6 +63,7 @@ public class DatarouterMetricsPlugin extends BaseWebPlugin{
 			Class<? extends MetricPublisher> metricPublisher,
 			Class<? extends MetricTemplatePublisher> metricTemplatePublisher,
 			Class<? extends MetricLinkBuilder> metricLinkBuilder,
+			Class<? extends HandlerUsageBuilder> endpointUsageBuilder,
 			boolean enableMetricPublishing,
 			boolean enableMetricTemplatePublishing,
 			List<MetricName> metricNames,
@@ -65,6 +72,7 @@ public class DatarouterMetricsPlugin extends BaseWebPlugin{
 		this.metricPublisher = metricPublisher;
 		this.metricTemplatePublisher = metricTemplatePublisher;
 		this.metricLinkBuilder = metricLinkBuilder;
+		this.endpointUsageBuilder = endpointUsageBuilder;
 		this.metricNames = metricNames;
 		this.dashboards = dashboards;
 		this.miscMetricLinks = miscMetricLinks;
@@ -74,6 +82,7 @@ public class DatarouterMetricsPlugin extends BaseWebPlugin{
 			addPluginEntry(ConveyorConfigurationGroup.KEY, DatarouterMetricConveyorConfigurationGroup.class);
 			addSettingRoot(DatarouterMetricSettingRoot.class);
 			addDynamicNavBarItem(MetricLinksNavBarItem.class);
+			addDynamicNavBarItem(HandlerUsageNavBarItem.class);
 		}
 		if(enableMetricTemplatePublishing){
 			addAppListener(MetricTemplateAppListener.class);
@@ -84,6 +93,7 @@ public class DatarouterMetricsPlugin extends BaseWebPlugin{
 		addRouteSet(DatarouterMetricRouteSet.class);
 		setDaosModule(daosModuleBuilder);
 		addDatarouterGithubDocLink("datarouter-metric");
+		addDailyDigest(UnexpectedHandlerUsageDailyDigest.class);
 	}
 
 	@Override
@@ -93,12 +103,14 @@ public class DatarouterMetricsPlugin extends BaseWebPlugin{
 		bind(MetricNameRegistry.class).toInstance(new MetricNameRegistry(metricNames));
 		bind(MetricDashboardRegistry.class).toInstance(new MetricDashboardRegistry(dashboards));
 		bind(MiscMetricsLinksRegistry.class).toInstance(new MiscMetricsLinksRegistry(miscMetricLinks));
-		bind(MetricLinkBuilder.class).to(metricLinkBuilder);
+		bindActual(MetricLinkBuilder.class, metricLinkBuilder);
+		bind(HandlerUsageBuilder.class).to(endpointUsageBuilder);
 	}
 
 	public static class DatarouterMetricsPluginBuilder{
 
 		private final ClientId metricQueueClientId;
+		private final ClientId metricNonProdQueueClientId;
 		private final List<MetricName> metricNames;
 		private final List<MetricDashboardDto> dashboards;
 		private final List<MiscMetricLinksDto> miscMetricLinks;
@@ -106,15 +118,18 @@ public class DatarouterMetricsPlugin extends BaseWebPlugin{
 		private Class<? extends MetricPublisher> metricPublisher = NoOpMetricPublisher.class;
 		private Class<? extends MetricTemplatePublisher> metricTemplatePublisher = NoOpMetricTemplatePublisher.class;
 		private Class<? extends MetricLinkBuilder> metricLinkBuilder = NoOpMetricLinkBuilder.class;
+		private Class<? extends HandlerUsageBuilder> handlerUsageBuilder = NoOpHandlerUsageBuilder.class;
 
 		private DatarouterMetricsDaosModule daosModule;
 
 		public DatarouterMetricsPluginBuilder(
 				ClientId metricQueueClientId,
+				ClientId metricNonProdQueueClientId,
 				//TODO should these be set via the builder methods below?
 				Class<? extends MetricPublisher> metricPublisher,
 				Class<? extends MetricTemplatePublisher> metricTemplatePublisher){
 			this.metricQueueClientId = metricQueueClientId;
+			this.metricNonProdQueueClientId = metricNonProdQueueClientId;
 			this.metricPublisher = metricPublisher;
 			this.metricTemplatePublisher = metricTemplatePublisher;
 			this.metricNames = new ArrayList<>();
@@ -174,6 +189,12 @@ public class DatarouterMetricsPlugin extends BaseWebPlugin{
 			return this;
 		}
 
+		public DatarouterMetricsPluginBuilder withHandlerUsageBuilder(
+				Class<? extends HandlerUsageBuilder> handlerUsageBuilder){
+			this.handlerUsageBuilder = handlerUsageBuilder;
+			return this;
+		}
+
 		public DatarouterMetricsPlugin build(){
 			boolean enableMetricPublishing = !metricPublisher.isInstance(NoOpMetricPublisher.class);
 			boolean enableMetricTemplatePublishing = !metricTemplatePublisher
@@ -183,12 +204,14 @@ public class DatarouterMetricsPlugin extends BaseWebPlugin{
 					daosModule == null
 							? new DatarouterMetricsDaosModule(
 									metricQueueClientId,
+									metricNonProdQueueClientId,
 									enableMetricPublishing,
 									enableMetricTemplatePublishing)
 							: daosModule,
 					metricPublisher,
 					metricTemplatePublisher,
 					metricLinkBuilder,
+					handlerUsageBuilder,
 					enableMetricPublishing,
 					enableMetricTemplatePublishing,
 					metricNames,
@@ -201,15 +224,18 @@ public class DatarouterMetricsPlugin extends BaseWebPlugin{
 	public static class DatarouterMetricsDaosModule extends DaosModuleBuilder{
 
 		private final ClientId metricBlobQueueClientId;
+		private final ClientId metricNonProdBlobQueueClientId;
 
 		private final boolean enableMetricPublishing;
 		private final boolean enableMetricTemplatePublishing;
 
 		public DatarouterMetricsDaosModule(
 				ClientId metricBlobQueueClientId,
+				ClientId metricNonProdBlobQueueClientId,
 				boolean enableMetricPublishing,
 				boolean enableMetricTemplatePublishing){
 			this.metricBlobQueueClientId = metricBlobQueueClientId;
+			this.metricNonProdBlobQueueClientId = metricNonProdBlobQueueClientId;
 			this.enableMetricPublishing = enableMetricPublishing;
 			this.enableMetricTemplatePublishing = enableMetricTemplatePublishing;
 		}
@@ -219,6 +245,7 @@ public class DatarouterMetricsPlugin extends BaseWebPlugin{
 			List<Class<? extends Dao>> daos = new ArrayList<>();
 			if(enableMetricPublishing){
 				daos.add(MetricQueueDao.class);
+				daos.add(MetricNonProdQueueDao.class);
 			}
 			if(enableMetricTemplatePublishing){
 				daos.add(MetricTemplateQueueDao.class);
@@ -231,6 +258,8 @@ public class DatarouterMetricsPlugin extends BaseWebPlugin{
 			if(enableMetricPublishing){
 				bind(MetricQueueDaoParams.class)
 						.toInstance(new MetricQueueDaoParams(metricBlobQueueClientId));
+				bind(MetricNonProdQueueDaoParams.class)
+						.toInstance(new MetricNonProdQueueDaoParams(metricNonProdBlobQueueClientId));
 			}
 			if(enableMetricTemplatePublishing){
 				bind(MetricTemplateQueueDaoParams.class)

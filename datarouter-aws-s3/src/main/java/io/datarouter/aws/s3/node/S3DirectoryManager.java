@@ -92,6 +92,11 @@ public class S3DirectoryManager{
 		return client.findPartialObject(location, offset, length);
 	}
 
+	public Optional<byte[]> readEnding(String suffix, int length){
+		var location = new BucketAndKey(bucket, fullPath(suffix));
+		return client.findEnding(location, length);
+	}
+
 	public InputStream readInputStream(String suffix){
 		var location = new BucketAndKey(bucket, fullPath(suffix));
 		return client.getInputStream(location);

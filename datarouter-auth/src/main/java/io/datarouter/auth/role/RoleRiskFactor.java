@@ -35,7 +35,7 @@ public enum RoleRiskFactor{
 		Care should be taken when granting these permissions.
 	"""),
 	HIGH(
- """
+	"""
 		Permissions that have a high impact on the security and functionality of the web service.
 		These permissions involve access to sensitive data, critical system functions, or actions that can modify
 		important configurations.

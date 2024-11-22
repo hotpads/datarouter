@@ -67,9 +67,11 @@ implements TypeAdapterFactory{
 		return this;
 	}
 
-	protected <T> EnumTypeAdapterFactory register(Class<T> cls, TypeAdapter<T> typeAdapter){
+	protected <T> EnumTypeAdapterFactory register(
+			Class<T> cls,
+			TypeAdapter<T> typeAdapter){
 		if(!cls.isEnum()){
-			String message = String.format("%s is not an enum", cls.getCanonicalName());
+			String message = "%s is not an enum".formatted(cls.getCanonicalName());
 			throw new IllegalArgumentException(message);
 		}
 		adapterByType.put(cls, typeAdapter);
@@ -81,9 +83,11 @@ implements TypeAdapterFactory{
 	/**
 	 * An exception will be thrown if the value can't be mapped to a valid enum entry.
 	 */
-	protected <T extends Enum<T>> EnumTypeAdapterFactory registerStringMappedEnumRequired(
+	protected <T extends Enum<T>> EnumTypeAdapterFactory requiredValues(
 			MappedEnum<T,String> mappedEnum){
-		adapterByType.put(mappedEnum.getEnumClass(), StringMappedEnumTypeAdapter.required(mappedEnum));
+		adapterByType.put(
+				mappedEnum.getEnumClass(),
+				StringMappedEnumTypeAdapter.required(mappedEnum));
 		return this;
 	}
 
@@ -91,11 +95,12 @@ implements TypeAdapterFactory{
 	 * Not recommended.
 	 * Values not defined in the enum will be silently ignored.
 	 */
-	protected <T extends Enum<T>> EnumTypeAdapterFactory registerStringMappedEnumOptional(
+	protected <T extends Enum<T>> EnumTypeAdapterFactory optionalValuesSilent(
 			MappedEnum<T,String> mappedEnum,
 			T defaultValue){
-		adapterByType.put(mappedEnum.getEnumClass(), StringMappedEnumTypeAdapter
-				.optional(mappedEnum, defaultValue));
+		adapterByType.put(
+				mappedEnum.getEnumClass(),
+				StringMappedEnumTypeAdapter.optionalWithoutLogging(mappedEnum, defaultValue));
 		return this;
 	}
 
@@ -103,7 +108,7 @@ implements TypeAdapterFactory{
 	 * Values not defined in the enum will be logged.
 	 * This allows you to fix the incoming value or to add the missing value to the enum.
 	 */
-	protected <T extends Enum<T>> EnumTypeAdapterFactory registerStringMappedEnumOptionalWithLogging(
+	protected <T extends Enum<T>> EnumTypeAdapterFactory optionalValuesWithLogging(
 			MappedEnum<T,String> mappedEnum,
 			T replacement){
 		adapterByType.put(
@@ -124,16 +129,14 @@ implements TypeAdapterFactory{
 		if(typeAdapter == null){
 			if(allowUnregistered){
 				if(logUnregistered && loggedTypes.add(type.toString())){
-					String format = "Warning: Currently serializing missingEnum=%s/%s by Enum.name()"
-							+ " or @SerializedName.  Please register a TypeAdapter.";
-					String message = String.format(format, getClass().getCanonicalName(), type);
-					logger.warn(message, new Exception());
+					String format = "Warning: Currently serializing missingEnum=%s/%s"
+							+ " by Enum.name() or @SerializedName.  Please register the enum.";
+					String message = format.formatted(getClass().getSimpleName(), type);
+					logger.warn(message);
 				}
 			}else{
-				String message = String.format(
-						"Error: please register a TypeAdapter for rejectedEnum=%s/%s",
-						getClass().getCanonicalName(),
-						type);
+				String message = "Error: please register a TypeAdapter for rejectedEnum=%s/%s"
+						.formatted(getClass().getCanonicalName(), type);
 				throw new IllegalArgumentException(message);
 			}
 		}

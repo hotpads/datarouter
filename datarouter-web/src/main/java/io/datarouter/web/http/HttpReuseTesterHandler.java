@@ -56,7 +56,7 @@ public class HttpReuseTesterHandler extends BaseHandler{
 	public static class HttpReuseTesterClient extends BaseDatarouterHttpClientWrapper{
 
 		public HttpReuseTesterClient(){
-			super(new DatarouterHttpClientBuilder(GsonJsonSerializer.DEFAULT)
+			super(new DatarouterHttpClientBuilder("http-reuse-tester-client", GsonJsonSerializer.DEFAULT)
 					.disableRedirectHandling()
 					.setMaxConnectionsPerRoute(1)
 					.build());

@@ -24,6 +24,7 @@ import java.util.function.Supplier;
 import io.datarouter.bytes.BinaryDictionary;
 import io.datarouter.bytes.ByteLength;
 import io.datarouter.bytes.ByteTool;
+import io.datarouter.bytes.RecordByteArrayField;
 import io.datarouter.bytes.blockfile.block.decoded.BlockfileFooterBlock;
 import io.datarouter.bytes.blockfile.block.decoded.BlockfileHeaderBlock;
 import io.datarouter.bytes.blockfile.block.decoded.BlockfileHeaderBlock.BlockfileHeaderCodec;
@@ -76,6 +77,7 @@ public class BlockfileWriter<T>{
 	private final BlockfileWriterState state;
 	private final BlockfileIndexer indexer;
 	private final BlockfileValueBlockEncoder valueBlockEncoder;
+	private final BlockfileHeaderBlock header;
 
 	public BlockfileWriter(BlockfileWriterConfig config, String name){
 		this.config = config;
@@ -92,6 +94,12 @@ public class BlockfileWriter<T>{
 				config.compressor(),
 				config.checksummer());
 		valueBlockEncoder = new BlockfileValueBlockEncoder(encodingManagerConfig);
+		header = new BlockfileHeaderBlock(
+				config.userDictionary(),
+				config.valueBlockFormat(),
+				config.indexBlockFormat(),
+				config.compressor(),
+				config.checksummer());
 	}
 
 	public BlockfileWriterConfig config(){
@@ -164,12 +172,6 @@ public class BlockfileWriter<T>{
 	/*--------- generate block tokens -----------*/
 
 	private BlockfileHeaderTokens makeHeaderTokens(){
-		var header = new BlockfileHeaderBlock(
-				config.userDictionary(),
-				config.valueBlockFormat(),
-				config.indexBlockFormat(),
-				config.compressor(),
-				config.checksummer());
 		byte[] headerValueBytes = config.headerCodec().encode(header);
 		int headerBlockLength = BlockfileBaseTokens.NUM_PREFIX_BYTES + headerValueBytes.length;
 		return new BlockfileHeaderTokens(headerBlockLength, headerValueBytes);
@@ -213,6 +215,7 @@ public class BlockfileWriter<T>{
 				.map(Supplier::get)
 				.map(footerUserDictionary -> {
 					var footer = new BlockfileFooterBlock(
+							new RecordByteArrayField(config.headerCodec().encode(header)),
 							footerUserDictionary,
 							state.headerBlockLocation(),
 							state.latestIndexBlockLocation(),

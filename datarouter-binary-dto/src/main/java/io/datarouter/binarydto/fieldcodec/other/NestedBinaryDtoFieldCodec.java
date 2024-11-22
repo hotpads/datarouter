@@ -15,17 +15,20 @@
  */
 package io.datarouter.binarydto.fieldcodec.other;
 
+import java.util.function.Supplier;
+
 import io.datarouter.binarydto.codec.BinaryDtoIndexedCodec;
 import io.datarouter.binarydto.dto.BaseBinaryDto;
 import io.datarouter.binarydto.fieldcodec.BinaryDtoBaseFieldCodec;
+import io.datarouter.binarydto.internal.BinaryDtoSingletonSupplier;
 
 public class NestedBinaryDtoFieldCodec<T extends BaseBinaryDto<T>>
 extends BinaryDtoBaseFieldCodec<T>{
 
-	private final BinaryDtoIndexedCodec<T> codec;
+	private final BinaryDtoSingletonSupplier<BinaryDtoIndexedCodec<T>> indexedCodecSupplier;
 
-	public NestedBinaryDtoFieldCodec(Class<T> dtoClass){
-		this.codec = BinaryDtoIndexedCodec.of(dtoClass);
+	public NestedBinaryDtoFieldCodec(Supplier<BinaryDtoIndexedCodec<T>> indexedCodecSupplier){
+		this.indexedCodecSupplier = new BinaryDtoSingletonSupplier<>(indexedCodecSupplier);
 	}
 
 	@Override
@@ -35,12 +38,12 @@ extends BinaryDtoBaseFieldCodec<T>{
 
 	@Override
 	public byte[] encode(T value){
-		return codec.encode(value);
+		return indexedCodecSupplier.get().encode(value);
 	}
 
 	@Override
 	public T decode(byte[] bytes, int offset, int length){
-		return codec.decode(bytes, offset, length);
+		return indexedCodecSupplier.get().decode(bytes, offset, length);
 	}
 
 }

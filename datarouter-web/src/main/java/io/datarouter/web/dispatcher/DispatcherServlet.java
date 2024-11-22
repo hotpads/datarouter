@@ -22,12 +22,14 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import io.datarouter.auth.role.Role;
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.web.config.DatarouterWebSettingRoot;
 import io.datarouter.web.handler.BaseHandler;
@@ -128,6 +130,10 @@ public abstract class DispatcherServlet extends HttpServlet{
 
 	public List<RouteSet> getRouteSets(){
 		return routeSets;
+	}
+
+	public Set<Role> getRequiredRoles(String afterContextPath){
+		return dispatcher.getRequiredRoles(afterContextPath, routeSets);
 	}
 
 	private void ensureUniqueDispatchRules(){

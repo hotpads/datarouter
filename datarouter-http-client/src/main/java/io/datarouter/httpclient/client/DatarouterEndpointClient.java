@@ -15,17 +15,17 @@
  */
 package io.datarouter.httpclient.client;
 
-import io.datarouter.httpclient.endpoint.java.BaseEndpoint;
-import io.datarouter.httpclient.endpoint.java.EndpointType;
+import io.datarouter.httpclient.endpoint.java.BaseJavaEndpoint;
+import io.datarouter.httpclient.endpoint.java.JavaEndpointType;
 import io.datarouter.httpclient.response.Conditional;
 import io.datarouter.httpclient.response.exception.DatarouterHttpException;
 
-public interface DatarouterEndpointClient<ET extends EndpointType> extends HttpPoolStats, HttpConfig{
+public interface DatarouterEndpointClient<ET extends JavaEndpointType> extends HttpPoolStats, HttpConfig{
 
-	<R> Conditional<R> call(BaseEndpoint<R,ET> endpoint);
-	<R> Conditional<R> callAnyType(BaseEndpoint<R,?> endpoint);
-	<R> R callChecked(BaseEndpoint<R,ET> endpoint) throws DatarouterHttpException;
+	<R> Conditional<R> call(BaseJavaEndpoint<R,ET> endpoint);
+	<R> Conditional<R> callAnyType(BaseJavaEndpoint<R,?> endpoint);
+	<R> R callChecked(BaseJavaEndpoint<R,ET> endpoint) throws DatarouterHttpException;
 
-	String toUrl(BaseEndpoint<?,ET> endpoint);
+	String toUrl(BaseJavaEndpoint<?,ET> endpoint);
 
 }

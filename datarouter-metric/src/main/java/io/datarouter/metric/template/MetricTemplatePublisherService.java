@@ -20,10 +20,8 @@ import java.util.Collection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.instrumentation.metric.collector.MetricTemplateDto;
 import io.datarouter.instrumentation.response.PublishingResponseDto;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.storage.config.properties.ServiceName;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
@@ -33,13 +31,11 @@ public class MetricTemplatePublisherService implements MetricTemplatePublisher{
 
 	@Inject
 	private MetricTemplateQueueDao queueDao;
-	@Inject
-	private ServiceName serviceName;
 
 	@Override
-	public PublishingResponseDto publishTemplates(Collection<MetricTemplateDto> patterns){
+	public PublishingResponseDto publishTemplates(Collection<PublishedMetricTemplate> patterns){
 		Scanner.of(patterns)
-				.map(pattern -> new MetricTemplateBinaryDto(serviceName.get(), pattern))
+				.map(pattern -> new MetricTemplateBinaryDto(pattern.serviceName(), pattern.template()))
 				.batch(100)
 				.each(batch -> logger.warn("writing size={} templates", batch.size()))
 				.forEach(queueDao::combineAndPut);

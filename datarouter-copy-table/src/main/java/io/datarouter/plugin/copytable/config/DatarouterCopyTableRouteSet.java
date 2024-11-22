@@ -15,11 +15,13 @@
  */
 package io.datarouter.plugin.copytable.config;
 
-import io.datarouter.auth.role.DatarouterUserRole;
+import io.datarouter.auth.role.DatarouterUserRoleRegistry;
 import io.datarouter.plugin.copytable.web.JobletCopyTableHandler;
 import io.datarouter.plugin.copytable.web.JobletTableProcessorHandler;
 import io.datarouter.plugin.copytable.web.SingleThreadCopyTableHandler;
 import io.datarouter.plugin.copytable.web.SingleThreadTableProcessorHandler;
+import io.datarouter.plugin.copytable.web.SystemTablesCopyHandler;
+import io.datarouter.plugin.copytable.web.SystemTablesListHandler;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
@@ -36,12 +38,15 @@ public class DatarouterCopyTableRouteSet extends BaseRouteSet{
 		handleDir(paths.datarouter.copyTable.singleThread).withHandler(SingleThreadCopyTableHandler.class);
 		handleDir(paths.datarouter.tableProcessor.joblets).withHandler(JobletTableProcessorHandler.class);
 		handleDir(paths.datarouter.tableProcessor.singleThread).withHandler(SingleThreadTableProcessorHandler.class);
+		handleDir(paths.datarouter.systemTableCopier.viewTables).withHandler(SystemTablesCopyHandler.class);
+		handle(paths.datarouter.systemTableCopier.listSystemTables).withHandler(SystemTablesListHandler.class);
+
 	}
 
 	@Override
 	protected DispatchRule applyDefault(DispatchRule rule){
 		return rule
-				.allowRoles(DatarouterUserRole.DATAROUTER_ADMIN)
+				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_ADMIN)
 				.withTag(Tag.DATAROUTER);
 	}
 

@@ -33,7 +33,8 @@ import io.datarouter.exception.storage.httprecord.HttpRequestRecord;
 import io.datarouter.exception.utils.ExceptionDetailsDetector;
 import io.datarouter.exception.utils.ExceptionDetailsDetector.ExceptionRecorderDetails;
 import io.datarouter.instrumentation.exception.ExceptionRecordDto;
-import io.datarouter.instrumentation.exception.HttpRequestRecordDto;
+import io.datarouter.instrumentation.validation.DatarouterInstrumentationValidationConstants.ExceptionInstrumentationConstants;
+import io.datarouter.storage.config.properties.EnvironmentName;
 import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.storage.config.properties.ServiceName;
 import io.datarouter.storage.exception.ExceptionCategory;
@@ -49,6 +50,7 @@ import io.datarouter.web.monitoring.GitProperties;
 import io.datarouter.web.monitoring.exception.ExceptionAndHttpRequestDto;
 import io.datarouter.web.util.ExceptionTool;
 import io.datarouter.web.util.RequestAttributeTool;
+import io.datarouter.web.util.http.IpAddressService;
 import jakarta.inject.Inject;
 
 public class DefaultExceptionRecorder implements ExceptionRecorder{
@@ -74,6 +76,10 @@ public class DefaultExceptionRecorder implements ExceptionRecorder{
 	private ServerName serverName;
 	@Inject
 	private ServiceName serviceName;
+	@Inject
+	private EnvironmentName environmentName;
+	@Inject
+	private IpAddressService ipAddressService;
 
 	@Override
 	public Optional<ExceptionRecordDto> tryRecordException(Throwable exception, String callOrigin){
@@ -184,7 +190,8 @@ public class DefaultExceptionRecorder implements ExceptionRecorder{
 				methodName,
 				lineNumber,
 				callOrigin,
-				additionalEmailRecipients);
+				additionalEmailRecipients,
+				environmentName.get());
 		exceptionRecord.trimFields();
 		if(settings.saveRecordsLocally.get()){
 			exceptionBuffers.exceptionRecordBuffer.offer(exceptionRecord);
@@ -275,14 +282,17 @@ public class DefaultExceptionRecorder implements ExceptionRecorder{
 		Optional<String> userToken = currentSessionInfo.getSession(request).map(Session::getUserToken);
 		String userRoles = currentSessionInfo.getRoles(request).toString();
 
-		boolean omitPayload = RequestAttributeTool.get(request, Dispatcher.TRANSMITS_PII).orElse(false);
-		HttpRequestRecord httpRequestRecord = new HttpRequestRecord(
+		boolean omitPayload = RequestAttributeTool.get(request, Dispatcher.TRANSMITS_PII)
+					.orElse(false);
+		String ip = ipAddressService.getIpAddress(request);
+		var httpRequestRecord = new HttpRequestRecord(
 				exceptionRecord == null ? null : exceptionRecord.id(),
 				RequestAttributeTool.get(request, BaseHandler.TRACE_CONTEXT),
 				request,
 				userRoles,
 				userToken.orElse(null),
-				omitPayload);
+				omitPayload,
+				ip);
 		saveAndPublishHttpRequest(httpRequestRecord, publish);
 	}
 
@@ -299,7 +309,7 @@ public class DefaultExceptionRecorder implements ExceptionRecorder{
 		if(settings.saveRecordsLocally.get()){
 			exceptionBuffers.httpRequestRecordBuffer.offer(httpRequestRecord);
 		}
-		httpRequestRecord.trimBinaryBody(HttpRequestRecordDto.BINARY_BODY_MAX_SIZE);
+		httpRequestRecord.trimBinaryBody(ExceptionInstrumentationConstants.MAX_SIZE_BINARY_BODY);
 		if(publish && settings.publishRecords.get()){
 			exceptionBuffers.httpRequestRecordPublishingBuffer.offer(httpRequestRecord);
 		}

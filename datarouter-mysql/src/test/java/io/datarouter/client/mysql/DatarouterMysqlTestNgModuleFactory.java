@@ -15,8 +15,8 @@
  */
 package io.datarouter.client.mysql;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import io.datarouter.client.mysql.ddl.generate.DatabaseHostnameUrlSupplier;
@@ -49,7 +49,7 @@ public class DatarouterMysqlTestNgModuleFactory extends TestNgModuleFactory{
 		@Override
 		protected void configure(){
 			bindActualInstance(MysqlFieldCodecFactory.class,
-					new StandardMysqlFieldCodecFactory(Collections.emptyMap()));
+					new StandardMysqlFieldCodecFactory(Map.of()));
 			bindActualInstance(DatarouterTestPropertiesFile.class,
 					new DatarouterTestPropertiesFile("mysql.properties"));
 			bindActual(SchemaUpdateOptionsFactory.class, DatarouterMysqlSchemaUpdateOptionsFactory.class);

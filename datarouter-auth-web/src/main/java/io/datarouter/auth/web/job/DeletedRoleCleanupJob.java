@@ -65,11 +65,11 @@ public class DeletedRoleCleanupJob extends BaseJob{
 				.map(batch -> Scanner.of(batch)
 							.map(user -> {
 								Set<Role> deletedRoles = Scanner.of(user.getRolesIgnoreSaml())
-												.exclude(roles::contains)
-												.collect(HashSet::new);
+										.exclude(roles::contains)
+										.collect(HashSet::new);
 								user.removeRoles(deletedRoles);
 								List<String> removedRolePersistentStrings = Scanner.of(deletedRoles)
-										.map(Role::getPersistentString)
+										.map(Role::persistentString)
 										.list();
 								String changes = "Removed deleted role types: " + removedRolePersistentStrings;
 								var userHistory = new DatarouterUserHistoryLog(

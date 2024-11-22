@@ -21,13 +21,12 @@ import org.testng.annotations.Test;
 import com.google.gson.Gson;
 
 import io.datarouter.enums.StringMappedEnum;
-import io.datarouter.gson.GsonTool;
+import io.datarouter.gson.DatarouterGsons;
 import io.datarouter.gson.typeadapterfactory.EnumTypeAdapterFactory;
 
 public class StringMappedEnumTypeAdapterTests{
 
-	private static final Gson GSON = GsonTool.builder(new AnimalColorEnumTypeAdapterFactory())
-			.create();
+	private static final Gson GSON = DatarouterGsons.withEnums(new AnimalColorEnumTypeAdapterFactory());
 
 	private enum AnimalColor{
 		BLACK("black"),
@@ -52,7 +51,7 @@ public class StringMappedEnumTypeAdapterTests{
 	private static class AnimalColorEnumTypeAdapterFactory extends EnumTypeAdapterFactory{
 
 		public AnimalColorEnumTypeAdapterFactory(){
-			registerStringMappedEnumOptional(AnimalColor.BY_PERSISTENT_STRING, null);
+			optionalValuesSilent(AnimalColor.BY_PERSISTENT_STRING, null);
 		}
 	}
 

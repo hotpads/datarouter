@@ -19,12 +19,12 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import io.datarouter.auth.storage.account.BaseDatarouterAccountDao;
+import io.datarouter.auth.storage.account.DatarouterAccountDao;
 import io.datarouter.auth.storage.account.DatarouterAccountKey;
-import io.datarouter.auth.storage.account.credential.BaseDatarouterAccountCredentialDao;
 import io.datarouter.auth.storage.account.credential.DatarouterAccountCredential;
+import io.datarouter.auth.storage.account.credential.DatarouterAccountCredentialDao;
 import io.datarouter.auth.storage.account.credential.DatarouterAccountCredentialKey;
-import io.datarouter.auth.storage.account.credential.secret.BaseDatarouterAccountSecretCredentialDao;
+import io.datarouter.auth.storage.account.credential.secret.DatarouterAccountSecretCredentialDao;
 import io.datarouter.auth.storage.account.credential.secret.DatarouterAccountSecretCredentialKey;
 import io.datarouter.types.MilliTime;
 import jakarta.inject.Inject;
@@ -33,17 +33,18 @@ import jakarta.inject.Singleton;
 @Singleton
 public class DatarouterAccountLastUsedDateService{
 
-	private final BaseDatarouterAccountDao accountDao;
-	private final BaseDatarouterAccountCredentialDao credentialDao;
-	private final BaseDatarouterAccountSecretCredentialDao secretCredentialDao;
+	private final DatarouterAccountDao accountDao;
+	private final DatarouterAccountCredentialDao credentialDao;
+	private final DatarouterAccountSecretCredentialDao secretCredentialDao;
 	private final Map<DatarouterAccountKey,MilliTime> lastUsedByAccount;
 	private final Map<DatarouterAccountCredentialKey,MilliTime> lastUsedByCredential;
 	private final Map<DatarouterAccountSecretCredentialKey,MilliTime> lastUsedBySecretCredential;
 
 	@Inject
-	public DatarouterAccountLastUsedDateService(BaseDatarouterAccountDao accountDao,
-			BaseDatarouterAccountCredentialDao credentialDao,
-			BaseDatarouterAccountSecretCredentialDao secretCredentialDao){
+	public DatarouterAccountLastUsedDateService(
+			DatarouterAccountDao accountDao,
+			DatarouterAccountCredentialDao credentialDao,
+			DatarouterAccountSecretCredentialDao secretCredentialDao){
 		this.accountDao = accountDao;
 		this.credentialDao = credentialDao;
 		this.secretCredentialDao = secretCredentialDao;

@@ -35,8 +35,7 @@ public abstract class ApiKeyPredicate{
 
 	// the string on the right is the account name or the error message
 	public ApiKeyPredicateCheck check(DispatchRule rule, HttpServletRequest request){
-		String apiKey = RequestTool.getParameterOrHeader(request, apiKeyFieldName);
-		apiKey = (apiKey == null) ? getApiKeyFromBearerToken(request) : apiKey;
+		String apiKey = getApiKeyCandidate(request);
 		if(apiKey == null){
 			return new ApiKeyPredicateCheck(false, "key not found");
 		}
@@ -69,6 +68,11 @@ public abstract class ApiKeyPredicate{
 			sb.append(apiKeyCandidate.charAt(index));
 		}
 		return sb.toString();
+	}
+
+	protected String getApiKeyCandidate(HttpServletRequest request){
+		String apiKey = RequestTool.getParameterOrHeader(request, apiKeyFieldName);
+		return apiKey == null ? getApiKeyFromBearerToken(request) : apiKey;
 	}
 
 	private static String getApiKeyFromBearerToken(HttpServletRequest request){

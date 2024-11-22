@@ -15,7 +15,7 @@
  */
 package io.datarouter.tasktracker.config;
 
-import io.datarouter.auth.role.DatarouterUserRole;
+import io.datarouter.auth.role.DatarouterUserRoleRegistry;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.tasktracker.web.JobsHealthHandler;
 import io.datarouter.tasktracker.web.LongRunningTasksHandler;
@@ -31,16 +31,16 @@ public class DatarouterTaskTrackerRouteSet extends BaseRouteSet{
 	public DatarouterTaskTrackerRouteSet(DatarouterTaskTrackerPaths paths){
 		handle(paths.datarouter.longRunningTasks)
 				.withHandler(LongRunningTasksHandler.class)
-				.allowRoles(DatarouterUserRole.DATAROUTER_JOB);
+				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_JOB);
 		handle(paths.datarouter.jobsHealth)
 				.withHandler(JobsHealthHandler.class)
-				.allowRoles(DatarouterUserRole.DATAROUTER_JOB);
+				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_JOB);
 	}
 
 	@Override
 	protected DispatchRule applyDefault(DispatchRule rule){
 		return rule
-				.allowRoles(DatarouterUserRole.DATAROUTER_ADMIN)
+				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_ADMIN)
 				.withTag(Tag.DATAROUTER);
 	}
 

@@ -64,6 +64,7 @@ import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.storage.servertype.ServerTypes;
 import io.datarouter.storage.setting.SettingRoot;
 import io.datarouter.util.lang.ReflectionTool;
+import io.datarouter.util.net.Subnet;
 import io.datarouter.util.ordered.Ordered;
 import io.datarouter.util.ordered.OrderedTool;
 import io.datarouter.web.config.DatarouterWebPlugin.DatarouterWebPluginBuilder;
@@ -99,7 +100,7 @@ public abstract class DatarouterWebWebappConfigBuilder<T extends DatarouterWebWe
 implements WebappBuilder{
 
 	// datarouter-storage
-	private final String serviceName;
+	protected final String serviceName;
 	private final String publicDomain;
 	private final String privateDomain;
 	private final String contextName;
@@ -147,6 +148,7 @@ implements WebappBuilder{
 	private ZoneId dailyDigestEmailZoneId;
 	private Class<? extends HandlerAccountCallerValidator> handlerAccountCallerValidator;
 	private Class<? extends ExceptionLinkBuilder> exceptionLinkBuilderClass;
+	private List<Subnet> cloudfrontRanges;
 
 	// datarouter-web servlet
 	private final List<Ordered<FilterParams>> filterParamsOrdered;
@@ -244,6 +246,7 @@ implements WebappBuilder{
 		this.defaultEmailDistributionListZoneId = ZoneId.systemDefault();
 		this.dailyDigestEmailZoneId = ZoneId.systemDefault();
 		this.handlerAccountCallerValidator = NoOpHandlerAccountCallerValidator.class;
+		this.cloudfrontRanges = new ArrayList<>();
 
 		// datarouter-web servlet
 		this.filterParamsOrdered = new ArrayList<>();
@@ -313,6 +316,7 @@ implements WebappBuilder{
 				.setDailyDigestEmailZoneId(dailyDigestEmailZoneId)
 				.setHandlerAccountCallerValidator(handlerAccountCallerValidator)
 				.setExceptionLinkBuilderClass(exceptionLinkBuilderClass)
+				.setCloudfrontRanges(cloudfrontRanges)
 				.build();
 		webPlugin.getStoragePlugins().forEach(this::addStoragePluginWithoutInstalling);
 		webPlugin.getWebPlugins().forEach(this::addWebPluginWithoutInstalling);
@@ -664,6 +668,11 @@ implements WebappBuilder{
 
 	public T setExceptionLinkBuilderClass(Class<? extends ExceptionLinkBuilder> exceptionLinkBuilderClass){
 		this.exceptionLinkBuilderClass = exceptionLinkBuilderClass;
+		return getSelf();
+	}
+
+	public T setCloudfrontRanges(List<Subnet> cloudfrontRanges){
+		this.cloudfrontRanges = cloudfrontRanges;
 		return getSelf();
 	}
 

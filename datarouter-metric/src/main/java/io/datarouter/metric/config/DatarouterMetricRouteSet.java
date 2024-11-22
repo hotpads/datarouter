@@ -15,10 +15,11 @@
  */
 package io.datarouter.metric.config;
 
-import io.datarouter.auth.role.DatarouterUserRole;
+import io.datarouter.auth.role.DatarouterUserRoleRegistry;
 import io.datarouter.metric.dashboard.web.AdditionalMetricLinksHandlers.MetricDashboardHandler;
 import io.datarouter.metric.dashboard.web.AdditionalMetricLinksHandlers.MiscMetricLinksHandler;
 import io.datarouter.metric.dashboard.web.AdditionalMetricLinksHandlers.RegisteredMetricNames;
+import io.datarouter.metric.dashboard.web.HandlerUsageHandler;
 import io.datarouter.metric.dashboard.web.MetricLinksHandler;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.BaseRouteSet;
@@ -36,12 +37,13 @@ public class DatarouterMetricRouteSet extends BaseRouteSet{
 		handle(paths.datarouter.metric.metricLinks.miscMetricLinks).withHandler(MiscMetricLinksHandler.class);
 
 		handle(paths.datarouter.metric.metricLinks.view).withHandler(MetricLinksHandler.class);
+		handle(paths.datarouter.metric.handlerUsage.view).withHandler(HandlerUsageHandler.class);
 	}
 
 	@Override
 	protected DispatchRule applyDefault(DispatchRule rule){
 		return rule
-				.allowRoles(DatarouterUserRole.DATAROUTER_ADMIN, DatarouterUserRole.USER)
+				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_ADMIN, DatarouterUserRoleRegistry.USER)
 				.withTag(Tag.DATAROUTER);
 	}
 

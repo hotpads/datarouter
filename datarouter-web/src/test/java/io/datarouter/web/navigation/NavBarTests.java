@@ -23,7 +23,7 @@ import java.util.Optional;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.auth.role.DatarouterUserRole;
+import io.datarouter.auth.role.DatarouterUserRoleRegistry;
 import io.datarouter.web.dispatcher.BaseRouteSetTests;
 import io.datarouter.web.dispatcher.DispatcherServletTestServlet;
 
@@ -76,10 +76,10 @@ public class NavBarTests{
 		NavBar auth = getAuthNavBar();
 		Assert.assertThrows(NullPointerException.class, () -> auth.getDispatchRule(null));
 
-		for(DatarouterUserRole role : DatarouterUserRole.values()){
+		for(var role : DatarouterUserRoleRegistry.DEFAULT_ROLES){
 			String pathForRole = BaseRouteSetTests.getPathForRole(role);
 			Assert.assertTrue(auth.getDispatchRule(URI.create(pathForRole))
-					.orElse(null).getAllowedRoles().contains(role.getRole()));
+					.orElse(null).getAllowedRoles().contains(role));
 		}
 		String path = BaseRouteSetTests.ANON_PATH;
 		Assert.assertTrue(auth.getDispatchRule(URI.create(path)).orElse(null)

@@ -37,9 +37,8 @@ public class DatarouterAccountDeleteAction{
 	private AdminEmail adminEmail;
 
 	// DatarouterAccount will be deleted from the DB after this method is called
-	public final void onDelete(DatarouterAccount account){
+	public void onDelete(DatarouterAccount account){
 		executor.submit(() -> {
-			additionalOnDeleteActions(account);
 			cleanupDatarouterUserAccounts(account);
 		});
 	}
@@ -54,13 +53,7 @@ public class DatarouterAccountDeleteAction{
 		recordChangelog(account, "cleanup datarouter users");
 	}
 
-	/*
-	 * Override this method in sub classes and bind in plugin for additional cleanup actions
-	 */
-	protected void additionalOnDeleteActions(@SuppressWarnings("unused") DatarouterAccount account){
-	}
-
-	protected final void recordChangelog(DatarouterAccount account, String action){
+	private void recordChangelog(DatarouterAccount account, String action){
 		var changelogBuilder = new DatarouterChangelogDtoBuilder(
 				"DatarouterAccount",
 				account.getKey().getAccountName(),

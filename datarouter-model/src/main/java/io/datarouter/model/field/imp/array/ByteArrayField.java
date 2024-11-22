@@ -56,6 +56,11 @@ public class ByteArrayField extends BaseField<byte[]>{
 	}
 
 	@Override
+	public int getApproximateValueBytesLength(){
+		return value == null ? 0 : value.length;
+	}
+
+	@Override
 	public byte[] getKeyBytesWithSeparator(){
 		return TerminatedByteArrayTool.escapeAndTerminate(value);
 	}

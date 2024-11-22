@@ -15,7 +15,7 @@
  */
 package io.datarouter.web.homepage;
 
-import io.datarouter.auth.role.DatarouterUserRole;
+import io.datarouter.auth.role.DatarouterUserRoleRegistry;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
@@ -33,7 +33,7 @@ public class DefaultHomepageRouteSet extends BaseRouteSet implements HomepageRou
 	@Override
 	protected DispatchRule applyDefault(DispatchRule rule){
 		return rule
-				.allowRoles(DatarouterUserRole.USER)
+				.allowRoles(DatarouterUserRoleRegistry.USER)
 				.withTag(Tag.DATAROUTER);
 	}
 

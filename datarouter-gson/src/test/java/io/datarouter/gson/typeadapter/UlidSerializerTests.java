@@ -20,12 +20,12 @@ import org.testng.annotations.Test;
 
 import com.google.gson.Gson;
 
-import io.datarouter.gson.GsonTool;
+import io.datarouter.gson.DatarouterGsons;
 import io.datarouter.types.Ulid;
 
 public class UlidSerializerTests{
 
-	private static final Gson GSON = GsonTool.withoutEnums();
+	private static final Gson GSON = DatarouterGsons.withoutEnums();
 	private static final Ulid ULID = new Ulid("01GFBY0JM7CN0E1J6WNAQHR17P");
 
 	@Test

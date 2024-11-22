@@ -33,6 +33,7 @@ public enum HttpStatusCode{
 	SC_408_REQUEST_TIMEOUT(408, "Request Timeout"),
 	SC_409_CONFLICT(409, "Conflict"),
 	SC_410_GONE(410, "Gone"),
+	SC_415_UNSUPPORTED_MEDIA_TYPE(415, "Unsupported Media Type"),
 	SC_422_UNPROCESSABLE_ENTITY(422, "Unprocessable Entity"),
 	SC_424_FAILED_DEPENDENCY(424, "Failed Dependency"),
 	SC_429_TOO_MANY_REQUESTS(429, "Too Many Requests"),

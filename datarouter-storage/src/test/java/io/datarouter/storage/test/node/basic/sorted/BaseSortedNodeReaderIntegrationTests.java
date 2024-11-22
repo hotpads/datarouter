@@ -350,7 +350,7 @@ public abstract class BaseSortedNodeReaderIntegrationTests{
 		timer.add("5");
 		Assert.assertEquals(scanAndCountWithConfig(new Config().setResponseBatchSize(15).setLimit(23)), 23);
 		timer.add("6");
-		logger.warn(timer.toString());
+		logger.warn("{}", timer);
 		//[total:633ms]<testLimitedScan>[1:112ms][2:107ms][3:90ms][4:143ms][5:74ms][6:107ms]
 	}
 

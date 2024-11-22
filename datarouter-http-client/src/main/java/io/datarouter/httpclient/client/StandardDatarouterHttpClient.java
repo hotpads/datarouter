@@ -55,6 +55,7 @@ implements DatarouterHttpClient{
 	private static final Logger logger = LoggerFactory.getLogger(StandardDatarouterHttpClient.class);
 
 	protected StandardDatarouterHttpClient(
+			String clientName,
 			CloseableHttpClient httpClient,
 			JsonSerializer jsonSerializer,
 			SignatureGenerator signatureGenerator,
@@ -66,12 +67,12 @@ implements DatarouterHttpClient{
 			DatarouterHttpClientConfig config,
 			PoolingHttpClientConnectionManager connectionManager,
 			String name,
-			Supplier<Boolean> enableBreakers,
 			Supplier<URI> urlPrefix,
 			Supplier<Boolean> traceInQueryString,
 			Supplier<Boolean> debugLog,
 			String apiKeyFieldName){
 		super(
+				clientName,
 				httpClient,
 				jsonSerializer,
 				signatureGenerator,
@@ -83,7 +84,6 @@ implements DatarouterHttpClient{
 				config,
 				connectionManager,
 				name,
-				enableBreakers,
 				urlPrefix,
 				traceInQueryString,
 				debugLog,
@@ -142,6 +142,7 @@ implements DatarouterHttpClient{
 		try{
 			return executeCheckedInternal(request, httpEntityConsumer);
 		}catch(DatarouterHttpResponseException e){
+			onException();
 			if(shouldRerun40x(firstAttemptInstant, e.getResponse().getStatusCode(), request.getShouldSkipSecurity())){
 				//reset any changes to request made during the first attempt
 				request.setGetParams(originalGetParams);

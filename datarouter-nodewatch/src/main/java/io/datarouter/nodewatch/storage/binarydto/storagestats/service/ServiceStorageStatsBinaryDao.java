@@ -17,7 +17,7 @@ package io.datarouter.nodewatch.storage.binarydto.storagestats.service;
 
 import java.util.Optional;
 
-import io.datarouter.nodewatch.config.DatarouterNodewatchDirectorySupplier;
+import io.datarouter.nodewatch.config.DatarouterStorageStatsDirectorySupplier;
 import io.datarouter.storage.file.Directory;
 import io.datarouter.storage.file.PathbeanKey;
 import io.datarouter.storage.node.op.raw.EncodedBlobStorage;
@@ -34,8 +34,8 @@ public class ServiceStorageStatsBinaryDao{
 
 	@Inject
 	public ServiceStorageStatsBinaryDao(
-			DatarouterNodewatchDirectorySupplier nodewatchDirectorySupplier){
-		directory = nodewatchDirectorySupplier.getStorageStatsServiceDirectory();
+			DatarouterStorageStatsDirectorySupplier directorySupplier){
+		directory = directorySupplier.getStorageStatsServiceDirectory();
 		encodedStorage = new EncodedBlobStorage<>(directory, ServiceStorageStatsBinaryDto.INDEXED_CODEC);
 	}
 

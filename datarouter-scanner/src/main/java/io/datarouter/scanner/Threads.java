@@ -20,12 +20,16 @@ import java.util.concurrent.ExecutorService;
 /**
  * Encapsulates an ExecutorService and thread allocation for limiting the number of threads used by an operation.
  */
-public record Threads(
-		ExecutorService exec,
-		int count,
-		boolean useCallerForSingleThread){
+public class Threads{
 
-	public Threads{
+	private final ExecutorService exec;
+	private final int count;
+	private final boolean useCallerForSingleThread;
+
+	public Threads(ExecutorService exec, int count, boolean useCallerForSingleThread){
+		this.exec = exec;
+		this.count = count;
+		this.useCallerForSingleThread = useCallerForSingleThread;
 		if(count < 1){
 			String message = String.format("count=%s must be greater than 0", count);
 			throw new IllegalArgumentException(message);
@@ -52,6 +56,18 @@ public record Threads(
 			return true;
 		}
 		return !useCallerForSingleThread;
+	}
+
+	public ExecutorService exec(){
+		return exec;
+	}
+
+	public int count(){
+		return count;
+	}
+
+	public boolean useCallerForSingleThread(){
+		return useCallerForSingleThread;
 	}
 
 }

@@ -63,7 +63,8 @@ public class StopJobRequestDao extends BaseDao{
 	//scans requests for the server where the expiration date is not in the past
 	public Scanner<StopJobRequest> scanUnexpiredRequestsForServer(String serverName){
 		Instant now = Instant.now();
-		return node.scanWithPrefix(new StopJobRequestKey(serverName, null))
+		var prefix = new StopJobRequestKey(serverName, null);
+		return node.scanWithPrefix(prefix)
 				.include(databean -> databean.getRequestExpiration().isAfter(now));
 	}
 

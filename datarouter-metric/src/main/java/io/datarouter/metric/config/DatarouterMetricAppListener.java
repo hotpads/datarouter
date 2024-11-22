@@ -17,6 +17,7 @@ package io.datarouter.metric.config;
 
 import io.datarouter.instrumentation.metric.Metrics;
 import io.datarouter.metric.publisher.DatarouterMetricCollector;
+import io.datarouter.metric.publisher.DatarouterPublishedMetricCollectors;
 import io.datarouter.web.listener.DatarouterAppListener;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -30,6 +31,7 @@ public class DatarouterMetricAppListener implements DatarouterAppListener{
 	@Override
 	public void onStartUp(){
 		Metrics.registerCollector(collector);
+		DatarouterPublishedMetricCollectors.register(collector);
 	}
 
 	@Override

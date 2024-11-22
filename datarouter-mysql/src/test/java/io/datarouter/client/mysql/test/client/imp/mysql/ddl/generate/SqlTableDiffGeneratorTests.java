@@ -15,7 +15,6 @@
  */
 package io.datarouter.client.mysql.test.client.imp.mysql.ddl.generate;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -45,8 +44,8 @@ public class SqlTableDiffGeneratorTests{
 				"degemer",
 				pk,
 				List.of(id),
-				Collections.emptySet(),
-				Collections.emptySet(),
+				Set.of(),
+				Set.of(),
 				MysqlCharacterSet.utf8mb4,
 				MysqlCollation.utf8mb4_bin,
 				MysqlRowFormat.COMPACT,
@@ -67,7 +66,7 @@ public class SqlTableDiffGeneratorTests{
 				pk,
 				List.of(id),
 				previousIndexes,
-				Collections.emptySet(),
+				Set.of(),
 				MysqlCharacterSet.utf8mb4,
 				MysqlCollation.utf8mb4_bin,
 				MysqlRowFormat.COMPACT,
@@ -77,7 +76,7 @@ public class SqlTableDiffGeneratorTests{
 				pk,
 				List.of(id),
 				nextIndexes,
-				Collections.emptySet(),
+				Set.of(),
 				MysqlCharacterSet.utf8mb4,
 				MysqlCollation.utf8mb4_bin,
 				MysqlRowFormat.COMPACT,

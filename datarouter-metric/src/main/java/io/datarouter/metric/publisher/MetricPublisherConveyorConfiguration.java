@@ -17,7 +17,6 @@ package io.datarouter.metric.publisher;
 
 import java.time.Duration;
 import java.util.List;
-import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,14 +37,13 @@ public class MetricPublisherConveyorConfiguration implements ConveyorConfigurati
 	private static final Logger logger = LoggerFactory.getLogger(MetricPublisherConveyorConfiguration.class);
 
 	@Inject
-	private DatarouterMetricCollector collector;
-	@Inject
 	private MetricPublisher publisher;
 
 	@Override
 	public ProcessResult process(ConveyorRunnable conveyor){
-		Optional<PublishedMetricPeriod> optPeriod = collector.poll();
-		optPeriod.ifPresent(period -> {
+		List<PublishedMetricPeriod> periods = DatarouterPublishedMetricCollectors.poll();
+
+		periods.forEach(period -> {
 			int numCounts = period.counts().size();
 			int numGauges = period.gauges().size();
 			int numMeasurementLists = period.measurementLists().size();
@@ -60,6 +58,7 @@ public class MetricPublisherConveyorConfiguration implements ConveyorConfigurati
 				ConveyorCounters.inc(conveyor, "published measurementLists", numMeasurementLists);
 				ConveyorCounters.inc(conveyor, "published measurements", numMeasurements);
 				logger.info("published {}", new KvString()
+						.add("periodStartTimeMs", period.periodStartTimeMs(), Object::toString)
 						.add("counts", numCounts, NumberFormatter::addCommas)
 						.add("gauges", numGauges, NumberFormatter::addCommas)
 						.add("measurementLists", numMeasurementLists, NumberFormatter::addCommas)
@@ -72,7 +71,7 @@ public class MetricPublisherConveyorConfiguration implements ConveyorConfigurati
 				ConveyorCounters.inc(conveyor, "failed measurements", numMeasurements);
 			}
 		});
-		return new ProcessResult(optPeriod.isPresent());
+		return new ProcessResult(!periods.isEmpty());
 	}
 
 	@Override

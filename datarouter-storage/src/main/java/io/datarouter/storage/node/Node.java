@@ -29,7 +29,10 @@ import io.datarouter.storage.serialize.fieldcache.DatabeanFieldInfo;
  * a PrimaryKey type, a Databean type, a Fielder type. A Node can be a PhysicalNode or a virtual node, like
  * ReplicationNode, that forwards requests on to other nodes.
  */
-public interface Node<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
+public interface Node<
+		PK extends PrimaryKey<PK>,
+		D extends Databean<PK,D>,
+		F extends DatabeanFielder<PK,D>>
 extends Comparable<Node<PK,D,F>>{
 
 	String getName();

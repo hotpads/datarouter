@@ -17,11 +17,13 @@ package io.datarouter.bytes.blockfile.block.decoded;
 
 import io.datarouter.bytes.BinaryDictionary;
 import io.datarouter.bytes.Codec;
+import io.datarouter.bytes.RecordByteArrayField;
 import io.datarouter.bytes.blockfile.block.BlockfileFooterKey;
 import io.datarouter.bytes.blockfile.io.storage.BlockfileLocation;
 import io.datarouter.bytes.varint.VarIntTool;
 
 public record BlockfileFooterBlock(
+		RecordByteArrayField headerBytes,
 		BinaryDictionary userDictionary,
 		BlockfileLocation headerBlockLocation,
 		BlockfileLocation rootIndexBlockLocation,
@@ -33,6 +35,7 @@ public record BlockfileFooterBlock(
 			bytes -> {
 				var dictionary = BinaryDictionary.decode(bytes);
 				return new BlockfileFooterBlock(
+						parseHeaderBytes(dictionary),
 						parseUserDictionary(dictionary),
 						parseHeaderBlockLocation(dictionary),
 						parseRootIndexBlockLocation(dictionary),
@@ -44,6 +47,9 @@ public record BlockfileFooterBlock(
 
 	private BinaryDictionary toBinaryDictionary(){
 		return new BinaryDictionary()
+				.put(
+						BlockfileFooterKey.HEADER.bytes,
+						headerBytes.bytes())
 				.put(
 						BlockfileFooterKey.USER_DICTIONARY.bytes,
 						userDictionary.encode())
@@ -62,6 +68,11 @@ public record BlockfileFooterBlock(
 	}
 
 	/*----------- decode ------------*/
+
+	private static RecordByteArrayField parseHeaderBytes(BinaryDictionary dictionary){
+		byte[] bytes = dictionary.get(BlockfileFooterKey.HEADER.bytes);
+		return new RecordByteArrayField(bytes);
+	}
 
 	private static BinaryDictionary parseUserDictionary(BinaryDictionary dictionary){
 		byte[] bytes = dictionary.get(BlockfileFooterKey.USER_DICTIONARY.bytes);

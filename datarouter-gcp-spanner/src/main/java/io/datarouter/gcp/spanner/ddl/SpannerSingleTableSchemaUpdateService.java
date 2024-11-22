@@ -16,7 +16,6 @@
 package io.datarouter.gcp.spanner.ddl;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -90,7 +89,7 @@ public class SpannerSingleTableSchemaUpdateService{
 						tableName,
 						entry.getKey(),
 						entry.getValue(),
-						Collections.emptyList(),
+						List.of(),
 						true))
 				.list();
 		var statements = new SpannerUpdateStatements();
@@ -206,7 +205,11 @@ public class SpannerSingleTableSchemaUpdateService{
 				.map(statement -> statement + ";")
 				.collect(Collectors.joining("\n"));
 
-		SchemaUpdateTool.printSchemaUpdate(logger, printStatement);
+		SchemaUpdateTool.printSchemaUpdate(logger,
+				clientId.getName(),
+				clientsHolder.getDatabase(clientId).getId().getDatabase(),
+				tableName,
+				printStatement);
 		return Optional.of(new SchemaUpdateResult(printStatement, errorMessage, clientId));
 	}
 
@@ -219,7 +222,7 @@ public class SpannerSingleTableSchemaUpdateService{
 					index.getTableName(),
 					index.getIndexName(),
 					keyColumns,
-					Collections.emptyList(),
+					List.of(),
 					index.isUnique());
 		}
 		// Spanner stores the primary key columns in the index automatically and will not create the index if

@@ -8,7 +8,7 @@ datarouter-git complete java based git using jgit (for git) and jsch (for ssh)
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-git</artifactId>
-	<version>0.0.125</version>
+	<version>0.0.126</version>
 </dependency>
 ```
 

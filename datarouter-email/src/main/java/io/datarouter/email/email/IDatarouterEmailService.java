@@ -36,7 +36,11 @@ public class IDatarouterEmailService{
 	@Inject
 	private DatarouterEmailPaths paths;
 
-	public void trySend(EmailDto email, String adminEmail, boolean includeSubscribers, Collection<String> subscribers){
+	public SendEmailRecipients trySend(
+			EmailDto email,
+			String adminEmail,
+			boolean includeSubscribers,
+			Collection<String> subscribers){
 		String fromEmail;
 		if(email.fromAdmin){
 			fromEmail = adminEmail;
@@ -48,15 +52,14 @@ public class IDatarouterEmailService{
 		if(email.toAdmin){
 			toEmails.add(adminEmail);
 		}
-		if(email.toSubscribers){
-			if(includeSubscribers){
-				toEmails.addAll(subscribers);
-			}
+		if(email.toSubscribers && includeSubscribers){
+			toEmails.addAll(subscribers);
 		}
 		emailService.trySend(fromEmail, toEmails, email.subject, email.content, email.html);
+		return new SendEmailRecipients(fromEmail, toEmails);
 	}
 
-	public void trySendJ2Html(
+	public SendEmailRecipients trySendJ2Html(
 			J2HtmlDatarouterEmailBuilder emailBuilder,
 			String adminEmail,
 			boolean includeSubscribers,
@@ -74,13 +77,12 @@ public class IDatarouterEmailService{
 		if(email.toAdmin){
 			toEmails.add(adminEmail);
 		}
-		if(email.toSubscribers){
-			if(includeSubscribers){
-				toEmails.addAll(subscribers);
-			}
+		if(email.toSubscribers && includeSubscribers){
+			toEmails.addAll(subscribers);
 		}
 		String bodyString = email.build().render();
 		emailService.trySend(fromEmail, toEmails, emailBuilder.getSubject(), bodyString, true);
+		return new SendEmailRecipients(fromEmail, toEmails);
 	}
 
 	public DatarouterEmailLinkBuilder startLinkBuilder(String hostPort, String contextPath){
@@ -122,6 +124,11 @@ public class IDatarouterEmailService{
 				.withIncludeLogo(true)
 				.withLogoImgSrc(logoImgSrc)
 				.withLogoHref(logoHref);
+	}
+
+	public record SendEmailRecipients(
+			String from,
+			List<String> to){
 	}
 
 }

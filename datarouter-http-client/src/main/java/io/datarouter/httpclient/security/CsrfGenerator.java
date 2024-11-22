@@ -22,7 +22,7 @@ public interface CsrfGenerator{
 	String generateCsrfIv();
 	String generateCsrfToken(String cipherIv);
 
-	public static interface RefreshableCsrfGenerator extends CsrfGenerator, Refreshable{
+	interface RefreshableCsrfGenerator extends CsrfGenerator, Refreshable{
 	}
 
 }

@@ -38,6 +38,7 @@ public class HandlerMetrics{
 	private static final String CUMULATED_CPU_MS = "cumulatedCpuMs";
 	private static final String BATCH = "batch";
 	private static final String USER_AGENT = "userAgent";
+	private static final String PAYLOAD_SIZE_BYTES = "payloadSizeBytes";
 
 	@Inject
 	private UserAgentTypeConfig userAgentTypeConfig;
@@ -93,6 +94,11 @@ public class HandlerMetrics{
 	public static void saveMethodLatency(Class<? extends BaseHandler> handlerClass, Method method, long durationMs){
 		Metrics.measureWithPercentiles(PREFIX + " " + HANDLER + " " + METHOD + " " + LATENCY_MS + " " + handlerClass
 				.getSimpleName() + " " + method.getName(), durationMs);
+	}
+
+	public static void savePayloadSize(Class<? extends BaseHandler> handlerClass, Method method, long payloadSize){
+		Metrics.measureWithPercentiles(PREFIX + " " + HANDLER + " " + METHOD + " " + PAYLOAD_SIZE_BYTES + " "
+				+ handlerClass.getSimpleName() + " " + method.getName(), payloadSize);
 	}
 
 	public static void incDuration(Class<? extends BaseHandler> handlerClass, Method method, long durationMs){

@@ -22,7 +22,7 @@ public interface ExceptionLinkBuilder{
 	Optional<String> exception(String exceptionId);
 
 
-	static class NoOpExceptionLinkBuilder implements ExceptionLinkBuilder{
+	class NoOpExceptionLinkBuilder implements ExceptionLinkBuilder{
 
 		@Override
 		public Optional<String> exception(String exceptionId){

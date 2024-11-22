@@ -47,9 +47,11 @@ public class CronExpressionToolTests{
 		Assert.assertTrue(ComparableTool.gt(duration, Duration.ofDays(27)));
 	}
 
-	@Test(expectedExceptions = IllegalArgumentException.class)
+	@Test
 	public void testBadCronExpression(){
-		CronExpressionTool.parse("not a cron expression", ZoneIds.UTC);
+		Assert.assertThrows(
+				IllegalArgumentException.class,
+				() -> CronExpressionTool.parse("not a cron expression", ZoneIds.UTC));
 	}
 
 }

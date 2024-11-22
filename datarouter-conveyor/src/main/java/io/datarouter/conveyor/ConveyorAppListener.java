@@ -21,7 +21,6 @@ import java.util.Map;
 import io.datarouter.conveyor.ConveyorConfigurationGroup.ConveyorPackage;
 import io.datarouter.conveyor.config.DatarouterConveyorSettingRoot;
 import io.datarouter.conveyor.config.DatarouterConveyorShouldRunSettings;
-import io.datarouter.conveyor.config.DatarouterConveyorThreadCountSettings;
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.inject.InstanceRegistry;
 import io.datarouter.web.listener.DatarouterAppListener;
@@ -44,7 +43,7 @@ public class ConveyorAppListener implements DatarouterAppListener{
 	@Inject
 	private DatarouterConveyorShouldRunSettings shouldRunSettings;
 	@Inject
-	private DatarouterConveyorThreadCountSettings threadCountSettings;
+	private ConveyorThreadService threadService;
 	@Inject
 	private DatarouterConveyorSettingRoot conveyorSettings;
 
@@ -59,7 +58,7 @@ public class ConveyorAppListener implements DatarouterAppListener{
 
 		var conveyorProcessor = new ConveyorProcessor(
 				shouldRunSettings,
-				threadCountSettings,
+				threadService,
 				conveyorSettings,
 				conveyorPackage,
 				conveyorService,

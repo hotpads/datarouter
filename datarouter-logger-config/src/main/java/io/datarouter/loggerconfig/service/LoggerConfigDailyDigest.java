@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.Optional;
 
 import io.datarouter.email.html.J2HtmlEmailTable;
+import io.datarouter.instrumentation.relay.rml.Rml;
+import io.datarouter.instrumentation.relay.rml.RmlBlock;
 import io.datarouter.loggerconfig.config.DatarouterLoggingConfigPaths;
 import io.datarouter.loggerconfig.storage.loggerconfig.DatarouterLoggerConfigDao;
 import io.datarouter.loggerconfig.storage.loggerconfig.LoggerConfig;
@@ -45,6 +47,21 @@ public class LoggerConfigDailyDigest implements DailyDigest{
 	private DatarouterLoggingConfigPaths paths;
 
 	@Override
+	public String getTitle(){
+		return "Logger Configs";
+	}
+
+	@Override
+	public DailyDigestType getType(){
+		return DailyDigestType.SUMMARY;
+	}
+
+	@Override
+	public DailyDigestGrouping getGrouping(){
+		return DailyDigestGrouping.LOW;
+	}
+
+	@Override
 	public Optional<DivTag> getEmailContent(ZoneId zoneId){
 		List<LoggerConfig> loggers = getTodaysLoggers(zoneId);
 		if(loggers.isEmpty()){
@@ -62,18 +79,26 @@ public class LoggerConfigDailyDigest implements DailyDigest{
 	}
 
 	@Override
-	public String getTitle(){
-		return "Logger Configs";
-	}
-
-	@Override
-	public DailyDigestGrouping getGrouping(){
-		return DailyDigestGrouping.LOW;
-	}
-
-	@Override
-	public DailyDigestType getType(){
-		return DailyDigestType.SUMMARY;
+	public Optional<RmlBlock> getRelayContent(ZoneId zoneId){
+		List<LoggerConfig> loggers = getTodaysLoggers(zoneId);
+		if(loggers.isEmpty()){
+			return Optional.empty();
+		}
+		return Optional.of(Rml.paragraph(
+				digestService.makeHeading("Logger Configs", paths.datarouter.logging),
+				Rml.text("Updated Today").italic(),
+				Rml.table(
+						Rml.tableRow(
+								Rml.tableHeader(Rml.text("Name")),
+								Rml.tableHeader(Rml.text("Level")),
+								Rml.tableHeader(Rml.text("User")),
+								Rml.tableHeader(Rml.text("Updated"))))
+						.with(loggers.stream()
+								.map(logger -> Rml.tableRow(
+										Rml.tableCell(Rml.text(logger.getKey().getName())),
+										Rml.tableCell(Rml.text(logger.getLevel().getPersistentString())),
+										Rml.tableCell(Rml.text(logger.getEmail())),
+										Rml.tableCell(Rml.text(logger.getLastUpdated().format(zoneId))))))));
 	}
 
 	private List<LoggerConfig> getTodaysLoggers(ZoneId zoneId){

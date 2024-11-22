@@ -39,6 +39,7 @@ public class CookieTool{
 		}
 		cookie.setMaxAge(maxAgeSeconds);
 		cookie.setHttpOnly(true); //enforce HttpOnly cookies (can't be accessed by javascript) to prevent XSS attacks
+		cookie.setSecure(true);
 		response.addCookie(cookie);
 	}
 
@@ -50,18 +51,18 @@ public class CookieTool{
 	public static void addCookie(HttpServletResponse response, String cookieName, String value, String path,
 			long maxAgeSeconds, boolean sameSiteNone){
 		if(sameSiteNone){
-			addCookieSameSiteNone(response, cookieName, value, path, maxAgeSeconds);
+			addCookieSameSiteNone(response, cookieName, value, path, NumberTool.limitLongToIntRange(maxAgeSeconds));
 		}else{
 			addCookie(response, cookieName, value, path, NumberTool.limitLongToIntRange(maxAgeSeconds));
 		}
 	}
 
 	public static void addCookieSameSiteNone(HttpServletResponse response, String cookieName, String value, String path,
-			long maxAgeSeconds){
+			int maxAgeSeconds){
 		String cookie = String.join("; ",
 				cookieName + '=' + value,
 				"Path=" + path,
-				"Max-Age=" + NumberTool.limitLongToIntRange(maxAgeSeconds),
+				"Max-Age=" + maxAgeSeconds,
 				"HttpOnly",
 				"SameSite=None",
 				"Secure");
@@ -156,18 +157,18 @@ public class CookieTool{
 
 	/**
 	 * Build a map from the string with the format "
-	 * <code>key[keyValueSeparator]value[entrySeperator]key[keyValueSeparator]value...</code>"
+	 * <code>key[keyValueSeparator]value[entrySeparator]key[keyValueSeparator]value...</code>"
 	 * @param string The input {@link String}
-	 * @param entrySeperator The separator between tow entries
+	 * @param entrySeparator The separator between tow entries
 	 * @param keyValueSeparator The separator between the key and the value
 	 * @return a {@link Map}
 	 */
-	public static Map<String,String> getMapFromString(String string, String entrySeperator, String keyValueSeparator){
+	public static Map<String,String> getMapFromString(String string, String entrySeparator, String keyValueSeparator){
 		Map<String,String> map = new TreeMap<>();
 		if(StringTool.isEmpty(string)){
 			return map;
 		}
-		String[] entries = string.split(entrySeperator);
+		String[] entries = string.split(entrySeparator);
 		String[] keyVal;
 		for(String entry : entries){
 			if(StringTool.notEmpty(entry)){

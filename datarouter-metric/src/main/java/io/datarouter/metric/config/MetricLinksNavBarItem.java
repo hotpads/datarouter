@@ -15,7 +15,7 @@
  */
 package io.datarouter.metric.config;
 
-import io.datarouter.auth.role.DatarouterUserRole;
+import io.datarouter.auth.role.DatarouterUserRoleRegistry;
 import io.datarouter.web.dispatcher.DispatchRule;
 import io.datarouter.web.navigation.DatarouterNavBarCategory;
 import io.datarouter.web.navigation.DynamicNavBarItem;
@@ -36,7 +36,7 @@ public class MetricLinksNavBarItem implements DynamicNavBarItem{
 				paths.datarouter.metric.metricLinks.view.toSlashedString(),
 				"Metric Links")
 				.setDispatchRule(new DispatchRule()
-						.allowRoles(DatarouterUserRole.DATAROUTER_ADMIN, DatarouterUserRole.USER))
+						.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_ADMIN, DatarouterUserRoleRegistry.USER))
 				.build();
 	}
 

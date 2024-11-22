@@ -34,7 +34,9 @@ public class ExampleDeserialization{
 				HttpRequestMethod.GET,
 				"https://example.com/api")
 				.addGetParam("id", "1");
-		DatarouterHttpClient client = new DatarouterHttpClientBuilder(GsonJsonSerializer.DEFAULT).build();
+		DatarouterHttpClient client = new DatarouterHttpClientBuilder(
+				"example-client",
+				GsonJsonSerializer.DEFAULT).build();
 		ExampleDataTransferObject dto = client.execute(request, ExampleDataTransferObject.class);
 	}
 

@@ -65,6 +65,12 @@ public class ByteArrayEncodedField<T> extends BaseField<T>{
 	}
 
 	@Override
+	public int getApproximateValueBytesLength(){
+		byte[] valueBytes = getValueBytes();
+		return valueBytes == null ? 0 : valueBytes.length;
+	}
+
+	@Override
 	public byte[] getKeyBytesWithSeparator(){
 		byte[] bytes = getCodec().encode(value);
 		return TerminatedByteArrayTool.escapeAndTerminate(bytes);

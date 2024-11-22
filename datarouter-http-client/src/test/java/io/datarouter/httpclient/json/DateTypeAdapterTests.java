@@ -25,7 +25,7 @@ import org.testng.annotations.Test;
 import com.google.gson.Gson;
 import com.google.gson.internal.PreJava9DateFormatProvider;
 
-import io.datarouter.gson.GsonTool;
+import io.datarouter.gson.DatarouterGsons;
 import io.datarouter.gson.typeadapter.Java8DateTypeAdapter;
 
 @SuppressWarnings("deprecation")
@@ -34,26 +34,26 @@ public class DateTypeAdapterTests{
 	@Test
 	public void testJava9DateSerialization() throws ParseException{
 		String java8Date = "Feb 13, 2019 10:40:25 PM";
-		DateFormat java8Format = PreJava9DateFormatProvider.getUSDateTimeFormat(DateFormat.DEFAULT, DateFormat.DEFAULT);
+		DateFormat java8Format = PreJava9DateFormatProvider.getUsDateTimeFormat(DateFormat.DEFAULT, DateFormat.DEFAULT);
 		Date date = java8Format.parse(java8Date);
-		Assert.assertEquals(GsonTool.withoutEnums().fromJson('"' + java8Date + '"', Date.class), date);
+		Assert.assertEquals(DatarouterGsons.withoutEnums().fromJson('"' + java8Date + '"', Date.class), date);
 
 		String java9Date = "Feb 13, 2019, 10:40:25 PM";
-		Assert.assertEquals(GsonTool.withoutEnums().fromJson('"' + java9Date + '"', Date.class), date);
+		Assert.assertEquals(DatarouterGsons.withoutEnums().fromJson('"' + java9Date + '"', Date.class), date);
 
 		String java20Date = "Feb 13, 2019, 10:40:25\u202fPM";
-		Assert.assertEquals(GsonTool.withoutEnums().fromJson('"' + java20Date + '"', Date.class), date);
-		Assert.assertEquals(GsonTool.withoutEnums().toJson(date), '"' + java9Date + '"');
+		Assert.assertEquals(DatarouterGsons.withoutEnums().fromJson('"' + java20Date + '"', Date.class), date);
+		Assert.assertEquals(DatarouterGsons.withoutEnums().toJson(date), '"' + java20Date + '"');
 	}
 
 	@Test
 	public void testJava8DateTypeAdapter(){
-		Gson java8TypeAdapterAtTheEnd = GsonTool.withoutEnums().newBuilder()
+		Gson java8TypeAdapterAtTheEnd = DatarouterGsons.withoutEnums().newBuilder()
 				.registerTypeAdapter(Date.class, new Java8DateTypeAdapter())
 				.create();
 		String java8Date = "Feb 13, 2019 10:40:25 PM";
 		String java20Date = "Feb 13, 2019, 10:40:25\u202fPM";
-		Date date = GsonTool.withoutEnums().fromJson('"' + java20Date + '"', Date.class);
+		Date date = DatarouterGsons.withoutEnums().fromJson('"' + java20Date + '"', Date.class);
 		Assert.assertEquals(java8TypeAdapterAtTheEnd.toJson(date), '"' + java8Date + '"');
 		Assert.assertEquals(java8TypeAdapterAtTheEnd.fromJson('"' + java8Date + '"', Date.class), date);
 	}

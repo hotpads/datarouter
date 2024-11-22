@@ -19,7 +19,7 @@ import java.time.Instant;
 import java.util.List;
 
 import io.datarouter.model.field.Field;
-import io.datarouter.model.field.codec.MilliTimeFieldCodec;
+import io.datarouter.model.field.codec.MilliTimeToLongFieldCodec;
 import io.datarouter.model.field.imp.comparable.LongEncodedField;
 import io.datarouter.model.field.imp.comparable.LongEncodedFieldKey;
 import io.datarouter.model.field.imp.comparable.LongField;
@@ -43,7 +43,7 @@ public class DatarouterUserHistoryLogKey extends BaseRegularPrimaryKey<Dataroute
 	public static class FieldKeys{
 		public static final LongFieldKey userId = new LongFieldKey("userId");
 		public static final LongEncodedFieldKey<MilliTime> time = new LongEncodedFieldKey<>("time",
-				new MilliTimeFieldCodec());
+				new MilliTimeToLongFieldCodec());
 	}
 
 	@Override

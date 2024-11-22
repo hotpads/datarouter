@@ -54,8 +54,8 @@ public class AnsiParsingScanner extends BaseLinkedScanner<String,String>{
 	}
 
 	public static AnsiParsedLine parseLine(String line, String htmlClassNamePrefix){
-		StringBuilder text = new StringBuilder();
-		StringBuilder html = new StringBuilder();
+		var text = new StringBuilder();
+		var html = new StringBuilder();
 
 		Matcher resetMatcher = RESET.matcher(line);
 		Matcher sgrMatcher = SGR.matcher(line);
@@ -136,7 +136,10 @@ public class AnsiParsingScanner extends BaseLinkedScanner<String,String>{
 				.list();
 	}
 
-	public record AnsiParsedLine(boolean isHtml, String line, String text){
+	public record AnsiParsedLine(
+			boolean isHtml,
+			String line,
+			String text){
 	}
 
 }

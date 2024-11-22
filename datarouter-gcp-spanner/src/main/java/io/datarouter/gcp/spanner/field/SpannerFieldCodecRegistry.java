@@ -24,6 +24,7 @@ import io.datarouter.gcp.spanner.field.array.SpannerByteArrayFieldCodec;
 import io.datarouter.gcp.spanner.field.date.SpannerInstantFieldCodec;
 import io.datarouter.gcp.spanner.field.date.SpannerLocalDateFieldCodec;
 import io.datarouter.gcp.spanner.field.date.SpannerLocalDateTimeFieldCodec;
+import io.datarouter.gcp.spanner.field.date.SpannerMilliTimestampFieldCodec;
 import io.datarouter.gcp.spanner.field.primitive.SpannerBooleanFieldCodec;
 import io.datarouter.gcp.spanner.field.primitive.SpannerDoubleFieldCodec;
 import io.datarouter.gcp.spanner.field.primitive.SpannerFloatFieldCodec;
@@ -32,6 +33,8 @@ import io.datarouter.gcp.spanner.field.primitive.SpannerIntegerFieldCodec;
 import io.datarouter.gcp.spanner.field.primitive.SpannerLongEncodedFieldCodec;
 import io.datarouter.gcp.spanner.field.primitive.SpannerLongFieldCodec;
 import io.datarouter.gcp.spanner.field.primitive.SpannerShortFieldCodec;
+import io.datarouter.gcp.spanner.field.string.SpannerStringEncodedFieldCodec;
+import io.datarouter.gcp.spanner.field.string.SpannerStringFieldCodec;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.imp.LocalDateField;
 import io.datarouter.model.field.imp.StringEncodedField;
@@ -46,6 +49,7 @@ import io.datarouter.model.field.imp.comparable.IntegerEncodedField;
 import io.datarouter.model.field.imp.comparable.IntegerField;
 import io.datarouter.model.field.imp.comparable.LongEncodedField;
 import io.datarouter.model.field.imp.comparable.LongField;
+import io.datarouter.model.field.imp.comparable.MilliTimestampEncodedField;
 import io.datarouter.model.field.imp.comparable.ShortField;
 import io.datarouter.model.field.imp.custom.LocalDateTimeField;
 import io.datarouter.util.lang.ReflectionTool;
@@ -76,6 +80,7 @@ public class SpannerFieldCodecRegistry implements SpannerFieldCodecs{
 		addCodec(InstantField.class, SpannerInstantFieldCodec.class);
 		addCodec(LocalDateField.class, SpannerLocalDateFieldCodec.class);
 		addCodec(LocalDateTimeField.class, SpannerLocalDateTimeFieldCodec.class);
+		addCodec(MilliTimestampEncodedField.class, SpannerMilliTimestampFieldCodec.class);
 
 		//array
 		addCodec(ByteArrayField.class, SpannerByteArrayFieldCodec.class);

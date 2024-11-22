@@ -17,6 +17,7 @@ package io.datarouter.gcp.spanner.op.write;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 import com.google.cloud.spanner.DatabaseClient;
 import com.google.cloud.spanner.KeySet;
@@ -42,7 +43,7 @@ extends SpannerBaseWriteOp<Void>{
 	}
 
 	protected SpannerDeleteAllOp(DatabaseClient client, Config config, String tableName){
-		super(client, tableName, config, Collections.emptyList());
+		super(client, tableName, config, List.of());
 	}
 
 	@Override

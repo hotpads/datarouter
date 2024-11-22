@@ -21,7 +21,7 @@ import java.util.function.Supplier;
 import io.datarouter.job.storage.joblock.JobLock;
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
-import io.datarouter.model.field.codec.MilliTimeFieldCodec;
+import io.datarouter.model.field.codec.MilliTimeToLongFieldCodec;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
 import io.datarouter.model.field.imp.comparable.LongEncodedField;
@@ -35,8 +35,9 @@ public class TriggerLock extends BaseDatabean<TriggerLockKey,TriggerLock>{
 	private String serverName;
 
 	public static class FieldKeys{
-		public static final LongEncodedFieldKey<MilliTime> expirationTime = new LongEncodedFieldKey<>("expirationTime",
-				new MilliTimeFieldCodec());
+		public static final LongEncodedFieldKey<MilliTime> expirationTime = new LongEncodedFieldKey<>(
+				"expirationTime",
+				new MilliTimeToLongFieldCodec());
 		public static final StringFieldKey serverName = new StringFieldKey("serverName");
 	}
 
@@ -70,7 +71,11 @@ public class TriggerLock extends BaseDatabean<TriggerLockKey,TriggerLock>{
 	}
 
 	public JobLock toJobLock(){
-		return new JobLock(getKey().getJobName(), getKey().getTriggerTime(), expirationTime, serverName);
+		return new JobLock(
+				getKey().getJobName(),
+				getKey().getTriggerTime(),
+				expirationTime,
+				serverName);
 	}
 
 	public String getServerName(){

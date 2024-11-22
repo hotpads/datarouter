@@ -32,6 +32,8 @@ import com.amazonaws.services.rds.model.DBCluster;
 import com.amazonaws.services.rds.model.DBClusterMember;
 import com.amazonaws.services.rds.model.DBInstance;
 import com.amazonaws.services.rds.model.DeleteDBInstanceRequest;
+import com.amazonaws.services.rds.model.DescribeBlueGreenDeploymentsRequest;
+import com.amazonaws.services.rds.model.DescribeBlueGreenDeploymentsResult;
 import com.amazonaws.services.rds.model.DescribeDBClustersRequest;
 import com.amazonaws.services.rds.model.DescribeDBInstancesRequest;
 import com.amazonaws.services.rds.model.ListTagsForResourceRequest;
@@ -126,6 +128,12 @@ public class RdsService{
 
 		request.setPromotionTier(rdsSettings.dbOtherPromotionTier.get());
 		getAmazonRdsCreateOtherClient(region).createDBInstance(request);
+	}
+
+	public DescribeBlueGreenDeploymentsResult getBlueGreenDeployment(String blueGreenDeploymentId, String region){
+		var request = new DescribeBlueGreenDeploymentsRequest()
+				.withBlueGreenDeploymentIdentifier(blueGreenDeploymentId);
+		return getAmazonRdsReadOnlyClient(region).describeBlueGreenDeployments(request);
 	}
 
 	public String getClusterParameterGroup(String clusterName, String region){

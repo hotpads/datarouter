@@ -32,7 +32,6 @@ import io.datarouter.webappinstance.service.WebappInstanceBuildIdLink;
 import io.datarouter.webappinstance.service.WebappInstanceBuildIdLink.NoOpWebappInstanceBuilIdLink;
 import io.datarouter.webappinstance.service.WebappInstanceCommitIdLink;
 import io.datarouter.webappinstance.service.WebappInstanceCommitIdLink.NoOpWebappInstanceCommitIdLink;
-import io.datarouter.webappinstance.service.WebappInstanceDailyDigest;
 import io.datarouter.webappinstance.storage.webappinstance.DatarouterWebappInstanceDao;
 import io.datarouter.webappinstance.storage.webappinstance.DatarouterWebappInstanceDao.DatarouterWebappInstanceDaoParams;
 import io.datarouter.webappinstance.storage.webappinstancelog.DatarouterWebappInstanceLogDao;
@@ -66,7 +65,6 @@ public class DatarouterWebappInstancePlugin extends BaseWebPlugin{
 				new DatarouterWebappInstancePaths().datarouter.webappInstances.running,
 				"Running Servers");
 		addDatarouterGithubDocLink("datarouter-webapp-instance");
-		addDailyDigest(WebappInstanceDailyDigest.class);
 	}
 
 	@Override

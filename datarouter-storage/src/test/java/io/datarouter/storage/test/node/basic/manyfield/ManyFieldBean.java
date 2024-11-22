@@ -23,14 +23,18 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
+import io.datarouter.model.field.LazyByteArrayField;
 import io.datarouter.model.field.codec.IntListFieldCodec;
 import io.datarouter.model.field.codec.IntegerMappedEnumFieldCodec;
+import io.datarouter.model.field.codec.LazyIntListFieldCodec;
 import io.datarouter.model.field.codec.LocalTimeToLongFieldCodec;
-import io.datarouter.model.field.codec.MilliTimeFieldCodec;
+import io.datarouter.model.field.codec.MilliTimeIdentityFieldCodec;
+import io.datarouter.model.field.codec.MilliTimeToLongFieldCodec;
 import io.datarouter.model.field.codec.StringListToBinaryCsvFieldCodec;
 import io.datarouter.model.field.codec.StringListToCsvFieldCodec;
 import io.datarouter.model.field.codec.StringMappedEnumFieldCodec;
@@ -60,6 +64,8 @@ import io.datarouter.model.field.imp.comparable.LongEncodedField;
 import io.datarouter.model.field.imp.comparable.LongEncodedFieldKey;
 import io.datarouter.model.field.imp.comparable.LongField;
 import io.datarouter.model.field.imp.comparable.LongFieldKey;
+import io.datarouter.model.field.imp.comparable.MilliTimestampEncodedField;
+import io.datarouter.model.field.imp.comparable.MilliTimestampEncodedFieldKey;
 import io.datarouter.model.field.imp.comparable.ShortField;
 import io.datarouter.model.field.imp.comparable.ShortFieldKey;
 import io.datarouter.model.field.imp.custom.LocalDateTimeField;
@@ -81,6 +87,7 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 	private Float floatField;
 	private Double doubleField;
 	private MilliTime milliTimeToLongField;//for testing LongEncodedField
+	private MilliTime milliTimeToDatetimeField;//for testing MilliTimestampEncodedField
 	private LocalTime localTimeField;
 	private LocalDate localDateField;
 	private LocalDateTime localDateTimeField;
@@ -96,6 +103,7 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 	private List<String> csvBytesField;
 	private byte[] byteArrayField;
 	private List<Integer> intListToByteArrayField;
+	private LazyByteArrayField<List<Integer>> intListToLazyByteArrayField;
 	private String testSchemaUpdateField;
 
 	public static class FieldKeys{
@@ -110,7 +118,11 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 		public static final DoubleFieldKey doubleField = new DoubleFieldKey("doubleField");
 		public static final LongEncodedFieldKey<MilliTime> milliTimeToLongField = new LongEncodedFieldKey<>(
 				"milliTimeToLongField",
-				new MilliTimeFieldCodec());
+				new MilliTimeToLongFieldCodec());
+		public static final MilliTimestampEncodedFieldKey<MilliTime> milliTimeToDatetimeField =
+				new MilliTimestampEncodedFieldKey<>(
+				"milliTimeToDatetimeField",
+				new MilliTimeIdentityFieldCodec());
 		public static final LongEncodedFieldKey<LocalTime> localTimeField = new LongEncodedFieldKey<>(
 				"localTimeField", new LocalTimeToLongFieldCodec());
 		public static final LocalDateFieldKey localDateField = new LocalDateFieldKey("localDateField");
@@ -128,6 +140,8 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 		public static final ByteArrayFieldKey byteArrayField = new ByteArrayFieldKey("byteArrayField");
 		public static final ByteArrayEncodedFieldKey<List<Integer>> intListToByteArrayField
 				= new ByteArrayEncodedFieldKey<>("intListToByteArrayField", IntListFieldCodec.INSTANCE);
+		public static final ByteArrayEncodedFieldKey<LazyByteArrayField<List<Integer>>> intListToLazyByteArrayField
+				= new ByteArrayEncodedFieldKey<>("intListToLazyByteArrayField", LazyIntListFieldCodec.LAZY_INSTANCE);
 		public static final StringEncodedFieldKey<List<String>> csvField = new StringEncodedFieldKey<>(
 				"csvField",
 				StringListToCsvFieldCodec.INSTANCE);
@@ -148,6 +162,7 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 				&& Objects.equals(floatField, that.floatField)
 				&& Objects.equals(doubleField, that.doubleField)
 				&& Objects.equals(milliTimeToLongField, that.milliTimeToLongField)
+				&& Objects.equals(milliTimeToDatetimeField, that.milliTimeToDatetimeField)
 				&& Objects.equals(localTimeField, that.localTimeField)
 				&& Objects.equals(localDateField, that.localDateField)
 				&& Objects.equals(localDateTimeField, that.localDateTimeField)
@@ -158,6 +173,7 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 				&& Arrays.equals(data, that.data)
 				&& Arrays.equals(byteArrayField, that.byteArrayField)
 				&& Objects.equals(intListToByteArrayField, that.intListToByteArrayField)
+				&& Objects.equals(intListToLazyByteArrayField, that.intListToLazyByteArrayField)
 				&& Objects.equals(csvField, that.csvField)
 				&& Objects.equals(csvBytesField, that.csvBytesField)
 				&& Objects.equals(testSchemaUpdateField, that.testSchemaUpdateField);
@@ -180,6 +196,8 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 					new FloatField(FieldKeys.floatField, databean.floatField),
 					new DoubleField(FieldKeys.doubleField, databean.doubleField),
 					new LongEncodedField<>(FieldKeys.milliTimeToLongField, databean.milliTimeToLongField),
+					new MilliTimestampEncodedField<>(FieldKeys.milliTimeToDatetimeField,
+							databean.milliTimeToDatetimeField),
 					new LongEncodedField<>(FieldKeys.localTimeField, databean.localTimeField),
 					new LocalDateField(FieldKeys.localDateField, databean.localDateField),
 					new LocalDateTimeField(FieldKeys.localDateTimeField, databean.localDateTimeField),
@@ -189,6 +207,9 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 					new ByteArrayField(FieldKeys.stringByteField, databean.stringByteField),
 					new ByteArrayField(FieldKeys.data, databean.data),
 					new ByteArrayEncodedField<>(FieldKeys.intListToByteArrayField, databean.intListToByteArrayField),
+					new ByteArrayEncodedField<>(
+							FieldKeys.intListToLazyByteArrayField,
+							databean.intListToLazyByteArrayField),
 					new ByteArrayField(FieldKeys.byteArrayField, databean.byteArrayField),
 					new StringEncodedField<>(FieldKeys.csvField, databean.csvField),
 					new ByteArrayEncodedField<>(FieldKeys.csvBytesField, databean.csvBytesField),
@@ -315,11 +336,21 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 	}
 
 	public List<Integer> getIntListToByteArrayField(){
-		return this.intListToByteArrayField;
+		return intListToByteArrayField;
 	}
 
 	public void setIntListToByteArrayField(List<Integer> intListToByteArrayField){
 		this.intListToByteArrayField = intListToByteArrayField;
+	}
+
+	public List<Integer> getIntListToLazyByteArrayField(){
+		return Optional.ofNullable(intListToLazyByteArrayField)
+				.map(LazyByteArrayField::value)
+				.orElse(null);
+	}
+
+	public void setIntListToLazyByteArrayField(List<Integer> intListToLazyByteArrayField){
+		this.intListToLazyByteArrayField = LazyIntListFieldCodec.newLazy(intListToLazyByteArrayField);
 	}
 
 	public MilliTime getMilliTimeToLongField(){
@@ -328,6 +359,14 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 
 	public void setMilliTimeToLongField(MilliTime milliTimeToLongField){
 		this.milliTimeToLongField = milliTimeToLongField;
+	}
+
+	public MilliTime getMilliDatetimeField(){
+		return milliTimeToDatetimeField;
+	}
+
+	public void setMilliDatetimeField(MilliTime milliDatetimeField){
+		this.milliTimeToDatetimeField = milliDatetimeField;
 	}
 
 	public LocalTime getLocalTimeField(){

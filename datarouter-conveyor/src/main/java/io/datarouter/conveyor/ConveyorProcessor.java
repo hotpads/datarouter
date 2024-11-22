@@ -33,11 +33,11 @@ import org.slf4j.LoggerFactory;
 import io.datarouter.conveyor.ConveyorConfigurationGroup.ConveyorPackage;
 import io.datarouter.conveyor.config.DatarouterConveyorSettingRoot;
 import io.datarouter.conveyor.config.DatarouterConveyorShouldRunSettings;
-import io.datarouter.conveyor.config.DatarouterConveyorThreadCountSettings;
 import io.datarouter.inject.InstanceRegistry;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.concurrent.ExecutorServiceTool;
 import io.datarouter.util.concurrent.NamedThreadFactory;
+import io.datarouter.webappinstance.service.ClusterThreadCountService.InstanceThreadCounts;
 
 public class ConveyorProcessor{
 	private static final Logger logger = LoggerFactory.getLogger(ConveyorProcessor.class);
@@ -45,7 +45,7 @@ public class ConveyorProcessor{
 	private static final Duration MAX_WAIT_FOR_SHUTDOWN = Duration.ofSeconds(5);
 	private static final Duration SLEEP_TIME_WHEN_DISABLED = Duration.ofSeconds(5);
 
-	private final DatarouterConveyorThreadCountSettings threadCountSettings;
+	private final ConveyorThreadService threadService;
 	private final DatarouterConveyorShouldRunSettings shouldRunSettings;
 	private final DatarouterConveyorSettingRoot conveyorSetting;
 	private final ConveyorPackage conveyorPackage;
@@ -58,13 +58,13 @@ public class ConveyorProcessor{
 
 	public ConveyorProcessor(
 			DatarouterConveyorShouldRunSettings shouldRunSettings,
-			DatarouterConveyorThreadCountSettings threadCountSettings,
+			ConveyorThreadService threadService,
 			DatarouterConveyorSettingRoot conveyorSetting,
 			ConveyorPackage conveyorPackage,
 			ConveyorService conveyorService,
 			ConveyorConfiguration configuration,
 			InstanceRegistry instanceRegistry){
-		this.threadCountSettings = threadCountSettings;
+		this.threadService = threadService;
 		this.shouldRunSettings = shouldRunSettings;
 		this.conveyorSetting = conveyorSetting;
 		this.conveyorPackage = conveyorPackage;
@@ -80,8 +80,7 @@ public class ConveyorProcessor{
 	}
 
 	private void run(){
-		Supplier<Integer> numMaxThreads = threadCountSettings.getSettingForConveyorPackage(conveyorPackage);
-		submitTasks(numMaxThreads.get());
+		submitTasks(getMaxAllowedThreadCount());
 		while(true){
 			try{
 				if(Thread.interrupted()){
@@ -97,13 +96,11 @@ public class ConveyorProcessor{
 						TimeUnit.MILLISECONDS);
 				if(completedTask != null){
 					// a task has finished, try submitting additional tasks or remove some if necessary
-					logger.debug("One task finished, numRunningTasks={}, numAllowedThread={}",
-							conveyorFutures.size(),
-							numMaxThreads.get());
+					logger.debug("One task finished, numRunningTasks={}", conveyorFutures.size());
 					conveyorFutures.remove(completedTask);
 					sleepABit(conveyorSetting.sleepOnTaskCompletion.get().toJavaDuration());
 				}
-				submitMoreTasksOrCancelTasks(numMaxThreads);
+				submitMoreTasksOrCancelTasks();
 			}catch(Throwable e){
 				logger.error("", e);
 			}
@@ -122,8 +119,8 @@ public class ConveyorProcessor{
 		}
 	}
 
-	private void submitMoreTasksOrCancelTasks(Supplier<Integer> numMaxThreads){
-		int maxThreads = numMaxThreads.get();
+	private void submitMoreTasksOrCancelTasks(){
+		int maxThreads = getMaxAllowedThreadCount();
 		if(conveyorFutures.size() == maxThreads){
 			return;
 		}
@@ -169,7 +166,11 @@ public class ConveyorProcessor{
 	}
 
 	public int getMaxAllowedThreadCount(){
-		return threadCountSettings.getSettingForConveyorPackage(conveyorPackage).get();
+		return getThreadCounts().effectiveLimit();
+	}
+
+	public InstanceThreadCounts getThreadCounts(){
+		return threadService.getThreads(conveyorPackage);
 	}
 
 }

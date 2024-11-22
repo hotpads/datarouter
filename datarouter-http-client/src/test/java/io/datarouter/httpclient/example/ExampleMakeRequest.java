@@ -27,7 +27,9 @@ public class ExampleMakeRequest{
 
 	public void example(){
 		// reuse this client
-		DatarouterHttpClient client = new DatarouterHttpClientBuilder(GsonJsonSerializer.DEFAULT).build();
+		DatarouterHttpClient client = new DatarouterHttpClientBuilder(
+				"example-client",
+				GsonJsonSerializer.DEFAULT).build();
 
 		DatarouterHttpRequest request = new DatarouterHttpRequest(
 				HttpRequestMethod.GET,

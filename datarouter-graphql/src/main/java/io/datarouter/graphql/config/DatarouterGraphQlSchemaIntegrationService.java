@@ -23,7 +23,9 @@ import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.instrumentation.test.TestableService;
 import io.datarouter.util.clazz.AnnotationTool;
 import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
+@Singleton
 public class DatarouterGraphQlSchemaIntegrationService implements TestableService{
 
 	@Inject

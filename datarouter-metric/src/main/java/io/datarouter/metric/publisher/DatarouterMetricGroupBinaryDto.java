@@ -36,6 +36,8 @@ public class DatarouterMetricGroupBinaryDto extends BinaryDto<DatarouterMetricGr
 	public final List<DatarouterGaugeBinaryDto> gauges;
 	@BinaryDtoField(index = 6)
 	public final List<DatarouterMeasurementBinaryDto> measurementBatches;
+	@BinaryDtoField(index = 7)
+	public final Integer random;
 
 	public DatarouterMetricGroupBinaryDto(
 			String environment,
@@ -44,7 +46,8 @@ public class DatarouterMetricGroupBinaryDto extends BinaryDto<DatarouterMetricGr
 			Long periodStartMs,
 			List<DatarouterCountBinaryDto> counts,
 			List<DatarouterGaugeBinaryDto> gauges,
-			List<DatarouterMeasurementBinaryDto> measurementBatches){
+			List<DatarouterMeasurementBinaryDto> measurementBatches,
+			Integer random){
 		this.environment = environment;
 		this.serviceName = serviceName;
 		this.serverName = serverName;
@@ -52,6 +55,7 @@ public class DatarouterMetricGroupBinaryDto extends BinaryDto<DatarouterMetricGr
 		this.counts = counts;
 		this.gauges = gauges;
 		this.measurementBatches = measurementBatches;
+		this.random = random;
 	}
 
 	public static class DatarouterCountBinaryDto extends BinaryDto<DatarouterCountBinaryDto>{

@@ -24,13 +24,18 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 import io.datarouter.clustersetting.config.DatarouterClusterSettingPaths;
 import io.datarouter.clustersetting.enums.ClusterSettingValidity;
 import io.datarouter.clustersetting.storage.clustersetting.ClusterSetting;
 import io.datarouter.clustersetting.web.ClusterSettingHtml;
+import io.datarouter.clustersetting.web.browse.ClusterSettingBrowseHandler.ClusterSettingBrowseEmailLinks;
+import io.datarouter.clustersetting.web.override.handler.ClusterSettingOverrideViewHandler.ClusterSettingOverrideEmailLinks;
 import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
+import io.datarouter.instrumentation.relay.rml.Rml;
+import io.datarouter.instrumentation.relay.rml.RmlBlock;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
@@ -52,10 +57,19 @@ public class ClusterSettingDailyDigest implements DailyDigest{
 	private DatarouterClusterSettingPaths paths;
 	@Inject
 	private ClusterSettingHtml clusterSettingHtml;
+	@Inject
+	private ClusterSettingOverrideEmailLinks overrideEmailLinks;
+	@Inject
+	private ClusterSettingBrowseEmailLinks browseEmailLinks;
 
 	@Override
 	public String getTitle(){
 		return "Cluster Settings";
+	}
+
+	@Override
+	public DailyDigestType getType(){
+		return DailyDigestType.ACTIONABLE;
 	}
 
 	@Override
@@ -71,8 +85,29 @@ public class ClusterSettingDailyDigest implements DailyDigest{
 	}
 
 	@Override
-	public DailyDigestType getType(){
-		return DailyDigestType.ACTIONABLE;
+	public Optional<RmlBlock> getRelayContent(ZoneId zoneId){
+		List<HeaderAndRelayContent> tables = Scanner.of(
+				makeHeaderAndRelayContent(ClusterSettingValidity.REDUNDANT, browseEmailLinks::fromEmail),
+				makeHeaderAndRelayContent(ClusterSettingValidity.UNREFERENCED, overrideEmailLinks::view),
+				makeHeaderAndRelayContent(ClusterSettingValidity.OLD, browseEmailLinks::fromEmail),
+				makeHeaderAndRelayContent(ClusterSettingValidity.UNKNOWN, overrideEmailLinks::view))
+				.concatOpt(Function.identity())
+				.list();
+
+		if(tables.isEmpty()){
+			return Optional.empty();
+		}
+
+		return Optional.of(Rml.paragraph(
+				digestService.makeHeading("Settings", paths.datarouter.settings.overrides.view))
+				.with(tables.stream()
+						.flatMap(table -> Stream.of(
+								Rml.heading(4, Rml.text(table.heading())),
+								Rml.text(table.helper()).italic(),
+								Rml.table()
+										.with(table.settings().stream()
+												.map(Rml::tableCell)
+												.map(Rml::tableRow))))));
 	}
 
 	private Optional<DivTag> makeContent(
@@ -87,7 +122,7 @@ public class ClusterSettingDailyDigest implements DailyDigest{
 								+ "through the Cluster Setting UI")));
 		Optional<HeaderAndContent> unreferencedTable = settingService
 				.scanWithValidity(ClusterSettingValidity.UNREFERENCED)
-				.listTo(settings -> settingFormatter.build(
+				.listTo(settings -> prefixFormatter.build(
 						settings,
 						"Unreferenced",
 						Optional.of("Settings exist in the database but not in the code.")));
@@ -116,6 +151,24 @@ public class ClusterSettingDailyDigest implements DailyDigest{
 				.map(TagCreator::div)
 				.forEach(tablesDiv::with);
 		return Optional.of(tablesDiv);
+	}
+
+	private Optional<HeaderAndRelayContent> makeHeaderAndRelayContent(
+			ClusterSettingValidity validity,
+			Function<String,String> toLink){
+		List<ClusterSetting> settings = settingService.scanWithValidity(validity).list();
+
+		if(settings.isEmpty()){
+			return Optional.empty();
+		}
+
+		return Optional.of(new HeaderAndRelayContent(
+				validity.display,
+				validity.description,
+				settings.stream()
+						.map(ClusterSetting::getName)
+						.<RmlBlock>map(setting -> Rml.text(setting).link(toLink.apply(setting)))
+						.toList()));
 	}
 
 	private interface ClusterSettingDailyDigestTableFormatter{
@@ -147,6 +200,12 @@ public class ClusterSettingDailyDigest implements DailyDigest{
 	private record HeaderAndContent(
 			String header,
 			DivTag content){
+	}
+
+	private record HeaderAndRelayContent(
+			String heading,
+			String helper,
+			List<RmlBlock> settings){
 	}
 
 	private final ClusterSettingDailyDigestTableFormatter emailFormatter = settings ->

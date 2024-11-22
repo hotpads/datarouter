@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import io.datarouter.instrumentation.relay.rml.Rml;
+import io.datarouter.instrumentation.relay.rml.RmlBlock;
 import io.datarouter.joblet.config.DatarouterJobletPaths;
 import io.datarouter.joblet.service.JobletDailyDigestService.OldJobletDto;
 import io.datarouter.scanner.Scanner;
@@ -43,6 +45,21 @@ public class OldJobletDailyDigest implements DailyDigest{
 	private JobletDailyDigestService jobletDailyDigestService;
 
 	@Override
+	public String getTitle(){
+		return "Old or Stuck Joblets";
+	}
+
+	@Override
+	public DailyDigestType getType(){
+		return DailyDigestType.ACTIONABLE;
+	}
+
+	@Override
+	public DailyDigestGrouping getGrouping(){
+		return DailyDigestGrouping.LOW;
+	}
+
+	@Override
 	public Optional<DivTag> getEmailContent(ZoneId zoneId){
 		Map<OldJobletDto,List<OldJobletDto>> rows = Scanner.of(jobletDailyDigestService.getOldJoblets())
 				.groupBy(OldJobletDto::fromRequest, OldJobletDto::fromRequest);
@@ -55,18 +72,15 @@ public class OldJobletDailyDigest implements DailyDigest{
 	}
 
 	@Override
-	public DailyDigestGrouping getGrouping(){
-		return DailyDigestGrouping.LOW;
-	}
-
-	@Override
-	public String getTitle(){
-		return "Old or Stuck Joblets";
-	}
-
-	@Override
-	public DailyDigestType getType(){
-		return DailyDigestType.ACTIONABLE;
+	public Optional<RmlBlock> getRelayContent(ZoneId zoneId){
+		Map<OldJobletDto,List<OldJobletDto>> rows = Scanner.of(jobletDailyDigestService.getOldJoblets())
+				.groupBy(OldJobletDto::fromRequest, OldJobletDto::fromRequest);
+		if(rows.isEmpty()){
+			return Optional.empty();
+		}
+		return Optional.of(Rml.paragraph(
+				digestService.makeHeading("Old Joblets", paths.datarouter.joblets.list),
+				jobletDailyDigestService.makeRelayTableForOldJoblets(rows)));
 	}
 
 }

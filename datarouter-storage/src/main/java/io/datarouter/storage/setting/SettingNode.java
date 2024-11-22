@@ -73,7 +73,7 @@ public abstract class SettingNode{
 		return child;
 	}
 
-	protected <S extends CachedSetting<?>> S register(S setting){
+	protected <S extends CachedSetting<?>> S registerSetting(S setting){
 		if(settings.containsKey(setting.getName())){
 			throw new IllegalArgumentException(setting.getName() + " has already been registered.");
 		}
@@ -137,39 +137,39 @@ public abstract class SettingNode{
 	}
 
 	public StringCachedSetting registerStrings(String name, DefaultSettingValue<String> defaultValue){
-		return register(new StringCachedSetting(finder, getName() + name, defaultValue));
+		return registerSetting(new StringCachedSetting(finder, getName() + name, defaultValue));
 	}
 
 	public CommaSeparatedStringCachedSetting registerCommaSeparatedStrings(
 			String name,
 			DefaultSettingValue<Set<String>> defaultValue){
-		return register(new CommaSeparatedStringCachedSetting(finder, getName() + name, defaultValue));
+		return registerSetting(new CommaSeparatedStringCachedSetting(finder, getName() + name, defaultValue));
 	}
 
 	public CommaSeparatedTrimmedStringCachedSetting registerCommaSeparatedTrimmedStrings(
 			String name,
 			DefaultSettingValue<Set<String>> defaultValue){
-		return register(new CommaSeparatedTrimmedStringCachedSetting(finder, getName() + name, defaultValue));
+		return registerSetting(new CommaSeparatedTrimmedStringCachedSetting(finder, getName() + name, defaultValue));
 	}
 
 	public BooleanCachedSetting registerBooleans(String name, DefaultSettingValue<Boolean> defaultValue){
-		return register(new BooleanCachedSetting(finder, getName() + name, defaultValue));
+		return registerSetting(new BooleanCachedSetting(finder, getName() + name, defaultValue));
 	}
 
 	public IntegerCachedSetting registerIntegers(String name, DefaultSettingValue<Integer> defaultValue){
-		return register(new IntegerCachedSetting(finder, getName() + name, defaultValue));
+		return registerSetting(new IntegerCachedSetting(finder, getName() + name, defaultValue));
 	}
 
 	public LongCachedSetting registerLongs(String name, DefaultSettingValue<Long> defaultValue){
-		return register(new LongCachedSetting(finder, getName() + name, defaultValue));
+		return registerSetting(new LongCachedSetting(finder, getName() + name, defaultValue));
 	}
 
 	public DoubleCachedSetting registerDoubles(String name, DefaultSettingValue<Double> defaultValue){
-		return register(new DoubleCachedSetting(finder, getName() + name, defaultValue));
+		return registerSetting(new DoubleCachedSetting(finder, getName() + name, defaultValue));
 	}
 
 	public DurationCachedSetting registerDurations(String name, DefaultSettingValue<DatarouterDuration> defaultValue){
-		return register(new DurationCachedSetting(finder, getName() + name, defaultValue));
+		return registerSetting(new DurationCachedSetting(finder, getName() + name, defaultValue));
 	}
 
 	/*---------- get/set ----------*/

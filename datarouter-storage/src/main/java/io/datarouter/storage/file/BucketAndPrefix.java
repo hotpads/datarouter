@@ -36,4 +36,10 @@ public record BucketAndPrefix(
 		return bucket + "/" + prefix;
 	}
 
+	public BucketAndKey toBucketAndKey(PathbeanKey pathbeanKey){
+		return new BucketAndKey(
+				bucket,
+				prefix + pathbeanKey.getPathAndFile());
+	}
+
 }

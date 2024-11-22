@@ -21,7 +21,7 @@
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-parent</artifactId>
-		<version>0.0.125</version>
+		<version>0.0.126</version>
 		<relativePath>../datarouter-parent</relativePath>
 	</parent>
 
@@ -45,9 +45,9 @@
 		</dependency>
 
 		<dependency>
-			<groupId>com.jcraft</groupId>
+			<groupId>com.github.mwiede</groupId>
 			<artifactId>jsch</artifactId>
-			<version>0.1.55</version>
+			<version>${jsch-version}</version>
 		</dependency>
 
 		<dependency>

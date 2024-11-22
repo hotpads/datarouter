@@ -46,7 +46,9 @@ public class DatarouterHttpRequestTests{
 		}
 	};
 
-	private final DatarouterHttpClient client = new DatarouterHttpClientBuilder(GsonJsonSerializer.DEFAULT)
+	private final DatarouterHttpClient client = new DatarouterHttpClientBuilder(
+			"test-client",
+			GsonJsonSerializer.DEFAULT)
 			.setConfig(config)
 			.build();
 

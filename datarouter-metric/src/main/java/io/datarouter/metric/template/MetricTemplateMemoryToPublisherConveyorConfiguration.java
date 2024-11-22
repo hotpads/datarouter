@@ -19,14 +19,14 @@ import java.util.Collection;
 import java.util.function.Consumer;
 
 import io.datarouter.conveyor.queue.configuration.BaseMemoryBufferPutMultiConsumerConveyorConfiguration;
-import io.datarouter.instrumentation.metric.collector.MetricTemplateDto;
+import io.datarouter.metric.template.MetricTemplatePublisher.PublishedMetricTemplate;
 import io.datarouter.util.buffer.MemoryBuffer;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
 @Singleton
 public class MetricTemplateMemoryToPublisherConveyorConfiguration
-extends BaseMemoryBufferPutMultiConsumerConveyorConfiguration<MetricTemplateDto>{
+extends BaseMemoryBufferPutMultiConsumerConveyorConfiguration<PublishedMetricTemplate>{
 
 	@Inject
 	private MetricTemplateBuffer buffer;
@@ -34,12 +34,12 @@ extends BaseMemoryBufferPutMultiConsumerConveyorConfiguration<MetricTemplateDto>
 	private MetricTemplatePublisher publisher;
 
 	@Override
-	protected MemoryBuffer<MetricTemplateDto> getMemoryBuffer(){
+	protected MemoryBuffer<PublishedMetricTemplate> getMemoryBuffer(){
 		return buffer.buffer;
 	}
 
 	@Override
-	protected Consumer<Collection<MetricTemplateDto>> getPutMultiConsumer(){
+	protected Consumer<Collection<PublishedMetricTemplate>> getPutMultiConsumer(){
 		return publisher::publishTemplates;
 	}
 

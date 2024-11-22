@@ -16,7 +16,6 @@
 package io.datarouter.client.mysql.ddl.execute;
 
 import java.sql.SQLSyntaxErrorException;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -92,7 +91,7 @@ public class MysqlSingleTableSchemaUpdateService{
 		DatabeanFieldInfo<?,?,?> fieldInfo = physicalNode.getFieldInfo();
 		List<Field<?>> primaryKeyFields = fieldInfo.getPrimaryKeyFields();
 		List<Field<?>> nonKeyFields = fieldInfo.getNonKeyFields();
-		Map<String,List<Field<?>>> indexes = Collections.emptyMap();
+		Map<String,List<Field<?>>> indexes = Map.of();
 		Map<String,List<Field<?>>> uniqueIndexes = fieldInfo.getUniqueIndexes();
 		MysqlTableOptions mysqlTableOptions = MysqlTableOptions.make(fieldInfo.getSampleFielder());
 		MysqlCollation collation = mysqlTableOptions.getCollation();
@@ -137,7 +136,7 @@ public class MysqlSingleTableSchemaUpdateService{
 				}
 				return Optional.empty();
 			}
-			SchemaUpdateTool.printSchemaUpdate(logger, createDdl);
+			SchemaUpdateTool.printSchemaUpdate(logger, clientId.getName(), schemaName, tableName, createDdl);
 			return Optional.of(new SchemaUpdateResult(createDdl, tableName + " creation is required", clientId));
 		}
 		SqlTable executeCurrent = ConnectionSqlTableGenerator.generate(connectionPool, tableName, schemaName);
@@ -159,7 +158,8 @@ public class MysqlSingleTableSchemaUpdateService{
 		if(ddl.printStatement().isEmpty()){
 			return Optional.empty();
 		}
-		SchemaUpdateTool.printSchemaUpdate(logger, ddl.printStatement().get());
+		SchemaUpdateTool.printSchemaUpdate(logger, clientId.getName(), schemaName, tableName,
+				ddl.printStatement().get());
 
 		String errorMessage = null;
 		if(ddl.preventStartUp()){

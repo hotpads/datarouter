@@ -23,14 +23,8 @@ import static j2html.TagCreator.join;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.pre;
 import static j2html.TagCreator.script;
-import static j2html.TagCreator.table;
-import static j2html.TagCreator.tbody;
-import static j2html.TagCreator.td;
-import static j2html.TagCreator.text;
-import static j2html.TagCreator.tr;
 
 import java.time.ZoneId;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -45,22 +39,17 @@ import io.datarouter.auth.config.DatarouterAuthPaths;
 import io.datarouter.auth.config.DatarouterAuthenticationConfig;
 import io.datarouter.auth.role.Role;
 import io.datarouter.auth.role.RoleManager;
-import io.datarouter.auth.service.DatarouterUserHistoryService;
 import io.datarouter.auth.service.DatarouterUserService;
 import io.datarouter.auth.storage.user.datarouteruser.DatarouterUser;
 import io.datarouter.auth.storage.user.datarouteruser.DatarouterUserDao;
 import io.datarouter.auth.storage.user.permissionrequest.DatarouterPermissionRequestDao;
 import io.datarouter.auth.storage.user.permissionrequest.PermissionRequest;
+import io.datarouter.auth.web.service.DatarouterPermissionRequestEmailService;
 import io.datarouter.auth.web.service.PermissionRequestService;
 import io.datarouter.auth.web.service.PermissionRequestService.DeclinePermissionRequestDto;
-import io.datarouter.auth.web.service.PermissionRequestUserInfo.PermissionRequestUserInfoSupplier;
-import io.datarouter.email.email.DatarouterHtmlEmailService;
-import io.datarouter.email.type.DatarouterEmailTypes.PermissionRequestEmailType;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.properties.AdminEmail;
 import io.datarouter.storage.config.properties.ServiceName;
-import io.datarouter.storage.config.setting.DatarouterEmailSubscriberSettings;
-import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.types.MilliTime;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.handler.BaseHandler;
@@ -77,9 +66,7 @@ import io.datarouter.web.html.form.HtmlFormCheckboxTable.Row;
 import io.datarouter.web.html.form.HtmlFormTimezoneSelect;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
-import j2html.tags.DomContent;
 import j2html.tags.specialized.DivTag;
-import j2html.tags.specialized.TrTag;
 import jakarta.inject.Inject;
 
 public class DatarouterPermissionRequestHandler extends BaseHandler{
@@ -104,29 +91,19 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 	@Inject
 	private DatarouterUserService datarouterUserService;
 	@Inject
-	private DatarouterHtmlEmailService htmlEmailService;
-	@Inject
 	private DatarouterAuthPaths paths;
-	@Inject
-	private DatarouterUserHistoryService userHistoryService;
-	@Inject
-	private PermissionRequestEmailType permissionRequestEmailType;
 	@Inject
 	private ServiceName serviceName;
 	@Inject
-	private ServerTypeDetector serverTypeDetector;
-	@Inject
 	private AdminEmail adminEmail;
-	@Inject
-	private DatarouterEmailSubscriberSettings subscribersSettings;
-	@Inject
-	private PermissionRequestUserInfoSupplier userInfoSupplier;
 	@Inject
 	private DatarouterUserDao datarouterUserDao;
 	@Inject
 	private RoleManager roleManager;
 	@Inject
 	private PermissionRequestService permissionRequestService;
+	@Inject
+	private DatarouterPermissionRequestEmailService permissionRequestEmailService;
 
 	@Handler(defaultHandler = true)
 	public Mav showForm(
@@ -188,12 +165,12 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 				.withId("roleTable")
 				.withLabel("Available Roles to Request")
 				.withColumns(List.of(new Column("role", "Role"), new Column("description", "Description")))
-				.withRows(Scanner.of(roleManager.getAllRoles())
+				.withRows(Scanner.of(roleManager.getRequestableRoles(user))
 						.map(role -> {
 							boolean userHasRole = user.getRolesIgnoreSaml().contains(role);
 							return new Row(
-									role.getPersistentString(),
-									List.of(role.getPersistentString(), role.getDescription()),
+									role.persistentString(),
+									List.of(role.persistentString(), role.description()),
 									userHasRole,
 									userHasRole);
 						})
@@ -262,10 +239,10 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 		}
 		reason = reason.trim();
 		if(StringTool.isEmpty(requestedRoleString)){
-		return new InContextRedirectMav(
-				request,
-				paths.permissionRequest,
-				Map.of(P_VALIDATION_ERROR, "At least one requested role is required."));
+			return new InContextRedirectMav(
+					request,
+					paths.permissionRequest,
+					Map.of(P_VALIDATION_ERROR, "At least one requested role is required."));
 		}
 		String specifics = "Request Reason: \"%s\"\nRequested Roles: %s.".formatted(reason, requestedRoleString)
 				+ deniedUrl.map(url -> "\nAttempted request to: " + url + ".").orElse("")
@@ -292,7 +269,7 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 				.list());
 		Set<String> additionalRecipients = roleManager.getAdditionalPermissionRequestEmailRecipients(user,
 				requestedRoles);
-		sendRequestEmail(user, reason, specifics, additionalRecipients);
+		permissionRequestEmailService.sendRequestEmail(user, reason, specifics, EMAIL_TITLE, additionalRecipients);
 
 		//not just requestor, so send them to the home page after they make their request
 		if(datarouterUserService.getUserRolesWithSamlGroups(user).size() > 1){
@@ -327,7 +304,7 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 				specifics,
 				null,
 				null));
-		sendRequestEmail(user, reason, specifics, Collections.emptySet());
+		permissionRequestEmailService.sendRequestEmail(user, reason, specifics, EMAIL_TITLE, Set.of());
 
 		//not just requestor, so send them to the home page after they make their request
 		if(datarouterUserService.getUserRolesWithSamlGroups(user).size() > 1){
@@ -353,7 +330,6 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 		return new GlobalRedirectMav(redirectPath.get());
 	}
 
-	//TODO (same time as DATAROUTER-2788) extract common code copied from Mav declineAll
 	@Handler
 	private DeclinePermissionRequestDto declinePermissionRequests(String userId){
 		long userIdLong = Long.parseLong(userId);
@@ -368,44 +344,6 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 
 	private DatarouterUser getCurrentUser(){
 		return datarouterUserService.getAndValidateCurrentUser(getSessionInfo().getRequiredSession());
-	}
-
-	private void sendRequestEmail(
-			DatarouterUser user,
-			String reason,
-			String specifics,
-			Set<String> additionalRecipients){
-		String userEmail = user.getUsername();
-		String primaryHref = htmlEmailService.startLinkBuilder()
-				.withLocalPath(paths.admin.editUser.toSlashedString())
-				.withParam("userId", user.getId() + "")
-				.build();
-		var table = table(tbody()
-				.with(createLabelValueTr("Service", text(serviceName.get()))
-				.with(userInfoSupplier.get().getUserInformation(user)))
-				.with(createLabelValueTr("Reason", text(reason)))
-				.condWith(StringTool.notEmpty(specifics), createLabelValueTr("Specifics", text(specifics))))
-				.withStyle("border-spacing: 0; white-space: pre-wrap;");
-		var content = div(table, p(a("Edit user profile").withHref(primaryHref)));
-		var emailBuilder = htmlEmailService.startEmailBuilder()
-				.withSubject(userHistoryService.getPermissionRequestEmailSubject(user))
-				.withTitle(EMAIL_TITLE)
-				.withTitleHref(primaryHref)
-				.withContent(content)
-				.from(userEmail)
-				.to(userEmail)
-				.to(additionalRecipients)
-				.to(permissionRequestEmailType, serverTypeDetector.mightBeProduction())
-				.toAdmin(serverTypeDetector.mightBeDevelopment());
-		if(subscribersSettings.includeSubscribers.get()){
-			emailBuilder.toSubscribers();
-		}
-		htmlEmailService.trySendJ2Html(emailBuilder);
-	}
-
-	public static TrTag createLabelValueTr(String label, DomContent...values){
-		return tr(td(b(label + ' ')).withStyle("text-align: right"), td().with(values).withStyle("padding-left: 8px"))
-				.withStyle("vertical-align: top");
 	}
 
 	private String noDatarouterAuthentication(){

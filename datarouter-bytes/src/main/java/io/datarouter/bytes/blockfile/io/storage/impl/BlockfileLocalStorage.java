@@ -100,6 +100,21 @@ public class BlockfileLocalStorage implements BlockfileStorage{
 	}
 
 	@Override
+	public byte[] readEnding(String name, int length){
+		Path fullPath = fullPath(name);
+		try(SeekableByteChannel channel = Files.newByteChannel(fullPath, StandardOpenOption.READ)){
+			long fileLength = channel.size();
+			int numBytes = Math.toIntExact(Math.min(fileLength, length));
+			ByteBuffer buffer = ByteBuffer.allocate(numBytes);
+			channel.position(fileLength - numBytes);
+			channel.read(buffer);
+			return buffer.array();
+		}catch(IOException e){
+			throw new UncheckedIOException(e);
+		}
+	}
+
+	@Override
 	public InputStream readInputStream(String name, Threads threads, ByteLength chunkSize){
 		// Parallel reads not implemented, but could be
 		Path fullPath = fullPath(name);

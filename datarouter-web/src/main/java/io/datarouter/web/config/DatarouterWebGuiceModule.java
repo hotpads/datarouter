@@ -16,6 +16,7 @@
 package io.datarouter.web.config;
 
 import java.time.ZoneId;
+import java.util.List;
 
 import com.google.gson.Gson;
 import com.google.inject.name.Names;
@@ -32,8 +33,8 @@ import io.datarouter.auth.storage.user.saml.BaseDatarouterSamlDao;
 import io.datarouter.auth.storage.user.saml.BaseDatarouterSamlDao.NoOpDatarouterSamlDao;
 import io.datarouter.auth.storage.user.session.BaseDatarouterSessionDao;
 import io.datarouter.auth.storage.user.session.BaseDatarouterSessionDao.NoOpDatarouterSessionDao;
+import io.datarouter.gson.DatarouterGsons;
 import io.datarouter.gson.GsonJsonSerializer;
-import io.datarouter.gson.GsonTool;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder.NoOpChangelogRecorder;
 import io.datarouter.instrumentation.web.ContextName;
@@ -64,6 +65,7 @@ import io.datarouter.web.navigation.AppNavBar;
 import io.datarouter.web.navigation.AppNavBarRegistrySupplier;
 import io.datarouter.web.navigation.AppNavBarRegistrySupplier.NoOpAppNavBarRegistry;
 import io.datarouter.web.user.authenticate.config.BaseDatarouterAuthenticationConfig;
+import io.datarouter.web.util.http.CloudfrontIpRange;
 
 public class DatarouterWebGuiceModule extends BaseGuiceServletModule{
 
@@ -104,14 +106,15 @@ public class DatarouterWebGuiceModule extends BaseGuiceServletModule{
 		bindDefault(ChangelogRecorder.class, NoOpChangelogRecorder.class);
 
 		// define as singleton for everybody
-		bind(Gson.class).toInstance(GsonTool.GSON);
+		bind(Gson.class).toInstance(DatarouterGsons.forInjection());
 
 		bindDefaultInstance(DefaultEmailDistributionListZoneId.class,
 				new DefaultEmailDistributionListZoneId(ZoneId.systemDefault()));
 
 		bindDefault(HandlerAccountCallerValidator.class, NoOpHandlerAccountCallerValidator.class);
-
 		bindDefault(BackwardsCompatiblePayloadChecker.class, NoOpBackwardsCompatiblePayloadChecker.class);
+
+		bindDefaultInstance(CloudfrontIpRange.class, new CloudfrontIpRange(List.of()));
 	}
 
 	// allows this module to be installed multiple times

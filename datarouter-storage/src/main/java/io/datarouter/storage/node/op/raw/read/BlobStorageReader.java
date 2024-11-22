@@ -74,6 +74,12 @@ extends NodeOps<PathbeanKey,Pathbean>{
 		return readPartial(key, offset, length, new Config());
 	}
 
+	Optional<byte[]> readEnding(PathbeanKey key, int length, Config config);
+
+	default Optional<byte[]> readEnding(PathbeanKey key, int length){
+		return readEnding(key, length, new Config());
+	}
+
 	// Override in subclasses that support fetching multiple objects per RPC
 	default Map<PathbeanKey,byte[]> readMulti(List<PathbeanKey> keys, Config config){
 		record KeyAndValue(

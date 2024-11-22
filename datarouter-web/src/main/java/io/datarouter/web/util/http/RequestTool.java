@@ -51,6 +51,7 @@ import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.BooleanTool;
 import io.datarouter.util.net.IpTool;
+import io.datarouter.util.net.Subnet;
 import io.datarouter.util.number.NumberTool;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.util.tuple.DefaultableMap;
@@ -59,11 +60,20 @@ public class RequestTool{
 	private static final Logger logger = LoggerFactory.getLogger(RequestTool.class);
 
 	protected static final String HEADER_VALUE_DELIMITER = ", ";
-	private static final String[] PRIVATE_NETS = {"10.0.0.0/8", "172.16.0.0/12", "100.64.0.0/10"};
+
+	// intentional package scope
+	protected static final List<Subnet> PRIVATE_NETS = List.of(
+			new Subnet("10.0.0.0/8"),
+			new Subnet("172.16.0.0/12"),
+			new Subnet("100.64.0.0/10"));
+
 
 	public static final String INACCESSIBLE_BODY = "INACCESSIBLE BODY: ";
 	public static final String REQUEST_PHASE_TIMER = "requestPhaseTimer";
 
+	/**
+	 * @return the path without the context path
+	 */
 	public static String getPath(HttpServletRequest request){
 		return request.getServletPath() + StringTool.nullSafe(request.getPathInfo());
 	}
@@ -265,13 +275,14 @@ public class RequestTool{
 
 		if(StringTool.isEmpty(stringVal)){
 			return defaultValue;
-		}else if(BooleanTool.isFalse(stringVal)){
-			return false;
-		}else if(BooleanTool.isTrue(stringVal)){
-			return true;
-		}else{
-			return defaultValue;
 		}
+		if(BooleanTool.isFalse(stringVal)){
+			return false;
+		}
+		if(BooleanTool.isTrue(stringVal)){
+			return true;
+		}
+		return defaultValue;
 	}
 
 	/**
@@ -399,7 +410,7 @@ public class RequestTool{
 		if(idx == -1){
 			return null;
 		}
-		return uri.substring(idx + 1, uri.length());
+		return uri.substring(idx + 1);
 	}
 
 	public static String getRequestUrlString(HttpServletRequest request){
@@ -444,67 +455,19 @@ public class RequestTool{
 		return Optional.ofNullable(getUserAgent(request));
 	}
 
-	private static List<String> getAllHeaderValuesOrdered(HttpServletRequest request, String headerName){
+	public static List<String> getAllHeaderValuesOrdered(HttpServletRequest request, String headerName){
 		return Collections.list(request.getHeaders(headerName)).stream()
 				.map(str -> str.split(HEADER_VALUE_DELIMITER))
 				.flatMap(Arrays::stream)
 				.toList();
 	}
 
-	public static String getIpAddress(HttpServletRequest request){
-		if(request == null){
-			return null;
-		}
-
-		//Node servers send in the original X-Forwarded-For as X-Client-IP
-		List<String> clientIp = getAllHeaderValuesOrdered(request, HttpHeaders.X_CLIENT_IP);
-		Optional<String> lastNonInternalIp = getLastNonInternalIp(clientIp);
-		if(lastNonInternalIp.isPresent()){
-			return lastNonInternalIp.get();
-		}
-
-		//no x-client-ip present, check x-forwarded-for
-		List<String> forwardedFor = getAllHeaderValuesOrdered(request, HttpHeaders.X_FORWARDED_FOR);
-		lastNonInternalIp = getLastNonInternalIp(forwardedFor);
-		if(lastNonInternalIp.isPresent()){
-			return lastNonInternalIp.get();
-		}
-
-		if(!clientIp.isEmpty() || !forwardedFor.isEmpty()){
-			logger.debug("Unusable IPs included, falling back to remoteAddr. " + HttpHeaders.X_CLIENT_IP + "={} "
-					+ HttpHeaders.X_FORWARDED_FOR + "={} path={}", clientIp, forwardedFor, getPath(request));
-			logger.debug("", new Exception());
-		}
-		return request.getRemoteAddr();
-	}
-
-	public static IpDetectionDto getIpDetectionDto(HttpServletRequest request){
-		IpDetectionDto ipDetectionDto = new IpDetectionDto();
-		ipDetectionDto.clientIpHeaders = Collections.list(request.getHeaders(HttpHeaders.X_CLIENT_IP));
-		ipDetectionDto.forwardedForHeaders = Collections.list(request.getHeaders(HttpHeaders.X_FORWARDED_FOR));
-		ipDetectionDto.remoteAddr = request.getRemoteAddr();
-		ipDetectionDto.detectedIp = RequestTool.getIpAddress(request);
-		return ipDetectionDto;
-	}
-
-	@SuppressWarnings("unused") // used by serialization reflection
-	public static class IpDetectionDto{
-		private List<String> clientIpHeaders;
-		private List<String> forwardedForHeaders;
-		private String remoteAddr;
-		public String detectedIp;
-	}
-
-	private static Optional<String> getLastNonInternalIp(List<String> headerValues){
-		return Scanner.of(headerValues)
-				.reverse()
-				.include(RequestTool::isAValidIpV4)
-				.include(RequestTool::isPublicNet)
-				.findFirst();
-	}
-
 	protected static boolean isPublicNet(String ip){
-		return !IpTool.isIpAddressInSubnets(ip, PRIVATE_NETS);
+		return isPublicNet(ip, PRIVATE_NETS);
+	}
+
+	protected static boolean isPublicNet(String ip, List<Subnet> privateSubnets){
+		return !IpTool.isIpAddressInSubnets(ip, privateSubnets);
 	}
 
 	public static boolean isAValidIpV4(String dottedDecimal){

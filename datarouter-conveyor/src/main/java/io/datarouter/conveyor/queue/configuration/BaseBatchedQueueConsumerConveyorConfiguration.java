@@ -19,7 +19,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -65,7 +64,7 @@ implements ConveyorConfiguration{
 
 	@Override
 	public ProcessResult process(ConveyorRunnable conveyor){
-		List<MessageAndTime<PK,D>> currentBuffer = Collections.emptyList();
+		List<MessageAndTime<PK,D>> currentBuffer = List.of();
 		Instant beforePeek = Instant.now();
 		QueueMessage<PK,D> message = getQueueConsumer().peek(BATCHED_QUEUE_PEEK_TIMEOUT, DEFAULT_VISIBILITY_TIMEOUT);
 		Instant afterPeek = Instant.now();

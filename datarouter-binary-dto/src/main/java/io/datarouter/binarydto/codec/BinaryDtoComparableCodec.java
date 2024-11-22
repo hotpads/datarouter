@@ -17,11 +17,10 @@ package io.datarouter.binarydto.codec;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import io.datarouter.binarydto.dto.ComparableBinaryDto;
 import io.datarouter.binarydto.internal.BinaryDtoAllocator;
+import io.datarouter.binarydto.internal.BinaryDtoFieldCache;
 import io.datarouter.binarydto.internal.BinaryDtoFieldSchema;
 import io.datarouter.binarydto.internal.BinaryDtoNullFieldTool;
 import io.datarouter.bytes.ByteTool;
@@ -31,28 +30,22 @@ import io.datarouter.bytes.LengthAndValue;
 public class BinaryDtoComparableCodec<T extends ComparableBinaryDto<T>>
 implements Codec<T,byte[]>{
 
-	private static final Map<Class<? extends ComparableBinaryDto<?>>,BinaryDtoComparableCodec<?>> CACHE
-			= new ConcurrentHashMap<>();
-
 	private static final int MAX_TOKENS_PER_FIELD = 2;// nullable, possible value
 
 	public final BinaryDtoFieldCache<T> fieldCache;
 
-	private BinaryDtoComparableCodec(Class<T> dtoClass){
-		fieldCache = new BinaryDtoFieldCache<>(dtoClass);
+	private BinaryDtoComparableCodec(BinaryDtoFieldCache<T> fieldCache){
+		this.fieldCache = fieldCache;
 	}
 
-	@SuppressWarnings({"unchecked", "rawtypes"})
+	/**
+	 * For max performance you can keep the reference to the returned object.
+	 * It will avoid a ConcurrentHashMap lookup and object allocation on future calls.
+	 */
 	public static <T extends ComparableBinaryDto<T>>
-	BinaryDtoComparableCodec<T> of(Class<? extends T> dtoClass){
-		//Can't use computeIfAbsent here because it prohibits recursive calls to this method.  We may therefore
-		// generate a few extra throwaway codecs.
-		BinaryDtoComparableCodec<?> codec = CACHE.get(dtoClass);
-		if(codec == null){
-			codec = new BinaryDtoComparableCodec(dtoClass);
-			CACHE.put(dtoClass, codec);
-		}
-		return (BinaryDtoComparableCodec<T>) codec;
+	BinaryDtoComparableCodec<T> of(Class<T> dtoClass){
+		BinaryDtoFieldCache<T> fieldCache = BinaryDtoFieldCache.of(dtoClass);
+		return new BinaryDtoComparableCodec<>(fieldCache);
 	}
 
 	/*---------- encode ------------*/

@@ -18,7 +18,8 @@ package io.datarouter.metric.publisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.model.util.CommonFieldSizes;
+import io.datarouter.instrumentation.validation.DatarouterInstrumentationValidationConstants.MetricInstrumentationConstants;
+import io.datarouter.instrumentation.validation.DatarouterInstrumentationValidationTool;
 import io.datarouter.util.string.StringTool;
 
 public class MetricSanitizer{
@@ -34,8 +35,12 @@ public class MetricSanitizer{
 	}
 
 	public static String sanitizeName(String name){
-		String sanitized = StringTool.trimToSize(name, CommonFieldSizes.DEFAULT_LENGTH_VARCHAR);
-		return StringTool.removeNonStandardCharacters(sanitized);
+		String trimmedName = DatarouterInstrumentationValidationTool.trimToSizeAndLog(
+				name,
+				MetricInstrumentationConstants.MAX_SIZE_METRIC_NAME,
+				logger,
+				"Max metric name size is " + MetricInstrumentationConstants.MAX_SIZE_METRIC_NAME);
+		return StringTool.removeNonStandardCharacters(trimmedName);
 	}
 
 }

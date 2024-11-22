@@ -19,7 +19,7 @@ import java.lang.reflect.Type;
 
 import com.google.gson.reflect.TypeToken;
 
-import io.datarouter.gson.GsonTool;
+import io.datarouter.gson.DatarouterGsons;
 
 public abstract class BaseGsonJobletCodec<P> implements JobletCodec<P>{
 
@@ -36,13 +36,13 @@ public abstract class BaseGsonJobletCodec<P> implements JobletCodec<P>{
 	@SuppressWarnings("deprecation")
 	@Override
 	public String marshallData(P params){
-		return GsonTool.withUnregisteredEnums().toJson(params);
+		return DatarouterGsons.withUnregisteredEnums().toJson(params);
 	}
 
 	@SuppressWarnings("deprecation")
 	@Override
 	public P unmarshallData(String encodedParams){
-		return GsonTool.withUnregisteredEnums().fromJson(encodedParams, paramsType);
+		return DatarouterGsons.withUnregisteredEnums().fromJson(encodedParams, paramsType);
 	}
 
 }

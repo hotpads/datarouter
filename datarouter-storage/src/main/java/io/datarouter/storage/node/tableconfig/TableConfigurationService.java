@@ -18,6 +18,7 @@ package io.datarouter.storage.node.tableconfig;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.dao.Daos;
@@ -51,6 +52,11 @@ public class TableConfigurationService{
 	public Map<ClientTableEntityPrefixNameWrapper,NodewatchConfiguration> getTableConfigMap(){
 		return Scanner.of(getTableConfigurations())
 				.toMap(config -> config.nodeNameWrapper);
+	}
+
+	public Optional<NodewatchConfiguration> findConfig(PhysicalNode<?,?,?> node){
+		var nameWrapper = new ClientTableEntityPrefixNameWrapper(node);
+		return Optional.ofNullable(getTableConfigMap().get(nameWrapper));
 	}
 
 }

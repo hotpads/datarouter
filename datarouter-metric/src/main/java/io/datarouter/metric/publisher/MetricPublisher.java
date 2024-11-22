@@ -16,6 +16,7 @@
 package io.datarouter.metric.publisher;
 
 import java.util.List;
+import java.util.Optional;
 
 import io.datarouter.instrumentation.response.PublishingResponseDto;
 
@@ -24,22 +25,22 @@ public interface MetricPublisher{
 	PublishingResponseDto publish(PublishedMetricPeriod period);
 
 	public static class NoOpMetricPublisher implements MetricPublisher{
-
 		@Override
 		public PublishingResponseDto publish(PublishedMetricPeriod period){
 			return PublishingResponseDto.NO_OP;
 		}
-
 	}
 
 	public record PublishedMetricPeriod(
 			long periodStartTimeMs,
 			String ulid,
+			String environment,
 			String serviceName,
 			String serverName,
 			List<PublishedCount> counts,
 			List<PublishedGauge> gauges,
-			List<PublishedMeasurementList> measurementLists){
+			List<PublishedMeasurementList> measurementLists,
+			Optional<Integer> random){
 
 		public record PublishedCount(
 				String name,

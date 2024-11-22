@@ -84,6 +84,11 @@ implements PhysicalBlobStorageNode{
 	}
 
 	@Override
+	public Optional<byte[]> readEnding(PathbeanKey key, int length, Config config){
+		return directoryBlobStorage.readEnding(key, length);
+	}
+
+	@Override
 	public InputStream readInputStream(PathbeanKey key, Config config){
 		return directoryBlobStorage.readInputStream(key);
 	}

@@ -25,16 +25,14 @@ import java.util.stream.Collectors;
 
 import com.google.gson.Gson;
 
-import io.datarouter.gson.GsonTool;
+import io.datarouter.gson.DatarouterGsons;
 import io.datarouter.pathnode.PathNode;
 import j2html.TagCreator;
 import j2html.tags.specialized.ScriptTag;
 
 public class RequireJsTool{
 
-	private static final Gson GSON = GsonTool.GSON.newBuilder()
-			.setPrettyPrinting()
-			.create();
+	private static final Gson GSON = DatarouterGsons.forPrettyPrint();
 
 	public static ScriptTag makeRequireJsImportTag(String contextPath, PathNode path){
 		return script()

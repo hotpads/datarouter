@@ -26,6 +26,8 @@ import io.datarouter.util.Require;
 
 public class SpannerSql extends Sql<Void,Statement.Builder,SpannerSql>{
 
+	public static final String PRIMARY_KEY_INDEX_NAME = "_BASE_TABLE";
+
 	private final SpannerFieldCodecs fieldCodecs;
 
 	public SpannerSql(SpannerFieldCodecs fieldCodecs){
@@ -77,6 +79,17 @@ public class SpannerSql extends Sql<Void,Statement.Builder,SpannerSql>{
 			append(" offset " + config.getOffset());
 		}
 		return this;
+	}
+
+	@Override
+	public SpannerSql addForceIndexClause(String indexName){
+		if(indexName == null){
+			return implementation;
+		}
+		append("@{FORCE_INDEX=");
+		append(indexName);
+		append("}");
+		return implementation;
 	}
 
 }

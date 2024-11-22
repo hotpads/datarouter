@@ -17,13 +17,13 @@ package io.datarouter.web.handler.validator;
 
 import java.lang.reflect.Method;
 
-import io.datarouter.httpclient.endpoint.java.BaseEndpoint;
+import io.datarouter.httpclient.endpoint.java.BaseJavaEndpoint;
 import jakarta.inject.Singleton;
 
 // Cannot use PluginInjector since this class is instantiated early
 public interface HandlerAccountCallerValidator{
 
-	void validate(String accountName, BaseEndpoint<?,?> endpoint);
+	void validate(String accountName, BaseJavaEndpoint<?,?> endpoint);
 
 	void validate(String accountName, Method method);
 
@@ -31,7 +31,7 @@ public interface HandlerAccountCallerValidator{
 	class NoOpHandlerAccountCallerValidator implements HandlerAccountCallerValidator{
 
 		@Override
-		public void validate(String accountName, BaseEndpoint<?,?> endpoint){
+		public void validate(String accountName, BaseJavaEndpoint<?,?> endpoint){
 		}
 
 		@Override

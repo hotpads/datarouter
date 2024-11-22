@@ -30,13 +30,19 @@ public class DatarouterAuthPaths extends PathNode implements PathsRoot{
 	public final PermissionRequestPaths permissionRequest = branch(PermissionRequestPaths::new, "permissionRequest");
 	public final SigninPaths signin = branch(SigninPaths::new, "signin");
 
-	public final PathNode docs = leaf("docs");
+	public final DocsPaths docs = branch(DocsPaths::new, "docs");
 	public final PathNode home = leaf("");
 	public final PathNode signout = leaf("signout");
 
 	public static class DatarouterPaths extends PathNode{
 		public final AccountsPaths accounts = branch(AccountsPaths::new, "accounts");
 		public final AccountManagerPaths accountManager = branch(AccountManagerPaths::new, "accountManager");
+		public final RoleRequirements roleRequirements = branch(RoleRequirements::new, "roleRequirements");
+	}
+
+	public static class DocsPaths extends PathNode{
+		public final PathNode getCsrfIv = leaf("getCsrfIv");
+		public final PathNode getSignature = leaf("getSignature");
 	}
 
 	public static class AccountsPaths extends PathNode{
@@ -84,6 +90,10 @@ public class DatarouterAuthPaths extends PathNode implements PathsRoot{
 
 	public static class SigninPaths extends PathNode{
 		public final PathNode submit = leaf("submit");
+	}
+
+	public static class RoleRequirements extends PathNode{
+		public final PathNode getRequiredRolesByAfterContextPath = leaf("getRequiredRolesByAfterContextPath");
 	}
 
 }

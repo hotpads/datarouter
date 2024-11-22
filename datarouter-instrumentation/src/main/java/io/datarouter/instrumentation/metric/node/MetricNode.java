@@ -25,7 +25,7 @@ import java.util.stream.Stream;
 
 import io.datarouter.instrumentation.metric.MetricRecorder;
 import io.datarouter.instrumentation.metric.collector.MetricTemplateDto;
-import io.datarouter.instrumentation.metric.collector.MetricTemplateDto.Nested.MetricTemplateNodeDto;
+import io.datarouter.instrumentation.metric.collector.MetricTemplateDto.MetricTemplateNodeDto;
 
 public class MetricNode extends MetricRecorder{
 
@@ -74,7 +74,7 @@ public class MetricNode extends MetricRecorder{
 	}
 
 	@Override
-	protected MetricTemplateDto makePatternDto(String description){
+	public MetricTemplateDto makePatternDto(String description){
 		List<MetricTemplateNodeDto> nodeDtos = streamOrderedNodes()
 				.map(node -> {
 					if(node instanceof MetricNodeVariable<?> e){

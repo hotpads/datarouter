@@ -39,7 +39,7 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
 @Singleton
-public class DatarouterAccountCredentialDao extends BaseDao implements BaseDatarouterAccountCredentialDao{
+public class DatarouterAccountCredentialDao extends BaseDao{
 
 	public static class DatarouterAccountCredentialDaoParams{
 
@@ -100,47 +100,38 @@ public class DatarouterAccountCredentialDao extends BaseDao implements BaseDatar
 		datarouter.register(node);
 	}
 
-	@Override
 	public void put(DatarouterAccountCredential databean){
 		node.put(databean);
 	}
 
-	@Override
 	public void insertOrBust(DatarouterAccountCredential databean){
 		node.put(databean, new Config().setPutMethod(PutMethod.INSERT_OR_BUST));
 	}
 
-	@Override
 	public void updateIgnore(DatarouterAccountCredential databean){
 		node.put(databean, new Config().setPutMethod(PutMethod.UPDATE_IGNORE));
 	}
 
-	@Override
 	public void updateMultiIgnore(Collection<DatarouterAccountCredential> databeans){
 		node.putMulti(databeans, new Config().setPutMethod(PutMethod.UPDATE_IGNORE));
 	}
 
-	@Override
 	public DatarouterAccountCredential get(DatarouterAccountCredentialKey key){
 		return node.get(key);
 	}
 
-	@Override
 	public Scanner<DatarouterAccountCredential> scan(){
 		return node.scan();
 	}
 
-	@Override
 	public Scanner<DatarouterAccountCredential> scanMulti(Collection<DatarouterAccountCredentialKey> keys){
 		return node.scanMulti(keys);
 	}
 
-	@Override
 	public Scanner<DatarouterAccountCredentialKey> scanKeys(){
 		return node.scanKeys();
 	}
 
-	@Override
 	public Scanner<DatarouterAccountCredential> scanByAccountNames(Collection<String> accountNames){
 		return Scanner.of(accountNames)
 				.map(accountName -> new DatarouterAccountCredentialByAccountNameKey(accountName, null))
@@ -152,31 +143,26 @@ public class DatarouterAccountCredentialDao extends BaseDao implements BaseDatar
 		return byAccountName.scanDatabeansWithPrefix(prefix);
 	}
 
-	@Override
 	public boolean exists(DatarouterAccountCredentialKey key){
 		return node.exists(key);
 	}
 
-	@Override
 	public boolean exists(String accountName){
 		return byAccountName.scanKeysWithPrefix(new DatarouterAccountCredentialByAccountNameKey(accountName, null))
 				.findFirst()
 				.isPresent();
 	}
 
-	@Override
 	public void delete(DatarouterAccountCredentialKey key){
 		node.delete(key);
 	}
 
-	@Override
 	public void deleteByAccountName(String accountName){
 		byAccountName.scanKeysWithPrefix(new DatarouterAccountCredentialByAccountNameKey(accountName, null))
 				.map(DatarouterAccountCredentialByAccountNameKey::getTargetKey)
 				.flush(node::deleteMulti);
 	}
 
-	@Override
 	public Optional<DatarouterAccountCredential> find(DatarouterAccountCredentialKey key){
 		return node.find(key);
 	}

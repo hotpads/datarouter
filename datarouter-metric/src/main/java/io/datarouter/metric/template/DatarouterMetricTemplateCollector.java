@@ -17,12 +17,14 @@ package io.datarouter.metric.template;
 
 import java.time.Duration;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 import io.datarouter.instrumentation.metric.collector.MetricTemplateCollector;
 import io.datarouter.instrumentation.metric.collector.MetricTemplateDto;
+import io.datarouter.metric.template.MetricTemplatePublisher.PublishedMetricTemplate;
 import io.datarouter.util.cache.LoadingCache;
 import io.datarouter.util.cache.LoadingCache.LoadingCacheBuilder;
 
@@ -30,6 +32,7 @@ public class DatarouterMetricTemplateCollector implements MetricTemplateCollecto
 
 	private static final long FLUSH_MS = Duration.ofSeconds(5).toMillis();
 
+	private final String serviceName;
 	private final MetricTemplateBuffer metricTemplateBuffer;
 	private final LoadingCache<MetricTemplateDto,MetricTemplateDto> loadingCache;
 	private final Supplier<Boolean> saveToBuffer;
@@ -39,8 +42,10 @@ public class DatarouterMetricTemplateCollector implements MetricTemplateCollecto
 	private long nextFlushMs;
 
 	public DatarouterMetricTemplateCollector(
+			String serviceName,
 			MetricTemplateBuffer metricTemplateBuffer,
 			Supplier<Boolean> saveToBuffer){
+		this.serviceName = serviceName;
 		this.metricTemplateBuffer = metricTemplateBuffer;
 		this.saveToBuffer = saveToBuffer;
 
@@ -66,7 +71,11 @@ public class DatarouterMetricTemplateCollector implements MetricTemplateCollecto
 		batch = new HashSet<>();
 
 		if(saveToBuffer.get()){
-			metricTemplateBuffer.offerMulti(snapshot);
+			List<PublishedMetricTemplate> templates = snapshot.stream()
+					.map(template -> new PublishedMetricTemplate(serviceName, template))
+					.toList();
+
+			metricTemplateBuffer.offerMulti(templates);
 		}
 	}
 

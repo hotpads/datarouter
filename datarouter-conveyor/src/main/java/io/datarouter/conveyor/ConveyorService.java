@@ -42,6 +42,7 @@ import io.datarouter.instrumentation.trace.Traceparent;
 import io.datarouter.instrumentation.trace.Tracer;
 import io.datarouter.instrumentation.trace.TracerThreadLocal;
 import io.datarouter.instrumentation.trace.W3TraceContext;
+import io.datarouter.storage.config.properties.EnvironmentName;
 import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.storage.config.properties.ServiceName;
 import io.datarouter.types.Ulid;
@@ -66,6 +67,8 @@ public class ConveyorService{
 	private ConveyorTraceBuffer traceBuffer;
 	@Inject
 	private DatarouterConveyorTraceSettings traceSettings;
+	@Inject
+	private EnvironmentName environmentName;
 
 	public void run(ConveyorConfiguration configuration, ConveyorRunnable conveyor){
 		if(!shouldRun(conveyor)){
@@ -167,7 +170,8 @@ public class ConveyorService{
 							0L,
 							0L,
 							saveReasons,
-							TraceCategory.CONVEYOR);
+							TraceCategory.CONVEYOR,
+							environmentName.get());
 					Long traceDurationMs = tracer.getAlternativeStartTimeNs()
 							.map(time -> traceEnded - time)
 							.map(TimeUnit.NANOSECONDS::toMillis)
@@ -198,7 +202,8 @@ public class ConveyorService{
 										new Ulid().value(),
 										traceparent.traceId,
 										traceparent.parentId,
-										id));
+										id,
+										environmentName.get()));
 						var bundle = new ConveyorTraceAndTaskExecutorBundleDto(
 								new TraceBundleDto(traceDto, threads, spans),
 								executorRecord);

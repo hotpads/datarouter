@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import io.datarouter.pathnode.PathNode;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.MavProperties;
 import io.datarouter.web.handler.mav.imp.HtmlMav;
@@ -50,6 +51,7 @@ public class Bootstrap4PageBuilder{
 	private DomContent content;
 	private final Map<String,String> httpEquivs = new LinkedHashMap<>();
 	private final List<ScriptTag> scripts = new ArrayList<>();
+	private List<PathNode> customCss = new ArrayList<>();
 
 	public DatarouterPage build(){
 		require.add(DatarouterWebRequireJsV2.BOOTSTRAP);
@@ -65,7 +67,8 @@ public class Bootstrap4PageBuilder{
 				hasAnyDatarouterPrivileges,
 				title,
 				httpEquivs,
-				allScripts.toArray(ScriptTag[]::new));
+				allScripts.toArray(ScriptTag[]::new),
+				customCss);
 		NavBar navbar = mavProperties.getIsDatarouterPage()
 				? mavProperties.getDatarouterNavBar()
 				: mavProperties.getNavBar();
@@ -131,6 +134,11 @@ public class Bootstrap4PageBuilder{
 
 	public Bootstrap4PageBuilder withScript(ScriptTag script){
 		scripts.add(script);
+		return this;
+	}
+
+	public Bootstrap4PageBuilder withCss(PathNode externalCss){
+		customCss.add(externalCss);
 		return this;
 	}
 

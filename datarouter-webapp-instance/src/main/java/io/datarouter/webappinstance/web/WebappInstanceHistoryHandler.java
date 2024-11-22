@@ -22,7 +22,6 @@ import static j2html.TagCreator.td;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -75,7 +74,7 @@ public class WebappInstanceHistoryHandler extends BaseHandler{
 				.map(entry -> new WebappInstanceLogDto(entry.getKey(), entry.getValue()))
 				.sort(Comparator.comparing((WebappInstanceLogDto dto) -> dto.key.buildDate()).reversed());
 		MemoryPager<WebappInstanceLogDto> pager = new MemoryPager<>(
-				Collections.emptyList(),
+				List.of(),
 				new MemorySorter<>(),
 				request.getContextPath() + paths.datarouter.webappInstances.history.toSlashedString(),
 				new HashMap<>(),

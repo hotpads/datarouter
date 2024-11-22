@@ -15,7 +15,7 @@
  */
 package io.datarouter.clustersetting.config;
 
-import io.datarouter.auth.role.DatarouterUserRole;
+import io.datarouter.auth.role.DatarouterUserRoleRegistry;
 import io.datarouter.storage.servertype.DatarouterServerTypeDetector;
 import io.datarouter.web.dispatcher.DispatchRule;
 import io.datarouter.web.navigation.DatarouterNavBarCategory;
@@ -38,9 +38,7 @@ public class DatarouterClusterSettingTagsDynamicNavBarMenuItem implements Dynami
 				DatarouterNavBarCategory.CONFIGURATION,
 				clusterSettingPaths.datarouter.settings.tags,
 				DatarouterClusterSettingPlugin.NAME + " - Tags")
-				.setDispatchRule(new DispatchRule().allowRoles(
-						DatarouterUserRole.DATAROUTER_SETTINGS,
-						DatarouterUserRole.ADMIN))
+				.setDispatchRule(new DispatchRule().allowRoles(DatarouterUserRoleRegistry.DATAROUTER_SETTINGS))
 				.build();
 	}
 

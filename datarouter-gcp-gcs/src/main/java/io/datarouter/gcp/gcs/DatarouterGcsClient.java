@@ -25,8 +25,12 @@ import java.nio.channels.Channels;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.api.gax.paging.Page;
 import com.google.auth.Credentials;
@@ -58,6 +62,7 @@ import io.datarouter.util.io.FilesTool;
 import io.datarouter.util.io.ReaderTool;
 
 public class DatarouterGcsClient implements DirectoryScanner{
+	private static final Logger logger = LoggerFactory.getLogger(DatarouterGcsClient.class);
 
 	//TODO can we reference this directly from GCS client code?
 	private static final int FILE_NOT_FOUND_CODE = 404;
@@ -117,8 +122,11 @@ public class DatarouterGcsClient implements DirectoryScanner{
 				.setContentType(contentType.getMimeType())
 				.setCacheControl(cacheControl)
 				.build();
+		BlobTargetOption[] blobTargetOptions = acl == null
+				? new BlobTargetOption[]{}
+				: new BlobTargetOption[]{BlobTargetOption.predefinedAcl(acl)};
 		try(var $ = TracerTool.startSpan("GCS putObject", TraceSpanGroupType.CLOUD_STORAGE)){
-			storage.create(blobInfo, bytes, BlobTargetOption.predefinedAcl(acl));
+			storage.create(blobInfo, bytes, blobTargetOptions);
 			TracerTool.appendToSpanInfo("Content-Length", bytes.length);
 		}
 	}
@@ -195,6 +203,30 @@ public class DatarouterGcsClient implements DirectoryScanner{
 				TracerTool.appendToSpanInfo("offset", offset);
 				TracerTool.appendToSpanInfo("Content-Length", content.length);
 				return Optional.of(content);
+			}catch(StorageException storageException){
+				if(storageException.getCode() == FILE_NOT_FOUND_CODE){
+					return Optional.empty();
+				}else{
+					throw storageException;
+				}
+			}
+		}catch(IOException e){
+			throw new RuntimeException("", e);
+		}
+	}
+
+	public Optional<byte[]> findEnding(String bucket, String key, int length){
+		try(var $ = TracerTool.startSpan("GCS readEnding", TraceSpanGroupType.CLOUD_STORAGE)){
+			try{
+				ReadChannel reader = storage.reader(bucket, key);
+				reader.seek(-length);
+				reader.setChunkSize(length);
+				ByteBuffer byteBuffer = ByteBuffer.allocate(length);
+				int numBytesRead = reader.read(byteBuffer);
+				byte[] bytes = Arrays.copyOfRange(byteBuffer.array(), 0, numBytesRead);
+				TracerTool.appendToSpanInfo("length", length);
+				TracerTool.appendToSpanInfo("Content-Length", bytes.length);
+				return Optional.of(bytes);
 			}catch(StorageException storageException){
 				if(storageException.getCode() == FILE_NOT_FOUND_CODE){
 					return Optional.empty();

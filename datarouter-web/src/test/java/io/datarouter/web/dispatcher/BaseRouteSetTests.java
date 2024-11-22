@@ -15,27 +15,26 @@
  */
 package io.datarouter.web.dispatcher;
 
-import java.util.Arrays;
 import java.util.regex.Pattern;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.auth.role.DatarouterUserRole;
-import io.datarouter.auth.role.RoleEnum;
+import io.datarouter.auth.role.DatarouterUserRoleRegistry;
+import io.datarouter.auth.role.Role;
 
 public class BaseRouteSetTests{
 
 	public static final String ANON_PATH = "/anon";
 
-	public static <T extends RoleEnum<T>> String getPathForRole(RoleEnum<T> role){
-		return "/" + role.getPersistentString();
+	public static String getPathForRole(Role role){
+		return "/" + role.persistentString();
 	}
 
 	public static final BaseRouteSet testRouteSet = new BaseRouteSet(){
 		{
 			handle(ANON_PATH).allowAnonymous();
-			Arrays.stream(DatarouterUserRole.values())
+			DatarouterUserRoleRegistry.DEFAULT_ROLES
 					.forEach(role -> handle(getPathForRole(role)).allowRoles(role));
 		}
 	};

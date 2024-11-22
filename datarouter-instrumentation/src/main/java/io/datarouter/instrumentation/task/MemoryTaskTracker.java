@@ -111,6 +111,12 @@ public class MemoryTaskTracker implements TaskTracker{
 	}
 
 	@Override
+	public TaskTracker setCount(long value){
+		count.set(value);
+		return this;
+	}
+
+	@Override
 	public TaskTracker increment(){
 		count.incrementAndGet();
 		return this;

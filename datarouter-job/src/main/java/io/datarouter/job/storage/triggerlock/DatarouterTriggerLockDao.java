@@ -77,7 +77,7 @@ public class DatarouterTriggerLockDao extends BaseDao{
 		node.delete(key);
 	}
 
-	public PrimaryKeyVacuum<TriggerLockKey> makeVacuum2(){
+	public PrimaryKeyVacuum<TriggerLockKey> makeVacuum(){
 		Duration retentionPeriod = Duration.ofDays(7);
 		MilliTime deleteBeforeTime = MilliTime.now().minus(retentionPeriod);
 		return new PrimaryKeyVacuumBuilder<>(

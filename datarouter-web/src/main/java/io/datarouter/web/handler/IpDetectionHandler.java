@@ -15,14 +15,18 @@
  */
 package io.datarouter.web.handler;
 
-import io.datarouter.web.util.http.RequestTool;
-import io.datarouter.web.util.http.RequestTool.IpDetectionDto;
+import io.datarouter.web.util.http.IpAddressService;
+import io.datarouter.web.util.http.IpAddressService.IpDetectionDto;
+import jakarta.inject.Inject;
 
 public class IpDetectionHandler extends BaseHandler{
 
+	@Inject
+	private IpAddressService ipAddressService;
+
 	@Handler(defaultHandler = true)
 	public IpDetectionDto debugIpDetection(){
-		return RequestTool.getIpDetectionDto(request);
+		return ipAddressService.getIpDetectionDto(request);
 	}
 
 }

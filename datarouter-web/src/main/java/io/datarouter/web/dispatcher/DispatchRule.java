@@ -16,7 +16,6 @@
 package io.datarouter.web.dispatcher;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -31,7 +30,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.auth.role.Role;
-import io.datarouter.auth.role.RoleEnum;
 import io.datarouter.auth.session.DatarouterSessionManager;
 import io.datarouter.auth.storage.user.session.DatarouterSession;
 import io.datarouter.scanner.Scanner;
@@ -60,7 +58,7 @@ public class DispatchRule{
 	private final Set<Role> allowedRoles;
 
 	private Class<? extends BaseHandler> handlerClass;
-	private List<ApiKeyPredicate> apiKeyPredicates;
+	private final List<ApiKeyPredicate> apiKeyPredicates;
 	private CsrfValidator csrfValidator;
 	private SignatureValidator signatureValidator;
 	private boolean requireHttps;
@@ -119,14 +117,13 @@ public class DispatchRule{
 		return this;
 	}
 
-	public DispatchRule allowRoles(RoleEnum<?>... roles){
-		return allowRoles(Arrays.asList(roles));
+	public DispatchRule allowRoles(Collection<Role> roles){
+		Scanner.of(roles).forEach(allowedRoles::add);
+		return this;
 	}
 
-	public DispatchRule allowRoles(Collection<RoleEnum<?>> roles){
-		Scanner.of(roles)
-				.map(RoleEnum::getRole)
-				.forEach(allowedRoles::add);
+	public DispatchRule allowRoles(Role... roles){
+		Scanner.of(roles).forEach(allowedRoles::add);
 		return this;
 	}
 
@@ -262,7 +259,7 @@ public class DispatchRule{
 		return skipBackwardCompatibilityChecking;
 	}
 
-	private SecurityValidationResult checkApiKey(HttpServletRequest request){
+	private SecurityValidationResult checkApiKey(HttpServletRequest request, String ip){
 		ApiKeyPredicateCheck result;
 		if(apiKeyPredicates.isEmpty()){
 			result = new ApiKeyPredicateCheck(true, "");
@@ -270,14 +267,14 @@ public class DispatchRule{
 			var firstPredicateRef = new AtomicReference<ApiKeyPredicateCheck>();
 			result = Scanner.of(apiKeyPredicates)
 					.map(predicate -> predicate.check(this, request))
-					.peekFirst(firstPredicate -> firstPredicateRef.set(firstPredicate))
+					.peekFirst(firstPredicateRef::set)
 					.include(ApiKeyPredicateCheck::allowed)
 					.findFirst()
-					.orElseGet(() -> firstPredicateRef.get());
+					.orElseGet(firstPredicateRef::get);
 		}
 		String message = "API key check failed, " + result.accountName();
 		if(!result.allowed()){
-			logFailure(message, request);
+			logFailure(message, request, ip);
 		}
 		return new SecurityValidationResult(request, result.allowed(), message);
 	}
@@ -293,7 +290,7 @@ public class DispatchRule{
 				"CSRF token check failed: " + result.errorMessage());
 	}
 
-	private SecurityValidationResult checkSignature(HttpServletRequest request){
+	private SecurityValidationResult checkSignature(HttpServletRequest request, String ip){
 		SecurityValidationResult result = SecurityValidationResult.success(request);
 		if(signatureValidator != null){
 			result = signatureValidator.validate(request);
@@ -302,30 +299,34 @@ public class DispatchRule{
 			result.setFailureMessage(Optional.ofNullable(result)
 					.map(SecurityValidationResult::getFailureMessage)
 					.orElse("Signature validation failed"));
-			logFailure(result.getFailureMessage(), request);
+			logFailure(result.getFailureMessage(), request, ip);
 		}
 		return result;
 	}
 
-	private SecurityValidationResult checkHttps(HttpServletRequest request){
+	private SecurityValidationResult checkHttps(HttpServletRequest request, String ip){
 		String message = "HTTPS check failed";
 		boolean result = !requireHttps || request.isSecure();
 		if(!result){
-			logFailure(message, request);
+			logFailure(message, request, ip);
 		}
 		return new SecurityValidationResult(request, result, message);
 	}
 
-	private void logFailure(String message, HttpServletRequest request){
-		logger.warn("{}. IP={} URI={} userAgent={}", message, RequestTool.getIpAddress(request),
-				request.getRequestURI(), RequestTool.getUserAgent(request));
+	private void logFailure(String message, HttpServletRequest request, String ip){
+		logger.warn("{}. IP={} URI={} userAgent={}",
+				message,
+				ip,
+				request.getRequestURI(),
+				RequestTool.getUserAgent(request));
 	}
 
-	public SecurityValidationResult applySecurityValidation(HttpServletRequest request){
-		SecurityValidationResult result = SecurityValidationResult.of(this::checkApiKey, request)
+	public SecurityValidationResult applySecurityValidation(HttpServletRequest request, String ip){
+		SecurityValidationResult result = SecurityValidationResult
+				.of(req -> checkApiKey(req, ip), request)
 				.combinedWith(this::checkCsrfToken)
-				.combinedWith(this::checkSignature)
-				.combinedWith(this::checkHttps);
+				.combinedWith(req -> checkSignature(req, ip))
+				.combinedWith(req -> checkHttps(req, ip));
 		for(SecurityValidator securityValidator : securityValidators){
 			result = result.combinedWith(securityValidator::check);
 		}

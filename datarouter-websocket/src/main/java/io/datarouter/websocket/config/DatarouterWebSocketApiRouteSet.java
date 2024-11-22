@@ -15,7 +15,7 @@
  */
 package io.datarouter.websocket.config;
 
-import io.datarouter.auth.role.DatarouterUserRole;
+import io.datarouter.auth.role.DatarouterUserRoleRegistry;
 import io.datarouter.httpclient.security.DefaultCsrfGenerator;
 import io.datarouter.httpclient.security.DefaultSignatureGenerator;
 import io.datarouter.storage.tag.Tag;
@@ -51,10 +51,10 @@ public class DatarouterWebSocketApiRouteSet extends BaseRouteSet{
 
 		handle(paths.datarouter.websocketTool.list)
 				.withHandler(WebSocketToolHandler.class)
-				.allowRoles(DatarouterUserRole.ADMIN);
+				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_TOOLS);
 		handle(paths.datarouter.websocketTool.subscriptions)
 				.withHandler(WebSocketToolHandler.class)
-				.allowRoles(DatarouterUserRole.ADMIN);
+				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_TOOLS);
 	}
 
 	@Override

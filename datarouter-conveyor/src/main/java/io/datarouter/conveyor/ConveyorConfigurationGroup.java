@@ -36,10 +36,17 @@ public abstract class ConveyorConfigurationGroup implements PluginConfigValue<Co
 		conveyorPackages = new HashMap<>();
 	}
 
-	public void registerConveyor(
+	public void add(
 			String name,
 			Class<? extends ConveyorConfiguration> configurationClass){
 		conveyorPackages.put(configurationClass.getSimpleName(), new ConveyorPackage(name, configurationClass));
+	}
+
+	@Deprecated // use add
+	public void registerConveyor(
+			String name,
+			Class<? extends ConveyorConfiguration> configurationClass){
+		add(name, configurationClass);
 	}
 
 	public List<ConveyorPackage> getConveyorPackages(){

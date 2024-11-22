@@ -26,7 +26,7 @@ import graphql.ExecutionInput;
 import graphql.GraphQLContext;
 import graphql.execution.ExecutionId;
 import io.datarouter.graphql.web.GraphQlBaseHandler;
-import io.datarouter.gson.GsonTool;
+import io.datarouter.gson.DatarouterGsons;
 import io.datarouter.web.util.http.RequestTool;
 
 public class GraphQlRequestTool{
@@ -35,7 +35,9 @@ public class GraphQlRequestTool{
 	public static ExecutionInput getApolloFormat(HttpServletRequest request){
 		String body = RequestTool.getBodyAsString(request);
 		try{
-			ExecutionInputDto executionInput = GsonTool.withUnregisteredEnums().fromJson(body, ExecutionInputDto.class);
+			ExecutionInputDto executionInput = DatarouterGsons.withUnregisteredEnums().fromJson(
+					body,
+					ExecutionInputDto.class);
 			return buildExecutionInput(
 					executionInput.query,
 					executionInput.operationName,

@@ -24,7 +24,7 @@ import java.util.function.Supplier;
 import io.datarouter.instrumentation.task.TaskTrackerDto;
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
-import io.datarouter.model.field.codec.MilliTimeFieldCodec;
+import io.datarouter.model.field.codec.MilliTimeToLongFieldCodec;
 import io.datarouter.model.field.codec.StringMappedEnumFieldCodec;
 import io.datarouter.model.field.imp.StringEncodedField;
 import io.datarouter.model.field.imp.StringEncodedFieldKey;
@@ -65,14 +65,14 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 				new StringMappedEnumFieldCodec<>(LongRunningTaskType.BY_PERSISTENT_STRING));
 		public static final LongEncodedFieldKey<MilliTime> start = new LongEncodedFieldKey<>(
 				"start",
-				new MilliTimeFieldCodec());
+				new MilliTimeToLongFieldCodec());
 		public static final BooleanFieldKey interrupt = new BooleanFieldKey("interrupt");
 		public static final LongEncodedFieldKey<MilliTime> finish = new LongEncodedFieldKey<>(
 				"finish",
-				new MilliTimeFieldCodec());
+				new MilliTimeToLongFieldCodec());
 		public static final LongEncodedFieldKey<MilliTime> heartbeat = new LongEncodedFieldKey<>(
 				"heartbeat",
-				new MilliTimeFieldCodec());
+				new MilliTimeToLongFieldCodec());
 		public static final StringEncodedFieldKey<LongRunningTaskStatus> longRunningTaskStatus
 				= new StringEncodedFieldKey<>(
 				"jobExecutionStatus",

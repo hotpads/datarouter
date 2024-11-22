@@ -17,9 +17,13 @@ package io.datarouter.job.config;
 
 import java.util.List;
 
+import io.datarouter.instrumentation.metric.MetricLinkBuilder;
+import io.datarouter.instrumentation.metric.MetricLinkBuilder.NoOpMetricLinkBuilder;
 import io.datarouter.job.BaseTriggerGroup;
 import io.datarouter.job.detached.DefaultDetachedJobExecutor;
+import io.datarouter.job.detached.DefaultDetachedJobStopper;
 import io.datarouter.job.detached.DetachedJobExecutor;
+import io.datarouter.job.detached.DetachedJobStopper;
 import io.datarouter.job.metriclink.AppJobsMetricLinkPage;
 import io.datarouter.job.metriclink.DatarouterJobsMetricLinkPage;
 import io.datarouter.job.scheduler.JobSchedulerAppListener;
@@ -40,7 +44,8 @@ public class DatarouterJobPlugin extends BaseWebPlugin{
 
 	private DatarouterJobPlugin(
 			DatarouterJobDaoModule daosModuleBuilder,
-			Class<? extends DetachedJobExecutor> detachedJobExecutor){
+			Class<? extends DetachedJobExecutor> detachedJobExecutor,
+			Class<? extends DetachedJobStopper> detachedJobStopper){
 
 		addAppListener(JobSchedulerAppListener.class);
 		addRouteSetOrdered(DatarouterJobRouteSet.class, DatarouterWebRouteSet.class);
@@ -56,6 +61,7 @@ public class DatarouterJobPlugin extends BaseWebPlugin{
 		addMetricLinkPages(AppJobsMetricLinkPage.class);
 		addMetricLinkPages(DatarouterJobsMetricLinkPage.class);
 		addPluginEntry(DetachedJobExecutor.KEY, detachedJobExecutor);
+		addPluginEntry(DetachedJobStopper.KEY, detachedJobStopper);
 	}
 
 	public static class DatarouterJobDaoModule extends DaosModuleBuilder{
@@ -63,14 +69,17 @@ public class DatarouterJobPlugin extends BaseWebPlugin{
 		private final List<ClientId> datarouterClusterJobLockClientIds;
 		private final List<ClientId> datarouterClusterTriggerLockClientIds;
 		private final List<ClientId> stopJobRequestClientIds;
+		private final Class<? extends MetricLinkBuilder> metricLinkBuilder;
 
 		public DatarouterJobDaoModule(
 				List<ClientId> datarouterClusterJobLockClientIds,
 				List<ClientId> datarouterClusterTriggerLockClientIds,
-				List<ClientId> stopJobRequestClientIds){
+				List<ClientId> stopJobRequestClientIds,
+				Class<? extends MetricLinkBuilder> metricLinkBuilder){
 			this.datarouterClusterJobLockClientIds = datarouterClusterJobLockClientIds;
 			this.datarouterClusterTriggerLockClientIds = datarouterClusterTriggerLockClientIds;
 			this.stopJobRequestClientIds = stopJobRequestClientIds;
+			this.metricLinkBuilder = metricLinkBuilder;
 		}
 
 		@Override
@@ -89,6 +98,7 @@ public class DatarouterJobPlugin extends BaseWebPlugin{
 					.toInstance(new DatarouterJobLockDaoParams(datarouterClusterJobLockClientIds));
 			bind(StopJobRequestDaoParams.class)
 					.toInstance(new StopJobRequestDaoParams(stopJobRequestClientIds));
+			bindDefault(MetricLinkBuilder.class, metricLinkBuilder);
 		}
 
 	}
@@ -98,6 +108,8 @@ public class DatarouterJobPlugin extends BaseWebPlugin{
 		private final List<ClientId> defaultClientIds;
 
 		private Class<? extends DetachedJobExecutor> detachedJobExecutorClass = DefaultDetachedJobExecutor.class;
+		private Class<? extends DetachedJobStopper> detachedJobStopperClass = DefaultDetachedJobStopper.class;
+		private Class<? extends MetricLinkBuilder> metricLinkBuilder = NoOpMetricLinkBuilder.class;
 
 		public DatarouterJobPluginBuilder(List<ClientId> defaultClientIds){
 			this.defaultClientIds = defaultClientIds;
@@ -109,16 +121,27 @@ public class DatarouterJobPlugin extends BaseWebPlugin{
 			return this;
 		}
 
+		public DatarouterJobPluginBuilder withDetachedJobStopperClass(
+				Class<? extends DetachedJobStopper> detachedJobStopperClass){
+			this.detachedJobStopperClass = detachedJobStopperClass;
+			return this;
+		}
+
+		public DatarouterJobPluginBuilder withMetricLinkBuilder(Class<? extends MetricLinkBuilder> metricLinkBuilder){
+			this.metricLinkBuilder = metricLinkBuilder;
+			return this;
+		}
+
 		public DatarouterJobPlugin getSimplePluginData(){
 			return new DatarouterJobPlugin(
-					new DatarouterJobDaoModule(defaultClientIds, defaultClientIds, defaultClientIds),
-					detachedJobExecutorClass);
+					new DatarouterJobDaoModule(defaultClientIds, defaultClientIds, defaultClientIds, metricLinkBuilder),
+					detachedJobExecutorClass, detachedJobStopperClass);
 		}
 
 		public DatarouterJobPlugin build(){
 			return new DatarouterJobPlugin(
-					new DatarouterJobDaoModule(defaultClientIds, defaultClientIds, defaultClientIds),
-					detachedJobExecutorClass);
+					new DatarouterJobDaoModule(defaultClientIds, defaultClientIds, defaultClientIds, metricLinkBuilder),
+					detachedJobExecutorClass, detachedJobStopperClass);
 		}
 
 	}

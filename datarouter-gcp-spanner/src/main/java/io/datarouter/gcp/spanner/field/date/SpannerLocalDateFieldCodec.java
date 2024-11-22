@@ -24,6 +24,7 @@ import com.google.cloud.spanner.Value;
 
 import io.datarouter.gcp.spanner.ddl.SpannerColumnType;
 import io.datarouter.gcp.spanner.field.SpannerBaseFieldCodec;
+import io.datarouter.gcp.spanner.field.SpannerValueTool;
 import io.datarouter.model.field.imp.LocalDateField;
 
 public class SpannerLocalDateFieldCodec extends SpannerBaseFieldCodec<LocalDate,LocalDateField>{
@@ -39,8 +40,7 @@ public class SpannerLocalDateFieldCodec extends SpannerBaseFieldCodec<LocalDate,
 
 	@Override
 	public Value getSpannerValue(){
-		LocalDate date = field.getValue();
-		return Value.date(Date.fromYearMonthDay(date.getYear(), date.getMonthValue(), date.getDayOfMonth()));
+		return SpannerValueTool.ofLocalDate(field.getValue());
 	}
 
 	@Override

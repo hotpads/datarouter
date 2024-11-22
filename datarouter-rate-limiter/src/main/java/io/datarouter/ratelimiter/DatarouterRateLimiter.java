@@ -17,33 +17,23 @@ package io.datarouter.ratelimiter;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.time.temporal.ChronoField;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-
-import javax.servlet.http.HttpServletRequest;
 
 import io.datarouter.instrumentation.metric.Metrics;
 import io.datarouter.ratelimiter.storage.BaseTallyDao;
-import io.datarouter.scanner.ObjectScanner;
+import io.datarouter.ratelimiter.util.DatarouterRateLimiterKeyTool;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.util.time.ZoneIds;
-import io.datarouter.web.util.http.RequestTool;
 
 public class DatarouterRateLimiter{
 
 	private static final String HIT_COUNTER_NAME = "rate limit hit";
 	private static final String EXCEEDED_AVG = "rate limit exceeded avg";
 	private static final String EXCEEDED_PEAK = "rate limit exceeded peak";
-	private static final String COUNTER_PREFIX = "RateLimiter ";
+	public static final String COUNTER_PREFIX = "RateLimiter ";
 
 	private final BaseTallyDao tallyDao;
 	private final DatarouterRateLimiterConfig config;
@@ -54,7 +44,7 @@ public class DatarouterRateLimiter{
 	}
 
 	public boolean peek(String key){
-		return internalAllow(makeKey(key), false);
+		return internalAllow(DatarouterRateLimiterKeyTool.makeKeyPrefix(config, key), false);
 	}
 
 	public boolean allowed(){
@@ -62,7 +52,7 @@ public class DatarouterRateLimiter{
 	}
 
 	public boolean allowed(String dynamicKey){
-		boolean allowed = internalAllow(makeKey(dynamicKey), true);
+		boolean allowed = internalAllow(DatarouterRateLimiterKeyTool.makeKeyPrefix(config, dynamicKey), true);
 		if(allowed){
 			Metrics.count(COUNTER_PREFIX + config.name + " allowed");
 		}else{
@@ -71,17 +61,16 @@ public class DatarouterRateLimiter{
 		return allowed;
 	}
 
-	public boolean allowedForIp(HttpServletRequest request){
-		return allowedForIp("", request);
+	public boolean allowedForIp(String ip){
+		return allowedForIp("", ip);
 	}
 
-	public boolean allowedForIp(String dynamicKey, HttpServletRequest request){
-		String ip = RequestTool.getIpAddress(request);
-		boolean allowed = internalAllow(makeKey(dynamicKey, ip), true);
+	public boolean allowedForIp(String dynamicKey, String ip){
+		boolean allowed = internalAllow(DatarouterRateLimiterKeyTool.makeKeyPrefix(config, dynamicKey, ip), true);
 		if(allowed){
-			Metrics.count(COUNTER_PREFIX + "ip " + config.name + " allowed");
+			Metrics.count(COUNTER_PREFIX + config.name + " ip allowed");
 		}else{
-			Metrics.count(COUNTER_PREFIX + "ip " + config.name + " limit reached");
+			Metrics.count(COUNTER_PREFIX + config.name + " ip limit reached");
 		}
 		return allowed;
 	}
@@ -97,8 +86,9 @@ public class DatarouterRateLimiter{
 
 	protected boolean internalAllow(String key, boolean increment){
 		Instant now = Instant.now();
-		Map<String,Long> results = readCounts(buildKeysToRead(key, now));
-		String currentMapKey = makeMapKey(key, getTimeStr(now));
+		Map<String,Long> results = readCounts(DatarouterRateLimiterKeyTool.buildKeysToRead(key, now, config));
+		String currentMapKey =
+				DatarouterRateLimiterKeyTool.makeMapKey(key, DatarouterRateLimiterKeyTool.getTimeStr(now, config));
 		int total = 0;
 
 		for(Entry<String,Long> entry : results.entrySet()){
@@ -144,58 +134,12 @@ public class DatarouterRateLimiter{
 		return true;
 	}
 
-	/*
-	 * returns a string of the time bucket closest to (and below) the given calendar
-	 * ie:
-	 *   2009-06-06 11:11:11.123 => 2009-06-06T11:11:10Z when timeUnit = seconds and bucketInterval = 10s
-	 *   						 => 2009-06-06T06:00:00Z when timeUnit = hours   and bucketInterval = 6 hours
-	 *   						 => 2009-06-06T11:08:00Z when timeUnit = minutes and bucketInterval = 4 minutes
-	 */
-	protected String getTimeStr(Instant instant){
-		ChronoField chornoField = switch(config.unit){
-		case DAYS -> ChronoField.DAY_OF_MONTH;
-		case HOURS -> ChronoField.HOUR_OF_DAY;
-		case MINUTES -> ChronoField.MINUTE_OF_HOUR;
-		case SECONDS -> ChronoField.SECOND_OF_MINUTE;
-		default -> ChronoField.MILLI_OF_SECOND;
-		};
-		Instant truncatedInstant = setCalendarFieldForBucket(instant, config.unit, chornoField,
-				config.bucketTimeInterval);
-		return DateTimeFormatter.ISO_INSTANT.format(truncatedInstant);
-	}
-
 	private Map<String,Long> readCounts(List<String> keys){
 		return tallyDao.getMultiTallyCount(keys, config.expiration, Duration.ofMillis(200));
 	}
 
-	private List<String> buildKeysToRead(String key, Instant instant){
-		List<String> keys = new ArrayList<>();
-		for(int i = 0; i < config.numIntervals; i++){
-			int amount = i * config.bucketIntervalMs;
-			String mapKey = makeMapKey(key, getTimeStr(instant.minusMillis(amount)));
-			keys.add(mapKey.toString());
-		}
-		return keys;
-	}
-
-	// makes the key to put in the map from the key given and current time bucket
-	private static String makeMapKey(String key, String time){
-		return key.replaceAll("!", "%21") + "!" + time;
-	}
-
-	// inverse of makeMapKey
-	private static KeyTime unmakeMapKey(String mapKey){
-		String[] splits = mapKey.split("!");
-		return new KeyTime(splits[0].replaceAll("%21", "!"), splits[1]);
-	}
-
-	private record KeyTime(
-			String key,
-			String time){
-	}
-
 	private static Instant getDateFromKey(String key){
-		String dateString = unmakeMapKey(key).time();
+		String dateString = DatarouterRateLimiterKeyTool.unmakeMapKey(key).time();
 		try{
 			return Instant.parse(dateString);
 		}catch(DateTimeParseException e){
@@ -203,31 +147,8 @@ public class DatarouterRateLimiter{
 		}
 	}
 
-	private static Instant setCalendarFieldForBucket(Instant instant, TimeUnit timeUnit, ChronoField chronoField,
-			int fieldInterval){
-		//Turn into a ZoneDateTime to have full ChronoUnitField support
-		ZonedDateTime zonedDateTime = instant.atZone(ZoneIds.UTC);
-
-		// rely on int rounding to truncate. 10*(x/10) gives closet multiple of 10 below x
-		long newTemporalvalue = fieldInterval * (zonedDateTime.getLong(chronoField) / fieldInterval);
-
-		// Day = 0 does not exist. It represents the previous month.
-		if(timeUnit == TimeUnit.DAYS && newTemporalvalue == 0){
-			return zonedDateTime.truncatedTo(timeUnit.toChronoUnit())
-					.with(chronoField, 1)
-					.minusDays(1)
-					.toInstant();
-		}
-		return zonedDateTime.truncatedTo(timeUnit.toChronoUnit())
-				.with(chronoField, newTemporalvalue)
-				.toInstant();
-	}
-
-	private String makeKey(String... keyFields){
-		return ObjectScanner.of(config.name)
-				.append(keyFields)
-				.exclude(String::isBlank)
-				.collect(Collectors.joining("_"));
+	public DatarouterRateLimiterConfig getConfig(){
+		return config;
 	}
 
 }

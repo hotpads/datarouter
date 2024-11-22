@@ -24,7 +24,6 @@ import org.apache.http.protocol.HttpContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.httpclient.circuitbreaker.DatarouterHttpClientIoExceptionCircuitBreaker;
 import io.datarouter.instrumentation.trace.TracerTool;
 
 public class DatarouterHttpRetryHandler implements HttpRequestRetryHandler{
@@ -40,7 +39,7 @@ public class DatarouterHttpRetryHandler implements HttpRequestRetryHandler{
 	public boolean retryRequest(IOException exception, int executionCount, HttpContext context){
 		HttpClientContext clientContext = HttpClientContext.adapt(context);
 		boolean willRetry = HttpRetryTool.shouldRetry(context, executionCount, retryCount);
-		String traceparent = (String)context.getAttribute(DatarouterHttpClientIoExceptionCircuitBreaker.TRACEPARENT);
+		String traceparent = (String)context.getAttribute(DatarouterHttpCallTool.TRACEPARENT);
 		String url = clientContext.getTargetHost() + clientContext.getRequest().getRequestLine().getUri();
 		if(willRetry){
 			logger.warn("failure target={} traceparent={} failureCount={}",

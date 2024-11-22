@@ -15,9 +15,12 @@
  */
 package io.datarouter.web.html.j2html.bootstrap4;
 
+import java.util.List;
 import java.util.Map;
 
+import io.datarouter.pathnode.PathNode;
 import io.datarouter.web.config.DatarouterWebFiles;
+import io.datarouter.web.css.DatarouterWebCssTool;
 import io.datarouter.web.css.DatarouterWebCssV2;
 import io.datarouter.web.handler.mav.MavProperties;
 import io.datarouter.web.html.j2html.DatarouterPageHead;
@@ -27,11 +30,14 @@ import io.datarouter.web.requirejs.DatarouterWebRequireJs;
 import io.datarouter.web.requirejs.DatarouterWebRequireJsV2;
 import io.datarouter.web.requirejs.RequireJsTool;
 import j2html.tags.EmptyTag;
+import j2html.tags.specialized.HeadTag;
 import j2html.tags.specialized.ScriptTag;
 
 public class Bootstrap4PageHead extends DatarouterPageHead{
 
 	private static final DatarouterWebFiles FILES = new DatarouterWebFiles();
+
+	private final EmptyTag<?>[] additionalCssImports;
 
 	public Bootstrap4PageHead(
 			MavProperties mavProperties,
@@ -41,7 +47,8 @@ public class Bootstrap4PageHead extends DatarouterPageHead{
 			boolean hasAnyDatarouterPrivileges,
 			String title,
 			Map<String,String> httpEquivs,
-			ScriptTag[] customScripts){
+			ScriptTag[] customScripts,
+			List<PathNode> customCss){
 		super(
 				DatarouterWebCssV2.makeCssImportTags(contextPath),
 				DatarouterWebRequireJs.makeImportTag(contextPath),
@@ -58,6 +65,12 @@ public class Bootstrap4PageHead extends DatarouterPageHead{
 				title,
 				httpEquivs,
 				customScripts);
+		additionalCssImports = DatarouterWebCssTool.makeCssImportTags(contextPath, customCss);
+	}
+
+	@Override
+	public HeadTag build(){
+		return super.build().with(additionalCssImports);
 	}
 
 }

@@ -28,6 +28,8 @@ import io.datarouter.auth.storage.account.DatarouterAccount;
 import io.datarouter.auth.storage.account.DatarouterAccountDao;
 import io.datarouter.auth.web.config.DatarouterAuthSettingRoot;
 import io.datarouter.email.html.J2HtmlEmailTable;
+import io.datarouter.instrumentation.relay.rml.Rml;
+import io.datarouter.instrumentation.relay.rml.RmlBlock;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
 import io.datarouter.web.digest.DailyDigestService;
@@ -53,11 +55,19 @@ public class DatarouterAccountDailyDigest implements DailyDigest{
 	@Inject
 	private DatarouterAuthSettingRoot settings;
 
-	private List<DatarouterAccount> getAccounts(){
-		return accountDao.scan()
-				.include(account -> account.getLastUsedInstant().isBefore(THRESHOLD)
-						|| account.getCallerType() == null)
-				.list();
+	@Override
+	public String getTitle(){
+		return "Accounts";
+	}
+
+	@Override
+	public DailyDigestType getType(){
+		return DailyDigestType.ACTIONABLE;
+	}
+
+	@Override
+	public DailyDigestGrouping getGrouping(){
+		return DailyDigestGrouping.LOW;
 	}
 
 	@Override
@@ -75,18 +85,38 @@ public class DatarouterAccountDailyDigest implements DailyDigest{
 	}
 
 	@Override
-	public DailyDigestGrouping getGrouping(){
-		return DailyDigestGrouping.LOW;
+	public Optional<RmlBlock> getRelayContent(ZoneId zoneId){
+		if(!settings.enableAccountDailyDigest.get()){
+			return Optional.empty();
+		}
+		List<DatarouterAccount> accounts = getAccounts();
+		if(accounts.isEmpty()){
+			return Optional.empty();
+		}
+		return Optional.of(Rml.paragraph(
+				digestService.makeHeading("Old Accounts", paths.datarouter.accountManager),
+				Rml.text("Old Accounts or Accounts without a callerType").italic(),
+				Rml.table(
+						Rml.tableRow(
+								Rml.tableHeader(Rml.text("Account")),
+								Rml.tableHeader(Rml.text("Creator")),
+								Rml.tableHeader(Rml.text("Created")),
+								Rml.tableHeader(Rml.text("Last Used")),
+								Rml.tableHeader(Rml.text("Caller Type"))))
+						.with(accounts.stream()
+								.map(account -> Rml.tableRow(
+										Rml.tableCell(Rml.text(account.getKey().getAccountName())),
+										Rml.tableCell(Rml.text(account.getCreator())),
+										Rml.tableCell(Rml.text(account.getCreatedDate(zoneId))),
+										Rml.tableCell(Rml.text(account.getLastUsedDate(zoneId))),
+										Rml.tableCell(Rml.text(account.getCallerType())))))));
 	}
 
-	@Override
-	public String getTitle(){
-		return "Accounts";
-	}
-
-	@Override
-	public DailyDigestType getType(){
-		return DailyDigestType.ACTIONABLE;
+	private List<DatarouterAccount> getAccounts(){
+		return accountDao.scan()
+				.include(account -> account.getLastUsedInstant().isBefore(THRESHOLD)
+						|| account.getCallerType() == null)
+				.list();
 	}
 
 	private static TableTag buildEmailTable(List<DatarouterAccount> rows, ZoneId zoneId){

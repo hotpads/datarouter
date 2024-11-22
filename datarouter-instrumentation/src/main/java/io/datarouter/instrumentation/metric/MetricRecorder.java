@@ -21,7 +21,7 @@ import io.datarouter.instrumentation.metric.collector.MetricTemplates;
 public abstract class MetricRecorder{
 
 	public abstract String toMetricName();
-	protected abstract MetricTemplateDto makePatternDto(String description);
+	public abstract MetricTemplateDto makePatternDto(String description);
 
 	public final void count(String description){
 		count(1, description);

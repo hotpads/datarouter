@@ -26,7 +26,7 @@ public class HttpWarmupHttpClient extends BaseDatarouterHttpClientWrapper{
 
 	@Inject
 	public HttpWarmupHttpClient(){
-		super(new DatarouterHttpClientBuilder(GsonJsonSerializer.DEFAULT)
+		super(new DatarouterHttpClientBuilder("http-warmup", GsonJsonSerializer.DEFAULT)
 				.setIgnoreSsl(true)
 				.build());
 	}

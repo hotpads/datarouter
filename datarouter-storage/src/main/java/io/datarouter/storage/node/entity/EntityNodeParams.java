@@ -24,24 +24,17 @@ public class EntityNodeParams<
 		EK extends EntityKey<EK>,
 		E extends Entity<EK>>{
 
-	private final String nodeName;
 	private final Supplier<EK> entityKeySupplier;
 	private final Supplier<E> entitySupplier;
 	private final String entityTableName;
 
 	public EntityNodeParams(
-			String nodeName,
 			Supplier<EK> entityKeySupplier,
 			Supplier<E> entitySupplier,
 			String entityTableName){
-		this.nodeName = nodeName;
 		this.entityKeySupplier = entityKeySupplier;
 		this.entitySupplier = entitySupplier;
 		this.entityTableName = entityTableName;
-	}
-
-	public String getNodeName(){
-		return nodeName;
 	}
 
 	public Supplier<EK> getEntityKeySupplier(){

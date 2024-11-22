@@ -240,11 +240,17 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 		return objectRequests.findPartialObject(location, offset, length);
 	}
 
+	@Override
+	public Optional<byte[]> findEnding(BucketAndKey location, int length){
+		return objectRequests.findEnding(location, length);
+	}
+
 	/*---------- object write ---------*/
 
 	@Override
-	public void copyObject(String bucket, String sourceKey, String destinationKey, ObjectCannedACL acl){
-		objectRequests.copyObject(bucket, sourceKey, destinationKey, acl);
+	public void copyObject(String sourceBucket, String sourceKey, String destinationBucket,
+			String destinationKey, ObjectCannedACL acl){
+		objectRequests.copyObject(sourceBucket, sourceKey, destinationBucket, destinationKey, acl);
 	}
 
 	@Override

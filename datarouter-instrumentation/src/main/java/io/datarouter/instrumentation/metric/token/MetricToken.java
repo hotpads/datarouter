@@ -17,7 +17,7 @@ package io.datarouter.instrumentation.metric.token;
 
 import java.util.Optional;
 
-import io.datarouter.instrumentation.metric.collector.MetricTemplateDto.Nested.MetricTemplateNodeDto;
+import io.datarouter.instrumentation.metric.collector.MetricTemplateDto.MetricTemplateNodeDto;
 
 public interface MetricToken{
 

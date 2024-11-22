@@ -27,11 +27,12 @@ import io.datarouter.auth.storage.user.datarouteruser.DatarouterUser;
 import io.datarouter.auth.storage.user.datarouteruser.DatarouterUserDao;
 import io.datarouter.auth.storage.user.datarouteruser.DatarouterUserKey;
 import io.datarouter.email.html.J2HtmlEmailTable;
+import io.datarouter.instrumentation.relay.rml.Rml;
+import io.datarouter.instrumentation.relay.rml.RmlBlock;
 import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
 import io.datarouter.web.digest.DailyDigestService;
-import io.datarouter.web.html.j2html.J2HtmlTable;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.TableTag;
 import jakarta.inject.Inject;
@@ -49,10 +50,19 @@ public class DatarouterDefaultUserDailyDigest implements DailyDigest{
 	@Inject
 	private ServerTypeDetector serverTypeDetector;
 
-	private Optional<String> findDefaultUsername(){
-		Long defaultAdminId = DatarouterUserCreationService.ADMIN_ID;
-		return datarouterUserDao.find(new DatarouterUserKey(defaultAdminId))
-				.map(DatarouterUser::getUsername);
+	@Override
+	public String getTitle(){
+		return "Users with default userIds";
+	}
+
+	@Override
+	public DailyDigestType getType(){
+		return DailyDigestType.ACTIONABLE;
+	}
+
+	@Override
+	public DailyDigestGrouping getGrouping(){
+		return DailyDigestGrouping.MEDIUM;
 	}
 
 	@Override
@@ -71,25 +81,30 @@ public class DatarouterDefaultUserDailyDigest implements DailyDigest{
 	}
 
 	@Override
-	public String getTitle(){
-		return "Users with default userIds";
+	public Optional<RmlBlock> getRelayContent(ZoneId zoneId){
+		if(!serverTypeDetector.mightBeProduction()){
+			return Optional.empty();
+		}
+		Optional<List<String>> username = findDefaultUsername()
+				.map(List::of);
+		if(username.isEmpty()){
+			return Optional.empty();
+		}
+		return Optional.of(
+				Rml.paragraph(
+						dailyDigestService.makeHeading("Please remove the default user", authPaths.admin.viewUsers),
+						Rml.table(
+								Rml.tableRow(Rml.tableHeader(Rml.text("Users"))))
+								.with(username.get().stream()
+										.map(Rml::text)
+										.map(Rml::tableCell)
+										.map(Rml::tableRow))));
 	}
 
-	@Override
-	public DailyDigestGrouping getGrouping(){
-		return DailyDigestGrouping.MEDIUM;
-	}
-
-	@Override
-	public DailyDigestType getType(){
-		return DailyDigestType.ACTIONABLE;
-	}
-
-	public TableTag buildTable(List<String> rows){
-		return new J2HtmlTable<String>()
-				.withClasses("sortable table table-sm table-striped my-4 border")
-				.withColumn("Users", row -> row)
-				.build(rows);
+	private Optional<String> findDefaultUsername(){
+		Long defaultAdminId = DatarouterUserCreationService.ADMIN_ID;
+		return datarouterUserDao.find(new DatarouterUserKey(defaultAdminId))
+				.map(DatarouterUser::getUsername);
 	}
 
 	private TableTag buildEmailTable(List<String> rows){

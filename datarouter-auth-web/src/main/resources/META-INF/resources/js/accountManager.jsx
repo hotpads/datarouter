@@ -1,3 +1,4 @@
+const { Fragment } = React;
 const { Router, Redirect, Route, Link, browserHistory } = ReactRouter;
 
 const Fetch = {
@@ -25,6 +26,42 @@ const Fetch = {
       headers: { "Content-Type": "application/json;charset=UTF-8" },
     }),
 };
+
+const PageHeader = ({ accountName }) => (
+  <div className="d-flex align-items-center">
+    <h1>DatarouterAccounts</h1>
+    <button
+        type="button"
+        className="btn btn-link ml-1 mr-1"
+        data-toggle="modal"
+        data-target="#createAccountModal"
+    >
+      Create Account
+    </button>
+    <button
+        type="button"
+        className="btn btn-link"
+        data-toggle="modal"
+        data-target="#lookupAccountModal"
+    >
+      Lookup Account by apiKey
+    </button>
+    <a
+        type="button"
+        className="btn btn-link"
+        href={RENAMER_PATH + (accountName ? "?oldAccountName=" + accountName : "")}
+    >
+      Account Renamer
+    </a>
+    <a
+        type="button"
+        className="btn btn-link"
+        href={CALLER_TYPE_PATH + (accountName ? "?accountName=" + accountName : "")}
+    >
+      Update Caller Types
+    </a>
+  </div>
+);
 
 const SubmitButton = ({ compact, className = "", ...props }) => (
   <input
@@ -562,25 +599,28 @@ class Accounts extends React.Component {
 
   render() {
     return (
-      <div>
-        <AccountTable
-          accountDetails={this.state.accountDetails}
-          deleteAccount={this.deleteAccount}
-        />
-        <AccountLookupModal />
-        <CreateAccountModal addAccount={this.addAccount} />
-      </div>
+        <Fragment>
+          <PageHeader />
+          <div>
+            <AccountTable
+                accountDetails={this.state.accountDetails}
+                deleteAccount={this.deleteAccount}
+            />
+            <AccountLookupModal/>
+            <CreateAccountModal addAccount={this.addAccount}/>
+          </div>
+        </Fragment>
     );
   }
 }
 
-const AccountDetailsBreakdown = ({ toggleUserMappings, account, error }) => (
-  <div>
-    {error ? <strong style={{ color: "red" }}>{error}</strong> : ""}
-    <dl>
-      <dt>Name</dt>
-      <dd>{account.accountName}</dd>
-      <dt>Created</dt>
+const AccountDetailsBreakdown = ({toggleUserMappings, account, error}) => (
+    <div>
+      {error ? <strong style={{color: "red"}}>{error}</strong> : ""}
+      <dl>
+        <dt>Name</dt>
+        <dd>{account.accountName}</dd>
+        <dt>Created</dt>
       <dd>{account.created}</dd>
       <dt>Creator</dt>
       <dd>{account.creator}</dd>
@@ -610,6 +650,10 @@ class AccountDetails extends React.Component {
       keypair: null,
     };
   }
+
+  addAccount = (accountName, callerType) => {
+    Fetch.post("add", { accountName, callerType }).then(() => browserHistory.push(REACT_BASE_PATH + "manage"));
+  };
 
   componentWillMount() {
     Fetch.get("getDetails?accountName=" + this.props.params.accountName).then(
@@ -777,152 +821,124 @@ class AccountDetails extends React.Component {
     const dirtyReferrer = referrerInput !== details.account.referrer;
 
     return (
-      <div>
-        <AccountDetailsBreakdown
-          toggleUserMappings={this.toggleUserMappings}
-          account={details.account}
-          error={details.error}
-        />
-        {Hr}
-        <CredentialTable
-          credentials={credentials}
-          addCredential={this.addCredential}
-          deleteCredential={this.deleteCredential}
-          setCredentialActivation={this.setCredentialActivation}
-        />
-        {Hr}
-        <SecretCredentialTable
-          secretCredentials={secretCredentials}
-          addSecretCredential={this.addSecretCredential}
-          deleteSecretCredential={this.deleteSecretCredential}
-          setCredentialActivation={this.setCredentialActivation}
-        />
-        {Hr}
-        {!!availableEndpoints.length && (
-          <div>
-            <h3>
-              Permissions{" "}
-              {!permissions.length && (
-                <span className="alert alert-warning">
-                  (This account has no permissions)
-                </span>
-              )}
-            </h3>
-            <form>
-              <div className="input-group">
-                <div class="input-group-prepend">
-                  <span class="input-group-text" id="basic-addon1">
-                    Endpoints
+      <Fragment>
+        <PageHeader accountName={details.account.accountName}/>
+        <div>
+          <AccountDetailsBreakdown
+            toggleUserMappings={this.toggleUserMappings}
+            account={details.account}
+            error={details.error}
+          />
+          {Hr}
+          <CredentialTable
+            credentials={credentials}
+            addCredential={this.addCredential}
+            deleteCredential={this.deleteCredential}
+            setCredentialActivation={this.setCredentialActivation}
+          />
+          {Hr}
+          <SecretCredentialTable
+            secretCredentials={secretCredentials}
+            addSecretCredential={this.addSecretCredential}
+            deleteSecretCredential={this.deleteSecretCredential}
+            setCredentialActivation={this.setCredentialActivation}
+          />
+          {Hr}
+          {!!availableEndpoints.length && (
+            <div>
+              <h3>
+                Permissions{" "}
+                {!permissions.length && (
+                  <span className="alert alert-warning">
+                    (This account has no permissions)
                   </span>
+                )}
+              </h3>
+              <form>
+                <div className="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text" id="basic-addon1">
+                      Endpoints
+                    </span>
+                  </div>
+                  <select
+                    className="form-control"
+                    value={selectedEndpoint || ""}
+                    onChange={this.handleSelectEndpoint}
+                    style={{
+                      width: "auto",
+                      flexGrow: 0,
+                    }}
+                  >
+                    {availableEndpoints.map((endpoint) => (
+                      <option key={endpoint} value={endpoint}>
+                        {endpoint}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="input-group-append">
+                    <SubmitButton
+                      className="form-control-static btn"
+                      onClick={this.handleAddPermission}
+                      value="Add permission"
+                    />
+                  </div>
                 </div>
-                <select
-                  className="form-control"
-                  value={selectedEndpoint || ""}
-                  onChange={this.handleSelectEndpoint}
-                  style={{
-                    width: "auto",
-                    flexGrow: 0,
-                  }}
-                >
-                  {availableEndpoints.map((endpoint) => (
-                    <option key={endpoint} value={endpoint}>
-                      {endpoint}
-                    </option>
-                  ))}
-                </select>
-                <div className="input-group-append">
-                  <SubmitButton
-                    className="form-control-static btn"
-                    onClick={this.handleAddPermission}
-                    value="Add permission"
-                  />
-                </div>
-              </div>
-            </form>
-            {permissions.length == 0 || (
-              <table className="table table-sm">
-                <thead>
-                  <tr>
-                    <th scope="col">Endpoint</th>
-                    <th />
-                  </tr>
-                </thead>
-                <tbody>
-                  {permissions.map(({ endpoint }) => (
-                    <tr key={endpoint}>
-                      <td>{endpoint == "all" ? "All endpoints" : endpoint}</td>
-                      <td className="text-right">
-                        <span
-                          className="fa fa-trash"
-                          onClick={() => this.deletePermission(endpoint)}
-                        />
-                      </td>
+              </form>
+              {permissions.length == 0 || (
+                <table className="table table-sm">
+                  <thead>
+                    <tr>
+                      <th scope="col">Endpoint</th>
+                      <th />
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </div>
-        )}
-        <h3>Referrer prefix</h3>
-        <form className="input-group" onSubmit={this.handleSaveReferrer}>
-          <input
-            className="form-control w-auto"
-            style={{ flexGrow: 0 }}
-            value={referrerInput}
-            onChange={this.handleReferrer}
-          />
-          <input
-            type="submit"
-            disabled={!dirtyReferrer}
-            className={`input-group-append btn ${
-              dirtyReferrer ? "btn-primary" : "btn-outline-secondary"
-            }`}
-            value="Save"
-          />
-        </form>
-        {Hr}
-        {backButton}
-      </div>
+                  </thead>
+                  <tbody>
+                    {permissions.map(({ endpoint }) => (
+                      <tr key={endpoint}>
+                        <td>{endpoint == "all" ? "All endpoints" : endpoint}</td>
+                        <td className="text-right">
+                          <span
+                            className="fa fa-trash"
+                            onClick={() => this.deletePermission(endpoint)}
+                          />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          )}
+          <h3>Referrer prefix</h3>
+          <form className="input-group" onSubmit={this.handleSaveReferrer}>
+            <input
+              className="form-control w-auto"
+              style={{ flexGrow: 0 }}
+              value={referrerInput}
+              onChange={this.handleReferrer}
+            />
+            <input
+              type="submit"
+              disabled={!dirtyReferrer}
+              className={`input-group-append btn ${
+                dirtyReferrer ? "btn-primary" : "btn-outline-secondary"
+              }`}
+              value="Save"
+            />
+          </form>
+          {Hr}
+          {backButton}
+          <AccountLookupModal />
+          <CreateAccountModal addAccount={this.addAccount} />
+        </div>
+      </Fragment>
     );
   }
 }
 
 ReactDOM.render(
   <div className="container-fluid">
-    <div className="d-flex align-items-center">
-      <h1>DatarouterAccounts</h1>
-      <button
-        type="button"
-        className="btn btn-link ml-1 mr-1"
-        data-toggle="modal"
-        data-target="#createAccountModal"
-      >
-        Create Account
-      </button>
-      <button
-        type="button"
-        className="btn btn-link"
-        data-toggle="modal"
-        data-target="#lookupAccountModal"
-      >
-        Lookup Account by apiKey
-      </button>
-      <a
-          type="button"
-          className="btn btn-link"
-          href={RENAMER_PATH}
-          >
-          Account Renamer
-      </a>
-      <a
-          type="button"
-          className="btn btn-link"
-          href={CALLER_TYPE_PATH}
-          >
-          Update Caller Types
-      </a>
-    </div>
     <Router history={browserHistory}>
       <Route path={REACT_BASE_PATH + "manage"} component={Accounts} />
       <Route

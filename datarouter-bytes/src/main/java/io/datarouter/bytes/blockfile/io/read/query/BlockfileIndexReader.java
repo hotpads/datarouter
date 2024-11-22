@@ -18,6 +18,7 @@ package io.datarouter.bytes.blockfile.io.read.query;
 import io.datarouter.bytes.blockfile.block.decoded.BlockfileIndexBlock;
 import io.datarouter.bytes.blockfile.encoding.indexblock.BlockfileIndexBlockCodec;
 import io.datarouter.bytes.blockfile.index.BlockfileIndexEntry;
+import io.datarouter.bytes.blockfile.index.BlockfileRowIdRange;
 import io.datarouter.bytes.blockfile.io.read.BlockfileReader;
 import io.datarouter.scanner.ObjectScanner;
 import io.datarouter.scanner.Scanner;
@@ -32,15 +33,31 @@ public class BlockfileIndexReader<T>{
 		indexBlockCodec = reader.metadata().header().indexBlockFormat().supplier().get();
 	}
 
+	/*------ root -------*/
+
 	public Scanner<BlockfileIndexEntry> scanRootIndexEntries(){
 		return indexBlockCodec.scanChildren(reader.metadata().rootIndex());
 	}
+
+	public long numRows(){
+		//TODO get last entry without scanning?
+		return scanRootIndexEntries()
+				.findLast()
+				.map(BlockfileIndexEntry::rowIdRange)
+				.map(BlockfileRowIdRange::last)
+				.map(i -> i + 1)
+				.orElse(0L);
+	}
+
+	/*------ leaf -------*/
 
 	public Scanner<BlockfileIndexEntry> scanLeafIndexEntries(){
 		return indexBlockCodec.scanChildren(reader.metadata().rootIndex())
 				.concat(this::scanIndexEntryAndDescendants)
 				.include(indexEntry -> indexEntry.level() == 0);
 	}
+
+	/*------ all -------*/
 
 	public Scanner<BlockfileIndexEntry> scanIndexEntries(){
 		return scanRootIndexEntries()

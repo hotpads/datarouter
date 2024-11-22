@@ -56,7 +56,7 @@ public class WebappNavbarV2Html{
 				.attr("data-target", "#app-navbar-content");
 		return nav()
 				.attr(Attr.ID, "app-navbar")
-				.withClass("navbar navbar-expand-md navbar-dark bg-dark")
+				.withClass("navbar navbar-expand-md navbar-dark bg-dark border-0")
 				.condWith(props.getIsDatarouterPage(), makeDatarouterLogo())
 				.with(button)
 				.with(makeAppNavbarContent());

@@ -19,6 +19,7 @@ import io.datarouter.bytes.codec.stringcodec.StringCodec;
 
 public enum BlockfileFooterKey{
 
+	HEADER("HEADER"),
 	HEADER_BLOCK_LOCATION("HEADER_BLOCK_LOCATION"),
 	ROOT_INDEX_BLOCK_LOCATION("ROOT_INDEX_BLOCK_LOCATION"),
 	NUM_VALUE_BLOCKS("NUM_VALUE_BLOCKS"),

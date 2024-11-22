@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.email.config.DatarouterEmailSettingsProvider;
+import io.datarouter.email.email.IDatarouterEmailService.SendEmailRecipients;
 import io.datarouter.email.html.EmailDto;
 import io.datarouter.email.html.J2HtmlDatarouterEmail;
 import io.datarouter.email.html.J2HtmlDatarouterEmailBuilder;
@@ -56,16 +57,16 @@ public class DatarouterHtmlEmailService{
 	@Inject
 	private IDatarouterEmailService emailService;
 
-	public void trySend(EmailDto email){
-		emailService.trySend(
+	public SendEmailRecipients trySend(EmailDto email){
+		return emailService.trySend(
 				email,
 				adminEmail.get(),
 				subscriberSettings.includeSubscribers.get(),
 				subscribersEmail.get());
 	}
 
-	public void trySendJ2Html(J2HtmlDatarouterEmailBuilder emailBuilder){
-		emailService.trySendJ2Html(
+	public SendEmailRecipients trySendJ2Html(J2HtmlDatarouterEmailBuilder emailBuilder){
+		return emailService.trySendJ2Html(
 				emailBuilder,
 				adminEmail.get(),
 				subscriberSettings.includeSubscribers.get(),
@@ -76,10 +77,8 @@ public class DatarouterHtmlEmailService{
 		if(email.toAdmin){
 			email.toEmails.add(adminEmail.get());
 		}
-		if(email.toSubscribers){
-			if(subscriberSettings.includeSubscribers.get()){
-				email.toEmails.addAll(subscribersEmail.get());
-			}
+		if(email.toSubscribers && subscriberSettings.includeSubscribers.get()){
+			email.toEmails.addAll(subscribersEmail.get());
 		}
 		return new HashSet<>(email.toEmails);
 	}

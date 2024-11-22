@@ -74,7 +74,10 @@ public class OutgoingIpFinderService{
 	public static class OutgoingIpFinderClient extends BaseDatarouterHttpClientWrapper{
 
 		public OutgoingIpFinderClient(){
-			super(new DatarouterHttpClientBuilder(GsonJsonSerializer.DEFAULT).build());
+			super(new DatarouterHttpClientBuilder(
+					"outgoing-ip-finder",
+					GsonJsonSerializer.DEFAULT)
+					.build());
 		}
 
 	}

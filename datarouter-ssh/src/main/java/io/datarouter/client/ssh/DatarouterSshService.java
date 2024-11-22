@@ -15,6 +15,8 @@
  */
 package io.datarouter.client.ssh;
 
+import java.io.IOException;
+
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 
@@ -70,6 +72,10 @@ public class DatarouterSshService{
 
 	public JSch getJSch() throws JSchException{
 		return DatarouterSshTool.getJSch(settings.rsaPrivateKey.get());
+	}
+
+	public ShellSshSessionRunner shell(SshSessionConfig config) throws IOException{
+		return DatarouterSshTool.shell(settings.rsaPrivateKey.get(), config);
 	}
 
 }

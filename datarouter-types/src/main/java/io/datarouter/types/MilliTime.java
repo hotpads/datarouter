@@ -36,6 +36,10 @@ implements BaseMilliTime<MilliTime>, Comparable<MilliTime>{
 
 	public static final MilliTime MIN = new MilliTime(0L);
 	public static final MilliTime MAX = new MilliTime(Long.MAX_VALUE);
+	public static final long MILLISECONDS_IN_DAY = Duration.ofDays(1).toMillis();
+	public static final long MILLISECONDS_IN_HOUR = Duration.ofHours(1).toMillis();
+	public static final long MILLISECONDS_IN_MINUTE = Duration.ofMinutes(1).toMillis();
+	public static final long MILLISECONDS_IN_SECOND = Duration.ofSeconds(1).toMillis();
 
 	private final long epochMilli;
 
@@ -183,4 +187,29 @@ implements BaseMilliTime<MilliTime>, Comparable<MilliTime>{
 		return time1.toEpochMilli() <= time2.toEpochMilli() ? time1 : time2;
 	}
 
+	/*---------------- time elapsed ----------------*/
+	public static long getMillisecondsBetween(MilliTime time1, MilliTime time2){
+		return time1.toEpochMilli() - time2.toEpochMilli();
+	}
+
+	public static double getSecondsBetween(MilliTime time1, MilliTime time2){
+		return getPeriodsBetween(time1, time2, MILLISECONDS_IN_SECOND);
+	}
+
+	public static double getMinutesBetween(MilliTime time1, MilliTime time2){
+		return getPeriodsBetween(time1, time2, MILLISECONDS_IN_MINUTE);
+	}
+
+	public static double getHoursBetween(MilliTime time1, MilliTime time2){
+		return getPeriodsBetween(time1, time2, MILLISECONDS_IN_HOUR);
+	}
+
+	public static double getDaysBetween(MilliTime time1, MilliTime time2){
+		return getPeriodsBetween(time1, time2, MILLISECONDS_IN_DAY);
+	}
+
+	public static double getPeriodsBetween(MilliTime time1, MilliTime time2, long periodLengthMs){
+		long msDif = Math.abs(time1.toEpochMilli() - time2.toEpochMilli());
+		return msDif / (double)periodLengthMs;
+	}
 }

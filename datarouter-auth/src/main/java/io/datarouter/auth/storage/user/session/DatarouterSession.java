@@ -17,19 +17,17 @@ package io.datarouter.auth.storage.user.session;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
 
 import io.datarouter.auth.authenticate.DatarouterTokenGenerator;
 import io.datarouter.auth.role.Role;
-import io.datarouter.auth.role.RoleEnum;
 import io.datarouter.auth.session.Session;
 import io.datarouter.auth.storage.user.datarouteruser.DatarouterUser;
 import io.datarouter.auth.storage.user.datarouteruser.DatarouterUserKey;
 import io.datarouter.model.field.Field;
-import io.datarouter.model.field.codec.MilliTimeFieldCodec;
+import io.datarouter.model.field.codec.MilliTimeToLongFieldCodec;
 import io.datarouter.model.field.codec.StringListToBinaryCsvFieldCodec;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
@@ -72,7 +70,7 @@ implements Session{
 				.withSize(CommonFieldSizes.MAX_LENGTH_LONGBLOB);
 		public static final LongEncodedFieldKey<MilliTime> userCreatedAt = new LongEncodedFieldKey<>(
 				"userCreatedAt",
-				new MilliTimeFieldCodec());
+				new MilliTimeToLongFieldCodec());
 	}
 
 	public static class DatarouterSessionFielder extends BaseDatabeanFielder<DatarouterSessionKey,DatarouterSession>{
@@ -110,7 +108,7 @@ implements Session{
 		MilliTime now = MilliTime.now();
 		session.setCreated(now.toDate());
 		session.setUpdated(now.toDate());
-		session.setRoles(Collections.emptyList());
+		session.setRoles(List.of());
 		return session;
 	}
 
@@ -154,7 +152,7 @@ implements Session{
 
 	public void setRoles(Collection<Role> roles){
 		this.roles = Scanner.of(roles)
-				.map(Role::getPersistentString)
+				.map(Role::persistentString)
 				.sort()
 				.distinct()
 				.list();
@@ -165,11 +163,7 @@ implements Session{
 	}
 
 	public boolean hasRole(Role role){
-		return roles.contains(role.getPersistentString());
-	}
-
-	public boolean hasRole(RoleEnum<?> role){
-		return hasRole(role.getRole());
+		return roles.contains(role.persistentString());
 	}
 
 	@Override
@@ -243,7 +237,7 @@ implements Session{
 			return new MockHttpServletRequestBuilder()
 					.withAttribute(
 							DatarouterSessionManager.DATAROUTER_SESSION_ATTRIBUTE,
-							buildSessionWithRoles(DatarouterUserRole.values()))
+							buildSessionWithRoles(DatarouterUserRoleRegistry.values()))
 					.build();
 		}
 

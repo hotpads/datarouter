@@ -90,6 +90,11 @@ implements PhysicalBlobStorageNode{
 	}
 
 	@Override
+	public Optional<byte[]> readEnding(PathbeanKey key, int length, Config config){
+		return s3DirectoryManager.readEnding(key.getPathAndFile(), length);
+	}
+
+	@Override
 	public InputStream readInputStream(PathbeanKey key, Config config){
 		return s3DirectoryManager.readInputStream(key.getPathAndFile());
 	}

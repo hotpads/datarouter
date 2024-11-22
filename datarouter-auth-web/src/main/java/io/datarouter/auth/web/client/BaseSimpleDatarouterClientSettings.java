@@ -34,7 +34,6 @@ implements SimpleDatarouterHttpClientSettings{
 
 	public final CachedSetting<DatarouterDuration> timeout;
 	public final CachedSetting<Integer> numRetries;
-	public final CachedSetting<Boolean> enableBreakers;
 	public final Setting<Boolean> traceInQueryString;
 	public final Setting<Boolean> debugLog;
 
@@ -44,7 +43,6 @@ implements SimpleDatarouterHttpClientSettings{
 		super(finder, settingNodeName);
 		timeout = registerDurations("timeout", getTimeoutDefaultSettingValue());
 		numRetries = registerIntegers("numRetries", getNumRetriesDefault());
-		enableBreakers = registerBooleans("enableBreakers", getEnableBreakersDefault());
 		traceInQueryString = registerBoolean("traceInQueryString", false);
 		debugLog = registerBoolean("debugLog", false);
 	}
@@ -57,11 +55,6 @@ implements SimpleDatarouterHttpClientSettings{
 	@Override
 	public final Supplier<Integer> getNumRetries(){
 		return numRetries;
-	}
-
-	@Override
-	public final Supplier<Boolean> getEnableBreakers(){
-		return enableBreakers;
 	}
 
 	@Override

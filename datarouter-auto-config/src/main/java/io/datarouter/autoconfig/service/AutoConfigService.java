@@ -20,9 +20,13 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.datarouter.autoconfig.config.DatarouterAutoConfigExecutors.AutoConfigExecutor;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDtoBuilder;
+import io.datarouter.instrumentation.metric.Metrics;
 import io.datarouter.plugin.PluginInjector;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.scanner.Threads;
@@ -32,6 +36,7 @@ import jakarta.inject.Singleton;
 
 @Singleton
 public class AutoConfigService{
+	private static final Logger logger = LoggerFactory.getLogger(AutoConfigService.class);
 
 	private final ServerTypeDetector serverTypeDetector;
 	private final AutoConfigExecutor executor;
@@ -67,7 +72,7 @@ public class AutoConfigService{
 				.parallelUnordered(new Threads(executor, 8))
 				.map(entry -> {
 					try{
-						return runInternal(entry.getKey(), entry.getValue(), triggerer);
+						return runInternal(entry.getKey(), entry.getValue(), triggerer, "all");
 					}catch(Exception e){
 						// not possible
 						return null;
@@ -79,14 +84,17 @@ public class AutoConfigService{
 	public String runAutoConfigForName(String name, String triggerer) throws Exception{
 		serverTypeDetector.assertNotProductionServer();
 		Callable<String> callable = autoConfigByName.get(name);
-		return runInternal(name, callable, triggerer);
+		return runInternal(name, callable, triggerer, "single");
 	}
 
 	private String runInternal(
 			String name,
 			Callable<String> callable,
-			String triggerer)
+			String triggerer,
+			String mode)
 	throws Exception{
+		Metrics.count("AutoConfig start " + name);
+		logger.warn("running autoconfig name={} triggerer={} mode={}", name, triggerer, mode);
 		String autoConfig = callable.call();
 		var changelogDto = new DatarouterChangelogDtoBuilder(
 				"AutoConfig",

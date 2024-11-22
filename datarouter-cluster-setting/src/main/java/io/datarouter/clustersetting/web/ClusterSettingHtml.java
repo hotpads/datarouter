@@ -23,7 +23,7 @@ import static j2html.TagCreator.td;
 import io.datarouter.clustersetting.config.DatarouterClusterSettingPlugin;
 import io.datarouter.clustersetting.enums.ClusterSettingOverrideSuggestion;
 import io.datarouter.clustersetting.web.browse.ClusterSettingBrowseHandler.ClusterSettingBrowseEmailLinks;
-import io.datarouter.clustersetting.web.override.handler.ClusterSettingOverrideViewHandler.ClusterSettingOverrideViewLinks;
+import io.datarouter.clustersetting.web.override.handler.ClusterSettingOverrideViewHandler.ClusterSettingOverrideEmailLinks;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.TdTag;
@@ -34,7 +34,7 @@ import jakarta.inject.Singleton;
 public class ClusterSettingHtml{
 
 	@Inject
-	private ClusterSettingOverrideViewLinks overrideViewLinks;
+	private ClusterSettingOverrideEmailLinks overrideEmailLinks;
 	@Inject
 	private ClusterSettingBrowseEmailLinks browseEmailLinks;
 
@@ -78,7 +78,7 @@ public class ClusterSettingHtml{
 	}
 
 	public ATag makeOverridePrefixSettingLink(String settingName){
-		String href = overrideViewLinks.view(settingName);
+		String href = overrideEmailLinks.view(settingName);
 		return a(settingName)
 				.withHref(href)
 				.withStyle("text-decoration:none;");

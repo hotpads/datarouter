@@ -34,7 +34,7 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
 @Singleton
-public class DatarouterAccountDao extends BaseDao implements BaseDatarouterAccountDao{
+public class DatarouterAccountDao extends BaseDao{
 
 	public static class DatarouterAccountDaoParams{
 
@@ -78,47 +78,38 @@ public class DatarouterAccountDao extends BaseDao implements BaseDatarouterAccou
 		datarouter.register(node);
 	}
 
-	@Override
 	public void put(DatarouterAccount databean){
 		node.put(databean);
 	}
 
-	@Override
 	public void putMulti(Collection<DatarouterAccount> databeans){
 		node.putMulti(databeans);
 	}
 
-	@Override
 	public DatarouterAccount get(DatarouterAccountKey key){
 		return node.get(key);
 	}
 
-	@Override
 	public Scanner<DatarouterAccount> scanMulti(Collection<DatarouterAccountKey> keys){
 		return node.scanMulti(keys);
 	}
 
-	@Override
 	public Scanner<DatarouterAccount> scan(){
 		return node.scan();
 	}
 
-	@Override
 	public Scanner<DatarouterAccountKey> scanKeys(){
 		return node.scanKeys();
 	}
 
-	@Override
 	public boolean exists(DatarouterAccountKey key){
 		return node.exists(key);
 	}
 
-	@Override
 	public void delete(DatarouterAccountKey key){
 		node.delete(key);
 	}
 
-	@Override
 	public Optional<DatarouterAccount> find(DatarouterAccountKey key){
 		return node.find(key);
 	}

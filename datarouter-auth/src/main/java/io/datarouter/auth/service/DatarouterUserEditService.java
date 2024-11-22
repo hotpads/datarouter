@@ -35,7 +35,7 @@ import io.datarouter.auth.model.dto.RoleApprovalRequirementStatus;
 import io.datarouter.auth.model.dto.UserRoleMetadata;
 import io.datarouter.auth.model.dto.UserRoleUpdateDto;
 import io.datarouter.auth.model.enums.RoleUpdateType;
-import io.datarouter.auth.role.DatarouterUserRole;
+import io.datarouter.auth.role.DatarouterUserRoleRegistry;
 import io.datarouter.auth.role.Role;
 import io.datarouter.auth.role.RoleApprovalType;
 import io.datarouter.auth.role.RoleManager;
@@ -80,7 +80,8 @@ public class DatarouterUserEditService{
 			List<UserRoleUpdateDto> updates,
 			String signinUrl){
 		Optional<UserRoleUpdateDto> datarouterAdminUpdate = updates.stream()
-				.filter(update -> DatarouterUserRole.DATAROUTER_ADMIN.getPersistentString().equals(update.roleName()))
+				.filter(update -> DatarouterUserRoleRegistry.DATAROUTER_ADMIN.persistentString()
+						.equals(update.roleName()))
 				.findFirst();
 		if(datarouterAdminUpdate.isPresent()
 			&& RoleUpdateType.REVOKE.equals(datarouterAdminUpdate.get().updateType())
@@ -212,14 +213,14 @@ public class DatarouterUserEditService{
 				null);
 		var userRoleApproval = new DatarouterUserRoleApproval(
 				user.getUsername(),
-				userRoleMetadata.role().persistentString,
+				userRoleMetadata.role().persistentString(),
 				editor.getUsername(),
 				Instant.now(),
 				editorPrioritizedApprovalType.persistentString(),
 				null /* Filled in later */);
 		userRoleApprovalDao.put(userRoleApproval);
 		if(areAllRequirementsMet){
-			userRoleApprovalDao.setAllRequirementsMetAtForUserRole(user, userRoleMetadata.role().persistentString);
+			userRoleApprovalDao.setAllRequirementsMetAtForUserRole(user, userRoleMetadata.role().persistentString());
 		}
 		return Optional.of(updatedRoleMetadata);
 	}
@@ -261,7 +262,7 @@ public class DatarouterUserEditService{
 					editor.getUsername());
 			return Optional.empty();
 		}
-		userRoleApprovalDao.deleteOutstandingApprovals(user, userRoleMetadata.role().persistentString, editor);
+		userRoleApprovalDao.deleteOutstandingApprovals(user, userRoleMetadata.role().persistentString(), editor);
 		return Optional.of(new UserRoleMetadata(
 				userRoleMetadata.role(),
 				false, // can't be true after revoking an approval.
@@ -385,7 +386,7 @@ public class DatarouterUserEditService{
 		return Optional.empty();
 	}
 
-	public void updateTimeZone(DatarouterUser editor, DatarouterUser user, String timeZoneId, String signInUrl){
+	public void updateTimeZone(DatarouterUser editor, DatarouterUser user, String timeZoneId){
 		Optional<ZoneId> currentZoneId = user.getZoneId();
 		ZoneId newZoneId = ZoneId.of(timeZoneId);
 		boolean sameZoneId = currentZoneId.isPresent() && currentZoneId.get().equals(newZoneId);
@@ -398,7 +399,7 @@ public class DatarouterUserEditService{
 				"timezone",
 				currentZoneId.map(ZoneId::getId).orElse(""),
 				newZoneId.getId());
-		userHistoryService.putAndRecordTimezoneUpdate(user, editor, changeStr, signInUrl);
+		userHistoryService.putAndRecordTimezoneUpdate(user, editor, changeStr);
 	}
 
 	public void changePassword(DatarouterUser user, DatarouterUser editor, String newPassword, String signinUrl){

@@ -24,6 +24,7 @@ import java.util.function.Supplier;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDtoBuilder;
 import io.datarouter.job.BaseJob;
+import io.datarouter.job.detached.DetachedJobStopper.DetachedJobStopperSupplier;
 import io.datarouter.job.job.DatarouterJobStopperJob;
 import io.datarouter.job.lock.LocalTriggerLockService;
 import io.datarouter.job.scheduler.JobScheduler;
@@ -47,6 +48,8 @@ public class JobStopperService{
 	private StopJobRequestDao stopJobRequestDao;
 	@Inject
 	private ServerName serverName;
+	@Inject
+	private DetachedJobStopperSupplier detachedJobStopperSupplier;
 
 	/**
 	 * generates requests to stop a job running on the specified servers in the cluster. the requests are not processed
@@ -80,12 +83,12 @@ public class JobStopperService{
 
 	private void stopRequestedLocalJob(StopJobRequest stopJobRequest){
 		var key = stopJobRequest.getKey();
-		stopLocalJob(key.getJobClass(), stopJobRequest.getUsername(), stopJobRequest.getJobTriggerDeadline());
+		detachedJobStopperSupplier.get().stop(stopJobRequest);
 		stopJobRequestDao.delete(key);
 	}
 
 	//TODO licenses
-	private void stopLocalJob(String jobClassString, String username, Instant jobTriggerDeadline){
+	public void stopLocalJob(String jobClassString, String username, Instant jobTriggerDeadline){
 		Class<? extends BaseJob> jobClass = BaseJob.parseClass(jobClassString);
 		JobWrapper jobWrapper = localTriggerLockService.getForClass(jobClass);
 		//job isn't running anymore
@@ -103,11 +106,8 @@ public class JobStopperService{
 		if(!future.isDone()){
 			future.cancel(true);
 		}
-		changelogRecorder.record(new DatarouterChangelogDtoBuilder(
-				"Job",
-				jobClassString,
-				"interrupt",
-				username).build());
+		var changelog = new DatarouterChangelogDtoBuilder("Job", jobClassString, "interrupt", username).build();
+		changelogRecorder.record(changelog);
 	}
 
 }

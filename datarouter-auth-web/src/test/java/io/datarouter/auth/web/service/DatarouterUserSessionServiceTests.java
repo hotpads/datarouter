@@ -21,7 +21,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -83,7 +82,7 @@ public class DatarouterUserSessionServiceTests{
 		DatarouterUser user = new DatarouterUser(USER_ID, USERNAME);
 		user.setEnabled(true);
 		InterpretedSamlAssertion assertion =
-				new InterpretedSamlAssertion(USERNAME, Collections.emptySet(), Collections.emptySet());
+				new InterpretedSamlAssertion(USERNAME, Set.of(), Set.of());
 		when(datarouterUserService.findUserByUsername(USERNAME, true)).thenReturn(Optional.of(user));
 
 		Session session = userSessionService.signInUserFromSamlResponse(request, assertion);
@@ -100,7 +99,7 @@ public class DatarouterUserSessionServiceTests{
 		DatarouterUser user = new DatarouterUser(USER_ID, USERNAME);
 		user.setEnabled(true);
 		InterpretedSamlAssertion assertion =
-				new InterpretedSamlAssertion(USERNAME, Collections.emptySet(), Collections.emptySet());
+				new InterpretedSamlAssertion(USERNAME, Set.of(), Set.of());
 		when(datarouterUserService.findUserByUsername(USERNAME, true)).thenReturn(Optional.empty());
 		when(userCreationService.createAutomaticUser(
 				USERNAME,
@@ -122,7 +121,7 @@ public class DatarouterUserSessionServiceTests{
 		user.setRoles(List.of(new Role("role1"), new Role("role2")));
 		user.setSamlGroups(List.of("group1", "group2"));
 		InterpretedSamlAssertion assertion =
-				new InterpretedSamlAssertion(USERNAME, Set.of("group1", "group2"), Collections.emptySet());
+				new InterpretedSamlAssertion(USERNAME, Set.of("group1", "group2"), Set.of());
 		when(datarouterUserService.findUserByUsername(USERNAME, true)).thenReturn(Optional.of(user));
 		when(roleManager.getRolesForGroup("group1")).thenReturn(Set.of(new Role("role3"), new Role("role4")));
 		when(roleManager.getRolesForGroup("group2")).thenReturn(Set.of(new Role("role5"), new Role("role6")));
@@ -149,7 +148,7 @@ public class DatarouterUserSessionServiceTests{
 		DatarouterUser user = new DatarouterUser(USER_ID, USERNAME);
 		user.setEnabled(true);
 		InterpretedSamlAssertion assertion =
-				new InterpretedSamlAssertion(USERNAME, Set.of("group1", "group2"), Collections.emptySet());
+				new InterpretedSamlAssertion(USERNAME, Set.of("group1", "group2"), Set.of());
 		when(datarouterUserService.findUserByUsername(USERNAME, true)).thenReturn(Optional.of(user));
 
 		Session session = userSessionService.signInUserFromSamlResponse(request, assertion);
@@ -173,7 +172,7 @@ public class DatarouterUserSessionServiceTests{
 		user.setEnabled(true);
 		user.setSamlGroups(List.of("group1", "group2"));
 		InterpretedSamlAssertion assertion =
-				new InterpretedSamlAssertion(USERNAME, Collections.emptySet(), Collections.emptySet());
+				new InterpretedSamlAssertion(USERNAME, Set.of(), Set.of());
 		when(datarouterUserService.findUserByUsername(USERNAME, true)).thenReturn(Optional.of(user));
 
 		Session session = userSessionService.signInUserFromSamlResponse(request, assertion);
@@ -187,7 +186,7 @@ public class DatarouterUserSessionServiceTests{
 								No roles lost due to lost SAML groups.""");
 		verify(userDao, times(1)).put(user);
 		verify(sessionDao, times(1)).put((DatarouterSession) session);
-		Assert.assertEquals(user.getSamlGroups(), Collections.emptyList());
+		Assert.assertEquals(user.getSamlGroups(), List.of());
 		Assert.assertTrue(((DatarouterSession)session).getRoles().isEmpty());
 	}
 
@@ -197,7 +196,7 @@ public class DatarouterUserSessionServiceTests{
 		user.setEnabled(true);
 		user.setSamlGroups(List.of("group1", "group2"));
 		InterpretedSamlAssertion assertion =
-				new InterpretedSamlAssertion(USERNAME, Set.of("group3", "group4"), Collections.emptySet());
+				new InterpretedSamlAssertion(USERNAME, Set.of("group3", "group4"), Set.of());
 		when(datarouterUserService.findUserByUsername(USERNAME, true)).thenReturn(Optional.of(user));
 
 		Session session = userSessionService.signInUserFromSamlResponse(request, assertion);
@@ -224,7 +223,7 @@ public class DatarouterUserSessionServiceTests{
 		user.setSamlGroups(List.of("group1", "group2"));
 		user.setRoles(List.of(new Role("role3"), new Role("role8")));
 		InterpretedSamlAssertion assertion =
-				new InterpretedSamlAssertion(USERNAME, Set.of("group3", "group4"), Collections.emptySet());
+				new InterpretedSamlAssertion(USERNAME, Set.of("group3", "group4"), Set.of());
 		when(datarouterUserService.findUserByUsername(USERNAME, true)).thenReturn(Optional.of(user));
 		when(roleManager.getRolesForGroup("group1")).thenReturn(Set.of(new Role("role1"), new Role("role2")));
 		when(roleManager.getRolesForGroup("group2")).thenReturn(Set.of(new Role("role3"), new Role("role4")));

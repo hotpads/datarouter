@@ -196,6 +196,18 @@ implements BlobStorage{
 	}
 
 	@Override
+	public Optional<byte[]> readEnding(PathbeanKey key, int length, Config config){
+		Optional<byte[]> optBytes = parent.readEnding(
+				prependStoragePath(key),
+				length,
+				config);
+		count(CounterSuffix.READ_ENDING_OPS, 1);
+		optBytes.map(bytes -> bytes.length)
+				.ifPresent(actualLength -> count(CounterSuffix.READ_ENDING_BYTES, actualLength));
+		return optBytes;
+	}
+
+	@Override
 	public Map<PathbeanKey,byte[]> readMulti(List<PathbeanKey> keys, Config config){
 		Map<PathbeanKey,byte[]> result = parent.readMulti(keys, config);
 		count(CounterSuffix.READ_MULTI_OPS, 1);
@@ -269,6 +281,8 @@ implements BlobStorage{
 		EXISTS_OPS("exists ops"),
 		LENGTH_OPS("length ops"),
 		READ_BYTES("read bytes"),
+		READ_ENDING_BYTES("readEnding bytes"),
+		READ_ENDING_OPS("readEnding ops"),
 		READ_INPUT_STREAM_BYTES("readInputStream bytes"),
 		READ_INPUT_STREAM_OPS("readInputStream ops"),
 		READ_PARTIAL_BYTES("readPartial bytes"),

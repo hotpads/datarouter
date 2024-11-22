@@ -8,7 +8,7 @@ datarouter-binary-dto enables building nested DTOs that are serialized to a comp
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-binary-dto</artifactId>
-	<version>0.0.125</version>
+	<version>0.0.126</version>
 </dependency>
 ```
 

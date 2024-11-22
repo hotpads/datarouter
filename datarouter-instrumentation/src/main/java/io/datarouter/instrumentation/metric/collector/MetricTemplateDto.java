@@ -18,19 +18,16 @@ package io.datarouter.instrumentation.metric.collector;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import io.datarouter.instrumentation.metric.collector.MetricTemplateDto.Nested.MetricTemplateNodeDto;
 import io.datarouter.instrumentation.metric.token.MetricToken;
 
 public record MetricTemplateDto(
 		List<MetricTemplateNodeDto> nodes,
 		String description){
 
-	public static class Nested{
-		public record MetricTemplateNodeDto(
-				boolean isVariable,
-				String text,
-				String description){
-		}
+	public record MetricTemplateNodeDto(
+			boolean isVariable,
+			String text,
+			String description){
 	}
 
 	// Format cannot change, used in databean key

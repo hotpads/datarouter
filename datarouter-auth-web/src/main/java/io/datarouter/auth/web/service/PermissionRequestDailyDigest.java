@@ -34,9 +34,10 @@ import io.datarouter.auth.storage.user.permissionrequest.PermissionRequest;
 import io.datarouter.auth.storage.user.permissionrequest.PermissionRequestKey;
 import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
+import io.datarouter.instrumentation.relay.rml.Rml;
+import io.datarouter.instrumentation.relay.rml.RmlBlock;
 import io.datarouter.types.MilliTime;
 import io.datarouter.util.time.ZonedDateFormatterTool;
-import io.datarouter.web.config.ServletContextSupplier;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
 import io.datarouter.web.digest.DailyDigestService;
@@ -51,8 +52,6 @@ public class PermissionRequestDailyDigest implements DailyDigest{
 	@Inject
 	private DatarouterPermissionRequestDao permissionRequestDao;
 	@Inject
-	private ServletContextSupplier servletContextSupplier;
-	@Inject
 	private DatarouterAuthPaths paths;
 	@Inject
 	private DatarouterUserExternalDetailService detailsService;
@@ -60,6 +59,21 @@ public class PermissionRequestDailyDigest implements DailyDigest{
 	private UserInfoSupplier userInfo;
 	@Inject
 	private DailyDigestService digestService;
+
+	@Override
+	public String getTitle(){
+		return "Permission Requests";
+	}
+
+	@Override
+	public DailyDigestType getType(){
+		return DailyDigestType.ACTIONABLE;
+	}
+
+	@Override
+	public DailyDigestGrouping getGrouping(){
+		return DailyDigestGrouping.HIGH;
+	}
 
 	@Override
 	public Optional<DivTag> getEmailContent(ZoneId zoneId){
@@ -73,18 +87,34 @@ public class PermissionRequestDailyDigest implements DailyDigest{
 	}
 
 	@Override
-	public String getTitle(){
-		return "Permission Requests";
-	}
+	public Optional<RmlBlock> getRelayContent(ZoneId zoneId){
+		List<PermissionRequestDto> openRequests = getOpenRequests();
+		if(openRequests.isEmpty()){
+			return Optional.empty();
+		}
+		return Optional.of(
+				Rml.paragraph(
+						digestService.makeHeading("Open Permission Requests", paths.admin.viewUsers),
+						Rml.table(
+								Rml.tableRow(
+										Rml.tableHeader(Rml.text("Username")),
+										Rml.tableHeader(Rml.text("Profile")),
+										Rml.tableHeader(Rml.text("Date Requested")),
+										Rml.tableHeader(Rml.text("Details"))))
+								.with(openRequests.stream()
+										.map(req -> {
+											String username = req.user.getUsername();
+											DatarouterUserProfileLink detailsLink = detailsService.getUserProfileLink(
+													username).get();
+											String editUrl = paths.admin.editUser.toSlashedString()
+													+ "?username=" + username;
 
-	@Override
-	public DailyDigestGrouping getGrouping(){
-		return DailyDigestGrouping.HIGH;
-	}
-
-	@Override
-	public DailyDigestType getType(){
-		return DailyDigestType.ACTIONABLE;
+											return Rml.tableRow(
+													Rml.tableCell(Rml.text(username)),
+													Rml.tableCell(Rml.text(detailsLink.name()).link(detailsLink.url())),
+													Rml.tableCell(Rml.text(req.getInstantRequested(zoneId))),
+													Rml.tableCell(Rml.text("Edit User Page").link(editUrl)));
+										}))));
 	}
 
 	private List<PermissionRequestDto> getOpenRequests(){

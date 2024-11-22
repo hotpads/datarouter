@@ -15,7 +15,7 @@
  */
 package io.datarouter.autoconfig.config;
 
-import io.datarouter.auth.role.DatarouterUserRole;
+import io.datarouter.auth.role.DatarouterUserRoleRegistry;
 import io.datarouter.autoconfig.web.ViewAutoConfigsHandler;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.BaseRouteSet;
@@ -34,7 +34,7 @@ public class DatarouterAutoConfigRouteSet extends BaseRouteSet{
 	@Override
 	protected DispatchRule applyDefault(DispatchRule rule){
 		return rule.withTag(Tag.DATAROUTER)
-				.allowRoles(DatarouterUserRole.DATAROUTER_ADMIN);
+				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_ADMIN);
 	}
 
 }

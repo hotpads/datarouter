@@ -44,7 +44,7 @@ public abstract class BaseMemcachedClientManager extends BaseClientManager{
 		// Configure logging before any call to spy.memcached
 		System.setProperty("net.spy.log.LoggerImpl", SLF4JLogger.class.getName());
 		clientHolder.register(clientId, buildClient(clientId));
-		logger.warn(timer.add("done").toString());
+		logger.warn("{}", timer.add("done"));
 	}
 
 	@Override

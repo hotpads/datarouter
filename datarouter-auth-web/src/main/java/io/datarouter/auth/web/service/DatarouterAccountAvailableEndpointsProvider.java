@@ -17,8 +17,18 @@ package io.datarouter.auth.web.service;
 
 import java.util.List;
 
-public interface DatarouterAccountAvailableEndpointsProvider{
+import io.datarouter.web.dispatcher.DispatchRulePersistentStringsProvider;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
-	List<String> getAvailableEndpoints();
+@Singleton
+public class DatarouterAccountAvailableEndpointsProvider{
+
+	@Inject
+	private DispatchRulePersistentStringsProvider dispatchRulePersistentStringsProvider;
+
+	public List<String> getAvailableEndpoints(){
+		return dispatchRulePersistentStringsProvider.getAvailableEndpoints(DatarouterAccountApiKeyPredicate.class);
+	}
 
 }

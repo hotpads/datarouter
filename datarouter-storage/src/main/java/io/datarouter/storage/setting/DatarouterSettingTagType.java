@@ -25,6 +25,7 @@ public enum DatarouterSettingTagType implements Supplier<DatarouterSettingTag>{
 	CONVEYOR_TRACE_PIPELINE("conveyorTracePipeline"),
 	EXCEPTION_PIPELINE("exceptionPipeline"),
 	METRIC_TEMPLATE_PIPELINE("metricTemplatePipeline"),
+	WEBAPP_INSTANCE_PIPELINE("webappInstancePipeline"),
 	;
 
 	private final DatarouterSettingTag datarouterSettingTag;

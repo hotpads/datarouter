@@ -70,7 +70,7 @@ public class EmailTestHandler extends BaseHandler{
 		var form = new HtmlForm(HtmlFormMethod.GET);
 		form.addButton()
 				.withLabel("Submit")
-				.withValue("");
+				.withValue("anything");
 		if(submitAction.isEmpty()){
 			return pageFactory.startBuilder(request)
 					.withTitle("Send")

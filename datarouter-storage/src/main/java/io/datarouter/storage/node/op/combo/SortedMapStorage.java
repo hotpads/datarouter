@@ -34,7 +34,7 @@ extends MapStorage<PK,D>,
 		SortedMapStorageReader<PK,D>,
 		SortedMapStorageWriter<PK,D>{
 
-	static final int DELETE_BATCH_SIZE = 100;
+	int DELETE_BATCH_SIZE = 100;
 
 	default void deleteWithPrefix(PK prefix, Config config){
 		scanKeysWithPrefix(prefix, config)
@@ -56,7 +56,7 @@ extends MapStorage<PK,D>,
 		deleteWithPrefixes(prefixes, new Config());
 	}
 
-	public interface SortedMapStorageNode<
+	interface SortedMapStorageNode<
 			PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
@@ -67,7 +67,7 @@ extends MapStorage<PK,D>,
 			SortedMapStorageWriterNode<PK,D,F>{
 	}
 
-	public interface PhysicalSortedMapStorageNode<
+	interface PhysicalSortedMapStorageNode<
 			PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>

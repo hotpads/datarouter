@@ -18,7 +18,9 @@ package io.datarouter.auth.role;
 import io.datarouter.enums.StringMappedEnum;
 
 public enum DatarouterRoleApprovalType implements RoleApprovalTypeEnum<DatarouterRoleApprovalType>{
-	ADMIN("admin", 100);
+	ADMIN("admin", 100),
+	// The role cannot be granted via the UI and must be provisioned via a role group or database change
+	PROHIBITED("prohibited", 101);
 
 	public static final StringMappedEnum<DatarouterRoleApprovalType> BY_PERSISTENT_STRING
 			= new StringMappedEnum<>(values(), DatarouterRoleApprovalType::getPersistentString);

@@ -21,12 +21,12 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.httpclient.endpoint.java.BaseEndpoint;
-import io.datarouter.httpclient.endpoint.java.EndpointTool;
+import io.datarouter.httpclient.endpoint.BaseEndpoint;
 import io.datarouter.httpclient.endpoint.link.BaseLink;
-import io.datarouter.httpclient.endpoint.web.BaseWebApi;
 import io.datarouter.pathnode.PathNode;
 import io.datarouter.util.lang.ReflectionTool;
+import io.datarouter.web.api.EndpointTool;
+import io.datarouter.web.api.external.BaseExternalEndpoint;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.HandlerTool;
 
@@ -55,16 +55,15 @@ public abstract class BaseRouteSet implements RouteSet{
 		return applyDefaultAndAdd(rule);
 	}
 
-	protected DispatchRule handle(Class<? extends BaseEndpoint<?,?>> baseClass){
-		BaseEndpoint<?,?> baseEndpoint = ReflectionTool.createWithoutNoArgs(baseClass);
-		try{
-			EndpointTool.validateEndpoint(baseEndpoint);
-		}catch(IllegalArgumentException ex){
-			logger.error("", ex); // puts the validation stack trace at the top
-			throw ex;
+	protected DispatchRule handle(Class<? extends BaseEndpoint> baseClass){
+		if(BaseExternalEndpoint.class.isAssignableFrom(baseClass)){
+			throw new IllegalArgumentException(String.format("External endpoints must be registered using "
+					+ "handleExternalEndpoint(). Endpoint=%s", baseClass.getSimpleName()));
 		}
+		BaseEndpoint baseEndpoint = validateEndpoint(baseClass);
+		DispatchType dispatchType = EndpointTool.getDispatchTypeForEndpoint(baseClass);
 		return handle(baseEndpoint.pathNode)
-				.withDispatchType(DispatchType.API_ENDPOINT);
+				.withDispatchType(dispatchType);
 	}
 
 	protected DispatchRule handleLink(Class<? extends BaseLink<?>> baseClass){
@@ -73,34 +72,41 @@ public abstract class BaseRouteSet implements RouteSet{
 				.withDispatchType(DispatchType.INTERNAL_LINK);
 	}
 
-	protected DispatchRule handleWebApi(Class<? extends BaseWebApi<?,?>> baseClass){
-		BaseWebApi<?,?> baseWebApi = ReflectionTool.createWithoutNoArgs(baseClass);
+	protected DispatchRule handleExternalEndpoint(Class<? extends BaseExternalEndpoint<?,?>> baseClass){
+		BaseEndpoint baseEndpoint = validateEndpoint(baseClass);
+		return handle(baseEndpoint.pathNode)
+				.withDispatchType(DispatchType.EXTERNAL_ENDPOINT);
+	}
+
+	private BaseEndpoint validateEndpoint(Class<? extends BaseEndpoint> endpointClass){
+		BaseEndpoint baseEndpoint = ReflectionTool.createWithoutNoArgs(endpointClass);
 		try{
-			EndpointTool.validateWebApi(baseWebApi);
+			EndpointTool.validateBaseEndpoint(baseEndpoint);
 		}catch(IllegalArgumentException ex){
 			logger.error("", ex); // puts the validation stack trace at the top
 			throw ex;
 		}
-		return handle(baseWebApi.pathNode)
-				.withDispatchType(DispatchType.WEB_API);
+		return baseEndpoint;
 	}
 
 	/**
-	 * A convenience method to automatically register all Endpoints, WebApis and Links that are used in a Handler class.
-	 * This only works if all the handler methods inside the Handler class are using endpoints, webApis or links.
+	 * A convenience method to automatically register all JavaEndpoints, MobileEndpoints, WebApis
+	 * and Links that are used in a Handler class.
+	 * This only works if all the handler methods inside the Handler class are using JavaEndpoints, MobileEndpoints,
+	 * WebApis or Links.
 	 *
 	 * This method works for registration without any custom dispatch rules. The applyDefault is the only dispatch rule
 	 * used.
+	 *
+	 * This method will NOT register ExternalEndpoints. To register those, you must use handlerExternalEndpoint() and
+	 * use a persistent string for the dispatch rule.
 	 */
 	protected void registerHandler(Class<? extends BaseHandler> handler){
-		List<Class<? extends BaseEndpoint<?,?>>> endpoints = HandlerTool.getEndpointsFromHandler(handler);
-		endpoints.forEach(endpoint -> handle(endpoint).withHandler(handler));
+		List<Class<? extends BaseEndpoint>> baseEndpoints = HandlerTool.getEndpointsFromHandler(handler);
+		baseEndpoints.forEach(baseEndpoint -> handle(baseEndpoint).withHandler(handler));
 
 		List<Class<? extends BaseLink<?>>> links = HandlerTool.getLinksFromHandler(handler);
 		links.forEach(link -> handleLink(link).withHandler(handler));
-
-		List<Class<? extends BaseWebApi<?,?>>> webApis = HandlerTool.getWebApisFromHandler(handler);
-		webApis.forEach(webApi -> handleWebApi(webApi).withHandler(handler));
 	}
 
 	protected DispatchRule applyDefaultAndAdd(DispatchRule rule){

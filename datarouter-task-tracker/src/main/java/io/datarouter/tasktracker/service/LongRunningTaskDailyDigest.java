@@ -27,6 +27,8 @@ import java.util.Optional;
 import io.datarouter.email.email.DatarouterHtmlEmailService;
 import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
+import io.datarouter.instrumentation.relay.rml.Rml;
+import io.datarouter.instrumentation.relay.rml.RmlBlock;
 import io.datarouter.tasktracker.config.DatarouterTaskTrackerPaths;
 import io.datarouter.tasktracker.storage.LongRunningTask;
 import io.datarouter.tasktracker.storage.LongRunningTaskDao;
@@ -43,6 +45,8 @@ import jakarta.inject.Singleton;
 @Singleton
 public class LongRunningTaskDailyDigest implements DailyDigest{
 
+	private static final Duration TOO_OLD_TRIGGER_TIME = Duration.ofDays(1);
+
 	@Inject
 	private LongRunningTaskDao longRunningTaskDao;
 	@Inject
@@ -53,6 +57,21 @@ public class LongRunningTaskDailyDigest implements DailyDigest{
 	private DailyDigestService digestService;
 	@Inject
 	private ExceptionLinkBuilder exceptionLinkBuilder;
+
+	@Override
+	public String getTitle(){
+		return "Long Running Tasks";
+	}
+
+	@Override
+	public DailyDigestType getType(){
+		return DailyDigestType.SUMMARY;
+	}
+
+	@Override
+	public DailyDigestGrouping getGrouping(){
+		return DailyDigestGrouping.HIGH;
+	}
 
 	@Override
 	public Optional<DivTag> getEmailContent(ZoneId zoneId){
@@ -71,18 +90,37 @@ public class LongRunningTaskDailyDigest implements DailyDigest{
 	}
 
 	@Override
-	public String getTitle(){
-		return "Long Running Tasks";
-	}
-
-	@Override
-	public DailyDigestGrouping getGrouping(){
-		return DailyDigestGrouping.HIGH;
-	}
-
-	@Override
-	public DailyDigestType getType(){
-		return DailyDigestType.SUMMARY;
+	public Optional<RmlBlock> getRelayContent(ZoneId zoneId){
+		List<LongRunningTask> failedTasks = longRunningTaskDao.scan()
+				.exclude(task -> task.getKey().getTriggerTime().isOlderThan(TOO_OLD_TRIGGER_TIME))
+				.include(LongRunningTask::isBadState)
+				.list();
+		if(failedTasks.isEmpty()){
+			return Optional.empty();
+		}
+		return Optional.of(Rml.paragraph(
+				digestService.makeHeading("Failed Long Running Tasks", paths.datarouter.longRunningTasks),
+				Rml.text("From the last 24 hours").italic(),
+				Rml.table(
+						Rml.tableRow(
+								Rml.tableHeader(Rml.text("Name")),
+								Rml.tableHeader(Rml.text("Trigger Time")),
+								Rml.tableHeader(Rml.text("Duration")),
+								Rml.tableHeader(Rml.text("Triggered By")),
+								Rml.tableHeader(Rml.text("Status")),
+								Rml.tableHeader(Rml.text("Exception"))))
+						.with(failedTasks.stream()
+								.map(task -> Rml.tableRow(
+										Rml.tableCell(Rml.text(task.getKey().getName())
+												.link(makeTaskHref(task.getKey().getName()))),
+										Rml.tableCell(Rml.timestamp(task.getKey().getTriggerTime().format(zoneId),
+												task.getKey().getTriggerTime().toEpochMilli())),
+										Rml.tableCell(Rml.text(task.getDurationString())),
+										Rml.tableCell(Rml.text(task.getTriggeredBy())),
+										Rml.tableCell(Rml.text(task.getJobExecutionStatus().persistentString)),
+										Rml.tableCell(Rml.text(task.getExceptionRecordId())
+												.link(exceptionLinkBuilder.exception(task.getExceptionRecordId())
+														.orElseThrow())))))));
 	}
 
 	private TableTag buildEmailTable(List<LongRunningTask> rows, ZoneId zoneId){
@@ -98,13 +136,16 @@ public class LongRunningTaskDailyDigest implements DailyDigest{
 	}
 
 	private ATag makeTaskLink(String longRunningTaskName){
-		String href = emailService.startLinkBuilder()
+		return a(longRunningTaskName)
+				.withHref(makeTaskHref(longRunningTaskName));
+	}
+
+	private String makeTaskHref(String longRunningTaskName){
+		return emailService.startLinkBuilder()
 				.withLocalPath(paths.datarouter.longRunningTasks)
 				.withParam("name", longRunningTaskName)
 				.withParam("status", "all")
 				.build();
-		return a(longRunningTaskName)
-				.withHref(href);
 	}
 
 	private ATag makeExceptionLink(String exceptionRecordId){

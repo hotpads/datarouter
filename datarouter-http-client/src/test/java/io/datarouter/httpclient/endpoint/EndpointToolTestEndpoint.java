@@ -15,16 +15,15 @@
  */
 package io.datarouter.httpclient.endpoint;
 
-import io.datarouter.httpclient.endpoint.caller.CallerTypeUnknown;
-import io.datarouter.httpclient.endpoint.java.BaseEndpoint;
-import io.datarouter.httpclient.endpoint.java.EndpointType.NoOpEndpointType;
+import io.datarouter.httpclient.endpoint.java.BaseJavaEndpoint;
+import io.datarouter.httpclient.endpoint.java.JavaEndpointType.NoOpEndpointType;
 import io.datarouter.httpclient.request.HttpRequestMethod;
 import io.datarouter.pathnode.PathNode;
 
-public abstract class EndpointToolTestEndpoint<R> extends BaseEndpoint<R,NoOpEndpointType>{
+public abstract class EndpointToolTestEndpoint<R> extends BaseJavaEndpoint<R,NoOpEndpointType>{
 
 	public EndpointToolTestEndpoint(HttpRequestMethod method, PathNode pathNode){
-		super(method, pathNode, CallerTypeUnknown.class);
+		super(method, pathNode);
 	}
 
 }

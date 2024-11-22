@@ -18,7 +18,7 @@ package io.datarouter.job.storage.triggerlock;
 import java.util.List;
 
 import io.datarouter.model.field.Field;
-import io.datarouter.model.field.codec.MilliTimeFieldCodec;
+import io.datarouter.model.field.codec.MilliTimeToLongFieldCodec;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
 import io.datarouter.model.field.imp.comparable.LongEncodedField;
@@ -33,8 +33,9 @@ public class TriggerLockKey extends BaseRegularPrimaryKey<TriggerLockKey>{
 
 	public static class FieldKeys{
 		public static final StringFieldKey jobName = new StringFieldKey("jobName");
-		public static final LongEncodedFieldKey<MilliTime> triggerTime = new LongEncodedFieldKey<>("triggerTime",
-				new MilliTimeFieldCodec());
+		public static final LongEncodedFieldKey<MilliTime> triggerTime = new LongEncodedFieldKey<>(
+				"triggerTime",
+				new MilliTimeToLongFieldCodec());
 	}
 
 	public TriggerLockKey(){

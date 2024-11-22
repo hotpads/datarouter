@@ -18,7 +18,9 @@ package io.datarouter.job.detached;
 import java.util.concurrent.RejectedExecutionException;
 
 import io.datarouter.job.scheduler.JobWrapper;
+import jakarta.inject.Singleton;
 
+@Singleton
 public class DefaultDetachedJobExecutor implements DetachedJobExecutor{
 
 	@Override

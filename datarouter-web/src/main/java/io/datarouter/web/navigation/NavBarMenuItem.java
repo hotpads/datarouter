@@ -23,15 +23,11 @@ import java.util.function.Supplier;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.singletonsupplier.SingletonSupplier;
 import io.datarouter.web.dispatcher.DispatchRule;
 
 public class NavBarMenuItem{
-	private static final Logger logger = LoggerFactory.getLogger(NavBarMenuItem.class);
 
 	private final URI href;//this is what will appear in HTML
 	private final URI path;//this is used to look up dispatch rules (no query params)
@@ -67,12 +63,7 @@ public class NavBarMenuItem{
 	}
 
 	private Optional<DispatchRule> findRequiredDispatchRule(NavBar parentNavBar){
-		Optional<DispatchRule> optRule = parentNavBar.getDispatchRule(path);
-		if(optRule.isEmpty()){
-			String message = String.format("no DispatchRule for %s, %s", path, text);
-			logger.warn(message);
-		}
-		return optRule;
+		return parentNavBar.getDispatchRule(path);
 	}
 
 	public Boolean isDropdown(){

@@ -15,7 +15,7 @@
  */
 package io.datarouter.gcp.bigtable.config.web;
 
-import io.datarouter.auth.role.DatarouterUserRole;
+import io.datarouter.auth.role.DatarouterUserRoleRegistry;
 import io.datarouter.gcp.bigtable.config.BigtableProjectIdAndInstanceIdSupplier;
 import io.datarouter.web.dispatcher.DispatchRule;
 import io.datarouter.web.navigation.DatarouterNavBarCategory;
@@ -38,7 +38,7 @@ public class BigtableNavBarItem implements DynamicNavBarItem{
 				+ projectId;
 		return new NavBarItemBuilder(DatarouterNavBarCategory.EXTERNAL, link, "GCP Bigtable")
 				.openInNewTab()
-				.setDispatchRule(new DispatchRule().allowRoles(DatarouterUserRole.DATAROUTER_MONITORING))
+				.setDispatchRule(new DispatchRule().allowRoles(DatarouterUserRoleRegistry.DATAROUTER_MONITORING))
 				.build();
 	}
 

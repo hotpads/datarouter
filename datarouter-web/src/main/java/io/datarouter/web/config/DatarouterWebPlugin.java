@@ -16,7 +16,6 @@
 package io.datarouter.web.config;
 
 import java.time.ZoneId;
-import java.util.Collections;
 import java.util.List;
 
 import io.datarouter.auth.config.DatarouterAuthenticationConfig;
@@ -37,6 +36,7 @@ import io.datarouter.storage.config.properties.ServiceName;
 import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.dao.DaosModuleBuilder;
 import io.datarouter.storage.setting.SettingBootstrapIntegrationService;
+import io.datarouter.util.net.Subnet;
 import io.datarouter.web.browse.widget.NodeWidgetTableCountLinkSupplier;
 import io.datarouter.web.browse.widget.NodeWidgetTableCountLinkSupplier.NodeWidgetTableCountLink;
 import io.datarouter.web.config.properties.DefaultEmailDistributionListZoneId;
@@ -87,6 +87,8 @@ import io.datarouter.web.navigation.ReadmeDocsNavBarItem;
 import io.datarouter.web.navigation.SystemDocsNavBarItem;
 import io.datarouter.web.plugin.PluginRegistrySupplier;
 import io.datarouter.web.plugin.PluginRegistrySupplier.PluginRegistry;
+import io.datarouter.web.service.DatarouterDeprecatedHandlerDailyDigest;
+import io.datarouter.web.util.http.CloudfrontIpRange;
 
 public class DatarouterWebPlugin extends BaseWebPlugin{
 
@@ -129,7 +131,8 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 	private final Class<? extends RequestProxySetter> requestProxy;
 	private final ZoneId defaultEmailDistributionListZoneId;
 	private final ZoneId dailyDigestEmailZoneId;
-	private Class<? extends HandlerAccountCallerValidator> handlerAccountCallerValidator;
+	private final Class<? extends HandlerAccountCallerValidator> handlerAccountCallerValidator;
+	private final List<Subnet> cloudfrontRanges;
 
 	// only used to get simple data from plugin
 	private DatarouterWebPlugin(
@@ -139,6 +142,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		this(daosModuleBuilder,
 				homepageRouteSet,
 				customStaticFileFilterRegex,
+				null,
 				null,
 				null,
 				null,
@@ -193,7 +197,8 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			Class<? extends RequestProxySetter> requestProxy,
 			ZoneId defaultEmailDistributionListZoneId,
 			ZoneId dailyDigestEmailZoneId,
-			Class<? extends HandlerAccountCallerValidator> handlerAccountCallerValidator){
+			Class<? extends HandlerAccountCallerValidator> handlerAccountCallerValidator,
+			List<Subnet> cloudfrontRanges){
 
 		addRouteSetOrdered(DatarouterWebRouteSet.class, null);
 		addRouteSet(homepageRouteSet);
@@ -212,6 +217,8 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		addWebListenerOrdered(TomcatWebAppNamesWebAppListener.class, null);
 		addWebListenerOrdered(JspWebappListener.class, TomcatWebAppNamesWebAppListener.class);
 		addWebListenerOrdered(NoJavaSessionWebAppListener.class, JspWebappListener.class);
+
+		addDailyDigest(DatarouterDeprecatedHandlerDailyDigest.class);
 
 		FilterParams staticFileFilterParams;
 
@@ -238,11 +245,14 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 				DatarouterNavBarCategory.MONITORING,
 				PATHS.datarouter.memory.view,
 				"Server Status");
-
 		addDatarouterNavBarItem(
 				DatarouterNavBarCategory.MONITORING,
 				PATHS.datarouter.info.clients,
 				"Datarouter Components");
+		addDatarouterNavBarItem(
+				DatarouterNavBarCategory.MONITORING,
+				PATHS.datarouter.envVars,
+				"Environment Variables");
 
 		addDatarouterNavBarItem(DatarouterNavBarCategory.TOOLS, PATHS.datarouter.http.dnsLookup, "Test - DNS");
 		addDatarouterNavBarItem(DatarouterNavBarCategory.TOOLS, PATHS.datarouter.emailTest, "Test - Email");
@@ -288,6 +298,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		this.dailyDigestEmailZoneId = dailyDigestEmailZoneId;
 		this.handlerAccountCallerValidator = handlerAccountCallerValidator;
 		this.userAgentTypeConfigClass = userAgentTypeConfigClass;
+		this.cloudfrontRanges = cloudfrontRanges;
 	}
 
 	@Override
@@ -321,6 +332,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		bindActualInstance(PublicDomain.class, new PublicDomain(publicDomain));
 		bindActualInstance(PrivateDomain.class, new PrivateDomain(privateDomain));
 		bindActualInstance(ContextName.class, new ContextName(contextName));
+		bindActualInstance(CloudfrontIpRange.class, new CloudfrontIpRange(cloudfrontRanges));
 
 		// duplicate binding?
 		bindActual(BackwardsCompatiblePayloadChecker.class, NoOpBackwardsCompatiblePayloadChecker.class);
@@ -385,12 +397,13 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		private Class<? extends HomepageRouteSet> homepageRouteSet = DefaultHomepageRouteSet.class;
 		private Class<? extends HomepageHandler> homepageHandler = SimpleHomepageHandler.class;
 		private String customStaticFileFilterRegex;
-		private List<String> registeredPlugins = Collections.emptyList();
+		private List<String> registeredPlugins = List.of();
 		private String nodeWidgetTableCountLink;
 		private Class<? extends RequestProxySetter> requestProxy = NoOpRequestProxySetter.class;
 		private ZoneId defaultEmailDistributionListZoneId;
 		private ZoneId dailyDigestEmailZoneId = ZoneId.systemDefault();
 		private Class<? extends HandlerAccountCallerValidator> handlerAccountCallerValidator;
+		private List<Subnet> cloudfrontRanges = List.of();
 
 		public DatarouterWebPluginBuilder(
 				String serviceName,
@@ -527,6 +540,11 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			return this;
 		}
 
+		public DatarouterWebPluginBuilder setCloudfrontRanges(List<Subnet> cloudfrontRanges){
+			this.cloudfrontRanges = cloudfrontRanges;
+			return this;
+		}
+
 		public DatarouterWebPlugin getSimplePluginData(){
 			return new DatarouterWebPlugin(
 					new DatarouterWebDaoModule(defaultClientIds),
@@ -564,7 +582,8 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 					requestProxy,
 					defaultEmailDistributionListZoneId,
 					dailyDigestEmailZoneId,
-					handlerAccountCallerValidator);
+					handlerAccountCallerValidator,
+					cloudfrontRanges);
 		}
 
 	}

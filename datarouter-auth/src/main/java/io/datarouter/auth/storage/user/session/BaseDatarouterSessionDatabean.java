@@ -21,7 +21,7 @@ import java.util.Optional;
 
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
-import io.datarouter.model.field.codec.MilliTimeFieldCodec;
+import io.datarouter.model.field.codec.MilliTimeToLongFieldCodec;
 import io.datarouter.model.field.imp.comparable.LongEncodedField;
 import io.datarouter.model.field.imp.comparable.LongEncodedFieldKey;
 import io.datarouter.types.MilliTime;
@@ -37,10 +37,10 @@ extends BaseDatabean<PK,D>{
 	public static class FieldKeys{
 		public static final LongEncodedFieldKey<MilliTime> createdAt = new LongEncodedFieldKey<>(
 				"createdAt",
-				new MilliTimeFieldCodec());
+				new MilliTimeToLongFieldCodec());
 		public static final LongEncodedFieldKey<MilliTime> updatedAt = new LongEncodedFieldKey<>(
 				"updatedAt",
-				new MilliTimeFieldCodec());
+				new MilliTimeToLongFieldCodec());
 	}
 
 	public List<Field<?>> getNonKeyFields(){

@@ -24,7 +24,7 @@ import org.testng.annotations.Test;
 
 import com.google.gson.Gson;
 
-import io.datarouter.gson.GsonTool;
+import io.datarouter.gson.DatarouterGsons;
 
 public class ZoneIdLegacySerializerTests{
 
@@ -40,7 +40,7 @@ public class ZoneIdLegacySerializerTests{
 	@Test
 	public void testInteroperability(){
 		INPUTS.forEach(input -> {
-			Gson legacyAdapterGson = GsonTool.withoutEnums();
+			Gson legacyAdapterGson = DatarouterGsons.withoutEnums();
 			String legacyAdapterJson = legacyAdapterGson.toJson(input.zoneId());
 			Assert.assertEquals(legacyAdapterJson, input.expectedJson());
 		});

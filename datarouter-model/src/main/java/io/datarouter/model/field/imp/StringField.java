@@ -79,6 +79,11 @@ public class StringField extends BaseField<String>{
 	}
 
 	@Override
+	public int getApproximateValueBytesLength(){
+		return value == null ? 0 : value.length();
+	}
+
+	@Override
 	public byte[] getKeyBytesWithSeparator(){
 		//TODO someday don't put the separator after the last field, but that would break all currently persisted keys
 		byte[] dataBytes = getValueBytes();

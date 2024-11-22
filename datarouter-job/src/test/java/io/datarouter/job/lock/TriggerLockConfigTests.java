@@ -25,23 +25,39 @@ public class TriggerLockConfigTests{
 
 	@Test
 	public void testSafePlus(){
-		Assert.assertEquals(TriggerLockConfig.safePlus(TriggerLockConfig.MAX_DATE_INSTANT,
-				TriggerLockConfig.MAX_DURATION), TriggerLockConfig.MAX_DATE_INSTANT);
-		Assert.assertEquals(TriggerLockConfig.safePlus(TriggerLockConfig.MAX_DATE_INSTANT.minusSeconds(5),
-				TriggerLockConfig.MAX_DURATION), TriggerLockConfig.MAX_DATE_INSTANT);
-		Assert.assertEquals(TriggerLockConfig.safePlus(TriggerLockConfig.MAX_DATE_INSTANT,
-				TriggerLockConfig.MAX_DURATION.minusSeconds(5)), TriggerLockConfig.MAX_DATE_INSTANT);
+		Assert.assertEquals(
+				TriggerLockConfig.safePlus(
+						TriggerLockConfig.MAX_DATE_INSTANT,
+						TriggerLockConfig.MAX_DURATION),
+				TriggerLockConfig.MAX_DATE_INSTANT);
+		Assert.assertEquals(
+				TriggerLockConfig.safePlus(
+						TriggerLockConfig.MAX_DATE_INSTANT.minusSeconds(5),
+						TriggerLockConfig.MAX_DURATION),
+				TriggerLockConfig.MAX_DATE_INSTANT);
+		Assert.assertEquals(
+				TriggerLockConfig.safePlus(
+						TriggerLockConfig.MAX_DATE_INSTANT,
+						TriggerLockConfig.MAX_DURATION.minusSeconds(5)),
+				TriggerLockConfig.MAX_DATE_INSTANT);
 
-		Assert.assertEquals(TriggerLockConfig.safePlus(Instant.now(), TriggerLockConfig.MAX_DURATION),
+		Assert.assertEquals(
+				TriggerLockConfig.safePlus(
+						Instant.now(),
+						TriggerLockConfig.MAX_DURATION),
 				TriggerLockConfig.MAX_DATE_INSTANT);
-		Assert.assertEquals(TriggerLockConfig.safePlus(Instant.MAX, Duration.ofMillis(0)),
+		Assert.assertEquals(
+				TriggerLockConfig.safePlus(Instant.MAX, Duration.ofMillis(0)),
 				TriggerLockConfig.MAX_DATE_INSTANT);
 
-		Assert.assertEquals(TriggerLockConfig.safePlus(Instant.MAX, TriggerLockConfig.MAX_DURATION),
+		Assert.assertEquals(
+				TriggerLockConfig.safePlus(Instant.MAX, TriggerLockConfig.MAX_DURATION),
 				TriggerLockConfig.MAX_DATE_INSTANT);
-		Assert.assertEquals(TriggerLockConfig.safePlus(Instant.MAX.minusSeconds(5), TriggerLockConfig.MAX_DURATION),
+		Assert.assertEquals(
+				TriggerLockConfig.safePlus(Instant.MAX.minusSeconds(5), TriggerLockConfig.MAX_DURATION),
 				TriggerLockConfig.MAX_DATE_INSTANT);
-		Assert.assertEquals(TriggerLockConfig.safePlus(Instant.MAX, TriggerLockConfig.MAX_DURATION.minusSeconds(5)),
+		Assert.assertEquals(
+				TriggerLockConfig.safePlus(Instant.MAX, TriggerLockConfig.MAX_DURATION.minusSeconds(5)),
 				TriggerLockConfig.MAX_DATE_INSTANT);
 	}
 

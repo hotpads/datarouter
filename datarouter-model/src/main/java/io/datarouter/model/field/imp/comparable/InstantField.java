@@ -24,6 +24,8 @@ import io.datarouter.model.util.FractionalSecondTool;
 public class InstantField extends BasePrimitiveField<Instant,InstantFieldKey>{
 
 	private static final RawLongCodec RAW_LONG_CODEC = RawLongCodec.INSTANCE;
+	// Unfortunately this could have been 12.
+	private static final int BYTES_LENGTH = 16;
 
 	public InstantField(InstantFieldKey key, Instant value){
 		super(key, FractionalSecondTool.truncate(value, key.getNumFractionalSeconds()));
@@ -51,6 +53,11 @@ public class InstantField extends BasePrimitiveField<Instant,InstantFieldKey>{
 	}
 
 	@Override
+	public int getApproximateValueBytesLength(){
+		return value == null ? 0 : BYTES_LENGTH;
+	}
+
+	@Override
 	public Instant fromValueBytesButDoNotSet(byte[] bytes, int offset){
 		return decodeFromBytes(bytes, offset);
 	}
@@ -61,7 +68,7 @@ public class InstantField extends BasePrimitiveField<Instant,InstantFieldKey>{
 	}
 
 	public static byte[] encodeToBytes(Instant value){
-		byte[] bytes = new byte[16];
+		byte[] bytes = new byte[BYTES_LENGTH];
 		RAW_LONG_CODEC.encode(value.getEpochSecond(), bytes, 0);
 		//nanos could fit in 4 bytes, but changing it would break persisted data
 		RAW_LONG_CODEC.encode(value.getNano(), bytes, 8);

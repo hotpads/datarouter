@@ -29,6 +29,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import io.datarouter.scanner.Scanner;
@@ -118,7 +120,7 @@ public class J2HtmlTable<T>{
 		private final T value;
 		private final List<String> styles;
 		private final List<String> classes;
-		private Function<TrTag,DomContent> trModifier = tr -> tr;
+		private BiFunction<TrTag,Integer,DomContent> trModifier = (tr, $) -> tr;
 
 		public J2HtmlTableRow(T value){
 			this.value = value;
@@ -136,7 +138,7 @@ public class J2HtmlTable<T>{
 			return this;
 		}
 
-		public J2HtmlTableRow<T> withTrModifier(Function<TrTag,DomContent> trModifier){
+		public J2HtmlTableRow<T> withTrModifier(BiFunction<TrTag,Integer,DomContent> trModifier){
 			this.trModifier = trModifier;
 			return this;
 		}
@@ -155,7 +157,8 @@ public class J2HtmlTable<T>{
 				.map(column -> column.name)
 				.anyMatch(Objects::nonNull);
 		var thead = thead(tr(each(columns, column -> column.name)));
-		var tbody = tbody(each(rows, this::makeTr));
+		var rowIndex = new AtomicInteger(0);
+		var tbody = tbody(each(rows, row -> makeTr(row, rowIndex.getAndIncrement())));
 		return table()
 				.withClasses(classes.toArray(String[]::new))
 				.withStyle(String.join(";", styles))
@@ -166,10 +169,11 @@ public class J2HtmlTable<T>{
 				.with(tbody);
 	}
 
-	private DomContent makeTr(J2HtmlTableRow<T> row){
-		return row.trModifier.apply(tr(makeTds(row.value))
+	private DomContent makeTr(J2HtmlTableRow<T> row, int rowIndex){
+		TrTag tr = tr(makeTds(row.value))
 				.withCondStyle(!row.styles.isEmpty(), String.join(";", row.styles))
-				.withCondClass(!row.classes.isEmpty(), String.join(" ", row.classes)));
+				.withCondClass(!row.classes.isEmpty(), String.join(" ", row.classes));
+		return row.trModifier.apply(tr, rowIndex);
 	}
 
 	private DomContent makeTds(T value){

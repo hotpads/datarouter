@@ -13,7 +13,7 @@ Datarouter-graphql includes standards for defining API schema and logic for how 
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-graphql</artifactId>
-	<version>0.0.125</version>
+	<version>0.0.126</version>
 </dependency>
 ```
 ## Installation with Datarouter

@@ -44,7 +44,11 @@ public class StopJobRequest extends BaseDatabean<StopJobRequestKey,StopJobReques
 		super(new StopJobRequestKey());
 	}
 
-	public StopJobRequest(String jobServerName, Instant requestExpiration, Instant jobTriggerDeadline, String jobClass,
+	public StopJobRequest(
+			String jobServerName,
+			Instant requestExpiration,
+			Instant jobTriggerDeadline,
+			String jobClass,
 			String username){
 		super(new StopJobRequestKey(jobServerName, jobClass));
 		this.username = username;

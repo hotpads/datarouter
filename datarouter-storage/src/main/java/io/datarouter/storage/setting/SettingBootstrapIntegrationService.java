@@ -22,7 +22,9 @@ import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.instrumentation.test.TestableService;
 import io.datarouter.storage.setting.SettingRoot.SettingRootFinder;
 import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
+@Singleton
 public class SettingBootstrapIntegrationService implements TestableService{
 
 	@Inject

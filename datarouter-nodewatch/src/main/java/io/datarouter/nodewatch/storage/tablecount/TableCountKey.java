@@ -19,7 +19,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import io.datarouter.model.field.Field;
-import io.datarouter.model.field.codec.MilliTimeFieldCodec;
+import io.datarouter.model.field.codec.MilliTimeToLongFieldCodec;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
 import io.datarouter.model.field.imp.comparable.LongEncodedField;
@@ -40,7 +40,7 @@ public class TableCountKey extends BaseRegularPrimaryKey<TableCountKey>{
 		public static final StringFieldKey clientName = new StringFieldKey("clientName");
 		public static final StringFieldKey tableName = new StringFieldKey("tableName");
 		public static final LongEncodedFieldKey<MilliTime> createdMs = new LongEncodedFieldKey<>("createdMs",
-				new MilliTimeFieldCodec());
+				new MilliTimeToLongFieldCodec());
 	}
 
 	@Override

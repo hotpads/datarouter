@@ -39,6 +39,7 @@ import io.datarouter.instrumentation.exception.ExceptionRecordDto;
 import io.datarouter.web.exception.ExceptionRecorder;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.util.RequestAttributeTool;
+import io.datarouter.web.util.http.IpAddressService;
 import io.datarouter.web.util.http.RequestTool;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -49,6 +50,8 @@ public class GraphQlExceptionRecorder{
 
 	@Inject
 	private ExceptionRecorder recorder;
+	@Inject
+	private IpAddressService ipAddressService;
 
 	public List<GraphQlErrorDto> recordGraphQlErrors(List<GraphQLError> errors, HttpServletRequest request){
 		if(errors == null || errors.isEmpty()){
@@ -115,7 +118,7 @@ public class GraphQlExceptionRecorder{
 				error.toString(),
 				request.getRequestURI(),
 				getPath(error).orElse(""),
-				RequestTool.getIpAddress(request),
+				ipAddressService.getIpAddress(request),
 				RequestTool.getUserAgent(request),
 				RequestTool.getReferer(request));
 	}

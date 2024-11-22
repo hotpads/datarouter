@@ -15,6 +15,9 @@
  */
 package io.datarouter.webappinstance.storage.webappinstancelog;
 
+import java.time.Clock;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 
 import io.datarouter.model.databean.FieldlessIndexEntry;
@@ -27,6 +30,8 @@ import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
 import io.datarouter.storage.node.op.index.IndexReader;
 import io.datarouter.storage.tag.Tag;
+import io.datarouter.storage.vacuum.DatabeanVacuum;
+import io.datarouter.storage.vacuum.DatabeanVacuum.DatabeanVacuumBuilder;
 import io.datarouter.util.tuple.Range;
 import io.datarouter.virtualnode.redundant.RedundantIndexedSortedMapStorageNode;
 import io.datarouter.webappinstance.storage.webappinstancelog.WebappInstanceLog.WebappInstanceLogFielder;
@@ -81,4 +86,12 @@ public class DatarouterWebappInstanceLogDao extends BaseDao{
 		return byBuildInstant.scanDatabeans(range);
 	}
 
+	public DatabeanVacuum<WebappInstanceLogKey,WebappInstanceLog> makeVacuum(){
+		LocalDateTime deleteBeforeTime = LocalDateTime.now(Clock.systemUTC()).minusDays(30L);
+		return new DatabeanVacuumBuilder<>(
+				node.scan(),
+				databean -> databean.getRefreshedLast().isBefore(deleteBeforeTime.toInstant(ZoneOffset.UTC)),
+				node::deleteMulti)
+				.build();
+	}
 }

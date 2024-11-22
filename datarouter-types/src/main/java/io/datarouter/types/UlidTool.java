@@ -47,6 +47,6 @@ public class UlidTool{
 			int index = (int)((value >>> ((count - i - 1) * MASK_BITS)) & MASK);
 			buffer[offset + i] = ENCODING_CHARS[index];
 		}
-
 	}
+
 }

@@ -16,6 +16,7 @@
 package io.datarouter.bytes.blockfile.row;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 import io.datarouter.bytes.EmptyArray;
@@ -258,6 +259,16 @@ public class BlockfileRow{
 				copyOfKey(),
 				copyOfVersion(),
 				op);
+	}
+
+	/*----- util ------*/
+
+	public static int totalLength(List<BlockfileRow> rows){
+		int totalLength = 0;
+		for(int i = 0; i < rows.size(); ++i){
+			totalLength += rows.get(i).length();
+		}
+		return totalLength;
 	}
 
 	/*------- get -------*/

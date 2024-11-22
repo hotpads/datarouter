@@ -32,8 +32,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.reflect.TypeToken;
 
+import io.datarouter.gson.DatarouterGsons;
 import io.datarouter.gson.GsonJsonSerializer;
-import io.datarouter.gson.GsonTool;
 import io.datarouter.httpclient.client.BaseDatarouterHttpClientWrapper;
 import io.datarouter.httpclient.client.DatarouterHttpClientBuilder;
 import io.datarouter.httpclient.proxy.RequestProxySetter;
@@ -84,10 +84,10 @@ public class HttpTestHandler extends BaseHandler{
 		mav.put("method", requestMethod.name());
 		DatarouterHttpRequest request = new DatarouterHttpRequest(requestMethod, url.get()).setRetrySafe(true);
 		if(headers.isPresent()){
-			Map<String,String> headersMap = GsonTool.withUnregisteredEnums().fromJson(headers.get(),
+			Map<String,String> headersMap = DatarouterGsons.withUnregisteredEnums().fromJson(headers.get(),
 					new TypeToken<Map<String,String>>(){}.getType());
 			request.addHeaders(headersMap);
-			mav.put("headersMap", GsonTool.withUnregisteredEnums().toJson(headersMap));
+			mav.put("headersMap", DatarouterGsons.withUnregisteredEnums().toJson(headersMap));
 		}
 		if(requestBody.isPresent()){
 			ContentType cont = contentType.isPresent() ? ContentType.getByMimeType(contentType.get())
@@ -177,7 +177,7 @@ public class HttpTestHandler extends BaseHandler{
 	public static class HttpTesterClient extends BaseDatarouterHttpClientWrapper{
 
 		public HttpTesterClient(){
-			super(new DatarouterHttpClientBuilder(GsonJsonSerializer.DEFAULT)
+			super(new DatarouterHttpClientBuilder("http-tester-client", GsonJsonSerializer.DEFAULT)
 					.setTimeout(Duration.ofMinutes(5))
 					.build());
 		}
@@ -188,7 +188,7 @@ public class HttpTestHandler extends BaseHandler{
 	public static class HttpTesterWithoutRedirectClient extends BaseDatarouterHttpClientWrapper{
 
 		public HttpTesterWithoutRedirectClient(){
-			super(new DatarouterHttpClientBuilder(GsonJsonSerializer.DEFAULT)
+			super(new DatarouterHttpClientBuilder("http-tester-client", GsonJsonSerializer.DEFAULT)
 					.setTimeout(Duration.ofMinutes(5))
 					.disableRedirectHandling()
 					.build());

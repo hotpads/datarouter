@@ -129,9 +129,9 @@ public class BigtableSchemaUpdateService extends EmailingSchemaUpdateService{
 		// retry in case table is still being initialized by another thread
 		Table table = RetryableTool.tryNTimesWithBackoffUnchecked(
 				() -> holder.getTableAdminClient(clientId).getTable(tableName),
-				3,
-				500,
-				true);
+				5,
+				1_000,
+				false);
 		Long requestedTtlSeconds = fieldInfo.getSampleFielder().getOption(TtlFielderConfig.KEY)
 				.map(TtlFielderConfig::getTtl)
 				.map(Duration::getSeconds)
@@ -151,7 +151,7 @@ public class BigtableSchemaUpdateService extends EmailingSchemaUpdateService{
 							.updateFamily(family.getId(), rule);
 					holder.getTableAdminClient(clientId).modifyFamilies(request);
 				}else if(schemaUpdateOptions.getModifyTtl(true)){
-					SchemaUpdateTool.printSchemaUpdate(logger, ddl);
+					SchemaUpdateTool.printSchemaUpdate(logger, clientId.getName(), clientId.getName(), tableName, ddl);
 					ddls.add(ddl);
 				}
 			}else if(ruleSet.maxVersions == null || MAX_VERSIONS != ruleSet.maxVersions){
@@ -164,7 +164,7 @@ public class BigtableSchemaUpdateService extends EmailingSchemaUpdateService{
 							.updateFamily(familyId, rule);
 					holder.getTableAdminClient(clientId).modifyFamilies(request);
 				}else if(schemaUpdateOptions.getModifyMaxVersions(true)){
-					SchemaUpdateTool.printSchemaUpdate(logger, ddl);
+					SchemaUpdateTool.printSchemaUpdate(logger, clientId.getName(), clientId.getName(), tableName, ddl);
 					ddls.add(ddl);
 				}
 			}

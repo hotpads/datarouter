@@ -17,10 +17,7 @@ package io.datarouter.exception.service;
 
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
-import static j2html.TagCreator.i;
 import static j2html.TagCreator.small;
-import static j2html.TagCreator.td;
-import static j2html.TagCreator.th;
 
 import java.time.ZoneId;
 import java.util.List;
@@ -30,18 +27,18 @@ import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
 import io.datarouter.instrumentation.exception.ExceptionRecordSummaryCollector;
 import io.datarouter.instrumentation.exception.ExceptionRecordSummaryDto;
+import io.datarouter.instrumentation.relay.rml.Rml;
+import io.datarouter.instrumentation.relay.rml.RmlBlock;
 import io.datarouter.storage.config.properties.ServiceName;
 import io.datarouter.types.MilliTime;
 import io.datarouter.util.number.NumberFormatter;
-import io.datarouter.web.config.ServletContextSupplier;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
 import io.datarouter.web.digest.DailyDigestService;
 import io.datarouter.web.exception.ExceptionLinkBuilder;
-import io.datarouter.web.html.j2html.J2HtmlTable;
+import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.TableTag;
-import j2html.tags.specialized.TdTag;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
@@ -51,10 +48,6 @@ public class ExceptionRecordAggregationDailyDigest implements DailyDigest{
 	private static final int EXCEPTIONS_THRESHOLD = 100;
 
 	@Inject
-	private ServletContextSupplier contextSupplier;
-	@Inject
-	private DailyDigestService digestService;
-	@Inject
 	private ExceptionRecordSummaryCollector recordSummaryCollector;
 	@Inject
 	private ServiceName serviceName;
@@ -62,8 +55,23 @@ public class ExceptionRecordAggregationDailyDigest implements DailyDigest{
 	private ExceptionLinkBuilder exceptionLinkBuilder;
 
 	@Override
+	public String getTitle(){
+		return "Exception Records";
+	}
+
+	@Override
+	public DailyDigestType getType(){
+		return DailyDigestType.SUMMARY;
+	}
+
+	@Override
+	public DailyDigestGrouping getGrouping(){
+		return DailyDigestGrouping.HIGH;
+	}
+
+	@Override
 	public Optional<DivTag> getEmailContent(ZoneId zoneId){
-		var header = digestService.makeHeader("Exceptions", recordSummaryCollector.getBrowsePageLink(serviceName
+		var header = DailyDigestService.makeHeader("Exceptions", recordSummaryCollector.getBrowsePageLink(serviceName
 				.get()).orElse(""));
 		var description = small("Aggregated for the current day (over " + EXCEPTIONS_THRESHOLD + ")");
 
@@ -75,18 +83,25 @@ public class ExceptionRecordAggregationDailyDigest implements DailyDigest{
 	}
 
 	@Override
-	public String getTitle(){
-		return "Exception Records";
-	}
-
-	@Override
-	public DailyDigestGrouping getGrouping(){
-		return DailyDigestGrouping.HIGH;
-	}
-
-	@Override
-	public DailyDigestType getType(){
-		return DailyDigestType.SUMMARY;
+	public Optional<RmlBlock> getRelayContent(ZoneId zoneId){
+		List<ExceptionRecordSummaryDto> summaries = getExceptionSummaries(zoneId);
+		if(summaries.isEmpty()){
+			return Optional.empty();
+		}
+		return Optional.of(Rml.paragraph(
+				DailyDigestService.makeHeading("Exceptions", recordSummaryCollector.getBrowsePageLink(serviceName.get())
+						.orElse("")),
+				Rml.text("Aggregated for the current day (over " + EXCEPTIONS_THRESHOLD + ")").italic(),
+				Rml.table(Rml.tableRow(
+						Rml.tableHeader(Rml.text("Name")),
+						Rml.tableHeader(Rml.text("Count"))))
+						.with(summaries.stream()
+								.map(summary -> Rml.tableRow(
+										Rml.tableCell(Rml.text(summary.name())
+												.link(exceptionLinkBuilder.exception(summary.sampleExceptionRecordId())
+														.orElseThrow())),
+										Rml.tableCell(
+												Rml.text(NumberFormatter.addCommas(summary.numExceptions()))))))));
 	}
 
 	private List<ExceptionRecordSummaryDto> getExceptionSummaries(ZoneId zoneId){
@@ -98,36 +113,16 @@ public class ExceptionRecordAggregationDailyDigest implements DailyDigest{
 				Optional.of(EXCEPTIONS_THRESHOLD));
 	}
 
-
-	private TableTag makePageTableV2(List<ExceptionRecordSummaryDto> rows){
-		return new J2HtmlTable<ExceptionRecordSummaryDto>()
-				.withClasses("sortable table table-sm table-striped my-4 border")
-				.withColumn("Name", ExceptionRecordSummaryDto::name)
-				.withHtmlColumn(th("Count").withStyle("text-align:right"), row -> makeNumericPageTableCell(row
-						.numExceptions()))
-				.withHtmlColumn("Details", row -> td(a(i().withClass("far fa-file-alt"))
-						.withClass("btn btn-link w-100 py-0")
-						.withHref(contextSupplier.get().getContextPath() + makeExceptionRecordPathV2(row))))
-				.withCaption("Total " + rows.size())
-				.build(rows);
-	}
-
 	private TableTag makeEmailTableV2(List<ExceptionRecordSummaryDto> rows){
 		return new J2HtmlEmailTable<ExceptionRecordSummaryDto>()
-				.withColumn(new J2HtmlEmailTableColumn<>("Name", row -> digestService.makeATagLink(row.name(),
-						makeExceptionRecordPathV2(row))))
+				.withColumn(new J2HtmlEmailTableColumn<>("Name", this::makeExceptionLink))
 				.withColumn(J2HtmlEmailTableColumn.ofNumber("Count", ExceptionRecordSummaryDto::numExceptions))
 				.build(rows);
 	}
 
-	private TdTag makeNumericPageTableCell(long value){
-		return td(NumberFormatter.addCommas(value))
-				.attr("sorttable_customkey", value)
-				.withStyle("text-align:right");
-	}
-
-	private String makeExceptionRecordPathV2(ExceptionRecordSummaryDto dto){
-		return exceptionLinkBuilder.exception(dto.sampleExceptionRecordId()).orElseThrow();
+	private ATag makeExceptionLink(ExceptionRecordSummaryDto dto){
+		String href = exceptionLinkBuilder.exception(dto.sampleExceptionRecordId()).orElseThrow();
+		return a(dto.name()).withHref(href);
 	}
 
 }

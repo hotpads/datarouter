@@ -22,6 +22,7 @@ import com.google.cloud.spanner.Value;
 
 import io.datarouter.gcp.spanner.ddl.SpannerColumnType;
 import io.datarouter.gcp.spanner.field.SpannerBaseFieldCodec;
+import io.datarouter.gcp.spanner.field.SpannerValueTool;
 import io.datarouter.model.field.imp.array.ByteArrayEncodedField;
 
 public class SpannerByteArrayEncodedFieldCodec<T> extends SpannerBaseFieldCodec<T,ByteArrayEncodedField<T>>{
@@ -37,8 +38,7 @@ public class SpannerByteArrayEncodedFieldCodec<T> extends SpannerBaseFieldCodec<
 
 	@Override
 	public Value getSpannerValue(){
-		byte[] bytes = field.getCodec().encode(field.getValue());
-		return Value.bytes(ByteArray.copyFrom(bytes));
+		return SpannerValueTool.ofBytes(field.getCodec().encode(field.getValue()));
 	}
 
 	@Override

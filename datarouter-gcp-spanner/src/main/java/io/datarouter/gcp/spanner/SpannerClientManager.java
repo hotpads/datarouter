@@ -137,7 +137,7 @@ public class SpannerClientManager extends BaseClientManager{
 		DatabaseAdminClient databaseAdminClient = spanner.getDatabaseAdminClient();
 		DatabaseClient databaseClient = spanner.getDatabaseClient(databaseId);
 		databaseClientsHolder.register(clientId, databaseAdminClient, databaseClient, databaseId);
-		logger.warn(timer.toString());
+		logger.warn("{}", timer);
 	}
 
 	@Override

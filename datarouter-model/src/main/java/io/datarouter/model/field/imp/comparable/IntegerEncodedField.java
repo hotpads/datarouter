@@ -58,6 +58,11 @@ public class IntegerEncodedField<T> extends BaseField<T>{
 	}
 
 	@Override
+	public int getApproximateValueBytesLength(){
+		return value == null ? 0 : COMPARABLE_INT_CODEC.length();
+	}
+
+	@Override
 	public int numKeyBytesWithSeparator(byte[] bytes, int offset){
 		return COMPARABLE_INT_CODEC.length();
 	}

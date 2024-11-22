@@ -61,7 +61,7 @@ public class WebappInstanceRunningHandler extends BaseHandler{
 
 		Map<String,String> mostCommonCommitByWebapp = webappInstances.stream()
 				.collect(Collectors.groupingBy(instance -> instance.getKey().getWebappName(),
-						Collectors.collectingAndThen(WarnOnModifyList.deprecatedCollector(),
+						Collectors.collectingAndThen(WarnOnModifyList.collector(),
 								instances -> WebappInstanceTableService.getMostCommonValue(instances,
 										WebappInstance::getCommitId))));
 

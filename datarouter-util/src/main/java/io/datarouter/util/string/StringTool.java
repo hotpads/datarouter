@@ -169,29 +169,13 @@ public class StringTool{
 		return input;
 	}
 
-	public static String repeat(char chr, int number){
-		var sb = new StringBuilder();
-		for(int i = 0; i < number; ++i){
-			sb.append(chr);
-		}
-		return sb.toString();
-	}
-
-	public static String repeat(String input, int numTimes){
-		var sb = new StringBuilder();
-		for(int i = 0; i < numTimes; ++i){
-			sb.append(input);
-		}
-		return sb.toString();
-	}
-
 	public static String pad(String paramInput, char padding, int length){
 		String input = nullSafe(paramInput);
 		if(input.length() > length){
 			throw new IllegalArgumentException("input \"" + input + "\" longer than maxLength=" + length);
 		}
 		int charsToGo = length - input.length();
-		return repeat(padding, charsToGo) + input;
+		return String.valueOf(padding).repeat(charsToGo) + input;
 	}
 
 	public static String padEnd(String paramInput, char padding, int length){
@@ -200,7 +184,7 @@ public class StringTool{
 			throw new IllegalArgumentException("input longer than maxLength");
 		}
 		int charsToGo = length - input.length();
-		return input + repeat(padding, charsToGo);
+		return input + String.valueOf(padding).repeat(charsToGo);
 	}
 
 	public static String concatenate(Collection<?> objects, String delimiter){

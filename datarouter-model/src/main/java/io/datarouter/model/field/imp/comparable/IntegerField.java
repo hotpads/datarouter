@@ -53,6 +53,11 @@ public class IntegerField extends BasePrimitiveField<Integer,IntegerFieldKey>{
 	}
 
 	@Override
+	public int getApproximateValueBytesLength(){
+		return value == null ? 0 : COMPARABLE_INT_CODEC.length();
+	}
+
+	@Override
 	public int numKeyBytesWithSeparator(byte[] bytes, int offset){
 		return 4;
 	}

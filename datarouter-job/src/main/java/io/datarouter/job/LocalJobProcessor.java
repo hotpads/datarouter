@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.job.config.DatarouterJobExecutors.DatarouterJobExecutor;
 import io.datarouter.job.scheduler.JobWrapper;
-import io.datarouter.job.util.Outcome;
+import io.datarouter.job.util.DatarouterJobOutcome;
 import io.datarouter.tasktracker.scheduler.LongRunningTaskStatus;
 import io.datarouter.util.concurrent.UncheckedInterruptedException;
 import io.datarouter.util.duration.DatarouterDuration;
@@ -50,11 +50,11 @@ public class LocalJobProcessor{
 	@Inject
 	private ExceptionRecorder exceptionRecorder;
 
-	public Outcome run(JobWrapper jobWrapper){
+	public DatarouterJobOutcome run(JobWrapper jobWrapper){
 		if(jobExecutor.isShutdown()){
 			logger.warn("DatarouterJobExecutor is shutdown, {} cannot be triggered.",
 					jobWrapper.jobClass.getSimpleName());
-			return Outcome.failure("DatarouterJobExecutor is shutdown");
+			return DatarouterJobOutcome.makeFailure("DatarouterJobExecutor is shutdown");
 		}
 		Duration hardTimeout = getHardTimeout(jobWrapper);
 		Future<Void> future;
@@ -67,7 +67,7 @@ public class LocalJobProcessor{
 		}
 		try{
 			future.get(hardTimeout.toMillis(), TimeUnit.MILLISECONDS);
-			return Outcome.success();
+			return DatarouterJobOutcome.makeSuccess();
 		}catch(InterruptedException | ExecutionException | CancellationException e){
 			if(ExceptionTool.isFromInstanceOf(e,
 					InterruptedException.class,
@@ -78,7 +78,7 @@ public class LocalJobProcessor{
 				jobWrapper.finishWithStatus(LongRunningTaskStatus.INTERRUPTED);
 				JobCounters.interrupted(jobWrapper.jobClass);
 				logger.warn("", wrapAndSaveException("interrupted", jobWrapper, hardTimeout, e));
-				return Outcome.failure("Interrupted. exception=" + e);
+				return DatarouterJobOutcome.makeFailure("Interrupted. exception=" + e);
 			}
 			jobWrapper.finishWithStatus(LongRunningTaskStatus.ERRORED);
 			throw wrapAndSaveException("failed", jobWrapper, hardTimeout, e);
@@ -94,7 +94,10 @@ public class LocalJobProcessor{
 		jobExecutor.shutdownNow();
 	}
 
-	private RuntimeException wrapAndSaveException(String msg, JobWrapper jobWrapper, Duration hardTimeout,
+	private RuntimeException wrapAndSaveException(
+			String msg,
+			JobWrapper jobWrapper,
+			Duration hardTimeout,
 			Exception ex){
 		var elapsed = DatarouterDuration.age(jobWrapper.triggerTime);
 		var exception = new RuntimeException(msg
@@ -109,7 +112,15 @@ public class LocalJobProcessor{
 
 	private Duration getHardTimeout(JobWrapper jobWrapper){
 		return jobWrapper.jobPackage.getHardDeadline(jobWrapper.triggerTime)
-				.map(deadline -> Duration.between(Instant.now(), deadline))
+				.map(deadline -> {
+					Duration duration = Duration.between(Instant.now(), deadline);
+					logger.debug("hard timeout triggerTime={} deadline={} duration={} jobName={}",
+							jobWrapper.triggerTime,
+							deadline,
+							duration,
+							jobWrapper.jobClass.getSimpleName());
+					return duration;
+				})
 				.orElse(MAX_JOB_TIMEOUT);
 	}
 

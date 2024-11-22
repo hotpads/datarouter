@@ -65,6 +65,11 @@ public class LocalDateField extends BasePrimitiveField<LocalDate,LocalDateFieldK
 	}
 
 	@Override
+	public int getApproximateValueBytesLength(){
+		return value == null ? 0 : NUM_BYTES;
+	}
+
+	@Override
 	public int numKeyBytesWithSeparator(byte[] bytes, int offset){
 		return NUM_BYTES;
 	}

@@ -15,7 +15,7 @@
  */
 package io.datarouter.gcp.spanner.config;
 
-import io.datarouter.auth.role.DatarouterUserRole;
+import io.datarouter.auth.role.DatarouterUserRoleRegistry;
 import io.datarouter.web.dispatcher.DispatchRule;
 import io.datarouter.web.navigation.DatarouterNavBarCategory;
 import io.datarouter.web.navigation.DynamicNavBarItem;
@@ -37,7 +37,7 @@ public class GcpSpannerNavBarItem implements DynamicNavBarItem{
 				+ projectId;
 		return new NavBarItemBuilder(DatarouterNavBarCategory.EXTERNAL, link, "GCP Spanner")
 				.openInNewTab()
-				.setDispatchRule(new DispatchRule().allowRoles(DatarouterUserRole.DATAROUTER_MONITORING))
+				.setDispatchRule(new DispatchRule().allowRoles(DatarouterUserRoleRegistry.DATAROUTER_MONITORING))
 				.build();
 	}
 

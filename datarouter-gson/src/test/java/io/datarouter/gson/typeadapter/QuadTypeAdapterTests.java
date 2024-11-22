@@ -20,12 +20,12 @@ import org.testng.annotations.Test;
 
 import com.google.gson.Gson;
 
-import io.datarouter.gson.GsonTool;
+import io.datarouter.gson.DatarouterGsons;
 import io.datarouter.types.Quad;
 
 public class QuadTypeAdapterTests{
 
-	private static final Gson GSON = GsonTool.withoutEnums();
+	private static final Gson GSON = DatarouterGsons.withoutEnums();
 	private static final Quad QUAD = new Quad("3210123");
 
 	@Test

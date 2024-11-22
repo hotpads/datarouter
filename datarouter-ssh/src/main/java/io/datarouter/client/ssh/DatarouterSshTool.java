@@ -25,6 +25,7 @@ import java.util.function.Consumer;
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.ChannelSftp;
+import com.jcraft.jsch.ChannelShell;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
@@ -38,6 +39,12 @@ import io.datarouter.util.concurrent.ThreadTool;
 public class DatarouterSshTool{
 
 	private static final Map<String,JSch> CLIENT_BY_RSA_KEY = new HashMap<>();
+	private static final String SERVER_HOST_KEY_CONFIG = "server_host_key",
+			PUBKEY_ACCEPTED_ALGORITHMS_CONFIG = "PubkeyAcceptedKeyTypes",
+			KEX_CONFIG = "kex",
+			DEPRECATED_KEY_ALGORITHMS = ",ssh-rsa,ssh-dss",
+			DEPRECATED_KEY_EXCHANGE_ALGORITHMS =
+					",diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha1,diffie-hellman-group1-sha1";
 
 	public static Process process(String rsaPrivateKey, SshExecSessionRequest request){
 		SessionAndChannel<ChannelExec> sessionAndChannel = exec(rsaPrivateKey, request);
@@ -113,7 +120,7 @@ public class DatarouterSshTool{
 	}
 
 	public static SessionAndChannel<ChannelSftp> sftp(String rsaPrivateKey, SshSessionConfig request){
-		return connectAndStartChannel(
+		return connectSessionAndStartChannel(
 				"sftp",
 				rsaPrivateKey,
 				request,
@@ -121,24 +128,33 @@ public class DatarouterSshTool{
 	}
 
 	public static SessionAndChannel<ChannelExec> exec(String rsaPrivateKey, SshExecSessionRequest request){
-		return connectAndStartChannel(
+		return connectSessionAndStartChannel(
 				"exec",
 				rsaPrivateKey,
 				request.config(),
 				(ChannelExec exec) -> exec.setCommand(String.join(" ", request.command())));
 	}
 
-	public static DatarouterSshSession startSession(String rsaPrivateKey, SshSessionConfig request){
-		return new DatarouterSshSession(request, connect(rsaPrivateKey, request));
+	public static ShellSshSessionRunner shell(String rsaPrivateKey, SshSessionConfig config) throws IOException{
+		SessionAndChannel<ChannelShell> sessionAndChannel = connectSessionAndStartChannel(
+				"shell",
+				rsaPrivateKey,
+				config,
+				$ -> {});
+		return new ShellSshSessionRunner(sessionAndChannel.session, sessionAndChannel.channel);
 	}
 
-	public static <T extends Channel> SessionAndChannel<T> connectAndStartChannel(
+	public static DatarouterSshSession startSession(String rsaPrivateKey, SshSessionConfig request){
+		return new DatarouterSshSession(request, sessionConnect(rsaPrivateKey, request));
+	}
+
+	public static <T extends Channel> SessionAndChannel<T> connectSessionAndStartChannel(
 			String channelName,
 			String rsaPrivateKey,
 			SshSessionConfig request,
 			Consumer<T> beforeConnect){
 		int connectTimeout = (int)request.connectTimeout().toMillis();
-		Session session = connect(rsaPrivateKey, request);
+		Session session = sessionConnect(rsaPrivateKey, request);
 		try{
 			@SuppressWarnings("unchecked")
 			T channel = (T)session.openChannel(channelName);
@@ -152,7 +168,7 @@ public class DatarouterSshTool{
 		}
 	}
 
-	private static Session connect(
+	private static Session sessionConnect(
 			String rsaPrivateKey,
 			SshSessionConfig request){
 		int connectTimeout = (int)request.connectTimeout().toMillis();
@@ -177,7 +193,7 @@ public class DatarouterSshTool{
 		return jsch;
 	}
 
-	private record SessionAndChannel<T extends Channel>(
+	public record SessionAndChannel<T extends Channel>(
 			Session session,
 			T channel){
 	}
@@ -197,6 +213,15 @@ public class DatarouterSshTool{
 			}
 		};
 
+	}
+
+	@Deprecated
+	public static void supportDeprecatedSignatureAlgorithms(Session session){
+		session.setConfig(SERVER_HOST_KEY_CONFIG,
+				session.getConfig(SERVER_HOST_KEY_CONFIG) + DEPRECATED_KEY_ALGORITHMS);
+		session.setConfig(PUBKEY_ACCEPTED_ALGORITHMS_CONFIG,
+				session.getConfig(PUBKEY_ACCEPTED_ALGORITHMS_CONFIG) + DEPRECATED_KEY_ALGORITHMS);
+		session.setConfig(KEX_CONFIG, session.getConfig(KEX_CONFIG) + DEPRECATED_KEY_EXCHANGE_ALGORITHMS);
 	}
 
 }

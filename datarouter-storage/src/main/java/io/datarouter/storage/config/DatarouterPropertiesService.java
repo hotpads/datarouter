@@ -15,6 +15,7 @@
  */
 package io.datarouter.storage.config;
 
+import java.time.ZoneId;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -45,7 +46,7 @@ public class DatarouterPropertiesService{
 	@Inject
 	private EnvironmentName environmentName;
 	@Inject
-	EnvironmentCategoryName environmentCategoryName;
+	private EnvironmentCategoryName environmentCategoryName;
 	@Inject
 	private EnvironmentDomain environmentDomain;
 	@Inject
@@ -90,7 +91,8 @@ public class DatarouterPropertiesService{
 				new DatarouterProperty("subscribers", subscribers.get().stream()
 						.sorted()
 						.collect(Collectors.joining(","))),
-				new DatarouterProperty("configDirectory", configDirectory.get()))
+				new DatarouterProperty("configDirectory", configDirectory.get()),
+				new DatarouterProperty("Time Zone", ZoneId.systemDefault().getId()))
 				.sort(Comparator.comparing(DatarouterProperty::key))
 				.list();
 	}

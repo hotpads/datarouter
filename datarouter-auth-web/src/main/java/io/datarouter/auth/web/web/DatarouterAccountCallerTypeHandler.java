@@ -76,7 +76,8 @@ public class DatarouterAccountCallerTypeHandler extends BaseHandler{
 		form.addSelectField()
 				.withLabel("Account Name")
 				.withName(P_accountName)
-				.withValues(possibleOldAccountNames);
+				.withValues(possibleOldAccountNames)
+				.withSelected(accountName.orElse(null));
 		form.addSelectField()
 				.withLabel("Caller Type")
 				.withName(P_callerType)

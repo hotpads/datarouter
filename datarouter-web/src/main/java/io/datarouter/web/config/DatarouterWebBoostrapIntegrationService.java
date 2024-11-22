@@ -17,12 +17,12 @@ package io.datarouter.web.config;
 
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import io.datarouter.auth.role.DatarouterUserRole;
 import io.datarouter.auth.role.Role;
 import io.datarouter.auth.role.RoleApprovalType;
 import io.datarouter.auth.role.RoleManager;
@@ -41,6 +41,7 @@ import io.datarouter.util.Require;
 import io.datarouter.util.clazz.AnnotationTool;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
+import io.datarouter.web.dispatcher.DispatchType;
 import io.datarouter.web.dispatcher.DispatcherServletTestService;
 import io.datarouter.web.dispatcher.RouteSet;
 import io.datarouter.web.file.AppFilesTestService;
@@ -92,10 +93,12 @@ public class DatarouterWebBoostrapIntegrationService implements TestableService{
 		testSingletons();
 		testSingletonsForAppListeners();
 		testSingletonsForSeralizers();
-		testRoleEnumHasDatarouterRoles();
 		testRoleApprovalTypeValidators();
 		testHandlerMethodNameAndPathMatching();
 		testEncoderDecoderInjection();
+		testUniquePathToHandlerMapping();
+		testHandlerDeprecationAnnotations();
+		testExternalEndpointDispatchRules();
 //		testHandlerMatching();
 	}
 
@@ -133,14 +136,6 @@ public class DatarouterWebBoostrapIntegrationService implements TestableService{
 				.forEach(clazz -> AnnotationTool.checkSingletonForClass(clazz, true));
 	}
 
-	// Make sure RoleEnum overriders have all values
-	private void testRoleEnumHasDatarouterRoles(){
-		Set<Role> roles = roleManager.getAllRoles();
-		Scanner.of(DatarouterUserRole.values())
-				.forEach(role -> Require.isTrue(roles.contains(role.getRole()),
-						role.getPersistentString() + " needs to be added to the RoleEnum"));
-	}
-
 	// Make sure RoleManager has a validator for each RoleApprovalType
 	private void testRoleApprovalTypeValidators(){
 		Map<Role,Map<RoleApprovalType,Integer>> roleApprovalRequirements = roleManager.getAllRoleApprovalRequirements();
@@ -173,13 +168,7 @@ public class DatarouterWebBoostrapIntegrationService implements TestableService{
 
 	private void testHandlerMethodNameAndPathMatching(){
 		List<String> exceptions = new ArrayList<>();
-		Scanner.of(routeSetRegistry.get())
-				.concatIter(RouteSet::getDispatchRulesNoRedirects)
-				.exclude(dispatchRule -> dispatchRule.getTag() == Tag.DATAROUTER)
-				.exclude(dispatchRule -> dispatchRule.getPattern().toString().endsWith("[/]?[^/]*"))
-				.exclude(dispatchRule -> dispatchRule.getPattern().toString().endsWith("*"))
-				.exclude(dispatchRule -> dispatchRule.getPattern().toString().endsWith("|/"))
-				.exclude(dispatchRule -> dispatchRule.getPattern().toString().endsWith("?"))
+		scanServiceDispatchRules()
 				.forEach(dispatchRule -> {
 					String path = Scanner.of(dispatchRule.getPattern().toString().split("/"))
 							.findLast()
@@ -205,6 +194,80 @@ public class DatarouterWebBoostrapIntegrationService implements TestableService{
 					var encoderClass = dispatchRule.getDefaultHandlerEncoder();
 					injector.getInstance(encoderClass);
 				});
+	}
+
+	private void testUniquePathToHandlerMapping(){
+		Map<String,DispatchRule> pathToDispatchRule = new HashMap<>();
+		List<String> exceptions = new ArrayList<>();
+		scanServiceDispatchRules()
+				.forEach(dispatchRule -> {
+					String path = dispatchRule.getPattern().toString();
+					if(pathToDispatchRule.containsKey(path)
+							&& pathToDispatchRule.get(path).getDispatchType().equals(dispatchRule.getDispatchType())){
+						exceptions.add(String.format(
+								"Duplicate path pattern in %s and %s: %s",
+								pathToDispatchRule.get(path).getHandlerClass().getSimpleName(),
+								dispatchRule.getHandlerClass().getSimpleName(),
+								path));
+					}else{
+						pathToDispatchRule.put(path, dispatchRule);
+					}
+				});
+		if(!exceptions.isEmpty()){
+			throw new IllegalArgumentException(String.join("\n", exceptions));
+		}
+	}
+
+	private Scanner<DispatchRule> scanServiceDispatchRules(){
+		return Scanner.of(routeSetRegistry.get())
+				.concatIter(RouteSet::getDispatchRulesNoRedirects)
+				.exclude(dispatchRule -> dispatchRule.getTag() == Tag.DATAROUTER)
+				.exclude(dispatchRule -> dispatchRule.getPattern().toString().endsWith("[/]?[^/]*"))
+				.exclude(dispatchRule -> dispatchRule.getPattern().toString().endsWith("*"))
+				.exclude(dispatchRule -> dispatchRule.getPattern().toString().endsWith("|/"))
+				.exclude(dispatchRule -> dispatchRule.getPattern().toString().endsWith("?"));
+	}
+
+	private Scanner<DispatchRule> scanServiceDispatchRulesIncludingHandleDir(){
+		return Scanner.of(routeSetRegistry.get())
+				.concatIter(RouteSet::getDispatchRulesNoRedirects)
+				.exclude(dispatchRule -> dispatchRule.getTag() == Tag.DATAROUTER);
+	}
+
+	private void testHandlerDeprecationAnnotations(){
+		List<String> exceptions = new ArrayList<>();
+		scanServiceDispatchRulesIncludingHandleDir()
+				.map(DispatchRule::getHandlerClass)
+				.deduplicateConsecutive()
+				.concatIter(HandlerTool::getHandlerAnnotatedMethods)
+				.forEach(handlerMethod -> {
+					try{
+						HandlerTool.validateHandlerMethodDeprecationAnnotation(handlerMethod);
+					}catch(IllegalArgumentException ex){
+						exceptions.add(ex.getMessage());
+					}
+				});
+		if(!exceptions.isEmpty()){
+			throw new IllegalArgumentException(String.join("\n", exceptions));
+		}
+	}
+
+	private void testExternalEndpointDispatchRules(){
+		List<String> exceptions = new ArrayList<>();
+		Scanner.of(routeSetRegistry.get())
+				.concatIter(RouteSet::getDispatchRulesNoRedirects)
+				.include(rule -> rule.getDispatchType() == DispatchType.EXTERNAL_ENDPOINT)
+				.include(rule -> rule.getPersistentString().isEmpty())
+				.forEach(rule -> {
+					exceptions.add(String.format(
+							"Dispatch rules for external endpoints must have a persistent string set via "
+									+ "\"withPersistentString()\". RouteSet=%s, Path=%s.",
+							rule.getRouteSet().getClass().getSimpleName(),
+							rule.getPattern().toString()));
+				});
+		if(!exceptions.isEmpty()){
+			throw new IllegalArgumentException(String.join("\n", exceptions));
+		}
 	}
 
 }

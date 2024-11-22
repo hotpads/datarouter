@@ -205,6 +205,20 @@ public class NodewatchTablesHandler extends BaseHandler{
 									.thenComparing(TableStats.COMPARE_NUM_ROWS.reversed())
 									.thenComparing(TableStats.COMPARE_TABLE)));
 			addWithTotal(
+					"Tag / Client / Rows",
+					$ -> statsService.scanStats()
+							.sort(TableStats.COMPARE_TAG
+									.thenComparing(TableStats.COMPARE_CLIENT)
+									.thenComparing(TableStats.COMPARE_NUM_ROWS.reversed())
+									.thenComparing(TableStats.COMPARE_TABLE)));
+			addWithTotal(
+					"Tag / Client / Bytes",
+					$ -> statsService.scanStats()
+							.sort(TableStats.COMPARE_TAG
+									.thenComparing(TableStats.COMPARE_CLIENT)
+									.thenComparing(TableStats.COMPARE_NUM_BYTES.reversed())
+									.thenComparing(TableStats.COMPARE_TABLE)));
+			addWithTotal(
 					"Tag / Client / Table",
 					$ -> statsService.scanStats()
 							.sort(TableStats.COMPARE_TAG

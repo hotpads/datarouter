@@ -98,7 +98,7 @@ public class DatarouterJobLockDao extends BaseDao{
 		return node.scan();
 	}
 
-	public DatabeanVacuum<JobLockKey,JobLock> makeVacuum2(){
+	public DatabeanVacuum<JobLockKey,JobLock> makeVacuum(){
 		MilliTime now = MilliTime.now();
 		return new DatabeanVacuumBuilder<>(
 				node.scan(),

@@ -17,9 +17,9 @@ package io.datarouter.web.handler.types;
 
 import java.util.List;
 
-import io.datarouter.httpclient.endpoint.web.BaseWebApi;
-import io.datarouter.httpclient.endpoint.web.JsClientType;
-import io.datarouter.httpclient.endpoint.web.WebApiType.NoOpWebApiType;
+import io.datarouter.web.api.web.BaseWebApi;
+import io.datarouter.web.api.web.JsClientType;
+import io.datarouter.web.api.web.WebApiType.NoOpWebApiType;
 import io.datarouter.web.handler.BaseHandler.Handler;
 
 public class TestWebApiHandler{

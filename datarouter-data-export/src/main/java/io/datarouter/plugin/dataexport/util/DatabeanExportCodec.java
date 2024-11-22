@@ -32,7 +32,6 @@ import io.datarouter.model.field.Field;
 import io.datarouter.model.field.FieldTool;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
-import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.serialize.fieldcache.DatabeanFieldInfo;
 import io.datarouter.util.lang.ReflectionTool;
 
@@ -63,18 +62,19 @@ implements Codec<D,BlockfileRow>{
 	@Override
 	public BlockfileRow encode(D databean){
 		// key
-		byte[] keyBytes = FieldTool.getConcatenatedValueBytes(databean.getKey().getFields());
+		byte[] keyBytes = FieldTool.getConcatenatedValueBytesTerminated(databean.getKey().getFields());
 		// version
 		long version = System.currentTimeMillis();
 		// value
 		var writer = new ByteWriter(256);
-		Scanner.of(fielder.getNonKeyFields(databean))
-				.exclude(field -> field.getValue() == null)
-				.forEach(field -> {
+		fielder.getNonKeyFields(databean).forEach(field -> {
+			byte[] valueBytes = field.getValueBytes();
+			if(valueBytes != null){
 					int columnId = columnNameCodec.encode(field.getKey().getColumnName());
 					writer.varInt(columnId);
 					writer.varBytes(field.getValueBytes());
-				});
+			}
+		});
 		byte[] valueBytes = writer.concat();
 		return BlockfileRow.putWithLongVersion(
 				keyBytes,
@@ -90,7 +90,7 @@ implements Codec<D,BlockfileRow>{
 		int cursor = 0;
 		for(Field<?> field : primaryKeyFields){
 			int numBytesWithSeparator = field.numKeyBytesWithSeparator(pkBytes, cursor);
-			Object value = field.fromKeyBytesWithSeparatorButDoNotSet(pkBytes, cursor);
+			Object value = field.fromEscapedAndTerminatedKeyBytes(pkBytes, cursor);
 			field.setUsingReflection(pk, value);
 			cursor += numBytesWithSeparator;
 		}
