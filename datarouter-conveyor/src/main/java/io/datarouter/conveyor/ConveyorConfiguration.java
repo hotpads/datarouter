@@ -31,10 +31,6 @@ public interface ConveyorConfiguration{
 		return () -> false;
 	}
 
-	default Duration delay(){
-		return Duration.ofSeconds(3L);
-	}
-
 	default boolean shouldRunOnShutdown(){
 		return false;
 	}

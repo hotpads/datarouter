@@ -17,6 +17,7 @@ package io.datarouter.storage.node.op.index;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.index.unique.UniqueIndexEntry;
@@ -34,7 +35,14 @@ extends IndexReader<PK,D,IK,IE>{
 	String OP_lookupUnique = "lookupUnique";
 	String OP_lookupMultiUnique = "lookupMultiUnique";
 
-	IE get(IK uniqueKey, Config config);
+	Optional<IE> find(IK uniqueKey, Config config);
+	default Optional<IE> find(IK uniqueKey){
+		return find(uniqueKey, new Config());
+	}
+
+	default IE get(IK uniqueKey, Config config){
+		return find(uniqueKey, config).orElse(null);
+	}
 	default IE get(IK uniqueKey){
 		return get(uniqueKey, new Config());
 	}

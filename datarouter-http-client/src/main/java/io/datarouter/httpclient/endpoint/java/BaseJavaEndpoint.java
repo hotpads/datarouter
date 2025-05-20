@@ -73,7 +73,7 @@ extends BaseEndpoint{
 	}
 
 	public final BaseJavaEndpoint<R,ET> addHeader(String name, String value){
-		headers.computeIfAbsent(name, $ -> new ArrayList<>()).add(value);
+		headers.computeIfAbsent(name, _ -> new ArrayList<>()).add(value);
 		return this;
 	}
 

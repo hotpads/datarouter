@@ -46,8 +46,8 @@ public class ShutdownService{
 		if(shutdownStartTime == Long.MAX_VALUE && state == ShutdownState.OFF){
 			shutdownStartTime = System.currentTimeMillis();
 		}
-		logger.warn("advanced to next shutdown stage newState={} newStatusCode={}", state, state.keepAliveErrorCode);
-		return state.keepAliveErrorCode;
+		logger.warn("advanced to next shutdown stage newState={} newStatusCode={}", state, state.probeStatusCode);
+		return state.probeStatusCode;
 	}
 
 	public boolean isShutdownOngoing(){
@@ -58,22 +58,29 @@ public class ShutdownService{
 		return state == ShutdownState.RUNNING;
 	}
 
-	public int getKeepAliveErrorCode(){
-		return state.keepAliveErrorCode;
+	public int getProbeStatusCode(){
+		return state.probeStatusCode;
+	}
+
+	public int getLbStatusCode(){
+		return state.lbStatusCode;
 	}
 
 	private enum ShutdownState{
-		OFF(null, SHUTDOWN_STATUS_CODE),
-		RUNNING(OFF, 200),
-		WARMING(RUNNING, SHUTDOWN_STATUS_CODE),
+		OFF(null, SHUTDOWN_STATUS_CODE, SHUTDOWN_STATUS_CODE),
+		RUNNING(OFF, 200, 200),
+		FIRST_TRAFFIC(RUNNING, SHUTDOWN_STATUS_CODE, 200),
+		WARMING(FIRST_TRAFFIC, SHUTDOWN_STATUS_CODE, SHUTDOWN_STATUS_CODE),
 		;
 
 		private final ShutdownState nextState;
-		private final int keepAliveErrorCode;
+		private final int probeStatusCode;
+		private final int lbStatusCode;
 
-		ShutdownState(ShutdownState nextState, Integer keepAliveErrorCode){
+		ShutdownState(ShutdownState nextState, int probeStatusCode, int lbStatusCode){
 			this.nextState = nextState;
-			this.keepAliveErrorCode = keepAliveErrorCode;
+			this.probeStatusCode = probeStatusCode;
+			this.lbStatusCode = lbStatusCode;
 		}
 
 		public ShutdownState getNextState(){

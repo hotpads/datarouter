@@ -134,7 +134,7 @@ public class EndpointGsonSerializationTests{
 				LocalDate localDate,
 				Duration duration,
 				Instant instant){
-			super(GET, new PathNode().leaf("test"));
+			super(GET, new PathNode().variable("test"));
 
 			this.string = string;
 			this.number = number;

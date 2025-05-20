@@ -279,7 +279,7 @@ public class S3BulkCopyHandler extends BaseHandler{
 							fromBucketAndKey,
 							to);
 				})
-				.each($ -> count.incrementAndGet())
+				.each(_ -> count.incrementAndGet())
 				.count();
 		message = String.format("Copied %s objects", count);
 		logger.warn(message);

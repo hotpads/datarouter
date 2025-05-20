@@ -22,6 +22,7 @@ import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DefaultApiKeyPredicate;
 import io.datarouter.web.dispatcher.DispatchRule;
+import io.datarouter.web.handler.encoder.DatarouterDefaultHandlerCodec;
 import io.datarouter.web.security.DefaultCsrfValidator;
 import io.datarouter.web.security.DefaultSignatureValidator;
 import io.datarouter.websocket.session.PushServiceSettingsSupplier;
@@ -59,7 +60,9 @@ public class DatarouterWebSocketApiRouteSet extends BaseRouteSet{
 
 	@Override
 	protected DispatchRule applyDefault(DispatchRule rule){
-		return rule.withTag(Tag.DATAROUTER);
+		return rule
+				.withDefaultHandlerCodec(DatarouterDefaultHandlerCodec.INSTANCE)
+				.withTag(Tag.DATAROUTER);
 	}
 
 }

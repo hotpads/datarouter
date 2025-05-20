@@ -15,6 +15,10 @@
  */
 package io.datarouter.relay;
 
+import io.datarouter.inject.guice.BaseGuiceModule;
+import io.datarouter.relay.DatarouterRelayFinder.DefaultDatarouterRelayFinder;
+import io.datarouter.relay.DatarouterRelaySender.NoOpDatarouterRelaySender;
+import io.datarouter.relay.DatarouterRelayTopics.DefaultDatarouterRelayTopics;
 import io.datarouter.storage.config.BaseStoragePlugin;
 
 public class DatarouterRelayPlugin extends BaseStoragePlugin{
@@ -34,9 +38,20 @@ public class DatarouterRelayPlugin extends BaseStoragePlugin{
 
 	@Override
 	protected void configure(){
-		bind(DatarouterRelayFinder.class).to(finder);
-		bind(DatarouterRelaySender.class).to(sender);
-		bind(DatarouterRelayTopics.class).to(topics);
+		bindActual(DatarouterRelayFinder.class, finder);
+		bindActual(DatarouterRelaySender.class, sender);
+		bindActual(DatarouterRelayTopics.class, topics);
+	}
+
+	public static class DatarouterRelayPluginDefaults extends BaseGuiceModule{
+
+		@Override
+		public void configure(){
+			bindDefault(DatarouterRelayFinder.class, DefaultDatarouterRelayFinder.class);
+			bindDefault(DatarouterRelaySender.class, NoOpDatarouterRelaySender.class);
+			bindDefault(DatarouterRelayTopics.class, DefaultDatarouterRelayTopics.class);
+		}
+
 	}
 
 }

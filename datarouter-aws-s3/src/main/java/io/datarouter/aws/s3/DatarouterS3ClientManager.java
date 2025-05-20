@@ -112,7 +112,7 @@ public class DatarouterS3ClientManager implements Serializable{
 					.bucket(bucket)
 					.build();
 			GetBucketLocationResponse response;
-			try(var $ = TracerTool.startSpan("S3 getBucketLocation", TraceSpanGroupType.CLOUD_STORAGE)){
+			try(var _ = TracerTool.startSpan("S3 getBucketLocation", TraceSpanGroupType.CLOUD_STORAGE)){
 				response = s3Client.getBucketLocation(request);
 			}
 			region = response.locationConstraintAsString();
@@ -128,7 +128,7 @@ public class DatarouterS3ClientManager implements Serializable{
 							.bucket(bucket)
 							.build();
 					HeadBucketResponse response;
-					try(var $ = TracerTool.startSpan("S3 headBucket", TraceSpanGroupType.CLOUD_STORAGE)){
+					try(var _ = TracerTool.startSpan("S3 headBucket", TraceSpanGroupType.CLOUD_STORAGE)){
 						response = s3Client.headBucket(request);
 					}
 					region = response

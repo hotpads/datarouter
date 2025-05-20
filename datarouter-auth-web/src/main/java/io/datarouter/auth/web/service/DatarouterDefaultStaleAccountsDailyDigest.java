@@ -15,8 +15,6 @@
  */
 package io.datarouter.auth.web.service;
 
-import static j2html.TagCreator.div;
-
 import java.time.Duration;
 import java.time.ZoneId;
 import java.util.List;
@@ -26,25 +24,25 @@ import io.datarouter.auth.config.DatarouterAuthPaths;
 import io.datarouter.auth.storage.account.DatarouterAccount;
 import io.datarouter.auth.storage.account.DatarouterAccountDao;
 import io.datarouter.auth.storage.account.DatarouterAccountKey;
-import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.instrumentation.relay.rml.Rml;
 import io.datarouter.instrumentation.relay.rml.RmlBlock;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.types.MilliTime;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
-import io.datarouter.web.digest.DailyDigestService;
-import j2html.tags.specialized.DivTag;
-import j2html.tags.specialized.TableTag;
+import io.datarouter.web.digest.DailyDigestRmlService;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterDefaultStaleAccountsDailyDigest implements DailyDigest{
 
+	private static final String ACCOUNT_CATEGORY = "account";
+	private static final String STALE_CATEGORY = "stale";
 	private static final Duration STALE_DURATION = Duration.ofDays(180);
 
 	@Inject
-	private DailyDigestService dailyDigestService;
+	private DailyDigestRmlService dailyDigestService;
 	@Inject
 	private DatarouterAccountDao datarouterAccountDao;
 	@Inject
@@ -66,19 +64,6 @@ public class DatarouterDefaultStaleAccountsDailyDigest implements DailyDigest{
 	}
 
 	@Override
-	public Optional<DivTag> getEmailContent(ZoneId zoneId){
-		List<String> accounts = getAccounts();
-		if(accounts.isEmpty()){
-			return Optional.empty();
-		}
-		var header = dailyDigestService.makeHeader(
-				"Datarouter API Accounts not used in the past " + STALE_DURATION.toDays() + " days.",
-				authPaths.datarouter.accountManager);
-		var table = buildEmailTable(accounts);
-		return Optional.of(div(header, table));
-	}
-
-	@Override
 	public Optional<RmlBlock> getRelayContent(ZoneId zoneId){
 		List<String> accounts = getAccounts();
 		if(accounts.isEmpty()){
@@ -97,6 +82,22 @@ public class DatarouterDefaultStaleAccountsDailyDigest implements DailyDigest{
 										.map(Rml::tableRow))));
 	}
 
+	@Override
+	public List<DailyDigestPlatformTask> getTasks(ZoneId zoneId){
+		return Scanner.of(getAccounts())
+				.map(account -> new DailyDigestPlatformTask(
+						List.of(ACCOUNT_CATEGORY, STALE_CATEGORY, account),
+						List.of(ACCOUNT_CATEGORY, STALE_CATEGORY),
+						"Account " + account + " has not used in " + STALE_DURATION.toDays() + " days",
+						Rml.paragraph(
+								Rml.text("Account has not used in " + STALE_DURATION.toDays() + " days. "
+										+ "Consider deleting the account using "),
+								dailyDigestService.makeLink("account manager page",
+										authPaths.datarouter.accountManager),
+								Rml.text("."))))
+				.list();
+	}
+
 	private List<String> getAccounts(){
 		return datarouterAccountDao.scan()
 				.include(account -> account.getLastUsed() == null
@@ -104,12 +105,6 @@ public class DatarouterDefaultStaleAccountsDailyDigest implements DailyDigest{
 				.map(DatarouterAccount::getKey)
 				.map(DatarouterAccountKey::getAccountName)
 				.list();
-	}
-
-	private TableTag buildEmailTable(List<String> rows){
-		return new J2HtmlEmailTable<String>()
-				.withColumn("Accounts", row -> row)
-				.build(rows);
 	}
 
 }

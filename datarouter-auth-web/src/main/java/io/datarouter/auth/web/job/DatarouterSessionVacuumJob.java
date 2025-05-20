@@ -39,6 +39,7 @@ public class DatarouterSessionVacuumJob extends BaseJob{
 
 	private DatabeanVacuum<DatarouterSessionKey,DatarouterSession> makeVacuum(){
 		return new DatabeanVacuumBuilder<>(
+				"DatarouterSession",
 				dao.scan(),
 				datarouterAuthenticationConfig::isSessionExpired,
 				dao::deleteMulti)

@@ -16,6 +16,7 @@
 package io.datarouter.metric.config;
 
 import io.datarouter.conveyor.ConveyorConfigurationGroup;
+import io.datarouter.metric.publisher.MetricPublisherAnnotationConveyorConfiguration;
 import io.datarouter.metric.publisher.MetricPublisherConveyorConfiguration;
 import jakarta.inject.Singleton;
 
@@ -23,9 +24,8 @@ import jakarta.inject.Singleton;
 public class DatarouterMetricConveyorConfigurationGroup extends ConveyorConfigurationGroup{
 
 	public DatarouterMetricConveyorConfigurationGroup(){
-		registerConveyor(
-				"datarouterMetricPublisher",
-				MetricPublisherConveyorConfiguration.class);
+		add("datarouterMetricPublisher", MetricPublisherConveyorConfiguration.class);
+		add("datarouterMetricAnnotationPublisher", MetricPublisherAnnotationConveyorConfiguration.class);
 	}
 
 }

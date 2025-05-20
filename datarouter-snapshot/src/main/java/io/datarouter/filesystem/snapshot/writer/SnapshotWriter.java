@@ -105,7 +105,7 @@ public class SnapshotWriter implements AutoCloseable{
 		this.valueBlockEncoders = new ArrayList<>();
 		this.numValueBlocksByColumn = new ArrayList<>();
 		this.numValuesInBlockByColumn = new ArrayList<>();
-		IntStream.range(0, numColumns).forEach($ -> {
+		IntStream.range(0, numColumns).forEach(_ -> {
 			valueBlockEncoders.add(config.valueBlockEncoderSupplier().get());
 			numValueBlocksByColumn.add(0);
 			numValuesInBlockByColumn.add(0);

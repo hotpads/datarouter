@@ -17,6 +17,8 @@ package io.datarouter.client.gcp.pubsub.config;
 
 import io.datarouter.client.gcp.pubsub.job.GcpPubsubQueueMetricMonitoringJob;
 import io.datarouter.job.BaseTriggerGroup;
+import io.datarouter.job.util.DatarouterCronTool;
+import io.datarouter.storage.config.properties.ServiceName;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.util.time.ZoneIds;
 import jakarta.inject.Inject;
@@ -26,10 +28,12 @@ import jakarta.inject.Singleton;
 public class DatarouterGcpPubsubTriggerGroup extends BaseTriggerGroup{
 
 	@Inject
-	public DatarouterGcpPubsubTriggerGroup(DatarouterGcpPubsubSettingsRoot settings){
+	public DatarouterGcpPubsubTriggerGroup(
+			ServiceName serviceNameSupplier,
+			DatarouterGcpPubsubSettingsRoot settings){
 		super("DatarouterGcpPubsub", Tag.DATAROUTER, ZoneIds.AMERICA_NEW_YORK);
 		registerLocked(
-				"0 * * ? * *",
+				DatarouterCronTool.everyMinute(serviceNameSupplier.get(), "GcpPubsubQueueMetricMonitoringJob"),
 				settings.runGcpPubsubQueueMetricMonitoringJob,
 				GcpPubsubQueueMetricMonitoringJob.class,
 				true);

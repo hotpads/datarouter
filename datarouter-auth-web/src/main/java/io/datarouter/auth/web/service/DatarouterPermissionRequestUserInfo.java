@@ -20,6 +20,7 @@ import java.util.Optional;
 
 import io.datarouter.auth.detail.DatarouterUserExternalDetailService;
 import io.datarouter.auth.detail.DatarouterUserProfileLink;
+import io.datarouter.auth.service.PermissionRequestUserInfo;
 import io.datarouter.auth.storage.user.datarouteruser.DatarouterUser;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;

@@ -79,6 +79,7 @@ public class DatarouterSamlDao extends BaseDao implements BaseDatarouterSamlDao{
 	public DatabeanVacuum<SamlAuthnRequestRedirectUrlKey,SamlAuthnRequestRedirectUrl> makeVacuum(){
 		var deleteBefore = MilliTime.now().minus(Duration.ofSeconds(5));
 		return new DatabeanVacuumBuilder<>(
+				"SamlAuthnRequestRedirectUrl",
 				node.scan(),
 				databean -> {
 					boolean willDelete = databean.getCreated().isBefore(deleteBefore);

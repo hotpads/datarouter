@@ -19,6 +19,7 @@ import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -154,6 +155,25 @@ public class StringTool{
 				}
 				leftIndex = rightIndex + 1;// move to start of next token
 			}
+		}
+		return results;
+	}
+
+	public static List<String> splitByMaxLength(String input, int maxLength){
+		List<String> results = new ArrayList<>();
+		if(input == null || maxLength <= 0){
+			return results;
+		}
+		if(input.isEmpty()){
+			results.add("");
+			return results;
+		}
+		int leftIndex = 0;
+		while(leftIndex < input.length()){
+			int rightIndex = Math.min(input.length(), leftIndex + maxLength);
+			String segment = input.substring(leftIndex, rightIndex);
+			results.add(segment);
+			leftIndex = rightIndex;
 		}
 		return results;
 	}

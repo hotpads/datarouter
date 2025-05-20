@@ -22,7 +22,7 @@
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-parent</artifactId>
-		<version>0.0.126</version>
+		<version>0.0.127</version>
 		<relativePath>../datarouter-parent</relativePath>
 	</parent>
 
@@ -44,14 +44,13 @@
 			<version>${datarouter-version}</version>
 		</dependency>
 		<dependency>
-			<groupId>com.amazonaws</groupId>
-			<artifactId>aws-java-sdk-rds</artifactId>
-			<version>${aws-sdk-version}</version>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>rds</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>dnsjava</groupId>
 			<artifactId>dnsjava</artifactId>
-			<version>3.6.2</version>
+			<version>3.6.3</version>
 		</dependency>
 	</dependencies>
 

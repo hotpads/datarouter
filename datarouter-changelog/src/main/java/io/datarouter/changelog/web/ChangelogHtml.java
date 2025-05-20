@@ -52,11 +52,7 @@ public class ChangelogHtml{
 				.add(new NavTab(
 						"View Dates",
 						PATHS.viewForDateRange.getValue(),
-						currentPath.equals(PATHS.viewForDateRange)))
-				.add(new NavTab(
-						"Insert",
-						PATHS.insert.getValue(),
-						currentPath.equals(PATHS.insert)));
+						currentPath.equals(PATHS.viewForDateRange)));
 		if(currentPath.equals(PATHS.viewExact)){
 			navTabs.add(new NavTab(
 					"View",

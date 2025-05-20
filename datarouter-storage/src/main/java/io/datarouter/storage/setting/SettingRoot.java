@@ -73,7 +73,7 @@ public class SettingRoot extends SettingNode implements PluginConfigValue<Settin
 	}
 
 	private void addToMap(SettingRoot root){
-		map.computeIfAbsent(root.category.toSimpleSettingCategory(), $ -> new LinkedHashSet<>()).add(root);
+		map.computeIfAbsent(root.category.toSimpleSettingCategory(), _ -> new LinkedHashSet<>()).add(root);
 	}
 
 	public Map<SimpleSettingCategory,Set<SettingRoot>> getRootNodesByCategory(){

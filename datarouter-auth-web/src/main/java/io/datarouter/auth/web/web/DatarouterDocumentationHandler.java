@@ -21,7 +21,9 @@ import java.util.Optional;
 
 import org.apache.http.entity.StringEntity;
 
+import io.datarouter.auth.web.link.DatarouterDocsLink;
 import io.datarouter.auth.web.service.DatarouterAccountCredentialService;
+import io.datarouter.httpclient.endpoint.link.DatarouterLinkClient;
 import io.datarouter.httpclient.security.DefaultCsrfGenerator;
 import io.datarouter.httpclient.security.DefaultSignatureGenerator;
 import io.datarouter.scanner.Scanner;
@@ -30,6 +32,7 @@ import io.datarouter.util.string.StringTool;
 import io.datarouter.web.config.RouteSetRegistry;
 import io.datarouter.web.handler.documentation.DocumentationRouteSet;
 import io.datarouter.web.handler.mav.Mav;
+import io.datarouter.web.handler.mav.imp.GlobalRedirectMav;
 import io.datarouter.web.util.http.RequestTool;
 import jakarta.inject.Inject;
 
@@ -41,12 +44,32 @@ public class DatarouterDocumentationHandler extends DatarouterUserBasedDocumenta
 	private ServiceName serviceName;
 	@Inject
 	private DatarouterAccountCredentialService datarouterAccountCredentialService;
+	@Inject
+	private DatarouterLinkClient datarouterLinkClient;
 
 	@Handler
-	public Mav docs(){
+	public Mav docs(Optional<String> endpoint){
+		if(endpoint.isPresent()){
+			return Scanner.of(routeSetRegistry.get())
+					.include(clazz -> clazz instanceof DocumentationRouteSet)
+					.listTo(routeSets -> createApiMav(serviceName.get(), endpoint.get(), routeSets));
+		}
 		return Scanner.of(routeSetRegistry.get())
 				.include(clazz -> clazz instanceof DocumentationRouteSet)
-				.listTo(routeSets -> createDocumentationMav(serviceName.get(), "", routeSets));
+				.listTo(routeSets -> createDocumentationMav(serviceName.get(), routeSets));
+	}
+
+	@Handler
+	public Mav docsV2(Optional<String> endpoint){
+		return new GlobalRedirectMav(datarouterLinkClient.toInternalUrl(new DatarouterDocsLink()
+						.withOptEndpoint(endpoint)));
+	}
+
+	@Handler
+	public Mav schema(){
+		return Scanner.of(routeSetRegistry.get())
+				.include(clazz -> clazz instanceof DocumentationRouteSet)
+				.listTo(routeSets -> createSchemaMav(serviceName.get(), "", routeSets));
 	}
 
 	@Handler

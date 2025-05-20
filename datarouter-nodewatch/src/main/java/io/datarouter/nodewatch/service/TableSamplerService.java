@@ -115,7 +115,7 @@ public class TableSamplerService{
 
 	public Scanner<PhysicalSortedStorageReaderNode<?,?,?>> scanAllSortedMapStorageNodes(){
 		return Scanner.of(datarouterNodes.getWritableAndReadableNodes(clients.getClientIds()))
-				.include(node -> isCountableNode(node) || node instanceof SortedStorageReader)
+				.include(SortedStorageReader.class::isInstance)
 				.map(PhysicalSortedStorageReaderNode.class::cast);
 	}
 
@@ -197,6 +197,38 @@ public class TableSamplerService{
 			F extends DatabeanFielder<PK,D>>
 	Scanner<Range<PK>> scanTableRangesUsingTableSamples(PhysicalNode<PK,D,F> node){
 		return Scanner.concat(scanPksForNode(node), Scanner.of((PK)null))
+				.retain(1)
+				.map(group -> new Range<>(group.previous(), group.current()));
+	}
+
+	/*-------- scan samples grouped by countTimeMs -----------*/
+
+	public Scanner<TableSample> scanSampledSamplesByCountingTime(
+			PhysicalNode<?,?,?> node,
+			Duration minCountingTime){
+		var prefix = TableSampleKey.prefix(
+				node.getClientId().getName(),
+				node.getFieldInfo().getTableName());
+		return tableSampleDao.scanWithPrefix(prefix)
+				.batchByMinSize(minCountingTime.toMillis(), TableSample::getCountTimeMs)
+				.map(List::getLast);
+	}
+
+	public <PK extends PrimaryKey<PK>> Scanner<PK> scanSampledPksByCountingTime(
+			PhysicalNode<PK,?,?> node,
+			Duration minCountingTime){
+		return scanSampledSamplesByCountingTime(node, minCountingTime)
+				.map(TableSample::getKey)
+				.map(key -> TableSamplerTool.extractPrimaryKeyFromSampleKey(node, key));
+	}
+
+	public <PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>>
+	Scanner<Range<PK>> scanSampledPkRangesByCountingTime(
+			PhysicalNode<PK,D,F> node,
+			Duration minCountingTime){
+		return Scanner.concat(scanSampledPksByCountingTime(node, minCountingTime), Scanner.of((PK)null))
 				.retain(1)
 				.map(group -> new Range<>(group.previous(), group.current()));
 	}

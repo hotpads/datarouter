@@ -15,6 +15,7 @@
  */
 package io.datarouter.nodewatch.web.handler;
 
+import io.datarouter.nodewatch.link.NodewatchTableNodeNameLink;
 import io.datarouter.nodewatch.web.NodewatchLinks;
 import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
@@ -25,17 +26,14 @@ import jakarta.inject.Inject;
 
 public class NodewatchNodeNameHandler extends BaseHandler{
 
-	public static final String
-			P_nodeName = "nodeName";
-
 	@Inject
 	private NodewatchLinks links;
 	@Inject
 	private DatarouterNodes datarouterNodes;
 
 	@Handler
-	private Mav nodeName(String nodeName){
-		PhysicalNode<?,?,?> physicalNode = datarouterNodes.getNode(nodeName).getPhysicalNodes().getFirst();
+	private Mav nodeName(NodewatchTableNodeNameLink link){
+		PhysicalNode<?,?,?> physicalNode = datarouterNodes.getNode(link.nodeName).getPhysicalNodes().getFirst();
 		String clientName = physicalNode.getClientId().getName();
 		String tableName = physicalNode.getFieldInfo().getTableName();
 		return new GlobalRedirectMav(links.table(clientName, tableName));

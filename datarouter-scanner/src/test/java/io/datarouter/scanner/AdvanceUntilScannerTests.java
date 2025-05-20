@@ -29,8 +29,8 @@ public class AdvanceUntilScannerTests{
 		Scanner<Integer> input = Scanner.of(1, 2, 3);
 		List<Integer> expected = List.of(1, 2);
 		List<Integer> actual = input
-				.each($ -> counter.incrementAndGet())
-				.advanceUntil($ -> counter.get() == 3)
+				.each(_ -> counter.incrementAndGet())
+				.advanceUntil(_ -> counter.get() == 3)
 				.list();
 		Assert.assertEquals(actual, expected);
 	}

@@ -85,6 +85,9 @@ public class IDatarouterEmailService{
 		return new SendEmailRecipients(fromEmail, toEmails);
 	}
 
+	/**
+	 * @deprecated  Use DatarouterEmailLinkClient
+	 */
 	public DatarouterEmailLinkBuilder startLinkBuilder(String hostPort, String contextPath){
 		return new DatarouterEmailLinkBuilder()
 				.withProtocol("https")

@@ -45,6 +45,7 @@ public class DatarouterCopyTablePaths extends PathNode implements PathsRoot{
 		public final PathNode viewTables = leaf("viewTables");
 		public final PathNode listSystemTables = leaf("listSystemTables");
 		public final PathNode migrateSystemTables = leaf("migrateSystemTables");
+		public final PathNode migrateSystemTablesMetadata = leaf("migrateSystemTablesMetadata");
 	}
 
 }

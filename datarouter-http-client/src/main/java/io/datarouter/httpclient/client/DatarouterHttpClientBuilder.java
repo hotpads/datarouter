@@ -58,12 +58,15 @@ public class DatarouterHttpClientBuilder{
 	public static final int DEFAULT_MAX_TOTAL_CONNECTIONS = 200;
 
 	private final String clientName;
+	private final String simpleClassName;
+
 	private final JsonSerializer jsonSerializer;
 	private int timeoutMs; // must be int due to RequestConfig.set*Timeout() methods
 	private int connectTimeoutMs;
 	private int maxTotalConnections;
 	private int maxConnectionsPerRoute;
 	private Optional<Integer> validateAfterInactivityMs;
+	private Duration fallbackIdleTimeout;
 	private final HttpClientBuilder httpClientBuilder;
 	private Supplier<Integer> retryCount;
 	private CloseableHttpClient customHttpClient;
@@ -76,7 +79,6 @@ public class DatarouterHttpClientBuilder{
 	private DatarouterHttpClientConfig config;
 	private boolean ignoreSsl;
 	private SSLContext customSslContext;
-	private final String simpleClassName;
 	private Supplier<URI> urlPrefix;
 	private Supplier<Boolean> traceInQueryString;
 	private Supplier<Boolean> debugLog;
@@ -84,17 +86,19 @@ public class DatarouterHttpClientBuilder{
 
 	public DatarouterHttpClientBuilder(String clientName, JsonSerializer jsonSerializer){
 		this.clientName = clientName;
+		String className = new Throwable().getStackTrace()[1].getClassName();
+		this.simpleClassName = className.substring(className.lastIndexOf(".") + 1, className.length());
+
 		this.jsonSerializer = jsonSerializer;
 		this.timeoutMs = (int)DEFAULT_TIMEOUT.toMillis();
 		this.connectTimeoutMs = (int)Duration.ofSeconds(1).toMillis();
 		this.maxTotalConnections = DEFAULT_MAX_TOTAL_CONNECTIONS;
 		this.maxConnectionsPerRoute = 200;
 		this.validateAfterInactivityMs = Optional.empty();
+		this.fallbackIdleTimeout = Duration.ofMinutes(5);
 		this.httpClientBuilder = HttpClientBuilder.create()
 				.setRedirectStrategy(LaxRedirectStrategy.INSTANCE);
 		this.retryCount = () -> HttpRetryTool.DEFAULT_RETRY_COUNT;
-		String className = new Throwable().getStackTrace()[1].getClassName();
-		this.simpleClassName = className.substring(className.lastIndexOf(".") + 1, className.length());
 		this.traceInQueryString = () -> false;
 		this.debugLog = () -> false;
 		this.apiKeyFieldName = SecurityParameters.API_KEY;
@@ -110,7 +114,9 @@ public class DatarouterHttpClientBuilder{
 				.setSocketTimeout(timeoutMs)
 				.build();
 		httpClientBuilder.setDefaultRequestConfig(defaultRequestConfig);
-		httpClientBuilder.setKeepAliveStrategy(new DatarouterConnectionKeepAliveStrategy(Duration.ofMinutes(5)));
+		httpClientBuilder.setKeepAliveStrategy(new DatarouterConnectionKeepAliveStrategy(
+				fallbackIdleTimeout,
+				clientName));
 		SSLConnectionSocketFactory sslsf;
 		if(ignoreSsl || customSslContext != null){
 			if(ignoreSsl){
@@ -182,9 +188,9 @@ public class DatarouterHttpClientBuilder{
 		return new StandardDatarouterEndpointClient<>(client);
 	}
 
-	public <L extends LinkType> DatarouterLinkClient<L> buildLinkClient(){
+	public <L extends LinkType> LinkClient<L> buildLinkClient(){
 		StandardDatarouterHttpClient client = buildStandardDatarouterHttpClient();
-		return new StandardDatarouterLinkClient<>(client);
+		return new StandardLinkClient<>(client);
 	}
 
 	public DatarouterHttpClientBuilder setRetryCount(Supplier<Integer> retryCount){
@@ -283,6 +289,11 @@ public class DatarouterHttpClientBuilder{
 		return this;
 	}
 
+	public DatarouterHttpClientBuilder setFallbackIdleTimeout(Duration fallbackIdleTimeout){
+		this.fallbackIdleTimeout = fallbackIdleTimeout;
+		return this;
+	}
+
 	public DatarouterHttpClientBuilder setUrlPrefix(Supplier<URI> urlPrefix){
 		this.urlPrefix = urlPrefix;
 		return this;
@@ -312,12 +323,12 @@ public class DatarouterHttpClientBuilder{
 	}
 
 	public DatarouterHttpClientBuilder forDatarouterHttpClientSettings(DatarouterHttpClientSettings settings){
-		return forDatarouterHttpClientSettings((SimpleDatarouterHttpClientSettings)settings)
+		return this
+				.forDatarouterHttpClientSettings((SimpleDatarouterHttpClientSettings)settings)
 				.setUrlPrefix(settings::getEndpointUrl);
 	}
 
-	public DatarouterHttpClientBuilder forLinkSettings(
-			DatarouterLinkSettings settings, String serviceName){
+	public DatarouterHttpClientBuilder forLinkSettings(DatarouterLinkSettings settings, String serviceName){
 		return this.setUrlPrefix(settings.getLinkUrl(serviceName));
 	}
 

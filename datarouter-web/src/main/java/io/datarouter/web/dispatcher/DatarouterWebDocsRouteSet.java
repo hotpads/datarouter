@@ -20,6 +20,7 @@ import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.browse.ViewReadmesHandler;
 import io.datarouter.web.browse.ViewSystemDocsHandler;
 import io.datarouter.web.config.DatarouterWebPaths;
+import io.datarouter.web.handler.encoder.DatarouterDefaultHandlerCodec;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
@@ -39,6 +40,7 @@ public class DatarouterWebDocsRouteSet extends BaseRouteSet{
 						DatarouterUserRoleRegistry.USER,
 						DatarouterUserRoleRegistry.DOC_USER,
 						DatarouterUserRoleRegistry.DATAROUTER_ADMIN)
+				.withDefaultHandlerCodec(DatarouterDefaultHandlerCodec.INSTANCE)
 				.withTag(Tag.DATAROUTER);
 	}
 

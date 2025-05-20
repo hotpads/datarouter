@@ -16,6 +16,7 @@
 package io.datarouter.scanner;
 
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -74,6 +75,15 @@ public class ScannerTests{
 	public void testAppendVarargs(){
 		List<Integer> actual = Scanner.of(1).append(1, 2).list();
 		Assert.assertEquals(actual, List.of(1, 1, 2));
+	}
+
+	@Test
+	public void testScanBits(){
+		List<Integer> values = List.of(3, 33, 333);
+		var bitSet = new BitSet();
+		values.forEach(bitSet::set);
+		List<Integer> actual = Scanner.ofBits(bitSet).list();
+		Assert.assertEquals(actual, values);
 	}
 
 	@Test

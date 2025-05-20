@@ -190,6 +190,11 @@ public class DatarouterWebFiles extends FilesRoot{
 		public final PathNode navbarRequestTimingV2Js = leaf("navbar-request-timing-v2.js");
 		public final ExecutorsMonitoringJsFiles executorsMonitoringJsFiles = branch(ExecutorsMonitoringJsFiles::new,
 				"executorsMonitoring");
+		public final JsDocsFiles docs = branch(JsDocsFiles::new, "docs");
+	}
+
+	public static class JsDocsFiles extends PathNode{
+		public final PathNode apiDocs = leaf("apiDocs.js");
 	}
 
 	public static class ExecutorsMonitoringJsFiles extends PathNode{
@@ -204,7 +209,6 @@ public class DatarouterWebFiles extends FilesRoot{
 	public static class JspFiles extends PathNode{
 		public final JspAdminFiles admin = branch(JspAdminFiles::new, "admin");
 		public final JspCssFiles css = branch(JspCssFiles::new, "css");
-		public final JspDocsFiles docs = branch(JspDocsFiles::new, "docs");
 		public final JspGenericFiles generic = branch(JspGenericFiles::new, "generic");
 		public final JspHttpFiles http = branch(JspHttpFiles::new, "http");
 		public final JspMenuFiles menu = branch(JspMenuFiles::new, "menu");
@@ -239,10 +243,6 @@ public class DatarouterWebFiles extends FilesRoot{
 	public static class JspCssFiles extends PathNode{
 		public final PathNode cssImportB3Jspf = leaf("css-import-b3.jspf");
 		public final PathNode cssImportB4Jspf = leaf("css-import-b4.jspf");
-	}
-
-	public static class JspDocsFiles extends PathNode{
-		public final PathNode dispatcherDocsJsp = leaf("dispatcherDocs.jsp");
 	}
 
 	public static class JspGenericFiles extends PathNode{

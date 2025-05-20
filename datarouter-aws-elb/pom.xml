@@ -22,7 +22,7 @@
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-parent</artifactId>
-		<version>0.0.126</version>
+		<version>0.0.127</version>
 		<relativePath>../datarouter-parent</relativePath>
 	</parent>
 
@@ -38,9 +38,8 @@
 			<version>${datarouter-version}</version>
 		</dependency>
 		<dependency>
-			<groupId>com.amazonaws</groupId>
-			<artifactId>aws-java-sdk-elasticloadbalancingv2</artifactId>
-			<version>${aws-sdk-version}</version>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>elasticloadbalancingv2</artifactId>
 		</dependency>
 	</dependencies>
 

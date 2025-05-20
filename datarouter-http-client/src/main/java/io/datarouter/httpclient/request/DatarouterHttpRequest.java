@@ -127,7 +127,7 @@ public class DatarouterHttpRequest{
 			if(parts.length == 2){
 				paramValue = urlDecode(parts[1]);
 			}
-			queryParams.computeIfAbsent(part, $ -> new ArrayList<>()).add(paramValue);
+			queryParams.computeIfAbsent(part, _ -> new ArrayList<>()).add(paramValue);
 		}
 		return queryParams;
 	}
@@ -228,7 +228,7 @@ public class DatarouterHttpRequest{
 	}
 
 	public DatarouterHttpRequest addHeader(String name, String value){
-		headers.computeIfAbsent(name, $ -> new ArrayList<>()).add(value);
+		headers.computeIfAbsent(name, _ -> new ArrayList<>()).add(value);
 		return this;
 	}
 
@@ -272,19 +272,19 @@ public class DatarouterHttpRequest{
 	}
 
 	public DatarouterHttpRequest addPostParam(String name, String value){
-		postParams.computeIfAbsent(name, $ -> new ArrayList<>()).add(value);
+		postParams.computeIfAbsent(name, _ -> new ArrayList<>()).add(value);
 		return this;
 	}
 
 	/**
-	 * Post params are signed anded to the entity upon request execution.
+	 * Post params are signed and added to the entity upon request execution.
 	 */
 	public DatarouterHttpRequest addPostParams(HttpRequestConfig config){
 		return config == null ? this : addPostParams(config.getParameterMap());
 	}
 
 	/**
-	 * Post params are signed anded to the entity upon request execution.
+	 * Post params are signed and added to the entity upon request execution.
 	 */
 	public DatarouterHttpRequest addPostParams(Map<String,String> params){
 		return addEntriesToMap(this.postParams, params);
@@ -306,7 +306,7 @@ public class DatarouterHttpRequest{
 	 * This method expects parameters to not be URL encoded. Params are UTF-8 encoded upon request execution.
 	 */
 	public DatarouterHttpRequest addGetParam(String name, String value){
-		queryParams.computeIfAbsent(name, $ -> new ArrayList<>()).add(value);
+		queryParams.computeIfAbsent(name, _ -> new ArrayList<>()).add(value);
 		return this;
 	}
 
@@ -333,7 +333,7 @@ public class DatarouterHttpRequest{
 				if(key == null || key.trim().isEmpty()){
 					continue;
 				}
-				map.computeIfAbsent(key.trim(), $ -> new ArrayList<>()).add(entry.getValue());
+				map.computeIfAbsent(key.trim(), _ -> new ArrayList<>()).add(entry.getValue());
 			}
 		}
 		return this;

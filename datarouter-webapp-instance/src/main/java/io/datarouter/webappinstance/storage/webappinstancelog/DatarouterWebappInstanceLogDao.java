@@ -20,20 +20,16 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
 
-import io.datarouter.model.databean.FieldlessIndexEntry;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.BaseDao;
-import io.datarouter.storage.node.factory.IndexingNodeFactory;
 import io.datarouter.storage.node.factory.NodeFactory;
-import io.datarouter.storage.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
-import io.datarouter.storage.node.op.index.IndexReader;
+import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.storage.vacuum.DatabeanVacuum;
 import io.datarouter.storage.vacuum.DatabeanVacuum.DatabeanVacuumBuilder;
-import io.datarouter.util.tuple.Range;
-import io.datarouter.virtualnode.redundant.RedundantIndexedSortedMapStorageNode;
+import io.datarouter.virtualnode.redundant.RedundantSortedMapStorageNode;
 import io.datarouter.webappinstance.storage.webappinstancelog.WebappInstanceLog.WebappInstanceLogFielder;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -44,29 +40,23 @@ public class DatarouterWebappInstanceLogDao extends BaseDao{
 	public record DatarouterWebappInstanceLogDaoParams(List<ClientId> clientIds){
 	}
 
-	private final IndexedSortedMapStorageNode<WebappInstanceLogKey,WebappInstanceLog,WebappInstanceLogFielder> node;
-	private final IndexReader<WebappInstanceLogKey,WebappInstanceLog,WebappInstanceLogByBuildInstantKey,
-			FieldlessIndexEntry<WebappInstanceLogByBuildInstantKey,WebappInstanceLogKey,WebappInstanceLog>>
-			byBuildInstant;
+	private final SortedMapStorageNode<WebappInstanceLogKey,WebappInstanceLog,WebappInstanceLogFielder> node;
 
 	@Inject
 	public DatarouterWebappInstanceLogDao(
 			Datarouter datarouter,
 			NodeFactory nodeFactory,
-			IndexingNodeFactory indexingNodeFactory,
 			DatarouterWebappInstanceLogDaoParams params){
 		super(datarouter);
 		node = Scanner.of(params.clientIds)
 				.map(clientId -> {
-					IndexedSortedMapStorageNode<WebappInstanceLogKey,WebappInstanceLog,WebappInstanceLogFielder> node =
+					SortedMapStorageNode<WebappInstanceLogKey,WebappInstanceLog,WebappInstanceLogFielder> node =
 							nodeFactory.create(clientId, WebappInstanceLog::new, WebappInstanceLogFielder::new)
 							.withTag(Tag.DATAROUTER)
 							.build();
 					return node;
 					})
-				.listTo(RedundantIndexedSortedMapStorageNode::makeIfMulti);
-		byBuildInstant = indexingNodeFactory.createKeyOnlyManagedIndex(WebappInstanceLogByBuildInstantKey::new, node)
-				.build();
+				.listTo(RedundantSortedMapStorageNode::makeIfMulti);
 		datarouter.register(node);
 	}
 
@@ -82,13 +72,10 @@ public class DatarouterWebappInstanceLogDao extends BaseDao{
 		return node.scanWithPrefix(key);
 	}
 
-	public Scanner<WebappInstanceLog> scanDatabeans(Range<WebappInstanceLogByBuildInstantKey> range){
-		return byBuildInstant.scanDatabeans(range);
-	}
-
 	public DatabeanVacuum<WebappInstanceLogKey,WebappInstanceLog> makeVacuum(){
 		LocalDateTime deleteBeforeTime = LocalDateTime.now(Clock.systemUTC()).minusDays(30L);
 		return new DatabeanVacuumBuilder<>(
+				"DatarouterWebappInstanceLog",
 				node.scan(),
 				databean -> databean.getRefreshedLast().isBefore(deleteBeforeTime.toInstant(ZoneOffset.UTC)),
 				node::deleteMulti)

@@ -306,7 +306,13 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 			BucketAndKey location,
 			S3ContentType contentType,
 			InputStream inputStream){
-		multipartRequests.multipartUpload(location, contentType, inputStream);
+		multipartRequests.multipartUploadFromInputStream(
+				location,
+				contentType,
+				Optional.empty(),
+				inputStream,
+				Threads.none(),
+				S3Limits.MIN_PART_SIZE);
 	}
 
 	@Override
@@ -314,7 +320,10 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 			BucketAndKey location,
 			S3ContentType contentType,
 			InputStream inputStream){
-		publicRequests.multipartUploadWithPublicRead(location, contentType, inputStream);
+		publicRequests.multipartUploadWithPublicRead(
+				location,
+				contentType,
+				inputStream);
 	}
 
 	@Override
@@ -324,18 +333,13 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 			InputStream inputStream,
 			Threads threads,
 			ByteLength minPartSize){
-		multipartRequests.multithreadUpload(location, contentType, inputStream, threads, minPartSize);
-	}
-
-	/*---------- object write multipart Scanner ---------*/
-
-	@Override
-	public void multithreadUpload(
-			BucketAndKey location,
-			S3ContentType contentType,
-			Scanner<InputStreamAndLength> parts,
-			Threads threads){
-		multipartRequests.multithreadUpload(location, contentType, parts, threads);
+		multipartRequests.multipartUploadFromInputStream(
+				location,
+				contentType,
+				Optional.empty(),
+				inputStream,
+				threads,
+				minPartSize);
 	}
 
 	/*----------- object write multipart sub-ops ----------*/

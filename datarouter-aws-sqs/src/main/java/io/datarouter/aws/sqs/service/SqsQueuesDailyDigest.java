@@ -15,14 +15,11 @@
  */
 package io.datarouter.aws.sqs.service;
 
-import static j2html.TagCreator.div;
-
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 
 import io.datarouter.aws.sqs.SqsClientType;
-import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.instrumentation.relay.rml.Rml;
 import io.datarouter.instrumentation.relay.rml.RmlBlock;
 import io.datarouter.scanner.Scanner;
@@ -31,15 +28,15 @@ import io.datarouter.storage.client.DatarouterClients;
 import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
-import io.datarouter.web.digest.DailyDigestService;
-import j2html.tags.specialized.DivTag;
-import j2html.tags.specialized.H3Tag;
-import j2html.tags.specialized.TableTag;
+import io.datarouter.web.digest.DailyDigestRmlService;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
 @Singleton
 public class SqsQueuesDailyDigest implements DailyDigest{
+
+	private static final String SQS_CATEGORY = "sqs";
+	private static final String UNREFERENCED_CATEGORY = "unreferenced";
 
 	@Inject
 	private DatarouterClients datarouterClients;
@@ -48,7 +45,7 @@ public class SqsQueuesDailyDigest implements DailyDigest{
 	@Inject
 	private SqsQueueRegistryService queueRegistryService;
 	@Inject
-	private DailyDigestService digestService;
+	private DailyDigestRmlService digestService;
 
 	@Override
 	public String getTitle(){
@@ -66,42 +63,8 @@ public class SqsQueuesDailyDigest implements DailyDigest{
 	}
 
 	@Override
-	public Optional<DivTag> getEmailContent(ZoneId zoneId){
-		ClientId clientId = Scanner.of(datarouterClients.getClientIds())
-				.include(client -> datarouterClients.getClientTypeInstance(client) instanceof SqsClientType)
-				.findFirst()
-				.orElse(null);
-		if(clientId == null){
-			return Optional.empty();
-		}
-
-		List<String> unreferencedQueues = queueRegistryService.getSqsQueuesForClient(clientId).unreferencedQueues();
-		if(unreferencedQueues.isEmpty()){
-			return Optional.empty();
-		}
-
-		TableTag unreferencedQueuesTable = new J2HtmlEmailTable<String>()
-				.withColumn("Queue Name", row -> row)
-				.build(unreferencedQueues);
-		H3Tag header = digestService.makeHeader(
-				"Unreferenced Sqs Queues",
-				paths.datarouter.client.inspectClient,
-				"?clientName=sqs");
-
-		return Optional.of(div(header, unreferencedQueuesTable));
-	}
-
-	@Override
 	public Optional<RmlBlock> getRelayContent(ZoneId zoneId){
-		ClientId clientId = Scanner.of(datarouterClients.getClientIds())
-				.include(client -> datarouterClients.getClientTypeInstance(client) instanceof SqsClientType)
-				.findFirst()
-				.orElse(null);
-		if(clientId == null){
-			return Optional.empty();
-		}
-
-		List<String> unreferencedQueues = queueRegistryService.getSqsQueuesForClient(clientId).unreferencedQueues();
+		List<String> unreferencedQueues = getUnreferencedQueues();
 		if(unreferencedQueues.isEmpty()){
 			return Optional.empty();
 		}
@@ -115,6 +78,32 @@ public class SqsQueuesDailyDigest implements DailyDigest{
 								.map(Rml::text)
 								.map(Rml::tableCell)
 								.map(Rml::tableRow))));
+	}
+
+	@Override
+	public List<DailyDigestPlatformTask> getTasks(ZoneId zoneId){
+		return Scanner.of(getUnreferencedQueues())
+				.map(unreferenced -> new DailyDigestPlatformTask(
+						List.of(SQS_CATEGORY, UNREFERENCED_CATEGORY, unreferenced),
+						List.of(SQS_CATEGORY, UNREFERENCED_CATEGORY),
+						"Unreferenced SQS queue " + unreferenced,
+						Rml.paragraph(
+								Rml.text("Sqs queue "), Rml.text(unreferenced).code(), Rml.text(" is unreferenced. "),
+								digestService.makeLink("View queues", paths.datarouter.client.inspectClient,
+										"?clientName=" + SqsClientType.NAME))))
+				.list();
+	}
+
+	private List<String> getUnreferencedQueues(){
+		ClientId clientId = Scanner.of(datarouterClients.getClientIds())
+				.include(client -> datarouterClients.getClientTypeInstance(client) instanceof SqsClientType)
+				.findFirst()
+				.orElse(null);
+		if(clientId == null){
+			return List.of();
+		}
+
+		return queueRegistryService.getSqsQueuesForClient(clientId).unreferencedQueues();
 	}
 
 }

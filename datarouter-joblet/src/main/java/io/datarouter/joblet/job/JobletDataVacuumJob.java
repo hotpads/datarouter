@@ -43,8 +43,8 @@ public class JobletDataVacuumJob extends BaseJob{
 	public void run(TaskTracker tracker) throws RuntimeException{
 		AtomicLong earliestCreated = new AtomicLong(Instant.now().toEpochMilli());
 		jobletRequestDao.scan()
-				.advanceUntil($ -> tracker.shouldStop())
-				.each($ -> tracker.increment())
+				.advanceUntil(_ -> tracker.shouldStop())
+				.each(_ -> tracker.increment())
 				.forEach(jobletRequest -> {
 					if(jobletRequest.getKey().getCreated() <= earliestCreated.longValue()){
 						earliestCreated.set(jobletRequest.getKey().getCreated());
@@ -52,7 +52,7 @@ public class JobletDataVacuumJob extends BaseJob{
 				});
 		AtomicInteger jobletDeletionCount = new AtomicInteger(0);
 		jobletDataDao.scan()
-				.advanceUntil($ -> tracker.shouldStop())
+				.advanceUntil(_ -> tracker.shouldStop())
 				.batch(1_000)
 				.each(batch -> tracker.increment(batch.size()))
 				.map(batch -> batch.stream()
@@ -62,7 +62,7 @@ public class JobletDataVacuumJob extends BaseJob{
 				.each(jobletDataDao::deleteMulti)
 				.map(List::size)
 				.each(jobletDeletionCount::getAndAdd)
-				.forEach($ -> logger.warn(
+				.forEach(_ -> logger.warn(
 						"JobletDataVacuumJob deleted {} JobletDatas",
 						NumberFormatter.addCommas(jobletDeletionCount)));
 		logger.warn("Completed JobletDataVacuumJob deleted {} total JobletDatas",

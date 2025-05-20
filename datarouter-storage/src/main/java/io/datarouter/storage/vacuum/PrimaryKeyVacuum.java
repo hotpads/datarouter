@@ -16,7 +16,6 @@
 package io.datarouter.storage.vacuum;
 
 import java.util.Collection;
-import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -32,9 +31,16 @@ extends BaseNodeVacuum<PK,PK>{
 			Consumer<Collection<PK>> deleteConsumer,
 			int deleteBatchSize,
 			Predicate<PK> shouldDelete,
-			Optional<Integer> logBatchSize,
+			String nameForMetrics,
+			boolean shouldUpdateTaskTracker,
 			Threads threads){
-		super(scanner, deleteConsumer, deleteBatchSize, logBatchSize, shouldDelete, threads);
+		super(scanner,
+				deleteConsumer,
+				deleteBatchSize,
+				nameForMetrics,
+				shouldUpdateTaskTracker,
+				shouldDelete,
+				threads);
 	}
 
 	@Override
@@ -46,10 +52,11 @@ extends BaseNodeVacuum<PK,PK>{
 	extends BaseNodeVacuumBuilder<PK,PK,PrimaryKeyVacuumBuilder<PK>>{
 
 		public PrimaryKeyVacuumBuilder(
+				String nameForMetrics,
 				Scanner<PK> scanner,
 				Predicate<PK> shouldDelete,
 				Consumer<Collection<PK>> deleteConsumer){
-			super(scanner, shouldDelete, deleteConsumer);
+			super(nameForMetrics, scanner, shouldDelete, deleteConsumer);
 		}
 
 		@Override
@@ -63,7 +70,8 @@ extends BaseNodeVacuum<PK,PK>{
 					deleteConsumer,
 					deleteBatchSize,
 					shouldDelete,
-					logBatchSize,
+					nameForMetrics,
+					shouldUpdateTaskTracker,
 					threads);
 		}
 

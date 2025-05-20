@@ -16,8 +16,10 @@
 package io.datarouter.nodewatch.config;
 
 import io.datarouter.job.BaseTriggerGroup;
+import io.datarouter.job.util.DatarouterCronTool;
 import io.datarouter.nodewatch.config.setting.DatarouterTableCountPublisherSettingRoot;
 import io.datarouter.nodewatch.job.LatestTableCountPublisherJob;
+import io.datarouter.storage.config.properties.ServiceName;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.util.time.ZoneIds;
 import jakarta.inject.Inject;
@@ -27,10 +29,12 @@ import jakarta.inject.Singleton;
 public class DatarouterTableCountPublisherTriggerGroup extends BaseTriggerGroup{
 
 	@Inject
-	public DatarouterTableCountPublisherTriggerGroup(DatarouterTableCountPublisherSettingRoot settings){
+	public DatarouterTableCountPublisherTriggerGroup(
+			ServiceName serviceNameSupplier,
+			DatarouterTableCountPublisherSettingRoot settings){
 		super("DatarouterLatestTableCountPublisher", Tag.DATAROUTER, ZoneIds.AMERICA_NEW_YORK);
 		registerLocked(
-				"7 7 0/2 ? * *",
+				DatarouterCronTool.everyNHours(2, serviceNameSupplier.get(), "LatestTableCountPublisherJob"),
 				settings.runLatestTableCountPublisherJob,
 				LatestTableCountPublisherJob.class,
 				true);

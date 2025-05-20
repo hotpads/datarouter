@@ -45,6 +45,7 @@ public class CopyTableService{
 	private static final Logger logger = LoggerFactory.getLogger(CopyTableService.class);
 
 	private static final Duration LOG_PERIOD = Duration.ofSeconds(1);
+	private static final String METRIC_PREFIX = "CopyTable";
 
 	@Inject
 	private DatarouterNodes nodes;
@@ -84,8 +85,12 @@ public class CopyTableService{
 		AtomicReference<PK> lastKey = new AtomicReference<>();
 		try{
 			sourceNode.scan(range, scanConfig)
-					.each($ -> numScanned.incrementAndGet())
-					.each($ -> Metrics.count("copyTable " + sourceNodeName + " read"))
+					.batch(100)// batch for monitoring
+					.each(batch -> numScanned.addAndGet(batch.size()))
+					.each(batch -> Metrics.count(
+							String.join(" ", METRIC_PREFIX, sourceNodeName, "read"),
+							batch.size()))
+					.concat(Scanner::of)
 					.include(databean -> {
 						if(!skipInvalidDatabeans){
 							return true;
@@ -108,14 +113,17 @@ public class CopyTableService{
 						}catch(RuntimeException e){
 							logger.warn("putMulti failure, trying individual puts for targetNode={} numDatabeans={}",
 									targetNode.getName(),
-									batch.size());
+									batch.size(),
+									e);
 							batch.forEach(targetNode::put);
 						}
 					})
-					.each($ -> Metrics.count("copyTable " + sourceNodeName + " write"))
+					.each(batch -> Metrics.count(
+							String.join(" ", METRIC_PREFIX, targetNodeName, "write"),
+							batch.size()))
 					.each(batch -> numCopied.addAndGet(batch.size()))
 					.each(batch -> lastKey.set(ListTool.getLastOrNull(batch).getKey()))
-					.periodic(LOG_PERIOD, $ -> logProgress(
+					.periodic(LOG_PERIOD, _ -> logProgress(
 							false,
 							numSkipped.get(),
 							numScanned.get(),

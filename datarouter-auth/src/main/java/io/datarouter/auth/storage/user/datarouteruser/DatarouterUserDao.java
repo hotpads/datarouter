@@ -94,6 +94,10 @@ public class DatarouterUserDao extends BaseDao{
 		return node.scan();
 	}
 
+	public Scanner<DatarouterUser> scanAnyDelay(){
+		return node.scan(new Config().setAnyDelay(true));
+	}
+
 	public void put(DatarouterUser databean){
 		node.put(databean);
 	}

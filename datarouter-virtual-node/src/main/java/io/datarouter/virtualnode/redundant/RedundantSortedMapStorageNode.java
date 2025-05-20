@@ -64,4 +64,14 @@ implements SortedMapStorageNode<PK,D,F>,
 		return makeIfMulti(List.of(nodes));
 	}
 
+	public static <
+			PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>,
+			N extends SortedMapStorageNode<PK,D,F>>
+	SortedMapStorageNode<PK,D,F> makeIfMulti(N first, N second, boolean reversed){
+		List<N> nodes = reversed ? List.of(second, first) : List.of(first, second);
+		return makeIfMulti(nodes);
+	}
+
 }

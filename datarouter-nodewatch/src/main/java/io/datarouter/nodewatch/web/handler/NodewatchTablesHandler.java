@@ -29,6 +29,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import io.datarouter.bytes.ByteLength;
 import io.datarouter.nodewatch.config.DatarouterNodewatchPaths;
 import io.datarouter.nodewatch.config.DatarouterNodewatchPlugin;
+import io.datarouter.nodewatch.link.NodewatchTablesLink;
 import io.datarouter.nodewatch.service.NodewatchTableStatsService;
 import io.datarouter.nodewatch.service.NodewatchTableStatsService.PhysicalNodeStats;
 import io.datarouter.nodewatch.service.NodewatchTableStatsService.SamplerStats;
@@ -71,7 +72,7 @@ public class NodewatchTablesHandler extends BaseHandler{
 	private DatarouterTableSizeAlertThresholdDao tableSizeAlertThresholdDao;
 
 	@Handler
-	private Mav tables(){
+	private Mav tables(@SuppressWarnings("unused") NodewatchTablesLink link){
 		var content = div(
 				NodewatchHtml.makeHeader(
 						"Tables",
@@ -90,7 +91,7 @@ public class NodewatchTablesHandler extends BaseHandler{
 		var page = new IndexPageBuilder<>(namedScannerPager)
 				.withDefaultPageSize(500)
 				.build(params.toMap());
-		String path = request.getContextPath() + paths.datarouter.nodewatch.tables.toSlashedString();
+		String path = links.tables();
 		var header = Bootstrap4IndexPagerHtml.render(page, path);
 		var table = makeTableBuilder(page.fromRow).build(page.rows);
 		return div(header, table);
@@ -100,7 +101,7 @@ public class NodewatchTablesHandler extends BaseHandler{
 		var rowId = new AtomicLong(fromRowId);
 		return new J2HtmlTable<TableStats>()
 				.withClasses("table table-sm table-striped my-2 border")
-				.withColumn("#", $ -> rowId.getAndIncrement(), NumberFormatter::addCommas)
+				.withColumn("#", _ -> rowId.getAndIncrement(), NumberFormatter::addCommas)
 				.withColumn(
 						"Tag",
 						row -> row.optPhysicalNodeStats().map(PhysicalNodeStats::tagString).orElse(""))
@@ -175,108 +176,108 @@ public class NodewatchTablesHandler extends BaseHandler{
 		public NodewatchTableListNamedScannerPager(NodewatchTableStatsService statsService){
 			addWithTotal(
 					"Tag / Rows",
-					$ -> statsService.scanStats()
+					_ -> statsService.scanStats()
 							.sort(TableStats.COMPARE_TAG
 									.thenComparing(TableStats.COMPARE_NUM_ROWS.reversed())
 									.thenComparing(TableStats.COMPARE_TABLE)));
 			addWithTotal(
 					"Tag / Bytes",
-					$ -> statsService.scanStats()
+					_ -> statsService.scanStats()
 							.sort(TableStats.COMPARE_TAG
 									.thenComparing(TableStats.COMPARE_NUM_BYTES.reversed())
 									.thenComparing(TableStats.COMPARE_TABLE)));
 			addWithTotal(
 					"Tag / Cost",
-					$ -> statsService.scanStats()
+					_ -> statsService.scanStats()
 							.sort(TableStats.COMPARE_TAG
 									.thenComparing(TableStats.COMPARE_YEARLY_STORAGE_COST.reversed())
 									.thenComparing(TableStats.COMPARE_TABLE)));
 			addWithTotal(
 					"Tag / Spans",
-					$ -> statsService.scanStats()
+					_ -> statsService.scanStats()
 							.sort(TableStats.COMPARE_TAG
 									.thenComparing(TableStats.COMPARE_NUM_SPANS.reversed())
 									.thenComparing(TableStats.COMPARE_TABLE)));
 			addWithTotal(
 					"Tag / Count Time",
-					$ -> statsService.scanStats()
+					_ -> statsService.scanStats()
 							.sort(TableStats.COMPARE_TAG
 									.thenComparing(TableStats.COMPARE_COUNT_TIME.reversed())
 									.thenComparing(TableStats.COMPARE_NUM_ROWS.reversed())
 									.thenComparing(TableStats.COMPARE_TABLE)));
 			addWithTotal(
 					"Tag / Client / Rows",
-					$ -> statsService.scanStats()
+					_ -> statsService.scanStats()
 							.sort(TableStats.COMPARE_TAG
 									.thenComparing(TableStats.COMPARE_CLIENT)
 									.thenComparing(TableStats.COMPARE_NUM_ROWS.reversed())
 									.thenComparing(TableStats.COMPARE_TABLE)));
 			addWithTotal(
 					"Tag / Client / Bytes",
-					$ -> statsService.scanStats()
+					_ -> statsService.scanStats()
 							.sort(TableStats.COMPARE_TAG
 									.thenComparing(TableStats.COMPARE_CLIENT)
 									.thenComparing(TableStats.COMPARE_NUM_BYTES.reversed())
 									.thenComparing(TableStats.COMPARE_TABLE)));
 			addWithTotal(
 					"Tag / Client / Table",
-					$ -> statsService.scanStats()
+					_ -> statsService.scanStats()
 							.sort(TableStats.COMPARE_TAG
 									.thenComparing(TableStats.COMPARE_CLIENT)
 									.thenComparing(TableStats.COMPARE_TABLE)));
 			addWithTotal(
 					"Client / Rows",
-					$ -> statsService.scanStats()
+					_ -> statsService.scanStats()
 							.sort(TableStats.COMPARE_CLIENT
 									.thenComparing(TableStats.COMPARE_NUM_ROWS.reversed())
 									.thenComparing(TableStats.COMPARE_TABLE)));
 			addWithTotal(
 					"Client / Spans",
-					$ -> statsService.scanStats()
+					_ -> statsService.scanStats()
 							.sort(TableStats.COMPARE_CLIENT
 									.thenComparing(TableStats.COMPARE_NUM_SPANS.reversed())
 									.thenComparing(TableStats.COMPARE_NUM_ROWS.reversed())
 									.thenComparing(TableStats.COMPARE_TABLE)));
 			addWithTotal(
 					"Client / Count Time",
-					$ -> statsService.scanStats()
+					_ -> statsService.scanStats()
 							.sort(TableStats.COMPARE_CLIENT
 									.thenComparing(TableStats.COMPARE_COUNT_TIME.reversed())
 									.thenComparing(TableStats.COMPARE_NUM_ROWS.reversed())
 									.thenComparing(TableStats.COMPARE_TABLE)));
 			addWithTotal(
 					"Client / Table",
-					$ -> statsService.scanStats()
+					_ -> statsService.scanStats()
 							.sort(TableStats.COMPARE_CLIENT
 									.thenComparing(TableStats.COMPARE_TABLE)));
 			addWithTotal(
 					"Rows",
-					$ -> statsService.scanStats()
+					_ -> statsService.scanStats()
 							.sort(TableStats.COMPARE_NUM_ROWS.reversed()
 									.thenComparing(TableStats.COMPARE_CLIENT)
 									.thenComparing(TableStats.COMPARE_TABLE)));
 			addWithTotal(
 					"Spans",
-					$ -> statsService.scanStats()
+					_ -> statsService.scanStats()
 							.sort(TableStats.COMPARE_NUM_SPANS.reversed()
 									.thenComparing(TableStats.COMPARE_NUM_ROWS.reversed())
 									.thenComparing(TableStats.COMPARE_CLIENT)
 									.thenComparing(TableStats.COMPARE_TABLE)));
 			addWithTotal(
 					"Count Time",
-					$ -> statsService.scanStats()
+					_ -> statsService.scanStats()
 							.sort(TableStats.COMPARE_COUNT_TIME.reversed()
 									.thenComparing(TableStats.COMPARE_NUM_ROWS.reversed())
 									.thenComparing(TableStats.COMPARE_CLIENT)
 									.thenComparing(TableStats.COMPARE_TABLE)));
 			addWithTotal(
 					"Table",
-					$ -> statsService.scanStats()
+					_ -> statsService.scanStats()
 							.sort(TableStats.COMPARE_TABLE
 									.thenComparing(TableStats.COMPARE_CLIENT)));
 			addWithTotal(
 					"Updated Ago",
-					$ -> statsService.scanStats()
+					_ -> statsService.scanStats()
 							.sort(TableStats.COMPARE_UPDATED_AGO
 									.thenComparing(TableStats.COMPARE_CLIENT)
 									.thenComparing(TableStats.COMPARE_TABLE)));

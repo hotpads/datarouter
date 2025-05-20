@@ -20,6 +20,7 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.h5;
 import static j2html.TagCreator.span;
 
+import java.time.Duration;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -43,6 +44,7 @@ import io.datarouter.storage.file.BucketAndKeyVersionResult;
 import io.datarouter.storage.file.BucketAndKeyVersions;
 import io.datarouter.storage.file.BucketAndKeys;
 import io.datarouter.storage.file.BucketAndPrefix;
+import io.datarouter.util.retry.RetryableTool;
 import io.datarouter.web.config.ServletContextSupplier;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
@@ -208,7 +210,7 @@ public class S3BulkDeleteHandler extends BaseHandler{
 
 		// perform bulk delete
 		DatarouterS3Client s3Client = getS3Client(client);
-		var threads = new Threads(bulkDeleteExec, 2);// 4 was triggering the rate limiter
+		var threads = new Threads(bulkDeleteExec, 1);// 4, even 2, was triggering the rate limiter
 		var count = new AtomicLong();
 		String message;
 		if(deleteAllVersions.orElse(false)){
@@ -219,12 +221,12 @@ public class S3BulkDeleteHandler extends BaseHandler{
 							bucketAndPrefix.bucket(),
 							version.key(),
 							version.version()))
-					.each($ -> count.incrementAndGet())
-					.each(version -> logger.warn("id={}, deleting {}", count, version))
+					.each(_ -> count.incrementAndGet())
+					.periodic(Duration.ofSeconds(1), version -> logger.warn("id={}, deleting {}", count, version))
 					.batch(S3Limits.MAX_DELETE_MULTI_KEYS)
 					.map(BucketAndKeyVersions::fromIndividualKeyVersions)
 					.parallelOrdered(threads)
-					.forEach(s3Client::deleteVersions);
+					.forEach(versions -> runWithRetries(() -> s3Client.deleteVersions(versions)));
 			message = String.format("Deleted %s object versions", count);
 		}else{
 			s3Client.scan(bucketAndPrefix)
@@ -232,12 +234,12 @@ public class S3BulkDeleteHandler extends BaseHandler{
 					.map(object -> new BucketAndKey(
 							bucketAndPrefix.bucket(),
 							object.key()))
-					.each($ -> count.incrementAndGet())
-					.each(object -> logger.warn("id={}, deleting {}", count, object))
+					.each(_ -> count.incrementAndGet())
+					.periodic(Duration.ofSeconds(1), object -> logger.warn("id={}, deleting {}", count, object))
 					.batch(S3Limits.MAX_DELETE_MULTI_KEYS)
 					.map(BucketAndKeys::fromIndividualKeys)
 					.parallelOrdered(threads)
-					.forEach(s3Client::deleteMulti);
+					.forEach(keys -> runWithRetries(() -> s3Client.deleteMulti(keys)));
 			message = String.format("Deleted %s objects", count);
 		}
 		logger.warn(message);
@@ -260,6 +262,10 @@ public class S3BulkDeleteHandler extends BaseHandler{
 	private DatarouterS3Client getS3Client(String clientName){
 		ClientId clientId = clients.getClientId(clientName);
 		return s3ClientManager.getClient(clientId);
+	}
+
+	private void runWithRetries(Runnable runnable){
+		RetryableTool.tryNTimesWithBackoffUnchecked(runnable, 5, Duration.ofSeconds(3), true);
 	}
 
 	/*--------- links -----------*/
@@ -292,7 +298,7 @@ public class S3BulkDeleteHandler extends BaseHandler{
 							+ paths.datarouter.clients.awsS3.bulkDelete.confirmation.toSlashedString())
 					.addParameter(P_client, client)
 					.addParameter(P_bucket, bucket);
-			optPrefix.ifPresent(prefix -> uriBuilder.addParameter(P_prefix, optPrefix.orElseThrow()));
+			optPrefix.ifPresent(prefix -> uriBuilder.addParameter(P_prefix, prefix));
 			optLimit.ifPresent(limit -> uriBuilder.addParameter(P_limit, Long.toString(limit)));
 			optDeleteAllVersions.ifPresent(deleteAllVersions -> uriBuilder.addParameter(
 					P_deleteAllVersions,
@@ -311,7 +317,7 @@ public class S3BulkDeleteHandler extends BaseHandler{
 							+ paths.datarouter.clients.awsS3.bulkDelete.performDeletion.toSlashedString())
 					.addParameter(P_client, client)
 					.addParameter(P_bucket, bucket);
-			optPrefix.ifPresent(prefix -> uriBuilder.addParameter(P_prefix, optPrefix.orElseThrow()));
+			optPrefix.ifPresent(prefix -> uriBuilder.addParameter(P_prefix, prefix));
 			optLimit.ifPresent(limit -> uriBuilder.addParameter(P_limit, Long.toString(limit)));
 			optDeleteAllVersions.ifPresent(deleteAllVersions -> uriBuilder.addParameter(
 					P_deleteAllVersions,

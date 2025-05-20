@@ -33,7 +33,7 @@ import jakarta.inject.Inject;
 public abstract class BaseMemoryBufferPutMultiConsumerConveyorConfiguration<D>
 implements ConveyorConfiguration{
 
-	private static final int BATCH_SIZE = 100;
+	private static final int DEFAULT_BATCH_SIZE = 100;
 
 	@Inject
 	private ConveyorGauges gaugeRecorder;
@@ -41,10 +41,14 @@ implements ConveyorConfiguration{
 	protected abstract MemoryBuffer<D> getMemoryBuffer();
 	protected abstract Consumer<Collection<D>> getPutMultiConsumer();
 
+	protected int getBatchSize(){
+		return DEFAULT_BATCH_SIZE;
+	}
+
 	@Override
 	public ProcessResult process(ConveyorRunnable conveyor){
 		Instant beforePeek = Instant.now();
-		List<D> databeans = getMemoryBuffer().pollMultiWithLimit(BATCH_SIZE);
+		List<D> databeans = getMemoryBuffer().pollMultiWithLimit(getBatchSize());
 		Instant afterPeek = Instant.now();
 		gaugeRecorder.savePeekDurationMs(conveyor, Duration.between(beforePeek, afterPeek).toMillis());
 		TracerTool.setAlternativeStartTime();

@@ -18,6 +18,7 @@ package io.datarouter.util;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.zip.CRC32;
 
 public class HashMethods{
 
@@ -91,6 +92,12 @@ public class HashMethods{
 		}catch(CloneNotSupportedException ignore){
 			return null;
 		}
+	}
+
+	public static int crc32(byte[] input){
+		var crc = new CRC32();
+		crc.update(input);
+		return (int)crc.getValue();
 	}
 
 }

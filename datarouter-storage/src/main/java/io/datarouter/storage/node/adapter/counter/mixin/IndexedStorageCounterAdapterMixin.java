@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import io.datarouter.instrumentation.metric.Metrics;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.index.IndexEntry;
 import io.datarouter.model.key.primary.PrimaryKey;
@@ -47,10 +48,14 @@ extends IndexedStorage<PK,D>, CounterAdapter<PK,D,F,N>{
 	@Override
 	default D lookupUnique(UniqueKey<PK> uniqueKey, Config config){
 		String opName = IndexedStorageReader.OP_lookupUnique;
+		String indexName = uniqueKey.getClass().getSimpleName();
+		countIndexUsage(indexName);
 		getCounter().count(opName);
+		getCounter().count(opName + " " + indexName);
 		D result = getBackingNode().lookupUnique(uniqueKey, config);
 		String hitOrMiss = result != null ? "hit" : "miss";
 		getCounter().count(opName + " " + hitOrMiss);
+		getCounter().count(opName + " " + indexName + " " + hitOrMiss);
 		return result;
 	}
 
@@ -61,6 +66,10 @@ extends IndexedStorage<PK,D>, CounterAdapter<PK,D,F,N>{
 		}
 		String opName = IndexedStorageReader.OP_lookupMultiUnique;
 		getCounter().count(opName);
+		uniqueKeys.forEach(uk -> {
+			getCounter().count(opName + " " + uk.getClass().getSimpleName());
+			countIndexUsage(uk.getClass().getSimpleName());
+		});
 		List<D> results = getBackingNode().lookupMultiUnique(uniqueKeys, config);
 		int numAttempts = uniqueKeys.size();
 		int numHits = results.size();
@@ -80,15 +89,20 @@ extends IndexedStorage<PK,D>, CounterAdapter<PK,D,F,N>{
 			Config config,
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
 		String opName = IndexedStorageReader.OP_getFromIndex;
+		String indexPkName = getIndexPrimaryKeyClassName(indexEntryFieldInfo);
+		String indexName = indexEntryFieldInfo.getIndexName();
+		countIndexUsage(indexPkName);
 		getCounter().count(opName);
+		getCounter().count(opName + " " + indexName);
 		getCounter().count(opName + " indexKeys", indexKeys.size());
+		getCounter().count(opName + " " + indexName + " indexKeys", indexKeys.size());
 		List<IE> results = getBackingNode().getMultiFromIndex(indexKeys, config, indexEntryFieldInfo);
 		int numRows = results.size();
-		// TODO rename to hit and compute correct miss count, consistently with lookupMultiUnique or getMulti
-		getCounter().count(opName + " rows", numRows);
-		if(numRows == 0){
-			getCounter().count(opName + " misses");
-		}
+		int misses = Math.max(indexKeys.size() - numRows, 0);
+		getCounter().count(opName + " hits", numRows);
+		getCounter().count(opName + " " + indexName + " hits", numRows);
+		getCounter().count(opName + " misses", misses);
+		getCounter().count(opName + " " + indexName + " misses", misses);
 		return results;
 	}
 
@@ -98,15 +112,20 @@ extends IndexedStorage<PK,D>, CounterAdapter<PK,D,F,N>{
 			IF extends DatabeanFielder<IK,IE>>
 	List<D> getMultiByIndex(Collection<IK> indexKeys, Config config, IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
 		String opName = IndexedStorageReader.OP_getByIndex;
+		String indexPkName = getIndexPrimaryKeyClassName(indexEntryFieldInfo);
+		String indexName = indexEntryFieldInfo.getIndexName();
 		getCounter().count(opName);
+		countIndexUsage(indexPkName);
+		getCounter().count(opName + " " + indexName);
 		getCounter().count(opName + " indexKeys", indexKeys.size());
+		getCounter().count(opName + " " + indexName + " indexKeys", indexKeys.size());
 		List<D> results = getBackingNode().getMultiByIndex(indexKeys, config, indexEntryFieldInfo);
 		int numRows = results.size();
-		// TODO rename to hit and compute correct miss count, consistently with lookupMultiUnique or getMulti
-		getCounter().count(opName + " rows", numRows);
-		if(numRows == 0){
-			getCounter().count(opName + " misses");
-		}
+		int misses = Math.max(indexKeys.size() - numRows, 0);
+		getCounter().count(opName + " hits", numRows);
+		getCounter().count(opName + " " + indexName + " hits", numRows);
+		getCounter().count(opName + " misses", misses);
+		getCounter().count(opName + " " + indexName + " misses", misses);
 		return results;
 	}
 
@@ -119,8 +138,13 @@ extends IndexedStorage<PK,D>, CounterAdapter<PK,D,F,N>{
 			Collection<Range<IK>> ranges,
 			Config config){
 		String opName = IndexedStorageReader.OP_scanIndex;
+		String indexPkName = getIndexPrimaryKeyClassName(indexEntryFieldInfo);
+		String indexName = indexEntryFieldInfo.getIndexName();
 		getCounter().count(opName);
+		countIndexUsage(indexPkName);
+		getCounter().count(opName + " " + indexName);
 		getCounter().count(opName + " ranges", ranges.size());
+		getCounter().count(opName + " " + indexName + " ranges", ranges.size());
 		return getBackingNode().scanRangesIndex(indexEntryFieldInfo, ranges, config);
 	}
 
@@ -133,8 +157,13 @@ extends IndexedStorage<PK,D>, CounterAdapter<PK,D,F,N>{
 			Collection<Range<IK>> ranges,
 			Config config){
 		String opName = IndexedStorageReader.OP_scanByIndex;
+		String indexPkName = getIndexPrimaryKeyClassName(indexEntryFieldInfo);
+		String indexName = indexEntryFieldInfo.getIndexName();
 		getCounter().count(opName);
+		countIndexUsage(indexPkName);
+		getCounter().count(opName + " " + indexName);
 		getCounter().count(opName + " ranges", ranges.size());
+		getCounter().count(opName + " " + indexName + " ranges", ranges.size());
 		return getBackingNode().scanRangesByIndex(indexEntryFieldInfo, ranges, config);
 	}
 
@@ -147,8 +176,13 @@ extends IndexedStorage<PK,D>, CounterAdapter<PK,D,F,N>{
 			Collection<Range<IK>> ranges,
 			Config config){
 		String opName = IndexedStorageReader.OP_scanIndexKeys;
+		String indexPkName = getIndexPrimaryKeyClassName(indexEntryFieldInfo);
+		String indexName = indexEntryFieldInfo.getIndexName();
 		getCounter().count(opName);
+		countIndexUsage(indexPkName);
+		getCounter().count(opName + " " + indexName);
 		getCounter().count(opName + " ranges", ranges.size());
+		getCounter().count(opName + " " + indexName + " ranges", ranges.size());
 		return getBackingNode().scanRangesIndexKeys(indexEntryFieldInfo, ranges, config);
 	}
 
@@ -157,6 +191,8 @@ extends IndexedStorage<PK,D>, CounterAdapter<PK,D,F,N>{
 	@Override
 	default void deleteUnique(UniqueKey<PK> uniqueKey, Config config){
 		getCounter().count(IndexedStorageWriter.OP_deleteUnique);
+		getCounter().count(IndexedStorageWriter.OP_deleteUnique + " " + uniqueKey.getClass().getSimpleName());
+		countIndexUsage(uniqueKey.getClass().getSimpleName());
 		getBackingNode().deleteUnique(uniqueKey, config);
 	}
 
@@ -164,6 +200,10 @@ extends IndexedStorage<PK,D>, CounterAdapter<PK,D,F,N>{
 	default void deleteMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config config){
 		String opName = IndexedStorageWriter.OP_deleteMultiUnique;
 		getCounter().count(opName);
+		uniqueKeys.forEach(uk -> {
+			getCounter().count(opName + " " + uk.getClass().getSimpleName());
+			countIndexUsage(uk.getClass().getSimpleName());
+		});
 		getCounter().count(opName + " uniqueKeys", uniqueKeys.size());
 		getBackingNode().deleteMultiUnique(uniqueKeys, config);
 	}
@@ -177,8 +217,13 @@ extends IndexedStorage<PK,D>, CounterAdapter<PK,D,F,N>{
 			Config config,
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
 		String opName = OP_deleteByIndex;
+		String indexPkName = getIndexPrimaryKeyClassName(indexEntryFieldInfo);
+		String indexName = indexEntryFieldInfo.getIndexName();
 		getCounter().count(opName);
+		countIndexUsage(indexPkName);
+		getCounter().count(opName + " " + indexName);
 		getCounter().count(opName + " indexKeys", indexKeys.size());
+		getCounter().count(opName + " " + indexName + " indexKeys", indexKeys.size());
 		getBackingNode().deleteByIndex(indexKeys, config, indexEntryFieldInfo);
 	}
 
@@ -197,4 +242,14 @@ extends IndexedStorage<PK,D>, CounterAdapter<PK,D,F,N>{
 		return getBackingNode().getManagedNodes();
 	}
 
+	private <IK extends PrimaryKey<IK>,
+			IE extends IndexEntry<IK,IE,PK,D>,
+			IF extends DatabeanFielder<IK,IE>>
+	String getIndexPrimaryKeyClassName(IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
+		return indexEntryFieldInfo.getPrimaryKeySupplier().get().getClass().getSimpleName();
+	}
+
+	private void countIndexUsage(String indexName){
+		Metrics.count("Usage index " + indexName);
+	}
 }

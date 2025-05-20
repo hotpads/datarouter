@@ -25,21 +25,21 @@ import java.util.List;
 import java.util.Optional;
 
 import io.datarouter.clustersetting.enums.ClusterSettingScope;
+import io.datarouter.clustersetting.link.ClusterSettingBrowseLink;
+import io.datarouter.clustersetting.link.ClusterSettingOverrideCreateLink;
+import io.datarouter.clustersetting.link.ClusterSettingOverrideDeleteLink;
+import io.datarouter.clustersetting.link.ClusterSettingOverrideUpdateLink;
+import io.datarouter.clustersetting.link.ClusterSettingSettingLogLink;
+import io.datarouter.clustersetting.link.ClusterSettingTagsLink;
 import io.datarouter.clustersetting.service.ClusterSettingService;
 import io.datarouter.clustersetting.storage.clustersetting.ClusterSetting;
 import io.datarouter.clustersetting.storage.clustersetting.DatarouterClusterSettingDao;
 import io.datarouter.clustersetting.storage.clustersettinglog.DatarouterClusterSettingLogDao;
-import io.datarouter.clustersetting.web.browse.ClusterSettingBrowseHandler.ClusterSettingBrowseHandlerParams;
-import io.datarouter.clustersetting.web.browse.ClusterSettingBrowseHandler.ClusterSettingBrowseLinks;
 import io.datarouter.clustersetting.web.browse.setting.CodeOverridesTool.CodeOverrideRow;
 import io.datarouter.clustersetting.web.browse.setting.DatabaseOverridesTool.DatabaseOverrideRow;
 import io.datarouter.clustersetting.web.browse.setting.TagOverridesTool.TagOverrideRow;
-import io.datarouter.clustersetting.web.log.ClusterSettingLogHandler.ClusterSettingLogLinks;
 import io.datarouter.clustersetting.web.override.ClusterSettingEditSource;
-import io.datarouter.clustersetting.web.override.handler.ClusterSettingOverrideCreateHandler.ClusterSettingOverrideCreateLinks;
-import io.datarouter.clustersetting.web.override.handler.ClusterSettingOverrideDeleteHandler.ClusterSettingOverrideDeleteLinks;
-import io.datarouter.clustersetting.web.override.handler.ClusterSettingOverrideUpdateHandler.ClusterSettingOverrideUpdateLinks;
-import io.datarouter.clustersetting.web.tag.ClusterSettingTagsHandler.ClusterSettingTagsLinks;
+import io.datarouter.httpclient.endpoint.link.DatarouterLinkClient;
 import io.datarouter.storage.setting.DatarouterSettingTag;
 import io.datarouter.storage.setting.DefaultSettingValue;
 import io.datarouter.storage.setting.cached.CachedSetting;
@@ -51,16 +51,11 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
 public record ClusterSettingBrowseSettingHtml(
-		ClusterSettingBrowseLinks browseLinks,
-		ClusterSettingLogLinks logLinks,
-		ClusterSettingOverrideCreateLinks createOverrideLinks,
-		ClusterSettingOverrideUpdateLinks updateOverrideLinks,
-		ClusterSettingOverrideDeleteLinks deleteOverrideLinks,
-		ClusterSettingTagsLinks tagsLinks,
+		DatarouterLinkClient linkClient,
 		DatarouterClusterSettingDao settingDao,
 		ClusterSettingService settingService,
 		DatarouterClusterSettingLogDao logDao,
-		ClusterSettingBrowseHandlerParams params){
+		ClusterSettingBrowseLink params){
 
 	private static final String VALUE_STYLE = "background-color:#E5F8FF;word-break:break-all;";
 	private static final String DEFAULT_VALUE_STYLE = "background-color:#E6E6E6;word-break:break-all;";
@@ -97,10 +92,10 @@ public record ClusterSettingBrowseSettingHtml(
 	}
 
 	private DivTag makeNameDiv(String name){
-		var linkParams = new ClusterSettingBrowseHandlerParams()
+		var browseLink = new ClusterSettingBrowseLink()
 				.withLocation(name)
 				.withOptPartialName(params.partialName);
-		String href = browseLinks.all(linkParams);
+		String href = linkClient.toInternalUrl(browseLink);
 		var link = a(strong(shortName(name)))
 				.withHref(href)
 				.withStyle("font-size:1.1em;");
@@ -111,11 +106,13 @@ public record ClusterSettingBrowseSettingHtml(
 	private DivTag makeValueDiv(
 			CachedSetting<?> setting,
 			boolean isDefault){
+
+		var clusterOverrideLink = new ClusterSettingOverrideCreateLink()
+				.withOptName(Optional.ofNullable(setting.getName()))
+				.withSource(ClusterSettingEditSource.CODE);
+		params.partialName.ifPresent(clusterOverrideLink::withPartialName);
 		var addOverrideLink = a("Override")
-				.withHref(createOverrideLinks.create(
-						Optional.of(ClusterSettingEditSource.CODE),
-						params.partialName,
-						Optional.of(setting.getName())));
+				.withHref(linkClient.toInternalUrl(clusterOverrideLink));
 		String stringValue = setting.toStringValue();
 		boolean inline = stringValue.length() <= 20;//show small values inline
 		String title = inline ? "Value:" : "Value";
@@ -183,7 +180,7 @@ public record ClusterSettingBrowseSettingHtml(
 	private DivTag makeTagOverridesDiv(CachedSetting<?> setting){
 		List<TagOverrideRow> rows = TagOverridesTool.makeRows(setting);
 		var editTagsLink = a("Edit Tags")
-				.withHref(tagsLinks.tags());
+				.withHref(linkClient.toInternalUrl(new ClusterSettingTagsLink()));
 		var header = div(
 				makeSectionHeaderSpan("Tag Overrides", rows.size()),
 				span("-").withClass("mx-2"),
@@ -205,11 +202,13 @@ public record ClusterSettingBrowseSettingHtml(
 			List<ClusterSetting> dbSettings){
 		Optional<ClusterSetting> mostSpecificSetting = settingService.getMostSpecificClusterSetting(dbSettings);
 		List<DatabaseOverrideRow> rows = DatabaseOverridesTool.makeRows(setting, dbSettings, mostSpecificSetting);
+
+		var clusterOverrideLink = new ClusterSettingOverrideCreateLink()
+				.withOptName(Optional.ofNullable(setting.getName()))
+				.withSource(ClusterSettingEditSource.CODE)
+				.withOptPartialName(params.partialName);
 		var addOverrideLink = a("Add")
-				.withHref(createOverrideLinks.create(
-						Optional.of(ClusterSettingEditSource.CODE),
-						params.partialName,
-						Optional.of(setting.getName())));
+				.withHref(linkClient.toInternalUrl(clusterOverrideLink));
 		var header = div(
 				makeSectionHeaderSpan("Database Overrides", rows.size()),
 				span("-").withClass("mx-2"),
@@ -239,7 +238,7 @@ public record ClusterSettingBrowseSettingHtml(
 
 	private DivTag makeSettingLogsDiv(String settingName, long logCount){
 		var logLink = a("View")
-				.withHref(logLinks.setting(settingName));
+				.withHref(linkClient.toInternalUrl(new ClusterSettingSettingLogLink(settingName)));
 		return div(
 				makeSectionHeaderSpan("Logs", logCount),
 				span("-").withClass("mx-2"),
@@ -267,38 +266,35 @@ public record ClusterSettingBrowseSettingHtml(
 	}
 
 	private TdTag makeEditDatabaseOverrideCell(DatabaseOverrideRow row){
-		Optional<String> optServerType = ClusterSettingScope.SERVER_TYPE == row.scope()
-				? Optional.of(row.serverType())
-				: Optional.empty();
-		Optional<String> optServerName = ClusterSettingScope.SERVER_NAME == row.scope()
-				? Optional.of(row.serverName())
-				: Optional.empty();
-		String href = updateOverrideLinks.update(
-				Optional.of(ClusterSettingEditSource.CODE),
-				params.partialName,
-				row.name(),
-				optServerType,
-				optServerName);
+		ClusterSettingOverrideUpdateLink overrideUpdateLink = new ClusterSettingOverrideUpdateLink()
+				.withName(row.name())
+				.withSource(ClusterSettingEditSource.CODE);
+		if(ClusterSettingScope.SERVER_TYPE == row.scope()){
+			overrideUpdateLink.withServerType(row.serverType());
+		}
+		if(ClusterSettingScope.SERVER_NAME == row.scope()){
+			overrideUpdateLink.withServerName(row.serverName());
+		}
 		var deleteOverrideLink = a("edit")
-				.withHref(href);
+				.withHref(linkClient.toInternalUrl(overrideUpdateLink));
 		return td(deleteOverrideLink)
 				.withStyle("width:50px;");
 	}
 
 	private TdTag makeDeleteDatabaseOverrideCell(DatabaseOverrideRow row){
-		Optional<String> optServerType = ClusterSettingScope.SERVER_TYPE == row.scope()
-				? Optional.of(row.serverType())
-				: Optional.empty();
-		Optional<String> optServerName = ClusterSettingScope.SERVER_NAME == row.scope()
-				? Optional.of(row.serverName())
-				: Optional.empty();
-		String href = deleteOverrideLinks.delete(
-				Optional.of(ClusterSettingEditSource.CODE),
-				params.location,
-				params.partialName,
-				row.name(),
-				optServerType,
-				optServerName);
+		ClusterSettingOverrideDeleteLink overrideDeleteLink = new ClusterSettingOverrideDeleteLink()
+				.withName(row.name())
+				.withSourceType(ClusterSettingEditSource.CODE)
+				.withOptPartialName(params.partialName)
+				.withOptSourceLocation(params.location);
+		if(ClusterSettingScope.SERVER_TYPE == row.scope()){
+			overrideDeleteLink.withServerType(row.serverType());
+		}
+		if(ClusterSettingScope.SERVER_NAME == row.scope()){
+			overrideDeleteLink.withServerName(row.serverName());
+		}
+
+		String href = linkClient.toInternalUrl(overrideDeleteLink);
 		var deleteOverrideLink = a("X")
 				.withTitle("Delete")
 				.withHref(href);
@@ -323,17 +319,7 @@ public record ClusterSettingBrowseSettingHtml(
 	@Singleton
 	public static class ClusterSettingBrowseSettingHtmlFactory{
 		@Inject
-		private ClusterSettingBrowseLinks browseLinks;
-		@Inject
-		private ClusterSettingLogLinks logLinks;
-		@Inject
-		private ClusterSettingOverrideCreateLinks createOverrideLinks;
-		@Inject
-		private ClusterSettingOverrideUpdateLinks updateOverrideLinks;
-		@Inject
-		private ClusterSettingOverrideDeleteLinks deleteOverrideLinks;
-		@Inject
-		private ClusterSettingTagsLinks tagsLinks;
+		private DatarouterLinkClient linkClient;
 		@Inject
 		private DatarouterClusterSettingDao settingDao;
 		@Inject
@@ -341,14 +327,9 @@ public record ClusterSettingBrowseSettingHtml(
 		@Inject
 		private DatarouterClusterSettingLogDao logDao;
 
-		public ClusterSettingBrowseSettingHtml create(ClusterSettingBrowseHandlerParams params){
+		public ClusterSettingBrowseSettingHtml create(ClusterSettingBrowseLink params){
 			return new ClusterSettingBrowseSettingHtml(
-					browseLinks,
-					logLinks,
-					createOverrideLinks,
-					updateOverrideLinks,
-					deleteOverrideLinks,
-					tagsLinks,
+					linkClient,
 					settingDao,
 					settingService,
 					logDao,

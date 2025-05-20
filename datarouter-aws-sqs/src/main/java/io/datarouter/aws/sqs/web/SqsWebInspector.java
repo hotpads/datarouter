@@ -33,8 +33,6 @@ import org.apache.http.client.utils.URIBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.amazonaws.services.sqs.model.QueueAttributeName;
-
 import io.datarouter.aws.sqs.SqsClientManager;
 import io.datarouter.aws.sqs.SqsClientType;
 import io.datarouter.aws.sqs.config.DatarouterSqsPaths;
@@ -62,6 +60,7 @@ import j2html.TagCreator;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import jakarta.inject.Inject;
+import software.amazon.awssdk.services.sqs.model.QueueAttributeName;
 
 public class SqsWebInspector implements DatarouterClientWebInspector{
 	private static final Logger logger = LoggerFactory.getLogger(SqsWebInspector.class);
@@ -123,10 +122,11 @@ public class SqsWebInspector implements DatarouterClientWebInspector{
 					String availableCount = "error";
 					String inFlightCount = "error";
 					try{
-						Map<String,String> attributesMap = sqsClientManager.getAllQueueAttributes(clientId, queueUrl);
-						availableCount = attributesMap.get(QueueAttributeName.ApproximateNumberOfMessages.name());
+						Map<QueueAttributeName,String> attributesMap =
+								sqsClientManager.getAllQueueAttributes(clientId, queueUrl);
+						availableCount = attributesMap.get(QueueAttributeName.APPROXIMATE_NUMBER_OF_MESSAGES);
 						inFlightCount = attributesMap.get(
-								QueueAttributeName.ApproximateNumberOfMessagesNotVisible.name());
+								QueueAttributeName.APPROXIMATE_NUMBER_OF_MESSAGES_NOT_VISIBLE);
 					}catch(RuntimeException e){
 						logger.warn("failed to get attribute for queue={}", queueUrl, e);
 					}

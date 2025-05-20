@@ -65,7 +65,7 @@ public class SqsOptions{
 	}
 
 	private Optional<SqsCredentialsDto> readCredentialsSecret(String clientName){
-		return clientCredentials.computeIfAbsent(clientName, $ -> {
+		return clientCredentials.computeIfAbsent(clientName, _ -> {
 			Optional<String> optionalCredentialsLocation = clientOptions.optString(clientName,
 					PROP_credentialsLocation);
 			if(optionalCredentialsLocation.isEmpty()){

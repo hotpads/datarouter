@@ -25,6 +25,7 @@ import java.util.List;
 
 import io.datarouter.nodewatch.config.DatarouterNodewatchPaths;
 import io.datarouter.nodewatch.config.DatarouterNodewatchPlugin;
+import io.datarouter.nodewatch.link.NodewatchConfigsLink;
 import io.datarouter.nodewatch.web.NodewatchHtml;
 import io.datarouter.nodewatch.web.NodewatchNavService;
 import io.datarouter.storage.node.tableconfig.NodewatchConfiguration;
@@ -52,7 +53,7 @@ public class NodewatchConfigsHandler extends BaseHandler{
 	private TableConfigurationService tableConfigurationService;
 
 	@Handler
-	public Mav configs(){
+	public Mav configs(@SuppressWarnings("unused") NodewatchConfigsLink link){
 		var content = div(
 				NodewatchHtml.makeHeader(
 						"Table Configs",

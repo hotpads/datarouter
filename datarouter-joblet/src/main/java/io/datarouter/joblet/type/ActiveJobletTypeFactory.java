@@ -54,7 +54,7 @@ public class ActiveJobletTypeFactory{
 			threadCountByWebAppInstance.values().stream()
 					.filter(threadCount -> threadCount > 0)
 					.findAny()
-					.ifPresent($ -> activeTypes.add(type));
+					.ifPresent(_ -> activeTypes.add(type));
 		}
 		return activeTypes;
 	}

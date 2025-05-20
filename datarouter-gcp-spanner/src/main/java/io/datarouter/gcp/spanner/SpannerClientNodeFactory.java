@@ -24,7 +24,6 @@ import io.datarouter.model.entity.Entity;
 import io.datarouter.model.key.entity.EntityKey;
 import io.datarouter.model.key.primary.EntityPrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
-import io.datarouter.opencensus.adapter.physical.PhysicalIndexedSortedMapStorageOpencensusAdapter;
 import io.datarouter.storage.client.imp.BlobClientNodeFactory;
 import io.datarouter.storage.client.imp.DatabeanClientNodeFactory;
 import io.datarouter.storage.client.imp.TallyClientNodeFactory;
@@ -33,10 +32,6 @@ import io.datarouter.storage.file.DatabaseBlob.DatabaseBlobFielder;
 import io.datarouter.storage.file.DatabaseBlobKey;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.adapter.NodeAdapters;
-import io.datarouter.storage.node.adapter.callsite.physical.PhysicalIndexedSortedMapStorageCallsiteAdapter;
-import io.datarouter.storage.node.adapter.counter.physical.PhysicalIndexedSortedMapStorageCounterAdapter;
-import io.datarouter.storage.node.adapter.sanitization.physical.PhysicalIndexedSortedMapStorageSanitizationAdapter;
-import io.datarouter.storage.node.adapter.trace.physical.PhysicalIndexedSortedMapStorageTraceAdapter;
 import io.datarouter.storage.node.entity.EntityNodeParams;
 import io.datarouter.storage.node.op.raw.BlobStorage.PhysicalBlobStorageNode;
 import io.datarouter.storage.node.op.raw.TallyStorage.PhysicalTallyStorageNode;
@@ -80,12 +75,7 @@ implements BlobClientNodeFactory, DatabeanClientNodeFactory, TallyClientNodeFact
 				managedNodesHolder,
 				spannerClientManager,
 				fieldCodecs);
-		return new PhysicalIndexedSortedMapStorageCallsiteAdapter<>(
-				new PhysicalIndexedSortedMapStorageSanitizationAdapter<>(
-				new PhysicalIndexedSortedMapStorageCounterAdapter<>(
-				new PhysicalIndexedSortedMapStorageTraceAdapter<>(
-				//custom OpencensusAdapter goes inside TraceAdapter
-				new PhysicalIndexedSortedMapStorageOpencensusAdapter<>(node)))));
+		return nodeAdapters.wrapDatabeanIndexedNode(node);
 	}
 
 	@Override

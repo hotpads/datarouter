@@ -19,6 +19,7 @@ import io.datarouter.auth.web.service.DatarouterAccountApiKeyPredicate;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
 import io.datarouter.web.handler.TestApiHandler;
+import io.datarouter.web.handler.encoder.DatarouterDefaultHandlerCodec;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
@@ -39,7 +40,8 @@ public class AuthExampleAccountRouteSet extends BaseRouteSet{
 	@Override
 	protected DispatchRule applyDefault(DispatchRule rule){
 		return rule.allowAnonymous()
-				.withApiKey(datarouterAccountApiKeyPredicate);
+				.withApiKey(datarouterAccountApiKeyPredicate)
+				.withDefaultHandlerCodec(DatarouterDefaultHandlerCodec.INSTANCE);
 	}
 
 }

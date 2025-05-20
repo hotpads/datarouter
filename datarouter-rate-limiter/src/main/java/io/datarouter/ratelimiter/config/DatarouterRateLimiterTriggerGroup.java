@@ -16,7 +16,9 @@
 package io.datarouter.ratelimiter.config;
 
 import io.datarouter.job.BaseTriggerGroup;
+import io.datarouter.job.util.DatarouterCronTool;
 import io.datarouter.ratelimiter.DatarouterRateLimiterTtlVacuumJob;
+import io.datarouter.storage.config.properties.ServiceName;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.util.time.ZoneIds;
 import jakarta.inject.Inject;
@@ -26,10 +28,12 @@ import jakarta.inject.Singleton;
 public class DatarouterRateLimiterTriggerGroup extends BaseTriggerGroup{
 
 	@Inject
-	public DatarouterRateLimiterTriggerGroup(DatarouterRateLimiterSettings settings){
+	public DatarouterRateLimiterTriggerGroup(
+			ServiceName serviceNameSupplier,
+			DatarouterRateLimiterSettings settings){
 		super("DatarouterRateLimiter", Tag.DATAROUTER, ZoneIds.AMERICA_NEW_YORK);
 		registerLocked(
-				"0 0 1/4 ? * * *",
+				DatarouterCronTool.everyNHours(4, serviceNameSupplier.get(), "DatarouterRateLimiterTtlVacuumJob"),
 				settings.runTtlVacuum,
 				DatarouterRateLimiterTtlVacuumJob.class,
 				true);

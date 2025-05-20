@@ -52,7 +52,7 @@ public class TableSamplerJob extends BaseJob{
 						startTimeMs))
 				.parallelUnordered(new Threads(executor, 10))
 				.each(TableSpanSamplerJobletCreator::createJoblets)
-				.advanceUntil($ -> tracker.increment().shouldStop())
+				.advanceUntil(_ -> tracker.increment().shouldStop())
 				.count();
 	}
 

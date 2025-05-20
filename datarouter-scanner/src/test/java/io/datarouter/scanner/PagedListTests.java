@@ -31,7 +31,7 @@ public class PagedListTests{
 				.collect(ArrayList::new);
 		List<Integer> pagedList = Scanner.iterate(0, i -> i + 1)
 				.limit(100)
-				.apply(PagedList::new);
+				.collect(PagedList::new);
 		Assert.assertEquals(pagedList.size(), 100);
 		Assert.assertEquals(pagedList, arrayList);
 	}

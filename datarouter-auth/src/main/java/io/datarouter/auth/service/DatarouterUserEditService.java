@@ -18,6 +18,7 @@ package io.datarouter.auth.service;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -35,22 +36,20 @@ import io.datarouter.auth.model.dto.RoleApprovalRequirementStatus;
 import io.datarouter.auth.model.dto.UserRoleMetadata;
 import io.datarouter.auth.model.dto.UserRoleUpdateDto;
 import io.datarouter.auth.model.enums.RoleUpdateType;
-import io.datarouter.auth.role.DatarouterUserRoleRegistry;
 import io.datarouter.auth.role.Role;
 import io.datarouter.auth.role.RoleApprovalType;
 import io.datarouter.auth.role.RoleManager;
 import io.datarouter.auth.storage.account.DatarouterAccountKey;
 import io.datarouter.auth.storage.user.datarouteruser.DatarouterUser;
+import io.datarouter.auth.storage.user.datarouteruser.DatarouterUserDao;
 import io.datarouter.auth.storage.user.roleapprovals.DatarouterUserRoleApproval;
 import io.datarouter.auth.storage.user.roleapprovals.DatarouterUserRoleApprovalDao;
-import io.datarouter.auth.storage.user.session.DatarouterSession;
 import io.datarouter.auth.storage.user.session.DatarouterSessionDao;
 import io.datarouter.auth.storage.user.useraccountmap.BaseDatarouterUserAccountMapDao;
 import io.datarouter.auth.storage.user.useraccountmap.DatarouterUserAccountMap;
 import io.datarouter.auth.storage.user.useraccountmap.DatarouterUserAccountMapKey;
 import io.datarouter.auth.util.PasswordTool;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.util.BooleanTool;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
@@ -59,41 +58,104 @@ public class DatarouterUserEditService{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterUserEditService.class);
 
 	@Inject
-	private BaseDatarouterUserAccountMapDao datarouterUserAccountMapDao;
+	private BaseDatarouterUserAccountMapDao userAccountMapDao;
 	@Inject
 	private DatarouterUserHistoryService userHistoryService;
 	@Inject
-	private DatarouterSessionDao datarouterSessionDao;
+	private DatarouterSessionDao sessionDao;
 	@Inject
-	private DatarouterUserService datarouterUserService;
+	private DatarouterUserService userService;
 	@Inject
 	private RoleManager roleManager;
 	@Inject
 	private DatarouterUserRoleApprovalDao userRoleApprovalDao;
 	@Inject
-	private DatarouterAccountUserService datarouterAccountUserService;
+	private DatarouterUserDao userDao;
+	@Inject
+	private PermissionRequestService permissionRequestService;
 
-	// returns error message on partial success
-	public Optional<String> editRoles(
+	public record EditRolesResult(
+			List<UserRoleMetadata> updatedRoles,
+			List<UserRoleUpdateDto> failedUpdates){
+	}
+
+	public EditRolesResult editRoles(
 			DatarouterUser editor,
 			DatarouterUser user,
 			List<UserRoleUpdateDto> updates,
 			String signinUrl){
-		Optional<UserRoleUpdateDto> datarouterAdminUpdate = updates.stream()
-				.filter(update -> DatarouterUserRoleRegistry.DATAROUTER_ADMIN.persistentString()
-						.equals(update.roleName()))
-				.findFirst();
-		if(datarouterAdminUpdate.isPresent()
-			&& RoleUpdateType.REVOKE.equals(datarouterAdminUpdate.get().updateType())
-			&& !user.equals(editor)){
-			throw new RuntimeException("cannot revoke another's datarouterAdmin role");
-		}
-		Map<Role, UserRoleMetadata> userRoleMetadataByRole =
-				Scanner.of(datarouterUserService.getRoleMetadataForUser(editor, user))
+		Map<Role,UserRoleMetadata> userRoleMetadataByRole =
+				Scanner.of(userService.getRoleMetadataForUser(editor, user))
 				.toMap(UserRoleMetadata::role);
+		return editRolesHelper(editor, user, updates, signinUrl, userRoleMetadataByRole);
+	}
 
+	public DatarouterUser requestPermissions(
+			DatarouterUser user,
+			Set<Role> requestedRoles,
+			String reason,
+			String signinUrl,
+			Optional<String> deniedUrl,
+			Optional<String> allowedRoles){
+		Set<Role> acquiredRoles = attemptPermissionRequestSelfServe(user, requestedRoles, signinUrl)
+				.acquiredRoles();
+		Set<Role> remainingRequestedRoles = Scanner.of(requestedRoles)
+				.exclude(acquiredRoles::contains)
+				.collect(HashSet::new);
+
+		if(!remainingRequestedRoles.isEmpty()){
+			permissionRequestService.createPermissionRequest(
+					user,
+					remainingRequestedRoles,
+					reason,
+					deniedUrl,
+					allowedRoles);
+		}
+		return user;
+	}
+
+	public record AcquiredRoles(Set<Role> acquiredRoles){}
+
+	public AcquiredRoles attemptPermissionRequestSelfServe(
+			DatarouterUser user,
+			Set<Role> requestedRoles,
+			String signinUrl){
+		Map<Role,UserRoleMetadata> userRoleMetadataByRole =
+				Scanner.of(userService.getRoleMetadataForUser(user, user))
+						.toMap(UserRoleMetadata::role);
+		List<UserRoleUpdateDto> updates = Scanner.of(requestedRoles)
+				.include(role -> userRoleMetadataByRole.get(role).editorPrioritizedApprovalType().isPresent())
+				.map(role -> new UserRoleUpdateDto(role.persistentString(), RoleUpdateType.APPROVE))
+				.list();
+		EditRolesResult result = editRolesHelper(user, user, updates, signinUrl, userRoleMetadataByRole);
+		return new AcquiredRoles(Scanner.of(result.updatedRoles())
+				.include(UserRoleMetadata::hasRole)
+				.map(UserRoleMetadata::role)
+				.collect(HashSet::new));
+	}
+
+	public void resetRoles(DatarouterUser user){
+		Collection<Role> currentRoles = user.getRolesIgnoreSaml();
+		logger.info("Resetting roles for user={} from currentRoles={} to defaultRoles={}",
+				currentRoles,
+				user.getRolesIgnoreSaml(),
+				roleManager.getDefaultRoles());
+		user.setRoles(roleManager.getDefaultRoles());
+		userDao.put(user);
+		userHistoryService.recordRoleReset(user,
+				"Reset roles from %s to default roles: %s"
+				.formatted(currentRoles, roleManager.getDefaultRoles()));
+	}
+
+	private EditRolesResult editRolesHelper(
+			DatarouterUser editor,
+			DatarouterUser user,
+			List<UserRoleUpdateDto> updates,
+			String signinUrl,
+			Map<Role,UserRoleMetadata> userRoleMetadataByRole){
 		List<String> changes = new ArrayList<>();
 		List<UserRoleUpdateDto> failedUpdates = new ArrayList<>();
+		List<UserRoleMetadata> updatedRoles = new ArrayList<>();
 		for(UserRoleUpdateDto updateDto : updates){
 			Optional<Role> roleToUpdateOptional = roleManager.findRoleFromPersistentString(updateDto.roleName());
 
@@ -114,6 +176,7 @@ public class DatarouterUserEditService{
 			if(optionalUpdatedRoleMetadata.isPresent()){
 				var updatedRoleMetadata = optionalUpdatedRoleMetadata.get();
 				userRoleMetadataByRole.put(roleToUpdate, updatedRoleMetadata);
+				updatedRoles.add(updatedRoleMetadata);
 				Optional<String> changeString = updatedRoleMetadata.getChangeString(userRoleMetadata);
 				changes.add(changeString.orElseThrow(() -> new IllegalStateException(
 						"Failed to generate change string for update: %s => %s"
@@ -131,13 +194,12 @@ public class DatarouterUserEditService{
 		if(!changes.isEmpty()){
 			userHistoryService.putAndRecordPermissionChange(user, editor, getRolesChangesString(changes), signinUrl);
 
-			datarouterSessionDao.scan()
+			sessionDao.scan()
 					.include(session -> session.getUserToken().equals(user.getUserToken()))
-					.each(session -> session.setRoles(datarouterUserService.getUserRolesWithSamlGroups(user)))
-					.flush(datarouterSessionDao::putMulti);
+					.each(session -> session.setRoles(userService.getUserRolesWithSamlGroups(user)))
+					.flush(sessionDao::putMulti);
 		}
-		return failedUpdates.isEmpty() ? Optional.empty()
-				: Optional.of("Failed to update some roles: " + failedUpdates);
+		return new EditRolesResult(updatedRoles, failedUpdates);
 	}
 
 	private String getRolesChangesString(List<String> changes){
@@ -155,6 +217,10 @@ public class DatarouterUserEditService{
 			DatarouterUser user,
 			UserRoleMetadata userRoleMetadata,
 			RoleUpdateType updateType){
+		if(userRoleMetadata.isDefaultRole()){
+			throw new IllegalArgumentException("Attempt to %s default role=%s"
+					.formatted(updateType.persistentString, userRoleMetadata.role().persistentString()));
+		}
 		return switch(updateType){
 			case APPROVE -> attemptRoleApproval(editor, user, userRoleMetadata);
 			case UNAPPROVE -> attemptRoleUnapproval(editor, user, userRoleMetadata);
@@ -207,6 +273,7 @@ public class DatarouterUserEditService{
 		UserRoleMetadata updatedRoleMetadata = new UserRoleMetadata(
 				userRoleMetadata.role(),
 				areAllRequirementsMet,
+				userRoleMetadata.isDefaultRole(),
 				requirementStatusByApprovalTypeSnapshot,
 				userRoleMetadata.editorPrioritizedApprovalType(),
 				null,
@@ -266,6 +333,7 @@ public class DatarouterUserEditService{
 		return Optional.of(new UserRoleMetadata(
 				userRoleMetadata.role(),
 				false, // can't be true after revoking an approval.
+				userRoleMetadata.isDefaultRole(),
 				updatedRequirementStatusByApprovalType,
 				userRoleMetadata.editorPrioritizedApprovalType(),
 				null,
@@ -286,60 +354,14 @@ public class DatarouterUserEditService{
 		return Optional.of(new UserRoleMetadata(
 				userRoleMetadata.role(),
 				false,
+				userRoleMetadata.isDefaultRole(),
 				new HashMap<>(),
 				userRoleMetadata.editorPrioritizedApprovalType(),
 				null,
 				null));
 	}
 
-	public void editUser(
-			DatarouterUser user,
-			DatarouterUser editor,
-			Boolean enabled,
-			String signinUrl,
-			Set<DatarouterAccountKey> requestedAccounts,
-			Optional<ZoneId> optionalZoneId,
-			Optional<String> description){
-		List<String> changes = new ArrayList<>();
-
-		boolean shouldDeleteSessions = false;
-		if(enabled != null){//TODO DATAROUTER-2751 remove/update old user edit code
-			if(!BooleanTool.nullSafeSame(enabled, user.getEnabled())){
-				if(datarouterUserService.isDatarouterAdmin(user)){
-					throw new RuntimeException("cannot disable datarouterAdmin user");
-				}
-				changes.add(change("enabled", user.getEnabled(), enabled));
-				user.setEnabled(enabled);
-				shouldDeleteSessions = true;
-			}
-		}
-
-		handleAccountChanges(user, requestedAccounts).ifPresent(changes::add);
-		optionalZoneId.ifPresent(zoneId -> {
-			Optional<ZoneId> currentZoneId = user.getZoneId();
-			boolean sameZoneId = currentZoneId.isPresent() && currentZoneId.get().equals(zoneId);
-			if(!sameZoneId){
-				user.setZoneId(zoneId);
-				changes.add(change("timezone", currentZoneId.map(ZoneId::getId).orElse(""), zoneId.getId()));
-			}
-		});
-
-		if(!changes.isEmpty() || description.isPresent()){
-			String colon = !changes.isEmpty() && description.isPresent() ? ": " : "";
-			String changesStr = description.orElse("") + colon + String.join(", ", changes);
-			userHistoryService.putAndRecordPermissionChange(user, editor, changesStr, signinUrl);
-			if(shouldDeleteSessions){
-				datarouterSessionDao.scan()
-						.include(session -> session.getUserToken().equals(user.getUserToken()))
-						.map(DatarouterSession::getKey)
-						.flush(datarouterSessionDao::deleteMulti);
-			}
-		}else{
-			logger.warn("User {} submitted edit request for user {}, but no changes were made.", editor, user);
-		}
-	}
-
-	public Map<String,Boolean> editAccounts(
+	public void editAccounts(
 			DatarouterUser editor,
 			DatarouterUser user,
 			Map<String,Boolean> updates,
@@ -352,11 +374,10 @@ public class DatarouterUserEditService{
 		String changes = handleAccountChanges(user, requestedAccounts).orElseThrow();
 
 		userHistoryService.putAndRecordPermissionChange(user, editor, changes, signinUrl);
-		return datarouterAccountUserService.getAccountProvisioningStatusForUser(user);
 	}
 
 	private Optional<String> handleAccountChanges(DatarouterUser user, Set<DatarouterAccountKey> requestedAccounts){
-		Set<DatarouterUserAccountMapKey> currentAccounts = datarouterUserAccountMapDao.scanKeysWithPrefix(
+		Set<DatarouterUserAccountMapKey> currentAccounts = userAccountMapDao.scanKeysWithPrefix(
 				new DatarouterUserAccountMapKey(user.getId(), null))
 				.collect(HashSet::new);
 		Set<DatarouterUserAccountMapKey> accountsToDelete = currentAccounts.stream()
@@ -369,10 +390,10 @@ public class DatarouterUserEditService{
 				.collect(Collectors.toSet());
 		if(!accountsToDelete.isEmpty() || !accountsToAdd.isEmpty()){
 			if(!accountsToDelete.isEmpty()){
-				datarouterUserAccountMapDao.deleteMulti(accountsToDelete);
+				userAccountMapDao.deleteMulti(accountsToDelete);
 			}
 			if(!accountsToAdd.isEmpty()){
-				datarouterUserAccountMapDao.putMulti(accountsToAdd);
+				userAccountMapDao.putMulti(accountsToAdd);
 			}
 			Set<String> original = Scanner.of(currentAccounts)
 					.map(DatarouterUserAccountMapKey::getDatarouterAccountKey)

@@ -15,6 +15,7 @@
  */
 package io.datarouter.metric.publisher;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -36,12 +37,11 @@ import io.datarouter.metric.publisher.MetricPublisher.PublishedMetricPeriod.Publ
 import io.datarouter.scanner.Scanner;
 import io.datarouter.types.Ulid;
 import io.datarouter.util.number.RandomTool;
-import io.datarouter.util.time.EpochMillisTool;
 
 public abstract class BaseDatarouterMetricCollector implements MetricCollector{
 	private static final Logger logger = LoggerFactory.getLogger(BaseDatarouterMetricCollector.class);
 
-	private static final long PERIOD_GRANULARITY_MS = DatarouterMetricPeriod.PERIOD_5s.getPeriodMs();
+	public static final long PERIOD_GRANULARITY_MS = Duration.ofSeconds(5).toMillis();
 	// Wait for the previous period to complete plus a little bit for increments after the synchronization.
 	private static final long TAKE_OLDER_THAN_MS = PERIOD_GRANULARITY_MS + 200;
 	private static final int MAX_RETAINED_PERIODS = 12;
@@ -103,11 +103,14 @@ public abstract class BaseDatarouterMetricCollector implements MetricCollector{
 			}
 			return;
 		}
-		long periodStartMs = EpochMillisTool.getPeriodStart(eventTimeMs, PERIOD_GRANULARITY_MS);
+		long periodStartMs = eventTimeMs - eventTimeMs % PERIOD_GRANULARITY_MS;
 		String sanitizedName = MetricSanitizer.sanitizeName(name);
-		periods.computeIfAbsent(periodStartMs, $ -> new ConcurrentHashMap<>())
-				.computeIfAbsent(sanitizedName, $ -> new AtomicMetric(type))
-				.update(value, retainIndividualValues);
+		periods.computeIfAbsent(periodStartMs, _ -> new ConcurrentHashMap<>())
+				.compute(sanitizedName, (_, prev) -> {
+					var next = prev == null ? new AtomicMetric(type) : prev;
+					next.update(value, retainIndividualValues);
+					return next;
+				});
 	}
 
 	public Optional<PublishedMetricPeriod> poll(){

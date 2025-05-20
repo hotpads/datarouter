@@ -17,6 +17,7 @@ package io.datarouter.client.redis.codec;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import io.datarouter.bytes.ByteTool;
 import io.datarouter.bytes.codec.stringcodec.StringCodec;
@@ -26,15 +27,15 @@ import io.lettuce.core.KeyValue;
 
 public class RedisBlobCodec{
 
-	private final byte[] pathBytes;
+	private final Supplier<byte[]> pathBytesSupplier;
 
-	public RedisBlobCodec(Subpath path){
-		pathBytes = StringCodec.UTF_8.encode(path.toString());
+	public RedisBlobCodec(Supplier<Subpath> pathSupplier){
+		pathBytesSupplier = () -> StringCodec.UTF_8.encode(pathSupplier.get().toString());
 	}
 
 	public byte[] encodeKey(PathbeanKey pk){
 		byte[] pkBytes = StringCodec.UTF_8.encode(pk.getPathAndFile());
-		return ByteTool.concat(pathBytes, pkBytes);
+		return ByteTool.concat(pathBytesSupplier.get(), pkBytes);
 	}
 
 	public byte[][] encodeKeys(List<PathbeanKey> pks){
@@ -46,7 +47,7 @@ public class RedisBlobCodec{
 	}
 
 	public PathbeanKey decodeKey(byte[] fullBytesKey){
-		int offset = pathBytes.length;
+		int offset = pathBytesSupplier.get().length;
 		int length = fullBytesKey.length - offset;
 		String pkString = StringCodec.UTF_8.decode(fullBytesKey, offset, length);
 		return PathbeanKey.of(pkString);

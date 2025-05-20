@@ -66,6 +66,7 @@ public class S3Headers{
 		JAR("application/java-archive", "jar"),
 		JPEG("image/jpeg","jpg"),
 		MP3("audio/mpeg", "mp3"),
+		MP4("video/mp4", "mp4"),
 		MULTIPART_MIXED("multipart/mixed",null),
 		PDF("application/pdf", "pdf"),
 		PNG("image/png","png"),

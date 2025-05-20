@@ -15,7 +15,12 @@
  */
 package io.datarouter.nodewatch.config;
 
+import java.time.Duration;
+import java.time.LocalTime;
+
 import io.datarouter.job.BaseTriggerGroup;
+import io.datarouter.job.util.DatarouterCronDayOfWeek;
+import io.datarouter.job.util.DatarouterCronTool;
 import io.datarouter.nodewatch.config.setting.DatarouterNodewatchSettingRoot;
 import io.datarouter.nodewatch.job.NodewatchCostMonitoringJob;
 import io.datarouter.nodewatch.job.TableCountJob;
@@ -24,6 +29,7 @@ import io.datarouter.nodewatch.job.TableSamplerJob;
 import io.datarouter.nodewatch.job.TableSamplerJobletVacuumJob;
 import io.datarouter.nodewatch.job.TableSizeMonitoringJob;
 import io.datarouter.nodewatch.job.TableStorageSummaryJob;
+import io.datarouter.storage.config.properties.ServiceName;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.util.time.ZoneIds;
 import jakarta.inject.Inject;
@@ -34,40 +40,53 @@ public class DatarouterNodewatchTriggerGroup extends BaseTriggerGroup{
 
 	@Inject
 	public DatarouterNodewatchTriggerGroup(
+			ServiceName serviceNameSupplier,
 			DatarouterNodewatchSettingRoot settings){
 		super("DatarouterNodewatch", Tag.DATAROUTER, ZoneIds.AMERICA_NEW_YORK);
 		registerLocked(
-				"43 0/" + TableSamplerJob.SCHEDULING_INTERVAL.toMinutes() + " * * * ?",
+				DatarouterCronTool.everyNMinutes(
+						(int)TableSamplerJob.SCHEDULING_INTERVAL.toMinutes(),
+						serviceNameSupplier.get(),
+						"TableSamplerJob"),
 				settings.tableSamplerJob,
 				TableSamplerJob.class,
 				true);
 		registerLocked(
-				"33 25 3/4 * * ?",
+				DatarouterCronTool.everyNHours(4, serviceNameSupplier.get(), "TableCountJob"),
 				settings.tableCountJob,
 				TableCountJob.class,
 				true);
 		registerLocked(
-				"12 14 * * * ?",
+				DatarouterCronTool.everyHour(serviceNameSupplier.get(), "TableSampleValidationJob"),
 				settings.tableSampleValidationJob,
 				TableSampleValidationJob.class,
 				true);
 		registerLocked(
-				"0 0 14 ? * MON-FRI",
+				DatarouterCronTool.onDaysOfWeekAfter(
+						DatarouterCronDayOfWeek.weekdays(),
+						LocalTime.of(14, 0, 0),
+						Duration.ofMinutes(30),
+						serviceNameSupplier.get(),
+						"TableSizeMonitoringJob"),
 				settings.tableSizeMonitoringJob,
 				TableSizeMonitoringJob.class,
 				true);
 		registerLocked(
-				"0 0 6 ? * * *",
+				DatarouterCronTool.everyDay(serviceNameSupplier.get(), "TableSamplerJobletVacuumJob"),
 				settings.runTableSamplerJobletVacuumJob,
 				TableSamplerJobletVacuumJob.class,
 				true);
 		registerLocked(
-				"0 0 0 ? * * *",
+				DatarouterCronTool.everyDayAfter(
+						LocalTime.of(0, 0, 0),
+						Duration.ofHours(4),
+						serviceNameSupplier.get(),
+						"TableStorageSummaryJob"),
 				settings.runTableStorageSummaryJob,
 				TableStorageSummaryJob.class,
 				true);
 		registerLocked(
-				"35 * * ? * * *",//TODO stagger start time across services
+				DatarouterCronTool.everyMinute(serviceNameSupplier.get(), "NodewatchCostMonitoringJob"),
 				settings.runNodewatchCostMonitoringJob,
 				NodewatchCostMonitoringJob.class,
 				true);

@@ -40,14 +40,14 @@ implements QueueStorageWriter<PK,D>{
 
 	@Override
 	public void put(D databean, Config config){
-		try(var $ = startSpanForOp(OP_put)){
+		try(var _ = startSpanForOp(OP_put)){
 			backingNode.put(databean, config);
 		}
 	}
 
 	@Override
 	public void putMulti(Collection<D> databeans, Config config){
-		try(var $ = startSpanForOp(OP_putMulti)){
+		try(var _ = startSpanForOp(OP_putMulti)){
 			backingNode.putMulti(databeans, config);
 			TracerTool.appendToSpanInfo("databeans", databeans.size());
 		}
@@ -55,14 +55,14 @@ implements QueueStorageWriter<PK,D>{
 
 	@Override
 	public void ack(QueueMessageKey key, Config config){
-		try(var $ = startSpanForOp(OP_ack)){
+		try(var _ = startSpanForOp(OP_ack)){
 			backingNode.ack(key, config);
 		}
 	}
 
 	@Override
 	public void ackMulti(Collection<QueueMessageKey> keys, Config config){
-		try(var $ = startSpanForOp(OP_ackMulti)){
+		try(var _ = startSpanForOp(OP_ackMulti)){
 			backingNode.ackMulti(keys, config);
 			TracerTool.appendToSpanInfo("keys", keys.size());
 		}

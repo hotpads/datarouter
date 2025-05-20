@@ -264,7 +264,7 @@ public class DatarouterSummaryTracer implements Tracer{
 			}
 
 			if(summaryMap.size() <= MAX_SUMMARY_KEYS){
-				summaryMap.computeIfAbsent(key, $ -> new SpanSummary())
+				summaryMap.computeIfAbsent(key, _ -> new SpanSummary())
 						.addSpan(durationMs);
 			}else{
 				truncated = true;

@@ -8,7 +8,7 @@ datarouter-auth is a framework that brings in users and apikey accounts to datar
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-auth</artifactId>
-	<version>0.0.126</version>
+	<version>0.0.127</version>
 </dependency>
 ```
 
@@ -48,8 +48,7 @@ Datarouter-auth-web brings in the ability attribute RouteSet classes with specif
 Roles can be set for the whole RouteSet class as a default,
 and specific paths within the RouteSet class can be given additional Roles. 
 
-Datarouter brings a default set of roles, specified in `DatarouterUserRole`.
-- Admin
+Datarouter brings a default set of roles, specified in `RoleRegistry`.
 - Api-User
 - Datarouter-Admin
 - Datarouter-Job

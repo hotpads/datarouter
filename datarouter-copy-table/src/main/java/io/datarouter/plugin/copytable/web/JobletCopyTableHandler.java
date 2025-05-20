@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import io.datarouter.joblet.config.DatarouterJobletExecutors.DatarouterJobletCreationExecutor;
 import io.datarouter.joblet.enums.JobletPriority;
 import io.datarouter.joblet.model.JobletPackage;
 import io.datarouter.joblet.service.JobletService;
@@ -31,14 +32,14 @@ import io.datarouter.nodewatch.util.TableSamplerTool;
 import io.datarouter.plugin.copytable.CopyTableJoblet;
 import io.datarouter.plugin.copytable.CopyTableJoblet.CopyTableJobletParams;
 import io.datarouter.plugin.copytable.config.DatarouterCopyTablePaths;
+import io.datarouter.plugin.copytable.link.JobletCopyTableLink;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.scanner.Threads;
 import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.node.op.raw.SortedStorage.PhysicalSortedStorageNode;
 import io.datarouter.storage.util.PrimaryKeyPercentCodecTool;
-import io.datarouter.util.string.StringTool;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
-import io.datarouter.web.handler.types.Param;
 import io.datarouter.web.html.form.HtmlForm;
 import io.datarouter.web.html.form.HtmlForm.HtmlFormMethod;
 import io.datarouter.web.html.form.HtmlFormValidator;
@@ -46,14 +47,6 @@ import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import jakarta.inject.Inject;
 
 public class JobletCopyTableHandler extends BaseHandler{
-
-	private static final String
-			P_sourceNodeName = "sourceNodeName",
-			P_targetNodeName = "targetNodeName",
-			P_scanBatchSize = "scanBatchSize",
-			P_putBatchSize = "putBatchSize",
-			P_skipInvalidDatabeans = "skipInvalidDatabeans",
-			P_submitAction = "submitAction";
 
 	private static final int DEFAULT_SCAN_BATCH_SIZE = 100;
 	private static final int DEFAULT_PUT_BATCH_SIZE = 100;
@@ -71,17 +64,19 @@ public class JobletCopyTableHandler extends BaseHandler{
 	private CopyTableChangelogService changelogRecorderService;
 	@Inject
 	private DatarouterCopyTablePaths paths;
+	@Inject
+	private DatarouterJobletCreationExecutor datarouterJobletCreationExecutor;
 
-	@Handler(defaultHandler = true)
-	private <PK extends PrimaryKey<PK>,
-			D extends Databean<PK,D>>
-	Mav defaultHandler(
-			@Param(P_sourceNodeName) Optional<String> sourceNodeName,
-			@Param(P_targetNodeName) Optional<String> targetNodeName,
-			@Param(P_scanBatchSize) Optional<String> optScanBatchSize,
-			@Param(P_putBatchSize) Optional<String> optPutBatchSize,
-			@Param(P_skipInvalidDatabeans) Optional<Boolean> skipInvalidDatabeans,
-			@Param(P_submitAction) Optional<String> submitAction){
+	@Handler
+	private <PK extends PrimaryKey<PK>, D extends Databean<PK,D>>
+	Mav joblets(JobletCopyTableLink link){
+
+		Optional<String> sourceNodeName = link.sourceNodeName;
+		Optional<String> targetNodeName = link.targetNodeName;
+		Optional<Integer> optScanBatchSize = link.scanBatchSize;
+		Optional<Integer> optPutBatchSize = link.putBatchSize;
+		Optional<Boolean> skipInvalidDatabeans = link.skipInvalidDatabeans;
+		Optional<String> submitAction = link.submitAction;
 		boolean shouldValidate = submitAction.isPresent();
 		List<String> possibleNodes = tableSamplerService.scanCountableNodes()
 				.map(node -> node.getClientId().getName() + "." + node.getFieldInfo().getTableName())
@@ -91,37 +86,37 @@ public class JobletCopyTableHandler extends BaseHandler{
 		var form = new HtmlForm(HtmlFormMethod.POST);
 		form.addSelectField()
 				.withLabel("Source Node Name")
-				.withName(P_sourceNodeName)
+				.withName(JobletCopyTableLink.P_sourceNodeName)
 				.withValues(possibleNodes)
 				.withSelected(sourceNodeName.orElse(null));
 		form.addSelectField()
 				.withLabel("Target Node Name")
-				.withName(P_targetNodeName)
+				.withName(JobletCopyTableLink.P_targetNodeName)
 				.withValues(possibleNodes)
 				.withSelected(targetNodeName.orElse(null));
 		form.addNumberField()
 				.withLabel("Scan Batch Size")
-				.withName(P_scanBatchSize)
+				.withName(JobletCopyTableLink.P_scanBatchSize)
 				.withPlaceholder(DEFAULT_SCAN_BATCH_SIZE)
 				.withValue(
-						optScanBatchSize.orElse(null),
+						optScanBatchSize.map(String::valueOf).orElse(null),
 						shouldValidate && optScanBatchSize.isPresent(),
 						HtmlFormValidator::positiveInteger);
 		form.addNumberField()
 				.withLabel("Put Batch Size")
-				.withName(P_putBatchSize)
+				.withName(JobletCopyTableLink.P_putBatchSize)
 				.withPlaceholder(DEFAULT_PUT_BATCH_SIZE)
 				.withValue(
-						optPutBatchSize.orElse(null),
+						optPutBatchSize.map(String::valueOf).orElse(null),
 						shouldValidate && optPutBatchSize.isPresent(),
 						HtmlFormValidator::positiveInteger);
 		form.addCheckboxField()
 				.withLabel("Skip Invalid Databeans")
-				.withName(P_skipInvalidDatabeans)
+				.withName(JobletCopyTableLink.P_skipInvalidDatabeans)
 				.withChecked(DEFAULT_SKIP_INVALID_DATABEANS);
 		form.addButton()
 				.withLabel("Create Joblets")
-				.withValue("anything");
+				.withValue("joblets");
 
 		if(submitAction.isEmpty() || form.hasErrors()){
 			return pageFactory.startBuilder(request)
@@ -142,12 +137,8 @@ public class JobletCopyTableHandler extends BaseHandler{
 		long numJoblets = samples.size() + 1;//+1 for databeans beyond the final sample
 		long counter = 1;
 		int scanBatchSize = optScanBatchSize
-				.map(StringTool::nullIfEmpty)
-				.map(Integer::valueOf)
 				.orElse(DEFAULT_SCAN_BATCH_SIZE);
 		int putBatchSize = optPutBatchSize
-				.map(StringTool::nullIfEmpty)
-				.map(Integer::valueOf)
 				.orElse(DEFAULT_PUT_BATCH_SIZE);
 		for(TableSample sample : samples){
 			PK fromKeyExclusive = TableSamplerTool.extractPrimaryKeyFromSampleKey(sourceNode, previousSampleKey);
@@ -185,7 +176,9 @@ public class JobletCopyTableHandler extends BaseHandler{
 		// shuffle as optimization to spread write load.  could be optional
 		Scanner.of(jobletPackages)
 				.shuffle()
-				.flush(jobletService::submitJobletPackages);
+				.batch(10)
+				.parallelUnordered(new Threads(datarouterJobletCreationExecutor, 8))
+				.forEach(jobletService::submitJobletPackages);
 		changelogRecorderService.recordChangelog(
 				getSessionInfo(),
 				"Joblets",

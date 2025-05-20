@@ -111,7 +111,7 @@ public class ScratchDatabeanBlockfileManager<
 				.each(batch -> itemCountThisPeriod.addAndGet(batch.size()))
 				.periodic(// protect against slow TaskTracker implementation
 						Duration.ofSeconds(1),
-						batch -> {
+						_ -> {
 							optTracker.ifPresent(tracker -> {
 								tracker.increment(itemCountThisPeriod.get()).heartbeat();
 								itemCountThisPeriod.set(0);

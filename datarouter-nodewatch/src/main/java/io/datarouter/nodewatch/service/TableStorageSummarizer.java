@@ -102,7 +102,7 @@ public class TableStorageSummarizer<
 		var fielder = node.getFieldInfo().getFielderSupplier().get();
 		node.scan(range)
 				.limit(rangeLimit)
-				.advanceUntil($ -> shouldStop.get())
+				.advanceUntil(_ -> shouldStop.get())
 				.forEach(databean -> {
 					numItems.incrementAndGet();
 					// Count value bytes for all fields

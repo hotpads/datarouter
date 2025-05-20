@@ -30,10 +30,8 @@ import io.datarouter.joblet.storage.jobletrequest.JobletRequest;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.ComparableTool;
 import io.datarouter.util.DateTool;
-import io.datarouter.util.lang.ClassTool;
 import io.datarouter.util.number.NumberTool;
 import io.datarouter.util.string.StringTool;
-import io.datarouter.util.todo.ConvertToRecord;
 
 public class JobletSummary{
 
@@ -178,32 +176,14 @@ public class JobletSummary{
 
 	/*------------------ keys -----------------------*/
 
-	@ConvertToRecord
-	private static class TypeExecutionOrderStatusKey implements Comparable<TypeExecutionOrderStatusKey>{
-		private final String type;
-		private final Integer executionOrder;
-		private final JobletStatus status;
+	private record TypeExecutionOrderStatusKey(
+			String type,
+			Integer executionOrder,
+			JobletStatus status)
+	implements Comparable<TypeExecutionOrderStatusKey>{
 
 		public TypeExecutionOrderStatusKey(JobletSummary summary){
-			this.type = summary.type;
-			this.executionOrder = summary.executionOrder;
-			this.status = summary.status;
-		}
-
-		@Override
-		public boolean equals(Object obj){
-			if(ClassTool.differentClass(this, obj)){
-				return false;
-			}
-			TypeExecutionOrderStatusKey other = (TypeExecutionOrderStatusKey)obj;
-			return Objects.equals(type, other.type)
-					&& Objects.equals(executionOrder, other.executionOrder)
-					&& Objects.equals(status, other.status);
-		}
-
-		@Override
-		public int hashCode(){
-			return Objects.hash(type, executionOrder, status);
+			this(summary.type, summary.executionOrder, summary.status);
 		}
 
 		@Override
@@ -220,29 +200,13 @@ public class JobletSummary{
 		}
 	}
 
-	@ConvertToRecord
-	private static class QueueStatusKey implements Comparable<QueueStatusKey>{
-		private final String queueId;
-		private final JobletStatus status;
+	private record QueueStatusKey(
+			String queueId,
+			JobletStatus status)
+	implements Comparable<QueueStatusKey>{
 
 		public QueueStatusKey(JobletSummary summary){
-			this.queueId = summary.queueId;
-			this.status = summary.status;
-		}
-
-		@Override
-		public boolean equals(Object obj){
-			if(ClassTool.differentClass(this, obj)){
-				return false;
-			}
-			QueueStatusKey other = (QueueStatusKey)obj;
-			return Objects.equals(queueId, other.queueId)
-					&& Objects.equals(status, other.status);
-		}
-
-		@Override
-		public int hashCode(){
-			return Objects.hash(queueId, status);
+			this(summary.queueId, summary.status);
 		}
 
 		@Override

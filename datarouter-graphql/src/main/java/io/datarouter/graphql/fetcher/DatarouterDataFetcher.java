@@ -62,7 +62,7 @@ implements DataFetcher<T>{
 		if(!trace()){
 			return buildResponse(environment);
 		}
-		try(var $ = TracerTool.startSpanNoGroupType(this.getClass().getSimpleName())){
+		try(var _ = TracerTool.startSpanNoGroupType(this.getClass().getSimpleName())){
 			return buildResponse(environment);
 		}
 	}
@@ -95,7 +95,7 @@ implements DataFetcher<T>{
 
 	protected void assignVariables(DataFetchingEnvironment environment){
 		this.environment = environment;
-		this.context = new TypedGraphQlContext(environment.getContext());
+		this.context = new TypedGraphQlContext(environment.getGraphQlContext());
 	}
 
 	protected RequestParamValidatorResponseDto validateArgs(){

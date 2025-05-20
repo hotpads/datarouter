@@ -1,0 +1,46 @@
+/*
+ * Copyright © 2009 HotPads (admin@hotpads.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package io.datarouter.job.util;
+
+public enum DatarouterCronDayOfWeek{
+
+	SUN("SUN"),
+	MON("MON"),
+	TUE("TUE"),
+	WED("WED"),
+	THU("THU"),
+	FRI("FRI"),
+	SAT("SAT");
+
+	public final String cronString;
+
+	private DatarouterCronDayOfWeek(String cronString){
+		this.cronString = cronString;
+	}
+
+	public static final String allDays(){
+		return "*";
+	}
+
+	public static final String weekdays(){
+		return range(MON, FRI);
+	}
+
+	public static final String range(DatarouterCronDayOfWeek from, DatarouterCronDayOfWeek to){
+		return String.format("%s-%s", from.cronString, to.cronString);
+	}
+
+}

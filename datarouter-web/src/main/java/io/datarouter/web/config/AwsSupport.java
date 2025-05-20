@@ -34,6 +34,10 @@ public class AwsSupport{
 
 	public void registerConnectionManager(String clientName, Object awsClient){
 		var client = ReflectionTool.get("client", awsClient);
+		registerConnectionManagerFromHttpClient(clientName, client);
+	}
+
+	public void registerConnectionManagerFromHttpClient(String clientName, Object client){
 		var httpClient = ReflectionTool.get("httpClient", client);
 		var cm = (PoolingHttpClientConnectionManager)ReflectionTool.get("cm", httpClient);
 		instanceInventory.add(AWS_CONNECTION_MANAGER, clientName, cm);

@@ -39,7 +39,7 @@ public class MultipartUploadPartSizeTests{
 	@Test
 	public void testMaxFileSize(){
 		long maxSize = MultipartUploadPartSize.totalSizeOfNParts(S3Limits.MAX_MULTIPART_UPLOAD_PARTS);
-		Assert.assertTrue(maxSize >= S3Limits.MAX_S3_FILE_SIZE_BYTES);
+		Assert.assertTrue(maxSize >= S3Limits.MAX_FILE_SIZE_BYTES);
 	}
 
 	public static void main(String... args){

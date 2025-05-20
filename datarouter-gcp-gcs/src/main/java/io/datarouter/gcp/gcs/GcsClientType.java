@@ -17,7 +17,7 @@ package io.datarouter.gcp.gcs;
 
 import io.datarouter.gcp.gcs.client.GcsClientManager;
 import io.datarouter.gcp.gcs.client.GcsClientNodeFactory;
-import io.datarouter.gcp.gcs.client.GcsWebInspector;
+import io.datarouter.gcp.gcs.web.GcsWebInspector;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.web.browse.DatarouterClientWebInspectorRegistry;
 import jakarta.inject.Inject;

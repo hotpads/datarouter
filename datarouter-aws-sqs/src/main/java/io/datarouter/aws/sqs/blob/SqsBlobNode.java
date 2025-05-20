@@ -22,9 +22,6 @@ import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.amazonaws.services.sqs.model.CreateQueueRequest;
-import com.amazonaws.services.sqs.model.QueueAttributeName;
-
 import io.datarouter.aws.sqs.BaseSqsNode;
 import io.datarouter.aws.sqs.SqsBlobOpFactory;
 import io.datarouter.aws.sqs.SqsClientManager;
@@ -45,6 +42,8 @@ import io.datarouter.storage.node.op.raw.BlobQueueStorage.PhysicalBlobQueueStora
 import io.datarouter.storage.node.type.physical.base.BasePhysicalNode;
 import io.datarouter.storage.queue.BlobQueueMessage;
 import io.datarouter.util.singletonsupplier.SingletonSupplier;
+import software.amazon.awssdk.services.sqs.model.CreateQueueRequest;
+import software.amazon.awssdk.services.sqs.model.QueueAttributeName;
 
 public class SqsBlobNode<T>
 extends BasePhysicalNode<EmptyDatabeanKey,EmptyDatabean,EmptyDatabeanFielder>
@@ -81,7 +80,7 @@ implements PhysicalBlobQueueStorageNode<T>, SqsPhysicalNode<EmptyDatabeanKey,Emp
 		String queueUrl;
 		if(owned){
 			queueUrl = createQueueAndGetUrl(queueName);
-			sqsClientManager.updateAttr(clientId, queueUrl, QueueAttributeName.MessageRetentionPeriod,
+			sqsClientManager.updateAttr(clientId, queueUrl, QueueAttributeName.MESSAGE_RETENTION_PERIOD,
 					BaseSqsNode.RETENTION_S);
 			logger.warn("retention updated queueName={}", queueName);
 		}else{
@@ -92,9 +91,9 @@ implements PhysicalBlobQueueStorageNode<T>, SqsPhysicalNode<EmptyDatabeanKey,Emp
 	}
 
 	private String createQueueAndGetUrl(String queueName){
-		var createQueueRequest = new CreateQueueRequest(queueName);
+		var createQueueRequest = CreateQueueRequest.builder().queueName(queueName).build();
 		try{
-			return sqsClientManager.getAmazonSqs(clientId).createQueue(createQueueRequest).getQueueUrl();
+			return sqsClientManager.getAmazonSqs(clientId).createQueue(createQueueRequest).queueUrl();
 		}catch(RuntimeException e){
 			throw new RuntimeException("queueName=" + queueName + " queueNameLength=" + queueName.length(), e);
 		}
@@ -103,11 +102,6 @@ implements PhysicalBlobQueueStorageNode<T>, SqsPhysicalNode<EmptyDatabeanKey,Emp
 	@Override
 	public Supplier<QueueUrlAndName> getQueueUrlAndName(){
 		return queueUrlAndName;
-	}
-
-	@Override
-	public boolean getAgeMonitoringStatusForMetricAlert(){
-		return params.getAgeMonitoringStatus();
 	}
 
 	@Override

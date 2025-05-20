@@ -41,7 +41,7 @@ public class HtmlFormSelect extends BaseHtmlFormTextField<HtmlFormSelect>{
 				.collect(Collectors.toMap(
 						Function.identity(),
 						Function.identity(),
-						(a, b) -> a,
+						(a, _) -> a,
 						LinkedHashMap::new));
 		return this;
 	}

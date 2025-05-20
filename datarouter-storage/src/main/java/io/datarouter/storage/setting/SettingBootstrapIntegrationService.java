@@ -36,6 +36,11 @@ public class SettingBootstrapIntegrationService implements TestableService{
 
 	@Override
 	public void testAll(){
+		testOrphanedSettings();
+		testEmptyCategory();
+	}
+
+	private void testOrphanedSettings(){
 		String orphanSettings = datarouterInjector.scanValuesOfType(SettingNode.class)
 				// special case
 				.exclude(node -> node == settingRootFinder)
@@ -56,6 +61,22 @@ public class SettingBootstrapIntegrationService implements TestableService{
 		return haystack.stream()
 				.map(SettingNode::getListChildren)
 				.anyMatch(leaves -> isInTree(needle, leaves));
+	}
+
+	private void testEmptyCategory(){
+		settingRootFinder.getRootNodesByCategory().forEach((category, roots) -> {
+			boolean categoryHasSetting = roots.stream().anyMatch(this::settingNodeHasSettings);
+			if(!categoryHasSetting){
+				throw new RuntimeException("category " + category.getDisplay() + " has no settings");
+			}
+		});
+	}
+
+	private boolean settingNodeHasSettings(SettingNode node){
+		if(!node.getSettings().isEmpty()){
+			return true;
+		}
+		return node.getListChildren().stream().anyMatch(this::settingNodeHasSettings);
 	}
 
 }

@@ -15,11 +15,10 @@
  */
 package io.datarouter.nodewatch.web;
 
-import org.apache.http.client.utils.URIBuilder;
-
-import io.datarouter.nodewatch.config.DatarouterNodewatchPaths;
-import io.datarouter.nodewatch.web.handler.NodewatchTableHandler;
-import io.datarouter.nodewatch.web.handler.NodewatchTableStorageHandler;
+import io.datarouter.httpclient.endpoint.link.DatarouterLinkClient;
+import io.datarouter.nodewatch.link.NodewatchTableLink;
+import io.datarouter.nodewatch.link.NodewatchTableStorageLink;
+import io.datarouter.nodewatch.link.NodewatchTablesLink;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
@@ -28,28 +27,18 @@ import jakarta.inject.Singleton;
 public class NodewatchPublicLinks{
 
 	@Inject
-	private DatarouterNodewatchPaths paths;
+	private DatarouterLinkClient linkClient;
 
 	public String tables(){
-		var uriBuilder = new URIBuilder()
-				.setPath(paths.datarouter.nodewatch.tables.toSlashedString());
-		return uriBuilder.toString();
+		return linkClient.toInternalUrlWithoutContext(new NodewatchTablesLink());
 	}
 
 	public String table(String clientName, String tableName){
-		var uriBuilder = new URIBuilder()
-				.setPath(paths.datarouter.nodewatch.table.toSlashedString())
-				.addParameter(NodewatchTableHandler.P_clientName, clientName)
-				.addParameter(NodewatchTableHandler.P_tableName, tableName);
-		return uriBuilder.toString();
+		return linkClient.toInternalUrlWithoutContext(new NodewatchTableLink(clientName, tableName));
 	}
 
 	public String tableStorage(String clientName, String tableName){
-		var uriBuilder = new URIBuilder()
-				.setPath(paths.datarouter.nodewatch.table.storage.toSlashedString())
-				.addParameter(NodewatchTableStorageHandler.P_clientName, clientName)
-				.addParameter(NodewatchTableStorageHandler.P_tableName, tableName);
-		return uriBuilder.toString();
+		return linkClient.toInternalUrlWithoutContext(new NodewatchTableStorageLink(clientName, tableName));
 	}
 
 }

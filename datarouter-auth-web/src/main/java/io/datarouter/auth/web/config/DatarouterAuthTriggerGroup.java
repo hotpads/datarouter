@@ -18,11 +18,15 @@ package io.datarouter.auth.web.config;
 import io.datarouter.auth.web.job.AccountPermissionCacheRefreshJob;
 import io.datarouter.auth.web.job.DatarouterAccountCredentialCleanupJob;
 import io.datarouter.auth.web.job.DatarouterAccountLastUsedFlushJob;
+import io.datarouter.auth.web.job.DatarouterInactivityRoleResetJob;
 import io.datarouter.auth.web.job.DatarouterPermissionRequestVacuumJob;
 import io.datarouter.auth.web.job.DatarouterSessionVacuumJob;
 import io.datarouter.auth.web.job.DeletedRoleCleanupJob;
 import io.datarouter.auth.web.job.SamlAuthnRequestRedirectUrlVacuumJob;
 import io.datarouter.job.BaseTriggerGroup;
+import io.datarouter.job.util.DatarouterCronTool;
+import io.datarouter.storage.config.properties.ServerName;
+import io.datarouter.storage.config.properties.ServiceName;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.util.time.ZoneIds;
 import jakarta.inject.Inject;
@@ -32,42 +36,52 @@ import jakarta.inject.Singleton;
 public class DatarouterAuthTriggerGroup extends BaseTriggerGroup{
 
 	@Inject
-	public DatarouterAuthTriggerGroup(DatarouterAuthSettingRoot settings){
+	public DatarouterAuthTriggerGroup(
+			ServiceName serviceNameSupplier,
+			ServerName serverNameSupplier,
+			DatarouterAuthSettingRoot settings){
 		super("DatarouterAuth", Tag.DATAROUTER, ZoneIds.AMERICA_NEW_YORK);
 		registerLocked(
-				"50 20 * * * ?",
+				DatarouterCronTool.everyHour(serviceNameSupplier.get(), "SamlAuthnRequestRedirectUrlVacuumJob"),
 				settings.runSamlAuthnRequestRedirectUrlVacuumJob,
 				SamlAuthnRequestRedirectUrlVacuumJob.class,
 				true);
 		registerLocked(
-				"45 47 * * * ?",
+				DatarouterCronTool.everyHour(serviceNameSupplier.get(), "DatarouterAccountCredentialCleanupJob"),
 				() -> true,
 				DatarouterAccountCredentialCleanupJob.class,
 				true);
 		registerParallel(
-				"0/5 * * * * ?",
+				DatarouterCronTool.everyNSeconds(5, serverNameSupplier.get(), "DatarouterAccountLastUsedFlushJob"),
 				settings.runDatarouterAccountLastUsedFlushJob,
 				DatarouterAccountLastUsedFlushJob.class);
 		registerLocked(
-				"29 1/2 * * * ?",
+				DatarouterCronTool.everyNMinutes(2, serviceNameSupplier.get(), "DatarouterSessionVacuumJob"),
 				settings.runUserSessionVacuumJob,
 				DatarouterSessionVacuumJob.class,
 				true);
 		registerLocked(
-				"0 0 15 ? * * *",
+				DatarouterCronTool.everyDay(serviceNameSupplier.get(), "DatarouterPermissionRequestVacuumJob"),
 				settings.runPermissionRequestVacuumJob,
 				DatarouterPermissionRequestVacuumJob.class,
 				true);
 		registerLocked(
-				"0 0 2 ? * *",
+				DatarouterCronTool.everyDay(serviceNameSupplier.get(), "DeletedRoleCleanupJob"),
 				settings.runDeletedRoleCleanupJob,
 				DeletedRoleCleanupJob.class,
 				true);
+		registerLocked(
+				DatarouterCronTool.everyDay(serviceNameSupplier.get(), "DatarouterInactivityRoleResetJob"),
+				settings.runInactivityRoleResetJob,
+				DatarouterInactivityRoleResetJob.class,
+				true);
 
-		long refreshFrequencySeconds = settings.accountRefreshFrequencyDuration.get()
-				.toSecond();
+		int refreshFrequencySeconds = (int)settings.accountRefreshFrequencyDuration.get().toSecond();
 		registerParallel(
-				"1/" + refreshFrequencySeconds + " * * * * ?",
+				DatarouterCronTool.everyNSeconds(
+						refreshFrequencySeconds,
+						serverNameSupplier.get(),
+						"AccountPermissionCacheRefreshJob"),
 				() -> true,
 				AccountPermissionCacheRefreshJob.class);
 	}

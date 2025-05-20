@@ -18,6 +18,8 @@ package io.datarouter.plugin.copytable.config;
 import io.datarouter.auth.role.DatarouterUserRoleRegistry;
 import io.datarouter.plugin.copytable.web.JobletCopyTableHandler;
 import io.datarouter.plugin.copytable.web.JobletTableProcessorHandler;
+import io.datarouter.plugin.copytable.web.MigrateSystemTablesHandler;
+import io.datarouter.plugin.copytable.web.MigrateSystemTablesMetadataHandler;
 import io.datarouter.plugin.copytable.web.SingleThreadCopyTableHandler;
 import io.datarouter.plugin.copytable.web.SingleThreadTableProcessorHandler;
 import io.datarouter.plugin.copytable.web.SystemTablesCopyHandler;
@@ -25,28 +27,30 @@ import io.datarouter.plugin.copytable.web.SystemTablesListHandler;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
+import io.datarouter.web.handler.encoder.DatarouterDefaultHandlerCodec;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterCopyTableRouteSet extends BaseRouteSet{
 
-	@SuppressWarnings("deprecation")
 	@Inject
 	public DatarouterCopyTableRouteSet(DatarouterCopyTablePaths paths){
-		handleDir(paths.datarouter.copyTable.joblets).withHandler(JobletCopyTableHandler.class);
-		handleDir(paths.datarouter.copyTable.singleThread).withHandler(SingleThreadCopyTableHandler.class);
-		handleDir(paths.datarouter.tableProcessor.joblets).withHandler(JobletTableProcessorHandler.class);
-		handleDir(paths.datarouter.tableProcessor.singleThread).withHandler(SingleThreadTableProcessorHandler.class);
-		handleDir(paths.datarouter.systemTableCopier.viewTables).withHandler(SystemTablesCopyHandler.class);
-		handle(paths.datarouter.systemTableCopier.listSystemTables).withHandler(SystemTablesListHandler.class);
-
+		registerHandler(JobletCopyTableHandler.class);
+		registerHandler(SingleThreadCopyTableHandler.class);
+		registerHandler(JobletTableProcessorHandler.class);
+		registerHandler(SingleThreadTableProcessorHandler.class);
+		registerHandler(SystemTablesCopyHandler.class);
+		registerHandler(SystemTablesListHandler.class);
+		registerHandler(MigrateSystemTablesHandler.class);
+		registerHandler(MigrateSystemTablesMetadataHandler.class);
 	}
 
 	@Override
 	protected DispatchRule applyDefault(DispatchRule rule){
 		return rule
 				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_ADMIN)
+				.withDefaultHandlerCodec(DatarouterDefaultHandlerCodec.INSTANCE)
 				.withTag(Tag.DATAROUTER);
 	}
 

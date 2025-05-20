@@ -120,7 +120,7 @@ public class J2HtmlTable<T>{
 		private final T value;
 		private final List<String> styles;
 		private final List<String> classes;
-		private BiFunction<TrTag,Integer,DomContent> trModifier = (tr, $) -> tr;
+		private BiFunction<TrTag,Integer,DomContent> trModifier = (tr, _) -> tr;
 
 		public J2HtmlTableRow(T value){
 			this.value = value;

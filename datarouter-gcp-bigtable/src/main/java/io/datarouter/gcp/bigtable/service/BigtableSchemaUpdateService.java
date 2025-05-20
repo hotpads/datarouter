@@ -42,6 +42,8 @@ import io.datarouter.gcp.bigtable.config.BigtableClientsHolder;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.model.serialize.fielder.TtlFielderConfig;
+import io.datarouter.relay.DatarouterRelaySenderProvider;
+import io.datarouter.relay.DatarouterRelayTopics;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.executor.DatarouterStorageExecutors.DatarouterSchemaUpdateScheduler;
 import io.datarouter.storage.config.properties.AdminEmail;
@@ -87,7 +89,9 @@ public class BigtableSchemaUpdateService extends EmailingSchemaUpdateService{
 			DatarouterWebPaths datarouterWebPaths,
 			StandardDatarouterEmailHeaderService standardDatarouterEmailHeaderService,
 			SchemaUpdatesEmailType schemaUpdatesEmailType,
-			DatarouterSchemaUpdateEmailSettings schemaUpdateEmailSettings){
+			DatarouterSchemaUpdateEmailSettings schemaUpdateEmailSettings,
+			DatarouterRelaySenderProvider relaySenderProvider,
+			DatarouterRelayTopics relayTopics){
 		super(
 				serverName,
 				environmentName,
@@ -100,7 +104,9 @@ public class BigtableSchemaUpdateService extends EmailingSchemaUpdateService{
 				datarouterWebPaths,
 				standardDatarouterEmailHeaderService,
 				schemaUpdatesEmailType,
-				schemaUpdateEmailSettings);
+				schemaUpdateEmailSettings,
+				relaySenderProvider,
+				relayTopics);
 		this.holder = holder;
 		this.schemaUpdateOptions = schemaUpdateOptions;
 	}
@@ -219,6 +225,12 @@ public class BigtableSchemaUpdateService extends EmailingSchemaUpdateService{
 				builder.withMaxVersion(item.getMaxNumVersions());
 			}
 		});
+		if(gcRule.hasMaxNumVersions()){
+			builder.withMaxVersion(gcRule.getMaxNumVersions());
+		}
+		if(gcRule.hasMaxAge()){
+			builder.withTtlSeconds(gcRule.getMaxAge().getSeconds());
+		}
 		return builder.build();
 	}
 

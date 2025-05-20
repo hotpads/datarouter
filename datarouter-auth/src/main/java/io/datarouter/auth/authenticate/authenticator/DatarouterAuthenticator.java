@@ -22,6 +22,11 @@ import io.datarouter.auth.storage.user.session.DatarouterSession;
 
 public interface DatarouterAuthenticator{
 
-	DatarouterSession getSession(HttpServletRequest request, HttpServletResponse response);
+	DatarouterSessionAndPersist getSession(HttpServletRequest request, HttpServletResponse response);
+
+	record DatarouterSessionAndPersist(
+			DatarouterSession session,
+			boolean persist){
+	}
 
 }

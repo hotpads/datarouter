@@ -20,9 +20,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import com.amazonaws.services.sqs.AmazonSQS;
-import com.amazonaws.services.sqs.model.QueueDoesNotExistException;
-
 import io.datarouter.aws.sqs.SqsClientManager;
 import io.datarouter.aws.sqs.SqsPhysicalNode;
 import io.datarouter.aws.sqs.SqsQueueNameService;
@@ -36,6 +33,10 @@ import io.datarouter.storage.node.NodeTool;
 import io.datarouter.util.string.StringTool;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import software.amazon.awssdk.services.sqs.SqsClient;
+import software.amazon.awssdk.services.sqs.model.GetQueueUrlRequest;
+import software.amazon.awssdk.services.sqs.model.ListQueuesRequest;
+import software.amazon.awssdk.services.sqs.model.QueueDoesNotExistException;
 
 @Singleton
 public class SqsQueueRegistryService{
@@ -52,7 +53,7 @@ public class SqsQueueRegistryService{
 	private ServiceName serviceName;
 
 	public SqsQueuesForClient getSqsQueuesForClient(ClientId clientId){
-		AmazonSQS sqs = sqsClientManager.getAmazonSqs(clientId);
+		SqsClient sqs = sqsClientManager.getAmazonSqs(clientId);
 		List<QueueUrlAndName> knownQueueUrlAndNames = Scanner.of(nodes.getPhysicalNodesForClient(clientId.getName()))
 				.map(NodeTool::extractSinglePhysicalNode)
 				.map(physicalNode -> (SqsPhysicalNode<?,?,?>)physicalNode)
@@ -62,8 +63,8 @@ public class SqsQueueRegistryService{
 		Set<String> knownQueuesUrls = Scanner.of(knownQueueUrlAndNames)
 				.map(QueueUrlAndName::queueUrl)
 				.collect(HashSet::new);
-
-		var unreferencedQueues = Scanner.of(sqs.listQueues(sqsQueueNameService.buildDefaultNamespace()).getQueueUrls())
+		var request = ListQueuesRequest.builder().queueNamePrefix(sqsQueueNameService.buildDefaultNamespace()).build();
+		var unreferencedQueues = Scanner.of(sqs.listQueues(request).queueUrls())
 				.exclude(queueUrl -> checkForUnreferencedQueues(queueUrl, knownQueuesUrls))
 				.map(queueUrl -> StringTool.getStringAfterLastOccurrence("/", queueUrl))
 				// it can take up to 60 seconds for a deleted queue to stop showing up in the listQueues call,
@@ -80,9 +81,10 @@ public class SqsQueueRegistryService{
 						|| knownQueuesUrls.contains(queueUrl));
 	}
 
-	private boolean sqsQueueExists(AmazonSQS sqs, String queueName){
+	private boolean sqsQueueExists(SqsClient sqs, String queueName){
 		try{
-			sqs.getQueueUrl(queueName);
+			var request = GetQueueUrlRequest.builder().queueName(queueName).build();
+			sqs.getQueueUrl(request);
 			return true;
 		}catch(QueueDoesNotExistException e){
 			return false;

@@ -86,13 +86,11 @@ public class DatabeanNodePrefix{
 		Require.isTrue(fullSuffix.endsWith("/"));
 		String hashInput = fullSuffix.substring(0, fullSuffix.length() - 1);
 		String shortenedSuffix = Long.toString(HashMethods.longDjbHash(hashInput));
-		logger.warn("shortening suffix {} to {}", fullSuffix, shortenedSuffix);
 		return new Subpath(shortenedSuffix);
 	}
 
 	private String makeNodeVersion(){
-		return Optional.ofNullable(params.getSchemaVersion())
-				.orElse("");
+		return Optional.ofNullable(params.getSchemaVersionSupplier().get()).orElse("");
 	}
 
 	private String makeDatabeanVersion(){

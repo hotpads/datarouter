@@ -18,7 +18,7 @@ package io.datarouter.plugin.copytable;
 import java.time.Duration;
 import java.util.Optional;
 
-import io.datarouter.joblet.codec.BaseGsonJobletCodec;
+import io.datarouter.joblet.codec.DatarouterBaseGsonJobletCodec;
 import io.datarouter.joblet.model.BaseJoblet;
 import io.datarouter.joblet.type.JobletType;
 import io.datarouter.joblet.type.JobletType.JobletTypeBuilder;
@@ -74,7 +74,8 @@ public class CopyTableJoblet extends BaseJoblet<CopyTableJobletParams>{
 			Boolean skipInvalidDatabeans){
 	}
 
-	public static class CopyTableJobletCodec extends BaseGsonJobletCodec<CopyTableJobletParams>{
+	public static class CopyTableJobletCodec
+	extends DatarouterBaseGsonJobletCodec<CopyTableJobletParams>{
 
 		public CopyTableJobletCodec(){
 			super(CopyTableJobletParams.class);

@@ -44,7 +44,7 @@ implements PhysicalGroupQueueStorageNode<PK,D,F>, PhysicalAdapterMixin<PK,D,F,N>
 
 	@Override
 	public GroupQueueMessage<PK, D> peek(Config config){
-		try(var $ = startSpanForOp(OP_peek)){
+		try(var _ = startSpanForOp(OP_peek)){
 			GroupQueueMessage<PK, D> message = backingNode.peek(config);
 			if(message != null){
 				TracerTool.appendToSpanInfo(new TraceSpanInfoBuilder().databeans(message.getDatabeans().size()));
@@ -55,7 +55,7 @@ implements PhysicalGroupQueueStorageNode<PK,D,F>, PhysicalAdapterMixin<PK,D,F,N>
 
 	@Override
 	public List<GroupQueueMessage<PK, D>> peekMulti(Config config){
-		try(var $ = startSpanForOp(OP_peekMulti)){
+		try(var _ = startSpanForOp(OP_peekMulti)){
 			List<GroupQueueMessage<PK, D>> groups = backingNode.peekMulti(config);
 			int databeanCount = groups.stream()
 					.map(GroupQueueMessage::getDatabeans)
@@ -70,14 +70,14 @@ implements PhysicalGroupQueueStorageNode<PK,D,F>, PhysicalAdapterMixin<PK,D,F,N>
 
 	@Override
 	public Scanner<GroupQueueMessage<PK, D>> peekUntilEmpty(Config config){
-		try(var $ = startSpanForOp(OP_peekUntilEmpty)){
+		try(var _ = startSpanForOp(OP_peekUntilEmpty)){
 			return backingNode.peekUntilEmpty(config);
 		}
 	}
 
 	@Override
 	public List<D> pollMulti(Config config){
-		try(var $ = startSpanForOp(OP_pollMulti)){
+		try(var _ = startSpanForOp(OP_pollMulti)){
 			List<D> databeans = backingNode.pollMulti(config);
 			TracerTool.appendToSpanInfo(new TraceSpanInfoBuilder().databeans(databeans.size()));
 			return databeans;

@@ -24,9 +24,14 @@ import io.datarouter.types.Ulid;
  */
 public class DatarouterInstrumentationValidationConstants{
 
+	public static final class DatarouterServiceConstants{
+		public static final int MAX_SIZE_ACCOUNT_NAME = 64;
+		public static final int MAX_SIZE_SERVICE_NAME = 30;
+		public static final int MAX_SIZE_SERVER_NAME = 80;
+	}
+
 	public static final class MetricInstrumentationConstants{
 		public static final int MAX_SIZE_METRIC_NAME = 255;
-		public static final int MAX_SIZE_SERVER_NAME = 80;
 	}
 
 	public static final class ExceptionInstrumentationConstants{
@@ -46,6 +51,10 @@ public class DatarouterInstrumentationValidationConstants{
 		public static final int MAX_SIZE_THREAD_ID = Ulid.LENGTH;
 		public static final int MAX_SIZE_THREAD_SUBJECT = 255;
 		public static final int MAX_SIZE_MESSAGE_ID = Ulid.LENGTH;
+	}
+
+	public static final class NotificationInstrumentationConstants{
+		public static final int MAX_SIZE_EMAIL_REQUEST_ID = Ulid.LENGTH;
 	}
 
 }

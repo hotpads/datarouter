@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import io.datarouter.instrumentation.relay.dto.RelayMessageBlockAttrsDto;
 import io.datarouter.instrumentation.relay.dto.RelayMessageBlockDto;
@@ -29,17 +28,32 @@ import io.datarouter.scanner.Scanner;
 public class DatarouterRelayRenderTool{
 
 	public static String renderTextOnly(RelayMessageBlockDto dto){
-		Stream<String> children = Objects.requireNonNullElse(dto.content(), List.<RelayMessageBlockDto>of())
-				.stream()
-				.map(DatarouterRelayRenderTool::renderTextOnly);
+		return innerRenderTextOnly(dto).trim().replaceAll("\\s+", " ");
+	}
+
+	private static String innerRenderTextOnly(RelayMessageBlockDto dto){
+		Scanner<String> children = Scanner.of(Objects.requireNonNullElse(dto.content(), List.of()))
+				.map(DatarouterRelayRenderTool::innerRenderTextOnly);
+
+		Optional<String> platintextOnly = Optional.ofNullable(dto.attrs())
+				.map(RelayMessageBlockAttrsDto::plaintextAlt);
+		if(platintextOnly.isPresent()){
+			return platintextOnly.get();
+		}
 
 		return switch(dto.type()){
-		case DOC, HEADING, HARD_BREAK, PARAGRAPH, RULE, LIST_ITEM, CONTAINER, MEDIA, TABLE_HEADER, TABLE_CELL, BUTTON ->
-				children.collect(Collectors.joining());
-		case TEXT, CODE_BLOCK, HTML, TIMESTAMP -> dto.text();
-		case MENTION -> dto.attrs().text();
-		case FIELDS, TABLE_ROW, ORDERED_LIST, UNORDERED_LIST -> children.collect(Collectors.joining(", "));
-		case TABLE -> children.collect(Collectors.joining(" | ", "[", "]"));
+			case DOC, HARD_BREAK, HEADING, PARAGRAPH, RULE, LINK, LIST_ITEM, CONTAINER, MEDIA, TABLE_HEADER, TABLE_CELL,
+					BUTTON, DEFINITION_TERM, DEFINITION_DESCRIPTION, BLOCK_QUOTE ->
+					children.collect(Collectors.joining(" "));
+			case TEXT, CODE_BLOCK, HTML, TIMESTAMP -> dto.text();
+			case MENTION -> dto.text();
+			case FIELDS, TABLE_ROW, ORDERED_LIST, UNORDERED_LIST ->
+					children.collect(Collectors.joining(", "));
+			case DEFINITION_LIST -> children
+					.batch(2)
+					.map(child -> String.join(" ", child))
+					.collect(Collectors.joining(", "));
+			case TABLE -> children.collect(Collectors.joining(" | ", "[", "]"));
 		};
 	}
 

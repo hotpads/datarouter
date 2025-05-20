@@ -15,20 +15,26 @@
  */
 package io.datarouter.auth.web.config;
 
-import io.datarouter.auth.web.service.DatarouterAccountConfigAppListenerService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.datarouter.auth.web.service.DatarouterAccountConfigService;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.web.listener.DatarouterAppListener;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterAccountConfigAppListener implements DatarouterAppListener{
+	private static final Logger logger = LoggerFactory.getLogger(DatarouterAccountConfigAppListener.class);
 
 	@Inject
-	private DatarouterAccountConfigAppListenerService service;
+	private DatarouterAccountConfigService service;
 
 	@Override
 	public void onStartUp(){
-		service.createDefaultAccountRecords();
+		Scanner.of(service.createDefaultAccountRecords())
+				.forEach(logger::warn);
 	}
 
 }

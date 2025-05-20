@@ -31,6 +31,9 @@ public class DocumentedEndpointJspDto{
 	private final List<DocumentedErrorJspDto> errors;
 	private final String paramsEnumValuesDisplay;
 	private final String requestType;
+	private final String newWebEndpointPath;
+	private final String newMobileEndpointPath;
+	private final String newServiceHref;
 
 	public DocumentedEndpointJspDto(
 			String url,
@@ -44,7 +47,10 @@ public class DocumentedEndpointJspDto{
 			String deprecationLink,
 			List<DocumentedErrorJspDto> errors,
 			String paramsEnumValuesDisplay,
-			String requestType){
+			String requestType,
+			String newWebEndpointPath,
+			String newMobileEndpointPath,
+			String newServiceHref){
 		this.url = url;
 		this.implementation = implementation;
 		this.parameters = parameters;
@@ -57,6 +63,9 @@ public class DocumentedEndpointJspDto{
 		this.errors = errors;
 		this.paramsEnumValuesDisplay = paramsEnumValuesDisplay;
 		this.requestType = requestType;
+		this.newWebEndpointPath = newWebEndpointPath;
+		this.newMobileEndpointPath = newMobileEndpointPath;
+		this.newServiceHref = newServiceHref;
 	}
 
 	public String getUrl(){
@@ -107,4 +116,20 @@ public class DocumentedEndpointJspDto{
 		return requestType;
 	}
 
+	public boolean hasRequestBody(){
+		return parameters.stream()
+				.anyMatch(DocumentedParameterJspDto::getRequestBody);
+	}
+
+	public String getNewWebEndpointPath(){
+		return newWebEndpointPath;
+	}
+
+	public String getNewMobileEndpointPath(){
+		return newMobileEndpointPath;
+	}
+
+	public String getNewServiceHref(){
+		return newServiceHref;
+	}
 }

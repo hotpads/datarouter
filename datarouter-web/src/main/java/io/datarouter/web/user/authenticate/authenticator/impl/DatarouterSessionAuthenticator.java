@@ -46,14 +46,14 @@ public class DatarouterSessionAuthenticator implements DatarouterAuthenticator{
 	private DatarouterAuthenticationConfig datarouterAuthenticationConfig;
 
 	@Override
-	public DatarouterSession getSession(HttpServletRequest request, HttpServletResponse response){
+	public DatarouterSessionAndPersist getSession(HttpServletRequest request, HttpServletResponse response){
 		String sessionToken = sessionManager.getSessionTokenFromCookie(request);
 		if(StringTool.isEmptyOrWhitespace(sessionToken)){
-			return null;
+			return new DatarouterSessionAndPersist(null, false);
 		}
 		DatarouterSession session = datarouterSessionDao.get(new DatarouterSessionKey(sessionToken));
 		if(session == null || datarouterAuthenticationConfig.isSessionExpired(session)){
-			return null;
+			return new DatarouterSessionAndPersist(null, false);
 		}
 
 		//verify session's userToken matches cookie userToken.  if not, delete session to be safe
@@ -64,11 +64,11 @@ public class DatarouterSessionAuthenticator implements DatarouterAuthenticator{
 			datarouterSessionDao.delete(session.getKey());
 			sessionManager.clearSessionTokenCookie(response);
 			sessionManager.clearUserTokenCookie(response);
-			return null;
+			return new DatarouterSessionAndPersist(null, false);
 		}
 
-		session.setUpdated(MilliTime.now().toDate());
-		return session;
+		session.setUpdated(MilliTime.now());
+		return new DatarouterSessionAndPersist(session, true);
 	}
 
 }

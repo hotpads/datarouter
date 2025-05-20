@@ -37,6 +37,7 @@ public class TimeFormula implements TemporalAdjuster{
 	private static final Pattern FORMULA_PATTERN = Pattern.compile("((?<relativeValue>[-+]?\\d+)(?<relativeUnit>\\w+))?"
 			+ "(@(?<floorUnit>\\w+))?");
 
+	public final String formula;
 	private final List<TemporalAdjuster> adjusters;
 
 	public TimeFormula(String formula){
@@ -44,6 +45,8 @@ public class TimeFormula implements TemporalAdjuster{
 	}
 
 	public TimeFormula(String formula, List<TimeModifierUnit> units) throws IllegalArgumentException{
+		this.formula = formula;
+
 		if(formula.equals(NOW)){
 			adjusters = List.of();
 			return;
@@ -150,7 +153,7 @@ public class TimeFormula implements TemporalAdjuster{
 
 		public TimeModifierUnit(Set<String> units, ScaledTemporalAdjuster offset){
 			this(units,
-					temp -> {
+					_ -> {
 						throw new RuntimeException("Unit " + units.iterator().next() + " does not support floor");
 					},
 					offset);

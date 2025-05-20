@@ -151,7 +151,7 @@ public class DatabeanImportService{
 				.each(batch -> lastKey.set(ListTool.getLastOrNull(batch).getKey()))
 				.each(numDatabeans::incrementBySize)
 				.each(rateTracker::incrementBySize)
-				.periodic(LOG_PERIOD, batch -> logProgress(
+				.periodic(LOG_PERIOD, _ -> logProgress(
 						exportId,
 						node.getName(),
 						numDatabeans,

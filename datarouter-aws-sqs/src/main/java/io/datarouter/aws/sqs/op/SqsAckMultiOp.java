@@ -19,10 +19,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-import com.amazonaws.AbortedException;
-import com.amazonaws.services.sqs.model.DeleteMessageBatchRequest;
-import com.amazonaws.services.sqs.model.DeleteMessageBatchRequestEntry;
-
 import io.datarouter.aws.sqs.BaseSqsNode;
 import io.datarouter.aws.sqs.SqsClientManager;
 import io.datarouter.model.databean.Databean;
@@ -33,6 +29,9 @@ import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.queue.QueueMessageKey;
 import io.datarouter.util.concurrent.UncheckedInterruptedException;
+import software.amazon.awssdk.core.exception.AbortedException;
+import software.amazon.awssdk.services.sqs.model.DeleteMessageBatchRequest;
+import software.amazon.awssdk.services.sqs.model.DeleteMessageBatchRequestEntry;
 
 public class SqsAckMultiOp<
 		PK extends PrimaryKey<PK>,
@@ -60,9 +59,14 @@ extends SqsOp<PK,D,F,Void>{
 	protected Void run(){
 		for(List<QueueMessageKey> batch : Scanner.of(keys).batch(BaseSqsNode.MAX_MESSAGES_PER_BATCH).iterable()){
 			DeleteMessageBatchRequest deleteRequest = Scanner.of(batch)
-					.map(key -> new DeleteMessageBatchRequestEntry(UUID.randomUUID().toString(), new String(key
-							.getHandle())))
-					.listTo(deleteEntries -> new DeleteMessageBatchRequest(queueUrl, deleteEntries));
+					.map(key -> DeleteMessageBatchRequestEntry.builder()
+									.id(UUID.randomUUID().toString())
+									.receiptHandle(new String(key.getHandle()))
+									.build())
+					.listTo(deleteEntries -> DeleteMessageBatchRequest.builder()
+							.queueUrl(queueUrl)
+							.entries(deleteEntries)
+							.build());
 			try{
 				sqsClientManager.getAmazonSqs(clientId).deleteMessageBatch(deleteRequest);
 			}catch(AbortedException e){

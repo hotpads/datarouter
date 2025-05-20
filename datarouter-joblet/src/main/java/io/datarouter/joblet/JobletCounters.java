@@ -108,8 +108,10 @@ public class JobletCounters{
 
 	public static void recordDuration(JobletType<?> jobletType, long durationMs, int numItems){
 		Metrics.measure(PREFIX + "durationMs " + jobletType, durationMs);
-		Metrics.measure(PREFIX + "item durationMs " + jobletType, durationMs / numItems);
-//		so hack it with counter: avg(duration) = sum(duration) / numProssed
+		if(numItems > 0){
+			// so hack it with counter: avg(duration) = sum(duration) / numProssed
+			Metrics.measure(PREFIX + "item durationMs " + jobletType, durationMs / numItems);
+		}
 		Metrics.count(PREFIX + "cumulated duration", durationMs);
 		Metrics.count(PREFIX + "cumulated duration " + jobletType.getPersistentString(), durationMs);
 	}

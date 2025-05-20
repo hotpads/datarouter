@@ -17,13 +17,13 @@ package io.datarouter.web.digest;
 
 import java.time.ZoneId;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 
 import io.datarouter.instrumentation.relay.rml.RmlBlock;
 import io.datarouter.plugin.PluginConfigKey;
 import io.datarouter.plugin.PluginConfigType;
 import io.datarouter.plugin.PluginConfigValue;
-import j2html.tags.specialized.DivTag;
 
 public interface DailyDigest extends PluginConfigValue<DailyDigest>{
 
@@ -36,12 +36,8 @@ public interface DailyDigest extends PluginConfigValue<DailyDigest>{
 	DailyDigestType getType();
 	DailyDigestGrouping getGrouping();
 
-	Optional<DivTag> getEmailContent(ZoneId zoneId);
 	Optional<RmlBlock> getRelayContent(ZoneId zoneId);
-
-	default String getId(){
-		return getTitle().replace(" ", "_");
-	}
+	List<DailyDigestPlatformTask> getTasks(ZoneId zoneId);
 
 	enum DailyDigestType{
 		ACTIONABLE("Actionable"),
@@ -60,6 +56,13 @@ public interface DailyDigest extends PluginConfigValue<DailyDigest>{
 	@Override
 	default PluginConfigKey<DailyDigest> getKey(){
 		return KEY;
+	}
+
+	public record DailyDigestPlatformTask(
+			List<String> key,
+			List<String> group,
+			String title,
+			RmlBlock description){
 	}
 
 }

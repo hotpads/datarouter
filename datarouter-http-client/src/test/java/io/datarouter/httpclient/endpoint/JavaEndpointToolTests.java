@@ -39,7 +39,7 @@ import io.datarouter.pathnode.PathNode;
 
 public class JavaEndpointToolTests{
 
-	private static final PathNode PATH = new PathNode().leaf("");
+	private static final PathNode PATH = new PathNode().variable("");
 	private static final JsonSerializer SERIALIZER = new GsonJsonSerializer(DatarouterGsons.withoutEnums());
 
 	public static class ExampleEndpoint1{

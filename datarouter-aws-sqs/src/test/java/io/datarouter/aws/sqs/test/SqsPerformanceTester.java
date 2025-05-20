@@ -145,7 +145,7 @@ public class SqsPerformanceTester{
 					numMessagesDrained.incrementAndGet();
 					if(numMessagesDrained.get() % 5 == 0){
 					logger.info("groupNode drained {}, latest={}", numDatabeansDrained.get(),
-							ListTool.getLastOrNull(databeans).getKey());
+							ListTool.findLast(databeans).orElse(null).getKey());
 					}
 				}
 			});

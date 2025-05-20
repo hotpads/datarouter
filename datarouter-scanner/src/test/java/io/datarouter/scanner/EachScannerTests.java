@@ -27,7 +27,7 @@ public class EachScannerTests{
 	public void simpleTest(){
 		Scanner<String> input = Scanner.of("a", "b", "c");
 		LongAdder counter = new LongAdder();
-		List<String> output = input.each($ -> counter.increment()).list();
+		List<String> output = input.each(_ -> counter.increment()).list();
 		Assert.assertEquals(counter.longValue(), output.size());
 	}
 

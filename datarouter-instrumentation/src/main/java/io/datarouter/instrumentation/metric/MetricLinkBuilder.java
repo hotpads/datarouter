@@ -19,6 +19,7 @@ public interface MetricLinkBuilder{
 
 	String availableMetricsLink(String prefix);
 	String exactMetricLink(String name);
+	String exactMetricLink(String name, Long startTime, Long endTime);
 	String dashboardLink(String id);
 	String serviceCostLink();
 
@@ -31,6 +32,11 @@ public interface MetricLinkBuilder{
 
 		@Override
 		public String exactMetricLink(String name){
+			return "";
+		}
+
+		@Override
+		public String exactMetricLink(String name, Long startTime, Long endTime){
 			return "";
 		}
 

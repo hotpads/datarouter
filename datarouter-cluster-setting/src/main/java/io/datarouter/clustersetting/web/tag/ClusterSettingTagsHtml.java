@@ -22,6 +22,7 @@ import static j2html.TagCreator.pre;
 import java.util.HashSet;
 import java.util.Set;
 
+import io.datarouter.clustersetting.link.ClusterSettingTagsLink;
 import io.datarouter.storage.setting.DatarouterSettingTagType;
 import io.datarouter.storage.setting.cached.CachedClusterSettingTags;
 import io.datarouter.web.html.form.HtmlForm;
@@ -51,10 +52,10 @@ public class ClusterSettingTagsHtml{
 
 	public DivTag makeTagCheckboxForm(String tagName, boolean checked){
 		var form = new HtmlForm(HtmlFormMethod.GET);
-		form.addHiddenField(ClusterSettingTagsHandler.P_tagName, tagName);
+		form.addHiddenField(ClusterSettingTagsLink.P_tagName, tagName);
 		form.addCheckboxField()
 				.withLabel(tagName)
-				.withName(ClusterSettingTagsHandler.P_tagEnabled)
+				.withName(ClusterSettingTagsLink.P_tagEnabled)
 				.withChecked(checked)
 				.withSubmitOnChange();
 		return div(Bootstrap4FormHtml.render(form, true));

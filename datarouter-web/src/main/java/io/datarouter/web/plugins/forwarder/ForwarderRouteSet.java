@@ -18,6 +18,7 @@ package io.datarouter.web.plugins.forwarder;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
+import io.datarouter.web.handler.encoder.DatarouterDefaultHandlerCodec;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
@@ -34,7 +35,9 @@ public class ForwarderRouteSet extends BaseRouteSet{
 
 	@Override
 	protected DispatchRule applyDefault(DispatchRule rule){
-		return rule.withTag(Tag.PLUGIN);
+		return rule
+				.withDefaultHandlerCodec(DatarouterDefaultHandlerCodec.INSTANCE)
+				.withTag(Tag.PLUGIN);
 	}
 
 }

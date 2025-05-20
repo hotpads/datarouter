@@ -22,8 +22,6 @@ import io.datarouter.email.type.DatarouterEmailTypes.AvailabilitySwitchEmailType
 import io.datarouter.email.type.DatarouterEmailTypes.AwsRdsEmailType;
 import io.datarouter.email.type.DatarouterEmailTypes.ClusterSettingEmailType;
 import io.datarouter.email.type.DatarouterEmailTypes.CountKeysEmailType;
-import io.datarouter.email.type.DatarouterEmailTypes.DailyDigestActionableEmailType;
-import io.datarouter.email.type.DatarouterEmailTypes.DailyDigestSummaryEmailType;
 import io.datarouter.email.type.DatarouterEmailTypes.LoggerConfigCleanupEmailType;
 import io.datarouter.email.type.DatarouterEmailTypes.LongRunningTaskFailureAlertEmailType;
 import io.datarouter.email.type.DatarouterEmailTypes.LongRunningTaskTrackerEmailType;
@@ -45,8 +43,6 @@ public class DatarouterEmailPlugin extends BaseStoragePlugin{
 	private final List<String> emailRecipientsLoggerConfigCleanup;
 	private final List<String> emailRecipientsAvailabilitySwitch;
 	private final List<String> emailRecipientsAwsRds;
-	private final List<String> emailRecipientsDailyDigestActionable;
-	private final List<String> emailRecipientsDailyDigestSummary;
 	private final List<String> emailRecipientsSchemaUpdates;
 
 	private DatarouterEmailPlugin(
@@ -60,8 +56,6 @@ public class DatarouterEmailPlugin extends BaseStoragePlugin{
 			List<String> emailRecipientsLoggerConfigCleanup,
 			List<String> emailRecipientsAvailabilitySwitch,
 			List<String> emailRecipientsAwsRds,
-			List<String> emailRecipientsDailyDigestActionable,
-			List<String> emailRecipientsDailyDigestSummary,
 			List<String> emailRecipientsSchemaUpdates){
 		addSettingRoot(DatarouterEmailSettingRoot.class);
 
@@ -75,8 +69,6 @@ public class DatarouterEmailPlugin extends BaseStoragePlugin{
 		this.emailRecipientsLoggerConfigCleanup = emailRecipientsLoggerConfigCleanup;
 		this.emailRecipientsAvailabilitySwitch = emailRecipientsAvailabilitySwitch;
 		this.emailRecipientsAwsRds = emailRecipientsAwsRds;
-		this.emailRecipientsDailyDigestActionable = emailRecipientsDailyDigestActionable;
-		this.emailRecipientsDailyDigestSummary = emailRecipientsDailyDigestSummary;
 		this.emailRecipientsSchemaUpdates = emailRecipientsSchemaUpdates;
 	}
 
@@ -99,10 +91,6 @@ public class DatarouterEmailPlugin extends BaseStoragePlugin{
 		bind(AvailabilitySwitchEmailType.class)
 				.toInstance(new AvailabilitySwitchEmailType(emailRecipientsAvailabilitySwitch));
 		bind(AwsRdsEmailType.class).toInstance(new AwsRdsEmailType(emailRecipientsAwsRds));
-		bind(DailyDigestActionableEmailType.class)
-				.toInstance(new DailyDigestActionableEmailType(emailRecipientsDailyDigestActionable));
-		bind(DailyDigestSummaryEmailType.class)
-				.toInstance(new DailyDigestSummaryEmailType(emailRecipientsDailyDigestSummary));
 		bind(SchemaUpdatesEmailType.class)
 				.toInstance(new SchemaUpdatesEmailType(emailRecipientsSchemaUpdates));
 	}
@@ -119,8 +107,6 @@ public class DatarouterEmailPlugin extends BaseStoragePlugin{
 		private final List<String> emailRecipientsLoggerConfigCleanup = new ArrayList<>();
 		private final List<String> emailRecipientsAvailabilitySwitch = new ArrayList<>();
 		private final List<String> emailRecipientsAwsRds = new ArrayList<>();
-		private final List<String> emailRecipientsDailyDigestActionable = new ArrayList<>();
-		private final List<String> emailRecipientsDailyDigestSummary = new ArrayList<>();
 		private final List<String> emailRecipientsSchemaUpdates = new ArrayList<>();
 
 		public DatarouterEmailPluginBuilder addCountKeysEmailRecipients(List<String> tos){
@@ -173,16 +159,6 @@ public class DatarouterEmailPlugin extends BaseStoragePlugin{
 			return this;
 		}
 
-		public DatarouterEmailPluginBuilder addDailyDigestActionableEmailRecipients(List<String> tos){
-			emailRecipientsDailyDigestActionable.addAll(tos);
-			return this;
-		}
-
-		public DatarouterEmailPluginBuilder addDailyDigestSummaryEmailRecipients(List<String> tos){
-			emailRecipientsDailyDigestSummary.addAll(tos);
-			return this;
-		}
-
 		public DatarouterEmailPluginBuilder addSchemaUpdateEmailRecipients(List<String> tos){
 			emailRecipientsSchemaUpdates.addAll(tos);
 			return this;
@@ -200,8 +176,6 @@ public class DatarouterEmailPlugin extends BaseStoragePlugin{
 					emailRecipientsLoggerConfigCleanup,
 					emailRecipientsAvailabilitySwitch,
 					emailRecipientsAwsRds,
-					emailRecipientsDailyDigestActionable,
-					emailRecipientsDailyDigestSummary,
 					emailRecipientsSchemaUpdates);
 		}
 

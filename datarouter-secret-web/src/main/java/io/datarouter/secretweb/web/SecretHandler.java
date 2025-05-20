@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonSyntaxException;
 
+import io.datarouter.httpclient.endpoint.link.DatarouterLinkClient;
 import io.datarouter.httpclient.endpoint.param.RequestBody;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDtoBuilder;
@@ -38,6 +39,8 @@ import io.datarouter.secret.service.SecretJsonSerializer;
 import io.datarouter.secret.service.SecretService;
 import io.datarouter.secretweb.config.DatarouterSecretFiles;
 import io.datarouter.secretweb.config.DatarouterSecretPaths;
+import io.datarouter.secretweb.link.DatarouterSecretGetSecretClientConfigSupplierConfigLink;
+import io.datarouter.secretweb.link.DatarouterSecretHandleLink;
 import io.datarouter.secretweb.service.WebSecretOpReason;
 import io.datarouter.secretweb.web.SecretClientSupplierConfigDto.SecretClientSupplierConfigsDto;
 import io.datarouter.secretweb.web.SecretHandlerOpRequestDto.SecretOpDto;
@@ -62,6 +65,8 @@ public class SecretHandler extends BaseHandler{
 	private Bootstrap4ReactPageFactory reactPageFactory;
 	@Inject
 	private ChangelogRecorder changelogRecorder;
+	@Inject
+	private DatarouterLinkClient linkClient;
 
 	@Handler(defaultHandler = true)
 	private Mav index(){
@@ -70,11 +75,10 @@ public class SecretHandler extends BaseHandler{
 				.withReactScript(files.js.secretsJsx)
 				.withJsStringConstant(
 						"PATH_HANDLE",
-						request.getContextPath() + paths.datarouter.secrets.handle.toSlashedString())
+						linkClient.toInternalUrl(new DatarouterSecretHandleLink()))
 				.withJsStringConstant(
 						"PATH_CONFIG",
-						request.getContextPath() + paths.datarouter.secrets.getSecretClientSupplierConfig
-								.toSlashedString())
+						linkClient.toInternalUrl(new DatarouterSecretGetSecretClientConfigSupplierConfigLink()))
 				.buildMav();
 	}
 

@@ -23,12 +23,13 @@ import org.slf4j.LoggerFactory;
 import io.datarouter.clustersetting.config.DatarouterClusterSettingRoot;
 import io.datarouter.clustersetting.service.ClusterSettingDailyDigest;
 import io.datarouter.email.email.DatarouterHtmlEmailService;
+import io.datarouter.instrumentation.relay.rml.RmlBlock;
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
+import io.datarouter.relay.DatarouterRelayJ2HtmlRenderTool;
 import io.datarouter.storage.config.properties.EnvironmentName;
 import io.datarouter.storage.config.properties.ServiceName;
 import io.datarouter.util.time.ZoneIds;
-import j2html.tags.specialized.DivTag;
 import jakarta.inject.Inject;
 
 /**
@@ -50,7 +51,7 @@ public class ClusterSettingAlertEmailJob extends BaseJob{
 
 	@Override
 	public void run(TaskTracker tracker){
-		Optional<DivTag> content = dailyDigest.getEmailContent(ZoneIds.AMERICA_LOS_ANGELES);
+		Optional<RmlBlock> content = dailyDigest.getRelayContent(ZoneIds.AMERICA_LOS_ANGELES);
 		if(content.isEmpty()){
 			logger.warn("no settings to alert on");
 			return;
@@ -58,7 +59,7 @@ public class ClusterSettingAlertEmailJob extends BaseJob{
 		var email = emailService.startEmailBuilder()
 				.withSubject(String.format("Cluster Setting Alert - %s - %s", environmentName.get(), serviceName.get()))
 				.withTitle("Cluster Setting Alert")
-				.withContent(content.get())
+				.withContent(DatarouterRelayJ2HtmlRenderTool.render(content.get().build()))
 				.fromAdmin()
 				.toSubscribers()
 				.to(settings.alertJobRecipients.get());

@@ -27,6 +27,7 @@ import jakarta.inject.Singleton;
 public class DatarouterShadowTableSettingRoot extends SettingRoot{
 
 	public final CachedSetting<Boolean> runExports;
+	public final CachedSetting<Boolean> useBlobPrefetcher;
 
 	@Inject
 	public DatarouterShadowTableSettingRoot(SettingFinder finder){
@@ -34,6 +35,7 @@ public class DatarouterShadowTableSettingRoot extends SettingRoot{
 
 		runExports = registerBooleans("runExports", defaultTo(false)
 				.withEnvironmentType(EnvironmentType.PRODUCTION, true));
+		useBlobPrefetcher = registerBooleans("useBlobPrefetcher", defaultTo(true));
 	}
 
 }

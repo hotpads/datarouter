@@ -96,6 +96,7 @@ public abstract class ExceptionHandlingFilter implements Filter, InjectorRetriev
 		}
 		Metrics.count(webappName + " response " + response.getStatus());
 		Metrics.count("response " + response.getStatus());
+		Metrics.count("response");
 		if(statusToLog.contains(response.getStatus())){
 			logger.warn("{} on {} ip={} userAgent={}",
 					response.getStatus(),

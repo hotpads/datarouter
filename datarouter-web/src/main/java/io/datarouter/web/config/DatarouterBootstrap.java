@@ -23,7 +23,7 @@ public interface DatarouterBootstrap{
 	/**
 	 * Marker annotation for quickly locating all the bootstrap tests in your IDE.
 	 */
-	static interface TestBootstrap{
+	interface TestBootstrap{
 	}
 
 }

@@ -21,22 +21,20 @@ import static j2html.TagCreator.h5;
 
 import java.util.Optional;
 
-import org.apache.http.client.utils.URIBuilder;
-
 import io.datarouter.clustersetting.config.DatarouterClusterSettingPaths;
 import io.datarouter.clustersetting.enums.ClusterSettingScope;
+import io.datarouter.clustersetting.link.ClusterSettingBrowseLink;
+import io.datarouter.clustersetting.link.ClusterSettingOverrideCreateLink;
+import io.datarouter.clustersetting.link.ClusterSettingOverrideViewLink;
 import io.datarouter.clustersetting.service.ClusterSettingChangeListener;
 import io.datarouter.clustersetting.storage.clustersetting.ClusterSetting;
 import io.datarouter.clustersetting.storage.clustersetting.ClusterSettingKey;
 import io.datarouter.clustersetting.storage.clustersetting.DatarouterClusterSettingDao;
 import io.datarouter.clustersetting.web.ClusterSettingHtml;
-import io.datarouter.clustersetting.web.browse.ClusterSettingBrowseHandler.ClusterSettingBrowseHandlerParams;
-import io.datarouter.clustersetting.web.browse.ClusterSettingBrowseHandler.ClusterSettingBrowseLinks;
 import io.datarouter.clustersetting.web.override.ClusterSettingEditSource;
 import io.datarouter.clustersetting.web.override.ClusterSettingOverrideForms;
-import io.datarouter.clustersetting.web.override.handler.ClusterSettingOverrideViewHandler.ClusterSettingOverrideViewLinks;
+import io.datarouter.httpclient.endpoint.link.DatarouterLinkClient;
 import io.datarouter.storage.servertype.ServerType;
-import io.datarouter.web.config.ServletContextSupplier;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.GlobalRedirectMav;
@@ -45,20 +43,8 @@ import io.datarouter.web.html.form.HtmlForm.HtmlFormMethod;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import jakarta.inject.Inject;
-import jakarta.inject.Singleton;
 
 public class ClusterSettingOverrideCreateHandler extends BaseHandler{
-
-	private static final String
-			P_source = "source",
-			P_partialName = "partialName",
-			P_scope = "scope",
-			P_name = "name",
-			P_serverType = "serverType",
-			P_serverName = "serverName",
-			P_value = "value",
-			P_comment = "comment",
-			P_submitButton = "submitButton";
 
 	@Inject
 	private Bootstrap4PageFactory pageFactory;
@@ -67,27 +53,26 @@ public class ClusterSettingOverrideCreateHandler extends BaseHandler{
 	@Inject
 	private ClusterSettingHtml clusterSettingHtml;
 	@Inject
-	private ClusterSettingBrowseLinks browseLinks;
-	@Inject
-	private ClusterSettingOverrideViewLinks overrideLinks;
-	@Inject
 	private ClusterSettingOverrideForms forms;
 	@Inject
 	private DatarouterClusterSettingDao dao;
 	@Inject
 	private ClusterSettingChangeListener changeListener;
+	@Inject
+	private DatarouterLinkClient linkClient;
 
 	@Handler
-	public Mav create(
-			Optional<String> source,
-			Optional<String> partialName,
-			Optional<String> scope,
-			Optional<String> name,
-			Optional<String> serverType,
-			Optional<String> serverName,
-			Optional<String> value,
-			Optional<String> comment,
-			Optional<Boolean> submitButton){
+	public Mav create(ClusterSettingOverrideCreateLink overrideCreateLink){
+		Optional<String> source = overrideCreateLink.source;
+		Optional<String> partialName = overrideCreateLink.partialName;
+		Optional<String> name = overrideCreateLink.name;
+		Optional<String> scope = overrideCreateLink.scope;
+		Optional<String> serverType = overrideCreateLink.serverType;
+		Optional<String> serverName = overrideCreateLink.serverName;
+		Optional<String> value = overrideCreateLink.value;
+		Optional<String> comment = overrideCreateLink.comment;
+		Optional<Boolean> submitButton = overrideCreateLink.submitButton;
+
 		String title = clusterSettingHtml.makeTitle("Create Override");
 		ClusterSettingScope scopeEnum = ClusterSettingScope.BY_PERSISTENT_STRING.fromOrElse(
 				scope.orElse(null),
@@ -100,20 +85,22 @@ public class ClusterSettingOverrideCreateHandler extends BaseHandler{
 		// Make form
 		boolean submitted = submitButton.orElse(false);
 		var form = new HtmlForm(HtmlFormMethod.POST)
-				.withAction(request.getContextPath() + paths.datarouter.settings.overrides.create.toSlashedString());
-		form.addHiddenField(P_source, sourceEnum.persistentString);
-		partialName.ifPresent(partialNameValue -> form.addHiddenField(P_partialName, partialNameValue));
-		form.addField(forms.makeSettingNameField(P_name, name, submitted));
-		form.addField(forms.makeScopeField(P_scope, scopeEnum));
+				.withAction(linkClient.toInternalUrl(new ClusterSettingOverrideCreateLink()));
+		form.addHiddenField(ClusterSettingOverrideCreateLink.P_source, sourceEnum.persistentString);
+		partialName.ifPresent(partialNameValue -> form.addHiddenField(ClusterSettingOverrideCreateLink.P_partialName,
+				partialNameValue));
+		form.addField(forms.makeSettingNameField(ClusterSettingOverrideCreateLink.P_name, name, submitted));
+		form.addField(forms.makeScopeField(ClusterSettingOverrideCreateLink.P_scope, scopeEnum));
 		if(scopeEnum == ClusterSettingScope.SERVER_TYPE){
-			form.addField(forms.makeServerTypeField(P_serverType, serverName));
+			form.addField(forms.makeServerTypeField(ClusterSettingOverrideCreateLink.P_serverType, serverName));
 		}
 		if(scopeEnum == ClusterSettingScope.SERVER_NAME){
-			form.addField(forms.makeServerNameField(P_serverName, serverName, submitted));
+			form.addField(
+					forms.makeServerNameField(ClusterSettingOverrideCreateLink.P_serverName, serverName, submitted));
 		}
-		form.addField(forms.makeSettingValueField(P_value, value, submitted, name));
-		form.addField(forms.makeCommentField(P_comment, comment, submitted));
-		form.addField(forms.makeSubmitButton(P_submitButton, "Create"));
+		form.addField(forms.makeSettingValueField(ClusterSettingOverrideCreateLink.P_value, value, submitted, name));
+		form.addField(forms.makeCommentField(ClusterSettingOverrideCreateLink.P_comment, comment, submitted));
+		form.addField(forms.makeSubmitButton(ClusterSettingOverrideCreateLink.P_submitButton, "Create"));
 
 		// Display form
 		if(!submitted || form.hasErrors()){
@@ -149,36 +136,12 @@ public class ClusterSettingOverrideCreateHandler extends BaseHandler{
 
 		// Redirect
 		String redirectTo = switch(sourceEnum){
-			case DATABASE -> overrideLinks.view();
-			case CODE -> browseLinks.all(
-					new ClusterSettingBrowseHandlerParams()
-							.withOptLocation(name)
-							.withOptPartialName(partialName));
+			case DATABASE -> linkClient.toInternalUrl(new ClusterSettingOverrideViewLink());
+			case CODE -> linkClient.toInternalUrl(new ClusterSettingBrowseLink()
+					.withOptLocation(name)
+					.withOptPartialName(partialName));
 		};
 		return new GlobalRedirectMav(redirectTo);
-	}
-
-	@Singleton
-	public static class ClusterSettingOverrideCreateLinks{
-
-		@Inject
-		private ServletContextSupplier contextSupplier;
-		@Inject
-		private DatarouterClusterSettingPaths paths;
-
-		public String create(
-				Optional<ClusterSettingEditSource> optSource,
-				Optional<String> optPartialName,
-				Optional<String> optName){
-			var uriBuilder = new URIBuilder()
-					.setPath(contextSupplier.getContextPath()
-							+ paths.datarouter.settings.overrides.create.toSlashedString());
-			optSource.ifPresent(source -> uriBuilder.addParameter(P_source, source.persistentString));
-			optPartialName.ifPresent(partialName -> uriBuilder.addParameter(P_partialName, partialName));
-			optName.ifPresent(name -> uriBuilder.addParameter(P_name, name));
-			return uriBuilder.toString();
-		}
-
 	}
 
 }

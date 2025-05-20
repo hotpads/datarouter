@@ -31,10 +31,12 @@ public class PathNodeTests{
 
 		public static class BPaths extends PathNode{
 			public final CPaths bb = branch(CPaths::new, "bb");
+			public final CPaths dd = branch(CPaths::new, "dd");
 		}
 
 		public static class CPaths extends PathNode{
 			public final PathNode cc = leaf("cc");
+			public final PathNode ee = leaf("ee");
 		}
 
 	}
@@ -115,4 +117,18 @@ public class PathNodeTests{
 		Assert.assertEquals(PathNode.parse(paths.toSlashedString()), paths);
 	}
 
+	@Test
+	public void testVariable(){
+		TestPaths paths = new TestPaths();
+		Assert.assertEquals(paths.aa.variable("bb").join("/"), "aa/bb");
+		Assert.assertEquals(new PathNode().variable("bb").join("/"), "bb");
+		Assert.assertEquals(paths.aa.bb.cc.variable("ee").join("/"), "aa/bb/cc/ee");
+		Assert.assertEquals(paths.aa.bb.cc.variable("ee").variable("ff").join("/"), "aa/bb/cc/ee/ff");
+
+		PathNode newPath = paths.aa.bb.variable("bb");
+		Assert.assertEquals(newPath.parent.size(), 1);
+		Assert.assertEquals(newPath.parent.parent.size(), 1);
+
+		Assert.assertNotSame(newPath.parent, paths.aa.bb);
+	}
 }

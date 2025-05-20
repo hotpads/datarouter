@@ -22,7 +22,7 @@ import jakarta.inject.Singleton;
 /**
  * root path segment
  *
- * inject this class when unable to inject ServletContextSuppleir
+ * inject this class when unable to inject ServletContextSupplier
  *
  */
 //TODO: Move class somewhere out of datarouter-instrumentation

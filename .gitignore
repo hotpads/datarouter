@@ -11,3 +11,6 @@ target/
 .DS_Store
 *.factorypath
 .profiler/
+.vscode/
+.cursor/
+.windsurfrules

@@ -28,7 +28,7 @@ public class SecurityValidationResultTests{
 	public void testCombinedWith(){
 		SignatureValidator goodValidator = SecurityValidationResult::success;
 		SignatureValidator badValidator = SecurityValidationResult::failure;
-		SignatureValidator skippedValidator = request -> {
+		SignatureValidator skippedValidator = _ -> {
 			throw new RuntimeException();
 		};
 

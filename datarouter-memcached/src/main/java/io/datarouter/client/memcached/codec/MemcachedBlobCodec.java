@@ -15,6 +15,8 @@
  */
 package io.datarouter.client.memcached.codec;
 
+import java.util.function.Supplier;
+
 import io.datarouter.client.memcached.util.MemcachedPathbeanResult;
 import io.datarouter.client.memcached.util.MemcachedResult;
 import io.datarouter.storage.file.PathbeanKey;
@@ -22,19 +24,18 @@ import io.datarouter.storage.util.Subpath;
 
 public class MemcachedBlobCodec{
 
-	private final Subpath rootPath;
-	private final int rootPathLength;
+	private final Supplier<Subpath> rootPathSupplier;
 
-	public MemcachedBlobCodec(Subpath rootPath){
-		this.rootPath = rootPath;
-		rootPathLength = rootPath.toString().length();
+	public MemcachedBlobCodec(Supplier<Subpath> rootPath){
+		this.rootPathSupplier = rootPath;
 	}
 
 	public String encodeKey(PathbeanKey pk){
-		return rootPath + pk.getPathAndFile();
+		return rootPathSupplier.get() + pk.getPathAndFile();
 	}
 
 	public PathbeanKey decodeKey(String stringKey){
+		int rootPathLength = rootPathSupplier.get().toString().length();
 		String stringPk = stringKey.substring(rootPathLength);
 		return PathbeanKey.of(stringPk);
 	}

@@ -15,7 +15,7 @@
  */
 package io.datarouter.joblet.test;
 
-import io.datarouter.joblet.codec.BaseGsonJobletCodec;
+import io.datarouter.joblet.codec.DatarouterBaseGsonJobletCodec;
 import io.datarouter.joblet.model.BaseJoblet;
 import io.datarouter.joblet.storage.jobletrequest.JobletRequest;
 import io.datarouter.joblet.test.SleepingJoblet.SleepingJobletParams;
@@ -61,7 +61,8 @@ public class SleepingJoblet extends BaseJoblet<SleepingJobletParams>{
 			int numFailures){
 	}
 
-	public static class SleepingJobletCodec extends BaseGsonJobletCodec<SleepingJobletParams>{
+	public static class SleepingJobletCodec
+	extends DatarouterBaseGsonJobletCodec<SleepingJobletParams>{
 
 		public SleepingJobletCodec(){
 			super(SleepingJobletParams.class);

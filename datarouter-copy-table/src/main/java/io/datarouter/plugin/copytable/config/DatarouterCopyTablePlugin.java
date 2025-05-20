@@ -43,7 +43,7 @@ public class DatarouterCopyTablePlugin extends BaseWebPlugin{
 
 		addDatarouterNavBarItem(
 				DatarouterNavBarCategory.DATA,
-				PATHS.datarouter.systemTableCopier.viewTables,
+				PATHS.datarouter.systemTableCopier.listSystemTables,
 				"System Table - Copier");
 
 		addDatarouterGithubDocLink("datarouter-copy-table");

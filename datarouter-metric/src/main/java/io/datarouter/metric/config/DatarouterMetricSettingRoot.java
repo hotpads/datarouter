@@ -27,6 +27,7 @@ import jakarta.inject.Singleton;
 public class DatarouterMetricSettingRoot extends SettingRoot{
 
 	public final CachedSetting<Boolean> saveMetricsToMemory;
+	public final CachedSetting<Boolean> saveAnnotationsToMemory;
 	public final CachedSetting<Boolean> publishNonProdDataToSharedQueue;
 
 	@Inject
@@ -34,6 +35,8 @@ public class DatarouterMetricSettingRoot extends SettingRoot{
 		super(finder, DatarouterSettingCategory.DATAROUTER, "datarouterMetric.");
 
 		saveMetricsToMemory = registerBooleans("saveMetricsToMemory", defaultTo(false)
+				.withTag(DatarouterSettingTagType.METRIC_PIPELINE, () -> true));
+		saveAnnotationsToMemory = registerBooleans("saveAnnotationsToMemory", defaultTo(false)
 				.withTag(DatarouterSettingTagType.METRIC_PIPELINE, () -> true));
 		publishNonProdDataToSharedQueue = registerBooleans("publishNonProdDataToSharedQueue", defaultTo(false)
 				.withTag(DatarouterSettingTagType.METRIC_PIPELINE, () -> true));

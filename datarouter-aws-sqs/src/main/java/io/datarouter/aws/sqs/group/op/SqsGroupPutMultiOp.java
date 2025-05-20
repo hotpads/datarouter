@@ -19,9 +19,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import com.amazonaws.AbortedException;
-import com.amazonaws.services.sqs.model.SendMessageRequest;
-
 import io.datarouter.aws.sqs.BaseSqsNode;
 import io.datarouter.aws.sqs.SqsClientManager;
 import io.datarouter.aws.sqs.SqsDataTooLargeException;
@@ -34,6 +31,8 @@ import io.datarouter.model.util.CommonFieldSizes;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.Config;
 import io.datarouter.util.concurrent.UncheckedInterruptedException;
+import software.amazon.awssdk.core.exception.AbortedException;
+import software.amazon.awssdk.services.sqs.model.SendMessageRequest;
 
 public class SqsGroupPutMultiOp<
 		PK extends PrimaryKey<PK>,
@@ -88,7 +87,7 @@ extends SqsOp<PK,D,F,Void>{
 			return;
 		}
 		String stringGroup = StringCodec.UTF_8.decode(codec.concatGroup(group));
-		SendMessageRequest request = new SendMessageRequest(queueUrl, stringGroup);
+		SendMessageRequest request = SendMessageRequest.builder().queueUrl(queueUrl).messageBody(stringGroup).build();
 		try{
 			sqsClientManager.getAmazonSqs(clientId).sendMessage(request);
 		}catch(AbortedException e){

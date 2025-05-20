@@ -50,7 +50,7 @@ implements PhysicalBlobStorageNode{
 		super(params, clientType);
 		this.manager = manager;
 		this.bucket = params.getPhysicalName();
-		this.rootPath = params.getPath();
+		this.rootPath = params.getPathSupplier().get();
 	}
 
 	@Override

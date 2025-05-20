@@ -38,7 +38,8 @@ public class DatabeanExport<
 
 	private static final int DATABEANS_PER_BLOCK = 1_000;
 	private static final int DATABEANS_PER_PART = 1_000_000;
-	private static final int PREFETCH_DATABEANS = 10_000;
+	private static final int PREFETCH_BATCH_SIZE = 1_000;
+	private static final int PREFETCH_BATCHES = 10;
 	private static final Duration LOG_PERIOD = Duration.ofSeconds(5);
 
 	private final DatabeanExportRequest<PK,D,F> request;
@@ -60,15 +61,17 @@ public class DatabeanExport<
 		var numDatabeansInPart = new AtomicLong();
 		request.node().scan(request.pkRange(), scanConfig)
 				.limit(request.maxRows())
-				.prefetch(request.prefetchExec(), PREFETCH_DATABEANS)
-				.each($ -> {
+				.batch(PREFETCH_BATCH_SIZE)
+				.prefetch(request.prefetchExec(), PREFETCH_BATCHES)
+				.concat(Scanner::of)
+				.each(_ -> {
 					numDatabeansInPart.incrementAndGet();
 					if(numDatabeansInPart.get() > DATABEANS_PER_PART){
 						tableTracker.partId().incrementAndGet();
 						numDatabeansInPart.set(0);
 					}
 				})
-				.splitBy($ -> tableTracker.partId().get())
+				.splitBy(_ -> tableTracker.partId().get())
 				.forEach(scanner -> exportPart(tableTracker.partId().get(), scanner));
 		int numParts = tableTracker.partId().get();
 		tableTracker.logProgress();
@@ -91,7 +94,7 @@ public class DatabeanExport<
 				.batch(DATABEANS_PER_BLOCK)
 				.each(tableTracker.databeanCount()::incrementBySize)
 				.each(tableTracker.rateTracker()::incrementBySize)
-				.periodic(LOG_PERIOD, $ -> tableTracker.logProgress())
+				.periodic(LOG_PERIOD, _ -> tableTracker.logProgress())
 				.apply(kvFileWriter::writeBlocks);
 		tableTracker.activePartIds().remove(partId);
 	}

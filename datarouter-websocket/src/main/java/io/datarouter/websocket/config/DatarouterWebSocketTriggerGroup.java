@@ -16,6 +16,9 @@
 package io.datarouter.websocket.config;
 
 import io.datarouter.job.BaseTriggerGroup;
+import io.datarouter.job.util.DatarouterCronTool;
+import io.datarouter.storage.config.properties.ServerName;
+import io.datarouter.storage.config.properties.ServiceName;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.util.time.ZoneIds;
 import io.datarouter.websocket.job.WebSocketSessionDatabaseMonitoringJob;
@@ -28,21 +31,24 @@ import jakarta.inject.Singleton;
 public class DatarouterWebSocketTriggerGroup extends BaseTriggerGroup{
 
 	@Inject
-	public DatarouterWebSocketTriggerGroup(DatarouterWebSocketSettingRoot settings){
+	public DatarouterWebSocketTriggerGroup(
+			ServiceName serviceNameSupplier,
+			ServerName serverNameSupplier,
+			DatarouterWebSocketSettingRoot settings){
 		super("DatarouterWebSocket", Tag.DATAROUTER, ZoneIds.AMERICA_NEW_YORK);
 		registerLocked(
 				// High frequency to keep the table as consistent as possible after some sessions failed to delete
-				"1 * * * * ?",
+				DatarouterCronTool.everyMinute(serviceNameSupplier.get(), "WebSocketSessionVacuumJob"),
 				settings.runWebSocketSessionVacuumJob,
 				WebSocketSessionVacuumJob.class,
 				true);
 		registerLocked(
-				"31 * * * * ?",
+				DatarouterCronTool.everyMinute(serviceNameSupplier.get(), "WebSocketSessionDatabaseMonitoringJob"),
 				settings.runWebSocketSessionDatabaseMonitoringJob,
 				WebSocketSessionDatabaseMonitoringJob.class,
 				true);
 		registerParallel(
-				"31 * * * * ?",
+				DatarouterCronTool.everyMinute(serverNameSupplier.get(), "WebSocketSessionMemoryMonitoringJob"),
 				settings.runWebSocketSessionMemoryMonitoringJob,
 				WebSocketSessionMemoryMonitoringJob.class);
 	}

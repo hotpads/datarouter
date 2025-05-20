@@ -46,6 +46,7 @@ public class HttpHeaders{
 	public static final String X_FORWARDED_FOR = "x-forwarded-for";
 	public static final String X_FRAME_OPTIONS = "x-frame-options";
 	public static final String X_REQUESTED_WITH = "x-requested-with";
+	public static final String ACCOUNT_NAME_HEADER = "x-datarouter-account-name";
 
 	// specific ones
 	public static final String X_CLIENT_IP = IpExtractor.X_CLIENT_IP;

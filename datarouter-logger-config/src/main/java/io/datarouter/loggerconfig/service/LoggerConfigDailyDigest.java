@@ -15,14 +15,10 @@
  */
 package io.datarouter.loggerconfig.service;
 
-import static j2html.TagCreator.div;
-import static j2html.TagCreator.small;
-
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 
-import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.instrumentation.relay.rml.Rml;
 import io.datarouter.instrumentation.relay.rml.RmlBlock;
 import io.datarouter.loggerconfig.config.DatarouterLoggingConfigPaths;
@@ -31,8 +27,7 @@ import io.datarouter.loggerconfig.storage.loggerconfig.LoggerConfig;
 import io.datarouter.types.MilliTime;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
-import io.datarouter.web.digest.DailyDigestService;
-import j2html.tags.specialized.DivTag;
+import io.datarouter.web.digest.DailyDigestRmlService;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
@@ -42,7 +37,7 @@ public class LoggerConfigDailyDigest implements DailyDigest{
 	@Inject
 	private DatarouterLoggerConfigDao dao;
 	@Inject
-	private DailyDigestService digestService;
+	private DailyDigestRmlService digestService;
 	@Inject
 	private DatarouterLoggingConfigPaths paths;
 
@@ -59,23 +54,6 @@ public class LoggerConfigDailyDigest implements DailyDigest{
 	@Override
 	public DailyDigestGrouping getGrouping(){
 		return DailyDigestGrouping.LOW;
-	}
-
-	@Override
-	public Optional<DivTag> getEmailContent(ZoneId zoneId){
-		List<LoggerConfig> loggers = getTodaysLoggers(zoneId);
-		if(loggers.isEmpty()){
-			return Optional.empty();
-		}
-		var header = digestService.makeHeader("Logger Configs", paths.datarouter.logging);
-		var description = small("Updated Today");
-		var table = new J2HtmlEmailTable<LoggerConfig>()
-				.withColumn("Name", row -> row.getKey().getName())
-				.withColumn("Level", row -> row.getLevel().getPersistentString())
-				.withColumn("User", LoggerConfig::getEmail)
-				.withColumn("Updated", row -> row.getLastUpdated().format(zoneId))
-				.build(loggers);
-		return Optional.of(div(header, description, table));
 	}
 
 	@Override
@@ -99,6 +77,11 @@ public class LoggerConfigDailyDigest implements DailyDigest{
 										Rml.tableCell(Rml.text(logger.getLevel().getPersistentString())),
 										Rml.tableCell(Rml.text(logger.getEmail())),
 										Rml.tableCell(Rml.text(logger.getLastUpdated().format(zoneId))))))));
+	}
+
+	@Override
+	public List<DailyDigestPlatformTask> getTasks(ZoneId zoneId){
+		return List.of();
 	}
 
 	private List<LoggerConfig> getTodaysLoggers(ZoneId zoneId){

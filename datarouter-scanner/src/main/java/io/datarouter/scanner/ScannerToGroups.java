@@ -46,7 +46,7 @@ public class ScannerToGroups<T,K,V,C extends Collection<V>,M extends Map<K,C>> i
 		M map = mapSupplier.get();
 		scanner.forEach(item -> {
 			K key = keyFunction.apply(item);
-			C collection = map.computeIfAbsent(key, $ -> collectionSupplier.get());
+			C collection = map.computeIfAbsent(key, _ -> collectionSupplier.get());
 			V value = valueFunction.apply(item);
 			collection.add(value);
 		});

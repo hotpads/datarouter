@@ -46,19 +46,13 @@ public class DatarouterRoleManager extends BaseRoleManager{
 		return Map.of(
 				DatarouterRoleApprovalType.ADMIN.getRoleApprovalType(), this::editorIsDatarouterAdmin,
 				DatarouterRoleApprovalType.PROHIBITED.getRoleApprovalType(),
-				($, $2) -> false);
+				(_, _) -> false);
 	}
 
 	@Override
 	public final Set<Role> getSuperAdminRoles(){
 		// include all Datarouter roles by default
-		return Scanner.of(roleRegistry.getAllRoles())
-				.append(getAdditionalSuperAdminRoles())
-				.collect(HashSet::new);
-	}
-
-	protected Set<Role> getAdditionalSuperAdminRoles(){
-		return new HashSet<>();
+		return RoleRegistry.DEFAULT_ROLES;
 	}
 
 	@Override

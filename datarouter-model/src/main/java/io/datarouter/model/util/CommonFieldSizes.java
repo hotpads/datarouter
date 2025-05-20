@@ -37,6 +37,8 @@ public class CommonFieldSizes{
 	public static final int LENGTH_50 = 50;
 	public static final int DEFAULT_LENGTH_VARCHAR = (1 << 8) - 1;
 	public static final int MAX_LENGTH_VARBINARY = 767;
+	// This is an artificial limit. The actual limit is 65,535 bytes
+	public static final int MAX_LENGTH_VARCHAR_DATAROUTER_LIMIT = 1024;
 	public static final int MAX_LENGTH_LONGBLOB = (1 << 24) - 1;
 	public static final int MAX_LENGTH_TEXT = (1 << 16) - 1;
 	public static final int MAX_LENGTH_MEDIUMTEXT = (1 << 24) - 1;

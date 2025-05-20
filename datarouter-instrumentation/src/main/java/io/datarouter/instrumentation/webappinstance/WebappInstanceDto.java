@@ -19,6 +19,7 @@ import java.time.Instant;
 import java.util.Date;
 
 public record WebappInstanceDto(
+		String environment,
 		String webappName,
 		String serverName,
 		String serverType,
@@ -40,6 +41,7 @@ public record WebappInstanceDto(
 		@Deprecated Date refreshedLast){
 
 	public WebappInstanceDto(
+			String environment,
 			String webappName,
 			String serverName,
 			String serverType,
@@ -56,7 +58,8 @@ public record WebappInstanceDto(
 			String servletContainerVersion,
 			String gitBranch,
 			Integer httpsPort){
-		this(webappName,
+		this(environment,
+				webappName,
 				serverName,
 				serverType,
 				serviceName,
@@ -77,14 +80,17 @@ public record WebappInstanceDto(
 				null);
 	}
 
+	@Override
 	public Instant refreshedLastInstant(){
 		return refreshedLastInstant != null ? refreshedLastInstant : refreshedLast.toInstant();
 	}
 
+	@Override
 	public Instant startup(){
 		return startup != null ? startup : startupDate.toInstant();
 	}
 
+	@Override
 	public Instant build(){
 		return build != null ? build : buildDate.toInstant();
 	}

@@ -40,7 +40,7 @@ public abstract class BaseCached<T> implements Supplier<T>{
 			return false;
 		}
 		T original;
-		try(var $ = TracerTool.startSpan("BaseCached reload", TraceSpanGroupType.NONE)){
+		try(var _ = TracerTool.startSpan("BaseCached reload", TraceSpanGroupType.NONE)){
 			TracerTool.appendToSpanInfo(toString());
 			synchronized(this){
 				original = value;

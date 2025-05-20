@@ -18,7 +18,6 @@ package io.datarouter.auth.web.web.adminedituser.dto;
 import java.util.List;
 import java.util.Map;
 
-import io.datarouter.auth.model.dto.DeprovisionedUserDto;
 import io.datarouter.auth.model.dto.PermissionRequestDto;
 import io.datarouter.auth.model.dto.UserRoleMetadata.UserRoleMetadataJsDto;
 
@@ -32,7 +31,7 @@ public record EditUserDetailsDto(
 		String profileLink,
 		List<PermissionRequestDto> requests,
 		List<DatarouterUserHistoryDto> history,
-		DeprovisionedUserDto deprovisionedUserDto,
+		boolean enabled,
 		List<UserRoleMetadataJsDto> userRoleMetadataList,
 		List<String> availableAccounts,
 		Map<String,Boolean> currentAccounts,
@@ -54,7 +53,7 @@ public record EditUserDetailsDto(
 				null,
 				null,
 				null,
-				null,
+				false,
 				null,
 				null,
 				null,

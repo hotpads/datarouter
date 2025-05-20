@@ -45,7 +45,6 @@ import io.datarouter.util.duration.DatarouterDuration;
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.util.tuple.Range;
-import io.datarouter.web.DatarouterWebExecutors.CountKeysExecutor;
 import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.email.StandardDatarouterEmailHeaderService;
 import io.datarouter.web.email.StandardDatarouterEmailHeaderService.EmailHeaderRow;
@@ -73,8 +72,6 @@ public class ViewNodeDataHandler extends InspectNodeDataHandler{
 	private StandardDatarouterEmailHeaderService standardDatarouterEmailHeaderService;
 	@Inject
 	private CountKeysEmailType countKeysEmailType;
-	@Inject
-	private CountKeysExecutor countKeysExec;
 
 	@Override
 	protected PathNode getFormPath(){
@@ -164,8 +161,7 @@ public class ViewNodeDataHandler extends InspectNodeDataHandler{
 			int printBatchSize = logBatchSize.orElse(100_000);
 			var batchStartMs = new AtomicLong(System.currentTimeMillis() - 1);
 			sortedNode.scanKeys(config)
-					.prefetch(countKeysExec, responseBatchSize)
-					.each($ -> count.incrementAndGet())
+					.each(_ -> count.incrementAndGet())
 					.periodic(printBatchSize, pk -> {
 						long batchMs = System.currentTimeMillis() - batchStartMs.get();
 						double batchAvgRps = printBatchSize * 1000 / Math.max(1, batchMs);

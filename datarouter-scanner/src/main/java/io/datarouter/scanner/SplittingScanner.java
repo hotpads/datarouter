@@ -18,7 +18,9 @@ package io.datarouter.scanner;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
 
-public class SplittingScanner<T,R> extends BaseLinkedScanner<T,Scanner<T>>{
+import io.datarouter.scanner.SplittingScanner.SplitKeyAndScanner;
+
+public class SplittingScanner<T,R> extends BaseLinkedScanner<T,SplitKeyAndScanner<R,T>>{
 
 	private final Function<T,R> mapper;
 	private final BiPredicate<R,R> equalsPredicate;
@@ -37,6 +39,11 @@ public class SplittingScanner<T,R> extends BaseLinkedScanner<T,Scanner<T>>{
 		this.innerIsActive = false;
 	}
 
+	public record SplitKeyAndScanner<R,T>(
+			R splitKey,
+			Scanner<T> scanner){
+	}
+
 	@Override
 	protected boolean advanceInternal(){
 		if(!outerStarted){
@@ -50,11 +57,11 @@ public class SplittingScanner<T,R> extends BaseLinkedScanner<T,Scanner<T>>{
 			}
 		}
 		if(innerIsActive){
-			while(current.advance()){//in case the user didn't drain the previous inner scanner
+			while(current.scanner().advance()){//in case the user didn't drain the previous inner scanner
 			}
 		}
 		if(foundNext){
-			current = new InnerScanner();
+			current = new SplitKeyAndScanner<>(currentSplitKey, new InnerScanner());
 			return true;
 		}
 		return false;

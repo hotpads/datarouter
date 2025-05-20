@@ -73,7 +73,7 @@ extends SpannerBaseOp<List<Tally>>{
 		ResultSet result = client.singleUse().executeQuery(statement, options);
 		return Scanner.generate(result::next)
 				.advanceWhile(hasNext -> hasNext)
-				.map($ -> new Tally(
+				.map(_ -> new Tally(
 					result.getString(TallyKey.FieldKeys.id.getColumnName()), result.getLong(
 					Tally.FieldKeys.tally.getColumnName())))
 				.list();

@@ -61,7 +61,7 @@ public class MergingScannerTests{
 
 	private Scanner<Integer> makeInputScanner(int offset, int stride, long pauseMs){
 		return Scanner.iterate(offset, i -> i + stride)
-				.each($ -> pause(pauseMs))
+				.each(_ -> pause(pauseMs))
 				.limit(5)
 				.append((Integer)null);
 	}

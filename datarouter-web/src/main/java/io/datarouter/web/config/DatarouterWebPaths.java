@@ -46,11 +46,16 @@ public class DatarouterWebPaths extends PathNode implements PathsRoot{
 		public final PathNode settings = leaf("settings");
 		public final PathNode shutdown = leaf("shutdown");
 		public final HandlerPaths handler = branch(HandlerPaths::new, "handler");
+		public final ToolsPaths tools = branch(ToolsPaths::new, "tools");
 		public final PathNode envVars = leaf("envVars");
 	}
 
 	public static class HandlerPaths extends PathNode{
 		public final PathNode handlerSearch = leaf("handlerSearch");
+	}
+
+	public static class ToolsPaths extends PathNode{
+		public final PathNode timeConverter = leaf("timeConverter");
 	}
 
 	public static class HttpPaths extends PathNode{
@@ -95,6 +100,7 @@ public class DatarouterWebPaths extends PathNode implements PathsRoot{
 		public final PathNode nodes = leaf("nodes");
 		public final PathNode plugins = leaf("plugins");
 		public final PathNode properties = leaf("properties");
+		public final PathNode cacheStats = leaf("cacheStats");
 	}
 
 	public static class DocumentationPaths extends PathNode{

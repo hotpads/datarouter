@@ -58,19 +58,19 @@ public class DatarouterSigninFormAuthenticator implements DatarouterAuthenticato
 	private DatarouterAuthPaths paths;
 
 	@Override
-	public DatarouterSession getSession(HttpServletRequest request, HttpServletResponse response){
+	public DatarouterSessionAndPersist getSession(HttpServletRequest request, HttpServletResponse response){
 		//the usual case where we're not submitting the login form.  just skip this filter
 		if(ObjectTool.notEquals(request.getServletPath(), paths.signin.submit.toSlashedString())){
-			return null;
+			return new DatarouterSessionAndPersist(null, false);
 		}
 		String username = RequestTool.get(request, authenticationConfig.getUsernameParam(), null);
 		String password = RequestTool.get(request, authenticationConfig.getPasswordParam(), null);
 		if(ObjectTool.anyNull(username, password)){
-			return null;
+			return new DatarouterSessionAndPersist(null, false);
 		}
 		if(samlSettings.getShouldProcess()){
 			logger.info("Sign in form disabled.");
-			return null;
+			return new DatarouterSessionAndPersist(null, false);
 		}
 
 		DatarouterUser user = lookupAndValidateUser(username, password);
@@ -78,7 +78,7 @@ public class DatarouterSigninFormAuthenticator implements DatarouterAuthenticato
 		user.setLastLoggedIn(MilliTime.now());
 		datarouterUserDao.put(user);
 
-		return DatarouterSession.createFromUser(user);
+		return new DatarouterSessionAndPersist(DatarouterSession.createFromUser(user), true);
 	}
 
 

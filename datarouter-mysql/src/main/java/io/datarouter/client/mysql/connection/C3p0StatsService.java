@@ -22,12 +22,16 @@ import java.util.Optional;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.datarouter.util.JmxTool;
 import io.datarouter.util.string.StringTool;
 import jakarta.inject.Singleton;
 
 @Singleton
 public class C3p0StatsService{
+	private static final Logger logger = LoggerFactory.getLogger(C3p0StatsService.class);
 
 	public List<C3p0StatsDto> getC3p0Stats(){
 		ObjectName query;
@@ -53,6 +57,10 @@ public class C3p0StatsService{
 
 	protected static Optional<String> extractClientName(String jdbcUrl){
 		String queryParams = StringTool.getStringAfterLastOccurrence('?', jdbcUrl);
+		if(queryParams == null){
+			logger.warn("could not extract client name from jdbcUrl={}", jdbcUrl);
+			return Optional.empty();
+		}
 		return Arrays.stream(queryParams.split("&"))
 				.filter(part -> part.startsWith(MysqlConnectionPoolHolder.CLIENT_NAME_KEY))
 				.findAny()

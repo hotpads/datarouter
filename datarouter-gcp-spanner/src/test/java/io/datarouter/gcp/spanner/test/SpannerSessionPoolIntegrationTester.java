@@ -86,7 +86,7 @@ public class SpannerSessionPoolIntegrationTester{
 				.batch(1_000)
 				.each(node::putMulti)
 				.each(count::incrementBySize)
-				.forEach(batch -> logger.warn("{}", counts));
+				.forEach(_ -> logger.warn("{}", counts));
 	}
 
 	@Test
@@ -111,7 +111,7 @@ public class SpannerSessionPoolIntegrationTester{
 		Scanner.iterate(0, i -> i + 1)
 				.limit(numIterations)
 //				.parallelOrdered(new Threads(scannerExec, numThreads))
-				.each(i -> {
+				.each(_ -> {
 					var future = opExec.submit(() -> {
 						try{
 							callCount.increment();
@@ -149,7 +149,7 @@ public class SpannerSessionPoolIntegrationTester{
 					}
 				})
 				.sample(logEveryN, true)
-				.forEach($ -> logger.warn("{}", counts));
+				.forEach(_ -> logger.warn("{}", counts));
 
 		Assert.assertEquals(resourceExhaustedCount.value(), 0);
 	}

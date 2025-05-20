@@ -50,8 +50,6 @@ import io.datarouter.instrumentation.trace.TraceSpanGroupType;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.BooleanTool;
-import io.datarouter.util.net.IpTool;
-import io.datarouter.util.net.Subnet;
 import io.datarouter.util.number.NumberTool;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.util.tuple.DefaultableMap;
@@ -59,14 +57,7 @@ import io.datarouter.util.tuple.DefaultableMap;
 public class RequestTool{
 	private static final Logger logger = LoggerFactory.getLogger(RequestTool.class);
 
-	protected static final String HEADER_VALUE_DELIMITER = ", ";
-
-	// intentional package scope
-	protected static final List<Subnet> PRIVATE_NETS = List.of(
-			new Subnet("10.0.0.0/8"),
-			new Subnet("172.16.0.0/12"),
-			new Subnet("100.64.0.0/10"));
-
+	public static final String HEADER_VALUE_DELIMITER = ", ";
 
 	public static final String INACCESSIBLE_BODY = "INACCESSIBLE BODY: ";
 	public static final String REQUEST_PHASE_TIMER = "requestPhaseTimer";
@@ -462,14 +453,6 @@ public class RequestTool{
 				.toList();
 	}
 
-	protected static boolean isPublicNet(String ip){
-		return isPublicNet(ip, PRIVATE_NETS);
-	}
-
-	protected static boolean isPublicNet(String ip, List<Subnet> privateSubnets){
-		return !IpTool.isIpAddressInSubnets(ip, privateSubnets);
-	}
-
 	public static boolean isAValidIpV4(String dottedDecimal){
 		String ipv4Pattern = "\\A(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(\\.(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}\\z";
 		return dottedDecimal != null && dottedDecimal.matches(ipv4Pattern);
@@ -477,7 +460,7 @@ public class RequestTool{
 
 	public static String getBodyAsString(HttpServletRequest request){
 		try(InputStream inputStream = request.getInputStream();
-				var $ = TracerTool.startSpan("RequestTool getBodyAsString", TraceSpanGroupType.HTTP)){
+				var _ = TracerTool.startSpan("RequestTool getBodyAsString", TraceSpanGroupType.HTTP)){
 			if(inputStream == null){
 				logger.warn("Request body is empty for uri={}, query={}, userAgent={}", request.getRequestURI(), request
 						.getQueryString(), getUserAgent(request));

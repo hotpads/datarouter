@@ -25,5 +25,6 @@ public record DatarouterUserListEntryDto(
 		String profileLink,
 		String profileClass,
 		List<String> currentRoles,
-		List<String> currentRolesWithSaml){
+		List<String> currentRolesWithSaml,
+		boolean enabled){
 }

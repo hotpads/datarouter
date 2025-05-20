@@ -16,7 +16,6 @@
 package io.datarouter.gcp.gcs.node;
 
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,10 +23,13 @@ import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.Storage.PredefinedAcl;
 
-import io.datarouter.gcp.gcs.DatarouterGcsClient;
-import io.datarouter.gcp.gcs.GcsHeaders;
-import io.datarouter.gcp.gcs.GcsHeaders.ContentType;
+import io.datarouter.bytes.ByteLength;
+import io.datarouter.gcp.gcs.client.GcsClient;
+import io.datarouter.gcp.gcs.util.GcsHeaders;
+import io.datarouter.gcp.gcs.util.GcsHeaders.ContentType;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.scanner.Threads;
+import io.datarouter.storage.file.BucketAndKey;
 import io.datarouter.storage.file.BucketAndKeys;
 import io.datarouter.storage.file.PathbeanKey;
 import io.datarouter.storage.util.Subpath;
@@ -35,11 +37,11 @@ import io.datarouter.util.Require;
 
 public class GcsDirectoryManager{
 
-	private final DatarouterGcsClient client;
+	private final GcsClient client;
 	private final String bucket;
 	private final Subpath rootPath;
 
-	public GcsDirectoryManager(DatarouterGcsClient client, String bucket, Subpath rootPath){
+	public GcsDirectoryManager(GcsClient client, String bucket, Subpath rootPath){
 		this.client = client;
 		this.bucket = bucket;
 		this.rootPath = rootPath;
@@ -107,15 +109,6 @@ public class GcsDirectoryManager{
 		return client.getObject(bucket, fullPath);
 	}
 
-	public Long size(String suffix){
-		String fullPath = fullPath(suffix);
-		return client.scanObjectsPaged(bucket, fullPath)
-				.concat(Scanner::of)
-				.findFirst()
-				.map(Blob::getSize)
-				.orElse(null);
-	}
-
 	/*-------------- scan -----------------*/
 
 	public Scanner<List<Blob>> scanGcsObjectsPaged(Subpath subpath){
@@ -144,19 +137,15 @@ public class GcsDirectoryManager{
 				content);
 	}
 
-	public void write(String suffix, InputStream inputStream){
-		String fullPath = fullPath(suffix);
-		client.putInputStream(
-				bucket,
-				fullPath,
-				ContentType.BINARY,
-				GcsHeaders.CACHE_CONTROL_NO_CACHE,
-				PredefinedAcl.PRIVATE,
-				inputStream);
-	}
+	/*------------ write multipart -----------*/
 
-	public void writeUtf8(String suffix, String content){
-		write(suffix, content.getBytes(StandardCharsets.UTF_8));
+	public void multipartUpload(
+			String suffix,
+			InputStream inputStream,
+			Threads threads,
+			ByteLength minPartSize){
+		var location = new BucketAndKey(bucket, fullPath(suffix));
+		client.multipartUpload(location, ContentType.BINARY, inputStream, threads, minPartSize);
 	}
 
 	/*------------ delete -------------*/

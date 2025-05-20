@@ -49,7 +49,7 @@ public class DatarouterS3BucketRequests{
 		DatarouterS3Counters.incNoBucket(S3CounterSuffix.SCAN_BUCKETS_SCANS, 1);
 		S3Client client = clientManager.getS3ClientForRegion(DatarouterS3ClientManager.DEFAULT_REGION);
 		List<Bucket> buckets;
-		try(var $ = TracerTool.startSpan("S3 listBuckets", TraceSpanGroupType.CLOUD_STORAGE)){
+		try(var _ = TracerTool.startSpan("S3 listBuckets", TraceSpanGroupType.CLOUD_STORAGE)){
 			buckets = client.listBuckets().buckets();
 		}
 		DatarouterS3Counters.incNoBucket(S3CounterSuffix.LIST_BUCKETS_REQUESTS, 1);
@@ -143,7 +143,7 @@ public class DatarouterS3BucketRequests{
 				.maxKeys(maxKeys)
 				.build();
 		ListObjectsV2Response response;
-		try(var $ = TracerTool.startSpan("S3 listObjectsV2", TraceSpanGroupType.CLOUD_STORAGE)){
+		try(var _ = TracerTool.startSpan("S3 listObjectsV2", TraceSpanGroupType.CLOUD_STORAGE)){
 			response = s3Client.listObjectsV2(request);
 			TracerTool.appendToSpanInfo("size", response.contents().size());
 		}
@@ -168,12 +168,12 @@ public class DatarouterS3BucketRequests{
 				.maxKeys(pageSize)
 				.build();
 		ListObjectsV2Iterable pages;
-		try(var $ = TracerTool.startSpan("S3 listObjectsV2Paginator", TraceSpanGroupType.CLOUD_STORAGE)){
+		try(var _ = TracerTool.startSpan("S3 listObjectsV2Paginator", TraceSpanGroupType.CLOUD_STORAGE)){
 			pages = clientManager.getS3ClientForBucket(locationPrefix.bucket())
 					.listObjectsV2Paginator(request);
 		}
 		return Scanner.of(pages)
-				.concat(res -> {
+				.concat(_ -> {
 					Scanner<DirectoryDto> objects = Scanner.of(pages)
 							.concatIter(ListObjectsV2Response::contents)
 							.map(object -> new DirectoryDto(
@@ -203,7 +203,7 @@ public class DatarouterS3BucketRequests{
 				.maxKeys(pageSize)
 				.build();
 		ListObjectsV2Iterable pages;
-		try(var $ = TracerTool.startSpan("S3 listObjectsV2Paginator", TraceSpanGroupType.CLOUD_STORAGE)){
+		try(var _ = TracerTool.startSpan("S3 listObjectsV2Paginator", TraceSpanGroupType.CLOUD_STORAGE)){
 			pages = clientManager.getS3ClientForBucket(locationPrefix.bucket()).listObjectsV2Paginator(request);
 		}
 		return Scanner.of(pages)
@@ -224,7 +224,7 @@ public class DatarouterS3BucketRequests{
 				.maxKeys(pageSize)
 				.build();
 		ListObjectsV2Iterable pages;
-		try(var $ = TracerTool.startSpan("S3 listObjectsV2Paginator", TraceSpanGroupType.CLOUD_STORAGE)){
+		try(var _ = TracerTool.startSpan("S3 listObjectsV2Paginator", TraceSpanGroupType.CLOUD_STORAGE)){
 			pages = clientManager.getS3ClientForBucket(locationPrefix.bucket()).listObjectsV2Paginator(request);
 		}
 		return Scanner.of(pages)

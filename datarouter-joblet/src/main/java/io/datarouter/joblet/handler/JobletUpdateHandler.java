@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -97,10 +96,8 @@ public class JobletUpdateHandler extends BaseHandler{
 			@Param(PARAM_jobletType) String typeString,
 			@Param(PARAM_executionOrder) Integer executionOrder,
 			@Param(PARAM_status) String status){
-		JobletType<?> jobletType = jobletTypeFactory.fromPersistentString(typeString);
-		Objects.requireNonNull(jobletType, "No joblet type found with name=" + typeString);
 		JobletStatus statusString = JobletStatus.BY_PERSISTENT_STRING.fromOrNull(status);
-		JobletRequestKey prefix = JobletRequestKey.create(jobletType, executionOrder, null, null);
+		JobletRequestKey prefix = JobletRequestKey.prefix(typeString, executionOrder);
 		jobletRequestDao.scanWithPrefix(prefix)
 				.include(jobletRequest -> statusString == jobletRequest.getStatus())
 				.map(Databean::getKey)

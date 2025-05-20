@@ -48,7 +48,6 @@ import io.datarouter.httpclient.client.DatarouterHttpCallTool;
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.instrumentation.exception.HttpRequestRecordDto;
 import io.datarouter.instrumentation.metric.Metrics;
-import io.datarouter.instrumentation.trace.TraceBundleAndHttpRequestRecordDto;
 import io.datarouter.instrumentation.trace.TraceBundleDto;
 import io.datarouter.instrumentation.trace.TraceCategory;
 import io.datarouter.instrumentation.trace.TraceDto;
@@ -66,7 +65,7 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.properties.EnvironmentName;
 import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.storage.config.properties.ServiceName;
-import io.datarouter.trace.conveyor.TraceBuffers;
+import io.datarouter.trace.conveyor.DatarouterDebuggingBuffers;
 import io.datarouter.trace.service.TraceUrlBuilder;
 import io.datarouter.trace.settings.DatarouterTraceFilterSettingRoot;
 import io.datarouter.types.Ulid;
@@ -96,7 +95,7 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 
 	private ServerName serverName;
 	private DatarouterTraceFilterSettingRoot traceSettings;
-	private TraceBuffers traceBuffers;
+	private DatarouterDebuggingBuffers debuggingBuffers;
 	private TraceUrlBuilder urlBuilder;
 	private CurrentSessionInfo currentSessionInfo;
 	private ServiceName serviceName;
@@ -107,7 +106,7 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 	public void init(FilterConfig filterConfig){
 		DatarouterInjector injector = getInjector(filterConfig.getServletContext());
 		serverName = injector.getInstance(ServerName.class);
-		traceBuffers = injector.getInstance(TraceBuffers.class);
+		debuggingBuffers = injector.getInstance(DatarouterDebuggingBuffers.class);
 		traceSettings = injector.getInstance(DatarouterTraceFilterSettingRoot.class);
 		urlBuilder = injector.getInstance(TraceUrlBuilder.class);
 		currentSessionInfo = injector.getInstance(CurrentSessionInfo.class);
@@ -130,7 +129,10 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 			var traceContext = new W3TraceContext(traceparentStr, tracestateStr, traceCreatedEpochNanos);
 			if(isTraceIdTimestampOutsideCutoffTimes(traceContext.getTraceparent())){
 				traceContext = new W3TraceContext(traceCreatedEpochNanos);
-				Metrics.count("trace discarding original traceContext");
+				logger.info("Replacing Datarouter standard non-conforming {} with {}",
+						new KvString().add("traceparent", traceparentStr),
+						new KvString().add("traceparent", traceContext.getTraceparent().toString()));
+				countDiscarding("original traceContext");
 			}
 			String initialParentId = traceContext.getTraceparent().parentId;
 			traceContext.updateParentIdAndAddTracestateMember();
@@ -275,7 +277,7 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 							traceparent);
 					Optional<String> destination = offerTrace(
 							new TraceBundleDto(trace, threads, spans),
-							httpRequestRecord);
+							Optional.ofNullable(httpRequestRecord));
 					if(destination.isEmpty()){
 						Metrics.count("traceSavedNotAllowed");
 						Metrics.count("traceSavedNotAllowed " + trace.type);
@@ -290,6 +292,8 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 									TimeUnit.NANOSECONDS.toMillis(mainThreadCpuTimeNs),
 									Number::toString)
 							.add("totalCpuTimeMs", totalCpuTimeMs, Number::toString)
+							.add("spansRecorded", spans.size(), Number::toString)
+							.add("spansDiscarded", tracer.getDiscardedSpanCount(), Number::toString)
 							.add("childThreadCount", childThreadCount, Number::toString)
 							.add("threadAllocatedKB", threadAllocatedKB, Number::toString)
 							.add("path", trace.type)
@@ -308,6 +312,8 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 									TimeUnit.NANOSECONDS.toMillis(mainThreadCpuTimeNs),
 									Number::toString)
 							.add("totalCpuTimeMs", totalCpuTimeMs, Number::toString)
+							.add("spansRecorded", tracer.getSpanQueue().size(), Number::toString)
+							.add("spansDiscarded", tracer.getDiscardedSpanCount(), Number::toString)
 							.add("childThreadCount", childThreadCount, Number::toString)
 							.add("threadAllocatedKB", threadAllocatedKB, Number::toString)
 							.add("path", trace.type)
@@ -427,9 +433,12 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 		return DatarouterGsons.withUnregisteredEnums().toJson(trimmed);
 	}
 
-	private Optional<String> offerTrace(TraceBundleDto traceBundle, HttpRequestRecordDto httpRequestRecord){
-		var traceAndHttpRequest = new TraceBundleAndHttpRequestRecordDto(traceBundle, httpRequestRecord);
-		return Optional.of(traceBuffers.offer(traceAndHttpRequest).orElse(""));
+	private Optional<String> offerTrace(TraceBundleDto traceBundle, Optional<HttpRequestRecordDto> httpRequestRecord){
+		if(httpRequestRecord.isPresent()){
+			debuggingBuffers.httpRequests.offer(httpRequestRecord.get());
+		}
+		debuggingBuffers.traces.offer(traceBundle);
+		return Optional.of(debuggingBuffers.traces.getName());
 	}
 
 	public static boolean isTraceIdTimestampOutsideCutoffTimes(Traceparent traceparent){
@@ -437,7 +446,7 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 		try{
 			timestamp = traceparent.getInstantTruncatedToMillis();
 		}catch(NumberFormatException e){
-			logger.warn("discarding invalid traceid {}", new KvString()
+			logger.warn("traceid not prefixed with 16 digit hex-nano timestamp {}", new KvString()
 					.add("traceparent", traceparent.toString()),
 					e);
 			countDiscarding("invalid traceid");
@@ -446,7 +455,7 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 		Instant now = Instant.now();
 		Instant cutoffFuture = now.plus(FUTURE_TIMESTAMP_TOLERANCE);
 		if(timestamp.isAfter(cutoffFuture)){
-			logger.warn("discarding future timestamp {}", new KvString()
+			logger.info("discarding future timestamp {}", new KvString()
 					.add("cutoff", cutoffFuture.toString())
 					.add("traceparent", traceparent.toString())
 					.add("timestamp", timestamp.toString()));
@@ -455,7 +464,7 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 		}
 		Instant cutoffPast = now.minus(PAST_TIMESTAMP_TOLERANCE);
 		if(timestamp.isBefore(cutoffPast)){
-			logger.warn("discarding past timestamp {}", new KvString()
+			logger.info("discarding past timestamp {}", new KvString()
 					.add("cutoff", cutoffPast.toString())
 					.add("traceparent", traceparent.toString())
 					.add("timestamp", timestamp.toString()));
@@ -466,6 +475,7 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 	}
 
 	private static void countDiscarding(String string){
+		Metrics.count("trace discarding all");
 		Metrics.count("trace discarding " + string);
 	}
 

@@ -62,7 +62,7 @@ public class DefaultSettingValue<T>{
 			Supplier<DatarouterEnvironmentType> environmentTypeSupplier,
 			String environment,
 			T value){
-		valueByEnvironmentNameByEnvironmentType.computeIfAbsent(environmentTypeSupplier.get(), $ -> new HashMap<>())
+		valueByEnvironmentNameByEnvironmentType.computeIfAbsent(environmentTypeSupplier.get(), _ -> new HashMap<>())
 				.put(environment, value);
 		return this;
 	}
@@ -72,7 +72,7 @@ public class DefaultSettingValue<T>{
 			String categoryName,
 			T value){
 		valueByEnvironmentCategoryNameByEnvironmentType
-				.computeIfAbsent(environmentTypeSupplier.get(), $ -> new HashMap<>())
+				.computeIfAbsent(environmentTypeSupplier.get(), _ -> new HashMap<>())
 				.put(categoryName, value);
 		return this;
 	}
@@ -81,7 +81,7 @@ public class DefaultSettingValue<T>{
 			Supplier<DatarouterEnvironmentType> environmentTypeSupplier,
 			ServerType serverType,
 			T value){
-		valueByServerTypeByEnvironmentType.computeIfAbsent(environmentTypeSupplier.get(), $ -> new HashMap<>())
+		valueByServerTypeByEnvironmentType.computeIfAbsent(environmentTypeSupplier.get(), _ -> new HashMap<>())
 				.put(serverType.getPersistentString(), value);
 		return this;
 	}
@@ -90,7 +90,7 @@ public class DefaultSettingValue<T>{
 			Supplier<DatarouterEnvironmentType> environmentTypeSupplier,
 			String serviceName,
 			T value){
-		valueByServiceNameByEnvironmentType.computeIfAbsent(environmentTypeSupplier.get(), $ -> new HashMap<>())
+		valueByServiceNameByEnvironmentType.computeIfAbsent(environmentTypeSupplier.get(), _ -> new HashMap<>())
 				.put(serviceName, value);
 		return this;
 	}
@@ -99,7 +99,7 @@ public class DefaultSettingValue<T>{
 			Supplier<DatarouterEnvironmentType> environmentTypeSupplier,
 			String serverName,
 			T value){
-		valueByServerNameByEnvironmentType.computeIfAbsent(environmentTypeSupplier.get(), $ -> new HashMap<>())
+		valueByServerNameByEnvironmentType.computeIfAbsent(environmentTypeSupplier.get(), _ -> new HashMap<>())
 				.put(serverName, value);
 		return this;
 	}

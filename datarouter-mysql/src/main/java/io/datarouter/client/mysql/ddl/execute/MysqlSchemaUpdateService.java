@@ -27,6 +27,8 @@ import io.datarouter.client.mysql.util.MysqlTool;
 import io.datarouter.email.email.DatarouterHtmlEmailService;
 import io.datarouter.email.type.DatarouterEmailTypes.SchemaUpdatesEmailType;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
+import io.datarouter.relay.DatarouterRelaySenderProvider;
+import io.datarouter.relay.DatarouterRelayTopics;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.executor.DatarouterStorageExecutors.DatarouterSchemaUpdateScheduler;
 import io.datarouter.storage.config.properties.AdminEmail;
@@ -65,7 +67,9 @@ public class MysqlSchemaUpdateService extends EmailingSchemaUpdateService{
 			BuildProperties buildProperties,
 			StandardDatarouterEmailHeaderService standardDatarouterEmailHeaderService,
 			SchemaUpdatesEmailType schemaUpdatesEmailType,
-			DatarouterSchemaUpdateEmailSettings schemaUpdateEmailSettings){
+			DatarouterSchemaUpdateEmailSettings schemaUpdateEmailSettings,
+			DatarouterRelaySenderProvider relaySenderProvider,
+			DatarouterRelayTopics relayTopics){
 		super(
 				serverName,
 				environmentName,
@@ -78,7 +82,9 @@ public class MysqlSchemaUpdateService extends EmailingSchemaUpdateService{
 				datarouterWebPaths,
 				standardDatarouterEmailHeaderService,
 				schemaUpdatesEmailType,
-				schemaUpdateEmailSettings);
+				schemaUpdateEmailSettings,
+				relaySenderProvider,
+				relayTopics);
 		this.mysqlSingleTableSchemaUpdateService = mysqlSingleTableSchemaUpdateService;
 		this.mysqlConnectionPoolHolder = mysqlConnectionPoolHolder;
 	}

@@ -23,21 +23,56 @@ public class DatarouterShadowTableExecutors{
 	@Singleton
 	public static class ShadowTableExportReadExecutor extends ScalingThreadPoolExecutor{
 		public ShadowTableExportReadExecutor(){
-			super("ShadowTableExportRead", 100);
+			super("ShadowTableExportRead", 1_000);
+		}
+	}
+
+	@Singleton
+	public static class ShadowTableRangeWriteExecutor extends ScalingThreadPoolExecutor{
+		public ShadowTableRangeWriteExecutor(){
+			super("ShadowTableRangeWrite", 1_000);
 		}
 	}
 
 	@Singleton
 	public static class ShadowTableRangeReadExecutor extends ScalingThreadPoolExecutor{
 		public ShadowTableRangeReadExecutor(){
-			super("ShadowTableRangeRead", 100);
+			super("ShadowTableRangeRead", 1_000);
 		}
 	}
 
 	@Singleton
 	public static class ShadowTableRangeDecodeExecutor extends ScalingThreadPoolExecutor{
 		public ShadowTableRangeDecodeExecutor(){
-			super("ShadowTableRangeDecode", 100);
+			super("ShadowTableRangeDecode", 1_000);
+		}
+	}
+
+	@Singleton
+	public static class ShadowTableConcatenatePrefetchExecutor extends ScalingThreadPoolExecutor{
+		public ShadowTableConcatenatePrefetchExecutor(){
+			super("ShadowTableConcatenatePrefetch", 1_000);
+		}
+	}
+
+	@Singleton
+	public static class ShadowTableCombinePrefetchExecutor extends ScalingThreadPoolExecutor{
+		public ShadowTableCombinePrefetchExecutor(){
+			super("ShadowTableCombinePrefetch", 1_000);
+		}
+	}
+
+	@Singleton
+	public static class ShadowTableTableEncodeExecutor extends ScalingThreadPoolExecutor{
+		public ShadowTableTableEncodeExecutor(){
+			super("ShadowTableTableEncode", 1_000);
+		}
+	}
+
+	@Singleton
+	public static class ShadowTableTableWriteExecutor extends ScalingThreadPoolExecutor{
+		public ShadowTableTableWriteExecutor(){
+			super("ShadowTableTableWrite", 1_000);
 		}
 	}
 

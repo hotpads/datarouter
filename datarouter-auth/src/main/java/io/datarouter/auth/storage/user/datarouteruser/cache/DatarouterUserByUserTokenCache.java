@@ -21,20 +21,21 @@ import io.datarouter.auth.exception.InvalidCredentialsException;
 import io.datarouter.auth.storage.user.datarouteruser.DatarouterUser;
 import io.datarouter.auth.storage.user.datarouteruser.DatarouterUser.DatarouterUserByUserTokenLookup;
 import io.datarouter.auth.storage.user.datarouteruser.DatarouterUserDao;
-import io.datarouter.util.cache.LoadingCache.LoadingCacheBuilder;
-import io.datarouter.util.cache.LoadingCacheWrapper;
+import io.datarouter.storage.cache.CaffeineLoadingCache.CaffeineLoadingCacheBuilder;
+import io.datarouter.storage.cache.CaffeineLoadingCacheWrapper;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
 @Singleton
-public class DatarouterUserByUserTokenCache extends LoadingCacheWrapper<String,DatarouterUser>{
+public class DatarouterUserByUserTokenCache extends CaffeineLoadingCacheWrapper<String,DatarouterUser>{
 
 	@Inject
 	public DatarouterUserByUserTokenCache(DatarouterUserDao datarouterUserDao){
-		super(new LoadingCacheBuilder<String,DatarouterUser>()
+		super(new CaffeineLoadingCacheBuilder<String,DatarouterUser>()
 				.withLoadingFunction(key -> datarouterUserDao.getByUserToken(new DatarouterUserByUserTokenLookup(key)))
 				.withExpireTtl(Duration.ofSeconds(6))
 				.withExceptionFunction(key -> new InvalidCredentialsException("userToken not found (" + key + ")"))
+				.withStatsRecording()
 				.build());
 	}
 

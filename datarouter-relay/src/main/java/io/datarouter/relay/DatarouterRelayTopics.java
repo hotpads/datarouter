@@ -17,6 +17,8 @@ package io.datarouter.relay;
 
 import java.util.List;
 
+import jakarta.inject.Singleton;
+
 public interface DatarouterRelayTopics{
 
 	List<String> permissionRequest();
@@ -24,5 +26,41 @@ public interface DatarouterRelayTopics{
 	List<String> dailyDigestSummary();
 	List<String> dailyDigestActionable();
 	List<String> dailyDigestStaleTables();
+	List<String> schemaUpdateServiceStartup();
+
+	@Singleton
+	class DefaultDatarouterRelayTopics implements DatarouterRelayTopics{
+
+		@Override
+		public List<String> permissionRequest(){
+			return List.of();
+		}
+
+		@Override
+		public List<String> permissionChanged(){
+			return List.of();
+		}
+
+		@Override
+		public List<String> dailyDigestSummary(){
+			return List.of();
+		}
+
+		@Override
+		public List<String> dailyDigestActionable(){
+			return List.of();
+		}
+
+		@Override
+		public List<String> dailyDigestStaleTables(){
+			return List.of();
+		}
+
+		@Override
+		public List<String> schemaUpdateServiceStartup(){
+			return List.of();
+		}
+
+	}
 
 }

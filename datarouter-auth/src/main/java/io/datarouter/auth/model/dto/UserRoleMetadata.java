@@ -27,6 +27,7 @@ import io.datarouter.scanner.Scanner;
 public record UserRoleMetadata(
 		Role role,
 		boolean hasRole,
+		boolean isDefaultRole,
 		Map<RoleApprovalType,RoleApprovalRequirementStatus> requirementStatusByApprovalType,
 		Optional<RoleApprovalType> editorPrioritizedApprovalType,
 		Optional<Boolean> editorCanRevoke,
@@ -56,6 +57,7 @@ public record UserRoleMetadata(
 				role.riskFactor().name(),
 				role.riskFactor().description,
 				hasRole,
+				isDefaultRole,
 				Scanner.of(requirementStatusByApprovalType.keySet())
 						.toMap(RoleApprovalType::persistentString, requirementStatusByApprovalType::get),
 				editorPrioritizedApprovalType.map(RoleApprovalType::persistentString)
@@ -70,6 +72,7 @@ public record UserRoleMetadata(
 			String roleRiskFactor,
 			String roleRiskFactorDescription,
 			boolean hasRole,
+			boolean isDefaultRole,
 			Map<String,RoleApprovalRequirementStatus> requirementStatusByApprovalType,
 			String editorPrioritizedApprovalType,
 			Boolean editorCanRevoke,

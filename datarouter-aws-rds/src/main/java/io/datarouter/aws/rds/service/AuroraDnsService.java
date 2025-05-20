@@ -29,10 +29,9 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.Gson;
-
 import io.datarouter.aws.rds.config.DatarouterAwsRdsConfigSettings;
 import io.datarouter.aws.rds.service.AuroraClientIdProvider.AuroraClientDto;
+import io.datarouter.gson.DatarouterGsons;
 import io.datarouter.util.io.ReaderTool;
 import io.datarouter.util.retry.RetryableTool;
 import jakarta.inject.Inject;
@@ -49,8 +48,6 @@ public class AuroraDnsService{
 				"^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
 				+ "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])$";
 
-	@Inject
-	private Gson gson;
 	@Inject
 	private AuroraClientIdProvider clientIdProvider;
 	@Inject
@@ -183,7 +180,7 @@ public class AuroraDnsService{
 
 	public DnsEntryHosnamesAndMismatcheEntires checkClientEndpoint(Map<String,DnsHostEntryDto> dnsEntryByHostname){
 		Set<String> ipSet = new HashSet<>();
-		logger.debug("dnsEntryByHostname={}", gson.toJson(dnsEntryByHostname));
+		logger.debug("dnsEntryByHostname={}", DatarouterGsons.forDisplay().toJson(dnsEntryByHostname));
 		List<DnsHostEntryDto> mismatchedEntries = new ArrayList<>();
 		for(DnsHostEntryDto dnsEntry : dnsEntryByHostname.values()){
 			if(dnsEntry.ip == null || dnsEntry.ip.equals("")){
@@ -199,7 +196,10 @@ public class AuroraDnsService{
 				String writerClientName = dnsEntry.writerClientName;
 				DnsHostEntryDto writerEntry = dnsEntryByHostname.get(writerClientName);
 				DnsHostEntryDto otherEntry = dnsEntryByHostname.get(writerClientName + OTHER);
-				logger.debug("reader={} writer={}", gson.toJson(readerEntry), gson.toJson(writerEntry));
+				logger.debug(
+						"reader={} writer={}",
+						DatarouterGsons.forDisplay().toJson(readerEntry),
+						DatarouterGsons.forDisplay().toJson(writerEntry));
 				if(readerEntry.ip != null && readerEntry.ip.equals(writerEntry.ip)){
 					readerEntry.setReaderPointedToWriterFlag();
 					mismatchedEntries.add(readerEntry);

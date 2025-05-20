@@ -58,7 +58,6 @@ public class MetricQueueDao extends BaseDao{
 						BinaryDtoIndexedCodec.of(DatarouterMetricGroupBinaryDto.class))
 				.withNamespace(environmentNameSupplier.get() + "-shared")
 				.withTag(Tag.DATAROUTER)
-				.withAgeMonitoring(false)
 				.buildAndRegister();
 	}
 

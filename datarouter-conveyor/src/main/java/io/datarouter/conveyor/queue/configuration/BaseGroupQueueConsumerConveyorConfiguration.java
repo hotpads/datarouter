@@ -22,13 +22,12 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.Gson;
-
 import io.datarouter.conveyor.Conveyor.ProcessResult;
 import io.datarouter.conveyor.ConveyorConfiguration;
 import io.datarouter.conveyor.ConveyorCounters;
 import io.datarouter.conveyor.ConveyorGauges;
 import io.datarouter.conveyor.ConveyorRunnable;
+import io.datarouter.gson.DatarouterGsons;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
@@ -44,8 +43,6 @@ implements ConveyorConfiguration{
 
 	@Inject
 	private ConveyorGauges gaugeRecorder;
-	@Inject
-	private Gson gson;
 
 	protected abstract GroupQueueConsumer<PK,D> getQueueConsumer();
 	protected abstract void processDatabeans(List<D> databeans);
@@ -70,7 +67,7 @@ implements ConveyorConfiguration{
 				return new ProcessResult(true);
 			}
 		}catch(Exception e){
-			throw new RuntimeException("databeans=" + gson.toJson(databeans), e);
+			throw new RuntimeException("databeans=" + DatarouterGsons.forDisplay().toJson(databeans), e);
 		}
 		Instant afterProcessBuffer = Instant.now();
 		gaugeRecorder.saveProcessBufferDurationMs(

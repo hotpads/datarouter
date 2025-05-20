@@ -17,8 +17,6 @@ package io.datarouter.aws.sqs.group.op;
 
 import java.util.List;
 
-import com.amazonaws.services.sqs.model.Message;
-
 import io.datarouter.aws.sqs.BaseSqsNode;
 import io.datarouter.aws.sqs.SqsClientManager;
 import io.datarouter.aws.sqs.op.BaseSqsPeekMultiOp;
@@ -29,6 +27,7 @@ import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.queue.GroupQueueMessage;
+import software.amazon.awssdk.services.sqs.model.Message;
 
 public class SqsGroupPeekMultiOp<
 		PK extends PrimaryKey<PK>,
@@ -48,8 +47,8 @@ extends BaseSqsPeekMultiOp<PK,D,F,GroupQueueMessage<PK,D>>{
 	protected List<GroupQueueMessage<PK, D>> extractDatabeans(List<Message> messages){
 		return messages.stream()
 				.map(message -> {
-					List<D> databeans = codec.fromStringMulti(message.getBody(), fielder, databeanSupplier);
-					byte[] receiptHandle = StringCodec.UTF_8.encode(message.getReceiptHandle());
+					List<D> databeans = codec.fromStringMulti(message.body(), fielder, databeanSupplier);
+					byte[] receiptHandle = StringCodec.UTF_8.encode(message.receiptHandle());
 					return new GroupQueueMessage<>(receiptHandle, databeans);
 				})
 				.toList();

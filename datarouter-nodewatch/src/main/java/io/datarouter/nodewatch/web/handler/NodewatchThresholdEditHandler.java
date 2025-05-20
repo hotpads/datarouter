@@ -22,6 +22,8 @@ import java.util.Optional;
 
 import io.datarouter.nodewatch.config.DatarouterNodewatchPaths;
 import io.datarouter.nodewatch.config.DatarouterNodewatchPlugin;
+import io.datarouter.nodewatch.link.NodewatchThresholdDeleteLink;
+import io.datarouter.nodewatch.link.NodewatchThresholdEditLink;
 import io.datarouter.nodewatch.service.NodewatchChangelogService;
 import io.datarouter.nodewatch.storage.alertthreshold.DatarouterTableSizeAlertThresholdDao;
 import io.datarouter.nodewatch.storage.alertthreshold.TableSizeAlertThreshold;
@@ -41,12 +43,6 @@ import jakarta.inject.Inject;
 
 public class NodewatchThresholdEditHandler extends BaseHandler{
 
-	public static final String
-			P_clientName = "clientName",
-			P_tableName = "tableName",
-			P_maxRows = "maxRows",
-			P_update = "update";
-
 	@Inject
 	private Bootstrap4PageFactory pageFactory;
 	@Inject
@@ -61,11 +57,11 @@ public class NodewatchThresholdEditHandler extends BaseHandler{
 	private NodewatchChangelogService changelogService;
 
 	@Handler
-	public Mav edit(
-			String clientName,
-			String tableName,
-			Optional<String> maxRows,
-			Optional<Boolean> update){
+	public Mav edit(NodewatchThresholdEditLink link){
+		var clientName = link.clientName;
+		var tableName = link.tableName;
+		var maxRows = link.maxRows;
+		var update = link.update;
 
 		var key = new TableSizeAlertThresholdKey(clientName, tableName);
 		Optional<String> existingMaxRows = dao.find(key)
@@ -83,11 +79,11 @@ public class NodewatchThresholdEditHandler extends BaseHandler{
 		// show form
 		var form = new HtmlForm(HtmlFormMethod.POST)
 				.withAction(paths.datarouter.nodewatch.threshold.edit.getValue());
-		form.addHiddenField(P_clientName, clientName);
-		form.addHiddenField(P_tableName, tableName);
+		form.addHiddenField(NodewatchThresholdEditLink.P_clientName, clientName);
+		form.addHiddenField(NodewatchThresholdEditLink.P_tableName, tableName);
 		form.addTextField()
 				.withLabel("Alert over N rows")
-				.withName(P_maxRows)
+				.withName(NodewatchThresholdEditLink.P_maxRows)
 				.withValue(
 						maxRows.or(() -> existingMaxRows).orElse(""),
 						update.orElse(false),
@@ -95,7 +91,7 @@ public class NodewatchThresholdEditHandler extends BaseHandler{
 				.withPlaceholder("number");
 		form.addButtonWithoutSubmitAction()
 				.withLabel("Update")
-				.withName(P_update)
+				.withName(NodewatchThresholdEditLink.P_update)
 				.withValue(Boolean.TRUE.toString());
 		var formDiv = Bootstrap4FormHtml.render(form)
 				.withClass("card card-body bg-light")
@@ -133,9 +129,9 @@ public class NodewatchThresholdEditHandler extends BaseHandler{
 	}
 
 	@Handler
-	public Mav delete(
-			String clientName,
-			String tableName){
+	public Mav delete(NodewatchThresholdDeleteLink link){
+		var clientName = link.clientName;
+		var tableName = link.tableName;
 		var key = new TableSizeAlertThresholdKey(clientName, tableName);
 		dao.delete(key);
 		changelogService.recordTable(getSessionInfo(), clientName, tableName, "delete threshold");

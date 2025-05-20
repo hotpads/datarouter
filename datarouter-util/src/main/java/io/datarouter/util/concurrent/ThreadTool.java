@@ -27,7 +27,7 @@ public class ThreadTool{
 		if(ms <= 0){//sleep errors on negatives
 			return;
 		}
-		try(var $ = TracerTool.startSpanNoGroupType("sleep " + ms)){
+		try(var _ = TracerTool.startSpanNoGroupType("sleep " + ms)){
 			Thread.sleep(ms);
 		}
 	}
@@ -36,7 +36,7 @@ public class ThreadTool{
 		if(ms <= 0){//sleep errors on negatives
 			return;
 		}
-		try(var $ = TracerTool.startSpanNoGroupType("sleep " + ms)){
+		try(var _ = TracerTool.startSpanNoGroupType("sleep " + ms)){
 			Thread.sleep(ms);
 		}catch(InterruptedException e){
 			throw new UncheckedInterruptedException(e);
@@ -47,7 +47,7 @@ public class ThreadTool{
 		if(ms <= 0){//sleep errors on negatives
 			return;
 		}
-		try(var $ = TracerTool.startSpanNoGroupType("sleep " + ms)){
+		try(var _ = TracerTool.startSpanNoGroupType("sleep " + ms)){
 			Thread.sleep(ms);
 		}catch(InterruptedException e){
 			logger.warn("sleep interrupted, continuing");

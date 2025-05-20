@@ -48,12 +48,12 @@ public class DatarouterAutoConfigPlugin extends BaseWebPlugin{
 
 		// TODO Create a wrapper object of key and values - PluginConfigEntry?
 		public DatarouterAutoConfigPluginBuilder addAutoConfig(Class<? extends PluginConfigValue<?>> config){
-			configs.computeIfAbsent(AutoConfig.KEY, $ -> new ArrayList<>()).add(config);
+			configs.computeIfAbsent(AutoConfig.KEY, _ -> new ArrayList<>()).add(config);
 			return this;
 		}
 
 		public DatarouterAutoConfigPluginBuilder addAutoConfigGroup(Class<? extends PluginConfigValue<?>> config){
-			configs.computeIfAbsent(AutoConfigGroup.KEY, $ -> new ArrayList<>()).add(config);
+			configs.computeIfAbsent(AutoConfigGroup.KEY, _ -> new ArrayList<>()).add(config);
 			return this;
 		}
 

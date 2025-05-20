@@ -111,7 +111,7 @@ public class DatarouterRedisClient{
 		DatarouterCounters.incClientNodeCustom(clientType, operationName, clientId.getName(), config.caller, 1);
 
 		String traceName = String.format("redis %s %s", clientId.getName(), operationName);
-		try(var $ = TracerTool.startSpan(traceName, TraceSpanGroupType.DATABASE)){
+		try(var _ = TracerTool.startSpan(traceName, TraceSpanGroupType.DATABASE)){
 			RedisFuture<T> future = operation.get();
 			Exception exception;
 			try{

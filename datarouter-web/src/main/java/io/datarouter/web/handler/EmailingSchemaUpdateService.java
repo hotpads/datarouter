@@ -24,6 +24,10 @@ import org.slf4j.LoggerFactory;
 import io.datarouter.email.email.DatarouterHtmlEmailService;
 import io.datarouter.email.type.DatarouterEmailTypes.SchemaUpdatesEmailType;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
+import io.datarouter.instrumentation.relay.dto.RelayStartThreadRequestDto;
+import io.datarouter.instrumentation.relay.rml.Rml;
+import io.datarouter.relay.DatarouterRelaySenderProvider;
+import io.datarouter.relay.DatarouterRelayTopics;
 import io.datarouter.storage.config.executor.DatarouterStorageExecutors.DatarouterSchemaUpdateScheduler;
 import io.datarouter.storage.config.properties.AdminEmail;
 import io.datarouter.storage.config.properties.EnvironmentName;
@@ -38,11 +42,15 @@ import jakarta.inject.Provider;
 public abstract class EmailingSchemaUpdateService extends BaseSchemaUpdateService{
 	private static final Logger logger = LoggerFactory.getLogger(EmailingSchemaUpdateService.class);
 
+	private static final String FROM_NAME = "Schema Update";
+
 	private final DatarouterHtmlEmailService htmlEmailService;
 	private final DatarouterWebPaths datarouterWebPaths;
 	private final StandardDatarouterEmailHeaderService standardDatarouterEmailHeaderService;
 	private final SchemaUpdatesEmailType schemaUpdatesEmailType;
 	private final DatarouterSchemaUpdateEmailSettings schemaUpdateEmailSettings;
+	private final DatarouterRelaySenderProvider relaySenderProvider;
+	private final DatarouterRelayTopics relayTopics;
 
 	public EmailingSchemaUpdateService(
 			ServerName serverName,
@@ -56,13 +64,17 @@ public abstract class EmailingSchemaUpdateService extends BaseSchemaUpdateServic
 			DatarouterWebPaths datarouterWebPaths,
 			StandardDatarouterEmailHeaderService standardDatarouterEmailHeaderService,
 			SchemaUpdatesEmailType schemaUpdatesEmailType,
-			DatarouterSchemaUpdateEmailSettings schemaUpdateEmailSettings){
+			DatarouterSchemaUpdateEmailSettings schemaUpdateEmailSettings,
+			DatarouterRelaySenderProvider relaySenderProvider,
+			DatarouterRelayTopics relayTopics){
 		super(serverName, environmentName, adminEmail, executor, schemaUpdateLockDao, changelogRecorder, buildId);
 		this.htmlEmailService = htmlEmailService;
 		this.datarouterWebPaths = datarouterWebPaths;
 		this.standardDatarouterEmailHeaderService = standardDatarouterEmailHeaderService;
 		this.schemaUpdatesEmailType = schemaUpdatesEmailType;
 		this.schemaUpdateEmailSettings = schemaUpdateEmailSettings;
+		this.relaySenderProvider = relaySenderProvider;
+		this.relayTopics = relayTopics;
 	}
 
 	@Override
@@ -71,17 +83,32 @@ public abstract class EmailingSchemaUpdateService extends BaseSchemaUpdateServic
 		String primaryHref = htmlEmailService.startLinkBuilder()
 				.withLocalPath(datarouterWebPaths.datarouter)
 				.build();
+		String title = "Schema Update";
 		var emailBuilder = htmlEmailService.startEmailBuilder()
 				.withSubject(subject)
-				.withTitle("Schema Update")
+				.withTitle(title)
 				.withTitleHref(primaryHref)
 				.withContent(body(header, pre(body)))
 				.from("SchemaUpdate <" + adminEmail.get() + ">")
 				.to(schemaUpdatesEmailType.tos)
 				.toSubscribers()
 				.toAdmin(schemaUpdateEmailSettings.sendToAdmin.get());
+		logger.warn("Sending Schema update email from Admin with subject={}", subject);
 		htmlEmailService.trySendJ2Html(emailBuilder);
-		logger.warn("Sending Schema update email fromAdmin with subject={}", subject);
+		logger.warn("Sending relay message with topics={}", relayTopics.schemaUpdateServiceStartup());
+		try{
+			relaySenderProvider.get().startThreadForceProduction(new RelayStartThreadRequestDto(
+					relayTopics.schemaUpdateServiceStartup(),
+					FROM_NAME,
+					subject,
+					Rml.doc(
+							Rml.heading(1, Rml.text(title).link(primaryHref)),
+							Rml.paragraph(Rml.text("Differences identified between databean schema and table schema."
+									+ " The following updates would align the table schema with the databean schema:")),
+							Rml.codeBlock(body.trim()))));
+		}catch(Exception e){
+			logger.error("Failed to send relay message", e);
+		}
 	}
 
 }

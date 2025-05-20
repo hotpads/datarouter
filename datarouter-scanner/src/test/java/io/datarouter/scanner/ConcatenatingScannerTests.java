@@ -66,7 +66,7 @@ public class ConcatenatingScannerTests{
 		AtomicBoolean seenOne = new AtomicBoolean();
 		Scanner.of(1, 2)
 				.concat(foo -> Scanner.of(foo, foo)
-						.each($ -> {
+						.each(_ -> {
 							if(seenOne.getAndSet(true)){
 								throw EXCEPTION.get();
 							}
@@ -76,7 +76,7 @@ public class ConcatenatingScannerTests{
 		seenOne.set(false);
 		Scanner.of(1, 2)
 				.concat(foo -> Scanner.of(foo, foo)
-						.each($ -> {
+						.each(_ -> {
 							if(seenOne.getAndSet(true)){
 								throw EXCEPTION.get();
 							}
@@ -97,7 +97,7 @@ public class ConcatenatingScannerTests{
 		AtomicBoolean seenOne = new AtomicBoolean();
 		Stream.of(1, 2)
 				.flatMap(foo -> Stream.of(foo, foo)
-						.peek($ -> {
+						.peek(_ -> {
 							if(seenOne.getAndSet(true)){
 								throw EXCEPTION.get();
 							}
@@ -108,7 +108,7 @@ public class ConcatenatingScannerTests{
 			seenOne.set(false);
 			Stream.of(1, 2)
 					.flatMap(foo -> Stream.of(foo, foo)
-							.peek($ -> {
+							.peek(_ -> {
 								if(seenOne.getAndSet(true)){
 									throw EXCEPTION.get();
 								}

@@ -74,7 +74,7 @@ public class GcpPubsubQueueMetricMonitoringJob extends BaseJob{
 				.concatIter(datarouterNodes::getPhysicalNodesForClient)
 				.map(NodeTool::extractSinglePhysicalNode)
 				.map(physicalNode -> (GcpPubsubPhysicalNode<?,?,?>)physicalNode)
-				.advanceUntil($ -> tracker.shouldStop())
+				.advanceUntil(_ -> tracker.shouldStop())
 				.parallelUnordered(new Threads(executor, executor.getMaximumPoolSize()))
 				.forEach(this::saveQueueLengthMetric);
 	}

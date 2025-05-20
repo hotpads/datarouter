@@ -20,6 +20,7 @@ import io.datarouter.conveyor.web.ConveyorHandler;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
+import io.datarouter.web.handler.encoder.DatarouterDefaultHandlerCodec;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
@@ -38,6 +39,7 @@ public class DatarouterConveyorRouteSet extends BaseRouteSet{
 						DatarouterUserRoleRegistry.DATAROUTER_ADMIN,
 						DatarouterUserRoleRegistry.DATAROUTER_JOB,
 						DatarouterUserRoleRegistry.DATAROUTER_MONITORING)
+				.withDefaultHandlerCodec(DatarouterDefaultHandlerCodec.INSTANCE)
 				.withTag(Tag.DATAROUTER);
 	}
 }

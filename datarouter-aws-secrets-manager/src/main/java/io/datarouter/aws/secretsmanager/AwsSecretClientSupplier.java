@@ -15,18 +15,17 @@
  */
 package io.datarouter.aws.secretsmanager;
 
-import com.amazonaws.regions.Regions;
-
 import io.datarouter.secret.client.SecretClient;
 import io.datarouter.secret.client.SecretClient.SecretClientSupplier;
 import io.datarouter.web.config.AwsSupport;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import software.amazon.awssdk.regions.Region;
 
 @Singleton
 public class AwsSecretClientSupplier implements SecretClientSupplier{
 
-	public static final String REGION = Regions.US_EAST_1.getName();//TODO make this configurable
+	public static final String REGION = Region.US_EAST_1.id();//TODO make this configurable
 
 	@Inject
 	private AwsSecretClientCredentialsHolder awsCredentialsSupplier;

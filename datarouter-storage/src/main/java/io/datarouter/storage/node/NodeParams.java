@@ -16,6 +16,8 @@
 package io.datarouter.storage.node;
 
 import java.time.Duration;
+import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -25,6 +27,8 @@ import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.node.blockfile.BlockfileNodeParams;
 import io.datarouter.storage.node.tableconfig.NodewatchConfiguration;
+import io.datarouter.storage.privacy.DatarouterPrivacyExemptionReason;
+import io.datarouter.storage.privacy.DatarouterPrivacyProcessor;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.storage.util.Subpath;
 
@@ -41,12 +45,12 @@ public class NodeParams<
 	private final Supplier<F> fielderSupplier;
 
 	//for schema evolution
-	private final String schemaVersion;
+	private final Supplier<String> schemaVersionSupplier;
 
 	//name the table different than the databean class
 	private final String physicalName;
 	private final Optional<String> namespace;
-	private final Subpath path;
+	private final Supplier<Subpath> pathSupplier;
 
 	private final String entityNodePrefix;
 
@@ -74,22 +78,22 @@ public class NodeParams<
 	// for mysql utf8 to utf8mb4 migrations
 	private final boolean disableIntroducer;
 
-	//for queue metric Alert
-	private final boolean enableAgeMonitoring = true;
-
 	private final Duration customMessageAgeThreshold;
 
 	private final BlockfileNodeParams<PK,D,F> blockfileNodeParams;
+
+	private final List<Class<? extends DatarouterPrivacyProcessor>> privacyProcessors;
+	private final Optional<DatarouterPrivacyExemptionReason> privacyExemptionReason;
 
 	private NodeParams(
 			ClientId clientId,
 			String parentName,
 			Supplier<D> databeanSupplier,
 			Supplier<F> fielderSupplier,
-			String schemaVersion,
+			Supplier<String> schemaVersionSupplier,
 			String physicalName,
 			String namespace,
-			Subpath path,
+			Supplier<Subpath> pathSupplier,
 			String entityNodePrefix,
 			String remoteRouterName,
 			String remoteNodeName,
@@ -100,17 +104,18 @@ public class NodeParams<
 			boolean disableForcePrimary,
 			Tag tag,
 			boolean disableIntroducer,
-			boolean enableAgeMonitoring,
 			Duration customMessageAgeThreshold,
-			BlockfileNodeParams<PK,D,F> blockfileNodeParams){
+			BlockfileNodeParams<PK,D,F> blockfileNodeParams,
+			List<Class<? extends DatarouterPrivacyProcessor>> privacyProcessors,
+			Optional<DatarouterPrivacyExemptionReason> privacyExemptionReason){
 		this.clientId = clientId;
 		this.parentName = parentName;
 		this.databeanSupplier = databeanSupplier;
 		this.namespace = Optional.ofNullable(namespace);
-		this.path = path;
+		this.pathSupplier = Objects.requireNonNull(pathSupplier);
 		this.databeanName = databeanSupplier.get().getDatabeanName();
 		this.fielderSupplier = fielderSupplier;
-		this.schemaVersion = schemaVersion;
+		this.schemaVersionSupplier = Objects.requireNonNull(schemaVersionSupplier);
 		this.physicalName = physicalName;
 		this.entityNodePrefix = entityNodePrefix;
 		this.remoteRouterName = remoteRouterName;
@@ -124,6 +129,8 @@ public class NodeParams<
 		this.disableIntroducer = disableIntroducer;
 		this.customMessageAgeThreshold = customMessageAgeThreshold;
 		this.blockfileNodeParams = blockfileNodeParams;
+		this.privacyProcessors = privacyProcessors;
+		this.privacyExemptionReason = privacyExemptionReason;
 	}
 
 	/*----------------------------- builder ---------------------------------*/
@@ -137,10 +144,10 @@ public class NodeParams<
 
 		private String parentName;
 		private ClientId clientId;
-		private String schemaVersion;
+		private Supplier<String> schemaVersionSupplier = () -> null;
 		private String physicalName;
 		private String namespace;
-		private Subpath path;
+		private Supplier<Subpath> pathSupplier = () -> null;
 		private String entityNodePrefix;
 		private String remoteRouterName;
 		private String remoteNodeName;
@@ -151,9 +158,10 @@ public class NodeParams<
 		private boolean disableForcePrimary;
 		private Tag tag;
 		private boolean disableIntroducer;
-		private boolean enableAgeMonitoring;
 		private Duration customMessageAgeThreshold = Duration.ofDays(2);
 		private BlockfileNodeParams<PK,D,F> blockfileNodeParams;
+		private List<Class<? extends DatarouterPrivacyProcessor>> privacyProcessors = List.of();
+		private Optional<DatarouterPrivacyExemptionReason> privacyExemptionReason = Optional.empty();
 
 		/*--------------------------- construct -----------------------------*/
 
@@ -167,10 +175,10 @@ public class NodeParams<
 			fielderSupplier = params.fielderSupplier;
 			parentName = params.parentName;
 			clientId = params.clientId;
-			schemaVersion = params.schemaVersion;
+			schemaVersionSupplier = params.schemaVersionSupplier;
 			physicalName = params.physicalName;
 			namespace = params.namespace.orElse(null);
-			path = params.path;
+			pathSupplier = params.pathSupplier;
 			entityNodePrefix = params.entityNodePrefix;
 			remoteRouterName = params.remoteRouterName;
 			remoteNodeName = params.remoteNodeName;
@@ -181,8 +189,10 @@ public class NodeParams<
 			disableForcePrimary = params.disableForcePrimary;
 			tag = params.tag;
 			disableIntroducer = params.disableIntroducer;
-			enableAgeMonitoring = params.enableAgeMonitoring;
 			customMessageAgeThreshold = params.customMessageAgeThreshold;
+			blockfileNodeParams = params.blockfileNodeParams;
+			privacyProcessors = params.privacyProcessors;
+			privacyExemptionReason = params.privacyExemptionReason;
 		}
 
 		/*---------------------------- with ---------------------------------*/
@@ -197,8 +207,8 @@ public class NodeParams<
 			return this;
 		}
 
-		public NodeParamsBuilder<PK,D,F> withSchemaVersion(String schemaVersion){
-			this.schemaVersion = schemaVersion;
+		public NodeParamsBuilder<PK,D,F> withSchemaVersionSupplier(Supplier<String> schemaVersionSupplier){
+			this.schemaVersionSupplier = schemaVersionSupplier;
 			return this;
 		}
 
@@ -229,7 +239,11 @@ public class NodeParams<
 		}
 
 		public NodeParamsBuilder<PK,D,F> withPath(Subpath path){
-			this.path = path;
+			return withPathSupplier(() -> path);
+		}
+
+		public NodeParamsBuilder<PK,D,F> withPathSupplier(Supplier<Subpath> pathSupplier){
+			this.pathSupplier = pathSupplier;
 			return this;
 		}
 
@@ -263,11 +277,6 @@ public class NodeParams<
 			return this;
 		}
 
-		public NodeParamsBuilder<PK,D,F> withAgeMonitoring(boolean enableAgeMonitoring){
-			this.enableAgeMonitoring = enableAgeMonitoring;
-			return this;
-		}
-
 		public NodeParamsBuilder<PK,D,F> withCustomMessageAgeThreshold(Duration customMessageAgeThreshold){
 			this.customMessageAgeThreshold = customMessageAgeThreshold;
 			return this;
@@ -275,6 +284,18 @@ public class NodeParams<
 
 		public NodeParamsBuilder<PK,D,F> withBlockfileNodeParams(BlockfileNodeParams<PK,D,F> blockfileNodeParams){
 			this.blockfileNodeParams = blockfileNodeParams;
+			return this;
+		}
+
+		public NodeParamsBuilder<PK,D,F> withPrivacyProcessors(
+				List<Class<? extends DatarouterPrivacyProcessor>> privacyProcessors){
+			this.privacyProcessors = privacyProcessors;
+			return this;
+		}
+
+		public NodeParamsBuilder<PK,D,F> withPrivacyExemptionReason(
+				Optional<DatarouterPrivacyExemptionReason> privacyExemptionReason){
+			this.privacyExemptionReason = privacyExemptionReason;
 			return this;
 		}
 
@@ -286,10 +307,10 @@ public class NodeParams<
 					parentName,
 					databeanSupplier,
 					fielderSupplier,
-					schemaVersion,
+					schemaVersionSupplier,
 					physicalName,
 					namespace,
-					path,
+					pathSupplier,
 					entityNodePrefix,
 					remoteRouterName,
 					remoteNodeName,
@@ -300,9 +321,10 @@ public class NodeParams<
 					disableForcePrimary,
 					tag,
 					disableIntroducer,
-					enableAgeMonitoring,
 					customMessageAgeThreshold,
-					blockfileNodeParams);
+					blockfileNodeParams,
+					privacyProcessors,
+					privacyExemptionReason);
 		}
 
 	}
@@ -336,8 +358,8 @@ public class NodeParams<
 		return fielderSupplier;
 	}
 
-	public String getSchemaVersion(){
-		return schemaVersion;
+	public Supplier<String> getSchemaVersionSupplier(){
+		return schemaVersionSupplier;
 	}
 
 	public String getPhysicalName(){
@@ -348,8 +370,8 @@ public class NodeParams<
 		return namespace;
 	}
 
-	public Subpath getPath(){
-		return path;
+	public Supplier<Subpath> getPathSupplier(){
+		return pathSupplier;
 	}
 
 	public String getRemoteRouterName(){
@@ -397,16 +419,20 @@ public class NodeParams<
 		return disableIntroducer;
 	}
 
-	public boolean getAgeMonitoringStatus(){
-		return enableAgeMonitoring;
-	}
-
 	public Duration getCustomMessageAgeThreshold(){
 		return customMessageAgeThreshold;
 	}
 
 	public BlockfileNodeParams<PK,D,F> getBlockfileNodeParams(){
 		return blockfileNodeParams;
+	}
+
+	public List<Class<? extends DatarouterPrivacyProcessor>> getPrivacyProcessors(){
+		return privacyProcessors;
+	}
+
+	public Optional<DatarouterPrivacyExemptionReason> getPrivacyExemptionReason(){
+		return privacyExemptionReason;
 	}
 
 }

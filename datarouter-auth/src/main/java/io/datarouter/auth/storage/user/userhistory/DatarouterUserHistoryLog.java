@@ -112,7 +112,7 @@ public class DatarouterUserHistoryLog extends BaseDatabean<DatarouterUserHistory
 		DEPROVISION("deprovision"),//user deprovisioned
 		EDIT("edit"),//changes to roles or flags
 		INFO("info"),//no change to this user
-		RESET("reset"),//any kind of password/key reset
+		RESET("reset"),//any kind of password/key/permission reset
 		RESTORE("restore"),//user restored after being deprovisioned
 		SAML("saml"),//permission changes detected due to SAML assertions
 		;

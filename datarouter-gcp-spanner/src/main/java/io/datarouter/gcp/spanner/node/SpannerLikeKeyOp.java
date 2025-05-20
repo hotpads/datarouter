@@ -84,7 +84,7 @@ extends SpannerBaseOp<List<DatabaseBlobKey>>{
 		ResultSet result = client.singleUse().executeQuery(statement, options);
 		return Scanner.generate(result::next)
 				.advanceWhile(hasNext -> hasNext)
-				.map($ -> new DatabaseBlobKey(
+				.map(_ -> new DatabaseBlobKey(
 						PathbeanKey.of(result.getString(DatabaseBlobKey.FieldKeys.pathAndFile.getColumnName()))))
 				.list();
 	}

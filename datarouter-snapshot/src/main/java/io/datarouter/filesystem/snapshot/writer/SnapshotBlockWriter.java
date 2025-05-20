@@ -178,7 +178,7 @@ public class SnapshotBlockWriter{
 
 	public void submitBranch(BranchBlockEncoder encoder){
 		pendingBranchEncodersByLevel
-				.computeIfAbsent(encoder.level(), $ -> new LinkedBlockingQueue<>())
+				.computeIfAbsent(encoder.level(), _ -> new LinkedBlockingQueue<>())
 				.add(encoder);
 	}
 
@@ -342,7 +342,7 @@ public class SnapshotBlockWriter{
 	public synchronized void onValueFileWrite(@SuppressWarnings("unused") Void unused){
 		Scanner.of(pendingLeafEncoders)
 				.include(this::isLeafFlushable)
-				.each($ -> pendingLeafEncoders.remove())
+				.each(_ -> pendingLeafEncoders.remove())
 				.forEach(this::flushLeaf);
 	}
 
@@ -361,7 +361,7 @@ public class SnapshotBlockWriter{
 		}
 		Scanner.of(pendingBranchEncodersForLevel)
 				.include(this::isBranchFlushable)
-				.each(encoder -> pendingBranchEncodersForLevel.remove())
+				.each(_ -> pendingBranchEncodersForLevel.remove())
 				.forEach(this::flushBranch);
 	}
 

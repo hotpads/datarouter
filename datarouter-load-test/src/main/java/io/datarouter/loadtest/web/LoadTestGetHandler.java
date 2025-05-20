@@ -234,7 +234,7 @@ public class LoadTestGetHandler extends BaseHandler{
 					.map(RandomValueKey::new)
 					.listTo(node::getMulti);
 			//TODO track hits vs misses
-			databeans.forEach($ -> trackEachRow());
+			databeans.forEach(_ -> trackEachRow());
 			return null;
 		}
 

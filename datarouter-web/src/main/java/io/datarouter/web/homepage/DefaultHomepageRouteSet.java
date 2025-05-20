@@ -19,6 +19,7 @@ import io.datarouter.auth.role.DatarouterUserRoleRegistry;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
+import io.datarouter.web.handler.encoder.DatarouterDefaultHandlerCodec;
 import jakarta.inject.Singleton;
 
 @Singleton
@@ -34,6 +35,7 @@ public class DefaultHomepageRouteSet extends BaseRouteSet implements HomepageRou
 	protected DispatchRule applyDefault(DispatchRule rule){
 		return rule
 				.allowRoles(DatarouterUserRoleRegistry.USER)
+				.withDefaultHandlerCodec(DatarouterDefaultHandlerCodec.INSTANCE)
 				.withTag(Tag.DATAROUTER);
 	}
 

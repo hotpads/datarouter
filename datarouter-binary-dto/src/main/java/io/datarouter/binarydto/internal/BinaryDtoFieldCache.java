@@ -69,7 +69,7 @@ public class BinaryDtoFieldCache<T extends BaseBinaryDto<T>>{
 	BinaryDtoFieldCache<T> of(Class<T> dtoClass){
 		BinaryDtoFieldCache<?> fieldCacheUntyped = CACHE.computeIfAbsent(
 				dtoClass,
-				$ -> (BinaryDtoFieldCache<T>) makeInternal(dtoClass));
+				_ -> (BinaryDtoFieldCache<T>) makeInternal(dtoClass));
 		return (BinaryDtoFieldCache<T>) fieldCacheUntyped;
 	}
 
@@ -101,7 +101,7 @@ public class BinaryDtoFieldCache<T extends BaseBinaryDto<T>>{
 				presentFieldSchemas.add(fieldSchema);
 			}
 		}
-		INVOCATION_COUNT_BY_CLASS.computeIfAbsent(dtoClass, $ -> new AtomicLong()).incrementAndGet();
+		INVOCATION_COUNT_BY_CLASS.computeIfAbsent(dtoClass, _ -> new AtomicLong()).incrementAndGet();
 		return new BinaryDtoFieldCache<>(
 				dtoClass,
 				fieldByIndex,

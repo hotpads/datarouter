@@ -15,6 +15,8 @@
  */
 package io.datarouter.web.browse;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -124,7 +126,9 @@ public abstract class InspectNodeDataHandler extends BaseHandler{
 		}
 		mav.put("abbreviatedFieldNameByFieldName", getFieldAbbreviationByFieldName(fielder, databeans));
 		if(databeans.size() >= limit){
-			mav.put(PARAM_nextKey, PrimaryKeyPercentCodecTool.encode(ListTool.getLastOrNull(databeans).getKey()));
+			mav.put(PARAM_nextKey, URLEncoder.encode(
+					PrimaryKeyPercentCodecTool.encode(ListTool.getLastOrNull(databeans).getKey()),
+					StandardCharsets.UTF_8));
 		}
 	}
 
@@ -143,7 +147,7 @@ public abstract class InspectNodeDataHandler extends BaseHandler{
 				.map(FieldKey::getColumnName)
 				.list();
 		List<Integer> maxLengths = new ArrayList<>();
-		IntStream.range(0, fieldNames.size()).forEach($ -> maxLengths.add(0));
+		IntStream.range(0, fieldNames.size()).forEach(_ -> maxLengths.add(0));
 
 		for(D databean : databeans){
 			List<?> values = Scanner.of(fielder.getFields(databean))

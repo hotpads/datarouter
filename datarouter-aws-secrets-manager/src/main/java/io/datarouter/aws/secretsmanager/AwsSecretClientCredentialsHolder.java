@@ -18,16 +18,15 @@ package io.datarouter.aws.secretsmanager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.amazonaws.SdkClientException;
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.AWSCredentialsProvider;
-import com.amazonaws.auth.AWSCredentialsProviderChain;
-import com.amazonaws.auth.EnvironmentVariableCredentialsProvider;
-import com.amazonaws.auth.SystemPropertiesCredentialsProvider;
-import com.amazonaws.auth.profile.ProfileCredentialsProvider;
-
 import io.datarouter.util.lang.ReflectionTool;
 import jakarta.inject.Singleton;
+import software.amazon.awssdk.auth.credentials.AwsCredentials;
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProviderChain;
+import software.amazon.awssdk.auth.credentials.EnvironmentVariableCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.SystemPropertyCredentialsProvider;
+import software.amazon.awssdk.core.exception.SdkClientException;
 
 @Singleton
 public class AwsSecretClientCredentialsHolder{
@@ -35,16 +34,17 @@ public class AwsSecretClientCredentialsHolder{
 
 	public static final String PROFILE_NAME = "secretsmanager";
 
-	public AWSCredentialsProvider getCredentialsProvider(){
-		AWSCredentialsProviderChain provider = new AWSCredentialsProviderChain(
-				new SystemPropertiesCredentialsProvider(),
-				new EnvironmentVariableCredentialsProvider(),
-				new ProfileCredentialsProvider(PROFILE_NAME));
+	public AwsCredentialsProvider getCredentialsProvider(){
+		AwsCredentialsProviderChain provider = AwsCredentialsProviderChain.builder()
+				.addCredentialsProvider(SystemPropertyCredentialsProvider.create())
+				.addCredentialsProvider(EnvironmentVariableCredentialsProvider.create())
+				.addCredentialsProvider(ProfileCredentialsProvider.create(PROFILE_NAME))
+				.build();
 		try{
-			AWSCredentials credentials = provider.getCredentials();
+			AwsCredentials credentials = provider.resolveCredentials();
 			Object usedProvider = ReflectionTool.get("lastUsedProvider", provider);
 			logger.warn("using accessKey={} from provider={}",
-					credentials.getAWSAccessKeyId(),
+					credentials.accessKeyId(),
 					usedProvider.getClass().getSimpleName());
 			return provider;
 		}catch(SdkClientException e){

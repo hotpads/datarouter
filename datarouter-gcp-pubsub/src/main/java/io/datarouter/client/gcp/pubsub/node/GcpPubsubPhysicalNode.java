@@ -31,7 +31,6 @@ public interface GcpPubsubPhysicalNode<
 extends PhysicalNode<PK,D,F>{
 
 	Supplier<TopicAndSubscriptionName> getTopicAndSubscriptionName();
-	boolean getAgeMonitoringStatusForMetricAlert();
 	Duration getCustomMessageAgeThreshold();
 
 }

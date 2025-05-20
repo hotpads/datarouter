@@ -15,10 +15,6 @@
  */
 package io.datarouter.auth.web.service;
 
-import static j2html.TagCreator.a;
-import static j2html.TagCreator.div;
-
-import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Comparator;
 import java.util.List;
@@ -27,22 +23,20 @@ import java.util.Optional;
 import io.datarouter.auth.config.DatarouterAuthPaths;
 import io.datarouter.auth.detail.DatarouterUserExternalDetailService;
 import io.datarouter.auth.detail.DatarouterUserProfileLink;
+import io.datarouter.auth.link.EditUserLink;
 import io.datarouter.auth.service.UserInfo.UserInfoSupplier;
 import io.datarouter.auth.session.SessionBasedUser;
 import io.datarouter.auth.storage.user.permissionrequest.DatarouterPermissionRequestDao;
 import io.datarouter.auth.storage.user.permissionrequest.PermissionRequest;
 import io.datarouter.auth.storage.user.permissionrequest.PermissionRequestKey;
-import io.datarouter.email.html.J2HtmlEmailTable;
-import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
+import io.datarouter.email.link.DatarouterEmailLinkClient;
 import io.datarouter.instrumentation.relay.rml.Rml;
 import io.datarouter.instrumentation.relay.rml.RmlBlock;
 import io.datarouter.types.MilliTime;
 import io.datarouter.util.time.ZonedDateFormatterTool;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
-import io.datarouter.web.digest.DailyDigestService;
-import j2html.tags.specialized.DivTag;
-import j2html.tags.specialized.TableTag;
+import io.datarouter.web.digest.DailyDigestRmlService;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
@@ -58,7 +52,9 @@ public class PermissionRequestDailyDigest implements DailyDigest{
 	@Inject
 	private UserInfoSupplier userInfo;
 	@Inject
-	private DailyDigestService digestService;
+	private DailyDigestRmlService digestService;
+	@Inject
+	private DatarouterEmailLinkClient linkClient;
 
 	@Override
 	public String getTitle(){
@@ -73,17 +69,6 @@ public class PermissionRequestDailyDigest implements DailyDigest{
 	@Override
 	public DailyDigestGrouping getGrouping(){
 		return DailyDigestGrouping.HIGH;
-	}
-
-	@Override
-	public Optional<DivTag> getEmailContent(ZoneId zoneId){
-		List<PermissionRequestDto> openRequests = getOpenRequests();
-		if(openRequests.isEmpty()){
-			return Optional.empty();
-		}
-		var header = digestService.makeHeader("Open Permission Requests", paths.admin.viewUsers);
-		var table = buildEmailTable(openRequests, zoneId);
-		return Optional.of(div(header, table));
 	}
 
 	@Override
@@ -103,11 +88,11 @@ public class PermissionRequestDailyDigest implements DailyDigest{
 										Rml.tableHeader(Rml.text("Details"))))
 								.with(openRequests.stream()
 										.map(req -> {
-											String username = req.user.getUsername();
+											String username = req.user().getUsername();
 											DatarouterUserProfileLink detailsLink = detailsService.getUserProfileLink(
 													username).get();
-											String editUrl = paths.admin.editUser.toSlashedString()
-													+ "?username=" + username;
+											String editUrl = linkClient.toUrl(new EditUserLink()
+													.withUsername(username));
 
 											return Rml.tableRow(
 													Rml.tableCell(Rml.text(username)),
@@ -115,6 +100,11 @@ public class PermissionRequestDailyDigest implements DailyDigest{
 													Rml.tableCell(Rml.text(req.getInstantRequested(zoneId))),
 													Rml.tableCell(Rml.text("Edit User Page").link(editUrl)));
 										}))));
+	}
+
+	@Override
+	public List<DailyDigestPlatformTask> getTasks(ZoneId zoneId){
+		return List.of();
 	}
 
 	private List<PermissionRequestDto> getOpenRequests(){
@@ -130,39 +120,12 @@ public class PermissionRequestDailyDigest implements DailyDigest{
 				.list();
 	}
 
-	private TableTag buildEmailTable(List<PermissionRequestDto> rows, ZoneId zoneId){
-		return new J2HtmlEmailTable<PermissionRequestDto>()
-				.withColumn("Username", row -> row.user.getUsername())
-				.withColumn(new J2HtmlEmailTableColumn<>(
-						"Profile",
-						row -> {
-							String username = row.user.getUsername();
-							DatarouterUserProfileLink detailsLink = detailsService.getUserProfileLink(username).get();
-							return a(detailsLink.name()).withHref(detailsLink.url());
-						}))
-				.withColumn("Date Requested", row -> row.getInstantRequested(zoneId))
-				.withColumn(new J2HtmlEmailTableColumn<>(
-						"Details",
-						row -> {
-							String link = paths.admin.editUser.toSlashedString() + "?username="
-									+ row.user.getUsername();
-							return digestService.makeATagLink("Edit User Page", link);
-						}))
-				.build(rows);
-	}
-
-	private static class PermissionRequestDto{
-
-		public final SessionBasedUser user;
-		private final Instant instantRequested;
-
-		public PermissionRequestDto(SessionBasedUser user, MilliTime requested){
-			this.user = user;
-			this.instantRequested = requested.toInstant();
-		}
+	private record PermissionRequestDto(
+			SessionBasedUser user,
+			MilliTime requested){
 
 		public String getInstantRequested(ZoneId zoneId){
-			return ZonedDateFormatterTool.formatInstantWithZone(instantRequested, zoneId);
+			return ZonedDateFormatterTool.formatInstantWithZone(requested.toInstant(), zoneId);
 		}
 
 	}

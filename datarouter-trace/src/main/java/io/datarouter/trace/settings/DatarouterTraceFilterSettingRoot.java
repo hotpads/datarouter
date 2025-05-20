@@ -27,7 +27,6 @@ import jakarta.inject.Singleton;
 @Singleton
 public class DatarouterTraceFilterSettingRoot extends SettingRoot{
 
-	public final Setting<Boolean> logRequests;
 	public final CachedSetting<Integer> logTracesOverMs;
 	public final CachedSetting<Boolean> saveTraces;
 	public final CachedSetting<Integer> saveTracesOverMs;
@@ -45,12 +44,12 @@ public class DatarouterTraceFilterSettingRoot extends SettingRoot{
 	public final CachedSetting<Integer> randomSamplingMax;
 	public final CachedSetting<Integer> randomSamplingThreshold;
 	public final CachedSetting<Integer> maxSpansPerTrace;
+	public final CachedSetting<Boolean> publishNonProdDataToSharedQueue;
 
 	@Inject
 	public DatarouterTraceFilterSettingRoot(SettingFinder finder){
 		super(finder, DatarouterSettingCategory.DATAROUTER, "datarouterTraceFilter.");
 
-		logRequests = registerBoolean("logRequests", false);
 		logTracesOverMs = registerInteger("logTracesOverMs", 500);
 		saveTraces = registerBooleans("saveTraces", defaultTo(false)
 				.withTag(DatarouterSettingTagType.TRACE2_PIPELINE, () -> true));
@@ -74,6 +73,7 @@ public class DatarouterTraceFilterSettingRoot extends SettingRoot{
 		randomSamplingMax = registerInteger("randomSamplingMax", 10000);
 		randomSamplingThreshold = registerInteger("randomSamplingThreshold", 5);
 		maxSpansPerTrace = registerInteger("maxSpansPerTrace", 1400);
+		publishNonProdDataToSharedQueue = registerBoolean("publishNonProdDataToSharedQueue", false);
 	}
 
 }

@@ -15,8 +15,6 @@
  */
 package io.datarouter.auth.web.service;
 
-import static j2html.TagCreator.div;
-
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
@@ -24,25 +22,26 @@ import java.util.Optional;
 import io.datarouter.auth.config.DatarouterAuthPaths;
 import io.datarouter.auth.storage.account.credential.DatarouterAccountCredential;
 import io.datarouter.auth.storage.account.credential.DatarouterAccountCredentialDao;
-import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.instrumentation.relay.rml.Rml;
 import io.datarouter.instrumentation.relay.rml.RmlBlock;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
-import io.datarouter.web.digest.DailyDigestService;
-import j2html.tags.specialized.DivTag;
-import j2html.tags.specialized.TableTag;
+import io.datarouter.web.digest.DailyDigestRmlService;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterDefaultAccountKeysDailyDigest implements DailyDigest{
 
+	private static final String ACCOUNT_CATEGORY = "account";
+	private static final String DEFAULT_KEY_CATEGORY = "defaultKey";
+
 	@Inject
 	private DefaultDatarouterAccountKeysSupplier defaultDatarouterAccountKeys;
 	@Inject
-	private DailyDigestService dailyDigestService;
+	private DailyDigestRmlService dailyDigestService;
 	@Inject
 	private DatarouterAccountCredentialDao datarouterAccountCredentialDao;
 	@Inject
@@ -64,19 +63,6 @@ public class DatarouterDefaultAccountKeysDailyDigest implements DailyDigest{
 	}
 
 	@Override
-	public Optional<DivTag> getEmailContent(ZoneId zoneId){
-		List<String> accounts = getAccounts();
-		if(accounts.isEmpty()){
-			return Optional.empty();
-		}
-		var header = dailyDigestService.makeHeader(
-				"Account Credentials with default api or secret keys",
-				authPaths.datarouter.accountManager);
-		var table = buildEmailTable(accounts);
-		return Optional.of(div(header, table));
-	}
-
-	@Override
 	public Optional<RmlBlock> getRelayContent(ZoneId zoneId){
 		List<String> accounts = getAccounts();
 		if(accounts.isEmpty()){
@@ -95,20 +81,31 @@ public class DatarouterDefaultAccountKeysDailyDigest implements DailyDigest{
 										.map(Rml::tableRow))));
 	}
 
-	private List<String> getAccounts(){
-		return datarouterAccountCredentialDao.scan()
-				.include(credential -> StringTool.equalsCaseInsensitive(credential.getKey().getApiKey(),
-						defaultDatarouterAccountKeys.getDefaultApiKey())
-						|| StringTool.equalsCaseInsensitive(credential.getSecretKey(),
-								defaultDatarouterAccountKeys.getDefaultSecretKey()))
-				.map(DatarouterAccountCredential::getAccountName)
+	@Override
+	public List<DailyDigestPlatformTask> getTasks(ZoneId zoneId){
+		return Scanner.of(getAccounts())
+				.map(account -> new DailyDigestPlatformTask(
+						List.of(ACCOUNT_CATEGORY, DEFAULT_KEY_CATEGORY, account),
+						List.of(ACCOUNT_CATEGORY, DEFAULT_KEY_CATEGORY),
+						"Account " + account + " has default api or secret keys",
+						Rml.paragraph(
+								Rml.text("Account has default api or secret keys, please update "),
+								dailyDigestService.makeLink("account credentials", authPaths.datarouter.accountManager),
+								Rml.text("."))))
 				.list();
 	}
 
-	private TableTag buildEmailTable(List<String> rows){
-		return new J2HtmlEmailTable<String>()
-				.withColumn("Accounts", row -> row)
-				.build(rows);
+	private List<String> getAccounts(){
+		return datarouterAccountCredentialDao.scan()
+				.include(credential ->
+						StringTool.equalsCaseInsensitive(
+								credential.getKey().getApiKey(),
+								defaultDatarouterAccountKeys.getDefaultApiKey())
+						|| StringTool.equalsCaseInsensitive(
+								credential.getSecretKey(),
+								defaultDatarouterAccountKeys.getDefaultSecretKey()))
+				.map(DatarouterAccountCredential::getAccountName)
+				.list();
 	}
 
 }

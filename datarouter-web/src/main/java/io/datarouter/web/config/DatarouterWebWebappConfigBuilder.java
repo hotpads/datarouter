@@ -33,6 +33,8 @@ import io.datarouter.auth.config.DatarouterAuthenticationConfig;
 import io.datarouter.auth.detail.DatarouterUserExternalDetailService;
 import io.datarouter.auth.role.DatarouterRoleManager;
 import io.datarouter.auth.role.RoleManager;
+import io.datarouter.auth.security.ExternalDatarouterAccountValidator;
+import io.datarouter.auth.security.ExternalDatarouterAccountValidator.NoOpExternalDatarouterAccountValidator;
 import io.datarouter.auth.session.CurrentSessionInfo;
 import io.datarouter.auth.session.CurrentSessionInfo.NoOpCurrentSessionInfo;
 import io.datarouter.auth.session.UserSessionService;
@@ -64,7 +66,6 @@ import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.storage.servertype.ServerTypes;
 import io.datarouter.storage.setting.SettingRoot;
 import io.datarouter.util.lang.ReflectionTool;
-import io.datarouter.util.net.Subnet;
 import io.datarouter.util.ordered.Ordered;
 import io.datarouter.util.ordered.OrderedTool;
 import io.datarouter.web.config.DatarouterWebPlugin.DatarouterWebPluginBuilder;
@@ -95,6 +96,7 @@ import io.datarouter.web.service.DocumentationNamesAndLinksSupplier.DocDto;
 import io.datarouter.web.service.DocumentationNamesAndLinksSupplier.DocType;
 import io.datarouter.web.service.ServiceDescriptionSupplier;
 import io.datarouter.web.user.authenticate.DatarouterAuthenticationFilter;
+import io.datarouter.web.util.http.TrustedProxy;
 
 public abstract class DatarouterWebWebappConfigBuilder<T extends DatarouterWebWebappConfigBuilder<T>>
 implements WebappBuilder{
@@ -148,7 +150,8 @@ implements WebappBuilder{
 	private ZoneId dailyDigestEmailZoneId;
 	private Class<? extends HandlerAccountCallerValidator> handlerAccountCallerValidator;
 	private Class<? extends ExceptionLinkBuilder> exceptionLinkBuilderClass;
-	private List<Subnet> cloudfrontRanges;
+	private TrustedProxy trustedProxy;
+	private Class<? extends ExternalDatarouterAccountValidator> externalDatarouterAccountValidator;
 
 	// datarouter-web servlet
 	private final List<Ordered<FilterParams>> filterParamsOrdered;
@@ -246,7 +249,7 @@ implements WebappBuilder{
 		this.defaultEmailDistributionListZoneId = ZoneId.systemDefault();
 		this.dailyDigestEmailZoneId = ZoneId.systemDefault();
 		this.handlerAccountCallerValidator = NoOpHandlerAccountCallerValidator.class;
-		this.cloudfrontRanges = new ArrayList<>();
+		this.externalDatarouterAccountValidator = NoOpExternalDatarouterAccountValidator.class;
 
 		// datarouter-web servlet
 		this.filterParamsOrdered = new ArrayList<>();
@@ -316,7 +319,8 @@ implements WebappBuilder{
 				.setDailyDigestEmailZoneId(dailyDigestEmailZoneId)
 				.setHandlerAccountCallerValidator(handlerAccountCallerValidator)
 				.setExceptionLinkBuilderClass(exceptionLinkBuilderClass)
-				.setCloudfrontRanges(cloudfrontRanges)
+				.setTrustedProxy(trustedProxy)
+				.setExternalDatarouterAccountValidator(externalDatarouterAccountValidator)
 				.build();
 		webPlugin.getStoragePlugins().forEach(this::addStoragePluginWithoutInstalling);
 		webPlugin.getWebPlugins().forEach(this::addWebPluginWithoutInstalling);
@@ -461,10 +465,10 @@ implements WebappBuilder{
 
 		// TODO do we need to check for overwriting?
 		plugin.classSingle.forEach(classSingle::put);
-		plugin.classList.forEach((key, value) -> classList.computeIfAbsent(key, $ -> new ArrayList<>()).addAll(value));
+		plugin.classList.forEach((key, value) -> classList.computeIfAbsent(key, _ -> new ArrayList<>()).addAll(value));
 		plugin.instanceSingle.forEach(instanceSingle::put);
 		plugin.instanceList
-				.forEach((key, value) -> instanceList.computeIfAbsent(key, $ -> new ArrayList<>()).addAll(value));
+				.forEach((key, value) -> instanceList.computeIfAbsent(key, _ -> new ArrayList<>()).addAll(value));
 		return getSelf();
 	}
 
@@ -671,8 +675,14 @@ implements WebappBuilder{
 		return getSelf();
 	}
 
-	public T setCloudfrontRanges(List<Subnet> cloudfrontRanges){
-		this.cloudfrontRanges = cloudfrontRanges;
+	public T setTrustedProxy(TrustedProxy trustedProxy){
+		this.trustedProxy = trustedProxy;
+		return getSelf();
+	}
+
+	public T setExternalDatarouterAccountValidator(
+			Class<? extends ExternalDatarouterAccountValidator> externalDatarouterAccountValidator){
+		this.externalDatarouterAccountValidator = externalDatarouterAccountValidator;
 		return getSelf();
 	}
 
@@ -751,7 +761,7 @@ implements WebappBuilder{
 	public T addPluginEntry(PluginConfigKey<?> key, Class<? extends PluginConfigValue<?>> value){
 		switch(key.type){
 		case CLASS_LIST:
-			classList.computeIfAbsent(key, $ -> new ArrayList<>()).add(value);
+			classList.computeIfAbsent(key, _ -> new ArrayList<>()).add(value);
 			break;
 		case CLASS_SINGLE:
 			if(classSingle.containsKey(key)){
@@ -768,7 +778,7 @@ implements WebappBuilder{
 	public T addPluginEntry(PluginConfigValue<?> value){
 		switch(value.getKey().type){
 		case INSTANCE_LIST:
-			instanceList.computeIfAbsent(value.getKey(), $ -> new ArrayList<>()).add(value);
+			instanceList.computeIfAbsent(value.getKey(), _ -> new ArrayList<>()).add(value);
 			break;
 		case INSTANCE_SINGLE:
 			if(instanceSingle.containsKey(value.getKey())){

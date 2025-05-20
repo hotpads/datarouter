@@ -33,7 +33,8 @@ import com.jcraft.jsch.SftpException;
 
 import io.datarouter.client.ssh.request.SshExecSessionRequest;
 import io.datarouter.client.ssh.request.SshSessionConfig;
-import io.datarouter.client.ssh.request.SshSftpSessionRequest;
+import io.datarouter.client.ssh.request.SshSftpGetSessionRequest;
+import io.datarouter.client.ssh.request.SshSftpPutSessionRequest;
 import io.datarouter.util.concurrent.ThreadTool;
 
 public class DatarouterSshTool{
@@ -105,7 +106,7 @@ public class DatarouterSshTool{
 		};
 	}
 
-	public static void sftp(String rsaPrivateKey, SshSftpSessionRequest request){
+	public static void sftp(String rsaPrivateKey, SshSftpPutSessionRequest request){
 		SessionAndChannel<ChannelSftp> sessionAndChannel = sftp(rsaPrivateKey, request.config());
 		Session session = sessionAndChannel.session();
 		ChannelSftp sftp = sessionAndChannel.channel();
@@ -119,12 +120,26 @@ public class DatarouterSshTool{
 		}
 	}
 
+	public static void sftp(String rsaPrivateKey, SshSftpGetSessionRequest request){
+		SessionAndChannel<ChannelSftp> sessionAndChannel = sftp(rsaPrivateKey, request.config());
+		Session session = sessionAndChannel.session();
+		ChannelSftp sftp = sessionAndChannel.channel();
+		try{
+			sftp.get(request.remoteFilePath(), request.outputFileStream());
+		}catch(SftpException e){
+			throw new RuntimeException(e);
+		}finally{
+			sftp.exit();
+			session.disconnect();
+		}
+	}
+
 	public static SessionAndChannel<ChannelSftp> sftp(String rsaPrivateKey, SshSessionConfig request){
 		return connectSessionAndStartChannel(
 				"sftp",
 				rsaPrivateKey,
 				request,
-				(ChannelSftp exec) -> {});
+				(ChannelSftp _) -> {});
 	}
 
 	public static SessionAndChannel<ChannelExec> exec(String rsaPrivateKey, SshExecSessionRequest request){
@@ -140,7 +155,7 @@ public class DatarouterSshTool{
 				"shell",
 				rsaPrivateKey,
 				config,
-				$ -> {});
+				_ -> {});
 		return new ShellSshSessionRunner(sessionAndChannel.session, sessionAndChannel.channel);
 	}
 

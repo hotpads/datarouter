@@ -50,25 +50,25 @@ public class MemoryBlobStorage{
 	/*-------------- write ---------------*/
 
 	public void write(byte[] key, byte[] value, Long ttlMs){
-		try(var $ = lock.lockForWriting()){
+		try(var _ = lock.lockForWriting()){
 			navigableMap.put(key, new MemoryBlob(key, value, ttlMs));
 		}
 	}
 
 	public void delete(byte[] key){
-		try(var $ = lock.lockForWriting()){
+		try(var _ = lock.lockForWriting()){
 			navigableMap.remove(key);
 		}
 	}
 
 	public void deleteMulti(List<byte[]> keys){
-		try(var $ = lock.lockForWriting()){
+		try(var _ = lock.lockForWriting()){
 			keys.forEach(navigableMap::remove);
 		}
 	}
 
 	public void deleteAll(){
-		try(var $ = lock.lockForWriting()){
+		try(var _ = lock.lockForWriting()){
 			navigableMap.clear();
 		}
 	}
@@ -77,7 +77,7 @@ public class MemoryBlobStorage{
 
 	public Optional<MemoryBlob> find(byte[] key){
 		MemoryBlob result;
-		try(var $ = lock.lockForReading()){
+		try(var _ = lock.lockForReading()){
 			result = navigableMap.get(key);
 		}
 		return Optional.ofNullable(result)
@@ -86,7 +86,7 @@ public class MemoryBlobStorage{
 
 	public Scanner<MemoryBlob> scan(Range<byte[]> range){
 		List<MemoryBlob> result;
-		try(var $ = lock.lockForReading()){
+		try(var _ = lock.lockForReading()){
 			result = new ArrayList<>(rangeMap.subMap(range).values());
 		}
 		return Scanner.of(result)

@@ -21,16 +21,15 @@ import static j2html.TagCreator.h5;
 
 import java.util.Optional;
 
-import org.apache.http.client.utils.URIBuilder;
-
 import io.datarouter.clustersetting.config.DatarouterClusterSettingPaths;
+import io.datarouter.clustersetting.link.ClusterSettingOverrideCreateLink;
+import io.datarouter.clustersetting.link.ClusterSettingOverrideViewLink;
 import io.datarouter.clustersetting.web.ClusterSettingHtml;
 import io.datarouter.clustersetting.web.override.ClusterSettingEditSource;
 import io.datarouter.clustersetting.web.override.ClusterSettingOverrideHtml;
 import io.datarouter.clustersetting.web.override.ClusterSettingOverrideTableHtml;
-import io.datarouter.clustersetting.web.override.handler.ClusterSettingOverrideCreateHandler.ClusterSettingOverrideCreateLinks;
 import io.datarouter.email.email.DatarouterHtmlEmailService;
-import io.datarouter.web.config.ServletContextSupplier;
+import io.datarouter.httpclient.endpoint.link.DatarouterLinkClient;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.html.form.HtmlForm;
@@ -43,25 +42,22 @@ import jakarta.inject.Singleton;
 
 public class ClusterSettingOverrideViewHandler extends BaseHandler{
 
-	private static final String
-			P_partialName = "partialName",
-			P_suggestionsOnly = "suggestionsOnly";
-
 	@Inject
 	private Bootstrap4PageFactory pageFactory;
 	@Inject
 	private ClusterSettingHtml clusterSettingHtml;
 	@Inject
-	private ClusterSettingOverrideCreateLinks createLinks;
+	private DatarouterLinkClient linkClient;
 	@Inject
 	private ClusterSettingOverrideHtml overrideHtml;
 	@Inject
 	private ClusterSettingOverrideTableHtml overrideTableHtml;
 
 	@Handler
-	public Mav view(
-			Optional<String> partialName,
-			Optional<Boolean> suggestionsOnly){
+	public Mav view(ClusterSettingOverrideViewLink viewLink){
+
+		Optional<String> partialName = viewLink.partialName;
+		Optional<Boolean> suggestionsOnly = viewLink.suggestionsOnly;
 		String title = clusterSettingHtml.makeTitle("Overrides");
 		var content = div(
 				clusterSettingHtml.makeHeader(
@@ -78,12 +74,13 @@ public class ClusterSettingOverrideViewHandler extends BaseHandler{
 	}
 
 	private DivTag makeCreateButtonDiv(Optional<String> optPartialName){
+		var clusterOverrideCreateLink = new ClusterSettingOverrideCreateLink()
+				.withSource(ClusterSettingEditSource.DATABASE)
+				.withOptPartialName(optPartialName);
+
 		return div(overrideHtml.makeCreateButton(
 				"Create New Override",
-				createLinks.create(
-						Optional.of(ClusterSettingEditSource.DATABASE),
-						optPartialName,
-						Optional.empty())));
+				linkClient.toInternalUrl(clusterOverrideCreateLink)));
 	}
 
 	private DivTag makeFilterDiv(
@@ -92,36 +89,19 @@ public class ClusterSettingOverrideViewHandler extends BaseHandler{
 		var form = new HtmlForm(HtmlFormMethod.GET);
 		form.addCheckboxField()
 				.withLabel("Suggestions only")
-				.withName(P_suggestionsOnly)
+				.withName(ClusterSettingOverrideViewLink.P_suggestionsOnly)
 				.withChecked(suggestionsOnly.orElse(false))
 				.withSubmitOnChange();
 		form.addTextField()
 				.withLabel("Name")
 				.withPlaceholder("Partial name")
-				.withName(P_partialName)
+				.withName(ClusterSettingOverrideViewLink.P_partialName)
 				.withValue(partialName.orElse(null));
 		form.addButtonWithoutSubmitAction()
 				.withLabel("Search");
 		return div(
 				h5("Search"),
 				Bootstrap4FormHtml.render(form, true));
-	}
-
-	@Singleton
-	public static class ClusterSettingOverrideViewLinks{
-
-		@Inject
-		private ServletContextSupplier contextSupplier;
-		@Inject
-		private DatarouterClusterSettingPaths paths;
-
-		public String view(){
-			var uriBuilder = new URIBuilder()
-					.setPath(contextSupplier.getContextPath()
-							+ paths.datarouter.settings.overrides.view.toSlashedString());
-			return uriBuilder.toString();
-		}
-
 	}
 
 	@Singleton
@@ -135,7 +115,7 @@ public class ClusterSettingOverrideViewHandler extends BaseHandler{
 		public String view(String partialName){
 			return emailService.startLinkBuilder()
 					.withLocalPath(paths.datarouter.settings.overrides.view)
-					.withParam(P_partialName, partialName)
+					.withParam(ClusterSettingOverrideViewLink.P_partialName, partialName)
 					.build();
 		}
 

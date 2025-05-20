@@ -21,6 +21,27 @@ import org.testng.annotations.Test;
 public class ByteReaderTests{
 
 	@Test
+	public void testComparableDouble(){
+		var writer = new ByteWriter(100);
+		writer.bytes(new byte[]{9, 9});//filler
+		writer.comparableDouble(1.1);
+		writer.comparableDouble(2.2);
+		writer.comparableDouble(3.3);
+
+		var reader1 = new ByteReader(writer.concat());
+		Assert.assertEquals(reader1.bytes(2), new byte[]{9, 9});
+		Assert.assertEquals(reader1.comparableDouble(), 1.1);
+		Assert.assertEquals(reader1.comparableDouble(), 2.2);
+		Assert.assertEquals(reader1.comparableDouble(), 3.3);
+		reader1.assertFinished();
+
+		var reader2 = new ByteReader(writer.concat());
+		reader2.skip(2);
+		Assert.assertEquals(reader2.comparableDoubles(3), new double[]{1.1, 2.2, 3.3});
+		reader2.assertFinished();
+	}
+
+	@Test
 	public void testComparableUtf8(){
 		var writer = new ByteWriter(100);
 		writer.rawInt(3);//filler

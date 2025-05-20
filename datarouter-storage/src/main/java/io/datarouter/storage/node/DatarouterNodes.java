@@ -71,7 +71,7 @@ public class DatarouterNodes{
 				String tableName = physicalNode.getFieldInfo().getTableName();
 				physicalNodeByTableNameByClientName.computeIfAbsent(
 						clientName,
-						k -> new TreeMap<>()).put(tableName, physicalNode);
+						_ -> new TreeMap<>()).put(tableName, physicalNode);
 			}
 		}
 		topLevelNodes.add(node);

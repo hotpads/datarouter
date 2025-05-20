@@ -154,7 +154,7 @@ public class GraphQlSchemaService{
 			Map<String,List<GraphQLFieldDefinition>> map,
 			String key,
 			GraphQLFieldDefinition value){
-		List<GraphQLFieldDefinition> fieldDefinitions = map.computeIfAbsent(key, $ -> new ArrayList<>());
+		List<GraphQLFieldDefinition> fieldDefinitions = map.computeIfAbsent(key, _ -> new ArrayList<>());
 		fieldDefinitions.add(value);
 	}
 

@@ -21,7 +21,7 @@
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-parent</artifactId>
-		<version>0.0.126</version>
+		<version>0.0.127</version>
 		<relativePath>../datarouter-parent</relativePath>
 	</parent>
 
@@ -66,12 +66,12 @@
 		<dependency>
 			<groupId>com.mchange</groupId>
 			<artifactId>c3p0</artifactId>
-			<version>0.10.1</version>
+			<version>0.10.2</version>
 		</dependency>
 		<dependency>
 			<groupId>com.mysql</groupId>
 			<artifactId>mysql-connector-j</artifactId>
-			<version>9.0.0</version>
+			<version>9.2.0</version>
 			<exclusions>
 				<exclusion>
 					<groupId>com.google.protobuf</groupId>

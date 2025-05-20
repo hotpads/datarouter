@@ -71,7 +71,7 @@ public class DatarouterMemcachedClient{
 			return Scanner.empty();
 		}
 		long start = System.currentTimeMillis();
-		try(var $ = TracerTool.startSpan(nodeName + " get bulk", TraceSpanGroupType.DATABASE)){
+		try(var _ = TracerTool.startSpan(nodeName + " get bulk", TraceSpanGroupType.DATABASE)){
 			try{
 				Map<String,Object> results = spyClient.asyncGetBulk(keys)
 						.get(timeoutMs, TimeUnit.MILLISECONDS);
@@ -110,7 +110,7 @@ public class DatarouterMemcachedClient{
 			String key,
 			int expiration,
 			byte[] bytes){
-		try(var $ = TracerTool.startSpan(nodeName + " " + "set", TraceSpanGroupType.DATABASE)){
+		try(var _ = TracerTool.startSpan(nodeName + " " + "set", TraceSpanGroupType.DATABASE)){
 			TracerTool.appendToSpanInfo("bytes", bytes.length);
 			try{
 				spyClient.set(key, expiration, bytes);
@@ -144,7 +144,7 @@ public class DatarouterMemcachedClient{
 			String nodeName,
 			String key,
 			Duration timeout){
-		try(var $ = TracerTool.startSpan(nodeName + " " + "delete", TraceSpanGroupType.DATABASE)){
+		try(var _ = TracerTool.startSpan(nodeName + " " + "delete", TraceSpanGroupType.DATABASE)){
 			long start = System.currentTimeMillis();
 			try{
 				spyClient.delete(key)

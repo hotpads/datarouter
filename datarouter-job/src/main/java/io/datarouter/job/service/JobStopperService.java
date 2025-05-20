@@ -77,7 +77,7 @@ public class JobStopperService{
 	 */
 	public void stopRequestedLocalJobs(Supplier<Boolean> shouldStop){
 		stopJobRequestDao.scanUnexpiredRequestsForServer(serverName.get())
-				.advanceUntil($ -> shouldStop.get())
+				.advanceUntil(_ -> shouldStop.get())
 				.forEach(this::stopRequestedLocalJob);
 	}
 

@@ -83,6 +83,10 @@ public class DatarouterHtmlEmailService{
 		return new HashSet<>(email.toEmails);
 	}
 
+	/**
+	 * @deprecated  Use DatarouterEmailLinkClient
+	 */
+	@Deprecated
 	public DatarouterEmailLinkBuilder startLinkBuilder(){
 		return emailService.startLinkBuilder(
 				datarouterEmailSettingsProvider.get().emailLinkHostPort.get(),

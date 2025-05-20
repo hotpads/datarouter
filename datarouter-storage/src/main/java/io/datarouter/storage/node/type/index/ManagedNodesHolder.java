@@ -52,7 +52,7 @@ public class ManagedNodesHolder{
 	List<ManagedNode<PK,D,?,?,?>> getManagedNodes(PhysicalDatabeanFieldInfo<PK,D,?> fieldInfo){
 		return managedNodes.computeIfAbsent(
 						fieldInfo,
-						$ -> new ArrayList<>()).stream()
+						_ -> new ArrayList<>()).stream()
 				.map(node -> (ManagedNode<PK,D,?,?,?>)node)
 				.collect(Collectors.toUnmodifiableList());
 	}
@@ -67,7 +67,7 @@ public class ManagedNodesHolder{
 			throw new RuntimeException(this + " is already registered and initialized, can't register index "
 					+ managedNode);
 		}
-		managedNodes.computeIfAbsent(fieldInfo, $ -> new ArrayList<>()).add(managedNode);
+		managedNodes.computeIfAbsent(fieldInfo, _ -> new ArrayList<>()).add(managedNode);
 		return managedNode;
 	}
 

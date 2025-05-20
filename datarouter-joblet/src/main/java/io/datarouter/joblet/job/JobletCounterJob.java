@@ -36,7 +36,7 @@ public class JobletCounterJob extends BaseJob{
 	@Override
 	public void run(TaskTracker tracker){
 		jobletRequestDao.scanAnyDelay()
-				.advanceUntil($ -> tracker.increment().shouldStop())
+				.advanceUntil(_ -> tracker.increment().shouldStop())
 				.map(JobletSummary::new)
 				//aggregate by (status, type, queueId)
 				.toMap(JobletCounterJob::toStatusTypeQueueKey, Function.identity(), JobletSummary::absorbStats)

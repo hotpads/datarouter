@@ -17,8 +17,8 @@ package io.datarouter.aws.rds.tool;
 
 public class RdsTool{
 
-	public static String USER_EVENTS_LINK = "https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/"
-			+ "USER_Events.Messages.html#USER_Events.Messages.instance";
+	public static final String USER_EVENTS_LINK = "https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/"
+			+ "USER_Events.Messages.html#USER_Events.Messages.";
 
 	public static String buildClusterMonitoringLink(String region, String clusterName){
 		return new StringBuilder("https://")

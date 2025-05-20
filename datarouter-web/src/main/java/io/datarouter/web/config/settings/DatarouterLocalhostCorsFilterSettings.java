@@ -38,7 +38,8 @@ public class DatarouterLocalhostCorsFilterSettings extends SettingNode{
 
 		allowed = registerBoolean("allowed", true);
 		methods = registerCommaSeparatedString("methods", Set.of("POST", "GET", "OPTIONS", "DELETE"));
-		headers = registerCommaSeparatedString("headers", Set.of(HttpHeaders.CONTENT_TYPE, HttpHeaders.ACCEPT));
+		headers = registerCommaSeparatedString("headers", Set.of(HttpHeaders.CONTENT_TYPE, HttpHeaders.ACCEPT,
+				HttpHeaders.ACCOUNT_NAME_HEADER));
 	}
 
 }

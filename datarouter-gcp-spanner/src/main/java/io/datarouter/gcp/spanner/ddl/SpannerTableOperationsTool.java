@@ -21,6 +21,13 @@ import io.datarouter.scanner.Scanner;
 
 public class SpannerTableOperationsTool{
 
+	public static final String COLUMN_NAME = "COLUMN_NAME",
+			INDEX_NAME = "INDEX_NAME",
+			IS_NULLABLE = "IS_NULLABLE",
+			ORDINAL_POSITION = "ORDINAL_POSITION",
+			PRIMARY_KEY = "PRIMARY_KEY",
+			SPANNER_TYPE = "SPANNER_TYPE";
+
 	public static String getListOfTables(){
 		return "SELECT table_name, spanner_state FROM information_schema.tables WHERE table_catalog = ''"
 				+ " and table_schema = '';";

@@ -96,6 +96,7 @@ public interface RoleManager{
 	}
 
 	//these are roles that do not present a security risk, although they may be more than just the default roles
+	@Deprecated
 	default Set<Role> getUnimportantRoles(){
 		return Set.of();
 	}

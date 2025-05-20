@@ -23,8 +23,11 @@ import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.comparable.LongField;
 import io.datarouter.model.key.FieldlessIndexEntryPrimaryKey;
 import io.datarouter.model.key.primary.base.BaseRegularPrimaryKey;
+import io.datarouter.storage.node.op.index.IndexUsage;
+import io.datarouter.storage.node.op.index.IndexUsage.IndexUsageType;
 import io.datarouter.websocket.storage.subscription.WebSocketSubscriptionKey.FieldKeys;
 
+@IndexUsage(usageType = IndexUsageType.IGNORE_USAGE)
 public class WebSocketSubscriptionByUserTokenKey
 extends BaseRegularPrimaryKey<WebSocketSubscriptionByUserTokenKey>
 implements FieldlessIndexEntryPrimaryKey<

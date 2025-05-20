@@ -216,7 +216,7 @@ public class DatarouterUserService implements UserInfo{
 				.forEach(relevantApprovalTypes::addAll);
 		List<RoleApprovalType> prioritizedApprovalTypes =
 				roleManager.getPrioritizedRoleApprovalTypes(editor, user, relevantApprovalTypes);
-		Map<Role, List<String>> groupsHasByRole = roleManager.getGroupsByRole(user.getSamlGroups());
+		Map<Role,List<String>> groupsHasByRole = roleManager.getGroupsByRole(user.getSamlGroups());
 
 		return Scanner.of(availableRoles)
 				.map(availableRole -> {
@@ -264,12 +264,11 @@ public class DatarouterUserService implements UserInfo{
 								.filter(requirementStatusByApprovalType::containsKey)
 								.findFirst();
 					}
-					boolean canRevoke = !DatarouterUserRoleRegistry.DATAROUTER_ADMIN.equals(availableRole)
-							&& isDatarouterAdmin(editor)
-							|| user.equals(editor);
+					boolean canRevoke = isDatarouterAdmin(editor) || user.equals(editor);
 					return new UserRoleMetadata(
 							availableRole,
 							currentRoles.contains(availableRole),
+							roleManager.getDefaultRoles().contains(availableRole),
 							requirementStatusByApprovalType,
 							prioritizedApprovalType,
 							Optional.of(canRevoke),

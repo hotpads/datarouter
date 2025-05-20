@@ -74,8 +74,10 @@ public class ShadowTableNodeSelectionService{
 				.orElse(NodewatchConfigurationBuilder.DEFAULT_ENABLE_SHADOW_TABLE_COMPRESSION);
 	}
 
-	//TODO customize using NodewatchConfig or based on storageStats row size?
-	public int batchSizeForNode(PhysicalSortedStorageReaderNode<?,?,?> node){
-		return 1_000;
+	public int scanBatchSizeForNode(PhysicalSortedStorageReaderNode<?,?,?> node){
+		return tableConfigurationService.findConfig(node)
+				.map(config -> config.shadowTableScanBatchSize)
+				.orElse(NodewatchConfigurationBuilder.DEFAULT_SHADOW_TABLE_SCAN_BATCH_SIZE);
 	}
+
 }

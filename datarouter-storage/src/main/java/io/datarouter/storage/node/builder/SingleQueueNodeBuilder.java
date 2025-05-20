@@ -43,7 +43,9 @@ extends QueueNodeBuilder<PK,D,F>{
 	@Override
 	public <N extends NodeOps<PK,D>> N build(){
 		return queueNodeFactory.createSingleQueueNode(clientId, databeanSupplier, queueName, fielderSupplier, namespace,
-				queueUrl, tag, enableAgeMonitoring, customMessageAgeThreshold);
+				queueUrl,
+				tag,
+				customMessageAgeThreshold);
 	}
 
 }

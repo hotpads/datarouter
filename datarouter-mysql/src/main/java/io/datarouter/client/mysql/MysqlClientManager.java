@@ -92,15 +92,15 @@ public class MysqlClientManager extends BaseClientManager implements MysqlConnec
 	}
 
 	private AtomicLong connectionCounter(ClientId clientId){
-		return connectionCounterByClient.computeIfAbsent(clientId, $ -> new AtomicLong(-1));
+		return connectionCounterByClient.computeIfAbsent(clientId, _ -> new AtomicLong(-1));
 	}
 
 	private Map<ConnectionHandle,Connection> connectionByHandle(ClientId clientId){
-		return connectionByHandleByClient.computeIfAbsent(clientId, $ -> new ConcurrentHashMap<>());
+		return connectionByHandleByClient.computeIfAbsent(clientId, _ -> new ConcurrentHashMap<>());
 	}
 
 	private Map<Long,ConnectionHandle> handleByThread(ClientId clientId){
-		return handleByThreadByClient.computeIfAbsent(clientId, $ -> new ConcurrentHashMap<>());
+		return handleByThreadByClient.computeIfAbsent(clientId, _ -> new ConcurrentHashMap<>());
 	}
 
 	@Override
@@ -126,7 +126,7 @@ public class MysqlClientManager extends BaseClientManager implements MysqlConnec
 	public void reserveConnection(ClientId clientId){
 		initClient(clientId);
 		DatarouterCounters.incClient(clientType, "connection open", clientId.getName(), 1);
-		try(var $ = TracerTool.startSpan("reserve " + clientId.getName(), TraceSpanGroupType.DATABASE)){
+		try(var _ = TracerTool.startSpan("reserve " + clientId.getName(), TraceSpanGroupType.DATABASE)){
 			ConnectionHandle existingHandle = getExistingHandle(clientId);
 			if(existingHandle != null){
 				// logger.warn("got existing connection:"+existingHandle);

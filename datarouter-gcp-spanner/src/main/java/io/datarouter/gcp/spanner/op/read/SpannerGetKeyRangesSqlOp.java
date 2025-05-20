@@ -65,7 +65,7 @@ extends SpannerBaseOp<List<PK>>{
 	@Override
 	public List<PK> wrappedCall(){
 		String spanName = getClass().getSimpleName();
-		try(var $ = TracerTool.startSpan(spanName, TraceSpanGroupType.DATABASE)){
+		try(var _ = TracerTool.startSpan(spanName, TraceSpanGroupType.DATABASE)){
 			List<PK> results = wrappedCallInternal();
 			TracerTool.appendToSpanInfo("offset " + config.findOffset().orElse(0));
 			TracerTool.appendToSpanInfo("got " + results.size());

@@ -36,8 +36,8 @@ public class TableCountJob extends BaseJob{
 	@Override
 	public void run(TaskTracker tracker){
 		tableSamplerService.scanCountableNodes()
-				.advanceUntil($ -> tracker.shouldStop())
-				.each($ -> tracker.increment())
+				.advanceUntil(_ -> tracker.shouldStop())
+				.each(_ -> tracker.increment())
 				.map(ClientTableEntityPrefixNameWrapper::new)
 				.each(item -> tracker.setLastItemProcessed(item.toString()))
 				.map(nodeNames -> tableSamplerService.getCurrentTableCountFromSamples(

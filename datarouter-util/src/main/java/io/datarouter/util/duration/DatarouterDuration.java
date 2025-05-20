@@ -129,6 +129,10 @@ public class DatarouterDuration{
 		return age(zonedDateTime.toInstant());
 	}
 
+	public static String toString(Duration duration){
+		return new DatarouterDuration(duration).toString();
+	}
+
 	@Override
 	public String toString(){
 		return toString(TimeUnit.MILLISECONDS);

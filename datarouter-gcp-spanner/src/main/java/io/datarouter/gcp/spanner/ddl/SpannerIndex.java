@@ -23,50 +23,12 @@ import java.util.Map;
 import io.datarouter.model.field.Field;
 import io.datarouter.scanner.Scanner;
 
-public class SpannerIndex{
-
-	private final String tableName;
-	private final String indexName;
-	private final List<Field<?>> keyFields;
-	private final List<Field<?>> allFields;
-	private final Boolean isUnique;
-
-	public SpannerIndex(
-			String tableName,
-			String indexName,
-			List<Field<?>> keyFields,
-			List<Field<?>> allFields,
-			Boolean isUnique){
-		this.tableName = tableName;
-		this.indexName = indexName;
-		this.keyFields = keyFields;
-		this.allFields = allFields;
-		this.isUnique = isUnique;
-	}
-
-	public boolean isKeyOnlyIndex(){
-		return allFields == null || allFields.isEmpty();
-	}
-
-	public String getIndexName(){
-		return indexName;
-	}
-
-	public String getTableName(){
-		return tableName;
-	}
-
-	public List<Field<?>> getKeyFields(){
-		return keyFields;
-	}
-
-	public List<Field<?>> getAllFields(){
-		return allFields;
-	}
-
-	public Boolean isUnique(){
-		return isUnique;
-	}
+public record SpannerIndex(
+		String tableName,
+		String indexName,
+		List<Field<?>> keyFields,
+		List<Field<?>> allFields,
+		Boolean isUnique){
 
 	public List<Field<?>> getNonKeyFields(){
 		if(keyFields.size() == allFields.size()){
@@ -76,7 +38,7 @@ public class SpannerIndex{
 				.toMapSupplied(field -> field.getKey().getColumnName(), LinkedHashMap::new);
 		Map<String,Field<?>> nonKeyFieldsMap = Scanner.of(allFields)
 				.toMapSupplied(field -> field.getKey().getColumnName(), LinkedHashMap::new);
-		keyMap.forEach((key, field) -> nonKeyFieldsMap.remove(key));
+		keyMap.forEach((key, _) -> nonKeyFieldsMap.remove(key));
 		return new ArrayList<>(nonKeyFieldsMap.values());
 	}
 

@@ -24,6 +24,7 @@ import io.datarouter.auth.web.web.adminedituser.AdminEditUserHandler;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
+import io.datarouter.web.handler.encoder.DatarouterDefaultHandlerCodec;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
@@ -40,7 +41,6 @@ public class DatarouterAuthRouteSet extends BaseRouteSet{
 				.withHandler(DatarouterSignoutHandler.class)
 				.allowAnonymous();
 
-		handle(paths.admin.copyUser).withHandler(AdminEditUserHandler.class);
 		handle(paths.admin.createUser).withHandler(AdminEditUserHandler.class);
 		handle(paths.admin.createUserSubmit).withHandler(AdminEditUserHandler.class);
 		handle(paths.admin.editAccounts).withHandler(AdminEditUserHandler.class);
@@ -72,6 +72,7 @@ public class DatarouterAuthRouteSet extends BaseRouteSet{
 	protected DispatchRule applyDefault(DispatchRule rule){
 		return rule
 				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_ADMIN)
+				.withDefaultHandlerCodec(DatarouterDefaultHandlerCodec.INSTANCE)
 				.withTag(Tag.DATAROUTER);
 	}
 

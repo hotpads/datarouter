@@ -18,7 +18,9 @@ package io.datarouter.scanner;
 import java.util.List;
 import java.util.function.Function;
 
-public class BatchByMinSizeScanner<T> extends BaseLinkedScanner<T,List<T>>{
+import io.datarouter.scanner.BatchByMinSizeScanner.ScannerMinSizeBatch;
+
+public class BatchByMinSizeScanner<T> extends BaseLinkedScanner<T,ScannerMinSizeBatch<T>>{
 
 	private final long minSizePerBatch;
 	private final Function<T,Number> sizeExtractor;
@@ -48,7 +50,7 @@ public class BatchByMinSizeScanner<T> extends BaseLinkedScanner<T,List<T>>{
 			batch.add(inputCurrent);
 			size += sizeExtractor.apply(inputCurrent).longValue();
 			if(size >= minSizePerBatch){
-				current = batch;
+				current = new ScannerMinSizeBatch<>(batch, size);
 				batch = new PagedList<>();
 				size = 0;
 				return true;
@@ -57,10 +59,15 @@ public class BatchByMinSizeScanner<T> extends BaseLinkedScanner<T,List<T>>{
 		if(batch.isEmpty()){
 			return false;
 		}else{
-			current = batch;
+			current = new ScannerMinSizeBatch<>(batch, size);
 			finished = true;
 			return true;
 		}
+	}
+
+	public record ScannerMinSizeBatch<T>(
+			List<T> items,
+			long totalSize){
 	}
 
 }

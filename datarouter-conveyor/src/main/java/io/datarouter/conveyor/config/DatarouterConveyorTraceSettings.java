@@ -15,7 +15,7 @@
  */
 package io.datarouter.conveyor.config;
 
-import java.time.Duration;
+import java.util.concurrent.TimeUnit;
 
 import io.datarouter.storage.setting.DatarouterSettingTagType;
 import io.datarouter.storage.setting.SettingFinder;
@@ -33,7 +33,6 @@ public class DatarouterConveyorTraceSettings extends SettingNode{
 	public final CachedSetting<Boolean> saveTraceCpuTime;
 	public final DurationCachedSetting saveTracesOverMs;
 	public final DurationCachedSetting saveTracesCpuOverMs;
-	public final CachedSetting<Boolean> saveTracesToMemory;
 	public final CachedSetting<Integer> maxSpansPerTrace;
 
 	@Inject
@@ -43,14 +42,12 @@ public class DatarouterConveyorTraceSettings extends SettingNode{
 		saveTraces = registerBooleans("saveTraces", defaultTo(false)
 				.withTag(DatarouterSettingTagType.CONVEYOR_TRACE_PIPELINE, () -> true));
 		saveTraceCpuTime = registerBoolean("saveTraceCpuTime", true);
-		saveTracesOverMs = registerDurations("saveTracesOverMs", defaultTo(new DatarouterDuration(Duration
-				.ofMillis(50)))
-				.withTag(DatarouterSettingTagType.CONVEYOR_TRACE_PIPELINE, () -> new DatarouterDuration(Duration
-						.ofMillis(50))));
-		saveTracesCpuOverMs = registerDuration("saveTracesCpuOverMs", new DatarouterDuration(Duration
-				.ofMillis(50)));
-		saveTracesToMemory = registerBooleans("saveTracesToMemory", defaultTo(false)
-				.withTag(DatarouterSettingTagType.CONVEYOR_TRACE_PIPELINE, () -> true));
+		saveTracesOverMs = registerDurations("saveTracesOverMs",
+				defaultTo(new DatarouterDuration(200, TimeUnit.MILLISECONDS))
+						.withTag(DatarouterSettingTagType.CONVEYOR_TRACE_PIPELINE,
+								() -> new DatarouterDuration(50, TimeUnit.MILLISECONDS)));
+		saveTracesCpuOverMs = registerDuration("saveTracesCpuOverMs",
+				new DatarouterDuration(50, TimeUnit.MILLISECONDS));
 		maxSpansPerTrace = registerInteger("maxSpansPerTrace", 200);
 	}
 

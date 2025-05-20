@@ -57,7 +57,7 @@ public class MemoryDatabeanStorage{
 	/*-------------- write ---------------*/
 
 	public void put(List<MemoryDatabeanAndIndexEntries> rows, Long ttlMs){
-		try(var $ = lock.lockForWriting()){
+		try(var _ = lock.lockForWriting()){
 			rows.forEach(row -> navigableMap.put(
 					row.key,
 					new MemoryDatabean(row.key, row, ttlMs)));
@@ -65,13 +65,13 @@ public class MemoryDatabeanStorage{
 	}
 
 	public void delete(List<byte[]> keys){
-		try(var $ = lock.lockForWriting()){
+		try(var _ = lock.lockForWriting()){
 			keys.forEach(navigableMap::remove);
 		}
 	}
 
 	public void deleteAll(){
-		try(var $ = lock.lockForWriting()){
+		try(var _ = lock.lockForWriting()){
 			navigableMap.clear();
 		}
 	}
@@ -80,7 +80,7 @@ public class MemoryDatabeanStorage{
 
 	public Optional<MemoryDatabean> find(byte[] key){
 		MemoryDatabean result;
-		try(var $ = lock.lockForReading()){
+		try(var _ = lock.lockForReading()){
 			result = navigableMap.get(key);
 		}
 		return Optional.ofNullable(result)
@@ -89,7 +89,7 @@ public class MemoryDatabeanStorage{
 
 	public Scanner<MemoryDatabean> scanMulti(List<byte[]> keys){
 		List<MemoryDatabean> result;
-		try(var $ = lock.lockForReading()){
+		try(var _ = lock.lockForReading()){
 			result = Scanner.of(keys)
 					.map(navigableMap::get)
 					.list();
@@ -101,7 +101,7 @@ public class MemoryDatabeanStorage{
 
 	public Scanner<MemoryDatabean> scan(Range<byte[]> range){
 		List<MemoryDatabean> result;
-		try(var $ = lock.lockForReading()){
+		try(var _ = lock.lockForReading()){
 			result = new ArrayList<>(rangeMap.subMap(range).values());
 		}
 		return Scanner.of(result)

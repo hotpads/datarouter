@@ -1,4 +1,4 @@
-const { Fragment, useState, useEffect, useMemo, useRef, useCallback } = React;
+const { Fragment, useState, useEffect, useRef, useCallback } = React;
 
 const FETCH_OPTIONS = {
 	credentials: "same-origin",
@@ -73,19 +73,13 @@ const getTotalNumApprovalsRequiredForRole = (userRoleMetadata) =>
 		.reduce((accumulator, requirementStatus) => accumulator + requirementStatus.requiredApprovals, 0);
 
 
-function ViewUsersPage({ display, openEditUser, requestListRefreshTimestamp }) {
+function ViewUsersPage({ display, openEditUser }) {
 	const [users, setUsers] = useState([]);
 	const [index, setIndex] = useState(0);
 	const [filterExpanded, setFilterExpanded] = useState(true);
 	const [filteredUsers, setFilteredUsers] = useState([]);
-	const [listRefreshTimestamp, setListRefreshTimestamp] = useState(null);
 
-	const handleFilteredUsersUpdate = (updatedFilteredUsers) => {
-			setFilteredUsers(updatedFilteredUsers);
-			setIndex(0);
-	};
-
-	const refreshList = () => {
+	useEffect(() => {
 		doFetch({
 			path: PATHS.listUsers,
 			onSuccess: (response) => {
@@ -96,15 +90,12 @@ function ViewUsersPage({ display, openEditUser, requestListRefreshTimestamp }) {
 				/* TODO error handling */
 			},
 		});
-	};
+	}, []);
 
-	useEffect(() => {
-			if (!listRefreshTimestamp || requestListRefreshTimestamp > listRefreshTimestamp) {
-				refreshList();
-			}
-		},
-		[requestListRefreshTimestamp, listRefreshTimestamp]
-	);
+	const handleFilteredUsersUpdate = (updatedFilteredUsers) => {
+		setFilteredUsers(updatedFilteredUsers);
+		setIndex(0);
+	};
 
 	if (!display) {
 		return null;
@@ -158,6 +149,7 @@ function Filters({ filterExpanded, users, handleFilteredUsersUpdate }) {
 	const [emailFilter, setEmailFilter] = useState("");
 	const [hasAnyRoleFilterSet, setHasAnyRoleFilterSet] = useState(new Set());
 	const [includeSamlRoles, setIncludeSamlRoles] = useState(false);
+	const [showDeprovisionedUsers, setShowDeprovisionedUsers] = useState(false);
 	const [allRoles, setAllRoles] = useState([]);
 	const [multiSelector, setMultiSelector] = useState(null);
 	const ref = useCallback((node) => {
@@ -176,12 +168,15 @@ function Filters({ filterExpanded, users, handleFilteredUsersUpdate }) {
 			|| userRoles.some(role => hasAnyRoleFilterSet.has(role));
 	};
 
+	const deprovisionedUserFilter = (user) => showDeprovisionedUsers !== user.enabled;
+
 	const handleFilterUpdates = () => {
 		handleFilteredUsersUpdate(users.filter((user) =>
 			!(openPermissionRequestsOnly && !user.hasPermissionRequest)
 			&& !(emailFilter.length > 0 &&
 				user.username.toLowerCase().indexOf(emailFilter.toLowerCase()) < 0)
-			&& rolesIncludesAnyFilter(user)));
+			&& rolesIncludesAnyFilter(user)
+			&& deprovisionedUserFilter(user)));
 	};
 
 	useEffect(() => {
@@ -211,7 +206,7 @@ function Filters({ filterExpanded, users, handleFilteredUsersUpdate }) {
 
 	useEffect(() => {
 		handleFilterUpdates();
-	}, [users, openPermissionRequestsOnly, emailFilter, hasAnyRoleFilterSet, includeSamlRoles]);
+	}, [users, openPermissionRequestsOnly, emailFilter, hasAnyRoleFilterSet, includeSamlRoles, showDeprovisionedUsers]);
 
 	const handleEmailFilter = (event) => {
 		setEmailFilter(event.target.value);
@@ -276,6 +271,17 @@ function Filters({ filterExpanded, users, handleFilteredUsersUpdate }) {
 						Has open permission request
 					</label>
 				</div>
+				<div className="form-check">
+					<label className="form-check-label">
+						<input
+							className="form-check-input"
+							type="checkbox"
+							checked={showDeprovisionedUsers}
+							onChange={() => setShowDeprovisionedUsers(!showDeprovisionedUsers)}
+						/>
+						Show deprovisioned users
+					</label>
+				</div>
 			</div>
 		</div>
 	);
@@ -298,7 +304,7 @@ const UserList = ({ users, index, openEditUser, loadPrevPage, loadStartPage, loa
 			</thead>
 			<tbody>
 			{users.slice(index, index + PAGE_SIZE).map((user) => (
-				<tr>
+				<tr className={user.enabled ? "" : "table-secondary"}>
 					<td>{user.username}</td>
 					<td>{user.id}</td>
 					<td>{user.token}</td>
@@ -364,7 +370,7 @@ const Badges = ({ badges = [] }) => {
 	);
 };
 
-function EditUserPage({ defaultUsername, requestListRefresh, closeEditUser }) {
+function EditUserPage({ defaultUsername, closeEditUser }) {
 	const [loaded, setLoaded] = useState(false);
 	const [error, setError] = useState("");
 	const [editorUsername, setEditorUsername] = useState("");
@@ -375,7 +381,6 @@ function EditUserPage({ defaultUsername, requestListRefresh, closeEditUser }) {
 	const [profileLink, setProfileLink] = useState(null);
 	const [requests, setRequests] = useState([]);
 	const [history, setHistory] = useState([]);
-	const [deprovisionedUserDto, setDeprovisionedUserDto] = useState({});
 	const [userRoleMetadataList, setUserRoleMetadataList] = useState([]);
 	const [availableAccounts, setAvailableAccounts] = useState([]);
 	const [currentAccounts, setCurrentAccounts] = useState({}); // accountName -> boolean for currently checked
@@ -385,8 +390,7 @@ function EditUserPage({ defaultUsername, requestListRefresh, closeEditUser }) {
 	const [details, setDetails] = useState([]);
 	const [hasProfileImage, setHasProfileImage] = useState(false);
 	const [isSamlEnabled, setIsSamlEnabled] = useState(false);
-	const deprovisioned = loaded && !deprovisionedUserDto.status.isUserEditable;
-
+	const [deprovisioned, setDeprovisioned] = useState(false);
 
 	const updateUserDetails = (userDetails) => {
 		if (!userDetails.success) {
@@ -402,7 +406,6 @@ function EditUserPage({ defaultUsername, requestListRefresh, closeEditUser }) {
 		setProfileLink(userDetails.profileLink);
 		setRequests(userDetails.requests);
 		setHistory(userDetails.history);
-		setDeprovisionedUserDto(userDetails.deprovisionedUserDto);
 		setUserRoleMetadataList(userDetails.userRoleMetadataList.sort((a, b) => a.roleName.localeCompare(b.roleName)));
 		setAvailableAccounts(userDetails.availableAccounts);
 		setCurrentAccounts(userDetails.currentAccounts);
@@ -411,6 +414,7 @@ function EditUserPage({ defaultUsername, requestListRefresh, closeEditUser }) {
 		setFullName(userDetails.fullName);
 		setDetails(userDetails.details);
 		setHasProfileImage(userDetails.hasProfileImage);
+		setDeprovisioned(!userDetails.enabled);
 		setLoaded(true);
 		setError("");
 	};
@@ -486,6 +490,7 @@ function EditUserPage({ defaultUsername, requestListRefresh, closeEditUser }) {
 						currentZoneId={currentZoneId}
 						updateUserDetails={updateUserDetails}
 						setCurrentZoneId={setCurrentZoneId}
+						deprovisioned={deprovisioned}
 					/>
 					{
 						[PagePermissionType.ADMIN, PagePermissionType.ROLES_ONLY].includes(pagePermissionType) &&
@@ -496,6 +501,7 @@ function EditUserPage({ defaultUsername, requestListRefresh, closeEditUser }) {
 							setUserRoleMetadataList={setUserRoleMetadataList}
 							updateUserDetails={updateUserDetails}
 							deprovisioned={deprovisioned}
+							startCollapsed={deprovisioned}
 						/>
 					}
 					{
@@ -507,35 +513,27 @@ function EditUserPage({ defaultUsername, requestListRefresh, closeEditUser }) {
 									currentAccounts={currentAccounts}
 									updateUserDetails={updateUserDetails}
 									disabled={deprovisioned}
-								/>
-								<ProvisioningStatusCard
-									deprovisionedUserDto={deprovisionedUserDto}
-									refresh={refresh}
-								/>
-								<CopyUserFormCard
-									username={username}
-									updateUserDetails={updateUserDetails}
-									userRoleMetadataList={userRoleMetadataList}
-									requestListRefresh={requestListRefresh}
+									startCollapsed={deprovisioned}
 								/>
 								{ !isSamlEnabled && (
 									<EditPasswordCard
 										username={username}
 										disabled={deprovisioned}
 										updateUserDetails={updateUserDetails}
+										startCollapsed={deprovisioned}
 									/>
 								)}
 								<PermissionRequestsCard
 									id={id}
 									requests={requests}
 									refresh={refresh}
-									startCollapsed={true}
+									startCollapsed={!deprovisioned}
 								/>
 								<UserHistoryCard
 									id={id}
 									history={history}
 									refresh={refresh}
-									startCollapsed={true}
+									startCollapsed={!deprovisioned}
 								/>
 							</Fragment>
 						)
@@ -663,6 +661,7 @@ function UserInformation(
 		availableZoneIds,
 		currentZoneId,
 		updateUserDetails,
+		deprovisioned,
 	}
 ) {
 
@@ -741,192 +740,12 @@ function UserInformation(
 					defaultValue={currentZoneId}
 					onChange={handleTimeZoneChange}
 					containerStyle={{ float: "right" }}
-					disabled={pagePermissionType !== PagePermissionType.ADMIN}
+					disabled={pagePermissionType !== PagePermissionType.ADMIN || deprovisioned}
 				/>
 			</div>
 		</div>
 	);
 }
-
-function ProvisioningStatusForm({ deprovisionedUserDto, refresh, handleSuccess, handleDanger, setIsLoading }) {
-	const status = deprovisionedUserDto.status;
-	let description = status.description;
-	if (!status.isUserEditable) {
-		const roles = deprovisionedUserDto.roles.reduce(
-			(acc, curr) => (acc.length === 0 ? curr : acc + ", " + curr),
-			""
-		);
-		description += " Roles at time of deprovisioning: " + roles;
-	}
-
-	const handleDeprovision = (event) => {
-		event.preventDefault();
-		const username = deprovisionedUserDto.username;
-		setIsLoading()
-		doFetch({
-			path: PATHS.deprovisionUsers,
-			bodyObject: { usernamesToDeprovision: [username] },
-			onSuccess: () => {
-				refresh();
-				handleSuccess("User deprovisioned");
-			},
-			onError: (error) => {
-				handleDanger("Failed to deprovisioned user. " + error);
-			}
-		});
-	};
-
-	const handleRestore = (event) => {
-		event.preventDefault();
-		const username = deprovisionedUserDto.username;
-		doFetch({
-			path: PATHS.restoreUsers,
-			bodyObject: { usernamesToRestore: [username] },
-			onSuccess: () => {
-				refresh();
-				handleSuccess("User restored");
-			},
-			onError: (error) => {
-				handleDanger("Failed to restore user. " + error);
-			},
-			setIsLoading,
-		});
-	};
-
-	return (
-		<form>
-			<p>{description}</p>
-			<hr hidden={!status.allowDeprovision && !status.allowRestore} />
-			<button
-				type="submit"
-				className="btn btn-danger"
-				hidden={!status.allowDeprovision}
-				onClick={handleDeprovision}
-			>
-				Disable User and Remove Roles
-			</button>
-			<button
-				type="submit"
-				className="btn btn-danger"
-				hidden={!status.allowRestore}
-				onClick={handleRestore}
-			>
-				Enable User and Restore Roles
-			</button>
-		</form>
-	);
-}
-
-const ProvisioningStatusCard = withAlertCardContainer(
-	ProvisioningStatusForm,
-	"Provisioning Status"
-);
-
-function CopyUserForm({
-	username,
-	updateUserDetails,
-	userRoleMetadataList,
-	requestListRefresh,
-	handleSuccess,
-	handleWarning,
-	handleDanger,
-	setIsLoading,
-}) {
-	const [newUsername, setNewUsername] = useState("");
-	const userHasOutstandingApprovals = useMemo(() =>
-		userRoleMetadataList.reduce((accumulator, userRoleMetadata) => accumulator +
-			Object.values(userRoleMetadata.requirementStatusByApprovalType)
-			.reduce((accInner, requirementStatus) => accInner + requirementStatus.currentApprovers.length, 0),
-			0) > 0,
-		userRoleMetadataList);
-	const userHasRolesRequiringMultipleApprovals = useMemo(() =>
-			(userRoleMetadataList.some(userRoleMetadata =>
-				userRoleMetadata.hasRole && getTotalNumApprovalsRequiredForRole(userRoleMetadata) > 1)),
-		userRoleMetadataList);
-	const userHasRolesEditorCantApprove = useMemo(() =>
-		userRoleMetadataList.some(userRoleMetadata =>
-			userRoleMetadata.hasRole && !userRoleMetadata.editorPrioritizedApprovalType),
-		userRoleMetadataList);
-
-	const handleCopy = (event) => {
-		event.preventDefault();
-		const query = "?oldUsername=" + username + "&newUsername=" + newUsername;
-		doFetch({
-			path: PATHS.copyUser + query,
-			onSuccess: (response) => {
-				if (response.success) {
-					updateUserDetails(response.response, () => setNewUsername(""));
-					// check for partial success
-					if (response.error) {
-						handleWarning(response.error.message);
-					} else {
-						handleSuccess("Successfully copied.");
-					}
-				} else {
-					handleDanger("Failed to copy user. " + response.error.message);
-				}
-			},
-			onError: (error) => {
-				handleDanger("Failed to copy user. " + error);
-			},
-			setIsLoading,
-		});
-		requestListRefresh();
-	};
-
-	return (
-		<Fragment>
-			<form className="form-inline mb-3">
-				<div className="form-group mr-3">
-					<label for="newUsername" className="mr-3">
-						Recipient Username
-					</label>
-					<input
-						type="text"
-						className="form-control"
-						id="newUsername"
-						value={newUsername}
-						onChange={(event) => setNewUsername(event.target.value)}
-					/>
-				</div>
-				<button
-					type="submit"
-					className="btn btn-primary"
-					disabled={!Boolean(newUsername)}
-					onClick={handleCopy}
-				>
-					Copy User Details
-				</button>
-			</form>
-			{ Boolean(newUsername) &&
-				<Fragment>
-					{
-						userHasRolesRequiringMultipleApprovals &&
-						<div className="alert alert-warning mt-2" role="alert">
-							This user has roles which require multiple approvals. For these roles the recipient will receive your approval if you have the appropriate approval permissions.
-						</div>
-					}
-					{
-						userHasOutstandingApprovals &&
-						<div className="alert alert-warning mt-2" role="alert">
-							This user has outstanding approvals for roles they don't have. These outstanding approvals will not be copied to the recipient.
-						</div>
-					}
-					{ userHasRolesEditorCantApprove &&
-						<div className="alert alert-warning mt-2" role="alert">
-							This user has roles you don't have permission to approve. These roles will therefore not be copied.
-						</div>
-					}
-				</Fragment>
-			}
-		</Fragment>
-	);
-}
-
-const CopyUserFormCard = withAlertCardContainer(
-	CopyUserForm,
-	"Copy User Details"
-);
 
 function Tooltip({ title, body }) {
 	const ref = useRef(null);
@@ -972,7 +791,15 @@ function EditRoleTable({ userRoleMetadataList, editorUsername, deprovisioned, ha
 			.join(', ');
 	};
 
+	const getCurrentRoleGrantingGroupsString = (userRoleMetadata) => {
+		return userRoleMetadata.groupsHasWithRole ? userRoleMetadata.groupsHasWithRole.join(', ') : '';
+	}
+
 	const getActionButton = (userRoleMetadata) => {
+		if (userRoleMetadata.isDefaultRole) {
+			// Cannot approve/revoke default roles
+			return <Fragment></Fragment>;
+		}
 		let buttonClassName, buttonText, disabled = false;
 		const editorHasApproved = Object.values(userRoleMetadata.requirementStatusByApprovalType)
 			.some(requirementStatus => requirementStatus.currentApprovers.includes(editorUsername));
@@ -1057,7 +884,7 @@ function EditRoleTable({ userRoleMetadataList, editorUsername, deprovisioned, ha
 							/>
 						</td>
 						<td className="align-middle">{ getStringFromApprovalStatuses(userRoleMetadata) }</td>
-						<td className="align-middle">{ userRoleMetadata.groupsHasWithRole }</td>
+						<td className="align-middle">{ getCurrentRoleGrantingGroupsString(userRoleMetadata) }</td>
 						<td className="text-right">{ getActionButton(userRoleMetadata) }</td>
 					</tr>
 				))}
@@ -1565,11 +1392,6 @@ const UserHistoryCard = withAlertCardContainer(UserHistory, "User History");
 function ListAndEditUserPage() {
 	const [activeUsername, setActiveUsername] = useState(INITIAL_USERNAME || null);
 	const [isEditing, setIsEditing] = useState(Boolean(INITIAL_USERNAME));
-	const [requestListRefreshTimestamp, setRequestListRefreshTimestamp] = useState(Date.now());
-
-	const requestListRefresh = () => {
-		setRequestListRefreshTimestamp(Date.now());
-	};
 
 	const openEditUser = (event) => {
 		setActiveUsername(event.target.name);
@@ -1592,13 +1414,11 @@ function ListAndEditUserPage() {
 				<EditUserPage
 					defaultUsername={activeUsername}
 					closeEditUser={closeEditUser}
-					requestListRefresh={requestListRefresh}
 				/>
 			) : (
 				<ViewUsersPage
 					display={!isEditing}
 					openEditUser={openEditUser}
-					requestListRefreshTimestamp={requestListRefreshTimestamp}
 				/>
 				)
 			}

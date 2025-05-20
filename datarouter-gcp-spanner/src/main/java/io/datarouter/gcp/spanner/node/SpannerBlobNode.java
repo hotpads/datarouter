@@ -58,7 +58,7 @@ implements PhysicalBlobStorageNode{
 		super(params, clientType);
 		this.clientManager = clientManager;
 		this.fieldCodecs = fieldCodecs;
-		this.rootPath = params.getPath();
+		this.rootPath = params.getPathSupplier().get();
 		this.bucket = params.getPhysicalName();
 	}
 

@@ -104,7 +104,7 @@ public class MysqlTool{
 		try{
 			String spanName = fieldInfo.getPrimaryKeySupplier().get().getClass().getSimpleName()
 					+ " selectPrimaryKeys PreparedStatement.execute";
-			try(var $ = TracerTool.startSpan(spanName, TraceSpanGroupType.DATABASE)){
+			try(var _ = TracerTool.startSpan(spanName, TraceSpanGroupType.DATABASE)){
 				ps.execute();
 			}
 			ResultSet rs = ps.getResultSet();
@@ -131,7 +131,7 @@ public class MysqlTool{
 			PreparedStatement ps){
 		try{
 			String spanName = databeanSupplier.get().getDatabeanName() + " selectDatabeans PreparedStatement.execute";
-			try(var $ = TracerTool.startSpan(spanName, TraceSpanGroupType.DATABASE)){
+			try(var _ = TracerTool.startSpan(spanName, TraceSpanGroupType.DATABASE)){
 				ps.execute();
 			}
 			return getDatabeansFromSelectResult(fieldCodecFactory, databeanSupplier, fields, ps);
@@ -148,7 +148,7 @@ public class MysqlTool{
 			List<Field<?>> fields,
 			PreparedStatement ps){
 		String spanName = databeanSupplier.get().getDatabeanName() + " getDatabeansFromSelectResult";
-		try(var $ = TracerTool.startSpan(spanName, TraceSpanGroupType.SERIALIZATION)){
+		try(var _ = TracerTool.startSpan(spanName, TraceSpanGroupType.SERIALIZATION)){
 			ResultSet rs = ps.getResultSet();
 			List<D> databeans = new ArrayList<>();
 			while(rs.next()){
@@ -176,7 +176,7 @@ public class MysqlTool{
 		try{
 			String spanName = fieldInfo.getPrimaryKeySupplier().get().getClass().getSimpleName()
 					+ " selectIndexEntryKeys PreparedStatement.execute";
-			try(var $ = TracerTool.startSpan(spanName, TraceSpanGroupType.DATABASE)){
+			try(var _ = TracerTool.startSpan(spanName, TraceSpanGroupType.DATABASE)){
 				ps.execute();
 			}
 			ResultSet rs = ps.getResultSet();
@@ -198,7 +198,7 @@ public class MysqlTool{
 
 	public static int update(PreparedStatement statement){
 		String spanName = "update PreparedStatement.execute";
-		try(var $ = TracerTool.startSpan(spanName, TraceSpanGroupType.DATABASE)){
+		try(var _ = TracerTool.startSpan(spanName, TraceSpanGroupType.DATABASE)){
 			return statement.executeUpdate();
 		}catch(SQLException e){
 			String message = "error executing sql:" + statement;

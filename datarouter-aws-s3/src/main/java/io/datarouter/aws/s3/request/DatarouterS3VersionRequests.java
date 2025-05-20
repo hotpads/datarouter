@@ -148,7 +148,7 @@ public class DatarouterS3VersionRequests{
 				.maxKeys(maxKeys)
 				.build();
 		ListObjectVersionsResponse response;
-		try(var $ = TracerTool.startSpan("S3 listObjectsVersions commonPrefixes", TraceSpanGroupType.CLOUD_STORAGE)){
+		try(var _ = TracerTool.startSpan("S3 listObjectsVersions commonPrefixes", TraceSpanGroupType.CLOUD_STORAGE)){
 			response = s3Client.listObjectVersions(request);
 			TracerTool.appendToSpanInfo("size", response.commonPrefixes().size());
 		}
@@ -168,7 +168,7 @@ public class DatarouterS3VersionRequests{
 				.versionId(bucketAndKeyVersion.version())
 				.build();
 		S3Client s3Client = clientManager.getS3ClientForBucket(bucketAndKeyVersion.bucket());
-		try(var $ = TracerTool.startSpan("S3 deleteVersion", TraceSpanGroupType.CLOUD_STORAGE)){
+		try(var _ = TracerTool.startSpan("S3 deleteVersion", TraceSpanGroupType.CLOUD_STORAGE)){
 			s3Client.deleteObject(request);
 		}
 		DatarouterS3Counters.inc(bucketAndKeyVersion.bucket(), S3CounterSuffix.DELETE_VERSION_REQUESTS, 1);
@@ -188,7 +188,7 @@ public class DatarouterS3VersionRequests{
 				.delete(Delete.builder().objects(objectIdentifiers).build())
 				.build();
 		S3Client s3Client = clientManager.getS3ClientForBucket(bucketAndKeyVersions.bucket());
-		try(var $ = TracerTool.startSpan("S3 deleteVersions", TraceSpanGroupType.CLOUD_STORAGE)){
+		try(var _ = TracerTool.startSpan("S3 deleteVersions", TraceSpanGroupType.CLOUD_STORAGE)){
 			s3Client.deleteObjects(request);
 		}
 		DatarouterS3Counters.inc(

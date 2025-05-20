@@ -20,7 +20,7 @@ To build this module locally, add `bigtable.properties` to `/etc/datarouter/test
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-gcp-bigtable</artifactId>
-	<version>0.0.126</version>
+	<version>0.0.127</version>
 </dependency>
 ```
 ## License

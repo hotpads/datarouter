@@ -8,7 +8,7 @@ datarouter-auth-web is a framework that brings in users and apikey accounts to d
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-auth-web</artifactId>
-	<version>0.0.126</version>
+	<version>0.0.127</version>
 </dependency>
 ```
 

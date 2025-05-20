@@ -24,7 +24,8 @@ import io.datarouter.client.ssh.config.DatarouterSshConfigSupplier;
 import io.datarouter.client.ssh.config.DatarouterSshSettings;
 import io.datarouter.client.ssh.request.SshExecSessionRequest;
 import io.datarouter.client.ssh.request.SshSessionConfig;
-import io.datarouter.client.ssh.request.SshSftpSessionRequest;
+import io.datarouter.client.ssh.request.SshSftpGetSessionRequest;
+import io.datarouter.client.ssh.request.SshSftpPutSessionRequest;
 import io.datarouter.util.RunNativeDto;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -55,10 +56,14 @@ public class DatarouterSshService{
 	}
 
 	public RunNativeDto runProcess(SshExecSessionRequest request){
-		return processService.runProcess(process(request));
+		return processService.runProcess(process(request), request.config().waitForTimeout());
 	}
 
-	public void sftp(SshSftpSessionRequest request){
+	public void sftp(SshSftpPutSessionRequest request){
+		DatarouterSshTool.sftp(settings.rsaPrivateKey.get(), request);
+	}
+
+	public void sftp(SshSftpGetSessionRequest request){
 		DatarouterSshTool.sftp(settings.rsaPrivateKey.get(), request);
 	}
 
@@ -66,7 +71,7 @@ public class DatarouterSshService{
 		return DatarouterSshTool.startSession(settings.rsaPrivateKey.get(), request);
 	}
 
-	public void sftpWithKey(SshSftpSessionRequest request, String privateKey){
+	public void sftpWithKey(SshSftpPutSessionRequest request, String privateKey){
 		DatarouterSshTool.sftp(privateKey, request);
 	}
 

@@ -15,6 +15,8 @@
  */
 package io.datarouter.client.memcached.client;
 
+import java.util.function.Supplier;
+
 import io.datarouter.client.memcached.codec.MemcachedBlobCodec;
 import io.datarouter.client.memcached.codec.MemcachedTallyCodec;
 import io.datarouter.client.memcached.node.MemcachedBlobNode;
@@ -76,7 +78,7 @@ implements BlobClientNodeFactory, DatabeanClientNodeFactory, TallyClientNodeFact
 	@Override
 	public PhysicalBlobStorageNode createBlobNode(
 			NodeParams<DatabaseBlobKey,DatabaseBlob,DatabaseBlobFielder> nodeParams){
-		var codec = new MemcachedBlobCodec(nodeParams.getPath());
+		var codec = new MemcachedBlobCodec(nodeParams.getPathSupplier());
 		var node = new MemcachedBlobNode(
 				nodeParams,
 				memcachedClientType,
@@ -97,28 +99,29 @@ implements BlobClientNodeFactory, DatabeanClientNodeFactory, TallyClientNodeFact
 			EntityNodeParams<EK,E> entityNodeParams,
 			NodeParams<PK,D,F> nodeParams){
 		var fieldInfo = new PhysicalDatabeanFieldInfo<>(nodeParams);
-		Subpath path = new DatabeanNodePrefix(
+		var databeanNodePrefix = new DatabeanNodePrefix(
 				ReservedBlobPaths.DATABEAN,
 				DatabeanToBlobCodec.CODEC_VERSION,
 				serviceName.get(),
 				"1",//placeholder for client-scoped version
 				nodeParams,
-				fieldInfo)
-				.makeShortenedSubpath();//Store shortened path because of memcached's limited key length.
+				fieldInfo);
+		// Use shortened path because of memcached's limited key length.
+		Supplier<Subpath> pathSupplier = () -> databeanNodePrefix.makeShortenedSubpath();
 		var blobParams = new NodeParamsBuilder<>(nodeParams)
-				.withPath(path)
+				.withPathSupplier(pathSupplier)
 				.build();
 		var blobNode = new MemcachedBlobNode(
 				castParams(blobParams),
 				memcachedClientType,
-				new MemcachedBlobCodec(path),
+				new MemcachedBlobCodec(pathSupplier),
 				memcachedClientManager.getLazyClient(nodeParams.getClientId()));
 		var databeanCodec = new DatabeanToBlobCodec<PK,D,F>(
 				memcachedClientType.getName(),
 				fieldInfo.getSampleFielder(),
 				fieldInfo.getDatabeanSupplier(),
 				fieldInfo.getFieldByPrefixedName(),
-				path,
+				pathSupplier,
 				CommonFieldSizes.MEMCACHED_MAX_KEY_LENGTH,
 				CommonFieldSizes.MEMCACHED_MAX_VALUE_LENGTH);
 		var node = new DatabeanToBlobNode<>(

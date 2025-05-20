@@ -26,6 +26,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 import java.util.stream.Stream;
 
 import io.datarouter.bytes.ByteLength;
@@ -125,6 +126,20 @@ public class BlockfileLocalStorage implements BlockfileStorage{
 		}
 	}
 
+	@Override
+	public Scanner<FilenameAndInputStream> readInputStreams(
+			Scanner<String> filenames,
+			Threads threads,
+			ByteLength chunkSize,
+			ByteLength bufferSize,
+			ExecutorService prefetchExec){
+		return filenames
+				.map(filename -> {
+					InputStream inputStream = readInputStream(filename, threads, chunkSize);
+					return new FilenameAndInputStream(filename, inputStream);
+				});
+	}
+
 	/*--------- write -----------*/
 
 	@Override
@@ -138,10 +153,10 @@ public class BlockfileLocalStorage implements BlockfileStorage{
 	}
 
 	@Override
-	public void write(String name, InputStream inputStream, Threads threads){
+	public void write(String name, InputStream inputStream, Threads threads, ByteLength minWritePartSize){
 		Path fullPath = fullPath(name);
 		fullPath.getParent().toFile().mkdirs();
-		try(InputStream $inputStream = inputStream;
+		try(InputStream _ = inputStream;
 				OutputStream outputStream = Files.newOutputStream(fullPath)){
 			fullPath.toFile().createNewFile();
 			inputStream.transferTo(outputStream);

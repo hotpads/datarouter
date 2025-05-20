@@ -15,6 +15,7 @@
  */
 package io.datarouter.scanner;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -22,6 +23,8 @@ import java.util.function.Function;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import io.datarouter.scanner.SplittingScanner.SplitKeyAndScanner;
 
 public class SplittingScannerTests{
 
@@ -92,7 +95,8 @@ public class SplittingScannerTests{
 	public void testCustomEqualsPredicate(){
 		List<Long> result = Scanner.of("aa1", "aa2", "aa3", "bb1", "cc1", "cc2")
 				.map(String::getBytes)
-				.splitBy(bytes -> Arrays.copyOf(bytes, 2), Arrays::equals)
+				.splitByWithSplitKey(bytes -> Arrays.copyOf(bytes, 2), Arrays::equals)
+				.map(SplitKeyAndScanner::scanner)
 				.map(Scanner::count)
 				.list();
 		Iterator<Long> iter = result.iterator();
@@ -100,6 +104,22 @@ public class SplittingScannerTests{
 		Assert.assertEquals(iter.next(), Long.valueOf(1));
 		Assert.assertEquals(iter.next(), Long.valueOf(2));
 		Assert.assertFalse(iter.hasNext());
+	}
+
+	@Test
+	public void testSplitIds(){
+		List<String> splits = new ArrayList<>();
+		List<List<String>> result = Scanner.of("a1", "a2", "b1", "b2")
+				.splitByWithSplitKey(FIRST)
+				.each(splitAndScanner -> splits.add(splitAndScanner.splitKey()))
+				.map(SplitKeyAndScanner::scanner)
+				.map(Scanner::list)
+				.list();
+		//We didn't advance the sub-scanners but should still get 3 (terminated) scanners.
+		Assert.assertEquals(result.size(), 2);
+		Assert.assertEquals(result.get(0), List.of("a1", "a2"));
+		Assert.assertEquals(result.get(1), List.of("b1", "b2"));
+		Assert.assertEquals(splits, List.of("a", "b"));
 	}
 
 }

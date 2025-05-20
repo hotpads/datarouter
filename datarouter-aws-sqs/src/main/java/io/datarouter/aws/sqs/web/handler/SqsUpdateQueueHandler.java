@@ -21,10 +21,6 @@ import static j2html.TagCreator.i;
 
 import java.util.List;
 
-import com.amazonaws.services.sqs.AmazonSQS;
-import com.amazonaws.services.sqs.model.GetQueueUrlResult;
-import com.amazonaws.services.sqs.model.PurgeQueueRequest;
-
 import io.datarouter.aws.sqs.SqsClientManager;
 import io.datarouter.aws.sqs.service.SqsQueueRegistryService;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
@@ -38,6 +34,11 @@ import io.datarouter.web.handler.types.Param;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import j2html.tags.specialized.DivTag;
 import jakarta.inject.Inject;
+import software.amazon.awssdk.services.sqs.SqsClient;
+import software.amazon.awssdk.services.sqs.model.DeleteQueueRequest;
+import software.amazon.awssdk.services.sqs.model.GetQueueUrlRequest;
+import software.amazon.awssdk.services.sqs.model.GetQueueUrlResponse;
+import software.amazon.awssdk.services.sqs.model.PurgeQueueRequest;
 
 public class SqsUpdateQueueHandler extends BaseHandler{
 
@@ -62,9 +63,11 @@ public class SqsUpdateQueueHandler extends BaseHandler{
 			@Param(PARAM_queueName) String queueName,
 			@Param(PARAM_referer) String referer){
 		ClientId clientId = datarouterClients.getClientId(clientName);
-		AmazonSQS sqs = sqsClientManager.getAmazonSqs(clientId);
-		GetQueueUrlResult queueUrlResult = sqs.getQueueUrl(queueName);
-		sqs.deleteQueue(queueUrlResult.getQueueUrl());
+		SqsClient sqs = sqsClientManager.getAmazonSqs(clientId);
+		var getQueueUrlRequest = GetQueueUrlRequest.builder().queueName(queueName).build();
+		GetQueueUrlResponse queueUrlResult = sqs.getQueueUrl(getQueueUrlRequest);
+		var deleteQueueRequest = DeleteQueueRequest.builder().queueUrl(queueUrlResult.queueUrl()).build();
+		sqs.deleteQueue(deleteQueueRequest);
 		String message = "Deleted unreferenced SQS queue: " + queueName;
 		var dto = new DatarouterChangelogDtoBuilder(
 				"Sqs",
@@ -82,10 +85,12 @@ public class SqsUpdateQueueHandler extends BaseHandler{
 			@Param(PARAM_referer) String referer){
 		ClientId clientId = datarouterClients.getClientId(clientName);
 		List<String> unreferencedQueueNames = queueRegistryService.getSqsQueuesForClient(clientId).unreferencedQueues();
-		AmazonSQS sqs = sqsClientManager.getAmazonSqs(clientId);
+		SqsClient sqs = sqsClientManager.getAmazonSqs(clientId);
 		Scanner.of(unreferencedQueueNames)
+				.map(queueName -> GetQueueUrlRequest.builder().queueName(queueName).build())
 				.map(sqs::getQueueUrl)
-				.map(GetQueueUrlResult::getQueueUrl)
+				.map(GetQueueUrlResponse::queueUrl)
+				.map(queueUrl -> DeleteQueueRequest.builder().queueUrl(queueUrl).build())
 				.forEach(sqs::deleteQueue);
 		String message = "Deleted all unreferenced SQS queues";
 		Scanner.of(unreferencedQueueNames)
@@ -105,9 +110,11 @@ public class SqsUpdateQueueHandler extends BaseHandler{
 			@Param(PARAM_queueName) String queueName,
 			@Param(PARAM_referer) String referer){
 		ClientId clientId = datarouterClients.getClientId(clientName);
-		AmazonSQS sqs = sqsClientManager.getAmazonSqs(clientId);
-		GetQueueUrlResult queueUrlResult = sqs.getQueueUrl(queueName);
-		sqs.purgeQueue(new PurgeQueueRequest(queueUrlResult.getQueueUrl()));
+		SqsClient sqs = sqsClientManager.getAmazonSqs(clientId);
+		var getQueueUrlRequest = GetQueueUrlRequest.builder().queueName(queueName).build();
+		GetQueueUrlResponse queueUrlResult = sqs.getQueueUrl(getQueueUrlRequest);
+		var purgeQueueRequest = PurgeQueueRequest.builder().queueUrl(queueUrlResult.queueUrl()).build();
+		sqs.purgeQueue(purgeQueueRequest);
 		String message = "Purged SQS queue: " + queueName;
 		var dto = new DatarouterChangelogDtoBuilder(
 				"Sqs",

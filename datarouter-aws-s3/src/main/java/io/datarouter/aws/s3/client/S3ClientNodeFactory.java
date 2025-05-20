@@ -55,7 +55,7 @@ implements BlobClientNodeFactory{
 	private S3Node createInternal(NodeParams<DatabaseBlobKey,DatabaseBlob,DatabaseBlobFielder> nodeParams){
 		DatarouterS3Client client = s3ClientManager.getClient(nodeParams.getClientId());
 		String bucket = nodeParams.getPhysicalName();
-		Subpath path = nodeParams.getPath();
+		Subpath path = nodeParams.getPathSupplier().get();
 		var s3DirectoryManager = new S3DirectoryManager(client, bucket, path);
 		return new S3Node(nodeParams, s3ClientType, client, s3DirectoryManager);
 	}

@@ -32,8 +32,6 @@ extends PhysicalNode<PK,D,F>{
 
 	Supplier<QueueUrlAndName> getQueueUrlAndName();
 
-	boolean getAgeMonitoringStatusForMetricAlert();
-
 	Duration getCustomMessageAgeThreshold();
 
 }

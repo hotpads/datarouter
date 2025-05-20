@@ -35,6 +35,7 @@ public enum HttpStatusCode{
 	SC_410_GONE(410, "Gone"),
 	SC_415_UNSUPPORTED_MEDIA_TYPE(415, "Unsupported Media Type"),
 	SC_422_UNPROCESSABLE_ENTITY(422, "Unprocessable Entity"),
+	SC_423_LOCKED(423, "Locked"),
 	SC_424_FAILED_DEPENDENCY(424, "Failed Dependency"),
 	SC_429_TOO_MANY_REQUESTS(429, "Too Many Requests"),
 	SC_500_INTERNAL_SERVER_ERROR(500, "Internal Server Error"),

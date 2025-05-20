@@ -36,7 +36,7 @@ public class DatarouterWebSocketSettingRoot extends SettingRoot{
 	public DatarouterWebSocketSettingRoot(SettingFinder finder, ServerTypes serverTypes){
 		super(finder, DatarouterSettingCategory.DATAROUTER, "datarouterWebSocket.");
 
-		testConnectionWithPing = registerBooleans("testConnectionWithPing", defaultTo(true));
+		testConnectionWithPing = registerBoolean("testConnectionWithPing", true);
 		runWebSocketSessionVacuumJob = registerBooleans("runWebSocketSessionVacuumJob", defaultTo(false)
 				.withServerType(EnvironmentType.PRODUCTION, serverTypes.getJobServerType(), true)
 				.withEnvironmentType(EnvironmentType.DEVELOPMENT, true));

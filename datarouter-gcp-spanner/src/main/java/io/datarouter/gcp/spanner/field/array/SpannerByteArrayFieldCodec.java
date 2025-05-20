@@ -47,6 +47,11 @@ public class SpannerByteArrayFieldCodec extends SpannerBaseFieldCodec<byte[],Byt
 	}
 
 	@Override
+	public byte[] getNullValue(){
+		return null;
+	}
+
+	@Override
 	public byte[] getValueFromResultSet(ResultSet rs){
 		return rs.getBytes(field.getKey().getColumnName()).toByteArray();
 	}

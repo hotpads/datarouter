@@ -25,10 +25,6 @@ import java.util.concurrent.atomic.LongAdder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.amazonaws.http.IdleConnectionReaper;
-import com.amazonaws.services.sqs.AmazonSQS;
-import com.amazonaws.services.sqs.model.QueueAttributeName;
-
 import io.datarouter.aws.sqs.config.DatarouterSqsSettingsRoot;
 import io.datarouter.instrumentation.metric.Metrics;
 import io.datarouter.scanner.Scanner;
@@ -45,6 +41,10 @@ import software.amazon.awssdk.services.cloudwatch.model.Metric;
 import software.amazon.awssdk.services.cloudwatch.model.MetricDataQuery;
 import software.amazon.awssdk.services.cloudwatch.model.MetricDataResult;
 import software.amazon.awssdk.services.cloudwatch.model.MetricStat;
+import software.amazon.awssdk.services.sqs.SqsClient;
+import software.amazon.awssdk.services.sqs.model.GetQueueAttributesRequest;
+import software.amazon.awssdk.services.sqs.model.QueueAttributeName;
+import software.amazon.awssdk.services.sqs.model.SetQueueAttributesRequest;
 
 @Singleton
 public class SqsClientManager extends BaseClientManager{
@@ -57,8 +57,7 @@ public class SqsClientManager extends BaseClientManager{
 
 	@Override
 	public void shutdown(ClientId clientId){
-		amazonSqsHolder.get(clientId).shutdown();
-		IdleConnectionReaper.shutdown();
+		amazonSqsHolder.get(clientId).close();
 	}
 
 	@Override
@@ -66,17 +65,17 @@ public class SqsClientManager extends BaseClientManager{
 		amazonSqsHolder.registerClient(clientId);
 	}
 
-	public AmazonSQS getAmazonSqs(ClientId clientId){
+	public SqsClient getAmazonSqs(ClientId clientId){
 		initClient(clientId);
 		return amazonSqsHolder.get(clientId);
 	}
 
 	public String getQueueAttribute(ClientId clientId, String queueUrl, QueueAttributeName attributeName){
-		return getQueueAttributes(clientId, queueUrl, List.of(attributeName.name())).get(attributeName.name());
+		return getQueueAttributes(clientId, queueUrl, List.of(attributeName)).get(attributeName);
 	}
 
-	public Map<String,String> getAllQueueAttributes(ClientId clientId, String sqsQueueUrl){
-		return getQueueAttributes(clientId, sqsQueueUrl, List.of(QueueAttributeName.All.name()));
+	public Map<QueueAttributeName,String> getAllQueueAttributes(ClientId clientId, String sqsQueueUrl){
+		return getQueueAttributes(clientId, sqsQueueUrl, List.of(QueueAttributeName.ALL));
 	}
 
 	private MetricDataQuery createMetricDataQuery(String queueName){
@@ -163,13 +162,24 @@ public class SqsClientManager extends BaseClientManager{
 		Metrics.count("GetMetricData ApproximateAgeOfOldestMessage " + string, delta);
 	}
 
-	public Map<String,String> getQueueAttributes(ClientId clientId, String queueUrl, List<String> attributes){
-		return getAmazonSqs(clientId).getQueueAttributes(queueUrl, attributes).getAttributes();
+	public Map<QueueAttributeName,String> getQueueAttributes(
+			ClientId clientId,
+			String queueUrl,
+			List<QueueAttributeName> attributes){
+		var request = GetQueueAttributesRequest.builder()
+				.attributeNames(attributes)
+				.queueUrl(queueUrl)
+				.build();
+		return getAmazonSqs(clientId).getQueueAttributes(request).attributes();
 	}
 
 	public void updateAttr(ClientId clientId, String queueUrl, QueueAttributeName key, Object value){
-		Map<String,String> attributes = Map.of(key.name(), String.valueOf(value));
-		getAmazonSqs(clientId).setQueueAttributes(queueUrl, attributes);
+		Map<QueueAttributeName,String> attributes = Map.of(key, String.valueOf(value));
+		var request = SetQueueAttributesRequest.builder()
+						.attributes(attributes)
+						.queueUrl(queueUrl)
+						.build();
+		getAmazonSqs(clientId).setQueueAttributes(request);
 	}
 
 }

@@ -33,7 +33,7 @@ public interface UrlLinkRoot{
 				.orElse("");
 	}
 
-	default String getUrlRoot(){
+	default String getProductionUrlWithContext(){
 		return getScheme() + "://" + getProductionDomain() + getContextPath();
 	}
 

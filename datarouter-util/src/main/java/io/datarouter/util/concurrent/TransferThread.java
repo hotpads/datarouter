@@ -98,8 +98,8 @@ public class TransferThread<T,R>{
 
 		private final int bufferSize;
 		private final Function<Scanner<T>,R> threadFunction;
-		private Consumer<Long> inputStallNanosCallback = $ -> {};
-		private Consumer<Long> outputStallNanosCallback = $ -> {};
+		private Consumer<Long> inputStallNanosCallback = _ -> {};
+		private Consumer<Long> outputStallNanosCallback = _ -> {};
 
 		public TransferThreadBuilder(int bufferSize, Function<Scanner<T>,R> threadFunction){
 			this.bufferSize = bufferSize;

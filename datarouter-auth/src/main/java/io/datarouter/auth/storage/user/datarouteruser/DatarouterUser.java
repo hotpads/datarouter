@@ -273,6 +273,10 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey,DatarouterUse
 		this.enabled = enabled;
 	}
 
+	public MilliTime getLastLoggedInMs(){
+		return lastLoggedInMs;
+	}
+
 	public Instant getLastLoggedIn(){
 		return Optional.ofNullable(lastLoggedInMs)
 				.map(MilliTime::toInstant)

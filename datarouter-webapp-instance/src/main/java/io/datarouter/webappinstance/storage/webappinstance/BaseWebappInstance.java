@@ -155,8 +155,9 @@ extends BaseDatabean<PK,D>{
 				dto.httpsPort());
 	}
 
-	public WebappInstanceDto toDto(){
+	public WebappInstanceDto toDto(String environment){
 		return new WebappInstanceDto(
+				environment,
 				getKey().getWebappName(),
 				getKey().getServerName(),
 				getServerType(),
@@ -173,6 +174,10 @@ extends BaseDatabean<PK,D>{
 				getServletContainerVersion(),
 				getGitBranch(),
 				getHttpsPort());
+	}
+
+	public WebappInstanceDto toDto(){
+		return toDto(null);
 	}
 
 	public static Set<String> getUniqueServerNames(Iterable<WebappInstance> ins){

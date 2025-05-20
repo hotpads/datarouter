@@ -21,25 +21,6 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.services.rds.AmazonRDS;
-import com.amazonaws.services.rds.AmazonRDSClientBuilder;
-import com.amazonaws.services.rds.model.AddTagsToResourceRequest;
-import com.amazonaws.services.rds.model.CreateDBInstanceRequest;
-import com.amazonaws.services.rds.model.DBCluster;
-import com.amazonaws.services.rds.model.DBClusterMember;
-import com.amazonaws.services.rds.model.DBInstance;
-import com.amazonaws.services.rds.model.DeleteDBInstanceRequest;
-import com.amazonaws.services.rds.model.DescribeBlueGreenDeploymentsRequest;
-import com.amazonaws.services.rds.model.DescribeBlueGreenDeploymentsResult;
-import com.amazonaws.services.rds.model.DescribeDBClustersRequest;
-import com.amazonaws.services.rds.model.DescribeDBInstancesRequest;
-import com.amazonaws.services.rds.model.ListTagsForResourceRequest;
-import com.amazonaws.services.rds.model.ListTagsForResourceResult;
-import com.amazonaws.services.rds.model.Tag;
-
 import io.datarouter.aws.rds.config.DatarouterAwsRdsConfigSettings;
 import io.datarouter.aws.rds.config.DatarouterAwsRdsConfigSettings.RdsCredentialsDto;
 import io.datarouter.scanner.Scanner;
@@ -47,6 +28,24 @@ import io.datarouter.util.number.RandomTool;
 import io.datarouter.util.retry.RetryableTool;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.AwsCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.rds.RdsClient;
+import software.amazon.awssdk.services.rds.model.AddTagsToResourceRequest;
+import software.amazon.awssdk.services.rds.model.CreateDbInstanceRequest;
+import software.amazon.awssdk.services.rds.model.DBCluster;
+import software.amazon.awssdk.services.rds.model.DBClusterMember;
+import software.amazon.awssdk.services.rds.model.DBInstance;
+import software.amazon.awssdk.services.rds.model.DeleteDbInstanceRequest;
+import software.amazon.awssdk.services.rds.model.DescribeBlueGreenDeploymentsRequest;
+import software.amazon.awssdk.services.rds.model.DescribeBlueGreenDeploymentsResponse;
+import software.amazon.awssdk.services.rds.model.DescribeDbClustersRequest;
+import software.amazon.awssdk.services.rds.model.DescribeDbInstancesRequest;
+import software.amazon.awssdk.services.rds.model.ListTagsForResourceRequest;
+import software.amazon.awssdk.services.rds.model.ListTagsForResourceResponse;
+import software.amazon.awssdk.services.rds.model.Tag;
 
 @Singleton
 public class RdsService{
@@ -59,16 +58,16 @@ public class RdsService{
 	private DatarouterAwsRdsConfigSettings rdsSettings;
 
 	public List<String> getReaderInstanceIds(String clusterName, String region){
-		return getCluster(clusterName, region).getDBClusterMembers().stream()
+		return getCluster(clusterName, region).dbClusterMembers().stream()
 				.filter(m -> !m.isClusterWriter())
-				.map(DBClusterMember::getDBInstanceIdentifier)
+				.map(DBClusterMember::dbInstanceIdentifier)
 				.toList();
 	}
 
 	public boolean isReaderInstance(String instanceName, String clusterName, String region){
-		return Scanner.of(getCluster(clusterName, region).getDBClusterMembers())
+		return Scanner.of(getCluster(clusterName, region).dbClusterMembers())
 				.include(clusterMember -> !clusterMember.isClusterWriter())
-				.map(DBClusterMember::getDBInstanceIdentifier)
+				.map(DBClusterMember::dbInstanceIdentifier)
 				.anyMatch(instanceId -> instanceId.equals(instanceName));
 	}
 
@@ -77,19 +76,19 @@ public class RdsService{
 	}
 
 	public DBInstance getInstance(String instanceName, String region, int numRetryAttempts){
-		var request = new DescribeDBInstancesRequest().withDBInstanceIdentifier(instanceName);
+		var request = DescribeDbInstancesRequest.builder().dbInstanceIdentifier(instanceName).build();
 		int randomSleepMs = RandomTool.getRandomIntBetweenTwoNumbers(0, 3_000);
 		return RetryableTool.tryNTimesWithBackoffAndRandomInitialDelayUnchecked(
-				() -> getAmazonRdsReadOnlyClient(region).describeDBInstances(request).getDBInstances().getFirst(),
+				() -> getAmazonRdsReadOnlyClient(region).describeDBInstances(request).dbInstances().getFirst(),
 				numRetryAttempts,
 				randomSleepMs,
 				true);
 	}
 
 	public DBInstance getWriterInstance(String clusterName, String region){
-		Optional<String> writerInstance = Scanner.of(getCluster(clusterName, region).getDBClusterMembers())
+		Optional<String> writerInstance = Scanner.of(getCluster(clusterName, region).dbClusterMembers())
 				.include(DBClusterMember::isClusterWriter)
-				.map(DBClusterMember::getDBInstanceIdentifier)
+				.map(DBClusterMember::dbInstanceIdentifier)
 				.findFirst();
 		return getInstance(writerInstance.get(), region);
 	}
@@ -98,57 +97,65 @@ public class RdsService{
 		String otherInstanceName = clusterName + rdsSettings.dbOtherInstanceSuffix.get();
 		logger.warn("Request to create other instance={} for cluster={}", otherInstanceName, clusterName);
 		if(!getReaderInstanceIds(clusterName, region).contains(otherInstanceName)){
-			String availabilityZone = getWriterInstance(clusterName, region).getAvailabilityZone();
+			String availabilityZone = getWriterInstance(clusterName, region).availabilityZone();
 			createDbInstance(otherInstanceName, clusterName, region, availabilityZone);
 		}
 	}
 
 	public void deleteOtherInstance(String instanceName, String region){
-		var describeRequest = new DescribeDBInstancesRequest().withDBInstanceIdentifier(instanceName);
-		String instanceStatus = getAmazonRdsCreateOtherClient(region).describeDBInstances(describeRequest)
-				.getDBInstances().getFirst()
-				.getDBInstanceStatus();
+		var describeRequest = DescribeDbInstancesRequest.builder()
+				.dbInstanceIdentifier(instanceName)
+				.build();
+		String instanceStatus = getAmazonRdsCreateOtherClient(region)
+				.describeDBInstances(describeRequest)
+				.dbInstances()
+				.getFirst()
+				.dbInstanceStatus();
 		if(instanceStatus.equals(AVAILABLE_STATUS) && instanceName.endsWith(
 				rdsSettings.dbOtherInstanceSuffix.get())){
-			var request = new DeleteDBInstanceRequest()
-					.withDBInstanceIdentifier(instanceName);
+			var request = DeleteDbInstanceRequest.builder()
+					.dbInstanceIdentifier(instanceName)
+					.build();
 			getAmazonRdsCreateOtherClient(region).deleteDBInstance(request);
 		}
 	}
 
 	public void createDbInstance(String instanceName, String clusterName, String region, String availabilityZone){
 		String parameterGroup = rdsSettings.getParameterGroup(region);
-		var request = new CreateDBInstanceRequest()
-				.withDBInstanceIdentifier(instanceName)
-				.withDBInstanceClass(rdsSettings.dbOtherInstanceClass.get())
-				.withEngine(rdsSettings.dbOtherEngine.get())
-				.withDBParameterGroupName(parameterGroup)
-				.withAvailabilityZone(availabilityZone)
-				.withDBClusterIdentifier(clusterName);
-
-		request.setPromotionTier(rdsSettings.dbOtherPromotionTier.get());
+		var request = CreateDbInstanceRequest.builder()
+				.dbInstanceIdentifier(instanceName)
+				.dbInstanceClass(rdsSettings.dbOtherInstanceClass.get())
+				.engine(rdsSettings.dbOtherEngine.get())
+				.dbParameterGroupName(parameterGroup)
+				.availabilityZone(availabilityZone)
+				.dbClusterIdentifier(clusterName)
+				.promotionTier(rdsSettings.dbOtherPromotionTier.get())
+				.build();
 		getAmazonRdsCreateOtherClient(region).createDBInstance(request);
 	}
 
-	public DescribeBlueGreenDeploymentsResult getBlueGreenDeployment(String blueGreenDeploymentId, String region){
-		var request = new DescribeBlueGreenDeploymentsRequest()
-				.withBlueGreenDeploymentIdentifier(blueGreenDeploymentId);
+	public DescribeBlueGreenDeploymentsResponse getBlueGreenDeployment(String blueGreenDeploymentId, String region){
+		var request = DescribeBlueGreenDeploymentsRequest.builder()
+				.blueGreenDeploymentIdentifier(blueGreenDeploymentId)
+				.build();
 		return getAmazonRdsReadOnlyClient(region).describeBlueGreenDeployments(request);
 	}
 
 	public String getClusterParameterGroup(String clusterName, String region){
-		return getCluster(clusterName, region).getDBClusterParameterGroup();
+		return getCluster(clusterName, region).dbClusterParameterGroup();
 	}
 
 	public String getClusterFromInstanceName(String instanceName, String region){
-		return getInstance(instanceName, region).getDBClusterIdentifier();
+		return getInstance(instanceName, region).dbClusterIdentifier();
 	}
 
 	public DBCluster getCluster(String clusterName, String region){
-		var request = new DescribeDBClustersRequest().withDBClusterIdentifier(clusterName);
+		var request = DescribeDbClustersRequest.builder()
+				.dbClusterIdentifier(clusterName)
+				.build();
 		int randomSleepMs = RandomTool.getRandomIntBetweenTwoNumbers(0, 3_000);
 		List<DBCluster> result = RetryableTool.tryNTimesWithBackoffAndRandomInitialDelayUnchecked(
-				() -> getAmazonRdsReadOnlyClient(region).describeDBClusters(request).getDBClusters(),
+				() -> getAmazonRdsReadOnlyClient(region).describeDBClusters(request).dbClusters(),
 				NUM_ATTEMPTS,
 				randomSleepMs,
 				true);
@@ -158,48 +165,54 @@ public class RdsService{
 		return result.getFirst();
 	}
 
-	public ListTagsForResourceResult getTags(String instance, String region){
-		String instanceArn = getInstance(instance, region).getDBInstanceArn();
-		ListTagsForResourceRequest listTagsRequest = new ListTagsForResourceRequest().withResourceName(instanceArn);
+	public ListTagsForResourceResponse getTags(String instance, String region){
+		String instanceArn = getInstance(instance, region).dbInstanceArn();
+		ListTagsForResourceRequest listTagsRequest = ListTagsForResourceRequest.builder()
+				.resourceName(instanceArn)
+				.build();
 		return getAmazonRdsReadOnlyClient(region).listTagsForResource(listTagsRequest);
 	}
 
 	public void applyMissingTags(String instanceName, List<Tag> missingTags, String region){
-		AddTagsToResourceRequest addTagsRequest = new AddTagsToResourceRequest()
-				.withResourceName(getInstanceArn(instanceName, region));
-		addTagsRequest.setTags(missingTags);
+		AddTagsToResourceRequest addTagsRequest = AddTagsToResourceRequest.builder()
+				.resourceName(getInstanceArn(instanceName, region))
+				.tags(missingTags)
+				.build();
 		getAmazonRdsAddTagsClient(region).addTagsToResource(addTagsRequest);
 	}
 
 	private String getInstanceArn(String instanceName, String region){
-		return getInstance(instanceName, region).getDBInstanceArn();
+		return getInstance(instanceName, region).dbInstanceArn();
 	}
 
-	private AmazonRDS getAmazonRdsReadOnlyClient(String region){
+	private RdsClient getAmazonRdsReadOnlyClient(String region){
 		RdsCredentialsDto credentialsDto = rdsSettings.rdsReadOnlyCredentials.get();
-		AWSCredentials credentials = new BasicAWSCredentials(credentialsDto.accessKey(), credentialsDto.secretKey());
-		return AmazonRDSClientBuilder.standard()
-				.withCredentials(new AWSStaticCredentialsProvider(credentials))
-				.withRegion(region)
+		AwsCredentials credentials = AwsBasicCredentials.create(credentialsDto.accessKey(),
+				credentialsDto.secretKey());
+		return RdsClient.builder()
+				.credentialsProvider(StaticCredentialsProvider.create(credentials))
+				.region(Region.of(region))
 				.build();
 	}
 
-	private AmazonRDS getAmazonRdsAddTagsClient(String region){
+	private RdsClient getAmazonRdsAddTagsClient(String region){
 		RdsCredentialsDto credentialsDto = rdsSettings.rdsAddTagsCredentials.get();
-		AWSCredentials awsCredentials = new BasicAWSCredentials(credentialsDto.accessKey(), credentialsDto.secretKey());
-		return AmazonRDSClientBuilder.standard()
-				.withCredentials(new AWSStaticCredentialsProvider(awsCredentials))
-				.withRegion(region)
+		AwsCredentials awsCredentials = AwsBasicCredentials.create(credentialsDto.accessKey(),
+				credentialsDto.secretKey());
+		return RdsClient.builder()
+				.credentialsProvider(StaticCredentialsProvider.create(awsCredentials))
+				.region(Region.of(region))
 				.build();
 	}
 
 	//get RDS client for su_rdsdbothers IAM user
-	private AmazonRDS getAmazonRdsCreateOtherClient(String region){
+	private RdsClient getAmazonRdsCreateOtherClient(String region){
 		RdsCredentialsDto credentialsDto = rdsSettings.rdsOtherCredentials.get();
-		AWSCredentials awsCredentials = new BasicAWSCredentials(credentialsDto.accessKey(), credentialsDto.secretKey());
-		return AmazonRDSClientBuilder.standard()
-				.withCredentials(new AWSStaticCredentialsProvider(awsCredentials))
-				.withRegion(region)
+		AwsCredentials awsCredentials = AwsBasicCredentials.create(credentialsDto.accessKey(),
+				credentialsDto.secretKey());
+		return RdsClient.builder()
+				.credentialsProvider(StaticCredentialsProvider.create(awsCredentials))
+				.region(Region.of(region))
 				.build();
 	}
 

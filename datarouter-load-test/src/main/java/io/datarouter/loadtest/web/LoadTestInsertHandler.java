@@ -227,7 +227,7 @@ public class LoadTestInsertHandler extends BaseHandler{
 			Scanner.of(ids)
 					.map(RandomValue::new)
 					.flush(node::putMulti)
-					.forEach($ -> trackEachRow());
+					.forEach(_ -> trackEachRow());
 			return null;
 		}
 

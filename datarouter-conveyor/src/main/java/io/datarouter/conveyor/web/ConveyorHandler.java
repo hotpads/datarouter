@@ -28,8 +28,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
-import io.datarouter.clustersetting.web.browse.ClusterSettingBrowseHandler.ClusterSettingBrowseHandlerParams;
-import io.datarouter.clustersetting.web.browse.ClusterSettingBrowseHandler.ClusterSettingBrowseLinks;
+import io.datarouter.clustersetting.link.ClusterSettingBrowseLink;
 import io.datarouter.conveyor.ConveyorAppListener;
 import io.datarouter.conveyor.ConveyorCounters;
 import io.datarouter.conveyor.config.DatarouterConveyorClusterThreadCountSettings;
@@ -38,6 +37,7 @@ import io.datarouter.conveyor.config.DatarouterConveyorShouldRunSettings;
 import io.datarouter.conveyor.config.DatarouterConveyorThreadCountSettings;
 import io.datarouter.conveyor.dto.ConveyorSummary;
 import io.datarouter.conveyor.web.ConveyorExternalLinkBuilder.ConveyorExternalLinkBuilderSupplier;
+import io.datarouter.httpclient.endpoint.link.DatarouterLinkClient;
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.number.NumberFormatter;
@@ -59,7 +59,7 @@ public class ConveyorHandler extends BaseHandler{
 	@Inject
 	private ConveyorExternalLinkBuilderSupplier externalLinkBuilder;
 	@Inject
-	private ClusterSettingBrowseLinks clusterSettingBrowseLinks;
+	private DatarouterLinkClient linkClient;
 
 	@Handler
 	private Mav list(){
@@ -122,27 +122,27 @@ public class ConveyorHandler extends BaseHandler{
 				.withHtmlColumn(
 						makeRightAlignTh("Max Instance Threads"),
 						row -> {
-							var linkParams = new ClusterSettingBrowseHandlerParams()
+							var browseLink = new ClusterSettingBrowseLink()
 									.withLocation(makeMaxThreadCountSettingLocation(row.name()));
-							String href = clusterSettingBrowseLinks.all(linkParams);
+							String href = linkClient.toInternalUrl(browseLink);
 							return td(a(NumberFormatter.addCommas(row.maxInstanceThreads())).withHref(href))
 									.withStyle("text-align:right");
 				})
 				.withHtmlColumn(
 						makeRightAlignTh("Max Cluster Threads"),
 						row -> {
-							var linkParams = new ClusterSettingBrowseHandlerParams()
+							var browseLink = new ClusterSettingBrowseLink()
 									.withLocation(makeMaxClusterThreadCountSettingLocation(row.name()));
-							String href = clusterSettingBrowseLinks.all(linkParams);
+							String href = linkClient.toInternalUrl(browseLink);
 							return td(a(NumberFormatter.addCommas(row.maxClusterThreads())).withHref(href))
 									.withStyle("text-align:right");
 				})
 				.withHtmlColumn(
 						"Enabled",
 						row -> {
-							var linkParams = new ClusterSettingBrowseHandlerParams()
+							var browseLink = new ClusterSettingBrowseLink()
 									.withLocation(makeShouldRunSettingLocation(row.name()));
-							String href = clusterSettingBrowseLinks.all(linkParams);
+							String href = linkClient.toInternalUrl(browseLink);
 							return td(a(String.valueOf(row.shouldRun())).withHref(href));
 				})
 				.withHtmlColumn(
@@ -153,15 +153,7 @@ public class ConveyorHandler extends BaseHandler{
 									.map(href -> td(a(chartIcon).withHref(href)))
 									.orElse(td("N/A"));
 
-				})
-				.withHtmlColumn(
-						"Traces",
-						row -> {
-							var chartIcon = i().withClass("fas fa-chart-line");
-							return externalLinkBuilder.get().traces(row.name())
-									.map(href -> td(a(chartIcon).withHref(href)))
-									.orElse(td("N/A"));
-						});
+				});
 	}
 
 	private ThTag makeRightAlignTh(String name){

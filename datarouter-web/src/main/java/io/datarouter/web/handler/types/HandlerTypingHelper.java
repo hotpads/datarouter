@@ -55,7 +55,7 @@ public class HandlerTypingHelper{
 			HandlerDecoder decoder = injector.getInstance(decoderClass);
 			Object[] newArgs;
 			String traceName = decoder.getClass().getSimpleName() + " decode";
-			try(var $ = TracerTool.startSpan(traceName, TraceSpanGroupType.SERIALIZATION)){
+			try(var _ = TracerTool.startSpan(traceName, TraceSpanGroupType.SERIALIZATION)){
 				newArgs = decoder.decode(request, possibleMethod);
 			}
 			if(newArgs == null){

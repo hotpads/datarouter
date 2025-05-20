@@ -79,7 +79,7 @@ implements BlobClientNodeFactory, BlobQueueClientNodeFactory, QueueClientNodeFac
 				clientType,
 				directoryBlobStorage,
 				nodeParams.getPhysicalName(),
-				nodeParams.getPath());
+				nodeParams.getPathSupplier().get());
 		return nodeAdapters.wrapBlobNode(node);
 	}
 
@@ -124,7 +124,9 @@ implements BlobClientNodeFactory, BlobQueueClientNodeFactory, QueueClientNodeFac
 
 	private DirectoryBlobStorage makeDirectoryObjectStorage(NodeParams<?,?,?> nodeParams){
 		Path rootPath = filesystemOptions.getRoot(nodeParams.getClientName());
-		String relativePathString = Scanner.of(nodeParams.getPhysicalName(), nodeParams.getPath().toString())
+		String relativePathString = Scanner.of(
+				nodeParams.getPhysicalName(),
+				nodeParams.getPathSupplier().get().toString())
 				.exclude(Objects::isNull)
 				.collect(Collectors.joining("/"));
 		Path relativePath = Paths.get(relativePathString);

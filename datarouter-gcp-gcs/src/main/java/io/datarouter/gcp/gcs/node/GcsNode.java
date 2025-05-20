@@ -19,8 +19,11 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;
 
-import io.datarouter.gcp.gcs.DatarouterGcsClient;
+import io.datarouter.bytes.ByteLength;
+import io.datarouter.gcp.gcs.client.GcsClient;
+import io.datarouter.gcp.gcs.util.GcsLimits;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.scanner.Threads;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.file.DatabaseBlob;
@@ -37,20 +40,20 @@ public class GcsNode
 extends BasePhysicalNode<DatabaseBlobKey,DatabaseBlob,DatabaseBlobFielder>
 implements PhysicalBlobStorageNode{
 
-	private final DatarouterGcsClient datarouterGcsClient;
+	private final GcsClient datarouterGcsClient;
 	private final GcsDirectoryManager gcsDirectoryManager;
 
 	public GcsNode(
 			NodeParams<DatabaseBlobKey,DatabaseBlob,DatabaseBlobFielder> params,
 			ClientType<?,?> clientType,
-			DatarouterGcsClient datarouterGcsClient,
+			GcsClient datarouterGcsClient,
 			GcsDirectoryManager directoryManager){
 		super(params, clientType);
 		this.datarouterGcsClient = datarouterGcsClient;
 		this.gcsDirectoryManager = directoryManager;
 	}
 
-	public DatarouterGcsClient getDatarouterGcsClient(){
+	public GcsClient getDatarouterGcsClient(){
 		return datarouterGcsClient;
 	}
 
@@ -63,6 +66,8 @@ implements PhysicalBlobStorageNode{
 	public Subpath getRootPath(){
 		return gcsDirectoryManager.getRootPath();
 	}
+
+	/*-------- read ----------*/
 
 	@Override
 	public boolean exists(PathbeanKey key, Config config){
@@ -94,34 +99,7 @@ implements PhysicalBlobStorageNode{
 		return gcsDirectoryManager.readInputStream(key.getPathAndFile());
 	}
 
-	@Override
-	public void write(PathbeanKey key, byte[] content, Config config){
-		gcsDirectoryManager.write(key.getPathAndFile(), content);
-	}
-
-	//TODO implement multi-part uploads
-	//TODO implement the writeParallel method
-	@Override
-	public void writeInputStream(PathbeanKey key, InputStream inputStream, Config config){
-		gcsDirectoryManager.write(key.getPathAndFile(), inputStream);
-	}
-
-	@Override
-	public void delete(PathbeanKey key, Config config){
-		gcsDirectoryManager.delete(key.getPathAndFile());
-	}
-
-	@Override
-	public void deleteMulti(List<PathbeanKey> keys, Config config){
-		Scanner.of(keys)
-				.map(PathbeanKey::getPathAndFile)
-				.flush(gcsDirectoryManager::deleteMulti);
-	}
-
-	@Override
-	public void deleteAll(Subpath subpath, Config config){
-		gcsDirectoryManager.deleteAll(subpath);
-	}
+	/*---------- scan -----------*/
 
 	@Override
 	public Scanner<List<Pathbean>> scanPaged(Subpath subpath, Config config){
@@ -145,9 +123,59 @@ implements PhysicalBlobStorageNode{
 						.list());
 	}
 
+	/*-------- write ----------*/
+
+	@Override
+	public void write(PathbeanKey key, byte[] content, Config config){
+		gcsDirectoryManager.write(key.getPathAndFile(), content);
+	}
+
+	/*--------- write multipart ---------*/
+	@Override
+	public void writeInputStream(PathbeanKey key, InputStream inputStream, Config config){
+		gcsDirectoryManager.multipartUpload(
+				key.getPathAndFile(),
+				inputStream,
+				Threads.none(),
+				GcsLimits.MIN_PART_SIZE);
+	}
+
+	@Override
+	public void writeParallel(
+			PathbeanKey key,
+			InputStream inputStream,
+			Threads threads,
+			ByteLength minPartSize,
+			Config config){
+		gcsDirectoryManager.multipartUpload(
+				key.getPathAndFile(),
+				inputStream,
+				threads,
+				minPartSize);
+	}
+
+	/*---------- delete ----------*/
+
 	@Override
 	public void vacuum(Config config){
 		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void delete(PathbeanKey key, Config config){
+		gcsDirectoryManager.delete(key.getPathAndFile());
+	}
+
+	@Override
+	public void deleteMulti(List<PathbeanKey> keys, Config config){
+		Scanner.of(keys)
+				.map(PathbeanKey::getPathAndFile)
+				.flush(gcsDirectoryManager::deleteMulti);
+	}
+
+	@Override
+	public void deleteAll(Subpath subpath, Config config){
+		gcsDirectoryManager.deleteAll(subpath);
 	}
 
 }

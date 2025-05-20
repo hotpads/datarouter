@@ -39,18 +39,17 @@ import io.datarouter.auth.config.DatarouterAuthPaths;
 import io.datarouter.auth.config.DatarouterAuthenticationConfig;
 import io.datarouter.auth.role.Role;
 import io.datarouter.auth.role.RoleManager;
+import io.datarouter.auth.service.DatarouterUserEditService;
 import io.datarouter.auth.service.DatarouterUserService;
+import io.datarouter.auth.service.PermissionRequestService;
+import io.datarouter.auth.service.PermissionRequestService.DeclinePermissionRequestDto;
 import io.datarouter.auth.storage.user.datarouteruser.DatarouterUser;
 import io.datarouter.auth.storage.user.datarouteruser.DatarouterUserDao;
-import io.datarouter.auth.storage.user.permissionrequest.DatarouterPermissionRequestDao;
-import io.datarouter.auth.storage.user.permissionrequest.PermissionRequest;
-import io.datarouter.auth.web.service.DatarouterPermissionRequestEmailService;
-import io.datarouter.auth.web.service.PermissionRequestService;
-import io.datarouter.auth.web.service.PermissionRequestService.DeclinePermissionRequestDto;
+import io.datarouter.auth.web.config.DatarouterAuthSettingRoot;
+import io.datarouter.auth.web.util.DatarouterAuthPathUtil;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.properties.AdminEmail;
 import io.datarouter.storage.config.properties.ServiceName;
-import io.datarouter.types.MilliTime;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
@@ -76,18 +75,15 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 	private static final String P_REQUESTED_ROLES = "requestedRoles";
 	private static final String P_DENIED_URL = "deniedUrl";
 	private static final String P_ALLOWED_ROLES = "allowedRoles";
-	private static final String P_SPECIFICS = "specifics";
 	private static final String P_VALIDATION_ERROR = "validationError";
-	private static final String EMAIL_TITLE = "Permission Request";
 	private static final String FORM_ID = "permissionRequestForm";
 	private static final String ROLE_TABLE_ID = "roleTable";
+	private static final String SUBMIT_BUTTON_ID = "submitButton";
 
 	@Inject
 	private Bootstrap4PageFactory bootstrap4PageFactory;
 	@Inject
 	private DatarouterAuthenticationConfig authenticationConfig;
-	@Inject
-	private DatarouterPermissionRequestDao datarouterPermissionRequestDao;
 	@Inject
 	private DatarouterUserService datarouterUserService;
 	@Inject
@@ -103,7 +99,9 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 	@Inject
 	private PermissionRequestService permissionRequestService;
 	@Inject
-	private DatarouterPermissionRequestEmailService permissionRequestEmailService;
+	private DatarouterAuthSettingRoot authSettingRoot;
+	@Inject
+	private DatarouterUserEditService userEditService;
 
 	@Handler(defaultHandler = true)
 	public Mav showForm(
@@ -116,24 +114,18 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 		}
 
 		DatarouterUser user = getCurrentUser();
-		PermissionRequest currentRequest = datarouterPermissionRequestDao
-				.scanOpenPermissionRequestsForUser(user.getId())
-				.findMax(Comparator.comparing(request -> request.getKey().getRequestTime()))
-				.orElse(null);
-
 		String declinePath = paths.permissionRequest.declineAll.join("/");
 
-		DivTag existingRequest = new DivTag();
-		if(currentRequest != null){
-			existingRequest = div(
-					p("You already have an open permission request for " + serviceName.get()
-						+ ". You may submit another request to replace it."),
-					p("Time Requested: " + currentRequest.getKey().getRequestTime()),
-					p(b("Request Text:\n")),
-					// pre-wrap doesn't work with j2html.ContainerTag.renderFormatted, so use pre tag instead
-					pre(currentRequest.getRequestText()).withStyle("margin-left: 2em;"),
-					p(join("Click ", a("here").withHref(declinePath), " to decline it.")));
-		}
+		DivTag existingRequest = permissionRequestService.findOpenPermissionRequest(user)
+				.map(currentRequest -> div(
+						p("You already have an open permission request for " + serviceName.get()
+								+ ". You may submit another request to replace it."),
+						p("Time Requested: " + currentRequest.getKey().getRequestTime()),
+						p(b("Request Text:\n")),
+						// pre-wrap doesn't work with j2html.ContainerTag.renderFormatted, so use pre tag instead
+						pre(currentRequest.getRequestText()).withStyle("margin-left: 2em;"),
+						p(join("Click ", a("here").withHref(declinePath), " to decline it."))))
+				.orElse(new DivTag());
 		DivTag insufficientPermissionAction = new DivTag();
 		if(deniedUrl.isPresent() && allowedRoles.isPresent()){
 			insufficientPermissionAction = div(p(join(
@@ -167,7 +159,12 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 				.withColumns(List.of(new Column("role", "Role"), new Column("description", "Description")))
 				.withRows(Scanner.of(roleManager.getRequestableRoles(user))
 						.map(role -> {
-							boolean userHasRole = user.getRolesIgnoreSaml().contains(role);
+							boolean userHasRole;
+							if(authSettingRoot.allowRequestingRolesHasFromSamlGroup.get()){
+								userHasRole = user.getRolesIgnoreSaml().contains(role);
+							}else{
+								userHasRole = user.getRolesWithSamlGroups(roleManager).contains(role);
+							}
 							return new Row(
 									role.persistentString(),
 									List.of(role.persistentString(), role.description()),
@@ -182,7 +179,8 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 		form.addHiddenField(P_ALLOWED_ROLES, allowedRoles.orElse(null));
 		form.addHiddenField(HtmlFormTimezoneSelect.TIMEZONE_FIELD_NAME, userTimezone);
 		form.addButton()
-				.withLabel("Submit");
+				.withLabel("Submit")
+				.withId(SUBMIT_BUTTON_ID);
 		DivTag formContent = div();
 		if(validationError.isPresent()){
 			formContent = formContent.with(div(validationError.get())
@@ -202,6 +200,7 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 				.withScript(script(HtmlFormTimezoneSelect.HIDDEN_TIMEZONE_JS))
 				.withScript(script(
 						roleTable.getCollectValuesJs(FORM_ID, ROLE_TABLE_ID, P_REQUESTED_ROLES)))
+				.withScript(script(form.getDisableSubmitButtonJs(FORM_ID, SUBMIT_BUTTON_ID)))
 				.buildMav();
 	}
 
@@ -244,67 +243,20 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 					paths.permissionRequest,
 					Map.of(P_VALIDATION_ERROR, "At least one requested role is required."));
 		}
-		String specifics = "Request Reason: \"%s\"\nRequested Roles: %s.".formatted(reason, requestedRoleString)
-				+ deniedUrl.map(url -> "\nAttempted request to: " + url + ".").orElse("")
-				+ allowedRoles.map(roles -> "\nAllowed Roles: " + roles + ".").orElse("");
-		DatarouterUser user = getCurrentUser();
-
-		timezone.map(ZoneId::of)
-				.ifPresent(zoneId -> {
-					user.setZoneId(zoneId);
-					datarouterUserDao.put(user);
-				});
-
-		datarouterPermissionRequestDao.createPermissionRequest(new PermissionRequest(
-				user.getId(),
-				MilliTime.now(),
-				specifics,
-				null,
-				null));
 		Set<Role> requestedRoles = new HashSet<>(Scanner.of(requestedRoleString.split(","))
 				.map(roleManager::findRoleFromPersistentString)
 				.map(optionalRole -> optionalRole.orElseThrow(
 						() -> new IllegalArgumentException(
 								"Permission request made with unknown role(s): " + requestedRoleString)))
 				.list());
-		Set<String> additionalRecipients = roleManager.getAdditionalPermissionRequestEmailRecipients(user,
-				requestedRoles);
-		permissionRequestEmailService.sendRequestEmail(user, reason, specifics, EMAIL_TITLE, additionalRecipients);
-
-		//not just requestor, so send them to the home page after they make their request
-		if(datarouterUserService.getUserRolesWithSamlGroups(user).size() > 1){
-			return new InContextRedirectMav(request, paths.home);
-		}
-
-		return new InContextRedirectMav(request, paths.permissionRequest);
-	}
-
-	@Handler
-	private Mav createCustomPermissionRequest(
-			@Param(P_REASON) String reason,
-			@Param(P_SPECIFICS) String specifics){
-		if(StringTool.isEmptyOrWhitespace(reason)){
-			return new InContextRedirectMav(
-					request,
-					paths.permissionRequest,
-					Map.of(P_VALIDATION_ERROR, "Reason is required."));
-		}
-		if(StringTool.isEmptyOrWhitespace(specifics)){
-			return new InContextRedirectMav(
-					request,
-					paths.permissionRequest,
-					Map.of(P_VALIDATION_ERROR, "Specifics are required."));
-		}
-		reason = reason.trim();
-		specifics = specifics.trim();
 		DatarouterUser user = getCurrentUser();
-		datarouterPermissionRequestDao.createPermissionRequest(new PermissionRequest(
-				user.getId(),
-				MilliTime.now(),
-				specifics,
-				null,
-				null));
-		permissionRequestEmailService.sendRequestEmail(user, reason, specifics, EMAIL_TITLE, Set.of());
+		if(timezone.isPresent()){
+			user.setZoneId(timezone.map(ZoneId::of).orElseThrow());
+			datarouterUserDao.put(user);
+		}
+
+		user = userEditService.requestPermissions(user, requestedRoles, reason,
+				DatarouterAuthPathUtil.getSignInUrl(request, paths), deniedUrl, allowedRoles);
 
 		//not just requestor, so send them to the home page after they make their request
 		if(datarouterUserService.getUserRolesWithSamlGroups(user).size() > 1){

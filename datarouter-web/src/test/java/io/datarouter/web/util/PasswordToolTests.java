@@ -15,6 +15,9 @@
  */
 package io.datarouter.web.util;
 
+import java.time.Duration;
+import java.time.Instant;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -24,10 +27,10 @@ public class PasswordToolTests{
 
 	@Test
 	public void testDigest(){
-		long startNs = System.nanoTime();
+		Instant startTime = Instant.now();
 		PasswordTool.digest(System.currentTimeMillis() + "", "IrregularAustralia56");
-		long elapsedNs = System.nanoTime() - startNs;
-		Assert.assertTrue(elapsedNs < 300 * 1000 * 1000);// less than 300ms (taking 81ms in testing)
+		Duration duration = Duration.between(startTime, Instant.now());
+		Assert.assertTrue(duration.compareTo(Duration.ofMillis(500)) < 0);// taking 81ms in testing
 	}
 
 }

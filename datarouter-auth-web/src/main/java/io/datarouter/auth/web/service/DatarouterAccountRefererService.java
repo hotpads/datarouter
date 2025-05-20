@@ -24,26 +24,26 @@ import io.datarouter.auth.storage.account.DatarouterAccount;
 import io.datarouter.auth.storage.account.DatarouterAccountDao;
 import io.datarouter.auth.storage.account.DatarouterAccountKey;
 import io.datarouter.httpclient.HttpHeaders;
-import io.datarouter.util.cache.LoadingCache;
-import io.datarouter.util.cache.LoadingCache.LoadingCacheBuilder;
+import io.datarouter.storage.cache.CaffeineLoadingCache;
+import io.datarouter.storage.cache.CaffeineLoadingCache.CaffeineLoadingCacheBuilder;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterAccountRefererService{
 
-	private final LoadingCache<String,RefererCheck> checkByAccountName;
+	private final CaffeineLoadingCache<String,RefererCheck> checkByAccountName;
 
 	@Inject
 	public DatarouterAccountRefererService(DatarouterAccountDao accountDao){
-		checkByAccountName = new LoadingCacheBuilder<String,RefererCheck>()
+		checkByAccountName = new CaffeineLoadingCacheBuilder<String,RefererCheck>()
 				.withName("AccountRefererCheck")
 				.withExpireTtl(Duration.ofMinutes(1))
 				.withLoadingFunction(accountName -> {
 					DatarouterAccount account = accountDao.get(new DatarouterAccountKey(accountName));
 					String referer = account.getReferrer();
 					if(referer == null){
-						return $ -> new DatarouterAccountRefererCheck(true, false);
+						return _ -> new DatarouterAccountRefererCheck(true, false);
 					}
 					return request -> new DatarouterAccountRefererCheck(refererAllowed(request, referer), true);
 				})

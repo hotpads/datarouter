@@ -31,16 +31,16 @@ import java.util.function.Predicate;
 
 import io.datarouter.clustersetting.enums.ClusterSettingOverrideSuggestion;
 import io.datarouter.clustersetting.enums.ClusterSettingValidity;
+import io.datarouter.clustersetting.link.ClusterSettingBrowseLink;
+import io.datarouter.clustersetting.link.ClusterSettingOverrideDeleteLink;
+import io.datarouter.clustersetting.link.ClusterSettingOverrideUpdateLink;
+import io.datarouter.clustersetting.link.ClusterSettingSettingLogLink;
 import io.datarouter.clustersetting.service.ClusterSettingService;
 import io.datarouter.clustersetting.storage.clustersetting.ClusterSetting;
 import io.datarouter.clustersetting.storage.clustersetting.DatarouterClusterSettingDao;
 import io.datarouter.clustersetting.web.ClusterSettingHtml;
-import io.datarouter.clustersetting.web.browse.ClusterSettingBrowseHandler.ClusterSettingBrowseHandlerParams;
-import io.datarouter.clustersetting.web.browse.ClusterSettingBrowseHandler.ClusterSettingBrowseLinks;
 import io.datarouter.clustersetting.web.browse.ClusterSettingHierarchy;
-import io.datarouter.clustersetting.web.log.ClusterSettingLogHandler.ClusterSettingLogLinks;
-import io.datarouter.clustersetting.web.override.handler.ClusterSettingOverrideDeleteHandler.ClusterSettingOverrideDeleteLinks;
-import io.datarouter.clustersetting.web.override.handler.ClusterSettingOverrideUpdateHandler.ClusterSettingOverrideUpdateLinks;
+import io.datarouter.httpclient.endpoint.link.DatarouterLinkClient;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.servertype.ServerType;
 import io.datarouter.util.string.StringTool;
@@ -64,13 +64,7 @@ public class ClusterSettingOverrideTableHtml{
 	@Inject
 	private DatarouterClusterSettingDao dao;
 	@Inject
-	private ClusterSettingBrowseLinks browseLinks;
-	@Inject
-	private ClusterSettingLogLinks logLinks;
-	@Inject
-	private ClusterSettingOverrideUpdateLinks overrideUpdateLinks;
-	@Inject
-	private ClusterSettingOverrideDeleteLinks overrideDeleteLinks;
+	private DatarouterLinkClient linkClient;
 	@Inject
 	private DatarouterWebappInstanceDao webappInstanceDao;
 	@Inject
@@ -191,7 +185,7 @@ public class ClusterSettingOverrideTableHtml{
 
 	private TdTag makeNameCell(ClusterSetting setting){
 		if(clusterSettingHierarchy.settingNamesSorted().contains(setting.getName())){
-			String browseHref = browseLinks.all(new ClusterSettingBrowseHandlerParams()
+			String browseHref = linkClient.toInternalUrl(new ClusterSettingBrowseLink()
 					.withLocation(setting.getName()));
 			var link = a(setting.getName()).withHref(browseHref);
 			return td(link);
@@ -200,39 +194,37 @@ public class ClusterSettingOverrideTableHtml{
 	}
 
 	private TdTag makeValueCell(ClusterSetting setting){
-		String updateHref = overrideUpdateLinks.update(
-				Optional.of(ClusterSettingEditSource.DATABASE),
-				Optional.empty(),
-				setting.getName(),
-				Optional.ofNullable(setting.getServerType()),
-				Optional.ofNullable(setting.getServerName()));
-		return clusterSettingHtml.makeLimitedLengthLinkCell(setting.getValue(), updateHref)
+		ClusterSettingOverrideUpdateLink updateLink = new ClusterSettingOverrideUpdateLink()
+				.withName(setting.getName())
+				.withSource(ClusterSettingEditSource.DATABASE)
+				.withOptServerType(Optional.ofNullable(setting.getServerType()))
+				.withOptServerName(Optional.ofNullable(setting.getServerName()));
+		return clusterSettingHtml.makeLimitedLengthLinkCell(setting.getValue(), linkClient.toInternalUrl(updateLink))
 				.withStyle("width:110px;");
 	}
 
 	private TdTag makeUpdateCell(ClusterSetting setting, Optional<String> optPartialName){
-		String updateHref = overrideUpdateLinks.update(
-				Optional.of(ClusterSettingEditSource.DATABASE),
-				optPartialName,
-				setting.getName(),
-				Optional.ofNullable(setting.getServerType()),
-				Optional.ofNullable(setting.getServerName()));
-		return td(overrideHtml.makeWarningButtonSmall("Update", updateHref));
+		ClusterSettingOverrideUpdateLink updateLink = new ClusterSettingOverrideUpdateLink()
+				.withName(setting.getName())
+				.withSource(ClusterSettingEditSource.DATABASE)
+				.withOptPartialName(optPartialName)
+				.withOptServerType(Optional.ofNullable(setting.getServerType()))
+				.withOptServerName(Optional.ofNullable(setting.getServerName()));
+		return td(overrideHtml.makeWarningButtonSmall("Update", linkClient.toInternalUrl(updateLink)));
 	}
 
 	private TdTag makeDeleteCell(ClusterSetting setting, Optional<String> optPartialName){
-		String deleteHref = overrideDeleteLinks.delete(
-				Optional.of(ClusterSettingEditSource.DATABASE),
-				Optional.empty(),
-				optPartialName,
-				setting.getName(),
-				Optional.ofNullable(setting.getServerType()),
-				Optional.ofNullable(setting.getServerName()));
-		return td(overrideHtml.makeDangerButtonSmall("Delete", deleteHref));
+		ClusterSettingOverrideDeleteLink overrideDeleteLink = new ClusterSettingOverrideDeleteLink()
+				.withName(setting.getName())
+				.withSourceType(ClusterSettingEditSource.DATABASE)
+				.withOptPartialName(optPartialName)
+				.withOptServerType(Optional.ofNullable(setting.getServerType()))
+				.withOptServerName(Optional.ofNullable(setting.getServerName()));
+		return td(overrideHtml.makeDangerButtonSmall("Delete", linkClient.toInternalUrl(overrideDeleteLink)));
 	}
 
 	private TdTag makeLogCell(ClusterSetting setting){
-		String logHref = logLinks.setting(setting.getName());
+		String logHref = linkClient.toInternalUrl(new ClusterSettingSettingLogLink(setting.getName()));
 		return td(a("log").withHref(logHref));
 	}
 

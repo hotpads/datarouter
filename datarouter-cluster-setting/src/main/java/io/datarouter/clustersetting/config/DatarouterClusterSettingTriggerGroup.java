@@ -15,9 +15,15 @@
  */
 package io.datarouter.clustersetting.config;
 
+import java.time.Duration;
+import java.time.LocalTime;
+
 import io.datarouter.clustersetting.job.ClusterSettingAlertEmailJob;
 import io.datarouter.clustersetting.job.ClusterSettingCacheRefreshJob;
 import io.datarouter.job.BaseTriggerGroup;
+import io.datarouter.job.util.DatarouterCronDayOfWeek;
+import io.datarouter.job.util.DatarouterCronTool;
+import io.datarouter.storage.config.properties.ServiceName;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.util.time.ZoneIds;
 import jakarta.inject.Inject;
@@ -27,14 +33,21 @@ import jakarta.inject.Singleton;
 public class DatarouterClusterSettingTriggerGroup extends BaseTriggerGroup{
 
 	@Inject
-	public DatarouterClusterSettingTriggerGroup(DatarouterClusterSettingRoot settings){
+	public DatarouterClusterSettingTriggerGroup(
+			ServiceName serviceNameSupplier,
+			DatarouterClusterSettingRoot settings){
 		super("DatarouterClusterSetting", Tag.DATAROUTER, ZoneIds.AMERICA_NEW_YORK);
 		registerParallel(
-				"5/10 * * * * ?",
+				DatarouterCronTool.everyNSeconds(10, serviceNameSupplier.get(), "ClusterSettingCacheRefreshJob"),
 				() -> true,
 				ClusterSettingCacheRefreshJob.class);
 		registerLocked(
-				"0 0 12 ? * MON-FRI *",
+				DatarouterCronTool.onDaysOfWeekAfter(
+						DatarouterCronDayOfWeek.weekdays(),
+						LocalTime.of(12, 0, 0),
+						Duration.ofMinutes(5),
+						serviceNameSupplier.get(),
+						"ClusterSettingAlertEmailJob"),
 				settings.runAlertJob,
 				ClusterSettingAlertEmailJob.class,
 				true);

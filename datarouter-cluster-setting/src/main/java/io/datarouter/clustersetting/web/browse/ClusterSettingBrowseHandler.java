@@ -18,17 +18,11 @@ package io.datarouter.clustersetting.web.browse;
 import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
 
-import java.util.Optional;
-
-import org.apache.http.client.utils.URIBuilder;
-
 import io.datarouter.clustersetting.config.DatarouterClusterSettingPaths;
+import io.datarouter.clustersetting.link.ClusterSettingBrowseLink;
 import io.datarouter.clustersetting.web.ClusterSettingHtml;
 import io.datarouter.clustersetting.web.browse.ClusterSettingBrowseNavHtml.ClusterSettingBrowseNavHtmlFactory;
 import io.datarouter.email.email.DatarouterHtmlEmailService;
-import io.datarouter.httpclient.endpoint.link.BaseLink;
-import io.datarouter.httpclient.endpoint.link.LinkType.NoOpLinkType;
-import io.datarouter.web.config.ServletContextSupplier;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.html.form.HtmlForm;
@@ -48,44 +42,8 @@ public class ClusterSettingBrowseHandler extends BaseHandler{
 	@Inject
 	private ClusterSettingHtml clusterSettingHtml;
 
-	public static class ClusterSettingBrowseHandlerParams extends BaseLink<NoOpLinkType>{
-
-		private static final String
-				P_location = "location",
-				P_partialName = "partialName";
-
-		public Optional<String> location = Optional.empty();
-		public Optional<String> partialName = Optional.empty();
-
-		public ClusterSettingBrowseHandlerParams(){
-			super(new DatarouterClusterSettingPaths().datarouter.settings.browse.all);
-		}
-
-		// location
-		public ClusterSettingBrowseHandlerParams withLocation(String location){
-			this.location = Optional.of(location);
-			return this;
-		}
-
-		public ClusterSettingBrowseHandlerParams withOptLocation(Optional<String> optLocation){
-			this.location = optLocation;
-			return this;
-		}
-
-		// partialName
-		public ClusterSettingBrowseHandlerParams withPartialName(String partialName){
-			this.partialName = Optional.of(partialName);
-			return this;
-		}
-
-		public ClusterSettingBrowseHandlerParams withOptPartialName(Optional<String> optPartialName){
-			this.partialName = optPartialName;
-			return this;
-		}
-	}
-
 	@Handler
-	public Mav all(ClusterSettingBrowseHandlerParams params){
+	public Mav all(ClusterSettingBrowseLink params){
 		String title = clusterSettingHtml.makeTitle("Browse");
 		var headerDiv = clusterSettingHtml.makeHeader(title, "Browse settings via the hierarchy defined in code");
 		var filterDiv = makeFilterDiv(params);
@@ -100,39 +58,20 @@ public class ClusterSettingBrowseHandler extends BaseHandler{
 		return pageFactory.simplePage(request, title, content);
 	}
 
-	private DivTag makeFilterDiv(ClusterSettingBrowseHandlerParams params){
+	private DivTag makeFilterDiv(ClusterSettingBrowseLink params){
 		var form = new HtmlForm(HtmlFormMethod.GET);
 		params.location.ifPresent(location -> form.addHiddenField(
-				ClusterSettingBrowseHandlerParams.P_location,
+				ClusterSettingBrowseLink.P_location,
 				location));
 		form.addTextField()
 				.withLabel("Name")
 				.withPlaceholder("Partial name")
-				.withName(ClusterSettingBrowseHandlerParams.P_partialName)
+				.withName(ClusterSettingBrowseLink.P_partialName)
 				.withValue(params.partialName.orElse(null));
 		form.addButtonWithoutSubmitAction()
 				.withLabel("Search");
 		return div(
 				Bootstrap4FormHtml.render(form, true));
-	}
-
-	// TODO replace by generic BaseLink link builder
-	@Singleton
-	public static class ClusterSettingBrowseLinks{
-		@Inject
-		private ServletContextSupplier contextSupplier;
-
-		public String all(ClusterSettingBrowseHandlerParams params){
-			var uriBuilder = new URIBuilder()
-					.setPath(contextSupplier.getContextPath() + params.pathNode.toSlashedString());
-			params.location.ifPresent(location -> uriBuilder.addParameter(
-					ClusterSettingBrowseHandlerParams.P_location,
-					location));
-			params.partialName.ifPresent(partialName -> uriBuilder.addParameter(
-					ClusterSettingBrowseHandlerParams.P_partialName,
-					partialName));
-			return uriBuilder.toString();
-		}
 	}
 
 	@Singleton
@@ -145,7 +84,7 @@ public class ClusterSettingBrowseHandler extends BaseHandler{
 		public String fromEmail(String location){
 			return emailService.startLinkBuilder()
 					.withLocalPath(paths.datarouter.settings.browse.all)
-					.withParam(ClusterSettingBrowseHandlerParams.P_location, location)
+					.withParam(ClusterSettingBrowseLink.P_location, location)
 					.build();
 		}
 	}

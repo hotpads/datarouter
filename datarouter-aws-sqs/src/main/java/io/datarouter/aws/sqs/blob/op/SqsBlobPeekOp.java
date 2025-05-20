@@ -19,11 +19,6 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Map.Entry;
 
-import com.amazonaws.AbortedException;
-import com.amazonaws.services.sqs.model.Message;
-import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
-import com.amazonaws.services.sqs.model.ReceiveMessageResult;
-
 import io.datarouter.aws.sqs.BaseSqsNode;
 import io.datarouter.aws.sqs.SqsClientManager;
 import io.datarouter.aws.sqs.op.SqsBlobOp;
@@ -33,6 +28,10 @@ import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.queue.RawBlobQueueMessage;
 import io.datarouter.util.concurrent.UncheckedInterruptedException;
+import software.amazon.awssdk.core.exception.AbortedException;
+import software.amazon.awssdk.services.sqs.model.Message;
+import software.amazon.awssdk.services.sqs.model.ReceiveMessageRequest;
+import software.amazon.awssdk.services.sqs.model.ReceiveMessageResponse;
 
 public class SqsBlobPeekOp extends SqsBlobOp<RawBlobQueueMessage>{
 
@@ -43,42 +42,42 @@ public class SqsBlobPeekOp extends SqsBlobOp<RawBlobQueueMessage>{
 	@Override
 	protected RawBlobQueueMessage run(){
 		ReceiveMessageRequest request = makeRequest();
-		ReceiveMessageResult result;
+		ReceiveMessageResponse response;
 		try{
-			result = sqsClientManager.getAmazonSqs(clientId).receiveMessage(request);
+			response = sqsClientManager.getAmazonSqs(clientId).receiveMessage(request);
 		}catch(AbortedException e){
 			throw new UncheckedInterruptedException("", e);
 		}
-		List<Message> messages = result.getMessages();
+		List<Message> messages = response.messages();
 		if(messages.isEmpty()){
 			return null;
 		}
 
 		Message message = messages.getFirst();
-		byte[] data = SqsBlobOp.SQS_BLOB_BASE_64_CODEC.decode(message.getBody());
-		byte[] receiptHandle = StringCodec.UTF_8.encode(message.getReceiptHandle());
-		var attributes = Scanner.of(message.getMessageAttributes().entrySet())
-				.toMap(Entry::getKey, entry -> entry.getValue().getStringValue());
+		byte[] data = SqsBlobOp.SQS_BLOB_BASE_64_CODEC.decode(message.body());
+		byte[] receiptHandle = StringCodec.UTF_8.encode(message.receiptHandle());
+		var attributes = Scanner.of(message.messageAttributes().entrySet())
+				.toMap(Entry::getKey, entry -> entry.getValue().stringValue());
 		return new RawBlobQueueMessage(receiptHandle, data, attributes);
 	}
 
 	private ReceiveMessageRequest makeRequest(){
-		var request = new ReceiveMessageRequest(queueUrl);
+		var request = ReceiveMessageRequest.builder().queueUrl(queueUrl);
 
 		//waitTime
 		Duration configTimeout = config.findTimeout()
 				.filter(timeout -> timeout.compareTo(BaseSqsNode.MAX_TIMEOUT) <= 0)
 				.orElse(BaseSqsNode.MAX_TIMEOUT);
-		request.setWaitTimeSeconds(Math.toIntExact(configTimeout.getSeconds()));//must fit in an int
+		request.waitTimeSeconds(Math.toIntExact(configTimeout.getSeconds()));//must fit in an int
 
 		//visibility timeout
-		long visibilityTimeoutMs = config.getVisibilityTimeoutMsOrUse(BaseSqsNode.DEFAULT_VISIBILITY_TIMEOUT_MS);
-		request.setVisibilityTimeout((int)Duration.ofMillis(visibilityTimeoutMs).getSeconds());
+		long visibilityTimeoutMs = config.findVisibilityTimeoutMs().orElse(BaseSqsNode.DEFAULT_VISIBILITY_TIMEOUT_MS);
+		request.visibilityTimeout((int)Duration.ofMillis(visibilityTimeoutMs).getSeconds());
 
 		//max messages
-		request.setMaxNumberOfMessages(1);
-		request.withMessageAttributeNames("ALL");
-		return request;
+		request.maxNumberOfMessages(1);
+		request.messageAttributeNames("ALL");
+		return request.build();
 	}
 
 }

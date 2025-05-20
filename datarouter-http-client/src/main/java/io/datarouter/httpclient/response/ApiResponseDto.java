@@ -17,6 +17,7 @@ package io.datarouter.httpclient.response;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 
 import org.apache.http.HttpStatus;
 
@@ -49,84 +50,16 @@ public class ApiResponseDto<T> implements DocumentedGenericHolder{
 	 * @deprecated inline
 	 */
 	@Deprecated
-	public static <T> ApiResponseDto<T> makeSuccessResponse(T response){
-		return success(response);
+	public final T response(){
+		return getResponse();
 	}
 
 	/**
 	 * @deprecated inline
 	 */
 	@Deprecated
-	public static <T> ApiResponseDto<T> makeSuccessResponse(T response, int httpServletResponseCode){
-		return success(response, httpServletResponseCode);
-	}
-
-	/**
-	 * @deprecated inline
-	 */
-	@Deprecated
-	public static <T> ApiResponseDto<T> makeCreatedSuccessResponse(T response){
-		return createdSuccess(response);
-	}
-
-	/**
-	 * @deprecated inline
-	 */
-	@Deprecated
-	public static <T> ApiResponseDto<T> makeInternalErrorResponse(String message){
-		return internalError(message);
-	}
-
-	/**
-	 * @deprecated inline
-	 */
-	@Deprecated
-	public static <T> ApiResponseDto<T> makeUnavailableErrorResponse(String message){
-		return unavailableError(message);
-	}
-
-	/**
-	 * @deprecated inline
-	 */
-	@Deprecated
-	public static <T> ApiResponseDto<T> makeBadRequestErrorResponse(String message){
-		return badRequestError(message);
-	}
-
-	/**
-	 * @deprecated inline
-	 */
-	@Deprecated
-	public static <T> ApiResponseDto<T> makeNotFoundErrorResponse(String message){
-		return notFoundError(message);
-	}
-
-	/**
-	 * @deprecated inline
-	 */
-	@Deprecated
-	public static <T> ApiResponseDto<T> makeErrorResponse(String message){
-		return error(message);
-	}
-
-	/**
-	 * @deprecated inline
-	 */
-	@Deprecated
-	public static <T> ApiResponseDto<T> makeErrorResponse(
-			String message,
-			String code,
-			T response,
-			int httpStatus){
-		return error(message, code, response, httpStatus);
-	}
-
-	/**
-	 * @deprecated inline
-	 */
-	@Deprecated
-	public static <T> ApiResponseDto<T> makeErrorResponse(String message, T response, int httpStatus){
-		return error(message, response, httpStatus);
+	public final int httpStatus(){
+		return getHttpStatus();
 	}
 
 	/**
@@ -202,13 +135,6 @@ public class ApiResponseDto<T> implements DocumentedGenericHolder{
 		return getError();
 	}
 
-	public ApiResponseDtoV2<T> toV2(){
-		var errorDtoV2 = Optional.ofNullable(error)
-				.map(err -> new ApiResponseErrorDtoV2(err.message, err.code))
-				.orElse(null);
-		return new ApiResponseDtoV2<>(response, success, errorDtoV2, httpStatus);
-	}
-
 	public final T getResponse(){
 		return response;
 	}
@@ -225,20 +151,25 @@ public class ApiResponseDto<T> implements DocumentedGenericHolder{
 		return httpStatus;
 	}
 
-	/**
-	 * @deprecated inline
-	 */
-	@Deprecated
-	public final T response(){
-		return getResponse();
+	public <U> ApiResponseDto<U> map(Function<? super T,? extends U> mapper){
+		if(success){
+			return new ApiResponseDto<>(
+					nullSafeApply(mapper, response),
+					true,
+					null,
+					httpStatus);
+		}
+		return new ApiResponseDto<>(
+				null,
+				false,
+				new ApiResponseErrorDto<>(error.message, error.code, nullSafeApply(mapper, error.data)),
+				httpStatus);
 	}
 
-	/**
-	 * @deprecated inline
-	 */
-	@Deprecated
-	public final int httpStatus(){
-		return getHttpStatus();
+	private <U> U nullSafeApply(Function<? super T,? extends U> mapper, T data){
+		return Optional.ofNullable(data)
+				.map(mapper)
+				.orElse(null);
 	}
 
 }

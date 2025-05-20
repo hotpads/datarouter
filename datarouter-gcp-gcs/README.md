@@ -10,7 +10,7 @@ It provides operations to read, write, and delete objects, plus methods to list 
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-gcp-gcs</artifactId>
-	<version>0.0.126</version>
+	<version>0.0.127</version>
 </dependency>
 ```
 

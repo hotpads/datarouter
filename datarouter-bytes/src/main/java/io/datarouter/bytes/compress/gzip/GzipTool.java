@@ -56,7 +56,7 @@ public class GzipTool{
 		try{
 			var gzipOutputStream = new GZIPOutputStream(outputBuffer);
 			return Scanner.generate(() -> InputStreamTool.readUntilLength(input, inputBuffer, 0, inputBuffer.length))
-					.advanceUntil($ -> closed.get())
+					.advanceUntil(_ -> closed.get())
 					.map(numRead -> {
 						if(numRead == -1){
 							OutputStreamTool.close(gzipOutputStream);

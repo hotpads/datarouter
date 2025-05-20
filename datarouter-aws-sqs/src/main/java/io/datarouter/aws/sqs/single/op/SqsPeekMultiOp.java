@@ -19,8 +19,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.amazonaws.services.sqs.model.Message;
-
 import io.datarouter.aws.sqs.BaseSqsNode;
 import io.datarouter.aws.sqs.SqsClientManager;
 import io.datarouter.aws.sqs.op.BaseSqsPeekMultiOp;
@@ -32,6 +30,7 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.queue.QueueMessage;
+import software.amazon.awssdk.services.sqs.model.Message;
 
 public class SqsPeekMultiOp<
 		PK extends PrimaryKey<PK>,
@@ -51,11 +50,11 @@ extends BaseSqsPeekMultiOp<PK,D,F,QueueMessage<PK,D>>{
 	protected List<QueueMessage<PK,D>> extractDatabeans(List<Message> messages){
 		return messages.stream()
 				.map(message -> {
-					D databean = codec.fromString(message.getBody(), fielder, databeanSupplier);
-					byte[] receiptHandle = StringCodec.UTF_8.encode(message.getReceiptHandle());
-					Map<String,String> attributes = Scanner.of(message.getMessageAttributes().entrySet())
+					D databean = codec.fromString(message.body(), fielder, databeanSupplier);
+					byte[] receiptHandle = StringCodec.UTF_8.encode(message.receiptHandle());
+					Map<String,String> attributes = Scanner.of(message.messageAttributes().entrySet())
 							.toMap(Entry::getKey, entry ->
-									entry.getValue().getStringValue());
+									entry.getValue().stringValue());
 					return new QueueMessage<>(receiptHandle, databean, attributes);
 				})
 				.toList();

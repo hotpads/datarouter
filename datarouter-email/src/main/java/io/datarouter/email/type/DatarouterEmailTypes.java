@@ -84,18 +84,6 @@ public class DatarouterEmailTypes{
 		}
 	}
 
-	public static class DailyDigestActionableEmailType extends SimpleEmailType{
-		public DailyDigestActionableEmailType(List<String> tos){
-			super(tos);
-		}
-	}
-
-	public static class DailyDigestSummaryEmailType extends SimpleEmailType{
-		public DailyDigestSummaryEmailType(List<String> tos){
-			super(tos);
-		}
-	}
-
 	public static class SchemaUpdatesEmailType extends SimpleEmailType{
 		public SchemaUpdatesEmailType(List<String> tos){
 			super(tos);

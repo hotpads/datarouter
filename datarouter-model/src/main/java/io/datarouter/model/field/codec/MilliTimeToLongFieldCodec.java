@@ -27,6 +27,8 @@ import io.datarouter.types.MilliTime;
 public class MilliTimeToLongFieldCodec
 extends FieldCodec<MilliTime,Long>{
 
+	public static final MilliTimeToLongFieldCodec INSTANCE = new MilliTimeToLongFieldCodec();
+
 	public MilliTimeToLongFieldCodec(){
 		super(TypeToken.get(MilliTime.class),
 				NullPassthroughCodec.of(MilliTime::toEpochMilli, MilliTime::ofEpochMilli),

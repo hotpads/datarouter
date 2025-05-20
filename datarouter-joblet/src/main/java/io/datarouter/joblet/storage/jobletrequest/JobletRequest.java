@@ -55,15 +55,15 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 	 */
 	private String queueId;
 	private String groupId;
-	private JobletStatus status = JobletStatus.CREATED;
-	private Integer numFailures = 0;
-	private Integer numTimeouts = 0;
+	private JobletStatus status;
+	private Integer numFailures;
+	private Integer numTimeouts;
 	private String reservedBy;
 	private Long reservedAt;
-	private Boolean restartable = false;
+	private Boolean restartable;
 	private Long jobletDataId;
 	private String exceptionRecordId;
-	private Integer numItems = 0;
+	private Integer numItems;
 	private String debug;
 	private Long dataSignature;
 
@@ -117,7 +117,7 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 	}
 
 	public JobletRequest(){
-		super(new JobletRequestKey((String) null, null, null, null));
+		super(new JobletRequestKey());
 	}
 
 	public JobletRequest(
@@ -128,7 +128,11 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 			boolean restartable,
 			Long dataSignature){
 		super(JobletRequestKey.create(type, priority.getExecutionOrder(), createdDate, batchSequence));
+		this.status = JobletStatus.CREATED;
+		this.numFailures = 0;
+		this.numTimeouts = 0;
 		this.restartable = restartable;
+		this.numItems = 0;
 		this.dataSignature = dataSignature;
 	}
 
@@ -144,10 +148,7 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 			String reservedByPrefix){
 		ArrayList<JobletRequest> outs = new ArrayList<>();
 		for(JobletRequest in : ins){
-			if(ObjectTool.notEquals(type.getPersistentString(), in.getKey().getType())){
-				continue;
-			}
-			if(status != in.getStatus()){
+			if(ObjectTool.notEquals(type.getPersistentString(), in.getKey().getType()) || status != in.getStatus()){
 				continue;
 			}
 			String reservedBy = StringTool.nullSafe(in.getReservedBy());

@@ -18,6 +18,7 @@ package io.datarouter.bytes;
 import java.util.Arrays;
 
 import io.datarouter.bytes.codec.booleancodec.RawBooleanCodec;
+import io.datarouter.bytes.codec.doublecodec.ComparableDoubleCodec;
 import io.datarouter.bytes.codec.intcodec.RawIntCodec;
 import io.datarouter.bytes.codec.longcodec.ComparableLongCodec;
 import io.datarouter.bytes.codec.longcodec.RawLongCodec;
@@ -30,6 +31,7 @@ public class ByteReader{
 	private static final RawIntCodec RAW_INT_CODEC = RawIntCodec.INSTANCE;
 	private static final ComparableLongCodec COMPARABLE_LONG_CODEC = ComparableLongCodec.INSTANCE;
 	private static final RawLongCodec RAW_LONG_CODEC = RawLongCodec.INSTANCE;
+	private static final ComparableDoubleCodec COMPARABLE_DOUBLE_CODEC = ComparableDoubleCodec.INSTANCE;
 
 	private final byte[] bytes;
 	private int position;
@@ -134,6 +136,22 @@ public class ByteReader{
 	public long varLong(){
 		long value = VarIntTool.decodeLong(bytes, position);
 		position += VarIntTool.length(value);
+		return value;
+	}
+
+	/*-------------- double -----------------*/
+
+	public double comparableDouble(){
+		double value = COMPARABLE_DOUBLE_CODEC.decode(bytes, position);
+		position += COMPARABLE_DOUBLE_CODEC.length();
+		return value;
+	}
+
+	public double[] comparableDoubles(int count){
+		var value = new double[count];
+		for(int i = 0; i < count; ++i){
+			value[i] = comparableDouble();
+		}
 		return value;
 	}
 

@@ -62,7 +62,6 @@ public class DatarouterUserCreationService{
 		logger.warn("Created default admin user account");
 	}
 
-
 	public DatarouterUser createAutomaticUser(String username, String description){
 		var user = new DatarouterUser();
 		populateGeneratedFields(user, CreateType.AUTO, null, Optional.empty());

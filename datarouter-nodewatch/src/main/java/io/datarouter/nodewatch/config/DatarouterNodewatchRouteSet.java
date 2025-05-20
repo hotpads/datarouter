@@ -29,6 +29,8 @@ import io.datarouter.nodewatch.web.handler.NodewatchThresholdEditHandler;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
+import io.datarouter.web.handler.BaseHandler;
+import io.datarouter.web.handler.encoder.DatarouterDefaultHandlerCodec;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
@@ -36,65 +38,45 @@ import jakarta.inject.Singleton;
 public class DatarouterNodewatchRouteSet extends BaseRouteSet{
 
 	@Inject
-	public DatarouterNodewatchRouteSet(DatarouterNodewatchPaths paths){
+	public DatarouterNodewatchRouteSet(){
 
-		handle(paths.datarouter.nodewatch.tables)
-				.withHandler(NodewatchTablesHandler.class)
-				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_MONITORING);
-
-		handle(paths.datarouter.nodewatch.summary)
-				.withHandler(NodewatchSummaryHandler.class)
-				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_MONITORING);
-
-		handle(paths.datarouter.nodewatch.configs)
-				.withHandler(NodewatchConfigsHandler.class)
-				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_MONITORING);
-
-		handle(paths.datarouter.nodewatch.metadata.migrate)
-				.withHandler(NodewatchMetadataMigrateHandler.class)
-				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_ADMIN);
+		registerWithMonitoringRole(NodewatchTablesHandler.class);
+		registerWithMonitoringRole(NodewatchSummaryHandler.class);
+		registerWithMonitoringRole(NodewatchConfigsHandler.class);
+		registerWithAdminRole(NodewatchMetadataMigrateHandler.class);
 
 		// table
-		handle(paths.datarouter.nodewatch.table)
-				.withHandler(NodewatchTableHandler.class)
-				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_MONITORING);
-		handle(paths.datarouter.nodewatch.table.storage)
-				.withHandler(NodewatchTableStorageHandler.class)
-				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_MONITORING);
-		handle(paths.datarouter.nodewatch.table.nodeName)
-				.withHandler(NodewatchNodeNameHandler.class)
-				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_MONITORING);
+		registerWithMonitoringRole(NodewatchTableHandler.class);
+		registerWithMonitoringRole(NodewatchTableStorageHandler.class);
+		registerWithMonitoringRole(NodewatchNodeNameHandler.class);
 
 		// table actions
-		handle(paths.datarouter.nodewatch.table.resample)
-				.withHandler(NodewatchTableActionsHandler.class)
-				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_ADMIN);
-		handle(paths.datarouter.nodewatch.table.deleteSamples)
-				.withHandler(NodewatchTableActionsHandler.class)
-				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_ADMIN);
-		handle(paths.datarouter.nodewatch.table.deleteAllMetadata)
-				.withHandler(NodewatchTableActionsHandler.class)
-				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_ADMIN);
+		registerWithAdminRole(NodewatchTableActionsHandler.class);
 
 		// slowSpans
-		handle(paths.datarouter.nodewatch.slowSpans)
-				.withHandler(NodewatchSlowSpansHandler.class)
-				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_MONITORING);
+		registerWithMonitoringRole(NodewatchSlowSpansHandler.class);
 
 		// threshold
-		handle(paths.datarouter.nodewatch.threshold.edit)
-				.withHandler(NodewatchThresholdEditHandler.class)
-				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_ADMIN);
-		handle(paths.datarouter.nodewatch.threshold.delete)
-				.withHandler(NodewatchThresholdEditHandler.class)
-				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_ADMIN);
+		registerWithAdminRole(NodewatchThresholdEditHandler.class);
 	}
 
 	@Override
 	protected DispatchRule applyDefault(DispatchRule rule){
 		return rule
 				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_ADMIN)
+				.withDefaultHandlerCodec(DatarouterDefaultHandlerCodec.INSTANCE)
 				.withTag(Tag.DATAROUTER);
 	}
 
+	private void registerWithMonitoringRole(Class<? extends BaseHandler> handlerClass){
+		registerHandler(handlerClass)
+				.values()
+				.forEach(rule -> rule.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_MONITORING));
+	}
+
+	private void registerWithAdminRole(Class<? extends BaseHandler> handlerClass){
+		registerHandler(handlerClass)
+				.values()
+				.forEach(rule -> rule.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_ADMIN));
+	}
 }

@@ -36,7 +36,7 @@ extends MapStorageReader<PK,D>, TraceAdapter<PK,D,F,N>{
 
 	@Override
 	public default boolean exists(PK key, Config config){
-		try(var $ = startSpanForOp(OP_exists)){
+		try(var _ = startSpanForOp(OP_exists)){
 			boolean result = getBackingNode().exists(key, config);
 			TracerTool.appendToSpanInfo(result ? "hit" : "miss");
 			return result;
@@ -45,7 +45,7 @@ extends MapStorageReader<PK,D>, TraceAdapter<PK,D,F,N>{
 
 	@Override
 	public default D get(PK key, Config config){
-		try(var $ = startSpanForOp(OP_get)){
+		try(var _ = startSpanForOp(OP_get)){
 			D result = getBackingNode().get(key, config);
 			TracerTool.appendToSpanInfo(result != null ? "hit" : "miss");
 			return result;
@@ -54,7 +54,7 @@ extends MapStorageReader<PK,D>, TraceAdapter<PK,D,F,N>{
 
 	@Override
 	public default List<D> getMulti(Collection<PK> keys, Config config){
-		try(var $ = startSpanForOp(OP_getMulti)){
+		try(var _ = startSpanForOp(OP_getMulti)){
 			List<D> results = getBackingNode().getMulti(keys, config);
 			TracerTool.appendToSpanInfo(String.format("got %d/%d", results.size(), keys.size()));
 			return results;
@@ -63,7 +63,7 @@ extends MapStorageReader<PK,D>, TraceAdapter<PK,D,F,N>{
 
 	@Override
 	public default List<PK> getKeys(Collection<PK> keys, Config config){
-		try(var $ = startSpanForOp(OP_getKeys)){
+		try(var _ = startSpanForOp(OP_getKeys)){
 			List<PK> results = getBackingNode().getKeys(keys, config);
 			TracerTool.appendToSpanInfo(String.format("got %d/%d", results.size(), keys.size()));
 			return results;

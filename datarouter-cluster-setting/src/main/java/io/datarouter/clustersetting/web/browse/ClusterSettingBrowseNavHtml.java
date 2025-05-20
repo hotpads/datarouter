@@ -30,10 +30,10 @@ import static j2html.TagCreator.ul;
 import java.util.List;
 import java.util.Optional;
 
-import io.datarouter.clustersetting.web.browse.ClusterSettingBrowseHandler.ClusterSettingBrowseHandlerParams;
-import io.datarouter.clustersetting.web.browse.ClusterSettingBrowseHandler.ClusterSettingBrowseLinks;
+import io.datarouter.clustersetting.link.ClusterSettingBrowseLink;
 import io.datarouter.clustersetting.web.browse.ClusterSettingBrowseSettingNodeHtml.ClusterSettingBrowseSettingNodeHtmlFactory;
 import io.datarouter.clustersetting.web.browse.ClusterSettingHierarchy.HierarchyNode;
+import io.datarouter.httpclient.endpoint.link.DatarouterLinkClient;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.setting.cached.CachedSetting;
 import io.datarouter.util.number.NumberFormatter;
@@ -46,10 +46,10 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
 public record ClusterSettingBrowseNavHtml(
-		ClusterSettingBrowseLinks browseLinks,
+		DatarouterLinkClient linkClient,
 		ClusterSettingHierarchy hierarchy,
 		ClusterSettingBrowseSettingNodeHtml settingNodeHtml,
-		ClusterSettingBrowseHandlerParams params){
+		ClusterSettingBrowseLink params){
 
 	private static final int NAV_TREE_WIDTH = 300;
 	private static final String LIST_STYLE = "list-style-type:none;margin:0;padding:0;";
@@ -99,8 +99,8 @@ public record ClusterSettingBrowseNavHtml(
 		filteredHierarchy.scanChildren()
 				.forEach(category -> navTabs.add(new NavTab(
 						category.name(),
-						browseLinks.all(
-								new ClusterSettingBrowseHandlerParams()
+						linkClient.toInternalUrl(
+								new ClusterSettingBrowseLink()
 										.withLocation(getFirstLocation(category).name())
 										.withOptPartialName(params.partialName)),
 						category.name().equals(selectedCategoryHierarchy.name()))));
@@ -174,8 +174,8 @@ public record ClusterSettingBrowseNavHtml(
 				? b(nodeHierarchy.shortName())
 				: text(nodeHierarchy.shortName());
 		var link = a(linkText)
-				.withHref(browseLinks.all(
-						new ClusterSettingBrowseHandlerParams()
+				.withHref(linkClient.toInternalUrl(
+						new ClusterSettingBrowseLink()
 								.withLocation(nodeHierarchy.name())
 								.withOptPartialName(params.partialName)));
 		var countSpan = span(String.format(" (%s)", nodeHierarchy.countChildSettings()))
@@ -240,15 +240,15 @@ public record ClusterSettingBrowseNavHtml(
 	@Singleton
 	public static class ClusterSettingBrowseNavHtmlFactory{
 		@Inject
-		private ClusterSettingBrowseLinks browseLinks;
+		private DatarouterLinkClient linkClient;
 		@Inject
 		private ClusterSettingHierarchy hierarchy;
 		@Inject
 		private ClusterSettingBrowseSettingNodeHtmlFactory settingNodeHtmlFactory;
 
-		public ClusterSettingBrowseNavHtml create(ClusterSettingBrowseHandlerParams params){
+		public ClusterSettingBrowseNavHtml create(ClusterSettingBrowseLink params){
 			return new ClusterSettingBrowseNavHtml(
-					browseLinks,
+					linkClient,
 					hierarchy,
 					settingNodeHtmlFactory.create(params),
 					params);

@@ -24,7 +24,7 @@ import io.datarouter.pathnode.PathNode;
 
 public class EndpointToolTests{
 
-	private static final PathNode PATH = new PathNode().leaf("");
+	private static final PathNode PATH = new PathNode().variable("");
 
 	public static class ValidateEndpoint1 extends ApiToolTestEndpoint<Void>{
 

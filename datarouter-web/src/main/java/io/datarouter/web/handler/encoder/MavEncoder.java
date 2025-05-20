@@ -71,7 +71,7 @@ public class MavEncoder implements HandlerEncoder{
 		// forward to the jsp
 		String viewName = mav.getViewName();
 		RequestDispatcher dispatcher = servletContext.getRequestDispatcher(viewName);
-		try(var $ = TracerTool.startSpan("RequestDispatcher.include", TraceSpanGroupType.HTTP)){
+		try(var _ = TracerTool.startSpan("RequestDispatcher.include", TraceSpanGroupType.HTTP)){
 			dispatcher.include(request, response);
 		}
 	}

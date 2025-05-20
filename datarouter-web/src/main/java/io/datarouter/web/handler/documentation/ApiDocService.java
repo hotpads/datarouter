@@ -36,6 +36,7 @@ import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.OffsetTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -69,6 +70,8 @@ import io.datarouter.httpclient.endpoint.param.RequestBody;
 import io.datarouter.httpclient.security.SecurityParameters;
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.types.ExampleProvider;
+import io.datarouter.types.ExampleProviderTool;
 import io.datarouter.types.Ulid;
 import io.datarouter.types.UlidReversed;
 import io.datarouter.util.lang.MethodParameterExtractionTool;
@@ -87,7 +90,6 @@ import io.datarouter.web.handler.encoder.JsonAwareHandlerCodec;
 import io.datarouter.web.handler.types.HandlerDecoder;
 import io.datarouter.web.handler.types.Param;
 import io.datarouter.web.handler.types.ParamDefaultEnum;
-import io.datarouter.web.handler.types.optional.OptionalParameter;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
@@ -103,6 +105,8 @@ public class ApiDocService{
 
 	@Inject
 	private DatarouterInjector injector;
+	@Inject
+	private ApiDocTypeOverrides apiDocOverrides;
 
 	public Map<String,List<DocumentedEndpointJspDto>> buildDocumentation(String apiUrlContext,
 			List<RouteSet> routeSets){
@@ -137,7 +141,7 @@ public class ApiDocService{
 				Handler handlerAnnotation = method.getAnnotation(Handler.class);
 				String url = rule.getPattern().pattern();
 				if(!url.contains(BaseRouteSet.REGEX_ONE_DIRECTORY)
-						&& !url.endsWith(method.getName())
+						&& !url.substring(url.lastIndexOf('/') + 1).equals(method.getName())
 						&& !handlerAnnotation.defaultHandler()){
 					continue;
 				}
@@ -166,7 +170,7 @@ public class ApiDocService{
 				if(JsonAwareHandlerCodec.class.isAssignableFrom(decoderClass)){
 					jsonDecoder = (JsonAwareHandlerCodec)injector.getInstance(decoderClass);
 				}
-				DocumentedSecurityDetails securityDetails = createApplicableSecurityParameters(rule);
+				DocumentedSecurityDetails securityDetails = createApplicableSecurityParameters(rule, jsonDecoder);
 				parameters.addAll(securityDetails.parameters);
 				parameters.addAll(createMethodParameters(method, jsonDecoder));
 
@@ -198,15 +202,15 @@ public class ApiDocService{
 						logger.warn("Could not create response example for {}", responseType, e);
 					}
 				}
-				String responseTypeString = buildTypeString(responseType);
+				String responseTypeString = buildTypeString(responseType, jsonDecoder, apiDocOverrides.getOverrides());
 				var response = new DocumentedResponseJspDto(
 						responseTypeString,
 						responseExample,
-						buildEnumValuesString(responseExampleEnumDtos));
+						buildEnumValuesString(responseExampleEnumDtos),
+						ApiDocSchemaTool.buildSchemaFromType(responseType, jsonDecoder,
+								apiDocOverrides.getOverrides()));
 				boolean isDeprecated = method.isAnnotationPresent(Deprecated.class)
 						|| handler.isAnnotationPresent(Deprecated.class);
-				String deprecatedOn = method.getAnnotation(Handler.class).deprecatedOn();
-				String deprecationLink = method.getAnnotation(Handler.class).deprecationLink();
 				String requestType = getRequestType(method);
 				List<DocumentedErrorJspDto> errors = buildError(method);
 				Set<DocumentedExampleEnumDto> requestParamExampleEnumDtos = Scanner.of(parameters)
@@ -220,16 +224,39 @@ public class ApiDocService{
 						description,
 						response,
 						isDeprecated,
-						deprecatedOn,
-						deprecationLink,
+						handlerAnnotation.deprecatedOn(),
+						handlerAnnotation.deprecationLink(),
 						errors,
 						buildEnumValuesString(requestParamExampleEnumDtos),
-						requestType);
+						requestType,
+						getEndpointPath(handlerAnnotation.newWebEndpoint()),
+						getEndpointPath(handlerAnnotation.newMobileEndpoint()),
+						handlerAnnotation.newServiceHref());
 				endpoints.add(endpoint);
 			}
 			handler = handler.getSuperclass().asSubclass(BaseHandler.class);
 		}
 		return endpoints;
+	}
+
+	@SuppressWarnings("checkstyle:EmptyBlock")
+	private String getEndpointPath(Class<? extends BaseEndpoint> endpoint){
+		// default annotation value
+		if(endpoint.equals(BaseEndpoint.class)){
+			return "";
+		}
+		Constructor<?>[] constructors = endpoint.getDeclaredConstructors();
+		for(Constructor<?> ctor : constructors){
+			int paramCount = ctor.getParameterCount();
+			Object[] args = new Object[paramCount];
+			Arrays.fill(args, null); // fill all arguments with null
+			try{
+				BaseEndpoint instance = (BaseEndpoint)ctor.newInstance(args);
+				return instance.pathNode.toSlashedString();
+			}catch(Exception _){
+			}
+		}
+		return "";
 	}
 
 	private String getRequestType(Method method){
@@ -253,18 +280,9 @@ public class ApiDocService{
 				.list();
 	}
 
-	private static String buildTypeString(Type type){
-		if(type instanceof Class){
-			return ((Class<?>)type).getSimpleName();
-		}
-		if(type instanceof ParameterizedType parameterizedType){
-			String responseTypeString = ((Class<?>)parameterizedType.getRawType()).getSimpleName();
-			String parameterizedTypeString = Scanner.of(parameterizedType.getActualTypeArguments())
-					.map(ApiDocService::buildTypeString)
-					.collect(Collectors.joining(",", "<", ">"));
-			return responseTypeString + parameterizedTypeString;
-		}
-		return type.toString();
+	private static String buildTypeString(Type type, JsonAwareHandlerCodec jsonDecoder,
+			Map<Class<?>, String> typeOverrides){
+		return ApiDocSchemaTool.buildSchemaFromType(type, jsonDecoder, typeOverrides).toFieldString();
 	}
 
 	private List<DocumentedParameterJspDto> createMethodParameters(Method method, JsonAwareHandlerCodec jsonDecoder){
@@ -360,7 +378,7 @@ public class ApiDocService{
 	}
 
 	private DocumentedSecurityDetails createApplicableSecurityParameters(
-			DispatchRule rule){
+			DispatchRule rule, JsonAwareHandlerCodec jsonDecoder){
 		List<String> applicableSecurityParameterNames = new ArrayList<>();
 		if(rule.hasSignature()){
 			applicableSecurityParameterNames.add(SecurityParameters.SIGNATURE);
@@ -378,14 +396,15 @@ public class ApiDocService{
 				// TODO double check the params here
 				.map(parameterName -> new DocumentedParameterJspDto(
 						parameterName,
-						buildTypeString(String.class),
+						buildTypeString(String.class, jsonDecoder, apiDocOverrides.getOverrides()),
 						null,
 						true,
 						false,
 						HIDDEN_SPEC_PARAMS.contains(parameterName),
 						null,
 						false,
-						new HashSet<>()))
+						new HashSet<>(),
+						null))
 				.list();
 		return new DocumentedSecurityDetails(parameters, apiKeyFieldName);
 	}
@@ -400,14 +419,9 @@ public class ApiDocService{
 		Type type;
 		boolean isRequired;
 
-		if(OptionalParameter.class.isAssignableFrom(parameter.getType())
-				|| Optional.class.isAssignableFrom(parameter.getType())){
+		if(Optional.class.isAssignableFrom(parameter.getType())){
 			isRequired = false;
-			if(Optional.class.isAssignableFrom(parameter.getType())){
-				type = MethodParameterExtractionTool.extractParameterizedTypeFromOptionalParameter(parameter);
-			}else{
-				type = OptionalParameter.getOptionalInternalType(parameter.getParameterizedType());
-			}
+			type = MethodParameterExtractionTool.extractParameterizedTypeFromOptionalParameter(parameter);
 		}else{
 			isRequired = true;
 			type = parameter.getParameterizedType();
@@ -427,28 +441,31 @@ public class ApiDocService{
 			}
 		}
 
+		boolean isRequestBody = parameter.isAnnotationPresent(RequestBody.class);
 		return new DocumentedParameterJspDto(
 				paramName,
-				buildTypeString(type),
+				buildTypeString(type, jsonDecoder, apiDocOverrides.getOverrides()),
 				example,
 				isRequired,
-				parameter.isAnnotationPresent(RequestBody.class),
+				isRequestBody,
 				HIDDEN_SPEC_PARAMS.contains(paramName),
 				description,
 				isDeprecated,
-				exampleEnumDtos);
+				exampleEnumDtos,
+				isRequestBody ? ApiDocSchemaTool.buildSchemaFromType(type, jsonDecoder,
+						apiDocOverrides.getOverrides()) : null);
 	}
 
 	private DocumentedParameterJspDto createDocumentedParameterFromField(
 			Field field,
 			JsonAwareHandlerCodec jsonDecoder){
 		boolean isOptional = field.getType().isAssignableFrom(Optional.class);
-		String type;
+		Type type;
 		String example = null;
 		Set<DocumentedExampleEnumDto> exampleEnumDtos = new HashSet<>();
 		if(isOptional){
 			Type parameterizedType = JavaEndpointTool.extractParameterizedType(field);
-			type = parameterizedType.getTypeName();
+			type = parameterizedType;
 			if(includeType(Optional.of(parameterizedType.getClass()))){
 				try{
 					DocumentedExampleDto exampleDto = createBestExample(
@@ -463,7 +480,7 @@ public class ApiDocService{
 				}
 			}
 		}else if(field.getGenericType() instanceof ParameterizedType parameterizedType){
-			type = parameterizedType.getTypeName();
+			type = parameterizedType;
 			try{
 				DocumentedExampleDto exampleDto = handleParameterizedTypes(
 						jsonDecoder,
@@ -476,7 +493,7 @@ public class ApiDocService{
 				logger.warn("Could not create parameter example {} for {}", field.getType(), field.getName(), e);
 			}
 		}else{
-			type = field.getType().getSimpleName();
+			type = field.getType();
 			if(includeType(Optional.of(field.getType()))){
 				try{
 					DocumentedExampleDto exampleDto = createBestExample(jsonDecoder, field.getType(), new HashSet<>());
@@ -489,18 +506,23 @@ public class ApiDocService{
 			}
 		}
 		boolean isDeprecated = field.isAnnotationPresent(Deprecated.class);
+		boolean isRequestBody = field.isAnnotationPresent(RequestBody.class);
 		return new DocumentedParameterJspDto(
 				JavaEndpointTool.getFieldName(field),
-				type,
+				buildTypeString(type, jsonDecoder, apiDocOverrides.getOverrides()),
 				example,
 				!isOptional,
-				field.isAnnotationPresent(RequestBody.class),
+				isRequestBody,
 				HIDDEN_SPEC_PARAMS.contains(field.getName()),
 				Optional.ofNullable(field.getAnnotation(EndpointParam.class))
 						.map(EndpointParam::description)
 						.orElse(null),
 				isDeprecated,
-				exampleEnumDtos);
+				exampleEnumDtos,
+				isRequestBody
+						? ApiDocSchemaTool.buildSchemaFromType(field.getGenericType(), jsonDecoder,
+						apiDocOverrides.getOverrides())
+						: null);
 	}
 
 	private boolean includeType(Optional<Class<?>> type){
@@ -531,13 +553,13 @@ public class ApiDocService{
 				.collect(HashSet::new);
 		return switch(type){
 		case ParameterizedType pType -> handleParameterizedTypes(jsonDecoder, pType, parents, parentsWithType);
-		case TypeVariable $ -> {
+		case TypeVariable _ -> {
 			if(callWithoutWarning < 1){
 				logger.warn("undocumented generic, please use AutoBuildable type={} parents={}", type, parents);
 			}
 			yield new DocumentedExampleDto(null);
 		}
-		case WildcardType $ -> {
+		case WildcardType _ -> {
 			logger.warn("please document type={} parents={}", type, parents);
 			yield new DocumentedExampleDto(null);
 		}
@@ -582,6 +604,8 @@ public class ApiDocService{
 		case Class<?> cls when cls == URI.class -> new DocumentedExampleDto(URI.create("https://github.com/hotpads/datarouter"));
 		case Class<?> cls when cls == JsonArray.class -> new DocumentedExampleDto(new JsonArray());
 		case Class<?> cls when cls == JsonObject.class -> new DocumentedExampleDto(new JsonObject());
+		case Class<?> cls when ExampleProvider.class.isAssignableFrom(cls) -> new DocumentedExampleDto(
+				ExampleProviderTool.makeExample(cls));
 		case Class<?> cls when cls == JsonPrimitive.class -> new DocumentedExampleDto(new JsonPrimitive(
 				"{} || [] || 1 || true || \"string\" || null"));
 		case Class<?> cls when cls.isRecord() ->

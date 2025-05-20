@@ -17,6 +17,7 @@ package io.datarouter.auth.storage.account;
 
 import java.util.List;
 
+import io.datarouter.instrumentation.validation.DatarouterInstrumentationValidationConstants.DatarouterServiceConstants;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
@@ -34,7 +35,8 @@ public class DatarouterAccountKey extends BaseRegularPrimaryKey<DatarouterAccoun
 	}
 
 	public static class FieldKeys{
-		public static final StringFieldKey accountName = new StringFieldKey("accountName").withSize(64);
+		public static final StringFieldKey accountName = new StringFieldKey("accountName")
+				.withSize(DatarouterServiceConstants.MAX_SIZE_ACCOUNT_NAME);
 	}
 
 	@Override

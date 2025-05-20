@@ -20,6 +20,7 @@ import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
 import io.datarouter.web.handler.encoder.RawStringEncoder;
+import io.datarouter.web.handler.types.DefaultDecoder;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
@@ -37,7 +38,8 @@ public class DatarouterAutoConfigRawStringRouteSet extends BaseRouteSet{
 		return rule
 				.withTag(Tag.DATAROUTER)
 				.allowAnonymous()
-				.withDefaultHandlerEncoder(RawStringEncoder.class);
+				.withDefaultHandlerEncoder(RawStringEncoder.class)
+				.withDefaultHandlerDecoder(DefaultDecoder.class);
 	}
 
 }

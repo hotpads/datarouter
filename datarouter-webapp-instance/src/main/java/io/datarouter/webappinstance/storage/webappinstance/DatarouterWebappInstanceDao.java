@@ -116,7 +116,11 @@ public class DatarouterWebappInstanceDao extends BaseDao{
 		Instant deleteBefore = Instant.now().minus(Duration.ofMinutes(20));
 		Predicate<WebappInstance> shouldDelete = databean -> databean.getRefreshedLastInstant() == null
 				|| databean.getRefreshedLastInstant().isBefore(deleteBefore);
-		return new DatabeanVacuumBuilder<>(node.scan(), shouldDelete, node::deleteMulti).build();
+		return new DatabeanVacuumBuilder<>(
+				"DatarouterWebappInstance",
+				node.scan(),
+				shouldDelete,
+				node::deleteMulti).build();
 	}
 
 }

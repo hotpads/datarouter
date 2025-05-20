@@ -55,14 +55,6 @@ implements RandomAccess{
 
 	/*------------ Collector ---------------*/
 
-	/**
-	 * @deprecated  replace this modifiable list collector with the unmodifiable toList() operation
-	 */
-	@Deprecated
-	public static final <T> Collector<T,?,List<T>> deprecatedCollector(){
-		return collector();
-	}
-
 	public static final <T> Collector<T,?,List<T>> collector(){
 		return Collectors.collectingAndThen(
 				Collectors.toCollection(ArrayList::new),

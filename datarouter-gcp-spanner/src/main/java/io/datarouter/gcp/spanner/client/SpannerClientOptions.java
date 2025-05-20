@@ -137,13 +137,13 @@ public class SpannerClientOptions{
 			return Optional.empty();
 		}
 		return optSecretLocation
-				.map($ -> {
+				.map(location -> {
 					SecretOpConfig config = SecretOpConfig.builder(
 							SecretOpReason.automatedOp(this.getClass().getSimpleName()))
 							.useSharedNamespace()
 							.disableSerialization()
 							.build();
-					return secretService.read($, String.class, config);
+					return secretService.read(location, String.class, config);
 				}).map(str -> str.getBytes(StandardCharsets.UTF_8))
 				.map(ByteArrayInputStream::new);
 	}

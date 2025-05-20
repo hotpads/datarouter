@@ -19,56 +19,55 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
 
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.services.elasticloadbalancingv2.AmazonElasticLoadBalancing;
-import com.amazonaws.services.elasticloadbalancingv2.AmazonElasticLoadBalancingClientBuilder;
-import com.amazonaws.services.elasticloadbalancingv2.model.Action;
-import com.amazonaws.services.elasticloadbalancingv2.model.DescribeListenersRequest;
-import com.amazonaws.services.elasticloadbalancingv2.model.DescribeLoadBalancersRequest;
-import com.amazonaws.services.elasticloadbalancingv2.model.DescribeTargetHealthRequest;
-import com.amazonaws.services.elasticloadbalancingv2.model.Listener;
-import com.amazonaws.services.elasticloadbalancingv2.model.LoadBalancer;
-import com.amazonaws.services.elasticloadbalancingv2.model.TargetDescription;
-import com.amazonaws.services.elasticloadbalancingv2.model.TargetHealthDescription;
-
 import io.datarouter.aws.elb.config.DatarouterAwsElbMonitoringSettings;
 import io.datarouter.util.number.RandomTool;
 import io.datarouter.util.retry.RetryableTool;
 import io.datarouter.util.singletonsupplier.SingletonSupplier;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.AwsCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
+import software.amazon.awssdk.services.elasticloadbalancingv2.model.Action;
+import software.amazon.awssdk.services.elasticloadbalancingv2.model.DescribeListenersRequest;
+import software.amazon.awssdk.services.elasticloadbalancingv2.model.DescribeLoadBalancersRequest;
+import software.amazon.awssdk.services.elasticloadbalancingv2.model.DescribeTargetHealthRequest;
+import software.amazon.awssdk.services.elasticloadbalancingv2.model.Listener;
+import software.amazon.awssdk.services.elasticloadbalancingv2.model.LoadBalancer;
+import software.amazon.awssdk.services.elasticloadbalancingv2.model.TargetDescription;
+import software.amazon.awssdk.services.elasticloadbalancingv2.model.TargetHealthDescription;
 
 @Singleton
 public class ElbService{
 
 	private static final int NUM_ATTEMPTS = 3;
 
-	private final Supplier<AmazonElasticLoadBalancing> amazonElasticLoadBalancing = SingletonSupplier.of(
+	private final Supplier<ElasticLoadBalancingV2Client> amazonElasticLoadBalancing = SingletonSupplier.of(
 			this::getAmazonElbClient);
 
 	@Inject
 	private DatarouterAwsElbMonitoringSettings settings;
 
 	public List<LoadBalancer> getLoadBalancers(){
-		var request = new DescribeLoadBalancersRequest();
+		var request = DescribeLoadBalancersRequest.builder().build();
 		int randomSleepMs = RandomTool.getRandomIntBetweenTwoNumbers(0, 3_000);
 		return RetryableTool.tryNTimesWithBackoffAndRandomInitialDelayUnchecked(
-				() -> amazonElasticLoadBalancing.get().describeLoadBalancers(request).getLoadBalancers(),
+				() -> amazonElasticLoadBalancing.get().describeLoadBalancers(request).loadBalancers(),
 				NUM_ATTEMPTS,
 				randomSleepMs,
 				true);
 	}
 
 	public List<String> getTargetGroupsArn(String loadBalancerArn){
-		var request = new DescribeListenersRequest().withLoadBalancerArn(loadBalancerArn);
+		var request = DescribeListenersRequest.builder().loadBalancerArn(loadBalancerArn).build();
 		int randomSleepMs = RandomTool.getRandomIntBetweenTwoNumbers(0, 3_000);
 		return RetryableTool.tryNTimesWithBackoffAndRandomInitialDelayUnchecked(
-				() -> amazonElasticLoadBalancing.get().describeListeners(request).getListeners().stream()
-						.map(Listener::getDefaultActions)
+				() -> amazonElasticLoadBalancing.get().describeListeners(request).listeners().stream()
+						.map(Listener::defaultActions)
 						.flatMap(List::stream)
-						.map(Action::getTargetGroupArn)
+						.map(Action::targetGroupArn)
 						.filter(Objects::nonNull) // remove action that have no tg (like redirect)
 						.distinct()
 						.toList(),
@@ -78,24 +77,24 @@ public class ElbService{
 	}
 
 	public List<String> getTargetEc2InstancesId(String targetGroupArn){
-		var request = new DescribeTargetHealthRequest().withTargetGroupArn(targetGroupArn);
+		var request = DescribeTargetHealthRequest.builder().targetGroupArn(targetGroupArn).build();
 		int randomSleepMs = RandomTool.getRandomIntBetweenTwoNumbers(0, 3_000);
 		return RetryableTool.tryNTimesWithBackoffAndRandomInitialDelayUnchecked(
-				() -> amazonElasticLoadBalancing.get().describeTargetHealth(request).getTargetHealthDescriptions()
+				() -> amazonElasticLoadBalancing.get().describeTargetHealth(request).targetHealthDescriptions()
 						.stream()
-						.map(TargetHealthDescription::getTarget)
-						.map(TargetDescription::getId)
+						.map(TargetHealthDescription::target)
+						.map(TargetDescription::id)
 						.toList(),
 				NUM_ATTEMPTS,
 				randomSleepMs,
 				true);
 	}
 
-	private AmazonElasticLoadBalancing getAmazonElbClient(){
-		AWSCredentials awsCredentials = new BasicAWSCredentials(settings.accessKey.get(), settings.secretKey.get());
-		return AmazonElasticLoadBalancingClientBuilder.standard()
-				.withCredentials(new AWSStaticCredentialsProvider(awsCredentials))
-				.withRegion(settings.region.get())
+	private ElasticLoadBalancingV2Client getAmazonElbClient(){
+		AwsCredentials awsCredentials = AwsBasicCredentials.create(settings.accessKey.get(), settings.secretKey.get());
+		return ElasticLoadBalancingV2Client.builder()
+				.credentialsProvider(StaticCredentialsProvider.create(awsCredentials))
+				.region(Region.of(settings.region.get()))
 				.build();
 	}
 

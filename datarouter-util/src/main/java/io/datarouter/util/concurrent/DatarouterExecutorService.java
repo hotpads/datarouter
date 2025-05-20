@@ -104,14 +104,14 @@ public class DatarouterExecutorService extends ThreadPoolExecutor{
 
 		@Override
 		public V get() throws InterruptedException, ExecutionException{
-			try(var $ = TracerTool.startSpanNoGroupType("waiting for subtask")){
+			try(var _ = TracerTool.startSpanNoGroupType("waiting for subtask")){
 				return super.get();
 			}
 		}
 
 		@Override
 		public V get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException{
-			try(var $ = TracerTool.startSpanNoGroupType("waiting for subtask")){
+			try(var _ = TracerTool.startSpanNoGroupType("waiting for subtask")){
 				return super.get(timeout, unit);
 			}
 		}

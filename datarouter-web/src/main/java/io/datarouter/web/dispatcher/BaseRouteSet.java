@@ -16,7 +16,9 @@
 package io.datarouter.web.dispatcher;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,7 +81,12 @@ public abstract class BaseRouteSet implements RouteSet{
 	}
 
 	private BaseEndpoint validateEndpoint(Class<? extends BaseEndpoint> endpointClass){
-		BaseEndpoint baseEndpoint = ReflectionTool.createWithoutNoArgs(endpointClass);
+		BaseEndpoint baseEndpoint;
+		try{
+			baseEndpoint = ReflectionTool.createWithoutNoArgs(endpointClass);
+		}catch(RuntimeException e){
+			throw new RuntimeException(String.format("error instantiating %s", endpointClass));
+		}
 		try{
 			EndpointTool.validateBaseEndpoint(baseEndpoint);
 		}catch(IllegalArgumentException ex){
@@ -95,18 +102,21 @@ public abstract class BaseRouteSet implements RouteSet{
 	 * This only works if all the handler methods inside the Handler class are using JavaEndpoints, MobileEndpoints,
 	 * WebApis or Links.
 	 *
-	 * This method works for registration without any custom dispatch rules. The applyDefault is the only dispatch rule
-	 * used.
-	 *
 	 * This method will NOT register ExternalEndpoints. To register those, you must use handlerExternalEndpoint() and
 	 * use a persistent string for the dispatch rule.
+	 *
+	 * Returns a Map with the Handler Param Class -> Dispatch Rule mapping.
 	 */
-	protected void registerHandler(Class<? extends BaseHandler> handler){
+	protected Map<Class<?>, DispatchRule> registerHandler(Class<? extends BaseHandler> handler){
+		Map<Class<?>, DispatchRule> dispatchMap = new HashMap<>();
 		List<Class<? extends BaseEndpoint>> baseEndpoints = HandlerTool.getEndpointsFromHandler(handler);
-		baseEndpoints.forEach(baseEndpoint -> handle(baseEndpoint).withHandler(handler));
+		baseEndpoints.forEach(baseEndpoint ->
+				dispatchMap.put(baseEndpoint, handle(baseEndpoint).withHandler(handler)));
 
 		List<Class<? extends BaseLink<?>>> links = HandlerTool.getLinksFromHandler(handler);
-		links.forEach(link -> handleLink(link).withHandler(handler));
+		links.forEach(link ->
+				dispatchMap.put(link, handleLink(link).withHandler(handler)));
+		return dispatchMap;
 	}
 
 	protected DispatchRule applyDefaultAndAdd(DispatchRule rule){
@@ -152,6 +162,12 @@ public abstract class BaseRouteSet implements RouteSet{
 
 	protected DispatchRule handleAnyStringAfterPath(PathNode pathNode){
 		return handle(pathNode.toSlashedString() + MATCHING_ANY);
+	}
+
+	protected DispatchRule handleAnyStringAfterPath(Class<? extends BaseLink<?>> baseClass){
+		BaseLink<?> baseLink = ReflectionTool.createWithoutNoArgs(baseClass);
+		return handle(baseLink.pathNode.toSlashedString() + MATCHING_ANY)
+				.withDispatchType(DispatchType.INTERNAL_LINK);
 	}
 
 	protected DispatchRule applyDefault(DispatchRule rule){

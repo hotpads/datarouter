@@ -49,6 +49,8 @@ extends Comparable<Field<T>>,
 	T getValue();
 
 	void setUsingReflection(Object targetFieldSet, Object value);
+	// Temporary for RPJAVA-541
+	Object getUsingReflection(Object targetFieldSet);
 
 	int getValueHashCode();
 

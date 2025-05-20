@@ -112,15 +112,6 @@ extends NodeOps<PathbeanKey,Pathbean>{
 				.map(chunkRange -> readPartial(key, chunkRange.start, chunkRange.length).orElseThrow());
 	}
 
-	default InputStream scanChunksAsInputStream(
-			PathbeanKey key,
-			Range<Long> range,
-			Threads threads,
-			ByteLength chunkSize){
-		return scanChunks(key, range, threads, chunkSize)
-				.apply(MultiByteArrayInputStream::new);
-	}
-
 	/*------------ streaming reads ----------*/
 
 	// Override in subclasses that support InputStream reads on large files.

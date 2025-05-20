@@ -21,7 +21,7 @@
 
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-metadata-parent</artifactId>
-	<version>0.0.126</version>
+	<version>0.0.127</version>
 	<packaging>pom</packaging>
 
 	<name>datarouter-metadata-parent</name>
@@ -43,19 +43,16 @@
 		</developer>
 		<developer>
 			<name>Braydon Hall</name>
-			<email>braydonh@hotpads.com</email>
 			<organization>HotPads</organization>
 			<organizationUrl>https://hotpads.com</organizationUrl>
 		</developer>
 		<developer>
 			<name>Brent Stearn</name>
-			<email>brents@hotpads.com</email>
 			<organization>HotPads</organization>
 			<organizationUrl>https://hotpads.com</organizationUrl>
 		</developer>
 		<developer>
 			<name>Brian Parra</name>
-			<email>brianpa@hotpads.com</email>
 			<organization>HotPads</organization>
 			<organizationUrl>https://hotpads.com</organizationUrl>
 		</developer>
@@ -66,7 +63,11 @@
 		</developer>
 		<developer>
 			<name>Cameron Aufderheide-Palk</name>
-			<email>cameronp@hotpads.com</email>
+			<organization>HotPads</organization>
+			<organizationUrl>https://hotpads.com</organizationUrl>
+		</developer>
+		<developer>
+			<name>Chris Baack</name>
 			<organization>HotPads</organization>
 			<organizationUrl>https://hotpads.com</organizationUrl>
 		</developer>
@@ -83,13 +84,11 @@
 		</developer>
 		<developer>
 			<name>Hamza Hashmi</name>
-			<email>hamzah@hotpads.com</email>
 			<organization>HotPads</organization>
 			<organizationUrl>https://hotpads.com</organizationUrl>
 		</developer>
 		<developer>
 			<name>Ion Platon</name>
-			<email>ionp@hotpads.com</email>
 			<organization>HotPads</organization>
 			<organizationUrl>https://hotpads.com</organizationUrl>
 		</developer>
@@ -100,7 +99,6 @@
 		</developer>
 		<developer>
 			<name>Jonathan Rossi</name>
-			<email>jonathanro@hotpads.com</email>
 			<organization>HotPads</organization>
 			<organizationUrl>https://hotpads.com</organizationUrl>
 		</developer>
@@ -123,7 +121,6 @@
 		</developer>
 		<developer>
 			<name>Rakesh Konda</name>
-			<email>rakeshk@hotpads.com</email>
 			<organization>HotPads</organization>
 			<organizationUrl>https://hotpads.com</organizationUrl>
 		</developer>
@@ -134,31 +131,26 @@
 		</developer>
 		<developer>
 			<name>Ryan Tomlinson</name>
-			<email>ryantom@hotpads.com</email>
 			<organization>HotPads</organization>
 			<organizationUrl>https://hotpads.com</organizationUrl>
 		</developer>
 		<developer>
 			<name>Scott Denny</name>
-			<email>scottd@hotpads.com</email>
 			<organization>HotPads</organization>
 			<organizationUrl>https://hotpads.com</organizationUrl>
 		</developer>
 		<developer>
 			<name>Shweta Menon</name>
-			<email>smenon@hotpads.com</email>
 			<organization>HotPads</organization>
 			<organizationUrl>https://hotpads.com</organizationUrl>
 		</developer>
 		<developer>
 			<name>Vinay Balamuru</name>
-			<email>vinayb@hotpads.com</email>
 			<organization>HotPads</organization>
 			<organizationUrl>https://hotpads.com</organizationUrl>
 		</developer>
 		<developer>
 			<name>Yilina</name>
-			<email>yilina@hotpads.com</email>
 			<organization>HotPads</organization>
 			<organizationUrl>https://hotpads.com</organizationUrl>
 		</developer>

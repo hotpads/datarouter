@@ -19,6 +19,9 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Function;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.datarouter.bytes.BinaryDictionary;
 import io.datarouter.bytes.ByteLength;
 import io.datarouter.bytes.blockfile.BlockfileGroup;
@@ -27,10 +30,12 @@ import io.datarouter.bytes.blockfile.encoding.compression.BlockfileCompressor;
 import io.datarouter.bytes.blockfile.encoding.compression.BlockfileStandardCompressors;
 import io.datarouter.bytes.blockfile.row.BlockfileRow;
 import io.datarouter.nodewatch.shadowtable.ShadowTableExport;
-import io.datarouter.nodewatch.shadowtable.codec.ShadowTableDictionaryCodec.ColumnNamesDictionaryCodec;
+import io.datarouter.nodewatch.shadowtable.codec.ShadowTableStatefulDictionaryCodec.ColumnNamesDictionaryCodec;
 import io.datarouter.nodewatch.shadowtable.config.DatarouterShadowTableDirectorySupplier;
-import io.datarouter.nodewatch.shadowtable.config.DatarouterShadowTableExecutors.ShadowTableRangeDecodeExecutor;
+import io.datarouter.nodewatch.shadowtable.config.DatarouterShadowTableExecutors.ShadowTableCombinePrefetchExecutor;
+import io.datarouter.nodewatch.shadowtable.config.DatarouterShadowTableExecutors.ShadowTableConcatenatePrefetchExecutor;
 import io.datarouter.nodewatch.shadowtable.config.DatarouterShadowTableExecutors.ShadowTableRangeReadExecutor;
+import io.datarouter.nodewatch.shadowtable.config.DatarouterShadowTableExecutors.ShadowTableRangeWriteExecutor;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.scanner.Threads;
 import io.datarouter.storage.file.Directory;
@@ -44,24 +49,33 @@ import jakarta.inject.Singleton;
 
 @Singleton
 public class ShadowTableRangeBlockfileDao{
+	private static final Logger logger = LoggerFactory.getLogger(ShadowTableRangeBlockfileDao.class);
 
-	public static final ByteLength BLOCK_SIZE = ByteLength.ofKiB(16);
+	private static final int WRITE_THREADS = 2;// Just enough to not always block on writes
+	public static final ByteLength BLOCK_SIZE = ByteLength.ofKiB(32);
 	private static final ByteLength READ_CHUNK_SIZE = ByteLength.ofMiB(16);
-	private static final int BLOCK_DECODE_BATCH_SIZE = 8;
-	private static final int NUM_CONCURRENT_FILES_WHILE_CONCATENATING = 3;
+	private static final int READ_CHUNKS_PER_VCPU = 16;// 256 MiB
+	private static final int MAX_CONSIDERED_VCPUS = 8;// 2 GiB
+	private static final int BLOCK_BATCH_SIZE = 16;
 
-	private final Directory rangeDirectory;
+	private final DatarouterShadowTableDirectorySupplier directorySupplier;
+	private final ExecutorService rangeWriteExec;
 	private final ExecutorService rangeReadExec;
 	private final ExecutorService rangeDecodeExec;
+	private final ExecutorService concatenatePrefetchExec;
 
 	@Inject
 	public ShadowTableRangeBlockfileDao(
-			DatarouterShadowTableDirectorySupplier shadowTableDirectorySupplier,
+			DatarouterShadowTableDirectorySupplier directorySupplier,
+			ShadowTableRangeWriteExecutor rangeWriteExec,
 			ShadowTableRangeReadExecutor rangeReadExec,
-			ShadowTableRangeDecodeExecutor rangeDecodeExec){
-		this.rangeDirectory = shadowTableDirectorySupplier.getRangeDirectory();
+			ShadowTableCombinePrefetchExecutor rangeDecodeExec,
+			ShadowTableConcatenatePrefetchExecutor concatenatePrefetchExec){
+		this.directorySupplier = directorySupplier;
+		this.rangeWriteExec = rangeWriteExec;
 		this.rangeReadExec = rangeReadExec;
 		this.rangeDecodeExec = rangeDecodeExec;
+		this.concatenatePrefetchExec = concatenatePrefetchExec;
 	}
 
 	/*----------- write -----------*/
@@ -74,7 +88,10 @@ public class ShadowTableRangeBlockfileDao{
 			long rangeId,
 			long numRanges,
 			Scanner<List<BlockfileRow>> rowBatches){
-		Directory tableDirectory = makeTableDirectory(export, exportId, node.clientAndTableNames().table());
+		Directory tableDirectory = directorySupplier.makeRangeDirectory(
+				export,
+				exportId,
+				node.clientAndTableNames().table());
 		var tableBlockfileStorage = new BlockfileDirectoryStorage(tableDirectory);
 		BlockfileCompressor compressor = enableCompression
 				? BlockfileStandardCompressors.GZIP
@@ -87,6 +104,9 @@ public class ShadowTableRangeBlockfileDao{
 				.newWriterBuilder(rangeFilename)
 				.setCompressor(compressor)
 				.setHeaderDictionary(headerDictionary)
+				.setEncodeBatchSize(BLOCK_BATCH_SIZE)
+				.setWriteThreads(new Threads(rangeWriteExec, WRITE_THREADS))
+				.setMinWritePartSize(ByteLength.ofMiB(100))
 				.build()
 				.writeBlocks(rowBatches);
 	}
@@ -97,7 +117,7 @@ public class ShadowTableRangeBlockfileDao{
 			ShadowTableExport export,
 			String exportId,
 			String tableName){
-		return makeTableDirectory(export, exportId, tableName)
+		return directorySupplier.makeRangeDirectory(export, exportId, tableName)
 				.scanKeys(Subpath.empty())
 				.findFirst()
 				.map(ShadowTableRangeBlockfileDao::parseNumRanges)
@@ -108,7 +128,7 @@ public class ShadowTableRangeBlockfileDao{
 			ShadowTableExport export,
 			String exportId,
 			String tableName){
-		Directory tableDirectory = makeTableDirectory(export, exportId, tableName);
+		Directory tableDirectory = directorySupplier.makeRangeDirectory(export, exportId, tableName);
 		List<PathbeanKey> keys = tableDirectory.scanKeys(Subpath.empty()).list();
 		if(keys.isEmpty()){
 			return false;
@@ -123,43 +143,67 @@ public class ShadowTableRangeBlockfileDao{
 			String tableName){
 		BlockfileGroup<BlockfileRow> blockfileGroup = makeBlockfileGroup(export, exportId, tableName);
 		long numFiles = numFiles(export, exportId, tableName);
+		int numReadThreads = READ_CHUNKS_PER_VCPU * Math.min(export.resource().vcpus(), MAX_CONSIDERED_VCPUS);
 		return Scanner.iterate(1, rangeId -> rangeId + 1)
 				.limit(numFiles)
 				.map(rangeId -> makeFilename(rangeId, numFiles))
 				.map(filename -> blockfileGroup.newReaderBuilder(filename, Function.identity())
-						.setReadThreads(new Threads(rangeReadExec, export.resource().threads()))
+						.setReadThreads(new Threads(rangeReadExec, numReadThreads))
 						.setReadChunkSize(READ_CHUNK_SIZE)
-						.setDecodeBatchSize(BLOCK_DECODE_BATCH_SIZE)
-						.setDecodeThreads(new Threads(rangeDecodeExec, export.resource().threads()))
+						.setDecodeBatchSize(BLOCK_BATCH_SIZE)
+						.setDecodeThreads(new Threads(rangeDecodeExec, export.resource().vcpus()))
 						.build()
 						.sequential()
 						.scan())
-				// Parallel peek: trigger loading the next files so we don't have a pause between them.
-				.parallelOrdered(new Threads(rangeReadExec, NUM_CONCURRENT_FILES_WHILE_CONCATENATING))
-				// .map(), not .each(), to get the new scanner with the peeked item re-inserted
-				.map(rangeFileScanner -> rangeFileScanner.peekFirst($ -> {}))
+//				// Parallel peek: trigger loading the next files so we don't have a pause between them.
+//				.parallelOrdered(new Threads(rangeReadExec, NUM_CONCURRENT_FILES_WHILE_CONCATENATING))
+//				// .map(), not .each(), to get the new scanner with the peeked item re-inserted
+//				.map(rangeFileScanner -> rangeFileScanner.peekFirst(_ -> {}))
 				.concat(Function.identity());
 	}
 
-	/*------------ private ------------*/
+	public Scanner<BlockfileRow> scanConcatenatedRangeRowsWithBlobPrefetcher(
+			ShadowTableExport export,
+			String exportId,
+			String tableName,
+			ByteLength prefetchBufferSize){
+		BlockfileGroup<BlockfileRow> blockfileGroup = makeBlockfileGroup(export, exportId, tableName);
+		long numFiles = numFiles(export, exportId, tableName);
+		Scanner<String> filenameScanner = Scanner.iterate(1, rangeId -> rangeId + 1)
+				.limit(numFiles)
+				.map(rangeId -> makeFilename(rangeId, numFiles));
+		int numReadThreads = READ_CHUNKS_PER_VCPU * Math.min(export.resource().vcpus(), MAX_CONSIDERED_VCPUS);
+		return blockfileGroup.newConcatenatingReaderBuilder(Function.identity(), concatenatePrefetchExec)
+				.setPrefetchBufferSize(prefetchBufferSize)
+				.setReadThreads(new Threads(rangeReadExec, numReadThreads))
+				.setReadChunkSize(READ_CHUNK_SIZE)
+				.setDecodeBatchSize(BLOCK_BATCH_SIZE)
+				.setDecodeThreads(new Threads(rangeDecodeExec, export.resource().vcpus()))
+				.build()
+				.scan(filenameScanner);
+	}
 
-	private Directory makeTableDirectory(
+	public void deleteRangeFiles(
 			ShadowTableExport export,
 			String exportId,
 			String tableName){
-		return rangeDirectory
-				.subdirectoryBuilder(new Subpath(export.name()))
-				.withCounterName("shadowTableExport " + export.name())
-				.build()
-		.subdirectory(new Subpath(exportId))
-		.subdirectory(new Subpath(tableName));
+		Directory tableDirectory = directorySupplier.makeRangeDirectory(export, exportId, tableName);
+		long numFilesDeleted = tableDirectory.scanKeys(Subpath.empty())
+				.batch(1_000)
+				.each(tableDirectory::deleteMulti)
+				.concat(Scanner::of)
+				.count();
+		tableDirectory.deleteAll(Subpath.empty());// Deletes directory if exists
+		logger.warn("deleted {} files from {}", numFilesDeleted, tableDirectory.getBucketAndPrefix());
 	}
+
+	/*------------ private ------------*/
 
 	private BlockfileGroup<BlockfileRow> makeBlockfileGroup(
 			ShadowTableExport export,
 			String exportId,
 			String tableName){
-		Directory tableDirectory = makeTableDirectory(export, exportId, tableName);
+		Directory tableDirectory = directorySupplier.makeRangeDirectory(export, exportId, tableName);
 		var tableBlockfileStorage = new BlockfileDirectoryStorage(tableDirectory);
 		return new BlockfileGroupBuilder<BlockfileRow>(tableBlockfileStorage).build();
 	}

@@ -23,7 +23,9 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.util.concurrent.ThreadTool;
 import io.datarouter.web.DatarouterWebExecutors.WebAppLifecycleExecutor;
+import io.datarouter.web.config.DatarouterWebSettingRoot;
 import io.datarouter.web.shutdown.ShutdownService;
 import io.datarouter.web.warmup.HttpWarmup;
 import jakarta.inject.Inject;
@@ -39,14 +41,23 @@ public class WebAppLifecycle{
 	private final Map<WebAppLifecycleState,List<WebAppLifecycleListener>> listeners = new HashMap<>();
 
 	@Inject
-	public WebAppLifecycle(WebAppLifecycleExecutor webAppLifecycleExecutor, ShutdownService shutdownService,
-			HttpWarmup httpWarmup){
+	public WebAppLifecycle(
+			WebAppLifecycleExecutor webAppLifecycleExecutor,
+			ShutdownService shutdownService,
+			HttpWarmup httpWarmup,
+			DatarouterWebSettingRoot datarouterWebSettings){
 		this.webAppLifecycleExecutor = webAppLifecycleExecutor;
-		addListener(WebAppLifecycleState.HTTP_READY, $ -> {
+		addListener(WebAppLifecycleState.HTTP_READY, _ -> {
 			httpWarmup.makeHttpWamrupCalls();
-			set(WebAppLifecycleState.HTTP_WARMED);
+			set(WebAppLifecycleState.FIRST_TRAFFIC);
 		});
-		addListener(WebAppLifecycleState.HTTP_WARMED, $ -> shutdownService.advance());
+		addListener(WebAppLifecycleState.FIRST_TRAFFIC, _ -> {
+			shutdownService.advance();
+			// let live traffic come in but wait before shutting down the other pod
+			ThreadTool.sleepUnchecked(datarouterWebSettings.nextSrverDelay.get().toMillis());
+			set(WebAppLifecycleState.FULLY_READY);
+		});
+		addListener(WebAppLifecycleState.FULLY_READY, _ -> shutdownService.advance());
 	}
 
 	/**
@@ -63,7 +74,7 @@ public class WebAppLifecycle{
 	}
 
 	public void addListener(WebAppLifecycleState state, WebAppLifecycleListener listener){
-		listeners.computeIfAbsent(state, $ -> new ArrayList<>()).add(listener);
+		listeners.computeIfAbsent(state, _ -> new ArrayList<>()).add(listener);
 	}
 
 }

@@ -30,6 +30,7 @@ import java.util.Optional;
 import io.datarouter.bytes.ByteLength;
 import io.datarouter.nodewatch.config.DatarouterNodewatchPaths;
 import io.datarouter.nodewatch.config.DatarouterNodewatchPlugin;
+import io.datarouter.nodewatch.link.NodewatchTableStorageLink;
 import io.datarouter.nodewatch.service.TableSamplerService;
 import io.datarouter.nodewatch.storage.binarydto.storagestats.table.TableStorageStatsBinaryDao;
 import io.datarouter.nodewatch.storage.binarydto.storagestats.table.TableStorageStatsBinaryDto;
@@ -59,10 +60,6 @@ import jakarta.inject.Inject;
 
 public class NodewatchTableStorageHandler extends BaseHandler{
 
-	public static final String
-			P_clientName = "clientName",
-			P_tableName = "tableName";
-
 	@Inject
 	private Bootstrap4PageFactory pageFactory;
 	@Inject
@@ -79,7 +76,9 @@ public class NodewatchTableStorageHandler extends BaseHandler{
 	private TableStorageStatsBinaryDao statsDao;
 
 	@Handler
-	private Mav storage(String clientName, String tableName){
+	private Mav storage(NodewatchTableStorageLink link){
+		String clientName = link.clientName;
+		String tableName = link.tableName;
 		var nodeWrapper = new PhysicalSortedNodeWrapper<>(datarouterNodes, clientName, tableName);
 		Optional<TableStorageStatsBinaryDto> optStats = statsDao.find(nodeWrapper.node);
 		var content = div(

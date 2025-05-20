@@ -27,11 +27,10 @@ import jakarta.inject.Singleton;
 public class DatarouterAnonymousNonPersistentAuthenticator implements DatarouterAuthenticator{
 
 	@Override
-	public DatarouterSession getSession(HttpServletRequest request, HttpServletResponse response){
+	public DatarouterSessionAndPersist getSession(HttpServletRequest request, HttpServletResponse response){
 		String userToken = DatarouterTokenGenerator.generateRandomToken();
 		DatarouterSession session = DatarouterSession.createAnonymousSession(userToken);
-		session.setPersistent(false);
-		return session;
+		return new DatarouterSessionAndPersist(session, false);
 	}
 
 }

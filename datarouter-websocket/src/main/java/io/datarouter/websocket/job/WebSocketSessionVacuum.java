@@ -54,6 +54,7 @@ public class WebSocketSessionVacuum{
 
 	private DatabeanVacuum<WebSocketSessionKey,WebSocketSession> makeVacuum(){
 		return new DatabeanVacuumBuilder<>(
+				"DatarouterWebSocketSession",
 				dao.scan(),
 				this::shouldDelete,
 				this::delete)

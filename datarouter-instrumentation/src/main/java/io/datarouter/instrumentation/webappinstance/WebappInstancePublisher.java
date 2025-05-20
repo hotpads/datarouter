@@ -20,7 +20,7 @@ import io.datarouter.instrumentation.response.PublishingResponseDto;
 public interface WebappInstancePublisher{
 
 	PublishingResponseDto add(WebappInstanceDto webappInstanceDto);
-	PublishingResponseDto delete(String webappName, String serverName);
+	PublishingResponseDto delete(String webappName, String serverName, String environment);
 
 	public static class NoOpWebappInstancePublisher implements WebappInstancePublisher{
 
@@ -30,7 +30,7 @@ public interface WebappInstancePublisher{
 		}
 
 		@Override
-		public PublishingResponseDto delete(String webappName, String serverName){
+		public PublishingResponseDto delete(String webappName, String serverName, String environment){
 			return PublishingResponseDto.NO_OP;
 		}
 

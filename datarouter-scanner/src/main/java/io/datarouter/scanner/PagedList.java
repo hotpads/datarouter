@@ -16,6 +16,7 @@
 package io.datarouter.scanner;
 
 import java.util.AbstractList;
+import java.util.Objects;
 import java.util.RandomAccess;
 
 /**
@@ -38,30 +39,16 @@ implements RandomAccess{
 
 	/*---------- construct ----------*/
 
+	public PagedList(){
+		this(DEFAULT_PAGE_SIZE);
+	}
+
 	public PagedList(int requestedPageSize){
 		pageSize = Integer.highestOneBit(requestedPageSize);// round down to nearest power of 2
 		pageBits = pageSize - 1;
 		pageShift = Integer.bitCount(pageBits);
 		pages = new Object[INITIAL_NUM_PAGES][];
 		size = 0;
-	}
-
-	public PagedList(){
-		this(DEFAULT_PAGE_SIZE);
-	}
-
-	public PagedList(Iterable<E> iterable){
-		this(DEFAULT_PAGE_SIZE);
-		iterable.forEach(this::add);
-	}
-
-	public PagedList(Scanner<E> scanner){
-		this(DEFAULT_PAGE_SIZE);
-		try(Scanner<E> $ = scanner){
-			while(scanner.advance()){
-				add(scanner.current());
-			}
-		}
 	}
 
 	/*----------- AbstractList ------------*/
@@ -92,15 +79,18 @@ implements RandomAccess{
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public E get(int index){
+		Objects.checkIndex(index, size);
 		Object[] page = page(index);
 		int indexInPage = indexInPage(index);
-		return (E)page[indexInPage];
+		@SuppressWarnings("unchecked")
+		E value = (E)page[indexInPage];
+		return value;
 	}
 
 	@Override
 	public E remove(int index){
+		Objects.checkIndex(index, size);
 		E previous = get(index);
 		// shift things after the index up
 		for(int i = index; i < size - 1; ++i){
@@ -114,6 +104,7 @@ implements RandomAccess{
 
 	@Override
 	public E set(int index, E element){
+		Objects.checkIndex(index, size);
 		Object[] page = page(index);
 		int indexInPage = indexInPage(index);
 		@SuppressWarnings("unchecked")
@@ -127,7 +118,7 @@ implements RandomAccess{
 		return size;
 	}
 
-	/*----------- private ---------------*/
+	/*----------- private --------------*/
 
 	private void expandPagesArray(){
 		int newPageArrayLength = pages.length == 0 ? 1 : pages.length * 2;

@@ -87,7 +87,7 @@ public class SnapshotGroupWriteOps{
 				? null
 				: group.makeCacheStorage(snapshotKey.snapshotId());
 		try(var writer = new SnapshotWriter(snapshotKey, snapshotFileStorage, snapshotBlockStorage, config, exec)){
-			entries.advanceUntil($ -> shouldStop.get())
+			entries.advanceUntil(_ -> shouldStop.get())
 					.forEach(writer::addBatch);
 			if(shouldStop.get()){
 				return SnapshotWriteResult.failure(snapshotKey);

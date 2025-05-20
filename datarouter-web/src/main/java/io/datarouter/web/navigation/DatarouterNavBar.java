@@ -59,6 +59,15 @@ public class DatarouterNavBar extends NavBar{
 	}
 
 	private NavBarMenuItem createMenuItem(Entry<NavBarCategory,List<NavBarItem>> entry){
+		if(entry.getValue().size() == 1 && entry.getKey().allowSingleItemMenu()){
+			var item = new NavBarMenuItem(
+					entry.getValue().getFirst().path,
+					entry.getKey().display(),
+					entry.getValue().getFirst().openInNewTab,
+					this);
+			entry.getValue().getFirst().dispatchRule.ifPresent(item::setDispatchRule);
+			return item;
+		}
 		List<NavBarMenuItem> menuItems = entry.getValue().stream()
 				.sorted(Comparator.comparing((NavBarItem item) -> item.name))
 				.map(item -> {

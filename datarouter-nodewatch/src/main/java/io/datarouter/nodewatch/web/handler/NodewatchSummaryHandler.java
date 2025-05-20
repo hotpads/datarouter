@@ -25,6 +25,7 @@ import java.util.concurrent.TimeUnit;
 
 import io.datarouter.nodewatch.config.DatarouterNodewatchPaths;
 import io.datarouter.nodewatch.config.DatarouterNodewatchPlugin;
+import io.datarouter.nodewatch.link.NodewatchSummaryLink;
 import io.datarouter.nodewatch.storage.latesttablecount.DatarouterLatestTableCountDao;
 import io.datarouter.nodewatch.storage.latesttablecount.LatestTableCount;
 import io.datarouter.nodewatch.web.NodewatchHtml;
@@ -52,7 +53,7 @@ public class NodewatchSummaryHandler extends BaseHandler{
 	private DatarouterLatestTableCountDao latestTableCountDao;
 
 	@Handler
-	private Mav summary(){
+	private Mav summary(@SuppressWarnings("unused") NodewatchSummaryLink link){
 		List<LatestTableCount> latestTableCounts = latestTableCountDao.scan()
 				.list();
 		var content = div(

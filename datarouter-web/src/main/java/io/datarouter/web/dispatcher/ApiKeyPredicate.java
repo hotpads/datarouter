@@ -37,7 +37,7 @@ public abstract class ApiKeyPredicate{
 	public ApiKeyPredicateCheck check(DispatchRule rule, HttpServletRequest request){
 		String apiKey = getApiKeyCandidate(request);
 		if(apiKey == null){
-			return new ApiKeyPredicateCheck(false, "key not found");
+			return new ApiKeyPredicateCheck(false, null, "key not found");
 		}
 		return innerCheck(rule, request, apiKey);
 	}
@@ -82,12 +82,10 @@ public abstract class ApiKeyPredicate{
 				.orElse(null);
 	}
 
-	/**
-	 *@param accountName the account name or the error message
-	 */
 	public record ApiKeyPredicateCheck(
 			boolean allowed,
-			String accountName){
+			String accountName,
+			String errorMessage){
 	}
 
 }

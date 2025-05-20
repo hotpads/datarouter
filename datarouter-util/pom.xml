@@ -22,7 +22,7 @@
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-parent</artifactId>
-		<version>0.0.126</version>
+		<version>0.0.127</version>
 		<relativePath>../datarouter-parent</relativePath>
 	</parent>
 
@@ -48,15 +48,10 @@
 			<artifactId>datarouter-bytes</artifactId>
 			<version>${datarouter-version}</version>
 		</dependency>
-		<dependency>
-			<groupId>io.datarouter</groupId>
-			<artifactId>datarouter-types</artifactId>
-			<version>${datarouter-version}</version>
-		</dependency>
 		<dependency><!-- used by UuidTool -->
 			<groupId>com.fasterxml.uuid</groupId>
 			<artifactId>java-uuid-generator</artifactId>
-			<version>5.0.0</version>
+			<version>5.1.0</version>
 			<exclusions>
 				<exclusion>
 					<groupId>log4j</groupId>
@@ -68,6 +63,7 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+
 		<dependency>
 			<groupId>io.datarouter</groupId>
 			<artifactId>datarouter-logging</artifactId>
@@ -84,7 +80,6 @@
 			<groupId>com.github.ben-manes.caffeine</groupId>
 			<artifactId>caffeine</artifactId>
 			<version>${ben-manes-caffeine-version}</version>
-			<scope>compile</scope>
 		</dependency>
 	</dependencies>
 

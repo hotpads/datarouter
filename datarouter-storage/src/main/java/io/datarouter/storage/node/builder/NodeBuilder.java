@@ -15,6 +15,7 @@
  */
 package io.datarouter.storage.node.builder;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -33,6 +34,8 @@ import io.datarouter.storage.node.op.NodeOps;
 import io.datarouter.storage.node.tableconfig.ClientTableEntityPrefixNameWrapper;
 import io.datarouter.storage.node.tableconfig.NodewatchConfiguration;
 import io.datarouter.storage.node.tableconfig.NodewatchConfigurationBuilder;
+import io.datarouter.storage.privacy.DatarouterPrivacyExemptionReason;
+import io.datarouter.storage.privacy.DatarouterPrivacyProcessor;
 import io.datarouter.storage.tag.Tag;
 
 public class NodeBuilder<
@@ -48,12 +51,14 @@ public class NodeBuilder<
 	private final Supplier<D> databeanSupplier;
 	private final Supplier<F> fielderSupplier;
 	private String tableName;
-	private String schemaVersion;
+	private Supplier<String> schemaVersionSupplier = () -> null;
 	private NodewatchConfigurationBuilder nodewatchConfigurationBuilder;
 	private boolean disableForcePrimary;
 	private Tag tag = Tag.APP;
 	private boolean disableIntroducer = false;
 	private BlockfileNodeParams<PK,D,F> blockfileNodeParams;
+	private List<Class<? extends DatarouterPrivacyProcessor>> privacyProcessors = List.of();
+	private Optional<DatarouterPrivacyExemptionReason> privacyExemptionReason = Optional.empty();
 
 	public NodeBuilder(
 			BaseDatabeanNodeFactory nodeFactory,
@@ -81,7 +86,11 @@ public class NodeBuilder<
 	}
 
 	public NodeBuilder<EK,PK,D,F> withSchemaVersion(String schemaVersion){
-		this.schemaVersion = schemaVersion;
+		return withSchemaVersionSupplier(() -> schemaVersion);
+	}
+
+	public NodeBuilder<EK,PK,D,F> withSchemaVersionSupplier(Supplier<String> schemaVersionSupplier){
+		this.schemaVersionSupplier = schemaVersionSupplier;
 		return this;
 	}
 
@@ -137,6 +146,14 @@ public class NodeBuilder<
 		return this;
 	}
 
+	public NodeBuilder<EK,PK,D,F> withShadowTableScanBatchSize(int shadowTableScanBatchSize){
+		if(nodewatchConfigurationBuilder == null){
+			nodewatchConfigurationBuilder = new NodewatchConfigurationBuilder();
+		}
+		nodewatchConfigurationBuilder.withShadowTableScanBatchSize(shadowTableScanBatchSize);
+		return this;
+	}
+
 	public NodeBuilder<EK,PK,D,F> disableNodewatch(){
 		if(nodewatchConfigurationBuilder == null){
 			nodewatchConfigurationBuilder = new NodewatchConfigurationBuilder();
@@ -185,6 +202,26 @@ public class NodeBuilder<
 		return this;
 	}
 
+	/*---------- Privacy ----------*/
+
+	@SafeVarargs
+	public final NodeBuilder<EK,PK,D,F> withPrivacyProcessors(
+			Class<? extends DatarouterPrivacyProcessor>... privacyProcessors){
+		this.privacyProcessors = List.of(privacyProcessors);
+		return this;
+	}
+
+	public final NodeBuilder<EK,PK,D,F> withPrivacyProcessors(
+			List<Class<? extends DatarouterPrivacyProcessor>> privacyProcessors){
+		this.privacyProcessors = privacyProcessors;
+		return this;
+	}
+
+	public NodeBuilder<EK,PK,D,F> withPrivacyExemptionReason(DatarouterPrivacyExemptionReason privacyExemptionReason){
+		this.privacyExemptionReason = Optional.of(privacyExemptionReason);
+		return this;
+	}
+
 	public <N extends NodeOps<PK,D>> N build(){
 		String databeanName = databeanSupplier.get().getDatabeanName();
 		String entityName = databeanName + "Entity";
@@ -203,12 +240,14 @@ public class NodeBuilder<
 				.withEntity(entityName, entityNodePrefix)
 				.withParentName(entityName)
 				.withTableName(nodeTableName)
-				.withSchemaVersion(schemaVersion)
+				.withSchemaVersionSupplier(schemaVersionSupplier)
 				.withTableConfiguration(tableConfig)
 				.withDisableForcePrimary(disableForcePrimary)
 				.withTag(tag)
 				.withDisableIntroducer(disableIntroducer)
 				.withBlockfileNodeParams(blockfileNodeParams)
+				.withPrivacyProcessors(privacyProcessors)
+				.withPrivacyExemptionReason(privacyExemptionReason)
 				.build();
 		EntityNodeParams<EK,DefaultEntity<EK>> entityNodeParams = new EntityNodeParams<>(
 				entityKeySupplier,

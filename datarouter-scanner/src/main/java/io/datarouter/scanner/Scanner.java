@@ -17,6 +17,7 @@ package io.datarouter.scanner;
 
 import java.io.Closeable;
 import java.time.Duration;
+import java.util.BitSet;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -41,7 +42,17 @@ import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
+import io.datarouter.scanner.BatchByMinSizeScanner.ScannerMinSizeBatch;
+import io.datarouter.scanner.PrimitiveArrayScanner.BooleanArrayScanner;
+import io.datarouter.scanner.PrimitiveArrayScanner.ByteArrayScanner;
+import io.datarouter.scanner.PrimitiveArrayScanner.CharacterArrayScanner;
+import io.datarouter.scanner.PrimitiveArrayScanner.DoubleArrayScanner;
+import io.datarouter.scanner.PrimitiveArrayScanner.FloatArrayScanner;
+import io.datarouter.scanner.PrimitiveArrayScanner.IntegerArrayScanner;
+import io.datarouter.scanner.PrimitiveArrayScanner.LongArrayScanner;
+import io.datarouter.scanner.PrimitiveArrayScanner.ShortArrayScanner;
 import io.datarouter.scanner.ScannerToMap.Replace;
+import io.datarouter.scanner.SplittingScanner.SplitKeyAndScanner;
 
 /**
  * A form of iterator that operates as lazily as possible, not knowing if the next item is available until advancing and
@@ -203,6 +214,50 @@ public interface Scanner<T> extends Closeable{
 	 */
 	static <T> Scanner<T> of(Stream<T> stream){
 		return StreamScanner.of(stream);
+	}
+
+	/**
+	 * Create a Scanner of indexes present in the BitSet.
+	 *
+	 * @param bitSet  A BitSet
+	 * @return  A Scanner returning an Integer for each present bit in the BitSet
+	 */
+	static Scanner<Integer> ofBits(BitSet bitSet){
+		return ScannerTool.scanBits(bitSet);
+	}
+
+	/*------------------- Primitive Array -----------------------*/
+
+	static Scanner<Boolean> ofArray(boolean[] values){
+		return new BooleanArrayScanner(values);
+	}
+
+	static Scanner<Byte> ofArray(byte[] values){
+		return new ByteArrayScanner(values);
+	}
+
+	static Scanner<Character> ofArray(char[] values){
+		return new CharacterArrayScanner(values);
+	}
+
+	static Scanner<Short> ofArray(short[] values){
+		return new ShortArrayScanner(values);
+	}
+
+	static Scanner<Integer> ofArray(int[] values){
+		return new IntegerArrayScanner(values);
+	}
+
+	static Scanner<Float> ofArray(float[] values){
+		return new FloatArrayScanner(values);
+	}
+
+	static Scanner<Long> ofArray(long[] values){
+		return new LongArrayScanner(values);
+	}
+
+	static Scanner<Double> ofArray(double[] values){
+		return new DoubleArrayScanner(values);
 	}
 
 	/*--------------------------- Concat ----------------------------*/
@@ -381,10 +436,13 @@ public interface Scanner<T> extends Closeable{
 		return new MergingScanner<>(threads, scanners);
 	}
 
-	@SuppressWarnings("resource")
-	default Scanner<T> prefetch(ExecutorService exec, int batchSize){
-		return new PrefetchingScanner<>(this, exec, batchSize)
-				.concat(Scanner::of);
+	/**
+	 * Use a background thread to move items from the input scanner to a queue with a maximum capacity.
+	 * The input scanning thread is blocked when the queue is full.
+	 * The result scanner is blocked when the queue is empty.
+	 */
+	default Scanner<T> prefetch(ExecutorService exec, int queueCapacity){
+		return new PrefetchingScanner<>(this, exec, queueCapacity);
 	}
 
 	/*--------------------------- Intermediate ops ----------------------------*/
@@ -403,6 +461,10 @@ public interface Scanner<T> extends Closeable{
 		return new AdvanceWhileScanner<>(this, predicate);
 	}
 
+	/**
+	 * Group items into batches with a max of N items per batch.
+	 * The last batch will have between 1 and N items.
+	 */
 	default Scanner<List<T>> batch(int batchSize){
 		return new BatchingScanner<>(this, batchSize);
 	}
@@ -411,8 +473,16 @@ public interface Scanner<T> extends Closeable{
 	 * Return a new List of T when the sum of extracted sizes matches or exceeds the minSize.
 	 * The value returned by each sizeExtractor will be rounded down to the nearest long value.
 	 */
-	default Scanner<List<T>> batchByMinSize(long minSize, Function<T,Number> sizeExtractor){
+	default Scanner<ScannerMinSizeBatch<T>> batchByMinSizeWithStats(long minSize, Function<T,Number> sizeExtractor){
 		return new BatchByMinSizeScanner<>(this, minSize, sizeExtractor);
+	}
+
+	/**
+	 * Convenience method to return only the batch items.
+	 */
+	default Scanner<List<T>> batchByMinSize(long minSize, Function<T,Number> sizeExtractor){
+		return new BatchByMinSizeScanner<>(this, minSize, sizeExtractor)
+				.map(ScannerMinSizeBatch::items);
 	}
 
 	/**
@@ -526,17 +596,50 @@ public interface Scanner<T> extends Closeable{
 	 * Similar to groupBy on an unbounded amount of data, but will result in multiple of the same groupings depending
 	 * on the order of the input data.  Useful in the case of Scanning child objects and grouping by a parent.
 	 */
-	default <R> Scanner<Scanner<T>> splitBy(Function<T,R> mapper, BiPredicate<R,R> equalsPredicate){
+	default <R> Scanner<SplitKeyAndScanner<R,T>> splitByWithSplitKey(
+			Function<T,R> mapper,
+			BiPredicate<R,R> equalsPredicate){
 		return new SplittingScanner<>(this, mapper, equalsPredicate);
 	}
-
 	/**
 	 * Convenience method calling splitBy with the most commonly used equalsPredicate, Objects::equals.
 	 */
-	default <R> Scanner<Scanner<T>> splitBy(Function<T,R> mapper){
+	default <R> Scanner<SplitKeyAndScanner<R,T>> splitByWithSplitKey(Function<T,R> mapper){
 		return new SplittingScanner<>(this, mapper, Objects::equals);
 	}
 
+	/**
+	 * Convenience method to return only the inner split scanners.
+	 */
+	default <R> Scanner<Scanner<T>> splitBy(Function<T,R> mapper){
+		return new SplittingScanner<>(this, mapper, Objects::equals)
+				.map(SplitKeyAndScanner::scanner);
+	}
+
+	/**
+	 * Convenience method to avoid passing totalItems.
+	 * Note this collects them into memory.
+	 */
+	default Scanner<T> stagger(Duration duration){
+		List<T> items = list();
+		return new StaggeringScanner<>(Scanner.of(items), items.size(), duration);
+	}
+
+	/**
+	 * Try to release items at an even cadence over the duration.
+	 * Empty scanner returns immediately.
+	 * First item is returned immediately.
+	 * It is essentially a rate limiter.
+	 * If downstream processing is behind then it will release items immediately.
+	 * If total items was underestimated then the final items may be released immediately.
+	 */
+	default Scanner<T> stagger(long totalItems, Duration duration){
+		return new StaggeringScanner<>(this, totalItems, duration);
+	}
+
+	/**
+	 * Count nanos waiting for inputScanner.advance().
+	 */
 	default Scanner<T> timeNanos(Consumer<Long> nanosConsumer){
 		return new TimeNanosScanner<>(this, nanosConsumer);
 	}

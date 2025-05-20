@@ -81,7 +81,7 @@ public class SnapshotFileWriter{
 
 	public void addBranchBlock(int level, int blockId, CompressedBlock block){
 		tracker.branchMemory(true, 1, block.totalLength);
-		BlockQueue queue = branchBlockQueueByLevel.computeIfAbsent(level, $ -> new BlockQueue(
+		BlockQueue queue = branchBlockQueueByLevel.computeIfAbsent(level, _ -> new BlockQueue(
 				"branch-" + level,
 				config.branchBytesPerFile(),
 				config.branchBlocksPerFile()));

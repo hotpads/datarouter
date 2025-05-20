@@ -122,7 +122,7 @@ public abstract class BaseStoragePlugin extends BasePlugin{
 	private void addPluginEntryInternal(PluginConfigKey<?> key, Class<? extends PluginConfigValue<?>> value){
 		switch(key.type){
 		case CLASS_LIST:
-			classList.computeIfAbsent(key, $ -> new ArrayList<>()).add(value);
+			classList.computeIfAbsent(key, _ -> new ArrayList<>()).add(value);
 			break;
 		case CLASS_SINGLE:
 			if(classSingle.containsKey(key)){
@@ -138,7 +138,7 @@ public abstract class BaseStoragePlugin extends BasePlugin{
 	private void addPluginEntryInternal(PluginConfigValue<?> value){
 		switch(value.getKey().type){
 		case INSTANCE_LIST:
-			instanceList.computeIfAbsent(value.getKey(), $ -> new ArrayList<>()).add(value);
+			instanceList.computeIfAbsent(value.getKey(), _ -> new ArrayList<>()).add(value);
 			break;
 		case INSTANCE_SINGLE:
 			if(instanceSingle.containsKey(value.getKey())){

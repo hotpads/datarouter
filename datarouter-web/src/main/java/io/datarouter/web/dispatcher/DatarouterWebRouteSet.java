@@ -33,11 +33,15 @@ import io.datarouter.web.browse.components.DatarouterViewPropertiesHandler;
 import io.datarouter.web.browse.components.DatarouterViewRouteSetsHandler;
 import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.email.EmailTestHandler;
+import io.datarouter.web.handler.CacheStatsHandler;
 import io.datarouter.web.handler.IpDetectionHandler;
 import io.datarouter.web.handler.PathLookupHandler;
 import io.datarouter.web.handler.TestApiHandler;
+import io.datarouter.web.handler.TimeConverterToolHandler;
+import io.datarouter.web.handler.encoder.DatarouterDefaultHandlerCodec;
 import io.datarouter.web.http.HttpReuseTesterHandler;
 import io.datarouter.web.http.HttpTestHandler;
+import io.datarouter.web.link.HttpTestLink;
 import io.datarouter.web.monitoring.DeploymentReportingHandler;
 import io.datarouter.web.monitoring.ExecutorsMonitoringHandler;
 import io.datarouter.web.monitoring.MemoryMonitoringHandler;
@@ -75,10 +79,10 @@ public class DatarouterWebRouteSet extends BaseRouteSet{
 		handle(paths.datarouter.emailTest)
 				.withHandler(EmailTestHandler.class)
 				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_TOOLS);
-		handle(paths.datarouter.http.dnsLookup)
-				.withHandler(HttpTestHandler.class)
-				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_TOOLS);
-		handle(paths.datarouter.http.tester)
+		registerHandler(HttpTestHandler.class)
+				.values()
+				.forEach(dispatchRule -> dispatchRule.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_TOOLS));
+		handleAnyStringAfterPath(HttpTestLink.class)
 				.withHandler(HttpTestHandler.class)
 				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_TOOLS);
 		handle(paths.datarouter.http.reuseTester)
@@ -100,6 +104,7 @@ public class DatarouterWebRouteSet extends BaseRouteSet{
 		handle(paths.datarouter.deployment).withHandler(DeploymentReportingHandler.class).allowAnonymous();
 		handle(paths.datarouter.shutdown).withHandler(ShutdownHandler.class).allowAnonymous();
 
+		handle(paths.datarouter.info.cacheStats).withHandler(CacheStatsHandler.class);
 		handle(paths.datarouter.info.clients).withHandler(ViewClientsHandler.class);
 		handle(paths.datarouter.info.filters).withHandler(DatarouterViewFiltersHandler.class);
 		handle(paths.datarouter.info.listeners).withHandler(DatarouterViewListenersHandler.class);
@@ -129,12 +134,15 @@ public class DatarouterWebRouteSet extends BaseRouteSet{
 
 		handle(paths.datarouter.handler.handlerSearch).withHandler(PathLookupHandler.class)
 				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_TOOLS);
+		handle(paths.datarouter.tools.timeConverter).withHandler(TimeConverterToolHandler.class)
+				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_TOOLS);
 	}
 
 	@Override
 	protected DispatchRule applyDefault(DispatchRule rule){
 		return rule
 				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_ADMIN)
+				.withDefaultHandlerCodec(DatarouterDefaultHandlerCodec.INSTANCE)
 				.withTag(Tag.DATAROUTER);
 	}
 

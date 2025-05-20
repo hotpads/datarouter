@@ -24,7 +24,10 @@ import io.datarouter.model.field.imp.comparable.IntegerField;
 import io.datarouter.model.field.imp.comparable.LongField;
 import io.datarouter.model.key.FieldlessIndexEntryPrimaryKey;
 import io.datarouter.model.key.primary.base.BaseRegularPrimaryKey;
+import io.datarouter.storage.node.op.index.IndexUsage;
+import io.datarouter.storage.node.op.index.IndexUsage.IndexUsageType;
 
+@IndexUsage(usageType = IndexUsageType.IGNORE_USAGE)
 public class JobletRequestByTypeAndDataSignatureKey
 extends BaseRegularPrimaryKey<JobletRequestByTypeAndDataSignatureKey>
 implements FieldlessIndexEntryPrimaryKey<JobletRequestByTypeAndDataSignatureKey,JobletRequestKey,JobletRequest>{

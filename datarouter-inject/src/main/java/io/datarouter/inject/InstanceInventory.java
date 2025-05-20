@@ -41,7 +41,7 @@ public class InstanceInventory{
 	}
 
 	public <T> void add(InstanceInventoryKey<T> key, String name, T item){
-		map.computeIfAbsent(key, $ -> new ArrayList<>())
+		map.computeIfAbsent(key, _ -> new ArrayList<>())
 				.add(new InstanceItem<>(name, item));
 	}
 

@@ -41,6 +41,7 @@ import io.datarouter.bytes.blockfile.io.read.query.BlockfileRowIdReader;
 import io.datarouter.bytes.blockfile.io.read.query.BlockfileRowKeyRangeReader;
 import io.datarouter.bytes.blockfile.io.read.query.BlockfileRowKeyReader;
 import io.datarouter.bytes.blockfile.io.read.query.BlockfileSequentialReader;
+import io.datarouter.bytes.blockfile.io.read.query.BlockfileSequentialSingleUseReader;
 import io.datarouter.bytes.blockfile.io.storage.BlockfileLocation;
 import io.datarouter.bytes.blockfile.io.storage.BlockfileStorage;
 import io.datarouter.bytes.blockfile.row.BlockfileRow;
@@ -92,6 +93,10 @@ public class BlockfileReader<T>{
 	}
 
 	/*--------- query types --------*/
+
+	public BlockfileSequentialSingleUseReader<T> sequentialSingleUse(InputStream inputStream){
+		return new BlockfileSequentialSingleUseReader<>(this, inputStream);
+	}
 
 	public BlockfileSequentialReader<T> sequential(){
 		return new BlockfileSequentialReader<>(this);

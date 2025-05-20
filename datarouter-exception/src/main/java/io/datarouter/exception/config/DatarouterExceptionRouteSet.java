@@ -16,11 +16,11 @@
 package io.datarouter.exception.config;
 
 import io.datarouter.auth.role.DatarouterUserRoleRegistry;
-import io.datarouter.exception.web.ExceptionAnalysisHandler;
 import io.datarouter.exception.web.ExceptionGeneratorHandler;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
+import io.datarouter.web.handler.encoder.DatarouterDefaultHandlerCodec;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
@@ -29,10 +29,6 @@ public class DatarouterExceptionRouteSet extends BaseRouteSet{
 
 	@Inject
 	public DatarouterExceptionRouteSet(DatarouterExceptionPaths paths){
-
-		handle(paths.datarouter.exception.details)
-				.withHandler(ExceptionAnalysisHandler.class)
-				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_MONITORING);
 
 		handle(paths.datarouter.errorGenerator.generate)
 				.withHandler(ExceptionGeneratorHandler.class)
@@ -43,6 +39,7 @@ public class DatarouterExceptionRouteSet extends BaseRouteSet{
 	protected DispatchRule applyDefault(DispatchRule rule){
 		return rule
 				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_ADMIN)
+				.withDefaultHandlerCodec(DatarouterDefaultHandlerCodec.INSTANCE)
 				.withTag(Tag.DATAROUTER);
 	}
 

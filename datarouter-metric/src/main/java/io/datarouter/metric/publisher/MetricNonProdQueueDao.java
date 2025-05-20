@@ -51,7 +51,6 @@ public class MetricNonProdQueueDao extends BaseDao{
 						BinaryDtoIndexedCodec.of(DatarouterMetricGroupBinaryDto.class))
 				.withNamespace("nonprod-shared")
 				.withTag(Tag.DATAROUTER)
-				.withAgeMonitoring(false)
 				.buildAndRegister();
 	}
 

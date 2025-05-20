@@ -17,12 +17,11 @@ package io.datarouter.aws.sqs.job;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.amazonaws.services.sqs.model.QueueAttributeName;
 
 import io.datarouter.aws.sqs.SqsClientManager;
 import io.datarouter.aws.sqs.SqsClientType;
@@ -38,6 +37,7 @@ import io.datarouter.storage.node.NodeTool;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.storage.util.DatarouterQueueMetrics;
 import jakarta.inject.Inject;
+import software.amazon.awssdk.services.sqs.model.QueueAttributeName;
 
 public class SqsMonitoringJob extends BaseJob{
 	private static final Logger logger = LoggerFactory.getLogger(SqsMonitoringJob.class);
@@ -61,7 +61,7 @@ public class SqsMonitoringJob extends BaseJob{
 					List<QueueUrlAndName> queueUrlAndNames = nodes.stream()
 							.map(NodeTool::extractSinglePhysicalNode)
 							.map(physicalNode -> (SqsPhysicalNode<?,?,?>)physicalNode)
-							.peek($ -> tracker.increment())
+							.peek(_ -> tracker.increment())
 							.map(SqsPhysicalNode::getQueueUrlAndName)
 							.map(Supplier::get)
 							.toList();
@@ -87,8 +87,9 @@ public class SqsMonitoringJob extends BaseJob{
 
 	private void getQueueLengthAndSaveAsMetric(QueueUrlAndName queueUrlAndName, ClientId clientId){
 		String queueLengthString = sqsClientManager.getQueueAttribute(clientId, queueUrlAndName.queueUrl(),
-				QueueAttributeName.ApproximateNumberOfMessages);
-		long queueLength = Long.parseLong(queueLengthString);
+				QueueAttributeName.APPROXIMATE_NUMBER_OF_MESSAGES);
+		long queueLength = Optional.ofNullable(queueLengthString).map(Long::parseLong).orElse(0L);
+		logger.debug("queueLengthString={}", queueLengthString);
 		DatarouterQueueMetrics.saveQueueLength(queueUrlAndName.queueName(), queueLength, SqsClientType.NAME);
 	}
 

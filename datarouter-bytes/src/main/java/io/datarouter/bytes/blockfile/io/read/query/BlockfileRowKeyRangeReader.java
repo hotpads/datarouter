@@ -15,19 +15,23 @@
  */
 package io.datarouter.bytes.blockfile.io.read.query;
 
+import java.io.InputStream;
 import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.bytes.ByteTool;
+import io.datarouter.bytes.blockfile.block.BlockfileBlockType;
 import io.datarouter.bytes.blockfile.block.decoded.BlockfileIndexBlock;
 import io.datarouter.bytes.blockfile.block.parsed.BlockfileDecodedBlock;
 import io.datarouter.bytes.blockfile.block.parsed.BlockfileDecodedBlockBatch;
+import io.datarouter.bytes.blockfile.block.parsed.ParsedValueBlock;
 import io.datarouter.bytes.blockfile.encoding.indexblock.BlockfileIndexBlockCodec;
 import io.datarouter.bytes.blockfile.index.BlockfileIndexEntry;
 import io.datarouter.bytes.blockfile.index.BlockfileIndexEntryRange;
 import io.datarouter.bytes.blockfile.io.read.BlockfileReader;
+import io.datarouter.bytes.blockfile.io.read.query.BlockfileSequentialSingleUseReader.ParsedBlock;
 import io.datarouter.bytes.blockfile.row.BlockfileRow;
 import io.datarouter.scanner.Scanner;
 
@@ -35,12 +39,10 @@ public class BlockfileRowKeyRangeReader<T>{
 	private static final Logger logger = LoggerFactory.getLogger(BlockfileRowKeyRangeReader.class);
 
 	private final BlockfileReader<T> reader;
-	private final BlockfileSequentialReader<T> sequentialReader;
 	private final BlockfileIndexBlockCodec indexBlockCodec;
 
 	public BlockfileRowKeyRangeReader(BlockfileReader<T> reader){
 		this.reader = reader;
-		sequentialReader = new BlockfileSequentialReader<>(reader);
 		indexBlockCodec = reader.metadata().header().indexBlockFormat().supplier().get();
 	}
 
@@ -126,12 +128,31 @@ public class BlockfileRowKeyRangeReader<T>{
 	public Scanner<T> scanRange(BlockfileKeyRange keyRange){
 		BlockfileKeyRange inclusiveExclusiveRange = keyRange.toInclusiveExclusive();
 		BlockfileIndexEntryRange indexEntryRange = indexEntryRange(inclusiveExclusiveRange);
-		return sequentialReader.scanParsedValueBlocks(indexEntryRange, inclusiveExclusiveRange)
+		return scanParsedValueBlocks(indexEntryRange, inclusiveExclusiveRange)
 				.batch(reader.config().decodeBatchSize())
 				.parallelOrdered(reader.config().decodeThreads())
 				.map(block -> reader.valueBlockDecoder().decompressAndDecodeValueBlocks(block, inclusiveExclusiveRange))
 				.concatIter(BlockfileDecodedBlockBatch::blocks)
 				.concatIter(BlockfileDecodedBlock::items);
+	}
+
+	private Scanner<ParsedValueBlock> scanParsedValueBlocks(
+			BlockfileIndexEntryRange indexEntryRange,
+			BlockfileKeyRange keyRange){
+		long bytesFrom = indexEntryRange.first().byteRange().from();
+		long bytesTo = indexEntryRange.last().byteRange().to();
+		logger.debug(
+				"scanning globalBlockIds(from={},to={}), bytes(from={},to={})",
+				indexEntryRange.first().childGlobalBlockId(),
+				indexEntryRange.last().childGlobalBlockId(),
+				bytesFrom,
+				bytesTo);
+		InputStream inputStream = reader.makeInputStream(bytesFrom, bytesTo);
+		return reader.sequentialSingleUse(inputStream).scanParsedBlocks()
+				.each(block -> logger.warn("block type={}", block.blockType()))
+				.limit(indexEntryRange.numBlocks())
+				.include(parsedBlock -> parsedBlock.blockType() == BlockfileBlockType.VALUE)
+				.map(ParsedBlock::parsedValueBlock);
 	}
 
 }

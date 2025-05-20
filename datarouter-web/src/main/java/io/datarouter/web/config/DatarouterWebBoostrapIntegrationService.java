@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import io.datarouter.auth.role.Role;
 import io.datarouter.auth.role.RoleApprovalType;
@@ -30,7 +31,6 @@ import io.datarouter.httpclient.client.BaseApplicationHttpClient;
 import io.datarouter.httpclient.client.DatarouterHttpClient;
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.instrumentation.test.TestableService;
-import io.datarouter.json.JsonSerializer;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.dao.BaseDao;
@@ -47,6 +47,7 @@ import io.datarouter.web.dispatcher.RouteSet;
 import io.datarouter.web.file.AppFilesTestService;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.BaseHandler.Handler;
+import io.datarouter.web.handler.HandlerDtoTypeTestService;
 import io.datarouter.web.handler.HandlerTool;
 import io.datarouter.web.listener.AppListenersClasses;
 import jakarta.inject.Inject;
@@ -73,6 +74,8 @@ public class DatarouterWebBoostrapIntegrationService implements TestableService{
 	@Inject
 	private DispatcherServletTestService dispatcherServletTestService;
 	@Inject
+	private HandlerDtoTypeTestService handlerDtoTypeTestService;
+	@Inject
 	private AppFilesTestService appFilesTestService;
 	@Inject
 	private AppListenersClasses appListeners;
@@ -92,8 +95,8 @@ public class DatarouterWebBoostrapIntegrationService implements TestableService{
 		testFiles();
 		testSingletons();
 		testSingletonsForAppListeners();
-		testSingletonsForSeralizers();
 		testRoleApprovalTypeValidators();
+		testAllApprovalTypesPresent();
 		testHandlerMethodNameAndPathMatching();
 		testEncoderDecoderInjection();
 		testUniquePathToHandlerMapping();
@@ -113,6 +116,7 @@ public class DatarouterWebBoostrapIntegrationService implements TestableService{
 
 	private void testHandlers(){
 		dispatcherServletTestService.testHandlerInjection(null);
+		handlerDtoTypeTestService.testHandlerDtoTypes();
 	}
 
 	private void testFiles(){
@@ -128,14 +132,6 @@ public class DatarouterWebBoostrapIntegrationService implements TestableService{
 		appListeners.getAppListenerClasses().forEach(clazz -> AnnotationTool.checkSingletonForClass(clazz, true));
 	}
 
-	private void testSingletonsForSeralizers(){
-		injector.scanValuesOfType(DatarouterHttpClient.class)
-				.map(DatarouterHttpClient::getJsonSerializer)
-				.distinct()
-				.map(JsonSerializer::getClass)
-				.forEach(clazz -> AnnotationTool.checkSingletonForClass(clazz, true));
-	}
-
 	// Make sure RoleManager has a validator for each RoleApprovalType
 	private void testRoleApprovalTypeValidators(){
 		Map<Role,Map<RoleApprovalType,Integer>> roleApprovalRequirements = roleManager.getAllRoleApprovalRequirements();
@@ -147,6 +143,18 @@ public class DatarouterWebBoostrapIntegrationService implements TestableService{
 							&& roleManager.getApprovalTypeAuthorityValidators().get(approvalType) != null,
 					"Approval type validator not found for " + approvalType);
 		}
+	}
+
+	private void testAllApprovalTypesPresent(){
+		Set<String> allRoleApprovalTypes = Scanner.of(roleManager.getAllRoleApprovalRequirements().values())
+				.concatIter(Map::keySet)
+				.map(RoleApprovalType::persistentString)
+				.collect(HashSet::new);
+		Set<String> missingRoleApprovalTypes = Scanner.of(allRoleApprovalTypes)
+					.include(approvalType ->
+							roleManager.getRoleApprovalTypeEnum().fromPersistentString(approvalType) == null)
+					.collect(TreeSet::new);
+		Require.isTrue(missingRoleApprovalTypes.isEmpty(), "Missing approval types: " + missingRoleApprovalTypes);
 	}
 
 	@SuppressWarnings("unused")
@@ -185,15 +193,36 @@ public class DatarouterWebBoostrapIntegrationService implements TestableService{
 	}
 
 	private void testEncoderDecoderInjection(){
-		Scanner.of(routeSetRegistry.get())
-				.concatIter(RouteSet::getDispatchRulesNoRedirects)
-				.forEach(dispatchRule -> {
-					var decoderClass = dispatchRule.getDefaultHandlerDecoder();
-					injector.getInstance(decoderClass);
+		routeSetRegistry.get().forEach(this::testRouteSetHasHandlerEncoders);
+		routeSetRegistry.get().forEach(this::testRouteSetHasHandlerDecoders);
+	}
 
-					var encoderClass = dispatchRule.getDefaultHandlerEncoder();
-					injector.getInstance(encoderClass);
-				});
+	private void testRouteSetHasHandlerEncoders(RouteSet routeSet){
+		try{
+			routeSet.getDispatchRulesNoRedirects().forEach(dispatchRule -> {
+				var encoderClass = dispatchRule.getDefaultHandlerEncoder();
+				injector.getInstance(encoderClass);
+			});
+		}catch(RuntimeException e){
+			String message = String.format(
+					"Invalid default encoder for routeSet=%s",
+					routeSet.getClass().getCanonicalName());
+			throw new RuntimeException(message);
+		}
+	}
+
+	private void testRouteSetHasHandlerDecoders(RouteSet routeSet){
+		try{
+			routeSet.getDispatchRulesNoRedirects().forEach(dispatchRule -> {
+				var decoderClass = dispatchRule.getDefaultHandlerDecoder();
+				injector.getInstance(decoderClass);
+			});
+		}catch(RuntimeException e){
+			String message = String.format(
+					"Invalid default decoder for routeSet=%s",
+					routeSet.getClass().getCanonicalName());
+			throw new RuntimeException(message);
+		}
 	}
 
 	private void testUniquePathToHandlerMapping(){

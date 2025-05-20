@@ -69,7 +69,7 @@ public class SortingSnapshotWriter{
 
 	private void createSortedSplits(){
 		params.entries
-				.advanceUntil($ -> params.shouldStop.get())
+				.advanceUntil(_ -> params.shouldStop.get())
 				.parallelOrdered(new Threads(params.sortExec, params.sortThreads))
 				.each(split -> Collections.sort(split, SnapshotEntry.KEY_COMPARATOR))
 				.forEach(split -> params.mergeGroup.writeOps().write(

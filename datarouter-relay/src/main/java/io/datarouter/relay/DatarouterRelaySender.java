@@ -18,10 +18,32 @@ package io.datarouter.relay;
 import io.datarouter.instrumentation.relay.dto.RelayAddToThreadRequestDto;
 import io.datarouter.instrumentation.relay.dto.RelayMessageResponseDto;
 import io.datarouter.instrumentation.relay.dto.RelayStartThreadRequestDto;
+import jakarta.inject.Singleton;
 
 public interface DatarouterRelaySender{
 
 	RelayMessageResponseDto startThread(RelayStartThreadRequestDto request);
+	RelayMessageResponseDto startThreadForceProduction(RelayStartThreadRequestDto request);
 	RelayMessageResponseDto addToThread(RelayAddToThreadRequestDto request);
+
+	@Singleton
+	class NoOpDatarouterRelaySender implements DatarouterRelaySender{
+
+		@Override
+		public RelayMessageResponseDto startThread(RelayStartThreadRequestDto request){
+			return null;
+		}
+
+		@Override
+		public RelayMessageResponseDto startThreadForceProduction(RelayStartThreadRequestDto request){
+			return null;
+		}
+
+		@Override
+		public RelayMessageResponseDto addToThread(RelayAddToThreadRequestDto request){
+			return null;
+		}
+
+	}
 
 }

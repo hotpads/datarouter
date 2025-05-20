@@ -15,11 +15,13 @@
  */
 package io.datarouter.metric.publisher;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.instrumentation.validation.DatarouterInstrumentationValidationConstants.MetricInstrumentationConstants;
-import io.datarouter.instrumentation.validation.DatarouterInstrumentationValidationTool;
 import io.datarouter.util.string.StringTool;
 
 public class MetricSanitizer{
@@ -35,12 +37,23 @@ public class MetricSanitizer{
 	}
 
 	public static String sanitizeName(String name){
-		String trimmedName = DatarouterInstrumentationValidationTool.trimToSizeAndLog(
-				name,
-				MetricInstrumentationConstants.MAX_SIZE_METRIC_NAME,
-				logger,
-				"Max metric name size is " + MetricInstrumentationConstants.MAX_SIZE_METRIC_NAME);
-		return StringTool.removeNonStandardCharacters(trimmedName);
+		String pruned = StringTool.removeNonStandardCharacters(name);
+		int max = MetricInstrumentationConstants.MAX_SIZE_METRIC_NAME;
+		if(pruned.length() <= max){
+			return pruned;
+		}
+		String placeholder = "trimmed";
+		String output = pruned.substring(0, max - placeholder.length()) + placeholder;
+		logger.warn("trimmed input={}, output={}", name, output);
+		return output;
 	}
 
+	public static long sanitizeTime(long timestamp){
+		Instant now = Instant.now();
+		Instant fiveMinutesAgo = now.minus(5, ChronoUnit.MINUTES);
+		if(timestamp >= fiveMinutesAgo.toEpochMilli() && timestamp <= now.toEpochMilli()){
+			return timestamp;
+		}
+		return Instant.now().toEpochMilli();
+	}
 }

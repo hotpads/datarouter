@@ -15,7 +15,6 @@
  */
 package io.datarouter.metric.publisher;
 
-import java.time.Duration;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -77,11 +76,6 @@ public class MetricPublisherConveyorConfiguration implements ConveyorConfigurati
 	@Override
 	public boolean shouldRunOnShutdown(){
 		return true;
-	}
-
-	@Override
-	public Duration delay(){
-		return Duration.ofSeconds(1L);
 	}
 
 }

@@ -84,7 +84,7 @@ public class BlockfileMerger{
 					tracker.recordsWritten.addAndGet(batchForBlock.size());
 					tracker.recordsWrittenSinceLastLog.addAndGet(batchForBlock.size());
 				})
-				.periodic(params.heartbeatPeriod(), $ -> {
+				.periodic(params.heartbeatPeriod(), _ -> {
 					tracker.logIntermediateProgress();
 					tracker.resetCountersSinceLastLog();
 					throwIfShouldStop();
@@ -131,7 +131,7 @@ public class BlockfileMerger{
 				})
 				// Trigger the first batch of internal decoding in this parallel method.
 				// Otherwise the prefetcher or collator will trigger them sequentially.
-				.peekFirst($ -> {});
+				.peekFirst(_ -> {});
 	}
 
 	private BlockfileWriter<BlockfileRow> makeWriter(String filename){

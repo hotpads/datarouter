@@ -17,15 +17,14 @@ package io.datarouter.aws.sqs.blob.op;
 
 import java.util.List;
 
-import com.amazonaws.AbortedException;
-import com.amazonaws.services.sqs.model.SendMessageRequest;
-
 import io.datarouter.aws.sqs.SqsClientManager;
 import io.datarouter.aws.sqs.SqsDataTooLargeException;
 import io.datarouter.aws.sqs.op.SqsBlobOp;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.Config;
 import io.datarouter.util.concurrent.UncheckedInterruptedException;
+import software.amazon.awssdk.core.exception.AbortedException;
+import software.amazon.awssdk.services.sqs.model.SendMessageRequest;
 
 public class SqsBlobPutOp extends SqsBlobOp<Void>{
 
@@ -49,7 +48,10 @@ public class SqsBlobPutOp extends SqsBlobOp<Void>{
 		if(data.length > maxRawDataSize){
 			throw new SqsDataTooLargeException(List.of("a blob of size " + data.length));
 		}
-		var request = new SendMessageRequest(queueUrl, SqsBlobOp.SQS_BLOB_BASE_64_CODEC.encode(data));
+		var request = SendMessageRequest.builder()
+				.queueUrl(queueUrl)
+				.messageBody(SqsBlobOp.SQS_BLOB_BASE_64_CODEC.encode(data))
+				.build();
 		try{
 			sqsClientManager.getAmazonSqs(clientId).sendMessage(request);
 		}catch(AbortedException e){

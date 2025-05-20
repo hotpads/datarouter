@@ -44,7 +44,7 @@ implements PhysicalQueueStorageNode<PK,D,F>, PhysicalAdapterMixin<PK,D,F,N>{
 
 	@Override
 	public QueueMessage<PK,D> peek(Config config){
-		try(var $ = startSpanForOp(OP_peek)){
+		try(var _ = startSpanForOp(OP_peek)){
 			QueueMessage<PK,D> databean = backingNode.peek(config);
 			TracerTool.appendToSpanInfo(databean != null ? "hit" : "miss");
 			return databean;
@@ -53,7 +53,7 @@ implements PhysicalQueueStorageNode<PK,D,F>, PhysicalAdapterMixin<PK,D,F,N>{
 
 	@Override
 	public List<QueueMessage<PK,D>> peekMulti(Config config){
-		try(var $ = startSpanForOp(OP_peekMulti)){
+		try(var _ = startSpanForOp(OP_peekMulti)){
 			List<QueueMessage<PK,D>> messages = backingNode.peekMulti(config);
 			TracerTool.appendToSpanInfo(new TraceSpanInfoBuilder().databeans(messages.size()));
 			return messages;
@@ -67,7 +67,7 @@ implements PhysicalQueueStorageNode<PK,D,F>, PhysicalAdapterMixin<PK,D,F,N>{
 
 	@Override
 	public D poll(Config config){
-		try(var $ = startSpanForOp(OP_poll)){
+		try(var _ = startSpanForOp(OP_poll)){
 			D databean = backingNode.poll(config);
 			TracerTool.appendToSpanInfo(databean != null ? "hit" : "miss");
 			return databean;
@@ -76,7 +76,7 @@ implements PhysicalQueueStorageNode<PK,D,F>, PhysicalAdapterMixin<PK,D,F,N>{
 
 	@Override
 	public List<D> pollMulti(Config config){
-		try(var $ = startSpanForOp(OP_pollMulti)){
+		try(var _ = startSpanForOp(OP_pollMulti)){
 			List<D> databeans = backingNode.pollMulti(config);
 			TracerTool.appendToSpanInfo(new TraceSpanInfoBuilder().databeans(databeans.size()));
 			return databeans;

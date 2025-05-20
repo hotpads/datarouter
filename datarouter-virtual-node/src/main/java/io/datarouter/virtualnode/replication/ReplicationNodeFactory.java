@@ -69,15 +69,19 @@ public class ReplicationNodeFactory{
 		var primaryBuilder = nodeFactory.create(replicationClientIds.primary, databeanSupplier, fielderSupplier);
 		options.tableName.ifPresent(primaryBuilder::withTableName);
 		options.disableForcePrimary.ifPresent(primaryBuilder::withDisableForcePrimary);
-		options.disableIntroducer.ifPresent($ -> primaryBuilder.disableIntroducer());
+		options.disableIntroducer.ifPresent(_ -> primaryBuilder.disableIntroducer());
 		options.nodewatchConfigurationBuilder.ifPresent(primaryBuilder::withNodewatchConfigurationBuilder);
+		primaryBuilder.withPrivacyProcessors(options.privacyProcessors);
+		options.privacyExemptionReason.ifPresent(primaryBuilder::withPrivacyExemptionReason);
 		N primary = primaryBuilder.build();
 		List<N> replicas = Scanner.of(replicationClientIds.replicas)
 				.map(clientId -> {
 					var replicaBuilder = nodeFactory.create(clientId, databeanSupplier, fielderSupplier);
 					options.tableName.ifPresent(replicaBuilder::withTableName);
 					options.disableForcePrimary.ifPresent(replicaBuilder::withDisableForcePrimary);
-					options.disableIntroducer.ifPresent($ -> replicaBuilder.disableIntroducer());
+					options.disableIntroducer.ifPresent(_ -> replicaBuilder.disableIntroducer());
+					replicaBuilder.withPrivacyProcessors(options.privacyProcessors);
+					options.privacyExemptionReason.ifPresent(replicaBuilder::withPrivacyExemptionReason);
 					N replicaNode = replicaBuilder.build();
 					return replicaNode;
 				})
@@ -117,8 +121,10 @@ public class ReplicationNodeFactory{
 				fielderSupplier);
 		options.tableName.ifPresent(primaryBuilder::withTableName);
 		options.disableForcePrimary.ifPresent(primaryBuilder::withDisableForcePrimary);
-		options.disableIntroducer.ifPresent($ -> primaryBuilder.disableIntroducer());
+		options.disableIntroducer.ifPresent(_ -> primaryBuilder.disableIntroducer());
 		options.nodewatchConfigurationBuilder.ifPresent(primaryBuilder::withNodewatchConfigurationBuilder);
+		primaryBuilder.withPrivacyProcessors(options.privacyProcessors);
+		options.privacyExemptionReason.ifPresent(primaryBuilder::withPrivacyExemptionReason);
 		N primary = primaryBuilder.build();
 		List<N> replicas = Scanner.of(replicationClientIds.replicas)
 				.map(clientId -> {
@@ -126,7 +132,9 @@ public class ReplicationNodeFactory{
 							fielderSupplier);
 					options.tableName.ifPresent(replicaBuilder::withTableName);
 					options.disableForcePrimary.ifPresent(replicaBuilder::withDisableForcePrimary);
-					options.disableIntroducer.ifPresent($ -> replicaBuilder.disableIntroducer());
+					options.disableIntroducer.ifPresent(_ -> replicaBuilder.disableIntroducer());
+					replicaBuilder.withPrivacyProcessors(options.privacyProcessors);
+					options.privacyExemptionReason.ifPresent(replicaBuilder::withPrivacyExemptionReason);
 					N replicaNode = replicaBuilder.build();
 					return replicaNode;
 				})

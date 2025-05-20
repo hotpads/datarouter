@@ -27,11 +27,4 @@ public class DatarouterWebExecutors{
 		}
 	}
 
-	@Singleton
-	public static class CountKeysExecutor extends ScalingThreadPoolExecutor{
-		public CountKeysExecutor(){
-			super("countKeys", 100);
-		}
-	}
-
 }

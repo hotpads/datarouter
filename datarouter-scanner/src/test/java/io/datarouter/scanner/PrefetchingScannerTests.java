@@ -26,13 +26,42 @@ import org.testng.annotations.Test;
 public class PrefetchingScannerTests{
 
 	@Test
-	public void test(){
+	public void testSimple(){
 		List<Integer> integers = IntStream.range(0, 20)
 				.boxed()
 				.toList();
 		ExecutorService exec = Executors.newFixedThreadPool(3);
-		Assert.assertEquals(Scanner.of(integers).prefetch(exec, 3).list(), integers);
+		Assert.assertEquals(
+				Scanner.of(integers)
+						.prefetch(exec, 3)
+						.list(),
+				integers);
 		exec.shutdown();
+	}
+
+	@Test
+	public void testError(){
+		List<Integer> integers = IntStream.range(0, 20)
+				.boxed()
+				.toList();
+		ExecutorService exec = Executors.newFixedThreadPool(3);
+		String message = "the message";
+		try{
+			Scanner.of(integers)
+					.map(i -> {
+						if(i == 5){
+							throw new RuntimeException(message);
+						}
+						return i;
+					})
+					.prefetch(exec, 3)
+					.list();
+			Assert.fail("Shouldn't have succeeded");
+		}catch(RuntimeException e){
+			Assert.assertEquals(e.getMessage(), message);
+		}finally{
+			exec.shutdown();
+		}
 	}
 
 }

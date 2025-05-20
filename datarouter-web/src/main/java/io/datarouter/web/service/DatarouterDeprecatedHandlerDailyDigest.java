@@ -15,47 +15,37 @@
  */
 package io.datarouter.web.service;
 
-import static j2html.TagCreator.div;
-
-import java.lang.reflect.Method;
 import java.time.Instant;
 import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import io.datarouter.auth.config.DatarouterAuthPaths;
-import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.instrumentation.relay.rml.Rml;
 import io.datarouter.instrumentation.relay.rml.RmlBlock;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.util.lang.ReflectionTool;
+import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.config.RouteSetRegistry;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
-import io.datarouter.web.digest.DailyDigestService;
+import io.datarouter.web.digest.DailyDigestRmlService;
 import io.datarouter.web.dispatcher.DispatchRule;
 import io.datarouter.web.dispatcher.RouteSet;
 import io.datarouter.web.handler.BaseHandler.Handler;
 import io.datarouter.web.handler.HandlerTool;
-import j2html.TagCreator;
-import j2html.tags.specialized.DivTag;
-import j2html.tags.specialized.SmallTag;
-import j2html.tags.specialized.TableTag;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterDeprecatedHandlerDailyDigest implements DailyDigest{
 
-	private static final SmallTag CAPTION = TagCreator.small("Handlers existing past their deprecation date should be"
-			+ " removed from code, or their date updated.");
+	private static final String HANDLER_CATEGORY = "handler";
+	private static final String DEPRECATED_CATEGORY = "deprecated";
 
 	@Inject
 	private DatarouterAuthPaths paths;
 	@Inject
-	private DailyDigestService digestService;
+	private DailyDigestRmlService digestService;
 	@Inject
 	private RouteSetRegistry routeSetRegistry;
 
@@ -74,16 +64,6 @@ public class DatarouterDeprecatedHandlerDailyDigest implements DailyDigest{
 		return DailyDigestGrouping.LOW;
 	}
 
-	@Override
-	public Optional<DivTag> getEmailContent(ZoneId zoneId){
-		List<DeprecatedHandlerMethod> pastDeprecatedHandlerMethods = getPastDeprecatedHandlerMethods();
-		if(pastDeprecatedHandlerMethods.isEmpty()){
-			return Optional.empty();
-		}
-		var header = digestService.makeHeader("Handlers marked as deprecated with a date in the past", paths.docs);
-		var table = buildEmailTable(pastDeprecatedHandlerMethods);
-		return Optional.of(div(header, CAPTION, table));
-	}
 
 	private record DeprecatedHandlerMethod(String methodName, String className, String deprecatedOn){}
 
@@ -105,38 +85,44 @@ public class DatarouterDeprecatedHandlerDailyDigest implements DailyDigest{
 								.map(method -> Rml.tableRow(
 										Rml.tableCell(Rml.text(method.className)),
 										Rml.tableCell(Rml.text(method.methodName)),
-										Rml.tableCell(Rml.timestamp(
-												method.deprecatedOn,
-												HandlerTool.parseHandlerDeprecatedOnDate(method.deprecatedOn)
-														.toEpochMilli())))))));
+										Rml.tableCell(Rml.text(method.deprecatedOn)))))));
+	}
+
+	@Override
+	public List<DailyDigestPlatformTask> getTasks(ZoneId zoneId){
+		return Scanner.of(getPastDeprecatedHandlerMethods())
+				.map(deprecated -> new DailyDigestPlatformTask(
+						List.of(HANDLER_CATEGORY, DEPRECATED_CATEGORY, deprecated.className, deprecated.methodName),
+						List.of(HANDLER_CATEGORY, DEPRECATED_CATEGORY),
+						"Deprecation date exceeded for " + deprecated.methodName + " in " + deprecated.className,
+						Rml.paragraph(
+								Rml.text("Handler "), Rml.text(deprecated.methodName).code(), Rml.text(" in "),
+								Rml.text(deprecated.className).code(), Rml.text(" has a deprecation date of "),
+								Rml.timestamp(
+										deprecated.deprecatedOn,
+										HandlerTool.parseHandlerDeprecatedOnDate(deprecated.deprecatedOn)
+												.toEpochMilli()))))
+				.list();
 	}
 
 	private List<DeprecatedHandlerMethod> getPastDeprecatedHandlerMethods(){
-		List<Method> handlerMethods = Scanner.of(routeSetRegistry.get())
+		return Scanner.of(routeSetRegistry.get())
 				.concatIter(RouteSet::getDispatchRulesNoRedirects)
+				.include(rule -> rule.getTag() == Tag.APP)
 				.map(DispatchRule::getHandlerClass)
-				.concatIter(handlerClass ->
-						ReflectionTool.getDeclaredMethodsWithAnnotation(handlerClass, Handler.class))
-				.list();
-		List<DeprecatedHandlerMethod> pastDeprecatedHandlerMethods = new ArrayList<>();
-		Scanner.of(handlerMethods)
+				.distinct()
+				.map(Class::getDeclaredMethods)
+				.concat(Scanner::of)
+				.include(method -> method.getAnnotation(Handler.class) != null)
 				.exclude(method -> method.getAnnotation(Handler.class).deprecatedOn().isEmpty())
 				.include(method -> HandlerTool.parseHandlerDeprecatedOnDate(
 								method.getAnnotation(Handler.class).deprecatedOn())
-						.isBefore(Instant.now().minus(21, ChronoUnit.DAYS)))
-				.forEach(method -> pastDeprecatedHandlerMethods.add(new DeprecatedHandlerMethod(
+						.isBefore(Instant.now()))
+				.map(method -> new DeprecatedHandlerMethod(
 						method.getName(),
-						method.getDeclaringClass().getName(),
-						method.getAnnotation(Handler.class).deprecatedOn())));
-		return pastDeprecatedHandlerMethods;
-	}
-
-	private static TableTag buildEmailTable(List<DatarouterDeprecatedHandlerDailyDigest.DeprecatedHandlerMethod> rows){
-		return new J2HtmlEmailTable<DeprecatedHandlerMethod>()
-				.withColumn("Class", row -> row.className)
-				.withColumn("Method", row -> row.methodName)
-				.withColumn("Deprecation Date", row -> row.deprecatedOn)
-				.build(rows);
+						method.getDeclaringClass().getSimpleName(),
+						method.getAnnotation(Handler.class).deprecatedOn()))
+				.list();
 	}
 
 }

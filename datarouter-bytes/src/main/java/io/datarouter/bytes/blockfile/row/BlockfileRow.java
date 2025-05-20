@@ -49,6 +49,15 @@ import io.datarouter.bytes.codec.longcodec.ComparableLongCodec;
  */
 public class BlockfileRow{
 
+	/*
+	 * Memory overhead beyond the value bytes.
+	 *
+	 * Object header: 16
+	 * byte[] header: 24
+	 * int x 9: 36
+	 */
+	public static final int MEMORY_OVERHEAD_BYTES = 76;
+
 	private final byte[] bytes;
 	private final int offset;
 	private final int length;// Could be calculated but including it explicitly for now.
@@ -269,6 +278,10 @@ public class BlockfileRow{
 			totalLength += rows.get(i).length();
 		}
 		return totalLength;
+	}
+
+	public int memoryFootprintBytes(){
+		return MEMORY_OVERHEAD_BYTES + length;
 	}
 
 	/*------- get -------*/

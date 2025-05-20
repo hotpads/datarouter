@@ -15,6 +15,9 @@
  */
 package io.datarouter.job.config;
 
+import java.time.Duration;
+import java.time.LocalTime;
+
 import io.datarouter.job.BaseTriggerGroup;
 import io.datarouter.job.job.DatarouterJobStopperJob;
 import io.datarouter.job.job.JobRetriggeringJob;
@@ -25,6 +28,9 @@ import io.datarouter.job.job.vacuum.StopJobRequestVacuumJob;
 import io.datarouter.job.job.vacuum.TaskTrackerPublishJob;
 import io.datarouter.job.job.vacuum.TriggerLockVacuumJob;
 import io.datarouter.job.job.vacuum.TriggerLockVacuumUnlockJob;
+import io.datarouter.job.util.DatarouterCronTool;
+import io.datarouter.storage.config.properties.ServerName;
+import io.datarouter.storage.config.properties.ServiceName;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.util.time.ZoneIds;
 import jakarta.inject.Inject;
@@ -34,48 +40,55 @@ import jakarta.inject.Singleton;
 public class DatarouterJobTriggerGroup extends BaseTriggerGroup{
 
 	@Inject
-	public DatarouterJobTriggerGroup(DatarouterJobSettingRoot settings){
+	public DatarouterJobTriggerGroup(
+			ServiceName serviceNameSupplier,
+			ServerName serverNameSupplier,
+			DatarouterJobSettingRoot settings){
 		super("DatarouterJob", Tag.DATAROUTER, ZoneIds.AMERICA_NEW_YORK);
 		registerLocked(
-				"53 0/2 * * * ?",
+				DatarouterCronTool.everyNMinutes(2, serviceNameSupplier.get(), "LongRunningTaskVacuumJob"),
 				settings.runLongRunningTaskVacuum,
 				LongRunningTaskVacuumJob.class,
 				true);
 		registerLocked(
-				"12 0/5 * * * ?",
+				DatarouterCronTool.everyNMinutes(5, serviceNameSupplier.get(), "TaskTrackerPublishJob"),
 				settings.runTaskTrackingPublishingJob,
 				TaskTrackerPublishJob.class,
 				true);
 		registerLocked(
-				"39 0/1 * * * ?",
+				DatarouterCronTool.everyMinute(serviceNameSupplier.get(), "JobLockVacuumJob"),
 				settings.runjobLockVacuum,
 				JobLockVacuumJob.class,
 				true);
 		registerParallel(
-				"4 * * * * ?",
+				DatarouterCronTool.everyMinute(serverNameSupplier.get(), "TriggerLockVacuumUnlockJob"),
 				settings.runjobLockVacuumUnlockJob,
 				TriggerLockVacuumUnlockJob.class);
 		registerLocked(
-				"24 3 * * * ?",
+				DatarouterCronTool.everyHour(serviceNameSupplier.get(), "TriggerLockVacuumJob"),
 				settings.runTriggerLockVacuumJob,
 				TriggerLockVacuumJob.class,
 				true);
 		registerLocked(
-				"44 1/15 * * * ?",
+				DatarouterCronTool.everyNMinutes(15, serviceNameSupplier.get(), "StopJobRequestVacuumJob"),
 				settings.runStopJobRequestVacuumJob,
 				StopJobRequestVacuumJob.class,
 				true);
 		registerLocked(
-				"0 0 13 * * ?",
+				DatarouterCronTool.everyDayAfter(
+						LocalTime.of(13, 0, 0),
+						Duration.ofMinutes(5),
+						serviceNameSupplier.get(),
+						"LongRunningTaskFailureAlertJob"),
 				settings.runTaskFailureAlertJob,
 				LongRunningTaskFailureAlertJob.class,
 				true);
 		registerParallel(
-				"22 3/20 * * * ?",
+				DatarouterCronTool.everyNMinutes(20, serverNameSupplier.get(), "JobRetriggeringJob"),
 				settings.runJobRetriggeringJob,
 				JobRetriggeringJob.class);
 		registerParallel(
-				"7/10 * * * * ?",
+				DatarouterCronTool.everyNSeconds(10, serverNameSupplier.get(), "DatarouterJobStopperJob"),
 				settings.runJobStopperJob,
 				DatarouterJobStopperJob.class);
 	}

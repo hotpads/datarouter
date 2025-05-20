@@ -72,7 +72,7 @@ query {
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-graphql</artifactId>
-	<version>0.0.126</version>
+	<version>0.0.127</version>
 </dependency>
 ```
 

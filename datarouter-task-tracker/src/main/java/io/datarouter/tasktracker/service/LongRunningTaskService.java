@@ -53,7 +53,7 @@ public class LongRunningTaskService{
 				tracker.getServerName());
 		Range<LongRunningTaskKey> range = new Range<>(firstPrefix, true, lastPrefix, false);
 		return dao.scan(range)
-				.reduce((firstRun, secondRun) -> secondRun);
+				.reduce((_, secondRun) -> secondRun);
 	}
 
 	public Optional<Instant> findLastSuccess(String name){

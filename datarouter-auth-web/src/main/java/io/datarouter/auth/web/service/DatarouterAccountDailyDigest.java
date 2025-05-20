@@ -15,8 +15,6 @@
  */
 package io.datarouter.auth.web.service;
 
-import static j2html.TagCreator.div;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -27,31 +25,29 @@ import io.datarouter.auth.config.DatarouterAuthPaths;
 import io.datarouter.auth.storage.account.DatarouterAccount;
 import io.datarouter.auth.storage.account.DatarouterAccountDao;
 import io.datarouter.auth.web.config.DatarouterAuthSettingRoot;
-import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.instrumentation.relay.rml.Rml;
 import io.datarouter.instrumentation.relay.rml.RmlBlock;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
-import io.datarouter.web.digest.DailyDigestService;
-import j2html.TagCreator;
-import j2html.tags.specialized.DivTag;
-import j2html.tags.specialized.SmallTag;
-import j2html.tags.specialized.TableTag;
+import io.datarouter.web.digest.DailyDigestRmlService;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterAccountDailyDigest implements DailyDigest{
 
-	private static final Instant THRESHOLD = Instant.now().minus(Duration.ofDays(365));
-	private static final SmallTag CAPTION = TagCreator.small("Old Accounts or Accounts without a callerType");
+	private static final String TASK_CATEGORY = "account";
+	private static final String MISSING_CALLER_TYPE_CATEGORY = "missingCallerType";
+	private static final String OLD_CATEGORY = "old";
+	private static final Duration THRESHOLD = Duration.ofDays(365);
 
 	@Inject
 	private DatarouterAccountDao accountDao;
 	@Inject
 	private DatarouterAuthPaths paths;
 	@Inject
-	private DailyDigestService digestService;
+	private DailyDigestRmlService digestService;
 	@Inject
 	private DatarouterAuthSettingRoot settings;
 
@@ -68,20 +64,6 @@ public class DatarouterAccountDailyDigest implements DailyDigest{
 	@Override
 	public DailyDigestGrouping getGrouping(){
 		return DailyDigestGrouping.LOW;
-	}
-
-	@Override
-	public Optional<DivTag> getEmailContent(ZoneId zoneId){
-		if(!settings.enableAccountDailyDigest.get()){
-			return Optional.empty();
-		}
-		List<DatarouterAccount> accounts = getAccounts();
-		if(accounts.isEmpty()){
-			return Optional.empty();
-		}
-		var header = digestService.makeHeader("Old Accounts", paths.datarouter.accountManager);
-		var table = buildEmailTable(accounts, zoneId);
-		return Optional.of(div(header, CAPTION, table));
 	}
 
 	@Override
@@ -112,21 +94,38 @@ public class DatarouterAccountDailyDigest implements DailyDigest{
 										Rml.tableCell(Rml.text(account.getCallerType())))))));
 	}
 
-	private List<DatarouterAccount> getAccounts(){
-		return accountDao.scan()
-				.include(account -> account.getLastUsedInstant().isBefore(THRESHOLD)
-						|| account.getCallerType() == null)
+	@Override
+	public List<DailyDigestPlatformTask> getTasks(ZoneId zoneId){
+		return Scanner.concat(
+				accountDao.scan()
+						.include(account -> account.getLastUsedInstant().isBefore(Instant.now().minus(THRESHOLD)))
+						.map(old -> new DailyDigestPlatformTask(
+								List.of(TASK_CATEGORY, OLD_CATEGORY, old.getKey().getAccountName()),
+								List.of(TASK_CATEGORY, OLD_CATEGORY),
+								"Old account: " + old.getKey().getAccountName(),
+								Rml.doc(Rml.paragraph(
+										Rml.text("Account "),
+										Rml.text(old.getKey().getAccountName()).strong(),
+										Rml.text(" has not been used in over " + THRESHOLD
+												+ ". Consider deleting it."))))),
+				accountDao.scan()
+						.include(account -> account.getCallerType() == null)
+						.map(old -> new DailyDigestPlatformTask(
+								List.of(TASK_CATEGORY, MISSING_CALLER_TYPE_CATEGORY, old.getKey().getAccountName()),
+								List.of(TASK_CATEGORY, MISSING_CALLER_TYPE_CATEGORY),
+								"Missing caller type: " + old.getKey().getAccountName(),
+								Rml.doc(Rml.paragraph(
+										Rml.text("Account "),
+										Rml.text(old.getKey().getAccountName()).strong(),
+										Rml.text(" is missing a callerType."))))))
 				.list();
 	}
 
-	private static TableTag buildEmailTable(List<DatarouterAccount> rows, ZoneId zoneId){
-		return new J2HtmlEmailTable<DatarouterAccount>()
-				.withColumn("Account", row -> row.getKey().getAccountName())
-				.withColumn("Creator", DatarouterAccount::getCreator)
-				.withColumn("Created", row -> row.getCreatedDate(zoneId))
-				.withColumn("Last Used", row -> row.getLastUsedDate(zoneId))
-				.withColumn("Caller Type", DatarouterAccount::getCallerType)
-				.build(rows);
+	private List<DatarouterAccount> getAccounts(){
+		return accountDao.scan()
+				.include(account -> account.getLastUsedInstant().isBefore(Instant.now().minus(THRESHOLD))
+						|| account.getCallerType() == null)
+				.list();
 	}
 
 }

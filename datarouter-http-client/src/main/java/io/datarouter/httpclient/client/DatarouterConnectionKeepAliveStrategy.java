@@ -22,21 +22,36 @@ import org.apache.http.conn.ConnectionKeepAliveStrategy;
 import org.apache.http.impl.client.DefaultConnectionKeepAliveStrategy;
 import org.apache.http.protocol.HttpContext;
 
+import io.datarouter.instrumentation.metric.Metrics;
+
+/**
+ * ConnectionKeepAliveStrategy that limit the usage of idle connections when the server doesn't specify an idle timeout
+ */
 public class DatarouterConnectionKeepAliveStrategy implements ConnectionKeepAliveStrategy{
 
-	private final long fallbackIdleTimeMs;
+	private final long fallbackIdleTimeoutMs;
+	private final String clientName;
 
-	public DatarouterConnectionKeepAliveStrategy(Duration fallbackIdleTime){
-		this.fallbackIdleTimeMs = fallbackIdleTime.toMillis();
+	public DatarouterConnectionKeepAliveStrategy(
+			Duration fallbackIdleTimeout,
+			String clientName){
+		this.fallbackIdleTimeoutMs = fallbackIdleTimeout.toMillis();
+		this.clientName = clientName;
 	}
 
 	@Override
 	public long getKeepAliveDuration(HttpResponse response, HttpContext context){
 		long durationMs = DefaultConnectionKeepAliveStrategy.INSTANCE.getKeepAliveDuration(response, context);
 		if(durationMs >= 0){
+			count("usingResponseHeader");
 			return durationMs;
 		}
-		return fallbackIdleTimeMs;
+		count("usingFallback");
+		return fallbackIdleTimeoutMs;
+	}
+
+	private void count(String key){
+		Metrics.count("DatarouterConnectionKeepAliveStrategy " + clientName + " " + key);
 	}
 
 }

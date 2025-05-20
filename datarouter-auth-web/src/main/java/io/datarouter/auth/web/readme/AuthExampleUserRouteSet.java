@@ -18,6 +18,7 @@ package io.datarouter.auth.web.readme;
 import io.datarouter.auth.role.DatarouterUserRoleRegistry;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
+import io.datarouter.web.handler.encoder.DatarouterDefaultHandlerCodec;
 import jakarta.inject.Singleton;
 
 @Singleton
@@ -36,7 +37,9 @@ public class AuthExampleUserRouteSet extends BaseRouteSet{
 	// Users with the datarouter-admin role can view all the paths registered in this RouteSet
 	@Override
 	protected DispatchRule applyDefault(DispatchRule rule){
-		return rule.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_ADMIN);
+		return rule
+				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_ADMIN)
+				.withDefaultHandlerCodec(DatarouterDefaultHandlerCodec.INSTANCE);
 	}
 
 }

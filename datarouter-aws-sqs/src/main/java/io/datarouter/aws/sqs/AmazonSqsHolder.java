@@ -18,27 +18,21 @@ package io.datarouter.aws.sqs;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.amazonaws.ClientConfiguration;
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.services.sqs.AmazonSQS;
-import com.amazonaws.services.sqs.AmazonSQSClient;
-
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.web.config.AwsSupport;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
-import software.amazon.awssdk.auth.credentials.AwsCredentials;
-import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.http.apache.ApacheHttpClient;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.cloudwatch.CloudWatchClient;
+import software.amazon.awssdk.services.sqs.SqsClient;
 
 @Singleton
 public class AmazonSqsHolder{
 
-	private final Map<ClientId,AmazonSQS> amazonSqsByClient = new ConcurrentHashMap<>();
+	private final Map<ClientId,SqsClient> amazonSqsByClient = new ConcurrentHashMap<>();
 	private final Map<ClientId,CloudWatchClient> amazonCloudWatchByClient = new ConcurrentHashMap<>();
 
 	@Inject
@@ -50,22 +44,19 @@ public class AmazonSqsHolder{
 		if(amazonSqsByClient.containsKey(clientId)){
 			throw new RuntimeException(clientId + " already registered an sqs client");
 		}
-		var conf = new ClientConfiguration()
-				.withMaxConnections(200);
-		var credentials = new BasicAWSCredentials(sqsOptions.getAccessKey(clientId.getName()),
-				sqsOptions.getSecretKey(clientId.getName()));
-		var credentialsProvider = new AWSStaticCredentialsProvider(credentials);
-		AmazonSQS amazonSqs = AmazonSQSClient.builder()
-				.withRegion(sqsOptions.getRegion(clientId.getName()))
-				.withCredentials(credentialsProvider)
-				.withClientConfiguration(conf)
+		var httpClient = ApacheHttpClient.builder()
+				.maxConnections(200)
 				.build();
-		awsSupport.registerConnectionManager("sqs " + clientId.getName(), amazonSqs);
-		amazonSqsByClient.put(clientId, amazonSqs);
-		AwsCredentials awsCredentials = AwsBasicCredentials.create(
-				sqsOptions.getAccessKey(clientId.getName()),
+		var credentials = AwsBasicCredentials.create(sqsOptions.getAccessKey(clientId.getName()),
 				sqsOptions.getSecretKey(clientId.getName()));
-		AwsCredentialsProvider awsCredentialsProvider = StaticCredentialsProvider.create(awsCredentials);
+		var awsCredentialsProvider = StaticCredentialsProvider.create(credentials);
+		SqsClient amazonSqs = SqsClient.builder()
+				.region(Region.of(sqsOptions.getRegion(clientId.getName())))
+				.credentialsProvider(awsCredentialsProvider)
+				.httpClient(httpClient)
+				.build();
+		awsSupport.registerConnectionManagerFromHttpClient("sqs " + clientId.getName(), httpClient);
+		amazonSqsByClient.put(clientId, amazonSqs);
 		CloudWatchClient cloudWatchClient = CloudWatchClient.builder()
 				.region(Region.of(sqsOptions.getRegion(clientId.getName())))
 				.credentialsProvider(awsCredentialsProvider)
@@ -73,7 +64,7 @@ public class AmazonSqsHolder{
 		amazonCloudWatchByClient.put(clientId, cloudWatchClient);
 	}
 
-	public AmazonSQS get(ClientId clientId){
+	public SqsClient get(ClientId clientId){
 		return amazonSqsByClient.get(clientId);
 	}
 

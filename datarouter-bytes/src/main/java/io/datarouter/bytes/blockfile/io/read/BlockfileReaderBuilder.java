@@ -28,16 +28,20 @@ import io.datarouter.scanner.Threads;
 
 public class BlockfileReaderBuilder<T>{
 
+	public static final ByteLength DEFAULT_READ_CHUNK_SIZE = ByteLength.ofMiB(4);
+	public static final int DEFAULT_DECODE_BATCH_SIZE = 1;
+	public static final boolean DEFAULT_VALIDATE_CHECKSUMS = false;
+
 	// required
 	private final BlockfileGroup<T> blockfileGroup;
 	private final BlockfileMetadataReader<T> metadataReader;
 	private final Function<BlockfileRow,T> rowDecoder;
 	// optional
 	private Threads readThreads = Threads.none();
-	private ByteLength readChunkSize = ByteLength.ofMiB(4);
-	private int decodeBatchSize = 1;
+	private ByteLength readChunkSize = DEFAULT_READ_CHUNK_SIZE;
+	private int decodeBatchSize = DEFAULT_DECODE_BATCH_SIZE;
 	private Threads decodeThreads = Threads.none();
-	private boolean validateChecksums = false;
+	private boolean validateChecksums = DEFAULT_VALIDATE_CHECKSUMS;
 	private Optional<Long> knownFileLength = Optional.empty();
 
 	// construct
@@ -68,6 +72,11 @@ public class BlockfileReaderBuilder<T>{
 
 	public BlockfileReaderBuilder<T> setDecodeThreads(Threads decodeThreads){
 		this.decodeThreads = decodeThreads;
+		return this;
+	}
+
+	public BlockfileReaderBuilder<T> setValidateChecksums(boolean validateChecksums){
+		this.validateChecksums = validateChecksums;
 		return this;
 	}
 

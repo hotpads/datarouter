@@ -31,9 +31,14 @@ public class DatarouterMetricPaths extends PathNode implements PathsRoot{
 	public static class MetricPaths extends PathNode{
 		public final MetricLinkPaths metricLinks = branch(MetricLinkPaths::new, "metricLinks");
 		public final HandlerUsagePaths handlerUsage = branch(HandlerUsagePaths::new, "handlerUsage");
+		public final IndexUsagePaths indexUsage = branch(IndexUsagePaths::new, "indexUsage");
 	}
 
 	public static class HandlerUsagePaths extends PathNode{
+		public final PathNode view = leaf("view");
+	}
+
+	public static class IndexUsagePaths extends PathNode{
 		public final PathNode view = leaf("view");
 	}
 

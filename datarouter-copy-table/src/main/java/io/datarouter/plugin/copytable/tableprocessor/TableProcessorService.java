@@ -72,10 +72,10 @@ public class TableProcessorService{
 				@SuppressWarnings("unchecked")
 				DatabeanTableProcessor<PK,D> processor = (DatabeanTableProcessor<PK,D>) tableProcessor;
 				node.scan(range, new Config().setResponseBatchSize(scanBatchSize))
-						.each($ -> Metrics.count("tableProcessor " + nodeName + " scanned"))
-						.each($ -> numScanned.incrementAndGet())
+						.each(_ -> Metrics.count("TableProcessor " + nodeName + " scanned"))
+						.each(_ -> numScanned.incrementAndGet())
 						.each(databean -> lastKey.set(databean.getKey()))
-						.periodic(Duration.ofSeconds(5), $ -> logProgress(
+						.periodic(Duration.ofSeconds(5), _ -> logProgress(
 								false,
 								numScanned.get(),
 								batchId,
@@ -88,10 +88,10 @@ public class TableProcessorService{
 				@SuppressWarnings("unchecked")
 				PrimaryKeyTableProcessor<PK> processor = (PrimaryKeyTableProcessor<PK>) tableProcessor;
 				node.scanKeys(range, new Config().setResponseBatchSize(scanBatchSize))
-						.each($ -> Metrics.count("tableProcessor " + nodeName + " scanned"))
-						.each($ -> numScanned.incrementAndGet())
+						.each(_ -> Metrics.count("TableProcessor " + nodeName + " scanned"))
+						.each(_ -> numScanned.incrementAndGet())
 						.each(lastKey::set)
-						.periodic(Duration.ofSeconds(5), $ -> logProgress(
+						.periodic(Duration.ofSeconds(5), _ -> logProgress(
 								false,
 								numScanned.get(),
 								batchId,

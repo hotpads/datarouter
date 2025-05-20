@@ -20,10 +20,10 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.h5;
 
 import java.util.List;
-import java.util.Optional;
 
 import io.datarouter.nodewatch.config.DatarouterNodewatchPaths;
 import io.datarouter.nodewatch.config.DatarouterNodewatchPlugin;
+import io.datarouter.nodewatch.link.NodewatchMetadataMigrateLink;
 import io.datarouter.nodewatch.service.NodewatchChangelogService;
 import io.datarouter.nodewatch.service.TableSamplerService;
 import io.datarouter.nodewatch.storage.tablecount.DatarouterTableCountDao;
@@ -43,10 +43,6 @@ import jakarta.inject.Inject;
 
 public class NodewatchMetadataMigrateHandler extends BaseHandler{
 
-	private static final String
-			P_sourceNodeName = "sourceNodeName",
-			P_targetNodeName = "targetNodeName";
-
 	@Inject
 	private Bootstrap4PageFactory pageFactory;
 	@Inject
@@ -63,10 +59,8 @@ public class NodewatchMetadataMigrateHandler extends BaseHandler{
 	private DatarouterTableSampleDao tableSampleDao;
 
 	@Handler
-	public Mav migrate(
-			Optional<String> sourceNodeName,
-			Optional<String> targetNodeName){
-		boolean shouldValidate = sourceNodeName.isPresent();
+	public Mav migrate(NodewatchMetadataMigrateLink link){
+		boolean shouldValidate = link.sourceNodeName.isPresent() && link.targetNodeName.isPresent();
 		List<String> possibleNodes = tableSamplerService.scanCountableNodes()
 				.map(node -> node.getClientId().getName() + "." + node.getFieldInfo().getTableName())
 				.append("")
@@ -75,11 +69,11 @@ public class NodewatchMetadataMigrateHandler extends BaseHandler{
 		var form = new HtmlForm(HtmlFormMethod.POST);
 		form.addSelectField()
 				.withLabel("Source Node Name")
-				.withName(P_sourceNodeName)
+				.withName(NodewatchMetadataMigrateLink.P_sourceNodeName)
 				.withValues(possibleNodes);
 		form.addSelectField()
 				.withLabel("Target Node Name")
-				.withName(P_targetNodeName)
+				.withName(NodewatchMetadataMigrateLink.P_targetNodeName)
 				.withValues(possibleNodes);
 		form.addButtonWithoutSubmitAction()
 				.withLabel("Migrate");
@@ -90,11 +84,13 @@ public class NodewatchMetadataMigrateHandler extends BaseHandler{
 					.withContent(makeFormContent(form))
 					.buildMav();
 		}
-		migrate(sourceNodeName.get(), targetNodeName.get());
-		changelogService.recordMigrateMetadata(getSessionInfo(), sourceNodeName.get(), targetNodeName.get());
+		String sourceNodeName = link.sourceNodeName.get();
+		String targetNodeName = link.targetNodeName.get();
+		migrate(sourceNodeName, targetNodeName);
+		changelogService.recordMigrateMetadata(getSessionInfo(), sourceNodeName, targetNodeName);
 		return pageFactory.startBuilder(request)
 				.withTitle(DatarouterNodewatchPlugin.NAME + " - Migrate Metadata Complete")
-				.withContent(makeResultContent(sourceNodeName.get(), targetNodeName.get()))
+				.withContent(makeResultContent(sourceNodeName, targetNodeName))
 				.buildMav();
 	}
 

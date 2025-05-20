@@ -42,7 +42,7 @@ public class GcNotificationReceiver implements DatarouterAppListener{
 	@Override
 	public void onStartUp(){
 		for(GarbageCollectorMXBean gc : PlatformMxBeans.GCS){
-			((NotificationBroadcaster)gc).addNotificationListener((notification, $) -> {
+			((NotificationBroadcaster)gc).addNotificationListener((notification, _) -> {
 				var gcNotifInfo = GarbageCollectionNotificationInfo.from((CompositeData)notification.getUserData());
 				GcInfo gcInfo = gcNotifInfo.getGcInfo();
 				Map<String,MemoryUsage> memoryUsageBeforeGc = gcInfo.getMemoryUsageBeforeGc();

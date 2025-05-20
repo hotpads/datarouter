@@ -67,7 +67,7 @@ public class DatarouterS3ObjectRequests{
 					.key(location.key())
 					.build();
 			HeadObjectResponse response;
-			try(var $ = TracerTool.startSpan("S3 headObject", TraceSpanGroupType.CLOUD_STORAGE)){
+			try(var _ = TracerTool.startSpan("S3 headObject", TraceSpanGroupType.CLOUD_STORAGE)){
 				response = s3Client.headObject(request);
 				TracerTool.appendToSpanInfo("Content-Length", response.contentLength());
 			}
@@ -89,7 +89,7 @@ public class DatarouterS3ObjectRequests{
 				.key(location.key())
 				.build();
 		ResponseInputStream<GetObjectResponse> response;
-		try(var $ = TracerTool.startSpan("S3 getObjectInputStream", TraceSpanGroupType.CLOUD_STORAGE)){
+		try(var _ = TracerTool.startSpan("S3 getObjectInputStream", TraceSpanGroupType.CLOUD_STORAGE)){
 			response = s3Client.getObject(request);
 			TracerTool.appendToSpanInfo("Content-Length", response.response().contentLength());
 		}
@@ -113,7 +113,7 @@ public class DatarouterS3ObjectRequests{
 		S3CostCounters.read();
 		ResponseBytes<GetObjectResponse> response;
 		try{
-			try(var $ = TracerTool.startSpan("S3 getObjectAsBytes", TraceSpanGroupType.CLOUD_STORAGE)){
+			try(var _ = TracerTool.startSpan("S3 getObjectAsBytes", TraceSpanGroupType.CLOUD_STORAGE)){
 				response = s3Client.getObjectAsBytes(request);
 				TracerTool.appendToSpanInfo("Content-Length", response.response().contentLength());
 			}
@@ -139,7 +139,7 @@ public class DatarouterS3ObjectRequests{
 		S3CostCounters.read();
 		ResponseBytes<GetObjectResponse> response;
 		try{
-			try(var $ = TracerTool.startSpan("S3 getPartialObject", TraceSpanGroupType.CLOUD_STORAGE)){
+			try(var _ = TracerTool.startSpan("S3 getPartialObject", TraceSpanGroupType.CLOUD_STORAGE)){
 				response = s3Client.getObjectAsBytes(request);
 				TracerTool.appendToSpanInfo("offset", offset);
 				TracerTool.appendToSpanInfo("Content-Length", response.response().contentLength());
@@ -166,7 +166,7 @@ public class DatarouterS3ObjectRequests{
 		S3CostCounters.read();
 		ResponseBytes<GetObjectResponse> response;
 		try{
-			try(var $ = TracerTool.startSpan("S3 readEnding", TraceSpanGroupType.CLOUD_STORAGE)){
+			try(var _ = TracerTool.startSpan("S3 readEnding", TraceSpanGroupType.CLOUD_STORAGE)){
 				response = s3Client.getObjectAsBytes(request);
 				TracerTool.appendToSpanInfo("length", length);
 				TracerTool.appendToSpanInfo("Content-Length", response.response().contentLength());
@@ -193,7 +193,7 @@ public class DatarouterS3ObjectRequests{
 				.acl(acl)
 				.build();
 		S3Client s3Client = clientManager.getS3ClientForBucket(bucket);
-		try(var $ = TracerTool.startSpan("S3 copyObject", TraceSpanGroupType.CLOUD_STORAGE)){
+		try(var _ = TracerTool.startSpan("S3 copyObject", TraceSpanGroupType.CLOUD_STORAGE)){
 			s3Client.copyObject(request);
 		}
 		DatarouterS3Counters.inc(bucket, S3CounterSuffix.COPY_REQUESTS, 1);
@@ -212,7 +212,7 @@ public class DatarouterS3ObjectRequests{
 				.acl(ObjectCannedACL.PRIVATE)
 				.build();
 		RequestBody requestBody = RequestBody.fromBytes(bytes);
-		try(var $ = TracerTool.startSpan("S3 putObject", TraceSpanGroupType.CLOUD_STORAGE)){
+		try(var _ = TracerTool.startSpan("S3 putObject", TraceSpanGroupType.CLOUD_STORAGE)){
 			s3Client.putObject(request, requestBody);
 			TracerTool.appendToSpanInfo("Content-Length", request.contentLength());
 		}
@@ -229,7 +229,7 @@ public class DatarouterS3ObjectRequests{
 				.key(location.key())
 				.build();
 		S3Client s3Client = clientManager.getS3ClientForBucket(location.bucket());
-		try(var $ = TracerTool.startSpan("S3 deleteObject", TraceSpanGroupType.CLOUD_STORAGE)){
+		try(var _ = TracerTool.startSpan("S3 deleteObject", TraceSpanGroupType.CLOUD_STORAGE)){
 			s3Client.deleteObject(request);
 		}
 		DatarouterS3Counters.inc(location.bucket(), S3CounterSuffix.DELETE_REQUESTS, 1);
@@ -249,7 +249,7 @@ public class DatarouterS3ObjectRequests{
 							.bucket(bucketAndKeys.bucket())
 							.delete(Delete.builder().objects(objectIdentifiers).build())
 							.build();
-					try(var $ = TracerTool.startSpan("S3 deleteObjects", TraceSpanGroupType.CLOUD_STORAGE)){
+					try(var _ = TracerTool.startSpan("S3 deleteObjects", TraceSpanGroupType.CLOUD_STORAGE)){
 						s3Client.deleteObjects(request);
 						TracerTool.appendToSpanInfo("deleted", objectIdentifiers.size());
 					}

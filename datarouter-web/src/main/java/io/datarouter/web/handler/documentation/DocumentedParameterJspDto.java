@@ -29,6 +29,7 @@ public class DocumentedParameterJspDto{
 	private final Boolean hidden;
 	private final String description;
 	private final boolean isDeprecated;
+	private ApiDocSchemaDto schema;
 
 	public final Set<DocumentedExampleEnumDto> exampleEnumDtos;
 
@@ -41,7 +42,8 @@ public class DocumentedParameterJspDto{
 			Boolean hidden,
 			String description,
 			boolean isDeprecated,
-			Set<DocumentedExampleEnumDto> exampleEnumDtos){
+			Set<DocumentedExampleEnumDto> exampleEnumDtos,
+			ApiDocSchemaDto schema){
 		this.name = name;
 		this.type = type;
 		this.example = example;
@@ -51,6 +53,7 @@ public class DocumentedParameterJspDto{
 		this.description = description;
 		this.isDeprecated = isDeprecated;
 		this.exampleEnumDtos = exampleEnumDtos;
+		this.schema = schema;
 	}
 
 	public String getName(){
@@ -85,4 +88,7 @@ public class DocumentedParameterJspDto{
 		return isDeprecated;
 	}
 
+	public ApiDocSchemaDto getSchema(){
+		return schema;
+	}
 }

@@ -60,10 +60,10 @@ public class JobletRequeueJob extends BaseJob{
 
 	@Override
 	public void run(TaskTracker tracker){
-		JobletRequestKey.createPrefixesForTypesAndPriorities(
+		JobletRequestKey.prefixesForTypesAndPriorities(
 				activeJobletTypeFactory.getAllActiveTypes(),
 				EnumSet.allOf(JobletPriority.class))
-				.advanceUntil($ -> tracker.shouldStop())
+				.advanceUntil(_ -> tracker.shouldStop())
 				.exclude(this::anyExistWithMediumAge)//wait for a gap between old-vs-new
 				.forEach(this::requeueOld);
 	}

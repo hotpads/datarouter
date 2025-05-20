@@ -33,7 +33,7 @@ public class TallyNodeBuilder{
 	private final Supplier<Tally> databeanSupplier;
 	private final Supplier<TallyFielder> fielderSupplier;
 
-	private String version;
+	private Supplier<String> versionSupplier;
 	private String tableName;
 	private Tag tag;
 
@@ -51,7 +51,11 @@ public class TallyNodeBuilder{
 	}
 
 	public TallyNodeBuilder withSchemaVersion(String version){
-		this.version = version;
+		return withSchemaVersionSupplier(() -> version);
+	}
+
+	public TallyNodeBuilder withSchemaVersionSupplier(Supplier<String> versionSupplier){
+		this.versionSupplier = versionSupplier;
 		return this;
 	}
 
@@ -66,7 +70,13 @@ public class TallyNodeBuilder{
 	}
 
 	public PhysicalTallyStorageNode build(){
-		return nodeFactory.createTallyNode(clientId, databeanSupplier, fielderSupplier, version, tableName, tag);
+		return nodeFactory.createTallyNode(
+				clientId,
+				databeanSupplier,
+				fielderSupplier,
+				versionSupplier,
+				tableName,
+				tag);
 	}
 
 	public PhysicalTallyStorageNode buildAndRegister(){

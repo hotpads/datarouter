@@ -28,12 +28,12 @@ import io.datarouter.nodewatch.service.TableSamplerService;
 import io.datarouter.plugin.copytable.CopyTableService;
 import io.datarouter.plugin.copytable.CopyTableService.CopyTableSpanResult;
 import io.datarouter.plugin.copytable.config.DatarouterCopyTablePaths;
+import io.datarouter.plugin.copytable.link.SingleThreadCopyTableLink;
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.email.StandardDatarouterEmailHeaderService;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
-import io.datarouter.web.handler.types.Param;
 import io.datarouter.web.html.form.HtmlForm;
 import io.datarouter.web.html.form.HtmlForm.HtmlFormMethod;
 import io.datarouter.web.html.form.HtmlFormValidator;
@@ -41,17 +41,6 @@ import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import jakarta.inject.Inject;
 
 public class SingleThreadCopyTableHandler extends BaseHandler{
-
-	private static final String
-			P_sourceNodeName = "sourceNodeName",
-			P_targetNodeName = "targetNodeName",
-			P_lastKeyString = "lastKeyString",
-			P_numThreads = "numThreads",
-			P_scanBatchSize = "scanBatchSize",
-			P_putBatchSize = "putBatchSize",
-			P_skipInvalidDatabeans = "skipInvalidDatabeans",
-			P_toEmail = "toEmail",
-			P_submitAction = "submitAction";
 
 	private static final int DEFAULT_NUM_THREADS = 4;
 	private static final int DEFAULT_SCAN_BATCH_SIZE = 500;
@@ -73,19 +62,19 @@ public class SingleThreadCopyTableHandler extends BaseHandler{
 	@Inject
 	private TableSamplerService tableSamplerService;
 
-	@Handler(defaultHandler = true)
-	private <PK extends PrimaryKey<PK>,
-			D extends Databean<PK,D>>
-	Mav defaultHandler(
-			@Param(P_sourceNodeName) Optional<String> sourceNodeName,
-			@Param(P_targetNodeName) Optional<String> targetNodeName,
-			@Param(P_lastKeyString) Optional<String> lastKeyString,
-			@Param(P_toEmail) Optional<String> toEmail,
-			@Param(P_numThreads) Optional<String> optNumThreads,
-			@Param(P_scanBatchSize) Optional<String> optScanBatchSize,
-			@Param(P_putBatchSize) Optional<String> optPutBatchSize,
-			@Param(P_skipInvalidDatabeans) Optional<Boolean> skipInvalidDatabeans,
-			@Param(P_submitAction) Optional<String> submitAction){
+	@Handler
+	private <PK extends PrimaryKey<PK>, D extends Databean<PK,D>>
+	Mav singleThread(SingleThreadCopyTableLink link){
+		Optional<String> sourceNodeName = link.sourceNodeName;
+		Optional<String> targetNodeName = link.targetNodeName;
+		Optional<Integer> optScanBatchSize = link.scanBatchSize;
+		Optional<Integer> optPutBatchSize = link.putBatchSize;
+		Optional<String> lastKeyString = link.lastKeyString;
+		Optional<Integer> optNumThreads = link.numThreads;
+		Optional<Boolean> skipInvalidDatabeans = link.skipInvalidDatabeans;
+		Optional<String> submitAction = link.submitAction;
+		Optional<String> toEmail = link.toEmail;
+
 		boolean shouldValidate = submitAction.isPresent();
 		List<String> possibleSourceNodes = tableSamplerService.scanAllSortedMapStorageNodes()
 				.map(node -> node.getClientId().getName() + "." + node.getFieldInfo().getTableName())
@@ -100,56 +89,56 @@ public class SingleThreadCopyTableHandler extends BaseHandler{
 		var form = new HtmlForm(HtmlFormMethod.POST);
 		form.addSelectField()
 				.withLabel("Source Node Name")
-				.withName(P_sourceNodeName)
+				.withName(SingleThreadCopyTableLink.P_sourceNodeName)
 				.withValues(possibleSourceNodes)
 				.withSelected(sourceNodeName.orElse(null));
 		form.addSelectField()
 				.withLabel("Target Node Name")
-				.withName(P_targetNodeName)
+				.withName(SingleThreadCopyTableLink.P_targetNodeName)
 				.withValues(possibleTargetNodes)
 				.withSelected(targetNodeName.orElse(null));
 		form.addNumberField()
 				.withLabel("Scan Batch Size")
-				.withName(P_scanBatchSize)
+				.withName(SingleThreadCopyTableLink.P_scanBatchSize)
 				.withPlaceholder(DEFAULT_SCAN_BATCH_SIZE)
 				.withValue(
-						optScanBatchSize.orElse(null),
+						optScanBatchSize.map(String::valueOf).orElse(null),
 						shouldValidate && optScanBatchSize.isPresent(),
 						HtmlFormValidator::positiveInteger);
 		form.addNumberField()
 				.withLabel("Put Batch Size")
-				.withName(P_putBatchSize)
+				.withName(SingleThreadCopyTableLink.P_putBatchSize)
 				.withPlaceholder(DEFAULT_PUT_BATCH_SIZE)
 				.withValue(
-						optPutBatchSize.orElse(null),
+						optPutBatchSize.map(String::valueOf).orElse(null),
 						shouldValidate && optPutBatchSize.isPresent(),
 						HtmlFormValidator::positiveInteger);
 		form.addTextField()
 				.withLabel("Last Key String")
 				//add validation
-				.withName(P_lastKeyString)
+				.withName(SingleThreadCopyTableLink.P_lastKeyString)
 				.withValue(lastKeyString.orElse(null));
 		form.addNumberField()
 				.withLabel("Num Threads")
-				.withName(P_numThreads)
+				.withName(SingleThreadCopyTableLink.P_numThreads)
 				.withPlaceholder(DEFAULT_NUM_THREADS)
 				.withValue(
-						optNumThreads.orElse(null),
+						optNumThreads.map(String::valueOf).orElse(null),
 						shouldValidate && optNumThreads.isPresent(),
 						HtmlFormValidator::positiveInteger);
 		form.addCheckboxField()
 				.withLabel("Skip Invalid Databeans")
-				.withName(P_skipInvalidDatabeans)
+				.withName(SingleThreadCopyTableLink.P_skipInvalidDatabeans)
 				.withChecked(DEFAULT_SKIP_INVALID_DATABEANS);
 		form.addTextField()
 				.withLabel("Email on Completion")
 				//add validation
-				.withName(P_toEmail)
+				.withName(SingleThreadCopyTableLink.P_toEmail)
 				.withPlaceholder("you@email.com")
 				.withValue(toEmail.orElse(getSessionInfo().getRequiredSession().getUsername()));
 		form.addButton()
 				.withLabel("Execute")
-				.withValue("anything");
+				.withValue("singleThread");
 
 		if(submitAction.isEmpty() || form.hasErrors()){
 			return pageFactory.startBuilder(request)
@@ -161,16 +150,10 @@ public class SingleThreadCopyTableHandler extends BaseHandler{
 		}
 
 		int numThreads = optNumThreads
-				.map(StringTool::nullIfEmpty)
-				.map(Integer::valueOf)
 				.orElse(DEFAULT_NUM_THREADS);
 		int scanBatchSize = optScanBatchSize
-				.map(StringTool::nullIfEmpty)
-				.map(Integer::valueOf)
 				.orElse(DEFAULT_SCAN_BATCH_SIZE);
 		int putBatchSize = optPutBatchSize
-				.map(StringTool::nullIfEmpty)
-				.map(Integer::valueOf)
 				.orElse(DEFAULT_PUT_BATCH_SIZE);
 
 		CopyTableSpanResult result = copyTableService.copyTableSpan(

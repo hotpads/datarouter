@@ -15,8 +15,9 @@
  */
 package io.datarouter.instrumentation.schema;
 
-import java.time.Instant;
 import java.util.List;
+
+import io.datarouter.types.MilliTime;
 
 public class TableDto{
 
@@ -26,7 +27,7 @@ public class TableDto{
 	public final String tableName;
 	public final List<FieldDto> fields;
 	public final List<List<String>> sampleData;
-	public final Instant created;
+	public final MilliTime createdAt;
 	@Deprecated
 	public final Boolean isSystemTable;
 
@@ -37,7 +38,7 @@ public class TableDto{
 			String tableName,
 			List<FieldDto> fields,
 			List<List<String>> sampleData,
-			Instant created,
+			MilliTime createdAt,
 			Boolean isSystemTable){
 		this.serviceName = serviceName;
 		this.clientName = clientName;
@@ -45,7 +46,7 @@ public class TableDto{
 		this.tableName = tableName;
 		this.fields = fields;
 		this.sampleData = sampleData;
-		this.created = created;
+		this.createdAt = createdAt;
 		this.isSystemTable = isSystemTable;
 	}
 

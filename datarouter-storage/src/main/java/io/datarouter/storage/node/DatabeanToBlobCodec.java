@@ -45,27 +45,25 @@ public class DatabeanToBlobCodec<
 	private final DatabeanFielder<PK,D> fielder;
 	private final Supplier<D> databeanSupplier;
 	private final Map<String,Field<?>> fieldByPrefixedName;
-	private final Subpath path;
+	private final Supplier<Subpath> pathSupplier;
+	private final int clientMaxKeyLength;
 	private final int clientMaxValueLength;
-	private final int pathLength;
-	private final int maxKeyLength;
 
 	public DatabeanToBlobCodec(
 			String clientTypeName,
 			DatabeanFielder<PK,D> fielder,
 			Supplier<D> databeanSupplier,
 			Map<String,Field<?>> fieldByPrefixedName,
-			Subpath path,
+			Supplier<Subpath> pathSupplier,
 			int clientMaxKeyLength,
 			int clientMaxValueLength){
 		this.clientTypeName = clientTypeName;
 		this.fielder = fielder;
 		this.databeanSupplier = databeanSupplier;
 		this.fieldByPrefixedName = fieldByPrefixedName;
-		this.path = path;
+		this.pathSupplier = pathSupplier;
+		this.clientMaxKeyLength = clientMaxKeyLength;
 		this.clientMaxValueLength = clientMaxValueLength;
-		pathLength = path.toString().length();
-		maxKeyLength = clientMaxKeyLength - pathLength;
 	}
 
 	public Optional<PathBbeanKeyAndValue> encodeDatabeanIfValid(D databean){
@@ -89,6 +87,8 @@ public class DatabeanToBlobCodec<
 	public Optional<PathbeanKey> encodeKeyIfValid(PK pk){
 		PathbeanKey pathbeanKey = encodeKey(pk);
 		String encodedKey = pathbeanKey.getPathAndFile();
+		int pathLength = pathSupplier.get().toString().length();
+		int maxKeyLength = clientMaxKeyLength - pathLength;
 		if(pathbeanKey.getPathAndFile().length() > maxKeyLength){
 			logger.warn("key too long for {} length={} nodeSubpathLength={} maxKeyLength={} key={}"
 					+ " encodedKey={}",
@@ -97,7 +97,7 @@ public class DatabeanToBlobCodec<
 					pathLength,
 					maxKeyLength,
 					pk,
-					path + encodedKey);
+					pathSupplier.get() + encodedKey);
 			return Optional.empty();
 		}
 		return Optional.of(pathbeanKey);

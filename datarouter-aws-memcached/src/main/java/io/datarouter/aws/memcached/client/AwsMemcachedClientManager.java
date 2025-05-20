@@ -53,9 +53,10 @@ public class AwsMemcachedClientManager extends BaseMemcachedClientManager{
 				DefaultConnectionFactory.DEFAULT_OP_QUEUE_LEN,
 				DefaultConnectionFactory.DEFAULT_READ_BUFFER_SIZE,
 				DefaultConnectionFactory.DEFAULT_OP_QUEUE_MAX_BLOCK_TIME){
+
 			@Override
-			public long getOperationTimeout(){
-				return 200;
+			public long getOperationTimeout(){// Milliseconds
+				return 1_000;
 			}
 		};
 

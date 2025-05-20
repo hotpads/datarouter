@@ -25,19 +25,20 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
-import org.apache.http.client.utils.URIBuilder;
-
 import io.datarouter.clustersetting.config.DatarouterClusterSettingPaths;
+import io.datarouter.clustersetting.link.ClusterSettingAllLogLink;
+import io.datarouter.clustersetting.link.ClusterSettingBrowseLink;
+import io.datarouter.clustersetting.link.ClusterSettingNodeLogLink;
+import io.datarouter.clustersetting.link.ClusterSettingSettingLogLink;
+import io.datarouter.clustersetting.link.ClusterSettingSingleLogLink;
 import io.datarouter.clustersetting.storage.clustersettinglog.ClusterSettingLog;
 import io.datarouter.clustersetting.storage.clustersettinglog.ClusterSettingLogKey;
 import io.datarouter.clustersetting.storage.clustersettinglog.DatarouterClusterSettingLogDao;
 import io.datarouter.clustersetting.web.ClusterSettingHtml;
-import io.datarouter.clustersetting.web.browse.ClusterSettingBrowseHandler.ClusterSettingBrowseHandlerParams;
-import io.datarouter.clustersetting.web.browse.ClusterSettingBrowseHandler.ClusterSettingBrowseLinks;
+import io.datarouter.httpclient.endpoint.link.DatarouterLinkClient;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.types.MilliTimeReversed;
 import io.datarouter.util.string.StringTool;
-import io.datarouter.web.config.ServletContextSupplier;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.html.form.HtmlForm;
@@ -49,22 +50,13 @@ import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import j2html.tags.specialized.DivTag;
 import jakarta.inject.Inject;
-import jakarta.inject.Singleton;
 
 public class ClusterSettingLogHandler extends BaseHandler{
-
-	private static final String
-			P_nodeName = "nodeName",
-			P_settingName = "settingName",
-			P_reverseCreatedMs = "reverseCreatedMs",
-			P_beforeDate = "beforeDate";
 
 	@Inject
 	private Bootstrap4PageFactory pageFactory;
 	@Inject
 	private DatarouterClusterSettingPaths paths;
-	@Inject
-	private ClusterSettingBrowseLinks browseLinks;
 	@Inject
 	private ClusterSettingHtml clusterSettingHtml;
 	@Inject
@@ -73,18 +65,21 @@ public class ClusterSettingLogHandler extends BaseHandler{
 	private ClusterSettingLogNamedScannerPager namedScannerPager;
 	@Inject
 	private DatarouterClusterSettingLogDao dao;
+	@Inject
+	private DatarouterLinkClient linkClient;
 
 	/*------------ handlers ------------*/
 
 	@Handler
-	public Mav all(Optional<String> beforeDate){
+	public Mav all(ClusterSettingAllLogLink logLink){
+		Optional<String> beforeDate = logLink.beforeDate;
 		String title = clusterSettingHtml.makeTitle("Logs For All Settings");
 
 		// form
 		var dateForm = new HtmlForm(HtmlFormMethod.GET);
 		dateForm.addDateField()
 				.withLabel("Before")
-				.withName(P_beforeDate)
+				.withName(ClusterSettingAllLogLink.P_beforeDate)
 				.withValue(beforeDate.orElse(null));
 		dateForm.addButtonWithoutSubmitAction()
 				.withLabel("Search");
@@ -95,11 +90,11 @@ public class ClusterSettingLogHandler extends BaseHandler{
 				.map(Instant::ofEpochMilli)
 				.orElseGet(Instant::now);
 		var page = new IndexPageBuilder<>(namedScannerPager)
-				.retainParams(P_beforeDate)
+				.retainParams(ClusterSettingAllLogLink.P_beforeDate)
 				.build(beforeTime, params.toMap());
 
 		// result html
-		String path = request.getContextPath() + paths.datarouter.settings.log.all.toSlashedString();
+		String path = linkClient.toInternalUrl(new ClusterSettingAllLogLink());
 		var headerDiv = clusterSettingHtml.makeHeader(title, "Changes to all settings in this cluster");
 		var formTag = Bootstrap4FormHtml.render(dateForm, true);
 		var pagerDiv = Bootstrap4IndexPagerHtml.render(page, path);
@@ -116,13 +111,15 @@ public class ClusterSettingLogHandler extends BaseHandler{
 	}
 
 	@Handler
-	public Mav node(String nodeName){
+	public Mav node(ClusterSettingNodeLogLink nodeLink){
+		String nodeName = nodeLink.nodeName;
 		String title = clusterSettingHtml.makeTitle("Logs For Setting Node");
 		List<ClusterSettingLog> logs = dao.scanWithWildcardPrefix(nodeName)
 				.sort(Comparator.comparing((ClusterSettingLog log) -> log.getKey().getMilliTimeReversed()))
 				.list();
 		var headerDiv = clusterSettingHtml.makeHeader(title, "Changes to settings in the same parent node");
-		String href = browseLinks.all(new ClusterSettingBrowseHandlerParams().withLocation(nodeName));
+		String href = linkClient.toInternalUrl(new ClusterSettingBrowseLink()
+				.withLocation(nodeName));
 		var nodeNameDiv = div(
 				h5("Node name"),
 				div(a(nodeName).withHref(href)));
@@ -138,12 +135,14 @@ public class ClusterSettingLogHandler extends BaseHandler{
 	}
 
 	@Handler
-	public Mav setting(String settingName){
+	public Mav setting(ClusterSettingSettingLogLink settingLink){
+		String settingName = settingLink.settingName;
 		String title = clusterSettingHtml.makeTitle("Logs For Single Setting");
 		ClusterSettingLogKey prefix = ClusterSettingLogKey.prefix(settingName);
 		List<ClusterSettingLog> logs = dao.scanWithPrefix(prefix).list();
 		var headerDiv = clusterSettingHtml.makeHeader(title, "Changes to a single setting");
-		String href = browseLinks.all(new ClusterSettingBrowseHandlerParams().withLocation(settingName));
+		String href = linkClient.toInternalUrl(new ClusterSettingBrowseLink()
+				.withLocation(settingName));
 		var settingNameDiv = div(
 				h5("Setting name"),
 				div(a(settingName).withHref(href)));
@@ -159,7 +158,9 @@ public class ClusterSettingLogHandler extends BaseHandler{
 	}
 
 	@Handler
-	public Mav single(String settingName, MilliTimeReversed reverseCreatedMs){
+	public Mav single(ClusterSettingSingleLogLink singleLink){
+		String settingName = singleLink.settingName;
+		MilliTimeReversed reverseCreatedMs = singleLink.reverseCreatedMs;
 		String title = clusterSettingHtml.makeTitle("Log Entry Details");
 		var key = new ClusterSettingLogKey(settingName, reverseCreatedMs);
 		ClusterSettingLog log = dao.find(key).orElseThrow();
@@ -192,46 +193,6 @@ public class ClusterSettingLogHandler extends BaseHandler{
 		var table = clusterSettingLogHtml.makeTableBuilder(getUserZoneId(), showServerName)
 				.build(pageOfLogs);
 		return div(table);
-	}
-
-	/*----------- links ------------*/
-
-	@Singleton
-	public static class ClusterSettingLogLinks{
-
-		@Inject
-		private ServletContextSupplier contextSupplier;
-		@Inject
-		private DatarouterClusterSettingPaths paths;
-
-		public String all(){
-			var uriBuilder = new URIBuilder()
-					.setPath(contextSupplier.getContextPath() + paths.datarouter.settings.log.all.toSlashedString());
-			return uriBuilder.toString();
-		}
-
-		public String node(String nodeName){
-			var uriBuilder = new URIBuilder()
-					.setPath(contextSupplier.getContextPath() + paths.datarouter.settings.log.node.toSlashedString())
-					.addParameter(ClusterSettingLogHandler.P_nodeName, nodeName);
-			return uriBuilder.toString();
-		}
-
-		public String setting(String settingName){
-			var uriBuilder = new URIBuilder()
-					.setPath(contextSupplier.getContextPath() + paths.datarouter.settings.log.setting.toSlashedString())
-					.addParameter(ClusterSettingLogHandler.P_settingName, settingName);
-			return uriBuilder.toString();
-		}
-
-		public String single(String settingName, MilliTimeReversed timeReversed){
-			var uriBuilder = new URIBuilder()
-					.setPath(contextSupplier.getContextPath() + paths.datarouter.settings.log.single.toSlashedString())
-					.addParameter(ClusterSettingLogHandler.P_settingName, settingName)
-					.addParameter(ClusterSettingLogHandler.P_reverseCreatedMs, timeReversed.toString());
-			return uriBuilder.toString();
-		}
-
 	}
 
 }

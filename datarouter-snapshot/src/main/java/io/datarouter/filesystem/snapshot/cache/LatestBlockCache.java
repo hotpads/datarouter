@@ -51,7 +51,7 @@ public class LatestBlockCache implements BlockLoader{
 
 		int numBranchLevels = rootBlock.numBranchLevels();
 		this.branchIndexes = IntStream.range(0, numBranchLevels)
-				.map($ -> -1)
+				.map(_ -> -1)
 				.toArray();
 		this.branchBlocks = new BranchBlock[numBranchLevels];
 
@@ -59,7 +59,7 @@ public class LatestBlockCache implements BlockLoader{
 
 		int numColumns = rootBlock.numColumns();
 		this.valueIndexes = IntStream.range(0, numColumns)
-				.map($ -> -1)
+				.map(_ -> -1)
 				.toArray();
 		this.valueBlocks = new ValueBlock[numColumns];
 	}

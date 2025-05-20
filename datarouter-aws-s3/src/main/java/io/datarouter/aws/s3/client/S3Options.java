@@ -67,7 +67,7 @@ public class S3Options{
 	}
 
 	private Optional<S3CredentialsDto> readCredentialsSecret(String clientName){
-		return clientCredentials.computeIfAbsent(clientName, $ -> {
+		return clientCredentials.computeIfAbsent(clientName, _ -> {
 			Optional<String> optionalCredentialsLocation = clientOptions.optString(clientName,
 					PROP_credentialsLocation);
 			if(optionalCredentialsLocation.isEmpty()){

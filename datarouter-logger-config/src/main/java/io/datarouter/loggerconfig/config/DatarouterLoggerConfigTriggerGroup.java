@@ -15,9 +15,16 @@
  */
 package io.datarouter.loggerconfig.config;
 
+import java.time.Duration;
+import java.time.LocalTime;
+
 import io.datarouter.job.BaseTriggerGroup;
+import io.datarouter.job.util.DatarouterCronDayOfWeek;
+import io.datarouter.job.util.DatarouterCronTool;
 import io.datarouter.loggerconfig.job.LoggerConfigCleanupJob;
 import io.datarouter.loggerconfig.job.LoggerConfigUpdaterJob;
+import io.datarouter.storage.config.properties.ServerName;
+import io.datarouter.storage.config.properties.ServiceName;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.util.time.ZoneIds;
 import jakarta.inject.Inject;
@@ -27,14 +34,22 @@ import jakarta.inject.Singleton;
 public class DatarouterLoggerConfigTriggerGroup extends BaseTriggerGroup{
 
 	@Inject
-	public DatarouterLoggerConfigTriggerGroup(DatarouterLoggerConfigSettingRoot settings){
+	public DatarouterLoggerConfigTriggerGroup(
+			ServiceName serviceNameSupplier,
+			ServerName serverNameSupplier,
+			DatarouterLoggerConfigSettingRoot settings){
 		super("DatarouterLoggerConfig", Tag.DATAROUTER, ZoneIds.AMERICA_NEW_YORK);
 		registerParallel(
-				"0/15 * * * * ?",
+				DatarouterCronTool.everyNSeconds(15, serverNameSupplier.get(), "LoggerConfigUpdaterJob"),
 				settings.runLoggerConfigUpdaterJob,
 				LoggerConfigUpdaterJob.class);
 		registerLocked(
-				"14 5 15 ? * MON-FRI *",
+				DatarouterCronTool.onDaysOfWeekAfter(
+						DatarouterCronDayOfWeek.weekdays(),
+						LocalTime.of(15, 0, 0),
+						Duration.ofMinutes(30),
+						serviceNameSupplier.get(),
+						"LoggerConfigCleanupJob"),
 				settings.runLoggerConfigCleanupJob,
 				LoggerConfigCleanupJob.class,
 				true);

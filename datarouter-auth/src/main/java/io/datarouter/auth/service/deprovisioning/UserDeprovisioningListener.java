@@ -32,41 +32,10 @@ public interface UserDeprovisioningListener extends PluginConfigValue<UserDeprov
 			PluginConfigType.CLASS_LIST);
 
 	/**
-	 * @param usernames usernames that will be flagged
-	 */
-	default void onFlagUsers(List<String> usernames){
-	}
-
-	/**
-	 * @param usernames usernames that were flagged
-	 */
-	default void onFlaggedUsers(List<String> usernames){
-	}
-
-	/**
-	 * @param usernames usernames that will be deprovisioned
-	 */
-	default void onDeprovisionUsers(List<String> usernames){
-	}
-
-	/**
 	 * @param usernames usernames that were deprovisioned
 	 */
 	default void onDeprovisionedUsers(List<String> usernames){
 	}
-
-	/**
-	 * @param usernames usernames that will be restored
-	 */
-	default void onRestoreUsers(List<String> usernames){
-	}
-
-	/**
-	 * @param usernames usernames that were restored
-	 */
-	default void onRestoredUsers(List<String> usernames){
-	}
-
 
 	@Override
 	default PluginConfigKey<UserDeprovisioningListener> getKey(){

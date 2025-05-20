@@ -25,6 +25,7 @@ public interface UserAgentTypeConfig{
 	String IOS_USER_AGENT = "ios";
 	String BOT_USER_AGENT = "bot";
 	String WEB_USER_AGENT = "web";
+	String MOBILE_WEB_USER_AGENT = "mobile-web";
 
 	Set<String> getMobileUserAgents();
 
@@ -35,6 +36,10 @@ public interface UserAgentTypeConfig{
 	Set<String> getJavaUserAgents();
 
 	Set<String> getBotUserAgents();
+
+	Set<String> getBrowserUserAgents();
+
+	String categorizeUserAgent(String userAgent);
 
 	class NoOpUserAgentTypeConfig implements UserAgentTypeConfig{
 
@@ -61,6 +66,16 @@ public interface UserAgentTypeConfig{
 		@Override
 		public Set<String> getBotUserAgents(){
 			return Set.of();
+		}
+
+		@Override
+		public Set<String> getBrowserUserAgents(){
+			return Set.of();
+		}
+
+		@Override
+		public String categorizeUserAgent(String userAgent){
+			return "";
 		}
 
 	}

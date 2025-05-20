@@ -45,9 +45,7 @@ public class BlobNodeFactory extends BaseNodeFactory{
 		return new BlobNodeBuilder<>(datarouter, this, clientId, databeanSupplier, fielderSupplier);
 	}
 
-	public <PK extends PrimaryKey<PK>,
-			N extends PhysicalBlobStorageNode>
-	N create(
+	public <N extends PhysicalBlobStorageNode> N create(
 			ClientId clientId,
 			String bucketName,
 			Subpath path){

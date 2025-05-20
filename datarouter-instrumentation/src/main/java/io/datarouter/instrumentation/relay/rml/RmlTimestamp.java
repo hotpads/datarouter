@@ -16,6 +16,7 @@
 package io.datarouter.instrumentation.relay.rml;
 
 import io.datarouter.instrumentation.relay.dto.RelayMessageBlockAttrsDto;
+import io.datarouter.instrumentation.relay.type.RelayMessageBlockDateTimeFormat;
 import io.datarouter.instrumentation.relay.type.RelayMessageBlockType;
 
 public class RmlTimestamp extends BaseRmlBlock<RmlTimestamp>{
@@ -23,7 +24,12 @@ public class RmlTimestamp extends BaseRmlBlock<RmlTimestamp>{
 	public RmlTimestamp(String timestamp, Long epochMs){
 		super(RelayMessageBlockType.TIMESTAMP);
 		this.text = timestamp;
-		this.attrs = RelayMessageBlockAttrsDto.epochMs(epochMs);
+		this.attrs = RelayMessageBlockAttrsDto.epochMs(epochMs, RelayMessageBlockDateTimeFormat.LONG_GENERAL_DATE_TIME);
+	}
+
+	public RmlTimestamp withFormat(RelayMessageBlockDateTimeFormat format){
+		attrs = RelayMessageBlockAttrsDto.merge(attrs, RelayMessageBlockAttrsDto.epochMs(attrs.epochMs(), format));
+		return this;
 	}
 
 	@Override

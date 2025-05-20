@@ -56,10 +56,10 @@ public abstract class BaseIndexingNodeVacuum<PK extends RegularPrimaryKey<PK>,T>
 	public void run(TaskTracker tracker){
 		var numDeleted = new AtomicLong();
 		scanner
-				.advanceUntil($ -> tracker.shouldStop())
-				.each($ -> tracker.increment())
+				.advanceUntil(_ -> tracker.shouldStop())
+				.each(_ -> tracker.increment())
 				.each(item -> tracker.setLastItemProcessed(item.toString()))
-				.each($ -> {
+				.each(_ -> {
 					if(logBatchSize.isPresent() && tracker.getCount() % logBatchSize.get() == 0){
 						logProgress(numDeleted.get(), tracker.getCount(), tracker.getLastItem());
 					}

@@ -72,7 +72,7 @@ public class MockHttpServletRequestBuilder{
 	}
 
 	public MockHttpServletRequestBuilder withHeader(String name, String value){
-		headers.computeIfAbsent(name, $ -> new LinkedHashSet<>()).add(value);
+		headers.computeIfAbsent(name, _ -> new LinkedHashSet<>()).add(value);
 		return this;
 	}
 

@@ -120,19 +120,9 @@ public class DatarouterClusterSettingLogDao extends BaseDao{
 		return node.scanWithPrefixes(prefixes);
 	}
 
-	public Scanner<ClusterSettingLog> scanByReversedCreatedMs(){
-		return byReversedCreatedMs.scanDatabeans();
-	}
-
 	public Scanner<ClusterSettingLog> scanByReversedCreatedMs(
 			Range<ClusterSettingLogByReversedCreatedMsKey>range){
 		return byReversedCreatedMs.scanDatabeans(range);
-	}
-
-	public Scanner<ClusterSettingLog> scanByReversedCreatedMs(
-			Range<ClusterSettingLogByReversedCreatedMsKey>range,
-			int limit){
-		return byReversedCreatedMs.scanDatabeans(range, new Config().setLimit(limit));
 	}
 
 	public Scanner<ClusterSettingLog> scanBeforeDesc(Instant instant){

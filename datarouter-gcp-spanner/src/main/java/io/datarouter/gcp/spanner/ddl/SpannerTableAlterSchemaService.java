@@ -21,7 +21,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
+import java.util.TreeMap;
 
 import com.google.cloud.spanner.ResultSet;
 
@@ -29,6 +31,7 @@ import io.datarouter.bytes.KvString;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.FieldKey;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.storage.config.schema.InvalidSchemaUpdateException;
 import io.datarouter.storage.config.schema.SchemaUpdateOptions;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -54,8 +57,8 @@ public class SpannerTableAlterSchemaService{
 		Map<SpannerColumn,SpannerColumn> columnsToCompareTypes = columnNameIntersection(currentColumns, columns);
 		columnsToCompareTypes.forEach((currCol, newCol) -> {
 			if(!currCol.getType().equals(newCol.getType())){
-				throw new RuntimeException("Do not change the type of a Spanner column, instead add a new column and "
-						+ "migrate the data."
+				throw new InvalidSchemaUpdateException(
+						"Do not change the type of a Spanner column, instead add a new column and migrate the data."
 						+ new KvString()
 						.add("TableName", tableName)
 						.add("ColumnName", currCol.getName())
@@ -83,42 +86,65 @@ public class SpannerTableAlterSchemaService{
 	public Set<String> getIndexes(ResultSet rs){
 		Set<String> result = new HashSet<>();
 		while(rs.next()){
-			result.add(rs.getString("INDEX_NAME"));
+			result.add(rs.getString(SpannerTableOperationsTool.INDEX_NAME));
 		}
-		result.remove("PRIMARY_KEY");
+		result.remove(SpannerTableOperationsTool.PRIMARY_KEY);
 		return result;
 	}
 
-	public boolean indexEqual(SpannerIndex index, ResultSet rs){
-		List<String> indexKeyColumns = Scanner.of(index.getKeyFields())
+	public record SpannerIndexChanges(
+			String indexName,
+			List<String> existingKeyColumns,
+			List<String> proposedKeyColumns){
+	}
+
+	public Optional<SpannerIndexChanges> computeChanges(
+			List<SpannerColumn> primaryKeyColumns,
+			SpannerIndex proposedIndex,
+			ResultSet existingIndex){
+		Set<String> primaryKeyColumnNames = Scanner.of(primaryKeyColumns)
+				.map(SpannerColumn::getName)
+				.collect(HashSet::new);
+		List<String> proposedKeyColumns = Scanner.of(proposedIndex.keyFields())
 				.map(Field::getKey)
 				.map(FieldKey::getColumnName)
 				.list();
-		List<String> nonKeyColumns = Scanner.of(index.getNonKeyFields())
+		Set<String> proposedCoveringColumns = Scanner.of(proposedIndex.getNonKeyFields())
 				.map(Field::getKey)
 				.map(FieldKey::getColumnName)
-				.list();
-		boolean runOnce = false;
-		while(rs.next()){
-			runOnce = true;
-			String columnName = rs.getString("COLUMN_NAME");
-			if(rs.isNull("ORDINAL_POSITION")){
-				if(!nonKeyColumns.contains(columnName)){
-					return false;
-				}
-			}else if(!indexKeyColumns.contains(columnName)){
-				return false;
+				// Spanner automatically adds these to the STORING clause implicitly and will throw an exception if
+				// we explicitly add them.
+				.exclude(primaryKeyColumnNames::contains)
+				.collect(HashSet::new);
+		Map<Integer,String> existingKeyColumnsByIndex = new TreeMap<>();
+		Set<String> existingCoveringColumns = new HashSet<>();
+		while(existingIndex.next()){
+			String columnName = existingIndex.getString(SpannerTableOperationsTool.COLUMN_NAME);
+			if(existingIndex.isNull(SpannerTableOperationsTool.ORDINAL_POSITION)){
+				existingCoveringColumns.add(columnName);
+			}else{
+				int ordinalPosition = (int)existingIndex.getLong(SpannerTableOperationsTool.ORDINAL_POSITION);
+				// Spanner ordinal positions are 1-indexed
+				existingKeyColumnsByIndex.put(ordinalPosition - 1, columnName);
 			}
 		}
-		return runOnce;
+		if(!proposedCoveringColumns.equals(existingCoveringColumns)){
+			throw new InvalidSchemaUpdateException(
+					"Cannot change the covering columns of an index=" + proposedIndex.indexName() + " from existing="
+							+ existingCoveringColumns + " to proposed=" + proposedCoveringColumns);
+		}
+		List<String> existingKeyColumns = new ArrayList<>(existingKeyColumnsByIndex.values());
+		return proposedKeyColumns.equals(existingKeyColumns) ? Optional.empty() : Optional.of(
+				new SpannerIndexChanges(proposedIndex.indexName(), existingKeyColumns, proposedKeyColumns));
 	}
 
 	private List<SpannerColumn> extractColumns(ResultSet rs){
 		List<SpannerColumn> columns = new ArrayList<>();
 		while(rs.next()){
-			String columnName = rs.getString("COLUMN_NAME");
-			boolean isNullable = rs.getString("IS_NULLABLE").equalsIgnoreCase("YES");
-			SpannerColumnType type = SpannerColumnType.fromSchemaString(rs.getString("SPANNER_TYPE"));
+			String columnName = rs.getString(SpannerTableOperationsTool.COLUMN_NAME);
+			boolean isNullable = rs.getString(SpannerTableOperationsTool.IS_NULLABLE).equalsIgnoreCase("YES");
+			SpannerColumnType type = SpannerColumnType.fromSchemaString(
+					rs.getString(SpannerTableOperationsTool.SPANNER_TYPE));
 			columns.add(new SpannerColumn(columnName, type, isNullable));
 		}
 		return columns;

@@ -52,7 +52,7 @@ public class DatarouterS3FileRequests{
 				.key(location.key())
 				.build();
 		GetObjectResponse response;
-		try(var $ = TracerTool.startSpan("S3 downloadToLocalFile", TraceSpanGroupType.CLOUD_STORAGE)){
+		try(var _ = TracerTool.startSpan("S3 downloadToLocalFile", TraceSpanGroupType.CLOUD_STORAGE)){
 			response = s3Client.getObject(request, ResponseTransformer.toFile(localFilePath));
 			TracerTool.appendToSpanInfo("Content-Length", response.contentLength());
 		}
@@ -72,7 +72,7 @@ public class DatarouterS3FileRequests{
 				.acl(ObjectCannedACL.PRIVATE)
 				.build();
 		RequestBody requestBody = RequestBody.fromFile(localFilePath);
-		try(var $ = TracerTool.startSpan("S3 uploadLocalFile", TraceSpanGroupType.CLOUD_STORAGE)){
+		try(var _ = TracerTool.startSpan("S3 uploadLocalFile", TraceSpanGroupType.CLOUD_STORAGE)){
 			s3Client.putObject(request, requestBody);
 			TracerTool.appendToSpanInfo("Content-Length", request.contentLength());
 		}

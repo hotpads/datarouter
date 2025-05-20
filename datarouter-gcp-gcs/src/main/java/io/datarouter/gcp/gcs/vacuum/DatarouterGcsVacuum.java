@@ -22,8 +22,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.bytes.ByteLength;
-import io.datarouter.gcp.gcs.DatarouterGcsClient;
-import io.datarouter.gcp.gcs.GcsLimits;
+import io.datarouter.gcp.gcs.client.GcsClient;
+import io.datarouter.gcp.gcs.util.GcsLimits;
 import io.datarouter.storage.blob.DatarouterBlobVacuumResult;
 import io.datarouter.storage.file.BucketAndKey;
 import io.datarouter.storage.file.BucketAndKeys;
@@ -33,13 +33,13 @@ import io.datarouter.util.time.ZoneIds;
 public class DatarouterGcsVacuum{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterGcsVacuum.class);
 
-	private final DatarouterGcsClient gcsClient;
+	private final GcsClient gcsClient;
 	private final BucketAndPrefix bucketAndPrefix;
 	private final Instant cutOffTime;
 	private final boolean logEachObject;
 
 	public DatarouterGcsVacuum(
-			DatarouterGcsClient gcsClient,
+			GcsClient gcsClient,
 			BucketAndPrefix bucketAndPrefix,
 			Instant cutOffTime,
 			boolean logEachObject){

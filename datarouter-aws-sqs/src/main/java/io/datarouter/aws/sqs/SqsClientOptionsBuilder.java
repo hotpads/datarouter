@@ -17,11 +17,10 @@ package io.datarouter.aws.sqs;
 
 import java.util.Properties;
 
-import com.amazonaws.regions.Regions;
-
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientOptions;
 import io.datarouter.storage.client.ClientOptionsBuilder;
+import software.amazon.awssdk.regions.Region;
 
 public class SqsClientOptionsBuilder implements ClientOptionsBuilder{
 
@@ -34,9 +33,9 @@ public class SqsClientOptionsBuilder implements ClientOptionsBuilder{
 		properties.setProperty(ClientOptions.makeClientTypeKey(clientIdName), SqsClientType.NAME);
 	}
 
-	public SqsClientOptionsBuilder withRegion(Regions region){
+	public SqsClientOptionsBuilder withRegion(Region region){
 		String optionKey = makeKey(SqsOptions.PROP_region);
-		properties.setProperty(optionKey, region.getName());
+		properties.setProperty(optionKey, region.id());
 		return this;
 	}
 

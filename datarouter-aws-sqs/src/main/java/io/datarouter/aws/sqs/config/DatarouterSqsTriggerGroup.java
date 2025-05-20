@@ -17,6 +17,8 @@ package io.datarouter.aws.sqs.config;
 
 import io.datarouter.aws.sqs.job.SqsMonitoringJob;
 import io.datarouter.job.BaseTriggerGroup;
+import io.datarouter.job.util.DatarouterCronTool;
+import io.datarouter.storage.config.properties.ServiceName;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.util.time.ZoneIds;
 import jakarta.inject.Inject;
@@ -26,10 +28,12 @@ import jakarta.inject.Singleton;
 public class DatarouterSqsTriggerGroup extends BaseTriggerGroup{
 
 	@Inject
-	public DatarouterSqsTriggerGroup(DatarouterSqsSettingsRoot settings){
+	public DatarouterSqsTriggerGroup(
+			ServiceName serviceNameSupplier,
+			DatarouterSqsSettingsRoot settings){
 		super("DatarouterSqs", Tag.DATAROUTER, ZoneIds.AMERICA_NEW_YORK);
 		registerLocked(
-				"30 * * * * ?",
+				DatarouterCronTool.everyMinute(serviceNameSupplier.get(), "SqsMonitoringJob"),
 				settings.runSqsMonitoringJob,
 				SqsMonitoringJob.class,
 				true);

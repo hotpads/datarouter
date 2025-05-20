@@ -72,6 +72,8 @@ public class DatarouterAccountLastUsedDateService{
 		//make a copy of keySet() instead of using it directly (because keySet() is backed by the Map)
 		var accountKeys = new HashSet<>(lastUsedByAccount.keySet());
 		accountDao.scanMulti(accountKeys)
+				.include(account -> account.getLastUsed() == null
+						|| lastUsedByAccount.get(account.getKey()).isAfter(account.getLastUsed()))
 				.each(account -> account.setLastUsed(lastUsedByAccount.get(account.getKey())))
 				.flush(accountDao::putMulti);
 		//remove all the copied keys from the Map, even if they weren't found/updated in the DB
@@ -79,12 +81,17 @@ public class DatarouterAccountLastUsedDateService{
 
 		var credentialKeys = new HashSet<>(lastUsedByCredential.keySet());
 		credentialDao.scanMulti(credentialKeys)
+				.include(credential -> credential.getLastUsed() == null
+						|| lastUsedByCredential.get(credential.getKey()).isAfter(credential.getLastUsed()))
 				.each(credential -> credential.setLastUsed(lastUsedByCredential.get(credential.getKey())))
 				.flush(credentialDao::updateMultiIgnore);
 		credentialKeys.forEach(lastUsedByCredential::remove);
 
 		var secretCredentialKeys = new HashSet<>(lastUsedBySecretCredential.keySet());
 		secretCredentialDao.scanMulti(secretCredentialKeys)
+				.include(secretCredential -> secretCredential.getLastUsed() == null
+						|| lastUsedBySecretCredential.get(secretCredential.getKey())
+								.isAfter(secretCredential.getLastUsed()))
 				.each(credential -> credential.setLastUsed(lastUsedBySecretCredential.get(credential.getKey())))
 				.flush(secretCredentialDao::updateMultiIgnore);
 		secretCredentialKeys.forEach(lastUsedBySecretCredential::remove);

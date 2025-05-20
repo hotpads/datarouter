@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory;
 import io.datarouter.auth.session.CurrentSessionInfo;
 import io.datarouter.auth.session.Session;
 import io.datarouter.exception.config.DatarouterExceptionSettingRoot;
-import io.datarouter.exception.conveyors.DatarouterExceptionBuffers;
 import io.datarouter.exception.storage.exceptionrecord.ExceptionRecord;
 import io.datarouter.exception.storage.exceptionrecord.ExceptionRecordKey;
 import io.datarouter.exception.storage.httprecord.HttpRequestRecord;
@@ -39,6 +38,8 @@ import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.storage.config.properties.ServiceName;
 import io.datarouter.storage.exception.ExceptionCategory;
 import io.datarouter.storage.exception.UnknownExceptionCategory;
+import io.datarouter.storage.servertype.ServerTypeDetector;
+import io.datarouter.trace.conveyor.DatarouterDebuggingBuffers;
 import io.datarouter.web.app.WebappName;
 import io.datarouter.web.config.DatarouterWebSettingRoot;
 import io.datarouter.web.dispatcher.Dispatcher;
@@ -59,8 +60,6 @@ public class DefaultExceptionRecorder implements ExceptionRecorder{
 	@Inject
 	private GitProperties gitProperties;
 	@Inject
-	private ExceptionRecordService exceptionRecordService;
-	@Inject
 	private ExceptionDetailsDetector exceptionDetailsDetector;
 	@Inject
 	private DatarouterWebSettingRoot datarouterWebSettingRoot;
@@ -71,7 +70,7 @@ public class DefaultExceptionRecorder implements ExceptionRecorder{
 	@Inject
 	private DatarouterExceptionSettingRoot settings;
 	@Inject
-	private DatarouterExceptionBuffers exceptionBuffers;
+	private DatarouterDebuggingBuffers debuggingBuffers;
 	@Inject
 	private ServerName serverName;
 	@Inject
@@ -80,6 +79,8 @@ public class DefaultExceptionRecorder implements ExceptionRecorder{
 	private EnvironmentName environmentName;
 	@Inject
 	private IpAddressService ipAddressService;
+	@Inject
+	private ServerTypeDetector detector;
 
 	@Override
 	public Optional<ExceptionRecordDto> tryRecordException(Throwable exception, String callOrigin){
@@ -193,17 +194,10 @@ public class DefaultExceptionRecorder implements ExceptionRecorder{
 				additionalEmailRecipients,
 				environmentName.get());
 		exceptionRecord.trimFields();
-		if(settings.saveRecordsLocally.get()){
-			exceptionBuffers.exceptionRecordBuffer.offer(exceptionRecord);
-			logger.warn("Exception recorded ({})", exceptionRecordService.buildExceptionLinkForCurrentServer(
-					exceptionRecord));
-		}
 		if(settings.publishRecords.get()){
-			exceptionBuffers.exceptionRecordPublishingBuffer.offer(exceptionRecord);
-			if(!settings.saveRecordsLocally.get()){
-				logger.warn("Exception recorded with id {}", exceptionRecord.getKey().getId());
-			}
+			debuggingBuffers.exceptions.offer(exceptionRecord.toDto());
 		}
+		logger.warn("Exception recorded with id {}", exceptionRecord.getKey().getId());
 		return exceptionRecord.toDto();
 	}
 
@@ -306,13 +300,14 @@ public class DefaultExceptionRecorder implements ExceptionRecorder{
 
 	private void saveAndPublishHttpRequest(HttpRequestRecord httpRequestRecord, boolean publish){
 		httpRequestRecord.trimFields();
-		if(settings.saveRecordsLocally.get()){
-			exceptionBuffers.httpRequestRecordBuffer.offer(httpRequestRecord);
-		}
 		httpRequestRecord.trimBinaryBody(ExceptionInstrumentationConstants.MAX_SIZE_BINARY_BODY);
 		if(publish && settings.publishRecords.get()){
-			exceptionBuffers.httpRequestRecordPublishingBuffer.offer(httpRequestRecord);
+			debuggingBuffers.httpRequests.offer(httpRequestRecord.toDto());
 		}
+	}
+
+	public Boolean publishToSharedNonProdQueue(){
+		return !detector.mightBeProduction() && settings.publishNonProdDataToSharedQueue.get();
 	}
 
 }

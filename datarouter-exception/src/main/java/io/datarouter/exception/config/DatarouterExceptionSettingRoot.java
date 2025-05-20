@@ -15,10 +15,8 @@
  */
 package io.datarouter.exception.config;
 
-import io.datarouter.storage.config.environment.EnvironmentType;
 import io.datarouter.storage.setting.DatarouterSettingCategory;
 import io.datarouter.storage.setting.DatarouterSettingTagType;
-import io.datarouter.storage.setting.Setting;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.SettingRoot;
 import io.datarouter.storage.setting.cached.CachedSetting;
@@ -28,51 +26,24 @@ import jakarta.inject.Singleton;
 @Singleton
 public class DatarouterExceptionSettingRoot extends SettingRoot{
 
-	//controls ExceptionRecords publishing destination
-	public final CachedSetting<Boolean> saveTaskExecutorRecordsToQueueDaoInsteadOfDirectoryDao;
-
-
 	public final CachedSetting<Boolean> forceHideStackTrace;
 	public final CachedSetting<String> exceptionRecorderDomainName;
 
-	public final CachedSetting<Boolean> runExceptionRecordAggregationJob;
-	public final CachedSetting<Boolean> runExceptionRecordVacuum;
-	public final CachedSetting<Boolean> runHttpRequestRecordVacuumJob;
-
-	public final CachedSetting<Boolean> saveRecordsLocally;
 	public final CachedSetting<Boolean> publishRecords;
 
-	public final CachedSetting<Boolean> compactExceptionLoggingForConveyors;
-
-	public final Setting<Integer> exceptionRecordPublishThreadCount;
-	public final Setting<Integer> httpRequestRecordPublishThreadCount;
-
-	public final Setting<Integer> exceptionRecordAggregationJobBatchSize;
+	public final CachedSetting<Boolean> publishNonProdDataToSharedQueue;
 
 	@Inject
 	public DatarouterExceptionSettingRoot(SettingFinder finder){
 		super(finder, DatarouterSettingCategory.DATAROUTER, "datarouterException.");
 
-		saveTaskExecutorRecordsToQueueDaoInsteadOfDirectoryDao = registerBoolean(
-				"saveTaskExecutorRecordsToQueueDaoInsteadOfDirectoryDao", false);
-
 		forceHideStackTrace = registerBoolean("forceHideStackTrace", false);
 		exceptionRecorderDomainName = registerString("exceptionRecorderDomainName", "localhost:8443");
 
-		runExceptionRecordAggregationJob = registerBoolean("runExceptionRecordAggregationJob", false);
-		runExceptionRecordVacuum = registerBoolean("runExceptionRecordVacuum", false);
-		runHttpRequestRecordVacuumJob = registerBoolean("runHttpRequestRecordVacuumJob", false);
-
-		saveRecordsLocally = registerBooleans("saveRecordsLocally", defaultTo(true)
-				.withEnvironmentType(EnvironmentType.PRODUCTION, false));
 		publishRecords = registerBooleans("publishRecords", defaultTo(false)
 				.withTag(DatarouterSettingTagType.EXCEPTION_PIPELINE, () -> true));
 
-		compactExceptionLoggingForConveyors = registerBoolean("compactExceptionLoggingForConveyors", true);
-		exceptionRecordPublishThreadCount = registerInteger("exceptionRecordPublishThreadCount", 1);
-		httpRequestRecordPublishThreadCount = registerInteger("httpRequestRecordPublishThreadCount", 1);
-
-		exceptionRecordAggregationJobBatchSize = registerInteger("exceptionRecordAggregationJobBatchSize", 100);
+		publishNonProdDataToSharedQueue = registerBoolean("publishNonProdDataToSharedQueue", false);
 	}
 
 }

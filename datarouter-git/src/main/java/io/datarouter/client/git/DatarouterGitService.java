@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.eclipse.jgit.api.CheckoutCommand;
+import org.eclipse.jgit.api.CleanCommand;
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.CommitCommand;
 import org.eclipse.jgit.api.DiffCommand;
@@ -223,6 +224,10 @@ public class DatarouterGitService{
 
 		public ResetCommand reset(){
 			return git.reset().setProgressMonitor(progressMonitorFactory.newMonitor(DatarouterGitOp.RESET));
+		}
+
+		public CleanCommand clean(){
+			return git.clean();
 		}
 
 		public interface Runner<T>{

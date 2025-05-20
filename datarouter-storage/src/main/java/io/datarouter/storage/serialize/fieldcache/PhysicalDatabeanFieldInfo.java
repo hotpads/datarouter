@@ -15,6 +15,7 @@
  */
 package io.datarouter.storage.serialize.fieldcache;
 
+import java.util.List;
 import java.util.Optional;
 
 import io.datarouter.model.databean.Databean;
@@ -23,6 +24,8 @@ import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.tableconfig.NodewatchConfiguration;
+import io.datarouter.storage.privacy.DatarouterPrivacyExemptionReason;
+import io.datarouter.storage.privacy.DatarouterPrivacyProcessor;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.util.string.StringTool;
 
@@ -39,6 +42,8 @@ extends DatabeanFieldInfo<PK,D,F>{
 	private final boolean disableForcePrimary;
 	private final Tag tag;
 	private final boolean disableIntroducer;
+	private final List<Class<? extends DatarouterPrivacyProcessor>> privacyProcessors;
+	private final Optional<DatarouterPrivacyExemptionReason> privacyExemptionReason;
 
 	public PhysicalDatabeanFieldInfo(NodeParams<PK,D,F> params){
 		super(params);
@@ -48,10 +53,10 @@ extends DatabeanFieldInfo<PK,D,F>{
 			this.tableName = params.getPhysicalName();
 		}else if(StringTool.notEmpty(params.getPhysicalName())){
 			//explicitly set tableName.  do after entity check since that also sets a table name
-			if(params.getPath() == null){
+			if(params.getPathSupplier().get() == null){
 				this.tableName = params.getPhysicalName();
 			}else{
-				this.tableName = params.getPhysicalName() + "/" + params.getPath();
+				this.tableName = params.getPhysicalName() + "/" + params.getPathSupplier().get();
 			}
 		}else{//default to using the databean's name as the table name
 			this.tableName = params.getDatabeanSupplier().get().getDatabeanName();
@@ -65,6 +70,8 @@ extends DatabeanFieldInfo<PK,D,F>{
 		this.disableForcePrimary = params.getDisableForcePrimary();
 		this.tag = params.getTag();
 		this.disableIntroducer = params.getDisableIntroducer();
+		this.privacyProcessors = params.getPrivacyProcessors();
+		this.privacyExemptionReason = params.getPrivacyExemptionReason();
 	}
 
 	public ClientId getClientId(){
@@ -97,6 +104,14 @@ extends DatabeanFieldInfo<PK,D,F>{
 
 	public boolean getDisableIntroducer(){
 		return disableIntroducer;
+	}
+
+	public List<Class<? extends DatarouterPrivacyProcessor>> getPrivacyProcessors(){
+		return privacyProcessors;
+	}
+
+	public Optional<DatarouterPrivacyExemptionReason> getPrivacyExemptionReason(){
+		return privacyExemptionReason;
 	}
 
 	@Override

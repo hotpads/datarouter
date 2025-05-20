@@ -303,19 +303,6 @@ public interface DatarouterS3Client{
 			Threads threads,
 			ByteLength minPartSize);
 
-	/*---------- data write bytes multipart Scanner ---------*/
-
-	/*
-	 * Each List<byte[]> becomes an UploadPart.
-	 * Implementation can upload the byte[]s within a part without concatenating them.
-	 * Caller therefore determines size of parts.
-	 */
-	void multithreadUpload(
-			BucketAndKey location,
-			S3ContentType contentType,
-			Scanner<InputStreamAndLength> parts,
-			Threads threads);
-
 	/*----------- data write bytes multipart sub-ops ----------*/
 
 	String createMultipartUploadRequest(

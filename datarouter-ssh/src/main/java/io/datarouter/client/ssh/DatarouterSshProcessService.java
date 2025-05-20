@@ -16,7 +16,9 @@
 package io.datarouter.client.ssh;
 
 import java.io.InputStream;
+import java.time.Duration;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import io.datarouter.client.ssh.DatarouterSshExecutors.DatarouterSshOutputProcessorExecutor;
@@ -31,11 +33,21 @@ public class DatarouterSshProcessService{
 	@Inject
 	private DatarouterSshOutputProcessorExecutor executor;
 
-	public RunNativeDto runProcess(Process process){
+	public RunNativeDto runProcess(Process process, Duration timeout){
 		try{
 			Future<String> stdout = processStdStream(process.getInputStream());
 			Future<String> stderr = processStdStream(process.getErrorStream());
-			int exitVal = process.waitFor();
+			int exitVal;
+			if(timeout.isZero()){
+				exitVal = process.waitFor();
+			}else{
+				boolean finished = process.waitFor(timeout.toMillis(), TimeUnit.MILLISECONDS);
+				if(!finished){
+					process.destroyForcibly();
+					throw new RuntimeException("SSH process timed out after " + timeout.toMillis() + "ms");
+				}
+				exitVal = process.exitValue();
+			}
 			String stdoutStr = stdout.get();
 			String stderrStr = stderr.get();
 			return new RunNativeDto(exitVal, stdoutStr, stderrStr);

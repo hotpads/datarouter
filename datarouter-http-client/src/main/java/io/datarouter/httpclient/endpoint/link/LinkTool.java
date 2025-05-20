@@ -19,10 +19,15 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.apache.http.NameValuePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,14 +46,10 @@ public class LinkTool{
 	public static Map<String,String> getParamFields(BaseLink<?> link){
 		Map<String,String> getParams = new LinkedHashMap<>();
 		for(Field field : link.getClass().getFields()){
-			IgnoredField ignoredField = field.getAnnotation(IgnoredField.class);
-			if(ignoredField != null){
+			if(shouldIgnoreField(field)){
 				continue;
 			}
-			if(Modifier.isStatic(field.getModifiers())){
-				continue;
-			}
-			if(field.getAnnotation(RequestBody.class) != null){
+			if(isNameValueListField(field)){
 				continue;
 			}
 			String key = getFieldName(field);
@@ -73,6 +74,60 @@ public class LinkTool{
 			parsedValue.ifPresent(paramValue -> getParams.put(key, paramValue));
 		}
 		return getParams;
+	}
+
+	// TODO this isn't supported yet when the Link is used in a Handler param
+	public static List<NameValuePair> getNameValueListParamFields(BaseLink<?> link){
+		List<NameValuePair> list = new ArrayList<>();
+		for(Field field : link.getClass().getFields()){
+			if(shouldIgnoreField(field)){
+				continue;
+			}
+			if(!isNameValueListField(field)){
+				continue;
+			}
+			String key = getFieldName(field);
+			Object value = null;
+			try{
+				value = field.get(link);
+			}catch(IllegalArgumentException | IllegalAccessException ex){
+				logger.error("", ex);
+			}
+			if(value == null){
+				throw new RuntimeException(String.format(
+						"%s: List Fields cannot be null. '%s' needs to be initialized to an empty List",
+						link.getClass().getSimpleName(), key));
+			}
+			list.addAll((List<NameValuePair>)value);
+		}
+		return list;
+	}
+
+	private static boolean isNameValueListField(Field field){
+		Type genericType = field.getGenericType();
+		if(genericType instanceof ParameterizedType parameterizedType){
+			Type[] typeArguments = parameterizedType.getActualTypeArguments();
+			for(Type typeArgument : typeArguments){
+				if(((Class<?>)typeArgument).isAssignableFrom(NameValuePair.class)){
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	private static boolean shouldIgnoreField(Field field){
+		IgnoredField ignoredField = field.getAnnotation(IgnoredField.class);
+		if(ignoredField != null){
+			return true;
+		}
+		if(Modifier.isStatic(field.getModifiers())){
+			return true;
+		}
+		if(field.getAnnotation(RequestBody.class) != null){
+			return true;
+		}
+		return false;
 	}
 
 	private static String getFieldName(Field field){

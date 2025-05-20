@@ -80,7 +80,7 @@ public class TableStorageSummaryJob extends BaseJob{
 		// Save a summary for each table
 		List<TableStorageStatsBinaryDto> tableDtos = Scanner.of(nodes)
 				.sort(Comparator.comparing(Node::getName))
-				.advanceUntil($ -> tracker.increment().shouldStop())
+				.advanceUntil(_ -> tracker.increment().shouldStop())
 				.map(node -> processTable(tracker, node))
 				.list();
 		// Save a service-level summary

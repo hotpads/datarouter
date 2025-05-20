@@ -41,7 +41,7 @@ public class IpAddressService{
 	private static final boolean IS_GCP = GcpInstanceTool.isGcp();
 
 	@Inject
-	private CloudfrontIpRange cloudfrontIpRange;
+	private TrustedProxy trustedProxy;
 
 	public IpDetectionDto getIpDetectionDto(HttpServletRequest request){
 		return new IpDetectionDto(
@@ -62,29 +62,23 @@ public class IpAddressService{
 		return getIpAddress(request, IS_GCP);
 	}
 
-	// for tests
-	protected String getIpAddress(HttpServletRequest request, boolean isGcp){
-		return getIpAddress(request, isGcp, RequestTool.PRIVATE_NETS);
-	}
-
-	private String getIpAddress(
+	public String getIpAddress(
 			HttpServletRequest request,
-			boolean isGcp,
-			List<Subnet> privateSubnets){
+			boolean isGcp){
 		if(request == null){
 			return null;
 		}
 
 		//Node servers send in the original X-Forwarded-For as X-Client-IP
 		List<String> clientIp = RequestTool.getAllHeaderValuesOrdered(request, HttpHeaders.X_CLIENT_IP);
-		Optional<String> lastNonInternalIp = getLastNonInternalIp(clientIp, 0, privateSubnets);
+		Optional<String> lastNonInternalIp = getLastNonInternalIp(clientIp, 0);
 		if(lastNonInternalIp.isPresent()){
 			return lastNonInternalIp.get();
 		}
 
 		//no x-client-ip present, check x-forwarded-for
 		List<String> forwardedFor = RequestTool.getAllHeaderValuesOrdered(request, HttpHeaders.X_FORWARDED_FOR);
-		lastNonInternalIp = getLastNonInternalIp(forwardedFor, isGcp ? 1 : 0, privateSubnets); // GCP adds LB IP
+		lastNonInternalIp = getLastNonInternalIp(forwardedFor, isGcp ? 1 : 0); // GCP adds LB IP
 		if(lastNonInternalIp.isPresent()){
 			return lastNonInternalIp.get();
 		}
@@ -107,19 +101,25 @@ public class IpAddressService{
 
 	private Optional<String> getLastNonInternalIp(
 			List<String> headerValues,
-			int ipsToSkipFromEnd,
-			List<Subnet> privateSubnets){
+			int ipsToSkipFromEnd){
 		return Scanner.of(headerValues)
 				.reverse()
 				.include(RequestTool::isAValidIpV4)
-				.include(ip -> RequestTool.isPublicNet(ip, privateSubnets))
+				.exclude(ip -> {
+					Optional<Subnet> matchingSubnet = trustedProxy.findInternalProxy(ip);
+					if(matchingSubnet.isPresent()){
+						logger.info("IpDetection internalProxy ip=" + ip + " subnet=" + matchingSubnet.get().cidr);
+						Metrics.count("IpDetection internalProxy " + matchingSubnet.get().cidr);
+					}
+					return matchingSubnet.isPresent();
+				})
 				.skip(ipsToSkipFromEnd)
 				.exclude(ip -> {
-					Optional<Subnet> cloudfrontSubnet = cloudfrontIpRange.find(ip);
-					if(cloudfrontSubnet.isPresent()){
-						Metrics.count("IpDetection cloudfront " + cloudfrontSubnet.get().cidr);
+					Optional<Subnet> matchingSubnet = trustedProxy.findCloudfront(ip);
+					if(matchingSubnet.isPresent()){
+						Metrics.count("IpDetection cloudfront " + matchingSubnet.get().cidr);
 					}
-					return cloudfrontSubnet.isPresent();
+					return matchingSubnet.isPresent();
 				})
 				.findFirst();
 	}

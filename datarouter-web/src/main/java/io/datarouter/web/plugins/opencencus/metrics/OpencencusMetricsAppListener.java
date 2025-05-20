@@ -99,11 +99,11 @@ public class OpencencusMetricsAppListener implements DatarouterAppListener{
 						logger.warn("too many points metric={}", metric);
 					}
 					Long value = points.getFirst().getValue().match(
-							doubleValue -> null,
+							_ -> null,
 							longValue -> longValue,
-							distributionValue -> null,
-							summaryValue -> null,
-							ocValue -> null);
+							_ -> null,
+							_ -> null,
+							_ -> null);
 					var metricDto = new OpencencusMetricsDto(name, labels);
 					sendMetricToMapper(metricDto, type, mappers, value);
 				}

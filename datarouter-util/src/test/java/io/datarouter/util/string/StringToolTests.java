@@ -65,6 +65,17 @@ public class StringToolTests{
 	}
 
 	@Test
+	public void testSplitByMaxLength(){
+		Assert.assertEquals(StringTool.splitByMaxLength("", 1), List.of(""));
+		Assert.assertEquals(StringTool.splitByMaxLength(null, 1), List.of());
+		Assert.assertEquals(StringTool.splitByMaxLength("abcdefg", 0), List.of());
+		Assert.assertEquals(StringTool.splitByMaxLength("abcdefg", 1), List.of("a", "b", "c", "d", "e", "f", "g"));
+		Assert.assertEquals(StringTool.splitByMaxLength("abcdefg", 2), List.of("ab", "cd", "ef", "g"));
+		Assert.assertEquals(StringTool.splitByMaxLength("abcdefgh", 2), List.of("ab", "cd", "ef", "gh"));
+		Assert.assertEquals(StringTool.splitByMaxLength("abcdefgh", 3), List.of("abc", "def", "gh"));
+	}
+
+	@Test
 	public void testCaseInsensitive(){
 		String aa = "dawgy";
 		String bb = "dawGy";

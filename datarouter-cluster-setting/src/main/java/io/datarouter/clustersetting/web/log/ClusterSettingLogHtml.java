@@ -31,12 +31,12 @@ import java.time.ZoneId;
 
 import io.datarouter.clustersetting.enums.ClusterSettingLogAction;
 import io.datarouter.clustersetting.enums.ClusterSettingScope;
+import io.datarouter.clustersetting.link.ClusterSettingBrowseLink;
+import io.datarouter.clustersetting.link.ClusterSettingSingleLogLink;
 import io.datarouter.clustersetting.storage.clustersettinglog.ClusterSettingLog;
 import io.datarouter.clustersetting.storage.clustersettinglog.ClusterSettingLogKey;
 import io.datarouter.clustersetting.web.ClusterSettingHtml;
-import io.datarouter.clustersetting.web.browse.ClusterSettingBrowseHandler.ClusterSettingBrowseHandlerParams;
-import io.datarouter.clustersetting.web.browse.ClusterSettingBrowseHandler.ClusterSettingBrowseLinks;
-import io.datarouter.clustersetting.web.log.ClusterSettingLogHandler.ClusterSettingLogLinks;
+import io.datarouter.httpclient.endpoint.link.DatarouterLinkClient;
 import io.datarouter.util.time.ZonedDateFormatterTool;
 import io.datarouter.web.html.j2html.J2HtmlTable;
 import j2html.tags.specialized.DivTag;
@@ -48,9 +48,7 @@ import jakarta.inject.Singleton;
 public class ClusterSettingLogHtml{
 
 	@Inject
-	private ClusterSettingBrowseLinks browseLinks;
-	@Inject
-	private ClusterSettingLogLinks clusterSettingLogLinks;
+	private DatarouterLinkClient linkClient;
 	@Inject
 	private ClusterSettingHtml clusterSettingHtml;
 
@@ -58,7 +56,7 @@ public class ClusterSettingLogHtml{
 
 	public DivTag makeCard(ZoneId zoneId, ClusterSettingLog log){
 		String time = log.getKey().getMilliTimeReversed().format(zoneId);
-		String browseHref = browseLinks.all(new ClusterSettingBrowseHandlerParams()
+		String browseHref = linkClient.toInternalUrl(new ClusterSettingBrowseLink()
 				.withLocation(log.getKey().getName()));
 		var cardTitle = div(b(time))
 				.withClass("bg-light p-3");
@@ -147,25 +145,28 @@ public class ClusterSettingLogHtml{
 
 	private TdTag makeTimeCell(ClusterSettingLogKey key, ZoneId zoneId){
 		String text = key.getMilliTimeReversed().format(ZonedDateFormatterTool.FORMATTER_DESC, zoneId);
-		String href = clusterSettingLogLinks.single(key.getName(), key.getMilliTimeReversed());
+		String href = linkClient.toInternalUrl(new ClusterSettingSingleLogLink(key.getName(),
+				key.getMilliTimeReversed()));
 		var link = a(text).withHref(href);
 		return td(link);
 	}
 
 	private TdTag makeNameCell(ClusterSettingLog log){
-		String browseHref = browseLinks.all(new ClusterSettingBrowseHandlerParams()
+		String browseHref = linkClient.toInternalUrl(new ClusterSettingBrowseLink()
 				.withLocation(log.getKey().getName()));
 		var link = a(log.getKey().getName()).withHref(browseHref);
 		return td(link);
 	}
 
 	private TdTag makeCommentCell(ClusterSettingLog log){
-		String detailsHref = clusterSettingLogLinks.single(log.getKey().getName(), log.getKey().getMilliTimeReversed());
+		String detailsHref = linkClient.toInternalUrl(new ClusterSettingSingleLogLink(log.getKey().getName(),
+				log.getKey().getMilliTimeReversed()));
 		return clusterSettingHtml.makeLimitedLengthLinkCell(log.getComment(), detailsHref);
 	}
 
 	private TdTag makeValueCell(ClusterSettingLog log){
-		String detailsHref = clusterSettingLogLinks.single(log.getKey().getName(), log.getKey().getMilliTimeReversed());
+		String detailsHref = linkClient.toInternalUrl(
+				new ClusterSettingSingleLogLink(log.getKey().getName(), log.getKey().getMilliTimeReversed()));
 		return clusterSettingHtml.makeLimitedLengthLinkCell(log.getValue(), detailsHref);
 	}
 

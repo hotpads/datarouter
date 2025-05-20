@@ -22,6 +22,7 @@ public class NodewatchConfigurationBuilder{
 	public static final int DEFAULT_BATCH_SIZE = 1_000;
 	public static final boolean DEFAULT_ENABLE_SHADOW_TABLE_EXPORT = true;
 	public static final boolean DEFAULT_ENABLE_SHADOW_TABLE_COMPRESSION = true;
+	public static final int DEFAULT_SHADOW_TABLE_SCAN_BATCH_SIZE = 1_000;
 
 	private boolean enabled;
 	private int sampleSize;
@@ -31,6 +32,7 @@ public class NodewatchConfigurationBuilder{
 	private Long threshold;
 	private boolean enableShadowTableExport;
 	private boolean enableShadowTableCompression;
+	private int shadowTableScanBatchSize;
 
 	public NodewatchConfigurationBuilder(){
 		this.enabled = DEFAULT_ENABLED;
@@ -40,6 +42,7 @@ public class NodewatchConfigurationBuilder{
 		this.enabledThresholdAlert = true;
 		this.enableShadowTableExport = DEFAULT_ENABLE_SHADOW_TABLE_EXPORT;
 		this.enableShadowTableCompression = DEFAULT_ENABLE_SHADOW_TABLE_COMPRESSION;
+		this.shadowTableScanBatchSize = DEFAULT_SHADOW_TABLE_SCAN_BATCH_SIZE;
 	}
 
 	public NodewatchConfigurationBuilder withSampleSize(int sampleSize){
@@ -87,6 +90,11 @@ public class NodewatchConfigurationBuilder{
 		return this;
 	}
 
+	public NodewatchConfigurationBuilder withShadowTableScanBatchSize(int shadowTableScanBatchSize){
+		this.shadowTableScanBatchSize = shadowTableScanBatchSize;
+		return this;
+	}
+
 	public NodewatchConfiguration create(ClientTableEntityPrefixNameWrapper wrapper){
 		return new NodewatchConfiguration(
 				wrapper,
@@ -97,7 +105,8 @@ public class NodewatchConfigurationBuilder{
 				enabledPercentageAlert,
 				enabledThresholdAlert,
 				enableShadowTableExport,
-				enableShadowTableCompression);
+				enableShadowTableCompression,
+				shadowTableScanBatchSize);
 	}
 
 }

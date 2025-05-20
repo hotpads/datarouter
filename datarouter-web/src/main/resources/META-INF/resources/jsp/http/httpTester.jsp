@@ -17,6 +17,7 @@
 					<select class="form-control" id="method" name="method">
 						<option value="GET">GET</option>
 						<option value="POST">POST</option>
+						<option value="HEAD">HEAD</option>
 					</select>
 				</div>
 				<div class="col">

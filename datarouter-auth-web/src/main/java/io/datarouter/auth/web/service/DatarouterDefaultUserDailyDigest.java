@@ -15,8 +15,6 @@
  */
 package io.datarouter.auth.web.service;
 
-import static j2html.TagCreator.div;
-
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
@@ -26,25 +24,24 @@ import io.datarouter.auth.service.DatarouterUserCreationService;
 import io.datarouter.auth.storage.user.datarouteruser.DatarouterUser;
 import io.datarouter.auth.storage.user.datarouteruser.DatarouterUserDao;
 import io.datarouter.auth.storage.user.datarouteruser.DatarouterUserKey;
-import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.instrumentation.relay.rml.Rml;
 import io.datarouter.instrumentation.relay.rml.RmlBlock;
 import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
-import io.datarouter.web.digest.DailyDigestService;
-import j2html.tags.specialized.DivTag;
-import j2html.tags.specialized.TableTag;
+import io.datarouter.web.digest.DailyDigestRmlService;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterDefaultUserDailyDigest implements DailyDigest{
 
+	private static final String DEFAULT_USER_CATEGORY = "defaultUser";
+
 	@Inject
 	private DatarouterUserDao datarouterUserDao;
 	@Inject
-	private DailyDigestService dailyDigestService;
+	private DailyDigestRmlService dailyDigestService;
 	@Inject
 	private DatarouterAuthPaths authPaths;
 	@Inject
@@ -63,21 +60,6 @@ public class DatarouterDefaultUserDailyDigest implements DailyDigest{
 	@Override
 	public DailyDigestGrouping getGrouping(){
 		return DailyDigestGrouping.MEDIUM;
-	}
-
-	@Override
-	public Optional<DivTag> getEmailContent(ZoneId zoneId){
-		if(!serverTypeDetector.mightBeProduction()){
-			return Optional.empty();
-		}
-		Optional<List<String>> username = findDefaultUsername()
-				.map(List::of);
-		if(username.isEmpty()){
-			return Optional.empty();
-		}
-		var header = dailyDigestService.makeHeader("Please remove the default user", authPaths.admin.viewUsers);
-		var table = buildEmailTable(username.get());
-		return Optional.of(div(header, table));
 	}
 
 	@Override
@@ -101,15 +83,25 @@ public class DatarouterDefaultUserDailyDigest implements DailyDigest{
 										.map(Rml::tableRow))));
 	}
 
+	@Override
+	public List<DailyDigestPlatformTask> getTasks(ZoneId zoneId){
+		if(!serverTypeDetector.mightBeProduction()){
+			return List.of();
+		}
+		return findDefaultUsername()
+				.map(username -> new DailyDigestPlatformTask(
+						List.of(DEFAULT_USER_CATEGORY, username),
+						List.of(DEFAULT_USER_CATEGORY),
+						"Default user " + username + " should be removed",
+						dailyDigestService.makeLink("Please remove the default user", authPaths.admin.viewUsers)))
+				.map(List::of)
+				.orElseGet(List::of);
+	}
+
 	private Optional<String> findDefaultUsername(){
 		Long defaultAdminId = DatarouterUserCreationService.ADMIN_ID;
 		return datarouterUserDao.find(new DatarouterUserKey(defaultAdminId))
 				.map(DatarouterUser::getUsername);
 	}
 
-	private TableTag buildEmailTable(List<String> rows){
-		return new J2HtmlEmailTable<String>()
-				.withColumn("Users", row -> row)
-				.build(rows);
-	}
 }

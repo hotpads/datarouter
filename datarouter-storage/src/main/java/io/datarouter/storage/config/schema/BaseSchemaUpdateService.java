@@ -114,16 +114,16 @@ public abstract class BaseSchemaUpdateService{
 		Iterator<Future<Optional<SchemaUpdateResult>>> futureIterator = futures.iterator();
 		MutableString oneStartupBlockReason = new MutableString("");
 		while(futureIterator.hasNext()){
-			Future<Optional<SchemaUpdateResult>> future = futureIterator.next();
-			if(wait || future.isDone()){
+			Future<Optional<SchemaUpdateResult>> schemaUpdateFuture = futureIterator.next();
+			if(wait || schemaUpdateFuture.isDone()){
 				try{
-					Optional<SchemaUpdateResult> optional = future.get();
-					if(optional.isEmpty()){
+					Optional<SchemaUpdateResult> schemaUpdateResultOpt = schemaUpdateFuture.get();
+					if(schemaUpdateResultOpt.isEmpty()){
 						continue;
 					}
-					printedSchemaUpdates.computeIfAbsent(optional.get().clientId, $ -> new ArrayList<>())
-							.add(optional.get().ddl);
-					optional.get().startupBlockReason
+					printedSchemaUpdates.computeIfAbsent(schemaUpdateResultOpt.get().clientId, _ -> new ArrayList<>())
+							.add(schemaUpdateResultOpt.get().ddl);
+					schemaUpdateResultOpt.get().startupBlockReason
 							.ifPresent(oneStartupBlockReason::set);
 				}catch(InterruptedException | ExecutionException e){
 					logger.error("", e);
@@ -157,7 +157,7 @@ public abstract class BaseSchemaUpdateService{
 			StringBuilder allStatements = new StringBuilder();
 			ddlList.forEach(ddl -> allStatements.append(ddl).append("\n\n"));
 			logger.warn("Sending schema update email for client={}, schemaupdate={}", clientId.getName(),
-					allStatements.toString());
+					allStatements);
 			sendEmail(subject, allStatements.toString());
 		});
 	}

@@ -52,7 +52,6 @@ import io.datarouter.web.api.web.BaseWebApi;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.HandlerMetrics;
 import io.datarouter.web.handler.encoder.HandlerEncoder;
-import io.datarouter.web.handler.types.optional.OptionalParameter;
 import io.datarouter.web.util.http.RequestTool;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
@@ -96,7 +95,6 @@ public class DefaultDecoder implements JsonAwareHandlerDecoder{
 		return decodeDefault(request, method);
 	}
 
-	@SuppressWarnings("deprecation")
 	private Object[] decodeDefault(HttpServletRequest request, Method method){
 		Map<String,String[]> queryParams = request.getParameterMap();
 		Parameter[] parameters = method.getParameters();
@@ -136,8 +134,7 @@ public class DefaultDecoder implements JsonAwareHandlerDecoder{
 					queryParam = queryParams.get(parameterName);
 				}
 
-				boolean isOptional = OptionalParameter.class.isAssignableFrom(parameter.getType())
-						|| Optional.class.isAssignableFrom(parameter.getType());
+				boolean isOptional = Optional.class.isAssignableFrom(parameter.getType());
 				if(queryParam == null && !isOptional){
 					return null;
 				}
@@ -158,18 +155,13 @@ public class DefaultDecoder implements JsonAwareHandlerDecoder{
 
 				String parameterValue = queryParam == null ? null : queryParam[0];
 				if(isOptional){
-					if(OptionalParameter.class.isAssignableFrom(parameter.getType())){
-						args[i] = OptionalParameter.makeOptionalParameter(parameterValue, parameterType, method,
-								parameter);
+					Class<?> innerType = MethodParameterExtractionTool
+							.extractParameterizedTypeFromOptionalParameter(parameter);
+					if(parameterValue == null || parameterValue.isEmpty()){
+						args[i] = Optional.empty();
 					}else{
-						Class<?> innerType = MethodParameterExtractionTool
-								.extractParameterizedTypeFromOptionalParameter(parameter);
-						if(parameterValue == null || parameterValue.isEmpty()){
-							args[i] = Optional.empty();
-						}else{
-							Object value = decodeType(parameterName, parameterValue, innerType);
-							args[i] = Optional.ofNullable(value);
-						}
+						Object value = decodeType(parameterName, parameterValue, innerType);
+						args[i] = Optional.ofNullable(value);
 					}
 				}else{
 					args[i] = decodeType(parameterName, parameterValue, parameterType);
@@ -863,8 +855,12 @@ public class DefaultDecoder implements JsonAwareHandlerDecoder{
 					field.set(baseLink, Optional.empty());
 				}else{
 					Type type = JavaEndpointTool.extractParameterizedType(field);
-					var optionalValue = decodeType(parameterName, parameterValue, type);
-					field.set(baseLink, Optional.of(optionalValue));
+					if(!type.equals(String.class) && "".equals(parameterValue)){
+						field.set(baseLink, Optional.empty());
+					}else{
+						var optionalValue = decodeType(parameterName, parameterValue, type);
+						field.set(baseLink, Optional.of(optionalValue));
+					}
 				}
 			}else{
 				field.set(baseLink, decodeType(parameterName, parameterValue, parameterType));
@@ -883,12 +879,10 @@ public class DefaultDecoder implements JsonAwareHandlerDecoder{
 				.count();
 	}
 
-	@SuppressWarnings("deprecation")
 	private static long getOptionalParameterCount(Parameter[] parameters){
 		return Scanner.of(parameters)
 				.map(Parameter::getType)
-				.include(type -> OptionalParameter.class.isAssignableFrom(type)
-						|| Optional.class.isAssignableFrom(type))
+				.include(type -> Optional.class.isAssignableFrom(type))
 				.count();
 	}
 

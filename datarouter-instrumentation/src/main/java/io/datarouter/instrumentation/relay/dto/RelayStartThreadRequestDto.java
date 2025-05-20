@@ -23,8 +23,10 @@ import io.datarouter.instrumentation.validation.DatarouterInstrumentationValidat
 
 public record RelayStartThreadRequestDto(
 		List<String> topics,
+		String from,
 		String subject,
-		RelayMessageBlockDto content){
+		RelayMessageBlockDto content,
+		List<String> fileIds){
 
 	public RelayStartThreadRequestDto{
 		DatarouterInstrumentationValidationTool.throwIfExceedsMaxSize(
@@ -35,9 +37,19 @@ public record RelayStartThreadRequestDto(
 
 	public RelayStartThreadRequestDto(
 			List<String> topics,
+			String from,
 			String subject,
-			RmlDoc doc){
-		this(topics, subject, doc.build());
+			RmlDoc content,
+			List<String> fileIds){
+		this(topics, from, subject, content.build(), fileIds);
+	}
+
+	public RelayStartThreadRequestDto(
+			List<String> topics,
+			String from,
+			String subject,
+			RmlDoc content){
+		this(topics, from, subject, content, List.of());
 	}
 
 }

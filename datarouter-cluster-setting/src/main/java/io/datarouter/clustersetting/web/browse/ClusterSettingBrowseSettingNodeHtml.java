@@ -23,13 +23,13 @@ import static j2html.TagCreator.strong;
 import java.util.Arrays;
 import java.util.List;
 
+import io.datarouter.clustersetting.link.ClusterSettingBrowseLink;
+import io.datarouter.clustersetting.link.ClusterSettingNodeLogLink;
 import io.datarouter.clustersetting.storage.clustersettinglog.DatarouterClusterSettingLogDao;
-import io.datarouter.clustersetting.web.browse.ClusterSettingBrowseHandler.ClusterSettingBrowseHandlerParams;
-import io.datarouter.clustersetting.web.browse.ClusterSettingBrowseHandler.ClusterSettingBrowseLinks;
 import io.datarouter.clustersetting.web.browse.ClusterSettingHierarchy.HierarchyNode;
 import io.datarouter.clustersetting.web.browse.setting.ClusterSettingBrowseSettingHtml;
 import io.datarouter.clustersetting.web.browse.setting.ClusterSettingBrowseSettingHtml.ClusterSettingBrowseSettingHtmlFactory;
-import io.datarouter.clustersetting.web.log.ClusterSettingLogHandler.ClusterSettingLogLinks;
+import io.datarouter.httpclient.endpoint.link.DatarouterLinkClient;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.setting.cached.CachedSetting;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4BreadcrumbsHtml;
@@ -39,11 +39,10 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
 public record ClusterSettingBrowseSettingNodeHtml(
-		ClusterSettingBrowseLinks browseLinks,
-		ClusterSettingLogLinks logLinks,
+		DatarouterLinkClient linkClient,
 		DatarouterClusterSettingLogDao logDao,
 		ClusterSettingBrowseSettingHtml settingHtml,
-		ClusterSettingBrowseHandlerParams params){
+		ClusterSettingBrowseLink params){
 
 	public DivTag makeSettingsDiv(
 			HierarchyNode settingNodeHierarchy,
@@ -77,7 +76,7 @@ public record ClusterSettingBrowseSettingNodeHtml(
 			if(isNode || i < tokens.size() - 1){
 				subLocation += ".";
 			}
-			String href = browseLinks.all(new ClusterSettingBrowseHandlerParams()
+			String href = linkClient.toInternalUrl(new ClusterSettingBrowseLink()
 					.withLocation(subLocation)
 					.withOptPartialName(params.partialName));
 			boolean active = isSetting && i == tokens.size() - 1;
@@ -93,7 +92,7 @@ public record ClusterSettingBrowseSettingNodeHtml(
 
 	private DivTag makeNodeLogsDiv(String nodeName, long nodeLogCount){
 		var logLink = a("View")
-				.withHref(logLinks.node(nodeName));
+				.withHref(linkClient.toInternalUrl(new ClusterSettingNodeLogLink(nodeName)));
 		var span = span(
 				strong("Node Logs"),
 				span(String.format("(%s)", nodeLogCount)).withStyle("color:gray;"),
@@ -116,18 +115,15 @@ public record ClusterSettingBrowseSettingNodeHtml(
 	@Singleton
 	public static class ClusterSettingBrowseSettingNodeHtmlFactory{
 		@Inject
-		private ClusterSettingBrowseLinks browseLinks;
-		@Inject
-		private ClusterSettingLogLinks logLinks;
-		@Inject
 		private DatarouterClusterSettingLogDao logDao;
 		@Inject
 		private ClusterSettingBrowseSettingHtmlFactory settingHtmlFactory;
+		@Inject
+		private DatarouterLinkClient linkClient;
 
-		public ClusterSettingBrowseSettingNodeHtml create(ClusterSettingBrowseHandlerParams params){
+		public ClusterSettingBrowseSettingNodeHtml create(ClusterSettingBrowseLink params){
 			return new ClusterSettingBrowseSettingNodeHtml(
-					browseLinks,
-					logLinks,
+					linkClient,
 					logDao,
 					settingHtmlFactory.create(params),
 					params);

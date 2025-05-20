@@ -40,7 +40,7 @@ public class JobletRequestKey extends BaseRegularPrimaryKey<JobletRequestKey>{
 	private String type;
 	private Integer executionOrder;
 	private Long created;//TODO rename createdMs or use Date
-	private Integer batchSequence = 0;//tie breaker for keys "created" in same millisecond
+	private Integer batchSequence;//tie breaker for keys "created" in same millisecond
 
 	public static class FieldKeys{
 		public static final StringFieldKey type = new StringFieldKey("type");
@@ -60,24 +60,25 @@ public class JobletRequestKey extends BaseRegularPrimaryKey<JobletRequestKey>{
 
 	/*----------------------- construct -----------------------*/
 
-	JobletRequestKey(){
+	public JobletRequestKey(){
 	}
 
-	private JobletRequestKey(JobletRequestKey other){
-		this.type = other.type;
-		this.executionOrder = other.executionOrder;
-		this.created = other.created;
-		this.batchSequence = other.batchSequence;
-	}
-
-	public JobletRequestKey(String type, Integer executionOrder, Long createdMs, Integer batchSequence){
+	public JobletRequestKey(
+			String type,
+			Integer executionOrder,
+			Long createdMs,
+			Integer batchSequence){
 		this.type = type;
 		this.executionOrder = executionOrder;
 		this.created = createdMs;
 		this.batchSequence = batchSequence;
 	}
 
-	public JobletRequestKey(JobletType<?> type, JobletPriority jobletPriority, Long createdMs, Integer batchSequence){
+	public JobletRequestKey(
+			JobletType<?> type,
+			JobletPriority jobletPriority,
+			Long createdMs,
+			Integer batchSequence){
 		this(type.getPersistentString(), jobletPriority.getExecutionOrder(), createdMs, batchSequence);
 	}
 
@@ -93,7 +94,13 @@ public class JobletRequestKey extends BaseRegularPrimaryKey<JobletRequestKey>{
 				batchSequence);
 	}
 
-	public static Scanner<JobletRequestKey> createPrefixesForTypesAndPriorities(
+	/*----------------- prefix ----------------------*/
+
+	public static JobletRequestKey prefix(String type, Integer executionOrder){
+		return new JobletRequestKey(type, executionOrder, null, null);
+	}
+
+	public static Scanner<JobletRequestKey> prefixesForTypesAndPriorities(
 			Collection<JobletType<?>> types,
 			Collection<JobletPriority> priorities){
 		return Scanner.of(types)
@@ -104,7 +111,7 @@ public class JobletRequestKey extends BaseRegularPrimaryKey<JobletRequestKey>{
 	/*----------------------- methods ---------------------------*/
 
 	public JobletRequestKey copy(){
-		return new JobletRequestKey(this);
+		return new JobletRequestKey(type, executionOrder, created, batchSequence);
 	}
 
 	public JobletPriority getPriority(){

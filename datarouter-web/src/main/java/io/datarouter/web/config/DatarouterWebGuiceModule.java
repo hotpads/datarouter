@@ -19,12 +19,14 @@ import java.time.ZoneId;
 import java.util.List;
 
 import com.google.gson.Gson;
+import com.google.inject.Provider;
 import com.google.inject.name.Names;
 
-import io.datarouter.auth.authenticate.saml.SamlRegistrar;
 import io.datarouter.auth.config.DatarouterAuthenticationConfig;
 import io.datarouter.auth.role.DatarouterRoleManager;
 import io.datarouter.auth.role.RoleManager;
+import io.datarouter.auth.security.ExternalDatarouterAccountValidator;
+import io.datarouter.auth.security.ExternalDatarouterAccountValidator.NoOpExternalDatarouterAccountValidator;
 import io.datarouter.auth.session.CurrentSessionInfo;
 import io.datarouter.auth.session.CurrentSessionInfo.NoOpCurrentSessionInfo;
 import io.datarouter.auth.session.UserSessionService;
@@ -33,12 +35,12 @@ import io.datarouter.auth.storage.user.saml.BaseDatarouterSamlDao;
 import io.datarouter.auth.storage.user.saml.BaseDatarouterSamlDao.NoOpDatarouterSamlDao;
 import io.datarouter.auth.storage.user.session.BaseDatarouterSessionDao;
 import io.datarouter.auth.storage.user.session.BaseDatarouterSessionDao.NoOpDatarouterSessionDao;
-import io.datarouter.gson.DatarouterGsons;
 import io.datarouter.gson.GsonJsonSerializer;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder.NoOpChangelogRecorder;
 import io.datarouter.instrumentation.web.ContextName;
 import io.datarouter.json.JsonSerializer;
+import io.datarouter.relay.DatarouterRelayPlugin.DatarouterRelayPluginDefaults;
 import io.datarouter.secret.config.DatarouterSecretPlugin.DatarouterSecretPluginBuilder.DatarouterSecretPluginBuilderImpl;
 import io.datarouter.storage.config.guice.DatarouterStorageGuiceModule;
 import io.datarouter.storage.config.properties.ServiceName;
@@ -65,13 +67,14 @@ import io.datarouter.web.navigation.AppNavBar;
 import io.datarouter.web.navigation.AppNavBarRegistrySupplier;
 import io.datarouter.web.navigation.AppNavBarRegistrySupplier.NoOpAppNavBarRegistry;
 import io.datarouter.web.user.authenticate.config.BaseDatarouterAuthenticationConfig;
-import io.datarouter.web.util.http.CloudfrontIpRange;
+import io.datarouter.web.util.http.TrustedProxy;
 
 public class DatarouterWebGuiceModule extends BaseGuiceServletModule{
 
 	@Override
 	protected void configureServlets(){
 		install(new DatarouterSecretPluginBuilderImpl().build().getAsDefaultBinderModule());
+		install(new DatarouterRelayPluginDefaults());
 		install(new DatarouterStorageGuiceModule());
 		bind(ServletContextSupplier.class).toInstance(new ServletContextProvider(getServletContext()));
 
@@ -94,7 +97,6 @@ public class DatarouterWebGuiceModule extends BaseGuiceServletModule{
 
 		optionalBinder(AppNavBar.class);
 		bindDefault(RoleManager.class, DatarouterRoleManager.class);
-		optionalBinder(SamlRegistrar.class);
 		bindDefault(SettingFinder.class, MemorySettingFinder.class);
 		bindDefault(UserSessionService.class, NoOpUserSessionService.class);
 		bindDefault(CurrentSessionInfo.class, NoOpCurrentSessionInfo.class);
@@ -106,15 +108,16 @@ public class DatarouterWebGuiceModule extends BaseGuiceServletModule{
 		bindDefault(ChangelogRecorder.class, NoOpChangelogRecorder.class);
 
 		// define as singleton for everybody
-		bind(Gson.class).toInstance(DatarouterGsons.forInjection());
+		bind(Gson.class).toProvider(GsonInjectionPreventionProvider.class);
 
 		bindDefaultInstance(DefaultEmailDistributionListZoneId.class,
 				new DefaultEmailDistributionListZoneId(ZoneId.systemDefault()));
 
 		bindDefault(HandlerAccountCallerValidator.class, NoOpHandlerAccountCallerValidator.class);
 		bindDefault(BackwardsCompatiblePayloadChecker.class, NoOpBackwardsCompatiblePayloadChecker.class);
+		bindDefault(ExternalDatarouterAccountValidator.class, NoOpExternalDatarouterAccountValidator.class);
 
-		bindDefaultInstance(CloudfrontIpRange.class, new CloudfrontIpRange(List.of()));
+		bindDefaultInstance(TrustedProxy.class, new TrustedProxy(List.of(), List.of()));
 	}
 
 	// allows this module to be installed multiple times
@@ -126,6 +129,13 @@ public class DatarouterWebGuiceModule extends BaseGuiceServletModule{
 	@Override
 	public int hashCode(){
 		return DatarouterWebGuiceModule.class.hashCode();
+	}
+
+	private static class GsonInjectionPreventionProvider implements Provider<Gson>{
+		@Override
+		public Gson get(){
+			throw new RuntimeException("I am here to prevent Gson injection.");
+		}
 	}
 
 }

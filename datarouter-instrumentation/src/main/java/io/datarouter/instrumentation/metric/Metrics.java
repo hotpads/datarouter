@@ -21,9 +21,14 @@ import java.util.List;
 public class Metrics{
 
 	private static final List<MetricCollector> COLLECTORS = new ArrayList<>();
+	private static final List<MetricAnnotationCollector> ANNOTATION_COLLECTORS = new ArrayList<>();
 
 	public static synchronized void registerCollector(MetricCollector collector){
 		COLLECTORS.add(collector);
+	}
+
+	public static synchronized void registerCollector(MetricAnnotationCollector collector){
+		ANNOTATION_COLLECTORS.add(collector);
 	}
 
 	public static void count(String key){
@@ -42,4 +47,28 @@ public class Metrics{
 		COLLECTORS.forEach(collector -> collector.measure(key, value, true));
 	}
 
+	public static void annotate(String key){
+		annotate(key, "", "", MetricAnnotationLevel.INFO);
+	}
+
+	public static void annotate(String key, String description){
+		annotate(key, "", description, MetricAnnotationLevel.INFO);
+	}
+
+	public static void annotate(String key, String description, MetricAnnotationLevel level){
+		annotate(key, "", description, level);
+	}
+
+	public static void annotate(String key, String category, String description){
+		annotate(key, category, description, MetricAnnotationLevel.INFO);
+	}
+
+	public static void annotate(String key, String category, String description, MetricAnnotationLevel level){
+		annotate(key, category, description, level, System.currentTimeMillis());
+	}
+
+	public static void annotate(String key, String category, String description, MetricAnnotationLevel level,
+			long timestamp){
+		ANNOTATION_COLLECTORS.forEach(collector -> collector.annotate(key, category, description, level, timestamp));
+	}
 }

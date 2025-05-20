@@ -40,7 +40,7 @@ public record ShadowTableExport(
 	public record ShadowTableExportResource(
 			int vcpus,
 			int gibibytes,
-			int threads){
+			int databaseExportThreads){
 	}
 
 }

@@ -32,7 +32,7 @@ import org.apache.http.client.utils.URIBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.gcp.gcs.DatarouterGcsClient;
+import io.datarouter.gcp.gcs.client.GcsClient;
 import io.datarouter.gcp.gcs.client.GcsClientManager;
 import io.datarouter.gcp.gcs.config.DatarouterGcpGcsPaths;
 import io.datarouter.scanner.Scanner;
@@ -128,7 +128,7 @@ public class GcsBucketHandler extends BaseHandler{
 				.withClass("card card-body bg-light");
 
 		ClientId clientId = clients.getClientId(client);
-		DatarouterGcsClient gcsClient = gcsClientManager.getClient(clientId);
+		GcsClient gcsClient = gcsClientManager.getClient(clientId);
 		TableTag table = null;
 		List<DirectoryDto> objects = gcsClient.scanSubdirectories(
 				bucket,
@@ -190,7 +190,7 @@ public class GcsBucketHandler extends BaseHandler{
 			@Param(P_bucket) String bucket,
 			@Param(P_prefix) Optional<String> prefix){
 		ClientId clientId = clients.getClientId(client);
-		DatarouterGcsClient gcsClient = gcsClientManager.getClient(clientId);
+		GcsClient gcsClient = gcsClientManager.getClient(clientId);
 		var count = new AtomicLong();
 		var size = new AtomicLong();
 		var message = new AtomicReference<String>();
@@ -198,7 +198,7 @@ public class GcsBucketHandler extends BaseHandler{
 				bucket,
 				prefix.orElse(""))
 				.concat(Scanner::of)
-				.each($ -> count.incrementAndGet())
+				.each(_ -> count.incrementAndGet())
 				.each(obj -> size.addAndGet(obj.getSize()))
 				.sample(10_000, true)
 				.map(obj -> String.format("client=%s, bucket=%s, prefix=%s, count=%s, size=%s, through=%s",

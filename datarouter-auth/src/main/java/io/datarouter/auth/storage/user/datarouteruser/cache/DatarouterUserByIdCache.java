@@ -21,20 +21,21 @@ import io.datarouter.auth.exception.InvalidCredentialsException;
 import io.datarouter.auth.storage.user.datarouteruser.DatarouterUser;
 import io.datarouter.auth.storage.user.datarouteruser.DatarouterUserDao;
 import io.datarouter.auth.storage.user.datarouteruser.DatarouterUserKey;
-import io.datarouter.util.cache.LoadingCache.LoadingCacheBuilder;
-import io.datarouter.util.cache.LoadingCacheWrapper;
+import io.datarouter.storage.cache.CaffeineLoadingCache.CaffeineLoadingCacheBuilder;
+import io.datarouter.storage.cache.CaffeineLoadingCacheWrapper;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
 @Singleton
-public class DatarouterUserByIdCache extends LoadingCacheWrapper<Long,DatarouterUser>{
+public class DatarouterUserByIdCache extends CaffeineLoadingCacheWrapper<Long,DatarouterUser>{
 
 	@Inject
 	public DatarouterUserByIdCache(DatarouterUserDao datarouterUserDao){
-		super(new LoadingCacheBuilder<Long,DatarouterUser>()
+		super(new CaffeineLoadingCacheBuilder<Long,DatarouterUser>()
 				.withLoadingFunction(key -> datarouterUserDao.get(new DatarouterUserKey(key)))
 				.withExceptionFunction(key -> new InvalidCredentialsException("user id not found (" + key + ")"))
 				.withExpireTtl(Duration.ofSeconds(6))
+				.withStatsRecording()
 				.build());
 	}
 

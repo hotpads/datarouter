@@ -58,11 +58,12 @@ public class DatarouterMetricGroupBinaryDto extends BinaryDto<DatarouterMetricGr
 		this.random = random;
 	}
 
+	//TODO convert to double values
 	public static class DatarouterCountBinaryDto extends BinaryDto<DatarouterCountBinaryDto>{
 		@BinaryDtoField(index = 0)
 		public final String metricName;
 		@BinaryDtoField(index = 1)
-		public final Long value; // sum
+		public final Long value; //TODO rename to sum
 
 		public DatarouterCountBinaryDto(String name, Long value){
 			this.metricName = name;
@@ -70,6 +71,7 @@ public class DatarouterMetricGroupBinaryDto extends BinaryDto<DatarouterMetricGr
 		}
 	}
 
+	//TODO convert to double values
 	public static class DatarouterGaugeBinaryDto extends BinaryDto<DatarouterGaugeBinaryDto>{
 		@BinaryDtoField(index = 0)
 		public final String metricName;
@@ -91,6 +93,7 @@ public class DatarouterMetricGroupBinaryDto extends BinaryDto<DatarouterMetricGr
 		}
 	}
 
+	//TODO convert to double values
 	public static class DatarouterMeasurementBinaryDto extends BinaryDto<DatarouterMeasurementBinaryDto>{
 		@BinaryDtoField(index = 0)
 		public final Long batchId;

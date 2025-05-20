@@ -71,7 +71,7 @@ public class JsonEncoder implements HandlerEncoder, JsonAwareHandlerCodec{
 	}
 
 	protected String serialize(Object result){
-		try(var $ = TracerTool.startSpan("JsonEncoder serialize", TraceSpanGroupType.SERIALIZATION)){
+		try(var _ = TracerTool.startSpan("JsonEncoder serialize", TraceSpanGroupType.SERIALIZATION)){
 			String string = jsonSerializer.serialize(result);
 			TracerTool.appendToSpanInfo("characters", string.length());
 			return string;

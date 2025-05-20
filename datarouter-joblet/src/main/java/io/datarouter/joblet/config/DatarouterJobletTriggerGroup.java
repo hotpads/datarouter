@@ -16,12 +16,14 @@
 package io.datarouter.joblet.config;
 
 import io.datarouter.job.BaseTriggerGroup;
+import io.datarouter.job.util.DatarouterCronTool;
 import io.datarouter.joblet.job.JobletCounterJob;
 import io.datarouter.joblet.job.JobletDataVacuumJob;
 import io.datarouter.joblet.job.JobletInstanceCounterJob;
 import io.datarouter.joblet.job.JobletRequeueJob;
 import io.datarouter.joblet.job.JobletVacuumJob;
 import io.datarouter.joblet.setting.DatarouterJobletSettingRoot;
+import io.datarouter.storage.config.properties.ServiceName;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.util.time.ZoneIds;
 import jakarta.inject.Inject;
@@ -31,30 +33,32 @@ import jakarta.inject.Singleton;
 public class DatarouterJobletTriggerGroup extends BaseTriggerGroup{
 
 	@Inject
-	public DatarouterJobletTriggerGroup(DatarouterJobletSettingRoot settings){
+	public DatarouterJobletTriggerGroup(
+			ServiceName serviceNameSupplier,
+			DatarouterJobletSettingRoot settings){
 		super("DatarouterJoblet", Tag.DATAROUTER, ZoneIds.AMERICA_NEW_YORK);
 		registerLocked(
-				"26 2/5 * * * ?",
+				DatarouterCronTool.everyNMinutes(5, serviceNameSupplier.get(), "JobletCounterJob"),
 				settings.runJobletCounterJob,
 				JobletCounterJob.class,
 				true);
 		registerLocked(
-				"5 0/5 * * * ?",
+				DatarouterCronTool.everyNMinutes(5, serviceNameSupplier.get(), "JobletRequeueJob"),
 				settings.runJobletRequeueJob,
 				JobletRequeueJob.class,
 				true);
 		registerLocked(
-				"0 15 13 * * ?",
+				DatarouterCronTool.everyDay(serviceNameSupplier.get(), "JobletVacuumJob"),
 				settings.runJobletVacuum,
 				JobletVacuumJob.class,
 				true);
 		registerLocked(
-				"0 0 15 * * ?",
+				DatarouterCronTool.everyDay(serviceNameSupplier.get(), "JobletDataVacuumJob"),
 				settings.runJobletDataVacuum,
 				JobletDataVacuumJob.class,
 				true);
 		registerLocked(
-				"12/30 * * * * ?",
+				DatarouterCronTool.everyNSeconds(30, serviceNameSupplier.get(), "JobletInstanceCounterJob"),
 				settings.runJobletInstanceCounterJob,
 				JobletInstanceCounterJob.class,
 				true);

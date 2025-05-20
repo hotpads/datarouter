@@ -39,7 +39,7 @@ public class HandlerUsageNavBarItem implements DynamicNavBarItem{
 				paths.datarouter.metric.handlerUsage.view.toSlashedString(),
 				"Handler Usage")
 				.setDispatchRule(new DispatchRule()
-						.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_ADMIN, DatarouterUserRoleRegistry.USER))
+						.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_MONITORING))
 				.build();
 	}
 

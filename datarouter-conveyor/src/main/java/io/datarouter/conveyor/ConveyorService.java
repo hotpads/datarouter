@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
 import io.datarouter.conveyor.Conveyor.ProcessResult;
 import io.datarouter.conveyor.config.DatarouterConveyorTraceSettings;
 import io.datarouter.conveyor.exception.ConveyorExceptionCategory;
-import io.datarouter.conveyor.trace.ConveyorTraceBuffer;
 import io.datarouter.instrumentation.exception.ExceptionRecordDto;
 import io.datarouter.instrumentation.exception.TaskExecutorRecordDto;
 import io.datarouter.instrumentation.trace.ConveyorTraceAndTaskExecutorBundleDto;
@@ -45,6 +44,7 @@ import io.datarouter.instrumentation.trace.W3TraceContext;
 import io.datarouter.storage.config.properties.EnvironmentName;
 import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.storage.config.properties.ServiceName;
+import io.datarouter.trace.conveyor.DatarouterDebuggingBuffers;
 import io.datarouter.types.Ulid;
 import io.datarouter.util.PlatformMxBeans;
 import io.datarouter.util.tracer.DatarouterTracer;
@@ -64,11 +64,11 @@ public class ConveyorService{
 	@Inject
 	private ServiceName serviceName;
 	@Inject
-	private ConveyorTraceBuffer traceBuffer;
-	@Inject
 	private DatarouterConveyorTraceSettings traceSettings;
 	@Inject
 	private EnvironmentName environmentName;
+	@Inject
+	private DatarouterDebuggingBuffers debuggingBuffers;
 
 	public void run(ConveyorConfiguration configuration, ConveyorRunnable conveyor){
 		if(!shouldRun(conveyor)){
@@ -112,7 +112,7 @@ public class ConveyorService{
 						try{
 							configuration.interrupted(conveyor);
 						}catch(Exception ex){
-							logger.error("interuption handling failed", ex);
+							logger.error("interruption handling failed", ex);
 						}
 					}else{
 						ConveyorCounters.incException(conveyor);
@@ -204,10 +204,10 @@ public class ConveyorService{
 										traceparent.parentId,
 										id,
 										environmentName.get()));
-						var bundle = new ConveyorTraceAndTaskExecutorBundleDto(
-								new TraceBundleDto(traceDto, threads, spans),
-								executorRecord);
-						traceBuffer.offer(bundle)
+					var bundle = new ConveyorTraceAndTaskExecutorBundleDto(
+							new TraceBundleDto(traceDto, threads, spans),
+							executorRecord);
+						debuggingBuffers.offerTraces(bundle.traceBundleDto())
 								.map(name -> "saved to " + name)
 								.ifPresent(destination -> logger.warn("Trace {} for name={}."
 										+ " traceparent={}"
@@ -228,6 +228,9 @@ public class ConveyorService{
 										spans.size(),
 										errored.get(),
 										interrupted.get()));
+						if(executorRecord.isPresent()){
+							debuggingBuffers.taskExecutors.offer(executorRecord.get());
+						}
 					}
 				}
 

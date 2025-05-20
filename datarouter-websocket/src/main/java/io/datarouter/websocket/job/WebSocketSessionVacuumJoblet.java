@@ -18,7 +18,7 @@ package io.datarouter.websocket.job;
 import java.time.Instant;
 
 import io.datarouter.instrumentation.task.TaskTracker;
-import io.datarouter.joblet.codec.BaseGsonJobletCodec;
+import io.datarouter.joblet.codec.DatarouterBaseGsonJobletCodec;
 import io.datarouter.joblet.model.BaseJoblet;
 import io.datarouter.joblet.type.JobletType;
 import io.datarouter.joblet.type.JobletType.JobletTypeBuilder;
@@ -54,7 +54,8 @@ public class WebSocketSessionVacuumJoblet extends BaseJoblet<Instant>{
 		tracker.finish();
 	}
 
-	public static class WebSocketSessionVacuumJobletCodec extends BaseGsonJobletCodec<Instant>{
+	public static class WebSocketSessionVacuumJobletCodec
+	extends DatarouterBaseGsonJobletCodec<Instant>{
 
 		public WebSocketSessionVacuumJobletCodec(){
 			super(Instant.class);

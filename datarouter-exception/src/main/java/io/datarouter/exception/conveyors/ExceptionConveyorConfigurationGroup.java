@@ -22,17 +22,8 @@ import jakarta.inject.Singleton;
 public class ExceptionConveyorConfigurationGroup extends ConveyorConfigurationGroup{
 
 	public ExceptionConveyorConfigurationGroup(){
-		registerConveyor(
-				"datarouterExceptionRecordPublisher",
-				ExceptionRecordMemoryToPublisherConveyorConfiguration.class);
-		registerConveyor(
-				"datarouterHttpRequestRecordPublisher",
-				HttpRequestRecordMemoryToPublisherConveyorConfiguration.class);
-		registerConveyor(
-				"datarouterExceptionRecordPersister",
-				ExceptionRecordMemoryToDatabaseConveyorConfiguration.class);
-		registerConveyor(
-				"datarouterHttpRequestRecordPersister",
-				HttpRequestRecordMemoryToDatabaseConveyorConfiguration.class);
+		add(
+				"debuggingRecordPublisher",
+				DatarouterDebuggingRecordConveyorConfiguration.class);
 	}
 }

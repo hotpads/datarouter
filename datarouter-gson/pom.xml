@@ -22,7 +22,7 @@
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-parent</artifactId>
-		<version>0.0.126</version>
+		<version>0.0.127</version>
 		<relativePath>../datarouter-parent</relativePath>
 	</parent>
 
@@ -48,19 +48,10 @@
 		</dependency>
 		<dependency>
 			<groupId>io.datarouter</groupId>
-			<artifactId>datarouter-enum</artifactId>
-			<version>${datarouter-version}</version>
-		</dependency>
-		<dependency>
-			<groupId>io.datarouter</groupId>
 			<artifactId>datarouter-instrumentation</artifactId>
 			<version>${datarouter-version}</version>
 		</dependency>
-		<dependency>
-			<groupId>io.datarouter</groupId>
-			<artifactId>datarouter-types</artifactId>
-			<version>${datarouter-version}</version>
-		</dependency>
+
 		<dependency>
 			<groupId>io.datarouter</groupId>
 			<artifactId>datarouter-logging</artifactId>

@@ -31,6 +31,7 @@ public class DatarouterAuthenticationSettings extends SettingNode{
 
 	public final Setting<DatarouterDuration> userTokenTimeoutDuration;
 	public final CachedSetting<DatarouterDuration> sessionTokenTimeoutDuration;
+	public final CachedSetting<Boolean> enforceExternalAccountCallerValidation;
 
 	@Inject
 	public DatarouterAuthenticationSettings(SettingFinder finder){
@@ -45,6 +46,8 @@ public class DatarouterAuthenticationSettings extends SettingNode{
 						.withEnvironmentType(
 								EnvironmentType.DEVELOPMENT,
 								new DatarouterDuration(Long.MAX_VALUE, TimeUnit.HOURS)));
+		enforceExternalAccountCallerValidation =
+				registerBooleans("enforceExternalAccountCallerValidation", defaultTo(false));
 	}
 
 }

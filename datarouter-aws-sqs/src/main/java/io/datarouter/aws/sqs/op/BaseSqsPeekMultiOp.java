@@ -18,11 +18,6 @@ package io.datarouter.aws.sqs.op;
 import java.time.Duration;
 import java.util.List;
 
-import com.amazonaws.AbortedException;
-import com.amazonaws.services.sqs.model.Message;
-import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
-import com.amazonaws.services.sqs.model.ReceiveMessageResult;
-
 import io.datarouter.aws.sqs.BaseSqsNode;
 import io.datarouter.aws.sqs.SqsClientManager;
 import io.datarouter.model.databean.Databean;
@@ -31,6 +26,10 @@ import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.Config;
 import io.datarouter.util.concurrent.UncheckedInterruptedException;
+import software.amazon.awssdk.core.exception.AbortedException;
+import software.amazon.awssdk.services.sqs.model.Message;
+import software.amazon.awssdk.services.sqs.model.ReceiveMessageRequest;
+import software.amazon.awssdk.services.sqs.model.ReceiveMessageResponse;
 
 public abstract class BaseSqsPeekMultiOp<
 		PK extends PrimaryKey<PK>,
@@ -55,35 +54,35 @@ extends SqsOp<PK,D,F,List<T>>{
 	@Override
 	protected final List<T> run(){
 		ReceiveMessageRequest request = makeRequest();
-		ReceiveMessageResult result;
+		ReceiveMessageResponse response;
 		try{
-			result = sqsClientManager.getAmazonSqs(clientId).receiveMessage(request);
+			response = sqsClientManager.getAmazonSqs(clientId).receiveMessage(request);
 		}catch(AbortedException e){
 			throw new UncheckedInterruptedException("", e);
 		}
-		List<Message> messages = result.getMessages();
+		List<Message> messages = response.messages();
 		return messages.isEmpty() ? List.of() : extractDatabeans(messages);
 	}
 
 	protected abstract List<T> extractDatabeans(List<Message> messages);
 
 	private ReceiveMessageRequest makeRequest(){
-		var request = new ReceiveMessageRequest(queueUrl);
+		var request = ReceiveMessageRequest.builder().queueUrl(queueUrl);
 
 		//waitTime
 		Duration configTimeout = config.findTimeout()
 				.filter(timeout -> timeout.compareTo(BaseSqsNode.MAX_TIMEOUT) <= 0)
 				.orElse(BaseSqsNode.MAX_TIMEOUT);
-		request.setWaitTimeSeconds(Math.toIntExact(configTimeout.getSeconds()));//must fit in an int
+		request.waitTimeSeconds(Math.toIntExact(configTimeout.getSeconds()));//must fit in an int
 
 		//visibility timeout
-		long visibilityTimeoutMs = config.getVisibilityTimeoutMsOrUse(BaseSqsNode.DEFAULT_VISIBILITY_TIMEOUT_MS);
-		request.setVisibilityTimeout((int)Duration.ofMillis(visibilityTimeoutMs).getSeconds());
+		long visibilityTimeoutMs = config.findVisibilityTimeoutMs().orElse(BaseSqsNode.DEFAULT_VISIBILITY_TIMEOUT_MS);
+		request.visibilityTimeout((int)Duration.ofMillis(visibilityTimeoutMs).getSeconds());
 
 		//max messages
-		request.setMaxNumberOfMessages(config.findLimit().orElse(BaseSqsNode.MAX_MESSAGES_PER_BATCH));
-		request.withMessageAttributeNames("ALL");
-		return request;
+		request.maxNumberOfMessages(config.findLimit().orElse(BaseSqsNode.MAX_MESSAGES_PER_BATCH));
+		request.messageAttributeNames("ALL");
+		return request.build();
 	}
 
 }

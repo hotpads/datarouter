@@ -15,7 +15,6 @@
  */
 package io.datarouter.auth.authenticate.saml;
 
-// TODO braydonh delete?
 public class SamlPostDto{
 
 	public final String destination;

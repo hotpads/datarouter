@@ -15,7 +15,6 @@
  */
 package io.datarouter.util.lang;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -281,22 +280,6 @@ public class ReflectionTool{
 		for(Class<?> clazz : supersAndInterfaces){
 			for(Method method : clazz.getDeclaredMethods()){
 				if(method.getName().equals(methodName)){
-					method.setAccessible(true);
-					methods.add(method);
-				}
-			}
-		}
-		return methods;
-	}
-
-	public static <T> Collection<Method> getDeclaredMethodsWithAnnotation(Class<T> cls,
-			Class<? extends Annotation> annotationType){
-		List<Method> methods = new ArrayList<>();
-		Set<Class<?>> supersAndInterfaces = getAllSuperClassesAndInterfaces(cls);
-		supersAndInterfaces.add(cls);
-		for(Class<?> clazz : supersAndInterfaces){
-			for(Method method : clazz.getDeclaredMethods()){
-				if(Scanner.of(method.getDeclaredAnnotations()).anyMatch(annotationType::isInstance)){
 					method.setAccessible(true);
 					methods.add(method);
 				}

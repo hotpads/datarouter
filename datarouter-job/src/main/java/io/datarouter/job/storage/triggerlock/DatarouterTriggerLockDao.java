@@ -81,6 +81,7 @@ public class DatarouterTriggerLockDao extends BaseDao{
 		Duration retentionPeriod = Duration.ofDays(7);
 		MilliTime deleteBeforeTime = MilliTime.now().minus(retentionPeriod);
 		return new PrimaryKeyVacuumBuilder<>(
+				"DatarouterTriggerLock",
 				node.scanKeys(),
 				key -> key.getTriggerTime().isBefore(deleteBeforeTime),
 				node::deleteMulti)

@@ -17,13 +17,13 @@ package io.datarouter.changelog.config;
 
 import io.datarouter.auth.role.DatarouterUserRoleRegistry;
 import io.datarouter.changelog.web.EditChangelogHandler;
-import io.datarouter.changelog.web.ManualChangelogHandler;
 import io.datarouter.changelog.web.ViewChangelogForDateRangeHandler;
 import io.datarouter.changelog.web.ViewChangelogHandler;
 import io.datarouter.changelog.web.ViewExactChangelogHandler;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
+import io.datarouter.web.handler.encoder.DatarouterDefaultHandlerCodec;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
@@ -33,7 +33,6 @@ public class DatarouterChangelogRouteSet extends BaseRouteSet{
 	@Inject
 	public DatarouterChangelogRouteSet(DatarouterChangelogPaths paths){
 		handle(paths.datarouter.changelog.edit).withHandler(EditChangelogHandler.class);
-		handle(paths.datarouter.changelog.insert).withHandler(ManualChangelogHandler.class);
 		handle(paths.datarouter.changelog.viewExact).withHandler(ViewExactChangelogHandler.class);
 		handle(paths.datarouter.changelog.viewAll).withHandler(ViewChangelogHandler.class);
 		handle(paths.datarouter.changelog.viewForDateRange).withHandler(ViewChangelogForDateRangeHandler.class);
@@ -45,6 +44,7 @@ public class DatarouterChangelogRouteSet extends BaseRouteSet{
 				.allowRoles(
 						DatarouterUserRoleRegistry.DATAROUTER_ADMIN,
 						DatarouterUserRoleRegistry.DATAROUTER_MONITORING)
+				.withDefaultHandlerCodec(DatarouterDefaultHandlerCodec.INSTANCE)
 				.withTag(Tag.DATAROUTER);
 	}
 

@@ -163,9 +163,8 @@ public class JobletCallable implements Callable<Void>{
 		JobletCounters.incNumJobletsProcessed();
 		JobletCounters.incNumJobletsProcessed(jobletType);
 		JobletCounters.incNumJobletsProcessed(jobletType, jobletRequest.getKey().getPriority());
-		int numItemsProcessed = Math.max(1, jobletRequest.getNumItems());
-		JobletCounters.incItemsProcessed(jobletType, numItemsProcessed);
-		timer.add("processed " + numItemsProcessed + " items");
+		JobletCounters.incItemsProcessed(jobletType, jobletRequest.getNumItems());
+		timer.add("processed " + jobletRequest.getNumItems() + " items");
 		long endTimeMs = System.currentTimeMillis();
 		long durationMs = endTimeMs - startTimeMs;
 		JobletCounters.recordDuration(jobletType, durationMs, jobletRequest.getNumItems());

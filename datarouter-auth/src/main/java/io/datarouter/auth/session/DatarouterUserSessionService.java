@@ -17,6 +17,7 @@ package io.datarouter.auth.session;
 
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -28,13 +29,16 @@ import java.util.TreeSet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import io.datarouter.auth.exception.InvalidCredentialsException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.datarouter.auth.model.dto.InterpretedSamlAssertion;
 import io.datarouter.auth.role.Role;
 import io.datarouter.auth.role.RoleManager;
 import io.datarouter.auth.service.DatarouterUserCreationService;
 import io.datarouter.auth.service.DatarouterUserHistoryService;
 import io.datarouter.auth.service.DatarouterUserService;
+import io.datarouter.auth.service.deprovisioning.DatarouterUserDeprovisioningStrategy;
 import io.datarouter.auth.storage.user.datarouteruser.DatarouterUser;
 import io.datarouter.auth.storage.user.datarouteruser.DatarouterUser.DatarouterUserByUsernameLookup;
 import io.datarouter.auth.storage.user.datarouteruser.DatarouterUserDao;
@@ -49,6 +53,7 @@ import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterUserSessionService implements UserSessionService{
+	private static final Logger logger = LoggerFactory.getLogger(DatarouterUserSessionService.class);
 
 	@Inject
 	private DatarouterUserDao userDao;
@@ -64,6 +69,8 @@ public class DatarouterUserSessionService implements UserSessionService{
 	private RoleManager roleManager;
 	@Inject
 	private DatarouterUserHistoryService userHistoryService;
+	@Inject
+	private DatarouterUserDeprovisioningStrategy userDeprovisioningStrategy;
 
 	@Override
 	public void setSessionCookies(HttpServletResponse response, Session session){
@@ -86,7 +93,22 @@ public class DatarouterUserSessionService implements UserSessionService{
 						interpretedSamlAssertion.username(),
 						DatarouterUserCreationService.SAML_USER_CREATION_DESCRIPTION));
 		if(BooleanTool.isFalseOrNull(user.getEnabled())){
-			throw new InvalidCredentialsException("user not enabled (" + interpretedSamlAssertion.username() + ")");
+			// Once we no longer need the UserDeprovisioningStrategy abstraction it would be best to have restoreUser
+			// return the updated DatarouterUser
+			userDeprovisioningStrategy.restoreUser(user.getUsername());
+			// prevent overwriting of the changes from restore user
+			user = userDao.get(user.getKey());
+		}
+
+		Collection<Role> currentRolesIgnoreSaml = user.getRolesIgnoreSaml();
+		Set<Role> missingDefaultRoles = Scanner.of(roleManager.getDefaultRoles())
+				.exclude(currentRolesIgnoreSaml::contains)
+				.collect(HashSet::new);
+		if(!missingDefaultRoles.isEmpty()){
+			logger.warn("User={} missing default roles={}", user.getUsername(), missingDefaultRoles);
+			user.setRoles(Scanner.of(currentRolesIgnoreSaml)
+					.append(missingDefaultRoles)
+					.collect(HashSet::new));
 		}
 
 		user.setLastLoggedIn(MilliTime.now());

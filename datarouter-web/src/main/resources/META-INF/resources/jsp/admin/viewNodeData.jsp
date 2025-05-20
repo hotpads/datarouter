@@ -54,6 +54,11 @@
 						<input id="responseBatchSize" name="responseBatchSize" value="${responseBatchSize}" type="number" step="1" class="form-control">
 					</div>
 				</div>
+				<div class="form-group form-check">
+					<input type="checkbox" class="form-check-input" name="humanReadable" id="humanReadableValues"
+						   <c:if test="${param.humanReadable == 'on'}">checked</c:if>>
+					<label class="form-check-label" for="humanReadableValues">Human Readable Values</label>
+				</div>
 				<div>
 					<button class="btn btn-success">Scan</button>
 				</div>
@@ -68,14 +73,15 @@
 				<ul class="pagination justify-content-center mt-2 mb-0">
 					<c:if test="${not empty startKey}">
 						<li class="page-item">
-							<a class="page-link" href="?nodeName=${param.nodeName}&startKey=&limit=${limit}">
+							<a class="page-link"
+							   href="?nodeName=${param.nodeName}&startKey=&limit=${limit}&humanReadable=${param.humanReadable}">
 								First page
 							</a>
 						</li>
 					</c:if>
 					<c:if test="${not empty accessDatabeans}">
 						<li class="page-item">
-							<a class="page-link" href="?nodeName=${param.nodeName}${accessDatabeans}">
+							<a class="page-link" href="?nodeName=${param.nodeName}${accessDatabeans}&humanReadable=${param.humanReadable}">
 								Next page
 							</a>
 						</li>
@@ -125,7 +131,23 @@
 							<tr>
 								<c:forEach items="${rowOfFields}" var="field">
 									<c:if test="${! field.key.collection}">
-										<td title="${field.hoverString}">${field.valueString}</td>
+										<td title="${field.hoverString}">
+											<c:choose>
+												<c:when test="${not empty field.hoverString}">
+													<c:choose>
+														<c:when test="${param.humanReadable == 'on'}">
+																${field.hoverString}
+														</c:when>
+														<c:otherwise>
+																${field.valueString}
+														</c:otherwise>
+													</c:choose>
+												</c:when>
+												<c:otherwise>
+													${field.valueString}
+												</c:otherwise>
+											</c:choose>
+										</td>
 									</c:if>
 									<c:if test="${field.key.collection}">
 										<td>
@@ -147,7 +169,7 @@
 					</c:if>
 				</tbody>
 			</table>
-			<nav> 
+			<nav>
 				<ul class="pagination justify-content-center">
 					<c:if test="${not empty startKey}">
 						<li class="page-item">

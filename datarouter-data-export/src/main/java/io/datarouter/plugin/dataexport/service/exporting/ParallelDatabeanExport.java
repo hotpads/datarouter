@@ -85,7 +85,7 @@ public class ParallelDatabeanExport<
 						//TODO should probably merge the ranges into a single range/scan
 						Scanner.of(part.ranges())
 								.concat(range -> request.node().scan(range, scanConfig))))
-				.periodic(TABLE_LOG_PERIOD, $ -> tableTracker.logProgress())
+				.periodic(TABLE_LOG_PERIOD, _ -> tableTracker.logProgress())
 				.count();
 		tableTracker.logProgress();
 		return new DatabeanExportResponse(
@@ -155,7 +155,7 @@ public class ParallelDatabeanExport<
 					partTracker.lastKey().set(batch.getLast().getKey());
 				})
 				.map(batch -> mapMulti(rowEncoder, batch))
-				.periodic(PART_LOG_PERIOD, $ -> partTracker.logProgress())
+				.periodic(PART_LOG_PERIOD, _ -> partTracker.logProgress())
 				.apply(kvFileWriter::writeBlocks);
 		partTracker.logProgress();
 		tableTracker.activePartIds().remove(partId);

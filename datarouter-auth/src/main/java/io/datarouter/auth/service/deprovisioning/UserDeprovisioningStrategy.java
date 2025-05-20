@@ -16,7 +16,6 @@
 package io.datarouter.auth.service.deprovisioning;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * these methods are intended to be called by {@link UserDeprovisioningService} in conjunction with
@@ -25,30 +24,18 @@ import java.util.Optional;
 public interface UserDeprovisioningStrategy{
 
 	/**
-	 * flag users for later manual deprovisioning. should be fault tolerant for usernames that do not exist.
-	 * @param usernames to flag
-	 * @param editorUsername (if manually triggered)
-	 * @return returns the successfully flagged usernames
-	 */
-	List<String> flagUsers(List<String> usernames, Optional<String> editorUsername);
-
-	/**
 	 * for each username, removes all permissions, deletes or invalidates all sessions, and sets the user to
 	 * disabled. should be fault tolerant for usernames that do not exist.
 	 * @param usernames to deprovision
-	 * @param editorUsername (if manually triggered)
-	 * @return returns the successfully deprovisioned usernames
 	 */
-	List<String> deprovisionUsers(List<String> usernames, Optional<String> editorUsername);
+	void deprovisionUsers(List<String> usernames);
 
 	/**
 	 * restores previously deprovisioned users. should be fault tolerant for usernames that do not exist or are not
 	 * in a restorable state.
-	 * @param usernames to restore, which were previously deprovisioned using
-	 * {@link UserDeprovisioningStrategy#deprovisionUsers(List, Optional)}
-	 * @param editorUsername (if manually triggered)
-	 * @return returns the successfully restored usernames
+	 * @param username to restore, which was previously deprovisioned using
+	 * {@link UserDeprovisioningStrategy#deprovisionUsers(List)}
 	 */
-	List<String> restoreUsers(List<String> usernames, Optional<String> editorUsername);
+	void restoreUser(String username);
 
 }

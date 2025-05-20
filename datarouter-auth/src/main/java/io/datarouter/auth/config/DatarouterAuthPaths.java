@@ -25,12 +25,12 @@ public class DatarouterAuthPaths extends PathNode implements PathsRoot{
 	public final AdminPaths admin = branch(AdminPaths::new, "admin");
 	public final DatarouterPaths datarouter = branch(DatarouterPaths::new, "datarouter");
 
-	public final UserDeprovisioningPaths userDeprovisioning = branch(UserDeprovisioningPaths::new,
-			"userDeprovisioning");
 	public final PermissionRequestPaths permissionRequest = branch(PermissionRequestPaths::new, "permissionRequest");
 	public final SigninPaths signin = branch(SigninPaths::new, "signin");
 
 	public final DocsPaths docs = branch(DocsPaths::new, "docs");
+	public final DocsPaths docsV2 = branch(DocsPaths::new, "docsV2");
+	public final PathNode schema = leaf("schema");
 	public final PathNode home = leaf("");
 	public final PathNode signout = leaf("signout");
 
@@ -59,7 +59,6 @@ public class DatarouterAuthPaths extends PathNode implements PathsRoot{
 	}
 
 	public static class AdminPaths extends PathNode{
-		public final PathNode copyUser = leaf("copyUser");
 		public final PathNode createUser = leaf("createUser");
 		public final PathNode createUserSubmit = leaf("createUserSubmit");
 		public final PathNode editAccounts = leaf("editAccounts");
@@ -75,13 +74,7 @@ public class DatarouterAuthPaths extends PathNode implements PathsRoot{
 		public final PathNode viewUsers = leaf("viewUsers");
 	}
 
-	public static class UserDeprovisioningPaths extends PathNode{
-		public final PathNode deprovisionUsers = leaf("deprovisionUsers");
-		public final PathNode restoreUsers = leaf("restoreUsers");
-	}
-
 	public static class PermissionRequestPaths extends PathNode{
-		public final PathNode createCustomPermissionRequest = leaf("createCustomPermissionRequest");
 		public final PathNode declineAll = leaf("declineAll");
 		public final PathNode declinePermissionRequests = leaf("declinePermissionRequests");
 		public final PathNode showForm = leaf("showForm");

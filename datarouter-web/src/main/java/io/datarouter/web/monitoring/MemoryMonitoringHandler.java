@@ -173,7 +173,7 @@ public class MemoryMonitoringHandler extends BaseHandler implements NonEagerInit
 
 	private String buildNativeMemoryStatsTable(){
 		List<VmNativeMemoryStatsDto> memoryStats = HostMemoryTool.getVmNativeMemoryStats()
-				.orElseGet($ -> new ArrayList<>());
+				.orElseGet(_ -> new ArrayList<>());
 		if(memoryStats.isEmpty()){
 			return div().attr(Attr.STYLE, "display: none;").render();
 		}
@@ -194,7 +194,7 @@ public class MemoryMonitoringHandler extends BaseHandler implements NonEagerInit
 
 	private String buildCgroupMemoryStatsTable(){
 		Map<String, Long> memoryStats = HostMemoryTool.extractCgroupMemoryStats()
-				.orElseGet($ -> new HashMap<>());
+				.orElseGet(_ -> new HashMap<>());
 		if(memoryStats.isEmpty()){
 			return div().attr(Attr.STYLE, "display: none;").render();
 		}

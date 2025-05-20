@@ -22,9 +22,7 @@ import jakarta.inject.Singleton;
 public class MetricTemplateConveyorConfigurationGroup extends ConveyorConfigurationGroup{
 
 	public MetricTemplateConveyorConfigurationGroup(){
-		registerConveyor(
-				"datarouterMetricTemplatePublisher",
-				MetricTemplateMemoryToPublisherConveyorConfiguration.class);
+		add("datarouterMetricTemplatePublisher", MetricTemplateMemoryToPublisherConveyorConfiguration.class);
 	}
 
 }

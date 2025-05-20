@@ -27,6 +27,7 @@ import java.util.concurrent.TimeUnit;
 
 import io.datarouter.nodewatch.config.DatarouterNodewatchPaths;
 import io.datarouter.nodewatch.config.DatarouterNodewatchPlugin;
+import io.datarouter.nodewatch.link.NodewatchSlowSpansLink;
 import io.datarouter.nodewatch.storage.latesttablecount.DatarouterLatestTableCountDao;
 import io.datarouter.nodewatch.storage.latesttablecount.LatestTableCount;
 import io.datarouter.nodewatch.web.NodewatchHtml;
@@ -57,7 +58,7 @@ public class NodewatchSlowSpansHandler extends BaseHandler{
 	private DatarouterLatestTableCountDao latestTableCountDao;
 
 	@Handler
-	private Mav slowSpans(){
+	private Mav slowSpans(@SuppressWarnings("unused") NodewatchSlowSpansLink link){
 		List<LatestTableCount> latestTableCountsWithSlowSpans = latestTableCountDao.scan()
 				.include(latestTableCount -> latestTableCount.getNumSlowSpans() > 0)
 				.list();

@@ -29,11 +29,8 @@ import io.datarouter.instrumentation.relay.rml.RmlBlock;
 import io.datarouter.joblet.enums.JobletStatus;
 import io.datarouter.joblet.storage.jobletrequest.DatarouterJobletRequestDao;
 import io.datarouter.joblet.storage.jobletrequest.JobletRequest;
-import io.datarouter.tasktracker.web.TaskTrackerExceptionLink;
 import io.datarouter.util.number.NumberFormatter;
-import io.datarouter.web.config.ServletContextSupplier;
-import io.datarouter.web.config.service.DomainFinder;
-import j2html.tags.specialized.ATag;
+import io.datarouter.web.exception.ExceptionLinkBuilder;
 import j2html.tags.specialized.TableTag;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -46,11 +43,7 @@ public class JobletDailyDigestService{
 	@Inject
 	private DatarouterJobletRequestDao dao;
 	@Inject
-	private TaskTrackerExceptionLink exceptionLink;
-	@Inject
-	private DomainFinder domainFinder;
-	@Inject
-	private ServletContextSupplier contextSupplier;
+	private ExceptionLinkBuilder exceptionLinkBuilder;
 
 	public Map<FailedJobletDto,List<JobletRequest>> getFailedJoblets(){
 		return dao.scanFailedJoblets()
@@ -107,7 +100,8 @@ public class JobletDailyDigestService{
 									.map(JobletRequest::getExceptionRecordId)
 									.findFirst()
 									.orElse("");
-							return makeExceptionLink(exceptionId);
+
+							return a(exceptionId).withHref(exceptionLinkBuilder.exception(exceptionId).orElse(""));
 						}))
 				.build(map.entrySet());
 	}
@@ -127,9 +121,7 @@ public class JobletDailyDigestService{
 									.map(JobletRequest::getExceptionRecordId)
 									.findFirst()
 									.orElse("");
-							String exceptionHref = "https://" + domainFinder.getDomainPreferPublic()
-									+ contextSupplier.get().getContextPath()
-									+ exceptionLink.buildExceptionDetailLink(exceptionRecordId);
+							String exceptionHref = exceptionLinkBuilder.exception(exceptionRecordId).orElse("");
 
 							return Rml.tableRow(
 									Rml.tableCell(Rml.text(entry.getKey().type)),
@@ -139,13 +131,6 @@ public class JobletDailyDigestService{
 									Rml.tableCell(Rml.text(NumberFormatter.addCommas(entry.getKey().numFailures))),
 									Rml.tableCell(Rml.text(exceptionRecordId).link(exceptionHref)));
 						}));
-	}
-
-	private ATag makeExceptionLink(String exceptionRecordId){
-		String href = "https://" + domainFinder.getDomainPreferPublic() + contextSupplier.get().getContextPath()
-				+ exceptionLink.buildExceptionDetailLink(exceptionRecordId);
-		return a(exceptionRecordId)
-				.withHref(href);
 	}
 
 	public record OldJobletDto(

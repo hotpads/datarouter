@@ -19,7 +19,6 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Random;
 
 import de.huxhorn.sulky.ulid.ULID;
 
@@ -51,6 +50,13 @@ implements Comparable<Ulid>{
 		return Instant.ofEpochMilli(getTimestampMs());
 	}
 
+	/**
+	 * Creates a Ulid with a given timestamp and all 0's in the randomness suffix, making it
+	 * the first possible Ulid for a given timestamp when lexicographically sorted.
+	 * This is primarily used to create ranges of Ulid's spanning timestamps.
+	 * @param timestamp the desired timestamp to be represented in the prefix of the Ulid
+	 * @return the lexicographically-first possible Ulid for a given timestamp
+	 */
 	public static Ulid createFirstUlidFromTimestamp(long timestamp){
 		timestamp = timestamp & UlidTool.TIMESTAMP_MASK;
 
@@ -60,18 +66,6 @@ implements Comparable<Ulid>{
 		for(int i = 10; i < 26; i++){
 			buffer[i] = UlidTool.ENCODING_CHARS[0];
 		}
-		return new Ulid(new String(buffer));
-	}
-
-	public static Ulid createUlidFromTimestamp(long timestamp, long seed){
-		Random random = new Random(seed);
-		timestamp = timestamp & UlidTool.TIMESTAMP_MASK;
-
-		char[] buffer = new char[26];
-
-		UlidTool.internalWriteCrockford(buffer, timestamp, 10, 0);
-		UlidTool.internalWriteCrockford(buffer, random.nextLong(), 8, 10);
-		UlidTool.internalWriteCrockford(buffer, random.nextLong(), 8, 18);
 		return new Ulid(new String(buffer));
 	}
 

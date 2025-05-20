@@ -71,7 +71,7 @@ public class MemorySorter<T>{
 				.collect(Collectors.toMap(
 						option -> option.name,
 						option -> option.name,
-						(a, b) -> a,
+						(a, _) -> a,
 						LinkedHashMap::new));
 	}
 

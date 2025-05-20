@@ -236,7 +236,7 @@ public abstract class BaseHttpClient implements HttpConfig{
 
 	protected <E> E deserializeEntity(String entity, Type deserializeToType){
 		long length = entity == null ? 0 : entity.length();
-		try(var $ = TracerTool.startSpan("JsonSerializer deserialize", TraceSpanGroupType.SERIALIZATION)){
+		try(var _ = TracerTool.startSpan("JsonSerializer deserialize", TraceSpanGroupType.SERIALIZATION)){
 			TracerTool.appendToSpanInfo("characters", length);
 			return jsonSerializer.deserialize(entity, deserializeToType);
 		}

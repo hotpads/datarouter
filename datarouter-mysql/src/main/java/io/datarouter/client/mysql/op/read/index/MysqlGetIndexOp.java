@@ -97,7 +97,7 @@ extends BaseMysqlOp<List<IE>>{
 	private List<IE> select(PreparedStatement ps){
 		try{
 			String spanName = fieldInfo.getNodeName() + " " + opName + " PreparedStatement.execute";
-			try(var $ = TracerTool.startSpan(spanName, TraceSpanGroupType.DATABASE)){
+			try(var _ = TracerTool.startSpan(spanName, TraceSpanGroupType.DATABASE)){
 				ps.execute();
 			}
 			ResultSet rs = ps.getResultSet();

@@ -8,7 +8,7 @@ datarouter-relay manages notification sending abstraction.
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-relay</artifactId>
-	<version>0.0.126</version>
+	<version>0.0.127</version>
 </dependency>
 ```
 

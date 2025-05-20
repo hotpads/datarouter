@@ -25,12 +25,7 @@ public class DatarouterExceptionPaths extends PathNode implements PathsRoot{
 	public final DatarouterPaths datarouter = branch(DatarouterPaths::new, "datarouter");
 
 	public static class DatarouterPaths extends PathNode{
-		public final ExceptionPaths exception = branch(ExceptionPaths::new, "exception");
 		public final ErrorGeneratorPaths errorGenerator = branch(ErrorGeneratorPaths::new, "errorGenerator");
-	}
-
-	public static class ExceptionPaths extends PathNode{
-		public final PathNode details = leaf("details");
 	}
 
 	public static class ErrorGeneratorPaths extends PathNode{

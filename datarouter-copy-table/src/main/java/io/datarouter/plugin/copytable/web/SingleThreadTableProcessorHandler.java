@@ -26,6 +26,7 @@ import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.nodewatch.service.TableSamplerService;
 import io.datarouter.plugin.copytable.config.DatarouterCopyTablePaths;
+import io.datarouter.plugin.copytable.link.SingleThreadTableProcessorLink;
 import io.datarouter.plugin.copytable.tableprocessor.TableProcessor;
 import io.datarouter.plugin.copytable.tableprocessor.TableProcessorRegistry;
 import io.datarouter.plugin.copytable.tableprocessor.TableProcessorService;
@@ -36,7 +37,6 @@ import io.datarouter.util.string.StringTool;
 import io.datarouter.web.email.StandardDatarouterEmailHeaderService;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
-import io.datarouter.web.handler.types.Param;
 import io.datarouter.web.html.form.HtmlForm;
 import io.datarouter.web.html.form.HtmlForm.HtmlFormMethod;
 import io.datarouter.web.html.form.HtmlFormValidator;
@@ -44,14 +44,6 @@ import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import jakarta.inject.Inject;
 
 public class SingleThreadTableProcessorHandler extends BaseHandler{
-
-	private static final String
-			P_sourceNodeName = "sourceNodeName",
-			P_lastKeyString = "lastKeyString",
-			P_scanBatchSize = "scanBatchSize",
-			P_processorName = "processorName",
-			P_toEmail = "toEmail",
-			P_submitAction = "submitAction";
 
 	private static final int DEFAULT_SCAN_BATCH_SIZE = Config.DEFAULT_RESPONSE_BATCH_SIZE;
 
@@ -72,16 +64,16 @@ public class SingleThreadTableProcessorHandler extends BaseHandler{
 	@Inject
 	private TableSamplerService tableSamplerService;
 
-	@Handler(defaultHandler = true)
-	private <PK extends PrimaryKey<PK>,
-			D extends Databean<PK,D>>
-	Mav defaultHandler(
-			@Param(P_sourceNodeName) Optional<String> sourceName,
-			@Param(P_lastKeyString) Optional<String> lastKeyString,
-			@Param(P_scanBatchSize) Optional<String> scanBatchSize,
-			@Param(P_processorName) Optional<String> processorName,
-			@Param(P_toEmail) Optional<String> toEmail,
-			@Param(P_submitAction) Optional<String> submitAction){
+	@Handler
+	private <PK extends PrimaryKey<PK>, D extends Databean<PK,D>>
+	Mav singleThread(SingleThreadTableProcessorLink link){
+
+		Optional<String> sourceNodeName = link.sourceNodeName;
+		Optional<String> processorName = link.processorName;
+		Optional<Integer> scanBatchSize = link.scanBatchSize;
+		Optional<String> lastKeyString = link.lastKeyString;
+		Optional<String> toEmail = link.toEmail;
+		Optional<String> submitAction = link.submitAction;
 		boolean shouldValidate = submitAction.isPresent();
 		List<String> possibleNodes = tableSamplerService.scanAllSortedMapStorageNodes()
 				.map(node -> node.getClientId().getName() + "." + node.getFieldInfo().getTableName())
@@ -97,34 +89,34 @@ public class SingleThreadTableProcessorHandler extends BaseHandler{
 		var form = new HtmlForm(HtmlFormMethod.POST);
 		form.addSelectField()
 				.withLabel("Processor Name")
-				.withName(P_processorName)
+				.withName(SingleThreadTableProcessorLink.P_processorName)
 				.withValues(possibleProcessors);
 		form.addSelectField()
 				.withLabel("Node Name")
-				.withName(P_sourceNodeName)
+				.withName(SingleThreadTableProcessorLink.P_sourceNodeName)
 				.withValues(possibleNodes);
 		form.addNumberField()
 				.withLabel("Scan Batch Size")
-				.withName(P_scanBatchSize)
+				.withName(SingleThreadTableProcessorLink.P_scanBatchSize)
 				.withPlaceholder(DEFAULT_SCAN_BATCH_SIZE)
 				.withValue(
-						scanBatchSize.orElse(null),
+						scanBatchSize.map(String::valueOf).orElse(null),
 						shouldValidate && scanBatchSize.isPresent(),
 						HtmlFormValidator::positiveInteger);
 		form.addTextField()
 				.withLabel("From Key String")
 				//add validation
-				.withName(P_lastKeyString)
+				.withName(SingleThreadTableProcessorLink.P_lastKeyString)
 				.withValue(lastKeyString.orElse(null));
 		form.addTextField()
 				.withLabel("Email on Completion")
 				//add validation
-				.withName(P_toEmail)
+				.withName(SingleThreadTableProcessorLink.P_toEmail)
 				.withPlaceholder("you@email.com")
 				.withValue(toEmail.orElse(getSessionInfo().getRequiredSession().getUsername()));
 		form.addButton()
 				.withLabel("Execute")
-				.withValue("anything");
+				.withValue("singleThread");
 
 		if(submitAction.isEmpty() || form.hasErrors()){
 			return pageFactory.startBuilder(request)
@@ -136,12 +128,10 @@ public class SingleThreadTableProcessorHandler extends BaseHandler{
 		}
 
 		int actualScanBatchSize = scanBatchSize
-				.map(StringTool::nullIfEmpty)
-				.map(Integer::valueOf)
 				.orElse(DEFAULT_SCAN_BATCH_SIZE);
 		TableProcessor<?> processor = processorRegistry.find(processorName.get()).get();
 		TableProcessorSpanResult result = service.runTableProcessor(
-				sourceName.get(),
+				sourceNodeName.get(),
 				lastKeyString.map(StringTool::nullIfEmpty).orElse(null),
 				null,
 				actualScanBatchSize,
@@ -158,7 +148,7 @@ public class SingleThreadTableProcessorHandler extends BaseHandler{
 		var header = standardDatarouterEmailHeaderService.makeStandardHeader();
 		String message = String.format("Successfully processed %s records for %s - %s",
 				NumberFormatter.addCommas(result.numScanned()),
-				sourceName.get(),
+				sourceNodeName.get(),
 				processorName.get());
 		var body = body(header, p(message));
 		if(toEmail.filter(str -> !str.isEmpty()).isPresent()){
@@ -176,7 +166,7 @@ public class SingleThreadTableProcessorHandler extends BaseHandler{
 		changelogService.recordChangelogForTableProcessor(
 				getSessionInfo(),
 				"Single Thread",
-				sourceName.get(),
+				sourceNodeName.get(),
 				processorName.get());
 		return pageFactory.message(request, message);
 	}

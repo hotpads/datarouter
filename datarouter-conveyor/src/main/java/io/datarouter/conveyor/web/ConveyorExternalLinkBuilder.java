@@ -33,7 +33,6 @@ public interface ConveyorExternalLinkBuilder extends PluginConfigValue<ConveyorE
 
 	Optional<String> counters(String counterNamePrefix);
 	Optional<String> exceptions(String conveyorName);
-	Optional<String> traces(String conveyorName);
 
 	@Override
 	default PluginConfigKey<ConveyorExternalLinkBuilder> getKey(){
@@ -62,11 +61,6 @@ public interface ConveyorExternalLinkBuilder extends PluginConfigValue<ConveyorE
 
 		@Override
 		public Optional<String> exceptions(String conveyorName){
-			return Optional.empty();
-		}
-
-		@Override
-		public Optional<String> traces(String conveyorName){
 			return Optional.empty();
 		}
 

@@ -38,7 +38,7 @@ public class MemoryTallyStorage{
 	/*-------------- write ---------------*/
 
 	public long addAndGet(String id, long delta, Long ttlMs){
-		try(var $ = lock.lockForWriting()){
+		try(var _ = lock.lockForWriting()){
 			MemoryTally memoryTally = tallyById.get(id);
 			if(memoryTally == null || memoryTally.isExpired()){
 				memoryTally = new MemoryTally(ttlMs);
@@ -49,7 +49,7 @@ public class MemoryTallyStorage{
 	}
 
 	public void delete(String id){
-		try(var $ = lock.lockForWriting()){
+		try(var _ = lock.lockForWriting()){
 			tallyById.remove(id);
 		}
 	}
@@ -57,7 +57,7 @@ public class MemoryTallyStorage{
 	/*-------------- read ----------------*/
 
 	public MemoryTally get(String id){
-		try(var $ = lock.lockForReading()){
+		try(var _ = lock.lockForReading()){
 			return tallyById.get(id);
 		}
 	}

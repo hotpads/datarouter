@@ -49,7 +49,7 @@ public class DatarouterDataLoaderWrapper<K extends DataLoaderKey,V> implements M
 		Metrics.measure(GraphQlCounters.DATA_BATCH_LOADER + " batchSize " + batchedService.getClass().getSimpleName(),
 				keys.size());
 		return CompletableFuture.supplyAsync(() -> {
-			try(var $ = TracerTool.startSpanNoGroupType(batchedService.getClass().getSimpleName())){
+			try(var _ = TracerTool.startSpanNoGroupType(batchedService.getClass().getSimpleName())){
 				return batchedService.load(keys);
 			}
 		}, executor);

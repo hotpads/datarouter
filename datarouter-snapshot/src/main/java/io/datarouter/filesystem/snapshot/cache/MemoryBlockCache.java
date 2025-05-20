@@ -40,7 +40,7 @@ public class MemoryBlockCache implements BlockLoader{
 		blocks = Caffeine.newBuilder()
 				.executor(Executors.newCachedThreadPool())// avoid ForkJoinPool, but not sure of best configuration
 				.maximumWeight(maxSizeBytes)
-				.weigher((BlockKey key, Block block) -> block.heapSize())
+				.weigher((BlockKey _, Block block) -> block.heapSize())
 				.build(blockLoader::get);
 	}
 

@@ -20,6 +20,8 @@ import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import io.datarouter.scanner.BatchByMinSizeScanner.ScannerMinSizeBatch;
+
 public class BatchByMinSizeScannerTests{
 
 	@Test
@@ -45,13 +47,13 @@ public class BatchByMinSizeScannerTests{
 	@Test
 	public void testMultiple(){
 		List<String> inputs = List.of("a", "bb", "c", "ddddd", "ee", "ff", "g");
-		List<List<String>> expected = List.of(
-				List.of("a", "bb", "c"),
-				List.of("ddddd"),
-				List.of("ee", "ff"),
-				List.of("g"));
-		List<List<String>> actual = Scanner.of(inputs)
-				.batchByMinSize(4, String::length)
+		List<ScannerMinSizeBatch<String>> expected = List.of(
+				new ScannerMinSizeBatch<>(List.of("a", "bb", "c"), 4),
+				new ScannerMinSizeBatch<>(List.of("ddddd"), 5),
+				new ScannerMinSizeBatch<>(List.of("ee", "ff"), 4),
+				new ScannerMinSizeBatch<>(List.of("g"), 1));
+		List<ScannerMinSizeBatch<String>> actual = Scanner.of(inputs)
+				.batchByMinSizeWithStats(4, String::length)
 				.list();
 		Assert.assertEquals(actual, expected);
 	}

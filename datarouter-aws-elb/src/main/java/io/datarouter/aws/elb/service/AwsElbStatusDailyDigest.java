@@ -15,15 +15,11 @@
  */
 package io.datarouter.aws.elb.service;
 
-import static j2html.TagCreator.div;
-
 import java.time.ZoneId;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
-import com.amazonaws.services.elasticloadbalancingv2.model.LoadBalancer;
-import com.amazonaws.services.elasticloadbalancingv2.model.LoadBalancerSchemeEnum;
 
 import io.datarouter.aws.elb.config.DatarouterAwsElbSettingRoot;
 import io.datarouter.instrumentation.relay.rml.Rml;
@@ -35,14 +31,16 @@ import io.datarouter.web.config.service.PrivateDomain;
 import io.datarouter.web.config.service.PublicDomain;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
-import io.datarouter.web.digest.DailyDigestService;
-import j2html.tags.specialized.DivTag;
+import io.datarouter.web.digest.DailyDigestRmlService;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import software.amazon.awssdk.services.elasticloadbalancingv2.model.LoadBalancer;
+import software.amazon.awssdk.services.elasticloadbalancingv2.model.LoadBalancerSchemeEnum;
 
 @Singleton
 public class AwsElbStatusDailyDigest implements DailyDigest{
 
+	private static final String TASK_CATEGORY = "elbStatus";
 	private static final String HAS_PUBLIC_LOAD_BALANCER_KEY = "hasPublicAlb";
 	private static final String HAS_PRIVATE_LOAD_BALANCER_KEY = "hasPrivateAlb";
 	private static final String UNKNOWN_LOAD_BALANCER = "unknownAlb";
@@ -74,11 +72,6 @@ public class AwsElbStatusDailyDigest implements DailyDigest{
 	}
 
 	@Override
-	public Optional<DivTag> getEmailContent(ZoneId zoneId){
-		return checkAlbSchemeForEc2Instance();
-	}
-
-	@Override
 	public Optional<RmlBlock> getRelayContent(ZoneId zoneId){
 		if(!settings.enableDailyDigest.get()){
 			return Optional.empty();
@@ -97,7 +90,7 @@ public class AwsElbStatusDailyDigest implements DailyDigest{
 		boolean hasPrivateAlb = privatePublicAlbsMap.get(HAS_PRIVATE_LOAD_BALANCER_KEY);
 		boolean hasUnknownAlb = privatePublicAlbsMap.get(UNKNOWN_LOAD_BALANCER);
 
-		var header = DailyDigestService.makeHeading("ELB Status");
+		var header = DailyDigestRmlService.makeHeading("ELB Status");
 
 		if(hasUnknownAlb){
 			return Optional.of(Rml.paragraph(header, Rml.text(
@@ -121,16 +114,17 @@ public class AwsElbStatusDailyDigest implements DailyDigest{
 		return Optional.empty();
 	}
 
-	private Optional<DivTag> checkAlbSchemeForEc2Instance(){
+	@Override
+	public List<DailyDigestPlatformTask> getTasks(ZoneId zoneId){
 		if(!settings.enableDailyDigest.get()){
-			return Optional.empty();
+			return List.of();
 		}
 
 		Optional<Ec2InstanceDetailsDto> ec2InstanceDetailsDto = Ec2InstanceTool.getEc2InstanceDetails(false);
 		String serverType = serverTypeSupplier.getServerTypeString();
 
 		if(ec2InstanceDetailsDto.isEmpty()){
-			return Optional.empty();
+			return List.of();
 		}
 
 		String ec2InstanceId = ec2InstanceDetailsDto.get().instanceId;
@@ -139,33 +133,45 @@ public class AwsElbStatusDailyDigest implements DailyDigest{
 		boolean hasPrivateAlb = privatePublicAlbsMap.get(HAS_PRIVATE_LOAD_BALANCER_KEY);
 		boolean hasUnknownAlb = privatePublicAlbsMap.get(UNKNOWN_LOAD_BALANCER);
 
-		var header = DailyDigestService.makeHeader("ELB Status", "");
+		Optional<TaskDetails> details = Optional.empty();
+
+		var header = DailyDigestRmlService.makeHeading("ELB Status");
 
 		if(hasUnknownAlb){
-			DivTag tag = div("Server does not have any known load balancers or"
-					+ " something might be wrong, e.g ALB name does not match, instance not registered with"
-					+ " target group, etc");
-			return Optional.of(div(header, tag));
-		}
-
-		if(publicDomain.hasPublicDomain() && !hasPublicAlb){
-			DivTag tag = div("Server expects public load balancer");
-			return Optional.of(div(header, tag));
-		}
-		if(!publicDomain.hasPublicDomain() && hasPublicAlb){
-			DivTag tag = div("Server has unexpected public load balancer");
-			return Optional.of(div(header, tag));
-		}
-		if(publicDomain.hasPublicDomain()
+			details = Optional.of(new TaskDetails(
+					"unknownAlb",
+					"Unknown ALB",
+					"Server does not have any known load balancers or something might be wrong, e.g ALB name does not "
+							+ "match, instance not registered with target group, etc"));
+		}else if(publicDomain.hasPublicDomain() && !hasPublicAlb){
+			details = Optional.of(new TaskDetails(
+					"missingPublicLb",
+					"Missing public ALB",
+					"Server expects public load balancer"));
+		}else if(!publicDomain.hasPublicDomain() && hasPublicAlb){
+			details = Optional.of(new TaskDetails(
+					"unexpectedPublicLb",
+					"Unexpected public ALB",
+					"Server has unexpected public load balancer"));
+		}else if(publicDomain.hasPublicDomain()
 				&& !hasPublicAlb
 				&& privateDomain.hasPrivateDomain()
 				&& !hasPrivateAlb){
-			DivTag tag = div("Server expects both public and private load"
-					+ " balancers but it is " + hasPublicAlb + " for public ALB and " + hasPrivateAlb
-					+ " for private ALB");
-			return Optional.of(div(header, tag));
+			details = Optional.of(new TaskDetails(
+					"mismatchedLb",
+					"Mismatched ALB",
+					"Server expects both public and private load balancers but it is " + hasPublicAlb + " for public "
+							+ "ALB and " + hasPrivateAlb + " for private ALB"));
 		}
-		return Optional.empty();
+
+		return details
+				.map(taskDetails -> new DailyDigestPlatformTask(
+							List.of(TASK_CATEGORY, taskDetails.category(), ec2InstanceId),
+							List.of(TASK_CATEGORY, taskDetails.category()),
+							taskDetails.title() + ": " + ec2InstanceId,
+							Rml.paragraph(header, Rml.text(taskDetails.description()))))
+				.map(List::of)
+				.orElse(List.of());
 	}
 
 	private Map<String,Boolean> getAlbSchemeForEc2Instance(String serverType, String ec2InstanceId){
@@ -178,21 +184,19 @@ public class AwsElbStatusDailyDigest implements DailyDigest{
 			// due to teraform/aws naming character limitation, the ALB for some services with long names will have
 			// the to be truncated - "some-example-service-joblet-privat" (missing last char), so can't check for
 			// exact ALB name
-			if(!loadBalancer.getLoadBalancerName().equals(serverType)
-					&& !loadBalancer.getLoadBalancerName().startsWith(serverType + "-privat")){
+			if(!loadBalancer.loadBalancerName().equals(serverType)
+					&& !loadBalancer.loadBalancerName().startsWith(serverType + "-privat")){
 				continue;
 			}
-			for(String targetGroupArn : elbService.getTargetGroupsArn(loadBalancer.getLoadBalancerArn())){
+			for(String targetGroupArn : elbService.getTargetGroupsArn(loadBalancer.loadBalancerArn())){
 				for(String targetEc2InstanceId : elbService.getTargetEc2InstancesId(targetGroupArn)){
 					if(!targetEc2InstanceId.equals(ec2InstanceId)){
 						continue;
 					}
-					LoadBalancerSchemeEnum loadBalancerScheme = LoadBalancerSchemeEnum.fromValue(
-							loadBalancer.getScheme());
-					if(LoadBalancerSchemeEnum.InternetFacing == loadBalancerScheme){
+					if(LoadBalancerSchemeEnum.INTERNET_FACING == loadBalancer.scheme()){
 						instanceHasPublicAlb = true;
 					}
-					if(LoadBalancerSchemeEnum.Internal == loadBalancerScheme){
+					if(LoadBalancerSchemeEnum.INTERNAL == loadBalancer.scheme()){
 						instanceHasPrivateAlb = true;
 					}
 					unknownAlb = false;
@@ -203,6 +207,12 @@ public class AwsElbStatusDailyDigest implements DailyDigest{
 		privatePublicAlbsMap.put(HAS_PRIVATE_LOAD_BALANCER_KEY, instanceHasPrivateAlb);
 		privatePublicAlbsMap.put(UNKNOWN_LOAD_BALANCER, unknownAlb);
 		return privatePublicAlbsMap;
+	}
+
+	private record TaskDetails(
+			String category,
+			String title,
+			String description){
 	}
 
 }

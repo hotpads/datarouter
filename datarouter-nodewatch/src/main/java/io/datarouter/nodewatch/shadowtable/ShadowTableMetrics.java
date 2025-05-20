@@ -24,7 +24,11 @@ public class ShadowTableMetrics{
 	private static final String EXPORT_ROWS = "export rows";
 	private static final String EXPORT_DATABEAN_BYTES = "export databeanBytes";
 	private static final String EXPORT_BLOCKFILE_INPUT_BYTES = "export blockfileInputBytes";
-	private static final String EXPORT_BLOCKFILE_OUTPUT_BYTES = "export blockfileOutputBytes";
+	private static final String COMBINE_ROWS = "combine rows";
+	private static final String COMBINE_BYTES_IN = "combine bytesIn";
+	private static final String COMBINE_BYTES_OUT = "combine bytesOut";
+	private static final String COMBINE_BLOCKS_OUT = "combine blocksOut";
+	private static final String COMBINE_BLOCKS_PREFETCHED = "combine blocksPrefetched";
 
 	/*------- count export rows -------*/
 
@@ -80,22 +84,94 @@ public class ShadowTableMetrics{
 		Metrics.count(metricName, numBytes);
 	}
 
-	/*------- count export blockfileOutputBytes -------*/
+	/*------- count combine rows -------*/
 
-	public static void countBlockfileOutputBytes(
+	public static void countCombineRows(
+			String exportName,
+			ClientAndTableNames names,
+			long numRows){
+		countCombineRows(numRows, "all");
+		countCombineRows(numRows, "export", exportName);
+		countCombineRows(numRows, "client", names.client());
+		countCombineRows(numRows, "table", names.client(), names.table());
+	}
+
+	private static void countCombineRows(long value, String... tokens){
+		String joinedTokens = String.join(" ", tokens);
+		String metricName = String.join(" ", PREFIX, COMBINE_ROWS, joinedTokens);
+		Metrics.count(metricName, value);
+	}
+
+	/*------- count combine bytes in -------*/
+
+	public static void countCombineBytesIn(
 			String exportName,
 			ClientAndTableNames names,
 			long numBytes){
-		countBlockfileOutputBytes(numBytes, "all");
-		countBlockfileOutputBytes(numBytes, "export", exportName);
-		countBlockfileOutputBytes(numBytes, "client", names.client());
-		countBlockfileOutputBytes(numBytes, "table", names.client(), names.table());
+		countCombineBytesIn(numBytes, "all");
+		countCombineBytesIn(numBytes, "export", exportName);
+		countCombineBytesIn(numBytes, "client", names.client());
+		countCombineBytesIn(numBytes, "table", names.client(), names.table());
 	}
 
-	private static void countBlockfileOutputBytes(long numBytes, String... tokens){
+	private static void countCombineBytesIn(long value, String... tokens){
 		String joinedTokens = String.join(" ", tokens);
-		String metricName = String.join(" ", PREFIX, EXPORT_BLOCKFILE_OUTPUT_BYTES, joinedTokens);
-		Metrics.count(metricName, numBytes);
+		String metricName = String.join(" ", PREFIX, COMBINE_BYTES_IN, joinedTokens);
+		Metrics.count(metricName, value);
+	}
+
+	/*------- count combine bytes out -------*/
+
+	public static void countCombineBytesOut(
+			String exportName,
+			ClientAndTableNames names,
+			long numBytes){
+		countCombineBytesOut(numBytes, "all");
+		countCombineBytesOut(numBytes, "export", exportName);
+		countCombineBytesOut(numBytes, "client", names.client());
+		countCombineBytesOut(numBytes, "table", names.client(), names.table());
+	}
+
+	private static void countCombineBytesOut(long value, String... tokens){
+		String joinedTokens = String.join(" ", tokens);
+		String metricName = String.join(" ", PREFIX, COMBINE_BYTES_OUT, joinedTokens);
+		Metrics.count(metricName, value);
+	}
+
+	/*------- count combine blocks out -------*/
+
+	public static void countCombineBlocksOut(
+			String exportName,
+			ClientAndTableNames names,
+			long numBlocks){
+		countCombineBlocksOut(numBlocks, "all");
+		countCombineBlocksOut(numBlocks, "export", exportName);
+		countCombineBlocksOut(numBlocks, "client", names.client());
+		countCombineBlocksOut(numBlocks, "table", names.client(), names.table());
+	}
+
+	private static void countCombineBlocksOut(long value, String... tokens){
+		String joinedTokens = String.join(" ", tokens);
+		String metricName = String.join(" ", PREFIX, COMBINE_BLOCKS_OUT, joinedTokens);
+		Metrics.count(metricName, value);
+	}
+
+	/*------- measure combine blocks prefetched -------*/
+
+	public static void measureCombineBlocksPrefetched(
+			String exportName,
+			ClientAndTableNames names,
+			long numBlocks){
+		measureCombineBlocksPrefetched(numBlocks, "all");
+		measureCombineBlocksPrefetched(numBlocks, "export", exportName);
+		measureCombineBlocksPrefetched(numBlocks, "client", names.client());
+		measureCombineBlocksPrefetched(numBlocks, "table", names.client(), names.table());
+	}
+
+	private static void measureCombineBlocksPrefetched(long value, String... tokens){
+		String joinedTokens = String.join(" ", tokens);
+		String metricName = String.join(" ", PREFIX, COMBINE_BLOCKS_PREFETCHED, joinedTokens);
+		Metrics.measure(metricName, value);
 	}
 
 }

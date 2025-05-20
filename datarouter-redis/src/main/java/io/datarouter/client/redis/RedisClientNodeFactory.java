@@ -15,6 +15,8 @@
  */
 package io.datarouter.client.redis;
 
+import java.util.function.Supplier;
+
 import io.datarouter.bytes.ByteLength;
 import io.datarouter.client.redis.client.RedisClientManager;
 import io.datarouter.client.redis.codec.RedisBlobCodec;
@@ -74,7 +76,7 @@ implements BlobClientNodeFactory, DatabeanClientNodeFactory, TallyClientNodeFact
 	@Override
 	public PhysicalBlobStorageNode createBlobNode(
 			NodeParams<DatabaseBlobKey,DatabaseBlob,DatabaseBlobFielder> nodeParams){
-		var codec = new RedisBlobCodec(nodeParams.getPath());
+		var codec = new RedisBlobCodec(nodeParams.getPathSupplier());
 		var node = new RedisBlobNode(
 				nodeParams,
 				redisClientType,
@@ -95,28 +97,28 @@ implements BlobClientNodeFactory, DatabeanClientNodeFactory, TallyClientNodeFact
 			EntityNodeParams<EK,E> entityNodeParams,
 			NodeParams<PK,D,F> nodeParams){
 		var fieldInfo = new PhysicalDatabeanFieldInfo<>(nodeParams);
-		Subpath path = new DatabeanNodePrefix(
+		var databeanNodePrefix = new DatabeanNodePrefix(
 				ReservedBlobPaths.DATABEAN,
 				DatabeanToBlobCodec.CODEC_VERSION,
 				serviceName.get(),
 				"1",//placeholder for client-scoped version
 				nodeParams,
-				fieldInfo)
-				.makeSubpath();
+				fieldInfo);
+		Supplier<Subpath> pathSupplier = () -> databeanNodePrefix.makeSubpath();
 		var blobParams = new NodeParamsBuilder<>(nodeParams)
-				.withPath(path)
+				.withPathSupplier(pathSupplier)
 				.build();
 		var blobNode = new RedisBlobNode(
 				castParams(blobParams),
 				redisClientType,
-				new RedisBlobCodec(path),
+				new RedisBlobCodec(pathSupplier),
 				redisClientManager.getLazyClient(nodeParams.getClientId()));
 		var codec = new DatabeanToBlobCodec<PK,D,F>(
 				redisClientType.getName(),
 				fieldInfo.getSampleFielder(),
 				fieldInfo.getDatabeanSupplier(),
 				fieldInfo.getFieldByPrefixedName(),
-				path,
+				pathSupplier,
 				MAX_REDIS_KEY_SIZE,
 				MAX_REDIS_VALUE_SIZE);
 		var node = new DatabeanToBlobNode<>(

@@ -28,8 +28,10 @@ import io.datarouter.aws.s3.DatarouterS3Counters.S3CounterSuffix;
 import io.datarouter.aws.s3.S3CostCounters;
 import io.datarouter.aws.s3.S3Headers.ContentType;
 import io.datarouter.aws.s3.S3Headers.S3ContentType;
+import io.datarouter.aws.s3.S3Limits;
 import io.datarouter.instrumentation.trace.TraceSpanGroupType;
 import io.datarouter.instrumentation.trace.TracerTool;
+import io.datarouter.scanner.Threads;
 import io.datarouter.storage.file.BucketAndKey;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -61,7 +63,7 @@ public class DatarouterS3PublicRequests{
 				.signatureDuration(expireAfter)
 				.build();
 		S3CostCounters.write();
-		try(var $ = TracerTool.startSpan("S3 generateLink", TraceSpanGroupType.CLOUD_STORAGE)){
+		try(var _ = TracerTool.startSpan("S3 generateLink", TraceSpanGroupType.CLOUD_STORAGE)){
 			return clientManager.getPresigner().presignGetObject(getObjectPresignRequest).url();
 		}
 	}
@@ -83,7 +85,7 @@ public class DatarouterS3PublicRequests{
 				.acl(acl)
 				.build();
 		RequestBody requestBody = RequestBody.fromBytes(bytes);
-		try(var $ = TracerTool.startSpan("S3 putObjectWithPublicRead", TraceSpanGroupType.CLOUD_STORAGE)){
+		try(var _ = TracerTool.startSpan("S3 putObjectWithPublicRead", TraceSpanGroupType.CLOUD_STORAGE)){
 			s3Client.putObject(request, requestBody);
 			TracerTool.appendToSpanInfo("Content-Length", request.contentLength());
 		}
@@ -108,7 +110,7 @@ public class DatarouterS3PublicRequests{
 				.expires(expirationTime)
 				.build();
 		RequestBody requestBody = RequestBody.fromBytes(bytes);
-		try(var $ = TracerTool.startSpan(
+		try(var _ = TracerTool.startSpan(
 				"S3 putObjectWithPublicReadAndExpirationTime",
 				TraceSpanGroupType.CLOUD_STORAGE)){
 			s3Client.putObject(request, requestBody);
@@ -125,11 +127,13 @@ public class DatarouterS3PublicRequests{
 			BucketAndKey location,
 			S3ContentType contentType,
 			InputStream inputStream){
-		multipartRequests.multipartUploadInternal(
+		multipartRequests.multipartUploadFromInputStream(
 				location,
 				contentType,
 				Optional.of(ObjectCannedACL.PUBLIC_READ),
-				inputStream);
+				inputStream,
+				Threads.none(),
+				S3Limits.MIN_PART_SIZE);
 	}
 
 	/*--------- write file ---------*/
@@ -143,7 +147,7 @@ public class DatarouterS3PublicRequests{
 				.acl(ObjectCannedACL.PUBLIC_READ)
 				.build();
 		RequestBody requestBody = RequestBody.fromFile(localFilePath);
-		try(var $ = TracerTool.startSpan("S3 uploadLocalFileWithPublicRead", TraceSpanGroupType.CLOUD_STORAGE)){
+		try(var _ = TracerTool.startSpan("S3 uploadLocalFileWithPublicRead", TraceSpanGroupType.CLOUD_STORAGE)){
 			s3Client.putObject(request, requestBody);
 			TracerTool.appendToSpanInfo("Content-Length", request.contentLength());
 		}

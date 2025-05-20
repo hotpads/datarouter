@@ -23,14 +23,13 @@ public class Subnet{
 	public final long subnetMask;
 
 	public Subnet(String string){
-		this.cidr = string;
+		cidr = string;
 		try{
 			String[] components = string.split("/");
 			baseAddress = IpTool.getLongValue(components[0]);
 			maskIdentifier = Integer.parseInt(components[1]);
 
-			long subnetMask = (1 << maskIdentifier) - 1;
-			this.subnetMask = subnetMask << 32 - maskIdentifier;
+			subnetMask = 0xFFFFFFFFL << 32 - maskIdentifier & 0xFFFFFFFFL;
 		}catch(Exception e){
 			throw new IllegalArgumentException("invalid subnet " + string);
 		}

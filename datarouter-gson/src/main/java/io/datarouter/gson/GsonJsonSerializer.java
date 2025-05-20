@@ -18,6 +18,7 @@ package io.datarouter.gson;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -26,20 +27,23 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonSyntaxException;
 
 import io.datarouter.json.JsonSerializer;
-import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
 @Singleton
 public class GsonJsonSerializer implements JsonSerializer{
 
-	public static final GsonJsonSerializer DEFAULT = new GsonJsonSerializer(
-			DatarouterGsons.rootDatarouterGsonInstance());
+	public static final GsonJsonSerializer DEFAULT = new GsonJsonSerializer(DatarouterGsons
+			.rootDatarouterGsonInstance());
 
 	private final Gson gson;
 
-	@Inject
+	// Injectable
+	public GsonJsonSerializer(){
+		this(DatarouterGsons.rootDatarouterGsonInstance());
+	}
+
 	public GsonJsonSerializer(Gson gson){
-		this.gson = gson;
+		this.gson = Objects.requireNonNull(gson);
 	}
 
 	@Override

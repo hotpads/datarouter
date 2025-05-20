@@ -33,6 +33,7 @@ import io.datarouter.bytes.blockfile.row.BlockfileRowCollator.BlockfileRowCollat
 import io.datarouter.bytes.blockfile.row.BlockfileRowOp;
 import io.datarouter.bytes.codec.longcodec.ComparableLongCodec;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.scanner.SplittingScanner.SplitKeyAndScanner;
 
 public class BlockfileRowPerformanceTester{
 	private static final Logger logger = LoggerFactory.getLogger(BlockfileRowPerformanceTester.class);
@@ -93,9 +94,9 @@ public class BlockfileRowPerformanceTester{
 			long startMs = System.currentTimeMillis();
 			long count = Scanner.of(keyLists)
 					.concat(Scanner::of)// 420mm/s
-//					.each($ -> counter.incrementAndGet())// 117mm/s
-//					.each($ -> counter.incrementAndGet())// 77mm/s
-//					.each($ -> counter.incrementAndGet())// 42mm/s
+//					.each(_ -> counter.incrementAndGet())// 117mm/s
+//					.each(_ -> counter.incrementAndGet())// 77mm/s
+//					.each(_ -> counter.incrementAndGet())// 42mm/s
 					.count();
 			long durationMs = System.currentTimeMillis() - startMs;
 			long rps = count * 1000 / durationMs;
@@ -167,7 +168,8 @@ public class BlockfileRowPerformanceTester{
 					.collateV2(Scanner::of, BlockfileRow::compareKeyVersionOpOptimized)// 37mm/s
 
 //					.splitBy(Function.identity(), KvFileEntry.EQUALS_KEY)// 22mm/s
-					.splitBy(Function.identity(), BlockfileRow::equalsKeyOptimized)// 26mm/s
+					.splitByWithSplitKey(Function.identity(), BlockfileRow::equalsKeyOptimized)
+					.map(SplitKeyAndScanner::scanner)// 26mm/s
 
 					.map(entries -> entries.findLast().orElseThrow())// 19mm/s
 					.exclude(kv -> kv.op() == BlockfileRowOp.DELETE)// 17mm/s

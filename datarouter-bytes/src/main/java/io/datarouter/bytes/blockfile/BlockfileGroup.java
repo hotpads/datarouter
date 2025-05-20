@@ -15,12 +15,14 @@
  */
 package io.datarouter.bytes.blockfile;
 
+import java.util.concurrent.ExecutorService;
 import java.util.function.Function;
 
 import io.datarouter.bytes.blockfile.encoding.checksum.BlockfileChecksummers;
 import io.datarouter.bytes.blockfile.encoding.compression.BlockfileCompressors;
 import io.datarouter.bytes.blockfile.encoding.indexblock.BlockfileIndexBlockFormats;
 import io.datarouter.bytes.blockfile.encoding.valueblock.BlockfileValueBlockFormats;
+import io.datarouter.bytes.blockfile.io.read.BlockfileConcatenatingReaderBuilder;
 import io.datarouter.bytes.blockfile.io.read.BlockfileReaderBuilder;
 import io.datarouter.bytes.blockfile.io.read.metadata.BlockfileMetadataReader;
 import io.datarouter.bytes.blockfile.io.read.metadata.BlockfileMetadataReaderBuilder;
@@ -76,6 +78,12 @@ public record BlockfileGroup<T>(
 				.setKnownFileLength(knownFileLength)
 				.build();
 		return new BlockfileReaderBuilder<>(this, metadataReader, rowDecoder);
+	}
+
+	public BlockfileConcatenatingReaderBuilder<T> newConcatenatingReaderBuilder(
+			Function<BlockfileRow,T> rowDecoder,
+			ExecutorService prefetchExec){// Could make the prefetching optional?
+		return new BlockfileConcatenatingReaderBuilder<>(this, rowDecoder, prefetchExec);
 	}
 
 }

@@ -23,7 +23,6 @@ import io.datarouter.gcp.spanner.field.SpannerBaseFieldCodec;
 import io.datarouter.gcp.spanner.field.SpannerFieldCodecRegistry;
 import io.datarouter.gcp.spanner.field.SpannerFieldCodecs;
 import io.datarouter.model.field.Field;
-import io.datarouter.opencensus.DatarouterOpencensusAppListener;
 import io.datarouter.web.config.BaseWebPlugin;
 import io.datarouter.web.plugins.opencencus.metrics.OpencencusMetricsMapper;
 
@@ -39,7 +38,6 @@ public class DatarouterGcpSpannerPlugin extends BaseWebPlugin{
 		this.fieldCodecs = fieldCodecs;
 		addDatarouterGithubDocLink("datarouter-gcp-spanner");
 		addDynamicNavBarItem(GcpSpannerNavBarItem.class);
-		addAppListener(DatarouterOpencensusAppListener.class);
 		addPluginEntry(OpencencusMetricsMapper.KEY, GcpSpannerOpencencusMetrics.class);
 		addTestable(DatarouterSpannerBootstrapIntegrationService.class);
 //		DatarouterSpannerLog4j2Configuration.assertHasRun();

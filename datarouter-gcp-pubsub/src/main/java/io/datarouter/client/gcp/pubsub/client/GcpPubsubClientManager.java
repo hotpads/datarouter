@@ -318,7 +318,7 @@ public class GcpPubsubClientManager extends BaseClientManager{
 						+ " AND resource.type=\"pubsub_subscription\"")
 				.setInterval(interval)
 				.build();
-		try(var $ = TracerTool.startSpan("gcp metric client " + metricTypeName, TraceSpanGroupType.HTTP)){
+		try(var _ = TracerTool.startSpan("gcp metric client " + metricTypeName, TraceSpanGroupType.HTTP)){
 			return metricServiceClient.listTimeSeries(request)
 					.getPage()
 					.getResponse();

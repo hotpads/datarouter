@@ -32,10 +32,10 @@ import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
 import io.datarouter.instrumentation.relay.rml.Rml;
 import io.datarouter.instrumentation.relay.rml.RmlTable;
 import io.datarouter.nodewatch.config.DatarouterNodewatchPaths;
+import io.datarouter.nodewatch.link.NodewatchTableLink;
 import io.datarouter.nodewatch.service.TableSizeMonitoringService.PercentageCountStat;
 import io.datarouter.nodewatch.service.TableSizeMonitoringService.ThresholdCountStat;
 import io.datarouter.nodewatch.storage.latesttablecount.LatestTableCount;
-import io.datarouter.nodewatch.web.handler.NodewatchTableHandler;
 import io.datarouter.util.DateTool;
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.time.ZonedDateFormatterTool;
@@ -218,8 +218,8 @@ public class TableSizeMonitoringEmailBuilder{
 	public String makeTableHref(String tableName, String clientName){
 		return emailService.startLinkBuilder()
 				.withLocalPath(paths.datarouter.nodewatch.table)
-				.withParam(NodewatchTableHandler.P_clientName, clientName)
-				.withParam(NodewatchTableHandler.P_tableName, tableName)
+				.withParam(NodewatchTableLink.P_clientName, clientName)
+				.withParam(NodewatchTableLink.P_tableName, tableName)
 				.build();
 	}
 

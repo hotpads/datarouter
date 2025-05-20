@@ -56,7 +56,7 @@ public class WebSocketApiService{
 		Basic basicRemote = connection.get().session().getBasicRemote();
 		// Synchronize on the connection because sendText is not thread-safe
 		synchronized(connection.get().lock()){
-			try(var $ = TracerTool.startSpan("websocket sendText", TraceSpanGroupType.HTTP)){
+			try(var _ = TracerTool.startSpan("websocket sendText", TraceSpanGroupType.HTTP)){
 				String message = webSocketCommand.message();
 				TracerTool.appendToSpanInfo("characters", message.length());
 				basicRemote.sendText(message);
@@ -86,7 +86,7 @@ public class WebSocketApiService{
 		// Synchronize on the connection
 		try{
 			synchronized(connection.get().lock()){
-				try(var $ = TracerTool.startSpan("websocket sendPing", TraceSpanGroupType.HTTP)){
+				try(var _ = TracerTool.startSpan("websocket sendPing", TraceSpanGroupType.HTTP)){
 					session.getBasicRemote().sendPing(ByteBuffer.allocate(0));
 				}
 			}

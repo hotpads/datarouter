@@ -22,7 +22,7 @@
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-parent</artifactId>
-		<version>0.0.126</version>
+		<version>0.0.127</version>
 		<relativePath>../datarouter-parent</relativePath>
 	</parent>
 
@@ -34,11 +34,6 @@
 	<dependencies>
 		<dependency>
 			<groupId>io.datarouter</groupId>
-			<artifactId>datarouter-bytes</artifactId>
-			<version>${datarouter-version}</version>
-		</dependency>
-		<dependency>
-			<groupId>io.datarouter</groupId>
 			<artifactId>datarouter-gson</artifactId>
 			<version>${datarouter-version}</version>
 		</dependency>
@@ -47,6 +42,7 @@
 			<artifactId>datarouter-util</artifactId>
 			<version>${datarouter-version}</version>
 		</dependency>
+
 		<dependency>
 			<groupId>org.testng</groupId>
 			<artifactId>testng</artifactId>

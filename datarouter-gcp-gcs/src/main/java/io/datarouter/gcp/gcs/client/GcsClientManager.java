@@ -21,9 +21,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.amazonaws.services.s3.AmazonS3;
 import com.google.auth.Credentials;
 
-import io.datarouter.gcp.gcs.DatarouterGcsClient;
 import io.datarouter.storage.client.BaseClientManager;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.util.timer.PhaseTimer;
@@ -37,9 +37,9 @@ public class GcsClientManager extends BaseClientManager{
 	@Inject
 	private GcsClientOptions gcsClientOptions;
 
-	private final Map<ClientId,DatarouterGcsClient> clientByClientId = new ConcurrentHashMap<>();
+	private final Map<ClientId,GcsClient> clientByClientId = new ConcurrentHashMap<>();
 
-	public DatarouterGcsClient getClient(ClientId clientId){
+	public GcsClient getClient(ClientId clientId){
 		initClient(clientId);
 		return clientByClientId.get(clientId);
 	}
@@ -50,15 +50,16 @@ public class GcsClientManager extends BaseClientManager{
 			throw new RuntimeException(clientId + " already exists");
 		}
 		var timer = new PhaseTimer(clientId.getName());
-		DatarouterGcsClient client = create(clientId);
+		GcsClient client = create(clientId);
 		clientByClientId.put(clientId, client);
 		timer.add("create");
 		logger.warn("{}", timer);
 	}
 
-	private DatarouterGcsClient create(ClientId clientId){
+	private GcsClient create(ClientId clientId){
 		Credentials credentials = gcsClientOptions.credentials(clientId.getName());
-		return new DatarouterGcsClient(credentials);
+		AmazonS3 s3Client = GcsCompatibleAwsSdkClients.getS3Client(credentials);
+		return new GcsClient(credentials, s3Client);
 	}
 
 	@Override

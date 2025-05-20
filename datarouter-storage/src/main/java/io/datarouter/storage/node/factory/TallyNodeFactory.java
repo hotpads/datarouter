@@ -49,12 +49,12 @@ public class TallyNodeFactory extends BaseNodeFactory{
 			ClientId clientId,
 			Supplier<Tally> databeanSupplier,
 			Supplier<TallyFielder> fielderSupplier,
-			String version,
+			Supplier<String> versionSupplier,
 			String tableName,
 			Tag tag){
 		NodeParams<TallyKey,Tally,TallyFielder> params = new NodeParamsBuilder<>(databeanSupplier, fielderSupplier)
 				.withClientId(clientId)
-				.withSchemaVersion(version)
+				.withSchemaVersionSupplier(versionSupplier)
 				.withTableName(tableName)
 				.withTag(tag)
 				.build();

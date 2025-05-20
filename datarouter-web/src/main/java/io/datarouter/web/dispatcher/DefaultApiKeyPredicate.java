@@ -33,9 +33,9 @@ public class DefaultApiKeyPredicate extends ApiKeyPredicate{
 	@Override
 	public ApiKeyPredicateCheck innerCheck(DispatchRule rule, HttpServletRequest request, String apiKeyCandidate){
 		if(apiKeySupplier.get().equals(apiKeyCandidate)){
-			return new ApiKeyPredicateCheck(true, "");
+			return new ApiKeyPredicateCheck(true, "", null);
 		}
-		return new ApiKeyPredicateCheck(false, "no match for " + obfuscate(apiKeyCandidate));
+		return new ApiKeyPredicateCheck(false, null, "no match for " + obfuscate(apiKeyCandidate));
 	}
 
 }

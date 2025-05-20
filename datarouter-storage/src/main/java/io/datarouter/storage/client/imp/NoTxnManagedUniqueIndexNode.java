@@ -18,6 +18,7 @@ package io.datarouter.storage.client.imp;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.index.unique.UniqueIndexEntry;
@@ -46,13 +47,13 @@ implements ManagedUniqueIndexNode<PK,D,IK,IE,IF>{
 	}
 
 	@Override
-	public List<IE> getMulti(Collection<IK> uniqueKeys, Config config){
-		return node.getMultiFromIndex(uniqueKeys, config, indexEntryFieldInfo);
+	public Optional<IE> find(IK uniqueKey, Config config){
+		return getMulti(Collections.singleton(uniqueKey), config).stream().findFirst();
 	}
 
 	@Override
-	public IE get(IK uniqueKey, Config config){
-		return getMulti(Collections.singleton(uniqueKey), config).stream().findFirst().orElse(null);
+	public List<IE> getMulti(Collection<IK> uniqueKeys, Config config){
+		return node.getMultiFromIndex(uniqueKeys, config, indexEntryFieldInfo);
 	}
 
 	@Override

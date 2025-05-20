@@ -23,7 +23,7 @@
 
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-modules</artifactId>
-	<version>0.0.126</version>
+	<version>0.0.127</version>
 	<packaging>pom</packaging>
 
 	<modules>
@@ -33,6 +33,7 @@
 		<module>datarouter-aws-elb</module>
 		<module>datarouter-aws-memcached</module>
 		<module>datarouter-aws-rds</module>
+		<module>datarouter-aws-route53</module>
 		<module>datarouter-aws-secrets-manager</module>
 		<module>datarouter-aws-sqs</module>
 		<module>datarouter-aws-s3</module>
@@ -73,7 +74,6 @@
 		<module>datarouter-model</module>
 		<module>datarouter-mysql</module>
 		<module>datarouter-nodewatch</module>
-		<module>datarouter-opencensus</module>
 		<module>datarouter-parent</module>
 		<module>datarouter-path-node</module>
 		<module>datarouter-rate-limiter</module>
@@ -82,7 +82,6 @@
 		<module>datarouter-scanner</module>
 		<module>datarouter-secret</module>
 		<module>datarouter-secret-web</module>
-		<module>datarouter-service-config</module>
 		<module>datarouter-snapshot</module>
 		<module>datarouter-snapshot-manager</module>
 		<module>datarouter-ssh</module>

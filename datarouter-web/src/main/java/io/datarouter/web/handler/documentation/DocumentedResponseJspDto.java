@@ -20,11 +20,13 @@ public class DocumentedResponseJspDto{
 	private final String type;
 	private final String example;
 	private final String enumValuesDisplay;
+	private final ApiDocSchemaDto schema;
 
-	public DocumentedResponseJspDto(String type, String example, String enumValuesDisplay){
+	public DocumentedResponseJspDto(String type, String example, String enumValuesDisplay, ApiDocSchemaDto schema){
 		this.type = type;
 		this.example = example;
 		this.enumValuesDisplay = enumValuesDisplay;
+		this.schema = schema;
 	}
 
 	public String getType(){
@@ -39,4 +41,7 @@ public class DocumentedResponseJspDto{
 		return enumValuesDisplay;
 	}
 
+	public ApiDocSchemaDto getSchema(){
+		return schema;
+	}
 }

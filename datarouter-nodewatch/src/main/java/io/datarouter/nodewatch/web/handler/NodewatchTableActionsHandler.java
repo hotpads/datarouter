@@ -16,6 +16,9 @@
 package io.datarouter.nodewatch.web.handler;
 
 import io.datarouter.nodewatch.joblet.TableSpanSamplerJobletCreatorFactory;
+import io.datarouter.nodewatch.link.NodewatchDeleteAllMetadataLink;
+import io.datarouter.nodewatch.link.NodewatchTableDeleteSamplesLink;
+import io.datarouter.nodewatch.link.NodewatchTableResampleLink;
 import io.datarouter.nodewatch.service.NodewatchChangelogService;
 import io.datarouter.nodewatch.service.TableSamplerService;
 import io.datarouter.nodewatch.storage.latesttablecount.DatarouterLatestTableCountDao;
@@ -33,10 +36,6 @@ import io.datarouter.web.handler.mav.imp.GlobalRedirectMav;
 import jakarta.inject.Inject;
 
 public class NodewatchTableActionsHandler extends BaseHandler{
-
-	public static final String
-			P_clientName = "clientName",
-			P_tableName = "tableName";
 
 	@Inject
 	private NodewatchLinks links;
@@ -56,7 +55,9 @@ public class NodewatchTableActionsHandler extends BaseHandler{
 	private NodewatchChangelogService changelogService;
 
 	@Handler
-	public Mav resample(String clientName, String tableName){
+	public Mav resample(NodewatchTableResampleLink link){
+		String clientName = link.clientName;
+		String tableName = link.tableName;
 		var node = (PhysicalSortedStorageReaderNode<?,?,?>)nodes.getPhysicalNodeForClientAndTable(
 				clientName,
 				tableName);
@@ -73,7 +74,9 @@ public class NodewatchTableActionsHandler extends BaseHandler{
 	}
 
 	@Handler
-	public Mav deleteSamples(String clientName, String tableName){
+	public Mav deleteSamples(NodewatchTableDeleteSamplesLink link){
+		String clientName = link.clientName;
+		String tableName = link.tableName;
 		var prefix = TableSampleKey.prefix(clientName, tableName);
 		tableSampleDao.deleteWithPrefix(prefix);
 		changelogService.recordTable(getSessionInfo(), clientName, tableName, "delete table samples");
@@ -81,7 +84,9 @@ public class NodewatchTableActionsHandler extends BaseHandler{
 	}
 
 	@Handler
-	public Mav deleteAllMetadata(String clientName, String tableName){
+	public Mav deleteAllMetadata(NodewatchDeleteAllMetadataLink link){
+		String clientName = link.clientName;
+		String tableName = link.tableName;
 		var tableCountPrefix = TableCountKey.prefix(clientName, tableName);
 		tableCountDao.deleteWithPrefix(tableCountPrefix);
 		var tableSamplePrefix = TableSampleKey.prefix(clientName, tableName);

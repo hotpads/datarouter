@@ -65,7 +65,7 @@ public class GcpPubsubClientHolder{
 	}
 
 	public void registerPublisher(ClientId clientId, TopicName topicName, Publisher publisher){
-		publisherStubs.computeIfAbsent(clientId, $ -> new ConcurrentHashMap<>())
+		publisherStubs.computeIfAbsent(clientId, _ -> new ConcurrentHashMap<>())
 				.putIfAbsent(topicName, publisher);
 	}
 

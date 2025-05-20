@@ -53,4 +53,9 @@ public class SpannerByteArrayEncodedFieldCodec<T> extends SpannerBaseFieldCodec<
 		return field.getCodec().decode(bytes);
 	}
 
+	@Override
+	public T getNullValue(){
+		return field.getCodec().decode(null);
+	}
+
 }

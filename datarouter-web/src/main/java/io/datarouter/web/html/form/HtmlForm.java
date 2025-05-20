@@ -22,6 +22,15 @@ import java.util.List;
 
 public class HtmlForm extends BaseHtmlFormField<HtmlForm>{
 
+	private static final String DISABLE_SUBMIT_BUTTON_JS = """
+			document.addEventListener("DOMContentLoaded", function(){
+				const formEl = document.getElementById("%s");
+				formEl.addEventListener("submit", function(){
+					const submitButton = document.getElementById("%s");
+					submitButton.disabled = true;
+				});
+			});""";
+
 	private String action;
 	private final HtmlFormMethod method;
 	private final List<BaseHtmlFormField<?>> fields = new ArrayList<>();
@@ -167,6 +176,10 @@ public class HtmlForm extends BaseHtmlFormField<HtmlForm>{
 	public boolean hasErrors(){
 		return fields.stream()
 				.anyMatch(field -> field.getError() != null);
+	}
+
+	public String getDisableSubmitButtonJs(String formId, String buttonId){
+		return DISABLE_SUBMIT_BUTTON_JS.formatted(formId, buttonId);
 	}
 
 	@Override

@@ -109,6 +109,10 @@ public class Count{
 		return value.intValue();
 	}
 
+	public String valueToString(){
+		return NumberFormatter.addCommas(value.get());
+	}
+
 	@Override
 	public String toString(){
 		return name + "=" + NumberFormatter.addCommas(value.get());

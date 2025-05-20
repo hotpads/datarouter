@@ -115,11 +115,6 @@ implements PhysicalBlobQueueStorageNode<T>, GcpPubsubPhysicalNode<EmptyDatabeanK
 	}
 
 	@Override
-	public boolean getAgeMonitoringStatusForMetricAlert(){
-		return params.getAgeMonitoringStatus();
-	}
-
-	@Override
 	public Duration getCustomMessageAgeThreshold(){
 		return params.getCustomMessageAgeThreshold();
 	}

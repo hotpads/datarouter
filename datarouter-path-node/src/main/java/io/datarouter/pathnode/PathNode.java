@@ -45,12 +45,30 @@ public class PathNode{
 				});
 	}
 
-	public PathNode leaf(String childName){
-		PathNode child = new PathNode();
-		child.parent = this;
-		child.value = childName;
-		children.add(child);
-		return child;
+	public PathNode variable(String childName){
+		List<String> values = new ArrayList<>();
+		PathNode current = this;
+		while(current != null){
+			values.add(current.value);
+			current = current.parent;
+		}
+
+		Collections.reverse(values);
+		PathNode curr = null;
+		for(String value : values){
+			if(curr == null){
+				curr = new PathNode();
+				curr.parent = null;
+				curr.value = value;
+			}else{
+				curr = curr.branch(PathNode::new, value);
+			}
+		}
+		if(curr == null){
+			curr = new PathNode();
+			curr.parent = null;
+		}
+		return curr.branch(PathNode::new, childName);
 	}
 
 	public List<PathNode> paths(){
@@ -148,6 +166,21 @@ public class PathNode{
 			pathNode = pathNode.branch(PathNode::new, element.toString());
 		}
 		return pathNode;
+	}
+
+	public Integer size(){
+		return children.size();
+	}
+
+	// This function is protected to avoid usages with dynamic values on any singleton Path objects.
+	// In this case it would create a memory leak by attaching the dynamic node to the tree for the entire life of
+	// the application
+	protected PathNode leaf(String childName){
+		PathNode child = new PathNode();
+		child.parent = this;
+		child.value = childName;
+		children.add(child);
+		return child;
 	}
 
 	private static String joinNodes(List<PathNode> nodes, String prefix, String delimiter, String suffix){

@@ -15,6 +15,7 @@
  */
 package io.datarouter.auth.role;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import jakarta.inject.Singleton;
@@ -30,11 +31,17 @@ public class DatarouterUserRoleRegistry implements RoleRegistry{
 				DATAROUTER_SETTINGS,
 				DATAROUTER_TOOLS);
 
+	private static final Set<Role> ADDITIONAL_ROLES = new HashSet<>();
 
-	// Apps should add custom roles here
+	public static Role register(String persistentString, String description, RoleRiskFactor riskFactor){
+		Role role = new Role(persistentString, description, riskFactor);
+		ADDITIONAL_ROLES.add(role);
+		return role;
+	}
+
 	@Override
-	public Set<Role> getAdditionalRoles(){
-		return Set.of();
+	public final Set<Role> getAdditionalRoles(){
+		return Set.copyOf(ADDITIONAL_ROLES);
 	}
 
 }

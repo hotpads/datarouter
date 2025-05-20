@@ -40,11 +40,11 @@ public abstract class MetricRecorder{
 		MetricTemplates.add(makePatternDto(description));
 	}
 
-	public final void gauge(long value){
-		gauge(value, null);
+	public final void measure(long value){
+		measure(value, null);
 	}
 
-	public final void gauge(long value, String description){
+	public final void measure(long value, String description){
 		Metrics.measure(toMetricName(), value);
 		MetricTemplates.add(makePatternDto(description));
 	}

@@ -32,13 +32,11 @@ public class DatarouterKeepAliveAuthenticator implements DatarouterAuthenticator
 	private DatarouterAuthenticationConfig authenticationConfig;
 
 	@Override
-	public DatarouterSession getSession(HttpServletRequest request, HttpServletResponse response){
+	public DatarouterSessionAndPersist getSession(HttpServletRequest request, HttpServletResponse response){
 		if(!request.getRequestURI().endsWith(authenticationConfig.getKeepAlivePath())){
-			return null;
+			return new DatarouterSessionAndPersist(null, false);
 		}
-		DatarouterSession session = DatarouterSession.createAnonymousSession(null);
-		session.setPersistent(false);
-		return session;
+		return new DatarouterSessionAndPersist(DatarouterSession.createAnonymousSession(null), false);
 	}
 
 }

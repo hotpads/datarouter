@@ -159,11 +159,21 @@ public class BlockfileStringTests{
 				.setDecodeThreads(DECODE_THREADS)
 				.enableChecksumValidation()
 				.build();
+		var concatenatingReader = blockfileGroup.newConcatenatingReaderBuilder(
+				ROW_CODEC::decode,
+				Executors.newSingleThreadExecutor())
+				.setPrefetchBufferSize(ByteLength.ofMiB(1))
+				.setReadThreads(READ_THREADS)
+				.setReadChunkSize(ByteLength.ofKiB(4))
+				.setDecodeBatchSize(2)
+				.setDecodeThreads(DECODE_THREADS)
+				.enableChecksumValidation()
+				.build();
 
 		// write
 		var blockCounter = new AtomicLong();
 		BlockfileWriteResult writeResult = Scanner.of(BLOCK_ROWS)
-				.each($ -> blockCounter.incrementAndGet())
+				.each(_ -> blockCounter.incrementAndGet())
 				.apply(writer::writeBlocks);
 
 		// file named "blockfile" should exist
@@ -332,6 +342,11 @@ public class BlockfileStringTests{
 		// search rowKey
 		String rowKeyItemSearchResult = reader.rowKey().item(ROW_CODEC.encode("b1").copyOfKey()).orElseThrow();
 		Assert.assertEquals(rowKeyItemSearchResult, "b1");
+
+		// simple concatenating reader check
+		Assert.assertEquals(
+				concatenatingReader.scan(Scanner.of(FILENAME, FILENAME, FILENAME)).count(),
+				NUM_ROWS * 3);
 	}
 
 	@AfterClass

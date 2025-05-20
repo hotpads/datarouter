@@ -30,7 +30,7 @@ public class BlockfileStandardChecksummers{
 			NONE = new BlockfileChecksummer(
 					"NONE",
 					0,
-					() -> $ -> EmptyArray.BYTE),
+					() -> _ -> EmptyArray.BYTE),
 			ADLER_32 = new BlockfileChecksummer(
 					"ADLER_32",
 					4,

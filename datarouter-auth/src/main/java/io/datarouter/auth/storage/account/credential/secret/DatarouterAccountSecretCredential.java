@@ -138,6 +138,10 @@ extends BaseDatabean<DatarouterAccountSecretCredentialKey,DatarouterAccountSecre
 		return ZonedDateFormatterTool.formatInstantWithZone(getLastUsedInstant(), zoneId);
 	}
 
+	public MilliTime getLastUsed(){
+		return lastUsedAt;
+	}
+
 	public Instant getLastUsedInstant(){
 		if(lastUsedAt == null){
 			return Instant.EPOCH;

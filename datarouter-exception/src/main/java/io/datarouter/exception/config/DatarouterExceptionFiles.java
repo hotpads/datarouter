@@ -16,25 +16,8 @@
 package io.datarouter.exception.config;
 
 import io.datarouter.pathnode.FilesRoot;
-import io.datarouter.pathnode.PathNode;
 import jakarta.inject.Singleton;
 
 @Singleton
 public class DatarouterExceptionFiles extends FilesRoot{
-
-	public final JspFiles jsp = branch(JspFiles::new, "jsp");
-
-	public static class JspFiles extends PathNode{
-		public final DatarouterFiles datarouter = branch(DatarouterFiles::new, "datarouter");
-	}
-
-	public static class DatarouterFiles extends PathNode{
-		public final ExceptionFiles exception = branch(ExceptionFiles::new, "exception");
-	}
-
-	public static class ExceptionFiles extends PathNode{
-		public final PathNode browseExceptionsJsp = leaf("browseExceptions.jsp");
-		public final PathNode exceptionDetailsJsp = leaf("exceptionDetails.jsp");
-	}
-
 }

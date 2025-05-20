@@ -79,6 +79,7 @@ public class StopJobRequestDao extends BaseDao{
 	public DatabeanVacuum<StopJobRequestKey,StopJobRequest> makeVacuum(){
 		var now = Instant.now();
 		return new DatabeanVacuumBuilder<>(
+				"DatarouterStopJobRequest",
 				node.scan(),
 				databean -> databean.getRequestExpiration().isBefore(now),
 				node::deleteMulti)

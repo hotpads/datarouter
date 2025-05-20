@@ -195,7 +195,7 @@ public class S3BucketHandler extends BaseHandler{
 		var message = new AtomicReference<String>();
 		s3Client.scan(
 				new BucketAndPrefix(bucket, prefix.orElse("")))
-				.each($ -> count.incrementAndGet())
+				.each(_ -> count.incrementAndGet())
 				.each(obj -> size.addAndGet(obj.size()))
 				.sample(10_000, true)
 				.map(obj -> String.format("client=%s, bucket=%s, prefix=%s, count=%s, size=%s, through=%s",

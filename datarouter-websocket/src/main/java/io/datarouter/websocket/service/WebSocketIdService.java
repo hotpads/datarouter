@@ -15,8 +15,7 @@
  */
 package io.datarouter.websocket.service;
 
-import com.google.gson.Gson;
-
+import io.datarouter.gson.DatarouterGsons;
 import io.datarouter.websocket.endpoint.WebSocketService;
 import io.datarouter.websocket.session.PushService;
 import io.datarouter.websocket.storage.session.WebSocketSession;
@@ -27,8 +26,6 @@ public class WebSocketIdService implements WebSocketService{
 
 	@Inject
 	private PushService pushService;
-	@Inject
-	private Gson gson;
 
 	@Override
 	public String getName(){
@@ -38,7 +35,7 @@ public class WebSocketIdService implements WebSocketService{
 	@Override
 	public void onMessage(WebSocketSession webSocketSession, String message){
 		WebSocketIdResponse response = new WebSocketIdResponse(webSocketSession.getKey());
-		pushService.forward(webSocketSession, gson.toJson(response));
+		pushService.forward(webSocketSession, DatarouterGsons.withUnregisteredEnums().toJson(response));
 	}
 
 	public static class WebSocketIdResponse{

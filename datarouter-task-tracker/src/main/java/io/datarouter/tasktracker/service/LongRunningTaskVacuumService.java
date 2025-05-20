@@ -41,8 +41,8 @@ public class LongRunningTaskVacuumService{
 	public void run(TaskTracker tracker){
 		List<LongRunningTask> relatedTasks = new ArrayList<>();
 		dao.scan()
-				.each($ -> tracker.increment())
-				.advanceUntil($ -> tracker.shouldStop())
+				.each(_ -> tracker.increment())
+				.advanceUntil(_ -> tracker.shouldStop())
 				.forEach(task -> {
 					String name = task.getKey().getName();
 					if(!relatedTasks.isEmpty()){

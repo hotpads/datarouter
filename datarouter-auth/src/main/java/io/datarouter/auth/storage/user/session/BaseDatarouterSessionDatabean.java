@@ -60,8 +60,8 @@ extends BaseDatabean<PK,D>{
 				.orElse(null);
 	}
 
-	public void setUpdated(Date updated){
-		this.updatedAt = MilliTime.of(updated);
+	public void setUpdated(MilliTime updated){
+		this.updatedAt = updated;
 	}
 
 	public Date getCreated(){
@@ -70,8 +70,8 @@ extends BaseDatabean<PK,D>{
 				.orElse(null);
 	}
 
-	public void setCreated(Date created){
-		this.createdAt = MilliTime.of(created);
+	public void setCreated(MilliTime created){
+		this.createdAt = created;
 	}
 
 }

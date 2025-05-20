@@ -19,6 +19,7 @@ import io.datarouter.auth.role.DatarouterUserRoleRegistry;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
+import io.datarouter.web.handler.encoder.DatarouterDefaultHandlerCodec;
 import io.datarouter.webappinstance.web.WebappInstanceHistoryHandler;
 import io.datarouter.webappinstance.web.WebappInstanceRunningHandler;
 import jakarta.inject.Inject;
@@ -39,6 +40,7 @@ public class DatarouterWebappInstanceRouteSet extends BaseRouteSet{
 				.allowRoles(
 						DatarouterUserRoleRegistry.DATAROUTER_ADMIN,
 						DatarouterUserRoleRegistry.DATAROUTER_MONITORING)
+				.withDefaultHandlerCodec(DatarouterDefaultHandlerCodec.INSTANCE)
 				.withTag(Tag.DATAROUTER);
 	}
 

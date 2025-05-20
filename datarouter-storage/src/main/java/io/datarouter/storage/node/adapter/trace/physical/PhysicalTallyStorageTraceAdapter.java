@@ -45,14 +45,14 @@ implements PhysicalTallyStorageNode,
 
 	@Override
 	public Long incrementAndGetCount(String key, int delta, Config config){
-		try(var $ = startSpanForOp(OP_incrementAndGetCount)){
+		try(var _ = startSpanForOp(OP_incrementAndGetCount)){
 			return getBackingNode().incrementAndGetCount(key, delta, config);
 		}
 	}
 
 	@Override
 	public Optional<Long> findTallyCount(String key, Config config){
-		try(var $ = startSpanForOp(OP_findTallyCount)){
+		try(var _ = startSpanForOp(OP_findTallyCount)){
 			Optional<Long> tallyCount = getBackingNode().findTallyCount(key, config);
 			TracerTool.appendToSpanInfo(tallyCount.isPresent() ? "hit" : "miss");
 			return tallyCount;
@@ -61,7 +61,7 @@ implements PhysicalTallyStorageNode,
 
 	@Override
 	public Map<String,Long> getMultiTallyCount(Collection<String> keys, Config config){
-		try(var $ = startSpanForOp(OP_getMultiTallyCount)){
+		try(var _ = startSpanForOp(OP_getMultiTallyCount)){
 			Map<String,Long> tallyCounts = getBackingNode().getMultiTallyCount(keys, config);
 			TracerTool.appendToSpanInfo(String.format("got %d/%d", tallyCounts.size(), keys.size()));
 			return tallyCounts;
@@ -70,14 +70,14 @@ implements PhysicalTallyStorageNode,
 
 	@Override
 	public void deleteTally(String key, Config config){
-		try(var $ = startSpanForOp(OP_deleteTally)){
+		try(var _ = startSpanForOp(OP_deleteTally)){
 			getBackingNode().deleteTally(key, config);
 		}
 	}
 
 	@Override
 	public void vacuum(Config config){
-		try(var $ = startSpanForOp(OP_vacuum)){
+		try(var _ = startSpanForOp(OP_vacuum)){
 			getBackingNode().vacuum(config);
 		}
 

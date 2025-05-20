@@ -15,6 +15,7 @@
  */
 package io.datarouter.auth.web.config;
 
+import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 import io.datarouter.storage.setting.DatarouterSettingCategory;
@@ -33,10 +34,11 @@ public class DatarouterAuthSettingRoot extends SettingRoot{
 	public final CachedSetting<Boolean> runDeletedRoleCleanupJob;
 	public final CachedSetting<Boolean> runUserSessionVacuumJob;
 	public final CachedSetting<Boolean> runPermissionRequestVacuumJob;
-	public final CachedSetting<Boolean> shouldUseDatarouterAccountCredentialInsteadOfDatarouterAccount;
-	public final CachedSetting<Boolean> enableHandlerAccountCallerValidator;
+	public final CachedSetting<Boolean> runInactivityRoleResetJob;
+	public final CachedSetting<DatarouterDuration> inactivityRoleResetDuration;
 	public final CachedSetting<DatarouterDuration> accountRefreshFrequencyDuration;
 	public final CachedSetting<Boolean> enableAccountDailyDigest;
+	public final CachedSetting<Boolean> allowRequestingRolesHasFromSamlGroup;
 
 	@Inject
 	public DatarouterAuthSettingRoot(SettingFinder finder){
@@ -47,12 +49,13 @@ public class DatarouterAuthSettingRoot extends SettingRoot{
 		runDeletedRoleCleanupJob = registerBoolean("runDeletedRoleCleanupJob", true);
 		runUserSessionVacuumJob = registerBoolean("runUserSessionVacuum", false);
 		runPermissionRequestVacuumJob = registerBoolean("runPermissionRequestVacuumJob", false);
-		shouldUseDatarouterAccountCredentialInsteadOfDatarouterAccount = registerBoolean(
-				"shouldUseDatarouterAccountCredentialInsteadOfDatarouterAccount", true);
-		enableHandlerAccountCallerValidator = registerBoolean("enableHandlerAccountCallerValidator", false);
+		runInactivityRoleResetJob = registerBoolean("runInactivityRoleResetJob", false);
+		inactivityRoleResetDuration = registerDuration("inactivityRoleResetDuration",
+				new DatarouterDuration(Duration.ofDays(180)));
 		accountRefreshFrequencyDuration = registerDuration("accountRefreshFrequencyDuration",
 				new DatarouterDuration(15, TimeUnit.SECONDS));
 		enableAccountDailyDigest = registerBoolean("enableAccountDailyDigest", false);
+		allowRequestingRolesHasFromSamlGroup = registerBoolean("allowRequestingRolesHasFromSamlGroup", false);
 	}
 
 }

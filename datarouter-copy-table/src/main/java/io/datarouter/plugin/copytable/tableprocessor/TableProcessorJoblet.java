@@ -17,7 +17,7 @@ package io.datarouter.plugin.copytable.tableprocessor;
 
 import java.time.Duration;
 
-import io.datarouter.joblet.codec.BaseGsonJobletCodec;
+import io.datarouter.joblet.codec.DatarouterBaseGsonJobletCodec;
 import io.datarouter.joblet.model.BaseJoblet;
 import io.datarouter.joblet.type.JobletType;
 import io.datarouter.joblet.type.JobletType.JobletTypeBuilder;
@@ -70,7 +70,8 @@ public class TableProcessorJoblet extends BaseJoblet<TableProcessorJobletParams>
 			int executionOrder){
 	}
 
-	public static class TableProcessorJobletCodec extends BaseGsonJobletCodec<TableProcessorJobletParams>{
+	public static class TableProcessorJobletCodec
+	extends DatarouterBaseGsonJobletCodec<TableProcessorJobletParams>{
 
 		public TableProcessorJobletCodec(){
 			super(TableProcessorJobletParams.class);

@@ -89,7 +89,7 @@ public class WebappInstanceRunningHandler extends BaseHandler{
 							.withStatLinkBuilder(true, buildIdLink::getLink),
 					new WebappInstanceColumn<>("Commit Id", WebappInstance::getCommitId)
 							.withShowUsageStats(true)
-							.withAsBadge((inst, stats) -> !mostCommonCommitByWebapp.get(inst.getKey().getWebappName())
+							.withAsBadge((inst, _) -> !mostCommonCommitByWebapp.get(inst.getKey().getWebappName())
 									.equals(inst.getCommitId()))
 							.withStatLinkBuilder(true, commitIdLink.getLinkPrefix()::concat),
 					new WebappInstanceColumn<>("Java Version", WebappInstance::getJavaVersion)

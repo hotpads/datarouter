@@ -89,7 +89,7 @@ public class MysqlOptions{
 	}
 
 	public String password(String clientName, String def){
-		return clientPasswords.computeIfAbsent(clientName, $ -> {
+		return clientPasswords.computeIfAbsent(clientName, _ -> {
 			Optional<String> optionalSecretLocation = Optional.ofNullable(clientOptions
 					.getStringClientPropertyOrDefault(PROP_passwordLocation, clientName, null));
 			return optionalSecretLocation.map(secretLocation -> {

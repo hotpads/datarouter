@@ -191,7 +191,7 @@ public class S3BulkDeleteConfirmationHtml{
 		var rowId = new AtomicInteger(1);
 		var tableBuilder = new J2HtmlTable<S3Object>()
 				.withClasses("table table-sm table-striped border")
-				.withColumn("#", $ -> rowId.getAndIncrement() + "")
+				.withColumn("#", _ -> rowId.getAndIncrement() + "")
 				.withColumn("Key", S3Object::key);
 		return div(
 				h5(String.format("Showing the first %s keys that will be deleted.", examples.size())),
@@ -210,7 +210,7 @@ public class S3BulkDeleteConfirmationHtml{
 		var rowId = new AtomicInteger(1);
 		var tableBuilder = new J2HtmlTable<BucketAndKeyVersionResult>()
 				.withClasses("table table-sm table-striped border")
-				.withColumn("#", $ -> rowId.getAndIncrement() + "")
+				.withColumn("#", _ -> rowId.getAndIncrement() + "")
 				.withColumn("Key", BucketAndKeyVersionResult::key)
 				.withColumn("Version", BucketAndKeyVersionResult::version);
 		return div(

@@ -37,9 +37,7 @@ import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.ApiKeyPredicate.ApiKeyPredicateCheck;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.encoder.BaseHandlerCodec;
-import io.datarouter.web.handler.encoder.DefaultEncoder;
 import io.datarouter.web.handler.encoder.HandlerEncoder;
-import io.datarouter.web.handler.types.DefaultDecoder;
 import io.datarouter.web.handler.types.HandlerDecoder;
 import io.datarouter.web.security.CsrfValidationResult;
 import io.datarouter.web.security.CsrfValidator;
@@ -63,8 +61,8 @@ public class DispatchRule{
 	private SignatureValidator signatureValidator;
 	private boolean requireHttps;
 	private boolean allowAnonymous;
-	private Class<? extends HandlerEncoder> defaultHandlerEncoder = DefaultEncoder.class;
-	private Class<? extends HandlerDecoder> defaultHandlerDecoder;
+	private Class<? extends HandlerEncoder> defaultHandlerEncoder;// Intentionally null to force explicit choice.
+	private Class<? extends HandlerDecoder> defaultHandlerDecoder;// Intentionally null to force explicit choice.
 	private String persistentString;
 	private boolean transmitsPii;
 	private Tag tag = Tag.APP;
@@ -229,10 +227,7 @@ public class DispatchRule{
 	}
 
 	public Class<? extends HandlerDecoder> getDefaultHandlerDecoder(){
-		if(defaultHandlerDecoder != null){
-			return defaultHandlerDecoder;
-		}
-		return DefaultDecoder.class;
+		return defaultHandlerDecoder;
 	}
 
 	public Optional<String> getPersistentString(){
@@ -260,9 +255,18 @@ public class DispatchRule{
 	}
 
 	private SecurityValidationResult checkApiKey(HttpServletRequest request, String ip){
+		ApiKeyPredicateCheck result = predicateCheck(request);
+		String message = "API key check failed, " + result.errorMessage();
+		if(!result.allowed()){
+			logFailure(message, request, ip);
+		}
+		return new SecurityValidationResult(request, result.allowed(), message);
+	}
+
+	public ApiKeyPredicateCheck predicateCheck(HttpServletRequest request){
 		ApiKeyPredicateCheck result;
 		if(apiKeyPredicates.isEmpty()){
-			result = new ApiKeyPredicateCheck(true, "");
+			result = new ApiKeyPredicateCheck(true, "", null);
 		}else{
 			var firstPredicateRef = new AtomicReference<ApiKeyPredicateCheck>();
 			result = Scanner.of(apiKeyPredicates)
@@ -272,11 +276,7 @@ public class DispatchRule{
 					.findFirst()
 					.orElseGet(firstPredicateRef::get);
 		}
-		String message = "API key check failed, " + result.accountName();
-		if(!result.allowed()){
-			logFailure(message, request, ip);
-		}
-		return new SecurityValidationResult(request, result.allowed(), message);
+		return result;
 	}
 
 	private SecurityValidationResult checkCsrfToken(HttpServletRequest request){

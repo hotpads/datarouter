@@ -26,7 +26,7 @@ import io.datarouter.web.handler.encoder.JsonAwareHandlerCodec;
 public interface JsonAwareHandlerDecoder extends HandlerDecoder, JsonAwareHandlerCodec{
 
 	default Object decodeType(String fieldName, String string, Type type){
-		try(var $ = TracerTool.startSpan(getClass().getSimpleName() + " deserialize",
+		try(var _ = TracerTool.startSpan(getClass().getSimpleName() + " deserialize",
 				TraceSpanGroupType.SERIALIZATION)){
 			TracerTool.appendToSpanInfo("characters", string.length());
 			// this prevents empty strings from being decoded as null by gson

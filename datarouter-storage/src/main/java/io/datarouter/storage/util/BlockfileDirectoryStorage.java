@@ -17,6 +17,7 @@ package io.datarouter.storage.util;
 
 import java.io.InputStream;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 
 import io.datarouter.bytes.ByteLength;
 import io.datarouter.bytes.blockfile.io.storage.BlockfileLocation;
@@ -25,6 +26,8 @@ import io.datarouter.bytes.blockfile.io.storage.BlockfileStorage;
 import io.datarouter.bytes.io.MultiByteArrayInputStream;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.scanner.Threads;
+import io.datarouter.storage.file.BlobPrefetcher;
+import io.datarouter.storage.file.BlobPrefetcher.BlobPrefetchRequest;
 import io.datarouter.storage.file.Directory;
 import io.datarouter.storage.file.PathbeanKey;
 import io.datarouter.util.tuple.Range;
@@ -55,12 +58,12 @@ public class BlockfileDirectoryStorage implements BlockfileStorage{
 	}
 
 	@Override
-	public void write(String name, InputStream inputStream, Threads threads){
+	public void write(String name, InputStream inputStream, Threads threads, ByteLength minWritePartSize){
 		directory.writeParallel(
 				PathbeanKey.of(name),
 				inputStream,
 				threads,
-				ByteLength.ofMiB(1));
+				minWritePartSize);
 	}
 
 	@Override
@@ -93,6 +96,32 @@ public class BlockfileDirectoryStorage implements BlockfileStorage{
 				threads,
 				chunkSize)
 				.apply(MultiByteArrayInputStream::new);
+	}
+
+	@Override
+	public Scanner<FilenameAndInputStream> readInputStreams(
+			Scanner<String> filenames,
+			Threads threads,
+			ByteLength chunkSize,
+			ByteLength bufferSize,
+			ExecutorService prefetchExec){
+		Scanner<BlobPrefetchRequest> prefetchRequests = filenames
+				.map(filename -> new BlobPrefetchRequest(
+						directory,
+						PathbeanKey.of(filename),
+						length(filename)));// extra RPC
+		var prefetcher = new BlobPrefetcher(
+				prefetchRequests,
+				threads,
+				chunkSize,
+				bufferSize,
+				prefetchExec);
+		return prefetcher.scanInputStreams()
+				.map(pathbeanKeyAndInputStream -> {
+					String filename = pathbeanKeyAndInputStream.key().getFile();
+					InputStream inputStream = pathbeanKeyAndInputStream.inputStream();
+					return new FilenameAndInputStream(filename, inputStream);
+				});
 
 	}
 

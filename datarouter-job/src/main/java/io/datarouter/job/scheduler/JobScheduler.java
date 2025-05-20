@@ -25,7 +25,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.job.BaseJob;
 import io.datarouter.job.BaseTriggerGroup;
 import io.datarouter.job.JobCounters;
@@ -55,7 +54,6 @@ public class JobScheduler{
 
 	public static final long JOB_STOP_GRACE_PERIOD_MS = Duration.ofSeconds(5L).toMillis();
 
-	private final DatarouterInjector injector;
 	private final DatarouterJobScheduler triggerExecutor;
 	private final DetachedJobExecutorSupplier detachedJobExecutor;
 	private final DatarouterJobSettingRoot jobSettings;
@@ -69,7 +67,6 @@ public class JobScheduler{
 
 	@Inject
 	public JobScheduler(
-			DatarouterInjector injector,
 			DatarouterJobScheduler triggerExecutor,
 			DetachedJobExecutorSupplier detachedJobExecutor,
 			DatarouterJobSettingRoot jobSettings,
@@ -79,7 +76,6 @@ public class JobScheduler{
 			LocalTriggerLockService localTriggerLockService,
 			TriggerLockService triggerLockService,
 			JobWrapperFactory jobWrapperFactory){
-		this.injector = injector;
 		this.triggerExecutor = triggerExecutor;
 		this.detachedJobExecutor = detachedJobExecutor;
 		this.jobSettings = jobSettings;

@@ -15,6 +15,7 @@
  */
 package io.datarouter.auth.web.service;
 
+import java.util.List;
 import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
@@ -22,6 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import io.datarouter.auth.storage.account.permission.DatarouterAccountPermissionKey;
 import io.datarouter.auth.web.config.metrics.DatarouterAccountMetrics;
 import io.datarouter.httpclient.security.SecurityParameters;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.web.dispatcher.ApiKeyPredicate;
 import io.datarouter.web.dispatcher.DispatchRule;
 import jakarta.inject.Inject;
@@ -69,19 +71,26 @@ public class DatarouterAccountApiKeyPredicate extends ApiKeyPredicate{
 	@Override
 	public ApiKeyPredicateCheck innerCheck(DispatchRule rule, HttpServletRequest request, String apiKeyCandidate){
 		Optional<String> endpoint = rule.getPersistentString();
-		return check(endpoint, apiKeyCandidate)
-				.map(accountName -> new ApiKeyPredicateCheck(true, accountName))
-				.orElseGet(() -> new ApiKeyPredicateCheck(false, "no account for " + obfuscate(apiKeyCandidate)));
-	}
-
-	public Optional<String> check(Optional<String> endpoint, String apiKeyCandidate){
-		Optional<DatarouterAccountPermissionKey> permission = datarouterAccountCredentialService
+		List<DatarouterAccountPermissionKey> matchingAccountPermissions = datarouterAccountCredentialService
 				.scanPermissionsForApiKeyAuth(apiKeyCandidate)
+				.list();
+		if(matchingAccountPermissions.isEmpty()){
+			Optional<String> accountName = datarouterAccountCredentialService.findAccountNameForApiKey(apiKeyCandidate);
+			return accountName.map(account ->
+							new ApiKeyPredicateCheck(false, null, "no permissions found for account=" + account))
+					.orElseGet(() -> new ApiKeyPredicateCheck(false, null,
+							"no account found for apiKey=" + obfuscate(apiKeyCandidate)));
+		}
+		Optional<DatarouterAccountPermissionKey> matchingAccountWithAccess = Scanner.of(matchingAccountPermissions)
 				.include(candidate -> isValidEndpoint(candidate, endpoint))
 				.findFirst();
-		permission.ifPresent(datarouterAccountMetrics::incPermissionUsage);
-		return permission
-				.map(DatarouterAccountPermissionKey::getAccountName);
+		if(matchingAccountWithAccess.isEmpty()){
+			String errorMessage = "matching account=" + matchingAccountPermissions.getFirst().getAccountName()
+					+ " does not have access to " + rule.getPersistentString().orElse("this endpoint");
+			return new ApiKeyPredicateCheck(false, null, errorMessage);
+		}
+		datarouterAccountMetrics.incPermissionUsage(matchingAccountWithAccess.get());
+		return new ApiKeyPredicateCheck(true, matchingAccountWithAccess.get().getAccountName(), null);
 	}
 
 	private boolean isValidEndpoint(DatarouterAccountPermissionKey candidate, Optional<String> endpoint){

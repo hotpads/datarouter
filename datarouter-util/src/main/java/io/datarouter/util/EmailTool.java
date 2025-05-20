@@ -21,4 +21,11 @@ public class EmailTool{
 		return originalEmail.replace("@", "+" + supplement + "@");
 	}
 
+	public static String getEmailUsername(String email){
+		if(email == null || !email.contains("@")){
+			return null;
+		}
+		return email.split("@")[0];
+	}
+
 }

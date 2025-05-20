@@ -25,8 +25,8 @@ import java.util.function.Supplier;
 import io.datarouter.instrumentation.metric.collector.MetricTemplateCollector;
 import io.datarouter.instrumentation.metric.collector.MetricTemplateDto;
 import io.datarouter.metric.template.MetricTemplatePublisher.PublishedMetricTemplate;
-import io.datarouter.util.cache.LoadingCache;
-import io.datarouter.util.cache.LoadingCache.LoadingCacheBuilder;
+import io.datarouter.storage.cache.CaffeineLoadingCache;
+import io.datarouter.storage.cache.CaffeineLoadingCache.CaffeineLoadingCacheBuilder;
 
 public class DatarouterMetricTemplateCollector implements MetricTemplateCollector{
 
@@ -34,9 +34,10 @@ public class DatarouterMetricTemplateCollector implements MetricTemplateCollecto
 
 	private final String serviceName;
 	private final MetricTemplateBuffer metricTemplateBuffer;
-	private final LoadingCache<MetricTemplateDto,MetricTemplateDto> loadingCache;
+	private final CaffeineLoadingCache<MetricTemplateDto,MetricTemplateDto> loadingCache;
 	private final Supplier<Boolean> saveToBuffer;
 
+	private final Object batchLock = new Object();
 	private Set<MetricTemplateDto> batch;
 	private long lastFlushMs;
 	private long nextFlushMs;
@@ -49,7 +50,7 @@ public class DatarouterMetricTemplateCollector implements MetricTemplateCollecto
 		this.metricTemplateBuffer = metricTemplateBuffer;
 		this.saveToBuffer = saveToBuffer;
 
-		this.loadingCache = new LoadingCacheBuilder<MetricTemplateDto,MetricTemplateDto>()
+		this.loadingCache = new CaffeineLoadingCacheBuilder<MetricTemplateDto,MetricTemplateDto>()
 				.withExpireTtl(Duration.ofHours(1))
 				.withLoadingFunction(Function.identity())
 				.build();
@@ -67,8 +68,11 @@ public class DatarouterMetricTemplateCollector implements MetricTemplateCollecto
 		lastFlushMs = flushingMs;
 		nextFlushMs = flushingMs + FLUSH_MS;
 
-		Set<MetricTemplateDto> snapshot = batch;
-		batch = new HashSet<>();
+		Set<MetricTemplateDto> snapshot;
+		synchronized(batchLock){
+			snapshot = batch;
+			batch = new HashSet<>();
+		}
 
 		if(saveToBuffer.get()){
 			List<PublishedMetricTemplate> templates = snapshot.stream()
@@ -91,7 +95,9 @@ public class DatarouterMetricTemplateCollector implements MetricTemplateCollecto
 		}
 
 		if(!loadingCache.load(pattern)){
-			batch.add(pattern);
+			synchronized(batchLock){
+				batch.add(pattern);
+			}
 		}
 	}
 

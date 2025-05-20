@@ -17,10 +17,8 @@ package io.datarouter.auth.service;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
 
 import io.datarouter.auth.session.Session;
 import io.datarouter.auth.session.SessionBasedUser;
@@ -29,7 +27,6 @@ import io.datarouter.auth.storage.account.DatarouterAccountDao;
 import io.datarouter.auth.storage.account.DatarouterAccountKey;
 import io.datarouter.auth.storage.account.credential.DatarouterAccountCredential;
 import io.datarouter.auth.storage.account.credential.DatarouterAccountCredentialDao;
-import io.datarouter.auth.storage.user.datarouteruser.DatarouterUser;
 import io.datarouter.auth.storage.user.useraccountmap.DatarouterUserAccountMapDao;
 import io.datarouter.auth.storage.user.useraccountmap.DatarouterUserAccountMapKey;
 import io.datarouter.scanner.Scanner;
@@ -54,30 +51,6 @@ public class DatarouterAccountUserService{
 				.list();
 	}
 
-	public Scanner<String> scanAllAccountNames(){
-		return datarouterAccountDao.scan()
-				.map(DatarouterAccount::getKey)
-				.map(DatarouterAccountKey::getAccountName);
-	}
-
-	public boolean userCanAccessAccount(Session session, String accountName){
-		if(!userCanAccessAccount(session.getUserId(), accountName)){
-			return false;
-		}
-		return datarouterAccountDao.find(new DatarouterAccountKey(accountName))
-				.map(DatarouterAccount::getEnableUserMappings)
-				.orElse(false);
-
-	}
-
-	private boolean userCanAccessAccount(Long userId, String accountName){
-		if(userId == null){
-			return false;
-		}
-		DatarouterUserAccountMapKey key = new DatarouterUserAccountMapKey(userId, accountName);
-		return datarouterUserAccountMapDao.exists(key);
-	}
-
 	public Set<String> findAccountNamesForUser(SessionBasedUser user){
 		return scanAccountNamesForUserIdWithUserMappingEnabled(user.getId())
 				.collect(HashSet::new);
@@ -86,13 +59,6 @@ public class DatarouterAccountUserService{
 	public Set<String> findAccountNamesForUser(Session session){
 		return scanAccountNamesForUserIdWithUserMappingEnabled(session.getUserId())
 				.collect(HashSet::new);
-	}
-
-	public Map<String,Boolean> getAccountProvisioningStatusForUser(DatarouterUser user){
-		List<String> availableAccounts = getAllAccountNamesWithUserMappingsEnabled();
-		Set<String> currentAccounts = findAccountNamesForUser(user);
-		return Scanner.of(availableAccounts)
-				.toMap(Function.identity(), currentAccounts::contains);
 	}
 
 	//note: this does not return credentials from DatarouterAccountSecretCredentials

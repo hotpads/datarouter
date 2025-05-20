@@ -22,6 +22,7 @@ import io.datarouter.httpclient.DatarouterServicePaths;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
+import io.datarouter.web.handler.encoder.DatarouterDefaultHandlerCodec;
 import io.datarouter.web.security.SignatureValidator;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -47,6 +48,7 @@ public class DatarouterAccountApiRouteSet extends BaseRouteSet{
 		return rule
 				.allowAnonymous()
 				.withApiKey(apiKeyPredicate)
+				.withDefaultHandlerCodec(DatarouterDefaultHandlerCodec.INSTANCE)
 				//TODO consider removing this and using apiKey only for fewer 403s/more control in handler
 				.withSignature(signatureValidator)
 				.withTag(Tag.DATAROUTER);

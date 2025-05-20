@@ -18,6 +18,7 @@ package io.datarouter.instrumentation.relay.type;
 import io.datarouter.enums.StringMappedEnum;
 
 public enum RelayMessageBlockType{
+	BLOCK_QUOTE("blockQuote"),
 	BUTTON("button"),
 	CODE_BLOCK("codeBlock"),
 	CONTAINER("container"),
@@ -26,6 +27,7 @@ public enum RelayMessageBlockType{
 	HARD_BREAK("hardBreak"),
 	HEADING("heading"),
 	HTML("html"),
+	LINK("link"),
 	LIST_ITEM("listItem"),
 	MEDIA("media"),
 	MENTION("mention"),
@@ -39,6 +41,9 @@ public enum RelayMessageBlockType{
 	TEXT("text"),
 	TIMESTAMP("timestamp"),
 	UNORDERED_LIST("unorderedList"),
+	DEFINITION_LIST("definitionList"),
+	DEFINITION_TERM("definitionTerm"),
+	DEFINITION_DESCRIPTION("definitionDescription"),
 	;
 
 	public static final StringMappedEnum<RelayMessageBlockType> BY_TYPE

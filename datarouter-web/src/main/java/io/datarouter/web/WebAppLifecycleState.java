@@ -19,7 +19,8 @@ public enum WebAppLifecycleState{
 	// order matters
 	BOOTING,
 	HTTP_READY,
-	HTTP_WARMED,
+	FIRST_TRAFFIC,
+	FULLY_READY,
 	HTTP_SHUTING_DOWN,
 	SHUTING_DOWN,
 

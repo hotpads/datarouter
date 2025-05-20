@@ -44,78 +44,58 @@ public class HandlerMetrics{
 	private UserAgentTypeConfig userAgentTypeConfig;
 
 	public void incMethodInvocation(Class<?> handler, String methodName, String userAgent){
-		incInternal(CALL);
-		incInternal(CLASS, handler.getSimpleName());
-		incInternal(PACKAGED_CLASS, handler.getName());
-		incInternal(METHOD, handler.getSimpleName() + " " + methodName);
-		incInternal(PACKAGED_METHOD, handler.getName() + " " + methodName);
-		String categorizedUserAgent = categorizeUserAgent(userAgent);
-		incInternal(USER_AGENT, categorizedUserAgent);
-		incInternal(CLASS, String.join(" ", handler.getSimpleName(), USER_AGENT, categorizedUserAgent));
-		incInternal(METHOD, String.join(" ", handler.getSimpleName(), methodName, USER_AGENT, categorizedUserAgent));
-	}
-
-	public String categorizeUserAgent(String userAgent){
-		if(userAgent == null){
-			return "null";
-		}
-		if(userAgentTypeConfig.getMobileUserAgents().stream().anyMatch(userAgent::contains)){
-			if(userAgentTypeConfig.getAndroidUserAgents().stream().anyMatch(userAgent::contains)){
-				return UserAgentTypeConfig.ANDROID_USER_AGENT;
-			}
-			if(userAgentTypeConfig.getIosUserAgents().stream().anyMatch(userAgent::contains)){
-				return UserAgentTypeConfig.IOS_USER_AGENT;
-			}
-		}
-		if(userAgentTypeConfig.getJavaUserAgents().stream().anyMatch(userAgent::contains)){
-			return UserAgentTypeConfig.JAVA_USER_AGENT;
-		}
-		if(userAgentTypeConfig.getBotUserAgents().stream().anyMatch(userAgent::contains)){
-			return UserAgentTypeConfig.BOT_USER_AGENT;
-		}
-		return UserAgentTypeConfig.WEB_USER_AGENT;
+		count(CALL);
+		count(CLASS, handler.getSimpleName());
+		count(PACKAGED_CLASS, handler.getName());
+		count(METHOD, handler.getSimpleName(), methodName);
+		count(PACKAGED_METHOD, handler.getName(), methodName);
+		String categorizedUserAgent = userAgentTypeConfig.categorizeUserAgent(userAgent);
+		count(USER_AGENT, categorizedUserAgent);
+		count(CLASS, handler.getSimpleName(), USER_AGENT, categorizedUserAgent);
+		count(METHOD, handler.getSimpleName(), methodName, USER_AGENT, categorizedUserAgent);
 	}
 
 	public static void incMethodInvocationByApiKeyPredicateName(Class<?> handler, String methodName,
 			String accountName){
-		incInternal(ACCOUNT + " " + accountName + " " + CALL);
-		incInternal(ACCOUNT + " " + accountName + " " + CLASS, handler.getSimpleName());
-		incInternal(ACCOUNT + " " + accountName + " " + METHOD, handler.getSimpleName() + " " + methodName);
-	}
-
-	private static void incInternal(String format){
-		Metrics.count(PREFIX + " " + HANDLER + " " + format);
-	}
-
-	private static void incInternal(String format, String suffix){
-		Metrics.count(PREFIX + " " + HANDLER + " " + format + " " + suffix);
+		count(ACCOUNT, accountName, CALL);
+		count(ACCOUNT, accountName, CLASS, handler.getSimpleName());
+		count(ACCOUNT, accountName, METHOD, handler.getSimpleName(), methodName);
 	}
 
 	public static void saveMethodLatency(Class<? extends BaseHandler> handlerClass, Method method, long durationMs){
-		Metrics.measureWithPercentiles(PREFIX + " " + HANDLER + " " + METHOD + " " + LATENCY_MS + " " + handlerClass
-				.getSimpleName() + " " + method.getName(), durationMs);
+		measureWithPercentiles(durationMs, LATENCY_MS);
+		measureWithPercentiles(durationMs, CLASS, LATENCY_MS, handlerClass.getSimpleName());
+		measureWithPercentiles(durationMs, METHOD, LATENCY_MS, handlerClass.getSimpleName(), method.getName());
 	}
 
 	public static void savePayloadSize(Class<? extends BaseHandler> handlerClass, Method method, long payloadSize){
-		Metrics.measureWithPercentiles(PREFIX + " " + HANDLER + " " + METHOD + " " + PAYLOAD_SIZE_BYTES + " "
-				+ handlerClass.getSimpleName() + " " + method.getName(), payloadSize);
+		measureWithPercentiles(payloadSize, METHOD, PAYLOAD_SIZE_BYTES, handlerClass.getSimpleName(), method.getName());
 	}
 
 	public static void incDuration(Class<? extends BaseHandler> handlerClass, Method method, long durationMs){
-		Metrics.count(PREFIX + " " + HANDLER + " " + METHOD + " " + CUMULATED_DURATION_MS + " " + handlerClass
-				.getSimpleName() + " " + method.getName(), durationMs);
+		count(durationMs, METHOD, CUMULATED_DURATION_MS, handlerClass.getSimpleName(), method.getName());
 	}
 
 	public static void incTotalCpuTime(Class<? extends BaseHandler> handlerClass, Method method, long totalCpuTimeMs){
-		Metrics.count(PREFIX + " " + HANDLER + " " + METHOD + " " + CUMULATED_CPU_MS + " "
-				+ handlerClass.getSimpleName() + " " + method.getName(), totalCpuTimeMs);
-		Metrics.count(PREFIX + " " + HANDLER + " " + CUMULATED_CPU_MS, totalCpuTimeMs);
+		count(totalCpuTimeMs, CUMULATED_CPU_MS);
+		count(totalCpuTimeMs, METHOD, CUMULATED_CPU_MS, handlerClass.getSimpleName(), method.getName());
 	}
 
 	public static void incRequestBodyCollectionSize(Class<? extends BaseHandler> handlerClass, Method method,
 			int batchSize){
-		Metrics.count(PREFIX + " " + HANDLER + " " + METHOD + " " + BATCH + " " + handlerClass.getSimpleName() + " "
-				+ method.getName(), batchSize);
+		count(batchSize, METHOD, BATCH, handlerClass.getSimpleName(), method.getName());
+	}
+
+	private static void count(String... parts){
+		count(1, parts);
+	}
+
+	private static void count(long value, String... parts){
+		Metrics.count(PREFIX + " " + HANDLER + " " + String.join(" ", parts), value);
+	}
+
+	private static void measureWithPercentiles(long value, String... parts){
+		Metrics.measureWithPercentiles(PREFIX + " " + HANDLER + " " + String.join(" ", parts), value);
 	}
 
 }

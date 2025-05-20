@@ -28,7 +28,7 @@ public class HexBlockTool{
 			throw new IllegalArgumentException("Please specify an even width");
 		}
 		String tabs = IntStream.range(0, numTabs)
-				.mapToObj($ -> "\t")
+				.mapToObj(_ -> "\t")
 				.collect(Collectors.joining(""));
 		String hex = HexByteStringCodec.INSTANCE.encode(bytes);
 		var sb = new StringBuilder();

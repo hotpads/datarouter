@@ -101,6 +101,7 @@ public class DatarouterJobLockDao extends BaseDao{
 	public DatabeanVacuum<JobLockKey,JobLock> makeVacuum(){
 		MilliTime now = MilliTime.now();
 		return new DatabeanVacuumBuilder<>(
+				"DatarouterJobLock",
 				node.scan(),
 				databean -> now.isAfter(databean.getExpirationTime()),
 				node::deleteMulti)

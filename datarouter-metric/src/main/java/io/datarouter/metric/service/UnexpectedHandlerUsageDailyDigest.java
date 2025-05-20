@@ -15,60 +15,64 @@
  */
 package io.datarouter.metric.service;
 
-import static j2html.TagCreator.div;
-
-import java.lang.reflect.Method;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.instrumentation.relay.rml.Rml;
 import io.datarouter.instrumentation.relay.rml.RmlBlock;
 import io.datarouter.metric.config.DatarouterMetricPaths;
+import io.datarouter.metric.dashboard.web.HandlerUsageHandler.GroupBy;
+import io.datarouter.metric.link.HandlerUsageLink;
+import io.datarouter.metric.service.HandlerUsageService.ActionableHandlers;
+import io.datarouter.metric.service.HandlerUsageService.HandlerMethodNameAndClassName;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.storage.tag.Tag;
 import io.datarouter.util.duration.DatarouterDuration;
-import io.datarouter.util.lang.ReflectionTool;
-import io.datarouter.web.config.RouteSetRegistry;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
-import io.datarouter.web.digest.DailyDigestService;
-import io.datarouter.web.dispatcher.DispatchRule;
-import io.datarouter.web.dispatcher.RouteSet;
-import io.datarouter.web.handler.BaseHandler;
-import io.datarouter.web.handler.BaseHandler.Handler;
-import io.datarouter.web.handler.BaseHandler.Handler.HandlerUsageType;
-import io.datarouter.web.handlerusage.HandlerUsageBuilder.HandlerUsageDto;
-import j2html.TagCreator;
-import j2html.tags.specialized.DivTag;
-import j2html.tags.specialized.SmallTag;
-import j2html.tags.specialized.TableTag;
+import io.datarouter.web.digest.DailyDigestRmlService;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
 @Singleton
 public class UnexpectedHandlerUsageDailyDigest implements DailyDigest{
-	private static final int ROW_DISPLAY_LIMIT = 5;
+
 	private static final long DAYS_TO_QUERY = 30L;
-	private static final String PATH_SUPPLEMENT = "?duration=30d&groupBy=USAGE";
-	private static final SmallTag CAPTION_UNUSED = TagCreator.small("Handlers with no invocations in the past 30 days "
-			+ "should be investigated and removed from code if no longer needed. If still in use but just infrequently,"
-			+ " set \"usageType\" to INFREQUENTLY_USED on the @Handler annotation to omit them from this report.");
-	private static final SmallTag CAPTION_TEMPORARILY_UNUSED = TagCreator.small("The following handlers are marked as "
-			+ "temporarily unused but have been used in the past 30 days. If they are in use but infrequently, set "
-			+ "\"usageType\" to TEMPORARILY_UNUSED on the @Handler annotation to omit them from this report, otherwise "
-			+ "if fully in-use, remove the usage type field completely.");
+	private static final String
+			HANDLER_CATEGORY = "handler",
+			UNUSED_CATEGORY = "unused",
+			ACTIVITY_CATEGORY = "activity",
+			NON_PROD_USAGE = "nonProdUsage",
+			UNUSED_HEADING_PREFIX = "Handlers with no invocations in the past 30 days: ",
+			TEMPORARILY_UNUSED_ACTIVITY_HEADING_PREFIX = String.format("Handlers marked as temporarily unused but with "
+							+ "invocations in the past %d days: ", DAYS_TO_QUERY),
+			NON_PROD_ONLY_ACTIVITY_HEADING_PREFIX = String.format("Handlers marked as non-prod only but with prod "
+							+ "invocations in the past %d days: ", DAYS_TO_QUERY),
+			CAPTION_UNUSED = String.format("""
+					Handlers with no invocations in the past %d days should be investigated and removed from code if no
+					longer needed. If still in use but just infrequently, set "usageType" to INFREQUENTLY_USED on the
+					@Handler annotation to omit them from this report. If only used in non-prod environments, mark as
+					NON_PROD_ONLY. If temporarily unused, perhaps due to being before/mid feature launch, mark
+					TEMPORARILY_UNUSED. Example annotation: @Handler(usageType = HandlerUsageType.NON_PROD_ONLY)""",
+					DAYS_TO_QUERY),
+			CAPTION_ACTIVITY_TEMPORARILY_UNUSED = String.format("""
+					The following handlers are marked as temporarily unused but have been used in the past %d days.
+					If they are in use but infrequently, set "usageType" to INFREQUENTLY_USED on the @Handler annotation
+					to omit them from this report. If only used in non-prod environments, mark as NON_PROD_ONLY.
+					Otherwise if fully in-use, remove the usage type field completely.""",
+					DAYS_TO_QUERY),
+			CAPTION_ACTIVITY_NON_PROD_ONLY = String.format("""
+					The following handlers are marked for non-prod use only but have been invoked in production in the
+					past %d days. Please review these handlers and update with the appropriate usage type.""",
+					DAYS_TO_QUERY);
 
 	@Inject
-	private DailyDigestService dailyDigestService;
+	private DailyDigestRmlService dailyDigestService;
 	@Inject
 	private HandlerUsageService handlerUsageService;
 	@Inject
 	private DatarouterMetricPaths paths;
-	@Inject
-	private RouteSetRegistry routeSetRegistry;
 
 	@Override
 	public String getTitle(){
@@ -86,178 +90,101 @@ public class UnexpectedHandlerUsageDailyDigest implements DailyDigest{
 	}
 
 	@Override
-	public Optional<DivTag> getEmailContent(ZoneId zoneId){
-		List<HandlerUsageDto> handlerUsageMetrics = handlerUsageService.getHandlerUsageMetrics(
-				new DatarouterDuration(DAYS_TO_QUERY, TimeUnit.DAYS),
-				getClass().getSimpleName());
+	public Optional<RmlBlock> getRelayContent(ZoneId zoneId){
+		ActionableHandlers actionableHandlers = handlerUsageService.getActionableHandlers(DAYS_TO_QUERY);
 
-		List<? extends Class<? extends BaseHandler>> handlerClasses = Scanner.of(routeSetRegistry.get())
-				.concatIter(RouteSet::getDispatchRulesNoRedirects)
-				.include(rule -> rule.getTag() == Tag.APP)
-				.map(DispatchRule::getHandlerClass)
-				.list();
+		List<HandlerMethodNameAndClassName> unusedHandlerMethods = actionableHandlers.unusedHandlerMethods();
+		List<HandlerMethodNameAndClassName> usedButMarkedAsTemporarilyUnused = actionableHandlers
+				.usedButMarkedAsTemporarilyUnused();
+		List<HandlerMethodNameAndClassName> usedButMarkedAsNonProdOnly = actionableHandlers
+				.usedButMarkedAsNonProdOnly();
 
-		List<UnusedHandlerMethod> unusedHandlerMethods = Scanner.of(handlerUsageMetrics)
-				.include(metricDto -> metricDto.invocations() == 0)
-				.exclude(metricDto -> isMarkedAsInfrequentlyUsed(handlerClasses, metricDto))
-				.exclude(metricDto -> isMarkedAsTemporarilyUnused(handlerClasses, metricDto))
-				.map(metricDto -> new UnusedHandlerMethod(
-						metricDto.methodName(),
-						metricDto.classSimpleName()))
-				.list();
-
-		List<UnusedHandlerMethod> usedButMarkedAsTemporarilyUnused = Scanner.of(handlerUsageMetrics)
-				.include(metricDto -> metricDto.invocations() > 0)
-				.include(metricDto -> isMarkedAsTemporarilyUnused(handlerClasses, metricDto))
-				.map(metricDto -> new UnusedHandlerMethod(
-						metricDto.methodName(),
-						metricDto.classSimpleName()))
-				.list();
-
-		if(unusedHandlerMethods.isEmpty() && usedButMarkedAsTemporarilyUnused.isEmpty()){
+		if(unusedHandlerMethods.isEmpty()
+				&& usedButMarkedAsTemporarilyUnused.isEmpty()
+				&& usedButMarkedAsNonProdOnly.isEmpty()){
 			return Optional.empty();
 		}
 
-		return Optional.of(div(
-				buildUnusedHandlerMethodsSection(unusedHandlerMethods),
-				buildUnexpectHandlerUsageSection(usedButMarkedAsTemporarilyUnused)));
-	}
-
-	private DivTag buildUnusedHandlerMethodsSection(List<UnusedHandlerMethod> unusedHandlerMethods){
-		if(unusedHandlerMethods.isEmpty()){
-			return new DivTag();
-		}
-		var unusedHandlerMethodsHeader = dailyDigestService.makeHeader(
-				generateTruncatedHeaderString(unusedHandlerMethods, "Handlers with no invocations in the past 30 days: "
-						+ unusedHandlerMethods.size()),
-				paths.datarouter.metric.handlerUsage.view,
-				PATH_SUPPLEMENT);
-		TableTag emailTable = buildEmailTable(unusedHandlerMethods);
-		return div(unusedHandlerMethodsHeader, CAPTION_UNUSED, emailTable);
-	}
-
-	private DivTag buildUnexpectHandlerUsageSection(List<UnusedHandlerMethod> usedButMarkedAsTemporarilyUnused){
-		if(usedButMarkedAsTemporarilyUnused.isEmpty()){
-			return new DivTag();
-		}
-		var unexpectHandlerUsageHeader = dailyDigestService.makeHeader(
-				generateTruncatedHeaderString(usedButMarkedAsTemporarilyUnused, "Handlers marked as temporarily unused"
-						+ " but with invocations in the past 30 days: " + usedButMarkedAsTemporarilyUnused.size()),
-				paths.datarouter.metric.handlerUsage.view,
-				PATH_SUPPLEMENT);
-		TableTag emailTable = buildEmailTable(usedButMarkedAsTemporarilyUnused);
-		return div(unexpectHandlerUsageHeader, CAPTION_TEMPORARILY_UNUSED, emailTable);
-	}
-
-	private static String generateTruncatedHeaderString(List<UnusedHandlerMethod> methods, String header){
-		header += methods.size() > ROW_DISPLAY_LIMIT
-				? " (first " + ROW_DISPLAY_LIMIT + " shown)"
-				: "";
-		return header;
+		return Optional.of(Rml.container()
+				.condWith(
+						!unusedHandlerMethods.isEmpty(),
+						buildHandlerMethodsSectionRelay(unusedHandlerMethods, UNUSED_HEADING_PREFIX, CAPTION_UNUSED))
+				.condWith(
+						!usedButMarkedAsTemporarilyUnused.isEmpty(),
+						buildHandlerMethodsSectionRelay(usedButMarkedAsTemporarilyUnused,
+								TEMPORARILY_UNUSED_ACTIVITY_HEADING_PREFIX, CAPTION_ACTIVITY_TEMPORARILY_UNUSED))
+				.condWith(
+						!usedButMarkedAsNonProdOnly.isEmpty(),
+						buildHandlerMethodsSectionRelay(usedButMarkedAsNonProdOnly,
+								NON_PROD_ONLY_ACTIVITY_HEADING_PREFIX, CAPTION_ACTIVITY_NON_PROD_ONLY)));
 	}
 
 	@Override
-	public Optional<RmlBlock> getRelayContent(ZoneId zoneId){
-		List<HandlerUsageDto> handlerUsageMetrics = handlerUsageService.getHandlerUsageMetrics(
-				new DatarouterDuration(DAYS_TO_QUERY, TimeUnit.DAYS),
-				getClass().getSimpleName());
+	public List<DailyDigestPlatformTask> getTasks(ZoneId zoneId){
+		ActionableHandlers actionableHandlers = handlerUsageService.getActionableHandlers(DAYS_TO_QUERY);
 
-		List<? extends Class<? extends BaseHandler>> handlerClasses = Scanner.of(routeSetRegistry.get())
-				.concatIter(RouteSet::getDispatchRulesNoRedirects)
-				.include(rule -> rule.getTag() == Tag.APP)
-				.map(DispatchRule::getHandlerClass)
+		return Scanner.concat(
+				Scanner.of(actionableHandlers.unusedHandlerMethods())
+						.map(unused -> new TaskDetails(
+								List.of(UNUSED_CATEGORY),
+								"Unused handler method",
+								CAPTION_ACTIVITY_NON_PROD_ONLY,
+								unused)),
+				Scanner.of(actionableHandlers.usedButMarkedAsTemporarilyUnused())
+						.map(unused -> new TaskDetails(
+								List.of(UNUSED_CATEGORY, ACTIVITY_CATEGORY),
+								"Activity for temporarily unused handler method",
+								CAPTION_ACTIVITY_TEMPORARILY_UNUSED,
+								unused)),
+				Scanner.of(actionableHandlers.usedButMarkedAsNonProdOnly())
+						.map(handler -> new TaskDetails(
+								List.of(NON_PROD_USAGE),
+								"Non-prod handler used in prod:",
+								CAPTION_ACTIVITY_NON_PROD_ONLY,
+								handler)))
+				.map(details -> new DailyDigestPlatformTask(
+						Scanner.of(HANDLER_CATEGORY)
+								.append(details.categories())
+								.append(details.method().className())
+								.append(details.method().methodName())
+								.list(),
+						Scanner.of(HANDLER_CATEGORY)
+								.append(details.categories())
+								.list(),
+						details.title() + " " + details.method().methodName() + " in " + details.method().className(),
+						Rml.doc(
+								Rml.heading(3, Rml.text(details.method().className() + "::"
+										+ details.method().methodName())),
+								Rml.paragraph(Rml.text(details.caption())),
+								Rml.paragraph(dailyDigestService.makeLink("Handler usage details",
+										paths.datarouter.metric.handlerUsage.view)))))
 				.list();
+	}
 
-		List<UnusedHandlerMethod> unusedHandlerMethods = Scanner.of(handlerUsageMetrics)
-				.include(metricDto -> metricDto.invocations() == 0)
-				.exclude(metricDto -> isMarkedAsInfrequentlyUsed(handlerClasses, metricDto))
-				.map(metricDto -> new UnusedHandlerMethod(
-						metricDto.methodName(),
-						metricDto.classSimpleName()))
-				.list();
-
-		List<UnusedHandlerMethod> usedButMarkedAsTemporarilyUnused = Scanner.of(handlerUsageMetrics)
-				.include(metricDto -> metricDto.invocations() > 0)
-				.include(metricDto -> isMarkedAsTemporarilyUnused(handlerClasses, metricDto))
-				.map(metricDto -> new UnusedHandlerMethod(
-						metricDto.methodName(),
-						metricDto.classSimpleName()))
-				.list();
-
-		if(unusedHandlerMethods.isEmpty() && usedButMarkedAsTemporarilyUnused.isEmpty()){
-			return Optional.empty();
-		}
-
-		return Optional.of(Rml.paragraph(
-				dailyDigestService.makeHeading(
-						"Handlers with no invocations in the past 30 days: " + unusedHandlerMethods.size(),
-						paths.datarouter.metric.handlerUsage.view),
-				Rml.text("Handlers with no invocations in the past 30 days should be investigated and removed from "
-						+ "code if no longer needed. If still in use but just infrequently, set \"usageType\" to  "
-						+ "INFREQUENTLY_USED on the @Handler annotation to omit them from this report.").italic(),
+	private RmlBlock buildHandlerMethodsSectionRelay(List<HandlerMethodNameAndClassName> methods, String headingPrefix,
+			String caption){
+		return Rml.container(
+				dailyDigestService.makeHeading(headingPrefix + methods.size(),
+						new HandlerUsageLink()
+								.withDuration(new DatarouterDuration(DAYS_TO_QUERY, TimeUnit.DAYS))
+								.withGroupBy(GroupBy.USAGE_COUNT)
+								.withExcludeIrregularUsage(true)),
+				Rml.text(caption).italic(),
 				Rml.table(
-								Rml.tableRow(
-										Rml.tableHeader(Rml.text("Class")),
-										Rml.tableHeader(Rml.text("Method"))))
-						.with(unusedHandlerMethods.stream()
+						Rml.tableRow(
+								Rml.tableHeader(Rml.text("Class")),
+								Rml.tableHeader(Rml.text("Method"))))
+						.with(methods.stream()
 								.map(method -> Rml.tableRow(
-										Rml.tableCell(Rml.text(method.className)),
-										Rml.tableCell(Rml.text(method.methodName))))),
-				dailyDigestService.makeHeading(
-						"Handlers marked as temporarily unused but with invocations in the past 30 days: "
-								+ usedButMarkedAsTemporarilyUnused.size(),
-						paths.datarouter.metric.handlerUsage.view),
-				Rml.text("The following handlers are marked as temporarily unused but have been used in the past 30 "
-						+ "days. If they are in use but infrequently, set \"usageType\" to INFREQUENTLY_USED on the "
-						+ "@Handler annotation to omit them from this report, otherwise if fully in-use, remove the "
-						+ "usage type field completely.").italic(),
-				Rml.table(
-								Rml.tableRow(
-										Rml.tableHeader(Rml.text("Class")),
-										Rml.tableHeader(Rml.text("Method"))))
-						.with(unusedHandlerMethods.stream()
-								.map(method -> Rml.tableRow(
-										Rml.tableCell(Rml.text(method.className)),
-										Rml.tableCell(Rml.text(method.methodName)))))));
+										Rml.tableCell(Rml.text(method.className())),
+										Rml.tableCell(Rml.text(method.methodName()))))));
 	}
 
-	private boolean isMarkedAsInfrequentlyUsed(
-			List<? extends Class<? extends BaseHandler>> handlerClasses,
-			HandlerUsageDto metricDto){
-		return Scanner.of(handlerClasses)
-				.include(handlerClass -> handlerClass.getSimpleName().equals(metricDto.classSimpleName()))
-				.concatIter(handlerClass ->
-						ReflectionTool.getDeclaredMethodsWithAnnotation(handlerClass, Handler.class))
-				.include(method -> method.getAnnotation(Handler.class).usageType()
-						== HandlerUsageType.INFREQUENTLY_USED)
-				.map(Method::getName)
-				.list()
-				.contains(metricDto.methodName());
-	}
-
-	private boolean isMarkedAsTemporarilyUnused(
-			List<? extends Class<? extends BaseHandler>> handlerClasses,
-			HandlerUsageDto metricDto){
-		return Scanner.of(handlerClasses)
-				.include(handlerClass -> handlerClass.getSimpleName().equals(metricDto.classSimpleName()))
-				.concatIter(handlerClass ->
-						ReflectionTool.getDeclaredMethodsWithAnnotation(handlerClass, Handler.class))
-				.include(method -> method.getAnnotation(Handler.class).usageType()
-						== HandlerUsageType.TEMPORARILY_UNUSED)
-				.map(Method::getName)
-				.list()
-				.contains(metricDto.methodName());
-	}
-
-	private record UnusedHandlerMethod(String methodName, String className){}
-
-	private static TableTag buildEmailTable(
-			List<UnusedHandlerMethod> rows){
-		rows = rows.size() > ROW_DISPLAY_LIMIT ? rows.subList(0, ROW_DISPLAY_LIMIT) : rows;
-		return new J2HtmlEmailTable<UnusedHandlerMethod>()
-				.withColumn("Class", row -> row.className)
-				.withColumn("Method", row -> row.methodName)
-				.build(rows);
+	private record TaskDetails(
+			List<String> categories,
+			String title,
+			String caption,
+			HandlerMethodNameAndClassName method){
 	}
 
 }

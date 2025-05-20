@@ -15,12 +15,19 @@
  */
 package io.datarouter.nodewatch.web;
 
-import org.apache.http.client.utils.URIBuilder;
-
-import io.datarouter.nodewatch.config.DatarouterNodewatchPaths;
-import io.datarouter.nodewatch.web.handler.NodewatchTableActionsHandler;
-import io.datarouter.nodewatch.web.handler.NodewatchThresholdEditHandler;
-import io.datarouter.web.config.ServletContextSupplier;
+import io.datarouter.httpclient.endpoint.link.DatarouterLinkClient;
+import io.datarouter.nodewatch.link.NodewatchConfigsLink;
+import io.datarouter.nodewatch.link.NodewatchDeleteAllMetadataLink;
+import io.datarouter.nodewatch.link.NodewatchMetadataMigrateLink;
+import io.datarouter.nodewatch.link.NodewatchSlowSpansLink;
+import io.datarouter.nodewatch.link.NodewatchSummaryLink;
+import io.datarouter.nodewatch.link.NodewatchTableDeleteSamplesLink;
+import io.datarouter.nodewatch.link.NodewatchTableLink;
+import io.datarouter.nodewatch.link.NodewatchTableResampleLink;
+import io.datarouter.nodewatch.link.NodewatchTableStorageLink;
+import io.datarouter.nodewatch.link.NodewatchTablesLink;
+import io.datarouter.nodewatch.link.NodewatchThresholdDeleteLink;
+import io.datarouter.nodewatch.link.NodewatchThresholdEditLink;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
@@ -29,91 +36,54 @@ import jakarta.inject.Singleton;
 public class NodewatchLinks{
 
 	@Inject
-	private ServletContextSupplier contextSupplier;
-	@Inject
-	private NodewatchPublicLinks publicLinks;
-	@Inject
-	private DatarouterNodewatchPaths paths;
+	private DatarouterLinkClient linkClient;
 
 	public String tables(){
-		return contextSupplier.getContextPath() + publicLinks.tables();
+		return linkClient.toInternalUrl(new NodewatchTablesLink());
 	}
 
 	public String summary(){
-		var uriBuilder = new URIBuilder()
-				.setPath(contextSupplier.getContextPath() + paths.datarouter.nodewatch.summary.toSlashedString());
-		return uriBuilder.toString();
+		return linkClient.toInternalUrl(new NodewatchSummaryLink());
 	}
 
 	public String configs(){
-		var uriBuilder = new URIBuilder()
-				.setPath(contextSupplier.getContextPath() + paths.datarouter.nodewatch.configs.toSlashedString());
-		return uriBuilder.toString();
+		return linkClient.toInternalUrl(new NodewatchConfigsLink());
 	}
 
 	public String slowSpans(){
-		var uriBuilder = new URIBuilder()
-				.setPath(contextSupplier.getContextPath() + paths.datarouter.nodewatch.slowSpans.toSlashedString());
-		return uriBuilder.toString();
+		return linkClient.toInternalUrl(new NodewatchSlowSpansLink());
 	}
 
 	public String metadataMigrate(){
-		var uriBuilder = new URIBuilder()
-				.setPath(contextSupplier.getContextPath()
-						+ paths.datarouter.nodewatch.metadata.migrate.toSlashedString());
-		return uriBuilder.toString();
+		return linkClient.toInternalUrl(new NodewatchMetadataMigrateLink());
 	}
 
 	public String table(String clientName, String tableName){
-		return contextSupplier.getContextPath() + publicLinks.table(clientName, tableName);
+		return linkClient.toInternalUrl(new NodewatchTableLink(clientName, tableName));
 	}
 
 	public String tableStorage(String clientName, String tableName){
-		return contextSupplier.getContextPath() + publicLinks.tableStorage(clientName, tableName);
+		return linkClient.toInternalUrl(new NodewatchTableStorageLink(clientName, tableName));
 	}
 
 	public String tableResample(String clientName, String tableName){
-		var uriBuilder = new URIBuilder()
-				.setPath(contextSupplier.getContextPath() + paths.datarouter.nodewatch.table.resample.toSlashedString())
-				.addParameter(NodewatchTableActionsHandler.P_clientName, clientName)
-				.addParameter(NodewatchTableActionsHandler.P_tableName, tableName);
-		return uriBuilder.toString();
+		return linkClient.toInternalUrl(new NodewatchTableResampleLink(clientName, tableName));
 	}
 
 	public String tableDeleteSamples(String clientName, String tableName){
-		var uriBuilder = new URIBuilder()
-				.setPath(contextSupplier.getContextPath()
-						+ paths.datarouter.nodewatch.table.deleteSamples.toSlashedString())
-				.addParameter(NodewatchTableActionsHandler.P_clientName, clientName)
-				.addParameter(NodewatchTableActionsHandler.P_tableName, tableName);
-		return uriBuilder.toString();
+		return linkClient.toInternalUrl(new NodewatchTableDeleteSamplesLink(clientName, tableName));
 	}
 
 	public String tableDeleteAllMetadata(String clientName, String tableName){
-		var uriBuilder = new URIBuilder()
-				.setPath(contextSupplier.getContextPath()
-						+ paths.datarouter.nodewatch.table.deleteAllMetadata.toSlashedString())
-				.addParameter(NodewatchTableActionsHandler.P_clientName, clientName)
-				.addParameter(NodewatchTableActionsHandler.P_tableName, tableName);
-		return uriBuilder.toString();
+		return linkClient.toInternalUrl(new NodewatchDeleteAllMetadataLink(clientName, tableName));
 	}
 
 	public String thresholdEdit(String clientName, String tableName){
-		var uriBuilder = new URIBuilder()
-				.setPath(contextSupplier.getContextPath()
-						+ paths.datarouter.nodewatch.threshold.edit.toSlashedString())
-				.addParameter(NodewatchThresholdEditHandler.P_clientName, clientName)
-				.addParameter(NodewatchThresholdEditHandler.P_tableName, tableName);
-		return uriBuilder.toString();
+		return linkClient.toInternalUrl(new NodewatchThresholdEditLink(clientName, tableName));
 	}
 
 	public String thresholdDelete(String clientName, String tableName){
-		var uriBuilder = new URIBuilder()
-				.setPath(contextSupplier.getContextPath()
-						+ paths.datarouter.nodewatch.threshold.delete.toSlashedString())
-				.addParameter(NodewatchThresholdEditHandler.P_clientName, clientName)
-				.addParameter(NodewatchThresholdEditHandler.P_tableName, tableName);
-		return uriBuilder.toString();
+		return linkClient.toInternalUrl(new NodewatchThresholdDeleteLink(clientName, tableName));
 	}
 
 }

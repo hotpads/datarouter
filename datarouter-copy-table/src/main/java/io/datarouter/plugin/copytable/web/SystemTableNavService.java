@@ -17,9 +17,13 @@ package io.datarouter.plugin.copytable.web;
 
 import static j2html.TagCreator.div;
 
+import io.datarouter.httpclient.endpoint.link.DatarouterLinkClient;
 import io.datarouter.pathnode.PathNode;
 import io.datarouter.plugin.copytable.config.DatarouterCopyTablePaths;
 import io.datarouter.plugin.copytable.config.DatarouterCopyTablePaths.SystemTableCopyPaths;
+import io.datarouter.plugin.copytable.link.MigrateSystemTablesLink;
+import io.datarouter.plugin.copytable.link.MigrateSystemTablesMetadataLink;
+import io.datarouter.plugin.copytable.link.SystemTablesListLink;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4NavTabsHtml;
 import io.datarouter.web.html.nav.NavTabs;
 import io.datarouter.web.html.nav.NavTabs.NavTab;
@@ -33,31 +37,35 @@ public class SystemTableNavService{
 	@Inject
 	private DatarouterCopyTablePaths paths;
 	@Inject
-	private SystemTableLinks links;
+	private DatarouterLinkClient linkClient;
 
 	public SystemTableNavTabs makeNavTabs(PathNode currentPath){
-		return new SystemTableNavTabs(paths, links, currentPath);
+		return new SystemTableNavTabs(paths, linkClient, currentPath);
 	}
 
 	public static class SystemTableNavTabs{
 
-		public final SystemTableLinks links;
+		public final DatarouterLinkClient linkClient;
 		public final NavTabs navTabs = new NavTabs();
 
 		public SystemTableNavTabs(
 				DatarouterCopyTablePaths paths,
-				SystemTableLinks links,
+				DatarouterLinkClient linkClient,
 				PathNode currentPath){
-			this.links = links;
+			this.linkClient = linkClient;
 			SystemTableCopyPaths root = paths.datarouter.systemTableCopier;
 			navTabs.add(new NavTab(
 					"List System Tables",
-					links.listSystemTables(),
+					linkClient.toInternalUrl(new SystemTablesListLink()),
 					currentPath.equals(root.listSystemTables)));
 			navTabs.add(new NavTab(
 					"Migrate System Tables",
-					links.migrateSystemTables(),
+					linkClient.toInternalUrl(new MigrateSystemTablesLink()),
 					currentPath.equals(root.migrateSystemTables)));
+			navTabs.add(new NavTab(
+					"Migrate System Tables Metadata",
+					linkClient.toInternalUrl(new MigrateSystemTablesMetadataLink()),
+					currentPath.equals(root.migrateSystemTablesMetadata)));
 
 		}
 

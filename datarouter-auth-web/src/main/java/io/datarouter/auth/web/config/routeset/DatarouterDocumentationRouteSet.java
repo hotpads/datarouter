@@ -21,6 +21,7 @@ import io.datarouter.auth.web.web.DatarouterDocumentationHandler;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
+import io.datarouter.web.handler.encoder.DatarouterDefaultHandlerCodec;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
@@ -30,6 +31,8 @@ public class DatarouterDocumentationRouteSet extends BaseRouteSet{
 	@Inject
 	public DatarouterDocumentationRouteSet(DatarouterAuthPaths paths){
 		handle(paths.docs).withHandler(DatarouterDocumentationHandler.class);
+		handle(paths.docsV2).withHandler(DatarouterDocumentationHandler.class);
+		handle(paths.schema).withHandler(DatarouterDocumentationHandler.class);
 		handle(paths.docs.getCsrfIv).withHandler(DatarouterDocumentationHandler.class);
 		handle(paths.docs.getSignature).withHandler(DatarouterDocumentationHandler.class);
 	}
@@ -41,6 +44,7 @@ public class DatarouterDocumentationRouteSet extends BaseRouteSet{
 						DatarouterUserRoleRegistry.DATAROUTER_ADMIN,
 						DatarouterUserRoleRegistry.DOC_USER,
 						DatarouterUserRoleRegistry.USER)
+				.withDefaultHandlerCodec(DatarouterDefaultHandlerCodec.INSTANCE)
 				.withTag(Tag.DATAROUTER);
 	}
 

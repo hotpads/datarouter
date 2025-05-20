@@ -23,6 +23,7 @@ import java.util.zip.CRC32;
 import java.util.zip.Checksum;
 
 import io.datarouter.bytes.codec.booleancodec.RawBooleanCodec;
+import io.datarouter.bytes.codec.doublecodec.ComparableDoubleCodec;
 import io.datarouter.bytes.codec.intcodec.RawIntCodec;
 import io.datarouter.bytes.codec.longcodec.ComparableLongCodec;
 import io.datarouter.bytes.codec.longcodec.RawLongCodec;
@@ -36,6 +37,7 @@ public class ByteWriter{
 	private static final RawIntCodec RAW_INT_CODEC = RawIntCodec.INSTANCE;
 	private static final ComparableLongCodec COMPARABLE_LONG_CODEC = ComparableLongCodec.INSTANCE;
 	private static final RawLongCodec RAW_LONG_CODEC = RawLongCodec.INSTANCE;
+	private static final ComparableDoubleCodec COMPARABLE_DOUBLE_CODEC = ComparableDoubleCodec.INSTANCE;
 
 	private final int pageSize;
 	private final List<byte[]> pages;
@@ -225,6 +227,11 @@ public class ByteWriter{
 
 	public ByteWriter varLong(long value){
 		bytes(VarIntTool.encode(value));
+		return this;
+	}
+
+	public ByteWriter comparableDouble(double value){
+		bytes(COMPARABLE_DOUBLE_CODEC.encode(value));
 		return this;
 	}
 

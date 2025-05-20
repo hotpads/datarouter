@@ -15,18 +15,12 @@
  */
 package io.datarouter.tasktracker.service;
 
-import static j2html.TagCreator.a;
-import static j2html.TagCreator.div;
-import static j2html.TagCreator.small;
-
 import java.time.Duration;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 
 import io.datarouter.email.email.DatarouterHtmlEmailService;
-import io.datarouter.email.html.J2HtmlEmailTable;
-import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
 import io.datarouter.instrumentation.relay.rml.Rml;
 import io.datarouter.instrumentation.relay.rml.RmlBlock;
 import io.datarouter.tasktracker.config.DatarouterTaskTrackerPaths;
@@ -34,11 +28,8 @@ import io.datarouter.tasktracker.storage.LongRunningTask;
 import io.datarouter.tasktracker.storage.LongRunningTaskDao;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
-import io.datarouter.web.digest.DailyDigestService;
+import io.datarouter.web.digest.DailyDigestRmlService;
 import io.datarouter.web.exception.ExceptionLinkBuilder;
-import j2html.tags.specialized.ATag;
-import j2html.tags.specialized.DivTag;
-import j2html.tags.specialized.TableTag;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
@@ -54,7 +45,7 @@ public class LongRunningTaskDailyDigest implements DailyDigest{
 	@Inject
 	private DatarouterTaskTrackerPaths paths;
 	@Inject
-	private DailyDigestService digestService;
+	private DailyDigestRmlService digestService;
 	@Inject
 	private ExceptionLinkBuilder exceptionLinkBuilder;
 
@@ -71,22 +62,6 @@ public class LongRunningTaskDailyDigest implements DailyDigest{
 	@Override
 	public DailyDigestGrouping getGrouping(){
 		return DailyDigestGrouping.HIGH;
-	}
-
-	@Override
-	public Optional<DivTag> getEmailContent(ZoneId zoneId){
-		List<LongRunningTask> failedTasks = longRunningTaskDao.scan()
-				.include(task -> task.getKey().getTriggerTime().toEpochMilli()
-						> System.currentTimeMillis() - Duration.ofDays(1).toMillis())
-				.include(LongRunningTask::isBadState)
-				.list();
-		if(failedTasks.isEmpty()){
-			return Optional.empty();
-		}
-		var header = digestService.makeHeader("Failed Long Running Tasks", paths.datarouter.longRunningTasks);
-		var description = small("From the last 24 hours");
-		var table = buildEmailTable(failedTasks, zoneId);
-		return Optional.of(div(header, description, table));
 	}
 
 	@Override
@@ -123,21 +98,9 @@ public class LongRunningTaskDailyDigest implements DailyDigest{
 														.orElseThrow())))))));
 	}
 
-	private TableTag buildEmailTable(List<LongRunningTask> rows, ZoneId zoneId){
-		return new J2HtmlEmailTable<LongRunningTask>()
-				.withColumn(new J2HtmlEmailTableColumn<>("Name", row -> makeTaskLink(row.getKey().getName())))
-				.withColumn("Trigger Time", row -> row.getKey().getTriggerTime().format(zoneId))
-				.withColumn("Duration", LongRunningTask::getDurationString)
-				.withColumn("Triggered By", LongRunningTask::getTriggeredBy)
-				.withColumn("Status", row -> row.getJobExecutionStatus().persistentString)
-				.withColumn(new J2HtmlEmailTableColumn<>("Exception",
-						row -> makeExceptionLink(row.getExceptionRecordId())))
-				.build(rows);
-	}
-
-	private ATag makeTaskLink(String longRunningTaskName){
-		return a(longRunningTaskName)
-				.withHref(makeTaskHref(longRunningTaskName));
+	@Override
+	public List<DailyDigestPlatformTask> getTasks(ZoneId zoneId){
+		return List.of();
 	}
 
 	private String makeTaskHref(String longRunningTaskName){
@@ -146,12 +109,6 @@ public class LongRunningTaskDailyDigest implements DailyDigest{
 				.withParam("name", longRunningTaskName)
 				.withParam("status", "all")
 				.build();
-	}
-
-	private ATag makeExceptionLink(String exceptionRecordId){
-		String href = exceptionLinkBuilder.exception(exceptionRecordId).orElseThrow();
-		return a(exceptionRecordId)
-				.withHref(href);
 	}
 
 }

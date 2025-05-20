@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.instrumentation.response.PublishingResponseDto;
 import io.datarouter.instrumentation.webappinstance.WebappInstancePublisher;
+import io.datarouter.storage.config.properties.EnvironmentName;
 import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.web.listener.DatarouterAppListener;
 import io.datarouter.webappinstance.config.DatarouterWebappInstanceSettingRoot;
@@ -43,6 +44,8 @@ public class WebappInstanceAppListener implements DatarouterAppListener{
 	private DatarouterWebappInstanceSettingRoot settings;
 	@Inject
 	private ServerTypeDetector serverTypeDetector;
+	@Inject
+	private EnvironmentName environmentName;
 
 	@Override
 	public void onStartUp(){
@@ -64,7 +67,8 @@ public class WebappInstanceAppListener implements DatarouterAppListener{
 		}
 		try{
 			logger.info("external webapp deregistration start");
-			PublishingResponseDto response = publisher.delete(key.getWebappName(), key.getServerName());
+			PublishingResponseDto response = publisher.delete(key.getWebappName(), key.getServerName(),
+					environmentName.get());
 			if(!response.success){
 				logger.warn("error on webapp deregistration. message={}", response.message);
 			}else{

@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import io.datarouter.joblet.config.DatarouterJobletExecutors.DatarouterJobletCreationExecutor;
 import io.datarouter.joblet.enums.JobletPriority;
 import io.datarouter.joblet.model.JobletPackage;
 import io.datarouter.joblet.service.JobletService;
@@ -29,20 +30,20 @@ import io.datarouter.nodewatch.storage.tablesample.TableSample;
 import io.datarouter.nodewatch.storage.tablesample.TableSampleKey;
 import io.datarouter.nodewatch.util.TableSamplerTool;
 import io.datarouter.plugin.copytable.config.DatarouterCopyTablePaths;
+import io.datarouter.plugin.copytable.link.JobletTableProcessorLink;
 import io.datarouter.plugin.copytable.tableprocessor.TableProcessor;
 import io.datarouter.plugin.copytable.tableprocessor.TableProcessorJoblet;
 import io.datarouter.plugin.copytable.tableprocessor.TableProcessorJoblet.TableProcessorJobletParams;
 import io.datarouter.plugin.copytable.tableprocessor.TableProcessorRegistry;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.scanner.Threads;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.node.op.raw.SortedStorage.PhysicalSortedStorageNode;
 import io.datarouter.storage.util.PrimaryKeyPercentCodecTool;
 import io.datarouter.types.Ulid;
-import io.datarouter.util.string.StringTool;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
-import io.datarouter.web.handler.types.Param;
 import io.datarouter.web.html.form.HtmlForm;
 import io.datarouter.web.html.form.HtmlForm.HtmlFormMethod;
 import io.datarouter.web.html.form.HtmlFormValidator;
@@ -50,13 +51,6 @@ import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import jakarta.inject.Inject;
 
 public class JobletTableProcessorHandler extends BaseHandler{
-
-	private static final String
-			P_nodeName = "nodeName",
-			P_scanBatchSize = "scanBatchSize",
-			P_processorName = "processorName",
-			P_executionOrder = "executionOrder",
-			P_submitAction = "submitAction";
 
 	private static final int DEFAULT_SCAN_BATCH_SIZE = Config.DEFAULT_RESPONSE_BATCH_SIZE;
 
@@ -74,16 +68,18 @@ public class JobletTableProcessorHandler extends BaseHandler{
 	private TableProcessorRegistry processorRegistry;
 	@Inject
 	private DatarouterCopyTablePaths paths;
+	@Inject
+	private DatarouterJobletCreationExecutor datarouterJobletCreationExecutor;
 
-	@Handler(defaultHandler = true)
-	private <PK extends PrimaryKey<PK>,
-			D extends Databean<PK,D>>
-	Mav defaultHandler(
-			@Param(P_nodeName) Optional<String> nodeName,
-			@Param(P_scanBatchSize) Optional<String> scanBatchSize,
-			@Param(P_processorName) Optional<String> processorName,
-			@Param(P_executionOrder) Optional<String> executionOrder,
-			@Param(P_submitAction) Optional<String> submitAction){
+	@Handler
+	private <PK extends PrimaryKey<PK>, D extends Databean<PK,D>>
+	Mav joblets(JobletTableProcessorLink link){
+
+		Optional<String> nodeName = link.nodeName;
+		Optional<String> processorName = link.processorName;
+		Optional<Integer> scanBatchSize = link.scanBatchSize;
+		Optional<String> executionOrder = link.executionOrder;
+		Optional<String> submitAction = link.submitAction;
 		boolean shouldValidate = submitAction.isPresent();
 		List<String> possibleNodes = tableSamplerService.scanCountableNodes()//creating joblets from the samples
 				.map(node -> node.getClientId().getName() + "." + node.getFieldInfo().getTableName())
@@ -105,29 +101,29 @@ public class JobletTableProcessorHandler extends BaseHandler{
 		var form = new HtmlForm(HtmlFormMethod.POST);
 		form.addSelectField()
 				.withLabel("Processor Name")
-				.withName(P_processorName)
+				.withName(JobletTableProcessorLink.P_processorName)
 				.withValues(possibleProcessors)
 				.withSelected(processorName.orElse(null));
 		form.addSelectField()
 				.withLabel("Node Name")
-				.withName(P_nodeName)
+				.withName(JobletTableProcessorLink.P_nodeName)
 				.withValues(possibleNodes)
 				.withSelected(nodeName.orElse(null));
 		form.addNumberField()
 				.withLabel("Scan Batch Size")
-				.withName(P_scanBatchSize)
+				.withName(JobletTableProcessorLink.P_scanBatchSize)
 				.withPlaceholder(DEFAULT_SCAN_BATCH_SIZE)
 				.withValue(
-						scanBatchSize.orElse(null),
+						scanBatchSize.map(String::valueOf).orElse(null),
 						shouldValidate && scanBatchSize.isPresent(),
 						HtmlFormValidator::positiveInteger);
 		form.addSelectField()
 				.withLabel("Joblet Priority")
-				.withName(P_executionOrder)
+				.withName(JobletTableProcessorLink.P_executionOrder)
 				.withValues(possibleJobletPriorities);
 		form.addButton()
 				.withLabel("Create Joblets")
-				.withValue("anything");
+				.withValue("joblets");
 
 		if(submitAction.isEmpty() || form.hasErrors()){
 			return pageFactory.startBuilder(request)
@@ -149,8 +145,6 @@ public class JobletTableProcessorHandler extends BaseHandler{
 		long totalItemsProcessed = 1;
 		long counter = 1;
 		int actualScanBatchSize = scanBatchSize
-				.map(StringTool::nullIfEmpty)
-				.map(Integer::valueOf)
 				.orElse(DEFAULT_SCAN_BATCH_SIZE);
 		long numJoblets = 0;
 		for(TableSample sample : samples){
@@ -196,7 +190,9 @@ public class JobletTableProcessorHandler extends BaseHandler{
 		// shuffle as optimization to spread write load. could be optional
 		Scanner.of(jobletPackages)
 				.shuffle()
-				.flush(jobletService::submitJobletPackages);
+				.batch(10)
+				.parallelUnordered(new Threads(datarouterJobletCreationExecutor, 8))
+				.forEach(jobletService::submitJobletPackages);
 		changelogService.recordChangelogForTableProcessor(
 				getSessionInfo(),
 				"Joblet",

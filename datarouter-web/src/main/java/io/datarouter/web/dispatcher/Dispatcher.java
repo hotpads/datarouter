@@ -35,8 +35,10 @@ import org.slf4j.LoggerFactory;
 import io.datarouter.auth.config.DatarouterAuthenticationConfig;
 import io.datarouter.auth.role.Role;
 import io.datarouter.auth.role.RoleRegistry;
+import io.datarouter.auth.security.ExternalDatarouterAccountValidator;
 import io.datarouter.auth.session.DatarouterSessionManager;
 import io.datarouter.auth.storage.user.session.DatarouterSession;
+import io.datarouter.httpclient.HttpHeaders;
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.net.UrlTool;
@@ -66,8 +68,6 @@ public class Dispatcher{
 
 	public static final RequestAttributeKey<Boolean> TRANSMITS_PII = new RequestAttributeKey<>("transmitsPii");
 
-	public static final String ACCOUNT_NAME_HEADER = "x-datarouter-account-name";
-
 	@Inject
 	private DatarouterAuthenticationConfig authenticationConfig;
 	@Inject
@@ -82,6 +82,8 @@ public class Dispatcher{
 	private DatarouterSamlSettings samlSettings;
 	@Inject
 	private IpAddressService ipAddressService;
+	@Inject
+	private ExternalDatarouterAccountValidator externalDatarouterAccountValidator;
 
 	public RoutingResult handleRequestIfUrlMatch(
 			HttpServletRequest request,
@@ -108,6 +110,14 @@ public class Dispatcher{
 			}
 			String ip = ipAddressService.getIpAddress(request);
 			SecurityValidationResult securityCheckResult = rule.applySecurityValidation(request, ip);
+			if(rule.getDispatchType() == DispatchType.EXTERNAL_ENDPOINT && rule.hasApiKey()){
+				ApiKeyPredicateCheck predicateCheck = rule.predicateCheck(request);
+				if(predicateCheck.allowed() && !externalDatarouterAccountValidator
+						.accountIsExternalCallerType(predicateCheck.accountName())){
+					securityCheckResult = new SecurityValidationResult(request, false, "External endpoints must be "
+							+ "called by external accounts");
+				}
+			}
 			request = securityCheckResult.getWrappedRequest();
 			if(!securityCheckResult.isSuccess()){
 				logger.info("Security check failed path={} error={}",
@@ -138,7 +148,7 @@ public class Dispatcher{
 				}
 			}
 
-			String appFromHeader = request.getHeader(ACCOUNT_NAME_HEADER);
+			String appFromHeader = request.getHeader(HttpHeaders.ACCOUNT_NAME_HEADER);
 			if(appFromHeader != null && !appFromHeader.isEmpty()){
 				handler.setAccountName(appFromHeader);
 			}

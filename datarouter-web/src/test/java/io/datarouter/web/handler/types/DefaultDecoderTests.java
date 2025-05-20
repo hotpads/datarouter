@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -34,6 +35,7 @@ import io.datarouter.gson.GsonJsonSerializer;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.web.handler.TestApiHandler;
 import io.datarouter.web.handler.TestApiHandler.FooBar;
+import io.datarouter.web.handler.types.TestLinkHandler.LinkTest;
 import io.datarouter.web.handler.types.TestWebApiHandler.PrintIntList;
 import io.datarouter.web.util.http.MockHttpServletRequestBuilder;
 
@@ -303,5 +305,49 @@ public class DefaultDecoderTests{
 		Assert.assertEquals(args[2], new int[]{1});
 	}
 
+	@Test
+	public void testValidLinkNoOptional() throws NoSuchMethodException, SecurityException{
+		Method method = TestLinkHandler.class.getMethod("linkTest", LinkTest.class);
+		HttpServletRequest request = new MockHttpServletRequestBuilder()
+				.withParameter("requiredNum", "1")
+				.build();
 
+		Object[] args = decoder.decode(request, method);
+		Assert.assertEquals(args.length, 1);
+		Assert.assertEquals(((LinkTest)args[0]).requiredNum, 1);
+		Assert.assertEquals(((LinkTest)args[0]).isTest, Optional.empty());
+		Assert.assertEquals(((LinkTest)args[0]).optionalNum, Optional.empty());
+	}
+
+	@Test
+	public void testValidLinkWithOptional() throws NoSuchMethodException, SecurityException{
+		Method method = TestLinkHandler.class.getMethod("linkTest", LinkTest.class);
+		HttpServletRequest request = new MockHttpServletRequestBuilder()
+				.withParameter("requiredNum", "1")
+				.withParameter("optionalNum", "5")
+				.withParameter("isTest", "true")
+				.build();
+
+		Object[] args = decoder.decode(request, method);
+		Assert.assertEquals(args.length, 1);
+		Assert.assertEquals(((LinkTest)args[0]).requiredNum, 1);
+		Assert.assertEquals(((LinkTest)args[0]).isTest, Optional.of(true));
+		Assert.assertEquals(((LinkTest)args[0]).optionalNum, Optional.of(5L));
+	}
+
+	@Test
+	public void testLinkWithInvalidOptional() throws NoSuchMethodException, SecurityException{
+		Method method = TestLinkHandler.class.getMethod("linkTest", LinkTest.class);
+		HttpServletRequest request = new MockHttpServletRequestBuilder()
+				.withParameter("requiredNum", "1")
+				.withParameter("optionalNum", "")
+				.withParameter("isTest", "")
+				.build();
+
+		Object[] args = decoder.decode(request, method);
+		Assert.assertEquals(args.length, 1);
+		Assert.assertEquals(((LinkTest)args[0]).requiredNum, 1);
+		Assert.assertEquals(((LinkTest)args[0]).isTest, Optional.empty());
+		Assert.assertEquals(((LinkTest)args[0]).optionalNum, Optional.empty());
+	}
 }

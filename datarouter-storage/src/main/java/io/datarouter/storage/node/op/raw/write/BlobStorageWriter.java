@@ -79,24 +79,6 @@ public interface BlobStorageWriter extends BlobStorageReader{
 		writeParallel(key, inputStream, threads, minPartSize, new Config());
 	}
 
-	/*----- write from an Scanner<List<byte[]>> with parallel uploads ---------*/
-
-	// Override in clients that support multi-part upload
-	default void writeParallel(
-			PathbeanKey key,
-			Scanner<List<byte[]>> parts,
-			@SuppressWarnings("unused") Threads threads,
-			Config config){
-		writeInputStream(key, parts.concat(Scanner::of).apply(MultiByteArrayInputStream::new), config);
-	}
-
-	default void writeParallel(
-			PathbeanKey key,
-			Scanner<List<byte[]>> parts,
-			Threads threads){
-		writeParallel(key, parts, threads, new Config());
-	}
-
 	/*----- delete ---------*/
 
 	void delete(PathbeanKey key, Config config);

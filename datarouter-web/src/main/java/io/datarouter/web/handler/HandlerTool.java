@@ -47,14 +47,10 @@ import io.datarouter.web.handler.BaseHandler.NoOpHandlerDecoder;
 import io.datarouter.web.handler.BaseHandler.NoOpHandlerEncoder;
 import io.datarouter.web.handler.encoder.HandlerEncoder;
 import io.datarouter.web.handler.types.HandlerDecoder;
-import io.datarouter.web.handler.types.optional.OptionalParameter;
 
 public class HandlerTool{
 
 	public static Optional<?> getParameterValue(Object parameterValue){
-		if(parameterValue instanceof OptionalParameter){
-			return ((OptionalParameter<?>)parameterValue).getOptional();
-		}
 		if(parameterValue instanceof Optional){
 			return (Optional<?>) parameterValue;
 		}

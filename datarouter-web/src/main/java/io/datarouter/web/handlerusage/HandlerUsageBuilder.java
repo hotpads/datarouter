@@ -17,32 +17,44 @@ package io.datarouter.web.handlerusage;
 
 import java.util.List;
 
+import io.datarouter.scanner.Threads;
 import io.datarouter.util.duration.DatarouterDuration;
+import io.datarouter.web.handler.BaseHandler.Handler.HandlerUsageType;
 
 public interface HandlerUsageBuilder{
-	List<HandlerUsageDto> getHandlerUsage(
-			List<String> exactMetricNames,
+	List<HandlerUsageQueryItemResponseDto> getHandlerUsage(
+			List<HandlerUsageQueryItemRequestDto> exactMetricNames,
 			String serviceName,
 			DatarouterDuration window,
-			String datarouterUser);
+			String datarouterUser,
+			Threads threads);
 
 	class NoOpHandlerUsageBuilder implements HandlerUsageBuilder{
 
 		@Override
-		public List<HandlerUsageDto> getHandlerUsage(
-				List<String> exactMetricNames,
+		public List<HandlerUsageQueryItemResponseDto> getHandlerUsage(
+				List<HandlerUsageQueryItemRequestDto> metricItemQueryDto,
 				String serviceName,
 				DatarouterDuration window,
-				String datarouterUser){
+				String datarouterUser,
+				Threads threads){
 			return List.of();
 		}
 	}
 
-	record HandlerUsageDto(
+	record HandlerUsageQueryItemResponseDto(
 			String alias,
 			String methodName,
 			String classSimpleName,
-			Double invocations){
+			Double invocations,
+			HandlerUsageType usageType){
+	}
+
+	record HandlerUsageQueryItemRequestDto(
+			String className,
+			String methodName,
+			HandlerUsageType usageType,
+			String itemId){
 	}
 
 }

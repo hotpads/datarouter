@@ -16,16 +16,8 @@
 package io.datarouter.util.array;
 
 import java.util.Arrays;
-import java.util.Collection;
 
 public class ArrayTool{
-
-	public static byte[] nullSafe(byte[] array){
-		if(array == null){
-			return new byte[0];
-		}
-		return array;
-	}
 
 	public static String[] nullSafe(String[] array){
 		if(array == null){
@@ -70,18 +62,6 @@ public class ArrayTool{
 			}
 		}
 		return false;
-	}
-
-	public static long[] primitiveLongArray(Collection<Long> ins){
-		if(ins == null || ins.isEmpty()){
-			return new long[0];
-		}
-		long[] array = new long[ins.size()];
-		int index = 0;
-		for(long i : ins){
-			array[index++] = i;
-		}
-		return array;
 	}
 
 	public static byte[] trimToSize(byte[] ins, int size){

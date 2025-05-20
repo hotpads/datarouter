@@ -35,7 +35,6 @@ public class BlobQueueNodeBuilder<T>{
 	protected String namespace;
 	protected String queueUrl;
 	protected Tag tag;
-	protected boolean enableAgeMonitoring = true;
 	protected Duration customMessageAgeThreshold = Duration.ofDays(2);
 
 	public BlobQueueNodeBuilder(
@@ -66,11 +65,6 @@ public class BlobQueueNodeBuilder<T>{
 		return this;
 	}
 
-	public BlobQueueNodeBuilder<T> withAgeMonitoring(boolean enableAgeMonitoring){
-		this.enableAgeMonitoring = enableAgeMonitoring;
-		return this;
-	}
-
 	public BlobQueueNodeBuilder<T> withCustomMessageAgeThreshold(Duration customMessageAgeThreshold){
 		this.customMessageAgeThreshold = customMessageAgeThreshold;
 		return this;
@@ -82,7 +76,7 @@ public class BlobQueueNodeBuilder<T>{
 
 	public BlobQueueStorageNode<T> build(){
 		return queueNodeFactory.createBlobQueueNode(clientId, queueName, codec, namespace, queueUrl, tag,
-				enableAgeMonitoring, customMessageAgeThreshold);
+				customMessageAgeThreshold);
 	}
 
 }

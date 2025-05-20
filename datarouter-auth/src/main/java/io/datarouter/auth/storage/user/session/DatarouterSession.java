@@ -59,14 +59,13 @@ implements Session{
 	private String username;
 	private MilliTime userCreatedAt;
 	private List<String> roles;
-	private Boolean persistent = true;
 
 	public static class FieldKeys{
 		public static final LongFieldKey userId = new LongFieldKey("userId");
 		public static final StringFieldKey userToken = new StringFieldKey("userToken");
 		public static final StringFieldKey username = new StringFieldKey("username");
-		public static final ByteArrayEncodedFieldKey<List<String>> roles
-				= new ByteArrayEncodedFieldKey<>("roles", StringListToBinaryCsvFieldCodec.INSTANCE)
+		public static final ByteArrayEncodedFieldKey<List<String>> roles = new ByteArrayEncodedFieldKey<>("roles",
+				StringListToBinaryCsvFieldCodec.INSTANCE)
 				.withSize(CommonFieldSizes.MAX_LENGTH_LONGBLOB);
 		public static final LongEncodedFieldKey<MilliTime> userCreatedAt = new LongEncodedFieldKey<>(
 				"userCreatedAt",
@@ -74,7 +73,6 @@ implements Session{
 	}
 
 	public static class DatarouterSessionFielder extends BaseDatabeanFielder<DatarouterSessionKey,DatarouterSession>{
-
 		public DatarouterSessionFielder(){
 			super(DatarouterSessionKey::new);
 		}
@@ -89,7 +87,6 @@ implements Session{
 			nonKeyFields.add(new LongEncodedField<>(FieldKeys.userCreatedAt, databean.userCreatedAt));
 			return nonKeyFields;
 		}
-
 	}
 
 	@Override
@@ -98,7 +95,7 @@ implements Session{
 	}
 
 	public DatarouterSession(){
-		super(new DatarouterSessionKey(null));
+		super(new DatarouterSessionKey());
 	}
 
 	public static DatarouterSession createAnonymousSession(String userToken){
@@ -106,8 +103,8 @@ implements Session{
 		session.setUserToken(userToken);
 		session.getKey().setSessionToken(DatarouterTokenGenerator.generateRandomToken());
 		MilliTime now = MilliTime.now();
-		session.setCreated(now.toDate());
-		session.setUpdated(now.toDate());
+		session.setCreated(now);
+		session.setUpdated(now);
 		session.setRoles(List.of());
 		return session;
 	}
@@ -132,7 +129,6 @@ implements Session{
 				&& Objects.equals(first.getUsername(), second.getUsername())
 				&& Objects.equals(first.getUserCreated(), second.getUserCreated())
 				&& Objects.equals(first.getRoles(), second.getRoles())
-				&& Objects.equals(first.getPersistent(), second.getPersistent())
 				&& Objects.equals(first.getCreated(), second.getCreated())
 				&& Objects.equals(first.getUpdated(), second.getUpdated());
 	}
@@ -207,14 +203,6 @@ implements Session{
 
 	public void setUserCreated(MilliTime userCreated){
 		this.userCreatedAt = userCreated;
-	}
-
-	public Boolean getPersistent(){
-		return persistent;
-	}
-
-	public void setPersistent(Boolean persistent){
-		this.persistent = persistent;
 	}
 
 	@Override

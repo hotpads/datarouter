@@ -33,11 +33,8 @@ import io.datarouter.model.util.CommonFieldSizes;
 public class StringEncodedMysqlFieldCodec<T>
 extends BaseMysqlFieldCodec<T,StringEncodedField<T>>{
 
-	public static final int DEFAULT_STRING_LENGTH = CommonFieldSizes.DEFAULT_LENGTH_VARCHAR;
 	public static final MysqlCharacterSet DEFAULT_CHARACTER_SET = MysqlCharacterSet.utf8mb4;
 	public static final MysqlCollation DEFAULT_COLLATION = MysqlCollation.utf8mb4_bin;
-
-	private static final int MAX_LENGTH_VARCHAR = 1024;
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(boolean allowNullable, StringEncodedField<T> field){
@@ -82,7 +79,7 @@ extends BaseMysqlFieldCodec<T,StringEncodedField<T>>{
 	}
 
 	public static MysqlColumnType getColumnType(int size){
-		if(size <= MAX_LENGTH_VARCHAR){
+		if(size <= CommonFieldSizes.MAX_LENGTH_VARCHAR_DATAROUTER_LIMIT){
 			return MysqlColumnType.VARCHAR;
 		}
 		if(size <= CommonFieldSizes.MAX_LENGTH_TEXT){
@@ -98,7 +95,7 @@ extends BaseMysqlFieldCodec<T,StringEncodedField<T>>{
 	}
 
 	public static int getNormalizedSize(int size){
-		if(size <= MAX_LENGTH_VARCHAR){
+		if(size <= CommonFieldSizes.MAX_LENGTH_VARCHAR_DATAROUTER_LIMIT){
 			return size;
 		}
 		if(size <= CommonFieldSizes.MAX_LENGTH_TEXT){

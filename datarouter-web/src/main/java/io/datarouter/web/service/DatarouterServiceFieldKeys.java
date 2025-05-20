@@ -15,11 +15,12 @@
  */
 package io.datarouter.web.service;
 
+import io.datarouter.instrumentation.validation.DatarouterInstrumentationValidationConstants.DatarouterServiceConstants;
 import io.datarouter.model.field.imp.StringFieldKey;
 
 public class DatarouterServiceFieldKeys{
 
 	public static final StringFieldKey serviceName = new StringFieldKey("serviceName")
-			.withSize(30);
+			.withSize(DatarouterServiceConstants.MAX_SIZE_SERVICE_NAME);
 
 }

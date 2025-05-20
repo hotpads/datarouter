@@ -88,7 +88,7 @@ public class MergingScanner<T> extends BaseScanner<T>{
 	// Empty if all input scanners were exhausted.
 	private Optional<ScannerNextItem<T>> nextPresentResult(){
 		return Scanner.generate(this::nextCompletionServiceResult)
-				.advanceWhile($ -> numActive > 0)
+				.advanceWhile(_ -> numActive > 0)
 				.include(ScannerNextItem::isPresent)
 				.findFirst();
 	}

@@ -42,13 +42,6 @@ public abstract class ConveyorConfigurationGroup implements PluginConfigValue<Co
 		conveyorPackages.put(configurationClass.getSimpleName(), new ConveyorPackage(name, configurationClass));
 	}
 
-	@Deprecated // use add
-	public void registerConveyor(
-			String name,
-			Class<? extends ConveyorConfiguration> configurationClass){
-		add(name, configurationClass);
-	}
-
 	public List<ConveyorPackage> getConveyorPackages(){
 		return new ArrayList<>(conveyorPackages.values());
 	}

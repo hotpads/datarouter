@@ -38,18 +38,21 @@ import com.google.cloud.spanner.SpannerException;
 import com.google.cloud.spanner.Statement;
 import com.google.spanner.admin.database.v1.UpdateDatabaseDdlMetadata;
 
+import io.datarouter.bytes.KvString;
 import io.datarouter.gcp.spanner.connection.SpannerDatabaseClientsHolder;
 import io.datarouter.gcp.spanner.field.SpannerBaseFieldCodec;
 import io.datarouter.gcp.spanner.field.SpannerFieldCodecs;
 import io.datarouter.model.field.Field;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientId;
+import io.datarouter.storage.config.schema.InvalidSchemaUpdateException;
 import io.datarouter.storage.config.schema.SchemaUpdateOptions;
 import io.datarouter.storage.config.schema.SchemaUpdateResult;
 import io.datarouter.storage.config.schema.SchemaUpdateTool;
 import io.datarouter.storage.node.op.raw.IndexedStorage;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.util.concurrent.ThreadTool;
+import io.datarouter.util.duration.DatarouterDuration;
 import io.datarouter.util.string.StringTool;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -89,7 +92,7 @@ public class SpannerSingleTableSchemaUpdateService{
 						tableName,
 						entry.getKey(),
 						entry.getValue(),
-						List.of(),
+						entry.getValue(),
 						true))
 				.list();
 		var statements = new SpannerUpdateStatements();
@@ -138,38 +141,53 @@ public class SpannerSingleTableSchemaUpdateService{
 					columnRs, primaryKeyRs, statements);
 			var indexesStatement = Statement.of(SpannerTableOperationsTool.getTableIndexSchema(tableName));
 			ResultSet indexesRs = databaseClient.singleUse().executeQuery(indexesStatement);
-			Set<String> currentIndexes = tableAlterSchemaService.getIndexes(indexesRs);
+			Set<String> currentIndexNames = tableAlterSchemaService.getIndexes(indexesRs);
 
+			// drop unused indexes
+			Set<String> proposedIndexNames = Scanner.concat(indexes, uniqueIndexes)
+					.map(SpannerIndex::indexName)
+					.collect(HashSet::new);
+			Scanner.of(currentIndexNames)
+					.exclude(proposedIndexNames::contains)
+					.forEach(droppedIndex -> statements.updateFunction(
+							SpannerTableOperationsTool.dropIndex(droppedIndex),
+							updateOptions::getDropIndexes,
+							false));
+
+			// add new indexes
 			Scanner.concat(indexes, uniqueIndexes)
-					.forEach(index -> {
-						Statement tableIndexColumnsSchema = Statement.of(SpannerTableOperationsTool
-								.getTableIndexColumnsSchema(tableName, index.getIndexName()));
-						ResultSet indexRs = databaseClient.singleUse().executeQuery(tableIndexColumnsSchema);
-						if(!tableAlterSchemaService.indexEqual(index, indexRs)){
-							if(currentIndexes.contains(index.getIndexName())){
-								statements.updateFunction(
-										SpannerTableOperationsTool.dropIndex(index.getIndexName()),
-										updateOptions::getDropIndexes,
-										false);
-							}
-							statements.updateFunction(
-									createIndex(index, primaryKeyColumns),
-									updateOptions::getAddIndexes,
-									true);
-						}
-						currentIndexes.remove(index.getIndexName());
-					});
+					.exclude(index -> currentIndexNames.contains(index.indexName()))
+					.forEach(index -> statements.updateFunction(
+							createIndex(index, primaryKeyColumns),
+							updateOptions::getAddIndexes,
+							true));
 
-			currentIndexes.forEach(name -> statements.updateFunction(
-					SpannerTableOperationsTool.dropIndex(name),
-					updateOptions::getDropIndexes,
-					false));
+			// confirm no indexes updated
+			Scanner.concat(indexes, uniqueIndexes)
+					.include(index -> currentIndexNames.contains(index.indexName()))
+					.concatOpt(proposedIndex -> {
+						Statement tableIndexColumnsSchema = Statement.of(SpannerTableOperationsTool
+								.getTableIndexColumnsSchema(tableName, proposedIndex.indexName()));
+						ResultSet existingIndexRs = databaseClient.singleUse().executeQuery(tableIndexColumnsSchema);
+						return tableAlterSchemaService.computeChanges(primaryKeyColumns, proposedIndex,
+								existingIndexRs);
+					})
+					.flush(indexesUpdatedInPlace -> {
+						if(!indexesUpdatedInPlace.isEmpty()){
+							throw new InvalidSchemaUpdateException(
+									"Indexes cannot be updated in-place. Instead, rename the index. "
+											+ new KvString()
+											.add("TableName", tableName)
+											.add("changedIndexes", indexesUpdatedInPlace.toString()));
+						}
+					});
 		}
 		String errorMessage = null;
 		if(!statements.getExecuteStatements().isEmpty()){
 			logger.info(SchemaUpdateTool.generateFullWidthMessage("Executing Spanner " + getClass().getSimpleName()
 					+ " SchemaUpdate"));
 			logger.info(String.join("\n\n", statements.getExecuteStatements()));
+			long startMs = System.currentTimeMillis();
 			Database database = clientsHolder.getDatabase(clientId);
 			OperationFuture<Void,UpdateDatabaseDdlMetadata> future = database.updateDdl(
 					statements.getExecuteStatements(),
@@ -188,9 +206,9 @@ public class SpannerSingleTableSchemaUpdateService{
 					ThreadTool.trySleep(3_000);
 				}
 			}while(opSnapshot == null || !opSnapshot.isDone());
+			logger.info(SchemaUpdateTool.generateFullWidthMessage("Done " + DatarouterDuration.ageMs(startMs)));
 
 			errorMessage = opSnapshot.getErrorMessage();
-
 			if(StringTool.notNullNorEmptyNorWhitespace(errorMessage)){
 				logger.error(errorMessage);
 			}
@@ -214,13 +232,13 @@ public class SpannerSingleTableSchemaUpdateService{
 	}
 
 	private String createIndex(SpannerIndex index, List<SpannerColumn> primaryKeyColumns){
-		List<SpannerColumn> keyColumns = Scanner.of(fieldCodecs.createCodecs(index.getKeyFields()))
+		List<SpannerColumn> keyColumns = Scanner.of(fieldCodecs.createCodecs(index.keyFields()))
 				.map(codec -> codec.getSpannerColumn(false))
 				.list();
 		if(index.getNonKeyFields().isEmpty()){
 			return SpannerTableOperationsTool.createIndex(
-					index.getTableName(),
-					index.getIndexName(),
+					index.tableName(),
+					index.indexName(),
 					keyColumns,
 					List.of(),
 					index.isUnique());
@@ -235,8 +253,8 @@ public class SpannerSingleTableSchemaUpdateService{
 				.exclude(col -> primaryKeySet.contains(col.getName()))
 				.list();
 		return SpannerTableOperationsTool.createIndex(
-				index.getTableName(),
-				index.getIndexName(),
+				index.tableName(),
+				index.indexName(),
 				keyColumns,
 				nonKeyColumns,
 				index.isUnique());

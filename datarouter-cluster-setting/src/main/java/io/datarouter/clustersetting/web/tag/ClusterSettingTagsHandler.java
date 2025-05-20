@@ -20,45 +20,38 @@ import static j2html.TagCreator.div;
 
 import java.util.Optional;
 
-import org.apache.http.client.utils.URIBuilder;
-
-import io.datarouter.clustersetting.config.DatarouterClusterSettingPaths;
+import io.datarouter.clustersetting.link.ClusterSettingTagsLink;
 import io.datarouter.clustersetting.web.ClusterSettingHtml;
+import io.datarouter.httpclient.endpoint.link.DatarouterLinkClient;
 import io.datarouter.storage.setting.cached.CachedClusterSettingTags;
-import io.datarouter.web.config.ServletContextSupplier;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.GlobalRedirectMav;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import jakarta.inject.Inject;
-import jakarta.inject.Singleton;
 
 public class ClusterSettingTagsHandler extends BaseHandler{
-
-	public static final String
-			P_tagName = "tagName",
-			P_tagEnabled = "tagEnabled";
 
 	@Inject
 	private Bootstrap4PageFactory pageFactory;
 	@Inject
 	private CachedClusterSettingTags cachedClusterSettingTags;
 	@Inject
-	private ClusterSettingTagsLinks clusterSettingTagLinks;
-	@Inject
 	private ClusterSettingHtml clusterSettingHtml;
 	@Inject
 	private ClusterSettingTagsHtml html;
+	@Inject
+	private DatarouterLinkClient linkClient;
 
 	@Handler
-	public Mav tags(
-			Optional<String> tagName,
-			Optional<Boolean> tagEnabled){
+	public Mav tags(ClusterSettingTagsLink tags){
 
+		Optional<String> tagName = tags.tagName;
+		Optional<Boolean> tagEnabled = tags.tagEnabled;
 		// toggle tag and redirect
 		if(tagName.isPresent()){
 			cachedClusterSettingTags.updateTag(tagName.orElseThrow(), tagEnabled.orElse(false));
-			return new GlobalRedirectMav(clusterSettingTagLinks.tags());
+			return new GlobalRedirectMav(linkClient.toInternalUrl(new ClusterSettingTagsLink()));
 		}
 
 		// display all
@@ -75,22 +68,6 @@ public class ClusterSettingTagsHandler extends BaseHandler{
 				html.makeFilesystemPathDiv())
 				.withClass("container");
 		return pageFactory.simplePage(request, title, content);
-	}
-
-	@Singleton
-	public static class ClusterSettingTagsLinks{
-
-		@Inject
-		private ServletContextSupplier contextSupplier;
-		@Inject
-		private DatarouterClusterSettingPaths paths;
-
-		public String tags(){
-			var uriBuilder = new URIBuilder()
-					.setPath(contextSupplier.getContextPath() + paths.datarouter.settings.tags.toSlashedString());
-			return uriBuilder.toString();
-		}
-
 	}
 
 }

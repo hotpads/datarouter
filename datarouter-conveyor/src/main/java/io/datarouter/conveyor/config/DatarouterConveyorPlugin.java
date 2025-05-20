@@ -18,8 +18,6 @@ package io.datarouter.conveyor.config;
 import java.util.List;
 
 import io.datarouter.conveyor.ConveyorAppListener;
-import io.datarouter.conveyor.ConveyorConfigurationGroup;
-import io.datarouter.conveyor.trace.conveyor.ConveyorTraceConveyorConfigurationGroup;
 import io.datarouter.instrumentation.description.Description;
 import io.datarouter.instrumentation.description.Detail;
 import io.datarouter.web.config.BaseWebPlugin;
@@ -35,7 +33,7 @@ public class DatarouterConveyorPlugin extends BaseWebPlugin{
 				new DatarouterConveyorPaths().datarouter.conveyors.list,
 				"Conveyors");
 		addSettingRoot(DatarouterConveyorSettingRoot.class);
-		addPluginEntry(ConveyorConfigurationGroup.KEY, ConveyorTraceConveyorConfigurationGroup.class);
+		addTestable(DatarouterConveyorBootstrapIntegrationService.class);
 	}
 
 	@Override

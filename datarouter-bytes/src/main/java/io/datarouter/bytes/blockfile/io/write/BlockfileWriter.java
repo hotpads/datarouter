@@ -67,6 +67,7 @@ public class BlockfileWriter<T>{
 			Threads encodeThreads,
 			boolean multipartWrite,
 			Threads writeThreads,
+			ByteLength minWritePartSize,
 			int indexFanOut,
 			Optional<ByteLength> optTargetIndexBlockSize){
 	}
@@ -161,7 +162,7 @@ public class BlockfileWriter<T>{
 	private void persist(Scanner<byte[]> tokens){
 		if(config.multipartWrite()){
 			InputStream inputStream = tokens.apply(MultiByteArrayInputStream::new);
-			config.storage().write(name, inputStream, config.writeThreads());
+			config.storage().write(name, inputStream, config.writeThreads(), config.minWritePartSize());
 		}else{
 			List<byte[]> allTokens = tokens.collect(PagedList::new);
 			byte[] bytes = ByteTool.concat(allTokens);

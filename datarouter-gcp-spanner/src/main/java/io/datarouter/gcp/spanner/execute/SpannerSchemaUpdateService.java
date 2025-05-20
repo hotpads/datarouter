@@ -34,6 +34,8 @@ import io.datarouter.gcp.spanner.connection.SpannerDatabaseClientsHolder;
 import io.datarouter.gcp.spanner.ddl.SpannerSingleTableSchemaUpdateService;
 import io.datarouter.gcp.spanner.ddl.SpannerTableOperationsTool;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
+import io.datarouter.relay.DatarouterRelaySenderProvider;
+import io.datarouter.relay.DatarouterRelayTopics;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.executor.DatarouterStorageExecutors.DatarouterSchemaUpdateScheduler;
 import io.datarouter.storage.config.properties.AdminEmail;
@@ -73,7 +75,9 @@ public class SpannerSchemaUpdateService extends EmailingSchemaUpdateService{
 			BuildProperties buildProperties,
 			StandardDatarouterEmailHeaderService standardDatarouterEmailHeaderService,
 			SchemaUpdatesEmailType schemaUpdatesEmailType,
-			DatarouterSchemaUpdateEmailSettings schemaUpdateEmailSettings){
+			DatarouterSchemaUpdateEmailSettings schemaUpdateEmailSettings,
+			DatarouterRelaySenderProvider relaySenderProvider,
+			DatarouterRelayTopics relayTopics){
 		super(
 				serverName,
 				environmentName,
@@ -86,7 +90,9 @@ public class SpannerSchemaUpdateService extends EmailingSchemaUpdateService{
 				datarouterWebPaths,
 				standardDatarouterEmailHeaderService,
 				schemaUpdatesEmailType,
-				schemaUpdateEmailSettings);
+				schemaUpdateEmailSettings,
+				relaySenderProvider,
+				relayTopics);
 		this.singleTableSchemaUpdateFactory = singleTableSchemaUpdateFactory;
 		this.clientPoolHolder = clientPoolHolder;
 	}

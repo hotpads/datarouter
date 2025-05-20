@@ -24,6 +24,7 @@ import java.util.function.Predicate;
 import io.datarouter.types.BaseMilliTime;
 import io.datarouter.types.MilliTime;
 import io.datarouter.types.Ulid;
+import io.datarouter.types.UlidReversed;
 
 /**
  * Set a cutoff as a Duration before current time.
@@ -71,5 +72,11 @@ public class TtlTool{
 				timeExtractor);
 	}
 
-
+	public static <T> Predicate<T> isExpiredUlidReversed(
+			Duration age,
+			Function<T,UlidReversed> timeExtractor){
+		return new UlidReversedVacuumPredicate<>(
+				System.currentTimeMillis() - age.toMillis(),
+				timeExtractor);
+	}
 }

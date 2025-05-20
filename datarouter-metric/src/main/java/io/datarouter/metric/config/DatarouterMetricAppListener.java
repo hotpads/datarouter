@@ -16,7 +16,9 @@
 package io.datarouter.metric.config;
 
 import io.datarouter.instrumentation.metric.Metrics;
+import io.datarouter.metric.publisher.DatarouterMetricAnnotationCollector;
 import io.datarouter.metric.publisher.DatarouterMetricCollector;
+import io.datarouter.metric.publisher.DatarouterPublishedMetricAnnotationCollectors;
 import io.datarouter.metric.publisher.DatarouterPublishedMetricCollectors;
 import io.datarouter.web.listener.DatarouterAppListener;
 import jakarta.inject.Inject;
@@ -27,16 +29,21 @@ public class DatarouterMetricAppListener implements DatarouterAppListener{
 
 	@Inject
 	private DatarouterMetricCollector collector;
+	@Inject
+	private DatarouterMetricAnnotationCollector annotationCollector;
 
 	@Override
 	public void onStartUp(){
 		Metrics.registerCollector(collector);
+		Metrics.registerCollector(annotationCollector);
 		DatarouterPublishedMetricCollectors.register(collector);
+		DatarouterPublishedMetricAnnotationCollectors.register(annotationCollector);
 	}
 
 	@Override
 	public void onShutDown(){
 		collector.stopAndFlushAll();
+		annotationCollector.stopAndFlushAll();
 	}
 
 	@Override

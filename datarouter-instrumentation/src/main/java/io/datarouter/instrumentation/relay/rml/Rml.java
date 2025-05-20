@@ -17,6 +17,7 @@ package io.datarouter.instrumentation.relay.rml;
 
 import java.util.List;
 
+import io.datarouter.instrumentation.relay.dto.RelayMessageBlockDto;
 import io.datarouter.instrumentation.relay.dto.RelayMessageMarkDto;
 import io.datarouter.instrumentation.relay.type.RelayMessageBlockMediaType;
 
@@ -86,6 +87,14 @@ public class Rml{
 		return new RmlTableCell(content);
 	}
 
+	public static RmlLink link(String href, RmlBlock... content){
+		return link(href, List.of(content));
+	}
+
+	public static RmlLink link(String href, List<RmlBlock> content){
+		return new RmlLink(href, content);
+	}
+
 	public static RmlListItem listItem(RmlBlock... content){
 		return listItem(List.of(content));
 	}
@@ -108,6 +117,30 @@ public class Rml{
 
 	public static RmlUnorderedList unorderedList(List<RmlBlock> content){
 		return new RmlUnorderedList(content);
+	}
+
+	public static RmlDefinitionList definitionList(RmlBlock... content){
+		return definitionList(List.of(content));
+	}
+
+	public static RmlDefinitionList definitionList(List<RmlBlock> content){
+		return new RmlDefinitionList(content);
+	}
+
+	public static RmlDefinitionTerm definitionTerm(RmlBlock... content){
+		return definitionTerm(List.of(content));
+	}
+
+	public static RmlDefinitionTerm definitionTerm(List<RmlBlock> content){
+		return new RmlDefinitionTerm(content);
+	}
+
+	public static RmlDefinitionDescription definitionDescription(RmlBlock... content){
+		return definitionDescription(List.of(content));
+	}
+
+	public static RmlDefinitionDescription definitionDescription(List<RmlBlock> content){
+		return new RmlDefinitionDescription(content);
 	}
 
 	public static RmlText text(String text){
@@ -160,6 +193,22 @@ public class Rml{
 
 	public static RmlMedia media(RelayMessageBlockMediaType mediaType, String src, String alt){
 		return new RmlMedia(mediaType, src, alt);
+	}
+
+	public static RmlMention mention(String text, String username, String href){
+		return new RmlMention(text, username, href);
+	}
+
+	public static RmlBlockQuote blockQuote(RmlBlock... content){
+		return blockQuote(List.of(content));
+	}
+
+	public static RmlBlockQuote blockQuote(List<RmlBlock> content){
+		return new RmlBlockQuote(content);
+	}
+
+	public static RmlBlockDto blockDto(RelayMessageBlockDto dto){
+		return new RmlBlockDto(dto);
 	}
 
 	/**

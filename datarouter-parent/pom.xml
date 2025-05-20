@@ -22,7 +22,7 @@
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-metadata-parent</artifactId>
-		<version>0.0.126</version>
+		<version>0.0.127</version>
 		<relativePath>../datarouter-metadata-parent</relativePath>
 	</parent>
 
@@ -35,14 +35,14 @@
 	<properties>
 		<!-- libraries -->
 		<aws-sdk-version>1.12.731</aws-sdk-version>
-		<ben-manes-caffeine-version>3.1.8</ben-manes-caffeine-version>
+		<ben-manes-caffeine-version>3.2.0</ben-manes-caffeine-version>
 		<codehaus-plexus-version>2.15.0</codehaus-plexus-version>
 		<commons-codec-version>1.15</commons-codec-version>
 		<commons-fileupload-version>1.5</commons-fileupload-version>
-		<commons-io-version>2.15.1</commons-io-version>
-		<datarouter-version>0.0.126</datarouter-version>
+		<commons-io-version>2.18.0</commons-io-version>
+		<datarouter-version>0.0.127</datarouter-version>
 		<guice-version>6.0.0</guice-version>
-		<guava-version>31.1-jre</guava-version>
+		<guava-version>33.4-jre</guava-version>
 		<httpclient-version>4.5.14</httpclient-version>
 		<jakarta-inject-version>2.0.1</jakarta-inject-version>
 		<mockito-core-version>5.13.0</mockito-core-version>
@@ -87,7 +87,7 @@
 			<dependency>
 				<groupId>software.amazon.awssdk</groupId>
 				<artifactId>bom</artifactId>
-				<version>2.25.61</version>
+				<version>2.30.34</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -208,27 +208,6 @@
 					</dependency>
 				</dependencies>
 			</plugin>
-			<plugin>
-				<groupId>org.owasp</groupId>
-				<artifactId>dependency-check-maven</artifactId>
-				<version>10.0.4</version>
-				<configuration>
-					<nvdApiServerId>nvd</nvdApiServerId>
-					<excludes>
-						<!-- internal libraries to skip -->
-						<exclude>io.datarouter:datarouter-web</exclude>
-					</excludes>
-					<prettyPrint>true</prettyPrint>
-					<skip>true</skip> <!-- -Ddependency-check.skip=false -->
-				</configuration>
-				<executions>
-					<execution>
-						<goals>
-							<goal>check</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
 		</plugins>
 		<pluginManagement>
 			<plugins>
@@ -258,8 +237,8 @@
 					<version>${maven-compiler-plugin-version}</version>
 					<configuration>
 						<compilerId>eclipse</compilerId>
-						<source>21</source>
-						<target>21</target>
+						<source>22</source>
+						<target>22</target>
 						<fork>true</fork>
 						<parameters>true</parameters>
 						<showDeprecation>true</showDeprecation>
@@ -370,7 +349,7 @@
 				<plugin>
 					<groupId>com.mycila</groupId>
 					<artifactId>license-maven-plugin</artifactId>
-					<version>4.2</version>
+					<version>4.6</version>
 					<configuration>
 						<header>com/mycila/maven/plugin/license/templates/APACHE-2.txt</header>
 						<properties>

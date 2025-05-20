@@ -17,10 +17,12 @@ package io.datarouter.bytes.blockfile.io.storage;
 
 import java.io.InputStream;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 
 import io.datarouter.bytes.ByteLength;
 import io.datarouter.bytes.io.MultiByteArrayInputStream;
 import io.datarouter.bytes.split.ChunkScannerTool;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.scanner.Threads;
 
 /**
@@ -58,11 +60,23 @@ public interface BlockfileStorage{
 				.apply(MultiByteArrayInputStream::new);
 	}
 
+	public record FilenameAndInputStream(
+			String filename,
+			InputStream inputStream){
+	}
+
+	Scanner<FilenameAndInputStream> readInputStreams(
+			Scanner<String> filenames,
+			Threads threads,
+			ByteLength chunkSize,
+			ByteLength bufferSize,
+			ExecutorService prefetchExec);
+
 	/*--------- write -----------*/
 
 	void write(String name, byte[] bytes);
 
-	void write(String name, InputStream inputStream, Threads threads);
+	void write(String name, InputStream inputStream, Threads threads, ByteLength minWritePartSize);
 
 	/*--------- delete -----------*/
 

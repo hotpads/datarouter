@@ -20,11 +20,6 @@ import org.testng.annotations.Test;
 
 public class RequestToolTests{
 
-	// TODO make private
-	public static final String PRIVATE_IP = "10.95.188.27";
-	public static final String PUBLIC_IP = "209.63.146.244";
-	public static final String SHARED_ADDRESS_SPACE_IP = "100.68.71.215";
-
 	@Test
 	public void testCheckDouble(){
 		Assert.assertFalse(RequestTool.checkDouble(-0.01, false, false, false, false));
@@ -84,13 +79,6 @@ public class RequestToolTests{
 		Assert.assertFalse(RequestTool.isAValidIpV4("blabla"));
 		Assert.assertFalse(RequestTool.isAValidIpV4(""));
 		Assert.assertFalse(RequestTool.isAValidIpV4(null));
-	}
-
-	@Test
-	public void testIsInternalNet(){
-		Assert.assertFalse(RequestTool.isPublicNet(PRIVATE_IP));
-		Assert.assertFalse(RequestTool.isPublicNet(SHARED_ADDRESS_SPACE_IP));
-		Assert.assertTrue(RequestTool.isPublicNet(PUBLIC_IP));
 	}
 
 }

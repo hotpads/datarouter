@@ -20,10 +20,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-import com.amazonaws.AbortedException;
-import com.amazonaws.services.sqs.model.SendMessageBatchRequest;
-import com.amazonaws.services.sqs.model.SendMessageBatchRequestEntry;
-
 import io.datarouter.aws.sqs.BaseSqsNode;
 import io.datarouter.aws.sqs.SqsClientManager;
 import io.datarouter.aws.sqs.SqsDataTooLargeException;
@@ -37,6 +33,9 @@ import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.serialize.fieldcache.FieldGeneratorTool;
 import io.datarouter.util.concurrent.UncheckedInterruptedException;
+import software.amazon.awssdk.core.exception.AbortedException;
+import software.amazon.awssdk.services.sqs.model.SendMessageBatchRequest;
+import software.amazon.awssdk.services.sqs.model.SendMessageBatchRequestEntry;
 
 public class SqsPutMultiOp<
 		PK extends PrimaryKey<PK>,
@@ -79,7 +78,10 @@ extends SqsOp<PK,D,F,Void>{
 				entries = new ArrayList<>();
 				currentPayloadSize = 0;
 			}
-			entries.add(new SendMessageBatchRequestEntry(UUID.randomUUID().toString(), databeanAsString));
+			entries.add(SendMessageBatchRequestEntry.builder()
+					.id(UUID.randomUUID().toString())
+					.messageBody(databeanAsString)
+					.build());
 			currentPayloadSize += encodedDatabeanSize;
 		}
 		if(!entries.isEmpty()){
@@ -92,7 +94,7 @@ extends SqsOp<PK,D,F,Void>{
 	}
 
 	private void putBatch(List<SendMessageBatchRequestEntry> entries){
-		var request = new SendMessageBatchRequest(queueUrl, entries);
+		var request = SendMessageBatchRequest.builder().queueUrl(queueUrl).entries(entries).build();
 		try{
 			sqsClientManager.getAmazonSqs(clientId).sendMessageBatch(request);
 		}catch(AbortedException e){

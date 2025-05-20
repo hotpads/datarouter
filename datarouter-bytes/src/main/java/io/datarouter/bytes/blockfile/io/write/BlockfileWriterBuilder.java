@@ -54,6 +54,7 @@ public class BlockfileWriterBuilder<T>{
 	private BlockfileChecksummer checksummer = BlockfileStandardChecksummers.NONE;
 	private boolean multipartWrite = true;
 	private Threads writeThreads = Threads.none();
+	private ByteLength minWritePartSize = ByteLength.ofMiB(20);
 	private Optional<ByteLength> optTargetIndexBlockSize = Optional.empty();
 	private int indexFanOut = 100;
 
@@ -134,6 +135,11 @@ public class BlockfileWriterBuilder<T>{
 		return this;
 	}
 
+	public BlockfileWriterBuilder<T> setMinWritePartSize(ByteLength minWritePartSize){
+		this.minWritePartSize = minWritePartSize;
+		return this;
+	}
+
 	public BlockfileWriterBuilder<T> setIndexFanOut(int indexFanOut){
 		this.indexFanOut = indexFanOut;
 		return this;
@@ -169,6 +175,7 @@ public class BlockfileWriterBuilder<T>{
 				encodeThreads,
 				multipartWrite,
 				writeThreads,
+				minWritePartSize,
 				indexFanOut,
 				optTargetIndexBlockSize);
 		return new BlockfileWriter<>(config, name);

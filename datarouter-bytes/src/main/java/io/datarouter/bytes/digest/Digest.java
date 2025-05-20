@@ -17,20 +17,11 @@ package io.datarouter.bytes.digest;
 
 import io.datarouter.bytes.codec.bytestringcodec.HexByteStringCodec;
 
-public class Digest{
-
-	private final byte[] digest;
-
-	public Digest(byte[] digest){
-		this.digest = digest;
-	}
-
-	public byte[] bytes(){
-		return digest;
-	}
+public record Digest(
+		byte[] bytes){
 
 	public String hex(){
-		return HexByteStringCodec.INSTANCE.encode(digest);
+		return HexByteStringCodec.INSTANCE.encode(bytes);
 	}
 
 }

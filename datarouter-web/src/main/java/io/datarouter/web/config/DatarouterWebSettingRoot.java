@@ -41,8 +41,10 @@ public class DatarouterWebSettingRoot extends SettingRoot{
 	public final CachedSetting<Set<String>> stackTraceHighlights;
 	public final Setting<Boolean> saveLatencyGauges;
 	public final Setting<DatarouterDuration> keepAliveTimeout;
+
 	public final CachedSetting<Boolean> httpWarmup;
 	public final Setting<Integer> httpWarmupIteration;
+	public final Setting<DatarouterDuration> nextSrverDelay;
 
 
 	@Inject
@@ -64,8 +66,10 @@ public class DatarouterWebSettingRoot extends SettingRoot{
 		stackTraceHighlights = registerCommaSeparatedString("stackTraceHighlights", Set.of("io.datarouter"));
 		saveLatencyGauges = registerBoolean("saveLatencyGauges", true);
 		keepAliveTimeout = registerDuration("keepAliveTimeout", new DatarouterDuration(0, TimeUnit.MINUTES));
+
 		httpWarmup = registerBoolean("httpWarmup", false);
 		httpWarmupIteration = registerInteger("httpWarmupIteration", 5_000);
+		nextSrverDelay = registerDuration("nextServerDelay", new DatarouterDuration(0, TimeUnit.SECONDS));
 	}
 
 }

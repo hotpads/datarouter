@@ -76,7 +76,6 @@ import io.datarouter.web.handler.params.Params;
 import io.datarouter.web.handler.types.HandlerDecoder;
 import io.datarouter.web.handler.types.HandlerTypingHelper;
 import io.datarouter.web.handler.types.Param;
-import io.datarouter.web.handler.types.optional.OptionalParameter;
 import io.datarouter.web.handler.validator.DefaultRequestParamValidator;
 import io.datarouter.web.handler.validator.FieldValidator;
 import io.datarouter.web.handler.validator.HandlerAccountCallerValidator;
@@ -198,7 +197,8 @@ public abstract class BaseHandler{
 	 * used at a different frequency than normal. This is useful for keeping necessary handlers
 	 * out of infrequent-usage reports, reducing noise. If your handler is only temporarily unused,
 	 * use the {@code HandlerUsageType.TEMPORARILY_UNUSED} type to be reminded when your handler starts
-	 * getting called.
+	 * getting called. If your handler is only meant for non-prod usage, use the {@code HandlerUsageType.NON_PROD_ONLY}
+	 * type to be notified if it is used in production.
 	 *
 	 * <p><b>Note:</b>
 	 * It is strongly recommended that the reason for deprecating a Handler
@@ -212,12 +212,16 @@ public abstract class BaseHandler{
 		String description() default "";
 		String deprecatedOn() default "";
 		String deprecationLink() default "";
+		String newServiceHref() default "";
+		Class<? extends BaseEndpoint> newWebEndpoint() default BaseEndpoint.class;
+		Class<? extends BaseEndpoint> newMobileEndpoint() default BaseEndpoint.class;
 		HandlerUsageType usageType() default HandlerUsageType.IN_USE;
 
 		enum HandlerUsageType{
 			TEMPORARILY_UNUSED,
 			INFREQUENTLY_USED,
-			IN_USE
+			IN_USE,
+			NON_PROD_ONLY
 		}
 
 		/**
@@ -569,7 +573,7 @@ public abstract class BaseHandler{
 		return injector.getInstance(decoderClass);
 	}
 
-	public void invokeHandlerMethod(Method method, Object[] args, HandlerEncoder encoder)
+	private void invokeHandlerMethod(Method method, Object[] args, HandlerEncoder encoder)
 	throws ServletException, IOException{
 		handlerMetrics.incMethodInvocation(getClass(), method.getName(), RequestTool.getUserAgent(getRequest()));
 		if(accountName != null && !accountName.isEmpty()){
@@ -688,8 +692,7 @@ public abstract class BaseHandler{
 
 	private List<String> getMissingParameterNames(Method method){
 		return Scanner.of(method.getParameters())
-				.exclude(parameter -> OptionalParameter.class.isAssignableFrom(parameter.getType())
-						|| Optional.class.isAssignableFrom(parameter.getType()))
+				.exclude(parameter -> Optional.class.isAssignableFrom(parameter.getType()))
 				.map(Parameter::getName)
 				.exclude(param -> params.toMap().containsKey(param))
 				.list();

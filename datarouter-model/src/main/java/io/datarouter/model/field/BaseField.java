@@ -82,7 +82,7 @@ public abstract class BaseField<T> implements Field<T>{
 		try{
 			Object nestedFieldSet = FieldTool.getNestedFieldSet(targetFieldSet, this);
 			java.lang.reflect.Field javaField = CACHED_FIELDS
-					.computeIfAbsent(nestedFieldSet.getClass(), $ -> new ConcurrentHashMap<>())
+					.computeIfAbsent(nestedFieldSet.getClass(), _ -> new ConcurrentHashMap<>())
 					.get(getKey().getName());
 			if(javaField == null){
 				javaField = ReflectionTool.getDeclaredFieldFromAncestors(nestedFieldSet.getClass(), getKey().getName());
@@ -95,6 +95,31 @@ public abstract class BaseField<T> implements Field<T>{
 				CACHED_FIELDS.get(nestedFieldSet.getClass()).put(getKey().getName(), javaField);
 			}
 			javaField.set(nestedFieldSet, fieldValue);
+		}catch(Exception e){
+			String message = e.getClass().getSimpleName()
+					+ " on " + targetFieldSet.getClass().getSimpleName() + "." + getKey().getName();
+			throw new DataAccessException(message, e);
+		}
+	}
+
+	@Override
+	public Object getUsingReflection(Object targetFieldSet){
+		try{
+			Object nestedFieldSet = FieldTool.getNestedFieldSet(targetFieldSet, this);
+			java.lang.reflect.Field javaField = CACHED_FIELDS
+					.computeIfAbsent(nestedFieldSet.getClass(), _ -> new ConcurrentHashMap<>())
+					.get(getKey().getName());
+			if(javaField == null){
+				javaField = ReflectionTool.getDeclaredFieldFromAncestors(nestedFieldSet.getClass(), getKey().getName());
+				if(javaField == null){
+					String message = String.format("field=%s doesn't exist in %s",
+							getKey().getName(),
+							nestedFieldSet.getClass());
+					throw new RuntimeException(message);
+				}
+				CACHED_FIELDS.get(nestedFieldSet.getClass()).put(getKey().getName(), javaField);
+			}
+			return javaField.get(nestedFieldSet);
 		}catch(Exception e){
 			String message = e.getClass().getSimpleName()
 					+ " on " + targetFieldSet.getClass().getSimpleName() + "." + getKey().getName();

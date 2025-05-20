@@ -15,13 +15,17 @@
  */
 package io.datarouter.instrumentation.relay.dto;
 
+import java.util.List;
+
 import io.datarouter.instrumentation.relay.rml.RmlDoc;
 import io.datarouter.instrumentation.validation.DatarouterInstrumentationValidationConstants.RelayInstrumentationConstants;
 import io.datarouter.instrumentation.validation.DatarouterInstrumentationValidationTool;
 
 public record RelayAddToThreadRequestDto(
 		String threadId,
-		RelayMessageBlockDto content){
+		RelayMessageBlockDto content,
+		List<String> fileIds,
+		List<String> modifyTopics){
 
 	public RelayAddToThreadRequestDto{
 		DatarouterInstrumentationValidationTool.throwIfExceedsMaxSize(
@@ -33,7 +37,23 @@ public record RelayAddToThreadRequestDto(
 	public RelayAddToThreadRequestDto(
 			String threadId,
 			RmlDoc doc){
-		this(threadId, doc.build());
+		this(
+				threadId,
+				doc,
+				List.of(),
+				null);
+	}
+
+	public RelayAddToThreadRequestDto(
+			String threadId,
+			RmlDoc doc,
+			List<String> fileIds,
+			List<String> modifyTopics){
+		this(
+				threadId,
+				doc.build(),
+				fileIds,
+				modifyTopics);
 	}
 
 }

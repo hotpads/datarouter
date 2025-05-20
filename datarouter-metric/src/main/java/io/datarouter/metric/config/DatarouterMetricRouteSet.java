@@ -20,10 +20,12 @@ import io.datarouter.metric.dashboard.web.AdditionalMetricLinksHandlers.MetricDa
 import io.datarouter.metric.dashboard.web.AdditionalMetricLinksHandlers.MiscMetricLinksHandler;
 import io.datarouter.metric.dashboard.web.AdditionalMetricLinksHandlers.RegisteredMetricNames;
 import io.datarouter.metric.dashboard.web.HandlerUsageHandler;
+import io.datarouter.metric.dashboard.web.IndexUsageHandler;
 import io.datarouter.metric.dashboard.web.MetricLinksHandler;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
+import io.datarouter.web.handler.encoder.DatarouterDefaultHandlerCodec;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
@@ -37,13 +39,15 @@ public class DatarouterMetricRouteSet extends BaseRouteSet{
 		handle(paths.datarouter.metric.metricLinks.miscMetricLinks).withHandler(MiscMetricLinksHandler.class);
 
 		handle(paths.datarouter.metric.metricLinks.view).withHandler(MetricLinksHandler.class);
-		handle(paths.datarouter.metric.handlerUsage.view).withHandler(HandlerUsageHandler.class);
+		registerHandler(HandlerUsageHandler.class);
+		registerHandler(IndexUsageHandler.class);
 	}
 
 	@Override
 	protected DispatchRule applyDefault(DispatchRule rule){
 		return rule
-				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_ADMIN, DatarouterUserRoleRegistry.USER)
+				.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_MONITORING)
+				.withDefaultHandlerCodec(DatarouterDefaultHandlerCodec.INSTANCE)
 				.withTag(Tag.DATAROUTER);
 	}
 

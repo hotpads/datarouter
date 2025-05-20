@@ -69,7 +69,7 @@ public class PrimitiveIntList extends BasePrimitiveList<Integer>{
 
 	@Override
 	protected int internalFirstIndexOf(Object obj){
-		long value = (Integer)obj;
+		int value = (Integer)obj;
 		for(int i = from; i < to; i++){
 			if(array[i] == value){
 				return i;

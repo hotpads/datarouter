@@ -36,7 +36,7 @@ public class MetricLinksNavBarItem implements DynamicNavBarItem{
 				paths.datarouter.metric.metricLinks.view.toSlashedString(),
 				"Metric Links")
 				.setDispatchRule(new DispatchRule()
-						.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_ADMIN, DatarouterUserRoleRegistry.USER))
+						.allowRoles(DatarouterUserRoleRegistry.DATAROUTER_MONITORING))
 				.build();
 	}
 

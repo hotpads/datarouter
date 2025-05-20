@@ -15,6 +15,7 @@
  */
 package io.datarouter.util.retry;
 
+import java.time.Duration;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Predicate;
 
@@ -27,18 +28,53 @@ import io.datarouter.util.concurrent.UncheckedInterruptedException;
 public class RetryableTool{
 	private static final Logger logger = LoggerFactory.getLogger(RetryableTool.class);
 
-	public static <T> T tryNTimesWithBackoffAndRandomInitialDelayUnchecked(Retryable<T> callable, int numAttempts,
-			long initialBackoffMs, boolean logExceptions){
-		return tryNTimesWithBackoffUnchecked(callable, numAttempts, initialBackoffMs, logExceptions, true, $ -> true);
-	}
-
-	public static <T> T tryNTimesWithBackoffUnchecked(Retryable<T> callable, int numAttempts, long initialBackoffMs,
+	public static <T> T tryNTimesWithBackoffAndRandomInitialDelayUnchecked(
+			Retryable<T> callable,
+			int numAttempts,
+			long initialBackoffMs,
 			boolean logExceptions){
-		return tryNTimesWithBackoffUnchecked(callable, numAttempts, initialBackoffMs, logExceptions, false, $ -> true);
+		return tryNTimesWithBackoffUnchecked(
+				callable,
+				numAttempts,
+				initialBackoffMs,
+				logExceptions,
+				true,
+				_ -> true);
 	}
 
-	public static <T> T tryNTimesWithBackoffUnchecked(Retryable<T> callable, int numAttempts, long initialBackoffMs,
-			boolean logExceptions, boolean useRandomInitialDelay, Predicate<T> successCondition){
+	public static void tryNTimesWithBackoffUnchecked(
+			Runnable runnable,
+			int numAttempts,
+			Duration initialBackoff,
+			boolean logExceptions){
+		tryNTimesWithBackoffUnchecked(
+				Retryable.ofRunnable(runnable),
+				numAttempts,
+				initialBackoff.toMillis(),
+				logExceptions);
+	}
+
+	public static <T> T tryNTimesWithBackoffUnchecked(
+			Retryable<T> callable,
+			int numAttempts,
+			long initialBackoffMs,
+			boolean logExceptions){
+		return tryNTimesWithBackoffUnchecked(
+				callable,
+				numAttempts,
+				initialBackoffMs,
+				logExceptions,
+				false,
+				_ -> true);
+	}
+
+	public static <T> T tryNTimesWithBackoffUnchecked(
+			Retryable<T> callable,
+			int numAttempts,
+			long initialBackoffMs,
+			boolean logExceptions,
+			boolean useRandomInitialDelay,
+			Predicate<T> successCondition){
 		if(useRandomInitialDelay){
 			long randomSleepMs = ThreadLocalRandom.current().nextLong(0, 5);
 			ThreadTool.sleepUnchecked(randomSleepMs * 1000);
@@ -55,9 +91,19 @@ public class RetryableTool{
 			}catch(Exception e){
 				if(attemptNum < numAttempts){
 					if(logExceptions){
-						logger.warn("exception on attempt {}/{}, sleeping {}ms", attemptNum, numAttempts, backoffMs, e);
+						logger.warn(
+								"exception on attempt {}/{}, sleeping {}ms",
+								attemptNum,
+								numAttempts,
+								backoffMs,
+								e);
 					}else{
-						logger.info("exception on attempt {}/{}, sleeping {}ms", attemptNum, numAttempts, backoffMs, e);
+						logger.info(
+								"exception on attempt {}/{}, sleeping {}ms",
+								attemptNum,
+								numAttempts,
+								backoffMs,
+								e);
 					}
 					ThreadTool.sleepUnchecked(backoffMs);
 				}else{

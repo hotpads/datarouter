@@ -15,8 +15,7 @@
  */
 package io.datarouter.websocket.service;
 
-import com.google.gson.Gson;
-
+import io.datarouter.gson.DatarouterGsons;
 import io.datarouter.websocket.endpoint.WebSocketService;
 import io.datarouter.websocket.storage.session.WebSocketSession;
 import io.datarouter.websocket.storage.session.WebSocketSessionKey;
@@ -32,8 +31,6 @@ public class WebSocketSubscriptionService implements WebSocketService{
 
 	@Inject
 	private DatarouterWebSocketSubscriptionDao webSocketSubscriptionDao;
-	@Inject
-	private Gson gson;
 
 	@Override
 	public String getName(){
@@ -42,7 +39,9 @@ public class WebSocketSubscriptionService implements WebSocketService{
 
 	@Override
 	public void onMessage(WebSocketSession webSocketSession, String message){
-		WebSocketSubscriptionRequest request = gson.fromJson(message, WebSocketSubscriptionRequest.class);
+		WebSocketSubscriptionRequest request = DatarouterGsons.withUnregisteredEnums().fromJson(
+				message,
+				WebSocketSubscriptionRequest.class);
 		WebSocketSubscriptionKey subscriptionKey = new WebSocketSubscriptionKey(
 				request.topic,
 				webSocketSession.getKey().getUserToken(),

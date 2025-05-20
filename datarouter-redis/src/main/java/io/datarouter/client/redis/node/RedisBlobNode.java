@@ -60,7 +60,7 @@ implements PhysicalBlobStorageNode{
 		this.codec = codec;
 		this.lazyClient = lazyClient;
 		this.bucket = params.getPhysicalName();
-		this.rootPath = params.getPath();
+		this.rootPath = params.getPathSupplier().get();
 	}
 
 	/*------------- BlobStorageReader --------------*/

@@ -20,22 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import com.amazonaws.ClientConfiguration;
-import com.amazonaws.auth.AWSCredentialsProvider;
-import com.amazonaws.services.secretsmanager.AWSSecretsManager;
-import com.amazonaws.services.secretsmanager.AWSSecretsManagerClientBuilder;
-import com.amazonaws.services.secretsmanager.model.CreateSecretRequest;
-import com.amazonaws.services.secretsmanager.model.DeleteSecretRequest;
-import com.amazonaws.services.secretsmanager.model.GetSecretValueRequest;
-import com.amazonaws.services.secretsmanager.model.GetSecretValueResult;
-import com.amazonaws.services.secretsmanager.model.InvalidRequestException;
-import com.amazonaws.services.secretsmanager.model.ListSecretsRequest;
-import com.amazonaws.services.secretsmanager.model.ListSecretsResult;
-import com.amazonaws.services.secretsmanager.model.ResourceExistsException;
-import com.amazonaws.services.secretsmanager.model.ResourceNotFoundException;
-import com.amazonaws.services.secretsmanager.model.SecretListEntry;
-import com.amazonaws.services.secretsmanager.model.UpdateSecretRequest;
-
 import io.datarouter.instrumentation.metric.Metrics;
 import io.datarouter.instrumentation.trace.TraceSpanGroupType;
 import io.datarouter.instrumentation.trace.TracerTool;
@@ -44,6 +28,21 @@ import io.datarouter.secret.client.SecretClient;
 import io.datarouter.secret.exception.SecretExistsException;
 import io.datarouter.secret.exception.SecretNotFoundException;
 import io.datarouter.web.config.AwsSupport;
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
+import software.amazon.awssdk.http.apache.ApacheHttpClient;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient;
+import software.amazon.awssdk.services.secretsmanager.model.CreateSecretRequest;
+import software.amazon.awssdk.services.secretsmanager.model.DeleteSecretRequest;
+import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueRequest;
+import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueResponse;
+import software.amazon.awssdk.services.secretsmanager.model.InvalidRequestException;
+import software.amazon.awssdk.services.secretsmanager.model.ListSecretsRequest;
+import software.amazon.awssdk.services.secretsmanager.model.ListSecretsResponse;
+import software.amazon.awssdk.services.secretsmanager.model.ResourceExistsException;
+import software.amazon.awssdk.services.secretsmanager.model.ResourceNotFoundException;
+import software.amazon.awssdk.services.secretsmanager.model.SecretListEntry;
+import software.amazon.awssdk.services.secretsmanager.model.UpdateSecretRequest;
 
 /**
  * Notes:
@@ -55,28 +54,30 @@ import io.datarouter.web.config.AwsSupport;
  */
 public class AwsSecretClient implements SecretClient{
 
-	private final AWSSecretsManager client;
+	private final SecretsManagerClient client;
 
-	public AwsSecretClient(AWSCredentialsProvider awsCredentialsProvider, String region, AwsSupport awsSupport){
-		var clientConfig = new ClientConfiguration()
-				.withSocketTimeout((int)Duration.ofSeconds(1).toMillis())
-				.withConnectionTimeout((int)Duration.ofSeconds(1).toMillis());
-		client = AWSSecretsManagerClientBuilder.standard()
-				.withClientConfiguration(clientConfig)
-				.withCredentials(awsCredentialsProvider)
-				.withRegion(region)
+	public AwsSecretClient(AwsCredentialsProvider awsCredentialsProvider, String region, AwsSupport awsSupport){
+		var httpClient = ApacheHttpClient.builder()
+				.socketTimeout(Duration.ofSeconds(1))
+				.connectionTimeout(Duration.ofSeconds(1))
 				.build();
-		awsSupport.registerConnectionManager("secretManager", client);
+		client = SecretsManagerClient.builder()
+				.httpClient(httpClient)
+				.credentialsProvider(awsCredentialsProvider)
+				.region(Region.of(region))
+				.build();
+		awsSupport.registerConnectionManagerFromHttpClient("secretManager", httpClient);
 	}
 
 	@Override
 	public final void create(Secret secret){
-		var request = new CreateSecretRequest()
-				.withName(secret.getName())
-				.withSecretString(secret.getValue());
+		var request = CreateSecretRequest.builder()
+				.name(secret.getName())
+				.secretString(secret.getValue())
+				.build();
 		try{
 			count("create");
-			try(var $ = TracerTool.startSpan("AWSSecretsManager createSecret", TraceSpanGroupType.CLOUD_STORAGE)){
+			try(var _ = TracerTool.startSpan("AWSSecretsManager createSecret", TraceSpanGroupType.CLOUD_STORAGE)){
 				TracerTool.appendToSpanInfo(secret.getName());
 				client.createSecret(request);
 			}
@@ -87,20 +88,21 @@ public class AwsSecretClient implements SecretClient{
 
 	@Override
 	public final Secret read(String name){
-		var request = new GetSecretValueRequest()
-				.withSecretId(name);
+		var request = GetSecretValueRequest.builder()
+				.secretId(name)
+				.build();
 				// NOTES:
 				// only specify one of the following (optional)
 				// .withVersionId("")// manual version
 				// .withVersionStage("")// related to AWS rotation
 		try{
-			GetSecretValueResult result;
+			GetSecretValueResponse response;
 			count("get");
-			try(var $ = TracerTool.startSpan("AWSSecretsManager getSecretValue", TraceSpanGroupType.CLOUD_STORAGE)){
+			try(var _ = TracerTool.startSpan("AWSSecretsManager getSecretValue", TraceSpanGroupType.CLOUD_STORAGE)){
 				TracerTool.appendToSpanInfo(name);
-				result = client.getSecretValue(request);
+				response = client.getSecretValue(request);
 			}
-			return new Secret(name, result.getSecretString());
+			return new Secret(name, response.secretString());
 		}catch(InvalidRequestException e){
 			throw new RuntimeException("InvalidRequest secretName=" + name, e);
 		}catch(ResourceNotFoundException e){
@@ -113,19 +115,20 @@ public class AwsSecretClient implements SecretClient{
 		List<String> secretNames = new ArrayList<>();
 		String nextToken = null;
 		do{
-			var request = new ListSecretsRequest()
-					.withMaxResults(100)
-					.withNextToken(nextToken);
-			ListSecretsResult result;
+			var request = ListSecretsRequest.builder()
+					.maxResults(100)
+					.nextToken(nextToken)
+					.build();
+			ListSecretsResponse response;
 			count("list");
-			try(var $ = TracerTool.startSpan("AWSSecretsManager listSecrets", TraceSpanGroupType.CLOUD_STORAGE)){
+			try(var _ = TracerTool.startSpan("AWSSecretsManager listSecrets", TraceSpanGroupType.CLOUD_STORAGE)){
 				TracerTool.appendToSpanInfo(prefix.orElse(""));
-				result = client.listSecrets(request);
-				TracerTool.appendToSpanInfo("count", result.getSecretList().size());
+				response = client.listSecrets(request);
+				TracerTool.appendToSpanInfo("count", response.secretList().size());
 			}
-			nextToken = result.getNextToken();
-			result.getSecretList().stream()
-					.map(SecretListEntry::getName)
+			nextToken = response.nextToken();
+			response.secretList().stream()
+					.map(SecretListEntry::name)
 					.filter(name -> prefix.map(
 							current -> current.length() < name.length() && name.startsWith(current))
 									.orElse(true))
@@ -138,12 +141,13 @@ public class AwsSecretClient implements SecretClient{
 	public final void update(Secret secret){
 		// this can update various stuff (like description and kms key) AND updates the version stage to AWSCURRENT.
 		// for rotation, use PutSecretValue, which only updates the version stages and value of a secret explicitly
-		var request = new UpdateSecretRequest()
-				.withSecretId(secret.getName())
-				.withSecretString(secret.getValue());
+		var request = UpdateSecretRequest.builder()
+				.secretId(secret.getName())
+				.secretString(secret.getValue())
+				.build();
 		try{
 			count("update");
-			try(var $ = TracerTool.startSpan("AWSSecretsManager updateSecret", TraceSpanGroupType.CLOUD_STORAGE)){
+			try(var _ = TracerTool.startSpan("AWSSecretsManager updateSecret", TraceSpanGroupType.CLOUD_STORAGE)){
 				TracerTool.appendToSpanInfo(secret.getName());
 				client.updateSecret(request);
 			}
@@ -156,14 +160,15 @@ public class AwsSecretClient implements SecretClient{
 
 	@Override
 	public final void delete(String name){
-		var request = new DeleteSecretRequest()
-				.withSecretId(name);
+		var request = DeleteSecretRequest.builder()
+				.secretId(name)
+				.build();
 				// additional options:
 				// .withForceDeleteWithoutRecovery(true)//might be useful at some point?
 				// .withRecoveryWindowInDays(0L);//7-30 days to undelete. default 30
 		try{
 			count("delete");
-			try(var $ = TracerTool.startSpan("AWSSecretsManager deleteSecret", TraceSpanGroupType.CLOUD_STORAGE)){
+			try(var _ = TracerTool.startSpan("AWSSecretsManager deleteSecret", TraceSpanGroupType.CLOUD_STORAGE)){
 				TracerTool.appendToSpanInfo(name);
 				client.deleteSecret(request);
 			}

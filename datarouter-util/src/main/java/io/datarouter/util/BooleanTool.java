@@ -36,6 +36,13 @@ public class BooleanTool{
 		return value;
 	}
 
+	public static boolean isTrueOrNull(Boolean value){
+		if(value == null){
+			return true;
+		}
+		return value;
+	}
+
 	public static boolean isTrueOrNull(String input){
 		if(input == null){
 			return true;

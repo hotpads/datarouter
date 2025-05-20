@@ -33,6 +33,8 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.email.email.DatarouterHtmlEmailService;
 import io.datarouter.email.type.DatarouterEmailTypes.LongRunningTaskTrackerEmailType;
+import io.datarouter.instrumentation.metric.MetricAnnotationLevel;
+import io.datarouter.instrumentation.metric.Metrics;
 import io.datarouter.instrumentation.task.TaskStatus;
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.storage.config.properties.ServerName;
@@ -56,6 +58,7 @@ public class LongRunningTaskTracker implements TaskTracker{
 
 	private static final Duration PERSIST_PERIOD = Duration.ofSeconds(1);
 	private static final Duration CALLBACK_PERIOD = Duration.ofSeconds(5);
+	private static final Duration ANNOTATION_DELAY = Duration.ofSeconds(60);
 
 	private final DatarouterTaskTrackerPaths datarouterTaskTrackerPaths;
 	private final DatarouterHtmlEmailService datarouterHtmlEmailService;
@@ -82,6 +85,7 @@ public class LongRunningTaskTracker implements TaskTracker{
 	private volatile boolean deadlineAlertAttempted;
 
 	private Instant triggerTime;
+	private boolean hasRecordedStartAnnotation;
 
 	public LongRunningTaskTracker(
 			DatarouterTaskTrackerPaths datarouterTaskTrackerPaths,
@@ -121,6 +125,7 @@ public class LongRunningTaskTracker implements TaskTracker{
 		this.warnOnReachingInterrupt = warnOnReachingInterrupt;
 		this.stopRequested = new MutableBoolean(false);
 		this.deadlineAlertAttempted = false;
+		this.hasRecordedStartAnnotation = false;
 
 		this.callbacks = new ArrayList<>();
 	}
@@ -183,6 +188,8 @@ public class LongRunningTaskTracker implements TaskTracker{
 	}
 
 	public LongRunningTaskTracker onFinish(TaskStatus status){
+		recordStartAnnotation();
+		recordEndAnnotation();
 		task.finishTimeMs = System.currentTimeMillis();
 		setStatus(status);
 		doReportTasks();
@@ -236,6 +243,7 @@ public class LongRunningTaskTracker implements TaskTracker{
 	public LongRunningTaskTracker heartbeat(){
 		counters.heartbeat(task.name);
 		task.heartbeatTimeMs = System.currentTimeMillis();
+		recordStartAnnotation();
 		reportIfEnoughTimeElapsed();
 		return this;
 	}
@@ -294,6 +302,21 @@ public class LongRunningTaskTracker implements TaskTracker{
 
 	public void addCallback(Consumer<LongRunningTaskTracker> callback){
 		callbacks.add(callback);
+	}
+
+	private void recordStartAnnotation(){
+		if(!hasRecordedStartAnnotation
+				&& Duration.ofMillis(System.currentTimeMillis() - task.startTimeMs).compareTo(ANNOTATION_DELAY) > 0){
+			hasRecordedStartAnnotation = true;
+			Metrics.annotate("Datarouter job " + task.name + " start", "job", "", MetricAnnotationLevel.INFO,
+					task.startTimeMs);
+		}
+	}
+
+	private void recordEndAnnotation(){
+		if(Duration.ofMillis(System.currentTimeMillis() - task.startTimeMs).compareTo(ANNOTATION_DELAY) > 0){
+			Metrics.annotate("Datarouter job " + task.name + " end", "job", "");
+		}
 	}
 
 	private void onShouldStop(String reason){

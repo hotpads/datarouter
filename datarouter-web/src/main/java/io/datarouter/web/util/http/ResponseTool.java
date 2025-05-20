@@ -79,7 +79,7 @@ public class ResponseTool{
 		response.setContentType(ResponseTool.CONTENT_TYPE_APPLICATION_JSON);
 		// close the writer before the trace to be able to include the close() duration in the measure
 		long start = System.currentTimeMillis();
-		try(var $ = TracerTool.startSpan("ResponseTool sendJson", TraceSpanGroupType.HTTP);
+		try(var _ = TracerTool.startSpan("ResponseTool sendJson", TraceSpanGroupType.HTTP);
 				OutputStreamWriter writer = new OutputStreamWriter(response.getOutputStream(), StandardCharsets.UTF_8)){
 			writer.append(body);
 		}

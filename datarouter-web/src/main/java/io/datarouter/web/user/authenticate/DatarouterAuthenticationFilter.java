@@ -35,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.auth.authenticate.authenticator.DatarouterAuthenticator;
+import io.datarouter.auth.authenticate.authenticator.DatarouterAuthenticator.DatarouterSessionAndPersist;
 import io.datarouter.auth.config.DatarouterAuthenticationConfig;
 import io.datarouter.auth.exception.InvalidCredentialsException;
 import io.datarouter.auth.session.DatarouterSessionManager;
@@ -150,10 +151,11 @@ public class DatarouterAuthenticationFilter implements Filter{
 	private void addSessionToRequest(HttpServletRequest request, HttpServletResponse response){
 		List<DatarouterAuthenticator> authenticators = authenticationConfig.getAuthenticators(request);
 		for(DatarouterAuthenticator authenticator : authenticators){
-			DatarouterSession session = authenticator.getSession(request, response);
+			DatarouterSessionAndPersist sessionAndPersist = authenticator.getSession(request, response);
+			DatarouterSession session = sessionAndPersist.session();
 			if(session != null){
 				DatarouterSessionManager.addToRequest(request, session);
-				if(BooleanTool.isTrue(session.getPersistent())){
+				if(BooleanTool.isTrue(sessionAndPersist.persist())){
 					sessionManager.addUserTokenCookie(response, session.getUserToken());
 					sessionManager.addSessionTokenCookie(response, session.getSessionToken());
 					datarouterSessionDao.put(session);

@@ -42,7 +42,6 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.auth.authenticate.saml.AuthnRequestMessageConfig;
 import io.datarouter.auth.authenticate.saml.RandomSamlKeyPair;
-import io.datarouter.auth.authenticate.saml.SamlRegistrar;
 import io.datarouter.auth.authenticate.saml.SamlTool;
 import io.datarouter.auth.model.dto.InterpretedSamlAssertion;
 import io.datarouter.auth.session.Session;
@@ -66,7 +65,6 @@ import jakarta.inject.Singleton;
  * Add {@link DatarouterSamlSettings} to your settings and set it up appropriately.</li>
  * </ol>
  */
-// TODO braydonh: figure out how to move this out of dr-web
 @Singleton
 public class SamlService{
 	private static final Logger logger = LoggerFactory.getLogger(SamlService.class);
@@ -75,7 +73,6 @@ public class SamlService{
 
 	private final DatarouterSamlSettings samlSettings;
 	private final UserSessionService userSessionService;
-	private final Optional<SamlRegistrar> samlRegistrar;
 	private final KeyPair signingKeyPair;
 	private final BaseDatarouterSamlDao samlDao;
 	private final ExceptionRecorder exceptionRecorder;
@@ -85,13 +82,11 @@ public class SamlService{
 	public SamlService(
 			DatarouterSamlSettings samlSettings,
 			UserSessionService userSessionService,
-			Optional<SamlRegistrar> jitSamlRegistrar,
 			BaseDatarouterSamlDao samlDao,
 			ExceptionRecorder exceptionRecorder,
 			SamlConfigService samlConfigService){
 		this.samlSettings = samlSettings;
 		this.userSessionService = userSessionService;
-		this.samlRegistrar = jitSamlRegistrar;
 		this.samlDao = samlDao;
 		this.exceptionRecorder = exceptionRecorder;
 		this.samlConfigService = samlConfigService;
@@ -133,15 +128,6 @@ public class SamlService{
 		exceptionRecorder.recordHttpRequest(request);
 		if(request.getMethod().equals("OPTIONS")){
 			logger.warn("received OPTIONS request URL={}", request.getRequestURL());
-		}
-		try{
-			samlRegistrar.ifPresent(SamlRegistrar::register);
-		}catch(RuntimeException e){
-			if(samlSettings.ignoreServiceProviderRegistrationFailures.get()){
-				logger.warn("Ignoring failure to register with IdP.", e);
-			}else{
-				throw e;
-			}
 		}
 		AuthnRequestMessageConfig config = new AuthnRequestMessageConfig(
 				samlSettings.entityId.get(),

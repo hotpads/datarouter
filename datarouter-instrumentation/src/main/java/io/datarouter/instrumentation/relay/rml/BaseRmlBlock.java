@@ -51,6 +51,11 @@ public abstract class BaseRmlBlock<T extends BaseRmlBlock<T>> implements RmlBloc
 		return self();
 	}
 
+	public T withPlaintextAlt(String plaintextAlt){
+		attrs = RelayMessageBlockAttrsDto.merge(attrs, RelayMessageBlockAttrsDto.plaintextAlt(plaintextAlt));
+		return self();
+	}
+
 	public T withAlign(RelayMessageBlockAlign align){
 		attrs = RelayMessageBlockAttrsDto.merge(attrs, RelayMessageBlockAttrsDto.align(align));
 		return self();

@@ -31,6 +31,8 @@ import j2html.tags.specialized.DivTag;
 
 public class J2HtmlDatarouterEmail{
 
+	public static final String UNIQUE_FILTER_ID = "eZEjPLFSzS";
+
 	private final boolean includeLogo;
 	private final String logoImgSrc;
 	private final String logoHref;
@@ -100,7 +102,7 @@ public class J2HtmlDatarouterEmail{
 	}
 
 	private DivTag makeFooter(){
-		return div("eZEjPLFSzS")//unique string for email filters
+		return div(UNIQUE_FILTER_ID)//unique string for email filters
 				.withStyle(String.join("", makeFilterStringStyles()));
 	}
 

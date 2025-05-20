@@ -23,6 +23,7 @@ import io.datarouter.graphql.web.GraphQlEncoder;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
+import io.datarouter.web.handler.encoder.DatarouterDefaultHandlerCodec;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
@@ -45,6 +46,7 @@ public class DatarouterGraphQlRouteSet extends BaseRouteSet{
 						DatarouterUserRoleRegistry.DATAROUTER_ADMIN,
 						DatarouterUserRoleRegistry.DOC_USER,
 						DatarouterUserRoleRegistry.USER)
+				.withDefaultHandlerCodec(DatarouterDefaultHandlerCodec.INSTANCE)
 				.withTag(Tag.DATAROUTER);
 	}
 

@@ -23,7 +23,8 @@ public class S3Limits{
 	public static final int MAX_BUCKET_NAME_LENGTH = 63;
 	public static final int MAX_KEY_LENGTH = 1_024;
 	public static final int MAX_RESULTS_PER_LIST_OBJECTS_PAGE = 1_000;
-	public static final long MAX_S3_FILE_SIZE_BYTES = ByteLength.ofTiB(5).toBytes();
+	public static final ByteLength MIN_PART_SIZE = ByteLength.ofMiB(5);
+	public static final long MAX_FILE_SIZE_BYTES = ByteLength.ofTiB(5).toBytes();
 	public static final int MAX_MULTIPART_UPLOAD_PARTS = 10_000;
 	public static final int MAX_DELETE_MULTI_KEYS = 1_000;
 

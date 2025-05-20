@@ -32,37 +32,32 @@ import io.datarouter.util.string.StringTool;
 public class CookieTool{
 
 	public static void addCookie(HttpServletResponse response, String cookieName, String value, String path,
-			int maxAgeSeconds){
+			long maxAgeSeconds){
 		Cookie cookie = new Cookie(cookieName, value);
 		if(path != null){
 			cookie.setPath(path);
 		}
-		cookie.setMaxAge(maxAgeSeconds);
+		cookie.setMaxAge(NumberTool.limitLongToIntRange(maxAgeSeconds));
 		cookie.setHttpOnly(true); //enforce HttpOnly cookies (can't be accessed by javascript) to prevent XSS attacks
 		cookie.setSecure(true);
 		response.addCookie(cookie);
 	}
 
 	public static void addCookie(HttpServletResponse response, String cookieName, String value, String path,
-			long maxAgeSeconds){
-		addCookie(response, cookieName, value, path, maxAgeSeconds, false);
-	}
-
-	public static void addCookie(HttpServletResponse response, String cookieName, String value, String path,
 			long maxAgeSeconds, boolean sameSiteNone){
 		if(sameSiteNone){
-			addCookieSameSiteNone(response, cookieName, value, path, NumberTool.limitLongToIntRange(maxAgeSeconds));
+			addCookieSameSiteNone(response, cookieName, value, path, maxAgeSeconds);
 		}else{
-			addCookie(response, cookieName, value, path, NumberTool.limitLongToIntRange(maxAgeSeconds));
+			addCookie(response, cookieName, value, path, maxAgeSeconds);
 		}
 	}
 
 	public static void addCookieSameSiteNone(HttpServletResponse response, String cookieName, String value, String path,
-			int maxAgeSeconds){
+			long maxAgeSeconds){
 		String cookie = String.join("; ",
 				cookieName + '=' + value,
 				"Path=" + path,
-				"Max-Age=" + maxAgeSeconds,
+				"Max-Age=" + NumberTool.limitLongToIntRange(maxAgeSeconds),
 				"HttpOnly",
 				"SameSite=None",
 				"Secure");

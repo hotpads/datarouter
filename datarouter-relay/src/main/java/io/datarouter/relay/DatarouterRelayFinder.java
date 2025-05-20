@@ -18,8 +18,20 @@ package io.datarouter.relay;
 import java.time.Duration;
 import java.util.Optional;
 
+import jakarta.inject.Singleton;
+
 public interface DatarouterRelayFinder{
 
 	Optional<String> findRecentThread(String topic, String subject, Duration maxAge);
+
+	@Singleton
+	class DefaultDatarouterRelayFinder implements DatarouterRelayFinder{
+
+		@Override
+		public Optional<String> findRecentThread(String topic, String subject, Duration maxAge){
+			return Optional.empty();
+		}
+
+	}
 
 }

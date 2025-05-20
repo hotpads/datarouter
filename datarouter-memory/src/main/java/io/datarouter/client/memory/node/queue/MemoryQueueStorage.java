@@ -58,20 +58,20 @@ public class MemoryQueueStorage{
 	}
 
 	public void add(MemoryQueueMessage message){
-		try(var $ = lock.lockForWriting()){
+		try(var _ = lock.lockForWriting()){
 			queue.add(message);
 		}
 	}
 
 	public MemoryQueueMessage poll(){
-		try(var $ = lock.lockForWriting()){
+		try(var _ = lock.lockForWriting()){
 			return queue.poll();
 		}
 	}
 
 	public List<MemoryQueueMessage> peek(int limit, long visibilityTimeout){
 		long visibleExpirationMs = System.currentTimeMillis() + visibilityTimeout;
-		try(var $ = lock.lockForWriting()){
+		try(var _ = lock.lockForWriting()){
 			return Scanner.generate(queue::poll)
 					.advanceWhile(Objects::nonNull)
 					.limit(limit)
@@ -82,20 +82,20 @@ public class MemoryQueueStorage{
 	}
 
 	public void ack(String id){
-		try(var $ = lock.lockForWriting()){
+		try(var _ = lock.lockForWriting()){
 			visibleById.remove(id);
 		}
 	}
 
 	private void expireVisible(){
 		List<MemoryQueueMessage> messages;
-		try(var $ = lock.lockForReading()){
+		try(var _ = lock.lockForReading()){
 			messages = Scanner.of(visibleById.values())
 					.include(MemoryQueueMessage::isVisibilityExpired)
 					.list();
 		}
 		messages.forEach(MemoryQueueMessage::clearVisibilityExpiration);
-		try(var $ = lock.lockForWriting()){
+		try(var _ = lock.lockForWriting()){
 			Scanner.of(messages)
 					.each(message -> visibleById.remove(message.getId()))
 					.forEach(queue::add);

@@ -74,6 +74,20 @@ const SubmitButton = ({ compact, className = "", ...props }) => (
   />
 );
 
+const CredentialsTd = ({credentials}) => {
+  const total = credentials.length ? credentials.length : 0;
+  const active = credentials.filter(c => c.active).length;
+  var message = "" + active;
+  if(active != total){
+	message = active  + " active of " + total;
+  }
+  return (
+    <td className={active ? "" : "table-warning"}>
+     {active ? message: "No active credentials of " + total}
+    </td>
+  );
+}
+
 const AccountTable = ({ accountDetails, deleteAccount }) => (
   <table className="sortable table table-condensed table-striped">
     <thead>
@@ -103,9 +117,7 @@ const AccountTable = ({ accountDetails, deleteAccount }) => (
           <tr key={account.accountName}>
             <td>{account.accountName}</td>
             <td sorttable_customkey={account.lastUsedMs}>{account.lastUsed}</td>
-            <td className={credentials.length ? "" : "table-warning"}>
-              {credentials.length ? credentials.length : "No credentials"}
-            </td>
+            <CredentialsTd credentials={credentials}/>
             <td className={secretCredentials.length ? "" : "table-warning"}>
               {secretCredentials.length
                 ? secretCredentials.length

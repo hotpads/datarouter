@@ -25,7 +25,7 @@ public class LoadTestTool{
 	public static List<Integer> makeRandomIdBatch(int totalRows, int maxId, int targetBatchSize, int batchId){
 		int thisBatchSize = adjustedBatchSize(totalRows, targetBatchSize, batchId);
 		return IntStream.range(0, thisBatchSize)
-				.mapToObj($ -> RandomTool.nextPositiveInt(maxId))
+				.mapToObj(_ -> RandomTool.nextPositiveInt(maxId))
 				.toList();
 	}
 

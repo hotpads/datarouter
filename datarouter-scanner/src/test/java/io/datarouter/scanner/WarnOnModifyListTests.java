@@ -17,7 +17,6 @@ package io.datarouter.scanner;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -35,13 +34,6 @@ public class WarnOnModifyListTests{
 		Assert.assertEquals(backingList, List.of(3, 0, 1, 2));
 		warnList.remove(2);// logs
 		Assert.assertEquals(backingList, List.of(3, 0, 2));
-	}
-
-	@Test
-	public void testStreamLogs(){
-		List<Integer> list = Stream.of(1, 2)
-				.collect(WarnOnModifyList.deprecatedCollector());
-		list.add(3);// logs
 	}
 
 }

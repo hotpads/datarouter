@@ -75,6 +75,10 @@ public class Counter<T>{
 		return counter.keySet();
 	}
 
+	public int getNumCounts(){
+		return counter.size();
+	}
+
 	public void setCount(T key, long count){
 		counter.put(key, count);
 	}

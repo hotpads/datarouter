@@ -73,8 +73,10 @@ public class DatarouterNavbarV2Html{
 	}
 
 	private LiTag makeWebappListItem(String name, String href){
+		String requestUri = props.getRequest().getRequestURI();
+		boolean isActive = !props.getIsDatarouterPage() && requestUri.startsWith(href);
 		var link = a(name)
-				.withClass("nav-link")
+				.withClass("nav-link" + (isActive ? " active" : ""))
 				.attr("data-target", name)
 				.withHref(href);
 		return li(link)
@@ -84,8 +86,9 @@ public class DatarouterNavbarV2Html{
 	private ContainerTag<?>[] makeAfterWebappList(){
 		var divider = li()
 				.withClass("border-right border-secondary d-none d-md-block");
+		boolean isDatarouterPage = props.getIsDatarouterPage();
 		var datarouterLink = a("datarouter")
-				.withClass("nav-link")
+				.withClass("nav-link" + (isDatarouterPage ? " active" : ""))
 				.attr("data-target", "datarouter")
 				.withHref(props.getContextPath() + "/datarouter");
 		var li = li(datarouterLink)

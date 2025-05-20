@@ -40,7 +40,7 @@ implements PhysicalBlobQueueStorageNode<T>,
 
 	@Override
 	public int getMaxRawDataSize(){
-		try(var $ = startSpanForOp(OP_getMaxDataSize)){
+		try(var _ = startSpanForOp(OP_getMaxDataSize)){
 			return backingNode.getMaxRawDataSize();
 		}
 	}
@@ -52,14 +52,14 @@ implements PhysicalBlobQueueStorageNode<T>,
 
 	@Override
 	public void putRaw(byte[] data, Config config){
-		try(var $ = startSpanForOp(OP_put)){
+		try(var _ = startSpanForOp(OP_put)){
 			backingNode.putRaw(data, config);
 		}
 	}
 
 	@Override
 	public Optional<BlobQueueMessage<T>> peek(Config config){
-		try(var $ = startSpanForOp(OP_peek)){
+		try(var _ = startSpanForOp(OP_peek)){
 			Optional<BlobQueueMessage<T>> message = backingNode.peek(config);
 			TracerTool.appendToSpanInfo(message.isPresent() ? "hit" : "miss");
 			return message;
@@ -68,14 +68,14 @@ implements PhysicalBlobQueueStorageNode<T>,
 
 	@Override
 	public void ack(byte[] handle, Config config){
-		try(var $ = startSpanForOp(OP_ack)){
+		try(var _ = startSpanForOp(OP_ack)){
 			backingNode.ack(handle, config);
 		}
 	}
 
 	@Override
 	public Optional<BlobQueueMessage<T>> poll(Config config){
-		try(var $ = startSpanForOp(OP_poll)){
+		try(var _ = startSpanForOp(OP_poll)){
 			Optional<BlobQueueMessage<T>> message = backingNode.poll(config);
 			TracerTool.appendToSpanInfo(message.isPresent() ? "hit" : "miss");
 			return message;

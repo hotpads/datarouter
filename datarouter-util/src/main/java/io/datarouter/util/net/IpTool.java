@@ -69,7 +69,7 @@ public class IpTool{
 	 * @param dottedDecimalIp - formatted like 192.168.1.1
 	 * @param subnet - formatted like 192.168.1.0/28
 	 */
-	private static boolean isIpAddressInSubnet(String dottedDecimalIp, Subnet subnet){
+	public static boolean isIpAddressInSubnet(String dottedDecimalIp, Subnet subnet){
 		long ip = getLongValue(dottedDecimalIp);
 		return (subnet.subnetMask & subnet.baseAddress) == (subnet.subnetMask & ip);
 	}

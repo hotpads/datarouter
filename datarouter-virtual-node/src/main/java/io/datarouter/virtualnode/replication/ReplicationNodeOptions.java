@@ -15,9 +15,12 @@
  */
 package io.datarouter.virtualnode.replication;
 
+import java.util.List;
 import java.util.Optional;
 
 import io.datarouter.storage.node.tableconfig.NodewatchConfigurationBuilder;
+import io.datarouter.storage.privacy.DatarouterPrivacyExemptionReason;
+import io.datarouter.storage.privacy.DatarouterPrivacyProcessor;
 
 public class ReplicationNodeOptions{
 
@@ -26,27 +29,36 @@ public class ReplicationNodeOptions{
 	public final Optional<Boolean> disableForcePrimary;
 	public final Optional<Boolean> disableIntroducer;
 	public final Optional<NodewatchConfigurationBuilder> nodewatchConfigurationBuilder;
+	public final List<Class<? extends DatarouterPrivacyProcessor>> privacyProcessors;
+	public final Optional<DatarouterPrivacyExemptionReason> privacyExemptionReason;
+
 
 	private ReplicationNodeOptions(
 			Optional<String> tableName,
 			Optional<Integer> everyNToPrimary,
 			Optional<Boolean> disableForcePrimary,
 			Optional<Boolean> disableIntroducer,
-			Optional<NodewatchConfigurationBuilder> nodewatchConfigurationBuilder){
+			Optional<NodewatchConfigurationBuilder> nodewatchConfigurationBuilder,
+			List<Class<? extends DatarouterPrivacyProcessor>> privacyProcessors,
+			Optional<DatarouterPrivacyExemptionReason> privacyExemptionReason){
 		this.tableName = tableName;
 		this.everyNToPrimary = everyNToPrimary;
 		this.disableForcePrimary = disableForcePrimary;
 		this.disableIntroducer = disableIntroducer;
 		this.nodewatchConfigurationBuilder = nodewatchConfigurationBuilder;
+		this.privacyProcessors = privacyProcessors;
+		this.privacyExemptionReason = privacyExemptionReason;
 	}
 
 	public static class ReplicationNodeOptionsBuilder{
 
-		public Optional<String> tableName = Optional.empty();
-		public Optional<Integer> everyNToPrimary = Optional.empty();
-		public Optional<Boolean> disableForcePrimary = Optional.empty();
-		public Optional<Boolean> disableIntroducer = Optional.empty();
-		public Optional<NodewatchConfigurationBuilder> nodewatchConfigurationBuilder = Optional.empty();
+		private Optional<String> tableName = Optional.empty();
+		private Optional<Integer> everyNToPrimary = Optional.empty();
+		private Optional<Boolean> disableForcePrimary = Optional.empty();
+		private Optional<Boolean> disableIntroducer = Optional.empty();
+		private Optional<NodewatchConfigurationBuilder> nodewatchConfigurationBuilder = Optional.empty();
+		private List<Class<? extends DatarouterPrivacyProcessor>> privacyProcessors = List.of();
+		private Optional<DatarouterPrivacyExemptionReason> privacyExemptionReason = Optional.empty();
 
 		public ReplicationNodeOptionsBuilder withTableName(String tableName){
 			this.tableName = Optional.of(tableName);
@@ -74,13 +86,28 @@ public class ReplicationNodeOptions{
 			return this;
 		}
 
+		@SafeVarargs
+		public final ReplicationNodeOptionsBuilder withPrivacyProcessors(
+				Class<? extends DatarouterPrivacyProcessor>... privacyProcessors){
+			this.privacyProcessors = List.of(privacyProcessors);
+			return this;
+		}
+
+		public ReplicationNodeOptionsBuilder withPrivacyExemptionReason(
+				DatarouterPrivacyExemptionReason privacyExemptionReason){
+			this.privacyExemptionReason = Optional.of(privacyExemptionReason);
+			return this;
+		}
+
 		public ReplicationNodeOptions build(){
 			return new ReplicationNodeOptions(
 					tableName,
 					everyNToPrimary,
 					disableForcePrimary,
 					disableIntroducer,
-					nodewatchConfigurationBuilder);
+					nodewatchConfigurationBuilder,
+					privacyProcessors,
+					privacyExemptionReason);
 		}
 
 	}

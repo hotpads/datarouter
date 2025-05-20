@@ -17,6 +17,8 @@ package io.datarouter.aws.rds.config;
 
 import io.datarouter.aws.rds.job.AuroraDnsMonitoringJob;
 import io.datarouter.job.BaseTriggerGroup;
+import io.datarouter.job.util.DatarouterCronTool;
+import io.datarouter.storage.config.properties.ServiceName;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.util.time.ZoneIds;
 import jakarta.inject.Inject;
@@ -26,10 +28,12 @@ import jakarta.inject.Singleton;
 public class DatarouterAwsRdsTriggerGroup extends BaseTriggerGroup{
 
 	@Inject
-	public DatarouterAwsRdsTriggerGroup(DatarouterAwsRdsSettingRoot settings){
+	public DatarouterAwsRdsTriggerGroup(
+			ServiceName serviceNameSupplier,
+			DatarouterAwsRdsSettingRoot settings){
 		super("DatarouterAwsRds", Tag.DATAROUTER, ZoneIds.AMERICA_NEW_YORK);
 		registerLocked(
-				"0 0 0/2 * * ?",
+				DatarouterCronTool.everyNHours(2, serviceNameSupplier.get(), "AuroraDnsMonitoringJob"),
 				settings.auroraDnsMonitoringJob,
 				AuroraDnsMonitoringJob.class,
 				false);

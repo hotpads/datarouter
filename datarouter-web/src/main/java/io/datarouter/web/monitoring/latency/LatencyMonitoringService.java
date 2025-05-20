@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.OptionalDouble;
 import java.util.TreeMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
@@ -105,7 +106,7 @@ public class LatencyMonitoringService{
 	}
 
 	private Deque<CheckResult> getLastResults(String checkName){
-		return lastResultsByName.computeIfAbsent(checkName, $ -> new ConcurrentLinkedDeque<>());
+		return lastResultsByName.computeIfAbsent(checkName, _ -> new ConcurrentLinkedDeque<>());
 	}
 
 	public Map<String,CheckResult> getLastResultByName(){
@@ -129,7 +130,7 @@ public class LatencyMonitoringService{
 
 	private Map<String,String> avg(int limit){
 		return lastResultsByName.entrySet().stream().collect(Collectors.toMap(Entry::getKey, entry -> {
-			java.util.OptionalDouble average = entry.getValue().stream()
+			OptionalDouble average = entry.getValue().stream()
 					.map(CheckResult::getLatency)
 					.flatMap(Optional::stream)
 					.limit(limit)

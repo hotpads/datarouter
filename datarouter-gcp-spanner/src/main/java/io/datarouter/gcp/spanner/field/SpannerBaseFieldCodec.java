@@ -15,6 +15,13 @@
  */
 package io.datarouter.gcp.spanner.field;
 
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.cloud.spanner.Key.Builder;
 import com.google.cloud.spanner.Mutation.WriteBuilder;
 import com.google.cloud.spanner.ResultSet;
@@ -26,6 +33,9 @@ import io.datarouter.gcp.spanner.ddl.SpannerColumnType;
 import io.datarouter.model.field.Field;
 
 public abstract class SpannerBaseFieldCodec<T,F extends Field<T>>{
+	private static final Logger logger = LoggerFactory.getLogger(SpannerBaseFieldCodec.class);
+
+	private static final Set<String> LOG_TOGGLE = ConcurrentHashMap.newKeySet();
 
 	protected final F field;
 
@@ -50,15 +60,25 @@ public abstract class SpannerBaseFieldCodec<T,F extends Field<T>>{
 	}
 
 	public void setField(Object fieldToSet, ResultSet rs){
-		if(rs.isNull(field.getKey().getColumnName())){
-			return;
+		String columnName = field.getKey().getColumnName();
+		boolean isNull = rs.isNull(columnName);
+		if(isNull){
+			T value = getNullValue();
+			Object reflectValue = field.getUsingReflection(fieldToSet);
+			if(!Objects.equals(value, reflectValue) && LOG_TOGGLE.add(columnName)){
+				logger.warn("non-null default value for field={}", columnName);
+			}
+			return; // TODO: set via reflection to null value
 		}
-		T value = getValueFromResultSet(rs);
-		field.setUsingReflection(fieldToSet, value);
+		field.setUsingReflection(fieldToSet, getValueFromResultSet(rs));
 	}
 
 	public Field<T> getField(){
 		return field;
+	}
+
+	public T getNullValue(){
+		return null;
 	}
 
 	public String getParameterName(int index, boolean withAmpersand){

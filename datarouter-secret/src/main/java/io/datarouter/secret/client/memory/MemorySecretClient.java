@@ -67,7 +67,7 @@ public class MemorySecretClient implements SecretClient{
 
 	@Override
 	public final void update(Secret secret){
-		if(secrets.computeIfPresent(secret.getName(), (key, value) -> secret.getValue()) == null){
+		if(secrets.computeIfPresent(secret.getName(), (_, _) -> secret.getValue()) == null){
 			throw new SecretNotFoundException(secret.getName());
 		}
 	}

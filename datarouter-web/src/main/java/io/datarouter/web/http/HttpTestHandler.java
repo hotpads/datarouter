@@ -50,6 +50,8 @@ import io.datarouter.web.config.DatarouterWebFiles;
 import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
+import io.datarouter.web.link.DnsLookupLink;
+import io.datarouter.web.link.HttpTestLink;
 import io.datarouter.web.util.ExceptionTool;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -71,38 +73,44 @@ public class HttpTestHandler extends BaseHandler{
 	private DatarouterWebPaths paths;
 
 	@Handler(defaultHandler = true)
-	public Mav httpTest(Optional<String> url, Optional<String> method, Optional<String> requestBody,
-			Optional<String> headers, Optional<String> contentType, Optional<String> useProxy,
-			Optional<String> followRedirects){
+	public Mav httpTest(HttpTestLink link){
 		Mav mav = new Mav(files.jsp.http.httpTesterJsp);
 		mav.put("path", paths.datarouter.http.tester.toSlashedString());
-		if(url.isEmpty() || method.isEmpty()){
+		if(link.url.isEmpty() || link.method.isEmpty()){
 			return mav;
 		}
-		mav.put("url", url.get());
-		HttpRequestMethod requestMethod = "POST".equals(method.get()) ? HttpRequestMethod.POST : HttpRequestMethod.GET;
+		mav.put("url", link.url.get());
+		HttpRequestMethod requestMethod = switch(link.method.get()){
+			case "POST" -> HttpRequestMethod.POST;
+			case "HEAD" -> HttpRequestMethod.HEAD;
+			default -> HttpRequestMethod.GET;
+		};
+
 		mav.put("method", requestMethod.name());
-		DatarouterHttpRequest request = new DatarouterHttpRequest(requestMethod, url.get()).setRetrySafe(true);
-		if(headers.isPresent()){
-			Map<String,String> headersMap = DatarouterGsons.withUnregisteredEnums().fromJson(headers.get(),
+		DatarouterHttpRequest request = new DatarouterHttpRequest(requestMethod, link.url.get()).setRetrySafe(true);
+		if(link.headers.isPresent()){
+			Map<String,String> headersMap = DatarouterGsons.withUnregisteredEnums().fromJson(link.headers.get(),
 					new TypeToken<Map<String,String>>(){}.getType());
 			request.addHeaders(headersMap);
 			mav.put("headersMap", DatarouterGsons.withUnregisteredEnums().toJson(headersMap));
 		}
-		if(requestBody.isPresent()){
-			ContentType cont = contentType.isPresent() ? ContentType.getByMimeType(contentType.get())
+		if(link.requestBody.isPresent() && requestMethod != HttpRequestMethod.HEAD){
+			ContentType cont = link.contentType.isPresent() ? ContentType.getByMimeType(link.contentType.get())
 					: ContentType.APPLICATION_JSON;
-			request.setEntity(requestBody.get(), cont);
-			mav.put("requestBody", requestBody.get());
+			request.setEntity(link.requestBody.get(), cont);
+			mav.put("requestBody", link.requestBody.get());
 			mav.put("contentType", cont.getMimeType());
 		}
-		if(useProxy.isPresent()){
+		if(link.requestBody.isPresent() && requestMethod == HttpRequestMethod.HEAD){
+			mav.put("requestBody", "Not Allowed for HEAD requests");
+		}
+		if(link.useProxy.isPresent()){
 			mav.put("useProxy", true);
 			proxySetter.setProxyOnRequest(request);
 		}
 		Long start = System.currentTimeMillis();
 		Conditional<DatarouterHttpResponse> response;
-		if(followRedirects.isPresent()){
+		if(link.followRedirects.isPresent()){
 			mav.put("followRedirects", true);
 			response = httpTesterClient.tryExecute(request);
 		}else{
@@ -112,17 +120,19 @@ public class HttpTestHandler extends BaseHandler{
 		if(response.isFailure()
 				&& response.getException() instanceof DatarouterHttpResponseException responseException){
 			logger.warn("", response.getException());
-			addResponseToMavModel(mav, url.get(), elapsedMs, Optional.of(responseException.getResponse()));
+			addResponseToMavModel(mav, link.url.get(), elapsedMs, Optional.of(responseException.getResponse()));
 		}else if(response.isFailure()){
 			mav.put("stackTrace", ExceptionTool.getStackTraceAsString(response.getException()));
-			addResponseToMavModel(mav, url.get(), elapsedMs, Optional.empty());
+			addResponseToMavModel(mav, link.url.get(), elapsedMs, Optional.empty());
 		}
-		response.ifSuccess(httpResponse -> addResponseToMavModel(mav, url.get(), elapsedMs, Optional.of(httpResponse)));
+		response.ifSuccess(httpResponse -> addResponseToMavModel(mav, link.url.get(), elapsedMs,
+				Optional.of(httpResponse)));
 		return mav;
 	}
 
 	@Handler
-	public Mav dnsLookup(Optional<String> hostname){
+	public Mav dnsLookup(DnsLookupLink link){
+		Optional<String> hostname = link.hostname;
 		Mav mav = new Mav(files.jsp.http.dnsLookupJsp);
 		mav.put("path", paths.datarouter.http.dnsLookup.toSlashedString());
 		mav.put("caching", Security.getProperty("networkaddress.cache.ttl"));

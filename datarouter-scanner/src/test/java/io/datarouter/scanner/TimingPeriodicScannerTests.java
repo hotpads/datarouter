@@ -28,7 +28,7 @@ public class TimingPeriodicScannerTests{
 	public void test(){
 		List<Integer> periodicOutput = new ArrayList<>();
 		List<Integer> fullOutput = Scanner.iterate(0, i -> i + 1)
-				.each($ -> {
+				.each(_ -> {
 					try{
 						Thread.sleep(105);
 					}catch(InterruptedException e){

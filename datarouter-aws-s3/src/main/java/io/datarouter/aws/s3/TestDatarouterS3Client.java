@@ -142,15 +142,6 @@ public class TestDatarouterS3Client implements DatarouterS3Client{
 	}
 
 	@Override
-	public void multithreadUpload(
-			BucketAndKey location,
-			S3ContentType contentType,
-			Scanner<InputStreamAndLength> parts,
-			Threads threads){
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
 	public String createMultipartUploadRequest(
 			BucketAndKey location,
 			S3ContentType contentType,

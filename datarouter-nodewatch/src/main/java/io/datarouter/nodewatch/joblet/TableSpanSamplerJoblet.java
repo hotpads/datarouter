@@ -19,12 +19,13 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.joblet.JobletCounters;
-import io.datarouter.joblet.codec.BaseGsonJobletCodec;
+import io.datarouter.joblet.codec.DatarouterBaseGsonJobletCodec;
 import io.datarouter.joblet.model.BaseJoblet;
 import io.datarouter.joblet.type.JobletType;
 import io.datarouter.joblet.type.JobletType.JobletTypeBuilder;
@@ -33,6 +34,7 @@ import io.datarouter.nodewatch.joblet.TableSpanSamplerJoblet.TableSpanSamplerJob
 import io.datarouter.nodewatch.storage.tablesample.DatarouterTableSampleDao;
 import io.datarouter.nodewatch.storage.tablesample.TableSample;
 import io.datarouter.nodewatch.storage.tablesample.TableSampleKey;
+import io.datarouter.storage.client.ClientAndTableNames;
 import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.node.op.raw.read.SortedStorageReader.PhysicalSortedStorageReaderNode;
 import io.datarouter.storage.node.op.raw.read.SortedStorageReader.SortedStorageReaderNode;
@@ -87,9 +89,15 @@ public class TableSpanSamplerJoblet extends BaseJoblet<TableSpanSamplerJobletPar
 			return;
 			//the joblet creator will quickly create another one based on the stale dateScheduled
 		}
-		PhysicalNode<?,?,?> physicalNode = datarouterNodes.getPhysicalNodeForClientAndTable(
+		var clientAndTableNames = new ClientAndTableNames(
 				params.nodeNames.getClientName(),
 				params.nodeNames.getTableName());
+		Optional<PhysicalNode<?,?,?>> optPhysicalNode = datarouterNodes.findPhysicalNode(clientAndTableNames);
+		if(optPhysicalNode.isEmpty()){
+			logger.warn("aborting because node not found", clientAndTableNames);
+			return;
+		}
+		PhysicalNode<?,?,?> physicalNode = optPhysicalNode.orElseThrow();
 		SortedStorageReaderNode<?,?,?> node = (PhysicalSortedStorageReaderNode<?,?,?>)physicalNode;
 		Objects.requireNonNull(node, "node not found for " + params.nodeNames);
 		//TODO replace strings with more formal client detection
@@ -127,7 +135,8 @@ public class TableSpanSamplerJoblet extends BaseJoblet<TableSpanSamplerJobletPar
 			long samplerId){
 	}
 
-	public static class TableSpanSamplerJobletCodec extends BaseGsonJobletCodec<TableSpanSamplerJobletParams>{
+	public static class TableSpanSamplerJobletCodec
+	extends DatarouterBaseGsonJobletCodec<TableSpanSamplerJobletParams>{
 
 		public TableSpanSamplerJobletCodec(){
 			super(TableSpanSamplerJobletParams.class);

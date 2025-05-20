@@ -23,8 +23,10 @@ import java.time.ZoneId;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import io.datarouter.httpclient.endpoint.link.DatarouterLinkClient;
 import io.datarouter.nodewatch.config.DatarouterNodewatchPaths;
 import io.datarouter.nodewatch.config.DatarouterNodewatchPlugin;
+import io.datarouter.nodewatch.link.NodewatchTableLink;
 import io.datarouter.nodewatch.service.TableSamplerService;
 import io.datarouter.nodewatch.storage.tablecount.DatarouterTableCountDao;
 import io.datarouter.nodewatch.storage.tablecount.TableCount;
@@ -48,10 +50,6 @@ import jakarta.inject.Inject;
 
 public class NodewatchTableHandler extends BaseHandler{
 
-	public static final String
-			P_clientName = "clientName",
-			P_tableName = "tableName";
-
 	@Inject
 	private Bootstrap4PageFactory pageFactory;
 	@Inject
@@ -64,9 +62,13 @@ public class NodewatchTableHandler extends BaseHandler{
 	private TableSamplerService tableSamplerService;
 	@Inject
 	private DatarouterTableCountDao tableCountDao;
+	@Inject
+	private DatarouterLinkClient linkClient;
 
 	@Handler
-	private Mav table(String clientName, String tableName){
+	private Mav table(NodewatchTableLink link){
+		String clientName = link.clientName;
+		String tableName = link.tableName;
 		List<TableCount> historicCounts = tableCountDao.scanForTable(clientName, tableName)
 				.list();
 		// TODO compute from already loaded databeans
@@ -147,9 +149,9 @@ public class NodewatchTableHandler extends BaseHandler{
 	private DivTag makeHistoricCountsDiv(List<TableCount> historicCounts){
 		var namedScannerPager = new NodewatchTableDetailsNamedScannerPager(historicCounts);
 		var page = new IndexPageBuilder<>(namedScannerPager)
-				.retainParams(P_clientName, P_tableName)
+				.retainParams(NodewatchTableLink.P_clientName, NodewatchTableLink.P_tableName)
 				.build(params.toMap());
-		String path = request.getContextPath() + paths.datarouter.nodewatch.table.toSlashedString();
+		String path = linkClient.toInternalUrl(new NodewatchTableLink("",""));
 		var pagerDiv = Bootstrap4IndexPagerHtml.render(page, path);
 		return div(
 				h5("Historic Sample Summaries"),
@@ -185,7 +187,7 @@ public class NodewatchTableHandler extends BaseHandler{
 		public NodewatchTableDetailsNamedScannerPager(List<TableCount> tableCounts){
 			addWithTotal(
 					"Rows",
-					$ -> Scanner.of(tableCounts)
+					_ -> Scanner.of(tableCounts)
 							.sort(TableCount.COMPARE_CREATED_MS.reversed()));
 		}
 

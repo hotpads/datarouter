@@ -15,7 +15,14 @@
  */
 package io.datarouter.webappinstance.config;
 
+import java.time.Duration;
+import java.time.LocalTime;
+
 import io.datarouter.job.BaseTriggerGroup;
+import io.datarouter.job.util.DatarouterCronDayOfWeek;
+import io.datarouter.job.util.DatarouterCronTool;
+import io.datarouter.storage.config.properties.ServerName;
+import io.datarouter.storage.config.properties.ServiceName;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.util.time.ZoneIds;
 import io.datarouter.webappinstance.job.DeadClusterJobLockVacuumJob;
@@ -30,27 +37,38 @@ import jakarta.inject.Singleton;
 public class DatarouterWebappInstanceTriggerGroup extends BaseTriggerGroup{
 
 	@Inject
-	public DatarouterWebappInstanceTriggerGroup(DatarouterWebappInstanceSettingRoot settings){
+	public DatarouterWebappInstanceTriggerGroup(
+			ServiceName serviceNameSupplier,
+			ServerName serverNameSupplier,
+			DatarouterWebappInstanceSettingRoot settings){
 		super("DatarouterWebappInstance", Tag.DATAROUTER, ZoneIds.AMERICA_NEW_YORK);
 		registerParallel(
-				"0/" + WebappInstanceUpdateJob.WEBAPP_INSTANCE_UPDATE_SECONDS_DELAY + " * * * * ?",
+				DatarouterCronTool.everyNSeconds(
+						WebappInstanceUpdateJob.WEBAPP_INSTANCE_UPDATE_SECONDS_DELAY,
+						serverNameSupplier.get(),
+						"WebappInstanceUpdateJob"),
 				() -> true,
 				WebappInstanceUpdateJob.class);
 		registerParallel(
-				"0 0 15-21 ? * MON,TUE,WED,THU,FRI *",
+				DatarouterCronTool.onDaysOfWeekAfter(
+						DatarouterCronDayOfWeek.weekdays(),
+						LocalTime.of(15, 0, 0),
+						Duration.ofMinutes(30),
+						serverNameSupplier.get(),
+						"WebappInstanceAlertJob"),
 				settings.alertOnStaleWebappInstance,
 				WebappInstanceAlertJob.class);
 		registerLocked(
-				"43 3/10 * * * ?",
+				DatarouterCronTool.everyNMinutes(10, serviceNameSupplier.get(), "WebappInstanceVacuumJob"),
 				settings.runWebappInstanceVacuumJob,
 				WebappInstanceVacuumJob.class,
 				true);
 		registerParallel(
-				"0 10/20 * * * ?",
+				DatarouterCronTool.everyNMinutes(20, serverNameSupplier.get(), "DeadClusterJobLockVacuumJob"),
 				settings.runDeadClusterJobLockVacuumJob,
 				DeadClusterJobLockVacuumJob.class);
 		registerLocked(
-				"0 0 0 * * ?",
+				DatarouterCronTool.everyDay(serviceNameSupplier.get(), "DeadClusterJobLockVacuumJob"),
 				settings.runWebappInstanceLogTruncationJob,
 				WebappInstanceLogTruncationJob.class,
 				true);

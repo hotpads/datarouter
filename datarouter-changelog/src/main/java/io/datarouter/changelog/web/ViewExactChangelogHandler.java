@@ -25,6 +25,7 @@ import java.util.Optional;
 
 import io.datarouter.auth.service.CurrentUserSessionInfoService;
 import io.datarouter.changelog.config.DatarouterChangelogPaths;
+import io.datarouter.changelog.link.ChangelogViewExactLink;
 import io.datarouter.changelog.service.ViewChangelogService;
 import io.datarouter.changelog.storage.Changelog;
 import io.datarouter.changelog.storage.ChangelogDao;
@@ -41,10 +42,6 @@ import jakarta.inject.Inject;
 
 public class ViewExactChangelogHandler extends BaseHandler{
 
-	public static final String P_reversedDateMs = "reversedDateMs";
-	public static final String P_changelogType = "changelogType";
-	public static final String P_name = "name";
-
 	@Inject
 	private ChangelogDao dao;
 	@Inject
@@ -58,11 +55,11 @@ public class ViewExactChangelogHandler extends BaseHandler{
 
 	@Handler(defaultHandler = true)
 	public Mav viewExact(
-			@Param(P_reversedDateMs)
+			@Param(ChangelogViewExactLink.P_reversedDateMs)
 			MilliTimeReversed reversedDateMs,
-			@Param(P_changelogType)
+			@Param(ChangelogViewExactLink.P_changelogType)
 			String changelogType,
-			@Param(P_name) String name){
+			@Param(ChangelogViewExactLink.P_name) String name){
 		var key = new ChangelogKey(reversedDateMs, changelogType, name);
 		Optional<Changelog> changelog = dao.find(key);
 		if(changelog.isEmpty()){

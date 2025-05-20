@@ -95,7 +95,7 @@ public class Bootstrap4FormHtml{
 				.toArray(DivTag[]::new);
 	}
 
-	private static DivTag renderField(BaseHtmlFormField<?> baseField){
+	public static DivTag renderField(BaseHtmlFormField<?> baseField){
 		DomContent rendered;
 		if(baseField instanceof HtmlFormCheckbox field){
 			rendered = checkboxField(field);

@@ -18,6 +18,7 @@ package io.datarouter.web.navigation;
 import io.datarouter.util.string.StringTool;
 
 public enum DatarouterNavBarCategory implements NavBarCategory{
+	HOME("Home"),
 	CONFIGURATION("Configuration"),
 	MONITORING("Monitoring"),
 	JOBS("Jobs"),

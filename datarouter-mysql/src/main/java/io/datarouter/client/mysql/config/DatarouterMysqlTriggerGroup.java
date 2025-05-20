@@ -18,6 +18,8 @@ package io.datarouter.client.mysql.config;
 import io.datarouter.client.mysql.job.FastMysqlLiveTableOptionsRefresherJob;
 import io.datarouter.client.mysql.job.MysqlLiveTableOptionsRefresherJob;
 import io.datarouter.job.BaseTriggerGroup;
+import io.datarouter.job.util.DatarouterCronTool;
+import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.storage.tag.Tag;
 import io.datarouter.util.time.ZoneIds;
 import jakarta.inject.Inject;
@@ -27,14 +29,16 @@ import jakarta.inject.Singleton;
 public class DatarouterMysqlTriggerGroup extends BaseTriggerGroup{
 
 	@Inject
-	public DatarouterMysqlTriggerGroup(DatarouterMysqlSettingRoot settings){
+	public DatarouterMysqlTriggerGroup(
+			ServerName serverNameSupplier,
+			DatarouterMysqlSettingRoot settings){
 		super("DatarouterMysql", Tag.DATAROUTER, ZoneIds.AMERICA_NEW_YORK);
 		registerParallel(
-				"5/15 * * * * ? *",
+				DatarouterCronTool.everyNSeconds(15, serverNameSupplier.get(), "MysqlLiveTableOptionsRefresherJob"),
 				() -> settings.runFastMysqlLiveTableOptionsRefresherSpeed.get().equals("slow"),
 				MysqlLiveTableOptionsRefresherJob.class);
 		registerParallel(
-				"* * * * * ? *",
+				DatarouterCronTool.everySecond(),
 				() -> settings.runFastMysqlLiveTableOptionsRefresherSpeed.get().equals("fast"),
 				FastMysqlLiveTableOptionsRefresherJob.class);
 	}

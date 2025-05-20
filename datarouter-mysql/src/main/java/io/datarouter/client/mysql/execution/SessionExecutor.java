@@ -100,7 +100,7 @@ public class SessionExecutor{
 
 			if(connectionHandle.isOutermostHandle()){
 				String spanName = "commit " + clientId.getName();
-				try(var $ = TracerTool.startSpan(spanName, TraceSpanGroupType.DATABASE)){
+				try(var _ = TracerTool.startSpan(spanName, TraceSpanGroupType.DATABASE)){
 					clientManager.commitTxn(clientId);
 				}
 			}

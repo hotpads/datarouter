@@ -156,7 +156,7 @@ public class SnapshotGroup implements BlockLoader{
 	private DecodingBlockLoader blockLoader(SnapshotKey snapshotKey){
 		return decodingBlockLoaderBySnapshotKey.computeIfAbsent(
 				snapshotKey,
-				$ -> makeDecodingBlockLoader(snapshotKey));
+				_ -> makeDecodingBlockLoader(snapshotKey));
 	}
 
 	/*---------------- other --------------*/

@@ -34,7 +34,7 @@ public class FieldGeneratorTool{
 			D extends Databean<PK,D>>
 			void generateAndSetValueForFieldIfNecessary(PhysicalDatabeanFieldInfo<PK,D,?> fieldInfo, D databean){
 		optFieldToGenerate(fieldInfo, databean)
-				.ifPresent(field -> generateAndSetValueForField(fieldInfo, databean, field, bean -> true));
+				.ifPresent(field -> generateAndSetValueForField(fieldInfo, databean, field, _ -> true));
 	}
 
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>

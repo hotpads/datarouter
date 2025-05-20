@@ -15,8 +15,6 @@
  */
 package io.datarouter.aws.rds.config;
 
-import com.amazonaws.regions.Regions;
-
 import io.datarouter.secret.service.CachedSecretFactory;
 import io.datarouter.secret.service.CachedSecretFactory.CachedSecret;
 import io.datarouter.storage.setting.SettingFinder;
@@ -24,6 +22,7 @@ import io.datarouter.storage.setting.SettingNode;
 import io.datarouter.storage.setting.cached.CachedSetting;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import software.amazon.awssdk.regions.Region;
 
 @Singleton
 public class DatarouterAwsRdsConfigSettings extends SettingNode{
@@ -49,7 +48,6 @@ public class DatarouterAwsRdsConfigSettings extends SettingNode{
 	public final CachedSetting<String> dbOtherEastParameterGroup;
 	public final CachedSetting<String> dbOtherWestParameterGroup;
 	public final CachedSetting<Integer> dbOtherPromotionTier;
-	public final CachedSetting<String> dbOtherInstanceType;
 
 	@Inject
 	public DatarouterAwsRdsConfigSettings(SettingFinder finder, CachedSecretFactory cachedSecretFactory){
@@ -64,8 +62,8 @@ public class DatarouterAwsRdsConfigSettings extends SettingNode{
 		rdsOtherCredentialsLocation = registerString("rdsOtherCredentialsLocation", "placeholder");
 		rdsOtherCredentials = cachedSecretFactory.cacheSharedSecret(rdsOtherCredentialsLocation, RdsCredentialsDto
 				.class);
-		eastRegion = registerStrings("eastRegion", defaultTo(Regions.US_EAST_1.getName()));
-		westRegion = registerStrings("westRegion", defaultTo(Regions.US_WEST_2.getName()));
+		eastRegion = registerStrings("eastRegion", defaultTo(Region.US_EAST_1.id()));
+		westRegion = registerStrings("westRegion", defaultTo(Region.US_WEST_2.id()));
 		dnsSuffix = registerString("dnsSuffix", "");
 		rdsClusterEndpointEast = registerString("rdsClusterEndpointEast", "");
 		rdsClusterEndpointWest = registerString("rdsClusterEndpointWest", "");
@@ -79,7 +77,6 @@ public class DatarouterAwsRdsConfigSettings extends SettingNode{
 		dbOtherEastParameterGroup = registerString("dbOtherEastParameterGroup", "");
 		dbOtherWestParameterGroup = registerString("dbOtherWestParameterGroup", "");
 		dbOtherPromotionTier = registerInteger("dbOtherPromotionTier", 15);
-		dbOtherInstanceType = registerString("dbOtherInstanceType", "db.t4g.medium");
 	}
 
 	public String getParameterGroup(String region){

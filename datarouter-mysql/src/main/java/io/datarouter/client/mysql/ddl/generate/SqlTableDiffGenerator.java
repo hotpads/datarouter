@@ -23,14 +23,19 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.datarouter.bytes.KvString;
 import io.datarouter.client.mysql.ddl.domain.SqlColumn;
 import io.datarouter.client.mysql.ddl.domain.SqlColumn.SqlColumnByName;
 import io.datarouter.client.mysql.ddl.domain.SqlIndex;
 import io.datarouter.client.mysql.ddl.domain.SqlTable;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.storage.config.schema.InvalidSchemaUpdateException;
 
 public class SqlTableDiffGenerator{
+	private static final Logger logger = LoggerFactory.getLogger(SqlTableDiffGenerator.class);
 
 	private final SqlTable current;
 	private final SqlTable requested;
@@ -133,19 +138,47 @@ public class SqlTableDiffGenerator{
 		return !new HashSet<>(current.getColumns()).equals(new HashSet<>(requested.getColumns()));
 	}
 
-	public void throwIfColumnTypesModified(){
+	public void validate(){
+		throwIfColumnTypesModified();
+		throwIfIndexesUpdatedInPlace();
+	}
+
+	private void throwIfIndexesUpdatedInPlace(){
+		Map<String,SqlIndex> currentIndexesByName = Scanner.of(current.getIndexes())
+				.toMap(SqlIndex::getName);
+		Map<String,SqlIndex> requestedIndexesByName = Scanner.of(requested.getIndexes())
+				.toMap(SqlIndex::getName);
+		List<String> indexesUpdatedInPlace = Scanner.of(currentIndexesByName.keySet())
+				.include(requestedIndexesByName::containsKey)
+				.exclude(indexName ->
+						currentIndexesByName.get(indexName).equals(requestedIndexesByName.get(indexName)))
+				.list();
+		if(!indexesUpdatedInPlace.isEmpty()){
+			var exception = new InvalidSchemaUpdateException(
+					"Indexes cannot be updated in-place. Instead, rename the index. "
+							+ new KvString()
+							.add("TableName", current.getName())
+							.add("indexNames", indexesUpdatedInPlace.toString()));
+			logger.error("Invalid schema update", exception);
+			throw exception;
+		}
+	}
+
+	private void throwIfColumnTypesModified(){
 		Map<SqlColumn,SqlColumn> columnsToCompareTypes = findSameColumnsByName(
 				current.getColumns(),
 				requested.getColumns());
 		columnsToCompareTypes.forEach((currCol, newCol) -> {
 			if(!currCol.getType().equals(newCol.getType())){
-				throw new RuntimeException("Do not change the type of a MySQL column, instead add a new column and "
-						+ "migrate the data. "
+				var exception = new InvalidSchemaUpdateException(
+						"Do not change the type of a MySQL column, instead add a new column and migrate the data. "
 						+ new KvString()
-						.add("TableName", current.getName())
-						.add("ColumnName", currCol.getName())
-						.add("CurrentColumnType", currCol.getType().toString())
-						.add("NewColumnType", newCol.getType().toString()));
+								.add("TableName", current.getName())
+								.add("ColumnName", currCol.getName())
+								.add("CurrentColumnType", currCol.getType().toString())
+								.add("NewColumnType", newCol.getType().toString()));
+				logger.error("Invalid schema update", exception);
+				throw exception;
 			}
 		});
 	}

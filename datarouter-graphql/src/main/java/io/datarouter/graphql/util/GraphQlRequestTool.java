@@ -23,7 +23,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.dataloader.DataLoaderRegistry;
 
 import graphql.ExecutionInput;
-import graphql.GraphQLContext;
 import graphql.execution.ExecutionId;
 import io.datarouter.graphql.web.GraphQlBaseHandler;
 import io.datarouter.gson.DatarouterGsons;
@@ -66,10 +65,9 @@ public class GraphQlRequestTool{
 		if(variables != null){
 			executionInputBuilder = executionInputBuilder.variables(variables);
 		}
-		GraphQLContext.Builder context = GraphQLContext.newContext().of(GraphQlBaseHandler.HTTP_REQUEST.name, request);
 		return executionInputBuilder
 				.executionId(ExecutionId.generate())
-				.context(context)
+				.graphQLContext(Map.of(GraphQlBaseHandler.HTTP_REQUEST.name, request))
 				.dataLoaderRegistry(registry.orElse(new DataLoaderRegistry()))
 				.build();
 	}

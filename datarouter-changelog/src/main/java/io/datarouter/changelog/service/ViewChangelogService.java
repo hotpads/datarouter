@@ -23,14 +23,11 @@ import static j2html.TagCreator.td;
 import java.time.ZoneId;
 import java.util.List;
 
-import org.apache.http.client.utils.URIBuilder;
-
-import io.datarouter.changelog.config.DatarouterChangelogPaths;
+import io.datarouter.changelog.link.ChangelogEditLink;
+import io.datarouter.changelog.link.ChangelogViewExactLink;
 import io.datarouter.changelog.storage.Changelog;
-import io.datarouter.changelog.storage.ChangelogKey;
-import io.datarouter.changelog.web.ViewExactChangelogHandler;
+import io.datarouter.httpclient.endpoint.link.DatarouterLinkClient;
 import io.datarouter.util.number.RandomTool;
-import io.datarouter.web.config.ServletContextSupplier;
 import io.datarouter.web.html.j2html.J2HtmlTable;
 import j2html.attributes.Attr;
 import j2html.tags.specialized.TableTag;
@@ -42,9 +39,7 @@ import jakarta.inject.Singleton;
 public class ViewChangelogService{
 
 	@Inject
-	private ServletContextSupplier servletContext;
-	@Inject
-	private DatarouterChangelogPaths paths;
+	private DatarouterLinkClient linkClient;
 
 	public TableTag buildTable(List<Changelog> rows, ZoneId zoneId){
 		return new J2HtmlTable<Changelog>()
@@ -101,27 +96,17 @@ public class ViewChangelogService{
 	}
 
 	public String buildViewExactHref(Changelog log, boolean withContext){
-		ChangelogKey key = log.getKey();
-		String path = paths.datarouter.changelog.viewExact.toSlashedString();
+		var link = new ChangelogViewExactLink(log.getKey().getMilliTimeReversed(),
+				log.getKey().getChangelogType(), log.getKey().getName());
 		if(withContext){
-			path = servletContext.get().getContextPath() + path;
+			return linkClient.toInternalUrl(link);
 		}
-		return new URIBuilder()
-				.setPath(path)
-				.addParameter(ViewExactChangelogHandler.P_reversedDateMs, key.getMilliTimeReversed().toString())
-				.addParameter(ViewExactChangelogHandler.P_changelogType, key.getChangelogType())
-				.addParameter(ViewExactChangelogHandler.P_name, key.getName())
-				.toString();
+		return linkClient.toInternalUrlWithoutContext(link);
 	}
 
 	public String buildEditHref(Changelog log){
-		ChangelogKey key = log.getKey();
-		return new URIBuilder()
-				.setPath(servletContext.get().getContextPath() + paths.datarouter.changelog.edit.toSlashedString())
-				.addParameter(ViewExactChangelogHandler.P_reversedDateMs, key.getMilliTimeReversed().toString())
-				.addParameter(ViewExactChangelogHandler.P_changelogType, key.getChangelogType())
-				.addParameter(ViewExactChangelogHandler.P_name, key.getName())
-				.toString();
+		return linkClient.toInternalUrl(new ChangelogEditLink(log.getKey().getMilliTimeReversed(),
+				log.getKey().getChangelogType(), log.getKey().getName()));
 	}
 
 }

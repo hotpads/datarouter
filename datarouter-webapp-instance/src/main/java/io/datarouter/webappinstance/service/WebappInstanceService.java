@@ -23,6 +23,7 @@ import io.datarouter.instrumentation.metric.Metrics;
 import io.datarouter.instrumentation.webappinstance.WebappInstanceDto;
 import io.datarouter.instrumentation.webappinstance.WebappInstancePublisher;
 import io.datarouter.storage.config.properties.DatarouterServerTypeSupplier;
+import io.datarouter.storage.config.properties.EnvironmentName;
 import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.storage.config.properties.ServerPrivateIp;
 import io.datarouter.storage.config.properties.ServerPublicIp;
@@ -71,6 +72,7 @@ public class WebappInstanceService{
 	private final ServerPrivateIp serverPrivateIp;
 	private final DatarouterServerTypeSupplier serverType;
 	private final ServiceName serviceName;
+	private final EnvironmentName environmentName;
 
 	private final Instant startup;
 
@@ -89,7 +91,8 @@ public class WebappInstanceService{
 			ServerPublicIp serverPublicIp,
 			ServerPrivateIp serverPrivateIp,
 			DatarouterServerTypeSupplier serverType,
-			ServiceName serviceName){
+			ServiceName serviceName,
+			EnvironmentName environmentName){
 		this.webappInstanceDao = webappInstanceDao;
 		this.webappInstanceLogDao = webappInstanceLogDao;
 		this.webappName = webappName;
@@ -104,6 +107,7 @@ public class WebappInstanceService{
 		this.serverPrivateIp = serverPrivateIp;
 		this.serverType = serverType;
 		this.serviceName = serviceName;
+		this.environmentName = environmentName;
 
 		this.startup = Instant.ofEpochMilli(PlatformMxBeans.RUNTIME.getStartTime());
 	}
@@ -125,7 +129,7 @@ public class WebappInstanceService{
 		webappInstanceDao.put(webappInstance);
 		webappInstanceLogDao.put(new WebappInstanceLog(webappInstance));
 		if(settings.webappInstancePublisher.get()){
-			WebappInstanceDto dto = webappInstance.toDto();
+			WebappInstanceDto dto = webappInstance.toDto(environmentName.get());
 			webappInstancePublisher.add(dto);
 		}
 		return webappInstance;

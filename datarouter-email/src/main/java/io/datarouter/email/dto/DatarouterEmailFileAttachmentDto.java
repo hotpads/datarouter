@@ -33,7 +33,7 @@ public class DatarouterEmailFileAttachmentDto{
 			String fileName,
 			String contentType,
 			Supplier<InputStream> attachmentInputStreamSupplier){
-		this(fileName, contentType, false, attachmentInputStreamSupplier, $ -> {});
+		this(fileName, contentType, false, attachmentInputStreamSupplier, _ -> {});
 	}
 
 	public DatarouterEmailFileAttachmentDto(

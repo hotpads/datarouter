@@ -15,12 +15,7 @@
  */
 package io.datarouter.clustersetting.service;
 
-import static j2html.TagCreator.b;
-import static j2html.TagCreator.div;
-import static j2html.TagCreator.small;
-
 import java.time.ZoneId;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -29,34 +24,28 @@ import java.util.stream.Stream;
 import io.datarouter.clustersetting.config.DatarouterClusterSettingPaths;
 import io.datarouter.clustersetting.enums.ClusterSettingValidity;
 import io.datarouter.clustersetting.storage.clustersetting.ClusterSetting;
-import io.datarouter.clustersetting.web.ClusterSettingHtml;
 import io.datarouter.clustersetting.web.browse.ClusterSettingBrowseHandler.ClusterSettingBrowseEmailLinks;
 import io.datarouter.clustersetting.web.override.handler.ClusterSettingOverrideViewHandler.ClusterSettingOverrideEmailLinks;
-import io.datarouter.email.html.J2HtmlEmailTable;
-import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
 import io.datarouter.instrumentation.relay.rml.Rml;
 import io.datarouter.instrumentation.relay.rml.RmlBlock;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
-import io.datarouter.web.digest.DailyDigestService;
-import j2html.TagCreator;
-import j2html.tags.specialized.DivTag;
-import j2html.tags.specialized.TableTag;
+import io.datarouter.web.digest.DailyDigestRmlService;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
 @Singleton
 public class ClusterSettingDailyDigest implements DailyDigest{
 
+	private static final String TASK_CATEGORY = "clusterSetting";
+
 	@Inject
 	private ClusterSettingService settingService;
 	@Inject
-	private DailyDigestService digestService;
+	private DailyDigestRmlService digestService;
 	@Inject
 	private DatarouterClusterSettingPaths paths;
-	@Inject
-	private ClusterSettingHtml clusterSettingHtml;
 	@Inject
 	private ClusterSettingOverrideEmailLinks overrideEmailLinks;
 	@Inject
@@ -78,15 +67,8 @@ public class ClusterSettingDailyDigest implements DailyDigest{
 	}
 
 	@Override
-	public Optional<DivTag> getEmailContent(ZoneId zoneId){
-		return makeContent(
-				new ClusterSettingDailyDigestPageFormatter(emailFormatter),
-				new ClusterSettingDailyDigestPageFormatter(emailPrefixFormatter));
-	}
-
-	@Override
 	public Optional<RmlBlock> getRelayContent(ZoneId zoneId){
-		List<HeaderAndRelayContent> tables = Scanner.of(
+		List<CategoryAndLink> tables = Scanner.of(
 				makeHeaderAndRelayContent(ClusterSettingValidity.REDUNDANT, browseEmailLinks::fromEmail),
 				makeHeaderAndRelayContent(ClusterSettingValidity.UNREFERENCED, overrideEmailLinks::view),
 				makeHeaderAndRelayContent(ClusterSettingValidity.OLD, browseEmailLinks::fromEmail),
@@ -102,58 +84,48 @@ public class ClusterSettingDailyDigest implements DailyDigest{
 				digestService.makeHeading("Settings", paths.datarouter.settings.overrides.view))
 				.with(tables.stream()
 						.flatMap(table -> Stream.of(
-								Rml.heading(4, Rml.text(table.heading())),
-								Rml.text(table.helper()).italic(),
+								Rml.heading(4, Rml.text(table.validity().display)),
+								Rml.text(table.validity().description).italic(),
 								Rml.table()
 										.with(table.settings().stream()
+												.map(setting -> Rml.text(setting.name()).link(setting.link()))
 												.map(Rml::tableCell)
 												.map(Rml::tableRow))))));
 	}
 
-	private Optional<DivTag> makeContent(
-			ClusterSettingDailyDigestPageFormatter settingFormatter,
-			ClusterSettingDailyDigestPageFormatter prefixFormatter){
-		Optional<HeaderAndContent> redundantTable = settingService
-				.scanWithValidity(ClusterSettingValidity.REDUNDANT)
-				.listTo(settings -> settingFormatter.build(
-						settings,
-						"Redundant",
-						Optional.of("Setting's value in database is the same as the code. Generally safe to delete "
-								+ "through the Cluster Setting UI")));
-		Optional<HeaderAndContent> unreferencedTable = settingService
-				.scanWithValidity(ClusterSettingValidity.UNREFERENCED)
-				.listTo(settings -> prefixFormatter.build(
-						settings,
-						"Unreferenced",
-						Optional.of("Settings exist in the database but not in the code.")));
-		Optional<HeaderAndContent> oldTable = settingService
-				.scanWithValidity(ClusterSettingValidity.OLD)
-				.listTo(settings -> settingFormatter.build(
-						settings,
-						"Old",
-						Optional.of("Setting has lived in the database for over the threshold. Could update the "
-								+ "defaults in the code.")));
-		Optional<HeaderAndContent> unknownTable = settingService
-				.scanWithValidity(ClusterSettingValidity.UNKNOWN)
-				.listTo(settings -> prefixFormatter.build(settings, "Unknown", Optional.empty()));
-
-		List<DivTag> tables = Scanner.of(redundantTable, unreferencedTable, oldTable, unknownTable)
+	@Override
+	public List<DailyDigestPlatformTask> getTasks(ZoneId zoneId){
+		return Scanner.of(
+				makeHeaderAndRelayContent(ClusterSettingValidity.REDUNDANT, browseEmailLinks::fromEmail),
+				makeHeaderAndRelayContent(ClusterSettingValidity.UNREFERENCED, overrideEmailLinks::view),
+				makeHeaderAndRelayContent(ClusterSettingValidity.OLD, browseEmailLinks::fromEmail),
+				makeHeaderAndRelayContent(ClusterSettingValidity.UNKNOWN, overrideEmailLinks::view))
 				.concatOpt(Function.identity())
-				.sort(Comparator.comparing(HeaderAndContent::header))
-				.map(HeaderAndContent::content)
+				.concat(category -> Scanner.of(category.settings())
+						.map(setting -> new DailyDigestPlatformTask(
+								List.of(TASK_CATEGORY, setting.name()),
+								List.of(TASK_CATEGORY, category.validity().persistentString),
+								category.validity().display + ": " + setting.name(),
+								Rml.container(
+										Rml.paragraph(Rml.text(setting.name()).link(setting.link())),
+										Rml.paragraph(Rml.text(getSettingDescription(category.validity())))))))
 				.list();
-		if(tables.isEmpty()){
-			return Optional.empty();
-		}
-		var header = digestService.makeHeader("Settings", paths.datarouter.settings.overrides.view);
-		var tablesDiv = div(header);
-		Scanner.of(tables)
-				.map(TagCreator::div)
-				.forEach(tablesDiv::with);
-		return Optional.of(tablesDiv);
 	}
 
-	private Optional<HeaderAndRelayContent> makeHeaderAndRelayContent(
+	private static String getSettingDescription(ClusterSettingValidity validity){
+		return switch(validity){
+			case REDUNDANT -> "This setting is redundant meaning the custom value is the same as the default value "
+					+ "already in code. Generally this means you can remove the custom value.";
+			case UNREFERENCED -> "This is an unreferenced setting meaning it does not exist in code. Generally this "
+					+ "means the setting is obsolete and the override can be removed.";
+			case OLD -> "The setting override has not changed in a while, if it's still needed consider moving it to "
+					+ "code.";
+			case UNKNOWN -> "Setting root not found in code.";
+			case VALID, INVALID_SERVER_NAME, INVALID_SERVER_TYPE -> validity.description;
+		};
+	}
+
+	private Optional<CategoryAndLink> makeHeaderAndRelayContent(
 			ClusterSettingValidity validity,
 			Function<String,String> toLink){
 		List<ClusterSetting> settings = settingService.scanWithValidity(validity).list();
@@ -162,64 +134,22 @@ public class ClusterSettingDailyDigest implements DailyDigest{
 			return Optional.empty();
 		}
 
-		return Optional.of(new HeaderAndRelayContent(
-				validity.display,
-				validity.description,
+		return Optional.of(new CategoryAndLink(
+				validity,
 				settings.stream()
 						.map(ClusterSetting::getName)
-						.<RmlBlock>map(setting -> Rml.text(setting).link(toLink.apply(setting)))
+						.map(setting -> new SettingAndLink(setting, toLink.apply(setting)))
 						.toList()));
 	}
 
-	private interface ClusterSettingDailyDigestTableFormatter{
-		TableTag makeTable(List<ClusterSetting> settings);
+	private record CategoryAndLink(
+			ClusterSettingValidity validity,
+			List<SettingAndLink> settings){
 	}
 
-	private class ClusterSettingDailyDigestPageFormatter{
-
-		private final ClusterSettingDailyDigestTableFormatter tableFormatter;
-
-		public ClusterSettingDailyDigestPageFormatter(ClusterSettingDailyDigestTableFormatter tableFormatter){
-			this.tableFormatter = tableFormatter;
-		}
-
-		public Optional<HeaderAndContent> build(
-				List<ClusterSetting> settings,
-				String header,
-				Optional<String> caption){
-			if(settings.isEmpty()){
-				return Optional.empty();
-			}
-			return Optional.of(new HeaderAndContent(
-					header,
-					div(div(b(header)), small(caption.orElse("")), tableFormatter.makeTable(settings))));
-		}
-
+	private record SettingAndLink(
+			String name,
+			String link){
 	}
-
-	private record HeaderAndContent(
-			String header,
-			DivTag content){
-	}
-
-	private record HeaderAndRelayContent(
-			String heading,
-			String helper,
-			List<RmlBlock> settings){
-	}
-
-	private final ClusterSettingDailyDigestTableFormatter emailFormatter = settings ->
-			new J2HtmlEmailTable<ClusterSetting>()
-					.withColumn(new J2HtmlEmailTableColumn<>("Name",
-							row -> clusterSettingHtml.makeBrowseSettingLink(row.getName())))
-					// don't send values in an email
-					.build(settings);
-
-	private final ClusterSettingDailyDigestTableFormatter emailPrefixFormatter = settings ->
-			new J2HtmlEmailTable<ClusterSetting>()
-					.withColumn(new J2HtmlEmailTableColumn<>("Name",
-							row -> clusterSettingHtml.makeOverridePrefixSettingLink(row.getName())))
-					// don't send values in an email
-					.build(settings);
 
 }

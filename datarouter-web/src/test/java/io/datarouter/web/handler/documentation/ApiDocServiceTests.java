@@ -33,6 +33,7 @@ import com.google.gson.JsonObject;
 import io.datarouter.gson.DatarouterGsons;
 import io.datarouter.gson.GsonJsonSerializer;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.types.ExampleProvider;
 import io.datarouter.types.MilliTime;
 import io.datarouter.types.Ulid;
 import io.datarouter.types.UlidReversed;
@@ -64,7 +65,8 @@ public class ApiDocServiceTests{
 				Date.class,
 				Instant.class,
 				MilliTime.class,
-				URI.class)
+				URI.class,
+				TestExampleProvider.class)
 				.forEach(ApiDocServiceTests::testClassIsHandled);
 	}
 
@@ -104,6 +106,23 @@ public class ApiDocServiceTests{
 				input,
 				Set.of(),
 				0);
+	}
+
+	public record TestExampleProvider(
+			String testInput)
+	implements ExampleProvider<TestExampleProvider>{
+
+		public TestExampleProvider(String testInput){
+			if(!"the only valid input".equals(testInput)){
+				throw new IllegalArgumentException("input is invalid");
+			}
+			this.testInput = testInput;
+		}
+
+		public static TestExampleProvider makeExample(){
+			return new TestExampleProvider("the only valid input");
+		}
+
 	}
 
 }

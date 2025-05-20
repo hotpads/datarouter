@@ -55,7 +55,7 @@ public abstract class BaseClientManager implements ClientManager{
 				.map(result -> result.startupBlockReason)
 				.flatMap(Optional::stream)
 				.findFirst()
-				.ifPresent($ -> gatherSchemaUpdates());
+				.ifPresent(_ -> gatherSchemaUpdates());
 	}
 
 	@Override

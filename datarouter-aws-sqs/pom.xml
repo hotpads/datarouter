@@ -22,7 +22,7 @@
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-parent</artifactId>
-		<version>0.0.126</version>
+		<version>0.0.127</version>
 		<relativePath>../datarouter-parent</relativePath>
 	</parent>
 
@@ -47,13 +47,16 @@
 			<version>${datarouter-version}</version>
 		</dependency>
 		<dependency>
-			<groupId>com.amazonaws</groupId>
-			<artifactId>aws-java-sdk-sqs</artifactId>
-			<version>${aws-sdk-version}</version>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>sqs</artifactId>
 		</dependency>
 		<dependency>
-		      <groupId>software.amazon.awssdk</groupId>
-		      <artifactId>cloudwatch</artifactId>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>apache-client</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>cloudwatch</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>io.datarouter</groupId>

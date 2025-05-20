@@ -18,15 +18,13 @@ package io.datarouter.aws.s3;
 import java.util.List;
 import java.util.stream.IntStream;
 
-import io.datarouter.bytes.ByteLength;
 import io.datarouter.scanner.Scanner;
 
 public record MultipartUploadPartSize(
 		int partSizeBytes,
 		int lastPartIndex){
 
-	public static final int MIN_S3_PART_SIZE_BYTES = ByteLength.ofMiB(5).toBytesInt();
-	public static final int INITIAL_BUFFER_SIZE_BYTES = MIN_S3_PART_SIZE_BYTES;
+	public static final int INITIAL_BUFFER_SIZE_BYTES = S3Limits.MIN_PART_SIZE.toBytesInt();
 
 	// reflects the fact that ByteArrayOutputStream only doubles in size
 	private static int bufferSize = INITIAL_BUFFER_SIZE_BYTES;

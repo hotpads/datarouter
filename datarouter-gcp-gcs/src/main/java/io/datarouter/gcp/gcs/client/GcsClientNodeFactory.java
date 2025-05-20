@@ -15,7 +15,6 @@
  */
 package io.datarouter.gcp.gcs.client;
 
-import io.datarouter.gcp.gcs.DatarouterGcsClient;
 import io.datarouter.gcp.gcs.GcsClientType;
 import io.datarouter.gcp.gcs.node.GcsDirectoryManager;
 import io.datarouter.gcp.gcs.node.GcsNode;
@@ -53,9 +52,9 @@ implements BlobClientNodeFactory{
 	/*-------------- private --------------*/
 
 	private GcsNode createInternal(NodeParams<DatabaseBlobKey,DatabaseBlob,DatabaseBlobFielder> nodeParams){
-		DatarouterGcsClient client = gcsClientManager.getClient(nodeParams.getClientId());
+		GcsClient client = gcsClientManager.getClient(nodeParams.getClientId());
 		String bucket = nodeParams.getPhysicalName();
-		Subpath path = nodeParams.getPath();
+		Subpath path = nodeParams.getPathSupplier().get();
 		var gcsDirectoryManager = new GcsDirectoryManager(client, bucket, path);
 		return new GcsNode(nodeParams, gcsClientType, client, gcsDirectoryManager);
 	}

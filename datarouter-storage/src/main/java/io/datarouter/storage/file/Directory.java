@@ -22,7 +22,6 @@ import java.util.Objects;
 import java.util.Optional;
 
 import io.datarouter.bytes.ByteLength;
-import io.datarouter.bytes.ByteTool;
 import io.datarouter.bytes.io.CountingInputStream;
 import io.datarouter.instrumentation.metric.Metrics;
 import io.datarouter.scanner.Scanner;
@@ -40,7 +39,7 @@ import io.datarouter.util.Require;
 public class Directory
 implements BlobStorage{
 
-	private static final int INPUT_STREAM_COUNT_INTERVAL = ByteLength.ofKiB(256).toBytesInt();
+	private static final int INPUT_STREAM_COUNT_INTERVAL = ByteLength.ofMiB(1).toBytesInt();
 
 	private final BlobStorage parent;
 	private final Subpath subpathInParent;
@@ -106,20 +105,6 @@ implements BlobStorage{
 				numBytes -> count(CounterSuffix.WRITE_INPUT_STREAM_BYTES, numBytes));
 		parent.writeParallel(prependStoragePath(key), countingInputStream, threads, minPartSize, config);
 		count(CounterSuffix.WRITE_INPUT_STREAM_OPS, 1);
-	}
-
-	@Override
-	public void writeParallel(
-			PathbeanKey key,
-			Scanner<List<byte[]>> parts,
-			Threads threads,
-			Config config){
-		Scanner<List<byte[]>> countedParts = parts.each(part -> {
-			count(CounterSuffix.WRITE_PARTS_PARTS, 1);
-			count(CounterSuffix.WRITE_PARTS_BYTES, ByteTool.totalLength(part));
-		});
-		parent.writeParallel(prependStoragePath(key), countedParts, threads, config);
-		count(CounterSuffix.WRITE_PARTS_OPS, 1);
 	}
 
 	/*---------- delete ------------*/
@@ -236,7 +221,7 @@ implements BlobStorage{
 				.map(keys -> Scanner.of(keys)
 						.map(this::removeStoragePath)
 						.list())
-				.each($ -> count(CounterSuffix.SCAN_KEYS_OPS, 1))
+				.each(_ -> count(CounterSuffix.SCAN_KEYS_OPS, 1))
 				.each(page -> count(CounterSuffix.SCAN_KEYS_ITEMS, page.size()));
 	}
 
@@ -246,7 +231,7 @@ implements BlobStorage{
 				.map(page -> Scanner.of(page)
 						.map(pathbean -> new Pathbean(removeStoragePath(pathbean.getKey()), pathbean.getSize()))
 						.list())
-				.each($ -> count(CounterSuffix.SCAN_OPS, 1))
+				.each(_ -> count(CounterSuffix.SCAN_OPS, 1))
 				.each(page -> count(CounterSuffix.SCAN_ITEMS, page.size()));
 	}
 
@@ -298,10 +283,7 @@ implements BlobStorage{
 		WRITE_BYTES("write bytes"),
 		WRITE_OPS("write ops"),
 		WRITE_INPUT_STREAM_BYTES("writeInputStream bytes"),
-		WRITE_INPUT_STREAM_OPS("writeInputStream ops"),
-		WRITE_PARTS_BYTES("writeParts bytes"),
-		WRITE_PARTS_OPS("writeParts ops"),
-		WRITE_PARTS_PARTS("writeParts parts");
+		WRITE_INPUT_STREAM_OPS("writeInputStream ops");
 
 		public final String suffix;
 
